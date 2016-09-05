@@ -1,6 +1,6 @@
 --[[
 Name: LibBossIDs-1.0
-Revision: $Revision: 96 $
+Revision: $Revision: 98 $
 Author: Elsia
 Website: http://www.wowace.com/addons/libbossids-1-0/
 Documentation:
@@ -10,7 +10,7 @@ Dependencies: LibStub
 License: Public Domain, Absolutely no Warranty.
 ]]
 
-local MAJOR, MINOR = "LibBossIDs-1.0", "$Revision: 96 $"
+local MAJOR, MINOR = "LibBossIDs-1.0", "$Revision: 98 $"
 local lib = LibStub:NewLibrary(MAJOR, MINOR)
 
 if not lib then return end
@@ -521,26 +521,19 @@ local BossIDs = {
 	-- Hellfire Citadel (Draenor)
 	-------------------------------------------------------------------------------
 	-- Hellbreach
-	[90019] = true, -- Reinforced Hellfire Door
 	[95068]	= true,	-- Hellfire Assault - Siegemaster Mar'tak
 	[90284]	= true,	-- Iron Reaver
-	[90435] = true, -- Kormrok
 	[90776]	= true,	-- Kormrok
 	-- Halls of Blood
 	[90378]	= true,	-- Kilrogg Deadeye
 	[92144]	= true,	-- Hellfire High Council - Dia Darkwhisper
 	[92146]	= true,	-- Hellfire High Council - Gurtogg Bloodboil
 	[93713]	= true,	-- Hellfire High Council - Blademaster Jubei'thos
-	[92142] = true, -- Hellfire High Council - Blademaster Jubei'thos
 	[91809]	= true,	-- Gorefiend
-	[90199] = true, -- Gorefiend
 	-- Bastion of Shadows
 	[95067]	= true,	-- Shadow-Lord Iskar
-	[90316] = true, -- Shadow-Lord Iskar
 	[90296]	= true,	-- Socrethar the Eternal - Soulbound Construct
-	[92330] = true, -- Soul of Socrethar
 	[93439]	= true,	-- Tyrant Velhari
-	[90269] = true, -- Tyrant Velhari
 	-- Destructor’s Rise
 	[89890]	= true,	-- Fel Lord Zakuun
 	[93068]	= true,	-- Xhul'horac
@@ -1714,6 +1707,85 @@ local BossIDs = {
 	[52258]	= true,	-- Gri'lek
 	[52271]	= true,	-- Hazza'rah
 	[52286]	= true,	-- Wushoolay
+
+	-------------------------------------------------------------------------------
+	-- Legion - 7.0
+	-------------------------------------------------------------------------------
+	[106576] = true, -- Advisor Melandrus
+	[98208]  = true, -- Advisor Vandros
+	[98542]  = true, -- Amalgam of Souls
+	[109943] = true, -- Ana-Mouz
+	[108864] = true, -- Anub'esset
+	[95886]  = true, -- Ash'Golm
+	[102614] = true, -- Blood-Princess Thal'ena
+	[113847] = true, -- Brann Bronzebeard
+	[109331] = true, -- Calamir
+	[113534] = true, -- Cenarius
+	[104415] = true, -- Chronomatic Anomaly
+	[98205]  = true, -- Corstilax
+	[107704] = true, -- Dargrul
+	[99200]  = true, -- Dresaron
+	[110378] = true, -- Drugon the Frostblood
+	[111000] = true, -- Elerethe Renferal
+	[110965] = true, -- Elisande
+	[106373] = true, -- Fel Lord Betrug
+	[99868]  = true, -- Fenryr
+	[108865] = true, -- Festerface
+	[99929]  = true, -- Flotsam
+	[98206]  = true, -- General Xakal
+	[99865]  = true, -- Glazer
+	[95675]  = true, -- God-King Skovald
+	[105503] = true, -- Gul'dan
+	[96754]  = true, -- Harbaron
+	[96759]  = true, -- Helya
+	[104528] = true, -- High Botanist Tel'arn
+	[108879] = true, -- Humongris
+	[110929] = true, -- Hymdall
+	[96646]  = true, -- Hyrja
+	[105393] = true, -- Il'gynoth
+	[98696]  = true, -- Illysanna Ravencrest
+	[96015]  = true, -- Inquisitor Tormentorum
+	[98203]  = true, -- Ivanyr
+	[108573] = true, -- Kil'jaeden
+	[91797]  = true, -- King Deepbeard
+	[101002] = true, -- Krosus
+	[91789]  = true, -- Lady Hatecoil
+	[108829] = true, -- Levantus
+	[94923]  = true, -- Lord Kur'talos Ravencrest
+	[108867] = true, -- Millificent Manastorm
+	[108863] = true, -- Mindflayer Kaahrj
+	[110321] = true, -- Na'zak the Fiend
+	[98207]  = true, -- Nal'tira
+	[91005]  = true, -- Naraxas
+	[107544] = true, -- Nithogg
+	[103160] = true, -- Nythendra
+	[103344] = true, -- Oakheart
+	[110962] = true, -- Odyn
+	[104215] = true, -- Patrol Captain Gerdo
+	[91003]  = true, -- Rokmora
+	[102387] = true, -- Sael'orn
+	[91808]  = true, -- Serpentrix
+	[101403] = true, -- Shade of Xavius
+	[108678] = true, -- Shar'thos
+	[108862] = true, -- Shivermaw
+	[102263] = true, -- Skorpyron
+	[98949]  = true, -- Smashspite the Hateful
+	[106984] = true, -- Soultrapper Mevra
+	[107699] = true, -- Spellblade Aluriel
+	[103758] = true, -- Star Augur Etraeus
+	[104217] = true, -- Talixae Flamewreath
+	[103685] = true, -- Tichondrius
+	[99198]  = true, -- Tirathon Saltheril
+	[104288] = true, -- Trilliax
+	[105300] = true, -- Ularogg Cragshaper
+	[100497] = true, -- Ursoc
+	[91784]  = true, -- Warlord Parjesh
+	[112350] = true, -- Withered J'im
+	[96028]  = true, -- Wrath of Azshara
+	[103769] = true, -- Xavius
+	[96756]  = true, -- Ymiron, the Fallen
+	[102679] = true, -- Ysondre
+
 }
 
 lib.BossIDs = BossIDs

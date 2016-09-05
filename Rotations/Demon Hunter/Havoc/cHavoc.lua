@@ -50,7 +50,7 @@ function cHavoc:new()
         self.spell.spec.buffs           = {
             chaosBlades                 = 211797,
             metamorphosis               = 162264,
-            momentum                    = 206476,
+            momentum                    = 208628,
             prepared                    = 203650,
         }
         self.spell.spec.debuffs         = {
@@ -520,6 +520,33 @@ function cHavoc:new()
                 return false
             end
         end
+        -- Fel Rush Cancel Anamation
+        function self.cast.felRushCancelAnamation(thisUnit,debug)
+            local spellCast = self.spell.felRush
+            local thisUnit = thisUnit
+            local returnVar
+            if thisUnit == nil then thisUnit = "player" end
+            if debug == nil then debug = false end
+
+            if self.level >= 98 and self.charges.felRush > 0 then
+                if debug then
+                    MoveBackwardStart()
+                    JumpOrAscendStart()
+                    returnVar = castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                    MoveBackwardStop()
+                    return returnVar
+                else
+                    MoveBackwardStart()
+                    JumpOrAscendStart()
+                    returnVar = castSpell(thisUnit,spellCast,false,false,false)
+                    MoveBackwardStop()
+                    return returnVar
+                end
+            elseif debug then
+                return false
+            end
+        end
+
         -- Fury of the Illidari
         function self.cast.furyOfTheIllidari(thisUnit,debug)
             local spellCast = self.spell.furyOfTheIllidari
@@ -527,7 +554,7 @@ function cHavoc:new()
             if thisUnit == nil then thisUnit = "player" end
             if debug == nil then debug = false end
 
-            if self.artifact.furyOfTheIllidari and self.cd.furyOfTheIllidari == 0 then
+            if self.artifact.furyOfTheIllidari and self.cd.furyOfTheIllidari == 0 and getDistance(self.units.dyn5) < 5 then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else

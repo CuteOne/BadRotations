@@ -162,6 +162,7 @@ function cEnhancement:new()
 
         function self.getArtifactRanks()
             local getPerkRank = getPerkRank
+            
             for k,v in pairs(self.spell.spec.artifacts) do
                 self.artifact.rank[k] = getPerkRank(v) or 0
             end
@@ -375,7 +376,7 @@ function cEnhancement:new()
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
-                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                    return castSpell(thisUnit,spellCast,false,false,false)
                 end
             elseif debug then
                 return false
@@ -392,7 +393,7 @@ function cEnhancement:new()
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
-                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                    return castSpell(thisUnit,spellCast,false,false,false)
                 end
             elseif debug then
                 return false
@@ -409,7 +410,7 @@ function cEnhancement:new()
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
-                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                    return castSpell(thisUnit,spellCast,false,false,false)
                 end
             elseif debug then
                 return false
@@ -426,7 +427,7 @@ function cEnhancement:new()
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
-                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                    return castSpell(thisUnit,spellCast,false,false,false)
                 end
             elseif debug then
                 return false
@@ -443,7 +444,7 @@ function cEnhancement:new()
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
-                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                    return castSpell(thisUnit,spellCast,false,false,false)
                 end
             elseif debug then
                 return false
@@ -460,7 +461,7 @@ function cEnhancement:new()
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
-                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                    return castSpell(thisUnit,spellCast,false,false,false)
                 end
             elseif debug then
                 return false
@@ -511,7 +512,7 @@ function cEnhancement:new()
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
-                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                    return castSpell(thisUnit,spellCast,false,false,false)
                 end
             elseif debug then
                 return false
@@ -528,7 +529,7 @@ function cEnhancement:new()
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
-                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                    return castSpell(thisUnit,spellCast,false,false,false)
                 end
             elseif debug then
                 return false
@@ -545,7 +546,7 @@ function cEnhancement:new()
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
-                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                    return castSpell(thisUnit,spellCast,false,false,false)
                 end
             elseif debug then
                 return false
@@ -562,7 +563,7 @@ function cEnhancement:new()
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
-                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                    return castSpell(thisUnit,spellCast,false,false,false)
                 end
             elseif debug then
                 return false
@@ -579,7 +580,7 @@ function cEnhancement:new()
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
-                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                    return castSpell(thisUnit,spellCast,false,false,false)
                 end
             elseif debug then
                 return false
@@ -596,7 +597,7 @@ function cEnhancement:new()
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
-                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                    return castSpell(thisUnit,spellCast,false,false,false)
                 end
             elseif debug then
                 return false
@@ -613,7 +614,7 @@ function cEnhancement:new()
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
-                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                    return castSpell(thisUnit,spellCast,false,false,false)
                 end
             elseif debug then
                 return false
@@ -647,7 +648,7 @@ function cEnhancement:new()
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
-                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                    return castSpell(thisUnit,spellCast,false,false,false)
                 end
             elseif debug then
                 return false
@@ -664,7 +665,7 @@ function cEnhancement:new()
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
-                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                    return castSpell(thisUnit,spellCast,false,false,false)
                 end
             elseif debug then
                 return false
@@ -681,7 +682,7 @@ function cEnhancement:new()
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
-                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                    return castSpell(thisUnit,spellCast,false,false,false)
                 end
             elseif debug then
                 return false
@@ -698,7 +699,7 @@ function cEnhancement:new()
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
-                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                    return castSpell(thisUnit,spellCast,false,false,false)
                 end
             elseif debug then
                 return false
@@ -715,7 +716,7 @@ function cEnhancement:new()
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
-                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                    return castSpell(thisUnit,spellCast,false,false,false)
                 end
             elseif debug then
                 return false
@@ -732,7 +733,7 @@ function cEnhancement:new()
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
-                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                    return castSpell(thisUnit,spellCast,false,false,false)
                 end
             elseif debug then
                 return false

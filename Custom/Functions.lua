@@ -108,7 +108,7 @@ function castGroundAtBestLocation(spellID, radius, minUnits, maxRange, minRange)
 		end
 		if #goodUnits <= #unitsAroundThisUnit then
 			--print("units around check: "..#unitsAroundThisUnit.." >= "..#goodUnits)
-			if minUnits <= #unitsAroundThisUnit then
+			if tonumber(minUnits) <= #unitsAroundThisUnit then
 				--print("enough units around: "..#unitsAroundThisUnit)
 				goodUnits = unitsAroundThisUnit
 			end
