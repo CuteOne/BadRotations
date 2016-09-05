@@ -342,6 +342,7 @@ function cHavoc:new()
             self.cast.debug.deathSweep          = self.cast.deathSweep("player",true)
             self.cast.debug.demonsBite          = self.cast.demonsBite("target",true)
             self.cast.debug.eyeBeam             = self.cast.eyeBeam("player",true)
+            self.cast.debug.felblade            = self.cast.felblade("target",true)
             self.cast.debug.felRush             = self.cast.felRush("player",true)
             self.cast.debug.furyOfTheIllidari   = self.cast.furyOfTheIllidari("player",true)
             self.cast.debug.metamorphosis       = self.cast.metamorphosis("player",true)
@@ -503,6 +504,23 @@ function cHavoc:new()
                 return false
             end
         end
+        -- Felblade
+        function self.cast.felblade(thisUnit,debug)
+            local spellCast = self.spell.felblade
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = self.units.dyn15 end
+            if debug == nil then debug = false end
+
+            if self.talent.felblade and self.cd.felblade == 0 and getDistance(thisUnit) < 15 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,true,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,true,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
         -- Fel Rush
         function self.cast.felRush(thisUnit,debug)
             local spellCast = self.spell.felRush
@@ -520,8 +538,8 @@ function cHavoc:new()
                 return false
             end
         end
-        -- Fel Rush Cancel Anamation
-        function self.cast.felRushCancelAnamation(thisUnit,debug)
+        -- Fel Rush Cancel Animation
+        function self.cast.felRushCancelAnimation(thisUnit,debug)
             local spellCast = self.spell.felRush
             local thisUnit = thisUnit
             local returnVar

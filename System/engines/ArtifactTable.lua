@@ -32,6 +32,8 @@ LAD.RegisterCallback(addon, "ARTIFACT_DATA_MISSING")
 LAD.RegisterCallback(addon, "ARTIFACT_RELIC_CHANGED")
 LAD.RegisterCallback(addon, "ARTIFACT_TRAITS_CHANGED")
 
+if bb.artifact.info == nil then LAD.ForceUpdate() end
+
 -- checks for perk
 function hasPerk(spellID)
     if bb.artifact ~= nil then

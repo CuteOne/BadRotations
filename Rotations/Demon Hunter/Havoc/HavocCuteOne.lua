@@ -279,7 +279,9 @@ if select(2, UnitClass("player")) == "DEMONHUNTER" then
         -- Action List - PostVengeful
             local function actionList_PostVengeful()
             -- Fel Rush
-                if cast.felRush() then return end
+                if useMover() then
+                    if cast.felRush() then return end
+                end
             -- Fel Blade
                 -- TODO
             end -- End Action lsit - Post Vengful Retreat
@@ -325,9 +327,11 @@ if select(2, UnitClass("player")) == "DEMONHUNTER" then
                 if talent.bloodlet then
                     if cast.throwGlaive() then return end
                 end
-            -- Fel Blade
+            -- Felblade
                 -- if not WasLastCast(VengefulRetreat)
-                -- TODO
+                if lastSpell ~= spell.vengefulRetreat then
+                    if cast.felblade("target") then return end
+                end
             -- Demon's Bite
                 if cast.demonsBite() then return end
             end -- End Action List - Single Target
@@ -458,6 +462,10 @@ if select(2, UnitClass("player")) == "DEMONHUNTER" then
                     if isChecked("Pre-Pull Timer") and pullTimer <= getOptionValue("Pre-Pull Timer") then
 
                     end -- End Pre-Pull
+                -- Throw Glaive
+                    if ObjectExists("target") and not UnitIsDeadOrGhost("target") and UnitCanAttack("target", "player") and getDistance("target") < 30 then
+                        if cast.throwGlaive("target") then return end
+                    end
                 -- Fel Rush
                     if getOptionValue("APL Mode") == 1 and ObjectExists("target") and not UnitIsDeadOrGhost("target") and UnitCanAttack("target", "player") and getDistance("target") < 15 then
                         if useMover() then
@@ -524,7 +532,7 @@ if select(2, UnitClass("player")) == "DEMONHUNTER" then
                         end
                 -- Demon's Bite
                         -- demons_bite,sync=metamorphosis,if=fury.deficit>=25
-                        if powerDeficit >= 25 and not buff.metamorphosis and (not talent.demonic or cd.eyeBeam ~= 0) and (not talent.chaosBlades or cd.chaosBlades == 0) and (not talent.nemesis or debuff.nemesis or cd.nemesis == 0) then
+                        if powerDeficit >= 25 and not buff.metamorphosis and (not talent.demonic or cd.eyeBeam ~= 0) and (not talent.chaosBlades or cd.chaosBlades == 0) and (not talent.nemesis or debuff.nemesis or cd.nemesis == 0) and (not talent.felblade or cd.felblade ~=0) then
                             if cast.demonsBite() then return end
                         end
                 -- Cooldowns
@@ -562,7 +570,9 @@ if select(2, UnitClass("player")) == "DEMONHUNTER" then
                         -- TODO
                 -- Fel Blade
                         -- felblade,if=fury.deficit>=30+buff.prepared.up*8
-                        -- TODO
+                        if powerDeficit >= 30 + (prepared * 8) then
+                            if cast.felblade("target") then return end
+                        end
                 -- Annihilation
                         -- annihilation,if=!talent.momentum.enabled|buff.momentum.up|fury.deficit<=30+buff.prepared.up*8|buff.metamorphosis.remains<2
                         if not talent.momentum or buff.momentum or powerDeficit <= 30 + prepared * 8 or buff.remain.metamorphosis < 2 then
@@ -575,7 +585,7 @@ if select(2, UnitClass("player")) == "DEMONHUNTER" then
                         end 
                 -- Eye Beam
                         -- eye_beam,if=!talent.demonic.enabled&(spell_targets.eye_beam_tick>desired_targets|(raid_event.adds.in>45&buff.metamorphosis.down&(artifact.anguish_of_the_deceiver.enabled|active_enemies>1|level=100)))
-                        if not talent.demonic and (#enemies.yards20 > getOptionValue("Eye Beam Targets") or (addsIn > 45 and not buff.metamorphosis and (artifact.anguishOfTheDeceiver or #enemies.yards5 > 1 or level == 100))) and getDistance(units.dyn8) < 8 and getFacing("player",units.dyn5,45) then
+                        if not talent.demonic and (#enemies.yards20 >= getOptionValue("Eye Beam Targets") or (addsIn > 45 and not buff.metamorphosis and (artifact.anguishOfTheDeceiver or #enemies.yards5 > 1 or level == 100))) and getDistance(units.dyn8) < 8 and getFacing("player",units.dyn5,45) then
                             if cast.eyeBeam() then return end
                         end
                 -- Demon's Bite
@@ -607,7 +617,7 @@ if select(2, UnitClass("player")) == "DEMONHUNTER" then
                 -- Fel Rush
                         -- fel_rush,animation_cancel=1,if=!talent.momentum.enabled&raid_event.movement.in>charges*10
                         if useMover() and not talent.momentum and moveIn > charges.felRush * 10 then
-                            if cast.felRush() then return end
+                            if cast.felRush() then  return end
                         end
                 -- Demon's Bite
                         if cast.demonsBite() then return end 
