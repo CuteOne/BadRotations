@@ -1451,6 +1451,9 @@ function getLineOfSight(Unit1,Unit2)
 		77182, -- Oregorger
 		96759, -- Helya
 		100360,-- Grasping Tentacle (Helya fight)
+		100354,-- Grasping Tentacle (Helya fight)
+		100362,-- Grasping Tentacle (Helya fight)
+		98363,-- Grasping Tentacle (Helya fight)
 		98696, -- Illysanna Ravencrest (Black Rook Hold)
 		--86644, -- Ore Crate from Oregorger boss
 	}
