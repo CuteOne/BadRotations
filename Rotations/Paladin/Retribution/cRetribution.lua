@@ -21,7 +21,7 @@ function cRetribution:new()
             avengingWrath               = 31884,
             bladeOfJustice              = 184575,
             bladeOfWrath                = 202270,
-            cleanceToxins               = 213644,
+            cleanseToxins               = 213644,
             consecration                = 205228,
             crusade                     = 224668,
             divineHammer                = 198034,
@@ -336,9 +336,368 @@ function cRetribution:new()
     --------------
 
         function self.getCastable()
-            self.cast.debug.templarsVerdict = self.cast.templarsVerdict("target",true)
+            self.cast.debug.avengingWrath           = self.cast.avengingWrath("player",true)
+            self.cast.debug.bladeOfJustice          = self.cast.bladeOfJustice("target",true)
+            self.cast.debug.bladeOfWrath            = self.cast.bladeOfWrath("target",true)
+            self.cast.debug.blessingOfFreedom       = self.cast.blessingOfFreedom("player",true)
+            self.cast.debug.blessingOfProtection    = self.cast.blessingOfProtection("player",true)
+            self.cast.debug.cleanseToxins           = self.cast.cleanseToxins("player",true)
+            self.cast.debug.consecration            = self.cast.consecration("player",true)
+            self.cast.debug.crusade                 = self.cast.crusade("player",true)
+            self.cast.debug.divineHammer            = self.cast.divineHammer("player",true)
+            self.cast.debug.divineStorm             = self.cast.divineStorm("player",true)
+            self.cast.debug.executionSentence       = self.cast.executionSentence("target",true)
+            self.cast.debug.eyeForAnEye             = self.cast.eyeForAnEye("player",true)
+            self.cast.debug.greaterBlessingOfKings  = self.cast.greaterBlessingOfKings("player",true)
+            self.cast.debug.greaterBlessingOfMight  = self.cast.greaterBlessingOfMight("player",true)
+            self.cast.debug.greaterBlessingOfWisdom = self.cast.greaterBlessingOfWisdom("player",true)
+            self.cast.debug.handOfHinderance        = self.cast.handOfHinderance("target",true)
+            self.cast.debug.holyWrath               = self.cast.holyWrath("player",true)
+            self.cast.debug.justicarsVengeance      = self.cast.justicarsVengeance("target",true)
+            self.cast.debug.rebuke                  = self.cast.rebuke("target",true)
+            self.cast.debug.sealOfLight             = self.cast.sealOfLight("player",true)
+            self.cast.debug.shieldOfVengeance       = self.cast.shieldOfVengeance("player",true)
+            self.cast.debug.templarsVerdict         = self.cast.templarsVerdict("target",true)
+            self.cast.debug.wordOfGlory             = self.cast.wordOfGlory("player",true)
+            self.cast.debug.zeal                    = self.cast.zeal("target",true)
         end
 
+        function self.cast.avengingWrath(thisUnit,debug)
+            local spellCast = self.spell.avengingWrath
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = "player" end
+            if debug == nil then debug = false end
+
+            if self.level >= 72 and self.cd.avengingWrath == 0 and not self.talent.crusade then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,false,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+        function self.cast.bladeOfJustice(thisUnit,debug)
+            local spellCast = self.spell.bladeOfJustice
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = self.units.dyn12 end
+            if debug == nil then debug = false end
+
+            if self.level >= 16 and self.cd.bladeOfJustice == 0 and getDistance(thisUnit) < 12 and not self.talent.divineHammer then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,false,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+        function self.cast.bladeOfWrath(thisUnit,debug)
+            local spellCast = self.spell.bladeOfWrath
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = self.units.dyn12 end
+            if debug == nil then debug = false end
+
+            if self.talent.bladeOfWrath and self.cd.bladeOfWrath == 0 and getDistance(thisUnit) < 12 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,false,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+        function self.cast.blessingOfFreedom(thisUnit,debug)
+            local spellCast = self.spell.blessingOfFreedom
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = "player" end
+            if debug == nil then debug = false end
+
+            if self.level >= 52 and self.powerPercentMana > 15 and self.cd.blessingOfFreedom == 0 and getDistance(thisUnit) < 40 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,false,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+        function self.cast.blessingOfProtection(thisUnit,debug)
+            local spellCast = self.spell.blessingOfProtection
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = "player" end
+            if debug == nil then debug = false end
+
+            if self.level >= 48 and self.powerPercentMana > 15 and self.cd.blessingOfProtection == 0 and getDistance(thisUnit) < 40 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,false,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+        function self.cast.cleanseToxins(thisUnit,debug)
+            local spellCast = self.spell.cleanseToxins
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = "player" end
+            if debug == nil then debug = false end
+
+            if self.level >= 21 and self.powerPercentMana > 13 and self.cd.cleanseToxins == 0 and getDistance(thisUnit) < 40 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,false,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+        function self.cast.consecration(thisUnit,debug)
+            local spellCast = self.spell.consecration
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = "player" end
+            if debug == nil then debug = false end
+
+            if self.talent.consecration and self.cd.consecration == 0 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,false,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+        function self.cast.crusade(thisUnit,debug)
+            local spellCast = self.spell.crusade
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = "player" end
+            if debug == nil then debug = false end
+
+            if self.talent.crusade and self.cd.crusade == 0 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,false,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+        function self.cast.divineHammer(thisUnit,debug)
+            local spellCast = self.spell.divineHammer
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = "player" end
+            if debug == nil then debug = false end
+
+            if self.talent.divineHammer and self.cd.divineHammer == 0 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,false,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+        function self.cast.divineStorm(thisUnit,debug)
+            local spellCast = self.spell.divineStorm
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = "player" end
+            if debug == nil then debug = false end
+
+            if self.level >= 32 and self.holyPower >= 3 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,false,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+        function self.cast.executionSentence(thisUnit,debug)
+            local spellCast = self.spell.executionSentence
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = self.units.dyn20 end
+            if debug == nil then debug = false end
+
+            if self.talent.executionSentence and self.holyPower >= 3 and self.cd.executionSentence == 0 and getDistance(thisUnit) < 20 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,false,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+        function self.cast.eyeForAnEye(thisUnit,debug)
+            local spellCast = self.spell.eye
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = "player" end
+            if debug == nil then debug = false end
+
+            if self.talent.eyeForAnEye and self.cd.eyeForAnEye == 0 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,false,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+        function self.cast.greaterBlessingOfKings(thisUnit,debug)
+            local spellCast = self.spell.greaterBlessingOfKings
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = "player" end
+            if debug == nil then debug = false end
+
+            if self.level >= 44 and not self.buff.greaterBlessingOfKings and getDistance(thisUnit) < 30 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,false,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+        function self.cast.greaterBlessingOfMight(thisUnit,debug)
+            local spellCast = self.spell.greaterBlessingOfMight
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = "player" end
+            if debug == nil then debug = false end
+
+            if self.level >= 42 and not self.buff.greaterBlessingOfMight and getDistance(thisUnit) < 30 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,false,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+        function self.cast.greaterBlessingOfWisdom(thisUnit,debug)
+            local spellCast = self.spell.greaterBlessingOfWisdom
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = "player" end
+            if debug == nil then debug = false end
+
+            if self.level >= 46 and not self.buff.greaterBlessingOfWisdom and getDistance(thisUnit) < 30 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,false,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+        function self.cast.handOfHinderance(thisUnit,debug)
+            local spellCast = self.spell.handOfHinderance
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = self.units.dyn30 end
+            if debug == nil then debug = false end
+
+            if self.level >= 26 and self.powerPercentMana >= 27 and self.cd.handOfHinderance == 0 and getDistance(thisUnit) < 30 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,false,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+        function self.cast.holyWrath(thisUnit,debug)
+            local spellCast = self.spell.holyWrath
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = "player" end
+            if debug == nil then debug = false end
+
+            if self.talent.holyWrath and self.cd.holyWrath == 0 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,false,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+        function self.cast.justicarsVengeance(thisUnit,debug)
+            local spellCast = self.spell.justicarsVengeance
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = self.units.dyn5 end
+            if debug == nil then debug = false end
+
+            if self.talent.justicarsVengeance and self.holyPower >= 5 and getDistance(thisUnit) < 5 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,false,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+        function self.cast.rebuke(thisUnit,debug)
+            local spellCast = self.spell.rebuke
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = self.units.dyn5 end
+            if debug == nil then debug = false end
+
+            if self.level >= 36 and self.cd.rebuke == 0 and getDistance(thisUnit) < 5 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,false,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+        function self.cast.sealOfLight(thisUnit,debug)
+            local spellCast = self.spell.sealOfLight
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = "player" end
+            if debug == nil then debug = false end
+
+            if self.talent.sealOfLight and self.holyPower > 0 and not self.buff.sealOfLight == 0 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,false,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+        function self.cast.shieldOfVengeance(thisUnit,debug)
+            local spellCast = self.spell.shieldOfVengeance
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = "player" end
+            if debug == nil then debug = false end
+
+            if self.level >= 24 and self.cd.shieldOfVengeance == 0 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,false,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
         function self.cast.templarsVerdict(thisUnit,debug)
             local spellCast = self.spell.templarsVerdict
             local thisUnit = thisUnit
@@ -349,12 +708,45 @@ function cRetribution:new()
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
-                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                    return castSpell(thisUnit,spellCast,false,false,false)
                 end
             elseif debug then
                 return false
             end
         end
+        function self.cast.wordOfGlory(thisUnit,debug)
+            local spellCast = self.spell.wordOfGlory
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = "player" end
+            if debug == nil then debug = false end
+
+            if self.talent.wordOfGlory and self.holyPower >= 3 and self.cd.wordOfGlory == 0 and self.charges.wordOfGlory > 0 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,false,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+        function self.cast.zeal(thisUnit,debug)
+            local spellCast = self.spell.zeal
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = self.units.dyn5 end
+            if debug == nil then debug = false end
+
+            if self.talent.zeal and self.cd.zeal == 0 and self.charges.zeal > 0 and getDistance(thisUnit) < 5 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,false,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+
 
     ------------------------
     --- CUSTOM FUNCTIONS ---

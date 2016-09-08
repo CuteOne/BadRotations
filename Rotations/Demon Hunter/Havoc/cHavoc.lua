@@ -606,7 +606,7 @@ function cHavoc:new()
             if thisUnit == nil then thisUnit = self.units.dyn30 end
             if debug == nil then debug = false end
 
-            if self.level >= 99 and isKnown(spellCast) and self.charges.throwGlaive > 0 and hasThreat(thisUnit) and getDistance(thisUnit) < 30 then
+            if self.level >= 99 and isKnown(spellCast) and self.charges.throwGlaive > 0 and getDistance(thisUnit) < 30 then
                 if debug then
                     return castSpell(thisUnit,spellCast,true,false,false,false,false,false,false,true)
                 else
@@ -650,6 +650,10 @@ function cHavoc:new()
         --Target Distance
         function tarDist(unit)
             return getDistance(unit)
+        end
+
+        function freezeFelRush() 
+            -- RunMacroText("/run local t=time()+2;while time()< t do end")
         end
 
     -----------------------------
