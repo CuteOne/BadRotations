@@ -115,6 +115,7 @@ if select(2, UnitClass("player")) == "PALADIN" then
         function self.getClassEnemies()
             local getEnemies = getEnemies
 
+            self.enemies.yards8     = getEnemies("player", 8) -- AoE
             self.enemies.yards10    = getEnemies("player", 10) -- Hammer of Justice
         end
 
