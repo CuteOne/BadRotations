@@ -1451,6 +1451,9 @@ function getLineOfSight(Unit1,Unit2)
 		77182, -- Oregorger
 		96759, -- Helya
 		100360,-- Grasping Tentacle (Helya fight)
+		100354,-- Grasping Tentacle (Helya fight)
+		100362,-- Grasping Tentacle (Helya fight)
+		98363,-- Grasping Tentacle (Helya fight)
 		98696, -- Illysanna Ravencrest (Black Rook Hold)
 		--86644, -- Ore Crate from Oregorger boss
 	}
@@ -2268,7 +2271,9 @@ function isValidTarget(Unit)
 	end
 end
 function SpecificToggle(toggle)
-    if getOptionValue(toggle) == 1 then
+	if customToggle then 
+		return false
+	elseif getOptionValue(toggle) == 1 then
         return IsLeftControlKeyDown();
     elseif getOptionValue(toggle) == 2 then
         return IsLeftShiftKeyDown();
@@ -2279,14 +2284,14 @@ function SpecificToggle(toggle)
     elseif getOptionValue(toggle) == 5 then
         return IsRightAltKeyDown();
     elseif getOptionValue(toggle) == 6 then
-        return false
+       	return false
     end
 end
 
 function UpdateToggle(toggle,delay)
 	--if toggle == nil then toggle = "toggle" end
 	if _G[toggle.."Timer"] == nil then _G[toggle.."Timer"] = 0; end
-    if SpecificToggle(toggle.." Mode") and not GetCurrentKeyBoardFocus() and GetTime() - _G[toggle.."Timer"] > delay then
+    if (SpecificToggle(toggle.." Mode") or customToggle) and not GetCurrentKeyBoardFocus() and GetTime() - _G[toggle.."Timer"] > delay then
         _G[toggle.."Timer"] = GetTime()
         UpdateButton(tostring(toggle))
     end

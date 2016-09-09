@@ -634,7 +634,7 @@ if select(2, UnitClass("player")) == "DRUID" then
             -- Cat is 4 fyte!
                 if inCombat and not cat and not (flight or travel) then
                     if cast.catForm() then return end
-                elseif inCombat and cat and profileStop==false and not isChecked("Death Cat Mode") then
+                elseif inCombat and cat and profileStop==false and not isChecked("Death Cat Mode") and (hasThreat(units.dyn5) or isDummy("target") or (UnitIsEnemy(units.dyn5, "player") and getDistance(units.dyn5) < 5)) then
             -- Wild Charge
                     if isChecked("Displacer Beast / Wild Charge") then
                         if cast.wildCharge("target") then return end 
@@ -746,7 +746,7 @@ if select(2, UnitClass("player")) == "DRUID" then
     						if not buff.savageRoar and (combo == 5 or (talent.brutalSlash and #enemies.yards8 > getOptionValue("Brutal Slash Targest") and charges.brutalSlash > 0)) then
                                 if power <= 40 then
                                     return true
-                                else
+                                elseif power > 40 then
                                     if cast.savageRoar() then return end
                                 end
     			            end
@@ -761,7 +761,7 @@ if select(2, UnitClass("player")) == "DRUID" then
                                         if thrash.remain <= thrash.duration * 0.3 and #enemies.yards8 >= 5 then
                                             if power <= 50 then
                                                 return true
-                                            else
+                                            elseif power > 50 then
         								        if cast.thrash(thisUnit) then return end
                                             end
                                         end
@@ -775,7 +775,7 @@ if select(2, UnitClass("player")) == "DRUID" then
                                 if #enemies.yards8 >= 8 then
                                     if power <= 45 then
                                         return true
-                                    else
+                                    elseif power > 45 then
                                         if cast.swipe() then return end
                                     end
                                 end
@@ -842,9 +842,9 @@ if select(2, UnitClass("player")) == "DRUID" then
                             -- if=talent.brutal_slash.enabled&spell_targets.thrash_cat>=9
                             if (multidot or (UnitIsUnit(thisUnit,units.dyn8AoE) and not multidot)) then  
                                 if talent.brutalSlash and #enemies.yards8 >= 9 then
-                                   if power < 50 then
+                                   if power <= 50 then
                                         return true
-                                    else
+                                    elseif power > 50 then
                                         if cast.thrash() then return end
                                     end
                                 end
@@ -854,9 +854,9 @@ if select(2, UnitClass("player")) == "DRUID" then
                             -- swipe_cat,if=spell_targets.swipe_cat>=6
                             if useAoE() then
                                 if #enemies.yards8 >= 6 then
-                                    if power < 45 then
+                                    if power <= 45 then
                                         return true
-                                    else
+                                    elseif power > 45 then
                                         if cast.swipe() then return end
                                     end
                                 end
@@ -889,7 +889,7 @@ if select(2, UnitClass("player")) == "DRUID" then
                                     then
                                         if power <= 35 then
                                             return true
-                                        else
+                                        elseif power > 35 then
                                             if cast.rake(thisUnit) then return end
                                         end
                                     end
@@ -914,9 +914,9 @@ if select(2, UnitClass("player")) == "DRUID" then
                                 local thisUnit = k
     							if (multidot or (UnitIsUnit(thisUnit,units.dyn8AoE) and not multidot)) and getDistance(thisUnit) < 5 then
                                     if thrash.remain <= thrash.duration * 0.3 and #enemies.yards8 >= 2 then
-                                        if power < 50 then
+                                        if power <= 50 then
                                             return true
-                                        else
+                                        elseif power > 50 then
     								        if cast.thrash(thisUnit) then return end
                                         end
                                     end

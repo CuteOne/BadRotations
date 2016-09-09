@@ -1,5 +1,5 @@
 if select(3, UnitClass("player")) == 2 then -- Change specID to ID of spec. IE: https://github.com/MrTheSoulz/NerdPack/wiki/Class-&-Spec-IDs
-    local rotationName = "Gabbz" -- Appears in the dropdown of the rotation selector in the Profile Options window
+    local rotationName = "CuteOne" -- Appears in the dropdown of the rotation selector in the Profile Options window
 
 ---------------
 --- Toggles ---
@@ -112,12 +112,19 @@ if select(3, UnitClass("player")) == 2 then -- Change specID to ID of spec. IE: 
 	--------------
 	--- Locals ---
 	--------------
-			local cast 		= bb.player.cast
-			local enemies 	= bb.player.enemies
-			local hastar 	= ObjectExists("target")
-			local inCombat 	= bb.player.inCombat
-			local mode 		= bb.player.mode
-			local php 		= bb.player.health			
+			local buff 			= bb.player.buff
+			local cast 			= bb.player.cast
+			local cd 			= bb.player.cd
+			local debuff 		= bb.player.debuff
+			local enemies 		= bb.player.enemies
+			local gcd 			= bb.player.gcd
+			local hastar 		= ObjectExists("target")
+			local holyPower 	= bb.player.holyPower
+			local holyPowerMax 	= bb.player.holyPowerMax
+			local inCombat 		= bb.player.inCombat
+			local mode 			= bb.player.mode
+			local php 			= bb.player.health
+			local units 		= bb.player.units			
 
 			if profileStop == nil then profileStop = false end
 	--------------------
@@ -132,7 +139,7 @@ if select(3, UnitClass("player")) == 2 then -- Change specID to ID of spec. IE: 
 				if useDefensive() then
 			-- Flash of Light
 					if isChecked("Flash of Light") then
-						if php <= getOptionValue("Flash of Light") then
+						if forceHeal or php <= getOptionValue("Flash of Light") then
 							if cast.flashOfLight() then return end
 						end
 					end				
@@ -155,8 +162,11 @@ if select(3, UnitClass("player")) == 2 then -- Change specID to ID of spec. IE: 
 			end -- End Action List - Interrupts
 		-- Action List - Cooldowns
 			local function actionList_Cooldowns()
-				if useCDs() then
-					-- Cooldown abilities listed here
+				if useCDs() or burst then
+			-- Crusade
+					if cast.crusade() then return end
+			-- Avenging Wrath
+					if cast.avengingWrath() then return end
 				end -- End Cooldown Usage Check
 			end -- End Action List - Cooldowns
 		-- Action List - PreCombat
@@ -220,12 +230,60 @@ if select(3, UnitClass("player")) == 2 then -- Change specID to ID of spec. IE: 
 	----------------------------------
 	--- In Combat - Begin Rotation ---
 	----------------------------------
+			-- Execution Sentence
+					-- if CooldownSecRemaining(Judgment) <= GlobalCooldownSec * 3
+					if cd.judgment <= gcd * 3 then
+						if cast.executionSentence(units.dyn5) then return end
+					end
 			-- Judgment
-					if cast.judgment() then return end
+					if cast.judgment(units.dyn5) then return end
+			-- Consecration
+					-- if not HasBuff(Judgment)
+					if not debuff.judgment and #enemies.yards8 >= 3 then
+						if cast.consecration() then return end
+					end
+			-- Justicar's Vengeance
+					-- if HasBuff(DivinePurpose) and TargetsInRadius(DivineStorm) <= 3
+					if buff.divinePurpose and #enemies.yards8 <= 3 then
+						if cast.justicarsVengeance(units.dyn5) then return end
+					end
+			-- Divine Storm
+					-- if (AlternatePower >= 4 or HasBuff(DivinePurpose) or HasBuff(Judgment)) and TargetsInRadius(DivineStorm) > 2
+					if (holyPower >= 3 or buff.divinePurpose or debuff.judgment) and #enemies.yards8 > 2 then
+						if cast.divineStorm() then return end
+					end
 			-- Templar's Verdict
-					if cast.templarsVerdict() then return end
+					-- if (AlternatePower >= 4 or HasBuff(DivinePurpose) or HasBuff(Judgment))
+					if (holyPower >= 3 or buff.divinePurpose or debuff.judgment) then
+						if cast.templarsVerdict(units.dyn5) then return end
+					end
+			-- Wake of Ashes
+					-- if AlternatePowerToMax >= 4
+					if holyPowerMax - holyPower >= 4 then
+						if cast.wakeOfAshes(units.dyn5) then return end
+					end
+			-- Blade of Justice
+					-- if AlternatePowerToMax >= 2
+					if holyPowerMax - holyPower >= 2 then
+						if cast.bladeOfJustice(units.dyn5) then return end
+					end
+			-- Blade of Wrath
+					-- if AlternatePowerToMax >= 2
+					if holyPowerMax - holyPower >= 2 then
+						if cast.bladeOfWrath(units.dyn5) then return end
+					end
+			-- Divine Hammer
+					-- if AlternatePowerToMax >= 2
+					if holyPowerMax - holyPower >= 2 then
+						if cast.divineHammer(units.dyn5) then return end
+					end
+			-- Hammer of Justice
+					-- if HasItem(JusticeGaze) and TargetHealthPercent > 0.75 and not HasBuff(Judgment)
+					-- TODO
 			-- Crusader Strike
-					if cast.crusaderStrike() then return end
+					if cast.crusaderStrike(units.dyn5) then return end
+			-- Zeal
+					if cast.zeal(units.dyn5) then return end
 			-- AoE
 					if actionList_Multiple() then return end
 			-- Single Target

@@ -575,6 +575,21 @@ if select(2, UnitClass("player")) == "SHAMAN" then
                         if buff.furyOfAir and #enemies.yards8 < 2 then
                             if cast.furyOfAir() then return end
                         end
+                -- Boulderfist
+                        -- if BuffRemainingSec(BoulderfistEnhance) <= GlobalCooldownSec or ChargesRemaining(Boulderfist) = SpellCharges(Boulderfist)
+                        if buff.remain.boulderfist <= gcd or charges.boulderfist == charges.max.boulderfist then
+                            if cast.boulderfist() then return end
+                        end
+                -- Rockbiter
+                        -- if BuffRemainingSec(Landslide) <= GlobalCooldownSec and HasTalent(Landslide)
+                        if buff.remain.landslide <= gcd and talent.landslide then
+                            if cast.rockbiter() then return end
+                        end
+                -- Frostbrand
+                        -- if BuffRemainingSec(Frostbrand) <= GlobalCooldownSec and HasTalent(Hailstorm)
+                        if buff.remain.frostbrand <= gcd and talent.hailstorm then
+                            if cast.frostbrand() then return end
+                        end
                 -- Windsong
                         if cast.windsong() then return end
                 -- Doom Winds
@@ -596,7 +611,7 @@ if select(2, UnitClass("player")) == "SHAMAN" then
                         if cast.stormstrike() then return end
                 -- Crash Lightning
                         -- if (HasTalent(CrashingStorm) and TimerSecRemaining(CrashingStormTimer) = 0) or TargetsInRadius(CrashLightning) > 3 or (ArtifactTraitRank(GatheringStorms) > 0 and not HasBuff(GatheringStorms))
-                        if (talent.crashingStorm and crashingStormTimer == 0) or #enemies.yards8 > 8 or (artifact.gatheringStorms and not buff.gatheringStorms) then
+                        if (talent.crashingStorm and crashingStormTimer == 0) or #enemies.yards8 > 8 or (artifact.gatheringStorms and not buff.gatheringStorms) and getDistance(units.dyn5) < 5 then
                             if cast.crashLightning() then return end
                         end
                 -- Flame Tongue
@@ -616,6 +631,8 @@ if select(2, UnitClass("player")) == "SHAMAN" then
                         if #enemies.yards8 > 1 then
                             if cast.furyOfAir() then return end
                         end
+                -- Frostbrand
+                        -- if HasItem(AkainusAbsoluteJustice) and not HasBuff(Frostbrand)
                 -- Lava Lash
                         -- if HasBuff(HotHand) or AlternatePower > 40
                         if buff.hotHand or power > 40 then

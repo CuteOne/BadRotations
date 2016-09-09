@@ -279,7 +279,14 @@ if select(2, UnitClass("player")) == "DEMONHUNTER" then
         -- Action List - PostVengeful
             local function actionList_PostVengeful()
             -- Fel Rush
-                if cast.felRush() then return end
+                if useMover() then
+                    if getDistance("target") < 10 then 
+                        if cast.felRush() then C_Timer.After(0.01, freezeFelRush); return end
+                    end
+                    if getDistance("target") >= 10 then
+                        if cast.felRush() then return end
+                    end
+                end
             -- Fel Blade
                 -- TODO
             end -- End Action lsit - Post Vengful Retreat
@@ -313,11 +320,16 @@ if select(2, UnitClass("player")) == "DEMONHUNTER" then
                 end
             -- Fel Rush
                 -- if not HasTalent(Prepared) and not HasTalent(Momentum)
-                if useMover() and not talent.prepared and not talent.momentum then
-                    if cast.felRush() then return end
+                if useMover() and getFacing("player","target",10) and not talent.prepared and not talent.momentum then
+                    if getDistance("target") < 10 then 
+                        if cast.felRush() then C_Timer.After(0.01, freezeFelRush); return end
+                    end
+                    if getDistance("target") >= 10 then
+                        if cast.felRush() then return end
+                    end
                 end
                 -- if (ChargesRemaining(FelRush) >= 2 or (ChargesRemaining(FelRush) >= 1 and ChargeSecRemaining(FelRush) <= CooldownSecRemaining(VengefulRetreat))) and not HasBuff(Momentum)
-                if useMover() and (charges.felRush >= 2 or (charges.felRush >= 1 and recharge.felRush <= cd.vengefulRetreat)) and not buff.momentum then
+                if useMover() and getFacing("player","target",10) and (charges.felRush >= 2 or (charges.felRush >= 1 and recharge.felRush <= cd.vengefulRetreat)) and not buff.momentum then
                     if cast.felRush() then return end
                 end
             -- Throw Glaive
@@ -325,9 +337,11 @@ if select(2, UnitClass("player")) == "DEMONHUNTER" then
                 if talent.bloodlet then
                     if cast.throwGlaive() then return end
                 end
-            -- Fel Blade
+            -- Felblade
                 -- if not WasLastCast(VengefulRetreat)
-                -- TODO
+                if lastSpell ~= spell.vengefulRetreat then
+                    if cast.felblade("target") then return end
+                end
             -- Demon's Bite
                 if cast.demonsBite() then return end
             end -- End Action List - Single Target
@@ -343,8 +357,13 @@ if select(2, UnitClass("player")) == "DEMONHUNTER" then
                     if cast.eyeBeam() then return end
                 end
             -- Fel Rush
-                if useMover() then
-                    if cast.felRush() then return end
+                if useMover() and getFacing("player","target",10) then
+                    if getDistance("target") < 10 then 
+                        if cast.felRush() then C_Timer.After(0.01, freezeFelRush); return end
+                    end
+                    if getDistance("target") >= 10 then
+                        if cast.felRush() then return end
+                    end
                 end
             -- Blade Dance
                 -- if CooldownSecRemaining(EyeBeam) > 0
@@ -458,10 +477,20 @@ if select(2, UnitClass("player")) == "DEMONHUNTER" then
                     if isChecked("Pre-Pull Timer") and pullTimer <= getOptionValue("Pre-Pull Timer") then
 
                     end -- End Pre-Pull
+                -- Throw Glaive
+                    if ObjectExists("target") and not UnitIsDeadOrGhost("target") and UnitCanAttack("target", "player") and getDistance("target") < 30 and (solo or hasThreat("target")) and getFacing("player","target") then
+                        if cast.throwGlaive("target") then return end
+                    end
                 -- Fel Rush
-                    if getOptionValue("APL Mode") == 1 and ObjectExists("target") and not UnitIsDeadOrGhost("target") and UnitCanAttack("target", "player") and getDistance("target") < 15 then
-                        if useMover() then
-                            if cast.felRush() then return end
+                    if getOptionValue("APL Mode") == 1 and ObjectExists("target") and not UnitIsDeadOrGhost("target") and UnitCanAttack("target", "player") then
+                        if useMover() and getFacing("player","target",10) then
+                            if getDistance("target") < 10 then 
+                                if cast.felRush() then C_Timer.After(0.01, freezeFelRush); return end
+                                -- if cast.felRushCancelAnimation() then return end
+                            end
+                            if getDistance("target") >= 10 then
+                                if cast.felRush() then return end
+                            end
                         end
                     end
                     if ObjectExists("target") and not UnitIsDeadOrGhost("target") and UnitCanAttack("target", "player") and getDistance("target") < 5 then
@@ -514,8 +543,16 @@ if select(2, UnitClass("player")) == "DEMONHUNTER" then
                         end
                 -- Fel Rush
                         -- fel_rush,animation_cancel=1,if=(talent.momentum.enabled|talent.fel_mastery.enabled)&(!talent.momentum.enabled|(charges=2|cooldown.vengeful_retreat.remains>4)&buff.momentum.down)&(!talent.fel_mastery.enabled|fury.deficit>=25)&raid_event.movement.in>charges*10
-                        if useMover() and (talent.momentum or talent.felMastery) and (not talent.momentum or (charges.felRush == 2 or cd.vengefulRetreat > 4) and not buff.momentum) and (not talent.felMastery or powerDeficit >= 25) and moveIn > charges.felRush * 10 then
-                            if cast.felRush() then return end
+                        if useMover() and getFacing("player","target",10) 
+                            and (talent.momentum or talent.felMastery) and (not talent.momentum or (charges.felRush == 2 or cd.vengefulRetreat > 4) and not buff.momentum) and (not talent.felMastery or powerDeficit >= 25) and moveIn > charges.felRush * 10 
+                        then
+                            if getDistance("target") < 10 then 
+                                if cast.felRush() then C_Timer.After(0.01, freezeFelRush); return end
+                                -- if cast.felRushCancelAnimation() then return end
+                            end
+                            if getDistance("target") >= 10 then
+                                if cast.felRush() then return end
+                            end
                         end
                 -- Eye Beam
                         -- eye_beam,if=talent.demonic.enabled&buff.metamorphosis.down&(!talent.first_blood.enabled|fury>=80|fury.deficit<30)
@@ -524,7 +561,7 @@ if select(2, UnitClass("player")) == "DEMONHUNTER" then
                         end
                 -- Demon's Bite
                         -- demons_bite,sync=metamorphosis,if=fury.deficit>=25
-                        if powerDeficit >= 25 and not buff.metamorphosis and (not talent.demonic or cd.eyeBeam ~= 0) and (not talent.chaosBlades or cd.chaosBlades == 0) and (not talent.nemesis or debuff.nemesis or cd.nemesis == 0) then
+                        if powerDeficit >= 25 and not buff.metamorphosis and (not talent.demonic or cd.eyeBeam ~= 0) and (not talent.chaosBlades or cd.chaosBlades == 0) and (not talent.nemesis or debuff.nemesis or cd.nemesis == 0) and (not talent.felblade or cd.felblade ~=0) then
                             if cast.demonsBite() then return end
                         end
                 -- Cooldowns
@@ -555,14 +592,16 @@ if select(2, UnitClass("player")) == "DEMONHUNTER" then
                 -- Throw Glaive
                         -- throw_glaive,if=talent.bloodlet.enabled&spell_targets>=2+talent.chaos_cleave.enabled&(!talent.master_of_the_glaive.enabled|!talent.momentum.enabled|buff.momentum.up)
                         if talent.bloodlet and #enemies.yards30 >= 2 + chaleave and (not talent.masterOfTheGlaive or not talent.momentum or buff.momentum) then
-                            if cast.throwGlaive() then return end
+                            if cast.throwGlaive("target") then return end
                         end
                 -- Fel Eruption
                         -- fel_eruption
                         -- TODO
                 -- Fel Blade
                         -- felblade,if=fury.deficit>=30+buff.prepared.up*8
-                        -- TODO
+                        if powerDeficit >= 30 + (prepared * 8) then
+                            if cast.felblade("target") then return end
+                        end
                 -- Annihilation
                         -- annihilation,if=!talent.momentum.enabled|buff.momentum.up|fury.deficit<=30+buff.prepared.up*8|buff.metamorphosis.remains<2
                         if not talent.momentum or buff.momentum or powerDeficit <= 30 + prepared * 8 or buff.remain.metamorphosis < 2 then
@@ -571,11 +610,11 @@ if select(2, UnitClass("player")) == "DEMONHUNTER" then
                 -- Throw Glaive
                         -- throw_glaive,if=talent.bloodlet.enabled&(!talent.master_of_the_glaive.enabled|!talent.momentum.enabled|buff.momentum.up)
                         if talent.bloodlet and (not talent.masterOfTheGlaive or not talent.momentum or buff.momentum) then
-                           if cast.throwGlaive() then return end
+                           if cast.throwGlaive("target") then return end
                         end 
                 -- Eye Beam
                         -- eye_beam,if=!talent.demonic.enabled&(spell_targets.eye_beam_tick>desired_targets|(raid_event.adds.in>45&buff.metamorphosis.down&(artifact.anguish_of_the_deceiver.enabled|active_enemies>1|level=100)))
-                        if not talent.demonic and (#enemies.yards20 > getOptionValue("Eye Beam Targets") or (addsIn > 45 and not buff.metamorphosis and (artifact.anguishOfTheDeceiver or #enemies.yards5 > 1 or level == 100))) and getDistance(units.dyn8) < 8 and getFacing("player",units.dyn5,45) then
+                        if not talent.demonic and (#enemies.yards20 >= getOptionValue("Eye Beam Targets") or (addsIn > 45 and not buff.metamorphosis and (artifact.anguishOfTheDeceiver or #enemies.yards5 > 1 or level == 100))) and getDistance(units.dyn8) < 8 and getFacing("player",units.dyn5,45) then
                             if cast.eyeBeam() then return end
                         end
                 -- Demon's Bite
@@ -594,7 +633,7 @@ if select(2, UnitClass("player")) == "DEMONHUNTER" then
                 -- Throw Glaive
                         -- throw_glaive,if=buff.metamorphosis.down&spell_targets>=3
                         if not buff.metamorphosis and #enemies.yards30 >= 3 then
-                            if cast.throwGlaive() then return end
+                            if cast.throwGlaive("target") then return end
                         end
                 -- Chaos Strike
                         -- chaos_strike,if=!talent.momentum.enabled|buff.momentum.up|fury.deficit<=30+buff.prepared.up*8
@@ -606,16 +645,22 @@ if select(2, UnitClass("player")) == "DEMONHUNTER" then
                         -- TODO
                 -- Fel Rush
                         -- fel_rush,animation_cancel=1,if=!talent.momentum.enabled&raid_event.movement.in>charges*10
-                        if useMover() and not talent.momentum and moveIn > charges.felRush * 10 then
-                            if cast.felRush() then return end
+                        if useMover() and getFacing("player","target",10) and not talent.momentum and moveIn > charges.felRush * 10 then
+                            if getDistance("target") < 10 then 
+                                if cast.felRush() then C_Timer.After(0.01, freezeFelRush); return end
+                                -- if cast.felRushCancelAnimation() then return end
+                            end
+                            if getDistance("target") >= 10 then
+                                if cast.felRush() then return end
+                            end
                         end
                 -- Demon's Bite
                         if cast.demonsBite() then return end 
                 -- Throw Glaive
-                        if cast.throwGlaive() then return end
+                        if cast.throwGlaive("target") then return end
                 -- Fel Rush
                         --fel_rush,if=movement.distance>15|(buff.out_of_range.up&!talent.momentum.enabled)
-                        if useMover() and getDistance("target") > 15 and not talent.momentum then
+                        if useMover() and getFacing("player","target",10) and getDistance("target") > 15 and not talent.momentum then
                             if cast.felRush() then return end
                         end
                     end -- End SimC APL

@@ -26,6 +26,7 @@ if select(2, UnitClass("player")) == "PALADIN" then
         self.spell.class.abilities      = {
             blessingOfFreedom           = 1044,
             blessingOfProtection        = 1022,
+            blindingLight               = 115750,
             contemplation               = 121183,
             crusaderStrike              = 35395,
             divineShield                = 642,
@@ -35,6 +36,7 @@ if select(2, UnitClass("player")) == "PALADIN" then
             judgment                    = 20271,
             layOnHands                  = 633,
             redemption                  = 7328,
+            repentance                  = 20066,
             tyrsDeliverance             = 200654,
         }
         self.spell.class.artifacts      = {        -- Artifact Traits Available To All Specs in Class
@@ -53,7 +55,8 @@ if select(2, UnitClass("player")) == "PALADIN" then
             glyphOfTheQueen             = 212642,
         }
         self.spell.class.talents        = {        -- Talents Available To All Specs in Class
-
+            blindingLight               = 115750,
+            repentance                  = 20066,
         }
 
     ------------------
@@ -112,6 +115,7 @@ if select(2, UnitClass("player")) == "PALADIN" then
         function self.getClassEnemies()
             local getEnemies = getEnemies
 
+            self.enemies.yards8     = getEnemies("player", 8) -- AoE
             self.enemies.yards10    = getEnemies("player", 10) -- Hammer of Justice
         end
 
@@ -265,19 +269,72 @@ if select(2, UnitClass("player")) == "PALADIN" then
     --------------
 
         function self.getClassCastable()
-            self.cast.debug.crusaderStrike  = self.cast.crusaderStrike("target",true)
-            self.cast.debug.judgment        = self.cast.judgment("target",true)
-            self.cast.debug.hammerOfJustice = self.cast.hammerOfJustice("target",true)
-            self.cast.debug.flashOfLight    = self.cast.flashOfLight("player",true)
+            self.cast.debug.blessingOfFreedom       = self.cast.blessingOfFreedom("player",true)
+            self.cast.debug.blessingOfProtection    = self.cast.blessingOfProtection("player",true)
+            self.cast.debug.crusaderStrike          = self.cast.crusaderStrike("target",true)
+            self.cast.debug.divineShield            = self.cast.divineShield("player",true)
+            self.cast.debug.flashOfLight            = self.cast.flashOfLight("player",true)
+            self.cast.debug.hammerOfJustice         = self.cast.hammerOfJustice("target",true)
+            self.cast.debug.judgment                = self.cast.judgment("target",true)
+            self.cast.debug.layOnHands              = self.cast.layOnHands("player",true)
+            self.cast.debug.repentance              = self.cast.repentance("target",true)
         end
 
+        function self.cast.blessingOfFreedom(thisUnit,debug)
+            local spellCast = self.spell.blessingOfFreedom
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = "player" end
+            if debug == nil then debug = false end
+
+            if self.level >= 52 and self.powerPercentMana > 15 and self.cd.blessingOfFreedom == 0 and getDistance(thisUnit) < 40 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,false,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+        function self.cast.blessingOfProtection(thisUnit,debug)
+            local spellCast = self.spell.blessingOfProtection
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = "player" end
+            if debug == nil then debug = false end
+
+            if self.level >= 52 and self.powerPercentMana > 15 and self.cd.blessingOfProtection == 0 and self.charges.blessingOfProtection > 0 and getDistance(thisUnit) < 40 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,false,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
         function self.cast.crusaderStrike(thisUnit,debug)
             local spellCast = self.spell.crusaderStrike
             local thisUnit = thisUnit
             if thisUnit == nil then thisUnit = self.units.dyn5 end
             if debug == nil then debug = false end
 
-            if self.level >= 1 and self.charges.crusaderStrike > 0 and getDistance(thisUnit) < 5 then
+            if self.level >= 1 and self.charges.crusaderStrike > 0 and getDistance(thisUnit) < 5 and not self.talent.zeal then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,false,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+        function self.cast.divineShield(thisUnit,debug)
+            local spellCast = self.spell.divineShield
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = "player" end
+            if debug == nil then debug = false end
+
+            if self.level >= 18 and self.cd.divineShield == 0 and not self.buff.forbearance and getDistance(thisUnit) < 40 then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
@@ -335,6 +392,39 @@ if select(2, UnitClass("player")) == "PALADIN" then
                 return false
             end
         end
+        function self.cast.layOnHands(thisUnit,debug)
+            local spellCast = self.spell.layOnHands
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = "player" end
+            if debug == nil then debug = false end
+
+            if self.level >= 22 and self.cd.layOnHands == 0 and not self.buff.forbearance and getDistance(thisUnit) < 40 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,false,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+        function self.cast.repentance(thisUnit,debug)
+            local spellCast = self.spell.repentance
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = self.units.dyn30 end
+            if debug == nil then debug = false end
+
+            if self.talent.repentance and self.powerPercentMana > 10 and self.cd.repentance == 0 and getDistance(thisUnit) < 30 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,false,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+
 
     ------------------------
     --- CUSTOM FUNCTIONS ---
