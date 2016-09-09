@@ -3,6 +3,11 @@
 cVengeance = {}
 cVengeance.rotations = {}
 
+dub = {
+    felDevastation = false,
+}
+
+
 -- Creates Vengeance DemonHunter
 function cVengeance:new()
     if GetSpecializationInfo(GetSpecialization()) == 581 then
@@ -21,13 +26,28 @@ function cVengeance:new()
         self.charges.max                = {}
         self.spell.spec                 = {}
         self.spell.spec.abilities       = {
-            soulCarver                  = 214743,
+            soulCarver                  = 207407,
+            infernalStrike              = 189110,
+            shear                       = 203782,
+            soulCleave                  = 228477,
+            immolationAura              = 178740,
+            metamorphosis               = 187827,
+            demonSpikes                 = 203720,
+            sigilofFlame                = 204596,
+            fieryBrand                  = 204021,
+            throwGlaive                 = 204157,
+            felblade                    = 213241,
+            spiritBomb                  = 218679,
+            felDevastation              = 212084,
         }
         self.spell.spec.artifacts       = {
 
         }
         self.spell.spec.buffs           = {
-
+            demonSpikes                 = 203819,
+            soulFragments               = 203981,
+            metamorphosis               = 187827,
+            feastofSouls                = 207693,
         }
         self.spell.spec.debuffs         = {
 
@@ -36,7 +56,15 @@ function cVengeance:new()
 
         }
         self.spell.spec.talents         = {
-
+            abyssalStrike               = 207550,
+            agonizingFlames             = 207548,
+            razorSpikes                 = 209400,
+            feastofSouls                = 207697,
+            fallout                     = 227174,
+            burningAlive                = 207739,
+            felblade                    = 213241,
+            spiritBomb                  = 218679,
+            felDevastation              = 212084,
         }
         -- Merge all spell ability tables into self.spell
         self.spell = mergeSpellTables(self.spell, self.characterSpell, self.spell.class.abilities, self.spell.spec.abilities)
@@ -286,8 +314,221 @@ function cVengeance:new()
     --------------
 
         function self.getCastable()
-
+            self.cast.debug.infernalStrike      = self.cast.infernalStrike("player", true);
+            self.cast.debug.shear               = self.cast.shear("target", true);
+            self.cast.debug.soulCleave          = self.cast.soulCleave("target", true);
+            self.cast.debug.immolationAura      = self.cast.immolationAura("player", true);
+            self.cast.debug.metamorphosis       = self.cast.metamorphosis("player", true);
+            self.cast.debug.demonSpikes         = self.cast.demonSpikes("player", true);
+            self.cast.debug.throwGlaive         = self.cast.throwGlaive("target", true);
+            self.cast.debug.sigilofFlame         = self.cast.sigilofFlame("target", true);
+            self.cast.debug.spiritBomb         = self.cast.spiritBomb("target", true);
+            self.cast.debug.felDevastation         = self.cast.felDevastation("target", true);
    --       self.cast.debug.soulCarver          = self.cast.soulCarver 
+        end
+
+        -- soulCarver                  = 214743,
+        function self.cast.soulCarver(thisUnit,debug)
+            local spellCast = self.spell.soulCarver
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = self.units.dyn5 end
+            if debug == nil then debug = false end
+
+            if self.level >= 100 and getDistance(thisUnit) <= 5 and self.cd.soulCarver == 0 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,true,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,true,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+        -- infernalStrike              = 189110,
+        function self.cast.infernalStrike(thisUnit,debug)
+            local spellCast = self.spell.infernalStrike
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = self.units.dyn5 end
+            if debug == nil then debug = false end
+
+            if self.level >= 98 and getDistance(thisUnit) < 5 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    return castGround(thisUnit,spellCast,8)
+                end
+            elseif debug then
+                return false
+            end
+        end
+        -- shear                       = 203782,
+        function self.cast.shear(thisUnit,debug)
+            local spellCast = self.spell.shear
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = self.units.dyn5 end
+            if debug == nil then debug = false end
+
+            if self.level >= 98 and getDistance(thisUnit) <= 5 and self.cd.shear == 0 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,true,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,true,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+        -- soulCleave                  = 228477,
+        function self.cast.soulCleave(thisUnit,debug)
+            local spellCast = self.spell.soulCleave
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = self.units.dyn5 end
+            if debug == nil then debug = false end
+
+            if self.level >= 98 and self.power >= 30 and getDistance(thisUnit) < 5 and self.cd.soulCleave == 0 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,true,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,true,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+        -- immolationAura              = 178740,
+        function self.cast.immolationAura(thisUnit,debug)
+            local spellCast = self.spell.immolationAura
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = self.units.dyn8 end
+            if debug == nil then debug = false end
+
+            if self.level >= 98 and getDistance(thisUnit) < 8 and self.cd.immolationAura == 0 then
+                if debug then
+                    return castSpell("player",spellCast,false,false,false,false,false,false,false,true)
+                else
+                    return castSpell("player",spellCast,false,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+        -- metamorphosis               = 187827,
+        function self.cast.metamorphosis(thisUnit,debug)
+            local spellCast = self.spell.metamorphosis
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = self.units.dyn8 end
+            if debug == nil then debug = false end
+
+            if self.level >= 98 and getDistance(thisUnit) < 5 and self.cd.metamorphosis == 0 then
+                if debug then
+                    return castSpell("player",spellCast,false,false,false,false,false,false,false,true)
+                else
+                    return castSpell("player",spellCast,false,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+        -- demonSpikes                 = 203720,
+        function self.cast.demonSpikes(thisUnit,debug)
+            local spellCast = self.spell.demonSpikes
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = self.units.dyn8 end
+            if debug == nil then debug = false end
+
+            if self.level >= 98 and self.power >= 20 and self.charges.demonSpikes >= 1 and not self.buff.demonSpikes and getDistance(thisUnit) < 5 then
+                if debug then
+                    return castSpell("player",spellCast,false,false,false,false,false,false,false,true)
+                else
+                    return castSpell("player",spellCast,false,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+        -- sigilofFlame                = 204596,
+        function self.cast.sigilofFlame(thisUnit,debug)
+            local spellCast = self.spell.sigilofFlame
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = self.units.dyn5 end
+            if debug == nil then debug = false end
+
+            if self.level >= 98 and getDistance(thisUnit) < 10 and self.cd.sigilofFlame == 0 then
+                if debug then
+                    return castSpell("player",spellCast,false,false,false,false,false,false,false,true)
+                else
+                    --return castGround(thisUnit,spellCast,10)
+                    return castGroundAtBestLocation(spellCast, 8, 1, 10)
+                end
+            elseif debug then
+                return false
+            end
+        end
+        -- fieryBrand                  = 204021,
+        -- throwGlaive                 = 204157,
+        function self.cast.throwGlaive(thisUnit,debug)
+            local spellCast = self.spell.throwGlaive
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = self.units.dyn30 end
+            if debug == nil then debug = false end
+
+            if self.level >= 98 and getDistance(thisUnit) < 30 and self.cd.throwGlaive == 0 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,true,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,true,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+
+        function self.cast.felblade(thisUnit,debug)
+            local spellCast = self.spell.felblade
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = self.units.dyn5 end
+            if debug == nil then debug = false end
+            if self.level >= 102 and self.talent.felblade and getDistance(thisUnit) <= 15 and self.cd.felblade == 0 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,true,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,true,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+
+        function self.cast.spiritBomb(thisUnit,debug)
+            local spellCast = self.spell.spiritBomb
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = self.units.dyn5 end
+            if debug == nil then debug = false end
+            if self.level >= 108 and self.talent.spiritBomb and getDistance(thisUnit) <= 40 and self.cd.spiritBomb == 0 and soulAmount() >= 1 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,true,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,true,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+
+        function self.cast.felDevastation(thisUnit,debug)
+            local spellCast = self.spell.felDevastation
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = self.units.dyn5 end
+            if debug == nil then debug = false end
+            if self.level >= 108 and self.power >= 30 and self.talent.felDevastation and getDistance(thisUnit) < 20 and  dub.felDevastation and self.cd.felDevastation == 0 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,true,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,true,false,false)
+                end
+            elseif debug then
+                return false
+            end
         end
 
         -- Annihilation
@@ -312,6 +553,13 @@ function cVengeance:new()
     --- CUSTOM FUNCTIONS ---
     ------------------------
 
+        function soulAmount()
+            return getBuffStacks("player",self.spell.spec.buffs.soulFragments) or 0
+        end
+
+        function spikesCD()
+            return select(4,GetSpellCharges(self.spell.demonSpikes))
+        end
 
     -----------------------------
     --- CALL CREATE FUNCTIONS ---
