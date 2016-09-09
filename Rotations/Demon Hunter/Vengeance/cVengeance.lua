@@ -145,7 +145,7 @@ function cVengeance:new()
     -------------
 
         function self.getBuffs()
-            local Unit3BuffID = UnitBuffID
+            local UnitBuffID = UnitBuffID
 
             for k,v in pairs(self.spell.spec.buffs) do
                 self.buff[k]            = UnitBuffID("player",v) ~= nil
