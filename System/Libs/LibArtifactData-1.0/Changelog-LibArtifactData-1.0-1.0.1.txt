@@ -1,0 +1,18 @@
+tag 1.0.1
+6ec6ebf1918cec6dc06cc379ddd3aba1d71f1fea
+Rainrider <rainrider.wow@gmail.com>
+2016-09-08 21:06:41 +0200
+
+Tagging version 1.0.1
+
+
+--------------------
+
+Rainrider:
+	- Scan off-hand artifacts in the inventory
+	- Bump minor by 2
+	To trump Gethe's fork by 1 :unamused:
+	- Place some nil checks
+	- Some minor code refactoring
+	This will spare three function calls in blizzard's code
+	- Unregister PLAYER_ENTERING_WORLD after first use
