@@ -78,7 +78,7 @@ function cFeral:new()
         self.spell.spec.debuffs         = {
             ashamanesFrenzy             = 210723,
             ashamanes                   = 210705,
-            feralMoonfire               = 155625,
+            moonfireFeral               = 155625,
             rake                        = 155722,
             rip                         = 1079,
             thrash                      = 106830,
@@ -479,7 +479,7 @@ function cFeral:new()
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
-                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                    return castSpell(thisUnit,spellCast,false,false,false)
                 end
             elseif debug then
                 return false
@@ -496,7 +496,7 @@ function cFeral:new()
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
-                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                    return castSpell(thisUnit,spellCast,false,false,false)
                 end
             elseif debug then
                 return false
@@ -509,11 +509,11 @@ function cFeral:new()
             if thisUnit == nil then thisUnit = "player" end
             if debug == nil then debug = false end
 
-            if self.talent.brutalSlash and self.charges.brutalSlash > 0 and self.power > 20 and self.buff.catForm then
+            if self.talent.brutalSlash and self.cd.brutalSlash == 0 and self.charges.brutalSlash > 0 and self.power > 20 and self.buff.catForm then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
-                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                    return castSpell(thisUnit,spellCast,false,false,false)
                 end
             elseif debug then
                 return false
@@ -530,7 +530,7 @@ function cFeral:new()
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
-                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                    return castSpell(thisUnit,spellCast,false,false,false)
                 end
             elseif debug then
                 return false
@@ -543,11 +543,11 @@ function cFeral:new()
             if thisUnit == nil then thisUnit = self.units.dyn5 end
             if debug == nil then debug = false end
 
-            if self.level >= 3 and self.power > 25 and self.buff.catForm and self.comboPoints > 0 and getDistance(thisUnit)<5 then
+            if self.level >= 3 and self.power > 25 and self.buff.catForm and self.comboPoints > 0 and self.cd.ferociousBite == 0 and getDistance(thisUnit)<5 then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
-                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                    return castSpell(thisUnit,spellCast,false,false,false)
                 end
             elseif debug then
                 return false
@@ -564,7 +564,7 @@ function cFeral:new()
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
-                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                    return castSpell(thisUnit,spellCast,false,false,false)
                 end
             elseif debug then
                 return false
@@ -581,7 +581,7 @@ function cFeral:new()
                 if debug == true then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
-                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                    return castSpell(thisUnit,spellCast,false,false,false)
                 end
             elseif debug then
                 return false
@@ -594,11 +594,11 @@ function cFeral:new()
             if thisUnit == nil then thisUnit = self.units.dyn40AoE end
             if debug == nil then debug = false end
 
-            if self.talent.lunarInspiration and self.power > 30 and (hasThreat(thisUnit) or (isDummy() and UnitIsUnit(thisUnit,"target"))) and getDistance(thisUnit) < 40 then
+            if self.talent.lunarInspiration and self.power > 30 and self.cd.moonfireFeral == 0 and (hasThreat(thisUnit) or (isDummy() and UnitIsUnit(thisUnit,"target"))) and getDistance(thisUnit) < 40 then
                 if debug == true then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
-                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                    return castSpell(thisUnit,spellCast,false,false,false)
                 end
             elseif debug then
                 return false
@@ -611,11 +611,11 @@ function cFeral:new()
             if thisUnit == nil then thisUnit = self.units.dyn5 end
             if debug == nil then debug = false end
 
-            if self.level >= 6 and self.power > 35 and self.buff.catForm and (getDebuffDuration(thisUnit,spellCast,"player") == 0 or getDebuffDuration(thisUnit,spellCast,"player") > 4) and getDistance(thisUnit) < 5 then
+            if self.level >= 6 and self.power > 35 and self.buff.catForm and self.cd.rake == 0 and (getDebuffDuration(thisUnit,spellCast,"player") == 0 or getDebuffDuration(thisUnit,spellCast,"player") > 4) and getDistance(thisUnit) < 5 then
                 if debug == true then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
-                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                    return castSpell(thisUnit,spellCast,false,false,false)
                 end
             elseif debug then
                 return false
@@ -632,7 +632,7 @@ function cFeral:new()
                 if debug == true then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
-                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                    return castSpell(thisUnit,spellCast,false,false,false)
                 end
             end
         end
@@ -647,7 +647,7 @@ function cFeral:new()
                 if debug == true then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
-                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                    return castSpell(thisUnit,spellCast,false,false,false)
                 end
             end
         end
@@ -658,11 +658,11 @@ function cFeral:new()
             if thisUnit == nil then thisUnit = self.units.dyn5 end
             if debug == nil then debug = false end
 
-            if self.level >= 20 and self.power > 30 and self.buff.catForm and self.comboPoints > 0 and getDistance(thisUnit) < 5 then
+            if self.level >= 20 and self.power > 30 and self.cd.rip == 0 and self.buff.catForm and self.comboPoints > 0 and getDistance(thisUnit) < 5 then
                 if debug == true then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
-                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                    return castSpell(thisUnit,spellCast,false,false,false)
                 end
             end
         end
@@ -673,11 +673,11 @@ function cFeral:new()
             if thisUnit == nil then thisUnit = "player" end
             if debug == nil then debug = false end
 
-            if self.talent.savageRoar and self.power > 25 and self.comboPoints > 0 then
+            if self.talent.savageRoar and self.power > 25 and self.comboPoints > 0 and self.cd.savageRoar == 0 then
                 if debug == true then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
-                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                    return castSpell(thisUnit,spellCast,false,false,false)
                 end
             end
         end
@@ -688,11 +688,11 @@ function cFeral:new()
             if thisUnit == nil then thisUnit = self.units.dyn5 end
             if debug == nil then debug = false end
 
-            if self.level >= 1 and self.buff.catForm and self.power > 40 and getDistance(thisUnit) < 5 then
+            if self.level >= 1 and self.buff.catForm and self.power > 40 and self.cd.shred == 0 and getDistance(thisUnit) < 5 then
                 if debug == true then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
-                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                    return castSpell(thisUnit,spellCast,false,false,false)
                 end
             end
         end
@@ -707,7 +707,7 @@ function cFeral:new()
                 if debug == true then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
-                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                    return castSpell(thisUnit,spellCast,false,false,false)
                 end
             end
         end
@@ -722,7 +722,7 @@ function cFeral:new()
                 if debug == true then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
-                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                    return castSpell(thisUnit,spellCast,false,false,false)
                 end
             end
         end
@@ -733,11 +733,11 @@ function cFeral:new()
             if thisUnit == nil then thisUnit = "player" end
             if debug == nil then debug = false end
 
-            if self.level >= 40 and self.charges.survivalInstincts > 0 and self.charges.survivalInstincts > 0 then
+            if self.level >= 40 and self.charges.survivalInstincts > 0 and self.charges.survivalInstincts > 0 and self.cd.survivalInstincts == 0 then
                 if debug == true then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
-                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                    return castSpell(thisUnit,spellCast,false,false,false)
                 end
             end
         end
@@ -748,11 +748,11 @@ function cFeral:new()
             if thisUnit == nil then thisUnit = "player" end
             if debug == nil then debug = false end
 
-            if not self.talent.brutalSlash and self.level >= 32 and self.buff.catForm and self.power > 45 then
+            if not self.talent.brutalSlash and self.level >= 32 and self.buff.catForm and self.power > 45 and self.cd.swipe == 0 then
                 if debug == true then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
-                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                    return castSpell(thisUnit,spellCast,false,false,false)
                 end
             end
         end
@@ -763,11 +763,11 @@ function cFeral:new()
             if thisUnit == nil then thisUnit = "player" end
             if debug == nil then debug = false end
 
-            if self.level >= 14 and self.power > 50 and self.buff.catForm and hasThreat(thisUnit) then
+            if self.level >= 14 and self.power > 50 and self.buff.catForm and hasThreat(thisUnit) and self.cd.thrash == 0 then
                 if debug == true then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
-                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                    return castSpell(thisUnit,spellCast,false,false,false)
                 end
             end
         end
@@ -782,7 +782,7 @@ function cFeral:new()
                 if debug == true then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
-                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                    return castSpell(thisUnit,spellCast,false,false,false)
                 end
             end
         end

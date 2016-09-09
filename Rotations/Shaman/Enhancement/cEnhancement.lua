@@ -59,6 +59,7 @@ function cEnhancement:new()
             gatheringStorms             = 198300,
             hailstorm                   = 210853,
             hotHand                     = 215785,
+            landslide                   = 202004,
             lightningShield             = 192106,
             stormbringer                = 201846,
         }

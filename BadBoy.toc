@@ -160,7 +160,7 @@ Rotations\Paladin\Protection\protectionSimC.lua
 
 Rotations\Paladin\Retribution\cRetribution.lua
 Rotations\Paladin\Retribution\Retribution.lua
-Rotations\Paladin\Retribution\RetributionGabbz.lua
+Rotations\Paladin\Retribution\RetributionCuteOne.lua
 
 ## Priest ---------------------------------------------------
 Rotations\Priest\cPriest.lua

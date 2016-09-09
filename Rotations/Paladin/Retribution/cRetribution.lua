@@ -39,6 +39,7 @@ function cRetribution:new()
             shieldOfVengeance           = 184662,
             swordOfLight                = 53503,
             templarsVerdict             = 85256,
+            wakeOfAshes                 = 205273,
             wordOfGlory                 = 210191,
             zeal                        = 217020,
         }
@@ -63,7 +64,8 @@ function cRetribution:new()
             wrathOfTheAshbringer        = 186945,
         }
         self.spell.spec.buffs           = {
-
+            divinePurpose               = 223819,
+            judgment                    = 197277,
         }
         self.spell.spec.debuffs         = {
 
@@ -358,6 +360,7 @@ function cRetribution:new()
             self.cast.debug.sealOfLight             = self.cast.sealOfLight("player",true)
             self.cast.debug.shieldOfVengeance       = self.cast.shieldOfVengeance("player",true)
             self.cast.debug.templarsVerdict         = self.cast.templarsVerdict("target",true)
+            self.cast.debug.wakeOfAshes             = self.cast.wakeOfAshes("player",true)
             self.cast.debug.wordOfGlory             = self.cast.wordOfGlory("player",true)
             self.cast.debug.zeal                    = self.cast.zeal("target",true)
         end
@@ -705,6 +708,22 @@ function cRetribution:new()
             if debug == nil then debug = false end
 
             if self.level >= 10 and self.holyPower >= 3 and getDistance(thisUnit) < 5 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,false,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+        function self.cast.wakeOfAshes(thisUnit,debug)
+            local spellCast = self.spell.wakeOfAshes
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = "player" end
+            if debug == nil then debug = false end
+
+            if self.artifact.wakeOfAshes and self.cd.wakeOfAshes == 0 then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else

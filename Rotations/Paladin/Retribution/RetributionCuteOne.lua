@@ -1,5 +1,5 @@
 if select(3, UnitClass("player")) == 2 then -- Change specID to ID of spec. IE: https://github.com/MrTheSoulz/NerdPack/wiki/Class-&-Spec-IDs
-    local rotationName = "Gabbz" -- Appears in the dropdown of the rotation selector in the Profile Options window
+    local rotationName = "CuteOne" -- Appears in the dropdown of the rotation selector in the Profile Options window
 
 ---------------
 --- Toggles ---
@@ -112,12 +112,17 @@ if select(3, UnitClass("player")) == 2 then -- Change specID to ID of spec. IE: 
 	--------------
 	--- Locals ---
 	--------------
-			local cast 		= bb.player.cast
-			local enemies 	= bb.player.enemies
-			local hastar 	= ObjectExists("target")
-			local inCombat 	= bb.player.inCombat
-			local mode 		= bb.player.mode
-			local php 		= bb.player.health			
+			local buff 			= bb.player.buff
+			local cast 			= bb.player.cast
+			local cd 			= bb.player.cd
+			local enemies 		= bb.player.enemies
+			local gcd 			= bb.player.gcd
+			local hastar 		= ObjectExists("target")
+			local holyPower 	= bb.player.holyPower
+			local holyPowerMax 	= bb.player.holyPowerMax
+			local inCombat 		= bb.player.inCombat
+			local mode 			= bb.player.mode
+			local php 			= bb.player.health			
 
 			if profileStop == nil then profileStop = false end
 	--------------------
@@ -220,12 +225,60 @@ if select(3, UnitClass("player")) == 2 then -- Change specID to ID of spec. IE: 
 	----------------------------------
 	--- In Combat - Begin Rotation ---
 	----------------------------------
+			-- Execution Sentence
+					-- if CooldownSecRemaining(Judgment) <= GlobalCooldownSec * 3
+					if cd.judgment <= gcd * 3 then
+						if cast.executionSentence() then return end
+					end
 			-- Judgment
 					if cast.judgment() then return end
+			-- Consecration
+					-- if not HasBuff(Judgment)
+					if not buff.judgment then
+						if cast.consecration() then return end
+					end
+			-- Justicar's Vengeance
+					-- if HasBuff(DivinePurpose) and TargetsInRadius(DivineStorm) <= 3
+					if buff.divinePurpose and #enemies.yards8 <= 3 then
+						if cast.justicarsVengeance() then return end
+					end
+			-- Divine Storm
+					-- if (AlternatePower >= 4 or HasBuff(DivinePurpose) or HasBuff(Judgment)) and TargetsInRadius(DivineStorm) > 2
+					if (holyPower >= 4 or buff.divinePurpose or buff.judgment) and #enemies.yards8 > 2 then
+						if cast.divineStorm() then return end
+					end
 			-- Templar's Verdict
-					if cast.templarsVerdict() then return end
+					-- if (AlternatePower >= 4 or HasBuff(DivinePurpose) or HasBuff(Judgment))
+					if (holyPower >= 4 or buff.divinePurpose or buff.judgment) then
+						if cast.templarsVerdict() then return end
+					end
+			-- Wake of Ashes
+					-- if AlternatePowerToMax >= 4
+					if holyPowerMax - holyPower >= 4 then
+						if cast.wakeOfAshes() then return end
+					end
+			-- Blade of Justice
+					-- if AlternatePowerToMax >= 2
+					if holyPowerMax - holyPower >= 2 then
+						if cast.bladeOfJustice() then return end
+					end
+			-- Blade of Wrath
+					-- if AlternatePowerToMax >= 2
+					if holyPowerMax - holyPower >= 2 then
+						if cast.bladeOfWrath() then return end
+					end
+			-- Divine Hammer
+					-- if AlternatePowerToMax >= 2
+					if holyPowerMax - holyPower >= 2 then
+						if cast.divineHammer() then return end
+					end
+			-- Hammer of Justice
+					-- if HasItem(JusticeGaze) and TargetHealthPercent > 0.75 and not HasBuff(Judgment)
+					-- TODO
 			-- Crusader Strike
 					if cast.crusaderStrike() then return end
+			-- Zeal
+					if cast.zeal() then return end
 			-- AoE
 					if actionList_Multiple() then return end
 			-- Single Target
