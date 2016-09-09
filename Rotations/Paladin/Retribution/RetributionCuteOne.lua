@@ -260,7 +260,7 @@ if select(3, UnitClass("player")) == 2 then -- Change specID to ID of spec. IE: 
 			-- Wake of Ashes
 					-- if AlternatePowerToMax >= 4
 					if holyPowerMax - holyPower >= 4 then
-						if cast.wakeOfAshes() then return end
+						if cast.wakeOfAshes(units.dyn5) then return end
 					end
 			-- Blade of Justice
 					-- if AlternatePowerToMax >= 2
