@@ -3,6 +3,12 @@
     <Binding name="Burst Rotation" description="Hold to use burst rotation" header="BADBOY" runOnUp="true">
             if keystate == "down" then burst = true; else burst = nil; end
     </Binding>
+    <Binding name="Force Heal" description="Hold to use force healing" runOnUp="true">
+            if keystate == "down" then forceHeal = true; else forceHeal = nil; end
+    </Binding>
+    <!-- <Binding name="Rotation Toggle" description="Hold to use toggle rotation" runOnUp="true">
+            if keystate == "down" then customToggle = true; UpdateToggle("Rotation",0.25); else customToggle = nil; end
+    </Binding> -->
 <!--     <Binding name="SmartKick" description="Hold to heal target" header="MAGE" runOnUp="true">
             if keystate == "down" then cc = true; else cc = nil; end
     </Binding>

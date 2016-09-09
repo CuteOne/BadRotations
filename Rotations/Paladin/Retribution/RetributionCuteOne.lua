@@ -139,7 +139,7 @@ if select(3, UnitClass("player")) == 2 then -- Change specID to ID of spec. IE: 
 				if useDefensive() then
 			-- Flash of Light
 					if isChecked("Flash of Light") then
-						if php <= getOptionValue("Flash of Light") then
+						if forceHeal or php <= getOptionValue("Flash of Light") then
 							if cast.flashOfLight() then return end
 						end
 					end				
