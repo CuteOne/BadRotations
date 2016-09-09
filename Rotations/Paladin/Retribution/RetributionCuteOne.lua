@@ -115,6 +115,7 @@ if select(3, UnitClass("player")) == 2 then -- Change specID to ID of spec. IE: 
 			local buff 			= bb.player.buff
 			local cast 			= bb.player.cast
 			local cd 			= bb.player.cd
+			local debuff 		= bb.player.debuff
 			local enemies 		= bb.player.enemies
 			local gcd 			= bb.player.gcd
 			local hastar 		= ObjectExists("target")
@@ -161,8 +162,11 @@ if select(3, UnitClass("player")) == 2 then -- Change specID to ID of spec. IE: 
 			end -- End Action List - Interrupts
 		-- Action List - Cooldowns
 			local function actionList_Cooldowns()
-				if useCDs() then
-					-- Cooldown abilities listed here
+				if useCDs() or burst then
+			-- Crusade
+					if cast.crusade() then return end
+			-- Avenging Wrath
+					if cast.avengingWrath() then return end
 				end -- End Cooldown Usage Check
 			end -- End Action List - Cooldowns
 		-- Action List - PreCombat
@@ -235,7 +239,7 @@ if select(3, UnitClass("player")) == 2 then -- Change specID to ID of spec. IE: 
 					if cast.judgment(units.dyn5) then return end
 			-- Consecration
 					-- if not HasBuff(Judgment)
-					if not buff.judgment then
+					if not debuff.judgment and #enemies.yards8 >= 3 then
 						if cast.consecration() then return end
 					end
 			-- Justicar's Vengeance
@@ -245,12 +249,12 @@ if select(3, UnitClass("player")) == 2 then -- Change specID to ID of spec. IE: 
 					end
 			-- Divine Storm
 					-- if (AlternatePower >= 4 or HasBuff(DivinePurpose) or HasBuff(Judgment)) and TargetsInRadius(DivineStorm) > 2
-					if (holyPower >= 4 or buff.divinePurpose or buff.judgment) and #enemies.yards8 > 2 then
+					if (holyPower >= 3 or buff.divinePurpose or debuff.judgment) and #enemies.yards8 > 2 then
 						if cast.divineStorm() then return end
 					end
 			-- Templar's Verdict
 					-- if (AlternatePower >= 4 or HasBuff(DivinePurpose) or HasBuff(Judgment))
-					if (holyPower >= 4 or buff.divinePurpose or buff.judgment) then
+					if (holyPower >= 3 or buff.divinePurpose or debuff.judgment) then
 						if cast.templarsVerdict(units.dyn5) then return end
 					end
 			-- Wake of Ashes

@@ -65,10 +65,9 @@ function cRetribution:new()
         }
         self.spell.spec.buffs           = {
             divinePurpose               = 223819,
-            judgment                    = 197277,
         }
         self.spell.spec.debuffs         = {
-
+            judgment                    = 197277,
         }
         self.spell.spec.glyphs          = {
             glyphOfWingedVengeance      = 57979,

@@ -1,0 +1,36 @@
+ <Bindings>  
+
+    <Binding name="Burst Rotation" description="Hold to use burst rotation" header="BADBOY" runOnUp="true">
+            if keystate == "down" then burst = true; else burst = nil; end
+    </Binding>
+<!--     <Binding name="SmartKick" description="Hold to heal target" header="MAGE" runOnUp="true">
+            if keystate == "down" then cc = true; else cc = nil; end
+    </Binding>
+
+     <Binding name="Blizzard" description="cast blizzard where your cursor is" header="MAGE" runOnUp="true">
+        if keystate == "down" then blizzKey = true; else blizzKey = nil; end
+    </Binding>
+    <Binding name="Kite" description="Hold to kite the target" header="MAGEMOVE" runOnUp="true">
+            if keystate == "down" then kiteButton = true; else kiteButton = nil; end
+    </Binding>
+     <Binding name="Blink" description="Cast blink" header="MAGEMOVE" runOnUp="true">
+        if keystate == "down" then BlinKey = true; else BlinKey = nil; end
+    </Binding>
+
+    <Binding name="Smart CC Healer" description="Hold to cc the healer" header="MAGECC" runOnUp="true">
+            if keystate == "down" then ccHealer = true; else ccHealer = nil; end
+    </Binding>
+    <Binding name="Smart Kick" description="Hold to cast kick" header="MAGECC" runOnUp="true">
+            if keystate == "down" then kickButton = true; else kickButton = nil; end
+    </Binding>
+    <Binding name="Sheep arena 1" description="Hold button to sheep arena target" header="MAGECC" runOnUp="true">
+            if keystate == "down" then sheepArena1 = true; else sheepArena1 = nil; end
+    </Binding>
+    <Binding name="Sheep arena 2" description="Hold button to sheep arena target" header="MAGECC" runOnUp="true">
+            if keystate == "down" then sheepArena2 = true; else sheepArena2 = nil; end
+    </Binding>
+     <Binding name="Sheep arena 3" description="Hold button to sheep arena target" header="MAGECC" runOnUp="true">
+            if keystate == "down" then sheepArena3 = true; else sheepArena3 = nil; end
+    </Binding> -->
+    
+ </Bindings>

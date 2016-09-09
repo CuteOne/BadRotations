@@ -6,6 +6,7 @@
 ## SavedVariablesPerCharacter: bbdata
 
 BadBoy.lua
+bindings.xml
 
 ## System
 System\Beautycase.lua
