@@ -93,7 +93,7 @@ Raidable means if its good to raid with.
 ||||
 | **Demon Hunter** |||
 |Havoc|100% (SimC)|CuteOne|7.0|:white_check_mark:
-|Vengeance|0%||7.0|
+|Vengeance|70% (SimC)||7.0|
 ||||
 | **Druid** |||
 |Feral|100% (SimC)|CuteOne|7.0|:white_check_mark:
