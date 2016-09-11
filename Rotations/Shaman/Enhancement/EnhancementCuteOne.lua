@@ -222,7 +222,7 @@ if select(2, UnitClass("player")) == "SHAMAN" then
                     end
                 end -- End Dummy Test
             -- Ghost Wolf
-                if isChecked("Ghost Wolf") then
+                if isChecked("Ghost Wolf") and not UnitBuffID("player",202477) then
                     if ((#enemies.yards20 == 0 and not inCombat) or (#enemies.yards10 == 0 and inCombat)) and isMoving("player") then
                         if cast.ghostWolf() then return end
                     end
@@ -409,13 +409,15 @@ if select(2, UnitClass("player")) == "SHAMAN" then
 
                     end -- End Pre-Pull
                     if ObjectExists("target") and not UnitIsDeadOrGhost("target") and UnitCanAttack("target", "player") then
-                -- Lightning Bolt
-                        if getDistance("target") >= 10 and not talent.overcharge and (not isChecked("Feral Lunge") or not talent.feralLunge or cd.feralLunge > gcd) then
-                            if cast.lightningBolt("target") then return end
-                        end
                 -- Feral Lunge
                         if isChecked("Feral Lunge") then
                             if cast.feralLunge("target") then return end
+                        end
+                -- Lightning Bolt
+                        if getDistance("target") >= 10 and not talent.overcharge 
+                            and (not isChecked("Feral Lunge") or not talent.feralLunge or cd.feralLunge > gcd or not castable.feralLunge) 
+                        then
+                            if cast.lightningBolt("target") then return end
                         end
                 -- Start Attack
                         if getDistance("target") < 5 then

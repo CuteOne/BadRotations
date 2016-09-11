@@ -208,6 +208,8 @@ if select(2, UnitClass("player")) == "MONK" then
             local ttm               = bb.player.timeToMax
             local units             = bb.player.units
             if lastSpell == nil then lastSpell = 0 end
+            if leftCombat == nil then leftCombat = GetTime() end
+            if profileStop == nil then profileStop = false end
 
             -- ChatOverlay(round2(getDistance3("target"),2))
     --------------------

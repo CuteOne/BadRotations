@@ -1732,6 +1732,7 @@ local BossIDs = {
 	[103344] = true, -- Oakheart
 	[99200]  = true, -- Dresaron
 	[101403] = true, -- Shade of Xavius
+	[99192] = true, -- Shade of Xavius
 
 	-------------------------------------------------------------------------------
 	-- Eye of Azshara
@@ -1746,10 +1747,13 @@ local BossIDs = {
 	-- Halls of Valor
 	-------------------------------------------------------------------------------
 	[110929] = true, -- Hymdall
+	[94960]  = true, -- Hymdall
 	[96646]  = true, -- Hyrja
 	[95833]  = true, -- Hyrja
 	[99868]  = true, -- Fenryr
+	[95674]  = true, -- Fenryr
 	[95675]  = true, -- God-King Skovald
+	[95676]  = true, -- Odyn
 	[110962] = true, -- Odyn
 
 	-------------------------------------------------------------------------------
@@ -1824,6 +1828,7 @@ local BossIDs = {
 	-- Violet Hold: Legion
 	-------------------------------------------------------------------------------
 	[108865] = true, -- Festerface
+	[101995] = true, -- Festerface
 	[108862] = true, -- Shivermaw
 	[102614] = true, -- Blood-Princess Thal'ena
 	[108863] = true, -- Mindflayer Kaahrj
