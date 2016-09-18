@@ -385,7 +385,7 @@ function cDemonHunter:new(spec)
         end
 
         function useMover()
-            if self.mode.mover == 1 then
+            if self.mode.mover == 1 or self.mode.mover == 2 then
                 return true
             else
                 return false

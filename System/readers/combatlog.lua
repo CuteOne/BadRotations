@@ -70,6 +70,8 @@ function bb.read.combatLog()
       cl:Monk(...)
     elseif class == 11 then -- Druid
       cl:Druid(...)
+    elseif class == 12 then -- Demon Hunter
+      cl:DemonHunter(...)
     end
   end
   -- add event to the reader
@@ -212,7 +214,13 @@ function bb.read.combatLog()
         end
     end
   end
-
+  function cl:DemonHunter(...)
+      local timeStamp, param, hideCaster, source, sourceName, sourceFlags, sourceRaidFlags, destination,
+          destName, destFlags, destRaidFlags, spell, spellName, _, spellType = ...
+      -- if spell == 192611 and (param == "SPELL_CAST_SUCCESS" or param == "SPELL_CAST_START" or param == "SPELL_DAMAGE") then
+      --     MoveBackwardStop()
+      -- end
+  end 
   function cl:Druid(...)
     local timeStamp, param, hideCaster, source, sourceName, sourceFlags, sourceRaidFlags, destination,
         destName, destFlags, destRaidFlags, spell, spellName, _, spellType = ...

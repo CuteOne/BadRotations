@@ -510,7 +510,7 @@ if select(2, UnitClass("player")) == "SHAMAN" then
                 -- Crash Lightning
                         -- crash_lightning,if=active_enemies>=3
                         if (mode.rotation == 1 and #enemies.yards5 >= 3) or mode.rotation == 2 then
-                            if cast.crashLightning() then return end
+                            if cast.crashLightning(units.dyn5) then return end
                         end
                 -- Windstrike
                         -- windstrike
@@ -544,7 +544,7 @@ if select(2, UnitClass("player")) == "SHAMAN" then
                 -- Crash Lightning
                         -- crash_lightning,if=active_enemies>1|talent.crashing_storm.enabled|(pet.feral_spirit.remains>5|pet.frost_wolf.remains>5|pet.fiery_wolf.remains>5|pet.lightning_wolf.remains>5)
                         if (((mode.rotation == 1 and #enemies.yards5 > 1) or talent.crashingStorm or (feralSpiritRemain > 5)) or mode.rotation == 2) and mode.rotation ~= 3 then
-                            if cast.crashLightning() then return end
+                            if cast.crashLightning(units.dyn5) then return end
                         end
                 -- Sundering
                         -- sundering

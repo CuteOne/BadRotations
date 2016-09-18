@@ -336,16 +336,20 @@ function cHavoc:new()
             self.cast.debug.annihilation        = self.cast.annihilation("target",true)
             self.cast.debug.bladeDance          = self.cast.bladeDance("player",true)
             self.cast.debug.blur                = self.cast.blur("player",true)
+            self.cast.debug.chaosBlades         = self.cast.chaosBlades("player",true)
             self.cast.debug.chaosNova           = self.cast.chaosNova("player",true)
             self.cast.debug.chaosStrike         = self.cast.chaosStrike("target",true)
             self.cast.debug.darkness            = self.cast.darkness("player",true)
             self.cast.debug.deathSweep          = self.cast.deathSweep("player",true)
             self.cast.debug.demonsBite          = self.cast.demonsBite("target",true)
             self.cast.debug.eyeBeam             = self.cast.eyeBeam("player",true)
+            self.cast.debug.felBarrage          = self.cast.felBarrage("target",true)
             self.cast.debug.felblade            = self.cast.felblade("target",true)
+            self.cast.debug.felEruption         = self.cast.felEruption("target",true)
             self.cast.debug.felRush             = self.cast.felRush("player",true)
             self.cast.debug.furyOfTheIllidari   = self.cast.furyOfTheIllidari("player",true)
             self.cast.debug.metamorphosis       = self.cast.metamorphosis("player",true)
+            self.cast.debug.nemesis             = self.cast.nemesis("target",true)
             self.cast.debug.throwGlaive         = self.cast.throwGlaive("target",true)
             self.cast.debug.vengefulRetreat     = self.cast.vengefulRetreat("player",true)
         end
@@ -373,6 +377,7 @@ function cHavoc:new()
             local thisUnit = thisUnit
             if thisUnit == nil then thisUnit = "player" end
             if debug == nil then debug = false end
+            if self.buff.metamorphosis then spellCast = self.spell.deathSweep end
 
             if self.level >= 98 and self.power > 40 and self.cd.bladeDance == 0 and not self.buff.metamorphosis and getDistance(self.units.dyn5) < 5 then
                 if debug then
@@ -390,9 +395,25 @@ function cHavoc:new()
             local thisUnit = thisUnit
             if thisUnit == nil then thisUnit = "player" end
             if debug == nil then debug = false end
-            if self.buff.metamorphosis then spellCast = self.spell.deathSweep end
 
             if self.level >= 100 and isKnown(spellCast) and self.cd.blur == 0 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,false,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+        -- Chaos Blades
+        function self.cast.chaosBlades(thisUnit,debug)
+            local spellCast = self.spell.chaosBlades
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = "player" end
+            if debug == nil then debug = false end
+
+            if self.talent.chaosBlades and self.cd.chaosBlades == 0 then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
@@ -477,7 +498,7 @@ function cHavoc:new()
             if thisUnit == nil then thisUnit = self.units.dyn5 end
             if debug == nil then debug = false end
 
-            if not self.talent.demonBlades and self.level >= 98 and self.power <= 70 and getDistance(thisUnit) < 5 then
+            if not self.talent.demonBlades and self.level >= 98 and self.power <= 70 and self.cd.demonsBite == 0 and getDistance(thisUnit) < 5 then
                 if debug then
                     return castSpell(thisUnit,spellCast,true,false,false,false,false,false,false,true)
                 else
@@ -504,6 +525,23 @@ function cHavoc:new()
                 return false
             end
         end
+        -- Fel Barrage
+        function self.cast.felBarrage(thisUnit,debug)
+            local spellCast = self.spell.felBarrage
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = self.units.dyn30 end
+            if debug == nil then debug = false end
+
+            if self.talent.felBarrage and self.cd.felBarrage == 0 and self.charges.felBarrage > 0 and getDistance(thisUnit) < 30 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,true,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,true,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
         -- Felblade
         function self.cast.felblade(thisUnit,debug)
             local spellCast = self.spell.felblade
@@ -521,6 +559,23 @@ function cHavoc:new()
                 return false
             end
         end
+        -- Fel Eruption
+        function self.cast.felEruption(thisUnit,debug)
+            local spellCast = self.spell.felEruption
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = self.units.dyn20 end
+            if debug == nil then debug = false end
+
+            if self.talent.felEruption and self.cd.felEruption == 0 and self.power > 20 and getDistance(thisUnit) < 20 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,true,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,true,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
         -- Fel Rush
         function self.cast.felRush(thisUnit,debug)
             local spellCast = self.spell.felRush
@@ -528,37 +583,35 @@ function cHavoc:new()
             if thisUnit == nil then thisUnit = "player" end
             if debug == nil then debug = false end
 
-            if self.level >= 98 and self.charges.felRush > 0 then
+            if self.level >= 98 and self.charges.felRush > 0 and self.cd.felRush == 0  then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
-                    return castSpell(thisUnit,spellCast,false,false,false)
+                    return castSpell(thisUnit,spellCast,false,false,false)                    
                 end
             elseif debug then
                 return false
             end
         end
-        -- Fel Rush Cancel Animation
-        function self.cast.felRushCancelAnimation(thisUnit,debug)
+        -- Fel Rush Animation Cancel
+        function self.cast.felRushAnimationCancel(thisUnit,debug)
             local spellCast = self.spell.felRush
             local thisUnit = thisUnit
             local returnVar
             if thisUnit == nil then thisUnit = "player" end
             if debug == nil then debug = false end
 
-            if self.level >= 98 and self.charges.felRush > 0 then
+            if self.level >= 98 and self.charges.felRush > 0 and self.cd.felRush == 0 then
                 if debug then
-                    MoveBackwardStart()
-                    JumpOrAscendStart()
-                    returnVar = castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
-                    MoveBackwardStop()
-                    return returnVar
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
                     MoveBackwardStart()
-                    JumpOrAscendStart()
-                    returnVar = castSpell(thisUnit,spellCast,false,false,false)
+                    if bb.timer:useTimer("felRushCancelAnimation", 0.04) then
+                        JumpOrAscendStart()
+                        castSpell(thisUnit,spellCast,false,false,false)
+                    end
                     MoveBackwardStop()
-                    return returnVar
+                    return
                 end
             elseif debug then
                 return false
@@ -599,6 +652,23 @@ function cHavoc:new()
                 return false
             end
         end
+        -- Nemesis
+        function self.cast.nemesis(thisUnit,debug)
+            local spellCast = self.spell.nemesis
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = self.units.dyn40 end
+            if debug == nil then debug = false end
+
+            if self.talent.nemesis and self.cd.nemesis == 0 and getDistance(thisUnit) < 40 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,true,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,true,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
         -- Throw Glaive
         function self.cast.throwGlaive(thisUnit,debug)
             local spellCast = self.spell.throwGlaive
@@ -606,11 +676,11 @@ function cHavoc:new()
             if thisUnit == nil then thisUnit = self.units.dyn30 end
             if debug == nil then debug = false end
 
-            if self.level >= 99 and isKnown(spellCast) and self.charges.throwGlaive > 0 and getDistance(thisUnit) < 30 then
+            if self.level >= 99 and isKnown(spellCast) and self.charges.throwGlaive > 0 and self.cd.throwGlaive == 0 and getDistance(thisUnit) < 30 then
                 if debug then
-                    return castSpell(thisUnit,spellCast,true,false,false,false,false,false,false,true)
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
-                    return castSpell(thisUnit,spellCast,true,false,false)
+                    return castSpell(thisUnit,spellCast,false,false,false)
                 end
             elseif debug then
                 return false
@@ -627,6 +697,7 @@ function cHavoc:new()
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
+                    SetHackEnabled("NoKnockback", true)
                     return castSpell(thisUnit,spellCast,false,false,false)
                 end
             elseif debug then
@@ -650,10 +721,6 @@ function cHavoc:new()
         --Target Distance
         function tarDist(unit)
             return getDistance(unit)
-        end
-
-        function freezeFelRush() 
-            -- RunMacroText("/run local t=time()+2;while time()< t do end")
         end
 
     -----------------------------
