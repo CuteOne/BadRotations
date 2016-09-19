@@ -62,7 +62,9 @@ if select(2, UnitClass("player")) == "MONK" then
             -- Dummy DPS Test
                 bb.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
             -- Pre-Pull Timer
-                bb.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")         
+                bb.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
+            -- Roll
+                bb.ui:createCheckbox(section, "Roll")         
             bb.ui:checkSectionState(section)
             ------------------------
             --- COOLDOWN OPTIONS ---
@@ -252,7 +254,7 @@ if select(2, UnitClass("player")) == "MONK" then
                     if cast.flyingSerpentKickEnd() then return end
                 end
             -- Roll
-                if getDistance("target") > 10 and getFacingDistance() < 5 and getFacing("player","target",10) then
+                if isChecked("Roll") and getDistance("target") > 10 and getFacingDistance() < 5 and getFacing("player","target",10) then
                     if cast.roll() then return end
                 end
             -- Dummy Test

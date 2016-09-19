@@ -697,7 +697,9 @@ function cHavoc:new()
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
-                    SetHackEnabled("NoKnockback", true)
+                    if self.mode.mover == 1 then
+                        SetHackEnabled("NoKnockback", true)
+                    end
                     return castSpell(thisUnit,spellCast,false,false,false)
                 end
             elseif debug then
