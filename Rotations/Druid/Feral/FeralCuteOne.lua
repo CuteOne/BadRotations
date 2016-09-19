@@ -636,7 +636,7 @@ if select(2, UnitClass("player")) == "DRUID" then
                     if cast.catForm() then return end
                 elseif inCombat and cat and profileStop==false and not isChecked("Death Cat Mode") and (hasThreat(units.dyn5) or isDummy("target") or (UnitIsEnemy(units.dyn5, "player") and getDistance(units.dyn5) < 5)) then
             -- Wild Charge
-                    if isChecked("Displacer Beast / Wild Charge") then
+                    if isChecked("Displacer Beast / Wild Charge") and UnitExists("target") then
                         if cast.wildCharge("target") then return end 
                     end
             -- TODO: Displacer Beast
@@ -651,7 +651,7 @@ if select(2, UnitClass("player")) == "DRUID" then
                         end
                     elseif not stealth then
                         -- auto_attack
-                        if getDistance(units.dyn5) < 5 then
+                        if getDistance("target") < 5 then
                             StartAttack()
                         end
         ------------------------------

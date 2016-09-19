@@ -2418,7 +2418,7 @@ function useItem(itemID)
 			local slotItemID = GetInventoryItemID("player",itemID)
 			if GetItemCooldown(slotItemID)==0 then
 				if not bb.itemSpamDelay or GetTime() > bb.itemSpamDelay then
-					UseItemByName(tostring(select(1,GetItemInfo(slotItemID))));
+					UseItemByName((select(1,GetItemInfo(slotItemID))));
 					bb.itemSpamDelay = GetTime() + 1;
 					return true
 				end
@@ -2429,7 +2429,7 @@ function useItem(itemID)
 	elseif itemID>19 and (GetItemCount(itemID) > 0 or PlayerHasToy(itemID)) then
 		if GetItemCooldown(itemID)==0 then
 			if not bb.itemSpamDelay or GetTime() > bb.itemSpamDelay then
-				UseItemByName(tostring(select(1,GetItemInfo(itemID))));
+				UseItemByName((select(1,GetItemInfo(itemID))));
 				bb.itemSpamDelay = GetTime() + 1;
 				return true
 			end
