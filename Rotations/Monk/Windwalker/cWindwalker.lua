@@ -537,7 +537,7 @@ function cWindwalker:new()
             if thisUnit == nil then thisUnit = "player" end
             if debug == nil then debug = false end
 
-            if self.talent.rushingJadeWind and self.cd.rushingJadeWind == 0 and self.chi >= 1 then
+            if self.talent.rushingJadeWind and self.cd.rushingJadeWind == 0 and self.chi.count >= 1 then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
