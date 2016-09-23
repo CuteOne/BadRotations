@@ -74,6 +74,8 @@ if select(2, UnitClass("player")) == "DRUID" then
                 bb.ui:createCheckbox(section,"Displacer Beast / Wild Charge","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFAuto Charge usage.|cffFFBB00.")
             -- Brutal Slash Targets
                 bb.ui:createSpinner(section,"Brutal Slash Targets", 3, 1, 10, 1, "|cffFFFFFFSet to desired targets to use Brutal Slash on. Min: 1 / Max: 10 / Interval: 1")
+            -- Artifact 
+                bb.ui:createDropdownWithout(section,"Artifact", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Artifact Ability.")
             bb.ui:checkSectionState(section)
         -- Cooldown Options
             section = bb.ui:createSection(bb.ui.window.profile, "Cooldowns")
@@ -559,9 +561,12 @@ if select(2, UnitClass("player")) == "DRUID" then
                         end
             -- TODO: food,type=the_hungry_magister
             -- Prowl - Non-PrePull
-                        if cat then --and (not friendly or isDummy()) 
-                            if #enemies.yards20 > 0 and useProwl() and not inInstance and not inRaid and ObjectExists(units.dyn20AoE) and UnitCanAttack(units.dyn20AoE,"player") and GetTime()-leftCombat > lootDelay then
-                                if cast.prowl() then return end
+                        if cat and #enemies.yards20 > 0 and useProwl() and not inInstance and not inRaid and GetTime()-leftCombat > lootDelay then --and (not friendly or isDummy()) 
+                            for i = 1, #enemies.yards20 do
+                                local thisUnit = enemies.yards20[i]
+                                if UnitIsEnemy(thisUnit,"player") then
+                                    if cast.prowl() then return end
+                                end
                             end
                         end
                     end -- End No Stealth
@@ -576,7 +581,7 @@ if select(2, UnitClass("player")) == "DRUID" then
                             if cast.healingTouch("player") then htTimer = GetTime(); return end
                         end
             -- Prowl 
-                        if buff.bloodtalons then
+                        if buff.bloodtalons and useProwl() then
                             if cast.prowl() then return end
                         end
                         if buff.prowl then
@@ -598,7 +603,7 @@ if select(2, UnitClass("player")) == "DRUID" then
                     end -- End Pre-Pull
             -- Rake/Shred
                     -- buff.prowl.up|buff.shadowmeld.up
-                    if hastar and attacktar and (buff.prowl or buff.shadowmeld) then
+                    if hastar and attacktar then
                         if level < 6 then
                             if cast.shred() then return end
                         else
@@ -824,8 +829,10 @@ if select(2, UnitClass("player")) == "DRUID" then
                             end
             -- Ashamane's Frenzy
                             -- if=combo_points<=2&buff.elunes_guidance.down&(buff.bloodtalons.up|!talent.bloodtalons.enabled)&(buff.savage_roar.up|!talent.savage_roar.enabled)
-                            if combo <= 2 and not buff.elunesGuidance and (buff.bloodtalons or not talent.bloodtalons) and (buff.savageRoar or not talent.savageRoar) then
-                                if cast.ashamanesFrenzy() then return end
+                            if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()) then
+                                if combo <= 2 and not buff.elunesGuidance and (buff.bloodtalons or not talent.bloodtalons) and (buff.savageRoar or not talent.savageRoar) then
+                                    if cast.ashamanesFrenzy() then return end
+                                end
                             end
             -- Pool for Elunes Guidance
                             -- pool_resource,if=talent.elunes_guidance.enabled&combo_points=0&energy<action.ferocious_bite.cost+25-energy.regen*cooldown.elunes_guidance.remains
@@ -901,7 +908,7 @@ if select(2, UnitClass("player")) == "DRUID" then
                                 local moonfire = bleed.moonfireFeral[k]
                                 local thisUnit = k
                                 if multidot or (UnitIsUnit(thisUnit,units.dyn40AoE) and not multidot) then
-                                    if combo < 5 and moonfire.remain <= 4.2 and ((ttd(thisUnit) - moonfire.remain > mfTick * 2) or isDummy()) then
+                                    if combo < 5 and moonfire.remain <= 4.2 and ((ttd(thisUnit) - moonfire.remain > mfTick * 2) or isDummy(thisUnit)) then
                                        if cast.moonfireFeral(thisUnit) then return end
                                     end
                                 end

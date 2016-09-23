@@ -594,7 +594,7 @@ function cFeral:new()
             if thisUnit == nil then thisUnit = self.units.dyn40AoE end
             if debug == nil then debug = false end
 
-            if self.talent.lunarInspiration and self.power > 30 and self.cd.moonfireFeral == 0 and (hasThreat(thisUnit) or (isDummy() and UnitIsUnit(thisUnit,"target"))) and getDistance(thisUnit) < 40 then
+            if self.talent.lunarInspiration and self.power > 30 and self.cd.moonfireFeral == 0 and (hasThreat(thisUnit) or (isDummy(thisUnit) and getDistance(thisUnit) < 8)) and getDistance(thisUnit) < 40 then
                 if debug == true then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else

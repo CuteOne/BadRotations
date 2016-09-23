@@ -18,6 +18,7 @@ function cShaman:new(spec)
 		self.artifact.rank  				= {}
 		self.buff.duration	 				= {}		-- Buff Durations
 		self.buff.remain 	 				= {}		-- Buff Time Remaining
+        self.buff.stack                     = {}        -- Buff Stack Count
 		self.cast 		     				= {}        -- Cast Spell Functions
 		self.cast.debug 	 				= {}
 		self.debuff.duration 				= {}		-- Debuff Durations
