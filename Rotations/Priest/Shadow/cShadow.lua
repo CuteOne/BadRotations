@@ -631,7 +631,7 @@ function cShadow:new()
         end
         -- void Bolt
         function self.castVoidBolt(thisTarget)
-            return castSpell(thisTarget,self.spell.voidBolt,false,false) == true or false
+            return castSpellMacro(thisTarget,self.spell.voidEruption,false,false,false,true,false,false,true) == true or false
         end
 
         
