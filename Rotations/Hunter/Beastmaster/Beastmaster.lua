@@ -1,7 +1,8 @@
 if select(3, UnitClass("player")) == 3 then
 	function  HunterBeastmaster()
 
-		if not UnitIsDeadOrGhost("player") then
+		--Stop Rotation
+		if not UnitIsDeadOrGhost("player") and not IsMounted() then
 			
 			--Auto Target
 			if UnitIsDeadOrGhost("target") and UnitAffectingCombat("player") then ClearTarget() end
@@ -25,6 +26,13 @@ if select(3, UnitClass("player")) == 3 then
 				end	
 			end
 			
+			--Revive Pet
+			if UnitExists("pet") and UnitIsDeadOrGhost("pet") then
+				if not isMoving("player") then
+					CastSpellByName(GetSpellInfo(982))
+				end
+			end
+			
 			--Exhilaration
 			if getHP("player") <= 25 or (UnitExists("pet") and not UnitIsDeadOrGhost("pet") and getHP("pet") <= 15) then
 				CastSpellByName(GetSpellInfo(109304))
@@ -37,25 +45,55 @@ if select(3, UnitClass("player")) == 3 then
 				end
 			end
 			
+			--Misdirection
+			for i = 1, #bb.friend do		
+				if (bb.friend[i].role == "TANK" or UnitGroupRolesAssigned(bb.friend[i].unit) == "TANK") and UnitAffectingCombat(bb.friend[i].unit) then	
+					if getLineOfSight("player",bb.friend[i].unit) == true and getFacing("player",bb.friend[i].unit) == true and getSpellCD(34477) <= 0.1 then
+						CastSpellByName(GetSpellInfo(34477),bb.friend[i].unit)
+					end
+				end
+			end
+			
+			--Berserking
+			if UnitExists("target") and not UnitIsDeadOrGhost("target") and getLineOfSight("player","target") == true and getFacing("player","target") == true then
+				if getSpellCD(26297) <= 0.1 and getDistance("player","target") <= 40 and UnitBuffID("player",19574) ~= nil then
+					CastSpellByName(GetSpellInfo(26297),"player")
+				end
+			end
+			
+			--Dire Beast
+			if UnitExists("target") and not UnitIsDeadOrGhost("target") and getLineOfSight("player","target") == true and getFacing("player","target") == true then
+				if getDistance("player","target") <= 40 and getSpellCD(19574) > 2 then
+					CastSpellByName(GetSpellInfo(120679),"target")
+				end
+			end
+			
+			--Aspect of the wild
+			if UnitExists("target") and not UnitIsDeadOrGhost("target") and getLineOfSight("player","target") == true and getFacing("player","target") == true then
+				if getSpellCD(193530) <= 0.1 and UnitBuffID("player",19574) ~= nil and getDistance("player","target") <= 40 and UnitPower("player") <= 90 then
+					CastSpellByName(GetSpellInfo(193530))
+				end
+			end
+			
+			--Beastial Wrath
+			if UnitExists("target") and not UnitIsDeadOrGhost("target") and getLineOfSight("player","target") == true and getFacing("player","target") == true then
+				if getSpellCD(19574) <= 0.1 and getDistance("player","target") <= 40 then
+					CastSpellByName(GetSpellInfo(19574))
+				end
+			end
+			
 			--Multi Shot
 			if UnitExists("pet") and getDistance("player","pet") <= 40 and not UnitIsDeadOrGhost("pet") then
 				if UnitBuffID("pet",118455) == nil or getBuffRemain("pet",118455) < 1.5 then
-					if #getEnemies("pet", 8) >= 2 then
-						for i = 1, #getEnemies("pet",8) do
-							local thisUnit = getEnemies("pet",8)[i]
+					if #getEnemies("pet", 7) >= 5 then
+						for i = 1, #getEnemies("pet",7) do
+							local thisUnit = getEnemies("pet",7)[i]
 							local distance = getDistance("player",thisUnit)
 							if UnitExists(thisUnit) and distance <= 40 and getLineOfSight("player",thisUnit) == true and getFacing("player",thisUnit) == true and not UnitIsDeadOrGhost(thisUnit) then
 								CastSpellByName(GetSpellInfo(2643),thisUnit)
 							end
 						end
 					end
-				end
-			end
-			
-			--Dire Beast
-			if UnitExists("target") and not UnitIsDeadOrGhost("target") and getLineOfSight("player","target") == true and getFacing("player","target") == true then
-				if getDistance("player","target") <= 40 then
-					CastSpellByName(GetSpellInfo(120679),"target")
 				end
 			end
 			
@@ -67,10 +105,25 @@ if select(3, UnitClass("player")) == 3 then
 					end
 				end
 			end
+		
+			--Multi Shot
+			if UnitExists("pet") and getDistance("player","pet") <= 40 and not UnitIsDeadOrGhost("pet") then
+				if UnitBuffID("pet",118455) == nil or getBuffRemain("pet",118455) < 1.5 then
+					if #getEnemies("pet", 7) >= 2 then
+						for i = 1, #getEnemies("pet",7) do
+							local thisUnit = getEnemies("pet",7)[i]
+							local distance = getDistance("player",thisUnit)
+							if UnitExists(thisUnit) and distance <= 40 and getLineOfSight("player",thisUnit) == true and getFacing("player",thisUnit) == true and not UnitIsDeadOrGhost(thisUnit) then
+								CastSpellByName(GetSpellInfo(2643),thisUnit)
+							end
+						end
+					end
+				end
+			end
 			
 			--Cobra Shot
 			if UnitExists("target") and not UnitIsDeadOrGhost("target") then
-				if not UnitExists("pet") or (UnitExists("pet") and (#getEnemies("pet", 8) == 1 or (#getEnemies("pet", 8) >= 2 and getBuffRemain("pet",118455) > 1.5) or getDistance("player","pet") > 40 or UnitIsDeadOrGhost("pet"))) then
+				if not UnitExists("pet") or (UnitExists("pet") and (#getEnemies("pet", 7) == 1 or (#getEnemies("pet", 7) >= 2 and getBuffRemain("pet",118455) > 1.5) or getDistance("player","pet") > 40 or UnitIsDeadOrGhost("pet"))) then
 					if getDistance("player","target") <= 40 and getLineOfSight("player","target") == true and getFacing("player","target") == true then
 						if UnitPower("player") >= 90 or (UnitBuffID("player",193539) ~= nil and UnitPower("player") >= 85) then
 							CastSpellByName(GetSpellInfo(193455),"target")
