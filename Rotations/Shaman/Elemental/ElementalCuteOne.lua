@@ -588,13 +588,11 @@ if select(2, UnitClass("player")) == "SHAMAN" then
                 end
             -- Flame Shock
                 -- flame_shock,if=spell_targets.chain_lightning=3&maelstrom>=20,target_if=refreshable
-                if (#enemies.yards8 == 3 or mode.rotation == 2) and power >= 20 then
-                    for i = 1, #enemies.yards40 do
-                        local thisUnit = enemies.yards40[i]
+                if power >= 20 then
+                    for i = 1, #enemies.yards8 do
+                        local thisUnit = enemies.yards8[i]
                         local flameShockRemain = getDebuffRemain(thisUnit,spell.spec.debuffs.flameShock,"player") or 0
-                        local flameShockDuration = getDebuffDuration(thisUnit,spell.spec.debuffs.flameShock,"player") or 0
-                        local refreshFlameShock = flameShockRemain >= flameShockDuration * 0.3
-                        if refreshFlameShock and (UnitIsUnit(thisUnit,"target") or hasThreat(thisUnit)) then
+                        if flameShockRemain < 2 and (UnitIsUnit(thisUnit,"target") or hasThreat(thisUnit) or isDummy(thisUnit)) then
                             if cast.flameShock(thisUnit) then return end
                         end
                     end
@@ -627,12 +625,10 @@ if select(2, UnitClass("player")) == "SHAMAN" then
             -- Flame Shock
                 -- flame_shock,moving=1,target_if=refreshable
                 if moving then
-                    for i = 1, #enemies.yards40 do
-                        local thisUnit = enemies.yards40[i]
+                    for i = 1, #enemies.yards8 do
+                        local thisUnit = enemies.yards8[i]
                         local flameShockRemain = getDebuffRemain(thisUnit,spell.spec.debuffs.flameShock,"player") or 0
-                        local flameShockDuration = getDebuffDuration(thisUnit,spell.spec.debuffs.flameShock,"player") or 0
-                        local refreshFlameShock = flameShockRemain >= flameShockDuration * 0.3
-                        if refreshFlameShock and (UnitIsUnit(thisUnit,"target") or hasThreat(thisUnit)) then
+                        if flameShockRemain < 2 and (UnitIsUnit(thisUnit,"target") or hasThreat(thisUnit) or isDummy(thisUnit)) then
                             if cast.flameShock(thisUnit) then return end
                         end
                     end
