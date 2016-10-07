@@ -106,56 +106,75 @@ if select(2, UnitClass("player")) == "PRIEST" then
     --------------
     --- Locals ---
     --------------
-            local buff              = bb.player.buff
-            local dyn40              = bb.player.units.dyn40
-            local canFlask          = canUse(bb.player.flask.wod.agilityBig)
-            local cd                = bb.player.cd
-            local charges           = bb.player.charges
-            local combatTime        = getCombatTime()
-            local debuff            = bb.player.debuff
-            local distance          = getDistance("target")
-            local enemies           = bb.player.enemies
-            local flaskBuff         = getBuffRemain("player",bb.player.flask.wod.buff.agilityBig) or 0
-            local frac              = bb.player.frac
-            local glyph             = bb.player.glyph
-            local healthPot         = getHealthPot() or 0
-            local inCombat          = bb.player.inCombat
-            local inRaid            = select(2,IsInInstance())=="raid"
-            local level             = bb.player.level
-            local needsHealing      = needsHealing or 0
-            local php               = bb.player.health
-            local power             = bb.player.power
-            local pullTimer         = bb.DBM:getPulltimer()
-            local race              = bb.player.race
-            local racial            = bb.player.getRacial()
-            local recharge          = bb.player.recharge
-            local regen             = bb.player.powerRegen
-            local solo              = select(2,IsInInstance())=="none"
-            local talent            = bb.player.talent
-            local thp               = getHP(bb.player.units.dyn40)
-            local totem             = bb.player.totem
-            local ttd               = getTimeToDie(bb.player.units.dyn40)
-            local ttm               = bb.player.timeToMax
-            if t18_4pc then t18_4pcBonus = 1 else t18_4pcBonus = 0 end
+            local addsExist                                     = false 
+            local addsIn                                        = 999
+            local artifact                                      = bb.player.artifact
+            local buff                                          = bb.player.buff
+            local canFlask                                      = canUse(bb.player.flask.wod.agilityBig)
+            local cast                                          = bb.player.cast
+            local castable                                      = bb.player.cast.debug
+            local combatTime                                    = getCombatTime()
+            local cd                                            = bb.player.cd
+            local charges                                       = bb.player.charges
+            local deadMouse                                     = UnitIsDeadOrGhost("mouseover")
+            local deadtar, attacktar, hastar, playertar         = deadtar or UnitIsDeadOrGhost("target"), attacktar or UnitCanAttack("target", "player"), hastar or ObjectExists("target"), UnitIsPlayer("target")
+            local debuff                                        = bb.player.debuff
+            local enemies                                       = bb.player.enemies
+            local falling, swimming, flying, moving             = getFallTime(), IsSwimming(), IsFlying(), GetUnitSpeed("player")>0
+            local flaskBuff                                     = getBuffRemain("player",bb.player.flask.wod.buff.agilityBig)
+            local friendly                                      = friendly or UnitIsFriend("target", "player")
+            local gcd                                           = bb.player.gcd
+            local hasMouse                                      = ObjectExists("mouseover")
+            local healPot                                       = getHealthPot()
+            local inCombat                                      = bb.player.inCombat
+            local inInstance                                    = bb.player.instance=="party"
+            local inRaid                                        = bb.player.instance=="raid"
+            local lastSpell                                     = lastSpellCast
+            local level                                         = bb.player.level
+            local lootDelay                                     = getOptionValue("LootDelay")
+            local lowestHP                                      = bb.friend[1].unit
+            local mode                                          = bb.player.mode
+            local moveIn                                        = 999
+            -- local multidot                                      = (useCleave() or bb.player.mode.rotation ~= 3)
+            local perk                                          = bb.player.perk        
+            local php                                           = bb.player.health
+            local playerMouse                                   = UnitIsPlayer("mouseover")
+            local power, powmax, powgen, powerDeficit           = bb.player.power, bb.player.powerMax, bb.player.powerRegen, bb.player.powerDeficit
+            local pullTimer                                     = bb.DBM:getPulltimer()
+            local racial                                        = bb.player.getRacial()
+            local recharge                                      = bb.player.recharge
+            local solo                                          = bb.player.instance=="none"
+            local spell                                         = bb.player.spell
+            local talent                                        = bb.player.talent
+            local thp                                           = getHP(bb.player.units.dyn40)
+            local ttd                                           = getTTD
+            local ttm                                           = bb.player.timeToMax
+            local units                                         = bb.player.units
+            
+            if leftCombat == nil then leftCombat = GetTime() end
+            if profileStop == nil then profileStop = false end
+            if IsHackEnabled("NoKnockback") ~= nil then SetHackEnabled("NoKnockback", false) end
+
+
 
     --------------------
     --- Action Lists ---
     --------------------
-        -- Action list - Extras
+            -- Action list - Extras
             function actionList_Extra()
-            -- Dispel Magic
+                -- Dispel Magic
                 if isChecked("Dispel Magic") and canDispel("target",bb.player.spell.dispelMagic) and not isBoss() and ObjectExists("target") then
-                    if bb.player.castDispelMagic() then return end
+                    if cast.dispelMagic() then return end
                 end
             end -- End Action List - Extra
-        -- Action List - Defensive
+            -- Action List - Defensive
             function actionList_Defensive()
                 if useDefensive() and getHP("player")>0 then     
-            -- Gift of the Naaru
+                    -- Gift of the Naaru
                     if isChecked("Gift of the Naaru") and php <= getOptionValue("Gift of the Naaru") and php > 0 and bb.player.race=="Draenei" then
                         if castSpell("player",racial,false,false,false) then return end
                     end
-            -- Heirloom Neck
+                    -- Heirloom Neck
                     if isChecked("Heirloom Neck") and php <= getOptionValue("Heirloom Neck") then
                         if hasEquiped(122668) then
                             if canUse(122668) then
@@ -165,19 +184,14 @@ if select(2, UnitClass("player")) == "PRIEST" then
                     end
                 end -- End Defensive Check
             end -- End Action List - Defensive
-        -- Action List - Interrupts
+            -- Action List - Interrupts
             function actionList_Interrupts()
-                
+
             end -- End Action List - Interrupts
-        -- Action List - Cooldowns
+            -- Action List - Cooldowns
             function actionList_Cooldowns()
                 if getDistance(dyn5)<5 then
-            -- Heroism/Bloodlust
-                    -- bloodlust,if=target.health.pct<25|time>0.500
-                    if useCDs() and isChecked("HeroLust") and not raid and (thp<25 or combatTime>0.500) then
-                        if bb.player.castHeroLust() then return end
-                    end
-            -- Legendary Ring
+                    -- Legendary Ring
                     -- use_item,name=maalus_the_blood_drinker
                     if useCDs() and isChecked("Legendary Ring") then
                         if hasEquiped(124636) and canUse(124636) then
@@ -185,14 +199,14 @@ if select(2, UnitClass("player")) == "PRIEST" then
                             return true
                         end
                     end
-            -- Racials
+                    -- Racials
                     -- blood_fury
                     -- arcane_torrent
                     -- berserking
                     if useCDs() and (bb.player.race == "Orc" or bb.player.race == "Troll" or bb.player.race == "Blood Elf") then
                         if bb.player.castRacial() then return end
                     end
-            -- Touch of the Void
+                    -- Touch of the Void
                     if useCDs() and isChecked("Touch of the Void") and getDistance(bb.player.units.dyn5)<5 then
                         if hasEquiped(128318) then
                             if GetItemCooldown(128318)==0 then
@@ -200,7 +214,7 @@ if select(2, UnitClass("player")) == "PRIEST" then
                             end
                         end
                     end
-            -- Trinkets
+                    -- Trinkets
                     if useCDs() and isChecked("Trinkets") then
                         if canUse(13) then
                             useItem(13)
@@ -211,93 +225,66 @@ if select(2, UnitClass("player")) == "PRIEST" then
                     end     
                 end
             end -- End Action List - Cooldowns
-        -- Action List - Pre-Combat
+            -- Action List - Pre-Combat
             function actionList_PreCombat()
             
             end  -- End Action List - Pre-Combat
-        -- Action List - Single
+            -- Action List - Single
             function actionList_Auto()
-
                 -- Void Eruption
                 if useCDs()            
                 and ((talent.legacyOfTheVoid and power > 70) or power > 100) then
-                    if bb.player.castVoidEruption()then return end
+                    if cast.voidEruption()then return end
                 end
-
                 -- Shadow Word Death
                 if thp < 20
                 or (talent.reaperOfSouls and thp < 35) then
-                    if bb.player.castSWD(dyn40)then return end
+                    if cast.shadowWordDeath()then return end
                 end
                 -- Mind Blast
-                if bb.player.castMindBlast(dyn40) then return end
+                if cast.mindBlast() then return end
                 -- Shadow Word: Pain
-                if bb.player.castSWPAutoApply(getOptionValue("SWP Max Targets")) then return end
+                --if bb.player.castSWPAutoApply(getOptionValue("SWP Max Targets")) then return end
                 -- Vampiric Touch
-                if bb.player.castVTAutoApply(getOptionValue("VT Max Targets")) then return end
+                --if bb.player.castVTAutoApply(getOptionValue("VT Max Targets")) then return end
                 -- Shadow Word: Void
-
                 -- Mind Shear
-
                 -- Mind Spike
-
                 -- Mind Flay
-                if bb.player.castMindFlay(dyn40) then return end
+                if cast.mindFlay() then return end
             end -- End Action List - Single
 
         -- Action List - VoidForm
             function actionList_VoidForm()
-            
                 --Cooldowns
                 if actionList_Cooldowns() then return end
-
                 --Void Torrent
-
-
                 --MindBender
-                if bb.player.castMindBender(dyn40) then return end
-
+                if cast.mindBender() then return end
                 --Mindfiend
-                if bb.player.castMindfiend(dyn40) then return end
-
+                if cast.mindfiend() then return end
                 --Dispersion
-
-
                 --Power Infusion
-
-
                 --Shadow Crash
-
-
                 --VoidBolt
-                if bb.player.castVoidBolt(dyn40) then return end  
-
+                if cast.voidBolt() then return end  
                 --SWD
                 if thp < 20
                 or (talent.reaperOfSouls and thp < 35) then
-                    if bb.player.castSWD(dyn40)then return end
+                    if cast.shadowWordDeath()then return end
                 end
-
                 -- Shadow Word Void
-
                 -- Mind Blast
-                if bb.player.castMindBlast(dyn40) then return end
+                if cast.mindBlast() then return end
                 -- Shadow Word: Pain
-                if bb.player.castSWPAutoApply(getOptionValue("SWP Max Targets")) then return end
+                --if bb.player.castSWPAutoApply(getOptionValue("SWP Max Targets")) then return end
                 -- Vampiric Touch
-                if bb.player.castVTAutoApply(getOptionValue("VT Max Targets")) then return end
-
-
+                --if bb.player.castVTAutoApply(getOptionValue("VT Max Targets")) then return end
                 -- Mind Sear
-
-
                 -- Mind Spike
-
-
                 -- Mind Flay
-                if bb.player.castMindFlay(dyn40) then return end
+                if cast.mindFlay() then return end
             end -- End Action List - VoidForm
-
     -----------------
     --- Rotations ---
     -----------------
@@ -313,12 +300,18 @@ if select(2, UnitClass("player")) == "PRIEST" then
     --- In Combat - Rotations --- 
     -----------------------------
             if inCombat then
+                
+                -- Casting and GCD check
+                if castingUnit() 
+                and not UnitChannelInfo("player") == GetSpellInfo(spell.mindFlay) then
+                    return
+                end
+
                 if buff.voidForm == true then
                     if actionList_VoidForm() then return end
                 else
                     if actionList_Auto() then return end
-                end
-                
+                end     
             end -- End Combat Rotation
         end -- End Timer
     end -- Run Rotation

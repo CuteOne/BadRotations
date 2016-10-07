@@ -1,47 +1,39 @@
 --- Shadow Class
--- Inherit from: ../cCharacter.lua and ../cClass.lua
+-- Inherit from: ../cCharacter.lua and ../cWarrior.lua
+cShadow = {}
+cShadow.rotations = {}
 
-cShadow = {} 
-cShadow.rotations = {} 
-
-    -- Creates Spec
-function cShadow:new() 
-    if GetSpecializationInfo(GetSpecialization()) == 258 then 
+-- Creates Shadow Warrior
+function cShadow:new()
+    if GetSpecializationInfo(GetSpecialization()) == 258 then
         local self = cPriest:new("Shadow")
 
         local player = "player" -- if someone forgets ""
 
-        -- Mandatory ! - DO NOT EDIT
+        -- Mandatory !
         self.rotations = cShadow.rotations
         
-        -----------------
-        --- VARIABLES --- 
-        -----------------
-        self.enemies = {
-            yards40,
-        }
-        self.shadowArtifacts     = {
-            
-        }
-        self.shadowBuffs         = {
-            shadowyInsight = 124430,
-            voidForm = 194249 
-        }
-        self.shadowDebuffs       = {
-            shadowWordPain = 589,
-            vampiricTouch = 34914,
-        }
-        self.shadowSpecials      = {
+    -----------------
+    --- VARIABLES ---
+    -----------------
+        self.charges.frac               = {}        -- Fractional Charge
+        self.charges.max                = {}        -- Max Charges
+        self.spell.spec                 = {} 
+        self.spell.spec.abilities       = { 
             dispelMagic = 528,
             dispersion = 47585,
             fade = 586,
             levitate = 1706,
             massDispel = 32375,
+            mindBender = 200174,
             mindBlast = 8092,
+            mindBomb = 205369,
             mindfiend = 34433,
             mindFlay = 15407,
-            mindSear = 48045,  
+            mindSear = 48045,
+            mindSpike = 73510,
             mindVision = 2096,
+            powerInfusion = 10060,
             powerWordShield = 17,
             purifyDisease = 213634,
             resurrection = 2006,
@@ -55,43 +47,44 @@ function cShadow:new()
             vampiricTouch = 34914,
             voidBolt = 205448,
             voidEruption = 228260
-            
         }
-        self.shadowTalents       = {
-            mindBomb = 205369,
-            powerInfusion = 10060,
-            mindBender = 200174,
-            mindSpike = 73510,
+        self.spell.spec.artifacts       = {
+
         }
-        -- Merge all spell tables into self.spell
-        self.shadowSpells = {}
-        self.shadowSpells = mergeTables(self.shadowSpells,self.shadowArtifacts)
-        self.shadowSpells = mergeTables(self.shadowSpells,self.shadowBuffs)
-        self.shadowSpells = mergeTables(self.shadowSpells,self.shadowDebuffs)
-        self.shadowSpells = mergeTables(self.shadowSpells,self.shadowSpecials)
-        self.shadowSpells = mergeTables(self.shadowSpells,self.shadowTalents)
-        self.spell = {}
-        self.spell = mergeSpellTables(self.spell, self.characterSpell, self.priestSpell, self.shadowSpells) -- Also change self.classSpell to name of class IE: druid or monk
+        self.spell.spec.buffs           = {
+            shadowyInsight = 124430,
+            voidForm = 194249 
+        }
+        self.spell.spec.debuffs         = {
+            shadowWordPain = 589,
+            vampiricTouch = 34914,
+        }
+        self.spell.spec.glyphs          = {
+
+        }
+        self.spell.spec.talents         = {}
+        -- Merge all spell ability tables into self.spell
+        self.spell = mergeSpellTables(self.spell, self.characterSpell, self.spell.class.abilities, self.spell.spec.abilities)
         
     ------------------
     --- OOC UPDATE ---
     ------------------
 
-        function self.updateOOC()  -- Add any functions or variables that need to be updated only when not in combat here
+        function self.updateOOC()
             -- Call classUpdateOOC()
             self.classUpdateOOC()
             self.getArtifacts()
             self.getArtifactRanks()
             self.getGlyphs()
             self.getTalents()
-            -- self.getPerks() --Removed in Legion
+            self.getPerks() --Removed in Legion
         end
 
     --------------
     --- UPDATE ---
     --------------
 
-        function self.update() -- Add any functions or variables that need to be updated all the time here
+        function self.update()
 
             -- Call Base and Class update
             self.classUpdate()
@@ -100,22 +93,13 @@ function cShadow:new()
             self.getDynamicUnits()
             self.getEnemies()
             self.getBuffs()
-            self.getCharges()
+            self.getCharge()
             self.getCooldowns()
             self.getDebuffs()
-            self.getRecharges()
             self.getToggleModes()
-            self.getDebuffsCount()
-            --self.getCastable()
+            self.getCastable()
 
-
-            -- Casting and GCD check
-            -- TODO: -> does not use off-GCD stuff like pots, dp etc
-            --if castingUnit() then
-            --    return
-            --end
-
-            -- Start selected rotation - DO NOT EDIT
+            -- Start selected rotation
             self:startRotation()
         end
 
@@ -123,66 +107,71 @@ function cShadow:new()
     --- DYNAMIC UNITS ---
     ---------------------
 
-        function self.getDynamicUnits() -- Dynamic Target Selection based on Range and AoE/Non-AoE - NOTE: some more common ones are already setup in cCharacter.lua - NOTE: Do not relist and already provided Class file or cCharacter
+        function self.getDynamicUnits()
             local dynamicTarget = dynamicTarget
 
-            -- Normal
-            self.units.dyn40 = dynamicTarget(40,true) -- Sample Non-AoE
+            self.units.dyn40 = dynamicTarget(40, true)
         end
 
     ---------------
     --- ENEMIES ---
     ---------------
 
-        function self.getEnemies() -- sets table of enemies for specified ranges useful for knowing number of enemies in a certain ranges or target cycleing - NOTE: Do not relist and already provided Class file
+        function self.getEnemies()
             local getEnemies = getEnemies
 
-            self.enemies.yards40 = #getEnemies("player",40)
+            self.enemies.yards40  = getEnemies("player", 40)
         end
 
     -----------------
     --- ARTIFACTS ---
     -----------------
 
-        function self.getArtifacts() -- Dynamicaly creates artifact lists based on the spell table above - NOTE: Change self.specArtifactss to the name of the artifact table)
-            local isKnown = isKnown
+        function self.getArtifacts()
+            local hasPerk = hasPerk
 
-            for k,v in pairs(self.shadowArtifacts) do
-                self.artifact[k] = isKnown(v)
+            for k,v in pairs(self.spell.spec.artifacts) do
+                self.artifact[k] = hasPerk(v) or false
             end
         end
 
-        function self.getArtifactRanks() -- Not yet implemented
-
+        function self.getArtifactRanks()
+            local getPerkRank = getPerkRank
+            
+            for k,v in pairs(self.spell.spec.artifacts) do
+                self.artifact.rank[k] = getPerkRank(v) or 0
+            end
         end
-
+        
     -------------
     --- BUFFS ---
     -------------
-    
-        function self.getBuffs() -- Dynamicaly creates buff lists based on the spell table above - NOTE: Change self.specBuffs to the name of the buff table)
-            local UnitBuffID = UnitBuffID
-            local getBuffDuration = getBuffDuration
-            local getBuffRemain = getBuffRemain
 
-            for k,v in pairs(self.shadowBuffs) do
-                self.buff[k] = UnitBuffID("player",v) ~= nil
-                self.buff.duration[k] = getBuffDuration("player",v) or 0
-                self.buff.remain[k] = getBuffRemain("player",v) or 0
+        function self.getBuffs()
+            local UnitBuffID = UnitBuffID
+
+            for k,v in pairs(self.spell.spec.buffs) do
+                self.buff[k]            = UnitBuffID("player",v) ~= nil
+                self.buff.duration[k]   = getBuffDuration("player",v) or 0
+                self.buff.remain[k]     = getBuffRemain("player",v) or 0
             end
         end
 
     ---------------
     --- CHARGES ---
     ---------------
-        function self.getCharges() -- Dynamicaly creates charge lists based on the spell/buff table above - NOTE: Change self.specSpells/self.specBuffs to the name of the spell/buff table)
-            local getCharges = getCharges
 
-            for k,v in pairs(self.shadowSpells) do
-                self.charges[k] = getCharges(v)
-            end
-            for k,v in pairs(self.shadowBuffs) do
-                self.charges[k] = getBuffStacks("player",v,"player")
+        function self.getCharge()
+            local getCharges = getCharges
+            local getChargesFrac = getChargesFrac
+            local getBuffStacks = getBuffStacks
+            local getRecharge = getRecharge
+
+            for k,v in pairs(self.spell.spec.abilities) do
+                self.charges[k]     = getCharges(v)
+                self.charges.frac[k]= getChargesFrac(v)
+                self.charges.max[k] = getChargesFrac(v,true)
+                self.recharge[k]    = getRecharge(v)
             end
         end
 
@@ -190,10 +179,10 @@ function cShadow:new()
     --- COOLDOWNS ---
     -----------------
 
-        function self.getCooldowns() -- Dynamicaly creates cooldown lists based on the spell table above - NOTE: Change self.specCooldowns to the name of the cooldown table)
+        function self.getCooldowns()
             local getSpellCD = getSpellCD
 
-            for k,v in pairs(self.shadowSpells) do
+            for k,v in pairs(self.spell.spec.abilities) do
                 if getSpellCD(v) ~= nil then
                     self.cd[k] = getSpellCD(v)
                 end
@@ -203,16 +192,18 @@ function cShadow:new()
     ---------------
     --- DEBUFFS ---
     ---------------
-
-        function self.getDebuffs() -- Dynamicaly creates debuff lists based on the debuff table above - NOTE: Change self.specDebuffs to the name of the debuff table)
+        function self.getDebuffs()
             local UnitDebuffID = UnitDebuffID
             local getDebuffDuration = getDebuffDuration
             local getDebuffRemain = getDebuffRemain
 
-            for k,v in pairs(self.shadowDebuffs) do
-                self.debuff[k] = UnitDebuffID(self.units.dyn40,v,"player") ~= nil
-                self.debuff.duration[k] = getDebuffDuration(self.units.dyn40,v,"player") or 0
-                self.debuff.remain[k] = getDebuffRemain(self.units.dyn40,v,"player") or 0
+            for k,v in pairs(self.spell.spec.debuffs) do
+                if k ~= "bleeds" then
+                    self.debuff[k]          = UnitDebuffID("target",v,"player") ~= nil
+                    self.debuff.duration[k] = getDebuffDuration("target",v,"player") or 0
+                    self.debuff.remain[k]   = getDebuffRemain("target",v,"player") or 0
+                    self.debuff.refresh[k]  = (self.debuff.remain[k] < self.debuff.duration[k] * 0.3) or self.debuff.remain[k] == 0
+                end
             end
         end
 
@@ -235,44 +226,22 @@ function cShadow:new()
             end
             self.debuff.count.vampiricTouch     = vampiricTouchCount or 0
             self.debuff.count.shadowWordPain    = shadowWordPainCount or 0
-        end
+        end        
+
     --------------
     --- GLYPHS ---
     --------------
 
-        function self.getGlyphs() -- Gylphs not so important in legion so not yet reimplemented
+        function self.getGlyphs()
             local hasGlyph = hasGlyph
 
-            -- self.glyph.cheetah           = hasGlyph(self.spell.glyphOfTheCheetah)
         end
 
-    -------------
-    --- PERKS ---
-    -------------
-
-        function self.getPerks() -- no longer used in Legion
-            local isKnown = isKnown
-
-            -- self.perk.enhancedRebirth = isKnown(self.spell.enhancedRebirth)
-        end
-
-    -----------------
-    --- RECHARGES ---
-    -----------------
-    
-        function self.getRecharges() -- Dynamicaly creates recharge list based on the spell table above - NOTE: Change self.specSpells to the name of the spell table)
-            local getRecharge = getRecharge
-
-            for k,v in pairs(self.shadowSpells) do
-                self.recharge[k] = getRecharge(v)
-            end
-        end
-
-    ----------------
+    ---------------
     --- TALENTS ---
-    ----------------
+    ---------------
 
-        function self.getTalents() -- Dynamicaly creates talent list based on the talent table above - NOTE: Change self.specTalents to the name of the talent table)
+        function self.getTalents()
             local getTalent = getTalent
 
             self.talent.twistOfFate                 = getTalent(1,1)
@@ -296,17 +265,30 @@ function cShadow:new()
             self.talent.legacyOfTheVoid             = getTalent(7,1)
             self.talent.mindSpike                   = getTalent(7,2)
             self.talent.surrenderToMadness          = getTalent(7,3)
-        end 
+        end
 
-    ---------------
-    --- TOGGLES ---
-    ---------------
+    -------------
+    --- PERKS ---
+    -------------
 
-        function self.getToggleModes() -- Toggle State checks for Toggles shared by specific spec
+        function self.getPerks()
+            local isKnown = isKnown
 
         end
 
-        -- Create the toggle defined within rotation files - DO NOT EDIT
+    ---------------
+    --- TOGGLES --- -- Do Not Edit this Section
+    ---------------
+
+        function self.getToggleModes() 
+
+            self.mode.rotation  = bb.data["Rotation"]
+            self.mode.cooldown  = bb.data["Cooldown"]
+            self.mode.defensive = bb.data["Defensive"]
+            self.mode.interrupt = bb.data["Interrupt"]
+        end
+
+        -- Create the toggle defined within rotation files
         function self.createToggles()
             GarbageButtons()
             if self.rotations[bb.selectedProfile] ~= nil then
@@ -317,10 +299,10 @@ function cShadow:new()
         end
 
     ---------------
-    --- OPTIONS ---
+    --- OPTIONS --- -- Do Not Edit this Section
     ---------------
         
-        -- Creates the option/profile window - DO NOT EDIT
+        -- Creates the option/profile window
         function self.createOptions()
             bb.ui.window.profile = bb.ui:createProfileWindow(self.profile)
 
@@ -345,7 +327,7 @@ function cShadow:new()
 
             -- Get profile defined options
             local profileTable = profileTable
-            if self.rotations[bb.selectedProfile] ~= nil then 
+            if self.rotations[bb.selectedProfile] ~= nil then
                 profileTable = self.rotations[bb.selectedProfile].options()
             else
                 return
@@ -362,423 +344,313 @@ function cShadow:new()
         end
 
     --------------
-    --- SPELLS --- -- List spell cast functions for spells available to specific spec here.
+    --- SPELLS ---
     --------------
-    -- arcane_torrent
-        function self.castArcaneTorrent()
-            return castSpell("player",self.spell.arcaneTorrent,true,false) == true or false
-        end
-        -- dispel_magic
-        function self.castDispellMagic(thisTarget)
-            return castSpell(thisTarget,self.spell.dispelMagic,true,false) == true or false
-        end
-        -- dispersion
-        function self.castDispersion()
-            return castSpell("player",self.spell.dispersion,true,false) == true or false
-        end
-        -- fade
-        function self.castFade()
-            return castSpell("player",self.spell.fade,true,false) == true or false
-        end
-        -- levitate
-        function self.castLevitate(thisTarget)
-            return castSpell(thisTarget,self.spell.levitate,true,false) == true or false
-        end
-        -- mind bender
-        function self.castMindBender(thisTarget)
-            return castSpell(thisTarget,self.spell.mindBender,false,true) == true or false
-        end
-        -- mind_blast
-        function self.castMindBlast(thisTarget)
-            return castSpell(thisTarget,self.spell.mindBlast,false,true) == true or false
-        end
-        -- mindfiend
-        function self.castMindfiend(thisTarget)
-            return castSpell(thisTarget,self.spell.mindfiend,false,true) == true or false
-        end
-        -- mind_flay
-        function self.castMindFlay(thisTarget)
-            if not UnitChannelInfo("player") then
-                return castSpell(thisTarget,self.spell.mindFlay,false,true) == true or false
-            end
-            return false
-        end
-        -- mind_sear
-        function self.castMindSear(thisTarget)
-            return castSpell(thisTarget,self.spell.mindSear,true,true) == true or false
-        end
-        -- mind_spike
-        function self.castMindSpike(thisTarget)
-            return castSpell(thisTarget,self.spell.mindSpike,false,true) == true or false
-        end
-        -- power_word_shield
-        function self.castPWS(thisTarget)
-            return castSpell(thisTarget,self.spell.powerWordShield,true,false) == true or false
-        end
-        -- resurrection
-        function self.castResurrection(thisTarget)
-            return castSpell(thisTarget,self.spell.resurrection,true,true) == true or false
-        end
-        -- shackle_undead
-        -- shadow_word_death
-        function self.castSWDAuto(thisTarget)
-            if self.cd.shadow_word_death <= 0 then
-                if GetObjectExists(thisTarget) then
-                    local thisUnit = thisTarget
-                    local range = getDistance("player",thisUnit)
-                    local hp = getHP(thisUnit)
-                    if hp < 20 and range < 40 then
-                        return castSpell(thisUnit,self.spell.shadowWordDeath,true,false) == true or false
-                    end
-                end
-                for i=1,#bb.enemy do
-                    local thisUnit = bb.enemy[i].unit
-                    local range = bb.enemy[i].distance
-                    local hp = bb.enemy[i].hp
-                    if hp < 20 and range < 40 then
-                        return castSpell(thisUnit,self.spell.shadowWordDeath,true,false,false,false,false,false,true) == true or false
-                    end
-                end
-            end
-            return false
-        end
-        function self.castSWD(thisTarget)
-                return castSpell(thisTarget,self.spell.shadowWordDeath,true,false) == true or false
-        end
-        -- shadow_word_pain
-        function self.castSWPAutoApply(maxTargets)
-            -- try to apply on target first
-            if self.castSWPOnTarget(maxTargets) then return true end
-            -- then apply on others
-            if self.debuff.count.shadowWordPain < maxTargets 
-            and self.debuff.count.vampiricTouch >= 1 then
-                for i=1,#bb.enemy do
-                    local thisUnit = bb.enemy[i].unit
-                    local hp = bb.enemy[i].hpabs
-                    local ttd = bb.enemy[i].ttd
-                    local distance = bb.enemy[i].distance
-                    -- infight
-                    --if UnitIsTappedByPlayer(thisUnit) then
-                        -- blacklists: CC, DoT Blacklist
-                        --if not isCCed(thisUnit) and self.SWP_allowed(thisUnit) then
-                            -- check for running dot and remaining time
-                            if getDebuffRemain(thisUnit,self.spell.shadowWordPain,"player") <= 18*0.3 then
-                                -- in range?
-                                if distance < 40 then
-                                    -- TTD or dummy
-                                    --if ttd > self.options.rotation.ttdSWP or isDummy(thisUnit) then
-                                        return castSpell(thisUnit,self.spell.shadowWordPain,true,false) == true or false
-                                    --end
-                                end
-                            end
-                        --end
-                    --end
-                end
-            end
-            return false
-        end
-        function self.castSWPOnTarget(maxTargets)
-            if self.debuff.count.shadowWordPain < maxTargets then
-                -- infight
-                --if UnitIsTappedByPlayer(self.units.dyn40) then
-                    -- blacklists: CC, DoT Blacklist
-                    --if not isCCed(self.units.dyn40) and self.SWP_allowed(self.units.dyn40) then
-                        -- check for running dot and remaining time
-                        if getDebuffRemain(self.units.dyn40,self.spell.shadowWordPain,"player") <= 18*0.3 then
-                            -- in range?
-                            if getDistance("player",self.units.dyn40) < 40 then
-                                -- TTD or dummy
-                                --if getTTD(self.units.dyn40) > self.options.rotation.ttdSWP or isDummy("target") then
-                                    return castSpell(self.units.dyn40,self.spell.shadowWordPain,true,false) == true or false
-                                --end
-                            end
-                        end
-                    --end
-                --end
-            end
-            return false
-        end
-        function self.castSWPOnUnit(thisTarget)
-            if UnitExists(thisTarget) and UnitCanAttack("player",thisTarget) then
-            --if self.getSWPrunning() < maxTargets then
-                -- infight
-                --if UnitIsTappedByPlayer(thisTarget) then
-                    -- blacklists: CC, DoT Blacklist
-                    --if not isCCed(thisTarget) and self.SWP_allowed(thisTarget) and self.CoP_offdot_allowed(thisTarget) then
-                        -- check for running dot and remaining time
-                        if getDebuffRemain(thisTarget,self.spell.shadowWordPain,"player") <= 18*0.3 then
-                            -- in range?
-                            if getDistance("player",thisTarget) < 40 then
-                                -- TTD or dummy
-                                --if getTTD(GetObjectWithGUID(UnitGUID(thisTarget))) > self.options.rotation.ttdSWP or isDummy(thisTarget) then
-                                    return castSpell(thisTarget,self.spell.shadowWordPain,true,false) == true or false
-                                --end
-                            end
-                        end
-                    --end
-                --end
-            --end
-            return false
-            end
-        end
-        function self.castSWP(thisTarget)
-            return castSpell(thisTarget,self.spell.shadowWordPain,true,false) == true or false
-        end
-        -- shadowfiend
-        function self.castShadowfiend(thisTarget)
-            if self.mode.cooldowns == 2 then
-                if self.options.cooldowns.Mindbender then
-                    return castSpell(thisTarget,self.spell.shadowfiend,true,false) == true or false
-                end
-            end
-            return false
-        end
-        -- silence
-        function self.castSilence(thisTarget)
-            return castSpell(thisTarget,self.spell.silence,true,false) == true or false
-        end
-        -- vampiric_embrace
-        function self.castVampiricEmbrace()
-            return castSpell("player",self.spell.vampiricEmbrace,true,false) == true or false
-        end
-        -- vampiric_touch
-        function self.castVTAutoApply(maxTargets)
-            -- try to apply on target first
-            if self.castVTOnTarget(maxTargets) then return true end
-            -- then apply on others
-            if self.debuff.count.vampiricTouch < maxTargets
-            and self.debuff.count.shadowWordPain >= 1 then
-                local castTime = 0.001*select(4,GetSpellInfo(self.spell.vampiricTouch))
-                for i=1,#bb.enemy do
-                    local thisUnit = bb.enemy[i].unit
-                    local hp = bb.enemy[i].hpabs
-                    local ttd = bb.enemy[i].ttd
-                    local distance = bb.enemy[i].distance
-                    -- infight
-                    --if UnitIsTappedByPlayer(thisUnit) then
-                        -- blacklists: CC, DoT Blacklist
-                        --if not isCCed(thisUnit) and self.SWP_allowed(thisUnit) then
-                            -- check for running dot and remaining time
-                            if getDebuffRemain(thisUnit,self.spell.vampiricTouch,"player") <= 18*0.3+castTime then
-                                -- in range?
-                                if distance < 40 then
-                                    -- TTD or dummy
-                                    --if ttd > self.options.rotation.ttdSWP or isDummy(thisUnit) then
-                                        return castSpell(thisUnit,self.spell.vampiricTouch,true,false) == true or false
-                                    --end
-                                end
-                            end
-                        --end
-                    --end
-                end
-            end
-            return false
-        end
-        function self.castVTOnTarget(maxTargets)
-            if self.debuff.count.vampiricTouch < maxTargets then
-                local castTime = 0.001*select(4,GetSpellInfo(self.spell.vampiricTouch))
-                -- infight
-                --if UnitIsTappedByPlayer(self.units.dyn40) then
-                    -- blacklists: CC, DoT Blacklist
-                    --if not isCCed(self.units.dyn40) and self.SWP_allowed(self.units.dyn40) then
-                        -- check for running dot and remaining time
-                        if getDebuffRemain(self.units.dyn40,self.spell.vampiricTouch,"player") <= 18*0.3 + castTime then
-                            -- in range?
-                            if getDistance("player",self.units.dyn40) < 40 then
-                                -- TTD or dummy
-                                --if getTTD(self.units.dyn40) > self.options.rotation.ttdSWP or isDummy("target") then
-                                    return castSpell(self.units.dyn40,self.spell.vampiricTouch,true,false) == true or false
-                                --end
-                            end
-                        end
-                    --end
-                --end
-            end
-            return false
-        end
-        function self.castVTOnUnit(thisTarget)
-            if UnitExists(thisTarget) and UnitCanAttack("player",thisTarget) then
-            --if self.getVTrunning() < maxTargets then
-                local castTime = 0.001*select(4,GetSpellInfo(34914))
-                -- infight
-                if UnitIsTappedByPlayer(thisTarget) then
-                    -- last VT check
-                    if lastVTTarget ~= thisUnitGUID and lastVTTime+5 < GetTime() then
-                        -- blacklists: CC, DoT Blacklist
-                        if not isCCed(thisTarget) and self.VT_allowed(thisTarget) and self.CoP_offdot_allowed(thisTarget) then
-                            -- check for running dot and remaining time
-                            if getDebuffRemain(thisTarget,self.spell.vampiricTouch,"player") <= 15*0.3+castTime then
-                                -- in range?
-                                if getDistance("player",thisTarget) < 40 then
-                                    -- TTD or dummy
-                                    if getTTD(GetObjectWithGUID(UnitGUID(thisTarget))) > self.options.rotation.ttdSWP+castTime or isDummy(thisTarget) then
-                                        return castSpell(thisTarget,self.spell.vampiricTouch,true,false) == true or false
-                                    end
-                                end
-                            end
-                        end
-                    end
-                end
-            end
-            return false
-        end
-        function self.castVT(thisTarget)
-            return castSpell(thisTarget,self.spell.vampiricTouch,true,true) == true or false
-        end
-        -- void Eruption
-        function self.castVoidEruption()
-            return castSpell("player",self.spell.voidEruption,false,true) == true or false
-        end
-        -- void Bolt
-        function self.castVoidBolt(thisTarget)
-            return castSpellMacro(thisTarget,self.spell.voidEruption,false,false,false,true,false,false,true) == true or false
+
+        function self.getCastable()
+
+            -- self.cast.debug.ascendance      = self.cast.ascendance("player", true)
         end
 
+
+        -- Dispersion
+        function self.cast.dispersion(thisUnit,debug)
+            local spellCast = self.spell.dispersion
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = "player" end
+            if debug == nil then debug = false end
+
+            if self.cd.dispersion == 0 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,true,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,true,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+
+        -- Mind Bender
+        function self.cast.mindBender(thisUnit,debug)
+            local spellCast = self.spell.mindBender
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = self.units.dyn40 end
+            if debug == nil then debug = false end
+
+            if self.cd.mindBender == 0 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,true,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,false,true)
+                end
+            elseif debug then
+                return false
+            end
+        end
+
+        -- Mind Blast
+        function self.cast.mindBlast(thisUnit,debug)
+            local spellCast = self.spell.mindBlast
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = self.units.dyn40 end
+            if debug == nil then debug = false end
+
+            if self.cd.mindBlast == 0 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,true,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,false,true)
+                end
+            elseif debug then
+                return false
+            end
+        end
+
+        -- Mindfiend
+        function self.cast.mindfiend(thisUnit,debug)
+            local spellCast = self.spell.mindfiend
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = self.units.dyn40 end
+            if debug == nil then debug = false end
+
+            if self.cd.mindfiend == 0 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,true,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,false,true)
+                end
+            elseif debug then
+                return false
+            end
+        end
+
+        -- Mind Flay
+        function self.cast.mindFlay(thisUnit,debug)
+            local spellCast = self.spell.mindFlay
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = self.units.dyn40 end
+            if debug == nil then debug = false end
+
+            if self.cd.mindFlay == 0 and not UnitChannelInfo("player") then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,true,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,false,true)
+                end
+            elseif debug then
+                return false
+            end
+        end
         
+        -- Mind Shear
+        function self.cast.mindSear(thisUnit,debug)
+            local spellCast = self.spell.mindSear
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = self.units.dyn40 end
+            if debug == nil then debug = false end
+
+            if self.cd.mindSear == 0 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,true,true,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,true,true)
+                end
+            elseif debug then
+                return false
+            end
+        end
+
+        -- Mind Spike
+        function self.cast.mindSpike(thisUnit,debug)
+            local spellCast = self.spell.mindSpike
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = self.units.dyn40 end
+            if debug == nil then debug = false end
+
+            if self.cd.mindSpike == 0 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,true,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,false,true)
+                end
+            elseif debug then
+                return false
+            end
+        end
+
+        -- Shadow Word: Death
+        function self.cast.shadowWordDeath(thisUnit,debug)
+            local spellCast = self.spell.shadowWordDeath
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = self.units.dyn40 end
+            if debug == nil then debug = false end
+
+            if self.cd.shadowWordDeath == 0 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,true,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,true,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+
+        -- Shadow Word: Pain
+        function self.cast.shadowWordPain(thisUnit,debug)
+            local spellCast = self.spell.shadowWordPain
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = self.units.dyn40 end
+            if debug == nil then debug = false end
+
+            if self.cd.shadowWordPain == 0 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,true,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,true,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+
+         -- Shadowfiend
+        function self.cast.shadowfiend(thisUnit,debug)
+            local spellCast = self.spell.shadowfiend
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = self.units.dyn40 end
+            if debug == nil then debug = false end
+
+            if self.cd.shadowfiend == 0 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,true,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,true,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+
+        -- Silence
+        function self.cast.silence(thisUnit,debug)
+            local spellCast = self.spell.silence
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = self.units.dyn40 end
+            if debug == nil then debug = false end
+
+            if self.cd.silence == 0 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,true,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,true,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+
+        -- Vampiric Embrace
+        function self.cast.vampiricEmbrace(thisUnit,debug)
+            local spellCast = self.spell.vampiricEmbrace
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = "player" end
+            if debug == nil then debug = false end
+
+            if self.cd.vampiricEmbrace == 0 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,true,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,true,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+
+        -- vampiricTouch
+        function self.cast.vampiricTouch(thisUnit,debug)
+            local spellCast = self.spell.vampiricTouch
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = self.units.dyn40 end
+            if debug == nil then debug = false end
+
+            if self.cd.vampiricTouch == 0 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,true,true,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,true,true)
+                end
+            elseif debug then
+                return false
+            end
+        end
+
+        -- voidEruption
+        function self.cast.voidEruption(thisUnit,debug)
+            local spellCast = self.spell.voidEruption
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = "player" end
+            if debug == nil then debug = false end
+
+            if self.cd.voidEruption == 0 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,true,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,false,true)
+                end
+            elseif debug then
+                return false
+            end
+        end
+
+        -- voidBolt
+        function self.cast.voidBolt(thisUnit,debug)
+            local spellCast = self.spell.voidEruption
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = self.units.dyn40 end
+            if debug == nil then debug = false end
+
+            if self.cd.voidBolt == 0 then
+                if debug then
+                    return castSpellMacro(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    return castSpellMacro(thisUnit,spellCast,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+
+
+
+
+
+
     ------------------------
-    --- CUSTOM FUNCTIONS --- -- List all custom functions used only by this spec here 
+    --- CUSTOM FUNCTIONS ---
     ------------------------
-    function useCDs(spellid)
-            if (bb.data['Cooldown'] == 1 and isBoss()) or bb.data['Cooldown'] == 2 then
-                return true
-            else
-                return false
-            end
+        --Target HP
+        function thp(unit)
+            return getHP(unit)
         end
-        function useAuto()
-            if bb.data['Rotation'] == 1 then
-                return true
-            else
-                return false
-            end
-        end
-        function useAoE()
-            if bb.data['Rotation'] == 2 then
-               return true
-            else
-                return false
-            end
-        end
-        function useSingle()
-            if bb.data['Rotation'] == 3 then
-                return true
-            else
-                return false
-            end
-        end
-        function useInterrupts()
-            if bb.data['Interrupt'] == 1 then
-               return true
-            else
-                return false
-            end
-        end
-        function useDefensive()
-            if bb.data['Defensive'] == 1 then
-                return true
-            else
-                return false
-            end
-        end      
-        -- Blacklist
-        -- SWP
-        function self.SWP_allowed(targetUnit)
-            if targetUnit == nil or not UnitExists(targetUnit) then 
-                return true 
-            end
-            
-            local thisUnit = targetUnit
-            local thisUnitID = getUnitID(thisUnit)
-            local Blacklist_UnitID = {
-            -- HM: Highmaul
-                79956,      -- Ko'ragh: Volatile Anomaly
-                78077,      -- Mar'gok: Volatile Anomaly
-            -- BRF: Blackrock Foundry
-                77128,      -- Darmac: Pack Beast
-                77394,      -- Thogar: Iron Raider (Train Ads)
-                77893,      -- Kromog: Grasping Earth (Hands)
-                77665,      -- Blackhand: Iron Soldier
-            -- HFC: Hellfire Citadel
-                90114,      -- Hellfire Assault: damn small ads
-                --94326,        -- Iron Reaver: Reactive Bomb
-                90513,      -- Kilrogg: Fel Blood Globule
-                96077,      -- Kilrogg: Fel Blood Globule
-                90477,      -- Kilrogg: Blood Globule
-                93288,      -- Gorefiend: Corrupted Players
-                --95101,        -- Socrethar: Phase1 Voracious Soulstalker
-                --92919,        -- Zakuun: Mythic dat orb
-                92208,      -- Archimonde: Doomfire Spirit
-            }
-            local Blacklist_BuffID = {
-            -- blackrock foundry
-                155176,     -- Blast Furnace: Primal Elementalist: http://www.wowhead.com/spell=155176/damage-shield
-                176141,     -- Blast Furnace: Slag Elemental: http://www.wowhead.com/spell=176141/hardened-slag
-            }
 
-            -- check for buffs
-            for i = 1, #Blacklist_BuffID do
-                if getBuffRemain(thisUnit,Blacklist_BuffID[i]) > 0 or getDebuffRemain(thisUnit,Blacklist_BuffID[i]) > 0 then return false end
-            end
-            -- check for unit id
-            for i = 1, #Blacklist_UnitID do
-                if thisUnitID == Blacklist_UnitID[i] then return false end
-            end
-            return true
+        --Target Time to Die
+        function ttd(unit)
+            return getTimeToDie(unit)
         end
-        -- VT
-        function self.VT_allowed(targetUnit)
-            if targetUnit == nil or not UnitExists(targetUnit) then 
-                return true 
-            end
 
-            local thisUnit = targetUnit
-            local thisUnitID = getUnitID(thisUnit)
-            local Blacklist_UnitID = {
-            -- BRF: Blackrock Foundry
-                77893,      -- Kromog: Grasping Earth (Hands)
-                78981,      -- Thogar: Iron Gunnery Sergeant (canons on trains)
-                80654,      -- Blackhand Mythic Siegemakers
-                80659,      -- Blackhand Mythic Siegemakers
-                80646,      -- Blackhand Mythic Siegemakers
-                80660,      -- Blackhand Mythic Siegemakers
-            -- HFC: Hellfire Citadel
-                --94865,        -- Hellfire Council: Jubei'thos Mirrors
-                94231,      -- Xhul'horac: Wild Pyromaniac
-                --92208,        -- Archimonde: Doomfire Spirit
-                --91938,        -- Socrethar: Haunting Soul
-                --90409,        -- Hellfire Assault: Gorebound Felcaster
-                93717,      -- Iron Reaver: Volatile Firebomb
-                91368,      -- Kormrok: Crushing Hand
-                93830,      -- Hellfire Assault: Iron Dragoon
-                90114,      -- Hellfire Assault: Iron Dragoon
-                93369,      -- Kilrogg: Salivating Bloodthirster
-                90521,      -- Kilrogg: Salivating Bloodthirster
-                --90388,        -- Gorefiend: Digest Mobs
-                93288,      -- Gorefiend: Corrupted Players
-                95101,      -- Socrethar: Phase1 Voracious Soulstalker
-                91259,      -- Mannoroth: Fel Imp
-                92208,      -- Archimonde: Doomfire Spirit
-                93616,      -- Archimonde: Dreadstalker
-            }
-
-            local Blacklist_BuffID = {
-            }
-
-            -- check for buffs
-            for i = 1, #Blacklist_BuffID do
-                if getBuffRemain(thisUnit,Blacklist_BuffID[i]) > 0 or getDebuffRemain(thisUnit,Blacklist_BuffID[i]) > 0 then return false end
-            end
-            -- check for unit id
-            for i = 1, #Blacklist_UnitID do
-                if thisUnitID == Blacklist_UnitID[i] then return false end
-            end
-            return true
+        --Target Distance
+        function tarDist(unit)
+            return getDistance(unit)
         end
+
     -----------------------------
     --- CALL CREATE FUNCTIONS ---
     -----------------------------
 
         -- Return
         return self
-    end-- cShadow
-end-- select Class
+    end-- cProtection
+end-- select Warrior

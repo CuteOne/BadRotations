@@ -806,7 +806,6 @@ function castSpellMacro(Unit,SpellID,FacingCheck,MovementCheck,SpamAllowed,Known
 							else 
 								timersTable[SpellID] = GetTime()
 								currentTarget = UnitGUID(Unit)
-								print("/cast [@"..Unit.."] "..GetSpellInfo(SpellID))
 								RunMacroText("/cast [@"..Unit.."] "..GetSpellInfo(SpellID))
 								--lastSpellCast = SpellID
 								-- change main button icon
@@ -824,7 +823,6 @@ function castSpellMacro(Unit,SpellID,FacingCheck,MovementCheck,SpamAllowed,Known
 						return true
 					else
 						currentTarget = UnitGUID(Unit)
-						print("/cast [@"..Unit.."] "..GetSpellInfo(SpellID))
 						RunMacroText("/cast [@"..Unit.."] "..GetSpellInfo(SpellID))
 						if getOptionCheck("Start/Stop BadBoy") then
 							mainButton:SetNormalTexture(select(3,GetSpellInfo(SpellID)))
