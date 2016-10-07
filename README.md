@@ -127,12 +127,12 @@ Raidable means if its good to raid with.
 |Shadow|0%|Cpoworks|7.0|
 ||||
 | **Rogue** |||
-|Assassination|50%|CuteOne|7.0|:x:
-|Outlaw|50%|CuteOne|7.0|:x:
+|Assassination|100%|CuteOne|7.0|
+|Outlaw|100%|CuteOne|7.0|
 |Subtlety|50%|CuteOne|7.0|:x:
 ||||
 | **Shaman** |||
-|Elemental|0%||7.0|
+|Elemental|100%|CuteOne|7.0|
 |Enhancement|100%|CuteOne|7.0|:white_check_mark:
 |Restoration|0%||7.0|
 ||||
@@ -143,5 +143,5 @@ Raidable means if its good to raid with.
 ||||
 | **Warrior** |||
 |Arms|0%||7.0|
-|Fury|0%||7.0|
+|Fury|100%|CuteOne|7.0|
 |Protection|0%||7.0|
