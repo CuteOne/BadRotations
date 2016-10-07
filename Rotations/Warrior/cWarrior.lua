@@ -33,6 +33,7 @@ if select(2, UnitClass("player")) == "WARRIOR" then
             heroicThrow                 = 57755,
             pummel                      = 6552,
             shockwave                   = 46968,
+            stormBolt                   = 107570,
         }
         self.spell.class.artifacts      = {        -- Artifact Traits Available To All Specs in Class
             artificialStamina           = 211309,
@@ -238,6 +239,7 @@ if select(2, UnitClass("player")) == "WARRIOR" then
             self.cast.debug.heroicThrow   = self.cast.heroicThrow("target",true)
             self.cast.debug.pummel        = self.cast.pummel("target",true)
             self.cast.debug.shockwave     = self.cast.shockwave("target",true)
+            self.cast.debug.stormBolt     = self.cast.stormBolt("target",true)
         end
 
         -- Avatar
@@ -388,6 +390,23 @@ if select(2, UnitClass("player")) == "WARRIOR" then
             if debug == nil then debug = false end
 
             if self.talent.shockwave and self.cd.shockwave == 0 and getDistance(thisUnit) < 10 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,false,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+        -- Storm Bolt
+        function self.cast.stormBolt(thisUnit,debug)
+            local spellCast = self.spell.stormBolt
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = self.units.dyn20 end
+            if debug == nil then debug = false end
+
+            if self.talent.stormBolt and self.cd.stormBolt == 0 and getDistance(thisUnit) < 20 then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else

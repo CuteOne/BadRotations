@@ -139,6 +139,7 @@ function cFury:new()
 
             self.enemies.yards5     = getEnemies("player", 5) -- Melee
             self.enemies.yards8     = getEnemies("player", 8)
+            self.enemies.yards10    = getEnemies("player", 10)
             self.enemies.yards15    = getEnemies("player", 15)
             self.enemies.yards20    = getEnemies("player", 20)
             self.enemies.yards40    = getEnemies("player", 40)

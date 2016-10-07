@@ -70,6 +70,8 @@ if select(2, UnitClass("player")) == "ROGUE" then
 	            bb.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
             	-- Stealth
 	            bb.ui:createDropdown(section, "Stealth", {"|cff00FF00Always", "|cffFFDD00PrePot", "|cffFF000020Yards"},  1, "Stealth method.")
+	            -- Artifact 
+                bb.ui:createDropdownWithout(section,"Artifact", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Artifact Ability.")
             bb.ui:checkSectionState(section)
             ------------------------
             --- COOLDOWN OPTIONS ---
@@ -266,7 +268,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
 	            end
 	    -- Pick Pocket
 	        	if usePickPocket() then
-        			if UnitCanAttack(units.dyn5,"player") and (UnitExists(units.dyn5) or mode.pickPocket == 2) and mode.pickPocket ~= 3 then
+        			if UnitCanAttack(units.dyn5,"player") and (UnitExists("target") or mode.pickPocket == 2) and mode.pickPocket ~= 3 then
 	        			if not isPicked(units.dyn5) and not isDummy(units.dyn5) then
 	        				if debuff.remain.sap < 1 and mode.pickPocket ~= 1 then
 	        					if cast.sap(units.dyn5) then return end
@@ -403,8 +405,10 @@ if select(2, UnitClass("player")) == "ROGUE" then
 					end
 			-- Curse of the Dreadblades
 					-- curse_of_the_dreadblades,if=combo_points.deficit>=4&(!talent.ghostly_strike.enabled|debuff.ghostly_strike.up)
-					if comboDeficit >= 4 and (not talent.ghostlyStrike or debuff.ghostlyStrike) then
-						if cast.curseOfTheDreadblades() then return end
+					if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()) then
+						if comboDeficit >= 4 and (not talent.ghostlyStrike or debuff.ghostlyStrike) then
+							if cast.curseOfTheDreadblades() then return end
+						end
 					end
 				end -- End Cooldown Usage Check
 			end -- End Action List - Cooldowns

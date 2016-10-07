@@ -113,6 +113,8 @@ if select(3,UnitClass("player")) == 1 then
                 -- Shockwave
                 bb.ui:createSpinner(section, "Shockwave - HP", 60, 0, 100, 5, "|cffFFBB00Health Percentage to use at.")
                 bb.ui:createSpinner(section, "Shockwave - Units", 3, 1, 10, 1, "|cffFFBB00Minimal units to cast on.")
+                -- Storm Bolt
+                bb.ui:createSpinner(section, "Storm Bolt", 60, 0, 100, 5, "|cffFFBB00Health Percentage to use at.") 
             bb.ui:checkSectionState(section)
             -------------------------
             --- INTERRUPT OPTIONS ---
@@ -124,6 +126,8 @@ if select(3,UnitClass("player")) == 1 then
                 bb.ui:createCheckbox(section,"Intimidating Shout - Int")
                 -- Shockwave
                 bb.ui:createCheckbox(section,"Shockwave - Int")
+                -- Storm Bolt
+                bb.ui:createCheckbox(section,"Storm Bolt - Int")
                 -- Interrupt Percentage
                 bb.ui:createSpinner(section,  "InterruptAt",  0,  0,  95,  5,  "|cffFFBB00Cast Percentage to use at.")    
             bb.ui:checkSectionState(section)
@@ -274,6 +278,10 @@ if select(3,UnitClass("player")) == 1 then
                     if inCombat and ((isChecked("Shockwave - HP") and php <= getOptionValue("Shockwave - HP")) or (isChecked("Shockwave - Units") and #enemies.yards10 >= getOptionValue("Shockwave - Units"))) then
                         if cast.shockwave() then return end
                     end
+                -- Storm Bolt
+                    if inCombat and isChecked("Storm Bolt") and php <= getOptionValue("Storm Bolt") then
+                        if cast.stormBolt() then return end
+                    end
                 end -- End Defensive Check
             end -- End Action List - Defensive
         -- Action List - Interrupts
@@ -295,6 +303,10 @@ if select(3,UnitClass("player")) == 1 then
                         -- Shockwave
                             if isChecked("Shockwave - Int") and unitDist < 10 then
                                 if cast.shockwave() then return end
+                            end
+                        -- Storm Bolt
+                            if isChecked("Storm Bolt - Int") and unitDist < 20 then
+                                if cast.stormBolt() then return end
                             end
                         end
                     end
@@ -408,7 +420,7 @@ if select(3,UnitClass("player")) == 1 then
                 -- bladestorm,if=buff.enrage.remains>2&(raid_event.adds.in>90|!raid_event.adds.exists|spell_targets.bladestorm_mh>desired_targets)
                 if useCDs() and isChecked("Bladestorm") and getDistance(units.dyn8) < 8 then
                     if buff.remain.enrage > 2 and (addsIn > 90 or not addsExists or #enemies.yards8 > getOptionValue("Bladestorm Units")) then
-                        if bb.player.castBladestorm() then return end
+                        if cast.bladestorm() then return end
                     end
                 end
             end -- End Action List - Bladestorm (OH GOD WHY!?!?!)
