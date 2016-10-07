@@ -24,9 +24,11 @@ function cOutlaw:new()
             blind                   = 2094,
             bribe                   = 199740,
             cannonballBarrage       = 185767,
+            curseOfTheDreadblades   = 202665,
             ghostlyStrike           = 196937,
             gouge                   = 1776,
             grapplingHook           = 195457,
+            killingSpree            = 51690,
             masteryMainGauche       = 76806,
             parley                  = 199743,
             pistolShot              = 185763,
@@ -34,8 +36,7 @@ function cOutlaw:new()
             rollTheBones            = 193316,
             runThrough              = 2098,
             saberSlash              = 193315,
-            pistolShot              = 185763,
-            killingSpree            = 51690,
+            sliceAndDice            = 5171,
         }
         self.spell.spec.artifacts   = {
             blackPowder             = 216230,
@@ -43,6 +44,7 @@ function cOutlaw:new()
             bladeMaster             = 202628,
             blunderbuss             = 202897,
             blurredTime             = 202769,
+            cannonballBarrage       = 185767,
             curseOfTheDreadblades   = 202665,
             cursedEdge              = 202463,
             cursedSteel             = 214929,
@@ -56,15 +58,22 @@ function cOutlaw:new()
             greed                   = 202820,
             gunslinger              = 202522,
             hiddenBlade             = 202573,
+            killingSpree            = 51690,
+            sliceAndDice            = 5171,
         }
         self.spell.spec.buffs       = {
+            adrenalineRush          = 13750,
+            alacrity                = 193538,
             bladeFlurry             = 13877,
             broadsides              = 193356,
             buriedTreasure          = 193316,
+            curseOfTheDreadblades   = 202665,
             grandMelee              = 193358,
+            hiddenBlade             = 202754,
             jollyRoger              = 199603,
             opportunity             = 195627,
             sharkInfestedWaters     = 193357,
+            sliceAndDice            = 5171,
             trueBearing             = 193359,
         }
         self.spell.spec.buffs.rollTheBones = {
@@ -77,6 +86,7 @@ function cOutlaw:new()
         }
         self.spell.spec.debuffs     = {
             ghostlyStrike           = 196937,
+            parley                  = 199743,
         }
         self.spell.spec.talents     = {
             acrobaticStikes         = 196924,
@@ -144,7 +154,8 @@ function cOutlaw:new()
             self.units.dyn20 = dynamicTarget(20, true) --Pistol Shot 
 
             -- AoE
-            self.units.dyn8AoE = dynamicTarget(8, false) -- Blade Flurry
+            self.units.dyn8AoE  = dynamicTarget(8, false) -- Blade Flurry
+            self.units.dyn35AoE = dynamicTarget(35, false) -- Cannonball Barrage
         end
 
     ---------------
@@ -156,6 +167,7 @@ function cOutlaw:new()
 
             self.enemies.yards8 = getEnemies("player", 8) -- Blade Flurry
             self.enemies.yards20 = getEnemies("player", 20) -- Interrupts
+            self.enemies.yards35 = getEnemies("player", 35) -- Cannonball Barrage
         end
 
     -----------------
@@ -163,13 +175,19 @@ function cOutlaw:new()
     -----------------
 
         function self.getArtifacts()
-            local isKnown = isKnown
+            local hasPerk = hasPerk
 
-            --self.artifact.ashamanesBite     = isKnown(self.spell.ashamanesBite)
+            for k,v in pairs(self.spell.spec.artifacts) do
+                self.artifact[k] = hasPerk(v) or false
+            end
         end
 
         function self.getArtifactRanks()
-
+            local getPerkRank = getPerkRank
+            
+            for k,v in pairs(self.spell.spec.artifacts) do
+                self.artifact.rank[k] = getPerkRank(v) or 0
+            end
         end
        
     -------------
@@ -187,6 +205,7 @@ function cOutlaw:new()
                     self.buff[k] = UnitBuffID("player",v) ~= nil
                     self.buff.duration[k] = getBuffDuration("player",v) or 0
                     self.buff.remain[k] = getBuffRemain("player",v) or 0
+                    self.buff.stack[k] = getBuffStacks("player",v) or 0
                 end
             end
 
@@ -363,27 +382,49 @@ function cOutlaw:new()
 
         function self.getCastable()
 
-            self.cast.debug.ambush            = self.cast.ambush("target",true)
-            self.cast.debug.betweenTheEyes    = self.cast.betweenTheEyes("target",true)
-            self.cast.debug.bladeFlurry       = self.cast.bladeFlurry("player",true)
-            self.cast.debug.blind             = self.cast.blind("target",true)
-            self.cast.debug.ghostlyStrike     = self.cast.ghostlyStrike("target",true)
-            self.cast.debug.gouge             = self.cast.gouge("target",true)
-            self.cast.debug.grapplingHook     = self.cast.grapplingHook("target",true)
-            self.cast.debug.pistolShot        = self.cast.pistolShot("target",true)
-            self.cast.debug.riposte           = self.cast.riposte("player",true)
-            self.cast.debug.rollTheBones      = self.cast.rollTheBones("player",true)
-            self.cast.debug.runThrough        = self.cast.runThrough("target",true)
-            self.cast.debug.saberSlash        = self.cast.saberSlash("target",true)
+            self.cast.debug.adrenalineRush          = self.cast.adrenalineRush("player",true)
+            self.cast.debug.ambush                  = self.cast.ambush("target",true)
+            self.cast.debug.betweenTheEyes          = self.cast.betweenTheEyes("target",true)
+            self.cast.debug.bladeFlurry             = self.cast.bladeFlurry("player",true)
+            self.cast.debug.blind                   = self.cast.blind("target",true)
+            self.cast.debug.cannonballBarrage       = self.cast.cannonballBarrage("target",true)
+            self.cast.debug.curseOfTheDreadblades   = self.cast.curseOfTheDreadblades("player",true)
+            self.cast.debug.ghostlyStrike           = self.cast.ghostlyStrike("target",true)
+            self.cast.debug.gouge                   = self.cast.gouge("target",true)
+            self.cast.debug.grapplingHook           = self.cast.grapplingHook("target",true)
+            self.cast.debug.killingSpree            = self.cast.killingSpree("target",true)
+            self.cast.debug.parley                  = self.cast.parley
+            self.cast.debug.pistolShot              = self.cast.pistolShot("target",true)
+            self.cast.debug.riposte                 = self.cast.riposte("player",true)
+            self.cast.debug.rollTheBones            = self.cast.rollTheBones("player",true)
+            self.cast.debug.runThrough              = self.cast.runThrough("target",true)
+            self.cast.debug.saberSlash              = self.cast.saberSlash("target",true)
+            self.cast.debug.sliceAndDice            = self.cast.sliceAndDice("player",true)
         end
 
+        function self.cast.adrenalineRush(thisUnit,debug)
+            local spellCast = self.spell.adrenalineRush
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = "player" end
+            if debug == nil then debug = false end
+
+            if self.level >= 72 and self.cd.adrenalineRush == 0 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,false,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
         function self.cast.ambush(thisUnit,debug)
             local spellCast = self.spell.ambush
             local thisUnit = thisUnit
             if thisUnit == nil then thisUnit = self.units.dyn5 end
             if debug == nil then debug = false end
 
-            if self.level >= 14 and self.power > 60 and self.buff.stealth and getDistance(thisUnit) < 5 then
+            if self.level >= 14 and self.power > 60 and (self.buff.stealth or self.buff.vanish or self.buff.shadowmeld) and self.cd.ambush == 0 and getDistance(thisUnit) < 5 then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
@@ -441,17 +482,68 @@ function cOutlaw:new()
                 return false
             end
         end
+        function self.cast.bribe(thisUnit,debug)
+            local spellCast = self.spell.bribe
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = self.units.dyn30 end
+            if debug == nil then debug = false end
+
+            if self.level >= 54 and self.cd.blind == 0 and UnitCreatureType(thisUnit) == "Humanoid" 
+                and not UnitIsPlayer(thisUnit) and UnitLevel(thisUnit) <= UnitLevel("player") + 1 and getDistance(thisUnit) < 30 
+            then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,false,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+        function self.cast.cannonballBarrage(thisUnit,debug)
+            local spellCast = self.spell.cannonballBarrage
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = self.units.dyn35AoE end
+            if debug == nil then debug = false end
+
+            if self.talent.cannonballBarrage and self.cd.cannonballBarrage == 0 and getDistance(thisUnit) < 35 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    -- return castSpell(thisUnit,spellCast,false,false,false)
+                    return castGround(thisUnit,spellCast,35)
+                end
+            elseif debug then
+                return false
+            end
+        end
+        function self.cast.curseOfTheDreadblades(thisUnit,debug)
+            local spellCast = self.spell.curseOfTheDreadblades
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = "player" end
+            if debug == nil then debug = false end
+
+            if self.artifact.curseOfTheDreadblades and self.cd.curseOfTheDreadblades == 0 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,false,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
         function self.cast.ghostlyStrike(thisUnit,debug)
             local spellCast = self.spell.ghostlyStrike
             local thisUnit = thisUnit
             if thisUnit == nil then thisUnit = self.units.dyn5 end
             if debug == nil then debug = false end
 
-            if self.talent.ghostlyStrike and self.power > 30 and getDistance(thisUnit) < 5 then
+            if self.talent.ghostlyStrike and self.power > 30 and self.cd.ghostlyStrike == 0 and getDistance(thisUnit) < 5 then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
-                    ObjectInteract(thisUnit)
+                    -- ObjectInteract(thisUnit)
                     return castSpell(thisUnit,spellCast,false,false,false)
                 end
             elseif debug then
@@ -464,7 +556,7 @@ function cOutlaw:new()
             if thisUnit == nil then thisUnit = self.units.dyn5 end
             if debug == nil then debug = false end
 
-            if self.level >= 22 and self.power > 25 and getDistance(thisUnit) < 5 then
+            if self.level >= 22 and (self.power > 25 or self.talent.dirtyTricks) and self.cd.gouge == 0 and getDistance(thisUnit) < 5 then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
@@ -490,13 +582,45 @@ function cOutlaw:new()
                 return false
             end
         end
+        function self.cast.killingSpree(thisUnit,debug)
+            local spellCast = self.spell.killingSpree
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = self.units.dyn10 end
+            if debug == nil then debug = false end
+
+            if self.talent.killingSpree and self.cd.killingSpree == 0 and getDistance(thisUnit) < 10 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    return castGround(thisUnit,spellCast,40)
+                end
+            elseif debug then
+                return false
+            end
+        end
+        function self.cast.parley(thisUnit,debug)
+            local spellCast = self.spell.parley
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = self.units.dyn30 end
+            if debug == nil then debug = false end
+
+            if self.talent.parley and (UnitCreatureType(thisUnit) == "Humanoid" or UnitCreatureType(thisUnit) == "Demon" or UnitCreatureType(thisUnit) == "Dragonkin") and self.cd.parley == 0 and getDistance(thisUnit) < 30 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,false,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end 
         function self.cast.pistolShot(thisUnit,debug)
             local spellCast = self.spell.pistolShot
             local thisUnit = thisUnit
             if thisUnit == nil then thisUnit = self.units.dyn20 end
             if debug == nil then debug = false end
 
-            if self.level >= 11 and (self.power > 40 or self.buff.opportunity) and (hasThreat(thisUnit) or isDummy(thisUnit)) and getDistance(thisUnit) < 20 then
+            if self.level >= 11 and (self.power > 40 or self.buff.opportunity) and (hasThreat(thisUnit) or isDummy(thisUnit)) and self.cd.pistolShot == 0 and getDistance(thisUnit) < 20 then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
@@ -528,7 +652,7 @@ function cOutlaw:new()
             if thisUnit == nil then thisUnit = "player" end
             if debug == nil then debug = false end
 
-            if self.level >= 36 and self.power > 25 and self.comboPoints > 0 then
+            if self.level >= 36 and self.power > 25 - (self.artifact.rank.fatebringer * 3) and self.comboPoints > 0 and self.cd.rollTheBones == 0 and not self.talent.sliceAndDice then
                 if debug then 
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
@@ -544,7 +668,7 @@ function cOutlaw:new()
             if thisUnit == nil then thisUnit = self.units.dyn5 end
             if debug == nil then debug = false end
 
-            if self.level >= 10 and self.power > 35 and self.comboPoints > 0 and getDistance(thisUnit) < 8 then
+            if self.level >= 10 and self.power > 35 - (self.artifact.rank.fatebringer * 3) and self.comboPoints > 0 and self.cd.runThrough == 0 and getDistance(thisUnit) < 8 then
                 if debug then
                     return castSpell(thisunit,spellCast,false,false,false,false,false,false,false,true)
                 else
@@ -560,8 +684,24 @@ function cOutlaw:new()
             if thisUnit == nil then thisUnit = self.units.dyn5 end
             if debug == nil then debug = false end
 
-            if self.level >= 10 and self.power > 50 and getDistance(thisUnit) < 5 then
+            if self.level >= 10 and self.power > 50 and self.cd.saberSlash == 0 and getDistance(thisUnit) < 5 then
                 if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,false,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+        function self.cast.sliceAndDice(thisUnit,debug)
+            local spellCast = self.spell.sliceAndDice
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = "player" end
+            if debug == nil then debug = false end
+
+            if self.talent.sliceAndDice and self.power > 25 - (self.artifact.rank.fatebringer * 3) and self.comboPoints > 0 and self.cd.sliceAndDice == 0 then
+                if debug then 
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
                     return castSpell(thisUnit,spellCast,false,false,false)

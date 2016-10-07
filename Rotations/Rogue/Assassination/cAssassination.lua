@@ -31,7 +31,7 @@ function cAssassination:new()
             hemorrhage              = 16511,
             improvedPoisons         = 14117,
             kidneyShot              = 408,
-            kingsbane               = 192760, --222062
+            kingsbane               = 192759, --222062
             leechingPoison          = 108211,
             masteryPotentPoisons    = 76803,
             mutilate                = 1329,
@@ -67,6 +67,8 @@ function cAssassination:new()
             cripplingPoison         = 3408,
             deadlyPoison            = 2823,
             elaboratePlanning       = 193641,
+            leechingPoison          = 108211,
+            theDreadlordsDeceit     = 208692,
             woundPoison             = 8679,
         }
         self.spell.spec.debuffs     = {
@@ -74,7 +76,9 @@ function cAssassination:new()
             deadlyPoison            = 2818,
             garrote                 = 703,
             hemorrhage              = 16511,
+            internalBleeding        = 154953,
             rupture                 = 1943,
+            vendetta                = 79140,
             woundPoison             = 8680,
         }
         self.spell.spec.talents     = {
@@ -156,7 +160,8 @@ function cAssassination:new()
             local getEnemies = getEnemies
 
             self.enemies.yards5     = getEnemies("player", 5) -- Melee
-            self.enemies.yards10    = getEnemies("player", 8) -- Fan of Knives
+            self.enemies.yards8     = getEnemies("player", 8) -- Fan of Knives
+            self.enemies.yards10    = getEnemies("player", 10)
             self.enemies.yards20    = getEnemies("player", 20) -- Interrupts
             self.enemies.yards30    = getEnemies("player", 30) -- Poisoned Knife
         end
@@ -357,13 +362,18 @@ function cAssassination:new()
             self.cast.debug.deadlyPoison      = self.cast.deadlyPoison("player",true)
             self.cast.debug.envenom           = self.cast.envenom("target",true)
             self.cast.debug.evasion           = self.cast.evasion("player",true)
+            self.cast.debug.exsanguinate      = self.cast.exsanguinate("player",true)
+            self.cast.debug.fanOfKnives       = self.cast.fanOfKnives("player",true)
             self.cast.debug.garrote           = self.cast.garrote("target",true)
             self.cast.debug.hemorrhage        = self.cast.hemorrhage("target",true)
             self.cast.debug.kidneyShot        = self.cast.kidneyShot("target",true)
+            self.cast.debug.kingsbane         = self.cast.kingsbane("target",true)
+            self.cast.debug.leechingPoison    = self.cast.leechingPoison("player",true)
             self.cast.debug.mutilate          = self.cast.mutilate("target",true)
             self.cast.debug.poisonKnive       = self.cast.poisonedKnife("target",true)
             self.cast.debug.rupture           = self.cast.rupture("target",true)
             self.cast.debug.shadowstep        = self.cast.shadowstep("target",true)
+            self.cast.debug.vendetta          = self.cast.vendetta("target",true)
             self.cast.debug.woundPoison       = self.cast.woundPoison("player",true)
         end
 
@@ -373,11 +383,11 @@ function cAssassination:new()
             if thisUnit == nil then thisUnit = "player" end
             if debug == nil then debug = false end
 
-            if self.level >= 19 and self.buff.remain.cripplingPoison < 600 and not isUnitCasting() then
+            if self.level >= 19 and self.buff.remain.cripplingPoison < 600 and self.cd.cripplingPoison == 0 and not isCastingSpell(spellCast,thisUnit) then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
-                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                    return castSpell(thisUnit,spellCast,false,false,false)
                 end
             elseif debug then
                 return false
@@ -389,11 +399,11 @@ function cAssassination:new()
             if thisUnit == nil then thisUnit = "player" end
             if debug == nil then debug = false end
 
-            if self.level >= 2 and self.buff.remain.deadlyPoison < 600 and not isUnitCasting() then
+            if self.level >= 2 and self.buff.remain.deadlyPoison < 600 and self.cd.deadlyPoison == 0 and not isCastingSpell(spellCast,thisUnit) then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
-                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                    return castSpell(thisUnit,spellCast,false,false,false)
                 end
             end
         end
@@ -403,11 +413,11 @@ function cAssassination:new()
             if thisUnit == nil then thisUnit = self.units.dyn5 end
             if debug == nil then debug = false end
 
-            if self.level >= 3 and self.power > 35 and self.comboPoints > 0 and getDistance(thisUnit) < 5 then
+            if self.level >= 3 and self.power > 35 and self.comboPoints > 0 and self.cd.envenom == 0 and getDistance(thisUnit) < 5 then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
-                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                    return castSpell(thisUnit,spellCast,false,false,false)
                 end
             elseif debug then
                 return false
@@ -423,7 +433,39 @@ function cAssassination:new()
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
-                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                    return castSpell(thisUnit,spellCast,false,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+        function self.cast.exsanguinate(thisUnit,debug)
+            local spellCast = self.spell.exsanguinate
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = self.units.dyn5 end
+            if debug == nil then debug = false end
+
+            if self.talent.exsanguinate and self.cd.exsanguinate == 0 and (self.debuff.rupture or self.debuff.garrote or self.debuff.internalBleeding) and getDistance(thisUnit) < 5 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,false,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+        function self.cast.fanOfKnives(thisUnit,debug)
+            local spellCast = self.spell.fanOfKnives
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = "player" end
+            if debug == nil then debug = false end
+
+            if self.level >= 66 and self.power > 35 and self.cd.fanOfKnives == 0 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,false,false,false)
                 end
             elseif debug then
                 return false
@@ -439,7 +481,7 @@ function cAssassination:new()
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
-                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                    return castSpell(thisUnit,spellCast,false,false,false)
                 end
             elseif debug then
                 return false
@@ -451,11 +493,11 @@ function cAssassination:new()
             if thisUnit == nil then thisUnit = self.units.dyn5 end
             if debug == nil then debug = false end
 
-            if self.talent.hemorrhage and self.power > 30 and getDistance(thisUnit) < 5 then
+            if self.talent.hemorrhage and self.power > 30 and self.cd.hemorrhage == 0 and getDistance(thisUnit) < 5 then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
-                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                    return castSpell(thisUnit,spellCast,false,false,false)
                 end
             elseif debug then
                 return false
@@ -471,7 +513,39 @@ function cAssassination:new()
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
-                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                    return castSpell(thisUnit,spellCast,false,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+        function self.cast.kingsbane(thisUnit,debug)
+            local spellCast = self.spell.kingsbane
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = self.units.dyn5 end
+            if debug == nil then debug = false end
+
+            if self.artifact.kingsbane and self.power > 35 and self.cd.kingsbane == 0 and getDistance(thisUnit) < 5 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,false,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+        function self.cast.leechingPoison(thisUnit,debug)
+            local spellCast = self.spell.leechingPoison
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = "player" end
+            if debug == nil then debug = false end
+
+            if self.talent.leechingPoison and self.buff.remain.leechingPoison < 600 and self.cd.leechingPoison == 0 and not isCastingSpell(spellCast,thisUnit) then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,false,false,false)
                 end
             elseif debug then
                 return false
@@ -483,11 +557,11 @@ function cAssassination:new()
             if thisUnit == nil then thisUnit = self.units.dyn5 end
             if debug == nil then debug = false end
 
-            if self.level >= 1 and self.power > 55 and getDistance(thisUnit) < 5 then
+            if self.level >= 1 and self.power > 55 and self.cd.mutilate == 0 and getDistance(thisUnit) < 5 then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
-                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                    return castSpell(thisUnit,spellCast,false,false,false)
                 end
             elseif debug then
                 return false
@@ -499,11 +573,11 @@ function cAssassination:new()
             if thisUnit == nil then thisUnit = self.units.dyn30 end
             if debug == nil then debug = false end
 
-            if self.level >= 10 and self.power > 40 and getDistance(thisUnit) < 30 and getDistance(thisUnit) > 5 then
+            if self.level >= 10 and self.power > 40 and self.cd.poisonedKnife == 0 and getDistance(thisUnit) < 30 and getDistance(thisUnit) > 5 then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
-                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                    return castSpell(thisUnit,spellCast,false,false,false)
                 end
             elseif debug then
                 return false
@@ -515,11 +589,11 @@ function cAssassination:new()
             if thisUnit == nil then thisUnit = self.units.dyn5 end
             if debug == nil then debug = false end
 
-            if self.level >= 22 and self.power > 25 and self.comboPoints > 0 and getDistance(thisUnit) < 5 then
+            if self.level >= 22 and self.power > 25 and self.comboPoints > 0 and self.cd.rupture == 0 and getDistance(thisUnit) < 5 then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
-                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                    return castSpell(thisUnit,spellCast,false,false,false)
                 end
             elseif debug then
                 return false
@@ -535,7 +609,23 @@ function cAssassination:new()
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
-                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                    return castSpell(thisUnit,spellCast,false,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+        function self.cast.vendetta(thisUnit,debug)
+            local spellCast = self.spell.vendetta
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = "target" end
+            if debug == nil then debug = false end
+
+            if self.level >= 72 and self.cd.vendetta == 0 and getDistance(thisUnit) < 30 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,false,false,false)
                 end
             elseif debug then
                 return false
@@ -547,11 +637,11 @@ function cAssassination:new()
             if thisUnit == nil then thisUnit = "player" end
             if debug == nil then debug = false end
 
-            if self.level >= 25 and self.buff.remain.woundPoison < 600 and not isUnitCasting() then
+            if self.level >= 25 and self.buff.remain.woundPoison < 600 and self.cd.woundPoison == 0 and not isCastingSpell(spellCast,thisUnit) then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
-                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                    return castSpell(thisUnit,spellCast,false,false,false)
                 end
             elseif debug then
                 return false

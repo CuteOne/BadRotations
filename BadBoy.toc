@@ -155,6 +155,7 @@ Rotations\Paladin\cPaladin.lua
 
 Rotations\Paladin\Holy\cHoly.lua
 Rotations\Paladin\Holy\Holy.lua
+Rotations\Paladin\Holy\HolyGabbz.lua
 
 Rotations\Paladin\Protection\cProtection.lua
 Rotations\Paladin\Protection\Protection.lua

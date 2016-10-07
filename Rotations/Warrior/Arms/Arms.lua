@@ -1,5 +1,5 @@
-if select(3, UnitClass("player")) == 1 then
-    function ArmsWarrior()
+function WarriorArms()
+    if GetSpecializationInfo(GetSpecialization()) == 71 then
         if bb.player == nil or bb.player.profile ~= "Arms" then
             bb.player = cArms:new("Arms")
             setmetatable(bb.player, {__index = cArms})
@@ -10,6 +10,5 @@ if select(3, UnitClass("player")) == 1 then
         end
 
         bb.player:update()
-
-    end -- Function End
-end --Class Check End
+    end
+end

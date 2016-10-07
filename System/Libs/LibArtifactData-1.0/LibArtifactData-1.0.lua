@@ -1,4 +1,4 @@
-local MAJOR, MINOR = "LibArtifactData-1.0", 8
+local MAJOR, MINOR = "LibArtifactData-1.0", 10
 
 assert(_G.LibStub, MAJOR .. " requires LibStub")
 local lib = _G.LibStub:NewLibrary(MAJOR, MINOR)
@@ -327,6 +327,10 @@ function private.ARTIFACT_UPDATE(event, newItem)
 	if newItem then
 		GetViewedArtifactData()
 	else
+		if not GetNumRelicSlots() then
+			Debug("|cffff0000ERROR:|r", "artifact data unobtainable.")
+			return
+		end
 		local newRelics = ScanRelics()
 		local oldRelics = artifacts[viewedID].relics
 
@@ -476,7 +480,7 @@ function lib.GetAcquiredArtifactPower(_, artifactID)
 		local data = artifacts[artifactID]
 		total = total + data.unspentPower
 		local rank = 1
-		while rank <= data.numRanksPurchased do
+		while rank < data.numRanksPurchased do
 			total = total + GetCostForPointAtRank(rank)
 			rank = rank + 1
 		end
@@ -488,7 +492,7 @@ function lib.GetAcquiredArtifactPower(_, artifactID)
 		if tonumber(itemID) then
 			total = total + data.unspentPower
 			local rank = 1
-			while rank <= data.numRanksPurchased do
+			while rank < data.numRanksPurchased do
 				total = total + GetCostForPointAtRank(rank)
 				rank = rank + 1
 			end

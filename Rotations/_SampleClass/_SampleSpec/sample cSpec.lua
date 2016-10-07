@@ -1,44 +1,42 @@
---- Fire Class
--- Inherit from: ../cCharacter.lua and ../cMage.lua
-cFire = {}
-cFire.rotations = {}
+--- Fury Class
+-- Inherit from: ../cCharacter.lua and ../cWarrior.lua
+cFury = {} -- change to cSpec = {} (IE: cFury = {}, cFire = {})
+cFury.rotations = {} -- change to cSpec.rotations (IE: cFury.rotations, cFire.rotatons)
 
--- Creates Fire Mage
-function cFire:new()
-    if GetSpecializationInfo(GetSpecialization()) == 63 then
-        local self = cMage:new("Fire")
+-- Creates Fury Warrior
+function cFury:new() -- change to cSpec:new() (IE: cFury:new(), cFire:new())
+    if GetSpecializationInfo(GetSpecialization()) == 72 then -- Change to spec id 
+        local self = cWarrior:new("Fury") -- change to cClass:new("Spec") (IE: cWarrior:new("Fury"), cMage:new("Fire"))
 
         local player = "player" -- if someone forgets ""
 
         -- Mandatory !
-        self.rotations = cFire.rotations
+        self.rotations = cFury.rotations -- change to cSpec.rotations (IE: cFury.rotations, cFire.rotatons)
         
     -----------------
     --- VARIABLES ---
     -----------------
+
         self.charges.frac               = {}        -- Fractional Charge
         self.charges.max                = {}
         self.spell.spec                 = {}
-        self.spell.spec.abilities       = {
-            cinderstorm                     = 198929,
-            meteor                          = 153561,
+        self.spell.spec.abilities       = {         -- List any spell you can cast (not passive) here (used in spell functions and to gether cooldown info)
+            sampleSpell                 = 00000,
         }
-        self.spell.spec.artifacts       = {
-            aftershocks                     = 194431,
-        }
-        self.spell.spec.buffs           = {
+        self.spell.spec.artifacts       = {         -- List artifact trait ids here (used to gather artifact info)
 
         }
-        self.spell.spec.debuffs         = {
+        self.spell.spec.buffs           = {         -- List buff ids here (can be named the same as their corresponding active spells, used to gather buff info)
 
         }
-        self.spell.spec.glyphs          = {
+        self.spell.spec.debuffs         = {         -- List debuff ids here (can be named the same as their corresponding active spells, used to gather debuff info)
 
         }
-        self.spell.spec.talents         = {
-            cinderstorm                     = 198929,
-            kindling                        = 155148,
-            meteor                          = 153561,
+        self.spell.spec.glyphs          = {         -- List glyph ids here, shouldn't be too important so ok if not done
+
+        }
+        self.spell.spec.talents         = {         -- List talent ids here (used to gather talent info)
+
         }
         -- Merge all spell ability tables into self.spell
         self.spell = mergeSpellTables(self.spell, self.characterSpell, self.spell.class.abilities, self.spell.spec.abilities)
@@ -81,28 +79,31 @@ function cFire:new()
         end
 
     ---------------------
-    --- DYNAMIC UNITS ---
+    --- DYNAMIC UNITS --- -- Define dynamic targetting for specific range limits here
     ---------------------
 
         function self.getDynamicUnits()
             local dynamicTarget = dynamicTarget
 
-            self.units.dyn10 = dynamicTarget(10, true)
+            -- Normal
+            self.units.dyn8     = dynamicTarget(8, true) -- Swipe
+
+            -- AoE
+            self.units.dyn8AoE  = dynamicTarget(8, false) -- Thrash
         end
 
     ---------------
-    --- ENEMIES ---
+    --- ENEMIES --- -- Define enemy tables for specific range limits here
     ---------------
 
         function self.getEnemies()
             local getEnemies = getEnemies
 
-            self.enemies.yards5  = getEnemies("player", 5)
-            self.enemies.yards10 = getEnemies("player", 10)
+            self.enemies.yards5     = getEnemies("player", 5) -- Melee
         end
 
     -----------------
-    --- ARTIFACTS ---
+    --- ARTIFACTS --- -- Should not need to edit
     -----------------
 
         function self.getArtifacts()
@@ -122,7 +123,7 @@ function cFire:new()
         end
         
     -------------
-    --- BUFFS ---
+    --- BUFFS --- -- Should not need to edit
     -------------
 
         function self.getBuffs()
@@ -136,7 +137,7 @@ function cFire:new()
         end
 
     ---------------
-    --- CHARGES ---
+    --- CHARGES --- -- Should not need to edit
     ---------------
 
         function self.getCharge()
@@ -154,7 +155,7 @@ function cFire:new()
         end
 
     -----------------
-    --- COOLDOWNS ---
+    --- COOLDOWNS --- -- Should not need to edit
     -----------------
 
         function self.getCooldowns()
@@ -168,7 +169,7 @@ function cFire:new()
         end
 
     ---------------
-    --- DEBUFFS ---
+    --- DEBUFFS --- -- Should not need to edit
     ---------------
         function self.getDebuffs()
             local UnitDebuffID = UnitDebuffID
@@ -177,16 +178,16 @@ function cFire:new()
 
             for k,v in pairs(self.spell.spec.debuffs) do
                 if k ~= "bleeds" then
-                    self.debuff[k]          = UnitDebuffID("target",v,"player") ~= nil
-                    self.debuff.duration[k] = getDebuffDuration("target",v,"player") or 0
-                    self.debuff.remain[k]   = getDebuffRemain("target",v,"player") or 0
+                    self.debuff[k]          = UnitDebuffID(self.units.dyn5,v,"player") ~= nil
+                    self.debuff.duration[k] = getDebuffDuration(self.units.dyn5,v,"player") or 0
+                    self.debuff.remain[k]   = getDebuffRemain(self.units.dyn5,v,"player") or 0
                     self.debuff.refresh[k]  = (self.debuff.remain[k] < self.debuff.duration[k] * 0.3) or self.debuff.remain[k] == 0
                 end
             end
         end        
 
     --------------
-    --- GLYPHS ---
+    --- GLYPHS --- -- Should not need to edit
     --------------
 
         function self.getGlyphs()
@@ -195,7 +196,7 @@ function cFire:new()
         end
 
     ---------------
-    --- TALENTS ---
+    --- TALENTS --- -- Should not need to edit
     ---------------
 
         function self.getTalents()
@@ -214,7 +215,7 @@ function cFire:new()
         end
 
     -------------
-    --- PERKS ---
+    --- PERKS --- -- Should not need to edit
     -------------
 
         function self.getPerks()
@@ -226,7 +227,7 @@ function cFire:new()
     --- TOGGLES ---
     ---------------
 
-        function self.getToggleModes()
+        function self.getToggleModes() -- list toggles here to be able to refer to them via bb.player.mode
 
             self.mode.rotation  = bb.data["Rotation"]
             self.mode.cooldown  = bb.data["Cooldown"]
@@ -234,7 +235,7 @@ function cFire:new()
             self.mode.interrupt = bb.data["Interrupt"]
         end
 
-        -- Create the toggle defined within rotation files
+        -- Create the toggle defined within rotation files, should not need editing
         function self.createToggles()
             GarbageButtons()
             if self.rotations[bb.selectedProfile] ~= nil then
@@ -245,7 +246,7 @@ function cFire:new()
         end
 
     ---------------
-    --- OPTIONS ---
+    --- OPTIONS --- - Should not need editing
     ---------------
         
         -- Creates the option/profile window
@@ -290,22 +291,24 @@ function cFire:new()
         end
 
     --------------
-    --- SPELLS ---
+    --- SPELLS --- 
     --------------
 
-        function self.getCastable()
+        function self.getCastable() -- List spell functions here to debug base level csatability
 
-            self.cast.debug.ascendance      = self.cast.ascendance("player", true)
+            self.cast.debug.sampleSpell        = self.cast.sampleSpell("target",true)
         end
 
-        -- Ascendance
-        function self.cast.ascendance(thisUnit,debug)
-            local spellCast = self.spell.ascendance
+        -- Define base level spell cast functions here
+
+        -- Sample Spell
+        function self.cast.sampleSpell(thisUnit,debug)
+            local spellCast = self.spell.sampleSpell
             local thisUnit = thisUnit
-            if thisUnit == nil then thisUnit = "player" end
+            if thisUnit == nil then thisUnit = self.units.dyn5 end --Default unit if none is specified
             if debug == nil then debug = false end
 
-            if self.talent.ascendance and self.cd.ascendance == 0 then
+            if self.level >= 10 and self.power > 10 and self.cd.bloodthirst == 0 and getDistance(thisUnit) < 5 then -- Minimal conditions to cast spell (no rotation logic)
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
@@ -319,20 +322,7 @@ function cFire:new()
     ------------------------
     --- CUSTOM FUNCTIONS ---
     ------------------------
-        --Target HP
-        function thp(unit)
-            return getHP(unit)
-        end
 
-        --Target Time to Die
-        function ttd(unit)
-            return getTimeToDie(unit)
-        end
-
-        --Target Distance
-        function tarDist(unit)
-            return getDistance(unit)
-        end
 
     -----------------------------
     --- CALL CREATE FUNCTIONS ---
@@ -340,5 +330,5 @@ function cFire:new()
 
         -- Return
         return self
-    end-- cFire
-end-- select Mage
+    end-- cFury
+end-- select Warrior

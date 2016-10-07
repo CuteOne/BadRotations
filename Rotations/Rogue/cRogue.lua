@@ -17,6 +17,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
         self.comboPointsMax             = UnitPowerMax("player",4)
         self.buff.duration              = {}       -- Buff Durations
         self.buff.remain                = {}       -- Buff Time Remaining
+        self.buff.stack                 = {}
         self.cast                       = {}       -- Cast Spell Functions
         self.cast.debug                 = {}       -- Cast Spell Functions Debug
         self.debuff.duration            = {}       -- Debuff Durations
@@ -37,6 +38,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
             pickPocket                  = 921,
             sap                         = 6770,
             shadowmeld                  = 58984,
+            sprint                      = 2983,
             stealth                     = 1784,
             tricksOfTheTrade            = 57934,
             vanish                      = 1856,
@@ -45,6 +47,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
             artificialStamina           = 211309,
         }
         self.spell.class.buffs      = {        -- Buffs Available To All Rogues
+            cloakOfShadows              = 31224,
             feint                       = 1966,
             shadowmeld                  = 58984,
             stealth                     = 1784,
@@ -118,6 +121,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
 
             -- Normal
             self.units.dyn10    = dynamicTarget(10,true) -- Sap
+            self.units.dyn15    = dynamicTarget(15,true) -- Death From Above
 
             -- AoE
             self.units.dyn35AoE = dynamicTarget(35, false) -- Entangling Roots
@@ -128,15 +132,19 @@ if select(2, UnitClass("player")) == "ROGUE" then
     -----------------
 
         function self.getClassArtifacts()
-            local isKnown = isKnown
+            local hasPerk = hasPerk
 
             for k,v in pairs(self.spell.spec.artifacts) do
-                self.artifact[k] = isKnown(v) or false
+                self.artifact[k] = hasPerk(v) or false
             end
         end
 
         function self.getClassArtifactRanks()
-
+            local getPerkRank = getPerkRank
+            
+            for k,v in pairs(self.spell.spec.artifacts) do
+                self.artifact.rank[k] = getPerkRank(v) or 0
+            end
         end
 
     -------------
@@ -274,14 +282,20 @@ if select(2, UnitClass("player")) == "ROGUE" then
     --------------
 
         function self.getClassCastable()
-            self.cast.debug.cheapShot     = self.cast.cheapShot("target",true)
-            self.cast.debug.crimsonVial   = self.cast.crimsonVial("player",true)
-            self.cast.debug.kick          = self.cast.kick("target",true)
-            self.cast.debug.pickPocket    = self.cast.pickPocket("target",true)
-            self.cast.debug.sap           = self.cast.sap("target",true)
-            self.cast.debug.shadowmeld    = self.cast.shadowmeld("player",true)
-            self.cast.debug.stealth       = self.cast.stealth("player",true)
-            self.cast.debug.vanish        = self.cast.vanish("player",true)
+            self.cast.debug.cheapShot       = self.cast.cheapShot("target",true)
+            self.cast.debug.cloakOfShadows  = self.cast.cloakOfShadows("player",true)
+            self.cast.debug.crimsonVial     = self.cast.crimsonVial("player",true)
+            self.cast.debug.deathFromAbove  = self.cast.deathFromAbove("target",true)
+            self.cast.debug.feint           = self.cast.feint("player",true)
+            self.cast.debug.kick            = self.cast.kick("target",true)
+            self.cast.debug.killingSpree    = self.cast.killingSpree("target",true)
+            self.cast.debug.markedForDeath  = self.cast.markedForDeath("target",true)
+            self.cast.debug.pickPocket      = self.cast.pickPocket("target",true)
+            self.cast.debug.sap             = self.cast.sap("target",true)
+            self.cast.debug.shadowmeld      = self.cast.shadowmeld("player",true)
+            self.cast.debug.sprint          = self.cast.sprint("player",true)
+            self.cast.debug.stealth         = self.cast.stealth("player",true)
+            self.cast.debug.vanish          = self.cast.vanish("player",true)
         end
 
         function self.cast.cheapShot(thisUnit,debug)
@@ -290,11 +304,27 @@ if select(2, UnitClass("player")) == "ROGUE" then
             if thisUnit == nil then thisUnit = self.units.dyn5 end
             if debug == nil then debug = false end
 
-            if self.level >= 29 and self.power > 40 and self.buff.stealth and getDistance(thisUnit) < 5 then
+            if self.level >= 29 and self.power > 40 and (self.buff.stealth or self.buff.vanish or self.buff.shadowmeld) and (self.cd.cheapShot == 0  or self.talent.dirtyTricks) and getDistance(thisUnit) < 5 then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
                     return castSpell(thisUnit,spellCast,false,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+        function self.cast.cloakOfShadows(thisUnit,debug)
+            local spellCast = self.spell.cloakOfShadows
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = "player" end
+            if debug == nil then debug = false end
+
+            if self.level >= 58 and self.cd.cloakOfShadows == 0 then
+                if debug then
+                    return castSpell("player",spellCast,false,false,false,false,false,false,false,true)
+                else
+                    return castSpell("player",spellCast,false,false,false)
                 end
             elseif debug then
                 return false
@@ -316,6 +346,41 @@ if select(2, UnitClass("player")) == "ROGUE" then
                 return false
             end
         end
+        function self.cast.deathFromAbove(thisUnit,debug)
+            local spellCast = self.spell.deathFromAbove
+            local thisUnit = thisUnit
+            local powerReq = powerReq 
+            local fateRank = fateRank
+            if thisUnit == nil then thisUnit = self.units.dyn15 end
+            if debug == nil then debug = false end
+            if self.artifact.rank.fatebringer == nil then fateRank = 0 else fateRank = self.artifact.rank.fatebringer * 3 end
+
+            if self.talent.deathFromAbove and self.comboPoints > 0 and self.cd.deathFromAbove == 0 and self.power > 25 - fateRank and getDistance(thisUnit) < 15 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,false,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+        function self.cast.feint(thisUnit,debug)
+            local spellCast = self.spell.feint
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = "player" end
+            if debug == nil then debug = false end
+
+            if self.level >= 44 and self.power > 20 and self.cd.feint == 0 and not self.buff.feint then
+                if debug then
+                    return castSpell("player",spellCast,false,false,false,false,false,false,false,true)
+                else
+                    return castSpell("player",spellCast,false,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
         function self.cast.kick(thisUnit,debug)
             local spellCast = self.spell.kick
             local thisUnit = thisUnit
@@ -323,6 +388,38 @@ if select(2, UnitClass("player")) == "ROGUE" then
             if debug == nil then debug = false end
 
             if self.level >= 18 and self.cd.kick == 0 and getDistance(thisUnit) < 5 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,false,false,false) 
+                end
+            elseif debug then
+                return false
+            end
+        end
+        function self.cast.killingSpree(thisUnit,debug)
+            local spellCast = self.spell.killingSpree
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = self.units.dyn10 end
+            if debug == nil then debug = false end
+
+            if self.talent.killingSpree and self.cd.killingSpree == 0 and getDistance(thisUnit) < 10 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,false,false,false) 
+                end
+            elseif debug then
+                return false
+            end
+        end
+        function self.cast.markedForDeath(thisUnit,debug)
+            local spellCast = self.spell.markedForDeath
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = self.units.dyn30 end
+            if debug == nil then debug = false end
+
+            if self.talent.markedForDeath and self.cd.markedForDeath == 0 and getDistance(thisUnit) < 30 then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
@@ -354,7 +451,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
             if thisUnit == nil then thisUnit = self.units.dyn10 end
             if debug == nil then debug = false end
 
-            if self.level >= 12 and self.power > 30 and self.buff.stealth and getDistance(thisUnit) < 10 then
+            if self.level >= 12 and self.power > 30 and self.buff.stealth and self.cd.sap == 0 and getDistance(thisUnit) < 10 then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
@@ -370,7 +467,23 @@ if select(2, UnitClass("player")) == "ROGUE" then
             if thisUnit == nil then thisUnit = "player" end
             if debug == nil then debug = false end
 
-            if self.level >= 1 and self.cd.shadowmeld == 0 and not self.buff.stealth and not isMoving("player") then
+            if self.level >= 1 and self.cd.shadowmeld == 0 and not self.buff.stealth and not self.buff.vanish and not isMoving("player") then
+                if debug then
+                    return castSpell("player",spellCast,false,false,false,false,false,false,false,true)
+                else
+                    return castSpell("player",spellCast,false,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+        function self.cast.sprint(thisUnit,debug)
+            local spellCast = self.spell.sprint
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = "player" end
+            if debug == nil then debug = false end
+
+            if self.level >= 26 and self.cd.sprint == 0 then
                 if debug then
                     return castSpell("player",spellCast,false,false,false,false,false,false,false,true)
                 else
@@ -402,7 +515,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
             if thisUnit == nil then thisUnit = "player" end
             if debug == nil then debug = false end
 
-            if self.level >= 32 and self.cd.vanish == 0 and not self.buff.vanish then
+            if self.level >= 32 and self.cd.vanish == 0 then
                 if debug then
                     return castSpell("player",spellCast,false,false,false,false,false,false,false,true)
                 else

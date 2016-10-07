@@ -538,9 +538,10 @@ function castAoEHeal(spellID,numUnits,missingHP,rangeValue)
 	end
 end
 -- castGround("target",12345,40)
-function castGround(Unit,SpellID,maxDistance)
+function castGround(Unit,SpellID,maxDistance,minDistance)
+	if minDistance == nil then minDistance = 0 end
 	if UnitExists(Unit) and getSpellCD(SpellID) == 0 and getLineOfSight("player",Unit)
-		and getDistance("player",Unit) <= maxDistance then
+		and getDistance("player",Unit) < maxDistance and getDistance("player",Unit) >= minDistance then
 		CastSpellByName(GetSpellInfo(SpellID),"player")
 		if IsAoEPending() then
 			--local distanceToGround = getGroundDistance(Unit) or 0
@@ -1907,7 +1908,8 @@ function hasThreat(unit,playerUnit)
 	local unit = unit or "target"
 	local playerUnit = playerUnit or "player"
 	local unitThreat = UnitThreatSituation(playerUnit, unit)~=nil
-	local targetOfTarget = UnitTarget(unit)
+	local targetOfTarget 
+	if UnitExists("targettarget") then targetOfTarget = UnitTarget(unit) else targetOfTarget = "player" end
 	local targetFriend = (UnitInParty(targetOfTarget) or UnitInRaid(targetOfTarget))
 
 	if UnitAffectingCombat(unit)~=nil then 
@@ -2221,6 +2223,9 @@ function isInDraenor()
 		return false
 	end
 end
+function isInLegion()
+	return false
+end
 -- if isInMelee() then
 function isInMelee(Unit)
 	if Unit == nil then
@@ -2437,6 +2442,7 @@ end
 
 function UpdateToggle(toggle,delay)
 	--if toggle == nil then toggle = "toggle" end
+	if customToggle then toggle = toggleKey end
 	if _G[toggle.."Timer"] == nil then _G[toggle.."Timer"] = 0; end
     if (SpecificToggle(toggle.." Mode") or customToggle) and not GetCurrentKeyBoardFocus() and GetTime() - _G[toggle.."Timer"] > delay then
         _G[toggle.."Timer"] = GetTime()
@@ -2447,6 +2453,10 @@ end
 -- set skipCastingCheck to true, to not check if player is casting
 -- (useful if you want to use off-cd stuff, or spells which can be cast while other is casting)
 function pause(skipCastingCheck)
+	-- local button = CreateFrame("Button", "DismountButton")
+	-- if button == "RightButton" then
+	-- 	print("Right Clicked")
+	-- end
 	if SpecificToggle("Pause Mode") == nil or getValue("Pause Mode") == 6 then
 		pausekey = IsLeftAltKeyDown()
 	else

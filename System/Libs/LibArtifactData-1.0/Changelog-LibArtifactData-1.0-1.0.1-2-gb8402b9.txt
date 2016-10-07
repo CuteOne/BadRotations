@@ -1,0 +1,5 @@
+Rainrider:
+	- Fix acquired artifact power calculation
+	Values might still be a little off, which is probably a Blizzard bug.
+	Closes https://github.com/Rainrider/LibArtifactData-1.0/issues/5
+	- Yet another nil check

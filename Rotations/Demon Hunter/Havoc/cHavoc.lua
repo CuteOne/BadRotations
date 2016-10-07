@@ -127,6 +127,7 @@ function cHavoc:new()
         function self.getDynamicUnits()
             local dynamicTarget = dynamicTarget
 
+            self.units.dyn8 = dynamicTarget(8, false)
         end
 
     ---------------

@@ -1,14 +1,20 @@
 ## Interface: 70000
-## LoadOnDemand: 1
-## Title: Lib: BossIDs-1.0
-## Notes: A library to provide mobIDs for bosses.
-## Author: Elsia
-## X-Category: Library
-## X-License: Public Domain
-## X-Curse-Packaged-Version: r99
+## Version: 100
+## X-Curse-Packaged-Version: r100
 ## X-Curse-Project-Name: LibBossIDs-1.0
 ## X-Curse-Project-ID: libbossids-1-0
 ## X-Curse-Repository-ID: wow/libbossids-1-0/mainline
 
+## Title: Lib: BossIDs-1.0
+## Notes: A library to provide mobIDs for bosses.
+
+## Author: Elsia
+## X-Category: Library
+## X-License: Public Domain
+## X-Website: https://www.wowace.com/addons/libbossids-1-0/
+
+## LoadOnDemand: 1
+## OptionalDependencies: LibStub
 LibStub\LibStub.lua
+
 lib.xml
