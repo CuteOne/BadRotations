@@ -331,7 +331,7 @@ if select(2, UnitClass("player")) == "WARRIOR" then
         function self.cast.heroicLeap(thisUnit,debug)
             local spellCast = self.spell.heroicLeap
             local thisUnit = thisUnit
-            if thisUnit == nil then thisUnit = "player" end
+            if thisUnit == nil then thisUnit = self.units.dyn40 end
             if debug == nil then debug = false end
 
             if self.level >= 26 and self.cd.heroicLeap == 0 and self.charges.heroicLeap > 0 then

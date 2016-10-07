@@ -236,7 +236,7 @@ if select(2, UnitClass("player")) == "DRUID" then
             
 	   		if leftCombat == nil then leftCombat = GetTime() end
 			if profileStop == nil then profileStop = false end
-			if lastSpellCast == nil then lastSpellCast = bb.player.spell.catForm end
+			if lastSpellCast == nil then lastSpellCast = spell.catForm end
             if lastForm == nil then lastForm = 0 end
             if talent.jaggedWounds then
                 if rkTick == 3 then rkTick = rkTick - (rkTick * 0.3) end

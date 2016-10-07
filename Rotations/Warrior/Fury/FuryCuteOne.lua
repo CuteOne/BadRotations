@@ -7,7 +7,7 @@ if select(3,UnitClass("player")) == 1 then
     local function createToggles()
     -- Rotation Button
         RotationModes = {
-            [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of #enemies.yards8 in range.", highlight = 0, icon = bb.player.spell.whirlwind },
+            [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of #enemies.yards8 in range.", highlight = 1, icon = bb.player.spell.whirlwind },
             [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = bb.player.spell.bladestorm },
             [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = bb.player.spell.furiousSlash },
             [4] = { mode = "Off", value = 4 , overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = bb.player.spell.enragedRegeneration}
@@ -59,7 +59,7 @@ if select(3,UnitClass("player")) == 1 then
                 bb.ui:createCheckbox(section,"Berserker Rage", "Check to use Berserker Rage")
                 -- Heroic Leap
                 bb.ui:createDropdown(section,"Heroic Leap", bb.dropOptions.Toggle, 6, "Set auto usage (No Hotkey) or desired hotkey to use Heroic Leap.")
-                bb.ui:createDropdownWithout(section,"Heroic Leap - Traget",{"Best","Target"},1,"Desired Target of Heroic Leap")
+                bb.ui:createDropdownWithout(section,"Heroic Leap - Target",{"Best","Target"},1,"Desired Target of Heroic Leap")
                 -- Piercing Howl
                 bb.ui:createCheckbox(section,"Piercing Howl", "Check to use Piercing Howl")
                 -- Pre-Pull Timer
@@ -386,9 +386,9 @@ if select(3,UnitClass("player")) == 1 then
             end  -- End Action List - Pre-Combat
         -- Action List - Movement
             function actionList_Movement()
+                if useMover() and ((solo and UnitExists("target")) or hasThreat(units.dyn30) or isDummy("target")) then
             -- Heroic Leap
-                -- heroic_leap
-                if useMover() then
+                    -- heroic_leap
                     if isChecked("Heroic Leap") and (getOptionValue("Heroic Leap")==6 or (SpecificToggle("Heroic Leap") and not GetCurrentKeyBoardFocus())) then
                         if getOptionValue("Heroic Leap - Target")==1 then
                             if cast.heroicLeap() then return end
@@ -397,21 +397,17 @@ if select(3,UnitClass("player")) == 1 then
                             if cast.heroicLeap("target") then return end
                         end
                     end
-                end
             -- Charge
-                -- charge
-                if useMover() then
-                    if cast.charge() then return end
-                end 
+                    -- charge
+                    if (cd.heroicLeap > 0 and cd.heroicLeap < 43) or level < 26 then
+                        if cast.charge("target") then return end
+                    end 
             -- Storm Bolt
-                -- storm_bolt
-                if (solo and UnitExists("target")) or hasThreat(units.dyn30) or isDummy("target") then
-                    if cast.stormBolt() then return end
-                end
+                    -- storm_bolt
+                    if cast.stormBolt("target") then return end
             -- Heroic Throw
-                -- heroic_throw
-                if (solo and UnitExists("target")) or hasThreat(units.dyn30) or isDummy("target") then
-                    if cast.heroicThrow() then return end
+                    -- heroic_throw
+                    if cast.heroicThrow("target") then return end
                 end
             end
         -- Action List - Bladestorm (OH GOD WHY!?!?!)
@@ -473,7 +469,7 @@ if select(3,UnitClass("player")) == 1 then
                 end
             -- Whirlwind
                 -- whirlwind,if=buff.wrecking_ball.react&buff.enrage.up
-                if buff.wreckingBall and buff.enrage then
+                if buff.wreckingBall and buff.enrage and getDistance(units.dyn8) < 8 then
                     if cast.whirlwind() then return end
                 end
             -- Execute
@@ -518,7 +514,7 @@ if select(3,UnitClass("player")) == 1 then
             function actionList_TwoTargets()
             -- Whirlwind
                 -- whirlwind,if=buff.meat_cleaver.down
-                if not buff.meatCleaver then
+                if not buff.meatCleaver and getDistance(units.dyn8) < 8 then
                     if cast.whirlwind() then return end
                 end
             -- Call Action List: Bladestorm
@@ -546,7 +542,7 @@ if select(3,UnitClass("player")) == 1 then
                 end
             -- Whirlwind
                 -- whirlwind,if=spell_targets.whirlwind>2
-                if #enemies.yards8 > 2 then
+                if getDistance(units.dyn8) < 8 then
                     if cast.whirlwind() then return end
                 end
             -- Dragon Roar
@@ -557,7 +553,9 @@ if select(3,UnitClass("player")) == 1 then
                 if cast.bloodthirst() then return end
             -- Whirlwind
                 -- whirlwind
-                if cast.whirlwind() then return end
+                if getDistance(units.dyn8) < 8 then
+                    if cast.whirlwind() then return end
+                end
             end -- End Action List - Two Targets
         -- Action List - MultiTarget
             function actionList_MultiTarget()
@@ -584,7 +582,7 @@ if select(3,UnitClass("player")) == 1 then
                 end
             -- Whirlwind
                 -- whirlwind,if=buff.enrage.up
-                if buff.enrage then
+                if buff.enrage and getDistance(units.dyn8) < 8 then
                     if cast.whirlwind() then return end
                 end
             -- Dragon Roar
@@ -600,7 +598,9 @@ if select(3,UnitClass("player")) == 1 then
                 if cast.bloodthirst() then return end
             -- Whirlwind
                 -- whirlwind
-                if cast.whirlwind() then return end
+                if getDistance(units.dyn8) < 8 then
+                    if cast.whirlwind() then return end
+                end
             end -- End Action List - MultiTarget
   -----------------
   --- Rotations ---
@@ -619,7 +619,11 @@ if select(3,UnitClass("player")) == 1 then
                     if getDistance(units.dyn5)<5 then
                         StartAttack()
                     else
-                        if cast.charge() then return end
+                -- Action List - Movement
+                        -- run_action_list,name=movement,if=movement.getDistance(units.dyn5)>5
+                        if getDistance("target") >= 8 then
+                            if actionList_Movement() then return end
+                        end
                     end
                 end
   -----------------------------
@@ -631,27 +635,10 @@ if select(3,UnitClass("player")) == 1 then
                     if getDistance(units.dyn5) < 5 then
                         StartAttack()
                     end
-                -- Charge
-                    -- charge,if=debuff.charge.down
-                    if useMover() then
-                        if cast.charge() then return end
-                    end
                 -- Action List - Movement
                     -- run_action_list,name=movement,if=movement.getDistance(units.dyn5)>5
-                    if getDistance(units.dyn5) > 5 then
+                    if getDistance(units.dyn8) > 8 then
                         if actionList_Movement() then return end
-                    end
-                -- Heroic Leap
-                    -- heroic_leap,if=(raid_event.movement.distance>25&raid_event.movement.in>45)|!raid_event.movement.exists
-                    if useMover() then
-                        if isChecked("Heroic Leap") and (getOptionValue("Heroic Leap")==6 or (SpecificToggle("Heroic Leap") and not GetCurrentKeyBoardFocus())) then
-                            if getOptionValue("Heroic Leap - Target")==1 then
-                                if cast.heroicLeap() then return end
-                            end
-                            if getOptionValue("Heroic Leap - Target")==2 then
-                                if cast.heroicLeap("Target") then return end
-                            end
-                        end
                     end
                 -- Action List - Interrupts
                     if actionList_Interrupts() then return end
@@ -669,12 +656,8 @@ if select(3,UnitClass("player")) == 1 then
                     end
                 -- Action List - Single Target
                     -- actions+=/call_action_list,name=single_target
-                    if ((#enemies.yards8 == 1 and mode.rotaiton == 1) or mode.rotation == 3) or level < 28 then
+                    if ((#enemies.yards8 == 1 and mode.rotation == 1) or mode.rotation == 3) or level < 28 then
                         if actionList_Single() then return end
-                    end
-                -- StartAttack
-                    if getDistance(units.dyn5) < 5 then
-                        StartAttack()
                     end
                 end -- End Combat Rotation
             end -- Pause

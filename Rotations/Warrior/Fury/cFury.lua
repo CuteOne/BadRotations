@@ -21,6 +21,7 @@ function cFury:new()
         self.charges.max                = {}
         self.spell.spec                 = {}
         self.spell.spec.abilities       = {
+            bladestorm                  = 46924,
             bloodbath                   = 12292,
             bloodthirst                 = 23881,
             commandingShout             = 97462,
@@ -42,6 +43,7 @@ function cFury:new()
             odynsFury                   = 205545,
         }
         self.spell.spec.buffs           = {
+            bladestorm                  = 46924,
             bloodbath                   = 12292,
             dragonRoar                  = 118000,
             enrage                      = 184362,
@@ -67,11 +69,13 @@ function cFury:new()
 
         }
         self.spell.spec.talents         = {
+            bladestorm                  = 46924,
             bloodbath                   = 12292,
             dragonRoar                  = 118000,
             frenzy                      = 206313,
             frothingBerserker           = 215571,
             innerRage                   = 215573,
+            massacre                    = 206315,
             outburst                    = 206320,
         }
         -- Merge all spell ability tables into self.spell
@@ -340,6 +344,7 @@ function cFury:new()
 
         function self.getCastable()
 
+            self.cast.debug.bladestorm          = self.cast.bladestorm("player",true)
             self.cast.debug.bloodbath           = self.cast.bloodbath("target",true)
             self.cast.debug.bloodthirst         = self.cast.bloodthirst("target",true)
             self.cast.debug.commandingShout     = self.cast.commandingShout("player",true)
@@ -354,6 +359,23 @@ function cFury:new()
             self.cast.debug.whirlwind           = self.cast.whirlwind("player",true)
         end
 
+        -- Bladestorm
+        function self.cast.bladestorm(thisUnit,debug)
+            local spellCast = self.spell.bladestorm
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = "player" end
+            if debug == nil then debug = false end
+
+            if self.talent.bladestorm and self.cd.bladestorm == 0 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,false,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
         -- Bloodbath
         function self.cast.bloodbath(thisUnit,debug)
             local spellCast = self.spell.bloodbath
