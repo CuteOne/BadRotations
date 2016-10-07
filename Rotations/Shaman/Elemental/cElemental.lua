@@ -617,7 +617,9 @@ function cElemental:new()
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
-                    return castSpell(thisUnit,spellCast,false,false,false)
+                    --return castSpell(thisUnit,spellCast,false,false,false)
+                    -- return castGroundAtBestLocation(spellCast,8,numUnits,35)
+                    return castGround(thisUnit,spellCast,40)
                 end
             elseif debug then
                 return false

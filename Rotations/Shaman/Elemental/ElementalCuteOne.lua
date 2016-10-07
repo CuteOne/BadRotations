@@ -56,6 +56,8 @@ if select(2, UnitClass("player")) == "SHAMAN" then
                 bb.ui:createCheckbox(section,"Spirit Walk")
             -- Water Walking
                 bb.ui:createCheckbox(section,"Water Walking")
+            -- Artifact 
+                bb.ui:createDropdownWithout(section,"Artifact", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Artifact Ability.")
             bb.ui:checkSectionState(section)
         -- Cooldown Options
             section = bb.ui:createSection(bb.ui.window.profile, "Cooldowns")
@@ -308,7 +310,7 @@ if select(2, UnitClass("player")) == "SHAMAN" then
                     end
             -- Earthquake Totem
                     if isChecked("Earthquake Totem") then
-                        if inCombat and php <= getOptionValue("Earthquake Totem") then
+                        if inCombat and php <= getOptionValue("Earthquake Totem") and lastSpell ~= spell.earthquakeTotem then
                             if cast.earthquakeTotem() then return end
                         end
                     end
@@ -320,10 +322,10 @@ if select(2, UnitClass("player")) == "SHAMAN" then
                         if cast.healingSurge() then return end
                     end
             -- Lightning Surge Totem
-                    if isChecked("Lightning Surge Totem - HP") and php <= getOptionValue("Lightning Surge Totem - HP") and inCombat and #enemies.yards5 > 0 then
+                    if isChecked("Lightning Surge Totem - HP") and php <= getOptionValue("Lightning Surge Totem - HP") and inCombat and #enemies.yards5 > 0 and lastSpell ~= spell.lightningSurgeTotem then
                         if cast.lightningSurgeTotem() then return end
                     end
-                    if isChecked("Lightning Surge Totem - AoE") and #enemies.yards5 >= getOptionValue("Lightning Surge Totem - AoE") and inCombat then
+                    if isChecked("Lightning Surge Totem - AoE") and #enemies.yards5 >= getOptionValue("Lightning Surge Totem - AoE") and inCombat and lastSpell ~= spell.lightningSurgeTotem then
                         if cast.lightningSurgeTotem(getOptionValue("Lightning Surge Totem - AoE")) then return end
                     end
             -- Thunderstorm
@@ -349,7 +351,7 @@ if select(2, UnitClass("player")) == "SHAMAN" then
                             end
             -- Lightning Surge Totem
                             if isChecked("Lightning Surge Totem") and cd.windShear > gcd then
-                                if hasThreat(thisUnit) and not isMoving(thisUnit) and ttd(thisUnit) > 7 then
+                                if hasThreat(thisUnit) and not isMoving(thisUnit) and ttd(thisUnit) > 7 and lastSpell ~= spell.lightningSurgeTotem then
                                     if cast.lightningSurgeTotem(thisUnit) then return end
                                 end
                             end
@@ -360,7 +362,7 @@ if select(2, UnitClass("player")) == "SHAMAN" then
                                 end
                             end
             -- Earthquake Totem
-                            if isChecked("Earthquake Totem - Interrupt") and cd.windShear > gcd and cd.lightningSurgeTotem > gcd then
+                            if isChecked("Earthquake Totem - Interrupt") and cd.windShear > gcd and cd.lightningSurgeTotem > gcd and lastSpell ~= spell.earthquakeTotem then
                                 if getDistance(thisUnit) < 8 then
                                     if cast.earthquakeTotem() then return end
                                 end
@@ -435,20 +437,20 @@ if select(2, UnitClass("player")) == "SHAMAN" then
                     end -- End Pre-Pull
                     if ObjectExists("target") and not UnitIsDeadOrGhost("target") and (UnitCanAttack("target", "player") or isDummy("target")) and getDistance("target") < 40 then
                 -- Stormkeeper
-                        if cast.stormkeeper() then return end
+                        if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()) then
+                            if cast.stormkeeper() then return end
+                        end
                 -- Totem Mastery
                         if bb.timer:useTimer("delayTotemMastery", gcd) and lastSpell ~= spell.totemMastery then
                             if cast.totemMastery() then resonanceTotemCastTime = GetTime() + 120; return end
                         end
                 -- Flame Shock
                         if debuff.refresh.flameShock then
-                            if cast.flameShock("target") then return end
+                            if cast.flameShock("target") then StartAttack(); return end
                         else
                 -- Lightning Bolt
-                            if cast.lightningBolt("target") then return end
+                            if cast.lightningBolt("target") then StartAttack(); return end
                         end
-                -- Start Attack
-                        StartAttack()
                     end
                 end -- End No Combat
             end -- End Action List - PreCombat
@@ -515,13 +517,15 @@ if select(2, UnitClass("player")) == "SHAMAN" then
                 end
             -- Liquid Magma
                 -- liquid_magma_totem,if=raid_event.adds.count<3|raid_event.adds.in>50
-                if (#enemies.yards8 < 3 or addIn > 50) and getDistance(units.dyn8) < 8 then
-                    if cast.liquidMagmaTotem() then return end
+                if (#enemies.yards8 < 3 or addIn > 50) and getDistance(units.dyn8) < 8 and lastSpell ~= spell.liquidMagmaTotem then
+                    if cast.liquidMagmaTotem("target") then return end
                 end
             -- Stormkeeper
                 -- stormkeeper,if=(talent.ascendance.enabled&cooldown.ascendance.remains>10)|!talent.ascendance.enabled
-                if (talent.ascendance and cd.ascendance > 10) or not talent.ascendance then
-                    if cast.stormkeeper() then return end
+                if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()) then
+                    if (talent.ascendance and cd.ascendance > 10) or not talent.ascendance then
+                        if cast.stormkeeper() then return end
+                    end
                 end
             -- Totem Mastery 
                 -- totem_mastery,if=buff.resonance_totem.remains<10|(buff.resonance_totem.remains<(buff.ascendance.duration+cooldown.ascendance.remains)&cooldown.ascendance.remains<15)
@@ -569,7 +573,9 @@ if select(2, UnitClass("player")) == "SHAMAN" then
             local function actionList_MultiTarget()
             -- Stormkeeper
                 -- stormkeeper
-                if cast.stormkeeper() then return end
+                if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()) then
+                    if cast.stormkeeper() then return end
+                end
             -- Ascendance
                 -- ascendance
                 if useCDs() and isChecked("Ascendance") then
@@ -577,15 +583,27 @@ if select(2, UnitClass("player")) == "SHAMAN" then
                 end
             -- Liquid Magma Totem
                 -- liquid_magma_totem
-                if cast.liquidMagmaTotem() then return end
+                if lastSpell ~= spell.liquidMagmaTotem then
+                    if cast.liquidMagmaTotem("target") then return end 
+                end
             -- Flame Shock
                 -- flame_shock,if=spell_targets.chain_lightning=3&maelstrom>=20,target_if=refreshable
-                if (#enemies.yards8 == 3 or mode.rotation == 2) and power >= 20 and debuff.refresh.flameShock then
-                    if cast.flameShock() then return end
+                if (#enemies.yards8 == 3 or mode.rotation == 2) and power >= 20 then
+                    for i = 1, #enemies.yards40 do
+                        local thisUnit = enemies.yards40[i]
+                        local flameShockRemain = getDebuffRemain(thisUnit,spell.spec.debuffs.flameShock,"player") or 0
+                        local flameShockDuration = getDebuffDuration(thisUnit,spell.spec.debuffs.flameShock,"player") or 0
+                        local refreshFlameShock = flameShockRemain >= flameShockDuration * 0.3
+                        if refreshFlameShock and (UnitIsUnit(thisUnit,"target") or hasThreat(thisUnit)) then
+                            if cast.flameShock(thisUnit) then return end
+                        end
+                    end
                 end
             -- Earthquake Totem
                 -- earthquake_totem
-                if cast.earthquakeTotem() then return end
+                if lastSpell ~= spell.earthquakeTotem then
+                    if cast.earthquakeTotem() then return end
+                end
             -- Lava Burst
                 -- lava_burst,if=buff.lava_surge.up&spell_targets.chain_lightning=3
                 if buff.lavaSurge and (#enemies.yards8 == 3 or mode.rotation == 2) then
@@ -608,8 +626,16 @@ if select(2, UnitClass("player")) == "SHAMAN" then
                 end
             -- Flame Shock
                 -- flame_shock,moving=1,target_if=refreshable
-                if moving and debuff.refresh.flameShock then
-                    if cast.flameShock() then return end
+                if moving then
+                    for i = 1, #enemies.yards40 do
+                        local thisUnit = enemies.yards40[i]
+                        local flameShockRemain = getDebuffRemain(thisUnit,spell.spec.debuffs.flameShock,"player") or 0
+                        local flameShockDuration = getDebuffDuration(thisUnit,spell.spec.debuffs.flameShock,"player") or 0
+                        local refreshFlameShock = flameShockRemain >= flameShockDuration * 0.3
+                        if refreshFlameShock and (UnitIsUnit(thisUnit,"target") or hasThreat(thisUnit)) then
+                            if cast.flameShock(thisUnit) then return end
+                        end
+                    end
                 end
             end -- End Multi Target Action List
     ---------------------
