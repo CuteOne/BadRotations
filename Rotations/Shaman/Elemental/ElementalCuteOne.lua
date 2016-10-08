@@ -45,7 +45,7 @@ if select(2, UnitClass("player")) == "SHAMAN" then
         -- General Options
             section = bb.ui:createSection(bb.ui.window.profile, "General")
             -- APL
-                bb.ui:createDropdownWithout(section, "APL Mode", {"|cffFFFFFFSimC","|cffFFFFFFAMR"}, 1, "|cffFFFFFFSet APL Mode to use.")
+                bb.ui:createDropdownWithout(section, "APL Mode", {"|cffFFFFFFSimC"--[[,"|cffFFFFFFAMR"]]}, 1, "|cffFFFFFFSet APL Mode to use.")
             -- Dummy DPS Test
                 bb.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
             -- Pre-Pull Timer
@@ -609,7 +609,7 @@ if select(2, UnitClass("player")) == "SHAMAN" then
                 end
             -- Lava Beam
                 -- lava_beam
-                if cast.lavaBeam() then print("Casting Lava Beam"); return end
+                if cast.lavaBeam() then return end
             -- Chain Lightning
                 -- chain_lightning,target_if=!debuff.lightning_rod.up
                 -- chain_lightning

@@ -133,6 +133,7 @@ Rotations\Mage\Arcane\Arcane.lua
 
 Rotations\Mage\Fire\cFire.lua
 Rotations\Mage\Fire\Fire.lua
+Rotations\Mage\Fire\FireCuteOne.lua
 
 Rotations\Mage\Frost\cFrost.lua
 Rotations\Mage\Frost\Frost.lua
@@ -231,6 +232,7 @@ Rotations\Warlock\Affliction\levelingWL.lua
 
 Rotations\Warlock\Demonology\cDemonology.lua
 Rotations\Warlock\Demonology\Demonology.lua
+Rotations\Warlock\Demonology\DemonologyCuteOne.lua
 
 Rotations\Warlock\Destruction\cDestruction.lua
 Rotations\Warlock\Destruction\Destruction.lua

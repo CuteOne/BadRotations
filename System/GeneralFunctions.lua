@@ -1382,6 +1382,22 @@ function getPower(Unit)
 	end
 	return value
 end
+function getPowerAlt(Unit)
+	local value = value
+	local class = select(2,UnitClass(Unit))
+	local spec = GetSpecialization()
+	local power = UnitPower
+	if (class == "DRUID" and spec == 2) or class == "ROGUE" then
+		return power(Unit,4)
+	end
+	if class == "DEATHKNIGHT" then
+		return power(Unit,5)
+	end
+	if class == "WARLOCK" then
+		return power(Unit,7)
+	end
+	return 0
+end
 function getRecharge(spellID)
 	local charges,maxCharges,chargeStart,chargeDuration = GetSpellCharges(spellID)
 	if charges then

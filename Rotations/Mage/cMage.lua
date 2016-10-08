@@ -26,14 +26,14 @@ function cMage:new(spec)
 		self.debuff.refresh             	= {}       -- Debuff Refreshable
         self.spell.class                	= {}        -- Abilities Available To All Specs in Class
         self.spell.class.abilities      	= {
-            ancientPortalDalaran            = 120146,
-            ancientTeleportDalaran          = 120145,
+            runeOfPower                     = 116011,
         }
         self.spell.class.artifacts      	= {        -- Artifact Traits Available To All Specs in Class
             
         }
         self.spell.class.buffs          	= {        -- Buffs Available To All Specs in Class
-
+            incantersFlow                   = 1463,
+            runeOfPower                     = 116014,
         }
         self.spell.class.debuffs        	= {        -- Debuffs Available To All Specs in Class
 
@@ -42,7 +42,8 @@ function cMage:new(spec)
 
         }
         self.spell.class.talents        	= {        -- Talents Available To All Specs in Class
-            
+            incantersFlow                   = 1463,
+            runeOfPower                     = 116011,
         }
 
     ------------------
@@ -132,11 +133,13 @@ function cMage:new(spec)
             local UnitBuffID = UnitBuffID
             local getBuffDuration = getBuffDuration
             local getBuffRemain = getBuffRemain
+            local getBuffStacks = getBuffStacks
 
             for k,v in pairs(self.spell.class.buffs) do
                 self.buff[k]            = UnitBuffID("player",v) ~= nil
                 self.buff.duration[k]   = getBuffDuration("player",v) or 0
                 self.buff.remain[k]     = getBuffRemain("player",v) or 0
+                self.buff.stack[k]      = getBuffStacks("player",v) or 0
             end
         end
 
@@ -237,22 +240,22 @@ function cMage:new(spec)
 	--------------
 
 		function self.getClassCastable()
-			self.cast.debug.ancestralSpirit     = self.cast.ancestralSpirit("target",true)
+			self.cast.debug.runeOfPower     = self.cast.runeOfPower("player",true)
 
 		end
 
-		-- Ancestral Spirit
-		function self.cast.ancestralSpirit(thisUnit,debug)
-            local spellCast = self.spell.ancestralSpirit
+		-- Rune of Power
+		function self.cast.runeOfPower(thisUnit,debug)
+            local spellCast = self.spell.runeOfPower
             local thisUnit = thisUnit
-            if thisUnit == nil then thisUnit = self.units.dyn40AoE end
+            if thisUnit == nil then thisUnit = "player" end
             if debug == nil then debug = false end
 
-            if self.level >= 14 and self.powerPercentMana > 4 and self.cd.ancestralSpirit == 0 and not self.inCombat and getDistance(thisUnit) < 40 then
+            if self.talent.runeOfPower and self.charges.runeOfPower > 0 and self.cd.runeOfPower == 0 then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,true,false,false,true)
                 else
-                    return castSpell(thisUnit,spellCast,false,false,false,false,true)
+                    return castGround(thisUnit,spellCast,30)
                 end
             elseif debug then
                 return false

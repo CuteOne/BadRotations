@@ -20,14 +20,31 @@ function cFire:new()
         self.charges.max                = {}
         self.spell.spec                 = {}
         self.spell.spec.abilities       = {
-            cinderstorm                     = 198929,
-            meteor                          = 153561,
+            blastWave                   = 157981,
+            cinderstorm                 = 198929,
+            combustion                  = 190319,
+            dragonsBreath               = 31661,
+            fireball                    = 133,
+            fireBlast                   = 108853,
+            flameOn                     = 205029,
+            flamestrike                 = 2120,
+            livingBomb                  = 44457,
+            meteor                      = 153561,
+            mirrorImage                 = 55342,
+            phoenixsFlames              = 194466,
+            pyroblast                   = 11366,
+            scorch                      = 2948,
         }
         self.spell.spec.artifacts       = {
-            aftershocks                     = 194431,
+            aftershocks                 = 194431,
+            phoenixReborn               = 215773,
+            phoenixsFlames              = 194466,
         }
         self.spell.spec.buffs           = {
-
+            combustion                  = 190319,
+            heatingUp                   = 48107,
+            hotStreak                   = 195283,
+            kaelthasUltimateAbility     = 209455,
         }
         self.spell.spec.debuffs         = {
 
@@ -36,9 +53,14 @@ function cFire:new()
 
         }
         self.spell.spec.talents         = {
-            cinderstorm                     = 198929,
-            kindling                        = 155148,
-            meteor                          = 153561,
+            cinderstorm                 = 198929,
+            blastWave                   = 157981,
+            flameOn                     = 205029,
+            flamePatch                  = 205037,
+            kindling                    = 155148,
+            livingBomb                  = 44457,
+            meteor                      = 153561,
+            mirrorImage                 = 55342,
         }
         -- Merge all spell ability tables into self.spell
         self.spell = mergeSpellTables(self.spell, self.characterSpell, self.spell.class.abilities, self.spell.spec.abilities)
@@ -98,7 +120,7 @@ function cFire:new()
             local getEnemies = getEnemies
 
             self.enemies.yards5  = getEnemies("player", 5)
-            self.enemies.yards10 = getEnemies("player", 10)
+            self.enemies.yards10 = getEnemies("target", 10)
         end
 
     -----------------
@@ -295,17 +317,251 @@ function cFire:new()
 
         function self.getCastable()
 
-            self.cast.debug.ascendance      = self.cast.ascendance("player", true)
+            self.cast.debug.blastWave       = self.cast.blastWave("target",true)
+            self.cast.debug.cinderstorm     = self.cast.cinderstorm("target",true)
+            self.cast.debug.combustion      = self.cast.combustion("player",true)
+            self.cast.debug.dragonsBreath   = self.cast.dragonsBreath("player",true)
+            self.cast.debug.fireball        = self.cast.fireball("target",true)
+            self.cast.debug.fireBlast       = self.cast.fireBlast("target", true)
+            self.cast.debug.flameOn         = self.cast.flameOn("player",true)
+            self.cast.debug.flamestrike     = self.cast.flamestrike("player",true)
+            self.cast.debug.livingBomb      = self.cast.livingBomb("target",true)
+            self.cast.debug.meteor          = self.cast.meteor("player",true)
+            self.cast.debug.mirrorImage     = self.cast.mirrorImage("player",true)
+            self.cast.debug.phoenixsFlames  = self.cast.phoenixsFlames("target",true)
+            self.cast.debug.pyroblast       = self.cast.pyroblast("target",true)
+            self.cast.debug.scorch          = self.cast.scorch("target",true)
         end
+        
+        -- Blast Wave
+        function self.cast.blastWave(thisUnit,debug)
+            local spellCast = self.spell.blastWave
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = self.units.dyn40 end
+            if debug == nil then debug = false end
 
-        -- Ascendance
-        function self.cast.ascendance(thisUnit,debug)
-            local spellCast = self.spell.ascendance
+            if self.talent.blastWave and self.cd.blastWave == 0 and getDistance(thisUnit) < 40 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,false,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+        -- Cinderstorm
+        function self.cast.cinderstorm(thisUnit,debug)
+            local spellCast = self.spell.cinderstorm
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = self.units.dyn40 end
+            if debug == nil then debug = false end
+
+            if self.talent.cinderstorm and self.cd.cinderstorm == 0 and self.powerPercentMana > 1 and getDistance(thisUnit) < 40 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,false,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+        -- Combustion
+        function self.cast.combustion(thisUnit,debug)
+            local spellCast = self.spell.combustion
             local thisUnit = thisUnit
             if thisUnit == nil then thisUnit = "player" end
             if debug == nil then debug = false end
 
-            if self.talent.ascendance and self.cd.ascendance == 0 then
+            if self.level >= 28 and self.cd.combustion == 0 and self.powerPercentMana > 10 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,false,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+        -- Dragon's Breath
+        function self.cast.dragonsBreath(thisUnit,debug)
+            local spellCast = self.spell.dragonsBreath
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = "player" end
+            if debug == nil then debug = false end
+
+            if self.level >= 24 and self.cd.dragonsBreath == 0 and self.powerPercentMana > 4 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,false,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+        -- Fireball
+        function self.cast.fireball(thisUnit,debug)
+            local spellCast = self.spell.fireball
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = self.units.dyn40 end
+            if debug == nil then debug = false end
+
+            if self.level >= 10 and self.powerPercentMana > 2 and getDistance(thisUnit) < 40 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,false,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+        -- Fire Blast
+        function self.cast.fireBlast(thisUnit,debug)
+            local spellCast = self.spell.fireBlast
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = self.units.dyn40 end
+            if debug == nil then debug = false end
+
+            if self.level >= 11 and self.charges.fireBlast > 0 and self.powerPercentMana > 1 and getDistance(thisUnit) < 40 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,false,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+        -- Flame On
+        function self.cast.flameOn(thisUnit,debug)
+            local spellCast = self.spell.flameOn
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = "player" end
+            if debug == nil then debug = false end
+
+            if self.talent.flameOn and self.cd.flameOn == 0 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,false,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+        -- Flamestrike
+        function self.cast.flamestrike(thisUnit,debug)
+            local spellCast = self.spell.flamestrike
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = "player" end
+            if debug == nil then debug = false end
+
+            if self.level >= 44 and self.powerPercentMana > 3 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    return castGroundAtBestLocation(spellCast,8,3,40)
+                end
+            elseif debug then
+                return false
+            end
+        end
+        -- Living Bomb
+        function self.cast.livingBomb(thisUnit,debug)
+            local spellCast = self.spell.livingBomb
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = self.units.dyn40 end
+            if debug == nil then debug = false end
+
+            if self.talent.livingBomb and self.cd.livingBomb == 0 and self.powerPercentMana > 1.5 and getDistance(thisUnit) < 40 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,false,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+        -- Meteor
+        function self.cast.meteor(thisUnit,debug)
+            local spellCast = self.spell.meteor
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = "player" end
+            if debug == nil then debug = false end
+
+            if self.talent.meteor and self.cd.meteor == 0 and self.powerPercentMana > 1 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    return castGroundAtBestLocation(spellCast,8,3,40)
+                end
+            elseif debug then
+                return false
+            end
+        end
+        -- Mirror Image
+        function self.cast.mirrorImage(thisUnit,debug)
+            local spellCast = self.spell.mirrorImage
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = "player" end
+            if debug == nil then debug = false end
+
+            if self.talent.mirrorImage and self.cd.mirrorImage == 0 and self.powerPercentMana > 2 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,false,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+        -- Phoenix's Flames
+        function self.cast.phoenixsFlames(thisUnit,debug)
+            local spellCast = self.spell.phoenixsFlames
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = self.units.dyn40 end
+            if debug == nil then debug = false end
+
+            if self.artifact.phoenixsFlames and self.charges.phoenixsFlames > 0 and getDistance(thisUnit) < 40 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,false,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+        -- Pyroblast
+        function self.cast.pyroblast(thisUnit,debug)
+            local spellCast = self.spell.pyroblast
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = self.units.dyn40 end
+            if debug == nil then debug = false end
+
+            if self.level >= 10 and self.powerPercentMana > 2.5 and getDistance(thisUnit) < 40 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,false,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+        -- Scorch
+        function self.cast.scorch(thisUnit,debug)
+            local spellCast = self.spell.scorch
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = self.units.dyn40 end
+            if debug == nil then debug = false end
+
+            if self.level >= 40 and self.powerPercentMana > 1 and getDistance(thisUnit) < 40 then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else

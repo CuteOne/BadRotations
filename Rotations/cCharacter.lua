@@ -71,8 +71,11 @@ function cCharacter:new(class)
 	self.mode           = {}        -- Toggles
 	self.options 		= {}        -- Contains options
 	self.perk 			= {}		-- Perk Table
+	self.pet 			= "None" 	-- Current Pet
+	self.petId 			= 0 		-- Current Pet Id
 	self.potion 		= {}		-- Potion Table
 	self.power          = 0     	-- Primary Resource (e.g. Mana for Retribution, Holy Power must be specified)
+	self.powerAlt 		= 0 		-- Alternate Resource (e.g. Combo Points for Feral and Rogues, Soul Shards for Warlocks)
 	self.primaryStat 	= nil       -- Contains the primary Stat: Strength, Agility or Intellect
 	self.profile        = "None"    -- Spec
 	self.race     		= select(2,UnitRace("player")) -- Race as non-localised name (undead = Scourge) !
@@ -158,6 +161,7 @@ function cCharacter:new(class)
 		self.instance 			= select(2,IsInInstance())
 		self.level 				= UnitLevel("player") -- TODO: EVENT - UNIT_LEVEL
 		self.power  			= getPower("player")
+		self.powerAlt 			= getPowerAlt("player")
 		self.powerDeficit 		= UnitPowerMax("player")-getPower("player")
 		self.powerMax 			= UnitPowerMax("player")
 		self.powerPercent 		= ((UnitPower("player")/UnitPowerMax("player"))*100)
@@ -165,6 +169,10 @@ function cCharacter:new(class)
 		self.powerRegen 		= getRegen("player")
 		self.powerTTM 			= getTimeToMax("player")
 		self.spec 				= select(2, GetSpecializationInfo(GetSpecialization())) or "None"
+		self.pet 				= UnitCreatureFamily("pet") or "None"
+		if self.pet ~= "None" then
+			self.petId 			= tonumber(UnitGUID("pet"):match("-(%d+)-%x+$"), 10)
+		end
 	end
 
 -- Updates things Out of Combat like Talents, Gear, etc.
