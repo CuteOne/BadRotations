@@ -90,6 +90,7 @@ Rotations\Demon Hunter\cDemonHunter.lua
 Rotations\Demon Hunter\Havoc\cHavoc.lua
 Rotations\Demon Hunter\Havoc\Havoc.lua
 Rotations\Demon Hunter\Havoc\HavocCuteOne.lua
+Rotations\Demon Hunter\Havoc\HavocCpoworks.lua
 
 Rotations\Demon Hunter\Vengeance\cVengeance.lua
 Rotations\Demon Hunter\Vengeance\Vengeance.lua
