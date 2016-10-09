@@ -847,7 +847,7 @@ if select(2, UnitClass("player")) == "DRUID" then
             -- Thrash
                             -- pool_resource,for_next=1
                             -- if=talent.brutal_slash.enabled&spell_targets.thrash_cat>=9
-                            if (multidot or (UnitIsUnit(thisUnit,units.dyn8AoE) and not multidot)) then  
+                            if (multidot or (UnitIsUnit("target",units.dyn8AoE) and not multidot)) then  
                                 if talent.brutalSlash and #enemies.yards8 >= 9 then
                                    if power <= 50 then
                                         return true
