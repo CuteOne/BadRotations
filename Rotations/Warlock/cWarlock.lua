@@ -36,6 +36,7 @@ function cWarlock:new(spec)
             grimoireImp                     = 111859,
             grimoireSuccubus                = 111896,
             grimoireVoidwalker              = 111895,
+            healthFunnel                    = 755,
             lifeTap                         = 1454,
             soulHarvest                     = 196098,
             summonDoomguard                 = 18540,
@@ -97,6 +98,7 @@ function cWarlock:new(spec)
 
 	        -- Update Energy Regeneration
 	        self.powerRegen  = getRegen("player")
+            self.shards = getPowerAlt("player")
 		end
 
 	---------------------
@@ -265,6 +267,7 @@ function cWarlock:new(spec)
             self.cast.debug.grimoireImp        = self.cast.grimoireImp("player",true)
             self.cast.debug.grimoireSuccubus   = self.cast.grimoireSuccubus("player",true)
             self.cast.debug.grimoireVoidwalker = self.cast.grimoireVoidwalker("player",true)
+            self.cast.debug.healthFunnel       = self.cast.healthFunnel("player",true)
             self.cast.debug.lifeTap            = self.cast.lifeTap("player",true)
             self.cast.debug.summonDoomguard    = self.cast.summonDoomguard("player",true)
             self.cast.debug.summonFelhunter    = self.cast.summonFelhunter("player",true)
@@ -272,6 +275,7 @@ function cWarlock:new(spec)
             self.cast.debug.summonInfernal     = self.cast.summonInfernal("player",true)
             self.cast.debug.summonSuccubus     = self.cast.summonSuccubus("player",true)
             self.cast.debug.summonVoidwalker   = self.cast.summonVoidwalker("player",true)
+            self.cast.debug.unendingResolve    = self.cast.unendingResolve("player",true)
 		end
 
 		-- Dark Pact
@@ -367,6 +371,23 @@ function cWarlock:new(spec)
             if debug == nil then debug = false end
 
             if self.talent.grimoireOfService and self.shards > 0 and self.cd.grimoireVoidwalker == 0 and getDistance(thisUnit) < 40 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,true,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,false,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+        -- Health Funnel
+        function self.cast.healthFunnel(thisUnit,debug)
+            local spellCast = self.spell.healthFunnel
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = "player" end
+            if debug == nil then debug = false end
+
+            if self.level >= 19 and self.cd.healthFunnel == 0 and getHP("pet") < 100 and self.health > 24 and getDistance("pet") < 45 then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,true,false,false,true)
                 else
@@ -503,6 +524,23 @@ function cWarlock:new(spec)
             if debug == nil then debug = false end
 
             if self.level >= 8 and self.shards > 0 and self.cd.summonVoidwalker == 0 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,true,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,false,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+        -- Unending Resolve
+        function self.cast.unendingResolve(thisUnit,debug)
+            local spellCast = self.spell.unendingResolve
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = "player" end
+            if debug == nil then debug = false end
+
+            if self.level >= 62 and self.powerPercentMana > 10 and self.cd.unendingResolve == 0 then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,true,false,false,true)
                 else

@@ -390,7 +390,7 @@ function cDemonology:new()
             if thisUnit == nil then thisUnit = "pet" end
             if debug == nil then debug = false end
 
-            if self.level >= 31 and self.cd.commandDemon == 0 and lastSpellCast ~= spellCast then
+            if self.level >= 31 and self.cd.commandDemon == 0 then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
@@ -424,7 +424,7 @@ function cDemonology:new()
             if thisUnit == nil then thisUnit = "player" end
             if debug == nil then debug = false end
 
-            if self.level >= 12 and self.powerPercentMana > 6 and self.cd.demonicEmpowerment and lastSpellCast ~= spellCast then
+            if self.level >= 12 and self.powerPercentMana > 6 and self.cd.demonicEmpowerment then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
@@ -441,7 +441,7 @@ function cDemonology:new()
             if thisUnit == nil then thisUnit = "player" end
             if debug == nil then debug = false end
 
-            if self.level >= 36 and self.powerPercentMana > 2.5 and self.cd.demonwrath and not castingUnit("player") and lastSpellCast ~= spellCast then
+            if self.level >= 36 and self.powerPercentMana > 2.5 and self.cd.demonwrath and not castingUnit("player") then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
@@ -475,7 +475,7 @@ function cDemonology:new()
             if thisUnit == nil then thisUnit = self.units.dyn40 end
             if debug == nil then debug = false end
 
-            if self.talent.grimoireOfService and self.shards > 0 and self.cd.grimoireFelguard == 0 and lastSpellCast ~= spellCast and getDistance(thisUnit) < 40 then
+            if self.talent.grimoireOfService and self.shards > 0 and self.cd.grimoireFelguard == 0 and getDistance(thisUnit) < 40 then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,true,false,false,true)
                 else
@@ -492,7 +492,7 @@ function cDemonology:new()
             if thisUnit == nil then thisUnit = self.units.dyn40 end
             if debug == nil then debug = false end
 
-            if not self.talent.demonbolt and self.powerPercentMana > 6 and lastSpellCast ~= spellCast and getDistance(thisUnit) < 40 then
+            if self.level >= 10 and self.shards > 0 and self.cd.handOfGuldan == 0 and getDistance(thisUnit) < 40 then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
@@ -509,7 +509,7 @@ function cDemonology:new()
             if thisUnit == nil then thisUnit = self.units.dyn40 end
             if debug == nil then debug = false end
 
-            if not self.talent.implosion and self.powerPercentMana > 6 and lastSpellCast ~= spellCast and getDistance(thisUnit) < 40 then
+            if self.talent.implosion and self.powerPercentMana > 6 and self.cd.implosion == 0 and getDistance(thisUnit) < 40 then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
@@ -526,7 +526,7 @@ function cDemonology:new()
             if thisUnit == nil then thisUnit = self.units.dyn40 end
             if debug == nil then debug = false end
 
-            if not self.talent.demonbolt and self.powerPercentMana > 6 and getDistance(thisUnit) < 40 then
+            if not self.talent.demonbolt and self.powerPercentMana > 6 and self.cd.shadowbolt == 0 and getDistance(thisUnit) < 40 then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
@@ -560,7 +560,7 @@ function cDemonology:new()
             if thisUnit == nil then thisUnit = "player" end
             if debug == nil then debug = false end
 
-            if self.talent.summonDarkglare and self.shards > 0 and self.cd.summonDarkglare == 0 and lastSpellCast ~= spellCast then
+            if self.talent.summonDarkglare and self.shards > 0 and self.cd.summonDarkglare == 0 then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,true,false,false,true)
                 else
@@ -577,7 +577,7 @@ function cDemonology:new()
             if thisUnit == nil then thisUnit = "player" end
             if debug == nil then debug = false end
 
-            if self.level >= 40 and self.shards > 0 and self.cd.summonFelguard == 0 and lastSpellCast ~= spellCast then
+            if self.level >= 40 and self.shards > 0 and self.cd.summonFelguard == 0 then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,true,false,false,true)
                 else

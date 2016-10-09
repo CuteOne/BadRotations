@@ -84,6 +84,10 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                 bb.ui:createSpinner(section, "Dark Pact", 50, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
             -- Drain Life
                 bb.ui:createSpinner(section, "Drain Life", 50, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
+            -- Health Funnel
+                bb.ui:createSpinner(section, "Health Funnel", 50, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
+            -- Unending Resolve
+                bb.ui:createSpinner(section, "Unending Resolve", 50, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
             bb.ui:checkSectionState(section)
         -- Interrupt Options
             section = bb.ui:createSection(bb.ui.window.profile, "Interrupts")
@@ -288,8 +292,16 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                         if cast.darkPact() then return end
                     end
             -- Drain Life
-                    if isChecked("Drain Life") and php <= getOptionValue("Drain Life") and isValid("target") then
+                    if isChecked("Drain Life") and php <= getOptionValue("Drain Life") and isValidTarget("target") then
                         if cast.drainLife() then return end
+                    end
+            -- Health Funnel
+                    if isChecked("Health Funnel") and getHP("pet") <= getOptionValue("Health Funnel") then
+                        if cast.healthFunnel() then return end
+                    end
+            -- Unending gResolve
+                    if isChecked("Unending Resolve") and php <= getOptionValue("Unending Resolve") and inCombat then
+                        if cast.unendingResolve() then return end
                     end
 	    		end -- End Defensive Toggle
 			end -- End Action List - Defensive
@@ -388,20 +400,24 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                 -- Potion
                         -- potion,name=deadly_grace
                         -- TODO
+                -- Pet Attack
+                        if UnitExists("target") then
+                            PetAttack("target")
+                        end
                 -- Demonic Empowerment
                         -- demonic_empowerment
-                        if lastSpell ~= spell.demonbolt and lastSpell ~= spell.shadowbolt then
+                        if activePet ~= "None" and not petDE then
                             if cast.demonicEmpowerment() then return end
                         end
                 -- Demonbolt
                         -- demonbolt,if=talent.demonbolt.enabled
-                        if talent.demonbolt then 
-                            if cast.demonbolt() then return end
+                        if talent.demonbolt and bb.timer:useTimer("travelTime", travelTime) then 
+                            if cast.demonbolt("target") then return end
                         end
                 -- Shadowbolt
                         -- shadow_bolt,if=!talent.demonbolt.enabled
                         if not talent.demonbolt and bb.timer:useTimer("travelTime", travelTime) then
-                            if cast.shadowbolt() then return end
+                            if cast.shadowbolt("target") then return end
                         end
                     end
                 end -- End No Combat
@@ -430,7 +446,7 @@ if select(2, UnitClass("player")) == "WARLOCK" then
     --------------------------
     --- In Combat Rotation ---
     --------------------------
-                if inCombat and profileStop==false and (hasThreat("target") or isDummy("target")) and getDistance("target") < 40 then
+                if inCombat and profileStop==false and (hasThreat(units.dyn40) or isDummy("target") or (UnitExists("target") and solo)) and getDistance(units.dyn40) < 40 then
         ------------------------------
         --- In Combat - Interrupts ---
         ------------------------------
@@ -439,6 +455,10 @@ if select(2, UnitClass("player")) == "WARLOCK" then
         --- SimulationCraft APL ---
         ---------------------------
                     if getOptionValue("APL Mode") == 1 then
+            -- Pet Attack
+                        if UnitExists("target") then
+                            PetAttack("target")
+                        end
             -- Implosion
                         -- implosion,if=wild_imp_remaining_duration<=action.shadow_bolt.execute_time&buff.demonic_synergy.remains
                         -- implosion,if=prev_gcd.hand_of_guldan&wild_imp_remaining_duration<=3&buff.demonic_synergy.remains
@@ -453,7 +473,7 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                         end
             -- Shadowflame
                         -- shadowflame,if=debuff.shadowflame.stack>0&remains<action.shadow_bolt.cast_time+travel_time
-                        if debuff.stack.shadowflame > 0 and debuff.remain.shadowflame < getCastTime(spell.shadowbolt) + travelTime then
+                        if debuff.stack.shadowflame > 0 and debuff.remain.shadowflame < getCastTime(spell.shadowbolt) + travelTime and bb.timer:useTimer("travelTime", travelTime) then
                             if cast.shadowflame() then return end
                         end
             -- Service Pet
@@ -503,7 +523,7 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                         end
             -- Hand of Guldan
                         -- hand_of_guldan,if=soul_shard>=4&!talent.summon_darkglare.enabled
-                        if shards >= 4 and not talent.summonDarkglare then
+                        if shards >= 4 and not talent.summonDarkglare --[[and bb.timer:useTimer("delayGuldan", gcd)]] then
                             if cast.handOfGuldan() then return end
                         end
             -- Summon Darkglare
@@ -534,17 +554,20 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                         -- hand_of_guldan,if=soul_shard>=3&prev_gcd.call_dreadstalkers
                         -- hand_of_guldan,if=soul_shard>=5&cooldown.summon_darkglare.remains<=action.hand_of_guldan.cast_time
                         -- hand_of_guldan,if=soul_shard>=4&cooldown.summon_darkglare.remains>2
-                        if (shards >= 3 and lastSpell == spell.callDreadstalkers)
-                            or (shards >= 5 and cd.summonDarkglare <= getCastTime(spell.handOfGuldan))
-                            or (shards >= 4 and cd.summonDarkglare > 2)
+                        if --[[bb.timer:useTimer("delayGuldan", gcd) 
+                            and]] ((shards >= 3 and lastSpell == spell.callDreadstalkers)
+                                or (shards >= 5 and cd.summonDarkglare <= getCastTime(spell.handOfGuldan))
+                                or (shards >= 4 and cd.summonDarkglare > 2)) 
                         then 
                             if cast.handOfGuldan() then return end
                         end
             -- Demonic Empowerment
                         -- demonic_empowerment,if=wild_imp_no_de>3|prev_gcd.hand_of_guldan
                         -- demonic_empowerment,if=dreadstalker_no_de>0|darkglare_no_de>0|doomguard_no_de>0|infernal_no_de>0|service_no_de>0
-                        if ((wildImpNoDEcount > 3 and wildImpCount > 3) or lastSpell == spell.handOfGuldan) 
-                            or ((not dreadStalkersDE and dreadStalkers) or (not darkglareDE and darkglare) or (not doomguardDE and doomguard) or (not infernalDE and infernal) or not petDE) then
+                        if bb.timer:useTimer("delayDE", gcd) and (((wildImpNoDEcount > 3 and wildImpCount > 3) or lastSpell == spell.handOfGuldan) 
+                            or ((not dreadStalkersDE and dreadStalkers) or (not darkglareDE and darkglare) 
+                                or (not doomguardDE and doomguard) or (not infernalDE and infernal) or not petDE)) 
+                        then
                             if cast.demonicEmpowerment() then return end
                         end
             -- Felstorm
@@ -560,7 +583,7 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                             local doomDuration = getDebuffDuration(thisUnit,spell.doom,"player") or 0
                             local doomRemain = getDebuffRemain(thisUnit,spell.doom,"player") or 0
                             if UnitIsUnit(thisUnit,"target") or hasThreat(thisUnit) or isDummy(thisUnit) then
-                                if not talent.handOfDoom and ttd(thisUnit) > doomDuration and (not hasDoom or doomRemain < doomDuration * 0.3) then
+                                if not talent.handOfDoom and ttd(thisUnit) > doomDuration and (not hasDoom or doomRemain < doomDuration * 0.3) and bb.timer:useTimer("delayDoom", gcd) then
                                     if cast.doom(thisUnit) then return end
                                 end
                             end
@@ -569,7 +592,7 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                         if actionList_Cooldowns() then return end
             -- Shadowflame
                         -- shadowflame,if=charges=2
-                        if charges.shadowflame == 2 then 
+                        if charges.shadowflame == 2 and bb.timer:useTimer("travelTime", travelTime) then 
                             if cast.shadowflame() then return end
                         end
             -- Thal'kiel's Consumption
@@ -592,10 +615,14 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                         end
             -- Demonbolt
                         -- demonbolt
-                        if cast.demonbolt() then return end
+                        if bb.timer:useTimer("travelTime", travelTime) then
+                            if cast.demonbolt() then return end
+                        end
             -- Shadow Bolt
                         -- shadow_bolt
-                        if cast.shadowbolt() then return end
+                        if bb.timer:useTimer("travelTime", travelTime) then
+                            if cast.shadowbolt() then return end
+                        end
             -- Life Tap
                         --life_tap
                         if cast.lifeTap() then return end
