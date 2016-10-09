@@ -3,10 +3,10 @@
 ## Notes: Provides data about all artifacts in the player's possession.
 ## Author: Rainrider
 ## X-Category: Library
-## Version: 1.0.1-2-gb8402b9
+## Version: 1.1
 ## LoadOnDemand: 1
 ## OptionalDeps: AdiDebug
-## X-Curse-Packaged-Version: 1.0.1-2-gb8402b9
+## X-Curse-Packaged-Version: 1.1
 ## X-Curse-Project-Name: LibArtifactData-1.0
 ## X-Curse-Project-ID: libartifactdata-1-0
 ## X-Curse-Repository-ID: wow/libartifactdata-1-0/mainline

@@ -7,29 +7,29 @@ if select(2, UnitClass("player")) == "WARLOCK" then
 	local function createToggles()
     -- Rotation Button
         RotationModes = {
-            [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range.", highlight = 1, icon = bb.player.spell.lavaBeam},
-            [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = bb.player.spell.chainLightning},
-            [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = bb.player.spell.lightningBolt},
-            [4] = { mode = "Off", value = 4 , overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = bb.player.spell.healingSurge}
+            [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range.", highlight = 1, icon = bb.player.spell.demonwrath},
+            [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = bb.player.spell.demonwrath},
+            [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = bb.player.spell.shadowbolt},
+            [4] = { mode = "Off", value = 4 , overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = bb.player.spell.drainLife}
         };
         CreateButton("Rotation",1,0)
     -- Cooldown Button
         CooldownModes = {
-            [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = bb.player.spell.fireElemental},
-            [2] = { mode = "On", value = 1 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = bb.player.spell.fireElemental},
-            [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = bb.player.spell.fireElemental}
+            [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = bb.player.spell.summonDoomguard},
+            [2] = { mode = "On", value = 1 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = bb.player.spell.summonDoomguard},
+            [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = bb.player.spell.summonDoomguard}
         };
        	CreateButton("Cooldown",2,0)
     -- Defensive Button
         DefensiveModes = {
-            [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = bb.player.spell.astralShift},
-            [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = bb.player.spell.astralShift}
+            [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = bb.player.spell.unendingResolve},
+            [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = bb.player.spell.unendingResolve}
         };
         CreateButton("Defensive",3,0)
     -- Interrupt Button
         InterruptModes = {
-            [1] = { mode = "On", value = 1 , overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = bb.player.spell.windShear},
-            [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = bb.player.spell.windShear}
+            [1] = { mode = "On", value = 1 , overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = bb.player.spell.fear},
+            [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = bb.player.spell.fear}
         };
         CreateButton("Interrupt",4,0)
     end
@@ -65,6 +65,10 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                 bb.ui:createCheckbox(section,"Trinkets")
             -- Soul Harvest
                 bb.ui:createCheckbox(section,"Soul Harvest")
+            -- Summon Doomguard
+                bb.ui:createCheckbox(section,"Summon Doomguard")
+            -- Summon Infernal
+                bb.ui:createCheckbox(section,"Summon Infernal")
             bb.ui:checkSectionState(section)
         -- Defensive Options
             section = bb.ui:createSection(bb.ui.window.profile, "Defensive")
@@ -76,6 +80,10 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                 if bb.player.race == "Draenei" then
                     bb.ui:createSpinner(section, "Gift of the Naaru",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
                 end
+            -- Dark Pact
+                bb.ui:createSpinner(section, "Dark Pact", 50, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
+            -- Drain Life
+                bb.ui:createSpinner(section, "Drain Life", 50, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
             bb.ui:checkSectionState(section)
         -- Interrupt Options
             section = bb.ui:createSection(bb.ui.window.profile, "Interrupts")
@@ -147,6 +155,7 @@ if select(2, UnitClass("player")) == "WARLOCK" then
             local hasteAmount                                   = GetHaste()/100
             local hasPet                                        = IsPetActive()
             local healPot                                       = getHealthPot()
+            local heirloomNeck                                  = 122663 or 122664
             local inCombat                                      = bb.player.inCombat
             local inInstance                                    = bb.player.instance=="party"
             local inRaid                                        = bb.player.instance=="raid"
@@ -196,7 +205,9 @@ if select(2, UnitClass("player")) == "WARLOCK" then
             local doomguardDE = false
             local infernal = false
             local infernalDE = false
+            local felguard = false
             local petDE = buff.pet.demonicEmpowerment
+            local demonwrathPet = false
             if bb.player.petInfo ~= nil then
                 for i = 1, #bb.player.petInfo do
                     local thisUnit = bb.player.petInfo[i].id
@@ -210,6 +221,16 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                     if thisUnit == 103673 then darkglare = true; darkglareDE = hasDEbuff end
                     if thisUnit == 11859 then doomguard = true; doomguardDE = hasDEbuff end
                     if thisUnit == 89 then infernal = true; infernalDE = hasDEbuff end
+                    if thisUnit == 17252 then felguard = true end
+                end
+                for i = 1, #bb.player.petInfo do
+                    local enemyCount = bb.player.petInfo[i].numEnemies
+                    if enemyCount >= 3 then
+                        demonwrathPet = true;
+                        break
+                    else
+                        demonwrathPet = false
+                    end
                 end
             end
             if wildImpCount > 0 and wildImpDuration == 0 then wildImpDuration = GetTime() + 12 end
@@ -252,15 +273,23 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                     end
             -- Heirloom Neck
                     if isChecked("Heirloom Neck") and php <= getOptionValue("Heirloom Neck") then
-                        if hasEquiped(122668) then
-                            if GetItemCooldown(122668)==0 then
-                                useItem(122668)
+                        if hasEquiped(heirloomNeck) then
+                            if GetItemCooldown(heirloomNeck)==0 then
+                                useItem(heirloomNeck)
                             end
                         end
                     end
             -- Gift of the Naaru
                     if isChecked("Gift of the Naaru") and php <= getOptionValue("Gift of the Naaru") and php > 0 and bb.player.race == "Draenei" then
                         if castSpell("player",racial,false,false,false) then return end
+                    end
+            -- Dark Pact
+                    if isChecked("Dark Pact") and php <= getOptionValue("Dark Pact") then
+                        if cast.darkPact() then return end
+                    end
+            -- Drain Life
+                    if isChecked("Drain Life") and php <= getOptionValue("Drain Life") and isValid("target") then
+                        if cast.drainLife() then return end
                     end
 	    		end -- End Defensive Toggle
 			end -- End Action List - Defensive
@@ -337,13 +366,17 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                     end
                 -- Summon Infernal
                     -- summon_infernal,if=talent.grimoire_of_supremacy.enabled&active_enemies>=3
-                    if talent.grimoireOfSupremacy and #enemies.yards8 >= 3 then
-                        if cast.summonInfernal() then return end
+                    if useCDs() and isChecked("Summon Infernal") then
+                        if talent.grimoireOfSupremacy and #enemies.yards8 >= 3 then
+                            if cast.summonInfernal() then return end
+                        end
                     end
                 -- Summon Doomguard
                     -- summon_doomguard,if=talent.grimoire_of_supremacy.enabled&active_enemies<3
-                    if talent.grimoireOfSupremacy and #enemies.yards8 < 3 then
-                        if cast.summonDoomguard() then return end
+                    if useCDs() and isChecked("Summon Doomguard") then
+                        if talent.grimoireOfSupremacy and #enemies.yards8 < 3 then
+                            if cast.summonDoomguard() then return end
+                        end
                     end
                     if isChecked("Pre-Pull Timer") and pullTimer <= getOptionValue("Pre-Pull Timer") then
 
@@ -446,18 +479,22 @@ if select(2, UnitClass("player")) == "WARLOCK" then
             -- Summon Doomguard
                         -- summon_doomguard,if=talent.grimoire_of_service.enabled&prev.service_felguard&spell_targets.infernal_awakening<3
                         -- summon_doomguard,if=talent.grimoire_of_synergy.enabled&spell_targets.infernal_awakening<3
-                        if (talent.grimoireOfService and prevService == "Felguard" and #enemies.yards10 < 3)
-                            or (talent.grimoireOfSynergy and #enemies.yards10 < 3)
-                        then
-                            if cast.summonDoomguard() then return end
+                        if useCDs() and isChecked("Summon Doomguard") then
+                            if (talent.grimoireOfService and prevService == "Felguard" and #enemies.yards10 < 3)
+                                or (talent.grimoireOfSynergy and #enemies.yards10 < 3)
+                            then
+                                if cast.summonDoomguard() then return end
+                            end
                         end
             -- Summon Infernal
                         -- summon_infernal,if=talent.grimoire_of_service.enabled&prev.service_felguard&spell_targets.infernal_awakening>=3
                         -- summon_infernal,if=talent.grimoire_of_synergy.enabled&spell_targets.infernal_awakening>=3
-                        if (talent.grimoireOfService and prevService == "Felguard" and #enemies.yards10 >= 3)
-                            or (talent.grimoireOfSynergy and #enemies.yards10 >=3)
-                        then
-                            if cast.summonInfernal() then return end
+                        if useCDs() and isChecked("Summon Infernal") then
+                            if (talent.grimoireOfService and prevService == "Felguard" and #enemies.yards10 >= 3)
+                                or (talent.grimoireOfSynergy and #enemies.yards10 >=3)
+                            then
+                                if cast.summonInfernal() then return end
+                            end
                         end
             -- Call Dreadstalkers
                         -- call_dreadstalkers,if=!talent.summon_darkglare.enabled&(spell_targets.implosion<3|!talent.implosion.enabled)
@@ -512,7 +549,7 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                         end
             -- Felstorm
                         -- felguard:felstorm
-                        if activePetId == 17252 then
+                        if felguard then
                             if cast.commandDemon() then return end
                         end
             -- Doom
@@ -550,7 +587,9 @@ if select(2, UnitClass("player")) == "WARLOCK" then
             -- Demonwrath
                         -- demonwrath,chain=1,interrupt=1,if=spell_targets.demonwrath>=3 
                         -- demonwrath,moving=1,chain=1,interrupt=1
-                        if cast.demonwrath() then return end
+                        if demonwrathPet or moving or manaPercent > 60 then
+                            if cast.demonwrath() then return end
+                        end
             -- Demonbolt
                         -- demonbolt
                         if cast.demonbolt() then return end

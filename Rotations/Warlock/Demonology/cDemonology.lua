@@ -265,9 +265,12 @@ function cDemonology:new()
                     local unitGUID      = UnitGUID(thisUnit)
                     local unitCreator   = UnitCreator(thisUnit)
                     local player        = GetObjectWithGUID(UnitGUID("player"))
-                    local demoEmpBuff   = UnitBuffID(thisUnit,self.spell.demonicEmpowerment) ~= nil
-                    if unitCreator == player and (unitID == 55659 or unitID == 98035 or unitID == 103673 or unitID == 11859 or unitID == 89 or unitID == 416) then
-                        tinsert(self.petInfo,{name = unitName, guid = unitGUID, id = unitID, creator = unitCreator, deBuff = demoEmpBuff})
+                    if unitCreator == player and (unitID == 55659 or unitID == 98035 or unitID == 103673 or unitID == 11859 or unitID == 89 
+                        or unitID == 416 or unitID == 1860 or unitID == 417 or unitID == 1863 or unitID == 17252) 
+                    then
+                        local demoEmpBuff   = UnitBuffID(thisUnit,self.spell.demonicEmpowerment) ~= nil
+                        local unitCount     = #getEnemies(tostring(thisUnit),10) or 0
+                        tinsert(self.petInfo,{name = unitName, guid = unitGUID, id = unitID, creator = unitCreator, deBuff = demoEmpBuff, numEnemies = unitCount})
                     end
                 end
             end

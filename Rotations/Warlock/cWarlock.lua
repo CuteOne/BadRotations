@@ -29,6 +29,9 @@ function cWarlock:new(spec)
         self.shards                         = getPowerAlt("player")
         self.spell.class                	= {}        -- Abilities Available To All Specs in Class
         self.spell.class.abilities      	= {
+            darkPack                        = 108416,
+            drainLife                       = 689,
+            fear                            = 5782,
             grimoireFelhunter               = 111897,
             grimoireImp                     = 111859,
             grimoireSuccubus                = 111896,
@@ -41,6 +44,7 @@ function cWarlock:new(spec)
             summonInfernal                  = 1122,
             summonSuccubus                  = 712,
             summonVoidwalker                = 697,
+            unendingResolve                 = 104773,
         }
         self.spell.class.artifacts      	= {        -- Artifact Traits Available To All Specs in Class
             
@@ -56,6 +60,7 @@ function cWarlock:new(spec)
 
         }
         self.spell.class.talents        	= {        -- Talents Available To All Specs in Class
+            darkPact                        = 108416,
             grimoireOfService               = 108501,
             grimoireOfSupremacy             = 152107,
             soulHarvest                     = 196098,
@@ -254,6 +259,8 @@ function cWarlock:new(spec)
 
 		function self.getClassCastable()
 
+            self.cast.debug.darkPact           = self.cast.darkPact("player",true)
+            self.cast.debug.drainLife          = self.cast.drainLife("target",true)
             self.cast.debug.grimoireFelhunter  = self.cast.grimoireFelhunter("player",true)
             self.cast.debug.grimoireImp        = self.cast.grimoireImp("player",true)
             self.cast.debug.grimoireSuccubus   = self.cast.grimoireSuccubus("player",true)
@@ -267,14 +274,48 @@ function cWarlock:new(spec)
             self.cast.debug.summonVoidwalker   = self.cast.summonVoidwalker("player",true)
 		end
 
-		-- Grimoire: Felhunter
+		-- Dark Pact
+        function self.cast.darkPact(thisUnit,debug)
+            local spellCast = self.spell.darkPact
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = "player" end
+            if debug == nil then debug = false end
+
+            if self.talent.darkPact and self.cd.darkPact == 0 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,true,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,false,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+        -- Drain Life
+        function self.cast.drainLife(thisUnit,debug)
+            local spellCast = self.spell.drainLife
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = self.units.dyn40 end
+            if debug == nil then debug = false end
+
+            if self.level >= 1 and self.powerPercentMana > 3 and self.cd.drainLife == 0 and getDistance(thisUnit) < 40 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,true,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,false,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+        -- Grimoire: Felhunter
         function self.cast.grimoireFelhunter(thisUnit,debug)
             local spellCast = self.spell.grimoireFelhunter
             local thisUnit = thisUnit
             if thisUnit == nil then thisUnit = self.units.dyn40 end
             if debug == nil then debug = false end
 
-            if self.talent.grimoireOfService and self.shards > 0 and self.cd.grimoireFelhunter == 0 and lastSpellCast ~= spellCast and getDistance(thisUnit) < 40 then
+            if self.talent.grimoireOfService and self.shards > 0 and self.cd.grimoireFelhunter == 0 and getDistance(thisUnit) < 40 then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,true,false,false,true)
                 else
@@ -291,7 +332,7 @@ function cWarlock:new(spec)
             if thisUnit == nil then thisUnit = self.units.dyn40 end
             if debug == nil then debug = false end
 
-            if self.talent.grimoireOfService and self.shards > 0 and self.cd.grimoireImp == 0 and lastSpellCast ~= spellCast and getDistance(thisUnit) < 40 then
+            if self.talent.grimoireOfService and self.shards > 0 and self.cd.grimoireImp == 0 and getDistance(thisUnit) < 40 then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,true,false,false,true)
                 else
@@ -308,7 +349,7 @@ function cWarlock:new(spec)
             if thisUnit == nil then thisUnit = self.units.dyn40 end
             if debug == nil then debug = false end
 
-            if self.talent.grimoireOfService and self.shards > 0 and self.cd.grimoireSuccubus == 0 and lastSpellCast ~= spellCast and getDistance(thisUnit) < 40 then
+            if self.talent.grimoireOfService and self.shards > 0 and self.cd.grimoireSuccubus == 0 and getDistance(thisUnit) < 40 then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,true,false,false,true)
                 else
@@ -325,7 +366,7 @@ function cWarlock:new(spec)
             if thisUnit == nil then thisUnit = self.units.dyn40 end
             if debug == nil then debug = false end
 
-            if self.talent.grimoireOfService and self.shards > 0 and self.cd.grimoireVoidwalker == 0 and lastSpellCast ~= spellCast and getDistance(thisUnit) < 40 then
+            if self.talent.grimoireOfService and self.shards > 0 and self.cd.grimoireVoidwalker == 0 and getDistance(thisUnit) < 40 then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,true,false,false,true)
                 else
@@ -342,7 +383,7 @@ function cWarlock:new(spec)
             if thisUnit == nil then thisUnit = "player" end
             if debug == nil then debug = false end
 
-            if self.level >= 34 and self.health > 10 and self.cd.lifeTap == 0 and lastSpellCast ~= spellCast then
+            if self.level >= 34 and self.health > 10 and self.cd.lifeTap == 0 then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,true,false,false,true)
                 else
@@ -359,7 +400,7 @@ function cWarlock:new(spec)
             if thisUnit == nil then thisUnit = "player" end
             if debug == nil then debug = false end
 
-            if self.talent.soulHarvest and self.cd.soulHarvest == 0 and lastSpellCast ~= spellCast then
+            if self.talent.soulHarvest and self.cd.soulHarvest == 0 then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,true,false,false,true)
                 else
@@ -376,7 +417,7 @@ function cWarlock:new(spec)
             if thisUnit == nil then thisUnit = self.units.dyn40 end
             if debug == nil then debug = false end
 
-            if self.level >= 58 and self.shards > 0 and self.cd.summonDoomguard == 0 and lastSpellCast ~= spellCast and getDistance(thisUnit) < 40 then
+            if self.level >= 58 and self.shards > 0 and self.cd.summonDoomguard == 0 and getDistance(thisUnit) < 40 then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,true,false,false,true)
                 else
@@ -393,7 +434,7 @@ function cWarlock:new(spec)
             if thisUnit == nil then thisUnit = "player" end
             if debug == nil then debug = false end
 
-            if self.level >= 35 and self.shards > 0 and self.cd.summonFelhunter == 0 and lastSpellCast ~= spellCast then
+            if self.level >= 35 and self.shards > 0 and self.cd.summonFelhunter == 0 then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,true,false,false,true)
                 else
@@ -410,7 +451,7 @@ function cWarlock:new(spec)
             if thisUnit == nil then thisUnit = "player" end
             if debug == nil then debug = false end
 
-            if self.level >= 1 and self.shards > 0 and self.cd.summonImp == 0 and lastSpellCast ~= spellCast then
+            if self.level >= 1 and self.shards > 0 and self.cd.summonImp == 0 then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,true,false,false,true)
                 else
@@ -427,7 +468,7 @@ function cWarlock:new(spec)
             if thisUnit == nil then thisUnit = "player" end
             if debug == nil then debug = false end
 
-            if self.level >= 50 and self.shards > 0 and self.cd.summonInfernal == 0 and lastSpellCast ~= spellCast then
+            if self.level >= 50 and self.shards > 0 and self.cd.summonInfernal == 0 then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,true,false,false,true)
                 else
@@ -444,7 +485,7 @@ function cWarlock:new(spec)
             if thisUnit == nil then thisUnit = "player" end
             if debug == nil then debug = false end
 
-            if self.level >= 28 and self.shards > 0 and self.cd.summonSuccubus == 0 and lastSpellCast ~= spellCast then
+            if self.level >= 28 and self.shards > 0 and self.cd.summonSuccubus == 0 then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,true,false,false,true)
                 else
@@ -461,7 +502,7 @@ function cWarlock:new(spec)
             if thisUnit == nil then thisUnit = "player" end
             if debug == nil then debug = false end
 
-            if self.level >= 8 and self.shards > 0 and self.cd.summonVoidwalker == 0 and lastSpellCast ~= spellCast then
+            if self.level >= 8 and self.shards > 0 and self.cd.summonVoidwalker == 0 then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,true,false,false,true)
                 else

@@ -1,0 +1,17 @@
+tag 1.1
+16b8130725650cda6d251a82474e50c122f4e4e1
+Rainrider <rainrider.wow@gmail.com>
+2016-10-05 12:31:30 +0200
+
+Tagging version 1.1
+
+
+--------------------
+
+Rainrider:
+	- Update the scan path
+	Artifact scanning is now entirely event driven - no more timers.
+	- Fix acquired artifact power calculation
+	Values might still be a little off, which is probably a Blizzard bug.
+	Closes https://github.com/Rainrider/LibArtifactData-1.0/issues/5
+	- Yet another nil check
