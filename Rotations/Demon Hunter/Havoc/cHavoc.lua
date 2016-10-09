@@ -626,7 +626,7 @@ function cHavoc:new()
             if thisUnit == nil then thisUnit = "player" end
             if debug == nil then debug = false end
 
-            if self.artifact.furyOfTheIllidari and self.cd.furyOfTheIllidari == 0 and getDistance(self.units.dyn5) < 5 then
+            if self.artifact.furyOfTheIllidari and self.cd.furyOfTheIllidari == 0 then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else

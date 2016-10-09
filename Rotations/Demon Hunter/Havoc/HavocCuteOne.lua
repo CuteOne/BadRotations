@@ -604,7 +604,7 @@ if select(2, UnitClass("player")) == "DEMONHUNTER" then
                         if actionList_Cooldowns() then return end
                 -- Fury of the Illidari
                         -- fury_of_the_illidari,if=active_enemies>desired_targets|raid_event.adds.in>55
-                        if #enemies.yards8 > 2 or (addsIn > 55 and #enemies.yards8 > 0) and getDistance(units.yards8) < 8 then 
+                        if (#enemies.yards8 > 2 or (addsIn > 55 and #enemies.yards8 > 0)) and getDistance("target") < 5 then 
                             if cast.furyOfTheIllidari() then return end
                         end
                 -- Death Sweep
