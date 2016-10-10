@@ -38,15 +38,18 @@ function cShadow:new()
             purifyDisease = 213634,
             resurrection = 2006,
             shackleUndead = 9484,
+            shadowCrash = 205385,
             shadowMend = 186263,
             shadowWordDeath = 32379,
             shadowWordPain = 589,
+            shadowWordVoid = 205351,
             shadowfiend = 34433,
             silence = 15487,
             vampiricEmbrace = 15286,
             vampiricTouch = 34914,
             voidBolt = 205448,
-            voidEruption = 228260
+            voidEruption = 228260,
+            voidTorrent = 205065
         }
         self.spell.spec.artifacts       = {
 
@@ -96,6 +99,7 @@ function cShadow:new()
             self.getCharge()
             self.getCooldowns()
             self.getDebuffs()
+            self.getDebuffsCount()
             self.getToggleModes()
             self.getCastable()
 
@@ -450,7 +454,7 @@ function cShadow:new()
             if thisUnit == nil then thisUnit = self.units.dyn40 end
             if debug == nil then debug = false end
 
-            if self.cd.mindSear == 0 then
+            if getDistance(thisUnit) < 40 and self.cd.mindSear == 0 then
                 if debug then
                     return castSpell(thisUnit,spellCast,true,true,false,false,false,false,false,true)
                 else
@@ -468,11 +472,29 @@ function cShadow:new()
             if thisUnit == nil then thisUnit = self.units.dyn40 end
             if debug == nil then debug = false end
 
-            if self.cd.mindSpike == 0 then
+            if getDistance(thisUnit) < 40 and self.cd.mindSpike == 0 then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,true,false,false,false,false,false,true)
                 else
                     return castSpell(thisUnit,spellCast,false,true)
+                end
+            elseif debug then
+                return false
+            end
+        end
+
+        -- Shadow Crash
+        function self.cast.shadowCrash(thisUnit,debug)
+            local spellCast = self.spell.shadowCrash
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = "player" end
+            if debug == nil then debug = false end
+
+            if self.cd.shadowCrash == 0 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,true,false,false,false,false,false,false,true)
+                else
+                    return castGroundAtBestLocation(spellCast,8,1,20)
                 end
             elseif debug then
                 return false
@@ -486,7 +508,7 @@ function cShadow:new()
             if thisUnit == nil then thisUnit = self.units.dyn40 end
             if debug == nil then debug = false end
 
-            if self.cd.shadowWordDeath == 0 then
+            if getDistance(thisUnit) < 40 and self.cd.shadowWordDeath == 0 then
                 if debug then
                     return castSpell(thisUnit,spellCast,true,false,false,false,false,false,false,true)
                 else
@@ -504,7 +526,25 @@ function cShadow:new()
             if thisUnit == nil then thisUnit = self.units.dyn40 end
             if debug == nil then debug = false end
 
-            if self.cd.shadowWordPain == 0 then
+            if getDistance(thisUnit) < 40 and self.cd.shadowWordPain == 0 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,true,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,true,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+
+        -- Shadow Word: Void
+        function self.cast.shadowWordVoid(thisUnit,debug)
+            local spellCast = self.spell.shadowWordVoid
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = self.units.dyn40 end
+            if debug == nil then debug = false end
+
+            if getDistance(thisUnit) < 40 and self.cd.shadowWordVoid == 0 then
                 if debug then
                     return castSpell(thisUnit,spellCast,true,false,false,false,false,false,false,true)
                 else
@@ -522,7 +562,7 @@ function cShadow:new()
             if thisUnit == nil then thisUnit = self.units.dyn40 end
             if debug == nil then debug = false end
 
-            if self.cd.shadowfiend == 0 then
+            if getDistance(thisUnit) < 40 and self.cd.shadowfiend == 0 then
                 if debug then
                     return castSpell(thisUnit,spellCast,true,false,false,false,false,false,false,true)
                 else
@@ -540,7 +580,7 @@ function cShadow:new()
             if thisUnit == nil then thisUnit = self.units.dyn40 end
             if debug == nil then debug = false end
 
-            if self.cd.silence == 0 then
+            if getDistance(thisUnit) < 40 and self.cd.silence == 0 then
                 if debug then
                     return castSpell(thisUnit,spellCast,true,false,false,false,false,false,false,true)
                 else
@@ -576,7 +616,7 @@ function cShadow:new()
             if thisUnit == nil then thisUnit = self.units.dyn40 end
             if debug == nil then debug = false end
 
-            if self.cd.vampiricTouch == 0 then
+            if getDistance(thisUnit) < 40 and self.cd.vampiricTouch == 0 then
                 if debug then
                     return castSpell(thisUnit,spellCast,true,true,false,false,false,false,false,true)
                 else
@@ -612,16 +652,34 @@ function cShadow:new()
             if thisUnit == nil then thisUnit = self.units.dyn40 end
             if debug == nil then debug = false end
 
-            if self.cd.voidBolt == 0 then
+            if getDistance(thisUnit) < 40 and self.cd.voidEruption == 0 then
                 if debug then
-                    return castSpellMacro(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
-                    return castSpellMacro(thisUnit,spellCast,false,false)
+                    return castSpell(thisUnit,spellCast,false,false,false,true,false,false,true)
                 end
             elseif debug then
                 return false
             end
         end
+
+        -- voidTorrent
+        function self.cast.voidTorrent(thisUnit,debug)
+            local spellCast = self.spell.voidTorrent
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = self.units.dyn40 end
+            if debug == nil then debug = false end
+
+            if getDistance(thisUnit) < 40 and self.cd.voidTorrent == 0 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,true,true,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,true,true)
+                end
+            elseif debug then
+                return false
+            end
+        end        
 
 
 
