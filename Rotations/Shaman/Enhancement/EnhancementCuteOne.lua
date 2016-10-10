@@ -572,7 +572,7 @@ if select(2, UnitClass("player")) == "SHAMAN" then
                         if cast.earthenSpike() then return end
                 -- Crash Lightning
                         -- crash_lightning,if=active_enemies>1|talent.crashing_storm.enabled|feral_spirit.remains>5
-                        if ((mode.rotation == 1 and (#enemies.yards5 > 1 or talent.crashingStorm or feralSpiritRemain > 5) or mode.rotation == 2) and mode.rotation ~= 3 and not moving then
+                        if ((mode.rotation == 1 and (#enemies.yards5 > 1 or talent.crashingStorm or feralSpiritRemain > 5)) or mode.rotation == 2) and mode.rotation ~= 3 and not moving then
                             if cast.crashLightning(units.dyn5) then return end
                         end
                 -- Frostbrand
