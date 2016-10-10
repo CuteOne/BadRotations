@@ -367,7 +367,7 @@ function cWindwalker:new()
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
-                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                    return castSpell(thisUnit,spellCast,false,false,false)
                 end
             elseif debug then
                 return false
@@ -384,7 +384,7 @@ function cWindwalker:new()
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
-                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                    return castSpell(thisUnit,spellCast,false,false,false)
                 end
             elseif debug then
                 return false
@@ -401,7 +401,7 @@ function cWindwalker:new()
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
-                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                    return castSpell(thisUnit,spellCast,false,false,false)
                 end
             elseif debug then
                 return false
@@ -418,7 +418,7 @@ function cWindwalker:new()
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
-                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                    return castSpell(thisUnit,spellCast,false,false,false)
                 end
             elseif debug then
                 return false
@@ -435,7 +435,7 @@ function cWindwalker:new()
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
-                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                    return castSpell(thisUnit,spellCast,false,false,false)
                 end
             elseif debug then
                 return false
@@ -455,7 +455,7 @@ function cWindwalker:new()
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
-                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                    return castSpell(thisUnit,spellCast,false,false,false)
                 end
             elseif debug then
                 return false
@@ -473,7 +473,7 @@ function cWindwalker:new()
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
-                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                    return castSpell(thisUnit,spellCast,false,false,false)
                 end
             elseif debug then
                 return false
@@ -486,11 +486,11 @@ function cWindwalker:new()
             if thisUnit == nil then thisUnit = "player" end
             if debug == nil then debug = false end
 
-            if self.talent.healingElixir and self.charges.healingElixir > 0 then
+            if self.talent.healingElixir and self.charges.healingElixir > 0 and self.cd.healingElixir then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
-                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                    return castSpell(thisUnit,spellCast,false,false,false)
                 end
             elseif debug then
                 return false
@@ -507,7 +507,7 @@ function cWindwalker:new()
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
-                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                    return castSpell(thisUnit,spellCast,false,false,false)
                 end
             elseif debug then
                 return false
@@ -524,7 +524,7 @@ function cWindwalker:new()
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
-                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                    return castSpell(thisUnit,spellCast,false,false,false)
                 end
             elseif debug then
                 return false
@@ -541,7 +541,7 @@ function cWindwalker:new()
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
-                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                    return castSpell(thisUnit,spellCast,false,false,false)
                 end
             elseif debug then
                 return false
@@ -558,7 +558,7 @@ function cWindwalker:new()
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
-                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                    return castSpell(thisUnit,spellCast,false,false,false)
                 end
             elseif debug then
                 return false
@@ -575,7 +575,7 @@ function cWindwalker:new()
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
-                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                    return castSpell(thisUnit,spellCast,false,false,false)
                 end
             elseif debug then
                 return false
@@ -592,7 +592,7 @@ function cWindwalker:new()
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
-                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                    return castSpell(thisUnit,spellCast,false,false,false)
                 end
             elseif debug then
                 return false
@@ -609,7 +609,7 @@ function cWindwalker:new()
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
-                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                    return castSpell(thisUnit,spellCast,false,false,false)
                 end
             elseif debug then
                 return false
@@ -625,7 +625,7 @@ function cWindwalker:new()
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
-                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                    return castSpell(thisUnit,spellCast,false,false,false)
                 end
             elseif debug then
                 return false
@@ -642,7 +642,7 @@ function cWindwalker:new()
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
-                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                    return castSpell(thisUnit,spellCast,false,false,false)
                 end
             elseif debug then
                 return false
@@ -659,7 +659,7 @@ function cWindwalker:new()
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
-                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                    return castSpell(thisUnit,spellCast,false,false,false)
                 end
             elseif debug then
                 return false
@@ -676,7 +676,7 @@ function cWindwalker:new()
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
-                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                    return castSpell(thisUnit,spellCast,false,false,false)
                 end
             elseif debug then
                 return false
@@ -693,7 +693,7 @@ function cWindwalker:new()
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
-                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                    return castSpell(thisUnit,spellCast,false,false,false)
                 end
             elseif debug then
                 return false

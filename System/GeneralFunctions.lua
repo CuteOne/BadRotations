@@ -2172,6 +2172,8 @@ function isDummy(Unit)
 			[88837]  = "Raider's Training Dummy",     -- Lvl ?? (Warspear) - Tank
 			[88836]  = "Dungeoneer's Training Dummy", -- Lvl 102 (Warspear) - Tank			
 			[88906]  = "Combat Dummy",                -- Lvl 100 (Nagrand)
+			[100440] = "Training Bag", 				  -- Lvl 110 (The Wandering Isles)
+			[100441] = "Dungeoneer's Training Bag",   -- Lvl 112 (The Wandering Isles)
 		}
 		if dummies[tonumber(string.match(UnitGUID(Unit),"-(%d+)-%x+$"))] ~= nil then
 			return true

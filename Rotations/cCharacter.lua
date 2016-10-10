@@ -76,6 +76,7 @@ function cCharacter:new(class)
 	self.potion 		= {}		-- Potion Table
 	self.power          = 0     	-- Primary Resource (e.g. Mana for Retribution, Holy Power must be specified)
 	self.powerAlt 		= 0 		-- Alternate Resource (e.g. Combo Points for Feral and Rogues, Soul Shards for Warlocks)
+	self.powerTTM 		= 0
 	self.primaryStat 	= nil       -- Contains the primary Stat: Strength, Agility or Intellect
 	self.profile        = "None"    -- Spec
 	self.race     		= select(2,UnitRace("player")) -- Race as non-localised name (undead = Scourge) !
@@ -168,6 +169,7 @@ function cCharacter:new(class)
 		self.powerPercentMana 	= ((UnitPower("player",0)/UnitPowerMax("player",0))*100)
 		self.powerRegen 		= getRegen("player")
 		self.powerTTM 			= getTimeToMax("player")
+		self.timeToMax 			= getTimeToMax("player")
 		self.spec 				= select(2, GetSpecializationInfo(GetSpecialization())) or "None"
 		self.pet 				= UnitCreatureFamily("pet") or "None"
 		if self.pet ~= "None" then

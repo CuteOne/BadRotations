@@ -44,6 +44,7 @@ function cHavoc:new()
         }
         self.spell.spec.artifacts       = {
             anguishOfTheDeceiver        = 201473,
+            demonSpeed                  = 201469,
             furyOfTheIllidari           = 201467,
             warglaivesOfChaos           = 214795,
         }

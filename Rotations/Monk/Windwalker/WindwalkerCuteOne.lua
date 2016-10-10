@@ -76,12 +76,16 @@ if select(2, UnitClass("player")) == "MONK" then
                 bb.ui:createCheckbox(section,"Legendary Ring")
             -- Flask / Crystal
                 bb.ui:createCheckbox(section,"Flask / Crystal")
+            -- Racial
+                bb.ui:createCheckbox(section,"Racial")
             -- Trinkets
                 bb.ui:createCheckbox(section,"Trinkets")
             -- Touch of the Void
                 bb.ui:createCheckbox(section,"Touch of the Void")
             -- Serenity
                 bb.ui:createCheckbox(section,"Serenity")
+            -- Touch of Death
+                bb.ui:createCheckbox(section,"Touch of Death")
             -- Xuen
                 bb.ui:createCheckbox(section,"Xuen")
             bb.ui:checkSectionState(section)
@@ -378,6 +382,188 @@ if select(2, UnitClass("player")) == "MONK" then
                     end 
                 end -- End Interrupt Check
             end -- End Action List - Interrupts
+        -- Action List - Cooldowns
+            function actionList_Cooldown()
+                if useCDs() and getDistance("target") < 5 then
+            -- Legendary Ring
+                    -- use_item,name=maalus_the_blood_drinker,if=buff.tigereye_brew_use.up|target.time_to_die<18
+                    if isChecked("Legendary Ring") and (buff.tigereyeBrew or ttd<18) then
+                        if hasEquiped(124636) and canUse(124636) then
+                            useItem(124636)
+                            return true
+                        end
+                    end
+            -- Trinkets
+                    if isChecked("Trinkets") and getDistance(units.dyn5) < 5 then
+                        if canUse(13) then
+                            useItem(13)
+                        end
+                        if canUse(14) then
+                            useItem(14)
+                        end
+                    end                    
+            -- Invoke Xuen
+                    -- invoke_xuen
+                    if isChecked("Xuen") then
+                        if cast.invokeXuen() then return end
+                    end
+            -- Racial - Blood Fury / Berserking
+                    -- blood_fury
+                    -- berserking
+                    if isChecked("Racial") and (race == "Orc" or race == "Troll") then
+                        if castSpell("target",racial,false,false,false) then return end
+                    end
+            -- Touch of Death
+                    -- touch_of_death,cycle_targets=1,max_cycle_targets=2,if=!artifact.gale_burst.enabled&equipped.137057&!prev_gcd.touch_of_death
+                    -- touch_of_death,if=!artifact.gale_burst.enabled&!equipped.137057
+                    -- touch_of_death,cycle_targets=1,max_cycle_targets=2,if=artifact.gale_burst.enabled&equipped.137057&cooldown.strike_of_the_windlord.remains<8&cooldown.fists_of_fury.remains<=4&cooldown.rising_sun_kick.remains<7&!prev_gcd.touch_of_death
+                    -- touch_of_death,if=artifact.gale_burst.enabled&!equipped.137057&cooldown.strike_of_the_windlord.remains<8&cooldown.fists_of_fury.remains<=4&cooldown.rising_sun_kick.remains<7
+                    if isChecked("Touch of Death") 
+                        and ((not artifact.galeBurst and hasEquiped(137057) and lastSpell ~= spell.touchOfDeath)
+                            or (not artifact.galeBurst and not hasEquiped(137057))
+                            or (artifact.galeBurst and hasEquiped(137057) and cd.strikeOfTheWindlord < 8 and cd.fistsOfFury <= 4 and cd.risingSunKick < 7 and lastSpell ~= spell.touchOfDeath)
+                            or (artifact.galeBurst and not hasEquiped(137057) and cd.strikeOfTheWindlord < 8 and cd.fistsOfFury <= 4 and cd.risingSunKick < 7)) 
+                    then
+                        if cast.touchOfDeath() then return end
+                    end
+                end
+            end -- End Cooldown - Action List
+        -- Action List - Single Target
+            function actionList_SingleTarget()
+            -- Action List - Cooldown
+                -- call_action_list,name=cd
+                if actionList_Cooldown() then return end
+            -- Racial - Arcane Torrent
+                -- arcane_torrent,if=chi.max-chi>=1&energy.time_to_max>=0.
+                if chi.max >= chi.count and ttm >= 0.5 and isChecked("Racial") and race == "BloodElf" then
+                    if castSpell("target",racial,false,false,false) then return end
+                end
+            -- Energizing Elixir
+                -- energizing_elixir,if=energy<energy.max&chi<=1
+                if power < powerMax and chi.count <= 1 then
+                    if cast.energizingElixir() then return end
+                end
+            -- Strike of the Windlord
+                -- strike_of_the_windlord,if=talent.serenity.enabled|active_enemies<6
+                if talent.serenity or #enemies.yards5 < 6 then
+                    if cast.strikeOfTheWindlord() then return end
+                end
+            -- Fists of Fury
+                -- fists_of_fury
+                if cast.fistsOfFury() then return end
+            -- Rising Sun Kick
+                -- rising_sun_kick
+                if cast.risingSunKick() then return end
+            -- Whirling Dragon Punch
+                -- whirling_dragon_punch
+                if cast.whirlingDragonPunch() then return end
+            -- Spinning Crane Kick
+                -- spinning_crane_kick,if=active_enemies>=3&!prev_gcd.spinning_crane_kick
+                if #enemies.yards5 >= 3 and lastSpell ~= spell.spinningCraneKick then
+                    if cast.spinningCraneKick() then return end
+                end
+            -- Rushing Jade Wind
+                -- rushing_jade_wind,if=chi.max-chi>1&!prev_gcd.rushing_jade_wind
+                if chi.max - chi.count > 1 and lastSpell ~= spell.rushingJadeWind then
+                    if cast.rushingJadeWind() then return end
+                end
+            -- Blackout Kick
+                -- blackout_kick,cycle_targets=1,if=(chi>1|buff.bok_proc.up)&!prev_gcd.blackout_kick
+                if (chi.count > 1 or buff.blackoutKick) and lastSpell ~= spell.blackoutKick then
+                    if cast.blackoutKick() then return end
+                end
+            -- Chi Wave
+                -- chi_wave,if=energy.time_to_max>=2.25
+                if ttm >= 2.25 then
+                    if cast.chiWave() then return end
+                end
+            -- Chi Burst
+                -- chi_burst,if=energy.time_to_max>=2.25
+                if ttm >= 2.25 then
+                    if cast.chiBurst() then return end
+                end
+            -- Tiger Palm
+                -- tiger_palm,cycle_targets=1,if=!prev_gcd.tiger_palm
+                if lastSpell ~= spell.tigerPalm then
+                    if cast.tigerPalm() then return end
+                end
+            -- Crackling Jade Lightning
+                -- crackling_jade_lightning,interrupt=1,if=talent.rushing_jade_wind.enabled&chi.max-chi=1&prev_gcd.blackout_kick&cooldown.rising_sun_kick.remains>1&cooldown.fists_of_fury.remains>1&cooldown.strike_of_the_windlord.remains>1&cooldown.rushing_jade_wind.remains>1
+                -- crackling_jade_lightning,interrupt=1,if=!talent.rushing_jade_wind.enabled&chi.max-chi=1&prev_gcd.blackout_kick&cooldown.rising_sun_kick.remains>1&cooldown.fists_of_fury.remains>1&cooldown.strike_of_the_windlord.remains>1
+                if chi.max - chi.count == 1 and lastSpell == spell.blackoutKick and cd.risingSunKick > 1 and cd.fistsOfFury > 1 
+                    and cd.strikeOfTheWindlord > 1 and ((talent.rushingJadeWind and cd.rushingJadeWind > 1) or not talent.rushingJadeWind) 
+                then
+                    if cast.cracklingJadeLightning() then return end
+                end
+            end -- End Action List - Single Target 
+        -- Action List - Storm, Earth, and Fire
+            function actionList_SEF()
+            -- Energizing Elixir
+                -- energizing_elixir
+                if cast.energizingElixir() then return end
+            -- Racial - Arcane Torrent
+                -- arcane_torrent,if=chi.max-chi>=1&energy.time_to_max>=0.
+                if chi.max >= chi.count and ttm >= 0.5 and isChecked("Racial") and race == "BloodElf" then
+                    if castSpell("target",racial,false,false,false) then return end
+                end
+            -- Call Action List - Cooldowns
+                -- call_action_list,name=cd
+                if actionList_Cooldown() then return end
+            -- Storm, Earth, and Fire
+                -- storm_earth_and_fire
+                if cast.stormEarthAndFire() then return end
+            -- Call Action List - Single Target
+                -- call_action_list,name=st
+                if actionList_SingleTarget() then return end
+            end -- End SEF - Action List
+        -- Action List - Serenity
+            function actionList_Serenity()
+            -- Energizing Elixir
+                -- energizing_elixir
+                if cast.energizingElixir() then return end
+            -- Call Action List - Cooldowns
+                -- call_action_list,name=cd
+                if actionList_Cooldown() then return end
+            -- Serenity
+                -- serenity
+                if cast.serenity() then return end
+            -- Strike of the Windlord
+                -- strike_of_the_windlord
+                if cast.strikeOfTheWindlord() then return end
+            -- Rising Sun Kick
+                -- rising_sun_kick,cycle_targets=1,if=active_enemies<3
+                if #enemies.yards5 < 3 then
+                    if cast.risingSunKick() then return end
+                end
+            -- Fists of Fury
+                -- fists_of_fury
+                if cast.fistsOfFury() then return end
+            -- Spinning Crane Kick
+                -- spinning_crane_kick,if=active_enemies>=3&!prev_gcd.spinning_crane_kick
+                if #enemies.yards5 >= 3 and lastSpell ~= spell.spinningCraneKick then
+                    if cast.spinningCraneKick() then return end
+                end
+            -- Rising Sun Kick
+                -- rising_sun_kick,cycle_targets=1,if=active_enemies>=3
+                if #enemies.yards5 >= 3 then
+                    if cast.risingSunKick() then return end
+                end
+            -- Blackout Kick
+                -- blackout_kick,cycle_targets=1,if=!prev_gcd.blackout_kick
+                if lastSpell ~= spell.blackoutKick then
+                    if cast.blackoutKick() then return end
+                end
+            -- Spinning Crane Kick
+                -- spinning_crane_kick,if=!prev_gcd.spinning_crane_kick
+                if lastSpell ~= spell.spinningCraneKick then
+                    if cast.spinningCraneKick() then return end
+                end
+            -- Rushing Jade Wind
+                -- rushing_jade_wind,if=!prev_gcd.rushing_jade_wind
+                if lastSpell ~= spell.rushingJadeWind then
+                    if cast.rushingJadeWind() then return end
+                end
+            end
         -- Action List - Pre-Combat
             function actionList_PreCombat()
                 if not inCombat then
@@ -417,137 +603,7 @@ if select(2, UnitClass("player")) == "MONK" then
                     end
                 end -- End No Combat Check
             end --End Action List - Pre-Combat
-        -- Action list - Opener
-            function actionList_Opener() --Not Actually Used In Current SimC APL Despite Being Listed
-            -- -- Legendary Ring
-            --     -- use_item,name=maalus_the_blood_drinker
-            --     if useCDs() and isChecked("Legendary Ring") then
-            --         if hasEquiped(124636) and canUse(124636) then
-            --             useItem(124636)
-            --             return true
-            --         end
-            --     end
-            -- -- Racial: Orc Blood Fury | Troll Berserking | Blood Elf Arcane Torrent
-            --     -- blood_fury
-            --     -- berserking
-            --     -- arcane_torrent,if=chi.max-chi>=1 
-            --     if useCDs() then
-            --         if (bb.player.race == "Orc" or bb.player.race == "Troll") then
-            --             if cast.racial() then return end
-            --         end
-            --         if bb.player.race == "Blood Elf" and chi.diff >= 1 then
-            --             if cast.racial() then return end
-            --         end
-            --     end 
-            -- -- Fists of Fury
-            --     -- fists_of_fury,if=buff.serenity.up&buff.serenity.remains<1.5
-            --     if buff.serenity and buff.remain.serenity < 1.5 then
-            --         if cast.fistsOfFury() then return end
-            --     end
-            -- -- Rising Sun Kick
-            --     -- rising_sun_kick
-            --     if cast.risingSunKick() then return end
-            -- -- Blackout Kick
-            --     -- blackout_kick,if=chi.max-chi<=1&cooldown.chi_brew.up|buff.serenity.up
-            --     if chi.diff <= 1 or buff.serenity then
-            --         if cast.blackoutKick() then return end
-            --     end
-            -- -- Serenity
-            --     -- serenity,if=chi.max-chi<=2
-            --     if useCDs() and isChecked("Serenity") then
-            --         if chi.diff <= 2 then
-            --             if cast.serenity() then return end
-            --         end
-            --     end
-            -- -- Tiger Palm
-            --     -- tiger_palm,if=chi.max-chi>=2&!buff.serenity.up
-            --     if chi.diff >= 2 and not buff.serenity then
-            --         if cast.tigerPalm() then return end
-            --     end
-            end -- End Action List - Opener
-        -- Action List - Single Target
-            function actionList_SingleTarget()
-            -- Rising Sun Kick
-                -- rising_sun_kick
-                if cast.risingSunKick() then return end
-            -- Rushing Jade Wind
-                -- rushing_jade_wind,if=chi>1&!prev_gcd.rushing_jade_wind
-                if chi.count > 1 and lastSpell ~= spell.rushingJadeWind then
-                    if cast.rushingJadeWind() then return end
-                end
-            -- Chi Wave
-                -- chi_wave,if=energy.time_to_max>2&buff.serenity.down
-                if ttm > 2 and not buff.serenity then
-                    if cast.chiWave() then return end
-                end
-            -- Chi Burst
-                -- chi_burst,if=energy.time_to_max>2&buff.serenity.down
-                if ttm>2 and not buff.serenity then
-                    if cast.chiBurst() then return end
-                end
-            -- Blackout Kick
-                -- blackout_kick,if=(chi>1|buff.bok_proc.up)&buff.serenity.down&!prev_gcd.blackout_kick
-                --if (chi.count > 1 or buff.comboBreaker) and not buff.serenity and (lastSpell ~= spell.blackoutKick or chi.count > 2) then
-                if (chi.count > 1 or buff.blackoutKick) and not buff.serenity and lastSpell ~= spell.blackoutKick then
-                    if cast.blackoutKick() then return end
-                end
-            -- Tiger Palm
-                -- tiger_palm,if=(buff.serenity.down&chi<=2)&!prev_gcd.tiger_palm
-                --if (not buff.serenity and chi.count <= 2) and (lastSpell ~= spell.tigerPalm or chi.count <= 2) then
-                if (not buff.serenity and chi.count <= 2) and lastSpell ~= spell.tigerPalm then
-                    if cast.tigerPalm() then return end
-                end
-            end -- End Action List - Single Target
- 
-        -- Action List - Multi-Target: No Rushing Jade Wind
-            function actionList_MultiTarget()
-            -- Spinning Crane Kick
-                -- spinning_crane_kick
-                -- spinning_crane_kick,if=!prev_gcd.spinning_crane_kick
-                if lastSpell ~= spell.spinningCraneKick then
-                    if cast.spinningCraneKick() then return end
-                end
-            -- Rising Sun Kick
-                -- rising_sun_kick,cycle_targets=1
-                for i = 1, #enemies.yards5 do
-                    local thisUnit = enemies.yards5[i]
-                    local markOfTheCraneDebuff = getDebuffRemain(thisUnit,spell.spec.debuffs.markOfTheCrane,"player") or 0
-                    if markOfTheCraneDebuff < 1 then
-                        if cast.risingSunKick(thisUnit) then return end
-                    end
-                end 
-            -- Rushing Jade Wind
-                -- rushing_jade_wind,if=chi>1&!prev_gcd.rushing_jade_wind
-                if chi.count > 1 and lastSpell ~= spell.rushingJadeWind then
-                    if cast.rushingJadeWind() then return end
-                end
-            -- Chi Wave
-                -- chi_wave,if=energy.time_to_max>2|buff.serenity.down
-                if ttm > 2 or not buff.serenity then
-                    if cast.chiWave() then return end
-                end
-            -- Chi Burst
-                -- chi_burst,if=energy.time_to_max>2|buff.serenity.down
-                if ttm > 2 or not buff.serenity then
-                    if cast.chiBurst() then return end
-                end
-                for i = 1, #enemies.yards5 do
-                    local thisUnit = enemies.yards5[i]
-                    local markOfTheCraneDebuff = getDebuffRemain(thisUnit,spell.spec.debuffs.markOfTheCrane,"player") or 0 
-            -- Blackout Kick
-                    -- blackout_kick,if=(chi>1|buff.bok_proc.up)&buff.serenity.down&!prev_gcd.blackout_kick,cycle_targets=1
-                    --if (buff.comboBreaker or (chi.count > 0 and markOfTheCraneDebuff < 1)) and not buff.serenity and markOfTheCraneDebuff < 1 then
-                    if (chi.count > 1 or buff.blackoutKick) and not buff.serenity and lastSpell ~= spell.blackoutKick then
-                        if cast.blackoutKick(thisUnit) then return end
-                    end
-            -- Tiger Palm
-                    -- tiger_palm,if=(buff.serenity.down&chi<=2)&!prev_gcd.tiger_palm,cycle_targets=1
-                    --if not buff.serenity and (chi.count <= 2 or markOfTheCraneDebuff < 1) then
-                    if (not buff.serenity and chi.count <= 2) and lastSpell ~= spell.tigerPalm then
-                        if cast.tigerPalm(thisUnit) then return end
-                    end
-                end
-            end -- End Action List - Multi-Target
+
     ---------------------
     --- Begin Profile ---
     ---------------------
@@ -591,107 +647,37 @@ if select(2, UnitClass("player")) == "MONK" then
         --- APL Mode: SimulationCraft ---
         ---------------------------------
                     if getOptionValue("APL Mode") == 1 then
-                        if useCDs() then
-            --  Invoke Xuen
-                            -- invoke_xuen
-                            if isChecked("Xuen") then
-                                if cast.invokeXuen() then return end
-                            end
-            -- Legendary Ring
-                            -- use_item,name=maalus_the_blood_drinker,if=buff.tigereye_brew_use.up|target.time_to_die<18
-                            if isChecked("Legendary Ring") and (buff.tigereyeBrew or ttd<18) then
-                                if hasEquiped(124636) and canUse(124636) then
-                                    useItem(124636)
-                                    return true
-                                end
-                            end
-            -- Trinkets
-                            if isChecked("Trinkets") and getDistance(units.dyn5) < 5 then
-                                if canUse(13) then
-                                    useItem(13)
-                                end
-                                if canUse(14) then
-                                    useItem(14)
-                                end
-                            end
             -- Potion
-                            -- potion,name=virmens_bite,if=buff.bloodlust.react|target.time_to_die<=60
-                            if canUse(109217) and inRaid and isChecked("Agi-Pot") then
-                                if hasBloodLust() or ttd <= 60 then
-                                    useItem(109217)
-                                end
-                            end
-            -- Touch of Death
-                            -- touch_of_death,if=!artifact.gale_burst.enabled
-                            -- touch_of_death,if=artifact.gale_burst.enabled&cooldown.strike_of_the_windlord.remains<8&cooldown.fists_of_fury.remains<=3&cooldown.rising_sun_kick.remains<8
-                            if (not artifact.galeBurst or (artifact.galeBurst and cd.strikeOfTheWindlord < 8 and cd.fistsOfFury <= 3 and cd.risingSunKick < 8)) and ttd > 8 then
-                                if cast.touchOfDeath() then return end
-                            end
-            -- Racial: Orc Blood Fury | Troll Berserking | Blood Elf Arcane Torrent
-                            -- blood_fury
-                            -- berserking
-                            -- arcane_torrent,if=chi.max-chi>=1
-                            if (bb.player.race == "Orc" or bb.player.race == "Troll") then
-                                if castSpell("player",racial,false,false,false) then return end
-                            end
-                            if bb.player.race == "Blood Elf" and chi.diff>=1 then
-                                if castSpell("player",racial,false,false,false) then return end
-                            end
-            -- Storm, Earth, and Fire
-                            -- storm_earth_and_fire,if=artifact.strike_of_the_windlord.enabled&cooldown.strike_of_the_windlord.remains<14&cooldown.fists_of_fury.remains<=9&cooldown.rising_sun_kick.remains<=5
-                            -- storm_earth_and_fire,if=!artifact.strike_of_the_windlord.enabled&cooldown.fists_of_fury.remains<=9&cooldown.rising_sun_kick.remains<=5
-                            if useSEF() then
-                                if (artifact.strikeOfTheWindlord and cd.strikeOfTheWindlord < 14 and cd.fistsOfFury <= 9 and cd.risingSunKick <= 5) 
-                                    or (not artifact.strikeOfTheWindlord and cd.fistsOfFury <= 9 and cd.risingSunKick <=5)
-                                then
-                                    if cast.stormEarthAndFire() then return end
-                                end
-                                if #enemies.yards8 == 1 then
-                                    if cast.stormEarthAndFireFixate() then return end
-                                end
-                            end
-            -- Serenity
-                            -- serenity,if=artifact.strike_of_the_windlord.enabled&cooldown.strike_of_the_windlord.remains<7&cooldown.fists_of_fury.remains<=3&cooldown.rising_sun_kick.remains<8
-                            -- serenity,if=!artifact.strike_of_the_windlord.enabled&cooldown.fists_of_fury.remains<=3&cooldown.rising_sun_kick.remains<8
-                            if (artifact.strikeOfTheWindlord and cd.strikeOfTheWindlord < 7 and cd.fistsOfFury <= 3 and cd.risingSunKick < 8)
-                                or (not artifact.strikeOfTheWindlord and cd.fistsOfFury <= 3 and cd.risingSunKick < 8)
-                            then
-                                if cast.serenity() then return end
-                            end
-            -- Energizing Elixer
-                            -- energizing_elixir,if=energy<energy.max&chi<=1&buff.serenity.down
-                            if power < powerMax and chi.count <= 1 and not buff.serenity then
-                                if cast.energizingElixir() then return end
-                            end
-                        end -- End Cooldown Check
-            -- Rushing Jade Wind
-                        -- rushing_jade_wind,if=buff.serenity.up&!prev_gcd.rushing_jade_wind
-                        if buff.serenity and lastSpell ~= spell.rushingJadeWind then
-                            if cast.rushingJadeWind() then return end
+                        -- potion,name=old_war,if=buff.serenity.up|buff.storm_earth_and_fire.up|(!talent.serenity.enabled&trinket.proc.agility.react)|buff.bloodlust.react|target.time_to_die<=60
+                        -- TODO
+                        -- if canUse(109217) and inRaid and isChecked("Agi-Pot") then
+                        --     if hasBloodLust() or ttd <= 60 then
+                        --         useItem(109217)
+                        --     end
+                        -- end
+            -- Call Action List - Serenity
+                        -- call_action_list,name=serenity,if=talent.serenity.enabled&((artifact.strike_of_the_windlord.enabled&cooldown.strike_of_the_windlord.remains<=14&cooldown.rising_sun_kick.remains<=4)|buff.serenity.up)
+                        if talent.serenity and ((artifact.strikeOfTheWindlord and cd.strikeOfTheWindlord <= 14 and cd.risingSunKick <= 4) or buff.serenity) then
+                            if actionList_Serenity() then return end
                         end
-            -- Strike of the Windlord
-                        -- strike_of_the_windlord
-                        if cast.strikeOfTheWindlord() then return end
-            -- Whirling Dragon Punch
-                        -- whirling_dragon_punch
-                        if cast.whirlingDragonPunch() then return end
-            -- Fists of Fury
-                        -- fists_of_fury
-                        if cast.fistsOfFury() then return end
-            -- Tiger Palm
-                        if chi.count < 2 then
-                            if cast.tigerPalm() then return end
+            -- Call Action List - Storm, Earth, and Fire
+                        -- call_action_list,name=sef,if=!talent.serenity.enabled&((artifact.strike_of_the_windlord.enabled&cooldown.strike_of_the_windlord.remains<=14&cooldown.fists_of_fury.remains<=6&cooldown.rising_sun_kick.remains<=6)|buff.storm_earth_and_fire.up)
+                        if not talent.serenity and ((artifact.strikeOfTheWindlord and cd.strikeOfTheWindlord <= 14 and cd.fistsOfFury <= 6 and cd.risingSunKick <= 6) or buff.stormEarthAndFire) then
+                            if actionList_SEF() then return end
                         end
+            -- Call Action List - Serenity
+                        -- call_action_list,name=serenity,if=(!artifact.strike_of_the_windlord.enabled&cooldown.strike_of_the_windlord.remains<14&cooldown.fists_of_fury.remains<=15&cooldown.rising_sun_kick.remains<7)|buff.serenity.up
+                        if (not artifact.strikeOfTheWindlord and cd.fistsOfFury <= 15 and cd.risingSunKick < 7) or buff.serenity then
+                            if actionList_Serenity() then return end
+                        end
+            -- Call Action Lsit - Storm, Earth, and Fire
+                        -- call_action_list,name=sef,if=!talent.serenity.enabled&((!artifact.strike_of_the_windlord.enabled&cooldown.fists_of_fury.remains<=9&cooldown.rising_sun_kick.remains<=5)|buff.storm_earth_and_fire.up)
+                        if not talent.serenity and ((not artifact.strikeOfTheWindlord and cd.fistsOfFury <= 9 and cd.risingSunKick <= 5) or buff.stormEarthAndFire) then
+                            if actionList_SEF() then return end
+                        end             
             -- Call Action List - Single Target
-                        -- call_action_list,name=st,if=active_enemies<3
-                        if not useAoE() then
-                            if actionList_SingleTarget() then return end
-                        end
-            -- Call Action List - Multi-Target
-                        -- call_action_list,name=aoe,if=active_enemies>=3
-                        if useAoE() then
-                            if actionList_MultiTarget() then return end
-                        end
+                        -- call_action_list,name=st
+                        if actionList_SingleTarget() then return end
                     end -- End Simulation Craft APL
         ----------------------------
         --- APL Mode: AskMrRobot ---
