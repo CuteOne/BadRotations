@@ -408,7 +408,7 @@ if select(2, UnitClass("player")) == "SHAMAN" then
                     if isChecked("Pre-Pull Timer") and pullTimer <= getOptionValue("Pre-Pull Timer") then
 
                     end -- End Pre-Pull
-                    if ObjectExists("target") and not UnitIsDeadOrGhost("target") and UnitCanAttack("target", "player") then
+                    if isValidUnit("target") then
                 -- Feral Lunge
                         if isChecked("Feral Lunge") then
                             if cast.feralLunge("target") then return end
@@ -450,7 +450,7 @@ if select(2, UnitClass("player")) == "SHAMAN" then
     --------------------------
     --- In Combat Rotation ---
     --------------------------
-                if inCombat and profileStop==false and (hasThreat(units.dyn5) or isDummy("target") or (UnitIsEnemy(units.dyn5, "player") and getDistance(units.dyn5) < 5)) then
+                if inCombat and profileStop==false and isValidUnit(units.dyn5) then
         ------------------------------
         --- In Combat - Interrupts ---
         ------------------------------
@@ -548,7 +548,9 @@ if select(2, UnitClass("player")) == "SHAMAN" then
                         end
                 -- Sundering
                         -- sundering
-                        if cast.sundering() then return end
+                        if getDistance(units.dyn8) < 8 then
+                            if cast.sundering() then return end
+                        end
                 -- Lava Lash
                         -- lava_lash,if=maelstrom>=90
                         if power >= 90 then
@@ -622,7 +624,9 @@ if select(2, UnitClass("player")) == "SHAMAN" then
                             if cast.flametongue() then return end
                         end
                 -- Sundering
-                        if cast.sundering() then return end
+                        if getDistance(units.dyn8) < 8 then
+                            if cast.sundering() then return end
+                        end
                 -- Lightning Bolt
                         -- if HasTalent(Overcharge) and AlternatePower >= 45
                         if talent.overcharge and power >= 45 then

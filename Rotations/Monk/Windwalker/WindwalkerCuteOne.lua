@@ -412,7 +412,7 @@ if select(2, UnitClass("player")) == "MONK" then
                     end
             -- Start Attack
                     -- auto_attack
-                    if ObjectExists("target") and not UnitIsDeadOrGhost("target") and UnitCanAttack("target", "player") and getDistance("target") < 5 then
+                    if isValidUnit("target") and getDistance("target") < 5 then
                         StartAttack()
                     end
                 end -- End No Combat Check
@@ -573,7 +573,7 @@ if select(2, UnitClass("player")) == "MONK" then
     --- In Combat Rotation ---
     --------------------------
             -- FIGHT!
-                if inCombat and profileStop==false then 
+                if inCombat and profileStop==false and isValidUnit(units.dyn5) then 
         ------------------
         --- Interrupts ---
         ------------------

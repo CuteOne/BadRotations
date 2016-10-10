@@ -2436,6 +2436,17 @@ function isValidTarget(Unit)
 		end
 	end
 end
+function isValidUnit(Unit)
+	if ObjectExists(Unit) and not UnitIsDeadOrGhost(Unit) then
+		if not UnitAffectingCombat("player") and UnitIsUnit(Unit,"target") and (select(2,IsInInstance()) == "none" or bb.friend == 1 or hasThreat(Unit) or isDummy(Unit)) and UnitCanAttack(Unit, "player") then
+			return true
+		end
+		if UnitAffectingCombat("player") and (hasThreat(Unit) or isDummy(Unit)) then
+			return true
+		end
+	end
+	return false
+end
 function SpecificToggle(toggle)
 	if customToggle then 
 		return false

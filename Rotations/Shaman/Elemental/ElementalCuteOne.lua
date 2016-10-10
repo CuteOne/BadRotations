@@ -435,7 +435,7 @@ if select(2, UnitClass("player")) == "SHAMAN" then
                     --TODO
 
                     end -- End Pre-Pull
-                    if ObjectExists("target") and not UnitIsDeadOrGhost("target") and (UnitCanAttack("target", "player") or isDummy("target")) and getDistance("target") < 40 then
+                    if isValidUnit("target") and getDistance("target") < 40 then
                 -- Stormkeeper
                         if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()) then
                             if cast.stormkeeper() then return end
@@ -658,7 +658,7 @@ if select(2, UnitClass("player")) == "SHAMAN" then
     --------------------------
     --- In Combat Rotation ---
     --------------------------
-                if inCombat and profileStop==false and (hasThreat("target") or isDummy("target")) and getDistance("target") < 40 then
+                if inCombat and profileStop==false and isValidUnit(units.dyn40) and getDistance(units.dyn40) < 40 then
         ------------------------------
         --- In Combat - Interrupts ---
         ------------------------------

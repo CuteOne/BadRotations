@@ -519,7 +519,7 @@ if select(2, UnitClass("player")) == "DRUID" then
                     end
             -- Racial: Orc Blood Fury | Troll Berserking | Blood Elf Arcane Torrent
                     -- blood_fury,buff.tigers_fury | berserking,buff.tigers_fury | arcane_torrent,buff.tigers_fury
-                    if useCDs() and isChecked("Racial") and (bb.player.race == "Orc" or bb.player.race == "Troll" or bb.player.race == "Blood Elf") then
+                    if useCDs() and isChecked("Racial") and (bb.player.race == "Orc" or bb.player.race == "Troll" or bb.player.race == "BloodElf") then
                         if buff.tigersFury then
                             if castSpell("player",racial,false,false,false) then return end
                         end
@@ -571,7 +571,7 @@ if select(2, UnitClass("player")) == "DRUID" then
                         end
                     end -- End No Stealth
             -- Wild Charge
-                    if isChecked("Displacer Beast / Wild Charge") and solo and attacktar and not deadtar and not friendly then
+                    if isChecked("Displacer Beast / Wild Charge") and isValidUnit("target") then
                         if cast.wildCharge("target") then return end 
                     end
                     if isChecked("Pre-Pull Timer") and pullTimer <= getOptionValue("Pre-Pull Timer") then
@@ -603,7 +603,7 @@ if select(2, UnitClass("player")) == "DRUID" then
                     end -- End Pre-Pull
             -- Rake/Shred
                     -- buff.prowl.up|buff.shadowmeld.up
-                    if hastar and attacktar then
+                    if isValidUnit("target") then
                         if level < 6 then
                             if cast.shred() then return end
                         else
@@ -639,7 +639,7 @@ if select(2, UnitClass("player")) == "DRUID" then
             -- Cat is 4 fyte!
                 if inCombat and not cat and not (flight or travel) then
                     if cast.catForm() then return end
-                elseif inCombat and cat and profileStop==false and not isChecked("Death Cat Mode") and (hasThreat(units.dyn5) or isDummy("target") or (UnitIsEnemy(units.dyn5, "player") and getDistance(units.dyn5) < 5)) then
+                elseif inCombat and cat and profileStop==false and not isChecked("Death Cat Mode") and isValidUnit("target") and getDistance(units.dyn5) < 5 then
             -- Wild Charge
                     if isChecked("Displacer Beast / Wild Charge") and UnitExists("target") then
                         if cast.wildCharge("target") then return end 

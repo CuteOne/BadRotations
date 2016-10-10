@@ -382,10 +382,10 @@ if select(2, UnitClass("player")) == "ROGUE" then
 			local function actionList_Opener()
 				-- print("Opener")
 			-- Shadowstep
-                if isChecked("Shadowstep") and solo and attacktar and not deadtar and not friendly then
+                if isChecked("Shadowstep") and isValidUnit("target") then
                     if cast.shadowstep("target") then return end 
                 end
-                if ObjectExists("target") and not UnitIsDeadOrGhost("target") and UnitCanAttack("target", "player") and getDistance("target") < 15 and mode.pickPocket ~= 2 then
+                if isValidUnit("target") and getDistance("target") < 15 and mode.pickPocket ~= 2 then
             -- Stealthed
 					-- run_action_list,name=stealthed,if=stealthed|buff.shadowmeld.up
 					if buff.stealth or buff.shadowmeld then
@@ -426,7 +426,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
 	--------------------------
 	--- In Combat Rotation ---
 	--------------------------
-				if inCombat and mode.pickPocket ~= 2 and getDistance(units.dyn5) < 5 then
+				if inCombat and mode.pickPocket ~= 2 and isValidUnit(units.dyn5) and getDistance(units.dyn5) < 5 then
 	------------------------------
 	--- In Combat - Interrupts ---
 	------------------------------

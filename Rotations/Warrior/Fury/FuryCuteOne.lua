@@ -225,7 +225,7 @@ if select(3,UnitClass("player")) == 1 then
             function actionList_Extra()
                 -- Berserker Rage
                 if isChecked("Berserker Rage") and hasNoControl(spell.berserkerRage) then
-                    if cast.beserkerRage() then return end
+                    if cast.berserkerRage() then return end
                 end
                 -- Piercing Howl
                 if isChecked("Piercing Howl") then
@@ -386,7 +386,7 @@ if select(3,UnitClass("player")) == 1 then
             end  -- End Action List - Pre-Combat
         -- Action List - Movement
             function actionList_Movement()
-                if useMover() and ((solo and UnitExists("target")) or hasThreat(units.dyn30) or isDummy("target")) then
+                if useMover() and isValidUnit("target") then
             -- Heroic Leap
                     -- heroic_leap
                     if isChecked("Heroic Leap") and (getOptionValue("Heroic Leap")==6 or (SpecificToggle("Heroic Leap") and not GetCurrentKeyBoardFocus())) then
@@ -614,7 +614,7 @@ if select(3,UnitClass("player")) == 1 then
   ---------------------------------
   --- Out Of Combat - Rotations ---
   ---------------------------------
-                if not inCombat and ObjectExists("target") and not UnitIsDeadOrGhost("target") and UnitCanAttack("target", "player") then
+                if not inCombat and isValidUnit("target") then
                     if actionList_PreCombat() then return end
                     if getDistance(units.dyn5)<5 then
                         StartAttack()
@@ -629,7 +629,7 @@ if select(3,UnitClass("player")) == 1 then
   -----------------------------
   --- In Combat - Rotations --- 
   -----------------------------
-                if inCombat then
+                if inCombat and isValidUnit(units.dyn5) then
                 -- Auto Attack
                     --auto_attack
                     if getDistance(units.dyn5) < 5 then

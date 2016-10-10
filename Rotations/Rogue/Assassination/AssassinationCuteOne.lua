@@ -658,19 +658,19 @@ if select(2, UnitClass("player")) == "ROGUE" then
 				end
 			-- Marked For Death
 				-- marked_for_death,if=raid_event.adds.in>40
-				if addsIn > 40 and UnitExists("target") then
+				if addsIn > 40 and isValidUnit("target") then
 					if cast.markedForDeath() then return end
 				end
 			end -- End Action List - PreCombat
 		-- Action List - Opener
 			local function actionList_Opener()
 			-- Shadowstep
-                if isChecked("Shadowstep") and (hasThreat("target") or solo) then
+                if isChecked("Shadowstep") and isValidUnit("target") then
                     if cast.shadowstep("target") then return end 
                 end
 			-- Start Attack
                 -- auto_attack
-                if ObjectExists("target") and not UnitIsDeadOrGhost("target") and (UnitCanAttack("target", "player") or isDummy("target")) and getDistance("target") < 5 and mode.pickPocket ~= 2 then
+                if isValidUnit("target") and getDistance("target") < 5 and mode.pickPocket ~= 2 then
                 	if combo >= 2 and not debuff.rupture and cTime < 10 and not artifact.urgeToKill and getOptionValue("Opener") == 1 then
                 		if cast.rupture("target") then StartAttack(); return end
                 	elseif combo >= 4 and not debuff.rupture and getOptionValue("Opener") == 1 then
@@ -710,7 +710,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
 	--- In Combat Rotation ---
 	--------------------------
 			-- Assassination is 4 shank!
-				if inCombat and mode.pickPocket ~= 2 then
+				if inCombat and mode.pickPocket ~= 2 and isValidUnit(units.dyn5) then
 -- 					if hartar and deadtar then
 -- 						ClearTarget()
 -- 					end

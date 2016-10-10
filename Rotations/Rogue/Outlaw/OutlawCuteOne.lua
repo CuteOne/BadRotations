@@ -433,12 +433,12 @@ if select(2, UnitClass("player")) == "ROGUE" then
 				end
 			-- Marked for Death
 				-- marked_for_death
-				if getDistance("target") < 30 then
+				if getDistance("target") < 30 and isValidUnit("target") then
 					if cast.markedForDeath("target") then return end
 				end
 			-- Roll The Bones
 				-- roll_the_bones,if=!talent.slice_and_dice.enabled
-				if not talent.sliceAndDice and not buff.count.rollTheBones == 0 and getDistance("target") < 5 then
+				if not talent.sliceAndDice and not buff.count.rollTheBones == 0 and isValidUnit("target") and getDistance("target") < 5 then
 					if cast.rollTheBones() then return end
 				end
 			end -- End Action List - PreCombat
@@ -485,7 +485,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
 				end
 			-- Ambush/Cheap Shot
 				-- ambush
-				if UnitExists("target") and (UnitIsEnemy("target","player") or isDummy("target")) and not UnitIsDeadOrGhost("target") and getDistance("target") < 5 and stealthing then
+				if isValidUnit("target") and getDistance("target") < 5 and stealthing then
 					if getOptionValue("Opener") == 1 then
 						if power <= 60 then
 							return true
@@ -502,16 +502,13 @@ if select(2, UnitClass("player")) == "ROGUE" then
 				end
 			-- Vanish
 				-- vanish,if=variable.stealth_condition
-				if useCDs() and isChecked("Vanish") and stealthable and inCombat and UnitExists(units.dyn5) and (UnitIsEnemy(units.dyn5,"player") or isDummy(units.dyn5)) 
-					and not UnitIsDeadOrGhost(units.dyn5) and getDistance(units.dyn5) < 5 
-				then
+				if useCDs() and isChecked("Vanish") and stealthable and isValidUnit(units.dyn5) and getDistance(units.dyn5) < 5 then
 					if cast.vanish() then return end
 				end
 			-- Shadowmeld
 				-- shadowmeld,if=variable.stealth_condition
-				if useCDs() and isChecked("Use Racial") and bb.player.race == "NightElf" and stealthable and inCombat and UnitExists(units.dyn5) 
-					and (UnitIsEnemy(units.dyn5,"player") or isDummy(units.dyn5)) and not UnitIsDeadOrGhost(units.dyn5) and getDistance(units.dyn5) < 5
-					and not buff.vanish and cd.vanish ~= 0 and not moving
+				if useCDs() and isChecked("Use Racial") and bb.player.race == "NightElf" and stealthable and inCombat and isValidUnit(units.dyn5) 
+					and getDistance(units.dyn5) < 5	and not buff.vanish and cd.vanish ~= 0 and not moving
 				then
 					if cast.shadowmeld() then return end
 				end
@@ -562,7 +559,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
 	---------------------------
 	--- In Combat - Stealth ---
 	---------------------------
-					if getDistance(units.dyn5) < 5 and (hasThreat(units.dyn5) or isDummy(units.dyn5) or UnitExists("target")) then
+					if getDistance(units.dyn5) < 5 and isValidUnit(units.dyn5) then
 						-- call_action_list,name=stealth,if=stealthed|cooldown.vanish.up|cooldown.shadowmeld.up
 						if stealthing or cd.vanish == 0 or cd.shadowmeld == 0 then
 							if actionList_Stealth() then return end

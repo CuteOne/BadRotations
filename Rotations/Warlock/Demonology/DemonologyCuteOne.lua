@@ -393,7 +393,7 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                     if isChecked("Pre-Pull Timer") and pullTimer <= getOptionValue("Pre-Pull Timer") then
 
                     end -- End Pre-Pull
-                    if ObjectExists("target") and not UnitIsDeadOrGhost("target") and (UnitCanAttack("target", "player") or isDummy("target")) and getDistance("target") < 40 then
+                    if isValidUnit("target") and getDistance("target") < 40 then
                 -- Augmentation
                         -- augmentation,type=defiled
                         -- TODO
@@ -446,7 +446,7 @@ if select(2, UnitClass("player")) == "WARLOCK" then
     --------------------------
     --- In Combat Rotation ---
     --------------------------
-                if inCombat and profileStop==false and (hasThreat(units.dyn40) or isDummy("target") or (UnitExists("target") and solo)) and getDistance(units.dyn40) < 40 then
+                if inCombat and profileStop==false and isValidUnit(units.dyn40) and getDistance(units.dyn40) < 40 then
         ------------------------------
         --- In Combat - Interrupts ---
         ------------------------------
