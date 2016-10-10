@@ -360,9 +360,27 @@ if select(2, UnitClass("player")) == "SHAMAN" then
                             useItem(124636)
                         end
                     end
+            -- Feral Spirit
+                    -- feral_spirit
+                    if isChecked("Feral Spirit") then
+                        if cast.feralSpirit() then return end
+                    end
+            -- Crash Lightning
+                    -- crash_lightning,if=artifact.alpha_wolf.rank&prev_gcd.feral_spirit
+                    if artifact.alphaWolf and lastSpell == spell.feralSpirit then
+                        if cast.crashLightning(units.dyn5) then return end
+                    end
+            -- Potion
+                    -- potion,name=old_war,if=feral_spirit.remains>5|target.time_to_die<=30
+                    if isChecked("Agi-Pot") and canUse(109217) and inRaid then
+                        if buff.remain.metamorphosis > 25 then
+                            useItem(109217)
+                        end
+                    end
             -- Racial: Orc Blood Fury | Troll Berserking | Blood Elf Arcane Torrent
-                    -- blood_fury,buff.tigers_fury | berserking,buff.tigers_fury | arcane_torrent,buff.tigers_fury
-                    if isChecked("Racial") and (bb.player.race == "Orc" or bb.player.race == "Troll" or bb.player.race == "Blood Elf") then
+                    -- berserking,if=buff.ascendance.up|!talent.ascendance.enabled|level<100
+                    -- blood_fury
+                    if isChecked("Racial") and (bb.player.race == "Orc" or (bb.player.race == "Troll" and (buff.ascendance or not talent.ascendance or level < 100))) then
                         if castSpell("player",racial,false,false,false) then return end
                     end
                     if getOptionValue("APL Mode") == 1 then -- SimC
@@ -370,18 +388,6 @@ if select(2, UnitClass("player")) == "SHAMAN" then
                     end
                     if getOptionValue("APL Mode") == 2 then -- AMR
 
-                    end
-            -- Agi-Pot
-                    -- potion,name=deadly_grace,if=buff.metamorphosis.remains>25
-                    if isChecked("Agi-Pot") and canUse(109217) and inRaid then
-                        if buff.remain.metamorphosis > 25 then
-                            useItem(109217)
-                        end
-                    end
-            -- Feral Spirit
-                    -- feral_spirit
-                    if isChecked("Feral Spirit") then
-                        if cast.feralSpirit() then return end
                     end
                 end -- End useCDs check
             end -- End Action List - Cooldowns
@@ -476,10 +482,43 @@ if select(2, UnitClass("player")) == "SHAMAN" then
                         if getDistance("target") < 5 then
                             StartAttack()
                         end
+                -- Crash Lightning
+                        -- crash_lightning,if=talent.crashing_storm.enabled&active_enemies>=3
+                        if talent.crashingStorm and ((mode.rotation == 1 and #enemies.yards5 >= 3) or mode.rotation == 2) and not moving then
+                            if cast.crashLightning(units.dyn5) then return end
+                        end
                 -- Boulderfist
-                        -- boulderfist,if=buff.boulderfist.remains<gcd|charges_fractional>1.75
-                        if buff.remain.boulderfist < gcd or charges.frac.boulderfist > 1.75 then
+                        -- boulderfist,if=buff.boulderfist.remains<gcd&maelstrom>=50&active_enemies>=3
+                        -- boulderfist,if=buff.boulderfist.remains<gcd|(charges_fractional>1.75&maelstrom<=100&active_enemies<=2)
+                        if (buff.remain.boulderfist < gcd and power >= 50 and ((mode.rotation == 1 and #enemies.yards5 >= 3) or mode.rotation == 2)) 
+                            or (buff.remain.boulderfist < gcd or (charges.frac.boulderfist > 1.75 and power <= 100 and ((mode.rotation == 1 and #enemies.yards5 <= 2) or mode.rotation == 1))) 
+                        then
                             if cast.boulderfist() then return end
+                        end
+                -- Crash Lightning
+                        -- crash_lightning,if=buff.crash_lightning.remains<gcd&active_enemies>=2
+                        if buff.remain.crashLightning < gcd and ((mode.rotation == 1 and #enemies.yards5 >= 2) or mode.rotation == 2) then
+                            if cast.crashLightning(units.dyn5) then return end
+                        end
+                -- Windstrike
+                        -- windstrike,if=active_enemies>=3&!talent.hailstorm.enabled
+                        if ((mode.rotation == 1 and #enemies.yards5 >= 3) or mode.rotation == 2) and not talent.hailstorm then
+                            if cast.windstrike() then return end
+                        end
+                -- Stormstrike
+                        -- stormstrike,if=active_enemies>=3&!talent.hailstorm.enabled
+                        if ((mode.rotation == 1 and #enemies.yards5 >= 3) or mode.rotation == 2) and not talent.hailstorm then
+                            if cast.stormstrike() then return end
+                        end 
+                -- Windstrike
+                        -- windstrike,if=buff.stormbringer.react
+                        if buff.stormbringer then
+                            if cast.windstrike then return end
+                        end
+                -- Stormstrike
+                        -- stormstrike,if=buff.stormbringer.react
+                        if buff.stormbringer then
+                            if cast.stormstrike then return end
                         end
                 -- Frostbrand
                         -- frostbrand,if=talent.hailstorm.enabled&buff.frostbrand.remains<gcd
@@ -518,16 +557,6 @@ if select(2, UnitClass("player")) == "SHAMAN" then
                 -- Stormstrike
                         -- stormstrike
                         if cast.stormstrike() then return end
-                -- Frostbrand
-                        -- frostbrand,if=talent.hailstorm.enabled&buff.frostbrand.remains<4.8
-                        if talent.hailstorm and buff.remain.frostbrand < 4.8 then
-                            if cast.frostbrand() then return end
-                        end
-                -- Flametongue
-                        -- flametongue,if=buff.flametongue.remains<4.8
-                        if buff.remain.flametongue < 4.8 then
-                            if cast.flametongue() then return end
-                        end
                 -- Lightning Bolt
                         -- /lightning_bolt,if=talent.overcharge.enabled&maelstrom>=60
                         if talent.overcharge and power >= 60 then
@@ -542,9 +571,19 @@ if select(2, UnitClass("player")) == "SHAMAN" then
                         -- earthen_spike
                         if cast.earthenSpike() then return end
                 -- Crash Lightning
-                        -- crash_lightning,if=active_enemies>1|talent.crashing_storm.enabled|(pet.feral_spirit.remains>5|pet.frost_wolf.remains>5|pet.fiery_wolf.remains>5|pet.lightning_wolf.remains>5)
-                        if ((mode.rotation == 1 and (#enemies.yards5 > 1 or talent.crashingStorm or (feralSpiritRemain > 5))) or mode.rotation == 2) and mode.rotation ~= 3 and not moving then
+                        -- crash_lightning,if=active_enemies>1|talent.crashing_storm.enabled|feral_spirit.remains>5
+                        if ((mode.rotation == 1 and (#enemies.yards5 > 1 or talent.crashingStorm or feralSpiritRemain > 5) or mode.rotation == 2) and mode.rotation ~= 3 and not moving then
                             if cast.crashLightning(units.dyn5) then return end
+                        end
+                -- Frostbrand
+                        -- frostbrand,if=talent.hailstorm.enabled&buff.frostbrand.remains<4.8
+                        if talent.hailstorm and buff.remain.frostbrand < 4.8 then
+                            if cast.frostbrand() then return end
+                        end
+                -- Flametongue
+                        -- flametongue,if=buff.flametongue.remains<4.8
+                        if buff.remain.flametongue < 4.8 then
+                            if cast.flametongue() then return end
                         end
                 -- Sundering
                         -- sundering
@@ -565,10 +604,6 @@ if select(2, UnitClass("player")) == "SHAMAN" then
                 -- Boulderfist
                         -- boulderfist
                         if cast.boulderfist() then return end
-                -- Frostbrand
-                        if not talent.hailstorm and not buff.frostbrand then
-                            if cast.frostbrand() then return end
-                        end
                     end -- End SimC APL
         ----------------------
         --- AskMrRobot APL ---

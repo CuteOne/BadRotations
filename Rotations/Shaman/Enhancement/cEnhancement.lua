@@ -45,6 +45,7 @@ function cEnhancement:new()
             windstrike                  = 115356,
         }
         self.spell.spec.artifacts       = {
+            alphaWolf                   = 198434,
             doomWinds                   = 204945,
             gatheringStorms             = 198299,
         }
