@@ -627,7 +627,8 @@ if select(2, UnitClass("player")) == "DEMONHUNTER" then
                 -- Fel Rush
                         -- fel_rush,animation_cancel=1,if=(talent.momentum.enabled|talent.fel_mastery.enabled)&(!talent.momentum.enabled|(charges=2|cooldown.vengeful_retreat.remains>4)&buff.momentum.down)&(!talent.fel_mastery.enabled|fury.deficit>=25)&(charges=2|(raid_event.movement.in>10&raid_event.adds.in>10))
                         if useMover() and getFacing("player","target",10) 
-                            and (talent.momentum or talent.felMastery) and (not talent.momentum or (charges.felRush == 2 or cd.vengefulRetreat > 4) and not buff.momentum) and (not talent.felMastery or powerDeficit >= 25) and (charges.felRush == 2 or (moveIn > charges.felRush * 10 and addsIn > 10)) 
+                            and (talent.momentum or talent.felMastery) and (not talent.momentum or ((charges.felRush == 2 or cd.vengefulRetreat > 4) and not buff.momentum)) 
+                            and (not talent.felMastery or powerDeficit >= 25) and (charges.felRush == 2 or (moveIn > charges.felRush * 10 and addsIn > 10)) 
                         then
                             if mode.mover == 1 then
                                 if getDistance("target") < 10 then 

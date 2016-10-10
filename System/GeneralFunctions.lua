@@ -2523,8 +2523,12 @@ function pause(skipCastingCheck)
 		or (((UnitHealth("target")/UnitHealthMax("target"))*100) > 10 and UnitBuffID("target",143593)) --Defensive Stance - General Nagrazim
 		or UnitBuffID("target",140296) --Conductive Shield - Thunder Lord / Lightning Guardian
 	then
-		ChatOverlay("Profile Paused")
-		return true
+		if (UnitCastingInfo("player") and not skipCastingCheck) or (UnitChannelInfo("player") and not skipCastingCheck) then
+			return true
+		else 
+			ChatOverlay("Profile Paused")
+			return true
+		end
 	else 
 		return false
 	end
