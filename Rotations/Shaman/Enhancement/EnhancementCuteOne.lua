@@ -513,12 +513,12 @@ if select(2, UnitClass("player")) == "SHAMAN" then
                 -- Windstrike
                         -- windstrike,if=buff.stormbringer.react
                         if buff.stormbringer then
-                            if cast.windstrike then return end
+                            if cast.windstrike() then return end
                         end
                 -- Stormstrike
                         -- stormstrike,if=buff.stormbringer.react
                         if buff.stormbringer then
-                            if cast.stormstrike then return end
+                            if cast.stormstrike() then return end
                         end
                 -- Frostbrand
                         -- frostbrand,if=talent.hailstorm.enabled&buff.frostbrand.remains<gcd
