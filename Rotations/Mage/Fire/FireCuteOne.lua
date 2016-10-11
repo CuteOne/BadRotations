@@ -7,29 +7,29 @@ if select(2, UnitClass("player")) == "MAGE" then
 	local function createToggles()
     -- Rotation Button
         RotationModes = {
-            [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range.", highlight = 1, icon = bb.player.spell.lavaBeam},
-            [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = bb.player.spell.chainLightning},
-            [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = bb.player.spell.lightningBolt},
-            [4] = { mode = "Off", value = 4 , overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = bb.player.spell.healingSurge}
+            [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range.", highlight = 1, icon = bb.player.spell.flamestrike},
+            [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = bb.player.spell.flamestrike},
+            [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = bb.player.spell.pyroblast},
+            [4] = { mode = "Off", value = 4 , overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = bb.player.spell.iceBlock}
         };
         CreateButton("Rotation",1,0)
     -- Cooldown Button
         CooldownModes = {
-            [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = bb.player.spell.fireElemental},
-            [2] = { mode = "On", value = 1 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = bb.player.spell.fireElemental},
-            [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = bb.player.spell.fireElemental}
+            [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = bb.player.spell.combustion},
+            [2] = { mode = "On", value = 1 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = bb.player.spell.combustion},
+            [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = bb.player.spell.combustion}
         };
        	CreateButton("Cooldown",2,0)
     -- Defensive Button
         DefensiveModes = {
-            [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = bb.player.spell.astralShift},
-            [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = bb.player.spell.astralShift}
+            [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = bb.player.spell.iceBarrier},
+            [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = bb.player.spell.iceBarrier}
         };
         CreateButton("Defensive",3,0)
     -- Interrupt Button
         InterruptModes = {
-            [1] = { mode = "On", value = 1 , overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = bb.player.spell.windShear},
-            [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = bb.player.spell.windShear}
+            [1] = { mode = "On", value = 1 , overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = bb.player.spell.counterspell},
+            [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = bb.player.spell.counterspell}
         };
         CreateButton("Interrupt",4,0)
     end
@@ -219,7 +219,10 @@ if select(2, UnitClass("player")) == "MAGE" then
                     for i=1, #enemies.yards30 do
                         thisUnit = enemies.yards30[i]
                         if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
-
+            -- Counterspell
+                            if isChecked("Counterspell") then
+                                if cast.counterspell(thisUnit) then return end
+                            end
                         end
                     end
                 end -- End useInterrupts check
@@ -255,13 +258,15 @@ if select(2, UnitClass("player")) == "MAGE" then
                     if isChecked("Pre-Pull Timer") and pullTimer <= getOptionValue("Pre-Pull Timer") then
 
                     end -- End Pre-Pull
-                    if ObjectExists("target") and not UnitIsDeadOrGhost("target") and (UnitCanAttack("target", "player") or isDummy("target")) and getDistance("target") < 40 then
+                    if isValidUnit("target") and getDistance("target") < 40 then
                 -- Mirror Image
                         if isChecked("Mirror Image") then
                             if cast.mirrorImage() then return end
                         end
                 -- Pyroblast
-                        if cast.pyroblast("target") then return end
+                        if bb.timer:useTimer("delayPyro", getCastTime(spell.pyroblast)+0.5) then
+                            if cast.pyroblast("target") then return end
+                        end
                     end
                 end -- End No Combat
             end -- End Action List - PreCombat
@@ -294,7 +299,7 @@ if select(2, UnitClass("player")) == "MAGE" then
                 end
             -- Living Bomb
                 -- living_bomb,if=active_enemies>1&buff.combustion.down
-                if #enemies.yards10 > 1 and not buff.combution then
+                if ((#enemies.yards10 > 1 and mode.roation == 1) or mode.roation == 2) and not buff.combution then
                     if cast.livingBomb("target") then return end
                 end
             end -- End Active Talents Action List
@@ -302,7 +307,7 @@ if select(2, UnitClass("player")) == "MAGE" then
             local function actionList_CombustionPhase()
             -- Rune of Power
                 -- rune_of_power,if=buff.combustion.down
-                if not buff.combustion then 
+                if not buff.combustion and not buff.runeOfPower then 
                     if cast.runeOfPower() then return end
                 end
             -- Call Action List - Active Talents
@@ -337,7 +342,9 @@ if select(2, UnitClass("player")) == "MAGE" then
             local function actionList_ROPPhase()
             -- Rune of Power
                 -- rune_of_power
-                if cast.runeOfPower() then return end
+                if not buff.runeOfPower then
+                    if cast.runeOfPower() then return end
+                end
             -- Pyroblast
                 -- pyroblast,if=buff.hot_streak.up
                 if buff.hotStreak then
@@ -379,19 +386,19 @@ if select(2, UnitClass("player")) == "MAGE" then
                 end
             -- Phoenix's Flames
                 -- /phoenixs_flames,if=charges_fractional>2.7&active_enemies>2
-                if charges.frac.phoenixsFlames > 2.7 and #enemies.yards10 > 2 then
+                if charges.frac.phoenixsFlames > 2.7 and ((#enemies.yards10 > 2 and mode.roation == 1) or mode.roation == 2) then
                     if cast.phoenixsFlames() then return end
                 end
             -- Flamestrike
                 -- flamestrike,if=talent.flame_patch.enabled&active_enemies>2&buff.hot_streak.react
-                if talent.flamePatch and #enemies.yards10 > 2 and buff.hotStreak then
+                if talent.flamePatch and ((#enemies.yards10 > 2 and mode.roation == 1) or mode.roation == 2) and buff.hotStreak then
                     if cast.flamestrike() then return end
                 end
             -- Pyroblast
                 -- pyroblast,if=buff.hot_streak.up&!prev_gcd.pyroblast
                 -- pyroblast,if=buff.hot_streak.react&target.health.pct<=25&equipped.132454
                 -- pyroblast,if=buff.kaelthas_ultimate_ability.react
-                if (buff.hotStreak and (lastSpell ~= spell.pyroblast or (getHP("target") <= 25 and hasEquiped(132454)))) or buff.kaelthasUltimateAbility then
+                if ((buff.hotStreak and (lastSpell ~= spell.pyroblast or (getHP("target") <= 25 and hasEquiped(132454)))) or buff.kaelthasUltimateAbility) then
                     if cast.pyroblast() then return end
                 end
             -- Call Action List - Active Talents
@@ -408,8 +415,8 @@ if select(2, UnitClass("player")) == "MAGE" then
             -- Phoenix's Flames
                 -- phoenixs_flames,if=(buff.combustion.up|buff.rune_of_power.up|buff.incanters_flow.stack>3|talent.mirror_image.enabled)&artifact.phoenix_reborn.enabled&(4-charges_fractional)*13<cooldown.combustion.remains+5|target.time_to_die.remains<10
                 -- phoenixs_flames,if=(buff.combustion.up|buff.rune_of_power.up)&(4-charges_fractional)*30<cooldown.combustion.remains+5
-                if ((buff.combustion or buff.runeOfPower or buff.stack.incantersFlow > 3 or talent.mirrorImage) and artifact.phoenixReborn and (4 - charges.frac.phoenixsFlames) * 13 < cd.combustion + 5 or ttd("target") < 10) 
-                    or ((buff.combustion or buff.runeOfPower) and (4 - charges.frac.phoenixsFlames) * 30 < cd.combustion + 5)
+                if (((buff.combustion or buff.runeOfPower or buff.stack.incantersFlow > 3 or talent.mirrorImage) and artifact.phoenixReborn and (4 - charges.frac.phoenixsFlames) * 13 < cd.combustion + 5 or ttd("target") < 10) 
+                    or ((buff.combustion or buff.runeOfPower) and (4 - charges.frac.phoenixsFlames) * 30 < cd.combustion + 5))
                 then
                     if cast.phoenixsFlames() then return end
                 end
@@ -446,7 +453,7 @@ if select(2, UnitClass("player")) == "MAGE" then
     --------------------------
     --- In Combat Rotation ---
     --------------------------
-                if inCombat and profileStop==false and (hasThreat("target") or isDummy("target")) and getDistance("target") < 40 then
+                if inCombat and profileStop==false and isValidUnit(units.dyn40) and getDistance(units.dyn40) < 40 then
         ------------------------------
         --- In Combat - Interrupts ---
         ------------------------------
@@ -460,9 +467,9 @@ if select(2, UnitClass("player")) == "MAGE" then
                         if isChecked("Mirror Image") and not buff.combustion then
                             if cast.mirrorImage() then return end
                         end
-            -- Rune of Powr
+            -- Rune of Power
                         -- rune_of_power,if=cooldown.combustion.remains>40&buff.combustion.down&(cooldown.flame_on.remains<5|cooldown.flame_on.remains>30)&!talent.kindling.enabled|target.time_to_die.remains<11|talent.kindling.enabled&(charges_fractional>1.8|time<40)&cooldown.combustion.remains>40
-                        if cd.combustion > 40 and not buff.combustion and (cd.flameOn < 5 or cd.flameOn > 30) and not talent.kindling or ttd("target") < 11 or talent.kindling and (charges.frac.fireBlast > 1.8 or combatTime < 40) and cd.combustion > 40 then
+                        if not buff.runeOfPower and cd.combustion > 40 and not buff.combustion and (cd.flameOn < 5 or cd.flameOn > 30) and not talent.kindling or ttd("target") < 11 or talent.kindling and (charges.frac.fireBlast > 1.8 or combatTime < 40) and cd.combustion > 40 then
                             if cast.runeOfPower() then return end
                         end
             -- Action List - Combustion Phase

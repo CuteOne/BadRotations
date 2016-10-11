@@ -43,7 +43,7 @@ function cFire:new()
         self.spell.spec.buffs           = {
             combustion                  = 190319,
             heatingUp                   = 48107,
-            hotStreak                   = 195283,
+            hotStreak                   = 48108,
             kaelthasUltimateAbility     = 209455,
         }
         self.spell.spec.debuffs         = {
@@ -408,7 +408,7 @@ function cFire:new()
             if thisUnit == nil then thisUnit = self.units.dyn40 end
             if debug == nil then debug = false end
 
-            if self.level >= 10 and self.powerPercentMana > 2 and getDistance(thisUnit) < 40 then
+            if self.level >= 10 and self.powerPercentMana > 2 and self.cd.fireball == 0 and getDistance(thisUnit) < 40 then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
@@ -425,7 +425,7 @@ function cFire:new()
             if thisUnit == nil then thisUnit = self.units.dyn40 end
             if debug == nil then debug = false end
 
-            if self.level >= 11 and self.charges.fireBlast > 0 and self.powerPercentMana > 1 and getDistance(thisUnit) < 40 then
+            if self.level >= 11 and self.charges.fireBlast > 0 and self.cd.fireBlast == 0 and self.powerPercentMana > 1 and getDistance(thisUnit) < 40 then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
@@ -459,7 +459,7 @@ function cFire:new()
             if thisUnit == nil then thisUnit = "player" end
             if debug == nil then debug = false end
 
-            if self.level >= 44 and self.powerPercentMana > 3 then
+            if self.level >= 44 and self.cd.flamestrike == 0 and self.powerPercentMana > 3 then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
@@ -527,7 +527,7 @@ function cFire:new()
             if thisUnit == nil then thisUnit = self.units.dyn40 end
             if debug == nil then debug = false end
 
-            if self.artifact.phoenixsFlames and self.charges.phoenixsFlames > 0 and getDistance(thisUnit) < 40 then
+            if self.artifact.phoenixsFlames and self.charges.phoenixsFlames > 0 and self.cd.phoenixsFlames == 0 and getDistance(thisUnit) < 40 then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
@@ -544,7 +544,7 @@ function cFire:new()
             if thisUnit == nil then thisUnit = self.units.dyn40 end
             if debug == nil then debug = false end
 
-            if self.level >= 10 and self.powerPercentMana > 2.5 and getDistance(thisUnit) < 40 then
+            if self.level >= 10 and self.powerPercentMana > 2.5 and self.cd.pyroblast == 0 and getDistance(thisUnit) < 40 then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
@@ -561,7 +561,7 @@ function cFire:new()
             if thisUnit == nil then thisUnit = self.units.dyn40 end
             if debug == nil then debug = false end
 
-            if self.level >= 40 and self.powerPercentMana > 1 and getDistance(thisUnit) < 40 then
+            if self.level >= 40 and self.powerPercentMana > 1 and self.cd.scorch == 0 and getDistance(thisUnit) < 40 then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else

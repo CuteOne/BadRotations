@@ -26,6 +26,7 @@ function cMage:new(spec)
 		self.debuff.refresh             	= {}       -- Debuff Refreshable
         self.spell.class                	= {}        -- Abilities Available To All Specs in Class
         self.spell.class.abilities      	= {
+            counterspell                    = 2139,
             runeOfPower                     = 116011,
         }
         self.spell.class.artifacts      	= {        -- Artifact Traits Available To All Specs in Class
@@ -240,11 +241,29 @@ function cMage:new(spec)
 	--------------
 
 		function self.getClassCastable()
-			self.cast.debug.runeOfPower     = self.cast.runeOfPower("player",true)
 
+            self.cast.debug.counterspell    = self.cast.counterspell("target",true)
+			self.cast.debug.runeOfPower     = self.cast.runeOfPower("player",true)
 		end
 
-		-- Rune of Power
+		-- Counterspell
+        function self.cast.counterspell(thisUnit,debug)
+            local spellCast = self.spell.counterspell
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = self.units.dyn40 end
+            if debug == nil then debug = false end
+
+            if self.level >= 34 and self.cd.counterspell == 0 and self.powerPercentMana > 2 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,true,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,false,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+        -- Rune of Power
 		function self.cast.runeOfPower(thisUnit,debug)
             local spellCast = self.spell.runeOfPower
             local thisUnit = thisUnit
@@ -255,7 +274,7 @@ function cMage:new(spec)
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,true,false,false,true)
                 else
-                    return castGround(thisUnit,spellCast,30)
+                    return castSpell(thisUnit,spellCast,false,false,false)
                 end
             elseif debug then
                 return false
