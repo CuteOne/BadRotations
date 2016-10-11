@@ -517,7 +517,7 @@ if select(2, UnitClass("player")) == "SHAMAN" then
                 end
             -- Liquid Magma
                 -- liquid_magma_totem,if=raid_event.adds.count<3|raid_event.adds.in>50
-                if (#enemies.yards8 < 3 or addIn > 50) and getDistance(units.dyn8) < 8 and lastSpell ~= spell.liquidMagmaTotem then
+                if (#enemies.yards8 < 3 or addsIn > 50) and getDistance(units.dyn8) < 8 and lastSpell ~= spell.liquidMagmaTotem then
                     if cast.liquidMagmaTotem("target") then return end
                 end
             -- Stormkeeper

@@ -213,6 +213,22 @@ function UnitDebuffID(unit,spellID,filter)
 		end
 	end
 end
+function canAoE(unit,distance)
+	local notValid = false 
+	if unit == nil then return false end
+	if distance == nil then distance = 8 end
+	for i = 1, #getEnemies(unit,distance) do
+		local thisUnit = getEnemies(unit,distance)[i]
+		if not isValidUnit(thisUnit) then
+			notValid = true;
+			break
+		end
+	end
+	if notValid then
+		return false
+	end
+	return true
+end
 -- if canAttack("player","target") then
 function canAttack(Unit1,Unit2)
 	if Unit1 == nil then
@@ -1923,18 +1939,16 @@ function hasThreat(unit,playerUnit)
 	local playerUnit = playerUnit or "player"
 	local unitThreat = UnitThreatSituation(playerUnit, unit)~=nil
 	local targetOfTarget 
+	local targetFriend
 	if UnitExists("targettarget") then targetOfTarget = UnitTarget(unit) else targetOfTarget = "player" end
-	local targetFriend = (UnitInParty(targetOfTarget) or UnitInRaid(targetOfTarget))
+	if UnitExists("targettarget") then targetFriend = (UnitInParty(targetOfTarget) or UnitInRaid(targetOfTarget)) else targetFriend = false end
 
-	if UnitAffectingCombat(unit)~=nil then 
-		if unitThreat then --You have threat
+		if unitThreat then 
 			return true
-		elseif targetOfTarget~=nil and targetFriend then --The target's target is your friend
+		elseif targetFriend then
 			return true
-		--elseif getDistance(unit)<20 then --Target is within aggro radius and thus would have threat
-		--	return true
 		end
-	end
+	-- end
 	return false
 end
 -- if isAggroed("target") then
@@ -2440,7 +2454,7 @@ function isValidTarget(Unit)
 end
 function isValidUnit(Unit)
 	if ObjectExists(Unit) and not UnitIsDeadOrGhost(Unit) then
-		if not UnitAffectingCombat("player") and UnitIsUnit(Unit,"target") and (select(2,IsInInstance()) == "none" or bb.friend == 1 or hasThreat(Unit) or isDummy(Unit)) and UnitCanAttack(Unit, "player") then
+		if not UnitAffectingCombat("player") and UnitIsUnit(Unit,"target") and (select(2,IsInInstance()) == "none" or #bb.friend == 1 or hasThreat(Unit) or isDummy(Unit)) and UnitCanAttack(Unit, "player") then
 			return true
 		end
 		if UnitAffectingCombat("player") and (hasThreat(Unit) or isDummy(Unit)) then
