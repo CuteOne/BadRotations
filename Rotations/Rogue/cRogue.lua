@@ -18,6 +18,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
         self.buff.duration              = {}       -- Buff Durations
         self.buff.remain                = {}       -- Buff Time Remaining
         self.buff.stack                 = {}
+        self.buff.refresh               = {}
         self.cast                       = {}       -- Cast Spell Functions
         self.cast.debug                 = {}       -- Cast Spell Functions Debug
         self.debuff.duration            = {}       -- Debuff Durations

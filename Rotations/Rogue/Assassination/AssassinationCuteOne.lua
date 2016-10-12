@@ -61,7 +61,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
             	-- Opening Attack
 	            bb.ui:createDropdown(section, "Opener", {"Garrote", "Cheap Shot"},  1, "|cffFFFFFFSelect Attack to Break Stealth with")
             	-- Poison
-            	bb.ui:createDropdown(section, "Lethal Poison", {"Deadly","Wound"}, 1, "Lethal Poison to Apply")
+            	bb.ui:createDropdown(section, "Lethal Poison", {"Deadly","Wound","Agonizing"}, 1, "Lethal Poison to Apply")
             	bb.ui:createDropdown(section, "Non-Lethal Poison", {"Crippling","Leeching"}, 1, "Non-Lethal Poison to Apply")
             	-- Poisoned Knife
             	bb.ui:createCheckbox(section, "Poisoned Knife")
@@ -203,6 +203,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
 			local units 										= bb.player.units
 
 			-- Exsanguinated Bleeds
+			if not envenomHim then envenomHim = false end
 			if not debuff.rupture then exRupture = false end
 			if not debuff.garrote then exGarrote = false end
 			if not debuff.internalBleeding then exInternalBleeding = false end
@@ -233,6 +234,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
             if talent.deeperStrategem then dStrat = 1 else dStrat = 0 end
             if debuff.vendetta then vendy = 1 else vendy = 0 end
             if artifact.bagOfTricks then trickyBag = 1 else trickyBag = 0 end
+            if talent.elaboratePlanning then ePlan = 1 else ePlan = 0 end
 
 	--------------------
 	--- Action Lists ---
@@ -361,8 +363,8 @@ if select(2, UnitClass("player")) == "ROGUE" then
 					-- vanish,if=talent.subterfuge.enabled&combo_points<=2&!dot.rupture.exsanguinated|talent.shadow_focus.enabled&!dot.rupture.exsanguinated&combo_points.deficit>=2
  					-- vanish,if=!talent.exsanguinate.enabled&talent.nightstalker.enabled&combo_points>=5+talent.deeper_stratagem.enabled&energy>=25&gcd.remains=0
 					if isChecked("Vanish") then
-						if ((talent.subterfuge and combo <= 2 and not exRupture) or (talent.shadowFocus  and not exRupture and combo >= 2))
-							or (not talent.exsanguinate and talent.nightstalker and combo >= 5 + dStrat and power >= 25 and gcd == 0)
+						if ((talent.subterfuge and combo <= 2 and not exRupture) or (talent.shadowFocus and not exRupture and combo >= 2))
+							or (not talent.exsanguinate and talent.nightstalker and combo >= 5 + dStrat and power >= 25)
  						then
 							if cast.vanish() then return end
 						end
@@ -388,7 +390,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
 				end
 				-- pool_resource,for_next=1
 				-- garrote,if=combo_points.deficit>=1&!exsanguinated
-				if comboDeficit >= 1 and not exsanguinate then
+				if (comboDeficit >= 1 and not exsanguinate) or stealthing then
 					if power < 45 then
 						return true
 					else
@@ -492,7 +494,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
 				end
 			-- Exsanguinate
 				-- exsanguinate,if=prev_gcd.rupture&dot.rupture.remains>22+4*talent.deeper_stratagem.enabled&cooldown.vanish.remains>10
-				if lastSpell == spell.rupture and debuff.remain.rupture > 22 + 4 * dStrat and cd.vanish > 10 then
+				if lastSpell == spell.rupture and debuff.remain.rupture > 22 + 4 * dStrat and cd.vanish > 10 or not isChecked("Vanish") then
 					if cast.exsanguinate() then return end
 				end
 			-- Call Action List: Garrote
@@ -548,7 +550,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
 			local function actionList_Finishers()
 			-- Envenom Condition
 				-- variable,name=envenom_condition,value=!(dot.rupture.refreshable&dot.rupture.pmultiplier<1.5)&(!talent.nightstalker.enabled|cooldown.vanish.remains>=6)&dot.rupture.remains>=6&buff.elaborate_planning.remains<1.5&(artifact.bag_of_tricks.enabled|spell_targets.fan_of_knives<=6)
-				if not debuff.refresh.rupture and (not talent.nightstalker or cd.vanish >= 6) and debuff.remain.rupture >= 6 and buff.remain.elaboratePlanning < 1.5 and (artifact.bagOfTricks or #enemies.yards10 <= 6) then
+				if not debuff.refresh.rupture and (not talent.nightstalker or (cd.vanish >= 6 or not isChecked("Vanish"))) and debuff.remain.rupture >= 6 and buff.remain.elaboratePlanning < 1.5 and (artifact.bagOfTricks or #enemies.yards10 <= 6 or isDummy("target")) then
 					envenomHim = true
 				else
 					envenomHim = false
@@ -572,12 +574,12 @@ if select(2, UnitClass("player")) == "ROGUE" then
                 end
             -- Death From Above
             	-- death_from_above,if=(combo_points>=5+talent.deeper_stratagem.enabled-2*talent.elaborate_planning.enabled)&variable.envenom_condition&(refreshable|talent.elaborate_planning.enabled&!buff.elaborate_planning.up|cooldown.garrote.remains<1)
-				if (combo >= 5 + dStrat - 2 * ePlan) and envenomHim and (debuff.refresh.envenom or talent.elaboratePlanning and not buff.elaboratePlanning or cd.garrote < 1) then
+				if (combo >= 5 + dStrat - (2 * ePlan)) and envenomHim and (buff.refresh.envenom or (talent.elaboratePlanning and not buff.elaboratePlanning) or cd.garrote < 1) then
 					if cast.deathFromAbove() then return end
 				end
 			-- Envenom
 				-- envenom,if=(combo_points>=5+talent.deeper_stratagem.enabled-2*talent.elaborate_planning.enabled)&variable.envenom_condition&(refreshable|talent.elaborate_planning.enabled&!buff.elaborate_planning.up|cooldown.garrote.remains<1)
-				if (combo >= 5 + dStrat - 2 * ePlan) and envenomHim and (debuff.refresh.envenom or talent.elaboratePlanning and not buff.elaboratePlanning or cd.garrote < 1) then
+				if (combo >= 5 + dStrat - (2 * ePlan)) and envenomHim and (buff.refresh.envenom or (talent.elaboratePlanning and not buff.elaboratePlanning) or cd.garrote < 1) then
 					if cast.envenom() then return end
 				end
 			end -- End Action List - Finishers
@@ -632,23 +634,30 @@ if select(2, UnitClass("player")) == "ROGUE" then
 		-- Action List - PreCombat
 			local function actionList_PreCombat()
 			-- Apply Poison
-				-- apply_poison
-				if isChecked("Lethal Poison") then
-					if getOptionValue("Lethal Poison") == 1 and not buff.deadlyPoison then 
-						if cast.deadlyPoison() then return end
+				-- apply_poison 
+					if isChecked("Lethal Poison") then
+						if bb.timer:useTimer("Lethal Poison", 3.5) then
+							if getOptionValue("Lethal Poison") == 1 and not buff.deadlyPoison then 
+								if cast.deadlyPoison() then return end
+							end
+							if getOptionValue("Lethal Poison") == 2 and not buff.woundPoison then
+								if cast.woundPoison() then return end
+							end
+							if getOptionValue("Lethal Poison") == 3 and not buff.agonizingPoison then
+								if cast.agonizingPoison() then return end
+							end
+						end
 					end
-					if getOptionValue("Lethal Poison") == 2 and not buff.woundPoison then
-						if cast.woundPoison() then return end
+					if isChecked("Non-Lethal Poison") then
+						if bb.timer:useTimer("Non-Lethal Poison", 3.5) then
+							if (getOptionValue("Non-Lethal Poison") == 1 or not talent.leechingPoison) and not buff.cripplingPoison then
+								if cast.cripplingPoison() then return end
+							end
+							if getOptionValue("Non-Lethal Poison") == 2 and not buff.leechingPoison then
+								if cast.leechingPoison() then return end
+							end
+						end
 					end
-				end
-				if isChecked("Non-Lethal Poison") then
-					if getOptionValue("Non-Lethal Poison") == 1 and not buff.cripplingPoison then
-						if cast.cripplingPoison() then return end
-					end
-					if getOptionValue("Non-Lethal Poison") == 2 and not buff.leechingPoison then
-						if cast.leechingPoison() then return end
-					end
-				end
 			-- Stealth
 				-- stealth
 				if isChecked("Stealth") then
@@ -675,7 +684,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
                 		if cast.rupture("target") then StartAttack(); return end
                 	elseif combo >= 4 and not debuff.rupture and getOptionValue("Opener") == 1 then
                 		if cast.rupture("target") then StartAttack(); return end
-                	elseif level >= 48 and getOptionValue("Opener") == 1 then
+                	elseif level >= 48 and not debuff.garrote and getOptionValue("Opener") == 1 then
                 		if actionList_Garrote("target") then StartAttack(); return end
                 	elseif level >= 29 and getOptionValue("Opener") == 2 then
                 		if cast.cheapShot("target") then StartAttack(); return end
@@ -724,6 +733,9 @@ if select(2, UnitClass("player")) == "ROGUE" then
 			-- Shadowstep
 	                if isChecked("Shadowstep") then
 	                    if cast.shadowstep("target") then return end 
+	                end
+	                if stealthing then
+	                	if actionList_Opener() then return end
 	                end
 	                if not stealthing then
 	       	-- Rupture

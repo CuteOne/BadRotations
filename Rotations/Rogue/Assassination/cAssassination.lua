@@ -64,9 +64,11 @@ function cAssassination:new()
             urgeToKill              = 192384,
         }
         self.spell.spec.buffs       = {
+            agonizingPoison         = 200802,
             cripplingPoison         = 3408,
             deadlyPoison            = 2823,
             elaboratePlanning       = 193641,
+            envenom                 = 32645,
             leechingPoison          = 108211,
             theDreadlordsDeceit     = 208692,
             woundPoison             = 8679,
@@ -195,6 +197,7 @@ function cAssassination:new()
                 self.buff[k]            = UnitBuffID("player",v) ~= nil
                 self.buff.duration[k]   = getBuffDuration("player",v) or 0
                 self.buff.remain[k]     = getBuffRemain("player",v) or 0
+                self.buff.refresh[k]    = (self.buff.remain[k] < self.buff.duration[k] * 0.3) or self.buff.remain[k] == 0
             end
         end
 
@@ -358,6 +361,7 @@ function cAssassination:new()
 
         function self.getCastable()
 
+            self.cast.debug.agonizingPoison   = self.cast.agonizingPoison("player",true)
             self.cast.debug.cripplingPoison   = self.cast.cripplingPoison("player",true)
             self.cast.debug.deadlyPoison      = self.cast.deadlyPoison("player",true)
             self.cast.debug.envenom           = self.cast.envenom("target",true)
@@ -377,6 +381,22 @@ function cAssassination:new()
             self.cast.debug.woundPoison       = self.cast.woundPoison("player",true)
         end
 
+        function self.cast.agonizingPoison(thisUnit,debug)
+            local spellCast = self.spell.agonizingPoison
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = "player" end
+            if debug == nil then debug = false end
+
+            if self.talent.agonizingPoison and self.buff.remain.agonizingPoison < 600 and self.cd.agonizingPoison == 0 and not isCastingSpell(spellCast,thisUnit) then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,false,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
         function self.cast.cripplingPoison(thisUnit,debug)
             local spellCast = self.spell.cripplingPoison
             local thisUnit = thisUnit

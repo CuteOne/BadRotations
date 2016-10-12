@@ -212,13 +212,6 @@ if select(2, UnitClass("player")) == "ROGUE" then
 			local ttm 											= bb.player.powerTTM
 			local units 										= bb.player.units
 
-			if (not inCombat and UnitExists("target") and (UnitIsEnemy("target","player") or isDummy("target")) and not UnitIsDeadOrGhost("target") and getDistance("target") < 5) 
-				or (inCombat and UnitExists(units.dyn5) and (UnitIsEnemy(units.dyn5,"player") or isDummy(units.dyn5)) and not UnitIsDeadOrGhost(units.dyn5) and getDistance(units.dyn5) < 5) 
-			then 
-				validMeleeUnit = true
-			else
-				validMeleeUnit = false
-			end
 			if talent.deeperStrategem then dStrat = 1 else dStrat = 0 end
 			if talent.quickDraw then qDraw = 1 else qDraw = 0 end
 			if talent.ghostlyStrike and not debuff.ghostlyStrike then gsBuff = 1 else gsBuff = 0 end
@@ -282,11 +275,11 @@ if select(2, UnitClass("player")) == "ROGUE" then
 	    			if cast.bribe() then return end
 	    		end
         -- Grappling Hook
-                if isChecked("Grappling Hook") and (hasThreat("target") or (solo and UnitExists("target"))) then
+                if isChecked("Grappling Hook") and isValidUnit("target") then
                     if cast.grapplingHook("target") then return end 
                 end
         -- Pistol Shot
-        		if (hasThreat("target") or (solo and UnitExists("target"))) and power > 75 and (not inCombat or getDistance("target") > 5) and not stealthing then
+        		if isValidUnit("target") and power > 75 and (not inCombat or getDistance("target") > 5) and not stealthing then
         			if cast.pistolShot("target") then return end
         		end
 			end -- End Action List - Extras

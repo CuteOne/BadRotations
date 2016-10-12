@@ -27,6 +27,7 @@ function cMage:new(spec)
         self.spell.class                	= {}        -- Abilities Available To All Specs in Class
         self.spell.class.abilities      	= {
             counterspell                    = 2139,
+            frostNova                       = 122,
             runeOfPower                     = 116011,
         }
         self.spell.class.artifacts      	= {        -- Artifact Traits Available To All Specs in Class
@@ -243,6 +244,7 @@ function cMage:new(spec)
 		function self.getClassCastable()
 
             self.cast.debug.counterspell    = self.cast.counterspell("target",true)
+            self.cast.debug.frostNova       = self.cast.frostNova("player",true)
 			self.cast.debug.runeOfPower     = self.cast.runeOfPower("player",true)
 		end
 
