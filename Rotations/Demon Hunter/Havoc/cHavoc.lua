@@ -579,47 +579,36 @@ function cHavoc:new()
             end
         end
         -- Fel Rush
-        function self.cast.felRush(thisUnit,debug)
+        function self.cast.felRush(thisUnit,debug,ac)
             local spellCast = self.spell.felRush
             local thisUnit = thisUnit
+            local ac = ac
             if thisUnit == nil then thisUnit = "player" end
+            if ac == nil then ac = false end
             if debug == nil then debug = false end
 
             if self.level >= 98 and self.charges.felRush > 0 and self.cd.felRush == 0  then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
-                    return castSpell(thisUnit,spellCast,false,false,false)                    
-                end
-            elseif debug then
-                return false
-            end
-        end
-        -- Fel Rush Animation Cancel
-        function self.cast.felRushAnimationCancel(thisUnit,debug)
-            local spellCast = self.spell.felRush
-            local thisUnit = thisUnit
-            local returnVar
-            if thisUnit == nil then thisUnit = "player" end
-            if debug == nil then debug = false end
-
-            if self.level >= 98 and self.charges.felRush > 0 and self.cd.felRush == 0 then
-                if debug then
-                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
-                else
-                    MoveBackwardStart()
-                    if bb.timer:useTimer("felRushCancelAnimation", 0.04) then
+                    local function cancelRushAnimation() -- Thanks G1zStar
+                        MoveBackwardStart()
                         JumpOrAscendStart()
                         castSpell(thisUnit,spellCast,false,false,false)
+                        MoveBackwardStop()
+                        AscendStop()
+                        return true
                     end
-                    MoveBackwardStop()
-                    return
+                    if self.mode.mover == 1 and ac then
+                        return cancelRushAnimation()
+                    else
+                        return castSpell(thisUnit,spellCast,false,false,false)
+                    end                    
                 end
             elseif debug then
                 return false
             end
         end
-
         -- Fury of the Illidari
         function self.cast.furyOfTheIllidari(thisUnit,debug)
             local spellCast = self.spell.furyOfTheIllidari
@@ -694,15 +683,24 @@ function cHavoc:new()
             local thisUnit = thisUnit
             if thisUnit == nil then thisUnit = "player" end
             if debug == nil then debug = false end
-
+            
             if self.level >= 100 and isKnown(spellCast) and self.cd.vengefulRetreat == 0 then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
-                    if self.mode.mover == 1 then
+                    local function cancelRetreatAnimation() -- Thanks G1zStar
                         SetHackEnabled("NoKnockback", true)
+                        if bb.timer:useTimer("retreatCancelAnimation", 0.04) then
+                            castSpell(thisUnit,spellCast,false,false,false)
+                            SetHackEnabled("NoKnockback", false)
+                        end
+                        return true
                     end
-                    return castSpell(thisUnit,spellCast,false,false,false)
+                    if self.mode.mover == 1 then
+                        return cancelRetreatAnimation()
+                    else
+                        return castSpell(thisUnit,spellCast,false,false,false)
+                    end
                 end
             elseif debug then
                 return false

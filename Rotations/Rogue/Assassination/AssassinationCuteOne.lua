@@ -660,7 +660,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
 					end
 			-- Stealth
 				-- stealth
-				if isChecked("Stealth") then
+				if isChecked("Stealth") and (not IsResting() or isDummy("target")) then
 					if getOptionValue("Stealth") == 1 then
 						if cast.stealth() then return end
 					end

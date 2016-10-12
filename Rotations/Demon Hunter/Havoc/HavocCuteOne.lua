@@ -286,7 +286,7 @@ if select(2, UnitClass("player")) == "DEMONHUNTER" then
                 if useMover() then
                     if mode.mover == 1 then
                         if getDistance("target") < 10 then 
-                            if cast.felRushAnimationCancel() then return end
+                            if cast.felRush("target",false,true) then return end
                         end
                         if getDistance("target") >= 10 then
                             if cast.felRush() then return end
@@ -333,7 +333,7 @@ if select(2, UnitClass("player")) == "DEMONHUNTER" then
                 if useMover() and getFacing("player","target",10) and not talent.prepared and not talent.momentum then
                     if mode.mover == 1 then
                         if getDistance("target") < 10 then 
-                            if cast.felRushAnimationCancel() then return end
+                            if cast.felRush("target",false,true) then return end
                         end
                         if getDistance("target") >= 10 then
                             if cast.felRush() then return end
@@ -376,7 +376,7 @@ if select(2, UnitClass("player")) == "DEMONHUNTER" then
                 if useMover() and getFacing("player","target",10) then
                     if mode.mover == 1 then
                         if getDistance("target") < 10 then 
-                            if cast.felRushAnimationCancel() then return end
+                            if cast.felRush("target",false,true) then return end
                         end
                         if getDistance("target") >= 10 then
                             if cast.felRush() then return end
@@ -509,16 +509,16 @@ if select(2, UnitClass("player")) == "DEMONHUNTER" then
                     if isChecked("Pre-Pull Timer") and pullTimer <= getOptionValue("Pre-Pull Timer") then
 
                     end -- End Pre-Pull
+                    if isValidUnit("target") then
                 -- Throw Glaive
-                    if isValidUnit("target") and getDistance("target") < 30 and getFacing("player","target") then
-                        if cast.throwGlaive("target") then return end
-                    end
+                        if getDistance("target") < 30 and getFacing("player","target") then
+                            if cast.throwGlaive("target") then return end
+                        end
                 -- Fel Rush
-                    if getOptionValue("APL Mode") == 1 and isValidUnit("target") then
-                        if useMover() and getFacing("player","target",10) then
+                        if getOptionValue("APL Mode") == 1 and useMover() and getFacing("player","target",10) then
                             if mode.mover == 1 then
                                 if getDistance("target") < 10 then 
-                                    if cast.felRushAnimationCancel() then return end
+                                    if cast.felRush("target",false,true) then return end
                                 end
                                 if getDistance("target") >= 10 then
                                     if cast.felRush() then return end
@@ -527,10 +527,10 @@ if select(2, UnitClass("player")) == "DEMONHUNTER" then
                                 if cast.felRush() then return end
                             end
                         end
-                    end
-                    if isValidUnit("target") and getDistance("target") < 5 then
                 -- Start Attack
-                        StartAttack()
+                        if getDistance("target") < 5 then
+                            StartAttack()
+                        end
                     end
                 end -- End No Combat
             end -- End Action List - PreCombat 
@@ -602,14 +602,14 @@ if select(2, UnitClass("player")) == "DEMONHUNTER" then
                         if actionList_Cooldowns() then return end
                 -- Fel Rush 
                         -- fel_rush,animation_cancel=1,if=time=0
-                        if mode.mover == 1 and combatTime < 1 then
+                        if mode.mover == 1 and combatTime < 1 and getFacing("player","target",10) then
                             if getDistance("target") < 10 then 
-                                if cast.felRushAnimationCancel() then return end
+                                if cast.felRush("target",false,true) then return end
                             end
                             if getDistance("target") >= 10 then
                                 if cast.felRush() then return end
                             end
-                        elseif combatTime < 1 then
+                        elseif combatTime < 1 and getFacing("player","target",10) then
                             if cast.felRush() then return end
                         end
                 -- Pick Up Fragment Notification
@@ -627,12 +627,12 @@ if select(2, UnitClass("player")) == "DEMONHUNTER" then
                 -- Fel Rush
                         -- fel_rush,animation_cancel=1,if=(talent.momentum.enabled|talent.fel_mastery.enabled)&(!talent.momentum.enabled|(charges=2|cooldown.vengeful_retreat.remains>4)&buff.momentum.down)&(!talent.fel_mastery.enabled|fury.deficit>=25)&(charges=2|(raid_event.movement.in>10&raid_event.adds.in>10))
                         if useMover() and getFacing("player","target",10) 
-                            and (talent.momentum or talent.felMastery) and (not talent.momentum or ((charges.felRush == 2 or cd.vengefulRetreat > 4) and not buff.momentum)) 
+                            and (talent.momentum or talent.felMastery) and (not talent.momentum or (charges.felRush == 2 or cd.vengefulRetreat > 4) and not buff.momentum) 
                             and (not talent.felMastery or powerDeficit >= 25) and (charges.felRush == 2 or (moveIn > charges.felRush * 10 and addsIn > 10)) 
                         then
                             if mode.mover == 1 then
-                                if getDistance("target") < 10 then 
-                                    if cast.felRushAnimationCancel() then return end
+                                if getDistance("target") < 10 then
+                                    if cast.felRush("target",false,true) then return end
                                 end
                                 if getDistance("target") >= 10 then
                                     if cast.felRush() then return end
@@ -727,8 +727,8 @@ if select(2, UnitClass("player")) == "DEMONHUNTER" then
                         -- fel_rush,animation_cancel=1,if=!talent.momentum.enabled&raid_event.movement.in>charges*10
                         if useMover() and getFacing("player","target",10) and not talent.momentum and moveIn > charges.felRush * 10 then
                             if mode.mover == 1 then
-                                if getDistance("target") < 10 then 
-                                    if cast.felRushAnimationCancel() then return end
+                                if getDistance("target") < 10 then
+                                    if cast.felRush("target",false,true) then return end
                                 end
                                 if getDistance("target") >= 10 then
                                     if cast.felRush() then return end
@@ -752,7 +752,7 @@ if select(2, UnitClass("player")) == "DEMONHUNTER" then
                         end
                 -- Fel Rush
                         --fel_rush,if=movement.distance>15|(buff.out_of_range.up&!talent.momentum.enabled)
-                        if useMover() and getFacing("player","target",10) and getDistance("target") >= 15 and not talent.momentum then
+                        if useMover() and getFacing("player","target",10) and getDistance("target") >= 15 then
                             if cast.felRush() then return end
                         end
                     end -- End SimC APL

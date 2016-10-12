@@ -409,7 +409,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
 			local function actionList_PreCombat()
 			-- Stealth
 				-- stealth
-				if isChecked("Stealth") and (not IsResting() or isDummy()) then
+				if isChecked("Stealth") and (not IsResting() or isDummy("target")) then
 					if getOptionValue("Stealth") == 1 then
 						if cast.stealth() then return end
 					end
