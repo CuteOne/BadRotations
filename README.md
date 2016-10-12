@@ -80,7 +80,7 @@ Raidable means if its good to raid with.
 * :white_check_mark: - works good
 * :x: - should not be used in raid
 * :heavy_check_mark: - has basic rotation, but not optimal for serious raiding
-* :interrobang: - currently unknown; give feedback :D
+* :interrobang: - currently unknown or in development; give feedback :D
 * BH - has BossHelper support, features things like using specific spell based on current boss etc.
 
 |spec |status|author|patch|raidable?|
@@ -102,13 +102,13 @@ Raidable means if its good to raid with.
 |Moonkin|0%||7.0|
 ||||
 | **Hunter** |||
-|Beastmaster|0%||7.0|
-|Marksmanship|0%||7.0|
+|Beastmaster|0%|Averykey|7.0|:interrobang::x:
+|Marksmanship|0%|Averykey|7.0|:interrobang::x:
 |Survival|0%||7.0|
 ||||
 | **Mage** |||
 |Arcane|0%||7.0|
-|Fire|0%||7.0|
+|Fire|70%|CuteOne|7.0|:interrobang:
 |Frost|0%||7.0|
 ||||
 | **Monk** |||
@@ -119,17 +119,17 @@ Raidable means if its good to raid with.
 | **Paladin** |||
 |Holy|0%||7.0|
 |Protection|0%||7.0|
-|Retribution|10%|Gabbz|7.0|
+|Retribution|10%|Gabbz|7.0|:interrobang::x:
 ||||
 | **Priest** |||
 |Discipline|0%|||
 |Holy|0%|||
-|Shadow|0%|Cpoworks|7.0|
+|Shadow|0%|Cpoworks|7.0|:interrobang:
 ||||
 | **Rogue** |||
 |Assassination|100%|CuteOne|7.0|
 |Outlaw|100%|CuteOne|7.0|
-|Subtlety|50%|CuteOne|7.0|:x:
+|Subtlety|50%|CuteOne|7.0|:interrobang::x:
 ||||
 | **Shaman** |||
 |Elemental|100%|CuteOne|7.0|
@@ -138,10 +138,10 @@ Raidable means if its good to raid with.
 ||||
 | **Warlock** |||
 |Affliction|0%||7.0|
-|Demonology|0%||7.0|
+|Demonology|70%||7.0|:interrobang:
 |Destruction|0%||7.0|
 ||||
 | **Warrior** |||
 |Arms|0%||7.0|
-|Fury|100%|CuteOne|7.0|
+|Fury|100%|CuteOne|7.0|:interrobang:
 |Protection|0%||7.0|
