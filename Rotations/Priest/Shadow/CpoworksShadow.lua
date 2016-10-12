@@ -154,6 +154,7 @@ if select(2, UnitClass("player")) == "PRIEST" then
             local SWPmaxTargets                                 = getOptionValue("SWP Max Targets")
             local VTmaxTargets                                  = getOptionValue("VT Max Targets")
 
+            if NoMindBlast == nil then NoMindBlast = false end
             if leftCombat == nil then leftCombat = GetTime() end
             if profileStop == nil then profileStop = false end
             if IsHackEnabled("NoKnockback") ~= nil then SetHackEnabled("NoKnockback", false) end
@@ -240,8 +241,7 @@ if select(2, UnitClass("player")) == "PRIEST" then
                     if cast.mindBender() then return end
                 end
                 -- Void Eruption
-                if useCDs()            
-                and ((talent.legacyOfTheVoid and power > 70) or power > 100) then
+                if getDebuffRemain(units.dyn40,spell.vampiricTouch,"player") >= 6 and getDebuffRemain(units.dyn40,spell.shadowWordPain,"player") >= 4 and ((talent.legacyOfTheVoid and power > 70) or power > 100) then
                     if cast.voidEruption() then return end
                 end
                 -- Shadow Crash
@@ -249,50 +249,35 @@ if select(2, UnitClass("player")) == "PRIEST" then
                     if cast.shadowCrash() then return end
                 end
                 -- Shadow Word Death
-                if thp < 20
-                or (talent.reaperOfSouls and thp < 35) then
-                    if cast.shadowWordDeath()then return end
-                end
+                if cast.shadowWordDeath()then return end
                 -- Mind Blast
                 if cast.mindBlast() then return end
                 -- Shadow Word: Pain
-                if getDebuffRemain(units.dyn40,spell.shadowWordPain,"player") <= 14*0.3 then
+                if getDebuffRemain(units.dyn40,spell.shadowWordPain,"player") <= 4 then
                     if cast.shadowWordPain(units.dyn40) then return end 
                 elseif debuff.count.shadowWordPain < SWPmaxTargets 
                 and debuff.count.vampiricTouch >= 1 then
-                    for i=1,#bb.enemy do
-                        local thisUnit = bb.enemy[i].unit
-                        local hp = bb.enemy[i].hpabs
-                        local ttd = bb.enemy[i].ttd
-                        local distance = bb.enemy[i].distance
-                        if getDebuffRemain(thisUnit,spell.shadowWordPain,"player") <= 14*0.3 then
-                            if distance < 40 then
-                                if cast.shadowWordPain(bb.enemy[i]) then return end 
-                            end
+                    for i=1,#enemies.yards40 do
+                        local thisUnit = enemies.yards40[i]
+                        if getDebuffRemain(thisUnit,spell.shadowWordPain,"player") <= 4 then
+                            if cast.shadowWordPain(thisUnit) then return end 
                         end
                     end
                 end              
                 -- Vampiric Touch
-                if getDebuffRemain(units.dyn40,spell.vampiricTouch,"player") <= 18*0.3 then
+                if getDebuffRemain(units.dyn40,spell.vampiricTouch,"player") <= 6 then
                     if cast.vampiricTouch(units.dyn40) then return end 
                 elseif debuff.count.vampiricTouch < VTmaxTargets 
                 and debuff.count.shadowWordPain >= 1 then
-                    for i=1,#bb.enemy do
-                        local thisUnit = bb.enemy[i].unit
-                        local hp = bb.enemy[i].hpabs
-                        local ttd = bb.enemy[i].ttd
-                        local distance = bb.enemy[i].distance
-                        if getDebuffRemain(thisUnit,spell.vampiricTouch,"player") <= 18*0.3 then
-                            if distance < 40 then
-                                if cast.vampiricTouch(bb.enemy[i]) then return end 
-                            end
+                    for i=1,#enemies.yards40 do
+                        local thisUnit = enemies.yards40[i]
+                        if getDebuffRemain(thisUnit,spell.vampiricTouch,"player") <= 6 then
+                            if cast.vampiricTouch(thisUnit) then return end 
                         end
                     end
                 end 
                 -- Shadow Word: Void
-                if talent.shadowWordVoid and charges.shadowWordVoid > 0 then
-                    if cast.shadowWordVoid()then return end
-                end
+                if cast.shadowWordVoid() then return end
                 -- Mind Shear
                 -- Mind Spike / Mind Flay
                 if talent.mindSpike then
@@ -304,43 +289,70 @@ if select(2, UnitClass("player")) == "PRIEST" then
 
         -- Action List - VoidForm
             function actionList_VoidForm()
+                --NoMindBlastSwitch
+                if isCastingSpell(spell.mindFlay) or lastSpellCast == spell.mindSpike then
+                    noMindBlast = true
+                else
+                    noMindBlast = false
+                end
                 --Cooldowns
                 if actionList_Cooldowns() then return end
                 --Void Torrent
-                -- if not CanUse(VoidBolt) and not CanUse(MindBlast) and not CanUse(ShadowWordDeath) and not HasBuff(PowerInfusion) and not HasBuff(Berserking)
-                if cd.voidBolt > 0 and cd.mindBlast > 0 and charges.shadowWordDeath == 0 then
-                    if cast.voidTorrent() then return end
-                end
-                --MindBender / Mindfiend
-                if talent.mindBender then
-                    if cast.mindBender() then return end
-                else
-                    if cast.mindfiend() then return end
-                end
+                if cast.voidTorrent() then return end
+                --VoidBolt
+                if cast.voidBolt() then return end 
                 --Dispersion
+                -- if HasBuff(SurrenderedSoul) and Abs(AlternatePowerRegen * GlobalCooldownSec) > AlternatePower and not CanUse(ShadowWordDeath)
+                if buff.surrenderedSoul and (powgen * gcd) > power and not cast.shadowWordDeath(units.dyn40,true) then
+                end
+                --MindBender
+                if talent.mindBender then
+                    if cast.mindBender() then return end  
+                end
                 --Power Infusion
+                -- if (BuffStack(Voidform) >= 10 and not HasBuff(SurrenderedSoul)) or BuffStack(Voidform) > 60
+                if (buff.stack.voidForm >= 10 and not buff.surrenderedSoul) or buff.stack.voidForm >= 60 then
+                    if cast.powerInfusion() then return end 
+                end
                 --Shadow Crash
                 if talent.shadowCrash then
                     if cast.shadowCrash() then return end
                 end
-                --VoidBolt
-                if cast.voidBolt() then return end  
                 --SWD
-                if thp < 20 or (talent.reaperOfSouls and thp < 35) then
+                -- if not HasBuff(SurrenderedSoul) and ((HasTalent(ReaperOfSouls) and AlternatePowerToMax >= 30) or not HasTalent(ReaperOfSouls))
+                if not buff.surrenderedSoul and (talent.reaperOfSouls and powerDeficit >= 30) or not talent.reaperOfSouls then
                     if cast.shadowWordDeath()then return end
                 end
-                -- Shadow Word: Void
-                if talent.shadowWordVoid and charges.shadowWordVoid > 0 then
-                    if cast.shadowWordVoid()then return end
+                --SWD
+                --if HasBuff(SurrenderedSoul) and ((AlternatePowerToMax >= 75 and HasTalent(ReaperOfSouls)) or (AlternatePowerToMax >= 25 and not HasTalent(ReaperOfSouls)))
+                if buff.surrenderedSoul and ((powerDeficit >= 75 and talent.reaperOfSouls) or (powerDeficit >= 25 and not talent.reaperOfSouls)) then
+                    if cast.shadowWordDeath()then return end
                 end
                 -- Mind Blast
-                if cast.mindBlast() then return end
+                -- if IsSwitchOff(NoMindBlast)
+                if not noMindBlast then
+                    if cast.mindBlast() then return end
+                end
+                -- SWD
+                -- if ChargesRemaining(ShadowWordDeath) = SpellCharges(ShadowWordDeath)
+                if charges.shadowWordDeath == charges.max.shadowWordDeath then
+                    if cast.shadowWordDeath() then return end
+                end
+                -- Shadow Word: Void
+                -- if (AlternatePowerToMax >= 35 and not HasBuff(SurrenderedSoul)) or (HasBuff(SurrenderedSoul) and AlternatePowerToMax >= 50)
+                if (powerDeficit >= 35 and not buff.surrenderedSoul) or (buff.surrenderedSoul and powerDeficit >= 50) then
+                    if cast.shadowWordVoid() then return end
+                end
+                -- Shadowfiend
+                if buff.stack.voidForm > 15 then
+                    if cast.mindfiend() then return end
+                end
                 -- Shadow Word: Pain
-                if getDebuffRemain(units.dyn40,spell.shadowWordPain,"player") <= 14*0.1 then
+                if getDebuffRemain(units.dyn40,spell.shadowWordPain,"player") <= 4 then
                     if cast.shadowWordPain(units.dyn40) then return end 
                 end              
                 -- Vampiric Touch
-                if getDebuffRemain(units.dyn40,spell.vampiricTouch,"player") <= 18*0.1 then
+                 if getDebuffRemain(units.dyn40,spell.vampiricTouch,"player") <= 6 then
                     if cast.vampiricTouch(units.dyn40) then return end 
                 end 
                 -- Mind Sear
@@ -365,12 +377,7 @@ if select(2, UnitClass("player")) == "PRIEST" then
     -----------------------------
     --- In Combat - Rotations --- 
     -----------------------------
-            if inCombat then
-                -- Casting and GCD check
-                if castingUnit() 
-                and not UnitChannelInfo("player") == GetSpellInfo(spell.mindFlay) then
-                    return
-                end
+            if inCombat and isValidUnit(units.dyn40) and getDistance(units.dyn40) < 40 and not isCastingSpell(spell.voidTorrent) then
 
                 if buff.voidForm then
                     if actionList_VoidForm() then return end

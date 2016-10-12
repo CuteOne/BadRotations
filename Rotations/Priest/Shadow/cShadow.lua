@@ -56,7 +56,8 @@ function cShadow:new()
         }
         self.spell.spec.buffs           = {
             shadowyInsight = 124430,
-            voidForm = 194249 
+            voidForm = 194249,
+            surrenderedSoul = 212570 
         }
         self.spell.spec.debuffs         = {
             shadowWordPain = 589,
@@ -153,11 +154,15 @@ function cShadow:new()
 
         function self.getBuffs()
             local UnitBuffID = UnitBuffID
+            local getBuffRemain = getBuffRemain
+            local getBuffDuration = getBuffDuration
+            local getBuffStacks = getBuffStacks
 
             for k,v in pairs(self.spell.spec.buffs) do
                 self.buff[k]            = UnitBuffID("player",v) ~= nil
                 self.buff.duration[k]   = getBuffDuration("player",v) or 0
                 self.buff.remain[k]     = getBuffRemain("player",v) or 0
+                self.buff.stack[k]      = getBuffStacks("player",v) or 0
             end
         end
 
@@ -483,6 +488,24 @@ function cShadow:new()
             end
         end
 
+        -- Power Infusion
+        function self.cast.powerInfusion(thisUnit,debug)
+            local spellCast = self.spell.powerInfusion
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = "player" end
+            if debug == nil then debug = false end
+
+            if self.talent.powerInfusion and self.cd.powerInfusion == 0 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,true,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,false,true)
+                end
+            elseif debug then
+                return false
+            end
+        end
+
         -- Shadow Crash
         function self.cast.shadowCrash(thisUnit,debug)
             local spellCast = self.spell.shadowCrash
@@ -500,6 +523,9 @@ function cShadow:new()
                 return false
             end
         end
+
+        --
+        --and (thp(thisUnit) =< 20 or (self.talent.reaperOfSouls and (thp(thisUnit) =< 35)))
 
         -- Shadow Word: Death
         function self.cast.shadowWordDeath(thisUnit,debug)
@@ -526,7 +552,7 @@ function cShadow:new()
             if thisUnit == nil then thisUnit = self.units.dyn40 end
             if debug == nil then debug = false end
 
-            if getDistance(thisUnit) < 40 and self.cd.shadowWordPain == 0 then
+            if getDistance(thisUnit) < 40 and self.cd.shadowWordPain == 0 and (thp(thisUnit) <= 20 or (self.talent.reaperOfSouls and (thp(thisUnit) <= 35))) then
                 if debug then
                     return castSpell(thisUnit,spellCast,true,false,false,false,false,false,false,true)
                 else
@@ -544,7 +570,7 @@ function cShadow:new()
             if thisUnit == nil then thisUnit = self.units.dyn40 end
             if debug == nil then debug = false end
 
-            if getDistance(thisUnit) < 40 and self.cd.shadowWordVoid == 0 then
+            if self.talent.shadowWordVoid and getDistance(thisUnit) < 40 and self.cd.shadowWordVoid == 0 then
                 if debug then
                     return castSpell(thisUnit,spellCast,true,false,false,false,false,false,false,true)
                 else
@@ -616,7 +642,7 @@ function cShadow:new()
             if thisUnit == nil then thisUnit = self.units.dyn40 end
             if debug == nil then debug = false end
 
-            if getDistance(thisUnit) < 40 and self.cd.vampiricTouch == 0 then
+            if lastSpellCast ~= spellCast and getDistance(thisUnit) < 40 and self.cd.vampiricTouch == 0 then
                 if debug then
                     return castSpell(thisUnit,spellCast,true,true,false,false,false,false,false,true)
                 else
