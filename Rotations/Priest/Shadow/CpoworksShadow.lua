@@ -22,8 +22,8 @@ if select(2, UnitClass("player")) == "PRIEST" then
        	CreateButton("Cooldown",2,0)
         -- Defensive Button
         DefensiveModes = {
-            [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = bb.player.spell.shamanisticRage },
-            [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = bb.player.spell.shamanisticRage }
+            [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = bb.player.spell.dispersion },
+            [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = bb.player.spell.dispersion }
         };
         CreateButton("Defensive",3,0)
     end
@@ -47,29 +47,31 @@ if select(2, UnitClass("player")) == "PRIEST" then
             section = bb.ui:createSection(bb.ui.window.profile, "Cooldowns")
                 -- Int Pot
                 bb.ui:createCheckbox(section,"Int Pot")
-                -- Legendary Ring
-                bb.ui:createCheckbox(section, "Legendary Ring", "Enable or Disable usage of Legendary Ring.")
                 -- Flask / Crystal
                 bb.ui:createCheckbox(section,"Flask / Crystal")
                 -- Trinkets
                 bb.ui:createCheckbox(section,"Trinkets")
                 -- Touch of the Void
-                bb.ui:createCheckbox(section,"Touch of the Void")
+                if hasEquiped(128318) then
+                    bb.ui:createCheckbox(section,"Touch of the Void")
+                end
                 -- Void Eruption
                 bb.ui:createCheckbox(section,"Void Eruption")
                 -- Shadowfiend
-                bb.ui:createCheckbox(section,"Shadowfiend")
+                bb.ui:createCheckbox(section,"Shadowfiend / Mind Bender")
+                -- Power Infusion
+                bb.ui:createCheckbox(section,"Power Infusion")
             bb.ui:checkSectionState(section)
             -- Defensive Options
             section = bb.ui:createSection(bb.ui.window.profile, "Defensive")
                 -- Healthstone
                 bb.ui:createSpinner(section, "Healthstone",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
-                -- Heirloom Neck
-                bb.ui:createSpinner(section, "Heirloom Neck",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
                 -- Gift of The Naaru
                 if bb.player.race == "Draenei" then
                     bb.ui:createSpinner(section, "Gift of the Naaru",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
                 end
+                -- Power Word: Shield
+                bb.ui:createSpinner(section, "Power Word: Shield",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
                 -- Dispel Magic
                 bb.ui:createCheckbox(section,"Dispel Magic")
             bb.ui:checkSectionState(section)
@@ -167,9 +169,9 @@ if select(2, UnitClass("player")) == "PRIEST" then
             -- Action list - Extras
             function actionList_Extra()
                 -- Dispel Magic
-                if isChecked("Dispel Magic") and canDispel("target",bb.player.spell.dispelMagic) and not isBoss() and ObjectExists("target") then
-                    if cast.dispelMagic() then return end
-                end
+                -- if isChecked("Dispel Magic") and canDispel("target",bb.player.spell.dispelMagic) and not isBoss() and ObjectExists("target") then
+                --     if cast.dispelMagic() then return end
+                -- end
             end -- End Action List - Extra
             -- Action List - Defensive
             function actionList_Defensive()
@@ -178,13 +180,9 @@ if select(2, UnitClass("player")) == "PRIEST" then
                     if isChecked("Gift of the Naaru") and php <= getOptionValue("Gift of the Naaru") and php > 0 and bb.player.race=="Draenei" then
                         if castSpell("player",racial,false,false,false) then return end
                     end
-                    -- Heirloom Neck
-                    if isChecked("Heirloom Neck") and php <= getOptionValue("Heirloom Neck") then
-                        if hasEquiped(122668) then
-                            if canUse(122668) then
-                                useItem(122668)
-                            end
-                        end
+                    -- Power Word: Shield
+                    if isChecked("Power Word: Shield") and php <= getOptionValue("Power Word: Shield") and not buff.powerWordShield then
+                        if cast.powerWordShield("player") then return end
                     end
                 end -- End Defensive Check
             end -- End Action List - Defensive
@@ -237,11 +235,11 @@ if select(2, UnitClass("player")) == "PRIEST" then
             function actionList_Auto()
                 --Surrender to Madness
                 --MindBender
-                if talent.mindBender then
+                if isChecked("Shadowfiend / Mind Bender") and talent.mindBender then
                     if cast.mindBender() then return end
                 end
                 -- Void Eruption
-                if getDebuffRemain(units.dyn40,spell.vampiricTouch,"player") >= 6 and getDebuffRemain(units.dyn40,spell.shadowWordPain,"player") >= 4 and ((talent.legacyOfTheVoid and power > 70) or power > 100) then
+                if isChecked("Void Eruption") and getDebuffRemain(units.dyn40,spell.vampiricTouch,"player") >= 6 and getDebuffRemain(units.dyn40,spell.shadowWordPain,"player") >= 4 and ((talent.legacyOfTheVoid and power > 70) or power > 100) then
                     if cast.voidEruption() then return end
                 end
                 -- Shadow Crash
@@ -249,7 +247,7 @@ if select(2, UnitClass("player")) == "PRIEST" then
                     if cast.shadowCrash() then return end
                 end
                 -- Shadow Word Death
-                if cast.shadowWordDeath()then return end
+                if cast.shadowWordDeath() then return end
                 -- Mind Blast
                 if cast.mindBlast() then return end
                 -- Shadow Word: Pain
@@ -306,12 +304,12 @@ if select(2, UnitClass("player")) == "PRIEST" then
                 if buff.surrenderedSoul and (powgen * gcd) > power and not cast.shadowWordDeath(units.dyn40,true) then
                 end
                 --MindBender
-                if talent.mindBender then
+                if isChecked("Shadowfiend / Mind Bender") and talent.mindBender then
                     if cast.mindBender() then return end  
                 end
                 --Power Infusion
                 -- if (BuffStack(Voidform) >= 10 and not HasBuff(SurrenderedSoul)) or BuffStack(Voidform) > 60
-                if (buff.stack.voidForm >= 10 and not buff.surrenderedSoul) or buff.stack.voidForm >= 60 then
+                if isChecked("Power Infusion") and (buff.stack.voidForm >= 10 and not buff.surrenderedSoul) or buff.stack.voidForm >= 60 then
                     if cast.powerInfusion() then return end 
                 end
                 --Shadow Crash
@@ -344,8 +342,8 @@ if select(2, UnitClass("player")) == "PRIEST" then
                     if cast.shadowWordVoid() then return end
                 end
                 -- Shadowfiend
-                if buff.stack.voidForm > 15 then
-                    if cast.mindfiend() then return end
+                if isChecked("Shadowfiend / Mind Bender") and buff.stack.voidForm > 15 then
+                    if cast.shadowfiend() then return end
                 end
                 -- Shadow Word: Pain
                 if getDebuffRemain(units.dyn40,spell.shadowWordPain,"player") <= 4 then

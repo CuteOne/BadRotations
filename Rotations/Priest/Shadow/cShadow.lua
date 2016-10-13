@@ -28,7 +28,6 @@ function cShadow:new()
             mindBender = 200174,
             mindBlast = 8092,
             mindBomb = 205369,
-            mindfiend = 34433,
             mindFlay = 15407,
             mindSear = 48045,
             mindSpike = 73510,
@@ -416,24 +415,6 @@ function cShadow:new()
             end
         end
 
-        -- Mindfiend
-        function self.cast.mindfiend(thisUnit,debug)
-            local spellCast = self.spell.mindfiend
-            local thisUnit = thisUnit
-            if thisUnit == nil then thisUnit = self.units.dyn40 end
-            if debug == nil then debug = false end
-
-            if self.cd.mindfiend == 0 then
-                if debug then
-                    return castSpell(thisUnit,spellCast,false,true,false,false,false,false,false,true)
-                else
-                    return castSpell(thisUnit,spellCast,false,true)
-                end
-            elseif debug then
-                return false
-            end
-        end
-
         -- Mind Flay
         function self.cast.mindFlay(thisUnit,debug)
             local spellCast = self.spell.mindFlay
@@ -506,6 +487,24 @@ function cShadow:new()
             end
         end
 
+        -- Shadowfiend
+        function self.cast.shadowfiend(thisUnit,debug)
+            local spellCast = self.spell.shadowfiend
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = self.units.dyn40 end
+            if debug == nil then debug = false end
+
+            if self.cd.shadowfiend == 0 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,true,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,false,true)
+                end
+            elseif debug then
+                return false
+            end
+        end
+
         -- Shadow Crash
         function self.cast.shadowCrash(thisUnit,debug)
             local spellCast = self.spell.shadowCrash
@@ -517,7 +516,7 @@ function cShadow:new()
                 if debug then
                     return castSpell(thisUnit,spellCast,true,false,false,false,false,false,false,true)
                 else
-                    return castGroundAtBestLocation(spellCast,8,1,20)
+                    return castGroundAtBestLocation(spellCast,8,1,40)
                 end
             elseif debug then
                 return false
@@ -528,10 +527,12 @@ function cShadow:new()
         function self.cast.shadowWordDeath(thisUnit,debug)
             local spellCast = self.spell.shadowWordDeath
             local thisUnit = thisUnit
+            local thisUnitHP
             if thisUnit == nil then thisUnit = self.units.dyn40 end
             if debug == nil then debug = false end
+            thisUnitHP = thp(thisUnit)
 
-            if getDistance(thisUnit) < 40 and self.cd.shadowWordDeath == 0 and (thp(thisUnit) <= 20 or (self.talent.reaperOfSouls and (thp(thisUnit) <= 35))) then
+            if getDistance(thisUnit) < 40 and self.cd.shadowWordDeath == 0 and ((self.talent.reaperOfSouls and thisUnitHP <= 35) or thisUnitHP <= 20) then
                 if debug then
                     return castSpell(thisUnit,spellCast,true,false,false,false,false,false,false,true)
                 else

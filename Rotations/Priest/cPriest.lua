@@ -27,14 +27,20 @@ function cPriest:new(spec)
 		self.debuff.refresh             	= {}        -- Debuff Refreshable
         self.spell.class                	= {}        -- Abilities Available To All Specs in Class
         self.spell.class.abilities      	= { 		-- List All Active Abilities/Talents Here that are used by All Specs in Class 
-        	--sampleAbility 				= 123456,
-
+        	dispelMagic = 528,
+            fade = 526,
+            levitate = 1703,
+            massDispel = 32375,
+            powerWordShield = 17,
+            purifyDisease = 213634,
+            resurrection = 2006,
+            shackleUndead = 9484
         }
         self.spell.class.artifacts      	= {        -- Artifact Traits Available To All Specs in Class
         	--campleArtifact 				= 234561,
         }
         self.spell.class.buffs          	= {        -- Buffs Available To All Specs in Class
-        	--sampleBuff 					= 345612.
+            powerWordShield = 17
         }
         self.spell.class.debuffs        	= {        -- Debuffs Available To All Specs in Class
         	--sampleDebuff 					= 456123,
@@ -237,24 +243,6 @@ function cPriest:new(spec)
 			--self.cast.debug.sampleSpell = self.cast.sampleSpell("target",true)
 		end
 
-		-- Arcane Torrent
-        function self.cast.arcaneTorrent(thisUnit,debug)
-            local spellCast = self.spell.arcaneTorrent
-            local thisUnit = thisUnit
-            if thisUnit == nil then thisUnit = "player" end
-            if debug == nil then debug = false end
-
-            if self.cd.arcaneTorrent == 0 then
-                if debug then
-                    return castSpell(thisUnit,spellCast,true,false,false,false,false,false,false,true)
-                else
-                    return castSpell(thisUnit,spellCast,true,false)
-                end
-            elseif debug then
-                return false
-            end
-        end
-       
         -- Dispel Magic
         function self.cast.dispelMagic(thisUnit,debug)
             local spellCast = self.spell.dispelMagic
@@ -262,7 +250,7 @@ function cPriest:new(spec)
             if thisUnit == nil then thisUnit = "player" end
             if debug == nil then debug = false end
 
-            if self.cd.dispelMagic == 0 then
+            if getDistance(thisUnit) < 40 and self.cd.dispelMagic == 0 then
                 if debug then
                     return castSpell(thisUnit,spellCast,true,false,false,false,false,false,false,true)
                 else
@@ -298,7 +286,7 @@ function cPriest:new(spec)
             if thisUnit == nil then thisUnit = "player" end
             if debug == nil then debug = false end
 
-            if self.cd.levitate == 0 then
+            if getDistance(thisUnit) < 40 and self.cd.levitate == 0 then
                 if debug then
                     return castSpell(thisUnit,spellCast,true,false,false,false,false,false,false,true)
                 else
@@ -316,7 +304,7 @@ function cPriest:new(spec)
             if thisUnit == nil then thisUnit = "player" end
             if debug == nil then debug = false end
 
-            if self.cd.powerWordShield == 0 then
+            if getDistance(thisUnit) < 40 and self.cd.powerWordShield == 0 then
                 if debug then
                     return castSpell(thisUnit,spellCast,true,false,false,false,false,false,false,true)
                 else
@@ -334,7 +322,7 @@ function cPriest:new(spec)
             if thisUnit == nil then thisUnit = "player" end
             if debug == nil then debug = false end
 
-            if self.cd.resurrection == 0 then
+            if getDistance(thisUnit) < 40 and self.cd.resurrection == 0 then
                 if debug then
                     return castSpell(thisUnit,spellCast,true,true,false,false,false,false,false,true)
                 else
@@ -352,7 +340,7 @@ function cPriest:new(spec)
             if thisUnit == nil then thisUnit = "player" end
             if debug == nil then debug = false end
 
-            if self.cd.shackleUndead == 0 then
+            if getDistance(thisUnit) < 40 and self.cd.shackleUndead == 0 then
                 if debug then
                     return castSpell(thisUnit,spellCast,true,true,false,false,false,false,false,true)
                 else
