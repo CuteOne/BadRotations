@@ -124,7 +124,7 @@ Raidable means if its good to raid with.
 | **Priest** |||
 |Discipline|0%|||
 |Holy|0%|||
-|Shadow|50%|Cpoworks|7.0|:interrobang:
+|Shadow|50%|Cpoworks|7.0|:interrobang::x:
 ||||
 | **Rogue** |||
 |Assassination|100%|CuteOne|7.0|

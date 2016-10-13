@@ -524,9 +524,6 @@ function cShadow:new()
             end
         end
 
-        --
-        --and (thp(thisUnit) =< 20 or (self.talent.reaperOfSouls and (thp(thisUnit) =< 35)))
-
         -- Shadow Word: Death
         function self.cast.shadowWordDeath(thisUnit,debug)
             local spellCast = self.spell.shadowWordDeath
@@ -534,7 +531,7 @@ function cShadow:new()
             if thisUnit == nil then thisUnit = self.units.dyn40 end
             if debug == nil then debug = false end
 
-            if getDistance(thisUnit) < 40 and self.cd.shadowWordDeath == 0 then
+            if getDistance(thisUnit) < 40 and self.cd.shadowWordDeath == 0 and (thp(thisUnit) <= 20 or (self.talent.reaperOfSouls and (thp(thisUnit) <= 35))) then
                 if debug then
                     return castSpell(thisUnit,spellCast,true,false,false,false,false,false,false,true)
                 else
@@ -552,7 +549,7 @@ function cShadow:new()
             if thisUnit == nil then thisUnit = self.units.dyn40 end
             if debug == nil then debug = false end
 
-            if getDistance(thisUnit) < 40 and self.cd.shadowWordPain == 0 and (thp(thisUnit) <= 20 or (self.talent.reaperOfSouls and (thp(thisUnit) <= 35))) then
+            if getDistance(thisUnit) < 40 and self.cd.shadowWordPain == 0 then
                 if debug then
                     return castSpell(thisUnit,spellCast,true,false,false,false,false,false,false,true)
                 else
