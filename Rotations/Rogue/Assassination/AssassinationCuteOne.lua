@@ -269,8 +269,10 @@ if select(2, UnitClass("player")) == "ROGUE" then
         			for i = 1, #enemies.yards30 do
         				local thisUnit = enemies.yards30[i]
         				local distance = getDistance(thisUnit)
-        				local deadlyPoisonRemain = getDebuffRemain(thisUnit,spell.deadlyPoison,"player")
-        				if deadlyPoisonRemain == 0 and distance > 5 and (hasThreat(thisUnit) or isDummy()) then
+        				local deadlyPoisoned = UnitDebuffID(thisUnit,spell.spec.debuffs.deadlyPoison,"player") ~= nil or false
+            			local agonizingPoisoned = UnitDebuffID(thisUnit,spell.spec.debuffs.agonizingPoison,"player") ~= nil or false
+            			local woundPoisoned	= UnitDebuffID(thisUnit,spell.spec.debuffs.woundPoison,"player") ~= nil or false
+        				if not (deadlyPoisoned or agonizingPoisoned or woundPoisoned) and distance > 5 and isValidUnit(thisUnit) then
         					if cast.poisonedKnife(thisUnit) then return end
         				end
         			end
@@ -313,21 +315,18 @@ if select(2, UnitClass("player")) == "ROGUE" then
 		-- Action List - Interrupts
 			local function actionList_Interrupts()
 				if useInterrupts() and not stealth then
-					for i=1, #enemies.yards20 do
-						local thisUnit = enemies.yards20[i]
-						local distance = getDistance(thisUnit)
+					for i=1, #enemies.yards5 do
+						local thisUnit = enemies.yards5[i]
 						if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
-							if distance < 5 then
 				-- Kick
-								-- kick
-								if isChecked("Kick") then
-									if cast.kick(thisUnit) then return end
-								end
+							-- kick
+							if isChecked("Kick") then
+								if cast.kick(thisUnit) then return end
+							end
 				-- Kidney Shot
-								if cd.kick ~= 0 then
-									if isChecked("Kidney Shot") then
-										if cast.kidneyShot(thisUnit) then return end
-									end
+							if cd.kick ~= 0 then
+								if isChecked("Kidney Shot") then
+									if cast.kidneyShot(thisUnit) then return end
 								end
 							end
 						end
@@ -420,21 +419,12 @@ if select(2, UnitClass("player")) == "ROGUE" then
             -- Fan of Knives
             	-- fan_of_knives,if=(spell_targets>=2+debuff.vendetta.up&(combo_points.deficit>=1|energy.deficit<=30))|(!artifact.bag_of_tricks.enabled&spell_targets>=7+2*debuff.vendetta.up)
             	-- fan_of_knives,if=equipped.the_dreadlords_deceit&((buff.the_dreadlords_deceit.stack>=29|buff.the_dreadlords_deceit.stack>=15&debuff.vendetta.remains<=3)&debuff.vendetta.up|buff.the_dreadlords_deceit.stack>=5&cooldown.vendetta.remains>60&cooldown.vendetta.remains<65)
-            	-- if (((#enemies.yards10 >= 2 + vendy and (comboDeficit >= 1 or powerDeficit <= 30)) or (not artifact.bagOfTricks and ((mode.rotation == 1 and #enemies.yards10 >= 7 + 2 * vendy) or mode.rotation == 2)))
-            	-- 	or (hasEquiped(137021) and ((buff.stack.theDreadlordsDeceit >= 15 and debuff.remain.vendetta <= 3) and debuff.vendetta or buff.stack.theDreadlordsDeceit >= 5 and cd.vendetta > 60 and cd.vendetta < 65 and (mode.rotation == 1 or mode.rotation == 2))))
-            	-- 	and mode.rotation ~= 3
-            	-- then
-            	-- 	if cast.fanOfKnives() then return end
-            	-- end
-            	if ((mode.rotation == 1 and #enemies.yards8 >= 2 + vendy) or mode.rotation == 2) then
-            		for i = 1, #enemies.yards8 do
-            			local thisUnit = enemies.yards8[i]
-            			local deadlyPoisoned = UnitDebuffID(thisUnit,spell.spec.debuffs.deadlyPoison,"player") ~= nil or false
-            			if not deadlyPoisoned then
-            				if cast.fanOfKnives() then return end
-            			end
-            		end
-            	end 
+            	if (((#enemies.yards10 >= 2 + vendy and (comboDeficit >= 1 or powerDeficit <= 30)) or (not artifact.bagOfTricks and ((mode.rotation == 1 and #enemies.yards10 >= 7 + 2 * vendy) or mode.rotation == 2)))
+            		or (hasEquiped(137021) and ((buff.stack.theDreadlordsDeceit >= 15 and debuff.remain.vendetta <= 3) and debuff.vendetta or buff.stack.theDreadlordsDeceit >= 5 and cd.vendetta > 60 and cd.vendetta < 65 and (mode.rotation == 1 or mode.rotation == 2))))
+            		and mode.rotation ~= 3
+            	then
+            		if cast.fanOfKnives() then return end
+            	end
             -- Hemorrhage
             	-- hemorrhage,if=(combo_points.deficit>=1&refreshable)|(combo_points.deficit=1&(dot.rupture.exsanguinated&dot.rupture.remains<=2|cooldown.exsanguinate.remains<=2))
             	if (comboDeficit >= 1 and debuff.refresh.hemorrhage) or (comboDeficit == 1 and (exRupture and debuff.remain.rupture <= 2 or cd.exsanguinate <= 2)) then
@@ -489,12 +479,12 @@ if select(2, UnitClass("player")) == "ROGUE" then
 				end
 			-- Rupture
 				-- rupture,if=combo_points>=cp_max_spend&(!talent.nightstalker.enabled|buff.vanish.up|cooldown.vanish.remains>15)&cooldown.exsanguinate.remains<1
-				if combo >= comboMax and (not talent.nightstalker or buff.vanish or cd.vanish > 15 or not isChecked("Vanish") or solo) and cd.exsanguinate < 1 then
+				if combo >= comboMax and (not talent.nightstalker or buff.vanish or cd.vanish > 15 or not isChecked("Vanish") or solo or not isBoss("target")) and cd.exsanguinate < 1 then
 					if cast.rupture() then return end
 				end
 			-- Exsanguinate
 				-- exsanguinate,if=prev_gcd.rupture&dot.rupture.remains>22+4*talent.deeper_stratagem.enabled&cooldown.vanish.remains>10
-				if lastSpell == spell.rupture and debuff.remain.rupture > 22 + 4 * dStrat and (cd.vanish > 10 or not isChecked("Vanish") or solo) then
+				if lastSpell == spell.rupture and debuff.remain.rupture > 22 + 4 * dStrat and (cd.vanish > 10 or not isChecked("Vanish") or solo or not isBoss("target")) then
 					if cast.exsanguinate() then return end
 				end
 			-- Call Action List: Garrote
@@ -550,7 +540,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
 			local function actionList_Finishers()
 			-- Envenom Condition
 				-- variable,name=envenom_condition,value=!(dot.rupture.refreshable&dot.rupture.pmultiplier<1.5)&(!talent.nightstalker.enabled|cooldown.vanish.remains>=6)&dot.rupture.remains>=6&buff.elaborate_planning.remains<1.5&(artifact.bag_of_tricks.enabled|spell_targets.fan_of_knives<=6)
-				if not debuff.refresh.rupture and (not talent.nightstalker or cd.vanish >= 6 or not isChecked("Vanish") or solo) and debuff.remain.rupture >= 6 and buff.remain.elaboratePlanning < 1.5 and (artifact.bagOfTricks or #enemies.yards10 <= 6 or isDummy("target")) then
+				if not debuff.refresh.rupture and (not talent.nightstalker or cd.vanish >= 6 or not isChecked("Vanish") or solo or not isBoss("target")) and debuff.remain.rupture >= 6 and buff.remain.elaboratePlanning < 1.5 and (artifact.bagOfTricks or #enemies.yards10 <= 6 or isDummy("target")) then
 					envenomHim = true
 				else
 					envenomHim = false
@@ -605,21 +595,12 @@ if select(2, UnitClass("player")) == "ROGUE" then
             -- Fan of Knives
             	-- fan_of_knives,if=(spell_targets>=2+debuff.vendetta.up&(combo_points.deficit>=1|energy.deficit<=30))|(!artifact.bag_of_tricks.enabled&spell_targets>=7+2*debuff.vendetta.up)
             	-- fan_of_knives,if=equipped.the_dreadlords_deceit&((buff.the_dreadlords_deceit.stack>=29|buff.the_dreadlords_deceit.stack>=15&debuff.vendetta.remains<=3)&debuff.vendetta.up|buff.the_dreadlords_deceit.stack>=5&cooldown.vendetta.remains>60&cooldown.vendetta.remains<65)
-            	-- if ((((mode.rotation == 1 and #enemies.yards8 >= 2 + vendy) or mode.rotation == 2) and (comboDeficit >= 1 or powerDeficit <= 30)) or (not artifact.bagOfTricks and ((mode.rotation == 1 and #enemies.yards10 >= 7 + 2 * vendy) or mode.rotation == 2)) 
-            	-- 	or (hasEquiped(137021) and ((buff.stack.theDreadlordsDeceit >= 29 or buff.stack.theDreadlordsDeceit >= 15 and debuff.remain.vendetta <= 3) and debuff.vendetta or buff.stack.theDreadlordsDeceit >= 5 and cd.vendetta > 60 and cd.vendetta < 65)))
-            	-- 	and mode.rotation ~= 3
-            	-- then
-            	-- 	if cast.fanOfKnives() then return end
-            	-- end
-            	if ((mode.rotation == 1 and #enemies.yards8 >= 2 + vendy) or mode.rotation == 2) then
-            		for i = 1, #enemies.yards8 do
-            			local thisUnit = enemies.yards8[i]
-            			local deadlyPoisoned = UnitDebuffID(thisUnit,spell.spec.debuffs.deadlyPoison,"player") ~= nil or false
-            			if not deadlyPoisoned then
-            				if cast.fanOfKnives() then return end
-            			end
-            		end
-            	end 
+            	if ((((mode.rotation == 1 and #enemies.yards8 >= 2 + vendy) or mode.rotation == 2) and (comboDeficit >= 1 or powerDeficit <= 30)) or (not artifact.bagOfTricks and ((mode.rotation == 1 and #enemies.yards10 >= 7 + 2 * vendy) or mode.rotation == 2)) 
+            		or (hasEquiped(137021) and ((buff.stack.theDreadlordsDeceit >= 29 or buff.stack.theDreadlordsDeceit >= 15 and debuff.remain.vendetta <= 3) and debuff.vendetta or buff.stack.theDreadlordsDeceit >= 5 and cd.vendetta > 60 and cd.vendetta < 65)))
+            		and mode.rotation ~= 3
+            	then
+            		if cast.fanOfKnives() then return end
+            	end
             -- Hemorrhage
             	-- hemorrhage,if=combo_points.deficit>=1&refreshable
             	if comboDeficit >= 1 and debuff.refresh.hemorrhage then
@@ -738,6 +719,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
 	                	if actionList_Opener() then return end
 	                end
 	                if not stealthing then
+	     				if actionList_Interrupts() then return end
 	       	-- Rupture
 		       			-- rupture,if=combo_points>=2&!ticking&time<10&!artifact.urge_to_kill.enabled&talent.exsanguinate.enabled
 						-- rupture,if=combo_points>=4&!ticking&talent.exsanguinate.enabled

@@ -74,6 +74,7 @@ function cAssassination:new()
             woundPoison             = 8679,
         }
         self.spell.spec.debuffs     = {
+            agonizingPoison         = 200803,
             cripplingPoison         = 3409,
             deadlyPoison            = 2818,
             garrote                 = 703,
