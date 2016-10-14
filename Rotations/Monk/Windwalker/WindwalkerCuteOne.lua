@@ -187,6 +187,7 @@ if select(2, UnitClass("player")) == "MONK" then
             local debuff            = bb.player.debuff
             local enemies           = bb.player.enemies
             local flaskBuff         = getBuffRemain("player",bb.player.flask.wod.buff.agilityBig) or 0
+            local gcd               = bb.player.gcd
             local glyph             = bb.player.glyph
             local healthPot         = getHealthPot() or 0
             local inCombat          = bb.player.inCombat
@@ -217,7 +218,6 @@ if select(2, UnitClass("player")) == "MONK" then
             if leftCombat == nil then leftCombat = GetTime() end
             if profileStop == nil then profileStop = false end
 
-            -- ChatOverlay(round2(getDistance3("target"),2))
     --------------------
     --- Action Lists ---
     --------------------
@@ -225,12 +225,13 @@ if select(2, UnitClass("player")) == "MONK" then
             function actionList_Extras()
             -- Stop Casting
                 if ((getDistance(units.dyn5) < 5 or (useFSK() and cd.flyingSerpentKick == 0)) and isCastingSpell(spell.cracklingJadeLightning)) 
-                    or (not useAoE() and isCastingSpell(spell.spinningCraneKick)) 
+                    or (not useAoE() and isCastingSpell(spell.spinningCraneKick))
+                    or (cd.risingSunKick == 0 or cd.fistsOfFury == 0 or cd.strikeOfTheWindlord == 0) 
                 then
                     SpellStopCasting()
                 end
             -- Tiger's Lust
-                if hasNoControl() or (inCombat and getDistance("target") > 10 and ObjectExists("target") and not UnitIsDeadOrGhost("target")) then
+                if hasNoControl() or (inCombat and getDistance("target") > 10 and isValidUnit("target")) then
                     if cast.tigersLust() then return end
                 end
             -- Detox
@@ -246,7 +247,7 @@ if select(2, UnitClass("player")) == "MONK" then
                 if cast.resuscitate() then return end
             -- Provoke
                 if not inCombat and select(3,GetSpellInfo(101545)) ~= "INTERFACE\\ICONS\\priest_icon_chakra_green" 
-                    and cd.flyingSerpentKick > 1 and getDistance("target") > 10 and ObjectExists("target") 
+                    and cd.flyingSerpentKick > 1 and getDistance("target") > 10 and isValidUnit("target") 
                 then
                     if solo or #bb.friend == 1 then
                         if cast.provoke() then return end
@@ -344,39 +345,27 @@ if select(2, UnitClass("player")) == "MONK" then
         -- Action List - Interrupts
             function actionList_Interrupts()
                 if useInterrupts() then
+                    for i=1, #getEnemies("player",20) do
+                        thisUnit = getEnemies("player",20)[i]
+                        distance = getDistance(thisUnit)
+                        if canInterrupt(thisUnit,getOptionValue("InterruptAt")) then
+                            if distance < 5 then
             -- Quaking Palm
-                    if isChecked("Quaking Palm") then
-                        for i=1, #getEnemies("player",5) do
-                            thisUnit = getEnemies("player",5)[i]
-                            if canInterrupt(thisUnit,getOptionValue("InterruptAt")) then
-                                if cast.quakingPalm(thisUnit) then return end
-                            end
-                        end
-                    end
+                                if isChecked("Quaking Palm") then
+                                    if cast.quakingPalm(thisUnit) then return end
+                                end
             -- Spear Hand Strike
-                    if isChecked("Spear Hand Strike") then
-                        for i=1, #getEnemies("player",5) do
-                            thisUnit = getEnemies("player",5)[i]
-                            if canInterrupt(thisUnit,getOptionValue("InterruptAt")) then
-                                if cast.spearHandStrike(thisUnit) then return end
-                            end
-                        end
-                    end
-            -- Paralysis
-                    if isChecked("Paralysis") then
-                        for i=1, #getEnemies("player",20) do
-                            thisUnit = getEnemies("player",20)[i]
-                            if canInterrupt(thisUnit,getOptionValue("InterruptAt")) then
-                                if cast.paralysis(thisUnit) then return end
-                            end
-                        end
-                    end 
+                                if isChecked("Spear Hand Strike") then
+                                    if cast.spearHandStrike(thisUnit) then return end
+                                end
             -- Leg Sweep
-                    if isChecked("Leg Sweep") then
-                        for i=1, #getEnemies("player",5) do
-                            thisUnit = getEnemies("player",5)[i]
-                            if canInterrupt(thisUnit,getOptionValue("InterruptAt")) then
-                                if cast.legSweep(thisUnit) then return end
+                                if isChecked("Leg Sweep") then
+                                    if cast.legSweep(thisUnit) then return end
+                                end
+                            end
+            -- Paralysis
+                            if isChecked("Paralysis") then
+                                if cast.paralysis(thisUnit) then return end
                             end
                         end
                     end 
@@ -680,6 +669,15 @@ if select(2, UnitClass("player")) == "MONK" then
             -- Call Action List - Single Target
                         -- call_action_list,name=st
                         if actionList_SingleTarget() then return end
+            -- No Chi
+                        if lastSpell == spell.tigerPalm then
+                            if chi.count == 1 then
+                                if cast.blackoutKick() then return end
+                            end
+                            if chi.count == 0 then
+                                if cast.tigerPalm() then return end
+                            end
+                        end
                     end -- End Simulation Craft APL
         ----------------------------
         --- APL Mode: AskMrRobot ---

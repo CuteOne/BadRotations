@@ -63,6 +63,7 @@ function cWindwalker:new()
             serenity                        = 152173,
             stormEarthAndFire               = 137639,
             touchOfKarma                    = 122470,
+            hitCombo                        = 196741,
         }
         self.spell.spec.debuffs     = {
             markOfTheCrane                  = 228287,
