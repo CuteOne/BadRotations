@@ -20,7 +20,7 @@ function cFury:new() -- change to cSpec:new() (IE: cFury:new(), cFire:new())
         self.charges.frac               = {}        -- Fractional Charge
         self.charges.max                = {}
         self.spell.spec                 = {}
-        self.spell.spec.abilities       = {         -- List any spell you can cast (not passive) here (used in spell functions and to gether cooldown info)
+        self.spell.spec.abilities       = {         -- List any spell you can cast (not passive) here (used in spell functions and to gather cooldown info)
             sampleSpell                 = 00000,
         }
         self.spell.spec.artifacts       = {         -- List artifact trait ids here (used to gather artifact info)

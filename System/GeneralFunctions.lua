@@ -2541,6 +2541,7 @@ function pause(skipCastingCheck)
 			return true
 		else 
 			ChatOverlay("Profile Paused")
+			if UnitExists("pet") and UnitAffectingCombat("pet") then PetFollow() end
 			return true
 		end
 	else 

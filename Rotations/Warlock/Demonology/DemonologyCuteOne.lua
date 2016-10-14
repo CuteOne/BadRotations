@@ -189,7 +189,7 @@ if select(2, UnitClass("player")) == "WARLOCK" then
             local units                                         = bb.player.units
             
 	   		if leftCombat == nil then leftCombat = GetTime() end
-			if profileStop == nil then profileStop = false end
+			if profileStop == nil or not inCombat then profileStop = false end
 
             if summonPet == 1 then summonId = 416 end
             if summonPet == 2 then summonId = 1860 end
@@ -253,14 +253,14 @@ if select(2, UnitClass("player")) == "WARLOCK" then
 				if isChecked("DPS Testing") then
 					if ObjectExists("target") then
 						if getCombatTime() >= (tonumber(getOptionValue("DPS Testing"))*60) and isDummy() then
-							StopAttack()
-							ClearTarget()
+                            StopAttack()
+                            ClearTarget()
+                            PetFollow()
 							print(tonumber(getOptionValue("DPS Testing")) .." Minute Dummy Test Concluded - Profile Stopped")
 							profileStop = true
 						end
 					end
 				end -- End Dummy Test
-
 			end -- End Action List - Extras
 		-- Action List - Defensive
 			local function actionList_Defensive()
@@ -400,10 +400,6 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                 -- Potion
                         -- potion,name=deadly_grace
                         -- TODO
-                -- Pet Attack
-                        if UnitExists("target") then
-                            PetAttack("target")
-                        end
                 -- Demonic Empowerment
                         -- demonic_empowerment
                         if activePet ~= "None" and not petDE then
@@ -411,13 +407,18 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                         end
                 -- Demonbolt
                         -- demonbolt,if=talent.demonbolt.enabled
-                        if talent.demonbolt and bb.timer:useTimer("travelTime", travelTime) then 
+                        if talent.demonbolt --[[and bb.timer:useTimer("travelTime", travelTime)]] then 
                             if cast.demonbolt("target") then return end
                         end
                 -- Shadowbolt
                         -- shadow_bolt,if=!talent.demonbolt.enabled
-                        if not talent.demonbolt and bb.timer:useTimer("travelTime", travelTime) then
+                        if not talent.demonbolt --[[and bb.timer:useTimer("travelTime", travelTime)]] then
                             if cast.shadowbolt("target") then return end
+                        end
+                -- Pet Attack/Follow
+                        if UnitExists("target") and not UnitAffectingCombat("pet") then
+                            PetAssistMode()
+                            PetAttack("target")
                         end
                     end
                 end -- End No Combat
@@ -429,6 +430,9 @@ if select(2, UnitClass("player")) == "WARLOCK" then
             if not inCombat and not hastar and profileStop==true then
                 profileStop = false
             elseif (inCombat and profileStop==true) or pause() or mode.rotation==4 then
+                if not pause() then
+                    PetFollow()
+                end
                 return true
             else
     -----------------------
@@ -456,8 +460,8 @@ if select(2, UnitClass("player")) == "WARLOCK" then
         ---------------------------
                     if getOptionValue("APL Mode") == 1 then
             -- Pet Attack
-                        if UnitExists("target") then
-                            PetAttack("target")
+                        if not UnitIsUnit("pettarget","target") then
+                            PetAttack()
                         end
             -- Implosion
                         -- implosion,if=wild_imp_remaining_duration<=action.shadow_bolt.execute_time&buff.demonic_synergy.remains
@@ -473,7 +477,7 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                         end
             -- Shadowflame
                         -- shadowflame,if=debuff.shadowflame.stack>0&remains<action.shadow_bolt.cast_time+travel_time
-                        if debuff.stack.shadowflame > 0 and debuff.remain.shadowflame < getCastTime(spell.shadowbolt) + travelTime and bb.timer:useTimer("travelTime", travelTime) then
+                        if debuff.stack.shadowflame > 0 and debuff.remain.shadowflame < getCastTime(spell.shadowbolt) + travelTime --[[and bb.timer:useTimer("travelTime", travelTime)]] then
                             if cast.shadowflame() then return end
                         end
             -- Service Pet
@@ -523,7 +527,7 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                         end
             -- Hand of Guldan
                         -- hand_of_guldan,if=soul_shard>=4&!talent.summon_darkglare.enabled
-                        if shards >= 4 and not talent.summonDarkglare --[[and bb.timer:useTimer("delayGuldan", gcd)]] then
+                        if shards >= 4 and not talent.summonDarkglare then
                             if cast.handOfGuldan() then return end
                         end
             -- Summon Darkglare
@@ -554,8 +558,7 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                         -- hand_of_guldan,if=soul_shard>=3&prev_gcd.call_dreadstalkers
                         -- hand_of_guldan,if=soul_shard>=5&cooldown.summon_darkglare.remains<=action.hand_of_guldan.cast_time
                         -- hand_of_guldan,if=soul_shard>=4&cooldown.summon_darkglare.remains>2
-                        if --[[bb.timer:useTimer("delayGuldan", gcd) 
-                            and]] ((shards >= 3 and lastSpell == spell.callDreadstalkers)
+                        if ((shards >= 3 and lastSpell == spell.callDreadstalkers)
                                 or (shards >= 5 and cd.summonDarkglare <= getCastTime(spell.handOfGuldan))
                                 or (shards >= 4 and cd.summonDarkglare > 2)) 
                         then 
@@ -592,7 +595,7 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                         if actionList_Cooldowns() then return end
             -- Shadowflame
                         -- shadowflame,if=charges=2
-                        if charges.shadowflame == 2 and bb.timer:useTimer("travelTime", travelTime) then 
+                        if charges.shadowflame == 2 --[[and bb.timer:useTimer("travelTime", travelTime)]] then 
                             if cast.shadowflame() then return end
                         end
             -- Thal'kiel's Consumption
@@ -615,14 +618,14 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                         end
             -- Demonbolt
                         -- demonbolt
-                        if bb.timer:useTimer("travelTime", travelTime) then
+                        -- if bb.timer:useTimer("travelTime", travelTime) then
                             if cast.demonbolt() then return end
-                        end
+                        -- end
             -- Shadow Bolt
                         -- shadow_bolt
-                        if bb.timer:useTimer("travelTime", travelTime) then
+                        -- if bb.timer:useTimer("travelTime", travelTime) then
                             if cast.shadowbolt() then return end
-                        end
+                        -- end
             -- Life Tap
                         --life_tap
                         if cast.lifeTap() then return end

@@ -489,12 +489,12 @@ if select(2, UnitClass("player")) == "ROGUE" then
 				end
 			-- Rupture
 				-- rupture,if=combo_points>=cp_max_spend&(!talent.nightstalker.enabled|buff.vanish.up|cooldown.vanish.remains>15)&cooldown.exsanguinate.remains<1
-				if combo >= comboMax and (not talent.nightstalker or buff.vanish or cd.vanish > 15 or not isChecked("Vanish") or (solo and isChecked("Vanish"))) and cd.exsanguinate < 1 then
+				if combo >= comboMax and (not talent.nightstalker or buff.vanish or cd.vanish > 15 or not isChecked("Vanish") or solo) and cd.exsanguinate < 1 then
 					if cast.rupture() then return end
 				end
 			-- Exsanguinate
 				-- exsanguinate,if=prev_gcd.rupture&dot.rupture.remains>22+4*talent.deeper_stratagem.enabled&cooldown.vanish.remains>10
-				if lastSpell == spell.rupture and debuff.remain.rupture > 22 + 4 * dStrat and cd.vanish > 10 or not isChecked("Vanish") then
+				if lastSpell == spell.rupture and debuff.remain.rupture > 22 + 4 * dStrat and (cd.vanish > 10 or not isChecked("Vanish") or solo) then
 					if cast.exsanguinate() then return end
 				end
 			-- Call Action List: Garrote
@@ -550,7 +550,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
 			local function actionList_Finishers()
 			-- Envenom Condition
 				-- variable,name=envenom_condition,value=!(dot.rupture.refreshable&dot.rupture.pmultiplier<1.5)&(!talent.nightstalker.enabled|cooldown.vanish.remains>=6)&dot.rupture.remains>=6&buff.elaborate_planning.remains<1.5&(artifact.bag_of_tricks.enabled|spell_targets.fan_of_knives<=6)
-				if not debuff.refresh.rupture and (not talent.nightstalker or (cd.vanish >= 6 or not isChecked("Vanish"))) and debuff.remain.rupture >= 6 and buff.remain.elaboratePlanning < 1.5 and (artifact.bagOfTricks or #enemies.yards10 <= 6 or isDummy("target")) then
+				if not debuff.refresh.rupture and (not talent.nightstalker or cd.vanish >= 6 or not isChecked("Vanish") or solo) and debuff.remain.rupture >= 6 and buff.remain.elaboratePlanning < 1.5 and (artifact.bagOfTricks or #enemies.yards10 <= 6 or isDummy("target")) then
 					envenomHim = true
 				else
 					envenomHim = false

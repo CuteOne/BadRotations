@@ -498,23 +498,25 @@ if select(2, UnitClass("player")) == "MONK" then
             end -- End Action List - Single Target 
         -- Action List - Storm, Earth, and Fire
             function actionList_SEF()
+                if useSEF() then
             -- Energizing Elixir
-                -- energizing_elixir
-                if cast.energizingElixir() then return end
+                    -- energizing_elixir
+                    if cast.energizingElixir() then return end
             -- Racial - Arcane Torrent
-                -- arcane_torrent,if=chi.max-chi>=1&energy.time_to_max>=0.
-                if chi.max >= chi.count and ttm >= 0.5 and isChecked("Racial") and race == "BloodElf" then
-                    if castSpell("target",racial,false,false,false) then return end
-                end
+                    -- arcane_torrent,if=chi.max-chi>=1&energy.time_to_max>=0.
+                    if chi.max >= chi.count and ttm >= 0.5 and isChecked("Racial") and race == "BloodElf" then
+                        if castSpell("target",racial,false,false,false) then return end
+                    end
             -- Call Action List - Cooldowns
-                -- call_action_list,name=cd
-                if actionList_Cooldown() then return end
+                    -- call_action_list,name=cd
+                    if actionList_Cooldown() then return end
             -- Storm, Earth, and Fire
-                -- storm_earth_and_fire
-                if cast.stormEarthAndFire() then return end
+                    -- storm_earth_and_fire
+                    if cast.stormEarthAndFire() then return end
             -- Call Action List - Single Target
-                -- call_action_list,name=st
-                if actionList_SingleTarget() then return end
+                    -- call_action_list,name=st
+                    if actionList_SingleTarget() then return end
+                end
             end -- End SEF - Action List
         -- Action List - Serenity
             function actionList_Serenity()
