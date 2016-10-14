@@ -395,7 +395,7 @@ function EnemiesEngine()
 				local unitID = getUnitID(unit)
 				local shieldedUnit = shieldedUnitCandidates[unitID]
 				-- check if unit is valid
-				if GetObjectExists(shieldedUnit.unit) then
+				if GetObjectExists(shieldedUnit) then
 					-- if unit have selected debuff
 					if shieldedUnit and shieldedUnit.buff and UnitBuffID(unit,shieldedUnit.buff) then
 						-- if it's a frontal buff, see if we are in front of it

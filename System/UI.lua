@@ -388,5 +388,12 @@ function BadBoyFrame()
 		else
 			mainButton:Hide()
 		end
+		-- Create button slash command
+
+		_G["SLASH_" .. Name .. "1"] = "/"..Name
+		SlashCmdList[Name] = function(msg, editbox)
+			ToggleValue(Name)
+		end
+		SlashCommandHelp(Name,"Toggles "..Name.." Modes.")
 	end
 end

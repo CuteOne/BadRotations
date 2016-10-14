@@ -2490,6 +2490,16 @@ function UpdateToggle(toggle,delay)
         UpdateButton(tostring(toggle))
     end
 end
+function SlashCommandHelp(cmd,msg)
+	if cmd == nil then cmd = "" end
+	if msg == nil then msg = "" end
+	if cmd == "Print Help" then print(tostring(commandHelp)); return end
+	if commandHelp == nil then 
+		commandHelp = "BadBoy Slash Commands\n        /"..cmd.." - "..msg
+	else
+		commandHelp = commandHelp.."\n        /"..cmd.." - "..msg
+	end
+ end
 -- if pause() then
 -- set skipCastingCheck to true, to not check if player is casting
 -- (useful if you want to use off-cd stuff, or spells which can be cast while other is casting)
@@ -2520,6 +2530,10 @@ function pause(skipCastingCheck)
 				profileStop=false
 			end
 		end
+	end
+	if bb.data['Pause'] == 1 then
+		ChatOverlay("\124cFFED0000 -- Paused -- ")
+		return true
 	end
 	if (pausekey and GetCurrentKeyBoardFocus() == nil and isChecked("Pause Mode"))
 		or profileStop

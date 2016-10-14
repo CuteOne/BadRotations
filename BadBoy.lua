@@ -189,8 +189,16 @@ function bb:Run()
 		}
 	end
 	---------------------------------
+	local commandHelp = "|cffFF0000BadBoy Slash Commands"
+	function SlashCommandHelp(cmd,msg)
+		if cmd == nil then cmd = "" end
+		if msg == nil then msg = "" end
+		if cmd == "Print Help" then print(tostring(commandHelp)); return end
+		commandHelp = commandHelp.."|cffFFFFFF\n        /"..cmd.."|cffFFDD11 - "..msg
+	 end
 	-- Macro Toggle ON/OFF
 	SLASH_BadBoy1 = "/BadBoy"
+	SlashCommandHelp("BadBoy","Toggles BadBoy On/Off")
 	function SlashCmdList.BadBoy(msg, editbox, ...)
 		print(...)
         if msg == "" then
@@ -202,24 +210,20 @@ function bb:Run()
         end
 
 	end
-	SLASH_AoE1 = "/aoe"
-	function SlashCmdList.AoE(msg, editbox)
-		ToggleValue("AoE")
+	SLASH_BBHelp1 = "/BBHelp"
+	function SlashCmdList.BBHelp(msg, editbox)
+		-- print(tostring(commandHelp))
+		SlashCommandHelp("Print Help")
 	end
 	SLASH_FHStop1 = "/fhstop"
 	function SlashCmdList.FHStop(msg, editbox)
 		StopFalling()
 		StopMoving()
 	end
-	SLASH_Cooldowns1 = "/Cooldowns"
-	function SlashCmdList.Cooldowns(msg, editbox)
-		ToggleValue("Cooldowns")
-	end
-	SLASH_DPS1 = "/DPS"
-	function SlashCmdList.DPS(msg, editbox)
-		ToggleValue("DPS")
-	end
 	SLASH_BlackList1, SLASH_BlackList2 = "/blacklist", "/bbb"
+	SlashCommandHelp("blacklist or /bbb","Adds/Removes mouseover unit to blacklist.")
+	SlashCommandHelp("blacklist dump or /bbb dump","Prints all units currently on blacklist.")
+	SlashCommandHelp("blacklist clear or /bbb clear","Clears the blacklist.")
 	function SlashCmdList.BlackList(msg, editbox)
 		if bb.data.blackList == nil then bb.data.blackList = { } end
 		if msg == "dump" then
@@ -256,6 +260,7 @@ function bb:Run()
 		end
 	end
 	SLASH_Pause1 = "/Pause"
+	SlashCommandHelp("Pause","Toggles Pause On/Off")
 	function SlashCmdList.Pause(msg, editbox)
 		if bb.data['Pause'] == 0 then
 			ChatOverlay("\124cFFED0000 -- Paused -- ")
@@ -266,6 +271,7 @@ function bb:Run()
 		end
 	end
 	SLASH_Power1 = "/Power"
+	SlashCommandHelp("Power","Toggles BadBoy On/Off")
 	function SlashCmdList.Power(msg, editbox)
 		if bb.data['Power'] == 0 then
 			ChatOverlay("\124cFF3BB0FF -- BadBoy Enabled -- ")
