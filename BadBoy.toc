@@ -90,6 +90,7 @@ Rotations\Demon Hunter\cDemonHunter.lua
 Rotations\Demon Hunter\Havoc\cHavoc.lua
 Rotations\Demon Hunter\Havoc\Havoc.lua
 Rotations\Demon Hunter\Havoc\HavocCuteOne.lua
+Rotations\Demon Hunter\Havoc\HavocCpoworks.lua
 
 Rotations\Demon Hunter\Vengeance\cVengeance.lua
 Rotations\Demon Hunter\Vengeance\Vengeance.lua
@@ -171,13 +172,14 @@ Rotations\Priest\cPriest.lua
 
 Rotations\Priest\Discipline\cDiscipline.lua
 Rotations\Priest\Discipline\Discipline.lua
+Rotations\Priest\Discipline\DisciplineCpoworks.lua
 
 Rotations\Priest\Holy\cHoly.lua
 Rotations\Priest\Holy\Holy.lua
 
 Rotations\Priest\Shadow\cShadow.lua
 Rotations\Priest\Shadow\Shadow.lua
-Rotations\Priest\Shadow\CpoworksShadow.lua
+Rotations\Priest\Shadow\ShadowCpoworks.lua
 
 ## Rogue ---------------------------------------------------
 Rotations\Rogue\cRogue.lua

@@ -15,9 +15,9 @@ if select(2, UnitClass("player")) == "PRIEST" then
         CreateButton("Rotation",1,0)
         -- Cooldown Button
         CooldownModes = {
-            [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = bb.player.spell.voidEruption },
-            [2] = { mode = "On", value = 1 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = bb.player.spell.voidEruption },
-            [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = bb.player.spell.voidEruption }
+            [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = bb.player.spell.powerInfusion },
+            [2] = { mode = "On", value = 1 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = bb.player.spell.powerInfusion },
+            [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = bb.player.spell.powerInfusion }
         };
        	CreateButton("Cooldown",2,0)
         -- Defensive Button
@@ -26,6 +26,12 @@ if select(2, UnitClass("player")) == "PRIEST" then
             [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = bb.player.spell.dispersion }
         };
         CreateButton("Defensive",3,0)
+        -- Void Form Button
+        VoidEruptionModes = {
+            [1] = { mode = "On", value = 1 , overlay = "Void Eruption Enabled", tip = "Void Eruption will be used.", highlight = 1, icon = bb.player.spell.voidEruption },
+            [2] = { mode = "Off", value = 2 , overlay = "Void Eruption Disabled", tip = "Void Eruption will not be used.", highlight = 0, icon = bb.player.spell.voidEruption }
+        };
+        CreateButton("VoidEruption",4,0)
     end
 
 ---------------
@@ -55,8 +61,6 @@ if select(2, UnitClass("player")) == "PRIEST" then
                 if hasEquiped(128318) then
                     bb.ui:createCheckbox(section,"Touch of the Void")
                 end
-                -- Void Eruption
-                bb.ui:createCheckbox(section,"Void Eruption")
                 -- Shadowfiend
                 bb.ui:createCheckbox(section,"Shadowfiend / Mind Bender")
                 -- Power Infusion
@@ -105,6 +109,7 @@ if select(2, UnitClass("player")) == "PRIEST" then
             UpdateToggle("Rotation",0.25)
             UpdateToggle("Cooldown",0.25)
             UpdateToggle("Defensive",0.25)
+            UpdateToggle("VoidEruption",0.25)
     --------------
     --- Locals ---
     --------------
@@ -156,7 +161,7 @@ if select(2, UnitClass("player")) == "PRIEST" then
             local SWPmaxTargets                                 = getOptionValue("SWP Max Targets")
             local VTmaxTargets                                  = getOptionValue("VT Max Targets")
 
-            if NoMindBlast == nil then NoMindBlast = false end
+            if useMindBlast == nil then useMindBlast = false end
             if leftCombat == nil then leftCombat = GetTime() end
             if profileStop == nil then profileStop = false end
             if IsHackEnabled("NoKnockback") ~= nil then SetHackEnabled("NoKnockback", false) end
@@ -239,21 +244,25 @@ if select(2, UnitClass("player")) == "PRIEST" then
                     if cast.mindBender() then return end
                 end
                 -- Void Eruption
-                if isChecked("Void Eruption") and getDebuffRemain(units.dyn40,spell.vampiricTouch,"player") >= 6 and getDebuffRemain(units.dyn40,spell.shadowWordPain,"player") >= 4 and ((talent.legacyOfTheVoid and power > 70) or power > 100) then
+                if mode.voidEruption == 1 and ((talent.legacyOfTheVoid and power > 70) or power > 100) then
                     if cast.voidEruption() then return end
                 end
                 -- Shadow Crash
-                if talent.shadowCrash then
-                    if cast.shadowCrash() then return end
-                end
+                if cast.shadowCrash() then return end
+                
                 -- Shadow Word Death
-                if cast.shadowWordDeath() then return end
+                -- if ChargesRemaining(ShadowWordDeath) = SpellCharges(ShadowWordDeath)
+                if charges.shadowWordDeath == charges.max.shadowWordDeath then
+                    if cast.shadowWordDeath() then return end
+                end
                 -- Mind Blast
                 if cast.mindBlast() then return end
                 -- Shadow Word: Pain
                 if getDebuffRemain(units.dyn40,spell.shadowWordPain,"player") <= 4 then
                     if cast.shadowWordPain(units.dyn40) then return end 
-                elseif debuff.count.shadowWordPain < SWPmaxTargets 
+                end
+                if getDebuffRemain(units.dyn40,spell.shadowWordPain,"player") > 4 
+                and debuff.count.shadowWordPain < SWPmaxTargets 
                 and debuff.count.vampiricTouch >= 1 then
                     for i=1,#enemies.yards40 do
                         local thisUnit = enemies.yards40[i]
@@ -265,7 +274,9 @@ if select(2, UnitClass("player")) == "PRIEST" then
                 -- Vampiric Touch
                 if getDebuffRemain(units.dyn40,spell.vampiricTouch,"player") <= 6 then
                     if cast.vampiricTouch(units.dyn40) then return end 
-                elseif debuff.count.vampiricTouch < VTmaxTargets 
+                end
+                if getDebuffRemain(units.dyn40,spell.vampiricTouch,"player") > 6
+                and debuff.count.vampiricTouch < VTmaxTargets 
                 and debuff.count.shadowWordPain >= 1 then
                     for i=1,#enemies.yards40 do
                         local thisUnit = enemies.yards40[i]
@@ -289,14 +300,16 @@ if select(2, UnitClass("player")) == "PRIEST" then
             function actionList_VoidForm()
                 --NoMindBlastSwitch
                 if isCastingSpell(spell.mindFlay) or lastSpellCast == spell.mindSpike then
-                    noMindBlast = true
+                    useMindBlast = false
                 else
-                    noMindBlast = false
+                    useMindBlast = true
                 end
                 --Cooldowns
                 if actionList_Cooldowns() then return end
                 --Void Torrent
-                if cast.voidTorrent() then return end
+                if getDebuffRemain(units.dyn40,spell.vampiricTouch,"player") >= 6 and getDebuffRemain(units.dyn40,spell.shadowWordPain,"player") >= 4 then
+                    if cast.voidTorrent() then return end
+                end
                 --VoidBolt
                 if cast.voidBolt() then return end 
                 --Dispersion

@@ -20,10 +20,7 @@ function cShadow:new()
         self.charges.max                = {}        -- Max Charges
         self.spell.spec                 = {} 
         self.spell.spec.abilities       = { 
-            dispelMagic = 528,
             dispersion = 47585,
-            fade = 586,
-            levitate = 1706,
             massDispel = 32375,
             mindBender = 200174,
             mindBlast = 8092,
@@ -33,10 +30,6 @@ function cShadow:new()
             mindSpike = 73510,
             mindVision = 2096,
             powerInfusion = 10060,
-            powerWordShield = 17,
-            purifyDisease = 213634,
-            resurrection = 2006,
-            shackleUndead = 9484,
             shadowCrash = 205385,
             shadowMend = 186263,
             shadowWordDeath = 32379,
@@ -293,7 +286,7 @@ function cShadow:new()
             self.mode.rotation  = bb.data["Rotation"]
             self.mode.cooldown  = bb.data["Cooldown"]
             self.mode.defensive = bb.data["Defensive"]
-            self.mode.interrupt = bb.data["Interrupt"]
+            self.mode.voidEruption = bb.data["VoidEruption"]
         end
 
         -- Create the toggle defined within rotation files
@@ -512,7 +505,7 @@ function cShadow:new()
             if thisUnit == nil then thisUnit = "player" end
             if debug == nil then debug = false end
 
-            if self.cd.shadowCrash == 0 then
+            if self.cd.shadowCrash == 0 and self.talent.shadowCrash then
                 if debug then
                     return castSpell(thisUnit,spellCast,true,false,false,false,false,false,false,true)
                 else
@@ -532,11 +525,11 @@ function cShadow:new()
             if debug == nil then debug = false end
             thisUnitHP = thp(thisUnit)
 
-            if getDistance(thisUnit) < 40 and self.cd.shadowWordDeath == 0 and ((self.talent.reaperOfSouls and thisUnitHP <= 35) or thisUnitHP <= 20) then
+            if getDistance(thisUnit) < 40 and self.cd.shadowWordDeath == 0 and ((getTalent(4,2) and thisUnitHP < 35) or thisUnitHP < 20) then
                 if debug then
-                    return castSpell(thisUnit,spellCast,true,false,false,false,false,false,false,true)
+                    return castSpell(thisUnit,spellCast,true,false,false,true,false,false,true,true)
                 else
-                    return castSpell(thisUnit,spellCast,true,false)
+                    return castSpell(thisUnit,spellCast,true,false,false,true,false,false,true)
                 end
             elseif debug then
                 return false
@@ -639,8 +632,8 @@ function cShadow:new()
             local thisUnit = thisUnit
             if thisUnit == nil then thisUnit = self.units.dyn40 end
             if debug == nil then debug = false end
-
-            if lastSpellCast ~= spellCast and getDistance(thisUnit) < 40 and self.cd.vampiricTouch == 0 then
+            --lastSpellCast ~= spellCast and
+            if getDistance(thisUnit) < 40 and self.cd.vampiricTouch == 0 then
                 if debug then
                     return castSpell(thisUnit,spellCast,true,true,false,false,false,false,false,true)
                 else
@@ -678,7 +671,7 @@ function cShadow:new()
 
             if getDistance(thisUnit) < 40 and self.cd.voidEruption == 0 then
                 if debug then
-                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                    return castSpell(thisUnit,spellCast,false,false,false,true,false,false,true,true)
                 else
                     return castSpell(thisUnit,spellCast,false,false,false,true,false,false,true)
                 end
