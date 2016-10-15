@@ -632,12 +632,11 @@ function cShadow:new()
             local thisUnit = thisUnit
             if thisUnit == nil then thisUnit = self.units.dyn40 end
             if debug == nil then debug = false end
-            --lastSpellCast ~= spellCast and
             if getDistance(thisUnit) < 40 and self.cd.vampiricTouch == 0 then
                 if debug then
                     return castSpell(thisUnit,spellCast,true,true,false,false,false,false,false,true)
                 else
-                    return castSpell(thisUnit,spellCast,true,true)
+                    return castSpell(thisUnit,spellCast,true,true,false)
                 end
             elseif debug then
                 return false

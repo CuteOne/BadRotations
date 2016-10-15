@@ -263,7 +263,7 @@ if select(2, UnitClass("player")) == "PRIEST" then
                 end
                 if getDebuffRemain(units.dyn40,spell.shadowWordPain,"player") > 4 
                 and debuff.count.shadowWordPain < SWPmaxTargets 
-                and debuff.count.vampiricTouch >= 1 then
+                and (debuff.count.vampiricTouch >= 1 or isMoving("player")) then
                     for i=1,#enemies.yards40 do
                         local thisUnit = enemies.yards40[i]
                         if getDebuffRemain(thisUnit,spell.shadowWordPain,"player") <= 4 then
@@ -341,7 +341,7 @@ if select(2, UnitClass("player")) == "PRIEST" then
                 end
                 -- Mind Blast
                 -- if IsSwitchOff(NoMindBlast)
-                if not noMindBlast then
+                if useMindBlast then
                     if cast.mindBlast() then return end
                 end
                 -- SWD
