@@ -261,9 +261,7 @@ if select(2, UnitClass("player")) == "PRIEST" then
                 if getDebuffRemain(units.dyn40,spell.shadowWordPain,"player") <= 4 then
                     if cast.shadowWordPain(units.dyn40) then return end 
                 end
-                if getDebuffRemain(units.dyn40,spell.shadowWordPain,"player") > 4 
-                and debuff.count.shadowWordPain < SWPmaxTargets 
-                and (debuff.count.vampiricTouch >= 1 or isMoving("player")) then
+                if getDebuffRemain(units.dyn40,spell.shadowWordPain,"player") > 4 and debuff.count.shadowWordPain < SWPmaxTargets and (debuff.count.vampiricTouch >= 1 or isMoving("player")) then
                     for i=1,#enemies.yards40 do
                         local thisUnit = enemies.yards40[i]
                         if getDebuffRemain(thisUnit,spell.shadowWordPain,"player") <= 4 then
@@ -272,12 +270,10 @@ if select(2, UnitClass("player")) == "PRIEST" then
                     end
                 end              
                 -- Vampiric Touch
-                if getDebuffRemain(units.dyn40,spell.vampiricTouch,"player") <= 6 then
+                if getDebuffRemain(units.dyn40,spell.vampiricTouch,"player") <= 6 and not isCastingSpell(spell.vampiricTouch)then
                     if cast.vampiricTouch(units.dyn40) then return end 
                 end
-                if getDebuffRemain(units.dyn40,spell.vampiricTouch,"player") > 6
-                and debuff.count.vampiricTouch < VTmaxTargets 
-                and debuff.count.shadowWordPain >= 1 then
+                if getDebuffRemain(units.dyn40,spell.vampiricTouch,"player") > 6 and not isCastingSpell(spell.vampiricTouch) and debuff.count.vampiricTouch < VTmaxTargets and debuff.count.shadowWordPain >= 1 then
                     for i=1,#enemies.yards40 do
                         local thisUnit = enemies.yards40[i]
                         if getDebuffRemain(thisUnit,spell.vampiricTouch,"player") <= 6 then
@@ -307,7 +303,7 @@ if select(2, UnitClass("player")) == "PRIEST" then
                 --Cooldowns
                 if actionList_Cooldowns() then return end
                 --Void Torrent
-                if getDebuffRemain(units.dyn40,spell.vampiricTouch,"player") >= 6 and getDebuffRemain(units.dyn40,spell.shadowWordPain,"player") >= 4 then
+                if ttd(units.dyn40) > 5 and getDebuffRemain(units.dyn40,spell.vampiricTouch,"player") >= 6 and getDebuffRemain(units.dyn40,spell.shadowWordPain,"player") >= 4 then
                     if cast.voidTorrent() then return end
                 end
                 --VoidBolt
@@ -315,14 +311,15 @@ if select(2, UnitClass("player")) == "PRIEST" then
                 --Dispersion
                 -- if HasBuff(SurrenderedSoul) and Abs(AlternatePowerRegen * GlobalCooldownSec) > AlternatePower and not CanUse(ShadowWordDeath)
                 if buff.surrenderedSoul and (powgen * gcd) > power and not cast.shadowWordDeath(units.dyn40,true) then
+                    if cast.dispersion() then return end
                 end
                 --MindBender
-                if isChecked("Shadowfiend / Mind Bender") and talent.mindBender then
+                if useCDs() and isChecked("Shadowfiend / Mind Bender") and talent.mindBender then
                     if cast.mindBender() then return end  
                 end
                 --Power Infusion
                 -- if (BuffStack(Voidform) >= 10 and not HasBuff(SurrenderedSoul)) or BuffStack(Voidform) > 60
-                if isChecked("Power Infusion") and (buff.stack.voidForm >= 10 and not buff.surrenderedSoul) or buff.stack.voidForm >= 60 then
+                if useCDs() and isChecked("Power Infusion") and (buff.stack.voidForm >= 10 and not buff.surrenderedSoul) or buff.stack.voidForm >= 60 then
                     if cast.powerInfusion() then return end 
                 end
                 --Shadow Crash
@@ -355,7 +352,7 @@ if select(2, UnitClass("player")) == "PRIEST" then
                     if cast.shadowWordVoid() then return end
                 end
                 -- Shadowfiend
-                if isChecked("Shadowfiend / Mind Bender") and buff.stack.voidForm > 15 then
+                if useCDs() and isChecked("Shadowfiend / Mind Bender") and buff.stack.voidForm > 15 then
                     if cast.shadowfiend() then return end
                 end
                 -- Shadow Word: Pain
@@ -363,7 +360,7 @@ if select(2, UnitClass("player")) == "PRIEST" then
                     if cast.shadowWordPain(units.dyn40) then return end 
                 end              
                 -- Vampiric Touch
-                 if getDebuffRemain(units.dyn40,spell.vampiricTouch,"player") <= 6 then
+                 if getDebuffRemain(units.dyn40,spell.vampiricTouch,"player") <= 6 and not isCastingSpell(spell.vampiricTouch) then
                     if cast.vampiricTouch(units.dyn40) then return end 
                 end 
                 -- Mind Sear

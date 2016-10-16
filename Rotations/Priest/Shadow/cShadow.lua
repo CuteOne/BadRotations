@@ -381,9 +381,9 @@ function cShadow:new()
 
             if self.cd.mindBender == 0 then
                 if debug then
-                    return castSpell(thisUnit,spellCast,false,true,false,false,false,false,false,true)
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
-                    return castSpell(thisUnit,spellCast,false,true)
+                    return castSpell(thisUnit,spellCast,false,false)
                 end
             elseif debug then
                 return false
@@ -471,9 +471,9 @@ function cShadow:new()
 
             if self.talent.powerInfusion and self.cd.powerInfusion == 0 then
                 if debug then
-                    return castSpell(thisUnit,spellCast,false,true,false,false,false,false,false,true)
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
-                    return castSpell(thisUnit,spellCast,false,true)
+                    return castSpell(thisUnit,spellCast,false,false)
                 end
             elseif debug then
                 return false
@@ -489,9 +489,9 @@ function cShadow:new()
 
             if self.cd.shadowfiend == 0 then
                 if debug then
-                    return castSpell(thisUnit,spellCast,false,true,false,false,false,false,false,true)
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
-                    return castSpell(thisUnit,spellCast,false,true)
+                    return castSpell(thisUnit,spellCast,false,false)
                 end
             elseif debug then
                 return false

@@ -21,7 +21,7 @@ function cDiscipline:new()
         self.charges.max                = {}
         self.spell.spec                 = {}
         self.spell.spec.abilities       = {         -- List any spell you can cast (not passive) here (used in spell functions and to gather cooldown info)
-            sampleSpell                 = 00000,
+            
         }
         self.spell.spec.artifacts       = {         -- List artifact trait ids here (used to gather artifact info)
 
