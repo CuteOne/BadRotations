@@ -215,6 +215,7 @@ if select(2, UnitClass("player")) == "DRUID" then
             local perk                                          = bb.player.perk        
             local php                                           = bb.player.health
             local playerMouse                                   = UnitIsPlayer("mouseover")
+            local potion                                        = bb.player.potion
             local power, powmax, powgen                         = bb.player.power, bb.player.powerMax, bb.player.powerRegen
             local pullTimer                                     = bb.DBM:getPulltimer()
             local racial                                        = bb.player.getRacial()
@@ -241,6 +242,11 @@ if select(2, UnitClass("player")) == "DRUID" then
             if talent.jaggedWounds then
                 if rkTick == 3 then rkTick = rkTick - (rkTick * 0.3) end
                 if rpTick == 2 then rpTick = rpTick - (rpTick * 0.3) end
+            end
+            if bb.player.potion.agility[1] ~= nil then
+                agiPot = bb.player.potion.agility[1].itemID 
+            else
+                agiPot = 0
             end
             -- ChatOverlay(round2(getDistance2("target"),2)..", "..round2(getDistance3("target"),2)..", "..round2(getDistance4("target"),2)..", "..round2(getDistance5("target"),2))
 	--------------------
@@ -503,9 +509,9 @@ if select(2, UnitClass("player")) == "DRUID" then
 					end
             -- Agi-Pot
                     -- if=((buff.berserk.remains>10|buff.incarnation.remains>20)&(target.time_to_die<180|(trinket.proc.all.react&target.health.pct<25)))|target.time_to_die<=40
-                    if useCDs() and isChecked("Agi-Pot") and canUse(109217) and inRaid then
+                    if useCDs() and isChecked("Agi-Pot") and canUse(agiPot) and inRaid then
                         if ((buff.remain.berserk > 10 or buff.remain.incarnationKingOfTheJungle > 20) and (ttd(units.dyn5) < 180 or (trinketProc and thp(units.dyn5)<25))) or ttd(units.dyn5)<=40 then
-                            useItem(109217)
+                            useItem(agiPot);
                             return true
                         end
                     end
@@ -527,7 +533,6 @@ if select(2, UnitClass("player")) == "DRUID" then
             -- Tiger's Fury
                     if isChecked("Tiger's Fury") then
                         -- if=(!buff.clearcasting.react&energy.deficit>=60)|energy.deficit>=80|(t18_class_trinket&buff.berserk.up&buff.tigers_fury.down)
-                        -- tigers_fury,if=(!buff.clearcasting.react&energy.deficit>=60)|energy.deficit>=80|(t18_class_trinket&buff.berserk.up&buff.tigers_fury.down)
                         if (not clearcast and bb.player.powerDeficit >= 60) or bb.player.powerDeficit >= 80 or (hasEquiped(124514) and buff.berserk and not buff.tigersFury) then
                             if cast.tigersFury() then return end
                         end
@@ -541,6 +546,241 @@ if select(2, UnitClass("player")) == "DRUID" then
                     end
                 end -- End useCooldowns check
             end -- End Action List - Cooldowns
+        -- Action List - SBTOpener
+            local function actionList_SBTOpener()
+            -- Healing Touch
+                -- healing_touch,if=talent.bloodtalons.enabled&combo_points=5&!buff.bloodtalons.up&!dot.rip.ticking
+                if talent.sabertooth and combo == 5 and not buff.bloodtalons and not debuff.rip then
+                    if getOptionValue("Auto Heal")==1 then
+                        if cast.healingTouch(bb.friend[1].unit) then return end
+                    end
+                    if getOptionValue("Auto Heal")==2 then
+                        if cast.healingTouch("player") then return end
+	                end
+				end
+            -- Tiger's Fury
+                -- tigers_fury,if=!dot.rip.ticking&combo_points=5
+                if not debuff.rip and combo == 5 then
+                    if cast.tigersFury() then return end
+                end
+            end
+        -- Action List - Finisher
+            local function actionList_Finisher()
+            -- Finisher Condition
+                -- combo_points=5&(energy.time_to_max<1|buff.berserk.up|buff.incarnation.up|buff.elunes_guidance.up|cooldown.tigers_fury.remains<3|set_bonus.tier18_4pc|buff.clearcasting.react|talent.soul_of_the_forest.enabled|!dot.rip.ticking|(dot.rake.remains<1.5&spell_targets.swipe_cat<6))
+                if combo == 5 and (ttm < 1 or buff.berserk or buff.incarnationKingOfTheJungle or buff.elunesGuidance or cd.tigersFury < 3 or t18_4pc 
+                    or buff.clearcasting or talent.soulOfTheForest or not debuff.rip or (debuff.remain.rake < 1.5 and #enemies.yards8 < 6)) 
+                then
+                    fatality = true
+                end
+            -- Ferocious Bite Finisher Condition
+                -- combo_points=5&(energy.time_to_max<1|buff.berserk.up|buff.incarnation.up|buff.elunes_guidance.up|cooldown.tigers_fury.remains<3|set_bonus.tier18_4pc|(talent.moment_of_clarity.enabled&buff.clearcasting.react))
+                if combo == 5 and (ttm < 1 or buff.berserk or buff.incarnationKingOfTheJungle or buff.elunesGuidance or cd.tigersFury < 3 or t18_4pc 
+                    or (talent.momentOfClarity and buff.clearcasting)) 
+                then
+                    animality = true
+                end
+            -- Savage Roar
+                -- pool_resource,for_next=1
+                -- savage_roar,if=!buff.savage_roar.up&(combo_points=5|(talent.brutal_slash.enabled&spell_targets.brutal_slash>desired_targets&action.brutal_slash.charges>0))
+                if not buff.savageRoar and (combo == 5 or (talent.brutalSlash and #enemies.yards8 > getOptionValue("Brutal Slash Targest") and charges.brutalSlash > 0)) then
+                    if power <= 40 then
+                        return true
+                    elseif power > 40 then
+                        if cast.savageRoar() then return end
+                    end
+                end
+            -- Thrash
+                -- pool_resource,for_next=1
+                -- cycle_targets=1,if=remains<=duration*0.3&spell_targets.thrash_cat>=5
+                for k,v in pairs(bleed.thrash) do
+                    local thrash = bleed.thrash[k]
+                    local thisUnit = k
+                    if (multidot or (UnitIsUnit(thisUnit,units.dyn8AoE) and not multidot)) then 
+                        if getDistance(thisUnit) < 8 then
+                            if thrash.remain <= thrash.duration * 0.3 and #enemies.yards8 >= 5 then
+                                if power <= 50 then
+                                    return true
+                                elseif power > 50 then
+                                    if cast.thrash(thisUnit) then return end
+                                end
+                            end
+                        end
+                    end
+                end
+            -- Swipe
+                -- pool_resource,for_next=1
+                -- swipe_cat,if=spell_targets.swipe_cat>=8
+                if useAoE() then
+                    if #enemies.yards8 >= 8 then
+                        if power <= 45 then
+                            return true
+                        elseif power > 45 then
+                            if cast.swipe() then return end
+                        end
+                    end
+                end
+            -- Rip
+                -- rip,cycle_targets=1,if=(!ticking|(remains<8&target.health.pct>25&!talent.sabertooth.enabled)|persistent_multiplier>dot.rip.pmultiplier)&target.time_to_die-remains>tick_time*4&$(finisher_conditions)
+                for k,v in pairs(bleed.rip) do
+                    local rip = bleed.rip[k]
+                    local thisUnit = k
+                    if (multidot or (UnitIsUnit(thisUnit,units.dyn5) and not multidot)) then
+                        if getDistance(thisUnit) < 5 then
+                            if (rip.remain == 0 or (rip.remain < 8 and thp(thisUnit) > 25 and not talent.sabertooth) 
+                                or rip.calc > rip.applied) and ttd(thisUnit) - rip.remain > rpTick * 4 and fatality 
+                            then
+                               if cast.rip(thisUnit) then return end
+                            end
+                        end
+                    end
+                end
+            -- Savage Roar
+                -- savage_roar,if=(buff.savage_roar.remains<=10.5|(buff.savage_roar.remains<=7.2&!talent.jagged_wounds.enabled))&$(finisher_conditions)
+                if (buff.remain.savageRoar <= 10.5 or (buff.remain.savageRoar <= 7.2 and not talent.jaggedWounds)) and fatality then
+                    if cast.savageRoar() then return end
+                end
+            -- Swipe
+                -- swipe_cat,if=combo_points=5&(spell_targets.swipe_cat>=6|(spell_targets.swipe_cat>=3&!talent.bloodtalons.enabled))&$(fb_finisher_conditions)
+                if useAoE() then
+                    if combo == 5 and (#enemies.yards8 >= 6 or (#enemies.yards8 >= 3 and not talent.bloodtalons)) and animality then
+                        if cast.swipe() then return end
+                    end
+                end
+            -- Ferocious Bite
+                -- ferocious_bite,max_energy=1,cycle_targets=1,if=$(fb_finisher_conditions)
+                for i = 1, #enemies.yards5 do
+                    local thisUnit = enemies.yards5[i]
+                    if power > 50 and animality then
+                        if cast.ferociousBite(thisUnit) then return end
+                    end
+                end
+            end
+        -- Action List - Generator
+            local function actionList_Generator()
+            -- Brutal Slash
+                -- brutal_slash,cycle_targets=1,if=spell_targets.brutal_slash>desired_targets&combo_points<5
+                if useAoE() then
+                    if #enemies.yards8 >= getOptionValue("Brutal Slash Targets") and combo < 5 then
+                        if cast.brutalSlash() then return end
+                    end
+                end
+            -- Ashamane's Frenzy
+                -- if=combo_points<=2&buff.elunes_guidance.down&(buff.bloodtalons.up|!talent.bloodtalons.enabled)&(buff.savage_roar.up|!talent.savage_roar.enabled)
+                if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()) then
+                    if combo <= 2 and not buff.elunesGuidance and (buff.bloodtalons or not talent.bloodtalons) and (buff.savageRoar or not talent.savageRoar) then
+                        if cast.ashamanesFrenzy() then return end
+                    end
+                end
+            -- Pool for Elunes Guidance
+                -- pool_resource,if=talent.elunes_guidance.enabled&combo_points=0&energy<action.ferocious_bite.cost+25-energy.regen*cooldown.elunes_guidance.remains
+                -- elunes_guidance,if=talent.elunes_guidance.enabled&combo_points=0&energy>=action.ferocious_bite.cost+25
+                if talent.elunesGuidance and combo == 0 then
+                    if power < 50 - powgen * cd.elunesGuidance then
+                        return true
+                    elseif power >= 50 then
+                        if cast.elunesGuidance() then return end
+                    end
+                end
+            -- Thrash
+                -- pool_resource,for_next=1
+                -- if=talent.brutal_slash.enabled&spell_targets.thrash_cat>=9
+                if (multidot or (UnitIsUnit("target",units.dyn8AoE) and not multidot)) then  
+                    if talent.brutalSlash and #enemies.yards8 >= 9 then
+                       if power <= 50 then
+                            return true
+                        elseif power > 50 then
+                            if cast.thrash() then return end
+                        end
+                    end
+                end
+            -- Swipe
+                -- pool_resource,for_next=1
+                -- swipe_cat,if=spell_targets.swipe_cat>=6
+                if ((mode.rotation == 1 and #enemies.yards8 >= 6) or mode.rotation == 2) then
+                    if power <= 45 then
+                        return true
+                    elseif power > 45 then
+                        if cast.swipe() then return end
+                    end
+                end
+            -- Shadowmeld
+                -- shadowmeld,if=combo_points<5&energy>=action.rake.cost&dot.rake.pmultiplier<2.1&buff.tigers_fury.up&(buff.bloodtalons.up|!talent.bloodtalons.enabled)&(!talent.incarnation.enabled|cooldown.incarnation.remains>18)&!buff.incarnation.up
+                if useCDs() then
+                    for k,v in pairs(bleed.rake) do
+                        local rake = bleed.rake[k]
+                        local thisUnit = k
+                        if UnitIsUnit(thisUnit,units.dyn5) and getDistance(thisUnit) < 5 then
+                            if combo < 5 and power >= 35 and rake.applied < 2.1 and buff.tigersFury and (buff.bloodtalons or not talent.bloodtalons) 
+                                and (not talent.incarnationKingOfTheJungle or cd.incarnationKingOfTheJungle > 18) and not buff.incarnationKingOfTheJungle 
+                            then
+                                if cast.shadowmeld() then return end
+                            end
+                        end
+                    end
+                end
+            -- Rake
+                -- pool_resource,for_next=1
+                -- rake,cycle_targets=1,if=combo_points<5&(!ticking|(!talent.bloodtalons.enabled&remains<duration*0.3)|(talent.bloodtalons.enabled&buff.bloodtalons.up&(!talent.soul_of_the_forest.enabled&remains<=7|remains<=5)&persistent_multiplier>dot.rake.pmultiplier*0.80))&target.time_to_die-remains>tick_time
+                for k,v in pairs(bleed.rake) do
+                    local rake = bleed.rake[k]
+                    local thisUnit = k
+                    if (multidot or (UnitIsUnit(thisUnit,units.dyn5) and not multidot)) and getDistance(thisUnit) < 5 then
+                        if combo < 5 and (rake.remain == 0 or (not talent.bloodtalons and rake.remain < rake.duration * 0.3) 
+                            or (talent.bloodtalons and buff.bloodtalons and (not talent.soulOfTheForest and rake.remain <= 7 or rake.remain <= 5) 
+                                and rake.calc > rake.applied * 0.80)) and ttd(thisUnit) - rake.remain > rkTick 
+                        then
+                            if power <= 35 then
+                                return true
+                            elseif power > 35 then
+                                if cast.rake(thisUnit) then return end
+                            end
+                        end
+                    end
+                end
+            -- Moonfire
+                -- moonfire_cat,cycle_targets=1,if=combo_points<5&remains<=4.2&target.time_to_die-remains>tick_time*2
+                for k,v in pairs(bleed.moonfireFeral) do
+                    local moonfire = bleed.moonfireFeral[k]
+                    local thisUnit = k
+                    if multidot or (UnitIsUnit(thisUnit,units.dyn40AoE) and not multidot) then
+                        if combo < 5 and moonfire.remain <= 4.2 and ((ttd(thisUnit) - moonfire.remain > mfTick * 2) or isDummy(thisUnit)) then
+                           if cast.moonfireFeral(thisUnit) then return end
+                        end
+                    end
+                end 
+            -- Thrash
+                -- pool_resource,for_next=1
+                -- cycle_targets=1,if=remains<=duration*0.3&spell_targets.thrash_cat>=2
+                for k,v in pairs(bleed.thrash) do
+                    local thrash = bleed.thrash[k]
+                    local thisUnit = k
+                    if (multidot or (UnitIsUnit(thisUnit,units.dyn8AoE) and not multidot)) and getDistance(thisUnit) < 5 then
+                        if thrash.remain <= thrash.duration * 0.3 and #enemies.yards8 >= 2 then
+                            if power <= 50 then
+                                return true
+                            elseif power > 50 then
+                                if cast.thrash(thisUnit) then return end
+                            end
+                        end
+                    end
+                end
+            -- Brutal Slash
+                -- brutal_slash,if=combo_points<5&((raid_event.adds.exists&raid_event.adds.in>(1+max_charges-charges_fractional)*15)|(!raid_event.adds.exists&(charges_fractional>2.66&time>10)))
+                if combo < 5 and ((addsExist and addsIn > (1 + charges.max.brutalSlash - charges.frac.brutalSlash) * 15) or (not addsExist and (charges.frac.brutalSlash > 2.66 and combatTime > 10))) then
+                    if cast.brutalSlash() then return end
+                end
+            -- Swipe
+                -- swipe_cat,if=combo_points<5&spell_targets.swipe_cat>=3
+                if combo < 5 and ((mode.rotation == 1 and #enemies.yards8 >= 3) or mode.rotation == 2) then
+                    if cast.swipe() then return end
+                end
+            -- Shred
+                -- shred,if=combo_points<5&(spell_targets.swipe_cat<3|talent.brutal_slash.enabled)
+                if combo < 5 and (((mode.rotation == 1 and #enemies.yards8 < 3) or mode.rotation == 3) or talent.brutalSlash or level < 32) then
+                    if cast.shred() then return end
+                end
+            end
         -- Action List - PreCombat
             local function actionList_PreCombat()
                 if not inCombat and not (IsFlying() or IsMounted()) then
@@ -559,9 +799,10 @@ if select(2, UnitClass("player")) == "DRUID" then
                                 end
                             end
                         end
-            -- TODO: food,type=the_hungry_magister
+            -- TODO: food,type=nightborne_delicacy_platte
+            -- TOOD: augmentation,type=defiled
             -- Prowl - Non-PrePull
-                        if cat and #enemies.yards20 > 0 and useProwl() and not inInstance and not inRaid and GetTime()-leftCombat > lootDelay then --and (not friendly or isDummy()) 
+                        if cat and #enemies.yards20 > 0 and useProwl() --[[and not inInstance and not inRaid]] and GetTime()-leftCombat > lootDelay then 
                             for i = 1, #enemies.yards20 do
                                 local thisUnit = enemies.yards20[i]
                                 if UnitIsEnemy(thisUnit,"player") then
@@ -586,19 +827,19 @@ if select(2, UnitClass("player")) == "DRUID" then
                         end
                         if buff.prowl then
             -- Pre-Pot
-                            -- potion,name=draenic_agility
-                            if useCDs() and isChecked("Agi-Pot") and canUse(109217) then
-                                useItem(109217)
+                            -- potion,name=old_war
+                            if useCDs() and isChecked("Agi-Pot") and canUse(agiPot) then
+                                useItem(agiPot);
                                 return true
                             end
-            -- Elunes Guidance
-                            -- elunes_guidance,if=talent.savage_roar.enabled
-                            if talent.savageRoar then
-                                if cast.elunesGuidance() then return end
-                            end
-            -- Savage Roar
-                            -- savage_roar
-                            if cast.savageRoar() then return end
+            -- -- Elunes Guidance
+            --                 -- elunes_guidance,if=talent.savage_roar.enabled
+            --                 if talent.savageRoar then
+            --                     if cast.elunesGuidance() then return end
+            --                 end
+            -- -- Savage Roar
+            --                 -- savage_roar
+            --                 if cast.savageRoar() then return end
                         end -- End Prowl
                     end -- End Pre-Pull
             -- Rake/Shred
@@ -641,11 +882,14 @@ if select(2, UnitClass("player")) == "DRUID" then
                     if cast.catForm() then return end
                 elseif inCombat and cat and profileStop==false and not isChecked("Death Cat Mode") and isValidUnit("target") and getDistance(units.dyn5) < 5 then
             -- Wild Charge
+                    -- wild_charge
                     if isChecked("Displacer Beast / Wild Charge") and UnitExists("target") then
                         if cast.wildCharge("target") then return end 
                     end
             -- TODO: Displacer Beast
+                    -- displacer_beast,if=movement.distance>10
             -- TODO: Dash/Worgen Racial
+                    -- dash,if=movement.distance&buff.displacer_beast.down&buff.wild_charge_movement.down
             -- Rake/Shred from Stealth
                     -- rake,if=buff.prowl.up|buff.shadowmeld.up
                     if buff.prowl or buff.shadowmeld then
@@ -705,25 +949,14 @@ if select(2, UnitClass("player")) == "DRUID" then
                                     if cast.healingTouch("player") then return end
                                 end
                             end
-                            -- healing_touch,if=talent.sabertooth.enabled&time<20&talent.bloodtalons.enabled&combo_points=5&!buff.bloodtalons.up&!dot.rip.ticking
-                            if talent.sabertooth and combatTime < 20 and talent.bloodtalons and combo == 5 and not buff.bloodtalons and not debuff.rip then
-                                if getOptionValue("Auto Heal")==1 then
-                                    if cast.healingTouch(bb.friend[1].unit) then return end
-                                end
-                                if getOptionValue("Auto Heal")==2 then
-                                    if cast.healingTouch("player") then return end
-    			                end
-    						end
-            -- Tiger's Fury
-                            -- tigers_fury,if=talent.sabertooth.enabled&time<20&!dot.rip.ticking&combo_points=5
-                            if isChecked("Tiger's Fury") then
-                                if talent.sabertooth and combatTime < 20 and not debuff.rip and combo == 5 then
-                                    if cast.tigersFury() then return end
-                                end
+            -- Call Action List - SBTOpener
+                            -- call_action_list,name=sbt_opener,if=talent.sabertooth.enabled&time<20
+                            if talent.sabertooth and combatTime < 20 then
+                                if actionList_SBTOpener() then return end
                             end
             -- Healing Touch
-                            -- healing_touch,if=talent.bloodtalons.enabled&buff.predatory_swiftness.up&combo_points>=4&dot.rake.remains<dot.rake.duration*0.3+gcd&active_enemies<3
-                            if talent.bloodtalons and buff.predatorySwiftness and combo >= 4 and debuff.remain.rake < debuff.duration.rake * 0.3 + gcd and #enemies.yards5 < 3 then
+                            -- healing_touch,if=equipped.ailuro_pouncers&talent.bloodtalons.enabled&buff.predatory_swiftness.stack>1&buff.bloodtalons.down
+                            if hasEquiped(137024) and talent.bloodtalons and buff.stack.predatorySwiftness > 1 and not buff.bloodtalons then
                                 if getOptionValue("Auto Heal")==1 then
                                     if cast.healingTouch(bb.friend[1].unit) then return end
                                 end
@@ -731,219 +964,12 @@ if select(2, UnitClass("player")) == "DRUID" then
                                     if cast.healingTouch("player") then return end
                                 end
                             end
-            -- Finisher Condition
-                            -- combo_points=5&(energy.time_to_max<1|buff.berserk.up|buff.incarnation.up|buff.elunes_guidance.up|cooldown.tigers_fury.remains<3|set_bonus.tier18_4pc|buff.clearcasting.react|talent.soul_of_the_forest.enabled|!dot.rip.ticking|(dot.rake.remains<1.5&spell_targets.swipe_cat<6))
-                            if combo == 5 and (ttm < 1 or buff.berserk or buff.incarnationKingOfTheJungle or buff.elunesGuidance or cd.tigersFury < 3 or t18_4pc 
-                                or buff.clearcasting or talent.soulOfTheForest or not debuff.rip or (debuff.remain.rake < 1.5 and #enemies.yards8 < 6)) 
-                            then
-                                fatality = true
-                            end
-            -- Ferovious Bite Finisher Condition
-                            -- combo_points=5&(energy.time_to_max<1|buff.berserk.up|buff.incarnation.up|buff.elunes_guidance.up|cooldown.tigers_fury.remains<3|set_bonus.tier18_4pc|(talent.moment_of_clarity.enabled&buff.clearcasting.react))
-                            if combo == 5 and (ttm < 1 or buff.berserk or buff.incarnationKingOfTheJungle or buff.elunesGuidance or cd.tigersFury < 3 or t18_4pc 
-                                or (talent.momentOfClarity and buff.clearcasting)) 
-                            then
-                                animality = true
-                            end
-			-- Savage Roar
-    						-- pool_resource,for_next=1
-                            -- savage_roar,if=!buff.savage_roar.up&(combo_points=5|(talent.brutal_slash.enabled&spell_targets.brutal_slash>desired_targets&action.brutal_slash.charges>0))
-    						if not buff.savageRoar and (combo == 5 or (talent.brutalSlash and #enemies.yards8 > getOptionValue("Brutal Slash Targest") and charges.brutalSlash > 0)) then
-                                if power <= 40 then
-                                    return true
-                                elseif power > 40 then
-                                    if cast.savageRoar() then return end
-                                end
-    			            end
-			-- Thrash
-                            -- pool_resource,for_next=1
-                            -- cycle_targets=1,if=remains<=duration*0.3&spell_targets.thrash_cat>=5
-    						for k,v in pairs(bleed.thrash) do
-                                local thrash = bleed.thrash[k]
-                                local thisUnit = k
-    							if (multidot or (UnitIsUnit(thisUnit,units.dyn8AoE) and not multidot)) then 
-                                    if getDistance(thisUnit) < 8 then
-                                        if thrash.remain <= thrash.duration * 0.3 and #enemies.yards8 >= 5 then
-                                            if power <= 50 then
-                                                return true
-                                            elseif power > 50 then
-        								        if cast.thrash(thisUnit) then return end
-                                            end
-                                        end
-                                    end
-    							end
-    						end
-            -- Swipe
-                            -- pool_resource,for_next=1
-                            -- swipe_cat,if=spell_targets.swipe_cat>=8
-                            if useAoE() then
-                                if #enemies.yards8 >= 8 then
-                                    if power <= 45 then
-                                        return true
-                                    elseif power > 45 then
-                                        if cast.swipe() then return end
-                                    end
-                                end
-                            end
-            -- Rip
-                            -- rip,cycle_targets=1,if=(!ticking|(remains<8&target.health.pct>25&!talent.sabertooth.enabled)|persistent_multiplier>dot.rip.pmultiplier)&target.time_to_die-remains>tick_time*4&$(finisher_conditions)
-                            for k,v in pairs(bleed.rip) do
-                                local rip = bleed.rip[k]
-                                local thisUnit = k
-                                if (multidot or (UnitIsUnit(thisUnit,units.dyn5) and not multidot)) then
-                                    if getDistance(thisUnit) < 5 then
-                                        if (rip.remain == 0 or (rip.remain < 8 and thp(thisUnit) > 25 and not talent.sabertooth) 
-                                            or rip.calc > rip.applied) and ttd(thisUnit) - rip.remain > rpTick * 4 and fatality 
-                                        then
-                                           if cast.rip(thisUnit) then return end
-                                        end
-                                    end
-                                end
-                            end
-            -- Savage Roar
-                            -- savage_roar,if=(buff.savage_roar.remains<=10.5|(buff.savage_roar.remains<=7.2&!talent.jagged_wounds.enabled))&$(finisher_conditions)
-                            if (buff.remain.savageRoar <= 10.5 or (buff.remain.savageRoar <= 7.2 and not talent.jaggedWounds)) and fatality then
-                                if cast.savageRoar() then return end
-                            end
-            -- Swipe
-                            -- swipe_cat,if=combo_points=5&(spell_targets.swipe_cat>=6|(spell_targets.swipe_cat>=3&!talent.bloodtalons.enabled))&$(fb_finisher_conditions)
-                            if useAoE() then
-                                if combo == 5 and (#enemies.yards8 >= 6 or (#enemies.yards8 >= 3 and not talent.bloodtalons)) and animality then
-                                    if cast.swipe() then return end
-                                end
-                            end
-            -- Ferocious Bite
-                            -- ferocious_bite,max_energy=1,cycle_targets=1,if=$(fb_finisher_conditions)
-                            for i = 1, #enemies.yards5 do
-                                local thisUnit = enemies.yards5[i]
-                                if power > 50 and animality then
-                                    if cast.ferociousBite(thisUnit) then return end
-                                end
-                            end
-            -- Brutal Slash
-                            -- brutal_slash,cycle_targets=1,if=spell_targets.brutal_slash>desired_targets&combo_points<5
-                            if useAoE() then
-                                if #enemies.yards8 >= getOptionValue("Brutal Slash Targets") and combo < 5 then
-                                    if cast.brutalSlash() then return end
-                                end
-                            end
-            -- Ashamane's Frenzy
-                            -- if=combo_points<=2&buff.elunes_guidance.down&(buff.bloodtalons.up|!talent.bloodtalons.enabled)&(buff.savage_roar.up|!talent.savage_roar.enabled)
-                            if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()) then
-                                if combo <= 2 and not buff.elunesGuidance and (buff.bloodtalons or not talent.bloodtalons) and (buff.savageRoar or not talent.savageRoar) then
-                                    if cast.ashamanesFrenzy() then return end
-                                end
-                            end
-            -- Pool for Elunes Guidance
-                            -- pool_resource,if=talent.elunes_guidance.enabled&combo_points=0&energy<action.ferocious_bite.cost+25-energy.regen*cooldown.elunes_guidance.remains
-                            if talent.elunesGuidance and combo == 0 and power < 25 + 25 - powgen * cd.elunesGuidance then
-                                return true
-                            end
-            -- Elunes Guidance
-                            -- elunes_guidance,if=talent.elunes_guidance.enabled&combo_points=0&energy>=action.ferocious_bite.cost+25
-                            if talent.elunesGuidance and combo == 0 and power >= 50 then
-                                if cast.elunesGuidance() then return end
-                            end
-            -- Thrash
-                            -- pool_resource,for_next=1
-                            -- if=talent.brutal_slash.enabled&spell_targets.thrash_cat>=9
-                            if (multidot or (UnitIsUnit("target",units.dyn8AoE) and not multidot)) then  
-                                if talent.brutalSlash and #enemies.yards8 >= 9 then
-                                   if power <= 50 then
-                                        return true
-                                    elseif power > 50 then
-                                        if cast.thrash() then return end
-                                    end
-                                end
-                            end
-            -- Swipe
-                            -- pool_resource,for_next=1
-                            -- swipe_cat,if=spell_targets.swipe_cat>=6
-                            if useAoE() then
-                                if #enemies.yards8 >= 6 then
-                                    if power <= 45 then
-                                        return true
-                                    elseif power > 45 then
-                                        if cast.swipe() then return end
-                                    end
-                                end
-                            end
-            -- Shadowmeld
-                            -- shadowmeld,if=combo_points<5&energy>=action.rake.cost&dot.rake.pmultiplier<2.1&buff.tigers_fury.up&(buff.bloodtalons.up|!talent.bloodtalons.enabled)&(!talent.incarnation.enabled|cooldown.incarnation.remains>18)&!buff.incarnation.up
-                            if useCDs() then
-                                for k,v in pairs(bleed.rake) do
-                                    local rake = bleed.rake[k]
-                                    local thisUnit = k
-                                    if UnitIsUnit(thisUnit,units.dyn5) and getDistance(thisUnit) < 5 then
-                                        if combo < 5 and power >= 35 and rake.applied < 2.1 and buff.tigersFury and (buff.bloodtalons or not talent.bloodtalons) 
-                                            and (not talent.incarnationKingOfTheJungle or cd.incarnationKingOfTheJungle > 18) and not buff.incarnationKingOfTheJungle 
-                                        then
-                                            if cast.shadowmeld() then return end
-                                        end
-                                    end
-                                end
-                            end
-            -- Rake
-                            -- pool_resource,for_next=1
-                            -- rake,cycle_targets=1,if=combo_points<5&(!ticking|(!talent.bloodtalons.enabled&remains<duration*0.3)|(talent.bloodtalons.enabled&buff.bloodtalons.up&(!talent.soul_of_the_forest.enabled&remains<=7|remains<=5)&persistent_multiplier>dot.rake.pmultiplier*0.80))&target.time_to_die-remains>tick_time
-                            for k,v in pairs(bleed.rake) do
-                                local rake = bleed.rake[k]
-                                local thisUnit = k
-                                if (multidot or (UnitIsUnit(thisUnit,units.dyn5) and not multidot)) and getDistance(thisUnit) < 5 then
-                                    if combo < 5 and (rake.remain == 0 or (not talent.bloodtalons and rake.remain < rake.duration * 0.3) 
-                                        or (talent.bloodtalons and buff.bloodtalons and (not talent.soulOfTheForest and rake.remain <= 7 or rake.remain <= 5) 
-                                            and rake.calc > rake.applied * 0.80)) and ttd(thisUnit) - rake.remain > rkTick 
-                                    then
-                                        if power <= 35 then
-                                            return true
-                                        elseif power > 35 then
-                                            if cast.rake(thisUnit) then return end
-                                        end
-                                    end
-                                end
-                            end
-            -- Moonfire
-                            -- moonfire_cat,cycle_targets=1,if=combo_points<5&remains<=4.2&target.time_to_die-remains>tick_time*2
-                            for k,v in pairs(bleed.moonfireFeral) do
-                                local moonfire = bleed.moonfireFeral[k]
-                                local thisUnit = k
-                                if multidot or (UnitIsUnit(thisUnit,units.dyn40AoE) and not multidot) then
-                                    if combo < 5 and moonfire.remain <= 4.2 and ((ttd(thisUnit) - moonfire.remain > mfTick * 2) or isDummy(thisUnit)) then
-                                       if cast.moonfireFeral(thisUnit) then return end
-                                    end
-                                end
-                            end 
-			-- Thrash
-                            -- pool_resource,for_next=1
-                            -- cycle_targets=1,if=remains<=duration*0.3&spell_targets.thrash_cat>=2
-    						for k,v in pairs(bleed.thrash) do
-                                local thrash = bleed.thrash[k]
-                                local thisUnit = k
-    							if (multidot or (UnitIsUnit(thisUnit,units.dyn8AoE) and not multidot)) and getDistance(thisUnit) < 5 then
-                                    if thrash.remain <= thrash.duration * 0.3 and #enemies.yards8 >= 2 then
-                                        if power <= 50 then
-                                            return true
-                                        elseif power > 50 then
-    								        if cast.thrash(thisUnit) then return end
-                                        end
-                                    end
-    							end
-    						end
-            -- Brutal Slash
-                            -- brutal_slash,if=combo_points<5&((raid_event.adds.exists&raid_event.adds.in>(1+max_charges-charges_fractional)*15)|(!raid_event.adds.exists&(charges_fractional>2.66&time>10)))
-                            if combo < 5 and ((addsExist and addsIn > (1 + charges.max.brutalSlash - charges.frac.brutalSlash) * 15) or (not addsExist and (charges.frac.brutalSlash > 2.66 and combatTime > 10))) then
-                                if cast.brutalSlash() then return end
-                            end
-            -- Swipe
-                            -- swipe_cat,if=combo_points<5&spell_targets.swipe_cat>=3
-                            if combo < 5 and #enemies.yards8 >= 3 and useAoE() then
-                                if cast.swipe() then return end
-                            end
-            -- Shred
-                            -- shred,if=combo_points<5&(spell_targets.swipe_cat<3|talent.brutal_slash.enabled)
-                            if combo < 5 and (#enemies.yards8 < 3 or talent.brutalSlash or level < 32 or not useAoE()) then
-                                if cast.shred() then return end
-                            end
+            -- Call Action List - Finisher
+                            -- call_action_list,name=finisher
+                            if actionList_Finisher() then return end
+            -- Call Action List - Generator
+                            -- call_action_list,name=generator
+                            if actionList_Generator() then return end
                         end -- End SimC APL
         ------------------------
         --- Ask Mr Robot APL ---

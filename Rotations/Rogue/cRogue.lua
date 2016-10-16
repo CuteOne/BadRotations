@@ -200,6 +200,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
                 self.debuff[k]          = UnitDebuffID(self.units.dyn5,v,"player") ~= nil
                 self.debuff.duration[k] = getDebuffDuration(self.units.dyn5,v,"player") or 0
                 self.debuff.remain[k]   = getDebuffRemain(self.units.dyn5,v,"player") or 0
+                self.debuff.refresh[k]  = (self.debuff.remain[k] < self.debuff.duration[k] * 0.3) or self.debuff.remain[k] == 0
             end
         end
 

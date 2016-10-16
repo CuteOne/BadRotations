@@ -573,21 +573,21 @@ if select(2, UnitClass("player")) == "DEMONHUNTER" then
                         end
                 -- Pool for Meta Variable
                         -- pooling_for_meta,value=cooldown.metamorphosis.ready&buff.metamorphosis.down&(!talent.demonic.enabled|!cooldown.eye_beam.ready)&(!talent.chaos_blades.enabled|cooldown.chaos_blades.ready)&(!talent.nemesis.enabled|debuff.nemesis.up|cooldown.nemesis.ready)
-                        if cd.metamorphosis == 0 and not buff.metamorphosis and (not talent.demonic or cd.eyeBeam > 0) and (not talent.chaosBlades or cd.chaosBlades == 0) and (not talent.nemesis or debuff.nemesis or cd.nemesis == 0) then
+                        if useCDs() and cd.metamorphosis == 0 and not buff.metamorphosis and (not talent.demonic or cd.eyeBeam > 0) and (not talent.chaosBlades or cd.chaosBlades == 0) and (not talent.nemesis or debuff.nemesis or cd.nemesis == 0) then
                             poolForMeta = true
                         else
                             poolForMeta = false
                         end
                 -- Blade Dance Variable
                         -- blade_dance,value=talent.first_blood.enabled|spell_targets.blade_dance1>=2+talent.chaos_cleave.enabled
-                        if talent.firstBlood or #enemies.yards8 >= 2 + chaleave then
+                        if talent.firstBlood or ((mode.rotation == 1 and #enemies.yards8 >= 2 + chaleave) or mode.rotation == 2) then
                             bladeDanceVar = true
                         else
                             bladeDanceVar = false
                         end
                 -- Pool for Blade Dance Var
                         -- pooling_for_blade_dance,value=variable.blade_dance&fury-40<35-talent.first_blood.enabled*20&spell_targets.blade_dance1>=2
-                        if bladeDanceVar and power - 40 < 35 - flood * 20 and #enemies.yards8 >= 2 then
+                        if bladeDanceVar and power - 40 < 35 - flood * 20 and ((mode.rotation == 1 and #enemies.yards8 >= 2) or mode.rotation == 2) then
                             poolForBladeDance = true
                         else
                             poolForBladeDance = false

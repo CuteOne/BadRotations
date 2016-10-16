@@ -198,7 +198,7 @@ function frame:OnEvent(event, arg1, arg2)
 	if event == "ADDON_LOADED" and arg1 == "BadBoy" then
 		--bb:Run()
 	end
-	if (event == "ACTIVE_TALENT_GROUP_CHANGED" and arg1 ~= arg2 and arg2 ~= 0 and bb.loadedIn) then
+	if ((event == "ACTIVE_TALENT_GROUP_CHANGED" or event == "PLAYER_SPECIALIZATION_CHANGED") and arg1 ~= arg2 and arg2 ~= 0 and bb.loadedIn) then
         -- Closing the windows will save the position
         bb.ui.window.config.parent.closeButton:Click()
         bb.ui.window.profile.parent.closeButton:Click()

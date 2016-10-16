@@ -372,9 +372,9 @@ if select(2, UnitClass("player")) == "SHAMAN" then
                     end
             -- Potion
                     -- potion,name=old_war,if=feral_spirit.remains>5|target.time_to_die<=30
-                    if isChecked("Agi-Pot") and canUse(109217) and inRaid then
-                        if buff.remain.metamorphosis > 25 then
-                            useItem(109217)
+                    if isChecked("Agi-Pot") and canUse(127844) and inRaid then
+                        if feralSpiritRemain > 5 then
+                            useItem(127844)
                         end
                     end
             -- Racial: Orc Blood Fury | Troll Berserking | Blood Elf Arcane Torrent
@@ -412,7 +412,10 @@ if select(2, UnitClass("player")) == "SHAMAN" then
                     -- /lightning_shield
                     if cast.lightningShield() then return end
                     if isChecked("Pre-Pull Timer") and pullTimer <= getOptionValue("Pre-Pull Timer") then
-
+                -- Potion
+                        if isChecked("Agi-Pot") and canUse(127844) and inRaid then
+                            useItem(127844)
+                        end
                     end -- End Pre-Pull
                     if isValidUnit("target") then
                 -- Feral Lunge

@@ -189,7 +189,7 @@ function bb:Run()
 		}
 	end
 	---------------------------------
-	local commandHelp = "|cffFF0000BadBoy Slash Commands"
+	commandHelp = "|cffFF0000BadBoy Slash Commands"
 	function SlashCommandHelp(cmd,msg)
 		if cmd == nil then cmd = "" end
 		if msg == nil then msg = "" end
@@ -221,7 +221,7 @@ function bb:Run()
 		StopMoving()
 	end
 	SLASH_BlackList1, SLASH_BlackList2 = "/blacklist", "/bbb"
-	SlashCommandHelp("blacklist or /bbb","Adds/Removes mouseover unit to blacklist.")
+	SlashCommandHelp("blacklist or /bbb","Adds/Removes mouseover unit to healing blacklist.")
 	SlashCommandHelp("blacklist dump or /bbb dump","Prints all units currently on blacklist.")
 	SlashCommandHelp("blacklist clear or /bbb clear","Clears the blacklist.")
 	function SlashCmdList.BlackList(msg, editbox)
