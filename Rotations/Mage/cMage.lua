@@ -103,6 +103,7 @@ function cMage:new(spec)
 
             self.enemies.yards5     = getEnemies("player", 5) -- Melee
             self.enemies.yards8 	= getEnemies("player", 8) -- AoE
+            self.enemies.yarsd12    = getEnemies("player", 12) -- Frost Nova
             self.enemies.yards20    = getEnemies("player", 20) -- Ghost Wolf
             self.enemies.yards30    = getEnemies("player", 30) -- Interrupts
         end
@@ -256,6 +257,23 @@ function cMage:new(spec)
             if debug == nil then debug = false end
 
             if self.level >= 34 and self.cd.counterspell == 0 and self.powerPercentMana > 2 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,true,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,false,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+        -- Frost Nova
+        function self.cast.frostNova(thisUnit,debug)
+            local spellCast = self.spell.frostNova
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = "player" end
+            if debug == nil then debug = false end
+
+            if self.level >= 3 and self.powerPercentMana > 2 and self.charges.frostNova > 0 and self.cd.frostNova == 0 then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,true,false,false,true)
                 else

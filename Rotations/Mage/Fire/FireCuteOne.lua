@@ -72,6 +72,8 @@ if select(2, UnitClass("player")) == "MAGE" then
                 if bb.player.race == "Draenei" then
                     bb.ui:createSpinner(section, "Gift of the Naaru",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
                 end
+            -- Frost Nova
+                bb.ui:createSpinner(section, "Frost Nva",  50,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.");
             bb.ui:checkSectionState(section)
         -- Interrupt Options
             section = bb.ui:createSection(bb.ui.window.profile, "Interrupts")
@@ -211,6 +213,10 @@ if select(2, UnitClass("player")) == "MAGE" then
                     if isChecked("Gift of the Naaru") and php <= getOptionValue("Gift of the Naaru") and php > 0 and bb.player.race == "Draenei" then
                         if castSpell("player",racial,false,false,false) then return end
                     end
+            -- Frost Nova
+                    if isChecked("Frost Nova") and php <= getOptionValue("Frost Nova") and #enemies.yards12 > 0 then
+                        if cast.frostNova() then return end
+                    end
 	    		end -- End Defensive Toggle
 			end -- End Action List - Defensive
 		-- Action List - Interrupts
@@ -274,12 +280,12 @@ if select(2, UnitClass("player")) == "MAGE" then
             local function actionList_ActiveTalents()
             -- Flame On
                 -- flame_on,if=action.fire_blast.charges=0&(cooldown.combustion.remains>40+(talent.kindling.enabled*25)|target.time_to_die.remains<cooldown.combustion.remains)
-                if charges.fireBlast == 0 and (cd.combustion > 40 + (kindle * 25) or ttd("target") < cd.combustion) then
+                if charges.fireBlast == 0 and (cd.combustion > 40 + (kindle * 25) or (ttd("target") < cd.combustion) or (isDummy("target") and cd.combustion > 45)) then
                     if cast.flameOn() then return end
                 end
             -- Blast Wave
                 -- blast_wave,if=(buff.combustion.down)|(buff.combustion.up&action.fire_blast.charges<1&action.phoenixs_flames.charges<1)
-                if (not buff.combustion) or (buff.combustion and charges.fireBlast < 1 and charges.phoenixsFlames > 1) then
+                if (not buff.combustion) or (buff.combustion and charges.fireBlast < 1 and charges.phoenixsFlames < 1) then
                     if cast.blastWave() then return end
                 end
             -- Meteor
@@ -307,7 +313,7 @@ if select(2, UnitClass("player")) == "MAGE" then
             local function actionList_CombustionPhase()
             -- Rune of Power
                 -- rune_of_power,if=buff.combustion.down
-                if not buff.combustion and not buff.runeOfPower then 
+                if not buff.combustion then 
                     if cast.runeOfPower() then return end
                 end
             -- Call Action List - Active Talents
@@ -330,11 +336,13 @@ if select(2, UnitClass("player")) == "MAGE" then
                 end
             -- Phoenix's Flames
                 -- phoenixs_flames
-                if cast.phoenixsFlames() then return end
+                if buff.heatingUp then
+                    if cast.phoenixsFlames() then return end
+                end
             -- Scorch
                 -- scorch,if=buff.combustion.remains>cast_time
                 -- scorch,if=target.health.pct<=25&equipped.132454
-                if buff.remain.combustion > getCastTime(spell.scorch) or (getHP("target") <= 25 and hasEquiped(132454)) then
+                if buff.heatingUp and (buff.remain.combustion > getCastTime(spell.scorch) or (getHP("target") <= 25 and hasEquiped(132454))) then
                     if cast.scorch() then return end
                 end
             end -- End Combustion Phase Action List
@@ -342,9 +350,7 @@ if select(2, UnitClass("player")) == "MAGE" then
             local function actionList_ROPPhase()
             -- Rune of Power
                 -- rune_of_power
-                if not buff.runeOfPower then
-                    if cast.runeOfPower() then return end
-                end
+                if cast.runeOfPower() then return end
             -- Pyroblast
                 -- pyroblast,if=buff.hot_streak.up
                 if buff.hotStreak then
@@ -375,7 +381,9 @@ if select(2, UnitClass("player")) == "MAGE" then
                 end
             -- Fireball
                 -- fireball
-                if cast.fireball() then return end
+                -- if not buff.hotStreak and (not buff.heatingUp or charges.fireBlast == 0) then
+                    if cast.fireball() then return end
+                -- end
             end -- End ROP Phase Action List
         -- Action List - Single Target
             local function actionList_Single()
@@ -398,7 +406,10 @@ if select(2, UnitClass("player")) == "MAGE" then
                 -- pyroblast,if=buff.hot_streak.up&!prev_gcd.pyroblast
                 -- pyroblast,if=buff.hot_streak.react&target.health.pct<=25&equipped.132454
                 -- pyroblast,if=buff.kaelthas_ultimate_ability.react
-                if ((buff.hotStreak and (lastSpell ~= spell.pyroblast or (getHP("target") <= 25 and hasEquiped(132454)))) or buff.kaelthasUltimateAbility) then
+                if (buff.hotStreak and lastSpell ~= spell.pyroblast)
+                    or (buff.hotStreak and getHP("target") <= 25 and hasEquiped(132454))
+                    or buff.kaelthasUltimateAbility 
+                then
                     if cast.pyroblast() then return end
                 end
             -- Call Action List - Active Talents
@@ -469,7 +480,7 @@ if select(2, UnitClass("player")) == "MAGE" then
                         end
             -- Rune of Power
                         -- rune_of_power,if=cooldown.combustion.remains>40&buff.combustion.down&(cooldown.flame_on.remains<5|cooldown.flame_on.remains>30)&!talent.kindling.enabled|target.time_to_die.remains<11|talent.kindling.enabled&(charges_fractional>1.8|time<40)&cooldown.combustion.remains>40
-                        if not buff.runeOfPower and cd.combustion > 40 and not buff.combustion and (cd.flameOn < 5 or cd.flameOn > 30) and not talent.kindling or ttd("target") < 11 or talent.kindling and (charges.frac.fireBlast > 1.8 or combatTime < 40) and cd.combustion > 40 then
+                        if cd.combustion > 40 and not buff.combustion and (cd.flameOn < 5 or cd.flameOn > 30) and (not talent.kindling or ttd("target") < 11 or (talent.kindling and (charges.frac.fireBlast > 1.8 or combatTime < 40) and cd.combustion > 40)) then
                             if cast.runeOfPower() then return end
                         end
             -- Action List - Combustion Phase
@@ -485,6 +496,10 @@ if select(2, UnitClass("player")) == "MAGE" then
             -- Action List - Single
                         -- call_action_list,name=single_target
                         if actionList_Single() then return end
+            -- Scorch
+                        if moving then
+                            if cast.scorch() then return end
+                        end
                     end -- End SimC APL
         ----------------------
         --- AskMrRobot APL ---
