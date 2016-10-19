@@ -31,26 +31,24 @@ function cPriest:new(spec)
             fade = 526,
             levitate = 1703,
             massDispel = 32375,
+            mindBender = 200174,
+            shadowMend = 186263,
+            shadowWordPain = 589,
+            shadowfiend = 34433,
+            smite = 585,
+            powerInfusion = 10060,
             powerWordShield = 17,
             purifyDisease = 213634,
             resurrection = 2006,
             shackleUndead = 9484
         }
-        self.spell.class.artifacts      	= {        -- Artifact Traits Available To All Specs in Class
-        	--campleArtifact 				= 234561,
-        }
+        self.spell.class.artifacts      	= {}
         self.spell.class.buffs          	= {        -- Buffs Available To All Specs in Class
             powerWordShield = 17
         }
-        self.spell.class.debuffs        	= {        -- Debuffs Available To All Specs in Class
-        	--sampleDebuff 					= 456123,
-        }
-        self.spell.class.glyphs         	= {        -- Glyphs Available To All Specs in Class (not really a major thing anyore)
-
-        }
-        self.spell.class.talents        	= {        -- Talents Available To All Specs in Class
-        	--sampleTalent 					= 561234,
-        }
+        self.spell.class.debuffs        	= {}
+        self.spell.class.glyphs         	= {}
+        self.spell.class.talents        	= {}
 
     ------------------
     --- OOC UPDATE ---
@@ -296,6 +294,115 @@ function cPriest:new(spec)
                 return false
             end
         end  
+
+        -- Mind Bender
+        function self.cast.mindBender(thisUnit,debug)
+            local spellCast = self.spell.mindBender
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = self.units.dyn40 end
+            if debug == nil then debug = false end
+
+            if getDistance(thisUnit) < 40 and self.cd.mindBender == 0 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+
+        -- Shadow Mend
+        function self.cast.shadowMend(thisUnit,debug)
+            local spellCast = self.spell.shadowMend
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = "player" end
+            if debug == nil then debug = false end
+
+            if getDistance(thisUnit) < 40 and self.cd.shadowMend == 0 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,true,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,true,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+
+        -- Shadow Word: Pain
+        function self.cast.shadowWordPain(thisUnit,debug)
+            local spellCast = self.spell.shadowWordPain
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = self.units.dyn40 end
+            if debug == nil then debug = false end
+
+            if getDistance(thisUnit) < 40 and self.cd.shadowWordPain == 0 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,true,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,true,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+
+        -- Shadowfiend
+        function self.cast.shadowfiend(thisUnit,debug)
+            local spellCast = self.spell.shadowfiend
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = self.units.dyn40 end
+            if debug == nil then debug = false end
+
+            if getDistance(thisUnit) < 40 and self.cd.shadowfiend == 0 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+
+        -- Smite
+        function self.cast.smite(thisUnit,debug)
+            local spellCast = self.spell.smite
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = self.units.dyn40 end
+            if debug == nil then debug = false end
+
+            if getDistance(thisUnit) < 40 and self.cd.smite == 0 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,true,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,false,true)
+                end
+            elseif debug then
+                return false
+            end
+        end
+
+
+        -- Power Infusion
+        function self.cast.powerInfusion(thisUnit,debug)
+            local spellCast = self.spell.powerInfusion
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = "player" end
+            if debug == nil then debug = false end
+
+            if self.talent.powerInfusion and self.cd.powerInfusion == 0 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
 
         -- Power Word: Shield
         function self.cast.powerWordShield(thisUnit,debug)

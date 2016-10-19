@@ -3,9 +3,8 @@
 cDiscipline = {} 
 cDiscipline.rotations = {}
 
--- Creates Fury Warrior
 function cDiscipline:new()
-    if GetSpecializationInfo(GetSpecialization()) == 72 then -- Change to spec id 
+    if GetSpecializationInfo(GetSpecialization()) == 256 then 
         local self = cPriest:new("Discipline")
 
         local player = "player" -- if someone forgets ""
@@ -17,27 +16,42 @@ function cDiscipline:new()
     --- VARIABLES ---
     -----------------
 
-        self.charges.frac               = {}        -- Fractional Charge
+        self.charges.frac               = {}
         self.charges.max                = {}
         self.spell.spec                 = {}
-        self.spell.spec.abilities       = {         -- List any spell you can cast (not passive) here (used in spell functions and to gather cooldown info)
-            
+        self.spell.spec.abilities       = {         
+            angelicFeather = 121536,
+            divineStar = 110744,
+            halo = 120517,
+            leapOfFaith = 73325,
+            lightsWrath = 207946,
+            massResurrection = 212036,
+            painSuppression = 33206,
+            penance = 47540,
+            plea = 200829,
+            powerWordBarrier = 62618,
+            powerWordRadiance = 194509,
+            powerWordSolace = 129250,
+            purgeTheWicked = 204197,
+            purify = 527,
+            rapture = 47536,
+            schism = 214621
         }
-        self.spell.spec.artifacts       = {         -- List artifact trait ids here (used to gather artifact info)
+        self.spell.spec.artifacts       = {    
 
         }
-        self.spell.spec.buffs           = {         -- List buff ids here (can be named the same as their corresponding active spells, used to gather buff info)
+        self.spell.spec.buffs           = {         
+            atonement = 194384
+        }
+        self.spell.spec.debuffs         = {         
+            purgeTheWicked = 204213,
+            shadowWordPain = 589,
+            smite = 585
+        }
+        self.spell.spec.glyphs          = {         
 
         }
-        self.spell.spec.debuffs         = {         -- List debuff ids here (can be named the same as their corresponding active spells, used to gather debuff info)
-
-        }
-        self.spell.spec.glyphs          = {         -- List glyph ids here, shouldn't be too important so ok if not done
-
-        }
-        self.spell.spec.talents         = {         -- List talent ids here (used to gather talent info)
-
-        }
+        self.spell.spec.talents         = {}
         -- Merge all spell ability tables into self.spell
         self.spell = mergeSpellTables(self.spell, self.characterSpell, self.spell.class.abilities, self.spell.spec.abilities)
         
@@ -175,9 +189,9 @@ function cDiscipline:new()
 
             for k,v in pairs(self.spell.spec.debuffs) do
                 if k ~= "bleeds" then
-                    self.debuff[k]          = UnitDebuffID(self.units.dyn5,v,"player") ~= nil
-                    self.debuff.duration[k] = getDebuffDuration(self.units.dyn5,v,"player") or 0
-                    self.debuff.remain[k]   = getDebuffRemain(self.units.dyn5,v,"player") or 0
+                    self.debuff[k]          = UnitDebuffID(self.units.dyn40,v,"player") ~= nil
+                    self.debuff.duration[k] = getDebuffDuration(self.units.dyn40,v,"player") or 0
+                    self.debuff.remain[k]   = getDebuffRemain(self.units.dyn40,v,"player") or 0
                     self.debuff.refresh[k]  = (self.debuff.remain[k] < self.debuff.duration[k] * 0.3) or self.debuff.remain[k] == 0
                 end
             end
@@ -199,16 +213,27 @@ function cDiscipline:new()
         function self.getTalents()
             local getTalent = getTalent
 
-            for r = 1, 7 do --search each talent row
-                for c = 1, 3 do -- search each talent column
-                    local talentID = select(6,GetTalentInfo(r,c,GetActiveSpecGroup())) -- ID of Talent at current Row and Column
-                    for k,v in pairs(self.spell.spec.talents) do
-                        if v == talentID then
-                            self.talent[k] = getTalent(r,c)
-                        end
-                    end
-                end
-            end
+            self.talent.thePenitent                 = getTalent(1,1)
+            self.talent.castigation                 = getTalent(1,2)
+            self.talent.schism                      = getTalent(1,3)
+            self.talent.angelicFeather              = getTalent(2,1)
+            self.talent.bodyAndSoul                 = getTalent(2,2)
+            self.talent.masochism                   = getTalent(2,3)
+            self.talent.shiningForce                = getTalent(3,1)
+            self.talent.psychicVoices               = getTalent(3,2)
+            self.talent.dominateMind                = getTalent(3,3)
+            self.talent.powerWordSolace             = getTalent(4,1)
+            self.talent.shieldDiscipline            = getTalent(4,2)
+            self.talent.mindBender                  = getTalent(4,3)
+            self.talent.contrition                  = getTalent(5,1)
+            self.talent.powerInfusion               = getTalent(5,2)
+            self.talent.twistOfFate                 = getTalent(5,3)
+            self.talent.clarityOfWill               = getTalent(6,1)
+            self.talent.divineStar                  = getTalent(6,2)
+            self.talent.halo                        = getTalent(6,3)
+            self.talent.purgeTheWicked              = getTalent(7,1)
+            self.talent.grace                       = getTalent(7,2)
+            self.talent.shadowCovenant              = getTalent(7,3)
         end
 
     -------------
@@ -291,21 +316,18 @@ function cDiscipline:new()
     --- SPELLS --- 
     --------------
 
-        function self.getCastable() -- List spell functions here to debug base level csatability
+        function self.getCastable() 
 
-            self.cast.debug.sampleSpell        = self.cast.sampleSpell("target",true)
         end
 
-        -- Define base level spell cast functions here
-
-        -- Sample Spell
-        function self.cast.sampleSpell(thisUnit,debug)
-            local spellCast = self.spell.sampleSpell
+        -- Angelic Feather
+        function self.cast.angelicFeather(thisUnit,debug)
+            local spellCast = self.spell.angelicFeather
             local thisUnit = thisUnit
-            if thisUnit == nil then thisUnit = self.units.dyn5 end --Default unit if none is specified
+            if thisUnit == nil then thisUnit = "player" end
             if debug == nil then debug = false end
 
-            if self.level >= 10 and self.power > 10 and self.cd.bloodthirst == 0 and getDistance(thisUnit) < 5 then -- Minimal conditions to cast spell (no rotation logic)
+            if self.cd.angelicFeather == 0 and getDistance(thisUnit) < 5 then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
@@ -315,6 +337,278 @@ function cDiscipline:new()
                 return false
             end
         end
+
+        -- Divine Star
+        function self.cast.divineStar(thisUnit,debug)
+            local spellCast = self.spell.divineStar
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = "player" end
+            if debug == nil then debug = false end
+
+            if self.cd.divineStar == 0 and getDistance(thisUnit) < 40 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,false,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+
+        -- Halo
+        function self.cast.halo(thisUnit,debug)
+            local spellCast = self.spell.halo
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = "player" end
+            if debug == nil then debug = false end
+
+            if self.cd.halo == 0 and getDistance(thisUnit) < 40 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,false,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+
+        -- Leap Of Faith
+        function self.cast.leapOfFaith(thisUnit,debug)
+            local spellCast = self.spell.leapOfFaith
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = "player" end
+            if debug == nil then debug = false end
+
+            if self.cd.leapOfFaith == 0 and getDistance(thisUnit) < 40 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,false,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+
+        -- Light's Wrath
+        function self.cast.lightsWrath(thisUnit,debug)
+            local spellCast = self.spell.lightsWrath
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = self.units.dyn40 end
+            if debug == nil then debug = false end
+
+            if self.cd.lightsWrath == 0 and getDistance(thisUnit) < 40 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,false,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+
+        -- Mass Resurrection
+        function self.cast.massResurrection(thisUnit,debug)
+            local spellCast = self.spell.massResurrection
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = "player" end
+            if debug == nil then debug = false end
+
+            if self.cd.massResurrection == 0 and getDistance(thisUnit) < 40 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,false,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+
+        -- Pain Suppression
+        function self.cast.painSuppression(thisUnit,debug)
+            local spellCast = self.spell.painSuppression
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = "player" end
+            if debug == nil then debug = false end
+
+            if self.cd.painSuppression == 0 and getDistance(thisUnit) < 40 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,false,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+
+        -- Penance
+        function self.cast.penance(thisUnit,debug)
+            local spellCast = self.spell.penance
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = self.units.dyn40 end
+            if debug == nil then debug = false end
+
+            if self.cd.penance == 0 and getDistance(thisUnit) < 40 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,false,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+
+        -- Plea
+        function self.cast.plea(thisUnit,debug)
+            local spellCast = self.spell.plea
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = "player" end
+            if debug == nil then debug = false end
+
+            if self.cd.plea == 0 and getDistance(thisUnit) < 40 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,false,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+
+        -- Power Word: Barrier
+        function self.cast.powerWordBarrier(thisUnit,debug)
+            local spellCast = self.spell.powerWordBarrier
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = "player" end
+            if debug == nil then debug = false end
+
+            if self.cd.powerWordBarrier == 0 and getDistance(thisUnit) < 40 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,false,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+
+        -- Power Word: Radiance
+        function self.cast.powerWordRadiance(thisUnit,debug)
+            local spellCast = self.spell.powerWordRadiance
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = "player" end
+            if debug == nil then debug = false end
+
+            if self.cd.powerWordRadiance == 0 and getDistance(thisUnit) < 40 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,false,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+
+        -- Power Word: Solace
+        function self.cast.powerWordSolace(thisUnit,debug)
+            local spellCast = self.spell.powerWordSolace
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = self.units.dyn40 end
+            if debug == nil then debug = false end
+
+            if self.cd.powerWordSolace == 0 and getDistance(thisUnit) < 40 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,false,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+
+        -- Purge The Wicked
+        function self.cast.purgeTheWicked(thisUnit,debug)
+            local spellCast = self.spell.purgeTheWicked
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = self.units.dyn40 end
+            if debug == nil then debug = false end
+
+            if self.talent.purgeTheWicked and self.cd.purgeTheWicked == 0 and getDistance(thisUnit) < 40 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,false,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+
+        -- Purify
+        function self.cast.purify(thisUnit,debug)
+            local spellCast = self.spell.purify
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = "player" end
+            if debug == nil then debug = false end
+
+            if self.cd.purify == 0 and getDistance(thisUnit) < 40 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,false,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+
+        -- Rapture
+        function self.cast.rapture(thisUnit,debug)
+            local spellCast = self.spell.rapture
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = "player" end
+            if debug == nil then debug = false end
+
+            if self.cd.rapture == 0 and getDistance(thisUnit) < 40 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,false,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+
+        -- Schism
+        function self.cast.schism(thisUnit,debug)
+            local spellCast = self.spell.schism
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = self.units.dyn40 end
+            if debug == nil then debug = false end
+
+            if self.cd.schism == 0 and getDistance(thisUnit) < 40 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,false,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+
+
 
     ------------------------
     --- CUSTOM FUNCTIONS ---

@@ -480,12 +480,12 @@ if select(2, UnitClass("player")) == "DEMONHUNTER" then
                         if cast.blur() then return end
                     end
                 -- Vengeful Retreat
-                    if useMover() and (talent.prepared or talent.momentum and not buff.momentum) and getDistance("target") < 5 then
+                    if useMover() and (talent.momentum and not buff.momentum) and getDistance("target") < 5 then
                         if cast.vengefulRetreat() then return end
                     end
                 -- Fel Rush
                     -- if HasTalent(Momentum) and not HasBuff(Momentum) and CooldownSecRemaining(VengefulRetreat) > BuffDurationSec(Momentum)
-                    if useMover() and getFacing("player","target",10) and (talent.momentum and not buff.momentum and cd.vengefulRetreat > buff.duration.momentum) then
+                    if useMover() and getFacing("player","target",10) and (talent.momentum and not buff.momentum) then
                         if mode.mover == 1 then
                             if getDistance("target") < 10 then
                                 if cast.felRush("target",false,true) then return end
@@ -500,7 +500,7 @@ if select(2, UnitClass("player")) == "DEMONHUNTER" then
                 -- Cooldowns
                     if actionList_Cooldowns() then return end
                 -- Fury of the Illidari
-                    if #enemies.yards8 > getOptionValue("Eye Beam Targets") or addsIn > 55 and (not talent.momentum or buff.momentum) then
+                    if #enemies.yards8 > getOptionValue("Eye Beam Targets") and getDistance("target") < 5 or addsIn > 55 and (not talent.momentum or buff.momentum) then
                         if cast.furyOfTheIllidari() then return end
                     end
                 -- MultiTarget

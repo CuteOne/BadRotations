@@ -4,34 +4,8 @@ if select(2, UnitClass("player")) == "PRIEST" then
 ---------------
 --- Toggles ---
 ---------------
-    local function createToggles() -- Define custom toggles
-    -- Rotation Button
-        RotationModes = {
-            [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of #enemies.yards8 in range.", highlight = 0, icon = bb.player.spell.whirlwind },
-            [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = bb.player.spell.bladestorm },
-            [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = bb.player.spell.furiousSlash },
-            [4] = { mode = "Off", value = 4 , overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = bb.player.spell.enragedRegeneration}
-        };
-        CreateButton("Rotation",1,0)
-    -- Cooldown Button
-        CooldownModes = {
-            [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = bb.player.spell.battleCry },
-            [2] = { mode = "On", value = 2 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = bb.player.spell.battleCry },
-            [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = bb.player.spell.battleCry }
-        };
-        CreateButton("Cooldown",2,0)
-    -- Defensive Button
-        DefensiveModes = {
-            [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = bb.player.spell.enragedRegeneration },
-            [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = bb.player.spell.enragedRegeneration }
-        };
-        CreateButton("Defensive",3,0)
-    -- Interrupt Button
-        InterruptModes = {
-            [1] = { mode = "On", value = 1 , overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = bb.player.spell.pummel },
-            [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = bb.player.spell.pummel }
-        };
-        CreateButton("Interrupt",4,0)
+    local function createToggles()
+
     end
 
 ---------------
@@ -99,10 +73,7 @@ if select(2, UnitClass("player")) == "PRIEST" then
     ---------------
     --- Toggles --- -- List toggles here in order to update when pressed
     ---------------
-            UpdateToggle("Rotation",0.25)
-            UpdateToggle("Cooldown",0.25)
-            UpdateToggle("Defensive",0.25)
-            UpdateToggle("Interrupt",0.25)
+
     --------------
     --- Locals ---
     --------------
@@ -141,6 +112,39 @@ if select(2, UnitClass("player")) == "PRIEST" then
 --------------------
 --- Action Lists ---
 --------------------
+            --Spread Atonement
+            function actionList_SpreadAtonement()
+
+            end
+            -- Damage
+            function actionList_Damage()
+                --lightsWrath
+                if cast.lightsWrath() then return end
+                --powerWordSolace
+                if cast.powerWordSolace() then return end
+                --mindbBender
+                if cast.mindBender() then return end
+                --shadowfiend
+                if cast.shadowfiend() then return end
+                -- Purge The Wicked
+                if getDebuffRemain(units.dyn40,204213,"player") <= 4 then
+                    if cast.purgeTheWicked(units.dyn40) then return end 
+                end
+                -- Shadow Word: Pain
+                if getDebuffRemain(units.dyn40,spell.shadowWordPain,"player") <= 4 then
+                    if cast.shadowWordPain(units.dyn40) then return end 
+                end
+                --penance
+                if cast.penance() then return end
+                --schism
+                if power > 20 then
+                    if cast.schism() then return end
+                end
+                --smite
+                if power > 20 then
+                    if cast.smite() then return end
+                end
+            end
 
 -----------------
 --- Rotations ---
@@ -159,6 +163,9 @@ if select(2, UnitClass("player")) == "PRIEST" then
 --- In Combat - Rotations --- 
 -----------------------------
                 if inCombat then
+
+                    actionList_SpreadAtonement()
+                    actionList_Damage()
 
                 end -- End In Combat Rotation
             end -- Pause

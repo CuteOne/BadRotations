@@ -21,21 +21,16 @@ function cShadow:new()
         self.spell.spec                 = {} 
         self.spell.spec.abilities       = { 
             dispersion = 47585,
-            massDispel = 32375,
-            mindBender = 200174,
             mindBlast = 8092,
             mindBomb = 205369,
             mindFlay = 15407,
             mindSear = 48045,
             mindSpike = 73510,
             mindVision = 2096,
-            powerInfusion = 10060,
             shadowCrash = 205385,
             shadowMend = 186263,
             shadowWordDeath = 32379,
-            shadowWordPain = 589,
             shadowWordVoid = 205351,
-            shadowfiend = 34433,
             silence = 15487,
             vampiricEmbrace = 15286,
             vampiricTouch = 34914,
@@ -372,24 +367,6 @@ function cShadow:new()
             end
         end
 
-        -- Mind Bender
-        function self.cast.mindBender(thisUnit,debug)
-            local spellCast = self.spell.mindBender
-            local thisUnit = thisUnit
-            if thisUnit == nil then thisUnit = self.units.dyn40 end
-            if debug == nil then debug = false end
-
-            if self.cd.mindBender == 0 then
-                if debug then
-                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
-                else
-                    return castSpell(thisUnit,spellCast,false,false)
-                end
-            elseif debug then
-                return false
-            end
-        end
-
         -- Mind Blast
         function self.cast.mindBlast(thisUnit,debug)
             local spellCast = self.spell.mindBlast
@@ -462,42 +439,6 @@ function cShadow:new()
             end
         end
 
-        -- Power Infusion
-        function self.cast.powerInfusion(thisUnit,debug)
-            local spellCast = self.spell.powerInfusion
-            local thisUnit = thisUnit
-            if thisUnit == nil then thisUnit = "player" end
-            if debug == nil then debug = false end
-
-            if self.talent.powerInfusion and self.cd.powerInfusion == 0 then
-                if debug then
-                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
-                else
-                    return castSpell(thisUnit,spellCast,false,false)
-                end
-            elseif debug then
-                return false
-            end
-        end
-
-        -- Shadowfiend
-        function self.cast.shadowfiend(thisUnit,debug)
-            local spellCast = self.spell.shadowfiend
-            local thisUnit = thisUnit
-            if thisUnit == nil then thisUnit = self.units.dyn40 end
-            if debug == nil then debug = false end
-
-            if self.cd.shadowfiend == 0 then
-                if debug then
-                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
-                else
-                    return castSpell(thisUnit,spellCast,false,false)
-                end
-            elseif debug then
-                return false
-            end
-        end
-
         -- Shadow Crash
         function self.cast.shadowCrash(thisUnit,debug)
             local spellCast = self.spell.shadowCrash
@@ -530,24 +471,6 @@ function cShadow:new()
                     return castSpell(thisUnit,spellCast,true,false,false,true,false,false,true,true)
                 else
                     return castSpell(thisUnit,spellCast,true,false,false,true,false,false,true)
-                end
-            elseif debug then
-                return false
-            end
-        end
-
-        -- Shadow Word: Pain
-        function self.cast.shadowWordPain(thisUnit,debug)
-            local spellCast = self.spell.shadowWordPain
-            local thisUnit = thisUnit
-            if thisUnit == nil then thisUnit = self.units.dyn40 end
-            if debug == nil then debug = false end
-
-            if getDistance(thisUnit) < 40 and self.cd.shadowWordPain == 0 then
-                if debug then
-                    return castSpell(thisUnit,spellCast,true,false,false,false,false,false,false,true)
-                else
-                    return castSpell(thisUnit,spellCast,true,false)
                 end
             elseif debug then
                 return false
