@@ -381,9 +381,7 @@ if select(2, UnitClass("player")) == "MAGE" then
                 end
             -- Fireball
                 -- fireball
-                -- if not buff.hotStreak and (not buff.heatingUp or charges.fireBlast == 0) then
-                    if cast.fireball() then return end
-                -- end
+                if cast.fireball() then return end
             end -- End ROP Phase Action List
         -- Action List - Single Target
             local function actionList_Single()

@@ -2189,7 +2189,6 @@ function isDummy(Unit)
 			[24792]  = "Advanced Training Dummy",     -- Lvl ?? Boss (Location Unknonw)
 			[30527]  = "Training Dummy", 		      -- Lvl ?? Boss (Location Unknonw)
 			[31146]  = "Raider's Training Dummy",     -- Lvl ?? (Orgrimmar, Stormwind City, Ironforge, ...)
-			[70245]  = "Training Dummy",              -- Lvl ?? (Throne of Thunder)
 			[87320]  = "Raider's Training Dummy",     -- Lvl ?? (Lunarfall, Stormshield) - Damage
 			[87329]  = "Raider's Training Dummy",     -- Lvl ?? (Stormshield) - Tank
 			[87762]  = "Raider's Training Dummy",     -- Lvl ?? (Frostwall, Warspear) - Damage
@@ -2203,6 +2202,7 @@ function isDummy(Unit)
 			[113636] = "Imprisoned Forgefiend",       -- Lvl ?? (Mardum, the Shattered Abyss) - Raider
 			[113860] = "Raider's Training Dummy",     -- Lvl ?? (Trueshot Lodge) - Damage
 			[113864] = "Raider's Training Dummy",     -- Lvl ?? (Trueshot Lodge) - Damage
+			[70245]  = "Training Dummy",              -- Lvl ?? (Throne of Thunder)
 			[113964] = "Raider's Training Dummy",     -- Lvl ?? (The Dreamgrove) - Tanking
 		}
 		if dummies[tonumber(string.match(UnitGUID(Unit),"-(%d+)-%x+$"))] ~= nil then
@@ -2555,11 +2555,11 @@ function pause(skipCastingCheck)
 		or profileStop
 		or (IsMounted() and getUnitID("target") ~= 56877 and not UnitBuffID("player",164222) and not UnitBuffID("player",165803) and not UnitBuffID("player",157059) and not UnitBuffID("player",157060))
 		or SpellIsTargeting()
-		or (not UnitCanAttack("player","target") and not UnitIsPlayer("target") and UnitExists("target"))
+		-- or (not UnitCanAttack("player","target") and not UnitIsPlayer("target") and UnitExists("target"))
 		or (UnitCastingInfo("player") and not skipCastingCheck)
 		or (UnitChannelInfo("player") and not skipCastingCheck)
 		or UnitIsDeadOrGhost("player")
-		or (UnitIsDeadOrGhost("target") and not UnitIsPlayer("target"))
+		-- or (UnitIsDeadOrGhost("target") and not UnitIsPlayer("target"))
 		or UnitBuffID("player",80169) -- Eating
 		or UnitBuffID("player",87959) -- Drinking
 		or UnitBuffID("target",117961) --Impervious Shield - Qiang the Merciless

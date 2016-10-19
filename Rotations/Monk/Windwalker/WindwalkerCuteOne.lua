@@ -259,7 +259,7 @@ if select(2, UnitClass("player")) == "MONK" then
                     if cast.flyingSerpentKickEnd() then return end
                 end
             -- Roll
-                if isChecked("Roll") and getDistance("target") > 10 and getFacingDistance() < 5 and getFacing("player","target",10) then
+                if isChecked("Roll") and getDistance("target") > 10 and isValidUnit("target") and getFacingDistance() < 5 and getFacing("player","target",10) then
                     if cast.roll() then return end
                 end
             -- Dummy Test

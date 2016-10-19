@@ -484,7 +484,7 @@ if select(2, UnitClass("player")) == "MONK" then
             if thisUnit == nil then thisUnit = "player" end
             if debug == nil then debug = false end
 
-            if self.level >= 5 and self.cd.roll == 0 and self.charges.roll >= 1 and (solo or hasThreat("target")) then
+            if self.level >= 5 and self.cd.roll == 0 and self.charges.roll >= 1 then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
