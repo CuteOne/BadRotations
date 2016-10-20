@@ -16,6 +16,7 @@ function cAssassination:new()
     -----------------
     --- VARIABLES ---
     -----------------
+        self.custom                 = {}
         self.spell.spec             = {}
         self.spell.spec.abilities   = {
             agonizingPoison         = 200802,

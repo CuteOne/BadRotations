@@ -44,6 +44,7 @@ function cFire:new()
             combustion                  = 190319,
             heatingUp                   = 48107,
             hotStreak                   = 48108,
+            iceFloes                    = 108839,
             kaelthasUltimateAbility     = 209455,
         }
         self.spell.spec.debuffs         = {
