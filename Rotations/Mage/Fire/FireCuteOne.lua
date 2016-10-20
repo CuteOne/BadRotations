@@ -295,7 +295,7 @@ if select(2, UnitClass("player")) == "MAGE" then
                 end
             -- Cinderstorm
                 -- cinderstorm,if=cooldown.combustion.remains<cast_time&(buff.rune_of_power.up|!talent.rune_on_power.enabled)|cooldown.combustion.remains>10*spell_haste&!buff.combustion.up
-                if cd.combustion < getCastTime(spell.cinderstorm) and (buff.runeOfPowr or not talent.runeOfPower) or cd.combustion > 10 * hasteAmount and not buff.combustion then
+                if cd.combustion < getCastTime(spell.cinderstorm) and (buff.runeOfPower or not talent.runeOfPower) or cd.combustion > 10 * hasteAmount and not buff.combustion then
                     if cast.cinderstorm() then return end
                 end
             -- Dragon's Breath
@@ -305,7 +305,7 @@ if select(2, UnitClass("player")) == "MAGE" then
                 end
             -- Living Bomb
                 -- living_bomb,if=active_enemies>1&buff.combustion.down
-                if ((#enemies.yards10 > 1 and mode.roation == 1) or mode.roation == 2) and not buff.combution then
+                if ((#enemies.yards10 > 1 and mode.rotation == 1) or mode.rotation == 2) and not buff.combution then
                     if cast.livingBomb("target") then return end
                 end
             end -- End Active Talents Action List
@@ -397,7 +397,7 @@ if select(2, UnitClass("player")) == "MAGE" then
                 end
             -- Flamestrike
                 -- flamestrike,if=talent.flame_patch.enabled&active_enemies>2&buff.hot_streak.react
-                if talent.flamePatch and ((#enemies.yards10 > 2 and mode.roation == 1) or mode.roation == 2) and buff.hotStreak then
+                if ((#enemies.yards10 > 2 and mode.roation == 1) or mode.roation == 2) and buff.hotStreak then
                     if cast.flamestrike() then return end
                 end
             -- Pyroblast
@@ -445,6 +445,9 @@ if select(2, UnitClass("player")) == "MAGE" then
             if not inCombat and not hastar and profileStop==true then
                 profileStop = false
             elseif (inCombat and profileStop==true) or pause() or mode.rotation==4 then
+                if buff.heatingUp then
+                    if cast.fireBlast() then return end
+                end
                 return true
             else
     -----------------------
