@@ -1007,7 +1007,7 @@ if select(2, UnitClass("player")) == "DRUID" then
                             -- multi-Dot = 3
                             -- if #bleed.moonfire < 3 then
                                 for k,v in pairs(bleed.moonfireFeral) do
-                                    local rake = bleed.moonfireFeral[k]
+                                    local moonfireFeral = bleed.moonfireFeral[k]
                                     local thisUnit = k
                                     if multidot or (UnitIsUnit(thisUnit,units.dyn40AoE) and not multidot) then
                                         if moonfireFeral.remain <= 4.2 and #enemies.yards8 <= 8 then

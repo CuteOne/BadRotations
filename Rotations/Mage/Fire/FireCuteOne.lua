@@ -305,7 +305,7 @@ if select(2, UnitClass("player")) == "MAGE" then
                 end
             -- Living Bomb
                 -- living_bomb,if=active_enemies>1&buff.combustion.down
-                if ((#enemies.yards10 > 1 and mode.rotation == 1) or mode.rotation == 2) and not buff.combution then
+                if ((#enemies.yards10 > 1 and mode.rotation == 1) or mode.rotation == 2) and not buff.combustion then
                     if cast.livingBomb("target") then return end
                 end
             end -- End Active Talents Action List

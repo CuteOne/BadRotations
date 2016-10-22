@@ -18,6 +18,7 @@ if select(2, UnitClass("player")) == "MONK" then
         self.artifact.rank          = {}        -- Artifact Ranks
 		self.buff.duration	 		= {}		-- Buff Durations
 		self.buff.remain 	 		= {}		-- Buff Time Remaining
+        self.buff.stacks            = {}
 		self.cast 					= {}		-- Cast Spell Functions
         self.cast.debug         	= {}        -- Cast Spell Functions Debug
         self.charges 				= {}

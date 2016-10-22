@@ -81,6 +81,7 @@ function bb.read.combatLog()
     bb.read.enrageReader(...)
     local timeStamp, param, hideCaster, source, sourceName, sourceFlags, sourceRaidFlags, destination,
       destName, destFlags, destRaidFlags, spell, spellName, _, spellType = ...
+    bb.guid = UnitGUID("player")
     ----------------
     --[[Item locks]]
     if source == bb.guid then
@@ -122,30 +123,48 @@ function bb.read.combatLog()
     if getOptionCheck("Queue Casting") then
       -----------------
       --[[ Cast Failed --> Queue]]
-      if param == "SPELL_CAST_FAILED" then
-        if source == bb.guid then
-          if _Queues ~= nil then
-            if _Queues[spell] ~= true and _Queues[spell] ~= nil then
-              if (_Queues[spell] == false or _Queues[spell] < (GetTime() - 10)) and getSpellCD(spell) <= 3 then
-                _Queues[spell] = true
-                ChatOverlay("Queued "..GetSpellInfo(spell))
-              end
+        if param == "SPELL_CAST_FAILED" then
+            if isInCombat("player") and UnitIsUnit(sourceName,"player") --[[source == bb.guid]] and spell ~= lastSpellCast then
+                -- set destination
+                if destination == nil or destName == nil then
+                  queueDest = "player"
+                else
+                  queueDest = destination
+                end
+                if #bb.player.queue == 0 then 
+                    tinsert(bb.player.queue,{id = spell, name = spellName, target = queueDest})
+                    print("Added "..spellName.." to the queue.")
+                    print(tostring(queueDest))
+                elseif #bb.player.queue ~= 0 then
+                    for i = 1, #bb.player.queue do
+                        if spell == bb.player.queue[i].id then
+                            print(spellName.." is already queued.")
+                            break
+                        else
+                            tinsert(bb.player.queue,{id = spell, name = spellName, target = queueDest})
+                            print("Added "..spellName.." to the queue.")
+                            print(tostring(queueDest))
+                            break
+                        end
+                    end
+                end
             end
-          end
         end
-      end
       ------------------
       --[[Queue Casted]]
-      if param == "SPELL_CAST_SUCCESS" then
-        if source == bb.guid then
-          if _Queues == nil then _Queues = { } end
-          if _Queues and _Queues[spell] ~= nil then
-            if _Queues[spell] == true then
-              _Queues[spell] = GetTime()
+        if param == "SPELL_CAST_SUCCESS" then
+            if isInCombat("player") and UnitIsUnit(sourceName,"player") --[[source == bb.guid]] then
+                if #bb.player.queue ~= 0 then
+                    for i = 1, #bb.player.queue do
+                        if spell == bb.player.queue[i].id then
+                            tremove(bb.player.queue,i)
+                            print("Cast Success! - Removed "..spellName.." from the queue.")
+                            break
+                        end
+                    end
+                end
             end
-          end
         end
-      end
     end
     ---------------
     --[[ Debug --]]

@@ -160,6 +160,7 @@ function cWindwalker:new()
                 self.buff[k]            = UnitBuffID("player",v) ~= nil
                 self.buff.duration[k]   = getBuffDuration("player",v) or 0
                 self.buff.remain[k]     = getBuffRemain("player",v) or 0
+                self.buff.stacks[k]     = getBuffStacks("player",v) or 0
             end
         end
 

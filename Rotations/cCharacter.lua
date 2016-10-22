@@ -79,6 +79,7 @@ function cCharacter:new(class)
 	self.powerTTM 		= 0
 	self.primaryStat 	= nil       -- Contains the primary Stat: Strength, Agility or Intellect
 	self.profile        = "None"    -- Spec
+	self.queue 			= {} 		-- Table for Queued Spells
 	self.race     		= select(2,UnitRace("player")) -- Race as non-localised name (undead = Scourge) !
 	self.racial   		= nil       -- Contains racial spell id
 	self.recharge       = {}        -- Time for current recharge (for spells with charges)
@@ -183,6 +184,10 @@ function cCharacter:new(class)
 		if self.artifact.rank == nil then updateArtifact() end
 		-- Updates special Equip like set bonuses
 		self.baseGetEquip()
+		if getOptionCheck("Queue Casting") and #self.queue ~= 0 then
+			self.queue = {} -- Reset Queue Casting Table out of combat
+			print("Out of Combat - Queue List Cleared")
+		end
 	end
 
 -- Updates toggle data

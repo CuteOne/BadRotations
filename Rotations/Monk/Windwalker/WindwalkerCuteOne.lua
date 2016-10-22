@@ -199,6 +199,7 @@ if select(2, UnitClass("player")) == "MONK" then
             local power             = bb.player.power
             local powerMax          = bb.player.powerMax
             local pullTimer         = bb.DBM:getPulltimer()
+            local queue             = bb.player.queue
             local race              = bb.player.race
             local racial            = bb.player.getRacial()
             local recharge          = bb.player.recharge
@@ -217,6 +218,17 @@ if select(2, UnitClass("player")) == "MONK" then
             if lastSpell == nil then lastSpell = 0 end
             if leftCombat == nil then leftCombat = GetTime() end
             if profileStop == nil then profileStop = false end
+ 
+            if buff.stacks.hitCombo == 8 then maxCombo = true else maxCombo = false end
+            if inCombat and maxCombo then 
+                maxComboReached = true 
+            elseif not inCombat or (maxComboReached and not maxCombo) then
+                maxComboReached = false
+            end
+            if inCombat and maxComboReached and not maxCombo then
+                print(select(1,GetSpellInfo(lastSpell)).." Reset Hit Combo!")
+                maxComboReached = false
+            end
 
     --------------------
     --- Action Lists ---
@@ -604,6 +616,12 @@ if select(2, UnitClass("player")) == "MONK" then
             elseif (inCombat and profileStop==true) or pause() or mode.rotation==4 then
                 return true
             else
+    ---------------------
+    --- Queued Soells ---
+    ---------------------
+                if isChecked("Queue Casting") and #queue > 0 then
+                    if castSpell(queue[1].target,queue[1].id,false,false,false) then return end
+                end
     -----------------------
     --- Extras Rotation ---
     -----------------------

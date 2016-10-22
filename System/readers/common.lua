@@ -360,7 +360,7 @@ function bb.read.commonReaders()
 				if MyClass == "Mage" then -- Mage
 					if SpellID == 30451 then --ArcaneBlast
 						insertSpellCastSucceeded(ArcaneBlast, GetTime())
-				end
+					end
 				end
 			end
 		end
@@ -384,7 +384,7 @@ function bb.read.commonReaders()
 				if MyClass == "Mage" then -- Mage
 					if SpellID == 30451 then --ArcaneBlast
 						insertSpellCastFailed(ArcaneBlast, GetTime())
-				end
+					end
 				end
 			end
 		end
