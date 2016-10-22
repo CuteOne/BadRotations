@@ -219,16 +219,20 @@ if select(2, UnitClass("player")) == "MONK" then
             if leftCombat == nil then leftCombat = GetTime() end
             if profileStop == nil then profileStop = false end
  
-            if buff.stacks.hitCombo == 8 then maxCombo = true else maxCombo = false end
-            if inCombat and maxCombo then 
-                maxComboReached = true 
-            elseif not inCombat or (maxComboReached and not maxCombo) then
-                maxComboReached = false
-            end
-            if inCombat and maxComboReached and not maxCombo then
-                print(select(1,GetSpellInfo(lastSpell)).." Reset Hit Combo!")
-                maxComboReached = false
-            end
+            -- if buff.stacks.hitCombo == 8 then maxCombo = true else maxCombo = false end
+            -- if inCombat and maxCombo then 
+            --     maxComboReached = true 
+            -- elseif not inCombat or (maxComboReached and not maxCombo) then
+            --     maxComboReached = false
+            -- end
+            -- if inCombat and maxComboReached and not maxCombo then
+            --     print(select(1,GetSpellInfo(lastSpell)).." Reset Hit Combo!")
+            --     maxComboReached = false
+            -- end
+            -- if inCombat and lastSpell ~= prevSpell then
+            --     print(select(1,GetSpellInfo(lastSpell)))
+            --     prevSpell = lastSpell
+            -- end
 
     --------------------
     --- Action Lists ---
@@ -412,7 +416,7 @@ if select(2, UnitClass("player")) == "MONK" then
                     -- blood_fury
                     -- berserking
                     if isChecked("Racial") and (race == "Orc" or race == "Troll") then
-                        if castSpell("target",racial,false,false,false) then return end
+                        if castSpell("player",racial,false,false,false) then return end
                     end
             -- Touch of Death
                     -- touch_of_death,cycle_targets=1,max_cycle_targets=2,if=!artifact.gale_burst.enabled&equipped.137057&!prev_gcd.touch_of_death
@@ -437,7 +441,7 @@ if select(2, UnitClass("player")) == "MONK" then
             -- Racial - Arcane Torrent
                 -- arcane_torrent,if=chi.max-chi>=1&energy.time_to_max>=0.
                 if chi.max >= chi.count and ttm >= 0.5 and isChecked("Racial") and race == "BloodElf" then
-                    if castSpell("target",racial,false,false,false) then return end
+                    if castSpell("player",racial,false,false,false) then return end
                 end
             -- Energizing Elixir
                 -- energizing_elixir,if=energy<energy.max&chi<=1
@@ -506,7 +510,7 @@ if select(2, UnitClass("player")) == "MONK" then
             -- Racial - Arcane Torrent
                     -- arcane_torrent,if=chi.max-chi>=1&energy.time_to_max>=0.
                     if chi.max >= chi.count and ttm >= 0.5 and isChecked("Racial") and race == "BloodElf" then
-                        if castSpell("target",racial,false,false,false) then return end
+                        if castSpell("player",racial,false,false,false) then return end
                     end
             -- Call Action List - Cooldowns
                     -- call_action_list,name=cd
@@ -714,7 +718,7 @@ if select(2, UnitClass("player")) == "MONK" then
                                 end
                             end
             -- Racial: Orc Blood Fury | Troll Berserking | Blood Elf Arcane Torrent
-                            if (bb.player.race == "Orc" or bb.player.race == "Troll" or bb.player.race == "Blood Elf") then
+                            if (bb.player.race == "Orc" or bb.player.race == "Troll" or bb.player.race == "BloodElf") then
                                 if castSpell("player",racial,false,false,false) then return end
                             end
             -- Legendary Ring
