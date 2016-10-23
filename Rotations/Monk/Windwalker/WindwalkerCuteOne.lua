@@ -423,13 +423,23 @@ if select(2, UnitClass("player")) == "MONK" then
                     -- touch_of_death,if=!artifact.gale_burst.enabled&!equipped.137057
                     -- touch_of_death,cycle_targets=1,max_cycle_targets=2,if=artifact.gale_burst.enabled&equipped.137057&cooldown.strike_of_the_windlord.remains<8&cooldown.fists_of_fury.remains<=4&cooldown.rising_sun_kick.remains<7&!prev_gcd.touch_of_death
                     -- touch_of_death,if=artifact.gale_burst.enabled&!equipped.137057&cooldown.strike_of_the_windlord.remains<8&cooldown.fists_of_fury.remains<=4&cooldown.rising_sun_kick.remains<7
-                    if isChecked("Touch of Death") and not debuff.touchOfDeath
+                    if isChecked("Touch of Death")
                         and ((not artifact.galeBurst and hasEquiped(137057) and lastSpell ~= spell.touchOfDeath)
                             or (not artifact.galeBurst and not hasEquiped(137057))
                             or (artifact.galeBurst and hasEquiped(137057) and cd.strikeOfTheWindlord < 8 and cd.fistsOfFury <= 4 and cd.risingSunKick < 7 and lastSpell ~= spell.touchOfDeath)
                             or (artifact.galeBurst and not hasEquiped(137057) and cd.strikeOfTheWindlord < 8 and cd.fistsOfFury <= 4 and cd.risingSunKick < 7)) 
                     then
-                        if cast.touchOfDeath() then return end
+                        if hasEquiped(137057) then
+                            for i = 1, #enemies.yards5 do
+                                local thisUnit = enemies.yards5[i]
+                                local touchOfDeathDebuff = UnitDebuffID(thisUnit,spell.spec.debuffs.touchOfDeath,"player") ~= nil
+                                if not touchOfDeathDebuff then
+                                    if cast.touchOfDeath() then return end
+                                end
+                            end
+                        else
+                            if cast.touchOfDeath() then return end
+                        end
                     end
                 end
             end -- End Cooldown - Action List
@@ -599,9 +609,9 @@ if select(2, UnitClass("player")) == "MONK" then
                         -- baseMultistrike = GetMultistrike()
                     end
             -- Potion
-                    -- potion,name=draenic_agility
-                    if useCDs() and canUse(109217) and inRaid and isChecked("Agi-Pot") and isChecked("Pre-Pull Timer") and pullTimer <= getOptionValue("Pre-Pull Timer") then
-                        useItem(109217)
+                    -- potion,name=old_war
+                    if useCDs() and canUse(127844) and inRaid and isChecked("Agi-Pot") and isChecked("Pre-Pull Timer") and pullTimer <= getOptionValue("Pre-Pull Timer") then
+                        useItem(127844)
                     end
             -- Start Attack
                     -- auto_attack
@@ -662,12 +672,12 @@ if select(2, UnitClass("player")) == "MONK" then
                     if getOptionValue("APL Mode") == 1 then
             -- Potion
                         -- potion,name=old_war,if=buff.serenity.up|buff.storm_earth_and_fire.up|(!talent.serenity.enabled&trinket.proc.agility.react)|buff.bloodlust.react|target.time_to_die<=60
-                        -- TODO
-                        -- if canUse(109217) and inRaid and isChecked("Agi-Pot") then
-                        --     if hasBloodLust() or ttd <= 60 then
-                        --         useItem(109217)
-                        --     end
-                        -- end
+                        -- TODO: Agility Proc
+                        if canUse(127844) and inRaid and isChecked("Agi-Pot") then
+                            if buff.serenity or buff.stormEarthAndFire or hasBloodLust() or ttd <= 60 then
+                                useItem(127844)
+                            end
+                        end
             -- Call Action List - Serenity
                         -- call_action_list,name=serenity,if=talent.serenity.enabled&((artifact.strike_of_the_windlord.enabled&cooldown.strike_of_the_windlord.remains<=14&cooldown.rising_sun_kick.remains<=4)|buff.serenity.up)
                         if talent.serenity and ((artifact.strikeOfTheWindlord and cd.strikeOfTheWindlord <= 14 and cd.risingSunKick <= 4) or buff.serenity) then
