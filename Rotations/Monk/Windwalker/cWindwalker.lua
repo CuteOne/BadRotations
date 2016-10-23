@@ -257,6 +257,7 @@ function cWindwalker:new()
             self.units.dyn8     = dynamicTarget(8, true)
             self.units.dyn15    = dynamicTarget(15, true)
             self.units.dyn20    = dynamicTarget(20, true)
+            self.units.dyn25    = dynamicTarget(25, true)
 
             -- AoE
             self.units.dyn8AoE  = dynamicTarget(8,false)
@@ -273,6 +274,7 @@ function cWindwalker:new()
             self.enemies.yards5     = getEnemies("player", 5)
             self.enemies.yards8     = getEnemies("player", 8)
             self.enemies.yards12    = getEnemies("player", 12)
+            self.enemies.yards25    = getEnemies("player", 25)
             self.enemies.yards40    = getEnemies("player", 40)
         end
 
@@ -448,12 +450,11 @@ function cWindwalker:new()
         function self.cast.flyingSerpentKick(thisUnit,debug)
             local spellCast = self.spell.flyingSerpentKick
             local thisUnit = thisUnit
-            if thisUnit == nil then thisUnit = "target" end
+            if thisUnit == nil then thisUnit = "player" end
             if debug == nil then debug = false end
 
-            if self.level >= 10 and self.cd.flyingSerpentKick == 0 and (self.instance == "none" or hasThreat(thisUnit)) 
-                and getFacingDistance() < 5 and getFacingDistance() > 0 
-                and getDistance(thisUnit) >= 5 and getDistance(thisUnit) < 60 
+            if self.level >= 10 and self.cd.flyingSerpentKick == 0 and isValidUnit("target") 
+                and getFacingDistance() < 5 and getFacingDistance() > 0 and getDistance("target") < 60 
             then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
@@ -467,11 +468,11 @@ function cWindwalker:new()
         function self.cast.flyingSerpentKickEnd(thisUnit,debug)
             local spellCast = self.spell.flyingSerpentKickEnd
             local thisUnit = thisUnit
-            if thisUnit == nil then thisUnit = "target" end
+            if thisUnit == nil then thisUnit = "player" end
             if debug == nil then debug = false end
 
-            if self.level >= 10 and self.cd.flyingSerpentKickEnd == 0 and (getDistance(thisUnit) < 5 or getFacingDistance() ~= abs(getFacingDistance())) 
-                and select(3,GetSpellInfo(101545)) == 463281 
+            if self.level >= 10 and self.cd.flyingSerpentKickEnd == 0 --[[and (getDistance("target") < 5 or getFacingDistance() ~= abs(getFacingDistance()))]] 
+                and (select(3,GetSpellInfo(101545)) == 463281 or lastSpellCast == self.spell.flyingSerpentKick) 
             then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)

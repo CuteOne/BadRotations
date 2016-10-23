@@ -61,6 +61,8 @@ if select(2, UnitClass("player")) == "MONK" then
                 bb.ui:createDropdownWithout(section, "APL Mode", {"|cffFFFFFFSimC","|cffFFFFFFAMR"}, 1, "|cffFFFFFFSet APL Mode to use.")
             -- Dummy DPS Test
                 bb.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
+            -- Opener
+                bb.ui:createCheckbox(section, "Opener")
             -- Pre-Pull Timer
                 bb.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
             -- Roll
@@ -70,12 +72,12 @@ if select(2, UnitClass("player")) == "MONK" then
             --- COOLDOWN OPTIONS ---
             ------------------------
             section = bb.ui:createSection(bb.ui.window.profile,  "Cooldowns")
-            -- Agi Pot
-                bb.ui:createCheckbox(section,"Agi-Pot")
-            -- Legendary Ring
-                bb.ui:createCheckbox(section,"Legendary Ring")
             -- Flask / Crystal
                 bb.ui:createCheckbox(section,"Flask / Crystal")
+            -- Legendary Ring
+                bb.ui:createCheckbox(section,"Legendary Ring")
+            -- Potion
+                bb.ui:createCheckbox(section,"Potion")
             -- Racial
                 bb.ui:createCheckbox(section,"Racial")
             -- Trinkets
@@ -218,6 +220,34 @@ if select(2, UnitClass("player")) == "MONK" then
             if lastSpell == nil then lastSpell = 0 end
             if leftCombat == nil then leftCombat = GetTime() end
             if profileStop == nil then profileStop = false end
+
+            if not inCombat then 
+                opener = false
+                OoRchiWave = false
+                FSK = false
+                iRchiWave = false
+                EE = false
+                ToD = false
+                SER = false
+                RSK1 = false
+                SotW = false
+                FoF1 = false
+                RSK2 = false
+                SCK = false
+                BOK = false
+                RSK3 = false
+                TP = false
+                FoF2 = false 
+            end
+             -- Mark of the Crane Count
+            markOfTheCraneCount = 0
+            for i=1, #enemies.yards5 do
+                local thisUnit = enemies.yards5[i]
+                local markOfTheCraneRemain = getDebuffRemain(thisUnit,spell.spec.debuffs.markOfTheCrane,"player") or 0
+                if markOfTheCraneRemain > 0 then
+                    markOfTheCraneCount = markOfTheCraneCount + 1
+                end
+            end
  
             -- if buff.stacks.hitCombo == 8 then maxCombo = true else maxCombo = false end
             -- if inCombat and maxCombo then 
@@ -240,10 +270,7 @@ if select(2, UnitClass("player")) == "MONK" then
         -- Action List - Extras
             function actionList_Extras()
             -- Stop Casting
-                if ((getDistance(units.dyn5) < 5 or (useFSK() and cd.flyingSerpentKick == 0)) and isCastingSpell(spell.cracklingJadeLightning)) 
-                    or (not useAoE() and isCastingSpell(spell.spinningCraneKick))
-                    or (cd.risingSunKick == 0 or cd.fistsOfFury == 0 or cd.strikeOfTheWindlord == 0) 
-                then
+                if ((cd.risingSunKick == 0 or cd.fistsOfFury == 0 or cd.strikeOfTheWindlord == 0) and isCastingSpell(spell.cracklingJadeLightning)) then
                     SpellStopCasting()
                 end
             -- Tiger's Lust
@@ -443,6 +470,110 @@ if select(2, UnitClass("player")) == "MONK" then
                     end
                 end
             end -- End Cooldown - Action List
+        -- Action List - Opener
+            function actionList_Opener()
+                if isValidUnit("target") and isBoss("target") and opener == false then
+                    if talent.whirlingDragonPunch and talent.energizingElixir then
+                        -- TP -> ToD -> SEF+RSK -> EE+FoF -> SotW -> TP -> WDP with RSK coming off CD soon
+                    end
+                    if talent.whirlingDragonPunch and talent.powerStrikes then
+                        -- TP -> ToD -> TP + SEF -> FoF -> SotWL -> TP -> RSK -> WDP -> TP
+                    end
+                    if talent.serenity --[[and artifact.galeBurst]] then
+                        -- Chi Wave (out of boss range on self) -> FSK (don’t hit anything) -> Prepotion -> Chi Wave (on target) 
+                        -- -> EE ->  ToD -> On use trinket (if you have one) -> Serenity + RSK > SotW -> FoF -> RSK -> SCK -> BoK 
+                        -- -> Serenity complete -> RSK -> TP -> FOF
+            -- Chi Wave (Out of Range)
+                        if OoRchiWave == false and getDistance("target") >= 25 then
+                            if cast.chiWave() then print("1: Chi Wave"); OoRchiWave = true; return end
+                        end
+            -- Flying Serpent Kick (No Hit)
+                        if FSK == false then
+                            if getDistance("target") >= 15 then 
+                                if cast.flyingSerpentKick() then print("2: Flying Serpent Kick: Start"); return end
+                            else
+                                if cast.flyingSerpentKickEnd() then print("3: Flying Serpent Kick: End"); FSK = true; return end
+                            end
+                        end
+            -- Potion
+                        -- potion,name=old_war
+                        if useCDs() and canUse(127844) and inRaid and isChecked("Potion") --[[and isChecked("Pre-Pull Timer") and pullTimer <= getOptionValue("Pre-Pull Timer")]] then
+                            useItem(127844);
+                            return
+                        end
+            -- Chi Wave (In Range)
+                        if iRchiWave == false and not buff.serenity and cd.serenity == 0  and getDistance("target") < 25 then
+                            if cast.chiWave() then print("4: Chi Wave"); iRchiWave = true; return end
+                        end
+                        if getDistance("target") < 5 then
+            -- Energizing Elixir
+                            if EE == false then
+                                if cast.energizingElixir() then print("5: Energizing Elixir"); EE = true; return end
+                            end
+            -- Touch of Death
+                            if ToD == false then
+                                if cast.touchOfDeath() then print("6: Touch of Death"); TOD = true; return end
+                            end
+            -- Trinkets
+                            if isChecked("Trinkets") and getDistance(units.dyn5) < 5 then
+                                if canUse(13) then
+                                    useItem(13)
+                                end
+                                if canUse(14) then
+                                    useItem(14)
+                                end
+                            end
+            -- Serenity
+                            if SER == false then
+                                if cast.serenity() then print("7: Serenity"); SER = true; return end
+                            end
+            -- Rising Sun Kick
+                            if buff.serenity then
+                                if RSK1 == false then
+                                    if cast.risingSunKick() then print("8: Rising Sun Kick"); RSK1 = true; return end
+                                end
+            -- Strike of the Windlord
+                                if SotW == false then
+                                    if cast.strikeOfTheWindlord() then print("9: Strike of the Windlord"); SotW = true; return end
+                                end
+            -- Fists of Fury
+                                if FoF1 == false then
+                                    if cast.fistsOfFury() then print("10: Fists of Fury"); FoF1 = true; return end
+                                end
+            -- Rising Sun Kick
+                                if RSK2 == false then
+                                    if cast.risingSunKick() then print("11: Rising Sun Kick"); RSK2 = true; return end
+                                end
+            -- Spinning Crane Kick
+                                if SCK == false then
+                                    if cast.spinningCraneKick() then print("12: Spinning Crane Kick"); SCK = true; return end
+                                end
+            -- Blackout Kick
+                                if BOK == false then
+                                    if cast.blackoutKick() then print("13: Blackout Kick"); BOK = true; return end
+                                end
+                            end
+                            if not buff.serenity and cd.serenity ~= 0 then
+            -- Rising Sun Kick
+                                if RSK3 == false then
+                                    if cast.risingSunKick() then print("14: Rising Sun Kick"); RSK3 = true; return end
+                                end
+            -- Tiger Palm
+                                if TP == false and cd.risingSunKick ~= 0 and chi.count < 3 then
+                                    if cast.tigerPalm() then print("15: Tiger Palm"); TP = true; return end
+                                end
+            -- Fists of Fury
+                                if FoF2 == false then
+                                    if cast.fistsOfFury() then print("16: Fists of Fury"); FoF2 = true; opener = true; return end
+                                end
+                            end
+                        end 
+                    end
+                    -- if talent.serenity and not artifact.galeBurst then
+                        -- Serenity -> RSK -> SotW -> SCK -> BoK -> SCK -> RSK -> SCK -> FoF
+                    -- end
+                end
+            end
         -- Action List - Single Target
             function actionList_SingleTarget()
             -- Action List - Cooldown
@@ -468,7 +599,13 @@ if select(2, UnitClass("player")) == "MONK" then
                 if cast.fistsOfFury() then return end
             -- Rising Sun Kick
                 -- rising_sun_kick
-                if cast.risingSunKick() then return end
+                for i = 1, #enemies.yards5 do
+                    local thisUnit = enemies.yards5[i]
+                    local markOfTheCraneDebuff = UnitDebuffID(thisUnit,spell.spec.debuffs.markOfTheCrane,"player") ~= nil
+                    if not markOfTheCraneDebuff or markOfTheCraneCount == #enemies.yards5 then
+                        if cast.risingSunKick() then return end
+                    end
+                end
             -- Whirling Dragon Punch
                 -- whirling_dragon_punch
                 if cast.whirlingDragonPunch() then return end
@@ -485,7 +622,13 @@ if select(2, UnitClass("player")) == "MONK" then
             -- Blackout Kick
                 -- blackout_kick,cycle_targets=1,if=(chi>1|buff.bok_proc.up)&!prev_gcd.blackout_kick
                 if (chi.count > 1 or buff.blackoutKick) and lastSpell ~= spell.blackoutKick then
-                    if cast.blackoutKick() then return end
+                    for i = 1, #enemies.yards5 do
+                        local thisUnit = enemies.yards5[i]
+                        local markOfTheCraneDebuff = UnitDebuffID(thisUnit,spell.spec.debuffs.markOfTheCrane,"player") ~= nil
+                        if not markOfTheCraneDebuff or markOfTheCraneCount == #enemies.yards5 then
+                            if cast.blackoutKick() then return end
+                        end
+                    end
                 end
             -- Chi Wave
                 -- chi_wave,if=energy.time_to_max>=2.25
@@ -500,7 +643,13 @@ if select(2, UnitClass("player")) == "MONK" then
             -- Tiger Palm
                 -- tiger_palm,cycle_targets=1,if=!prev_gcd.tiger_palm
                 if lastSpell ~= spell.tigerPalm then
-                    if cast.tigerPalm() then return end
+                    for i = 1, #enemies.yards5 do
+                        local thisUnit = enemies.yards5[i]
+                        local markOfTheCraneDebuff = UnitDebuffID(thisUnit,spell.spec.debuffs.markOfTheCrane,"player") ~= nil
+                        if not markOfTheCraneDebuff or markOfTheCraneCount == #enemies.yards5 then
+                            if cast.tigerPalm() then return end
+                        end
+                    end
                 end
             -- Crackling Jade Lightning
                 -- crackling_jade_lightning,interrupt=1,if=talent.rushing_jade_wind.enabled&chi.max-chi=1&prev_gcd.blackout_kick&cooldown.rising_sun_kick.remains>1&cooldown.fists_of_fury.remains>1&cooldown.strike_of_the_windlord.remains>1&cooldown.rushing_jade_wind.remains>1
@@ -550,7 +699,13 @@ if select(2, UnitClass("player")) == "MONK" then
             -- Rising Sun Kick
                 -- rising_sun_kick,cycle_targets=1,if=active_enemies<3
                 if #enemies.yards5 < 3 then
-                    if cast.risingSunKick() then return end
+                    for i = 1, #enemies.yards5 do
+                        local thisUnit = enemies.yards5[i]
+                        local markOfTheCraneDebuff = UnitDebuffID(thisUnit,spell.spec.debuffs.markOfTheCrane,"player") ~= nil
+                        if not markOfTheCraneDebuff or markOfTheCraneCount == #enemies.yards5 then
+                            if cast.risingSunKick() then return end
+                        end
+                    end
                 end
             -- Fists of Fury
                 -- fists_of_fury
@@ -563,12 +718,24 @@ if select(2, UnitClass("player")) == "MONK" then
             -- Rising Sun Kick
                 -- rising_sun_kick,cycle_targets=1,if=active_enemies>=3
                 if #enemies.yards5 >= 3 then
-                    if cast.risingSunKick() then return end
+                    for i = 1, #enemies.yards5 do
+                        local thisUnit = enemies.yards5[i]
+                        local markOfTheCraneDebuff = UnitDebuffID(thisUnit,spell.spec.debuffs.markOfTheCrane,"player") ~= nil
+                        if not markOfTheCraneDebuff or markOfTheCraneCount == #enemies.yards5 then
+                            if cast.risingSunKick() then return end
+                        end
+                    end
                 end
             -- Blackout Kick
                 -- blackout_kick,cycle_targets=1,if=!prev_gcd.blackout_kick
                 if lastSpell ~= spell.blackoutKick then
-                    if cast.blackoutKick() then return end
+                    for i = 1, #enemies.yards5 do
+                        local thisUnit = enemies.yards5[i]
+                        local markOfTheCraneDebuff = UnitDebuffID(thisUnit,spell.spec.debuffs.markOfTheCrane,"player") ~= nil
+                        if not markOfTheCraneDebuff or markOfTheCraneCount == #enemies.yards5 then
+                            if cast.blackoutKick() then return end
+                        end
+                    end
                 end
             -- Spinning Crane Kick
                 -- spinning_crane_kick,if=!prev_gcd.spinning_crane_kick
@@ -608,11 +775,6 @@ if select(2, UnitClass("player")) == "MONK" then
                     if baseMultistrike == 0 then
                         -- baseMultistrike = GetMultistrike()
                     end
-            -- Potion
-                    -- potion,name=old_war
-                    if useCDs() and canUse(127844) and inRaid and isChecked("Agi-Pot") and isChecked("Pre-Pull Timer") and pullTimer <= getOptionValue("Pre-Pull Timer") then
-                        useItem(127844)
-                    end
             -- Start Attack
                     -- auto_attack
                     if isValidUnit("target") and getDistance("target") < 5 then
@@ -648,11 +810,17 @@ if select(2, UnitClass("player")) == "MONK" then
     --- Pre-Combat Rotation ---
     ------------------------------
                 if actionList_PreCombat() then return end
+    -----------------------
+    --- Opener Rotation ---
+    -----------------------
+                if opener == false and isChecked("Opener") and isValidUnit("target") and isBoss("target") then
+                    if actionList_Opener() then return end
+                end
     --------------------------
     --- In Combat Rotation ---
     --------------------------
             -- FIGHT!
-                if inCombat and profileStop==false and isValidUnit(units.dyn5) then 
+                if inCombat and profileStop==false and isValidUnit(units.dyn5) and (opener == true or not isChecked("Opener") or not isBoss("target")) then 
         ------------------
         --- Interrupts ---
         ------------------
@@ -673,7 +841,7 @@ if select(2, UnitClass("player")) == "MONK" then
             -- Potion
                         -- potion,name=old_war,if=buff.serenity.up|buff.storm_earth_and_fire.up|(!talent.serenity.enabled&trinket.proc.agility.react)|buff.bloodlust.react|target.time_to_die<=60
                         -- TODO: Agility Proc
-                        if canUse(127844) and inRaid and isChecked("Agi-Pot") then
+                        if canUse(127844) and inRaid and isChecked("Potion") then
                             if buff.serenity or buff.stormEarthAndFire or hasBloodLust() or ttd <= 60 then
                                 useItem(127844)
                             end
@@ -741,7 +909,7 @@ if select(2, UnitClass("player")) == "MONK" then
                                 end
                             end
             -- Potion
-                            if canUse(109217) and inRaid and isChecked("Agi-Pot") then
+                            if canUse(109217) and inRaid and isChecked("Potion") then
                                 if hasBloodLust() or ttd <= 60 then
                                     useItem(109217)
                                 end
