@@ -423,7 +423,7 @@ if select(2, UnitClass("player")) == "MONK" then
                     -- touch_of_death,if=!artifact.gale_burst.enabled&!equipped.137057
                     -- touch_of_death,cycle_targets=1,max_cycle_targets=2,if=artifact.gale_burst.enabled&equipped.137057&cooldown.strike_of_the_windlord.remains<8&cooldown.fists_of_fury.remains<=4&cooldown.rising_sun_kick.remains<7&!prev_gcd.touch_of_death
                     -- touch_of_death,if=artifact.gale_burst.enabled&!equipped.137057&cooldown.strike_of_the_windlord.remains<8&cooldown.fists_of_fury.remains<=4&cooldown.rising_sun_kick.remains<7
-                    if isChecked("Touch of Death") 
+                    if isChecked("Touch of Death") and not debuff.touchOfDeath
                         and ((not artifact.galeBurst and hasEquiped(137057) and lastSpell ~= spell.touchOfDeath)
                             or (not artifact.galeBurst and not hasEquiped(137057))
                             or (artifact.galeBurst and hasEquiped(137057) and cd.strikeOfTheWindlord < 8 and cd.fistsOfFury <= 4 and cd.risingSunKick < 7 and lastSpell ~= spell.touchOfDeath)
@@ -707,7 +707,9 @@ if select(2, UnitClass("player")) == "MONK" then
                     if getOptionValue("APL Mode") == 2 then
                         if useCDs() then
             -- Touch of Death
-                            if cast.touchOfDeath() then return end
+                            if not debuff.touchOfDeath then
+                                if cast.touchOfDeath() then return end
+                            end
             -- Trinkets
                             if isChecked("Trinkets") and getDistance(units.dyn5) < 5 then
                                 if canUse(13) then

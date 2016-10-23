@@ -67,6 +67,7 @@ function cWindwalker:new()
         }
         self.spell.spec.debuffs     = {
             markOfTheCrane                  = 228287,
+            touchOfDeath                    = 115080,
         }
         self.spell.spec.glyphs      = {
             glyphOfRisingTigerKick          = 125151,
@@ -155,6 +156,7 @@ function cWindwalker:new()
             local UnitBuffID = UnitBuffID
             local getBuffDuration = getBuffDuration
             local getBuffRemain = getBuffRemain
+            local getBuffStacks = getBuffStacks
 
             for k,v in pairs(self.spell.spec.buffs) do
                 self.buff[k]            = UnitBuffID("player",v) ~= nil
@@ -169,7 +171,6 @@ function cWindwalker:new()
     ---------------
 
         function self.getCharges()
-            local getBuffStacks = getBuffStacks
 
             for k,v in pairs(self.spell.spec.abilities) do
                 self.charges[k] = getCharges(v) or 0
