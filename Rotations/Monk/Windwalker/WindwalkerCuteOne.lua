@@ -236,8 +236,11 @@ if select(2, UnitClass("player")) == "MONK" then
                 SCK = false
                 BOK = false
                 RSK3 = false
-                TP = false
-                FoF2 = false 
+                TP1 = false
+                TP2 = false
+                FoF2 = false
+                SEF = false
+                WDP = false 
             end
              -- Mark of the Crane Count
             markOfTheCraneCount = 0
@@ -295,7 +298,7 @@ if select(2, UnitClass("player")) == "MONK" then
                 if cast.resuscitate() then return end
             -- Provoke
                 if not inCombat and select(3,GetSpellInfo(101545)) ~= "INTERFACE\\ICONS\\priest_icon_chakra_green" 
-                    and cd.flyingSerpentKick > 1 and getDistance("target") > 10 and isValidUnit("target") 
+                    and cd.flyingSerpentKick > 1 and getDistance("target") > 10 and isValidUnit("target") and not isBoss("target")
                 then
                     if solo or #bb.friend == 1 then
                         if cast.provoke() then return end
@@ -370,7 +373,7 @@ if select(2, UnitClass("player")) == "MONK" then
                         if cast.dampenHarm() then return end
                     end
             -- Effuse
-                    if isChecked("Effuse") and ((not inCombat and php <= getOptionValue("Effuse")) or (inCombat and php <= getOptionValue("Effuse") / 2)) then
+                    if isChecked("Effuse") and ((not inCombat and php <= getOptionValue("Effuse")) --[[or (inCombat and php <= getOptionValue("Effuse") / 2)]]) then
                         if cast.effuse() then return end
                     end
             -- Healing Elixir
@@ -478,8 +481,83 @@ if select(2, UnitClass("player")) == "MONK" then
         -- Action List - Opener
             function actionList_Opener()
                 if isBoss("target") and opener == false then
-                    if talent.whirlingDragonPunch and talent.energizingElixir then
+                    if talent.whirlingDragonPunch and talent.energizingElixir and getDistance("target") < 5 then
                         -- TP -> ToD -> SEF+RSK -> EE+FoF -> SotW -> TP -> WDP with RSK coming off CD soon
+                        -- if lastSpell == spell.risingSunKick and RSK1 and not RSK2 then RSK2 = true end
+                        -- if lastSpell == spell.whirlingDragonPunch and not WDP then WDP = true end
+                        -- if lastSpell == spell.tigerPalm and TP1 and not TP2 then TP2 = true end
+                        -- if lastSpell == spell.strikeOfTheWindlord and not SotW then SotW = true end
+                        -- if lastSpell == spell.fistsOfFury and not FoF1 then FoF1 = true end
+                        -- if lastSpell == spell.energizingElixir and not EE then EE = true end
+                        -- if lastSpell == spell.risingSunKick and not RSK1 then RSK1 = true end
+                        -- if lastSpell == spell.stormEarthAndFire and not SEF then SEF = true end
+                        -- if lastSpell == spell.touchOfDeath and not ToD then ToD = true end
+                        -- if lastSpell == spell.tigerPalm and not TP1 then TP1 = true end
+            -- Tiger Palm
+                        if not TP1 and chi.count < 2 then
+                            if cast.tigerPalm("target") then print("1: Tiger Palm"); TP1 = true; return end
+            -- Touch of Death
+                        elseif not ToD and not UnitDebuffID("target",spell.spec.debuffs.touchOfDeath,"player") then
+                            if cd.touchOfDeath == 0 then
+                                if cast.touchOfDeath("target") then print("2: Touch of Death"); ToD = true; return end
+                            elseif cd.touchOfDeath > gcd then
+                                ToD = true
+                            end
+            -- Storm, Earth, and Fire
+                        elseif not SEF then
+                            if charges.stormEarthAndFire > 0 then
+                                if cast.stormEarthAndFire() then print("3: Storm, Earth, and Fire"); SEF = true; return end
+                            elseif cd.stormEarthAndFire > gcd then
+                                SEF = true
+                            end
+            -- Rising Sun Kick
+                        elseif not RSK1 then
+                            if cd.risingSunKick == 0 then
+                                if cast.risingSunKick("target") then print("4: Rising Sun Kick"); RSK1 = true; return end
+                            elseif cd.risingSunKick > gcd then
+                                RSK1 = true
+                            end
+            -- Energizing Elixir
+                        elseif not EE then
+                            if cd.energizingElixir == 0 then
+                                if cast.energizingElixir() then print("5: Energizing Elixir"); EE = true; return end
+                            elseif cd.energizingElixir > gcd then
+                                EE = true
+                            end
+            -- Fists of Fury
+                        elseif not FoF1 then
+                            if cd.fistsOfFury == 0 then
+                                if cast.fistsOfFury("target") then print("6: Fists of Fury"); FoF1 = true; return end
+                            elseif cd.fistsOfFury > gcd then
+                                FoF1 = true
+                            end
+            -- Strike of the Windlord
+                        elseif not SotW then
+                            if cd.strikeOfTheWindlord == 0 then
+                                if cast.strikeOfTheWindlord("target") then print("7: Strike of the Windlord"); SotW = true; return end
+                            elseif cd.strikeOfTheWindlord > gcd then
+                                SotW = true
+                            end
+            -- Tiger Palm
+                        elseif not TP2 and chi.count < 2 then
+                            if cast.tigerPalm("target") then print("8: Tiger Palm"); TP2 = true; return end
+            -- Whirling Dragon Punch
+                        elseif not WDP then
+                            if cd.whirlingDragonPunch == 0 then
+                                if cast.whirlingDragonPunch("target") then print("9: Whirling Dragon Punch"); WDP = true; return end
+                            elseif cd.whirlingDragonPunch > gcd then 
+                                WDP = true
+                            end
+            -- Rising Sun Kick
+                        elseif not RSK2 then
+                            if cd.risingSunKick == 0 then
+                                if cast.risingSunKick("target") then print("10: Rising Sun Kick"); RSK2 = true; return end
+                            elseif cd.risingSunKick > gcd then
+                                RSK2 = true
+                            end
+                        elseif RSK2 then
+                            opener = true
+                        end
                     end
                     if talent.whirlingDragonPunch and talent.powerStrikes then
                         -- TP -> ToD -> TP + SEF -> FoF -> SotWL -> TP -> RSK -> WDP -> TP
@@ -495,7 +573,7 @@ if select(2, UnitClass("player")) == "MONK" then
                             end
             -- Potion
                             -- potion,name=old_war
-                            if useCDs() and canUse(127844) and inRaid and isChecked("Potion") and getDistance("target") < 10--[[]] then
+                            if useCDs() and canUse(127844) and inRaid and isChecked("Potion") and getDistance("target") < 10 then
                                 useItem(127844);
                                 return
                             end
@@ -566,8 +644,8 @@ if select(2, UnitClass("player")) == "MONK" then
                                     if cast.risingSunKick("target") then print("14: Rising Sun Kick"); RSK3 = true; return end
                                 end
             -- Tiger Palm
-                                if (TP == false or TP == true and chi.count < 3) and lastSpell == spell.risingSunKick then
-                                    if cast.tigerPalm("target") then print("15: Tiger Palm"); TP = true; return end
+                                if (TP1 == false or TP1 == true and chi.count < 3) and lastSpell == spell.risingSunKick then
+                                    if cast.tigerPalm("target") then print("15: Tiger Palm"); TP1 = true; return end
                                 end
             -- Fists of Fury
                                 if FoF2 == false then
@@ -598,7 +676,7 @@ if select(2, UnitClass("player")) == "MONK" then
                 end
             -- Strike of the Windlord
                 -- strike_of_the_windlord,if=talent.serenity.enabled|active_enemies<6
-                if (talent.serenity and cd.serenity > 20) or (not talent.serenity and #enemies.yards5 < 6) then
+                if ((talent.serenity and cd.serenity > 20) or not isChecked("Serenity") or not useCDs()) or (not talent.serenity and #enemies.yards5 < 6) then
                     if cast.strikeOfTheWindlord() then return end
                 end
             -- Fists of Fury
@@ -969,7 +1047,7 @@ if select(2, UnitClass("player")) == "MONK" then
             -- Whirling Dragon Punch
                         if cast.whirlingDragonPunch() then return end
             -- Strike of the Windlord
-                        if (talent.serenity and cd.serenity > 20) or not talent.serenity then
+                        if ((talent.serenity and cd.serenity > 20) or not isChecked("Serenity") or not useCDs()) or not talent.serenity then
                             if cast.strikeOfTheWindlord() then return end
                         end
             -- Tiger Palm

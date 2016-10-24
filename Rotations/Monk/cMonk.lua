@@ -42,6 +42,7 @@ if select(2, UnitClass("player")) == "MONK" then
 			resuscitate 					= 115178,
 			ringOfPeace 					= 116844,
 			roll 							= 109132,
+            tigersLust                      = 116841,
 			tigerPalm 						= 100780,
         }
         self.spell.class.artifacts  = {        -- Artifact Traits Available To All Rogues
