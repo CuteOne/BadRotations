@@ -248,6 +248,11 @@ if select(2, UnitClass("player")) == "MONK" then
                     markOfTheCraneCount = markOfTheCraneCount + 1
                 end
             end
+            if markOfTheCraneCount > 0 then
+                markPercent = (#enemies.yards5/markOfTheCraneCount)*100
+            else
+                markPercent = 0
+            end
  
             -- if buff.stacks.hitCombo == 8 then maxCombo = true else maxCombo = false end
             -- if inCombat and maxCombo then 
@@ -472,7 +477,7 @@ if select(2, UnitClass("player")) == "MONK" then
             end -- End Cooldown - Action List
         -- Action List - Opener
             function actionList_Opener()
-                if isValidUnit("target") and isBoss("target") and opener == false then
+                if isBoss("target") and opener == false then
                     if talent.whirlingDragonPunch and talent.energizingElixir then
                         -- TP -> ToD -> SEF+RSK -> EE+FoF -> SotW -> TP -> WDP with RSK coming off CD soon
                     end
@@ -483,27 +488,29 @@ if select(2, UnitClass("player")) == "MONK" then
                         -- Chi Wave (out of boss range on self) -> FSK (don’t hit anything) -> Prepotion -> Chi Wave (on target) 
                         -- -> EE ->  ToD -> On use trinket (if you have one) -> Serenity + RSK > SotW -> FoF -> RSK -> SCK -> BoK 
                         -- -> Serenity complete -> RSK -> TP -> FOF
+                        if isChecked("Pre-Pull Timer") and pullTimer <= getOptionValue("Pre-Pull Timer") then
             -- Chi Wave (Out of Range)
-                        if OoRchiWave == false and getDistance("target") >= 25 then
-                            if cast.chiWave() then print("1: Chi Wave"); OoRchiWave = true; return end
-                        end
-            -- Flying Serpent Kick (No Hit)
-                        if FSK == false then
-                            if getDistance("target") >= 15 then 
-                                if cast.flyingSerpentKick() then print("2: Flying Serpent Kick: Start"); return end
-                            else
-                                if cast.flyingSerpentKickEnd() then print("3: Flying Serpent Kick: End"); FSK = true; return end
+                            if OoRchiWave == false and getDistance("target") >= 25 then
+                                if cast.chiWave() then print("1: Chi Wave"); OoRchiWave = true; return end
                             end
-                        end
             -- Potion
-                        -- potion,name=old_war
-                        if useCDs() and canUse(127844) and inRaid and isChecked("Potion") --[[and isChecked("Pre-Pull Timer") and pullTimer <= getOptionValue("Pre-Pull Timer")]] then
-                            useItem(127844);
-                            return
-                        end
+                            -- potion,name=old_war
+                            if useCDs() and canUse(127844) and inRaid and isChecked("Potion") and getDistance("target") < 10--[[]] then
+                                useItem(127844);
+                                return
+                            end
+            -- Flying Serpent Kick (No Hit)
+                            if FSK == false then
+                                if getDistance("target") >= 15 then 
+                                    if cast.flyingSerpentKick() then print("2: Flying Serpent Kick: Start"); return end
+                                else
+                                    if cast.flyingSerpentKickEnd() then print("3: Flying Serpent Kick: End"); FSK = true; return end
+                                end
+                            end
             -- Chi Wave (In Range)
-                        if iRchiWave == false and not buff.serenity and cd.serenity == 0  and getDistance("target") < 25 then
-                            if cast.chiWave() then print("4: Chi Wave"); iRchiWave = true; return end
+                            if iRchiWave == false and not buff.serenity and cd.serenity == 0  and getDistance("target") < 25 then
+                                if cast.chiWave() then print("4: Chi Wave"); iRchiWave = true; return end
+                            end
                         end
                         if getDistance("target") < 5 then
             -- Energizing Elixir
@@ -512,10 +519,10 @@ if select(2, UnitClass("player")) == "MONK" then
                             end
             -- Touch of Death
                             if ToD == false and not debuff.touchOfDeath then
-                                if cast.touchOfDeath() then print("6: Touch of Death"); TOD = true; return end
+                                if cast.touchOfDeath("target") then print("6: Touch of Death"); TOD = true; return end
                             end
             -- Trinkets
-                            if isChecked("Trinkets") and getDistance(units.dyn5) < 5 then
+                            if isChecked("Trinkets") then
                                 if canUse(13) then
                                     useItem(13)
                                 end
@@ -524,47 +531,47 @@ if select(2, UnitClass("player")) == "MONK" then
                                 end
                             end
             -- Serenity
-                            if SER == false then
+                            if SER == false and cd.touchOfDeath > 0 then
                                 if cast.serenity() then print("7: Serenity"); SER = true; return end
                             end
             -- Rising Sun Kick
                             if buff.serenity then
                                 if RSK1 == false then
-                                    if cast.risingSunKick() then print("8: Rising Sun Kick"); RSK1 = true; return end
+                                    if cast.risingSunKick("target") then print("8: Rising Sun Kick"); RSK1 = true; return end
                                 end
             -- Strike of the Windlord
                                 if SotW == false then
-                                    if cast.strikeOfTheWindlord() then print("9: Strike of the Windlord"); SotW = true; return end
+                                    if cast.strikeOfTheWindlord("target") then print("9: Strike of the Windlord"); SotW = true; return end
                                 end
             -- Fists of Fury
                                 if FoF1 == false then
-                                    if cast.fistsOfFury() then print("10: Fists of Fury"); FoF1 = true; return end
+                                    if cast.fistsOfFury("target") then print("10: Fists of Fury"); FoF1 = true; return end
                                 end
             -- Rising Sun Kick
                                 if RSK2 == false then
-                                    if cast.risingSunKick() then print("11: Rising Sun Kick"); RSK2 = true; return end
+                                    if cast.risingSunKick("target") then print("11: Rising Sun Kick"); RSK2 = true; return end
                                 end
             -- Spinning Crane Kick
                                 if SCK == false then
-                                    if cast.spinningCraneKick() then print("12: Spinning Crane Kick"); SCK = true; return end
+                                    if cast.spinningCraneKick("target") then print("12: Spinning Crane Kick"); SCK = true; return end
                                 end
             -- Blackout Kick
                                 if BOK == false then
-                                    if cast.blackoutKick() then print("13: Blackout Kick"); BOK = true; return end
+                                    if cast.blackoutKick("target") then print("13: Blackout Kick"); BOK = true; return end
                                 end
                             end
                             if not buff.serenity and cd.serenity ~= 0 then
             -- Rising Sun Kick
                                 if RSK3 == false then
-                                    if cast.risingSunKick() then print("14: Rising Sun Kick"); RSK3 = true; return end
+                                    if cast.risingSunKick("target") then print("14: Rising Sun Kick"); RSK3 = true; return end
                                 end
             -- Tiger Palm
-                                if TP == false and cd.risingSunKick ~= 0 and chi.count < 3 then
-                                    if cast.tigerPalm() then print("15: Tiger Palm"); TP = true; return end
+                                if (TP == false or TP == true and chi.count < 3) and lastSpell == spell.risingSunKick then
+                                    if cast.tigerPalm("target") then print("15: Tiger Palm"); TP = true; return end
                                 end
             -- Fists of Fury
                                 if FoF2 == false then
-                                    if cast.fistsOfFury() then print("16: Fists of Fury"); FoF2 = true; opener = true; return end
+                                    if cast.fistsOfFury("target") then print("16: Fists of Fury"); FoF2 = true; opener = true; return end
                                 end
                             end
                         end 
@@ -591,12 +598,14 @@ if select(2, UnitClass("player")) == "MONK" then
                 end
             -- Strike of the Windlord
                 -- strike_of_the_windlord,if=talent.serenity.enabled|active_enemies<6
-                if talent.serenity or #enemies.yards5 < 6 then
+                if (talent.serenity and cd.serenity > 20) or (not talent.serenity and #enemies.yards5 < 6) then
                     if cast.strikeOfTheWindlord() then return end
                 end
             -- Fists of Fury
                 -- fists_of_fury
-                if cast.fistsOfFury() then return end
+                if markPercent < 75 or #enemies.yards5 < 4 then
+                    if cast.fistsOfFury() then return end
+                end
             -- Rising Sun Kick
                 -- rising_sun_kick
                 for i = 1, #enemies.yards5 do
@@ -611,7 +620,7 @@ if select(2, UnitClass("player")) == "MONK" then
                 if cast.whirlingDragonPunch() then return end
             -- Spinning Crane Kick
                 -- spinning_crane_kick,if=active_enemies>=3&!prev_gcd.spinning_crane_kick
-                if #enemies.yards5 >= 3 and lastSpell ~= spell.spinningCraneKick then
+                if #enemies.yards5 >= 4 and markPercent >= 75 and lastSpell ~= spell.spinningCraneKick then
                     if cast.spinningCraneKick() then return end
                 end
             -- Rushing Jade Wind
@@ -692,10 +701,14 @@ if select(2, UnitClass("player")) == "MONK" then
                 if actionList_Cooldown() then return end
             -- Serenity
                 -- serenity
-                if cast.serenity() then return end
+                if cd.touchOfDeath > 45 then
+                    if cast.serenity() then return end
+                end
             -- Strike of the Windlord
                 -- strike_of_the_windlord
-                if cast.strikeOfTheWindlord() then return end
+                if buff.serenity then
+                    if cast.strikeOfTheWindlord() then return end
+                end
             -- Rising Sun Kick
                 -- rising_sun_kick,cycle_targets=1,if=active_enemies<3
                 if #enemies.yards5 < 3 then
@@ -709,10 +722,12 @@ if select(2, UnitClass("player")) == "MONK" then
                 end
             -- Fists of Fury
                 -- fists_of_fury
-                if cast.fistsOfFury() then return end
+                if markPercent < 75 or #enemies.yards5 < 4 then
+                    if cast.fistsOfFury() then return end
+                end
             -- Spinning Crane Kick
                 -- spinning_crane_kick,if=active_enemies>=3&!prev_gcd.spinning_crane_kick
-                if #enemies.yards5 >= 3 and lastSpell ~= spell.spinningCraneKick then
+                if #enemies.yards5 >= 4 and markPercent >= 75 and lastSpell ~= spell.spinningCraneKick then
                     if cast.spinningCraneKick() then return end
                 end
             -- Rising Sun Kick
@@ -813,7 +828,7 @@ if select(2, UnitClass("player")) == "MONK" then
     -----------------------
     --- Opener Rotation ---
     -----------------------
-                if opener == false and isChecked("Opener") and isValidUnit("target") and isBoss("target") then
+                if opener == false and isChecked("Opener") and isBoss("target") then
                     if actionList_Opener() then return end
                 end
     --------------------------
@@ -848,22 +863,22 @@ if select(2, UnitClass("player")) == "MONK" then
                         end
             -- Call Action List - Serenity
                         -- call_action_list,name=serenity,if=talent.serenity.enabled&((artifact.strike_of_the_windlord.enabled&cooldown.strike_of_the_windlord.remains<=14&cooldown.rising_sun_kick.remains<=4)|buff.serenity.up)
-                        if talent.serenity and ((artifact.strikeOfTheWindlord and cd.strikeOfTheWindlord <= 14 and cd.risingSunKick <= 4) or buff.serenity) then
+                        if talent.serenity and ((artifact.strikeOfTheWindlord and cd.strikeOfTheWindlord <= 14 and cd.risingSunKick <= 4 and cd.touchOfDeath > 40) or buff.serenity) then
                             if actionList_Serenity() then return end
                         end
             -- Call Action List - Storm, Earth, and Fire
                         -- call_action_list,name=sef,if=!talent.serenity.enabled&((artifact.strike_of_the_windlord.enabled&cooldown.strike_of_the_windlord.remains<=14&cooldown.fists_of_fury.remains<=6&cooldown.rising_sun_kick.remains<=6)|buff.storm_earth_and_fire.up)
-                        if not talent.serenity and ((artifact.strikeOfTheWindlord and cd.strikeOfTheWindlord <= 14 and cd.fistsOfFury <= 6 and cd.risingSunKick <= 6) or buff.stormEarthAndFire) then
+                        if not talent.serenity and ((artifact.strikeOfTheWindlord and cd.strikeOfTheWindlord <= 14 and cd.fistsOfFury <= 6 and cd.risingSunKick <= 6 and cd.touchOfDeath > 40) or buff.stormEarthAndFire) then
                             if actionList_SEF() then return end
                         end
             -- Call Action List - Serenity
                         -- call_action_list,name=serenity,if=(!artifact.strike_of_the_windlord.enabled&cooldown.strike_of_the_windlord.remains<14&cooldown.fists_of_fury.remains<=15&cooldown.rising_sun_kick.remains<7)|buff.serenity.up
-                        if (not artifact.strikeOfTheWindlord and cd.fistsOfFury <= 15 and cd.risingSunKick < 7) or buff.serenity then
+                        if (not artifact.strikeOfTheWindlord and cd.fistsOfFury <= 15 and cd.risingSunKick < 7 and cd.touchOfDeath > 40) or buff.serenity then
                             if actionList_Serenity() then return end
                         end
             -- Call Action Lsit - Storm, Earth, and Fire
                         -- call_action_list,name=sef,if=!talent.serenity.enabled&((!artifact.strike_of_the_windlord.enabled&cooldown.fists_of_fury.remains<=9&cooldown.rising_sun_kick.remains<=5)|buff.storm_earth_and_fire.up)
-                        if not talent.serenity and ((not artifact.strikeOfTheWindlord and cd.fistsOfFury <= 9 and cd.risingSunKick <= 5) or buff.stormEarthAndFire) then
+                        if not talent.serenity and ((not artifact.strikeOfTheWindlord and cd.fistsOfFury <= 9 and cd.risingSunKick <= 5 and cd.touchOfDeath > 40) or buff.stormEarthAndFire) then
                             if actionList_SEF() then return end
                         end             
             -- Call Action List - Single Target
@@ -921,7 +936,7 @@ if select(2, UnitClass("player")) == "MONK" then
             -- Serenity
                             -- if CooldownSecRemaining(FistsOfFury) < 6 and CooldownSecRemaining(StrikeOfTheWindlord) < 5 and CooldownSecRemaining(WhirlingDragonPunch) < 5
                             if isChecked("Serenity") then
-                                if cd.serenity < 6 and cd.strikeOfTheWindlord < 5 and cd.whirlingDragonPunch < 5 then
+                                if cd.fistsOfFury < 6 and cd.strikeOfTheWindlord < 5 and cd.whirlingDragonPunch < 5 and cd.touchOfDeath > 45 then
                                     if cast.serenity() then return end
                                 end
                             end
@@ -954,7 +969,9 @@ if select(2, UnitClass("player")) == "MONK" then
             -- Whirling Dragon Punch
                         if cast.whirlingDragonPunch() then return end
             -- Strike of the Windlord
-                        if cast.strikeOfTheWindlord() then return end
+                        if (talent.serenity and cd.serenity > 20) or not talent.serenity then
+                            if cast.strikeOfTheWindlord() then return end
+                        end
             -- Tiger Palm
                         -- if not WasLastCast(TigerPalm) and AlternatePower < 4 and Power > (MaxPower*0.9)
                         if lastSpell ~= spell.tigerPalm and chi.count < 4 and power > (powerMax * 0.9) then
