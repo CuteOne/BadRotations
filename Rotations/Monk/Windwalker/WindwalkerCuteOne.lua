@@ -511,7 +511,7 @@ if select(2, UnitClass("player")) == "MONK" then
                                 if cast.energizingElixir() then print("5: Energizing Elixir"); EE = true; return end
                             end
             -- Touch of Death
-                            if ToD == false then
+                            if ToD == false and not debuff.touchOfDeath then
                                 if cast.touchOfDeath() then print("6: Touch of Death"); TOD = true; return end
                             end
             -- Trinkets
