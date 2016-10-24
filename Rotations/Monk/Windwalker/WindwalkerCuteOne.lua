@@ -518,7 +518,7 @@ if select(2, UnitClass("player")) == "MONK" then
                                 if cast.energizingElixir() then print("5: Energizing Elixir"); EE = true; return end
                             end
             -- Touch of Death
-                            if ToD == false and not debuff.touchOfDeath then
+                            if ToD == false and not UnitDebuffID("target",spell.spec.debuffs.touchOfDeath,"player") then
                                 if cast.touchOfDeath("target") then print("6: Touch of Death"); TOD = true; return end
                             end
             -- Trinkets
@@ -531,7 +531,7 @@ if select(2, UnitClass("player")) == "MONK" then
                                 end
                             end
             -- Serenity
-                            if SER == false and cd.touchOfDeath > 0 then
+                            if SER == false and (cd.touchOfDeath > 0 or debuff.touchOfDeath) then
                                 if cast.serenity() then print("7: Serenity"); SER = true; return end
                             end
             -- Rising Sun Kick
@@ -863,7 +863,7 @@ if select(2, UnitClass("player")) == "MONK" then
                         end
             -- Call Action List - Serenity
                         -- call_action_list,name=serenity,if=talent.serenity.enabled&((artifact.strike_of_the_windlord.enabled&cooldown.strike_of_the_windlord.remains<=14&cooldown.rising_sun_kick.remains<=4)|buff.serenity.up)
-                        if talent.serenity and ((artifact.strikeOfTheWindlord and cd.strikeOfTheWindlord <= 14 and cd.risingSunKick <= 4 and cd.touchOfDeath > 40) or buff.serenity) then
+                        if talent.serenity and ((useCDs() and artifact.strikeOfTheWindlord and cd.strikeOfTheWindlord <= 14 and cd.risingSunKick <= 4 and cd.touchOfDeath > 40) or buff.serenity) then
                             if actionList_Serenity() then return end
                         end
             -- Call Action List - Storm, Earth, and Fire
@@ -873,7 +873,7 @@ if select(2, UnitClass("player")) == "MONK" then
                         end
             -- Call Action List - Serenity
                         -- call_action_list,name=serenity,if=(!artifact.strike_of_the_windlord.enabled&cooldown.strike_of_the_windlord.remains<14&cooldown.fists_of_fury.remains<=15&cooldown.rising_sun_kick.remains<7)|buff.serenity.up
-                        if (not artifact.strikeOfTheWindlord and cd.fistsOfFury <= 15 and cd.risingSunKick < 7 and cd.touchOfDeath > 40) or buff.serenity then
+                        if (useCDs() and not artifact.strikeOfTheWindlord and cd.fistsOfFury <= 15 and cd.risingSunKick < 7 and cd.touchOfDeath > 40) or buff.serenity then
                             if actionList_Serenity() then return end
                         end
             -- Call Action Lsit - Storm, Earth, and Fire
