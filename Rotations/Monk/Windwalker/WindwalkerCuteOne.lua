@@ -251,11 +251,13 @@ if select(2, UnitClass("player")) == "MONK" then
                     markOfTheCraneCount = markOfTheCraneCount + 1
                 end
             end
-            if markOfTheCraneCount > 0 then
-                markPercent = (#enemies.yards5/markOfTheCraneCount)*100
+            if #enemies.yards5 > 0 then
+                markPercent = (markOfTheCraneCount/#enemies.yards5)*100
             else
                 markPercent = 0
             end
+            -- ChatOverlay("Mark Count: "..markOfTheCraneCount..", Num Enemies: "..#enemies.yards5..", Mark %: "..markPercent)
+            -- ChatOverlay("Mark of the Crane Remain: "..getDebuffRemain("target",spell.spec.debuffs.markOfTheCrane,"player"))
  
             -- if buff.stacks.hitCombo == 8 then maxCombo = true else maxCombo = false end
             -- if inCombat and maxCombo then 
@@ -482,17 +484,6 @@ if select(2, UnitClass("player")) == "MONK" then
             function actionList_Opener()
                 if isBoss("target") and opener == false then
                     if talent.whirlingDragonPunch and talent.energizingElixir and getDistance("target") < 5 then
-                        -- TP -> ToD -> SEF+RSK -> EE+FoF -> SotW -> TP -> WDP with RSK coming off CD soon
-                        -- if lastSpell == spell.risingSunKick and RSK1 and not RSK2 then RSK2 = true end
-                        -- if lastSpell == spell.whirlingDragonPunch and not WDP then WDP = true end
-                        -- if lastSpell == spell.tigerPalm and TP1 and not TP2 then TP2 = true end
-                        -- if lastSpell == spell.strikeOfTheWindlord and not SotW then SotW = true end
-                        -- if lastSpell == spell.fistsOfFury and not FoF1 then FoF1 = true end
-                        -- if lastSpell == spell.energizingElixir and not EE then EE = true end
-                        -- if lastSpell == spell.risingSunKick and not RSK1 then RSK1 = true end
-                        -- if lastSpell == spell.stormEarthAndFire and not SEF then SEF = true end
-                        -- if lastSpell == spell.touchOfDeath and not ToD then ToD = true end
-                        -- if lastSpell == spell.tigerPalm and not TP1 then TP1 = true end
             -- Tiger Palm
                         if not TP1 and chi.count < 2 then
                             if cast.tigerPalm("target") then print("1: Tiger Palm"); TP1 = true; return end
@@ -505,7 +496,7 @@ if select(2, UnitClass("player")) == "MONK" then
                             end
             -- Storm, Earth, and Fire
                         elseif not SEF then
-                            if charges.stormEarthAndFire > 0 then
+                            if charges.stormEarthAndFire > 0 and useSEF() then
                                 if cast.stormEarthAndFire() then print("3: Storm, Earth, and Fire"); SEF = true; return end
                             elseif cd.stormEarthAndFire > gcd then
                                 SEF = true
@@ -681,16 +672,16 @@ if select(2, UnitClass("player")) == "MONK" then
                 end
             -- Fists of Fury
                 -- fists_of_fury
-                if markPercent < 75 or #enemies.yards5 < 4 then
+                if markPercent < 75 or #enemies.yards5 < 3 then
                     if cast.fistsOfFury() then return end
                 end
             -- Rising Sun Kick
                 -- rising_sun_kick
                 for i = 1, #enemies.yards5 do
                     local thisUnit = enemies.yards5[i]
-                    local markOfTheCraneDebuff = UnitDebuffID(thisUnit,spell.spec.debuffs.markOfTheCrane,"player") ~= nil
-                    if not markOfTheCraneDebuff or markOfTheCraneCount == #enemies.yards5 then
-                        if cast.risingSunKick() then return end
+                    local markOfTheCraneRemain = getDebuffRemain(thisUnit,spell.spec.debuffs.markOfTheCrane,"player")
+                    if markOfTheCraneRemain < 5 or markOfTheCraneCount == #enemies.yards5 then
+                        if cast.risingSunKick(thisUnit) then return end
                     end
                 end
             -- Whirling Dragon Punch
@@ -698,7 +689,7 @@ if select(2, UnitClass("player")) == "MONK" then
                 if cast.whirlingDragonPunch() then return end
             -- Spinning Crane Kick
                 -- spinning_crane_kick,if=active_enemies>=3&!prev_gcd.spinning_crane_kick
-                if #enemies.yards5 >= 4 and markPercent >= 75 and lastSpell ~= spell.spinningCraneKick then
+                if #enemies.yards5 >= 3 and markPercent >= 75 and lastSpell ~= spell.spinningCraneKick then
                     if cast.spinningCraneKick() then return end
                 end
             -- Rushing Jade Wind
@@ -711,9 +702,9 @@ if select(2, UnitClass("player")) == "MONK" then
                 if (chi.count > 1 or buff.blackoutKick) and lastSpell ~= spell.blackoutKick then
                     for i = 1, #enemies.yards5 do
                         local thisUnit = enemies.yards5[i]
-                        local markOfTheCraneDebuff = UnitDebuffID(thisUnit,spell.spec.debuffs.markOfTheCrane,"player") ~= nil
-                        if not markOfTheCraneDebuff or markOfTheCraneCount == #enemies.yards5 then
-                            if cast.blackoutKick() then return end
+                        local markOfTheCraneRemain = getDebuffRemain(thisUnit,spell.spec.debuffs.markOfTheCrane,"player")
+                        if markOfTheCraneRemain < 5 or markOfTheCraneCount == #enemies.yards5 then
+                            if cast.blackoutKick(thisUnit) then return end
                         end
                     end
                 end
@@ -732,9 +723,9 @@ if select(2, UnitClass("player")) == "MONK" then
                 if lastSpell ~= spell.tigerPalm then
                     for i = 1, #enemies.yards5 do
                         local thisUnit = enemies.yards5[i]
-                        local markOfTheCraneDebuff = UnitDebuffID(thisUnit,spell.spec.debuffs.markOfTheCrane,"player") ~= nil
-                        if not markOfTheCraneDebuff or markOfTheCraneCount == #enemies.yards5 then
-                            if cast.tigerPalm() then return end
+                        local markOfTheCraneRemain = getDebuffRemain(thisUnit,spell.spec.debuffs.markOfTheCrane,"player")
+                        if markOfTheCraneRemain < 5 or markOfTheCraneCount == #enemies.yards5 then
+                            if cast.tigerPalm(thisUnit) then return end
                         end
                     end
                 end
@@ -792,20 +783,20 @@ if select(2, UnitClass("player")) == "MONK" then
                 if #enemies.yards5 < 3 then
                     for i = 1, #enemies.yards5 do
                         local thisUnit = enemies.yards5[i]
-                        local markOfTheCraneDebuff = UnitDebuffID(thisUnit,spell.spec.debuffs.markOfTheCrane,"player") ~= nil
-                        if not markOfTheCraneDebuff or markOfTheCraneCount == #enemies.yards5 then
-                            if cast.risingSunKick() then return end
+                        local markOfTheCraneRemain = getDebuffRemain(thisUnit,spell.spec.debuffs.markOfTheCrane,"player")
+                        if markOfTheCraneRemain < 5 or markOfTheCraneCount == #enemies.yards5 then
+                            if cast.risingSunKick(thisUnit) then return end
                         end
                     end
                 end
             -- Fists of Fury
                 -- fists_of_fury
-                if markPercent < 75 or #enemies.yards5 < 4 then
+                if markPercent < 75 or #enemies.yards5 < 3 then
                     if cast.fistsOfFury() then return end
                 end
             -- Spinning Crane Kick
                 -- spinning_crane_kick,if=active_enemies>=3&!prev_gcd.spinning_crane_kick
-                if #enemies.yards5 >= 4 and markPercent >= 75 and lastSpell ~= spell.spinningCraneKick then
+                if #enemies.yards5 >= 3 and markPercent >= 75 and lastSpell ~= spell.spinningCraneKick then
                     if cast.spinningCraneKick() then return end
                 end
             -- Rising Sun Kick
@@ -813,9 +804,9 @@ if select(2, UnitClass("player")) == "MONK" then
                 if #enemies.yards5 >= 3 then
                     for i = 1, #enemies.yards5 do
                         local thisUnit = enemies.yards5[i]
-                        local markOfTheCraneDebuff = UnitDebuffID(thisUnit,spell.spec.debuffs.markOfTheCrane,"player") ~= nil
-                        if not markOfTheCraneDebuff or markOfTheCraneCount == #enemies.yards5 then
-                            if cast.risingSunKick() then return end
+                        local markOfTheCraneRemain = getDebuffRemain(thisUnit,spell.spec.debuffs.markOfTheCrane,"player")
+                        if markOfTheCraneRemain < 5 or markOfTheCraneCount == #enemies.yards5 then
+                            if cast.risingSunKick(thisUnit) then return end
                         end
                     end
                 end
@@ -824,15 +815,15 @@ if select(2, UnitClass("player")) == "MONK" then
                 if lastSpell ~= spell.blackoutKick then
                     for i = 1, #enemies.yards5 do
                         local thisUnit = enemies.yards5[i]
-                        local markOfTheCraneDebuff = UnitDebuffID(thisUnit,spell.spec.debuffs.markOfTheCrane,"player") ~= nil
-                        if not markOfTheCraneDebuff or markOfTheCraneCount == #enemies.yards5 then
-                            if cast.blackoutKick() then return end
+                        local markOfTheCraneRemain = getDebuffRemain(thisUnit,spell.spec.debuffs.markOfTheCrane,"player")
+                        if markOfTheCraneRemain < 5 or markOfTheCraneCount == #enemies.yards5 then
+                            if cast.blackoutKick(thisUnit) then return end
                         end
                     end
                 end
             -- Spinning Crane Kick
                 -- spinning_crane_kick,if=!prev_gcd.spinning_crane_kick
-                if lastSpell ~= spell.spinningCraneKick then
+                if #enemies.yards5 >= 3 and markPercent >= 75 and lastSpell ~= spell.spinningCraneKick then
                     if cast.spinningCraneKick() then return end
                 end
             -- Rushing Jade Wind
