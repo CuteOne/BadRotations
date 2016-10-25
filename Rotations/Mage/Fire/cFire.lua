@@ -338,6 +338,7 @@ function cFire:new()
         function self.cast.blastWave(thisUnit,debug)
             local spellCast = self.spell.blastWave
             local thisUnit = thisUnit
+            --Todo: Blastwave is on CD and is AoE around target 8 yards: Change to the best unit with most units around it self
             if thisUnit == nil then thisUnit = self.units.dyn40 end
             if debug == nil then debug = false end
 
@@ -355,14 +356,16 @@ function cFire:new()
         function self.cast.cinderstorm(thisUnit,debug)
             local spellCast = self.spell.cinderstorm
             local thisUnit = thisUnit
+
             if thisUnit == nil then thisUnit = self.units.dyn40 end
             if debug == nil then debug = false end
-
+            --Todo: An AoE spell that travels towards the target and hits everything on its way, deals 30% more damage to ignite targets
+            -- Simple solution is count units between player and target and count them
             if self.talent.cinderstorm and self.cd.cinderstorm == 0 and self.powerPercentMana > 1 and getDistance(thisUnit) < 40 then
                 if debug then
-                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                    return castSpell(thisUnit,spellCast,false,true,false,false,false,false,false,true)
                 else
-                    return castSpell(thisUnit,spellCast,false,false,false)
+                    return castSpell(thisUnit,spellCast,false,true,false)
                 end
             elseif debug then
                 return false
@@ -374,12 +377,12 @@ function cFire:new()
             local thisUnit = thisUnit
             if thisUnit == nil then thisUnit = "player" end
             if debug == nil then debug = false end
-
-            if self.level >= 28 and self.cd.combustion == 0 and self.powerPercentMana > 10 then
+            --Todo: This is off CD, make sure to test if its cast during casting
+            if self.level >= 28 and self.cd.combustion == 0 and self.powerPercentMana > 1 then
                 if debug then
-                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                    return castSpell(thisUnit,spellCast,true,false,false,false,false,false,false,true)
                 else
-                    return castSpell(thisUnit,spellCast,false,false,false)
+                    return castSpell(thisUnit,spellCast,true,false,false)
                 end
             elseif debug then
                 return false
@@ -391,8 +394,8 @@ function cFire:new()
             local thisUnit = thisUnit
             if thisUnit == nil then thisUnit = "player" end
             if debug == nil then debug = false end
-
-            if self.level >= 24 and self.cd.dragonsBreath == 0 and self.powerPercentMana > 4 then
+            --Todo: Conal AoE in front of player, should check if anyone is in front, what range?
+            if self.level >= 24 and self.cd.dragonsBreath == 0 and self.powerPercentMana > 1 then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
@@ -409,11 +412,11 @@ function cFire:new()
             if thisUnit == nil then thisUnit = self.units.dyn40 end
             if debug == nil then debug = false end
 
-            if self.level >= 10 and self.powerPercentMana > 2 and self.cd.fireball == 0 and getDistance(thisUnit) < 40 then
+            if self.level >= 10 and self.powerPercentMana > 2 and getDistance(thisUnit) < 40 then
                 if debug then
-                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                    return castSpell(thisUnit,spellCast,false,true,true,false,false,false,false,true)
                 else
-                    return castSpell(thisUnit,spellCast,false,false,false)
+                    return castSpell(thisUnit,spellCast,false,true,true)
                 end
             elseif debug then
                 return false
@@ -428,6 +431,7 @@ function cFire:new()
 
             if self.level >= 11 and self.charges.fireBlast > 0 and self.cd.fireBlast == 0 and self.powerPercentMana > 1 and getDistance(thisUnit) < 40 then
                 if debug then
+                    --Should we allow fireblast to be spammed? IS it not only to get hotstreak?
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
                     return castSpell(thisUnit,spellCast,false,false,false)
@@ -445,9 +449,9 @@ function cFire:new()
 
             if self.talent.flameOn and self.cd.flameOn == 0 then
                 if debug then
-                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                    return castSpell(thisUnit,spellCast,true,false,false,false,false,false,false,true)
                 else
-                    return castSpell(thisUnit,spellCast,false,false,false)
+                    return castSpell(thisUnit,spellCast,true,false,false)
                 end
             elseif debug then
                 return false
@@ -462,7 +466,7 @@ function cFire:new()
 
             if self.level >= 44 and self.cd.flamestrike == 0 and self.powerPercentMana > 3 then
                 if debug then
-                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                    return castSpell(thisUnit,spellCast,true,true,true,false,false,false,false,true)
                 else
                     return castGroundAtBestLocation(spellCast,8,3,40)
                 end
@@ -479,9 +483,9 @@ function cFire:new()
 
             if self.talent.livingBomb and self.cd.livingBomb == 0 and self.powerPercentMana > 1.5 and getDistance(thisUnit) < 40 then
                 if debug then
-                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                    return castSpell(thisUnit,spellCast,true,false,false,false,false,false,false,true)
                 else
-                    return castSpell(thisUnit,spellCast,false,false,false)
+                    return castSpell(thisUnit,spellCast,true,false,false)
                 end
             elseif debug then
                 return false
@@ -496,7 +500,7 @@ function cFire:new()
 
             if self.talent.meteor and self.cd.meteor == 0 and self.powerPercentMana > 1 then
                 if debug then
-                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                    return castSpell(thisUnit,spellCast,true,false,false,false,false,false,false,true)
                 else
                     return castGroundAtBestLocation(spellCast,8,3,40)
                 end
@@ -513,9 +517,9 @@ function cFire:new()
 
             if self.talent.mirrorImage and self.cd.mirrorImage == 0 and self.powerPercentMana > 2 then
                 if debug then
-                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                    return castSpell(thisUnit,spellCast,true,false,false,false,false,false,false,true)
                 else
-                    return castSpell(thisUnit,spellCast,false,false,false)
+                    return castSpell(thisUnit,spellCast,true,false,false)
                 end
             elseif debug then
                 return false
@@ -530,6 +534,7 @@ function cFire:new()
 
             if self.artifact.phoenixsFlames and self.charges.phoenixsFlames > 0 and self.cd.phoenixsFlames == 0 and getDistance(thisUnit) < 40 then
                 if debug then
+                    -- Changed to allow spam, is that ok?
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
                     return castSpell(thisUnit,spellCast,false,false,false)
@@ -547,9 +552,10 @@ function cFire:new()
 
             if self.level >= 10 and self.powerPercentMana > 2.5 and self.cd.pyroblast == 0 and getDistance(thisUnit) < 40 then
                 if debug then
-                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                    -- Changed it so its dont do movement check, which is true since we only cast with hot streak buff?
+                    return castSpell(thisUnit,spellCast,false,false,true,false,false,false,false,true)
                 else
-                    return castSpell(thisUnit,spellCast,false,false,false)
+                    return castSpell(thisUnit,spellCast,false,false,true)
                 end
             elseif debug then
                 return false
@@ -564,9 +570,9 @@ function cFire:new()
 
             if self.level >= 40 and self.powerPercentMana > 1 and self.cd.scorch == 0 and getDistance(thisUnit) < 40 then
                 if debug then
-                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                    return castSpell(thisUnit,spellCast,false,false,true,false,false,false,false,true)
                 else
-                    return castSpell(thisUnit,spellCast,false,false,false)
+                    return castSpell(thisUnit,spellCast,false,false,true)
                 end
             elseif debug then
                 return false
