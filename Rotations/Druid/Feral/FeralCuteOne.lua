@@ -10,7 +10,7 @@ if select(2, UnitClass("player")) == "DRUID" then
             [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range.", highlight = 1, icon = bb.player.spell.swipe },
             [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = bb.player.spell.swipe },
             [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = bb.player.spell.shred },
-            [4] = { mode = "Off", value = 4 , overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = bb.player.spell.healingTouch}
+            [4] = { mode = "Off", value = 4 , overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = bb.player.spell.regrowth}
         };
         CreateButton("Rotation",1,0)
     -- Cooldown Button
@@ -117,8 +117,8 @@ if select(2, UnitClass("player")) == "DRUID" then
                 bb.ui:createSpinner(section, "Shield-o-tronic",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
             -- Survival Instincts
                 bb.ui:createSpinner(section, "Survival Instincts",  40,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
-            -- Healing Touch
-                bb.ui:createSpinner(section, "Healing Touch",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
+            -- Regrowth
+                bb.ui:createSpinner(section, "Regrowth",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
             -- Dream of Cenarius Auto-Heal
                 bb.ui:createDropdown(section, "Auto Heal", { "|cffFFDD11LowestHP", "|cffFFDD11Player"},  1,  "|cffFFFFFFSelect Target to Auto-Heal")
             bb.ui:checkSectionState(section)
@@ -423,19 +423,19 @@ if select(2, UnitClass("player")) == "DRUID" then
 					then
 						useItem(118006)
 					end
-			-- Healing Touch
-		            if isChecked("Healing Touch") and (buff.remain.predatorySwiftness > 0 or not inCombat) then
+			-- Regrowth
+		            if isChecked("Regrowth") and (buff.remain.predatorySwiftness > 0 or not inCombat) then
 		            	if getOptionValue("Auto Heal")==1 
-                            and ((getHP(bb.friend[1].unit) <= getOptionValue("Healing Touch")/2 and inCombat) 
-                                or (getHP(bb.friend[1].unit) <= getOptionValue("Healing Touch") and not inCombat) 
+                            and ((getHP(bb.friend[1].unit) <= getOptionValue("Regrowth")/2 and inCombat) 
+                                or (getHP(bb.friend[1].unit) <= getOptionValue("Regrowth") and not inCombat) 
                                 or (buff.remain.predatorySwiftness < 1 and buff.predatorySwiftness)) 
                         then
-                            if cast.healingTouch(bb.friend[1].unit) then return end
+                            if cast.regrowth(bb.friend[1].unit) then return end
                         end
                         if getOptionValue("Auto Heal")==2 
-                            and (php <= getOptionValue("Healing Touch") or (buff.remain.predatorySwiftness < 1 and buff.predatorySwiftness)) 
+                            and (php <= getOptionValue("Regrowth") or (buff.remain.predatorySwiftness < 1 and buff.predatorySwiftness)) 
                         then
-                            if cast.healingTouch("player") then return end
+                            if cast.regrowth("player") then return end
                         end
 		            end
 			-- Survival Instincts
@@ -548,14 +548,14 @@ if select(2, UnitClass("player")) == "DRUID" then
             end -- End Action List - Cooldowns
         -- Action List - SBTOpener
             local function actionList_SBTOpener()
-            -- Healing Touch
+            -- Regrowth
                 -- healing_touch,if=talent.bloodtalons.enabled&combo_points=5&!buff.bloodtalons.up&!dot.rip.ticking
                 if talent.sabertooth and combo == 5 and not buff.bloodtalons and not debuff.rip then
                     if getOptionValue("Auto Heal")==1 then
-                        if cast.healingTouch(bb.friend[1].unit) then return end
+                        if cast.regrowth(bb.friend[1].unit) then return end
                     end
                     if getOptionValue("Auto Heal")==2 then
-                        if cast.healingTouch("player") then return end
+                        if cast.regrowth("player") then return end
 	                end
 				end
             -- Tiger's Fury
@@ -816,10 +816,10 @@ if select(2, UnitClass("player")) == "DRUID" then
                         if cast.wildCharge("target") then return end 
                     end
                     if isChecked("Pre-Pull Timer") and pullTimer <= getOptionValue("Pre-Pull Timer") then
-            -- Healing Touch
+            -- Regrowth
                         -- healing_touch,if=talent.bloodtalons.enabled
                         if talent.bloodtalons and not buff.bloodtalons and (htTimer == nil or htTimer < GetTime() - 1) then
-                            if cast.healingTouch("player") then htTimer = GetTime(); return end
+                            if cast.regrowth("player") then htTimer = GetTime(); return end
                         end
             -- Prowl 
                         if buff.bloodtalons and useProwl() then
@@ -935,7 +935,7 @@ if select(2, UnitClass("player")) == "DRUID" then
                                     end
                                 end
                             end
-            -- Healing Touch
+            -- Regrowth
                             -- healing_touch,if=talent.bloodtalons.enabled&buff.predatory_swiftness.up&(combo_points>=5|buff.predatory_swiftness.remains<1.5|(talent.bloodtalons.enabled&combo_points=2&buff.bloodtalons.down&cooldown.ashamanes_frenzy.remains<gcd)|(talent.elunes_guidance.enabled&((cooldown.elunes_guidance.remains<gcd&combo_points=0)|(buff.elunes_guidance.up&combo_points>=4))))
                             if talent.bloodtalons and buff.predatorySwiftness 
                                 and (combo >= 5 or buff.remain.predatorySwiftness < 1.5 
@@ -943,10 +943,10 @@ if select(2, UnitClass("player")) == "DRUID" then
                                     or (talent.elunesGuidance and ((cd.elunesGuidance < gcd and combo == 0) or (buff.elunesGuidance and combo >= 4)))) 
                             then
                                 if getOptionValue("Auto Heal")==1 then
-                                    if cast.healingTouch(bb.friend[1].unit) then return end
+                                    if cast.regrowth(bb.friend[1].unit) then return end
                                 end
                                 if getOptionValue("Auto Heal")==2 then
-                                    if cast.healingTouch("player") then return end
+                                    if cast.regrowth("player") then return end
                                 end
                             end
             -- Call Action List - SBTOpener
@@ -954,14 +954,14 @@ if select(2, UnitClass("player")) == "DRUID" then
                             if talent.sabertooth and combatTime < 20 then
                                 if actionList_SBTOpener() then return end
                             end
-            -- Healing Touch
+            -- Regrowth
                             -- healing_touch,if=equipped.ailuro_pouncers&talent.bloodtalons.enabled&buff.predatory_swiftness.stack>1&buff.bloodtalons.down
                             if hasEquiped(137024) and talent.bloodtalons and buff.stack.predatorySwiftness > 1 and not buff.bloodtalons then
                                 if getOptionValue("Auto Heal")==1 then
-                                    if cast.healingTouch(bb.friend[1].unit) then return end
+                                    if cast.regrowth(bb.friend[1].unit) then return end
                                 end
                                 if getOptionValue("Auto Heal")==2 then
-                                    if cast.healingTouch("player") then return end
+                                    if cast.regrowth("player") then return end
                                 end
                             end
             -- Call Action List - Finisher
@@ -975,14 +975,14 @@ if select(2, UnitClass("player")) == "DRUID" then
         --- Ask Mr Robot APL ---
         ------------------------
                         if getOptionValue("APL Mode") == 2 then
-            -- Healing Touch
+            -- Regrowth
                             -- if HasTalent(Bloodtalons) and HasBuff(PredatorySwiftness) and not HasBuff(Prowl)
                             if talent.bloodtalons and buff.predatorySwiftness and not buff.prowl then
                                 if getOptionValue("Auto Heal")==1 then
-                                    if cast.healingTouch(bb.friend[1].unit) then return end
+                                    if cast.regrowth(bb.friend[1].unit) then return end
                                 end
                                 if getOptionValue("Auto Heal")==2 then
-                                    if cast.healingTouch("player") then return end
+                                    if cast.regrowth("player") then return end
                                 end
                             end
             -- Savage Roar

@@ -34,12 +34,12 @@ if select(2, UnitClass("player")) == "DRUID" then
 			entanglingRoots 			= 339,
 			flightForm 					= 165962,
 			growl 						= 6795,
-			healingTouch 				= 5185,
 			massEntanglement 			= 102359,
 			mightyBash 					= 5211,
 			moonfire 					= 8921,
 			prowl 						= 5215,
 			rebirth 					= 20484,
+            regrowth                    = 8936,
 			revive 						= 50769,
 			shadowmeld                  = 58984,
 			stagForm 					= 210053,
@@ -274,7 +274,7 @@ if select(2, UnitClass("player")) == "DRUID" then
 			self.cast.debug.entanglingRoots = self.cast.entanglingRoots("target",true)
 			self.cast.debug.flightForm 		= self.cast.flightForm("player",true)
 			self.cast.debug.growl 			= self.cast.growl("target",true)
-			self.cast.debug.healingTouch 	= self.cast.healingTouch("player",true)
+			self.cast.debug.regrowth 	    = self.cast.regrowth("player",true)
 			self.cast.debug.mightyBash 		= self.cast.mightyBash("target",true)
 			self.cast.debug.moonfire 		= self.cast.moonfire("target",true)
 			self.cast.debug.prowl 			= self.cast.prowl("player",true)
@@ -406,9 +406,9 @@ if select(2, UnitClass("player")) == "DRUID" then
                 return false
             end
         end
-		-- Healing Touch
-		function self.cast.healingTouch(thisUnit,debug)
-            local spellCast = self.spell.healingTouch
+		-- Regrowth
+		function self.cast.regrowth(thisUnit,debug)
+            local spellCast = self.spell.regrowth
             local thisUnit = thisUnit
             if thisUnit == nil then thisUnit = "player" end
             local validUnit = UnitIsPlayer(thisUnit) and not UnitIsDeadOrGhost(thisUnit) and UnitIsFriend(thisUnit,"player")

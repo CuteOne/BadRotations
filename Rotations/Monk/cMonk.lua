@@ -333,7 +333,7 @@ if select(2, UnitClass("player")) == "MONK" then
             if thisUnit == nil then thisUnit = "target" end
             if debug == nil then debug = false end
 
-            if self.level >= 36 and self.cd.cracklingJadeLightning == 0 and getDistance(thisUnit) < 40 then
+            if self.level >= 36 and self.power > 20 and self.cd.cracklingJadeLightning == 0 and getDistance(thisUnit) < 40 then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
