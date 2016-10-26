@@ -223,8 +223,7 @@ if select(2, UnitClass("player")) == "MONK" then
             if leftCombat == nil then leftCombat = GetTime() end
             if profileStop == nil then profileStop = false end
             if globalCD == nil then globalCD = GetTime() end
-            ChatOverlay(tostring(burstKey))
-
+            
             if not inCombat then 
                 if OoRchiWave == nil or (OoRchiWave == true and opener == true) then OoRchiWave = false end
                 if FSK == nil or (FSK == true and opener == true) then FSK = false end
