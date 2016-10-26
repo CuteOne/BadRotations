@@ -2508,6 +2508,19 @@ function UpdateToggle(toggle,delay)
         UpdateButton(tostring(toggle))
     end
 end
+function BurstToggle(toggle,delay)
+	if burstKey == nil then burstKey = false end
+	if _G[toggle.."Timer"] == nil then _G[toggle.."Timer"] = 0; end
+    if burst and not GetCurrentKeyBoardFocus() and GetTime() - _G[toggle.."Timer"] > delay then
+    	if not burstKey then
+	        _G[toggle.."Timer"] = GetTime()
+	        burstKey = true
+    	else
+    		_G[toggle.."Timer"] = GetTime()
+    		burstKey = false
+    	end
+    end
+end
 function SlashCommandHelp(cmd,msg)
 	if cmd == nil then cmd = "" end
 	if msg == nil then msg = "" end

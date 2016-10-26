@@ -546,7 +546,7 @@ if select(2, UnitClass("player")) == "MONK" then
 
         function useCDs()
             local cooldown = self.mode.cooldown
-            if (cooldown == 1 and isBoss()) or cooldown == 2 then
+            if (cooldown == 1 and isBoss()) or cooldown == 2 or burstKey then
                 return true
             else
                 return false
