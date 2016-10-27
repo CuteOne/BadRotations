@@ -1394,7 +1394,7 @@ function getPower(Unit)
 			value = UnitPower(Unit)
 		end
 	else
-		value = 100 * UnitPower(Unit) / UnitPowerMax(Unit)
+		value = UnitPower(Unit) -- 100 * UnitPower(Unit) / UnitPowerMax(Unit)
 	end
 	return value
 end
