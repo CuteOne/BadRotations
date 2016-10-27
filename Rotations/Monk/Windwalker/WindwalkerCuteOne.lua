@@ -488,7 +488,7 @@ if select(2, UnitClass("player")) == "MONK" then
             end -- End Cooldown - Action List
         -- Action List - Opener
             function actionList_Opener()
-                if isBoss("target") and opener == false then
+                if isBoss("target") and UnitIsEnemy("target","player") and opener == false then
                     if talent.whirlingDragonPunch and talent.energizingElixir and getDistance("target") < 5 then
             -- Tiger Palm
                         if not TP1 then
