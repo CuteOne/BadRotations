@@ -436,7 +436,7 @@ function cWindwalker:new()
             if thisUnit == nil then thisUnit = self.units.dyn5 end
             if debug == nil then debug = false end
 
-            if self.level >= 28 and self.cd.fistsOfFury == 0 and self.chi.count >= 3 and getDistance(thisUnit) < 5 then
+            if self.level >= 28 and self.cd.fistsOfFury == 0 and (self.chi.count >= 3 or self.buff.serenity) and getDistance(thisUnit) < 5 then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
@@ -524,7 +524,7 @@ function cWindwalker:new()
             if thisUnit == nil then thisUnit = self.units.dyn5 end
             if debug == nil then debug = false end
 
-            if self.level >= 18 and self.cd.risingSunKick == 0 and self.chi.count >= 2 and getDistance(thisUnit) < 5 then
+            if self.level >= 18 and self.cd.risingSunKick == 0 and (self.chi.count >= 2 or self.buff.serenity) and getDistance(thisUnit) < 5 then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
@@ -541,7 +541,7 @@ function cWindwalker:new()
             if thisUnit == nil then thisUnit = "player" end
             if debug == nil then debug = false end
 
-            if self.talent.rushingJadeWind and self.cd.rushingJadeWind == 0 and self.chi.count >= 1 then
+            if self.talent.rushingJadeWind and self.cd.rushingJadeWind == 0 and (self.chi.count >= 1 or self.buff.serenity) then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
@@ -592,7 +592,7 @@ function cWindwalker:new()
             if thisUnit == nil then thisUnit = "player" end
             if debug == nil then debug = false end
 
-            if self.level >= 40 and self.cd.spinningCraneKick == 0 and self.chi.count >= 3 and getDistance(thisUnit) < 8 then
+            if self.level >= 40 and self.cd.spinningCraneKick == 0 and (self.chi.count >= 3 or self.buff.serenity) and getDistance(thisUnit) < 8 then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
@@ -642,7 +642,7 @@ function cWindwalker:new()
             if thisUnit == nil then thisUnit = self.units.dyn8 end
             if debug == nil then debug = false end
 
-            if self.artifact.strikeOfTheWindlord and self.cd.strikeOfTheWindlord == 0 and self.chi.count >= 2 and getDistance(thisUnit) < 8 then
+            if self.artifact.strikeOfTheWindlord and self.cd.strikeOfTheWindlord == 0 and (self.chi.count >= 2 or self.buff.serenity) and getDistance(thisUnit) < 8 then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else

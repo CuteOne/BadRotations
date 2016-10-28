@@ -1,81 +1,60 @@
-if select(2,UnitClass("player")) == "MONK" then
+--- Mistweaver Class
+-- Inherit from: ../cCharacter.lua and ../cMonk.lua
+cMistweaver = {}
+cMistweaver.rotations = {}
 
-  cMistweaver = {}
-
-  -- Creates Mistweaver Monk
-    function cMistweaver:new()
+-- Creates Mistweaver Monk
+function cMistweaver:new()
+    if GetSpecializationInfo(GetSpecialization()) == 270 then
         local self = cMonk:new("Mistweaver")
 
         local player = "player" -- if someone forgets ""
-        local isSoothing        = UnitChannelInfo("player") == GetSpellInfo(_SoothingMist) or nil;
 
-        -----------------
-        --- VARIABLES ---
-        -----------------
+        -- Mandatory !
+        self.rotations = cMistweaver.rotations
 
-        self.enemies = {
-            yards5,
-            yards8,
-            yards12,
-            yards40,
+    -----------------
+    --- VARIABLES ---
+    -----------------
+        self.spell.spec             = {}
+        self.spell.spec.abilities   = {
+
         }
-        self.mistweaverSpell = {
-            
-            -- Ability - Healing
-            chiExplosion                    = 152174,
-            detonateChi                     = 115460,
-            envelopingMist                  = 124682,
-            legacyoftheEmperor              = 115921,
-            lifeCocoon                      = 116849,
-            manaTea                         = 123761,
-            mistExpelHarm                   = 147489,
-            renewingMist                    = 115151,
-            revival                         = 115310,
-            soothingMist                    = 115175,
-            thunderFocusTea                 = 116680,
-            uplift                          = 116670,
+        self.spell.spec.artifacts   = {
 
-            -- Buff - Offensive
-            legacyoftheEmperorBuff          = 115921,
-            renewingMistBuff                = 119611,
-            craneZealBuff                   = 127722,
-
-            -- Buff - Stacks
-            manaTeaStacks                   = 115867,
-            vitalMistsStacks                = 118674,
-            detoxStacks                     = 115450,
-
-            -- Glyphs
-            manaTeaGlyph                    = 123763,
-            targetedExplusionGlyph          = 146950,        
-
-            -- Perks
-
-            -- Talent
-            chiExplosionTalent              = 152174,
-            renewingMistTalent              = 173841,
-            
         }
-        -- Merge all spell tables into self.spell
-        self.spell = {}
-        self.spell = mergeSpellTables(self.spell, self.characterSpell, self.monkSpell, self.mistweaverSpell)
+        self.spell.spec.buffs       = {
 
+        }
+        self.spell.spec.debuffs     = {
 
-        ------------------
-        --- OOC UPDATE ---
-        ------------------
+        }
+        self.spell.spec.glyphs      = {
+
+        }
+        self.spell.spec.talents     = {
+
+        }
+        -- Merge all spell ability tables into self.spell
+        self.spell = mergeSpellTables(self.spell, self.characterSpell, self.spell.class.abilities, self.spell.spec.abilities)
+
+    ------------------
+    --- OOC UPDATE ---
+    ------------------
 
         function self.updateOOC()
             -- Call classUpdateOOC()
             self.classUpdateOOC()
-
+            self.getArtifacts()
+            self.getArtifactRanks()
             self.getGlyphs()
+            self.getPerks()
             self.getTalents()
         end
 
-        --------------
-        --- UPDATE ---
-        --------------
+    --------------
+    --- UPDATE ---
+    --------------
 
         function self.update()
             -- Call Base and Class update
@@ -85,326 +64,266 @@ if select(2,UnitClass("player")) == "MONK" then
 
             self.getBuffs()
             self.getCharges()
-            self.getEnemies()
-            self.getRotation()
+            self.getDynamicUnits()
+            self.getDebuffs()
             self.getCooldowns()
-
-
-            -- Casting and GCD check
-            -- TODO: -> does not use off-GCD stuff like pots, dp etc
-
+            self.getEnemies()
+            self.getCastable()
+            self.getToggleModes()
+            self.getRotation()
 
             -- Start selected rotation
             self:startRotation()
         end
 
-        -------------
-        --- BUFFS ---
-        -------------
+    -----------------
+    --- ARTIFACTS ---
+    -----------------
+
+        function self.getArtifacts()
+            local hasPerk = hasPerk
+
+            for k,v in pairs(self.spell.spec.artifacts) do
+                self.artifact[k] = hasPerk(v) or false
+            end
+        end
+
+        function self.getArtifactRanks()
+            local getPerkRank = getPerkRank
+
+            for k,v in pairs(self.spell.spec.artifacts) do
+                self.artifact.rank[k] = getPerkRank(v) or 0
+            end
+        end
+
+    -------------
+    --- BUFFS ---
+    -------------
 
         function self.getBuffs()
             local UnitBuffID = UnitBuffID
+            local getBuffDuration = getBuffDuration
+            local getBuffRemain = getBuffRemain
+            local getBuffStacks = getBuffStacks
 
-            self.buff.craneZeal     = UnitBuffID("player",self.spell.craneZealBuff)~=nil or false
-            self.buff.renewingMist  = UnitBuffID("player",self.spell.renewingMistBuff)~=nil or false
-            self.buff.soothingMist  = UnitChannelInfo("player") == GetSpellInfo(self.spell.soothingMist) or nil;
+            for k,v in pairs(self.spell.spec.buffs) do
+                self.buff[k]            = UnitBuffID("player",v) ~= nil
+                self.buff.duration[k]   = getBuffDuration("player",v) or 0
+                self.buff.remain[k]     = getBuffRemain("player",v) or 0
+                self.buff.stacks[k]     = getBuffStacks("player",v) or 0
+            end
         end
 
+    ---------------
+    --- CHARGES ---
+    ---------------
+
+        function self.getCharges()
+
+            for k,v in pairs(self.spell.spec.abilities) do
+                self.charges[k] = getCharges(v) or 0
+            end
+        end
+
+    ---------------
+    --- DEBUFFS ---
+    ---------------
+        function self.getDebuffs()
+            local UnitDebuffID = UnitDebuffID
+            local getDebuffDuration = getDebuffDuration
+            local getDebuffRemain = getDebuffRemain
+
+            for k,v in pairs(self.spell.spec.debuffs) do
+                self.debuff[k]          = UnitDebuffID(self.units.dyn5,v,"player") ~= nil
+                self.debuff.duration[k] = getDebuffDuration(self.units.dyn5,v,"player") or 0
+                self.debuff.remain[k]   = getDebuffRemain(self.units.dyn5,v,"player") or 0
+                self.debuff.refresh[k]  = (self.debuff.remain[k] < self.debuff.duration[k] * 0.3) or self.debuff.remain[k] == 0
+            end
+        end
+
+    -----------------
+    --- COOLDOWNS ---
+    -----------------
+
         function self.getCooldowns()
-        local getSpellCD = getSpellCD
+            local getSpellCD = getSpellCD
 
-        self.cd.chiBrew         = getSpellCD(self.spell.chiBrew)
-        self.cd.manaTea         = getSpellCD(self.spell.manaTea)
-    end
+            for k,v in pairs(self.spell.spec.abilities) do
+                if getSpellCD(v) ~= nil then
+                    self.cd[k] = getSpellCD(v)
+                end
+            end
+        end
 
-        --------------
-        --- GLYPHS ---
-        --------------
+    --------------
+    --- GLYPHS ---
+    --------------
 
         function self.getGlyphs()
             local hasGlyph = hasGlyph
 
-            self.glyph.manaTea = hasGlyph(self.spell.manaTeaGlyph)
-            self.glyph.mistExpelHarm = hasGlyph(self.spell.targetedExplusionGlyph)
+            -- self.glyph.catForm           = hasGlyph(self.spell.catFormGlyph))
         end
 
-        ---------------
-        --- TALENTS ---
-        ---------------
+    ---------------
+    --- TALENTS ---
+    ---------------
 
         function self.getTalents()
             local getTalent = getTalent
 
-            self.talent.chiExplosion = getTalent(7,2)
-            self.talent.renewingMist = getTalent(7,3)
+            for r = 1, 7 do --search each talent row
+                for c = 1, 3 do -- search each talent column
+                    local talentID = select(6,GetTalentInfo(r,c,GetActiveSpecGroup())) -- ID of Talent at current Row and Column
+                    for k,v in pairs(self.spell.spec.talents) do
+                        if v == talentID then
+                            self.talent[k] = getTalent(r,c)
+                        end
+                    end
+                end
+            end
         end
 
-        ---------------
-        --- ENEMIES ---
-        ---------------
+    -------------
+    --- PERKS ---
+    -------------
+
+        function self.getPerks()
+            local isKnown = isKnown
+
+            -- self.perk.enhancedBerserk        = isKnown(self.spell.enhancedBerserk)
+        end
+
+    ---------------------
+    --- DYNAMIC UNITS ---
+    ---------------------
+
+        function self.getDynamicUnits()
+            local dynamicTarget = dynamicTarget
+
+            -- Normal
+            self.units.dyn8     = dynamicTarget(8, true)
+            self.units.dyn15    = dynamicTarget(15, true)
+            self.units.dyn20    = dynamicTarget(20, true)
+            self.units.dyn25    = dynamicTarget(25, true)
+
+            -- AoE
+            self.units.dyn8AoE  = dynamicTarget(8,false)
+            self.units.dyn20AoE = dynamicTarget(20,false)
+        end
+
+    ---------------
+    --- ENEMIES ---
+    ---------------
 
         function self.getEnemies()
             local getEnemies = getEnemies
 
-            self.enemies.yards5     = #getEnemies("player", 5)
-            self.enemies.yards8     = #getEnemies("player", 8)
-            self.enemies.yards12    = #getEnemies("player", 12)
-            self.enemies.yards40    = #getEnemies("player", 40)
+            self.enemies.yards5     = getEnemies("player", 5)
+            self.enemies.yards8     = getEnemies("player", 8)
+            self.enemies.yards12    = getEnemies("player", 12)
+            self.enemies.yards25    = getEnemies("player", 25)
+            self.enemies.yards40    = getEnemies("player", 40)
         end
 
+    ---------------
+    --- TOGGLES ---
+    ---------------
 
-        ---------------
-        --- CHARGES ---
-        ---------------
+        function self.getToggleModes()
 
-        function self.getCharges()
-          local getCharges = getCharges
-          local getBuffStacks = getBuffStacks
-
-          self.charges.manaTea      = getBuffStacks("player",self.spell.manaTeaStacks,"player") or 0
-          self.charges.vitalMists   = getBuffStacks("player",self.spell.vitalMistsStacks,"player") or 0
-          self.charges.renewingMist = getCharges(self.spell.renewingMist) or 0
-          self.charges.risingSunKick= getCharges(self.spell.risingSunKick) or 0
+            self.mode.sef       = bb.data["SEF"]
+            self.mode.fsk       = bb.data["FSK"]
         end
 
-        ----------------------
-        --- START ROTATION ---
-        ----------------------
+    ---------------
+    --- OPTIONS ---
+    ---------------
 
-        function self.startRotation()
-            if self.rotation == 1 then
-                self:MistweaverKuu()
-            else
-                ChatOverlay("No ROTATION ?!", 2000)
-            end
+        -- Create the toggle defined within rotation files
+        function self.createToggles()
+            GarbageButtons()
+            self.rotations[bb.selectedProfile].toggles()
         end
-    
-        -------------
-        -- OPTIONS --
-        -------------
 
+        -- Creates the option/profile window
         function self.createOptions()
-            bb.ui.window.profile = bb.ui:createProfileWindow("Mistweaver")
-            local section
+            bb.ui.window.profile = bb.ui:createProfileWindow(self.profile)
 
-            -- Create Base and Class options
-            self.createClassOptions()
+            -- Get the names of all profiles and create rotation dropdown
+            local names = {}
+            for i=1,#self.rotations do
+                tinsert(names, self.rotations[i].name)
+            end
+            bb.ui:createRotationDropdown(bb.ui.window.profile.parent, names)
 
-            -- Wrapper -----------------------------------------
-            section = bb.ui:createSection(bb.ui.window.profile, "Buffs")
-            -- Stance
-            bb.ui:createDropdown(section,  "Stance", { "|cff00FF55Serpent", "|cff0077FFCrane"},  1,  "Choose Stance to use.")
-            -- Legacy of the Emperor
-            bb.ui:createCheckbox(section,"Legacy of the Emperor")
-            --Jade Serpent Statue
-            bb.ui:createCheckbox(section,"Jade Serpent Statue (Left Shift)")
-            bb.ui:checkSectionState(section)
-    
-            -- Wrapper -----------------------------------------
-            section = bb.ui:createSection(bb.ui.window.profile, "Cooldowns")
-            -- Revival
-            bb.ui:createSpinner(section, "Revival", 20, 0, 100, 5, "Under what |cffFF0000%HP to use |cffFFFFFFRevival")
-            -- Revival People
-            bb.ui:createSpinner(section,  "Revival People",  5,  0 , 25 ,  1,  "How many people need to be at the % to activate.")
-            -- Life Coccon
-            bb.ui:createSpinner(section, "Life Cocoon", 15, 0, 100, 5, "Under what |cffFF0000%HP to use |cffFFFFFFLife Cocoon")
-            bb.ui:checkSectionState(section)
+            -- Create Base and Class option table
+            local optionTable = {
+                {
+                    [1] = "Base Options",
+                    [2] = self.createBaseOptions,
+                },
+                {
+                    [1] = "Class Options",
+                    [2] = self.createClassOptions,
+                },
+            }
 
-            -- Wrapper -----------------------------------------
-            section = bb.ui:createSection(bb.ui.window.profile, "Healing")
-            -- Nature's Cure
-            bb.ui:createDropdown(section, "Detox", { "|cffFFDD11MMouse", "|cffFFDD11MRaid", "|cff00FF00AMouse", "|cff00FF00ARaid"},  1,  "MMouse:|cffFFFFFFMouse / Match List. \nMRaid:|cffFFFFFFRaid / Match List. \nAMouse:|cffFFFFFFMouse / All. \nARaid:|cffFFFFFFRaid / All.")
-            -- Mana Tea
-            bb.ui:createSpinner(section, "Mana Tea", 90, 0 , 100, 5,  "Under what |cffFF0000%MP to use |cffFFFFFFMana Tea.")
-            -- Chi Wave
-            bb.ui:createSpinner(section,  "Chi Wave",  55,  0,  100  ,  5,  "Under what |cffFF0000%HP to use |cffFFFFFFChi Wave.")
-            -- Enveloping Mist
-            bb.ui:createSpinner(section,  "Enveloping Mist",  45,  0,  100  ,  5,  "Under what |cffFF0000%HP to use |cffFFFFFFEnveloping Mist.")
-            -- Renewing Mist
-            bb.ui:createCheckbox(section,  "Renewing Mist")
-            -- Soothing Mist
-            bb.ui:createSpinner(section,  "Soothing Mist",  75,  0,  100  ,  5,  "Under what |cffFF0000%HP to use |cffFFFFFFSoothing Mist.")
-            -- Surging Mist
-            bb.ui:createSpinner(section,  "Surging Mist",  65,  0,  100  ,  5,  "Under what |cffFF0000%HP to use |cffFFFFFFSurging Mist.")
-            bb.ui:checkSectionState(section)
-    
-            -- Wrapper -----------------------------------------
-            section = bb.ui:createSection(bb.ui.window.profile, "AoE Healing")
-            -- Uplift
-            bb.ui:createSpinner(section,  "Uplift",  75,  0,  100  ,  5,  "Under what |cffFF0000%HP to use |cffFFFFFFUplift.")
-            -- Uplift People
-            bb.ui:createSpinner(section,  "Uplift People",  5,  0 , 25 ,  5,  "How many people need to be at the % to activate.")
-            -- Spinning Crane Kick/RJW
-            bb.ui:createSpinner(section,  "Spinning Crane Kick",  75,  0,  100  ,  5,  "Under what |cffFF0000%HP to use |cffFFFFFFSCK.")
-            bb.ui:checkSectionState(section)
+            -- Get profile defined options
+            local profileTable = self.rotations[bb.selectedProfile].options()
 
-            -- Wrapper -----------------------------------------
-            section = bb.ui:createSection(bb.ui.window.profile, "Defensive")
-            -- Expel Harm
-            bb.ui:createSpinner(section,  "Expel Harm",  80,  0,  100  ,  5,  "Under what |cffFF0000%HP to use |cffFFFFFFExpel Harm")
-            -- Fortifying Brew
-            bb.ui:createSpinner(section,  "Fortifying Brew",  30,  0,  100  ,  5,  "Under what |cffFF0000%HP to use |cffFFFFFFFortifying Brew")
-            -- Healthstone
-            bb.ui:createSpinner(section,  "Healthstone",  20,  0,  100  ,  5,  "Under what |cffFF0000%HP to use |cffFFFFFFHealthstone")
-            bb.ui:checkSectionState(section)
-    
-            -- Wrapper -----------------------------------------
-            section = bb.ui:createSection(bb.ui.window.profile, "Toggles")
-            -- Pause Toggle
-            bb.ui:createDropdown(section, "Pause Toggle", bb.dropOptions.Toggle2,  3)
+            -- Only add profile pages if they are found
+            if profileTable then
+                insertTableIntoTable(optionTable, profileTable)
+            end
 
-            -- Wrapper -----------------------------------------
-            section = bb.ui:createSection(bb.ui.window.profile, "Utilities")
-            -- Spear Hand Strike
-            bb.ui:createSpinner(section,  "Spear Hand Strike",  60 ,  0,  100  ,  5,  "Over what % of cast we want to \n|cffFFFFFFSpear Hand Strike.")
-            -- Paralysis
-            bb.ui:createSpinner(section,  "Paralysis",  30 ,  0,  100  ,  5,  "Over what % of cast we want to \n|cffFFFFFFParalysis.")
-            bb.ui:checkSectionState(section)
-
-            --[[ Rotation Dropdown ]]--
-            bb.ui:createRotationDropdown(bb.ui.window.profile.parent, {"Kuukuu"})
+            -- Create pages dropdown
+            bb.ui:createPagesDropdown(bb.ui.window.profile, optionTable)
             bb:checkProfileWindowStatus()
         end
 
-        --------------
-        --- SPELLS ---
-        --------------
-        -- Change Stance
-        function self.castChangeStance()
-          local myStance = GetShapeshiftForm()
-          if getValue("Stance") == 1 and myStance ~= 1 then
-            if castSpell("player",115070,true,false,false) then return; end
-          elseif getValue("Stance") == 2 and myStance ~= 2 then
-            if castSpell("player",103985,true,false,false) then return; end
-          end
-        end
-        -- Chi Brew
-        function self.castChiBrew()
-            if self.charges.chiBrew >= 1 then
-                if castSpell("player", self.spell.chiBrew, false,false,false) then return end
-            end
-        end
-        -- Chi Explosion
-        function self.castChiExplosion()
-        end
-        --Chi Wave
-        function self.castHealingChiWave(unit)
-          if self.talent.chiWave and self.cd.chiWave == 0 then
-            if castSpell(unit, self.spell.chiWave, true,false,false) then return end
-          end
+    --------------
+    --- SPELLS ---
+    --------------
+
+        function self.getCastable()
+
         end
 
-        -- Detonate Chi
-        function self.castDetonateChi()
-        end
-        -- Detox
-        function self.castDetoxMist(unit)
-            if self.level>=20 and getSpellCD(self.spell.detox) == 0 then
-                if castSpell(unit,self.spell.detox,false,false,false,false) then return end
-            end
-        end
-        -- Enveloping Mist
-        function self.castEnvelopingMist(unit)
-          if self.chi.count >= 3 then
-              if castSpell(unit, self.spell.envelopingMist, true,true,false) then 
-                return; 
-              end
-          end
-        end
-        --Expel Harm Heal
-        function self.castHealingExpelHarm(unit)
-          if self.glyph.mistExpelHarm then
-            if castSpell(unit,self.spell.mistExpelHarm, true,false,false) then return; end
-          end
-        end
-        -- Legacy of the Emperor
-        function self.castLegacyoftheEmperor()
-            if self.instance=="none" and not UnitInParty("player") and not isBuffed("player",{115921,20217,1126,90363}) then
-                if castSpell("player",self.spell.legacyoftheEmperor,false,false,false) then return end
-            else
-                local totalCount = GetNumGroupMembers()
-                local currentCount = currentCount or 0
-                local needsBuff = needsBuff or 0
-                for i=1,#bb.friend do
-                    local thisUnit = bb.friend[i].unit
-                    local distance = getDistance(thisUnit)
-                    local dead = UnitIsDeadOrGhost(thisUnit)
-                    if distance<30 then
-                        currentCount = currentCount+1
-                    end
-                    if not isBuffed(thisUnit,{115921,20217,1126,90363}) and not dead and UnitIsPlayer(thisUnit) and not UnitInVehicle(thisUnit) and (UnitInParty(thisUnit) or UnitInRaid(thisUnit)) then
-                        needsBuff = needsBuff+1
-                    end
-                end
-                if currentCount>=totalCount and needsBuff>0 then
-                    if castSpell("player",self.spell.legacyoftheEmperor,false,false,false) then return end
-                end
-            end
-        end
-        --Life Cocoon
-        function self.castLifeCocoon(unit)
-          if castSpell(unit, self.spell.lifeCocoon,true,false,false) then return; end
-        end
-        -- Mana Tea
-        function self.castManaTea()
-            if self.glyph.manaTea and self.charges.manaTea >= 2 then
-              if castSpell("player",self.spell.manaTea,false,false,false) then return; end
-            end
-        end
-        -- Renewing Mist
-        function self.castRenewingMist(unit)
-            if self.talent.renewingMist and self.charges.renewingMist > 0 and getMana("player") > 4 then
-              if castSpell("player",self.spell.thunderFocusTea,false, false,false) then end
-              if castSpell(unit,self.spell.renewingMist,true,false) then return; end
-            elseif not self.talent.renewingMist then
-              if castSpell("player",self.spell.thunderFocusTea,false,false,false) then end
-              if castSpell(unit,self.spell.renewingMist,true,false) then return; end
-            end
-        end
-        -- Revival
-        function self.castRevival()
-          if castSpell("player",self.spell.revival,false,false,false) then return; end
-        end
-        -- Soothing Mist
-        function self.castSoothingMist(unit)
-          if getMana("player") >= 12 then
-            if not self.buff.soothingMist then
-              if castSpell(unit,self.spell.soothingMist,true,true,false) then return end
-            end
-          end
-        end
-        -- Spinning Crane Kick/RJW
-        function self.castHealingSpinningCraneKick()
-          if self.talent.rushingJadeWind then
-            if castSpell("player",self.spell.rushingJadeWind,false,false,false) then return end
-          else
-            if castSpell("player",self.spell.spinningCraneKick,false,false,false) then return end     
-          end
-        end
-        -- Surging Mist
-        function self.castHealingSurgingMist(unit)
-           if castSpell(unit, self.spell.surgingMist,true) then return end
-        end
-        -- Uplift
-        function self.castUplift()
-          if self.chi.count >= 2 then
-            if castSpell("player",self.spell.uplift,false,true,false) then return end
-          elseif self.charges.chiBrew >= 1 and self.chi.count < 2 then
-            if castSpell("player",self.spell.chiBrew,false, false,false) then
-                if castSpell("player",self.spell.uplift,false,true,false) then return end
-            end
-          end
-        end
-        -----------------------------
-        --- CALL CREATE FUNCTIONS ---
-        -----------------------------
+        -- -- Chi Wave
+        -- function self.cast.chiWave(thisUnit,debug)
+        --     local spellCast = self.spell.chiWave
+        --     local thisUnit = thisUnit
+        --     if thisUnit == nil then thisUnit = "player" end
+        --     if debug == nil then debug = false end
 
-        self.createOptions()
+        --     if self.talent.chiWave and self.cd.chiWave == 0 then
+        --         if debug then
+        --             return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+        --         else
+        --             return castSpell(thisUnit,spellCast,false,false,false)
+        --         end
+        --     elseif debug then
+        --         return false
+        --     end
+        -- end
+        
+
+    ------------------------
+    --- CUSTOM FUNCTIONS ---
+    ------------------------
 
 
+        function getOption(spellID)
+            return tostring(select(1,GetSpellInfo(spellID)))
+        end
+
+    -----------------------------
+    --- CALL CREATE FUNCTIONS ---
+    -----------------------------
+
+        -- self.createOptions()
         -- Return
         return self
-
-    end --cMistweaver
-
-end -- select Monk
+    end-- cMistweaver
+end-- select Monk

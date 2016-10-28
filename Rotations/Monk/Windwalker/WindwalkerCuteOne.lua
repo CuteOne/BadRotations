@@ -223,15 +223,20 @@ if select(2, UnitClass("player")) == "MONK" then
             if leftCombat == nil then leftCombat = GetTime() end
             if profileStop == nil then profileStop = false end
 
-            if not inCombat then 
-                if OoRchiWave == nil or (OoRchiWave == true and opener == true) then OoRchiWave = false end
-                if FSK == nil or (FSK == true and opener == true) then FSK = false end
-                if iRchiWave == nil or (iRchiWave == true and opener == true) then iRchiWave = false end
-                if EE == nil or (EE == true and opener == true) then EE = false end
-                if ToD == nil or (ToD == true and opener == true) then ToD = false end
-                if SER == nil or (SER == true and opener == true) then SER = false end
+            if not inCombat and not ObjectExists("target") then 
+                OoRchiWave = false
+                FSK = false
+                iRchiWave = false
+                EE = false
+                ToD = false
+                TP1 = false
+                SER = false
+                TP2 = false
+                TP3 = false
+                TP4 = false
                 RSK1 = false
                 RSK2 = false
+                RSK3 = false
                 SotW = false
                 FoF1 = false
                 FoF2 = false
@@ -239,15 +244,11 @@ if select(2, UnitClass("player")) == "MONK" then
                 SCK2 = false
                 SCK3 = false
                 BOK = false
-                RSK3 = false
-                if TP1 == nil or (TP1 == true and opener == true) then TP1 = false end
-                TP2 = false
-                TP3 = false
-                TP4 = false
                 SEF = false
                 WDP = false 
                 opener = false
             end
+            
              -- Mark of the Crane Count
             markOfTheCraneCount = 0
             for i=1, #enemies.yards5 do
@@ -488,11 +489,11 @@ if select(2, UnitClass("player")) == "MONK" then
             end -- End Cooldown - Action List
         -- Action List - Opener
             function actionList_Opener()
-                if isBoss("target") and UnitIsEnemy("target","player") and opener == false then
+                if isBoss("target") and (UnitIsEnemy("target","player") or isDummy("target")) and opener == false then
                     if talent.whirlingDragonPunch and talent.energizingElixir and getDistance("target") < 5 then
             -- Tiger Palm
                         if not TP1 then
-                            if (not castable.tigerPalm and cd.tigerPalm > gcd) or lastSpell == spell.tigerPalm then
+                            if (not castable.tigerPalm and cd.tigerPalm > gcd) then
                                 print("1: Tiger Palm (Uncastable)");
                                 TP1 = true
                             else
@@ -741,179 +742,167 @@ if select(2, UnitClass("player")) == "MONK" then
                                 else
                                     if cast.serenity() then print("6: Serenity"); SER = true; return end
                                 end
-                            elseif buff.serenity then
             -- Rising Sun Kick
-                                if not RSK1 then
-                                    if (not castable.risingSunKick and cd.risingSunKick > gcd) then
-                                        print("7: Rising Sun Kick (Uncastable)"); 
-                                        RSK1 = true
-                                    else
-                                        if cast.risingSunKick("target") then print("7: Rising Sun Kick"); RSK1 = true; return end
-                                    end
+                            elseif not RSK1 then
+                                if (not castable.risingSunKick and cd.risingSunKick > gcd) or (cd.serenity > gcd and not buff.serenity) then
+                                    print("7: Rising Sun Kick (Uncastable)"); 
+                                    RSK1 = true
+                                else
+                                    if cast.risingSunKick("target") then print("7: Rising Sun Kick"); RSK1 = true; return end
+                                end
             -- Strike of the Windlord
-                                elseif not SotW then
-                                    if (not castable.strikeOfTheWindlord and cd.strikeOfTheWindlord > gcd) then
-                                        print("8: Strike of the Windlord (Uncastable)"); 
-                                        SotW = true
-                                    else
-                                        if cast.strikeOfTheWindlord("target") then print("8: Strike of the Windlord"); SotW = true; return end
-                                    end
+                            elseif not SotW then
+                                if (not castable.strikeOfTheWindlord and cd.strikeOfTheWindlord > gcd) or (cd.serenity > gcd and not buff.serenity) then
+                                    print("8: Strike of the Windlord (Uncastable)"); 
+                                    SotW = true
+                                else
+                                    if cast.strikeOfTheWindlord("target") then print("8: Strike of the Windlord"); SotW = true; return end
+                                end
             -- Fists of Fury
-                                elseif not FoF1 then
-                                    if (not castable.fistsOfFury and cd.fistsOfFury > gcd) then
-                                        print("9: Fists of Fury (Uncastable)"); 
-                                        FoF1 = true
-                                    else
-                                        if cast.fistsOfFury("target") then print("9: Fists of Fury"); FoF1 = true; return end
+                            elseif not FoF1 then
+                                if (not castable.fistsOfFury and cd.fistsOfFury > gcd) or (cd.serenity > gcd and not buff.serenity) then
+                                    print("9: Fists of Fury (Uncastable)"); 
+                                    FoF1 = true
+                                else
+                                    if cast.fistsOfFury("target") then print("9: Fists of Fury"); FoF1 = true; return end
                                     end
             -- Rising Sun Kick
-                                elseif not RSK2 then
-                                    if (not castable.risingSunKick and cd.risingSunKick > gcd) then
-                                        print("10: Rising Sun Kick (Uncastable)"); 
-                                        RSK2 = true
-                                    else
-                                        if cast.risingSunKick("target") then print("10: Rising Sun Kick"); RSK2 = true; return end
-                                    end
+                            elseif not RSK2 then
+                                if (not castable.risingSunKick and cd.risingSunKick > gcd) or (cd.serenity > gcd and not buff.serenity) then
+                                    print("10: Rising Sun Kick (Uncastable)"); 
+                                    RSK2 = true
+                                else
+                                    if cast.risingSunKick("target") then print("10: Rising Sun Kick"); RSK2 = true; return end
+                                end
             -- Spinning Crane Kick
-                                elseif not SCK then
-                                    if (not castable.spinningCraneKick and cd.spinningCraneKick > gcd) then
-                                        print("11: Spinning Crane Kick (Uncastable)"); 
-                                        SCK = true
-                                    else
-                                        if cast.spinningCraneKick("target") then print("11: Spinning Crane Kick"); SCK = true; return end
-                                    end
+                            elseif not SCK then
+                                if (not castable.spinningCraneKick and cd.spinningCraneKick > gcd) or (cd.serenity > gcd and not buff.serenity) then
+                                    print("11: Spinning Crane Kick (Uncastable)"); 
+                                    SCK = true
+                                else
+                                    if cast.spinningCraneKick("target") then print("11: Spinning Crane Kick"); SCK = true; return end
+                                end
             -- Blackout Kick
-                                elseif not BOK then
-                                    if (not castable.blackoutKick and cd.blackoutKick > gcd) then
-                                         print("12: Blackout Kick (Uncastable)"); 
-                                         BOK = true
-                                    else
-                                        if cast.blackoutKick("target") then print("12: Blackout Kick"); BOK = true; return end
-                                    end
+                            elseif not BOK then
+                                if (not castable.blackoutKick and cd.blackoutKick > gcd) or (cd.serenity > gcd and not buff.serenity) then
+                                     print("12: Blackout Kick (Uncastable)"); 
+                                     BOK = true
+                                else
+                                    if cast.blackoutKick("target") then print("12: Blackout Kick"); BOK = true; return end
                                 end
-                            elseif cd.serenity > gcd and not buff.serenity then
             -- Rising Sun Kick
-                                if not RSK3 then
-                                    if not castable.risingSunKick and cd.risingSunKick > gcd then
-                                        print("13: Rising Sun Kick (Uncastable)"); 
-                                        RSK3 = true
-                                    else
-                                        if cast.risingSunKick("target") then print("13: Rising Sun Kick"); RSK3 = true; return end
-                                    end
-            -- Tiger Palm
-                                elseif not TP1 then
-                                    if not castable.tigerPalm and cd.tigerPalm > gcd then
-                                        print("14: Tiger Palm (Uncastable)"); 
-                                        TP1 = true
-                                    else
-                                        if cast.tigerPalm("target") then print("14: Tiger Palm"); TP1 = true; return end
-                                    end
-            -- Fists of Fury
-                                elseif not FoF2 then
-                                    if not castable.fistsOfFury and cd.fistsOfFury > gcd or (TP1 and chi.count < 3) then
-                                        print("15: Fists of Fury (Uncastable)"); 
-                                        FoF2 = true
-                                    else
-                                        if cast.fistsOfFury("target") then print("15: Fists of Fury"); FoF2 = true; return end
-                                    end
-                                elseif FoF2 then
-                                    print("Opener Complete");
-                                    opener = true;
-                                    return
+                            elseif not RSK3 then
+                                if not castable.risingSunKick and cd.risingSunKick > gcd then
+                                    print("13: Rising Sun Kick (Uncastable)"); 
+                                    RSK3 = true
+                                else
+                                    if cast.risingSunKick("target") then print("13: Rising Sun Kick"); RSK3 = true; return end
                                 end
+            -- Tiger Palm
+                            elseif not TP1 then
+                                if not castable.tigerPalm and cd.tigerPalm > gcd then
+                                    print("14: Tiger Palm (Uncastable)"); 
+                                    TP1 = true
+                                else
+                                    if cast.tigerPalm("target") then print("14: Tiger Palm"); TP1 = true; return end
+                                end
+            -- Fists of Fury
+                            elseif not FoF2 then
+                                if not castable.fistsOfFury and cd.fistsOfFury > gcd or (TP1 and chi.count < 3) then
+                                    print("15: Fists of Fury (Uncastable)"); 
+                                    FoF2 = true
+                                else
+                                    if cast.fistsOfFury("target") then print("15: Fists of Fury"); FoF2 = true; return end
+                                end
+                            elseif FoF2 then
+                                print("Opener Complete");
+                                opener = true;
+                                return
                             end
                         end 
                     end -- End Serenity + Gale Burst
-            --         if talent.serenity and not artifact.galeBurst then
-            --             -- Serenity -> RSK -> SotW -> SCK -> BoK -> SCK -> RSK -> SCK -> FoF
-            --  -- Serenity
-            --             if not SER then
-            --                 if (not castable.serenity and cd.serenity > gcd) then
-            --                     print("1: Serenity (Uncastable)"); 
-            --                     SER = true;
-            --                     return
-            --                 else
-            --                     if cast.serenity() then print("1: Serenity"); SER = true; return end
-            --                 end
-            --             elseif buff.serenity then
-            --  -- Rising Sun Kick
-            --                 if not RSK1 then
-            --                     if (not castable.risingSunKick and cd.risingSunKick > gcd) then
-            --                         print("2: Rising Sun Kick (Uncastable)"); 
-            --                         RSK1 = true
-            --                     else
-            --                         if cast.risingSunKick("target") then print("2: Rising Sun Kick"); RSK1 = true; return end
-            --                     end
-            -- -- Strike of the Windlord
-            --                 elseif not SotW then
-            --                     if (not castable.strikeOfTheWindlord and cd.strikeOfTheWindlord > gcd) then
-            --                         print("3: Strike of the Windlord (Uncastable)"); 
-            --                         SotW = true
-            --                     else
-            --                         if cast.strikeOfTheWindlord("target") then print("3: Strike of the Windlord"); SotW = true; return end
-            --                     end
-            -- -- Spinning Crane Kick
-            --                 elseif not SCK then
-            --                     if (not castable.spinningCraneKick and cd.spinningCraneKick > gcd) then
-            --                         print("4: Spinning Crane Kick (Uncastable)"); 
-            --                         SCK = true
-            --                     else
-            --                         if cast.spinningCraneKick("target") then print("4: Spinning Crane Kick"); SCK = true; return end
-            --                     end
-            -- -- Blackout Kick
-            --                 elseif not BOK then
-            --                     if (not castable.blackoutKick and cd.blackoutKick > gcd) then
-            --                          print("5: Blackout Kick (Uncastable)"); 
-            --                          BOK = true
-            --                     else
-            --                         if cast.blackoutKick("target") then print("5: Blackout Kick"); BOK = true; return end
-            --                     end
-            -- -- Spinning Crane Kick
-            --                 elseif not SCK2 then
-            --                     if (not castable.spinningCraneKick and cd.spinningCraneKick > gcd) then
-            --                         print("6: Spinning Crane Kick (Uncastable)"); 
-            --                         SCK2 = true
-            --                     else
-            --                         if cast.spinningCraneKick("target") then print("6: Spinning Crane Kick"); SCK2 = true; return end
-            --                     end
-            -- -- Rising Sun Kick
-            --                 elseif not RSK2 then
-            --                     if (not castable.risingSunKick and cd.risingSunKick > gcd) then
-            --                         print("7: Rising Sun Kick (Uncastable)"); 
-            --                         RSK2 = true
-            --                     else
-            --                         if cast.risingSunKick("target") then print("7: Rising Sun Kick"); RSK2 = true; return end
-            --                     end
-            -- -- Spinning Crane Kick
-            --                 elseif not SCK3 then
-            --                     if (not castable.spinningCraneKick and cd.spinningCraneKick > gcd) then
-            --                         print("8: Spinning Crane Kick (Uncastable)"); 
-            --                         SCK3 = true
-            --                     else
-            --                         if cast.spinningCraneKick("target") then print("8: Spinning Crane Kick"); SCK3 = true; return end
-            --                     end
-            --                 -- Fists of Fury
-            --                 elseif not FoF1 then
-            --                     if not castable.fistsOfFury and cd.fistsOfFury > gcd then
-            --                         print("9: Fists of Fury (Uncastable)"); 
-            --                         FoF1 = true
-            --                     else
-            --                         if cast.fistsOfFury("target") then print("9: Fists of Fury"); FoF1 = true; return end
-            --                     end
-            --                 elseif FoF1 then
-            --                     print("Opener Complete");
-            --                     opener = true;
-            --                     return
-            --                 end
-                        -- elseif cd.serenity > gcd and not SER then
-                        --    print("Opener Complete");
-                        --     opener = true;
-                        --     return
-                    --     end
-                    -- end -- End Serenity - Gale Burst
-                    if not ((talent.whirlingDragonPunch or talent.serenity) and talent.energizingElixir) 
-                        or not ((talent.whirlingDragonPunch or talent.serenity) and talent.powerStrikes)
-                    then
+                    if talent.serenity and not artifact.galeBurst and getDistance("target") < 5 then
+                        -- Serenity -> RSK -> SotW -> SCK -> BoK -> SCK -> RSK -> SCK -> FoF
+             -- Serenity
+                        if not SER then
+                            if not castable.serenity and cd.serenity > gcd then
+                                print("1: Serenity (Uncastable)"); 
+                                SER = true;
+                                return
+                            else
+                                if cast.serenity() then print("1: Serenity"); SER = true; return end
+                            end
+            -- Rising Sun Kick
+                        elseif not RSK1 then
+                            if (not castable.risingSunKick and cd.risingSunKick > gcd) or (cd.serenity > gcd and not buff.serenity) then
+                                print("2: Rising Sun Kick (Uncastable)"); 
+                                RSK1 = true
+                            else
+                                if cast.risingSunKick("target") then print("2: Rising Sun Kick"); RSK1 = true; return end
+                            end
+            -- Strike of the Windlord
+                        elseif not SotW then
+                            if (not castable.strikeOfTheWindlord and cd.strikeOfTheWindlord > gcd) or (cd.serenity > gcd and not buff.serenity) then
+                                print("3: Strike of the Windlord (Uncastable)"); 
+                                SotW = true
+                            else
+                                if cast.strikeOfTheWindlord("target") then print("3: Strike of the Windlord"); SotW = true; return end
+                            end
+            -- Spinning Crane Kick
+                        elseif not SCK then
+                            if (not castable.spinningCraneKick and cd.spinningCraneKick > gcd) or (cd.serenity > gcd and not buff.serenity) then
+                                print("4: Spinning Crane Kick (Uncastable)"); 
+                                SCK = true
+                            else
+                                if cast.spinningCraneKick("target") then print("4: Spinning Crane Kick"); SCK = true; return end
+                            end
+            -- Blackout Kick
+                        elseif not BOK then
+                            if (not castable.blackoutKick and cd.blackoutKick > gcd) or (cd.serenity > gcd and not buff.serenity) then
+                                 print("5: Blackout Kick (Uncastable)"); 
+                                 BOK = true
+                            else
+                                if cast.blackoutKick("target") then print("5: Blackout Kick"); BOK = true; return end
+                            end
+            -- Spinning Crane Kick
+                        elseif not SCK2 then
+                            if (not castable.spinningCraneKick and cd.spinningCraneKick > gcd) or (cd.serenity > gcd and not buff.serenity) then
+                                print("6: Spinning Crane Kick (Uncastable)"); 
+                                SCK2 = true
+                            else
+                                if cast.spinningCraneKick("target") then print("6: Spinning Crane Kick"); SCK2 = true; return end
+                            end
+            -- Rising Sun Kick
+                        elseif not RSK2 then
+                            if (not castable.risingSunKick and cd.risingSunKick > gcd) or (cd.serenity > gcd and not buff.serenity) then
+                                print("7: Rising Sun Kick (Uncastable)"); 
+                                RSK2 = true
+                            else
+                                if cast.risingSunKick("target") then print("7: Rising Sun Kick"); RSK2 = true; return end
+                            end
+            -- Spinning Crane Kick
+                        elseif not SCK3 then
+                            if (not castable.spinningCraneKick and cd.spinningCraneKick > gcd) or (cd.serenity > gcd and not buff.serenity) then
+                                print("8: Spinning Crane Kick (Uncastable)"); 
+                                SCK3 = true
+                            else
+                                if cast.spinningCraneKick("target") then print("8: Spinning Crane Kick"); SCK3 = true; return end
+                            end
+                            -- Fists of Fury
+                        elseif not FoF1 then
+                            if not castable.fistsOfFury and cd.fistsOfFury > gcd or (cd.serenity > gcd and not buff.serenity) then
+                                print("9: Fists of Fury (Uncastable)"); 
+                                FoF1 = true
+                            else
+                                if cast.fistsOfFury("target") then print("9: Fists of Fury"); FoF1 = true; return end
+                            end
+                        elseif FoF1 then
+                            print("Opener Complete");
+                            opener = true;
+                            return
+                        end
+                    end -- End Serenity - Gale Burst
+                    if not (talent.serenity or (talent.whirlingDragonPunch and (talent.energizingElixir or talent.powerStrikes))) then
                         opener = true;
                         return
                     end

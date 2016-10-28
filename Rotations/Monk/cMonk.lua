@@ -282,7 +282,7 @@ if select(2, UnitClass("player")) == "MONK" then
             if thisUnit == nil then thisUnit = self.units.dyn5 end
             if debug == nil then debug = false end
 
-            if self.level >= 3 and self.cd.blackoutKick == 0 and (self.chi.count >= 1 or self.buff.comboBreaker) and getDistance(thisUnit) < 5 then
+            if self.level >= 3 and self.cd.blackoutKick == 0 and (self.chi.count >= 1 or self.buff.comboBreaker or UnitBuffID("player",152173)) and getDistance(thisUnit) < 5 then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
