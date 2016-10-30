@@ -485,13 +485,13 @@ if select(2, UnitClass("player")) == "MONK" then
             end -- End Cooldown - Action List
         -- Action List - Opener
             function actionList_Opener()
-                if isBoss("target") and (UnitIsEnemy("target","player") or isDummy("target")) and opener == false then
-                    if talent.whirlingDragonPunch and talent.energizingElixir and getDistance("target") < 5 then
+                if isBoss("target") and isValidUnit("target") and opener == false then
+                    if talent.whirlingDragonPunch and talent.energizingElixir then
                         -- TP -> TOD -> SEF+RSK -> EE+FoF -> SotW -> TP -> WDP with RSK coming off CD soon
                         if (isChecked("Pre-Pull Timer") and pullTimer <= getOptionValue("Pre-Pull Timer")) or not isChecked("Pre-Pull Timer") then
             -- Chi Wave (Out of Range)
-                            if not OoRchiWave and (cd.chiWave == 0 or cd.chiWave > gcd) then
-                                if not castable.chiWave or getDistance("target") < 25 then
+                            if not OoRchiWave then
+                                if (not castable.chiWave and (cd.chiWave == 0 or cd.chiWave > gcd)) or getDistance("target") < 25 then
                                     print("1: Chi Wave (Uncastable)");
                                     OoRchiWave = true
                                 else
@@ -500,14 +500,12 @@ if select(2, UnitClass("player")) == "MONK" then
             -- Flying Serpent Kick (No Hit)
                             elseif getDistance("target") < 15 and select(3,GetSpellInfo(101545)) == 463281 then                                   
                                 if cast.flyingSerpentKickEnd() then return end
-                            elseif OoRchiWave and not FSK and (cd.flyingSerpentKick == 0 or cd.flyingSerpentKick > gcd) then
-                                if getDistance("target") >= 15 then
-                                    if not castable.flyingSerpentKick or getDistance("target") < 15 then
-                                        print("2: Flying Serpent Kick (Uncastable)");
-                                        FSK = true
-                                    else
-                                        if cast.flyingSerpentKick() then print("2: Flying Serpent Kick"); FSK = true; return end
-                                    end
+                            elseif OoRchiWave and not FSK then
+                                if (not castable.flyingSerpentKick and (cd.flyingSerpentKick == 0 or cd.flyingSerpentKick > gcd)) or getDistance("target") < 15 then
+                                    print("2: Flying Serpent Kick (Uncastable)");
+                                    FSK = true
+                                else
+                                    if cast.flyingSerpentKick() then print("2: Flying Serpent Kick"); FSK = true; return end
                                 end
             -- Potion
                             -- potion,name=old_war
@@ -517,8 +515,8 @@ if select(2, UnitClass("player")) == "MONK" then
                             end
                         end
             -- Chi Wave (In Range)
-                        if not iRchiWave and (cd.whiWave == 0 or cd.chiWave > gcd) then
-                            if not castable.chiWave then
+                        if FSK and not iRchiWave then
+                            if not castable.chiWave and (cd.whiWave == 0 or cd.chiWave > gcd) then
                                 print("3: Chi Wave (Uncastable)");
                                 iRchiWave = true
                             else
@@ -526,97 +524,99 @@ if select(2, UnitClass("player")) == "MONK" then
                                     if cast.chiWave() then print("3: Chi Wave"); iRchiWave = true; return end
                                 end
                             end
+                        elseif getDistance("target") < 5 then
             -- Tiger Palm
-                        if not TP1 and (cd.tigerPalm == 0 or cd.tigerPalm > gcd) then
-                            if not castable.tigerPalm then
-                                print("4: Tiger Palm (Uncastable)");
-                                TP1 = true
-                            else
-                                if cast.tigerPalm("target") then print("4: Tiger Palm"); TP1 = true; return end
-                            end
+                            if iRchiWave and not TP1 then
+                                if not castable.tigerPalm and (cd.tigerPalm == 0 or cd.tigerPalm > gcd) then
+                                    print("4: Tiger Palm (Uncastable)");
+                                    TP1 = true
+                                else
+                                    if cast.tigerPalm("target") then print("4: Tiger Palm"); TP1 = true; return end
+                                end
             -- Touch of Death
-                        elseif TP1 and not ToD and (cd.touchOfDeath == 0 or cd.touchOfDeath > gcd) then
-                            if not castable.touchOfDeath or UnitDebuffID("target",spell.spec.debuffs.touchOfDeath,"player") then
-                                print("5: Touch of Death (Uncastable)");
-                                ToD = true
-                            else
-                                if cast.touchOfDeath("target") then print("5: Touch of Death"); ToD = true; return end
-                            end
+                            elseif TP1 and not ToD then
+                                if (not castable.touchOfDeath and (cd.touchOfDeath == 0 or cd.touchOfDeath > gcd)) or UnitDebuffID("target",spell.spec.debuffs.touchOfDeath,"player") then
+                                    print("5: Touch of Death (Uncastable)");
+                                    ToD = true
+                                else
+                                    if cast.touchOfDeath("target") then print("5: Touch of Death"); ToD = true; return end
+                                end
             -- Storm, Earth, and Fire
-                        elseif ToD and not SEF then
-                            if not castable.stormEarthAndFire or not useSEF() then
-                                print("6: Storm, Earth, and Fire (Uncastable)");
-                                SEF = true
-                            else
-                                if cast.stormEarthAndFire() then print("6: Storm, Earth, and Fire"); SEF = true; return end
-                            end
+                            elseif ToD and not SEF then
+                                if not castable.stormEarthAndFire or not useSEF() or charges.stormEarthAndFire == 0 then
+                                    print("6: Storm, Earth, and Fire (Uncastable)");
+                                    SEF = true
+                                else
+                                    if cast.stormEarthAndFire() then print("6: Storm, Earth, and Fire"); SEF = true; return end
+                                end
             -- Rising Sun Kick
-                        elseif SEF and not RSK1 and (cd.risingSunKick == 0 or cd.risingSunKick > gcd) then
-                            if not castable.risingSunKick then
-                                print("7: Rising Sun Kick (Uncastable)");
-                                RSK1 = true
-                            else
-                                if cast.risingSunKick("target") then print("7: Rising Sun Kick"); RSK1 = true; return end
-                            end
+                            elseif SEF and not RSK1 then
+                                if not castable.risingSunKick and (cd.risingSunKick == 0 or cd.risingSunKick > gcd) then
+                                    print("7: Rising Sun Kick (Uncastable)");
+                                    RSK1 = true
+                                else
+                                    if cast.risingSunKick("target") then print("7: Rising Sun Kick"); RSK1 = true; return end
+                                end
             -- Energizing Elixir
-                        elseif RSK1 and not EE and (cd.energizingElixir == 0 or cd.energizingElixir > gcd) then
-                            if not castable.energizingElixir then
-                                print("8: Energizing Elixir (Uncastable)");
-                                EE = true
-                            else
-                                if cast.energizingElixir() then print("8: Energizing Elixir"); EE = true; return end
-                            end
+                            elseif RSK1 and not EE then
+                                if not castable.energizingElixir and (cd.energizingElixir == 0 or cd.energizingElixir > gcd) then
+                                    print("8: Energizing Elixir (Uncastable)");
+                                    EE = true
+                                else
+                                    if cast.energizingElixir() then print("8: Energizing Elixir"); EE = true; return end
+                                end
             -- Fists of Fury
-                        elseif EE and not FoF1 and (cd.fistsOfFury == 0 or cd.fistsOfFury > gcd) then
-                            if not castable.fistsOfFury then
-                                print("9: Fists of Fury (Uncastable)");
-                                FoF1 = true
-                            else
-                                if cast.fistsOfFury("target") then print("9: Fists of Fury"); FoF1 = true; return end
-                            end
+                            elseif EE and not FoF1 then
+                                if not castable.fistsOfFury and (cd.fistsOfFury == 0 or cd.fistsOfFury > gcd) then
+                                    print("9: Fists of Fury (Uncastable)");
+                                    FoF1 = true
+                                else
+                                    if cast.fistsOfFury("target") then print("9: Fists of Fury"); FoF1 = true; return end
+                                end
             -- Strike of the Windlord
-                        elseif FoF1 and not SotW and (cd.strikeOfTheWindlord == 0 or cd.strikeOfTheWindlord > gcd) then
-                            if not castable.strikeOfTheWindlord then
-                                print("10: Strike of the Windlord (Uncastable)");
-                                SotW = true
-                            else
-                                if cast.strikeOfTheWindlord("target") then print("10: Strike of the Windlord"); SotW = true; return end
-                            end
+                            elseif FoF1 and not SotW then
+                                if not castable.strikeOfTheWindlord and (cd.strikeOfTheWindlord == 0 or cd.strikeOfTheWindlord > gcd) then
+                                    print("10: Strike of the Windlord (Uncastable)");
+                                    SotW = true
+                                else
+                                    if cast.strikeOfTheWindlord("target") then print("10: Strike of the Windlord"); SotW = true; return end
+                                end
             -- Tiger Palm
-                        elseif SotW and not TP2 and (cd.tigerPalm == 0 or cd.tigerPalm > gcd) then
-                            if not castable.tigerPalm then
-                                print("11: Tiger Palm (Uncastable)");
-                                TP2 = true
-                            else
-                                if cast.tigerPalm("target") then print("11: Tiger Palm"); TP2 = true; return end
-                            end
+                            elseif SotW and not TP2 then
+                                if not castable.tigerPalm and (cd.tigerPalm == 0 or cd.tigerPalm > gcd) then
+                                    print("11: Tiger Palm (Uncastable)");
+                                    TP2 = true
+                                else
+                                    if cast.tigerPalm("target") then print("11: Tiger Palm"); TP2 = true; return end
+                                end
             -- Whirling Dragon Punch
-                        elseif TP2 and not WDP and (cd.whirlingDragonPunch == 0 or cd.whirlingDragonPunch > gcd) then
-                            if not castable.whirlingDragonPunch then
-                                print("12: Whirling Dragon Punch (Uncastable)");
-                                WDP = true
-                            else
-                                if cast.whirlingDragonPunch("target") then print("12: Whirling Dragon Punch"); WDP = true; return end
-                            end
+                            elseif TP2 and not WDP then
+                                if not castable.whirlingDragonPunch and (cd.whirlingDragonPunch == 0 or cd.whirlingDragonPunch > gcd) then
+                                    print("12: Whirling Dragon Punch (Uncastable)");
+                                    WDP = true
+                                else
+                                    if cast.whirlingDragonPunch("target") then print("12: Whirling Dragon Punch"); WDP = true; return end
+                                end
             -- Rising Sun Kick
-                        elseif WDP and not RSK2 then
-                            if not castable.risingSunKick and (cd.risingSunKick == 0 or cd.risingSunKick > gcd) then
-                                print("13: Rising Sun Kick (Uncastable)");
-                                RSK2 = true
-                            else
-                                if cast.risingSunKick("target") then print("13: Rising Sun Kick"); RSK2 = true; return end
+                            elseif WDP and not RSK2 then
+                                if not castable.risingSunKick and (cd.risingSunKick == 0 or cd.risingSunKick > gcd) then
+                                    print("13: Rising Sun Kick (Uncastable)");
+                                    RSK2 = true
+                                else
+                                    if cast.risingSunKick("target") then print("13: Rising Sun Kick"); RSK2 = true; return end
+                                end
+                            elseif RSK2 then
+                                print("Opener Complete")
+                                opener = true
                             end
-                        elseif RSK2 then
-                            print("Opener Complete")
-                            opener = true
                         end
                     end -- End Whirling Dragon Punch + Energizing Elixir
                     if talent.whirlingDragonPunch and talent.powerStrikes then
                         -- TP -> ToD -> TP + SEF -> FoF -> SotWL -> TP -> RSK -> WDP -> TP
                         if (isChecked("Pre-Pull Timer") and pullTimer <= getOptionValue("Pre-Pull Timer")) or not isChecked("Pre-Pull Timer") then
             -- Chi Wave (Out of Range)
-                            if not OoRchiWave and (cd.chiWave == 0 or cd.chiWave > gcd) then
-                                if not castable.chiWave or getDistance("target") < 25 then
+                            if not OoRchiWave then
+                                if (not castable.chiWave and (cd.chiWave == 0 or cd.chiWave > gcd)) or getDistance("target") < 25 then
                                     print("1: Chi Wave (Uncastable)");
                                     OoRchiWave = true
                                 else
@@ -625,14 +625,12 @@ if select(2, UnitClass("player")) == "MONK" then
             -- Flying Serpent Kick (No Hit)
                             elseif getDistance("target") < 15 and select(3,GetSpellInfo(101545)) == 463281 then                                   
                                 if cast.flyingSerpentKickEnd() then return end
-                            elseif OoRchiWave and not FSK and (cd.flyingSerpentKick == 0 or cd.flyingSerpentKick > gcd) then
-                                if getDistance("target") >= 15 then
-                                    if not castable.flyingSerpentKick or getDistance("target") < 15 then
-                                        print("2: Flying Serpent Kick (Uncastable)");
-                                        FSK = true
-                                    else
-                                        if cast.flyingSerpentKick() then print("2: Flying Serpent Kick"); FSK = true; return end
-                                    end
+                            elseif OoRchiWave and not FSK then
+                                if (not castable.flyingSerpentKick and (cd.flyingSerpentKick == 0 or cd.flyingSerpentKick > gcd)) or getDistance("target") < 15 then
+                                    print("2: Flying Serpent Kick (Uncastable)");
+                                    FSK = true
+                                else
+                                    if cast.flyingSerpentKick() then print("2: Flying Serpent Kick"); FSK = true; return end
                                 end
             -- Potion
                             -- potion,name=old_war
@@ -642,8 +640,8 @@ if select(2, UnitClass("player")) == "MONK" then
                             end
                         end
             -- Chi Wave (In Range)
-                        if not iRchiWave and (cd.whiWave == 0 or cd.chiWave > gcd) then
-                            if not castable.chiWave then
+                        if FSK and not iRchiWave then
+                            if not castable.chiWave and (cd.whiWave == 0 or cd.chiWave > gcd) then
                                 print("3: Chi Wave (Uncastable)");
                                 iRchiWave = true
                             else
@@ -651,98 +649,100 @@ if select(2, UnitClass("player")) == "MONK" then
                                     if cast.chiWave() then print("3: Chi Wave"); iRchiWave = true; return end
                                 end
                             end
+                        elseif getDistance("target") < 5 then
             -- Tiger Palm
-                        if not TP1 and (cd.tigerPalm == 0 or cd.tigerPalm > gcd) then
-                            if not castable.tigerPalm or lastSpell == spell.tigerPalm then
-                                print("4: Tiger Palm (Uncastable)");
-                                TP1 = true;
-                                return
-                            else
-                                if cast.tigerPalm("target") then print("4: Tiger Palm"); TP1 = true; return end
-                            end
+                            if not TP1 then
+                                if (not castable.tigerPalm and (cd.tigerPalm == 0 or cd.tigerPalm > gcd)) or lastSpell == spell.tigerPalm then
+                                    print("4: Tiger Palm (Uncastable)");
+                                    TP1 = true;
+                                    return
+                                else
+                                    if cast.tigerPalm("target") then print("4: Tiger Palm"); TP1 = true; return end
+                                end
             -- Touch of Death
-                        elseif TP1 and not ToD and (cd.touchOfDeath == 0 or cd.touchOfDeath > gcd) then
-                            if not castable.touchOfDeath or UnitDebuffID("target",spell.spec.debuffs.touchOfDeath,"player") then
-                                print("5: Touch of Death (Uncastable)");
-                                ToD = true
-                            else
-                                if cast.touchOfDeath("target") then print("5: Touch of Death"); ToD = true; return end
-                            end
+                            elseif TP1 and not ToD then
+                                if (not castable.touchOfDeath and (cd.touchOfDeath == 0 or cd.touchOfDeath > gcd)) or UnitDebuffID("target",spell.spec.debuffs.touchOfDeath,"player") then
+                                    print("5: Touch of Death (Uncastable)");
+                                    ToD = true
+                                else
+                                    if cast.touchOfDeath("target") then print("5: Touch of Death"); ToD = true; return end
+                                end
             -- Tiger Palm
-                        elseif ToD and not TP2 and (cd.tigerPalm == 0 or cd.tigerPalm > gcd) then
-                            if not castable.tigerPalm then
-                                print("6: Tiger Palm (Uncastable)");
-                                TP2 = true
-                            else
-                                if cast.tigerPalm("target") then print("6: Tiger Palm"); TP2 = true; return end
-                            end
+                            elseif ToD and not TP2 then
+                                if not castable.tigerPalm and (cd.tigerPalm == 0 or cd.tigerPalm > gcd) then
+                                    print("6: Tiger Palm (Uncastable)");
+                                    TP2 = true
+                                else
+                                    if cast.tigerPalm("target") then print("6: Tiger Palm"); TP2 = true; return end
+                                end
             -- Storm, Earth, and Fire
-                        elseif TP2 and not SEF then
-                            if not castable.stormEarthAndFire or not useSEF() then
-                                print("7: Storm, Earth, and Fire (Uncastable)");
-                                SEF = true
-                            else
-                                if cast.stormEarthAndFire() then print("7: Storm, Earth, and Fire"); SEF = true; return end
-                            end
+                            elseif TP2 and not SEF then
+                                if not castable.stormEarthAndFire or not useSEF() or charges.stormEarthAndFire == 0 then
+                                    print("7: Storm, Earth, and Fire (Uncastable)");
+                                    SEF = true
+                                else
+                                    if cast.stormEarthAndFire() then print("7: Storm, Earth, and Fire"); SEF = true; return end
+                                end
             -- Fists of Fury
-                        elseif SEF and not FoF1 and (cd.fistsOfFury == 0 or cd.fistsOfFury > gcd) then
-                            if not castable.fistsOfFury then
-                                print("8: Fists of Fury (Uncastable)");
-                                FoF1 = true
-                            else
-                                if cast.fistsOfFury("target") then print("8: Fists of Fury"); FoF1 = true; return end
-                            end
+                            elseif SEF and not FoF1 then
+                                if not castable.fistsOfFury and (cd.fistsOfFury == 0 or cd.fistsOfFury > gcd) then
+                                    print("8: Fists of Fury (Uncastable)");
+                                    FoF1 = true
+                                else
+                                    if cast.fistsOfFury("target") then print("8: Fists of Fury"); FoF1 = true; return end
+                                end
             -- Strike of the Windlord
-                        elseif FoF1 and not SotW and (cd.strikeOfTheWindlord == 0 or cd.strikeOfTheWindlord > gcd) then
-                            if not castable.strikeOfTheWindlord then
-                                print("9: Strike of the Windlord (Uncastable)");
-                                SotW = true
-                            else
-                                if cast.strikeOfTheWindlord("target") then print("9: Strike of the Windlord"); SotW = true; return end
-                            end
+                            elseif FoF1 and not SotW then
+                                if not castable.strikeOfTheWindlord and (cd.strikeOfTheWindlord == 0 or cd.strikeOfTheWindlord > gcd) then
+                                    print("9: Strike of the Windlord (Uncastable)");
+                                    SotW = true
+                                else
+                                    if cast.strikeOfTheWindlord("target") then print("9: Strike of the Windlord"); SotW = true; return end
+                                end
             -- Tiger Palm
-                        elseif SotW and not TP3 and (cd.tigerPalm == 0 or cd.tigerPalm > gcd) then
-                            if not castable.tigerPalm then
-                                print("10: Tiger Palm (Uncastable)");
-                                TP3 = true
-                            else
-                                if cast.tigerPalm("target") then print("10: Tiger Palm"); TP3 = true; return end
-                            end
+                            elseif SotW and not TP3 then
+                                if not castable.tigerPalm and (cd.tigerPalm == 0 or cd.tigerPalm > gcd) then
+                                    print("10: Tiger Palm (Uncastable)");
+                                    TP3 = true
+                                else
+                                    if cast.tigerPalm("target") then print("10: Tiger Palm"); TP3 = true; return end
+                                end
             -- Rising Sun Kick
-                        elseif TP3 and not RSK1 and (cd.risingSunKick == 0 or cd.risingSunKick > gcd) then
-                            if not castable.risingSunKick then
-                                print("11: Rising Sun Kick (Uncastable)");
-                                RSK1 = true
-                            else
-                                if cast.risingSunKick("target") then print("11: Rising Sun Kick"); RSK1 = true; return end
-                            end
+                            elseif TP3 and not RSK1 then
+                                if not castable.risingSunKick and (cd.risingSunKick == 0 or cd.risingSunKick > gcd) then
+                                    print("11: Rising Sun Kick (Uncastable)");
+                                    RSK1 = true
+                                else
+                                    if cast.risingSunKick("target") then print("11: Rising Sun Kick"); RSK1 = true; return end
+                                end
             -- Whirling Dragon Punch
-                        elseif RSK1 and not WDP and (cd.whirlingDragonPunch == 0 or cd.whirlingDragonPunch > gcd) then
-                            if not castable.whirlingDragonPunch then
-                                print("12: Whirling Dragon Punch (Uncastable)");
-                                WDP = true
-                            else
-                                if cast.whirlingDragonPunch("target") then print("12: Whirling Dragon Punch"); WDP = true; return end
-                            end
+                            elseif RSK1 and not WDP then
+                                if not castable.whirlingDragonPunch and (cd.whirlingDragonPunch == 0 or cd.whirlingDragonPunch > gcd) then
+                                    print("12: Whirling Dragon Punch (Uncastable)");
+                                    WDP = true
+                                else
+                                    if cast.whirlingDragonPunch("target") then print("12: Whirling Dragon Punch"); WDP = true; return end
+                                end
             -- Tiger Palm
-                        elseif WDP and not TP4 and (cd.tigerPalm == 0 or cd.tigerPalm > gcd) then
-                            if not castable.tigerPalm then
-                                print("13: Tiger Palm (Uncastable)");
-                                TP4 = true
-                            else
-                                if cast.tigerPalm("target") then print("13: Tiger Palm"); TP4 = true; return end
+                            elseif WDP and not TP4 then
+                                if not castable.tigerPalm and (cd.tigerPalm == 0 or cd.tigerPalm > gcd) then
+                                    print("13: Tiger Palm (Uncastable)");
+                                    TP4 = true
+                                else
+                                    if cast.tigerPalm("target") then print("13: Tiger Palm"); TP4 = true; return end
+                                end
+                            elseif TP4 then
+                                print("Opener Complete")
+                                opener = true
                             end
-                        elseif TP4 then
-                            print("Opener Complete")
-                            opener = true
                         end                
                     end -- End Whirling Dragon Punch + Power Strikes
-                    if talent.serenity and getDistance("target") < 5 then
+                    if talent.serenity then
                         -- TP -> ToD -> Serenity + RSK -> SotWL ->  FoF -> RSK -> SCK -> BoK (If it will fit in Serenity)
                         if (isChecked("Pre-Pull Timer") and pullTimer <= getOptionValue("Pre-Pull Timer")) or not isChecked("Pre-Pull Timer") then
             -- Chi Wave (Out of Range)
-                            if not OoRchiWave and (cd.chiWave == 0 or cd.chiWave > gcd) then
-                                if not castable.chiWave or getDistance("target") < 25 then
+                            if not OoRchiWave then
+                                if (not castable.chiWave and (cd.chiWave == 0 or cd.chiWave > gcd)) or getDistance("target") < 25 then
                                     print("1: Chi Wave (Uncastable)");
                                     OoRchiWave = true
                                 else
@@ -751,14 +751,12 @@ if select(2, UnitClass("player")) == "MONK" then
             -- Flying Serpent Kick (No Hit)
                             elseif getDistance("target") < 15 and select(3,GetSpellInfo(101545)) == 463281 then                                   
                                 if cast.flyingSerpentKickEnd() then return end
-                            elseif OoRchiWave and not FSK and (cd.flyingSerpentKick == 0 or cd.flyingSerpentKick > gcd) then
-                                if getDistance("target") >= 15 then
-                                    if not castable.flyingSerpentKick or getDistance("target") < 15 then
-                                        print("2: Flying Serpent Kick (Uncastable)");
-                                        FSK = true
-                                    else
-                                        if cast.flyingSerpentKick() then print("2: Flying Serpent Kick"); FSK = true; return end
-                                    end
+                            elseif OoRchiWave and not FSK then
+                                if (not castable.flyingSerpentKick and (cd.flyingSerpentKick == 0 or cd.flyingSerpentKick > gcd)) or getDistance("target") < 15 then
+                                    print("2: Flying Serpent Kick (Uncastable)");
+                                    FSK = true
+                                else
+                                    if cast.flyingSerpentKick() then print("2: Flying Serpent Kick"); FSK = true; return end
                                 end
             -- Potion
                             -- potion,name=old_war
@@ -768,8 +766,8 @@ if select(2, UnitClass("player")) == "MONK" then
                             end
                         end
             -- Chi Wave (In Range)
-                        if not iRchiWave and (cd.whiWave == 0 or cd.chiWave > gcd) then
-                            if not castable.chiWave then
+                        if FSK and not iRchiWave then
+                            if not castable.chiWave and (cd.whiWave == 0 or cd.chiWave > gcd) then
                                 print("3: Chi Wave (Uncastable)");
                                 iRchiWave = true
                             else
@@ -777,83 +775,85 @@ if select(2, UnitClass("player")) == "MONK" then
                                     if cast.chiWave() then print("3: Chi Wave"); iRchiWave = true; return end
                                 end
                             end
+                        elseif getDistance("target") < 5 then
             -- Tiger Palm
-                        elseif iRchiWave and not TP1 and (cd.tigerPalm == 0 or cd.tigerPalm > gcd) then
-                            if not castable.tigerPalm then
-                                print("4: Tiger Palm (Uncastable)");
-                                TP1 = true
-                            else
-                                if cast.tigerPalm("target") then print("4: Tiger Palm"); TP1 = true; return end
-                            end
+                            if iRchiWave and not TP1 then
+                                if not castable.tigerPalm and (cd.tigerPalm == 0 or cd.tigerPalm > gcd) then
+                                    print("4: Tiger Palm (Uncastable)");
+                                    TP1 = true
+                                else
+                                    if cast.tigerPalm("target") then print("4: Tiger Palm"); TP1 = true; return end
+                                end
             -- Touch of Death
-                        elseif TP1 and not ToD and (cd.touchOfDeath == 0 or cd.touchOfDeath > gcd) then
-                            if not castable.touchOfDeath or UnitDebuffID("target",spell.spec.debuffs.touchOfDeath,"player") then
-                                print("5: Touch of Death (Uncastable)");
-                                ToD = true
-                            else
-                                if cast.touchOfDeath("target") then print("5: Touch of Death"); ToD = true; return end
-                            end
+                            elseif TP1 and not ToD then
+                                if (not castable.touchOfDeath and (cd.touchOfDeath == 0 or cd.touchOfDeath > gcd)) or UnitDebuffID("target",spell.spec.debuffs.touchOfDeath,"player") then
+                                    print("5: Touch of Death (Uncastable)");
+                                    ToD = true
+                                else
+                                    if cast.touchOfDeath("target") then print("5: Touch of Death"); ToD = true; return end
+                                end
             -- Serenity
-                        elseif ToD and not SER and (cd.serenity == 0 or cd.serenity > gcd) then
-                            if not castable.serenity then
-                                print("6: Serenity (Uncastable)"); 
-                                SER = true;
-                                return
-                            else
-                                if cast.serenity() then print("6: Serenity"); SER = true; return end
-                            end
+                            elseif ToD and not SER then
+                                if not castable.serenity and (cd.serenity == 0 or cd.serenity > gcd) then
+                                    print("6: Serenity (Uncastable)"); 
+                                    SER = true;
+                                    return
+                                else
+                                    if cast.serenity() then print("6: Serenity"); SER = true; return end
+                                end
             -- Rising Sun Kick
-                        elseif SER and not RSK1 and (cd.risingSunKick == 0 or cd.risingSunKick > gcd) then
-                            if not castable.risingSunKick or (cd.serenity > gcd and not buff.serenity) then
-                                print("7: Rising Sun Kick (Uncastable)"); 
-                                RSK1 = true
-                            else
-                                if cast.risingSunKick("target") then print("7: Rising Sun Kick"); RSK1 = true; return end
-                            end
+                            elseif SER and not RSK1 then
+                                if (not castable.risingSunKick and (cd.risingSunKick == 0 or cd.risingSunKick > gcd)) or (cd.serenity > gcd and not buff.serenity) then
+                                    print("7: Rising Sun Kick (Uncastable)"); 
+                                    RSK1 = true
+                                else
+                                    if cast.risingSunKick("target") then print("7: Rising Sun Kick"); RSK1 = true; return end
+                                end
             -- Strike of the Windlord
-                        elseif RSK1 and not SotW and (cd.strikeOfTheWindlord == 0 or cd.strikeOfTheWindlord > gcd) then
-                            if not castable.strikeOfTheWindlord or (cd.serenity > gcd and not buff.serenity) then
-                                print("8: Strike of the Windlord (Uncastable)"); 
-                                SotW = true
-                            else
-                                if cast.strikeOfTheWindlord("target") then print("8: Strike of the Windlord"); SotW = true; return end
-                            end
+                            elseif RSK1 and not SotW then
+                                if (not castable.strikeOfTheWindlord and (cd.strikeOfTheWindlord == 0 or cd.strikeOfTheWindlord > gcd)) or (cd.serenity > gcd and not buff.serenity) then
+                                    print("8: Strike of the Windlord (Uncastable)"); 
+                                    SotW = true
+                                else
+                                    if cast.strikeOfTheWindlord("target") then print("8: Strike of the Windlord"); SotW = true; return end
+                                end
             -- Fists of Fury
-                        elseif SotW and not FoF1 and (cd.fistsOfFury == 0 or cd.fistsOfFury > gcd) then
-                            if not castable.fistsOfFury or (cd.serenity > gcd and not buff.serenity) then
-                                print("9: Fists of Fury (Uncastable)"); 
-                                FoF1 = true
-                            else
-                                if cast.fistsOfFury("target") then print("9: Fists of Fury"); FoF1 = true; return end
-                            end
+                            elseif SotW and not FoF1 then
+                                if (not castable.fistsOfFury and (cd.fistsOfFury == 0 or cd.fistsOfFury > gcd)) or (cd.serenity > gcd and not buff.serenity) then
+                                    print("9: Fists of Fury (Uncastable)"); 
+                                    FoF1 = true
+                                else
+                                    if cast.fistsOfFury("target") then print("9: Fists of Fury"); FoF1 = true; return end
+                                end
             -- Rising Sun Kick
-                        elseif FoF1 and not RSK2 and (cd.risingSunKick == 0 or cd.risingSunKick > gcd) then
-                            if not castable.risingSunKick or (cd.serenity > gcd and not buff.serenity) then
-                                print("10: Rising Sun Kick (Uncastable)"); 
-                                RSK2 = true
-                            else
-                                if cast.risingSunKick("target") then print("10: Rising Sun Kick"); RSK2 = true; return end
-                            end
+                            elseif FoF1 and not RSK2 then
+                                if (not castable.risingSunKick and (cd.risingSunKick == 0 or cd.risingSunKick > gcd)) or (cd.serenity > gcd and not buff.serenity) then
+                                    print("10: Rising Sun Kick (Uncastable)"); 
+                                    RSK2 = true
+                                else
+                                    if cast.risingSunKick("target") then print("10: Rising Sun Kick"); RSK2 = true; return end
+                                end
             -- Spinning Crane Kick
-                        elseif RSK2 and not SCK and (cd.spinningCraneKick == 0 or cd.spinningCraneKick > gcd) then
-                            if not castable.spinningCraneKick or (cd.serenity > gcd and not buff.serenity) then
-                                print("11: Spinning Crane Kick (Uncastable)"); 
-                                SCK = true
-                            else
-                                if cast.spinningCraneKick("target") then print("11: Spinning Crane Kick"); SCK = true; return end
-                            end
+                            elseif RSK2 and not SCK then
+                                if (not castable.spinningCraneKick and (cd.spinningCraneKick == 0 or cd.spinningCraneKick > gcd)) or (cd.serenity > gcd and not buff.serenity) then
+                                    print("11: Spinning Crane Kick (Uncastable)"); 
+                                    SCK = true
+                                else
+                                    if cast.spinningCraneKick("target") then print("11: Spinning Crane Kick"); SCK = true; return end
+                                end
             -- Blackout Kick
-                        elseif SCK and not BOK and (cd.blackoutKick == 0 or cd.blackoutKick > gcd) then
-                            if not castable.blackoutKick or (cd.serenity > gcd and not buff.serenity) then
-                                 print("12: Blackout Kick (Uncastable)"); 
-                                 BOK = true
-                            else
-                                if cast.blackoutKick("target") then print("12: Blackout Kick"); BOK = true; return end
+                            elseif SCK and not BOK then
+                                if (not castable.blackoutKick and (cd.blackoutKick == 0 or cd.blackoutKick > gcd)) or (cd.serenity > gcd and not buff.serenity) then
+                                     print("12: Blackout Kick (Uncastable)"); 
+                                     BOK = true
+                                else
+                                    if cast.blackoutKick("target") then print("12: Blackout Kick"); BOK = true; return end
+                                end
+                            elseif BOK then
+                                print("Opener Complete");
+                                opener = true;
+                                return
                             end
-                        elseif BOK then
-                            print("Opener Complete");
-                            opener = true;
-                            return
                         end
                     end -- End Serenity - Gale Burst
                     if not (talent.serenity or (talent.whirlingDragonPunch and (talent.energizingElixir or talent.powerStrikes))) then
