@@ -260,18 +260,20 @@ function bb.read.combatLog()
                     end
                     if bb.player ~= nil and getDistance(thisUnit) < 40 then
                         local bleed = bb.player.bleed
-                        if bleed.combatLog[thisUnit] == nil then bleed.combatLog[thisUnit] = {} end
-                        if spell == bb.player.spell.rake and param == "SPELL_CAST_SUCCESS" then
-                            for k, v in pairs(bleed.rake[thisUnit]) do
-                                if k == "calc" then
-                                    if bleed.rake[thisUnit] ~= nil then bleed.combatLog[thisUnit].rake = v end
+                        if bleed ~= nil then
+                            if bleed.combatLog[thisUnit] == nil then bleed.combatLog[thisUnit] = {} end
+                            if spell == bb.player.spell.rake and param == "SPELL_CAST_SUCCESS" then
+                                for k, v in pairs(bleed.rake[thisUnit]) do
+                                    if k == "calc" then
+                                        if bleed.rake[thisUnit] ~= nil then bleed.combatLog[thisUnit].rake = v end
+                                    end
                                 end
                             end
-                        end
-                        if spell == bb.player.spell.rip and param == "SPELL_CAST_SUCCESS" then
-                            for k, v in pairs(bleed.rip[thisUnit]) do
-                                if k == "calc" then
-                                    if bleed.rake[thisUnit] ~= nil then bleed.combatLog[thisUnit].rip = v end
+                            if spell == bb.player.spell.rip and param == "SPELL_CAST_SUCCESS" then
+                                for k, v in pairs(bleed.rip[thisUnit]) do
+                                    if k == "calc" then
+                                        if bleed.rake[thisUnit] ~= nil then bleed.combatLog[thisUnit].rip = v end
+                                    end
                                 end
                             end
                         end

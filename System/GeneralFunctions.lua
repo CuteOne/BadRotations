@@ -1940,18 +1940,22 @@ end
 function hasThreat(unit,playerUnit)
 	local unit = unit or "target"
 	local playerUnit = playerUnit or "player"
-	local unitThreat = UnitThreatSituation(playerUnit, unit)~=nil
+	local unitThreat
 	local targetOfTarget 
 	local targetFriend
 	if UnitExists("targettarget") then targetOfTarget = UnitTarget(unit) else targetOfTarget = "player" end
 	if UnitExists("targettarget") then targetFriend = (UnitInParty(targetOfTarget) or UnitInRaid(targetOfTarget)) else targetFriend = false end
-
-		if unitThreat then 
-			return true
-		elseif targetFriend then
+	for i = 1, #bb.friend do
+		local thisUnit = bb.friend[i].unit
+		if UnitThreatSituation(unit, thisUnit)~=nil then
 			return true
 		end
-	-- end
+	end
+	if UnitThreatSituation(playerUnit, unit)~=nil then 
+		return true
+	elseif targetFriend then
+		return true
+	end
 	return false
 end
 -- if isAggroed("target") then
@@ -2690,10 +2694,14 @@ function hasHealthPot()
 end
 function getHealthPot()
 	local potion = bb.player.potion
-	if potion.health[1]~=nil then
-		return potion.health[1].itemID
-	elseif potion.rejuve[1]~=nil then
-		return potion.rejuve[1].itemID
+	if potion ~= nil then
+		if potion.health[1]~=nil then
+			return potion.health[1].itemID
+		elseif potion.rejuve[1]~=nil then
+			return potion.rejuve[1].itemID
+		else
+			return 0
+		end
 	else
 		return 0
 	end

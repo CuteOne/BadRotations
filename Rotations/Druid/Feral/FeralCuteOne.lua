@@ -255,13 +255,13 @@ if select(2, UnitClass("player")) == "DRUID" then
 		-- Action List - Extras
 			local function actionList_Extras()
 			-- Shapeshift Form Management
-				if isChecked("Auto Shapeshifts") and not UnitBuffID("player",202477) then
+				if isChecked("Auto Shapeshifts") --[[and not UnitBuffID("player",202477)]] then
 				-- Flight Form
 					if IsFlyableArea() and ((not (isInDraenor() or isInLegion())) or isKnown(191633)) and not swimming and falling > 1 and level>=58 then 
 		                if cast.travelForm() then return end
 			        end
 				-- Aquatic Form
-				    if swimming and not travel and not hastar and not deadtar then
+				    if swimming and not travel and not hastar and not deadtar and not buff.prowl then
 					  	if cast.travelForm() then return end
 					end
 				-- Cat Form

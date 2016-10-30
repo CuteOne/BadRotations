@@ -19,11 +19,13 @@ if select(2, UnitClass("player")) == "DRUID" then
 		self.artifact.rank   = {}
 		self.buff.duration	 = {}		-- Buff Durations
 		self.buff.remain 	 = {}		-- Buff Time Remaining
+        self.buff.stacks     = {}
 		self.cast 		     = {}        -- Cast Spell Functions
 		self.cast.debug 	 = {}
 		self.debuff.duration = {}		-- Debuff Durations
 		self.debuff.remain 	 = {}		-- Debuff Time Remaining
 		self.debuff.refresh             = {}       -- Debuff Refreshable
+        self.debuff.stacks              = {}
         self.spell.class                = {}        -- Abilities Available To All Specs in Class
         self.spell.class.abilities      = {
         	bearForm 					= 5487,
@@ -448,7 +450,7 @@ if select(2, UnitClass("player")) == "DRUID" then
             if thisUnit == nil then thisUnit = self.units.dyn40AoE end
             if debug == nil then debug = false end
 
-            if self.level >= 10 and self.powerPercentMana > 6 and hasThreat(thisUnit) and getDistance(thisUnit) < 40 then
+            if self.level >= 10 and self.powerPercentMana > 6 and (hasThreat(thisUnit) or isDummy(thisUnit)) and getDistance(thisUnit) < 40 then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
