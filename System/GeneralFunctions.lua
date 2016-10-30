@@ -274,7 +274,8 @@ function canDispel(Unit,spellID)
 		typesList = { }
 	end
 	if ClassNum == 2 then --Paladin
-		typesList = { }
+		-- Cleanse Toxin
+		if spellID == 213644 then typesList = { "Poison","Disease" } end
 	end
 	if ClassNum == 3 then --Hunter
 		typesList = { }
@@ -290,8 +291,10 @@ function canDispel(Unit,spellID)
 		typesList = { }
 	end
 	if ClassNum == 7 then --Shaman
-		if spellID == 51886 then typesList = { "Curse" } end -- Cleanse Spirit
-		if spellID == 370 then typesList = { "Magic" } end -- Purge
+		-- Cleanse Spirit
+		if spellID == 51886 then typesList = { "Curse" } end
+		-- Purge 
+		if spellID == 370 then typesList = { "Magic" } end 
 	end
 	if ClassNum == 8 then --Mage
 		typesList = { }
@@ -2475,7 +2478,7 @@ function isValidUnit(Unit)
 		then
 			return true
 		end
-		if UnitAffectingCombat("player") and (hasThreat(Unit) or isDummy(Unit) or (not hasThreat("target") and UnitAffectingCombat("target"))) then
+		if UnitAffectingCombat("player") then-- and (hasThreat(Unit) or isDummy(Unit) or (not hasThreat("target") and UnitAffectingCombat("target"))) then
 			return true
 		end
 	end

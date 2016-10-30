@@ -16,6 +16,8 @@ function cRetribution:new()
     -----------------
     --- VARIABLES ---
     -----------------
+        self.charges.frac               = {}        -- Fractional Charge
+        self.charges.max                = {}
         self.spell.spec                 = {}
         self.spell.spec.abilities       = {
             avengingWrath               = 31884,
@@ -65,17 +67,19 @@ function cRetribution:new()
         }
         self.spell.spec.buffs           = {
             divinePurpose               = 223819,
+            theFiresOfJustice           = 209785,
+            whisperOfTheNathrezim       = 207635,
         }
         self.spell.spec.debuffs         = {
-            judgment                    = 197277,
+
         }
         self.spell.spec.glyphs          = {
             glyphOfWingedVengeance      = 57979,
         }
         self.spell.spec.talents         = {
-            bladeOfWrath                = 202270,
+            bladeOfWrath                = 231832,
             consecration                = 205228,
-            crusade                     = 224668,
+            crusade                     = 231895,
             divineHammer                = 198034,
             divineIntervention          = 213313,
             executionSentence           = 213757,
@@ -139,7 +143,7 @@ function cRetribution:new()
             local dynamicTarget = dynamicTarget
 
             -- Normal
-
+            self.units.dyn12 = dynamicTarget(12,true) -- Hammer of Justice
             -- AoE
 
         end
@@ -198,6 +202,8 @@ function cRetribution:new()
 
             for k,v in pairs(self.spell.spec.abilities) do
                 self.charges[k]     = getCharges(v)
+                self.charges.frac[k]= getChargesFrac(v)
+                self.charges.max[k] = getChargesFrac(v,true)
                 self.recharge[k]    = getRecharge(v)
             end
         end
@@ -450,7 +456,7 @@ function cRetribution:new()
             if thisUnit == nil then thisUnit = "player" end
             if debug == nil then debug = false end
 
-            if self.level >= 21 and self.powerPercentMana > 13 and self.cd.cleanseToxins == 0 and getDistance(thisUnit) < 40 then
+            if self.level >= 21 and self.powerPercentMana > 13 and self.cd.cleanseToxins == 0 and canDispel(thisUnit,spellCast) and getDistance(thisUnit) < 40 then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
@@ -514,7 +520,7 @@ function cRetribution:new()
             if thisUnit == nil then thisUnit = "player" end
             if debug == nil then debug = false end
 
-            if self.level >= 32 and self.holyPower >= 3 then
+            if self.level >= 32 and (self.holyPower >= 3 or (self.holyPower >= 2 and self.buff.theFiresOfJustice)) then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
@@ -530,7 +536,7 @@ function cRetribution:new()
             if thisUnit == nil then thisUnit = self.units.dyn20 end
             if debug == nil then debug = false end
 
-            if self.talent.executionSentence and self.holyPower >= 3 and self.cd.executionSentence == 0 and getDistance(thisUnit) < 20 then
+            if self.talent.executionSentence and (self.holyPower >= 3 or (self.holyPower >= 2 and self.buff.theFiresOfJustice)) and self.cd.executionSentence == 0 and getDistance(thisUnit) < 20 then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
@@ -642,7 +648,7 @@ function cRetribution:new()
             if thisUnit == nil then thisUnit = self.units.dyn5 end
             if debug == nil then debug = false end
 
-            if self.talent.justicarsVengeance and self.holyPower >= 5 and getDistance(thisUnit) < 5 then
+            if self.talent.justicarsVengeance and (self.holyPower >= 5 or (self.holyPower >= 4 and self.buff.theFiresOfJustice)) and getDistance(thisUnit) < 5 then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
@@ -674,7 +680,7 @@ function cRetribution:new()
             if thisUnit == nil then thisUnit = "player" end
             if debug == nil then debug = false end
 
-            if self.talent.sealOfLight and self.holyPower > 0 and not self.buff.sealOfLight == 0 then
+            if self.talent.sealOfLight and (self.holyPower > 0 or self.buff.theFiresOfJustice) and not self.buff.sealOfLight == 0 then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
@@ -706,7 +712,7 @@ function cRetribution:new()
             if thisUnit == nil then thisUnit = self.units.dyn5 end
             if debug == nil then debug = false end
 
-            if self.level >= 10 and self.holyPower >= 3 and getDistance(thisUnit) < 5 then
+            if self.level >= 10 and (self.holyPower >= 3 or (self.holyPower >= 2 and self.buff.theFiresOfJustice)) and getDistance(thisUnit) < 5 then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
@@ -738,7 +744,7 @@ function cRetribution:new()
             if thisUnit == nil then thisUnit = "player" end
             if debug == nil then debug = false end
 
-            if self.talent.wordOfGlory and self.holyPower >= 3 and self.cd.wordOfGlory == 0 and self.charges.wordOfGlory > 0 then
+            if self.talent.wordOfGlory and (self.holyPower >= 3 or (self.holyPower >= 2 and self.buff.theFiresOfJustice)) and self.cd.wordOfGlory == 0 and self.charges.wordOfGlory > 0 then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else

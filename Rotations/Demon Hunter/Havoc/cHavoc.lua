@@ -32,7 +32,6 @@ function cHavoc:new()
             demonsBite                  = 162243,
             eyeBeam                     = 198013,
             felBarrage                  = 211053,
-            felblade                    = 213241,
             felEruption                 = 211881,
             felRush                     = 195072,
             furyOfTheIllidari           = 201467,
@@ -346,7 +345,6 @@ function cHavoc:new()
             self.cast.debug.demonsBite          = self.cast.demonsBite("target",true)
             self.cast.debug.eyeBeam             = self.cast.eyeBeam("player",true)
             self.cast.debug.felBarrage          = self.cast.felBarrage("target",true)
-            self.cast.debug.felblade            = self.cast.felblade("target",true)
             self.cast.debug.felEruption         = self.cast.felEruption("target",true)
             self.cast.debug.felRush             = self.cast.felRush("player",true)
             self.cast.debug.furyOfTheIllidari   = self.cast.furyOfTheIllidari("player",true)
@@ -535,23 +533,6 @@ function cHavoc:new()
             if debug == nil then debug = false end
 
             if self.talent.felBarrage and self.cd.felBarrage == 0 and self.charges.felBarrage > 0 and getDistance(thisUnit) < 30 then
-                if debug then
-                    return castSpell(thisUnit,spellCast,true,false,false,false,false,false,false,true)
-                else
-                    return castSpell(thisUnit,spellCast,true,false,false)
-                end
-            elseif debug then
-                return false
-            end
-        end
-        -- Felblade
-        function self.cast.felblade(thisUnit,debug)
-            local spellCast = self.spell.felblade
-            local thisUnit = thisUnit
-            if thisUnit == nil then thisUnit = self.units.dyn15 end
-            if debug == nil then debug = false end
-
-            if self.talent.felblade and self.cd.felblade == 0 and getDistance(thisUnit) < 15 then
                 if debug then
                     return castSpell(thisUnit,spellCast,true,false,false,false,false,false,false,true)
                 else

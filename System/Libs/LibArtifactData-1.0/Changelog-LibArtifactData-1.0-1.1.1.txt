@@ -1,0 +1,12 @@
+tag 1.1.1
+9cc90797e281dbe9dea9e4fabcbff9ccc33b5f80
+Rainrider <rainrider.wow@gmail.com>
+2016-10-28 13:08:07 +0200
+
+Tagging as release 1.1.1
+
+
+--------------------
+
+Rainrider:
+	- Bump ToC

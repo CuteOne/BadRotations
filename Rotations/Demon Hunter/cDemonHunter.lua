@@ -26,7 +26,7 @@ function cDemonHunter:new(spec)
         self.spell.class                	= {}        -- Abilities Available To All Specs in Class
         self.spell.class.abilities      	= {
             consumeMagic 					= 183752,
-            felblade                        = 213241,
+            felblade                        = 232893,
             felEruption                     = 211881,
         	glide 							= 131347,
         	imprison 						= 217832,
@@ -53,7 +53,7 @@ function cDemonHunter:new(spec)
  			glyphOfTatteredWings 			= 220226,
         }
         self.spell.class.talents        	= {        -- Talents Available To All Specs in Class
-        	felblade 						= 213241,
+        	felblade 						= 232893,
         	felEruption 					= 211881,
         }
 
@@ -100,6 +100,7 @@ function cDemonHunter:new(spec)
             self.units.dyn8 	= dynamicTarget(8, true)
 			self.units.dyn8AoE 	= dynamicTarget(8, false)
 			self.units.dyn10 	= dynamicTarget(10, true)
+            self.units.dyn15    = dynamicTarget(15, true)
             self.units.dyn20 	= dynamicTarget(20, true)
         end
 

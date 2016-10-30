@@ -1,63 +1,79 @@
 --- Guardian Class
 -- Inherit from: ../cCharacter.lua and ../cDruid.lua
-if select(2, UnitClass("player")) == "DRUID" then
-    -- rakeApplied = {}
-    -- ripApplied = {}
-	cGuardian = {}
-    cGuardian.rotations = {}
+cGuardian = {}
+cGuardian.rotations = {}
 
-	-- Creates Guardian Druid
-	function cGuardian:new()
-		local self = cDruid:new("Guardian")
+-- Creates Guardian Druid
+function cGuardian:new()
+    if GetSpecializationInfo(GetSpecialization()) == 104 then
+        local self = cDruid:new("Guardian")
 
-		local player = "player" -- if someone forgets ""
+        local player = "player" -- if someone forgets ""
 
         -- Mandatory !
         self.rotations = cGuardian.rotations
-		
-		-----------------
-        --- VARIABLES ---
-        -----------------
-        self.bleed              = {}        -- Bleed/Moonfire Tracking
-        self.bleed.rake         = {}        -- Rake Bleed
-        self.bleed.rip          = {}        -- Rip Bleed
-        self.bleed.thrash       = {}        -- Thrash Bleed
-        self.bleed.moonfire     = {}        -- Moonfire Debuff
-        self.charges.frac       = {}        -- Fractional Charges
-        self.trinket            = {}        -- Trinket Procs
-        self.enemies            = {
-            yards5,
-            yards8,
-            yards13,
-            yards20,
-            yards40,
+        
+    -----------------
+    --- VARIABLES ---
+    -----------------
+
+        self.charges.frac               = {}        -- Fractional Charge
+        self.charges.max                = {}
+        self.spell.spec                 = {}
+        self.spell.spec.abilities       = {
+            barkskin                    = 22812,
+            bristlingFur                = 155835,
+            frenziedRegeneration        = 22842,
+            incapacitatingRoar          = 99,
+            incarnationGuardianOfUrsoc  = 102558,
+            ironfur                     = 192081,
+            lunarBeam                   = 204066,
+            mangle                      = 33917,
+            markOfUrsoc                 = 192083,
+            maul                        = 6807,
+            pulverize                   = 80313,
+            removeCorruption            = 2782,
+            skullBash                   = 106839,
+            stampedingRoar              = 106898,
+            survivalInstincts           = 61336,
+            swipe                       = 213764,
+            thrash                      = 106832,
         }
-		self.guardianArtifacts     = {
-           
+        self.spell.spec.artifacts       = {
+
         }
-        self.guardianBuffs         = {
-            
+        self.spell.spec.buffs           = {
+            ironfur                     = 192081,
+            pulverize                   = 158792,
         }
-        self.guardianDebuffs       = {
-            
+        self.spell.spec.debuffs         = {
+
         }
-        self.guardianSpecials      = {
-            
+        self.spell.spec.glyphs          = {
+
         }
-        self.guardianTalents       = {
-            
+        self.spell.spec.talents         = {
+            balanceAffinity             = 197488,
+            bloodFrenzy                 = 203962,
+            brambles                    = 203953,
+            bristlingFur                = 155835,
+            earthwarden                 = 203974,
+            feralAffinity               = 202155,
+            galacticGuardian            = 203964,
+            guardianOfElune             = 155578,
+            gutteralRoars               = 204012,
+            incarnationGuardianOfUrsoc  = 102558,
+            lunarBeam                   = 204066,
+            pulverize                   = 80313,
+            rendAndTear                 = 204053,
+            restorationAffinity         = 197492,
+            soulOfTheForest             = 158477,
+            survivalOfTheFittest        = 203965,
         }
-        -- Merge all spell tables into self.spell
-        self.guardianSpells = {}
-        self.guardianSpells = mergeTables(self.guardianSpells,self.guardianArtifacts)
-        self.guardianSpells = mergeTables(self.guardianSpells,self.guardianBuffs)
-        self.guardianSpells = mergeTables(self.guardianSpells,self.guardianDebuffs)
-        self.guardianSpells = mergeTables(self.guardianSpells,self.guardianSpecials)
-        self.guardianSpells = mergeTables(self.guardianSpells,self.guardianTalents)
-        self.spell = {}
-        self.spell = mergeSpellTables(self.spell, self.characterSpell, self.druidSpell, self.guardianSpells)
-		
-	------------------
+        -- Merge all spell ability tables into self.spell
+        self.spell = mergeSpellTables(self.spell, self.characterSpell, self.spell.class.abilities, self.spell.spec.abilities)
+        
+    ------------------
     --- OOC UPDATE ---
     ------------------
 
@@ -68,7 +84,7 @@ if select(2, UnitClass("player")) == "DRUID" then
             self.getArtifactRanks()
             self.getGlyphs()
             self.getTalents()
-            -- self.getPerks() --Removed in Legion
+            self.getPerks() --Removed in Legion
         end
 
     --------------
@@ -81,30 +97,14 @@ if select(2, UnitClass("player")) == "DRUID" then
             self.classUpdate()
             -- Updates OOC things
             if not UnitAffectingCombat("player") then self.updateOOC() end
-            -- self.guardian_bleed_table()
-            self.getBleedUnits()
+            self.getDynamicUnits()
+            self.getEnemies()
             self.getBuffs()
-            self.getBuffsDuration()
-            self.getBuffsRemain()
             self.getCharge()
             self.getCooldowns()
-            self.getDynamicUnits()
             self.getDebuffs()
-            self.getDebuffsDuration()
-            self.getDebuffsRemain()
-            self.getTrinketProc()
-            self.hasTrinketProc()
-            self.getEnemies()
-            self.getRecharges()
             self.getToggleModes()
             self.getCastable()
-
-
-            -- Casting and GCD check
-            -- TODO: -> does not use off-GCD stuff like pots, dp etc
-            if castingUnit() then
-                return
-            end
 
             -- Start selected rotation
             self:startRotation()
@@ -118,241 +118,12 @@ if select(2, UnitClass("player")) == "DRUID" then
             local dynamicTarget = dynamicTarget
 
             -- Normal
-            self.units.dyn8 = dynamicTarget(8, true) -- Swipe
-            self.units.dyn13 = dynamicTarget(13, true) -- Skull Bash
+            self.units.dyn8     = dynamicTarget(8, true) -- Swipe
+            self.units.dyn13    = dynamicTarget(13, true) -- Skull Bash
 
             -- AoE
-            self.units.dyn8AoE = dynamicTarget(8, false) -- Thrash
-        end
-
-    -----------------
-    --- ARTIFACTS ---
-    -----------------
-
-        function self.getArtifacts()
-            local isKnown = isKnown
-
-            --self.artifact.ashamanesBite     = isKnown(self.spell.ashamanesBite)
-        end
-
-        function self.getArtifactRanks()
-
-        end
-
-    --------------
-    --- BLEEDS ---
-    --------------
-        function self.getSnapshotValue(dot)
-            -- if dot ~= "rip" and dot ~= "rake" then return 0 end
-            -- local multiplier        = 1.00
-            -- local Bloodtalons       = 1.30
-            -- local SavageRoar        = 1.40
-            -- local TigersFury        = 1.15
-            -- local RakeMultiplier    = 1
-            -- local Incarnation       = 2
-            -- local Prowl             = 2
-            -- local Versatility       = GetCombatRatingBonus(29)
-
-            -- -- Bloodtalons
-            -- if UnitBuffID("player",155672) then
-            --     multiplier = multiplier*Bloodtalons
-            -- end
-            -- -- Savage Roar
-            -- if UnitBuffID("player",52610) then
-            --     multiplier = multiplier*SavageRoar
-            -- end
-            -- -- Tigers Fury
-            -- if UnitBuffID("player",5217) then
-            --     multiplier = multiplier*TigersFury
-            -- end
-
-            -- -- rip
-            -- if dot == "rip" then
-            --     -- -- Versatility
-            --     -- multiplier = multiplier*(1+Versatility*0.1)
-
-            --     -- return rip
-            --     return 5*multiplier
-            -- end
-            -- -- rake
-            -- if dot == "rake" then
-            --     -- Incarnation
-            --     if UnitBuffID("player",102543) then
-            --         RakeMultiplier = Incarnation
-            --     end
-            --     -- Prowl
-            --     if UnitBuffID("player",5215) then
-            --         RakeMultiplier = Prowl
-            --     end
-            --     -- return rake
-            --     return multiplier*RakeMultiplier
-            -- end
-        end
-
-        function self.getBleedUnits()
-            -- if self.bleed == nil then
-            --     self.bleed = {rake={},rip={},thrash={},moonfire={}}
-            -- else
-            --     table.wipe(self.bleed.rake)
-            --     table.wipe(self.bleed.rip)
-            --     table.wipe(self.bleed.thrash)
-            --     table.wipe(self.bleed.moonfire)
-            -- end                
-            -- local enemies = getEnemies("player", 40)
-            -- local getDebuffRemain = getDebuffRemain
-            -- local getDebuffDuration = getDebuffDuration
-            -- local rakeCalc = self.getSnapshotValue("rake")
-            -- local ripCalc = self.getSnapshotValue("rip")
-            -- local rakeDot = rakeDot
-            -- local ripDot = ripDot
-            -- -- Find Bleed Units
-            -- if #enemies>0 then
-            --     for i = 1, #enemies do
-            --         -- Get Bleed Unit
-            --         local thisUnit = enemies[i]
-            --         local distance = getDistance(thisUnit)
-            --         -- Get Bleed Remain
-            --         local rakeRemain        = getDebuffRemain(thisUnit,self.spell.rakeDebuff,"player")
-            --         local rakeDuration      = getDebuffDuration(thisUnit,self.spell.rakeDebuff,"player")
-            --         local ripRemain         = getDebuffRemain(thisUnit,self.spell.ripDebuff,"player")
-            --         local ripDuration       = getDebuffDuration(thisUnit,self.spell.ripDebuff,"player")
-            --         local thrashRemain      = getDebuffRemain(thisUnit,self.spell.thrashDebuff,"player")
-            --         local thrashDuration    = getDebuffDuration(thisUnit,self.spell.thrashDebuff,"player")
-            --         local moonfireRemain    = getDebuffRemain(thisUnit,self.spell.guardianMoonfireDebuff,"player")
-            --         local moonfireDuration  = getDebuffDuration(thisUnit,self.spell.guardianMoonfireDebuff,"player")
-            --         -- Get Bleed Applied
-            --         if rakeApplied[thisUnit]~=nil then 
-            --             rakeDot = rakeApplied[thisUnit] --rake
-            --         else
-            --             rakeDot = 1
-            --         end
-            --         if ripApplied[thisUnit]~=nil then 
-            --             ripDot = ripApplied[thisUnit] --rip
-            --         else
-            --             ripDot = 2.5
-            --         end
-            --         -- Get Bleed Percent
-            --         local rakePercent = floor(rakeCalc/rakeDot*100+0.5)
-            --         local ripPercent = floor(ripCalc/ripDot*100+0.5)
-            --         -- Add Bleed Units
-            --         if distance<5 then
-            --             tinsert(self.bleed.rake,{unit = thisUnit, remain = rakeRemain, duration = rakeDuration, calc = rakeCalc, applied = rakeDot, percent = rakePercent})
-            --             tinsert(self.bleed.rip,{unit = thisUnit, remain = ripRemain, duration = ripDuration, calc = ripCalc, applied = ripDot, percent = ripPercent})
-            --         end
-            --         if distance<8 then
-            --             tinsert(self.bleed.thrash,{unit = thisUnit, remain = thrashRemain, duration = thrashDuration})
-            --         end
-            --         if distance<40 then
-            --             tinsert(self.bleed.moonfire,{unit = thisUnit, remain = moonfireRemain, duration = moonfireDuration})
-            --         end
-            --     end
-            -- end
-        end
-        
-   	-------------
-    --- BUFFS ---
-    -------------
-
-        function self.getBuffs()
-        	local UnitBuffID = UnitBuffID
-
-        	-- self.buff.berserk                      = UnitBuffID("player",self.spell.berserkBuff)~=nil or false
-        end
-
-        function self.getBuffsDuration()
-        	local getBuffDuration = getBuffDuration
-
-        	-- self.buff.duration.berserk                     = getBuffDuration("player",self.spell.berserkBuff) or 0
-        end
-
-        function self.getBuffsRemain()
-        	local getBuffRemain = getBuffRemain
-
-        	-- self.buff.remain.berserk                    = getBuffRemain("player",self.spell.berserkBuff) or 0
-        end
-
-        function self.getTrinketProc()
-            local UnitBuffID = UnitBuffID
-
-        end
-
-        function self.hasTrinketProc()
-            -- for i = 1, #self.trinket do
-            --     if self.trinket[i]==true then return true else return false end
-            -- end
-        end
-
-    ---------------
-    --- DEBUFFS ---
-    ---------------
-        function self.getDebuffs()
-        	local UnitDebuffID = UnitDebuffID
-
-        	-- self.debuff.ashamanesFrenzy   = UnitDebuffID(self.units.dyn5,self.spell.ashamanesFrenzyDebuff,"player")~=nil or false
-		end
-
-		function self.getDebuffsDuration()
-			local getDebuffDuration = getDebuffDuration
-
-			-- self.debuff.duration.ashamanesFrenzy    = getDebuffDuration(self.units.dyn5,self.spell.ashamanesFrenzyDebuff,"player") or 0
-		end
-
-		function self.getDebuffsRemain()
-			local getDebuffRemain = getDebuffRemain
-
-			-- self.debuff.remain.ashamanesFrenzy  = getDebuffRemain(self.units.dyn5,self.spell.ashamanesFrenzyDebuff,"player") or 0
-		end
-
-    ---------------
-    --- CHARGES ---
-    ---------------
-
-		function self.getCharge()
-			local getCharges = getCharges
-            local getChargesFrac = getChargesFrac
-			local getBuffStacks = getBuffStacks
-
-			-- self.charges.bloodtalons 	   = getBuffStacks("player",self.spell.bloodtalonsBuff,"player")
-		end
-        
-    -----------------
-    --- COOLDOWNS ---
-    -----------------
-
-        function self.getCooldowns()
-            local getSpellCD = getSpellCD
-
-            -- self.cd.ashamanesFrenzy                 = getSpellCD(self.spell.ashamanesFrenzy)
-        end
-
-    --------------
-    --- GLYPHS ---
-    --------------
-
-        function self.getGlyphs()
-            local hasGlyph = hasGlyph
-
-            -- self.glyph.catForm   		= hasGlyph(self.spell.catFormGlyph))
-        end
-
-    ---------------
-    --- TALENTS ---
-    ---------------
-
-        function self.getTalents()
-            local getTalent = getTalent
-
-            -- self.talent.predator                    = getTalent(1,1)
-        end
-
-    -------------
-    --- PERKS ---
-    -------------
-
-        function self.getPerks()
-        	local isKnown = isKnown
-
-        	-- self.perk.enhancedBerserk 		= isKnown(self.spell.enhancedBerserk)
+            self.units.dyn8AoE  = dynamicTarget(8, false) -- Thrash
+            self.units.dyn20AoE = dynamicTarget(20, false) --Prowl
         end
 
     ---------------
@@ -362,22 +133,133 @@ if select(2, UnitClass("player")) == "DRUID" then
         function self.getEnemies()
             local getEnemies = getEnemies
 
-            self.enemies.yards5 = #getEnemies("player", 5) -- Melee
-            self.enemies.yards8 = #getEnemies("player", 8) -- Swipe/Thrash
-            self.enemies.yards13 = #getEnemies("player", 13) -- Skull Bash
-            self.enemies.yards20 = #getEnemies("player", 20) --Prowl
-            self.enemies.yards40 = #getEnemies("player", 40) --Moonfire
+            self.enemies.yards5     = getEnemies("player", 5) -- Melee
+            self.enemies.yards8     = getEnemies("player", 8) -- Swipe/Thrash
+            self.enemies.yards13    = getEnemies("player", 13) -- Skull Bash
+            self.enemies.yards20    = getEnemies("player", 20) --Prowl
+            self.enemies.yards40    = getEnemies("player", 40) --Moonfire
         end
 
     -----------------
-    --- RECHARGES ---
+    --- ARTIFACTS ---
     -----------------
-    
-    	function self.getRecharges()
-    		local getRecharge = getRecharge
 
-    		-- self.recharge.forceOfNature = getRecharge(self.spell.forceOfNature)
-    	end
+        function self.getArtifacts()
+            local hasPerk = hasPerk
+
+            for k,v in pairs(self.spell.spec.artifacts) do
+                self.artifact[k] = hasPerk(v) or false
+            end
+        end
+
+        function self.getArtifactRanks()
+            local getPerkRank = getPerkRank
+            
+            for k,v in pairs(self.spell.spec.artifacts) do
+                self.artifact.rank[k] = getPerkRank(v) or 0
+            end
+        end
+        
+    -------------
+    --- BUFFS ---
+    -------------
+
+        function self.getBuffs()
+            local UnitBuffID = UnitBuffID
+
+            for k,v in pairs(self.spell.spec.buffs) do
+                self.buff[k]            = UnitBuffID("player",v) ~= nil
+                self.buff.duration[k]   = getBuffDuration("player",v) or 0
+                self.buff.remain[k]     = getBuffRemain("player",v) or 0
+            end
+        end
+
+    ---------------
+    --- CHARGES ---
+    ---------------
+
+        function self.getCharge()
+            local getCharges = getCharges
+            local getChargesFrac = getChargesFrac
+            local getBuffStacks = getBuffStacks
+            local getRecharge = getRecharge
+
+            for k,v in pairs(self.spell.spec.abilities) do
+                self.charges[k]     = getCharges(v)
+                self.charges.frac[k]= getChargesFrac(v)
+                self.charges.max[k] = getChargesFrac(v,true)
+                self.recharge[k]    = getRecharge(v)
+            end
+        end
+
+    -----------------
+    --- COOLDOWNS ---
+    -----------------
+
+        function self.getCooldowns()
+            local getSpellCD = getSpellCD
+
+            for k,v in pairs(self.spell.spec.abilities) do
+                if getSpellCD(v) ~= nil then
+                    self.cd[k] = getSpellCD(v)
+                end
+            end
+        end
+
+    ---------------
+    --- DEBUFFS ---
+    ---------------
+        function self.getDebuffs()
+            local UnitDebuffID = UnitDebuffID
+            local getDebuffDuration = getDebuffDuration
+            local getDebuffRemain = getDebuffRemain
+
+            for k,v in pairs(self.spell.spec.debuffs) do
+                if k ~= "bleeds" then
+                    self.debuff[k]          = UnitDebuffID(self.units.dyn5,v,"player") ~= nil
+                    self.debuff.duration[k] = getDebuffDuration(self.units.dyn5,v,"player") or 0
+                    self.debuff.remain[k]   = getDebuffRemain(self.units.dyn5,v,"player") or 0
+                    self.debuff.refresh[k]  = (self.debuff.remain[k] < self.debuff.duration[k] * 0.3) or self.debuff.remain[k] == 0
+                end
+            end
+        end        
+
+    --------------
+    --- GLYPHS ---
+    --------------
+
+        function self.getGlyphs()
+            local hasGlyph = hasGlyph
+
+        end
+
+    ---------------
+    --- TALENTS ---
+    ---------------
+
+        function self.getTalents()
+            local getTalent = getTalent
+
+            for r = 1, 7 do --search each talent row
+                for c = 1, 3 do -- search each talent column
+                    local talentID = select(6,GetTalentInfo(r,c,GetActiveSpecGroup())) -- ID of Talent at current Row and Column
+                    for k,v in pairs(self.spell.spec.talents) do
+                        if v == talentID then
+                            self.talent[k] = getTalent(r,c)
+                        end
+                    end
+                end
+            end
+        end
+
+    -------------
+    --- PERKS ---
+    -------------
+
+        function self.getPerks()
+            local isKnown = isKnown
+
+        end
 
     ---------------
     --- TOGGLES ---
@@ -389,6 +271,7 @@ if select(2, UnitClass("player")) == "DRUID" then
             self.mode.cooldown  = bb.data["Cooldown"]
             self.mode.defensive = bb.data["Defensive"]
             self.mode.interrupt = bb.data["Interrupt"]
+            self.mode.cleave    = bb.data["Cleave"]
         end
 
         -- Create the toggle defined within rotation files
@@ -430,7 +313,7 @@ if select(2, UnitClass("player")) == "DRUID" then
 
             -- Get profile defined options
             local profileTable = profileTable
-            if self.rotations[bb.selectedProfile] ~= nil then 
+            if self.rotations[bb.selectedProfile] ~= nil then
                 profileTable = self.rotations[bb.selectedProfile].options()
             else
                 return
@@ -452,10 +335,42 @@ if select(2, UnitClass("player")) == "DRUID" then
 
         function self.getCastable()
 
-            -- self.castable.maim              = self.castMaim("target",true)
+            self.cast.debug.barkskin                    = self.cast.barkskin("player",true)
+            self.cast.debug.bristlingFur                = self.cast.bristlingFur("player",true)
+            self.cast.debug.frenziedRegeneration        = self.cast.frenziedRegeneration("player",true)
+            self.cast.debug.incapacitatingRoar          = self.cast.incapacitatingRoar("player",true)
+            self.cast.debug.incarnationGuardianOfUrsoc  = self.cast.incarnationGuardianOfUrsoc("player",true)
+            self.cast.debug.ironfur                     = self.cast.ironfur("player",true)
+            self.cast.debug.lunarBeam                   = self.cast.lunarBeam("target",true)
+            self.cast.debug.markOfUrsoc                 = self.cast.markOfUrsoc("player",true)
+            self.cast.debug.maul                        = self.cast.maul("target",true)
+            self.cast.debug.pulverize                   = self.cast.pulverize("target",true)
+            self.cast.debug.removeCorruption            = self.cast.removeCorruption("player",true)
+            self.cast.debug.skullBash                   = self.cast.skullBash("target",true)
+            self.cast.debug.stampedingRoar              = self.cast.stampedingRoar("player",true)
+            self.cast.debug.survivalInstincts           = self.cast.survivalInstincts("player",true)
+            self.cast.debug.swipe                       = self.cast.swipe("player",true)
+            self.cast.debug.trash                       = self.cast.thrash("player",true)
         end
 
- 
+        -- Barkskin
+        function self.cast.barkskin(thisUnit,debug)
+            local spellCast = self.spell.barkskin
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = "player" end
+            if debug == nil then debug = false end
+
+            if self.level >= 26 and self.cd.barkskin == 0 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,false,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+       
 
     ------------------------
     --- CUSTOM FUNCTIONS ---
@@ -475,35 +390,16 @@ if select(2, UnitClass("player")) == "DRUID" then
             return getDistance(unit)
         end
 
-
-        function useCDs()
-            local cooldown = self.mode.cooldown
-            if (cooldown == 1 and isBoss()) or cooldown == 2 then
+        function useCleave()
+            if self.mode.cleave==1 and self.mode.rotation < 3 then
                 return true
             else
                 return false
             end
         end
 
-        function useAoE()
-            local rotation = self.mode.rotation
-            if (rotation == 1 and #getEnemies("player",8) >= 3) or rotation == 2 then
-                return true
-            else
-                return false
-            end
-        end
-
-        function useDefensive()
-            if self.mode.defensive == 1 then
-                return true
-            else
-                return false
-            end
-        end
-
-        function useInterrupts()
-            if self.mode.interrupt == 1 then
+        function useProwl()
+            if self.mode.prowl==1 then
                 return true
             else
                 return false

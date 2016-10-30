@@ -296,7 +296,7 @@ if select(2, UnitClass("player")) == "DEMONHUNTER" then
                     end
                 end
             -- Fel Blade
-                -- TODO
+                if cast.felblade() then return end
             end -- End Action lsit - Post Vengful Retreat
         -- Action List - Single Target
             local function actionList_SingleTarget()

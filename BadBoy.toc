@@ -106,6 +106,7 @@ Rotations\Druid\Feral\FeralAveryKey.lua
 
 Rotations\Druid\Guardian\cGuardian.lua
 Rotations\Druid\Guardian\Guardian.lua
+Rotations\Druid\Guardian\GuardianCuteOne.lua
 
 Rotations\Druid\Moonkin\cMoonkin.lua
 Rotations\Druid\Moonkin\Moonkin.lua

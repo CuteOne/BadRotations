@@ -46,7 +46,7 @@ if select(2, UnitClass("player")) == "PALADIN" then
 
         }
         self.spell.class.debuffs        = {        -- Debuffs Available To All Specs in Class
-
+            judgment                    = 197277,
         }
         self.spell.class.glyphs         = {        -- Glyphs Available To All Specs in Class
             glyphOfFireFromHeavens      = 57954,
@@ -159,6 +159,8 @@ if select(2, UnitClass("player")) == "PALADIN" then
 
             for k,v in pairs(self.spell.class.abilities) do
                 self.charges[k]     = getCharges(v)
+                self.charges.frac[k]= getChargesFrac(v)
+                self.charges.max[k] = getChargesFrac(v,true)
                 self.recharge[k]    = getRecharge(v)
             end
         end
@@ -191,6 +193,7 @@ if select(2, UnitClass("player")) == "PALADIN" then
                 self.debuff.duration[k] = getDebuffDuration(self.units.dyn5,v,"player") or 0
                 self.debuff.remain[k]   = getDebuffRemain(self.units.dyn5,v,"player") or 0
             end
+            self.debuff["forbearance"]  = UnitDebuffID("player",25771) ~= nil
         end
 
     --------------
@@ -277,6 +280,7 @@ if select(2, UnitClass("player")) == "PALADIN" then
             self.cast.debug.hammerOfJustice         = self.cast.hammerOfJustice("target",true)
             self.cast.debug.judgment                = self.cast.judgment("target",true)
             self.cast.debug.layOnHands              = self.cast.layOnHands("player",true)
+            self.cast.debug.redemption              = self.cast.redemption("target",true)
             self.cast.debug.repentance              = self.cast.repentance("target",true)
         end
 
@@ -334,7 +338,7 @@ if select(2, UnitClass("player")) == "PALADIN" then
             if thisUnit == nil then thisUnit = "player" end
             if debug == nil then debug = false end
 
-            if self.level >= 18 and self.cd.divineShield == 0 and not self.buff.forbearance and getDistance(thisUnit) < 40 then
+            if self.level >= 18 and self.cd.divineShield == 0 and not self.debuff.forbearance and getDistance(thisUnit) < 40 then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
@@ -398,11 +402,29 @@ if select(2, UnitClass("player")) == "PALADIN" then
             if thisUnit == nil then thisUnit = "player" end
             if debug == nil then debug = false end
 
-            if self.level >= 22 and self.cd.layOnHands == 0 and not self.buff.forbearance and getDistance(thisUnit) < 40 then
+            if self.level >= 22 and self.cd.layOnHands == 0 and not self.debuff.forbearance and getDistance(thisUnit) < 40 then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
                     return castSpell(thisUnit,spellCast,false,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+        function self.cast.redemption(thisUnit,debug)
+            local spellCast = self.spell.redemption
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = "target" end
+            if debug == nil then debug = false end
+
+            if self.level >= 14 and self.powerPercentMana > 4 
+                and ObjectExists(thisUnit) and UnitIsPlayer(thisUnit) and UnitIsFriend(thisUnit,"player") and UnitIsDeadOrGhost(thisUnit) and getDistance(thisUnit) < 40 
+            then
+                 if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,true,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,false,false,false,false,true)
                 end
             elseif debug then
                 return false
