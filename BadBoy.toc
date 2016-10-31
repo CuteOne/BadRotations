@@ -24,7 +24,7 @@ System\readers\combatlog.lua
 System\readers\common.lua
 
 ## LIBS
-System\Libs\LibStub\LibStub.lua
+System\Libs\LibStub-1.0\LibStub.lua
 System\Libs\!LibDraw\LibDraw.lua
 System\Libs\LibBossIDs-1.0\LibBossIDs-1.0.xml
 System\Libs\CallbackHandler-1.0\CallbackHandler-1.0.xml

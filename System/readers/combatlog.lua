@@ -282,7 +282,7 @@ function bb.read.combatLog()
             end
         end
         if not UnitAffectingCombat("player") then
-            if bb.player ~= nil then bb.player.bleed.combatLog = {} end
+            if bb.player ~= nil and bb.player.bleed ~= nil then bb.player.bleed.combatLog = {} end
         end
     end
     -----------------------
