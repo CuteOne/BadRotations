@@ -95,7 +95,7 @@ if select(2, UnitClass("player")) == "DRUID" then
             -- Barkskin
                 bb.ui:createSpinner(section, "Barkskin", 50, 0, 100, 5, "|cffFFBB00Health Percentage to use at.")
             -- Frenzied Regeneration
-                bb.ui:createSpinner(section, "Frenzied Regeneration", 50, 0, 100, 5, "|cffFFBB00Health Percentage to use at.")
+                bb.ui:createSpinner(section, "Frenzied Regeneration", 50, 0, 100, 5, "|cffFFBB00Health Loss Percentage to use at.")
             -- Mark of Ursol
                 bb.ui:createSpinner(section, "Mark of Ursol", 50, 0, 100, 5, "|cffFFBB00Health Percentage to use at.")
             -- Rage of the Sleeper
@@ -195,10 +195,11 @@ if select(2, UnitClass("player")) == "DRUID" then
             local inRaid                                        = bb.player.instance=="raid"
             local level                                         = bb.player.level
             local lootDelay                                     = getOptionValue("LootDelay")
+            local lossPercent                                   = getHPLossPercent("player",5)
             local lowestHP                                      = bb.friend[1].unit
             local mfTick                                        = 20.0/(1+UnitSpellHaste("player")/100)/10
             local mode                                          = bb.player.mode
-            local multidot                                      = (useCleave() or bb.player.mode.rotation ~= 3)        
+            local multidot                                      = useCleave()        
             local php                                           = bb.player.health
             local playerMouse                                   = UnitIsPlayer("mouseover")
             local potion                                        = bb.player.potion
@@ -207,6 +208,7 @@ if select(2, UnitClass("player")) == "DRUID" then
             local racial                                        = bb.player.getRacial()
             local recharge                                      = bb.player.recharge
             local solo                                          = bb.player.instance=="none"
+            local snapLossHP                                    = 0
             local spell                                         = bb.player.spell
             local talent                                        = bb.player.talent
             local travel, flight, bear, cat, noform             = bb.player.buff.travelForm, bb.player.buff.flightForm, bb.player.buff.bearForm, buff.catForm, GetShapeshiftForm()==0
@@ -219,6 +221,7 @@ if select(2, UnitClass("player")) == "DRUID" then
 			if profileStop == nil then profileStop = false end
 			if lastSpellCast == nil then lastSpellCast = spell.bearForm end
             if lastForm == nil then lastForm = 0 end
+            if lossPercent > snapLossHP or php > snapLossHP then snapLossHP = lossPercent end
 
             -- ChatOverlay("Aggroed: "..tostring(isAggroed("target"))..", Threat "..tostring(hasThreat("target")))
             --             -- Growl
@@ -265,7 +268,7 @@ if select(2, UnitClass("player")) == "DRUID" then
                 -- Bear Form
                     if not bear then
                         -- Cat Form when not in combat and target selected and within 20yrds
-                        if not inCombat and isValidTarget("target") and UnitIsEnemy("target","player") then
+                        if not inCombat and isValidTarget("target") and (UnitIsEnemy("target","player") or isDummy("target")) then
                             if cast.bearForm() then return end
                         end
                         --Cat Form when in combat and not flying
@@ -315,8 +318,8 @@ if select(2, UnitClass("player")) == "DRUID" then
                     end
             -- Frenzied Regeneration
                     if isChecked("Frenzied Regeneration") then
-                        if php <= getOptionValue("Frenzied Regeneration") and not buff.frenziedRegeneration then
-                            if cast.frenziedRegeneration() then return end
+                        if (snapLossHP >= getOptionValue("Frenzied Regeneration") or (snapLossHP > php and snapLossHP > 5)) and not buff.frenziedRegeneration then
+                            if cast.frenziedRegeneration() then snapLossHP = 0; return end
                         end
                     end
             -- Mark of Ursol
@@ -429,10 +432,10 @@ if select(2, UnitClass("player")) == "DRUID" then
 			end -- End Action List - Interrupts
 		-- Action List - Cooldowns
 			local function actionList_Cooldowns()
-				if getDistance(units.dyn5) < 5 then
+				if useCDs() and getDistance(units.dyn5) < 5 then
 			-- Trinkets
                     -- TODO: if=(buff.tigers_fury.up&(target.time_to_die>trinket.stat.any.cooldown|target.time_to_die<45))|buff.incarnation.remains>20
-					if useCDs() and isChecked("Trinkets") and getDistance(units.dyn5) < 5 then
+					if isChecked("Trinkets") then
                         -- if (buff.tigersFury and (ttd(units.dyn5) > 60 or ttd(units.dyn5) < 45)) or buff.remain.incarnationKingOfTheJungle > 20 then 
     						if canUse(13) then
     							useItem(13)
@@ -452,7 +455,7 @@ if select(2, UnitClass("player")) == "DRUID" then
                     -- end
             -- Legendary Ring
                     -- use_item,slot=finger1
-                    if useCDs() and isChecked("Legendary Ring") then
+                    if isChecked("Legendary Ring") then
                         if hasEquiped(124636) and canUse(124636) then
                             useItem(124636)
                             return true
@@ -460,8 +463,12 @@ if select(2, UnitClass("player")) == "DRUID" then
                     end
             -- Racial: Orc Blood Fury | Troll Berserking | Blood Elf Arcane Torrent
                     -- blood_fury,buff.tigers_fury | berserking,buff.tigers_fury | arcane_torrent,buff.tigers_fury
-                    if useCDs() and isChecked("Racial") and (bb.player.race == "Orc" or bb.player.race == "Troll" or bb.player.race == "BloodElf") then
+                    if isChecked("Racial") and (bb.player.race == "Orc" or bb.player.race == "Troll" or bb.player.race == "BloodElf") then
                         if castSpell("player",racial,false,false,false) then return end
+                    end
+            -- Incarnation: Guardian of Ursoc
+                    if isChecked("Incarnation") then
+                        if cast.incarnationGuardianOfUrsoc() then return end
                     end
                 end -- End useCooldowns check
             end -- End Action List - Cooldowns
@@ -531,7 +538,7 @@ if select(2, UnitClass("player")) == "DRUID" then
         ---------------------------
                     if getOptionValue("APL Mode") == 1 then
             -- Maul
-                        if powerDeficit < 20 then
+                        if power > 90 then
                             if cast.maul() then return end
                         end
             -- Bristling Fur
@@ -542,12 +549,20 @@ if select(2, UnitClass("player")) == "DRUID" then
                         if not buff.ironfur or powerDeficit < 25 then
                             if cast.ironfur() then return end
                         end
-            -- Pulverized
+            -- Moonfire
+                        if buff.galacticGuardian then
+                            if cast.moonfire(units.dyn5) then return end
+                        end
+            -- Pulverize
                         for i = 1, #enemies.yards5 do
                             local thisUnit = enemies.yards5[i]
                             if not buff.pulverize then 
                                 if cast.pulverize(thisUnit) then return end
                             end
+                        end
+            -- Thrash
+                        if #enemies.yards8 >= 2 then
+                            if cast.thrash() then return end
                         end
             -- Mangle
                         if cast.mangle() then return end
@@ -560,14 +575,6 @@ if select(2, UnitClass("player")) == "DRUID" then
                         end
             -- Lunar Beam
                         if cast.lunarBeam() then return end
-            -- Incarnation: Guardian of Ursoc
-                        if useCDs() and isChecked("Incarnation") then
-                            if cast.incarnationGuardianOfUrsoc() then return end
-                        end
-            -- Thrash
-                        if #enemies.yards8 >= 2 then
-                            if cast.thrash() then return end
-                        end
             -- Pulverize
                         for i = 1, #enemies.yards5 do
                             local thisUnit = enemies.yards5[i]
@@ -579,12 +586,20 @@ if select(2, UnitClass("player")) == "DRUID" then
                         if talent.pulverize and buff.remain.pulverize < 3.6 then
                             if cast.thrash() then return end
                         end
+            -- Thrash
+                        if #enemies.yards8 > 0 then
+                            if cast.thrash() then return end
+                        end
             -- Moonfire
-                        for i = 1, #enemies.yards40 do
-                            local thisUnit = enemies.yards40[i]
-                            local moonfireRemain = getDebuffRemain(thisUnit,spell.class.debuffs.moonfire,"player") or 0
-                            if isValidUnit(thisUnit) and (moonfireRemain == 0 or moonfireRemain < 3.6 or moonfireRemain < 7.2 or buff.galacticGuardian) then
-                                if cast.moonfire(thisUnit) then return end
+                        if #enemies.yards40 < 4 then
+                            for i = 1, #enemies.yards40 do
+                                local thisUnit = enemies.yards40[i]
+                                local moonfireRemain = getDebuffRemain(thisUnit,spell.class.debuffs.moonfire,"player") or 0
+                                if isValidUnit(thisUnit) and (multidot or (UnitIsUnit(thisUnit,units.dyn8AoE) and not multidot)) then
+                                    if (moonfireRemain == 0 or moonfireRemain < 3.6 or moonfireRemain < 7.2) then
+                                        if cast.moonfire(thisUnit) then return end
+                                    end
+                                end
                             end
                         end
             -- Swipe

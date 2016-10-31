@@ -48,6 +48,7 @@ function cGuardian:new()
             ironfur                     = 192081,
             markOfUrsol                 = 192083,
             pulverize                   = 158792,
+            frenziedRegeneration        = 22842,
         }
         self.spell.spec.debuffs         = {
             thrash                      = 192090,
@@ -676,7 +677,7 @@ function cGuardian:new()
         end
 
         function useCleave()
-            if self.mode.cleave==1 and self.mode.rotation < 3 then
+            if self.mode.cleave == 1 and self.mode.rotation < 3 then
                 return true
             else
                 return false
