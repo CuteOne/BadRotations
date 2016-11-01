@@ -168,26 +168,28 @@ end
 function bb:savePosition(windowName)
 	if bb.selectedSpec == nil then bb.selectedSpec = select(2,GetSpecializationInfo(GetSpecialization())) end
 	if bb.data.options[bb.selectedSpec] == nil then bb.data.options[bb.selectedSpec] = {} end
-	if bb.ui.window[windowName].parent ~= nil then
-		local point, relativeTo, relativePoint, xOfs, yOfs = bb.ui.window[windowName].parent:GetPoint(1)
-        bb.data.options[bb.selectedSpec][windowName.. "Frame".. "_point"] = point
-        bb.data.options[bb.selectedSpec][windowName.. "Frame".. "_relativeTo"] = relativeTo:GetName()
-        bb.data.options[bb.selectedSpec][windowName.. "Frame".. "_relativePoint"] = relativePoint
-        bb.data.options[bb.selectedSpec][windowName.. "Frame".. "_xOfs"] = xOfs
-        bb.data.options[bb.selectedSpec][windowName.. "Frame".. "_yOfs"] = yOfs
+	if bb.ui.window[windowName] ~= nil then
+		if bb.ui.window[windowName].parent ~= nil then
+			local point, relativeTo, relativePoint, xOfs, yOfs = bb.ui.window[windowName].parent:GetPoint(1)
+	        bb.data.options[bb.selectedSpec][windowName.. "Frame".. "_point"] = point
+	        bb.data.options[bb.selectedSpec][windowName.. "Frame".. "_relativeTo"] = relativeTo:GetName()
+	        bb.data.options[bb.selectedSpec][windowName.. "Frame".. "_relativePoint"] = relativePoint
+	        bb.data.options[bb.selectedSpec][windowName.. "Frame".. "_xOfs"] = xOfs
+	        bb.data.options[bb.selectedSpec][windowName.. "Frame".. "_yOfs"] = yOfs
 
-        point, relativeTo, relativePoint, xOfs, yOfs = bb.ui.window[windowName].parent:GetPoint(2)
-        if point then
-            bb.data.options[bb.selectedSpec][windowName.. "Frame".. "_point2"] = point
-            bb.data.options[bb.selectedSpec][windowName.. "Frame".. "_relativeTo2"] = relativeTo:GetName()
-            bb.data.options[bb.selectedSpec][windowName.. "Frame".. "_relativePoint2"] = relativePoint
-            bb.data.options[bb.selectedSpec][windowName.. "Frame".. "_xOfs2"] = xOfs
-            bb.data.options[bb.selectedSpec][windowName.. "Frame".. "_yOfs2"] = yOfs
-        end
+	        point, relativeTo, relativePoint, xOfs, yOfs = bb.ui.window[windowName].parent:GetPoint(2)
+	        if point then
+	            bb.data.options[bb.selectedSpec][windowName.. "Frame".. "_point2"] = point
+	            bb.data.options[bb.selectedSpec][windowName.. "Frame".. "_relativeTo2"] = relativeTo:GetName()
+	            bb.data.options[bb.selectedSpec][windowName.. "Frame".. "_relativePoint2"] = relativePoint
+	            bb.data.options[bb.selectedSpec][windowName.. "Frame".. "_xOfs2"] = xOfs
+	            bb.data.options[bb.selectedSpec][windowName.. "Frame".. "_yOfs2"] = yOfs
+	        end
 
-        bb.data.options[bb.selectedSpec][windowName.. "Frame".. "_width"]  = bb.ui.window[windowName].parent:GetWidth()
-        bb.data.options[bb.selectedSpec][windowName.. "Frame".. "_height"] = bb.ui.window[windowName].parent:GetHeight()
-    end
+	        bb.data.options[bb.selectedSpec][windowName.. "Frame".. "_width"]  = bb.ui.window[windowName].parent:GetWidth()
+	        bb.data.options[bb.selectedSpec][windowName.. "Frame".. "_height"] = bb.ui.window[windowName].parent:GetHeight()
+	    end
+	end
 end
 function bb:saveWindowPosition()
     bb:savePosition("profile")

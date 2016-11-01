@@ -341,7 +341,8 @@ if select(2, UnitClass("player")) == "WARRIOR" then
                     if thisUnit == "target" then
                         return castGround("target",spellCast,40,8)
                     else
-                        return castGround(thisUnit,spellCast,40,8)
+                        -- return castGround(thisUnit,spellCast,40,8)
+                        return castGroundAtBestLocation(spellCast, 8, 1, 40, 8)
                     end
                 end
             elseif debug then

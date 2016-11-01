@@ -402,7 +402,7 @@ function cWindwalker:new()
             if thisUnit == nil then thisUnit = self.units.dyn5 end
             if debug == nil then debug = false end
 
-            if self.level >= 25 and self.cd.disable == 0 and self.power > 15 and getDistance(thisUnit) < 5 then
+            if self.level >= 16 and self.cd.disable == 0 and self.power > 15 and getDistance(thisUnit) < 5 then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
@@ -436,7 +436,7 @@ function cWindwalker:new()
             if thisUnit == nil then thisUnit = self.units.dyn5 end
             if debug == nil then debug = false end
 
-            if self.level >= 28 and self.cd.fistsOfFury == 0 and (self.chi.count >= 3 or self.buff.serenity) and getDistance(thisUnit) < 5 then
+            if self.level >= 20 and self.cd.fistsOfFury == 0 and (self.chi.count >= 3 or self.buff.serenity) and getDistance(thisUnit) < 5 then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
@@ -453,7 +453,7 @@ function cWindwalker:new()
             if thisUnit == nil then thisUnit = "player" end
             if debug == nil then debug = false end
 
-            if self.level >= 10 and self.cd.flyingSerpentKick == 0 and isValidUnit("target") 
+            if self.level >= 48 and self.cd.flyingSerpentKick == 0 and isValidUnit("target") 
                 and getFacingDistance() < 5 and getFacingDistance() > 0 and getDistance("target") < 60 
             then
                 if debug then
@@ -471,7 +471,7 @@ function cWindwalker:new()
             if thisUnit == nil then thisUnit = "player" end
             if debug == nil then debug = false end
 
-            if self.level >= 10 and self.cd.flyingSerpentKickEnd == 0 --[[and (getDistance("target") < 5 or getFacingDistance() ~= abs(getFacingDistance()))]] 
+            if self.level >= 48 and self.cd.flyingSerpentKickEnd == 0 --[[and (getDistance("target") < 5 or getFacingDistance() ~= abs(getFacingDistance()))]] 
                 and (select(3,GetSpellInfo(101545)) == 463281 or lastSpellCast == self.spell.flyingSerpentKick) 
             then
                 if debug then
@@ -524,7 +524,7 @@ function cWindwalker:new()
             if thisUnit == nil then thisUnit = self.units.dyn5 end
             if debug == nil then debug = false end
 
-            if self.level >= 18 and self.cd.risingSunKick == 0 and (self.chi.count >= 2 or self.buff.serenity) and getDistance(thisUnit) < 5 then
+            if self.level >= 10 and self.cd.risingSunKick == 0 and (self.chi.count >= 2 or self.buff.serenity) and getDistance(thisUnit) < 5 then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
@@ -575,7 +575,7 @@ function cWindwalker:new()
             if thisUnit == nil then thisUnit = self.units.dyn5 end
             if debug == nil then debug = false end
 
-            if self.level >= 32 and self.cd.spearHandStrike == 0 and getDistance(thisUnit) < 5 then
+            if self.level >= 35 and self.cd.spearHandStrike == 0 and getDistance(thisUnit) < 5 then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
@@ -609,7 +609,7 @@ function cWindwalker:new()
             if thisUnit == nil then thisUnit = "player" end
             if debug == nil then debug = false end
 
-            if self.level >= 65 and self.cd.stormEarthAndFire == 0 and self.charges.stormEarthAndFire > 0 and not self.buff.stormEarthAndFire then
+            if self.level >= 50 and self.cd.stormEarthAndFire == 0 and self.charges.stormEarthAndFire > 0 and not self.buff.stormEarthAndFire then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
@@ -625,7 +625,7 @@ function cWindwalker:new()
             if thisUnit == nil then thisUnit = "player" end
             if debug == nil then debug = false end
 
-            if self.level >= 65 and self.cd.stormEarthAndFireFixate == 0 and self.buff.stormEarthAndFire then
+            if self.level >= 50 and self.cd.stormEarthAndFireFixate == 0 and self.buff.stormEarthAndFire then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
@@ -659,7 +659,7 @@ function cWindwalker:new()
             if thisUnit == nil then thisUnit = self.units.dyn5 end
             if debug == nil then debug = false end
 
-            if self.level >= 24 and self.cd.touchOfDeath == 0 and getDistance(thisUnit) < 5 then
+            if self.level >= 32 and self.cd.touchOfDeath == 0 and getDistance(thisUnit) < 5 then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
@@ -676,7 +676,7 @@ function cWindwalker:new()
             if thisUnit == nil then thisUnit = self.units.dyn20AoE end
             if debug == nil then debug = false end
 
-            if self.level >= 22 and self.cd.touchOfKarma == 0 and getDistance(thisUnit) < 5 then
+            if self.level >= 55 and self.cd.touchOfKarma == 0 and getDistance(thisUnit) < 5 then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else

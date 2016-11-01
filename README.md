@@ -119,7 +119,7 @@ Raidable means if its good to raid with.
 | **Paladin** |||
 |Holy|0%||7.0|
 |Protection|0%||7.0|
-|Retribution|100%|CuteOne|7.0|:interrobang::x:
+|Retribution|100%|CuteOne|7.1|:interrobang::x:
 ||||
 | **Priest** |||
 |Discipline|0%|Cpoworks|7.0|:interrobang::x:
@@ -138,7 +138,7 @@ Raidable means if its good to raid with.
 ||||
 | **Warlock** |||
 |Affliction|0%||7.0|
-|Demonology|70%||7.0|:interrobang:
+|Demonology|70%|CuteOne|7.0|:interrobang:
 |Destruction|0%||7.0|
 ||||
 | **Warrior** |||

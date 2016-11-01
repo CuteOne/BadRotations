@@ -562,12 +562,12 @@ function castGround(Unit,SpellID,maxDistance,minDistance)
 	if UnitExists(Unit) and getSpellCD(SpellID) == 0 and getLineOfSight("player",Unit)
 		and getDistance("player",Unit) < maxDistance and getDistance("player",Unit) >= minDistance then
 		CastSpellByName(GetSpellInfo(SpellID),"player")
-		if IsAoEPending() then
+		-- if IsAoEPending() then
 			--local distanceToGround = getGroundDistance(Unit) or 0
 			local X,Y,Z = GetObjectPosition(Unit)
 			ClickPosition(X,Y,Z,true) --distanceToGround
 			return true
-		end
+		-- end
 	end
 	return false
 end
@@ -575,11 +575,11 @@ end
 function castGroundBetween(Unit,SpellID,maxDistance)
 	if UnitExists(Unit) and getSpellCD(SpellID) <= 0.4 and getLineOfSight("player",Unit) and getDistance("player",Unit) <= maxDistance then
 		CastSpellByName(GetSpellInfo(SpellID),"player")
-		if IsAoEPending() then
+		-- if IsAoEPending() then
 			local X,Y,Z = GetObjectPosition(Unit)
 			ClickPosition(X,Y,Z,true)
 			return true
-		end
+		-- end
 	end
 	return false
 end
@@ -650,20 +650,20 @@ function castHealGround(SpellID,Radius,Health,NumberOfPlayers)
 				local myX,myY = GetObjectPosition("player")
 				if math.sqrt(((medX-myX)^2)+((medY-myY)^2)) < 40 then
 					CastSpellByName(GetSpellInfo(SpellID),"player")
-					if IsAoEPending() then
+					-- if IsAoEPending() then
 						ClickPosition(medX,medY,medZ,true)
 						if SpellID == 145205 then shroomsTable[1] = { x = medX,y = medY,z = medZ} end
 						return true
-					end 
+					-- end 
 				end
 			elseif lowHPTargets~=nil and #lowHPTargets==1 and lowHPTargets[1].unit=="player" then
 				local myX,myY,myZ = GetObjectPosition("player")
 				CastSpellByName(GetSpellInfo(SpellID),"player")
-				if IsAoEPending() then
+				-- if IsAoEPending() then
 					ClickPosition(myX,myY,myZ,true)
 					if SpellID == 145205 then shroomsTable[1] = { x = medX,y = medY,z = medZ} end
 					return true
-				end
+				-- end
 			end 
 		end 
 	else
@@ -2011,7 +2011,8 @@ function isBoss(unit)
 	if unit==nil then unit="target" end
 	if UnitExists(unit) then
 		local npcID = string.match(UnitGUID(unit),"-(%d+)-%x+$")
-		local bossCheck = LibStub("LibBossIDs-1.0").BossIDs[tonumber(npcID)] or false
+		-- local bossCheck = LibStub("LibBossIDs-1.0").BossIDs[tonumber(npcID)] or false
+		local bossCheck = bb.player.BossIDs[tonumber(npcID)] or false
 		if ((UnitClassification(unit) == "rare" and UnitHealthMax(unit)>(4*UnitHealthMax("player")))
 			or UnitClassification(unit) == "rareelite" 
 			or UnitClassification(unit) == "worldboss" 
@@ -2021,7 +2022,7 @@ function isBoss(unit)
 				and select(2,IsInInstance())~="party"
 		then
 			return true
-		elseif bossCheck or isDummy() then
+		elseif bossCheck or isDummy(unit) then
 			return true
 		else
 			return false

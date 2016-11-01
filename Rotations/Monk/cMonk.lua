@@ -333,7 +333,7 @@ if select(2, UnitClass("player")) == "MONK" then
             if thisUnit == nil then thisUnit = "target" end
             if debug == nil then debug = false end
 
-            if self.level >= 36 and self.power > 20 and self.cd.cracklingJadeLightning == 0 and getDistance(thisUnit) < 40 then
+            if self.level >= 18 and self.power > 20 and self.cd.cracklingJadeLightning == 0 and getDistance(thisUnit) < 40 then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
@@ -418,7 +418,7 @@ if select(2, UnitClass("player")) == "MONK" then
             if thisUnit == nil then thisUnit = self.units.dyn20AoE end
             if debug == nil then debug = false end
 
-            if self.level >= 48 and self.cd.paralysis == 0 and self.power > 20 and getDistance(thisUnit) < 20 then
+            if self.level >= 25 and self.cd.paralysis == 0 and self.power > 20 and getDistance(thisUnit) < 20 then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else

@@ -880,10 +880,10 @@ if select(2, UnitClass("player")) == "DRUID" then
             -- Cat is 4 fyte!
                 if inCombat and not cat and not (flight or travel) then
                     if cast.catForm() then return end
-                elseif inCombat and cat and profileStop==false and not isChecked("Death Cat Mode") and isValidUnit("target") and getDistance(units.dyn5) < 5 then
+                elseif inCombat and cat and profileStop==false and not isChecked("Death Cat Mode") and isValidUnit(units.dyn5) and getDistance(units.dyn5) < 5 then
             -- Wild Charge
                     -- wild_charge
-                    if isChecked("Displacer Beast / Wild Charge") and UnitExists("target") then
+                    if isChecked("Displacer Beast / Wild Charge") and isValidUnit("target") then
                         if cast.wildCharge("target") then return end 
                     end
             -- TODO: Displacer Beast

@@ -142,11 +142,11 @@ function castGroundAtBestLocation(spellID, radius, minUnits, maxRange, minRange)
 			end
 		else
 			local thisX,thisY,thisZ = GetObjectPosition(goodUnits[1])
-			CastSpellByName(GetSpellInfo(spellID),"player")
-			if IsAoEPending() then
-				ClickPosition(thisX,thisY,thisZ,true)
+			CastSpellByName(GetSpellInfo(spellID),"player");
+			-- if IsAoEPending() then
+				ClickPosition(thisX,thisY,thisZ,true);
 				return true
-			end
+			-- end
 		end
 	end
 end
