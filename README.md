@@ -96,8 +96,8 @@ Raidable means if its good to raid with.
 |Vengeance|70% (SimC)|Dubwub|7.0|:heavy_check_mark:
 ||||
 | **Druid** |||
-|Feral|100% (SimC)|CuteOne|7.0|:white_check_mark:
-|Guardian|100% (SimC)|CuteOne|7.0|:interrobang:
+|Feral|100% (SimC)|CuteOne|7.1|:white_check_mark:
+|Guardian|100% (SimC)|CuteOne|7.1|:interrobang:
 |Restoration|0%||7.0|
 |Moonkin|0%||7.0|
 ||||
@@ -114,12 +114,12 @@ Raidable means if its good to raid with.
 | **Monk** |||
 |Brewmaster|0%||7.0|
 |Mistweaver|0%||7.0|
-|Windwalker|100% (SimC/AMR)|CuteOne|7.0|:white_check_mark:
+|Windwalker|100% (SimC/AMR)|CuteOne|7.1|:white_check_mark:
 ||||
 | **Paladin** |||
 |Holy|0%||7.0|
 |Protection|0%||7.0|
-|Retribution|10%|Gabbz|7.0|:interrobang::x:
+|Retribution|100%|CuteOne|7.0|:interrobang::x:
 ||||
 | **Priest** |||
 |Discipline|0%|Cpoworks|7.0|:interrobang::x:
@@ -129,11 +129,11 @@ Raidable means if its good to raid with.
 | **Rogue** |||
 |Assassination|100%|CuteOne|7.0|
 |Outlaw|100%|CuteOne|7.0|
-|Subtlety|50%|CuteOne|7.0|:interrobang::x:
+|Subtlety|100%|CuteOne|7.0|:interrobang::x:
 ||||
 | **Shaman** |||
 |Elemental|100%|CuteOne|7.0|
-|Enhancement|100%|CuteOne|7.0|:white_check_mark:
+|Enhancement|100%|CuteOne|7.1|:white_check_mark:
 |Restoration|0%||7.0|
 ||||
 | **Warlock** |||

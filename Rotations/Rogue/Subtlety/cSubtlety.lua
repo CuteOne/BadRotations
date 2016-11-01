@@ -16,6 +16,8 @@ function cSubtlety:new()
     -----------------
     --- VARIABLES ---
     -----------------
+        self.charges.frac               = {}        -- Fractional Charge
+        self.charges.max                = {}
         self.spell.spec             = {}
         self.spell.spec.abilities   = {
             backstab                = 53,
@@ -24,8 +26,8 @@ function cSubtlety:new()
             evasion                 = 5277,
             eviscerate              = 196819,
             gloomblade              = 200758,
+            goremawsBite            = 209782,
             kidneyShot              = 408,
-            masteryExecutioner      = 76808,
             nightblade              = 195452,
             shadowBlades            = 121471,
             shadowDance             = 185313,
@@ -56,8 +58,11 @@ function cSubtlety:new()
             theQuietKnife           = 197231,
         }
         self.spell.spec.buffs       = {
+            envelopingShadows       = 206237,
+            finalityNightblade      = 197498,
             shadowDance             = 185422,
             symbolsOfDeath          = 212283,
+            theDreadlordsDeceit     = 228224,
         }
         self.spell.spec.debuffs     = {
             nightblade              = 195452,
@@ -126,7 +131,8 @@ function cSubtlety:new()
 
             -- Normal
             self.units.dyn8     = dynamicTarget(8, true) -- Swipe
-            self.units.dyn13    = dynamicTarget(15, true) -- Blind
+            self.units.dyn10    = dynamicTarget(10, true)
+            self.units.dyn15    = dynamicTarget(15, true) -- Blind
 
             -- AoE
             self.units.dyn8AoE  = dynamicTarget(8, false) -- Thrash
@@ -141,7 +147,8 @@ function cSubtlety:new()
 
             self.enemies.yards5     = getEnemies("player", 5) -- Melee
             self.enemies.yards8     = getEnemies("player", 8) -- Swipe/Thrash
-            self.enemies.yards13    = getEnemies("player", 13) -- Skull Bash
+            self.enemies.yards10    = getEnemies("player", 10)
+            self.enemies.yards15    = getEnemies("player", 15) -- Skull Bash
             self.enemies.yards20    = getEnemies("player", 20) --Prowl
             self.enemies.yards40    = getEnemies("player", 40) --Moonfire
         end
@@ -175,6 +182,7 @@ function cSubtlety:new()
                 self.buff[k]            = UnitBuffID("player",v) ~= nil
                 self.buff.duration[k]   = getBuffDuration("player",v) or 0
                 self.buff.remain[k]     = getBuffRemain("player",v) or 0
+                self.buff.stack[k]      = getBuffStacks("player",v) or 0
             end
         end
 
@@ -190,6 +198,8 @@ function cSubtlety:new()
 
             for k,v in pairs(self.spell.spec.abilities) do
                 self.charges[k]     = getCharges(v)
+                self.charges.frac[k]= getChargesFrac(v)
+                self.charges.max[k] = getChargesFrac(v,true)
                 self.recharge[k]    = getRecharge(v)
             end
         end
@@ -336,13 +346,17 @@ function cSubtlety:new()
 
             self.cast.debug.backstab          = self.cast.backstab("target",true)
             self.cast.debug.blind             = self.cast.blind("target",true)
+            self.cast.debug.envelopingShadows = self.cast.envelopingShadows("player",true)
             self.cast.debug.evasion           = self.cast.evasion("player",true)
             self.cast.debug.eviscerate        = self.cast.eviscerate("target",true)
             self.cast.debug.kidneyShot        = self.cast.kidneyShot("target",true)
+            self.cast.debug.goremawsBite      = self.cast.goremawsBite("target",true)
             self.cast.debug.nightblade        = self.cast.nightblade("target",true)
+            self.cast.debug.shadowBlades      = self.cast.shadowBlades("player",true)
             self.cast.debug.shadowDance       = self.cast.shadowDance("player",true)
             self.cast.debug.shadowstep        = self.cast.shadowstep("target",true)
             self.cast.debug.shadowstrike      = self.cast.shadowstrike("target",true)
+            self.cast.debug.shurikenStorm     = self.cast.shurikenStorm("player",true)
             self.cast.debug.shurikenToss      = self.cast.shurikenToss("target",true)
             self.cast.debug.symbolsOfDeath    = self.cast.symbolsOfDeath("player",true)
         end
@@ -354,7 +368,7 @@ function cSubtlety:new()
             if debug == nil then debug = false end
             if self.talent.gloomblade then spellCast = self.spell.gloomblade end
 
-            if self.level >= 10 and self.power >= 35 and getDistance(thisUnit) < 5 then
+            if self.level >= 10 and self.power >= 35 and self.cd.backstab == 0 and getDistance(thisUnit) < 5 then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
@@ -371,6 +385,22 @@ function cSubtlety:new()
             if debug == nil then debug = false end
 
             if self.level >= 38 and self.cd.blind == 0 and getDistance(thisUnit) < 15 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,false,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+        function self.cast.envelopingShadows(thisUnit,debug)
+            local spellCast = self.spell.envelopingShadows
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = "player" end
+            if debug == nil then debug = false end
+
+            if self.talent.envelopingShadows and self.cd.envelopingShadows == 0 and self.power > 30 and self.comboPoints > 0 then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
@@ -402,7 +432,23 @@ function cSubtlety:new()
             if thisUnit == nil then thisUnit = self.units.dyn5 end
             if debug == nil then debug = false end
 
-            if self.level >= 10 and self.power >= 35 and self.comboPoints > 0 and getDistance(thisUnit) < 5 then
+            if self.level >= 10 and self.power >= 35 and self.comboPoints > 0 and self.cd.eviscerate == 0 and getDistance(thisUnit) < 5 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,false,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+        function self.cast.goremawsBite(thisUnit,debug)
+            local spellCast = self.spell.goremawsBite
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = self.units.dyn5 end
+            if debug == nil then debug = false end
+
+            if self.artifact.goremawsBite and self.cd.goremawsBite == 0 and getDistance(thisUnit) < 5 then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
@@ -434,7 +480,23 @@ function cSubtlety:new()
             if thisUnit == nil then thisUnit = self.units.dyn5 end
             if debug == nil then debug = false end
 
-            if self.level >= 46 and self.power > 25 and self.comboPoints > 0 and getDistance(thisUnit) < 5 then
+            if self.level >= 46 and self.power > 25 and self.comboPoints > 0 and self.cd.nightblade == 0 and getDistance(thisUnit) < 5 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,false,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+        function self.cast.shadowBlades(thisUnit,debug)
+            local spellCast = self.spell.shadowBlades
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = "player" end
+            if debug == nil then debug = false end
+
+            if self.level >= 56 and self.cd.shadowBlades == 0 then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
@@ -450,7 +512,7 @@ function cSubtlety:new()
             if thisUnit == nil then thisUnit = "player" end
             if debug == nil then debug = false end
 
-            if self.level >= 36 and self.charges.shadowDance > 0 then
+            if self.level >= 36 and self.charges.shadowDance > 0 and self.cd.shadowDance == 0 then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
@@ -479,11 +541,26 @@ function cSubtlety:new()
         end
         function self.cast.shadowstrike(thisUnit,debug)
             local spellCast = self.spell.shadowstrike
-            local spellRange = select(6,GetSpellInfo(spellCast))
             if thisUnit == nil then thisUnit = "target" end
             if debug == nil then debug = false end
 
-            if self.level >= 22 and self.power > 22 and (self.buff.stealth or self.buff.shadowDance) and getDistance(thisUnit) < spellRange then
+            if self.level >= 22 and self.power > 40 and self.cd.shadowstrike == 0 and (self.buff.stealth or self.buff.shadowDance) and getDistance(thisUnit) < 15 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,false,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+        function self.cast.shurikenStorm(thisUnit,debug)
+            local spellCast = self.spell.shurikenStorm
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = self.units.dyn10 end
+            if debug == nil then debug = false end
+
+            if self.level >= 63 and self.power > 35 and self.cd.shurikenStorm == 0 and getDistance(thisUnit) < 10 then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
@@ -499,7 +576,7 @@ function cSubtlety:new()
             if thisUnit == nil then thisUnit = self.units.dyn30 end
             if debug == nil then debug = false end
 
-            if self.level >= 11 and self.power > 40 and getDistance(thisUnit) < 30 then
+            if self.level >= 11 and self.power > 40 and self.cd.shurikenToss == 0 and getDistance(thisUnit) < 30 then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
