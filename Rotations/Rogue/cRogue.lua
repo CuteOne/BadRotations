@@ -40,7 +40,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
             sap                         = 6770,
             shadowmeld                  = 58984,
             sprint                      = 2983,
-            stealth                     = 1784,
+            stealth                     = 115191, --1784,
             tricksOfTheTrade            = 57934,
             vanish                      = 1856,
         }
@@ -51,7 +51,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
             cloakOfShadows              = 31224,
             feint                       = 1966,
             shadowmeld                  = 58984,
-            stealth                     = 1784,
+            stealth                     = 115191, --1784,
             vanish                      = 11327,
         }
         self.spell.class.debuffs    = {        -- Debuffs Available To All Rogues

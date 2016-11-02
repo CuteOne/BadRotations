@@ -561,25 +561,21 @@ function castGround(Unit,SpellID,maxDistance,minDistance)
 	if minDistance == nil then minDistance = 0 end
 	if UnitExists(Unit) and getSpellCD(SpellID) == 0 and getLineOfSight("player",Unit)
 		and getDistance("player",Unit) < maxDistance and getDistance("player",Unit) >= minDistance then
-		CastSpellByName(GetSpellInfo(SpellID),"player")
-		-- if IsAoEPending() then
-			--local distanceToGround = getGroundDistance(Unit) or 0
-			local X,Y,Z = GetObjectPosition(Unit)
-			ClickPosition(X,Y,Z,true) --distanceToGround
-			return true
-		-- end
+		CastSpellByName(GetSpellInfo(SpellID))
+		local X,Y,Z = GetObjectPosition(Unit)
+		--local distanceToGround = getGroundDistance(Unit) or 0
+		ClickPosition(X,Y,Z) --distanceToGround
+		return true
 	end
 	return false
 end
 -- castGroundBetween("target",12345,40)
 function castGroundBetween(Unit,SpellID,maxDistance)
 	if UnitExists(Unit) and getSpellCD(SpellID) <= 0.4 and getLineOfSight("player",Unit) and getDistance("player",Unit) <= maxDistance then
-		CastSpellByName(GetSpellInfo(SpellID),"player")
-		-- if IsAoEPending() then
-			local X,Y,Z = GetObjectPosition(Unit)
-			ClickPosition(X,Y,Z,true)
-			return true
-		-- end
+		CastSpellByName(GetSpellInfo(SpellID))
+		local X,Y,Z = GetObjectPosition(Unit)
+		ClickPosition(X,Y,Z,true)
+		return true
 	end
 	return false
 end
@@ -649,21 +645,17 @@ function castHealGround(SpellID,Radius,Health,NumberOfPlayers)
 				medX,medY,medZ = medX/3,medY/3,medZ/3
 				local myX,myY = GetObjectPosition("player")
 				if math.sqrt(((medX-myX)^2)+((medY-myY)^2)) < 40 then
-					CastSpellByName(GetSpellInfo(SpellID),"player")
-					-- if IsAoEPending() then
-						ClickPosition(medX,medY,medZ,true)
-						if SpellID == 145205 then shroomsTable[1] = { x = medX,y = medY,z = medZ} end
-						return true
-					-- end 
+					CastSpellByName(GetSpellInfo(SpellID),"target")
+					ClickPosition(medX,medY,medZ,true)
+					if SpellID == 145205 then shroomsTable[1] = { x = medX,y = medY,z = medZ} end
+					return true
 				end
 			elseif lowHPTargets~=nil and #lowHPTargets==1 and lowHPTargets[1].unit=="player" then
 				local myX,myY,myZ = GetObjectPosition("player")
-				CastSpellByName(GetSpellInfo(SpellID),"player")
-				-- if IsAoEPending() then
-					ClickPosition(myX,myY,myZ,true)
-					if SpellID == 145205 then shroomsTable[1] = { x = medX,y = medY,z = medZ} end
-					return true
-				-- end
+				CastSpellByName(GetSpellInfo(SpellID),"target")
+				ClickPosition(myX,myY,myZ,true)
+				if SpellID == 145205 then shroomsTable[1] = { x = medX,y = medY,z = medZ} end
+				return true
 			end 
 		end 
 	else
@@ -1108,7 +1100,7 @@ function getDisease(range,aoe,mod)
     end
  end
 -- if getDistance("player","target") <= 40 then
-function getDistance(Unit1,Unit2)
+function getDistance5(Unit1,Unit2)
 	if actual == nil then actual = false end
 	-- If both units are visible
 	if GetObjectExists(Unit1) and UnitIsVisible(Unit1) == true and (Unit2 == nil or (GetObjectExists(Unit2) and UnitIsVisible(Unit2) == true)) then
@@ -1186,7 +1178,7 @@ function getDistance4(Unit1,Unit2)
 		return 100
 	end
 end
-function getDistance5(Unit1,Unit2)
+function getDistance(Unit1,Unit2)
 		-- If Unit2 is nil we compare player to Unit1
 	if Unit2 == nil then
 		Unit2 = Unit1
@@ -1204,15 +1196,18 @@ function getDistance5(Unit1,Unit2)
 		local dist = math.sqrt(((X2-X1)^2) + ((Y2-Y1)^2) + ((Z2-Z1)^2)) - (UnitCombatReach(Unit1) + UnitCombatReach(Unit2))
 		local dist2 = dist+0.03*((13-dist)/0.13)
 		local dist3 = dist+0.05*((8-dist)/0.15)+1
+		local dist4 = math.sqrt(((X2-X1)^2) + ((Y2-Y1)^2) + ((Z2-Z1)^2))
 		if dist > 13 then
 			-- print("dist")
 			return dist
 		elseif dist > 8 then
 			-- print("dist2")
 			return dist2
+		elseif dist4 > 5 then
+			return dist3
 		else
 			-- print("dist3")
-			return dist3
+			return dist4
 		end
 	else
 		return 100

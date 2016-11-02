@@ -75,13 +75,13 @@ function castGroundAtBestLocation(spellID, radius, minUnits, maxRange, minRange)
 	for i=1,#bb.enemy do
 		local thisUnit = bb.enemy[i].unit
 		local thisDistance = bb.enemy[i].distance
-		local hasThreat = hasThreat(bb.enemy[i].unit)
+		local hasThreat = isValidUnit(bb.enemy[i].unit) --hasThreat(bb.enemy[i].unit)
 		--print(thisUnit.." - "..thisDistance)
 		if isNotBlacklisted(thisUnit) then
 			--print("blacklist passed")
 			if thisDistance < maxRange and thisDistance >= minRange and hasThreat then
 				--print("distance passed")
-				if not UnitIsDeadOrGhost(thisUnit) then
+				if not UnitIsDeadOrGhost(thisUnit) and getFacing("player",thisUnit) then
 					--print("ghost passed")
 					if UnitAffectingCombat(thisUnit) or isDummy(thisUnit) then
 						--print("combat and dummy passed")
@@ -134,19 +134,15 @@ function castGroundAtBestLocation(spellID, radius, minUnits, maxRange, minRange)
 			end
 			--print(mX.." "..mY.." "..mZ)
 			if mX ~= 0 and mY ~= 0 and mZ ~= 0 then
-				CastSpellByName(GetSpellInfo(spellID),"player")
-				if IsAoEPending() then
-					ClickPosition(mX,mY,mZ,true)
-					return true
-				end
+				CastSpellByName(GetSpellInfo(spellID))
+				ClickPosition(mX,mY,mZ)
+				return true
 			end
 		else
 			local thisX,thisY,thisZ = GetObjectPosition(goodUnits[1])
-			CastSpellByName(GetSpellInfo(spellID),"player");
-			-- if IsAoEPending() then
-				ClickPosition(thisX,thisY,thisZ,true);
-				return true
-			-- end
+			CastSpellByName(GetSpellInfo(spellID))
+			ClickPosition(thisX,thisY,thisZ);
+			return true
 		end
 	end
 end

@@ -218,6 +218,8 @@ if select(3,UnitClass("player")) == 1 then
             if leftCombat == nil then leftCombat = GetTime() end
             if profileStop == nil then profileStop = false end
 
+            -- ChatOverlay(round2(getDistance2("target"),2)..", "..round2(getDistance3("target"),2)..", "..round2(getDistance4("target"),2)..", "..round2(getDistance("target"),2))
+
     --------------------
     --- Action Lists ---
     --------------------

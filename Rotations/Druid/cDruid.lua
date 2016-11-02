@@ -132,12 +132,27 @@ if select(2, UnitClass("player")) == "DRUID" then
 
         function self.getClassDynamicUnits()
             local dynamicTarget = dynamicTarget
+            if self.talent.balanceAffinity ~= nil then
+                if self.talent.balanceAffinity then
+                    -- Normal
+                    self.units.dyn15 = dynamicTarget(20,true) -- Typhoon
 
-            -- Normal
-            self.units.dyn15 = dynamicTarget(15,true) -- Typhoon
+                    -- AoE
+                    self.units.dyn35AoE = dynamicTarget(40, false) -- Entangling Roots
+                else
+                    -- Normal
+                    self.units.dyn15 = dynamicTarget(15,true) -- Typhoon
 
-            -- AoE
-            self.units.dyn35AoE = dynamicTarget(35, false) -- Entangling Roots
+                    -- AoE
+                    self.units.dyn35AoE = dynamicTarget(35, false) -- Entangling Roots
+                end
+            else
+                -- Normal
+                self.units.dyn15 = dynamicTarget(15,true) -- Typhoon
+
+                -- AoE
+                self.units.dyn35AoE = dynamicTarget(35, false) -- Entangling Roots
+            end
         end
 
     -----------------

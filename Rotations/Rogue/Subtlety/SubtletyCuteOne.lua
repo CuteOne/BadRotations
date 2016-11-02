@@ -199,7 +199,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
 			local pullTimer 									= bb.DBM:getPulltimer()
 			local race 											= bb.player.race
 			local racial                                        = bb.player.getRacial()
-			local solo											= #bb.friend > 1	
+			local solo											= #bb.friend < 2	
 			local spell 										= bb.player.spell
 			local stealth 										= bb.player.stealth
 			local stealthing 									= bb.player.buff.stealth or bb.player.buff.vanish or bb.player.buff.shadowmeld or bb.player.buff.shadowDance
@@ -360,7 +360,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
 			end -- End Action List - Cooldowns
 		-- Action List - Stealth Cooldowns
 			local function actionList_StealthCooldowns()
-				if useCDs() and getDistance(units.dyn5) < 5 then
+				if getDistance(units.dyn5) < 5 then
 				-- print("Stealth Cooldowns")
 			-- Shadow Dance
 					-- shadow_dance,if=charges_fractional>=2.65
@@ -461,10 +461,20 @@ if select(2, UnitClass("player")) == "ROGUE" then
 				-- print("PreCombat")
 			-- Stealth
 				-- stealth
-				if isChecked("Stealth") then
+				if isChecked("Stealth") and (not IsResting() or isDummy("target")) then
 					if getOptionValue("Stealth") == 1 then
 						if cast.stealth() then return end
 					end
+					if getOptionValue("Stealth") == 2 then
+						for i=1, #enemies.yards20 do
+                            local thisUnit = enemies.yards20
+                            if getDistance(thisUnit) < 20 then
+                                if ObjectExists(thisUnit) and UnitCanAttack(thisUnit,"player") and GetTime()-leftCombat > lootDelay then
+                                    if cast.stealth() then return end
+                                end
+                            end
+                        end
+                    end
 				end
 				if isValidUnit("target") then 
 			-- Marked For Death
@@ -557,7 +567,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
 						end
 			-- Stealth Cooldowns
 						-- call_action_list,name=stealth_cds,if=combo_points.deficit>=2+talent.premeditation.enabled&(variable.ed_threshold|(cooldown.shadowmeld.up&!cooldown.vanish.up&cooldown.shadow_dance.charges<=1)|target.time_to_die<12)
-						if comboDeficit >= 2 + premed and (edThreshVar or ((cd.shadowmeld == 0 or not isChecked("Racial")) and (cd.vanish ~= 0 or not isChecked("Vanish")) and charges.shadowDance <= 1) or ttd("target") < 12) then
+						if comboDeficit >= 2 + premed and (edThreshVar or ((cd.shadowmeld == 0 or not isChecked("Racial") or solo) and (cd.vanish ~= 0 or not isChecked("Vanish") or solo) and charges.shadowDance <= 1) or ttd("target") < 12) then
 							if actionList_StealthCooldowns() then return end
 						end
 			-- Generators

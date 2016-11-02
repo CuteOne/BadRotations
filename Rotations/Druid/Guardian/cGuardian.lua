@@ -121,13 +121,23 @@ function cGuardian:new()
         function self.getDynamicUnits()
             local dynamicTarget = dynamicTarget
 
-            -- Normal
-            self.units.dyn8     = dynamicTarget(8, true) -- Swipe
-            self.units.dyn13    = dynamicTarget(13, true) -- Skull Bash
+            if self.talent.balanceAffinity then
+                -- Normal
+                self.units.dyn8     = dynamicTarget(13, true) -- Swipe
+                self.units.dyn13    = dynamicTarget(18, true) -- Skull Bash
 
-            -- AoE
-            self.units.dyn8AoE  = dynamicTarget(8, false) -- Thrash
-            self.units.dyn20AoE = dynamicTarget(20, false) --Prowl
+                -- AoE
+                self.units.dyn8AoE  = dynamicTarget(13, false) -- Thrash
+                self.units.dyn20AoE = dynamicTarget(25, false) --Prowl
+            else
+                -- Normal
+                self.units.dyn8     = dynamicTarget(8, true) -- Swipe
+                self.units.dyn13    = dynamicTarget(13, true) -- Skull Bash
+
+                -- AoE
+                self.units.dyn8AoE  = dynamicTarget(8, false) -- Thrash
+                self.units.dyn20AoE = dynamicTarget(20, false) --Prowl
+            end
         end
 
     ---------------
@@ -137,13 +147,23 @@ function cGuardian:new()
         function self.getEnemies()
             local getEnemies = getEnemies
 
-            self.enemies.yards5     = getEnemies("player", 5) -- Melee
-            self.enemies.yards8     = getEnemies("player", 8) -- Swipe/Thrash
-            self.enemies.yards10    = getEnemies("player", 10)
-            self.enemies.yards13    = getEnemies("player", 13) -- Skull Bash
-            self.enemies.yards20    = getEnemies("player", 20) --Prowl
-            self.enemies.yards30    = getEnemies("player", 30)
-            self.enemies.yards40    = getEnemies("player", 40) --Moonfire
+            if self.talent.balanceAffinity then
+                self.enemies.yards5     = getEnemies("player", 10) -- Melee
+                self.enemies.yards8     = getEnemies("player", 13) -- Swipe/Thrash
+                self.enemies.yards10    = getEnemies("player", 15)
+                self.enemies.yards13    = getEnemies("player", 18) -- Skull Bash
+                self.enemies.yards20    = getEnemies("player", 25) --Prowl
+                self.enemies.yards30    = getEnemies("player", 35)
+                self.enemies.yards40    = getEnemies("player", 45) --Moonfire
+            else
+                self.enemies.yards5     = getEnemies("player", 5) -- Melee
+                self.enemies.yards8     = getEnemies("player", 8) -- Swipe/Thrash
+                self.enemies.yards10    = getEnemies("player", 10)
+                self.enemies.yards13    = getEnemies("player", 13) -- Skull Bash
+                self.enemies.yards20    = getEnemies("player", 20) --Prowl
+                self.enemies.yards30    = getEnemies("player", 30)
+                self.enemies.yards40    = getEnemies("player", 40) --Moonfire
+            end
         end
 
     -----------------

@@ -334,7 +334,7 @@ if select(2, UnitClass("player")) == "WARRIOR" then
             if thisUnit == nil then thisUnit = self.units.dyn40 end
             if debug == nil then debug = false end
 
-            if self.level >= 26 and self.cd.heroicLeap == 0 and self.charges.heroicLeap > 0 then
+            if self.level >= 26 and self.cd.heroicLeap == 0 and self.charges.heroicLeap > 0 and getDistance(thisUnit) >= 8 and getDistance(thisUnit) < 40 then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
