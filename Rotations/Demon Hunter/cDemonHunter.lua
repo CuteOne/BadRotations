@@ -113,6 +113,7 @@ function cDemonHunter:new(spec)
 
             self.enemies.yards5     = getEnemies("player", 5) -- Melee
             self.enemies.yards8 	= getEnemies("player", 8) -- AoE
+            self.enemies.yards15    = getEnemies("player", 15)
             self.enemies.yards20    = getEnemies("player", 20) -- Interrupts
             self.enemies.yards30 	= getEnemies("player", 30) -- Throw Glaive
         end
@@ -281,8 +282,7 @@ function cDemonHunter:new(spec)
             local thisUnit = thisUnit
             if thisUnit == nil then thisUnit = self.units.dyn15 end
             if debug == nil then debug = false end
-
-            if self.talent.felblade and self.cd.felBlade == 0 and getDistance(thisUnit) < 15 then
+            if self.talent.felblade and self.cd.felblade == 0 and getDistance(thisUnit) < 15 then
                 if debug then
                     return castSpell(thisUnit,spellCast,true,false,false,false,false,false,false,true)
                 else

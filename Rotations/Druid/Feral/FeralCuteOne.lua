@@ -517,9 +517,9 @@ if select(2, UnitClass("player")) == "DRUID" then
                     end
             -- Legendary Ring
                     -- use_item,slot=finger1
-                    if useCDs() and isChecked("Legendary Ring") then
-                        if hasEquiped(124636) and canUse(124636) then
-                            useItem(124636)
+                    if isChecked("Legendary Ring") then
+                        if hasEquiped(142173) and canUse(142173) and not UnitDebuffID("player",234143) then
+                            useItem(142173)
                             return true
                         end
                     end

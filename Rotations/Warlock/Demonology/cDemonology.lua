@@ -261,7 +261,7 @@ function cDemonology:new()
                 -- check if it a unit first
                 if ObjectIsType(thisUnit, ObjectTypes.Unit)  then
                     local unitName      = UnitName(thisUnit)
-                    local unitID        = getUnitID(thisUnit)
+                    local unitID        = ObjectID(thisUnit)
                     local unitGUID      = UnitGUID(thisUnit)
                     local unitCreator   = UnitCreator(thisUnit)
                     local player        = GetObjectWithGUID(UnitGUID("player"))

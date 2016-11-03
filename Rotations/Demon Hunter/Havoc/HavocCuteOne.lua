@@ -185,14 +185,36 @@ if select(2, UnitClass("player")) == "DEMONHUNTER" then
             local ttd                                           = getTTD
             local ttm                                           = bb.player.timeToMax
             local units                                         = bb.player.units
-            
-	   		if leftCombat == nil then leftCombat = GetTime() end
-			if profileStop == nil then profileStop = false end
+
+            if leftCombat == nil then leftCombat = GetTime() end
+            if profileStop == nil then profileStop = false end
             if talent.chaosCleave then chaleave = 1 else chaleave = 0 end
             if talent.prepared then prepared = 1 else prepared = 0 end
             if talent.firstBlood then flood = 1 else flood = 0 end
             if lastSpell == spell.vengefulRetreat then vaulted = true else vaulted = false end
             if IsHackEnabled("NoKnockback") ~= nil then SetHackEnabled("NoKnockback", false) end
+
+            -- Pool for Meta Variable
+                        -- pooling_for_meta,value=cooldown.metamorphosis.ready&buff.metamorphosis.down&(!talent.demonic.enabled|!cooldown.eye_beam.ready)&(!talent.chaos_blades.enabled|cooldown.chaos_blades.ready)&(!talent.nemesis.enabled|debuff.nemesis.up|cooldown.nemesis.ready)
+                        if useCDs() and cd.metamorphosis == 0 and not buff.metamorphosis and (not talent.demonic or cd.eyeBeam > 0) and (not talent.chaosBlades or cd.chaosBlades == 0) and (not talent.nemesis or debuff.nemesis or cd.nemesis == 0) then
+                            poolForMeta = true
+                        else
+                            poolForMeta = false
+                        end
+                -- Blade Dance Variable
+                        -- blade_dance,value=talent.first_blood.enabled|spell_targets.blade_dance1>=2+talent.chaos_cleave.enabled
+                        if talent.firstBlood or ((mode.rotation == 1 and #enemies.yards8 >= 2 + chaleave) or mode.rotation == 2) then
+                            bladeDanceVar = true
+                        else
+                            bladeDanceVar = false
+                        end
+                -- Pool for Blade Dance Var
+                        -- pooling_for_blade_dance,value=variable.blade_dance&fury-40<35-talent.first_blood.enabled*20&spell_targets.blade_dance1>=2
+                        if bladeDanceVar and power - 40 < 35 - flood * 20 and ((mode.rotation == 1 and #enemies.yards8 >= 2) or mode.rotation == 2) then
+                            poolForBladeDance = true
+                        else
+                            poolForBladeDance = false
+                        end
 
 	--------------------
 	--- Action Lists ---
@@ -570,27 +592,6 @@ if select(2, UnitClass("player")) == "DEMONHUNTER" then
                 -- Start Attack
                         if getDistance(units.dyn5) < 5 then
                             StartAttack()
-                        end
-                -- Pool for Meta Variable
-                        -- pooling_for_meta,value=cooldown.metamorphosis.ready&buff.metamorphosis.down&(!talent.demonic.enabled|!cooldown.eye_beam.ready)&(!talent.chaos_blades.enabled|cooldown.chaos_blades.ready)&(!talent.nemesis.enabled|debuff.nemesis.up|cooldown.nemesis.ready)
-                        if useCDs() and cd.metamorphosis == 0 and not buff.metamorphosis and (not talent.demonic or cd.eyeBeam > 0) and (not talent.chaosBlades or cd.chaosBlades == 0) and (not talent.nemesis or debuff.nemesis or cd.nemesis == 0) then
-                            poolForMeta = true
-                        else
-                            poolForMeta = false
-                        end
-                -- Blade Dance Variable
-                        -- blade_dance,value=talent.first_blood.enabled|spell_targets.blade_dance1>=2+talent.chaos_cleave.enabled
-                        if talent.firstBlood or ((mode.rotation == 1 and #enemies.yards8 >= 2 + chaleave) or mode.rotation == 2) then
-                            bladeDanceVar = true
-                        else
-                            bladeDanceVar = false
-                        end
-                -- Pool for Blade Dance Var
-                        -- pooling_for_blade_dance,value=variable.blade_dance&fury-40<35-talent.first_blood.enabled*20&spell_targets.blade_dance1>=2
-                        if bladeDanceVar and power - 40 < 35 - flood * 20 and ((mode.rotation == 1 and #enemies.yards8 >= 2) or mode.rotation == 2) then
-                            poolForBladeDance = true
-                        else
-                            poolForBladeDance = false
                         end
                 -- Blur
                         -- blur,if=artifact.demon_speed.enabled&cooldown.fel_rush.charges_fractional<0.5&cooldown.vengeful_retreat.remains-buff.momentum.remains>4

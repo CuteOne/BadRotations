@@ -464,7 +464,7 @@ function canRun()
 		if getOptionCheck("Start/Stop BadBoy") and isAlive("player") then
 			if SpellIsTargeting()
 				--or UnitInVehicle("Player")
-				or (IsMounted() and getUnitID("target") ~= 56877 and not UnitBuffID("player",164222) and not UnitBuffID("player",165803) and not UnitBuffID("player",157059) and not UnitBuffID("player",157060))
+				or (IsMounted() and ObjectID("target") ~= 56877 and not UnitBuffID("player",164222) and not UnitBuffID("player",165803) and not UnitBuffID("player",157059) and not UnitBuffID("player",157060))
 				or UnitBuffID("player",11392) ~= nil
 				or UnitBuffID("player",80169) ~= nil
 				or UnitBuffID("player",87959) ~= nil
@@ -1190,24 +1190,37 @@ function getDistance(Unit1,Unit2)
 		local X1,Y1,Z1 = GetObjectPosition(Unit1)
 		local X2,Y2,Z2 = GetObjectPosition(Unit2)
 		local TCR = UnitCombatReach(Unit2)
-		-- local dist = math.sqrt(((X2-X1)^2) + ((Y2-Y1)^2) + ((Z2-Z1)^2))
-		-- local dist2 = math.sqrt(((X2-X1)^2) + ((Y2-Y1)^2) + ((Z2-Z1)^2)) - UnitCombatReach(Unit2)
-		-- local dist3 = math.sqrt(((X2-X1)^2) + ((Y2-Y1)^2) + ((Z2-Z1)^2)) - (UnitCombatReach(Unit1) + UnitCombatReach(Unit2))
 		local dist = math.sqrt(((X2-X1)^2) + ((Y2-Y1)^2) + ((Z2-Z1)^2)) - (UnitCombatReach(Unit1) + UnitCombatReach(Unit2))
 		local dist2 = dist+0.03*((13-dist)/0.13)
 		local dist3 = dist+0.05*((8-dist)/0.15)+1
 		local dist4 = math.sqrt(((X2-X1)^2) + ((Y2-Y1)^2) + ((Z2-Z1)^2))
 		if dist > 13 then
-			-- print("dist")
-			return dist
+			-- return dist
+			currDist = dist
 		elseif dist > 8 then
-			-- print("dist2")
-			return dist2
+			-- return dist2
+			currDist = dist2
 		elseif dist4 > 5 then
-			return dist3
+			-- return dist3
+			currDist = dist3
 		else
-			-- print("dist3")
-			return dist4
+			-- return dist4
+			currDist = dist4
+		end
+		if bb.player ~= nil then
+			if bb.player.talent.balanceAffinity ~= nil then
+				if bb.player.talent.balanceAffinity then
+					if currDist < 5 then
+						return 0
+					else
+						return currDist - 5
+					end
+				end
+			else
+				return currDist
+			end
+		else
+			return currDist
 		end
 	else
 		return 100
@@ -1564,9 +1577,9 @@ function getTotemDistance(Unit1)
 end
 -- if getBossID("boss1") == 71734 then
 function getBossID(BossUnitID)
-	return getUnitID(BossUnitID)
+	return ObjectID(BossUnitID)
 end
-function getUnitID(Unit)
+function ObjectID(Unit)
 	if GetObjectExists(Unit) and UnitIsVisible(Unit) then
 		local id = select(6,strsplit("-", UnitGUID(Unit) or ""))
 		return tonumber(id)
@@ -1599,7 +1612,7 @@ function getLineOfSight(Unit1,Unit2)
 		--86644, -- Ore Crate from Oregorger boss
 	}
 	for i = 1,#skipLoSTable do
-		if getUnitID(Unit1) == skipLoSTable[i] or getUnitID(Unit2) == skipLoSTable[i] then
+		if ObjectID(Unit1) == skipLoSTable[i] or ObjectID(Unit2) == skipLoSTable[i] then
 			return true
 		end
 	end
@@ -2593,7 +2606,7 @@ function pause(skipCastingCheck)
 	end
 	if (pausekey and GetCurrentKeyBoardFocus() == nil and isChecked("Pause Mode"))
 		or profileStop
-		or (IsMounted() and getUnitID("target") ~= 56877 and not UnitBuffID("player",164222) and not UnitBuffID("player",165803) and not UnitBuffID("player",157059) and not UnitBuffID("player",157060))
+		or (IsMounted() and ObjectID("target") ~= 56877 and not UnitBuffID("player",164222) and not UnitBuffID("player",165803) and not UnitBuffID("player",157059) and not UnitBuffID("player",157060))
 		or SpellIsTargeting()
 		-- or (not UnitCanAttack("player","target") and not UnitIsPlayer("target") and UnitExists("target"))
 		or (UnitCastingInfo("player") and not skipCastingCheck)

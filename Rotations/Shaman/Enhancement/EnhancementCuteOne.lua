@@ -342,16 +342,13 @@ if select(2, UnitClass("player")) == "SHAMAN" then
             local function actionList_Cooldowns()
                 if useCDs() and getDistance("target") < 5 then
             -- Trinkets
-                    -- use_item,slot=trinket2,if=buff.chaos_blades.up|!talent.chaos_blades.enabled 
                     if isChecked("Trinkets") then
-                        -- if buff.chaosBlades or not talent.chaosBlades then 
-                            if canUse(13) then
-                                useItem(13)
-                            end
-                            if canUse(14) then
-                                useItem(14)
-                            end
-                        -- end
+                        if canUse(13) then
+                            useItem(13)
+                        end
+                        if canUse(14) then
+                            useItem(14)
+                        end
                     end
             -- Legendary Ring
                     -- use_item,slot=finger1

@@ -44,7 +44,8 @@ function TTDRefresh()
 					local diff = maxHP - currentHP
 					local dura = GetTime() - units[object]
 					local _dps = diff / dura
-					local death = currentHP / _dps
+					local death = death
+					if _dps ~= 0 then death = currentHP / _dps else death = 0 end
 					dps[object] = math.floor(_dps)
 					if death == math.huge then
 						ttd[object] = -1

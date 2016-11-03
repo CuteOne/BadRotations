@@ -62,7 +62,7 @@ function castGroundAtBestLocation(spellID, radius, minUnits, maxRange, minRange)
 		}
 		if checkUnit == nil then return false end
 		for i = 1, #blacklistUnitID do
-			if getUnitID(checkUnit) == blacklistUnitID[i] then return false end
+			if ObjectID(checkUnit) == blacklistUnitID[i] then return false end
 		end
 		return true
 	end
@@ -161,7 +161,7 @@ function isUnitThere(unitNameOrID,distance)
 	if type(unitNameOrID)=="number" then
 		for i=1,#bb.enemy do
 			local thisUnit = bb.enemy[i].unit
-			if getUnitID(thisUnit) then
+			if ObjectID(thisUnit) then
 				if distance==nil or getDistance("player",thisUnit) < distance then
 					return true 
 				end

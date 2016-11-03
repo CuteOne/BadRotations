@@ -734,15 +734,15 @@ if select(2, UnitClass("player")) == "ROGUE" then
 	            		end
 	            	elseif not isBoss("target") then
 	            		if combo >= 2 and not debuff.rupture and cTime < 10 and not artifact.urgeToKill and getOptionValue("Opener") == 1 then
-	                		if cast.rupture("target") then StartAttack(); custom.opener = true; return end
+	                		if cast.rupture("target") then custom.opener = true; return end
 	                	elseif combo >= 4 and not debuff.rupture and getOptionValue("Opener") == 1 then
-	                		if cast.rupture("target") then StartAttack(); custom.opener = true; return end
+	                		if cast.rupture("target") then custom.opener = true; return end
 	                	elseif level >= 48 and not debuff.garrote and getOptionValue("Opener") == 1 then
-	                		if actionList_Garrote("target") then StartAttack(); custom.opener = true; return end
+	                		if actionList_Garrote("target") then custom.opener = true; return end
 	                	elseif level >= 29 and getOptionValue("Opener") == 2 then
-	                		if cast.cheapShot("target") then StartAttack(); custom.opener = true; return end
+	                		if cast.cheapShot("target") then custom.opener = true; return end
 	                	else
-	                		if cast.mutilate("target") then StartAttack(); custom.opener = true; return end
+	                		if cast.mutilate("target") then custom.opener = true; return end
 	            		end
 	            	end
                 end
