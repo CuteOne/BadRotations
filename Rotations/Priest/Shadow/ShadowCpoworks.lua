@@ -197,24 +197,16 @@ if select(2, UnitClass("player")) == "PRIEST" then
             end -- End Action List - Interrupts
             -- Action List - Cooldowns
             function actionList_Cooldowns()
-                if getDistance(dyn5)<5 then
-                    -- Legendary Ring
-                    -- use_item,name=maalus_the_blood_drinker
-                    if useCDs() and isChecked("Legendary Ring") then
-                        if hasEquiped(124636) and canUse(124636) then
-                            useItem(124636)
-                            return true
-                        end
-                    end
+                if useCDs() then
                     -- Racials
                     -- blood_fury
                     -- arcane_torrent
                     -- berserking
-                    if useCDs() and (bb.player.race == "Orc" or bb.player.race == "Troll" or bb.player.race == "Blood Elf") then
+                    if (bb.player.race == "Orc" or bb.player.race == "Troll" or bb.player.race == "Blood Elf") then
                         if bb.player.castRacial() then return end
                     end
                     -- Touch of the Void
-                    if useCDs() and isChecked("Touch of the Void") and getDistance(bb.player.units.dyn5)<5 then
+                    if isChecked("Touch of the Void") and getDistance(bb.player.units.dyn5)<5 then
                         if hasEquiped(128318) then
                             if GetItemCooldown(128318)==0 then
                                 useItem(128318)
@@ -222,7 +214,7 @@ if select(2, UnitClass("player")) == "PRIEST" then
                         end
                     end
                     -- Trinkets
-                    if useCDs() and isChecked("Trinkets") then
+                    if isChecked("Trinkets") then
                         if canUse(13) then
                             useItem(13)
                         end
@@ -234,7 +226,9 @@ if select(2, UnitClass("player")) == "PRIEST" then
             end -- End Action List - Cooldowns
             -- Action List - Pre-Combat
             function actionList_PreCombat()
-            
+                if not buff.shadowform then
+                    cast.shadowform()
+                end
             end  -- End Action List - Pre-Combat
             -- Action List - Single
             function actionList_Auto()

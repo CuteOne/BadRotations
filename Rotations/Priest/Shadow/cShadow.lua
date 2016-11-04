@@ -28,6 +28,7 @@ function cShadow:new()
             mindSpike = 73510,
             mindVision = 2096,
             shadowCrash = 205385,
+            shadowform = 232698,
             shadowMend = 186263,
             shadowWordDeath = 32379,
             shadowWordVoid = 205351,
@@ -44,7 +45,8 @@ function cShadow:new()
         self.spell.spec.buffs           = {
             shadowyInsight = 124430,
             voidForm = 194249,
-            surrenderedSoul = 212570 
+            surrenderedSoul = 212570,
+            shadowform = 232698,
         }
         self.spell.spec.debuffs         = {
             shadowWordPain = 589,
@@ -451,6 +453,24 @@ function cShadow:new()
                     return castSpell(thisUnit,spellCast,true,false,false,false,false,false,false,true)
                 else
                     return castGroundAtBestLocation(spellCast,8,1,40)
+                end
+            elseif debug then
+                return false
+            end
+        end
+
+        -- Shadowform
+        function self.cast.shadowform(thisUnit,debug)
+            local spellCast = self.spell.shadowform
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = "player" end
+            if debug == nil then debug = false end
+
+            if self.cd.shadowform == 0 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,true,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,true,false)
                 end
             elseif debug then
                 return false
