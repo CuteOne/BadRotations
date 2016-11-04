@@ -610,7 +610,7 @@ if select(2, UnitClass("player")) == "DRUID" then
                     local thisUnit = k
                     if (multidot or (UnitIsUnit(thisUnit,units.dyn8AoE) and not multidot)) then 
                         if getDistance(thisUnit) < 8 then
-                            if thrash.remain <= thrash.duration * 0.3 and #enemies.yards8 >= 5 then
+                            if thrash.remain <= thrash.duration * 0.3 and ((mode.rotation == 1 and #enemies.yards8 >= 5) or mode.rotation == 2) then
                                 if power <= select(1, getSpellCost(spell.thrash)) then
                                     return true
                                 elseif power > select(1, getSpellCost(spell.thrash)) then
@@ -698,7 +698,7 @@ if select(2, UnitClass("player")) == "DRUID" then
                 -- pool_resource,for_next=1
                 -- if=talent.brutal_slash.enabled&spell_targets.thrash_cat>=9
                 if (multidot or (UnitIsUnit("target",units.dyn8AoE) and not multidot)) then  
-                    if talent.brutalSlash and #enemies.yards8 >= 9 then
+                    if talent.brutalSlash and ((mode.rotation == 1 and #enemies.yards8 >= 9) or mode.rotation == 2) then
                        if power <= select(1, getSpellCost(spell.thrash)) then
                             return true
                         elseif power > select(1, getSpellCost(spell.thrash)) then
@@ -771,7 +771,7 @@ if select(2, UnitClass("player")) == "DRUID" then
                     local thrash = bleed.thrash[k]
                     local thisUnit = k
                     if (multidot or (UnitIsUnit(thisUnit,units.dyn8AoE) and not multidot)) and getDistance(thisUnit) < 5 then
-                        if thrash.remain <= thrash.duration * 0.3 and #enemies.yards8 >= 2 then
+                        if thrash.remain <= thrash.duration * 0.3 and ((mode.rotation == 1 and #enemies.yards8 >= 2) or mode.rotation == 2) then
                             if power <= select(1, getSpellCost(spell.thrash)) then
                                 return true
                             elseif power > select(1, getSpellCost(spell.thrash)) then
