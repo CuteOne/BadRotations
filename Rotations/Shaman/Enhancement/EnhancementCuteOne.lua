@@ -50,6 +50,8 @@ if select(2, UnitClass("player")) == "SHAMAN" then
                 bb.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
             -- Pre-Pull Timer
                 bb.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
+            -- Artifact 
+                bb.ui:createDropdownWithout(section,"Artifact", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Artifact Ability.")
             -- Ghost Wolf
                 bb.ui:createCheckbox(section,"Ghost Wolf")
             -- Feral Lunge
@@ -62,13 +64,13 @@ if select(2, UnitClass("player")) == "SHAMAN" then
         -- Cooldown Options
             section = bb.ui:createSection(bb.ui.window.profile, "Cooldowns")
             -- Agi Pot
-                bb.ui:createCheckbox(section,"Agi-Pot")
+                bb.ui:createCheckbox(section,"Potion")
             -- Flask / Crystal
                 bb.ui:createCheckbox(section,"Flask / Crystal")
-            -- Legendary Ring
-                bb.ui:createCheckbox(section,"Legendary Ring")
             -- Racial
                 bb.ui:createCheckbox(section,"Racial")
+            -- Ring of Collapsing Futures
+                bb.ui:createCheckbox(section,"Ring of Collapsing Futures")
             -- Trinkets
                 bb.ui:createCheckbox(section,"Trinkets")
             -- Ascendance
@@ -350,13 +352,6 @@ if select(2, UnitClass("player")) == "SHAMAN" then
                             useItem(14)
                         end
                     end
-            -- Legendary Ring
-                    -- use_item,slot=finger1
-                    if isChecked("Legendary Ring") then
-                        if hasEquiped(124636) and canUse(124636) then
-                            useItem(124636)
-                        end
-                    end
             -- Feral Spirit
                     -- feral_spirit
                     if isChecked("Feral Spirit") then
@@ -367,11 +362,18 @@ if select(2, UnitClass("player")) == "SHAMAN" then
                     if artifact.alphaWolf and lastSpell == spell.feralSpirit then
                         if cast.crashLightning(units.dyn5) then return end
                     end
+            -- Ring of Collapsing Futures
+                    -- use_item,slot=finger1,if=buff.temptation.down
+                    if isChecked("Ring of Collapsing Futures") then
+                        if hasEquiped(142173) and canUse(142173) and not buff.temptation then
+                            useItem(142173)
+                        end
+                    end
             -- Potion
-                    -- potion,name=old_war,if=feral_spirit.remains>5|target.time_to_die<=30
-                    if isChecked("Agi-Pot") and canUse(127844) and inRaid then
-                        if feralSpiritRemain > 5 then
-                            useItem(127844)
+                    -- potion,name=prolonged_power,if=feral_spirit.remains>5
+                    if isChecked("Potion") and canUse(142117) and inRaid then
+                        if feralSpiritRemain > 5 and not buff.prolongedPower then
+                            useItem(142117)
                         end
                     end
             -- Racial: Orc Blood Fury | Troll Berserking | Blood Elf Arcane Torrent
@@ -410,8 +412,11 @@ if select(2, UnitClass("player")) == "SHAMAN" then
                     if cast.lightningShield() then return end
                     if isChecked("Pre-Pull Timer") and pullTimer <= getOptionValue("Pre-Pull Timer") then
                 -- Potion
-                        if isChecked("Agi-Pot") and canUse(127844) and inRaid then
-                            useItem(127844)
+                        -- potion,name=prolonged_power,if=feral_spirit.remains>5
+                        if isChecked("Potion") and canUse(142117) and inRaid then
+                            if feralSpiritRemain > 5 and not buff.prolongedPower then
+                                useItem(142117)
+                            end
                         end
                     end -- End Pre-Pull
                     if isValidUnit("target") then
@@ -482,6 +487,13 @@ if select(2, UnitClass("player")) == "SHAMAN" then
                         if getDistance("target") < 5 then
                             StartAttack()
                         end
+                -- Doom Winds
+                        -- doom_winds,if=talent.hailstorm.enabled&buff.frostbrand.up&buff.flametongue.up
+                        if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()) then
+                            if talent.hailstorm and buff.frostbrand and buff.flametongue then
+                                if cast.doomWinds() then return end
+                            end
+                        end
                 -- Crash Lightning
                         -- crash_lightning,if=talent.crashing_storm.enabled&active_enemies>=3
                         if talent.crashingStorm and ((mode.rotation == 1 and #enemies.yards5 >= 3) or mode.rotation == 2) and not moving then
@@ -489,10 +501,41 @@ if select(2, UnitClass("player")) == "SHAMAN" then
                         end
                 -- Boulderfist
                         -- boulderfist,if=buff.boulderfist.remains<gcd&maelstrom>=50&active_enemies>=3
+                        if buff.remain.boulderfist < gcd and power >= 50 and ((mode.rotation == 1 and #enemies.yards5 >= 3) or mode.rotation == 2) then
+                            if cast.boulderfist() then return end
+                        end
+                -- Frostbrand
+                        -- frostbrand,if=talent.hailstorm.enabled&buff.frostbrand.remains<gcd
+                        if talent.hailstorm and buff.remain.frostbrand < gcd then
+                            if cast.frostbrand() then return end
+                        end
+                -- Stormstrike/Windstrike
+                        -- stormstrike,cycle_targets=1,if=buff.stormbringer.react&equipped.storm_tempests&debuff.storm_tempests.down
+                        if buff.stormbringer and hasEquiped(137103) then
+                            for i = 1, #enemies.yards5 do
+                                local thisUnit = enemies.yards5[i]
+                                local tempestDebuff = UnitDebuffID(thisUnit,spell.spec.debuffs.stormTempests,"player") ~= nil
+                                if not tempestDebuff then
+                                    if buff.ascendance then
+                                        if cast.windstrike(thisUnit) then return end
+                                    else
+                                        if cast.stormstrike(thisUnit) then return end
+                                    end
+                                end
+                            end
+                        end 
+                -- Stomstrike/Windstrike
+                        -- stormstrike,if=buff.stormbringer.react 
+                        if buff.stormbringer then
+                            if buff.ascendance then
+                                if cast.windstrike() then return end
+                            else
+                                if cast.stormstrike() then return end
+                            end
+                        end    
+                -- Boulderfist
                         -- boulderfist,if=buff.boulderfist.remains<gcd|(charges_fractional>1.75&maelstrom<=100&active_enemies<=2)
-                        if (buff.remain.boulderfist < gcd and power >= 50 and ((mode.rotation == 1 and #enemies.yards5 >= 3) or mode.rotation == 2)) 
-                            or (buff.remain.boulderfist < gcd or (charges.frac.boulderfist > 1.75 and power <= 100 and ((mode.rotation == 1 and #enemies.yards5 <= 2) or mode.rotation == 1))) 
-                        then
+                        if buff.remain.boulderfist < gcd or (charges.frac.boulderfist > 1.75 and power <= 100 and ((mode.rotation == 1 and #enemies.yards5 <= 2) or mode.rotation == 1))) then
                             if cast.boulderfist() then return end
                         end
                 -- Crash Lightning
@@ -500,30 +543,14 @@ if select(2, UnitClass("player")) == "SHAMAN" then
                         if buff.remain.crashLightning < gcd and ((mode.rotation == 1 and #enemies.yards5 >= 2) or mode.rotation == 2) then
                             if cast.crashLightning(units.dyn5) then return end
                         end
-                -- Windstrike
-                        -- windstrike,if=active_enemies>=3&!talent.hailstorm.enabled
-                        if ((mode.rotation == 1 and #enemies.yards5 >= 3) or mode.rotation == 2) and not talent.hailstorm then
-                            if cast.windstrike() then return end
-                        end
-                -- Stormstrike
+                -- Stormstrike/Windstrike
                         -- stormstrike,if=active_enemies>=3&!talent.hailstorm.enabled
                         if ((mode.rotation == 1 and #enemies.yards5 >= 3) or mode.rotation == 2) and not talent.hailstorm then
-                            if cast.stormstrike() then return end
-                        end 
-                -- Windstrike
-                        -- windstrike,if=buff.stormbringer.react
-                        if buff.stormbringer then
-                            if cast.windstrike() then return end
-                        end
-                -- Stormstrike
-                        -- stormstrike,if=buff.stormbringer.react
-                        if buff.stormbringer then
-                            if cast.stormstrike() then return end
-                        end
-                -- Frostbrand
-                        -- frostbrand,if=talent.hailstorm.enabled&buff.frostbrand.remains<gcd
-                        if talent.hailstorm and buff.remain.frostbrand < gcd then
-                            if cast.frostbrand() then return end
+                            if buff.ascendance then
+                                if cast.windstrike() then return end
+                            else
+                                if cast.stormstrike() then return end
+                            end
                         end
                 -- Flametongue
                         -- flametongue,if=buff.flametongue.remains<gcd
@@ -545,18 +572,36 @@ if select(2, UnitClass("player")) == "SHAMAN" then
                         end
                 -- Doom Winds
                         -- doom_winds
-                        if cast.doomWinds() then return end
+                        if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()) then
+                            if cast.doomWinds() then return end
+                        end
                 -- Crash Lightning
                         -- crash_lightning,if=active_enemies>=3
                         if ((mode.rotation == 1 and #enemies.yards5 >= 3) or mode.rotation == 2) and not moving then
                             if cast.crashLightning(units.dyn5) then return end
                         end
-                -- Windstrike
-                        -- windstrike
-                        if cast.windstrike() then return end
-                -- Stormstrike
+                -- Stormstrike/Windstrike
+                        -- stormstrike,cycle_targets=1,if=equipped.storm_tempests&debuff.storm_tempests.down
+                        if hasEquiped(137103) then
+                            for i = 1, #enemies.yards5 do
+                                local thisUnit = enemies.yards5[i]
+                                local tempestDebuff = UnitDebuffID(thisUnit,spell.spec.debuffs.stormTempests,"player") ~= nil
+                                if not tempestDebuff then
+                                    if buff.ascendance then
+                                        if cast.windstrike(thisUnit) then return end
+                                    else
+                                        if cast.stormstrike(thisUnit) then return end
+                                    end
+                                end
+                            end
+                        end
+                -- Stormstrike/Windstrike
                         -- stormstrike
-                        if cast.stormstrike() then return end
+                        if buff.ascendance then
+                            if cast.windstrike() then return end
+                        else
+                            if cast.stormstrike() then return end
+                        end
                 -- Lightning Bolt
                         -- /lightning_bolt,if=talent.overcharge.enabled&maelstrom>=60
                         if talent.overcharge and power >= 60 then
@@ -632,7 +677,9 @@ if select(2, UnitClass("player")) == "SHAMAN" then
                 -- Windsong
                         if cast.windsong() then return end
                 -- Doom Winds
-                        if cast.doomWinds() then return end
+                        if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()) then
+                            if cast.doomWinds() then return end
+                        end
                 -- Ascendance
                         if useCDs() and lastSpell == spell.doomWinds then
                             if cast.ascendance() then return end

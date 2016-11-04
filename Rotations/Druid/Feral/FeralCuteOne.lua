@@ -753,12 +753,14 @@ if select(2, UnitClass("player")) == "DRUID" then
                 end
             -- Moonfire
                 -- moonfire_cat,cycle_targets=1,if=combo_points<5&remains<=4.2&target.time_to_die-remains>tick_time*2
-                for k,v in pairs(bleed.moonfireFeral) do
-                    local moonfire = bleed.moonfireFeral[k]
-                    local thisUnit = k
-                    if multidot or (UnitIsUnit(thisUnit,units.dyn40AoE) and not multidot) then
-                        if combo < 5 and moonfire.remain <= 4.2 and ((ttd(thisUnit) - moonfire.remain > mfTick * 2 and not isDummy(thisUnit)) or (isDummy(thisUnit) and getDistance(thisUnit) < 8)) then
-                           if cast.moonfire(thisUnit) then return end
+                if talent.lunarInspiration then
+                    for k,v in pairs(bleed.moonfireFeral) do
+                        local moonfire = bleed.moonfireFeral[k]
+                        local thisUnit = k
+                        if multidot or (UnitIsUnit(thisUnit,units.dyn40AoE) and not multidot) then
+                            if combo < 5 and moonfire.remain <= 4.2 and ((ttd(thisUnit) - moonfire.remain > mfTick * 2 and not isDummy(thisUnit)) or (isDummy(thisUnit) and getDistance(thisUnit) < 8)) then
+                               if cast.moonfire(thisUnit) then return end
+                            end
                         end
                     end
                 end 
@@ -1018,7 +1020,7 @@ if select(2, UnitClass("player")) == "DRUID" then
                             -- end
             -- Moonfire
                             -- multi-Dot = 3
-                            -- if #bleed.moonfire < 3 then
+                            if talent.lunarInspiration then
                                 for k,v in pairs(bleed.moonfireFeral) do
                                     local moonfireFeral = bleed.moonfireFeral[k]
                                     local thisUnit = k
@@ -1028,7 +1030,7 @@ if select(2, UnitClass("player")) == "DRUID" then
                                         end
                                     end
                                 end 
-                            -- end
+                            end
             -- Elune's Guidance
                             -- if AlternatePower = 0
                             if combo == 0 then

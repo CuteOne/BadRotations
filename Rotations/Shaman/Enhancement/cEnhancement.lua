@@ -62,10 +62,13 @@ function cEnhancement:new()
             hotHand                     = 215785,
             landslide                   = 202004,
             lightningShield             = 192106,
+            prolongedPower              = 229206,
             stormbringer                = 201846,
+            temptation                  = 234143,
         }
         self.spell.spec.debuffs         = {
             frostbrand                  = 147732,
+            stormTempests               = 214265,
         }
         self.spell.spec.glyphs          = {
 
