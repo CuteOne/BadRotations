@@ -222,6 +222,7 @@ if select(2, UnitClass("player")) == "MONK" then
             if lastSpell == nil then lastSpell = 0 end
             if leftCombat == nil then leftCombat = GetTime() end
             if profileStop == nil then profileStop = false end
+            if opener == nil then opener = false end
 
             if not inCombat and not ObjectExists("target") then 
                 OoRchiWave = false

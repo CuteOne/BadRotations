@@ -40,8 +40,8 @@ function cFeral:new()
             skullBash                   = 106839,
             stampedingRoar              = 106898,
             survivalInstincts           = 61336,
-            swipe                       = 213764,
-            thrash                      = 106832,
+            swipe                       = 213764, --106785,
+            thrash                      = 106832, --106830,
             tigersFury                  = 5217,
         }
         self.spell.spec.artifacts       = {
@@ -324,7 +324,6 @@ function cFeral:new()
 
         function self.getCooldowns()
             local getSpellCD = getSpellCD
-
             for k,v in pairs(self.spell.spec.abilities) do
                 if getSpellCD(v) ~= nil then
                     self.cd[k] = getSpellCD(v)
@@ -484,324 +483,365 @@ function cFeral:new()
             self.cast.debug.tigersFury                  = self.cast.tigersFury("player",true)
         end
 
-        -- Ashamane's Frenzy
-        function self.cast.ashamanesFrenzy(thisUnit,debug)
-            local spellCast = self.spell.ashamanesFrenzy
-            local thisUnit = thisUnit
-            if thisUnit == nil then thisUnit = self.units.dyn5 end
-            if debug == nil then debug = false end
-
-            if self.artifact.ashamanesFrenzy and self.buff.catForm and self.cd.ashamanesFrenzy == 0 and getDistance(thisUnit) < 5 then
-                if debug then
-                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
-                else
-                    return castSpell(thisUnit,spellCast,false,false,false)
+        for k,v in pairs(self.spell.spec.abilities) do
+            -- self.autoCastFunc[k] = function(thisUnit,debug,minUnits,effectRng)
+            self.cast[k] = function(thisUnit,debug,minUnits,effectRng)
+                local spellCast = v
+                local spellName = GetSpellInfo(v)
+                local thisUnit = thisUnit
+                if thisUnit == nil then 
+                    if IsHarmfulSpell(spellName) then thisUnit = "target" end
+                    if IsHelpfulSpell(spellName) then thisUnit = "player" end
                 end
-            elseif debug then
-                return false
-            end
-        end
-        -- Berserk
-        function self.cast.berserk(thisUnit,debug)
-            local spellCast = self.spell.berserk
-            local thisUnit = thisUnit
-            if thisUnit == nil then thisUnit = "player" end
-            if debug == nil then debug = false end
-
-            if self.level >= 48 and self.cd.berserk == 0 and self.buff.catForm then
-                if debug then
-                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                if SpellHasRange(spellName) then
+                    if IsSpellInRange(spellName,thisUnit) == nil then
+                        amIinRange = true
+                    elseif IsSpellInRange(spellName,thisUnit) == 1 then
+                        amIinRange = true
+                    else
+                        amIinRange = false
+                    end
                 else
-                    return castSpell(thisUnit,spellCast,false,false,false)
+                    amIinRange = true
                 end
-            elseif debug then
-                return false
-            end
-        end
-        -- Brutal Slash
-        function self.cast.brutalSlash(thisUnit,debug)
-            local spellCast = self.spell.brutalSlash
-            local thisUnit = thisUnit
-            if thisUnit == nil then thisUnit = "player" end
-            if debug == nil then debug = false end
-
-            if self.talent.brutalSlash and self.cd.brutalSlash == 0 and self.charges.brutalSlash > 0 and self.power > 20 and self.buff.catForm then
-                if debug then
-                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
-                else
-                    return castSpell(thisUnit,spellCast,false,false,false)
-                end
-            elseif debug then
-                return false
-            end
-        end
-        -- Elune's Guidance
-        function self.cast.elunesGuidance(thisUnit,debug)
-            local spellCast = self.spell.elunesGuidance
-            local thisUnit = thisUnit
-            if thisUnit == nil then thisUnit = "player" end
-            if debug == nil then debug = false end
-
-            if self.talent.elunesGuidance and self.cd.elunesGuidance == 0 then
-                if debug then
-                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
-                else
-                    return castSpell(thisUnit,spellCast,false,false,false)
-                end
-            elseif debug then
-                return false
-            end
-        end
-        -- Ferocious Bite
-        function self.cast.ferociousBite(thisUnit,debug)
-            local spellCast = self.spell.ferociousBite
-            local thisUnit = thisUnit
-            if thisUnit == nil then thisUnit = self.units.dyn5 end
-            if debug == nil then debug = false end
-
-            if self.level >= 3 and self.power > 25 and self.buff.catForm and self.comboPoints > 0 and self.cd.ferociousBite == 0 and getDistance(thisUnit)<5 then
-                if debug then
-                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
-                else
-                    return castSpell(thisUnit,spellCast,false,false,false)
-                end
-            elseif debug then
-                return false
-            end
-        end
-        -- Incarnation: King of the Jungle
-        function self.cast.incarnationKingOfTheJungle(thisUnit,debug)
-            local spellCast = self.spell.incarnationKingOfTheJungle
-            local thisUnit = thisUnit
-            if thisUnit == nil then thisUnit = "player" end
-            if debug == nil then debug = false end
-
-            if self.talent.incarnationKingOfTheJungle and self.cd.incarnationKingOfTheJungle == 0 then
-                if debug then
-                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
-                else
-                    return castSpell(thisUnit,spellCast,false,false,false)
-                end
-            elseif debug then
-                return false
-            end
-        end
-        -- Maim
-        function self.cast.maim(thisUnit,debug)
-            local spellCast = self.spell.maim
-            local thisUnit = thisUnit
-            if thisUnit == nil then thisUnit = self.units.dyn5 end
-            if debug == nil then debug = false end
-
-            if self.level >= 72 and self.power > 35 and self.cd.maim == 0 and self.comboPoints > 0 and self.buff.catForm and hasThreat(thisUnit) and getDistance(thisUnit) < 5 then
-                if debug == true then
-                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
-                else
-                    return castSpell(thisUnit,spellCast,false,false,false)
-                end
-            elseif debug then
-                return false
-            end
-        end
-        -- Moonfire
-        function self.cast.moonfireFeral(thisUnit,debug)
-            local spellCast = self.spell.moonfireFeral
-            local thisUnit = thisUnit
-            if thisUnit == nil then thisUnit = self.units.dyn40AoE end
-            if debug == nil then debug = false end
-
-            if self.talent.lunarInspiration and self.power > 30 and self.cd.moonfireFeral == 0 and (hasThreat(thisUnit) or (isDummy(thisUnit) and getDistance(thisUnit) < 8)) and getDistance(thisUnit) < 40 then
-                if debug == true then
-                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
-                else
-                    return castSpell(thisUnit,spellCast,false,false,false)
-                end
-            elseif debug then
-                return false
-            end
-        end
-        -- Rake
-        function self.cast.rake(thisUnit,debug)
-            local spellCast = self.spell.rake
-            local thisUnit = thisUnit
-            if thisUnit == nil then thisUnit = self.units.dyn5 end
-            if debug == nil then debug = false end
-
-            if self.level >= 6 and self.power > 35 and self.buff.catForm and self.cd.rake == 0 and (getDebuffDuration(thisUnit,spellCast,"player") == 0 or getDebuffDuration(thisUnit,spellCast,"player") > 4) and getDistance(thisUnit) < 5 then
-                if debug == true then
-                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
-                else
-                    return castSpell(thisUnit,spellCast,false,false,false)
-                end
-            elseif debug then
-                return false
-            end
-        end
-        -- Remove Corruption
-        function self.cast.removeCorruption(thisUnit,debug)
-            local spellCast = self.spell.removeCorruption
-            local thisUnit = thisUnit
-            if thisUnit == nil then thisUnit = "mouseover" end
-            if debug == nil then debug = false end
-
-            if self.level >= 18 and self.powerPercentMana > 15.8 and self.cd.removeCorruption == 0 and canDispel(thisUnit,spellCast) and getDistance(thisUnit) < 40 then
-                if debug == true then
-                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
-                else
-                    return castSpell(thisUnit,spellCast,false,false,false)
+                local maxRange = select(6,spellName)
+                if minUnits == nil then minUnits = 1 end
+                if effectRng == nil then effectRng = 8 end
+                if debug == nil then debug = false end
+                if IsUsableSpell(v) and getSpellCD(v) == 0 and IsPlayerSpell(spellCast) and amIinRange then
+                    if debug then
+                        return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                    else
+                        if not IsAoEPending() then
+                            return castSpell(thisUnit,spellCast,false,false,false)
+                        else
+                            return castGroundAtBestLocation(spellCast,minUnits,effectRng,maxRange)
+                        end
+                    end
+                elseif debug then
+                    return false
                 end
             end
         end
-        -- Renewal
-        function self.cast.renewal(thisUnit,debug)
-            local spellCast = self.spell.renewal
-            local thisUnit = thisUnit
-            if thisUnit == nil then thisUnit = "player" end
-            if debug == nil then debug = false end
 
-            if self.talent.renewal and self.cd.renewal == 0 then
-                if debug == true then
-                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
-                else
-                    return castSpell(thisUnit,spellCast,false,false,false)
-                end
-            end
-        end
-        -- Rip
-        function self.cast.rip(thisUnit,debug)
-            local spellCast = self.spell.rip
-            local thisUnit = thisUnit
-            if thisUnit == nil then thisUnit = self.units.dyn5 end
-            if debug == nil then debug = false end
+        -- -- Ashamane's Frenzy
+        -- function self.cast.ashamanesFrenzy(thisUnit,debug)
+        --     local spellCast = self.spell.ashamanesFrenzy
+        --     local thisUnit = thisUnit
+        --     if thisUnit == nil then thisUnit = self.units.dyn5 end
+        --     if debug == nil then debug = false end
 
-            if self.level >= 20 and self.power > 30 and self.cd.rip == 0 and self.buff.catForm and self.comboPoints > 0 and getDistance(thisUnit) < 5 then
-                if debug == true then
-                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
-                else
-                    return castSpell(thisUnit,spellCast,false,false,false)
-                end
-            end
-        end
-        -- Savage Roar
-        function self.cast.savageRoar(thisUnit,debug)
-            local spellCast = self.spell.savageRoar
-            local thisUnit = thisUnit
-            if thisUnit == nil then thisUnit = "player" end
-            if debug == nil then debug = false end
+        --     if self.artifact.ashamanesFrenzy and self.buff.catForm and self.cd.ashamanesFrenzy == 0 and getDistance(thisUnit) < 5 then
+        --         if debug then
+        --             return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+        --         else
+        --             return castSpell(thisUnit,spellCast,false,false,false)
+        --         end
+        --     elseif debug then
+        --         return false
+        --     end
+        -- end
+        -- -- Berserk
+        -- function self.cast.berserk(thisUnit,debug)
+        --     local spellCast = self.spell.berserk
+        --     local thisUnit = thisUnit
+        --     if thisUnit == nil then thisUnit = "player" end
+        --     if debug == nil then debug = false end
 
-            if self.talent.savageRoar and self.power > 25 and self.comboPoints > 0 and self.cd.savageRoar == 0 then
-                if debug == true then
-                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
-                else
-                    return castSpell(thisUnit,spellCast,false,false,false)
-                end
-            end
-        end
-        -- Shred
-        function self.cast.shred(thisUnit,debug)
-            local spellCast = self.spell.shred
-            local thisUnit = thisUnit
-            if thisUnit == nil then thisUnit = self.units.dyn5 end
-            if debug == nil then debug = false end
+        --     if self.level >= 48 and self.cd.berserk == 0 and self.buff.catForm then
+        --         if debug then
+        --             return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+        --         else
+        --             return castSpell(thisUnit,spellCast,false,false,false)
+        --         end
+        --     elseif debug then
+        --         return false
+        --     end
+        -- end
+        -- -- Brutal Slash
+        -- function self.cast.brutalSlash(thisUnit,debug)
+        --     local spellCast = self.spell.brutalSlash
+        --     local thisUnit = thisUnit
+        --     if thisUnit == nil then thisUnit = "player" end
+        --     if debug == nil then debug = false end
 
-            if self.level >= 1 and self.buff.catForm and self.power > 40 and self.cd.shred == 0 and getDistance(thisUnit) < 5 then
-                if debug == true then
-                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
-                else
-                    return castSpell(thisUnit,spellCast,false,false,false)
-                end
-            end
-        end
-        -- Skull Bash
-        function self.cast.skullBash(thisUnit,debug)
-            local spellCast = self.spell.skullBash
-            local thisUnit = thisUnit
-            if thisUnit == nil then thisUnit = self.units.dyn13 end
-            if debug == nil then debug = false end
+        --     if self.talent.brutalSlash and self.cd.brutalSlash == 0 and self.charges.brutalSlash > 0 and self.power > 20 and self.buff.catForm then
+        --         if debug then
+        --             return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+        --         else
+        --             return castSpell(thisUnit,spellCast,false,false,false)
+        --         end
+        --     elseif debug then
+        --         return false
+        --     end
+        -- end
+        -- -- Elune's Guidance
+        -- function self.cast.elunesGuidance(thisUnit,debug)
+        --     local spellCast = self.spell.elunesGuidance
+        --     local thisUnit = thisUnit
+        --     if thisUnit == nil then thisUnit = "player" end
+        --     if debug == nil then debug = false end
 
-            if self.level >= 64 and self.cd.skullBash == 0 and self.buff.catForm and hasThreat(thisUnit) and getDistance(thisUnit) < 13 then
-                if debug == true then
-                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
-                else
-                    return castSpell(thisUnit,spellCast,false,false,false)
-                end
-            end
-        end
-        -- Stampeding Roar
-        function self.cast.stampedingRoar(thisUnit,debug)
-            local spellCast = self.spell.stampedingRoar
-            local thisUnit = thisUnit
-            if thisUnit == nil then thisUnit = "player" end
-            if debug == nil then debug = false end
+        --     if self.talent.elunesGuidance and self.cd.elunesGuidance == 0 then
+        --         if debug then
+        --             return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+        --         else
+        --             return castSpell(thisUnit,spellCast,false,false,false)
+        --         end
+        --     elseif debug then
+        --         return false
+        --     end
+        -- end
+        -- -- Ferocious Bite
+        -- function self.cast.ferociousBite(thisUnit,debug)
+        --     local spellCast = self.spell.ferociousBite
+        --     local thisUnit = thisUnit
+        --     if thisUnit == nil then thisUnit = self.units.dyn5 end
+        --     if debug == nil then debug = false end
 
-            if self.level >= 83 and self.cd.stampedingRoar == 0 then
-                if debug == true then
-                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
-                else
-                    return castSpell(thisUnit,spellCast,false,false,false)
-                end
-            end
-        end
-        -- Survival Instincts
-        function self.cast.survivalInstincts(thisUnit,debug)
-            local spellCast = self.spell.survivalInstincts
-            local thisUnit = thisUnit
-            if thisUnit == nil then thisUnit = "player" end
-            if debug == nil then debug = false end
+        --     if self.level >= 3 and self.power > 25 and self.buff.catForm and self.comboPoints > 0 and self.cd.ferociousBite == 0 and getDistance(thisUnit)<5 then
+        --         if debug then
+        --             return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+        --         else
+        --             return castSpell(thisUnit,spellCast,false,false,false)
+        --         end
+        --     elseif debug then
+        --         return false
+        --     end
+        -- end
+        -- -- Incarnation: King of the Jungle
+        -- function self.cast.incarnationKingOfTheJungle(thisUnit,debug)
+        --     local spellCast = self.spell.incarnationKingOfTheJungle
+        --     local thisUnit = thisUnit
+        --     if thisUnit == nil then thisUnit = "player" end
+        --     if debug == nil then debug = false end
 
-            if self.level >= 40 and self.charges.survivalInstincts > 0 and self.charges.survivalInstincts > 0 and self.cd.survivalInstincts == 0 then
-                if debug == true then
-                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
-                else
-                    return castSpell(thisUnit,spellCast,false,false,false)
-                end
-            end
-        end
-        -- Swipe
-        function self.cast.swipe(thisUnit,debug)
-            local spellCast = self.spell.swipe
-            local thisUnit = thisUnit
-            if thisUnit == nil then thisUnit = "player" end
-            if debug == nil then debug = false end
+        --     if self.talent.incarnationKingOfTheJungle and self.cd.incarnationKingOfTheJungle == 0 then
+        --         if debug then
+        --             return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+        --         else
+        --             return castSpell(thisUnit,spellCast,false,false,false)
+        --         end
+        --     elseif debug then
+        --         return false
+        --     end
+        -- end
+        -- -- Maim
+        -- function self.cast.maim(thisUnit,debug)
+        --     local spellCast = self.spell.maim
+        --     local thisUnit = thisUnit
+        --     if thisUnit == nil then thisUnit = self.units.dyn5 end
+        --     if debug == nil then debug = false end
 
-            if not self.talent.brutalSlash and self.level >= 32 and self.buff.catForm and self.power > 45 and self.cd.swipe == 0 then
-                if debug == true then
-                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
-                else
-                    return castSpell(thisUnit,spellCast,false,false,false)
-                end
-            end
-        end
-        -- Thrash
-        function self.cast.thrash(thisUnit,debug)
-            local spellCast = self.spell.thrash
-            local thisUnit = thisUnit
-            if thisUnit == nil then thisUnit = "player" end
-            if debug == nil then debug = false end
+        --     if self.level >= 72 and self.power > 35 and self.cd.maim == 0 and self.comboPoints > 0 and self.buff.catForm and hasThreat(thisUnit) and getDistance(thisUnit) < 5 then
+        --         if debug == true then
+        --             return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+        --         else
+        --             return castSpell(thisUnit,spellCast,false,false,false)
+        --         end
+        --     elseif debug then
+        --         return false
+        --     end
+        -- end
+        -- -- Moonfire
+        -- function self.cast.moonfireFeral(thisUnit,debug)
+        --     local spellCast = self.spell.moonfireFeral
+        --     local thisUnit = thisUnit
+        --     if thisUnit == nil then thisUnit = self.units.dyn40AoE end
+        --     if debug == nil then debug = false end
 
-            if self.level >= 14 and self.power > 50 and self.buff.catForm and hasThreat(thisUnit) and self.cd.thrash == 0 then
-                if debug == true then
-                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
-                else
-                    return castSpell(thisUnit,spellCast,false,false,false)
-                end
-            end
-        end
-        -- Tiger's Fury
-        function self.cast.tigersFury(thisUnit,debug)
-            local spellCast = self.spell.tigersFury
-            local thisUnit = thisUnit
-            if thisUnit == nil then thisUnit = "player" end
-            if debug == nil then debug = false end
+        --     if self.talent.lunarInspiration and self.power > 30 and self.cd.moonfireFeral == 0 and (hasThreat(thisUnit) or (isDummy(thisUnit) and getDistance(thisUnit) < 8)) and getDistance(thisUnit) < 40 then
+        --         if debug == true then
+        --             return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+        --         else
+        --             return castSpell(thisUnit,spellCast,false,false,false)
+        --         end
+        --     elseif debug then
+        --         return false
+        --     end
+        -- end
+        -- -- Rake
+        -- function self.cast.rake(thisUnit,debug)
+        --     local spellCast = self.spell.rake
+        --     local thisUnit = thisUnit
+        --     if thisUnit == nil then thisUnit = self.units.dyn5 end
+        --     if debug == nil then debug = false end
 
-            if self.level>=12 and self.cd.tigersFury==0 and self.powerDeficit>60 then
-                if debug == true then
-                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
-                else
-                    return castSpell(thisUnit,spellCast,false,false,false)
-                end
-            end
-        end
+        --     if self.level >= 6 and self.power > 35 and self.buff.catForm and self.cd.rake == 0 and (getDebuffDuration(thisUnit,spellCast,"player") == 0 or getDebuffDuration(thisUnit,spellCast,"player") > 4) and getDistance(thisUnit) < 5 then
+        --         if debug == true then
+        --             return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+        --         else
+        --             return castSpell(thisUnit,spellCast,false,false,false)
+        --         end
+        --     elseif debug then
+        --         return false
+        --     end
+        -- end
+        -- -- Remove Corruption
+        -- function self.cast.removeCorruption(thisUnit,debug)
+        --     local spellCast = self.spell.removeCorruption
+        --     local thisUnit = thisUnit
+        --     if thisUnit == nil then thisUnit = "mouseover" end
+        --     if debug == nil then debug = false end
+
+        --     if self.level >= 18 and self.powerPercentMana > 15.8 and self.cd.removeCorruption == 0 and canDispel(thisUnit,spellCast) and getDistance(thisUnit) < 40 then
+        --         if debug == true then
+        --             return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+        --         else
+        --             return castSpell(thisUnit,spellCast,false,false,false)
+        --         end
+        --     end
+        -- end
+        -- -- Renewal
+        -- function self.cast.renewal(thisUnit,debug)
+        --     local spellCast = self.spell.renewal
+        --     local thisUnit = thisUnit
+        --     if thisUnit == nil then thisUnit = "player" end
+        --     if debug == nil then debug = false end
+
+        --     if self.talent.renewal and self.cd.renewal == 0 then
+        --         if debug == true then
+        --             return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+        --         else
+        --             return castSpell(thisUnit,spellCast,false,false,false)
+        --         end
+        --     end
+        -- end
+        -- -- Rip
+        -- function self.cast.rip(thisUnit,debug)
+        --     local spellCast = self.spell.rip
+        --     local thisUnit = thisUnit
+        --     if thisUnit == nil then thisUnit = self.units.dyn5 end
+        --     if debug == nil then debug = false end
+
+        --     if self.level >= 20 and self.power > 30 and self.cd.rip == 0 and self.buff.catForm and self.comboPoints > 0 and getDistance(thisUnit) < 5 then
+        --         if debug == true then
+        --             return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+        --         else
+        --             return castSpell(thisUnit,spellCast,false,false,false)
+        --         end
+        --     end
+        -- end
+        -- -- Savage Roar
+        -- function self.cast.savageRoar(thisUnit,debug)
+        --     local spellCast = self.spell.savageRoar
+        --     local thisUnit = thisUnit
+        --     if thisUnit == nil then thisUnit = "player" end
+        --     if debug == nil then debug = false end
+
+        --     if self.talent.savageRoar and self.power > 25 and self.comboPoints > 0 and self.cd.savageRoar == 0 then
+        --         if debug == true then
+        --             return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+        --         else
+        --             return castSpell(thisUnit,spellCast,false,false,false)
+        --         end
+        --     end
+        -- end
+        -- -- Shred
+        -- function self.cast.shred(thisUnit,debug)
+        --     local spellCast = self.spell.shred
+        --     local thisUnit = thisUnit
+        --     if thisUnit == nil then thisUnit = self.units.dyn5 end
+        --     if debug == nil then debug = false end
+
+        --     if self.level >= 1 and self.buff.catForm and self.power > 40 and self.cd.shred == 0 and getDistance(thisUnit) < 5 then
+        --         if debug == true then
+        --             return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+        --         else
+        --             return castSpell(thisUnit,spellCast,false,false,false)
+        --         end
+        --     end
+        -- end
+        -- -- Skull Bash
+        -- function self.cast.skullBash(thisUnit,debug)
+        --     local spellCast = self.spell.skullBash
+        --     local thisUnit = thisUnit
+        --     if thisUnit == nil then thisUnit = self.units.dyn13 end
+        --     if debug == nil then debug = false end
+
+        --     if self.level >= 64 and self.cd.skullBash == 0 and self.buff.catForm and hasThreat(thisUnit) and getDistance(thisUnit) < 13 then
+        --         if debug == true then
+        --             return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+        --         else
+        --             return castSpell(thisUnit,spellCast,false,false,false)
+        --         end
+        --     end
+        -- end
+        -- -- Stampeding Roar
+        -- function self.cast.stampedingRoar(thisUnit,debug)
+        --     local spellCast = self.spell.stampedingRoar
+        --     local thisUnit = thisUnit
+        --     if thisUnit == nil then thisUnit = "player" end
+        --     if debug == nil then debug = false end
+
+        --     if self.level >= 83 and self.cd.stampedingRoar == 0 then
+        --         if debug == true then
+        --             return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+        --         else
+        --             return castSpell(thisUnit,spellCast,false,false,false)
+        --         end
+        --     end
+        -- end
+        -- -- Survival Instincts
+        -- function self.cast.survivalInstincts(thisUnit,debug)
+        --     local spellCast = self.spell.survivalInstincts
+        --     local thisUnit = thisUnit
+        --     if thisUnit == nil then thisUnit = "player" end
+        --     if debug == nil then debug = false end
+
+        --     if self.level >= 40 and self.charges.survivalInstincts > 0 and self.charges.survivalInstincts > 0 and self.cd.survivalInstincts == 0 then
+        --         if debug == true then
+        --             return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+        --         else
+        --             return castSpell(thisUnit,spellCast,false,false,false)
+        --         end
+        --     end
+        -- end
+        -- -- Swipe
+        -- function self.cast.swipe(thisUnit,debug)
+        --     local spellCast = self.spell.swipe
+        --     local thisUnit = thisUnit
+        --     if thisUnit == nil then thisUnit = "player" end
+        --     if debug == nil then debug = false end
+
+        --     if not self.talent.brutalSlash and self.level >= 32 and self.buff.catForm and self.power > 45 and self.cd.swipe == 0 then
+        --         if debug == true then
+        --             return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+        --         else
+        --             return castSpell(thisUnit,spellCast,false,false,false)
+        --         end
+        --     end
+        -- end
+        -- -- Thrash
+        -- function self.cast.thrash(thisUnit,debug)
+        --     local spellCast = self.spell.thrash
+        --     local thisUnit = thisUnit
+        --     if thisUnit == nil then thisUnit = "player" end
+        --     if debug == nil then debug = false end
+
+        --     if self.level >= 14 and self.power > 50 and self.buff.catForm and hasThreat(thisUnit) and self.cd.thrash == 0 then
+        --         if debug == true then
+        --             return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+        --         else
+        --             return castSpell(thisUnit,spellCast,false,false,false)
+        --         end
+        --     end
+        -- end
+        -- -- Tiger's Fury
+        -- function self.cast.tigersFury(thisUnit,debug)
+        --     local spellCast = self.spell.tigersFury
+        --     local thisUnit = thisUnit
+        --     if thisUnit == nil then thisUnit = "player" end
+        --     if debug == nil then debug = false end
+
+        --     if self.level>=12 and self.cd.tigersFury==0 and self.powerDeficit>60 then
+        --         if debug == true then
+        --             return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+        --         else
+        --             return castSpell(thisUnit,spellCast,false,false,false)
+        --         end
+        --     end
+        -- end
 
     ------------------------
     --- CUSTOM FUNCTIONS ---

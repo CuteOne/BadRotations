@@ -86,7 +86,8 @@ if select(2, UnitClass("player")) == "DRUID" then
             -- Berserk
                 bb.ui:createCheckbox(section,"Berserk")
             -- Legendary Ring
-                bb.ui:createCheckbox(section,"Legendary Ring")
+                bb.ui:createCheckbox(section,"Ring of Collapsing Futures")
+                bb.ui:createSpinner(section, "Ring of Collapsing Futures",  1,  1,  5,  1,  "|cffFFFFFFSet to desired number of Temptation stacks before letting fall off. Min: 1 / Max: 5 / Interval: 1")
             -- Racial
                 bb.ui:createCheckbox(section,"Racial")
             -- Tiger's Fury
@@ -222,7 +223,8 @@ if select(2, UnitClass("player")) == "DRUID" then
             local recharge                                      = bb.player.recharge
             local rkTick                                        = 3
             local rpTick                                        = 2
-            local solo                                          = bb.player.instance=="none"
+            local solo                                          = #bb.friend < 2
+            local friendsInRange                                = friendsInRange
             local spell                                         = bb.player.spell
             local stealth                                       = bb.player.stealth
             local t17_2pc                                       = TierScan("T17")>=2 --bb.player.eq.t17_2pc
@@ -247,6 +249,14 @@ if select(2, UnitClass("player")) == "DRUID" then
                 agiPot = bb.player.potion.agility[1].itemID 
             else
                 agiPot = 0
+            end
+            friendsInRange = 0
+            if not solo then
+                for i = 1, #bb.friend do
+                    if getDistance(bb.friend[i].unit) < 15 then
+                        friendsInRange = friendsInRange + 1
+                    end
+                end
             end
             -- ChatOverlay(round2(getDistance2("target"),2)..", "..round2(getDistance3("target"),2)..", "..round2(getDistance4("target"),2)..", "..round2(getDistance5("target"),2))
 	--------------------
@@ -364,13 +374,13 @@ if select(2, UnitClass("player")) == "DRUID" then
 					end
 			-- Remove Corruption
 					if isChecked("Remove Corruption") then
-						if getOptionValue("Remove Corruption - Target")==1 then
+						if getOptionValue("Remove Corruption - Target")==1 and canDispel("player",spell.removeCorruption) then
 							if cast.removeCorruption("player") then return end
 						end
-						if getOptionValue("Remove Corruption - Target")==2 then
+						if getOptionValue("Remove Corruption - Target")==2 and canDispel("target",spell.removeCorruption) then
 							if cast.removeCorruption("target") then return end
 						end
-						if getOptionValue("Remove Corruption - Target")==3 then
+						if getOptionValue("Remove Corruption - Target")==3 and canDispel("mouseover",spell.removeCorruption) then
 							if cast.removeCorruption("mouseover") then return end
 						end
 					end
@@ -517,10 +527,12 @@ if select(2, UnitClass("player")) == "DRUID" then
                     end
             -- Legendary Ring
                     -- use_item,slot=finger1
-                    if isChecked("Legendary Ring") then
+                    if isChecked("Ring of Collapsing Futures") then
                         if hasEquiped(142173) and canUse(142173) and not UnitDebuffID("player",234143) then
-                            useItem(142173)
-                            return true
+                            if hasEquiped(142173) and canUse(142173) and getDebuffStacks("player",234143) < getOptionValue("Ring of Collapsing Futures") then
+                                useItem(142173)
+                                return true
+                            end
                         end
                     end
             -- Racial: Orc Blood Fury | Troll Berserking | Blood Elf Arcane Torrent
@@ -584,10 +596,10 @@ if select(2, UnitClass("player")) == "DRUID" then
                 -- pool_resource,for_next=1
                 -- savage_roar,if=!buff.savage_roar.up&(combo_points=5|(talent.brutal_slash.enabled&spell_targets.brutal_slash>desired_targets&action.brutal_slash.charges>0))
                 if not buff.savageRoar and (combo == 5 or (talent.brutalSlash and #enemies.yards8 > getOptionValue("Brutal Slash Targest") and charges.brutalSlash > 0)) then
-                    if power <= 40 then
+                    if power <= select(1, getSpellCost(spell.savageRoar)) then
                         return true
-                    elseif power > 40 then
-                        if cast.savageRoar() then return end
+                    elseif power > select(1, getSpellCost(spell.savageRoar)) then
+                        if cast.savageRoar("player") then return end
                     end
                 end
             -- Thrash
@@ -599,10 +611,10 @@ if select(2, UnitClass("player")) == "DRUID" then
                     if (multidot or (UnitIsUnit(thisUnit,units.dyn8AoE) and not multidot)) then 
                         if getDistance(thisUnit) < 8 then
                             if thrash.remain <= thrash.duration * 0.3 and #enemies.yards8 >= 5 then
-                                if power <= 50 then
+                                if power <= select(1, getSpellCost(spell.thrash)) then
                                     return true
-                                elseif power > 50 then
-                                    if cast.thrash(thisUnit) then return end
+                                elseif power > select(1, getSpellCost(spell.thrash)) then
+                                    if cast.thrash("player") then return end
                                 end
                             end
                         end
@@ -613,10 +625,10 @@ if select(2, UnitClass("player")) == "DRUID" then
                 -- swipe_cat,if=spell_targets.swipe_cat>=8
                 if useAoE() then
                     if #enemies.yards8 >= 8 then
-                        if power <= 45 then
+                        if power <= select(1, getSpellCost(spell.swipe)) then
                             return true
-                        elseif power > 45 then
-                            if cast.swipe() then return end
+                        elseif power > select(1, getSpellCost(spell.swipe)) then
+                            if cast.swipe("player") then return end
                         end
                     end
                 end
@@ -638,13 +650,13 @@ if select(2, UnitClass("player")) == "DRUID" then
             -- Savage Roar
                 -- savage_roar,if=(buff.savage_roar.remains<=10.5|(buff.savage_roar.remains<=7.2&!talent.jagged_wounds.enabled))&$(finisher_conditions)
                 if (buff.remain.savageRoar <= 10.5 or (buff.remain.savageRoar <= 7.2 and not talent.jaggedWounds)) and fatality then
-                    if cast.savageRoar() then return end
+                    if cast.savageRoar("player") then return end
                 end
             -- Swipe
                 -- swipe_cat,if=combo_points=5&(spell_targets.swipe_cat>=6|(spell_targets.swipe_cat>=3&!talent.bloodtalons.enabled))&$(fb_finisher_conditions)
                 if useAoE() then
                     if combo == 5 and (#enemies.yards8 >= 6 or (#enemies.yards8 >= 3 and not talent.bloodtalons)) and animality then
-                        if cast.swipe() then return end
+                        if cast.swipe("player") then return end
                     end
                 end
             -- Ferocious Bite
@@ -662,23 +674,23 @@ if select(2, UnitClass("player")) == "DRUID" then
                 -- brutal_slash,cycle_targets=1,if=spell_targets.brutal_slash>desired_targets&combo_points<5
                 if useAoE() then
                     if #enemies.yards8 >= getOptionValue("Brutal Slash Targets") and combo < 5 then
-                        if cast.brutalSlash() then return end
+                        if cast.brutalSlash(units.dyn8) then return end
                     end
                 end
             -- Ashamane's Frenzy
                 -- if=combo_points<=2&buff.elunes_guidance.down&(buff.bloodtalons.up|!talent.bloodtalons.enabled)&(buff.savage_roar.up|!talent.savage_roar.enabled)
                 if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()) then
                     if combo <= 2 and not buff.elunesGuidance and (buff.bloodtalons or not talent.bloodtalons) and (buff.savageRoar or not talent.savageRoar) then
-                        if cast.ashamanesFrenzy() then return end
+                        if cast.ashamanesFrenzy(units.dyn5) then return end
                     end
                 end
             -- Pool for Elunes Guidance
                 -- pool_resource,if=talent.elunes_guidance.enabled&combo_points=0&energy<action.ferocious_bite.cost+25-energy.regen*cooldown.elunes_guidance.remains
                 -- elunes_guidance,if=talent.elunes_guidance.enabled&combo_points=0&energy>=action.ferocious_bite.cost+25
                 if talent.elunesGuidance and combo == 0 then
-                    if power < 50 - powgen * cd.elunesGuidance then
+                    if power < select(1, getSpellCost(spell.ferociousBite)) + 25 - powgen * cd.elunesGuidance then
                         return true
-                    elseif power >= 50 then
+                    elseif power >= select(1, getSpellCost(spell.ferociousBite)) + 25 then
                         if cast.elunesGuidance() then return end
                     end
                 end
@@ -687,10 +699,10 @@ if select(2, UnitClass("player")) == "DRUID" then
                 -- if=talent.brutal_slash.enabled&spell_targets.thrash_cat>=9
                 if (multidot or (UnitIsUnit("target",units.dyn8AoE) and not multidot)) then  
                     if talent.brutalSlash and #enemies.yards8 >= 9 then
-                       if power <= 50 then
+                       if power <= select(1, getSpellCost(spell.thrash)) then
                             return true
-                        elseif power > 50 then
-                            if cast.thrash() then return end
+                        elseif power > select(1, getSpellCost(spell.thrash)) then
+                            if cast.thrash("player") then return end
                         end
                     end
                 end
@@ -698,10 +710,10 @@ if select(2, UnitClass("player")) == "DRUID" then
                 -- pool_resource,for_next=1
                 -- swipe_cat,if=spell_targets.swipe_cat>=6
                 if ((mode.rotation == 1 and #enemies.yards8 >= 6) or mode.rotation == 2) then
-                    if power <= 45 then
+                    if power <= select(1, getSpellCost(spell.swipe)) then
                         return true
-                    elseif power > 45 then
-                        if cast.swipe() then return end
+                    elseif power > select(1, getSpellCost(spell.swipe)) then
+                        if cast.swipe("player") then return end
                     end
                 end
             -- Shadowmeld
@@ -712,7 +724,8 @@ if select(2, UnitClass("player")) == "DRUID" then
                         local thisUnit = k
                         if UnitIsUnit(thisUnit,units.dyn5) and getDistance(thisUnit) < 5 then
                             if combo < 5 and power >= 35 and rake.applied < 2.1 and buff.tigersFury and (buff.bloodtalons or not talent.bloodtalons) 
-                                and (not talent.incarnationKingOfTheJungle or cd.incarnationKingOfTheJungle > 18) and not buff.incarnationKingOfTheJungle 
+                                and (not talent.incarnationKingOfTheJungle or cd.incarnationKingOfTheJungle > 18) and not buff.incarnationKingOfTheJungle
+                                and not solo and friendsInRange > 0 
                             then
                                 if cast.shadowmeld() then return end
                             end
@@ -730,9 +743,9 @@ if select(2, UnitClass("player")) == "DRUID" then
                             or (talent.bloodtalons and buff.bloodtalons and (not talent.soulOfTheForest and rake.remain <= 7 or rake.remain <= 5) 
                                 and rake.calc > rake.applied * 0.80)) and ttd(thisUnit) - rake.remain > rkTick 
                         then
-                            if power <= 35 then
+                            if power <= select(1, getSpellCost(spell.rake)) then
                                 return true
-                            elseif power > 35 then
+                            elseif power > select(1, getSpellCost(spell.rake)) then
                                 if cast.rake(thisUnit) then return end
                             end
                         end
@@ -744,8 +757,8 @@ if select(2, UnitClass("player")) == "DRUID" then
                     local moonfire = bleed.moonfireFeral[k]
                     local thisUnit = k
                     if multidot or (UnitIsUnit(thisUnit,units.dyn40AoE) and not multidot) then
-                        if combo < 5 and moonfire.remain <= 4.2 and ((ttd(thisUnit) - moonfire.remain > mfTick * 2) or isDummy(thisUnit)) then
-                           if cast.moonfireFeral(thisUnit) then return end
+                        if combo < 5 and moonfire.remain <= 4.2 and ((ttd(thisUnit) - moonfire.remain > mfTick * 2 and not isDummy(thisUnit)) or (isDummy(thisUnit) and getDistance(thisUnit) < 8)) then
+                           if cast.moonfire(thisUnit) then return end
                         end
                     end
                 end 
@@ -757,10 +770,10 @@ if select(2, UnitClass("player")) == "DRUID" then
                     local thisUnit = k
                     if (multidot or (UnitIsUnit(thisUnit,units.dyn8AoE) and not multidot)) and getDistance(thisUnit) < 5 then
                         if thrash.remain <= thrash.duration * 0.3 and #enemies.yards8 >= 2 then
-                            if power <= 50 then
+                            if power <= select(1, getSpellCost(spell.thrash)) then
                                 return true
-                            elseif power > 50 then
-                                if cast.thrash(thisUnit) then return end
+                            elseif power > select(1, getSpellCost(spell.thrash)) then
+                                if cast.thrash("player") then return end
                             end
                         end
                     end
@@ -768,17 +781,17 @@ if select(2, UnitClass("player")) == "DRUID" then
             -- Brutal Slash
                 -- brutal_slash,if=combo_points<5&((raid_event.adds.exists&raid_event.adds.in>(1+max_charges-charges_fractional)*15)|(!raid_event.adds.exists&(charges_fractional>2.66&time>10)))
                 if combo < 5 and ((addsExist and addsIn > (1 + charges.max.brutalSlash - charges.frac.brutalSlash) * 15) or (not addsExist and (charges.frac.brutalSlash > 2.66 and combatTime > 10))) then
-                    if cast.brutalSlash() then return end
+                    if cast.brutalSlash(units.dyn8) then return end
                 end
             -- Swipe
                 -- swipe_cat,if=combo_points<5&spell_targets.swipe_cat>=3
                 if combo < 5 and ((mode.rotation == 1 and #enemies.yards8 >= 3) or mode.rotation == 2) then
-                    if cast.swipe() then return end
+                    if cast.swipe("player") then return end
                 end
             -- Shred
                 -- shred,if=combo_points<5&(spell_targets.swipe_cat<3|talent.brutal_slash.enabled)
                 if combo < 5 and (((mode.rotation == 1 and #enemies.yards8 < 3) or mode.rotation == 3) or talent.brutalSlash or level < 32) then
-                    if cast.shred() then return end
+                    if cast.shred(units.dyn5) then return end
                 end
             end
         -- Action List - PreCombat
@@ -806,7 +819,7 @@ if select(2, UnitClass("player")) == "DRUID" then
                             for i = 1, #enemies.yards20 do
                                 local thisUnit = enemies.yards20[i]
                                 if UnitIsEnemy(thisUnit,"player") then
-                                    if cast.prowl() then return end
+                                    if cast.prowl("player") then return end
                                 end
                             end
                         end
@@ -823,7 +836,7 @@ if select(2, UnitClass("player")) == "DRUID" then
                         end
             -- Prowl 
                         if buff.bloodtalons and useProwl() then
-                            if cast.prowl() then return end
+                            if cast.prowl("player") then return end
                         end
                         if buff.prowl then
             -- Pre-Pot
@@ -878,7 +891,7 @@ if select(2, UnitClass("player")) == "DRUID" then
     --- In Combat Rotation ---
     --------------------------
             -- Cat is 4 fyte!
-                if inCombat and not cat and not (flight or travel) then
+                if inCombat and not cat and not (flight or travel) and isChecked("Auto Shapeshifts") then
                     if cast.catForm() then return end
                 elseif inCombat and cat and profileStop==false and not isChecked("Death Cat Mode") and isValidUnit(units.dyn5) and getDistance(units.dyn5) < 5 then
             -- Wild Charge
@@ -894,9 +907,9 @@ if select(2, UnitClass("player")) == "DRUID" then
                     -- rake,if=buff.prowl.up|buff.shadowmeld.up
                     if buff.prowl or buff.shadowmeld then
                         if level < 6 then
-                            if cast.shred() then return end
+                            if cast.shred(units.dyn5) then return end
                         else
-                           if cast.rake() then return end
+                           if cast.rake(units.dyn5) then return end
                         end
                     elseif not stealth then
                         -- auto_attack
@@ -988,7 +1001,7 @@ if select(2, UnitClass("player")) == "DRUID" then
             -- Savage Roar
                             -- if AlternatePower >= 5 and BuffRemainingSec(SavageRoar) < 6 and not CanRefreshDot(Rip)
                             if combo >= 5 and buff.remain.savageRoar < 6 and debuff.remain.rip > (debuff.duration.rip * 0.3) then
-                                if cast.savageRoar() then return end
+                                if cast.savageRoar("player") then return end
                             end  
             -- Rake
                             -- multi-DoT = 3
@@ -1010,8 +1023,8 @@ if select(2, UnitClass("player")) == "DRUID" then
                                     local moonfireFeral = bleed.moonfireFeral[k]
                                     local thisUnit = k
                                     if multidot or (UnitIsUnit(thisUnit,units.dyn40AoE) and not multidot) then
-                                        if moonfireFeral.remain <= 4.2 and #enemies.yards8 <= 8 then
-                                           if cast.moonfireFeral(thisUnit) then return end
+                                        if moonfireFeral.remain <= 4.2 and #enemies.yards8 <= 8 or (isDummy(thisUnit) and getDistance(thisUnit) < 8) then
+                                           if cast.moonfire(thisUnit) then return end
                                         end
                                     end
                                 end 

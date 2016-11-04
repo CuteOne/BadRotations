@@ -37,8 +37,8 @@ function cGuardian:new()
             skullBash                   = 106839,
             stampedingRoar              = 106898,
             survivalInstincts           = 61336,
-            swipe                       = 213771,
-            thrash                      = 77758,
+            swipe                       = 106785, --213771,
+            thrash                      = 106830, --77758,
         }
         self.spell.spec.artifacts       = {
             rageOfTheSleeper            = 200851,

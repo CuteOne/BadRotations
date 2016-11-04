@@ -50,6 +50,8 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                 bb.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
             -- Pre-Pull Timer
                 bb.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
+            -- Opener
+                bb.ui:createCheckbox(section,"Opener")
             -- Artifact 
                 bb.ui:createDropdownWithout(section,"Artifact", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Artifact Ability.")
             -- Summon Pet
@@ -190,6 +192,28 @@ if select(2, UnitClass("player")) == "WARLOCK" then
             
 	   		if leftCombat == nil then leftCombat = GetTime() end
 			if profileStop == nil or not inCombat then profileStop = false end
+            -- if opener == nil then opener = false end
+
+            if not inCombat and not ObjectExists("target") then 
+                DE1 = false
+                DSB1 = false
+                DOOM = false
+                SDG = false
+                GRF = false
+                DE2 = false
+                DSB2 = false
+                DGL = false
+                DE3 = false
+                DSB3 = false
+                DSB4 = false
+                DSB5 = false
+                HVST = false
+                DRS = false
+                HOG = false
+                DE5 = false
+                TKC = false
+                opener = false
+            end
 
             if summonPet == 1 then summonId = 416 end
             if summonPet == 2 then summonId = 1860 end
@@ -376,53 +400,140 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                             end
                         end
                     end
-                -- Summon Infernal
-                    -- summon_infernal,if=talent.grimoire_of_supremacy.enabled&active_enemies>=3
-                    if useCDs() and isChecked("Summon Infernal") then
-                        if talent.grimoireOfSupremacy and #enemies.yards8 >= 3 then
-                            if cast.summonInfernal() then return end
+                    if not isChecked("Opener") or not isBoss("target") then
+                    -- Summon Infernal
+                        -- summon_infernal,if=talent.grimoire_of_supremacy.enabled&active_enemies>=3
+                        if useCDs() and isChecked("Summon Infernal") then
+                            if talent.grimoireOfSupremacy and #enemies.yards8 >= 3 then
+                                if cast.summonInfernal() then return end
+                            end
                         end
-                    end
-                -- Summon Doomguard
-                    -- summon_doomguard,if=talent.grimoire_of_supremacy.enabled&active_enemies<3
-                    if useCDs() and isChecked("Summon Doomguard") then
-                        if talent.grimoireOfSupremacy and #enemies.yards8 < 3 then
-                            if cast.summonDoomguard() then return end
+                    -- Summon Doomguard
+                        -- summon_doomguard,if=talent.grimoire_of_supremacy.enabled&active_enemies<3
+                        if useCDs() and isChecked("Summon Doomguard") then
+                            if talent.grimoireOfSupremacy and #enemies.yards8 < 3 then
+                                if cast.summonDoomguard() then return end
+                            end
                         end
-                    end
-                    if isChecked("Pre-Pull Timer") and pullTimer <= getOptionValue("Pre-Pull Timer") then
+                        if isChecked("Pre-Pull Timer") and pullTimer <= getOptionValue("Pre-Pull Timer") then
 
-                    end -- End Pre-Pull
-                    if isValidUnit("target") and getDistance("target") < 40 then
-                -- Augmentation
-                        -- augmentation,type=defiled
-                        -- TODO
-                -- Potion
-                        -- potion,name=deadly_grace
-                        -- TODO
-                -- Demonic Empowerment
-                        -- demonic_empowerment
-                        if activePet ~= "None" and not petDE then
-                            if cast.demonicEmpowerment() then return end
-                        end
-                -- Demonbolt
-                        -- demonbolt,if=talent.demonbolt.enabled
-                        if talent.demonbolt --[[and bb.timer:useTimer("travelTime", travelTime)]] then 
-                            if cast.demonbolt("target") then return end
-                        end
-                -- Shadowbolt
-                        -- shadow_bolt,if=!talent.demonbolt.enabled
-                        if not talent.demonbolt --[[and bb.timer:useTimer("travelTime", travelTime)]] then
-                            if cast.shadowbolt("target") then return end
-                        end
-                -- Pet Attack/Follow
-                        if UnitExists("target") and not UnitAffectingCombat("pet") then
-                            PetAssistMode()
-                            PetAttack("target")
+                        end -- End Pre-Pull
+                        if isValidUnit("target") and getDistance("target") < 40 then
+                    -- Augmentation
+                            -- augmentation,type=defiled
+                            -- TODO
+                    -- Potion
+                            -- potion,name=deadly_grace
+                            -- TODO
+                    -- Demonic Empowerment
+                            -- demonic_empowerment
+                            if activePet ~= "None" and not petDE then
+                                if cast.demonicEmpowerment() then return end
+                            end
+                    -- Demonbolt
+                            -- demonbolt,if=talent.demonbolt.enabled
+                            if talent.demonbolt --[[and bb.timer:useTimer("travelTime", travelTime)]] then 
+                                if cast.demonbolt("target") then return end
+                            end
+                    -- Shadowbolt
+                            -- shadow_bolt,if=!talent.demonbolt.enabled
+                            if not talent.demonbolt --[[and bb.timer:useTimer("travelTime", travelTime)]] then
+                                if cast.shadowbolt("target") then return end
+                            end
+                    -- Pet Attack/Follow
+                            if UnitExists("target") and not UnitAffectingCombat("pet") then
+                                PetAssistMode()
+                                PetAttack("target")
+                            end
                         end
                     end
                 end -- End No Combat
             end -- End Action List - PreCombat
+            local function actionList_Opener()
+                if isBoss("target") and isValidUnit("target") and opener == false then
+                    if (isChecked("Pre-Pull Timer") and pullTimer <= getOptionValue("Pre-Pull Timer")) or not isChecked("Pre-Pull Timer") then
+                    -- Demonic Empowerment
+                        if not DE1 then
+                            castOpener("demonicEmpowerment","DE1",1)
+                    -- Potion
+                        potion,name=deadly_grace
+                        elseif useCDs() and canUse(127843) and isChecked("Potion") and getDistance("target") < 15 then
+                            print("Potion Used!");
+                            useItem(127843)
+                    -- Demonbolt/Shadowbolt
+                        elseif DE1 and not DSB1 then
+                            if talent.demonbolt then
+                                castOpener("demonbolt","DSB1",2)
+                            else
+                                castOpener("shadowbolt","DSB1",2)
+                            end
+                    -- Doom
+                        elseif DSB1 and not DOOM then
+                            castOpener("doom","DOOM",3)
+                    -- Summon Doomguard
+                        elseif DOOM and not SDG then
+                            castOpener("summonDoomguard","SDG",4)
+                    -- Grimoire: Felguard
+                        elseif SDG and not GRF then
+                            castOpener("grimoireFelguard","GRF",5)
+                    -- Demonic Empowerment
+                        elseif GRF and not DE2 then
+                            castOpener("demonicEmpowerment","DE2",6)
+                    -- Demonbolt/Shadowbolt
+                        elseif DE2 and not DSB2 then
+                            if talent.demonbolt then
+                                castOpener("demonbolt","DSB2",7)
+                            else
+                                castOpener("shadowbolt","DSB2",7)
+                            end
+                    -- Summon Darkglare
+                        elseif DSB2 and not DGL then
+                            castOpener("summonDarkglare","DGL",8)
+                    -- Demonic Empowerment
+                        elseif DGL and not DE3 then
+                            castOpener("demonicEmpowerment","DE3",9)
+                    -- Demonbolt/Shadowbolt
+                        elseif DE3 and not DSB3 then
+                            if talent.demonbolt then
+                                castOpener("demonbolt","DSB3",10)
+                            else
+                                castOpener("shadowbolt","DSB3",10)
+                            end
+                    -- Demonbolt/Shadowbolt
+                        elseif DSB3 and not DSB4 then
+                            if talent.demonbolt then
+                                castOpener("demonbolt","DSB4",11)
+                            else
+                                castOpener("shadowbolt","DSB4",11)
+                            end
+                    -- Demonbolt/Shadowbolt
+                        elseif DSB4 and not DSB5 then
+                            if talent.demonbolt then
+                                castOpener("demonbolt","DSB5",12)
+                            else
+                                castOpener("shadowbolt","DSB5",12)
+                            end
+                    -- Soul Harvest
+                        elseif DSB5 and not HVST then
+                            castOpener("soulHarvest","HVST",13)
+                    -- Call Dreadstalkers
+                        elseif HVST and not DRS then
+                            castOpener("callDreadstalkers","DRS",14)
+                    -- Hand of Guldan
+                        elseif DRS and not HOG then
+                            castOpener("handOfGuldan","HOG",15)
+                    -- Demonic Empowerment
+                        elseif HOG and not DE5 then
+                            castOpener("demonicEmpowerment","DE5",16)
+                    -- Thal'kiel's Consumption
+                        elseif DE5 and not TKC then
+                            castOpener("thalkielsConsumption","TKC",17)
+                        elseif TKC then
+                            opener = true
+                        end
+                    end
+                end
+            end
     ---------------------
     --- Begin Profile ---
     ---------------------
@@ -447,10 +558,18 @@ if select(2, UnitClass("player")) == "WARLOCK" then
     --- Out of Combat Rotation ---
     ------------------------------
                 if actionList_PreCombat() then return end
+    -----------------------
+    --- Opener Rotation ---
+    -----------------------
+                if opener == false and isChecked("Opener") and isBoss("target") then
+                    if actionList_Opener() then return end
+                end
     --------------------------
     --- In Combat Rotation ---
     --------------------------
-                if inCombat and profileStop==false and isValidUnit(units.dyn40) and getDistance(units.dyn40) < 40 then
+                if inCombat and profileStop==false and isValidUnit(units.dyn40) and getDistance(units.dyn40) < 40 
+                    and (opener == true or not isChecked("Opener") or not isBoss("target")) 
+                then
         ------------------------------
         --- In Combat - Interrupts ---
         ------------------------------
@@ -483,7 +602,7 @@ if select(2, UnitClass("player")) == "WARLOCK" then
             -- Service Pet
                         -- if=cooldown.summon_doomguard.remains<=gcd&soul_shard>=2
                         -- if=cooldown.summon_doomguard.remains>25
-                        if ((cd.summonDoomguard <= gcd and shards >= 2) or cd.summonDoomguard > 25) and bb.timer:useTimer("castGrim", gcd) then
+                        if --[[((cd.summonDoomguard <= gcd and shards >= 2) or cd.summonDoomguard > 25) and]] bb.timer:useTimer("castGrim", gcd) then
                             if grimoirePet == 1 then
                                 if cast.grimoireImp() then prevService = "Imp"; return end
                             end
@@ -613,7 +732,7 @@ if select(2, UnitClass("player")) == "WARLOCK" then
             -- Demonwrath
                         -- demonwrath,chain=1,interrupt=1,if=spell_targets.demonwrath>=3 
                         -- demonwrath,moving=1,chain=1,interrupt=1
-                        if demonwrathPet or moving or manaPercent > 60 then
+                        if demonwrathPet or moving then
                             if cast.demonwrath() then return end
                         end
             -- Demonbolt

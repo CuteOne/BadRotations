@@ -848,6 +848,16 @@ function castSpellMacro(Unit,SpellID,FacingCheck,MovementCheck,SpamAllowed,Known
 	end
 	return false
 end
+-- Used in openers
+function castOpener(spellIndex,flag,index)
+    if (not bb.player.cast.debug[spellIndex] and (bb.player.cd[spellIndex] == 0 or bb.player.cd[spellIndex] > bb.player.gcd)) then
+        print(index..": "..select(1,GetSpellInfo(bb.player.spell[spellIndex])).." (Uncastable)");
+        _G[flag] = true;
+        return
+    else
+        if bb.player.cast[spellIndex]() then print(index..": "..select(1,GetSpellInfo(bb.player.spell[spellIndex]))); _G[flag] = true; return end
+    end
+end
 function canCast(spellID,unit)
 	if unit == nil then unit = "target" end
 	return castSpell(unit,spellID,false,false,false,false,false,false,false,true)
@@ -1194,6 +1204,7 @@ function getDistance(Unit1,Unit2)
 		local dist2 = dist+0.03*((13-dist)/0.13)
 		local dist3 = dist+0.05*((8-dist)/0.15)+1
 		local dist4 = math.sqrt(((X2-X1)^2) + ((Y2-Y1)^2) + ((Z2-Z1)^2))
+		if currDist == nil then currDist = 100 end
 		if dist > 13 then
 			-- return dist
 			currDist = dist
@@ -1215,6 +1226,8 @@ function getDistance(Unit1,Unit2)
 					else
 						return currDist - 5
 					end
+				else
+					return currDist
 				end
 			else
 				return currDist
