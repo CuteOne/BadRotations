@@ -535,7 +535,7 @@ if select(2, UnitClass("player")) == "SHAMAN" then
                         end    
                 -- Boulderfist
                         -- boulderfist,if=buff.boulderfist.remains<gcd|(charges_fractional>1.75&maelstrom<=100&active_enemies<=2)
-                        if buff.remain.boulderfist < gcd or (charges.frac.boulderfist > 1.75 and power <= 100 and ((mode.rotation == 1 and #enemies.yards5 <= 2) or mode.rotation == 1))) then
+                        if buff.remain.boulderfist < gcd or (charges.frac.boulderfist > 1.75 and power <= 100 and ((mode.rotation == 1 and #enemies.yards5 <= 2) or mode.rotation == 1)) then
                             if cast.boulderfist() then return end
                         end
                 -- Crash Lightning

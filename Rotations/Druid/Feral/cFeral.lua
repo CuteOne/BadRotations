@@ -40,8 +40,8 @@ function cFeral:new()
             skullBash                   = 106839,
             stampedingRoar              = 106898,
             survivalInstincts           = 61336,
-            swipe                       = 213764, --106785,
-            thrash                      = 106832, --106830,
+            swipe                       = 106785, --213764,
+            thrash                      = 106830, --106832,
             tigersFury                  = 5217,
         }
         self.spell.spec.artifacts       = {
@@ -508,7 +508,7 @@ function cFeral:new()
                 if minUnits == nil then minUnits = 1 end
                 if effectRng == nil then effectRng = 8 end
                 if debug == nil then debug = false end
-                if IsUsableSpell(v) and getSpellCD(v) == 0 and IsPlayerSpell(spellCast) and amIinRange then
+                if IsUsableSpell(v) and getSpellCD(v) == 0 and isKnown(spellCast) and amIinRange then
                     if debug then
                         return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                     else
