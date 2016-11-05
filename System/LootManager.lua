@@ -97,14 +97,14 @@ function lootManager:getLoot()
 						lM:debug("Interact with "..lM.canLootUnit)
 						SetCVar("autoLootDefault", "0")
 						looted = 1
-						ClearTarget()
+						if FireHack then ClearTarget() end
 						return
 					else
 						InteractUnit(lM.canLootUnit)
 						lM.canLootTimer = GetTime() + 1.5
 						lM:debug("Interact with "..lM.canLootUnit)
 						looted = 1
-						ClearTarget()
+						if FireHack then ClearTarget() end
 					end
 					-- no matter what happened, we clear all values
 					lM.canLootUnit = nil
@@ -168,7 +168,7 @@ local function pulse()
 			end
 			-- it we seen a loot in reader
 			if lM.lootedTimer and lM.lootedTimer < GetTime() - 0.5 then
-				ClearTarget()
+				if FireHack then ClearTarget() end
 				lM.lootedTimer = nil
 				lM.shouldLoot = false
 				lM:debug("Clear Target")

@@ -24,9 +24,10 @@ System\readers\combatlog.lua
 System\readers\common.lua
 
 ## LIBS
+#@no-lib-strip@
 System\Libs\LibStub-1.0\LibStub.lua
 System\Libs\!LibDraw\LibDraw.lua
-System\Libs\LibBossIDs-1.0\LibBossIDs-1.0.xml
+System\Libs\LibBossIDs-1.0\LibBossIDs-1.0.lua
 System\Libs\CallbackHandler-1.0\CallbackHandler-1.0.xml
 System\Libs\LibSpellRange-1.0\LibSpellRange-1.0.lua
 System\Libs\LibRangeCheck-2.0\LibRangeCheck-2.0.lua
@@ -37,6 +38,7 @@ System\Libs\DiesalGUI-1.0\DiesalGUI-1.0.xml
 System\Libs\DiesalMenu-1.0\DiesalMenu-1.0.xml
 System\Libs\LibArtifactData-1.0\LibArtifactData-1.0.lua
 System\newui.lua
+#@end-no-lib-strip@
 
 System\drawer\drawer.lua
 

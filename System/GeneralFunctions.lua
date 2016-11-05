@@ -2032,8 +2032,8 @@ function isBoss(unit)
 	if unit==nil then unit="target" end
 	if UnitExists(unit) then
 		local npcID = string.match(UnitGUID(unit),"-(%d+)-%x+$")
-		-- local bossCheck = LibStub("LibBossIDs-1.0").BossIDs[tonumber(npcID)] or false
-		local bossCheck = bb.player.BossIDs[tonumber(npcID)] or false
+		local bossCheck = LibStub("LibBossIDs-1.0").BossIDs[tonumber(npcID)] or false
+		-- local bossCheck = bb.player.BossIDs[tonumber(npcID)] or false
 		if ((UnitClassification(unit) == "rare" and UnitHealthMax(unit)>(4*UnitHealthMax("player")))
 			or UnitClassification(unit) == "rareelite" 
 			or UnitClassification(unit) == "worldboss" 

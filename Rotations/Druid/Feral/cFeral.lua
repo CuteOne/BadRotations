@@ -147,6 +147,13 @@ function cFeral:new()
             self.getToggleModes()
             self.getCastable()
 
+            -- Update Combo Points
+            self.comboPoints    = UnitPower("player",4)
+            self.comboPointsMax = UnitPowerMax("player",4)
+
+            -- Update Energy Regeneration
+            self.powerRegen     = getRegen("player")
+
             -- Start selected rotation
             self:startRotation()
         end
