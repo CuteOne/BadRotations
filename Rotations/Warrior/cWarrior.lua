@@ -230,193 +230,234 @@ if select(2, UnitClass("player")) == "WARRIOR" then
     --------------
 
         function self.getClassCastable()
-            self.cast.debug.avatar        = self.cast.avatar("player",true)
-            self.cast.debug.battleCry     = self.cast.battleCry("player",true)
-            self.cast.debug.berserkerRage = self.cast.berserkerRage("player",true)
-            self.cast.debug.charge        = self.cast.charge("target",true)
-            self.cast.debug.giftOfTheNaaru= self.cast.giftOfTheNaaru("player",true)
-            self.cast.debug.heroicLeap    = self.cast.heroicLeap("player",true)
-            self.cast.debug.heroicThrow   = self.cast.heroicThrow("target",true)
-            self.cast.debug.pummel        = self.cast.pummel("target",true)
-            self.cast.debug.shockwave     = self.cast.shockwave("target",true)
-            self.cast.debug.stormBolt     = self.cast.stormBolt("target",true)
-        end
-
-        -- Avatar
-        function self.cast.avatar(thisUnit,debug)
-            local spellCast = self.spell.avatar
-            local thisUnit = thisUnit
-            if thisUnit == nil then thisUnit = "player" end
-            if debug == nil then debug = false end
-
-            if self.talent.avatar and self.cd.avatar == 0 then
-                if debug then
-                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+            for k,v in pairs(self.spell.class.abilities) do
+                local spellCast = v
+                local spellName = GetSpellInfo(v)
+                if IsHarmfulSpell(spellName) then
+                    self.cast.debug[k] = self.cast[k]("target",true)
                 else
-                    return castSpell(thisUnit,spellCast,false,false,false)
+                    self.cast.debug[k] = self.cast[k]("player",true)
                 end
-            elseif debug then
-                return false
             end
         end
-        -- Battle Cry
-        function self.cast.battleCry(thisUnit,debug)
-            local spellCast = self.spell.battleCry
-            local thisUnit = thisUnit
-            if thisUnit == nil then thisUnit = "player" end
-            if debug == nil then debug = false end
 
-            if self.level >= 60 and self.cd.battleCry == 0 then
-                if debug then
-                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
-                else
-                    return castSpell(thisUnit,spellCast,false,false,false)
+        for k,v in pairs(self.spell.class.abilities) do
+            self.cast[k] = function(thisUnit,debug,minUnits,effectRng)
+                local spellCast = v
+                local spellName = GetSpellInfo(v)
+                if thisUnit == nil then
+                    if IsHarmfulSpell(spellName) then thisUnit = "target" end
+                    if IsHelpfulSpell(spellName) then thisUnit = "player" end
                 end
-            elseif debug then
-                return false
-            end
-        end
-        -- Berserker Rage
-        function self.cast.berserkerRage(thisUnit,debug)
-            local spellCast = self.spell.berserkerRage
-            local thisUnit = thisUnit
-            if thisUnit == nil then thisUnit = "player" end
-            if debug == nil then debug = false end
-
-            if self.level >= 40 and self.cd.berserkerRage == 0 then
-                if debug then
-                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
-                else
-                    return castSpell(thisUnit,spellCast,false,false,false)
-                end
-            elseif debug then
-                return false
-            end
-        end
-        -- Charge
-        function self.cast.charge(thisUnit,debug)
-            local spellCast = self.spell.charge
-            local thisUnit = thisUnit
-            if thisUnit == nil then thisUnit = self.units.dyn25 end
-            if debug == nil then debug = false end
-
-            if self.level >= 3 and self.cd.charge == 0 and self.charges.charge > 0 and getDistance(thisUnit) >= 8 and getDistance(thisUnit) < 25 then
-                if debug then
-                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
-                else
-                    return castSpell(thisUnit,spellCast,false,false,false)
-                end
-            elseif debug then
-                return false
-            end
-        end
-        -- Gift of the Naaru
-        function self.cast.giftOfTheNaaru(thisUnit,debug)
-            local spellCast = self.spell.giftOfTheNaaru
-            local thisUnit = thisUnit
-            if thisUnit == nil then thisUnit = "player" end
-            if debug == nil then debug = false end
-
-            if self.level >= 1 and self.cd.giftOfTheNaaru == 0 and self.race == "Draenei" then
-                if debug then
-                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
-                else
-                    return castSpell(thisUnit,spellCast,false,false,false)
-                end
-            elseif debug then
-                return false
-            end
-        end
-        -- Heroic Leap
-        function self.cast.heroicLeap(thisUnit,debug)
-            local spellCast = self.spell.heroicLeap
-            local thisUnit = thisUnit
-            if thisUnit == nil then thisUnit = self.units.dyn40 end
-            if debug == nil then debug = false end
-
-            if self.level >= 26 and self.cd.heroicLeap == 0 and self.charges.heroicLeap > 0 and getDistance(thisUnit) >= 8 and getDistance(thisUnit) < 40 then
-                if debug then
-                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
-                else
-                    if thisUnit == "target" then
-                        return castGround("target",spellCast,40,8)
+                if SpellHasRange(spellName) then
+                    if IsSpellInRange(spellName,thisUnit) == 0 then
+                        amIinRange = false 
                     else
-                        -- return castGround(thisUnit,spellCast,40,8)
-                        return castGroundAtBestLocation(spellCast, 8, 1, 40, 8)
+                        amIinRange = true
                     end
-                end
-            elseif debug then
-                return false
-            end
-        end
-        -- Heroic Throw
-        function self.cast.heroicThrow(thisUnit,debug)
-            local spellCast = self.spell.heroicThrow
-            local thisUnit = thisUnit
-            if thisUnit == nil then thisUnit = self.units.dyn30 end
-            if debug == nil then debug = false end
-
-            if self.level >= 22 and self.cd.heroicThrow == 0 and getDistance(thisUnit) >= 8 and getDistance(thisUnit) < 30 then
-                if debug then
-                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
-                    return castSpell(thisUnit,spellCast,false,false,false)
+                    amIinRange = true
                 end
-            elseif debug then
-                return false
+                local minRange = select(5,GetSpellInfo(spellName))
+                local maxRange = select(6,GetSpellInfo(spellName))
+                if minUnits == nil then minUnits = 1 end
+                if effectRng == nil then effectRng = 8 end
+                if debug == nil then debug = false end
+                if IsUsableSpell(v) and getSpellCD(v) == 0 and isKnown(v) and amIinRange then
+                    if debug then
+                        return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                    else
+                        if IsHarmfulSpell(spellName) or IsHelpfulSpell(spellName) then
+                            return castSpell(thisUnit,spellCast,false,false,false)
+                        else
+                            if thisUnit ~= "player" then
+                                return castGround(thisUnit,spellCast,maxRange,minRange)
+                            else
+                                return castGroundAtBestLocation(spellCast,effectRng,minUnits,maxRange,minRange)
+                            end
+                        end
+                    end
+                elseif debug then
+                    return false
+                end
             end
         end
-        -- Pummel
-        function self.cast.pummel(thisUnit,debug)
-            local spellCast = self.spell.pummel
-            local thisUnit = thisUnit
-            if thisUnit == nil then thisUnit = self.units.dyn5 end
-            if debug == nil then debug = false end
 
-            if self.level >= 24 and self.cd.pummel == 0 and getDistance(thisUnit) < 5 then
-                if debug then
-                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
-                else
-                    return castSpell(thisUnit,spellCast,false,false,false)
-                end
-            elseif debug then
-                return false
-            end
-        end
-        -- Shockwave
-        function self.cast.shockwave(thisUnit,debug)
-            local spellCast = self.spell.shockwave
-            local thisUnit = thisUnit
-            if thisUnit == nil then thisUnit = self.units.dyn10 end
-            if debug == nil then debug = false end
+        -- -- Avatar
+        -- function self.cast.avatar(thisUnit,debug)
+        --     local spellCast = self.spell.avatar
+        --     local thisUnit = thisUnit
+        --     if thisUnit == nil then thisUnit = "player" end
+        --     if debug == nil then debug = false end
 
-            if self.talent.shockwave and self.cd.shockwave == 0 and getDistance(thisUnit) < 10 then
-                if debug then
-                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
-                else
-                    return castSpell(thisUnit,spellCast,false,false,false)
-                end
-            elseif debug then
-                return false
-            end
-        end
-        -- Storm Bolt
-        function self.cast.stormBolt(thisUnit,debug)
-            local spellCast = self.spell.stormBolt
-            local thisUnit = thisUnit
-            if thisUnit == nil then thisUnit = self.units.dyn20 end
-            if debug == nil then debug = false end
+        --     if self.talent.avatar and self.cd.avatar == 0 then
+        --         if debug then
+        --             return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+        --         else
+        --             return castSpell(thisUnit,spellCast,false,false,false)
+        --         end
+        --     elseif debug then
+        --         return false
+        --     end
+        -- end
+        -- -- Battle Cry
+        -- function self.cast.battleCry(thisUnit,debug)
+        --     local spellCast = self.spell.battleCry
+        --     local thisUnit = thisUnit
+        --     if thisUnit == nil then thisUnit = "player" end
+        --     if debug == nil then debug = false end
 
-            if self.talent.stormBolt and self.cd.stormBolt == 0 and getDistance(thisUnit) < 20 then
-                if debug then
-                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
-                else
-                    return castSpell(thisUnit,spellCast,false,false,false)
-                end
-            elseif debug then
-                return false
-            end
-        end
+        --     if self.level >= 60 and self.cd.battleCry == 0 then
+        --         if debug then
+        --             return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+        --         else
+        --             return castSpell(thisUnit,spellCast,false,false,false)
+        --         end
+        --     elseif debug then
+        --         return false
+        --     end
+        -- end
+        -- -- Berserker Rage
+        -- function self.cast.berserkerRage(thisUnit,debug)
+        --     local spellCast = self.spell.berserkerRage
+        --     local thisUnit = thisUnit
+        --     if thisUnit == nil then thisUnit = "player" end
+        --     if debug == nil then debug = false end
+
+        --     if self.level >= 40 and self.cd.berserkerRage == 0 then
+        --         if debug then
+        --             return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+        --         else
+        --             return castSpell(thisUnit,spellCast,false,false,false)
+        --         end
+        --     elseif debug then
+        --         return false
+        --     end
+        -- end
+        -- -- Charge
+        -- function self.cast.charge(thisUnit,debug)
+        --     local spellCast = self.spell.charge
+        --     local thisUnit = thisUnit
+        --     if thisUnit == nil then thisUnit = self.units.dyn25 end
+        --     if debug == nil then debug = false end
+
+        --     if self.level >= 3 and self.cd.charge == 0 and self.charges.charge > 0 and getDistance(thisUnit) >= 8 and getDistance(thisUnit) < 25 then
+        --         if debug then
+        --             return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+        --         else
+        --             return castSpell(thisUnit,spellCast,false,false,false)
+        --         end
+        --     elseif debug then
+        --         return false
+        --     end
+        -- end
+        -- -- Gift of the Naaru
+        -- function self.cast.giftOfTheNaaru(thisUnit,debug)
+        --     local spellCast = self.spell.giftOfTheNaaru
+        --     local thisUnit = thisUnit
+        --     if thisUnit == nil then thisUnit = "player" end
+        --     if debug == nil then debug = false end
+
+        --     if self.level >= 1 and self.cd.giftOfTheNaaru == 0 and self.race == "Draenei" then
+        --         if debug then
+        --             return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+        --         else
+        --             return castSpell(thisUnit,spellCast,false,false,false)
+        --         end
+        --     elseif debug then
+        --         return false
+        --     end
+        -- end
+        -- -- Heroic Leap
+        -- function self.cast.heroicLeap(thisUnit,debug)
+        --     local spellCast = self.spell.heroicLeap
+        --     local thisUnit = thisUnit
+        --     if thisUnit == nil then thisUnit = self.units.dyn40 end
+        --     if debug == nil then debug = false end
+
+        --     if self.level >= 26 and self.cd.heroicLeap == 0 and self.charges.heroicLeap > 0 and getDistance(thisUnit) >= 8 and getDistance(thisUnit) < 40 then
+        --         if debug then
+        --             return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+        --         else
+        --             if thisUnit == "target" then
+        --                 return castGround("target",spellCast,40,8)
+        --             else
+        --                 -- return castGround(thisUnit,spellCast,40,8)
+        --                 return castGroundAtBestLocation(spellCast, 8, 1, 40, 8)
+        --             end
+        --         end
+        --     elseif debug then
+        --         return false
+        --     end
+        -- end
+        -- -- Heroic Throw
+        -- function self.cast.heroicThrow(thisUnit,debug)
+        --     local spellCast = self.spell.heroicThrow
+        --     local thisUnit = thisUnit
+        --     if thisUnit == nil then thisUnit = self.units.dyn30 end
+        --     if debug == nil then debug = false end
+
+        --     if self.level >= 22 and self.cd.heroicThrow == 0 and getDistance(thisUnit) >= 8 and getDistance(thisUnit) < 30 then
+        --         if debug then
+        --             return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+        --         else
+        --             return castSpell(thisUnit,spellCast,false,false,false)
+        --         end
+        --     elseif debug then
+        --         return false
+        --     end
+        -- end
+        -- -- Pummel
+        -- function self.cast.pummel(thisUnit,debug)
+        --     local spellCast = self.spell.pummel
+        --     local thisUnit = thisUnit
+        --     if thisUnit == nil then thisUnit = self.units.dyn5 end
+        --     if debug == nil then debug = false end
+
+        --     if self.level >= 24 and self.cd.pummel == 0 and getDistance(thisUnit) < 5 then
+        --         if debug then
+        --             return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+        --         else
+        --             return castSpell(thisUnit,spellCast,false,false,false)
+        --         end
+        --     elseif debug then
+        --         return false
+        --     end
+        -- end
+        -- -- Shockwave
+        -- function self.cast.shockwave(thisUnit,debug)
+        --     local spellCast = self.spell.shockwave
+        --     local thisUnit = thisUnit
+        --     if thisUnit == nil then thisUnit = self.units.dyn10 end
+        --     if debug == nil then debug = false end
+
+        --     if self.talent.shockwave and self.cd.shockwave == 0 and getDistance(thisUnit) < 10 then
+        --         if debug then
+        --             return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+        --         else
+        --             return castSpell(thisUnit,spellCast,false,false,false)
+        --         end
+        --     elseif debug then
+        --         return false
+        --     end
+        -- end
+        -- -- Storm Bolt
+        -- function self.cast.stormBolt(thisUnit,debug)
+        --     local spellCast = self.spell.stormBolt
+        --     local thisUnit = thisUnit
+        --     if thisUnit == nil then thisUnit = self.units.dyn20 end
+        --     if debug == nil then debug = false end
+
+        --     if self.talent.stormBolt and self.cd.stormBolt == 0 and getDistance(thisUnit) < 20 then
+        --         if debug then
+        --             return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+        --         else
+        --             return castSpell(thisUnit,spellCast,false,false,false)
+        --         end
+        --     elseif debug then
+        --         return false
+        --     end
+        -- end
 
     ------------------------
     --- CUSTOM FUNCTIONS ---

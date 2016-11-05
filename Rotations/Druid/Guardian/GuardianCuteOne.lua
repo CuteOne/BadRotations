@@ -223,6 +223,8 @@ if select(2, UnitClass("player")) == "DRUID" then
             if lastForm == nil then lastForm = 0 end
             if lossPercent > snapLossHP or php > snapLossHP then snapLossHP = lossPercent end
 
+            -- cast.catForm()
+
             -- ChatOverlay("Aggroed: "..tostring(isAggroed("target"))..", Threat "..tostring(hasThreat("target")))
             --             -- Growl
             --     if isChecked("Growl") then
@@ -262,7 +264,7 @@ if select(2, UnitClass("player")) == "DRUID" then
 					  	if cast.travelForm() then return end
 					end
                 -- Cat Form when not swimming or flying or stag and not in combat
-                    if not cat and not inCombat and moving and not swimming and not flying and not travel and #enemies.yards20 == 0 and not ObjectExists("target") then
+                    if not cat and not inCombat and moving and not swimming and not flying and not travel and (#enemies.yards20 == 0 or not bear) and not ObjectExists("target") then
                         if cast.catForm() then return end
                     end
                 -- Bear Form
@@ -342,13 +344,13 @@ if select(2, UnitClass("player")) == "DRUID" then
                     end
             -- Remove Corruption
                     if isChecked("Remove Corruption") then
-                        if getOptionValue("Remove Corruption - Target")==1 then
+                        if getOptionValue("Remove Corruption - Target")==1 and canDispel("player",spell.removeCorruption) then
                             if cast.removeCorruption("player") then return end
                         end
-                        if getOptionValue("Remove Corruption - Target")==2 then
+                        if getOptionValue("Remove Corruption - Target")==2 and canDispel("target",spell.removeCorruption) then
                             if cast.removeCorruption("target") then return end
                         end
-                        if getOptionValue("Remove Corruption - Target")==3 then
+                        if getOptionValue("Remove Corruption - Target")==3 and canDispel("mouseover",spell.removeCorruption) then
                             if cast.removeCorruption("mouseover") then return end
                         end
                     end

@@ -1,181 +1,157 @@
 -- Inherit from: ../cCharacter.lua
 -- All Druid specs inherit from this file
 if select(2, UnitClass("player")) == "DRUID" then
-	cDruid = {}
-	-- Creates Druid with given specialisation
-	function cDruid:new(spec)
-		local self = cCharacter:new("Druid")
+    cDruid = {}
+    -- Creates Druid with given specialisation
+    function cDruid:new(spec)
+		    local self = cCharacter:new("Druid")
 
-		local player = "player" -- if someone forgets ""
+		    local player = "player" -- if someone forgets ""
 
-	-----------------
+    -----------------
     --- VARIABLES ---
     -----------------
 
-		self.profile         = spec
-		self.comboPoints     = getCombo("player")
-		self.stealth		 = false
-		self.artifact 		 = {}
-		self.artifact.rank   = {}
-		self.buff.duration	 = {}		-- Buff Durations
-		self.buff.remain 	 = {}		-- Buff Time Remaining
-        self.buff.stacks     = {}
-		self.cast 		     = {}        -- Cast Spell Functions
-		self.cast.debug 	 = {}
-		self.debuff.duration = {}		-- Debuff Durations
-		self.debuff.remain 	 = {}		-- Debuff Time Remaining
-		self.debuff.refresh             = {}       -- Debuff Refreshable
+    		self.profile                    = spec
+    		self.comboPoints                = getCombo("player")
+    		self.stealth		                = false
+    		self.artifact 		              = {}
+    		self.artifact.rank              = {}
+    		self.buff.duration	            = {}		-- Buff Durations
+    		self.buff.remain 	              = {}		-- Buff Time Remaining
+        self.buff.stacks                = {}
+    		self.cast 		                  = {}        -- Cast Spell Functions
+    		self.cast.debug 	              = {}
+    		self.debuff.duration            = {}		-- Debuff Durations
+    		self.debuff.remain 	            = {}		-- Debuff Time Remaining
+    		self.debuff.refresh             = {}       -- Debuff Refreshable
         self.debuff.stacks              = {}
         self.spell.class                = {}        -- Abilities Available To All Specs in Class
         self.spell.class.abilities      = {
-        	bearForm 					= 5487,
-			catForm 					= 768,
-			dash 						= 1850,
-			displacerBeast 				= 102280,
-			dreamwalk 					= 193753,
-			entanglingRoots 			= 339,
-			flightForm 					= 165962,
-			growl 						= 6795,
-			massEntanglement 			= 102359,
-			mightyBash 					= 5211,
-			moonfire 					= 8921,
-			prowl 						= 5215,
-			rebirth 					= 20484,
+            bearForm 					          = 5487,
+            catForm 					          = 768,
+            dash 						            = 1850,
+            displacerBeast 				      = 102280,
+            dreamwalk 					        = 193753,
+            entanglingRoots 			      = 339,
+            flightForm 					        = 165962,
+            growl 						          = 6795,
+            massEntanglement 			      = 102359,
+            mightyBash 					        = 5211,
+            moonfire 					          = 8921,
+            prowl 						          = 5215,
+            rebirth 					          = 20484,
             regrowth                    = 8936,
-			revive 						= 50769,
-			shadowmeld                  = 58984,
-			stagForm 					= 210053,
-			travelForm 					= 783,
-			typhoon 					= 132469,
-			wildCharge 					= 102401,
+            revive 						          = 50769,
+            shadowmeld                  = 58984,
+            stagForm 					          = 210053,
+            travelForm 					        = 783,
+            typhoon 					          = 132469,
+            wildCharge 					        = 102401,
         }
         self.spell.class.artifacts      = {        -- Artifact Traits Available To All Specs in Class
-            artificialStamina 			= 211309,
+            artificialStamina 			    = 211309,
         }
         self.spell.class.buffs          = {        -- Buffs Available To All Specs in Class
-        	bearForm 	 				= 5487,
-			catForm 					= 768,
-			dash 						= 1850,
-			displacerBeast 				= 137452,
-			flightForm 					= 165962,
-			prowl 						= 5215,
-			shadowmeld                  = 58984,
-			stagForm 	 				= 210053,
-			travelForm  				= 783,
+            bearForm 	 				          = 5487,
+            catForm 					          = 768,
+            dash 						            = 1850,
+            displacerBeast 				      = 137452,
+            flightForm 					        = 165962,
+            prowl 						          = 5215,
+            shadowmeld                  = 58984,
+            stagForm 	 				          = 210053,
+            travelForm  				        = 783,
         }
         self.spell.class.debuffs        = {        -- Debuffs Available To All Specs in Class
-        	entanglingRoots 	 		= 339,
-			growl 		 				= 6795,
-			moonfire 	 				= 8921,
+            entanglingRoots 	 		      = 339,
+            growl 		 				          = 6795,
+            moonfire 	 				          = 8921,
         }
         self.spell.class.glyphs         = {        -- Glyphs Available To All Specs in Class
-        	glyphOfTheCheetah 			= 131113,
-			glyphOfTheDoe 				= 224122,
-			glyphOfTheFeralChameleon 	= 210333,
-			glyphOfTheOrca 				= 114333,
-			glyphOfTheSentinel 			= 219062,
-			glyphOfTheUrsolChameleon 	= 107059, 
+            glyphOfTheCheetah 			    = 131113,
+            glyphOfTheDoe 				      = 224122,
+            glyphOfTheFeralChameleon 	  = 210333,
+            glyphOfTheOrca 				      = 114333,
+            glyphOfTheSentinel 			    = 219062,
+            glyphOfTheUrsolChameleon 	  = 107059, 
         }
         self.spell.class.talents        = {        -- Talents Available To All Specs in Class
-        	displacerBeast 				= 102280,
-        	massEntanglement 			= 102359,
-			mightyBash 					= 5211,
-			typhoon 					= 132469,
-			wildCharge 					= 102401,
+            displacerBeast 				      = 102280,
+            massEntanglement 			      = 102359,
+            mightyBash 					        = 5211,
+            typhoon 					          = 132469,
+            wildCharge 					        = 102401,
         }
 
     ------------------
     --- OOC UPDATE ---
     ------------------
 
-		function self.classUpdateOOC()
-			-- Call baseUpdateOOC()
-			self.baseUpdateOOC()
-			self.getClassArtifacts()
-			self.getClassArtifactRanks()
-			self.getClassGlyphs()
-			self.getClassTalents()
-			self.getClassPerks()
-		end
+        function self.classUpdateOOC()
+            -- Call baseUpdateOOC()
+            self.baseUpdateOOC()
+            self.getClassArtifacts()
+            self.getClassArtifactRanks()
+            self.getClassGlyphs()
+            self.getClassTalents()
+            self.getClassPerks()
+        end
 
     --------------
     --- UPDATE ---
     --------------
 
-		function self.classUpdate()
-			-- Call baseUpdate()
-			self.baseUpdate()
-			self.getClassDynamicUnits()
-			self.getClassBuffs()
-			self.getClassCharges()
-			self.getClassCooldowns()
-			self.getClassDebuffs()
-			self.getClassCastable()
+        function self.classUpdate()
+            -- Call baseUpdate()
+            self.baseUpdate()
+            self.getClassDynamicUnits()
+            self.getClassBuffs()
+            self.getClassCharges()
+            self.getClassCooldowns()
+            self.getClassDebuffs()
+            self.getClassCastable()
 
-			-- Update Combo Points
-			self.comboPoints = UnitPower("player",4)
+            -- Update Energy Regeneration
+            self.powerRegen  = getRegen("player")
+        end
 
-	        -- Update Energy Regeneration
-	        self.powerRegen  = getRegen("player")
-
-			-- Stealth
-			if self.race == "Night Elf" then
-				self.stealth = UnitBuffID("player",self.spell.prowl) or UnitBuffID("player",self.racial)
-			else
-				self.stealth = UnitBuffID("player",self.spell.prowl)
-			end
-		end
-
-	---------------------
+    ---------------------
     --- DYNAMIC UNITS ---
     ---------------------
 
         function self.getClassDynamicUnits()
             local dynamicTarget = dynamicTarget
-            if self.talent.balanceAffinity ~= nil then
-                if self.talent.balanceAffinity then
-                    -- Normal
-                    self.units.dyn15 = dynamicTarget(20,true) -- Typhoon
 
-                    -- AoE
-                    self.units.dyn35AoE = dynamicTarget(40, false) -- Entangling Roots
-                else
-                    -- Normal
-                    self.units.dyn15 = dynamicTarget(15,true) -- Typhoon
+            -- Normal
+            self.units.dny10 = dynamicTarget(10, true) -- Shockwave
+            self.units.dyn15 = dynamicTarget(15,true)
 
-                    -- AoE
-                    self.units.dyn35AoE = dynamicTarget(35, false) -- Entangling Roots
-                end
-            else
-                -- Normal
-                self.units.dyn15 = dynamicTarget(15,true) -- Typhoon
-
-                -- AoE
-                self.units.dyn35AoE = dynamicTarget(35, false) -- Entangling Roots
-            end
+            -- AoE
+            self.units.dyn35AoE = dynamicTarget(35, false)
         end
 
     -----------------
     --- ARTIFACTS ---
     -----------------
 
-    	function self.getClassArtifacts()
-    		local isKnown = isKnown
+        function self.getClassArtifacts()
+            local isKnown = isKnown
 
-    		for k,v in pairs(self.spell.spec.artifacts) do
+            for k,v in pairs(self.spell.spec.artifacts) do
                 self.artifact[k] = hasPerk(v) or false
             end
-    	end
+        end
 
-    	function self.getClassArtifactRanks()
+        function self.getClassArtifactRanks()
 
-    	end
+        end
 
     -------------
     --- BUFFS ---
     -------------
-	
-		function self.getClassBuffs()
+    
+        function self.getClassBuffs()
             local UnitBuffID = UnitBuffID
             local getBuffDuration = getBuffDuration
             local getBuffRemain = getBuffRemain
@@ -187,11 +163,11 @@ if select(2, UnitClass("player")) == "DRUID" then
             end
         end
 
-	---------------
-	--- CHARGES ---
-	---------------
+    ---------------
+    --- CHARGES ---
+    ---------------
 
-		function self.getClassCharges()
+        function self.getClassCharges()
             local getCharges = getCharges
 
             for k,v in pairs(self.spell.class.abilities) do
@@ -200,11 +176,11 @@ if select(2, UnitClass("player")) == "DRUID" then
             end
         end
 
-	-----------------
-	--- COOLDOWNS ---
-	-----------------
+    -----------------
+    --- COOLDOWNS ---
+    -----------------
 
-		function self.getClassCooldowns()
+        function self.getClassCooldowns()
             local getSpellCD = getSpellCD
 
             for k,v in pairs(self.spell.class.abilities) do
@@ -214,11 +190,11 @@ if select(2, UnitClass("player")) == "DRUID" then
             end
         end
 
-	---------------
-	--- DEBUFFS ---
-	---------------
+    ---------------
+    --- DEBUFFS ---
+    ---------------
 
-		function self.getClassDebuffs()
+        function self.getClassDebuffs()
             local UnitDebuffID = UnitDebuffID
             local getDebuffDuration = getDebuffDuration
             local getDebuffRemain = getDebuffRemain
@@ -230,23 +206,23 @@ if select(2, UnitClass("player")) == "DRUID" then
             end
         end
 
-	--------------
-	--- GLYPHS ---
-	--------------
+    --------------
+    --- GLYPHS ---
+    --------------
 
-		function self.getClassGlyphs()
-			local hasGlyph = hasGlyph
+        function self.getClassGlyphs()
+            local hasGlyph = hasGlyph
 
-		end
+        end
 
-	----------------
-	--- TAALENTS ---
-	----------------
+    ----------------
+    --- TAALENTS ---
+    ----------------
 
-		function self.getClassTalents()
-			local getTalent = getTalent
+        function self.getClassTalents()
+            local getTalent = getTalent
 
-			for r = 1, 7 do --search each talent row
+            for r = 1, 7 do --search each talent row
                 for c = 1, 3 do -- search each talent column
                     local talentID = select(6,GetTalentInfo(r,c,GetActiveSpecGroup())) -- ID of Talent at current Row and Column
                     for k,v in pairs(self.spell.class.talents) do
@@ -256,88 +232,86 @@ if select(2, UnitClass("player")) == "DRUID" then
                     end
                 end
             end
-		end
-			
-	-------------
-	--- PERKS ---
-	-------------
+        end
+            
+    -------------
+    --- PERKS ---
+    -------------
 
-		function self.getClassPerks()
-			local isKnown = isKnown
+        function self.getClassPerks()
+            local isKnown = isKnown
 
-		end
+        end
 
-	---------------
-	--- OPTIONS ---
-	---------------
+    ---------------
+    --- OPTIONS ---
+    ---------------
 
-		-- Class options
-		-- Options which every Druid should have
-		function self.createClassOptions()
+        -- Class options
+        -- Options which every Warrior should have
+        function self.createClassOptions()
             -- Class Wrap
             local section = bb.ui:createSection(bb.ui.window.profile,  "Class Options", "Nothing")
             bb.ui:checkSectionState(section)
-		end
+        end
 
-	--------------
-	--- SPELLS ---
-	--------------
+    --------------
+    --- SPELLS ---
+    --------------
 
-		function self.getClassCastable()
-			self.cast.debug.bearForm 		= self.cast.bearForm("player",true)
-			self.cast.debug.catForm 		= self.cast.catForm("player",true)
-			self.cast.debug.dash 			= self.cast.dash("player",true)
-			self.cast.debug.displacerBeast 	= self.cast.displacerBeast("player",true)
-			self.cast.debug.entanglingRoots = self.cast.entanglingRoots("target",true)
-			self.cast.debug.flightForm 		= self.cast.flightForm("player",true)
-			self.cast.debug.growl 			= self.cast.growl("target",true)
-			self.cast.debug.regrowth 	    = self.cast.regrowth("player",true)
-			self.cast.debug.mightyBash 		= self.cast.mightyBash("target",true)
-			self.cast.debug.moonfire 		= self.cast.moonfire("target",true)
-			self.cast.debug.prowl 			= self.cast.prowl("player",true)
-			self.cast.debug.rebirth 		= self.cast.rebirth("target",true)
-			self.cast.debug.revive 			= self.cast.revive("target",true)
-			self.cast.debug.shadowmeld 		= self.cast.shadowmeld("player",true)
-			self.cast.debug.stagForm 		= self.cast.stagForm("player",true)
-			self.cast.debug.travelForm 		= self.cast.travelForm("player",true)
-			self.cast.debug.typhoon 		= self.cast.typhoon("target",true)
-			self.cast.debug.wildCharge 		= self.cast.wildCharge("target",true)
-		end
+        function self.getClassCastable()
+            for k,v in pairs(self.spell.class.abilities) do
+                local spellCast = v
+                local spellName = GetSpellInfo(v)
+                if IsHarmfulSpell(spellName) then
+                    self.cast.debug[k] = self.cast[k]("target",true)
+                else
+                    self.cast.debug[k] = self.cast[k]("player",true)
+                end
+            end
+        end
 
         for k,v in pairs(self.spell.class.abilities) do
-                -- self.autoCastFunc[k] = function(thisUnit,debug,minUnits,effectRng)
-                self.cast[k] = function(thisUnit,debug,minUnits,effectRng)
-                    local spellCast = v
-                    local spellName = GetSpellInfo(v)
-                    local thisUnit = thisUnit
-                    if thisUnit == nil then 
-                        if IsHarmfulSpell(spellName) then thisUnit = self.units.dyn5 end
-                        if IsHelpfulSpell(spellName) then thisUnit = "player" end
-                    end
-                    if SpellHasRange(spellName) then
-                        amIinRange = IsSpellInRange(spellName,thisUnit) == 1
+            self.cast[k] = function(thisUnit,debug,minUnits,effectRng)
+                local spellCast = v
+                local spellName = GetSpellInfo(v)
+                if thisUnit == nil then
+                    if IsHarmfulSpell(spellName) then thisUnit = "target" end
+                    if IsHelpfulSpell(spellName) then thisUnit = "player" end
+                end
+                if SpellHasRange(spellName) then
+                    if IsSpellInRange(spellName,thisUnit) == 0 then
+                        amIinRange = false 
                     else
                         amIinRange = true
                     end
-                    local maxRange = select(6,spellName)
-                    if minUnits == nil then minUnits = 1 end
-                    if effectRng == nil then effectRng = 8 end
-                    if debug == nil then debug = false end
-                    if IsUsableSpell(v) and getSpellCD(v) == 0 and IsPlayerSpell(v) and amIinRange then
-                        if debug then
-                            return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    amIinRange = true
+                end
+                local minRange = select(5,GetSpellInfo(spellName))
+                local maxRange = select(6,GetSpellInfo(spellName))
+                if minUnits == nil then minUnits = 1 end
+                if effectRng == nil then effectRng = 8 end
+                if debug == nil then debug = false end
+                if IsUsableSpell(v) and getSpellCD(v) == 0 and isKnown(v) and amIinRange then
+                    if debug then
+                        return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                    else
+                        if IsHarmfulSpell(spellName) or IsHelpfulSpell(spellName) then
+                            return castSpell(thisUnit,spellCast,false,false,false)
                         else
-                            if not IsAoEPending() then
-                                return castSpell(thisUnit,spellCast,false,false,false)
+                            if thisUnit ~= "player" then
+                                return castGround(thisUnit,spellCast,maxRange,minRange)
                             else
-                                return castGroundAtBestLocation(spellCast,minUnits,effectRng,maxRange)
+                                return castGroundAtBestLocation(spellCast,effectRng,minUnits,maxRange,minRange)
                             end
                         end
-                    elseif debug then
-                        return false
                     end
+                elseif debug then
+                    return false
                 end
             end
+        end
 
 		-- -- Bear Form
 		-- function self.cast.bearForm(thisUnit,debug)
@@ -692,7 +666,7 @@ if select(2, UnitClass("player")) == "DRUID" then
     -----------------------------
     --- CALL CREATE FUNCTIONS ---
     -----------------------------
-		-- Return
-		return self
-	end --End function cDruid:new(spec)
+    		-- Return
+    		return self
+    end --End function cDruid:new(spec)
 end -- End Select 

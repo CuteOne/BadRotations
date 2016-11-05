@@ -460,62 +460,51 @@ function cFeral:new()
     --------------
 
         function self.getCastable()
-
-            self.cast.debug.ashamanesFrenzy             = self.cast.ashamanesFrenzy("target",true)
-            self.cast.debug.berserk                     = self.cast.berserk("player",true)
-            self.cast.debug.brutalSlash                 = self.cast.brutalSlash("player",true)
-            self.cast.debug.elunesGuidance              = self.cast.elunesGuidance("player",true)
-            self.cast.debug.ferociousBite               = self.cast.ferociousBite("target",true)
-            self.cast.debug.incarnationKingOfTheJungle  = self.cast.incarnationKingOfTheJungle("player",true)
-            self.cast.debug.maim                        = self.cast.maim("target",true)
-            self.cast.debug.moonfireFeral               = self.cast.moonfireFeral("player",true)
-            self.cast.debug.rake                        = self.cast.rake("target",true)
-            self.cast.debug.removeCorruption            = self.cast.removeCorruption("player",true)
-            self.cast.debug.renewal                     = self.cast.renewal("player",true)
-            self.cast.debug.rip                         = self.cast.rip("target",true)
-            self.cast.debug.savageRoar                  = self.cast.savageRoar("player",true)
-            self.cast.debug.shred                       = self.cast.shred("target",true)
-            self.cast.debug.skullBash                   = self.cast.skullBash("target",true)
-            self.cast.debug.stampedingRoar              = self.cast.stampedingRoar("player",true)
-            self.cast.debug.survivalInstincts           = self.cast.survivalInstincts("player",true)
-            self.cast.debug.swipe                       = self.cast.swipe("player",true)
-            self.cast.debug.thrash                      = self.cast.thrash("player",true)
-            self.cast.debug.tigersFury                  = self.cast.tigersFury("player",true)
+            for k,v in pairs(self.spell.spec.abilities) do
+                local spellCast = v
+                local spellName = GetSpellInfo(v)
+                if IsHarmfulSpell(spellName) then
+                    self.cast.debug[k] = self.cast[k]("target",true)
+                else
+                    self.cast.debug[k] = self.cast[k]("player",true)
+                end
+            end
         end
 
         for k,v in pairs(self.spell.spec.abilities) do
-            -- self.autoCastFunc[k] = function(thisUnit,debug,minUnits,effectRng)
             self.cast[k] = function(thisUnit,debug,minUnits,effectRng)
                 local spellCast = v
                 local spellName = GetSpellInfo(v)
-                local thisUnit = thisUnit
-                if thisUnit == nil then 
+                if thisUnit == nil then
                     if IsHarmfulSpell(spellName) then thisUnit = "target" end
                     if IsHelpfulSpell(spellName) then thisUnit = "player" end
                 end
                 if SpellHasRange(spellName) then
-                    if IsSpellInRange(spellName,thisUnit) == nil then
-                        amIinRange = true
-                    elseif IsSpellInRange(spellName,thisUnit) == 1 then
-                        amIinRange = true
+                    if IsSpellInRange(spellName,thisUnit) == 0 then
+                        amIinRange = false 
                     else
-                        amIinRange = false
+                        amIinRange = true
                     end
                 else
                     amIinRange = true
                 end
-                local maxRange = select(6,spellName)
+                local minRange = select(5,GetSpellInfo(spellName))
+                local maxRange = select(6,GetSpellInfo(spellName))
                 if minUnits == nil then minUnits = 1 end
                 if effectRng == nil then effectRng = 8 end
                 if debug == nil then debug = false end
-                if IsUsableSpell(v) and getSpellCD(v) == 0 and isKnown(spellCast) and amIinRange then
+                if IsUsableSpell(v) and getSpellCD(v) == 0 and isKnown(v) and amIinRange then
                     if debug then
                         return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                     else
-                        if not IsAoEPending() then
+                        if IsHarmfulSpell(spellName) or IsHelpfulSpell(spellName) then
                             return castSpell(thisUnit,spellCast,false,false,false)
                         else
-                            return castGroundAtBestLocation(spellCast,minUnits,effectRng,maxRange)
+                            if thisUnit ~= "player" then
+                                return castGround(thisUnit,spellCast,maxRange,minRange)
+                            else
+                                return castGroundAtBestLocation(spellCast,effectRng,minUnits,maxRange,minRange)
+                            end
                         end
                     end
                 elseif debug then

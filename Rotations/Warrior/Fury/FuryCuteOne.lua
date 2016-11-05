@@ -316,48 +316,50 @@ if select(3,UnitClass("player")) == 1 then
             end -- End Action List - Interrupts
         -- Action List - Cooldowns
             function actionList_Cooldowns()
+                if getDistance("target") < 5 then
             -- Touch of the Void
-                if useCDs() and isChecked("Touch of the Void") and getDistance(units.dyn5)<5 then
-                    if hasEquiped(128318) then
-                        if GetItemCooldown(128318)==0 then
-                            useItem(128318)
+                    if useCDs() and isChecked("Touch of the Void") then
+                        if hasEquiped(128318) then
+                            if GetItemCooldown(128318)==0 then
+                                useItem(128318)
+                            end
                         end
                     end
-                end
             -- Trinkets
-                if useCDs() and isChecked("Trinkets") and getDistance(units.dyn5)<5 then
-                    if canUse(13) then
-                        useItem(13)
+                    if useCDs() and isChecked("Trinkets") then
+                        if canUse(13) then
+                            useItem(13)
+                        end
+                        if canUse(14) then
+                            useItem(14)
+                        end
                     end
-                    if canUse(14) then
-                        useItem(14)
-                    end
-                end
             -- Draught of Souls
-                -- use_item,name=draught_of_souls,if=(spell_targets.whirlwind>1|!raid_event.adds.exists)&((talent.bladestorm.enabled&cooldown.bladestorm.remains=0)|buff.battle_cry.up|target.time_to_die<25)
+                    -- use_item,name=draught_of_souls,if=(spell_targets.whirlwind>1|!raid_event.adds.exists)&((talent.bladestorm.enabled&cooldown.bladestorm.remains=0)|buff.battle_cry.up|target.time_to_die<25)
             -- Potions
-                -- potion,name=old_war,if=(target.health.pct<20&buff.battle_cry.up)|target.time_to_die<30
+                    -- potion,name=old_war,if=(target.health.pct<20&buff.battle_cry.up)|target.time_to_die<30
             -- Battle Cry
-                -- battle_cry,if=(cooldown.odyns_fury.remains=0&(cooldown.bloodthirst.remains=0|(buff.enrage.remains>cooldown.bloodthirst.remains)))
-                if (cd.odynsFury == 0 and (cd.bloodthirst == 0 or (buff.remain.enrage > cd.bloodthirst))) then
-                    if cast.battleCry() then return end
-                end
+                    -- battle_cry,if=(cooldown.odyns_fury.remains=0&(cooldown.bloodthirst.remains=0|(buff.enrage.remains>cooldown.bloodthirst.remains)))
+                    if (cd.odynsFury == 0 and (cd.bloodthirst == 0 or (buff.remain.enrage > cd.bloodthirst))) then
+                        if cast.battleCry() then return end
+                    end
             -- Avatar
-                -- avatar,if=buff.battle_cry.up|(target.time_to_die<(cooldown.battle_cry.remains+10))
-                if buff.battleCry or (ttd(units.dyn5) < (cd.battleCry + 10)) then
-                    if cast.avatar() then return end
-                end
+                    -- avatar,if=buff.battle_cry.up|(target.time_to_die<(cooldown.battle_cry.remains+10))
+                    if buff.battleCry or (ttd(units.dyn5) < (cd.battleCry + 10)) then
+                        if cast.avatar() then return end
+                    end
             -- Bloodbath
-                -- bloodbath,if=buff.dragon_roar.up|(!talent.dragon_roar.enabled&(buff.battle_cry.up|cooldown.battle_cry.remains>10))
-                if buff.dragonRoar or (not talent.dragonRoar and (buff.battleCry or cd.battleCry > 10)) then
-                    if cast.bloodbath() then return end
-                end
+                    -- bloodbath,if=buff.dragon_roar.up|(!talent.dragon_roar.enabled&(buff.battle_cry.up|cooldown.battle_cry.remains>10))
+                    if buff.dragonRoar or (not talent.dragonRoar and (buff.battleCry or cd.battleCry > 10)) then
+                        if cast.bloodbath() then return end
+                    end
             -- Racials
-                -- blood_fury,if=buff.battle_cry.up
-                -- berserking,if=buff.battle_cry.up
-                -- arcane_torrent,if=rage<rage.max-40
-                if ((race == "Orc" or race == "Troll") and buff.battleCry) or (race == "BloodElf" and power < powerMax - 40) then
-                    if castSpell("target",racial,false,false,false) then return end
+                    -- blood_fury,if=buff.battle_cry.up
+                    -- berserking,if=buff.battle_cry.up
+                    -- arcane_torrent,if=rage<rage.max-40
+                    if ((race == "Orc" or race == "Troll") and buff.battleCry) or (race == "BloodElf" and power < powerMax - 40) then
+                        if castSpell("target",racial,false,false,false) then return end
+                    end
                 end 
             end
         -- Action List - Pre-Combat
@@ -392,11 +394,13 @@ if select(3,UnitClass("player")) == 1 then
             -- Heroic Leap
                     -- heroic_leap
                     if isChecked("Heroic Leap") and (getOptionValue("Heroic Leap")==6 or (SpecificToggle("Heroic Leap") and not GetCurrentKeyBoardFocus())) then
+                        -- Best Location
                         if getOptionValue("Heroic Leap - Target")==1 then
-                            if cast.heroicLeap() then return end
+                            if cast.heroicLeap("player",false,1,8) then return end
                         end
+                        -- Target
                         if getOptionValue("Heroic Leap - Target")==2 then
-                            if cast.heroicLeap("target") then return end
+                            if cast.heroicLeap("target",false,1,8) then return end
                         end
                     end
             -- Charge
@@ -409,7 +413,9 @@ if select(3,UnitClass("player")) == 1 then
                     if cast.stormBolt("target") then return end
             -- Heroic Throw
                     -- heroic_throw
-                    if cast.heroicThrow("target") then return end
+                    if lastSpell == spell.charge or charges.charge == 0 then
+                        if cast.heroicThrow("target") then return end
+                    end
                 end
             end
         -- Action List - Bladestorm (OH GOD WHY!?!?!)

@@ -1,4 +1,4 @@
-## Interface: 70000
+## Interface: 70100
 ## Title: |cffD90000BadBoy
 ## Notes: |cffD90000By CuteOne.
 ## Author: CuteOne
