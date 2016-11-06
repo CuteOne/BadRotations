@@ -71,7 +71,7 @@ function EnemiesEngine()
 							local safeUnit = isSafeToAttack(thisUnit)
 							local burnValue = isBurnTarget(thisUnit) or 0
 							local unitName = UnitName(thisUnit)
-							local unitID = ObjectID(thisUnit)
+							local unitID = GetObjectID(thisUnit)
 							local unitGUID = UnitGUID(thisUnit)
 							local shouldCC = isCrowdControlCandidates(thisUnit)
 							local unitThreat = UnitThreatSituation("player",thisUnit) or -1
@@ -319,7 +319,7 @@ function EnemiesEngine()
 		-- check if unit is valid
 		if GetObjectExists(unit) then
 			if getOptionCheck("Forced Burn") then
-				local unitID = ObjectID(unit)
+				local unitID = GetObjectID(unit)
 				local burnUnit = burnUnitCandidates[unitID]
 				-- check if unit is valid
 				if GetObjectExists(burnUnit) then
@@ -336,7 +336,7 @@ function EnemiesEngine()
 	function isCrowdControlCandidates(Unit)
 		-- check if unit is valid
 		if GetObjectExists(Unit) then
-			local unitID = ObjectID(Unit)
+			local unitID = GetObjectID(Unit)
 		end
 		-- cycle list of candidates
 		local crowdControlUnit = crowdControlCandidates[unitID]
@@ -373,7 +373,7 @@ function EnemiesEngine()
 		if getOptionCheck("Safe Damage Check") == true then
 			-- check if unit is valid
 			if GetObjectExists(unit) then
-				local unitID = ObjectID(unit)
+				local unitID = GetObjectID(unit)
 			end
 			for i = 1, #doNotTouchUnitCandidates do
 				if doNotTouchUnitCandidates[i].unitID == 1 or doNotTouchUnitCandidates[i].unitID == unitID then
@@ -392,7 +392,7 @@ function EnemiesEngine()
 		if getOptionCheck("Avoid Shields") then
 			-- check if unit is valid
 			if GetObjectExists(unit) then
-				local unitID = ObjectID(unit)
+				local unitID = GetObjectID(unit)
 				local shieldedUnit = shieldedUnitCandidates[unitID]
 				-- check if unit is valid
 				if GetObjectExists(shieldedUnit) then

@@ -617,7 +617,7 @@ function cShadow:new()
             end
             
             local thisUnit = targetUnit
-            local thisUnitID = ObjectID(thisUnit)
+            local thisUnitID = GetObjectID(thisUnit)
             local Blacklist_UnitID = {
             -- HM: Highmaul
                 79956,      -- Ko'ragh: Volatile Anomaly
@@ -661,7 +661,7 @@ function cShadow:new()
             end
 
             local thisUnit = targetUnit
-            local thisUnitID = ObjectID(thisUnit)
+            local thisUnitID = GetObjectID(thisUnit)
             local Blacklist_UnitID = {
             -- BRF: Blackrock Foundry
                 77893,      -- Kromog: Grasping Earth (Hands)

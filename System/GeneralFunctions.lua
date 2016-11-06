@@ -40,6 +40,13 @@ function GetObjectCountBB()
     	return 0
     end
 end
+function GetObjectID(Unit)
+	if FireHack and GetObjectExists(Unit) then
+		return ObjectID(Unit)
+	else
+		return 0
+	end
+end
 --[[ OLD pcall functions
 function GetObjectExists(Unit)
 	if select(2,pcall(ObjectExists,Unit)) == true then
@@ -473,7 +480,7 @@ function canRun()
 				return nil
 			else
 				if ObjectExists("target") then
-					if ObjectID("target") ~= 5687 then
+					if GetObjectID("target") ~= 5687 then
 						return nil
 					end
 				end
@@ -1595,7 +1602,7 @@ function getTotemDistance(Unit1)
 end
 -- if getBossID("boss1") == 71734 then
 function getBossID(BossUnitID)
-	return ObjectID(BossUnitID)
+	return GetObjectID(BossUnitID)
 end
 function getUnitID(Unit)
 	if GetObjectExists(Unit) and UnitIsVisible(Unit) then
@@ -1630,7 +1637,7 @@ function getLineOfSight(Unit1,Unit2)
 		--86644, -- Ore Crate from Oregorger boss
 	}
 	for i = 1,#skipLoSTable do
-		if ObjectID(Unit1) == skipLoSTable[i] or ObjectID(Unit2) == skipLoSTable[i] then
+		if GetObjectID(Unit1) == skipLoSTable[i] or GetObjectID(Unit2) == skipLoSTable[i] then
 			return true
 		end
 	end
@@ -2624,7 +2631,7 @@ function pause(skipCastingCheck)
 	end
 	if (pausekey and GetCurrentKeyBoardFocus() == nil and isChecked("Pause Mode"))
 		or profileStop
-		or (IsMounted() and (ObjectExists("target") and ObjectID("target") ~= 56877) and not UnitBuffID("player",164222) and not UnitBuffID("player",165803) and not UnitBuffID("player",157059) and not UnitBuffID("player",157060))
+		or (IsMounted() and (ObjectExists("target") and GetObjectID("target") ~= 56877) and not UnitBuffID("player",164222) and not UnitBuffID("player",165803) and not UnitBuffID("player",157059) and not UnitBuffID("player",157060))
 		or SpellIsTargeting()
 		-- or (not UnitCanAttack("player","target") and not UnitIsPlayer("target") and UnitExists("target"))
 		or (UnitCastingInfo("player") and not skipCastingCheck)

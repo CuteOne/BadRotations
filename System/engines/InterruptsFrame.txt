@@ -61,7 +61,7 @@ local getRealDistance2 = getRealDistance2
 local getSpellCD = getSpellCD
 local GetSpellInfo = GetSpellInfo
 local GetTime = GetTime
-local ObjectID = ObjectID
+local GetObjectID = GetObjectID
 local print = print
 --local ObjectExists,ObjectPosition = ObjectExists,ObjectPosition
 local select = select
@@ -336,7 +336,7 @@ function getTimeUntilCastEnd(castEnd)
 end
 -- check if a unit is a casting candidate according to its unitID and its current spell cast
 function isInteruptCandidate(Unit,SpellID)
-	local unitID = ObjectID(Unit)
+	local unitID = GetObjectID(Unit)
 	for i = 1,#interruptCandidates do
 		thisCandidate = interruptCandidates[i]
 		if thisCandidate.unitID == 0 or unitID == thisCandidate.unitID then
