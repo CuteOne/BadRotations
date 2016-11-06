@@ -356,17 +356,15 @@ if select(2, UnitClass("player")) == "DRUID" then
                     end
             --Revive/Rebirth
                     if isChecked("Rebirth") then
-                        if buff.remain.predatorySwiftness>0 then
-                            if getOptionValue("Rebirth - Target")==1 
-                                and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and UnitIsFriend("target","player")
-                            then
-                                if cast.rebirth("target") then return end
-                            end
-                            if getOptionValue("Rebirth - Target")==2 
-                                and UnitIsPlayer("mouseover") and UnitIsDeadOrGhost("mouseover") and UnitIsFriend("mouseover","player")
-                            then
-                                if cast.rebirth("mouseover") then return end
-                            end
+                        if getOptionValue("Rebirth - Target")==1 
+                            and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and UnitIsFriend("target","player")
+                        then
+                            if cast.rebirth("target") then return end
+                        end
+                        if getOptionValue("Rebirth - Target")==2 
+                            and UnitIsPlayer("mouseover") and UnitIsDeadOrGhost("mouseover") and UnitIsFriend("mouseover","player")
+                        then
+                            if cast.rebirth("mouseover") then return end
                         end
                     end
                     if isChecked("Revive") then
