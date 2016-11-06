@@ -16,8 +16,7 @@ function cDemonology:new()
     -----------------
     --- VARIABLES ---
     -----------------
-        self.charges.frac               = {}        -- Fractional Charge
-        self.charges.max                = {}
+    
         self.spell.spec                 = {}
         self.spell.spec.abilities       = {
             callDreadstalkers           = 104316,
@@ -68,11 +67,11 @@ function cDemonology:new()
         function self.updateOOC()
             -- Call classUpdateOOC()
             self.classUpdateOOC()
-            self.getArtifacts()
-            self.getArtifactRanks()
-            self.getGlyphs()
-            self.getTalents()
-            self.getPerks() --Removed in Legion
+            -- self.getArtifacts()
+            -- self.getArtifactRanks()
+            -- self.getGlyphs()
+            -- self.getTalents()
+            -- self.getPerks() --Removed in Legion
         end
 
     --------------
@@ -85,14 +84,15 @@ function cDemonology:new()
             self.classUpdate()
             -- Updates OOC things
             if not UnitAffectingCombat("player") then self.updateOOC() end
-            self.getDynamicUnits()
-            self.getEnemies()
-            self.getBuffs()
-            self.getCharge()
-            self.getCooldowns()
-            self.getDebuffs()
+            cFileBuild("spec",self)
+            -- self.getDynamicUnits()
+            -- self.getEnemies()
+            -- self.getBuffs()
+            -- self.getCharge()
+            -- self.getCooldowns()
+            -- self.getDebuffs()
             self.getToggleModes()
-            self.getCastable()
+            -- self.getCastable()
             self.getPetInfo()
 
             -- Start selected rotation
@@ -268,7 +268,7 @@ function cDemonology:new()
                     if unitCreator == player and (unitID == 55659 or unitID == 98035 or unitID == 103673 or unitID == 11859 or unitID == 89 
                         or unitID == 416 or unitID == 1860 or unitID == 417 or unitID == 1863 or unitID == 17252) 
                     then
-                        local demoEmpBuff   = UnitBuffID(thisUnit,self.spell.demonicEmpowerment) ~= nil
+                        local demoEmpBuff   = UnitBuffID(thisUnit,self.spell.spec.buffs.demonicEmpowerment) ~= nil
                         local unitCount     = #getEnemies(tostring(thisUnit),10) or 0
                         tinsert(self.petInfo,{name = unitName, guid = unitGUID, id = unitID, creator = unitCreator, deBuff = demoEmpBuff, numEnemies = unitCount})
                     end
@@ -347,263 +347,265 @@ function cDemonology:new()
     --- SPELLS ---
     --------------
 
-        function self.getCastable()
-
-            self.cast.debug.callDreadstalkers        = self.cast.callDreadstalkers("target",true)
-            self.cast.debug.commandDemon             = self.cast.commandDemon("player",true)
-            self.cast.debug.demonbolt                = self.cast.demonbolt("target",true)
-            self.cast.debug.demonicEmpowerment       = self.cast.demonicEmpowerment("player",true)
-            self.cast.debug.demonwrath               = self.cast.demonwrath("player",true)
-            self.cast.debug.doom                     = self.cast.doom("target",true)
-            self.cast.debug.grimoireFelguard         = self.cast.grimoireFelguard("player",true)
-            self.cast.debug.handOfGuldan             = self.cast.handOfGuldan("target",true)
-            self.cast.debug.implosion                = self.cast.implosion("target",true)
-            self.cast.debug.shadowbolt               = self.cast.shadowbolt("target",true)
-            self.cast.debug.shadowflame              = self.cast.shadowflame("target",true)
-            self.cast.debug.summonDarkglare          = self.cast.summonDarkglare("player",true)
-            self.cast.debug.summonFelguard           = self.cast.summonFelguard("player",true)
-            self.cast.debug.thalkielsConsumption     = self.cast.thalkielsConsumption("target",true)
-        end
         
-        -- Call Dreadstalkers
-        function self.cast.callDreadstalkers(thisUnit,debug)
-            local spellCast = self.spell.callDreadstalkers
-            local thisUnit = thisUnit
-            if thisUnit == nil then thisUnit = self.units.dyn40 end
-            if debug == nil then debug = false end
 
-            if self.level >= 14 and self.shards >= 2 and self.cd.callDreadstalkers == 0 and getDistance(thisUnit) < 40 then
-                if debug then
-                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
-                else
-                    return castSpell(thisUnit,spellCast,false,false,false)
-                end
-            elseif debug then
-                return false
-            end
-        end
-        -- Command Demon
-        function self.cast.commandDemon(thisUnit,debug)
-            local spellCast = self.spell.commandDemon
-            local thisUnit = thisUnit
-            local currentPet = self.petId
-            if thisUnit == nil then thisUnit = "pet" end
-            if debug == nil then debug = false end
+        -- function self.getCastable()
 
-            if self.level >= 31 and self.cd.commandDemon == 0 then
-                if debug then
-                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
-                else
-                    return castSpell(thisUnit,spellCast,false,false,false)
-                end
-            elseif debug then
-                return false
-            end
-        end
-        -- Demonbolt
-        function self.cast.demonbolt(thisUnit,debug)
-            local spellCast = self.spell.demonbolt
-            local thisUnit = thisUnit
-            if thisUnit == nil then thisUnit = self.units.dyn40 end
-            if debug == nil then debug = false end
+        --     self.cast.debug.callDreadstalkers        = self.cast.callDreadstalkers("target",true)
+        --     self.cast.debug.commandDemon             = self.cast.commandDemon("player",true)
+        --     self.cast.debug.demonbolt                = self.cast.demonbolt("target",true)
+        --     self.cast.debug.demonicEmpowerment       = self.cast.demonicEmpowerment("player",true)
+        --     self.cast.debug.demonwrath               = self.cast.demonwrath("player",true)
+        --     self.cast.debug.doom                     = self.cast.doom("target",true)
+        --     self.cast.debug.grimoireFelguard         = self.cast.grimoireFelguard("player",true)
+        --     self.cast.debug.handOfGuldan             = self.cast.handOfGuldan("target",true)
+        --     self.cast.debug.implosion                = self.cast.implosion("target",true)
+        --     self.cast.debug.shadowbolt               = self.cast.shadowbolt("target",true)
+        --     self.cast.debug.shadowflame              = self.cast.shadowflame("target",true)
+        --     self.cast.debug.summonDarkglare          = self.cast.summonDarkglare("player",true)
+        --     self.cast.debug.summonFelguard           = self.cast.summonFelguard("player",true)
+        --     self.cast.debug.thalkielsConsumption     = self.cast.thalkielsConsumption("target",true)
+        -- end
+        
+        -- -- Call Dreadstalkers
+        -- function self.cast.callDreadstalkers(thisUnit,debug)
+        --     local spellCast = self.spell.callDreadstalkers
+        --     local thisUnit = thisUnit
+        --     if thisUnit == nil then thisUnit = self.units.dyn40 end
+        --     if debug == nil then debug = false end
 
-            if self.talent.demonbolt and self.powerPercentMana > 4.8 and self.cd.demonbolt and getDistance(thisUnit) < 40 then
-                if debug then
-                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
-                else
-                    return castSpell(thisUnit,spellCast,false,false,false)
-                end
-            elseif debug then
-                return false
-            end
-        end
-        -- Demonic Empowerment
-        function self.cast.demonicEmpowerment(thisUnit,debug)
-            local spellCast = self.spell.demonicEmpowerment
-            local thisUnit = thisUnit
-            if thisUnit == nil then thisUnit = "player" end
-            if debug == nil then debug = false end
+        --     if self.level >= 14 and self.shards >= 2 and self.cd.callDreadstalkers == 0 and getDistance(thisUnit) < 40 then
+        --         if debug then
+        --             return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+        --         else
+        --             return castSpell(thisUnit,spellCast,false,false,false)
+        --         end
+        --     elseif debug then
+        --         return false
+        --     end
+        -- end
+        -- -- Command Demon
+        -- function self.cast.commandDemon(thisUnit,debug)
+        --     local spellCast = self.spell.commandDemon
+        --     local thisUnit = thisUnit
+        --     local currentPet = self.petId
+        --     if thisUnit == nil then thisUnit = "pet" end
+        --     if debug == nil then debug = false end
 
-            if self.level >= 12 and self.powerPercentMana > 6 and self.cd.demonicEmpowerment then
-                if debug then
-                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
-                else
-                    return castSpell(thisUnit,spellCast,false,false,false)
-                end
-            elseif debug then
-                return false
-            end
-        end
-        -- Demonwrath
-        function self.cast.demonwrath(thisUnit,debug)
-            local spellCast = self.spell.demonwrath
-            local thisUnit = thisUnit
-            if thisUnit == nil then thisUnit = "player" end
-            if debug == nil then debug = false end
+        --     if self.level >= 31 and self.cd.commandDemon == 0 then
+        --         if debug then
+        --             return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+        --         else
+        --             return castSpell(thisUnit,spellCast,false,false,false)
+        --         end
+        --     elseif debug then
+        --         return false
+        --     end
+        -- end
+        -- -- Demonbolt
+        -- function self.cast.demonbolt(thisUnit,debug)
+        --     local spellCast = self.spell.demonbolt
+        --     local thisUnit = thisUnit
+        --     if thisUnit == nil then thisUnit = self.units.dyn40 end
+        --     if debug == nil then debug = false end
 
-            if self.level >= 36 and self.powerPercentMana > 2.5 and self.cd.demonwrath and not castingUnit("player") then
-                if debug then
-                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
-                else
-                    return castSpell(thisUnit,spellCast,false,false,false)
-                end
-            elseif debug then
-                return false
-            end
-        end
-        -- Doom
-        function self.cast.doom(thisUnit,debug)
-            local spellCast = self.spell.doom
-            local thisUnit = thisUnit
-            if thisUnit == nil then thisUnit = self.units.dyn40 end
-            if debug == nil then debug = false end
+        --     if self.talent.demonbolt and self.powerPercentMana > 4.8 and self.cd.demonbolt and getDistance(thisUnit) < 40 then
+        --         if debug then
+        --             return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+        --         else
+        --             return castSpell(thisUnit,spellCast,false,false,false)
+        --         end
+        --     elseif debug then
+        --         return false
+        --     end
+        -- end
+        -- -- Demonic Empowerment
+        -- function self.cast.demonicEmpowerment(thisUnit,debug)
+        --     local spellCast = self.spell.demonicEmpowerment
+        --     local thisUnit = thisUnit
+        --     if thisUnit == nil then thisUnit = "player" end
+        --     if debug == nil then debug = false end
 
-            if self.level >= 26 and self.powerPercentMana > 2 and self.cd.doom and getDistance(thisUnit) < 40 then
-                if debug then
-                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
-                else
-                    return castSpell(thisUnit,spellCast,false,false,false)
-                end
-            elseif debug then
-                return false
-            end
-        end
-        -- Grimoire: Felguard
-        function self.cast.grimoireFelguard(thisUnit,debug)
-            local spellCast = self.spell.grimoireFelguard
-            local thisUnit = thisUnit
-            if thisUnit == nil then thisUnit = self.units.dyn40 end
-            if debug == nil then debug = false end
+        --     if self.level >= 12 and self.powerPercentMana > 6 and self.cd.demonicEmpowerment then
+        --         if debug then
+        --             return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+        --         else
+        --             return castSpell(thisUnit,spellCast,false,false,false)
+        --         end
+        --     elseif debug then
+        --         return false
+        --     end
+        -- end
+        -- -- Demonwrath
+        -- function self.cast.demonwrath(thisUnit,debug)
+        --     local spellCast = self.spell.demonwrath
+        --     local thisUnit = thisUnit
+        --     if thisUnit == nil then thisUnit = "player" end
+        --     if debug == nil then debug = false end
 
-            if self.talent.grimoireOfService and self.shards > 0 and self.cd.grimoireFelguard == 0 and getDistance(thisUnit) < 40 then
-                if debug then
-                    return castSpell(thisUnit,spellCast,false,false,false,false,true,false,false,true)
-                else
-                    return castSpell(thisUnit,spellCast,false,false,false)
-                end
-            elseif debug then
-                return false
-            end
-        end
-        -- Hand of Guldan
-        function self.cast.handOfGuldan(thisUnit,debug)
-            local spellCast = self.spell.handOfGuldan
-            local thisUnit = thisUnit
-            if thisUnit == nil then thisUnit = self.units.dyn40 end
-            if debug == nil then debug = false end
+        --     if self.level >= 36 and self.powerPercentMana > 2.5 and self.cd.demonwrath and not castingUnit("player") then
+        --         if debug then
+        --             return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+        --         else
+        --             return castSpell(thisUnit,spellCast,false,false,false)
+        --         end
+        --     elseif debug then
+        --         return false
+        --     end
+        -- end
+        -- -- Doom
+        -- function self.cast.doom(thisUnit,debug)
+        --     local spellCast = self.spell.doom
+        --     local thisUnit = thisUnit
+        --     if thisUnit == nil then thisUnit = self.units.dyn40 end
+        --     if debug == nil then debug = false end
 
-            if self.level >= 10 and self.shards > 0 and self.cd.handOfGuldan == 0 and getDistance(thisUnit) < 40 then
-                if debug then
-                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
-                else
-                    return castSpell(thisUnit,spellCast,false,false,false)
-                end
-            elseif debug then
-                return false
-            end
-        end
-        -- Implosion
-        function self.cast.implosion(thisUnit,debug)
-            local spellCast = self.spell.handOfGuldan
-            local thisUnit = thisUnit
-            if thisUnit == nil then thisUnit = self.units.dyn40 end
-            if debug == nil then debug = false end
+        --     if self.level >= 26 and self.powerPercentMana > 2 and self.cd.doom and getDistance(thisUnit) < 40 then
+        --         if debug then
+        --             return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+        --         else
+        --             return castSpell(thisUnit,spellCast,false,false,false)
+        --         end
+        --     elseif debug then
+        --         return false
+        --     end
+        -- end
+        -- -- Grimoire: Felguard
+        -- function self.cast.grimoireFelguard(thisUnit,debug)
+        --     local spellCast = self.spell.grimoireFelguard
+        --     local thisUnit = thisUnit
+        --     if thisUnit == nil then thisUnit = self.units.dyn40 end
+        --     if debug == nil then debug = false end
 
-            if self.talent.implosion and self.powerPercentMana > 6 and self.cd.implosion == 0 and getDistance(thisUnit) < 40 then
-                if debug then
-                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
-                else
-                    return castSpell(thisUnit,spellCast,false,false,false)
-                end
-            elseif debug then
-                return false
-            end
-        end
-        -- Shadowbolt
-        function self.cast.shadowbolt(thisUnit,debug)
-            local spellCast = self.spell.shadowbolt
-            local thisUnit = thisUnit
-            if thisUnit == nil then thisUnit = self.units.dyn40 end
-            if debug == nil then debug = false end
+        --     if self.talent.grimoireOfService and self.shards > 0 and self.cd.grimoireFelguard == 0 and getDistance(thisUnit) < 40 then
+        --         if debug then
+        --             return castSpell(thisUnit,spellCast,false,false,false,false,true,false,false,true)
+        --         else
+        --             return castSpell(thisUnit,spellCast,false,false,false)
+        --         end
+        --     elseif debug then
+        --         return false
+        --     end
+        -- end
+        -- -- Hand of Guldan
+        -- function self.cast.handOfGuldan(thisUnit,debug)
+        --     local spellCast = self.spell.handOfGuldan
+        --     local thisUnit = thisUnit
+        --     if thisUnit == nil then thisUnit = self.units.dyn40 end
+        --     if debug == nil then debug = false end
 
-            if not self.talent.demonbolt and self.powerPercentMana > 6 and self.cd.shadowbolt == 0 and getDistance(thisUnit) < 40 then
-                if debug then
-                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
-                else
-                    return castSpell(thisUnit,spellCast,false,false,false)
-                end
-            elseif debug then
-                return false
-            end
-        end
-        -- Shadowflame
-        function self.cast.shadowflame(thisUnit,debug)
-            local spellCast = self.spell.shadowflame
-            local thisUnit = thisUnit
-            if thisUnit == nil then thisUnit = self.units.dyn40 end
-            if debug == nil then debug = false end
+        --     if self.level >= 10 and self.shards > 0 and self.cd.handOfGuldan == 0 and getDistance(thisUnit) < 40 then
+        --         if debug then
+        --             return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+        --         else
+        --             return castSpell(thisUnit,spellCast,false,false,false)
+        --         end
+        --     elseif debug then
+        --         return false
+        --     end
+        -- end
+        -- -- Implosion
+        -- function self.cast.implosion(thisUnit,debug)
+        --     local spellCast = self.spell.handOfGuldan
+        --     local thisUnit = thisUnit
+        --     if thisUnit == nil then thisUnit = self.units.dyn40 end
+        --     if debug == nil then debug = false end
 
-            if self.talent.shadowflame and self.cd.shadowflame == 0 and self.charges.shadowflame > 0 and getDistance(thisUnit) < 40 then
-                if debug then
-                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
-                else
-                    return castSpell(thisUnit,spellCast,false,false,false)
-                end
-            elseif debug then
-                return false
-            end
-        end
-        -- Summon Darkglare
-        function self.cast.summonDarkglare(thisUnit,debug)
-            local spellCast = self.spell.summonDarkglare
-            local thisUnit = thisUnit
-            if thisUnit == nil then thisUnit = "player" end
-            if debug == nil then debug = false end
+        --     if self.talent.implosion and self.powerPercentMana > 6 and self.cd.implosion == 0 and getDistance(thisUnit) < 40 then
+        --         if debug then
+        --             return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+        --         else
+        --             return castSpell(thisUnit,spellCast,false,false,false)
+        --         end
+        --     elseif debug then
+        --         return false
+        --     end
+        -- end
+        -- -- Shadowbolt
+        -- function self.cast.shadowbolt(thisUnit,debug)
+        --     local spellCast = self.spell.shadowbolt
+        --     local thisUnit = thisUnit
+        --     if thisUnit == nil then thisUnit = self.units.dyn40 end
+        --     if debug == nil then debug = false end
 
-            if self.talent.summonDarkglare and self.shards > 0 and self.cd.summonDarkglare == 0 then
-                if debug then
-                    return castSpell(thisUnit,spellCast,false,false,false,false,true,false,false,true)
-                else
-                    return castSpell(thisUnit,spellCast,false,false,false)
-                end
-            elseif debug then
-                return false
-            end
-        end
-        -- Summon Felguard
-        function self.cast.summonFelguard(thisUnit,debug)
-            local spellCast = self.spell.summonFelguard
-            local thisUnit = thisUnit
-            if thisUnit == nil then thisUnit = "player" end
-            if debug == nil then debug = false end
+        --     if not self.talent.demonbolt and self.powerPercentMana > 6 and self.cd.shadowbolt == 0 and getDistance(thisUnit) < 40 then
+        --         if debug then
+        --             return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+        --         else
+        --             return castSpell(thisUnit,spellCast,false,false,false)
+        --         end
+        --     elseif debug then
+        --         return false
+        --     end
+        -- end
+        -- -- Shadowflame
+        -- function self.cast.shadowflame(thisUnit,debug)
+        --     local spellCast = self.spell.shadowflame
+        --     local thisUnit = thisUnit
+        --     if thisUnit == nil then thisUnit = self.units.dyn40 end
+        --     if debug == nil then debug = false end
 
-            if self.level >= 40 and self.shards > 0 and self.cd.summonFelguard == 0 then
-                if debug then
-                    return castSpell(thisUnit,spellCast,false,false,false,false,true,false,false,true)
-                else
-                    return castSpell(thisUnit,spellCast,false,false,false)
-                end
-            elseif debug then
-                return false
-            end
-        end
-        -- Thal'kiel's Consumption
-        function self.cast.thalkielsConsumption(thisUnit,debug)
-            local spellCast = self.spell.thalkielsConsumption
-            local thisUnit = thisUnit
-            if thisUnit == nil then thisUnit = self.units.dyn40 end
-            if debug == nil then debug = false end
+        --     if self.talent.shadowflame and self.cd.shadowflame == 0 and self.charges.shadowflame > 0 and getDistance(thisUnit) < 40 then
+        --         if debug then
+        --             return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+        --         else
+        --             return castSpell(thisUnit,spellCast,false,false,false)
+        --         end
+        --     elseif debug then
+        --         return false
+        --     end
+        -- end
+        -- -- Summon Darkglare
+        -- function self.cast.summonDarkglare(thisUnit,debug)
+        --     local spellCast = self.spell.summonDarkglare
+        --     local thisUnit = thisUnit
+        --     if thisUnit == nil then thisUnit = "player" end
+        --     if debug == nil then debug = false end
 
-            if self.artifact.thalkielsConsumption and self.cd.thalkielsConsumption == 0 and getDistance(thisUnit) < 40 then
-                if debug then
-                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
-                else
-                    return castSpell(thisUnit,spellCast,false,false,false)
-                end
-            elseif debug then
-                return false
-            end
-        end
+        --     if self.talent.summonDarkglare and self.shards > 0 and self.cd.summonDarkglare == 0 then
+        --         if debug then
+        --             return castSpell(thisUnit,spellCast,false,false,false,false,true,false,false,true)
+        --         else
+        --             return castSpell(thisUnit,spellCast,false,false,false)
+        --         end
+        --     elseif debug then
+        --         return false
+        --     end
+        -- end
+        -- -- Summon Felguard
+        -- function self.cast.summonFelguard(thisUnit,debug)
+        --     local spellCast = self.spell.summonFelguard
+        --     local thisUnit = thisUnit
+        --     if thisUnit == nil then thisUnit = "player" end
+        --     if debug == nil then debug = false end
+
+        --     if self.level >= 40 and self.shards > 0 and self.cd.summonFelguard == 0 then
+        --         if debug then
+        --             return castSpell(thisUnit,spellCast,false,false,false,false,true,false,false,true)
+        --         else
+        --             return castSpell(thisUnit,spellCast,false,false,false)
+        --         end
+        --     elseif debug then
+        --         return false
+        --     end
+        -- end
+        -- -- Thal'kiel's Consumption
+        -- function self.cast.thalkielsConsumption(thisUnit,debug)
+        --     local spellCast = self.spell.thalkielsConsumption
+        --     local thisUnit = thisUnit
+        --     if thisUnit == nil then thisUnit = self.units.dyn40 end
+        --     if debug == nil then debug = false end
+
+        --     if self.artifact.thalkielsConsumption and self.cd.thalkielsConsumption == 0 and getDistance(thisUnit) < 40 then
+        --         if debug then
+        --             return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+        --         else
+        --             return castSpell(thisUnit,spellCast,false,false,false)
+        --         end
+        --     elseif debug then
+        --         return false
+        --     end
+        -- end
         
     ------------------------
     --- CUSTOM FUNCTIONS ---

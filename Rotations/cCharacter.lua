@@ -175,6 +175,8 @@ function cCharacter:new(class)
 		self.pet 				= UnitCreatureFamily("pet") or "None"
 		if self.pet ~= "None" then
 			self.petId 			= tonumber(UnitGUID("pet"):match("-(%d+)-%x+$"), 10)
+		else
+			self.petId 			= 0
 		end
 	end
 

@@ -173,7 +173,8 @@ if select(2, UnitClass("player")) == "WARLOCK" then
             local mode                                          = bb.player.mode
             local moveIn                                        = 999
             local moving                                        = isMoving("player")
-            local perk                                          = bb.player.perk        
+            local perk                                          = bb.player.perk
+            local petInfo                                       = bb.player.petInfo        
             local php                                           = bb.player.health
             local playerMouse                                   = UnitIsPlayer("mouseover")
             local power, powmax, powgen, powerDeficit           = bb.player.power, bb.player.powerMax, bb.player.powerRegen, bb.player.powerDeficit
@@ -192,8 +193,10 @@ if select(2, UnitClass("player")) == "WARLOCK" then
             
 	   		if leftCombat == nil then leftCombat = GetTime() end
 			if profileStop == nil or not inCombat then profileStop = false end
-            -- if opener == nil then opener = false end
+            if castSummonId == nil then castSummonId = 0 end
+            if handTimer == nil then handTimer = GetTime() end
 
+            -- Opener Variables
             if not inCombat and not ObjectExists("target") then 
                 DE1 = false
                 DSB1 = false
@@ -215,6 +218,7 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                 opener = false
             end
 
+            -- Pet Data
             if summonPet == 1 then summonId = 416 end
             if summonPet == 2 then summonId = 1860 end
             if summonPet == 3 then summonId = 417 end
@@ -382,21 +386,21 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                 -- Summon Pet
                     -- summon_pet,if=!talent.grimoire_of_supremacy.enabled&(!talent.grimoire_of_sacrifice.enabled|buff.demonic_power.down)
                     if not talent.grimoireOfSupremacy and (not talent.grimoireOfSacrifice or not buff.demonicPower) then
-                        if not hasPet or activePetId ~= summonId then
+                        if (activePetId == 0 or activePetId ~= summonId) and (lastSpell ~= castSummonId or activePetId ~= summonId) then
                             if summonPet == 1 then
-                                if cast.summonImp() then return end
+                                if cast.summonImp() then castSummonId = spell.summonImp; return end
                             end
                             if summonPet == 2 then
-                                if cast.summonVoidwalker() then return end
+                                if cast.summonVoidwalker() then castSummonId = spell.summonVoidwalker; return end
                             end
                             if summonPet == 3 then
-                                if cast.summonFelhunter() then return end
+                                if cast.summonFelhunter() then castSummonId = spell.summonFelhunter; return end
                             end
                             if summonPet == 4 then
-                                if cast.summonSuccubus() then return end
+                                if cast.summonSuccubus() then castSummonId = spell.summonSuccubus; return end
                             end
                             if summonPet == 5 then
-                                if cast.summonFelguard() then return end
+                                if cast.summonFelguard() then castSummonId = spell.summonFelguard; return end
                             end
                         end
                     end
@@ -427,7 +431,7 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                             -- TODO
                     -- Demonic Empowerment
                             -- demonic_empowerment
-                            if activePet ~= "None" and not petDE then
+                            if activePet ~= "None" and not petDE and lastSpell ~= spell.demonicEmpowerment then
                                 if cast.demonicEmpowerment() then return end
                             end
                     -- Demonbolt
@@ -646,8 +650,10 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                         end
             -- Hand of Guldan
                         -- hand_of_guldan,if=soul_shard>=4&!talent.summon_darkglare.enabled
-                        if shards >= 4 and not talent.summonDarkglare then
-                            if cast.handOfGuldan() then return end
+                        if shards >= 4 and not talent.summonDarkglare and lastSpell ~= spell.handOfGuldan then
+                            if GetTime() > handTimer then
+                                if cast.handOfGuldan() then handTimer = GetTime() + 2; return end
+                            end
                         end
             -- Summon Darkglare
                         -- summon_darkglare,if=prev_gcd.hand_of_guldan
@@ -677,24 +683,33 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                         -- hand_of_guldan,if=soul_shard>=3&prev_gcd.call_dreadstalkers
                         -- hand_of_guldan,if=soul_shard>=5&cooldown.summon_darkglare.remains<=action.hand_of_guldan.cast_time
                         -- hand_of_guldan,if=soul_shard>=4&cooldown.summon_darkglare.remains>2
-                        if ((shards >= 3 and lastSpell == spell.callDreadstalkers)
+                        if lastSpell ~= spell.handOfGuldan and ((shards >= 3 and lastSpell == spell.callDreadstalkers)
                                 or (shards >= 5 and cd.summonDarkglare <= getCastTime(spell.handOfGuldan))
                                 or (shards >= 4 and cd.summonDarkglare > 2)) 
-                        then 
-                            if cast.handOfGuldan() then return end
+                        then
+                            if GetTime() > handTimer then 
+                                if cast.handOfGuldan() then handTimer = GetTime() + 2; return end
+                            end
                         end
             -- Demonic Empowerment
                         -- demonic_empowerment,if=wild_imp_no_de>3|prev_gcd.hand_of_guldan
                         -- demonic_empowerment,if=dreadstalker_no_de>0|darkglare_no_de>0|doomguard_no_de>0|infernal_no_de>0|service_no_de>0
-                        if bb.timer:useTimer("delayDE", gcd) and (((wildImpNoDEcount > 3 and wildImpCount > 3) or lastSpell == spell.handOfGuldan) 
+                        if activePet ~= "None" and (((wildImpNoDEcount > 3 and wildImpCount > 3) or lastSpell == spell.handOfGuldan) 
                             or ((not dreadStalkersDE and dreadStalkers) or (not darkglareDE and darkglare) 
                                 or (not doomguardDE and doomguard) or (not infernalDE and infernal) or not petDE)) 
                         then
-                            if cast.demonicEmpowerment() then return end
+                            if deTimer == nil then deTimer = GetTime() end
+                            for i = 1, #petInfo do
+                                if not petInfo[i].deBuff and GetTime() > deTimer then
+                                    cast.demonicEmpowerment() 
+                                    deTimer = GetTime() + 2
+                                    break
+                                end
+                            end
                         end
             -- Felstorm
                         -- felguard:felstorm
-                        if felguard then
+                        if felguard and petInfo[1].numEnemies > 0 then
                             if cast.commandDemon() then return end
                         end
             -- Doom
@@ -721,7 +736,15 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                         -- thalkiels_consumption,if=(dreadstalker_remaining_duration>execute_time|talent.implosion.enabled&spell_targets.implosion>=3)&wild_imp_count>3&wild_imp_remaining_duration>execute_time
                         if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()) then
                             if (dreadStalkersRemain > getCastTime(spell.thalkielsConsumption) or talent.implosion and #enemies.yards8 >= 3) and wildImpCount > 3 and wildImpRemain > getCastTime(spell.thalkielsConsumption) then
-                                if cast.thalkielsConsumption() then return end
+                                missingDE = 0
+                                for i = 1, #petInfo do
+                                    if not petInfo[i].deBuff then
+                                        missingDE = missingDE + 1
+                                    end
+                                end
+                                if missingDE == 0 then
+                                    if cast.thalkielsConsumption() then return end
+                                end
                             end
                         end
             -- Life Tap
@@ -747,7 +770,9 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                         -- end
             -- Life Tap
                         --life_tap
-                        if cast.lifeTap() then return end
+                        if manaPercent < 100 then
+                            if cast.lifeTap() then return end
+                        end
                     end -- End SimC APL
         ----------------------
         --- AskMrRobot APL ---

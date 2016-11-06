@@ -359,8 +359,8 @@ if select(2, UnitClass("player")) == "SHAMAN" then
                     end
             -- Crash Lightning
                     -- crash_lightning,if=artifact.alpha_wolf.rank&prev_gcd.feral_spirit
-                    if artifact.alphaWolf and lastSpell == spell.feralSpirit then
-                        if cast.crashLightning(units.dyn5) then return end
+                    if artifact.alphaWolf and lastSpell == spell.feralSpirit and #enemies.yards8 > 0 and getFacing("player",units.dyn8,120) then
+                        if cast.crashLightning() then return end
                     end
             -- Ring of Collapsing Futures
                     -- use_item,slot=finger1,if=buff.temptation.down
@@ -496,8 +496,8 @@ if select(2, UnitClass("player")) == "SHAMAN" then
                         end
                 -- Crash Lightning
                         -- crash_lightning,if=talent.crashing_storm.enabled&active_enemies>=3
-                        if talent.crashingStorm and ((mode.rotation == 1 and #enemies.yards5 >= 3) or mode.rotation == 2) and not moving then
-                            if cast.crashLightning(units.dyn5) then return end
+                        if talent.crashingStorm and #enemies.yards8 > 0 and getFacing("player",units.dyn8,120) and ((mode.rotation == 1 and #enemies.yards8 >= 3) or mode.rotation == 2) then
+                            if cast.crashLightning() then return end
                         end
                 -- Boulderfist
                         -- boulderfist,if=buff.boulderfist.remains<gcd&maelstrom>=50&active_enemies>=3
@@ -540,8 +540,8 @@ if select(2, UnitClass("player")) == "SHAMAN" then
                         end
                 -- Crash Lightning
                         -- crash_lightning,if=buff.crash_lightning.remains<gcd&active_enemies>=2
-                        if buff.remain.crashLightning < gcd and ((mode.rotation == 1 and #enemies.yards5 >= 2) or mode.rotation == 2) then
-                            if cast.crashLightning(units.dyn5) then return end
+                        if buff.remain.crashLightning < gcd and #enemies.yards8 > 0 and getFacing("player",units.dyn8,120) and ((mode.rotation == 1 and #enemies.yards8 >= 2) or mode.rotation == 2) then
+                            if cast.crashLightning() then return end
                         end
                 -- Stormstrike/Windstrike
                         -- stormstrike,if=active_enemies>=3&!talent.hailstorm.enabled
@@ -577,8 +577,8 @@ if select(2, UnitClass("player")) == "SHAMAN" then
                         end
                 -- Crash Lightning
                         -- crash_lightning,if=active_enemies>=3
-                        if ((mode.rotation == 1 and #enemies.yards5 >= 3) or mode.rotation == 2) and not moving then
-                            if cast.crashLightning(units.dyn5) then return end
+                        if #enemies.yards8 > 0 and getFacing("player",units.dyn8,120) and ((mode.rotation == 1 and #enemies.yards8 >= 3) or mode.rotation == 2) then
+                            if cast.crashLightning() then return end
                         end
                 -- Stormstrike/Windstrike
                         -- stormstrike,cycle_targets=1,if=equipped.storm_tempests&debuff.storm_tempests.down
@@ -617,8 +617,8 @@ if select(2, UnitClass("player")) == "SHAMAN" then
                         if cast.earthenSpike() then return end
                 -- Crash Lightning
                         -- crash_lightning,if=active_enemies>1|talent.crashing_storm.enabled|feral_spirit.remains>5
-                        if ((mode.rotation == 1 and (#enemies.yards5 > 1 or talent.crashingStorm or feralSpiritRemain > 5)) or mode.rotation == 2) and mode.rotation ~= 3 and not moving then
-                            if cast.crashLightning(units.dyn5) then return end
+                        if #enemies.yards8 > 0 and getFacing("player",units.dyn8,120) and ((mode.rotation == 1 and (#enemies.yards8 > 1 or talent.crashingStorm or feralSpiritRemain > 5)) or mode.rotation == 2) and mode.rotation ~= 3 then
+                            if cast.crashLightning() then return end
                         end
                 -- Frostbrand
                         -- frostbrand,if=talent.hailstorm.enabled&buff.frostbrand.remains<4.8
@@ -697,7 +697,7 @@ if select(2, UnitClass("player")) == "SHAMAN" then
                         if cast.stormstrike() then return end
                 -- Crash Lightning
                         -- if (HasTalent(CrashingStorm) and TimerSecRemaining(CrashingStormTimer) = 0) or TargetsInRadius(CrashLightning) > 3 or (ArtifactTraitRank(GatheringStorms) > 0 and not HasBuff(GatheringStorms))
-                        if (talent.crashingStorm and crashingStormTimer == 0) or #enemies.yards8 > 8 or (artifact.gatheringStorms and not buff.gatheringStorms) and getDistance(units.dyn5) < 5 then
+                        if (talent.crashingStorm and crashingStormTimer == 0) or #enemies.yards8 > 8 or (artifact.gatheringStorms and not buff.gatheringStorms) and getFacing("player",units.dyn8,120) then
                             if cast.crashLightning() then return end
                         end
                 -- Flame Tongue

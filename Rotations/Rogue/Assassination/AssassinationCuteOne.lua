@@ -691,9 +691,9 @@ if select(2, UnitClass("player")) == "ROGUE" then
 	            			if cast.kingsbane() then custom.opener = true; return end
 	            		end
             -- Garrote
-	            		if not debuff.garrote then
+	            		if not debuff.garrote and cd.garrote == 0 then
 	            			if cast.garrote() then return end
-	            		elseif debuff.garrote then
+	            		elseif debuff.garrote or cd.garrote > gcd then
 	            			if not debuff.rupture then
 	            				if combo < 3 then 
             -- Mutilate

@@ -139,6 +139,7 @@ function cEnhancement:new()
         function self.getDynamicUnits()
             local dynamicTarget = dynamicTarget
 
+            self.units.dyn8  = dynamicTarget(8, true)
             self.units.dyn10 = dynamicTarget(10, true)
         end
 
@@ -150,6 +151,7 @@ function cEnhancement:new()
             local getEnemies = getEnemies
 
             self.enemies.yards5  = getEnemies("player", 5)
+            self.enemies.yards8  = getEnemies("player", 8)
             self.enemies.yards10 = getEnemies("player", 10)
         end
 
@@ -408,10 +410,10 @@ function cEnhancement:new()
         function self.cast.crashLightning(thisUnit,debug)
             local spellCast = self.spell.crashLightning
             local thisUnit = thisUnit
-            if thisUnit == nil then thisUnit = self.units.dyn5 end
+            if thisUnit == nil then thisUnit = "player" end
             if debug == nil then debug = false end
 
-            if self.level >= 28 and self.cd.crashLightning == 0 and getDistance(thisUnit) < 5 then
+            if self.level >= 28 and self.cd.crashLightning == 0 then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else

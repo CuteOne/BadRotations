@@ -464,7 +464,7 @@ function canRun()
 		if getOptionCheck("Start/Stop BadBoy") and isAlive("player") then
 			if SpellIsTargeting()
 				--or UnitInVehicle("Player")
-				or (IsMounted() and ObjectID("target") ~= 56877 and not UnitBuffID("player",164222) and not UnitBuffID("player",165803) and not UnitBuffID("player",157059) and not UnitBuffID("player",157060))
+				or (IsMounted() and not UnitBuffID("player",164222) and not UnitBuffID("player",165803) and not UnitBuffID("player",157059) and not UnitBuffID("player",157060))
 				or UnitBuffID("player",11392) ~= nil
 				or UnitBuffID("player",80169) ~= nil
 				or UnitBuffID("player",87959) ~= nil
@@ -472,6 +472,11 @@ function canRun()
 				or UnitBuffID("player",9265) ~= nil then -- Deep Sleep(SM)
 				return nil
 			else
+				if ObjectExists("target") then
+					if ObjectID("target") ~= 5687 then
+						return nil
+					end
+				end
 				return true
 			end
 		end
@@ -1592,7 +1597,7 @@ end
 function getBossID(BossUnitID)
 	return ObjectID(BossUnitID)
 end
-function ObjectID(Unit)
+function getUnitID(Unit)
 	if GetObjectExists(Unit) and UnitIsVisible(Unit) then
 		local id = select(6,strsplit("-", UnitGUID(Unit) or ""))
 		return tonumber(id)
@@ -2619,7 +2624,7 @@ function pause(skipCastingCheck)
 	end
 	if (pausekey and GetCurrentKeyBoardFocus() == nil and isChecked("Pause Mode"))
 		or profileStop
-		or (IsMounted() and ObjectID("target") ~= 56877 and not UnitBuffID("player",164222) and not UnitBuffID("player",165803) and not UnitBuffID("player",157059) and not UnitBuffID("player",157060))
+		or (IsMounted() and (ObjectExists("target") and ObjectID("target") ~= 56877) and not UnitBuffID("player",164222) and not UnitBuffID("player",165803) and not UnitBuffID("player",157059) and not UnitBuffID("player",157060))
 		or SpellIsTargeting()
 		-- or (not UnitCanAttack("player","target") and not UnitIsPlayer("target") and UnitExists("target"))
 		or (UnitCastingInfo("player") and not skipCastingCheck)

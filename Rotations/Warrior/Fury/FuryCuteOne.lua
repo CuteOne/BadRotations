@@ -396,7 +396,7 @@ if select(3,UnitClass("player")) == 1 then
                     if isChecked("Heroic Leap") and (getOptionValue("Heroic Leap")==6 or (SpecificToggle("Heroic Leap") and not GetCurrentKeyBoardFocus())) then
                         -- Best Location
                         if getOptionValue("Heroic Leap - Target")==1 then
-                            if cast.heroicLeap("player",false,1,8) then return end
+                            if cast.heroicLeap("ground",false,1,8) then return end
                         end
                         -- Target
                         if getOptionValue("Heroic Leap - Target")==2 then
