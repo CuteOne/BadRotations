@@ -81,7 +81,7 @@ function castGroundAtBestLocation(spellID, radius, minUnits, maxRange, minRange)
 			--print("blacklist passed")
 			if thisDistance < maxRange and thisDistance >= minRange and hasThreat then
 				--print("distance passed")
-				if not UnitIsDeadOrGhost(thisUnit) and getFacing("player",thisUnit) then
+				if not UnitIsDeadOrGhost(thisUnit) and getFacing("player",thisUnit) and getLineOfSight(thisUnit) then
 					--print("ghost passed")
 					if UnitAffectingCombat(thisUnit) or isDummy(thisUnit) then
 						--print("combat and dummy passed")

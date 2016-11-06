@@ -277,11 +277,11 @@ if select(2, UnitClass("player")) == "DRUID" then
 				-- Cat Form
 					if not cat then
 				    	-- Cat Form when not swimming or flying or stag and not in combat
-				    	if not inCombat and moving and not swimming and not flying and not travel then
+				    	if not inCombat and moving and not swimming and not flying and not travel and not IsMounted() and not isValidUnit("target") then
 			        		if cast.catForm() then return end
 			        	end
 			        	-- Cat Form when not in combat and target selected and within 20yrds
-			        	if not inCombat and hastar and attacktar and not deadtar and getDistance("target")<20 then
+			        	if not inCombat and isValidUnit("target") and getDistance("target") < 30 then
 			        		if cast.catForm() then return end
 			        	end
 			        	--Cat Form when in combat and not flying

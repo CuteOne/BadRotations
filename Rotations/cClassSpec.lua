@@ -127,11 +127,15 @@ function cFileBuild(cFileName,self)
                 else
                     if thisUnit == "player" or IsHarmfulSpell(spellName) or IsHelpfulSpell(spellName) or thisUnit == nil then
                         if thisUnit == nil then thisUnit = "player" end
-                        return castSpell(thisUnit,spellCast,false,false,false)
+                        if getLineOfSight(thisUnit) then
+                            return castSpell(thisUnit,spellCast,false,false,false)
+                        end
                     elseif thisUnit == "ground" then
                         return castGroundAtBestLocation(spellCast,effectRng,minUnits,maxRange,minRange)
                     else
-                        return castGround(thisUnit,spellCast,maxRange,minRange)
+                        if getLineOfSight(thisUnit) then
+                            return castGround(thisUnit,spellCast,maxRange,minRange)
+                        end
                     end
                 end
             elseif debug then
