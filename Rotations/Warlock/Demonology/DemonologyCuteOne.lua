@@ -57,7 +57,9 @@ if select(2, UnitClass("player")) == "WARLOCK" then
             -- Summon Pet
                 bb.ui:createDropdownWithout(section, "Summon Pet", {"Imp","Voidwalker","Felhunter","Succubus","Felguard"}, 1, "|cffFFFFFFSelect default pet to summon.")
             -- Grimoire of Service
-                bb.ui:createDropdownWithout(section, "Grimoire of Service", {"Imp","Voidwalker","Felhunter","Succubus","Felguard"}, 1, "|cffFFFFFFSelect pet to Grimoire.") 
+                bb.ui:createDropdownWithout(section, "Grimoire of Service", {"Imp","Voidwalker","Felhunter","Succubus","Felguard"}, 1, "|cffFFFFFFSelect pet to Grimoire.")
+            -- Mana Tap
+                bb.ui:createSpinner(section, "Life Tap HP Limit", 30, 0, 100, 5, "|cffFFFFFFHP Limit that Life Tap will not cast below.") 
             bb.ui:checkSectionState(section)
         -- Cooldown Options
             section = bb.ui:createSection(bb.ui.window.profile, "Cooldowns")
@@ -376,6 +378,27 @@ if select(2, UnitClass("player")) == "WARLOCK" then
             end -- End Action List - Cooldowns
         -- Action List - PreCombat
             local function actionList_PreCombat()
+                -- Summon Pet
+                -- summon_pet,if=!talent.grimoire_of_supremacy.enabled&(!talent.grimoire_of_sacrifice.enabled|buff.demonic_power.down)
+                if not (IsFlying() or IsMounted()) and not talent.grimoireOfSupremacy and (not talent.grimoireOfSacrifice or not buff.demonicPower) then
+                    if (activePetId == 0 or activePetId ~= summonId) and (lastSpell ~= castSummonId or activePetId ~= summonId) then
+                        if summonPet == 1 then
+                            if cast.summonImp() then castSummonId = spell.summonImp; return end
+                        end
+                        if summonPet == 2 then
+                            if cast.summonVoidwalker() then castSummonId = spell.summonVoidwalker; return end
+                        end
+                        if summonPet == 3 then
+                            if cast.summonFelhunter() then castSummonId = spell.summonFelhunter; return end
+                        end
+                        if summonPet == 4 then
+                            if cast.summonSuccubus() then castSummonId = spell.summonSuccubus; return end
+                        end
+                        if summonPet == 5 then
+                            if cast.summonFelguard() then castSummonId = spell.summonFelguard; return end
+                        end
+                    end
+                end
                 if not inCombat and not (IsFlying() or IsMounted()) then
                 -- Flask
                     -- flask,type=whispered_pact
@@ -383,27 +406,6 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                 -- Food
                     -- food,type=azshari_salad
                     -- TODO
-                -- Summon Pet
-                    -- summon_pet,if=!talent.grimoire_of_supremacy.enabled&(!talent.grimoire_of_sacrifice.enabled|buff.demonic_power.down)
-                    if not talent.grimoireOfSupremacy and (not talent.grimoireOfSacrifice or not buff.demonicPower) then
-                        if (activePetId == 0 or activePetId ~= summonId) and (lastSpell ~= castSummonId or activePetId ~= summonId) then
-                            if summonPet == 1 then
-                                if cast.summonImp() then castSummonId = spell.summonImp; return end
-                            end
-                            if summonPet == 2 then
-                                if cast.summonVoidwalker() then castSummonId = spell.summonVoidwalker; return end
-                            end
-                            if summonPet == 3 then
-                                if cast.summonFelhunter() then castSummonId = spell.summonFelhunter; return end
-                            end
-                            if summonPet == 4 then
-                                if cast.summonSuccubus() then castSummonId = spell.summonSuccubus; return end
-                            end
-                            if summonPet == 5 then
-                                if cast.summonFelguard() then castSummonId = spell.summonFelguard; return end
-                            end
-                        end
-                    end
                     if not isChecked("Opener") or not isBoss("target") then
                     -- Summon Infernal
                         -- summon_infernal,if=talent.grimoire_of_supremacy.enabled&active_enemies>=3
@@ -749,7 +751,7 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                         end
             -- Life Tap
                         -- life_tap,if=mana.pct<=30
-                        if manaPercent <= 30 then
+                        if manaPercent <= 30 and php > getOptionValue("Life Tap HP Limit") then
                             if cast.lifeTap() then return end
                         end
             -- Demonwrath
@@ -770,7 +772,7 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                         -- end
             -- Life Tap
                         --life_tap
-                        if manaPercent < 100 then
+                        if manaPercent < 70 and php > getOptionValue("Life Tap HP Limit") then
                             if cast.lifeTap() then return end
                         end
                     end -- End SimC APL
