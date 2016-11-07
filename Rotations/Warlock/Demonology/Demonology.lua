@@ -12,8 +12,3 @@ function WarlockDemonology()
         bb.player:update()
     end
 end
-
-
-
-
-

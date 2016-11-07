@@ -192,7 +192,9 @@ if select(2, UnitClass("player")) == "DEMONHUNTER" then
             if talent.prepared then prepared = 1 else prepared = 0 end
             if talent.firstBlood then flood = 1 else flood = 0 end
             if lastSpell == spell.vengefulRetreat then vaulted = true else vaulted = false end
-            if IsHackEnabled("NoKnockback") ~= nil then SetHackEnabled("NoKnockback", false) end
+            if mode.mover == 1 then
+                if IsHackEnabled("NoKnockback") ~= nil then SetHackEnabled("NoKnockback", false) end
+            end
 
             -- Pool for Meta Variable
                         -- pooling_for_meta,value=cooldown.metamorphosis.ready&buff.metamorphosis.down&(!talent.demonic.enabled|!cooldown.eye_beam.ready)&(!talent.chaos_blades.enabled|cooldown.chaos_blades.ready)&(!talent.nemesis.enabled|debuff.nemesis.up|cooldown.nemesis.ready)

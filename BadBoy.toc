@@ -87,7 +87,7 @@ Rotations\Death Knight\Blood\Blood.lua
 Rotations\Death Knight\Unholy\cUnholy.lua
 Rotations\Death Knight\Unholy\Unholy.lua
 
-## DemonHunter
+## DemonHunter ---------------------------------------------------
 Rotations\Demon Hunter\cDemonHunter.lua
 
 Rotations\Demon Hunter\Havoc\cHavoc.lua
@@ -234,7 +234,7 @@ Rotations\Warlock\cWarlock.lua
 
 Rotations\Warlock\Affliction\cAffliction.lua
 Rotations\Warlock\Affliction\Affliction.lua
-Rotations\Warlock\Affliction\levelingWL.lua
+Rotations\Warlock\Affliction\AfflictionCuteOne.lua
 
 Rotations\Warlock\Demonology\cDemonology.lua
 Rotations\Warlock\Demonology\Demonology.lua
@@ -245,9 +245,9 @@ Rotations\Warlock\Destruction\Destruction.lua
 Rotations\Warlock\Destruction\DestructionKuu.lua
 Rotations\Warlock\Destruction\DestructionTest.lua
 
-## Non-Class Specific Rotations
+## Non-Class Specific Rotations ------------------------------
 
-## PokeRotation
+## PokeRotation ----------------------------------------------
 Rotations\_NonClass\PokeRotation\PokeAbilities.lua
 Rotations\_NonClass\PokeRotation\PokeCollections.lua
 Rotations\_NonClass\PokeRotation\PokeData.lua
@@ -256,5 +256,5 @@ Rotations\_NonClass\PokeRotation\PokeSwapper.lua
 Rotations\_NonClass\PokeRotation\PokeUI.lua
 Rotations\_NonClass\PokeRotation\PokeUnitInfo.lua
 
-## ProfessionHelper
+## ProfessionHelper -----------------------------------------
 Rotations\_NonClass\ProfessionHelper\ProfessionHelper.lua

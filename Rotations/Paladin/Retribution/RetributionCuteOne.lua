@@ -153,6 +153,7 @@ if select(3, UnitClass("player")) == 2 then -- Change specID to ID of spec. IE: 
 			local holyPower 	= bb.player.holyPower
 			local holyPowerMax 	= bb.player.holyPowerMax
 			local inCombat 		= bb.player.inCombat
+			local level 		= bb.player.level
 			local mode 			= bb.player.mode
 			local php 			= bb.player.health
 			local race 			= bb.player.race
@@ -161,6 +162,7 @@ if select(3, UnitClass("player")) == 2 then -- Change specID to ID of spec. IE: 
 			local units 		= bb.player.units			
 
 			if profileStop == nil then profileStop = false end
+			if level < 78 then debuff.judgment = true end
 
 	--------------------
 	--- Action Lists ---
@@ -211,7 +213,7 @@ if select(3, UnitClass("player")) == 2 then -- Change specID to ID of spec. IE: 
                     end
             -- Divine Shield
             		if isChecked("Divine Shield") then
-            			if php <= getOptionValue("Divine Shield") then
+            			if php <= getOptionValue("Divine Shield") and inCombat then
             				if cast.divineShield() then return end
             			end
             		end

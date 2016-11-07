@@ -17,6 +17,7 @@ if select(2, UnitClass("player")) == "WARLOCK" then
         self.spell.class                	= {}        -- Abilities Available To All Specs in Class
         self.spell.class.abilities      	= {
             darkPact                        = 108416,
+            demonicCircle                   = 48018,
             drainLife                       = 689,
             fear                            = 5782,
             grimoireFelhunter               = 111897,
@@ -25,6 +26,7 @@ if select(2, UnitClass("player")) == "WARLOCK" then
             grimoireVoidwalker              = 111895,
             healthFunnel                    = 755,
             lifeTap                         = 1454,
+            mortalCoil                      = 6789,
             soulHarvest                     = 196098,
             summonDoomguard                 = 18540,
             summonFelhunter                 = 691,
@@ -48,9 +50,13 @@ if select(2, UnitClass("player")) == "WARLOCK" then
 
         }
         self.spell.class.talents        	= {        -- Talents Available To All Specs in Class
+            burningRush                     = 111400,
             darkPact                        = 108416,
+            demonicCircle                   = 48018,
+            demonSkin                       = 219272,
             grimoireOfService               = 108501,
             grimoireOfSupremacy             = 152107,
+            mortalCoil                      = 6789,
             soulHarvest                     = 196098,
         }
 

@@ -224,7 +224,7 @@ if select(2, UnitClass("player")) == "SHAMAN" then
                     end
                 end -- End Dummy Test
             -- Ghost Wolf
-                if isChecked("Ghost Wolf") and not UnitBuffID("player",202477) then
+                if isChecked("Ghost Wolf") and not UnitBuffID("player",202477) and not (IsMounted() or IsFlying()) then
                     if ((#enemies.yards20 == 0 and not inCombat) or (#enemies.yards10 == 0 and inCombat)) and isMoving("player") then
                         if cast.ghostWolf() then return end
                     end

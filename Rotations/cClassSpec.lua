@@ -4,6 +4,7 @@ function cFileBuild(cFileName,self)
     if self.artifact.rank   == nil then self.artifact.rank      = {} end        -- Artifact Trait Rank
     if self.buff.duration   == nil then self.buff.duration      = {} end        -- Buff Durations
     if self.buff.remain     == nil then self.buff.remain        = {} end        -- Buff Time Remaining
+    if self.buff.refresh    == nil then self.buff.refresh       = {} end        -- Buff Refreshable
     if self.buff.stack      == nil then self.buff.stack         = {} end        -- Buff Stack Count
     if self.buff.pet        == nil then self.buff.pet           = {} end        -- Buffs on Pets
     if self.cast            == nil then self.cast               = {} end        -- Cast Spell Functions
@@ -65,6 +66,7 @@ function cFileBuild(cFileName,self)
         self.buff[k]            = UnitBuffID("player",v) ~= nil
         self.buff.duration[k]   = getBuffDuration("player",v) or 0
         self.buff.remain[k]     = getBuffRemain("player",v) or 0
+        self.buff.refresh[k]    = self.buff.remain[k] <= self.buff.duration[k] * 0.3
         self.buff.stack[k]      = getBuffStacks("player",v) or 0
     end
 
@@ -74,6 +76,7 @@ function cFileBuild(cFileName,self)
             self.debuff[k]          = UnitDebuffID("target",v,"player") ~= nil
             self.debuff.duration[k] = getDebuffDuration("target",v,"player") or 0
             self.debuff.remain[k]   = getDebuffRemain("target",v,"player") or 0
+            self.debuff.refresh[k]  = self.debuff.remain[k] <= self.debuff.duration[k] * 0.3
             self.debuff.stack[k]    = getDebuffStacks("target",v,"player") or 0
         end
     end

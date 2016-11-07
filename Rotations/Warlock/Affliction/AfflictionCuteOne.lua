@@ -1,0 +1,810 @@
+if select(2, UnitClass("player")) == "WARLOCK" then
+	local rotationName = "CuteOne"
+
+---------------
+--- Toggles ---
+---------------
+	local function createToggles()
+    -- Rotation Button
+        RotationModes = {
+            [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range.", highlight = 1, icon = bb.player.spell.agony},
+            [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = bb.player.spell.corruption},
+            [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = bb.player.spell.drainLife},
+            [4] = { mode = "Off", value = 4 , overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = bb.player.spell.healthFunnel}
+        };
+        CreateButton("Rotation",1,0)
+    -- Cooldown Button
+        CooldownModes = {
+            [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = bb.player.spell.summonDoomguard},
+            [2] = { mode = "On", value = 1 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = bb.player.spell.summonDoomguard},
+            [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = bb.player.spell.summonDoomguard}
+        };
+       	CreateButton("Cooldown",2,0)
+    -- Defensive Button
+        DefensiveModes = {
+            [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = bb.player.spell.unendingResolve},
+            [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = bb.player.spell.unendingResolve}
+        };
+        CreateButton("Defensive",3,0)
+    -- Interrupt Button
+        InterruptModes = {
+            [1] = { mode = "On", value = 1 , overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = bb.player.spell.fear},
+            [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = bb.player.spell.fear}
+        };
+        CreateButton("Interrupt",4,0)
+    end
+
+---------------
+--- OPTIONS ---
+---------------
+	local function createOptions()
+        local optionTable
+
+        local function rotationOptions()
+            local section
+        -- General Options
+            section = bb.ui:createSection(bb.ui.window.profile, "General")
+            -- APL
+                bb.ui:createDropdownWithout(section, "APL Mode", {"|cffFFFFFFSimC","|cffFFFFFFAMR"}, 1, "|cffFFFFFFSet APL Mode to use.")
+            -- Dummy DPS Test
+                bb.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
+            -- Pre-Pull Timer
+                bb.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
+            -- Opener
+                bb.ui:createCheckbox(section,"Opener")
+            -- Artifact 
+                bb.ui:createDropdownWithout(section,"Artifact", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Artifact Ability.")
+            -- Summon Pet
+                bb.ui:createDropdownWithout(section, "Summon Pet", {"Imp","Voidwalker","Felhunter","Succubus","Felguard"}, 1, "|cffFFFFFFSelect default pet to summon.")
+            -- Grimoire of Service
+                bb.ui:createDropdownWithout(section, "Grimoire of Service", {"Imp","Voidwalker","Felhunter","Succubus","Felguard"}, 1, "|cffFFFFFFSelect pet to Grimoire.")
+            -- Mana Tap
+                bb.ui:createSpinner(section, "Life Tap HP Limit", 30, 0, 100, 5, "|cffFFFFFFHP Limit that Life Tap will not cast below.") 
+            bb.ui:checkSectionState(section)
+        -- Cooldown Options
+            section = bb.ui:createSection(bb.ui.window.profile, "Cooldowns")
+            -- Racial
+                bb.ui:createCheckbox(section,"Racial")
+            -- Trinkets
+                bb.ui:createCheckbox(section,"Trinkets")
+            -- Soul Harvest
+                bb.ui:createCheckbox(section,"Soul Harvest")
+            -- Summon Doomguard
+                bb.ui:createCheckbox(section,"Summon Doomguard")
+            -- Summon Infernal
+                bb.ui:createCheckbox(section,"Summon Infernal")
+            bb.ui:checkSectionState(section)
+        -- Defensive Options
+            section = bb.ui:createSection(bb.ui.window.profile, "Defensive")
+            -- Healthstone
+                bb.ui:createSpinner(section, "Pot/Stoned",  60,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
+            -- Heirloom Neck
+                bb.ui:createSpinner(section, "Heirloom Neck",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.");
+            -- Gift of The Naaru
+                if bb.player.race == "Draenei" then
+                    bb.ui:createSpinner(section, "Gift of the Naaru",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
+                end
+            -- Dark Pact
+                bb.ui:createSpinner(section, "Dark Pact", 50, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
+            -- Drain Life
+                bb.ui:createSpinner(section, "Drain Life", 50, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
+            -- Health Funnel
+                bb.ui:createSpinner(section, "Health Funnel", 50, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
+            -- Unending Resolve
+                bb.ui:createSpinner(section, "Unending Resolve", 50, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
+            bb.ui:checkSectionState(section)
+        -- Interrupt Options
+            section = bb.ui:createSection(bb.ui.window.profile, "Interrupts")
+            -- Couterspell
+                bb.ui:createCheckbox(section, "Counterspell")
+            -- Interrupt Percentage
+                bb.ui:createSpinner(section, "Interrupt At",  0,  0,  95,  5,  "|cffFFFFFFCast Percent to Cast At")
+            bb.ui:checkSectionState(section)
+        -- Toggle Key Options
+            section = bb.ui:createSection(bb.ui.window.profile, "Toggle Keys")
+            -- Single/Multi Toggle
+                bb.ui:createDropdown(section, "Rotation Mode", bb.dropOptions.Toggle,  4)
+            -- Cooldown Key Toggle
+                bb.ui:createDropdown(section, "Cooldown Mode", bb.dropOptions.Toggle,  3)
+            -- Defensive Key Toggle
+                bb.ui:createDropdown(section, "Defensive Mode", bb.dropOptions.Toggle,  6)
+            -- Interrupts Key Toggle
+                bb.ui:createDropdown(section, "Interrupt Mode", bb.dropOptions.Toggle,  6)
+            -- Pause Toggle
+                bb.ui:createDropdown(section, "Pause Mode", bb.dropOptions.Toggle,  6)
+            bb.ui:checkSectionState(section)
+        end
+        optionTable = {{
+            [1] = "Rotation Options",
+            [2] = rotationOptions,
+        }}
+        return optionTable
+    end
+
+----------------
+--- ROTATION ---
+----------------
+	local function runRotation()
+        if bb.timer:useTimer("debugAffliction", math.random(0.15,0.3)) then
+            --print("Running: "..rotationName)
+
+    ---------------
+	--- Toggles ---
+	---------------
+	        UpdateToggle("Rotation",0.25)
+	        UpdateToggle("Cooldown",0.25)
+	        UpdateToggle("Defensive",0.25)
+	        UpdateToggle("Interrupt",0.25)
+
+	--------------
+	--- Locals ---
+    --------------
+            local addsExist                                     = false 
+            local addsIn                                        = 999
+            local activePet                                     = bb.player.pet
+            local activePetId                                   = bb.player.petId
+            local artifact                                      = bb.player.artifact
+            local buff                                          = bb.player.buff
+            local cast                                          = bb.player.cast
+            local castable                                      = bb.player.cast.debug
+            local combatTime                                    = getCombatTime()
+            local cd                                            = bb.player.cd
+            local charges                                       = bb.player.charges
+            local deadMouse                                     = UnitIsDeadOrGhost("mouseover")
+            local deadtar, attacktar, hastar, playertar         = deadtar or UnitIsDeadOrGhost("target"), attacktar or UnitCanAttack("target", "player"), hastar or ObjectExists("target"), UnitIsPlayer("target")
+            local debuff                                        = bb.player.debuff
+            local enemies                                       = bb.player.enemies
+            local falling, swimming, flying, moving             = getFallTime(), IsSwimming(), IsFlying(), GetUnitSpeed("player")>0
+            local flaskBuff                                     = getBuffRemain("player",bb.player.flask.wod.buff.agilityBig)
+            local friendly                                      = friendly or UnitIsFriend("target", "player")
+            local gcd                                           = bb.player.gcd
+            local grimoirePet                                   = getOptionValue("Grimoire of Service")
+            local hasMouse                                      = ObjectExists("mouseover")
+            local hasteAmount                                   = GetHaste()/100
+            local hasPet                                        = IsPetActive()
+            local healPot                                       = getHealthPot()
+            local heirloomNeck                                  = 122663 or 122664
+            local inCombat                                      = bb.player.inCombat
+            local inInstance                                    = bb.player.instance=="party"
+            local inRaid                                        = bb.player.instance=="raid"
+            local lastSpell                                     = lastSpellCast
+            local level                                         = bb.player.level
+            local lootDelay                                     = getOptionValue("LootDelay")
+            local lowestHP                                      = bb.friend[1].unit
+            local manaPercent                                   = bb.player.powerPercentMana
+            local mode                                          = bb.player.mode
+            local moveIn                                        = 999
+            local moving                                        = isMoving("player")
+            local perk                                          = bb.player.perk
+            local petInfo                                       = bb.player.petInfo        
+            local php                                           = bb.player.health
+            local playerMouse                                   = UnitIsPlayer("mouseover")
+            local power, powmax, powgen, powerDeficit           = bb.player.power, bb.player.powerMax, bb.player.powerRegen, bb.player.powerDeficit
+            local pullTimer                                     = bb.DBM:getPulltimer()
+            local racial                                        = bb.player.getRacial()
+            local recharge                                      = bb.player.recharge
+            local shards                                        = bb.player.shards
+            local summonPet                                     = getOptionValue("Summon Pet")
+            local solo                                          = bb.player.instance=="none"
+            local spell                                         = bb.player.spell
+            local talent                                        = bb.player.talent
+            local travelTime                                    = getDistance("target")/16
+            local ttd                                           = getTTD
+            local ttm                                           = bb.player.timeToMax
+            local units                                         = bb.player.units
+            
+	   		if leftCombat == nil then leftCombat = GetTime() end
+			if profileStop == nil or not inCombat then profileStop = false end
+            if castSummonId == nil then castSummonId = 0 end
+            if summonTime == nil then summonTime = 0 end
+            if effigied == nil then effigied = false end
+
+            -- Opener Variables
+            if not inCombat and not ObjectExists("target") then 
+                -- DE1 = false
+                -- DSB1 = false
+                -- DOOM = false
+                -- SDG = false
+                -- GRF = false
+                -- DE2 = false
+                -- DSB2 = false
+                -- DGL = false
+                -- DE3 = false
+                -- DSB3 = false
+                -- DSB4 = false
+                -- DSB5 = false
+                -- HVST = false
+                -- DRS = false
+                -- HOG = false
+                -- DE5 = false
+                -- TKC = false
+                opener = false
+            end
+
+            for i = 1, #enemies.yards40 do
+                local thisUnit = enemies.yards40[i]
+                if ObjectID(thisUnit) == 103679 then
+                    effigied = true;
+                    break
+                end
+                effigied = false
+            end
+
+            -- Pet Data
+            if summonPet == 1 then summonId = 416 end
+            if summonPet == 2 then summonId = 1860 end
+            if summonPet == 3 then summonId = 417 end
+            if summonPet == 4 then summonId = 1863 end
+            if summonPet == 5 then summonId = 17252 end
+            if cd.grimoireOfService == 0 or prevService == nil then prevService = "None" end
+            
+            local wildImpCount = 0
+            local wildImpDE = false
+            local wildImpNoDEcount = 0
+            local dreadStalkers = false
+            local dreadStalkersDE = false
+            local darkglare = false
+            local darkglareDE = false
+            local doomguard = false
+            local doomguardDE = false
+            local infernal = false
+            local infernalDE = false
+            local felguard = false
+            local petDE = buff.pet.demonicEmpowerment
+            local demonwrathPet = false
+            if bb.player.petInfo ~= nil then
+                for i = 1, #bb.player.petInfo do
+                    local thisUnit = bb.player.petInfo[i].id
+                    local hasDEbuff = bb.player.petInfo[i].deBuff
+                    if thisUnit == 55659 then
+                        wildImpCount = wildImpCount + 1
+                        wildImpDE = hasDEbuff
+                        if not hasDEbuff then wildImpNoDEcount = wildImpNoDEcount + 1 end 
+                    end
+                    if thisUnit == 98035 then dreadStalkers = true; dreadStalkersDE = hasDEbuff end
+                    if thisUnit == 103673 then darkglare = true; darkglareDE = hasDEbuff end
+                    if thisUnit == 11859 then doomguard = true; doomguardDE = hasDEbuff end
+                    if thisUnit == 89 then infernal = true; infernalDE = hasDEbuff end
+                    if thisUnit == 17252 then felguard = true end
+                end
+                for i = 1, #bb.player.petInfo do
+                    local enemyCount = bb.player.petInfo[i].numEnemies
+                    if enemyCount >= 3 then
+                        demonwrathPet = true;
+                        break
+                    else
+                        demonwrathPet = false
+                    end
+                end
+            end
+            if wildImpCount > 0 and wildImpDuration == 0 then wildImpDuration = GetTime() + 12 end
+            if wildImpCount > 0 and wildImpDuration ~= 0 then wildImpRemain = wildImpDuration - GetTime() end
+            if wildImpCount == 0 then wildImpDuration = 0; wildImpRemain = 0 end
+            if dreadStalkers and dreadStalkersDuration == 0 then dreadStalkersDuration = GetTime() + 12 end
+            if dreadStalkers and dreadStalkersDuration ~= 0 then dreadStalkersRemain = dreadStalkersDuration - GetTime() end
+            if not dreadStalkers then dreadStalkersDuration = 0; dreadStalkersRemain = 0 end 
+
+	--------------------
+	--- Action Lists ---
+	--------------------
+		-- Action List - Extras
+			local function actionList_Extras()
+			-- Dummy Test
+				if isChecked("DPS Testing") then
+					if ObjectExists("target") then
+						if getCombatTime() >= (tonumber(getOptionValue("DPS Testing"))*60) and isDummy() then
+                            StopAttack()
+                            ClearTarget()
+                            PetFollow()
+							print(tonumber(getOptionValue("DPS Testing")) .." Minute Dummy Test Concluded - Profile Stopped")
+							profileStop = true
+						end
+					end
+				end -- End Dummy Test
+			end -- End Action List - Extras
+		-- Action List - Defensive
+			local function actionList_Defensive()
+				if useDefensive() then
+			-- Pot/Stoned
+                    if isChecked("Pot/Stoned") and php <= getOptionValue("Pot/Stoned") 
+                        and inCombat and (hasHealthPot() or hasItem(5512)) 
+                    then
+                        if canUse(5512) then
+                            useItem(5512)
+                        elseif canUse(healPot) then
+                            useItem(healPot)
+                        end
+                    end
+            -- Heirloom Neck
+                    if isChecked("Heirloom Neck") and php <= getOptionValue("Heirloom Neck") then
+                        if hasEquiped(heirloomNeck) then
+                            if GetItemCooldown(heirloomNeck)==0 then
+                                useItem(heirloomNeck)
+                            end
+                        end
+                    end
+            -- Gift of the Naaru
+                    if isChecked("Gift of the Naaru") and php <= getOptionValue("Gift of the Naaru") and php > 0 and bb.player.race == "Draenei" then
+                        if castSpell("player",racial,false,false,false) then return end
+                    end
+            -- Dark Pact
+                    if isChecked("Dark Pact") and php <= getOptionValue("Dark Pact") then
+                        if cast.darkPact() then return end
+                    end
+            -- Drain Life
+                    if isChecked("Drain Life") and php <= getOptionValue("Drain Life") and isValidTarget("target") then
+                        if cast.drainLife() then return end
+                    end
+            -- Health Funnel
+                    if isChecked("Health Funnel") and getHP("pet") <= getOptionValue("Health Funnel") then
+                        if cast.healthFunnel() then return end
+                    end
+            -- Unending gResolve
+                    if isChecked("Unending Resolve") and php <= getOptionValue("Unending Resolve") and inCombat then
+                        if cast.unendingResolve() then return end
+                    end
+	    		end -- End Defensive Toggle
+			end -- End Action List - Defensive
+		-- Action List - Interrupts
+			local function actionList_Interrupts()
+				if useInterrupts() then
+                    for i=1, #enemies.yards30 do
+                        thisUnit = enemies.yards30[i]
+                        if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
+
+                        end
+                    end
+                end -- End useInterrupts check
+			end -- End Action List - Interrupts
+		-- Action List - Cooldowns
+			local function actionList_Cooldowns()
+				if useCDs() and getDistance(units.dyn40) < 40 then
+            -- Trinkets
+                    -- use_item,slot=trinket2,if=buff.chaos_blades.up|!talent.chaos_blades.enabled 
+                    if isChecked("Trinkets") then
+                        -- if buff.chaosBlades or not talent.chaosBlades then 
+                            if canUse(13) then
+                                useItem(13)
+                            end
+                            if canUse(14) then
+                                useItem(14)
+                            end
+                        -- end
+                    end
+            -- Racial: Orc Blood Fury | Troll Berserking | Blood Elf Arcane Torrent
+                    -- blood_fury | berserking | arcane_torrent
+                    if isChecked("Racial") and (bb.player.race == "Orc" or bb.player.race == "Troll" or bb.player.race == "Blood Elf") then
+                        if castSpell("player",racial,false,false,false) then return end
+                    end
+            -- Soul Harvest
+                    -- soul_harvest
+                    if isChecked("Soul Harvest") then
+                        if cast.soulHarvest() then return end
+                    end
+            -- Potion
+                    -- potion,name=deadly_grace,if=buff.soul_harvest.remains|target.time_to_die<=45|trinket.proc.any.react
+                    -- TODO
+                end -- End useCDs check
+            end -- End Action List - Cooldowns
+        -- Action List - PreCombat
+            local function actionList_PreCombat()
+                -- Summon Pet
+                -- summon_pet,if=!talent.grimoire_of_supremacy.enabled&(!talent.grimoire_of_sacrifice.enabled|buff.demonic_power.down)
+                if not (IsFlying() or IsMounted()) and not talent.grimoireOfSupremacy and (not talent.grimoireOfSacrifice or not buff.demonicPower) then
+                    if (activePetId == 0 or activePetId ~= summonId) and (lastSpell ~= castSummonId or activePetId ~= summonId) then
+                        if summonPet == 1 then
+                            if cast.summonImp() then castSummonId = spell.summonImp; return end
+                        end
+                        if summonPet == 2 then
+                            if cast.summonVoidwalker() then castSummonId = spell.summonVoidwalker; return end
+                        end
+                        if summonPet == 3 then
+                            if cast.summonFelhunter() then castSummonId = spell.summonFelhunter; return end
+                        end
+                        if summonPet == 4 then
+                            if cast.summonSuccubus() then castSummonId = spell.summonSuccubus; return end
+                        end
+                        if summonPet == 5 then
+                            if cast.summonFelguard() then castSummonId = spell.summonFelguard; return end
+                        end
+                    end
+                end
+                if not inCombat and not (IsFlying() or IsMounted()) then
+                -- Flask
+                    -- flask,type=whispered_pact
+                    -- TODO
+                -- Food
+                    -- food,type=azshari_salad
+                    -- TODO
+                    if not isChecked("Opener") or not isBoss("target") then
+                    -- Summon Infernal
+                        -- summon_infernal,if=talent.grimoire_of_supremacy.enabled&active_enemies>=3
+                        if useCDs() and isChecked("Summon Infernal") then
+                            if talent.grimoireOfSupremacy and #enemies.yards8 >= 3 then
+                                if cast.summonInfernal() then return end
+                            end
+                        end
+                    -- Summon Doomguard
+                        -- summon_doomguard,if=talent.grimoire_of_supremacy.enabled&active_enemies<3&artifact.lord_of_flames.rank=0
+                        if useCDs() and isChecked("Summon Doomguard") then
+                            if talent.grimoireOfSupremacy and #enemies.yards8 < 3 then
+                                if cast.summonDoomguard() then return end
+                            end
+                        end
+                        if isChecked("Pre-Pull Timer") and pullTimer <= getOptionValue("Pre-Pull Timer") then
+
+                        end -- End Pre-Pull
+                        if isValidUnit("target") and getDistance("target") < 40 then
+                    -- Augmentation
+                            -- augmentation,type=defiled
+                            -- TODO
+                    -- Grimoire of Sacrifice
+                            -- grimoire_of_sacrifice,if=talent.grimoire_of_sacrifice.enabled
+                            if talent.grimoireOfSacrifice then
+                                if cast.grimoireOfSacrifice() then return end
+                            end
+                    -- Potion
+                            -- potion,name=deadly_grace
+                            -- TODO
+                    -- Mana Tap
+                            -- mana_tap,if=talent.mana_tap.enabled&!buff.mana_tap.remains
+                            if talent.manaTap and not buff.manaTap then
+                                if cast.manaTap() then return end
+                            end
+                    -- Pet Attack/Follow
+                            if UnitExists("target") and not UnitAffectingCombat("pet") then
+                                PetAssistMode()
+                                PetAttack("target")
+                            end
+                        end
+                    end
+                end -- End No Combat
+            end -- End Action List - PreCombat
+            local function actionList_Opener()
+                if isBoss("target") and isValidUnit("target") and opener == false then
+                    if (isChecked("Pre-Pull Timer") and pullTimer <= getOptionValue("Pre-Pull Timer")) or not isChecked("Pre-Pull Timer") then
+                    -- -- Demonic Empowerment
+                    --     if not DE1 then
+                    --         castOpener("demonicEmpowerment","DE1",1)
+                    -- -- Potion
+                    --     potion,name=deadly_grace
+                    --     elseif useCDs() and canUse(127843) and isChecked("Potion") and getDistance("target") < 15 then
+                    --         print("Potion Used!");
+                    --         useItem(127843)
+                    -- -- Demonbolt/Shadowbolt
+                    --     elseif DE1 and not DSB1 then
+                    --         if talent.demonbolt then
+                    --             castOpener("demonbolt","DSB1",2)
+                    --         else
+                    --             castOpener("shadowbolt","DSB1",2)
+                    --         end
+                    -- -- Doom
+                    --     elseif DSB1 and not DOOM then
+                    --         castOpener("doom","DOOM",3)
+                    -- -- Summon Doomguard
+                    --     elseif DOOM and not SDG then
+                    --         castOpener("summonDoomguard","SDG",4)
+                    -- -- Grimoire: Felguard
+                    --     elseif SDG and not GRF then
+                    --         castOpener("grimoireFelguard","GRF",5)
+                    -- -- Demonic Empowerment
+                    --     elseif GRF and not DE2 then
+                    --         castOpener("demonicEmpowerment","DE2",6)
+                    -- -- Demonbolt/Shadowbolt
+                    --     elseif DE2 and not DSB2 then
+                    --         if talent.demonbolt then
+                    --             castOpener("demonbolt","DSB2",7)
+                    --         else
+                    --             castOpener("shadowbolt","DSB2",7)
+                    --         end
+                    -- -- Summon Darkglare
+                    --     elseif DSB2 and not DGL then
+                    --         castOpener("summonDarkglare","DGL",8)
+                    -- -- Demonic Empowerment
+                    --     elseif DGL and not DE3 then
+                    --         castOpener("demonicEmpowerment","DE3",9)
+                    -- -- Demonbolt/Shadowbolt
+                    --     elseif DE3 and not DSB3 then
+                    --         if talent.demonbolt then
+                    --             castOpener("demonbolt","DSB3",10)
+                    --         else
+                    --             castOpener("shadowbolt","DSB3",10)
+                    --         end
+                    -- -- Demonbolt/Shadowbolt
+                    --     elseif DSB3 and not DSB4 then
+                    --         if talent.demonbolt then
+                    --             castOpener("demonbolt","DSB4",11)
+                    --         else
+                    --             castOpener("shadowbolt","DSB4",11)
+                    --         end
+                    -- -- Demonbolt/Shadowbolt
+                    --     elseif DSB4 and not DSB5 then
+                    --         if talent.demonbolt then
+                    --             castOpener("demonbolt","DSB5",12)
+                    --         else
+                    --             castOpener("shadowbolt","DSB5",12)
+                    --         end
+                    -- -- Soul Harvest
+                    --     elseif DSB5 and not HVST then
+                    --         castOpener("soulHarvest","HVST",13)
+                    -- -- Call Dreadstalkers
+                    --     elseif HVST and not DRS then
+                    --         castOpener("callDreadstalkers","DRS",14)
+                    -- -- Hand of Guldan
+                    --     elseif DRS and not HOG then
+                    --         castOpener("handOfGuldan","HOG",15)
+                    -- -- Demonic Empowerment
+                    --     elseif HOG and not DE5 then
+                    --         castOpener("demonicEmpowerment","DE5",16)
+                    -- -- Thal'kiel's Consumption
+                    --     elseif DE5 and not TKC then
+                    --         castOpener("thalkielsConsumption","TKC",17)
+                    --     elseif TKC then
+                            opener = true
+                        -- end
+                    end
+                end
+            end
+    ---------------------
+    --- Begin Profile ---
+    ---------------------
+        -- Profile Stop | Pause
+            if not inCombat and not hastar and profileStop==true then
+                profileStop = false
+            elseif (inCombat and profileStop==true) or pause() or mode.rotation==4 then
+                if not pause() then
+                    PetFollow()
+                end
+                return true
+            else
+    -----------------------
+    --- Extras Rotation ---
+    -----------------------
+                if actionList_Extras() then return end
+    --------------------------
+    --- Defensive Rotation ---
+    --------------------------
+                if actionList_Defensive() then return end
+    ------------------------------
+    --- Out of Combat Rotation ---
+    ------------------------------
+                if actionList_PreCombat() then return end
+    -----------------------
+    --- Opener Rotation ---
+    -----------------------
+                if opener == false and isChecked("Opener") and isBoss("target") then
+                    if actionList_Opener() then return end
+                end
+    --------------------------
+    --- In Combat Rotation ---
+    --------------------------
+                if inCombat and profileStop==false and isValidUnit(units.dyn40) and getDistance(units.dyn40) < 40 
+                    and (opener == true or not isChecked("Opener") or not isBoss("target")) 
+                then
+        ------------------------------
+        --- In Combat - Interrupts ---
+        ------------------------------
+                    if actionList_Interrupts() then return end
+        ---------------------------
+        --- SimulationCraft APL ---
+        ---------------------------
+                    if getOptionValue("APL Mode") == 1 then
+            -- Pet Attack
+                        if not UnitIsUnit("pettarget","target") then
+                            PetAttack()
+                        end
+            -- Reap Souls
+                        -- reap_souls,if=actions=reap_souls,if=!buff.deadwind_harvester.remains&(buff.soul_harvest.remains|buff.tormented_souls.react>=8|target.time_to_die<=buff.tormented_souls.react*5|trinket.proc.any.react)
+                        if not buff.deadwindHarvester and (buff.soulHarvest or buff.stack.tormentedSouls >= 8 or ttd(units.dyn40) <= buff.stack.tormentedSouls * 5) then
+                            if isCastingSpell(spell.drainLife,units.dyn40) then SpellStopCasting() end
+                            if isCastingSpell(spell.drainSoul,units.dyn40) then SpellStopCasting() end
+                            if cast.reapSouls() then return end
+                        end
+            -- Soul Effigy
+                        -- soul_effigy,if=!pet.soul_effigy.active
+                        if not effigied then
+                            if isCastingSpell(spell.drainLife,units.dyn40) then SpellStopCasting() end
+                            if isCastingSpell(spell.drainSoul,units.dyn40) then SpellStopCasting() end
+                            if cast.soulEffigy() then return end
+                        end
+            -- Agony
+                        -- agony,cycle_targets=1,if=remains<=tick_time+gcd
+                        for i = 1, #enemies.yards40 do
+                            local thisUnit = enemies.yards40[i]
+                            local agonizing = getDebuffRemain(thisUnit,spell.spec.debuffs.agony,"player") or 0
+                            if isValidUnit(thisUnit) and agonizing <= 2 + gcd then
+                                if isCastingSpell(spell.drainLife,units.dyn40) then SpellStopCasting() end
+                                if isCastingSpell(spell.drainSoul,units.dyn40) then SpellStopCasting() end
+                                if cast.agony(thisUnit) then return end
+                            end
+                        end
+            -- Service Pet
+                        -- service_pet,if=dot.corruption.remains&dot.agony.remains
+                        if debuff.corruption and debuff.agony and bb.timer:useTimer("castGrim", gcd) then
+                            if grimoirePet == 1 then
+                                if cast.grimoireImp() then prevService = "Imp"; return end
+                            end
+                            if grimoirePet == 2 then
+                                if cast.grimoireVoidwalker() then prevService = "Voidwalker"; return end
+                            end
+                            if grimoirePet == 3 then
+                                if cast.grimoireFelhunter() then prevService = "Felhunter"; return end
+                            end
+                            if grimoirePet == 4 then
+                                if cast.grimoireSuccubus() then prevService = "Succubus"; return end
+                            end
+                            if grimoirePet == 5 then
+                                if cast.grimoireFelguard() then prevService = "Felguard"; return end
+                            end
+                        end
+            -- Summon Doomguard
+                        -- summon_doomguard,if=!talent.grimoire_of_supremacy.enabled&spell_targets.summon_infernal<3&(target.time_to_die>180|target.health.pct<=20|target.time_to_die<30)
+                        if useCDs() and isChecked("Summon Doomguard") then
+                            if not talent.grimoireOfSupremacy and #enemies.yards10 < 3
+                                and (ttd(units.dyn40) > 180 or thp(units.dyn40) <= 20 or ttd(units.dyn40) < 30)
+                            then
+                                if isCastingSpell(spell.drainLife,units.dyn40) then SpellStopCasting() end
+                                if isCastingSpell(spell.drainSoul,units.dyn40) then SpellStopCasting() end
+                                if cast.summonDoomguard() then summonTime = GetTime(); return end
+                            end
+                        end
+            -- Summon Infernal
+                        -- summon_infernal,if=!talent.grimoire_of_supremacy.enabled&spell_targets.summon_infernal>=3
+                        if useCDs() and isChecked("Summon Infernal") then
+                            if not talent.grimoireOfSupremacy and #enemies.yards10 >= 3 then
+                                if isCastingSpell(spell.drainLife,units.dyn40) then SpellStopCasting() end
+                                if isCastingSpell(spell.drainSoul,units.dyn40) then SpellStopCasting() end
+                                if cast.summonInfernal() then summonTime = GetTime(); return end
+                            end
+                        end
+            -- Summon Doomguard
+                        -- summon_doomguard,if=talent.grimoire_of_supremacy.enabled&spell_targets.summon_infernal<3&equipped.132379&!cooldown.sindorei_spite_icd.remains
+                        if useCDs() and isChecked("Summon Doomguard") then
+                            if talent.grimoireOfSupremacy and #enemies.yards10 < 3 and hasEquiped(132379) and GetTime() > summonTime + 275 then
+                                if isCastingSpell(spell.drainLife,units.dyn40) then SpellStopCasting() end
+                                if isCastingSpell(spell.drainSoul,units.dyn40) then SpellStopCasting() end
+                                if cast.summonDoomguard() then summonTime = GetTime(); return end
+                            end
+                        end
+            -- Summon Infernal
+                        -- summon_infernal,if=talent.grimoire_of_supremacy.enabled&spell_targets.summon_infernal>=3&equipped.132379&!cooldown.sindorei_spite_icd.remains
+                        if useCDs() and isChecked("Summon Infernal") then
+                            if talent.grimoireOfSupremacy and #enemies.yards10 >= 3 and hasEquiped(132379) and GetTime() > summonTime + 275 then
+                                if isCastingSpell(spell.drainLife,units.dyn40) then SpellStopCasting() end
+                                if isCastingSpell(spell.drainSoul,units.dyn40) then SpellStopCasting() end
+                                if cast.summonInfernal() then summonTime = GetTime(); return end
+                            end
+                        end
+            -- Cooldowns
+                        if actionList_Cooldowns() then return end
+            -- Corruption
+                        -- corruption,cycle_targets=1,if=remains<=tick_time+gcd
+                        for i = 1, #enemies.yards40 do
+                            local thisUnit = enemies.yards40[i]
+                            local corrupting = getDebuffRemain(thisUnit,spell.spec.debuffs.corruption,"player") or 0
+                            if isValidUnit(thisUnit) and ((not talent.absoluteCorruption and corrupting <= 2 + gcd) or (talent.absoluteCorruption and corrupting == 0)) then
+                                if isCastingSpell(spell.drainLife,units.dyn40) then SpellStopCasting() end
+                                if isCastingSpell(spell.drainSoul,units.dyn40) then SpellStopCasting() end
+                                if cast.corruption(thisUnit) then return end
+                            end
+                        end
+            -- Siphon Life
+                        -- siphon_life,cycle_targets=1,if=remains<=tick_time+gcd
+                        for i = 1, #enemies.yards40 do
+                            local thisUnit = enemies.yards40[i]
+                            local siphoning = getDebuffRemain(thisUnit,spell.spec.debuffs.siphonLife,"player") or 0
+                            if isValidUnit(thisUnit) and siphoning <= 3 + gcd then
+                                if isCastingSpell(spell.drainLife,units.dyn40) then SpellStopCasting() end
+                                if isCastingSpell(spell.drainSoul,units.dyn40) then SpellStopCasting() end
+                                if cast.siphonLife(thisUnit) then return end
+                            end
+                        end
+            -- Mana Tap
+                        -- mana_tap,if=buff.mana_tap.remains<=buff.mana_tap.duration*0.3&(mana.pct<20|buff.mana_tap.remains<=gcd)&target.time_to_die>buff.mana_tap.duration*0.3
+                        if buff.refresh.manaTap and (manaPercent < 20 or buff.remain.manaTap <= gcd) and ttd(units.dyn40) > buff.duration.manaTap * 0.3 then
+                            if isCastingSpell(spell.drainLife,units.dyn40) then SpellStopCasting() end
+                            if isCastingSpell(spell.drainSoul,units.dyn40) then SpellStopCasting() end
+                            if cast.manaTap() then return end
+                        end
+            -- Phantom Singularity
+                        -- phantom_singularity
+                        if castable.phantomSingularity then
+                            if isCastingSpell(spell.drainLife,units.dyn40) then SpellStopCasting() end
+                            if isCastingSpell(spell.drainSoul,units.dyn40) then SpellStopCasting() end
+                            if cast.phantomSingularity() then return end
+                        end
+            -- Unsable Affliction
+                        -- unstable_affliction,if=talent.contagion.enabled|(soul_shard>=4|trinket.proc.intellect.react|trinket.stacking_proc.mastery.react|trinket.proc.mastery.react|trinket.proc.crit.react|trinket.proc.versatility.react|buff.soul_harvest.remains|buff.deadwind_harvester.remains|buff.compounding_horror.react=5|target.time_to_die<=20)
+                        if talent.contagion or (shards >= 4 or buff.soulHarvest or buff.deadwindHarvester or buff.stack.compoundingHorror == 5 or ttd(units.dyn40) <= 20) then
+                            if lastSpell ~= spell.unstableAffliction then
+                                if isCastingSpell(spell.drainLife,units.dyn40) then SpellStopCasting() end
+                                if isCastingSpell(spell.drainSoul,units.dyn40) then SpellStopCasting() end
+                                if cast.unstableAffliction() then return end
+                            end
+                        end
+            -- Agony
+                        -- agony,cycle_targets=1,if=remains<=duration*0.3&target.time_to_die>=remains
+                        for i = 1, #enemies.yards40 do
+                            local thisUnit = enemies.yards40[i]
+                            local agonizing = getDebuffRemain(thisUnit,spell.spec.debuffs.agony,"player") or 0
+                            local agonized = getDebuffDuration(thisUnit,spell.spec.debuffs.agony,"player") or 0
+                            local agonyRefresh = agonizing <= agonized * 0.3
+                            if isValidUnit(thisUnit) and agonyRefresh and ttd(thisUnit) >= agonizing then
+                                if isCastingSpell(spell.drainLife,units.dyn40) then SpellStopCasting() end
+                                if isCastingSpell(spell.drainSoul,units.dyn40) then SpellStopCasting() end
+                                if cast.agony(thisUnit) then return end
+                            end
+                        end
+            -- Corruption
+                        -- corruption,cycle_targets=1,if=remains<=duration*0.3&target.time_to_die>=remains
+                        for i = 1, #enemies.yards40 do
+                            local thisUnit = enemies.yards40[i]
+                            local corrupting = getDebuffRemain(thisUnit,spell.spec.debuffs.corruption,"player") or 0
+                            local corrupted = getDebuffDuration(thisUnit,spell.spec.debuffs.corruption,"player") or 0
+                            local corruptRefresh = corrupting <= corrupted * 0.3
+                            if isValidUnit(thisUnit) and ((not talent.absoluteCorruption and corruptRefresh and ttd(thisUnit) >= corrupting) or (talent.absoluteCorruption and corrupting == 0)) then
+                                if isCastingSpell(spell.drainLife,units.dyn40) then SpellStopCasting() end
+                                if isCastingSpell(spell.drainSoul,units.dyn40) then SpellStopCasting() end
+                                if cast.corruption(thisUnit) then return end
+                            end
+                        end
+            -- Haunt
+                        -- haunt
+                        if castable.haunt then
+                            if isCastingSpell(spell.drainLife,units.dyn40) then SpellStopCasting() end
+                            if isCastingSpell(spell.drainSoul,units.dyn40) then SpellStopCasting() end
+                            if cast.haunt() then return end
+                        end
+            -- Siphon Life
+                        -- siphon_life,cycle_targets=1,if=remains<=duration*0.3&target.time_to_die>=remains
+                        for i = 1, #enemies.yards40 do
+                            local thisUnit = enemies.yards40[i]
+                            local siphoning = getDebuffRemain(thisUnit,spell.spec.debuffs.siphonLife,"player") or 0
+                            local siphoned = getDebuffDuration(thisUnit,spell.spec.debuffs.siphonLife,"player") or 0
+                            local siphonRefresh = siphoning <= siphoned * 0.3
+                            if isValidUnit(thisUnit) and siphonRefresh and ttd(thisUnit) >= siphoning then
+                                if isCastingSpell(spell.drainLife,units.dyn40) then SpellStopCasting() end
+                                if isCastingSpell(spell.drainSoul,units.dyn40) then SpellStopCasting() end
+                                if cast.siphonLife(thisUnit) then return end
+                            end
+                        end
+            -- Life Tap
+                        -- life_tap,if=mana.pct<=30
+                        if manaPercent <= 10 and php > getOptionValue("Life Tap HP Limit") then
+                            if isCastingSpell(spell.drainLife,units.dyn40) then SpellStopCasting() end
+                            if isCastingSpell(spell.drainSoul,units.dyn40) then SpellStopCasting() end
+                            if cast.lifeTap() then return end
+                        end
+            -- Drain Soul
+                        -- drain_soul,chain=1,interrupt=1
+                        if cast.drainSoul(units.dyn40) then return end
+            -- Drain Life
+                        -- drain_life,chain=1,interrupt=1
+                        if not isCastingSpell(spell.drainLife,units.dyn40) then
+                            if not ObjectExists("target") then TargetUnit(units.dyn40) end
+                            if isCastingSpell(spell.drainSoul,units.dyn40) then SpellStopCasting() end
+                            if cast.drainLife(units.dyn40) then return end
+                        end
+            -- Life Tap
+                        --life_tap
+                        if manaPercent < 70 and php > getOptionValue("Life Tap HP Limit") then
+                            if cast.lifeTap() then return end
+                        end
+                    end -- End SimC APL
+        ----------------------
+        --- AskMrRobot APL ---
+        ----------------------
+                    if getOptionValue("APL Mode") == 2 then
+
+                    end
+				end --End In Combat
+			end --End Rotation Logic
+        end -- End Timer
+    end -- End runRotation
+    table.insert(cAffliction.rotations, {
+        name = rotationName,
+        toggles = createToggles,
+        options = createOptions,
+        run = runRotation,
+    })
+end --End Class Check

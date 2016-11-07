@@ -1,18 +1,14 @@
-if select(3, UnitClass("player")) == 9 then
-	function WarlockAffliction()
-		if affliWarlock == nil then
-			AfflictionToggles()
+function WarlockAffliction()
+    if GetSpecializationInfo(GetSpecialization()) == 265 then
+        if bb.player == nil or bb.player.profile ~= "Affliction" then
+            bb.player = cAffliction:new("Affliction")
+            setmetatable(bb.player, {__index = cAffliction})
 
-			affliWarlock = cAffliction:new()
-			setmetatable(affliWarlock, {__index = cAffliction})
-			affliWarlock:updateOOC()
-			affliWarlock:update()
-		end
+            bb.player:createOptions()
+            bb.player:createToggles()
+            bb.player:update()
+        end
 
-		if not UnitAffectingCombat("player") then
-			affliWarlock:updateOOC()
-		end
-		
-		affliWarlock:update()
-	end
+        bb.player:update()
+    end
 end
