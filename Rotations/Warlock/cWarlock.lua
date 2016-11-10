@@ -79,8 +79,8 @@ if select(2, UnitClass("player")) == "WARLOCK" then
             cFileBuild("class",self)
 
 	        -- Update Energy Regeneration
-	        self.powerRegen  = getRegen("player")
-            self.shards = getPowerAlt("player")
+	        -- self.powerRegen  = getRegen("player")
+         --    self.shards = getPowerAlt("player")
 		end
 
 	---------------

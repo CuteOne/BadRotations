@@ -202,7 +202,7 @@ if select(3,UnitClass("player")) == 1 then
             local perk                                          = bb.player.perk        
             local php                                           = bb.player.health
             local playerMouse                                   = UnitIsPlayer("mouseover")
-            local power, powmax, powgen                         = bb.player.power, bb.player.powerMax, bb.player.powerRegen
+            local power, powerMax, powerGen                     = bb.player.power, bb.player.powerMax, bb.player.powerRegen
             local pullTimer                                     = bb.DBM:getPulltimer()
             local race                                          = bb.player.race
             local racial                                        = bb.player.getRacial()

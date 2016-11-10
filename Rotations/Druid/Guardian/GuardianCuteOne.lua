@@ -604,9 +604,9 @@ if select(2, UnitClass("player")) == "DRUID" then
                         if #enemies.yards40 < 4 then
                             for i = 1, #enemies.yards40 do
                                 local thisUnit = enemies.yards40[i]
-                                local moonfireRemain = getDebuffRemain(thisUnit,spell.class.debuffs.moonfire,"player") or 0
-                                if isValidUnit(thisUnit) and (multidot or (UnitIsUnit(thisUnit,units.dyn8AoE) and not multidot)) then
-                                    if (moonfireRemain == 0 or moonfireRemain < 3.6 or moonfireRemain < 7.2) then
+                                local moonfire = debuff.moonfire[thisUnit]
+                                if isValidUnit(thisUnit) and (multidot or (UnitIsUnit(thisUnit,units.dyn5) and not multidot)) then
+                                    if (moonfire.remain == 0 or moonfire.remain < 3.6 or moonfire.remain < 7.2) then
                                         if cast.moonfire(thisUnit) then return end
                                     end
                                 end

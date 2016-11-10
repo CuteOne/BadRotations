@@ -60,9 +60,6 @@ function cFury:new()
         self.spell.spec.debuffs         = {
 
         }
-        self.spell.spec.debuffs.bleeds  = {
-
-        }
         self.spell.spec.glyphs          = {
 
         }

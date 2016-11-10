@@ -961,7 +961,7 @@ function getChargesFrac(spellID,chargeMax)
 		else
 			if start <= GetTime() then
 				local endTime = start + duration
-				local percentRemaining = 1-(endTime - GetTime())/duration
+				local percentRemaining = 1 - (endTime - GetTime()) / duration
 				return charges + percentRemaining
 			else
 				return charges
@@ -1625,15 +1625,17 @@ function getLineOfSight(Unit1,Unit2)
 		end
 	end
 	local skipLoSTable = {
-		76585, -- Ragewing
-		77692, -- Kromog
-		77182, -- Oregorger
-		96759, -- Helya
-		100360,-- Grasping Tentacle (Helya fight)
-		100354,-- Grasping Tentacle (Helya fight)
-		100362,-- Grasping Tentacle (Helya fight)
-		98363,-- Grasping Tentacle (Helya fight)
-		98696, -- Illysanna Ravencrest (Black Rook Hold)
+		76585, 	-- Ragewing
+		77692, 	-- Kromog
+		77182, 	-- Oregorger
+		96759, 	-- Helya
+		100360,	-- Grasping Tentacle (Helya fight)
+		100354,	-- Grasping Tentacle (Helya fight)
+		100362,	-- Grasping Tentacle (Helya fight)
+		98363,	-- Grasping Tentacle (Helya fight)
+		98696, 	-- Illysanna Ravencrest (Black Rook Hold)
+		114901, -- Gripping Tentacle (Trials of Valor)
+		116195, -- Bilewater Slime (Trials of Valor)
 		--86644, -- Ore Crate from Oregorger boss
 	}
 	for i = 1,#skipLoSTable do
@@ -2531,6 +2533,7 @@ function isValidTarget(Unit)
 		end
 	end
 end
+-- and (hasThreat(Unit) or isDummy(Unit) or (not hasThreat("target") and UnitAffectingCombat("target"))) then
 function isValidUnit(Unit)
 	if ObjectExists(Unit) and not UnitIsDeadOrGhost(Unit) then
 		if not UnitAffectingCombat("player") and UnitIsUnit(Unit,"target") 
@@ -2538,7 +2541,7 @@ function isValidUnit(Unit)
 		then
 			return true
 		end
-		if UnitAffectingCombat("player") then-- and (hasThreat(Unit) or isDummy(Unit) or (not hasThreat("target") and UnitAffectingCombat("target"))) then
+		if UnitAffectingCombat("player") then
 			return true
 		end
 	end

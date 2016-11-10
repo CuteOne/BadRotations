@@ -611,8 +611,8 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                         -- agony,cycle_targets=1,if=remains<=tick_time+gcd
                         for i = 1, #enemies.yards40 do
                             local thisUnit = enemies.yards40[i]
-                            local agonizing = getDebuffRemain(thisUnit,spell.spec.debuffs.agony,"player") or 0
-                            if isValidUnit(thisUnit) and agonizing <= 2 + gcd then
+                            local agony = debuff.agony[thisUnit].remain
+                            if isValidUnit(thisUnit) and agony.remain <= 2 + gcd then
                                 if isCastingSpell(spell.drainLife,units.dyn40) then SpellStopCasting() end
                                 if isCastingSpell(spell.drainSoul,units.dyn40) then SpellStopCasting() end
                                 if cast.agony(thisUnit) then return end
@@ -620,7 +620,7 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                         end
             -- Service Pet
                         -- service_pet,if=dot.corruption.remains&dot.agony.remains
-                        if debuff.corruption and debuff.agony and bb.timer:useTimer("castGrim", gcd) then
+                        if debuff.corruption[units.dyn40].exists and debuff.agony[units.dyn40].exists and bb.timer:useTimer("castGrim", gcd) then
                             if grimoirePet == 1 then
                                 if cast.grimoireImp() then prevService = "Imp"; return end
                             end
@@ -681,8 +681,8 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                         -- corruption,cycle_targets=1,if=remains<=tick_time+gcd
                         for i = 1, #enemies.yards40 do
                             local thisUnit = enemies.yards40[i]
-                            local corrupting = getDebuffRemain(thisUnit,spell.spec.debuffs.corruption,"player") or 0
-                            if isValidUnit(thisUnit) and ((not talent.absoluteCorruption and corrupting <= 2 + gcd) or (talent.absoluteCorruption and corrupting == 0)) then
+                            local corrupting = debuff.corruption[thisUnit]
+                            if isValidUnit(thisUnit) and ((not talent.absoluteCorruption and corruption.remain <= 2 + gcd) or (talent.absoluteCorruption and corruption.remain == 0)) then
                                 if isCastingSpell(spell.drainLife,units.dyn40) then SpellStopCasting() end
                                 if isCastingSpell(spell.drainSoul,units.dyn40) then SpellStopCasting() end
                                 if cast.corruption(thisUnit) then return end
@@ -692,8 +692,8 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                         -- siphon_life,cycle_targets=1,if=remains<=tick_time+gcd
                         for i = 1, #enemies.yards40 do
                             local thisUnit = enemies.yards40[i]
-                            local siphoning = getDebuffRemain(thisUnit,spell.spec.debuffs.siphonLife,"player") or 0
-                            if isValidUnit(thisUnit) and siphoning <= 3 + gcd then
+                            local siphoning = debuff.siphonLife[thisUnit]
+                            if isValidUnit(thisUnit) and siphonLife.remain <= 3 + gcd then
                                 if isCastingSpell(spell.drainLife,units.dyn40) then SpellStopCasting() end
                                 if isCastingSpell(spell.drainSoul,units.dyn40) then SpellStopCasting() end
                                 if cast.siphonLife(thisUnit) then return end
@@ -726,10 +726,8 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                         -- agony,cycle_targets=1,if=remains<=duration*0.3&target.time_to_die>=remains
                         for i = 1, #enemies.yards40 do
                             local thisUnit = enemies.yards40[i]
-                            local agonizing = getDebuffRemain(thisUnit,spell.spec.debuffs.agony,"player") or 0
-                            local agonized = getDebuffDuration(thisUnit,spell.spec.debuffs.agony,"player") or 0
-                            local agonyRefresh = agonizing <= agonized * 0.3
-                            if isValidUnit(thisUnit) and agonyRefresh and ttd(thisUnit) >= agonizing then
+                            local agony = debuff.agony[thisUnit]
+                            if isValidUnit(thisUnit) and agony.refresh and ttd(thisUnit) >= agony.remain then
                                 if isCastingSpell(spell.drainLife,units.dyn40) then SpellStopCasting() end
                                 if isCastingSpell(spell.drainSoul,units.dyn40) then SpellStopCasting() end
                                 if cast.agony(thisUnit) then return end
@@ -739,10 +737,8 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                         -- corruption,cycle_targets=1,if=remains<=duration*0.3&target.time_to_die>=remains
                         for i = 1, #enemies.yards40 do
                             local thisUnit = enemies.yards40[i]
-                            local corrupting = getDebuffRemain(thisUnit,spell.spec.debuffs.corruption,"player") or 0
-                            local corrupted = getDebuffDuration(thisUnit,spell.spec.debuffs.corruption,"player") or 0
-                            local corruptRefresh = corrupting <= corrupted * 0.3
-                            if isValidUnit(thisUnit) and ((not talent.absoluteCorruption and corruptRefresh and ttd(thisUnit) >= corrupting) or (talent.absoluteCorruption and corrupting == 0)) then
+                            local corruption = debuff.corruption[thisUnit]
+                            if isValidUnit(thisUnit) and ((not talent.absoluteCorruption and corruption.refresh and ttd(thisUnit) >= corruption.remain) or (talent.absoluteCorruption and corruption.remain == 0)) then
                                 if isCastingSpell(spell.drainLife,units.dyn40) then SpellStopCasting() end
                                 if isCastingSpell(spell.drainSoul,units.dyn40) then SpellStopCasting() end
                                 if cast.corruption(thisUnit) then return end
@@ -759,10 +755,8 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                         -- siphon_life,cycle_targets=1,if=remains<=duration*0.3&target.time_to_die>=remains
                         for i = 1, #enemies.yards40 do
                             local thisUnit = enemies.yards40[i]
-                            local siphoning = getDebuffRemain(thisUnit,spell.spec.debuffs.siphonLife,"player") or 0
-                            local siphoned = getDebuffDuration(thisUnit,spell.spec.debuffs.siphonLife,"player") or 0
-                            local siphonRefresh = siphoning <= siphoned * 0.3
-                            if isValidUnit(thisUnit) and siphonRefresh and ttd(thisUnit) >= siphoning then
+                            local siphonLife = debuff.siphonLife[thisUnit]
+                            if isValidUnit(thisUnit) and siphonLife.refresh and ttd(thisUnit) >= siphonLife.remain then
                                 if isCastingSpell(spell.drainLife,units.dyn40) then SpellStopCasting() end
                                 if isCastingSpell(spell.drainSoul,units.dyn40) then SpellStopCasting() end
                                 if cast.siphonLife(thisUnit) then return end

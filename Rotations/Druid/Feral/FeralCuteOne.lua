@@ -86,7 +86,6 @@ if select(2, UnitClass("player")) == "DRUID" then
             -- Berserk
                 bb.ui:createCheckbox(section,"Berserk")
             -- Legendary Ring
-                bb.ui:createCheckbox(section,"Ring of Collapsing Futures")
                 bb.ui:createSpinner(section, "Ring of Collapsing Futures",  1,  1,  5,  1,  "|cffFFFFFFSet to desired number of Temptation stacks before letting fall off. Min: 1 / Max: 5 / Interval: 1")
             -- Racial
                 bb.ui:createCheckbox(section,"Racial")
@@ -183,7 +182,7 @@ if select(2, UnitClass("player")) == "DRUID" then
             local addsIn                                        = 999
             local animality                                     = false
             local artifact                                      = bb.player.artifact
-            local bleed                                         = bb.player.bleed
+            -- local bleed                                         = bb.player.bleed
             local buff                                          = bb.player.buff
             local canFlask                                      = canUse(bb.player.flask.wod.agilityBig)
             local cast                                          = bb.player.cast
@@ -212,7 +211,7 @@ if select(2, UnitClass("player")) == "DRUID" then
             local lowestHP                                      = bb.friend[1].unit
             local mfTick                                        = 20.0/(1+UnitSpellHaste("player")/100)/10
             local mode                                          = bb.player.mode
-            local multidot                                      = (useCleave() or bb.player.mode.rotation ~= 3)
+            local multidot                                      = (bb.player.mode.cleave == 1 or bb.player.mode.rotation == 2) and bb.player.mode.rotation ~= 3
             local perk                                          = bb.player.perk        
             local php                                           = bb.player.health
             local playerMouse                                   = UnitIsPlayer("mouseover")
@@ -536,11 +535,9 @@ if select(2, UnitClass("player")) == "DRUID" then
             -- Legendary Ring
                     -- use_item,slot=finger1
                     if isChecked("Ring of Collapsing Futures") then
-                        if hasEquiped(142173) and canUse(142173) and not UnitDebuffID("player",234143) then
-                            if hasEquiped(142173) and canUse(142173) and getDebuffStacks("player",234143) < getOptionValue("Ring of Collapsing Futures") then
-                                useItem(142173)
-                                return true
-                            end
+                        if hasEquiped(142173) and canUse(142173) and getDebuffStacks("player",234143) < getOptionValue("Ring of Collapsing Futures") and select(2,IsInInstance()) ~= "pvp"  then
+                            useItem(142173)
+                            return true
                         end
                     end
             -- Racial: Orc Blood Fury | Troll Berserking | Blood Elf Arcane Torrent
@@ -570,7 +567,7 @@ if select(2, UnitClass("player")) == "DRUID" then
             local function actionList_SBTOpener()
             -- Regrowth
                 -- healing_touch,if=talent.bloodtalons.enabled&combo_points=5&!buff.bloodtalons.up&!dot.rip.ticking
-                if talent.sabertooth and combo == 5 and not buff.bloodtalons and not debuff.rip then
+                if talent.sabertooth and combo == 5 and not buff.bloodtalons and not debuff.rip[units.dyn5].exists then
                     if getOptionValue("Auto Heal")==1 then
                         if cast.regrowth(bb.friend[1].unit) then return end
                     end
@@ -580,7 +577,7 @@ if select(2, UnitClass("player")) == "DRUID" then
 				end
             -- Tiger's Fury
                 -- tigers_fury,if=!dot.rip.ticking&combo_points=5
-                if not debuff.rip and combo == 5 then
+                if not debuff.rip[units.dyn5].exists and combo == 5 then
                     if cast.tigersFury() then return end
                 end
             end
@@ -589,7 +586,7 @@ if select(2, UnitClass("player")) == "DRUID" then
             -- Finisher Condition
                 -- combo_points=5&(energy.time_to_max<1|buff.berserk.up|buff.incarnation.up|buff.elunes_guidance.up|cooldown.tigers_fury.remains<3|set_bonus.tier18_4pc|buff.clearcasting.react|talent.soul_of_the_forest.enabled|!dot.rip.ticking|(dot.rake.remains<1.5&spell_targets.swipe_cat<6))
                 if combo == 5 and (ttm < 1 or buff.berserk or buff.incarnationKingOfTheJungle or buff.elunesGuidance or cd.tigersFury < 3 or t18_4pc 
-                    or buff.clearcasting or talent.soulOfTheForest or not debuff.rip or (debuff.remain.rake < 1.5 and #enemies.yards8 < 6)) 
+                    or buff.clearcasting or talent.soulOfTheForest or not debuff.rip[units.dyn5].exists or (debuff.rake[units.dyn5].remain < 1.5 and #enemies.yards8 < 6)) 
                 then
                     fatality = true
                 end
@@ -613,12 +610,12 @@ if select(2, UnitClass("player")) == "DRUID" then
             -- Thrash
                 -- pool_resource,for_next=1
                 -- cycle_targets=1,if=remains<=duration*0.3&spell_targets.thrash_cat>=5
-                for k,v in pairs(bleed.thrash) do
-                    local thrash = bleed.thrash[k]
-                    local thisUnit = k
-                    if (multidot or (UnitIsUnit(thisUnit,units.dyn8AoE) and not multidot)) then 
+                for i = 1, #enemies.yards8 do
+                    local thisUnit = enemies.yards8[i]
+                    local thrash = debuff.thrash[thisUnit]
+                    if (multidot or (UnitIsUnit(thisUnit,units.dyn5) and not multidot)) then 
                         if getDistance(thisUnit) < 8 then
-                            if thrash.remain <= thrash.duration * 0.3 and ((mode.rotation == 1 and #enemies.yards8 >= 5) or mode.rotation == 2) then
+                            if thrash.refresh and ((mode.rotation == 1 and #enemies.yards8 >= 5) or mode.rotation == 2) then
                                 if power <= select(1, getSpellCost(spell.thrash)) then
                                     return true
                                 elseif power > select(1, getSpellCost(spell.thrash)) then
@@ -642,9 +639,9 @@ if select(2, UnitClass("player")) == "DRUID" then
                 end
             -- Rip
                 -- rip,cycle_targets=1,if=(!ticking|(remains<8&target.health.pct>25&!talent.sabertooth.enabled)|persistent_multiplier>dot.rip.pmultiplier)&target.time_to_die-remains>tick_time*4&$(finisher_conditions)
-                for k,v in pairs(bleed.rip) do
-                    local rip = bleed.rip[k]
-                    local thisUnit = k
+                for i = 1, #enemies.yards5 do
+                    local thisUnit = enemies.yards5[i]
+                    local rip = debuff.rip[thisUnit]
                     if (multidot or (UnitIsUnit(thisUnit,units.dyn5) and not multidot)) then
                         if getDistance(thisUnit) < 5 then
                             if (rip.remain == 0 or (rip.remain < 8 and thp(thisUnit) > 25 and not talent.sabertooth) 
@@ -705,7 +702,7 @@ if select(2, UnitClass("player")) == "DRUID" then
             -- Thrash
                 -- pool_resource,for_next=1
                 -- if=talent.brutal_slash.enabled&spell_targets.thrash_cat>=9
-                if (multidot or (UnitIsUnit("target",units.dyn8AoE) and not multidot)) then  
+                if (multidot or (UnitIsUnit("target",units.dyn5) and not multidot)) then  
                     if talent.brutalSlash and ((mode.rotation == 1 and #enemies.yards8 >= 9) or mode.rotation == 2) then
                        if power <= select(1, getSpellCost(spell.thrash)) then
                             return true
@@ -727,9 +724,9 @@ if select(2, UnitClass("player")) == "DRUID" then
             -- Shadowmeld
                 -- shadowmeld,if=combo_points<5&energy>=action.rake.cost&dot.rake.pmultiplier<2.1&buff.tigers_fury.up&(buff.bloodtalons.up|!talent.bloodtalons.enabled)&(!talent.incarnation.enabled|cooldown.incarnation.remains>18)&!buff.incarnation.up
                 if useCDs() then
-                    for k,v in pairs(bleed.rake) do
-                        local rake = bleed.rake[k]
-                        local thisUnit = k
+                    for i = 1, #enemies.yards5 do
+                        local thisUnit = enemies.yards5[i]
+                        local rake = debuff.rake[thisUnit]
                         if UnitIsUnit(thisUnit,units.dyn5) and getDistance(thisUnit) < 5 then
                             if combo < 5 and power >= 35 and rake.applied < 2.1 and buff.tigersFury and (buff.bloodtalons or not talent.bloodtalons) 
                                 and (not talent.incarnationKingOfTheJungle or cd.incarnationKingOfTheJungle > 18) and not buff.incarnationKingOfTheJungle
@@ -743,11 +740,11 @@ if select(2, UnitClass("player")) == "DRUID" then
             -- Rake
                 -- pool_resource,for_next=1
                 -- rake,cycle_targets=1,if=combo_points<5&(!ticking|(!talent.bloodtalons.enabled&remains<duration*0.3)|(talent.bloodtalons.enabled&buff.bloodtalons.up&(!talent.soul_of_the_forest.enabled&remains<=7|remains<=5)&persistent_multiplier>dot.rake.pmultiplier*0.80))&target.time_to_die-remains>tick_time
-                for k,v in pairs(bleed.rake) do
-                    local rake = bleed.rake[k]
-                    local thisUnit = k
+                for i = 1, #enemies.yards5 do
+                    local thisUnit = enemies.yards5[i]
+                    local rake = debuff.rake[thisUnit]
                     if (multidot or (UnitIsUnit(thisUnit,units.dyn5) and not multidot)) and getDistance(thisUnit) < 5 then
-                        if combo < 5 and (rake.remain == 0 or (not talent.bloodtalons and rake.remain < rake.duration * 0.3) 
+                        if combo < 5 and (rake.remain == 0 or (not talent.bloodtalons and rake.refresh) 
                             or (talent.bloodtalons and buff.bloodtalons and (not talent.soulOfTheForest and rake.remain <= 7 or rake.remain <= 5) 
                                 and rake.calc > rake.applied * 0.80)) and ttd(thisUnit) - rake.remain > rkTick 
                         then
@@ -762,10 +759,10 @@ if select(2, UnitClass("player")) == "DRUID" then
             -- Moonfire
                 -- moonfire_cat,cycle_targets=1,if=combo_points<5&remains<=4.2&target.time_to_die-remains>tick_time*2
                 if talent.lunarInspiration then
-                    for k,v in pairs(bleed.moonfireFeral) do
-                        local moonfire = bleed.moonfireFeral[k]
-                        local thisUnit = k
-                        if multidot or (UnitIsUnit(thisUnit,units.dyn40AoE) and not multidot) then
+                    for i = 1, #enemies.yards40 do
+                        local thisUnit = enemies.yards40[i]
+                        local moonfire = debuff.moonfireFeral[thisUnit]
+                        if multidot or (UnitIsUnit(thisUnit,units.dyn5) and not multidot) then
                             if combo < 5 and moonfire.remain <= 4.2 and ((ttd(thisUnit) - moonfire.remain > mfTick * 2 and not isDummy(thisUnit)) or (isDummy(thisUnit) and getDistance(thisUnit) < 8)) then
                                if cast.moonfire(thisUnit) then return end
                             end
@@ -775,11 +772,11 @@ if select(2, UnitClass("player")) == "DRUID" then
             -- Thrash
                 -- pool_resource,for_next=1
                 -- cycle_targets=1,if=remains<=duration*0.3&spell_targets.thrash_cat>=2
-                for k,v in pairs(bleed.thrash) do
-                    local thrash = bleed.thrash[k]
-                    local thisUnit = k
-                    if (multidot or (UnitIsUnit(thisUnit,units.dyn8AoE) and not multidot)) and getDistance(thisUnit) < 5 then
-                        if thrash.remain <= thrash.duration * 0.3 and ((mode.rotation == 1 and #enemies.yards8 >= 2) or mode.rotation == 2) then
+                for i = 1, #enemies.yards8 do
+                    local thisUnit = enemies.yards8[i]
+                    local thrash = debuff.thrash[thisUnit]
+                    if (multidot or (UnitIsUnit(thisUnit,units.dyn5) and not multidot)) and getDistance(thisUnit) < 5 then
+                        if thrash.refresh and ((mode.rotation == 1 and #enemies.yards8 >= 2) or mode.rotation == 2) then
                             if power <= select(1, getSpellCost(spell.thrash)) then
                                 return true
                             elseif power > select(1, getSpellCost(spell.thrash)) then
@@ -828,7 +825,7 @@ if select(2, UnitClass("player")) == "DRUID" then
                         if cat and #enemies.yards20 > 0 and useProwl() --[[and not inInstance and not inRaid]] and GetTime()-leftCombat > lootDelay then 
                             for i = 1, #enemies.yards20 do
                                 local thisUnit = enemies.yards20[i]
-                                if UnitIsEnemy(thisUnit,"player") then
+                                if UnitIsEnemy(thisUnit,"player") or isDummy("target") then
                                     if cast.prowl("player") then return end
                                 end
                             end
@@ -947,9 +944,9 @@ if select(2, UnitClass("player")) == "DRUID" then
                             -- end
             -- Ferocious Bite
                             -- ferocious_bite,cycle_targets=1,if=dot.rip.ticking&dot.rip.remains<3&target.time_to_die>3&(target.health.pct<25|talent.sabertooth.enabled)
-                            for k,v in pairs(bleed.rip) do
-                                local rip = bleed.rip[k]
-                                local thisUnit = k
+                            for i = 1, #enemies.yards5 do
+                                local thisUnit = enemies.yards5[i]
+                                local rip = debuff.rip[thisUnit]
                                 if (multidot or (UnitIsUnit(thisUnit,units.dyn5) and not multidot)) then
                                     if getDistance(thisUnit) < 5 then
                                         if rip.remain > 0 and rip.remain < 3 and ttd(thisUnit) > 3 and (thp(thisUnit) < 25 or talent.sabertooth) then
@@ -1010,17 +1007,17 @@ if select(2, UnitClass("player")) == "DRUID" then
                             end
             -- Savage Roar
                             -- if AlternatePower >= 5 and BuffRemainingSec(SavageRoar) < 6 and not CanRefreshDot(Rip)
-                            if combo >= 5 and buff.remain.savageRoar < 6 and debuff.remain.rip > (debuff.duration.rip * 0.3) then
+                            if combo >= 5 and buff.remain.savageRoar < 6 and debuff.rip[units.dyn5].refresh then
                                 if cast.savageRoar("player") then return end
                             end  
             -- Rake
                             -- multi-DoT = 3
                             -- if #bleed.rake < 3 then
-                                for k,v in pairs(bleed.rake) do
-                                    local rake = bleed.rake[k]
-                                    local thisUnit = k
+                                for i = 1, #enemies.yards5 do
+                                    local thisUnit = enemies.yards5[i]
+                                    local rake = debuff.rake[thisUnit]
                                     if multidot or (UnitIsUnit(thisUnit,units.dyn5) and not multidot) then
-                                        if rake.remain <= (rake.duration * 0.3) then
+                                        if rake.refresh then
                                             if cast.rake(thisUnit) then return end
                                         end
                                     end
@@ -1029,11 +1026,11 @@ if select(2, UnitClass("player")) == "DRUID" then
             -- Moonfire
                             -- multi-Dot = 3
                             if talent.lunarInspiration then
-                                for k,v in pairs(bleed.moonfireFeral) do
-                                    local moonfireFeral = bleed.moonfireFeral[k]
-                                    local thisUnit = k
-                                    if multidot or (UnitIsUnit(thisUnit,units.dyn40AoE) and not multidot) then
-                                        if moonfireFeral.remain <= 4.2 and #enemies.yards8 <= 8 or (isDummy(thisUnit) and getDistance(thisUnit) < 8) then
+                                for i = 1, #enemies.yards40 do
+                                    local thisUnit = enemies.yards40[i]
+                                    local moonfire = debuff.moonfireFeral[thisUnit]
+                                    if multidot or (UnitIsUnit(thisUnit,units.dyn5) and not multidot) then
+                                        if moonfire.remain <= 4.2 and #enemies.yards8 <= 8 or (isDummy(thisUnit) and getDistance(thisUnit) < 8) then
                                            if cast.moonfire(thisUnit) then return end
                                         end
                                     end
@@ -1051,7 +1048,7 @@ if select(2, UnitClass("player")) == "DRUID" then
                             end
             -- Ferocious Bite
                             -- if AlternatePower >= 5 and (CanExecuteTarget or not CanRefreshDot(Rip))
-                            if combo >= 5 and (thp(units.dyn5) < 25 or debuff.remain.rip > (debuff.duration.rip * 0.3)) then
+                            if combo >= 5 and (thp(units.dyn5) < 25 or debuff.rip[units.dyn5].refresh) then
                                 if cast.ferociousBite() then return end
                             end
             -- Rip
@@ -1061,7 +1058,7 @@ if select(2, UnitClass("player")) == "DRUID" then
                             end
             -- Thrash
                             -- if TargetsInRadius(Thrash) >= 3 and CanRefreshDot(ThrashBleedFeral)
-                            if useAoE() and debuff.remain.thrash <= (debuff.duration.thrash * 0.3) then
+                            if useAoE() and debuff.thrash[units.dyn8AoE].refresh then
                                 if cast.thrash() then return end
                             end
             -- Swipe

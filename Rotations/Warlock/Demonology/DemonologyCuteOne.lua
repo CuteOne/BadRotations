@@ -410,14 +410,14 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                     -- Summon Infernal
                         -- summon_infernal,if=talent.grimoire_of_supremacy.enabled&active_enemies>=3
                         if useCDs() and isChecked("Summon Infernal") then
-                            if talent.grimoireOfSupremacy and #enemies.yards8 >= 3 then
-                                if cast.summonInfernal() then return end
+                            if talent.grimoireOfSupremacy and #enemies.yards8t >= 3 then
+                                if cast.summonInfernal("target") then return end
                             end
                         end
                     -- Summon Doomguard
                         -- summon_doomguard,if=talent.grimoire_of_supremacy.enabled&active_enemies<3
                         if useCDs() and isChecked("Summon Doomguard") then
-                            if talent.grimoireOfSupremacy and #enemies.yards8 < 3 then
+                            if talent.grimoireOfSupremacy and #enemies.yards8t < 3 then
                                 if cast.summonDoomguard() then return end
                             end
                         end
@@ -595,14 +595,14 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                         -- implosion,if=prev_gcd.hand_of_guldan&wild_imp_remaining_duration<=4&spell_targets.implosion>2
                         if wildImpCount > 0 and ((wildImpRemain <= getCastTime(spell.shadowbolt) and buff.demonicSynergy) 
                             or (lastSpell == spell.handOfGuldan and wildImpRemain <= 3 and buff.demonicSynergy)
-                            or (wildImpCount <= 4 and wildImpRemain <= getCastTime(spell.shadowbolt) and #enemies.yards8 > 1)
-                            or (lastSpell == spell.handOfGuldan and wildImpRemain <= 4 and #enemies.yards8 > 2))
+                            or (wildImpCount <= 4 and wildImpRemain <= getCastTime(spell.shadowbolt) and #enemies.yards8t > 1)
+                            or (lastSpell == spell.handOfGuldan and wildImpRemain <= 4 and #enemies.yards8t > 2))
                         then
                             if cast.implosion() then return end
                         end
             -- Shadowflame
                         -- shadowflame,if=debuff.shadowflame.stack>0&remains<action.shadow_bolt.cast_time+travel_time
-                        if debuff.stack.shadowflame > 0 and debuff.remain.shadowflame < getCastTime(spell.shadowbolt) + travelTime --[[and bb.timer:useTimer("travelTime", travelTime)]] then
+                        if debuff.shadowflame[units.dyn40].stack > 0 and debuff.shadowflame[units.dyn40].remain < getCastTime(spell.shadowbolt) + travelTime --[[and bb.timer:useTimer("travelTime", travelTime)]] then
                             if cast.shadowflame() then return end
                         end
             -- Service Pet
@@ -629,8 +629,8 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                         -- summon_doomguard,if=talent.grimoire_of_service.enabled&prev.service_felguard&spell_targets.infernal_awakening<3
                         -- summon_doomguard,if=talent.grimoire_of_synergy.enabled&spell_targets.infernal_awakening<3
                         if useCDs() and isChecked("Summon Doomguard") then
-                            if (talent.grimoireOfService and prevService == "Felguard" and #enemies.yards10 < 3)
-                                or (talent.grimoireOfSynergy and #enemies.yards10 < 3)
+                            if (talent.grimoireOfService and prevService == "Felguard" and #enemies.yards10t < 3)
+                                or (talent.grimoireOfSynergy and #enemies.yards10t < 3)
                             then
                                 if cast.summonDoomguard() then return end
                             end
@@ -639,15 +639,15 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                         -- summon_infernal,if=talent.grimoire_of_service.enabled&prev.service_felguard&spell_targets.infernal_awakening>=3
                         -- summon_infernal,if=talent.grimoire_of_synergy.enabled&spell_targets.infernal_awakening>=3
                         if useCDs() and isChecked("Summon Infernal") then
-                            if (talent.grimoireOfService and prevService == "Felguard" and #enemies.yards10 >= 3)
-                                or (talent.grimoireOfSynergy and #enemies.yards10 >=3)
+                            if (talent.grimoireOfService and prevService == "Felguard" and #enemies.yards10t >= 3)
+                                or (talent.grimoireOfSynergy and #enemies.yards10t >=3)
                             then
-                                if cast.summonInfernal() then return end
+                                if cast.summonInfernal("target") then return end
                             end
                         end
             -- Call Dreadstalkers
                         -- call_dreadstalkers,if=!talent.summon_darkglare.enabled&(spell_targets.implosion<3|!talent.implosion.enabled)
-                        if not talent.summonDarkglare and (#enemies.yards8 < 3 or not talent.implosion) then
+                        if not talent.summonDarkglare and (#enemies.yards8t < 3 or not talent.implosion) then
                             if cast.callDreadstalkers() then return end
                         end
             -- Hand of Guldan
@@ -674,7 +674,7 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                         -- call_dreadstalkers,if=talent.summon_darkglare.enabled&(spell_targets.implosion<3|!talent.implosion.enabled)&prev_gcd.summon_darkglare
                         -- call_dreadstalkers,if=talent.summon_darkglare.enabled&(spell_targets.implosion<3|!talent.implosion.enabled)&cooldown.summon_darkglare.remains<=action.call_dreadstalkers.cast_time&soul_shard>=3
                         -- call_dreadstalkers,if=talent.summon_darkglare.enabled&(spell_targets.implosion<3|!talent.implosion.enabled)&cooldown.summon_darkglare.remains<=action.call_dreadstalkers.cast_time&soul_shard>=1&buff.demonic_calling.react
-                        if talent.summonDarkglare and (#enemies.yards8 < 3 or not talent.implosion) 
+                        if talent.summonDarkglare and (#enemies.yards8t < 3 or not talent.implosion) 
                             and (cd.summonDarkglare > 2 or lastSpell == spell.summonDarkglare 
                                 or (cd.summonDarkglare <= getCastTime(spell.callDreadstalkers) and shards >= 3)
                                 or (cd.summonDarkglare <= getCastTime(spell.callDreadstalkers) and shards >= 1 and buff.demonicCalling))
@@ -718,11 +718,9 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                         -- doom,cycle_targets=1,if=!talent.hand_of_doom.enabled&target.time_to_die>duration&(!ticking|remains<duration*0.3)
                         for i = 1, #enemies.yards40 do
                             local thisUnit = enemies.yards40[i]
-                            local hasDoom = UnitDebuffID(thisUnit,spell.doom,"player")
-                            local doomDuration = getDebuffDuration(thisUnit,spell.doom,"player") or 0
-                            local doomRemain = getDebuffRemain(thisUnit,spell.doom,"player") or 0
+                            local doom = debuff.doom[thisUnit]
                             if UnitIsUnit(thisUnit,"target") or hasThreat(thisUnit) or isDummy(thisUnit) then
-                                if not talent.handOfDoom and ttd(thisUnit) > doomDuration and (not hasDoom or doomRemain < doomDuration * 0.3) and bb.timer:useTimer("delayDoom", gcd) then
+                                if not talent.handOfDoom and ttd(thisUnit) > doom.duration and (not doom or doom.remain < doom.duration * 0.3) and bb.timer:useTimer("delayDoom", gcd) then
                                     if cast.doom(thisUnit) then return end
                                 end
                             end
@@ -737,7 +735,7 @@ if select(2, UnitClass("player")) == "WARLOCK" then
             -- Thal'kiel's Consumption
                         -- thalkiels_consumption,if=(dreadstalker_remaining_duration>execute_time|talent.implosion.enabled&spell_targets.implosion>=3)&wild_imp_count>3&wild_imp_remaining_duration>execute_time
                         if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()) then
-                            if (dreadStalkersRemain > getCastTime(spell.thalkielsConsumption) or talent.implosion and #enemies.yards8 >= 3) and wildImpCount > 3 and wildImpRemain > getCastTime(spell.thalkielsConsumption) then
+                            if (dreadStalkersRemain > getCastTime(spell.thalkielsConsumption) or (talent.implosion and #enemies.yards8t >= 3)) and wildImpCount > 3 and wildImpRemain > getCastTime(spell.thalkielsConsumption) then
                                 missingDE = 0
                                 for i = 1, #petInfo do
                                     if not petInfo[i].deBuff then

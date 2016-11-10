@@ -653,7 +653,7 @@ if select(2, UnitClass("player")) == "MONK" then
                         elseif getDistance("target") < 5 then
             -- Tiger Palm
                             if not TP1 then
-                                if (not castable.tigerPalm and (cd.tigerPalm == 0 or cd.tigerPalm > gcd)) or lastSpell == spell.tigerPalm then
+                                if (not castable.tigerPalm and (cd.tigerPalm == 0 or cd.tigerPalm > gcd)) or lastSpell == spell.tigerPalm or level < 78 then
                                     print("4: Tiger Palm (Uncastable)");
                                     TP1 = true;
                                     return
@@ -902,17 +902,17 @@ if select(2, UnitClass("player")) == "MONK" then
                 if cast.whirlingDragonPunch() then return end
             -- Spinning Crane Kick
                 -- spinning_crane_kick,if=active_enemies>=3&!prev_gcd.spinning_crane_kick
-                if #enemies.yards5 >= 3 and markPercent >= 75 and lastSpell ~= spell.spinningCraneKick then
+                if #enemies.yards5 >= 3 and markPercent >= 75 and (lastSpell ~= spell.spinningCraneKick or level < 78) then
                     if cast.spinningCraneKick() then return end
                 end
             -- Rushing Jade Wind
                 -- rushing_jade_wind,if=chi.max-chi>1&!prev_gcd.rushing_jade_wind
-                if chi.max - chi.count > 1 and lastSpell ~= spell.rushingJadeWind then
+                if chi.max - chi.count > 1 and (lastSpell ~= spell.rushingJadeWind or level < 78) then
                     if cast.rushingJadeWind() then return end
                 end
             -- Blackout Kick
                 -- blackout_kick,cycle_targets=1,if=(chi>1|buff.bok_proc.up)&!prev_gcd.blackout_kick
-                if (chi.count > 1 or buff.blackoutKick) and lastSpell ~= spell.blackoutKick then
+                if (chi.count > 1 or buff.blackoutKick) and (lastSpell ~= spell.blackoutKick or level < 78) then
                     for i = 1, #enemies.yards5 do
                         local thisUnit = enemies.yards5[i]
                         local markOfTheCraneRemain = getDebuffRemain(thisUnit,spell.spec.debuffs.markOfTheCrane,"player")
@@ -933,7 +933,7 @@ if select(2, UnitClass("player")) == "MONK" then
                 end
             -- Tiger Palm
                 -- tiger_palm,cycle_targets=1,if=!prev_gcd.tiger_palm
-                if lastSpell ~= spell.tigerPalm then
+                if lastSpell ~= spell.tigerPalm or level < 78 then
                     for i = 1, #enemies.yards5 do
                         local thisUnit = enemies.yards5[i]
                         local markOfTheCraneRemain = getDebuffRemain(thisUnit,spell.spec.debuffs.markOfTheCrane,"player")
@@ -983,9 +983,7 @@ if select(2, UnitClass("player")) == "MONK" then
                 if actionList_Cooldown() then return end
             -- Serenity
                 -- serenity
-                if cd.touchOfDeath > 45 then
-                    if cast.serenity() then return end
-                end
+                if cast.serenity() then return end
             -- Strike of the Windlord
                 -- strike_of_the_windlord
                 if buff.serenity then
@@ -1009,7 +1007,7 @@ if select(2, UnitClass("player")) == "MONK" then
                 end
             -- Spinning Crane Kick
                 -- spinning_crane_kick,if=active_enemies>=3&!prev_gcd.spinning_crane_kick
-                if #enemies.yards5 >= 3 and markPercent >= 75 and lastSpell ~= spell.spinningCraneKick then
+                if #enemies.yards5 >= 3 and markPercent >= 75 and (lastSpell ~= spell.spinningCraneKick or level < 78) then
                     if cast.spinningCraneKick() then return end
                 end
             -- Rising Sun Kick
@@ -1025,7 +1023,7 @@ if select(2, UnitClass("player")) == "MONK" then
                 end
             -- Blackout Kick
                 -- blackout_kick,cycle_targets=1,if=!prev_gcd.blackout_kick
-                if lastSpell ~= spell.blackoutKick then
+                if lastSpell ~= spell.blackoutKick or level < 78 then
                     for i = 1, #enemies.yards5 do
                         local thisUnit = enemies.yards5[i]
                         local markOfTheCraneRemain = getDebuffRemain(thisUnit,spell.spec.debuffs.markOfTheCrane,"player")
@@ -1036,12 +1034,12 @@ if select(2, UnitClass("player")) == "MONK" then
                 end
             -- Spinning Crane Kick
                 -- spinning_crane_kick,if=!prev_gcd.spinning_crane_kick
-                if #enemies.yards5 >= 3 and markPercent >= 75 and lastSpell ~= spell.spinningCraneKick then
+                if #enemies.yards5 >= 3 and markPercent >= 75 and (lastSpell ~= spell.spinningCraneKick or level < 78) then
                     if cast.spinningCraneKick() then return end
                 end
             -- Rushing Jade Wind
                 -- rushing_jade_wind,if=!prev_gcd.rushing_jade_wind
-                if lastSpell ~= spell.rushingJadeWind then
+                if lastSpell ~= spell.rushingJadeWind or level < 78 then
                     if cast.rushingJadeWind() then return end
                 end
             end
@@ -1152,22 +1150,22 @@ if select(2, UnitClass("player")) == "MONK" then
                         end
             -- Call Action List - Serenity
                         -- call_action_list,name=serenity,if=talent.serenity.enabled&((artifact.strike_of_the_windlord.enabled&cooldown.strike_of_the_windlord.remains<=14&cooldown.rising_sun_kick.remains<=4)|buff.serenity.up)
-                        if talent.serenity and ((useCDs() and artifact.strikeOfTheWindlord and cd.strikeOfTheWindlord <= 14 and cd.risingSunKick <= 4 and cd.touchOfDeath > 40) or buff.serenity) then
+                        if talent.serenity and ((useCDs() and artifact.strikeOfTheWindlord and cd.strikeOfTheWindlord <= 14 and cd.risingSunKick <= 4) or buff.serenity) then
                             if actionList_Serenity() then return end
                         end
             -- Call Action List - Storm, Earth, and Fire
                         -- call_action_list,name=sef,if=!talent.serenity.enabled&((artifact.strike_of_the_windlord.enabled&cooldown.strike_of_the_windlord.remains<=14&cooldown.fists_of_fury.remains<=6&cooldown.rising_sun_kick.remains<=6)|buff.storm_earth_and_fire.up)
-                        if not talent.serenity and ((artifact.strikeOfTheWindlord and cd.strikeOfTheWindlord <= 14 and cd.fistsOfFury <= 6 and cd.risingSunKick <= 6 and cd.touchOfDeath > 40) or buff.stormEarthAndFire) then
+                        if not talent.serenity and ((artifact.strikeOfTheWindlord and cd.strikeOfTheWindlord <= 14 and cd.fistsOfFury <= 6 and cd.risingSunKick <= 6) or buff.stormEarthAndFire) then
                             if actionList_SEF() then return end
                         end
             -- Call Action List - Serenity
                         -- call_action_list,name=serenity,if=(!artifact.strike_of_the_windlord.enabled&cooldown.strike_of_the_windlord.remains<14&cooldown.fists_of_fury.remains<=15&cooldown.rising_sun_kick.remains<7)|buff.serenity.up
-                        if (useCDs() and not artifact.strikeOfTheWindlord and cd.fistsOfFury <= 15 and cd.risingSunKick < 7 and cd.touchOfDeath > 40) or buff.serenity then
+                        if (useCDs() and not artifact.strikeOfTheWindlord and cd.fistsOfFury <= 15 and cd.risingSunKick < 7) or buff.serenity then
                             if actionList_Serenity() then return end
                         end
             -- Call Action Lsit - Storm, Earth, and Fire
                         -- call_action_list,name=sef,if=!talent.serenity.enabled&((!artifact.strike_of_the_windlord.enabled&cooldown.fists_of_fury.remains<=9&cooldown.rising_sun_kick.remains<=5)|buff.storm_earth_and_fire.up)
-                        if not talent.serenity and ((not artifact.strikeOfTheWindlord and cd.fistsOfFury <= 9 and cd.risingSunKick <= 5 and cd.touchOfDeath > 40) or buff.stormEarthAndFire) then
+                        if not talent.serenity and ((not artifact.strikeOfTheWindlord and cd.fistsOfFury <= 9 and cd.risingSunKick <= 5) or buff.stormEarthAndFire) then
                             if actionList_SEF() then return end
                         end             
             -- Call Action List - Single Target
@@ -1225,7 +1223,7 @@ if select(2, UnitClass("player")) == "MONK" then
             -- Serenity
                             -- if CooldownSecRemaining(FistsOfFury) < 6 and CooldownSecRemaining(StrikeOfTheWindlord) < 5 and CooldownSecRemaining(WhirlingDragonPunch) < 5
                             if isChecked("Serenity") then
-                                if cd.fistsOfFury < 6 and cd.strikeOfTheWindlord < 5 and cd.whirlingDragonPunch < 5 and cd.touchOfDeath > 45 then
+                                if cd.fistsOfFury < 6 and cd.strikeOfTheWindlord < 5 and cd.whirlingDragonPunch < 5 then
                                     if cast.serenity() then return end
                                 end
                             end
@@ -1263,7 +1261,7 @@ if select(2, UnitClass("player")) == "MONK" then
                         end
             -- Tiger Palm
                         -- if not WasLastCast(TigerPalm) and AlternatePower < 4 and Power > (MaxPower*0.9)
-                        if lastSpell ~= spell.tigerPalm and chi.count < 4 and power > (powerMax * 0.9) then
+                        if (lastSpell ~= spell.tigerPalm  or level < 78) and chi.count < 4 and power > (powerMax * 0.9) then
                             if cast.tigerPalm() then return end
                         end
             -- Rising Sun Kick
@@ -1279,12 +1277,12 @@ if select(2, UnitClass("player")) == "MONK" then
                         if cast.chiWave() then return end
             -- Blackout Kick
                         -- if not WasLastCast(BlackoutKick) and (HasBuff(ComboBreaker) or AlternatePower > 1 or HasBuff(Serenity))
-                        if lastSpell ~= spell.blackoutKick and (buff.comboBreaker or chi.count > 1 or buff.serenity) then
+                        if (lastSpell ~= spell.blackoutKick or level < 78) and (buff.comboBreaker or chi.count > 1 or buff.serenity) then
                             if cast.blackoutKick() then return end
                         end
             -- Tiger Palm
                         -- if not WasLastCast(TigerPalm) or AlternatePower < 2
-                        if lastSpell ~= spell.tigerPalm or chi.count < 2 then
+                        if lastSpell ~= spell.tigerPalm or chi.count < 2 or level < 78 then
                             if cast.tigerPalm() then return end
                         end
                     end -- End AskMrRobot APL  

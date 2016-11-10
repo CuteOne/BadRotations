@@ -259,24 +259,49 @@ function bb.read.combatLog()
                         thisUnit = "target"
                     end
                     if bb.player ~= nil and getDistance(thisUnit) < 40 then
-                        local bleed = bb.player.bleed
-                        if bleed ~= nil then
-                            if bleed.combatLog[thisUnit] == nil then bleed.combatLog[thisUnit] = {} end
-                            if spell == bb.player.spell.rake and param == "SPELL_CAST_SUCCESS" then
-                                for k, v in pairs(bleed.rake[thisUnit]) do
-                                    if k == "calc" then
-                                        if bleed.rake[thisUnit] ~= nil then bleed.combatLog[thisUnit].rake = v end
+                        -- local bleed = bb.player.bleed
+                        local debuff = bb.player.debuff
+                        local classDebuffID = bb.player.spell.class.debuffs
+                        local specDebuffID = bb.player.spell.spec.debuffs
+                        if classDebuffID ~= nil then
+                            for k, v in pairs(classDebuffID) do
+                                if spell == v then
+                                    if param == "SPELL_AURA_REMOVED" then
+                                        debuff[k][thisUnit].applied = 0
                                     end
-                                end
-                            end
-                            if spell == bb.player.spell.rip and param == "SPELL_CAST_SUCCESS" then
-                                for k, v in pairs(bleed.rip[thisUnit]) do
-                                    if k == "calc" then
-                                        if bleed.rake[thisUnit] ~= nil then bleed.combatLog[thisUnit].rip = v end
+                                    if param == "SPELL_AURA_APPLIED" or param == "SPELL_AURA_REFRESH" then
+                                        debuff[k][thisUnit].applied = debuff[k][thisUnit].calc
                                     end
                                 end
                             end
                         end
+                        if specDebuffID ~= nil then
+                            for k, v in pairs(specDebuffID) do
+                                if spell == v then
+                                    if param == "SPELL_AURA_REMOVED" then
+                                        debuff[k][thisUnit].applied = 0
+                                    end
+                                    if param == "SPELL_AURA_APPLIED" or param == "SPELL_AURA_REFRESH" then
+                                        debuff[k][thisUnit].applied = debuff[k][thisUnit].calc
+                                    end
+                                end
+                            end
+                        end 
+                            -- if debuff.combatLog[thisUnit] == nil then bleed.combatLog[thisUnit] = {} end
+                            -- if spell == bb.player.spell.rake and param == "SPELL_CAST_SUCCESS" then
+                            --     for k, v in pairs(bleed.rake[thisUnit]) do
+                            --         if k == "calc" then
+                            --             if bleed.rake[thisUnit] ~= nil then bleed.combatLog[thisUnit].rake = v end
+                            --         end
+                            --     end
+                            -- end
+                            -- if spell == bb.player.spell.rip and param == "SPELL_CAST_SUCCESS" then
+                            --     for k, v in pairs(bleed.rip[thisUnit]) do
+                            --         if k == "calc" then
+                            --             if bleed.rake[thisUnit] ~= nil then bleed.combatLog[thisUnit].rip = v end
+                            --         end
+                            --     end
+                            -- end
                     end
                 end
             end
