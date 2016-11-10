@@ -20,25 +20,13 @@ if select(2, UnitClass("player")) == "DEMONHUNTER" then
             [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = bb.player.spell.metamorphosis}
         };
        	CreateButton("Cooldown",2,0)
-    -- Defensive Button
-        DefensiveModes = {
-            [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = bb.player.spell.darkness},
-            [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = bb.player.spell.darkness}
-        };
-        CreateButton("Defensive",3,0)
-    -- Interrupt Button
-        InterruptModes = {
-            [1] = { mode = "On", value = 1 , overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = bb.player.spell.consumeMagic},
-            [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = bb.player.spell.consumeMagic}
-        };
-        CreateButton("Interrupt",4,0)
     -- Mover
         MoverModes = {
             [1] = { mode = "AC", value = 1 , overlay = "Movement Animation Cancel Enabled", tip = "Will Cancel Movement Animation.", highlight = 1, icon = bb.player.spell.felRush},
             [2] = { mode = "On", value = 2 , overlay = "Auto Movement Enabled", tip = "Will Cast Movement Abilities.", highlight = 0, icon = bb.player.spell.felRush},
             [3] = { mode = "Off", value = 3 , overlay = "Auto Movement Disabled", tip = "Will NOT Cast Movement Abilities", highlight = 0, icon = bb.player.spell.felRush}
         };
-        CreateButton("Mover",5,0)
+        CreateButton("Mover",3,0)
     end
 
 ---------------
@@ -51,10 +39,6 @@ if select(2, UnitClass("player")) == "DEMONHUNTER" then
             local section
         -- General Options
             section = bb.ui:createSection(bb.ui.window.profile, "General")
-            -- Dummy DPS Test
-                bb.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
-            -- Pre-Pull Timer
-                bb.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
             -- Eye Beam Targets
                 bb.ui:createSpinner(section, "Eye Beam Targets", 3, 1, 10, 1, "|cffFFBB00Number of Targets to use at.")
             -- Glide Fall Time
@@ -66,8 +50,6 @@ if select(2, UnitClass("player")) == "DEMONHUNTER" then
                 bb.ui:createCheckbox(section,"Agi-Pot")
             -- Flask / Crystal
                 bb.ui:createCheckbox(section,"Flask / Crystal")
-            -- Legendary Ring
-                bb.ui:createCheckbox(section,"Legendary Ring")
             -- Racial
                 bb.ui:createCheckbox(section,"Racial")
             -- Trinkets
@@ -75,43 +57,14 @@ if select(2, UnitClass("player")) == "DEMONHUNTER" then
             -- Metamorphosis
                 bb.ui:createCheckbox(section,"Metamorphosis")
             bb.ui:checkSectionState(section)
-        -- Defensive Options
-            section = bb.ui:createSection(bb.ui.window.profile, "Defensive")
-            -- Healthstone
-                bb.ui:createSpinner(section, "Pot/Stoned",  60,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
-            -- Heirloom Neck
-                bb.ui:createSpinner(section, "Heirloom Neck",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.");
-            -- Blur
-                bb.ui:createSpinner(section, "Blur", 50, 0, 100, 5, "|cffFFBB00Health Percentage to use at.")
-            -- Darkness
-                bb.ui:createSpinner(section, "Darkness", 30, 0, 100, 5, "|cffFFBB00Health Percentage to use at.")
-            -- Chaos Nova
-                bb.ui:createSpinner(section, "Chaos Nova - HP", 30, 0, 100, 5, "|cffFFBB00Health Percentage to use at.")
-                bb.ui:createSpinner(section, "Chaos Nova - AoE", 3, 1, 10, 1, "|cffFFBB00Number of Targets to use at.")
-            bb.ui:checkSectionState(section)
-        -- Interrupt Options
-            section = bb.ui:createSection(bb.ui.window.profile, "Interrupts")
-            -- Consume Magic
-                bb.ui:createCheckbox(section, "Consume Magic")
-            -- Chaos Nova
-                bb.ui:createCheckbox(section, "Chaos Nova")
-            -- Interrupt Percentage
-                bb.ui:createSpinner(section, "Interrupt At",  0,  0,  95,  5,  "|cffFFFFFFCast Percent to Cast At")
-            bb.ui:checkSectionState(section)
         -- Toggle Key Options
             section = bb.ui:createSection(bb.ui.window.profile, "Toggle Keys")
             -- Single/Multi Toggle
-                bb.ui:createDropdown(section, "Rotation Mode", bb.dropOptions.Toggle,  4)
+                bb.ui:createDropdown(section, "Rotation Mode", bb.dropOptions.Toggle,  6)
             -- Cooldown Key Toggle
-                bb.ui:createDropdown(section, "Cooldown Mode", bb.dropOptions.Toggle,  3)
-            -- Defensive Key Toggle
-                bb.ui:createDropdown(section, "Defensive Mode", bb.dropOptions.Toggle,  6)
-            -- Interrupts Key Toggle
-                bb.ui:createDropdown(section, "Interrupt Mode", bb.dropOptions.Toggle,  6)
+                bb.ui:createDropdown(section, "Cooldown Mode", bb.dropOptions.Toggle,  6)
             -- Mover Key Toggle
                 bb.ui:createDropdown(section, "Mover Mode", bb.dropOptions.Toggle,  6)
-            -- Pause Toggle
-                bb.ui:createDropdown(section, "Pause Mode", bb.dropOptions.Toggle,  6)
             bb.ui:checkSectionState(section)
         end
         optionTable = {{
@@ -133,8 +86,6 @@ if select(2, UnitClass("player")) == "DEMONHUNTER" then
 	---------------
 	        UpdateToggle("Rotation",0.25)
 	        UpdateToggle("Cooldown",0.25)
-	        UpdateToggle("Defensive",0.25)
-	        UpdateToggle("Interrupt",0.25)
             UpdateToggle("Mover",0.25)
 
 	--------------
@@ -183,99 +134,20 @@ if select(2, UnitClass("player")) == "DEMONHUNTER" then
             local ttd                                           = getTTD
             local ttm                                           = bb.player.timeToMax
             local units                                         = bb.player.units
-            
-	   		if leftCombat == nil then leftCombat = GetTime() end
-			if profileStop == nil then profileStop = false end
+
+            if leftCombat == nil then leftCombat = GetTime() end
+            if profileStop == nil then profileStop = false end
             if talent.chaosCleave then chaleave = 1 else chaleave = 0 end
             if talent.prepared then prepared = 1 else prepared = 0 end
+            if talent.firstBlood then flood = 1 else flood = 0 end
             if lastSpell == spell.vengefulRetreat then vaulted = true else vaulted = false end
-            if IsHackEnabled("NoKnockback") ~= nil then SetHackEnabled("NoKnockback", false) end
+            if mode.mover == 1 then
+                if IsHackEnabled("NoKnockback") ~= nil then SetHackEnabled("NoKnockback", false) end
+            end
+
 	--------------------
 	--- Action Lists ---
 	--------------------
-		-- Action List - Extras
-			local function actionList_Extras()
-			-- Dummy Test
-				if isChecked("DPS Testing") then
-					if ObjectExists("target") then
-						if getCombatTime() >= (tonumber(getOptionValue("DPS Testing"))*60) and isDummy() then
-							StopAttack()
-							ClearTarget()
-							print(tonumber(getOptionValue("DPS Testing")) .." Minute Dummy Test Concluded - Profile Stopped")
-							profileStop = true
-						end
-					end
-				end -- End Dummy Test
-            -- Glide
-                if isChecked("Glide") then
-                    if falling >= getOptionValue("Glide") then
-                        if cast.glide() then return end
-                    end
-                end
-			end -- End Action List - Extras
-		-- Action List - Defensive
-			local function actionList_Defensive()
-				if useDefensive() then
-			-- Pot/Stoned
-		            if isChecked("Pot/Stoned") and php <= getOptionValue("Pot/Stoned") 
-		            	and inCombat and (hasHealthPot() or hasItem(5512)) 
-		            then
-	                    if canUse(5512) then
-	                        useItem(5512)
-                        elseif canUse(129196) then --Legion Healthstone
-                            useItem(129196)
-	                    elseif canUse(healPot) then
-	                        useItem(healPot)
-	                    end
-		            end
-		    -- Heirloom Neck
-		    		if isChecked("Heirloom Neck") and php <= getOptionValue("Heirloom Neck") then
-		    			if hasEquiped(122668) then
-		    				if GetItemCooldown(122668)==0 then
-		    					useItem(122668)
-		    				end
-		    			end
-		    		end
-            -- Blur
-                    if isChecked("Blur") and php <= getOptionValue("Blur") and inCombat then
-                        if cast.blur() then return end
-                    end
-            -- Darkness
-                    if isChecked("Darkness") and php <= getOptionValue("Darkness") and inCombat then
-                        if cast.darkness() then return end
-                    end
-            -- Chaos Nova
-                    if isChecked("Chaos Nova - HP") and php <= getValue("Chaos Nova - HP") and inCombat and #enemies.yards5 > 0 then
-                        if cast.chaosNova() then return end
-                    end
-                    if isChecked("Chaos Nova - AoE") and #enemies.yards5 >= getValue("Chaos Nova - AoE") then
-                        if cast.chaosNova() then return end
-                    end
-	    		end -- End Defensive Toggle
-			end -- End Action List - Defensive
-		-- Action List - Interrupts
-			local function actionList_Interrupts()
-				if useInterrupts() then
-            -- Consume Magic
-                    if isChecked("Consume Magic") then
-                        for i=1, #enemies.yards20 do
-                            thisUnit = enemies.yards20[i]
-                            if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
-                                if cast.consumeMagic(thisUnit) then return end
-                            end
-                        end
-                    end
-            -- Chaos Nova
-                    if isChecked("Chaos Nova") then
-                        for i=1, #enemies.yards5 do
-                            thisUnit = enemies.yards5[i]
-                            if canInterrupt(thisUnit,getOptionValue("InterruptAt")) then
-                                if cast.chaosNova(thisUnit) then return end
-                            end
-                        end
-                    end
-			 	end -- End useInterrupts check
-			end -- End Action List - Interrupts
         -- Action List - Single Target
             local function actionList_SingleTarget()
             -- Fel Eruption
@@ -355,20 +227,11 @@ if select(2, UnitClass("player")) == "DEMONHUNTER" then
             -- Throw Glaive
                 if cast.throwGlaive() then return end
             -- Annihilation
-                -- if HasTalent(ChaosCleave)
-                if talent.chaosCleave then
-                    if cast.annihilation() then return end
-                end
+                if cast.annihilation() then return end
             -- Chaos Strike
-                -- if HasTalent(ChaosCleave)
-                if talent.chaosCleave then
-                    if cast.chaosStrike() then return end
-                end
-            -- Chaos Nova
-                -- if CooldownSecRemaining(EyeBeam) > 0 or HasTalent(UnleashedPower)
-                if cd.eyeBeam > 0 or talent.unleashedPower then
-                    if cast.chaosNova() then return end
-                end
+                if cast.chaosStrike() then return end
+            -- Demon's Bite
+                if cast.demonsBite() then return end    
             end -- End Action List - Multi Target
 		-- Action List - Cooldowns
 			local function actionList_Cooldowns()
@@ -451,14 +314,6 @@ if select(2, UnitClass("player")) == "DEMONHUNTER" then
             elseif (inCombat and profileStop==true) or pause() or mode.rotation==4 then
                 return true
             else
-    -----------------------
-    --- Extras Rotation ---
-    -----------------------
-                if actionList_Extras() then return end
-    --------------------------
-    --- Defensive Rotation ---
-    --------------------------
-                if actionList_Defensive() then return end
     ------------------------------
     --- Out of Combat Rotation ---
     ------------------------------
@@ -467,10 +322,6 @@ if select(2, UnitClass("player")) == "DEMONHUNTER" then
     --- In Combat Rotation ---
     --------------------------
                 if inCombat and profileStop==false and ObjectExists(units.dyn5) and not UnitIsDeadOrGhost(units.dyn5) and UnitCanAttack(units.dyn5, "player") and not isCastingSpell(spell.eyeBeam) then
-        ------------------------------
-        --- In Combat - Interrupts ---
-        ------------------------------
-                    if actionList_Interrupts() then return end
         ----------------------
         --- AskMrRobot APL ---
         ----------------------

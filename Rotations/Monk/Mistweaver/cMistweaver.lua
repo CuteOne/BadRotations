@@ -18,13 +18,42 @@ function cMistweaver:new()
     -----------------
         self.spell.spec             = {}
         self.spell.spec.abilities   = {
+            blackoutKick = 100784,
+            chiBurst = 123986,
+            cracklingJadeLightning = 117952,
+            detox = 11450,
+            diffuseMagic = 122783,
+            effuse = 116694,
+            envelopingMist = 124682,
+            essenceFont = 191837,
+            healingElixir = 122281,
+            invokeChiJi = 198664,
+            lifeCocoon = 116849,
+            manaTea = 197908,
+            paralysis = 115078,
+            provoke = 115546,
+            reawaken = 212051,
+            refreshingJadeWind = 196725,
+            renewingMist = 115151,
+            resuscitate = 115178,
+            revival = 115310,
+            ringOfPeace = 116844,
+            risingSunKick = 107428,
+            roll = 109132,
+            sheilunsGift = 205406,
+            spiningCraneKick = 101546,
+            thunderFocusTea = 116680,
+            tigerPalm = 100780,
+            tigersLust = 116841,
+            vivify = 116670
 
         }
         self.spell.spec.artifacts   = {
 
         }
         self.spell.spec.buffs       = {
-
+            sheilunsGift = 205406,
+            upliftingTrance = 197206
         }
         self.spell.spec.debuffs     = {
 
@@ -33,7 +62,27 @@ function cMistweaver:new()
 
         }
         self.spell.spec.talents     = {
-
+            chiBurst = 123986,
+            zenPulse = 124081,
+            mistwalk = 197945,
+            chiTorpedo = 115008,
+            tigersLust = 116841,
+            celerity = 115173,
+            lifecycles = 197915,
+            spiritOfTheCrane = 210802,
+            mistWwrap = 197900,
+            ringOfPeace = 116844,
+            songOfChiJi = 1988898,
+            legSweep = 119381,
+            healingElixir = 122281,
+            diffuseMagic = 122783,
+            dampenHarm = 122278,
+            refreshingJadeWind = 196725,
+            invokeChiJi = 198664,
+            summonJadeSerpentStatue = 115313,
+            manaTea = 197908,
+            focusedThunder = 197895,
+            risingThunder = 210804
         }
         -- Merge all spell ability tables into self.spell
         self.spell = mergeSpellTables(self.spell, self.characterSpell, self.spell.class.abilities, self.spell.spec.abilities)
@@ -287,26 +336,58 @@ function cMistweaver:new()
     --------------
 
         function self.getCastable()
-
+            for k,v in pairs(self.spell.spec.abilities) do
+                local spellCast = v
+                local spellName = GetSpellInfo(v)
+                if IsHarmfulSpell(spellName) then
+                    self.cast.debug[k] = self.cast[k]("target",true)
+                else
+                    self.cast.debug[k] = self.cast[k]("player",true)
+                end
+            end
         end
 
-        -- -- Chi Wave
-        -- function self.cast.chiWave(thisUnit,debug)
-        --     local spellCast = self.spell.chiWave
-        --     local thisUnit = thisUnit
-        --     if thisUnit == nil then thisUnit = "player" end
-        --     if debug == nil then debug = false end
-
-        --     if self.talent.chiWave and self.cd.chiWave == 0 then
-        --         if debug then
-        --             return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
-        --         else
-        --             return castSpell(thisUnit,spellCast,false,false,false)
-        --         end
-        --     elseif debug then
-        --         return false
-        --     end
-        -- end
+        for k,v in pairs(self.spell.spec.abilities) do
+            self.cast[k] = function(thisUnit,debug,minUnits,effectRng)
+                local spellCast = v
+                local spellName = GetSpellInfo(v)
+                if thisUnit == nil then
+                    if IsHarmfulSpell(spellName) then thisUnit = "target" end
+                    if IsHelpfulSpell(spellName) then thisUnit = "player" end
+                end
+                if SpellHasRange(spellName) then
+                    if IsSpellInRange(spellName,thisUnit) == 0 then
+                        amIinRange = false 
+                    else
+                        amIinRange = true
+                    end
+                else
+                    amIinRange = true
+                end
+                local minRange = select(5,GetSpellInfo(spellName))
+                local maxRange = select(6,GetSpellInfo(spellName))
+                if minUnits == nil then minUnits = 1 end
+                if effectRng == nil then effectRng = 8 end
+                if debug == nil then debug = false end
+                if IsUsableSpell(v) and getSpellCD(v) == 0 and isKnown(v) and amIinRange then
+                    if debug then
+                        return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                    else
+                        if IsHarmfulSpell(spellName) or IsHelpfulSpell(spellName) then
+                            return castSpell(thisUnit,spellCast,false,false,false)
+                        else
+                            if thisUnit ~= "player" then
+                                return castGround(thisUnit,spellCast,maxRange,minRange)
+                            else
+                                return castGroundAtBestLocation(spellCast,effectRng,minUnits,maxRange,minRange)
+                            end
+                        end
+                    end
+                elseif debug then
+                    return false
+                end
+            end
+        end
         
 
     ------------------------
