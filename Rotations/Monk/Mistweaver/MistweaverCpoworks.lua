@@ -29,18 +29,23 @@ if select(2,UnitClass("player")) == "MONK" then -- Change to class id
                 bb.ui:createSpinner(section, "Healing Elixir",  45,  0,  100,  5,  "Health Percent to Cast At")
                 --Enveloping Mists
                 bb.ui:createSpinner(section, "Mana Tea",  70,  0,  100,  5,  "Mana Percent to Cast At")
+                --Detox
+                bb.ui:createCheckbox(section, "Detox")
+                --bb.ui:createDropdownWithout(section, "Detox Mode", {"|cffFFFFFFMouseover","|cffFFFFFFRaid"}, 1, "|cffFFFFFFDetox usage.")
             bb.ui:checkSectionState(section)
             section = bb.ui:createSection(bb.ui.window.profile, "Single Target Healing")
+                --Thunder Focus Tea
+                bb.ui:createSpinner(section, "Thunder Focus Tea",  50,  0,  100,  5,  "Health Percent to Cast At")
                 --Renewing Mist
-                bb.ui:createSpinner(section, "Renewing Mist STH",  95,  0,  100,  5,  "Health Percent to Cast At")
+                bb.ui:createSpinner(section, "Renewing Mist STH",  99,  0,  100,  1,  "Health Percent to Cast At")
                 --Enveloping Mists
-                bb.ui:createSpinner(section, "Enveloping Mists STH",  75,  0,  100,  5,  "Health Percent to Cast At")
-                --Effuse
-                bb.ui:createSpinner(section, "Sheiluns Gift STH",  90,  0,  100,  5,  "Health Percent to Cast At")
+                bb.ui:createSpinner(section, "Enveloping Mist STH",  70,  0,  100,  5,  "Health Percent to Cast At")
+                --Sheiluns Gift
+                bb.ui:createSpinner(section, "Sheiluns Gift STH",  65,  0,  100,  5,  "Health Percent to Cast At")
                 --Effuse
                 bb.ui:createSpinner(section, "Effuse STH",  85,  0,  100,  5,  "Health Percent to Cast At")
                 --Vivify
-                bb.ui:createSpinner(section, "Vivify STH",  65,  0,  100,  5,  "Health Percent to Cast At")
+                bb.ui:createSpinner(section, "Vivify STH",  60,  0,  100,  5,  "Health Percent to Cast At")
             bb.ui:checkSectionState(section)
         end
         optionTable = {{
@@ -145,33 +150,69 @@ if select(2,UnitClass("player")) == "MONK" then -- Change to class id
                 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
                 --Single Target Healing----Single Target Healing----Single Target Healing----Single Target Healing----Single Target Healing----Single Target Healing----Single Target Healing--
                 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+                --Detox
+                if isChecked("Detox") then
+                    -- if getValue("Detox Mode") == 1 then -- Mouseover
+                    --     if UnitExists("mouseover") and UnitCanAssist("player", "mouseover") then
+                    --         for i = 1, #bb.friend do
+                    --             if bb.friend[i].guid == UnitGUID("mouseover") and bb.friend[i].dispel == true then
+                    --                 if cast.detox("mouseover") then return end
+                    --             end
+                    --         end
+                    --     end
+                    -- else
+                    -- if getValue("Detox Mode") == 2 then -- Raid
+                        for i = 1, #bb.friend do
+                            for n = 1,40 do
+                                local buff,_,_,count,bufftype,duration = UnitDebuff(bb.friend[i].unit, n)
+                                if buff then
+                                    if bufftype == "Curse" or bufftype == "Magic" or bufftype == "Poison" then
+                                        if cast.detox(bb.friend[i].unit) then return end
+                                    end
+                                end
+                            end
+                        end
+                    -- end
+                end
+                --Thunder Focus Tea
+                if isChecked("Thunder Focus Tea") then
+                    for i = 1, #bb.friend do                           
+                        if bb.friend[i].hp <= getValue("Thunder Focus Tea") then
+                            if cast.thunderFocusTea() then return end     
+                        end
+                    end
+                end                
                 --Renewing Mist
                 if isChecked("Renewing Mist STH") then
                     for i = 1, #bb.friend do                           
                         if bb.friend[i].hp <= getValue("Renewing Mist STH") 
-                        and getBuffRemain(bb.friend[i].unit, spell.renewingMist, "player") < 6 then
+                        and getBuffRemain(bb.friend[i].unit, spell.renewingMist, "player") < 1 then
                             if cast.renewingMist(bb.friend[i].unit) then return end     
                         end
                     end
                 end
-                --Enveloping Mists
-                if isChecked("Enveloping Mists STH")
-                and not isCastingSpell(spell.envelopingMist) then
-                    if lowest.hp <= getValue("Enveloping Mists STH")
-                    and not getBuffRemain(lowest.unit, spell.renewingMist, "player") then 
-                        if cast.envelopingMist(lowest.unit) then return end 
+                --sheilunsGift
+                if isChecked("Sheiluns Gift STH") and GetSpellCount(205406) ~= nil then
+                    if GetSpellCount(205406) >= 5 then
+                        if lowest.hp <= getValue("Sheiluns Gift STH") then         
+                            if cast.sheilunsGift(lowest.unit) then return end                                    
+                        end
                     end
                 end
-                --sheilunsGift
-                if isChecked("Sheiluns Gift STH")
-                and GetSpellCount(sheilunsGift) >= 5 then
-                    if lowest.hp <= getValue("Sheiluns Gift STH") then         
-                        if cast.sheilunsGift(lowest.unit) then return end                                    
+                --Enveloping Mists
+                if isChecked("Enveloping Mist STH")
+                and not isCastingSpell(spell.envelopingMist) then
+                    if lowest.hp <= getValue("Enveloping Mist STH")
+                    and getBuffRemain(lowest.unit, spell.envelopingMist, "player") < 2 then 
+                        if cast.envelopingMist(lowest.unit) then return end 
                     end
                 end
                 --Vivify
                 if isChecked("Vivify STH")
                 and not isCastingSpell(spell.vivify) then
+                    -- if buff.upliftingTrance and lowest.hp <= getValue("Vivify STH") + 10 then         
+                    --     if cast.vivify(lowest.unit) then return end 
+                    -- else
                     if lowest.hp <= getValue("Vivify STH") then         
                         if cast.vivify(lowest.unit) then return end                                    
                     end

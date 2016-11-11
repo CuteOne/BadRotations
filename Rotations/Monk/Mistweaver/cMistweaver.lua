@@ -21,7 +21,7 @@ function cMistweaver:new()
             blackoutKick = 100784,
             chiBurst = 123986,
             cracklingJadeLightning = 117952,
-            detox = 11450,
+            detox = 115450,
             diffuseMagic = 122783,
             effuse = 116694,
             envelopingMist = 124682,

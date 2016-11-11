@@ -151,6 +151,7 @@ Rotations\Monk\Brewmaster\Brewmaster.lua
 
 Rotations\Monk\Mistweaver\cMistweaver.lua
 Rotations\Monk\Mistweaver\Mistweaver.lua
+Rotations\Monk\Mistweaver\MistweaverCpoworks.lua
 
 Rotations\Monk\Windwalker\cWindwalker.lua
 Rotations\Monk\Windwalker\Windwalker.lua
