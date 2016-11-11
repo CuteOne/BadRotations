@@ -54,6 +54,7 @@ function cFileBuild(cFileName,self)
         -- AoE
     self.units.dyn8AoE  = dynamicTarget(8,  false)
     self.units.dyn20AoE = dynamicTarget(20, false)
+    self.units.dyn30AoE = dynamicTarget(30, false)
     self.units.dyn35AoE = dynamicTarget(35, false)
 
     -- Build Enemies Tables per Range

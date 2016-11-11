@@ -1,67 +1,112 @@
 --- Blood Class
 -- Inherit from: ../cCharacter.lua and ../cDeathKnight.lua
-if select(2, UnitClass("player")) == "DEATHKNIGHT" then
-	cBlood = {}
-    cBlood.rotations = {}
+cBlood = {}
+cBlood.rotations = {}
 
-	-- Creates Blood DeathKnight
-	function cBlood:new()
-		local self = cDeathKnight:new("Blood")
+-- Creates Blood DeathKnight
+function cBlood:new()
+    if GetSpecializationInfo(GetSpecialization()) == 250 then
+        local self = cDeathKnight:new("Blood")
 
-		local player = "player" -- if someone forgets ""
+        local player = "player" -- if someone forgets ""
 
         -- Mandatory !
         self.rotations = cBlood.rotations
-		
-		-----------------
-        --- VARIABLES ---
-        -----------------
-        self.charges.frac       = {}        -- Fractional Charges
-        self.trinket            = {}        -- Trinket Procs
-        self.enemies            = {
-            yards5,
-            yards8,
-            yards13,
-            yards20,
-            yards40,
+        
+    -----------------
+    --- VARIABLES ---
+    -----------------
+
+        self.spell.spec                 = {}
+        self.spell.spec.abilities       = {
+            asphyxiate                  = 221562,
+            bloodBoil                   = 50842,
+            bloodMirror                 = 206977,
+            bloodTap                    = 221699,
+            blooddrinker                = 206931,
+            bonestorm                   = 194844,
+            consumption                 = 205223,
+            dancingRuneWeapon           = 49028,
+            deathAndDecay               = 43265,
+            deathsCaress                = 195292,
+            gorefiendsGrasp             = 108199,
+            heartStrike                 = 206930,
+            markOfBlood                 = 206940,
+            marrowrend                  = 195182,
+            runeTap                     = 194679,
+            soulgorge                   = 212744,
+            tighteningGrasp             = 206970,
+            tombstone                   = 219809,
+            vampiricBlood               = 55233,
         }
-		self.bloodArtifacts     = {
-           
+        self.spell.spec.artifacts       = {
+            allConsumingRot             = 192464,
+            artificialDamage            = 226829,
+            bloodFeast                  = 192548,
+            bonebreaker                 = 192538,
+            coagulopathy                = 192460,
+            consumption                 = 205223,
+            danceOfDarkness             = 192514,
+            grimPerseverance            = 192447,
+            ironHeart                   = 192450,
+            meatShield                  = 192453,
+            mouthOfHell                 = 192570,
+            rattlingBones               = 192557,
+            sanguinaryAffinity          = 221775,
+            skeletalShattering          = 192558,
+            theHungeringMaw             = 214903,
+            umbilicusEternus            = 193213,
+            unendingThirst              = 192567,
+            veinrender                  = 192457,
         }
-        self.bloodBuffs         = {
-            
+        self.spell.spec.buffs           = {
+            boneShield                  = 195181,
+            dancingRuneWeapon           = 81256,
+            tombstone                   = 219809,
+            vampiricBlood               = 55233,
         }
-        self.bloodDebuffs       = {
-            
+        self.spell.spec.debuffs         = {
+            asphyxiate                  = 221562,
+            bloodMirror                 = 206977,
+            blooddrinker                = 206931,
+            heartStrike                 = 206930,
+            markOfBlood                 = 206940,
         }
-        self.bloodSpecials      = {
-            
+        self.spell.spec.glyphs          = {
+
         }
-        self.bloodTalents       = {
-            
+        self.spell.spec.talents         = {
+            antimagicBarrier            = 205727,
+            bloodMirror                 = 206977,
+            bloodTap                    = 221699,
+            blooddrinker                = 206931,
+            bloodworms                  = 195679,
+            bonestorm                   = 194844,
+            foulBulwark                 = 206974,
+            marchOfTheDamned            = 219779,
+            markOfBlood                 = 206940,
+            ossuary                     = 219786,
+            purgatory                   = 114556,
+            rapidDecomposition          = 194662,
+            redThirst                   = 205723,
+            runeTap                     = 194679,
+            soulgorge                   = 212744,
+            spectralDeflection          = 211078,
+            tighteningGrasp             = 206970,
+            tombstone                   = 219809,
+            trembleBeforeMe             = 206960,
+            willOfTheNecropolis         = 206967,
         }
-        -- Merge all spell tables into self.spell
-        self.bloodSpells = {}
-        self.bloodSpells = mergeTables(self.bloodSpells,self.bloodArtifacts)
-        self.bloodSpells = mergeTables(self.bloodSpells,self.bloodBuffs)
-        self.bloodSpells = mergeTables(self.bloodSpells,self.bloodDebuffs)
-        self.bloodSpells = mergeTables(self.bloodSpells,self.bloodSpecials)
-        self.bloodSpells = mergeTables(self.bloodSpells,self.bloodTalents)
-        self.spell = {}
-        self.spell = mergeSpellTables(self.spell, self.characterSpell, self.druidSpell, self.bloodSpells)
-		
-	------------------
+        -- Merge all spell ability tables into self.spell
+        self.spell = mergeSpellTables(self.spell, self.characterSpell, self.spell.class.abilities, self.spell.spec.abilities)
+        
+    ------------------
     --- OOC UPDATE ---
     ------------------
 
         function self.updateOOC()
             -- Call classUpdateOOC()
             self.classUpdateOOC()
-            self.getArtifacts()
-            self.getArtifactRanks()
-            self.getGlyphs()
-            self.getTalents()
-            -- self.getPerks() --Removed in Legion
         end
 
     --------------
@@ -74,192 +119,12 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
             self.classUpdate()
             -- Updates OOC things
             if not UnitAffectingCombat("player") then self.updateOOC() end
-            -- self.blood_bleed_table()
-            self.getBuffs()
-            self.getBuffsDuration()
-            self.getBuffsRemain()
-            self.getCharge()
-            self.getCooldowns()
-            self.getDynamicUnits()
-            self.getDebuffs()
-            self.getDebuffsDuration()
-            self.getDebuffsRemain()
-            self.getTrinketProc()
-            self.hasTrinketProc()
-            self.getEnemies()
-            self.getRecharges()
+            cFileBuild("spec",self)
             self.getToggleModes()
-            self.getCastable()
-
-
-            -- Casting and GCD check
-            -- TODO: -> does not use off-GCD stuff like pots, dp etc
-            if castingUnit() then
-                return
-            end
 
             -- Start selected rotation
             self:startRotation()
         end
-
-    ---------------------
-    --- DYNAMIC UNITS ---
-    ---------------------
-
-        function self.getDynamicUnits()
-            local dynamicTarget = dynamicTarget
-
-            -- Normal
-            self.units.dyn8 = dynamicTarget(8, true) -- Swipe
-            self.units.dyn13 = dynamicTarget(13, true) -- Skull Bash
-
-            -- AoE
-            self.units.dyn8AoE = dynamicTarget(8, false) -- Thrash
-        end
-
-    -----------------
-    --- ARTIFACTS ---
-    -----------------
-
-        function self.getArtifacts()
-            local isKnown = isKnown
-
-            --self.artifact.ashamanesBite     = isKnown(self.spell.ashamanesBite)
-        end
-
-        function self.getArtifactRanks()
-
-        end
-       
-   	-------------
-    --- BUFFS ---
-    -------------
-
-        function self.getBuffs()
-        	local UnitBuffID = UnitBuffID
-
-        	-- self.buff.berserk                      = UnitBuffID("player",self.spell.berserkBuff)~=nil or false
-        end
-
-        function self.getBuffsDuration()
-        	local getBuffDuration = getBuffDuration
-
-        	-- self.buff.duration.berserk                     = getBuffDuration("player",self.spell.berserkBuff) or 0
-        end
-
-        function self.getBuffsRemain()
-        	local getBuffRemain = getBuffRemain
-
-        	-- self.buff.remain.berserk                    = getBuffRemain("player",self.spell.berserkBuff) or 0
-        end
-
-        function self.getTrinketProc()
-            local UnitBuffID = UnitBuffID
-
-        end
-
-        function self.hasTrinketProc()
-            -- for i = 1, #self.trinket do
-            --     if self.trinket[i]==true then return true else return false end
-            -- end
-        end
-
-    ---------------
-    --- DEBUFFS ---
-    ---------------
-        function self.getDebuffs()
-        	local UnitDebuffID = UnitDebuffID
-
-        	-- self.debuff.ashamanesFrenzy   = UnitDebuffID(self.units.dyn5,self.spell.ashamanesFrenzyDebuff,"player")~=nil or false
-		end
-
-		function self.getDebuffsDuration()
-			local getDebuffDuration = getDebuffDuration
-
-			-- self.debuff.duration.ashamanesFrenzy    = getDebuffDuration(self.units.dyn5,self.spell.ashamanesFrenzyDebuff,"player") or 0
-		end
-
-		function self.getDebuffsRemain()
-			local getDebuffRemain = getDebuffRemain
-
-			-- self.debuff.remain.ashamanesFrenzy  = getDebuffRemain(self.units.dyn5,self.spell.ashamanesFrenzyDebuff,"player") or 0
-		end
-
-    ---------------
-    --- CHARGES ---
-    ---------------
-
-		function self.getCharge()
-			local getCharges = getCharges
-            local getChargesFrac = getChargesFrac
-			local getBuffStacks = getBuffStacks
-
-			-- self.charges.bloodtalons 	   = getBuffStacks("player",self.spell.bloodtalonsBuff,"player")
-		end
-        
-    -----------------
-    --- COOLDOWNS ---
-    -----------------
-
-        function self.getCooldowns()
-            local getSpellCD = getSpellCD
-
-            -- self.cd.ashamanesFrenzy                 = getSpellCD(self.spell.ashamanesFrenzy)
-        end
-
-    --------------
-    --- GLYPHS ---
-    --------------
-
-        function self.getGlyphs()
-            local hasGlyph = hasGlyph
-
-            -- self.glyph.catForm   		= hasGlyph(self.spell.catFormGlyph))
-        end
-
-    ---------------
-    --- TALENTS ---
-    ---------------
-
-        function self.getTalents()
-            local getTalent = getTalent
-
-            -- self.talent.predator                    = getTalent(1,1)
-        end
-
-    -------------
-    --- PERKS ---
-    -------------
-
-        function self.getPerks()
-        	local isKnown = isKnown
-
-        	-- self.perk.enhancedBerserk 		= isKnown(self.spell.enhancedBerserk)
-        end
-
-    ---------------
-    --- ENEMIES ---
-    ---------------
-
-        function self.getEnemies()
-            local getEnemies = getEnemies
-
-            self.enemies.yards5 = #getEnemies("player", 5) -- Melee
-            self.enemies.yards8 = #getEnemies("player", 8) -- Swipe/Thrash
-            self.enemies.yards13 = #getEnemies("player", 13) -- Skull Bash
-            self.enemies.yards20 = #getEnemies("player", 20) --Prowl
-            self.enemies.yards40 = #getEnemies("player", 40) --Moonfire
-        end
-
-    -----------------
-    --- RECHARGES ---
-    -----------------
-    
-    	function self.getRecharges()
-    		local getRecharge = getRecharge
-
-    		-- self.recharge.forceOfNature = getRecharge(self.spell.forceOfNature)
-    	end
 
     ---------------
     --- TOGGLES ---
@@ -312,7 +177,7 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
 
             -- Get profile defined options
             local profileTable = profileTable
-            if self.rotations[bb.selectedProfile] ~= nil then 
+            if self.rotations[bb.selectedProfile] ~= nil then
                 profileTable = self.rotations[bb.selectedProfile].options()
             else
                 return
@@ -328,52 +193,22 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
             bb:checkProfileWindowStatus()
         end
 
-    --------------
-    --- SPELLS ---
-    --------------
-
-        function self.getCastable()
-
-            -- self.castable.maim              = self.castMaim("target",true)
-        end
-
- 
-
     ------------------------
     --- CUSTOM FUNCTIONS ---
     ------------------------
-        function useCDs()
-            local cooldown = self.mode.cooldown
-            if (cooldown == 1 and isBoss()) or cooldown == 2 then
-                return true
-            else
-                return false
-            end
+        --Target HP
+        function thp(unit)
+            return getHP(unit)
         end
 
-        function useAoE()
-            local rotation = self.mode.rotation
-            if (rotation == 1 and #getEnemies("player",8) >= 3) or rotation == 2 then
-                return true
-            else
-                return false
-            end
+        --Target Time to Die
+        function ttd(unit)
+            return getTimeToDie(unit)
         end
 
-        function useDefensive()
-            if self.mode.defensive == 1 then
-                return true
-            else
-                return false
-            end
-        end
-
-        function useInterrupts()
-            if self.mode.interrupt == 1 then
-                return true
-            else
-                return false
-            end
+        --Target Distance
+        function tarDist(unit)
+            return getDistance(unit)
         end
 
     -----------------------------

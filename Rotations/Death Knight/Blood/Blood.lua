@@ -1,5 +1,5 @@
-if select(3, UnitClass("player")) == 6 then
-    function DeathKnightBlood()
+function DeathKnightBlood()
+    if GetSpecializationInfo(GetSpecialization()) == 250 then
         if bb.player == nil or bb.player.profile ~= "Blood" then
             bb.player = cBlood:new("Blood")
             setmetatable(bb.player, {__index = cBlood})

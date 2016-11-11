@@ -88,12 +88,12 @@ Raidable means if its good to raid with.
 ||||
 | **Death Knight** |||
 |Frost|0%||7.0|
-|Blood|0%||7.0|
+|Blood|25%|CuteOne|7.1|
 |Unholy|0%||7.0|
 ||||
 | **Demon Hunter** |||
-|Havoc|100% (SimC)|CuteOne|7.0|:white_check_mark:
-|Vengeance|70% (SimC)|Dubwub|7.0|:heavy_check_mark:
+|Havoc|100% (SimC)|CuteOne|7.1|:white_check_mark:
+|Vengeance|70% (SimC)|Dubwub/Cpoworks|7.1|:interrobang:
 ||||
 | **Druid** |||
 |Feral|100% (SimC)|CuteOne|7.1|:white_check_mark:
@@ -113,13 +113,13 @@ Raidable means if its good to raid with.
 ||||
 | **Monk** |||
 |Brewmaster|0%||7.0|
-|Mistweaver|0%||7.0|
+|Mistweaver|50%|Cpoworks/Svs|7.1|:heavy_check_mark:
 |Windwalker|100% (SimC/AMR)|CuteOne|7.1|:white_check_mark:
 ||||
 | **Paladin** |||
 |Holy|0%||7.0|
 |Protection|0%||7.0|
-|Retribution|100%|CuteOne|7.1|:interrobang::x:
+|Retribution|100%|CuteOne|7.1|:interrobang:
 ||||
 | **Priest** |||
 |Discipline|0%|Cpoworks|7.0|:interrobang::x:
@@ -127,8 +127,8 @@ Raidable means if its good to raid with.
 |Shadow|70%|Cpoworks|7.0|:heavy_check_mark:
 ||||
 | **Rogue** |||
-|Assassination|100%|CuteOne|7.0|
-|Outlaw|100%|CuteOne|7.0|
+|Assassination|100%|CuteOne|7.0|:interrobang:
+|Outlaw|100%|CuteOne|7.0|:interrobang:
 |Subtlety|100%|CuteOne|7.0|:interrobang::x:
 ||||
 | **Shaman** |||
@@ -137,11 +137,11 @@ Raidable means if its good to raid with.
 |Restoration|0%||7.0|
 ||||
 | **Warlock** |||
-|Affliction|90%|CuteOne|7.0|:interrobang:
-|Demonology|100%|CuteOne|7.0|:interrobang:
+|Affliction|90%|CuteOne|7.1|:interrobang:
+|Demonology|100%|CuteOne|7.1|:interrobang:
 |Destruction|0%||7.0|
 ||||
 | **Warrior** |||
 |Arms|0%||7.0|
-|Fury|100%|CuteOne|7.0|:interrobang:
+|Fury|100%|CuteOne|7.1|:interrobang:
 |Protection|0%||7.0|

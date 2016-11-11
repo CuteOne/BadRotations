@@ -1,0 +1,8 @@
+- You should list all spells that can have different ranges depending on
+  talents (that's why Scorch, Arcane Missiles and Frostbolt are all listed,
+  even though they all have a 30 yd range initially).
+
+- Interact distances are a bit off with regards to spell ranges. I decided to
+  keep spell ranges as the "standard" and adjusted the interact distances
+  to fit in
+
