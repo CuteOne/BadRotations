@@ -258,6 +258,8 @@ if select(2, UnitClass("player")) == "DRUID" then
                 end
             end
             -- ChatOverlay(round2(getDistance2("target"),2)..", "..round2(getDistance3("target"),2)..", "..round2(getDistance4("target"),2)..", "..round2(getDistance("target"),2))
+            -- Test Automated Commit Messaging
+            
 	--------------------
 	--- Action Lists ---
 	--------------------
