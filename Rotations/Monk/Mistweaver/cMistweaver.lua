@@ -41,7 +41,7 @@ function cMistweaver:new()
             risingSunKick = 107428,
             roll = 109132,
             sheilunsGift = 205406,
-            spiningCraneKick = 101546,
+            spinningCraneKick = 101546,
             thunderFocusTea = 116680,
             tigerPalm = 100780,
             tigersLust = 116841,
@@ -52,6 +52,7 @@ function cMistweaver:new()
 
         }
         self.spell.spec.buffs       = {
+            lifeCocoon = 116849,
             sheilunsGift = 205406,
             upliftingTrance = 197206
         }

@@ -5,13 +5,33 @@ if select(2,UnitClass("player")) == "MONK" then -- Change to class id
 --- Toggles ---
 ---------------
     local function createToggles() -- Define custom toggles
+    -- Rotation Button
+        RotationModes = {
+            [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range.", highlight = 1, icon = bb.player.spell.spinningCraneKick },
+            [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = bb.player.spell.spinningCraneKick },
+            [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = bb.player.spell.tigerPalm },
+            [4] = { mode = "Off", value = 4 , overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = bb.player.spell.effuse}
+        };
+        CreateButton("Rotation",1,0)
     -- Cooldown Button
         CooldownModes = {
-            [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = bb.player.spell.battleCry },
-            [2] = { mode = "On", value = 2 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = bb.player.spell.battleCry },
-            [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = bb.player.spell.battleCry }
+            [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = bb.player.spell.revival },
+            [2] = { mode = "On", value = 1 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = bb.player.spell.revival },
+            [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = bb.player.spell.revival }
         };
-        CreateButton("Cooldown",1,0)
+        CreateButton("Cooldown",2,0)
+    -- Defensive Button
+        DefensiveModes = {
+            [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = bb.player.spell.dampenHarm },
+            [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = bb.player.spell.dampenHarm }
+        };
+        CreateButton("Defensive",3,0)
+    -- Interrupt Button
+        InterruptModes = {
+            [1] = { mode = "On", value = 1 , overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = bb.player.spell.legSweep },
+            [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = bb.player.spell.legSweep }
+        };
+        CreateButton("Interrupt",4,0)
     end
 
 ---------------
@@ -33,19 +53,49 @@ if select(2,UnitClass("player")) == "MONK" then -- Change to class id
                 bb.ui:createCheckbox(section, "Detox")
                 --bb.ui:createDropdownWithout(section, "Detox Mode", {"|cffFFFFFFMouseover","|cffFFFFFFRaid"}, 1, "|cffFFFFFFDetox usage.")
             bb.ui:checkSectionState(section)
+            -------------------------
+            --- INTERRUPT OPTIONS ---
+            -------------------------
+            section = bb.ui:createSection(bb.ui.window.profile, "Interrupts")
+            --Quaking Palm
+                bb.ui:createCheckbox(section, "Quaking Palm")
+            -- Paralysis
+                bb.ui:createCheckbox(section, "Paralysis")
+            -- Leg Sweep
+                bb.ui:createCheckbox(section, "Leg Sweep")
+            -- Interrupt Percentage
+                bb.ui:createSpinner(section,  "InterruptAt",  0,  0,  95,  5,  "|cffFFBB00Cast Percentage to use at.")
+            bb.ui:checkSectionState(section)            
+            -------------------------
+            ---- SINGLE TARGET ------
+            -------------------------
             section = bb.ui:createSection(bb.ui.window.profile, "Single Target Healing")
+                --Life Cocoon
+                bb.ui:createSpinner(section, "Life Cocoon",  30,  0,  100,  5,  "Health Percent to Cast At")
+                --bb.ui:createDropdownWithout(section, "Life Cocoon Mode", {"|cffFFFFFFTanks","|cffFFFFFFEveryone"}, 1, "|cffFFFFFFLife Cocoon usage.")
                 --Thunder Focus Tea
                 bb.ui:createSpinner(section, "Thunder Focus Tea",  50,  0,  100,  5,  "Health Percent to Cast At")
                 --Renewing Mist
-                bb.ui:createSpinner(section, "Renewing Mist STH",  99,  0,  100,  1,  "Health Percent to Cast At")
+                bb.ui:createSpinner(section, "Renewing Mist",  99,  0,  100,  1,  "Health Percent to Cast At")
                 --Enveloping Mists
-                bb.ui:createSpinner(section, "Enveloping Mist STH",  70,  0,  100,  5,  "Health Percent to Cast At")
+                bb.ui:createSpinner(section, "Enveloping Mist",  70,  0,  100,  5,  "Health Percent to Cast At")
                 --Sheiluns Gift
-                bb.ui:createSpinner(section, "Sheiluns Gift STH",  65,  0,  100,  5,  "Health Percent to Cast At")
+                bb.ui:createSpinner(section, "Sheiluns Gift",  65,  0,  100,  5,  "Health Percent to Cast At")
                 --Effuse
-                bb.ui:createSpinner(section, "Effuse STH",  85,  0,  100,  5,  "Health Percent to Cast At")
+                bb.ui:createSpinner(section, "Effuse",  85,  0,  100,  5,  "Health Percent to Cast At")
                 --Vivify
-                bb.ui:createSpinner(section, "Vivify STH",  60,  0,  100,  5,  "Health Percent to Cast At")
+                bb.ui:createSpinner(section, "Vivify",  60,  0,  100,  5,  "Health Percent to Cast At")
+            bb.ui:checkSectionState(section)
+            -------------------------
+            ------ AOE HEALING ------
+            -------------------------
+            section = bb.ui:createSection(bb.ui.window.profile, "AOE Healing")
+                -- Essence Font
+                bb.ui:createSpinner(section, "Essence Font",  80,  0,  100,  5,  "Health Percent to Cast At") 
+                bb.ui:createSpinner(section, "EF Targets",  6,  0,  40,  1,  "Minimum Essence Font Targets")   
+                -- Revival
+                bb.ui:createSpinner(section, "Revival",  60,  0,  100,  5,  "Health Percent to Cast At") 
+                bb.ui:createSpinner(section, "Revival Targets",  5,  0,  40,  1,  "Minimum Revival Targets")  
             bb.ui:checkSectionState(section)
         end
         optionTable = {{
@@ -129,6 +179,30 @@ if select(2,UnitClass("player")) == "MONK" then -- Change to class id
 -----------------------------
 --- In Combat - Rotations --- 
 -----------------------------
+        -- Action List - Interrupts
+                if useInterrupts() then
+                    for i=1, #getEnemies("player",20) do
+                        thisUnit = getEnemies("player",20)[i]
+                        distance = getDistance(thisUnit)
+                        if canInterrupt(thisUnit,getOptionValue("InterruptAt")) then
+                            if distance < 5 then
+            -- Quaking Palm
+                                if isChecked("Quaking Palm") then
+                                    if cast.quakingPalm(thisUnit) then return end
+                                end
+            -- Leg Sweep
+                                if isChecked("Leg Sweep") then
+                                    if cast.legSweep(thisUnit) then return end
+                                end
+                            end
+            -- Paralysis
+                            if isChecked("Paralysis") then
+                                if cast.paralysis(thisUnit) then return end
+                            end
+                        end
+                    end 
+                end -- End Interrupt Check
+
             if inCombat then
 
                 if isChecked("Healing Elixir") then
@@ -150,6 +224,18 @@ if select(2,UnitClass("player")) == "MONK" then -- Change to class id
                 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
                 --Single Target Healing----Single Target Healing----Single Target Healing----Single Target Healing----Single Target Healing----Single Target Healing----Single Target Healing--
                 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+                --Life Cocoon
+                if isChecked("Life Cocoon") then
+                    for i = 1, #bb.friend do
+                        if bb.friend[i].hp <= getValue("Life Cocoon") and getBuffRemain(bb.friend[i].unit, spell.lifeCocoon, "player") < 1 then
+                            -- if getValue("Life Cocoon Mode") == 1 and bb.friend[i].role == "TANK" then
+                            if cast.lifeCocoon(bb.friend[i].unit) then return end
+                            -- elseif getValue("Life Cocoon Mode") == 2 then
+                            --     if cast.lifeCocoon(bb.friend[i].unit) then return end
+                            -- end 
+                        end
+                    end                    
+                end                
                 --Detox
                 if isChecked("Detox") then
                     -- if getValue("Detox Mode") == 1 then -- Mouseover
@@ -183,48 +269,62 @@ if select(2,UnitClass("player")) == "MONK" then -- Change to class id
                     end
                 end                
                 --Renewing Mist
-                if isChecked("Renewing Mist STH") then
+                if isChecked("Renewing Mist") then
                     for i = 1, #bb.friend do                           
-                        if bb.friend[i].hp <= getValue("Renewing Mist STH") 
+                        if bb.friend[i].hp <= getValue("Renewing Mist") 
                         and getBuffRemain(bb.friend[i].unit, spell.renewingMist, "player") < 1 then
                             if cast.renewingMist(bb.friend[i].unit) then return end     
                         end
                     end
                 end
                 --sheilunsGift
-                if isChecked("Sheiluns Gift STH") and GetSpellCount(205406) ~= nil then
+                if isChecked("Sheiluns Gift") and GetSpellCount(205406) ~= nil then
                     if GetSpellCount(205406) >= 5 then
-                        if lowest.hp <= getValue("Sheiluns Gift STH") then         
+                        if lowest.hp <= getValue("Sheiluns Gift") then         
                             if cast.sheilunsGift(lowest.unit) then return end                                    
                         end
                     end
                 end
                 --Enveloping Mists
-                if isChecked("Enveloping Mist STH")
+                if isChecked("Enveloping Mist")
                 and not isCastingSpell(spell.envelopingMist) then
-                    if lowest.hp <= getValue("Enveloping Mist STH")
+                    if lowest.hp <= getValue("Enveloping Mist")
                     and getBuffRemain(lowest.unit, spell.envelopingMist, "player") < 2 then 
                         if cast.envelopingMist(lowest.unit) then return end 
                     end
                 end
                 --Vivify
-                if isChecked("Vivify STH")
+                if isChecked("Vivify")
                 and not isCastingSpell(spell.vivify) then
-                    -- if buff.upliftingTrance and lowest.hp <= getValue("Vivify STH") + 10 then         
+                    -- if buff.upliftingTrance and lowest.hp <= getValue("Vivify") + 10 then         
                     --     if cast.vivify(lowest.unit) then return end 
                     -- else
-                    if lowest.hp <= getValue("Vivify STH") then         
+                    if lowest.hp <= getValue("Vivify") then         
                         if cast.vivify(lowest.unit) then return end                                    
                     end
                 end
                 --Effuse
-                if isChecked("Effuse STH") 
+                if isChecked("Effuse") 
                 and not isCastingSpell(spell.effuse) then
-                    if lowest.hp <= getValue("Effuse STH") then    
+                    if lowest.hp <= getValue("Effuse") then    
                         if cast.effuse(lowest.unit) then return end    
                     end
                 end
-
+                ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+                --AOE Healing----AOE Healing----AOE Healing----AOE Healing----AOE Healing----AOE Healing----AOE Healing----AOE Healing----AOE Healing----AOE Healing----AOE Healing----AOE Healing
+                ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+                --Essence Font
+                if isChecked("Essence Font") and not isCastingSpell(spell.essenceFont) then
+                    if getLowAllies(getValue("Essence Font")) >= getValue("EF Targets") then    
+                        if cast.essenceFont() then return end    
+                    end
+                end
+                --Revival
+                if isChecked("Revival") and not isCastingSpell(spell.essenceFont) then
+                    if getLowAllies(getValue("Revival")) >= getValue("Revival Targets") then    
+                        if cast.revival() then return end    
+                    end
+                end
             end -- End In Combat Rotation
         end -- End Timer
     end -- End runRotation 
