@@ -80,11 +80,15 @@ if select(2,UnitClass("player")) == "MONK" then -- Change to class id
                 --Enveloping Mists
                 bb.ui:createSpinner(section, "Enveloping Mist",  70,  0,  100,  5,  "Health Percent to Cast At")
                 --Sheiluns Gift
-                bb.ui:createSpinner(section, "Sheiluns Gift",  65,  0,  100,  5,  "Health Percent to Cast At")
+                --[Prioritize free cast sheiulns gift]
+                bb.ui:createSpinner(section, "Sheiluns Gift",  80,  0,  100,  5,  "Health Percent to Cast At")
                 --Effuse
                 bb.ui:createSpinner(section, "Effuse",  85,  0,  100,  5,  "Health Percent to Cast At")
                 --Vivify
                 bb.ui:createSpinner(section, "Vivify",  60,  0,  100,  5,  "Health Percent to Cast At")
+                --ChiJI
+                --[You get much benefit from early cast of chiji than later cast]
+                bb.ui:createSpinner(section, "ChiJi",  85,  0,  100,  5,  "Health Percent to Cast At")
             bb.ui:checkSectionState(section)
             -------------------------
             ------ AOE HEALING ------
@@ -220,6 +224,13 @@ if select(2,UnitClass("player")) == "MONK" then -- Change to class id
                         end
                     end
                 end
+                if isChecked("Mana Tea") then
+                    for i = 1, #bb.friend do                           
+                        if power <= getValue("Mana Tea") then
+                            if cast.manaTea("player") then return end     
+                        end
+                    end
+                end
 
                 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
                 --Single Target Healing----Single Target Healing----Single Target Healing----Single Target Healing----Single Target Healing----Single Target Healing----Single Target Healing--
@@ -235,7 +246,21 @@ if select(2,UnitClass("player")) == "MONK" then -- Change to class id
                             -- end 
                         end
                     end                    
-                end                
+                end       
+                --sheilunsGift
+                --[It's free why 65%?  ]
+                if isChecked("Sheiluns Gift") and GetSpellCount(205406) ~= nil then
+                    if GetSpellCount(205406) >= 6 then
+                        if lowest.hp <= getValue("Sheiluns Gift") then         
+                            if cast.sheilunsGift(lowest.unit) then return end                                    
+                        end
+                    end
+                end
+                if isChecked("ChiJi") then
+                        if lowest.hp <= getValue("Sheiluns Gift") then         
+                            if cast.invokeChiJi(lowest.unit) then return end                                    
+                    end
+                end
                 --Detox
                 if isChecked("Detox") then
                     -- if getValue("Detox Mode") == 1 then -- Mouseover
@@ -267,6 +292,15 @@ if select(2,UnitClass("player")) == "MONK" then -- Change to class id
                             if cast.thunderFocusTea() then return end     
                         end
                     end
+                end
+                if isChecked("Thunder Focus Tea") then
+                    for i = 1, #bb.friend do
+                        if bb.friend[i].hp <= getValue("Thunder Focus Tea") then
+                            if buff.thunderFocusTea then
+                                if cast.Vivify(bb.friend[i].unit) then return end
+                            end
+                        end
+                    end
                 end                
                 --Renewing Mist
                 if isChecked("Renewing Mist") then
@@ -274,14 +308,6 @@ if select(2,UnitClass("player")) == "MONK" then -- Change to class id
                         if bb.friend[i].hp <= getValue("Renewing Mist") 
                         and getBuffRemain(bb.friend[i].unit, spell.renewingMist, "player") < 1 then
                             if cast.renewingMist(bb.friend[i].unit) then return end     
-                        end
-                    end
-                end
-                --sheilunsGift
-                if isChecked("Sheiluns Gift") and GetSpellCount(205406) ~= nil then
-                    if GetSpellCount(205406) >= 5 then
-                        if lowest.hp <= getValue("Sheiluns Gift") then         
-                            if cast.sheilunsGift(lowest.unit) then return end                                    
                         end
                     end
                 end

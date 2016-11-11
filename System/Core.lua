@@ -234,9 +234,9 @@ function frame:OnEvent(event, arg1, arg2)
         	bb:Run()
         end
     end
-    if event == "ZONE_CHANGED" then
+    --if event == "ZONE_CHANGED" then
         -- temp
-    end
+    --end
 end
 frame:SetScript("OnEvent", frame.OnEvent)
 --[[-------------------------------------------------------------------------------------------------------------------------------------------------------]]
@@ -278,105 +278,83 @@ function BadBoyUpdate(self)
 	bb:AcceptQueues()
 	--[[Class/Spec Selector]]
     bb.selectedProfile = bb.data.options[bb.selectedSpec]["Rotation".."Drop"] or 1
-	local playerClass = select(3,UnitClass("player"))
-	local playerSpec = GetSpecialization()
+	--local playerClass = select(3,UnitClass("player"))
+	--local playerSpec = GetSpecialization()
+	local playerSpec = GetSpecializationInfoByID()
 	local playerLevel = UnitLevel("player")
-	if playerClass == 1 then -- Warrior
-		if playerSpec == 1 then
+	if playerSpec == 71 then -- Warrior
 			WarriorArms()
-		elseif playerSpec == 2 then
+		elseif playerSpec == 72 then
 			WarriorFury()
-		elseif playerSpec == 3 then
+		elseif playerSpec == 73 then
 			WarriorProtection()
-		end
-	elseif playerClass == 2 then -- Paladin
-		if playerSpec == 1 then
+	elseif playerSpec == 65 then -- Paladin
 			PaladinHoly()
-		elseif playerSpec == 2 then
+		elseif playerSpec == 66 then
 			PaladinProtection()
-		elseif playerSpec == 3 then
+		elseif playerSpec == 70 then
 			PaladinRetribution()
-		end
-	elseif playerClass == 3 then -- Hunter
-		if playerSpec == 1 then
+	elseif playerSpec == 253 then -- Hunter
 			HunterBeastmaster()
-		elseif playerSpec == 2 then
+		elseif playerSpec == 254 then
 			HunterMarksmanship()
-		elseif playerSpec == 3 then
+		elseif playerSpec == 255 then
 			HunterSurvival()
-		end
-	elseif playerClass == 4 then -- Rogue
-		if playerSpec == 1 then
+	elseif playerSpec == 259 then -- Rogue
 			RogueAssassination()
-		elseif playerSpec == 2 then
+		elseif playerSpec == 260 then
 			RogueOutlaw()
-		elseif playerSpec == 3 then
+		elseif playerSpec == 261 then
 			RogueSubtlety()
-		end
-	elseif playerClass == 5 then -- Priest
-		if playerSpec == 1 then
+	elseif playerSpec == 256 then -- Priest
 			PriestDiscipline()
-		elseif playerSpec == 2 then
+		elseif playerSpec == 257 then
 			PriestHoly()
-		elseif playerSpec == 3 then
+		elseif playerSpec == 258 then
 			PriestShadow()
-		end
-	elseif playerClass == 6 then -- Death Knight
-		if playerSpec == 1 then
+	elseif playerSpec == 250 then -- Death Knight
 			DeathKnightBlood()
-		elseif playerSpec == 2 then
+		elseif playerSpec == 251 then
 			DeathKnightFrost()
-		elseif playerSpec == 3 then
+		elseif playerSpec == 252 then
 			DeathKnightUnholy()
-		end
-	elseif playerClass == 7 then -- Shaman
-		if playerSpec == 1 then
+	elseif playerSpec == 262 then -- Shaman
 			ShamanElemental()
-		elseif playerSpec == 2 then
+		elseif playerSpec == 263 then
 			ShamanEnhancement()
-		elseif playerSpec == 3 then
+		elseif playerSpec == 264 then
 			ShamanRestoration()
-		end
-	elseif playerClass == 8 then -- Mage
-		if playerSpec == 1 then
+	elseif playerSpec == 62 then -- Mage
 			MageArcane()
-		elseif playerSpec == 2 then
+		elseif playerSpec == 63 then
 			MageFire()
-		elseif playerSpec == 3 then
+		elseif playerSpec == 64 then
 			MageFrost()
-		end
-	elseif playerClass == 9 then -- Warlock
-		if playerSpec == 1 then
+	elseif playerSpec == 265 then -- Warlock
 			WarlockAffliction()
-		elseif playerSpec == 2 then
+		elseif playerSpec == 266 then
 			WarlockDemonology()
-		elseif playerSpec == 3 then
+		elseif playerSpec == 267 then
 			WarlockDestruction()
-		end
-	elseif playerClass == 10 then -- Monk
-		if playerSpec == 1 then
+	elseif playerSpec == 268 then -- Monk
 			MonkBrewmaster()
-		elseif playerSpec == 2 then
+		elseif playerSpec == 269 then
 			MonkMistweaver()
-		elseif playerSpec == 3 then
+		elseif playerSpec == 270 then
 			MonkWindwalker()
-		end
-	elseif playerClass == 11 then -- Druid
-		if playerSpec == 1 then
+	elseif playerSpec == 102 then -- Druid
 			DruidMoonkin()
-		elseif playerSpec == 2 then
+		elseif playerSpec == 103 then
 			DruidFeral()
-		elseif playerSpec == 3 then
+		elseif playerSpec == 104 then
 			DruidGuardian()
-		elseif playerSpec == 4 then
+		elseif playerSpec == 105 then
 			DruidRestoration()
-		end
-	elseif playerClass == 12 then --Demon Hunter
-		if playerSpec == 1 then
+	elseif playerSpec == 577 then --Demon Hunter
 			DemonHunterHavoc()
-		elseif playerSpec == 2 then
+		elseif playerSpec == 581 then
 			DemonHunterVengeance()
-		end
+			else print("Contact A Developer")
 	end
 end
 
