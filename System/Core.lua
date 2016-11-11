@@ -280,7 +280,7 @@ function BadBoyUpdate(self)
     bb.selectedProfile = bb.data.options[bb.selectedSpec]["Rotation".."Drop"] or 1
 	--local playerClass = select(3,UnitClass("player"))
 	--local playerSpec = GetSpecialization()
-	local playerSpec = GetSpecializationInfoByID()
+	local playerSpec = GetSpecializationInfo(GetSpecialization())
 	local playerLevel = UnitLevel("player")
 	if playerSpec == 71 then -- Warrior
 			WarriorArms()
