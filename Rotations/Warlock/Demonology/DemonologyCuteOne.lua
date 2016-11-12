@@ -183,7 +183,7 @@ if select(2, UnitClass("player")) == "WARLOCK" then
             local pullTimer                                     = bb.DBM:getPulltimer()
             local racial                                        = bb.player.getRacial()
             local recharge                                      = bb.player.recharge
-            local shards                                        = bb.player.shards
+            local shards                                        = bb.player.soulShards
             local summonPet                                     = getOptionValue("Summon Pet")
             local solo                                          = bb.player.instance=="none"
             local spell                                         = bb.player.spell
