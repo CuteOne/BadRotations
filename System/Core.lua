@@ -323,7 +323,7 @@ function BadBoyUpdate(self)
 		 	[269] = {className = "Monk", 		specName = "Windwalker"},
 		 	[270] = {className = "Monk", 		specName = "Mistweaver"},
 		 	[577] = {className = "DemonHunter", specName = "Havoc"},
-		 	[578] = {className = "DemonHunter", specName = "Vengeance"},
+		 	[581] = {className = "DemonHunter", specName = "Vengeance"},
 		}
 		local playerSpec = GetSpecializationInfo(GetSpecialization())
 		_G[functionSelector[playerSpec].className..functionSelector[playerSpec].specName]()
