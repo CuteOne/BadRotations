@@ -260,3 +260,8 @@ Rotations\_NonClass\PokeRotation\PokeUnitInfo.lua
 
 ## ProfessionHelper -----------------------------------------
 Rotations\_NonClass\ProfessionHelper\ProfessionHelper.lua
+
+## Zu BossManager -------------------------------------
+Custom\Zu\BossManager.lua
+Custom\Zu\MawOfSouls\Helya\coverThatHole.lua
+Custom\Zu\MawOfSouls\Helya.lua
