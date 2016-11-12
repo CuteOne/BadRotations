@@ -1,5 +1,5 @@
 if select(3, UnitClass("player")) == 3 then
-	function  HunterBeastmaster()
+	function  HunterBeastMastery()
 		
 		local function UnitChecks(Unit)
 			if UnitExists(Unit) == true and getDistance("player",Unit) <= 40 and getLineOfSight("player",Unit) == true 

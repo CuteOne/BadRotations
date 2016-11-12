@@ -245,138 +245,88 @@ frame:SetScript("OnEvent", frame.OnEvent)
 --[[-------------------------------------------------------------------------------------------------------------------------------------------------------]]
 --[[This function is refired everytime wow ticks. This frame is located in Core.lua]]
 function BadBoyUpdate(self)
-	-- prevent ticking when firechack isnt loaded
-	-- if user click power button, stop everything from pulsing.
-	if not getOptionCheck("Start/Stop BadBoy") or bb.data["Power"] ~= 1 then
-		optionsFrame:Hide()
-		_G["debugFrame"]:Hide()
-		return false
+	local tempTime = GetTime();
+	if not self.lastUpdateTime then
+		self.lastUpdateTime = tempTime
 	end
-	if FireHack == nil then
-		optionsFrame:Hide()
-		_G["debugFrame"]:Hide()
-		if getOptionCheck("Start/Stop BadBoy") then
-			ChatOverlay("FireHack not Loaded.")
-		end
-		return
-	end
-	-- pulse enemiesEngine
-	bb:PulseUI()
+	if self.lastUpdateTime and (tempTime - self.lastUpdateTime) > (1/10) then
+		self.lastUpdateTime = tempTime
 
-    -- get DBM Timer/Bars
-    -- global -> bb.DBM.Timer
-    bb.DBM:getBars()
+		-- prevent ticking when firechack isnt loaded
+		-- if user click power button, stop everything from pulsing.
+		if not getOptionCheck("Start/Stop BadBoy") or bb.data["Power"] ~= 1 then
+			optionsFrame:Hide()
+			_G["debugFrame"]:Hide()
+			return false
+		end
+		if FireHack == nil then
+			optionsFrame:Hide()
+			_G["debugFrame"]:Hide()
+			if getOptionCheck("Start/Stop BadBoy") then
+				ChatOverlay("FireHack not Loaded.")
+			end
+			return
+		end
 
-    -- Show Debug Frame TEMP
-    if isChecked("Debug Frame") then
-        bb.ui.window.debug.parent:Show()--_G["debugFrame"]:Show()
-    else
-        bb.ui.window.debug.parent:Hide()--_G["debugFrame"]:Hide()
-    end
+		-- pulse enemiesEngine
+		bb:PulseUI()
 
-	-- accept dungeon queues
-	bb:AcceptQueues()
-	--[[Class/Spec Selector]]
-    bb.selectedProfile = bb.data.options[bb.selectedSpec]["Rotation".."Drop"] or 1
-	local playerClass = select(3,UnitClass("player"))
-	local playerSpec = GetSpecialization()
-	local playerLevel = UnitLevel("player")
-	if playerClass == 1 then -- Warrior
-		if playerSpec == 1 then
-			WarriorArms()
-		elseif playerSpec == 2 then
-			WarriorFury()
-		elseif playerSpec == 3 then
-			WarriorProtection()
-		end
-	elseif playerClass == 2 then -- Paladin
-		if playerSpec == 1 then
-			PaladinHoly()
-		elseif playerSpec == 2 then
-			PaladinProtection()
-		elseif playerSpec == 3 then
-			PaladinRetribution()
-		end
-	elseif playerClass == 3 then -- Hunter
-		if playerSpec == 1 then
-			HunterBeastmaster()
-		elseif playerSpec == 2 then
-			HunterMarksmanship()
-		elseif playerSpec == 3 then
-			HunterSurvival()
-		end
-	elseif playerClass == 4 then -- Rogue
-		if playerSpec == 1 then
-			RogueAssassination()
-		elseif playerSpec == 2 then
-			RogueOutlaw()
-		elseif playerSpec == 3 then
-			RogueSubtlety()
-		end
-	elseif playerClass == 5 then -- Priest
-		if playerSpec == 1 then
-			PriestDiscipline()
-		elseif playerSpec == 2 then
-			PriestHoly()
-		elseif playerSpec == 3 then
-			PriestShadow()
-		end
-	elseif playerClass == 6 then -- Death Knight
-		if playerSpec == 1 then
-			DeathKnightBlood()
-		elseif playerSpec == 2 then
-			DeathKnightFrost()
-		elseif playerSpec == 3 then
-			DeathKnightUnholy()
-		end
-	elseif playerClass == 7 then -- Shaman
-		if playerSpec == 1 then
-			ShamanElemental()
-		elseif playerSpec == 2 then
-			ShamanEnhancement()
-		elseif playerSpec == 3 then
-			ShamanRestoration()
-		end
-	elseif playerClass == 8 then -- Mage
-		if playerSpec == 1 then
-			MageArcane()
-		elseif playerSpec == 2 then
-			MageFire()
-		elseif playerSpec == 3 then
-			MageFrost()
-		end
-	elseif playerClass == 9 then -- Warlock
-		if playerSpec == 1 then
-			WarlockAffliction()
-		elseif playerSpec == 2 then
-			WarlockDemonology()
-		elseif playerSpec == 3 then
-			WarlockDestruction()
-		end
-	elseif playerClass == 10 then -- Monk
-		if playerSpec == 1 then
-			MonkBrewmaster()
-		elseif playerSpec == 2 then
-			MonkMistweaver()
-		elseif playerSpec == 3 then
-			MonkWindwalker()
-		end
-	elseif playerClass == 11 then -- Druid
-		if playerSpec == 1 then
-			DruidMoonkin()
-		elseif playerSpec == 2 then
-			DruidFeral()
-		elseif playerSpec == 3 then
-			DruidGuardian()
-		elseif playerSpec == 4 then
-			DruidRestoration()
-		end
-	elseif playerClass == 12 then --Demon Hunter
-		if playerSpec == 1 then
-			DemonHunterHavoc()
-		elseif playerSpec == 2 then
-			DemonHunterVengeance()
-		end
+	    -- get DBM Timer/Bars
+	    -- global -> bb.DBM.Timer
+	    bb.DBM:getBars()
+
+	    -- Show Debug Frame TEMP
+	    if isChecked("Debug Frame") then
+	        bb.ui.window.debug.parent:Show()--_G["debugFrame"]:Show()
+	    else
+	        bb.ui.window.debug.parent:Hide()--_G["debugFrame"]:Hide()
+	    end
+
+		-- accept dungeon queues
+		bb:AcceptQueues()
+
+		--[[Class/Spec Selector]]
+	    bb.selectedProfile = bb.data.options[bb.selectedSpec]["Rotation".."Drop"] or 1
+		local functionSelector = {
+			[ 62] = {className = "Mage", 		specName = "Arcane"},
+			[ 63] = {className = "Mage", 		specName = "Fire"},
+			[ 64] = {className = "Mage", 		specName = "Frost"},
+			[ 65] = {className = "Paladin",		specName = "Holy"},
+			[ 66] = {className = "Paladin", 	specName = "Protection"},
+			[ 70] = {className = "Paladin", 	specName = "Retribution"},
+			[ 71] = {className = "Warrior", 	specName = "Arms"},
+			[ 72] = {className = "Warrior", 	specName = "Fury"},
+			[ 73] = {className = "Warrior", 	specName = "Protection"},
+			[102] = {className = "Druid", 		specName = "Balance"},
+			[103] = {className = "Druid", 		specName = "Feral"},
+			[104] = {className = "Druid", 		specName = "Guardian"},
+			[105] = {className = "Druid", 		specName = "Restoration"},
+		 	[250] = {className = "DeathKnight", specName = "Blood"},
+		 	[251] = {className = "DeathKnight", specName = "Frost"},
+		 	[252] = {className = "DeathKnight", specName = "Unholy"},
+		 	[253] = {className = "Hunter", 		specName = "BeastMastery"},
+		 	[254] = {className = "Hunter", 		specName = "Marksmanship"},
+		 	[255] = {className = "Hunter", 		specName = "Survival"},
+		 	[256] = {className = "Priest", 		specName = "Discipline"},
+		 	[257] = {className = "Priest", 		specName = "Holy"},
+		 	[258] = {className = "Priest", 		specName = "Shadow"},
+		 	[259] = {className = "Rogue", 		specName = "Assassination"},
+		 	[260] = {className = "Rogue", 		specName = "Outlaw"},
+		 	[261] = {className = "Rogue", 		specName = "Subtlety"},
+		 	[262] = {className = "Shaman", 		specName = "Elemental"},
+		 	[263] = {className = "Shaman", 		specName = "Enhancement"},
+		 	[264] = {className = "Shaman", 		specName = "Restoration"},
+		 	[265] = {className = "Warlock", 	specName = "Affliction"},
+		 	[266] = {className = "Warlock", 	specName = "Demonology"},
+		 	[267] = {className = "Warlock", 	specName = "Destruction"},
+		 	[268] = {className = "Monk", 		specName = "Brewmaster"},
+		 	[269] = {className = "Monk", 		specName = "Windwalker"},
+		 	[270] = {className = "Monk", 		specName = "Mistweaver"},
+		 	[577] = {className = "DemonHunter", specName = "Havoc"},
+		 	[578] = {className = "DemonHunter", specName = "Vengeance"},
+		}
+		local playerSpec = GetSpecializationInfo(GetSpecialization())
+		_G[functionSelector[playerSpec].className..functionSelector[playerSpec].specName]()
 	end
 end
 

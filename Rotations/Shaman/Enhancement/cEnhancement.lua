@@ -62,6 +62,7 @@ function cEnhancement:new()
             hotHand                     = 215785,
             landslide                   = 202004,
             lightningShield             = 192106,
+            oldWar                      = 188028,
             prolongedPower              = 229206,
             stormbringer                = 201846,
             temptation                  = 234143,

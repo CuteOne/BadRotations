@@ -61,6 +61,8 @@ if select(2, UnitClass("player")) == "DEMONHUNTER" then
                 bb.ui:createSpinner(section, "Eye Beam Targets", 3, 1, 10, 1, "|cffFFBB00Number of Targets to use at.")
             -- Glide Fall Time
                 bb.ui:createSpinner(section, "Glide", 2, 0, 10, 1, "|cffFFBB00Seconds until Glide will be used while falling.")
+            -- Artifact 
+                bb.ui:createDropdownWithout(section,"Artifact", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Artifact Ability.")
             bb.ui:checkSectionState(section)
         -- Cooldown Options
             section = bb.ui:createSection(bb.ui.window.profile, "Cooldowns")
@@ -656,8 +658,10 @@ if select(2, UnitClass("player")) == "DEMONHUNTER" then
                         end
                 -- Fury of the Illidari
                         -- fury_of_the_illidari,if=active_enemies>desired_targets|raid_event.adds.in>55&(!talent.momentum.enabled|buff.momentum.up)
-                        if #enemies.yards8 > getOptionValue("Eye Beam Targets") or addsIn > 55 and (not talent.momentum or buff.momentum) then
-                            if cast.furyOfTheIllidari() then return end
+                        if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()) then
+                            if #enemies.yards8 > getOptionValue("Eye Beam Targets") or addsIn > 55 and (not talent.momentum or buff.momentum) then
+                                if cast.furyOfTheIllidari() then return end
+                            end
                         end
                 -- Eye Beam
                         -- eye_beam,if=talent.demonic.enabled&buff.metamorphosis.down&fury.deficit<30
@@ -781,8 +785,10 @@ if select(2, UnitClass("player")) == "DEMONHUNTER" then
                 -- Cooldowns
                         if actionList_Cooldowns() then return end
                 -- Fury of the Illidari
-                        if #enemies.yards8 > 0  and getDistance(units.yards8) < 8 then
-                            if cast.furyOfTheIllidari() then return end
+                        if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()) then
+                            if #enemies.yards8 > 0  and getDistance(units.yards8) < 8 then
+                                if cast.furyOfTheIllidari() then return end
+                            end
                         end
                 -- MultiTarget
                         -- if TargetsInRadius(BladeDanceHitAoE) > 1

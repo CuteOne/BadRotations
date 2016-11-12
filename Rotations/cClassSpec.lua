@@ -33,6 +33,7 @@ function cFileBuild(cFileName,self)
     self.mystery        = UnitPower("player",16)
     self.energy2        = UnitPower("player",17)
     self.powerRegen     = getRegen("player")
+    self.timeToMax      = getTimeToMax("player")
 
     -- Select class/spec Spell List
     if cFileName == "class" then
@@ -183,8 +184,6 @@ function cFileBuild(cFileName,self)
 
         -- Build Cast Funcitons
         self.cast[k] = function(thisUnit,debug,minUnits,effectRng)
-            -- local spellCast = v
-            -- local spellName = GetSpellInfo(v)
             if thisUnit == nil then
                 if IsHarmfulSpell(spellName) then thisUnit = "target" end
                 if IsHelpfulSpell(spellName) then thisUnit = "player" end
@@ -207,13 +206,13 @@ function cFileBuild(cFileName,self)
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
-                    if thisUnit == "player" or IsHarmfulSpell(spellName) or IsHelpfulSpell(spellName) or thisUnit == nil then
+                    if thisUnit == "ground" then
+                        return castGroundAtBestLocation(spellCast,effectRng,minUnits,maxRange,minRange)
+                    elseif thisUnit == "player" or IsHarmfulSpell(spellName) or IsHelpfulSpell(spellName) or thisUnit == nil then
                         if thisUnit == nil then thisUnit = "player" end
                         if getLineOfSight(thisUnit) then
                             return castSpell(thisUnit,spellCast,false,false,false)
                         end
-                    elseif thisUnit == "ground" then
-                        return castGroundAtBestLocation(spellCast,effectRng,minUnits,maxRange,minRange)
                     else
                         if getLineOfSight(thisUnit) then
                             return castGround(thisUnit,spellCast,maxRange,minRange)
