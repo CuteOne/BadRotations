@@ -45,6 +45,7 @@ if select(2,UnitClass("player")) == "MONK" then -- Change to class id
             --- GENERAL OPTIONS --- -- Define General Options
             -----------------------
             section = bb.ui:createSection(bb.ui.window.profile,  "General")
+                bb.ui:createCheckbox(section, "Boss Helper")
                 --Healing Elixir
                 bb.ui:createSpinner(section, "Healing Elixir",  45,  0,  100,  5,  "Health Percent to Cast At")
                 --Enveloping Mists
@@ -89,7 +90,7 @@ if select(2,UnitClass("player")) == "MONK" then -- Change to class id
                 --ChiJI
                 --[You get much benefit from early cast of chiji than later cast]
                 bb.ui:createSpinner(section, "ChiJi",  85,  0,  100,  5,  "Health Percent to Cast At")
-            bb.ui:checkSectionState(section)
+            bb.ui:checkSectionState(selectction)
             -------------------------
             ------ AOE HEALING ------
             -------------------------
@@ -354,6 +355,10 @@ if select(2,UnitClass("player")) == "MONK" then -- Change to class id
             end -- End In Combat Rotation
         end -- End Timer
     end -- End runRotation 
+
+                    if isChecked("Boss Helper") then
+                            bossManager()
+                    end
     tinsert(cMistweaver.rotations, { -- Change cFury.roations to cSpec.rotaionts (IE: cFire.rotations)
         name = rotationName,
         toggles = createToggles,
