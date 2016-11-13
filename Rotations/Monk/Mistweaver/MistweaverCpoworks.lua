@@ -87,10 +87,7 @@ if select(2,UnitClass("player")) == "MONK" then -- Change to class id
                 bb.ui:createSpinner(section, "Effuse",  85,  0,  100,  5,  "Health Percent to Cast At")
                 --Vivify
                 bb.ui:createSpinner(section, "Vivify",  60,  0,  100,  5,  "Health Percent to Cast At")
-                --ChiJI
-                --[You get much benefit from early cast of chiji than later cast]
-                bb.ui:createSpinner(section, "ChiJi",  85,  0,  100,  5,  "Health Percent to Cast At")
-            bb.ui:checkSectionState(selectction)
+            bb.ui:checkSectionState(section)
             -------------------------
             ------ AOE HEALING ------
             -------------------------
@@ -100,7 +97,10 @@ if select(2,UnitClass("player")) == "MONK" then -- Change to class id
                 bb.ui:createSpinner(section, "EF Targets",  6,  0,  40,  1,  "Minimum Essence Font Targets")   
                 -- Revival
                 bb.ui:createSpinner(section, "Revival",  60,  0,  100,  5,  "Health Percent to Cast At") 
-                bb.ui:createSpinner(section, "Revival Targets",  5,  0,  40,  1,  "Minimum Revival Targets")  
+                bb.ui:createSpinner(section, "Revival Targets",  5,  0,  40,  1,  "Minimum Revival Targets")
+                --ChiJI
+                bb.ui:createSpinner(section, "Chi Ji",  80,  0,  100,  5,  "Health Percent to Cast At")
+                bb.ui:createSpinner(section, "Chi Ji Targets",  5,  0,  40,  1,  "Minimum Revival Targets")
             bb.ui:checkSectionState(section)
         end
         optionTable = {{
@@ -248,18 +248,13 @@ if select(2,UnitClass("player")) == "MONK" then -- Change to class id
                         end
                     end                    
                 end       
-                --sheilunsGift
+                --Sheilun's Gift
                 --[It's free why 65%?  ]
                 if isChecked("Sheiluns Gift") and GetSpellCount(205406) ~= nil then
-                    if GetSpellCount(205406) >= 6 then
+                    if GetSpellCount(205406) >= 5 then
                         if lowest.hp <= getValue("Sheiluns Gift") then         
                             if cast.sheilunsGift(lowest.unit) then return end                                    
                         end
-                    end
-                end
-                if isChecked("ChiJi") then
-                        if lowest.hp <= getValue("Sheiluns Gift") then         
-                            if cast.invokeChiJi(lowest.unit) then return end                                    
                     end
                 end
                 --Detox
@@ -350,6 +345,12 @@ if select(2,UnitClass("player")) == "MONK" then -- Change to class id
                 if isChecked("Revival") and not isCastingSpell(spell.essenceFont) then
                     if getLowAllies(getValue("Revival")) >= getValue("Revival Targets") then    
                         if cast.revival() then return end    
+                    end
+                end
+                --Chi Ji
+                if isChecked("Chi Ji") and not isCastingSpell(spell.essenceFont) then
+                    if getLowAllies(getValue("Chi Ji")) >= getValue("Chi Ji Targets") then    
+                        if cast.Chi Ji(lowest.unit) then return end    
                     end
                 end
             end -- End In Combat Rotation
