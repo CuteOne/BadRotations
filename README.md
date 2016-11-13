@@ -93,7 +93,7 @@ Raidable means if its good to raid with.
 ||||
 | **Demon Hunter** |||
 |Havoc|100% (SimC)|CuteOne|7.1|:white_check_mark:
-|Vengeance|70% (SimC)|Dubwub/Cpoworks|7.1|:interrobang:
+|Vengeance|100% (SimC)|Dubwub/Cpoworks/CuteOne|7.1|:interrobang:
 ||||
 | **Druid** |||
 |Feral|100% (SimC)|CuteOne|7.1|:white_check_mark:
@@ -113,7 +113,7 @@ Raidable means if its good to raid with.
 ||||
 | **Monk** |||
 |Brewmaster|0%||7.0|
-|Mistweaver|50%|Cpoworks/Svs|7.1|:heavy_check_mark:
+|Mistweaver|70%|Cpoworks/Svs/Zu|7.1|:heavy_check_mark:
 |Windwalker|100% (SimC/AMR)|CuteOne|7.1|:white_check_mark:
 ||||
 | **Paladin** |||

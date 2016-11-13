@@ -1385,7 +1385,7 @@ function getPower(Unit)
 	else
 		value = UnitPower(Unit) -- 100 * UnitPower(Unit) / UnitPowerMax(Unit)
 	end
-	return value
+	return UnitPower(Unit)
 end
 function getPowerAlt(Unit)
 	local value = value

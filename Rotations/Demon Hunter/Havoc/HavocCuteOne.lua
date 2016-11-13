@@ -194,13 +194,13 @@ if select(2, UnitClass("player")) == "DEMONHUNTER" then
             if talent.prepared then prepared = 1 else prepared = 0 end
             if talent.firstBlood then flood = 1 else flood = 0 end
             if lastSpell == spell.vengefulRetreat then vaulted = true else vaulted = false end
-            if mode.mover == 1 then
-                if IsHackEnabled("NoKnockback") ~= nil then SetHackEnabled("NoKnockback", false) end
-            end
+            -- if mode.mover == 1 then
+            --     if IsHackEnabled("NoKnockback") ~= nil then SetHackEnabled("NoKnockback", false) end
+            -- end
 
             -- Pool for Meta Variable
                         -- pooling_for_meta,value=cooldown.metamorphosis.ready&buff.metamorphosis.down&(!talent.demonic.enabled|!cooldown.eye_beam.ready)&(!talent.chaos_blades.enabled|cooldown.chaos_blades.ready)&(!talent.nemesis.enabled|debuff.nemesis.up|cooldown.nemesis.ready)
-                        if useCDs() and cd.metamorphosis == 0 and not buff.metamorphosis and (not talent.demonic or cd.eyeBeam > 0) and (not talent.chaosBlades or cd.chaosBlades == 0) and (not talent.nemesis or debuff.nemesis or cd.nemesis == 0) then
+                        if useCDs() and cd.metamorphosis == 0 and not buff.metamorphosis and (not talent.demonic or cd.eyeBeam > 0) and (not talent.chaosBlades or cd.chaosBlades == 0) and (not talent.nemesis or debuff.nemesis[units.dyn5].exists or cd.nemesis == 0) then
                             poolForMeta = true
                         else
                             poolForMeta = false
@@ -309,17 +309,10 @@ if select(2, UnitClass("player")) == "DEMONHUNTER" then
         -- Action List - PostVengeful
             local function actionList_PostVengeful()
             -- Fel Rush
-                if useMover() then
-                    if mode.mover == 1 then
-                        if getDistance("target") < 10 then 
-                            if cast.felRush("target",false,true) then return end
-                        end
-                        if getDistance("target") >= 10 then
-                            if cast.felRush() then return end
-                        end
-                    else
-                        if cast.felRush() then return end
-                    end
+                if mode.mover == 1 and getDistance("target") < 5 then
+                    cancelRushAnimation()
+                elseif mode.mover == 2 or getDistance("target") >= 5 then
+                    if cast.felRush() then return end
                 end
             -- Fel Blade
                 if cast.felblade() then return end
@@ -356,21 +349,20 @@ if select(2, UnitClass("player")) == "DEMONHUNTER" then
                 end
             -- Fel Rush
                 -- if not HasTalent(Prepared) and not HasTalent(Momentum)
-                if useMover() and getFacing("player","target",10) and not talent.prepared and not talent.momentum then
-                    if mode.mover == 1 then
-                        if getDistance("target") < 10 then 
-                            if cast.felRush("target",false,true) then return end
-                        end
-                        if getDistance("target") >= 10 then
-                            if cast.felRush() then return end
-                        end
-                    else
+                if getFacing("player","target",10) and not talent.prepared and not talent.momentum then
+                    if mode.mover == 1 and getDistance("target") < 5 then
+                        cancelRushAnimation()
+                    elseif mode.mover == 2 or getDistance("target") >= 5 then
                         if cast.felRush() then return end
                     end
                 end
                 -- if (ChargesRemaining(FelRush) >= 2 or (ChargesRemaining(FelRush) >= 1 and ChargeSecRemaining(FelRush) <= CooldownSecRemaining(VengefulRetreat))) and not HasBuff(Momentum)
-                if useMover() and getFacing("player","target",10) and (charges.felRush >= 2 or (charges.felRush >= 1 and recharge.felRush <= cd.vengefulRetreat)) and not buff.momentum then
-                    if cast.felRush() then return end
+                if getFacing("player","target",10) and (charges.felRush >= 2 or (charges.felRush >= 1 and recharge.felRush <= cd.vengefulRetreat)) and not buff.momentum then
+                    if mode.mover == 1 and getDistance("target") < 5 then
+                        cancelRushAnimation()
+                    elseif mode.mover == 2 or getDistance("target") >= 5 then
+                        if cast.felRush() then return end
+                    end
                 end
             -- Throw Glaive
                 -- if HasTalent(Bloodlet)
@@ -399,15 +391,10 @@ if select(2, UnitClass("player")) == "DEMONHUNTER" then
                     if cast.eyeBeam(units.dyn5) then return end
                 end
             -- Fel Rush
-                if useMover() and getFacing("player","target",10) then
-                    if mode.mover == 1 then
-                        if getDistance("target") < 10 then 
-                            if cast.felRush("target",false,true) then return end
-                        end
-                        if getDistance("target") >= 10 then
-                            if cast.felRush() then return end
-                        end
-                    else
+                if getFacing("player","target",10) then
+                    if mode.mover == 1 and getDistance("target") < 5 then
+                        cancelRushAnimation()
+                    elseif mode.mover == 2 or getDistance("target") >= 5 then
                         if cast.felRush() then return end
                     end
                 end
@@ -466,9 +453,9 @@ if select(2, UnitClass("player")) == "DEMONHUNTER" then
                         -- nemesis,target_if=min:target.time_to_die,if=raid_event.adds.exists&debuff.nemesis.down&(active_enemies>desired_targets|raid_event.adds.in>60)
                         -- nemesis,if=!raid_event.adds.exists&(cooldown.metamorphosis.remains>100|target.time_to_die<70)
                         -- nemesis,sync=metamorphosis,if=!raid_event.adds.exists
-                        if (addsExist and not debuff.nemesis and (#enemies.yards5 > getOptionValue("Eye Beam Targets") or addsIn > 60))
+                        if (addsExist and not debuff.nemesis[units.dyn5].exists and (#enemies.yards5 > getOptionValue("Eye Beam Targets") or addsIn > 60))
                             or (not addsExist and (cd.metamorphosis > 100 or ttd(units.dyn5) < 70))
-                            or (not addsExist and (not buff.metamorphosis and (not talent.demonic or cd.eyeBeam ~= 0) and (not talent.chaosBlades or cd.chaosBlades == 0) and (not talent.nemesis or debuff.nemesis or cd.nemesis == 0)))
+                            or (not addsExist and (not buff.metamorphosis and (not talent.demonic or cd.eyeBeam ~= 0) and (not talent.chaosBlades or cd.chaosBlades == 0) and (not talent.nemesis or debuff.nemesis[units.dyn5].exists or cd.nemesis == 0)))
                         then
                             if cast.nemesis(units.dyn5) then return end
                         end
@@ -481,7 +468,7 @@ if select(2, UnitClass("player")) == "DEMONHUNTER" then
                         -- metamorphosis,if=variable.pooling_for_meta&fury.deficit<30&(talent.chaos_blades.enabled|!cooldown.fury_of_the_illidari.ready)
                         if isChecked("Metamorphosis") then
                             if poolForMeta and powerDeficit < 30 and (talent.chaosBlades or cd.furyOfTheIllidari ~= 0) then
-                                if cast.metamorphosis() then return end
+                                if cast.metamorphosis("best",false,1,8) then return end
                             end
                         end
             -- Potion
@@ -492,7 +479,7 @@ if select(2, UnitClass("player")) == "DEMONHUNTER" then
             -- Metamorphosis
                         -- if (not HasTalent(DemonReborn) or CooldownSecRemaining(EyeBeam) > 0) and not HasBuff(Metamorphosis)
                         if (not talent.demonReborn or cd.eyeBeam > 0) and not buff.metamorphosis then
-                            if cast.metamorphosis() then return end
+                            if cast.metamorphosis("best",false,1,8) then return end
                         end
             -- Nemesis
                         if cast.nemesis(units.dyn5) then return end
@@ -541,15 +528,10 @@ if select(2, UnitClass("player")) == "DEMONHUNTER" then
                             if cast.throwGlaive("target") then return end
                         end
                 -- Fel Rush
-                        if getOptionValue("APL Mode") == 1 and useMover() and getFacing("player","target",10) then
-                            if mode.mover == 1 then
-                                if getDistance("target") < 10 then 
-                                    if cast.felRush("target",false,true) then return end
-                                end
-                                if getDistance("target") >= 10 then
-                                    if cast.felRush() then return end
-                                end
-                            else
+                        if getOptionValue("APL Mode") == 1 and getFacing("player","target",10) then
+                            if mode.mover == 1 and getDistance("target") < 5 then
+                                cancelRushAnimation()
+                            elseif mode.mover == 2 or getDistance("target") >= 5 then
                                 if cast.felRush() then return end
                             end
                         end
@@ -607,15 +589,12 @@ if select(2, UnitClass("player")) == "DEMONHUNTER" then
                         if actionList_Cooldowns() then return end
                 -- Fel Rush 
                         -- fel_rush,animation_cancel=1,if=time=0
-                        if mode.mover == 1 and combatTime < 1 and getFacing("player","target",10) then
-                            if getDistance("target") < 10 then 
-                                if cast.felRush("target",false,true) then return end
-                            end
-                            if getDistance("target") >= 10 then
+                        if combatTime < 1 and getFacing("player","target",10) then
+                            if mode.mover == 1 and getDistance("target") < 5 then
+                                cancelRushAnimation()
+                            elseif mode.mover == 2 or getDistance("target") >= 5 then
                                 if cast.felRush() then return end
                             end
-                        elseif combatTime < 1 and getFacing("player","target",10) then
-                            if cast.felRush() then return end
                         end
                 -- Pick Up Fragment Notification
                         -- pick_up_fragment,if=talent.demonic_appetite.enabled&fury.deficit>=30
@@ -625,7 +604,9 @@ if select(2, UnitClass("player")) == "DEMONHUNTER" then
                 -- Vengeful Retreat
                         -- vengeful_retreat,if=(talent.prepared.enabled|talent.momentum.enabled)&buff.prepared.down&buff.momentum.down
                         if useMover() and (talent.prepared or talent.momentum) and not buff.prepared and not buff.momentum and getDistance("target") < 5 then
-                            if mode.mover == 1 or (mode.mover == 2 and charges.felRush > 0) then
+                            if mode.mover == 1 then
+                                cancelRetreatAnimation()
+                            elseif mode.mover == 2 and charges.felRush > 0 then
                                 if cast.vengefulRetreat() then return end
                             end
                         end                
@@ -635,14 +616,9 @@ if select(2, UnitClass("player")) == "DEMONHUNTER" then
                             and (talent.momentum or talent.felMastery) and (not talent.momentum or (charges.felRush == 2 or cd.vengefulRetreat > 4) and not buff.momentum) 
                             and (not talent.felMastery or powerDeficit >= 25) and (charges.felRush == 2 or (moveIn > charges.felRush * 10 and addsIn > 10)) 
                         then
-                            if mode.mover == 1 then
-                                if getDistance("target") < 10 then
-                                    if cast.felRush("target",false,true) then return end
-                                end
-                                if getDistance("target") >= 10 then
-                                    if cast.felRush() then return end
-                                end
-                            else
+                            if mode.mover == 1 and getDistance("target") < 5 then
+                                cancelRushAnimation()
+                            elseif mode.mover == 2 or getDistance("target") >= 5 then
                                 if cast.felRush() then return end
                             end
                         end
@@ -732,15 +708,10 @@ if select(2, UnitClass("player")) == "DEMONHUNTER" then
                         end
                 -- Fel Rush
                         -- fel_rush,animation_cancel=1,if=!talent.momentum.enabled&raid_event.movement.in>charges*10
-                        if useMover() and getFacing("player","target",10) and not talent.momentum and moveIn > charges.felRush * 10 then
-                            if mode.mover == 1 then
-                                if getDistance("target") < 10 then
-                                    if cast.felRush("target",false,true) then return end
-                                end
-                                if getDistance("target") >= 10 then
-                                    if cast.felRush() then return end
-                                end
-                            else
+                        if getFacing("player","target",10) and not talent.momentum and moveIn > charges.felRush * 10 then
+                            if mode.mover == 1 and getDistance("target") < 5 then
+                                cancelRushAnimation()
+                            elseif mode.mover == 2 or getDistance("target") >= 5 then
                                 if cast.felRush() then return end
                             end
                         end
@@ -759,8 +730,12 @@ if select(2, UnitClass("player")) == "DEMONHUNTER" then
                         end
                 -- Fel Rush
                         --fel_rush,if=movement.distance>15|(buff.out_of_range.up&!talent.momentum.enabled)
-                        if useMover() and getFacing("player","target",10) and getDistance("target") >= 15 then
-                            if cast.felRush() then return end
+                        if getFacing("player","target",10) and getDistance("target") >= 15 then
+                            if mode.mover == 1 and getDistance("target") < 5 then
+                                cancelRushAnimation()
+                            elseif mode.mover == 2 or getDistance("target") >= 5 then
+                                if cast.felRush() then return end
+                            end
                         end
                     end -- End SimC APL
         ----------------------
@@ -780,7 +755,11 @@ if select(2, UnitClass("player")) == "DEMONHUNTER" then
                         -- ((CooldownSecRemaining(FelRush) <= GlobalCooldownSec or (CanUse(EyeBeam) and CooldownSecRemaining(FelRush) < SpellChannelTimeSec(EyeBeam))) or 
                         -- (HasTalent(Felblade) and CooldownSecRemaining(Felblade) <= GlobalCooldownSec or (CanUse(EyeBeam) and CooldownSecRemaining(Felblade) < SpellChannelTimeSec(EyeBeam))))
                         if useMover() and (talent.prepared or talent.momentum) and ((cd.felRush <= gcd or (castable.eyeBeam and cd.felRush < eyeBeamCastRemain())) or (talent.felblade and cd.felblade <= gcd or (castable.eyeBeam and cd.felblade < eyeBeamCastRemain()))) and getDistance("target") < 5 then
-                            if cast.vengefulRetreat() then return end
+                            if mode.mover == 1 then
+                                cancelRetreatAnimation()
+                            elseif mode.mover == 2 then
+                                if cast.vengefulRetreat() then return end
+                            end
                         end
                 -- Cooldowns
                         if actionList_Cooldowns() then return end

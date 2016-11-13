@@ -216,7 +216,7 @@ if select(2, UnitClass("player")) == "DRUID" then
             local php                                           = bb.player.health
             local playerMouse                                   = UnitIsPlayer("mouseover")
             local potion                                        = bb.player.potion
-            local power, powmax, powgen                         = bb.player.power, bb.player.powerMax, bb.player.powerRegen
+            local power, powmax, powgen                         = bb.player.energy, bb.player.powerMax, bb.player.powerRegen
             local pullTimer                                     = bb.DBM:getPulltimer()
             local racial                                        = bb.player.getRacial()
             local recharge                                      = bb.player.recharge
@@ -258,7 +258,6 @@ if select(2, UnitClass("player")) == "DRUID" then
                 end
             end
             -- ChatOverlay(round2(getDistance2("target"),2)..", "..round2(getDistance3("target"),2)..", "..round2(getDistance4("target"),2)..", "..round2(getDistance("target"),2))
-            -- Test Automated Commit Messaging
             
 	--------------------
 	--- Action Lists ---
@@ -353,7 +352,7 @@ if select(2, UnitClass("player")) == "DRUID" then
 			end -- End Action List - Extras
 		-- Action List - Defensive
 			local function actionList_Defensive()
-				if useDefensive() and not stealth and not flight then
+				if useDefensive() and not stealth and not flight and not buff.prowl then
 			--Revive/Rebirth
 					if isChecked("Rebirth") then
 						if buff.remain.predatorySwiftness>0 then
@@ -763,7 +762,7 @@ if select(2, UnitClass("player")) == "DRUID" then
                 if talent.lunarInspiration then
                     for i = 1, #enemies.yards40 do
                         local thisUnit = enemies.yards40[i]
-                        local moonfire = debuff.moonfireFeral[thisUnit]
+                        local moonfire = debuff.moonfire[thisUnit]
                         if multidot or (UnitIsUnit(thisUnit,units.dyn5) and not multidot) then
                             if combo < 5 and moonfire.remain <= 4.2 and ((ttd(thisUnit) - moonfire.remain > mfTick * 2 and not isDummy(thisUnit)) or (isDummy(thisUnit) and getDistance(thisUnit) < 8)) then
                                if cast.moonfire(thisUnit) then return end
@@ -1030,9 +1029,9 @@ if select(2, UnitClass("player")) == "DRUID" then
                             if talent.lunarInspiration then
                                 for i = 1, #enemies.yards40 do
                                     local thisUnit = enemies.yards40[i]
-                                    local moonfire = debuff.moonfireFeral[thisUnit]
+                                    local moonfire = debuff.moonfire[thisUnit]
                                     if multidot or (UnitIsUnit(thisUnit,units.dyn5) and not multidot) then
-                                        if moonfire.remain <= 4.2 and #enemies.yards8 <= 8 or (isDummy(thisUnit) and getDistance(thisUnit) < 8) then
+                                        if moonfire.remain <= 4.2 and (#enemies.yards8 <= 8 or (isDummy(thisUnit) and getDistance(thisUnit) < 8)) then
                                            if cast.moonfire(thisUnit) then return end
                                         end
                                     end
@@ -1060,7 +1059,7 @@ if select(2, UnitClass("player")) == "DRUID" then
                             end
             -- Thrash
                             -- if TargetsInRadius(Thrash) >= 3 and CanRefreshDot(ThrashBleedFeral)
-                            if useAoE() and debuff.thrash[units.dyn8AoE].refresh then
+                            if #enemies.yards8 >= 3 and debuff.thrash[units.dyn8AoE].refresh then
                                 if cast.thrash() then return end
                             end
             -- Swipe

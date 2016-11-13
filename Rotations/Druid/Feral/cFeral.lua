@@ -77,7 +77,7 @@ function cFeral:new()
             moonfireFeral               = 155625,
             rake                        = 155722,
             rip                         = 1079,
-            thrash                      = 106830,
+            thrash                      = 106832,
         }
         self.spell.spec.glyphs          = {
 

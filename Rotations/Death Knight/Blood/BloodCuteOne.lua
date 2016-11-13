@@ -349,7 +349,7 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
                         end
             -- Death and Decay
                         if buff.crimsonScourge and (#enemies.yards8 > 1 or (#enemies.yards8 == 1 and talent.RapidDecomposition)) then
-                            if cast.deathAndDecay("ground",false,#enemies.yards8,8) then return end
+                            if cast.deathAndDecay("best",false,#enemies.yards8,8) then return end
                         end
             -- Death Strike
                         if ttm <= 20 or php < 75 then
@@ -361,7 +361,7 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
                         end
             -- Death and Decay
                         if (#enemies.yards8 == 1 and runes >= 3) or #enemies.yards8 >= 3 then
-                            if cast.deathAndDecay("ground",false,#enemies.yards8,8) then return end
+                            if cast.deathAndDecay("best",false,#enemies.yards8,8) then return end
                         end
             -- Heart Strike
                         if runes >= 3 or ((not talent.ossuary or buff.stack.boneShield < 5) and power < 45) or (talent.ossuary and buff.stack.boneShield >= 5 and power < 40) then
@@ -417,7 +417,7 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
             -- Death and Decay
                         -- if HasBuff(CrimsonScourge) or HasTalent(RapidDecomposition)
                         if buff.crimsonScourge or talent.rapidDecomposition then
-                            if cast.deathAndDecay("ground",false,#enemies.yards8,8) then return end
+                            if cast.deathAndDecay("best",false,#enemies.yards8,8) then return end
                         end
             -- Heart Strike
                         if cast.heartStrike() then return end
