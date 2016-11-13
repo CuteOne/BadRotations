@@ -350,7 +350,7 @@ if select(2,UnitClass("player")) == "MONK" then -- Change to class id
                 --Chi Ji
                 if isChecked("Chi Ji") and not isCastingSpell(spell.essenceFont) then
                     if getLowAllies(getValue("Chi Ji")) >= getValue("Chi Ji Targets") then    
-                        if cast.Chi Ji(lowest.unit) then return end    
+                        if cast.invokeChiJi(lowest.unit) then return end    
                     end
                 end
             end -- End In Combat Rotation
