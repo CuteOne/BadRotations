@@ -143,6 +143,7 @@ if select(2,UnitClass("player")) == "MONK" then -- Change to class id
             local inRaid                                        = bb.player.instance=="raid"
             local level                                         = bb.player.level
             local lowestHP                                      = bb.friend[1].unit
+            local mana                                          = bb.player.powerPercentMana
             local mode                                          = bb.player.mode
             local perk                                          = bb.player.perk        
             local php                                           = bb.player.health
@@ -210,26 +211,15 @@ if select(2,UnitClass("player")) == "MONK" then -- Change to class id
 
             if inCombat then
 
-                if isChecked("Healing Elixir") then
-                    for i = 1, #bb.friend do                           
-                        if php <= getValue("Healing Elixir") then
-                            if cast.healingElixir("player") then return end     
-                        end
+                if isChecked("Healing Elixir") and talent.healingElixir then
+                    if php <= getValue("Healing Elixir") then
+                        if cast.healingElixir("player") then return end     
                     end
                 end
 
-                if isChecked("Mana Tea") then
-                    for i = 1, #bb.friend do                           
-                        if power <= getValue("Mana Tea") then
-                            if cast.manaTea("player") then return end     
-                        end
-                    end
-                end
-                if isChecked("Mana Tea") then
-                    for i = 1, #bb.friend do                           
-                        if power <= getValue("Mana Tea") then
-                            if cast.manaTea("player") then return end     
-                        end
+                if isChecked("Mana Tea") and talent.manaTea then
+                    if mana <= getValue("Mana Tea") then
+                        if cast.manaTea("player") then return end     
                     end
                 end
 

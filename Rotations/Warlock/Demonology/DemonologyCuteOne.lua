@@ -573,7 +573,7 @@ if select(2, UnitClass("player")) == "WARLOCK" then
     --------------------------
     --- In Combat Rotation ---
     --------------------------
-                if inCombat and profileStop==false and isValidUnit(units.dyn40) and getDistance(units.dyn40) < 40 
+                if inCombat and not IsMounted() and profileStop==false and isValidUnit(units.dyn40) and getDistance(units.dyn40) < 40 
                     and (opener == true or not isChecked("Opener") or not isBoss("target")) 
                 then
         ------------------------------
