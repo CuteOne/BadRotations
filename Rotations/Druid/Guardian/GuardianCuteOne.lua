@@ -186,7 +186,7 @@ if select(2, UnitClass("player")) == "DRUID" then
             local enemies                                       = br.player.enemies
             local falling, swimming, flying, moving             = getFallTime(), IsSwimming(), IsFlying(), GetUnitSpeed("player")>0
             local flaskBuff                                     = getBuffRemain("player",br.player.flask.wod.buff.agilityBig)
-            local friendly                                      = friendly or UnitIsFriend("target", "player")
+            local friendly                                      = UnitIsFriend("target", "player")
             local gcd                                           = br.player.gcd
             local hasMouse                                      = ObjectExists("mouseover")
             local healPot                                       = getHealthPot()
@@ -501,7 +501,7 @@ if select(2, UnitClass("player")) == "DRUID" then
                             end
                         end
                     end -- End No Stealth
-                    if getDistance("target") < 5 then
+                    if getDistance("target") < 5 and isValidUnit("target") then
                         StartAttack()
                     end
                 end -- End No Combat

@@ -201,7 +201,7 @@ function cFileBuild(cFileName,self)
                 else
                     if thisUnit == "best" then
                         return castGroundAtBestLocation(spellCast,effectRng,minUnits,maxRange,minRange)
-                    elseif thisUnit == "ground" then
+                    elseif debug == "ground" then
                         if getLineOfSight(thisUnit) then 
                            return castGround(thisUnit,spellCast,maxRange,minRange)
                         end

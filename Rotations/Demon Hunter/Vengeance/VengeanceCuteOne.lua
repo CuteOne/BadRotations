@@ -56,8 +56,6 @@ if select(2, UnitClass("player")) == "DEMONHUNTER" then
                 br.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
             -- Pre-Pull Timer
                 br.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
-            -- Eye Beam Targets
-                br.ui:createSpinner(section, "Eye Beam Targets", 3, 1, 10, 1, "|cffFFBB00Number of Targets to use at.")
             br.ui:checkSectionState(section)
         -- Cooldown Options
             section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
@@ -96,6 +94,8 @@ if select(2, UnitClass("player")) == "DEMONHUNTER" then
             section = br.ui:createSection(br.ui.window.profile, "Interrupts")
             -- Consume Magic
                 br.ui:createCheckbox(section, "Consume Magic")
+            -- Sigil of Silence
+                br.ui:createCheckbox(section, "Sigil of Silence")
             -- Sigil of Misery
                 br.ui:createCheckbox(section, "Sigil of Misery")
             -- Interrupt Percentage
@@ -235,7 +235,7 @@ if select(2, UnitClass("player")) == "DEMONHUNTER" then
 		    		end
             -- Sigil of Misery
                     if isChecked("Sigil of Misery - HP") and php <= getOptionValue("Sigil of Misery - HP") and inCombat and #enemies.yards8 > 0 then
-                        if cast.sigilOfMisery() then return end
+                        if cast.sigilOfMisery("player","ground") then return end
                     end
                     if isChecked("Sigil of Misery - AoE") and #enemies.yards8 >= getOptionValue("Sigil of Misery - AoE") and inCombat then
                         if cast.sigilOfMisery("best",false,getOptionValue("Sigil of Misery - AoE"),8) then return end
@@ -254,11 +254,11 @@ if select(2, UnitClass("player")) == "DEMONHUNTER" then
                             end
             -- Sigil of Silence
                             if isChecked("Sigil of Silence") and cd.consumeMagic > 0 then
-                                if cast.sigilOfSilence(thisUnit) then return end
+                                if cast.sigilOfSilence(thisUnit,"ground") then return end
                             end
             -- Sigil of Misery
                             if isChecked("Sigil of Misery - Int") and cd.consumeMagic > 0 and cd.sigilOfSilence > 0 and cd.sigilOfSilence < 45 then                        
-                                if cast.sigilOfMisery(thisUnit) then return end
+                                if cast.sigilOfMisery(thisUnit,"ground") then return end
                             end
                         end
                     end  
@@ -365,11 +365,11 @@ if select(2, UnitClass("player")) == "DEMONHUNTER" then
         -- Infernal Strike
                     -- actions+=/infernal_strike,if=!sigil_placed&!in_flight&remains-travel_time-delay<0.3*duration&artifact.fiery_demise.enabled&dot.fiery_brand.ticking
                     -- actions+=/infernal_strike,if=!sigil_placed&!in_flight&remains-travel_time-delay<0.3*duration&(!artifact.fiery_demise.enabled|(max_charges-charges_fractional)*recharge_time<cooldown.fiery_brand.remains+5)&(cooldown.sigil_of_flame.remains>7|charges=2)
-                    if useMover() and ((artifact.fieryDemise and debuff.fieryBrand[units.dyn5].exists) or 
-                        ((not artifact.fieryDemise or (charges.max.infernalStrike - charges.frac.inferanalStrike) * recharge.infernalStrike < cd.fieryBrand + 5) and (cd.sigilOfFlame > 7 or charges.infernalStrike ==2))) 
-                    then
-                        if cast.infernalStrike("best",1,6) then return end
-                    end
+                    -- if useMover() and ((artifact.fieryDemise and debuff.fieryBrand[units.dyn5].exists) or 
+                    --     ((not artifact.fieryDemise or ((charges.max.infernalStrike - charges.frac.inferanalStrike) * recharge.infernalStrike < cd.fieryBrand + 5)) and (cd.sigilOfFlame > 7 or charges.infernalStrike ==2))) 
+                    -- then
+                    --     if cast.infernalStrike("best",false,#enemies.yards5,6) then return end
+                    -- end
         -- Spirit Bomb
                     -- actions+=/spirit_bomb,if=debuff.frailty.down
                     if not debuff.frailty[units.dyn5].exists then

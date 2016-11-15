@@ -175,6 +175,52 @@ function cVengeance:new()
         br:checkProfileWindowStatus()
     end
 
+------------------------
+--- CUSTOM FUNCTIONS ---
+------------------------
+
+    function useAoE()
+        local rotation = self.mode.rotation
+        if (rotation == 1 and #enemies.yards8 > 1) or rotation == 2 then
+            return true
+        else
+            return false
+        end
+    end
+
+    function useCDs()
+        local cooldown = self.mode.cooldown
+        if (cooldown == 1 and isBoss()) or cooldown == 2 then
+            return true
+        else
+            return false
+        end
+    end
+
+    function useDefensive()
+        if self.mode.defensive == 1 then
+            return true
+        else
+            return false
+        end
+    end
+
+    function useInterrupts()
+        if self.mode.interrupt == 1 then
+            return true
+        else
+            return false
+        end
+    end
+
+    function useMover()
+        if self.mode.mover == 1 then
+            return true
+        else
+            return false
+        end
+    end
+
     -- Return
     return self
 end-- select Demonhunter
