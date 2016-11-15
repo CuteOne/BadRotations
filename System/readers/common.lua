@@ -1,4 +1,4 @@
-function bb.read.commonReaders()
+function br.read.commonReaders()
 	---------------
 	--[[ Readers ]]
 	---------------
@@ -94,7 +94,7 @@ function bb.read.commonReaders()
 		if event == "PLAYER_REGEN_DISABLED" then
 			-- here we should manage stats snapshots
 			AgiSnap = getAgility()
-			bb.data["Combat Started"] = GetTime()
+			br.data["Combat Started"] = GetTime()
 			ChatOverlay("|cffFF0000Entering Combat")
 		end
 	end
@@ -106,8 +106,8 @@ function bb.read.commonReaders()
 	local function LeavingCombat(self,event,...)
 		if event == "PLAYER_REGEN_ENABLED" then
 			-- wipe interupts table
-			--bb.im:debug("Wiping casters table as we left combat.")
-			--  table.wipe(bb.im.casters)
+			--br.im:debug("Wiping casters table as we left combat.")
+			--  table.wipe(br.im.casters)
 			-- start loot manager
 			if lM then
 				if not IsMounted("player") then
@@ -119,9 +119,9 @@ function bb.read.commonReaders()
 			AgiSnap = 0
 			usePot = true
 			leftCombat = GetTime()
-			bb.data.successCasts = 0
-			bb.data.failCasts = 0
-			bb.data["Combat Started"] = 0
+			br.data.successCasts = 0
+			br.data.failCasts = 0
+			br.data["Combat Started"] = 0
 			ChatOverlay("|cff00FF00Leaving Combat")
 			-- clean up out of combat
 			Rip_sDamage = {}
@@ -139,27 +139,27 @@ function bb.read.commonReaders()
 		lastError = ...; lastErrorTime = GetTime()
 		local param = (...)
 		if param == ERR_PET_SPELL_DEAD  then
-			bb.data["Pet Dead"] = true
-			bb.data["Pet Whistle"] = false
+			br.data["Pet Dead"] = true
+			br.data["Pet Whistle"] = false
 		end
 		if param == PETTAME_NOTDEAD.. "." then
-			bb.data["Pet Dead"] = false
-			bb.data["Pet Whistle"] = true
+			br.data["Pet Dead"] = false
+			br.data["Pet Whistle"] = true
 		end
 		if param == SPELL_FAILED_ALREADY_HAVE_PET then
-			bb.data["Pet Dead"] = true
-			bb.data["Pet Whistle"] = false
+			br.data["Pet Dead"] = true
+			br.data["Pet Whistle"] = false
 		end
 		if param == PETTAME_CANTCONTROLEXOTIC.. "." then
-			if bb.data["Box PetManager"] < 5 then
-				bb.data["Box PetManager"] = bb.data["Box PetManager"] + 1
+			if br.data["Box PetManager"] < 5 then
+				br.data["Box PetManager"] = br.data["Box PetManager"] + 1
 			else
-				bb.data["Box PetManager"] = 1
+				br.data["Box PetManager"] = 1
 			end
 		end
 		if param == PETTAME_NOPETAVAILABLE.. "." then
-			bb.data["Pet Dead"] = false
-			bb.data["Pet Whistle"] = true
+			br.data["Pet Dead"] = false
+			br.data["Pet Whistle"] = true
 		end
 		if param == SPELL_FAILED_TARGET_NO_WEAPONS then
 			isDisarmed = true

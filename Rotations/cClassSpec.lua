@@ -143,11 +143,7 @@ function cFileBuild(cFileName,self)
             if self.debuff[k][thisUnit]         == nil then self.debuff[k][thisUnit]            = {} end
             if self.debuff[k][thisUnit].applied == nil then self.debuff[k][thisUnit].applied    = 0 end
             -- Get the Debuff Info
-            -- if k == "judgment" and self.level < 42 then
-            --     self.debuff[k][thisUnit].exists     = true
-            -- else
-                self.debuff[k][thisUnit].exists     = UnitDebuffID(thisUnit,v,"player") ~= nil
-            -- end
+            self.debuff[k][thisUnit].exists     = UnitDebuffID(thisUnit,v,"player") ~= nil
             self.debuff[k][thisUnit].duration       = getDebuffDuration(thisUnit,v,"player") or 0
             self.debuff[k][thisUnit].remain         = getDebuffRemain(thisUnit,v,"player") or 0
             self.debuff[k][thisUnit].refresh        = self.debuff[k][thisUnit].remain <= self.debuff[k][thisUnit].duration * 0.3
@@ -157,11 +153,7 @@ function cFileBuild(cFileName,self)
         -- Default "target" if no enemies present
         if self.debuff[k]["target"]         == nil then self.debuff[k]["target"]            = {} end
         if self.debuff[k]["target"].applied == nil then self.debuff[k]["target"].applied    = 0 end
-        -- if k == "judgment" and self.level < 42 then
-        --     self.debuff[k]["target"].exists     = true
-        -- else
-            self.debuff[k]["target"].exists     = UnitDebuffID("target",v,"player") ~= nil
-        -- end
+        self.debuff[k]["target"].exists     = UnitDebuffID("target",v,"player") ~= nil
         self.debuff[k]["target"].duration       = getDebuffDuration("target",v,"player") or 0
         self.debuff[k]["target"].remain         = getDebuffRemain("target",v,"player") or 0
         self.debuff[k]["target"].refresh        = self.debuff[k]["target"].remain <= self.debuff[k]["target"].duration * 0.3
@@ -216,18 +208,7 @@ function cFileBuild(cFileName,self)
                     else
                         if thisUnit == nil then thisUnit = "player" end
                         return castSpell(thisUnit,spellCast,false,false,false)
-                    end 
-                    -- elseif thisUnit == "player" or IsHarmfulSpell(spellName) or IsHelpfulSpell(spellName) or thisUnit == nil then
-                    --     if thisUnit == nil then thisUnit = "player" end
-                    --     if getLineOfSight(thisUnit) then
-                    --         if spellCast == 203782 then print("Shear") end
-                    --         return castSpell(thisUnit,spellCast,false,false,false)
-                    --     end
-                    -- else
-                    --     if getLineOfSight(thisUnit) then
-                    --         return castGround(thisUnit,spellCast,maxRange,minRange)
-                    --     end
-                    -- end
+                    end
                 end
             elseif debug then
                 return false

@@ -7,29 +7,29 @@ if select(2, UnitClass("player")) == "PRIEST" then
 	local function createToggles()
         -- Rotation Button
         RotationModes = {
-            [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range.", highlight = 1, icon = bb.player.spell.mindFlay },
-            [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = bb.player.spell.mindSear },
-            [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = bb.player.spell.mindFlay },
-            [4] = { mode = "Off", value = 4 , overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = bb.player.spell.shadowMend}
+            [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range.", highlight = 1, icon = br.player.spell.mindFlay },
+            [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = br.player.spell.mindSear },
+            [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = br.player.spell.mindFlay },
+            [4] = { mode = "Off", value = 4 , overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spell.shadowMend}
         };
         CreateButton("Rotation",1,0)
         -- Cooldown Button
         CooldownModes = {
-            [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = bb.player.spell.powerInfusion },
-            [2] = { mode = "On", value = 1 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = bb.player.spell.powerInfusion },
-            [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = bb.player.spell.powerInfusion }
+            [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spell.powerInfusion },
+            [2] = { mode = "On", value = 1 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spell.powerInfusion },
+            [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.powerInfusion }
         };
        	CreateButton("Cooldown",2,0)
         -- Defensive Button
         DefensiveModes = {
-            [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = bb.player.spell.dispersion },
-            [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = bb.player.spell.dispersion }
+            [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spell.dispersion },
+            [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spell.dispersion }
         };
         CreateButton("Defensive",3,0)
         -- Void Form Button
         VoidEruptionModes = {
-            [1] = { mode = "On", value = 1 , overlay = "Void Eruption Enabled", tip = "Void Eruption will be used.", highlight = 1, icon = bb.player.spell.voidEruption },
-            [2] = { mode = "Off", value = 2 , overlay = "Void Eruption Disabled", tip = "Void Eruption will not be used.", highlight = 0, icon = bb.player.spell.voidEruption }
+            [1] = { mode = "On", value = 1 , overlay = "Void Eruption Enabled", tip = "Void Eruption will be used.", highlight = 1, icon = br.player.spell.voidEruption },
+            [2] = { mode = "Off", value = 2 , overlay = "Void Eruption Disabled", tip = "Void Eruption will not be used.", highlight = 0, icon = br.player.spell.voidEruption }
         };
         CreateButton("VoidEruption",4,0)
     end
@@ -43,51 +43,51 @@ if select(2, UnitClass("player")) == "PRIEST" then
         local function rotationOptions()
             local section
             -- General Options
-            section = bb.ui:createSection(bb.ui.window.profile, "General")
+            section = br.ui:createSection(br.ui.window.profile, "General")
                 -- SWP Max Targets
-                bb.ui:createSpinner(section, "SWP Max Targets",  3,  1,  10,  1)
+                br.ui:createSpinner(section, "SWP Max Targets",  3,  1,  10,  1)
                 -- VT Max Targets
-                bb.ui:createSpinner(section, "VT Max Targets",  3,  1,  10,  1)
-            bb.ui:checkSectionState(section)
+                br.ui:createSpinner(section, "VT Max Targets",  3,  1,  10,  1)
+            br.ui:checkSectionState(section)
             -- Cooldown Options
-            section = bb.ui:createSection(bb.ui.window.profile, "Cooldowns")
+            section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
                 -- Int Pot
-                bb.ui:createCheckbox(section,"Int Pot")
+                br.ui:createCheckbox(section,"Int Pot")
                 -- Flask / Crystal
-                bb.ui:createCheckbox(section,"Flask / Crystal")
+                br.ui:createCheckbox(section,"Flask / Crystal")
                 -- Trinkets
-                bb.ui:createCheckbox(section,"Trinkets")
+                br.ui:createCheckbox(section,"Trinkets")
                 -- Touch of the Void
                 if hasEquiped(128318) then
-                    bb.ui:createCheckbox(section,"Touch of the Void")
+                    br.ui:createCheckbox(section,"Touch of the Void")
                 end
                 -- Shadowfiend
-                bb.ui:createCheckbox(section,"Shadowfiend / Mind Bender")
+                br.ui:createCheckbox(section,"Shadowfiend / Mind Bender")
                 -- Power Infusion
-                bb.ui:createCheckbox(section,"Power Infusion")
-            bb.ui:checkSectionState(section)
+                br.ui:createCheckbox(section,"Power Infusion")
+            br.ui:checkSectionState(section)
             -- Defensive Options
-            section = bb.ui:createSection(bb.ui.window.profile, "Defensive")
+            section = br.ui:createSection(br.ui.window.profile, "Defensive")
                 -- Healthstone
-                bb.ui:createSpinner(section, "Healthstone",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
+                br.ui:createSpinner(section, "Healthstone",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
                 -- Gift of The Naaru
-                if bb.player.race == "Draenei" then
-                    bb.ui:createSpinner(section, "Gift of the Naaru",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
+                if br.player.race == "Draenei" then
+                    br.ui:createSpinner(section, "Gift of the Naaru",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
                 end
                 -- Power Word: Shield
-                bb.ui:createSpinner(section, "Power Word: Shield",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
+                br.ui:createSpinner(section, "Power Word: Shield",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
                 -- Dispel Magic
-                bb.ui:createCheckbox(section,"Dispel Magic")
-            bb.ui:checkSectionState(section)
+                br.ui:createCheckbox(section,"Dispel Magic")
+            br.ui:checkSectionState(section)
             -- Toggle Key Options
-            section = bb.ui:createSection(bb.ui.window.profile, "Toggle Keys")
+            section = br.ui:createSection(br.ui.window.profile, "Toggle Keys")
                 -- Single/Multi Toggle
-                bb.ui:createDropdown(section, "Rotation Mode", bb.dropOptions.Toggle,  4)
+                br.ui:createDropdown(section, "Rotation Mode", br.dropOptions.Toggle,  4)
                 -- Cooldown Key Toggle
-                bb.ui:createDropdown(section, "Cooldown Mode", bb.dropOptions.Toggle,  3)
+                br.ui:createDropdown(section, "Cooldown Mode", br.dropOptions.Toggle,  3)
                 -- Pause Toggle
-                bb.ui:createDropdown(section, "Pause Mode", bb.dropOptions.Toggle,  6)
-            bb.ui:checkSectionState(section)
+                br.ui:createDropdown(section, "Pause Mode", br.dropOptions.Toggle,  6)
+            br.ui:checkSectionState(section)
         end
         optionTable = {{
             [1] = "Rotation Options",
@@ -100,7 +100,7 @@ if select(2, UnitClass("player")) == "PRIEST" then
 --- ROTATION ---
 ----------------
     local function runRotation()
-        if bb.timer:useTimer("debugShadow", 0.1) then
+        if br.timer:useTimer("debugShadow", 0.1) then
             --print("Running: "..rotationName)
 
     ---------------
@@ -115,48 +115,48 @@ if select(2, UnitClass("player")) == "PRIEST" then
     --------------
             local addsExist                                     = false 
             local addsIn                                        = 999
-            local artifact                                      = bb.player.artifact
-            local buff                                          = bb.player.buff
-            local canFlask                                      = canUse(bb.player.flask.wod.agilityBig)
-            local cast                                          = bb.player.cast
-            local castable                                      = bb.player.cast.debug
+            local artifact                                      = br.player.artifact
+            local buff                                          = br.player.buff
+            local canFlask                                      = canUse(br.player.flask.wod.agilityBig)
+            local cast                                          = br.player.cast
+            local castable                                      = br.player.cast.debug
             local combatTime                                    = getCombatTime()
-            local cd                                            = bb.player.cd
-            local charges                                       = bb.player.charges
+            local cd                                            = br.player.cd
+            local charges                                       = br.player.charges
             local deadMouse                                     = UnitIsDeadOrGhost("mouseover")
             local deadtar, attacktar, hastar, playertar         = deadtar or UnitIsDeadOrGhost("target"), attacktar or UnitCanAttack("target", "player"), hastar or ObjectExists("target"), UnitIsPlayer("target")
-            local debuff                                        = bb.player.debuff
-            local enemies                                       = bb.player.enemies
+            local debuff                                        = br.player.debuff
+            local enemies                                       = br.player.enemies
             local falling, swimming, flying, moving             = getFallTime(), IsSwimming(), IsFlying(), GetUnitSpeed("player")>0
-            local flaskBuff                                     = getBuffRemain("player",bb.player.flask.wod.buff.agilityBig)
+            local flaskBuff                                     = getBuffRemain("player",br.player.flask.wod.buff.agilityBig)
             local friendly                                      = friendly or UnitIsFriend("target", "player")
-            local gcd                                           = bb.player.gcd
+            local gcd                                           = br.player.gcd
             local hasMouse                                      = ObjectExists("mouseover")
             local healPot                                       = getHealthPot()
-            local inCombat                                      = bb.player.inCombat
-            local inInstance                                    = bb.player.instance=="party"
-            local inRaid                                        = bb.player.instance=="raid"
+            local inCombat                                      = br.player.inCombat
+            local inInstance                                    = br.player.instance=="party"
+            local inRaid                                        = br.player.instance=="raid"
             local lastSpell                                     = lastSpellCast
-            local level                                         = bb.player.level
+            local level                                         = br.player.level
             local lootDelay                                     = getOptionValue("LootDelay")
-            local lowestHP                                      = bb.friend[1].unit
-            local mode                                          = bb.player.mode
+            local lowestHP                                      = br.friend[1].unit
+            local mode                                          = br.player.mode
             local moveIn                                        = 999
-            -- local multidot                                      = (useCleave() or bb.player.mode.rotation ~= 3)
-            local perk                                          = bb.player.perk        
-            local php                                           = bb.player.health
+            -- local multidot                                      = (useCleave() or br.player.mode.rotation ~= 3)
+            local perk                                          = br.player.perk        
+            local php                                           = br.player.health
             local playerMouse                                   = UnitIsPlayer("mouseover")
-            local power, powmax, powgen, powerDeficit           = bb.player.power, bb.player.powerMax, bb.player.powerRegen, bb.player.powerDeficit
-            local pullTimer                                     = bb.DBM:getPulltimer()
-            local racial                                        = bb.player.getRacial()
-            local recharge                                      = bb.player.recharge
-            local solo                                          = bb.player.instance=="none"
-            local spell                                         = bb.player.spell
-            local talent                                        = bb.player.talent
-            local thp                                           = getHP(bb.player.units.dyn40)
+            local power, powmax, powgen, powerDeficit           = br.player.power, br.player.powerMax, br.player.powerRegen, br.player.powerDeficit
+            local pullTimer                                     = br.DBM:getPulltimer()
+            local racial                                        = br.player.getRacial()
+            local recharge                                      = br.player.recharge
+            local solo                                          = br.player.instance=="none"
+            local spell                                         = br.player.spell
+            local talent                                        = br.player.talent
+            local thp                                           = getHP(br.player.units.dyn40)
             local ttd                                           = getTTD
-            local ttm                                           = bb.player.timeToMax
-            local units                                         = bb.player.units
+            local ttm                                           = br.player.timeToMax
+            local units                                         = br.player.units
             
             local SWPmaxTargets                                 = getOptionValue("SWP Max Targets")
             local VTmaxTargets                                  = getOptionValue("VT Max Targets")
@@ -174,7 +174,7 @@ if select(2, UnitClass("player")) == "PRIEST" then
             -- Action list - Extras
             function actionList_Extra()
                 -- Dispel Magic
-                -- if isChecked("Dispel Magic") and canDispel("target",bb.player.spell.dispelMagic) and not isBoss() and ObjectExists("target") then
+                -- if isChecked("Dispel Magic") and canDispel("target",br.player.spell.dispelMagic) and not isBoss() and ObjectExists("target") then
                 --     if cast.dispelMagic() then return end
                 -- end
             end -- End Action List - Extra
@@ -182,7 +182,7 @@ if select(2, UnitClass("player")) == "PRIEST" then
             function actionList_Defensive()
                 if useDefensive() and getHP("player")>0 then     
                     -- Gift of the Naaru
-                    if isChecked("Gift of the Naaru") and php <= getOptionValue("Gift of the Naaru") and php > 0 and bb.player.race=="Draenei" then
+                    if isChecked("Gift of the Naaru") and php <= getOptionValue("Gift of the Naaru") and php > 0 and br.player.race=="Draenei" then
                         if castSpell("player",racial,false,false,false) then return end
                     end
                     -- Power Word: Shield
@@ -202,11 +202,11 @@ if select(2, UnitClass("player")) == "PRIEST" then
                     -- blood_fury
                     -- arcane_torrent
                     -- berserking
-                    if (bb.player.race == "Orc" or bb.player.race == "Troll" or bb.player.race == "Blood Elf") then
-                        if bb.player.castRacial() then return end
+                    if (br.player.race == "Orc" or br.player.race == "Troll" or br.player.race == "Blood Elf") then
+                        if br.player.castRacial() then return end
                     end
                     -- Touch of the Void
-                    if isChecked("Touch of the Void") and getDistance(bb.player.units.dyn5)<5 then
+                    if isChecked("Touch of the Void") and getDistance(br.player.units.dyn5)<5 then
                         if hasEquiped(128318) then
                             if GetItemCooldown(128318)==0 then
                                 useItem(128318)

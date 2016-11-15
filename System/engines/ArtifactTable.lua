@@ -1,13 +1,13 @@
 local name, addon = ...
 local LAD = LibStub("LibArtifactData-1.0")
 
-bb.artifact = {}
+br.artifact = {}
 function updateArtifact()
     local artifactId = select(1,C_ArtifactUI.GetEquippedArtifactInfo())
     local _, data = LAD:GetArtifactInfo(artifactId)
-    bb.artifact = {}
-    bb.artifact.id = artifactId
-    bb.artifact.info = data
+    br.artifact = {}
+    br.artifact.id = artifactId
+    br.artifact.info = data
 end
 
 function addon:ARTIFACT_ADDED()
@@ -32,15 +32,15 @@ LAD.RegisterCallback(addon, "ARTIFACT_DATA_MISSING")
 LAD.RegisterCallback(addon, "ARTIFACT_RELIC_CHANGED")
 LAD.RegisterCallback(addon, "ARTIFACT_TRAITS_CHANGED")
 
-if bb.artifact.info == nil then LAD.ForceUpdate() end
+if br.artifact.info == nil then LAD.ForceUpdate() end
 
 -- checks for perk
 function hasPerk(spellID)
-    if bb.artifact ~= nil then
-        if bb.artifact.info ~= nil then
-            if bb.artifact.info.traits ~= nil then
-                for i=1, #bb.artifact.info.traits do
-                    if spellID == bb.artifact.info.traits[i]["spellID"] then
+    if br.artifact ~= nil then
+        if br.artifact.info ~= nil then
+            if br.artifact.info.traits ~= nil then
+                for i=1, #br.artifact.info.traits do
+                    if spellID == br.artifact.info.traits[i]["spellID"] then
                         return true
                     end
                 end
@@ -52,12 +52,12 @@ end
 
 -- checkes for perk rank
 function getPerkRank(spellID)
-    if bb.artifact ~= nil then
-        if bb.artifact.info ~= nil then
-            if bb.artifact.info.traits ~= nil then
-                for i=1, #bb.artifact.info.traits do
-                    if spellID == bb.artifact.info.traits[i]["spellID"] then
-                        return bb.artifact.info.traits[i]["currentRank"]
+    if br.artifact ~= nil then
+        if br.artifact.info ~= nil then
+            if br.artifact.info.traits ~= nil then
+                for i=1, #br.artifact.info.traits do
+                    if spellID == br.artifact.info.traits[i]["spellID"] then
+                        return br.artifact.info.traits[i]["currentRank"]
                     end
                 end
             end

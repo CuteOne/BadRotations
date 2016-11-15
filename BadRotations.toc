@@ -1,11 +1,11 @@
 ## Interface: 70100
-## Title: |cffD90000BadBoy
+## Title: |cffD90000BadRotations
 ## Notes: |cffD90000By CuteOne.
 ## Author: CuteOne
 ## Version: 2.0
-## SavedVariablesPerCharacter: bbdata
+## SavedVariablesPerCharacter: brdata
 
-BadBoy.lua
+BadRotations.lua
 bindings.xml
 
 ## System
@@ -56,7 +56,7 @@ System\engines\InterruptsFrame.lua
 System\engines\Interrupts.lua
 System\engines\ttdTable.lua
 
-## BadBoy UI
+## BadRotations UI
 System\ui\button.lua
 System\ui\checkbox.lua
 System\ui\debugelement.lua

@@ -8,18 +8,18 @@ if not metaTable1 then
 	local getDistance,tinsert,tremove,UnitGUID,UnitClass,UnitIsUnit = getDistance,tinsert,tremove,UnitGUID,UnitClass,UnitIsUnit
 	local UnitDebuff,UnitExists,UnitHealth,UnitHealthMax = UnitDebuff,UnitExists,UnitHealth,UnitHealthMax
 	local GetSpellInfo,GetTime,UnitDebuffID,getBuffStacks = GetSpellInfo,GetTime,UnitDebuffID,getBuffStacks
-	bb.friend = {} -- This is our main Table that the world will see
+	br.friend = {} -- This is our main Table that the world will see
 	memberSetup = {} -- This is one of our MetaTables that will be the default user/contructor
 	memberSetup.cache = { } -- This is for the cache Table to check against
 	metaTable1 = {} -- This will be the MetaTable attached to our Main Table that the world will see
 	metaTable1.__call = function(_, ...) -- (_, forceRetable, excludePets, onlyInRange) [Not Implemented]
 		local group =  IsInRaid() and "raid" or "party" -- Determining if the UnitID will be raid or party based
 		local groupSize = IsInRaid() and GetNumGroupMembers() or GetNumGroupMembers() - 1 -- If in raid, we check the entire raid. If in party, we remove one from max to account for the player.
-		if group == "party" then tinsert(bb.friend, memberSetup:new("player")) end -- We are creating a new User for player if in a Group
+		if group == "party" then tinsert(br.friend, memberSetup:new("player")) end -- We are creating a new User for player if in a Group
 		for i=1, groupSize do -- start of the loop to read throught the party/raid
 			local groupUnit = group..i
 			local groupMember = memberSetup:new(groupUnit)
-			if groupMember then tinsert(bb.friend, groupMember) end -- Inserting a newly created Unit into the Main Frame
+			if groupMember then tinsert(br.friend, groupMember) end -- Inserting a newly created Unit into the Main Frame
 		end
 	end
 	metaTable1.__index =  {-- Setting the Metamethod of Index for our Main Table
@@ -41,7 +41,7 @@ if not metaTable1 then
 	local updateHealingTable = CreateFrame("frame", nil)
 	updateHealingTable:RegisterEvent("GROUP_ROSTER_UPDATE")
 	updateHealingTable:SetScript("OnEvent", function()
-		table.wipe(bb.friend)
+		table.wipe(br.friend)
 		table.wipe(memberSetup.cache)
 		SetupTables()
 	end)
@@ -187,9 +187,9 @@ if not metaTable1 then
 					break
 				end
 			end
-			if getOptionCheck("Blacklist") == true and bb.data.blackList ~= nil then
-				for i = 1, #bb.data.blackList do
-					if o.guid == bb.data.blackList[i].guid then
+			if getOptionCheck("Blacklist") == true and br.data.blackList ~= nil then
+				for i = 1, #br.data.blackList do
+					if o.guid == br.data.blackList[i].guid then
 						PercentWithIncoming,ActualWithIncoming,nAbsorbs = PercentWithIncoming + getValue("Blacklist"),ActualWithIncoming + getValue("Blacklist"),nAbsorbs + getValue("Blacklist")
 						break
 					end
@@ -258,29 +258,29 @@ if not metaTable1 then
 		end
 		-- Updating the values of the Unit
 		function o:UpdateUnit()
-            if bb.data["isDebugging"] == true then
+            if br.data["isDebugging"] == true then
                 local startTime, duration
                 local debugprofilestop = debugprofilestop
 
                 -- assign Name of unit
                 startTime = debugprofilestop()
                 o.name = UnitName(o.unit)
-                bb.debug.cpu.healingEngine.UnitName = bb.debug.cpu.healingEngine.UnitName + debugprofilestop()-startTime
+                br.debug.cpu.healingEngine.UnitName = br.debug.cpu.healingEngine.UnitName + debugprofilestop()-startTime
 
                 -- assign real GUID of unit
                 startTime = debugprofilestop()
                 o.guid = o:nGUID()
-                bb.debug.cpu.healingEngine.nGUID = bb.debug.cpu.healingEngine.nGUID + debugprofilestop()-startTime
+                br.debug.cpu.healingEngine.nGUID = br.debug.cpu.healingEngine.nGUID + debugprofilestop()-startTime
 
                 -- assign unit role
                 startTime = debugprofilestop()
                 o.role = o:GetRole()
-                bb.debug.cpu.healingEngine.GetRole = bb.debug.cpu.healingEngine.GetRole + debugprofilestop()-startTime
+                br.debug.cpu.healingEngine.GetRole = br.debug.cpu.healingEngine.GetRole + debugprofilestop()-startTime
 
                 -- subgroup number
                 startTime = debugprofilestop()
                 o.subgroup = o:getUnitGroupNumber()
-                bb.debug.cpu.healingEngine.getUnitGroupNumber = bb.debug.cpu.healingEngine.getUnitGroupNumber+ debugprofilestop()-startTime
+                br.debug.cpu.healingEngine.getUnitGroupNumber = br.debug.cpu.healingEngine.getUnitGroupNumber+ debugprofilestop()-startTime
 
                 -- Short GUID of unit for the SetupTable
                 o.guidsh = select(2, o:nGUID())
@@ -288,33 +288,33 @@ if not metaTable1 then
                 -- set to true if unit should be dispelled
                 startTime = debugprofilestop()
                 o.dispel = o:Dispel(o.unit)
-                bb.debug.cpu.healingEngine.Dispel = bb.debug.cpu.healingEngine.Dispel + debugprofilestop()-startTime
+                br.debug.cpu.healingEngine.Dispel = br.debug.cpu.healingEngine.Dispel + debugprofilestop()-startTime
 
                 -- distance to player
                 startTime = debugprofilestop()
                 o.distance = o:getUnitDistance()
-                bb.debug.cpu.healingEngine.getUnitDistance = bb.debug.cpu.healingEngine.getUnitDistance + debugprofilestop()-startTime
+                br.debug.cpu.healingEngine.getUnitDistance = br.debug.cpu.healingEngine.getUnitDistance + debugprofilestop()-startTime
 
                 -- Unit's threat situation(1-4)
                 startTime = debugprofilestop()
                 o.threat = UnitThreatSituation(o.unit)
-                bb.debug.cpu.healingEngine.UnitThreatSituation = bb.debug.cpu.healingEngine.UnitThreatSituation + debugprofilestop()-startTime
+                br.debug.cpu.healingEngine.UnitThreatSituation = br.debug.cpu.healingEngine.UnitThreatSituation + debugprofilestop()-startTime
 
                 -- Unit HP absolute
                 startTime = debugprofilestop()
                 o.hpabs = UnitHealth(o.unit)
-                bb.debug.cpu.healingEngine.UnitHealth = bb.debug.cpu.healingEngine.UnitHealth + debugprofilestop()-startTime
+                br.debug.cpu.healingEngine.UnitHealth = br.debug.cpu.healingEngine.UnitHealth + debugprofilestop()-startTime
 
                 -- Unit HP missing absolute
                 startTime = debugprofilestop()
                 o.hpmissing = UnitHealthMax(o.unit) - UnitHealth(o.unit)
-                bb.debug.cpu.healingEngine.hpMissing = bb.debug.cpu.healingEngine.hpMissing + debugprofilestop()-startTime
+                br.debug.cpu.healingEngine.hpMissing = br.debug.cpu.healingEngine.hpMissing + debugprofilestop()-startTime
 
                 -- Unit HP
                 startTime = debugprofilestop()
                 o.hp = o:CalcHP()
                 o.absorb = select(3, o:CalcHP())
-                bb.debug.cpu.healingEngine.absorb = bb.debug.cpu.healingEngine.absorb + debugprofilestop()-startTime
+                br.debug.cpu.healingEngine.absorb = br.debug.cpu.healingEngine.absorb + debugprofilestop()-startTime
 
                 -- Target's target
                 o.target = tostring(o.unit).."target"
@@ -322,24 +322,24 @@ if not metaTable1 then
                 -- Unit Class
                 startTime = debugprofilestop()
                 o.class = o:GetClass()
-                bb.debug.cpu.healingEngine.GetClass = bb.debug.cpu.healingEngine.GetClass + debugprofilestop()-startTime
+                br.debug.cpu.healingEngine.GetClass = br.debug.cpu.healingEngine.GetClass + debugprofilestop()-startTime
 
                 -- Unit is player
                 startTime = debugprofilestop()
                 o.isPlayer = UnitIsPlayer(o.unit)
-                bb.debug.cpu.healingEngine.UnitIsPlayer = bb.debug.cpu.healingEngine.UnitIsPlayer + debugprofilestop()-startTime
+                br.debug.cpu.healingEngine.UnitIsPlayer = br.debug.cpu.healingEngine.UnitIsPlayer + debugprofilestop()-startTime
 
                 -- precise unit position
                 startTime = debugprofilestop()
                 if o.refresh == nil or o.refresh < GetTime() - 1 then
                     o.x,o.y,o.z = o:GetPosition()
                 end
-                bb.debug.cpu.healingEngine.GetPosition = bb.debug.cpu.healingEngine.GetPosition + debugprofilestop()-startTime
+                br.debug.cpu.healingEngine.GetPosition = br.debug.cpu.healingEngine.GetPosition + debugprofilestop()-startTime
 
                 --debug
                 startTime = debugprofilestop()
                 o.hp, _, o.absorb = o:CalcHP()
-                bb.debug.cpu.healingEngine.absorbANDhp = bb.debug.cpu.healingEngine.absorbANDhp + debugprofilestop()-startTime
+                br.debug.cpu.healingEngine.absorbANDhp = br.debug.cpu.healingEngine.absorbANDhp + debugprofilestop()-startTime
 
             else
                 -- assign Name of unit
@@ -384,11 +384,11 @@ if not metaTable1 then
 	end
 	-- Setting up the tables on either Wipe or Initial Setup
 	function SetupTables() -- Creating the cache (we use this to check if some1 is already in the table)
-		setmetatable(bb.friend, metaTable1) -- Set the metaTable of Main to Meta
-		function bb.friend:Update()
+		setmetatable(br.friend, metaTable1) -- Set the metaTable of Main to Meta
+		function br.friend:Update()
 			local refreshTimer = 0.666
-			if bb.friendTableTimer == nil or bb.friendTableTimer <= GetTime() - refreshTimer then
-				bb.friendTableTimer = GetTime()
+			if br.friendTableTimer == nil or br.friendTableTimer <= GetTime() - refreshTimer then
+				br.friendTableTimer = GetTime()
 				-- print("HEAL PULSE: "..GetTime())		-- debug print to check update time
 				-- This is for special situations, IE world healing or NPC healing in encounters
 				local selectedMode,SpecialTargets = getOptionValue("Special Heal"), {}
@@ -410,30 +410,30 @@ if not metaTable1 then
 							local SpecialCase = memberSetup:new(SpecialTargets[p])
 							if SpecialCase then
 								-- Creating a new user, if not already tabled, will return with the User
-								for j=1, #bb.friend do
-									if bb.friend[j].unit == SpecialTargets[p] then
+								for j=1, #br.friend do
+									if br.friend[j].unit == SpecialTargets[p] then
 										-- Now we add the Unit we just created to the Main Table
 										for k,v in pairs(memberSetup.cache) do
-											if bb.friend[j].guidsh == k then
+											if br.friend[j].guidsh == k then
 												memberSetup.cache[k] = nil
 											end
 										end
-										tremove(bb.friend, j)
+										tremove(br.friend, j)
 										break
 									end
 								end
 							end
-							tinsert(bb.friend, SpecialCase)
+							tinsert(br.friend, SpecialCase)
 							novaEngineTables.SavedSpecialTargets[SpecialTargets[p]] = select(2,getGUID(SpecialTargets[p]))
 						end
 					end
 				end
 				for p=1, #SpecialTargets do
 					local removedTarget = false
-					for j=1, #bb.friend do
+					for j=1, #br.friend do
 						-- Trying to find a case of the unit inside the Main Table to remove
-						if bb.friend[j].unit == SpecialTargets[p] and (bb.friend[j].guid ~= 0 and bb.friend[j].guid ~= UnitGUID(SpecialTargets[p])) then
-							tremove(bb.friend, j)
+						if br.friend[j].unit == SpecialTargets[p] and (br.friend[j].guid ~= 0 and br.friend[j].guid ~= UnitGUID(SpecialTargets[p])) then
+							tremove(br.friend, j)
 							removedTarget = true
 							break
 						end
@@ -447,17 +447,17 @@ if not metaTable1 then
 						end
 					end
 				end
-				for i=1, #bb.friend do
+				for i=1, #br.friend do
 					-- We are updating all of the User Info (Health/Range/Name)
-					bb.friend[i]:UpdateUnit()
+					br.friend[i]:UpdateUnit()
 				end
 				-- We are sorting by Health first
-				table.sort(bb.friend, function(x,y)
+				table.sort(br.friend, function(x,y)
 					return x.hp < y.hp
 				end)
 				-- Sorting with the Role
 				if getOptionCheck("Sorting with Role") then
-					table.sort(bb.friend, function(x,y)
+					table.sort(br.friend, function(x,y)
 						if x.role and y.role then return x.role > y.role
 						elseif x.role then return true
 						elseif y.role then return false end
@@ -465,7 +465,7 @@ if not metaTable1 then
 				end
 				if getOptionCheck("Special Priority") == true then
 					if UnitExists("focus") and memberSetup.cache[select(2, getGUID("focus"))] then
-						table.sort(bb.friend, function(x)
+						table.sort(br.friend, function(x)
 							if x.unit == "focus" then
 								return true
 							else
@@ -474,7 +474,7 @@ if not metaTable1 then
 						end)
 					end
 					if UnitExists("target") and memberSetup.cache[select(2, getGUID("target"))] then
-						table.sort(bb.friend, function(x)
+						table.sort(br.friend, function(x)
 							if x.unit == "target" then
 								return true
 							else
@@ -483,7 +483,7 @@ if not metaTable1 then
 						end)
 					end
 					if UnitExists("mouseover") and memberSetup.cache[select(2, getGUID("mouseover"))] then
-						table.sort(bb.friend, function(x)
+						table.sort(br.friend, function(x)
 							if x.unit == "mouseover" then
 								return true
 							else
@@ -496,11 +496,11 @@ if not metaTable1 then
 					pulseNovaDebugTimer = GetTime() + 0.5
 					pulseNovaDebug()
 				end
-				-- update these frames to current bb.friend values via a pulse in nova engine
+				-- update these frames to current br.friend values via a pulse in nova engine
 			end -- timer capsule
 		end
 		-- We are creating the initial Main Table
-		bb.friend()
+		br.friend()
 	end
 	-- We are setting up the Tables for the first time
 	SetupTables()

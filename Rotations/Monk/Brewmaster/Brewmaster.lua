@@ -1,15 +1,15 @@
 function MonkBrewmaster()
     if GetSpecializationInfo(GetSpecialization()) == 268 then
-        if bb.player == nil or bb.player.profile ~= "Brewmaster" then
-            bb.player = cBrewmaster:new("Brewmaster")
-            setmetatable(bb.player, {__index = cBrewmaster})
+        if br.player == nil or br.player.profile ~= "Brewmaster" then
+            br.player = cBrewmaster:new("Brewmaster")
+            setmetatable(br.player, {__index = cBrewmaster})
 
-            bb.player:createOptions()
-            bb.player:createToggles()
-            bb.player:update()
+            br.player:createOptions()
+            br.player:createToggles()
+            br.player:update()
         end
 
-        bb.player:update()
+        br.player:update()
 
     end --Class Check End
 end --Monk Function End

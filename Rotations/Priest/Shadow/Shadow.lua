@@ -1,14 +1,14 @@
 function PriestShadow()
     if GetSpecializationInfo(GetSpecialization()) == 258 then
-        if bb.player == nil or bb.player.profile ~= "Shadow" then
-            bb.player = cShadow:new("Shadow")
-            setmetatable(bb.player, {__index = cShadow})
+        if br.player == nil or br.player.profile ~= "Shadow" then
+            br.player = cShadow:new("Shadow")
+            setmetatable(br.player, {__index = cShadow})
 
-            bb.player:createOptions()
-            bb.player:createToggles()
-            bb.player:update()
+            br.player:createOptions()
+            br.player:createToggles()
+            br.player:update()
         end
 
-        bb.player:update()
+        br.player:update()
     end
 end --Spec Function End

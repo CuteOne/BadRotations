@@ -11,7 +11,7 @@ if select(3, UnitClass("player")) == 8 then
 		-------------------
 		-- Rune Of Power --
 		-------------------
-		if bb.data["Rune"] == 1 and getOptionCheck("Start/Stop BadBoy") then
+		if br.data["Rune"] == 1 and getOptionCheck("Start/Stop BadRotations") then
 			--[[ begin Rune Stuff ]]					-- add rune of power toggle!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 			--AoESpell, AoESpellTarget= nil, nil;
@@ -49,24 +49,24 @@ if select(3, UnitClass("player")) == 8 then
 
 		-- Pet checks
 		-- Set petpassive if power=0
-		-- if getOptionCheck("Start/Stop BadBoy") then
+		-- if getOptionCheck("Start/Stop BadRotations") then
 		-- 	if UnitName("pettarget")~=nil then
 		-- 		RunMacroText("/petfollow [target=pettarget,exists]");
 		-- 		RunMacroText("/petpassive");
 		-- 	end
 		-- end
 		-- -- Set petassist if power=1
-		-- if getOptionCheck("Start/Stop BadBoy") and UnitName("pettarget")==nil then
+		-- if getOptionCheck("Start/Stop BadRotations") and UnitName("pettarget")==nil then
 		-- 	RunMacroText("/petassist");
 		-- end
 		-- -- Set petpassive if power=1 and not in combat
-		-- if getOptionCheck("Start/Stop BadBoy") and not UnitAffectingCombat("player") then
+		-- if getOptionCheck("Start/Stop BadRotations") and not UnitAffectingCombat("player") then
 		-- 	RunMacroText("/petfollow [target=pettarget,exists]");
 		-- 	RunMacroText("/petpassive");
 		-- end
 
 		-- Pet active/passive
-			if bb.data["Pet"] == 1 then
+			if br.data["Pet"] == 1 then
 				-- check if pet is dead
 				if not UnitExists("pet") then
 					if castSpell("player",SummonPet,true,true) then
@@ -74,12 +74,12 @@ if select(3, UnitClass("player")) == 8 then
 					end
 				end
 				-- Petpassive, Petagressive
-				if getOptionCheck("Start/Stop BadBoy") then
+				if getOptionCheck("Start/Stop BadRotations") then
 					if IsPetAttackActive() == true then
 						RunMacroText("/petpassive")
 					end
 				end
-				if getOptionCheck("Start/Stop BadBoy") then
+				if getOptionCheck("Start/Stop BadRotations") then
 					if select(5,GetPetActionInfo(8)) == false then
 						RunMacroText("/petassist")
 					end
@@ -98,7 +98,7 @@ if select(3, UnitClass("player")) == 8 then
 
 			-- Pause
 			if isChecked("Pause Toggle") and SpecificToggle("Pause Toggle") == true then
-				ChatOverlay("|cffFF0000BadBoy Paused", 0); return;
+				ChatOverlay("|cffFF0000BadRotations Paused", 0); return;
 			end
 
 			-- Mounted Check
@@ -123,7 +123,7 @@ if select(3, UnitClass("player")) == 8 then
 			--	  if isChecked("Arcane Brilliance") == true and not UnitExists("mouseover") then
 			--		GroupInfo()
 			--		for i = 1, #members do --members
-			--			if not isBuffed(members[i].Unit,{1459}) and (#bb.friend==select(5,GetInstanceInfo()) or select(2,IsInInstance())=="none") then
+			--			if not isBuffed(members[i].Unit,{1459}) and (#br.friend==select(5,GetInstanceInfo()) or select(2,IsInInstance())=="none") then
 			--				if castSpell("player",ArcaneBrilliance,false,false) then
 			--					return;
 			--				end
@@ -141,7 +141,7 @@ if select(3, UnitClass("player")) == 8 then
 
 			FrostMageDefensives()
 
-			if bb.data['Cooldowns'] == 2 then
+			if br.data['Cooldowns'] == 2 then
 				FrostMageCooldowns()
 			end
 

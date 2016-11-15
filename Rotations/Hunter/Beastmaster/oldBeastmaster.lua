@@ -1,10 +1,10 @@
 if select(3, UnitClass("player")) == 3 then
   -- Rotation
   function  BeastHunter()
-    if Currentconfig ~= "Beastmaster CodeMyLife" then
+    if Currentconfig ~= "Beastmaster" then
       BeastConfig()
       HunterBeastToggles()
-      Currentconfig = "Beastmaster CodeMyLife"
+      Currentconfig = "Beastmaster"
     end
     
     -- ToDo add pause toggle
@@ -60,7 +60,7 @@ if select(3, UnitClass("player")) == 3 then
           up = UnitBuffID("player",34720) ~= nil
         },
       },
-      cooldowns = bb.data["Cooldowns"],
+      cooldowns = br.data["Cooldowns"],
       focus = getPower("player"),
       focusMax = UnitPowerMax("player"),
       focusDeficit = UnitPowerMax("player") - getPower("player"),
@@ -74,7 +74,7 @@ if select(3, UnitClass("player")) == 3 then
       guidFocus = UnitGUID("focus"),
       guidPet = UnitGUID("playerpet"),
       inCombat = UnitAffectingCombat("player") == true,
-      interrupts = bb.data["Interrupts"],
+      interrupts = br.data["Interrupts"],
       hp = getHP("player"),
       moving = isMoving("player"),
       pet = {
@@ -115,14 +115,14 @@ if select(3, UnitClass("player")) == 3 then
         direBeast = isKnown(DireBeast),
         stampede = isKnown(Stampede),
         steadyFocus = isKnown(SteadyFocus),
-        steadyFocus1st = bb.data["1stFocus"]
+        steadyFocus1st = br.data["1stFocus"]
       },
       target = {
         hp = getHP(dynamicUnit.dyn40),
         timeToDie = getTimeToDie(dynamicUnit.dyn40),
         enemiesIn10 = #getEnemies(dynamicUnit.dyn40,10)
       },
-      time = bb.data["Combat Started"] - GetTime(),
+      time = br.data["Combat Started"] - GetTime(),
     }
 
     -- reset summon pet wait time
@@ -165,8 +165,8 @@ if select(3, UnitClass("player")) == 3 then
     end
     -- Pet Management
     if isChecked("Auto Call Pet") and not player.pet.active then
-      -- if bb.data["Pet Dead"] is true, we want to revive it, otherwise, whistle select stable
-      if bb.data["Pet Dead"] == true or UnitIsDeadOrGhost("pet") then
+      -- if br.data["Pet Dead"] is true, we want to revive it, otherwise, whistle select stable
+      if br.data["Pet Dead"] == true or UnitIsDeadOrGhost("pet") then
         if castSpell("player",RevivePet,true,true) then
           return
         end

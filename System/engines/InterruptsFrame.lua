@@ -1,21 +1,20 @@
 -- Interrupts Manager(im)
--- By CodeMyLife
 -- This interupt reader intend to take as few ressources as possible while giving a lot of possibilities.
--- The frame (bb.im) is the only global variable and is nested in bb global.
+-- The frame (br.im) is the only global variable and is nested in br global.
 -- As of now, many profiles use castInterrupt. This is not the only way to get into the manager but we should tune castInterrupt if needed rather than getting directly into the table.
--- castInterrupt is currently linked to bb.im.castInterrupt so no rework should be needed profiles side.
+-- castInterrupt is currently linked to br.im.castInterrupt so no rework should be needed profiles side.
 -- define main frame
-bb.im = CreateFrame('Frame')
+br.im = CreateFrame('Frame')
 -- local the frame while we load it.
-local im = bb.im
-im:RegisterEvent("PLAYER_REGEN_ENABLED") -- wipe when we get out of combat(its needed because bb.enemy will also be cleared)
+local im = br.im
+im:RegisterEvent("PLAYER_REGEN_ENABLED") -- wipe when we get out of combat(its needed because br.enemy will also be cleared)
 im:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED") -- pulse when combat log events occurs
 local function spellCastListener(self,category,...)
 	if  getOptionCheck("Interrupts Handler") then
 		-- if event is a combatlog event
 		if category == "COMBAT_LOG_EVENT_UNFILTERED" then
 			-- prevent nils of bot not started
-			if bb.enemy == nil then
+			if br.enemy == nil then
 				return false
 			end
 			-- commonly used locals inside listener
@@ -25,8 +24,8 @@ local function spellCastListener(self,category,...)
 			local unitType = select(1,strsplit("-", sourceGUID or ""))
 			-- make sure it is a spell cast
 			if event == "SPELL_CAST_START" then
-				-- refresh enemies with current bb.enemy
-				im.bb.enemy = bb.enemy
+				-- refresh enemies with current br.enemy
+				im.br.enemy = br.enemy
 				-- manage cast
 				return im:manageCast(...)
 			end
@@ -192,14 +191,14 @@ function im:manageCast(...)
 	local timestamp,event,sourceGUID,sourceName = select(1,...),select(2,...),select(4,...),select(5,...)
 	local destGUID,destName,spellID = select(8,...),select(9,...),select(12,...)
 	-- find if that unit/spell combination should be interrupted
-	-- local bb.enemy = bb.enemy
+	-- local br.enemy = br.enemy
 	-- Prepare GUID to be reused via UnitID
-	if bb.enemy and #bb.enemy > 0 then
-		for i = #bb.enemy,1,-1 do
+	if br.enemy and #br.enemy > 0 then
+		for i = #br.enemy,1,-1 do
 
-			if GetObjectExists(bb.enemy[i]) then
-				if bb.enemy[i] and bb.enemy[i].unit and sourceGUID == bb.enemy[i].guid  then
-					local thisUnit = bb.enemy[i]
+			if GetObjectExists(br.enemy[i]) then
+				if br.enemy[i] and br.enemy[i].unit and sourceGUID == br.enemy[i].guid  then
+					local thisUnit = br.enemy[i]
 					-- gather our infos
 					if getOptionCheck("Only Known Units") and not isInteruptCandidate(thisUnit.unit, spellID) then
 						im:debug(sourceName.." started casting "..spellID.." but is not gonna be interrupt.")

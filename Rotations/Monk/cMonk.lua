@@ -225,17 +225,17 @@ if select(2, UnitClass("player")) == "MONK" then
 
         function self.getClassToggleModes()
 
-            self.mode.rotation      = bb.data["Rotation"]
-            self.mode.cooldown      = bb.data["Cooldown"]
-            self.mode.defensive     = bb.data["Defensive"]
-            self.mode.interrupt     = bb.data["Interrupt"]
+            self.mode.rotation      = br.data["Rotation"]
+            self.mode.cooldown      = br.data["Cooldown"]
+            self.mode.defensive     = br.data["Defensive"]
+            self.mode.interrupt     = br.data["Interrupt"]
         end
 
         -- Create the toggle defined within rotation files
         function self.createClassToggles()
             GarbageButtons()
-            if self.rotations[bb.selectedProfile] ~= nil then
-                self.rotations[bb.selectedProfile].toggles()
+            if self.rotations[br.selectedProfile] ~= nil then
+                self.rotations[br.selectedProfile].toggles()
             else
                 return
             end
@@ -249,8 +249,8 @@ if select(2, UnitClass("player")) == "MONK" then
         -- Options which every Rogue should have
         function self.createClassOptions()
             -- Class Wrap
-            local section = bb.ui:createSection(bb.ui.window.profile,  "Class Options", "Nothing")
-            bb.ui:checkSectionState(section)
+            local section = br.ui:createSection(br.ui.window.profile,  "Class Options", "Nothing")
+            br.ui:checkSectionState(section)
         end
 
     --------------

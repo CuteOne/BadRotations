@@ -1,14 +1,14 @@
 function ShamanElemental()
     if GetSpecializationInfo(GetSpecialization()) == 262 then
-        if bb.player == nil or bb.player.profile ~= "Elemental" then
-            bb.player = cElemental:new("Elemental")
-            setmetatable(bb.player, {__index = cElemental})
+        if br.player == nil or br.player.profile ~= "Elemental" then
+            br.player = cElemental:new("Elemental")
+            setmetatable(br.player, {__index = cElemental})
 
-            bb.player:createOptions()
-            bb.player:createToggles()
-            bb.player:update()
+            br.player:createOptions()
+            br.player:createToggles()
+            br.player:update()
         end
 
-        bb.player:update()
+        br.player:update()
     end
 end

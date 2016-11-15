@@ -1,13 +1,13 @@
 function PaladinRetribution() 
     if GetSpecializationInfo(GetSpecialization()) == 70 then 
-        if bb.player == nil or bb.player.profile ~= "Retribution" then 
-            bb.player = cRetribution:new("Retribution") 
-            setmetatable(bb.player, {__index = cRetribution})
-            bb.player:createOptions()
-            bb.player:createToggles()
-            bb.player:update()
+        if br.player == nil or br.player.profile ~= "Retribution" then 
+            br.player = cRetribution:new("Retribution") 
+            setmetatable(br.player, {__index = cRetribution})
+            br.player:createOptions()
+            br.player:createToggles()
+            br.player:update()
         end
-        bb.player:update()
+        br.player:update()
 
     end --Class Check End
 end --Spec Function End

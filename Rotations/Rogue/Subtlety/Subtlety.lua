@@ -1,15 +1,15 @@
 function RogueSubtlety()
     if GetSpecializationInfo(GetSpecialization()) == 261 then
-        if bb.player == nil or bb.player.profile ~= "Subtlety" then
-            bb.player = cSubtlety:new("Subtlety")
-            setmetatable(bb.player, {__index = cSubtlety})
+        if br.player == nil or br.player.profile ~= "Subtlety" then
+            br.player = cSubtlety:new("Subtlety")
+            setmetatable(br.player, {__index = cSubtlety})
 
-            bb.player:createOptions()
-            bb.player:createToggles()
-            bb.player:update()
+            br.player:createOptions()
+            br.player:createToggles()
+            br.player:update()
         end
 
-        bb.player:update()
+        br.player:update()
 
     end --Class Check End
 end --Rogue Function End

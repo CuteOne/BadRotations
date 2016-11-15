@@ -1,13 +1,13 @@
-bb.class = select(3, UnitClass("player"))
-bb.guid = UnitGUID("player")
+br.class = select(3, UnitClass("player"))
+br.guid = UnitGUID("player")
 -- specific reader location
-bb.read = { }
-bb.read.combatLog = { }
-bb.read.debugTable = { }
-bb.read.enraged = { }
-local cl = bb.read
--- will update the bb.read.enraged list
-function bb.read.enrageReader(...)
+br.read = { }
+br.read.combatLog = { }
+br.read.debugTable = { }
+br.read.enraged = { }
+local cl = br.read
+-- will update the br.read.enraged list
+function br.read.enrageReader(...)
   if getOptionCheck("Enrages Handler") then
     local timeStamp, param, hideCaster, source, sourceName, sourceFlags, sourceRaidFlags, destination,
       destName, destFlags, destRaidFlags, spell, spellName, _, spellType = ...
@@ -17,17 +17,17 @@ function bb.read.enrageReader(...)
       if dispellOffensiveBuffs[spell] ~= nil then
         -- find unit in engine, if its not there, dont add it.
         if destination ~= nil then
-          tinsert(bb.read.enraged, 1, {guid = destination,spellType = dispellOffensiveBuffs[spell],buffID = spell})
+          tinsert(br.read.enraged, 1, {guid = destination,spellType = dispellOffensiveBuffs[spell],buffID = spell})
         end
       end
     end
     if param == "SPELL_AURA_REMOVED" then
       -- look for a match to remove
-      local targets = bb.read.enraged
+      local targets = br.read.enraged
       if #targets > 0 then
         for i = #targets,1,-1 do
           if targets[i].guid == destination and targets[i].buffID == spell then
-            tremove(bb.read.enraged, i)
+            tremove(br.read.enraged, i)
           end
         end
       end
@@ -35,19 +35,19 @@ function bb.read.enrageReader(...)
     -- once a buff fades or is dispelled, we want to remove it from whitelist if its there
   end
 end
-function bb.read.combatLog()
+function br.read.combatLog()
   ---------------------------
   --[[ Combat Log Reader --]]
   local frame = CreateFrame('Frame')
   frame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
   local function reader(self,event,...)
-    local cl = bb.read
+    local cl = br.read
     -- this reader intend to hold all the combatlog related stuff. this is gonna be used
     -- with as few checks as possible per class/spec as in raiding environment we have already enough to check
     -- pulse common stuff for all classes
     cl:common(...)
     -- best way is to split per class so lets make a selector for it
-    local class = bb.class
+    local class = br.class
     if class == 1 then -- Warrior
       cl:Warrior(...)
     elseif class == 2 then -- Paladin
@@ -78,13 +78,13 @@ function bb.read.combatLog()
   frame:SetScript("OnEvent", reader)
   -- class functions(Alphabetically)
   function cl:common(...)
-    bb.read.enrageReader(...)
+    br.read.enrageReader(...)
     local timeStamp, param, hideCaster, source, sourceName, sourceFlags, sourceRaidFlags, destination,
       destName, destFlags, destRaidFlags, spell, spellName, _, spellType = ...
-    bb.guid = UnitGUID("player")
+    br.guid = UnitGUID("player")
     ----------------
     --[[Item locks]]
-    if source == bb.guid then
+    if source == br.guid then
         -- TODO: OUTDATED - MoP
       local DPSPotionsSet = {
         [1] = {Buff = 105702, Item = 76093}, -- Intel
@@ -124,24 +124,24 @@ function bb.read.combatLog()
       -----------------
       --[[ Cast Failed --> Queue]]
         if param == "SPELL_CAST_FAILED" then
-            if isInCombat("player") and UnitIsUnit(sourceName,"player") --[[source == bb.guid]] and spell ~= lastSpellCast then
+            if isInCombat("player") and UnitIsUnit(sourceName,"player") --[[source == br.guid]] and spell ~= lastSpellCast then
                 -- set destination
                 if destination == nil or destName == nil then
                   queueDest = "player"
                 else
                   queueDest = destination
                 end
-                if #bb.player.queue == 0 then 
-                    tinsert(bb.player.queue,{id = spell, name = spellName, target = queueDest})
+                if #br.player.queue == 0 then 
+                    tinsert(br.player.queue,{id = spell, name = spellName, target = queueDest})
                     print("Added "..spellName.." to the queue.")
                     print(tostring(queueDest))
-                elseif #bb.player.queue ~= 0 then
-                    for i = 1, #bb.player.queue do
-                        if spell == bb.player.queue[i].id then
+                elseif #br.player.queue ~= 0 then
+                    for i = 1, #br.player.queue do
+                        if spell == br.player.queue[i].id then
                             print(spellName.." is already queued.")
                             break
                         else
-                            tinsert(bb.player.queue,{id = spell, name = spellName, target = queueDest})
+                            tinsert(br.player.queue,{id = spell, name = spellName, target = queueDest})
                             print("Added "..spellName.." to the queue.")
                             print(tostring(queueDest))
                             break
@@ -153,11 +153,11 @@ function bb.read.combatLog()
       ------------------
       --[[Queue Casted]]
         if param == "SPELL_CAST_SUCCESS" then
-            if isInCombat("player") and UnitIsUnit(sourceName,"player") --[[source == bb.guid]] then
-                if #bb.player.queue ~= 0 then
-                    for i = 1, #bb.player.queue do
-                        if spell == bb.player.queue[i].id then
-                            tremove(bb.player.queue,i)
+            if isInCombat("player") and UnitIsUnit(sourceName,"player") --[[source == br.guid]] then
+                if #br.player.queue ~= 0 then
+                    for i = 1, #br.player.queue do
+                        if spell == br.player.queue[i].id then
+                            tremove(br.player.queue,i)
                             print("Cast Success! - Removed "..spellName.." from the queue.")
                             break
                         end
@@ -168,7 +168,7 @@ function bb.read.combatLog()
     end
     ---------------
     --[[ Debug --]]
-    if getOptionCheck("Debug Frame") == true and source == bb.guid and (param == "SPELL_CAST_SUCCESS" or (param == "SPELL_CAST_FAILED" and getOptionCheck("Display Failcasts"))) then
+    if getOptionCheck("Debug Frame") == true and source == br.guid and (param == "SPELL_CAST_SUCCESS" or (param == "SPELL_CAST_FAILED" and getOptionCheck("Display Failcasts"))) then
       -- available locals
       -- timeStamp, param, hideCaster, source, sourceName, sourceFlags, sourceRaidFlags, destination,
       -- destName, destFlags, destRaidFlags, spell, spellName, _, spellType
@@ -182,17 +182,17 @@ function bb.read.combatLog()
         local red = "|cffFF001E"
         -- add counters
         if param == "SPELL_CAST_SUCCESS" then
-          if bb.data.successCasts == nil then
-            bb.data.successCasts = 0
+          if br.data.successCasts == nil then
+            br.data.successCasts = 0
           end
           color = "|cff12C8FF"
-          bb.data.successCasts = bb.data.successCasts + 1
+          br.data.successCasts = br.data.successCasts + 1
         elseif param == "SPELL_CAST_FAILED" then
-          if bb.data.failCasts == nil then
-            bb.data.failCasts = 0
+          if br.data.failCasts == nil then
+            br.data.failCasts = 0
           end
           color = red
-          bb.data.failCasts = bb.data.failCasts + 1
+          br.data.failCasts = br.data.failCasts + 1
         end
         -- set destination
         if destination == nil or destName == nil then
@@ -208,15 +208,15 @@ function bb.read.combatLog()
         end
         local Power = "\nPower : "..UnitPower("player")
         -- create display row
-        local textString = color..bb.data.successCasts..red.."/"..white..getCombatTime()..red.."/"..color..spellName
+        local textString = color..br.data.successCasts..red.."/"..white..getCombatTime()..red.."/"..color..spellName
           ..red..debugdest..color..debugSpell.."|cffFFDD11"..Power
         -- pulse display
-        bb.read:display(textString)
-        bb.ui.window.debug:AddMessage(textString:gsub("\n", " | "))
+        br.read:display(textString)
+        br.ui.window.debug:AddMessage(textString:gsub("\n", " | "))
       end
     end
     --[[ Last Spell Cast Success ]]
-    if source == bb.guid and param == "SPELL_CAST_SUCCESS" then
+    if source == br.guid and param == "SPELL_CAST_SUCCESS" then
       -- Add spells we dont want to appear here.
       if spell ~= 155521 then     -- Auspicious Spirits
         secondLastSpellCastSucess = lastSpellCastSuccess
@@ -225,7 +225,7 @@ function bb.read.combatLog()
       end
     end
     --[[ Last Spell Cast Started ]]
-    if source == bb.guid and (param == "SPELL_CAST_START" or param == "SPELL_CAST_SUCCESS") then
+    if source == br.guid and (param == "SPELL_CAST_START" or param == "SPELL_CAST_SUCCESS") then
         -- Add spells we dont want to appear here.
         if spell ~= 120361 or spell ~= 75 then     -- Barrage fires
             if param == "SPELL_CAST_SUCCESS" and (spell ~= 77767 or spell ~= 163485) or param == "SPELL_CAST_START" then
@@ -258,10 +258,10 @@ function bb.read.combatLog()
                     else 
                         thisUnit = "target"
                     end
-                    if bb.player ~= nil and getDistance(thisUnit) < 40 then
-                        local debuff = bb.player.debuff
-                        local classDebuffID = bb.player.spell.class.debuffs
-                        local specDebuffID = bb.player.spell.spec.debuffs
+                    if br.player ~= nil and getDistance(thisUnit) < 40 then
+                        local debuff = br.player.debuff
+                        local classDebuffID = br.player.spell.class.debuffs
+                        local specDebuffID = br.player.spell.spec.debuffs
                         if classDebuffID ~= nil then
                             for k, v in pairs(classDebuffID) do
                                 if spell == v then
@@ -291,7 +291,7 @@ function bb.read.combatLog()
             end
         end
         if not UnitAffectingCombat("player") then
-            if bb.player ~= nil and bb.player.bleed ~= nil then bb.player.bleed.combatLog = {} end
+            if br.player ~= nil and br.player.bleed ~= nil then br.player.bleed.combatLog = {} end
         end
     end
     -----------------------
@@ -300,7 +300,7 @@ function bb.read.combatLog()
       shroomsTable = { }
       shroomsTable[1] = { }
     end
-    if source == bb.guid and  param == "SPELL_SUMMON" and (spell == 147349 or spell == 145205) then
+    if source == br.guid and  param == "SPELL_SUMMON" and (spell == 147349 or spell == 145205) then
       shroomsTable[1].guid = destination
       shroomsTable[1].x = nil
       shroomsTable[1].y = nil
@@ -309,7 +309,7 @@ function bb.read.combatLog()
     if (param == "UNIT_DIED" or  param == "UNIT_DESTROYED" or GetTotemInfo(1) ~= true) and shroomsTable ~= nil and shroomsTable[1].guid == destination then
       shroomsTable[1] = { }
     end
-    if source == bb.guid and class == 11 and GetSpecialization() == 1 then
+    if source == br.guid and class == 11 and GetSpecialization() == 1 then
       -- Starsurge Casted
       if spell == 78674 and param == "SPELL_CAST_SUCCESS" then
         if core then
@@ -325,17 +325,17 @@ function bb.read.combatLog()
       destName, destFlags, destRaidFlags, spell, spellName, _, spellType = ...
     --[[ Steady Focus ]]
     if spell == 77767 and param == "SPELL_CAST_SUCCESS" then
-      if bb.data["1stFocus"] ~= true then
-        bb.data["1stFocus"] = true
+      if br.data["1stFocus"] ~= true then
+        br.data["1stFocus"] = true
       else
-        bb.data["1stFocus"] = false
+        br.data["1stFocus"] = false
       end
     end
   end
   function cl:Mage(...)
     local timeStamp, param, hideCaster, source, sourceName, sourceFlags, sourceRaidFlags, destination,
       destName, destFlags, destRaidFlags, spell, spellName, _, spellType = ...
-    if source == bb.guid then
+    if source == br.guid then
       -- Params
       -- SPELL
       -- SPEL_PERIODIC
@@ -393,14 +393,14 @@ function bb.read.combatLog()
       destName, destFlags, destRaidFlags, spell, spellName, _, spellType = ...
     -----------------------
     --[[ Class Trinket ]]
-    if (source == bb.guid and (spell == 35395 or spell == 53595)) then
+    if (source == br.guid and (spell == 35395 or spell == 53595)) then
       previousT18classTrinket = destination
     end
-    if (source == bb.guid and param == "SPELL_HEAL" and (spell == 184910 or spell == 185101)) then
+    if (source == br.guid and param == "SPELL_HEAL" and (spell == 184910 or spell == 185101)) then
         protPaladinClassTrinketProc = GetTime()
     end
     --[[ Double Jeopardy ]]
-    if spell == 20271 and source == bb.guid and previousJudgmentTarget ~= destination then
+    if spell == 20271 and source == br.guid and previousJudgmentTarget ~= destination then
       previousJudgmentTarget = destination
     end
   end
@@ -421,7 +421,7 @@ function bb.read.combatLog()
       destName, destFlags, destRaidFlags, spell, spellName, _, spellType = ...
   --------------------
   --[[ Fire Totem ]]
-  if source == bb.guid and  param == "SPELL_SUMMON" and (spell == _SearingTotem or spell == _MagmaTotem) then
+  if source == br.guid and  param == "SPELL_SUMMON" and (spell == _SearingTotem or spell == _MagmaTotem) then
     activeTotem = destination
     activeTotemPosition = GetObjectPosition("player")
   end
@@ -440,7 +440,7 @@ function bb.read.combatLog()
   ---------------------
   --[[ Pet Manager --]]
   if class == 9 then
-    if source == bb.guid and param == "SPELL_CAST_SUCCESS" then
+    if source == br.guid and param == "SPELL_CAST_SUCCESS" then
       if spell == 688 or spell == 112866 then
         petSummoned = 1
         petSummonedTime = GetTime()
@@ -471,12 +471,12 @@ function bb.read.combatLog()
     --[[ Bleed Recorder (Warrior) --]]
     if GetSpecialization("player") == 1 then
       -- snapshot on spellcast
-      if source == bb.guid and param == "SPELL_CAST_SUCCESS" then
+      if source == br.guid and param == "SPELL_CAST_SUCCESS" then
         if spell == 115767 then
           deepWoundsCastAP = UnitAttackPower("player")
         end
         -- but only record the snapshot if it successfully applied
-      elseif source == bb.guid and (param == "SPELL_AURA_APPLIED" or param == "SPELL_AURA_REFRESH") and deepWoundsCastAP ~= nil then
+      elseif source == br.guid and (param == "SPELL_AURA_APPLIED" or param == "SPELL_AURA_REFRESH") and deepWoundsCastAP ~= nil then
         if spell == 115767 then
           deepWoundsStoredAP = deepWoundsCastAP
         end

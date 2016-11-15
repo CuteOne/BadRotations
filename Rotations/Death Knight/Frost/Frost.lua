@@ -1,15 +1,15 @@
 if select(3, UnitClass("player")) == 6 then
     function FrostDK()
-        if bb.player == nil or bb.player.profile ~= "Frost" then
-            bb.player = cFrost:new("Frost")
-            setmetatable(bb.player, {__index = cFrost})
+        if br.player == nil or br.player.profile ~= "Frost" then
+            br.player = cFrost:new("Frost")
+            setmetatable(br.player, {__index = cFrost})
 
-            bb.player:createOptions()
-            bb.player:createToggles()
-            bb.player:update()
+            br.player:createOptions()
+            br.player:createToggles()
+            br.player:update()
         end
 
-        bb.player:update()
+        br.player:update()
 
     end --Rogue Function End
 end --Class Check End

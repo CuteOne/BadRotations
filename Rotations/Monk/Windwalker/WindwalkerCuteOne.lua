@@ -7,41 +7,41 @@ if select(2, UnitClass("player")) == "MONK" then
     local function createToggles()
     -- Rotation Button
         RotationModes = {
-            [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range.", highlight = 1, icon = bb.player.spell.spinningCraneKick },
-            [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = bb.player.spell.spinningCraneKick },
-            [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = bb.player.spell.tigerPalm },
-            [4] = { mode = "Off", value = 4 , overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = bb.player.spell.effuse}
+            [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range.", highlight = 1, icon = br.player.spell.spinningCraneKick },
+            [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = br.player.spell.spinningCraneKick },
+            [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = br.player.spell.tigerPalm },
+            [4] = { mode = "Off", value = 4 , overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spell.effuse}
         };
         CreateButton("Rotation",1,0)
     -- Cooldown Button
         CooldownModes = {
-            [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = bb.player.spell.invokeXuen },
-            [2] = { mode = "On", value = 1 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = bb.player.spell.invokeXuen },
-            [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = bb.player.spell.invokeXuen }
+            [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spell.invokeXuen },
+            [2] = { mode = "On", value = 1 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spell.invokeXuen },
+            [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.invokeXuen }
         };
         CreateButton("Cooldown",2,0)
     -- Defensive Button
         DefensiveModes = {
-            [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = bb.player.spell.dampenHarm },
-            [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = bb.player.spell.dampenHarm }
+            [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spell.dampenHarm },
+            [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spell.dampenHarm }
         };
         CreateButton("Defensive",3,0)
     -- Interrupt Button
         InterruptModes = {
-            [1] = { mode = "On", value = 1 , overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = bb.player.spell.spearHandStrike },
-            [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = bb.player.spell.spearHandStrike }
+            [1] = { mode = "On", value = 1 , overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spell.spearHandStrike },
+            [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.spearHandStrike }
         };
         CreateButton("Interrupt",4,0)
     -- Storm, Earth, and Fire Button
         SEFModes = {
-            [1] = { mode = "On", value = 2 , overlay = "Auto SEF Enabled", tip = "Will cast Storm, Earth, and Fire.", highlight = 1, icon = bb.player.spell.stormEarthAndFire},
-            [2] = { mode = "Off", value = 1 , overlay = "Auto SEF Disabled", tip = "Will NOT cast Storm, Earth, and Fire.", highlight = 0, icon = bb.player.spell.stormEarthAndFireFixate}
+            [1] = { mode = "On", value = 2 , overlay = "Auto SEF Enabled", tip = "Will cast Storm, Earth, and Fire.", highlight = 1, icon = br.player.spell.stormEarthAndFire},
+            [2] = { mode = "Off", value = 1 , overlay = "Auto SEF Disabled", tip = "Will NOT cast Storm, Earth, and Fire.", highlight = 0, icon = br.player.spell.stormEarthAndFireFixate}
         };
         CreateButton("SEF",5,0)
     -- Flying Serpent Kick Button
         FSKModes = {
-            [1] = { mode = "On", value = 2 , overlay = "Auto FSK Enabled", tip = "Will cast Flying Serpent Kick.", highlight = 1, icon = bb.player.spell.flyingSerpentKick},
-            [2] = { mode = "Off", value = 1 , overlay = "Auto FSK Disabled", tip = "Will NOT cast Flying Serpent Kick.", highlight = 0, icon = bb.player.spell.flyingSerpentKickEnd}
+            [1] = { mode = "On", value = 2 , overlay = "Auto FSK Enabled", tip = "Will cast Flying Serpent Kick.", highlight = 1, icon = br.player.spell.flyingSerpentKick},
+            [2] = { mode = "Off", value = 1 , overlay = "Auto FSK Disabled", tip = "Will NOT cast Flying Serpent Kick.", highlight = 0, icon = br.player.spell.flyingSerpentKickEnd}
         };
         CreateButton("FSK",6,0)
     end
@@ -56,95 +56,95 @@ if select(2, UnitClass("player")) == "MONK" then
             -----------------------
             --- GENERAL OPTIONS ---
             -----------------------
-            section = bb.ui:createSection(bb.ui.window.profile,  "General")
+            section = br.ui:createSection(br.ui.window.profile,  "General")
             -- APL
-                bb.ui:createDropdownWithout(section, "APL Mode", {"|cffFFFFFFSimC","|cffFFFFFFAMR"}, 1, "|cffFFFFFFSet APL Mode to use.")
+                br.ui:createDropdownWithout(section, "APL Mode", {"|cffFFFFFFSimC","|cffFFFFFFAMR"}, 1, "|cffFFFFFFSet APL Mode to use.")
             -- Dummy DPS Test
-                bb.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
+                br.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
             -- Opener
-                bb.ui:createCheckbox(section, "Opener")
+                br.ui:createCheckbox(section, "Opener")
             -- Pre-Pull Timer
-                bb.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
+                br.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
             -- Roll
-                bb.ui:createCheckbox(section, "Roll")         
-            bb.ui:checkSectionState(section)
+                br.ui:createCheckbox(section, "Roll")         
+            br.ui:checkSectionState(section)
             ------------------------
             --- COOLDOWN OPTIONS ---
             ------------------------
-            section = bb.ui:createSection(bb.ui.window.profile,  "Cooldowns")
+            section = br.ui:createSection(br.ui.window.profile,  "Cooldowns")
             -- Flask / Crystal
-                bb.ui:createCheckbox(section,"Flask / Crystal")
+                br.ui:createCheckbox(section,"Flask / Crystal")
             -- Legendary Ring
-                bb.ui:createCheckbox(section,"Legendary Ring")
+                br.ui:createCheckbox(section,"Legendary Ring")
             -- Potion
-                bb.ui:createCheckbox(section,"Potion")
+                br.ui:createCheckbox(section,"Potion")
             -- Racial
-                bb.ui:createCheckbox(section,"Racial")
+                br.ui:createCheckbox(section,"Racial")
             -- Trinkets
-                bb.ui:createCheckbox(section,"Trinkets")
+                br.ui:createCheckbox(section,"Trinkets")
             -- Touch of the Void
-                bb.ui:createCheckbox(section,"Touch of the Void")
+                br.ui:createCheckbox(section,"Touch of the Void")
             -- Serenity
-                bb.ui:createCheckbox(section,"Serenity")
+                br.ui:createCheckbox(section,"Serenity")
             -- Touch of Death
-                bb.ui:createCheckbox(section,"Touch of Death")
+                br.ui:createCheckbox(section,"Touch of Death")
             -- Xuen
-                bb.ui:createCheckbox(section,"Xuen")
-            bb.ui:checkSectionState(section)
+                br.ui:createCheckbox(section,"Xuen")
+            br.ui:checkSectionState(section)
             -------------------------
             --- DEFENSIVE OPTIONS ---
             -------------------------
-             section = bb.ui:createSection(bb.ui.window.profile, "Defensive")
+             section = br.ui:createSection(br.ui.window.profile, "Defensive")
             -- Healthstone
-                bb.ui:createSpinner(section, "Healthstone",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
+                br.ui:createSpinner(section, "Healthstone",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
             -- Heirloom Neck
-                bb.ui:createSpinner(section, "Heirloom Neck",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
+                br.ui:createSpinner(section, "Heirloom Neck",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
             -- Effuse
-                bb.ui:createSpinner(section, "Effuse",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
+                br.ui:createSpinner(section, "Effuse",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
             -- Healing Elixir
-                bb.ui:createSpinner(section, "Healing Elixir", 50, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
+                br.ui:createSpinner(section, "Healing Elixir", 50, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
             -- Leg Sweep
-                bb.ui:createSpinner(section, "Leg Sweep - HP", 50, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
-                bb.ui:createSpinner(section, "Leg Sweep - AoE", 5, 0, 10, 1, "|cffFFFFFFNumber of Units in 5 Yards to Cast At")
+                br.ui:createSpinner(section, "Leg Sweep - HP", 50, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
+                br.ui:createSpinner(section, "Leg Sweep - AoE", 5, 0, 10, 1, "|cffFFFFFFNumber of Units in 5 Yards to Cast At")
             -- Touch of Karma
-                bb.ui:createSpinner(section, "Touch of Karma",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
+                br.ui:createSpinner(section, "Touch of Karma",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
             -- Diffuse Magic/Dampen Harm
-                bb.ui:createSpinner(section, "Diffuse/Dampen",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
-            bb.ui:checkSectionState(section)
+                br.ui:createSpinner(section, "Diffuse/Dampen",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
+            br.ui:checkSectionState(section)
             -------------------------
             --- INTERRUPT OPTIONS ---
             -------------------------
-            section = bb.ui:createSection(bb.ui.window.profile, "Interrupts")
+            section = br.ui:createSection(br.ui.window.profile, "Interrupts")
             --Quaking Palm
-                bb.ui:createCheckbox(section, "Quaking Palm")
+                br.ui:createCheckbox(section, "Quaking Palm")
             -- Spear Hand Strike
-                bb.ui:createCheckbox(section, "Spear Hand Strike")
+                br.ui:createCheckbox(section, "Spear Hand Strike")
             -- Paralysis
-                bb.ui:createCheckbox(section, "Paralysis")
+                br.ui:createCheckbox(section, "Paralysis")
             -- Leg Sweep
-                bb.ui:createCheckbox(section, "Leg Sweep")
+                br.ui:createCheckbox(section, "Leg Sweep")
             -- Interrupt Percentage
-                bb.ui:createSpinner(section,  "InterruptAt",  0,  0,  95,  5,  "|cffFFBB00Cast Percentage to use at.")
-            bb.ui:checkSectionState(section)
+                br.ui:createSpinner(section,  "InterruptAt",  0,  0,  95,  5,  "|cffFFBB00Cast Percentage to use at.")
+            br.ui:checkSectionState(section)
             ----------------------
             --- TOGGLE OPTIONS ---
             ----------------------
-            section = bb.ui:createSection(bb.ui.window.profile,  "Toggle Keys")
+            section = br.ui:createSection(br.ui.window.profile,  "Toggle Keys")
             -- Single/Multi Toggle
-                bb.ui:createDropdown(section,  "Rotation Mode", bb.dropOptions.Toggle,  4)
+                br.ui:createDropdown(section,  "Rotation Mode", br.dropOptions.Toggle,  4)
             --Cooldown Key Toggle
-                bb.ui:createDropdown(section,  "Cooldown Mode", bb.dropOptions.Toggle,  3)
+                br.ui:createDropdown(section,  "Cooldown Mode", br.dropOptions.Toggle,  3)
             --Defensive Key Toggle
-                bb.ui:createDropdown(section,  "Defensive Mode", bb.dropOptions.Toggle,  6)
+                br.ui:createDropdown(section,  "Defensive Mode", br.dropOptions.Toggle,  6)
             -- Interrupts Key Toggle
-                bb.ui:createDropdown(section,  "Interrupt Mode", bb.dropOptions.Toggle,  6)
+                br.ui:createDropdown(section,  "Interrupt Mode", br.dropOptions.Toggle,  6)
             -- SEF Toggle
-                bb.ui:createDropdown(section,  "SEF Mode", bb.dropOptions.Toggle,  5)
+                br.ui:createDropdown(section,  "SEF Mode", br.dropOptions.Toggle,  5)
             -- FSK Toggle
-                bb.ui:createDropdown(section,  "FSK Mode", bb.dropOptions.Toggle,  5)
+                br.ui:createDropdown(section,  "FSK Mode", br.dropOptions.Toggle,  5)
             -- Pause Toggle
-                bb.ui:createDropdown(section,  "Pause Mode", bb.dropOptions.Toggle,  6)
-            bb.ui:checkSectionState(section)
+                br.ui:createDropdown(section,  "Pause Mode", br.dropOptions.Toggle,  6)
+            br.ui:checkSectionState(section)
         end
         optionTable = {{
             [1] = "Rotation Options",
@@ -157,7 +157,7 @@ if select(2, UnitClass("player")) == "MONK" then
 --- ROTATION ---
 ----------------
     local function runRotation()
-        if bb.timer:useTimer("debugWindwalker", math.random(0.15,0.3)) then
+        if br.timer:useTimer("debugWindwalker", math.random(0.15,0.3)) then
             --print("Running: "..rotationName)
 
     ---------------
@@ -175,50 +175,50 @@ if select(2, UnitClass("player")) == "MONK" then
     --- Locals ---
     --------------
             local agility           = UnitStat("player", 2)
-            local artifact          = bb.player.artifact
+            local artifact          = br.player.artifact
             local baseAgility       = 0
             local baseMultistrike   = 0
-            local buff              = bb.player.buff
-            local canFlask          = canUse(bb.player.flask.wod.agilityBig)
-            local cast              = bb.player.cast
-            local castable          = bb.player.cast.debug
+            local buff              = br.player.buff
+            local canFlask          = canUse(br.player.flask.wod.agilityBig)
+            local cast              = br.player.cast
+            local castable          = br.player.cast.debug
             local castTimeFoF       = 4-(4*UnitSpellHaste("player")/100)
             local castTimeHS        = 2-(2*UnitSpellHaste("player")/100)
-            local cd                = bb.player.cd
-            local charges           = bb.player.charges
-            local chi               = bb.player.chi
+            local cd                = br.player.cd
+            local charges           = br.player.charges
+            local chi               = br.player.chi
             local combatTime        = getCombatTime()
-            local debuff            = bb.player.debuff
-            local enemies           = bb.player.enemies
-            local flaskBuff         = getBuffRemain("player",bb.player.flask.wod.buff.agilityBig) or 0
-            local gcd               = bb.player.gcd
-            local glyph             = bb.player.glyph
+            local debuff            = br.player.debuff
+            local enemies           = br.player.enemies
+            local flaskBuff         = getBuffRemain("player",br.player.flask.wod.buff.agilityBig) or 0
+            local gcd               = br.player.gcd
+            local glyph             = br.player.glyph
             local healthPot         = getHealthPot() or 0
-            local inCombat          = bb.player.inCombat
+            local inCombat          = br.player.inCombat
             local inRaid            = select(2,IsInInstance())=="raid"
             local lastSpell         = lastSpellCast
-            local level             = bb.player.level
-            local mode              = bb.player.mode
-            local php               = bb.player.health
-            local power             = bb.player.power
-            local powerMax          = bb.player.powerMax
-            local pullTimer         = bb.DBM:getPulltimer()
-            local queue             = bb.player.queue
-            local race              = bb.player.race
-            local racial            = bb.player.getRacial()
-            local recharge          = bb.player.recharge
-            local regen             = bb.player.powerRegen
+            local level             = br.player.level
+            local mode              = br.player.mode
+            local php               = br.player.health
+            local power             = br.player.power
+            local powerMax          = br.player.powerMax
+            local pullTimer         = br.DBM:getPulltimer()
+            local queue             = br.player.queue
+            local race              = br.player.race
+            local racial            = br.player.getRacial()
+            local recharge          = br.player.recharge
+            local regen             = br.player.powerRegen
             local solo              = select(2,IsInInstance())=="none"
-            local spell             = bb.player.spell
-            local t17_2pc           = bb.player.eq.t17_2pc
-            local t18_2pc           = bb.player.eq.t18_2pc 
-            local t18_4pc           = bb.player.eq.t18_4pc
-            local talent            = bb.player.talent
-            local thp               = getHP(bb.player.units.dyn5)
-            local trinketProc       = false --bb.player.hasTrinketProc()
-            local ttd               = getTTD(bb.player.units.dyn5)
-            local ttm               = bb.player.timeToMax
-            local units             = bb.player.units
+            local spell             = br.player.spell
+            local t17_2pc           = br.player.eq.t17_2pc
+            local t18_2pc           = br.player.eq.t18_2pc 
+            local t18_4pc           = br.player.eq.t18_4pc
+            local talent            = br.player.talent
+            local thp               = getHP(br.player.units.dyn5)
+            local trinketProc       = false --br.player.hasTrinketProc()
+            local ttd               = getTTD(br.player.units.dyn5)
+            local ttm               = br.player.timeToMax
+            local units             = br.player.units
             if lastSpell == nil then lastSpell = 0 end
             if leftCombat == nil then leftCombat = GetTime() end
             if profileStop == nil then profileStop = false end
@@ -306,7 +306,7 @@ if select(2, UnitClass("player")) == "MONK" then
                 if not inCombat and select(3,GetSpellInfo(101545)) ~= "INTERFACE\\ICONS\\priest_icon_chakra_green" 
                     and cd.flyingSerpentKick > 1 and getDistance("target") > 10 and isValidUnit("target") and not isBoss("target")
                 then
-                    if solo or #bb.friend == 1 then
+                    if solo or #br.friend == 1 then
                         if cast.provoke() then return end
                     end
                 end
@@ -323,7 +323,7 @@ if select(2, UnitClass("player")) == "MONK" then
                 if isChecked("DPS Testing") then
                     if ObjectExists("target") then
                         if combatTime >= (tonumber(getValue("DPS Testing"))*60) and isDummy() then
-                            CancelUnitBuff("player", GetSpellInfo(bb.player.spell.stormEarthAndFire))
+                            CancelUnitBuff("player", GetSpellInfo(br.player.spell.stormEarthAndFire))
                             StopAttack()
                             ClearTarget()
                             StopAttack()
@@ -371,7 +371,7 @@ if select(2, UnitClass("player")) == "MONK" then
                         end
                     end
             -- Diffuse Magic
-                    if isChecked("Diffuse/Dampen") and ((php <= getValue("Diffuse Magic") and inCombat) or canDispel("player",bb.player.spell.diffuseMagic)) then
+                    if isChecked("Diffuse/Dampen") and ((php <= getValue("Diffuse Magic") and inCombat) or canDispel("player",br.player.spell.diffuseMagic)) then
                         if cast.diffuseMagic() then return end
                     end
             -- Dampen Harm
@@ -1050,7 +1050,7 @@ if select(2, UnitClass("player")) == "MONK" then
                     -- flask,type=flask_of_the_seventh_demon
                     if isChecked("Flask / Crystal") then
                         if inRaid and canFlask and flaskBuff==0 and not UnitBuffID("player",188033) then
-                            useItem(bb.player.flask.wod.agilityBig)
+                            useItem(br.player.flask.wod.agilityBig)
                             return true
                         end
                         if flaskBuff==0 then
@@ -1200,7 +1200,7 @@ if select(2, UnitClass("player")) == "MONK" then
                                 end
                             end
             -- Racial: Orc Blood Fury | Troll Berserking | Blood Elf Arcane Torrent
-                            if (bb.player.race == "Orc" or bb.player.race == "Troll" or bb.player.race == "BloodElf") then
+                            if (br.player.race == "Orc" or br.player.race == "Troll" or br.player.race == "BloodElf") then
                                 if castSpell("player",racial,false,false,false) then return end
                             end
             -- Legendary Ring

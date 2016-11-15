@@ -7,41 +7,41 @@ if select(2, UnitClass("player")) == "DRUID" then
 	local function createToggles()
     -- Rotation Button
         RotationModes = {
-            [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range.", highlight = 1, icon = bb.player.spell.swipe },
-            [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = bb.player.spell.swipe },
-            [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = bb.player.spell.mangle },
-            [4] = { mode = "Off", value = 4 , overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = bb.player.spell.regrowth}
+            [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range.", highlight = 1, icon = br.player.spell.swipe },
+            [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = br.player.spell.swipe },
+            [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = br.player.spell.mangle },
+            [4] = { mode = "Off", value = 4 , overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spell.regrowth}
         };
         CreateButton("Rotation",1,0)
     -- Cooldown Button
         CooldownModes = {
-            [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = bb.player.spell.incarnationGuardianOfUrsoc },
-            [2] = { mode = "On", value = 1 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = bb.player.spell.incarnationGuardianOfUrsoc },
-            [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = bb.player.spell.incarnationGuardianOfUrsoc }
+            [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spell.incarnationGuardianOfUrsoc },
+            [2] = { mode = "On", value = 1 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spell.incarnationGuardianOfUrsoc },
+            [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.incarnationGuardianOfUrsoc }
         };
        	CreateButton("Cooldown",2,0)
     -- Defensive Button
         DefensiveModes = {
-            [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = bb.player.spell.survivalInstincts },
-            [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = bb.player.spell.survivalInstincts }
+            [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spell.survivalInstincts },
+            [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spell.survivalInstincts }
         };
         CreateButton("Defensive",3,0)
     -- Interrupt Button
         InterruptModes = {
-            [1] = { mode = "On", value = 1 , overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = bb.player.spell.skullBash },
-            [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = bb.player.spell.skullBash }
+            [1] = { mode = "On", value = 1 , overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spell.skullBash },
+            [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.skullBash }
         };
         CreateButton("Interrupt",4,0)       
     -- Cleave Button
 		CleaveModes = {
-            [1] = { mode = "On", value = 1 , overlay = "Cleaving Enabled", tip = "Rotation will cleave targets.", highlight = 1, icon = bb.player.spell.thrash },
-            [2] = { mode = "Off", value = 2 , overlay = "Cleaving Disabled", tip = "Rotation will not cleave targets", highlight = 0, icon = bb.player.spell.thrash }
+            [1] = { mode = "On", value = 1 , overlay = "Cleaving Enabled", tip = "Rotation will cleave targets.", highlight = 1, icon = br.player.spell.thrash },
+            [2] = { mode = "Off", value = 2 , overlay = "Cleaving Disabled", tip = "Rotation will not cleave targets", highlight = 0, icon = br.player.spell.thrash }
         };
         CreateButton("Cleave",5,0)
     -- Prowl Button
 		ProwlModes = {
-            [1] = { mode = "On", value = 1 , overlay = "Prowl Enabled", tip = "Rotation will use Prowl", highlight = 1, icon = bb.player.spell.prowl },
-            [2] = { mode = "Off", value = 2 , overlay = "Prowl Disabled", tip = "Rotation will not use Prowl", highlight = 0, icon = bb.player.spell.prowl }
+            [1] = { mode = "On", value = 1 , overlay = "Prowl Enabled", tip = "Rotation will use Prowl", highlight = 1, icon = br.player.spell.prowl },
+            [2] = { mode = "Off", value = 2 , overlay = "Prowl Disabled", tip = "Rotation will not use Prowl", highlight = 0, icon = br.player.spell.prowl }
         };
         CreateButton("Prowl",6,0)
     end
@@ -55,93 +55,93 @@ if select(2, UnitClass("player")) == "DRUID" then
         local function rotationOptions()
             local section
         -- General Options
-            section = bb.ui:createSection(bb.ui.window.profile, "General")
+            section = br.ui:createSection(br.ui.window.profile, "General")
             -- APL
-                bb.ui:createDropdownWithout(section, "APL Mode", {"|cffFFFFFFSimC","|cffFFFFFFAMR"}, 1, "|cffFFFFFFSet APL Mode to use.")
+                br.ui:createDropdownWithout(section, "APL Mode", {"|cffFFFFFFSimC","|cffFFFFFFAMR"}, 1, "|cffFFFFFFSet APL Mode to use.")
             -- Dummy DPS Test
-                bb.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
+                br.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
             -- Pre-Pull Timer
-                bb.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
+                br.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
             -- Travel Shapeshifts
-                bb.ui:createCheckbox(section,"Auto Shapeshifts","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFAuto Shapeshifting to best form for situation.|cffFFBB00.")
+                br.ui:createCheckbox(section,"Auto Shapeshifts","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFAuto Shapeshifting to best form for situation.|cffFFBB00.")
             -- Break Crowd Control
-                bb.ui:createCheckbox(section,"Break Crowd Control","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFAuto Shapeshifting to break crowd control.|cffFFBB00.")
+                br.ui:createCheckbox(section,"Break Crowd Control","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFAuto Shapeshifting to break crowd control.|cffFFBB00.")
             -- Displacer Beast / Wild Charge
-                bb.ui:createCheckbox(section,"Displacer Beast / Wild Charge","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFAuto Charge usage.|cffFFBB00.")
+                br.ui:createCheckbox(section,"Displacer Beast / Wild Charge","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFAuto Charge usage.|cffFFBB00.")
             -- Growl
-                bb.ui:createCheckbox(section,"Growl","|cffFFFFFFAuto Growl usage.")
-            bb.ui:checkSectionState(section)
+                br.ui:createCheckbox(section,"Growl","|cffFFFFFFAuto Growl usage.")
+            br.ui:checkSectionState(section)
         -- Cooldown Options
-            section = bb.ui:createSection(bb.ui.window.profile, "Cooldowns")
+            section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
             -- Agi Pot
-                bb.ui:createCheckbox(section,"Agi-Pot")
+                br.ui:createCheckbox(section,"Agi-Pot")
             -- Flask / Crystal
-                bb.ui:createCheckbox(section,"Flask / Crystal")
+                br.ui:createCheckbox(section,"Flask / Crystal")
             -- Legendary Ring
-                bb.ui:createCheckbox(section,"Legendary Ring")
+                br.ui:createCheckbox(section,"Legendary Ring")
             -- Racial
-                bb.ui:createCheckbox(section,"Racial")
+                br.ui:createCheckbox(section,"Racial")
             -- Incarnation: King of the Jungle
-                bb.ui:createCheckbox(section,"Incarnation")
+                br.ui:createCheckbox(section,"Incarnation")
             -- Trinkets
-                bb.ui:createCheckbox(section,"Trinkets")
-            bb.ui:checkSectionState(section)
+                br.ui:createCheckbox(section,"Trinkets")
+            br.ui:checkSectionState(section)
         -- Defensive Options
-            section = bb.ui:createSection(bb.ui.window.profile, "Defensive")
+            section = br.ui:createSection(br.ui.window.profile, "Defensive")
             -- Healthstone
-                bb.ui:createSpinner(section, "Pot/Stoned",  60,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
+                br.ui:createSpinner(section, "Pot/Stoned",  60,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
             -- Heirloom Neck
-                bb.ui:createSpinner(section, "Heirloom Neck",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.");
+                br.ui:createSpinner(section, "Heirloom Neck",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.");
             -- Barkskin
-                bb.ui:createSpinner(section, "Barkskin", 50, 0, 100, 5, "|cffFFBB00Health Percentage to use at.")
+                br.ui:createSpinner(section, "Barkskin", 50, 0, 100, 5, "|cffFFBB00Health Percentage to use at.")
             -- Frenzied Regeneration
-                bb.ui:createSpinner(section, "Frenzied Regeneration", 50, 0, 100, 5, "|cffFFBB00Health Loss Percentage to use at.")
+                br.ui:createSpinner(section, "Frenzied Regeneration", 50, 0, 100, 5, "|cffFFBB00Health Loss Percentage to use at.")
             -- Mark of Ursol
-                bb.ui:createSpinner(section, "Mark of Ursol", 50, 0, 100, 5, "|cffFFBB00Health Percentage to use at.")
+                br.ui:createSpinner(section, "Mark of Ursol", 50, 0, 100, 5, "|cffFFBB00Health Percentage to use at.")
             -- Rage of the Sleeper
-                bb.ui:createSpinner(section, "Rage of the Sleeper", 50, 0, 100, 5, "|cffFFBB00Health Percentage to use at.")
+                br.ui:createSpinner(section, "Rage of the Sleeper", 50, 0, 100, 5, "|cffFFBB00Health Percentage to use at.")
             -- Rebirth
-                bb.ui:createCheckbox(section,"Rebirth")
-                bb.ui:createDropdownWithout(section, "Rebirth - Target", {"|cff00FF00Target","|cffFF0000Mouseover"}, 1, "|cffFFFFFFTarget to cast on")
+                br.ui:createCheckbox(section,"Rebirth")
+                br.ui:createDropdownWithout(section, "Rebirth - Target", {"|cff00FF00Target","|cffFF0000Mouseover"}, 1, "|cffFFFFFFTarget to cast on")
             -- Regrowth
-                bb.ui:createSpinner(section, "Regrowth",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
+                br.ui:createSpinner(section, "Regrowth",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
             -- Remove Corruption
-                bb.ui:createCheckbox(section,"Remove Corruption")
-                bb.ui:createDropdownWithout(section, "Remove Corruption - Target", {"|cff00FF00Player","|cffFFFF00Target","|cffFF0000Mouseover"}, 1, "|cffFFFFFFTarget to cast on")
+                br.ui:createCheckbox(section,"Remove Corruption")
+                br.ui:createDropdownWithout(section, "Remove Corruption - Target", {"|cff00FF00Player","|cffFFFF00Target","|cffFF0000Mouseover"}, 1, "|cffFFFFFFTarget to cast on")
             -- Revive
-                bb.ui:createCheckbox(section,"Revive")
-                bb.ui:createDropdownWithout(section, "Revive - Target", {"|cff00FF00Target","|cffFF0000Mouseover"}, 1, "|cffFFFFFFTarget to cast on")
+                br.ui:createCheckbox(section,"Revive")
+                br.ui:createDropdownWithout(section, "Revive - Target", {"|cff00FF00Target","|cffFF0000Mouseover"}, 1, "|cffFFFFFFTarget to cast on")
             -- Survival Instincts
-                bb.ui:createSpinner(section, "Survival Instincts",  40,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
-            bb.ui:checkSectionState(section)
+                br.ui:createSpinner(section, "Survival Instincts",  40,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
+            br.ui:checkSectionState(section)
         -- Interrupt Options
-            section = bb.ui:createSection(bb.ui.window.profile, "Interrupts")
+            section = br.ui:createSection(br.ui.window.profile, "Interrupts")
             -- Skull Bash
-                bb.ui:createCheckbox(section,"Skull Bash")
+                br.ui:createCheckbox(section,"Skull Bash")
             -- Mighty Bash
-                bb.ui:createCheckbox(section,"Mighty Bash")
+                br.ui:createCheckbox(section,"Mighty Bash")
             -- Incapacitating Roar
-                bb.ui:createCheckbox(section,"Incapacitating Roar")
+                br.ui:createCheckbox(section,"Incapacitating Roar")
             -- Interrupt Percentage
-                bb.ui:createSpinner(section, "Interrupts",  0,  0,  95,  5,  "|cffFFFFFFCast Percent to Cast At")
-            bb.ui:checkSectionState(section)
+                br.ui:createSpinner(section, "Interrupts",  0,  0,  95,  5,  "|cffFFFFFFCast Percent to Cast At")
+            br.ui:checkSectionState(section)
         -- Toggle Key Options
-            section = bb.ui:createSection(bb.ui.window.profile, "Toggle Keys")
+            section = br.ui:createSection(br.ui.window.profile, "Toggle Keys")
             -- Single/Multi Toggle
-                bb.ui:createDropdown(section, "Rotation Mode", bb.dropOptions.Toggle,  4)
+                br.ui:createDropdown(section, "Rotation Mode", br.dropOptions.Toggle,  4)
             -- Cooldown Key Toggle
-                bb.ui:createDropdown(section, "Cooldown Mode", bb.dropOptions.Toggle,  3)
+                br.ui:createDropdown(section, "Cooldown Mode", br.dropOptions.Toggle,  3)
             -- Defensive Key Toggle
-                bb.ui:createDropdown(section, "Defensive Mode", bb.dropOptions.Toggle,  6)
+                br.ui:createDropdown(section, "Defensive Mode", br.dropOptions.Toggle,  6)
             -- Interrupts Key Toggle
-                bb.ui:createDropdown(section, "Interrupt Mode", bb.dropOptions.Toggle,  6)
+                br.ui:createDropdown(section, "Interrupt Mode", br.dropOptions.Toggle,  6)
             -- Cleave Toggle
-                bb.ui:createDropdown(section, "Cleave Mode", bb.dropOptions.Toggle,  6)
+                br.ui:createDropdown(section, "Cleave Mode", br.dropOptions.Toggle,  6)
             -- Prowl Toggle
-                bb.ui:createDropdown(section, "Prowl Mode", bb.dropOptions.Toggle,  6)
+                br.ui:createDropdown(section, "Prowl Mode", br.dropOptions.Toggle,  6)
             -- Pause Toggle
-                bb.ui:createDropdown(section, "Pause Mode", bb.dropOptions.Toggle,  6)
-            bb.ui:checkSectionState(section)
+                br.ui:createDropdown(section, "Pause Mode", br.dropOptions.Toggle,  6)
+            br.ui:checkSectionState(section)
         end
         optionTable = {{
             [1] = "Rotation Options",
@@ -154,7 +154,7 @@ if select(2, UnitClass("player")) == "DRUID" then
 --- ROTATION ---
 ----------------
 	local function runRotation()
-        if bb.timer:useTimer("debugGuardian", math.random(0.15,0.3)) then
+        if br.timer:useTimer("debugGuardian", math.random(0.15,0.3)) then
             --print("Running: "..rotationName)
 
     ---------------
@@ -172,50 +172,50 @@ if select(2, UnitClass("player")) == "DRUID" then
     --------------
             local addsExist                                     = false 
             local addsIn                                        = 999
-            local artifact                                      = bb.player.artifact
-            local buff                                          = bb.player.buff
-            local canFlask                                      = canUse(bb.player.flask.wod.agilityBig)
-            local cast                                          = bb.player.cast
-            local clearcast                                     = bb.player.buff.clearcasting
+            local artifact                                      = br.player.artifact
+            local buff                                          = br.player.buff
+            local canFlask                                      = canUse(br.player.flask.wod.agilityBig)
+            local cast                                          = br.player.cast
+            local clearcast                                     = br.player.buff.clearcasting
             local combatTime                                    = getCombatTime()
-            local cd                                            = bb.player.cd
-            local charges                                       = bb.player.charges
+            local cd                                            = br.player.cd
+            local charges                                       = br.player.charges
             local deadMouse                                     = UnitIsDeadOrGhost("mouseover")
             local deadtar, attacktar, hastar, playertar         = deadtar or UnitIsDeadOrGhost("target"), attacktar or UnitCanAttack("target", "player"), hastar or ObjectExists("target"), UnitIsPlayer("target")
-            local debuff                                        = bb.player.debuff
-            local enemies                                       = bb.player.enemies
+            local debuff                                        = br.player.debuff
+            local enemies                                       = br.player.enemies
             local falling, swimming, flying, moving             = getFallTime(), IsSwimming(), IsFlying(), GetUnitSpeed("player")>0
-            local flaskBuff                                     = getBuffRemain("player",bb.player.flask.wod.buff.agilityBig)
+            local flaskBuff                                     = getBuffRemain("player",br.player.flask.wod.buff.agilityBig)
             local friendly                                      = friendly or UnitIsFriend("target", "player")
-            local gcd                                           = bb.player.gcd
+            local gcd                                           = br.player.gcd
             local hasMouse                                      = ObjectExists("mouseover")
             local healPot                                       = getHealthPot()
-            local inCombat                                      = bb.player.inCombat
-            local inInstance                                    = bb.player.instance=="party"
-            local inRaid                                        = bb.player.instance=="raid"
-            local level                                         = bb.player.level
+            local inCombat                                      = br.player.inCombat
+            local inInstance                                    = br.player.instance=="party"
+            local inRaid                                        = br.player.instance=="raid"
+            local level                                         = br.player.level
             local lootDelay                                     = getOptionValue("LootDelay")
             local lossPercent                                   = getHPLossPercent("player",5)
-            local lowestHP                                      = bb.friend[1].unit
+            local lowestHP                                      = br.friend[1].unit
             local mfTick                                        = 20.0/(1+UnitSpellHaste("player")/100)/10
-            local mode                                          = bb.player.mode
+            local mode                                          = br.player.mode
             local multidot                                      = useCleave()        
-            local php                                           = bb.player.health
+            local php                                           = br.player.health
             local playerMouse                                   = UnitIsPlayer("mouseover")
-            local potion                                        = bb.player.potion
-            local power, powmax, powgen, powerDeficit           = bb.player.power, bb.player.powerMax, bb.player.powerRegen, bb.player.powerDeficit
-            local pullTimer                                     = bb.DBM:getPulltimer()
-            local racial                                        = bb.player.getRacial()
-            local recharge                                      = bb.player.recharge
-            local solo                                          = bb.player.instance=="none"
+            local potion                                        = br.player.potion
+            local power, powmax, powgen, powerDeficit           = br.player.power, br.player.powerMax, br.player.powerRegen, br.player.powerDeficit
+            local pullTimer                                     = br.DBM:getPulltimer()
+            local racial                                        = br.player.getRacial()
+            local recharge                                      = br.player.recharge
+            local solo                                          = br.player.instance=="none"
             local snapLossHP                                    = 0
-            local spell                                         = bb.player.spell
-            local talent                                        = bb.player.talent
-            local travel, flight, bear, cat, noform             = bb.player.buff.travelForm, bb.player.buff.flightForm, bb.player.buff.bearForm, buff.catForm, GetShapeshiftForm()==0
+            local spell                                         = br.player.spell
+            local talent                                        = br.player.talent
+            local travel, flight, bear, cat, noform             = br.player.buff.travelForm, br.player.buff.flightForm, br.player.buff.bearForm, buff.catForm, GetShapeshiftForm()==0
             local trinketProc                                   = false
             local ttd                                           = getTTD
-            local ttm                                           = bb.player.timeToMax
-            local units                                         = bb.player.units
+            local ttm                                           = br.player.timeToMax
+            local units                                         = br.player.units
             
 	   		if leftCombat == nil then leftCombat = GetTime() end
 			if profileStop == nil then profileStop = false end
@@ -473,7 +473,7 @@ if select(2, UnitClass("player")) == "DRUID" then
                     end
             -- Racial: Orc Blood Fury | Troll Berserking | Blood Elf Arcane Torrent
                     -- blood_fury,buff.tigers_fury | berserking,buff.tigers_fury | arcane_torrent,buff.tigers_fury
-                    if isChecked("Racial") and (bb.player.race == "Orc" or bb.player.race == "Troll" or bb.player.race == "BloodElf") then
+                    if isChecked("Racial") and (br.player.race == "Orc" or br.player.race == "Troll" or br.player.race == "BloodElf") then
                         if castSpell("player",racial,false,false,false) then return end
                     end
             -- Incarnation: Guardian of Ursoc
@@ -490,7 +490,7 @@ if select(2, UnitClass("player")) == "DRUID" then
                         -- flask,type=flask_of_the_seventh_demon
                         if isChecked("Flask / Crystal") and not stealth then
                             if inRaid and canFlask and flaskBuff==0 and not UnitBuffID("player",188033) then
-                                useItem(bb.player.flask.wod.agilityBig)
+                                useItem(br.player.flask.wod.agilityBig)
                                 return true
                             end
                             if flaskBuff==0 then

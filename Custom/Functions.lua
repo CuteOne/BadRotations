@@ -7,14 +7,14 @@
 --[[ ragnar                                                                                         ]]
 --[[                                                                                                ]]
 function unitLookup(Unit,returnType)
-	for i=1,#bb.enemy do
-		if bb.enemy[i].guid == Unit or bb.enemy[i].unit == Unit then
+	for i=1,#br.enemy do
+		if br.enemy[i].guid == Unit or br.enemy[i].unit == Unit then
 			if returnType == "guid" then
-				return bb.enemy[i].guid
+				return br.enemy[i].guid
 			elseif returnType == "table" then
 				return i
 			else
-				return bb.enemy[i].unit
+				return br.enemy[i].unit
 			end
 		end
 	end
@@ -22,11 +22,11 @@ end
 
 function getUnitCount(ID,maxRange,tapped)
 	local counter = 0
-	for i=1,#bb.enemy do
-		local thisUnit = bb.enemy[i].unit
-		local thisUnitID = bb.enemy[i].id
+	for i=1,#br.enemy do
+		local thisUnit = br.enemy[i].unit
+		local thisUnitID = br.enemy[i].id
 		if thisUnitID == ID then
-			if bb.enemy[i].distance < maxRange then
+			if br.enemy[i].distance < maxRange then
 				if (tapped == true and UnitIsTappedByPlayer(thisUnit)) or tapped == nil or tapped == false then
 					counter = counter + 1
 				end
@@ -72,10 +72,10 @@ function castGroundAtBestLocation(spellID, radius, minUnits, maxRange, minRange)
 	local allUnitsInRange = {}
 	-- fill allUnitsInRange with data from enemiesEngine
 	--print("______________________1")
-	for i=1,#bb.enemy do
-		local thisUnit = bb.enemy[i].unit
-		local thisDistance = bb.enemy[i].distance
-		local hasThreat = isValidUnit(bb.enemy[i].unit) --hasThreat(bb.enemy[i].unit)
+	for i=1,#br.enemy do
+		local thisUnit = br.enemy[i].unit
+		local thisDistance = br.enemy[i].distance
+		local hasThreat = isValidUnit(br.enemy[i].unit) --hasThreat(br.enemy[i].unit)
 		--print(thisUnit.." - "..thisDistance)
 		if isNotBlacklisted(thisUnit) then
 			--print("blacklist passed")
@@ -159,8 +159,8 @@ function isUnitThere(unitNameOrID,distance)
 		-- isUnitThere("Shadowfel Warden")
 
 	if type(unitNameOrID)=="number" then
-		for i=1,#bb.enemy do
-			local thisUnit = bb.enemy[i].unit
+		for i=1,#br.enemy do
+			local thisUnit = br.enemy[i].unit
 			if GetObjectID(thisUnit) then
 				if distance==nil or getDistance("player",thisUnit) < distance then
 					return true 
@@ -169,8 +169,8 @@ function isUnitThere(unitNameOrID,distance)
 		end
 	end
 	if type(unitNameOrID)=="string" then
-		for i=1,#bb.enemy do
-			local thisUnit = bb.enemy[i].unit
+		for i=1,#br.enemy do
+			local thisUnit = br.enemy[i].unit
 			if UnitName(thisUnit)==unitNameOrID then 
 				if distance==nil or getDistance("player",thisUnit) < distance then
 					return true 
@@ -323,11 +323,11 @@ function getUnitCluster(minUnits,maxRange,radius)
 	local enemiesInRange = 0
 	local theReturnUnit
 
-	for i=1,#bb.enemy do
-		local thisUnit = bb.enemy[i].unit
+	for i=1,#br.enemy do
+		local thisUnit = br.enemy[i].unit
 		local thisEnemies = getNumEnemies(thisUnit,radius)
 		if getLineOfSight(thisUnit) == true then
-		if bb.enemy[i].distance < maxRange then
+		if br.enemy[i].distance < maxRange then
 				if thisEnemies >= minUnits and thisEnemies > enemiesInRange then
 					theReturnUnit = thisUnit
 				end
@@ -354,10 +354,10 @@ function getBiggestUnitCluster(maxRange,radius)
 	local enemiesInRange = 0
 	local theReturnUnit
 
-	for i=1,#bb.enemy do
-		local thisUnit = bb.enemy[i].unit
+	for i=1,#br.enemy do
+		local thisUnit = br.enemy[i].unit
 		if getLineOfSight(thisUnit) == true then
-			if bb.enemy[i].distance < maxRange then
+			if br.enemy[i].distance < maxRange then
 				if getNumEnemies(thisUnit,radius) > enemiesInRange then
 					theReturnUnit = thisUnit
 				end
@@ -516,40 +516,40 @@ end
 
 --[[ DBM Timer ]]--
 
-bb.DBM = {}
+br.DBM = {}
 
 --- Return: All current DBM Timer
-function bb.DBM:getBars()
+function br.DBM:getBars()
     if DBM then
-        if not bb.DBM.Timer then
-            bb.DBM.Timer = {}
+        if not br.DBM.Timer then
+            br.DBM.Timer = {}
         else
-            wipe(bb.DBM.Timer)
+            wipe(br.DBM.Timer)
         end
 
         for bar in pairs(DBM.Bars.bars) do
             local number = string.match(bar.id ,"%d+")
-            table.insert(bb.DBM.Timer, {id = bar.id,timer = bar.timer,spellid = number})
+            table.insert(br.DBM.Timer, {id = bar.id,timer = bar.timer,spellid = number})
         end
     end
 end
 
 --- Usage:
--- 1 - bb.DBM:getPulltimer() -> return (number) pulltimer count
--- 2 - bb.DBM:getPulltimer(5) -> return (boolean) if pulltimer is below given time TRUE else FALSE
+-- 1 - br.DBM:getPulltimer() -> return (number) pulltimer count
+-- 2 - br.DBM:getPulltimer(5) -> return (boolean) if pulltimer is below given time TRUE else FALSE
 -- specificID can be set if Pulltimer is NOT "Pull in"
-function bb.DBM:getPulltimer(time, specificID)
-    if bb.DBM.Timer then
+function br.DBM:getPulltimer(time, specificID)
+    if br.DBM.Timer then
         specificID = specificID or "Pull in"
         local hasPulltimer = false
         local isBelowTime = false
         local pullTimer = 0
 
-        for i = 1, #bb.DBM.Timer do
+        for i = 1, #br.DBM.Timer do
             -- Check if a Pulltimer is present
-            if bb.DBM.Timer[i].id == specificID then
+            if br.DBM.Timer[i].id == specificID then
                 hasPulltimer = true
-                pullTimer = bb.DBM.Timer[i].timer
+                pullTimer = br.DBM.Timer[i].timer
 
                 -- if a time is given set var to true
                 if time then
@@ -578,19 +578,19 @@ function bb.DBM:getPulltimer(time, specificID)
 end
 
 --- Usage:
--- 1 - bb.DBM:getTimer(spellID) -> return (number) the count of given spell ID timer
--- 2 - bb.DBM:getTimer(spellID, time) -> return (boolean) TRUE if spellid is below given time else FALSE
-function bb.DBM:getTimer(spellID, time)
-    if bb.DBM.Timer then
+-- 1 - br.DBM:getTimer(spellID) -> return (number) the count of given spell ID timer
+-- 2 - br.DBM:getTimer(spellID, time) -> return (boolean) TRUE if spellid is below given time else FALSE
+function br.DBM:getTimer(spellID, time)
+    if br.DBM.Timer then
         local hasTimer = false
         local isBelowTime = false
         local currentTimer = 0
 
-        for i = 1, #bb.DBM.Timer do
+        for i = 1, #br.DBM.Timer do
             -- Check if timer with spell id is present
-            if bb.DBM.Timer[i].spellid == spellID then
+            if br.DBM.Timer[i].spellid == spellID then
                 hasTimer = true
-                currentTimer = bb.DBM.Timer[i].timer
+                currentTimer = br.DBM.Timer[i].timer
 
                 -- if a time is given set var to true
                 if time then

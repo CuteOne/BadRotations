@@ -135,19 +135,19 @@ function cFeral:new()
 
         function self.getToggleModes()
 
-            self.mode.rotation  = bb.data["Rotation"]
-            self.mode.cooldown  = bb.data["Cooldown"]
-            self.mode.defensive = bb.data["Defensive"]
-            self.mode.interrupt = bb.data["Interrupt"]
-            self.mode.cleave    = bb.data["Cleave"]
-            self.mode.prowl     = bb.data["Prowl"]
+            self.mode.rotation  = br.data["Rotation"]
+            self.mode.cooldown  = br.data["Cooldown"]
+            self.mode.defensive = br.data["Defensive"]
+            self.mode.interrupt = br.data["Interrupt"]
+            self.mode.cleave    = br.data["Cleave"]
+            self.mode.prowl     = br.data["Prowl"]
         end
 
         -- Create the toggle defined within rotation files
         function self.createToggles()
             GarbageButtons()
-            if self.rotations[bb.selectedProfile] ~= nil then
-                self.rotations[bb.selectedProfile].toggles()
+            if self.rotations[br.selectedProfile] ~= nil then
+                self.rotations[br.selectedProfile].toggles()
             else
                 return
             end
@@ -159,14 +159,14 @@ function cFeral:new()
         
         -- Creates the option/profile window
         function self.createOptions()
-            bb.ui.window.profile = bb.ui:createProfileWindow(self.profile)
+            br.ui.window.profile = br.ui:createProfileWindow(self.profile)
 
             -- Get the names of all profiles and create rotation dropdown
             local names = {}
             for i=1,#self.rotations do
                 tinsert(names, self.rotations[i].name)
             end
-            bb.ui:createRotationDropdown(bb.ui.window.profile.parent, names)
+            br.ui:createRotationDropdown(br.ui.window.profile.parent, names)
 
             -- Create Base and Class option table
             local optionTable = {
@@ -182,8 +182,8 @@ function cFeral:new()
 
             -- Get profile defined options
             local profileTable = profileTable
-            if self.rotations[bb.selectedProfile] ~= nil then
-                profileTable = self.rotations[bb.selectedProfile].options()
+            if self.rotations[br.selectedProfile] ~= nil then
+                profileTable = self.rotations[br.selectedProfile].options()
             else
                 return
             end
@@ -194,8 +194,8 @@ function cFeral:new()
             end
 
             -- Create pages dropdown
-            bb.ui:createPagesDropdown(bb.ui.window.profile, optionTable)
-            bb:checkProfileWindowStatus()
+            br.ui:createPagesDropdown(br.ui.window.profile, optionTable)
+            br:checkProfileWindowStatus()
         end
 
     ------------------------
@@ -221,9 +221,9 @@ function cFeral:new()
             local weaponDPS = (select(2,UnitDamage("player")) - select(1,UnitDamage("player"))) / 2
             local weaponDMG = (weaponDPS + UnitAttackPower("player") / 3.5) 
             local cp = cp
-            if cp == nil then cp = bb.player.comboPoints end 
-            fbD = 0.749 * cp * UnitAttackPower("player") * (1 + (bb.player.power - 25) / 25)
-            if bb.player.inCombat then
+            if cp == nil then cp = br.player.comboPoints end 
+            fbD = 0.749 * cp * UnitAttackPower("player") * (1 + (br.player.power - 25) / 25)
+            if br.player.inCombat then
                 return fbD
             else
                 return 0

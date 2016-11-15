@@ -43,12 +43,12 @@ end
 
 -- findTarget(10,true,1)   will find closest target in 10 yard front that have more or equal to 1%hp
 function findTarget(range,facingCheck,minimumHealth)
-    if bb.enemy ~= nil then
-        for i = 1,#bb.enemy do
-            if bb.enemy[i].distance <= range then
-                if FacingCheck == false or getFacing("player",bb.enemy[i].unit) == true then
-                    if not minimumHealth or minimumHealth and minimumHealth >= bb.enemy[i].hp then
-                        TargetUnit(bb.enemy[i].unit)
+    if br.enemy ~= nil then
+        for i = 1,#br.enemy do
+            if br.enemy[i].distance <= range then
+                if FacingCheck == false or getFacing("player",br.enemy[i].unit) == true then
+                    if not minimumHealth or minimumHealth and minimumHealth >= br.enemy[i].hp then
+                        TargetUnit(br.enemy[i].unit)
                     end
                 end
             else
@@ -76,7 +76,7 @@ end
 function getLoot2()
     if looted == nil then looted = 0 end
     if lM:emptySlots() then
-        for i=1,GetObjectCountBB() do
+        for i=1,GetObjectCountBR() do
             if GetObjectExists(i) and bit.band(GetObjectType(i), ObjectTypes.Unit) == 8 then
                 local thisUnit = GetObjectIndex(i)
                 local hasLoot,canLoot = CanLootUnit(UnitGUID(thisUnit))

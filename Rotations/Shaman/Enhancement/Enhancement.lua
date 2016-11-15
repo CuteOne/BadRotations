@@ -1,14 +1,14 @@
 function ShamanEnhancement()
     if GetSpecializationInfo(GetSpecialization()) == 263 then
-        if bb.player == nil or bb.player.profile ~= "Enhancement" then
-            bb.player = cEnhancement:new("Enhancement")
-            setmetatable(bb.player, {__index = cEnhancement})
+        if br.player == nil or br.player.profile ~= "Enhancement" then
+            br.player = cEnhancement:new("Enhancement")
+            setmetatable(br.player, {__index = cEnhancement})
 
-            bb.player:createOptions()
-            bb.player:createToggles()
-            bb.player:update()
+            br.player:createOptions()
+            br.player:createToggles()
+            br.player:update()
         end
 
-        bb.player:update()
+        br.player:update()
     end
 end

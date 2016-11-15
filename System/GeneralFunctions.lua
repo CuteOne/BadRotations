@@ -33,7 +33,7 @@ function GetObjectIndex(Index)
         return false
     end
 end
-function GetObjectCountBB()
+function GetObjectCountBR()
 	if FireHack then
     	return GetObjectCount()
     else
@@ -83,7 +83,7 @@ function GetObjectIndex(Index)
 		return false
 	end
 end
-function GetObjectCountBB()
+function GetObjectCountBR()
 	return select(2,pcall(GetObjectCount))
 end
 ]]
@@ -468,7 +468,7 @@ end
 -- if canRun() then
 function canRun()
 	if getOptionCheck("Pause") ~= 1 then
-		if getOptionCheck("Start/Stop BadBoy") and isAlive("player") then
+		if getOptionCheck("Start/Stop BadRotations") and isAlive("player") then
 			if SpellIsTargeting()
 				--or UnitInVehicle("Player")
 				or (IsMounted() and not UnitBuffID("player",164222) and not UnitBuffID("player",165803) and not UnitBuffID("player",157059) and not UnitBuffID("player",157060))
@@ -488,7 +488,7 @@ function canRun()
 			end
 		end
 	else
-		ChatOverlay("|cffFF0000-BadBoy Paused-")
+		ChatOverlay("|cffFF0000-BadRotations Paused-")
 		return false
 	end
 end
@@ -531,15 +531,15 @@ function castAoEHeal(spellID,numUnits,missingHP,rangeValue)
 	-- i start an iteration that i use to build each units Table,which i will reuse for the next second
 	if not holyRadianceRangeTable or not holyRadianceRangeTableTimer or holyRadianceRangeTable <= GetTime() - 1 then
 		holyRadianceRangeTable = { }
-		for i = 1,#bb.friend do
+		for i = 1,#br.friend do
 			-- i declare a sub-table for this unit if it dont exists
-			if bb.friend[i].distanceTable == nil then bb.friend[i].distanceTable = { } end
+			if br.friend[i].distanceTable == nil then br.friend[i].distanceTable = { } end
 			-- i start a second iteration where i scan unit ranges from one another.
-			for j = 1,#bb.friend do
+			for j = 1,#br.friend do
 				-- i make sure i dont compute unit range to hisself.
-				if not UnitIsUnit(bb.friend[i].unit,bb.friend[j].unit) then
+				if not UnitIsUnit(br.friend[i].unit,br.friend[j].unit) then
 					-- table the units
-					bb.friend[i].distanceTable[j] = { distance = getDistance(bb.friend[i].unit,bb.friend[j].unit),unit = bb.friend[j].unit,hp = bb.friend[j].hp }
+					br.friend[i].distanceTable[j] = { distance = getDistance(br.friend[i].unit,br.friend[j].unit),unit = br.friend[j].unit,hp = br.friend[j].hp }
 				end
 			end
 		end
@@ -548,16 +548,16 @@ function castAoEHeal(spellID,numUnits,missingHP,rangeValue)
 	local bestTarget,bestTargetUnits = 1,1
 	-- now that nova range is built,i can iterate it
 	local inRange,missingHealth,mostMissingHealth = 0,0,0
-	for i = 1,#bb.friend do
-		if bb.friend[i].distanceTable ~= nil then
+	for i = 1,#br.friend do
+		if br.friend[i].distanceTable ~= nil then
 			-- i count units in range
-			for j = 1,#bb.friend do
-				if bb.friend[i].distanceTable[j] and bb.friend[i].distanceTable[j].distance < rangeValue then
+			for j = 1,#br.friend do
+				if br.friend[i].distanceTable[j] and br.friend[i].distanceTable[j].distance < rangeValue then
 					inRange = inRange + 1
-					missingHealth = missingHealth + (100 - bb.friend[i].distanceTable[j].hp)
+					missingHealth = missingHealth + (100 - br.friend[i].distanceTable[j].hp)
 				end
 			end
-			bb.friend[i].inRangeForHolyRadiance = inRange
+			br.friend[i].inRangeForHolyRadiance = inRange
 			-- i check if this is going to be the best unit for my spell
 			if missingHealth > mostMissingHealth then
 				bestTarget,bestTargetUnits,mostMissingHealth = i,inRange,missingHealth
@@ -565,7 +565,7 @@ function castAoEHeal(spellID,numUnits,missingHP,rangeValue)
 		end
 	end
 	if bestTargetUnits and bestTargetUnits > 3 and mostMissingHealth and missingHP and mostMissingHealth > missingHP then
-		if castSpell(bb.friend[bestTarget].unit,spellID,true,true) then return true end
+		if castSpell(br.friend[bestTarget].unit,spellID,true,true) then return true end
 	end
 end
 -- castGround("target",12345,40)
@@ -619,11 +619,11 @@ end
 function castHealGround(SpellID,Radius,Health,NumberOfPlayers)
 	if shouldStopCasting(SpellID) ~= true then
 		local lowHPTargets,foundTargets = { },{ }
-		for i = 1,#bb.friend do
-			if getHP(bb.friend[i].unit) <= Health then
-				if UnitIsVisible(bb.friend[i].unit) and GetObjectExists(bb.friend[i].unit) then
-					local X,Y,Z = GetObjectPosition(bb.friend[i].unit)
-					tinsert(lowHPTargets,{ unit = bb.friend[i].unit,x = X,y = Y,z = Z })
+		for i = 1,#br.friend do
+			if getHP(br.friend[i].unit) <= Health then
+				if UnitIsVisible(br.friend[i].unit) and GetObjectExists(br.friend[i].unit) then
+					local X,Y,Z = GetObjectPosition(br.friend[i].unit)
+					tinsert(lowHPTargets,{ unit = br.friend[i].unit,x = X,y = Y,z = Z })
 				end 
 			end 
 		end
@@ -744,7 +744,7 @@ function castSpell(Unit,SpellID,FacingCheck,MovementCheck,SpamAllowed,KnownSkip,
 								CastSpellByName(GetSpellInfo(SpellID),Unit)
 								--lastSpellCast = SpellID
 								-- change main button icon
-								if getOptionCheck("Start/Stop BadBoy") then
+								if getOptionCheck("Start/Stop BadRotations") then
 									mainButton:SetNormalTexture(select(3,GetSpellInfo(SpellID)))
 									lastSpellCast = SpellID
 									lastSpellTarget = UnitGUID(Unit)
@@ -759,7 +759,7 @@ function castSpell(Unit,SpellID,FacingCheck,MovementCheck,SpamAllowed,KnownSkip,
 					else
 						currentTarget = UnitGUID(Unit)
 						CastSpellByName(GetSpellInfo(SpellID),Unit)
-						if getOptionCheck("Start/Stop BadBoy") then
+						if getOptionCheck("Start/Stop BadRotations") then
 							mainButton:SetNormalTexture(select(3,GetSpellInfo(SpellID)))
 							lastSpellCast = SpellID
 							lastSpellTarget = UnitGUID(Unit)
@@ -832,7 +832,7 @@ function castSpellMacro(Unit,SpellID,FacingCheck,MovementCheck,SpamAllowed,Known
 								RunMacroText("/cast [@"..Unit.."] "..GetSpellInfo(SpellID))
 								--lastSpellCast = SpellID
 								-- change main button icon
-								if getOptionCheck("Start/Stop BadBoy") then
+								if getOptionCheck("Start/Stop BadRotations") then
 									mainButton:SetNormalTexture(select(3,GetSpellInfo(SpellID)))
 									lastSpellCast = SpellID
 									lastSpellTarget = UnitGUID(Unit)
@@ -847,7 +847,7 @@ function castSpellMacro(Unit,SpellID,FacingCheck,MovementCheck,SpamAllowed,Known
 					else
 						currentTarget = UnitGUID(Unit)
 						RunMacroText("/cast [@"..Unit.."] "..GetSpellInfo(SpellID))
-						if getOptionCheck("Start/Stop BadBoy") then
+						if getOptionCheck("Start/Stop BadRotations") then
 							mainButton:SetNormalTexture(select(3,GetSpellInfo(SpellID)))
 							lastSpellCast = SpellID
 							lastSpellTarget = UnitGUID(Unit)
@@ -862,12 +862,12 @@ function castSpellMacro(Unit,SpellID,FacingCheck,MovementCheck,SpamAllowed,Known
 end
 -- Used in openers
 function castOpener(spellIndex,flag,index)
-    if (not bb.player.cast.debug[spellIndex] and (bb.player.cd[spellIndex] == 0 or bb.player.cd[spellIndex] > bb.player.gcd)) then
-        print(index..": "..select(1,GetSpellInfo(bb.player.spell[spellIndex])).." (Uncastable)");
+    if (not br.player.cast.debug[spellIndex] and (br.player.cd[spellIndex] == 0 or br.player.cd[spellIndex] > br.player.gcd)) then
+        print(index..": "..select(1,GetSpellInfo(br.player.spell[spellIndex])).." (Uncastable)");
         _G[flag] = true;
         return
     else
-        if bb.player.cast[spellIndex]() then print(index..": "..select(1,GetSpellInfo(bb.player.spell[spellIndex]))); _G[flag] = true; return end
+        if br.player.cast[spellIndex]() then print(index..": "..select(1,GetSpellInfo(br.player.spell[spellIndex]))); _G[flag] = true; return end
     end
 end
 function canCast(spellID,unit)
@@ -978,8 +978,8 @@ function getChiMax(Unit)
 end
 -- if getCombatTime() <= 5 then
 function getCombatTime()
-	local combatStarted = bb.data["Combat Started"]
-	local combatTime = bb.data["Combat Time"]
+	local combatStarted = br.data["Combat Started"]
+	local combatTime = br.data["Combat Time"]
 	if combatStarted == nil then
 		return 0
 	end
@@ -991,7 +991,7 @@ function getCombatTime()
 	else
 		combatTime = 0
 	end
-	bb.data["Combat Time"] = combatTime
+	br.data["Combat Time"] = combatTime
 	return (math.floor(combatTime*1000)/1000)
 end
 -- if getCreatureType(Unit) == true then
@@ -1161,9 +1161,9 @@ function getDistance(Unit1,Unit2)
 				currDist = 5
 			end
 		end
-		if bb.player ~= nil then
-			if bb.player.talent.balanceAffinity ~= nil then
-				if bb.player.talent.balanceAffinity then
+		if br.player ~= nil then
+			if br.player.talent.balanceAffinity ~= nil then
+				if br.player.talent.balanceAffinity then
 					if currDist < 5 then
 						return 0
 					else
@@ -1310,9 +1310,9 @@ function getHP(Unit)
 			return 100*UnitHealth(Unit)/UnitHealthMax(Unit)
 		else
 			if not UnitIsDeadOrGhost(Unit) and UnitIsVisible(Unit) then
-				for i = 1,#bb.friend do
-					if bb.friend[i].guidsh == string.sub(UnitGUID(Unit),-5) then
-						return bb.friend[i].hp
+				for i = 1,#br.friend do
+					if br.friend[i].guidsh == string.sub(UnitGUID(Unit),-5) then
+						return br.friend[i].hp
 					end
 				end
 				if getOptionCheck("No Incoming Heals") ~= true and UnitGetIncomingHeals(Unit,"player") ~= nil then
@@ -1335,7 +1335,7 @@ function getHPLossPercent(unit,sec)
 	if sec == nil then sec = 1 end
 	if snapHP == nil then snapHP = 0 end
 	if spellID == nil then spellID = 0 end
-	if bb.timer:useTimer("Loss Percent", sec) then
+	if br.timer:useTimer("Loss Percent", sec) then
 		snapHP = currentHP
 	end
 	if snapHP < currentHP then
@@ -1350,8 +1350,8 @@ end
 -- if getLowAllies(60) > 3 then
 function getLowAllies(Value)
 	local lowAllies = 0
-	for i = 1,#bb.friend do
-		if bb.friend[i].hp < Value then
+	for i = 1,#br.friend do
+		if br.friend[i].hp < Value then
 			lowAllies = lowAllies + 1
 		end
 	end
@@ -1518,7 +1518,7 @@ function getTotemDistance(Unit1)
 	end
 
 	if UnitIsVisible(Unit1) then
-		for i = 1,GetObjectCountBB() do
+		for i = 1,GetObjectCountBR() do
 			if UnitCreator(ObjectWithIndex(i)) == ObjectPointer("player") and (UnitName(ObjectWithIndex(i)) == "Searing Totem" or UnitName(ObjectWithIndex(i)) == "Magma Totem") then
 				X2,Y2,Z2 = GetObjectPosition(GetObjectIndex(i))
 			end
@@ -1933,8 +1933,8 @@ function hasThreat(unit,playerUnit)
 	local targetFriend
 	if UnitExists("targettarget") then targetOfTarget = UnitTarget(unit) else targetOfTarget = "player" end
 	if UnitExists("targettarget") then targetFriend = (UnitInParty(targetOfTarget) or UnitInRaid(targetOfTarget)) else targetFriend = false end
-	for i = 1, #bb.friend do
-		local thisUnit = bb.friend[i].unit
+	for i = 1, #br.friend do
+		local thisUnit = br.friend[i].unit
 		if UnitThreatSituation(unit, thisUnit)~=nil then
 			return true
 		end
@@ -1948,7 +1948,7 @@ function hasThreat(unit,playerUnit)
 end
 -- if isAggroed("target") then
 function isAggroed(unit)
-local friend = bb.friend
+local friend = br.friend
 local hasAggro = hasAggro
 	if hasAggro == nil then hasAggro = false end
 	for i=1,#friend do
@@ -1978,7 +1978,7 @@ function isBoss(unit)
 	if UnitExists(unit) then
 		local npcID = string.match(UnitGUID(unit),"-(%d+)-%x+$")
 		local bossCheck = LibStub("LibBossIDs-1.0").BossIDs[tonumber(npcID)] or false
-		-- local bossCheck = bb.player.BossIDs[tonumber(npcID)] or false
+		-- local bossCheck = br.player.BossIDs[tonumber(npcID)] or false
 		if ((UnitClassification(unit) == "rare" and UnitHealthMax(unit)>(4*UnitHealthMax("player")))
 			or UnitClassification(unit) == "rareelite" 
 			or UnitClassification(unit) == "worldboss" 
@@ -2468,7 +2468,7 @@ end
 function isValidUnit(Unit)
 	if ObjectExists(Unit) and not UnitIsDeadOrGhost(Unit) then
 		if not UnitAffectingCombat("player") and UnitIsUnit(Unit,"target") 
-			and (select(2,IsInInstance()) == "none" or #bb.friend == 1 
+			and (select(2,IsInInstance()) == "none" or #br.friend == 1 
 				or (hasThreat(Unit) or (not hasThreat(Unit) and UnitAffectingCombat("target"))) or isDummy(Unit)) and UnitCanAttack(Unit, "player") 
 		then
 			return true
@@ -2524,7 +2524,7 @@ function SlashCommandHelp(cmd,msg)
 	if msg == nil then msg = "" end
 	if cmd == "Print Help" then print(tostring(commandHelp)); return end
 	if commandHelp == nil then 
-		commandHelp = "BadBoy Slash Commands\n        /"..cmd.." - "..msg
+		commandHelp = "BadRotations Slash Commands\n        /"..cmd.." - "..msg
 	else
 		commandHelp = commandHelp.."\n        /"..cmd.." - "..msg
 	end
@@ -2560,7 +2560,7 @@ function pause(skipCastingCheck)
 			end
 		end
 	end
-	if bb.data['Pause'] == 1 then
+	if br.data['Pause'] == 1 then
 		ChatOverlay("\124cFFED0000 -- Paused -- ")
 		return true
 	end
@@ -2601,14 +2601,14 @@ function toggleTrueNil(var)
 end
 -- useItem(12345)
 function useItem(itemID)
-	--bb.itemSpamDelay = bb.itemSpamDelay or 0
+	--br.itemSpamDelay = br.itemSpamDelay or 0
 	if itemID<=19 then
 		if GetItemSpell(GetInventoryItemID("player",itemID))~=nil then 
 			local slotItemID = GetInventoryItemID("player",itemID)
 			if GetItemCooldown(slotItemID)==0 then
-				if not bb.itemSpamDelay or GetTime() > bb.itemSpamDelay then
+				if not br.itemSpamDelay or GetTime() > br.itemSpamDelay then
 					UseItemByName((select(1,GetItemInfo(slotItemID))));
-					bb.itemSpamDelay = GetTime() + 1;
+					br.itemSpamDelay = GetTime() + 1;
 					return true
 				end
 			end
@@ -2617,9 +2617,9 @@ function useItem(itemID)
 		end
 	elseif itemID>19 and (GetItemCount(itemID) > 0 or PlayerHasToy(itemID)) then
 		if GetItemCooldown(itemID)==0 then
-			if not bb.itemSpamDelay or GetTime() > bb.itemSpamDelay then
+			if not br.itemSpamDelay or GetTime() > br.itemSpamDelay then
 				UseItemByName((select(1,GetItemInfo(itemID))));
-				bb.itemSpamDelay = GetTime() + 1;
+				br.itemSpamDelay = GetTime() + 1;
 				return true
 			end
 		end
@@ -2633,12 +2633,12 @@ function spellDebug(Message)
 end
 -- if isChecked("Debug") then
 function isChecked(Value)
-	if bb.data~=nil then
-		--print(bb.data.options[bb.selectedSpec]["profile"..Value.."Check"])
-	    if bb.data.options[bb.selectedSpec] == nil or bb.data.options[bb.selectedSpec][bb.selectedProfile] == nil then return false end
+	if br.data~=nil then
+		--print(br.data.options[br.selectedSpec]["profile"..Value.."Check"])
+	    if br.data.options[br.selectedSpec] == nil or br.data.options[br.selectedSpec][br.selectedProfile] == nil then return false end
 
-	    if bb.data.options[bb.selectedSpec]
-	        and (bb.data.options[bb.selectedSpec][bb.selectedProfile][Value.. "Check"]==1 or bb.data.options[bb.selectedSpec][bb.selectedProfile][Value.. "Check"] == true)
+	    if br.data.options[br.selectedSpec]
+	        and (br.data.options[br.selectedSpec][br.selectedProfile][Value.. "Check"]==1 or br.data.options[br.selectedSpec][br.selectedProfile][Value.. "Check"] == true)
 	    then
 	        return true
 	    end
@@ -2647,19 +2647,19 @@ function isChecked(Value)
 end
 -- if isSelected("Stormlash Totem") then
 function isSelected(Value)
-	if bb.data["Cooldowns"] == 3 or (isChecked(Value)
-		and (getValue(Value) == 3 or (getValue(Value) == 2 and bb.data["Cooldowns"] == 2))) then
+	if br.data["Cooldowns"] == 3 or (isChecked(Value)
+		and (getValue(Value) == 3 or (getValue(Value) == 2 and br.data["Cooldowns"] == 2))) then
 		return true
 	end
 end
 -- if getValue("player") <= getValue("Eternal Flame") then
 function getValue(Value)
-	if bb.data~=nil then
-		if bb.data.options[bb.selectedSpec][bb.selectedProfile]~=nil then
-	        if bb.data.options[bb.selectedSpec][bb.selectedProfile][Value.."Status"] ~= nil then
-	            return bb.data.options[bb.selectedSpec][bb.selectedProfile][Value.."Status"]
-	        elseif bb.data.options[bb.selectedSpec][bb.selectedProfile][Value.."Drop"] ~= nil then
-	            return bb.data.options[bb.selectedSpec][bb.selectedProfile][Value.."Drop"]
+	if br.data~=nil then
+		if br.data.options[br.selectedSpec][br.selectedProfile]~=nil then
+	        if br.data.options[br.selectedSpec][br.selectedProfile][Value.."Status"] ~= nil then
+	            return br.data.options[br.selectedSpec][br.selectedProfile][Value.."Status"]
+	        elseif br.data.options[br.selectedSpec][br.selectedProfile][Value.."Drop"] ~= nil then
+	            return br.data.options[br.selectedSpec][br.selectedProfile][Value.."Drop"]
 	        else
 	            return 0
 	        end
@@ -2676,7 +2676,7 @@ function getOptionValue(Value)
     return getValue(Value)
 end
 function hasHealthPot()
-	local potion = bb.player.potion
+	local potion = br.player.potion
 	if potion.health[1]==nil and potion.rejuve[1]==nil then
 		return false
 	else
@@ -2684,7 +2684,7 @@ function hasHealthPot()
 	end
 end
 function getHealthPot()
-	local potion = bb.player.potion
+	local potion = br.player.potion
 	if potion ~= nil then
 		if potion.health[1]~=nil then
 			return potion.health[1].itemID

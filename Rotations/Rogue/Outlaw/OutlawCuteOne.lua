@@ -7,42 +7,42 @@ if select(2, UnitClass("player")) == "ROGUE" then
     local function createToggles()
     -- Rotation Button
         RotationModes = {
-            [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range.", highlight = 1, icon = bb.player.spell.bladeFlurry },
-            [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = bb.player.spell.bladeFlurry },
-            [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = bb.player.spell.saberSlash },
-            [4] = { mode = "Off", value = 4 , overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = bb.player.spell.crimsonVial }
+            [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range.", highlight = 1, icon = br.player.spell.bladeFlurry },
+            [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = br.player.spell.bladeFlurry },
+            [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = br.player.spell.saberSlash },
+            [4] = { mode = "Off", value = 4 , overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spell.crimsonVial }
         };
         CreateButton("Rotation",1,0)
     -- Cooldown Button
         CooldownModes = {
-            [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = bb.player.spell.adrenalineRush },
-            [2] = { mode = "On", value = 1 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = bb.player.spell.adrenalineRush },
-            [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = bb.player.spell.adrenalineRush }
+            [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spell.adrenalineRush },
+            [2] = { mode = "On", value = 1 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spell.adrenalineRush },
+            [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.adrenalineRush }
         };
         CreateButton("Cooldown",2,0)
     -- Defensive Button
         DefensiveModes = {
-            [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = bb.player.spell.riposte },
-            [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = bb.player.spell.riposte }
+            [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spell.riposte },
+            [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spell.riposte }
         };
         CreateButton("Defensive",3,0)
     -- Interrupt Button
         InterruptModes = {
-            [1] = { mode = "On", value = 1 , overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = bb.player.spell.kick },
-            [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = bb.player.spell.kick }
+            [1] = { mode = "On", value = 1 , overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spell.kick },
+            [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.kick }
         };
         CreateButton("Interrupt",4,0)
     -- Cleave Button
         CleaveModes = {
-            [1] = { mode = "On", value = 1 , overlay = "Cleaving Enabled", tip = "Rotation will cleave targets.", highlight = 1, icon = bb.player.spell.bladeFlurry },
-            [2] = { mode = "Off", value = 2 , overlay = "Cleaving Disabled", tip = "Rotation will not cleave targets", highlight = 0, icon = bb.player.spell.saberSlash }
+            [1] = { mode = "On", value = 1 , overlay = "Cleaving Enabled", tip = "Rotation will cleave targets.", highlight = 1, icon = br.player.spell.bladeFlurry },
+            [2] = { mode = "Off", value = 2 , overlay = "Cleaving Disabled", tip = "Rotation will not cleave targets", highlight = 0, icon = br.player.spell.saberSlash }
         };
         CreateButton("Cleave",5,0)
     -- Pick Pocket Button
       	PickerModes = {
-          [1] = { mode = "Auto", value = 2 , overlay = "Auto Pick Pocket Enabled", tip = "Profile will attempt to Pick Pocket prior to combat.", highlight = 1, icon = bb.player.spell.pickPocket},
-          [2] = { mode = "Only", value = 1 , overlay = "Only Pick Pocket Enabled", tip = "Profile will attempt to Sap and only Pick Pocket, no combat.", highlight = 0, icon = bb.player.spell.pickPocket},
-          [3] = { mode = "Off", value = 3, overlay = "Pick Pocket Disabled", tip = "Profile will not use Pick Pocket.", highlight = 0, icon = bb.player.spell.pickPocket}
+          [1] = { mode = "Auto", value = 2 , overlay = "Auto Pick Pocket Enabled", tip = "Profile will attempt to Pick Pocket prior to combat.", highlight = 1, icon = br.player.spell.pickPocket},
+          [2] = { mode = "Only", value = 1 , overlay = "Only Pick Pocket Enabled", tip = "Profile will attempt to Sap and only Pick Pocket, no combat.", highlight = 0, icon = br.player.spell.pickPocket},
+          [3] = { mode = "Off", value = 3, overlay = "Pick Pocket Disabled", tip = "Profile will not use Pick Pocket.", highlight = 0, icon = br.player.spell.pickPocket}
         };
         CreateButton("Picker",6,0)
     end
@@ -57,86 +57,86 @@ if select(2, UnitClass("player")) == "ROGUE" then
             -----------------------
             --- GENERAL OPTIONS ---
             -----------------------
-            section = bb.ui:createSection(bb.ui.window.profile,  "General")
+            section = br.ui:createSection(br.ui.window.profile,  "General")
             	-- Bribe
-            	bb.ui:createCheckbox(section, "Bribe")
+            	br.ui:createCheckbox(section, "Bribe")
 	            -- Dummy DPS Test
-                bb.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
+                br.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
 	            -- Grappling Hook
-	            bb.ui:createCheckbox(section, "Grappling Hook")
+	            br.ui:createCheckbox(section, "Grappling Hook")
 	            -- Opening Attack
-	            bb.ui:createDropdown(section, "Opener", {"Ambush", "Cheap Shot"},  1, "|cffFFFFFFSelect Attack to Break Stealth with")
+	            br.ui:createDropdown(section, "Opener", {"Ambush", "Cheap Shot"},  1, "|cffFFFFFFSelect Attack to Break Stealth with")
 	            -- Pre-Pull Timer
-	            bb.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
+	            br.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
             	-- Stealth
-	            bb.ui:createDropdown(section, "Stealth", {"|cff00FF00Always", "|cffFFDD00PrePot", "|cffFF000020Yards"},  1, "Stealth method.")
+	            br.ui:createDropdown(section, "Stealth", {"|cff00FF00Always", "|cffFFDD00PrePot", "|cffFF000020Yards"},  1, "Stealth method.")
 	            -- Artifact 
-                bb.ui:createDropdownWithout(section,"Artifact", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Artifact Ability.")
-            bb.ui:checkSectionState(section)
+                br.ui:createDropdownWithout(section,"Artifact", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Artifact Ability.")
+            br.ui:checkSectionState(section)
             ------------------------
             --- COOLDOWN OPTIONS ---
             ------------------------
-            section = bb.ui:createSection(bb.ui.window.profile,  "Cooldowns")
+            section = br.ui:createSection(br.ui.window.profile,  "Cooldowns")
                 -- Agi Pot
-	            bb.ui:createCheckbox(section, "Agi-Pot")
+	            br.ui:createCheckbox(section, "Agi-Pot")
 	            -- Legendary Ring
-	            bb.ui:createCheckbox(section, "Legendary Ring")
+	            br.ui:createCheckbox(section, "Legendary Ring")
 	            -- Vanish
-	            bb.ui:createCheckbox(section,  "Vanish")
-            bb.ui:checkSectionState(section)
+	            br.ui:createCheckbox(section,  "Vanish")
+            br.ui:checkSectionState(section)
             -------------------------
             --- DEFENSIVE OPTIONS ---
             -------------------------
-            section = bb.ui:createSection(bb.ui.window.profile, "Defensive")
+            section = br.ui:createSection(br.ui.window.profile, "Defensive")
             	-- Healthstone
-	            bb.ui:createSpinner(section, "Pot/Stoned",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
+	            br.ui:createSpinner(section, "Pot/Stoned",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
 	            -- Heirloom Neck
-	            bb.ui:createSpinner(section, "Heirloom Neck",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
+	            br.ui:createSpinner(section, "Heirloom Neck",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
 	            -- Cloak of Shadows
-	            bb.ui:createCheckbox(section, "Cloak of Shadows")
+	            br.ui:createCheckbox(section, "Cloak of Shadows")
 	            -- Crimson Vial
-	            bb.ui:createSpinner(section, "Crimson Vial",  50,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
+	            br.ui:createSpinner(section, "Crimson Vial",  50,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
 	            -- Feint
-	            bb.ui:createSpinner(section, "Feint", 75, 0, 100, 5, "|cffFFBB00Health Percentage to use at.")
+	            br.ui:createSpinner(section, "Feint", 75, 0, 100, 5, "|cffFFBB00Health Percentage to use at.")
 	            -- Riposte
-	            bb.ui:createSpinner(section, "Riposte",  50,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
-            bb.ui:checkSectionState(section)
+	            br.ui:createSpinner(section, "Riposte",  50,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
+            br.ui:checkSectionState(section)
             -------------------------
             --- INTERRUPT OPTIONS ---
             -------------------------
-            section = bb.ui:createSection(bb.ui.window.profile, "Interrupts")
+            section = br.ui:createSection(br.ui.window.profile, "Interrupts")
             	-- Kick
-            	bb.ui:createCheckbox(section, "Kick")
+            	br.ui:createCheckbox(section, "Kick")
             	-- Gouge
-            	bb.ui:createCheckbox(section, "Gouge")
+            	br.ui:createCheckbox(section, "Gouge")
             	-- Blind
-            	bb.ui:createCheckbox(section, "Blind")
+            	br.ui:createCheckbox(section, "Blind")
             	-- Parley
-            	bb.ui:createCheckbox(section, "Parley")
+            	br.ui:createCheckbox(section, "Parley")
             	-- Between the Eyes
-            	bb.ui:createCheckbox(section, "Between the Eyes")	
+            	br.ui:createCheckbox(section, "Between the Eyes")	
 	            -- Interrupt Percentage
-	            bb.ui:createSpinner(section,  "Interrupt At",  0,  0,  95,  5,  "|cffFFBB00Cast Percentage to use at.")    
-            bb.ui:checkSectionState(section)
+	            br.ui:createSpinner(section,  "Interrupt At",  0,  0,  95,  5,  "|cffFFBB00Cast Percentage to use at.")    
+            br.ui:checkSectionState(section)
             ----------------------
             --- TOGGLE OPTIONS ---
             ----------------------
-            section = bb.ui:createSection(bb.ui.window.profile,  "Toggle Keys")
+            section = br.ui:createSection(br.ui.window.profile,  "Toggle Keys")
             	-- Single/Multi Toggle
-	            bb.ui:createDropdown(section,  "Rotation Mode", bb.dropOptions.Toggle,  4)
+	            br.ui:createDropdown(section,  "Rotation Mode", br.dropOptions.Toggle,  4)
 	            --Cooldown Key Toggle
-	            bb.ui:createDropdown(section,  "Cooldown Mode", bb.dropOptions.Toggle,  3)
+	            br.ui:createDropdown(section,  "Cooldown Mode", br.dropOptions.Toggle,  3)
 	            --Defensive Key Toggle
-	            bb.ui:createDropdown(section,  "Defensive Mode", bb.dropOptions.Toggle,  6)
+	            br.ui:createDropdown(section,  "Defensive Mode", br.dropOptions.Toggle,  6)
 	            -- Interrupts Key Toggle
-	            bb.ui:createDropdown(section,  "Interrupt Mode", bb.dropOptions.Toggle,  6)
+	            br.ui:createDropdown(section,  "Interrupt Mode", br.dropOptions.Toggle,  6)
 	            -- Cleave Toggle
-	            bb.ui:createDropdown(section,  "Cleave Mode", bb.dropOptions.Toggle,  6)
+	            br.ui:createDropdown(section,  "Cleave Mode", br.dropOptions.Toggle,  6)
 	            -- Pick Pocket Toggle
-	            bb.ui:createDropdown(section,  "Pick Pocket Mode", bb.dropOptions.Toggle,  6)
+	            br.ui:createDropdown(section,  "Pick Pocket Mode", br.dropOptions.Toggle,  6)
 	            -- Pause Toggle
-	            bb.ui:createDropdown(section,  "Pause Mode", bb.dropOptions.Toggle,  6)   
-            bb.ui:checkSectionState(section)
+	            br.ui:createDropdown(section,  "Pause Mode", br.dropOptions.Toggle,  6)   
+            br.ui:checkSectionState(section)
         end
         optionTable = {{
             [1] = "Rotation Options",
@@ -149,7 +149,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
 --- ROTATION ---
 ----------------
     local function runRotation()
-        if bb.timer:useTimer("debugOutlaw", math.random(0.15,0.3)) then
+        if br.timer:useTimer("debugOutlaw", math.random(0.15,0.3)) then
             --print("Running: "..rotationName)
 
     ---------------
@@ -167,50 +167,50 @@ if select(2, UnitClass("player")) == "ROGUE" then
 	--------------
 			if profileStop == nil then profileStop = false end
 			local addsIn                                        = 999
-			local artifact 										= bb.player.artifact
+			local artifact 										= br.player.artifact
 			local attacktar 									= UnitCanAttack("target","player")
-			local buff, buffRemain								= bb.player.buff, bb.player.buff.remain
-			local cast 											= bb.player.cast
-			local castable 										= bb.player.cast.debug
-			local cd 											= bb.player.cd
-			local charge 										= bb.player.charges
-			local combo, comboDeficit, comboMax					= bb.player.comboPoints, bb.player.comboPointsMax - bb.player.comboPoints, bb.player.comboPointsMax
+			local buff, buffRemain								= br.player.buff, br.player.buff.remain
+			local cast 											= br.player.cast
+			local castable 										= br.player.cast.debug
+			local cd 											= br.player.cd
+			local charge 										= br.player.charges
+			local combo, comboDeficit, comboMax					= br.player.comboPoints, br.player.comboPointsMax - br.player.comboPoints, br.player.comboPointsMax
 			local cTime 										= getCombatTime()
 			local deadtar										= UnitIsDeadOrGhost("target")
-			local debuff 										= bb.player.debuff
-			local dynTar5 										= bb.player.units.dyn5 --Melee
-			local dynTar15 										= bb.player.units.dyn15 
-			local dynTar20AoE 									= bb.player.units.dyn20AoE --Stealth
-			local dynTar30AoE 									= bb.player.units.dyn30AoE
-			local dynTable5										= (bb.data['Cleave']==1 and bb.enemy) or { [1] = {["unit"]=dynTar5, ["distance"] = getDistance(dynTar5)}}
-			local dynTable15									= (bb.data['Cleave']==1 and bb.enemy) or { [1] = {["unit"]=dynTar15, ["distance"] = getDistance(dynTar15)}}
-			local dynTable20AoE 								= (bb.data['Cleave']==1 and bb.enemy) or { [1] = {["unit"]=dynTar20AoE, ["distance"] = getDistance(dynTar20AoE)}}
-			local enemies										= bb.player.enemies
-			local flaskBuff, canFlask							= getBuffRemain("player",bb.player.flask.wod.buff.agilityBig), canUse(bb.player.flask.wod.agilityBig)	
-			local gcd 											= bb.player.gcd
-			local glyph				 							= bb.player.glyph
+			local debuff 										= br.player.debuff
+			local dynTar5 										= br.player.units.dyn5 --Melee
+			local dynTar15 										= br.player.units.dyn15 
+			local dynTar20AoE 									= br.player.units.dyn20AoE --Stealth
+			local dynTar30AoE 									= br.player.units.dyn30AoE
+			local dynTable5										= (br.data['Cleave']==1 and br.enemy) or { [1] = {["unit"]=dynTar5, ["distance"] = getDistance(dynTar5)}}
+			local dynTable15									= (br.data['Cleave']==1 and br.enemy) or { [1] = {["unit"]=dynTar15, ["distance"] = getDistance(dynTar15)}}
+			local dynTable20AoE 								= (br.data['Cleave']==1 and br.enemy) or { [1] = {["unit"]=dynTar20AoE, ["distance"] = getDistance(dynTar20AoE)}}
+			local enemies										= br.player.enemies
+			local flaskBuff, canFlask							= getBuffRemain("player",br.player.flask.wod.buff.agilityBig), canUse(br.player.flask.wod.agilityBig)	
+			local gcd 											= br.player.gcd
+			local glyph				 							= br.player.glyph
 			local hastar 										= ObjectExists("target")
 			local healPot 										= getHealthPot()
-			local inCombat 										= bb.player.inCombat
+			local inCombat 										= br.player.inCombat
 			local lastSpell 									= lastSpellCast
-			local level											= bb.player.level
-			local mode 											= bb.player.mode
-			local multidot 										= (useCleave() or bb.player.mode.rotation ~= 3)
-			local perk											= bb.player.perk
-			local php											= bb.player.health
-			local power, powerDeficit, powerRegen				= bb.player.power, bb.player.powerDeficit, bb.player.powerRegen
-			local pullTimer 									= bb.DBM:getPulltimer()
-			local rtbCount 										= bb.rtbCount
+			local level											= br.player.level
+			local mode 											= br.player.mode
+			local multidot 										= (useCleave() or br.player.mode.rotation ~= 3)
+			local perk											= br.player.perk
+			local php											= br.player.health
+			local power, powerDeficit, powerRegen				= br.player.power, br.player.powerDeficit, br.player.powerRegen
+			local pullTimer 									= br.DBM:getPulltimer()
+			local rtbCount 										= br.rtbCount
 			local solo											= GetNumGroupMembers() == 0	
-			local spell 										= bb.player.spell
-			local stealth 										= bb.player.buff.stealth
-			local stealthing 									= bb.player.buff.stealth or bb.player.buff.vanish or bb.player.buff.shadowmeld
-			local t18_4pc 										= bb.player.eq.t18_4pc
-			local talent 										= bb.player.talent
+			local spell 										= br.player.spell
+			local stealth 										= br.player.buff.stealth
+			local stealthing 									= br.player.buff.stealth or br.player.buff.vanish or br.player.buff.shadowmeld
+			local t18_4pc 										= br.player.eq.t18_4pc
+			local talent 										= br.player.talent
 			local time 											= getCombatTime()
 			local ttd 											= getTTD
-			local ttm 											= bb.player.powerTTM
-			local units 										= bb.player.units
+			local ttm 											= br.player.powerTTM
+			local units 										= br.player.units
 
 			if talent.deeperStrategem then dStrat = 1 else dStrat = 0 end
 			if talent.quickDraw then qDraw = 1 else qDraw = 0 end
@@ -500,7 +500,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
 				end
 			-- Shadowmeld
 				-- shadowmeld,if=variable.stealth_condition
-				if useCDs() and isChecked("Use Racial") and bb.player.race == "NightElf" and stealthable and inCombat and isValidUnit(units.dyn5) 
+				if useCDs() and isChecked("Use Racial") and br.player.race == "NightElf" and stealthable and inCombat and isValidUnit(units.dyn5) 
 					and getDistance(units.dyn5) < 5	and not buff.vanish and cd.vanish ~= 0 and not moving
 				then
 					if cast.shadowmeld() then return end
@@ -512,7 +512,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
 		--Profile Stop | Pause
 			if not inCombat and not hastar and profileStop == true then
 				profileStop = false
-			elseif (inCombat and profileStop == true) or pause() or mode.rotation == 4 then
+			elseif (inCombat and profileStop == true) or pause() or (IsMounted() or IsFlying()) or mode.rotation == 4 then
 				if inCombat and mode.rotation == 4 then StopAttack() end
 				return true
 			else

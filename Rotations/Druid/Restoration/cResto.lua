@@ -229,7 +229,7 @@ if select(2, UnitClass("player")) == "DRUID" then
     ---------------
 
         function self.getToggleModes()
-            local data   = bb.data
+            local data   = br.data
 
             self.mode.rotation  = data["Rotation"]
             self.mode.cooldown  = data["Cooldown"]
@@ -240,7 +240,7 @@ if select(2, UnitClass("player")) == "DRUID" then
         -- Create the toggle defined within rotation files
         function self.createToggles()
             GarbageButtons()
-            self.rotations[bb.selectedProfile].toggles()
+            self.rotations[br.selectedProfile].toggles()
         end
 
     ---------------
@@ -249,14 +249,14 @@ if select(2, UnitClass("player")) == "DRUID" then
         
         -- Creates the option/profile window
         function self.createOptions()
-            bb.ui.window.profile = bb.ui:createProfileWindow(self.profile)
+            br.ui.window.profile = br.ui:createProfileWindow(self.profile)
 
             -- Get the names of all profiles and create rotation dropdown
             local names = {}
             for i=1,#self.rotations do
                 tinsert(names, self.rotations[i].name)
             end
-            bb.ui:createRotationDropdown(bb.ui.window.profile.parent, names)
+            br.ui:createRotationDropdown(br.ui.window.profile.parent, names)
 
             -- Create Base and Class option table
             local optionTable = {
@@ -271,7 +271,7 @@ if select(2, UnitClass("player")) == "DRUID" then
             }
 
             -- Get profile defined options
-            local profileTable = self.rotations[bb.selectedProfile].options()
+            local profileTable = self.rotations[br.selectedProfile].options()
 
             -- Only add profile pages if they are found
             if profileTable then
@@ -279,8 +279,8 @@ if select(2, UnitClass("player")) == "DRUID" then
             end
 
             -- Create pages dropdown
-            bb.ui:createPagesDropdown(bb.ui.window.profile, optionTable)
-            bb:checkProfileWindowStatus()
+            br.ui:createPagesDropdown(br.ui.window.profile, optionTable)
+            br:checkProfileWindowStatus()
         end
 
     ------------------------------
@@ -360,7 +360,7 @@ if select(2, UnitClass("player")) == "DRUID" then
             end
         return false
         end
-        --faceUnit(bb.friend[i].unit)   
+        --faceUnit(br.friend[i].unit)   
         function faceUnit(unit)
             if unit ~= "player" then
                 if getFacing("player",unit) == false and isMoving("player") ~= true then

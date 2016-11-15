@@ -15,7 +15,7 @@ function cProtection:new()
         "Defmaster",
         "Cute",
     }
-    self.rotation = bb.data.options[bb.selectedSpec]["Rotation".."Drop"]
+    self.rotation = br.data.options[br.selectedSpec]["Rotation".."Drop"]
     self.cast = {}
 	self.enemies = {
 		yards5,
@@ -148,7 +148,7 @@ function cProtection:new()
 		local dynamicTarget = dynamicTarget
 
         -- Throttle dynamic target updating
-        if bb.timer:useTimer("dynTarUpdate", self.dynTargetTimer) then
+        if br.timer:useTimer("dynTarUpdate", self.dynTargetTimer) then
             -- Normal
             self.units.dyn8 = dynamicTarget(8,true) --
 
@@ -185,7 +185,7 @@ function cProtection:new()
 
     -- Updates toggle data
     function self.getToggleModes()
-        local data   = bb.data
+        local data   = br.data
 
         self.mode.aoe       = data["AoE"]
         self.mode.cooldowns = data["Cooldowns"]
@@ -223,62 +223,62 @@ function cProtection:new()
     end
 
     function self.createOptions()
-        bb.ui.window.profile = bb.ui:createProfileWindow("Protection")
+        br.ui.window.profile = br.ui:createProfileWindow("Protection")
 
         --self.createClassOptions()
 
         local section
         local function pageBuffs()
             -- Buffs
-            section = bb.ui:createSection(bb.ui.window.profile, "Buffs")
-            bb.ui:createCheckbox(section, "Righteous Fury")
-            bb.ui:checkSectionState(section)
+            section = br.ui:createSection(br.ui.window.profile, "Buffs")
+            br.ui:createCheckbox(section, "Righteous Fury")
+            br.ui:checkSectionState(section)
         end
         local function pageCooldowns()
             -- Rota
-            section = bb.ui:createSection(bb.ui.window.profile, "Rotation Managment")
-            bb.ui:createDropdown(section, "Light's Hammer", bb.dropOptions.CD)
-            bb.ui:createDropdown(section, "Execution Sentence", bb.dropOptions.CD)
-            bb.ui:createDropdown(section, "Holy Avenger", bb.dropOptions.CD)
-            bb.ui:createDropdown(section, "Seraphim", bb.dropOptions.CD)
-            bb.ui:checkSectionState(section)
+            section = br.ui:createSection(br.ui.window.profile, "Rotation Managment")
+            br.ui:createDropdown(section, "Light's Hammer", br.dropOptions.CD)
+            br.ui:createDropdown(section, "Execution Sentence", br.dropOptions.CD)
+            br.ui:createDropdown(section, "Holy Avenger", br.dropOptions.CD)
+            br.ui:createDropdown(section, "Seraphim", br.dropOptions.CD)
+            br.ui:checkSectionState(section)
         end
         local function pageT18Trinket()
             -- T18 Class Trinket DMG pushing
-            section = bb.ui:createSection(bb.ui.window.profile, "T18 Class Trinket", "Choose which absorb buffs should be canceled to make trinket proc.")
-            bb.ui:createSpinner(section, "Trinket % Trigger", 59, 59, 100, 1, "Enter your Trinket % when it will trigger.")
-            bb.ui:createCheckbox(section, "Cancel Power Word: Shield")
-            bb.ui:createCheckbox(section, "Cancel Clarity of Will")
-            bb.ui:createCheckbox(section, "Cancel Sacred Shield", "Only cancels the short duration absorb buff.")
-            bb.ui:createCheckbox(section, "Cancel Avenger's Reprieve", "2 T18 Buff")
-            bb.ui:checkSectionState(section)
+            section = br.ui:createSection(br.ui.window.profile, "T18 Class Trinket", "Choose which absorb buffs should be canceled to make trinket proc.")
+            br.ui:createSpinner(section, "Trinket % Trigger", 59, 59, 100, 1, "Enter your Trinket % when it will trigger.")
+            br.ui:createCheckbox(section, "Cancel Power Word: Shield")
+            br.ui:createCheckbox(section, "Cancel Clarity of Will")
+            br.ui:createCheckbox(section, "Cancel Sacred Shield", "Only cancels the short duration absorb buff.")
+            br.ui:createCheckbox(section, "Cancel Avenger's Reprieve", "2 T18 Buff")
+            br.ui:checkSectionState(section)
         end
         local function pageHealing()
             -- Healing
-            section = bb.ui:createSection(bb.ui.window.profile, "Healing")
-            bb.ui:createSpinner(section, "Word Of Glory On Self", 60)
-            bb.ui:createSpinner(section, "Lay On Hands", 12)
-            bb.ui:checkSectionState(section)
+            section = br.ui:createSection(br.ui.window.profile, "Healing")
+            br.ui:createSpinner(section, "Word Of Glory On Self", 60)
+            br.ui:createSpinner(section, "Lay On Hands", 12)
+            br.ui:checkSectionState(section)
         end
         local function pageDefensive()
             -- Defensive
-            section = bb.ui:createSection(bb.ui.window.profile, "Defensive")
+            section = br.ui:createSection(br.ui.window.profile, "Defensive")
 
-            bb.ui:createSpinner(section, "Divine Protection", 65)
-            bb.ui:createSpinner(section, "Ardent Defender", 20)
-            bb.ui:createSpinner(section, "Guardian of Anchient Kings", 40)
-            bb.ui:checkSectionState(section)
+            br.ui:createSpinner(section, "Divine Protection", 65)
+            br.ui:createSpinner(section, "Ardent Defender", 20)
+            br.ui:createSpinner(section, "Guardian of Anchient Kings", 40)
+            br.ui:checkSectionState(section)
         end
         local function pageInterrupt()
             -- Interrupt
-            section = bb.ui:createSection(bb.ui.window.profile, "Interrupts")
+            section = br.ui:createSection(br.ui.window.profile, "Interrupts")
 
-            bb.ui:createSpinner(section, "Rebuke", 35)
-            bb.ui:createSpinner(section, "Avengers Shield Interrupt", 35)
-            bb.ui:checkSectionState(section)
+            br.ui:createSpinner(section, "Rebuke", 35)
+            br.ui:createSpinner(section, "Avengers Shield Interrupt", 35)
+            br.ui:checkSectionState(section)
         end
 
-        bb.ui:createPagesDropdown(bb.ui.window.profile, {
+        br.ui:createPagesDropdown(br.ui.window.profile, {
             {
                 [1] = "Base Options",
                 [2] = self.createBaseOptions,
@@ -313,9 +313,9 @@ function cProtection:new()
             },
         })
         --[[ Rotation Dropdown ]]--
-        --bb.ui:createRotationDropdown(bb.ui.window.profile.parent, self.rotations, "Defmaster - real rotation\nCute - just here for some testing")
+        --br.ui:createRotationDropdown(br.ui.window.profile.parent, self.rotations, "Defmaster - real rotation\nCute - just here for some testing")
 
-        bb:checkProfileWindowStatus()
+        br:checkProfileWindowStatus()
     end
 
     function self.getOptions()
@@ -460,9 +460,9 @@ function cProtection:new()
     -- Hammer of Wrath
     function self.cast.HammerOfWrath()
         if canCast(self.spell.hammerOfWrath) then
-            for i = 1,#bb.enemy do
-                if bb.enemy[i].hp < 20 then
-                    return castSpell(bb.enemy[i].unit,self.spell.hammerOfWrath,false,false) == true or false
+            for i = 1,#br.enemy do
+                if br.enemy[i].hp < 20 then
+                    return castSpell(br.enemy[i].unit,self.spell.hammerOfWrath,false,false) == true or false
                 end
             end
         end
@@ -560,10 +560,10 @@ function cProtection:new()
         -- Check if glyph is present
         if self.glyph.doubleJeopardy then
             -- scan enemies for a different unit
-            -- local bb.enemy = bb.enemy
-            if #bb.enemy > 1 then
-                for i = 1, #bb.enemy do
-                    local thisEnemy = bb.enemy[i]
+            -- local br.enemy = br.enemy
+            if #br.enemy > 1 then
+                for i = 1, #br.enemy do
+                    local thisEnemy = br.enemy[i]
                     -- if its in range
                     if thisEnemy.distance < 30 then
                         -- here i will need to compare my previous judgment target with the previous one

@@ -3,7 +3,7 @@ function ConstructUI()
 		configFunctions = true
 		-- we should keep all ui to resize in here so we can call them at once
 		function ResizeUI(delta)
-			local scale = bb.data.BadBoyUI.optionsFrame.scale or 1
+			local scale = br.data.BadRotationsUI.optionsFrame.scale or 1
 			if delta < 0 then
 				if scale > 0.75 then
 					scale = scale - 0.05
@@ -13,7 +13,7 @@ function ConstructUI()
 					scale = scale + 0.05
 				end
 			end
-			bb.data.BadBoyUI.optionsFrame.scale = scale
+			br.data.BadRotationsUI.optionsFrame.scale = scale
 			optionsFrame:SetWidth(675*scale)
 			optionsFrame:SetHeight(150*scale)
 			debugFrame:SetWidth(200*scale)
@@ -39,17 +39,17 @@ function ConstructUI()
 		-- these functions are called when a profile is loaded
 		-- startup
 		function ClearConfig()
-			if bb.data.options[bb.selectedSpec] == nil then
-				bb.data.options[bb.selectedSpec] = {}
+			if br.data.options[br.selectedSpec] == nil then
+				br.data.options[br.selectedSpec] = {}
 			end
 			tempTable = {}
-			bb.data.options[bb.selectedSpec].profile = {}
+			br.data.options[br.selectedSpec].profile = {}
 		end
 		-- on first load, i want to gather the values from the currentProfile
 		-- and push them into wtf if they were not there already
 		-- when im making the profile for the first time, i will gather the values from profile
 		-- when im remaking the profile, i will gather the values from the wtf
-		-- wtf will be in bb.data.options[bb.selectedSpec]
+		-- wtf will be in br.data.options[br.selectedSpec]
 		-- my options are in the params
 		-- take options from param to wtf on first pass
 		-- status
@@ -58,10 +58,10 @@ function ConstructUI()
 			tempTable.statusMin = minValue
 			tempTable.statusMax = maxValue
 			tempTable.statusStep = step
-			if bb.data.options[bb.selectedSpec][textString.."Status"] == nil then
-				bb.data.options[bb.selectedSpec][textString.."Status"] = base
+			if br.data.options[br.selectedSpec][textString.."Status"] == nil then
+				br.data.options[br.selectedSpec][textString.."Status"] = base
 			else
-				base = bb.data.options[bb.selectedSpec][textString.."Status"]
+				base = br.data.options[br.selectedSpec][textString.."Status"]
 			end
 			tempTable.statusBase = base
 		end
@@ -81,34 +81,34 @@ function ConstructUI()
 				[9] = value9 or nil,
 				[10] = value10 or nil,
 			}
-			if bb.data.options[bb.selectedSpec][textString.."Drop"] == nil then
-				bb.data.options[bb.selectedSpec][textString.."Drop"] = base
+			if br.data.options[br.selectedSpec][textString.."Drop"] == nil then
+				br.data.options[br.selectedSpec][textString.."Drop"] = base
 			else
-				base = bb.data.options[bb.selectedSpec][textString.."Drop"]
+				base = br.data.options[br.selectedSpec][textString.."Drop"]
 			end
 			tempTable.base = base
 		end
 		-- checkbox
 		function CreateNewCheck(value,textString,tip1,base)
 			tempTable.check = true
-			if bb.data.options[bb.selectedSpec][textString.."Check"] == nil then
-				bb.data.options[bb.selectedSpec][textString.."Check"] = base
+			if br.data.options[br.selectedSpec][textString.."Check"] == nil then
+				br.data.options[br.selectedSpec][textString.."Check"] = base
 			else
-				base = bb.data.options[bb.selectedSpec][textString.."Check"]
+				base = br.data.options[br.selectedSpec][textString.."Check"]
 			end
 			tempTable.checkBase = base or 0
 			tempTable.tip = tip1
 		end
 		-- new title and text need to insert in real array
 		function CreateNewTitle(value,textString)
-			bb.data.options[bb.selectedSpec].profile = {}
+			br.data.options[br.selectedSpec].profile = {}
 			tempTable = {}
 			if textString == nil then
 				textString = value
 			end
 			tempTable.title = textString
 			tempTable.name = textString
-			bb.data.options[bb.selectedSpec].profile[#bb.data.options[bb.selectedSpec].profile+1] = tempTable
+			br.data.options[br.selectedSpec].profile[#br.data.options[br.selectedSpec].profile+1] = tempTable
 			tempTable = {}
 		end
 		function CreateNewText(value,textString)
@@ -116,7 +116,7 @@ function ConstructUI()
 				textString = value
 			end
 			tempTable.name = textString
-			bb.data.options[bb.selectedSpec].profile[#bb.data.options[bb.selectedSpec].profile+1] = tempTable
+			br.data.options[br.selectedSpec].profile[#br.data.options[br.selectedSpec].profile+1] = tempTable
 			tempTable = {}
 		end
 		-- wrap separation
@@ -126,9 +126,9 @@ function ConstructUI()
 			end
 			tempTable.name = textString
 			tempTable.wrap = textString
-			bb.data.options[bb.selectedSpec].profile[#bb.data.options[bb.selectedSpec].profile+1] = tempTable
-			if bb.data.options[bb.selectedSpec][textString.."Wrapper"] == nil then
-				bb.data.options[bb.selectedSpec][textString.."Wrapper"] = true
+			br.data.options[br.selectedSpec].profile[#br.data.options[br.selectedSpec].profile+1] = tempTable
+			if br.data.options[br.selectedSpec][textString.."Wrapper"] == nil then
+				br.data.options[br.selectedSpec][textString.."Wrapper"] = true
 			end
 			tempTable = {}
 		end
@@ -138,27 +138,27 @@ function ConstructUI()
 				textString = value
 			end
 			tempTable.name = textString
-			bb.data.options[bb.selectedSpec].profile[#bb.data.options[bb.selectedSpec].profile+1] = tempTable
+			br.data.options[br.selectedSpec].profile[#br.data.options[br.selectedSpec].profile+1] = tempTable
 			tempTable = {}
 		end
 		-- this is called at the end, we could use it to trigger value that state that the current spec is loaded into memory
 		function WrapsManager()
-			bb.data.options[bb.selectedSpec].profile.name = bb.data.options[bb.selectedSpec].profile[1].name
+			br.data.options[br.selectedSpec].profile.name = br.data.options[br.selectedSpec].profile[1].name
 			createProfile()
-			replaceWraps(bb.data.options[bb.selectedSpec].profile.name)
+			replaceWraps(br.data.options[br.selectedSpec].profile.name)
 			refreshOptions()
 		end
 		function createProfile()
-			--if currentProfile ~= nil and currentProfile ~= bb.data.options[bb.selectedSpec].profile then
+			--if currentProfile ~= nil and currentProfile ~= br.data.options[br.selectedSpec].profile then
 			--	_G[currentProfileName.."Frame"]:Hide()
 			--end
-			--currentProfile = bb.data.options[bb.selectedSpec].profile
+			--currentProfile = br.data.options[br.selectedSpec].profile
 			--currentProfileName = currentProfile[1].name
-			--if currentProfile ~= nil and _G[currentProfileName.."Frame"] and bb.data.options[bb.selectedSpec].profile[1].name ~= bb.data.options[bb.selectedSpec].profile then
+			--if currentProfile ~= nil and _G[currentProfileName.."Frame"] and br.data.options[br.selectedSpec].profile[1].name ~= br.data.options[br.selectedSpec].profile then
             --    _G[currentProfileName.."Frame"]:Hide()--_G[currentProfileName.."Frame"]:Show()
 			--end
 			--frameCreation(currentProfileName,270,400)
-			--local scale = bb.data.BadBoyUI.optionsFrame.scale
+			--local scale = br.data.BadRotationsUI.optionsFrame.scale
 			--for i = 1, #currentProfile do
 			--	local ypos = (-27*i)+27
 			--	local thisOption = currentProfile[i]
@@ -196,7 +196,7 @@ function ConstructUI()
 		local colorRed = "|cffFF0011"
 		local colorWhite = "|cffFFFFFF"
 		local colorGold = "|cffFFDD11"
-		bb.data.BadBoyUI.optionsFrame.options = {
+		br.data.BadRotationsUI.optionsFrame.options = {
 			selected = "Enemies Engine",
 			["General"] = {
 				[1] = {
@@ -249,8 +249,8 @@ function ConstructUI()
 				[9] = {
 					checkbase = true,
 					check = true,
-					name = "Start/Stop BadBoy",
-					tip = "Uncheck to prevent BadBoy pulsing."
+					name = "Start/Stop BadRotations",
+					tip = "Uncheck to prevent BadRotations pulsing."
 				},
 			},
 			["Enemies Engine"] = {
@@ -562,9 +562,9 @@ function ConstructUI()
 			for i = 1, 4 do
 				local thisButton = generalRadios[i]
 				if thisButton == value then
-					_G["options"..thisButton.."Button"].texture:SetTexture(175/255,175/255,175/255,bb.data.BadBoyUI.optionsFrame.color.a)
+					_G["options"..thisButton.."Button"].texture:SetTexture(175/255,175/255,175/255,br.data.BadRotationsUI.optionsFrame.color.a)
 				else
-					_G["options"..thisButton.."Button"].texture:SetTexture(bb.data.BadBoyUI.optionsFrame.color.r/255,bb.data.BadBoyUI.optionsFrame.color.g/255,bb.data.BadBoyUI.optionsFrame.color.b/255,bb.data.BadBoyUI.optionsFrame.color.a)
+					_G["options"..thisButton.."Button"].texture:SetTexture(br.data.BadRotationsUI.optionsFrame.color.r/255,br.data.BadRotationsUI.optionsFrame.color.g/255,br.data.BadRotationsUI.optionsFrame.color.b/255,br.data.BadRotationsUI.optionsFrame.color.a)
 				end
 			end
 		end
@@ -580,9 +580,9 @@ function ConstructUI()
 			local ypos,verticalButtons = 0,4
 			for i = 1, 12 do
 				ypos = ypos + 1
-				if bb.data.BadBoyUI.optionsFrame.options[value]
-					and bb.data.BadBoyUI.optionsFrame.options[value][i] ~= nil then
-					local thisOption,xpos = bb.data.BadBoyUI.optionsFrame.options[value][i],math.floor((i-1)/4)*260
+				if br.data.BadRotationsUI.optionsFrame.options[value]
+					and br.data.BadRotationsUI.optionsFrame.options[value][i] ~= nil then
+					local thisOption,xpos = br.data.BadRotationsUI.optionsFrame.options[value][i],math.floor((i-1)/4)*260
 					createCheckBox("options",thisOption,(xpos+7),(ypos*-27)-10)
 					local textWidth = 155
 					if thisOption.status ~= nil then
@@ -606,16 +606,16 @@ function ConstructUI()
 				-- thisButton is name of parent button
 				local thisButton = generalRadios[i]
 				-- if i have saved options for thisButton
-				if bb.data.BadBoyUI.optionsFrame.options[thisButton] ~= nil then
+				if br.data.BadRotationsUI.optionsFrame.options[thisButton] ~= nil then
 					-- iterate corresponding frames
 					for j = 1, 12 do
 						-- current option selected
-						local thisOption = bb.data.BadBoyUI.optionsFrame.options[thisButton][j]
+						local thisOption = br.data.BadRotationsUI.optionsFrame.options[thisButton][j]
 						if thisOption ~= nil then
 							-- name of the option
 							local name = thisOption.name
 							-- actual profile options
-							local profileOptions = bb.data.options[bb.selectedSpec]
+							local profileOptions = br.data.options[br.selectedSpec]
 							if profileOptions ~= nil then
 								-- if i have values saved for a checkbox
 								if profileOptions[name.."Check"] == 1 then
@@ -649,12 +649,12 @@ function ConstructUI()
 			local generalRadios = {"General","Enemies Engine","Healing Engine","Other Features"}
 			for i = 1, 4 do
 				if button ~= generalRadios[i] then
-					local thisOptionPanel = bb.data.BadBoyUI.optionsFrame.options[generalRadios[i]]
+					local thisOptionPanel = br.data.BadRotationsUI.optionsFrame.options[generalRadios[i]]
 					if thisOptionPanel ~= nil then
 						for j = 1, 12 do
-							local thisOption = bb.data.BadBoyUI.optionsFrame.options[generalRadios[i]][j]
+							local thisOption = br.data.BadRotationsUI.optionsFrame.options[generalRadios[i]][j]
 							if thisOption ~= nil then
-								local value = bb.data.BadBoyUI.optionsFrame.options[generalRadios[i]][j].name
+								local value = br.data.BadRotationsUI.optionsFrame.options[generalRadios[i]][j].name
 								_G["options"..value.."Check"]:Hide()
 								_G["options"..value.."TextFrame"]:Hide()
 								if thisOption.status ~= nil then
@@ -667,12 +667,12 @@ function ConstructUI()
 						end
 					end
 				else
-					local thisOptionPanel = bb.data.BadBoyUI.optionsFrame.options[generalRadios[i]]
+					local thisOptionPanel = br.data.BadRotationsUI.optionsFrame.options[generalRadios[i]]
 					if thisOptionPanel ~= nil then
 						for j = 1, 12 do
-							local thisOption = bb.data.BadBoyUI.optionsFrame.options[generalRadios[i]][j]
+							local thisOption = br.data.BadRotationsUI.optionsFrame.options[generalRadios[i]][j]
 							if thisOption ~= nil then
-								local value = bb.data.BadBoyUI.optionsFrame.options[generalRadios[i]][j].name
+								local value = br.data.BadRotationsUI.optionsFrame.options[generalRadios[i]][j].name
 								_G["options"..value.."Check"]:Show()
 								_G["options"..value.."TextFrame"]:Show()
 								if thisOption.status ~= nil then
@@ -701,12 +701,12 @@ function ConstructUI()
 	createOptions("Healing Engine")
 	createButton("options","Other Features",591,-5,"Other Features")
 	createOptions("Other Features")
-	if bb.data.options.selected == nil then
-		bb.data.options.selected = "General"
+	if br.data.options.selected == nil then
+		br.data.options.selected = "General"
 	end
-	_G["options"..bb.data.options.selected.."Button"]:Click()
+	_G["options"..br.data.options.selected.."Button"]:Click()
     optionsFrame:Hide()
-	if bb.data.options[bb.selectedSpec] and bb.data.options[bb.selectedSpec]["optionsFrame"] ~= true then
+	if br.data.options[br.selectedSpec] and br.data.options[br.selectedSpec]["optionsFrame"] ~= true then
 		optionsFrame:Hide()
 	end
 	-- if frames ar already loaded we only have to bring them back shown so we will

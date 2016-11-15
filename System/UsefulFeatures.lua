@@ -1,4 +1,4 @@
-function bb:AcceptQueues()
+function br:AcceptQueues()
 	if getOptionCheck("Accept Queues") then
 		-- Accept Queues
 		if randomReady == nil then

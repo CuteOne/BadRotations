@@ -1,14 +1,14 @@
 function WarriorArms()
     if GetSpecializationInfo(GetSpecialization()) == 71 then
-        if bb.player == nil or bb.player.profile ~= "Arms" then
-            bb.player = cArms:new("Arms")
-            setmetatable(bb.player, {__index = cArms})
+        if br.player == nil or br.player.profile ~= "Arms" then
+            br.player = cArms:new("Arms")
+            setmetatable(br.player, {__index = cArms})
 
-            bb.player:createOptions()
-            bb.player:createToggles()
-            bb.player:update()
+            br.player:createOptions()
+            br.player:createToggles()
+            br.player:update()
         end
 
-        bb.player:update()
+        br.player:update()
     end
 end

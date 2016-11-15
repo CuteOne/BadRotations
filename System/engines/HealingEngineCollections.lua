@@ -45,7 +45,7 @@ novaEngineTables.SpecialHealUnitList = {
 };
 -- set dot that need to be healed to max(needs to be topped) to very low values so that engine will prioritize them
 -- the value used here will be substract from current health, we could use negative values to add back health instead
--- these are checked debuff on allies ie bb.friend[i].unit wear 145263 and its hp is 70, engine will use 50 instead
+-- these are checked debuff on allies ie br.friend[i].unit wear 145263 and its hp is 70, engine will use 50 instead
 novaEngineTables.SpecificHPDebuffs = {
 	--{ debuff = 123456, value = 20, stacks = 1 }, -- Exemple.
 	--{ debuff = 123456, value = -100, stacks = 3 }, -- Exemple

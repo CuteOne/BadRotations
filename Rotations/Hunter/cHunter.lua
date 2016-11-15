@@ -66,9 +66,9 @@ if select(3, UnitClass("player")) == 3 then
             -- Create Base Options
             self.createBaseOptions()
 
-            local section = bb.ui:createSection(bb.ui.window.profile, "Class Options", "Nothing")
+            local section = br.ui:createSection(br.ui.window.profile, "Class Options", "Nothing")
 
-            bb.ui:checkSectionState(section)
+            br.ui:checkSectionState(section)
         end
         --------------
         --- SPELLS ---

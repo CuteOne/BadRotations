@@ -233,7 +233,7 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
         ---------------
 
         function self.getToggleModes()
-            local data   = bb.data
+            local data   = br.data
 
             self.mode.aoe       = data["AoE"]
             self.mode.cooldowns = data["Cooldowns"]
@@ -247,19 +247,19 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
         -- Create the toggle defined within rotation files
         function self.createToggles()
             GarbageButtons()
-            self.rotations[bb.selectedProfile].toggles()
+            self.rotations[br.selectedProfile].toggles()
         end
 
         -- Creates the option/profile window
         function self.createOptions()
-            bb.ui.window.profile = bb.ui:createProfileWindow(self.profile)
+            br.ui.window.profile = br.ui:createProfileWindow(self.profile)
 
             -- Get the names of all profiles and create rotation dropdown
             local names = {}
             for i=1,#self.rotations do
                 tinsert(names, self.rotations[i].name)
             end
-            bb.ui:createRotationDropdown(bb.ui.window.profile.parent, names)
+            br.ui:createRotationDropdown(br.ui.window.profile.parent, names)
 
             -- Create Base and Class option table
             local optionTable = {
@@ -274,7 +274,7 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
             }
 
             -- Get profile defined options
-            local profileTable = self.rotations[bb.selectedProfile].options()
+            local profileTable = self.rotations[br.selectedProfile].options()
 
             -- Only add profile pages if they are found
             if profileTable then
@@ -282,8 +282,8 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
             end
 
             -- Create pages dropdown
-            bb.ui:createPagesDropdown(bb.ui.window.profile, optionTable)
-            bb:checkProfileWindowStatus()
+            br.ui:createPagesDropdown(br.ui.window.profile, optionTable)
+            br:checkProfileWindowStatus()
         end
 
         --------------
@@ -330,8 +330,8 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
         function useAoE()
             local enemies = #getEnemies("player",10)
             local oneHand, twoHand  = IsEquippedItemType("One-Hand"), IsEquippedItemType("Two-Hand")
-            if (bb.data['Rotation'] == 1 and ((enemies>=3 and oneHand) or (enemies>=4 and twoHand))) or bb.data['Rotation'] == 2 then
-                -- if bb.data['AoE'] == 1 or bb.data['AoE'] == 2 then
+            if (br.data['Rotation'] == 1 and ((enemies>=3 and oneHand) or (enemies>=4 and twoHand))) or br.data['Rotation'] == 2 then
+                -- if br.data['AoE'] == 1 or br.data['AoE'] == 2 then
                 return true
             else
                 return false
@@ -339,7 +339,7 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
         end
 
         function useCDs()
-            if (bb.data['Cooldown'] == 1 and isBoss()) or bb.data['Cooldowns'] == 2 then
+            if (br.data['Cooldown'] == 1 and isBoss()) or br.data['Cooldowns'] == 2 then
                 return true
             else
                 return false
@@ -347,7 +347,7 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
         end
 
         function useDefensive()
-            if bb.data['Defensive'] == 1 then
+            if br.data['Defensive'] == 1 then
                 return true
             else
                 return false
@@ -355,7 +355,7 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
         end
 
         function useInterrupts()
-            if bb.data['Interrupt'] == 1 then
+            if br.data['Interrupt'] == 1 then
                 return true
             else
                 return false
@@ -363,7 +363,7 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
         end
 
         function useCleave()
-            if bb.data['Cleave']==1 and bb.data['AoE'] ~= 3 then
+            if br.data['Cleave']==1 and br.data['AoE'] ~= 3 then
                 return true
             else
                 return false
@@ -426,9 +426,9 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
 
         function isSimSpell()
             local simSpell = self.darkSimulacrum
-            for i=1, #bb.enemy do
-                if bb.enemy[i].distance<40 then
-                    local thisUnit = bb.enemy[i].unit
+            for i=1, #br.enemy do
+                if br.enemy[i].distance<40 then
+                    local thisUnit = br.enemy[i].unit
                     if castingUnit(thisUnit) then
                         for f=1, #simList do
                             local simListSpell = simList[f].spell

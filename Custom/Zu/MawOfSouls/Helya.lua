@@ -1,7 +1,7 @@
 --+--------------------+--
 --|Am I Fighting Helya?|--
 --+--------------------+--
-function isBadBoyHelya()
+function isBadRotationsHelya()
   for i = 1, ObjectCount() do
     local name = ObjectName(ObjectWithIndex(i))
     local object = ObjectWithIndex(i)

@@ -22,9 +22,9 @@ if select(3, UnitClass("player")) == 3 then
 			--Auto Target
 			if UnitExists("target") == false or (UnitExists("target") and (getDistance("player","target") > 40 or getLineOfSight("player","target") == false or getFacing("player","target") == false)) then
 				if select(2,IsInInstance()) == "party" or select(2,IsInInstance()) == "raid" then
-					for i = 1, #bb.friend do		
-						if (bb.friend[i].role == "TANK" or UnitGroupRolesAssigned(bb.friend[i].unit) == "TANK") and UnitAffectingCombat(bb.friend[i].unit) and not UnitIsDeadOrGhost(bb.friend[i].unit) then	
-							AssistUnit(bb.friend[i].unit)
+					for i = 1, #br.friend do		
+						if (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and UnitAffectingCombat(br.friend[i].unit) and not UnitIsDeadOrGhost(br.friend[i].unit) then	
+							AssistUnit(br.friend[i].unit)
 							if UnitChecks("target") and UnitAffectingCombat("target") then
 								StartAttack()			
 							end
@@ -86,10 +86,10 @@ if select(3, UnitClass("player")) == 3 then
 			--Misdirection
 			if getSpellCD(34477) <= 0.1 then
 				if UnitThreatSituation("player", "target") ~= nil and UnitAffectingCombat("player") then
-					for i = 1, #bb.friend do		
-						if (bb.friend[i].role == "TANK" or UnitGroupRolesAssigned(bb.friend[i].unit) == "TANK") and UnitAffectingCombat(bb.friend[i].unit) then	
-							if UnitChecks(bb.friend[i].unit) then
-								CastSpellByName(GetSpellInfo(34477),bb.friend[i].unit)
+					for i = 1, #br.friend do		
+						if (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and UnitAffectingCombat(br.friend[i].unit) then	
+							if UnitChecks(br.friend[i].unit) then
+								CastSpellByName(GetSpellInfo(34477),br.friend[i].unit)
 							end
 						end
 					end

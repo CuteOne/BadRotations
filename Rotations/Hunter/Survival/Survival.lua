@@ -59,13 +59,13 @@ if select(3, UnitClass("player")) == 3 then
             end
           end
         elseif getValue("Tranq Shot-Magic") == 2 then
-          bb.castOffensiveDispel(19801)
+          br.castOffensiveDispel(19801)
         end
 
       end
 
       if isChecked("Tranq Shot-Enrage") then
-        bb.castOffensiveDispel(19801)
+        br.castOffensiveDispel(19801)
       end
 
     end
@@ -126,7 +126,7 @@ if select(3, UnitClass("player")) == 3 then
     end
 
     -- Pet Management---------------------------------------------
-    if bb.data['Pet'] == 2 then
+    if br.data['Pet'] == 2 then
       if isChecked("Auto Summon")  and not UnitExists("pet") and (UnitIsDead("pet") ~= nil or UnitIsDead("pet") == false) then
         if waitForPetToAppear ~= nil and waitForPetToAppear < GetTime() - 2 then
           if lastFailedWhistle and lastFailedWhistle > GetTime() - 3 then
@@ -226,13 +226,13 @@ if select(3, UnitClass("player")) == 3 then
 
       --Cooldowns--------------------------------------------------------
       --Stampede
-      if bb.data["Cooldowns"] == 3 or (isChecked("Stampede") and bb.data["Cooldowns"] == 2) then
+      if br.data["Cooldowns"] == 3 or (isChecked("Stampede") and br.data["Cooldowns"] == 2) then
         if castSpell(dyn40,121818,false,false) then return end
       end
 
       --Damage Rotation--------------------------------------------------
       --actions+=/use_item,name=gorashans_lodestone_spike
-      if bb.data["Cooldowns"] == 3 or (isChecked("Trinkets") and bb.data["Cooldowns"] == 2) then
+      if br.data["Cooldowns"] == 3 or (isChecked("Trinkets") and br.data["Cooldowns"] == 2) then
         if canTrinket(13) then
           RunMacroText("/use 13")
           if IsAoEPending() then
@@ -250,7 +250,7 @@ if select(3, UnitClass("player")) == 3 then
       end
 
       -- actions+=/arcane_torrent,if=focus.deficit>=30
-      if (bb.data['Cooldowns'] == 2 and isChecked("Racials") == true) or bb.data['Cooldowns'] == 3 then
+      if (br.data['Cooldowns'] == 2 and isChecked("Racials") == true) or br.data['Cooldowns'] == 3 then
         if isKnown(80483) then
           if focus_defecit >= 30 then
             if castSpell("player",80483,true,false) then return end
@@ -259,14 +259,14 @@ if select(3, UnitClass("player")) == 3 then
       end
 
       -- actions+=/blood_fury
-      if (bb.data['Cooldowns'] == 2 and isChecked("Racials") == true) or bb.data['Cooldowns'] == 3 then
+      if (br.data['Cooldowns'] == 2 and isChecked("Racials") == true) or br.data['Cooldowns'] == 3 then
         if isKnown(20572) and getSpellCD(20572) == 0 then
           if castSpell("player",20572,true,false) then return end
         end
       end
 
       -- actions+=/berserking
-      if (bb.data['Cooldowns'] == 2 and isChecked("Racials") == true) or bb.data['Cooldowns'] == 3 then
+      if (br.data['Cooldowns'] == 2 and isChecked("Racials") == true) or br.data['Cooldowns'] == 3 then
         if isKnown(26297) and getSpellCD(26297) == 0 then
           if castSpell("player",26297,true,false) then return end
         end
@@ -276,10 +276,10 @@ if select(3, UnitClass("player")) == 3 then
       --TBC
 
       -- actions+=/call_action_list,name=aoe,if=active_enemies>1
-      if bb.data['AoE'] == 2 or (bb.data['AoE'] == 3 and myEnemies > 1) then
+      if br.data['AoE'] == 2 or (br.data['AoE'] == 3 and myEnemies > 1) then
         -- actions.aoe=stampede,if=buff.potion.up|(cooldown.potion.remains&(buff.archmages_greater_incandescence_agi.up|trinket.stat.any.up|buff.archmages_incandescence_agi.up))
         -- actions+=/stampede  -- TEMPORARY
-        if bb.data["Cooldowns"] == 3 or (isChecked("Stampede") and bb.data["Cooldowns"] == 2) then
+        if br.data["Cooldowns"] == 3 or (isChecked("Stampede") and br.data["Cooldowns"] == 2) then
           if castSpell(dyn40,121818,false,false) then return end
         end
 
@@ -315,14 +315,14 @@ if select(3, UnitClass("player")) == 3 then
         end
 
         -- actions.aoe+=/a_murder_of_crows
-        if (bb.data['Cooldowns'] == 2 and isChecked("A Murder of Crows") == true) or bb.data['Cooldowns'] == 3 then
+        if (br.data['Cooldowns'] == 2 and isChecked("A Murder of Crows") == true) or br.data['Cooldowns'] == 3 then
           if isKnown(131894) and getSpellCD(131894) == 0 then
             if castSpell(dyn40,131894,true,false) then return end
           end
         end
 
         -- actions.aoe+=/dire_beast
-        if (bb.data['Cooldowns'] == 2 and isChecked("Dire Beast") == true) or bb.data['Cooldowns'] == 3 then
+        if (br.data['Cooldowns'] == 2 and isChecked("Dire Beast") == true) or br.data['Cooldowns'] == 3 then
           if isKnown(120679) and getSpellCD(120679) == 0 then
             if castSpell(dyn40,120679,true,false) then return end
           end
@@ -372,12 +372,12 @@ if select(3, UnitClass("player")) == 3 then
 
       -- actions+=/stampede,if=buff.potion.up|(cooldown.potion.remains&(buff.archmages_greater_incandescence_agi.up|trinket.stat.any.up))|target.time_to_die<=25 (archmage buff 177172)
       -- actions+=/stampede  -- TEMPORARY
-      if bb.data["Cooldowns"] == 3 or (isChecked("Stampede") and bb.data["Cooldowns"] == 2) then
+      if br.data["Cooldowns"] == 3 or (isChecked("Stampede") and br.data["Cooldowns"] == 2) then
         if castSpell(dyn40,121818,false,false) then return end
       end
 
       -- actions+=/a_murder_of_crows
-      if (bb.data['Cooldowns'] == 2 and isChecked("A Murder of Crows") == true) or bb.data['Cooldowns'] == 3 then
+      if (br.data['Cooldowns'] == 2 and isChecked("A Murder of Crows") == true) or br.data['Cooldowns'] == 3 then
         if isKnown(131894) and getSpellCD(131894) == 0 then
           if castSpell(dyn40,131894,true,false) then return end
         end
@@ -394,7 +394,7 @@ if select(3, UnitClass("player")) == 3 then
       end
 
       -- actions+=/dire_beast
-      if (bb.data['Cooldowns'] == 2 and isChecked("Dire Beast") == true) or bb.data['Cooldowns'] == 3 then
+      if (br.data['Cooldowns'] == 2 and isChecked("Dire Beast") == true) or br.data['Cooldowns'] == 3 then
         if isKnown(120679) and getSpellCD(120679) == 0 then
           if castSpell(dyn40,120679,true,false) then return end
         end

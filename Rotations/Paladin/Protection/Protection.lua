@@ -1,12 +1,12 @@
 if select(3, UnitClass("player")) == 2 then
   function PaladinProtection()
     -- Init if this is the first time we are running.
-    if bb.player == nil or bb.player.profile ~= "Protection" then
-      bb.player = cProtection:new("Protection")
-      setmetatable(bb.player, {__index = cProtection})
+    if br.player == nil or br.player.profile ~= "Protection" then
+      br.player = cProtection:new("Protection")
+      setmetatable(br.player, {__index = cProtection})
 
-      bb.player:createToggles()
-      bb.player:update()
+      br.player:createToggles()
+      br.player:update()
     end
 
     -- Manual Input
@@ -20,7 +20,7 @@ if select(3, UnitClass("player")) == 2 then
     --  return true
     --end
 
-    bb.player:update()
+    br.player:update()
 
   end
 end

@@ -18,43 +18,43 @@ if select(2, UnitClass("player")) == "PRIEST" then
             -----------------------
             --- GENERAL OPTIONS --- -- Define General Options
             -----------------------
-            section = bb.ui:createSection(bb.ui.window.profile,  "General")
+            section = br.ui:createSection(br.ui.window.profile,  "General")
 
-            bb.ui:checkSectionState(section)
+            br.ui:checkSectionState(section)
             ------------------------
             --- COOLDOWN OPTIONS --- -- Define Cooldown Options
             ------------------------
-            section = bb.ui:createSection(bb.ui.window.profile,  "Cooldowns")
+            section = br.ui:createSection(br.ui.window.profile,  "Cooldowns")
 
-            bb.ui:checkSectionState(section)
+            br.ui:checkSectionState(section)
             -------------------------
             --- DEFENSIVE OPTIONS --- -- Define Defensive Options
             -------------------------
-            section = bb.ui:createSection(bb.ui.window.profile, "Defensive")
+            section = br.ui:createSection(br.ui.window.profile, "Defensive")
 
-            bb.ui:checkSectionState(section)
+            br.ui:checkSectionState(section)
             -------------------------
             --- INTERRUPT OPTIONS --- -- Define Interrupt Options
             -------------------------
-            section = bb.ui:createSection(bb.ui.window.profile, "Interrupts")
+            section = br.ui:createSection(br.ui.window.profile, "Interrupts")
                 -- Interrupt Percentage
-                bb.ui:createSpinner(section,  "InterruptAt",  0,  0,  95,  5,  "|cffFFBB00Cast Percentage to use at.")    
-            bb.ui:checkSectionState(section)
+                br.ui:createSpinner(section,  "InterruptAt",  0,  0,  95,  5,  "|cffFFBB00Cast Percentage to use at.")    
+            br.ui:checkSectionState(section)
             ----------------------
             --- TOGGLE OPTIONS --- -- Degine Toggle Options
             ----------------------
-            section = bb.ui:createSection(bb.ui.window.profile,  "Toggle Keys")
+            section = br.ui:createSection(br.ui.window.profile,  "Toggle Keys")
                 -- Single/Multi Toggle
-                bb.ui:createDropdown(section,  "Rotation Mode", bb.dropOptions.Toggle,  4)
+                br.ui:createDropdown(section,  "Rotation Mode", br.dropOptions.Toggle,  4)
                 --Cooldown Key Toggle
-                bb.ui:createDropdown(section,  "Cooldown Mode", bb.dropOptions.Toggle,  3)
+                br.ui:createDropdown(section,  "Cooldown Mode", br.dropOptions.Toggle,  3)
                 --Defensive Key Toggle
-                bb.ui:createDropdown(section,  "Defensive Mode", bb.dropOptions.Toggle,  6)
+                br.ui:createDropdown(section,  "Defensive Mode", br.dropOptions.Toggle,  6)
                 -- Interrupts Key Toggle
-                bb.ui:createDropdown(section,  "Interrupt Mode", bb.dropOptions.Toggle,  6)
+                br.ui:createDropdown(section,  "Interrupt Mode", br.dropOptions.Toggle,  6)
                 -- Pause Toggle
-                bb.ui:createDropdown(section,  "Pause Mode", bb.dropOptions.Toggle,  6)   
-            bb.ui:checkSectionState(section)
+                br.ui:createDropdown(section,  "Pause Mode", br.dropOptions.Toggle,  6)   
+            br.ui:checkSectionState(section)
         end
         optionTable = {{
             [1] = "Rotation Options",
@@ -67,7 +67,7 @@ if select(2, UnitClass("player")) == "PRIEST" then
 --- ROTATION ---
 ----------------
     local function runRotation()
-        if bb.timer:useTimer("debugDiscipline", 0.1) then
+        if br.timer:useTimer("debugDiscipline", 0.1) then
             --print("Running: "..rotationName)
 
     ---------------
@@ -77,34 +77,34 @@ if select(2, UnitClass("player")) == "PRIEST" then
     --------------
     --- Locals ---
     --------------
-            local artifact                                      = bb.player.artifact
-            local buff                                          = bb.player.buff
-            local cast                                          = bb.player.cast
+            local artifact                                      = br.player.artifact
+            local buff                                          = br.player.buff
+            local cast                                          = br.player.cast
             local combatTime                                    = getCombatTime()
-            local cd                                            = bb.player.cd
-            local charges                                       = bb.player.charges
-            local debuff                                        = bb.player.debuff
-            local enemies                                       = bb.player.enemies
+            local cd                                            = br.player.cd
+            local charges                                       = br.player.charges
+            local debuff                                        = br.player.debuff
+            local enemies                                       = br.player.enemies
             local falling, swimming, flying, moving             = getFallTime(), IsSwimming(), IsFlying(), GetUnitSpeed("player")>0
-            local gcd                                           = bb.player.gcd
+            local gcd                                           = br.player.gcd
             local healPot                                       = getHealthPot()
-            local inCombat                                      = bb.player.inCombat
-            local inInstance                                    = bb.player.instance=="party"
-            local inRaid                                        = bb.player.instance=="raid"
-            local level                                         = bb.player.level
-            local lowestHP                                      = bb.friend[1].unit
-            local mode                                          = bb.player.mode
-            local perk                                          = bb.player.perk        
-            local php                                           = bb.player.health
-            local power, powmax, powgen                         = bb.player.power, bb.player.powerMax, bb.player.powerRegen
-            local pullTimer                                     = bb.DBM:getPulltimer()
-            local race                                          = bb.player.race
-            local racial                                        = bb.player.getRacial()
-            local recharge                                      = bb.player.recharge
-            local spell                                         = bb.player.spell
-            local talent                                        = bb.player.talent
-            local ttm                                           = bb.player.timeToMax
-            local units                                         = bb.player.units
+            local inCombat                                      = br.player.inCombat
+            local inInstance                                    = br.player.instance=="party"
+            local inRaid                                        = br.player.instance=="raid"
+            local level                                         = br.player.level
+            local lowestHP                                      = br.friend[1].unit
+            local mode                                          = br.player.mode
+            local perk                                          = br.player.perk        
+            local php                                           = br.player.health
+            local power, powmax, powgen                         = br.player.power, br.player.powerMax, br.player.powerRegen
+            local pullTimer                                     = br.DBM:getPulltimer()
+            local race                                          = br.player.race
+            local racial                                        = br.player.getRacial()
+            local recharge                                      = br.player.recharge
+            local spell                                         = br.player.spell
+            local talent                                        = br.player.talent
+            local ttm                                           = br.player.timeToMax
+            local units                                         = br.player.units
             
             if leftCombat == nil then leftCombat = GetTime() end
             if profileStop == nil then profileStop = false end

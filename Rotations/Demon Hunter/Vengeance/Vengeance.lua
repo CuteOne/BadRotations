@@ -1,14 +1,14 @@
 function DemonHunterVengeance()
     if GetSpecializationInfo(GetSpecialization()) == 581 then
-        if bb.player == nil or bb.player.profile ~= "Vengeance" then
-            bb.player = cVengeance:new("Vengeance")
-            setmetatable(bb.player, {__index = cVengeance})
+        if br.player == nil or br.player.profile ~= "Vengeance" then
+            br.player = cVengeance:new("Vengeance")
+            setmetatable(br.player, {__index = cVengeance})
 
-            bb.player:createOptions()
-            bb.player:createToggles()
-            bb.player:update()
+            br.player:createOptions()
+            br.player:createToggles()
+            br.player:update()
         end
 
-        bb.player:update()
+        br.player:update()
     end
 end

@@ -3,8 +3,8 @@
 function frameCreation(name,width,heigth,title)
 	if _G[name.."Frame"] == nil then
 		-- build frame properties
-		if bb.data.BadBoyUI[name.."Frame"] == nil then
-			bb.data.BadBoyUI[name.."Frame"] = {
+		if br.data.BadRotationsUI[name.."Frame"] == nil then
+			br.data.BadRotationsUI[name.."Frame"] = {
 				color = {
 					r = 16,
 					g = 16,
@@ -23,13 +23,13 @@ function frameCreation(name,width,heigth,title)
 			}
 		end
 		local anchor,x,y
-		local scale = bb.data.BadBoyUI.optionsFrame.scale or 1
+		local scale = br.data.BadRotationsUI.optionsFrame.scale or 1
 		-- build common options frame
 		_G[name.."Frame"] = CreateFrame("Frame",name.."Frame",UIParent)
-		if bb.data.BadBoyUI[name.."Frame"] ~= nil and bb.data.BadBoyUI[name.."Frame"].pos ~= nil then
-			anchor = bb.data.BadBoyUI[name.."Frame"].pos.anchor or "CENTER"
-			x = bb.data.BadBoyUI[name.."Frame"].pos.x or -75
-			y = bb.data.BadBoyUI[name.."Frame"].pos.y or -200
+		if br.data.BadRotationsUI[name.."Frame"] ~= nil and br.data.BadRotationsUI[name.."Frame"].pos ~= nil then
+			anchor = br.data.BadRotationsUI[name.."Frame"].pos.anchor or "CENTER"
+			x = br.data.BadRotationsUI[name.."Frame"].pos.x or -75
+			y = br.data.BadRotationsUI[name.."Frame"].pos.y or -200
 		else
 			anchor = "CENTER"
 			x = 75
@@ -49,18 +49,18 @@ function frameCreation(name,width,heigth,title)
 		-- frame texture
 		_G[name.."Frame"].texture = _G[name.."Frame"]:CreateTexture(_G[name.."Frame"],"ARTWORK")
 		_G[name.."Frame"].texture:SetAllPoints()
-		_G[name.."Frame"].texture:SetTexture(bb.data.BadBoyUI[name.."Frame"].color.r/255,bb.data.BadBoyUI[name.."Frame"].color.g/255,bb.data.BadBoyUI[name.."Frame"].color.b/255,bb.data.BadBoyUI[name.."Frame"].color.a)
+		_G[name.."Frame"].texture:SetTexture(br.data.BadRotationsUI[name.."Frame"].color.r/255,br.data.BadRotationsUI[name.."Frame"].color.g/255,br.data.BadRotationsUI[name.."Frame"].color.b/255,br.data.BadRotationsUI[name.."Frame"].color.a)
 		_G[name.."Frame"].texture:SetBlendMode("BLEND")
 		_G[name.."Frame"].texture:SetWidth(width*scale)
 		_G[name.."Frame"].texture:SetHeight(heigth*scale)
 		-- frame title
 		_G[name.."FrameTitle"] = _G[name.."Frame"]:CreateFontString(debugFrame, "ARTWORK")
-		_G[name.."FrameTitle"]:SetFont(bb.data.BadBoyUI.font,bb.data.BadBoyUI.fontsize+1,"THICKOUTLINE")
+		_G[name.."FrameTitle"]:SetFont(br.data.BadRotationsUI.font,br.data.BadRotationsUI.fontsize+1,"THICKOUTLINE")
 		_G[name.."FrameTitle"]:SetPoint("TOP",0,-5)
 		_G[name.."FrameTitle"]:SetJustifyH("CENTER")
 		_G[name.."FrameTitle"]:SetTextColor(225/255, 225/255, 225/255,1)
 		_G[name.."FrameTitle"]:SetText(title)
-		if bb.data.options[bb.selectedSpec] and bb.data.options[bb.selectedSpec][name.."Frame"] == false then
+		if br.data.options[br.selectedSpec] and br.data.options[br.selectedSpec][name.."Frame"] == false then
 			_G[name.."Frame"]:Hide()
 		end
 		-- when we roll mouse (delta +1,-1)
@@ -78,9 +78,9 @@ function frameCreation(name,width,heigth,title)
 		end)
 		_G[name.."Frame"]:SetScript("OnReceiveDrag", function(self)
 			local _, _, anchor, x, y = _G[name.."Frame"]:GetPoint(1)
-			bb.data.BadBoyUI[name.."Frame"].pos.x = x
-			bb.data.BadBoyUI[name.."Frame"].pos.y = y
-			bb.data.BadBoyUI[name.."Frame"].pos.anchor = anchor
+			br.data.BadRotationsUI[name.."Frame"].pos.x = x
+			br.data.BadRotationsUI[name.."Frame"].pos.y = y
+			br.data.BadRotationsUI[name.."Frame"].pos.anchor = anchor
 		end)
 		if getOptionCheck("UI Borders") then
 			CreateBorder(_G[name.."Frame"],8,0.6,0.6,0.6)

@@ -4,14 +4,14 @@ if select(2, UnitClass("player")) == "DRUID" then
 	local function createToggles()
 		-- Cooldown Button
 		CooldownModes = {
-		[1] = { mode = "On", value = 1 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 1, icon = bb.player.spell.berserk },
-		[2] = { mode = "Off", value = 2 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = bb.player.spell.berserk }
+		[1] = { mode = "On", value = 1 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 1, icon = br.player.spell.berserk },
+		[2] = { mode = "Off", value = 2 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.berserk }
 		};
 		CreateButton("Cooldown",1,0)
 		-- Interrupt Button
 		InterruptModes = {
-		[1] = { mode = "On", value = 1 , overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = bb.player.spell.skullBash },
-		[2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = bb.player.spell.skullBash }
+		[1] = { mode = "On", value = 1 , overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spell.skullBash },
+		[2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.skullBash }
 		};
 		CreateButton("Interrupt",2,0)     
 	end
@@ -21,14 +21,14 @@ if select(2, UnitClass("player")) == "DRUID" then
 		local function rotationOptions()
 			local section
 			-- General Options
-			section = bb.ui:createSection(bb.ui.window.profile, "General")
+			section = br.ui:createSection(br.ui.window.profile, "General")
 				-- Auto Targeting
-				bb.ui:createCheckbox(section,"Auto Targeting","Enable Auto Targeting")
+				br.ui:createCheckbox(section,"Auto Targeting","Enable Auto Targeting")
 				-- Auto Facing
-				bb.ui:createCheckbox(section,"Auto Facing","Enable Auto Facing")
+				br.ui:createCheckbox(section,"Auto Facing","Enable Auto Facing")
 				--Debug
-				bb.ui:createCheckbox(section,"Debug","Enable Debug")
-				bb.ui:checkSectionState(section)
+				br.ui:createCheckbox(section,"Debug","Enable Debug")
+				br.ui:checkSectionState(section)
 			end
 			optionTable = {{
 			[1] = "Rotation Options",
@@ -43,18 +43,18 @@ if select(2, UnitClass("player")) == "DRUID" then
 		UpdateToggle("Interrupt",0.25)
 
 		--locals
-		local inCombat 					= bb.player.inCombat
+		local inCombat 					= br.player.inCombat
 		local combo 					= GetComboPoints("player")
-		local bleed 					= bb.player.bleed
+		local bleed 					= br.player.bleed
 		local incarnationBuff 			= UnitBuffID("player", 102543) 
-		local power, powmax, powgen 	= bb.player.power, bb.player.powerMax, bb.player.powerRegen
+		local power, powmax, powgen 	= br.player.power, br.player.powerMax, br.player.powerRegen
 		local mfTick 					= 20.0/(1+UnitSpellHaste("player")/100)/10
-		local talent 					= bb.player.talent
-		local buff 						= bb.player.buff
-		local ttm 						= bb.player.timeToMax
-		local cd 						= bb.player.cd
-		local clearcast 				= bb.player.buff.clearcast
-		local gcd 						= bb.player.gcd
+		local talent 					= br.player.talent
+		local buff 						= br.player.buff
+		local ttm 						= br.player.timeToMax
+		local cd 						= br.player.cd
+		local clearcast 				= br.player.buff.clearcast
+		local gcd 						= br.player.gcd
 
 		--Savage Roar Prowl
 		if UnitExists("target") and UnitBuffID("player", 5215) ~= nil then
@@ -100,7 +100,7 @@ if select(2, UnitClass("player")) == "DRUID" then
 			end
 			
 			--Skull Bash
-			if bb.data["Interrupt"] == 1 then
+			if br.data["Interrupt"] == 1 then
 				for i = 1, #getEnemies("player",13) do
 					local thisUnit = getEnemies("player",13)[i]
 					local distance = getDistance("player",thisUnit)						
@@ -113,7 +113,7 @@ if select(2, UnitClass("player")) == "DRUID" then
 			
 			local targetDistance = getDistance("player","target")
 			--Berserk
-			if bb.data["Cooldown"] == 1 then			
+			if br.data["Cooldown"] == 1 then			
 				if buff.tigersFury and (buff.incarnationKingOfTheJungle or not talent.incarnationKingOfTheJungle) and targetDistance < 5 then
 					if isChecked("Debug") then print("Berserk") end
 					CastSpellByName(GetSpellInfo(106951))
@@ -121,13 +121,13 @@ if select(2, UnitClass("player")) == "DRUID" then
 			end
 			
 			--Tigers Fury
-			if ((not clearcast and bb.player.powerDeficit >= 60) or bb.player.powerDeficit >= 80) and targetDistance < 5 then
+			if ((not clearcast and br.player.powerDeficit >= 60) or br.player.powerDeficit >= 80) and targetDistance < 5 then
 				if isChecked("Debug") then print("Tigers Fury") end
 				CastSpellByName(GetSpellInfo(5217))
 			end
 			
 			--Incarnation - King of the Jungle
-			if bb.data["Cooldown"] == 1 then
+			if br.data["Cooldown"] == 1 then
 				if buff.remain.berserk < 10 and ttm > 1 and targetDistance < 5 then
 					if isChecked("Debug") then print("Incarnation - King of the Jungle") end
 					CastSpellByName(GetSpellInfo(102543))
@@ -135,7 +135,7 @@ if select(2, UnitClass("player")) == "DRUID" then
 			end
 			
 			--Trinkets
-			if bb.data["Cooldown"] == 1 then
+			if br.data["Cooldown"] == 1 then
 				if canUse(13) and canTrinket(13) and targetDistance < 5 then
 					if isChecked("Debug") then print("/use 13") end
 					RunMacroText("/use 13")
@@ -250,7 +250,7 @@ if select(2, UnitClass("player")) == "DRUID" then
 
 
 			--Savage Roar < GCD
-			if bb.player.buff.remain.savageRoar < gcd then
+			if br.player.buff.remain.savageRoar < gcd then
 				if combo >= 1 then
 					if isChecked("Debug") then print("Savage Roar < GCD") end
 					CastSpellByName(GetSpellInfo(52610))
@@ -286,7 +286,7 @@ if select(2, UnitClass("player")) == "DRUID" then
 					end
 				end 
 				--Moonfire < 4.2
-				if bb.player.talent.lunarInspiration and power > 30 then
+				if br.player.talent.lunarInspiration and power > 30 then
 					for i=1, #bleed.moonfire do
 						local moonfire = bleed.moonfire[i]
 						local thisUnit = moonfire.unit

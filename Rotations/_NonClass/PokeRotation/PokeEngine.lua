@@ -1,5 +1,5 @@
 function PokeEngine()
-  if bb.data["Check PokeRotation"] ~= 1 then return false; end
+  if br.data["Check PokeRotation"] ~= 1 then return false; end
   -- pulsed
   if not PokeRotationStarted then
     PokeData()
@@ -35,7 +35,7 @@ function PokeEngine()
       if startWaiting ~= nil and startWaiting <= GetTime() - 2 then
         if UnitExists("target") == false then
 
-          for i = 1, GetObjectCountBB() do
+          for i = 1, GetObjectCountBR() do
             local thisPet = GetObjectIndex(i)
             if GetObjectExists(thisPet) and UnitIsVisible(thisPet) and
               getDistance("player",thisPet) < getValue("Auto Clicker Range") then
@@ -163,7 +163,7 @@ function PokeEngine()
 
     --[[                                       Normal Rotation                                             ]]
 
-    if inBattle and bb.data["Check PokeRotation"] == 1 then
+    if inBattle and br.data["Check PokeRotation"] == 1 then
 
       Switch();
       SimpleHealing();

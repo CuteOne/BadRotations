@@ -297,43 +297,43 @@ if select(2, UnitClass("player")) == "WARLOCK" then
         ---------------
 
         function self.createOptions()
-            bb.ui.window.profile = bb.ui:createProfileWindow("Destruction")
+            br.ui.window.profile = br.ui:createProfileWindow("Destruction")
             local section
 
             -- Create Base and Class options
             self.createClassOptions()
 
              -- Wrapper -----------------------------------------
-            section = bb.ui:createSection(bb.ui.window.profile,  "General")
+            section = br.ui:createSection(br.ui.window.profile,  "General")
 
             -- Flask / Crystal
-            bb.ui:createCheckbox(section,"Flask/Crystal")
-            bb.ui:checkSectionState(section)
+            br.ui:createCheckbox(section,"Flask/Crystal")
+            br.ui:checkSectionState(section)
 
 
              -- Wrapper -----------------------------------------
-            section = bb.ui:createSection(bb.ui.window.profile, "Defensive")
+            section = br.ui:createSection(br.ui.window.profile, "Defensive")
             -- Expel Harm
-            bb.ui:createSpinner(section,  "Ember Tap",  80,  0,  100  ,  5,  "Under what |cffFF0000%HP to use |cffFFFFFFEmber Tap")
+            br.ui:createSpinner(section,  "Ember Tap",  80,  0,  100  ,  5,  "Under what |cffFF0000%HP to use |cffFFFFFFEmber Tap")
             -- Fortifying Brew
-            bb.ui:createSpinner(section,  "Heirloom Neck",  30,  0,  100  ,  5,  "Under what |cffFF0000%HP to use |cffFFFFFFHeirloom Neck")
+            br.ui:createSpinner(section,  "Heirloom Neck",  30,  0,  100  ,  5,  "Under what |cffFF0000%HP to use |cffFFFFFFHeirloom Neck")
             -- Healthstone
-            bb.ui:createSpinner(section,  "Pot/Stoned",  20,  0,  100  ,  5,  "Under what |cffFF0000%HP to use |cffFFFFFFHealthstone")
+            br.ui:createSpinner(section,  "Pot/Stoned",  20,  0,  100  ,  5,  "Under what |cffFF0000%HP to use |cffFFFFFFHealthstone")
             -- Unending Resolve
-            bb.ui:createSpinner(section,  "Unending Resolve",  20,  0,  100  ,  5,  "Under what |cffFF0000%HP to use |cffFFFFFFUnending Resolve")
-            bb.ui:checkSectionState(section)
+            br.ui:createSpinner(section,  "Unending Resolve",  20,  0,  100  ,  5,  "Under what |cffFF0000%HP to use |cffFFFFFFUnending Resolve")
+            br.ui:checkSectionState(section)
 
 
-            section = bb.ui:createSection(bb.ui.window.profile,  "Interrupts")
+            section = br.ui:createSection(br.ui.window.profile,  "Interrupts")
             --Shadowfury
-            bb.ui:createSpinner(section, "Shadowfury", 40, 0, 100, 5, "At what |cffFF0000% Cast to use |cffFFFFFFShadowfury")
+            br.ui:createSpinner(section, "Shadowfury", 40, 0, 100, 5, "At what |cffFF0000% Cast to use |cffFFFFFFShadowfury")
             -- Spell Lock
-            bb.ui:createSpinner(section, "Spell Lock", 40, 0, 100, 5, "At what |cffFF0000% Cast to use |cffFFFFFFSpell Lock")
-            bb.ui:checkSectionState(section)
+            br.ui:createSpinner(section, "Spell Lock", 40, 0, 100, 5, "At what |cffFF0000% Cast to use |cffFFFFFFSpell Lock")
+            br.ui:checkSectionState(section)
 
             --[[ Rotation Dropdown ]]--
-            bb.ui:createRotationDropdown(bb.ui.window.profile.parent, {"Kuukuu","Test"})
-            bb:checkProfileWindowStatus()
+            br.ui:createRotationDropdown(br.ui.window.profile.parent, {"Kuukuu","Test"})
+            br:checkProfileWindowStatus()
         end
 
         

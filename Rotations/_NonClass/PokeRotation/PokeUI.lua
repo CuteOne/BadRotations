@@ -3,7 +3,7 @@ function PokeUI()
   if not PokeUILoaded then
     PokeUILoaded = true;
     if pokeFrame == nil then
-      bb.data.wait = 1;
+      br.data.wait = 1;
       pokeFrame = true
       pokePlayerFrame = CreateFrame("Frame", nil, UIParent)
       pokePlayerFrame:SetPoint("TOP",-300,-100)
@@ -192,8 +192,8 @@ function PokeUI()
 
   PlayerBuffDisplay();
   EnnemyBuffDisplay();
-  if bb.data.pokeValueanchor == nil then bb.data.pokeValueanchor = "CENTER" end
-  if bb.data.pokeValuex == nil then bb.data.pokeValuex = 0 end
-  if bb.data.pokeValuey == nil then bb.data.pokeValuey = 0 end
+  if br.data.pokeValueanchor == nil then br.data.pokeValueanchor = "CENTER" end
+  if br.data.pokeValuex == nil then br.data.pokeValuex = 0 end
+  if br.data.pokeValuey == nil then br.data.pokeValuey = 0 end
 
 end

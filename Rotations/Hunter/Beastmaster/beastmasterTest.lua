@@ -21,7 +21,7 @@ if select(3, UnitClass("player")) == 3 then
         local optionTable
 
         local function callBuffs()
-            bb.ui:createCheckbox(bb.ui.window.profile, rotationName.." Fury")
+            br.ui:createCheckbox(br.ui.window.profile, rotationName.." Fury")
         end
 
         optionTable = {
@@ -39,7 +39,7 @@ if select(3, UnitClass("player")) == 3 then
     -- you have to handle ooc and incombat rotation like before
     local function runRotation()
 
-        if bb.timer:useTimer("debugHunter", 5) then
+        if br.timer:useTimer("debugHunter", 5) then
             --print("Running: "..rotationName)
         end
     end
@@ -72,7 +72,7 @@ if select(3, UnitClass("player")) == 3 then
         local optionTable
 
         local function callBuffs()
-            bb.ui:createCheckbox(bb.ui.window.profile, rotationName.." Fury")
+            br.ui:createCheckbox(br.ui.window.profile, rotationName.." Fury")
         end
 
         optionTable = {
@@ -87,7 +87,7 @@ if select(3, UnitClass("player")) == 3 then
 
     local function runRotation()
 
-        if bb.timer:useTimer("debugHunter2", 5) then
+        if br.timer:useTimer("debugHunter2", 5) then
             print("Running: "..rotationName)
         end
     end
@@ -106,16 +106,16 @@ end
 
     if select(3, UnitClass("player")) == 3 then
         function BeastHunter()
-          if bb.player == nil or bb.player.profile ~= "Beastmaster" then
-              bb.player = cBeastmaster:new("Beastmaster")
-              setmetatable(bb.player, {__index = cBeastmaster})
+          if br.player == nil or br.player.profile ~= "Beastmaster" then
+              br.player = cBeastmaster:new("Beastmaster")
+              setmetatable(br.player, {__index = cBeastmaster})
 
-              bb.player:createOptions()
-              bb.player:createToggles()
-              bb.player:update()
+              br.player:createOptions()
+              br.player:createToggles()
+              br.player:update()
           end
 
-         bb.player:update()
+         br.player:update()
         end
     end
  ]]

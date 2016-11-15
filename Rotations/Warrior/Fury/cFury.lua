@@ -108,18 +108,18 @@ function cFury:new()
 
         function self.getToggleModes()
 
-            self.mode.rotation  = bb.data["Rotation"]
-            self.mode.cooldown  = bb.data["Cooldown"]
-            self.mode.defensive = bb.data["Defensive"]
-            self.mode.interrupt = bb.data["Interrupt"]
-            self.mode.mover     = bb.data["Mover"]
+            self.mode.rotation  = br.data["Rotation"]
+            self.mode.cooldown  = br.data["Cooldown"]
+            self.mode.defensive = br.data["Defensive"]
+            self.mode.interrupt = br.data["Interrupt"]
+            self.mode.mover     = br.data["Mover"]
         end
 
         -- Create the toggle defined within rotation files
         function self.createToggles()
             GarbageButtons()
-            if self.rotations[bb.selectedProfile] ~= nil then
-                self.rotations[bb.selectedProfile].toggles()
+            if self.rotations[br.selectedProfile] ~= nil then
+                self.rotations[br.selectedProfile].toggles()
             else
                 return
             end
@@ -131,14 +131,14 @@ function cFury:new()
         
         -- Creates the option/profile window
         function self.createOptions()
-            bb.ui.window.profile = bb.ui:createProfileWindow(self.profile)
+            br.ui.window.profile = br.ui:createProfileWindow(self.profile)
 
             -- Get the names of all profiles and create rotation dropdown
             local names = {}
             for i=1,#self.rotations do
                 tinsert(names, self.rotations[i].name)
             end
-            bb.ui:createRotationDropdown(bb.ui.window.profile.parent, names)
+            br.ui:createRotationDropdown(br.ui.window.profile.parent, names)
 
             -- Create Base and Class option table
             local optionTable = {
@@ -154,8 +154,8 @@ function cFury:new()
 
             -- Get profile defined options
             local profileTable = profileTable
-            if self.rotations[bb.selectedProfile] ~= nil then
-                profileTable = self.rotations[bb.selectedProfile].options()
+            if self.rotations[br.selectedProfile] ~= nil then
+                profileTable = self.rotations[br.selectedProfile].options()
             else
                 return
             end
@@ -166,8 +166,8 @@ function cFury:new()
             end
 
             -- Create pages dropdown
-            bb.ui:createPagesDropdown(bb.ui.window.profile, optionTable)
-            bb:checkProfileWindowStatus()
+            br.ui:createPagesDropdown(br.ui.window.profile, optionTable)
+            br:checkProfileWindowStatus()
         end
 
     ------------------------

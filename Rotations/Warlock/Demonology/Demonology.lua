@@ -1,14 +1,14 @@
 function WarlockDemonology()
     if GetSpecializationInfo(GetSpecialization()) == 266 then
-        if bb.player == nil or bb.player.profile ~= "Demonology" then
-            bb.player = cDemonology:new("Demonology")
-            setmetatable(bb.player, {__index = cDemonology})
+        if br.player == nil or br.player.profile ~= "Demonology" then
+            br.player = cDemonology:new("Demonology")
+            setmetatable(br.player, {__index = cDemonology})
 
-            bb.player:createOptions()
-            bb.player:createToggles()
-            bb.player:update()
+            br.player:createOptions()
+            br.player:createToggles()
+            br.player:update()
         end
 
-        bb.player:update()
+        br.player:update()
     end
 end

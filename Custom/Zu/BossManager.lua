@@ -7,7 +7,7 @@ myCurrentZone = GetRealZoneText();
 --+---------------------+--
 function inMawOfSouls()
   if myCurrentZone == "Helmouth Cliffs" then
-    isBadBoyHelya()
+    isBadRotationsHelya()
   end
 end
 

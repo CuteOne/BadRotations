@@ -1,15 +1,15 @@
-function bb.matchUnit(unit,table)
+function br.matchUnit(unit,table)
 	for i = 1,#table do
 		local guid = unit.guid
 		if table[i].guid == guid then
-			bb.read.enraged.unit = table[i]
+			br.read.enraged.unit = table[i]
 			return table[i]
 		end
 	end
 end
 -- function to compare spells to casting units
--- /run bb.castOffensiveDispel(19801)
-function bb.castOffensiveDispel(spell)
+-- /run br.castOffensiveDispel(19801)
+function br.castOffensiveDispel(spell)
 	-- first make sure we will be able to cast the spell
 	if isChecked("Enrages Handler") and canCast(spell,false,false) == true then
 		-- ToDo if the user sets its selector to target, only interupt current target.
@@ -27,12 +27,12 @@ function bb.castOffensiveDispel(spell)
 		if allowedDistance < 5 then
 			allowedDistance = 5
 		end
-		for i = 1, #bb.read.enraged do
-			if bb.read.enraged[i] ~= nil then
+		for i = 1, #br.read.enraged do
+			if br.read.enraged[i] ~= nil then
 				-- if i still dont know which unit it is compared to my fh units, find it.
-				local thisUnit = bb.read.enraged[i].unit
+				local thisUnit = br.read.enraged[i].unit
 				if thisUnit == nil then
-					thisUnit = bb.matchUnit(bb.read.enraged[i],bb.enemy)
+					thisUnit = br.matchUnit(br.read.enraged[i],br.enemy)
 				end
 				if thisUnit ~= nil then
 					if GetObjectExists(thisUnit.unit) then
@@ -61,13 +61,13 @@ function castCrowdControl(Unit,SpellID)
 	-- if "any" parameter is provided to target, we scan all the targets
 	if Unit == "any" then
 		-- test all targets
-		for i = 1, #bb.enemy do
+		for i = 1, #br.enemy do
 			-- check if unit is valid
-			if GetObjectExists(bb.enemy[i].unit) then
+			if GetObjectExists(br.enemy[i].unit) then
 				-- if this unit is a cc candidate and is in range
-				if bb.enemy[i].cc == true and bb.enemy[i].distance < spellDistance then
+				if br.enemy[i].cc == true and br.enemy[i].distance < spellDistance then
 					-- cast the spell
-					if castSpell(bb.enemy[i].unit,SpellID,true,false) then
+					if castSpell(br.enemy[i].unit,SpellID,true,false) then
 						return true
 					end
 				end
@@ -98,8 +98,8 @@ function castDotCycle(units,spellID,range,facingCheck,movementCheck,duration)
 	duration = duration or 1
 	-- cycle our units if we want MORE DOTS
 	if getDebuffCount(spellID) < units then
-		for i = 1, #bb.enemy do
-			local thisUnit = bb.enemy[i]
+		for i = 1, #br.enemy do
+			local thisUnit = br.enemy[i]
 			-- check if unit is valid
 			if GetObjectExists(thisUnit.unit) then
 				if thisUnit.isCC == false and UnitLevel(thisUnit.unit) < UnitLevel("player") + 5 then
@@ -123,12 +123,12 @@ function castDispelOffensiveBuffs(spell)
 		spellDistance = 5
 	end
 	-- iterate our enemies
-	for i = 1,#bb.enemy do
-		local thisUnit = bb.enemy[i]
+	for i = 1,#br.enemy do
+		local thisUnit = br.enemy[i]
 		if GetObjectExists(thisUnit.unit) then
 			if thisUnit.distance <= spellDistance and thisUnit.offensiveBuff == true then
 				if castSpell(thisUnit.unit,spell,false,false) then
-					bb:debug("Dispelled "..thisUnit.name.. " using "..spellName)
+					br:debug("Dispelled "..thisUnit.name.. " using "..spellName)
 					return true
 				end
 			end

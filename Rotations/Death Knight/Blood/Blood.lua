@@ -1,12 +1,12 @@
 function DeathKnightBlood()
-    if bb.player == nil or bb.player.profile ~= "Blood" then
-        bb.player = cBlood:new("Blood")
-        setmetatable(bb.player, {__index = cBlood})
+    if br.player == nil or br.player.profile ~= "Blood" then
+        br.player = cBlood:new("Blood")
+        setmetatable(br.player, {__index = cBlood})
 
-        bb.player:createOptions()
-        bb.player:createToggles()
-        bb.player:update()
+        br.player:createOptions()
+        br.player:createToggles()
+        br.player:update()
     end
 
-    bb.player:update()
+    br.player:update()
 end

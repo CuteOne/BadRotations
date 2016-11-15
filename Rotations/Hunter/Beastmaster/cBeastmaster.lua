@@ -91,7 +91,7 @@ if select(3, UnitClass("player")) == 3 then
             local dynamicTarget = dynamicTarget
 
             -- Throttle dynamic target updating
-            if bb.timer:useTimer("dynTarUpdate", self.dynTargetTimer) then
+            if br.timer:useTimer("dynTarUpdate", self.dynTargetTimer) then
                 -- Normal
 
                 -- AoE
@@ -107,9 +107,9 @@ if select(3, UnitClass("player")) == 3 then
         -- Updates toggle data
         function self.getToggleModes()
 
-            self.mode.aoe       = bb.data["AoE"]
-            self.mode.cooldowns = bb.data["Cooldowns"]
-            self.mode.defensive = bb.data["Defensive"]
+            self.mode.aoe       = br.data["AoE"]
+            self.mode.cooldowns = br.data["Cooldowns"]
+            self.mode.defensive = br.data["Defensive"]
         end
 
         ---------------------------------------------------------------
@@ -120,7 +120,7 @@ if select(3, UnitClass("player")) == 3 then
         function self.createToggles()
             GarbageButtons()
 
-            self.rotations[bb.selectedProfile].toggles()
+            self.rotations[br.selectedProfile].toggles()
         end
 
         -- Creates the option/profile window
@@ -128,14 +128,14 @@ if select(3, UnitClass("player")) == 3 then
         -- todo: check if its possible to put that into cCharacter to remove redundancy
         function self.createOptions()
             -- Create Profile Window
-            bb.ui.window.profile = bb.ui:createProfileWindow(self.profile)
+            br.ui.window.profile = br.ui:createProfileWindow(self.profile)
 
             -- Get the names of all profiles and create rotation dropdown
             local names = {}
             for i=1,#self.rotations do
                 tinsert(names, self.rotations[i].name)
             end
-            bb.ui:createRotationDropdown(bb.ui.window.profile.parent, names)
+            br.ui:createRotationDropdown(br.ui.window.profile.parent, names)
 
             -- Create Base and Class option table
             local optionTable = {
@@ -149,15 +149,15 @@ if select(3, UnitClass("player")) == 3 then
                 },
             }
             -- Get profile defined options
-            local profileTable = self.rotations[bb.selectedProfile].options()
+            local profileTable = self.rotations[br.selectedProfile].options()
             -- Only add profile pages if they are found
             if profileTable then
                 insertTableIntoTable(optionTable, profileTable)
             end
             -- Create pages dropdown
-            bb.ui:createPagesDropdown(bb.ui.window.profile, optionTable)
+            br.ui:createPagesDropdown(br.ui.window.profile, optionTable)
 
-            bb:checkProfileWindowStatus()
+            br:checkProfileWindowStatus()
         end
 
         -- todo: -> get the info within profile file, as they are rotation dependend

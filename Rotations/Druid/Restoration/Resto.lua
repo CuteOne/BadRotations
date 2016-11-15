@@ -1,14 +1,14 @@
 if select(3, UnitClass("player")) == 11 then
     function DruidResto()
-        if bb.player == nil or bb.player.profile ~= "Resto" then
-            bb.player = cResto:new("Resto")
-            setmetatable(bb.player, {__index = cResto})
+        if br.player == nil or br.player.profile ~= "Resto" then
+            br.player = cResto:new("Resto")
+            setmetatable(br.player, {__index = cResto})
 
-            bb.player:createOptions()
-            bb.player:createToggles()
-            bb.player:update()
+            br.player:createOptions()
+            br.player:createToggles()
+            br.player:update()
         end
 
-        bb.player:update()
+        br.player:update()
     end
 end

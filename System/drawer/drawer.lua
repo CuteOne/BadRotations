@@ -1,12 +1,12 @@
---- bb.drawer - Module to draw with the help of LibDraw cycles, lines, etc into WoW
+--- br.drawer - Module to draw with the help of LibDraw cycles, lines, etc into WoW
 
-bb.drawer = {}
+br.drawer = {}
 -- Contains the objects/units to draw
-bb.drawer.objects = {
+br.drawer.objects = {
     -- ID, Shape, Parameter
     236683
 }
-bb.drawer.units   = {}
+br.drawer.units   = {}
 
 local LibDraw = LibStub("LibDraw-1.0")
 
@@ -44,8 +44,8 @@ LibDraw.Sync(function()
                 objectID = tonumber(objectID)
 
                 -- Check if object is in global table
-                for j=1, #bb.drawer.objects do
-                    if objectID == bb.drawer.objects[j] then
+                for j=1, #br.drawer.objects do
+                    if objectID == br.drawer.objects[j] then
                         tinsert(drawTable, thisObject)
                     end
                 end
@@ -71,7 +71,7 @@ end)
 
 
 -- Starts the drawing
-bb.drawer.drawTicker = LibDraw.Enable(0.01)
+br.drawer.drawTicker = LibDraw.Enable(0.01)
 
 
 --[[

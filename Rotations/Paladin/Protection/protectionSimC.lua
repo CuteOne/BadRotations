@@ -16,7 +16,7 @@ function cProtection:protectionSimC()
         cast.Buffs()
 
         -- TEST PRE PULL
-        if bb.DBM:getPulltimer(2) then
+        if br.DBM:getPulltimer(2) then
             useItem(109220)
             cast.SacredShield()
         end

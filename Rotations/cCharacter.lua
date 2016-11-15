@@ -196,10 +196,10 @@ function cCharacter:new(class)
     -- TODO: here should only happen generic ones like Defensive etc.
 	function self.getToggleModes()
 
-		self.mode.rotation  = bb.data["Rotation"]
-		self.mode.cooldown 	= bb.data["Cooldown"]
-		self.mode.defensive = bb.data["Defensive"]
-		self.mode.interrupt = bb.data["Interrupt"]
+		self.mode.rotation  = br.data["Rotation"]
+		self.mode.cooldown 	= br.data["Cooldown"]
+		self.mode.defensive = br.data["Defensive"]
+		self.mode.interrupt = br.data["Interrupt"]
 	end
 
 -- Dynamic unit update
@@ -207,7 +207,7 @@ function cCharacter:new(class)
 		local dynamicTarget = dynamicTarget
 
         -- Throttle dynamic target updating
-        if bb.timer:useTimer("dynTarUpdate", self.dynTargetTimer) then
+        if br.timer:useTimer("dynTarUpdate", self.dynTargetTimer) then
         	if self.talent.balanceAffinity ~= nil then
         		if self.talent.balanceAffinity then
 	            	-- Normal
@@ -273,14 +273,14 @@ function cCharacter:new(class)
 
 -- Rotation selection update
     function self.getRotation()
-        self.rotation = bb.selectedProfile
+        self.rotation = br.selectedProfile
 
-        if bb.rotation_changed then
+        if br.rotation_changed then
             self.createOptions()
             self.createToggles()
-            bb.ui.window.profile.parent:Show()
+            br.ui.window.profile.parent:Show()
 
-            bb.rotation_changed = false
+            br.rotation_changed = false
         end
     end
 
@@ -288,8 +288,8 @@ function cCharacter:new(class)
     function self.startRotation()
         -- dont check if player is casting to allow off-cd usage and cast while other spell is casting
         if pause(true) then return end
-        if self.rotations[bb.selectedProfile] ~= nil then
-        	self.rotations[bb.selectedProfile].run()
+        if self.rotations[br.selectedProfile] ~= nil then
+        	self.rotations[br.selectedProfile].run()
         else
         	return
         end
@@ -297,7 +297,7 @@ function cCharacter:new(class)
 
 -- Updates special Equipslots
 	function self.baseGetEquip()
-        if bb.equipHasChanged == nil or bb.equipHasChanged then
+        if br.equipHasChanged == nil or br.equipHasChanged then
 		-- Checks T17 Set
 			local t17 = TierScan("T17")
 			self.eq.t17_2pc = t17>=2 or false
@@ -322,7 +322,7 @@ function cCharacter:new(class)
 			}
 			self.eq.t18_classTrinket = isTrinketEquipped(classTrinket[string.lower(self.class)])
 
-            bb.equipHasChanged = false
+            br.equipHasChanged = false
         end
 	end
 
@@ -370,13 +370,13 @@ function cCharacter:new(class)
  -- Call after Title
     function self.createBaseOptions()
         -- Base Wrap
-        local section_base = bb.ui:createSection(bb.ui.window.profile, "Base Options")
-        bb.ui:createCheckbox(section_base, "Ignore Combat")
-        bb.ui:createDropdown(section_base, "Pause Mode", bb.dropOptions.Toggle, 2, "Define a key which pauses the rotation.")
-        bb.ui:createCheckbox(section_base, "Use Crystal")
-        bb.ui:createCheckbox(section_base, "Use emp. Rune")
-        bb.ui:createCheckbox(section_base, "Use Racial")
-        bb.ui:checkSectionState(section_base)
+        local section_base = br.ui:createSection(br.ui.window.profile, "Base Options")
+        br.ui:createCheckbox(section_base, "Ignore Combat")
+        br.ui:createDropdown(section_base, "Pause Mode", br.dropOptions.Toggle, 2, "Define a key which pauses the rotation.")
+        br.ui:createCheckbox(section_base, "Use Crystal")
+        br.ui:createCheckbox(section_base, "Use emp. Rune")
+        br.ui:createCheckbox(section_base, "Use Racial")
+        br.ui:checkSectionState(section_base)
     end
 
  -- Get option modes

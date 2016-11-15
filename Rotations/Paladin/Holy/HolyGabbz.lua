@@ -7,27 +7,27 @@ if select(2, UnitClass("player")) == "PALADIN" then
     local function createToggles()
     -- Rotation Button
         RotationModes = {
-            [1] = { mode = "Default",   value = 1,  overlay = "Healing Rotation",   tip = "Default healing.",           highlight = 1, icon = bb.player.spell.flashOfLight},
-            [2] = { mode = "DPS",       value = 2,  overlay = "DPS",                tip = "Do damage, for grinding.",   highlight = 0, icon = bb.player.spell.judgement},
+            [1] = { mode = "Default",   value = 1,  overlay = "Healing Rotation",   tip = "Default healing.",           highlight = 1, icon = br.player.spell.flashOfLight},
+            [2] = { mode = "DPS",       value = 2,  overlay = "DPS",                tip = "Do damage, for grinding.",   highlight = 0, icon = br.player.spell.judgement},
         };
         CreateButton("Rotation",1,0)
     -- Cooldown Button
         CooldownModes = {
-           [1] = { mode = "Auto",      value = 1,   overlay = "Cooldowns Automated",    tip = "Automatic Cooldowns - Boss Detection.",  highlight = 1, icon = bb.player.spell.avengersWrath},
-           [2] = { mode = "On",        value = 1,   overlay = "Cooldowns Enabled",      tip = "Cooldowns used regardless of target.",   highlight = 0, icon = bb.player.spell.auraMastery},
-           [3] = { mode = "Off",       value = 3,   overlay = "Cooldowns Disabled",     tip = "No Cooldowns will be used.",             highlight = 0, icon = bb.player.spell.flashOfLight}
+           [1] = { mode = "Auto",      value = 1,   overlay = "Cooldowns Automated",    tip = "Automatic Cooldowns - Boss Detection.",  highlight = 1, icon = br.player.spell.avengersWrath},
+           [2] = { mode = "On",        value = 1,   overlay = "Cooldowns Enabled",      tip = "Cooldowns used regardless of target.",   highlight = 0, icon = br.player.spell.auraMastery},
+           [3] = { mode = "Off",       value = 3,   overlay = "Cooldowns Disabled",     tip = "No Cooldowns will be used.",             highlight = 0, icon = br.player.spell.flashOfLight}
         };
         CreateButton("Cooldown",2,0)
     -- Defensive Button
         DefensiveModes = {
-           [1] = { mode = "On",        value = 1,   overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = bb.player.spell.flashOfLight},
-           [2] = { mode = "Off",       value = 2,  overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = bb.player.spell.flashOfLight}
+           [1] = { mode = "On",        value = 1,   overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spell.flashOfLight},
+           [2] = { mode = "Off",       value = 2,  overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spell.flashOfLight}
         };
         CreateButton("Defensive",3,0)
     -- Interrupt Button
         InterruptModes = {
-           [1] = { mode = "On",        value = 1,  overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = bb.player.spell.flashOfLight},
-           [2] = { mode = "Off",       value = 2,  overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = bb.player.spell.flashOfLight}
+           [1] = { mode = "On",        value = 1,  overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spell.flashOfLight},
+           [2] = { mode = "Off",       value = 2,  overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.flashOfLight}
         };
         CreateButton("Interrupt",4,0)
     
@@ -45,43 +45,43 @@ if select(2, UnitClass("player")) == "PALADIN" then
         local function rotationOptions()
             local section
         -- Healing values
-            section = bb.ui:createSection(bb.ui.window.profile, "Healing Thresholds")
-                bb.ui:createSpinner(section,"Critical Health Level",    0, 20, 100, 5, "|cffFFFFFFWhen to save a unit")
-                bb.ui:createSpinner(section,"Holy Shock",               0, 95, 100, 5, "|cffFFFFFFHealth Level to Cast At")
-                bb.ui:createSpinner(section,"Holy Light",               0, 50, 100, 5, "|cffFFFFFFHealth Level to Cast At")
-                bb.ui:createSpinner(section,"Bestow Faith",             0, 85, 100, 5, "|cffFFFFFFHealth Level to Cast At")
-                bb.ui:createSpinner(section,"Holy Prism",               0, 80, 100, 5, "|cffFFFFFFHealth Level to Cast At")
-                bb.ui:createSpinner(section,"Flash of Light",           0, 60, 100, 5, "|cffFFFFFFHealth Level to Cast At")
-                bb.ui:createSpinner(section,"Light of The Martyr",      0, 40, 100, 5, "|cffFFFFFFHealth Level to Cast At")
-                bb.ui:createSpinner(section,"Blessing of Sacrifice",    0,  0, 100, 5, "|cffFFFFFFHealth Level to Cast At")
-                bb.ui:createSpinner(section,"Blessing of Protection",   0,  0, 100, 5, "|cffFFFFFFHealth Level to Cast At")
-                bb.ui:createSpinner(section,"Lay on Hands",             0, 20, 100, 5, "|cffFFFFFFHealth Level to Cast At")
-            bb.ui:checkSectionState(section)
+            section = br.ui:createSection(br.ui.window.profile, "Healing Thresholds")
+                br.ui:createSpinner(section,"Critical Health Level",    0, 20, 100, 5, "|cffFFFFFFWhen to save a unit")
+                br.ui:createSpinner(section,"Holy Shock",               0, 95, 100, 5, "|cffFFFFFFHealth Level to Cast At")
+                br.ui:createSpinner(section,"Holy Light",               0, 50, 100, 5, "|cffFFFFFFHealth Level to Cast At")
+                br.ui:createSpinner(section,"Bestow Faith",             0, 85, 100, 5, "|cffFFFFFFHealth Level to Cast At")
+                br.ui:createSpinner(section,"Holy Prism",               0, 80, 100, 5, "|cffFFFFFFHealth Level to Cast At")
+                br.ui:createSpinner(section,"Flash of Light",           0, 60, 100, 5, "|cffFFFFFFHealth Level to Cast At")
+                br.ui:createSpinner(section,"Light of The Martyr",      0, 40, 100, 5, "|cffFFFFFFHealth Level to Cast At")
+                br.ui:createSpinner(section,"Blessing of Sacrifice",    0,  0, 100, 5, "|cffFFFFFFHealth Level to Cast At")
+                br.ui:createSpinner(section,"Blessing of Protection",   0,  0, 100, 5, "|cffFFFFFFHealth Level to Cast At")
+                br.ui:createSpinner(section,"Lay on Hands",             0, 20, 100, 5, "|cffFFFFFFHealth Level to Cast At")
+            br.ui:checkSectionState(section)
             
             -- Cooldown Options
-             section = bb.ui:createSection(bb.ui.window.profile, "Cooldowns")
-                bb.ui:createSpinner(section,"Aura Mastery",    0, 50, 100, 5, "|cffFFFFFFWhen to save a unit")
+             section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
+                br.ui:createSpinner(section,"Aura Mastery",    0, 50, 100, 5, "|cffFFFFFFWhen to save a unit")
                 -- Todo need to specify how many units beneath
 
-             bb.ui:checkSectionState(section)
+             br.ui:checkSectionState(section)
             -- Defensive Options
-             section = bb.ui:createSection(bb.ui.window.profile, "Defensive")
+             section = br.ui:createSection(br.ui.window.profile, "Defensive")
 
-             bb.ui:checkSectionState(section)
+             br.ui:checkSectionState(section)
         
         -- Toggle Key Options
-            section = bb.ui:createSection(bb.ui.window.profile, "Toggle Keys")
+            section = br.ui:createSection(br.ui.window.profile, "Toggle Keys")
             -- Single/Multi Toggle
-               bb.ui:createDropdown(section, "Rotation Mode", bb.dropOptions.Toggle,  4)
+               br.ui:createDropdown(section, "Rotation Mode", br.dropOptions.Toggle,  4)
             -- Cooldown Key Toggle
-               bb.ui:createDropdown(section, "Cooldown Mode", bb.dropOptions.Toggle,  3)
+               br.ui:createDropdown(section, "Cooldown Mode", br.dropOptions.Toggle,  3)
             -- Defensive Key Toggle
-               bb.ui:createDropdown(section, "Defensive Mode", bb.dropOptions.Toggle,  6)
+               br.ui:createDropdown(section, "Defensive Mode", br.dropOptions.Toggle,  6)
             -- Interrupts Key Toggle
-               bb.ui:createDropdown(section, "Interrupt Mode", bb.dropOptions.Toggle,  6)
+               br.ui:createDropdown(section, "Interrupt Mode", br.dropOptions.Toggle,  6)
             -- Pause Toggle
-               bb.ui:createDropdown(section, "Pause Mode", bb.dropOptions.Toggle,  6)
-            bb.ui:checkSectionState(section)
+               br.ui:createDropdown(section, "Pause Mode", br.dropOptions.Toggle,  6)
+            br.ui:checkSectionState(section)
         end
         optionTable = {{
             [1] = "Rotation Options",
@@ -94,7 +94,7 @@ if select(2, UnitClass("player")) == "PALADIN" then
 --- ROTATION ---
 ----------------
     local function runRotation()
-        if bb.timer:useTimer("debugHoly", math.random(0.15,0.3)) then
+        if br.timer:useTimer("debugHoly", math.random(0.15,0.3)) then
             -- print("Running: "..rotationName)
 
     ---------------
@@ -111,46 +111,46 @@ if select(2, UnitClass("player")) == "PALADIN" then
     --------------
             local addsExist                                     = false 
             local addsIn                                        = 999
-            local artifact                                      = bb.player.artifact
-            local buff                                          = bb.player.buff
-            local cast                                          = bb.player.cast
-            local castable                                      = bb.player.cast.debug
+            local artifact                                      = br.player.artifact
+            local buff                                          = br.player.buff
+            local cast                                          = br.player.cast
+            local castable                                      = br.player.cast.debug
             local combatTime                                    = getCombatTime()
-            local cd                                            = bb.player.cd
-            local charges                                       = bb.player.charges
+            local cd                                            = br.player.cd
+            local charges                                       = br.player.charges
             local deadMouse, hasMouse, playerMouse              = UnitIsDeadOrGhost("mouseover"), ObjectExists("mouseover"), UnitIsPlayer("mouseover")
             local deadtar, attacktar, hastar, playertar         = UnitIsDeadOrGhost("target"), UnitCanAttack("target", "player"), ObjectExists("target"), UnitIsPlayer("target")
-            local debuff                                        = bb.player.debuff
-            local enemies                                       = bb.player.enemies
+            local debuff                                        = br.player.debuff
+            local enemies                                       = br.player.enemies
             local falling, swimming, flying, moving             = getFallTime(), IsSwimming(), IsFlying(), GetUnitSpeed("player") > 0
             local friendly                                      = UnitIsFriend("target", "player")
-            local gcd                                           = bb.player.gcd
+            local gcd                                           = br.player.gcd
             local healPot                                       = getHealthPot()
-            local inCombat                                      = bb.player.inCombat
-            local inInstance                                    = bb.player.instance=="party"
-            local inRaid                                        = bb.player.instance=="raid"
+            local inCombat                                      = br.player.inCombat
+            local inInstance                                    = br.player.instance=="party"
+            local inRaid                                        = br.player.instance=="raid"
             local lastSpell                                     = lastSpellCast
-            local level                                         = bb.player.level    
-            local mode                                          = bb.player.mode
+            local level                                         = br.player.level    
+            local mode                                          = br.player.mode
             local moveIn                                        = 999      
-            local php                                           = bb.player.health
-            local power, powmax, powgen, powerDeficit           = bb.player.power, bb.player.powerMax, bb.player.powerRegen, bb.player.powerDeficit
-            local pullTimer                                     = bb.DBM:getPulltimer()
-            local racial                                        = bb.player.getRacial()
-            local recharge                                      = bb.player.recharge
-            local solo                                          = bb.player.instance=="none"
-            local spell                                         = bb.player.spell
-            local talent                                        = bb.player.talent
+            local php                                           = br.player.health
+            local power, powmax, powgen, powerDeficit           = br.player.power, br.player.powerMax, br.player.powerRegen, br.player.powerDeficit
+            local pullTimer                                     = br.DBM:getPulltimer()
+            local racial                                        = br.player.getRacial()
+            local recharge                                      = br.player.recharge
+            local solo                                          = br.player.instance=="none"
+            local spell                                         = br.player.spell
+            local talent                                        = br.player.talent
             local ttd                                           = getTTD
-            local ttm                                           = bb.player.timeToMax
-            local units                                         = bb.player.units
+            local ttm                                           = br.player.timeToMax
+            local units                                         = br.player.units
 
             local lowest                                        = {}    --Lowest Unit
-            lowest.hp                                           = bb.friend[1].hp
-            lowest.role                                         = bb.friend[1].role
-            lowest.unit                                         = bb.friend[1].unit
-            lowest.range                                        = bb.friend[1].range
-            lowest.guid                                         = bb.friend[1].guid                      
+            lowest.hp                                           = br.friend[1].hp
+            lowest.role                                         = br.friend[1].role
+            lowest.unit                                         = br.friend[1].unit
+            lowest.range                                        = br.friend[1].range
+            lowest.guid                                         = br.friend[1].guid                      
             local tank                                          = {}    --Tank
             local averageHealth                                 = 100
             
@@ -171,27 +171,27 @@ if select(2, UnitClass("player")) == "PALADIN" then
             -- Testing Area, does not work
             ----------------------
                 print("Debug")
-               -- for i = 1, #bb.friend do
+               -- for i = 1, #br.friend do
                --     --Check if tank based on role or if having beacon of light, extract to tank table
-               --     if bb.friend[i].role == "TANK" or UnitBuffID(bb.friend[i].unit, 53563) then 
+               --     if br.friend[i].role == "TANK" or UnitBuffID(br.friend[i].unit, 53563) then 
                --         print("Debug: Found Tank")
-               --         tinsert(tank, bb.friend[i])
-                        --tank.hp = bb.friend[i].hp
-                        --tank.unit = bb.friend[i].unit
-                        --tank.range = bb.friend[i].range
+               --         tinsert(tank, br.friend[i])
+                        --tank.hp = br.friend[i].hp
+                        --tank.unit = br.friend[i].unit
+                        --tank.range = br.friend[i].range
                --     end
-               --     if bb.friend[i].hp < lowest.hp then
+               --     if br.friend[i].hp < lowest.hp then
                --         print("Debug: Found New Lowest")
-               --         lowest.hp = bb.friend[i].hp
-               --         lowest.role = bb.friend[i].role
-               --         lowest.unit = bb.friend[i].unit
-               --         lowest.range = bb.friend[i].range
-               --         lowest.guid = bb.friend[i].guid 
+               --         lowest.hp = br.friend[i].hp
+               --         lowest.role = br.friend[i].role
+               --         lowest.unit = br.friend[i].unit
+               --         lowest.range = br.friend[i].range
+               --         lowest.guid = br.friend[i].guid 
                ----     end
-                ----    averageHealth = averageHealth + bb.friend[i].hp
+                ----    averageHealth = averageHealth + br.friend[i].hp
                 ----end
-                ----averageHealth = averageHealth/#bb.friend
-                ----print("Debug: averageHealth and friends : " ..averageHealth ..#bb.friend)
+                ----averageHealth = averageHealth/#br.friend
+                ----print("Debug: averageHealth and friends : " ..averageHealth ..#br.friend)
 
                     ----------------------
                     -- Healing Candidate checks

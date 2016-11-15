@@ -309,8 +309,8 @@ function cShadow:new()
         -- Create the toggle defined within rotation files - DO NOT EDIT
         function self.createToggles()
             GarbageButtons()
-            if self.rotations[bb.selectedProfile] ~= nil then
-                self.rotations[bb.selectedProfile].toggles()
+            if self.rotations[br.selectedProfile] ~= nil then
+                self.rotations[br.selectedProfile].toggles()
             else
                 return
             end
@@ -322,14 +322,14 @@ function cShadow:new()
         
         -- Creates the option/profile window - DO NOT EDIT
         function self.createOptions()
-            bb.ui.window.profile = bb.ui:createProfileWindow(self.profile)
+            br.ui.window.profile = br.ui:createProfileWindow(self.profile)
 
             -- Get the names of all profiles and create rotation dropdown
             local names = {}
             for i=1,#self.rotations do
                 tinsert(names, self.rotations[i].name)
             end
-            bb.ui:createRotationDropdown(bb.ui.window.profile.parent, names)
+            br.ui:createRotationDropdown(br.ui.window.profile.parent, names)
 
             -- Create Base and Class option table
             local optionTable = {
@@ -345,8 +345,8 @@ function cShadow:new()
 
             -- Get profile defined options
             local profileTable = profileTable
-            if self.rotations[bb.selectedProfile] ~= nil then 
-                profileTable = self.rotations[bb.selectedProfile].options()
+            if self.rotations[br.selectedProfile] ~= nil then 
+                profileTable = self.rotations[br.selectedProfile].options()
             else
                 return
             end
@@ -357,8 +357,8 @@ function cShadow:new()
             end
 
             -- Create pages dropdown
-            bb.ui:createPagesDropdown(bb.ui.window.profile, optionTable)
-            bb:checkProfileWindowStatus()
+            br.ui:createPagesDropdown(br.ui.window.profile, optionTable)
+            br:checkProfileWindowStatus()
         end
 
     --------------
@@ -378,10 +378,10 @@ function cShadow:new()
                         return castSpell(thisUnit,self.spell.shadowWordDeath,true,false) == true or false
                     end
                 end
-                for i=1,#bb.enemy do
-                    local thisUnit = bb.enemy[i].unit
-                    local range = bb.enemy[i].distance
-                    local hp = bb.enemy[i].hp
+                for i=1,#br.enemy do
+                    local thisUnit = br.enemy[i].unit
+                    local range = br.enemy[i].distance
+                    local hp = br.enemy[i].hp
                     if hp < 20 and range < 40 then
                         return castSpell(thisUnit,self.spell.shadowWordDeath,true,false,false,false,false,false,true) == true or false
                     end
@@ -398,11 +398,11 @@ function cShadow:new()
             -- then apply on others
             if self.debuff.count.shadowWordPain < maxTargets 
             and self.debuff.count.vampiricTouch >= 1 then
-                for i=1,#bb.enemy do
-                    local thisUnit = bb.enemy[i].unit
-                    local hp = bb.enemy[i].hpabs
-                    local ttd = bb.enemy[i].ttd
-                    local distance = bb.enemy[i].distance
+                for i=1,#br.enemy do
+                    local thisUnit = br.enemy[i].unit
+                    local hp = br.enemy[i].hpabs
+                    local ttd = br.enemy[i].ttd
+                    local distance = br.enemy[i].distance
                     -- infight
                     --if UnitIsTappedByPlayer(thisUnit) then
                         -- blacklists: CC, DoT Blacklist
@@ -478,11 +478,11 @@ function cShadow:new()
             if self.debuff.count.vampiricTouch < maxTargets
             and self.debuff.count.shadowWordPain >= 1 then
                 local castTime = 0.001*select(4,GetSpellInfo(self.spell.vampiricTouch))
-                for i=1,#bb.enemy do
-                    local thisUnit = bb.enemy[i].unit
-                    local hp = bb.enemy[i].hpabs
-                    local ttd = bb.enemy[i].ttd
-                    local distance = bb.enemy[i].distance
+                for i=1,#br.enemy do
+                    local thisUnit = br.enemy[i].unit
+                    local hp = br.enemy[i].hpabs
+                    local ttd = br.enemy[i].ttd
+                    local distance = br.enemy[i].distance
                     -- infight
                     --if UnitIsTappedByPlayer(thisUnit) then
                         -- blacklists: CC, DoT Blacklist
@@ -568,42 +568,42 @@ function cShadow:new()
     --- CUSTOM FUNCTIONS --- -- List all custom functions used only by this spec here 
     ------------------------
     function useCDs(spellid)
-            if (bb.data['Cooldown'] == 1 and isBoss()) or bb.data['Cooldown'] == 2 then
+            if (br.data['Cooldown'] == 1 and isBoss()) or br.data['Cooldown'] == 2 then
                 return true
             else
                 return false
             end
         end
         function useAuto()
-            if bb.data['Rotation'] == 1 then
+            if br.data['Rotation'] == 1 then
                 return true
             else
                 return false
             end
         end
         function useAoE()
-            if bb.data['Rotation'] == 2 then
+            if br.data['Rotation'] == 2 then
                return true
             else
                 return false
             end
         end
         function useSingle()
-            if bb.data['Rotation'] == 3 then
+            if br.data['Rotation'] == 3 then
                 return true
             else
                 return false
             end
         end
         function useInterrupts()
-            if bb.data['Interrupt'] == 1 then
+            if br.data['Interrupt'] == 1 then
                return true
             else
                 return false
             end
         end
         function useDefensive()
-            if bb.data['Defensive'] == 1 then
+            if br.data['Defensive'] == 1 then
                 return true
             else
                 return false

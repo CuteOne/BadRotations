@@ -113,7 +113,7 @@ function lootManager:getLoot()
 				-- find an unit to loot
 			elseif lM.canLootUnit == nil and (not lM.canLootTimer or lM.canLootTimer < GetTime()) then
 				lM:debug("Find Unit")
-				for i = 1, GetObjectCountBB() do
+				for i = 1, GetObjectCountBR() do
 					if bit.band(GetObjectIndex(i), ObjectTypes.Unit) == 8 then
 						local thisUnit = GetObjectIndex(i)
 						local hasLoot,canLoot = CanLootUnit(UnitGUID(thisUnit))

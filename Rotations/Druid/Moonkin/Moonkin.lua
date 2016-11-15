@@ -1,15 +1,15 @@
 function DruidMoonkin()
     if GetSpecializationInfo(GetSpecialization()) == 102 then
-        if bb.player == nil or bb.player.profile ~= "Balance" then
-            bb.player = cBalance:new("Balance")
-            setmetatable(bb.player, {__index = cBalance})
+        if br.player == nil or br.player.profile ~= "Balance" then
+            br.player = cBalance:new("Balance")
+            setmetatable(br.player, {__index = cBalance})
 
-            bb.player:createOptions()
-            bb.player:createToggles()
-            bb.player:update()
+            br.player:createOptions()
+            br.player:createToggles()
+            br.player:update()
         end
 
-        bb.player:update()
+        br.player:update()
     end
 end
 

@@ -10,52 +10,52 @@ function EnemiesEngine()
 	-- should have the same prio coefficent. For dps its not that important
 	-- Then we should check HP of the targets and set highest prio on low targets, this is also something we need to think
 	-- about if the target have a dot so it will die regardless or not. Should have a timetodie?
-	-- Stack: Interface\AddOns\BadBoy\System\EnemiesEngine.lua:224: in function `castInterrupt'
+	-- Stack: Interface\AddOns\BadRotations\System\EnemiesEngine.lua:224: in function `castInterrupt'
 	-- isBurnTarget(unit) - Bool - True if we should burn that target according to burnUnitCandidates
 	-- isSafeToAttack(unit) - Bool - True if we can attack target according to doNotTouchUnitCandidates
 	-- getEnemies(unit,Radius) - Number - Returns number of valid units within radius of unit
 	-- castInterrupt(spell,percent) - Multi-Target Interupts - for facing/in movements spells of all ranges.
-	-- makeEnemiesTable(55) - Triggered in badboy.lua - generate the bb.enemy
+	-- makeEnemiesTable(55) - Triggered in badboy.lua - generate the br.enemy
 	--[[------------------------------------------------------------------------------------------------------------------]]
 	--[[------------------------------------------------------------------------------------------------------------------]]
 	--[[------------------------------------------------------------------------------------------------------------------]]
 	--[[------------------------------------------------------------------------------------------------------------------]]
-	local varDir = bb.data.options[bb.selectedSpec]
+	local varDir = br.data.options[br.selectedSpec]
 	function makeEnemiesTable(maxDistance)
-		bb.enemy = {}
-		bb.enemy.timer = 0
+		br.enemy = {}
+		br.enemy.timer = 0
 		--local LibDraw = LibStub("LibDraw-1.0")
 		local  maxDistance = maxDistance or 50
-		if bb.enemy then cleanupEngine() end
-		if bb.enemy == nil or bb.enemy.timer == nil or bb.enemy.timer <= GetTime() - 1 then
+		if br.enemy then cleanupEngine() end
+		if br.enemy == nil or br.enemy.timer == nil or br.enemy.timer <= GetTime() - 1 then
             local startTime
-            if bb.data["isDebugging"] == true then
+            if br.data["isDebugging"] == true then
                 startTime = debugprofilestop()
             end
 
-			bb.enemy.timer = GetTime()
+			br.enemy.timer = GetTime()
 			-- create/empty table
-			if bb.enemy == nil then
-				bb.enemy = { }
+			if br.enemy == nil then
+				br.enemy = { }
 			else
-				table.wipe(bb.enemy)
+				table.wipe(br.enemy)
 			end
 			-- use objectmanager to build up table
             -- DEBUG
-            bb.debug.cpu.enemiesEngine.sanityTargets = 0
-            bb.debug.cpu.enemiesEngine.unitTargets = 0
+            br.debug.cpu.enemiesEngine.sanityTargets = 0
+            br.debug.cpu.enemiesEngine.unitTargets = 0
             -- DEBUG --
-            --for i = 1, GetObjectCountBB() do
+            --for i = 1, GetObjectCountBR() do
             for i = 1, ObjectCount() do
 				-- define our unit
 				--local thisUnit = GetObjectIndex(i)
                 local thisUnit = GetObjectWithIndex(i)
 				-- check if it a unit first
                 if ObjectIsType(thisUnit, ObjectTypes.Unit)  then
-                    bb.debug.cpu.enemiesEngine.unitTargets = bb.debug.cpu.enemiesEngine.unitTargets + 1
+                    br.debug.cpu.enemiesEngine.unitTargets = br.debug.cpu.enemiesEngine.unitTargets + 1
 					-- sanity checks
 					if getSanity(thisUnit) == true --[[and isValidUnit(thisUnit)]] then
-                        bb.debug.cpu.enemiesEngine.sanityTargets = bb.debug.cpu.enemiesEngine.sanityTargets + 1
+                        br.debug.cpu.enemiesEngine.sanityTargets = br.debug.cpu.enemiesEngine.sanityTargets + 1
                         -- get the unit distance
 						--local _, ObjectPosition1 = pcall(ObjectPosition,"player")
 						--local _, ObjectPosition2 = pcall(ObjectPosition,thisUnit)
@@ -86,7 +86,7 @@ function EnemiesEngine()
 							end
 							local shouldDispel = getOffensiveBuffs(thisUnit,unitGUID)
 							-- insert unit as a sub-array holding unit informations
-							tinsert(bb.enemy,
+							tinsert(br.enemy,
 								{
 									name = unitName,
 									guid = unitGUID,
@@ -116,26 +116,26 @@ function EnemiesEngine()
 				end
 			end
 			-- sort them by coeficient
-			table.sort(bb.enemy, function(x,y)
+			table.sort(br.enemy, function(x,y)
 				return x.coeficient and y.coeficient and x.coeficient > y.coeficient or false
 			end)
 
-            if bb.data["isDebugging"] == true then
-                bb.debug.cpu.enemiesEngine.makeEnemiesTableCount = bb.debug.cpu.enemiesEngine.makeEnemiesTableCount + 1
-                bb.debug.cpu.enemiesEngine.makeEnemiesTableCurrent = debugprofilestop()-startTime
-                bb.debug.cpu.enemiesEngine.makeEnemiesTable = bb.debug.cpu.enemiesEngine.makeEnemiesTable + debugprofilestop()-startTime
-                bb.debug.cpu.enemiesEngine.makeEnemiesTableAverage = bb.debug.cpu.enemiesEngine.makeEnemiesTable / bb.debug.cpu.enemiesEngine.makeEnemiesTableCount
+            if br.data["isDebugging"] == true then
+                br.debug.cpu.enemiesEngine.makeEnemiesTableCount = br.debug.cpu.enemiesEngine.makeEnemiesTableCount + 1
+                br.debug.cpu.enemiesEngine.makeEnemiesTableCurrent = debugprofilestop()-startTime
+                br.debug.cpu.enemiesEngine.makeEnemiesTable = br.debug.cpu.enemiesEngine.makeEnemiesTable + debugprofilestop()-startTime
+                br.debug.cpu.enemiesEngine.makeEnemiesTableAverage = br.debug.cpu.enemiesEngine.makeEnemiesTable / br.debug.cpu.enemiesEngine.makeEnemiesTableCount
             end
 
 		end
 	end
 	-- remove invalid units on pulse
 	function cleanupEngine()
-		for i = #bb.enemy, 1, -1 do
+		for i = #br.enemy, 1, -1 do
 			-- here i want to scan the enemies table and find any occurances of invalid units
-			if not GetObjectExists(bb.enemy[i].unit) then
+			if not GetObjectExists(br.enemy[i].unit) then
 				-- i will remove such units from table
-				tremove(bb.enemy,i)
+				tremove(br.enemy,i)
 			end
 		end
 	end
@@ -144,8 +144,8 @@ function EnemiesEngine()
 		if getOptionCheck("Dynamic Targetting") then
 			local bestUnitCoef = 0
 			local bestUnit = "target"
-			for i = 1, #bb.enemy do
-				local thisUnit = bb.enemy[i]
+			for i = 1, #br.enemy do
+				local thisUnit = br.enemy[i]
 				if GetObjectExists(thisUnit.unit) then
 					if (not safeCheck or thisUnit.safe) and thisUnit.isCC == false and thisUnit.distance < range and (facing == false or thisUnit.facing == true) then
 						if thisUnit.coeficient >= 0 and thisUnit.coeficient >= bestUnitCoef then
@@ -169,7 +169,7 @@ function EnemiesEngine()
 		local bestAoEInteruptAmount = 0
 		local bestAoEInteruptTarget = "target"
 		-- cycle spellCasters to find best case
-		local spellCastersTable = bb.im.casters
+		local spellCastersTable = br.im.casters
 		for i = 1, #spellCastersTable do
 			-- check if unit is valid
 			if GetObjectExists(spellCastersTable[i].unit) then
@@ -185,8 +185,8 @@ function EnemiesEngine()
 	end
 	function getDebuffCount(spellID)
 		local counter = 0
-		for i=1,#bb.enemy do
-			local thisUnit = bb.enemy[i].unit
+		for i=1,#br.enemy do
+			local thisUnit = br.enemy[i].unit
 			-- check if unit is valid
 			if GetObjectExists(thisUnit) then
 				-- increase counter for each occurences
@@ -211,12 +211,12 @@ function EnemiesEngine()
 	function getEnemies(unit,Radius,InCombat,precise)
 		if GetObjectExists(unit) and UnitIsVisible(unit) then
 			local getEnemiesTable = { }
-			for i = 1, #bb.enemy do
-				local thisUnit = bb.enemy[i].unit
+			for i = 1, #br.enemy do
+				local thisUnit = br.enemy[i].unit
 				-- check if unit is valid
-				if GetObjectExists(thisUnit) and (not InCombat or bb.enemy[i].inCombat) then
+				if GetObjectExists(thisUnit) and (not InCombat or br.enemy[i].inCombat) then
                     if unit == "player" and not precise then
-                        if bb.enemy[i].distance <= Radius then
+                        if br.enemy[i].distance <= Radius then
                             tinsert(getEnemiesTable,thisUnit)
                         end
                     else
@@ -234,7 +234,7 @@ function EnemiesEngine()
 	-- returns true if unit have an Offensive Buff that we should dispel
 	function getOffensiveBuffs(unit,guid)
 		if GetObjectExists(unit) then
-			local targets = bb.read.enraged
+			local targets = br.read.enraged
 			for i = 1,#targets do
 				if guid == targets[i].guid then
 					return targets[i].spellType

@@ -7,29 +7,29 @@ if select(3,UnitClass("player")) == 1 then -- Change to class id
     local function createToggles() -- Define custom toggles
     -- Rotation Button
         RotationModes = {
-            [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of #enemies.yards8 in range.", highlight = 0, icon = bb.player.spell.whirlwind },
-            [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = bb.player.spell.bladestorm },
-            [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = bb.player.spell.furiousSlash },
-            [4] = { mode = "Off", value = 4 , overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = bb.player.spell.enragedRegeneration}
+            [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of #enemies.yards8 in range.", highlight = 0, icon = br.player.spell.whirlwind },
+            [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = br.player.spell.bladestorm },
+            [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = br.player.spell.furiousSlash },
+            [4] = { mode = "Off", value = 4 , overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spell.enragedRegeneration}
         };
         CreateButton("Rotation",1,0)
     -- Cooldown Button
         CooldownModes = {
-            [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = bb.player.spell.battleCry },
-            [2] = { mode = "On", value = 2 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = bb.player.spell.battleCry },
-            [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = bb.player.spell.battleCry }
+            [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spell.battleCry },
+            [2] = { mode = "On", value = 2 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spell.battleCry },
+            [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.battleCry }
         };
         CreateButton("Cooldown",2,0)
     -- Defensive Button
         DefensiveModes = {
-            [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = bb.player.spell.enragedRegeneration },
-            [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = bb.player.spell.enragedRegeneration }
+            [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spell.enragedRegeneration },
+            [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spell.enragedRegeneration }
         };
         CreateButton("Defensive",3,0)
     -- Interrupt Button
         InterruptModes = {
-            [1] = { mode = "On", value = 1 , overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = bb.player.spell.pummel },
-            [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = bb.player.spell.pummel }
+            [1] = { mode = "On", value = 1 , overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spell.pummel },
+            [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.pummel }
         };
         CreateButton("Interrupt",4,0)
     end
@@ -44,43 +44,43 @@ if select(3,UnitClass("player")) == 1 then -- Change to class id
             -----------------------
             --- GENERAL OPTIONS --- -- Define General Options
             -----------------------
-            section = bb.ui:createSection(bb.ui.window.profile,  "General")
+            section = br.ui:createSection(br.ui.window.profile,  "General")
 
-            bb.ui:checkSectionState(section)
+            br.ui:checkSectionState(section)
             ------------------------
             --- COOLDOWN OPTIONS --- -- Define Cooldown Options
             ------------------------
-            section = bb.ui:createSection(bb.ui.window.profile,  "Cooldowns")
+            section = br.ui:createSection(br.ui.window.profile,  "Cooldowns")
 
-            bb.ui:checkSectionState(section)
+            br.ui:checkSectionState(section)
             -------------------------
             --- DEFENSIVE OPTIONS --- -- Define Defensive Options
             -------------------------
-            section = bb.ui:createSection(bb.ui.window.profile, "Defensive")
+            section = br.ui:createSection(br.ui.window.profile, "Defensive")
 
-            bb.ui:checkSectionState(section)
+            br.ui:checkSectionState(section)
             -------------------------
             --- INTERRUPT OPTIONS --- -- Define Interrupt Options
             -------------------------
-            section = bb.ui:createSection(bb.ui.window.profile, "Interrupts")
+            section = br.ui:createSection(br.ui.window.profile, "Interrupts")
                 -- Interrupt Percentage
-                bb.ui:createSpinner(section,  "InterruptAt",  0,  0,  95,  5,  "|cffFFBB00Cast Percentage to use at.")    
-            bb.ui:checkSectionState(section)
+                br.ui:createSpinner(section,  "InterruptAt",  0,  0,  95,  5,  "|cffFFBB00Cast Percentage to use at.")    
+            br.ui:checkSectionState(section)
             ----------------------
             --- TOGGLE OPTIONS --- -- Degine Toggle Options
             ----------------------
-            section = bb.ui:createSection(bb.ui.window.profile,  "Toggle Keys")
+            section = br.ui:createSection(br.ui.window.profile,  "Toggle Keys")
                 -- Single/Multi Toggle
-                bb.ui:createDropdown(section,  "Rotation Mode", bb.dropOptions.Toggle,  4)
+                br.ui:createDropdown(section,  "Rotation Mode", br.dropOptions.Toggle,  4)
                 --Cooldown Key Toggle
-                bb.ui:createDropdown(section,  "Cooldown Mode", bb.dropOptions.Toggle,  3)
+                br.ui:createDropdown(section,  "Cooldown Mode", br.dropOptions.Toggle,  3)
                 --Defensive Key Toggle
-                bb.ui:createDropdown(section,  "Defensive Mode", bb.dropOptions.Toggle,  6)
+                br.ui:createDropdown(section,  "Defensive Mode", br.dropOptions.Toggle,  6)
                 -- Interrupts Key Toggle
-                bb.ui:createDropdown(section,  "Interrupt Mode", bb.dropOptions.Toggle,  6)
+                br.ui:createDropdown(section,  "Interrupt Mode", br.dropOptions.Toggle,  6)
                 -- Pause Toggle
-                bb.ui:createDropdown(section,  "Pause Mode", bb.dropOptions.Toggle,  6)   
-            bb.ui:checkSectionState(section)
+                br.ui:createDropdown(section,  "Pause Mode", br.dropOptions.Toggle,  6)   
+            br.ui:checkSectionState(section)
         end
         optionTable = {{
             [1] = "Rotation Options",
@@ -93,7 +93,7 @@ if select(3,UnitClass("player")) == 1 then -- Change to class id
 --- ROTATION ---
 ----------------
     local function runRotation()
-        if bb.timer:useTimer("debugFury", 0.1) then --change "debugFury" to "debugSpec" (IE: debugFire)
+        if br.timer:useTimer("debugFury", 0.1) then --change "debugFury" to "debugSpec" (IE: debugFire)
             --print("Running: "..rotationName)
 
     ---------------
@@ -106,34 +106,34 @@ if select(3,UnitClass("player")) == 1 then -- Change to class id
     --------------
     --- Locals ---
     --------------
-            local artifact                                      = bb.player.artifact
-            local buff                                          = bb.player.buff
-            local cast                                          = bb.player.cast
+            local artifact                                      = br.player.artifact
+            local buff                                          = br.player.buff
+            local cast                                          = br.player.cast
             local combatTime                                    = getCombatTime()
-            local cd                                            = bb.player.cd
-            local charges                                       = bb.player.charges
-            local debuff                                        = bb.player.debuff
-            local enemies                                       = bb.player.enemies
+            local cd                                            = br.player.cd
+            local charges                                       = br.player.charges
+            local debuff                                        = br.player.debuff
+            local enemies                                       = br.player.enemies
             local falling, swimming, flying, moving             = getFallTime(), IsSwimming(), IsFlying(), GetUnitSpeed("player")>0
-            local gcd                                           = bb.player.gcd
+            local gcd                                           = br.player.gcd
             local healPot                                       = getHealthPot()
-            local inCombat                                      = bb.player.inCombat
-            local inInstance                                    = bb.player.instance=="party"
-            local inRaid                                        = bb.player.instance=="raid"
-            local level                                         = bb.player.level
-            local lowestHP                                      = bb.friend[1].unit
-            local mode                                          = bb.player.mode
-            local perk                                          = bb.player.perk        
-            local php                                           = bb.player.health
-            local power, powmax, powgen                         = bb.player.power, bb.player.powerMax, bb.player.powerRegen
-            local pullTimer                                     = bb.DBM:getPulltimer()
-            local race                                          = bb.player.race
-            local racial                                        = bb.player.getRacial()
-            local recharge                                      = bb.player.recharge
-            local spell                                         = bb.player.spell
-            local talent                                        = bb.player.talent
-            local ttm                                           = bb.player.timeToMax
-            local units                                         = bb.player.units
+            local inCombat                                      = br.player.inCombat
+            local inInstance                                    = br.player.instance=="party"
+            local inRaid                                        = br.player.instance=="raid"
+            local level                                         = br.player.level
+            local lowestHP                                      = br.friend[1].unit
+            local mode                                          = br.player.mode
+            local perk                                          = br.player.perk        
+            local php                                           = br.player.health
+            local power, powmax, powgen                         = br.player.power, br.player.powerMax, br.player.powerRegen
+            local pullTimer                                     = br.DBM:getPulltimer()
+            local race                                          = br.player.race
+            local racial                                        = br.player.getRacial()
+            local recharge                                      = br.player.recharge
+            local spell                                         = br.player.spell
+            local talent                                        = br.player.talent
+            local ttm                                           = br.player.timeToMax
+            local units                                         = br.player.units
             
             if leftCombat == nil then leftCombat = GetTime() end
             if profileStop == nil then profileStop = false end

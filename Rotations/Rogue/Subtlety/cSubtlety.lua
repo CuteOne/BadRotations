@@ -286,8 +286,8 @@ function cSubtlety:new()
         -- Create the toggle defined within rotation files
         function self.createToggles()
             GarbageButtons()
-            if self.rotations[bb.selectedProfile] ~= nil then
-                self.rotations[bb.selectedProfile].toggles()
+            if self.rotations[br.selectedProfile] ~= nil then
+                self.rotations[br.selectedProfile].toggles()
             else
                 return
             end
@@ -299,14 +299,14 @@ function cSubtlety:new()
         
         -- Creates the option/profile window
         function self.createOptions()
-            bb.ui.window.profile = bb.ui:createProfileWindow(self.profile)
+            br.ui.window.profile = br.ui:createProfileWindow(self.profile)
 
             -- Get the names of all profiles and create rotation dropdown
             local names = {}
             for i=1,#self.rotations do
                 tinsert(names, self.rotations[i].name)
             end
-            bb.ui:createRotationDropdown(bb.ui.window.profile.parent, names)
+            br.ui:createRotationDropdown(br.ui.window.profile.parent, names)
 
             -- Create Base and Class option table
             local optionTable = {
@@ -322,8 +322,8 @@ function cSubtlety:new()
 
             -- Get profile defined options
             local profileTable = profileTable
-            if self.rotations[bb.selectedProfile] ~= nil then 
-                profileTable = self.rotations[bb.selectedProfile].options()
+            if self.rotations[br.selectedProfile] ~= nil then 
+                profileTable = self.rotations[br.selectedProfile].options()
             else
                 return
             end
@@ -334,8 +334,8 @@ function cSubtlety:new()
             end
 
             -- Create pages dropdown
-            bb.ui:createPagesDropdown(bb.ui.window.profile, optionTable)
-            bb:checkProfileWindowStatus()
+            br.ui:createPagesDropdown(br.ui.window.profile, optionTable)
+            br:checkProfileWindowStatus()
         end
 
     --------------

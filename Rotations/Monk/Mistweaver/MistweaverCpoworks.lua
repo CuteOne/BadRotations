@@ -7,29 +7,29 @@ if select(2,UnitClass("player")) == "MONK" then -- Change to class id
     local function createToggles() -- Define custom toggles
     -- Rotation Button
         RotationModes = {
-            [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range.", highlight = 1, icon = bb.player.spell.spinningCraneKick },
-            [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = bb.player.spell.spinningCraneKick },
-            [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = bb.player.spell.tigerPalm },
-            [4] = { mode = "Off", value = 4 , overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = bb.player.spell.effuse}
+            [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range.", highlight = 1, icon = br.player.spell.spinningCraneKick },
+            [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = br.player.spell.spinningCraneKick },
+            [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = br.player.spell.tigerPalm },
+            [4] = { mode = "Off", value = 4 , overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spell.effuse}
         };
         CreateButton("Rotation",1,0)
     -- Cooldown Button
         CooldownModes = {
-            [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = bb.player.spell.revival },
-            [2] = { mode = "On", value = 1 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = bb.player.spell.revival },
-            [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = bb.player.spell.revival }
+            [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spell.revival },
+            [2] = { mode = "On", value = 1 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spell.revival },
+            [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.revival }
         };
         CreateButton("Cooldown",2,0)
     -- Defensive Button
         DefensiveModes = {
-            [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = bb.player.spell.dampenHarm },
-            [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = bb.player.spell.dampenHarm }
+            [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spell.dampenHarm },
+            [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spell.dampenHarm }
         };
         CreateButton("Defensive",3,0)
     -- Interrupt Button
         InterruptModes = {
-            [1] = { mode = "On", value = 1 , overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = bb.player.spell.legSweep },
-            [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = bb.player.spell.legSweep }
+            [1] = { mode = "On", value = 1 , overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spell.legSweep },
+            [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.legSweep }
         };
         CreateButton("Interrupt",4,0)
     end
@@ -44,64 +44,64 @@ if select(2,UnitClass("player")) == "MONK" then -- Change to class id
             -----------------------
             --- GENERAL OPTIONS --- -- Define General Options
             -----------------------
-            section = bb.ui:createSection(bb.ui.window.profile,  "General")
-                bb.ui:createCheckbox(section, "Boss Helper")
+            section = br.ui:createSection(br.ui.window.profile,  "General")
+                br.ui:createCheckbox(section, "Boss Helper")
                 --Healing Elixir
-                bb.ui:createSpinner(section, "Healing Elixir",  45,  0,  100,  5,  "Health Percent to Cast At")
+                br.ui:createSpinner(section, "Healing Elixir",  45,  0,  100,  5,  "Health Percent to Cast At")
                 --Enveloping Mists
-                bb.ui:createSpinner(section, "Mana Tea",  70,  0,  100,  5,  "Mana Percent to Cast At")
+                br.ui:createSpinner(section, "Mana Tea",  70,  0,  100,  5,  "Mana Percent to Cast At")
                 --Detox
-                bb.ui:createCheckbox(section, "Detox")
-                --bb.ui:createDropdownWithout(section, "Detox Mode", {"|cffFFFFFFMouseover","|cffFFFFFFRaid"}, 1, "|cffFFFFFFDetox usage.")
-            bb.ui:checkSectionState(section)
+                br.ui:createCheckbox(section, "Detox")
+                --br.ui:createDropdownWithout(section, "Detox Mode", {"|cffFFFFFFMouseover","|cffFFFFFFRaid"}, 1, "|cffFFFFFFDetox usage.")
+            br.ui:checkSectionState(section)
             -------------------------
             --- INTERRUPT OPTIONS ---
             -------------------------
-            section = bb.ui:createSection(bb.ui.window.profile, "Interrupts")
+            section = br.ui:createSection(br.ui.window.profile, "Interrupts")
             --Quaking Palm
-                bb.ui:createCheckbox(section, "Quaking Palm")
+                br.ui:createCheckbox(section, "Quaking Palm")
             -- Paralysis
-                bb.ui:createCheckbox(section, "Paralysis")
+                br.ui:createCheckbox(section, "Paralysis")
             -- Leg Sweep
-                bb.ui:createCheckbox(section, "Leg Sweep")
+                br.ui:createCheckbox(section, "Leg Sweep")
             -- Interrupt Percentage
-                bb.ui:createSpinner(section,  "InterruptAt",  0,  0,  95,  5,  "|cffFFBB00Cast Percentage to use at.")
-            bb.ui:checkSectionState(section)            
+                br.ui:createSpinner(section,  "InterruptAt",  0,  0,  95,  5,  "|cffFFBB00Cast Percentage to use at.")
+            br.ui:checkSectionState(section)            
             -------------------------
             ---- SINGLE TARGET ------
             -------------------------
-            section = bb.ui:createSection(bb.ui.window.profile, "Single Target Healing")
+            section = br.ui:createSection(br.ui.window.profile, "Single Target Healing")
                 --Life Cocoon
-                bb.ui:createSpinner(section, "Life Cocoon",  30,  0,  100,  5,  "Health Percent to Cast At")
-                --bb.ui:createDropdownWithout(section, "Life Cocoon Mode", {"|cffFFFFFFTanks","|cffFFFFFFEveryone"}, 1, "|cffFFFFFFLife Cocoon usage.")
+                br.ui:createSpinner(section, "Life Cocoon",  30,  0,  100,  5,  "Health Percent to Cast At")
+                --br.ui:createDropdownWithout(section, "Life Cocoon Mode", {"|cffFFFFFFTanks","|cffFFFFFFEveryone"}, 1, "|cffFFFFFFLife Cocoon usage.")
                 --Thunder Focus Tea
-                bb.ui:createSpinner(section, "Thunder Focus Tea",  50,  0,  100,  5,  "Health Percent to Cast At")
+                br.ui:createSpinner(section, "Thunder Focus Tea",  50,  0,  100,  5,  "Health Percent to Cast At")
                 --Renewing Mist
-                bb.ui:createSpinner(section, "Renewing Mist",  99,  0,  100,  1,  "Health Percent to Cast At")
+                br.ui:createSpinner(section, "Renewing Mist",  99,  0,  100,  1,  "Health Percent to Cast At")
                 --Enveloping Mists
-                bb.ui:createSpinner(section, "Enveloping Mist",  70,  0,  100,  5,  "Health Percent to Cast At")
+                br.ui:createSpinner(section, "Enveloping Mist",  70,  0,  100,  5,  "Health Percent to Cast At")
                 --Sheiluns Gift
                 --[Prioritize free cast sheiulns gift]
-                bb.ui:createSpinner(section, "Sheiluns Gift",  80,  0,  100,  5,  "Health Percent to Cast At")
+                br.ui:createSpinner(section, "Sheiluns Gift",  80,  0,  100,  5,  "Health Percent to Cast At")
                 --Effuse
-                bb.ui:createSpinner(section, "Effuse",  85,  0,  100,  5,  "Health Percent to Cast At")
+                br.ui:createSpinner(section, "Effuse",  85,  0,  100,  5,  "Health Percent to Cast At")
                 --Vivify
-                bb.ui:createSpinner(section, "Vivify",  60,  0,  100,  5,  "Health Percent to Cast At")
-            bb.ui:checkSectionState(section)
+                br.ui:createSpinner(section, "Vivify",  60,  0,  100,  5,  "Health Percent to Cast At")
+            br.ui:checkSectionState(section)
             -------------------------
             ------ AOE HEALING ------
             -------------------------
-            section = bb.ui:createSection(bb.ui.window.profile, "AOE Healing")
+            section = br.ui:createSection(br.ui.window.profile, "AOE Healing")
                 -- Essence Font
-                bb.ui:createSpinner(section, "Essence Font",  80,  0,  100,  5,  "Health Percent to Cast At") 
-                bb.ui:createSpinner(section, "EF Targets",  6,  0,  40,  1,  "Minimum Essence Font Targets")   
+                br.ui:createSpinner(section, "Essence Font",  80,  0,  100,  5,  "Health Percent to Cast At") 
+                br.ui:createSpinner(section, "EF Targets",  6,  0,  40,  1,  "Minimum Essence Font Targets")   
                 -- Revival
-                bb.ui:createSpinner(section, "Revival",  60,  0,  100,  5,  "Health Percent to Cast At") 
-                bb.ui:createSpinner(section, "Revival Targets",  5,  0,  40,  1,  "Minimum Revival Targets")
+                br.ui:createSpinner(section, "Revival",  60,  0,  100,  5,  "Health Percent to Cast At") 
+                br.ui:createSpinner(section, "Revival Targets",  5,  0,  40,  1,  "Minimum Revival Targets")
                 --ChiJI
-                bb.ui:createSpinner(section, "Chi Ji",  80,  0,  100,  5,  "Health Percent to Cast At")
-                bb.ui:createSpinner(section, "Chi Ji Targets",  5,  0,  40,  1,  "Minimum Revival Targets")
-            bb.ui:checkSectionState(section)
+                br.ui:createSpinner(section, "Chi Ji",  80,  0,  100,  5,  "Health Percent to Cast At")
+                br.ui:createSpinner(section, "Chi Ji Targets",  5,  0,  40,  1,  "Minimum Revival Targets")
+            br.ui:checkSectionState(section)
         end
         optionTable = {{
             [1] = "Rotation Options",
@@ -114,7 +114,7 @@ if select(2,UnitClass("player")) == "MONK" then -- Change to class id
 --- ROTATION ---
 ----------------
     local function runRotation()
-        if bb.timer:useTimer("debugMistweaver", 0.1) then --change "debugFury" to "debugSpec" (IE: debugFire)
+        if br.timer:useTimer("debugMistweaver", 0.1) then --change "debugFury" to "debugSpec" (IE: debugFire)
             --print("Running: "..rotationName)
 
     ---------------
@@ -127,42 +127,42 @@ if select(2,UnitClass("player")) == "MONK" then -- Change to class id
     --------------
     --- Locals ---
     --------------
-            local artifact                                      = bb.player.artifact
-            local buff                                          = bb.player.buff
-            local cast                                          = bb.player.cast
+            local artifact                                      = br.player.artifact
+            local buff                                          = br.player.buff
+            local cast                                          = br.player.cast
             local combatTime                                    = getCombatTime()
-            local cd                                            = bb.player.cd
-            local charges                                       = bb.player.charges
-            local debuff                                        = bb.player.debuff
-            local enemies                                       = bb.player.enemies
+            local cd                                            = br.player.cd
+            local charges                                       = br.player.charges
+            local debuff                                        = br.player.debuff
+            local enemies                                       = br.player.enemies
             local falling, swimming, flying, moving             = getFallTime(), IsSwimming(), IsFlying(), GetUnitSpeed("player")>0
-            local gcd                                           = bb.player.gcd
+            local gcd                                           = br.player.gcd
             local healPot                                       = getHealthPot()
-            local inCombat                                      = bb.player.inCombat
-            local inInstance                                    = bb.player.instance=="party"
-            local inRaid                                        = bb.player.instance=="raid"
-            local level                                         = bb.player.level
-            local lowestHP                                      = bb.friend[1].unit
-            local mana                                          = bb.player.powerPercentMana
-            local mode                                          = bb.player.mode
-            local perk                                          = bb.player.perk        
-            local php                                           = bb.player.health
-            local power, powmax, powgen                         = bb.player.power, bb.player.powerMax, bb.player.powerRegen
-            local pullTimer                                     = bb.DBM:getPulltimer()
-            local race                                          = bb.player.race
-            local racial                                        = bb.player.getRacial()
-            local recharge                                      = bb.player.recharge
-            local spell                                         = bb.player.spell
-            local talent                                        = bb.player.talent
-            local ttm                                           = bb.player.timeToMax
-            local units                                         = bb.player.units
+            local inCombat                                      = br.player.inCombat
+            local inInstance                                    = br.player.instance=="party"
+            local inRaid                                        = br.player.instance=="raid"
+            local level                                         = br.player.level
+            local lowestHP                                      = br.friend[1].unit
+            local mana                                          = br.player.powerPercentMana
+            local mode                                          = br.player.mode
+            local perk                                          = br.player.perk        
+            local php                                           = br.player.health
+            local power, powmax, powgen                         = br.player.power, br.player.powerMax, br.player.powerRegen
+            local pullTimer                                     = br.DBM:getPulltimer()
+            local race                                          = br.player.race
+            local racial                                        = br.player.getRacial()
+            local recharge                                      = br.player.recharge
+            local spell                                         = br.player.spell
+            local talent                                        = br.player.talent
+            local ttm                                           = br.player.timeToMax
+            local units                                         = br.player.units
             
             local lowest                                        = {}    --Lowest Unit
-            lowest.hp                                           = bb.friend[1].hp
-            lowest.role                                         = bb.friend[1].role
-            lowest.unit                                         = bb.friend[1].unit
-            lowest.range                                        = bb.friend[1].range
-            lowest.guid                                         = bb.friend[1].guid                      
+            lowest.hp                                           = br.friend[1].hp
+            lowest.role                                         = br.friend[1].role
+            lowest.unit                                         = br.friend[1].unit
+            lowest.range                                        = br.friend[1].range
+            lowest.guid                                         = br.friend[1].guid                      
             local tank                                          = {}    --Tank
             local averageHealth                                 = 100
 
@@ -228,12 +228,12 @@ if select(2,UnitClass("player")) == "MONK" then -- Change to class id
                 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
                 --Life Cocoon
                 if isChecked("Life Cocoon") then
-                    for i = 1, #bb.friend do
-                        if bb.friend[i].hp <= getValue("Life Cocoon") and getBuffRemain(bb.friend[i].unit, spell.lifeCocoon, "player") < 1 then
-                            -- if getValue("Life Cocoon Mode") == 1 and bb.friend[i].role == "TANK" then
-                            if cast.lifeCocoon(bb.friend[i].unit) then return end
+                    for i = 1, #br.friend do
+                        if br.friend[i].hp <= getValue("Life Cocoon") and getBuffRemain(br.friend[i].unit, spell.lifeCocoon, "player") < 1 then
+                            -- if getValue("Life Cocoon Mode") == 1 and br.friend[i].role == "TANK" then
+                            if cast.lifeCocoon(br.friend[i].unit) then return end
                             -- elseif getValue("Life Cocoon Mode") == 2 then
-                            --     if cast.lifeCocoon(bb.friend[i].unit) then return end
+                            --     if cast.lifeCocoon(br.friend[i].unit) then return end
                             -- end 
                         end
                     end                    
@@ -251,20 +251,20 @@ if select(2,UnitClass("player")) == "MONK" then -- Change to class id
                 if isChecked("Detox") then
                     -- if getValue("Detox Mode") == 1 then -- Mouseover
                     --     if UnitExists("mouseover") and UnitCanAssist("player", "mouseover") then
-                    --         for i = 1, #bb.friend do
-                    --             if bb.friend[i].guid == UnitGUID("mouseover") and bb.friend[i].dispel == true then
+                    --         for i = 1, #br.friend do
+                    --             if br.friend[i].guid == UnitGUID("mouseover") and br.friend[i].dispel == true then
                     --                 if cast.detox("mouseover") then return end
                     --             end
                     --         end
                     --     end
                     -- else
                     -- if getValue("Detox Mode") == 2 then -- Raid
-                        for i = 1, #bb.friend do
+                        for i = 1, #br.friend do
                             for n = 1,40 do
-                                local buff,_,_,count,bufftype,duration = UnitDebuff(bb.friend[i].unit, n)
+                                local buff,_,_,count,bufftype,duration = UnitDebuff(br.friend[i].unit, n)
                                 if buff then
                                     if bufftype == "Curse" or bufftype == "Magic" or bufftype == "Poison" then
-                                        if cast.detox(bb.friend[i].unit) then return end
+                                        if cast.detox(br.friend[i].unit) then return end
                                     end
                                 end
                             end
@@ -273,27 +273,27 @@ if select(2,UnitClass("player")) == "MONK" then -- Change to class id
                 end
                 --Thunder Focus Tea
                 if isChecked("Thunder Focus Tea") then
-                    for i = 1, #bb.friend do                           
-                        if bb.friend[i].hp <= getValue("Thunder Focus Tea") then
+                    for i = 1, #br.friend do                           
+                        if br.friend[i].hp <= getValue("Thunder Focus Tea") then
                             if cast.thunderFocusTea() then return end     
                         end
                     end
                 end
                 if isChecked("Thunder Focus Tea") then
-                    for i = 1, #bb.friend do
-                        if bb.friend[i].hp <= getValue("Thunder Focus Tea") then
+                    for i = 1, #br.friend do
+                        if br.friend[i].hp <= getValue("Thunder Focus Tea") then
                             if buff.thunderFocusTea then
-                                if cast.Vivify(bb.friend[i].unit) then return end
+                                if cast.Vivify(br.friend[i].unit) then return end
                             end
                         end
                     end
                 end                
                 --Renewing Mist
                 if isChecked("Renewing Mist") then
-                    for i = 1, #bb.friend do                           
-                        if bb.friend[i].hp <= getValue("Renewing Mist") 
-                        and getBuffRemain(bb.friend[i].unit, spell.renewingMist, "player") < 1 then
-                            if cast.renewingMist(bb.friend[i].unit) then return end     
+                    for i = 1, #br.friend do                           
+                        if br.friend[i].hp <= getValue("Renewing Mist") 
+                        and getBuffRemain(br.friend[i].unit, spell.renewingMist, "player") < 1 then
+                            if cast.renewingMist(br.friend[i].unit) then return end     
                         end
                     end
                 end

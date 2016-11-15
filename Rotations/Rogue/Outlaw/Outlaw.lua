@@ -1,15 +1,15 @@
 function RogueOutlaw()
     if GetSpecializationInfo(GetSpecialization()) == 260 then--if select(2, UnitClass("player")) == "ROGUE" then
-        if bb.player == nil or bb.player.profile ~= "Outlaw" then
-            bb.player = cOutlaw:new("Outlaw")
-            setmetatable(bb.player, {__index = cOutlaw})
+        if br.player == nil or br.player.profile ~= "Outlaw" then
+            br.player = cOutlaw:new("Outlaw")
+            setmetatable(br.player, {__index = cOutlaw})
 
-            bb.player:createOptions()
-            bb.player:createToggles()
-            bb.player:update()
+            br.player:createOptions()
+            br.player:createToggles()
+            br.player:update()
         end
 
-        bb.player:update()
+        br.player:update()
 
     end --Spec Check End
 end --Rogue Function End

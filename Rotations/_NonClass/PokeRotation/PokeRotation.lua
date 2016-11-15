@@ -1,9 +1,9 @@
 function PokeRunner()
-  if bb.data["Check PokeRotation"] ~= 1 then return false; end
+  if br.data["Check PokeRotation"] ~= 1 then return false; end
   -- pulsed
 
 
-  --print(bb.data.wait .. " " .. bb.data.abilitiesOnCD)
+  --print(br.data.wait .. " " .. br.data.abilitiesOnCD)
 
 
 
@@ -34,38 +34,38 @@ function PokeRunner()
     pokePlayerFrame:Hide()
   end
 
-  -- if Attacking bb.data.abilitiesOnCD == 1
+  -- if Attacking br.data.abilitiesOnCD == 1
   if C_PetBattles.GetAbilityState(1, activePetSlot, 1) ~= true and C_PetBattles.GetAbilityState(1, activePetSlot, 2) ~= true and C_PetBattles.GetAbilityState(1, activePetSlot, 3) ~= true then
-    if bb.data.abilitiesOnCD ~= 1 then
-      bb.data.abilitiesOnCD = 1
+    if br.data.abilitiesOnCD ~= 1 then
+      br.data.abilitiesOnCD = 1
     end
   else
-    if bb.data.abilitiesOnCD ~= 0 then
-      bb.data.abilitiesOnCD = 0
+    if br.data.abilitiesOnCD ~= 0 then
+      br.data.abilitiesOnCD = 0
     end
   end
   -- if Attacking if wait == 0 then print Attacking and set wait = 2
-  if bb.data.abilitiesOnCD == 1 then
-    if bb.data.wait ~= 2 then
-      --print("ATTACKING "..bb.data.wait)
+  if br.data.abilitiesOnCD == 1 then
+    if br.data.wait ~= 2 then
+      --print("ATTACKING "..br.data.wait)
       waiter = nil;
-      bb.data.wait = 2;
+      br.data.wait = 2;
     end
     --if pokeValueFrame.Border ~= nil then pokeValueFrame.Border:SetTexture([[Interface\FullScreenTextures\LowHealth]]); end
   end
   -- if attack completed and wait == 2 and waiter == nil then set waiter = GetTime() wait = 1
-  if bb.data.abilitiesOnCD == 0 and bb.data.wait == 2 then
+  if br.data.abilitiesOnCD == 0 and br.data.wait == 2 then
     if waiter == nil then
       waiter = GetTime();
       --print("WAIT")
-      bb.data.wait = 1;
+      br.data.wait = 1;
     end
   end
   -- if wait == 1 and waiter ~= nil and waiter <= GetTime()-0.1 then print Go set waiter = nil wait = 3
-  if bb.data.abilitiesOnCD == 0 and bb.data.wait == 0 and waiter and waiter <= GetTime() - 0.1 then
-    if bb.data.wait ~= 3 then
-      --print(bb.data.wait.. bb.data.abilitiesOnCD)
-      bb.data.wait = 3;
+  if br.data.abilitiesOnCD == 0 and br.data.wait == 0 and waiter and waiter <= GetTime() - 0.1 then
+    if br.data.wait ~= 3 then
+      --print(br.data.wait.. br.data.abilitiesOnCD)
+      br.data.wait = 3;
       pokeValueFrame.Border:SetTexture([[Interface\FullScreenTextures\OutOfControl]]);
     end
   end
@@ -75,7 +75,7 @@ end
 
 function PokeRotationRun()
   if pokeFrame == nil then
-    bb.data.wait = 1;
+    br.data.wait = 1;
     pokeFrame = true
     pokePlayerFrame = CreateFrame("Frame", nil, UIParent)
     pokePlayerFrame:SetPoint("TOP",-300,-100)
@@ -313,8 +313,8 @@ end
 
 
 function PokeEngine()
-  if bb.data.wait == 3 then
-    local abilityNumber = bb.data.pokeAttack
+  if br.data.wait == 3 then
+    local abilityNumber = br.data.pokeAttack
     if abilityNumber == 1 then
       C_PetBattles.UseAbility(1); return;
     elseif abilityNumber == 2 then
@@ -336,9 +336,9 @@ function PokeEngine()
 
   PlayerBuffDisplay();
   EnnemyBuffDisplay();
-  if bb.data.pokeValueanchor == nil then bb.data.pokeValueanchor = "CENTER" end
-  if bb.data.pokeValuex == nil then bb.data.pokeValuex = 0 end
-  if bb.data.pokeValuey == nil then bb.data.pokeValuey = 0 end
+  if br.data.pokeValueanchor == nil then br.data.pokeValueanchor = "CENTER" end
+  if br.data.pokeValuex == nil then br.data.pokeValuex = 0 end
+  if br.data.pokeValuey == nil then br.data.pokeValuey = 0 end
   -- Register Base Values
   if not PokeEngineStarted then
     outOfBattleTimer = 0
@@ -443,7 +443,7 @@ function PokeEngine()
     pokeValueFrame.texture = pokeValueFrame:CreateTexture();
     pokeValueFrame.texture:SetAllPoints();
     pokeValueFrame.texture:SetTexture(25/255,25/255,25/255,1);
-    pokeValueFrame:SetPoint(bb.data.pokeValueanchor,bb.data.pokeValuex,bb.data.pokeValuey);
+    pokeValueFrame:SetPoint(br.data.pokeValueanchor,br.data.pokeValuex,br.data.pokeValuey);
     pokeValueFrame:SetClampedToScreen(true);
     pokeValueFrame:SetScript("OnUpdate", pokeValueFrame_OnUpdate);
     pokeValueFrame:EnableMouse(true);
@@ -644,20 +644,20 @@ function PokeEngine()
       if rotationRun == true then
         if PetAbilitiesTable[activePetSlot].A1 == Ability and C_PetBattles.GetAbilityState(1, activePetSlot, 1) == true then
           pokeValueFrame.valueText:SetText("1", 1, 1, 1, 0.7);
-          bb.data.pokeAttack = 1
-          bb.data.wait = 0
+          br.data.pokeAttack = 1
+          br.data.wait = 0
           rotationRun = false
         end
         if PetAbilitiesTable[activePetSlot].A2 == Ability and C_PetBattles.GetAbilityState(1, activePetSlot, 2) == true then
           pokeValueFrame.valueText:SetText("2", 1, 1, 1, 0.7);
-          bb.data.pokeAttack = 2
-          bb.data.wait = 0
+          br.data.pokeAttack = 2
+          br.data.wait = 0
           rotationRun = false
         end
         if PetAbilitiesTable[activePetSlot].A3 == Ability and C_PetBattles.GetAbilityState(1, activePetSlot, 3) == true then
           pokeValueFrame.valueText:SetText("3", 1, 1, 1, 0.7);
-          bb.data.pokeAttack = 3
-          bb.data.wait = 0
+          br.data.pokeAttack = 3
+          br.data.wait = 0
           rotationRun = false
         end
       end
@@ -712,8 +712,8 @@ function PokeEngine()
         and CaptureCheck then
         if NmeactivePetHP <= 35
           and C_PetBattles.IsTrapAvailable() then
-          bb.data.pokeAttack = 8;
-          bb.data.wait = 0
+          br.data.pokeAttack = 8;
+          br.data.wait = 0
           ChatOverlay("\124cFFFFFFFFTrapping pet")
         elseif NmeactivePetHP <= 65 then
           if Stun ~= nil then Stun() end
@@ -906,14 +906,14 @@ function PokeEngine()
             if GetPetStrenght(2) > GetPetStrenght(3)
               and Pet2HP >= SwapInHealthValue then
               pokeValueFrame.valueText:SetText("Pet 2", 1, 1, 1, 0.7);
-              bb.data.pokeAttack = 6
-              bb.data.wait = 0
+              br.data.pokeAttack = 6
+              br.data.wait = 0
               rotationRun = false;
             elseif Pet3HP >= SwapInHealthValue
               or Pet1HP == 0 then
               pokeValueFrame.valueText:SetText("Pet 3", 1, 1, 1, 0.7);
-              bb.data.pokeAttack = 7
-              bb.data.wait = 0
+              br.data.pokeAttack = 7
+              br.data.wait = 0
               rotationRun = false;
             end
           elseif activePetSlot == 2 then
@@ -921,13 +921,13 @@ function PokeEngine()
               and Pet1HP >= SwapInHealthValue
               and not ( PetLevelingCheck and PetLevelingValue > C_PetBattles.GetLevel(1, 1) ) then
               pokeValueFrame.valueText:SetText("Pet 1", 1, 1, 1, 0.7);
-              bb.data.pokeAttack = 5
-              bb.data.wait = 0
+              br.data.pokeAttack = 5
+              br.data.wait = 0
               rotationRun = false;
             elseif Pet3HP >= SwapInHealthValue or Pet2HP == 0 then
               pokeValueFrame.valueText:SetText("Pet 3", 1, 1, 1, 0.7);
-              bb.data.pokeAttack = 7
-              bb.data.wait = 0
+              br.data.pokeAttack = 7
+              br.data.wait = 0
               rotationRun = false;
             end
           elseif activePetSlot == 3 then
@@ -935,18 +935,18 @@ function PokeEngine()
               and Pet1HP >= SwapInHealthValue
               and not ( PetLevelingCheck and PetLevelingValue > C_PetBattles.GetLevel(1, 1) ) then
               pokeValueFrame.valueText:SetText("Pet 1", 1, 1, 1, 0.7);
-              bb.data.pokeAttack = 5
-              bb.data.wait = 0
+              br.data.pokeAttack = 5
+              br.data.wait = 0
               rotationRun = false;
             elseif Pet2HP >= SwapInHealthValue or Pet3HP == 0 then
               pokeValueFrame.valueText:SetText("Pet 2", 1, 1, 1, 0.7);
-              bb.data.pokeAttack = 6
-              bb.data.wait = 0
+              br.data.pokeAttack = 6
+              br.data.wait = 0
               rotationRun = false;
             elseif Pet2HP == 0 and Pet3HP == 0 then
               pokeValueFrame.valueText:SetText("Pet 1", 1, 1, 1, 0.7);
-              bb.data.pokeAttack = 5
-              bb.data.wait = 0
+              br.data.pokeAttack = 5
+              br.data.wait = 0
               rotationRun = false;
             end
           end
@@ -2083,8 +2083,8 @@ function PokeEngine()
     function PassTurn()
       if IsMultiBuffed(StunnedDebuffs, 1) then -- if we are stunned
         pokeValueFrame.valueText:SetText("Pass", 1, 1, 1, 0.7); -- skip turn
-        bb.data.pokeAttack = 4
-        bb.data.wait = 0
+        br.data.pokeAttack = 4
+        br.data.wait = 0
         rotationRun = false;
       end
     end
@@ -2278,7 +2278,7 @@ function PokeEngine()
 
   -- Rotation
 
-  if inBattle and ObjectiveValue == 1 and bb.data.wait == 1 and bb.data["Check PokeRotation"] == 1 then
+  if inBattle and ObjectiveValue == 1 and br.data.wait == 1 and br.data["Check PokeRotation"] == 1 then
     rotationRun = true
     HealingDone = nil
     Switch();

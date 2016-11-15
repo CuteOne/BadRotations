@@ -1,8 +1,8 @@
-function bb:Engine()
+function br:Engine()
 	-- Hidden Frame
 	if Pulse_Engine == nil then
 		Pulse_Engine = CreateFrame("Frame", nil, UIParent)
-		Pulse_Engine:SetScript("OnUpdate", BadBoyUpdate)
+		Pulse_Engine:SetScript("OnUpdate", BadRotationsUpdate)
 		Pulse_Engine:Show()
 	end
 end
@@ -35,7 +35,7 @@ function ChatOverlay(Message, FadingTime)
 	end
 end
 -- Minimap Button
-function bb:MinimapButton()
+function br:MinimapButton()
 	local dragMode = nil --"free", nil
 	local function moveButton(self)
 		local centerX, centerY = Minimap:GetCenter()
@@ -48,7 +48,7 @@ function bb:MinimapButton()
 		self:ClearAllPoints()
 		self:SetPoint("CENTER", centerX, centerY)
 	end
-	local button = CreateFrame("Button", "BadBoyButton", Minimap)
+	local button = CreateFrame("Button", "BadRotationsButton", Minimap)
 	button:SetHeight(25)
 	button:SetWidth(25)
 	button:SetFrameStrata("MEDIUM")
@@ -60,24 +60,24 @@ function bb:MinimapButton()
 	button:SetHighlightTexture("Interface\\Minimap\\UI-Minimap-Background.blp")
 	button:SetScript("OnMouseDown",function(self, button)
 		if button == "RightButton" then
-			if bb.data.options[bb.selectedSpec] then
+			if br.data.options[br.selectedSpec] then
 				if not FireHack then
-						print("|cffFF1100BadBoy |cffFFFFFFCannot Start... |cffFF1100Firehack |cffFFFFFFis not loaded. Please attach Firehack.")
+						print("|cffFF1100BadRotations |cffFFFFFFCannot Start... |cffFF1100Firehack |cffFFFFFFis not loaded. Please attach Firehack.")
                 else
-                    if bb.ui.window.profile.parent then
-                        if bb.data.options[bb.selectedSpec]["configFrame"] == true then
-                            bb.ui.window.profile.parent.closeButton:Click()
+                    if br.ui.window.profile.parent then
+                        if br.data.options[br.selectedSpec]["configFrame"] == true then
+                            br.ui.window.profile.parent.closeButton:Click()
                         else
-                            bb.ui.window.profile.parent:Show()
-                            bb.data.options[bb.selectedSpec]["configFrame"] = true
+                            br.ui.window.profile.parent:Show()
+                            br.data.options[br.selectedSpec]["configFrame"] = true
                         end
                     end
 				end
 			end
         end
         if button == "MiddleButton" then
-            if bb.ui.window.help then
-                bb.ui.window.help.parent:Show()
+            if br.ui.window.help then
+                br.ui.window.help.parent:Show()
             end
         end
 		if IsShiftKeyDown() and IsAltKeyDown() then
@@ -90,20 +90,20 @@ function bb:MinimapButton()
 	button:SetScript("OnClick",function(self, button)
 		if button == "LeftButton" then
 			if IsShiftKeyDown() and not IsAltKeyDown() then
-				if bb.data["Main"] == 1 then
-					bb.data["Main"] = 0
+				if br.data["Main"] == 1 then
+					br.data["Main"] = 0
 					mainButton:Hide()
 				else
-					bb.data["Main"] = 1
+					br.data["Main"] = 1
 					mainButton:Show()
 				end
 			elseif not IsShiftKeyDown() and not IsAltKeyDown() then
-                if bb.ui.window.config.parent then
-                    if bb.data.options[bb.selectedSpec]["optionsFrame"] == true then
-                        bb.ui.window.config.parent.closeButton:Click()
+                if br.ui.window.config.parent then
+                    if br.data.options[br.selectedSpec]["optionsFrame"] == true then
+                        br.ui.window.config.parent.closeButton:Click()
                     else
-                        bb.ui.window.config.parent:Show()
-                        bb.data.options[bb.selectedSpec]["optionsFrame"] = true
+                        br.ui.window.config.parent:Show()
+                        br.data.options[br.selectedSpec]["optionsFrame"] = true
                     end
 
                 end
@@ -112,11 +112,8 @@ function bb:MinimapButton()
 	end)
 	button:SetScript("OnEnter", function(self)
 		GameTooltip:SetOwner(Minimap, "ANCHOR_CURSOR", 50 , 50)
-		GameTooltip:SetText("BadBoy The Ultimate Raider", 214/255, 25/255, 25/255)
-		GameTooltip:AddLine("CodeMyLife - CuteOne - Masoud")
-		GameTooltip:AddLine("Gabbz - Chumii - AveryKey")
-		GameTooltip:AddLine("Ragnar - Cpoworks - Tocsin")
-		GameTooltip:AddLine("Mavmins - CukieMunster - Magnu")
+		GameTooltip:SetText("BadRotations", 214/255, 25/255, 25/255)
+		GameTooltip:AddLine("by CuteOne")
 		GameTooltip:AddLine("Left Click to toggle config frame.", 1, 1, 1, 1)
 		GameTooltip:AddLine("Shift+Left Click to toggle toggles frame.", 1, 1, 1, 1)
 		GameTooltip:AddLine("Alt+Shift+LeftButton to drag.", 1, 1, 1, 1)
@@ -148,90 +145,90 @@ frame:RegisterUnitEvent("PLAYER_LEVEL_UP")
 frame:RegisterUnitEvent("PLAYER_TALENT_UPDATE")
 frame:RegisterUnitEvent("ZONE_CHANGED_NEW_AREA")
 frame:RegisterUnitEvent("ZONE_CHANGED")
-function bb:reloadOnSpecChange()
-    if bb.data["Power"] == 1 then
+function br:reloadOnSpecChange()
+    if br.data["Power"] == 1 then
         ReloadUI()
     end
 end
 -- Sets 'talentHasChanged' to true
-function bb:characterTalentChanged()
-    if bb.talentHasChanged == nil then
-        bb.talentHasChanged = true
+function br:characterTalentChanged()
+    if br.talentHasChanged == nil then
+        br.talentHasChanged = true
     end
 end
 -- Sets 'equipHasChanged' to true
-function bb:characterEquipChanged()
-    if bb.equipHasChanged ~= true then
-        bb.equipHasChanged = true
+function br:characterEquipChanged()
+    if br.equipHasChanged ~= true then
+        br.equipHasChanged = true
     end
 end
-function bb:savePosition(windowName)
-	if bb.selectedSpec == nil then bb.selectedSpec = select(2,GetSpecializationInfo(GetSpecialization())) end
-	if bb.data.options[bb.selectedSpec] == nil then bb.data.options[bb.selectedSpec] = {} end
-	if bb.ui.window[windowName] ~= nil then
-		if bb.ui.window[windowName].parent ~= nil then
-			local point, relativeTo, relativePoint, xOfs, yOfs = bb.ui.window[windowName].parent:GetPoint(1)
-	        bb.data.options[bb.selectedSpec][windowName.. "Frame".. "_point"] = point
-	        bb.data.options[bb.selectedSpec][windowName.. "Frame".. "_relativeTo"] = relativeTo:GetName()
-	        bb.data.options[bb.selectedSpec][windowName.. "Frame".. "_relativePoint"] = relativePoint
-	        bb.data.options[bb.selectedSpec][windowName.. "Frame".. "_xOfs"] = xOfs
-	        bb.data.options[bb.selectedSpec][windowName.. "Frame".. "_yOfs"] = yOfs
+function br:savePosition(windowName)
+	if br.selectedSpec == nil then br.selectedSpec = select(2,GetSpecializationInfo(GetSpecialization())) end
+	if br.data.options[br.selectedSpec] == nil then br.data.options[br.selectedSpec] = {} end
+	if br.ui.window[windowName] ~= nil then
+		if br.ui.window[windowName].parent ~= nil then
+			local point, relativeTo, relativePoint, xOfs, yOfs = br.ui.window[windowName].parent:GetPoint(1)
+	        br.data.options[br.selectedSpec][windowName.. "Frame".. "_point"] = point
+	        br.data.options[br.selectedSpec][windowName.. "Frame".. "_relativeTo"] = relativeTo:GetName()
+	        br.data.options[br.selectedSpec][windowName.. "Frame".. "_relativePoint"] = relativePoint
+	        br.data.options[br.selectedSpec][windowName.. "Frame".. "_xOfs"] = xOfs
+	        br.data.options[br.selectedSpec][windowName.. "Frame".. "_yOfs"] = yOfs
 
-	        point, relativeTo, relativePoint, xOfs, yOfs = bb.ui.window[windowName].parent:GetPoint(2)
+	        point, relativeTo, relativePoint, xOfs, yOfs = br.ui.window[windowName].parent:GetPoint(2)
 	        if point then
-	            bb.data.options[bb.selectedSpec][windowName.. "Frame".. "_point2"] = point
-	            bb.data.options[bb.selectedSpec][windowName.. "Frame".. "_relativeTo2"] = relativeTo:GetName()
-	            bb.data.options[bb.selectedSpec][windowName.. "Frame".. "_relativePoint2"] = relativePoint
-	            bb.data.options[bb.selectedSpec][windowName.. "Frame".. "_xOfs2"] = xOfs
-	            bb.data.options[bb.selectedSpec][windowName.. "Frame".. "_yOfs2"] = yOfs
+	            br.data.options[br.selectedSpec][windowName.. "Frame".. "_point2"] = point
+	            br.data.options[br.selectedSpec][windowName.. "Frame".. "_relativeTo2"] = relativeTo:GetName()
+	            br.data.options[br.selectedSpec][windowName.. "Frame".. "_relativePoint2"] = relativePoint
+	            br.data.options[br.selectedSpec][windowName.. "Frame".. "_xOfs2"] = xOfs
+	            br.data.options[br.selectedSpec][windowName.. "Frame".. "_yOfs2"] = yOfs
 	        end
 
-	        bb.data.options[bb.selectedSpec][windowName.. "Frame".. "_width"]  = bb.ui.window[windowName].parent:GetWidth()
-	        bb.data.options[bb.selectedSpec][windowName.. "Frame".. "_height"] = bb.ui.window[windowName].parent:GetHeight()
+	        br.data.options[br.selectedSpec][windowName.. "Frame".. "_width"]  = br.ui.window[windowName].parent:GetWidth()
+	        br.data.options[br.selectedSpec][windowName.. "Frame".. "_height"] = br.ui.window[windowName].parent:GetHeight()
 	    end
 	end
 end
-function bb:saveWindowPosition()
-    bb:savePosition("profile")
-    bb.savePosition("config")
+function br:saveWindowPosition()
+    br:savePosition("profile")
+    br.savePosition("config")
 end
 
 function frame:OnEvent(event, arg1, arg2)
-	if event == "ADDON_LOADED" and arg1 == "BadBoy" then
-		--bb:Run()
+	if event == "ADDON_LOADED" and arg1 == "BadRotations" then
+		--br:Run()
 	end
-	if ((event == "ACTIVE_TALENT_GROUP_CHANGED" or event == "PLAYER_SPECIALIZATION_CHANGED") and arg1 ~= arg2 and arg2 ~= 0 and bb.loadedIn) then
+	if ((event == "ACTIVE_TALENT_GROUP_CHANGED" or event == "PLAYER_SPECIALIZATION_CHANGED") and arg1 ~= arg2 and arg2 ~= 0 and br.loadedIn) then
         -- Closing the windows will save the position
-        bb.ui.window.config.parent.closeButton:Click()
-        bb.ui.window.profile.parent.closeButton:Click()
+        br.ui.window.config.parent.closeButton:Click()
+        br.ui.window.profile.parent.closeButton:Click()
 
         -- Update Selected Spec/Profile
-        bb.selectedSpec = select(2,GetSpecializationInfo(GetSpecialization()))
-        if bb.data.options[bb.selectedSpec]["RotationDrop"] == nil then
-	        bb.selectedProfile = 1
+        br.selectedSpec = select(2,GetSpecializationInfo(GetSpecialization()))
+        if br.data.options[br.selectedSpec]["RotationDrop"] == nil then
+	        br.selectedProfile = 1
 	    else
-	        bb.selectedProfile = bb.data.options[bb.selectedSpec]["RotationDrop"]
+	        br.selectedProfile = br.data.options[br.selectedSpec]["RotationDrop"]
 	    end
 
         -- Recreate ConfigWindow with new Spec
-        bb.ui:createConfigWindow()
+        br.ui:createConfigWindow()
 
         -- rebuild up UI
-		BadBoyFrame()
+		BadRotationsFrame()
     end
     if event == "PLAYER_LOGOUT" then
-        bb:saveWindowPosition()
+        br:saveWindowPosition()
     end
     if event == "PLAYER_EQUIPMENT_CHANGED" then
-        bb:characterEquipChanged() -- Sets a global to indicate equip was changed
+        br:characterEquipChanged() -- Sets a global to indicate equip was changed
     end
     if event == "PLAYER_ENTERING_WORLD" then
     	-- Update Selected Spec
-        bb.selectedSpec = select(2,GetSpecializationInfo(GetSpecialization()))
+        br.selectedSpec = select(2,GetSpecializationInfo(GetSpecialization()))
     	-- Update Selected Spec
-    	if not bb.loadedIn then
+    	if not br.loadedIn then
     		bagsUpdated = true
-        	bb:Run()
+        	br:Run()
         end
     end
     if event == "ZONE_CHANGED" then
@@ -244,7 +241,7 @@ frame:SetScript("OnEvent", frame.OnEvent)
 --[[-------------------------------------------------------------------------------------------------------------------------------------------------------]]
 --[[-------------------------------------------------------------------------------------------------------------------------------------------------------]]
 --[[This function is refired everytime wow ticks. This frame is located in Core.lua]]
-function BadBoyUpdate(self)
+function BadRotationsUpdate(self)
 	local tempTime = GetTime();
 	if not self.lastUpdateTime then
 		self.lastUpdateTime = tempTime
@@ -254,7 +251,7 @@ function BadBoyUpdate(self)
 
 		-- prevent ticking when firechack isnt loaded
 		-- if user click power button, stop everything from pulsing.
-		if not getOptionCheck("Start/Stop BadBoy") or bb.data["Power"] ~= 1 then
+		if not getOptionCheck("Start/Stop BadRotations") or br.data["Power"] ~= 1 then
 			optionsFrame:Hide()
 			_G["debugFrame"]:Hide()
 			return false
@@ -262,31 +259,31 @@ function BadBoyUpdate(self)
 		if FireHack == nil then
 			optionsFrame:Hide()
 			_G["debugFrame"]:Hide()
-			if getOptionCheck("Start/Stop BadBoy") then
+			if getOptionCheck("Start/Stop BadRotations") then
 				ChatOverlay("FireHack not Loaded.")
 			end
 			return
 		end
 
 		-- pulse enemiesEngine
-		bb:PulseUI()
+		br:PulseUI()
 
 	    -- get DBM Timer/Bars
-	    -- global -> bb.DBM.Timer
-	    bb.DBM:getBars()
+	    -- global -> br.DBM.Timer
+	    br.DBM:getBars()
 
 	    -- Show Debug Frame TEMP
 	    if isChecked("Debug Frame") then
-	        bb.ui.window.debug.parent:Show()--_G["debugFrame"]:Show()
+	        br.ui.window.debug.parent:Show()--_G["debugFrame"]:Show()
 	    else
-	        bb.ui.window.debug.parent:Hide()--_G["debugFrame"]:Hide()
+	        br.ui.window.debug.parent:Hide()--_G["debugFrame"]:Hide()
 	    end
 
 		-- accept dungeon queues
-		bb:AcceptQueues()
+		br:AcceptQueues()
 
 		--[[Class/Spec Selector]]
-	    bb.selectedProfile = bb.data.options[bb.selectedSpec]["Rotation".."Drop"] or 1
+	    br.selectedProfile = br.data.options[br.selectedSpec]["Rotation".."Drop"] or 1
 		local functionSelector = {
 			[ 62] = {className = "Mage", 		specName = "Arcane"},
 			[ 63] = {className = "Mage", 		specName = "Fire"},

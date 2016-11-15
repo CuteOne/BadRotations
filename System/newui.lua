@@ -5,13 +5,13 @@ local DiesalMenu = LibStub("DiesalMenu-1.0")
 local SharedMedia = LibStub("LibSharedMedia-3.0")
 
 -- Global setup
-bb.ui = {}
-bb.ui.window = {}
-bb.ui.window.config = {}
-bb.ui.window.profile = {}
--- bb.selectedSpec = select(2,GetSpecializationInfo(GetSpecialization()))
--- if bb.data.options[bb.selectedSpec] == nil then bb.data.options[bb.selectedSpec] = {} end
--- if bb.data.options[bb.selectedSpec][bb.selectedProfile] == nil then bb.data.options[bb.selectedSpec][bb.selectedProfile] = {} end
+br.ui = {}
+br.ui.window = {}
+br.ui.window.config = {}
+br.ui.window.profile = {}
+-- br.selectedSpec = select(2,GetSpecializationInfo(GetSpecialization()))
+-- if br.data.options[br.selectedSpec] == nil then br.data.options[br.selectedSpec] = {} end
+-- if br.data.options[br.selectedSpec][br.selectedProfile] == nil then br.data.options[br.selectedSpec][br.selectedProfile] = {} end
 
 -- TODO: save window position and restore it
 
@@ -183,7 +183,7 @@ local arrowLeft =    {
 
 -- Header Arrows and Dropdown
 -- Right Arrow
-function bb.ui:createRightArrow(window)
+function br.ui:createRightArrow(window)
     local rArr = DiesalGUI:Create('Button')
     rArr:SetParent(window.parent.header)
     rArr:SetPoint('TOPRIGHT',0,0)
@@ -213,7 +213,7 @@ function bb.ui:createRightArrow(window)
     window.parent:AddChild(rArr)
 end
 -- Left Arrow
-function bb.ui:createLeftArrow(window)
+function br.ui:createLeftArrow(window)
     local lArr = DiesalGUI:Create('Button')
     lArr:SetParent(window.parent.header)
     lArr:SetPoint('TOPLEFT',0,0)
@@ -244,9 +244,9 @@ function bb.ui:createLeftArrow(window)
 end
 -- Dropdown for pages
 -- todo: save last active page and restore
-function bb.ui:createPagesDropdown(window, menuPages)
+function br.ui:createPagesDropdown(window, menuPages)
     window.pages = menuPages
-    window.pageDD = DiesalGUI:Create('DropdownBB')
+    window.pageDD = DiesalGUI:Create('DropdownBR')
     local newDropdown = window.pageDD
     newDropdown:SetParent(window.parent.header)
     newDropdown.settings.width = 150
@@ -273,9 +273,9 @@ function bb.ui:createPagesDropdown(window, menuPages)
 end
 
 -- Window creators
-function bb.ui:createWindow(name, width, height)
+function br.ui:createWindow(name, width, height)
     local window = DiesalGUI:Create('Window')
-    window:SetTitle('BadBoy', name)
+    window:SetTitle('BadRotations', name)
     window.settings.width = width or 250
     window.settings.height = height or 250
     window.settings.header = true
@@ -283,8 +283,8 @@ function bb.ui:createWindow(name, width, height)
     window:ApplySettings()
 
     window.closeButton:SetScript("OnClick", function(this, button)
-        bb:savePosition("config") --bb:saveConfigWindowPosition()
-        bb.data.options[bb.selectedSpec]["optionsFrame"] = false
+        br:savePosition("config") --br:saveConfigWindowPosition()
+        br.data.options[br.selectedSpec]["optionsFrame"] = false
         DiesalGUI:OnMouse(this,button)
         PlaySound("gsTitleOptionExit")
         window:FireEvent("OnClose")
@@ -298,33 +298,33 @@ function bb.ui:createWindow(name, width, height)
     scrollFrame.parent = window
 
     -- Load saved position
-    if bb.selectedSpec == nil then bb.selectedSpec = select(2,GetSpecializationInfo(GetSpecialization())) end
-    if bb.data.options[bb.selectedSpec] == nil then bb.data.options[bb.selectedSpec] = {} end
-    if bb.data.options[bb.selectedSpec]["optionsFrame".."_point"] ~= nil then
-        local point, relativeTo = bb.data.options[bb.selectedSpec]["optionsFrame".."_point"], bb.data.options[bb.selectedSpec]["optionsFrame".."_relativeTo"]
-        local relativePoint = bb.data.options[bb.selectedSpec]["optionsFrame".."_relativePoint"]
-        local xOfs, yOfs = bb.data.options[bb.selectedSpec]["optionsFrame".."_xOfs"], bb.data.options[bb.selectedSpec]["optionsFrame".."_yOfs"]
+    if br.selectedSpec == nil then br.selectedSpec = select(2,GetSpecializationInfo(GetSpecialization())) end
+    if br.data.options[br.selectedSpec] == nil then br.data.options[br.selectedSpec] = {} end
+    if br.data.options[br.selectedSpec]["optionsFrame".."_point"] ~= nil then
+        local point, relativeTo = br.data.options[br.selectedSpec]["optionsFrame".."_point"], br.data.options[br.selectedSpec]["optionsFrame".."_relativeTo"]
+        local relativePoint = br.data.options[br.selectedSpec]["optionsFrame".."_relativePoint"]
+        local xOfs, yOfs = br.data.options[br.selectedSpec]["optionsFrame".."_xOfs"], br.data.options[br.selectedSpec]["optionsFrame".."_yOfs"]
         scrollFrame.parent:SetPoint(point, relativeTo, relativePoint, xOfs, yOfs)
     end
-    if bb.data.options[bb.selectedSpec]["optionsFrame".."_point2"] ~= nil then
-        local point, relativeTo = bb.data.options[bb.selectedSpec]["optionsFrame".."_point2"], bb.data.options[bb.selectedSpec]["optionsFrame".."_relativeTo2"]
-        local relativePoint = bb.data.options[bb.selectedSpec]["optionsFrame".."_relativePoint2"]
-        local xOfs, yOfs = bb.data.options[bb.selectedSpec]["optionsFrame".."_xOfs2"], bb.data.options[bb.selectedSpec]["optionsFrame".."_yOfs2"]
+    if br.data.options[br.selectedSpec]["optionsFrame".."_point2"] ~= nil then
+        local point, relativeTo = br.data.options[br.selectedSpec]["optionsFrame".."_point2"], br.data.options[br.selectedSpec]["optionsFrame".."_relativeTo2"]
+        local relativePoint = br.data.options[br.selectedSpec]["optionsFrame".."_relativePoint2"]
+        local xOfs, yOfs = br.data.options[br.selectedSpec]["optionsFrame".."_xOfs2"], br.data.options[br.selectedSpec]["optionsFrame".."_yOfs2"]
         scrollFrame.parent:SetPoint(point, relativeTo, relativePoint, xOfs, yOfs)
     end
-    if bb.data.options[bb.selectedSpec]["optionsFrame".."_width"] and bb.data.options[bb.selectedSpec]["optionsFrame".."_height"] then
-        scrollFrame.parent:SetWidth(bb.data.options[bb.selectedSpec]["optionsFrame".."_width"])
-        scrollFrame.parent:SetHeight(bb.data.options[bb.selectedSpec]["optionsFrame".."_height"])
+    if br.data.options[br.selectedSpec]["optionsFrame".."_width"] and br.data.options[br.selectedSpec]["optionsFrame".."_height"] then
+        scrollFrame.parent:SetWidth(br.data.options[br.selectedSpec]["optionsFrame".."_width"])
+        scrollFrame.parent:SetHeight(br.data.options[br.selectedSpec]["optionsFrame".."_height"])
     end
 
-    bb.ui:createLeftArrow(scrollFrame)
-    bb.ui:createRightArrow(scrollFrame)
+    br.ui:createLeftArrow(scrollFrame)
+    br.ui:createRightArrow(scrollFrame)
     return scrollFrame
 end
 
-function bb.ui:createProfileWindow(name, width, height)
+function br.ui:createProfileWindow(name, width, height)
     local window = DiesalGUI:Create('Window')
-    window:SetTitle('BadBoy', name)
+    window:SetTitle('BadRotations', name)
     window.settings.width = width or 300
     window.settings.height = height or 250
     window.settings.header = true
@@ -332,8 +332,8 @@ function bb.ui:createProfileWindow(name, width, height)
     window:ApplySettings()
 
     window.closeButton:SetScript("OnClick", function(this, button)
-        bb:savePosition("profile")--bb:saveProfileWindowPosition()
-        bb.data.options[bb.selectedSpec]["configFrame"] = false
+        br:savePosition("profile")--br:saveProfileWindowPosition()
+        br.data.options[br.selectedSpec]["configFrame"] = false
         DiesalGUI:OnMouse(this,button)
         PlaySound("gsTitleOptionExit")
         window:FireEvent("OnClose")
@@ -347,37 +347,37 @@ function bb.ui:createProfileWindow(name, width, height)
     scrollFrame.parent = window
 
     -- Load saved position
-    if bb.data.options[bb.selectedSpec]["configFrame".."_point"] ~= nil then
-        local point, relativeTo = bb.data.options[bb.selectedSpec]["configFrame".."_point"], bb.data.options[bb.selectedSpec]["configFrame".."_relativeTo"]
-        local relativePoint = bb.data.options[bb.selectedSpec]["configFrame".."_relativePoint"]
-        local xOfs, yOfs = bb.data.options[bb.selectedSpec]["configFrame".."_xOfs"], bb.data.options[bb.selectedSpec]["configFrame".."_yOfs"]
+    if br.data.options[br.selectedSpec]["configFrame".."_point"] ~= nil then
+        local point, relativeTo = br.data.options[br.selectedSpec]["configFrame".."_point"], br.data.options[br.selectedSpec]["configFrame".."_relativeTo"]
+        local relativePoint = br.data.options[br.selectedSpec]["configFrame".."_relativePoint"]
+        local xOfs, yOfs = br.data.options[br.selectedSpec]["configFrame".."_xOfs"], br.data.options[br.selectedSpec]["configFrame".."_yOfs"]
         scrollFrame.parent:SetPoint(point, relativeTo, relativePoint, xOfs, yOfs)
     end
-    if bb.data.options[bb.selectedSpec]["configFrame".."_point2"] ~= nil then
-        local point, relativeTo = bb.data.options[bb.selectedSpec]["configFrame".."_point2"], bb.data.options[bb.selectedSpec]["configFrame".."_relativeTo2"]
-        local relativePoint = bb.data.options[bb.selectedSpec]["configFrame".."_relativePoint2"]
-        local xOfs, yOfs = bb.data.options[bb.selectedSpec]["configFrame".."_xOfs2"], bb.data.options[bb.selectedSpec]["configFrame".."_yOfs2"]
+    if br.data.options[br.selectedSpec]["configFrame".."_point2"] ~= nil then
+        local point, relativeTo = br.data.options[br.selectedSpec]["configFrame".."_point2"], br.data.options[br.selectedSpec]["configFrame".."_relativeTo2"]
+        local relativePoint = br.data.options[br.selectedSpec]["configFrame".."_relativePoint2"]
+        local xOfs, yOfs = br.data.options[br.selectedSpec]["configFrame".."_xOfs2"], br.data.options[br.selectedSpec]["configFrame".."_yOfs2"]
         scrollFrame.parent:SetPoint(point, relativeTo, relativePoint, xOfs, yOfs)
     end
-    if bb.data.options[bb.selectedSpec]["configFrame".."_width"] and bb.data.options[bb.selectedSpec]["configFrame".."_height"] then
-        scrollFrame.parent:SetWidth(bb.data.options[bb.selectedSpec]["configFrame".."_width"])
-        scrollFrame.parent:SetHeight(bb.data.options[bb.selectedSpec]["configFrame".."_height"])
+    if br.data.options[br.selectedSpec]["configFrame".."_width"] and br.data.options[br.selectedSpec]["configFrame".."_height"] then
+        scrollFrame.parent:SetWidth(br.data.options[br.selectedSpec]["configFrame".."_width"])
+        scrollFrame.parent:SetHeight(br.data.options[br.selectedSpec]["configFrame".."_height"])
     end
 
-    bb.ui:createLeftArrow(scrollFrame)
-    bb.ui:createRightArrow(scrollFrame)
+    br.ui:createLeftArrow(scrollFrame)
+    br.ui:createRightArrow(scrollFrame)
     return scrollFrame
 end
 
-function bb.ui:createMessageWindow(name, width, height)
+function br.ui:createMessageWindow(name, width, height)
     local window = DiesalGUI:Create('Window')
-    window:SetTitle('BadBoy', name)
+    window:SetTitle('BadRotations', name)
     window.settings.width = width or 300
     window.settings.height = height or 250
     window.frame:SetClampedToScreen(true)
     window:ApplySettings()
 
-    local newMessageFrame = DiesalGUI:Create('ScrollingMessageFrameBB')
+    local newMessageFrame = DiesalGUI:Create('ScrollingMessageFrameBR')
     window:AddChild(newMessageFrame)
     newMessageFrame:SetParent(window.content)
     newMessageFrame:SetAllPoints(window.content)
@@ -386,9 +386,9 @@ function bb.ui:createMessageWindow(name, width, height)
     return newMessageFrame
 end
 
-bb.spacing = 15
+br.spacing = 15
 
-function bb.ui:createCheckbox(parent, text, tooltip)
+function br.ui:createCheckbox(parent, text, tooltip)
     local newBox = DiesalGUI:Create('Toggle')
     local parent = parent
     local anchor = anchor or "TOPLEFT"
@@ -409,7 +409,7 @@ function bb.ui:createCheckbox(parent, text, tooltip)
     end
 
     local y = howManyBoxes
-    if y  ~= 1 then y = ((y-1) * -bb.spacing) -5 end
+    if y  ~= 1 then y = ((y-1) * -br.spacing) -5 end
     if y == 1 then y = -5 end
 
     -- Set parent
@@ -420,8 +420,8 @@ function bb.ui:createCheckbox(parent, text, tooltip)
 
     -- Read check value from config, false if nothing found
     -- Set default
-    if bb.data.options[bb.selectedSpec][bb.selectedProfile][text.."Check"] == nil then bb.data.options[bb.selectedSpec][bb.selectedProfile][text.."Check"] = false end
-    local check = bb.data.options[bb.selectedSpec][bb.selectedProfile][text.."Check"]
+    if br.data.options[br.selectedSpec][br.selectedProfile][text.."Check"] == nil then br.data.options[br.selectedSpec][br.selectedProfile][text.."Check"] = false end
+    local check = br.data.options[br.selectedSpec][br.selectedProfile][text.."Check"]
     if check == 0 then check = false end
     if check == 1 then check = true end
 
@@ -430,7 +430,7 @@ function bb.ui:createCheckbox(parent, text, tooltip)
 
     -- Event: OnValueChanged
     newBox:SetEventListener('OnValueChanged', function(this, event, checked)
-        bb.data.options[bb.selectedSpec][bb.selectedProfile][text.."Check"] = checked
+        br.data.options[br.selectedSpec][br.selectedProfile][text.."Check"] = checked
 
         -- Create Chat Overlay
         if checked then
@@ -460,12 +460,12 @@ function bb.ui:createCheckbox(parent, text, tooltip)
     return newBox
 end
 
-function bb.ui:createSpinner(parent, text, number, min, max, step, tooltip, tooltipSpin, hideCheckbox)
+function br.ui:createSpinner(parent, text, number, min, max, step, tooltip, tooltipSpin, hideCheckbox)
     local newSpinner = DiesalGUI:Create('Spinner')
     local parent = parent
 
     -- Create Checkbox for Spinner
-    local checkBox = bb.ui:createCheckbox(parent, text, tooltip)
+    local checkBox = br.ui:createCheckbox(parent, text, tooltip)
 
     -- Calculate position
     local howManyBoxes = 0
@@ -475,7 +475,7 @@ function bb.ui:createSpinner(parent, text, number, min, max, step, tooltip, tool
         end
     end
     local y = howManyBoxes
-    if y  ~= 1 then y = ((y-1) * -bb.spacing) -5 end
+    if y  ~= 1 then y = ((y-1) * -br.spacing) -5 end
     if y == 1 then y = -5 end
 
     if hideCheckbox then
@@ -497,14 +497,14 @@ function bb.ui:createSpinner(parent, text, number, min, max, step, tooltip, tool
     newSpinner:SetPoint("TOPRIGHT", parent.content, "TOPRIGHT", -10, y)
 
     -- Read number from config or set default
-    if bb.data.options[bb.selectedSpec][bb.selectedProfile][text.."Status"] == nil then bb.data.options[bb.selectedSpec][bb.selectedProfile][text.."Status"] = number end
-    local state = bb.data.options[bb.selectedSpec][bb.selectedProfile][text.."Status"]
+    if br.data.options[br.selectedSpec][br.selectedProfile][text.."Status"] == nil then br.data.options[br.selectedSpec][br.selectedProfile][text.."Status"] = number end
+    local state = br.data.options[br.selectedSpec][br.selectedProfile][text.."Status"]
     newSpinner:SetNumber(state)
 
 
     -- Event: OnValueChange
     newSpinner:SetEventListener('OnValueChanged', function(this, event, checked)
-        bb.data.options[bb.selectedSpec][bb.selectedProfile][text.."Status"] = newSpinner:GetNumber()
+        br.data.options[br.selectedSpec][br.selectedProfile][text.."Status"] = newSpinner:GetNumber()
     end)
     -- Event: Tooltip
     if tooltip or tooltipSpin then
@@ -526,18 +526,18 @@ function bb.ui:createSpinner(parent, text, number, min, max, step, tooltip, tool
     return newSpinner
 end
 
-function bb.ui:createSpinnerWithout(parent, text, number, min, max, step, tooltip, tooltipSpin)
-    return bb.ui:createSpinner(parent, text, number, min, max, step, tooltip, tooltipSpin, true)
+function br.ui:createSpinnerWithout(parent, text, number, min, max, step, tooltip, tooltipSpin)
+    return br.ui:createSpinner(parent, text, number, min, max, step, tooltip, tooltipSpin, true)
 end
 
-function bb.ui:createDropdown(parent, text, itemlist, default, tooltip, tooltipDrop, hideCheckbox)
-    local newDropdown = DiesalGUI:Create('DropdownBB')
+function br.ui:createDropdown(parent, text, itemlist, default, tooltip, tooltipDrop, hideCheckbox)
+    local newDropdown = DiesalGUI:Create('DropdownBR')
     local parent = parent
     local itemlist = itemlist
     local default = default or 1
 
     -- Create Checkbox for Dropdown
-    local checkBox = bb.ui:createCheckbox(parent,text,tooltip)
+    local checkBox = br.ui:createCheckbox(parent,text,tooltip)
 
     -- Calculate position
     local howManyBoxes = 0
@@ -547,7 +547,7 @@ function bb.ui:createDropdown(parent, text, itemlist, default, tooltip, tooltipD
         end
     end
     local y = howManyBoxes
-    if y  ~= 1 then y = ((y-1) * -bb.spacing) -5 end
+    if y  ~= 1 then y = ((y-1) * -br.spacing) -5 end
     if y == 1 then y = -5 end
 
     if hideCheckbox then
@@ -564,12 +564,12 @@ function bb.ui:createDropdown(parent, text, itemlist, default, tooltip, tooltipD
     newDropdown:SetList(itemlist)
 
     -- Read from config or set default
-    if bb.data.options[bb.selectedSpec][bb.selectedProfile][text.."Drop"] == nil then bb.data.options[bb.selectedSpec][bb.selectedProfile][text.."Drop"] = default end
-    local value = bb.data.options[bb.selectedSpec][bb.selectedProfile][text.."Drop"]
+    if br.data.options[br.selectedSpec][br.selectedProfile][text.."Drop"] == nil then br.data.options[br.selectedSpec][br.selectedProfile][text.."Drop"] = default end
+    local value = br.data.options[br.selectedSpec][br.selectedProfile][text.."Drop"]
     newDropdown:SetValue(value)
 
     newDropdown:SetEventListener('OnValueChanged', function(this, event, key, value, selection)
-        bb.data.options[bb.selectedSpec][bb.selectedProfile][text.."Drop"]  = key
+        br.data.options[br.selectedSpec][br.selectedProfile][text.."Drop"]  = key
     end)
     -- Event: Tooltip
     if tooltip or tooltipDrop then
@@ -590,12 +590,12 @@ function bb.ui:createDropdown(parent, text, itemlist, default, tooltip, tooltipD
     return newDropdown
 end
 
-function bb.ui:createDropdownWithout(parent, text, itemlist, default, tooltip, tooltipDrop)
-    return bb.ui:createDropdown(parent, text, itemlist, default, tooltip, tooltipDrop, true)
+function br.ui:createDropdownWithout(parent, text, itemlist, default, tooltip, tooltipDrop)
+    return br.ui:createDropdown(parent, text, itemlist, default, tooltip, tooltipDrop, true)
 end
 -- todo: dd
-function bb.ui:createRotationDropdown(parent, itemlist, tooltip)
-    local newDropdown = DiesalGUI:Create('DropdownBB')
+function br.ui:createRotationDropdown(parent, itemlist, tooltip)
+    local newDropdown = DiesalGUI:Create('DropdownBR')
     local parent = parent
     local text = "Rotation"
 
@@ -605,31 +605,31 @@ function bb.ui:createRotationDropdown(parent, itemlist, tooltip)
     newDropdown:SetList(itemlist)
 
     -- Set selected profile to 1 if not found
-    if bb.data.options[bb.selectedSpec][text.."Drop"] == nil then
-        bb.data.options[bb.selectedSpec][text.."Drop"] = 1
-    elseif bb.data.options[bb.selectedSpec][text.."Drop"] > #itemlist then
+    if br.data.options[br.selectedSpec][text.."Drop"] == nil then
+        br.data.options[br.selectedSpec][text.."Drop"] = 1
+    elseif br.data.options[br.selectedSpec][text.."Drop"] > #itemlist then
         --[[ Rest the profile which is no longer found
              If someone adds a profile then the old options from profile befopre would be loaded
         --]]
-        local notFoundProfile = bb.data.options[bb.selectedSpec][text.."Drop"]
-        bb.data.options[bb.selectedSpec][notFoundProfile] = {}
+        local notFoundProfile = br.data.options[br.selectedSpec][text.."Drop"]
+        br.data.options[br.selectedSpec][notFoundProfile] = {}
 
-        bb.data.options[bb.selectedSpec][text.."Drop"] = 1
-        print("BadBoy: Selected profile not found fallback to profile 1.")
+        br.data.options[br.selectedSpec][text.."Drop"] = 1
+        print("BadRotations: Selected profile not found fallback to profile 1.")
     end
 
-    local value = bb.data.options[bb.selectedSpec][text.."Drop"]
-    bb.selectedProfile = value
-    bb.selectedProfileName = itemlist[value]
+    local value = br.data.options[br.selectedSpec][text.."Drop"]
+    br.selectedProfile = value
+    br.selectedProfileName = itemlist[value]
     newDropdown:SetValue(value)
 
     newDropdown:SetEventListener('OnValueChanged', function(this, event, key, value, selection)
-        bb.data.options[bb.selectedSpec][text.."Drop"]  = key
-        bb.data.options[bb.selectedSpec][text.."DropValue"]  = value
-        bb.selectedProfile = key
-        bb.selectedProfileName = value
-        bb.ui:recreateWindows()
-        bb.rotation_changed = true
+        br.data.options[br.selectedSpec][text.."Drop"]  = key
+        br.data.options[br.selectedSpec][text.."DropValue"]  = value
+        br.selectedProfile = key
+        br.selectedProfileName = value
+        br.ui:recreateWindows()
+        br.rotation_changed = true
     end)
     -- Event: Tooltip
     if tooltip then
@@ -649,14 +649,14 @@ function bb.ui:createRotationDropdown(parent, itemlist, tooltip)
     return newDropdown
 end
 
-function bb.ui:createSection(parent, sectionName, tooltip)
-    local newSection = DiesalGUI:Create('AccordianSectionBB')
+function br.ui:createSection(parent, sectionName, tooltip)
+    local newSection = DiesalGUI:Create('AccordianSectionBR')
     local parent = parent
 
     -- Calculate Position
     local howManySections = 1
     for i=1, #parent.children do
-        if parent.children[i].type == "AccordianSectionBB" then
+        if parent.children[i].type == "AccordianSectionBR" then
             howManySections = howManySections + 1
         end
     end
@@ -666,12 +666,12 @@ function bb.ui:createSection(parent, sectionName, tooltip)
     newSection:SetParentObject(parent)
     newSection.settings.position = position
     newSection.settings.sectionName = sectionName
-    if bb.data.options[bb.selectedSpec][bb.selectedProfile] == nil then bb.data.options[bb.selectedSpec][bb.selectedProfile] = {} end
-    newSection.settings.expanded = bb.data.options[bb.selectedSpec][bb.selectedProfile][sectionName.."Section"] or true
+    if br.data.options[br.selectedSpec][br.selectedProfile] == nil then br.data.options[br.selectedSpec][br.selectedProfile] = {} end
+    newSection.settings.expanded = br.data.options[br.selectedSpec][br.selectedProfile][sectionName.."Section"] or true
     --newSection.settings.contentPad = {0,0,12,32}
 
     newSection:SetEventListener('OnStateChange', function(this, event)
-       bb.data.options[bb.selectedSpec][bb.selectedProfile][sectionName.."Section"] = newSection.settings.expanded
+       br.data.options[br.selectedSpec][br.selectedProfile][sectionName.."Section"] = newSection.settings.expanded
     end)
     -- Event: Tooltip
     if tooltip then
@@ -707,7 +707,7 @@ function createNewText(parent, text)
     end
 
     local y = howManyTexts
-    if y  ~= 1 then y = ((y-1) * -bb.spacing) -5 end
+    if y  ~= 1 then y = ((y-1) * -br.spacing) -5 end
     if y == 1 then y = -5 end
 
     newText:SetParent(parent.content)
@@ -730,8 +730,8 @@ end
 
 
 -- Restore last saved state of section (collapsed or expanded)
-function bb.ui:checkSectionState(section)
-    local state = bb.data.options[bb.selectedSpec][bb.selectedProfile][section.settings.sectionName.."Section"]
+function br.ui:checkSectionState(section)
+    local state = br.data.options[br.selectedSpec][br.selectedProfile][section.settings.sectionName.."Section"]
 
     if state then
         section:Expand()
@@ -740,7 +740,7 @@ function bb.ui:checkSectionState(section)
     end
 end
 
-function bb.ui:createButton(parent, buttonName, x, y)
+function br.ui:createButton(parent, buttonName, x, y)
     local newButton = DiesalGUI:Create('Button')
     local parent = parent
 
@@ -763,158 +763,155 @@ end
 -- Checks if profile button was shown or closed on last logout and restores it
 -- TODO: BUG atm as it only saves state when uses via minimap icon, doesnt save if window is closed by clickin on X
 -- TODO: BUG on / off toggle doesnt behave correctly
-function bb:checkProfileWindowStatus()
-    if bb.data.options[bb.selectedSpec]["configFrame"] == true or bb.data.options[bb.selectedSpec]["configFrame"] == nil then
-        if bb.ui.window.profile.parent then
-            bb.ui.window.profile.parent:Show()
+function br:checkProfileWindowStatus()
+    if br.data.options[br.selectedSpec]["configFrame"] == true or br.data.options[br.selectedSpec]["configFrame"] == nil then
+        if br.ui.window.profile.parent then
+            br.ui.window.profile.parent:Show()
             return
         else
             print("No profile window defined!")
         end
     else
-        if bb.ui.window.profile.parent then
-            bb.ui.window.profile.parent.closeButton:Click()
+        if br.ui.window.profile.parent then
+            br.ui.window.profile.parent.closeButton:Click()
             return
         else
             print("No profile window defined!")
         end
     end
 end
-function bb:checkConfigWindowStatus()
-    if bb.data.options[bb.selectedSpec]["optionsFrame"] == true or bb.data.options[bb.selectedSpec]["optionsFrame"] == nil then
-        if bb.ui.window.config.parent then
-            bb.ui.window.config.parent:Show()
+function br:checkConfigWindowStatus()
+    if br.data.options[br.selectedSpec]["optionsFrame"] == true or br.data.options[br.selectedSpec]["optionsFrame"] == nil then
+        if br.ui.window.config.parent then
+            br.ui.window.config.parent:Show()
             return
         end
     else
-        if bb.ui.window.config.parent then
-            bb.ui.window.config.parent.closeButton:Click()
+        if br.ui.window.config.parent then
+            br.ui.window.config.parent.closeButton:Click()
             return
         end
     end
 end
 
-function bb.ui:recreateWindows()
-    bb.ui.window.config.parent.closeButton:Click()
-    bb.ui.window.profile.parent.closeButton:Click()
+function br.ui:recreateWindows()
+    br.ui.window.config.parent.closeButton:Click()
+    br.ui.window.profile.parent.closeButton:Click()
 
-    bb.ui:createConfigWindow()
-    -- bb.ui:createProfileWindow()
+    br.ui:createConfigWindow()
+    -- br.ui:createProfileWindow()
 end
 
 -- todo
-function bb.ui:createOverviewWindow()
-    bb.ui.window.overview = bb.ui:createWindow("Overview")
+function br.ui:createOverviewWindow()
+    br.ui.window.overview = br.ui:createWindow("Overview")
 
     -- Open ABOUT window
-    local buttonAbout = bb.ui:createButton(bb.ui.window.overview, "About", 10, -10)
+    local buttonAbout = br.ui:createButton(br.ui.window.overview, "About", 10, -10)
     buttonAbout:SetEventListener("OnClick", function()
-        bb.ui.window.about.parent:Show()
+        br.ui.window.about.parent:Show()
     end)
 end
 
 -- todo
-function bb.ui:createAboutWindow()
-    bb.ui.window.about = bb.ui:createWindow("About")
+function br.ui:createAboutWindow()
+    br.ui.window.about = br.ui:createWindow("About")
 
 
 end
 
-function bb.ui:createHelpWindow()
-    bb.ui.window.help = bb.ui:createMessageWindow("Help")
+function br.ui:createHelpWindow()
+    br.ui.window.help = br.ui:createMessageWindow("Help")
     local colorBlue = "|cff00CCFF"
     local colorGreen = "|cff00FF00"
     local colorRed = "|cffFF0011"
     local colorWhite = "|cffFFFFFF"
     local colorGold = "|cffFFDD11"
-    bb.ui.window.help:AddMessage(colorGreen.. "--- [[ AUTHORS ]] ---")
-    bb.ui.window.help:AddMessage(colorRed.. "CodeMyLife - CuteOne - Ragnar - Defmaster")
-    bb.ui.window.help:AddMessage(colorRed.. "Gabbz - Chumii - AveryKey")
-    bb.ui.window.help:AddMessage(colorRed.. "Masoud - Cpoworks - Tocsin")
-    bb.ui.window.help:AddMessage(colorRed.. "Mavmins - CukieMunster - Magnu")
-    bb.ui.window.help:AddMessage("----------------------------------------")
+    br.ui.window.help:AddMessage(colorGreen.. "--- [[ AUTHORS ]] ---")
+    br.ui.window.help:AddMessage(colorRed.. "CuteOne")
+    br.ui.window.help:AddMessage("----------------------------------------")
     --
-    bb.ui.window.help:AddMessage(colorGreen.. "--- [[ TODO ]] ---")
-    bb.ui.window.help:AddMessage(colorGold.. "HELP WINDOW NOT FINISHED YET ! ")
-    bb.ui.window.help.parent:Hide()
+    br.ui.window.help:AddMessage(colorGreen.. "--- [[ TODO ]] ---")
+    br.ui.window.help:AddMessage(colorGold.. "HELP WINDOW NOT FINISHED YET ! ")
+    br.ui.window.help.parent:Hide()
 end
 
 
 -- This creates the normal BadBay Configuration Window
-function bb.ui:createConfigWindow()
-    bb.ui:createHelpWindow()
-    bb.ui:createDebugWindow()
-    bb.ui.window.config = bb.ui:createWindow("Configuration", 275, 400)
+function br.ui:createConfigWindow()
+    br.ui:createHelpWindow()
+    br.ui:createDebugWindow()
+    br.ui.window.config = br.ui:createWindow("Configuration", 275, 400)
 
     local section
 
     local function callGeneral()
         -- General
-        section = bb.ui:createSection(bb.ui.window.config, "General")
+        section = br.ui:createSection(br.ui.window.config, "General")
         -- As you should use the toggle to stop, i (defmaster) just activated this toggle default and made it non interactive
-        local startStop = bb.ui:createCheckbox(section, "Start/Stop BadBoy", "Uncheck to prevent BadBoy pulsing.");
-        startStop:SetChecked(true); bb.data.options[bb.selectedSpec][bb.selectedProfile]["Start/Stop BadBoyCheck"] = true; startStop.frame:Disable()
-        bb.ui:createCheckbox(section, "Debug Frame", "Display Debug Frame.")
-        bb.ui:createCheckbox(section, "Display Failcasts", "Dispaly Failcasts in Debug.")
-        bb.ui:createCheckbox(section, "Queue Casting", "Allow Queue Casting on some profiles.")
-        bb.ui:createSpinner(section,  "Auto Loot" ,0.5, 0.1, 3, 0.1, "Sets Autloot on/off.", "Sets a delay for Auto Loot.")
-        bb.ui:createCheckbox(section, "Auto-Sell/Repair", "Automatically sells grays and repais when you open a repairman trade.")
-        bb.ui:createCheckbox(section, "Accept Queues", "Automatically accept LFD, LFR, .. queue.")
-        bb.ui:createCheckbox(section, "Overlay Messages", "Check to enable chat overlay messages.")
-        bb.ui:checkSectionState(section)
+        local startStop = br.ui:createCheckbox(section, "Start/Stop BadRotations", "Uncheck to prevent BadRotations pulsing.");
+        startStop:SetChecked(true); br.data.options[br.selectedSpec][br.selectedProfile]["Start/Stop BadRotationsCheck"] = true; startStop.frame:Disable()
+        br.ui:createCheckbox(section, "Debug Frame", "Display Debug Frame.")
+        br.ui:createCheckbox(section, "Display Failcasts", "Dispaly Failcasts in Debug.")
+        br.ui:createCheckbox(section, "Queue Casting", "Allow Queue Casting on some profiles.")
+        br.ui:createSpinner(section,  "Auto Loot" ,0.5, 0.1, 3, 0.1, "Sets Autloot on/off.", "Sets a delay for Auto Loot.")
+        br.ui:createCheckbox(section, "Auto-Sell/Repair", "Automatically sells grays and repais when you open a repairman trade.")
+        br.ui:createCheckbox(section, "Accept Queues", "Automatically accept LFD, LFR, .. queue.")
+        br.ui:createCheckbox(section, "Overlay Messages", "Check to enable chat overlay messages.")
+        br.ui:checkSectionState(section)
     end
 
     local function callEnemiesEngine()
         -- Enemies Engine
-        section = bb.ui:createSection(bb.ui.window.config, "Enemies Engine")
-        bb.ui:createCheckbox(section, "Dynamic Targetting", "Check this to allow dynamic targetting. If unchecked, profile will only attack current target.")
-        bb.ui:createDropdown(section, "Wise Target", {"Highest", "Lowest", "abs Highest"}, 1, "|cffFFDD11Check if you want to use Wise Targetting, if unchecked there will be no priorisation from hp.")
-        bb.ui:createCheckbox(section, "Forced Burn", "Check to allow forced Burn on specific whitelisted units.")
-        bb.ui:createCheckbox(section, "Avoid Shields", "Check to avoid attacking shielded units.")
-        bb.ui:createCheckbox(section, "Tank Threat", "Check add more priority to taregts you lost aggro on(tank only).")
-        bb.ui:createCheckbox(section, "Safe Damage Check", "Check to prevent damage to targets you dont want to attack.")
-        bb.ui:createCheckbox(section, "Don't break CCs", "Check to prevent damage to targets that are CC.")
-        bb.ui:createCheckbox(section, "Skull First", "Check to enable focus skull dynamically.")
-        bb.ui:createDropdown(section, "Interrupts Handler", {"Target", "T/M", "T/M/F", "All"}, 1, "Check this to allow Interrupts Handler. DO NOT USE YET!")
-        bb.ui:createCheckbox(section, "Only Known Units", "Check this to interrupt only on known units using whitelist.")
-        bb.ui:createCheckbox(section, "Crowd Control", "Check to use crowd controls on select units/buffs.")
-        bb.ui:createCheckbox(section, "Enrages Handler", "Check this to allow Enrages Handler.")
-        bb.ui:checkSectionState(section)
+        section = br.ui:createSection(br.ui.window.config, "Enemies Engine")
+        br.ui:createCheckbox(section, "Dynamic Targetting", "Check this to allow dynamic targetting. If unchecked, profile will only attack current target.")
+        br.ui:createDropdown(section, "Wise Target", {"Highest", "Lowest", "abs Highest"}, 1, "|cffFFDD11Check if you want to use Wise Targetting, if unchecked there will be no priorisation from hp.")
+        br.ui:createCheckbox(section, "Forced Burn", "Check to allow forced Burn on specific whitelisted units.")
+        br.ui:createCheckbox(section, "Avoid Shields", "Check to avoid attacking shielded units.")
+        br.ui:createCheckbox(section, "Tank Threat", "Check add more priority to taregts you lost aggro on(tank only).")
+        br.ui:createCheckbox(section, "Safe Damage Check", "Check to prevent damage to targets you dont want to attack.")
+        br.ui:createCheckbox(section, "Don't break CCs", "Check to prevent damage to targets that are CC.")
+        br.ui:createCheckbox(section, "Skull First", "Check to enable focus skull dynamically.")
+        br.ui:createDropdown(section, "Interrupts Handler", {"Target", "T/M", "T/M/F", "All"}, 1, "Check this to allow Interrupts Handler. DO NOT USE YET!")
+        br.ui:createCheckbox(section, "Only Known Units", "Check this to interrupt only on known units using whitelist.")
+        br.ui:createCheckbox(section, "Crowd Control", "Check to use crowd controls on select units/buffs.")
+        br.ui:createCheckbox(section, "Enrages Handler", "Check this to allow Enrages Handler.")
+        br.ui:checkSectionState(section)
     end
 
     local function callHealingEngine()
         -- Healing Engine
-        section = bb.ui:createSection(bb.ui.window.config, "Healing Engine")
-        bb.ui:createCheckbox(section, "HE Active", "Uncheck to disable Healing Engine.\nCan improves FPS if you dont rely on Healing Engine.")
-        bb.ui:createCheckbox(section, "Heal Pets", "Check this to Heal Pets.")
-        bb.ui:createDropdown(section, "Special Heal", {"Target", "T/M", "T/M/F", "T/F"}, 1, "Check this to Heal Special Whitelisted Units.", "Choose who you want to Heal.")
-        bb.ui:createCheckbox(section, "Sorting with Role", "Sorting with Role")
-        bb.ui:createDropdown(section, "Prioritize Special Targets", {"Special", "All"}, 1, "Prioritize Special targets(mouseover/target/focus).", "Choose Which Special Units to consider.")
-        bb.ui:createSpinner(section, "Blacklist", 95, nil, nil, nil, "|cffFFBB00How much |cffFF0000%HP|cffFFBB00 do we want to add to |cffFFDD00Blacklisted |cffFFBB00units. Use /Blacklist while mouse-overing someone to add it to the black list.")
-        bb.ui:createCheckbox(section, "Ignore Absorbs", "Check this if you want to ignore absorb shields. If checked, it will add shieldBuffValue/4 to hp. May end up as overheals, disable to save mana.")
-        bb.ui:createCheckbox(section, "Incoming Heals", "If checked, it will add incoming health from other healers to hp. Uncheck this if you want to prevent overhealing units.")
-        bb.ui:createSpinner(section, "Overhealing Cancel", 95, nil, nil, nil, "Set Desired Threshold at which you want to prevent your own casts.")
-        bb.ui:createCheckbox(section, "Healing Debug", "Check to display Healing Engine Debug.")
-        bb.ui:createSpinner(section, "Debug Refresh", 500, 0, 1000, 25, "Set desired Healing Engine Debug Table refresh for rate in ms.")
-        bb.ui:createSpinner(section, "Dispel delay", 15, 5, 90, 5, "Set desired dispel delay in % of debuff duration.\n|cffFF0000Will randomise around the value you set.")
-        bb.ui:checkSectionState(section)
+        section = br.ui:createSection(br.ui.window.config, "Healing Engine")
+        br.ui:createCheckbox(section, "HE Active", "Uncheck to disable Healing Engine.\nCan improves FPS if you dont rely on Healing Engine.")
+        br.ui:createCheckbox(section, "Heal Pets", "Check this to Heal Pets.")
+        br.ui:createDropdown(section, "Special Heal", {"Target", "T/M", "T/M/F", "T/F"}, 1, "Check this to Heal Special Whitelisted Units.", "Choose who you want to Heal.")
+        br.ui:createCheckbox(section, "Sorting with Role", "Sorting with Role")
+        br.ui:createDropdown(section, "Prioritize Special Targets", {"Special", "All"}, 1, "Prioritize Special targets(mouseover/target/focus).", "Choose Which Special Units to consider.")
+        br.ui:createSpinner(section, "Blacklist", 95, nil, nil, nil, "|cffFFBB00How much |cffFF0000%HP|cffFFBB00 do we want to add to |cffFFDD00Blacklisted |cffFFBB00units. Use /Blacklist while mouse-overing someone to add it to the black list.")
+        br.ui:createCheckbox(section, "Ignore Absorbs", "Check this if you want to ignore absorb shields. If checked, it will add shieldBuffValue/4 to hp. May end up as overheals, disable to save mana.")
+        br.ui:createCheckbox(section, "Incoming Heals", "If checked, it will add incoming health from other healers to hp. Uncheck this if you want to prevent overhealing units.")
+        br.ui:createSpinner(section, "Overhealing Cancel", 95, nil, nil, nil, "Set Desired Threshold at which you want to prevent your own casts.")
+        br.ui:createCheckbox(section, "Healing Debug", "Check to display Healing Engine Debug.")
+        br.ui:createSpinner(section, "Debug Refresh", 500, 0, 1000, 25, "Set desired Healing Engine Debug Table refresh for rate in ms.")
+        br.ui:createSpinner(section, "Dispel delay", 15, 5, 90, 5, "Set desired dispel delay in % of debuff duration.\n|cffFF0000Will randomise around the value you set.")
+        br.ui:checkSectionState(section)
     end
 
     local function callOtherFeaturesEngine()
         -- Other Features
-        section = bb.ui:createSection(bb.ui.window.config, "Other Features")
-        bb.ui:createSpinner(section, "Profession Helper", 0.5, 0, 1, 0.1, "Check to enable Professions Helper.", "Set Desired Recast Delay.")
-        bb.ui:createDropdown(section, "Prospect Ores", {"WoD", "MoP", "Cata", "All"}, 1, "Prospect Desired Ores.")
-        bb.ui:createDropdown(section, "Mill Herbs", {"WoD", "MoP", "Cata", "All"}, 1, "Mill Desired Herbs.")
-        bb.ui:createCheckbox(section, "Disenchant", "Disenchant Cata blues/greens.")
-        bb.ui:createCheckbox(section, "Leather Scraps", "Combine leather scraps.")
-        bb.ui:createSpinner(section, "Salvage", 15, 5, 30, 1, "Check to enable Salvage Helper.", "Set Desired waiting after full inventory.")
-        bb.ui:createCheckbox(section, "Use Drawer", "EXPERIMENTAL!")
-        bb.ui:checkSectionState(section)
+        section = br.ui:createSection(br.ui.window.config, "Other Features")
+        br.ui:createSpinner(section, "Profession Helper", 0.5, 0, 1, 0.1, "Check to enable Professions Helper.", "Set Desired Recast Delay.")
+        br.ui:createDropdown(section, "Prospect Ores", {"WoD", "MoP", "Cata", "All"}, 1, "Prospect Desired Ores.")
+        br.ui:createDropdown(section, "Mill Herbs", {"WoD", "MoP", "Cata", "All"}, 1, "Mill Desired Herbs.")
+        br.ui:createCheckbox(section, "Disenchant", "Disenchant Cata blues/greens.")
+        br.ui:createCheckbox(section, "Leather Scraps", "Combine leather scraps.")
+        br.ui:createSpinner(section, "Salvage", 15, 5, 30, 1, "Check to enable Salvage Helper.", "Set Desired waiting after full inventory.")
+        br.ui:createCheckbox(section, "Use Drawer", "EXPERIMENTAL!")
+        br.ui:checkSectionState(section)
     end
 
     -- Add Page Dropdown
-    bb.ui:createPagesDropdown(bb.ui.window.config, {
+    br.ui:createPagesDropdown(br.ui.window.config, {
         {
             [1] = "General",
             [2] = callGeneral,
@@ -934,17 +931,17 @@ function bb.ui:createConfigWindow()
     })
 
     -- temp
-    --if bb.data.options[bb.selectedSpec] and bb.data.options[bb.selectedSpec]["optionsFrame"] ~= true then
-    --    bb.ui.window.config.parent.closeButton:Click()
+    --if br.data.options[br.selectedSpec] and br.data.options[br.selectedSpec]["optionsFrame"] ~= true then
+    --    br.ui.window.config.parent.closeButton:Click()
     --end
-    bb:checkConfigWindowStatus()
+    br:checkConfigWindowStatus()
 end
 
 -- TODO: create new debug frame
-function bb.ui:createDebugWindow()
-    bb.ui.window.debug = bb.ui:createMessageWindow("Debug")
+function br.ui:createDebugWindow()
+    br.ui.window.debug = br.ui:createMessageWindow("Debug")
 
-    bb.ui.window.debug.parent:Hide()
+    br.ui.window.debug.parent:Hide()
 end
 
 -- TODO: re arrange files, put function and window into different files

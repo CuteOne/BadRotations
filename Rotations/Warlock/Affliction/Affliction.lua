@@ -1,14 +1,14 @@
 function WarlockAffliction()
     if GetSpecializationInfo(GetSpecialization()) == 265 then
-        if bb.player == nil or bb.player.profile ~= "Affliction" then
-            bb.player = cAffliction:new("Affliction")
-            setmetatable(bb.player, {__index = cAffliction})
+        if br.player == nil or br.player.profile ~= "Affliction" then
+            br.player = cAffliction:new("Affliction")
+            setmetatable(br.player, {__index = cAffliction})
 
-            bb.player:createOptions()
-            bb.player:createToggles()
-            bb.player:update()
+            br.player:createOptions()
+            br.player:createToggles()
+            br.player:update()
         end
 
-        bb.player:update()
+        br.player:update()
     end
 end

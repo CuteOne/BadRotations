@@ -209,8 +209,8 @@ if select(2, UnitClass("player")) == "WARRIOR" then -- Change "WARRIOR" to name 
         -- Options listed here will show on every profile for this class 
         function self.createClassOptions()
             -- Class Wrap
-            local section = bb.ui:createSection(bb.ui.window.profile,  "Class Options", "Nothing")
-            bb.ui:checkSectionState(section)
+            local section = br.ui:createSection(br.ui.window.profile,  "Class Options", "Nothing")
+            br.ui:checkSectionState(section)
         end
 
     --------------

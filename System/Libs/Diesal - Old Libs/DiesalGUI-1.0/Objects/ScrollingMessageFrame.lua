@@ -11,7 +11,7 @@ local floor, ceil, min, max, abs, modf								= math.floor, math.ceil, math.min,
 -- ~~| WoW Upvalues |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 local GetCursorPosition 												= GetCursorPosition
 -- ~~| ScrollingMessageFrame |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-local Type 		= 'ScrollingMessageFrameBB'
+local Type 		= 'ScrollingMessageFrameBR'
 local Version 	= 1
 -- ~~| ScrollingMessageFrame StyleSheets |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 local styleSheet = {		
@@ -215,7 +215,7 @@ local function Constructor()
 	scrollingMessageFrame:SetJustifyV("TOP")	
 	scrollingMessageFrame:SetInsertMode("BOTTOM")
 	scrollingMessageFrame:SetMaxLines(500)
-	scrollingMessageFrame:SetHeight(200) -- BadBoy Adjust
+	scrollingMessageFrame:SetHeight(200) -- BadRotations Adjust
 	scrollingMessageFrame:SetFading(false)	
 	scrollFrame:SetScrollChild(scrollingMessageFrame)	
 	

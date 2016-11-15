@@ -7,29 +7,29 @@ if select(3, UnitClass("player")) == 2 then -- Change specID to ID of spec. IE: 
     local function createToggles()
     -- Rotation Button
         RotationModes = {
-            [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range.", highlight = 1, icon = bb.player.spell.divineStorm },
-            [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = bb.player.spell.divineStorm },
-            [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = bb.player.spell.crusaderStrike },
-            [4] = { mode = "Off", value = 4 , overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = bb.player.spell.flashOfLight }
+            [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range.", highlight = 1, icon = br.player.spell.divineStorm },
+            [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = br.player.spell.divineStorm },
+            [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = br.player.spell.crusaderStrike },
+            [4] = { mode = "Off", value = 4 , overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spell.flashOfLight }
         }
         CreateButton("Rotation",1,0)
     -- Cooldown Button
         CooldownModes = {
-            [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = bb.player.spell.avengingWrath },
-            [2] = { mode = "On", value = 1 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = bb.player.spell.avengingWrath },
-            [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = bb.player.spell.avengingWrath }
+            [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spell.avengingWrath },
+            [2] = { mode = "On", value = 1 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spell.avengingWrath },
+            [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.avengingWrath }
         };
         CreateButton("Cooldown",2,0)
     -- Defensive Button
         DefensiveModes = {
-            [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = bb.player.spell.flashOfLight },
-            [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = bb.player.spell.flashOfLight }
+            [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spell.flashOfLight },
+            [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spell.flashOfLight }
         };
         CreateButton("Defensive",3,0)
     -- Interrupt Button
         InterruptModes = {
-            [1] = { mode = "On", value = 1 , overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = bb.player.spell.hammerOfJustice },
-            [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = bb.player.spell.hammerOfJustice }
+            [1] = { mode = "On", value = 1 , overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spell.hammerOfJustice },
+            [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.hammerOfJustice }
         };
         CreateButton("Interrupt",4,0)
     end
@@ -43,83 +43,83 @@ if select(3, UnitClass("player")) == 2 then -- Change specID to ID of spec. IE: 
             -----------------------
             --- GENERAL OPTIONS ---
             -----------------------
-            section = bb.ui:createSection(bb.ui.window.profile,  "General")
+            section = br.ui:createSection(br.ui.window.profile,  "General")
             	-- APL
-                bb.ui:createDropdownWithout(section, "APL Mode", {"|cffFFFFFFSimC","|cffFFFFFFAMR"}, 1, "|cffFFFFFFSet APL Mode to use.")
+                br.ui:createDropdownWithout(section, "APL Mode", {"|cffFFFFFFSimC","|cffFFFFFFAMR"}, 1, "|cffFFFFFFSet APL Mode to use.")
             	-- Dummy DPS Test
-                bb.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")            	
+                br.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")            	
 	            -- Hand of Hindeance
-	            bb.ui:createCheckbox(section, "Hand of Hinderance")
-            bb.ui:checkSectionState(section)
+	            br.ui:createCheckbox(section, "Hand of Hinderance")
+            br.ui:checkSectionState(section)
             ------------------------
             --- COOLDOWN OPTIONS ---
             ------------------------
-            section = bb.ui:createSection(bb.ui.window.profile,  "Cooldowns")
+            section = br.ui:createSection(br.ui.window.profile,  "Cooldowns")
             	-- Racial
-                bb.ui:createCheckbox(section,"Racial")
+                br.ui:createCheckbox(section,"Racial")
                 -- Holy Wrath
-                bb.ui:createCheckbox(section,"Holy Wrath")
+                br.ui:createCheckbox(section,"Holy Wrath")
                 -- Avenging Wrath
-                bb.ui:createCheckbox(section,"Avenging Wrath")
+                br.ui:createCheckbox(section,"Avenging Wrath")
                 -- Shield of Vengeance
-                bb.ui:createCheckbox(section,"Shield of Vengeance")
+                br.ui:createCheckbox(section,"Shield of Vengeance")
                 -- Cruusade
-                bb.ui:createCheckbox(section,"Crusade")                
-            bb.ui:checkSectionState(section)
+                br.ui:createCheckbox(section,"Crusade")                
+            br.ui:checkSectionState(section)
             -------------------------
             --- DEFENSIVE OPTIONS ---
             -------------------------
-            section = bb.ui:createSection(bb.ui.window.profile, "Defensive")
+            section = br.ui:createSection(br.ui.window.profile, "Defensive")
             	-- Healthstone
-                bb.ui:createSpinner(section, "Pot/Stoned",  60,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
+                br.ui:createSpinner(section, "Pot/Stoned",  60,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
                 -- Heirloom Neck
-                bb.ui:createSpinner(section, "Heirloom Neck",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.");
+                br.ui:createSpinner(section, "Heirloom Neck",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.");
                 -- Gift of The Naaru
-                if bb.player.race == "Draenei" then
-                    bb.ui:createSpinner(section, "Gift of the Naaru",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
+                if br.player.race == "Draenei" then
+                    br.ui:createSpinner(section, "Gift of the Naaru",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
                 end
                 -- Blinding Light
-                bb.ui:createSpinner(section, "Blinding Light - HP", 50, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
-                bb.ui:createSpinner(section, "Blinding Light - AoE", 3, 0, 10, 1, "|cffFFFFFFNumber of Units in 5 Yards to Cast At")
+                br.ui:createSpinner(section, "Blinding Light - HP", 50, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
+                br.ui:createSpinner(section, "Blinding Light - AoE", 3, 0, 10, 1, "|cffFFFFFFNumber of Units in 5 Yards to Cast At")
                 -- Cleanse Toxin
-                bb.ui:createDropdown(section, "Clease Toxin", {"|cff00FF00Player Only","|cffFFFF00Selected Target","|cffFF0000Mouseover Target"}, 1, "|ccfFFFFFFTarget to Cast On")
+                br.ui:createDropdown(section, "Clease Toxin", {"|cff00FF00Player Only","|cffFFFF00Selected Target","|cffFF0000Mouseover Target"}, 1, "|ccfFFFFFFTarget to Cast On")
                 -- Divine Shield
-                bb.ui:createSpinner(section, "Divine Shield",  50,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.") 
+                br.ui:createSpinner(section, "Divine Shield",  50,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.") 
             	-- Flash of Light
-	            bb.ui:createSpinner(section, "Flash of Light",  50,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
+	            br.ui:createSpinner(section, "Flash of Light",  50,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
 	            -- Hammer of Justice
-	            bb.ui:createSpinner(section, "Hammer of Justice - HP",  50,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
+	            br.ui:createSpinner(section, "Hammer of Justice - HP",  50,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
 	            -- Redemption
-                bb.ui:createDropdown(section, "Redemption", {"|cffFFFF00Selected Target","|cffFF0000Mouseover Target"}, 1, "|ccfFFFFFFTarget to Cast On")            	
-            bb.ui:checkSectionState(section)
+                br.ui:createDropdown(section, "Redemption", {"|cffFFFF00Selected Target","|cffFF0000Mouseover Target"}, 1, "|ccfFFFFFFTarget to Cast On")            	
+            br.ui:checkSectionState(section)
             -------------------------
             --- INTERRUPT OPTIONS ---
             -------------------------
-            section = bb.ui:createSection(bb.ui.window.profile, "Interrupts")
+            section = br.ui:createSection(br.ui.window.profile, "Interrupts")
             	-- Blinding Light
-            	bb.ui:createCheckbox(section, "Blinding Light")
+            	br.ui:createCheckbox(section, "Blinding Light")
             	-- Hammer of Justice
-            	bb.ui:createCheckbox(section, "Hammer of Justice")
+            	br.ui:createCheckbox(section, "Hammer of Justice")
             	-- Rebuke
-            	bb.ui:createCheckbox(section, "Rebuke")
+            	br.ui:createCheckbox(section, "Rebuke")
             	-- Interrupt Percentage
-	            bb.ui:createSpinner(section,  "Interrupt At",  0,  0,  95,  5,  "|cffFFBB00Cast Percentage to use at.") 	    
-            bb.ui:checkSectionState(section)
+	            br.ui:createSpinner(section,  "Interrupt At",  0,  0,  95,  5,  "|cffFFBB00Cast Percentage to use at.") 	    
+            br.ui:checkSectionState(section)
             ----------------------
             --- TOGGLE OPTIONS ---
             ----------------------
-            section = bb.ui:createSection(bb.ui.window.profile,  "Toggle Keys")
+            section = br.ui:createSection(br.ui.window.profile,  "Toggle Keys")
             	-- Single/Multi Toggle
-	            bb.ui:createDropdown(section,  "Rotation Mode", bb.dropOptions.Toggle,  4)
+	            br.ui:createDropdown(section,  "Rotation Mode", br.dropOptions.Toggle,  4)
 	            --Cooldown Key Toggle
-	            bb.ui:createDropdown(section,  "Cooldown Mode", bb.dropOptions.Toggle,  3)
+	            br.ui:createDropdown(section,  "Cooldown Mode", br.dropOptions.Toggle,  3)
 	            --Defensive Key Toggle
-	            bb.ui:createDropdown(section,  "Defensive Mode", bb.dropOptions.Toggle,  6)
+	            br.ui:createDropdown(section,  "Defensive Mode", br.dropOptions.Toggle,  6)
 	            -- Interrupts Key Toggle
-	            bb.ui:createDropdown(section,  "Interrupt Mode", bb.dropOptions.Toggle,  6)
+	            br.ui:createDropdown(section,  "Interrupt Mode", br.dropOptions.Toggle,  6)
 	            -- Pause Toggle
-	            bb.ui:createDropdown(section,  "Pause Mode", bb.dropOptions.Toggle,  6)              	   
-            bb.ui:checkSectionState(section)
+	            br.ui:createDropdown(section,  "Pause Mode", br.dropOptions.Toggle,  6)              	   
+            br.ui:checkSectionState(section)
         end
         optionTable = {{
             [1] = "Rotation Options",
@@ -132,7 +132,7 @@ if select(3, UnitClass("player")) == 2 then -- Change specID to ID of spec. IE: 
 --- ROTATION ---
 ----------------
     local function runRotation()
-        if bb.timer:useTimer("debugRetribution", math.random(0.15,0.3)) then -- Change debugSpec tp name of Spec IE: debugFeral or debugWindwalker
+        if br.timer:useTimer("debugRetribution", math.random(0.15,0.3)) then -- Change debugSpec tp name of Spec IE: debugFeral or debugWindwalker
             --print("Running: "..rotationName)
 
     ---------------
@@ -148,28 +148,28 @@ if select(3, UnitClass("player")) == 2 then -- Change specID to ID of spec. IE: 
 	--------------
 	--- Locals ---
 	--------------
-			local artifact 		= bb.player.artifact
-			local buff 			= bb.player.buff
-			local cast 			= bb.player.cast
-			local cd 			= bb.player.cd
-			local charges 		= bb.player.charges
+			local artifact 		= br.player.artifact
+			local buff 			= br.player.buff
+			local cast 			= br.player.cast
+			local cd 			= br.player.cd
+			local charges 		= br.player.charges
 			local combatTime    = getCombatTime()
-			local debuff 		= bb.player.debuff
-			local enemies 		= bb.player.enemies
-			local gcd 			= bb.player.gcd
+			local debuff 		= br.player.debuff
+			local enemies 		= br.player.enemies
+			local gcd 			= br.player.gcd
 			local hastar 		= ObjectExists("target")
 			local healPot       = getHealthPot()
-			local holyPower 	= bb.player.holyPower
-			local holyPowerMax 	= bb.player.holyPowerMax
-			local inCombat 		= bb.player.inCombat
-			local level 		= bb.player.level
-			local mode 			= bb.player.mode
-			local php 			= bb.player.health
-			local race 			= bb.player.race
-			local racial        = bb.player.getRacial()
+			local holyPower 	= br.player.holyPower
+			local holyPowerMax 	= br.player.holyPowerMax
+			local inCombat 		= br.player.inCombat
+			local level 		= br.player.level
+			local mode 			= br.player.mode
+			local php 			= br.player.health
+			local race 			= br.player.race
+			local racial        = br.player.getRacial()
 			local resable 		= UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and UnitIsFriend("target","player")
-			local talent 		= bb.player.talent
-			local units 		= bb.player.units			
+			local talent 		= br.player.talent
+			local units 		= br.player.units			
 
 			if profileStop == nil then profileStop = false end
 			if debuff.judgment[units.dyn5].exists or level < 42 or (cd.judgment > 2 and not debuff.judgment[units.dyn5].exists) then
