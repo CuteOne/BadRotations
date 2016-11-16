@@ -265,7 +265,7 @@ if select(2, UnitClass("player")) == "DRUID" then
 		-- Action List - Extras
 			local function actionList_Extras()
 			-- Shapeshift Form Management
-				if isChecked("Auto Shapeshifts") --[[and not UnitBuffID("player",202477)]] then
+				if isChecked("Auto Shapeshifts") then
 				-- Flight Form
 					if IsFlyableArea() and ((not (isInDraenor() or isInLegion())) or isKnown(191633)) and not swimming and falling > 1 and level>=58 then 
 		                if cast.travelForm() then return end
@@ -359,12 +359,12 @@ if select(2, UnitClass("player")) == "DRUID" then
 							if getOptionValue("Rebirth - Target")==1 
                                 and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and UnitIsFriend("target","player")
                             then
-								if cast.rebirth("target") then return end
+								if cast.rebirth("target","dead") then return end
 							end
 							if getOptionValue("Rebirth - Target")==2 
                                 and UnitIsPlayer("mouseover") and UnitIsDeadOrGhost("mouseover") and UnitIsFriend("mouseover","player")
                             then
-								if cast.rebirth("mouseover") then return end
+								if cast.rebirth("mouseover","dead") then return end
 							end
 						end
 					end
@@ -372,12 +372,12 @@ if select(2, UnitClass("player")) == "DRUID" then
 						if getOptionValue("Revive - Target")==1 
                             and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and UnitIsFriend("target","player")
                         then
-							if cast.revive("target") then return end
+							if cast.revive("target","dead") then return end
 						end
 						if getOptionValue("Revive - Target")==2 
                             and UnitIsPlayer("mouseover") and UnitIsDeadOrGhost("mouseover") and UnitIsFriend("mouseover","player")
                         then
-							if cast.revive("mouseover") then return end
+							if cast.revive("mouseover","dead") then return end
 						end
 					end
 			-- Remove Corruption
@@ -880,7 +880,7 @@ if select(2, UnitClass("player")) == "DRUID" then
         -- Profile Stop | Pause
             if not inCombat and not hastar and profileStop==true then
                 profileStop = false
-            elseif (inCombat and profileStop==true) or pause() or (IsMounted() or IsFlying()) or mode.rotation==4 then
+            elseif (inCombat and profileStop==true) or pause() or mode.rotation==4 then
                 return true
             else
     -----------------------
@@ -899,7 +899,7 @@ if select(2, UnitClass("player")) == "DRUID" then
     --- In Combat Rotation ---
     --------------------------
             -- Cat is 4 fyte!
-                if inCombat and not cat and not (flight or travel) and isChecked("Auto Shapeshifts") then
+                if inCombat and not cat and not (flight or travel or IsMounted() or IsFlying()) and isChecked("Auto Shapeshifts") then
                     if cast.catForm() then return end
                 elseif inCombat and cat and profileStop==false and not isChecked("Death Cat Mode") and isValidUnit(units.dyn5) and getDistance(units.dyn5) < 5 then
             -- Wild Charge

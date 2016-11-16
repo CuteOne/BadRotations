@@ -251,10 +251,10 @@ if select(3, UnitClass("player")) == 2 then -- Change specID to ID of spec. IE: 
 			-- Redemption
                     if isChecked("Redemption") then
                         if getOptionValue("Redemption")==1 and not isMoving("player") and resable then
-                            if cast.redemption("target") then return end
+                            if cast.redemption("target","dead") then return end
                         end
                         if getOptionValue("Redemption")==2 and not isMoving("player") and resable then
-                            if cast.redemption("mouseover") then return end
+                            if cast.redemption("mouseover","dead") then return end
                         end
                     end				
 	            end

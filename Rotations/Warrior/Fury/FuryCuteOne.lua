@@ -400,7 +400,7 @@ if select(3,UnitClass("player")) == 1 then
                         end
                         -- Target
                         if getOptionValue("Heroic Leap - Target")==2 then
-                            if cast.heroicLeap("target",false,1,8) then return end
+                            if cast.heroicLeap("target","ground") then return end
                         end
                     end
             -- Charge

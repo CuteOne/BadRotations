@@ -194,9 +194,8 @@ function cFileBuild(cFileName,self)
             local maxRange = select(6,GetSpellInfo(spellName))
             if minUnits == nil then minUnits = 1 end
             if effectRng == nil then effectRng = 8 end
-            if debug == nil then debug = false end
             if IsUsableSpell(v) and getSpellCD(v) == 0 and isKnown(v) and amIinRange then
-                if debug then
+                if debug == "debug" then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
                     if thisUnit == "best" then
@@ -205,20 +204,23 @@ function cFileBuild(cFileName,self)
                         if getLineOfSight(thisUnit) then 
                            return castGround(thisUnit,spellCast,maxRange,minRange)
                         end
+                    elseif debug == "dead" then
+                        if thisUnit == nil then thisUnit = "player" end
+                        return castSpell(thisUnit,spellCast,false,false,false,false,true)
                     else
                         if thisUnit == nil then thisUnit = "player" end
                         return castSpell(thisUnit,spellCast,false,false,false)
                     end
                 end
-            elseif debug then
+            elseif debug == "debug" then
                 return false
             end
         end
         -- Build Cast Debug
         if IsHarmfulSpell(spellName) then
-            self.cast.debug[k] = self.cast[k]("target",true)
+            self.cast.debug[k] = self.cast[k]("target","debug")
         else
-            self.cast.debug[k] = self.cast[k]("player",true)
+            self.cast.debug[k] = self.cast[k]("player","debug")
         end
     end
 end

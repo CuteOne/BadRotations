@@ -220,7 +220,7 @@ function cHavoc:new()
     function cancelRetreatAnimation() -- Thanks G1zStar
         SetHackEnabled("NoKnockback", true)
         castSpell("player",self.spell.vengefulRetreat,false,false,false)
-        SetHackEnabled("NoKnockback", false)            
+        -- SetHackEnabled("NoKnockback", false)            
         return
     end
 

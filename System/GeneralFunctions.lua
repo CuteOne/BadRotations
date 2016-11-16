@@ -2686,10 +2686,14 @@ end
 function getHealthPot()
 	local potion = br.player.potion
 	if potion ~= nil then
-		if potion.health[1]~=nil then
-			return potion.health[1].itemID
-		elseif potion.rejuve[1]~=nil then
-			return potion.rejuve[1].itemID
+		if potion.health ~= nil then 
+			if potion.health[1]~=nil then
+				return potion.health[1].itemID
+			elseif potion.rejuve[1]~=nil then
+				return potion.rejuve[1].itemID
+			else
+				return 0
+			end
 		else
 			return 0
 		end

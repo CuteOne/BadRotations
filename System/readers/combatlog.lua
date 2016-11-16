@@ -235,13 +235,18 @@ function br.read.combatLog()
         end
     end
   end
-  function cl:DemonHunter(...)
-      local timeStamp, param, hideCaster, source, sourceName, sourceFlags, sourceRaidFlags, destination,
-          destName, destFlags, destRaidFlags, spell, spellName, _, spellType = ...
-      -- if spell == 192611 and (param == "SPELL_CAST_SUCCESS" or param == "SPELL_CAST_START" or param == "SPELL_DAMAGE") then
-      --     MoveBackwardStop()
-      -- end
-  end 
+    function cl:DemonHunter(...)
+        local timeStamp, param, hideCaster, source, sourceName, sourceFlags, sourceRaidFlags, destination,
+            destName, destFlags, destRaidFlags, spell, spellName, _, spellType = ...
+        if sourceName ~= UnitName("player") then return end
+        if event == "SPELL_DAMAGE" then
+            if spell == 198813 then -- Vengeful Retreat
+                SetHackEnabled("NoKnockback", false)
+                return
+            end
+            return
+        end
+    end  
   function cl:Druid(...)
     local timeStamp, param, hideCaster, source, sourceName, sourceFlags, sourceRaidFlags, destination,
         destName, destFlags, destRaidFlags, spell, spellName, _, spellType = ...

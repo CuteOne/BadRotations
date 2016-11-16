@@ -359,24 +359,24 @@ if select(2, UnitClass("player")) == "DRUID" then
                         if getOptionValue("Rebirth - Target")==1 
                             and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and UnitIsFriend("target","player")
                         then
-                            if cast.rebirth("target") then return end
+                            if cast.rebirth("target","dead") then return end
                         end
                         if getOptionValue("Rebirth - Target")==2 
                             and UnitIsPlayer("mouseover") and UnitIsDeadOrGhost("mouseover") and UnitIsFriend("mouseover","player")
                         then
-                            if cast.rebirth("mouseover") then return end
+                            if cast.rebirth("mouseover","dead") then return end
                         end
                     end
                     if isChecked("Revive") then
                         if getOptionValue("Revive - Target")==1 
                             and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and UnitIsFriend("target","player")
                         then
-                            if cast.revive("target") then return end
+                            if cast.revive("target","dead") then return end
                         end
                         if getOptionValue("Revive - Target")==2 
                             and UnitIsPlayer("mouseover") and UnitIsDeadOrGhost("mouseover") and UnitIsFriend("mouseover","player")
                         then
-                            if cast.revive("mouseover") then return end
+                            if cast.revive("mouseover","dead") then return end
                         end
                     end
             -- Survival Instincts

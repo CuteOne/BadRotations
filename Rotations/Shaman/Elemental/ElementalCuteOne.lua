@@ -395,7 +395,7 @@ if select(2, UnitClass("player")) == "SHAMAN" then
                     end
             -- Racial: Orc Blood Fury | Troll Berserking | Blood Elf Arcane Torrent
                     -- blood_fury,buff.tigers_fury | berserking,buff.tigers_fury | arcane_torrent,buff.tigers_fury
-                    if isChecked("Racial") and (br.player.race == "Orc" or br.player.race == "Troll" or br.player.race == "Blood Elf") and ((talent.elementalMastery and buff.elementalMastery) or not talent.elementalMastery) then
+                    if isChecked("Racial") and (br.player.race == "Orc" or br.player.race == "Troll" or br.player.race == "Blood Elf") then
                         if castSpell("player",racial,false,false,false) then return end
                     end
                     if getOptionValue("APL Mode") == 1 then -- SimC

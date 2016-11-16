@@ -66,7 +66,9 @@ if select(2, UnitClass("player")) == "MONK" then
             -- Pre-Pull Timer
                 br.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
             -- Roll
-                br.ui:createCheckbox(section, "Roll")         
+                br.ui:createCheckbox(section, "Roll")
+            -- Resuscitate
+                br.ui:createDropdown(section, "Resuscitate", {"|cff00FF00Target","|cffFF0000Mouseover"}, 1, "|cffFFFFFFTarget to cast on")         
             br.ui:checkSectionState(section)
             ------------------------
             --- COOLDOWN OPTIONS ---
@@ -301,7 +303,18 @@ if select(2, UnitClass("player")) == "MONK" then
                     end
                 end
             -- Resuscitate
-                if cast.resuscitate() then return end
+                if isChecked("Resuscitate") then
+                    if getOptionValue("Resuscitate") == 1 
+                        and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and UnitIsFriend("target","player")
+                    then
+                        if cast.resuscitate("target") then return end
+                    end
+                    if getOptionValue("Resuscitate") == 2 
+                        and UnitIsPlayer("mouseover") and UnitIsDeadOrGhost("mouseover") and UnitIsFriend("mouseover","player")
+                    then
+                        if cast.resuscitate("mouseover") then return end
+                    end
+                end
             -- Provoke
                 if not inCombat and select(3,GetSpellInfo(101545)) ~= "INTERFACE\\ICONS\\priest_icon_chakra_green" 
                     and cd.flyingSerpentKick > 1 and getDistance("target") > 10 and isValidUnit("target") and not isBoss("target")
@@ -1084,7 +1097,7 @@ if select(2, UnitClass("player")) == "MONK" then
         -- Profile Stop | Pause
             if not inCombat and not hastar and profileStop==true then
                 profileStop = false
-            elseif (inCombat and profileStop==true) or pause() or mode.rotation==4 then
+            elseif (inCombat and profileStop==true) or pause() or (IsMounted() or IsFlying()) or mode.rotation==4 then
                 return true
             else
     ---------------------
