@@ -247,7 +247,7 @@ function EnemiesEngine()
 	function getSanity(unit)
 		if  UnitIsVisible(unit) == true and getCreatureType(unit) == true
 			and UnitCanAttack(unit, "player") == true and UnitIsDeadOrGhost(unit) == false
-			and (UnitAffectingCombat(unit) or isDummy(unit) or true) 
+			and (UnitIsEnemy(unit) or isDummy(unit)) 
 			and getLineOfSight(unit, "player")
 		then
 			return true
