@@ -117,7 +117,7 @@ function lootManager:getLoot()
 					if bit.band(GetObjectIndex(i), ObjectTypes.Unit) == 8 then
 						local thisUnit = GetObjectIndex(i)
 						local hasLoot,canLoot = CanLootUnit(UnitGUID(thisUnit))
-						local inRange = getRealDistance("player",thisUnit) < 2
+						local inRange = getDistance("player",thisUnit) < 2
 						-- if we can loot thisUnit we set it as unit to be looted
 						if hasLoot and canLoot and inRange then
 							looted = 0

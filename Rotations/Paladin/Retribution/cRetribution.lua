@@ -78,6 +78,7 @@ function cRetribution:new()
             crusade                     = 231895,
             divineHammer                = 198034,
             divineIntervention          = 213313,
+            divinePurpose               = 223817,
             executionSentence           = 213757,
             eyeForAnEye                 = 205191,
             finalVerdict                = 198038,

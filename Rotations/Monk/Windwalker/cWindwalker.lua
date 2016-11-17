@@ -744,7 +744,7 @@ function cWindwalker:new()
 
         function getFacingDistance()
             if UnitIsVisible("player") and UnitIsVisible("target") then
-                --local targetDistance = getRealDistance("target")
+                --local targetDistance = getDistance("target")
                 local targetDistance = getDistance("target")
                 local Y1,X1,Z1 = GetObjectPosition("player");
                 local Y2,X2,Z2 = GetObjectPosition("target");
@@ -777,7 +777,7 @@ function cWindwalker:new()
         end
 
         -- function canFSK()
-        --     --local targetDistance = getRealDistance("player","target")
+        --     --local targetDistance = getDistance("player","target")
         --     local targetDistane = getDistance("target")
         --     stopFSK = false
         --     if not inCombat and not UnitIsDeadOrGhost("target") and getTimeToDie("target") > 10 and not IsSwimming() and getTTD("target") and targetDistance < 60 then

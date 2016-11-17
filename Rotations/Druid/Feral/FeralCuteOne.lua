@@ -257,7 +257,7 @@ if select(2, UnitClass("player")) == "DRUID" then
                     end
                 end
             end
-            -- ChatOverlay(round2(getDistance2("target"),2)..", "..round2(getDistance3("target"),2)..", "..round2(getDistance4("target"),2)..", "..round2(getDistance("target"),2))
+            -- ChatOverlay(round2(getDistance("target","player","dist"),2)..", "..round2(getDistance("target","player","dist2"),2)..", "..round2(getDistance("target","player","dist3"),2)..", "..round2(getDistance("target","player","dist4"),2))
             
 	--------------------
 	--- Action Lists ---
@@ -498,7 +498,7 @@ if select(2, UnitClass("player")) == "DRUID" then
 			end -- End Action List - Interrupts
 		-- Action List - Cooldowns
 			local function actionList_Cooldowns()
-				if getDistance(units.dyn5) < 5 then
+				if getDistance("target") < 5 then
 			-- Berserk
 					--if=buff.tigers_fury.up
 		            if useCDs() and isChecked("Berserk") then

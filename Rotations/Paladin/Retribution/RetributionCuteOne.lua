@@ -497,7 +497,7 @@ if select(3, UnitClass("player")) == 2 then -- Change specID to ID of spec. IE: 
 							or (buff.theFiresOfJustice and (not talent.crusade or cd.crusade > gcd * 3))
 							or (holyPower >= 4 and (not talent.crusade or cd.crusade > gcd * 4)))
 						then
-							if cast.divineStorm() then return end
+							if cast.templarsVerdict() then return end
 						end
 				-- Zeal
 						-- zeal,if=holy_power<=4

@@ -257,7 +257,7 @@ if select(2, UnitClass("player")) == "DEMONHUNTER" then
                                 if cast.sigilOfSilence(thisUnit,"ground") then return end
                             end
             -- Sigil of Misery
-                            if isChecked("Sigil of Misery - Int") and cd.consumeMagic > 0 and cd.sigilOfSilence > 0 and cd.sigilOfSilence < 45 then                        
+                            if isChecked("Sigil of Misery") and cd.consumeMagic > 0 and cd.sigilOfSilence > 0 and cd.sigilOfSilence < 45 then                        
                                 if cast.sigilOfMisery(thisUnit,"ground") then return end
                             end
                         end
@@ -367,10 +367,11 @@ if select(2, UnitClass("player")) == "DEMONHUNTER" then
         -- Infernal Strike
                     -- actions+=/infernal_strike,if=!sigil_placed&!in_flight&remains-travel_time-delay<0.3*duration&artifact.fiery_demise.enabled&dot.fiery_brand.ticking
                     -- actions+=/infernal_strike,if=!sigil_placed&!in_flight&remains-travel_time-delay<0.3*duration&(!artifact.fiery_demise.enabled|(max_charges-charges_fractional)*recharge_time<cooldown.fiery_brand.remains+5)&(cooldown.sigil_of_flame.remains>7|charges=2)
-                    if useMover() and ((artifact.fieryDemise and debuff.fieryBrand[units.dyn5].exists) or 
+                    if useMover() and charges.infernalStrike > 1 and ((artifact.fieryDemise and debuff.fieryBrand[units.dyn5].exists) or 
                         ((not artifact.fieryDemise or ((charges.max.infernalStrike - charges.frac.inferanalStrike) * recharge.infernalStrike < cd.fieryBrand + 5)) and (cd.sigilOfFlame > 7 or charges.infernalStrike ==2))) 
                     then
-                        if cast.infernalStrike("best",false,1,6) then return end
+                        -- if cast.infernalStrike("best",false,1,6) then return end
+                        if cast.infernalStrike("player","ground") then return end
                     end
         -- Spirit Bomb
                     -- actions+=/spirit_bomb,if=debuff.frailty.down

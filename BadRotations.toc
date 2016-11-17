@@ -116,9 +116,9 @@ Rotations\Druid\Guardian\GuardianCuteOne.lua
 Rotations\Druid\Moonkin\cMoonkin.lua
 Rotations\Druid\Moonkin\Moonkin.lua
 
-Rotations\Druid\Restoration\cResto.lua
-Rotations\Druid\Restoration\Resto.lua
-Rotations\Druid\Restoration\RestoAveryKey.lua
+Rotations\Druid\Restoration\cRestoration.lua
+Rotations\Druid\Restoration\Restoration.lua
+Rotations\Druid\Restoration\RestorationCuteOne.lua
 
 ## Hunter ---------------------------------------------------
 Rotations\Hunter\cHunter.lua

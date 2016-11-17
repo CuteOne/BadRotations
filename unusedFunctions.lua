@@ -80,7 +80,7 @@ function getLoot2()
             if GetObjectExists(i) and bit.band(GetObjectType(i), ObjectTypes.Unit) == 8 then
                 local thisUnit = GetObjectIndex(i)
                 local hasLoot,canLoot = CanLootUnit(UnitGUID(thisUnit))
-                local inRange = getRealDistance("player",thisUnit) < 2
+                local inRange = getDistance("player",thisUnit) < 2
                 if UnitIsDeadOrGhost(thisUnit) then
                     if hasLoot and canLoot and inRange and (canLootTimer == nil or canLootTimer <= GetTime()-0.5)--[[getOptionValue("Auto Loot"))]] then
                         if GetCVar("autoLootDefault") == "0" then

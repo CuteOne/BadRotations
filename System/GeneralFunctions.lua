@@ -1121,94 +1121,64 @@ function getDisease(range,aoe,mod)
       	end
     end
  end
-function getDistance(Unit1,Unit2)
-		-- If Unit2 is nil we compare player to Unit1
-	if Unit2 == nil then
-		Unit2 = Unit1
-		Unit1 = "player"
-	end
-
-	if GetObjectExists(Unit1) and UnitIsVisible(Unit1) == true
-		and GetObjectExists(Unit2) and UnitIsVisible(Unit2) == true then
-
-		local X1,Y1,Z1 = GetObjectPosition(Unit1)
-		local X2,Y2,Z2 = GetObjectPosition(Unit2)
-		local TargetCombatReach = UnitCombatReach(Unit2)
-    	local PlayerCombatReach = UnitCombatReach(Unit1)
-		local MeleeCombatReachConstant = 4/3
-		local IfSourceAndTargetAreRunning = 0
-		local dist = math.sqrt(((X2-X1)^2) + ((Y2-Y1)^2) + ((Z2-Z1)^2)) - (UnitCombatReach(Unit1) + UnitCombatReach(Unit2))
-		local dist2 = dist+0.03*((13-dist)/0.13)
-		local dist3 = dist+0.05*((8-dist)/0.15)+1
-		local dist4 = math.sqrt(((X2-X1)^2) + ((Y2-Y1)^2) + ((Z2-Z1)^2))
-    	if isMoving(Unit1) and isMoving(Unit2) then
-			IfSourceAndTargetAreRunning = 8/3
-    	end
-		if currDist == nil then currDist = 100 end
-		if dist4 < max(5, PlayerCombatReach + TargetCombatReach + MeleeCombatReachConstant + IfSourceAndTargetAreRunning) then -- Thanks Ssateneth
-			currDist = 0
-		elseif dist > 13 then
-			-- return dist
-			currDist = dist
-		elseif dist > 8 then
-			-- return dist2
-			currDist = dist2
-		elseif dist4 > 5 then
-			if dist3 > 5 then
-				-- return dist3
-				currDist = dist3
-			else
-				currDist = 5
-			end
-		end
-		if br.player ~= nil then
-			if br.player.talent.balanceAffinity ~= nil then
-				if br.player.talent.balanceAffinity then
-					if currDist < 5 then
-						return 0
-					else
-						return currDist - 5
-					end
-				else
-					return currDist
-				end
-			else
-				return currDist
-			end
-		else
-			return currDist
-		end
-	else
-		return 100
-	end
-end
-function getRealDistance(Unit1,Unit2)
+function getDistance(Unit1,Unit2,option)
 	-- If Unit2 is nil we compare player to Unit1
 	if Unit2 == nil then
 		Unit2 = Unit1
 		Unit1 = "player"
 	end
+	-- Modifier for Balance Affinity range change
+	if rangeMod == nil then rangeMod = 0 end
+	if br.player ~= nil then
+		if br.player.talent.balanceAffinity ~= nil then
+			if br.player.talent.balanceAffinity then
+				rangeMod = 5
+			else
+				rangeMod = 0
+			end
+		end
+	end
+	-- Check if objects exists and are visible
 	if GetObjectExists(Unit1) and UnitIsVisible(Unit1) == true
-		and GetObjectExists(Unit2) and UnitIsVisible(Unit2) == true then
-
+		and GetObjectExists(Unit2) and UnitIsVisible(Unit2) == true 
+	then
+	-- Get the distance
 		local X1,Y1,Z1 = GetObjectPosition(Unit1)
 		local X2,Y2,Z2 = GetObjectPosition(Unit2)
-		local dist = math.sqrt(((X2-X1)^2) + ((Y2-Y1)^2) + ((Z2-Z1)^2)) - (UnitBoundingRadius(Unit2)-0.45)
-		local dist2 = math.sqrt(((X2-X1)^2) + ((Y2-Y1)^2) + ((Z2-Z1)^2)) - (UnitCombatReach(Unit1) + UnitCombatReach(Unit2))
-		if dist2>=8 then return dist2 end
-		if dist2<8 and dist>=8 then return 7.9 end
-		if dist<8 and dist>5 then return 5.9 end
-		if dist<=5 then return dist end
+		local TargetCombatReach = UnitCombatReach(Unit2)
+    	local PlayerCombatReach = UnitCombatReach(Unit1)
+		local MeleeCombatReachConstant = 4/3
+    	if isMoving(Unit1) and isMoving(Unit2) then
+			IfSourceAndTargetAreRunning = 8/3
+		else 
+			IfSourceAndTargetAreRunning = 0
+    	end
+		local dist = math.sqrt(((X2-X1)^2) + ((Y2-Y1)^2) + ((Z2-Z1)^2)) - (PlayerCombatReach + TargetCombatReach) - rangeMod
+		local dist2 = dist + 0.03 * ((13 - dist) / 0.13)
+		local dist3 = dist + 0.05 * ((8 - dist) / 0.15) + 1
+		local dist4 = dist + (PlayerCombatReach + TargetCombatReach)
+    	local meleeRange = max(5, PlayerCombatReach + TargetCombatReach + MeleeCombatReachConstant + IfSourceAndTargetAreRunning)
+		if option == "dist" then return dist end
+		if option == "dist2" then return dist2 end
+		if option == "dist3" then return dist3 end
+		if option == "dist4" then return dist4 end
+		if dist > 13 then
+			return dist
+		elseif dist2 > 8 then
+			return dist2
+		elseif dist3 > 5 then
+			return dist3
+		elseif dist4 > meleeRange then -- Thanks Ssateneth
+			return dist4
+		else
+			return 0
+		end
 	else
 		return 100
 	end
 end
 function isInRange(spellID,unit)
 	return LibStub("SpellRange-1.0").IsSpellInRange(spellID,unit)
-end
-function meleeRange(unit,otherUnit)
-	otherUnit = "player"
-	return getRealDistance(otherUnit,unit) <= (math.max(UnitCombatReach(otherUnit) + UnitCombatReach(unit) + 4 / 3 + ((isMoving(otherUnit) and isMoving(unit)) and 8 / 3 or 0), 5));
 end
 function getDistanceToObject(Unit1,X2,Y2,Z2)
 	if Unit1 == nil then

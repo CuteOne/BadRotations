@@ -566,7 +566,7 @@ if select(2, UnitClass("player")) == "DEMONHUNTER" then
     --------------------------
     --- In Combat Rotation ---
     --------------------------
-                if inCombat and profileStop==false and isValidUnit(units.dyn5) and not isCastingSpell(spell.eyeBeam) and getDistance(units.dyn5) < 5 then
+                if inCombat and profileStop==false and isValidUnit(units.dyn5) and not isCastingSpell(spell.eyeBeam) then
         ------------------------------
         --- In Combat - Interrupts ---
         ------------------------------

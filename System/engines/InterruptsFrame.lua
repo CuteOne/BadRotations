@@ -25,7 +25,7 @@ local function spellCastListener(self,category,...)
 			-- make sure it is a spell cast
 			if event == "SPELL_CAST_START" then
 				-- refresh enemies with current br.enemy
-				im.br.enemy = br.enemy
+				im.enemy = br.enemy
 				-- manage cast
 				return im:manageCast(...)
 			end
@@ -56,7 +56,7 @@ local castSpell = castSpell
 local getDistance = getDistance
 local getOptionCheck = getOptionCheck
 local getOptionValue = getOptionValue
-local getRealDistance2 = getRealDistance2
+local getDistance = getDistance
 local getSpellCD = getSpellCD
 local GetSpellInfo = GetSpellInfo
 local GetTime = GetTime
@@ -191,9 +191,16 @@ function im:manageCast(...)
 	local timestamp,event,sourceGUID,sourceName = select(1,...),select(2,...),select(4,...),select(5,...)
 	local destGUID,destName,spellID = select(8,...),select(9,...),select(12,...)
 	-- find if that unit/spell combination should be interrupted
-	-- local br.enemy = br.enemy
 	-- Prepare GUID to be reused via UnitID
-	if br.enemy and #br.enemy > 0 then
+	local br = im
+	local function GetObjectExists(Unit)
+	    if FireHack and ObjectExists(Unit) == true then
+	        return true
+	    else
+	        return false
+	    end
+	end
+	if br.enemy ~= nil and #br.enemy > 0 then
 		for i = #br.enemy,1,-1 do
 
 			if GetObjectExists(br.enemy[i]) then
@@ -291,7 +298,7 @@ function getCastersAround(radius)
 			thisCaster = casters[j]
 			-- if more than 0.25 remains on unit cast and its in range we count it
 			if (thisCaster.castEnd - GetTime() > 0.25 or thisCaster.castType == "chan") and
-				getRealDistance2(thatCaster,thisCaster) < radius then
+				getDistance(thatCaster,thisCaster) < radius then
 				enemyCastersAround = enemyCastersAround + 1
 			end
 		end
@@ -300,7 +307,7 @@ function getCastersAround(radius)
 	end
 end
 -- function that return frange from thisCaster to thatCaster using their stored positions
-function getRealDistance2(thatCaster,thisCaster)
+function getDistance(thatCaster,thisCaster)
 	local thatCaster,thisCaster = thatCaster,thisCaster
 	if GetObjectExists(thatCaster.unit) and UnitIsVisible(thatCaster.unit) == true
 		and GetObjectExists(thisCaster.unit) and UnitIsVisible(thisCaster.unit) == true then
