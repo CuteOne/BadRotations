@@ -355,7 +355,7 @@ if select(2, UnitClass("player")) == "DEMONHUNTER" then
                     --     if cast.soulCleave() then return end
                     -- end
             -- actions+=/demon_spikes,if=charges=2|buff.demon_spikes.down&!dot.fiery_brand.ticking&buff.metamorphosis.down
-                    if ( recharge.demonSpikes <= 6 and charges.demonSpikes >= 1) and hasThreat() and not buff.demonSpikes and not debuff.fieryBrand and not buff.metamorphosis then
+                    if ( recharge.demonSpikes <= 6 and charges.demonSpikes >= 1) and hasThreat() and not buff.exists.demonSpikes and not debuff.fieryBrand and not buff.exists.metamorphosis then
                         if cast.demonSpikes() then return end
                     end
             -- actions+=/empower_wards,if=debuff.casting.up

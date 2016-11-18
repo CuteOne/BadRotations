@@ -345,19 +345,19 @@ if select(3,UnitClass("player")) == 1 then
                     end
             -- Avatar
                     -- avatar,if=buff.battle_cry.up|(target.time_to_die<(cooldown.battle_cry.remains+10))
-                    if buff.battleCry or (ttd(units.dyn5) < (cd.battleCry + 10)) then
+                    if buff.exists.battleCry or (ttd(units.dyn5) < (cd.battleCry + 10)) then
                         if cast.avatar() then return end
                     end
             -- Bloodbath
                     -- bloodbath,if=buff.dragon_roar.up|(!talent.dragon_roar.enabled&(buff.battle_cry.up|cooldown.battle_cry.remains>10))
-                    if buff.dragonRoar or (not talent.dragonRoar and (buff.battleCry or cd.battleCry > 10)) then
+                    if buff.exists.dragonRoar or (not talent.dragonRoar and (buff.battleCry or cd.battleCry > 10)) then
                         if cast.bloodbath() then return end
                     end
             -- Racials
                     -- blood_fury,if=buff.battle_cry.up
                     -- berserking,if=buff.battle_cry.up
                     -- arcane_torrent,if=rage<rage.max-40
-                    if ((race == "Orc" or race == "Troll") and buff.battleCry) or (race == "BloodElf" and power < powerMax - 40) then
+                    if ((race == "Orc" or race == "Troll") and buff.exists.battleCry) or (race == "BloodElf" and power < powerMax - 40) then
                         if castSpell("target",racial,false,false,false) then return end
                     end
                 end 
@@ -432,12 +432,12 @@ if select(3,UnitClass("player")) == 1 then
             function actionList_Single()
             -- Bloodthirst
                 -- bloodthirst,if=buff.fujiedas_fury.up&buff.fujiedas_fury.remains<2
-                if buff.fujiedasFury and buff.remain.fujiedasFury < 2 then
+                if buff.exists.fujiedasFury and buff.remain.fujiedasFury < 2 then
                     if cast.bloodthirst() then return end
                 end
             -- Execute
                 -- execute,if=(artifact.juggernaut.enabled&(!buff.juggernaut.up|buff.juggernaut.remains<2))|buff.stone_heart.react
-                if (artifact.juggernaut and (not buff.juggernaut or buff.remain.juggernaut)) or buff.stoneHeart then
+                if (artifact.juggernaut and (not buff.exists.juggernaut or buff.remain.juggernaut)) or buff.exists.stoneHeart then
                     if cast.execute() then return end
                 end
             -- Rampage
@@ -447,7 +447,7 @@ if select(3,UnitClass("player")) == 1 then
                 end
             -- Berserker Rage
                 -- berserker_rage,if=talent.outburst.enabled&cooldown.odyns_fury.remains=0&buff.enrage.down
-                if talent.outburst and cd.odynsFury == 0 and not buff.enrage then
+                if talent.outburst and cd.odynsFury == 0 and not buff.exists.enrage then
                     if cast.berserkerRage() then return end
                 end
             -- Dragon Roar
@@ -457,27 +457,27 @@ if select(3,UnitClass("player")) == 1 then
                 end
             -- Odyn's Fury
                 -- odyns_fury,if=buff.battle_cry.up&buff.enrage.up
-                if buff.battleCry and buff.enrage then
+                if buff.exists.battleCry and buff.exists.enrage then
                     if cast.odynsFury() then return end
                 end
             -- Rampage
                 -- rampage,if=buff.enrage.down&buff.juggernaut.down
-                if not buff.enrage and not buff.juggernaut then
+                if not buff.exists.enrage and not buff.exists.juggernaut then
                     if cast.rampage() then return end
                 end
             -- Furious Slash
                 -- furious_slash,if=talent.frenzy.enabled&(buff.frenzy.down|buff.frenzy.remains<=3)
-                if talent.frenzy and (not buff.frenzy or buff.remain.frenzy <= 3) then
+                if talent.frenzy and (not buff.exists.frenzy or buff.remain.frenzy <= 3) then
                     if cast.furiousSlash() then return end
                 end
             -- Raging Blow
                 -- raging_blow,if=buff.juggernaut.down&buff.enrage.up
-                if not buff.juggernaut and buff.enrage then
+                if not buff.exists.juggernaut and buff.exists.enrage then
                     if cast.ragingBlow() then return end
                 end
             -- Whirlwind
                 -- whirlwind,if=buff.wrecking_ball.react&buff.enrage.up
-                if buff.wreckingBall and buff.enrage and getDistance(units.dyn8) < 8 then
+                if buff.exists.wreckingBall and buff.exists.enrage and getDistance(units.dyn8) < 8 then
                     if cast.whirlwind() then return end
                 end
             -- Execute
@@ -487,12 +487,12 @@ if select(3,UnitClass("player")) == 1 then
                 end
             -- Bloodthirst
                 -- bloodthirst,if=buff.enrage.down
-                if not buff.enrage then
+                if not buff.exists.enrage then
                     if cast.bloodthirst() then return end
                 end
             -- Raging Blow
                 -- raging_blow,if=buff.enrage.down
-                if not buff.enrage then
+                if not buff.exists.enrage then
                     if cast.ragingBlow() then return end
                 end
             -- Execute
@@ -514,7 +514,7 @@ if select(3,UnitClass("player")) == 1 then
                 if actionList_Bladestorm() then return end
             -- Bloodbath
                 -- bloodbath,if=buff.frothing_berserker.up|(rage>80&!talent.frothing_berserker.enabled)
-                if buff.frothingBerserker or (power > 80 and not talent.frothingBerserker) then
+                if buff.exists.frothingBerserker or (power > 80 and not talent.frothingBerserker) then
                     if cast.bloodbath() then return end
                 end
             end -- End Action List - Single
@@ -522,7 +522,7 @@ if select(3,UnitClass("player")) == 1 then
             function actionList_TwoTargets()
             -- Whirlwind
                 -- whirlwind,if=buff.meat_cleaver.down
-                if not buff.meatCleaver and getDistance(units.dyn8) < 8 then
+                if not buff.exists.meatCleaver and getDistance(units.dyn8) < 8 then
                     if cast.whirlwind() then return end
                 end
             -- Call Action List: Bladestorm
@@ -530,17 +530,17 @@ if select(3,UnitClass("player")) == 1 then
                 if actionList_Bladestorm() then return end
             -- Rampage
                 -- rampage,if=buff.enrage.down|(rage=100&buff.juggernaut.down)|buff.massacre.up
-                if not buff.enrage or (power == 100 and not buff.juggernaut) or buff.massacre then
+                if not buff.exists.enrage or (power == 100 and not buff.exists.juggernaut) or buff.exists.massacre then
                     if cast.rampage() then return end
                 end
             -- Bloodthirst
                 -- bloodthirst,if=buff.enrage.down
-                if not buff.enrage then
+                if not buff.exists.enrage then
                     if cast.bloodthirst() then return end
                 end
             -- Odyn's Fury
                 -- odyns_fury,if=buff.battle_cry.up&buff.enrage.up
-                if buff.battleCry and buff.enrage then
+                if buff.exists.battleCry and buff.exists.enrage then
                     if cast.odynsFury() then return end
                 end
             -- Raging Blow
@@ -577,7 +577,7 @@ if select(3,UnitClass("player")) == 1 then
                 end
             -- Bloodthirst
                 -- bloodthirst,if=buff.enrage.down|rage<50
-                if not buff.enrage or power < 50 then
+                if not buff.exists.enrage or power < 50 then
                     if cast.bloodthirst() then return end
                 end
             -- Call Action List Bladestorm
@@ -585,12 +585,12 @@ if select(3,UnitClass("player")) == 1 then
                 if actionList_Bladestorm() then return end
             -- Odyn's Fury
                 -- odyns_fury,if=buff.battle_cry.up&buff.enrage.up
-                if buff.battleCry and buff.enrage then
+                if buff.exists.battleCry and buff.exists.enrage then
                     if cast.odynsFury() then return end
                 end
             -- Whirlwind
                 -- whirlwind,if=buff.enrage.up
-                if buff.enrage and getDistance(units.dyn8) < 8 then
+                if buff.exists.enrage and getDistance(units.dyn8) < 8 then
                     if cast.whirlwind() then return end
                 end
             -- Dragon Roar
@@ -598,7 +598,7 @@ if select(3,UnitClass("player")) == 1 then
                 if cast.dragonRoar() then return end
             -- Rampage
                 -- rampage,if=buff.meat_cleaver.up
-                if buff.meatCleaver then
+                if buff.exists.meatCleaver then
                     if cast.rampage() then return end
                 end
             -- Bloodthirst

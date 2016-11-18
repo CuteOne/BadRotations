@@ -241,7 +241,7 @@ function br.read.combatLog()
         if sourceName ~= UnitName("player") then return end
         if event == "SPELL_DAMAGE" then
             if spell == 198813 then -- Vengeful Retreat
-                SetHackEnabled("NoKnockback", false)
+                -- SetHackEnabled("NoKnockback", false)
                 return
             end
             return

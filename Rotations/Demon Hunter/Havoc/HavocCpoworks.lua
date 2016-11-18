@@ -173,7 +173,7 @@ if select(2, UnitClass("player")) == "DEMONHUNTER" then
                     if cast.throwGlaive() then return end
                 end
             -- Eye Beam
-                if (not buff.metamorphosis and (not talent.momentum or buff.momentum)) and getDistance(units.dyn8) < 8 and getFacing("player",units.dyn5,45) then
+                if (not buff.exists.metamorphosis and (not talent.momentum or buff.exists.momentum)) and getDistance(units.dyn8) < 8 and getFacing("player",units.dyn5,45) then
                     if cast.eyeBeam(units.dyn5) then return end
                 end
             -- Blade Dance
@@ -239,7 +239,7 @@ if select(2, UnitClass("player")) == "DEMONHUNTER" then
             -- Trinkets
                     -- use_item,slot=trinket2,if=buff.chaos_blades.up|!talent.chaos_blades.enabled 
                     if isChecked("Trinkets") then
-                        if buff.chaosBlades or not talent.chaosBlades then 
+                        if buff.exists.chaosBlades or not talent.chaosBlades then 
                             if canUse(13) then
                                 useItem(13)
                             end
@@ -255,14 +255,14 @@ if select(2, UnitClass("player")) == "DEMONHUNTER" then
                     end
             -- Metamorphosis
                     -- if (not HasTalent(DemonReborn) or CooldownSecRemaining(EyeBeam) > 0) and not HasBuff(Metamorphosis)
-                    if (not talent.demonReborn or cd.eyeBeam > 0) and not buff.metamorphosis then
+                    if (not talent.demonReborn or cd.eyeBeam > 0) and not buff.exists.metamorphosis then
                         if cast.metamorphosis() then return end
                     end
             -- Nemesis
                     if cast.nemesis(units.dyn5) then return end
             -- Chaos Blades
                     -- if CooldownSecRemaining(Metamorphosis) > SpellCooldownSec(ChaosBlades) - BuffDurationSec(ChaosBlades) or HasBuff(Metamorphosis)
-                    if (cd.metamorphosis > cd.chaosBlades - buff.duration.chaosBlades or buff.metamorphosis) and getDistance(units.dyn5) < 5 then
+                    if (cd.metamorphosis > cd.chaosBlades - buff.duration.chaosBlades or buff.exists.metamorphosis) and getDistance(units.dyn5) < 5 then
                         if cast.chaosBlades() then return end
                     end 
                     
@@ -331,12 +331,12 @@ if select(2, UnitClass("player")) == "DEMONHUNTER" then
                         if cast.blur() then return end
                     end
                 -- Vengeful Retreat
-                    if useMover() and (talent.momentum and not buff.momentum) and getDistance("target") < 5 then
+                    if useMover() and (talent.momentum and not buff.exists.momentum) and getDistance("target") < 5 then
                         if cast.vengefulRetreat() then return end
                     end
                 -- Fel Rush
                     -- if HasTalent(Momentum) and not HasBuff(Momentum) and CooldownSecRemaining(VengefulRetreat) > BuffDurationSec(Momentum)
-                    if useMover() and getFacing("player","target",10) and (talent.momentum and not buff.momentum) then
+                    if useMover() and getFacing("player","target",10) and (talent.momentum and not buff.exists.momentum) then
                         if mode.mover == 1 then
                             if getDistance("target") < 10 then
                                 if cast.felRush("target",false,true) then return end
@@ -351,7 +351,7 @@ if select(2, UnitClass("player")) == "DEMONHUNTER" then
                 -- Cooldowns
                     if actionList_Cooldowns() then return end
                 -- Fury of the Illidari
-                    if #enemies.yards8 > getOptionValue("Eye Beam Targets") and getDistance("target") < 5 or addsIn > 55 and (not talent.momentum or buff.momentum) then
+                    if #enemies.yards8 > getOptionValue("Eye Beam Targets") and getDistance("target") < 5 or addsIn > 55 and (not talent.momentum or buff.exists.momentum) then
                         if cast.furyOfTheIllidari() then return end
                     end
                 -- MultiTarget

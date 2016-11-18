@@ -50,6 +50,8 @@ if select(3, UnitClass("player")) == 2 then -- Change specID to ID of spec. IE: 
                 br.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")            	
 	            -- Hand of Hindeance
 	            br.ui:createCheckbox(section, "Hand of Hinderance")
+                -- Artifact 
+                br.ui:createDropdownWithout(section,"Artifact", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Artifact Ability.")
             br.ui:checkSectionState(section)
             ------------------------
             --- COOLDOWN OPTIONS ---
@@ -64,7 +66,7 @@ if select(3, UnitClass("player")) == 2 then -- Change specID to ID of spec. IE: 
                 -- Shield of Vengeance
                 br.ui:createCheckbox(section,"Shield of Vengeance")
                 -- Cruusade
-                br.ui:createCheckbox(section,"Crusade")                
+                br.ui:createCheckbox(section,"Crusade")
             br.ui:checkSectionState(section)
             -------------------------
             --- DEFENSIVE OPTIONS ---
@@ -89,6 +91,8 @@ if select(3, UnitClass("player")) == 2 then -- Change specID to ID of spec. IE: 
 	            br.ui:createSpinner(section, "Flash of Light",  50,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
 	            -- Hammer of Justice
 	            br.ui:createSpinner(section, "Hammer of Justice - HP",  50,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
+                -- Justicar's Vengeance
+                br.ui:createSpinner(section, "Justicar's Vengeance",  50,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
 	            -- Redemption
                 br.ui:createDropdown(section, "Redemption", {"|cffFFFF00Selected Target","|cffFF0000Mouseover Target"}, 1, "|ccfFFFFFFTarget to Cast On")            	
             br.ui:checkSectionState(section)
@@ -362,21 +366,29 @@ if select(3, UnitClass("player")) == 2 then -- Change specID to ID of spec. IE: 
 							end
 				-- Avenging Wrath
 							-- avenging_wrath
-							if cast.avengingWrath() then return end
+                            if isChecked("Avenging Wrath") then
+							    if cast.avengingWrath() then return end
+                            end
 				-- Shield of Vengeance
 							-- shield_of_vengeance
-							if cast.shieldOfVengeance() then return end
+                            if isChecked("Shield of Vengeance") then
+							    if cast.shieldOfVengeance() then return end
+                            end
 				-- Crusade
 							-- crusade,if=holy_power>=5
-							if holyPower >= 5 then
-								if cast.crusade() then return end
-							end
+                            if isChecked("Crusade") then
+    							if holyPower >= 5 then
+    								if cast.crusade() then return end
+    							end
+                            end
+                        end
 				-- Wake of Ashes
-							-- wake_of_ashes,if=holy_power>=0&time<2
+						-- wake_of_ashes,if=holy_power>=0&time<2
+                        if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()) and getDistance("target") < 5 then
 							if holyPower >= 0 and combatTime < 2 then
 								if cast.wakeOfAshes() then return end
 							end
-						end
+                        end
 				-- Execution Sentence
 						-- execution_sentence,if=spell_targets.divine_storm<=3&(cooldown.judgment.remains<gcd*4.5|debuff.judgment.remains>gcd*4.67)&(!talent.crusade.enabled|cooldown.crusade.remains>gcd*2)
 						if #enemies.yards8 <= 3 and (cd.judgment < gcd * 4.5 or debuff.judgment[units.dyn30].remain > gcd * 4.67) and (not talent.crusade or cd.crusade > gcd *2) then
@@ -396,25 +408,27 @@ if select(3, UnitClass("player")) == 2 then -- Change specID to ID of spec. IE: 
 						-- divine_storm,if=debuff.judgment.up&spell_targets.divine_storm>=2&holy_power>=5&buff.divine_purpose.react
 						-- divine_storm,if=debuff.judgment.up&spell_targets.divine_storm>=2&holy_power>=5&(!talent.crusade.enabled|cooldown.crusade.remains>gcd*3)
 						if judgmentVar and #enemies.yards8 >= 2 and ((buff.divinePurpose and buff.remain.divinePurpose < gcd * 2)
-							or (holyPower >= 5 and buff.divinePurpose)
+							or (holyPower >= 5 and buff.exists.divinePurpose)
 							or (holyPower >= 5 and (not talent.crusade or cd.crusade > gcd * 3)))
 						then
 							if cast.divineStorm() then return end
 						end
 				-- Justicar's Vengeance
 						-- justicars_vengeance,if=debuff.judgment.up&buff.divine_purpose.up&buff.divine_purpose.remains<gcd*2&!equipped.whisper_of_the_nathrezim
-						-- justicars_vengeance,if=debuff.judgment.up&holy_power>=5&buff.divine_purpose.react&!equipped.whisper_of_the_nathrezim
-						if judgmentVar and ((buff.divinePurpose and buff.remain.divinePurpose < gcd * 2 and not hasEquipped(137020)) 
-							or (holyPower >= 5 and buff.divinePurpose and not hasEquipped(137020))) 
-						then
-							if cast.justicarsVengeance() then return end
-						end
+                        -- justicars_vengeance,if=debuff.judgment.up&holy_power>=5&buff.divine_purpose.react&!equipped.whisper_of_the_nathrezim
+                        if isChecked("Justicar's Vengeance") and php < getOptionValue("Justicar's Vengeance") then
+    						if judgmentVar and ((buff.divinePurpose and buff.remain.divinePurpose < gcd * 2 and not hasEquiped(137020)) 
+    							or (holyPower >= 5 and buff.exists.divinePurpose and not hasEquiped(137020))) 
+    						then
+    							if cast.justicarsVengeance() then return end
+    						end
+                        end
 				-- Templar's Verdict
 						-- templars_verdict,if=debuff.judgment.up&buff.divine_purpose.up&buff.divine_purpose.remains<gcd*2
 						-- templars_verdict,if=debuff.judgment.up&holy_power>=5&buff.divine_purpose.react
 						-- templars_verdict,if=debuff.judgment.up&holy_power>=5&(!talent.crusade.enabled|cooldown.crusade.remains>gcd*3)
 						if judgmentVar and ((buff.divinePurpose and buff.remain.divinePurpose < gcd * 2)
-							or (holyPower >= 5 and buff.divinePurpose)
+							or (holyPower >= 5 and buff.exists.divinePurpose)
 							or (holyPower >= 5 and (not talent.crusade or cd.crusade > gcd * 3)))
 						then
 							if cast.templarsVerdict() then return end
@@ -429,9 +443,11 @@ if select(3, UnitClass("player")) == 2 then -- Change specID to ID of spec. IE: 
 						end
 				-- Justicar's Vengeance
 						-- justicars_vengeance,if=debuff.judgment.up&holy_power>=3&buff.divine_purpose.up&cooldown.wake_of_ashes.remains<gcd*2&artifact.wake_of_ashes.enabled&!equipped.whisper_of_the_nathrezim
-						if judgmentVar and holyPower >= 3 and buff.divinePurpose and ((cd.wakeOfAshes < gcd * 2 and artifact.wakeOfAshes) or not artifact.wakeOfAshes) and not hasEquipped(137020) then
-							if cast.justicarsVengeance() then return end
-						end
+						if isChecked("Justicar's Vengeance") and php < getOptionValue("Justicar's Vengeance") then
+                            if judgmentVar and holyPower >= 3 and buff.exists.divinePurpose and ((cd.wakeOfAshes < gcd * 2 and artifact.wakeOfAshes) or not artifact.wakeOfAshes) and not hasEquiped(137020) then
+    							if cast.justicarsVengeance() then return end
+    						end
+                        end
 				-- Templar's Verdict
 						-- templars_verdict,if=debuff.judgment.up&holy_power>=3&(cooldown.wake_of_ashes.remains<gcd*2&artifact.wake_of_ashes.enabled|buff.whisper_of_the_nathrezim.up&buff.whisper_of_the_nathrezim.remains<gcd)&(!talent.crusade.enabled|cooldown.crusade.remains>gcd*4)
 						if judgmentVar and holyPower >= 3 
@@ -486,9 +502,11 @@ if select(3, UnitClass("player")) == 2 then -- Change specID to ID of spec. IE: 
 						end
 				-- Justicar's Vengeance
 						-- justicars_vengeance,if=debuff.judgment.up&buff.divine_purpose.react&!equipped.whisper_of_the_nathrezim
-						if judgmentVar and buff.divinePurpose and not hasEquipped(137020) then
-							if cast.justicarsVengeance() then return end
-						end
+                        if isChecked("Justicar's Vengeance") and php < getOptionValue("Justicar's Vengeance") then
+    						if judgmentVar and buff.exists.divinePurpose and not hasEquiped(137020) then
+    							if cast.justicarsVengeance() then return end
+    						end
+                        end
 				-- Templar's Verdict
 						-- templars_verdict,if=debuff.judgment.up&buff.divine_purpose.react
 						-- templars_verdict,if=debuff.judgment.up&buff.the_fires_of_justice.react&(!talent.crusade.enabled|cooldown.crusade.remains>gcd*3)
@@ -535,17 +553,19 @@ if select(3, UnitClass("player")) == 2 then -- Change specID to ID of spec. IE: 
 						end
 			-- Justicar's Vengeance
 						-- if HasBuff(DivinePurpose) and TargetsInRadius(DivineStorm) <= 3
-						if buff.divinePurpose and #enemies.yards8 <= 3 then
-							if cast.justicarsVengeance(units.dyn5) then return end
-						end
+                        if isChecked("Justicar's Vengeance") and php < getOptionValue("Justicar's Vengeance") then
+    						if buff.exists.divinePurpose and #enemies.yards8 <= 3 then
+    							if cast.justicarsVengeance(units.dyn5) then return end
+    						end
+                        end
 			-- Divine Storm
 						-- if (AlternatePower >= 4 or HasBuff(DivinePurpose) or HasBuff(Judgment)) and TargetsInRadius(DivineStorm) > 2
-						if (holyPower >= 3 or buff.divinePurpose or debuff.judgment[units.dyn30].exists) and #enemies.yards8 > 2 then
+						if (holyPower >= 3 or buff.exists.divinePurpose or debuff.judgment[units.dyn30].exists) and #enemies.yards8 > 2 then
 							if cast.divineStorm() then return end
 						end
 			-- Templar's Verdict
 						-- if (AlternatePower >= 4 or HasBuff(DivinePurpose) or HasBuff(Judgment))
-						if (holyPower >= 3 or buff.divinePurpose or debuff.judgment[units.dyn30].exists) then
+						if (holyPower >= 3 or buff.exists.divinePurpose or debuff.judgment[units.dyn30].exists) then
 							if cast.templarsVerdict(units.dyn5) then return end
 						end
 			-- Wake of Ashes

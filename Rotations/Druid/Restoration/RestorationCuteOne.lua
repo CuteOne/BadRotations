@@ -128,9 +128,7 @@ if select(2, UnitClass("player")) == "DRUID" then
     --------------
             local addsExist                                     = false 
             local addsIn                                        = 999
-            local animality                                     = false
             local artifact                                      = br.player.artifact
-            -- local bleed                                         = br.player.bleed
             local buff                                          = br.player.buff
             local canFlask                                      = canUse(br.player.flask.wod.agilityBig)
             local cast                                          = br.player.cast
@@ -145,7 +143,6 @@ if select(2, UnitClass("player")) == "DRUID" then
             local enemies                                       = br.player.enemies
             local falling, swimming, flying, moving             = getFallTime(), IsSwimming(), IsFlying(), GetUnitSpeed("player")>0
             local fatality                                      = false
-            local fbDamage                                      = getFbDamage()
             local flaskBuff                                     = getBuffRemain("player",br.player.flask.wod.buff.agilityBig)
             local friendly                                      = friendly or UnitIsFriend("target", "player")
             local gcd                                           = br.player.gcd
@@ -164,12 +161,10 @@ if select(2, UnitClass("player")) == "DRUID" then
             local php                                           = br.player.health
             local playerMouse                                   = UnitIsPlayer("mouseover")
             local potion                                        = br.player.potion
-            local power, powmax, powgen                         = br.player.energy, br.player.powerMax, br.player.powerRegen
+            local power, powermax, powergen                     = br.player.energy, br.player.powerMax, br.player.powerRegen
             local pullTimer                                     = br.DBM:getPulltimer()
             local racial                                        = br.player.getRacial()
             local recharge                                      = br.player.recharge
-            local rkTick                                        = 3
-            local rpTick                                        = 2
             local solo                                          = #br.friend < 2
             local friendsInRange                                = friendsInRange
             local spell                                         = br.player.spell
@@ -188,20 +183,22 @@ if select(2, UnitClass("player")) == "DRUID" then
 			if profileStop == nil then profileStop = false end
 			if lastSpellCast == nil then lastSpellCast = spell.catForm end
             if lastForm == nil then lastForm = 0 end
-            if talent.jaggedWounds then
-                if rkTick == 3 then rkTick = rkTick - (rkTick * 0.3) end
-                if rpTick == 2 then rpTick = rpTick - (rpTick * 0.3) end
-            end
-            if br.player.potion.agility[1] ~= nil then
-                agiPot = br.player.potion.agility[1].itemID 
-            else
-                agiPot = 0
-            end
             friendsInRange = 0
             if not solo then
                 for i = 1, #br.friend do
                     if getDistance(br.friend[i].unit) < 15 then
                         friendsInRange = friendsInRange + 1
+                    end
+                end
+            end
+            rejuvCount = 0
+            if not solo then
+                for i = 1, #br.friend do
+                    local thisUnit = br.friend[i].unit
+                    if thisUnit ~= "player" then
+                        if buff.rejuvenation[thisUnit].exists then
+                            rejuvCount = rejuvCount + 1
+                        end
                     end
                 end
             end
@@ -410,19 +407,8 @@ if select(2, UnitClass("player")) == "DRUID" then
     --------------------------
     --- In Combat Rotation ---
     --------------------------
-            -- Cat is 4 fyte!
-                if inCombat and not cat and not (flight or travel or IsMounted() or IsFlying()) and isChecked("Auto Shapeshifts") then
-                    -- if cast.catForm() then return end
-                elseif inCombat and cat and profileStop==false and not isChecked("Death Cat Mode") and isValidUnit(units.dyn5) and getDistance(units.dyn5) < 5 then
-            -- Rake/Shred from Stealth
-                    -- rake,if=buff.prowl.up|buff.shadowmeld.up
-                    if buff.prowl or buff.shadowmeld then
-
-                    elseif not stealth then
-                        -- auto_attack
-                        if getDistance("target") < 5 then
-                            StartAttack()
-                        end
+                if inCombat and profileStop==false --[[and not (flight or travel or IsMounted() or IsFlying())]] then
+                    -- if not stealth then
         ------------------------------
         --- In Combat - Interrupts ---
         ------------------------------
@@ -441,9 +427,62 @@ if select(2, UnitClass("player")) == "DRUID" then
         --- Ask Mr Robot APL ---
         ------------------------
                         if getOptionValue("APL Mode") == 2 then
-            
+                            for i = 1, #br.friend do
+                                if br.friend[i].role == "TANK" then
+                                    local tankUnit = br.friend[i].unit
+            -- Cenarion Ward
+                                    if cast.cenarionWard(tankUnit) then return end
+            -- Lifebloom
+                                    -- if not HasHot(Lifebloom)
+                                    if not buff.lifebloom[tankUnit].exists then
+                                        if cast.lifebloom(tankUnit) then return end
+                                    end
+            -- Swiftmend
+                                    if cast.swiftmend(tankUnit) then return end
+                                end
+                            end
+            -- Efflorescence
+                            if cast.efflorescence("best","heal",3,10) then return end
+            -- Wild Growth
+                            -- if (HasBuff(SoulOfTheForest) or (HotCount(Rejuvenation,None) > 5 and Power > MaxPower * 0.1) or CooldownSecRemaining(EssenceOfGHanir) <= GlobalCooldownSec) and 
+                            -- (not HasTalent(Flourish) or CooldownSecRemaining(Flourish) > SpellCooldownSec(WildGrowth) or CooldownSecRemaining(Flourish) <= GlobalCooldownSec)
+                            if (buff.soulOfTheForest or (rejuvCount > 5 and power > powermax * 0.1) or cd.essenceOfGhanir <= gcd) 
+                                and (not talent.flourish or cd.flourish < cd.wildGrowth or cd.flourish <= gcd) 
+                            then
+                                if cast.wildGrowth(lowestHP) then return end
+                            end
+            -- Rejuvenation
+                            -- if (CanRefreshHot(Rejuvenation) and PeekSavedValue(SotFRejuvenation) < 3 or not HasHot(Rejuvenation)) or 
+                            -- (HasTalent(Germination) and (CanRefreshHot(RejuvenationGermination) and PeekSavedValue(SotFGermination) < 3 or not HasHot(RejuvenationGermination)))
+                            for i = 1, #br.friend do
+                                if br.friend[i].role == "TANK" then
+                                    local tankUnit = br.friend[i].unit
+                                    if buff.rejuvenation[tankUnit].refresh or (talent.germination and buff.germination[tankUnit].refresh) then
+                                        if cast.rejuvenation(tankUnit) then return end
+                                    end
+                                end
+                            end
+            -- Essence of G'Hanir
+                            if cast.essenceOfGhanir() then return end
+            -- Regrowth
+                            -- if BuffRemainingSec(ClearcastingResto) > SpellCastTimeSec(Regrowth) and CanRefreshHot(RegrowthTick)
+                            for i = 1, #br.friend do
+                                local thisUnit = br.friend[i].unit
+                                if br.friend[i].role == "TANK" then
+                                    if buff.remain.clearcasting > getCastTime(spell.regrowth) and buff.regrowth[thisUnit].refresh then
+                                        if cast.regrowth(thisUnit) then return end
+                                    end
+                                elseif buff.remain.clearcasting > getCastTime(spell.regrowth) and buff.regrowth[thisUnit].refresh then
+                                    if cast.regrowth(thisUnit) then return end
+                                end
+                            end
+            -- Rejuvenation
+                            -- if (CanRefreshHot(Rejuvenation) and PeekSavedValue(SotFRejuvenation) < 3 or not HasHot(Rejuvenation)) and Power > MaxPower * 0.3
+                            if buff.rejuvenation[lowestHP].refresh and power > powermax * 0.3 then
+                                if cast.rejuvenation(lowestHP) then return end
+                            end 
                         end
-				    end -- End No Stealth | Rotation Off Check
+				    -- end -- End No Stealth | Rotation Off Check
 				end --End In Combat
 			end --End Rotation Logic
         end -- End Timer

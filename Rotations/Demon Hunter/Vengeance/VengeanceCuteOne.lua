@@ -349,12 +349,12 @@ if select(2, UnitClass("player")) == "DEMONHUNTER" then
                     if cast.soulCarver() then return end
         -- Fiery Brand    
                     -- actions+=/fiery_brand,if=buff.demon_spikes.down&buff.metamorphosis.down
-                    if not buff.demonSpikes and not buff.metamorphosis then
+                    if not buff.exists.demonSpikes and not buff.exists.metamorphosis then
                         if cast.fieryBrand() then return end
                     end
         -- Demon Spikes
                     -- actions+=/demon_spikes,if=charges=2|buff.demon_spikes.down&!dot.fiery_brand.ticking&buff.metamorphosis.down
-                    if (charges.demonSpikes == 2 or not buff.demonSpikes) and not debuff.fieryBrand[units.dyn5].exists and not buff.metamorphosis then
+                    if (charges.demonSpikes == 2 or not buff.exists.demonSpikes) and not debuff.fieryBrand[units.dyn5].exists and not buff.exists.metamorphosis then
                         if cast.demonSpikes() then return end
                     end
         -- Empower Wards
@@ -401,7 +401,7 @@ if select(2, UnitClass("player")) == "DEMONHUNTER" then
                         end
         -- Metamorphosis
                         -- actions+=/metamorphosis,if=buff.demon_spikes.down&!dot.fiery_brand.ticking&buff.metamorphosis.down&incoming_damage_5s>health.max*0.70
-                        if isChecked("Metamorphosis") and not buff.demonSpikes and not debuff.fieryBrand[units.dyn5].exists and not buff.metamorphosis and php < getOptionValue("Metamorphosis") then
+                        if isChecked("Metamorphosis") and not buff.exists.demonSpikes and not debuff.fieryBrand[units.dyn5].exists and not buff.exists.metamorphosis and php < getOptionValue("Metamorphosis") then
                             if cast.metamorphosis() then return end
                         end
         -- Fel Devastation

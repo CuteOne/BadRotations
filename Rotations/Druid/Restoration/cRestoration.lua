@@ -22,6 +22,23 @@ function cRestoration:new()
         cenarionWard                = 102351,
         efflorescence               = 145205,
         essenceOfGhanir             = 208253,
+        flourish                    = 197721,
+        healingTouch                = 5185,
+        incarnationTreeOfLife       = 33891,
+        innervate                   = 29166,
+        ironbark                    = 102342,
+        lifebloom                   = 33763,
+        naturesCure                 = 88423,
+        rejuvenation                = 774,
+        renewal                     = 108238,
+        revitalize                  = 212040,
+        solarWrath                  = 5176,
+        sunfire                     = 93402,
+        swiftmend                   = 18562,
+        tranquility                 = 740,
+        ursolsVortex                = 102793,
+        wildGrowth                  = 48438,
+        yserasGift                  = 145108,
     }
     self.spell.spec.artifacts       = {
         armorOfTheAncients          = 189754,
@@ -30,9 +47,27 @@ function cRestoration:new()
         bloomsOfGhanir              = 186393,
         dreamwalker                 = 189849,
         essenceOfGhanir             = 208253,
+        essenceOfNordrassil         = 189760,
+        ghanirsBloom                = 214913,
+        grovewalker                 = 186320,
+        infusionOfNature            = 189757,
+        knowledgeOfTheAncients      = 189772,
+        markOfShifting              = 186372,
+        naturalMending              = 189749,
+        naturesEssence              = 189787,
+        naturesVigor                = 222644,
+        persistence                 = 186396,
+        powerOfTheArchdruid         = 189870,
+        seedsOfTheWorldTree         = 189768,
+        tranquilMind                = 189857,
     }
     self.spell.spec.buffs           = {
-
+        cenarionWard                = 102352,
+        clearcasting                = 16870,
+        germination                 = 155777,
+        lifebloom                   = 33763,
+        rejuvenation                = 774,
+        regrowth                    = 8936,
     }
     self.spell.spec.debuffs         = {
 
@@ -45,6 +80,17 @@ function cRestoration:new()
         balanceAffinity             = 197632,
         cenarionWard                = 102351,
         cultivation                 = 200390,
+        feralAffinity               = 189760,
+        flourish                    = 197721,
+        germination                 = 155675,
+        guardianAffinity            = 197491,
+        incarnationTreeOfLife       = 33891,
+        innerPeace                  = 197073,
+        momentOfClarity             = 155577,
+        renewal                     = 108238,
+        soulOfTheForest             = 158478,
+        springBlossoms              = 207385,
+        stonebark                   = 197061,
     }
     -- Merge all spell ability tables into self.spell
     self.spell = mergeSpellTables(self.spell, self.characterSpell, self.spell.class.abilities, self.spell.spec.abilities)

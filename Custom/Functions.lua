@@ -46,7 +46,7 @@ function isCCed(Unit)
 	return false
 end
 
-function castGroundAtBestLocation(spellID, radius, minUnits, maxRange, minRange)
+function castGroundAtBestLocation(spellID, radius, minUnits, maxRange, minRange, spellType)
 	-- description:
 		-- find best position for AoE spell and cast it there
 
@@ -70,12 +70,14 @@ function castGroundAtBestLocation(spellID, radius, minUnits, maxRange, minRange)
 	-- begin
 	if minRange == nil then minRange = 0 end
 	local allUnitsInRange = {}
+	-- Make function usable between enemies and friendlies
+	if spellType == "heal" then	unitTable = br.friend else unitTable = br.enemy end
 	-- fill allUnitsInRange with data from enemiesEngine
 	--print("______________________1")
-	for i=1,#br.enemy do
-		local thisUnit = br.enemy[i].unit
-		local thisDistance = br.enemy[i].distance
-		local hasThreat = isValidUnit(br.enemy[i].unit) --hasThreat(br.enemy[i].unit)
+	for i=1,#unitTable do
+		local thisUnit = unitTable[i].unit
+		local thisDistance = unitTable[i].distance
+		local hasThreat = isValidUnit(unitTable[i].unit) or UnitIsFriend(unitTable[i].unit) --hasThreat(br.enemy[i].unit)
 		--print(thisUnit.." - "..thisDistance)
 		if isNotBlacklisted(thisUnit) then
 			--print("blacklist passed")

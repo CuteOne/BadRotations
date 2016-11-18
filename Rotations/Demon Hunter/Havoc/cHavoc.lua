@@ -210,15 +210,15 @@ function cHavoc:new()
 
     function cancelRushAnimation(thisUnit) -- Thanks G1zStar
         if thisUnit == nil then thisUnit = self.units.dyn5 end
-        MoveBackwardStart()
-        JumpOrAscendStart()
+        -- MoveBackwardStart()
+        -- JumpOrAscendStart()
         castSpell(thisUnit,self.spell.felRush,false,false,false)
-        MoveBackwardStop()
-        AscendStop()
+        -- MoveBackwardStop()
+        -- AscendStop()
         return
     end
     function cancelRetreatAnimation() -- Thanks G1zStar
-        SetHackEnabled("NoKnockback", true)
+        -- SetHackEnabled("NoKnockback", true)
         castSpell("player",self.spell.vengefulRetreat,false,false,false)       
         return
     end

@@ -390,7 +390,7 @@ if select(2, UnitClass("player")) == "WARLOCK" then
             local function actionList_PreCombat()
                 -- Summon Pet
                 -- summon_pet,if=!talent.grimoire_of_supremacy.enabled&(!talent.grimoire_of_sacrifice.enabled|buff.demonic_power.down)
-                if not (IsFlying() or IsMounted()) and not talent.grimoireOfSupremacy and (not talent.grimoireOfSacrifice or not buff.demonicPower) then
+                if not (IsFlying() or IsMounted()) and not talent.grimoireOfSupremacy and (not talent.grimoireOfSacrifice or not buff.exists.demonicPower) then
                     if (activePetId == 0 or activePetId ~= summonId) and (lastSpell ~= castSummonId or activePetId ~= summonId) then
                         if summonPet == 1 then
                             if cast.summonImp() then castSummonId = spell.summonImp; return end
@@ -448,7 +448,7 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                             -- TODO
                     -- Mana Tap
                             -- mana_tap,if=talent.mana_tap.enabled&!buff.mana_tap.remains
-                            if talent.manaTap and not buff.manaTap then
+                            if talent.manaTap and not buff.exists.manaTap then
                                 if cast.manaTap() then return end
                             end
                     -- Pet Attack/Follow
@@ -715,7 +715,7 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                         end
             -- Unsable Affliction
                         -- unstable_affliction,if=talent.contagion.enabled|(soul_shard>=4|trinket.proc.intellect.react|trinket.stacking_proc.mastery.react|trinket.proc.mastery.react|trinket.proc.crit.react|trinket.proc.versatility.react|buff.soul_harvest.remains|buff.deadwind_harvester.remains|buff.compounding_horror.react=5|target.time_to_die<=20)
-                        if talent.contagion or (shards >= 4 or buff.soulHarvest or buff.deadwindHarvester or buff.stack.compoundingHorror == 5 or ttd(units.dyn40) <= 20) then
+                        if talent.contagion or (shards >= 4 or buff.exists.soulHarvest or buff.exists.deadwindHarvester or buff.stack.compoundingHorror == 5 or ttd(units.dyn40) <= 20) then
                             if lastSpell ~= spell.unstableAffliction then
                                 if isCastingSpell(spell.drainLife,units.dyn40) then SpellStopCasting() end
                                 if isCastingSpell(spell.drainSoul,units.dyn40) then SpellStopCasting() end

@@ -293,7 +293,7 @@ if select(2, UnitClass("player")) == "DRUID" then
             end -- End Action List - Extras
         -- Action List - Defensive
             local function actionList_Defensive()
-                if useDefensive() and not buff.prowl and not flight then
+                if useDefensive() and not buff.exists.prowl and not flight then
             -- Heirloom Neck
                     if isChecked("Heirloom Neck") then
                         if hasEquiped(122668) and php <= getOptionValue("Heirloom Neck") then
@@ -320,7 +320,7 @@ if select(2, UnitClass("player")) == "DRUID" then
                     end
             -- Frenzied Regeneration
                     if isChecked("Frenzied Regeneration") then
-                        if (snapLossHP >= getOptionValue("Frenzied Regeneration") or (snapLossHP > php and snapLossHP > 5)) and not buff.frenziedRegeneration then
+                        if (snapLossHP >= getOptionValue("Frenzied Regeneration") or (snapLossHP > php and snapLossHP > 5)) and not buff.exists.frenziedRegeneration then
                             if cast.frenziedRegeneration() then snapLossHP = 0; return end
                         end
                     end
@@ -381,7 +381,7 @@ if select(2, UnitClass("player")) == "DRUID" then
                     end
             -- Survival Instincts
                     if isChecked("Survival Instincts") then
-                        if php <= getOptionValue("Survival Instincts") and inCombat and not buff.survivalInstincts then
+                        if php <= getOptionValue("Survival Instincts") and inCombat and not buff.exists.survivalInstincts then
                             if cast.survivalInstincts() then return end
                         end
                     end
@@ -485,7 +485,7 @@ if select(2, UnitClass("player")) == "DRUID" then
         -- Action List - PreCombat
             local function actionList_PreCombat()
                 if not inCombat and not (IsFlying() or IsMounted()) then
-                    if not buff.prowl then
+                    if not buff.exists.prowl then
             -- Flask / Crystal
                         -- flask,type=flask_of_the_seventh_demon
                         if isChecked("Flask / Crystal") and not stealth then
@@ -556,17 +556,17 @@ if select(2, UnitClass("player")) == "DRUID" then
                             if cast.bristlingFur() then return end
                         end
             -- Ironfur
-                        if not buff.ironfur or powerDeficit < 25 then
+                        if not buff.exists.ironfur or powerDeficit < 25 then
                             if cast.ironfur() then return end
                         end
             -- Moonfire
-                        if buff.galacticGuardian then
+                        if buff.exists.galacticGuardian then
                             if cast.moonfire(units.dyn5) then return end
                         end
             -- Pulverize
                         for i = 1, #enemies.yards5 do
                             local thisUnit = enemies.yards5[i]
-                            if not buff.pulverize then 
+                            if not buff.exists.pulverize then 
                                 if cast.pulverize(thisUnit) then return end
                             end
                         end

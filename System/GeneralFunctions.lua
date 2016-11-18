@@ -1535,6 +1535,7 @@ function getLineOfSight(Unit1,Unit2)
 		100362,	-- Grasping Tentacle (Helya fight)
 		98363,	-- Grasping Tentacle (Helya fight)
 		98696, 	-- Illysanna Ravencrest (Black Rook Hold)
+		114900, -- Grasping Tentacle (Trials of Valor)
 		114901, -- Gripping Tentacle (Trials of Valor)
 		116195, -- Bilewater Slime (Trials of Valor)
 		--86644, -- Ore Crate from Oregorger boss

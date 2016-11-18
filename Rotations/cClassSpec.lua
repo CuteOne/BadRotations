@@ -3,6 +3,7 @@ function cFileBuild(cFileName,self)
     -- Make tables if not existing
     if self.artifact        == nil then self.artifact           = {} end        -- Artifact Trait Info
     if self.artifact.rank   == nil then self.artifact.rank      = {} end        -- Artifact Trait Rank
+    if self.buff.exists     == nil then self.buff.exists        = {} end        -- Buff Exists
     if self.buff.duration   == nil then self.buff.duration      = {} end        -- Buff Durations
     if self.buff.remain     == nil then self.buff.remain        = {} end        -- Buff Time Remaining
     if self.buff.refresh    == nil then self.buff.refresh       = {} end        -- Buff Refreshable
@@ -93,11 +94,26 @@ function cFileBuild(cFileName,self)
 
     -- Build Buff Info
     for k,v in pairs(ctype.buffs) do
-        self.buff[k]            = UnitBuffID("player",v) ~= nil
-        self.buff.duration[k]   = getBuffDuration("player",v) or 0
-        self.buff.remain[k]     = getBuffRemain("player",v) or 0
-        self.buff.refresh[k]    = self.buff.remain[k] <= self.buff.duration[k] * 0.3
-        self.buff.stack[k]      = getBuffStacks("player",v) or 0
+        -- Build Buff Table for all friendly units
+        for i = 1, #br.friend do
+            local thisUnit = br.friend[i].unit
+            -- Setup debuff table per unit and per debuff
+            if thisUnit == "player" then
+                self.buff.exists[k]     = UnitBuffID("player",v) ~= nil
+                self.buff.duration[k]   = getBuffDuration("player",v) or 0
+                self.buff.remain[k]     = getBuffRemain("player",v) or 0
+                self.buff.refresh[k]    = self.buff.remain[k] <= self.buff.duration[k] * 0.3
+                self.buff.stack[k]      = getBuffStacks("player",v) or 0
+            else
+                if self.buff[k] == nil then self.buff[k] = {} end
+                if self.buff[k][thisUnit] == nil then self.buff[k][thisUnit] = {} end
+                self.buff[k][thisUnit].exists     = UnitBuffID(thisUnit,v) ~= nil
+                self.buff[k][thisUnit].duration   = getBuffDuration(thisUnit,v) or 0
+                self.buff[k][thisUnit].remain     = getBuffRemain(thisUnit,v) or 0
+                self.buff[k][thisUnit].refresh    = self.buff[k][thisUnit].remain <= self.buff[k][thisUnit].duration * 0.3
+                self.buff[k][thisUnit].stack      = getBuffStacks(thisUnit,v) or 0
+            end
+        end
     end
 
     -- Build Debuff Info
@@ -199,7 +215,7 @@ function cFileBuild(cFileName,self)
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
                     if thisUnit == "best" then
-                        return castGroundAtBestLocation(spellCast,effectRng,minUnits,maxRange,minRange)
+                        return castGroundAtBestLocation(spellCast,effectRng,minUnits,maxRange,minRange,debug)
                     elseif debug == "ground" then
                         if getLineOfSight(thisUnit) then 
                            return castGround(thisUnit,spellCast,maxRange,minRange)
