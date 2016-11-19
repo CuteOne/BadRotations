@@ -345,8 +345,10 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
                         for i = 1, #enemies.yards10 do
                             local thisUnit = enemies.yards10[i]
                             local bloodPlague = debuff.bloodPlague[thisUnit]
-                            if not bloodPlague.exists then
-                                if cast.bloodBoil("player") then return end
+                            if bloodPlague ~= nil then
+                                if not bloodPlague.exists then
+                                    if cast.bloodBoil("player") then return end
+                                end
                             end
                         end
             -- Death and Decay

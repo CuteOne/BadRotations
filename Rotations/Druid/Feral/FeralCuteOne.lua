@@ -244,8 +244,12 @@ if select(2, UnitClass("player")) == "DRUID" then
                 if rkTick == 3 then rkTick = rkTick - (rkTick * 0.3) end
                 if rpTick == 2 then rpTick = rpTick - (rpTick * 0.3) end
             end
-            if br.player.potion.agility[1] ~= nil then
-                agiPot = br.player.potion.agility[1].itemID 
+            if br.player.potion ~= nil then
+                if br.player.potion.agility[1] ~= nil then
+                    agiPot = br.player.potion.agility[1].itemID 
+                else
+                    agiPot = 0
+                end
             else
                 agiPot = 0
             end
@@ -614,13 +618,15 @@ if select(2, UnitClass("player")) == "DRUID" then
                 for i = 1, #enemies.yards8 do
                     local thisUnit = enemies.yards8[i]
                     local thrash = debuff.thrash[thisUnit]
-                    if (multidot or (UnitIsUnit(thisUnit,units.dyn5) and not multidot)) then 
-                        if getDistance(thisUnit) < 8 then
-                            if thrash.refresh and ((mode.rotation == 1 and #enemies.yards8 >= 5) or mode.rotation == 2) then
-                                if power <= select(1, getSpellCost(spell.thrash)) then
-                                    return true
-                                elseif power > select(1, getSpellCost(spell.thrash)) then
-                                    if cast.thrash("player") then return end
+                    if thrash ~= nil then
+                        if (multidot or (UnitIsUnit(thisUnit,units.dyn5) and not multidot)) then 
+                            if getDistance(thisUnit) < 8 then
+                                if thrash.refresh and ((mode.rotation == 1 and #enemies.yards8 >= 5) or mode.rotation == 2) then
+                                    if power <= select(1, getSpellCost(spell.thrash)) then
+                                        return true
+                                    elseif power > select(1, getSpellCost(spell.thrash)) then
+                                        if cast.thrash("player") then return end
+                                    end
                                 end
                             end
                         end
@@ -643,12 +649,14 @@ if select(2, UnitClass("player")) == "DRUID" then
                 for i = 1, #enemies.yards5 do
                     local thisUnit = enemies.yards5[i]
                     local rip = debuff.rip[thisUnit]
-                    if (multidot or (UnitIsUnit(thisUnit,units.dyn5) and not multidot)) then
-                        if getDistance(thisUnit) < 5 then
-                            if (rip.remain == 0 or (rip.remain < 8 and thp(thisUnit) > 25 and not talent.sabertooth) 
-                                or rip.calc > rip.applied) and ttd(thisUnit) - rip.remain > rpTick * 4 and fatality 
-                            then
-                               if cast.rip(thisUnit) then return end
+                    if rip ~= nil then
+                        if (multidot or (UnitIsUnit(thisUnit,units.dyn5) and not multidot)) then
+                            if getDistance(thisUnit) < 5 then
+                                if (rip.remain == 0 or (rip.remain < 8 and thp(thisUnit) > 25 and not talent.sabertooth) 
+                                    or rip.calc > rip.applied) and ttd(thisUnit) - rip.remain > rpTick * 4 and fatality 
+                                then
+                                   if cast.rip(thisUnit) then return end
+                                end
                             end
                         end
                     end
@@ -728,12 +736,14 @@ if select(2, UnitClass("player")) == "DRUID" then
                     for i = 1, #enemies.yards5 do
                         local thisUnit = enemies.yards5[i]
                         local rake = debuff.rake[thisUnit]
-                        if UnitIsUnit(thisUnit,units.dyn5) and getDistance(thisUnit) < 5 then
-                            if combo < 5 and power >= 35 and rake.applied < 2.1 and buff.exists.tigersFury and (buff.exists.bloodtalons or not talent.bloodtalons) 
-                                and (not talent.incarnationKingOfTheJungle or cd.incarnationKingOfTheJungle > 18) and not buff.exists.incarnationKingOfTheJungle
-                                and not solo and friendsInRange > 0 
-                            then
-                                if cast.shadowmeld() then return end
+                        if rake ~= nil then
+                            if UnitIsUnit(thisUnit,units.dyn5) and getDistance(thisUnit) < 5 then
+                                if combo < 5 and power >= 35 and rake.applied < 2.1 and buff.exists.tigersFury and (buff.exists.bloodtalons or not talent.bloodtalons) 
+                                    and (not talent.incarnationKingOfTheJungle or cd.incarnationKingOfTheJungle > 18) and not buff.exists.incarnationKingOfTheJungle
+                                    and not solo and friendsInRange > 0 
+                                then
+                                    if cast.shadowmeld() then return end
+                                end
                             end
                         end
                     end
@@ -744,15 +754,17 @@ if select(2, UnitClass("player")) == "DRUID" then
                 for i = 1, #enemies.yards5 do
                     local thisUnit = enemies.yards5[i]
                     local rake = debuff.rake[thisUnit]
-                    if (multidot or (UnitIsUnit(thisUnit,units.dyn5) and not multidot)) and getDistance(thisUnit) < 5 then
-                        if combo < 5 and (rake.remain == 0 or (not talent.bloodtalons and rake.refresh) 
-                            or (talent.bloodtalons and buff.exists.bloodtalons and (not talent.soulOfTheForest and rake.remain <= 7 or rake.remain <= 5) 
-                                and rake.calc > rake.applied * 0.80)) and ttd(thisUnit) - rake.remain > rkTick 
-                        then
-                            if power <= select(1, getSpellCost(spell.rake)) then
-                                return true
-                            elseif power > select(1, getSpellCost(spell.rake)) then
-                                if cast.rake(thisUnit) then return end
+                    if rake ~= nil then
+                        if (multidot or (UnitIsUnit(thisUnit,units.dyn5) and not multidot)) and getDistance(thisUnit) < 5 then
+                            if combo < 5 and (rake.remain == 0 or (not talent.bloodtalons and rake.refresh) 
+                                or (talent.bloodtalons and buff.exists.bloodtalons and (not talent.soulOfTheForest and rake.remain <= 7 or rake.remain <= 5) 
+                                    and rake.calc > rake.applied * 0.80)) and ttd(thisUnit) - rake.remain > rkTick 
+                            then
+                                if power <= select(1, getSpellCost(spell.rake)) then
+                                    return true
+                                elseif power > select(1, getSpellCost(spell.rake)) then
+                                    if cast.rake(thisUnit) then return end
+                                end
                             end
                         end
                     end
@@ -763,9 +775,11 @@ if select(2, UnitClass("player")) == "DRUID" then
                     for i = 1, #enemies.yards40 do
                         local thisUnit = enemies.yards40[i]
                         local moonfire = debuff.moonfire[thisUnit]
-                        if multidot or (UnitIsUnit(thisUnit,units.dyn5) and not multidot) then
-                            if combo < 5 and moonfire.remain <= 4.2 and ((ttd(thisUnit) - moonfire.remain > mfTick * 2 and not isDummy(thisUnit)) or (isDummy(thisUnit) and getDistance(thisUnit) < 8)) then
-                               if cast.moonfire(thisUnit) then return end
+                        if moonfire ~= nil then
+                            if multidot or (UnitIsUnit(thisUnit,units.dyn5) and not multidot) then
+                                if combo < 5 and moonfire.remain <= 4.2 and ((ttd(thisUnit) - moonfire.remain > mfTick * 2 and not isDummy(thisUnit)) or (isDummy(thisUnit) and getDistance(thisUnit) < 8)) then
+                                   if cast.moonfire(thisUnit) then return end
+                                end
                             end
                         end
                     end
@@ -776,12 +790,14 @@ if select(2, UnitClass("player")) == "DRUID" then
                 for i = 1, #enemies.yards8 do
                     local thisUnit = enemies.yards8[i]
                     local thrash = debuff.thrash[thisUnit]
-                    if (multidot or (UnitIsUnit(thisUnit,units.dyn5) and not multidot)) and getDistance(thisUnit) < 5 then
-                        if thrash.refresh and ((mode.rotation == 1 and #enemies.yards8 >= 2) or mode.rotation == 2) then
-                            if power <= select(1, getSpellCost(spell.thrash)) then
-                                return true
-                            elseif power > select(1, getSpellCost(spell.thrash)) then
-                                if cast.thrash("player") then return end
+                    if thrash ~= nil then
+                        if (multidot or (UnitIsUnit(thisUnit,units.dyn5) and not multidot)) and getDistance(thisUnit) < 5 then
+                            if thrash.refresh and ((mode.rotation == 1 and #enemies.yards8 >= 2) or mode.rotation == 2) then
+                                if power <= select(1, getSpellCost(spell.thrash)) then
+                                    return true
+                                elseif power > select(1, getSpellCost(spell.thrash)) then
+                                    if cast.thrash("player") then return end
+                                end
                             end
                         end
                     end
@@ -948,10 +964,12 @@ if select(2, UnitClass("player")) == "DRUID" then
                             for i = 1, #enemies.yards5 do
                                 local thisUnit = enemies.yards5[i]
                                 local rip = debuff.rip[thisUnit]
-                                if (multidot or (UnitIsUnit(thisUnit,units.dyn5) and not multidot)) then
-                                    if getDistance(thisUnit) < 5 then
-                                        if rip.remain > 0 and rip.remain < 3 and ttd(thisUnit) > 3 and (thp(thisUnit) < 25 or talent.sabertooth) then
-                                            if cast.ferociousBite(thisUnit) then return end
+                                if rip ~= nil then
+                                    if (multidot or (UnitIsUnit(thisUnit,units.dyn5) and not multidot)) then
+                                        if getDistance(thisUnit) < 5 then
+                                            if rip.remain > 0 and rip.remain < 3 and ttd(thisUnit) > 3 and (thp(thisUnit) < 25 or talent.sabertooth) then
+                                                if cast.ferociousBite(thisUnit) then return end
+                                            end
                                         end
                                     end
                                 end
@@ -1017,9 +1035,11 @@ if select(2, UnitClass("player")) == "DRUID" then
                                 for i = 1, #enemies.yards5 do
                                     local thisUnit = enemies.yards5[i]
                                     local rake = debuff.rake[thisUnit]
-                                    if multidot or (UnitIsUnit(thisUnit,units.dyn5) and not multidot) then
-                                        if rake.refresh then
-                                            if cast.rake(thisUnit) then return end
+                                    if rake == nil then
+                                        if multidot or (UnitIsUnit(thisUnit,units.dyn5) and not multidot) then
+                                            if rake.refresh then
+                                                if cast.rake(thisUnit) then return end
+                                            end
                                         end
                                     end
                                 end
@@ -1030,9 +1050,11 @@ if select(2, UnitClass("player")) == "DRUID" then
                                 for i = 1, #enemies.yards40 do
                                     local thisUnit = enemies.yards40[i]
                                     local moonfire = debuff.moonfire[thisUnit]
-                                    if multidot or (UnitIsUnit(thisUnit,units.dyn5) and not multidot) then
-                                        if moonfire.remain <= 4.2 and (#enemies.yards8 <= 8 or (isDummy(thisUnit) and getDistance(thisUnit) < 8)) then
-                                           if cast.moonfire(thisUnit) then return end
+                                    if moonfire ~= nil then
+                                        if multidot or (UnitIsUnit(thisUnit,units.dyn5) and not multidot) then
+                                            if moonfire.remain <= 4.2 and (#enemies.yards8 <= 8 or (isDummy(thisUnit) and getDistance(thisUnit) < 8)) then
+                                               if cast.moonfire(thisUnit) then return end
+                                            end
                                         end
                                     end
                                 end 

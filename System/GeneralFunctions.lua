@@ -170,6 +170,16 @@ function CancelUnitBuffID(unit,spellID,filter)
 		end
 	end
 end
+function UnitAuraID(unit,spellID)
+	local spellName = GetSpellInfo(spellID)
+	if UnitAura(unit,spellName) ~= nil then 
+		return UnitAura(unit,spellName)
+	elseif UnitAura(unit,spellName,nil,"PLAYER HARMFUL") ~= nil then
+		return UnitAura(unit,spellName,nil,"PLAYER HARMFUL")
+	else 
+		return nil
+	end 
+end
 function UnitBuffID(unit,spellID,filter)
 	local spellName = GetSpellInfo(spellID)
 	if filter == nil then
@@ -926,6 +936,48 @@ function getAgility()
 	local Agi = AgiBase + AgiPos + AgiNeg
 	return Agi
 end
+function getAuraDuration(Unit,AuraID,Source)
+	if UnitAuraID(Unit,AuraID,Source) ~= nil then
+		return select(6,UnitAuraID(Unit,AuraID,Source))*1
+	end
+	return 0
+end
+function getAuraRemain(Unit,AuraID,Source)
+	if UnitAuraID(Unit,AuraID,Source) ~= nil then
+		return (select(7,UnitAuraID(Unit,AuraID,Source)) - GetTime())
+	end
+	return 0
+end
+function getAuraStacks(Unit,AuraID,Source)
+	if UnitAuraID(Unit,AuraID,Source) ~= nil then
+		return select(4,UnitAuraID(Unit,AuraID,Source))
+	end
+	return 0
+end
+
+-- if getDebuffDuration("target",12345) < 3 then
+function getDebuffDuration(Unit,DebuffID,Source)
+	if UnitDebuffID(Unit,DebuffID,Source) ~= nil then
+		return select(6,UnitDebuffID(Unit,DebuffID,Source))*1
+	end
+	return 0
+end
+-- if getDebuffRemain("target",12345) < 3 then
+function getDebuffRemain(Unit,DebuffID,Source)
+	if UnitDebuffID(Unit,DebuffID,Source) ~= nil then
+		return (select(7,UnitDebuffID(Unit,DebuffID,Source)) - GetTime())
+	end
+	return 0
+end
+-- if getDebuffStacks("target",138756) > 0 then
+function getDebuffStacks(Unit,DebuffID,Source)
+	if UnitDebuffID(Unit,DebuffID,Source) then
+		return (select(4,UnitDebuffID(Unit,DebuffID,Source)))
+	else
+		return 0
+	end
+end
+
 -- if getBuffDuration("target",12345) < 3 then
 function getBuffDuration(Unit,BuffID,Source)
 	if UnitBuffID(Unit,BuffID,Source) ~= nil then
@@ -2440,11 +2492,11 @@ function isValidUnit(Unit)
 	if ObjectExists(Unit) and not UnitIsDeadOrGhost(Unit) then
 		if not UnitAffectingCombat("player") and UnitIsUnit(Unit,"target") 
 			and (select(2,IsInInstance()) == "none" or #br.friend == 1 
-				or (hasThreat(Unit) or (not hasThreat(Unit) and UnitAffectingCombat("target"))) or isDummy(Unit)) and UnitCanAttack(Unit, "player") 
+				or (hasThreat(Unit) or (not hasThreat(Unit) and getHP(Unit) < 100 and UnitIsUnit(Unit,"target")) or isDummy(Unit))) --and UnitCanAttack(Unit, "player") 
 		then
 			return true
 		end
-		if UnitAffectingCombat("player") then
+		if UnitAffectingCombat("player") and (hasThreat(Unit) or (not hasThreat(Unit) and getHP(Unit) < 100 and UnitIsUnit(Unit,"target")) or isDummy(Unit)) then
 			return true
 		end
 	end

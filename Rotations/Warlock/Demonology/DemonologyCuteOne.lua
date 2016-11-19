@@ -719,9 +719,11 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                         for i = 1, #enemies.yards40 do
                             local thisUnit = enemies.yards40[i]
                             local doom = debuff.doom[thisUnit]
-                            if UnitIsUnit(thisUnit,"target") or hasThreat(thisUnit) or isDummy(thisUnit) then
-                                if not talent.handOfDoom and ttd(thisUnit) > doom.duration and (not doom or doom.refresh) then
-                                    if cast.doom(thisUnit) then return end
+                            if doom ~= nil then
+                                if UnitIsUnit(thisUnit,"target") or hasThreat(thisUnit) or isDummy(thisUnit) then
+                                    if not talent.handOfDoom and ttd(thisUnit) > doom.duration and (not doom or doom.refresh) then
+                                        if cast.doom(thisUnit) then return end
+                                    end
                                 end
                             end
                         end

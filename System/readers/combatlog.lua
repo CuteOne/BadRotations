@@ -82,6 +82,7 @@ function br.read.combatLog()
     local timeStamp, param, hideCaster, source, sourceName, sourceFlags, sourceRaidFlags, destination,
       destName, destFlags, destRaidFlags, spell, spellName, _, spellType = ...
     br.guid = UnitGUID("player")
+    -- br.tracker.handleEvent(...)
     ----------------
     --[[Item locks]]
     if source == br.guid then
@@ -260,8 +261,10 @@ function br.read.combatLog()
                 if FireHack then
                     if ObjectExists(destination) then
                         thisUnit = GetObjectWithGUID(destination)
-                    else 
-                        thisUnit = "target"
+                    elseif ObjectExists("target") then 
+                        thisUnit = GetObjectWithGUID(UnitGUID("target"))
+                    else
+                        thisUnit = GetObjectWithGUID(UnitGUID("player"))
                     end
                     if br.player ~= nil and getDistance(thisUnit) < 40 then
                         local debuff = br.player.debuff
@@ -271,10 +274,18 @@ function br.read.combatLog()
                             for k, v in pairs(classDebuffID) do
                                 if spell == v then
                                     if param == "SPELL_AURA_REMOVED" then
-                                        debuff[k][thisUnit].applied = 0
+                                        if debuff[k][thisUnit] ~= nil then
+                                            debuff[k][thisUnit].applied = 0
+                                        elseif debuff[k]["target"] ~= nil then
+                                            debuff[k]["target"].applied = 0
+                                        end
                                     end
                                     if param == "SPELL_AURA_APPLIED" or param == "SPELL_AURA_REFRESH" then
-                                        debuff[k][thisUnit].applied = debuff[k][thisUnit].calc
+                                        if debuff[k][thisUnit] ~= nil then
+                                            debuff[k][thisUnit].applied = debuff[k][thisUnit].calc
+                                        elseif debuff[k]["target"] ~= nil then 
+                                            debuff[k]["target"].applied = debuff[k]["target"].calc
+                                        end
                                     end
                                 end
                             end
@@ -283,10 +294,18 @@ function br.read.combatLog()
                             for k, v in pairs(specDebuffID) do
                                 if spell == v then
                                     if param == "SPELL_AURA_REMOVED" then
-                                        debuff[k][thisUnit].applied = 0
+                                        if debuff[k][thisUnit] ~= nil then
+                                            debuff[k][thisUnit].applied = 0
+                                        elseif debuff[k]["target"] ~= nil then
+                                            debuff[k]["target"].applied = 0
+                                        end
                                     end
                                     if param == "SPELL_AURA_APPLIED" or param == "SPELL_AURA_REFRESH" then
-                                        debuff[k][thisUnit].applied = debuff[k][thisUnit].calc
+                                        if debuff[k][thisUnit] ~= nil then
+                                            debuff[k][thisUnit].applied = debuff[k][thisUnit].calc
+                                        elseif debuff[k]["target"] ~= nil then
+                                            debuff[k]["target"].applied = debuff[k]["target"].calc
+                                        end
                                     end
                                 end
                             end

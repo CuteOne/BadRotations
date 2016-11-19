@@ -605,9 +605,11 @@ if select(2, UnitClass("player")) == "DRUID" then
                             for i = 1, #enemies.yards40 do
                                 local thisUnit = enemies.yards40[i]
                                 local moonfire = debuff.moonfire[thisUnit]
-                                if isValidUnit(thisUnit) and (multidot or (UnitIsUnit(thisUnit,units.dyn5) and not multidot)) then
-                                    if (moonfire.remain == 0 or moonfire.remain < 3.6 or moonfire.remain < 7.2) then
-                                        if cast.moonfire(thisUnit) then return end
+                                if moonfire ~= nil then
+                                    if isValidUnit(thisUnit) and (multidot or (UnitIsUnit(thisUnit,units.dyn5) and not multidot)) then
+                                        if (moonfire.remain == 0 or moonfire.remain < 3.6 or moonfire.remain < 7.2) then
+                                            if cast.moonfire(thisUnit) then return end
+                                        end
                                     end
                                 end
                             end

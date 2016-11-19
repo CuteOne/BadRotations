@@ -37,13 +37,6 @@ function cFileBuild(cFileName,self)
     self.powerRegen     = getRegen("player")
     self.timeToMax      = getTimeToMax("player")
 
-    -- Select class/spec Spell List
-    if cFileName == "class" then
-        ctype = self.spell.class
-    end
-    if cFileName == "spec" then
-        ctype = self.spell.spec
-    end
 
     -- Build Best Unit per Range
         -- Single
@@ -71,6 +64,14 @@ function cFileBuild(cFileName,self)
     self.enemies.yards20    = getEnemies("player", 20)
     self.enemies.yards30    = getEnemies("player", 30)
     self.enemies.yards40    = getEnemies("player", 40)
+
+    -- Select class/spec Spell List
+    if cFileName == "class" then
+        ctype = self.spell.class
+    end
+    if cFileName == "spec" then
+        ctype = self.spell.spec
+    end
 
     if not UnitAffectingCombat("player") then
         -- Build Artifact Info
@@ -126,11 +127,11 @@ function cFileBuild(cFileName,self)
             local TigersFury        = 1.15
             local RakeMultiplier    = 1
             -- Bloodtalons
-            if self.buff.bloodtalons then multiplier = multiplier*Bloodtalons end
+            if self.buff.exists.bloodtalons then multiplier = multiplier*Bloodtalons end
             -- Savage Roar
-            if self.buff.savageRoar then multiplier = multiplier*SavageRoar end
+            if self.buff.exists.savageRoar then multiplier = multiplier*SavageRoar end
             -- Tigers Fury
-            if self.buff.tigersFury then multiplier = multiplier*TigersFury end
+            if self.buff.exists.tigersFury then multiplier = multiplier*TigersFury end
             -- rip
             if dot == ctype.debuffs.rip then
                 -- -- Versatility
@@ -141,7 +142,7 @@ function cFileBuild(cFileName,self)
             -- rake
             if dot == ctype.debuffs.rake then
                 -- Incarnation/Prowl
-                if self.buff.incarnationKingOfTheJungle or self.buff.prowl then
+                if self.buff.exists.incarnationKingOfTheJungle or self.buff.exists.prowl then
                     RakeMultiplier = 2
                 end
                 -- return rake
@@ -151,31 +152,68 @@ function cFileBuild(cFileName,self)
         return 0
     end
     for k,v in pairs(ctype.debuffs) do
-        -- Build Debuff Table for all units in 40yrds
+        -- Build Debuff Table for all enemy units
         if self.debuff[k] == nil then self.debuff[k] = {} end
+        -- Setup Debuffs to "target" default
+        if ObjectExists("target") then
+            if self.debuff[k]["target"]         == nil then self.debuff[k]["target"]            = {} end
+            if self.debuff[k]["target"].applied == nil then self.debuff[k]["target"].applied    = 0 end
+            self.debuff[k]["target"].exists         = UnitDebuffID("target",v,"player") ~= nil
+            self.debuff[k]["target"].duration       = getDebuffDuration("target",v,"player")
+            self.debuff[k]["target"].remain         = getDebuffRemain("target",v,"player")
+            self.debuff[k]["target"].refresh        = self.debuff[k]["target"].remain <= self.debuff[k]["target"].duration * 0.3
+            self.debuff[k]["target"].stack          = getDebuffStacks("target",v,"player")
+            self.debuff[k]["target"].calc           = self.getSnapshotValue(v)
+        else
+            if self.debuff[k]["target"] ~= nil then self.debuff[k]["target"] = nil end
+        end
+        -- Setup debuff table per valid unit and per debuff
         for i = 1, #self.enemies.yards40 do
             local thisUnit = self.enemies.yards40[i]
-            -- Setup debuff table per unit and per debuff
-            if self.debuff[k][thisUnit]         == nil then self.debuff[k][thisUnit]            = {} end
-            if self.debuff[k][thisUnit].applied == nil then self.debuff[k][thisUnit].applied    = 0 end
-            -- Get the Debuff Info
-            self.debuff[k][thisUnit].exists     = UnitDebuffID(thisUnit,v,"player") ~= nil
-            self.debuff[k][thisUnit].duration       = getDebuffDuration(thisUnit,v,"player") or 0
-            self.debuff[k][thisUnit].remain         = getDebuffRemain(thisUnit,v,"player") or 0
-            self.debuff[k][thisUnit].refresh        = self.debuff[k][thisUnit].remain <= self.debuff[k][thisUnit].duration * 0.3
-            self.debuff[k][thisUnit].stack          = getDebuffStacks(thisUnit,v,"player") or 0
-            self.debuff[k][thisUnit].calc           = self.getSnapshotValue(v)
+            if hasThreat(thisUnit) or (not hasThreat(thisUnit) and getHP(thisUnit) < 100 and UnitIsUnit(thisUnit,"target")) or isDummy(thisUnit) then
+                if self.debuff[k][thisUnit]         == nil then self.debuff[k][thisUnit]            = {} end
+                if self.debuff[k][thisUnit].applied == nil then self.debuff[k][thisUnit].applied    = 0 end
+                self.debuff[k][thisUnit].exists         = UnitDebuffID(thisUnit,v,"player") ~= nil
+                self.debuff[k][thisUnit].duration       = getDebuffDuration(thisUnit,v,"player")
+                self.debuff[k][thisUnit].remain         = getDebuffRemain(thisUnit,v,"player")
+                self.debuff[k][thisUnit].refresh        = self.debuff[k][thisUnit].remain <= self.debuff[k][thisUnit].duration * 0.3
+                self.debuff[k][thisUnit].stack          = getDebuffStacks(thisUnit,v,"player")
+                self.debuff[k][thisUnit].calc           = self.getSnapshotValue(v)
+            else
+               if self.debuff[k][thisUnit] ~= nil then self.debuff[k][thisUnit] = nil end 
+            end
         end
-        -- Default "target" if no enemies present
-        if self.debuff[k]["target"]         == nil then self.debuff[k]["target"]            = {} end
-        if self.debuff[k]["target"].applied == nil then self.debuff[k]["target"].applied    = 0 end
-        self.debuff[k]["target"].exists     = UnitDebuffID("target",v,"player") ~= nil
-        self.debuff[k]["target"].duration       = getDebuffDuration("target",v,"player") or 0
-        self.debuff[k]["target"].remain         = getDebuffRemain("target",v,"player") or 0
-        self.debuff[k]["target"].refresh        = self.debuff[k]["target"].remain <= self.debuff[k]["target"].duration * 0.3
-        self.debuff[k]["target"].stack          = getDebuffStacks("target",v,"player") or 0
-        self.debuff[k]["target"].calc           = self.getSnapshotValue(v)
     end
+    -- for k,v in pairs(ctype.debuffs) do
+    --     -- Build Debuff Table for all units in 40yrds
+    --     if self.debuff[k] == nil then self.debuff[k] = {} end
+    --     for i = 1, #self.enemies.yards40 do
+    --         local thisUnit = self.enemies.yards40[i]
+    --         -- Setup debuff table per unit and per debuff
+    --         if self.debuff[k][thisUnit]         == nil then self.debuff[k][thisUnit]            = {} end
+    --         if self.debuff[k][thisUnit].applied == nil then self.debuff[k][thisUnit].applied    = 0 end
+    --         if br.tracker.query(UnitGUID(thisUnit),v) ~= false then
+    --             local spell = br.tracker.query(UnitGUID(thisUnit),v)
+    --             -- Get the Debuff Info
+    --             self.debuff[k][thisUnit].exists         = true
+    --             self.debuff[k][thisUnit].duration       = spell.duration
+    --             self.debuff[k][thisUnit].remain         = spell.remain
+    --             self.debuff[k][thisUnit].refresh        = spell.refresh
+    --             self.debuff[k][thisUnit].stack          = spell.stacks
+    --             self.debuff[k][thisUnit].calc           = self.getSnapshotValue(v)
+    --             -- self.debuff[k][thisUnit].applied        = 0
+    --         else
+    --             -- Zero Out the Debuff Info
+    --             self.debuff[k][thisUnit].exists         = false
+    --             self.debuff[k][thisUnit].duration       = 0
+    --             self.debuff[k][thisUnit].remain         = 0
+    --             self.debuff[k][thisUnit].refresh        = true
+    --             self.debuff[k][thisUnit].stack          = 0
+    --             self.debuff[k][thisUnit].calc           = self.getSnapshotValue(v)
+    --             self.debuff[k][thisUnit].applied        = 0
+    --         end
+    --     end
+    -- end
 
     -- Cycle through Abilities List
     for k,v in pairs(ctype.abilities) do

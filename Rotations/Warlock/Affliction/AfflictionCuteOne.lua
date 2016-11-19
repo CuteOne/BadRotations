@@ -611,11 +611,13 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                         -- agony,cycle_targets=1,if=remains<=tick_time+gcd
                         for i = 1, #enemies.yards40 do
                             local thisUnit = enemies.yards40[i]
-                            local agony = debuff.agony[thisUnit].remain
-                            if isValidUnit(thisUnit) and agony.remain <= 2 + gcd then
-                                if isCastingSpell(spell.drainLife,units.dyn40) then SpellStopCasting() end
-                                if isCastingSpell(spell.drainSoul,units.dyn40) then SpellStopCasting() end
-                                if cast.agony(thisUnit) then return end
+                            local agony = debuff.agony[thisUnit]
+                            if agony ~= nil then
+                                if isValidUnit(thisUnit) and agony.remain <= 2 + gcd then
+                                    if isCastingSpell(spell.drainLife,units.dyn40) then SpellStopCasting() end
+                                    if isCastingSpell(spell.drainSoul,units.dyn40) then SpellStopCasting() end
+                                    if cast.agony(thisUnit) then return end
+                                end
                             end
                         end
             -- Service Pet
@@ -681,22 +683,26 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                         -- corruption,cycle_targets=1,if=remains<=tick_time+gcd
                         for i = 1, #enemies.yards40 do
                             local thisUnit = enemies.yards40[i]
-                            local corrupting = debuff.corruption[thisUnit]
-                            if isValidUnit(thisUnit) and ((not talent.absoluteCorruption and corruption.remain <= 2 + gcd) or (talent.absoluteCorruption and corruption.remain == 0)) then
-                                if isCastingSpell(spell.drainLife,units.dyn40) then SpellStopCasting() end
-                                if isCastingSpell(spell.drainSoul,units.dyn40) then SpellStopCasting() end
-                                if cast.corruption(thisUnit) then return end
+                            local corruption = debuff.corruption[thisUnit]
+                            if corruptiion ~= nil then
+                                if isValidUnit(thisUnit) and ((not talent.absoluteCorruption and corruption.remain <= 2 + gcd) or (talent.absoluteCorruption and corruption.remain == 0)) then
+                                    if isCastingSpell(spell.drainLife,units.dyn40) then SpellStopCasting() end
+                                    if isCastingSpell(spell.drainSoul,units.dyn40) then SpellStopCasting() end
+                                    if cast.corruption(thisUnit) then return end
+                                end
                             end
                         end
             -- Siphon Life
                         -- siphon_life,cycle_targets=1,if=remains<=tick_time+gcd
                         for i = 1, #enemies.yards40 do
                             local thisUnit = enemies.yards40[i]
-                            local siphoning = debuff.siphonLife[thisUnit]
-                            if isValidUnit(thisUnit) and siphonLife.remain <= 3 + gcd then
-                                if isCastingSpell(spell.drainLife,units.dyn40) then SpellStopCasting() end
-                                if isCastingSpell(spell.drainSoul,units.dyn40) then SpellStopCasting() end
-                                if cast.siphonLife(thisUnit) then return end
+                            local siphonLife = debuff.siphonLife[thisUnit]
+                            if siphonLife ~= nil then
+                                if isValidUnit(thisUnit) and siphonLife.remain <= 3 + gcd then
+                                    if isCastingSpell(spell.drainLife,units.dyn40) then SpellStopCasting() end
+                                    if isCastingSpell(spell.drainSoul,units.dyn40) then SpellStopCasting() end
+                                    if cast.siphonLife(thisUnit) then return end
+                                end
                             end
                         end
             -- Mana Tap
@@ -727,10 +733,12 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                         for i = 1, #enemies.yards40 do
                             local thisUnit = enemies.yards40[i]
                             local agony = debuff.agony[thisUnit]
-                            if isValidUnit(thisUnit) and agony.refresh and ttd(thisUnit) >= agony.remain then
-                                if isCastingSpell(spell.drainLife,units.dyn40) then SpellStopCasting() end
-                                if isCastingSpell(spell.drainSoul,units.dyn40) then SpellStopCasting() end
-                                if cast.agony(thisUnit) then return end
+                            if agony ~= nil then
+                                if isValidUnit(thisUnit) and agony.refresh and ttd(thisUnit) >= agony.remain then
+                                    if isCastingSpell(spell.drainLife,units.dyn40) then SpellStopCasting() end
+                                    if isCastingSpell(spell.drainSoul,units.dyn40) then SpellStopCasting() end
+                                    if cast.agony(thisUnit) then return end
+                                end
                             end
                         end
             -- Corruption
@@ -738,10 +746,12 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                         for i = 1, #enemies.yards40 do
                             local thisUnit = enemies.yards40[i]
                             local corruption = debuff.corruption[thisUnit]
-                            if isValidUnit(thisUnit) and ((not talent.absoluteCorruption and corruption.refresh and ttd(thisUnit) >= corruption.remain) or (talent.absoluteCorruption and corruption.remain == 0)) then
-                                if isCastingSpell(spell.drainLife,units.dyn40) then SpellStopCasting() end
-                                if isCastingSpell(spell.drainSoul,units.dyn40) then SpellStopCasting() end
-                                if cast.corruption(thisUnit) then return end
+                            if corruption ~= nil then
+                                if isValidUnit(thisUnit) and ((not talent.absoluteCorruption and corruption.refresh and ttd(thisUnit) >= corruption.remain) or (talent.absoluteCorruption and corruption.remain == 0)) then
+                                    if isCastingSpell(spell.drainLife,units.dyn40) then SpellStopCasting() end
+                                    if isCastingSpell(spell.drainSoul,units.dyn40) then SpellStopCasting() end
+                                    if cast.corruption(thisUnit) then return end
+                                end
                             end
                         end
             -- Haunt
@@ -756,10 +766,12 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                         for i = 1, #enemies.yards40 do
                             local thisUnit = enemies.yards40[i]
                             local siphonLife = debuff.siphonLife[thisUnit]
-                            if isValidUnit(thisUnit) and siphonLife.refresh and ttd(thisUnit) >= siphonLife.remain then
-                                if isCastingSpell(spell.drainLife,units.dyn40) then SpellStopCasting() end
-                                if isCastingSpell(spell.drainSoul,units.dyn40) then SpellStopCasting() end
-                                if cast.siphonLife(thisUnit) then return end
+                            if siphonLife ~= nil then
+                                if isValidUnit(thisUnit) and siphonLife.refresh and ttd(thisUnit) >= siphonLife.remain then
+                                    if isCastingSpell(spell.drainLife,units.dyn40) then SpellStopCasting() end
+                                    if isCastingSpell(spell.drainSoul,units.dyn40) then SpellStopCasting() end
+                                    if cast.siphonLife(thisUnit) then return end
+                                end
                             end
                         end
             -- Life Tap

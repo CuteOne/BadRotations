@@ -64,6 +64,8 @@ if select(3,UnitClass("player")) == 1 then
                 br.ui:createCheckbox(section,"Piercing Howl", "Check to use Piercing Howl")
                 -- Pre-Pull Timer
                 br.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
+                -- Artifact 
+                br.ui:createDropdownWithout(section,"Artifact", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Artifact Ability.")
             br.ui:checkSectionState(section)
             ------------------------
             --- COOLDOWN OPTIONS ---
@@ -83,6 +85,8 @@ if select(3,UnitClass("player")) == 1 then
                 br.ui:createCheckbox(section,"Touch of the Void")
                 -- Avatar
                 br.ui:createCheckbox(section,"Avatar")
+                -- Battle Cry
+                br.ui:createCheckbox(section,"Battle Cry")
                 -- Bladestorm
                 br.ui:createCheckbox(section,"Bladestorm")
                 -- Bloodbath
@@ -316,9 +320,9 @@ if select(3,UnitClass("player")) == 1 then
             end -- End Action List - Interrupts
         -- Action List - Cooldowns
             function actionList_Cooldowns()
-                if getDistance("target") < 5 then
+                if useCDs() and getDistance("target") < 5 then
             -- Touch of the Void
-                    if useCDs() and isChecked("Touch of the Void") then
+                    if isChecked("Touch of the Void") then
                         if hasEquiped(128318) then
                             if GetItemCooldown(128318)==0 then
                                 useItem(128318)
@@ -326,7 +330,7 @@ if select(3,UnitClass("player")) == 1 then
                         end
                     end
             -- Trinkets
-                    if useCDs() and isChecked("Trinkets") then
+                    if isChecked("Trinkets") then
                         if canUse(13) then
                             useItem(13)
                         end
@@ -340,25 +344,33 @@ if select(3,UnitClass("player")) == 1 then
                     -- potion,name=old_war,if=(target.health.pct<20&buff.battle_cry.up)|target.time_to_die<30
             -- Battle Cry
                     -- battle_cry,if=(cooldown.odyns_fury.remains=0&(cooldown.bloodthirst.remains=0|(buff.enrage.remains>cooldown.bloodthirst.remains)))
-                    if (cd.odynsFury == 0 and (cd.bloodthirst == 0 or (buff.remain.enrage > cd.bloodthirst))) then
-                        if cast.battleCry() then return end
+                    if isChecked("Battle Cry") then
+                        if (cd.odynsFury == 0 and (cd.bloodthirst == 0 or (buff.remain.enrage > cd.bloodthirst))) then
+                            if cast.battleCry() then return end
+                        end
                     end
             -- Avatar
                     -- avatar,if=buff.battle_cry.up|(target.time_to_die<(cooldown.battle_cry.remains+10))
-                    if buff.exists.battleCry or (ttd(units.dyn5) < (cd.battleCry + 10)) then
-                        if cast.avatar() then return end
+                    if isChecked("Avatar") then
+                        if buff.exists.battleCry or (ttd(units.dyn5) < (cd.battleCry + 10)) then
+                            if cast.avatar() then return end
+                        end
                     end
             -- Bloodbath
                     -- bloodbath,if=buff.dragon_roar.up|(!talent.dragon_roar.enabled&(buff.battle_cry.up|cooldown.battle_cry.remains>10))
-                    if buff.exists.dragonRoar or (not talent.dragonRoar and (buff.battleCry or cd.battleCry > 10)) then
-                        if cast.bloodbath() then return end
+                    if isChecked("Bloodbath") then
+                        if buff.exists.dragonRoar or (not talent.dragonRoar and (buff.battleCry or cd.battleCry > 10)) then
+                            if cast.bloodbath() then return end
+                        end
                     end
             -- Racials
                     -- blood_fury,if=buff.battle_cry.up
                     -- berserking,if=buff.battle_cry.up
                     -- arcane_torrent,if=rage<rage.max-40
-                    if ((race == "Orc" or race == "Troll") and buff.exists.battleCry) or (race == "BloodElf" and power < powerMax - 40) then
-                        if castSpell("target",racial,false,false,false) then return end
+                    if isChecked("Racial") then
+                        if ((race == "Orc" or race == "Troll") and buff.exists.battleCry) or (race == "BloodElf" and power < powerMax - 40) then
+                            if castSpell("target",racial,false,false,false) then return end
+                        end
                     end
                 end 
             end
@@ -452,13 +464,17 @@ if select(3,UnitClass("player")) == 1 then
                 end
             -- Dragon Roar
                 -- dragon_roar,if=cooldown.odyns_fury.remains>=10|cooldown.odyns_fury.remains<=3
-                if cd.odynsFury >= 10 or cd.odynsFury <= 3 then
-                    if cast.dragonRoar() then return end
+                if useCDs() and isChecked("Dragon Roar") then
+                    if cd.odynsFury >= 10 or cd.odynsFury <= 3 then
+                        if cast.dragonRoar() then return end
+                    end
                 end
             -- Odyn's Fury
                 -- odyns_fury,if=buff.battle_cry.up&buff.enrage.up
-                if buff.exists.battleCry and buff.exists.enrage then
-                    if cast.odynsFury() then return end
+                if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()) then
+                    if buff.exists.battleCry and buff.exists.enrage then
+                        if cast.odynsFury() then return end
+                    end
                 end
             -- Rampage
                 -- rampage,if=buff.enrage.down&buff.juggernaut.down
@@ -514,8 +530,10 @@ if select(3,UnitClass("player")) == 1 then
                 if actionList_Bladestorm() then return end
             -- Bloodbath
                 -- bloodbath,if=buff.frothing_berserker.up|(rage>80&!talent.frothing_berserker.enabled)
-                if buff.exists.frothingBerserker or (power > 80 and not talent.frothingBerserker) then
-                    if cast.bloodbath() then return end
+                if useCDs() and isChecked("Bloodbath") then
+                    if buff.exists.frothingBerserker or (power > 80 and not talent.frothingBerserker) then
+                        if cast.bloodbath() then return end
+                    end
                 end
             end -- End Action List - Single
         -- Action List - Two Targets
@@ -540,8 +558,10 @@ if select(3,UnitClass("player")) == 1 then
                 end
             -- Odyn's Fury
                 -- odyns_fury,if=buff.battle_cry.up&buff.enrage.up
-                if buff.exists.battleCry and buff.exists.enrage then
-                    if cast.odynsFury() then return end
+                if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()) then
+                    if buff.exists.battleCry and buff.exists.enrage then
+                        if cast.odynsFury() then return end
+                    end
                 end
             -- Raging Blow
                 -- raging_blow,if=talent.inner_rage.enabled&spell_targets.whirlwind=2
@@ -555,7 +575,9 @@ if select(3,UnitClass("player")) == 1 then
                 end
             -- Dragon Roar
                 -- dragon_roar
-                if cast.dragonRoar() then return end
+                if useCDs() and isChecked("Dragon Roar") then
+                    if cast.dragonRoar() then return end
+                end
             -- Bloodthirst
                 -- bloodthirst
                 if cast.bloodthirst() then return end
@@ -585,8 +607,10 @@ if select(3,UnitClass("player")) == 1 then
                 if actionList_Bladestorm() then return end
             -- Odyn's Fury
                 -- odyns_fury,if=buff.battle_cry.up&buff.enrage.up
-                if buff.exists.battleCry and buff.exists.enrage then
-                    if cast.odynsFury() then return end
+                if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()) then
+                    if buff.exists.battleCry and buff.exists.enrage then
+                        if cast.odynsFury() then return end
+                    end
                 end
             -- Whirlwind
                 -- whirlwind,if=buff.enrage.up
@@ -595,7 +619,9 @@ if select(3,UnitClass("player")) == 1 then
                 end
             -- Dragon Roar
                 -- dragon_roar
-                if cast.dragonRoar() then return end
+                if useCDs() and isChecked("Dragon Roar") then
+                    if cast.dragonRoar() then return end
+                end
             -- Rampage
                 -- rampage,if=buff.meat_cleaver.up
                 if buff.exists.meatCleaver then
