@@ -515,7 +515,7 @@ if select(2, UnitClass("player")) == "MONK" then
                             elseif getDistance("target") < 15 and select(3,GetSpellInfo(101545)) == 463281 then                                   
                                 if cast.flyingSerpentKickEnd() then return end
                             elseif OoRchiWave and not FSK then
-                                if (not castable.flyingSerpentKick and (cd.flyingSerpentKick == 0 or cd.flyingSerpentKick > gcd)) or getDistance("target") < 15 then
+                                if (not castable.flyingSerpentKick and (cd.flyingSerpentKick == 0 or cd.flyingSerpentKick > gcd)) or getDistance("target") < 15 or not useFSK() then
                                     print("2: Flying Serpent Kick (Uncastable)");
                                     FSK = true
                                 else
@@ -640,7 +640,7 @@ if select(2, UnitClass("player")) == "MONK" then
                             elseif getDistance("target") < 15 and select(3,GetSpellInfo(101545)) == 463281 then                                   
                                 if cast.flyingSerpentKickEnd() then return end
                             elseif OoRchiWave and not FSK then
-                                if (not castable.flyingSerpentKick and (cd.flyingSerpentKick == 0 or cd.flyingSerpentKick > gcd)) or getDistance("target") < 15 then
+                                if (not castable.flyingSerpentKick and (cd.flyingSerpentKick == 0 or cd.flyingSerpentKick > gcd)) or getDistance("target") < 15 or not useFSK() then
                                     print("2: Flying Serpent Kick (Uncastable)");
                                     FSK = true
                                 else
@@ -766,7 +766,7 @@ if select(2, UnitClass("player")) == "MONK" then
                             elseif getDistance("target") < 15 and select(3,GetSpellInfo(101545)) == 463281 then                                   
                                 if cast.flyingSerpentKickEnd() then return end
                             elseif OoRchiWave and not FSK then
-                                if (not castable.flyingSerpentKick and (cd.flyingSerpentKick == 0 or cd.flyingSerpentKick > gcd)) or getDistance("target") < 15 then
+                                if (not castable.flyingSerpentKick and (cd.flyingSerpentKick == 0 or cd.flyingSerpentKick > gcd)) or getDistance("target") < 15 or not useFSK() then
                                     print("2: Flying Serpent Kick (Uncastable)");
                                     FSK = true
                                 else

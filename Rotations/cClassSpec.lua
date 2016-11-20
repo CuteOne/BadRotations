@@ -3,12 +3,12 @@ function cFileBuild(cFileName,self)
     -- Make tables if not existing
     if self.artifact        == nil then self.artifact           = {} end        -- Artifact Trait Info
     if self.artifact.rank   == nil then self.artifact.rank      = {} end        -- Artifact Trait Rank
-    if self.buff.exists     == nil then self.buff.exists        = {} end        -- Buff Exists
-    if self.buff.duration   == nil then self.buff.duration      = {} end        -- Buff Durations
-    if self.buff.remain     == nil then self.buff.remain        = {} end        -- Buff Time Remaining
-    if self.buff.refresh    == nil then self.buff.refresh       = {} end        -- Buff Refreshable
-    if self.buff.stack      == nil then self.buff.stack         = {} end        -- Buff Stack Count
-    if self.buff.pet        == nil then self.buff.pet           = {} end        -- Buffs on Pets
+    -- if self.buff.exists     == nil then self.buff.exists        = {} end        -- Buff Exists
+    -- if self.buff.duration   == nil then self.buff.duration      = {} end        -- Buff Durations
+    -- if self.buff.remain     == nil then self.buff.remain        = {} end        -- Buff Time Remaining
+    -- if self.buff.refresh    == nil then self.buff.refresh       = {} end        -- Buff Refreshable
+    -- if self.buff.stack      == nil then self.buff.stack         = {} end        -- Buff Stack Count
+    -- if self.buff.pet        == nil then self.buff.pet           = {} end        -- Buffs on Pets
     if self.cast            == nil then self.cast               = {} end        -- Cast Spell Functions
     if self.cast.debug      == nil then self.cast.debug         = {} end        -- Cast Spell Debugging
     if self.charges.frac    == nil then self.charges.frac       = {} end        -- Charges Fractional
@@ -95,58 +95,47 @@ function cFileBuild(cFileName,self)
 
     -- Build Buff Info
     for k,v in pairs(ctype.buffs) do
-        -- Build Buff Table for all friendly units
-        for i = 1, #br.friend do
-            local thisUnit = br.friend[i].unit
-            -- Setup debuff table per unit and per debuff
-            if thisUnit == "player" then
-                self.buff.exists[k]     = UnitBuffID("player",v) ~= nil
-                self.buff.duration[k]   = getBuffDuration("player",v) or 0
-                self.buff.remain[k]     = getBuffRemain("player",v) or 0
-                self.buff.refresh[k]    = self.buff.remain[k] <= self.buff.duration[k] * 0.3
-                self.buff.stack[k]      = getBuffStacks("player",v) or 0
-            else
-                if self.buff[k] == nil then self.buff[k] = {} end
-                if self.buff[k][thisUnit] == nil then self.buff[k][thisUnit] = {} end
-                self.buff[k][thisUnit].exists     = UnitBuffID(thisUnit,v) ~= nil
-                self.buff[k][thisUnit].duration   = getBuffDuration(thisUnit,v) or 0
-                self.buff[k][thisUnit].remain     = getBuffRemain(thisUnit,v) or 0
-                self.buff[k][thisUnit].refresh    = self.buff[k][thisUnit].remain <= self.buff[k][thisUnit].duration * 0.3
-                self.buff[k][thisUnit].stack      = getBuffStacks(thisUnit,v) or 0
-            end
-        end
+        -- Build Buff Table
+        if self.buff[k] == nil then self.buff[k] = {} end
+        self.buff[k].exists     = UnitBuffID("player",v) ~= nil
+        self.buff[k].duration   = getBuffDuration("player",v)
+        self.buff[k].remain     = getBuffRemain("player",v)
+        self.buff[k].refresh    = self.buff[k].remain <= self.buff[k].duration * 0.3
+        self.buff[k].stack      = getBuffStacks("player",v)
     end
 
     -- Build Debuff Info
     function self.getSnapshotValue(dot)
         -- Feral Bleeds
-        if GetSpecializationInfo(GetSpecialization()) == 103 then
-            local multiplier        = 1.00
-            local Bloodtalons       = 1.30
-            local SavageRoar        = 1.40
-            local TigersFury        = 1.15
-            local RakeMultiplier    = 1
-            -- Bloodtalons
-            if self.buff.exists.bloodtalons then multiplier = multiplier*Bloodtalons end
-            -- Savage Roar
-            if self.buff.exists.savageRoar then multiplier = multiplier*SavageRoar end
-            -- Tigers Fury
-            if self.buff.exists.tigersFury then multiplier = multiplier*TigersFury end
-            -- rip
-            if dot == ctype.debuffs.rip then
-                -- -- Versatility
-                -- multiplier = multiplier*(1+Versatility*0.1)
-                -- return rip
-                return 5*multiplier
-            end
-            -- rake
-            if dot == ctype.debuffs.rake then
-                -- Incarnation/Prowl
-                if self.buff.exists.incarnationKingOfTheJungle or self.buff.exists.prowl then
-                    RakeMultiplier = 2
+        if cFileName == "spec" then
+            if GetSpecializationInfo(GetSpecialization()) == 103 then
+                local multiplier        = 1.00
+                local Bloodtalons       = 1.30
+                local SavageRoar        = 1.40
+                local TigersFury        = 1.15
+                local RakeMultiplier    = 1
+                -- Bloodtalons
+                if self.buff.bloodtalons.exists then multiplier = multiplier*Bloodtalons end
+                -- Savage Roar
+                if self.buff.savageRoar.exists then multiplier = multiplier*SavageRoar end
+                -- Tigers Fury
+                if self.buff.tigersFury.exists then multiplier = multiplier*TigersFury end
+                -- rip
+                if dot == ctype.debuffs.rip then
+                    -- -- Versatility
+                    -- multiplier = multiplier*(1+Versatility*0.1)
+                    -- return rip
+                    return 5*multiplier
                 end
-                -- return rake
-                return multiplier*RakeMultiplier
+                -- rake
+                if dot == ctype.debuffs.rake then
+                    -- Incarnation/Prowl
+                    if self.buff.incarnationKingOfTheJungle.exists or self.buff.prowl.exists then
+                        RakeMultiplier = 2
+                    end
+                    -- return rake
+                    return multiplier*RakeMultiplier
+                end
             end
         end
         return 0
@@ -154,19 +143,6 @@ function cFileBuild(cFileName,self)
     for k,v in pairs(ctype.debuffs) do
         -- Build Debuff Table for all enemy units
         if self.debuff[k] == nil then self.debuff[k] = {} end
-        -- Setup Debuffs to "target" default
-        if ObjectExists("target") then
-            if self.debuff[k]["target"]         == nil then self.debuff[k]["target"]            = {} end
-            if self.debuff[k]["target"].applied == nil then self.debuff[k]["target"].applied    = 0 end
-            self.debuff[k]["target"].exists         = UnitDebuffID("target",v,"player") ~= nil
-            self.debuff[k]["target"].duration       = getDebuffDuration("target",v,"player")
-            self.debuff[k]["target"].remain         = getDebuffRemain("target",v,"player")
-            self.debuff[k]["target"].refresh        = self.debuff[k]["target"].remain <= self.debuff[k]["target"].duration * 0.3
-            self.debuff[k]["target"].stack          = getDebuffStacks("target",v,"player")
-            self.debuff[k]["target"].calc           = self.getSnapshotValue(v)
-        else
-            if self.debuff[k]["target"] ~= nil then self.debuff[k]["target"] = nil end
-        end
         -- Setup debuff table per valid unit and per debuff
         for i = 1, #self.enemies.yards40 do
             local thisUnit = self.enemies.yards40[i]
@@ -179,10 +155,14 @@ function cFileBuild(cFileName,self)
                 self.debuff[k][thisUnit].refresh        = self.debuff[k][thisUnit].remain <= self.debuff[k][thisUnit].duration * 0.3
                 self.debuff[k][thisUnit].stack          = getDebuffStacks(thisUnit,v,"player")
                 self.debuff[k][thisUnit].calc           = self.getSnapshotValue(v)
-            else
-               if self.debuff[k][thisUnit] ~= nil then self.debuff[k][thisUnit] = nil end 
+                if UnitIsUnit(thisUnit,"target") then self.debuff[k]["target"] = self.debuff[k][thisUnit] end
             end
         end
+        -- Remove non-valid entries
+        for c,v in pairs(self.debuff[k]) do
+            local thisUnit = c
+            if not ObjectExists(thisUnit) or UnitIsDeadOrGhost(thisUnit) then self.debuff[k][c] = nil end
+        end 
     end
     -- for k,v in pairs(ctype.debuffs) do
     --     -- Build Debuff Table for all units in 40yrds

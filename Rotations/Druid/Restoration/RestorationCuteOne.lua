@@ -132,7 +132,7 @@ if select(2, UnitClass("player")) == "DRUID" then
             local buff                                          = br.player.buff
             local canFlask                                      = canUse(br.player.flask.wod.agilityBig)
             local cast                                          = br.player.cast
-            local clearcast                                     = br.player.buff.clearcasting
+            local clearcast                                     = br.player.buff.clearcasting.exists
             local combatTime                                    = getCombatTime()
             local combo                                         = br.player.comboPoints
             local cd                                            = br.player.cd
@@ -173,7 +173,7 @@ if select(2, UnitClass("player")) == "DRUID" then
             local t18_2pc                                       = TierScan("T18")>=2 --br.player.eq.t18_2pc 
             local t18_4pc                                       = TierScan("T18")>=4 --br.player.eq.t18_4pc
             local talent                                        = br.player.talent
-            local travel, flight, cat, noform                   = br.player.buff.travelForm, br.player.buff.flightForm, br.player.buff.catForm, GetShapeshiftForm()==0
+            local travel, flight, cat, noform                   = br.player.buff.travelForm.exists, br.player.buff.flightForm.exists, br.player.buff.catForm.exists, GetShapeshiftForm()==0
             local trinketProc                                   = false
             local ttd                                           = getTTD
             local ttm                                           = br.player.timeToMax
@@ -196,7 +196,7 @@ if select(2, UnitClass("player")) == "DRUID" then
                 for i = 1, #br.friend do
                     local thisUnit = br.friend[i].unit
                     if thisUnit ~= "player" then
-                        if buff.rejuvenation[thisUnit].exists then
+                        if UnitBuffID(thisUnit,spell.rejuvenation,"player") ~= nil then
                             rejuvCount = rejuvCount + 1
                         end
                     end
@@ -216,7 +216,7 @@ if select(2, UnitClass("player")) == "DRUID" then
 		                if cast.travelForm() then return end
 			        end
 				-- Aquatic Form
-				    if swimming and not travel and not hastar and not deadtar and not buff.prowl then
+				    if swimming and not travel and not hastar and not deadtar and not buff.prowl.exists then
 					  	if cast.travelForm() then return end
 					end
 				-- Cat Form
@@ -249,20 +249,18 @@ if select(2, UnitClass("player")) == "DRUID" then
 			end -- End Action List - Extras
 		-- Action List - Defensive
 			local function actionList_Defensive()
-				if useDefensive() and not stealth and not flight and not buff.prowl then
+				if useDefensive() and not stealth and not flight and not buff.prowl.exists then
 			--Revive/Rebirth
 					if isChecked("Rebirth") then
-						if buff.remain.predatorySwiftness>0 then
-							if getOptionValue("Rebirth - Target")==1 
-                                and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and UnitIsFriend("target","player")
-                            then
-								if cast.rebirth("target","dead") then return end
-							end
-							if getOptionValue("Rebirth - Target")==2 
-                                and UnitIsPlayer("mouseover") and UnitIsDeadOrGhost("mouseover") and UnitIsFriend("mouseover","player")
-                            then
-								if cast.rebirth("mouseover","dead") then return end
-							end
+						if getOptionValue("Rebirth - Target")==1 
+                            and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and UnitIsFriend("target","player")
+                        then
+							if cast.rebirth("target","dead") then return end
+						end
+						if getOptionValue("Rebirth - Target")==2 
+                            and UnitIsPlayer("mouseover") and UnitIsDeadOrGhost("mouseover") and UnitIsFriend("mouseover","player")
+                        then
+							if cast.rebirth("mouseover","dead") then return end
 						end
 					end
 					if isChecked("Revive") then
@@ -430,11 +428,12 @@ if select(2, UnitClass("player")) == "DRUID" then
                             for i = 1, #br.friend do
                                 if br.friend[i].role == "TANK" then
                                     local tankUnit = br.friend[i].unit
+                                    local lifebloomBuff = UnitBuffID(thisUnit,spell.spec.buffs.lifebloom,"player") ~= nil
             -- Cenarion Ward
                                     if cast.cenarionWard(tankUnit) then return end
             -- Lifebloom
                                     -- if not HasHot(Lifebloom)
-                                    if not buff.lifebloom[tankUnit].exists then
+                                    if not lifebloomBuff then
                                         if cast.lifebloom(tankUnit) then return end
                                     end
             -- Swiftmend
@@ -446,7 +445,7 @@ if select(2, UnitClass("player")) == "DRUID" then
             -- Wild Growth
                             -- if (HasBuff(SoulOfTheForest) or (HotCount(Rejuvenation,None) > 5 and Power > MaxPower * 0.1) or CooldownSecRemaining(EssenceOfGHanir) <= GlobalCooldownSec) and 
                             -- (not HasTalent(Flourish) or CooldownSecRemaining(Flourish) > SpellCooldownSec(WildGrowth) or CooldownSecRemaining(Flourish) <= GlobalCooldownSec)
-                            if (buff.soulOfTheForest or (rejuvCount > 5 and power > powermax * 0.1) or cd.essenceOfGhanir <= gcd) 
+                            if (buff.soulOfTheForest.exists or (rejuvCount > 5 and power > powermax * 0.1) or cd.essenceOfGhanir <= gcd) 
                                 and (not talent.flourish or cd.flourish < cd.wildGrowth or cd.flourish <= gcd) 
                             then
                                 if cast.wildGrowth(lowestHP) then return end
@@ -457,7 +456,9 @@ if select(2, UnitClass("player")) == "DRUID" then
                             for i = 1, #br.friend do
                                 if br.friend[i].role == "TANK" then
                                     local tankUnit = br.friend[i].unit
-                                    if buff.rejuvenation[tankUnit].refresh or (talent.germination and buff.germination[tankUnit].refresh) then
+                                    local rejuvenationRefresh = getBuffRemain(thisUnit,spell.spec.buffs.rejuvenation,"player") < getBuffDuration(thisUnit,spell.spec.buffs.rejuvenation,"player") * 0.3
+                                    local germinationRefresh = getBuffRemain(thisUnit,spell.spec.buffs.germination,"player") < getBuffDuration(thisUnit,spell.spec.buffs.germination,"player") * 0.3
+                                    if rejuvenationRefresh or (talent.germination and germinationRefresh) then
                                         if cast.rejuvenation(tankUnit) then return end
                                     end
                                 end
@@ -468,17 +469,18 @@ if select(2, UnitClass("player")) == "DRUID" then
                             -- if BuffRemainingSec(ClearcastingResto) > SpellCastTimeSec(Regrowth) and CanRefreshHot(RegrowthTick)
                             for i = 1, #br.friend do
                                 local thisUnit = br.friend[i].unit
+                                local regrowthRefresh = getBuffRemain(thisUnit,spell.spec.buffs.regrowth,"player") < getBuffDuration(thisUnit,spell.spec.buffs.regrowth,"player") * 0.3
                                 if br.friend[i].role == "TANK" then
-                                    if buff.remain.clearcasting > getCastTime(spell.regrowth) and buff.regrowth[thisUnit].refresh then
+                                    if buff.clearcasting.remain > getCastTime(spell.regrowth) and regrowthRefresh then
                                         if cast.regrowth(thisUnit) then return end
                                     end
-                                elseif buff.remain.clearcasting > getCastTime(spell.regrowth) and buff.regrowth[thisUnit].refresh then
+                                elseif buff.clearcasting.remain > getCastTime(spell.regrowth) and regrowthRefresh then
                                     if cast.regrowth(thisUnit) then return end
                                 end
                             end
             -- Rejuvenation
                             -- if (CanRefreshHot(Rejuvenation) and PeekSavedValue(SotFRejuvenation) < 3 or not HasHot(Rejuvenation)) and Power > MaxPower * 0.3
-                            if buff.rejuvenation[lowestHP].refresh and power > powermax * 0.3 then
+                            if getBuffRemain(lowestHP,spell.spec.buffs.rejuvenation,"player") < getBuffDuration(lowestHP,spell.spec.buffs.rejuvenation,"player") * 0.3 and power > powermax * 0.3 then
                                 if cast.rejuvenation(lowestHP) then return end
                             end 
                         end

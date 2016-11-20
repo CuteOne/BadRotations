@@ -380,7 +380,7 @@ if select(2, UnitClass("player")) == "WARLOCK" then
             local function actionList_PreCombat()
                 -- Summon Pet
                 -- summon_pet,if=!talent.grimoire_of_supremacy.enabled&(!talent.grimoire_of_sacrifice.enabled|buff.demonic_power.down)
-                if not (IsFlying() or IsMounted()) and not talent.grimoireOfSupremacy and (not talent.grimoireOfSacrifice or not buff.exists.demonicPower) then
+                if not (IsFlying() or IsMounted()) and not talent.grimoireOfSupremacy and (not talent.grimoireOfSacrifice or not buff.demonicPower.exists) then
                     if (activePetId == 0 or activePetId ~= summonId) and (lastSpell ~= castSummonId or activePetId ~= summonId) then
                         if summonPet == 1 then
                             if cast.summonImp() then castSummonId = spell.summonImp; return end
@@ -593,8 +593,8 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                         -- implosion,if=prev_gcd.hand_of_guldan&wild_imp_remaining_duration<=3&buff.demonic_synergy.remains
                         -- implosion,if=wild_imp_count<=4&wild_imp_remaining_duration<=action.shadow_bolt.execute_time&spell_targets.implosion>1
                         -- implosion,if=prev_gcd.hand_of_guldan&wild_imp_remaining_duration<=4&spell_targets.implosion>2
-                        if wildImpCount > 0 and ((wildImpRemain <= getCastTime(spell.shadowbolt) and buff.exists.demonicSynergy) 
-                            or (lastSpell == spell.handOfGuldan and wildImpRemain <= 3 and buff.exists.demonicSynergy)
+                        if wildImpCount > 0 and ((wildImpRemain <= getCastTime(spell.shadowbolt) and buff.demonicSynergy.exists) 
+                            or (lastSpell == spell.handOfGuldan and wildImpRemain <= 3 and buff.demonicSynergy.exists)
                             or (wildImpCount <= 4 and wildImpRemain <= getCastTime(spell.shadowbolt) and #enemies.yards8t > 1)
                             or (lastSpell == spell.handOfGuldan and wildImpRemain <= 4 and #enemies.yards8t > 2))
                         then
@@ -665,7 +665,7 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                         -- summon_darkglare,if=cooldown.call_dreadstalkers.remains<=action.summon_darkglare.cast_time&soul_shard>=1&buff.demonic_calling.react
                         if lastSpell == spell.handOfGuldan or lastSpell == spell.callDreadstalkers or (cd.callDreadstalkers > 5 and shards < 3)
                             or (cd.callDreadstalkers <= getCastTime(spell.summonDarkglare) and shards >= 3)
-                            or (cd.callDreadstalkers <= getCastTime(spell.summonDarkglare) and shards >= 1 and buff.exists.demonicCalling)
+                            or (cd.callDreadstalkers <= getCastTime(spell.summonDarkglare) and shards >= 1 and buff.demonicCalling.exists)
                         then
                             if cast.summonDarkglare() then return end
                         end
@@ -677,7 +677,7 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                         if talent.summonDarkglare and (#enemies.yards8t < 3 or not talent.implosion) 
                             and (cd.summonDarkglare > 2 or lastSpell == spell.summonDarkglare 
                                 or (cd.summonDarkglare <= getCastTime(spell.callDreadstalkers) and shards >= 3)
-                                or (cd.summonDarkglare <= getCastTime(spell.callDreadstalkers) and shards >= 1 and buff.exists.demonicCalling))
+                                or (cd.summonDarkglare <= getCastTime(spell.callDreadstalkers) and shards >= 1 and buff.demonicCalling.exists))
                         then
                             if cast.callDreadstalkers() then return end
                         end

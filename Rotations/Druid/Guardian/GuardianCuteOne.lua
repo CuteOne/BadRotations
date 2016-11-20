@@ -176,7 +176,7 @@ if select(2, UnitClass("player")) == "DRUID" then
             local buff                                          = br.player.buff
             local canFlask                                      = canUse(br.player.flask.wod.agilityBig)
             local cast                                          = br.player.cast
-            local clearcast                                     = br.player.buff.clearcasting
+            local clearcast                                     = br.player.buff.clearcasting.exists
             local combatTime                                    = getCombatTime()
             local cd                                            = br.player.cd
             local charges                                       = br.player.charges
@@ -211,7 +211,7 @@ if select(2, UnitClass("player")) == "DRUID" then
             local snapLossHP                                    = 0
             local spell                                         = br.player.spell
             local talent                                        = br.player.talent
-            local travel, flight, bear, cat, noform             = br.player.buff.travelForm, br.player.buff.flightForm, br.player.buff.bearForm, buff.catForm, GetShapeshiftForm()==0
+            local travel, flight, bear, cat, noform             = br.player.buff.travelForm.exists, br.player.buff.flightForm.exists, br.player.buff.bearForm.exists, buff.catForm.exists, GetShapeshiftForm()==0
             local trinketProc                                   = false
             local ttd                                           = getTTD
             local ttm                                           = br.player.timeToMax
@@ -293,7 +293,7 @@ if select(2, UnitClass("player")) == "DRUID" then
             end -- End Action List - Extras
         -- Action List - Defensive
             local function actionList_Defensive()
-                if useDefensive() and not buff.exists.prowl and not flight then
+                if useDefensive() and not buff.prowl.exists and not flight then
             -- Heirloom Neck
                     if isChecked("Heirloom Neck") then
                         if hasEquiped(122668) and php <= getOptionValue("Heirloom Neck") then
@@ -320,7 +320,7 @@ if select(2, UnitClass("player")) == "DRUID" then
                     end
             -- Frenzied Regeneration
                     if isChecked("Frenzied Regeneration") then
-                        if (snapLossHP >= getOptionValue("Frenzied Regeneration") or (snapLossHP > php and snapLossHP > 5)) and not buff.exists.frenziedRegeneration then
+                        if (snapLossHP >= getOptionValue("Frenzied Regeneration") or (snapLossHP > php and snapLossHP > 5)) and not buff.frenziedRegeneration.exists then
                             if cast.frenziedRegeneration() then snapLossHP = 0; return end
                         end
                     end
@@ -381,7 +381,7 @@ if select(2, UnitClass("player")) == "DRUID" then
                     end
             -- Survival Instincts
                     if isChecked("Survival Instincts") then
-                        if php <= getOptionValue("Survival Instincts") and inCombat and not buff.exists.survivalInstincts then
+                        if php <= getOptionValue("Survival Instincts") and inCombat and not buff.survivalInstincts.exists then
                             if cast.survivalInstincts() then return end
                         end
                     end
@@ -485,7 +485,7 @@ if select(2, UnitClass("player")) == "DRUID" then
         -- Action List - PreCombat
             local function actionList_PreCombat()
                 if not inCombat and not (IsFlying() or IsMounted()) then
-                    if not buff.exists.prowl then
+                    if not buff.prowl.exists then
             -- Flask / Crystal
                         -- flask,type=flask_of_the_seventh_demon
                         if isChecked("Flask / Crystal") and not stealth then
@@ -552,21 +552,21 @@ if select(2, UnitClass("player")) == "DRUID" then
                             if cast.maul() then return end
                         end
             -- Bristling Fur
-                        if buff.remain.ironfur < 2 and power < 40 then
+                        if buff.ironfur.remain < 2 and power < 40 then
                             if cast.bristlingFur() then return end
                         end
             -- Ironfur
-                        if not buff.exists.ironfur or powerDeficit < 25 then
+                        if not buff.ironfur.exists or powerDeficit < 25 then
                             if cast.ironfur() then return end
                         end
             -- Moonfire
-                        if buff.exists.galacticGuardian then
+                        if buff.galacticGuardian.exists then
                             if cast.moonfire(units.dyn5) then return end
                         end
             -- Pulverize
                         for i = 1, #enemies.yards5 do
                             local thisUnit = enemies.yards5[i]
-                            if not buff.exists.pulverize then 
+                            if not buff.pulverize.exists then 
                                 if cast.pulverize(thisUnit) then return end
                             end
                         end
@@ -579,7 +579,7 @@ if select(2, UnitClass("player")) == "DRUID" then
             -- Pulverize
                         for i = 1, #enemies.yards5 do
                             local thisUnit = enemies.yards5[i]
-                            if buff.remain.pulverize < gcd then 
+                            if buff.pulverize.remain < gcd then 
                                 if cast.pulverize(thisUnit) then return end
                             end
                         end
@@ -588,12 +588,12 @@ if select(2, UnitClass("player")) == "DRUID" then
             -- Pulverize
                         for i = 1, #enemies.yards5 do
                             local thisUnit = enemies.yards5[i]
-                            if buff.remain.pulverize < 3.6 then 
+                            if buff.pulverize.remain < 3.6 then 
                                 if cast.pulverize(thisUnit) then return end
                             end
                         end
             -- Thrash
-                        if talent.pulverize and buff.remain.pulverize < 3.6 then
+                        if talent.pulverize and buff.pulverize.remain < 3.6 then
                             if cast.thrash() then return end
                         end
             -- Thrash

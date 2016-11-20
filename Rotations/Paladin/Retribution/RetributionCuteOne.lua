@@ -407,8 +407,8 @@ if select(3, UnitClass("player")) == 2 then -- Change specID to ID of spec. IE: 
 						-- divine_storm,if=debuff.judgment.up&spell_targets.divine_storm>=2&buff.divine_purpose.up&buff.divine_purpose.remains<gcd*2
 						-- divine_storm,if=debuff.judgment.up&spell_targets.divine_storm>=2&holy_power>=5&buff.divine_purpose.react
 						-- divine_storm,if=debuff.judgment.up&spell_targets.divine_storm>=2&holy_power>=5&(!talent.crusade.enabled|cooldown.crusade.remains>gcd*3)
-						if judgmentVar and #enemies.yards8 >= 2 and ((buff.divinePurpose and buff.remain.divinePurpose < gcd * 2)
-							or (holyPower >= 5 and buff.exists.divinePurpose)
+						if judgmentVar and #enemies.yards8 >= 2 and ((buff.divinePurpose.exists and buff.divinePurpose.remain < gcd * 2)
+							or (holyPower >= 5 and buff.divinePurpose.exists)
 							or (holyPower >= 5 and (not talent.crusade or cd.crusade > gcd * 3)))
 						then
 							if cast.divineStorm() then return end
@@ -417,8 +417,8 @@ if select(3, UnitClass("player")) == 2 then -- Change specID to ID of spec. IE: 
 						-- justicars_vengeance,if=debuff.judgment.up&buff.divine_purpose.up&buff.divine_purpose.remains<gcd*2&!equipped.whisper_of_the_nathrezim
                         -- justicars_vengeance,if=debuff.judgment.up&holy_power>=5&buff.divine_purpose.react&!equipped.whisper_of_the_nathrezim
                         if isChecked("Justicar's Vengeance") and php < getOptionValue("Justicar's Vengeance") then
-    						if judgmentVar and ((buff.divinePurpose and buff.remain.divinePurpose < gcd * 2 and not hasEquiped(137020)) 
-    							or (holyPower >= 5 and buff.exists.divinePurpose and not hasEquiped(137020))) 
+    						if judgmentVar and ((buff.divinePurpose.exists and buff.divinePurpose.remain < gcd * 2 and not hasEquiped(137020)) 
+    							or (holyPower >= 5 and buff.divinePurpose.exists and not hasEquiped(137020))) 
     						then
     							if cast.justicarsVengeance() then return end
     						end
@@ -427,8 +427,8 @@ if select(3, UnitClass("player")) == 2 then -- Change specID to ID of spec. IE: 
 						-- templars_verdict,if=debuff.judgment.up&buff.divine_purpose.up&buff.divine_purpose.remains<gcd*2
 						-- templars_verdict,if=debuff.judgment.up&holy_power>=5&buff.divine_purpose.react
 						-- templars_verdict,if=debuff.judgment.up&holy_power>=5&(!talent.crusade.enabled|cooldown.crusade.remains>gcd*3)
-						if judgmentVar and ((buff.divinePurpose and buff.remain.divinePurpose < gcd * 2)
-							or (holyPower >= 5 and buff.exists.divinePurpose)
+						if judgmentVar and ((buff.divinePurpose.exists and buff.divinePurpose.remain < gcd * 2)
+							or (holyPower >= 5 and buff.divinePurpose.exists)
 							or (holyPower >= 5 and (not talent.crusade or cd.crusade > gcd * 3)))
 						then
 							if cast.templarsVerdict() then return end
@@ -436,7 +436,7 @@ if select(3, UnitClass("player")) == 2 then -- Change specID to ID of spec. IE: 
 				-- Divine Storm
 						-- divine_storm,if=debuff.judgment.up&holy_power>=3&spell_targets.divine_storm>=2&(cooldown.wake_of_ashes.remains<gcd*2&artifact.wake_of_ashes.enabled|buff.whisper_of_the_nathrezim.up&buff.whisper_of_the_nathrezim.remains<gcd)&(!talent.crusade.enabled|cooldown.crusade.remains>gcd*4)
 						if judgmentVar and holyPower >= 3 and #enemies.yards8 >= 2 
-							and ((cd.wakeOfAshes < gcd * 2 and artifact.wakeOfAshes) or (buff.whisperOfTheNathrezim and buff.remain.whisperOfTheNathrezim < gcd) or not artifact.wakeOfAshes) 
+							and ((cd.wakeOfAshes < gcd * 2 and artifact.wakeOfAshes) or (buff.whisperOfTheNathrezim.exists and buff.whisperOfTheNathrezim.remain < gcd) or not artifact.wakeOfAshes) 
 							and (not talent.crusade or cd.crusade > gcd * 4) 
 						then
 							if cast.divineStorm() then return end
@@ -444,14 +444,14 @@ if select(3, UnitClass("player")) == 2 then -- Change specID to ID of spec. IE: 
 				-- Justicar's Vengeance
 						-- justicars_vengeance,if=debuff.judgment.up&holy_power>=3&buff.divine_purpose.up&cooldown.wake_of_ashes.remains<gcd*2&artifact.wake_of_ashes.enabled&!equipped.whisper_of_the_nathrezim
 						if isChecked("Justicar's Vengeance") and php < getOptionValue("Justicar's Vengeance") then
-                            if judgmentVar and holyPower >= 3 and buff.exists.divinePurpose and ((cd.wakeOfAshes < gcd * 2 and artifact.wakeOfAshes) or not artifact.wakeOfAshes) and not hasEquiped(137020) then
+                            if judgmentVar and holyPower >= 3 and buff.divinePurpose.exists and ((cd.wakeOfAshes < gcd * 2 and artifact.wakeOfAshes) or not artifact.wakeOfAshes) and not hasEquiped(137020) then
     							if cast.justicarsVengeance() then return end
     						end
                         end
 				-- Templar's Verdict
 						-- templars_verdict,if=debuff.judgment.up&holy_power>=3&(cooldown.wake_of_ashes.remains<gcd*2&artifact.wake_of_ashes.enabled|buff.whisper_of_the_nathrezim.up&buff.whisper_of_the_nathrezim.remains<gcd)&(!talent.crusade.enabled|cooldown.crusade.remains>gcd*4)
 						if judgmentVar and holyPower >= 3 
-							and ((cd.wakeOfAshes < gcd * 2 and artifact.wakeOfAshes) or (buff.whisperOfTheNathrezim and buff.remain.whisperOfTheNathrezim < gcd) or not artifact.wakeOfAshes) 
+							and ((cd.wakeOfAshes < gcd * 2 and artifact.wakeOfAshes) or (buff.whisperOfTheNathrezim.exists and buff.whisperOfTheNathrezim.remain < gcd) or not artifact.wakeOfAshes) 
 							and (not talent.crusade or cd.crusade < gcd * 4) 
 						then
 							if cast.templarsVerdict() then return end
@@ -494,8 +494,8 @@ if select(3, UnitClass("player")) == 2 then -- Change specID to ID of spec. IE: 
 						-- divine_storm,if=debuff.judgment.up&spell_targets.divine_storm>=2&buff.divine_purpose.react
 						-- divine_storm,if=debuff.judgment.up&spell_targets.divine_storm>=2&buff.the_fires_of_justice.react&(!talent.crusade.enabled|cooldown.crusade.remains>gcd*3)
 						-- divine_storm,if=debuff.judgment.up&spell_targets.divine_storm>=2&holy_power>=4&(!talent.crusade.enabled|cooldown.crusade.remains>gcd*4)
-						if judgmentVar and #enemies.yards8 >= 2 and (buff.divinePurpose
-							or (buff.theFiresOfJustice and (not talent.crusade or cd.crusade > gcd * 3))
+						if judgmentVar and #enemies.yards8 >= 2 and (buff.divinePurpose.exists
+							or (buff.theFiresOfJustice.exists and (not talent.crusade or cd.crusade > gcd * 3))
 							or (holyPower >= 4 and (not talent.crusade or cd.crusade > gcd * 4)))
 						then
 							if cast.divineStorm() then return end
@@ -503,7 +503,7 @@ if select(3, UnitClass("player")) == 2 then -- Change specID to ID of spec. IE: 
 				-- Justicar's Vengeance
 						-- justicars_vengeance,if=debuff.judgment.up&buff.divine_purpose.react&!equipped.whisper_of_the_nathrezim
                         if isChecked("Justicar's Vengeance") and php < getOptionValue("Justicar's Vengeance") then
-    						if judgmentVar and buff.exists.divinePurpose and not hasEquiped(137020) then
+    						if judgmentVar and buff.divinePurpose.exists and not hasEquiped(137020) then
     							if cast.justicarsVengeance() then return end
     						end
                         end
@@ -511,8 +511,8 @@ if select(3, UnitClass("player")) == 2 then -- Change specID to ID of spec. IE: 
 						-- templars_verdict,if=debuff.judgment.up&buff.divine_purpose.react
 						-- templars_verdict,if=debuff.judgment.up&buff.the_fires_of_justice.react&(!talent.crusade.enabled|cooldown.crusade.remains>gcd*3)
 						-- templars_verdict,if=debuff.judgment.up&holy_power>=4&(!talent.crusade.enabled|cooldown.crusade.remains>gcd*4)
-						if judgmentVar and (buff.divinePurpose
-							or (buff.theFiresOfJustice and (not talent.crusade or cd.crusade > gcd * 3))
+						if judgmentVar and (buff.divinePurpose.exists
+							or (buff.theFiresOfJustice.exists and (not talent.crusade or cd.crusade > gcd * 3))
 							or (holyPower >= 4 and (not talent.crusade or cd.crusade > gcd * 4)))
 						then
 							if cast.templarsVerdict() then return end
@@ -554,18 +554,18 @@ if select(3, UnitClass("player")) == 2 then -- Change specID to ID of spec. IE: 
 			-- Justicar's Vengeance
 						-- if HasBuff(DivinePurpose) and TargetsInRadius(DivineStorm) <= 3
                         if isChecked("Justicar's Vengeance") and php < getOptionValue("Justicar's Vengeance") then
-    						if buff.exists.divinePurpose and #enemies.yards8 <= 3 then
+    						if buff.divinePurpose.exists and #enemies.yards8 <= 3 then
     							if cast.justicarsVengeance(units.dyn5) then return end
     						end
                         end
 			-- Divine Storm
 						-- if (AlternatePower >= 4 or HasBuff(DivinePurpose) or HasBuff(Judgment)) and TargetsInRadius(DivineStorm) > 2
-						if (holyPower >= 3 or buff.exists.divinePurpose or debuff.judgment[units.dyn30].exists) and #enemies.yards8 > 2 then
+						if (holyPower >= 3 or buff.divinePurpose.exists or debuff.judgment[units.dyn30].exists) and #enemies.yards8 > 2 then
 							if cast.divineStorm() then return end
 						end
 			-- Templar's Verdict
 						-- if (AlternatePower >= 4 or HasBuff(DivinePurpose) or HasBuff(Judgment))
-						if (holyPower >= 3 or buff.exists.divinePurpose or debuff.judgment[units.dyn30].exists) then
+						if (holyPower >= 3 or buff.divinePurpose.exists or debuff.judgment[units.dyn30].exists) then
 							if cast.templarsVerdict(units.dyn5) then return end
 						end
 			-- Wake of Ashes

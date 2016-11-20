@@ -131,7 +131,7 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
             local buff                                          = br.player.buff
             local canFlask                                      = canUse(br.player.flask.wod.agilityBig)
             local cast                                          = br.player.cast
-            local clearcast                                     = br.player.buff.clearcasting
+            local clearcast                                     = br.player.buff.clearcasting.exists
             local combatTime                                    = getCombatTime()
             local cd                                            = br.player.cd
             local charges                                       = br.player.charges
@@ -338,7 +338,7 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
         ---------------------------
                     if getOptionValue("APL Mode") == 1 then
             -- Marrowrend
-                        if buff.remain.boneShield < 3 or #enemies.yards10 == 0 then
+                        if buff.boneShield.remain < 3 or #enemies.yards10 == 0 then
                             if cast.marrowrend() then return end
                         end
             -- Blood Boil
@@ -352,7 +352,7 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
                             end
                         end
             -- Death and Decay
-                        if (buff.crimsonScourge or level < 63) and (#enemies.yards8 > 1 or (#enemies.yards8 == 1 and talent.RapidDecomposition)) then
+                        if (buff.crimsonScourge.exists or level < 63) and (#enemies.yards8 > 1 or (#enemies.yards8 == 1 and talent.RapidDecomposition)) then
                             if cast.deathAndDecay("best",false,#enemies.yards8,8) then return end
                         end
             -- Death Strike
@@ -360,7 +360,7 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
                             if cast.deathStrike() then return end
                         end
             -- Marrowrend
-                        if buff.stack.boneShield <= 6 then
+                        if buff.boneShield.stack <= 6 then
                             if cast.marrowrend() then return end
                         end
             -- Death and Decay
@@ -368,7 +368,7 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
                             if cast.deathAndDecay("best",false,#enemies.yards8,8) then return end
                         end
             -- Heart Strike
-                        if runes >= 3 or ((not talent.ossuary or buff.stack.boneShield < 5) and power < 45) or (talent.ossuary and buff.stack.boneShield >= 5 and power < 40) then
+                        if runes >= 3 or ((not talent.ossuary or buff.boneShield.stack < 5) and power < 45) or (talent.ossuary and buff.boneShield.stack >= 5 and power < 40) then
                             if cast.heartStrike() then return end
                         end
             -- Consumption
@@ -402,13 +402,13 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
                         end
             -- Blood Tap
                         -- if Power < 2 and BuffStack(BoneShield) <= BuffMaxStack(BoneShield) - 3
-                        if runes < 2 and buff.stack.boneshield <= 7 then
+                        if runes < 2 and buff.boneshield.stack <= 7 then
                             if cast.bloodTap() then return end
                         end
             -- Marrowrend
                         -- if (BuffStack(BoneShield) <= BuffMaxStack(BoneShield) - 3 and (ArtifactTraitRank(MouthOfHell) = 0 or not HasBuff(DancingRuneWeapon))) or 
                         -- (BuffStack(BoneShield) <= BuffMaxStack(BoneShield) - 4 and ArtifactTraitRank(MouthOfHell) > 0 and HasBuff(DancingRuneWeapon))
-                        if (buff.stack.boneShield <= 7 and (artifact.mouthOfHell or not buff.exists.dancingRuneWeapon)) or (buff.stack.boneShield <= 6 and artifact.mouthOfHell and buff.exists.dancingRuneWeapon) then
+                        if (buff.boneShield.stack <= 7 and (artifact.mouthOfHell or not buff.dancingRuneWeapon.exists)) or (buff.boneShield.stack <= 6 and artifact.mouthOfHell and buff.dancingRuneWeapon.exists) then
                             if cast.marrowrend() then return end
                         end
             -- Blooddrinker
@@ -420,14 +420,14 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
                         if cast.bloodBoil("player") then return end
             -- Death and Decay
                         -- if HasBuff(CrimsonScourge) or HasTalent(RapidDecomposition)
-                        if buff.exists.crimsonScourge or talent.rapidDecomposition then
+                        if buff.crimsonScourge.exists or talent.rapidDecomposition then
                             if cast.deathAndDecay("best",false,#enemies.yards8,8) then return end
                         end
             -- Heart Strike
                         if cast.heartStrike() then return end
             -- Mark of Blood
                         -- if not HasBuff(MarkOfBlood)
-                        if not buff.exists.markOfBlood then 
+                        if not buff.markOfBlood.exists then 
                             if cast.markOfBlood() then return end
                         end      
                     end

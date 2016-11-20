@@ -64,6 +64,7 @@ function cFeral:new()
             berserk                     = 106951,
             bloodtalons                 = 145152,
             clearcasting                = 135700,
+            elunesGuidance              = 202060,
             incarnationKingOfTheJungle  = 102543,
             predatorySwiftness          = 69369,
             savageRoar                  = 52610,

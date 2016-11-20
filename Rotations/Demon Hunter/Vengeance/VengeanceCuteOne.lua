@@ -349,19 +349,22 @@ if select(2, UnitClass("player")) == "DEMONHUNTER" then
                     if cast.soulCarver() then return end
         -- Fiery Brand    
                     -- actions+=/fiery_brand,if=buff.demon_spikes.down&buff.metamorphosis.down
-                    if not buff.exists.demonSpikes and not buff.exists.metamorphosis then
+                    if not buff.demonSpikes.exists and not buff.metamorphosis.exists then
                         if cast.fieryBrand() then return end
                     end
         -- Demon Spikes
                     -- actions+=/demon_spikes,if=charges=2|buff.demon_spikes.down&!dot.fiery_brand.ticking&buff.metamorphosis.down
-                    if (charges.demonSpikes == 2 or not buff.exists.demonSpikes) and not debuff.fieryBrand[units.dyn5].exists and not buff.exists.metamorphosis then
+                    if (charges.demonSpikes == 2 or not buff.demonSpikes.exists) and not debuff.fieryBrand[units.dyn5].exists and not buff.metamorphosis.exists then
                         if cast.demonSpikes() then return end
                     end
         -- Empower Wards
                     -- actions+=/empower_wards,if=debuff.casting.up
                     if useDefensive() and isChecked("Empower Wards") then
-                        if cd.consumeMagic > 0 then
-                            if cast.empowerWards() then return end
+                        for i=1, #enemies.yards30 do
+                            thisUnit = enemies.yards30[i]
+                            if cd.consumeMagic > 0 and castingUnit(thisUnit) then
+                                if cast.empowerWards() then return end
+                            end
                         end
                     end
         -- Infernal Strike
@@ -396,12 +399,12 @@ if select(2, UnitClass("player")) == "DEMONHUNTER" then
                         end
         -- Soul Cleave
                         -- actions+=/soul_cleave,if=soul_fragments=5
-                        if isChecked("Soul Cleave") and buff.stack.soulFragments == 5 then
+                        if isChecked("Soul Cleave") and buff.soulFragments.stack == 5 then
                             if cast.soulCleave(units.dyn5) then return end
                         end
         -- Metamorphosis
                         -- actions+=/metamorphosis,if=buff.demon_spikes.down&!dot.fiery_brand.ticking&buff.metamorphosis.down&incoming_damage_5s>health.max*0.70
-                        if isChecked("Metamorphosis") and not buff.exists.demonSpikes and not debuff.fieryBrand[units.dyn5].exists and not buff.exists.metamorphosis and php < getOptionValue("Metamorphosis") then
+                        if isChecked("Metamorphosis") and not buff.demonSpikes.exists and not debuff.fieryBrand[units.dyn5].exists and not buff.metamorphosis.exists and php < getOptionValue("Metamorphosis") then
                             if cast.metamorphosis() then return end
                         end
         -- Fel Devastation
@@ -425,7 +428,7 @@ if select(2, UnitClass("player")) == "DEMONHUNTER" then
                     end
         -- Fracture
                     -- actions+=/fracture,if=pain>=80&soul_fragments<4&incoming_damage_4s<=health.max*0.20
-                    if pain >= 80 and buff.stack.soulFragments < 4 then
+                    if pain >= 80 and buff.soulFragments.stack < 4 then
                         if cast.fracture() then return end
                     end
         -- Soul Cleave
