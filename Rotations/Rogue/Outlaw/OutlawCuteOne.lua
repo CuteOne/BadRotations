@@ -81,6 +81,8 @@ if select(2, UnitClass("player")) == "ROGUE" then
 	            br.ui:createCheckbox(section, "Agi-Pot")
 	            -- Legendary Ring
 	            br.ui:createCheckbox(section, "Legendary Ring")
+	            -- Marked For Death
+	            br.ui:createSpinner(section, "Marked For Death",  50,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
 	            -- Vanish
 	            br.ui:createCheckbox(section,  "Vanish")
             br.ui:checkSectionState(section)
@@ -388,8 +390,15 @@ if select(2, UnitClass("player")) == "ROGUE" then
 					end
 			-- Marked For Death
 					-- marked_for_death,target_if=min:target.time_to_die,if=target.time_to_die<combo_points.deficit|((raid_event.adds.in>40|buff.true_bearing.remains>15)&combo_points.deficit>=4+talent.deeper_strategem.enabled+talent.anticipation.enabled)
-					if (ttd(units.dyn5) < comboDeficit or ((addsIn > 40 or buff.remain.trueBearing > 15) and comboDeficit >= 4 + dStrat + antital)) and not stealthing then
-						if cast.markedForDeath() then return end
+					if isChecked("Marked For Death") then
+						for i = 1, #enemies.yards30 do
+							local thisUnit = enemies.yards30[i]
+							if not stealthing and (getHP(thisUnit) < getOptionValue("Marked For Death") or ttd(thisUnit) < comboDeficit 
+								or ((addsIn > 40 or buff.remain.trueBearing > 15) and comboDeficit >= 4 + dStrat + antital))
+							then
+								if cast.markedForDeath(thisUnit) then return end
+							end
+						end
 					end
 			-- Sprint
 					-- sprint,if=equipped.thraxis_tricksy_treads&!variable.ss_useable

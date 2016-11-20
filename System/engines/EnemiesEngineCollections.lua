@@ -199,7 +199,7 @@ longTimeCC = {
 	115078, -- Monk - Paralysis
 	8122,   -- Priest - Psychic Scream
 	9484,   -- Priest - Shackle Undead
-	199743, -- Rpgue - Parley
+	199743, -- Rogue - Parley
 	2094,   -- Rogue - Blind
 	1776,   -- Rogue - Gouge
 	6770,   -- Rogue - Sap

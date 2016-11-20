@@ -502,7 +502,7 @@ if select(2, UnitClass("player")) == "MONK" then
                 if isBoss("target") and isValidUnit("target") and opener == false then
                     if talent.whirlingDragonPunch and talent.energizingElixir then
                         -- TP -> TOD -> SEF+RSK -> EE+FoF -> SotW -> TP -> WDP with RSK coming off CD soon
-                        if (isChecked("Pre-Pull Timer") and pullTimer <= getOptionValue("Pre-Pull Timer")) or not isChecked("Pre-Pull Timer") then
+                        if (isChecked("Pre-Pull Timer") and pullTimer <= getOptionValue("Pre-Pull Timer") and not inCombat) or not isChecked("Pre-Pull Timer") or inCombat then
             -- Chi Wave (Out of Range)
                             if not OoRchiWave then
                                 if (not castable.chiWave and (cd.chiWave == 0 or cd.chiWave > gcd)) or getDistance("target") < 25 then
@@ -627,7 +627,7 @@ if select(2, UnitClass("player")) == "MONK" then
                     end -- End Whirling Dragon Punch + Energizing Elixir
                     if talent.whirlingDragonPunch and talent.powerStrikes then
                         -- TP -> ToD -> TP + SEF -> FoF -> SotWL -> TP -> RSK -> WDP -> TP
-                        if (isChecked("Pre-Pull Timer") and pullTimer <= getOptionValue("Pre-Pull Timer")) or not isChecked("Pre-Pull Timer") then
+                        if (isChecked("Pre-Pull Timer") and pullTimer <= getOptionValue("Pre-Pull Timer") and not inCombat) or not isChecked("Pre-Pull Timer") or inCombat then
             -- Chi Wave (Out of Range)
                             if not OoRchiWave then
                                 if (not castable.chiWave and (cd.chiWave == 0 or cd.chiWave > gcd)) or getDistance("target") < 25 then
@@ -753,7 +753,7 @@ if select(2, UnitClass("player")) == "MONK" then
                     end -- End Whirling Dragon Punch + Power Strikes
                     if talent.serenity then
                         -- TP -> ToD -> Serenity + RSK -> SotWL ->  FoF -> RSK -> SCK -> BoK (If it will fit in Serenity)
-                        if (isChecked("Pre-Pull Timer") and pullTimer <= getOptionValue("Pre-Pull Timer")) or not isChecked("Pre-Pull Timer") then
+                        if (isChecked("Pre-Pull Timer") and pullTimer <= getOptionValue("Pre-Pull Timer") and not inCombat) or not isChecked("Pre-Pull Timer") or inCombat then
             -- Chi Wave (Out of Range)
                             if not OoRchiWave then
                                 if (not castable.chiWave and (cd.chiWave == 0 or cd.chiWave > gcd)) or getDistance("target") < 25 then

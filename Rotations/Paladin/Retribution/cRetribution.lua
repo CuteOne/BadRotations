@@ -63,6 +63,9 @@ function cRetribution:new()
         }
         self.spell.spec.buffs           = {
             divinePurpose               = 223819,
+            greaterBlessingOfMight      = 203528,
+            greaterBlessingOfKings      = 203538,
+            greaterBlessingOfWisdom     = 203539,
             theFiresOfJustice           = 209785,
             whisperOfTheNathrezim       = 207635,
         }

@@ -82,6 +82,8 @@ if select(2, UnitClass("player")) == "ROGUE" then
 	            br.ui:createCheckbox(section, "Agi-Pot")
 	            -- Legendary Ring
 	            br.ui:createCheckbox(section, "Legendary Ring")
+	            -- Marked For Death
+	            br.ui:createSpinner(section, "Marked For Death",  50,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
 	            -- Vanish
 	            br.ui:createCheckbox(section, "Vanish")
             br.ui:checkSectionState(section)
@@ -352,8 +354,13 @@ if select(2, UnitClass("player")) == "ROGUE" then
 					end
 			-- Marked For Death
 					-- marked_for_death,target_if=min:target.time_to_die,if=target.time_to_die<combo_points.deficit|combo_points.deficit>=5
-					if ttd("target") < comboDeficit or comboDeficit >= 5 then
-						if cast.markedForDeath() then return end
+					if isChecked("Marked For Death") then
+						for i = 1, #enemies.yards30 do
+							local thisUnit = enemies.yards30[i]
+							if getHP(thisUnit) < getOptionValue("Marked For Death") or ttd(thisUnit) < comboDeficit or comboDeficit >= 5 then
+								if cast.markedForDeath(thisUnit) then return end
+							end
+						end
 					end
 			-- Vendetta
 					-- /vendetta,if=target.time_to_die<20
