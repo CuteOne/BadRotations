@@ -66,7 +66,7 @@ function cOutlaw:new()
             alacrity                = 193538,
             bladeFlurry             = 13877,
             broadsides              = 193356,
-            buriedTreasure          = 193316,
+            buriedTreasure          = 199600,
             curseOfTheDreadblades   = 202665,
             grandMelee              = 193358,
             hiddenBlade             = 202754,
@@ -78,7 +78,7 @@ function cOutlaw:new()
         }
         self.spell.spec.buffs.rollTheBones = {
             broadsides              = 193356,
-            buriedTreasure          = 193316,
+            buriedTreasure          = 199600,
             grandMelee              = 193358,
             jollyRoger              = 199603,
             sharkInfestedWaters     = 193357,
