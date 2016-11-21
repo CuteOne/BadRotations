@@ -183,7 +183,7 @@ if select(2, UnitClass("player")) == "WARLOCK" then
             local pullTimer                                     = br.DBM:getPulltimer()
             local racial                                        = br.player.getRacial()
             local recharge                                      = br.player.recharge
-            local shards                                        = br.player.shards
+            local shards                                        = br.player.soulShards
             local summonPet                                     = getOptionValue("Summon Pet")
             local solo                                          = br.player.instance=="none"
             local spell                                         = br.player.spell
@@ -238,52 +238,24 @@ if select(2, UnitClass("player")) == "WARLOCK" then
             if summonPet == 5 then summonId = 17252 end
             if cd.grimoireOfService == 0 or prevService == nil then prevService = "None" end
             
-            local wildImpCount = 0
-            local wildImpDE = false
-            local wildImpNoDEcount = 0
-            local dreadStalkers = false
-            local dreadStalkersDE = false
-            local darkglare = false
-            local darkglareDE = false
             local doomguard = false
-            local doomguardDE = false
             local infernal = false
-            local infernalDE = false
-            local felguard = false
-            local petDE = buff.pet.demonicEmpowerment
-            local demonwrathPet = false
             if br.player.petInfo ~= nil then
                 for i = 1, #br.player.petInfo do
                     local thisUnit = br.player.petInfo[i].id
-                    local hasDEbuff = br.player.petInfo[i].deBuff
-                    if thisUnit == 55659 then
-                        wildImpCount = wildImpCount + 1
-                        wildImpDE = hasDEbuff
-                        if not hasDEbuff then wildImpNoDEcount = wildImpNoDEcount + 1 end 
-                    end
-                    if thisUnit == 98035 then dreadStalkers = true; dreadStalkersDE = hasDEbuff end
-                    if thisUnit == 103673 then darkglare = true; darkglareDE = hasDEbuff end
-                    if thisUnit == 11859 then doomguard = true; doomguardDE = hasDEbuff end
-                    if thisUnit == 89 then infernal = true; infernalDE = hasDEbuff end
-                    if thisUnit == 17252 then felguard = true end
-                end
-                for i = 1, #br.player.petInfo do
-                    local enemyCount = br.player.petInfo[i].numEnemies
-                    if enemyCount >= 3 then
-                        demonwrathPet = true;
-                        break
-                    else
-                        demonwrathPet = false
-                    end
+                    if thisUnit == 11859 then doomguard = true end
+                    if thisUnit == 89 then infernal = true end
                 end
             end
-            if wildImpCount > 0 and wildImpDuration == 0 then wildImpDuration = GetTime() + 12 end
-            if wildImpCount > 0 and wildImpDuration ~= 0 then wildImpRemain = wildImpDuration - GetTime() end
-            if wildImpCount == 0 then wildImpDuration = 0; wildImpRemain = 0 end
-            if dreadStalkers and dreadStalkersDuration == 0 then dreadStalkersDuration = GetTime() + 12 end
-            if dreadStalkers and dreadStalkersDuration ~= 0 then dreadStalkersRemain = dreadStalkersDuration - GetTime() end
-            if not dreadStalkers then dreadStalkersDuration = 0; dreadStalkersRemain = 0 end 
-
+            local function interruptDrain()
+                if isCastingSpell(spell.drainLife,"player") or isCastingSpell(spell.drainSoul,"player") then
+                    MoveBackwardStart()
+                    MoveBackwardStop()
+                    return
+                else
+                    return
+                end
+            end
 	--------------------
 	--- Action Lists ---
 	--------------------
@@ -336,7 +308,7 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                         if cast.drainLife() then return end
                     end
             -- Health Funnel
-                    if isChecked("Health Funnel") and getHP("pet") <= getOptionValue("Health Funnel") then
+                    if isChecked("Health Funnel") and getHP("pet") <= getOptionValue("Health Funnel") and ObjectExists("pet") and not UnitIsDeadOrGhost("pet") then
                         if cast.healthFunnel() then return end
                     end
             -- Unending gResolve
@@ -416,7 +388,7 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                 -- Food
                     -- food,type=azshari_salad
                     -- TODO
-                    if not isChecked("Opener") or not isBoss("target") then
+                    if (not isChecked("Opener") or opener == true) then
                     -- Summon Infernal
                         -- summon_infernal,if=talent.grimoire_of_supremacy.enabled&active_enemies>=3
                         if useCDs() and isChecked("Summon Infernal") then
@@ -431,18 +403,18 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                                 if cast.summonDoomguard() then return end
                             end
                         end
+                    -- Augmentation
+                        -- augmentation,type=defiled
+                        -- TODO
+                    -- Grimoire of Sacrifice
+                        -- grimoire_of_sacrifice,if=talent.grimoire_of_sacrifice.enabled
+                        if talent.grimoireOfSacrifice and ObjectExists("pet") and not UnitIsDeadOrGhost("pet") then
+                            if cast.grimoireOfSacrifice() then return end
+                        end
                         if isChecked("Pre-Pull Timer") and pullTimer <= getOptionValue("Pre-Pull Timer") then
 
                         end -- End Pre-Pull
-                        if isValidUnit("target") and getDistance("target") < 40 then
-                    -- Augmentation
-                            -- augmentation,type=defiled
-                            -- TODO
-                    -- Grimoire of Sacrifice
-                            -- grimoire_of_sacrifice,if=talent.grimoire_of_sacrifice.enabled
-                            if talent.grimoireOfSacrifice then
-                                if cast.grimoireOfSacrifice() then return end
-                            end
+                        if isValidUnit("target") and getDistance("target") < 40 and (not isChecked("Opener") or opener == true) then
                     -- Potion
                             -- potion,name=deadly_grace
                             -- TODO
@@ -457,91 +429,15 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                                 PetAttack("target")
                             end
                         end
+                    -- Opening Ability
+                        if cast.agony("target") then return end
                     end
                 end -- End No Combat
             end -- End Action List - PreCombat
             local function actionList_Opener()
                 if isBoss("target") and isValidUnit("target") and opener == false then
                     if (isChecked("Pre-Pull Timer") and pullTimer <= getOptionValue("Pre-Pull Timer")) or not isChecked("Pre-Pull Timer") then
-                    -- -- Demonic Empowerment
-                    --     if not DE1 then
-                    --         castOpener("demonicEmpowerment","DE1",1)
-                    -- -- Potion
-                    --     potion,name=deadly_grace
-                    --     elseif useCDs() and canUse(127843) and isChecked("Potion") and getDistance("target") < 15 then
-                    --         print("Potion Used!");
-                    --         useItem(127843)
-                    -- -- Demonbolt/Shadowbolt
-                    --     elseif DE1 and not DSB1 then
-                    --         if talent.demonbolt then
-                    --             castOpener("demonbolt","DSB1",2)
-                    --         else
-                    --             castOpener("shadowbolt","DSB1",2)
-                    --         end
-                    -- -- Doom
-                    --     elseif DSB1 and not DOOM then
-                    --         castOpener("doom","DOOM",3)
-                    -- -- Summon Doomguard
-                    --     elseif DOOM and not SDG then
-                    --         castOpener("summonDoomguard","SDG",4)
-                    -- -- Grimoire: Felguard
-                    --     elseif SDG and not GRF then
-                    --         castOpener("grimoireFelguard","GRF",5)
-                    -- -- Demonic Empowerment
-                    --     elseif GRF and not DE2 then
-                    --         castOpener("demonicEmpowerment","DE2",6)
-                    -- -- Demonbolt/Shadowbolt
-                    --     elseif DE2 and not DSB2 then
-                    --         if talent.demonbolt then
-                    --             castOpener("demonbolt","DSB2",7)
-                    --         else
-                    --             castOpener("shadowbolt","DSB2",7)
-                    --         end
-                    -- -- Summon Darkglare
-                    --     elseif DSB2 and not DGL then
-                    --         castOpener("summonDarkglare","DGL",8)
-                    -- -- Demonic Empowerment
-                    --     elseif DGL and not DE3 then
-                    --         castOpener("demonicEmpowerment","DE3",9)
-                    -- -- Demonbolt/Shadowbolt
-                    --     elseif DE3 and not DSB3 then
-                    --         if talent.demonbolt then
-                    --             castOpener("demonbolt","DSB3",10)
-                    --         else
-                    --             castOpener("shadowbolt","DSB3",10)
-                    --         end
-                    -- -- Demonbolt/Shadowbolt
-                    --     elseif DSB3 and not DSB4 then
-                    --         if talent.demonbolt then
-                    --             castOpener("demonbolt","DSB4",11)
-                    --         else
-                    --             castOpener("shadowbolt","DSB4",11)
-                    --         end
-                    -- -- Demonbolt/Shadowbolt
-                    --     elseif DSB4 and not DSB5 then
-                    --         if talent.demonbolt then
-                    --             castOpener("demonbolt","DSB5",12)
-                    --         else
-                    --             castOpener("shadowbolt","DSB5",12)
-                    --         end
-                    -- -- Soul Harvest
-                    --     elseif DSB5 and not HVST then
-                    --         castOpener("soulHarvest","HVST",13)
-                    -- -- Call Dreadstalkers
-                    --     elseif HVST and not DRS then
-                    --         castOpener("callDreadstalkers","DRS",14)
-                    -- -- Hand of Guldan
-                    --     elseif DRS and not HOG then
-                    --         castOpener("handOfGuldan","HOG",15)
-                    -- -- Demonic Empowerment
-                    --     elseif HOG and not DE5 then
-                    --         castOpener("demonicEmpowerment","DE5",16)
-                    -- -- Thal'kiel's Consumption
-                    --     elseif DE5 and not TKC then
-                    --         castOpener("thalkielsConsumption","TKC",17)
-                    --     elseif TKC then
                             opener = true
-                        -- end
                     end
                 end
             end
@@ -552,7 +448,7 @@ if select(2, UnitClass("player")) == "WARLOCK" then
             if not inCombat and not hastar and profileStop==true then
                 profileStop = false
             elseif (inCombat and profileStop==true) or pause() or mode.rotation==4 then
-                if not pause() then
+                if not pause(true) then
                     PetFollow()
                 end
                 return true
@@ -565,16 +461,16 @@ if select(2, UnitClass("player")) == "WARLOCK" then
     --- Defensive Rotation ---
     --------------------------
                 if actionList_Defensive() then return end
-    ------------------------------
-    --- Out of Combat Rotation ---
-    ------------------------------
-                if actionList_PreCombat() then return end
     -----------------------
     --- Opener Rotation ---
     -----------------------
                 if opener == false and isChecked("Opener") and isBoss("target") then
                     if actionList_Opener() then return end
                 end
+    ---------------------------
+    --- Pre-Combat Rotation ---
+    ---------------------------
+                if actionList_PreCombat() then return end
     --------------------------
     --- In Combat Rotation ---
     --------------------------
@@ -596,15 +492,13 @@ if select(2, UnitClass("player")) == "WARLOCK" then
             -- Reap Souls
                         -- reap_souls,if=actions=reap_souls,if=!buff.deadwind_harvester.remains&(buff.soul_harvest.remains|buff.tormented_souls.react>=8|target.time_to_die<=buff.tormented_souls.react*5|trinket.proc.any.react)
                         if not buff.deadwindHarvester.exists and (buff.soulHarvest.exists or buff.tormentedSouls.stack >= 8 or ttd(units.dyn40) <= buff.tormentedSouls.stack * 5) then
-                            if isCastingSpell(spell.drainLife,units.dyn40) then SpellStopCasting() end
-                            if isCastingSpell(spell.drainSoul,units.dyn40) then SpellStopCasting() end
+                            interruptDrain()
                             if cast.reapSouls() then return end
                         end
             -- Soul Effigy
                         -- soul_effigy,if=!pet.soul_effigy.active
                         if not effigied then
-                            if isCastingSpell(spell.drainLife,units.dyn40) then SpellStopCasting() end
-                            if isCastingSpell(spell.drainSoul,units.dyn40) then SpellStopCasting() end
+                            interruptDrain()
                             if cast.soulEffigy() then return end
                         end
             -- Agony
@@ -614,29 +508,30 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                             local agony = debuff.agony[thisUnit]
                             if agony ~= nil then
                                 if isValidUnit(thisUnit) and agony.remain <= 2 + gcd then
-                                    if isCastingSpell(spell.drainLife,units.dyn40) then SpellStopCasting() end
-                                    if isCastingSpell(spell.drainSoul,units.dyn40) then SpellStopCasting() end
+                                    interruptDrain()
                                     if cast.agony(thisUnit) then return end
                                 end
                             end
                         end
             -- Service Pet
                         -- service_pet,if=dot.corruption.remains&dot.agony.remains
-                        if debuff.corruption[units.dyn40].exists and debuff.agony[units.dyn40].exists and br.timer:useTimer("castGrim", gcd) then
-                            if grimoirePet == 1 then
-                                if cast.grimoireImp() then prevService = "Imp"; return end
-                            end
-                            if grimoirePet == 2 then
-                                if cast.grimoireVoidwalker() then prevService = "Voidwalker"; return end
-                            end
-                            if grimoirePet == 3 then
-                                if cast.grimoireFelhunter() then prevService = "Felhunter"; return end
-                            end
-                            if grimoirePet == 4 then
-                                if cast.grimoireSuccubus() then prevService = "Succubus"; return end
-                            end
-                            if grimoirePet == 5 then
-                                if cast.grimoireFelguard() then prevService = "Felguard"; return end
+                        if ObjectExists("target") then
+                            if debuff.corruption["target"].exists and debuff.agony["target"].exists and br.timer:useTimer("castGrim", gcd) then
+                                if grimoirePet == 1 then
+                                    if cast.grimoireImp() then prevService = "Imp"; return end
+                                end
+                                if grimoirePet == 2 then
+                                    if cast.grimoireVoidwalker() then prevService = "Voidwalker"; return end
+                                end
+                                if grimoirePet == 3 then
+                                    if cast.grimoireFelhunter() then prevService = "Felhunter"; return end
+                                end
+                                if grimoirePet == 4 then
+                                    if cast.grimoireSuccubus() then prevService = "Succubus"; return end
+                                end
+                                if grimoirePet == 5 then
+                                    if cast.grimoireFelguard() then prevService = "Felguard"; return end
+                                end
                             end
                         end
             -- Summon Doomguard
@@ -645,8 +540,7 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                             if not talent.grimoireOfSupremacy and #enemies.yards10 < 3
                                 and (ttd(units.dyn40) > 180 or thp(units.dyn40) <= 20 or ttd(units.dyn40) < 30)
                             then
-                                if isCastingSpell(spell.drainLife,units.dyn40) then SpellStopCasting() end
-                                if isCastingSpell(spell.drainSoul,units.dyn40) then SpellStopCasting() end
+                                interruptDrain()
                                 if cast.summonDoomguard() then summonTime = GetTime(); return end
                             end
                         end
@@ -654,8 +548,7 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                         -- summon_infernal,if=!talent.grimoire_of_supremacy.enabled&spell_targets.summon_infernal>=3
                         if useCDs() and isChecked("Summon Infernal") then
                             if not talent.grimoireOfSupremacy and #enemies.yards10 >= 3 then
-                                if isCastingSpell(spell.drainLife,units.dyn40) then SpellStopCasting() end
-                                if isCastingSpell(spell.drainSoul,units.dyn40) then SpellStopCasting() end
+                                interruptDrain()
                                 if cast.summonInfernal() then summonTime = GetTime(); return end
                             end
                         end
@@ -663,8 +556,7 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                         -- summon_doomguard,if=talent.grimoire_of_supremacy.enabled&spell_targets.summon_infernal<3&equipped.132379&!cooldown.sindorei_spite_icd.remains
                         if useCDs() and isChecked("Summon Doomguard") then
                             if talent.grimoireOfSupremacy and #enemies.yards10 < 3 and hasEquiped(132379) and GetTime() > summonTime + 275 then
-                                if isCastingSpell(spell.drainLife,units.dyn40) then SpellStopCasting() end
-                                if isCastingSpell(spell.drainSoul,units.dyn40) then SpellStopCasting() end
+                                interruptDrain()
                                 if cast.summonDoomguard() then summonTime = GetTime(); return end
                             end
                         end
@@ -672,8 +564,7 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                         -- summon_infernal,if=talent.grimoire_of_supremacy.enabled&spell_targets.summon_infernal>=3&equipped.132379&!cooldown.sindorei_spite_icd.remains
                         if useCDs() and isChecked("Summon Infernal") then
                             if talent.grimoireOfSupremacy and #enemies.yards10 >= 3 and hasEquiped(132379) and GetTime() > summonTime + 275 then
-                                if isCastingSpell(spell.drainLife,units.dyn40) then SpellStopCasting() end
-                                if isCastingSpell(spell.drainSoul,units.dyn40) then SpellStopCasting() end
+                                interruptDrain()
                                 if cast.summonInfernal() then summonTime = GetTime(); return end
                             end
                         end
@@ -686,8 +577,7 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                             local corruption = debuff.corruption[thisUnit]
                             if corruptiion ~= nil then
                                 if isValidUnit(thisUnit) and ((not talent.absoluteCorruption and corruption.remain <= 2 + gcd) or (talent.absoluteCorruption and corruption.remain == 0)) then
-                                    if isCastingSpell(spell.drainLife,units.dyn40) then SpellStopCasting() end
-                                    if isCastingSpell(spell.drainSoul,units.dyn40) then SpellStopCasting() end
+                                    interruptDrain()
                                     if cast.corruption(thisUnit) then return end
                                 end
                             end
@@ -699,8 +589,7 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                             local siphonLife = debuff.siphonLife[thisUnit]
                             if siphonLife ~= nil then
                                 if isValidUnit(thisUnit) and siphonLife.remain <= 3 + gcd then
-                                    if isCastingSpell(spell.drainLife,units.dyn40) then SpellStopCasting() end
-                                    if isCastingSpell(spell.drainSoul,units.dyn40) then SpellStopCasting() end
+                                    interruptDrain()
                                     if cast.siphonLife(thisUnit) then return end
                                 end
                             end
@@ -708,23 +597,20 @@ if select(2, UnitClass("player")) == "WARLOCK" then
             -- Mana Tap
                         -- mana_tap,if=buff.mana_tap.remains<=buff.mana_tap.duration*0.3&(mana.pct<20|buff.mana_tap.remains<=gcd)&target.time_to_die>buff.mana_tap.duration*0.3
                         if buff.manaTap.refresh and (manaPercent < 20 or buff.manaTap.remain <= gcd) and ttd(units.dyn40) > buff.manaTap.duration * 0.3 then
-                            if isCastingSpell(spell.drainLife,units.dyn40) then SpellStopCasting() end
-                            if isCastingSpell(spell.drainSoul,units.dyn40) then SpellStopCasting() end
+                            interruptDrain()
                             if cast.manaTap() then return end
                         end
             -- Phantom Singularity
                         -- phantom_singularity
                         if castable.phantomSingularity then
-                            if isCastingSpell(spell.drainLife,units.dyn40) then SpellStopCasting() end
-                            if isCastingSpell(spell.drainSoul,units.dyn40) then SpellStopCasting() end
+                            interruptDrain()
                             if cast.phantomSingularity() then return end
                         end
             -- Unsable Affliction
                         -- unstable_affliction,if=talent.contagion.enabled|(soul_shard>=4|trinket.proc.intellect.react|trinket.stacking_proc.mastery.react|trinket.proc.mastery.react|trinket.proc.crit.react|trinket.proc.versatility.react|buff.soul_harvest.remains|buff.deadwind_harvester.remains|buff.compounding_horror.react=5|target.time_to_die<=20)
                         if talent.contagion or (shards >= 4 or buff.soulHarvest.exists or buff.deadwindHarvester.exists or buff.compoundingHorror.stack == 5 or ttd(units.dyn40) <= 20) then
                             if lastSpell ~= spell.unstableAffliction then
-                                if isCastingSpell(spell.drainLife,units.dyn40) then SpellStopCasting() end
-                                if isCastingSpell(spell.drainSoul,units.dyn40) then SpellStopCasting() end
+                                interruptDrain()
                                 if cast.unstableAffliction() then return end
                             end
                         end
@@ -735,8 +621,7 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                             local agony = debuff.agony[thisUnit]
                             if agony ~= nil then
                                 if isValidUnit(thisUnit) and agony.refresh and ttd(thisUnit) >= agony.remain then
-                                    if isCastingSpell(spell.drainLife,units.dyn40) then SpellStopCasting() end
-                                    if isCastingSpell(spell.drainSoul,units.dyn40) then SpellStopCasting() end
+                                    interruptDrain()
                                     if cast.agony(thisUnit) then return end
                                 end
                             end
@@ -748,8 +633,7 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                             local corruption = debuff.corruption[thisUnit]
                             if corruption ~= nil then
                                 if isValidUnit(thisUnit) and ((not talent.absoluteCorruption and corruption.refresh and ttd(thisUnit) >= corruption.remain) or (talent.absoluteCorruption and corruption.remain == 0)) then
-                                    if isCastingSpell(spell.drainLife,units.dyn40) then SpellStopCasting() end
-                                    if isCastingSpell(spell.drainSoul,units.dyn40) then SpellStopCasting() end
+                                    interruptDrain()
                                     if cast.corruption(thisUnit) then return end
                                 end
                             end
@@ -757,8 +641,7 @@ if select(2, UnitClass("player")) == "WARLOCK" then
             -- Haunt
                         -- haunt
                         if castable.haunt then
-                            if isCastingSpell(spell.drainLife,units.dyn40) then SpellStopCasting() end
-                            if isCastingSpell(spell.drainSoul,units.dyn40) then SpellStopCasting() end
+                            interruptDrain()
                             if cast.haunt() then return end
                         end
             -- Siphon Life
@@ -768,8 +651,7 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                             local siphonLife = debuff.siphonLife[thisUnit]
                             if siphonLife ~= nil then
                                 if isValidUnit(thisUnit) and siphonLife.refresh and ttd(thisUnit) >= siphonLife.remain then
-                                    if isCastingSpell(spell.drainLife,units.dyn40) then SpellStopCasting() end
-                                    if isCastingSpell(spell.drainSoul,units.dyn40) then SpellStopCasting() end
+                                    interruptDrain()
                                     if cast.siphonLife(thisUnit) then return end
                                 end
                             end
@@ -777,19 +659,20 @@ if select(2, UnitClass("player")) == "WARLOCK" then
             -- Life Tap
                         -- life_tap,if=mana.pct<=30
                         if manaPercent <= 10 and php > getOptionValue("Life Tap HP Limit") then
-                            if isCastingSpell(spell.drainLife,units.dyn40) then SpellStopCasting() end
-                            if isCastingSpell(spell.drainSoul,units.dyn40) then SpellStopCasting() end
+                            interruptDrain()
                             if cast.lifeTap() then return end
                         end
             -- Drain Soul
                         -- drain_soul,chain=1,interrupt=1
-                        if cast.drainSoul(units.dyn40) then return end
+                        if not isCastingSpell(spell.drainSoul,"player") then
+                            if not ObjectExists("target") then TargetUnit("target") end
+                            if cast.drainSoul("target") then return end
+                        end
             -- Drain Life
                         -- drain_life,chain=1,interrupt=1
-                        if not isCastingSpell(spell.drainLife,units.dyn40) then
+                        if not isCastingSpell(spell.drainLife,"player") then
                             if not ObjectExists("target") then TargetUnit(units.dyn40) end
-                            if isCastingSpell(spell.drainSoul,units.dyn40) then SpellStopCasting() end
-                            if cast.drainLife(units.dyn40) then return end
+                            if cast.drainLife("target") then return end
                         end
             -- Life Tap
                         --life_tap

@@ -50,6 +50,7 @@ function cGuardian:new()
             survivalInstincts           = 61336,
         }
         self.spell.spec.debuffs         = {
+            moonfireGuardian            = 164812,
             thrash                      = 192090,
         }
         self.spell.spec.glyphs          = {

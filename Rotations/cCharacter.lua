@@ -339,7 +339,7 @@ function cCharacter:new(class)
 			-- Horde
 			BloodElf = 129597, -- Arcane Torrent
 			Goblin   = 69041, -- Rocket Barrage
-			Orc      = 33697, -- Blood Fury
+			Orc      = 33702, -- Blood Fury
 			Tauren   = 20549, -- War Stomp
 			Troll    = 26297, -- Berserking
 			Scourge  = 7744,  -- Will of the Forsaken

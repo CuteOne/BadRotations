@@ -68,6 +68,7 @@ function cRestoration:new()
         lifebloom                   = 33763,
         rejuvenation                = 774,
         regrowth                    = 8936,
+        soulOfTheForest             = 114108,
     }
     self.spell.spec.debuffs         = {
 

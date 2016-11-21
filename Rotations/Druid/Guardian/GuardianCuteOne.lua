@@ -263,7 +263,7 @@ if select(2, UnitClass("player")) == "DRUID" then
 					  	if cast.travelForm() then return end
 					end
                 -- Cat Form when not swimming or flying or stag and not in combat
-                    if not cat and not inCombat and moving and not swimming and not flying and not travel and (#enemies.yards20 == 0 or not bear) and not ObjectExists("target") then
+                    if not cat and not inCombat and moving and not swimming and not flying and not travel and (#enemies.yards20 == 0 or not bear) and not ObjectExists("target") and not IsMounted() then
                         if cast.catForm() then return end
                     end
                 -- Bear Form
@@ -530,7 +530,7 @@ if select(2, UnitClass("player")) == "DRUID" then
     --- In Combat Rotation ---
     --------------------------
             -- Cat is 4 fyte!
-                if inCombat and not bear and not (flight or travel) then
+                if inCombat and not bear and not (flight or travel or IsMounted() or IsFlying()) then
                     -- if cast.catForm() then return end
                 elseif inCombat and bear and profileStop==false and isValidUnit("target") then
 
@@ -559,8 +559,19 @@ if select(2, UnitClass("player")) == "DRUID" then
                             if cast.ironfur() then return end
                         end
             -- Moonfire
-                        if buff.galacticGuardian.exists then
-                            if cast.moonfire(units.dyn5) then return end
+                        if #enemies.yards40 < 4 then
+                            for i = 1, #enemies.yards40 do
+                                local thisUnit = enemies.yards40[i]
+                                local moonfire = debuff.moonfireGuardian[thisUnit]
+                                if moonfire ~= nil then
+                                    if moonfire.refresh and buff.galacticGuardian.exists and isValidUnit(thisUnit) then
+                                        if cast.moonfire(thisUnit) then return end
+                                    end
+                                end
+                            end
+                        end
+                        if buff.galacticGuardian.exists and isValidUnit("target") then
+                            if cast.moonfire("target") then return end
                         end
             -- Pulverize
                         for i = 1, #enemies.yards5 do
@@ -603,7 +614,7 @@ if select(2, UnitClass("player")) == "DRUID" then
                         if #enemies.yards40 < 4 then
                             for i = 1, #enemies.yards40 do
                                 local thisUnit = enemies.yards40[i]
-                                local moonfire = debuff.moonfire[thisUnit]
+                                local moonfire = debuff.moonfireGuardian[thisUnit]
                                 if moonfire ~= nil then
                                     if isValidUnit(thisUnit) and (multidot or (UnitIsUnit(thisUnit,units.dyn5) and not multidot)) then
                                         if (moonfire.remain == 0 or moonfire.remain < 3.6 or moonfire.remain < 7.2) then

@@ -76,7 +76,7 @@ function castGroundAtBestLocation(spellID, radius, minUnits, maxRange, minRange,
 	--print("______________________1")
 	for i=1,#unitTable do
 		local thisUnit = unitTable[i].unit
-		local thisDistance = unitTable[i].distance
+		local thisDistance = getDistance(unitTable[i])
 		local hasThreat = isValidUnit(unitTable[i].unit) or UnitIsFriend(unitTable[i].unit,"player") --hasThreat(br.enemy[i].unit)
 		--print(thisUnit.." - "..thisDistance)
 		if isNotBlacklisted(thisUnit) then

@@ -370,7 +370,7 @@ if select(2, UnitClass("player")) == "DEMONHUNTER" then
         -- Infernal Strike
                     -- actions+=/infernal_strike,if=!sigil_placed&!in_flight&remains-travel_time-delay<0.3*duration&artifact.fiery_demise.enabled&dot.fiery_brand.ticking
                     -- actions+=/infernal_strike,if=!sigil_placed&!in_flight&remains-travel_time-delay<0.3*duration&(!artifact.fiery_demise.enabled|(max_charges-charges_fractional)*recharge_time<cooldown.fiery_brand.remains+5)&(cooldown.sigil_of_flame.remains>7|charges=2)
-                    if useMover() and charges.infernalStrike > 1 and ((artifact.fieryDemise and debuff.fieryBrand[units.dyn5].exists) or 
+                    if useMover() and getDistance(units,dyn5) < 5 and charges.infernalStrike > 1 and ((artifact.fieryDemise and debuff.fieryBrand[units.dyn5].exists) or 
                         ((not artifact.fieryDemise or ((charges.max.infernalStrike - charges.frac.inferanalStrike) * recharge.infernalStrike < cd.fieryBrand + 5)) and (cd.sigilOfFlame > 7 or charges.infernalStrike ==2))) 
                     then
                         -- if cast.infernalStrike("best",false,1,6) then return end

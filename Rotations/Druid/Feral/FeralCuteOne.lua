@@ -839,7 +839,7 @@ if select(2, UnitClass("player")) == "DRUID" then
             -- TODO: food,type=nightborne_delicacy_platte
             -- TOOD: augmentation,type=defiled
             -- Prowl - Non-PrePull
-                        if cat and #enemies.yards20 > 0 and useProwl() --[[and not inInstance and not inRaid]] and GetTime()-leftCombat > lootDelay then 
+                        if cat and #enemies.yards20 > 0 and useProwl() and not IsResting() and GetTime()-leftCombat > lootDelay then 
                             for i = 1, #enemies.yards20 do
                                 local thisUnit = enemies.yards20[i]
                                 if UnitIsEnemy(thisUnit,"player") or isDummy("target") then

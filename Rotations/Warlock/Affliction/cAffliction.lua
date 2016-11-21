@@ -22,7 +22,7 @@ function cAffliction:new()
         	agony 						= 980,
         	corruption 					= 172,
         	drainSoul 					= 198590,
-        	grimoireOfSacrifice 		= 108501,
+        	grimoireOfSacrifice 		= 108503,
         	haunt 						= 48181,
         	howlOfTerror 				= 5484,
         	manaTap 					= 196104,
@@ -56,13 +56,15 @@ function cAffliction:new()
         self.spell.spec.buffs           = {
         	compoundingHorror 			= 199281,
         	deadwindHarvester 			= 216708,
+            demonicPower                = 196099,
         	manaTap 					= 196104,
         	tormentedSouls 				= 216695,
         }
         self.spell.spec.debuffs         = {
         	agony 						= 980,
-        	corruption 					= 172, --146739,
-        	siphonLife 					= 63106,        	
+        	corruption 					= 146739, --172
+        	siphonLife 					= 63106,  
+            -- unstableAffliction          = 233496, 233490     	
         }
         self.spell.spec.glyphs          = {
 
@@ -71,7 +73,7 @@ function cAffliction:new()
         	absoluteCorruption 			= 196103,
         	contagion 					= 196105,
         	drainSoul 					= 198590,
-        	grimoireOfSacrifice 		= 108501,
+        	grimoireOfSacrifice 		= 108503,
         	haunt 						= 48181,
         	howlOfTerror 				= 5484,
         	manaTap 					= 196104,
@@ -119,7 +121,6 @@ function cAffliction:new()
             self.petInfo = {}
             for i = 1, ObjectCount() do
                 -- define our unit
-                --local thisUnit = GetObjectIndex(i)
                 local thisUnit = GetObjectWithIndex(i)
                 -- check if it a unit first
                 if ObjectIsType(thisUnit, ObjectTypes.Unit)  then

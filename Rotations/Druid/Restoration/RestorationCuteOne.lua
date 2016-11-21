@@ -202,8 +202,8 @@ if select(2, UnitClass("player")) == "DRUID" then
                     end
                 end
             end
+            -- ChatOverlay(br.player.mana..", "..powermax)
             -- ChatOverlay(round2(getDistance("target","player","dist"),2)..", "..round2(getDistance("target","player","dist2"),2)..", "..round2(getDistance("target","player","dist3"),2)..", "..round2(getDistance("target","player","dist4"),2))
-            
 	--------------------
 	--- Action Lists ---
 	--------------------
@@ -419,16 +419,22 @@ if select(2, UnitClass("player")) == "DRUID" then
         --- SimulationCraft APL ---
         ---------------------------
                         if getOptionValue("APL Mode") == 1 then
-           
+                            -- for i = 1, #br.friend do
+                            --     if br.friend[i].role == "TANK" then
+                            --         local tankUnit = br.friend[i].unit
+
+                            --     end
+                            -- end           
                         end -- End SimC APL
         ------------------------
         --- Ask Mr Robot APL ---
         ------------------------
                         if getOptionValue("APL Mode") == 2 then
                             for i = 1, #br.friend do
-                                if br.friend[i].role == "TANK" then
+                                local npcID = string.match(UnitGUID(br.friend[i].unit),"-(%d+)-%x+$")
+                                if UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" or npcID == "72218" then
                                     local tankUnit = br.friend[i].unit
-                                    local lifebloomBuff = UnitBuffID(thisUnit,spell.spec.buffs.lifebloom,"player") ~= nil
+                                    local lifebloomBuff = UnitBuffID(tankUnit,spell.spec.buffs.lifebloom,"player") ~= nil
             -- Cenarion Ward
                                     if cast.cenarionWard(tankUnit) then return end
             -- Lifebloom
@@ -454,10 +460,11 @@ if select(2, UnitClass("player")) == "DRUID" then
                             -- if (CanRefreshHot(Rejuvenation) and PeekSavedValue(SotFRejuvenation) < 3 or not HasHot(Rejuvenation)) or 
                             -- (HasTalent(Germination) and (CanRefreshHot(RejuvenationGermination) and PeekSavedValue(SotFGermination) < 3 or not HasHot(RejuvenationGermination)))
                             for i = 1, #br.friend do
-                                if br.friend[i].role == "TANK" then
+                                local npcID = string.match(UnitGUID(br.friend[i].unit),"-(%d+)-%x+$")
+                                if UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" or npcID == "72218" then
                                     local tankUnit = br.friend[i].unit
-                                    local rejuvenationRefresh = getBuffRemain(thisUnit,spell.spec.buffs.rejuvenation,"player") < getBuffDuration(thisUnit,spell.spec.buffs.rejuvenation,"player") * 0.3
-                                    local germinationRefresh = getBuffRemain(thisUnit,spell.spec.buffs.germination,"player") < getBuffDuration(thisUnit,spell.spec.buffs.germination,"player") * 0.3
+                                    local rejuvenationRefresh = getBuffRemain(tankUnit,spell.spec.buffs.rejuvenation,"player") <= getBuffDuration(tankUnit,spell.spec.buffs.rejuvenation,"player") * 0.3
+                                    local germinationRefresh = getBuffRemain(tankUnit,spell.spec.buffs.germination,"player") <= getBuffDuration(tankUnit,spell.spec.buffs.germination,"player") * 0.3
                                     if rejuvenationRefresh or (talent.germination and germinationRefresh) then
                                         if cast.rejuvenation(tankUnit) then return end
                                     end
@@ -469,8 +476,9 @@ if select(2, UnitClass("player")) == "DRUID" then
                             -- if BuffRemainingSec(ClearcastingResto) > SpellCastTimeSec(Regrowth) and CanRefreshHot(RegrowthTick)
                             for i = 1, #br.friend do
                                 local thisUnit = br.friend[i].unit
-                                local regrowthRefresh = getBuffRemain(thisUnit,spell.spec.buffs.regrowth,"player") < getBuffDuration(thisUnit,spell.spec.buffs.regrowth,"player") * 0.3
-                                if br.friend[i].role == "TANK" then
+                                local regrowthRefresh = getBuffRemain(thisUnit,spell.spec.buffs.regrowth,"player") <= getBuffDuration(thisUnit,spell.spec.buffs.regrowth,"player") * 0.3
+                                local npcID = string.match(UnitGUID(thisUnit),"-(%d+)-%x+$")
+                                if UnitGroupRolesAssigned(thisUnit) == "TANK" or npcID == "72218" then
                                     if buff.clearcasting.remain > getCastTime(spell.regrowth) and regrowthRefresh then
                                         if cast.regrowth(thisUnit) then return end
                                     end
@@ -480,7 +488,7 @@ if select(2, UnitClass("player")) == "DRUID" then
                             end
             -- Rejuvenation
                             -- if (CanRefreshHot(Rejuvenation) and PeekSavedValue(SotFRejuvenation) < 3 or not HasHot(Rejuvenation)) and Power > MaxPower * 0.3
-                            if getBuffRemain(lowestHP,spell.spec.buffs.rejuvenation,"player") < getBuffDuration(lowestHP,spell.spec.buffs.rejuvenation,"player") * 0.3 and power > powermax * 0.3 then
+                            if getBuffRemain(lowestHP,spell.spec.buffs.rejuvenation,"player") <= getBuffDuration(lowestHP,spell.spec.buffs.rejuvenation,"player") * 0.3 and br.player.mana > powermax * 0.3 then
                                 if cast.rejuvenation(lowestHP) then return end
                             end 
                         end
