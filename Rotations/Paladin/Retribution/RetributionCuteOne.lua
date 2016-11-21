@@ -499,7 +499,7 @@ if select(3, UnitClass("player")) == 2 then -- Change specID to ID of spec. IE: 
 						end
 				-- Wake of Ashes
 						-- wake_of_ashes,if=holy_power=0|holy_power=1&(cooldown.blade_of_justice.remains>gcd|cooldown.divine_hammer.remains>gcd)|holy_power=2&(cooldown.zeal.charges_fractional<=0.65|cooldown.crusader_strike.charges_fractional<=0.65)
-						if holyPower == 0 or (holyPower == 1 and (cd.bladeOfJustice > gcd or cd.divineHammer > gcd)) or (holyPower == 2 and (charges.frac.zeal <= 0.65 or charges.frac.crusaderStrike <= 0.65)) then
+						if holyPower == 0 or (holyPower == 1 and (cd.bladeOfJustice > gcd or cd.divineHammer > gcd)) or (holyPower == 2 and (charges.frac.zeal <= 0.65 or charges.frac.crusaderStrike <= 0.65)) and getDistance("target") < 5 then
 							if cast.wakeOfAshes() then return end
 						end
 				-- Zeal
@@ -611,7 +611,7 @@ if select(3, UnitClass("player")) == 2 then -- Change specID to ID of spec. IE: 
 						end
 			-- Wake of Ashes
 						-- if AlternatePowerToMax >= 4
-						if holyPowerMax - holyPower >= 4 then
+						if holyPowerMax - holyPower >= 4 and getDistance(units.dyn5) < 5 then
 							if cast.wakeOfAshes(units.dyn5) then return end
 						end
 			-- Blade of Justice
