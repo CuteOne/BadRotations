@@ -980,7 +980,9 @@ if select(2, UnitClass("player")) == "MONK" then
                     if actionList_Cooldown() then return end
             -- Storm, Earth, and Fire
                     -- storm_earth_and_fire
-                    if cast.stormEarthAndFire() then return end
+                    if getDistance("target") < 5 then
+                        if cast.stormEarthAndFire() then return end
+                    end
             -- Call Action List - Single Target
                     -- call_action_list,name=st
                     if actionList_SingleTarget() then return end
@@ -1248,7 +1250,7 @@ if select(2, UnitClass("player")) == "MONK" then
             -- Storm, Earth, and Fire
                             -- if not HasBuff(StormEarthAndFire) and CooldownSecRemaining(FistsOfFury) < 11 and CooldownSecRemaining(WhirlingDragonPunch) < 14 and CooldownSecRemaining(StrikeOfTheWindlord) < 14
                             if useSEF() then
-                                if not buff.stormEarthAndFire and cd.fistsOfFury < 11 and cd.whirlingDragonPunch < 14 and cd.strikeOfTheWindlord < 14 then
+                                if not buff.stormEarthAndFire and cd.fistsOfFury < 11 and cd.whirlingDragonPunch < 14 and cd.strikeOfTheWindlord < 14 and getDistance("target") < 5 then
                                     if cast.stormEarthAndFire() then return end
                                 end
                             end
@@ -1257,7 +1259,7 @@ if select(2, UnitClass("player")) == "MONK" then
             -- Storm, Earth, and Fire
                             -- if not HasBuff(StormEarthAndFire) and CooldownSecRemaining(FistsOfFury) < 11 and CooldownSecRemaining(WhirlingDragonPunch) < 14 and CooldownSecRemaining(StrikeOfTheWindlord) < 14
                             if useSEF() then
-                                if not buff.stormEarthAndFire and cd.fistsOfFury < 11 and cd.whirlingDragonPunch < 14 and cd.strikeOfTheWindlord < 14 then
+                                if not buff.stormEarthAndFire and cd.fistsOfFury < 11 and cd.whirlingDragonPunch < 14 and cd.strikeOfTheWindlord < 14 and getDistance("target") < 5 then
                                     if cast.stormEarthAndFire() then return end
                                 end
                             end
