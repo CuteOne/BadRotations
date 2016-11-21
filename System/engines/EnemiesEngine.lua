@@ -54,7 +54,8 @@ function EnemiesEngine()
                 if ObjectIsType(thisUnit, ObjectTypes.Unit)  then
                     br.debug.cpu.enemiesEngine.unitTargets = br.debug.cpu.enemiesEngine.unitTargets + 1
 					-- sanity checks
-					if getSanity(thisUnit) == true then --and isValidUnit(thisUnit) then
+					-- if getSanity(thisUnit) == true then --and isValidUnit(thisUnit) then
+					if isValidUnit(thisUnit) then
                         br.debug.cpu.enemiesEngine.sanityTargets = br.debug.cpu.enemiesEngine.sanityTargets + 1
                         -- get the unit distance
 						--local _, ObjectPosition1 = pcall(ObjectPosition,"player")
