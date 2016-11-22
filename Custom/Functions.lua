@@ -56,7 +56,7 @@ function castGroundAtBestLocation(spellID, radius, minUnits, maxRange, minRange,
 	-- example:
 		-- castGroundAtBestLocation(121536,2,10,40)
 
-	
+
 	local function isNotBlacklisted(checkUnit)
 		local blacklistUnitID = {
 		}
@@ -72,20 +72,20 @@ function castGroundAtBestLocation(spellID, radius, minUnits, maxRange, minRange,
 	local allUnitsInRange = {}
 	-- Make function usable between enemies and friendlies
 	if spellType == "heal" then	unitTable = br.friend else unitTable = br.enemy end
-	-- fill allUnitsInRange with data from enemiesEngine
+	-- fill allUnitsInRange with data from enemiesEngine/healingEngine
 	--print("______________________1")
 	for i=1,#unitTable do
 		local thisUnit = unitTable[i].unit
-		local thisDistance = getDistance(unitTable[i])
-		local hasThreat = isValidUnit(unitTable[i].unit) or UnitIsFriend(unitTable[i].unit,"player") --hasThreat(br.enemy[i].unit)
+		local thisDistance = getDistance(thisUnit)
+		local hasThreat = isValidUnit(thisUnit) or UnitIsFriend(thisUnit,"player") --hasThreat(br.enemy[i].unit)
 		--print(thisUnit.." - "..thisDistance)
 		if isNotBlacklisted(thisUnit) then
 			--print("blacklist passed")
 			if thisDistance < maxRange and thisDistance >= minRange and hasThreat then
 				--print("distance passed")
-				if not UnitIsDeadOrGhost(thisUnit) and getFacing("player",thisUnit) and getLineOfSight(thisUnit) and not isMoving(thisUnit) then
+				if not UnitIsDeadOrGhost(thisUnit) and (getFacing("player",thisUnit) or UnitIsUnit(thisUnit,"player")) and getLineOfSight(thisUnit) and not isMoving(thisUnit) then
 					--print("ghost passed")
-					if UnitAffectingCombat(thisUnit) or isDummy(thisUnit) then
+					if UnitAffectingCombat(thisUnit) or (spellType == "heal" and getHP(Unit) < 100) or isDummy(thisUnit) then
 						--print("combat and dummy passed")
 						table.insert(allUnitsInRange,thisUnit)
 					end
@@ -165,7 +165,7 @@ function isUnitThere(unitNameOrID,distance)
 			local thisUnit = br.enemy[i].unit
 			if GetObjectID(thisUnit) then
 				if distance==nil or getDistance("player",thisUnit) < distance then
-					return true 
+					return true
 				end
 			end
 		end
@@ -173,9 +173,9 @@ function isUnitThere(unitNameOrID,distance)
 	if type(unitNameOrID)=="string" then
 		for i=1,#br.enemy do
 			local thisUnit = br.enemy[i].unit
-			if UnitName(thisUnit)==unitNameOrID then 
+			if UnitName(thisUnit)==unitNameOrID then
 				if distance==nil or getDistance("player",thisUnit) < distance then
-					return true 
+					return true
 				end
 			end
 		end
@@ -188,7 +188,7 @@ function getTooltipSize(SpellID)
 
 	-- return:
 		-- number
-		
+
 	-- example:
 		-- getTooltipSize(2061)
 
@@ -220,7 +220,7 @@ function getThreat()
 end
 
 function RaidBuff(BuffSlot,myBuffSpellID)
-	-- description: 
+	-- description:
 		-- check for raidbuff and cast if missing
 
 	-- returns:
@@ -245,7 +245,7 @@ function RaidBuff(BuffSlot,myBuffSpellID)
 		-- 9 Versatility
 
 	if BuffSlot==nil or myBuffSpellID==nil then return false end
-	
+
 	local id = BuffSlot
 	local SpellID = myBuffSpellID
 	local bufftable = {
@@ -287,10 +287,10 @@ function RaidBuff(BuffSlot,myBuffSpellID)
 				if castSpell("player",SpellID) then return true end
 			end
 		end
-	else 
+	else
 		if UnitIsDeadOrGhost("player") then
 			return false
-		else 
+		else
 			for index=1,GetNumGroupMembers() do
 				local name, _, subgroup, _, _, _, zone, online, isDead, _, _ = GetRaidRosterInfo(index)
 				if online and not isDead and 1==IsSpellInRange(select(1,GetSpellInfo(SpellID)), "raid"..index) then
@@ -310,10 +310,10 @@ end
 function getUnitCluster(minUnits,maxRange,radius)
 	-- Description:
 		-- returns the enemy with minUnits around in maxRange
-	
+
 	-- rerturns:
 		-- "0x0000000110E4F09C"
-	
+
 	-- how to use:
 		-- castSpell(getUnitCluster(2,10),SpellID,...,...)
 		-- use "getUnitCluster(minUnits,maxRange)" instead of "target"
@@ -342,10 +342,10 @@ end
 function getBiggestUnitCluster(maxRange,radius)
 	-- Description:
 		-- returns the enemy with most enemies in radius in maxRange from player
-	
+
 	-- rerturns:
 		-- "0x0000000110E4F09C"
-	
+
 	-- how to use:
 		-- castSpell(getBiggestUnitCluster(40,10),SpellID,...,...)
 		-- use "getBiggestUnitCluster(maxRange,radius)" instead of "target"
@@ -392,7 +392,7 @@ function SalvageHelper()
 		if (salvageTimer == nil or (GetTime() - salvageTimer > salvageWaiting)) and not castingUnit() then
 			local freeSlots = 0
 
-			for i=1,5 do 
+			for i=1,5 do
 				freeSlots = freeSlots + GetContainerNumFreeSlots(i-1)
 			end
 
@@ -468,7 +468,7 @@ function insertTableIntoTable(originalTable, insertTable)
         table.insert(originalTable, insertTable[i])
     end
 end
-	
+
 --- Returns if specified trinket is equipped in either slot
 -- if isTrinketEquipped(124518) then trinket = "Libram of Vindication" end
 function isTrinketEquipped(trinket)

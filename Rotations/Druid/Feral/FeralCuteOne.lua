@@ -31,7 +31,7 @@ if select(2, UnitClass("player")) == "DRUID" then
             [1] = { mode = "On", value = 1 , overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spell.skullBash },
             [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.skullBash }
         };
-        CreateButton("Interrupt",4,0)       
+        CreateButton("Interrupt",4,0)
     -- Cleave Button
 		CleaveModes = {
             [1] = { mode = "On", value = 1 , overlay = "Cleaving Enabled", tip = "Rotation will cleave targets.", highlight = 1, icon = br.player.spell.thrash },
@@ -74,7 +74,7 @@ if select(2, UnitClass("player")) == "DRUID" then
                 br.ui:createCheckbox(section,"Displacer Beast / Wild Charge","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFAuto Charge usage.|cffFFBB00.")
             -- Brutal Slash Targets
                 br.ui:createSpinner(section,"Brutal Slash Targets", 3, 1, 10, 1, "|cffFFFFFFSet to desired targets to use Brutal Slash on. Min: 1 / Max: 10 / Interval: 1")
-            -- Artifact 
+            -- Artifact
                 br.ui:createDropdownWithout(section,"Artifact", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Artifact Ability.")
             br.ui:checkSectionState(section)
         -- Cooldown Options
@@ -178,11 +178,10 @@ if select(2, UnitClass("player")) == "DRUID" then
 	--------------
 	--- Locals ---
     --------------
-            local addsExist                                     = false 
+            local addsExist                                     = false
             local addsIn                                        = 999
             local animality                                     = false
             local artifact                                      = br.player.artifact
-            -- local bleed                                         = br.player.bleed
             local buff                                          = br.player.buff
             local canFlask                                      = canUse(br.player.flask.wod.agilityBig)
             local cast                                          = br.player.cast
@@ -212,7 +211,7 @@ if select(2, UnitClass("player")) == "DRUID" then
             local mfTick                                        = 20.0/(1+UnitSpellHaste("player")/100)/10
             local mode                                          = br.player.mode
             local multidot                                      = (br.player.mode.cleave == 1 or br.player.mode.rotation == 2) and br.player.mode.rotation ~= 3
-            local perk                                          = br.player.perk        
+            local perk                                          = br.player.perk
             local php                                           = br.player.health
             local playerMouse                                   = UnitIsPlayer("mouseover")
             local potion                                        = br.player.potion
@@ -227,7 +226,7 @@ if select(2, UnitClass("player")) == "DRUID" then
             local spell                                         = br.player.spell
             local stealth                                       = br.player.stealth
             local t17_2pc                                       = TierScan("T17")>=2 --br.player.eq.t17_2pc
-            local t18_2pc                                       = TierScan("T18")>=2 --br.player.eq.t18_2pc 
+            local t18_2pc                                       = TierScan("T18")>=2 --br.player.eq.t18_2pc
             local t18_4pc                                       = TierScan("T18")>=4 --br.player.eq.t18_4pc
             local talent                                        = br.player.talent
             local travel, flight, cat, noform                   = br.player.buff.travelForm.exists, br.player.buff.flightForm.exists, br.player.buff.catForm.exists, GetShapeshiftForm()==0
@@ -235,7 +234,7 @@ if select(2, UnitClass("player")) == "DRUID" then
             local ttd                                           = getTTD
             local ttm                                           = br.player.timeToMax
             local units                                         = br.player.units
-            
+
 	   		if leftCombat == nil then leftCombat = GetTime() end
 			if profileStop == nil then profileStop = false end
 			if lastSpellCast == nil then lastSpellCast = spell.catForm end
@@ -246,7 +245,7 @@ if select(2, UnitClass("player")) == "DRUID" then
             end
             if br.player.potion ~= nil then
                 if br.player.potion.agility[1] ~= nil then
-                    agiPot = br.player.potion.agility[1].itemID 
+                    agiPot = br.player.potion.agility[1].itemID
                 else
                     agiPot = 0
                 end
@@ -262,7 +261,7 @@ if select(2, UnitClass("player")) == "DRUID" then
                 end
             end
             -- ChatOverlay(round2(getDistance("target","player","dist"),2)..", "..round2(getDistance("target","player","dist2"),2)..", "..round2(getDistance("target","player","dist3"),2)..", "..round2(getDistance("target","player","dist4"),2))
-            
+
 	--------------------
 	--- Action Lists ---
 	--------------------
@@ -271,7 +270,7 @@ if select(2, UnitClass("player")) == "DRUID" then
 			-- Shapeshift Form Management
 				if isChecked("Auto Shapeshifts") then
 				-- Flight Form
-					if IsFlyableArea() and ((not (isInDraenor() or isInLegion())) or isKnown(191633)) and not swimming and falling > 1 and level>=58 then 
+					if IsFlyableArea() and ((not (isInDraenor() or isInLegion())) or isKnown(191633)) and not swimming and falling > 1 and level>=58 then
 		                if cast.travelForm() then return end
 			        end
 				-- Aquatic Form
@@ -293,7 +292,7 @@ if select(2, UnitClass("player")) == "DRUID" then
 			        		if cast.catForm() then return end
 			        	end
 			        end
-				end -- End Shapeshift Form Management 
+				end -- End Shapeshift Form Management
 			-- Perma Fire Cat
 				-- check if its check and player out of combat an not stealthed
 				if isChecked("Perma Fire Cat") and not inCombat and not stealth and cat then
@@ -360,12 +359,12 @@ if select(2, UnitClass("player")) == "DRUID" then
 			--Revive/Rebirth
 					if isChecked("Rebirth") then
 						if buff.predatorySwiftness.exists then
-							if getOptionValue("Rebirth - Target")==1 
+							if getOptionValue("Rebirth - Target")==1
                                 and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and UnitIsFriend("target","player")
                             then
 								if cast.rebirth("target","dead") then return end
 							end
-							if getOptionValue("Rebirth - Target")==2 
+							if getOptionValue("Rebirth - Target")==2
                                 and UnitIsPlayer("mouseover") and UnitIsDeadOrGhost("mouseover") and UnitIsFriend("mouseover","player")
                             then
 								if cast.rebirth("mouseover","dead") then return end
@@ -373,12 +372,12 @@ if select(2, UnitClass("player")) == "DRUID" then
 						end
 					end
 					if isChecked("Revive") then
-						if getOptionValue("Revive - Target")==1 
+						if getOptionValue("Revive - Target")==1
                             and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and UnitIsFriend("target","player")
                         then
 							if cast.revive("target","dead") then return end
 						end
-						if getOptionValue("Revive - Target")==2 
+						if getOptionValue("Revive - Target")==2
                             and UnitIsPlayer("mouseover") and UnitIsDeadOrGhost("mouseover") and UnitIsFriend("mouseover","player")
                         then
 							if cast.revive("mouseover","dead") then return end
@@ -422,8 +421,8 @@ if select(2, UnitClass("player")) == "DRUID" then
                         end
 				    end
 			-- Pot/Stoned
-		            if isChecked("Pot/Stoned") and php <= getOptionValue("Pot/Stoned") 
-		            	and inCombat and (hasHealthPot() or hasItem(5512)) 
+		            if isChecked("Pot/Stoned") and php <= getOptionValue("Pot/Stoned")
+		            	and inCombat and (hasHealthPot() or hasItem(5512))
 		            then
 	                    if canUse(5512) then
 	                        useItem(5512)
@@ -440,29 +439,29 @@ if select(2, UnitClass("player")) == "DRUID" then
 		    			end
 		    		end
 			-- Engineering: Shield-o-tronic
-					if isChecked("Shield-o-tronic") and php <= getOptionValue("Shield-o-tronic") 
-						and inCombat and canUse(118006) 
+					if isChecked("Shield-o-tronic") and php <= getOptionValue("Shield-o-tronic")
+						and inCombat and canUse(118006)
 					then
 						useItem(118006)
 					end
 			-- Regrowth
 		            if isChecked("Regrowth") and (buff.predatorySwiftness.exists or not inCombat) then
-		            	if getOptionValue("Auto Heal")==1 
-                            and ((getHP(br.friend[1].unit) <= getOptionValue("Regrowth")/2 and inCombat) 
-                                or (getHP(br.friend[1].unit) <= getOptionValue("Regrowth") and not inCombat) 
-                                or (buff.predatorySwiftness.remain < 1 and buff.predatorySwiftness.exists)) 
+		            	if getOptionValue("Auto Heal")==1
+                            and ((getHP(br.friend[1].unit) <= getOptionValue("Regrowth")/2 and inCombat)
+                                or (getHP(br.friend[1].unit) <= getOptionValue("Regrowth") and not inCombat)
+                                or (buff.predatorySwiftness.remain < 1 and buff.predatorySwiftness.exists))
                         then
                             if cast.regrowth(br.friend[1].unit) then return end
                         end
-                        if getOptionValue("Auto Heal")==2 
-                            and (php <= getOptionValue("Regrowth") or (buff.predatorySwiftness.remain < 1 and buff.predatorySwiftness.exists)) 
+                        if getOptionValue("Auto Heal")==2
+                            and (php <= getOptionValue("Regrowth") or (buff.predatorySwiftness.remain < 1 and buff.predatorySwiftness.exists))
                         then
                             if cast.regrowth("player") then return end
                         end
 		            end
 			-- Survival Instincts
-		            if isChecked("Survival Instincts") and php <= getOptionValue("Survival Instincts") 
-		            	and inCombat and not buff.survivalInstincts.exists and charges.survivalInstincts > 0 
+		            if isChecked("Survival Instincts") and php <= getOptionValue("Survival Instincts")
+		            	and inCombat and not buff.survivalInstincts.exists and charges.survivalInstincts > 0
 		            then
 		            	if cast.survivalInstincts() then return end
 		            end
@@ -490,7 +489,7 @@ if select(2, UnitClass("player")) == "DRUID" then
 						end
 					end
 			-- Maim (PvP)
-	    			if isChecked("Maim") then 
+	    			if isChecked("Maim") then
 	    				for i=1, #enemies.yards5 do
                             thisUnit = enemies.yards5[i]
 	    					if canInterrupt(thisUnit,getOptionValue("InterruptAt")) and isInPvP() then
@@ -520,7 +519,7 @@ if select(2, UnitClass("player")) == "DRUID" then
 			-- Trinkets
                     -- TODO: if=(buff.tigers_fury.up&(target.time_to_die>trinket.stat.any.cooldown|target.time_to_die<45))|buff.incarnation.remains>20
 					if useCDs() and isChecked("Trinkets") and getDistance(units.dyn5) < 5 then
-                        if (buff.tigersFury.exists and (ttd(units.dyn5) > 60 or ttd(units.dyn5) < 45)) or buff.incarnationKingOfTheJungle.remain > 20 then 
+                        if (buff.tigersFury.exists and (ttd(units.dyn5) > 60 or ttd(units.dyn5) < 45)) or buff.incarnationKingOfTheJungle.remain > 20 then
     						if canUse(13) then
     							useItem(13)
     						end
@@ -551,14 +550,14 @@ if select(2, UnitClass("player")) == "DRUID" then
                         if buff.tigersFury.exists then
                             if castSpell("player",racial,false,false,false) then return end
                         end
-                    end            
+                    end
             -- Tiger's Fury
                     if isChecked("Tiger's Fury") then
                         -- if=(!buff.clearcasting.react&energy.deficit>=60)|energy.deficit>=80|(t18_class_trinket&buff.berserk.up&buff.tigers_fury.down)
                         if (not clearcast and br.player.powerDeficit >= 60) or br.player.powerDeficit >= 80 or (hasEquiped(124514) and buff.berserk.exists and not buff.tigersFury.exists) then
                             if cast.tigersFury() then return end
                         end
-                    end 
+                    end
             -- Incarnation - King of the Jungle
                     -- if=energy.time_to_max>1&energy>=35
                     if useCDs() and isChecked("Incarnation") then
@@ -590,15 +589,15 @@ if select(2, UnitClass("player")) == "DRUID" then
             local function actionList_Finisher()
             -- Finisher Condition
                 -- combo_points=5&(energy.time_to_max<1|buff.berserk.up|buff.incarnation.up|buff.elunes_guidance.up|cooldown.tigers_fury.remains<3|set_bonus.tier18_4pc|buff.clearcasting.react|talent.soul_of_the_forest.enabled|!dot.rip.ticking|(dot.rake.remains<1.5&spell_targets.swipe_cat<6))
-                if combo == 5 and (ttm < 1 or buff.berserk.exists or buff.incarnationKingOfTheJungle.exists or buff.elunesGuidance.exists or cd.tigersFury < 3 or t18_4pc 
-                    or buff.clearcasting.exists or talent.soulOfTheForest or not debuff.rip[units.dyn5].exists or (debuff.rake[units.dyn5].remain < 1.5 and #enemies.yards8 < 6)) 
+                if combo == 5 and (ttm < 1 or buff.berserk.exists or buff.incarnationKingOfTheJungle.exists or buff.elunesGuidance.exists or cd.tigersFury < 3 or t18_4pc
+                    or buff.clearcasting.exists or talent.soulOfTheForest or not debuff.rip[units.dyn5].exists or (debuff.rake[units.dyn5].remain < 1.5 and #enemies.yards8 < 6))
                 then
                     fatality = true
                 end
             -- Ferocious Bite Finisher Condition
                 -- combo_points=5&(energy.time_to_max<1|buff.berserk.up|buff.incarnation.up|buff.elunes_guidance.up|cooldown.tigers_fury.remains<3|set_bonus.tier18_4pc|(talent.moment_of_clarity.enabled&buff.clearcasting.react))
-                if combo == 5 and (ttm < 1 or buff.berserk.exists or buff.incarnationKingOfTheJungle.exists or buff.elunesGuidance.exists or cd.tigersFury < 3 or t18_4pc 
-                    or (talent.momentOfClarity and buff.clearcasting.exists)) 
+                if combo == 5 and (ttm < 1 or buff.berserk.exists or buff.incarnationKingOfTheJungle.exists or buff.elunesGuidance.exists or cd.tigersFury < 3 or t18_4pc
+                    or (talent.momentOfClarity and buff.clearcasting.exists))
                 then
                     animality = true
                 end
@@ -619,7 +618,7 @@ if select(2, UnitClass("player")) == "DRUID" then
                     local thisUnit = enemies.yards8[i]
                     local thrash = debuff.thrash[thisUnit]
                     if thrash ~= nil then
-                        if (multidot or (UnitIsUnit(thisUnit,units.dyn5) and not multidot)) then 
+                        if (multidot or (UnitIsUnit(thisUnit,units.dyn5) and not multidot)) then
                             if getDistance(thisUnit) < 8 then
                                 if thrash.refresh and ((mode.rotation == 1 and #enemies.yards8 >= 5) or mode.rotation == 2) then
                                     if power <= select(1, getSpellCost(spell.thrash)) then
@@ -652,8 +651,8 @@ if select(2, UnitClass("player")) == "DRUID" then
                     if rip ~= nil then
                         if (multidot or (UnitIsUnit(thisUnit,units.dyn5) and not multidot)) then
                             if getDistance(thisUnit) < 5 then
-                                if (rip.remain == 0 or (rip.remain < 8 and thp(thisUnit) > 25 and not talent.sabertooth) 
-                                    or rip.calc > rip.applied) and ttd(thisUnit) - rip.remain > rpTick * 4 and fatality 
+                                if (rip.remain == 0 or (rip.remain < 8 and thp(thisUnit) > 25 and not talent.sabertooth)
+                                    or rip.calc > rip.applied) and ttd(thisUnit) - rip.remain > rpTick * 4 and fatality
                                 then
                                    if cast.rip(thisUnit) then return end
                                 end
@@ -711,7 +710,7 @@ if select(2, UnitClass("player")) == "DRUID" then
             -- Thrash
                 -- pool_resource,for_next=1
                 -- if=talent.brutal_slash.enabled&spell_targets.thrash_cat>=9
-                if (multidot or (UnitIsUnit("target",units.dyn5) and not multidot)) then  
+                if (multidot or (UnitIsUnit("target",units.dyn5) and not multidot)) then
                     if talent.brutalSlash and ((mode.rotation == 1 and #enemies.yards8 >= 9) or mode.rotation == 2) then
                        if power <= select(1, getSpellCost(spell.thrash)) then
                             return true
@@ -738,9 +737,9 @@ if select(2, UnitClass("player")) == "DRUID" then
                         local rake = debuff.rake[thisUnit]
                         if rake ~= nil then
                             if UnitIsUnit(thisUnit,units.dyn5) and getDistance(thisUnit) < 5 then
-                                if combo < 5 and power >= 35 and rake.applied < 2.1 and buff.tigersFury.exists and (buff.bloodtalons.exists or not talent.bloodtalons) 
+                                if combo < 5 and power >= 35 and rake.applied < 2.1 and buff.tigersFury.exists and (buff.bloodtalons.exists or not talent.bloodtalons)
                                     and (not talent.incarnationKingOfTheJungle or cd.incarnationKingOfTheJungle > 18) and not buff.incarnationKingOfTheJungle.exists
-                                    and not solo and friendsInRange > 0 
+                                    and not solo and friendsInRange > 0
                                 then
                                     if cast.shadowmeld() then return end
                                 end
@@ -756,9 +755,9 @@ if select(2, UnitClass("player")) == "DRUID" then
                     local rake = debuff.rake[thisUnit]
                     if rake ~= nil then
                         if (multidot or (UnitIsUnit(thisUnit,units.dyn5) and not multidot)) and getDistance(thisUnit) < 5 then
-                            if combo < 5 and (rake.remain == 0 or (not talent.bloodtalons and rake.refresh) 
-                                or (talent.bloodtalons and buff.bloodtalons.exists and (not talent.soulOfTheForest and rake.remain <= 7 or rake.remain <= 5) 
-                                    and rake.calc > rake.applied * 0.80)) and ttd(thisUnit) - rake.remain > rkTick 
+                            if combo < 5 and (rake.remain == 0 or (not talent.bloodtalons and rake.refresh)
+                                or (talent.bloodtalons and buff.bloodtalons.exists and (not talent.soulOfTheForest and rake.remain <= 7 or rake.remain <= 5)
+                                    and rake.calc > rake.applied * 0.80)) and ttd(thisUnit) - rake.remain > rkTick
                             then
                                 if power <= select(1, getSpellCost(spell.rake)) then
                                     return true
@@ -783,7 +782,7 @@ if select(2, UnitClass("player")) == "DRUID" then
                             end
                         end
                     end
-                end 
+                end
             -- Thrash
                 -- pool_resource,for_next=1
                 -- cycle_targets=1,if=remains<=duration*0.3&spell_targets.thrash_cat>=2
@@ -839,7 +838,7 @@ if select(2, UnitClass("player")) == "DRUID" then
             -- TODO: food,type=nightborne_delicacy_platte
             -- TOOD: augmentation,type=defiled
             -- Prowl - Non-PrePull
-                        if cat and #enemies.yards20 > 0 and useProwl() and not IsResting() and GetTime()-leftCombat > lootDelay then 
+                        if cat and #enemies.yards20 > 0 and useProwl() and not IsResting() and GetTime()-leftCombat > lootDelay then
                             for i = 1, #enemies.yards20 do
                                 local thisUnit = enemies.yards20[i]
                                 if UnitIsEnemy(thisUnit,"player") or isDummy("target") then
@@ -850,7 +849,7 @@ if select(2, UnitClass("player")) == "DRUID" then
                     end -- End No Stealth
             -- Wild Charge
                     if isChecked("Displacer Beast / Wild Charge") and isValidUnit("target") then
-                        if cast.wildCharge("target") then return end 
+                        if cast.wildCharge("target") then return end
                     end
                     if isChecked("Pre-Pull Timer") and pullTimer <= getOptionValue("Pre-Pull Timer") then
             -- Regrowth
@@ -858,7 +857,7 @@ if select(2, UnitClass("player")) == "DRUID" then
                         if talent.bloodtalons and not buff.bloodtalons.exists and (htTimer == nil or htTimer < GetTime() - 1) then
                             if cast.regrowth("player") then htTimer = GetTime(); return end
                         end
-            -- Prowl 
+            -- Prowl
                         if buff.bloodtalons.exists and useProwl() then
                             if cast.prowl("player") then return end
                         end
@@ -889,7 +888,7 @@ if select(2, UnitClass("player")) == "DRUID" then
                         end
                     end
                 end -- End No Combat
-            end -- End Action List - PreCombat 
+            end -- End Action List - PreCombat
     ---------------------
     --- Begin Profile ---
     ---------------------
@@ -921,7 +920,7 @@ if select(2, UnitClass("player")) == "DRUID" then
             -- Wild Charge
                     -- wild_charge
                     if isChecked("Displacer Beast / Wild Charge") and isValidUnit("target") then
-                        if cast.wildCharge("target") then return end 
+                        if cast.wildCharge("target") then return end
                     end
             -- TODO: Displacer Beast
                     -- displacer_beast,if=movement.distance>10
@@ -976,10 +975,10 @@ if select(2, UnitClass("player")) == "DRUID" then
                             end
             -- Regrowth
                             -- healing_touch,if=talent.bloodtalons.enabled&buff.predatory_swiftness.up&(combo_points>=5|buff.predatory_swiftness.remains<1.5|(talent.bloodtalons.enabled&combo_points=2&buff.bloodtalons.down&cooldown.ashamanes_frenzy.remains<gcd)|(talent.elunes_guidance.enabled&((cooldown.elunes_guidance.remains<gcd&combo_points=0)|(buff.elunes_guidance.up&combo_points>=4))))
-                            if talent.bloodtalons and buff.predatorySwiftness.exists 
-                                and (combo >= 5 or buff.predatorySwiftness.remain < 1.5 
-                                    or (talent.bloodtalons and combo == 2 and not buff.bloodtalons.exists and cd.ashamanesFrenzy < gcd) 
-                                    or (talent.elunesGuidance and ((cd.elunesGuidance < gcd and combo == 0) or (buff.elunesGuidance.exists and combo >= 4)))) 
+                            if talent.bloodtalons and buff.predatorySwiftness.exists
+                                and (combo >= 5 or buff.predatorySwiftness.remain < 1.5
+                                    or (talent.bloodtalons and combo == 2 and not buff.bloodtalons.exists and cd.ashamanesFrenzy < gcd)
+                                    or (talent.elunesGuidance and ((cd.elunesGuidance < gcd and combo == 0) or (buff.elunesGuidance.exists and combo >= 4))))
                             then
                                 if getOptionValue("Auto Heal")==1 then
                                     if cast.regrowth(br.friend[1].unit) then return end
@@ -1028,7 +1027,7 @@ if select(2, UnitClass("player")) == "DRUID" then
                             -- if AlternatePower >= 5 and BuffRemainingSec(SavageRoar) < 6 and not CanRefreshDot(Rip)
                             if combo >= 5 and buff.savageRoar.remain < 6 and debuff.rip[units.dyn5].refresh then
                                 if cast.savageRoar("player") then return end
-                            end  
+                            end
             -- Rake
                             -- multi-DoT = 3
                             -- if #bleed.rake < 3 then
@@ -1057,7 +1056,7 @@ if select(2, UnitClass("player")) == "DRUID" then
                                             end
                                         end
                                     end
-                                end 
+                                end
                             end
             -- Elune's Guidance
                             -- if AlternatePower = 0

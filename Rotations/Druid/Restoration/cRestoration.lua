@@ -11,7 +11,7 @@ function cRestoration:new()
 
     -- Mandatory !
     self.rotations = cRestoration.rotations
-    
+
 -----------------
 --- VARIABLES ---
 -----------------
@@ -95,7 +95,7 @@ function cRestoration:new()
     }
     -- Merge all spell ability tables into self.spell
     self.spell = mergeSpellTables(self.spell, self.characterSpell, self.spell.class.abilities, self.spell.spec.abilities)
-    
+
 ------------------
 --- OOC UPDATE ---
 ------------------
@@ -149,7 +149,7 @@ function cRestoration:new()
 ---------------
 --- OPTIONS ---
 ---------------
-    
+
     -- Creates the option/profile window
     function self.createOptions()
         br.ui.window.profile = br.ui:createProfileWindow(self.profile)
@@ -212,9 +212,9 @@ function cRestoration:new()
     -- Calculate Ferocious Bite Damage
     function getFbDamage(cp)
         local weaponDPS = (select(2,UnitDamage("player")) - select(1,UnitDamage("player"))) / 2
-        local weaponDMG = (weaponDPS + UnitAttackPower("player") / 3.5) 
+        local weaponDMG = (weaponDPS + UnitAttackPower("player") / 3.5)
         local cp = cp
-        if cp == nil then cp = br.player.comboPoints end 
+        if cp == nil then cp = br.player.comboPoints end
         fbD = 0.749 * cp * UnitAttackPower("player") * (1 + (br.player.power - 25) / 25)
         if br.player.inCombat then
             return fbD
@@ -255,6 +255,16 @@ function cRestoration:new()
         end
         if outTime ~= 0 and IsFlying() then
             outTime = 0
+            return false
+        end
+    end
+
+    function safeToHeal(Unit,spellID)
+        local hpDeficit = 100 - getHP(Unit)
+        local powerCostPercent = (select(1,getSpellCost(spellID)) / UnitPowerMax("player"))*100
+        if hpDeficit > powerCostPercent then
+            return true
+        else
             return false
         end
     end

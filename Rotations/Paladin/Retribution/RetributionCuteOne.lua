@@ -90,7 +90,9 @@ if select(3, UnitClass("player")) == 2 then -- Change specID to ID of spec. IE: 
                 -- Cleanse Toxin
                 br.ui:createDropdown(section, "Clease Toxin", {"|cff00FF00Player Only","|cffFFFF00Selected Target","|cffFF0000Mouseover Target"}, 1, "|ccfFFFFFFTarget to Cast On")
                 -- Divine Shield
-                br.ui:createSpinner(section, "Divine Shield",  50,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.") 
+                br.ui:createSpinner(section, "Divine Shield",  50,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
+                -- Eye for an Eye
+                br.ui:createSpinner(section, "Eye for an Eye", 50, 0 , 100, 5, "|cffFFBB00Health Percentage to use at.")
             	-- Flash of Light
 	            br.ui:createSpinner(section, "Flash of Light",  50,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
 	            -- Hammer of Justice
@@ -283,6 +285,12 @@ if select(3, UnitClass("player")) == 2 then -- Change specID to ID of spec. IE: 
             				if cast.divineShield() then return end
             			end
             		end
+            -- Eye for an Eye
+                    if isChecked("Eye for an Eye") then
+                        if php <= getOptionValue("Eye for an Eye") and inCombat then
+                            if cast.eyeForAnEye() then return end
+                        end
+                    end
 			-- Flash of Light
 					if isChecked("Flash of Light") then
                         if (forceHeal or (inCombat and php <= getOptionValue("Flash of Light") / 2) or (not inCombat and php <= getOptionValue("Flash of Light"))) and not isMoving("player") then 
@@ -425,8 +433,8 @@ if select(3, UnitClass("player")) == 2 then -- Change specID to ID of spec. IE: 
                         end
 				-- Wake of Ashes
 						-- wake_of_ashes,if=holy_power>=0&time<2
-                        if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()) and getDistance("target") < 5 then
-							if holyPower >= 0 and combatTime < 2 then
+                        if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()) then
+							if holyPower >= 0 and combatTime < 2 and getDistance(units.dyn5) < 5 then
 								if cast.wakeOfAshes() then return end
 							end
                         end
@@ -500,7 +508,7 @@ if select(3, UnitClass("player")) == 2 then -- Change specID to ID of spec. IE: 
 				-- Wake of Ashes
 						-- wake_of_ashes,if=holy_power=0|holy_power=1&(cooldown.blade_of_justice.remains>gcd|cooldown.divine_hammer.remains>gcd)|holy_power=2&(cooldown.zeal.charges_fractional<=0.65|cooldown.crusader_strike.charges_fractional<=0.65)
 						if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()) then
-                            if holyPower == 0 or (holyPower == 1 and (cd.bladeOfJustice > gcd or cd.divineHammer > gcd)) or (holyPower == 2 and (charges.frac.zeal <= 0.65 or charges.frac.crusaderStrike <= 0.65)) and getDistance("target") < 5 then
+                            if holyPower == 0 or (holyPower == 1 and (cd.bladeOfJustice > gcd or cd.divineHammer > gcd)) or (holyPower == 2 and (charges.frac.zeal <= 0.65 or charges.frac.crusaderStrike <= 0.65)) and getDistance(units.dyn5) < 5 then
     							if cast.wakeOfAshes() then return end
     						end
                         end

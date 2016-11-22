@@ -23,7 +23,7 @@ function TTDRefresh()
 		local totalObjects = ObjectCount()
 		for i = 1, totalObjects do
 			local object = ObjectWithIndex(i)
-			if UnitAffectingCombat(object) and UnitIsTappedByPlayer(object) and not units[object] then
+			if ((UnitAffectingCombat(object) and UnitIsTappedByPlayer(object)) or isValidUnit(object)) and not units[object] then
 				units[object] = GetTime()
 				health[object] = UnitHealth(object)
 				dps[object] = 0
@@ -31,7 +31,7 @@ function TTDRefresh()
 					ttd[object] = -1
 				end
 				enemyTable.totalUnits = enemyTable.totalUnits + 1
-			elseif not UnitAffectingCombat(object) and UnitIsTappedByPlayer(object) and units[object] then
+			elseif ((not UnitAffectingCombat(object) and UnitIsTappedByPlayer(object)) or not isValidUnit(object)) and units[object] then
 				units[object] = nil
 				ttd[object] = nil
 				health[object] = nil
