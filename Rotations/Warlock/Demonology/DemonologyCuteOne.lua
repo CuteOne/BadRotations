@@ -240,7 +240,7 @@ if select(2, UnitClass("player")) == "WARLOCK" then
             local infernal = false
             local infernalDE = false
             local felguard = false
-            local petDE = buff.pet.demonicEmpowerment
+            local petDE = UnitBuffID("pet",spell.spec.buffs.demonicEmpowerment,"player") ~= nil --buff.pet.demonicEmpowerment
             local demonwrathPet = false
             if br.player.petInfo ~= nil then
                 for i = 1, #br.player.petInfo do
