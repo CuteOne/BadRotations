@@ -131,7 +131,6 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
             local buff                                          = br.player.buff
             local canFlask                                      = canUse(br.player.flask.wod.agilityBig)
             local cast                                          = br.player.cast
-            local clearcast                                     = br.player.buff.clearcasting.exists
             local combatTime                                    = getCombatTime()
             local cd                                            = br.player.cd
             local charges                                       = br.player.charges

@@ -2495,9 +2495,7 @@ function isValidUnit(Unit)
 	local canAttack = UnitCanAttack("player",Unit)
 	local trivial = UnitCreatureType(Unit) == "Critter" or UnitCreatureType(Unit) == "Non-combat Pet" or UnitCreatureType(Unit) == "Gas Cloud"
 	if ObjectExists(Unit) and not UnitIsDeadOrGhost(Unit) and not UnitIsFriend(Unit, "player") and not trivial then
-		if not combat --[[and myTarget ]]
-			and (select(2,IsInInstance()) == "none" or #br.friend == 1 or dummy or getDistance(Unit) < 20 or (threat or (not threat and canAttack and myTarget))) 
-		then
+		if not combat and (select(2,IsInInstance()) == "none" or #br.friend == 1 or dummy or (getDistance(Unit) < 20 and select(2,IsInInstance()) == "none") or (threat or (not threat and canAttack and myTarget))) then
 			return true
 		end
 		if combat and (threat or dummy or (not threat and canAttack and myTarget)) then
