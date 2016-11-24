@@ -231,6 +231,7 @@ Rotations\Warrior\Fury\FuryCuteOne.lua
 
 Rotations\Warrior\Protection\cProtection.lua
 Rotations\Warrior\Protection\Protection.lua
+Rotations\Warrior\Protection\ProtectionCuteOne.lua
 
 ## Warlock ---------------------------------------------------
 Rotations\Warlock\cWarlock.lua
@@ -245,6 +246,7 @@ Rotations\Warlock\Demonology\DemonologyCuteOne.lua
 
 Rotations\Warlock\Destruction\cDestruction.lua
 Rotations\Warlock\Destruction\Destruction.lua
+Rotations\Warlock\Destruction\DestructionCuteOne.lua
 Rotations\Warlock\Destruction\DestructionKuu.lua
 Rotations\Warlock\Destruction\DestructionTest.lua
 

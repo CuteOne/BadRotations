@@ -5,338 +5,212 @@ cProtection.rotations = {}
 
 -- Creates Protection Warrior
 function cProtection:new()
-    if GetSpecializationInfo(GetSpecialization()) == 73 then
-        local self = cWarrior:new("Protection")
+    local self = cWarrior:new("Protection")
 
-        local player = "player" -- if someone forgets ""
+    local player = "player" -- if someone forgets ""
 
-        -- Mandatory !
-        self.rotations = cProtection.rotations
-        
-    -----------------
-    --- VARIABLES ---
-    -----------------
-        self.charges.frac               = {}        -- Fractional Charge
-        self.charges.max                = {}        -- Max Charges
-        self.spell.spec                 = {} 
-        self.spell.spec.abilities       = { 
+    -- Mandatory !
+    self.rotations = cProtection.rotations
+    
+-----------------
+--- VARIABLES ---
+-----------------
+    self.spell.spec                 = {} 
+    self.spell.spec.abilities       = { 
+        defensiveStance             = 71,
+        demoralizingShout           = 1160,
+        devastate                   = 20243,
+        focusedRage                 = 204488,
+        ignorePain                  = 190456,
+        impendingVictory            = 202168,
+        intercept                   = 198304,
+        lastStand                   = 12975,
+        neltharionsFury             = 203524,
+        ravager                     = 228920,
+        revenge                     = 6572,
+        shieldBlock                 = 2565,
+        shieldSlam                  = 23922,        
+        shieldWall                  = 871,
+        spellReflect                = 23920,
+        thunderClap                 = 6343,
+        victoryRush                 = 34428,
+    }
+    self.spell.spec.artifacts       = {
+        artificialDamage            = 226829,
+        dragonScales                = 203576,
+        dragonSkin                  = 203225,
+        intolerance                 = 203227,
+        leapingGiants               = 203230,
+        mightOfTheVrykul            = 188778,
+        neltharionsFury             = 203524,
+        rageOfTheFallen             = 216272,
+        reflectivePlating           = 188672,
+        rumblingVoice               = 188651,
+        scalesOfTheEarth            = 189059,
+        shatterTheBones             = 188639,
+        strengthOfTheEarthAspect    = 188647,
+        thunderCrash                = 188644,
+        toughness                   = 188632,
+        unbreakableBulwark          = 214939,
+        vrykulShieldTraining        = 188635,
+        wallOfSteel                 = 203261,
+        willToSurvive               = 188683, 
+    }
+    self.spell.spec.buffs           = {
+        defensiveStance             = 71,
+        neltharionsFury             = 203524,
+        shieldBlock                 = 132404,
+        shieldWall                  = 871,
+        ultimatum                   = 122510,
+        victorious                  = 32216,
+        vengeanceFocusedRage        = 202573,
+        vengeanceIgnorePain         = 202574,
+    }
+    self.spell.spec.debuffs         = {
+        demoralizingShout           = 1160,
+        thunderClap                 = 6343,
+    }
+    self.spell.spec.glyphs          = {
 
+    }
+    self.spell.spec.talents         = {
+        angerManagement             = 152278,
+        bestServedCold              = 202560,
+        boomingVoice                = 202743,
+        cracklingThunder            = 203201,
+        heavyRepercussions          = 203177,
+        impendingVictory            = 202168,
+        indomitable                 = 202095,
+        inspiringPresence           = 205484,
+        intoTheFray                 = 202603,
+        neverSurrender              = 202561,
+        ravager                     = 228920,
+        renewedFury                 = 202288,
+        safeguard                   = 223657,
+        ultimatum                   = 122509,
+        vengeance                   = 202572,
+        warbringer                  = 103828,
+        warlordsChallenge           = 223662,        
+    }
+    -- Merge all spell ability tables into self.spell
+    self.spell = mergeSpellTables(self.spell, self.characterSpell, self.spell.class.abilities, self.spell.spec.abilities)
+    
+------------------
+--- OOC UPDATE ---
+------------------
+
+    function self.updateOOC()
+        -- Call classUpdateOOC()
+        self.classUpdateOOC()
+    end
+
+--------------
+--- UPDATE ---
+--------------
+
+    function self.update()
+
+        -- Call Base and Class update
+        self.classUpdate()
+        -- Updates OOC things
+        if not UnitAffectingCombat("player") then self.updateOOC() end
+        cFileBuild("spec",self)
+        self.getToggleModes()
+
+        -- Start selected rotation
+        self:startRotation()
+    end
+
+---------------
+--- TOGGLES --- -- Do Not Edit this Section
+---------------
+
+    function self.getToggleModes() 
+
+        self.mode.rotation  = br.data["Rotation"]
+        self.mode.cooldown  = br.data["Cooldown"]
+        self.mode.defensive = br.data["Defensive"]
+        self.mode.interrupt = br.data["Interrupt"]
+        self.mode.mover     = br.data["Mover"]
+    end
+
+    -- Create the toggle defined within rotation files
+    function self.createToggles()
+        GarbageButtons()
+        if self.rotations[br.selectedProfile] ~= nil then
+            self.rotations[br.selectedProfile].toggles()
+        else
+            return
+        end
+    end
+
+---------------
+--- OPTIONS --- -- Do Not Edit this Section
+---------------
+    
+    -- Creates the option/profile window
+    function self.createOptions()
+        br.ui.window.profile = br.ui:createProfileWindow(self.profile)
+
+        -- Get the names of all profiles and create rotation dropdown
+        local names = {}
+        for i=1,#self.rotations do
+            tinsert(names, self.rotations[i].name)
+        end
+        br.ui:createRotationDropdown(br.ui.window.profile.parent, names)
+
+        -- Create Base and Class option table
+        local optionTable = {
+            {
+                [1] = "Base Options",
+                [2] = self.createBaseOptions,
+            },
+            {
+                [1] = "Class Options",
+                [2] = self.createClassOptions,
+            },
         }
-        self.spell.spec.artifacts       = {
 
-        }
-        self.spell.spec.buffs           = {
-
-        }
-        self.spell.spec.debuffs         = {
-
-        }
-        self.spell.spec.glyphs          = {
-
-        }
-        self.spell.spec.talents         = {
-
-        }
-        -- Merge all spell ability tables into self.spell
-        self.spell = mergeSpellTables(self.spell, self.characterSpell, self.spell.class.abilities, self.spell.spec.abilities)
-        
-    ------------------
-    --- OOC UPDATE ---
-    ------------------
-
-        function self.updateOOC()
-            -- Call classUpdateOOC()
-            self.classUpdateOOC()
-            self.getArtifacts()
-            self.getArtifactRanks()
-            self.getGlyphs()
-            self.getTalents()
-            self.getPerks() --Removed in Legion
+        -- Get profile defined options
+        local profileTable = profileTable
+        if self.rotations[br.selectedProfile] ~= nil then
+            profileTable = self.rotations[br.selectedProfile].options()
+        else
+            return
         end
 
-    --------------
-    --- UPDATE ---
-    --------------
-
-        function self.update()
-
-            -- Call Base and Class update
-            self.classUpdate()
-            -- Updates OOC things
-            if not UnitAffectingCombat("player") then self.updateOOC() end
-            self.getDynamicUnits()
-            self.getEnemies()
-            self.getBuffs()
-            self.getCharge()
-            self.getCooldowns()
-            self.getDebuffs()
-            self.getToggleModes()
-            self.getCastable()
-
-            -- Start selected rotation
-            self:startRotation()
+        -- Only add profile pages if they are found
+        if profileTable then
+            insertTableIntoTable(optionTable, profileTable)
         end
 
-    ---------------------
-    --- DYNAMIC UNITS ---
-    ---------------------
+        -- Create pages dropdown
+        br.ui:createPagesDropdown(br.ui.window.profile, optionTable)
+        br:checkProfileWindowStatus()
+    end       
 
-        function self.getDynamicUnits()
-            local dynamicTarget = dynamicTarget
+------------------------
+--- CUSTOM FUNCTIONS ---
+------------------------
+    --Target HP
+    function thp(unit)
+        return getHP(unit)
+    end
 
-            self.units.dyn10 = dynamicTarget(10, true)
-        end
+    --Target Time to Die
+    function ttd(unit)
+        return getTimeToDie(unit)
+    end
 
-    ---------------
-    --- ENEMIES ---
-    ---------------
+    --Target Distance
+    function tarDist(unit)
+        return getDistance(unit)
+    end
 
-        function self.getEnemies()
-            local getEnemies = getEnemies
+-----------------------------
+--- CALL CREATE FUNCTIONS ---
+-----------------------------
 
-            self.enemies.yards5  = getEnemies("player", 5)
-            self.enemies.yards10 = getEnemies("player", 10)
-        end
-
-    -----------------
-    --- ARTIFACTS ---
-    -----------------
-
-        function self.getArtifacts()
-            local hasPerk = hasPerk
-
-            for k,v in pairs(self.spell.spec.artifacts) do
-                self.artifact[k] = hasPerk(v) or false
-            end
-        end
-
-        function self.getArtifactRanks()
-            local getPerkRank = getPerkRank
-            
-            for k,v in pairs(self.spell.spec.artifacts) do
-                self.artifact.rank[k] = getPerkRank(v) or 0
-            end
-        end
-        
-    -------------
-    --- BUFFS ---
-    -------------
-
-        function self.getBuffs()
-            local UnitBuffID = UnitBuffID
-
-            for k,v in pairs(self.spell.spec.buffs) do
-                self.buff[k]            = UnitBuffID("player",v) ~= nil
-                self.buff.duration[k]   = getBuffDuration("player",v) or 0
-                self.buff.remain[k]     = getBuffRemain("player",v) or 0
-            end
-        end
-
-    ---------------
-    --- CHARGES ---
-    ---------------
-
-        function self.getCharge()
-            local getCharges = getCharges
-            local getChargesFrac = getChargesFrac
-            local getBuffStacks = getBuffStacks
-            local getRecharge = getRecharge
-
-            for k,v in pairs(self.spell.spec.abilities) do
-                self.charges[k]     = getCharges(v)
-                self.charges.frac[k]= getChargesFrac(v)
-                self.charges.max[k] = getChargesFrac(v,true)
-                self.recharge[k]    = getRecharge(v)
-            end
-        end
-
-    -----------------
-    --- COOLDOWNS ---
-    -----------------
-
-        function self.getCooldowns()
-            local getSpellCD = getSpellCD
-
-            for k,v in pairs(self.spell.spec.abilities) do
-                if getSpellCD(v) ~= nil then
-                    self.cd[k] = getSpellCD(v)
-                end
-            end
-        end
-
-    ---------------
-    --- DEBUFFS ---
-    ---------------
-        function self.getDebuffs()
-            local UnitDebuffID = UnitDebuffID
-            local getDebuffDuration = getDebuffDuration
-            local getDebuffRemain = getDebuffRemain
-
-            for k,v in pairs(self.spell.spec.debuffs) do
-                if k ~= "bleeds" then
-                    self.debuff[k]          = UnitDebuffID("target",v,"player") ~= nil
-                    self.debuff.duration[k] = getDebuffDuration("target",v,"player") or 0
-                    self.debuff.remain[k]   = getDebuffRemain("target",v,"player") or 0
-                    self.debuff.refresh[k]  = (self.debuff.remain[k] < self.debuff.duration[k] * 0.3) or self.debuff.remain[k] == 0
-                end
-            end
-        end        
-
-    --------------
-    --- GLYPHS ---
-    --------------
-
-        function self.getGlyphs()
-            local hasGlyph = hasGlyph
-
-        end
-
-    ---------------
-    --- TALENTS ---
-    ---------------
-
-        function self.getTalents()
-            local getTalent = getTalent
-
-            for r = 1, 7 do --search each talent row
-                for c = 1, 3 do -- search each talent column
-                    local talentID = select(6,GetTalentInfo(r,c,GetActiveSpecGroup())) -- ID of Talent at current Row and Column
-                    for k,v in pairs(self.spell.spec.talents) do
-                        if v == talentID then
-                            self.talent[k] = getTalent(r,c)
-                        end
-                    end
-                end
-            end
-        end
-
-    -------------
-    --- PERKS ---
-    -------------
-
-        function self.getPerks()
-            local isKnown = isKnown
-
-        end
-
-    ---------------
-    --- TOGGLES --- -- Do Not Edit this Section
-    ---------------
-
-        function self.getToggleModes() 
-
-            self.mode.rotation  = br.data["Rotation"]
-            self.mode.cooldown  = br.data["Cooldown"]
-            self.mode.defensive = br.data["Defensive"]
-            self.mode.interrupt = br.data["Interrupt"]
-        end
-
-        -- Create the toggle defined within rotation files
-        function self.createToggles()
-            GarbageButtons()
-            if self.rotations[br.selectedProfile] ~= nil then
-                self.rotations[br.selectedProfile].toggles()
-            else
-                return
-            end
-        end
-
-    ---------------
-    --- OPTIONS --- -- Do Not Edit this Section
-    ---------------
-        
-        -- Creates the option/profile window
-        function self.createOptions()
-            br.ui.window.profile = br.ui:createProfileWindow(self.profile)
-
-            -- Get the names of all profiles and create rotation dropdown
-            local names = {}
-            for i=1,#self.rotations do
-                tinsert(names, self.rotations[i].name)
-            end
-            br.ui:createRotationDropdown(br.ui.window.profile.parent, names)
-
-            -- Create Base and Class option table
-            local optionTable = {
-                {
-                    [1] = "Base Options",
-                    [2] = self.createBaseOptions,
-                },
-                {
-                    [1] = "Class Options",
-                    [2] = self.createClassOptions,
-                },
-            }
-
-            -- Get profile defined options
-            local profileTable = profileTable
-            if self.rotations[br.selectedProfile] ~= nil then
-                profileTable = self.rotations[br.selectedProfile].options()
-            else
-                return
-            end
-
-            -- Only add profile pages if they are found
-            if profileTable then
-                insertTableIntoTable(optionTable, profileTable)
-            end
-
-            -- Create pages dropdown
-            br.ui:createPagesDropdown(br.ui.window.profile, optionTable)
-            br:checkProfileWindowStatus()
-        end
-
-    --------------
-    --- SPELLS ---
-    --------------
-
-        function self.getCastable()
-
-            -- self.cast.debug.ascendance      = self.cast.ascendance("player", true)
-        end
-
-        -- -- Ascendance
-        -- function self.cast.ascendance(thisUnit,debug)
-        --     local spellCast = self.spell.ascendance
-        --     local thisUnit = thisUnit
-        --     if thisUnit == nil then thisUnit = "player" end
-        --     if debug == nil then debug = false end
-
-        --     if self.talent.ascendance and self.cd.ascendance == 0 then
-        --         if debug then
-        --             return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
-        --         else
-        --             return castSpell(thisUnit,spellCast,false,false,false)
-        --         end
-        --     elseif debug then
-        --         return false
-        --     end
-        -- end
-       
-
-    ------------------------
-    --- CUSTOM FUNCTIONS ---
-    ------------------------
-        --Target HP
-        function thp(unit)
-            return getHP(unit)
-        end
-
-        --Target Time to Die
-        function ttd(unit)
-            return getTimeToDie(unit)
-        end
-
-        --Target Distance
-        function tarDist(unit)
-            return getDistance(unit)
-        end
-
-    -----------------------------
-    --- CALL CREATE FUNCTIONS ---
-    -----------------------------
-
-        -- Return
-        return self
-    end-- cProtection
+    -- Return
+    return self
 end-- select Warrior

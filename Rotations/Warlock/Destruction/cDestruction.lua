@@ -1,426 +1,232 @@
 --- Destruction Class
 -- Inherit from: ../cCharacter.lua and ../cWarlock.lua
-if select(2, UnitClass("player")) == "WARLOCK" then
+cDestruction = {}
+cDestruction.rotations = {}
 
-    cDestruction = {}
+-- Creates Destruction Warlock
+function cDestruction:new()
+    local self = cWarlock:new("Destruction")
 
-    -- Creates Windwalker Monk
-    function cDestruction:new()
-        local self = cWarlock:new("Destruction")
+    local player = "player" -- if someone forgets ""
 
-        local player = "player" -- if someone forgets ""
+    -- Mandatory !
+    self.rotations = cDestruction.rotations
+    
+-----------------
+--- VARIABLES ---
+-----------------
 
-        -----------------
-        --- VARIABLES ---
-        -----------------
+    self.spell.spec                 = {}
+    self.spell.spec.abilities       = {
+        cataclysm                   = 152108,
+        channelDemonfire            = 196447,
+        chaosBolt                   = 116858,
+        conflagrate                 = 17962,
+        dimensionalRift             = 196586,
+        drainLife                   = 234153,
+        grimoireOfSacrifice         = 108503,
+        havoc                       = 80240,
+        immolate                    = 348,
+        incinerate                  = 29722,
+        manaTap                     = 196104,
+        rainOfFire                  = 5740,
+        shadowBolt                  = 686,
+        shadowburn                  = 17877,
+        shadowfury                  = 30283,
+    }
+    self.spell.spec.artifacts       = {
+        artificialStamina           = 211309,
+        burningHunger               = 196432,
+        chaoticIstability           = 196217,
+        conflagrationOfChaos        = 219195,
+        demonicDurability           = 215223,
+        devourerOfLife              = 196301,
+        dimensionRipper             = 219415,
+        dimensionalRift             = 196586,
+        eternalStruggle             = 196305,
+        fireAndTheFlames            = 196222,
+        fireFromTheSky              = 196258,
+        flamesOfThePit              = 215183,
+        impishIncineration          = 215273,
+        lordOfFlames                = 224103,
+        masterOfDisaster            = 196211,
+        planeswalker                = 196675,
+        residualFlames              = 196227,
+        soulsnatcher                = 196236,
+        stolenPower                 = 214936,
+    }
+    self.spell.spec.buffs           = {
+        backdraft                   = 196406,
+        conflagrationOfChaos        = 196546,
+        lordOfFlames                = 224103,
+    }
+    self.spell.spec.debuffs         = {
+        immolate                    = 157736,
+        havoc                       = 80240,
+        roaringBlaze                = 205184,
+    }
+    self.spell.spec.glyphs          = {
 
-        self.trinket = {
-            -- Trinket Procs
-            165832,         -- Coagulated Genesaur Blood
-        } 
-        self.enemies = {
-            yards5,
-            yards8,
-            yards12,
-            yards40,
+    }
+    self.spell.spec.talents         = {
+        backdraft                   = 196406,
+        cataclysm                   = 152108,
+        channelDemonfire            = 196447,
+        eradication                 = 196412,
+        fireAndBrimstone            = 196408,
+        grimoireOfSacrifice         = 108503,
+        manaTap                     = 196104,
+        reverseEntropy              = 205148,
+        roaringBlaze                = 205184,
+        shadowburn                  = 17877,
+        shadowfury                  = 30283,
+        wreakHavoc                  = 196410,   
+    }
+    -- Merge all spell ability tables into self.spell
+    self.spell = mergeSpellTables(self.spell, self.characterSpell, self.spell.class.abilities, self.spell.spec.abilities)
+    
+------------------
+--- OOC UPDATE ---
+------------------
+
+    function self.updateOOC()
+        -- Call classUpdateOOC()
+        self.classUpdateOOC()
+    end
+
+--------------
+--- UPDATE ---
+--------------
+
+    function self.update()
+
+        -- Call Base and Class update
+        self.classUpdate()
+        -- Updates OOC things
+        if not UnitAffectingCombat("player") then self.updateOOC() end
+        cFileBuild("spec",self)
+        self.getToggleModes()
+        self.getPetInfo()
+
+        -- Start selected rotation
+        self:startRotation()
+    end
+
+----------------
+--- PET INFO ---
+----------------
+    function self.getPetInfo()
+        self.petInfo = {}
+        for i = 1, ObjectCount() do
+            -- define our unit
+            local thisUnit = GetObjectWithIndex(i)
+            -- check if it a unit first
+            if ObjectIsType(thisUnit, ObjectTypes.Unit)  then
+                local unitName      = UnitName(thisUnit)
+                local unitID        = GetObjectID(thisUnit)
+                local unitGUID      = UnitGUID(thisUnit)
+                local unitCreator   = UnitCreator(thisUnit)
+                local player        = GetObjectWithGUID(UnitGUID("player"))
+                if unitCreator == player and (unitID == 55659 or unitID == 98035 or unitID == 103673 or unitID == 11859 or unitID == 89 
+                    or unitID == 416 or unitID == 1860 or unitID == 417 or unitID == 1863 or unitID == 17252) 
+                then
+                    -- local demoEmpBuff   = UnitBuffID(thisUnit,self.spell.spec.buffs.demonicEmpowerment) ~= nil
+                    local unitCount     = #getEnemies(tostring(thisUnit),10) or 0
+                    tinsert(self.petInfo,{name = unitName, guid = unitGUID, id = unitID, creator = unitCreator, --[[deBuff = demoEmpBuff,]] numEnemies = unitCount})
+                end
+            end
+        end
+    end
+
+---------------
+--- TOGGLES ---
+---------------
+
+    function self.getToggleModes()
+
+        self.mode.rotation  = br.data["Rotation"]
+        self.mode.cooldown  = br.data["Cooldown"]
+        self.mode.defensive = br.data["Defensive"]
+        self.mode.interrupt = br.data["Interrupt"]
+    end
+
+    -- Create the toggle defined within rotation files
+    function self.createToggles()
+        GarbageButtons()
+        if self.rotations[br.selectedProfile] ~= nil then
+            self.rotations[br.selectedProfile].toggles()
+        else
+            return
+        end
+    end
+
+---------------
+--- OPTIONS ---
+---------------
+    
+    -- Creates the option/profile window
+    function self.createOptions()
+        br.ui.window.profile = br.ui:createProfileWindow(self.profile)
+
+        -- Get the names of all profiles and create rotation dropdown
+        local names = {}
+        for i=1,#self.rotations do
+            tinsert(names, self.rotations[i].name)
+        end
+        br.ui:createRotationDropdown(br.ui.window.profile.parent, names)
+
+        -- Create Base and Class option table
+        local optionTable = {
+            {
+                [1] = "Base Options",
+                [2] = self.createBaseOptions,
+            },
+            {
+                [1] = "Class Options",
+                [2] = self.createClassOptions,
+            },
         }
-        self.destructionSpell = {
-            -- Ability - Defensive
-            emberTap                        = 114635,
-            
-            -- Ability - Offensive
-            chaosBolt                       = 116858,
-            conflagrate                     = 17962,
-            darkSoulInstability             = 113858,
-            fireandBrimstone                = 108683,
-            flamesofXoroth                  = 120451,
-            havoc                           = 80240,
-            immolate                        = 348,
-            incinerate                      = 29722,
-            rainofFire                      = 104232,
-            shadowburn                      = 17877,
-            backdraft                       = 117896,
 
-
-            -- Buff - Defensive
-            
-            -- Buff - Offensive
-            darkSoulInstabilityBuff         = 113858,
-            fireandBrimstoneBuff            = 108683,
-            havocBuff                       = 80240, 
-            
-            -- Buff - Stacks
-            
-            -- Debuff - Offensive
-            immolateDebuff                  = 348,
-            shadowburnDebuff                = 29341,
-            rainofFireDebuff                = 104232,
-
-            -- Glyphs
-            
-            -- Perks
-
-            -- Talent
-        }
-        -- Merge all spell tables into self.spell
-        self.spell = {}
-        self.spell = mergeSpellTables(self.spell, self.characterSpell, self.warlockSpell, self.destructionSpell)
-
-
-        ------------------
-        --- OOC UPDATE ---
-        ------------------
-
-        function self.updateOOC()
-            -- Call classUpdateOOC()
-            self.classUpdateOOC()
-
-            self.getGlyphs()
-            self.getPerks()
-            self.getTalents()
+        -- Get profile defined options
+        local profileTable = profileTable
+        if self.rotations[br.selectedProfile] ~= nil then
+            profileTable = self.rotations[br.selectedProfile].options()
+        else
+            return
         end
 
-        --------------
-        --- UPDATE ---
-        --------------
-
-        function self.update()
-            -- Call Base and Class update
-            self.classUpdate()
-            -- Updates OOC things
-            if not UnitAffectingCombat("player") then self.updateOOC() end
-
-            self.getBuffs()
-            self.getBuffsDuration()
-            self.getBuffsRemain()
-            self.getCharges()
-            self.getDynamicUnits()
-            self.getDebuffs()
-            self.getDebuffsDuration()
-            self.getDebuffsRemain()
-            self.getCooldowns()
-            self.getEnemies()
-            self.getRotation()
-
-            if lastImmolateTime == nil then lastImmolateTime=GetTime()-10 end
-            if lastImmolateTarget == nil then lastImmolateTarget="0" end
-
-
-            -- Casting and GCD check
-            -- TODO: -> does not use off-GCD stuff like pots, dp etc
-            if castingUnit() then
-                if isCastingSpell(self.spell.summonFelHunter) and UnitExists("pet") then
-                    RunMacroText("/stopcasting") 
-                end
-                if isCastingSpell(self.spell.summonSuccubus) and UnitExists("pet") then
-                    RunMacroText("/stopcasting") 
-                end
-                if isCastingSpell(self.spell.summonImp) and UnitExists("pet") then
-                    RunMacroText("/stopcasting") 
-                end
-                if isCastingSpell(self.spell.summonVoidWalker) and UnitExists("pet") then
-                    RunMacroText("/stopcasting") 
-                end
-                return
-            end
-
-
-            -- Start selected rotation
-            self:startRotation()
+        -- Only add profile pages if they are found
+        if profileTable then
+            insertTableIntoTable(optionTable, profileTable)
         end
 
-        -------------
-        --- BUFFS ---
-        -------------
-        function self.getBuffs()
-            local UnitBuffID = UnitBuffID
+        -- Create pages dropdown
+        br.ui:createPagesDropdown(br.ui.window.profile, optionTable)
+        br:checkProfileWindowStatus()
+    end
+    
+------------------------
+--- CUSTOM FUNCTIONS ---
+------------------------
+    --Target HP
+    function thp(unit)
+        return getHP(unit)
+    end
 
-            self.buff.darkSoulInstability       = UnitBuffID("player",self.spell.darkSoulInstabilityBuff)~=nil or false
-            self.buff.fireandBrimstone          = UnitBuffID("player",self.spell.fireandBrimstoneBuff)~=nil or false
-            self.buff.havoc                     = UnitBuffID("player",self.spell.havoc)~=nill or false
-            self.buff.emberTap                  = UnitBuffID("player",self.spell.emberTap)~= nil or false
+    --Target Time to Die
+    function ttd(unit)
+        return getTimeToDie(unit)
+    end
 
-        end
+    --Target Distance
+    function tarDist(unit)
+        return getDistance(unit)
+    end
 
-        function self.getBuffsDuration()
-            local getBuffDuration = getBuffDuration
+-----------------------------
+--- CALL CREATE FUNCTIONS ---
+-----------------------------
 
-            self.buff.duration.darkSoulInstability = getBuffDuration("player",self.spell.darkSoulInstabilityBuff) or 0
-            self.buff.duration.fireandBrimstone    = getBuffDuration("player",self.spell.fireandBrimstoneBuff) or 0
-            self.buff.duration.havoc               = getBuffDuration("player",self.spell.havocBuff) or 0
-        end
-
-        function self.getBuffsRemain()
-            local getBuffRemain = getBuffRemain
-
-            self.buff.remain.darkSoulInstability        = getBuffRemain("player",self.spell.darkSoulInstabilityBuff) or 0
-            self.buff.remain.fireandBrimstone           = getBuffRemain("player",self.spell.fireandBrimstoneBuff) or 0
-            self.buff.remain.havoc                      = getBuffRemain("player",self.spell.havoc) or 0
-        end
-
-        function self.getCharges()
-            local getBuffStacks = getBuffStacks
-            local getCharges = getCharges
-
-            self.charges.conflagrate               = getCharges(self.spell.conflagrate) or 0
-            self.charges.darkSoulInstability       = getCharges(self.spell.darkSoulInstability) or 0
-            self.charges.havoc                     = getBuffStacks("player",self.spell.havoc,"player") or 0
-            self.charges.backdraft                 = getBuffStacks("player",self.spell.backdraft,"player") or 0
-        end
-
-        ---------------
-        --- DEBUFFS ---
-        ---------------
-        function self.getDebuffs()
-            local UnitDebuffID = UnitDebuffID
-
-            self.debuff.immolate = UnitDebuffID(self.units.dyn40,self.spell.immolateDebuff,"player")~=nil or false
-        end
-
-        function self.getDebuffsDuration()
-            local getDebuffDuration = getDebuffDuration
-
-            self.debuff.duration.immolate = getDebuffDuration(self.units.dyn40,self.spell.immolateDebuff,"player") or 0
-        end
-
-        function self.getDebuffsRemain()
-            local getDebuffRemain = getDebuffRemain
-
-            self.debuff.remain.immolate = getDebuffRemain(self.units.dyn40,self.spell.immolateDebuff,"player") or 0
-        end
-        -----------------
-        --- COOLDOWNS ---
-        -----------------
-
-        function self.getCooldowns()
-            local getSpellCD = getSpellCD
-
-            self.cd.flamesofXoroth      = getSpellCD(self.spell.flamesofXoroth)
-            self.cd.havoc               = getSpellCD(self.spell.havoc)
-        end
-
-        --------------
-        --- GLYPHS ---
-        --------------
-
-        function self.getGlyphs()
-            local hasGlyph = hasGlyph
-
-        end
-
-        ---------------
-        --- TALENTS ---
-        ---------------
-
-        function self.getTalents()
-            local getTalent = getTalent
-
-        end
-
-        --------------------
-        --- TRINKET PROC ---
-        --------------------
-
-        function self.getTrinketProc()
-            local UnitBuffID = UnitBuffID
-
-            -- self.trinket.WitherbarksBranch              = UnitBuffID("player",165822)~=nil or false --Haste Proc
-            -- self.trinket.TurbulentVialOfToxin           = UnitBuffID("player",176883)~=nil or false --Mastery Proc
-            -- self.trinket.KihrasAdrenalineInjector       = UnitBuffID("player",165485)~=nil or false --Mastery Proc
-            self.trinket.CoagulatedBlood                = UnitBuffID("player",165832)~=nil or false --Multi-Strike Proc
-        end
-
-        function self.hasTrinketProc()
-            for i = 1, #self.trinket do
-                if UnitBuff("player",GetSpellInfo(self.trinket[i])) ~= nil then return true else return false end
-            end
-        end
-
-        -------------
-        --- PERKS ---
-        -------------
-
-        function self.getPerks()
-            local isKnown = isKnown
-
-            -- self.perk.empoweredEnvenom          = isKnown(self.spell.empoweredEnvenom)
-        end
-
-        ---------------------
-        --- DYNAMIC UNITS ---
-        ---------------------
-
-        function self.getDynamicUnits()
-            local dynamicTarget = dynamicTarget
-
-            -- Normal
-            self.units.dyn8     = dynamicTarget(8, true)
-            self.units.dyn15    = dynamicTarget(15, true)
-            self.units.dyn20    = dynamicTarget(20, true)
-
-            -- AoE
-            self.units.dyn8AoE  = dynamicTarget(8,false)
-            self.units.dyn20AoE = dynamicTarget(20,false)
-        end
-
-        ---------------
-        --- ENEMIES ---
-        ---------------
-
-        function self.getEnemies()
-            local getEnemies = getEnemies
-
-            self.enemies.yards5     = #getEnemies("player", 5)
-            self.enemies.yards8     = #getEnemies("player", 8)
-            self.enemies.yards12    = #getEnemies("player", 12)
-            self.enemies.yards40    = #getEnemies("player", 40)
-        end
-
-        ----------------------
-        --- START ROTATION ---
-        ----------------------
-
-        function self.startRotation()
-            if self.rotation == 1 then
-                self:DestructionKuu()
-                elseif self.rotation == 2 then
-                    self:DestructionTest()
-                --elseif self.rotation == 3 then
-                --    self:WindwalkerOld()
-            else
-                ChatOverlay("No ROTATION ?!", 2000)
-            end
-        end
-
-         ---------------
-        --- OPTIONS ---
-        ---------------
-
-        function self.createOptions()
-            br.ui.window.profile = br.ui:createProfileWindow("Destruction")
-            local section
-
-            -- Create Base and Class options
-            self.createClassOptions()
-
-             -- Wrapper -----------------------------------------
-            section = br.ui:createSection(br.ui.window.profile,  "General")
-
-            -- Flask / Crystal
-            br.ui:createCheckbox(section,"Flask/Crystal")
-            br.ui:checkSectionState(section)
-
-
-             -- Wrapper -----------------------------------------
-            section = br.ui:createSection(br.ui.window.profile, "Defensive")
-            -- Expel Harm
-            br.ui:createSpinner(section,  "Ember Tap",  80,  0,  100  ,  5,  "Under what |cffFF0000%HP to use |cffFFFFFFEmber Tap")
-            -- Fortifying Brew
-            br.ui:createSpinner(section,  "Heirloom Neck",  30,  0,  100  ,  5,  "Under what |cffFF0000%HP to use |cffFFFFFFHeirloom Neck")
-            -- Healthstone
-            br.ui:createSpinner(section,  "Pot/Stoned",  20,  0,  100  ,  5,  "Under what |cffFF0000%HP to use |cffFFFFFFHealthstone")
-            -- Unending Resolve
-            br.ui:createSpinner(section,  "Unending Resolve",  20,  0,  100  ,  5,  "Under what |cffFF0000%HP to use |cffFFFFFFUnending Resolve")
-            br.ui:checkSectionState(section)
-
-
-            section = br.ui:createSection(br.ui.window.profile,  "Interrupts")
-            --Shadowfury
-            br.ui:createSpinner(section, "Shadowfury", 40, 0, 100, 5, "At what |cffFF0000% Cast to use |cffFFFFFFShadowfury")
-            -- Spell Lock
-            br.ui:createSpinner(section, "Spell Lock", 40, 0, 100, 5, "At what |cffFF0000% Cast to use |cffFFFFFFSpell Lock")
-            br.ui:checkSectionState(section)
-
-            --[[ Rotation Dropdown ]]--
-            br.ui:createRotationDropdown(br.ui.window.profile.parent, {"Kuukuu","Test"})
-            br:checkProfileWindowStatus()
-        end
-
-        
-        --------------
-        --- SPELLS ---
-        --------------
-            
-        -- Ember Tap
-        function self.castEmberTap()
-            if self.ember.count>=1 and not self.buff.emberTap then
-                if castSpell("player",self.spell.emberTap,false,false,false) then return true end
-            end
-        end
-        -- Chaos Bolt
-        function self.castChaosBolt(thisUnit)
-            if self.ember.count >= 1 and getDistance(thisUnit) < 40 then
-                if castSpell(thisUnit,self.spell.chaosBolt,true,true,false) then return true end
-            end
-        end
-        -- Conflagrate
-        function self.castConflagrate(thisUnit)
-            if self.charges.conflagrate >=1 and getDistance(thisUnit)< 40 then
-                if castSpell(thisUnit,self.spell.conflagrate,true,false,false) then return true end
-            end
-        end
-        -- Dark Soul: Instability
-        function self.castDarkSoulInstability()
-            if self.charges.darkSoulInstability >= 1 then
-                if castSpell("player",self.spell.darkSoulInstability,false,false,false) then return true end
-            end
-        end
-        --Fire and Brimstone
-        function self.castFireandBrimstone()
-            if FnBTimer == nil then FnBTimer = 0 end
-            if GetTime() - FnBTimer > 0.75 then
-                if castSpell("player",self.spell.fireandBrimstone,false,false,false) then FnBTimer = GetTime() return true end
-            end
-        end
-        -- Flames of Xoroth
-        function self.castFlamesofXoroth()
-            if not UnitExists("pet") and not self.buff.grimoireofSacrifice and self.ember.count >= 1 and self.cd.flamesofXoroth then
-                if castSpell("player",self.spell.flamesofXoroth,false,false,false) then return true end
-            end
-        end
-        -- Havoc
-        function self.castHavoc(thisUnit)
-            if self.cd.havoc and getDistance(thisUnit)< 40 then
-                if castSpell(thisUnit,self.spell.havoc,true,false,false) then return true end
-            end
-        end
-        --Immolate
-        function self.castImmolate(thisUnit)
-            if getDistance(thisUnit)< 40 then
-                if castSpell(thisUnit,self.spell.immolate,true,true,false) then 
-                    return true
-                end   
-            end
-        end
-        -- Incinerate
-        function self.castIncinerate(thisUnit)
-            if getDistance(thisUnit)< 40 then
-                if castSpell(thisUnit,self.spell.incinerate,true,true,false) then return true end
-            end
-        end
-        -- Rain of Fire
-        function self.castRainofFire()
-            if getDistance(self.units.dyn40)< 35 and UnitDebuffID(self.units.dyn40,self.spell.rainofFireDebuff,"player") then
-                if castGroundAtBestLocation(self.spell.rainofFire, 8, 3, 35, 5) then return true end
-            end
-        end
-        -- Shadowburn
-        function self.castShadowburn(thisUnit)
-            if self.ember.count >= 1 and getDistance(thisUnit) < 40 then
-                if castSpell(thisUnit,self.spell.shadowburn,true,false,false) then return true end
-            end
-        end
-
-        -----------------------------
-        --- CALL CREATE FUNCTIONS ---
-        -----------------------------
-
-        self.createOptions()
-
-
-        -- Return
-        return self
-    end-- cDestruction
+    -- Return
+    return self
 end-- select Warlock
-
- 

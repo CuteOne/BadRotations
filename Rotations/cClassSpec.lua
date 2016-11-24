@@ -3,12 +3,6 @@ function cFileBuild(cFileName,self)
     -- Make tables if not existing
     if self.artifact        == nil then self.artifact           = {} end        -- Artifact Trait Info
     if self.artifact.rank   == nil then self.artifact.rank      = {} end        -- Artifact Trait Rank
-    -- if self.buff.exists     == nil then self.buff.exists        = {} end        -- Buff Exists
-    -- if self.buff.duration   == nil then self.buff.duration      = {} end        -- Buff Durations
-    -- if self.buff.remain     == nil then self.buff.remain        = {} end        -- Buff Time Remaining
-    -- if self.buff.refresh    == nil then self.buff.refresh       = {} end        -- Buff Refreshable
-    -- if self.buff.stack      == nil then self.buff.stack         = {} end        -- Buff Stack Count
-    -- if self.buff.pet        == nil then self.buff.pet           = {} end        -- Buffs on Pets
     if self.cast            == nil then self.cast               = {} end        -- Cast Spell Functions
     if self.cast.debug      == nil then self.cast.debug         = {} end        -- Cast Spell Debugging
     if self.charges.frac    == nil then self.charges.frac       = {} end        -- Charges Fractional
@@ -59,6 +53,7 @@ function cFileBuild(cFileName,self)
     self.enemies.yards8t    = getEnemies("target", 8)
     self.enemies.yards10    = getEnemies("player", 10)
     self.enemies.yards10t   = getEnemies("target", 10)
+    self.enemies.yards12    = getEnemies("player", 12)
     self.enemies.yards13    = getEnemies("player", 13)
     self.enemies.yards15    = getEnemies("player", 15)
     self.enemies.yards20    = getEnemies("player", 20)
