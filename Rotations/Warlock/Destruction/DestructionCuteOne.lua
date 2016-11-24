@@ -180,6 +180,7 @@ if select(2, UnitClass("player")) == "WARLOCK" then
             local php                                           = br.player.health
             local playerMouse                                   = UnitIsPlayer("mouseover")
             local power, powmax, powgen, powerDeficit           = br.player.power, br.player.powerMax, br.player.powerRegen, br.player.powerDeficit
+            local powerPercentMana                              = br.player.powerPercentMana
             local pullTimer                                     = br.DBM:getPulltimer()
             local racial                                        = br.player.getRacial()
             local recharge                                      = br.player.recharge
