@@ -530,7 +530,7 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                             for i = 1, #enemies.yards40 do
                                 local thisUnit = enemies.yards40[i]
                                 if debuff.immolate[thisUnit] ~= nil and debuff.roaringBlaze[thisUnit] ~= nil then
-                                    if debuff.immolate[thisUnit] <= 3 and not debuff.roaringBlaze[thisUnit].exists and charges.conflagrate < 2 then
+                                    if debuff.immolate[thisUnit].remain <= 3 and not debuff.roaringBlaze[thisUnit].exists and charges.conflagrate < 2 then
                                         if cast.immolate(thisUnit) then return end
                                     end
                                 end
@@ -568,13 +568,13 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                             if cast.conflagrate("target") then return end
                         end
                         -- conflagrate,if=!talent.roaring_blaze.enabled&!buff.backdraft.remains&(charges=1&recharge_time<action.chaos_bolt.cast_time|charges=2)&soul_shard<5
-                        if not talent.roaringBlaze and not buff.backdraft.exists and ((charges.conflagrate == 1 and recharge.conflagrate < getCastTime(spell.caosBolt)) or charges.conflagrate == 2) and shards < 5 then -- need buff id for backdraft
+                        if not talent.roaringBlaze and not buff.backdraft.exists and ((charges.conflagrate == 1 and recharge.conflagrate < getCastTime(spell.chaosBolt)) or charges.conflagrate == 2) and shards < 5 then -- need buff id for backdraft
                             if cast.conflagrate("target") then return end
                         end
             -- Service Pet
                         -- service_pet,if=dot.corruption.remains&dot.agony.remains
                         if ObjectExists("target") then
-                            if debuff.corruption["target"].exists and debuff.agony["target"].exists and br.timer:useTimer("castGrim", gcd) then
+                            if br.timer:useTimer("castGrim", gcd) then
                                 if grimoirePet == 1 then
                                     if cast.grimoireImp() then prevService = "Imp"; return end
                                 end
@@ -669,7 +669,7 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                         end
             -- Rain of Fire
                         -- rain_of_fire,if=active_enemies>=4&cooldown.havoc.remains<=12&!talent.wreak_havoc.enabled
-                        if enemies.yards8t >= 4 and cd.havoc <= 12 and not talent.wreakHavoc then
+                        if #enemies.yards8t >= 4 and cd.havoc <= 12 and not talent.wreakHavoc then
                             if cast.rainOfFire("target","ground") then return end
                         end
                         -- rain_of_fire,if=active_enemies>=6&talent.wreak_havoc.enabled
