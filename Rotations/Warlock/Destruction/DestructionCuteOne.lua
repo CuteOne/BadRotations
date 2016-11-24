@@ -673,7 +673,7 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                             if cast.rainOfFire("target","ground") then return end
                         end
                         -- rain_of_fire,if=active_enemies>=6&talent.wreak_havoc.enabled
-                        if enemies.yards8t >= 4 and talent.wreakHavoc then
+                        if #enemies.yards8t >= 4 and talent.wreakHavoc then
                             if cast.rainOfFire("target","ground") then return end
                         end
             -- Dimensional Rift
