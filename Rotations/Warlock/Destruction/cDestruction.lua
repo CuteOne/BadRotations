@@ -59,6 +59,7 @@ function cDestruction:new()
         backdraft                   = 196406,
         conflagrationOfChaos        = 196546,
         lordOfFlames                = 224103,
+        manaTap                     = 196104,
     }
     self.spell.spec.debuffs         = {
         immolate                    = 157736,
