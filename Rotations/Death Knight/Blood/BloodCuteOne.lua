@@ -257,8 +257,7 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
             -- Icebound Fortitude
                     if isChecked("Icebound Fortitude") and php <= getOptionValue("Icebound Fortitude") then
                         if cast.iceboundFortitude() then return end
-                    end
-                end          
+                    end          
             -- Vampiric Blood
                     if isChecked("Vampiric Blood") and php <= getOptionValue("Vampiric Blood") then
                         if cast.vampiricBlood() then return end
