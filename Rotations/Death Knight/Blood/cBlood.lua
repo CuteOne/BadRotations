@@ -37,6 +37,7 @@ function cBlood:new()
         tighteningGrasp             = 206970,
         tombstone                   = 219809,
         vampiricBlood               = 55233,
+        iceboundFortitude           = 48792,
     }
     self.spell.spec.artifacts       = {
         allConsumingRot             = 192464,
