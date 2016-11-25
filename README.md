@@ -79,7 +79,7 @@ Raidable means if its good to raid with.
 ||||
 | **Death Knight** |||
 |Frost|0%||7.0|
-|Blood|25%|CuteOne|7.1|
+|Blood|95%|CuteOne/Vilt|7.1|:white_check_mark:
 |Unholy|0%||7.0|
 ||||
 | **Demon Hunter** |||
