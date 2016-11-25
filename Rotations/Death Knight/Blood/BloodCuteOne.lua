@@ -69,9 +69,9 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
         -- Vilt Rotation Options
         section = br.ui:createSection(br.ui.window.profile, "Vilt Rotation Options")
             -- Use Death and Decay
-                br.ui:createCheckbox(section,"Death and Decay")
+                br.ui:createCheckbox(section,"Death and Decay", "I suggest you turn this off and use it manually.")
             -- Death and Decay Target Amount
-                br.ui:createSpinner(section, "Death and Decay Targets", 3, 0, 10, 1, "|cffFFBB00Amount of Targets for DnD")
+                br.ui:createSpinner(section, "Death and Decay Targets", 3, 0, 10, 1, "|cffFFBB00Amount of Targets for DnD.")
             -- Use Bonestorm
                 br.ui:createCheckbox(section,"Use Bonestorm")
             -- Bonestorm Target Amount
@@ -475,7 +475,7 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
         ---------------------------
                     if getOptionValue("APL Mode") == 3 then
                         --actions+=/death_and_decay,if=(buff.crimson_scourge.up&talent.rapid_decomposition.enabled)|spell_targets.death_and_decay>=2
-                        if ((buff.crimsonScourge.exists and talent.rapidDecomposition) or #enemies.yards8 >= getOptionValue("Death and Decay Targets")) and isChecked("Death and Decay") then
+                        if --[[((buff.crimsonScourge.exists and talent.rapidDecomposition) or]] #enemies.yards8 >= getOptionValue("Death and Decay Targets") and isChecked("Death and Decay") then
                             if cast.deathAndDecay("best",false,#enemies.yards8,8) then return end
                         end
                         --#dump rp with deathstrike
@@ -532,15 +532,15 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
                             if cast.deathStrike() then return end
                         end
                         --actions+=/marrowrend,if=rune>2.5&buff_bone_shield.stacks<=7
-                        if runes >= 2.75 and buff.boneShield.stack <=6 then
+                        if runes >= 2.5 and buff.boneShield.stack <=6 then
                             if cast.marrowrend() then return end
                         end
                         --actions+=/death_and_decay,if=talent.rapid.decomposition.enabled
-                        if talent.rapidDecomposition and isChecked("Death and Decay") then
-                            if cast.deathAndDecay("best",false,#enemies.yards8,8) then return end
-                        end                        
+                        --if talent.rapidDecomposition and isChecked("Death and Decay") then
+                        --    if cast.deathAndDecay("best",false,#enemies.yards8,8) then return end
+                        --end                        
                         --actions+=/heart_strike,if=rune>2.5
-                        if runes >= 2.75 then
+                        if runes >= 2.5 then
                             if cast.heartStrike() then return end
                         end
                         --actions+=/consumption
@@ -550,9 +550,9 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
                             if cast.bloodBoil("player") then return end
                         end    
                         --actions+=/death_and_decay,if=!talent.rapid.decomposition.enabled&buff.crimson_scourge_up
-                        if not talent.rapidDecomposition and buff.crimsonScourge.exists and isChecked("Death and Decay") then
-                            if cast.deathAndDecay("best",false,#enemies.yards8,8) then return end
-                        end
+                        --if not talent.rapidDecomposition and buff.crimsonScourge.exists and isChecked("Death and Decay") then
+                        --    if cast.deathAndDecay("best",false,#enemies.yards8,8) then return end
+                        --end
                     end -- End Vilt APL        
 
                 end --End In Combat 
