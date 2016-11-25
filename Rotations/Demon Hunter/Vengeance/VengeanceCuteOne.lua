@@ -354,8 +354,10 @@ if select(2, UnitClass("player")) == "DEMONHUNTER" then
                     end
         -- Demon Spikes
                     -- actions+=/demon_spikes,if=charges=2|buff.demon_spikes.down&!dot.fiery_brand.ticking&buff.metamorphosis.down
-                    if (charges.demonSpikes == 2 or not buff.demonSpikes.exists) and not debuff.fieryBrand[units.dyn5].exists and not buff.metamorphosis.exists then
-                        if cast.demonSpikes() then return end
+                    if debuff.fieryBrand[units.dyn5] ~= nil then
+                        if (charges.demonSpikes == 2 or not buff.demonSpikes.exists) and not debuff.fieryBrand[units.dyn5].exists and not buff.metamorphosis.exists then
+                            if cast.demonSpikes() then return end
+                        end
                     end
         -- Empower Wards
                     -- actions+=/empower_wards,if=debuff.casting.up

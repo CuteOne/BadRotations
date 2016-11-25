@@ -521,9 +521,9 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                         end
             -- Immolate
                         -- immolate,if=remains<=tick_time
-                        if debuff.immolate["target"] ~= nil then
-                            if debuff.immolate["target"].remain <= 3 then
-                                if cast.immolate("target") then return end
+                        if debuff.immolate[units.dyn40] ~= nil then
+                            if debuff.immolate[units.dyn40].remain <= 3 then
+                                if cast.immolate(units.dyn40) then return end
                             end
                         end
                         -- immolate,cycle_targets=1,if=active_enemies>1&remains<=tick_time&!debuff.roaring_blaze.remains&action.conflagrate.charges<2
@@ -538,11 +538,11 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                             end
                         end
                         -- immolate,if=talent.roaring_blaze.enabled&remains<=duration&!debuff.roaring_blaze.remains&target.time_to_die>10&(action.conflagrate.charges=2|(action.conflagrate.charges>=1&action.conflagrate.recharge_time<cast_time+gcd)|target.time_to_die<24)
-                        if debuff.roaringBlaze["target"] ~= nil then
-                            if talent.roaringBlaze and debuff.roaringBlaze["target"].remain <= debuff.roaringBlaze["target"].duration and not debuff.roaringBlaze["target"].exists 
-                                and ttd("target") > 10 and (charges.conflagrate == 2 or (charges.conflagrate >= 1 and recharge.conflagrate < getCastTime(spell.conflagrate) + gcd) or ttd("target") < 24) 
+                        if debuff.roaringBlaze[units.dyn40] ~= nil then
+                            if talent.roaringBlaze and debuff.roaringBlaze[units.dyn40].remain <= debuff.roaringBlaze[units.dyn40].duration and not debuff.roaringBlaze[units.dyn40].exists 
+                                and ttd(units.dyn40) > 10 and (charges.conflagrate == 2 or (charges.conflagrate >= 1 and recharge.conflagrate < getCastTime(spell.conflagrate) + gcd) or ttd(units.dyn40) < 24) 
                             then
-                                if cast.immolate("target") then return end
+                                if cast.immolate(units.dyn40) then return end
                             end
                         end 
             -- Racial: Orc Blood Fury | Troll Berserking | Blood Elf Arcane Torrent
@@ -555,26 +555,26 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                         -- TODO
             -- Conflagrate
                         -- conflagrate,if=talent.roaring_blaze.enabled&(charges=2|(action.conflagrate.charges>=1&action.conflagrate.recharge_time<gcd)|target.time_to_die<24)
-                        if talent.roaringBlaze and (charges.conflagrate == 2 or (charges.conflagrate >= 1 and recharge.conflagrate < gcd) or ttd("target") < 24) then
-                            if cast.conflagrate("target") then return end
+                        if talent.roaringBlaze and (charges.conflagrate == 2 or (charges.conflagrate >= 1 and recharge.conflagrate < gcd) or ttd(units.dyn40) < 24) then
+                            if cast.conflagrate(units.dyn40) then return end
                         end
                         -- conflagrate,if=talent.roaring_blaze.enabled&debuff.roaring_blaze.stack>0&dot.immolate.remains>dot.immolate.duration*0.3&(active_enemies=1|soul_shard<3)&soul_shard<5
-                        if debuff.immolate["target"] ~= nil then
-                            if talent.roaringBlaze and debuff.roaringBlaze["target"].stack > 0 and debuff.immolate["target"].refresh and (#enemies.yards40 == 1 or shards < 3) and shards < 5 then
-                                if cast.conflagrate("target") then return end
+                        if debuff.immolate[units.dyn40] ~= nil then
+                            if talent.roaringBlaze and debuff.roaringBlaze[units.dyn40].stack > 0 and debuff.immolate[units.dyn40].refresh and (#enemies.yards40 == 1 or shards < 3) and shards < 5 then
+                                if cast.conflagrate(units.dyn40) then return end
                             end
                         end
                         -- conflagrate,if=!talent.roaring_blaze.enabled&!buff.backdraft.remains&buff.conflagration_of_chaos.remains<=action.chaos_bolt.cast_time
                         if not talent.roaringBlaze and not buff.backdraft.exists and buff.conflagrationOfChaos.remain <= getCastTime(spell.chaosBolt) then -- need buff id for backdraft
-                            if cast.conflagrate("target") then return end
+                            if cast.conflagrate(units.dyn40) then return end
                         end
                         -- conflagrate,if=!talent.roaring_blaze.enabled&!buff.backdraft.remains&(charges=1&recharge_time<action.chaos_bolt.cast_time|charges=2)&soul_shard<5
                         if not talent.roaringBlaze and not buff.backdraft.exists and ((charges.conflagrate == 1 and recharge.conflagrate < getCastTime(spell.chaosBolt)) or charges.conflagrate == 2) and shards < 5 then -- need buff id for backdraft
-                            if cast.conflagrate("target") then return end
+                            if cast.conflagrate(units.dyn40) then return end
                         end
             -- Service Pet
                         -- service_pet,if=dot.corruption.remains&dot.agony.remains
-                        if ObjectExists("target") then
+                        if ObjectExists(units.dyn40) then
                             if br.timer:useTimer("castGrim", gcd) then
                                 if grimoirePet == 1 then
                                     if cast.grimoireImp() then prevService = "Imp"; return end
@@ -642,8 +642,8 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                         if actionList_Cooldowns() then return end
             -- Channel Demonfire
                         -- channel_demonfire,if=dot.immolate.remains>cast_time
-                        if debuff.immolate["target"] ~= nil then
-                            if debuff.immolate["target"].remain > getCastTime(spell.immolate) then
+                        if debuff.immolate[units.dyn40] ~= nil then
+                            if debuff.immolate[units.dyn40].remain > getCastTime(spell.immolate) then
                                 if cast.channelDemonfire() then return end
                             end
                         end
@@ -663,19 +663,19 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                         end
             -- Havoc
                         -- havoc,if=active_enemies=1&talent.wreak_havoc.enabled&equipped.132375&!debuff.havoc.remains
-                        if debuff.havoc["target"] ~= nil then
-                            if #enemies.yards40 == 1 and talent.wreakHavoc and hasEquiped(132375) and not debuff.havoc["target"].exists then
-                                if cast.havoc("target") then return end
+                        if debuff.havoc[units.dyn40] ~= nil then
+                            if #enemies.yards40 == 1 and talent.wreakHavoc and hasEquiped(132375) and not debuff.havoc[units.dyn40].exists then
+                                if cast.havoc(units.dyn40) then return end
                             end
                         end
             -- Rain of Fire
                         -- rain_of_fire,if=active_enemies>=4&cooldown.havoc.remains<=12&!talent.wreak_havoc.enabled
                         if #enemies.yards8t >= 4 and cd.havoc <= 12 and not talent.wreakHavoc then
-                            if cast.rainOfFire("target","ground") then return end
+                            if cast.rainOfFire(units.dyn40,"ground") then return end
                         end
                         -- rain_of_fire,if=active_enemies>=6&talent.wreak_havoc.enabled
                         if #enemies.yards8t >= 4 and talent.wreakHavoc then
-                            if cast.rainOfFire("target","ground") then return end
+                            if cast.rainOfFire(units.dyn40,"ground") then return end
                         end
             -- Dimensional Rift
                         -- dimensional_rift
@@ -684,7 +684,7 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                         end
             -- Mana Tap
                         -- mana_tap,if=buff.mana_tap.remains<=buff.mana_tap.duration*0.3&(mana.pct<20|buff.mana_tap.remains<=action.chaos_bolt.cast_time)&target.time_to_die>buff.mana_tap.duration*0.3
-                        if buff.manaTap.refresh and (powerPercentMana < 20 or buff.manaTap.remain < getCastTime(spell.chaosBolt)) and ttd("target") > buff.manaTap.duration * 0.3 then
+                        if buff.manaTap.refresh and (powerPercentMana < 20 or buff.manaTap.remain < getCastTime(spell.chaosBolt)) and ttd(units.dyn40) > buff.manaTap.duration * 0.3 then
                             if cast.manaTap() then return end
                         end
             -- Chaos Bolt
@@ -700,9 +700,9 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                         end
             -- Immolate
                         -- immolate,if=!talent.roaring_blaze.enabled&remains<=duration*0.3
-                        if debuff.immolate["target"] ~= nil then
-                            if not talent.roaringBlaze and debuff.immolate["target"].refresh then
-                                if cast.immolate("target") then return end
+                        if debuff.immolate[units.dyn40] ~= nil then
+                            if not talent.roaringBlaze and debuff.immolate[units.dyn40].refresh then
+                                if cast.immolate(units.dyn40) then return end
                             end
                         end
             -- Life Tap

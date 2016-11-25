@@ -207,7 +207,7 @@ function cFileBuild(cFileName,self)
         -- Build Cast Funcitons
         self.cast[k] = function(thisUnit,debug,minUnits,effectRng)
             if thisUnit == nil then
-                if IsHarmfulSpell(spellName) then thisUnit = "target" end
+                if IsHarmfulSpell(spellName) then thisUnit = self.units.dyn5 end
                 if IsHelpfulSpell(spellName) then thisUnit = "player" end
             end
             if SpellHasRange(spellName) then

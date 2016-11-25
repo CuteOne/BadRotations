@@ -177,7 +177,6 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
             local pullTimer                                     = br.DBM:getPulltimer()
             local racial                                        = br.player.getRacial()
             local recharge                                      = br.player.recharge
-            local runes                                         = br.player.runes
             local runicPower                                    = br.player.runicPower             
             local solo                                          = #br.friend < 2
             local friendsInRange                                = friendsInRange
@@ -191,6 +190,19 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
             
             if leftCombat == nil then leftCombat = GetTime() end
             if profileStop == nil then profileStop = false end
+
+            local function runeCDPercent(runeIndex)
+                if GetRuneCount(runeIndex) == 0 then
+                    return (GetTime() - select(1,GetRuneCooldown(runeIndex))) / select(2,GetRuneCooldown(runeIndex))
+                else
+                    return 0
+                end
+            end 
+            local runeCount = 0
+            for i = 1, 6 do
+                runeCount = runeCount + GetRuneCount(i)
+            end
+            local runes = runeCount + math.max(runeCDPercent(1),runeCDPercent(2),runeCDPercent(3),runeCDPercent(4),runeCDPercent(5),runeCDPercent(6))
 
     --------------------
     --- Action Lists ---

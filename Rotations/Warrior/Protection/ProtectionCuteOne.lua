@@ -114,6 +114,8 @@ if select(3,UnitClass("player")) == 1 then
                 br.ui:createSpinner(section, "Shockwave - Units", 3, 1, 10, 1, "|cffFFBB00Minimal units to cast on.")
                 -- Storm Bolt
                 br.ui:createSpinner(section, "Storm Bolt", 60, 0, 100, 5, "|cffFFBB00Health Percentage to use at.") 
+                -- Victory Rush
+                br.ui:createSpinner(section, "Victory Rush", 60, 0, 100, 5, "|cffFFBB00Health Percentage to use at.")
             br.ui:checkSectionState(section)
             -------------------------
             --- INTERRUPT OPTIONS ---
@@ -262,6 +264,10 @@ if select(3,UnitClass("player")) == 1 then
                 -- Storm Bolt
                     if inCombat and isChecked("Storm Bolt") and php <= getOptionValue("Storm Bolt") then
                         if cast.stormBolt() then return end
+                    end
+                -- Victory Rush
+                    if inCombat and isChecked("Victory Rush") and php <= getOptionValue("Victory Rush") and buff.victorious.exists then
+                        if cast.victoryRush() then return end
                     end
                 end -- End Defensive Check
             end -- End Action List - Defensive
