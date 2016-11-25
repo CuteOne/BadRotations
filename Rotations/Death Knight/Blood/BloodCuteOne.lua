@@ -83,7 +83,7 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
             -- DS Low prio
                 br.ui:createSpinner(section, "Death Strike Low Prio", 80, 0, 100, 1, "|cffFFBB00Percent Hp to use Low Prio Death Strike")
             -- Consumption with Vampiric Blood up
-                br.ui:createSpinner(section, "Consumption VB", 85, 0, 100, 1, "|cffFFBB00Percent Hp to use Consumption with Vampiric Blooc")
+                br.ui:createSpinner(section, "Consumption VB", 85, 0, 100, 1, "|cffFFBB00Percent Hp to use Consumption with Vampiric Blood as High Prio, when VB isn't active Consumption will be used as Filler.")
             -- high prio blood boil for more dps
                 br.ui:createCheckbox(section,"Blood Boil High Prio", "|cffFFBB00Lower Survivability, Higher DPS")
             br.ui:checkSectionState(section)    
@@ -97,6 +97,8 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
                 br.ui:createSpinner(section, "Anti-Magic Shell",  50,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.");
             -- Vampiric Blood
                 br.ui:createSpinner(section, "Vampiric Blood",  50,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.");
+            -- Icebound Fortitude
+                br.ui:createSpinner(section, "Icebound Fortitude",  50,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.");
 
             br.ui:checkSectionState(section)
         -- Interrupt Options
@@ -252,6 +254,11 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
                     if isChecked("Anti-Magic Shell") and php <= getOptionValue("Anti-Magic Shell") then
                         if cast.antimagicShell() then return end
                     end
+            -- Icebound Fortitude
+                    if isChecked("Icebound Fortitude") and php <= getOptionValue("Icebound Fortitude") then
+                        if cast.iceboundFortitude() then return end
+                    end
+                end          
             -- Vampiric Blood
                     if isChecked("Vampiric Blood") and php <= getOptionValue("Vampiric Blood") then
                         if cast.vampiricBlood() then return end
