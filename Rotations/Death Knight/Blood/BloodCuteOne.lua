@@ -523,7 +523,7 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
                             if cast.bloodTap() then return end
                         end
                         --actions+=/consumption,if=buff.vampiric_blood.up&health.max<0.9
-                        if buff.vampiricBlood.exists and php < getOptionValue("Consumption VB") then
+                        if getFacing("target","player") == true and buff.vampiricBlood.exists and php < getOptionValue("Consumption VB") and getDistance(thisUnit) <= 5 then
                             if cast.consumption() then return end
                         end
                         --#low prio heal
@@ -544,7 +544,9 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
                             if cast.heartStrike() then return end
                         end
                         --actions+=/consumption
-                        if cast.consumption() then return end
+                        if getFacing("target","player") == true and getDistance(thisUnit) <= 5 then
+                            if cast.consumption() then return end
+                        end
                         --actions+=/blood_boil
                         if getDistance(thisUnit) <= 8 then
                             if cast.bloodBoil("player") then return end
