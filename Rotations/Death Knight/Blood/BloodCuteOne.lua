@@ -1,10 +1,10 @@
 if select(2, UnitClass("player")) == "DEATHKNIGHT" then
-	local rotationName = "CuteOne"
+    local rotationName = "CuteOne"
 
 ---------------
 --- Toggles ---
 ---------------
-	local function createToggles()
+    local function createToggles()
     -- Rotation Button
         RotationModes = {
             [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range.", highlight = 1, icon = br.player.spell.bloodBoil },
@@ -19,7 +19,7 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
             [2] = { mode = "On", value = 1 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spell.bonestorm },
             [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.bonestorm }
         };
-       	CreateButton("Cooldown",2,0)
+        CreateButton("Cooldown",2,0)
     -- Defensive Button
         DefensiveModes = {
             [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spell.vampiricBlood },
@@ -37,7 +37,7 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
 ---------------
 --- OPTIONS ---
 ---------------
-	local function createOptions()
+    local function createOptions()
         local optionTable
 
         local function rotationOptions()
@@ -45,7 +45,7 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
         -- General Options
             section = br.ui:createSection(br.ui.window.profile, "General")
             -- APL
-                br.ui:createDropdownWithout(section, "APL Mode", {"|cffFFFFFFIcy-Veins","|cffFFFFFFAMR"}, 1, "|cffFFFFFFSet APL Mode to use.")
+                br.ui:createDropdownWithout(section, "APL Mode", {"|cffFFFFFFIcy-Veins","|cffFFFFFFAMR","|cffFFFFFFVilt-Test"}, 1, "|cffFFFFFFSet APL Mode to use.")
             -- Dummy DPS Test
                 br.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
             -- Pre-Pull Timer
@@ -66,6 +66,21 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
             -- Dancing Rune Weapon
                 br.ui:createCheckbox(section, "Dancing Rune Weapon")
             br.ui:checkSectionState(section)
+        -- Vilt Rotation Options
+        section = br.ui:createSection(br.ui.window.profile, "Vilt Rotation Options")
+            -- Death and Decay Target Amount
+                br.ui:createSpinner(section, "Death and Decay", 3, 0, 10, 1, "|cffFFBB00Amount of Targets for DnD")
+            -- Bonestorm Target Amount
+                br.ui:createSpinner(section, "Bonestorm Targets", 2, 0, 10, 1, "|cffFFBB00Amount of Targets for Bonestorm") 
+            -- Bonestorm RP Amount
+                br.ui:createSpinner(section, "Bonestorm RP", 90, 0, 125, 5, "|cffFFBB00Amount of RP to use Bonestorm") 
+            -- DS High prio
+                br.ui:createSpinner(section, "Death Strike High Prio", 55, 0, 100, 1, "|cffFFBB00Percent Hp to use High Prio Death Strike") 
+            -- DS Low prio
+                br.ui:createSpinner(section, "Death Strike Low Prio", 80, 0, 100, 1, "|cffFFBB00Percent Hp to use Low Prio Death Strike")
+            -- Consumption with Vampiric Blood up
+                br.ui:createSpinner(section, "Consumption VB", 90, 0, 100, 1, "|cffFFBB00Percent Hp to use Consumption with Vampiric Blooc")
+            br.ui:checkSectionState(section)    
         -- Defensive Options
             section = br.ui:createSection(br.ui.window.profile, "Defensive")
             -- Healthstone
@@ -76,6 +91,7 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
                 br.ui:createSpinner(section, "Anti-Magic Shell",  50,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.");
             -- Vampiric Blood
                 br.ui:createSpinner(section, "Vampiric Blood",  50,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.");
+
             br.ui:checkSectionState(section)
         -- Interrupt Options
             section = br.ui:createSection(br.ui.window.profile, "Interrupts")
@@ -110,20 +126,20 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
 ----------------
 --- ROTATION ---
 ----------------
-	local function runRotation()
+    local function runRotation()
         if br.timer:useTimer("debugBlood", math.random(0.15,0.3)) then
             --print("Running: "..rotationName)
 
     ---------------
-	--- Toggles ---
-	---------------
-	        UpdateToggle("Rotation",0.25)
-	        UpdateToggle("Cooldown",0.25)
-	        UpdateToggle("Defensive",0.25)
-	        UpdateToggle("Interrupt",0.25)
+    --- Toggles ---
+    ---------------
+            UpdateToggle("Rotation",0.25)
+            UpdateToggle("Cooldown",0.25)
+            UpdateToggle("Defensive",0.25)
+            UpdateToggle("Interrupt",0.25)
 
-	--------------
-	--- Locals ---
+    --------------
+    --- Locals ---
     --------------
             local addsExist                                     = false 
             local addsIn                                        = 999
@@ -173,47 +189,47 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
             local ttm                                           = br.player.timeToMax
             local units                                         = br.player.units
             
-	   		if leftCombat == nil then leftCombat = GetTime() end
-			if profileStop == nil then profileStop = false end
+            if leftCombat == nil then leftCombat = GetTime() end
+            if profileStop == nil then profileStop = false end
 
-	--------------------
-	--- Action Lists ---
-	--------------------
-		-- Action List - Extras
-			local function actionList_Extras()
-			-- Dummy Test
-				if isChecked("DPS Testing") then
-					if ObjectExists("target") then
-						if getCombatTime() >= (tonumber(getOptionValue("DPS Testing"))*60) and isDummy() then
-							StopAttack()
-							ClearTarget()
-							print(tonumber(getOptionValue("DPS Testing")) .." Minute Dummy Test Concluded - Profile Stopped")
-							profileStop = true
-						end
-					end
-				end -- End Dummy Test
-			end -- End Action List - Extras
-		-- Action List - Defensive
-			local function actionList_Defensive()
-				if useDefensive() and not stealth and not flight then
-			-- Pot/Stoned
-		            if isChecked("Pot/Stoned") and php <= getOptionValue("Pot/Stoned") 
-		            	and inCombat and (hasHealthPot() or hasItem(5512)) 
-		            then
-	                    if canUse(5512) then
-	                        useItem(5512)
-	                    elseif canUse(healPot) then
-	                        useItem(healPot)
-	                    end
-		            end
-		    -- Heirloom Neck
-		    		if isChecked("Heirloom Neck") and php <= getOptionValue("Heirloom Neck") then
-		    			if hasEquiped(122668) then
-		    				if GetItemCooldown(122668)==0 then
-		    					useItem(122668)
-		    				end
-		    			end
-		    		end
+    --------------------
+    --- Action Lists ---
+    --------------------
+        -- Action List - Extras
+            local function actionList_Extras()
+            -- Dummy Test
+                if isChecked("DPS Testing") then
+                    if ObjectExists("target") then
+                        if getCombatTime() >= (tonumber(getOptionValue("DPS Testing"))*60) and isDummy() then
+                            StopAttack()
+                            ClearTarget()
+                            print(tonumber(getOptionValue("DPS Testing")) .." Minute Dummy Test Concluded - Profile Stopped")
+                            profileStop = true
+                        end
+                    end
+                end -- End Dummy Test
+            end -- End Action List - Extras
+        -- Action List - Defensive
+            local function actionList_Defensive()
+                if useDefensive() and not stealth and not flight then
+            -- Pot/Stoned
+                    if isChecked("Pot/Stoned") and php <= getOptionValue("Pot/Stoned") 
+                        and inCombat and (hasHealthPot() or hasItem(5512)) 
+                    then
+                        if canUse(5512) then
+                            useItem(5512)
+                        elseif canUse(healPot) then
+                            useItem(healPot)
+                        end
+                    end
+            -- Heirloom Neck
+                    if isChecked("Heirloom Neck") and php <= getOptionValue("Heirloom Neck") then
+                        if hasEquiped(122668) then
+                            if GetItemCooldown(122668)==0 then
+                                useItem(122668)
+                            end
+                        end
+                    end
             -- Anti-Magic Shell
                     if isChecked("Anti-Magic Shell") and php <= getOptionValue("Anti-Magic Shell") then
                         if cast.antimagicShell() then return end
@@ -223,10 +239,10 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
                         if cast.vampiricBlood() then return end
                     end
                 end                    
-			end -- End Action List - Defensive
-		-- Action List - Interrupts
-			local function actionList_Interrupts()
-				if useInterrupts() then
+            end -- End Action List - Defensive
+        -- Action List - Interrupts
+            local function actionList_Interrupts()
+                if useInterrupts() then
                     for i=1, #enemies.yards30 do
                         thisUnit = enemies.yards30[i]
                         if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
@@ -244,20 +260,20 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
                             end
                         end
                     end
-			 	end -- End useInterrupts check
-			end -- End Action List - Interrupts
-		-- Action List - Cooldowns
-			local function actionList_Cooldowns()
-				if useCDs() and getDistance(units.dyn5) < 5 then
-			-- Trinkets
-					if isChecked("Trinkets") then
-						if canUse(13) then
-							useItem(13)
-						end
-						if canUse(14) then
-							useItem(14)
-						end
-					end
+                end -- End useInterrupts check
+            end -- End Action List - Interrupts
+        -- Action List - Cooldowns
+            local function actionList_Cooldowns()
+                if useCDs() and getDistance(units.dyn5) < 5 then
+            -- Trinkets
+                    if isChecked("Trinkets") then
+                        if canUse(13) then
+                            useItem(13)
+                        end
+                        if canUse(14) then
+                            useItem(14)
+                        end
+                    end
             -- Racial: Orc Blood Fury | Troll Berserking | Blood Elf Arcane Torrent
                     -- blood_fury,buff.tigers_fury | berserking,buff.tigers_fury | arcane_torrent,buff.tigers_fury
                     if isChecked("Racial") and (br.player.race == "Orc" or br.player.race == "Troll" or br.player.race == "BloodElf") then
@@ -380,58 +396,144 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
         ------------------------
                     if getOptionValue("APL Mode") == 2 then
             -- Soulgorge
-                        -- if DotRemainingSec(BloodPlague) < 3 and HasDot(BloodPlague)
+                         --if DotRemainingSec(BloodPlague) < 3 and HasDot(BloodPlague)
                         if debuff.bloodPlague[units.dyn30AoE].exists and debuff.bloodPlague[units.dyn30AoE].remain < 3 then
                             if cast.soulgorge() then return end
                         end
             -- Bonestorm
-                        -- if TargetsInRadius(Bonestorm) > 2 and AlternatePower >= 80
+                         --if TargetsInRadius(Bonestorm) > 2 and AlternatePower >= 80
                         if #enemies.yards8 > 2 and runicPower >= 80 then
                             if cast.bonestorm() then return end
-                        end
+                       end
             -- Death Strike
-                        -- if HealthPercent < 0.75 or AlternatePowerToMax <= 20
+                         --if HealthPercent < 0.75 or AlternatePowerToMax <= 20
                         if php < 75 or ttm <= 20 then
                             if cast.deathStrike() then return end
                         end
             -- Death's Caress
-                        -- if not HasDot(BloodPlague) and HasTalent(Soulgorge)
+                         --if not HasDot(BloodPlague) and HasTalent(Soulgorge)
                         if not debuff.bloodPlague[units.dyn30AoE].exists and talent.soulGorge then
                             if cast.deathsCaress() then return end
                         end
             -- Blood Tap
-                        -- if Power < 2 and BuffStack(BoneShield) <= BuffMaxStack(BoneShield) - 3
+                         --if Power < 2 and BuffStack(BoneShield) <= BuffMaxStack(BoneShield) - 3
                         if runes < 2 and buff.boneshield.stack <= 7 then
                             if cast.bloodTap() then return end
                         end
             -- Marrowrend
-                        -- if (BuffStack(BoneShield) <= BuffMaxStack(BoneShield) - 3 and (ArtifactTraitRank(MouthOfHell) = 0 or not HasBuff(DancingRuneWeapon))) or 
-                        -- (BuffStack(BoneShield) <= BuffMaxStack(BoneShield) - 4 and ArtifactTraitRank(MouthOfHell) > 0 and HasBuff(DancingRuneWeapon))
+                         --if (BuffStack(BoneShield) <= BuffMaxStack(BoneShield) - 3 and (ArtifactTraitRank(MouthOfHell) = 0 or not HasBuff(DancingRuneWeapon))) or 
+                         --(BuffStack(BoneShield) <= BuffMaxStack(BoneShield) - 4 and ArtifactTraitRank(MouthOfHell) > 0 and HasBuff(DancingRuneWeapon))
                         if (buff.boneShield.stack <= 7 and (artifact.mouthOfHell or not buff.dancingRuneWeapon.exists)) or (buff.boneShield.stack <= 6 and artifact.mouthOfHell and buff.dancingRuneWeapon.exists) then
                             if cast.marrowrend() then return end
                         end
             -- Blooddrinker
-                        -- if HealthPercent < 0.75
+                         --if HealthPercent < 0.75
                         if php < 75 then
                             if cast.blooddrinker() then return end
                         end
             -- Blood Boil
                         if cast.bloodBoil("player") then return end
             -- Death and Decay
-                        -- if HasBuff(CrimsonScourge) or HasTalent(RapidDecomposition)
+                         --if HasBuff(CrimsonScourge) or HasTalent(RapidDecomposition)
                         if buff.crimsonScourge.exists or talent.rapidDecomposition then
                             if cast.deathAndDecay("best",false,#enemies.yards8,8) then return end
                         end
             -- Heart Strike
                         if cast.heartStrike() then return end
             -- Mark of Blood
-                        -- if not HasBuff(MarkOfBlood)
+                         --if not HasBuff(MarkOfBlood)
                         if not buff.markOfBlood.exists then 
                             if cast.markOfBlood() then return end
                         end      
                     end
-				end --End In Combat 
-			end --End Rotation Logic
+
+        ---------------------------
+        --- Vilt APL ---
+        ---------------------------
+                    if getOptionValue("APL Mode") == 3 then
+                        --actions+=/death_and_decay,if=(buff.crimson_scourge.up&talent.rapid_decomposition.enabled)|spell_targets.death_and_decay>=2
+                        if (buff.crimsonScourge.exists and talent.rapidDecomposition) or #enemies.yards8 >= getOptionValue("Death and Decay") then
+                            if cast.deathAndDecay("best",false,#enemies.yards8,8) then return end
+                        end
+                        --#dump rp with deathstrike
+                        --actions+=/death_strike,if=(talent.bonestorm.enabled&cooldown.bonestorm>2)|spell_targets.bonestorm<3)|(!talent.bonestorm.enabled&runic_power.deficit<30)
+                        if (talent.bonestorm and cd.bonestorm > 2 and runicPower > 95) or (talent.bonestorm and #enemies.yards8 < getOptionValue("Bonestorm Targets")) or (not talent.bonestorm and runicPower > 95) then
+                            if cast.deathStrike() then return end
+                        end    
+                        --actions+=/marrowrend,if=(talent.ossuary.enabled&buff.bone_shield.stacks<=4)|(!talent.ossuary.enabled&buff.bone_shield.stacks<2)|buff.bone_shield.remains<3|!buff.bone_shield.up
+                        if (talent.ossuary and buff.boneShield.stack <=4) or (not talent.ossuary and buff.boneShield.stack <=2) or buff.boneShield.remain < 3 or not buff.boneShield.exists then
+                            if cast.marrowrend() then return end
+                        end
+                        --#high prio heal
+                        --actions+=/death_strike,if=incoming_damage_5s>=health.max*0.45
+                        --I'll just use flat hp numbers defined by the user for simplicity and tends to work a little bit better anyway
+                        if php < getOptionValue("Death Strike High Prio") then
+                            if cast.deathStrike() then return end
+                        end
+                        --actions+=/bonestorm,if=talent.bonestorm.enabled&spell_targets.bonestorm>=2&runic_power>=90
+                        if talent.bonestorm and #enemies.yards8 >= getOptionValue("Bonestorm Targets") and runicPower >= getOptionValue("Bonestorm RP") then
+                            if cast.bonestorm("Player") then return end
+                        end
+                        --#soulgorge/deathcaressmultidot NEEDS TO BE FIXED, SOON™
+                        --#actions+=/soulgorge,if=talent.soulgorge.enabled&target_if=min:target.debuff.blood_plague,if=target.debuff.blood_plague.remaining<=2&spell_targets.soulgorge>=3
+                        --#actions+=/deaths_caress,cycle_targets=1,if=talent.soulgorge.enabled&spell_targets.soulgorge<3&(debuff.blood_plague.refreshable|!debuff.blood_plague.up)
+                        --Not gonna bother with this because worthless talent anyway, might add later.
+                        --actions+=/blood_boil,if=!talent.soulgorge.enabled&(debuff.blood_plague.refreshable|!debuff.blood_plague.up)
+                        --borrowing your blood boil code 
+                        if not talent.soulgorge then
+                            for i = 1, #enemies.yards10 do
+                                local thisUnit = enemies.yards10[i]
+                                local bloodPlague = debuff.bloodPlague[thisUnit]
+                                if bloodPlague ~= nil then
+                                    if not bloodPlague.exists then
+                                        if cast.bloodBoil("player") then return end
+                                    end
+                                end
+                            end
+                        end
+                        --actions+=/blood_boil,if=charges.time_to_max<1.5*gcd
+                        if charges.frac.bloodBoil >= 1.75 and getDistance(thisUnit) <= 8 then
+                            if cast.bloodBoil(player) then return end
+                        end 
+                        --actions+=/blood_tap,if=rune<3
+                        if talent.bloodTap and runes < 3 then
+                            if cast.bloodTap() then return end
+                        end
+                        --actions+=/consumption,if=buff.vampiric_blood.up&health.max<0.9
+                        if buff.vampiricBlood.exists and php < getOptionValue("Consumption VB") then
+                            if cast.consumption() then return end
+                        end
+                        --#low prio heal
+                        --actions+=/death_strike,if=incoming_damage_5s>=health.max*0.15
+                        if php < getOptionValue("Death Strike Low Prio") then
+                            if cast.deathStrike() then return end
+                        end
+                        --actions+=/marrowrend,if=rune>2.5&buff_bone_shield.stacks<=7
+                        if runes >= 2.5 and buff.boneShield.stack <=7 then
+                            if cast.marrowrend() then return end
+                        end
+                        --actions+=/death_and_decay,if=talent.rapid.decomposition.enabled
+                        if talent.rapidDecomposition then
+                            if cast.deathAndDecay("best",false,#enemies.yards8,8) then return end
+                        end
+                        --actions+=/consumption
+                        if cast.consumption() then return end                        
+                        --actions+=/heart_strike,if=rune>2.5
+                        if runes >= 2.5 then
+                            if cast.heartStrike() then return end
+                        end
+                        --actions+=/blood_boil
+                        if getDistance(thisUnit) <= 8 then
+                            if cast.bloodBoil("player") then return end
+                        end    
+                        --actions+=/death_and_decay,if=!talent.rapid.decomposition.enabled&buff.crimson_scourge_up
+                        if not talent.rapidDecomposition and buff.crimsonScourge.exists then
+                            if cast.deathAndDecay("best",false,#enemies.yards8,8) then return end
+                        end
+                    end -- End Vilt APL        
+
+                end --End In Combat 
+            end --End Rotation Logic
         end -- End Timer
     end -- End runRotation
     tinsert(cBlood.rotations, {
@@ -439,5 +541,5 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
         toggles = createToggles,
         options = createOptions,
         run = runRotation,
-    })
+    })    
 end --End Class Check
