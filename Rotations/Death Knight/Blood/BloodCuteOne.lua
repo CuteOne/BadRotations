@@ -68,8 +68,12 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
             br.ui:checkSectionState(section)
         -- Vilt Rotation Options
         section = br.ui:createSection(br.ui.window.profile, "Vilt Rotation Options")
+            -- Use Death and Decay
+                br.ui:createCheckbox(section,"Death and Decay")
             -- Death and Decay Target Amount
-                br.ui:createSpinner(section, "Death and Decay", 3, 0, 10, 1, "|cffFFBB00Amount of Targets for DnD")
+                br.ui:createSpinner(section, "Death and Decay Targets", 3, 0, 10, 1, "|cffFFBB00Amount of Targets for DnD")
+            -- Use Bonestorm
+                br.ui:createCheckbox(section,"Use Bonestorm")
             -- Bonestorm Target Amount
                 br.ui:createSpinner(section, "Bonestorm Targets", 2, 0, 10, 1, "|cffFFBB00Amount of Targets for Bonestorm") 
             -- Bonestorm RP Amount
@@ -79,7 +83,9 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
             -- DS Low prio
                 br.ui:createSpinner(section, "Death Strike Low Prio", 80, 0, 100, 1, "|cffFFBB00Percent Hp to use Low Prio Death Strike")
             -- Consumption with Vampiric Blood up
-                br.ui:createSpinner(section, "Consumption VB", 90, 0, 100, 1, "|cffFFBB00Percent Hp to use Consumption with Vampiric Blooc")
+                br.ui:createSpinner(section, "Consumption VB", 85, 0, 100, 1, "|cffFFBB00Percent Hp to use Consumption with Vampiric Blood as High Prio, when VB isn't active Consumption will be used as Filler.")
+            -- high prio blood boil for more dps
+                br.ui:createCheckbox(section,"Blood Boil High Prio", "|cffFFBB00Lower Survivability, Higher DPS")
             br.ui:checkSectionState(section)    
         -- Defensive Options
             section = br.ui:createSection(br.ui.window.profile, "Defensive")
@@ -91,6 +97,8 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
                 br.ui:createSpinner(section, "Anti-Magic Shell",  50,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.");
             -- Vampiric Blood
                 br.ui:createSpinner(section, "Vampiric Blood",  50,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.");
+            -- Icebound Fortitude
+                br.ui:createSpinner(section, "Icebound Fortitude",  50,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.");
 
             br.ui:checkSectionState(section)
         -- Interrupt Options
@@ -246,6 +254,10 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
                     if isChecked("Anti-Magic Shell") and php <= getOptionValue("Anti-Magic Shell") then
                         if cast.antimagicShell() then return end
                     end
+            -- Icebound Fortitude
+                    if isChecked("Icebound Fortitude") and php <= getOptionValue("Icebound Fortitude") then
+                        if cast.iceboundFortitude() then return end
+                    end          
             -- Vampiric Blood
                     if isChecked("Vampiric Blood") and php <= getOptionValue("Vampiric Blood") then
                         if cast.vampiricBlood() then return end
@@ -464,16 +476,16 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
         ---------------------------
                     if getOptionValue("APL Mode") == 3 then
                         --actions+=/death_and_decay,if=(buff.crimson_scourge.up&talent.rapid_decomposition.enabled)|spell_targets.death_and_decay>=2
-                        if (buff.crimsonScourge.exists and talent.rapidDecomposition) or #enemies.yards8 >= getOptionValue("Death and Decay") then
+                        if ((buff.crimsonScourge.exists and talent.rapidDecomposition) or #enemies.yards8 >= getOptionValue("Death and Decay Targets")) and isChecked("Death and Decay") then
                             if cast.deathAndDecay("best",false,#enemies.yards8,8) then return end
                         end
                         --#dump rp with deathstrike
                         --actions+=/death_strike,if=(talent.bonestorm.enabled&cooldown.bonestorm>2)|spell_targets.bonestorm<3)|(!talent.bonestorm.enabled&runic_power.deficit<30)
-                        if (talent.bonestorm and cd.bonestorm > 2 and runicPower > 95) or (talent.bonestorm and #enemies.yards8 < getOptionValue("Bonestorm Targets")) or (not talent.bonestorm and runicPower > 95) then
+                        if (talent.bonestorm and cd.bonestorm > 3 and runicPower > 95) or (talent.bonestorm and #enemies.yards8 < getOptionValue("Bonestorm Targets")) or (not talent.bonestorm or not isChecked("Use Bonestorm") and runicPower > 95) then
                             if cast.deathStrike() then return end
                         end    
                         --actions+=/marrowrend,if=(talent.ossuary.enabled&buff.bone_shield.stacks<=4)|(!talent.ossuary.enabled&buff.bone_shield.stacks<2)|buff.bone_shield.remains<3|!buff.bone_shield.up
-                        if (talent.ossuary and buff.boneShield.stack <=4) or (not talent.ossuary and buff.boneShield.stack <=2) or buff.boneShield.remain < 3 or not buff.boneShield.exists then
+                        if (talent.ossuary and buff.boneShield.stack <=4) or (not talent.ossuary and buff.boneShield.stack <=2) or buff.boneShield.remain < 5 or not buff.boneShield.exists then
                             if cast.marrowrend() then return end
                         end
                         --#high prio heal
@@ -483,7 +495,7 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
                             if cast.deathStrike() then return end
                         end
                         --actions+=/bonestorm,if=talent.bonestorm.enabled&spell_targets.bonestorm>=2&runic_power>=90
-                        if talent.bonestorm and #enemies.yards8 >= getOptionValue("Bonestorm Targets") and runicPower >= getOptionValue("Bonestorm RP") then
+                        if talent.bonestorm and isChecked("Use Bonestorm") and #enemies.yards8 >= getOptionValue("Bonestorm Targets") and runicPower >= getOptionValue("Bonestorm RP") then
                             if cast.bonestorm("Player") then return end
                         end
                         --#soulgorge/deathcaressmultidot NEEDS TO BE FIXED, SOON™
@@ -504,7 +516,7 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
                             end
                         end
                         --actions+=/blood_boil,if=charges.time_to_max<1.5*gcd
-                        if charges.frac.bloodBoil >= 1.75 and getDistance(thisUnit) <= 8 then
+                        if isChecked("Blood Boil High Prio") and (charges.frac.bloodBoil >= 1.75 and getDistance(thisUnit) <= 8) then
                             if cast.bloodBoil(player) then return end
                         end 
                         --actions+=/blood_tap,if=rune<3
@@ -521,25 +533,25 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
                             if cast.deathStrike() then return end
                         end
                         --actions+=/marrowrend,if=rune>2.5&buff_bone_shield.stacks<=7
-                        if runes >= 2.5 and buff.boneShield.stack <=7 then
+                        if runes >= 2.75 and buff.boneShield.stack <=6 then
                             if cast.marrowrend() then return end
                         end
                         --actions+=/death_and_decay,if=talent.rapid.decomposition.enabled
-                        if talent.rapidDecomposition then
+                        if talent.rapidDecomposition and isChecked("Death and Decay") then
                             if cast.deathAndDecay("best",false,#enemies.yards8,8) then return end
-                        end
-                        --actions+=/consumption
-                        if cast.consumption() then return end                        
+                        end                        
                         --actions+=/heart_strike,if=rune>2.5
-                        if runes >= 2.5 then
+                        if runes >= 2.75 then
                             if cast.heartStrike() then return end
                         end
+                        --actions+=/consumption
+                        if cast.consumption() then return end
                         --actions+=/blood_boil
                         if getDistance(thisUnit) <= 8 then
                             if cast.bloodBoil("player") then return end
                         end    
                         --actions+=/death_and_decay,if=!talent.rapid.decomposition.enabled&buff.crimson_scourge_up
-                        if not talent.rapidDecomposition and buff.crimsonScourge.exists then
+                        if not talent.rapidDecomposition and buff.crimsonScourge.exists and isChecked("Death and Decay") then
                             if cast.deathAndDecay("best",false,#enemies.yards8,8) then return end
                         end
                     end -- End Vilt APL        
