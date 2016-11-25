@@ -98,8 +98,7 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
             -- Vampiric Blood
                 br.ui:createSpinner(section, "Vampiric Blood",  50,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.");
             -- Icebound Fortitude
-                br.ui:createSpinner(section, "Icebound Fortitude",  50,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.");
-
+                br.ui:createSpinner(section, "Icebound Fortitude",  50,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
             br.ui:checkSectionState(section)
         -- Interrupt Options
             section = br.ui:createSection(br.ui.window.profile, "Interrupts")
@@ -257,7 +256,7 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
             -- Icebound Fortitude
                     if isChecked("Icebound Fortitude") and php <= getOptionValue("Icebound Fortitude") then
                         if cast.iceboundFortitude() then return end
-                    end          
+                    end         
             -- Vampiric Blood
                     if isChecked("Vampiric Blood") and php <= getOptionValue("Vampiric Blood") then
                         if cast.vampiricBlood() then return end
@@ -481,7 +480,7 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
                         end
                         --#dump rp with deathstrike
                         --actions+=/death_strike,if=(talent.bonestorm.enabled&cooldown.bonestorm>2)|spell_targets.bonestorm<3)|(!talent.bonestorm.enabled&runic_power.deficit<30)
-                        if (talent.bonestorm and cd.bonestorm > 3 and runicPower > 95) or (talent.bonestorm and #enemies.yards8 < getOptionValue("Bonestorm Targets")) or (not talent.bonestorm or not isChecked("Use Bonestorm") and runicPower > 95) then
+                        if ((talent.bonestorm and cd.bonestorm > 3) or (talent.bonestorm and #enemies.yards8 < getOptionValue("Bonestorm Targets")) or (not talent.bonestorm or not isChecked("Use Bonestorm"))) and runicPower > 95 then
                             if cast.deathStrike() then return end
                         end    
                         --actions+=/marrowrend,if=(talent.ossuary.enabled&buff.bone_shield.stacks<=4)|(!talent.ossuary.enabled&buff.bone_shield.stacks<2)|buff.bone_shield.remains<3|!buff.bone_shield.up
