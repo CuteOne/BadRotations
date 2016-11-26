@@ -327,8 +327,8 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
                             end
                         end
             -- auto_attack
-                        if getDistance("target") < 5 then
-                            StartAttack()
+                        if canAttack() and not UnitIsDeadOrGhost("target") and getDistance("target") <= 5 then
+                           StartAttack()
                         end
                     end
                 end -- End No Combat
@@ -531,6 +531,7 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
                         if php < getOptionValue("Death Strike Low Prio") then
                             if cast.deathStrike() then return end
                         end
+                        
                         --actions+=/marrowrend,if=rune>2.5&buff_bone_shield.stacks<=7
                         if runes >= 2.5 and buff.boneShield.stack <=6 then
                             if cast.marrowrend() then return end
@@ -550,7 +551,7 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
                         --actions+=/blood_boil
                         if getDistance(thisUnit) <= 8 then
                             if cast.bloodBoil("player") then return end
-                        end    
+                        end
                         --actions+=/death_and_decay,if=!talent.rapid.decomposition.enabled&buff.crimson_scourge_up
                         --if not talent.rapidDecomposition and buff.crimsonScourge.exists and isChecked("Death and Decay") then
                         --    if cast.deathAndDecay("best",false,#enemies.yards8,8) then return end
