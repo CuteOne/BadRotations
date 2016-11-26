@@ -34,31 +34,31 @@ function cFileBuild(cFileName,self)
 
     -- Build Best Unit per Range
         -- Single
-    self.units.dyn8     = dynamicTarget(8,  true)
-    self.units.dyn10    = dynamicTarget(10, true)
-    self.units.dyn12    = dynamicTarget(12, true)
-    self.units.dyn13    = dynamicTarget(13, true)
-    self.units.dyn15    = dynamicTarget(15, true)
-    self.units.dyn20    = dynamicTarget(20, true)
-    self.units.dyn30    = dynamicTarget(30, true)
-        -- AoE
-    self.units.dyn8AoE  = dynamicTarget(8,  false)
-    self.units.dyn20AoE = dynamicTarget(20, false)
-    self.units.dyn30AoE = dynamicTarget(30, false)
-    self.units.dyn35AoE = dynamicTarget(35, false)
+    -- self.units.dyn8     = dynamicTarget(8,  true)
+    -- self.units.dyn10    = dynamicTarget(10, true)
+    -- self.units.dyn12    = dynamicTarget(12, true)
+    -- self.units.dyn13    = dynamicTarget(13, true)
+    -- self.units.dyn15    = dynamicTarget(15, true)
+    -- self.units.dyn20    = dynamicTarget(20, true)
+    -- self.units.dyn30    = dynamicTarget(30, true)
+    --     -- AoE
+    -- self.units.dyn8AoE  = dynamicTarget(8,  false)
+    -- self.units.dyn20AoE = dynamicTarget(20, false)
+    -- self.units.dyn30AoE = dynamicTarget(30, false)
+    -- self.units.dyn35AoE = dynamicTarget(35, false)
 
     -- Build Enemies Tables per Range
-    self.enemies.yards5     = getEnemies("player", 5)
-    self.enemies.yards8     = getEnemies("player", 8)
-    self.enemies.yards8t    = getEnemies("target", 8)
-    self.enemies.yards10    = getEnemies("player", 10)
-    self.enemies.yards10t   = getEnemies("target", 10)
-    self.enemies.yards12    = getEnemies("player", 12)
-    self.enemies.yards13    = getEnemies("player", 13)
-    self.enemies.yards15    = getEnemies("player", 15)
-    self.enemies.yards20    = getEnemies("player", 20)
-    self.enemies.yards30    = getEnemies("player", 30)
-    self.enemies.yards40    = getEnemies("player", 40)
+    -- self.enemies.yards5     = getEnemies("player", 5)
+    -- self.enemies.yards8     = getEnemies("player", 8)
+    -- self.enemies.yards8t    = getEnemies("target", 8)
+    -- self.enemies.yards10    = getEnemies("player", 10)
+    -- self.enemies.yards10t   = getEnemies("target", 10)
+    -- self.enemies.yards12    = getEnemies("player", 12)
+    -- self.enemies.yards13    = getEnemies("player", 13)
+    -- self.enemies.yards15    = getEnemies("player", 15)
+    -- self.enemies.yards20    = getEnemies("player", 20)
+    -- self.enemies.yards30    = getEnemies("player", 30)
+    -- self.enemies.yards40    = getEnemies("player", 40)
 
     -- Select class/spec Spell List
     if cFileName == "class" then
@@ -66,6 +66,57 @@ function cFileBuild(cFileName,self)
     end
     if cFileName == "spec" then
         ctype = self.spell.spec
+    end
+
+    -- Build Unit/Enemies Tables per Spell Range
+    for k,v in pairs(ctype.abilities) do
+        local spellCast = v
+        local spellName = GetSpellInfo(v)
+        local minRange = select(5,GetSpellInfo(spellName))
+        local maxRange = select(6,GetSpellInfo(spellName))
+        if SpellHasRange(spellName) then
+            if maxRange > 0 then
+                self.units["dyn"..tostring(maxRange)]           = dynamicTarget(maxRange,  true)
+                self.units["dyn"..tostring(maxRange).."AoE"]    = dynamicTarget(maxRange,  false)
+                self.enemies["yards"..tostring(maxRange)]       = getEnemies("player",maxRange)
+                self.enemies["yards"..tostring(maxRange).."t"]  = getEnemies(self.units["dyn"..tostring(maxRange)],maxRange)
+            else
+                self.units.dyn5         = dynamicTarget(5, true)
+                self.units.dyn5AoE      = dynamicTarget(5, false)
+                self.enemies.yards5     = getEnemies("player",5)
+                self.enemies.yards5t    = getEnemies(self.units.dyn5,5)
+            end
+        else
+            self.units.dyn5         = dynamicTarget(5, true)
+            self.units.dyn5AoE      = dynamicTarget(5, false)
+            self.enemies.yards5     = getEnemies("player",5)
+            self.enemies.yards5t    = getEnemies(self.units.dyn5,5)
+        end
+    end
+    -- Unit/Enemies Table Common Checks Independant of Spells
+    if self.units.dyn8 == nil then -- Common AoE Effect Range
+        self.units.dyn8         = dynamicTarget(8, true)
+        self.units.dyn8AoE      = dynamicTarget(8, false)
+    end
+    if self.enemies.yards8 == nil then
+        self.enemies.yards8     = getEnemies("player",8)
+        self.enemies.yards8t    = getEnemies(self.units.dyn8,8)
+    end
+    if self.units.dyn20 == nil then -- Common Aggro Range
+        self.units.dyn20         = dynamicTarget(20, true)
+        self.units.dyn20AoE      = dynamicTarget(20, false)
+    end
+    if self.enemies.yards20 == nil then
+        self.enemies.yards20     = getEnemies("player",20)
+        self.enemies.yards20t    = getEnemies(self.units.dyn20,20)
+    end
+    if self.units.dyn40 == nil then -- Limit of Debuff Tracking
+        self.units.dyn40         = dynamicTarget(40, true)
+        self.units.dyn40AoE      = dynamicTarget(40, false)
+    end
+    if self.enemies.yards40 == nil then
+        self.enemies.yards40     = getEnemies("player",40)
+        self.enemies.yards40t    = getEnemies(self.units.dyn40,40)
     end
 
     if not UnitAffectingCombat("player") then
@@ -206,11 +257,21 @@ function cFileBuild(cFileName,self)
 
         -- Build Cast Funcitons
         self.cast[k] = function(thisUnit,debug,minUnits,effectRng)
+            local minRange = select(5,GetSpellInfo(spellName))
+            local maxRange = select(6,GetSpellInfo(spellName))
             if thisUnit == nil then
-                if IsHarmfulSpell(spellName) then thisUnit = self.units.dyn5 end
                 if IsHelpfulSpell(spellName) then thisUnit = "player" end
             end
             if SpellHasRange(spellName) then
+                if thisUnit == nil then
+                    if IsHarmfulSpell(spellName) then 
+                        if maxRange > 0 then
+                            thisUnit = self.units["dyn"..tostring(maxRange)]
+                        else
+                            thisUnit = self.units.dyn5
+                        end
+                    end
+                end
                 if IsSpellInRange(spellName,thisUnit) == 0 then
                     amIinRange = false 
                 else
@@ -218,9 +279,10 @@ function cFileBuild(cFileName,self)
                 end
             else
                 amIinRange = true
+                if thisUnit == nil then
+                    if IsHarmfulSpell(spellName) then thisUnit = self.units.dyn5 end
+                end
             end
-            local minRange = select(5,GetSpellInfo(spellName))
-            local maxRange = select(6,GetSpellInfo(spellName))
             if minUnits == nil then minUnits = 1 end
             if effectRng == nil then effectRng = 8 end
             if IsUsableSpell(v) and getSpellCD(v) == 0 and isKnown(v) and amIinRange then

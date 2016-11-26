@@ -56,7 +56,7 @@ function cDestruction:new()
         stolenPower                 = 214936,
     }
     self.spell.spec.buffs           = {
-        backdraft                   = 196406,
+        backdraft                   = 117828, --196406,
         conflagrationOfChaos        = 196546,
         lordOfFlames                = 224103,
         manaTap                     = 196104,

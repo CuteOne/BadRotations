@@ -539,7 +539,7 @@ if select(2, UnitClass("player")) == "WARLOCK" then
             -- Summon Doomguard
                         -- summon_doomguard,if=!talent.grimoire_of_supremacy.enabled&spell_targets.summon_infernal<3&(target.time_to_die>180|target.health.pct<=20|target.time_to_die<30)
                         if useCDs() and isChecked("Summon Doomguard") then
-                            if not talent.grimoireOfSupremacy and #enemies.yards10 < 3
+                            if not talent.grimoireOfSupremacy and #enemies.yards8 < 3
                                 and (ttd(units.dyn40) > 180 or thp(units.dyn40) <= 20 or ttd(units.dyn40) < 30)
                             then
                                 interruptDrain()
@@ -549,7 +549,7 @@ if select(2, UnitClass("player")) == "WARLOCK" then
             -- Summon Infernal
                         -- summon_infernal,if=!talent.grimoire_of_supremacy.enabled&spell_targets.summon_infernal>=3
                         if useCDs() and isChecked("Summon Infernal") then
-                            if not talent.grimoireOfSupremacy and #enemies.yards10 >= 3 then
+                            if not talent.grimoireOfSupremacy and #enemies.yards8 >= 3 then
                                 interruptDrain()
                                 if cast.summonInfernal() then summonTime = GetTime(); return end
                             end
@@ -557,7 +557,7 @@ if select(2, UnitClass("player")) == "WARLOCK" then
             -- Summon Doomguard
                         -- summon_doomguard,if=talent.grimoire_of_supremacy.enabled&spell_targets.summon_infernal<3&equipped.132379&!cooldown.sindorei_spite_icd.remains
                         if useCDs() and isChecked("Summon Doomguard") then
-                            if talent.grimoireOfSupremacy and #enemies.yards10 < 3 and hasEquiped(132379) and GetTime() > summonTime + 275 then
+                            if talent.grimoireOfSupremacy and #enemies.yards8 < 3 and hasEquiped(132379) and GetTime() > summonTime + 275 then
                                 interruptDrain()
                                 if cast.summonDoomguard() then summonTime = GetTime(); return end
                             end
@@ -565,7 +565,7 @@ if select(2, UnitClass("player")) == "WARLOCK" then
             -- Summon Infernal
                         -- summon_infernal,if=talent.grimoire_of_supremacy.enabled&spell_targets.summon_infernal>=3&equipped.132379&!cooldown.sindorei_spite_icd.remains
                         if useCDs() and isChecked("Summon Infernal") then
-                            if talent.grimoireOfSupremacy and #enemies.yards10 >= 3 and hasEquiped(132379) and GetTime() > summonTime + 275 then
+                            if talent.grimoireOfSupremacy and #enemies.yards8 >= 3 and hasEquiped(132379) and GetTime() > summonTime + 275 then
                                 interruptDrain()
                                 if cast.summonInfernal() then summonTime = GetTime(); return end
                             end
