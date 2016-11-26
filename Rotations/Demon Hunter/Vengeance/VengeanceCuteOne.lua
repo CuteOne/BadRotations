@@ -380,8 +380,10 @@ if select(2, UnitClass("player")) == "DEMONHUNTER" then
                     end
         -- Spirit Bomb
                     -- actions+=/spirit_bomb,if=debuff.frailty.down
-                    if not debuff.frailty[units.dyn5].exists then
-                        if cast.spiritBomb() then return end
+                    if debuff.frailty[units.dyn5] ~= nil then
+                        if not debuff.frailty[units.dyn5].exists then
+                            if cast.spiritBomb() then return end
+                        end
                     end
         -- Immolation Aura
                     -- actions+=/immolation_aura,if=pain<=80
@@ -406,8 +408,10 @@ if select(2, UnitClass("player")) == "DEMONHUNTER" then
                         end
         -- Metamorphosis
                         -- actions+=/metamorphosis,if=buff.demon_spikes.down&!dot.fiery_brand.ticking&buff.metamorphosis.down&incoming_damage_5s>health.max*0.70
-                        if isChecked("Metamorphosis") and not buff.demonSpikes.exists and not debuff.fieryBrand[units.dyn5].exists and not buff.metamorphosis.exists and php < getOptionValue("Metamorphosis") then
-                            if cast.metamorphosis() then return end
+                        if debuff.fieryBrand[units.dyn5] ~= nil then
+                            if isChecked("Metamorphosis") and not buff.demonSpikes.exists and not debuff.fieryBrand[units.dyn5].exists and not buff.metamorphosis.exists and php < getOptionValue("Metamorphosis") then
+                                if cast.metamorphosis() then return end
+                            end
                         end
         -- Fel Devastation
                         -- actions+=/fel_devastation,if=incoming_damage_5s>health.max*0.70

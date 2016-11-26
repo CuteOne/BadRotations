@@ -258,7 +258,7 @@ if select(3,UnitClass("player")) == 1 then
                         if cast.giftOfTheNaaru() then return end
                     end
                 -- Shockwave
-                    if inCombat and ((isChecked("Shockwave - HP") and php <= getOptionValue("Shockwave - HP")) or (isChecked("Shockwave - Units") and #enemies.yards10 >= getOptionValue("Shockwave - Units"))) then
+                    if inCombat and ((isChecked("Shockwave - HP") and php <= getOptionValue("Shockwave - HP")) or (isChecked("Shockwave - Units") and #enemies.yards8 >= getOptionValue("Shockwave - Units"))) then
                         if cast.shockwave() then return end
                     end
                 -- Storm Bolt

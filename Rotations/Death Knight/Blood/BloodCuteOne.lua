@@ -376,12 +376,12 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
         ---------------------------
                     if getOptionValue("APL Mode") == 1 then
             -- Marrowrend
-                        if buff.boneShield.remain < 3 or #enemies.yards10 == 0 then
+                        if buff.boneShield.remain < 3 or #enemies.yards8 == 0 then
                             if cast.marrowrend() then return end
                         end
             -- Blood Boil
-                        for i = 1, #enemies.yards10 do
-                            local thisUnit = enemies.yards10[i]
+                        for i = 1, #enemies.yards8 do
+                            local thisUnit = enemies.yards8[i]
                             local bloodPlague = debuff.bloodPlague[thisUnit]
                             if bloodPlague ~= nil then
                                 if not bloodPlague.exists then
@@ -504,8 +504,8 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
                         --actions+=/blood_boil,if=!talent.soulgorge.enabled&(debuff.blood_plague.refreshable|!debuff.blood_plague.up)
                         --borrowing your blood boil code 
                         if not talent.soulgorge then
-                            for i = 1, #enemies.yards10 do
-                                local thisUnit = enemies.yards10[i]
+                            for i = 1, #enemies.yards8 do
+                                local thisUnit = enemies.yards8[i]
                                 local bloodPlague = debuff.bloodPlague[thisUnit]
                                 if bloodPlague ~= nil then
                                     if not bloodPlague.exists then

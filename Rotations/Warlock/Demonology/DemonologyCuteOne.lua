@@ -629,8 +629,8 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                         -- summon_doomguard,if=talent.grimoire_of_service.enabled&prev.service_felguard&spell_targets.infernal_awakening<3
                         -- summon_doomguard,if=talent.grimoire_of_synergy.enabled&spell_targets.infernal_awakening<3
                         if useCDs() and isChecked("Summon Doomguard") then
-                            if (talent.grimoireOfService and prevService == "Felguard" and #enemies.yards10t < 3)
-                                or (talent.grimoireOfSynergy and #enemies.yards10t < 3)
+                            if (talent.grimoireOfService and prevService == "Felguard" and #enemies.yards8t < 3)
+                                or (talent.grimoireOfSynergy and #enemies.yards8t < 3)
                             then
                                 if cast.summonDoomguard() then return end
                             end
@@ -639,8 +639,8 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                         -- summon_infernal,if=talent.grimoire_of_service.enabled&prev.service_felguard&spell_targets.infernal_awakening>=3
                         -- summon_infernal,if=talent.grimoire_of_synergy.enabled&spell_targets.infernal_awakening>=3
                         if useCDs() and isChecked("Summon Infernal") then
-                            if (talent.grimoireOfService and prevService == "Felguard" and #enemies.yards10t >= 3)
-                                or (talent.grimoireOfSynergy and #enemies.yards10t >=3)
+                            if (talent.grimoireOfService and prevService == "Felguard" and #enemies.yards8t >= 3)
+                                or (talent.grimoireOfSynergy and #enemies.yards8t >=3)
                             then
                                 if cast.summonInfernal("target") then return end
                             end
