@@ -752,6 +752,9 @@ function castSpell(Unit,SpellID,FacingCheck,MovementCheck,SpamAllowed,KnownSkip,
 								timersTable[SpellID] = GetTime()
 								currentTarget = UnitGUID(Unit)
 								CastSpellByName(GetSpellInfo(SpellID),Unit)
+								local X,Y,Z = GetObjectPosition(Unit)
+								--local distanceToGround = getGroundDistance(Unit) or 0
+								-- ClickPosition(X,Y,Z) --distanceToGround
 								--lastSpellCast = SpellID
 								-- change main button icon
 								if getOptionCheck("Start/Stop BadRotations") then
@@ -769,6 +772,9 @@ function castSpell(Unit,SpellID,FacingCheck,MovementCheck,SpamAllowed,KnownSkip,
 					else
 						currentTarget = UnitGUID(Unit)
 						CastSpellByName(GetSpellInfo(SpellID),Unit)
+						local X,Y,Z = GetObjectPosition(Unit)
+						--local distanceToGround = getGroundDistance(Unit) or 0
+						-- ClickPosition(X,Y,Z) --distanceToGround
 						if getOptionCheck("Start/Stop BadRotations") then
 							mainButton:SetNormalTexture(select(3,GetSpellInfo(SpellID)))
 							lastSpellCast = SpellID
@@ -781,6 +787,40 @@ function castSpell(Unit,SpellID,FacingCheck,MovementCheck,SpamAllowed,KnownSkip,
 		end
 	end
 	return false
+end
+function castQueue()
+	local spellCast = br.player.queue[1].id
+    local spellName = GetSpellInfo(br.player.queue[1].id)
+    local minRange 	= select(5,GetSpellInfo(spellName))
+    local maxRange 	= select(6,GetSpellInfo(spellName))
+    if IsHelpfulSpell(spellName) then 
+        thisUnit = "player"
+        amIinRange = true 
+    elseif br.player.queue[1].target == nil then
+        if IsUsableSpell(spellCast) and isKnown(spellCast) then
+            if maxRange ~= nil and maxRange > 0 then
+                thisUnit = dynamicTarget(maxRange,  true)
+                amIinRange = getDistance(thisUnit) < maxRange 
+            else
+                thisUnit = dynamicTarget(5,  true)
+                amIinRange = getDistance(thisUnit) < 5  
+            end
+        end
+    elseif IsSpellInRange(spellName,thisUnit) == nil then
+        amIinRange = true
+    else
+        amIinRange = IsSpellInRange(spellName,thisUnit) == 1
+    end
+    if IsUsableSpell(spellCast) and getSpellCD(spellCast) == 0 and isKnown(spellCast) and amIinRange then
+        if UnitIsDeadOrGhost(thisUnit) then
+            if thisUnit == nil then thisUnit = "player" end
+            castSpell(thisUnit,spellCast,false,false,false,false,true)
+        else
+            if thisUnit == nil then thisUnit = "player" end
+            castSpell(thisUnit,spellCast,false,false,false)
+        end
+    end
+    return
 end
 --[[castSpellMacro(Unit,SpellID,FacingCheck,MovementCheck,SpamAllowed,KnownSkip)
 Parameter 	Value
