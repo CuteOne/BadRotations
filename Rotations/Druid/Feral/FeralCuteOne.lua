@@ -589,10 +589,12 @@ if select(2, UnitClass("player")) == "DRUID" then
             local function actionList_Finisher()
             -- Finisher Condition
                 -- combo_points=5&(energy.time_to_max<1|buff.berserk.up|buff.incarnation.up|buff.elunes_guidance.up|cooldown.tigers_fury.remains<3|set_bonus.tier18_4pc|buff.clearcasting.react|talent.soul_of_the_forest.enabled|!dot.rip.ticking|(dot.rake.remains<1.5&spell_targets.swipe_cat<6))
-                if combo == 5 and (ttm < 1 or buff.berserk.exists or buff.incarnationKingOfTheJungle.exists or buff.elunesGuidance.exists or cd.tigersFury < 3 or t18_4pc
-                    or buff.clearcasting.exists or talent.soulOfTheForest or not debuff.rip[units.dyn5].exists or (debuff.rake[units.dyn5].remain < 1.5 and #enemies.yards8 < 6))
-                then
-                    fatality = true
+                if debuff.rip[units.dyn5] ~= nil and debuff.rake[units.dyn5] ~= nil then
+                    if combo == 5 and (ttm < 1 or buff.berserk.exists or buff.incarnationKingOfTheJungle.exists or buff.elunesGuidance.exists or cd.tigersFury < 3 or t18_4pc
+                        or buff.clearcasting.exists or talent.soulOfTheForest or not debuff.rip[units.dyn5].exists or (debuff.rake[units.dyn5].remain < 1.5 and #enemies.yards8 < 6))
+                    then
+                        fatality = true
+                    end
                 end
             -- Ferocious Bite Finisher Condition
                 -- combo_points=5&(energy.time_to_max<1|buff.berserk.up|buff.incarnation.up|buff.elunes_guidance.up|cooldown.tigers_fury.remains<3|set_bonus.tier18_4pc|(talent.moment_of_clarity.enabled&buff.clearcasting.react))

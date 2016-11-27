@@ -2622,19 +2622,6 @@ function pause(skipCastingCheck)
 			end
 		end
 	end
-	-- Queue Casting
-	if isChecked("Queue Casting") and not pausekey and not UnitChannelInfo("player") then
-		if br.player ~= nil then
-			if br.player.queue ~= nil then
-				if lastCastTime == nil then lastCastTime = GetTime() end
-				if #br.player.queue > 0 and GetTime() > lastCastTime + 1 then
-				    castQueue();
-				    lastCastTime = GetTime();
-				    return
-				end
-			end
-		end
-	end
 	-- Pause Toggle
 	if br.data['Pause'] == 1 then
 		ChatOverlay("\124cFFED0000 -- Paused -- ")
