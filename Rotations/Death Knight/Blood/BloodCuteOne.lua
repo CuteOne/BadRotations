@@ -152,7 +152,7 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
             local addsIn                                        = 999
             local artifact                                      = br.player.artifact
             local buff                                          = br.player.buff
-            local canFlask                                      = canUse(br.player.flask.wod.agilityBig)
+            local canFlask                                      = canUse(br.player.flask.wod.staminaBig)
             local cast                                          = br.player.cast
             local combatTime                                    = getCombatTime()
             local cd                                            = br.player.cd
@@ -163,7 +163,7 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
             local enemies                                       = br.player.enemies
             local falling, swimming, flying, moving             = getFallTime(), IsSwimming(), IsFlying(), GetUnitSpeed("player")>0
             local fatality                                      = false
-            local flaskBuff                                     = getBuffRemain("player",br.player.flask.wod.buff.agilityBig)
+            local flaskBuff                                     = getBuffRemain("player",br.player.flask.wod.buff.staminaBig)
             local friendly                                      = friendly or UnitIsFriend("target", "player")
             local gcd                                           = br.player.gcd
             local hasMouse                                      = ObjectExists("mouseover")
@@ -313,7 +313,7 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
                 if not inCombat and not (IsFlying() or IsMounted()) then
                     if not stealth then
             -- Flask / Crystal
-                        -- flask,type=flask_of_the_seventh_demon
+                        -- flask,type=flask_of_Ten_Thousand_Scars
                         if isChecked("Flask / Crystal") and not stealth then
                             if inRaid and canFlask and flaskBuff==0 and not (UnitBuffID("player",188035) or UnitBuffID("player",188034)) then
                                 useItem(br.player.flask.wod.staminaBig)
