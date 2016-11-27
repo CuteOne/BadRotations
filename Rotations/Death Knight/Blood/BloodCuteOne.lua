@@ -52,6 +52,8 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
                 br.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
             -- Artifact 
                 br.ui:createDropdownWithout(section, "Artifact", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Artifact Ability.")
+            -- Growl
+                br.ui:createCheckbox(section,"Dark Command","|cffFFFFFFAuto Dark Command usage.")
             br.ui:checkSectionState(section)
         -- Cooldown Options
             section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
@@ -227,6 +229,15 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
                         end
                     end
                 end -- End Dummy Test
+                -- Dark Command
+                if isChecked("Dark Command") then
+                    for i = 1, #enemies.yards40 do
+                        local thisUnit = enemies.yards40[i]
+                        if not isAggroed(thisUnit) and hasThreat(thisUnit) then
+                            if cast.darkCommand(thisUnit) then return end
+                        end
+                    end
+                end
             end -- End Action List - Extras
         -- Action List - Defensive
             local function actionList_Defensive()
