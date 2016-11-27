@@ -81,7 +81,7 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
             -- DS High prio
                 br.ui:createSpinner(section, "Death Strike High Prio", 35, 0, 100, 1, "|cffFFBB00Percent Hp to use High Prio Death Strike") 
             -- DS Low prio
-                br.ui:createSpinner(section, "Death Strike Low Prio", 80, 0, 100, 1, "|cffFFBB00Percent Hp to use Low Prio Death Strike")
+                br.ui:createSpinner(section, "Death Strike Low Prio", 75, 0, 100, 1, "|cffFFBB00Percent Hp to use Low Prio Death Strike")
             -- Consumption with Vampiric Blood up
                 br.ui:createSpinner(section, "Consumption VB", 85, 0, 100, 1, "|cffFFBB00Percent Hp to use Consumption with Vampiric Blood as High Prio, when VB isn't active Consumption will be used as filler.")
             -- high prio blood boil for more dps
@@ -523,15 +523,16 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
                             if cast.bloodTap() then return end
                         end
                         --actions+=/consumption,if=buff.vampiric_blood.up&health.max<0.9
-                        if getFacing("player","target",105) == true and buff.vampiricBlood.exists and php < getOptionValue("Consumption VB") and getDistance(thisUnit) <= 5 then
-                            if cast.consumption() then return end
+                        if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()) then
+                            if getFacing("player","target",105) == true and buff.vampiricBlood.exists and php < getOptionValue("Consumption VB") and getDistance(thisUnit) <= 5 then
+                                if cast.consumption() then return end
+                            end
                         end
                         --#low prio heal
                         --actions+=/death_strike,if=incoming_damage_5s>=health.max*0.15
                         if php < getOptionValue("Death Strike Low Prio") then
                             if cast.deathStrike() then return end
                         end
-                        
                         --actions+=/marrowrend,if=rune>2.5&buff_bone_shield.stacks<=7
                         if runes >= 2.5 and buff.boneShield.stack <=6 then
                             if cast.marrowrend() then return end
@@ -545,8 +546,10 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
                             if cast.heartStrike() then return end
                         end
                         --actions+=/consumption
-                        if getFacing("player","target",105) == true and getDistance(thisUnit) <= 5 then
-                            if cast.consumption() then return end
+                        if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()) then
+                            if getFacing("player","target",105) == true and getDistance(thisUnit) <= 5 then
+                                if cast.consumption() then return end
+                            end
                         end
                         --actions+=/blood_boil
                         if getDistance(thisUnit) <= 8 then
