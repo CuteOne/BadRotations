@@ -365,7 +365,9 @@ if select(2, UnitClass("player")) == "HUNTER" then
                 -- Aimed Shot
                 -- if SpellCastTimeSec(AimedShot) < BuffRemainingSec(Vulnerable) and 
                 -- (not HasTalent(Barrage) or CooldownSecRemaining(Barrage) > GlobalCooldownSec)
-                
+                if getCastTime(spell.aimedShot) < debuff.vulnerable[units.dyn40].remain and (not talent.barrage or cd.barrage > gcd) then
+                    if cast.aimedShot(units.dyn40) then return end
+                end
                 -- Marked Shot
                 if cast.markedShot(units.dyn40) then return end
                 -- Bursting Shot
@@ -385,9 +387,8 @@ if select(2, UnitClass("player")) == "HUNTER" then
                     if cast.explosiveShot(units.dyn40) then return end
                 end
                 -- Sidewinders
-                -- if not HasBuff(HuntersMark) and (HasBuff(MarkingTargets) or HasBuff(Trueshot)) or 
-                -- ChargeSecRemaining(Sidewinders) < BuffDurationSec(Vulnerable) - SpellCastTimeSec(AimedShot)
-                if debuff.huntersMark[units.dyn40].exists == false and (buff.markingTargets.exists or buff.trueshot.exists) then
+                -- if not HasBuff(HuntersMark) and (HasBuff(MarkingTargets) or HasBuff(Trueshot)) or ChargeSecRemaining(Sidewinders) < BuffDurationSec(Vulnerable) - SpellCastTimeSec(AimedShot)
+                if debuff.huntersMark[units.dyn40].exists == false and (buff.markingTargets.exists or buff.trueshot.exists) or recharge.sidewinders < debuff.vulnerable[units.dyn40].duration - getCastTime(spell.aimedShot) then
                     if cast.sidewinders(units.dyn40) then return end
                 end 
                 -- Arcane Shot
