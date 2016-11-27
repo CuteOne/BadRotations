@@ -79,11 +79,11 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
             -- Bonestorm RP Amount
                 br.ui:createSpinner(section, "Bonestorm RP", 90, 0, 125, 5, "|cffFFBB00Amount of RP to use Bonestorm") 
             -- DS High prio
-                br.ui:createSpinner(section, "Death Strike High Prio", 55, 0, 100, 1, "|cffFFBB00Percent Hp to use High Prio Death Strike") 
+                br.ui:createSpinner(section, "Death Strike High Prio", 35, 0, 100, 1, "|cffFFBB00Percent Hp to use High Prio Death Strike") 
             -- DS Low prio
-                br.ui:createSpinner(section, "Death Strike Low Prio", 80, 0, 100, 1, "|cffFFBB00Percent Hp to use Low Prio Death Strike")
+                br.ui:createSpinner(section, "Death Strike Low Prio", 75, 0, 100, 1, "|cffFFBB00Percent Hp to use Low Prio Death Strike")
             -- Consumption with Vampiric Blood up
-                br.ui:createSpinner(section, "Consumption VB", 85, 0, 100, 1, "|cffFFBB00Percent Hp to use Consumption with Vampiric Blood as High Prio, when VB isn't active Consumption will be used as Filler.")
+                br.ui:createSpinner(section, "Consumption VB", 85, 0, 100, 1, "|cffFFBB00Percent Hp to use Consumption with Vampiric Blood as High Prio, when VB isn't active Consumption will be used as filler.")
             -- high prio blood boil for more dps
                 br.ui:createCheckbox(section,"Blood Boil High Prio", "|cffFFBB00Lower Survivability, Higher DPS")
             br.ui:checkSectionState(section)    
@@ -96,7 +96,7 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
             -- Anti-Magic Shell
                 br.ui:createSpinner(section, "Anti-Magic Shell",  50,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.");
             -- Vampiric Blood
-                br.ui:createSpinner(section, "Vampiric Blood",  50,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.");
+                br.ui:createSpinner(section, "Vampiric Blood",  40,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.");
             -- Icebound Fortitude
                 br.ui:createSpinner(section, "Icebound Fortitude",  50,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
             br.ui:checkSectionState(section)
@@ -152,7 +152,7 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
             local addsIn                                        = 999
             local artifact                                      = br.player.artifact
             local buff                                          = br.player.buff
-            local canFlask                                      = canUse(br.player.flask.wod.agilityBig)
+            local canFlask                                      = canUse(br.player.flask.wod.staminaBig)
             local cast                                          = br.player.cast
             local combatTime                                    = getCombatTime()
             local cd                                            = br.player.cd
@@ -163,7 +163,7 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
             local enemies                                       = br.player.enemies
             local falling, swimming, flying, moving             = getFallTime(), IsSwimming(), IsFlying(), GetUnitSpeed("player")>0
             local fatality                                      = false
-            local flaskBuff                                     = getBuffRemain("player",br.player.flask.wod.buff.agilityBig)
+            local flaskBuff                                     = getBuffRemain("player",br.player.flask.wod.buff.staminaBig)
             local friendly                                      = friendly or UnitIsFriend("target", "player")
             local gcd                                           = br.player.gcd
             local hasMouse                                      = ObjectExists("mouseover")
@@ -313,10 +313,10 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
                 if not inCombat and not (IsFlying() or IsMounted()) then
                     if not stealth then
             -- Flask / Crystal
-                        -- flask,type=flask_of_the_seventh_demon
+                        -- flask,type=flask_of_Ten_Thousand_Scars
                         if isChecked("Flask / Crystal") and not stealth then
-                            if inRaid and canFlask and flaskBuff==0 and not UnitBuffID("player",188033) then
-                                useItem(br.player.flask.wod.agilityBig)
+                            if inRaid and canFlask and flaskBuff==0 and not (UnitBuffID("player",188035) or UnitBuffID("player",188034)) then
+                                useItem(br.player.flask.wod.staminaBig)
                                 return true
                             end
                             if flaskBuff==0 then
@@ -484,7 +484,7 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
                             if cast.deathStrike() then return end
                         end    
                         --actions+=/marrowrend,if=(talent.ossuary.enabled&buff.bone_shield.stacks<=4)|(!talent.ossuary.enabled&buff.bone_shield.stacks<2)|buff.bone_shield.remains<3|!buff.bone_shield.up
-                        if (talent.ossuary and buff.boneShield.stack <=4) or (not talent.ossuary and buff.boneShield.stack <=2) or buff.boneShield.remain < 5 or not buff.boneShield.exists then
+                        if (talent.ossuary and buff.boneShield.stack <=4) or (not talent.ossuary and buff.boneShield.stack <=2) or buff.boneShield.remain < 4 or not buff.boneShield.exists then
                             if cast.marrowrend() then return end
                         end
                         --#high prio heal
@@ -523,15 +523,16 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
                             if cast.bloodTap() then return end
                         end
                         --actions+=/consumption,if=buff.vampiric_blood.up&health.max<0.9
-                        if getFacing("player","target",105) == true and buff.vampiricBlood.exists and php < getOptionValue("Consumption VB") and getDistance(thisUnit) <= 5 then
-                            if cast.consumption() then return end
+                        if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()) then
+                            if getFacing("player","target",105) == true and buff.vampiricBlood.exists and php < getOptionValue("Consumption VB") and getDistance(thisUnit) <= 5 then
+                                if cast.consumption() then return end
+                            end
                         end
                         --#low prio heal
                         --actions+=/death_strike,if=incoming_damage_5s>=health.max*0.15
                         if php < getOptionValue("Death Strike Low Prio") then
                             if cast.deathStrike() then return end
                         end
-                        
                         --actions+=/marrowrend,if=rune>2.5&buff_bone_shield.stacks<=7
                         if runes >= 2.5 and buff.boneShield.stack <=6 then
                             if cast.marrowrend() then return end
@@ -545,8 +546,10 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
                             if cast.heartStrike() then return end
                         end
                         --actions+=/consumption
-                        if getFacing("player","target",105) == true and getDistance(thisUnit) <= 5 then
-                            if cast.consumption() then return end
+                        if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()) then
+                            if getFacing("player","target",105) == true and getDistance(thisUnit) <= 5 then
+                                if cast.consumption() then return end
+                            end
                         end
                         --actions+=/blood_boil
                         if getDistance(thisUnit) <= 8 then
