@@ -503,7 +503,7 @@ if select(3,UnitClass("player")) == 1 then
                 -- TODO
             -- Call Action List - Multitarget
                 -- call_action_list,name=prot_aoe,if=spell_targets.neltharions_fury>=2
-                if #enemies.yards12 >= 2 then
+                if #enemies.yards8 >= 2 then
                     if actionList_MultiTarget() then return end
                 end
             -- Focused Rage
