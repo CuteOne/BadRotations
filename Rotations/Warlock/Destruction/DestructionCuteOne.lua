@@ -457,13 +457,6 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                 end
                 return true
             else
-    ---------------------
-    --- Queued Soells ---
-    ---------------------
-                if isChecked("Queue Casting") and #queue > 0 then
-                    castQueue()
-                    return
-                end
     -----------------------
     --- Extras Rotation ---
     -----------------------

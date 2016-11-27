@@ -1102,23 +1102,6 @@ if select(2, UnitClass("player")) == "MONK" then
             elseif (inCombat and profileStop==true) or pause() or (IsMounted() or IsFlying()) or mode.rotation==4 then
                 return true
             else
-    ---------------------
-    --- Queued Soells ---
-    ---------------------
-                if isChecked("Queue Casting") and #queue > 0 then
-                    castQueue()
-                    return
-                end
-                -- if isChecked("Queue Casting") and #queue > 0 then
-                --     local thisUnit = queue[1].target
-                --     if thisUnit == "player" or IsHarmfulSpell(spellName) or IsHelpfulSpell(spellName) or thisUnit == nil then
-                --         if thisUnit == nil then thisUnit = "player" end
-                --         castSpell(thisUnit,spellCast,false,false,false)
-                --     else
-                --         castGround(thisUnit,spellCast,maxRange,minRange)
-                --     end
-                --     -- if castSpell(queue[1].target,queue[1].id,false,false,false) then return end
-                -- end
     -----------------------
     --- Extras Rotation ---
     -----------------------
