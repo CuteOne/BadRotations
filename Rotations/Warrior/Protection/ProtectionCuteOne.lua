@@ -61,7 +61,7 @@ if select(3,UnitClass("player")) == 1 then
                 -- Pre-Pull Timer
                 br.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
                 -- Artifact 
-                br.ui:createDropdownWithout(section,"Artifact", {"|cff00FF00Everything","|cffFFFF00Defensives","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Artifact Ability.")
+                br.ui:createDropdownWithout(section,"Artifact", {"|cff00FF00Everything","|cffFFFF00Defensive","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Artifact Ability.")
                 br.ui:createSpinner(section, "Artifact HP",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
             br.ui:checkSectionState(section)
             ------------------------
@@ -534,7 +534,7 @@ if select(3,UnitClass("player")) == 1 then
                 end
             -- Neltharion's Fury
                 -- neltharions_fury,if=incoming_damage_2500ms>health.max*0.20&!buff.shield_block.up
-                if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useDefensives()) then
+                if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useDefensive()) then
                     if php < getOptionValue("Artifact HP") and inCombat and not buff.shieldBlock.exists then
                         if cast.neltharionsFury() then return end
                     end
