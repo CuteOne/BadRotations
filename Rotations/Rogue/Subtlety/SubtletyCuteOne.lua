@@ -273,7 +273,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
 	                    end
 		            end
 		        -- Cloak of Shadows
-		    		if isChecked("Cloak of Shaodws") and canDispel("player",spell.cloakOfShadows) then
+		    		if isChecked("Cloak of Shadows") and canDispel("player",spell.cloakOfShadows) then
 		    			if cast.cloakOfShadows() then return end
 		    		end
 		        -- Crimson Vial

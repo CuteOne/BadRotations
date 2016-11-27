@@ -50,7 +50,7 @@ function cVengeance:new()
         feastofSouls                = 207693,
     }
     self.spell.spec.debuffs         = {
-        fieryBrand                  = 204022,
+        fieryBrand                  = 207744, --204022,
         frailty                     = 224509,
         sigilOfFlame                = 204598,
     }

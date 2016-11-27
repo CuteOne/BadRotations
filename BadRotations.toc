@@ -125,9 +125,11 @@ Rotations\Hunter\cHunter.lua
 
 Rotations\Hunter\Beastmaster\cBeastmaster.lua
 Rotations\Hunter\Beastmaster\Beastmaster.lua
+Rotations\Hunter\Beastmaster\BeastmasterCpoworks.lua
 
 Rotations\Hunter\Marksmanship\cMarksmanship.lua
-Rotations\Hunter\Maksmanship\Marksmanship.lua
+Rotations\Hunter\Marksmanship\Marksmanship.lua
+Rotations\Hunter\Marksmanship\MarksmanshipCpoworks.lua
 
 Rotations\Hunter\Survival\cSurvival.lua
 Rotations\Hunter\Survival\Survival.lua

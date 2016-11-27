@@ -332,7 +332,7 @@ if select(2, UnitClass("player")) == "DEMONHUNTER" then
     --------------------------
     --- In Combat Rotation ---
     --------------------------
-                if inCombat and profileStop==false and isValidUnit(units.dyn5) then
+                if inCombat and profileStop==false and isValidUnit(units.dyn5) and not (IsMounted() or IsFlying()) then
         ------------------------------
         --- In Combat - Interrupts ---
         ------------------------------
@@ -372,11 +372,13 @@ if select(2, UnitClass("player")) == "DEMONHUNTER" then
         -- Infernal Strike
                     -- actions+=/infernal_strike,if=!sigil_placed&!in_flight&remains-travel_time-delay<0.3*duration&artifact.fiery_demise.enabled&dot.fiery_brand.ticking
                     -- actions+=/infernal_strike,if=!sigil_placed&!in_flight&remains-travel_time-delay<0.3*duration&(!artifact.fiery_demise.enabled|(max_charges-charges_fractional)*recharge_time<cooldown.fiery_brand.remains+5)&(cooldown.sigil_of_flame.remains>7|charges=2)
-                    if useMover() and getDistance(units,dyn5) < 5 and charges.infernalStrike > 1 and ((artifact.fieryDemise and debuff.fieryBrand[units.dyn5].exists) or 
-                        ((not artifact.fieryDemise or ((charges.max.infernalStrike - charges.frac.inferanalStrike) * recharge.infernalStrike < cd.fieryBrand + 5)) and (cd.sigilOfFlame > 7 or charges.infernalStrike ==2))) 
-                    then
-                        -- if cast.infernalStrike("best",false,1,6) then return end
-                        if cast.infernalStrike("player","ground") then return end
+                    if useMover() and getDistance(units.dyn5) < 5 and charges.infernalStrike > 1 then
+                        if (artifact.fieryDemise and debuff.fieryBrand[units.dyn5].exists) 
+                            or (not artifact.fieryDemise or (charges.max.infernalStrike - charges.frac.infernalStrike) * recharge.infernalStrike < cd.fieryBrand + 5) and (cd.sigilOfFlame > 7 or charges.infernalStrike == 2) 
+                        then
+                            -- if cast.infernalStrike("best",false,1,6) then return end
+                            if cast.infernalStrike("player","ground") then return end
+                        end
                     end
         -- Spirit Bomb
                     -- actions+=/spirit_bomb,if=debuff.frailty.down
@@ -404,7 +406,7 @@ if select(2, UnitClass("player")) == "DEMONHUNTER" then
         -- Soul Cleave
                         -- actions+=/soul_cleave,if=soul_fragments=5
                         if isChecked("Soul Cleave") and buff.soulFragments.stack == 5 then
-                            if cast.soulCleave(units.dyn5) then return end
+                            if cast.soulCleave() then return end
                         end
         -- Metamorphosis
                         -- actions+=/metamorphosis,if=buff.demon_spikes.down&!dot.fiery_brand.ticking&buff.metamorphosis.down&incoming_damage_5s>health.max*0.70
@@ -421,7 +423,7 @@ if select(2, UnitClass("player")) == "DEMONHUNTER" then
         -- Soul Cleave
                         -- actions+=/soul_cleave,if=incoming_damage_5s>=health.max*0.70
                         if isChecked("Soul Cleave") and php < getOptionValue("Soul Cleave") then
-                            if cast.soulCleave(units.dyn5) then return end
+                            if cast.soulCleave() then return end
                         end
                     end
         -- Fel Eruption
@@ -440,16 +442,16 @@ if select(2, UnitClass("player")) == "DEMONHUNTER" then
         -- Soul Cleave
                     -- actions+=/soul_cleave,if=pain>=80
                     if useDefensive() and isChecked("Soul Cleave") and pain >= 80 then
-                        if cast.soulCleave(units.dyn5) then return end
+                        if cast.soulCleave() then return end
                     end
         -- Shear
                     -- actions+=/shear
                     if pain < 80 or not useDefensive() or (useDefensive() and not isChecked("Soul Cleave")) then
-                        if cast.shear(units.dyn5) then return end
+                        if cast.shear() then return end
                     end
         -- Throw Glaive
                     if getDistance(units.dyn5) > 5 then
-                        if cast.throwGlaive(units.dyn5) then return end
+                        if cast.throwGlaive() then return end
                     end
 				end --End In Combat
 			end --End Rotation Logic

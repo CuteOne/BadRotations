@@ -602,8 +602,10 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                         end
             -- Shadowflame
                         -- shadowflame,if=debuff.shadowflame.stack>0&remains<action.shadow_bolt.cast_time+travel_time
-                        if debuff.shadowflame[units.dyn40].stack > 0 and debuff.shadowflame[units.dyn40].remain < getCastTime(spell.shadowbolt) + travelTime --[[and br.timer:useTimer("travelTime", travelTime)]] then
-                            if cast.shadowflame() then return end
+                        if debuff.shadowflame[units.dyn40] ~= nil then
+                            if debuff.shadowflame[units.dyn40].stack > 0 and debuff.shadowflame[units.dyn40].remain < getCastTime(spell.shadowbolt) + travelTime --[[and br.timer:useTimer("travelTime", travelTime)]] then
+                                if cast.shadowflame() then return end
+                            end
                         end
             -- Service Pet
                         -- if=cooldown.summon_doomguard.remains<=gcd&soul_shard>=2

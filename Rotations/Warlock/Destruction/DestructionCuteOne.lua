@@ -182,6 +182,7 @@ if select(2, UnitClass("player")) == "WARLOCK" then
             local power, powmax, powgen, powerDeficit           = br.player.power, br.player.powerMax, br.player.powerRegen, br.player.powerDeficit
             local powerPercentMana                              = br.player.powerPercentMana
             local pullTimer                                     = br.DBM:getPulltimer()
+            local queue                                         = br.player.queue
             local racial                                        = br.player.getRacial()
             local recharge                                      = br.player.recharge
             local shards                                        = br.player.soulShards
@@ -456,6 +457,13 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                 end
                 return true
             else
+    ---------------------
+    --- Queued Soells ---
+    ---------------------
+                if isChecked("Queue Casting") and #queue > 0 then
+                    castQueue()
+                    return
+                end
     -----------------------
     --- Extras Rotation ---
     -----------------------

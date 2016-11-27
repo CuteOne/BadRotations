@@ -241,8 +241,8 @@ if select(2, UnitClass("player")) == "DRUID" then
 			local function actionList_Extras()
             -- Growl
                 if isChecked("Growl") then
-                    for i = 1, #enemies.yards30 do
-                        local thisUnit = enemies.yards30[i]
+                    for i = 1, #enemies.yards40 do
+                        local thisUnit = enemies.yards40[i]
                         if not isAggroed(thisUnit) and hasThreat(thisUnit) then
                             if not bear then
                                 if cast.bearForm() then return end
