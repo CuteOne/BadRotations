@@ -79,11 +79,11 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
             -- Bonestorm RP Amount
                 br.ui:createSpinner(section, "Bonestorm RP", 90, 0, 125, 5, "|cffFFBB00Amount of RP to use Bonestorm") 
             -- DS High prio
-                br.ui:createSpinner(section, "Death Strike High Prio", 55, 0, 100, 1, "|cffFFBB00Percent Hp to use High Prio Death Strike") 
+                br.ui:createSpinner(section, "Death Strike High Prio", 35, 0, 100, 1, "|cffFFBB00Percent Hp to use High Prio Death Strike") 
             -- DS Low prio
                 br.ui:createSpinner(section, "Death Strike Low Prio", 80, 0, 100, 1, "|cffFFBB00Percent Hp to use Low Prio Death Strike")
             -- Consumption with Vampiric Blood up
-                br.ui:createSpinner(section, "Consumption VB", 85, 0, 100, 1, "|cffFFBB00Percent Hp to use Consumption with Vampiric Blood as High Prio, when VB isn't active Consumption will be used as Filler.")
+                br.ui:createSpinner(section, "Consumption VB", 85, 0, 100, 1, "|cffFFBB00Percent Hp to use Consumption with Vampiric Blood as High Prio, when VB isn't active Consumption will be used as filler.")
             -- high prio blood boil for more dps
                 br.ui:createCheckbox(section,"Blood Boil High Prio", "|cffFFBB00Lower Survivability, Higher DPS")
             br.ui:checkSectionState(section)    
@@ -96,7 +96,7 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
             -- Anti-Magic Shell
                 br.ui:createSpinner(section, "Anti-Magic Shell",  50,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.");
             -- Vampiric Blood
-                br.ui:createSpinner(section, "Vampiric Blood",  50,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.");
+                br.ui:createSpinner(section, "Vampiric Blood",  40,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.");
             -- Icebound Fortitude
                 br.ui:createSpinner(section, "Icebound Fortitude",  50,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
             br.ui:checkSectionState(section)
@@ -315,8 +315,8 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
             -- Flask / Crystal
                         -- flask,type=flask_of_the_seventh_demon
                         if isChecked("Flask / Crystal") and not stealth then
-                            if inRaid and canFlask and flaskBuff==0 and not UnitBuffID("player",188033) then
-                                useItem(br.player.flask.wod.agilityBig)
+                            if inRaid and canFlask and flaskBuff==0 and not (UnitBuffID("player",188035) or UnitBuffID("player",188034)) then
+                                useItem(br.player.flask.wod.staminaBig)
                                 return true
                             end
                             if flaskBuff==0 then
@@ -484,7 +484,7 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
                             if cast.deathStrike() then return end
                         end    
                         --actions+=/marrowrend,if=(talent.ossuary.enabled&buff.bone_shield.stacks<=4)|(!talent.ossuary.enabled&buff.bone_shield.stacks<2)|buff.bone_shield.remains<3|!buff.bone_shield.up
-                        if (talent.ossuary and buff.boneShield.stack <=4) or (not talent.ossuary and buff.boneShield.stack <=2) or buff.boneShield.remain < 5 or not buff.boneShield.exists then
+                        if (talent.ossuary and buff.boneShield.stack <=4) or (not talent.ossuary and buff.boneShield.stack <=2) or buff.boneShield.remain < 4 or not buff.boneShield.exists then
                             if cast.marrowrend() then return end
                         end
                         --#high prio heal
