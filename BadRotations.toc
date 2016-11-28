@@ -182,7 +182,6 @@ Rotations\Priest\cPriest.lua
 Rotations\Priest\Discipline\cDiscipline.lua
 Rotations\Priest\Discipline\Discipline.lua
 Rotations\Priest\Discipline\DisciplineCpoworks.lua
-Rotations\Priest\Discipline\DisciplineSvs.lua
 
 Rotations\Priest\Holy\cHoly.lua
 Rotations\Priest\Holy\Holy.lua

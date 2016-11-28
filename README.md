@@ -36,11 +36,11 @@ If you are a developer or are interested in being a beta tester, feel free to ge
 If you have code to improve a class you can send a "pull request".
 We will look over it and may merge it with BadRotations.
 
-Current Coders: CuteOne, Gabbz
+Current Coders: CuteOne, Gabbz, Cpoworks
 
 Pausing Coders until Legion: ragnar, Defmaster
 
-Past Contributors: Masoud, Gabbz, AveryKey, Chumii, cpowroks, Kinks, kuukuukatchu, NOCARRIER and Sphoenix
+Past Contributors: Masoud, Gabbz, AveryKey, Chumii, Kinks, kuukuukatchu, NOCARRIER and Sphoenix
 
 **If you've contributed and you are not list here then please let CuteOne know so you can be added!
 
@@ -79,23 +79,23 @@ Raidable means if its good to raid with.
 ||||
 | **Death Knight** |||
 |Frost|0%||7.0|
-|Blood|25%|CuteOne|7.1|
+|Blood|95%|CuteOne/Vilt|7.1|:white_check_mark:
 |Unholy|0%||7.0|
 ||||
 | **Demon Hunter** |||
 |Havoc|100% (SimC)|CuteOne|7.1|:white_check_mark:
-|Vengeance|100% (SimC)|Dubwub/Cpoworks/CuteOne|7.1|:interrobang:
+|Vengeance|100% (SimC)|Dubwub/CuteOne|7.1|:white_check_mark:
 ||||
 | **Druid** |||
 |Feral|100% (SimC)|CuteOne|7.1|:white_check_mark:
-|Guardian|100% (SimC)|CuteOne|7.1|:interrobang:
+|Guardian|100% (SimC)|CuteOne|7.1|:white_check_mark:
 |Restoration|0%||7.0|
 |Moonkin|0%||7.0|
 ||||
 | **Hunter** |||
-|Beastmaster|0%|Averykey|7.0|:interrobang::x:
-|Marksmanship|0%|Averykey|7.0|:interrobang::x:
-|Survival|0%||7.0|
+|Beastmaster|0%|Cpoworks|7.1|:interrobang::x:
+|Marksmanship|20% (SimC/AMR)|Cpoworks|7.1|:interrobang::x:
+|Survival|0%|Cpoworks|7.1|:interrobang::x:
 ||||
 | **Mage** |||
 |Arcane|0%||7.0|
@@ -113,9 +113,9 @@ Raidable means if its good to raid with.
 |Retribution|100%|CuteOne|7.1|:interrobang:
 ||||
 | **Priest** |||
-|Discipline|70%|Cpoworks/Svs|7.1|:heavy_check_mark:
+|Discipline|0%|Cpoworks|7.0|:interrobang::x:
 |Holy|0%|||
-|Shadow|70%|Cpoworks/Svs|7.1|:heavy_check_mark:
+|Shadow|70%|Cpoworks|7.0|:heavy_check_mark:
 ||||
 | **Rogue** |||
 |Assassination|100%|CuteOne|7.0|:interrobang:
@@ -130,9 +130,9 @@ Raidable means if its good to raid with.
 | **Warlock** |||
 |Affliction|90%|CuteOne|7.1|:interrobang:
 |Demonology|100%|CuteOne|7.1|:interrobang:
-|Destruction|0%||7.0|
+|Destruction|100%|CuteOne|7.1|:interrobang:
 ||||
 | **Warrior** |||
 |Arms|0%||7.0|
 |Fury|100%|CuteOne|7.1|:interrobang:
-|Protection|0%||7.0|
+|Protection|100%||7.1|:interrobang:

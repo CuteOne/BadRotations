@@ -20,35 +20,33 @@ function cDiscipline:new()
         self.charges.max                = {}
         self.spell.spec                 = {}
         self.spell.spec.abilities       = {         
-            angelicFeather              = 121536,
-            divineStar                  = 110744,
-            halo                        = 120517,
-            leapOfFaith                 = 73325,
-            lightsWrath                 = 207946,
-            massResurrection            = 212036,
-            painSuppression             = 33206,
-            penance                     = 47540,
-            plea                        = 200829,
-            powerWordBarrier            = 62618,
-            powerWordRadiance           = 194509,
-            powerWordShield             = 17,
-            powerWordSolace             = 129250,
-            purgeTheWicked              = 204197,
-            purify                      = 527,
-            rapture                     = 47536,
-            shadowMend                  = 186263,
-            schism                      = 214621
+            angelicFeather = 121536,
+            divineStar = 110744,
+            halo = 120517,
+            leapOfFaith = 73325,
+            lightsWrath = 207946,
+            massResurrection = 212036,
+            painSuppression = 33206,
+            penance = 47540,
+            plea = 200829,
+            powerWordBarrier = 62618,
+            powerWordRadiance = 194509,
+            powerWordSolace = 129250,
+            purgeTheWicked = 204197,
+            purify = 527,
+            rapture = 47536,
+            schism = 214621
         }
         self.spell.spec.artifacts       = {    
 
         }
         self.spell.spec.buffs           = {         
-            atonement                   = 194384
+            atonement = 194384
         }
         self.spell.spec.debuffs         = {         
-            purgeTheWicked              = 204213,
-            shadowWordPain              = 589,
-            smite                       = 585
+            purgeTheWicked = 204213,
+            shadowWordPain = 589,
+            smite = 585
         }
         self.spell.spec.glyphs          = {         
 
