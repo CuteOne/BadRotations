@@ -338,19 +338,19 @@ if select(2, UnitClass("player")) == "ROGUE" then
                         end
                     end
             -- Racial: Orc Blood Fury | Troll Berserking | Blood Elf Arcane Torrent
-                    -- blood_fury,if=stealthed
-                    -- berserking,if=stealthed
-                    -- arcane_torrent,if=stealthed&energy.deficit>70
+                    -- blood_fury,if=stealthed.rogue
+                    -- berserking,if=stealthed.rogue
+                    -- arcane_torrent,if=stealthed.rogue&energy.deficit>70
                     if isChecked("Racial") and stealthingRogue and (race == "Orc" or race == "Troll" or (race == "BloodElf" and powerDeficit > 70)) then
                         if castSpell("player",racial,false,false,false) then return end
                     end
             -- Shadow Blades
-            		-- shadow_blades,if=!(stealthed|buff.shadowmeld.up)
+            		-- shadow_blades,if=!stealthed.all
             		if not stealthingAll then
             			if cast.shadowBlades() then return end
             		end
             -- Goremaws Bite
-            		-- goremaws_bite,if=!buff.shadow_dance.up&((combo_points.deficit>=4-(time<10)*2&energy.deficit>50+talent.vigor.enabled*25-(time>=10)*15)|target.time_to_die<8)
+            		-- goremaws_bite,if=!stealthed.all&((combo_points.deficit>=4-(time<10)*2&energy.deficit>50+talent.vigor.enabled*25-(time>=10)*15)|target.time_to_die<8)
             		if not stealthingAll and ((comboDeficit >= 4 - justStarted * 2 and powerDeficit > 50 + vigorous * 25 - justStarted * 15) or ttd(units.dyn5) < 8) then
             			if cast.goremawsBite() then return end
             		end
@@ -373,8 +373,8 @@ if select(2, UnitClass("player")) == "ROGUE" then
 				if getDistance(units.dyn5) < 5 then
 				-- print("Stealth Cooldowns")
 			-- Shadow Dance
-					-- shadow_dance,if=charges_fractional>=2.65
-					if charges.frac.shadowDance >= 2.65 then
+					-- shadow_dance,if=charges_fractional>=2.45
+					if charges.frac.shadowDance >= 2.45 then
 						if cast.shadowDance() then return end
 					end
 			-- Vanish
