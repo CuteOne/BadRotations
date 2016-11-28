@@ -75,6 +75,8 @@ function cOutlaw:new()
             sharkInfestedWaters     = 193357,
             sliceAndDice            = 5171,
             trueBearing             = 193359,
+            --sorry for the mess :/
+            greenskinsWaterloggedWristcuffs = 209420
         }
         self.spell.spec.buffs.rollTheBones = {
             broadsides              = 193356,
