@@ -576,7 +576,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
 						end
 			-- Stealth Cooldowns
 						-- call_action_list,name=stealth_cds,if=combo_points.deficit>=2+talent.premeditation.enabled&(variable.ed_threshold|(cooldown.shadowmeld.up&!cooldown.vanish.up&cooldown.shadow_dance.charges<=1)|target.time_to_die<12)
-						if comboDeficit >= 2 + premed and (edThreshVar or ((cd.shadowmeld == 0 or not isChecked("Racial") or solo) and (cd.vanish ~= 0 or not isChecked("Vanish") or solo) and charges.shadowDance <= 1) or ttd("target") < 12) then
+						if comboDeficit >= 2 + premed and (edThreshVar or ((cd.shadowmeld == 0 or not isChecked("Racial") or solo) and (cd.vanish ~= 0 or not isChecked("Vanish") or solo) and charges.shadowDance <= 1) or ttd("target") < 12 or #enemies.yards10 >=5) then
 							if actionList_StealthCooldowns() then return end
 						end
 			-- Generators
