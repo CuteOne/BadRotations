@@ -232,7 +232,7 @@ if select(2, UnitClass("player")) == "PRIEST" then
                     cast.shadowform()
                 end
                 -- Power Word: Shield Body and Soul
-                if isMoving("player") and not IsMounted() then -- talent.bodyandSoul and 
+                if talent.bodyAndSoul and isMoving("player") and not IsMounted() then -- 
                     if cast.powerWordShield("player") then return end
                 end                
             end  -- End Action List - Pre-Combat

@@ -59,6 +59,8 @@ if select(2, UnitClass("player")) == "HUNTER" then
                 br.ui:createCheckbox(section,"Racial")
             -- Trinkets
                 br.ui:createCheckbox(section,"Trinkets")
+            -- Trueshot
+                br.ui:createCheckbox(section,"Trueshot")
             br.ui:checkSectionState(section)
         -- Defensive Options
             section = br.ui:createSection(br.ui.window.profile, "Defensive")
@@ -126,7 +128,7 @@ if select(2, UnitClass("player")) == "HUNTER" then
             local charges                                       = br.player.charges
             local deadMouse                                     = UnitIsDeadOrGhost("mouseover")
             local deadtar, attacktar, hastar, playertar         = deadtar or UnitIsDeadOrGhost("target"), attacktar or UnitCanAttack("target", "player"), hastar or ObjectExists("target"), UnitIsPlayer("target")
-            local debuff                                        = br.player.debuff
+            local debuff, debuffcount                           = br.player.debuff, br.player.debuffcount
             local enemies                                       = br.player.enemies
             local falling, swimming, flying, moving             = getFallTime(), IsSwimming(), IsFlying(), GetUnitSpeed("player")>0
             local fatality                                      = false
@@ -231,12 +233,15 @@ if select(2, UnitClass("player")) == "HUNTER" then
                     if isChecked("Agi-Pot") and canUse(agiPot) and inRaid then
                         useItem(agiPot);
                         return true
-                        
                     end
             -- Racial: Orc Blood Fury | Troll Berserking | Blood Elf Arcane Torrent
                     if isChecked("Racial") and (br.player.race == "Orc" or br.player.race == "Troll" or br.player.race == "BloodElf") then
                          if castSpell("player",racial,false,false,false) then return end
-                    end   
+                    end
+            -- Trueshot
+                    if isChecked("Trueshot") then
+                        if cast.trueshot("player") then return end
+                    end
                 end -- End useCooldowns check
             end -- End Action List - Cooldowns 
         -- Action List - Non Patient Sniper
@@ -388,7 +393,7 @@ if select(2, UnitClass("player")) == "HUNTER" then
                 end
                 -- Sidewinders
                 -- if not HasBuff(HuntersMark) and (HasBuff(MarkingTargets) or HasBuff(Trueshot)) or ChargeSecRemaining(Sidewinders) < BuffDurationSec(Vulnerable) - SpellCastTimeSec(AimedShot)
-                if debuff.huntersMark[units.dyn40].exists == false and (buff.markingTargets.exists or buff.trueshot.exists) or recharge.sidewinders < debuff.vulnerable[units.dyn40].duration - getCastTime(spell.aimedShot) then
+                if talent.sidewinders and debuff.huntersMark[units.dyn40].exists == false and (buff.markingTargets.exists or buff.trueshot.exists) or recharge.sidewinders < debuff.vulnerable[units.dyn40].duration - getCastTime(spell.aimedShot) then
                     if cast.sidewinders(units.dyn40) then return end
                 end 
                 -- Arcane Shot
@@ -399,6 +404,51 @@ if select(2, UnitClass("player")) == "HUNTER" then
             end -- End Action List - Single Target
         -- Action List - Multi Target
             local function actionList_MultiTarget()
+                -- A Murder of Crows
+                -- if TargetSecRemaining < 60
+                if talent.aMurderOfCrows and ttd(units.dyn40) < 60 then
+                    if cast.aMurderOfCrows(units.dyn40) then return end
+                end
+                -- Barrage
+                if talent.barrage then
+                    if cast.barrage(units.dyn40) then return end
+                end
+                -- Bursting Shot
+                -- if HasItem(MagnetizedBlastingCapLauncher)
+                
+                -- Explosive Shot
+                if talent.explosiveShot then
+                    if cast.explosiveShot(units.dyn40) then return end
+                end
+                -- Multi-Shot
+                -- if BuffCount(HuntersMark) < 2 and (HasBuff(MarkingTargets) or HasBuff(Trueshot))
+                if debuffcount.huntersMark < 2 and (buff.markingTargets.exists or buff.trueshot.exists) then
+                    if cast.multiShot(units.dyn40) then return end
+                end
+                -- Sidewinders
+                -- if BuffCount(HuntersMark) < 2 and (HasBuff(MarkingTargets) or HasBuff(Trueshot))
+                if debuffcount.huntersMark < 2 and (buff.markingTargets.exists or buff.trueshot.exists) then
+                    if cast.sidewinders(units.dyn40) then return end
+                end
+                -- Sentinel
+                -- if BuffCount(HuntersMark) < TargetsInRadius(MultiShot)
+                
+                -- Marked Shot
+                if cast.markedShot(units.dyn40) then return end
+                -- Aimed Shot
+                -- if BuffStack(SentinelsSight) = BuffMaxStack(SentinelsSight)
+                
+                -- Aimed Shot
+                -- if HasTalent(TrickShot) and BuffCount(Vulnerable) > 1 and HasBuff(LockAndLoad)
+                if talent.trickShot and debuffcount.vulnerable > 1 and buff.lockAndLoad.exists then
+                    if cast.aimedShot(units.dyn40) then return end
+                end
+                -- Multi-Shot
+                if cast.multiShot(units.dyn40) then return end
+                -- Arcane Shot
+                if cast.arcaneShot(units.dyn40) then return end
+
+
 
             end -- End Action List - Multi Target
 
@@ -468,7 +518,9 @@ if select(2, UnitClass("player")) == "HUNTER" then
                         if getOptionValue("APL Mode") == 2 then
                             -- Volley
                             -- If you choose this talent, you will do more damage by having it always on, even against one target.
-
+                            if talent.volley then
+                                if cast.volley(units.dyn40) then return end
+                            end
                             -- Arcane Shot
                             -- if WasLastSpell(ArcaneShot) and HasTalent(SteadyFocus) and not HasBuff(SteadyFocus) and PowerToMax >= GlobalCooldownSec * 2 * PowerRegen + 10
                             
@@ -476,9 +528,9 @@ if select(2, UnitClass("player")) == "HUNTER" then
                             if actionList_Cooldowns() then return end
                             -- MultiTarget
                             -- if TargetsInRadius(MultiShot) > 2
-                            -- if #enemies.yards40 > 2 then
-                            --     if actionList_MultiTarget() then return end
-                            -- end
+                            if (#enemies.yards40 > 2 and mode.rotation == 1) or mode.rotation == 2 then
+                                if actionList_MultiTarget() then return end
+                            end
                             -- SingleTarget
                             if actionList_SingleTarget() then return end          
                         end

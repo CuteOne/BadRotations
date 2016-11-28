@@ -16,7 +16,7 @@ function cMarksmanship:new()
     -----------------
     --- VARIABLES ---
     -----------------
-
+        self.debuffcount                = {}
         self.spell.spec                 = {}
         self.spell.spec.abilities       = {
             aMurderOfCrows = 131894,
@@ -42,7 +42,8 @@ function cMarksmanship:new()
             piercingShot = 198670,
             sidewinders = 214579,
             trueshot = 193526,
-            windburst = 204147
+            windburst = 204147,
+            volley = 194386
         }
         self.spell.spec.artifacts       = {}
         self.spell.spec.buffs           = {
@@ -95,8 +96,9 @@ function cMarksmanship:new()
             -- Updates OOC things
             if not UnitAffectingCombat("player") then self.updateOOC() end
             cFileBuild("spec",self)
+            self.getDebuffsCount()
             self.getToggleModes()
-
+            
             -- Start selected rotation
             self:startRotation()
         end
@@ -186,6 +188,26 @@ function cMarksmanship:new()
             return getDistance(unit)
         end
 
+        function self.getDebuffsCount()
+            local UnitDebuffID = UnitDebuffID
+            local huntersMarkCount = 0
+            local vulnerableCount = 0
+
+            if huntersMarkCount>0 and not inCombat then huntersMarkCount = 0 end
+            if vulnerableCount>0 and not inCombat then vulnerableCount = 0 end
+
+            for i=1,#getEnemies("player", 40) do
+                local thisUnit = getEnemies("player", 40)[i]
+                if UnitDebuffID(thisUnit,185365,"player") then
+                    huntersMarkCount = huntersMarkCount+1
+                end
+                if UnitDebuffID(thisUnit,187131,"player") then
+                    vulnerableCount = vulnerableCount+1
+                end
+            end
+            self.debuffcount.huntersMark     = huntersMarkCount or 0
+            self.debuffcount.vulnerable    = vulnerableCount or 0
+        end  
         
 
     -----------------------------
