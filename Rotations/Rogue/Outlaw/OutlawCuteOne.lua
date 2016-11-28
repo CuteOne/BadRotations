@@ -447,8 +447,8 @@ if select(2, UnitClass("player")) == "ROGUE" then
 		-- Action List - Finishers
 			local function actionList_Finishers()
 			-- Between the Eyes
-				-- between_the_eyes,if=equipped.greenskins_waterlogged_wristcuffs&buff.shark_infested_waters.up
-				if hasEquiped(137099) and buff.sharkInfestedWaters then
+				-- between_the_eyes,if=equipped.greenskins_waterlogged_wristcuffs&!buff.greenskins_waterlogged_wristcuffs.up
+				if hasEquiped(137099) and not buff.greenskinsWaterloggedWristcuffs then
 					if cast.betweenTheEyes() then return end
 				end
 			-- Run Through
@@ -467,8 +467,8 @@ if select(2, UnitClass("player")) == "ROGUE" then
 					if cast.ghostlyStrike() then return end
 				end
 			-- Pistol Shot
-				-- pistol_shot,if=combo_points.deficit>=1+buff.broadsides.up&buff.opportunity.up&energy.time_to_max>2-talent.quick_draw.enabled
-				if comboDeficit >= 1 + broadUp and buff.opportunity and ttm > 2 - qDraw and not stealthing then
+				-- pistol_shot,if=combo_points.deficit>=1+buff.broadsides.up&buff.opportunity.up&(energy.time_to_max>2-talent.quick_draw.enabled|(buff.blunderbuss.up&buff.greenskins_waterlogged_wristcuffs.up))
+				if comboDeficit >= 1 + broadUp and buff.opportunity and (ttm > 2 - qDraw or (castable.blunderbuss and buff.greenskinsWaterloggedWristcuffs)) and not stealthing then
 					if cast.pistolShot() then return end
 				end
 			-- Saber Slash

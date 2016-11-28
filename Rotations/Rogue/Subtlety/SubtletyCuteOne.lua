@@ -204,7 +204,8 @@ if select(2, UnitClass("player")) == "ROGUE" then
 			local solo											= #br.friend < 2	
 			local spell 										= br.player.spell
 			local stealth 										= br.player.stealth
-			local stealthing 									= br.player.buff.stealth or br.player.buff.vanish or br.player.buff.shadowmeld or br.player.buff.shadowDance
+			local stealthingAll 								= br.player.buff.stealth or br.player.buff.vanish or br.player.buff.shadowmeld or br.player.buff.shadowDance
+			local stealthingRogue 								= br.player.buff.stealth or br.player.buff.vanish or br.player.buff.shadowDance
 			local t18_4pc 										= br.player.eq.t18_4pc
 			local talent 										= br.player.talent
 			local time 											= getCombatTime()
@@ -332,25 +333,25 @@ if select(2, UnitClass("player")) == "ROGUE" then
 			-- Potion
 					-- potion,name=old_war,if=buff.bloodlust.react|target.time_to_die<=25|buff.shadow_blades.up
 					if isChecked("Agi-Pot") and canUse(127844) and inRaid then
-						if ttd(units.dyn5) <= 25 or buff.shadowBlades then
+						if ttd(units.dyn5) <= 25 or buff.shadowBlades or hasBloodLust() then
                             useItem(127844)
                         end
                     end
             -- Racial: Orc Blood Fury | Troll Berserking | Blood Elf Arcane Torrent
-                    -- blood_fury,if=stealthed
-                    -- berserking,if=stealthed
-                    -- arcane_torrent,if=stealthed&energy.deficit>70
-                    if isChecked("Racial") and stealthing and (race == "Orc" or race == "Troll" or (race == "BloodElf" and powerDeficit > 70)) then
+                    -- blood_fury,if=stealthed.rogue
+                    -- berserking,if=stealthed.rogue
+                    -- arcane_torrent,if=stealthed.rogue&energy.deficit>70
+                    if isChecked("Racial") and stealthingRogue and (race == "Orc" or race == "Troll" or (race == "BloodElf" and powerDeficit > 70)) then
                         if castSpell("player",racial,false,false,false) then return end
                     end
             -- Shadow Blades
-            		-- shadow_blades,if=!(stealthed|buff.shadowmeld.up)
-            		if not stealthing then
+            		-- shadow_blades,if=!stealthed.all
+            		if not stealthingAll then
             			if cast.shadowBlades() then return end
             		end
             -- Goremaws Bite
-            		-- goremaws_bite,if=!buff.shadow_dance.up&((combo_points.deficit>=4-(time<10)*2&energy.deficit>50+talent.vigor.enabled*25-(time>=10)*15)|target.time_to_die<8)
-            		if not buff.shadowDance and ((comboDeficit >= 4 - justStarted * 2 and powerDeficit > 50 + vigorous * 25 - justStarted * 15) or ttd(units.dyn5) < 8) then
+            		-- goremaws_bite,if=!stealthed.all&((combo_points.deficit>=4-(time<10)*2&energy.deficit>50+talent.vigor.enabled*25-(time>=10)*15)|target.time_to_die<8)
+            		if not stealthingAll and ((comboDeficit >= 4 - justStarted * 2 and powerDeficit > 50 + vigorous * 25 - justStarted * 15) or ttd(units.dyn5) < 8) then
             			if cast.goremawsBite() then return end
             		end
             -- Marked For Death
@@ -372,8 +373,8 @@ if select(2, UnitClass("player")) == "ROGUE" then
 				if getDistance(units.dyn5) < 5 then
 				-- print("Stealth Cooldowns")
 			-- Shadow Dance
-					-- shadow_dance,if=charges_fractional>=2.65
-					if charges.frac.shadowDance >= 2.65 then
+					-- shadow_dance,if=charges_fractional>=2.45
+					if charges.frac.shadowDance >= 2.45 then
 						if cast.shadowDance() then return end
 					end
 			-- Vanish
@@ -500,15 +501,15 @@ if select(2, UnitClass("player")) == "ROGUE" then
 			local function actionList_Opener()
 				if isValidUnit("target") then
 			-- Shadowstep
-	                if isChecked("Shadowstep") and (not stealthing or power < 40) then
+	                if isChecked("Shadowstep") and (not stealthingAll or power < 40) then
 	                    if cast.shadowstep("target") then return end 
 	                end
             -- Shadowstrike
-	            	if (not isChecked("Shadowstep") or stealthing) and mode.pickPocket ~= 2 then
+	            	if (not isChecked("Shadowstep") or stealthingAll) and mode.pickPocket ~= 2 then
 	            		if cast.shadowstrike("target") then return end
 	            	end
 			-- Start Attack
-                	if getDistance("target") < 5 and not stealthing and mode.pickPocket ~= 2 then		
+                	if getDistance("target") < 5 and not stealthingAll and mode.pickPocket ~= 2 then		
                     	StartAttack()
                     end
                 end
@@ -562,7 +563,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
 					if actionList_Cooldowns() then return end
 			-- Stealthed
 					-- run_action_list,name=stealthed,if=stealthed|buff.shadowmeld.up
-					if stealthing then
+					if stealthingAll then
 						if actionList_Stealthed() then return end
 					else
 			-- Shuriken Toss
@@ -576,7 +577,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
 						end
 			-- Stealth Cooldowns
 						-- call_action_list,name=stealth_cds,if=combo_points.deficit>=2+talent.premeditation.enabled&(variable.ed_threshold|(cooldown.shadowmeld.up&!cooldown.vanish.up&cooldown.shadow_dance.charges<=1)|target.time_to_die<12)
-						if comboDeficit >= 2 + premed and (edThreshVar or ((cd.shadowmeld == 0 or not isChecked("Racial") or solo) and (cd.vanish ~= 0 or not isChecked("Vanish") or solo) and charges.shadowDance <= 1) or ttd("target") < 12) then
+						if comboDeficit >= 2 + premed and (edThreshVar or ((cd.shadowmeld == 0 or not isChecked("Racial") or solo) and (cd.vanish ~= 0 or not isChecked("Vanish") or solo) and charges.shadowDance <= 1) or ttd("target") < 12 or #enemies.yards10 >=5) then
 							if actionList_StealthCooldowns() then return end
 						end
 			-- Generators
