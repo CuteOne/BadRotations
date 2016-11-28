@@ -204,7 +204,8 @@ if select(2, UnitClass("player")) == "ROGUE" then
 			local solo											= #br.friend < 2	
 			local spell 										= br.player.spell
 			local stealth 										= br.player.stealth
-			local stealthing 									= br.player.buff.stealth or br.player.buff.vanish or br.player.buff.shadowmeld or br.player.buff.shadowDance
+			local stealthingAll 								= br.player.buff.stealth or br.player.buff.vanish or br.player.buff.shadowmeld or br.player.buff.shadowDance
+			local stealthingRogue 								= br.player.buff.stealth or br.player.buff.vanish or br.player.buff.shadowDance
 			local t18_4pc 										= br.player.eq.t18_4pc
 			local talent 										= br.player.talent
 			local time 											= getCombatTime()
@@ -332,7 +333,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
 			-- Potion
 					-- potion,name=old_war,if=buff.bloodlust.react|target.time_to_die<=25|buff.shadow_blades.up
 					if isChecked("Agi-Pot") and canUse(127844) and inRaid then
-						if ttd(units.dyn5) <= 25 or buff.shadowBlades then
+						if ttd(units.dyn5) <= 25 or buff.shadowBlades or hasBloodLust() then
                             useItem(127844)
                         end
                     end
@@ -340,17 +341,17 @@ if select(2, UnitClass("player")) == "ROGUE" then
                     -- blood_fury,if=stealthed
                     -- berserking,if=stealthed
                     -- arcane_torrent,if=stealthed&energy.deficit>70
-                    if isChecked("Racial") and stealthing and (race == "Orc" or race == "Troll" or (race == "BloodElf" and powerDeficit > 70)) then
+                    if isChecked("Racial") and stealthingRogue and (race == "Orc" or race == "Troll" or (race == "BloodElf" and powerDeficit > 70)) then
                         if castSpell("player",racial,false,false,false) then return end
                     end
             -- Shadow Blades
             		-- shadow_blades,if=!(stealthed|buff.shadowmeld.up)
-            		if not stealthing then
+            		if not stealthingAll then
             			if cast.shadowBlades() then return end
             		end
             -- Goremaws Bite
             		-- goremaws_bite,if=!buff.shadow_dance.up&((combo_points.deficit>=4-(time<10)*2&energy.deficit>50+talent.vigor.enabled*25-(time>=10)*15)|target.time_to_die<8)
-            		if not buff.shadowDance and ((comboDeficit >= 4 - justStarted * 2 and powerDeficit > 50 + vigorous * 25 - justStarted * 15) or ttd(units.dyn5) < 8) then
+            		if not stealthingAll and ((comboDeficit >= 4 - justStarted * 2 and powerDeficit > 50 + vigorous * 25 - justStarted * 15) or ttd(units.dyn5) < 8) then
             			if cast.goremawsBite() then return end
             		end
             -- Marked For Death
@@ -562,7 +563,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
 					if actionList_Cooldowns() then return end
 			-- Stealthed
 					-- run_action_list,name=stealthed,if=stealthed|buff.shadowmeld.up
-					if stealthing then
+					if stealthingAll then
 						if actionList_Stealthed() then return end
 					else
 			-- Shuriken Toss
