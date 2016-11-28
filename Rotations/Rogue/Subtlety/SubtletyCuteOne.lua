@@ -501,15 +501,15 @@ if select(2, UnitClass("player")) == "ROGUE" then
 			local function actionList_Opener()
 				if isValidUnit("target") then
 			-- Shadowstep
-	                if isChecked("Shadowstep") and (not stealthing or power < 40) then
+	                if isChecked("Shadowstep") and (not stealthingAll or power < 40) then
 	                    if cast.shadowstep("target") then return end 
 	                end
             -- Shadowstrike
-	            	if (not isChecked("Shadowstep") or stealthing) and mode.pickPocket ~= 2 then
+	            	if (not isChecked("Shadowstep") or stealthingAll) and mode.pickPocket ~= 2 then
 	            		if cast.shadowstrike("target") then return end
 	            	end
 			-- Start Attack
-                	if getDistance("target") < 5 and not stealthing and mode.pickPocket ~= 2 then		
+                	if getDistance("target") < 5 and not stealthingAll and mode.pickPocket ~= 2 then		
                     	StartAttack()
                     end
                 end
