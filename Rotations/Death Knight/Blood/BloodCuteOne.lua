@@ -52,7 +52,7 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
                 br.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
             -- Artifact 
                 br.ui:createDropdownWithout(section, "Artifact", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Artifact Ability.")
-            -- Growl
+            -- Dark Command
                 br.ui:createCheckbox(section,"Dark Command","|cffFFFFFFAuto Dark Command usage.")
             br.ui:checkSectionState(section)
         -- Cooldown Options
