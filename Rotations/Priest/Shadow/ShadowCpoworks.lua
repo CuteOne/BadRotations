@@ -44,6 +44,8 @@ if select(2, UnitClass("player")) == "PRIEST" then
             local section
             -- General Options
             section = br.ui:createSection(br.ui.window.profile, "General")
+                -- Mouseover Dotting
+                br.ui:createCheckbox(section,"Mouseover Dotting")
                 -- SWP Max Targets
                 br.ui:createSpinner(section, "SWP Max Targets",  3,  1,  10,  1)
                 -- VT Max Targets
@@ -229,10 +231,20 @@ if select(2, UnitClass("player")) == "PRIEST" then
                 if not buff.shadowform then
                     cast.shadowform()
                 end
+                -- Power Word: Shield Body and Soul
+                if isMoving("player") and not IsMounted() then -- talent.bodyandSoul and 
+                    if cast.powerWordShield("player") then return end
+                end                
             end  -- End Action List - Pre-Combat
             -- Action List - Single
             function actionList_Auto()
                 --Surrender to Madness
+                --Mouseover Dotting
+                if isChecked("Mouseover Dotting") and hasMouse and isValidTarget("mouseover") then
+                    if getDebuffRemain("mouseover",spell.shadowWordPain,"player") <= 1 then
+                        if cast.shadowWordPain("mouseover") then return end 
+                    end
+                end
                 --MindBender
                 if isChecked("Shadowfiend / Mind Bender") and talent.mindBender then
                     if cast.mindBender() then return end
@@ -251,26 +263,37 @@ if select(2, UnitClass("player")) == "PRIEST" then
                 end
                 -- Mind Blast
                 if cast.mindBlast() then return end
-                -- Shadow Word: Pain
+                -- Shadow Word: Pain  
                 if getDebuffRemain(units.dyn40,spell.shadowWordPain,"player") <= 4 then
-                    if cast.shadowWordPain(units.dyn40) then return end 
+                    for i=1,#enemies.yards40 do
+                        local thisUnit = enemies.yards40[i]
+                        if isAggroed(thisUnit) and hasThreat(thisUnit) then
+                            if cast.shadowWordPain(thisUnit) then return end 
+                        end
+                    end
                 end
+
                 if getDebuffRemain(units.dyn40,spell.shadowWordPain,"player") > 4 and debuff.count.shadowWordPain < SWPmaxTargets and (debuff.count.vampiricTouch >= 1 or isMoving("player")) then
                     for i=1,#enemies.yards40 do
                         local thisUnit = enemies.yards40[i]
-                        if getDebuffRemain(thisUnit,spell.shadowWordPain,"player") <= 4 then
+                        if getDebuffRemain(thisUnit,spell.shadowWordPain,"player") <= 4 and isAggroed(thisUnit) and hasThreat(thisUnit) then
                             if cast.shadowWordPain(thisUnit) then return end 
                         end
                     end
                 end              
                 -- Vampiric Touch
-                if getDebuffRemain(units.dyn40,spell.vampiricTouch,"player") <= 6 and not isCastingSpell(spell.vampiricTouch)then
-                    if cast.vampiricTouch(units.dyn40) then return end 
+                if getDebuffRemain(units.dyn40,spell.vampiricTouch,"player") <= 6 and not isCastingSpell(spell.vampiricTouch) then
+                    for i=1,#enemies.yards40 do
+                        local thisUnit = enemies.yards40[i]
+                        if isAggroed(thisUnit) and hasThreat(thisUnit) then
+                            if cast.vampiricTouch(thisUnit) then return end 
+                        end
+                    end
                 end
                 if getDebuffRemain(units.dyn40,spell.vampiricTouch,"player") > 6 and not isCastingSpell(spell.vampiricTouch) and debuff.count.vampiricTouch < VTmaxTargets and debuff.count.shadowWordPain >= 1 then
                     for i=1,#enemies.yards40 do
                         local thisUnit = enemies.yards40[i]
-                        if getDebuffRemain(thisUnit,spell.vampiricTouch,"player") <= 6 then
+                        if getDebuffRemain(thisUnit,spell.vampiricTouch,"player") <= 6 and isAggroed(thisUnit) and hasThreat(thisUnit) then
                             if cast.vampiricTouch(thisUnit) then return end 
                         end
                     end
@@ -373,13 +396,13 @@ if select(2, UnitClass("player")) == "PRIEST" then
     ---------------------------------
     --- Out Of Combat - Rotations ---
     ---------------------------------
-            if not inCombat and ObjectExists("target") and not UnitIsDeadOrGhost("target") and UnitCanAttack("target", "player") then
+            if not inCombat then --  and ObjectExists("target") and not UnitIsDeadOrGhost("target") and UnitCanAttack("target", "player")
                 if actionList_PreCombat() then return end
             end
     -----------------------------
     --- In Combat - Rotations --- 
     -----------------------------
-            if inCombat and isValidUnit(units.dyn40) and getDistance(units.dyn40) < 40 and not isCastingSpell(spell.voidTorrent) then
+            if inCombat and not IsMounted() and isValidUnit(units.dyn40) and getDistance(units.dyn40) < 40 and not isCastingSpell(spell.voidTorrent) then
 
                 if buff.voidForm then
                     if actionList_VoidForm() then return end
