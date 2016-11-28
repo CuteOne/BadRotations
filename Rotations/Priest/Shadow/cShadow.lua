@@ -55,7 +55,9 @@ function cShadow:new()
         self.spell.spec.glyphs          = {
 
         }
-        self.spell.spec.talents         = {}
+        self.spell.spec.talents         = {
+            bodyandSoul = 64129,
+        }
         -- Merge all spell ability tables into self.spell
         self.spell = mergeSpellTables(self.spell, self.characterSpell, self.spell.class.abilities, self.spell.spec.abilities)
         
