@@ -447,7 +447,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
 		-- Action List - Finishers
 			local function actionList_Finishers()
 			-- Between the Eyes
-				-- between_the_eyes,if=equipped.greenskins_waterlogged_wristcuffs&buff.shark_infested_waters.up
+				-- between_the_eyes,if=equipped.greenskins_waterlogged_wristcuffs&!buff.greenskins_waterlogged_wristcuffs.up
 				if hasEquiped(137099) and not buff.greenskinsWaterloggedWristcuffs then
 					if cast.betweenTheEyes() then return end
 				end
