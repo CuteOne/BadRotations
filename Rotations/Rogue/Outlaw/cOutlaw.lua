@@ -37,6 +37,7 @@ function cOutlaw:new()
             runThrough              = 2098,
             saberSlash              = 193315,
             sliceAndDice            = 5171,
+            blunderbuss             = 202895,
         }
         self.spell.spec.artifacts   = {
             blackPowder             = 216230,
@@ -76,7 +77,7 @@ function cOutlaw:new()
             sliceAndDice            = 5171,
             trueBearing             = 193359,
             --sorry for the mess :/
-            greenskinsWaterloggedWristcuffs = 209420
+            greenskinsWaterloggedWristcuffs = 209420,
         }
         self.spell.spec.buffs.rollTheBones = {
             broadsides              = 193356,
