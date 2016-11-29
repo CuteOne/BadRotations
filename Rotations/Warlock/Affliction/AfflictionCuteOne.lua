@@ -449,7 +449,7 @@ if select(2, UnitClass("player")) == "WARLOCK" then
             if not inCombat and not hastar and profileStop==true then
                 profileStop = false
             elseif (inCombat and profileStop==true) or pause() or mode.rotation==4 then
-                if not pause(true) then
+                if not pause() then
                     PetFollow()
                 end
                 return true
