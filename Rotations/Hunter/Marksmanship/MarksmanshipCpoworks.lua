@@ -49,6 +49,13 @@ if select(2, UnitClass("player")) == "HUNTER" then
             -- Dummy DPS Test
                 br.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
             br.ui:checkSectionState(section)
+        -- Pet Options
+            section = br.ui:createSection(br.ui.window.profile, "Pet")
+            -- Auto Summon
+                br.ui:createDropdown(section, "Auto Summon", {"Pet 1","Pet 2","Pet 3","Pet 4","Pet 5",}, 1, "Select the pet you want to use")
+            -- Mend Pet
+                br.ui:createSpinner(section, "Mend Pet",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
+            br.ui:checkSectionState(section)
         -- Cooldown Options
             section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
             -- Agi Pot
@@ -168,6 +175,46 @@ if select(2, UnitClass("player")) == "HUNTER" then
 	--------------------
 	--- Action Lists ---
 	--------------------
+        -- Action List - Pet Management
+            local function actionList_PetManagement()
+                if not talent.loneWolf then
+                    if isChecked("Auto Summon") and not UnitExists("pet") and (UnitIsDead("pet") ~= nil or UnitIsDead("pet") == false) then
+                      if waitForPetToAppear ~= nil and waitForPetToAppear < GetTime() - 2 then
+                        if lastFailedWhistle and lastFailedWhistle > GetTime() - 3 then
+                          if castSpell("player",RevivePet) then return; end
+                        else
+                          local Autocall = getValue("Auto Summon");
+
+                          if Autocall == 1 then
+                            if castSpell("player",883) then return; end
+                          elseif Autocall == 2 then
+                            if castSpell("player",83242) then return; end
+                          elseif Autocall == 3 then
+                            if castSpell("player",83243) then return; end
+                          elseif Autocall == 4 then
+                            if castSpell("player",83244) then return; end
+                          elseif Autocall == 5 then
+                            if castSpell("player",83245) then return; end
+                          else
+                            print("Auto Call Pet Error")
+                          end
+                        end
+                      end
+                      if waitForPetToAppear == nil then
+                        waitForPetToAppear = GetTime()
+                      end
+                    end
+
+                    if isChecked("Auto Summon") and UnitIsDeadOrGhost("pet") then
+                      if castSpell("player",982) then return; end
+                    end
+
+                    -- Mend Pet
+                    if isChecked("Mend Pet") and getHP("pet") < getValue("Mend Pet") and not UnitBuffID("pet",136) then
+                      if castSpell("pet",136) then return; end
+                    end
+                end
+            end
 		-- Action List - Extras
 			local function actionList_Extras()
 			-- Dummy Test
@@ -470,6 +517,10 @@ if select(2, UnitClass("player")) == "HUNTER" then
     --- Defensive Rotation ---
     --------------------------
                 if actionList_Defensive() then return end
+    -----------------
+    --- Pet Logic ---
+    -----------------             
+                if actionList_PetManagement() then return end
     --------------------------
     --- In Combat Rotation ---
     --------------------------
