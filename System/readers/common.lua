@@ -17,7 +17,7 @@ function br.read.commonReaders()
 	local frame = CreateFrame('Frame')
 	frame:RegisterEvent("LOSS_OF_CONTROL_UPDATE")
 	local function lostControl(self,event,...)
-		print(...)
+		-- print(...)
 	end
 	frame:SetScript("OnEvent",lostControl)
 	----------------

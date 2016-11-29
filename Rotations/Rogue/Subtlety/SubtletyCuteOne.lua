@@ -80,7 +80,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
             	-- Trinkets
                 br.ui:createCheckbox(section,"Trinkets")
                 -- Marked For Death
-	            br.ui:createSpinner(section, "Marked For Death",  50,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
+	            br.ui:createDropdown(section, "Marked For Death", {"|cff00FF00Target", "|cffFFDD00Lowest"}, 1, "|cffFFBB00Health Percentage to use at.")
 	            -- Shadow Dance
 	            br.ui:createCheckbox(section, "Shadow Dance")
 	            -- Vanish
@@ -355,14 +355,22 @@ if select(2, UnitClass("player")) == "ROGUE" then
             			if cast.goremawsBite() then return end
             		end
             -- Marked For Death
-            		-- marked_for_death,target_if=min:target.time_to_die,if=target.time_to_die<combo_points.deficit|(raid_event.adds.in>40&combo_points.deficit>=4+talent.deeper_strategem.enabled+talent.anticipation.enabled)
             		if isChecked("Marked For Death") then
-						for i = 1, #enemies.yards30 do
-							local thisUnit = enemies.yards30[i]
-							if getHP(thisUnit) < getOptionValue("Marked For Death") or ttd(thisUnit) < comboDeficit 
-								or (addsIn > 40 and comboDeficit >= 4 + dStrat + antital) 
-							then
-								if cast.markedForDeath(thisUnit) then return end
+						if getOptionValue("Marked For Death") == 1 then
+							-- marked_for_death,if=combo_points.deficit>=4+talent.deeper_strategem.enabled+talent.anticipation.enabled
+							if comboDeficit >= 4 + dStrat + antital then
+								if cast.markedForDeath() then return end
+							end
+						end
+						if getOptionValue("Marked For Death") == 2 then
+							-- marked_for_death,if=target.time_to_die<combo_points.deficit 
+							for i = 1, #enemies.yards30 do
+								local thisUnit = enemies.yards30[i]
+								if (multidot or (UnitIsUnit(thisUnit,units.dyn5) and not multidot)) then
+									if ttd(thisUnit) < comboDeficit then
+										if cast.markedForDeath(thisUnit) then return end
+									end
+								end
 							end
 						end
 					end

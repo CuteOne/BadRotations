@@ -567,7 +567,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
         end
 
         function useCleave()
-            if self.mode.cleave == 1 and self.mode.rotation < 3 then
+            if self.mode.cleave == 1 then --and self.mode.rotation < 3 then
                 return true
             else
                 return false

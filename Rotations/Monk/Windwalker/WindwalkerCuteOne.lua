@@ -502,7 +502,7 @@ if select(2, UnitClass("player")) == "MONK" then
                 if isBoss("target") and isValidUnit("target") and opener == false then
                     if talent.whirlingDragonPunch and talent.energizingElixir then
                         -- TP -> TOD -> SEF+RSK -> EE+FoF -> SotW -> TP -> WDP with RSK coming off CD soon
-                        if (isChecked("Pre-Pull Timer") and pullTimer <= getOptionValue("Pre-Pull Timer") and not inCombat) or not isChecked("Pre-Pull Timer") or inCombat then
+                        if (isChecked("Pre-Pull Timer") and pullTimer <= getOptionValue("Pre-Pull Timer") and not inCombat) or not isChecked("Pre-Pull Timer") then
             -- Chi Wave (Out of Range)
                             if not OoRchiWave then
                                 if (not castable.chiWave and (cd.chiWave == 0 or cd.chiWave > gcd)) or getDistance("target") < 25 then
@@ -1118,6 +1118,10 @@ if select(2, UnitClass("player")) == "MONK" then
     --- Opener Rotation ---
     -----------------------
                 if opener == false and isChecked("Opener") and isBoss("target") then
+                    if isChecked("Pre-Pull Timer") and inCombat then
+                        opener = true;
+                        return
+                    end
                     if actionList_Opener() then return end
                 end
     --------------------------

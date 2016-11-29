@@ -1889,6 +1889,11 @@ function hasNoControl(spellID,unit)
 		end
 		-- Paladin
 		if class == 2 then
+			if spellID == 1044 
+				and (text == LOSS_OF_CONTROL_DISPLAY_ROOT or text == LOSS_OF_CONTROL_DISPLAY_SNARE) 
+			then
+				return true
+			end
 		end
 		-- Hunter
 		if class == 3 then
@@ -1961,14 +1966,18 @@ function hasNoControl(spellID,unit)
 	return false
 end
 function getSpellCost(spell)
-  local t = GetSpellPowerCost(spell)
-  if not t then
-    return 0
-  elseif not t[1]["minCost"] then
-    return 0
-  else
-    return t[1]["minCost"], t[1]["cost"], t[1]["type"]
-  end
+	local t = GetSpellPowerCost(spell)
+	if not t then
+		return 0
+	elseif not t[1]["minCost"] then
+		return 0
+	elseif not t[2] then
+		return t[1]["minCost"], t[1]["cost"], t[1]["type"]
+	elseif not t[2]["minCost"] then
+		return t[1]["minCost"], t[1]["cost"], t[1]["type"]
+	else
+		return t[1]["minCost"], t[1]["cost"], t[1]["type"], t[2]["minCost"], t[2]["cost"]
+	end
 end
 
 function hasResources(spell,offset)
