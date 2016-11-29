@@ -462,7 +462,7 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                         if not DE1 then
                             castOpener("demonicEmpowerment","DE1",1)
                     -- Potion
-                        potion,name=deadly_grace
+                        -- potion,name=deadly_grace
                         elseif useCDs() and canUse(127843) and isChecked("Potion") and getDistance("target") < 15 then
                             print("Potion Used!");
                             useItem(127843)
