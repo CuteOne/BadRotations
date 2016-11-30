@@ -256,6 +256,7 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                     return
                 end
             end
+
 	--------------------
 	--- Action Lists ---
 	--------------------
@@ -365,7 +366,11 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                 if not (IsFlying() or IsMounted()) and not talent.grimoireOfSupremacy and (not talent.grimoireOfSacrifice or not buff.demonicPower.exists) then
                     if (activePetId == 0 or activePetId ~= summonId) and (lastSpell ~= castSummonId or activePetId ~= summonId) then
                         if summonPet == 1 then
-                            if cast.summonImp() then castSummonId = spell.summonImp; return end
+                            if isKnown(spell.summonFelImp) then
+                                if cast.summonFelImp() then castSummonId = spell.summonFelImp; return end
+                            else  
+                                if cast.summonImp() then castSummonId = spell.summonImp; return end
+                            end
                         end
                         if summonPet == 2 then
                             if cast.summonVoidwalker() then castSummonId = spell.summonVoidwalker; return end

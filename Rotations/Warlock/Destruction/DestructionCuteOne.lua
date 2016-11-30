@@ -257,7 +257,19 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                 else
                     return
                 end
+            end  
+
+            local hasHavoc
+            hasHavoc = false
+            if #enemies.yards40 > 0 then
+                for i = 1, #enemies.yards40 do
+                    local thisUnit = enemies.yards40[i]
+                    if debuff.havoc[thisUnit] ~= nil then
+                        if debuff.havoc[thisUnit].exists then hasHavoc = true; break end
+                    end
+                end
             end
+
 	--------------------
 	--- Action Lists ---
 	--------------------
@@ -367,7 +379,11 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                 if not (IsFlying() or IsMounted()) and not talent.grimoireOfSupremacy and (not talent.grimoireOfSacrifice or not buff.demonicPower.exists) then
                     if (activePetId == 0 or activePetId ~= summonId) and (lastSpell ~= castSummonId or activePetId ~= summonId) then
                         if summonPet == 1 then
-                            if cast.summonImp() then castSummonId = spell.summonImp; return end
+                            if isKnown(spell.summonFelImp) then
+                                if cast.summonFelImp() then castSummonId = spell.summonFelImp; return end
+                            else  
+                                if cast.summonImp() then castSummonId = spell.summonImp; return end
+                            end
                         end
                         if summonPet == 2 then
                             if cast.summonVoidwalker() then castSummonId = spell.summonVoidwalker; return end
@@ -496,18 +512,20 @@ if select(2, UnitClass("player")) == "WARLOCK" then
             -- Havoc
                         -- havoc,target=2,if=active_enemies>1&active_enemies<6&!debuff.havoc.remains
                         -- havoc,target=2,if=active_enemies>1&!talent.wreak_havoc.enabled&talent.roaring_blaze.enabled&!debuff.roaring_blaze.remains
-                        if  #enemies.yards40 > 1 then
-                            for i = 1, #enemies.yards40 do
-                                local thisUnit = enemies.yards40[i]
-                                if not UnitIsUnit(thisUnit,"target") then
-                                    if debuff.havoc[thisUnit] ~= nil then
-                                        if #enemies.yards40 < 6 and not debuff.havoc[thisUnit].exists then
-                                            if cast.havoc(thisUnit) then return end
+                        if not hasHavoc then
+                            if  #enemies.yards40 > 1 then
+                                for i = 1, #enemies.yards40 do
+                                    local thisUnit = enemies.yards40[i]
+                                    if not UnitIsUnit(thisUnit,"target") then
+                                        if debuff.havoc[thisUnit] ~= nil then
+                                            if #enemies.yards40 < 6 and not debuff.havoc[thisUnit].exists then
+                                                if cast.havoc(thisUnit) then return end
+                                            end
                                         end
-                                    end
-                                    if debuff.roaringBlaze[thisUnit] ~= nil then
-                                        if not talent.wreakHavoc and talent.roaringBlaze and not debuff.roaringBlaze[thisUnit].exists then -- Custom Debuff
-                                            if cast.havoc(thisUnit) then return end
+                                        if debuff.roaringBlaze[thisUnit] ~= nil then
+                                            if not talent.wreakHavoc and talent.roaringBlaze and not debuff.roaringBlaze[thisUnit].exists then -- Custom Debuff
+                                                if cast.havoc(thisUnit) then return end
+                                            end
                                         end
                                     end
                                 end
@@ -664,20 +682,24 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                         end
             -- Havoc
                         -- havoc,if=active_enemies=1&talent.wreak_havoc.enabled&equipped.132375&!debuff.havoc.remains
-                        if debuff.havoc[units.dyn40] ~= nil then
+                        if not hasHavoc and debuff.havoc[units.dyn40] ~= nil then
                             if #enemies.yards40 == 1 and talent.wreakHavoc and hasEquiped(132375) and not debuff.havoc[units.dyn40].exists then
                                 if cast.havoc(units.dyn40) then return end
                             end
                         end
             -- Rain of Fire
-                        -- rain_of_fire,if=active_enemies>=4&cooldown.havoc.remains<=12&!talent.wreak_havoc.enabled
-                        if #enemies.yards8t >= 4 and cd.havoc <= 12 and not talent.wreakHavoc then
+                        -- rain_of_fire,if=active_enemies>=3
+                        if #enemies.yards8t >= 3 then
                             if cast.rainOfFire(units.dyn40,"ground") then return end
                         end
-                        -- rain_of_fire,if=active_enemies>=6&talent.wreak_havoc.enabled
-                        if #enemies.yards8t >= 4 and talent.wreakHavoc then
-                            if cast.rainOfFire(units.dyn40,"ground") then return end
-                        end
+                        -- -- rain_of_fire,if=active_enemies>=4&cooldown.havoc.remains<=12&!talent.wreak_havoc.enabled
+                        -- if #enemies.yards8t >= 4 and cd.havoc <= 12 and not talent.wreakHavoc then
+                        --     if cast.rainOfFire(units.dyn40,"ground") then return end
+                        -- end
+                        -- -- rain_of_fire,if=active_enemies>=6&talent.wreak_havoc.enabled
+                        -- if #enemies.yards8t >= 4 and talent.wreakHavoc then
+                        --     if cast.rainOfFire(units.dyn40,"ground") then return end
+                        -- end
             -- Dimensional Rift
                         -- dimensional_rift
                         if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()) then
