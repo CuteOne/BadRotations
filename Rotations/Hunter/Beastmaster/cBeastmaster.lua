@@ -1,133 +1,93 @@
 --- Beastmaster Class
 -- Inherit from: ../cCharacter.lua and ../cHunter.lua
--- All Paladin specs inherit from cHunter.lua
-if select(3, UnitClass("player")) == 3 then
+cBeastmaster = {}
+cBeastmaster.rotations = {}
 
-    cBeastmaster = {}
-    -- Contains the rotations
-    cBeastmaster.rotations = {}
-
-    -- Creates Beastmaster Hunter
-    function cBeastmaster:new()
+-- Creates Beastmaster Hunter
+function cBeastmaster:new()
+    if GetSpecializationInfo(GetSpecialization()) == 253 then
         local self = cHunter:new("Beastmaster")
 
         local player = "player" -- if someone forgets ""
 
         -- Mandatory !
         self.rotations = cBeastmaster.rotations
+        
+    -----------------
+    --- VARIABLES ---
+    -----------------
 
-        self.cast = {}
-        self.enemies = {
+        self.spell.spec                 = {}
+        self.spell.spec.abilities       = {
+
 
         }
-        self.beastmasterSpell = {
+        self.spell.spec.artifacts       = {}
+        self.spell.spec.buffs           = {
 
         }
+        self.spell.spec.debuffs         = {
 
-        -- Merge all spell tables into self.spell
-        self.spell = {}
-        self.spell = mergeSpellTables(self.spell, self.characterSpell, self.hunterSpell, self.beastmasterSpell)
+        }
+        self.spell.spec.glyphs          = {}
+        self.spell.spec.talents         = {}
+        -- Merge all spell ability tables into self.spell
+        self.spell = mergeSpellTables(self.spell, self.characterSpell, self.spell.class.abilities, self.spell.spec.abilities)
+        
+    ------------------
+    --- OOC UPDATE ---
+    ------------------
 
-
-        -- Update OOC
         function self.updateOOC()
             -- Call classUpdateOOC()
             self.classUpdateOOC()
-
-            self.getGlyphs()
-            self.getTalents()
         end
 
-        -- Update
+    --------------
+    --- UPDATE ---
+    --------------
+
         function self.update()
+
+            -- Call Base and Class update
             self.classUpdate()
             -- Updates OOC things
             if not UnitAffectingCombat("player") then self.updateOOC() end
-            self.getBuffs()
-            self.getCooldowns()
-            self.getDynamicUnits()
-            self.getEnemies()
-            self.getOptions()
-
-            -- Casting and GCD check
-            -- TODO: -> does not use off-GCD stuff like pots, dp etc
-            if UnitCastingInfo("player") ~= nil or UnitChannelInfo("player") ~= nil then
-                return
-            end
-
+            cFileBuild("spec",self)
+            self.getToggleModes()
 
             -- Start selected rotation
             self:startRotation()
         end
 
+    ---------------
+    --- TOGGLES ---
+    ---------------
 
-
-        -- Buff updates
-        function self.getBuffs()
-            local getBuffRemain,UnitBuffID = getBuffRemain,UnitBuffID
-
-        end
-
-        -- Cooldown updates
-        function self.getCooldowns()
-            local getSpellCD = getSpellCD
-
-        end
-
-        -- Glyph updates
-        function self.getGlyphs()
-            local hasGlyph = hasGlyph
-
-        end
-
-        -- Talent updates
-        function self.getTalents()
-            local isKnown = isKnown
-
-        end
-
-        -- Update Dynamic units
-        function self.getDynamicUnits()
-            local dynamicTarget = dynamicTarget
-
-            -- Throttle dynamic target updating
-            if br.timer:useTimer("dynTarUpdate", self.dynTargetTimer) then
-                -- Normal
-
-                -- AoE
-            end
-        end
-
-        -- Update Number of Enemies around player
-        function self.getEnemies()
-            local getEnemies = getEnemies
-
-        end
-
-        -- Updates toggle data
         function self.getToggleModes()
 
-            self.mode.aoe       = br.data["AoE"]
-            self.mode.cooldowns = br.data["Cooldowns"]
+            self.mode.rotation  = br.data["Rotation"]
+            self.mode.cooldown  = br.data["Cooldown"]
             self.mode.defensive = br.data["Defensive"]
+            self.mode.interrupt = br.data["Interrupt"]
         end
-
-        ---------------------------------------------------------------
-        -------------------- OPTIONS ----------------------------------
-        ---------------------------------------------------------------
 
         -- Create the toggle defined within rotation files
         function self.createToggles()
             GarbageButtons()
-
-            self.rotations[br.selectedProfile].toggles()
+            if self.rotations[br.selectedProfile] ~= nil then
+                self.rotations[br.selectedProfile].toggles()
+            else
+                return
+            end
         end
 
+    ---------------
+    --- OPTIONS ---
+    ---------------
+        
         -- Creates the option/profile window
-        -- you should not need to do anything here
-        -- todo: check if its possible to put that into cCharacter to remove redundancy
         function self.createOptions()
-            -- Create Profile Window
             br.ui.window.profile = br.ui:createProfileWindow(self.profile)
 
             -- Get the names of all profiles and create rotation dropdown
@@ -148,34 +108,50 @@ if select(3, UnitClass("player")) == 3 then
                     [2] = self.createClassOptions,
                 },
             }
+
             -- Get profile defined options
-            local profileTable = self.rotations[br.selectedProfile].options()
+            local profileTable = profileTable
+            if self.rotations[br.selectedProfile] ~= nil then
+                profileTable = self.rotations[br.selectedProfile].options()
+            else
+                return
+            end
+
             -- Only add profile pages if they are found
             if profileTable then
                 insertTableIntoTable(optionTable, profileTable)
             end
+
             -- Create pages dropdown
             br.ui:createPagesDropdown(br.ui.window.profile, optionTable)
-
             br:checkProfileWindowStatus()
         end
 
-        -- todo: -> get the info within profile file, as they are rotation dependend
-        function self.getOptions()
-
+    ------------------------
+    --- CUSTOM FUNCTIONS ---
+    ------------------------
+        --Target HP
+        function thp(unit)
+            return getHP(unit)
         end
 
-        ---------------------------------------------------------------
-        -------------------- Spell functions --------------------------
-        ---------------------------------------------------------------
+        --Target Time to Die
+        function ttd(unit)
+            return getTimeToDie(unit)
+        end
 
-        -- Avenger's Shield
-        --function self.cast.AvengersShield()
-        --    return castSpell(self.units.dyn30,self.spell.avengersShield,false,false) == true or false
-        --end
+        --Target Distance
+        function tarDist(unit)
+            return getDistance(unit)
+        end
 
+        
+
+    -----------------------------
+    --- CALL CREATE FUNCTIONS ---
+    -----------------------------
 
         -- Return
         return self
-    end
-end
+    end-- cBeastmaster
+end-- select Druid

@@ -502,7 +502,7 @@ if select(2, UnitClass("player")) == "MONK" then
                 if isBoss("target") and isValidUnit("target") and opener == false then
                     if talent.whirlingDragonPunch and talent.energizingElixir then
                         -- TP -> TOD -> SEF+RSK -> EE+FoF -> SotW -> TP -> WDP with RSK coming off CD soon
-                        if (isChecked("Pre-Pull Timer") and pullTimer <= getOptionValue("Pre-Pull Timer") and not inCombat) or not isChecked("Pre-Pull Timer") or inCombat then
+                        if (isChecked("Pre-Pull Timer") and pullTimer <= getOptionValue("Pre-Pull Timer") and not inCombat) or not isChecked("Pre-Pull Timer") then
             -- Chi Wave (Out of Range)
                             if not OoRchiWave then
                                 if (not castable.chiWave and (cd.chiWave == 0 or cd.chiWave > gcd)) or getDistance("target") < 25 then
@@ -1102,23 +1102,6 @@ if select(2, UnitClass("player")) == "MONK" then
             elseif (inCombat and profileStop==true) or pause() or (IsMounted() or IsFlying()) or mode.rotation==4 then
                 return true
             else
-    ---------------------
-    --- Queued Soells ---
-    ---------------------
-                if isChecked("Queue Casting") and #queue > 0 then
-                    castQueue()
-                    return
-                end
-                -- if isChecked("Queue Casting") and #queue > 0 then
-                --     local thisUnit = queue[1].target
-                --     if thisUnit == "player" or IsHarmfulSpell(spellName) or IsHelpfulSpell(spellName) or thisUnit == nil then
-                --         if thisUnit == nil then thisUnit = "player" end
-                --         castSpell(thisUnit,spellCast,false,false,false)
-                --     else
-                --         castGround(thisUnit,spellCast,maxRange,minRange)
-                --     end
-                --     -- if castSpell(queue[1].target,queue[1].id,false,false,false) then return end
-                -- end
     -----------------------
     --- Extras Rotation ---
     -----------------------
@@ -1135,6 +1118,10 @@ if select(2, UnitClass("player")) == "MONK" then
     --- Opener Rotation ---
     -----------------------
                 if opener == false and isChecked("Opener") and isBoss("target") then
+                    if isChecked("Pre-Pull Timer") and inCombat then
+                        opener = true;
+                        return
+                    end
                     if actionList_Opener() then return end
                 end
     --------------------------

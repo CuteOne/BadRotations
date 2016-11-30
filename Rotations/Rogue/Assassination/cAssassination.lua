@@ -200,6 +200,7 @@ function cAssassination:new()
                 self.buff.duration[k]   = getBuffDuration("player",v) or 0
                 self.buff.remain[k]     = getBuffRemain("player",v) or 0
                 self.buff.refresh[k]    = (self.buff.remain[k] < self.buff.duration[k] * 0.3) or self.buff.remain[k] == 0
+                self.buff.stack[k]      = getBuffStacks("player",v,"player") or 0
             end
         end
 

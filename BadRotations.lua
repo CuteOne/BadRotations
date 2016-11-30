@@ -210,8 +210,8 @@ function br:Run()
         end
 
 	end
-	SLASH_BRHelp1 = "/brHelp"
-	function SlashCmdList.brHelp(msg, editbox)
+	SLASH_BRHelp1 = "/BRHelp"
+	function SlashCmdList.BRHelp(msg, editbox)
 		-- print(tostring(commandHelp))
 		SlashCommandHelp("Print Help")
 	end
@@ -256,6 +256,17 @@ function br:Run()
 					print("|cffFFDD11"..mouseoverName.. "|cffFF0000 Added to Blacklist")
 					tinsert(br.data.blackList, { guid = mouseoverGUID, name = mouseoverName})
 				end
+			end
+		end
+	end
+	SLASH_Queue1 = "/queue"
+	SlashCommandHelp("Queue clear","Clears the Spell Queue of all queued spells.")
+	function SlashCmdList.Queue(msg, editbox)
+		if br.player ~= nil then
+			if msg == "clear" then
+				if br.player.queue == nil then print("Queue Already Cleared") end
+				if #br.player.queue == 0 then print("Queue Already Cleared") end
+				if #br.player.queue > 0 then br.player.queue = {}; print("Cleared Queue") end
 			end
 		end
 	end
@@ -358,5 +369,16 @@ function br:PulseUI()
 	-- PokeEngine()
 	ProfessionHelper()
 	SalvageHelper()
+	-- Queue Casting
+	if isChecked("Queue Casting") and not UnitChannelInfo("player") then
+		if br.player ~= nil then
+			if br.player.queue ~= nil then
+				if #br.player.queue > 0 and br.player.queue[1].id ~= lastSpellCast then
+				    castQueue();
+				    return
+				end
+			end
+		end
+	end
 end
 

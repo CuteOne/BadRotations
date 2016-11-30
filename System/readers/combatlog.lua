@@ -137,6 +137,7 @@ function br.read.combatLog()
                         tinsert(br.player.queue,{id = spell, name = spellName, target = queueDest})
                         print("Added "..spellName.." to the queue.")
                         -- print(tostring(queueDest))
+                        -- print(spell.." | "..lastSpellCast)
                     elseif #br.player.queue ~= 0 then
                         for i = 1, #br.player.queue do
                             if spell == br.player.queue[i].id then
@@ -146,6 +147,7 @@ function br.read.combatLog()
                                 tinsert(br.player.queue,{id = spell, name = spellName, target = queueDest})
                                 print("Added "..spellName.." to the queue.")
                                 -- print(tostring(queueDest))
+                                -- print(spell.." | "..lastSpellCast)
                                 break
                             end
                         end

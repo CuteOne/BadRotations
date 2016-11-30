@@ -752,9 +752,6 @@ function castSpell(Unit,SpellID,FacingCheck,MovementCheck,SpamAllowed,KnownSkip,
 								timersTable[SpellID] = GetTime()
 								currentTarget = UnitGUID(Unit)
 								CastSpellByName(GetSpellInfo(SpellID),Unit)
-								local X,Y,Z = GetObjectPosition(Unit)
-								--local distanceToGround = getGroundDistance(Unit) or 0
-								-- ClickPosition(X,Y,Z) --distanceToGround
 								--lastSpellCast = SpellID
 								-- change main button icon
 								if getOptionCheck("Start/Stop BadRotations") then
@@ -772,9 +769,6 @@ function castSpell(Unit,SpellID,FacingCheck,MovementCheck,SpamAllowed,KnownSkip,
 					else
 						currentTarget = UnitGUID(Unit)
 						CastSpellByName(GetSpellInfo(SpellID),Unit)
-						local X,Y,Z = GetObjectPosition(Unit)
-						--local distanceToGround = getGroundDistance(Unit) or 0
-						-- ClickPosition(X,Y,Z) --distanceToGround
 						if getOptionCheck("Start/Stop BadRotations") then
 							mainButton:SetNormalTexture(select(3,GetSpellInfo(SpellID)))
 							lastSpellCast = SpellID
@@ -788,6 +782,7 @@ function castSpell(Unit,SpellID,FacingCheck,MovementCheck,SpamAllowed,KnownSkip,
 	end
 	return false
 end
+-- Cast Spell Queue
 function castQueue()
 	local spellCast = br.player.queue[1].id
     local spellName = GetSpellInfo(br.player.queue[1].id)
@@ -1894,6 +1889,11 @@ function hasNoControl(spellID,unit)
 		end
 		-- Paladin
 		if class == 2 then
+			if spellID == 1044 
+				and (text == LOSS_OF_CONTROL_DISPLAY_ROOT or text == LOSS_OF_CONTROL_DISPLAY_SNARE) 
+			then
+				return true
+			end
 		end
 		-- Hunter
 		if class == 3 then
@@ -1966,14 +1966,18 @@ function hasNoControl(spellID,unit)
 	return false
 end
 function getSpellCost(spell)
-  local t = GetSpellPowerCost(spell)
-  if not t then
-    return 0
-  elseif not t[1]["minCost"] then
-    return 0
-  else
-    return t[1]["minCost"], t[1]["cost"], t[1]["type"]
-  end
+	local t = GetSpellPowerCost(spell)
+	if not t then
+		return 0
+	elseif not t[1]["minCost"] then
+		return 0
+	elseif not t[2] then
+		return t[1]["minCost"], t[1]["cost"], t[1]["type"]
+	elseif not t[2]["minCost"] then
+		return t[1]["minCost"], t[1]["cost"], t[1]["type"]
+	else
+		return t[1]["minCost"], t[1]["cost"], t[1]["type"], t[2]["minCost"], t[2]["cost"]
+	end
 end
 
 function hasResources(spell,offset)
@@ -2608,6 +2612,7 @@ function pause(skipCastingCheck)
 	else
 		pausekey = SpecificToggle("Pause Mode")
 	end
+	-- DPS Testing
 	if isChecked("DPS Testing") then
 		if GetObjectExists("target") and isInCombat("player") then
 			if getCombatTime() >= (tonumber(getOptionValue("DPS Testing"))*60) and isDummy() then
@@ -2626,10 +2631,12 @@ function pause(skipCastingCheck)
 			end
 		end
 	end
+	-- Pause Toggle
 	if br.data['Pause'] == 1 then
 		ChatOverlay("\124cFFED0000 -- Paused -- ")
 		return true
 	end
+	-- Pause Hold/Auto
 	if (pausekey and GetCurrentKeyBoardFocus() == nil and isChecked("Pause Mode"))
 		or profileStop
 		or (IsMounted() and (ObjectExists("target") and GetObjectID("target") ~= 56877) and not UnitBuffID("player",164222) and not UnitBuffID("player",165803) and not UnitBuffID("player",157059) and not UnitBuffID("player",157060))
@@ -2653,7 +2660,7 @@ function pause(skipCastingCheck)
 			if UnitExists("pet") and UnitAffectingCombat("pet") then PetFollow() end
 			return true
 		end
-	else 
+	else
 		return false
 	end
 end
