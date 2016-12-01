@@ -143,6 +143,12 @@ function cFileBuild(cFileName,self)
                     self.debuff[k][thisUnit].refresh        = self.debuff[k][thisUnit].remain <= self.debuff[k][thisUnit].duration * 0.3
                     self.debuff[k][thisUnit].stack          = getDebuffStacks(thisUnit,v,"player")
                     self.debuff[k][thisUnit].calc           = self.getSnapshotValue(v)
+                else
+                    self.debuff[k][thisUnit].duration       = 0
+                    self.debuff[k][thisUnit].remain         = 0
+                    self.debuff[k][thisUnit].refresh        = true
+                    self.debuff[k][thisUnit].stack          = 0
+                    self.debuff[k][thisUnit].calc           = 0
                 end
                 if UnitIsUnit(thisUnit,"target") then self.debuff[k]["target"] = self.debuff[k][thisUnit] end
             -- end
