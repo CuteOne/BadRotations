@@ -30,6 +30,7 @@ if select(2, UnitClass("player")) == "WARLOCK" then
             soulHarvest                     = 196098,
             summonDoomguard                 = 18540,
             summonFelhunter                 = 691,
+            summonFelImp                    = 688,
             summonImp                       = 688,
             summonInfernal                  = 1122,
             summonSuccubus                  = 712,
@@ -47,7 +48,7 @@ if select(2, UnitClass("player")) == "WARLOCK" then
 
         }
         self.spell.class.glyphs         	= {        -- Glyphs Available To All Specs in Class
-
+            glyphOfTheFelImp                = 219424,
         }
         self.spell.class.talents        	= {        -- Talents Available To All Specs in Class
             burningRush                     = 111400,

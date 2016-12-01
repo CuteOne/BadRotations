@@ -232,6 +232,17 @@ function EnemiesEngine()
 			return { }
 		end
 	end
+	function getTableEnemies(unit,Range,table)
+		local getTableEnemies = { }
+		if table == nil then return getTableEnemies end
+		for i = 1, #table do
+			local thisUnit = table[i]
+            if getDistance(unit,thisUnit) <= Range then
+                tinsert(getTableEnemies,thisUnit)
+            end
+		end
+		return getTableEnemies
+	end
 	-- returns true if unit have an Offensive Buff that we should dispel
 	function getOffensiveBuffs(unit,guid)
 		if GetObjectExists(unit) then

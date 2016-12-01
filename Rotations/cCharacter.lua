@@ -328,6 +328,17 @@ function cCharacter:new(class)
 
 -- Sets the racial
 	function self.getRacial()
+		if self.race == "BloodElf" then
+			if self.class == "WARRIOR" then BloodElfRacial = 69179 end
+			if self.class == "MONK" then BloodElfRacial = 129597 end
+			if self.class == "MAGE" or self.class == "WARLOCK" then BloodElfRacial = 28730 end
+			if self.class == "DEATHKNIGHT" then BloodElfRacial = 50613 end
+			if self.class == "HUNTER" then BloodElfRacial = 80483 end
+			if self.class == "PALADIN" then BloodElfRacial = 155145 end
+			if self.class == "PRIEST" then BloodElfRacial = 232633 end
+			if self.class == "ROGUE" then BloodElfRacial = 25046 end
+			if self.class == "DEMONHUNTER" then BloodElfRacial = 202719 end
+		end
 		local racialSpells = {
 			-- Alliance
 			Dwarf    = 20594, -- Stoneform
@@ -337,7 +348,7 @@ function cCharacter:new(class)
 			NightElf = 58984, -- Shadowmeld
 			Worgen   = 68992, -- Darkflight
 			-- Horde
-			BloodElf = 129597, -- Arcane Torrent
+			BloodElf = BloodElfRacial, -- Arcane Torrent
 			Goblin   = 69041, -- Rocket Barrage
 			Orc      = 33702, -- Blood Fury
 			Tauren   = 20549, -- War Stomp
