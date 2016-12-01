@@ -270,6 +270,7 @@ function EnemiesEngine()
 	end
 	-- This function will set the prioritisation of the units, ie which target should i attack
 	function getUnitCoeficient(unit,distance,threat,burnValue,shieldValue)
+		if threat == nil then threat = UnitThreatSituation("player",thisUnit) or -1 end
 		local coef = 0
 		if distance == nil then distance = getDistance("player",unit) end
 		-- check if unit is valid
