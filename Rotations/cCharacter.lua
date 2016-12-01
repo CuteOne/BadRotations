@@ -335,8 +335,9 @@ function cCharacter:new(class)
 			if self.class == "DEATHKNIGHT" then BloodElfRacial = 50613 end
 			if self.class == "HUNTER" then BloodElfRacial = 80483 end
 			if self.class == "PALADIN" then BloodElfRacial = 155145 end
+			if self.class == "PRIEST" then BloodElfRacial = 232633 end
 			if self.class == "ROGUE" then BloodElfRacial = 25046 end
-			if self.class == "DEMONUNTER" then BloodElfRacial = 202719 end
+			if self.class == "DEMONHUNTER" then BloodElfRacial = 202719 end
 		end
 		local racialSpells = {
 			-- Alliance
