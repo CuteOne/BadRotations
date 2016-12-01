@@ -29,6 +29,7 @@ function cAffliction:new()
         	phantomSingularity 			= 205179,
         	reapSouls 					= 216698,
         	seedOfCorruption 			= 27243,
+            shadowBolt                  = 232670,
         	siphonLife 					= 63106,
         	soulEffigy 					= 205178,
         	unstableAffliction 			= 30108,
