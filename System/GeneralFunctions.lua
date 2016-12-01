@@ -1698,8 +1698,10 @@ function round2(num,idp)
 	return math.floor(num * mult + 0.5) / mult
 end
 -- if getTalent(8) == true then
-function getTalent(Row,Column)
-	return select(4,GetTalentInfo(Row,Column,GetActiveSpecGroup())) or false
+function getTalent(Row,Column,specGroup)
+	if specGroup == nil then specGroup = GetActiveSpecGroup() end
+	local _,_,_,selected = GetTalentInfo(Row,Column,specGroup)
+	return selected or false
 end
 -- if getTimeToDie("target") >= 6 then
 function getTimeToDie(unit)
@@ -2538,7 +2540,7 @@ function isValidUnit(Unit)
 	local dummy = isDummy(Unit) ~= nil
 	local canAttackUnit = UnitCanAttack("player",Unit)
 	local canAttackPlayer = UnitCanAttack(Unit,"player")
-	local inAggroRange = getDistance(Unit) < 20
+	local inAggroRange = getDistance(Unit) <= 40
 	local trivial = UnitCreatureType(Unit) == "Critter" or UnitCreatureType(Unit) == "Non-combat Pet" or UnitCreatureType(Unit) == "Gas Cloud" or UnitCreatureType(Unit) == "Wild Pet"
 	if ObjectExists(Unit) and not UnitIsDeadOrGhost(Unit) and not UnitIsFriend(Unit, "player") 
 		and not trivial and (threat or dummy or (not threat and canAttackUnit and (myTarget or inAggroRange))) 

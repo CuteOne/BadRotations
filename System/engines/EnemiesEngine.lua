@@ -27,7 +27,7 @@ function EnemiesEngine()
 		--local LibDraw = LibStub("LibDraw-1.0")
 		local  maxDistance = maxDistance or 50
 		if br.enemy then cleanupEngine() end
-		if br.enemy == nil or br.enemy.timer == nil or br.enemy.timer <= GetTime() - 1 then
+		if br.enemy == nil or br.enemy.timer == nil or br.enemy.timer <= GetTime() - 0.1 then
             local startTime
             if br.data["isDebugging"] == true then
                 startTime = debugprofilestop()
@@ -65,9 +65,9 @@ function EnemiesEngine()
 						--local targetX, targetY, targetZ =  GetObjectPosition(thisUnit)
 						--LibDraw.Line(playerX, playerY, playerZ, targetX, targetY, targetZ)
 						--end
-						local unitDistance = getDistance("player",thisUnit)
+						-- local unitDistance = getDistance("player",thisUnit)
 						-- distance check according to profile needs
-						if unitDistance <= maxDistance then
+						-- if unitDistance <= maxDistance then
 							-- get unit Infos
 							local safeUnit = isSafeToAttack(thisUnit)
 							local burnValue = isBurnTarget(thisUnit) or 0
@@ -75,9 +75,9 @@ function EnemiesEngine()
 							local unitID = GetObjectID(thisUnit)
 							local unitGUID = UnitGUID(thisUnit)
 							local shouldCC = isCrowdControlCandidates(thisUnit)
-							local unitThreat = UnitThreatSituation("player",thisUnit) or -1
+							-- local unitThreat = UnitThreatSituation("player",thisUnit) or -1
 							local shieldValue = isShieldedTarget(thisUnit) or 0
-							local X1,Y1,Z1 = GetObjectPosition(thisUnit)
+							-- local X1,Y1,Z1 = GetObjectPosition(thisUnit)
 							local unitCoeficient = getUnitCoeficient(thisUnit,unitDistance,unitThreat,burnValue,shieldValue) or 0
 							local unitHP = getHP(thisUnit)
 							local inCombat = UnitAffectingCombat(thisUnit)
@@ -96,23 +96,23 @@ function EnemiesEngine()
 									cc = shouldCC,
 									isCC = longTimeCC,
 									facing = getFacing("player",thisUnit),
-									threat = unitThreat,
+									-- threat = unitThreat,
 									unit = thisUnit,
-									distance = unitDistance,
+									-- distance = unitDistance,
 									hp = unitHP,
 									hpabs = UnitHealth(thisUnit),
 									safe = safeUnit,
 									burn = burnUnit,
 									offensiveBuff = shouldDispel,
-									ttd = getTTD(thisUnit),
+									-- ttd = getTTD(thisUnit),
 									-- Here should track inc damage / healing as well in order to get a timetodie value
 									-- we would need a more static design
-									x = X1,
-									y = Y1,
-									z = Z1,
+									-- x = X1,
+									-- y = Y1,
+									-- z = Z1,
 								}
 							)
-						end
+						-- end
                     end
 				end
 			end
@@ -147,8 +147,9 @@ function EnemiesEngine()
 			local bestUnit = "target"
 			for i = 1, #br.enemy do
 				local thisUnit = br.enemy[i]
+				local thisDistance = getDistance("player",thisUnit)
 				if GetObjectExists(thisUnit.unit) then
-					if (not safeCheck or thisUnit.safe) and thisUnit.isCC == false and thisUnit.distance < range and (facing == false or thisUnit.facing == true) then
+					if (not safeCheck or thisUnit.safe) and thisUnit.isCC == false and thisDistance < range and (facing == false or thisUnit.facing == true) then
 						if thisUnit.coeficient >= 0 and thisUnit.coeficient >= bestUnitCoef then
 							bestUnitCoef = thisUnit.coeficient
 							bestUnit = thisUnit.unit
@@ -214,10 +215,11 @@ function EnemiesEngine()
 			local getEnemiesTable = { }
 			for i = 1, #br.enemy do
 				local thisUnit = br.enemy[i].unit
+				local thisDistance = getDistance("player",thisUnit)
 				-- check if unit is valid
 				if GetObjectExists(thisUnit) and (not InCombat or br.enemy[i].inCombat) then
                     if unit == "player" and not precise then
-                        if br.enemy[i].distance <= Radius then
+                        if thisDistance <= Radius then
                             tinsert(getEnemiesTable,thisUnit)
                         end
                     else
@@ -269,6 +271,7 @@ function EnemiesEngine()
 	-- This function will set the prioritisation of the units, ie which target should i attack
 	function getUnitCoeficient(unit,distance,threat,burnValue,shieldValue)
 		local coef = 0
+		if distance == nil then distance = getDistance("player",unit) end
 		-- check if unit is valid
 		if GetObjectExists(unit) then
 			-- if unit is out of range, bad prio(0)
