@@ -2543,13 +2543,13 @@ function isValidUnit(Unit)
 	local instance = IsInInstance()
 	local solo = #br.friend == 1 
 	local trivial = UnitCreatureType(Unit) == "Critter" or UnitCreatureType(Unit) == "Non-combat Pet" or UnitCreatureType(Unit) == "Gas Cloud" or UnitCreatureType(Unit) == "Wild Pet"
-	if ObjectExists(Unit) and not UnitIsDeadOrGhost(Unit) and not UnitIsFriend(Unit, "player") and not trivial then
+	if ObjectExists(Unit) and not UnitIsDeadOrGhost(Unit) and not UnitIsFriend(Unit, "player") and canAttackUnit and not trivial then
 		-- Only consider Units that are in 20yrs or I have targeted when not in Combat and not in an Instance.
 		if not combat and not instance and (inAggroRange or myTarget) then return true end
 		-- Only consider Units that I have threat with or I am alone and have targeted when not in Combat and in an Instance.
 		if not combat and instance and (threat or (solo and myTarget)) then return true end 
 		-- Only consider Units that I have threat with or I can attack and have targeted or are dummies within 20yrds when in Combat.
-		if combat and (threat or (canAttackUnit and (myTarget or (dummy and inAggroRange)))) then return true end
+		if combat and (threat or myTarget or (dummy and inAggroRange)) then return true end
 	end
 	return false
 end
