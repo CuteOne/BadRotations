@@ -513,10 +513,10 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                         -- havoc,target=2,if=active_enemies>1&active_enemies<6&!debuff.havoc.remains
                         -- havoc,target=2,if=active_enemies>1&!talent.wreak_havoc.enabled&talent.roaring_blaze.enabled&!debuff.roaring_blaze.remains
                         if not hasHavoc then
-                            if  #enemies.yards40 > 1 then
+                            if  (mode.rotation == 1 and #enemies.yards40 > 1) or mode.rotation == 2 then
                                 for i = 1, #enemies.yards40 do
                                     local thisUnit = enemies.yards40[i]
-                                    if not UnitIsUnit(thisUnit,"target") then
+                                    if not UnitIsUnit(thisUnit,"target") and isValidUnit(thisUnit) then
                                         if debuff.havoc[thisUnit] ~= nil then
                                             if #enemies.yards40 < 6 and not debuff.havoc[thisUnit].exists then
                                                 if cast.havoc(thisUnit) then return end
@@ -546,10 +546,10 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                             end
                         end
                         -- immolate,cycle_targets=1,if=active_enemies>1&remains<=tick_time&!debuff.roaring_blaze.remains&action.conflagrate.charges<2
-                        if #enemies.yards40 > 1 then
+                        if (mode.rotation == 1 and #enemies.yards40 > 1) or mode.rotation == 2 then
                             for i = 1, #enemies.yards40 do
                                 local thisUnit = enemies.yards40[i]
-                                if debuff.immolate[thisUnit] ~= nil and debuff.roaringBlaze[thisUnit] ~= nil then
+                                if isValidUnit(thisUnit) and debuff.immolate[thisUnit] ~= nil and debuff.roaringBlaze[thisUnit] ~= nil then
                                     if debuff.immolate[thisUnit].remain <= 3 and not debuff.roaringBlaze[thisUnit].exists and charges.conflagrate < 2 then
                                         if cast.immolate(thisUnit) then return end
                                     end
@@ -689,7 +689,7 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                         end
             -- Rain of Fire
                         -- rain_of_fire,if=active_enemies>=3
-                        if #enemies.yards8t >= 3 then
+                        if ((mode.rotation == 1 and #enemies.yards8t >= 3) or mode.rotation == 2) then
                             if cast.rainOfFire(units.dyn40,"ground") then return end
                         end
                         -- -- rain_of_fire,if=active_enemies>=4&cooldown.havoc.remains<=12&!talent.wreak_havoc.enabled

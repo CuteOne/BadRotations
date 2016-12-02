@@ -75,7 +75,7 @@ function EnemiesEngine()
 							local unitID = GetObjectID(thisUnit)
 							local unitGUID = UnitGUID(thisUnit)
 							local shouldCC = isCrowdControlCandidates(thisUnit)
-							-- local unitThreat = UnitThreatSituation("player",thisUnit) or -1
+							local unitThreat = UnitThreatSituation("player",thisUnit) or -1
 							local shieldValue = isShieldedTarget(thisUnit) or 0
 							-- local X1,Y1,Z1 = GetObjectPosition(thisUnit)
 							local unitCoeficient = getUnitCoeficient(thisUnit,unitDistance,unitThreat,burnValue,shieldValue) or 0
@@ -96,7 +96,7 @@ function EnemiesEngine()
 									cc = shouldCC,
 									isCC = longTimeCC,
 									facing = getFacing("player",thisUnit),
-									-- threat = unitThreat,
+									threat = unitThreat,
 									unit = thisUnit,
 									-- distance = unitDistance,
 									hp = unitHP,
@@ -270,7 +270,7 @@ function EnemiesEngine()
 	end
 	-- This function will set the prioritisation of the units, ie which target should i attack
 	function getUnitCoeficient(unit,distance,threat,burnValue,shieldValue)
-		if threat == nil then threat = UnitThreatSituation("player",thisUnit) or -1 end
+		if threat == nil then threat = UnitThreatSituation("player",unit) or -1 end
 		local coef = 0
 		if distance == nil then distance = getDistance("player",unit) end
 		-- check if unit is valid
