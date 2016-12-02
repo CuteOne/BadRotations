@@ -152,6 +152,7 @@ if select(2, UnitClass("player")) == "HUNTER" then
             local lowestHP                                      = br.friend[1].unit
             local mode                                          = br.player.mode
             local multidot                                      = (br.player.mode.cleave == 1 or br.player.mode.rotation == 2) and br.player.mode.rotation ~= 3
+            local multishotTargets                              = getEnemies(br.player.units.dyn40,8)
             local perk                                          = br.player.perk        
             local php                                           = br.player.health
             local playerMouse                                   = UnitIsPlayer("mouseover")
@@ -317,14 +318,14 @@ if select(2, UnitClass("player")) == "HUNTER" then
                     local vulnerable = debuff.vulnerable[thisUnit]
                     if huntersMark ~= nil or vulnerable ~= nil then
                         if UnitIsUnit(thisUnit,"target") or hasThreat(thisUnit) or isDummy(thisUnit) then
-                            if (talent.sidewinders and talent.barrage) or huntersMark.remain < 2 or ((vulnerable or talent.sidewinders) and vulnerable.remain < gcd) then
+                            if (talent.sidewinders and talent.barrage) or (huntersMark.exists and huntersMark.remain < 2) or ((vulnerable.exists or talent.sidewinders) and (vulnerable.exists and vulnerable.remain < gcd)) then
                                 if cast.markedShot(thisUnit) then return end
                             end
                         end
                     end
                 end
                 -- actions.patient_sniper+=/windburst,if=talent.sidewinders.enabled&(debuff.hunters_mark.down|(debuff.hunters_mark.remains>execute_time&focus+(focus.regen*debuff.hunters_mark.remains)>=50))|buff.trueshot.up
-                if talent.sidewinders and (not debuff.huntersMark[units.dyn40].exists or (debuff.huntersMark[units.dyn40].remain > ttd(units.dyn40) and power + (powerRegen * debuff.huntersMark[units.dyn40].remain) >= 50)) or buff.trueshot.exists then
+                if talent.sidewinders and (debuff.huntersMark[units.dyn40].exists == false or (debuff.huntersMark[units.dyn40].exists and debuff.huntersMark[units.dyn40].remain > ttd(units.dyn40) and (debuff.huntersMark[units.dyn40].exists and power + powerRegen * debuff.huntersMark[units.dyn40].remain >= 50))) or buff.trueshot.exists then
                     if cast.windburst(units.dyn40) then return end
                 end
                 -- actions.patient_sniper+=/sidewinders,if=buff.trueshot.up&((buff.marking_targets.down&buff.trueshot.remains<2)|(charges_fractional>=1.9&(focus.deficit>70|spell_targets>1)))
@@ -333,11 +334,11 @@ if select(2, UnitClass("player")) == "HUNTER" then
                 --     if cast.sidewinders(units.dyn40) then return end
                 -- end
                 -- actions.patient_sniper+=/multishot,if=buff.marking_targets.up&debuff.hunters_mark.down&variable.use_multishot&focus.deficit>2*spell_targets+gcd*focus.regen
-                if buff.markingTargets.exists and debuff.huntersMark[units.dyn40] == nil and useMultishot and powerDeficit > 2 * #enemies.yards40 + gcd * powerRegen then
+                if buff.markingTargets.exists and debuff.huntersMark[units.dyn40].exists == false and useMultishot and powerDeficit > 2 * #enemies.yards40 + gcd * powerRegen then
                     if cast.multiShot(units.dyn40) then return end
                 end
                 -- actions.patient_sniper+=/aimed_shot,if=buff.lock_and_load.up&buff.trueshot.up&debuff.vulnerability.remains>execute_time
-                if buff.lockAndLoad.exists and buff.trueshot.exists and debuff.vulnerable[units.dyn40].remain > ttd(units.dyn40) then
+                if buff.lockAndLoad.exists and buff.trueshot.exists and (debuff.vulnerable[units.dyn40].exists and debuff.vulnerable[units.dyn40].remain > ttd(units.dyn40)) then
                     if cast.aimedShot(units.dyn40) then return end
                 end
                 -- actions.patient_sniper+=/marked_shot,if=buff.trueshot.up&!talent.sidewinders.enabled
@@ -349,7 +350,7 @@ if select(2, UnitClass("player")) == "HUNTER" then
                     if cast.arcaneShot(units.dyn40) then return end
                 end
                 -- actions.patient_sniper+=/aimed_shot,if=debuff.hunters_mark.down&debuff.vulnerability.remains>execute_time
-                if debuff.huntersMark[units.dyn40] == nil and debuff.vulnerable[units.dyn40].remain > ttd(units.dyn40) then
+                if debuff.huntersMark[units.dyn40].exists == false and debuff.vulnerable[units.dyn40].remain > ttd(units.dyn40) then
                     if cast.aimedShot(units.dyn40) then return end
                 end
                 -- actions.patient_sniper+=/aimed_shot,if=talent.sidewinders.enabled&debuff.hunters_mark.remains>execute_time&debuff.vulnerability.remains>execute_time&(buff.lock_and_load.up|(focus+debuff.hunters_mark.remains*focus.regen>=80&focus+focus.regen*debuff.vulnerability.remains>=80))&(!talent.piercing_shot.enabled|cooldown.piercing_shot.remains>5|focus>120)
@@ -409,7 +410,9 @@ if select(2, UnitClass("player")) == "HUNTER" then
                 end 
                 -- Multi-Shot
                 -- if TargetsInRadius(MultiShot) > 1 and HasBuff(MarkingTargets) and BuffCount(HuntersMark) < TargetsInRadius(MultiShot)
-                
+                if #multishotTargets > 1 and buff.markingTargets.exists and debuffcount.huntersMark < #multishotTargets then
+                    if cast.multiShot(units.dyn40) then return end
+                end
                 -- Sentinel
                 -- if not HasBuff(HuntersMark) and not HasBuff(Vulnerable) and not HasBuff(MarkingTargets)
                 -- is a cooldown
@@ -494,9 +497,6 @@ if select(2, UnitClass("player")) == "HUNTER" then
                 if cast.multiShot(units.dyn40) then return end
                 -- Arcane Shot
                 if cast.arcaneShot(units.dyn40) then return end
-
-
-
             end -- End Action List - Multi Target
 
 
@@ -506,7 +506,7 @@ if select(2, UnitClass("player")) == "HUNTER" then
         -- Profile Stop | Pause
             if not inCombat and not hastar and profileStop==true then
                 profileStop = false
-            elseif (inCombat and profileStop==true) or pause() or mode.rotation==4 then
+            elseif (inCombat and profileStop==true) or pause() or mode.rotation==4  then
                 return true
             else
     -----------------------
@@ -524,7 +524,7 @@ if select(2, UnitClass("player")) == "HUNTER" then
     --------------------------
     --- In Combat Rotation ---
     --------------------------
-                if inCombat and isValidUnit(units.dyn40) and getDistance(units.dyn40) < 40 then
+                if inCombat and isValidUnit(units.dyn40) and getDistance(units.dyn40) < 40 and (debuff.huntersMark[units.dyn40] ~= nil and debuff.vulnerable[units.dyn40] ~= nil) then
         ------------------------------
         --- In Combat - Interrupts ---
         ------------------------------
@@ -579,7 +579,7 @@ if select(2, UnitClass("player")) == "HUNTER" then
                             if actionList_Cooldowns() then return end
                             -- MultiTarget
                             -- if TargetsInRadius(MultiShot) > 2
-                            if (#enemies.yards40 > 2 and mode.rotation == 1) or mode.rotation == 2 then
+                            if (#multishotTargets > 2 and mode.rotation == 1) or mode.rotation == 2 then
                                 if actionList_MultiTarget() then return end
                             end
                             -- SingleTarget
