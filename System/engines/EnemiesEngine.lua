@@ -147,9 +147,9 @@ function EnemiesEngine()
 			local bestUnit = "target"
 			for i = 1, #br.enemy do
 				local thisUnit = br.enemy[i]
-				local thisDistance = getDistance("player",thisUnit)
+				local thisDistance = getDistance("player",thisUnit.unit)
 				if GetObjectExists(thisUnit.unit) then
-					if (not safeCheck or thisUnit.safe) and thisUnit.isCC == false and thisDistance < range and (facing == false or thisUnit.facing == true) then
+					if (not getOptionCheck("Safe Damage Check") or thisUnit.safe) and thisUnit.isCC == false and thisDistance < range and (facing == false or thisUnit.facing == true) then
 						if thisUnit.coeficient >= 0 and thisUnit.coeficient >= bestUnitCoef then
 							bestUnitCoef = thisUnit.coeficient
 							bestUnit = thisUnit.unit
@@ -270,7 +270,6 @@ function EnemiesEngine()
 	end
 	-- This function will set the prioritisation of the units, ie which target should i attack
 	function getUnitCoeficient(unit,distance,threat,burnValue,shieldValue)
-		if threat == nil then threat = UnitThreatSituation("player",unit) or -1 end
 		local coef = 0
 		if distance == nil then distance = getDistance("player",unit) end
 		-- check if unit is valid

@@ -179,7 +179,6 @@ if select(3, UnitClass("player")) == 2 then -- Change specID to ID of spec. IE: 
             local holyPowerMax  = br.player.holyPowerMax
             local inCombat      = br.player.inCombat
             local level         = br.player.level
-            local lowestHP      = br.friend[1].unit
             local mode          = br.player.mode
             local php           = br.player.health
             local race          = br.player.race
@@ -204,13 +203,18 @@ if select(3, UnitClass("player")) == 2 then -- Change specID to ID of spec. IE: 
                 judgmentRemain = 0 
                 judgmentVar = false
             end
-            local greaterBuff = 0
+            local greaterBuff
+            greaterBuff = 0
+            local lowestUnit
+            lowestUnit = "player"
             for i = 1, #br.friend do
                 local thisUnit = br.friend[i].unit
-                if UnitBuffID(thisUnit,spell.spec.buffs.greaterBlessingOfMight) ~= nil
-                    or UnitBuffID(thisUnit,spell.spec.buffs.greaterBlessingOfKings) ~= nil
-                    or UnitBuffID(thisUnit,spell.spec.buffs.greaterBlessingOfWisdom) ~= nil
-                then
+                local thisHP = getHP(thisUnit)
+                local lowestHP = getHP(lowestUnit)
+                if thisHP < lowestHP then
+                    lowestUnit = thisUnit
+                end
+                if UnitBuffID(thisUnit,spell.spec.buffs.greaterBlessingOfMight) ~= nil then
                     greaterBuff = greaterBuff + 1
                 end
             end
@@ -266,11 +270,8 @@ if select(3, UnitClass("player")) == 2 then -- Change specID to ID of spec. IE: 
                     end
             -- Blessing of Protection
                     if isChecked("Blessing of Protection") then
-                        for i = 1, #br.friend do
-                            local thisUnit = br.friend[i].unit
-                            if getHP(thisUnit) < getOptionValue("Blessing of Protection") and inCombat then
-                                if cast.blessingOfProtection(thisUnit) then return end
-                            end
+                        if getHP(lowestUnit) < getOptionValue("Blessing of Protection") and inCombat then
+                            if cast.blessingOfProtection(lowestUnit) then return end
                         end
                     end
             -- Blinding Light
@@ -316,11 +317,8 @@ if select(3, UnitClass("player")) == 2 then -- Change specID to ID of spec. IE: 
                     end
             -- Lay On Hands
                     if isChecked("Lay On Hands") then
-                        for i = 1, #br.friend do
-                            local thisUnit = br.friend[i].unit
-                            if getHP(thisUnit) < getOptionValue("Lay On Hands") and inCombat then
-                                if cast.layOnHands(thisUnit) then return end
-                            end
+                        if getHP(lowestUnit) < getOptionValue("Lay On Hands") and inCombat then
+                            if cast.layOnHands(lowestUnit) then return end
                         end
                     end
             -- Redemption
@@ -568,7 +566,7 @@ if select(3, UnitClass("player")) == 2 then -- Change specID to ID of spec. IE: 
                         if holyPower >= 3 or ((charges.frac.zeal <= 1.67 or charges.frac.crusaderStrike <= 1.67) and (cd.divineHammer > gcd or cd.bladeOfJustice > gcd)) 
                             or (talent.greaterJudgement and thp > 50) 
                         then
-                            if cast.judgment("target") then return end
+                            if cast.judgment() then return end
                         end
                 -- Consecration
                         if cast.consecration() then return end

@@ -212,8 +212,10 @@ function cFileBuild(cFileName,self)
             local spellName = GetSpellInfo(v)
             local minRange = select(5,GetSpellInfo(spellName))
             local maxRange = select(6,GetSpellInfo(spellName))
-            if IsHelpfulSpell(spellName) then 
-                thisUnit = "player"
+            if IsHelpfulSpell(spellName) then
+                if thisUnit == nil or not UnitIsFriend(thisUnit,"player") then 
+                    thisUnit = "player"
+                end
                 amIinRange = true 
             elseif thisUnit == nil then
                 if IsUsableSpell(v) and isKnown(v) then
