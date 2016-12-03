@@ -1698,8 +1698,10 @@ function round2(num,idp)
 	return math.floor(num * mult + 0.5) / mult
 end
 -- if getTalent(8) == true then
-function getTalent(Row,Column)
-	return select(4,GetTalentInfo(Row,Column,GetActiveSpecGroup())) or false
+function getTalent(Row,Column,specGroup)
+	if specGroup == nil then specGroup = GetActiveSpecGroup() end
+	local _,_,_,selected = GetTalentInfo(Row,Column,specGroup)
+	return selected or false
 end
 -- if getTimeToDie("target") >= 6 then
 function getTimeToDie(unit)
@@ -2537,15 +2539,17 @@ function isValidUnit(Unit)
 	local myTarget = UnitIsUnit(Unit,"target")
 	local dummy = isDummy(Unit) ~= nil
 	local canAttackUnit = UnitCanAttack("player",Unit)
-	local canAttackPlayer = UnitCanAttack(Unit,"player")
-	local inAggroRange = getDistance(Unit) < 20
+	local inAggroRange = getDistance(Unit) <= 20
+	local instance = IsInInstance()
+	local solo = #br.friend == 1 
 	local trivial = UnitCreatureType(Unit) == "Critter" or UnitCreatureType(Unit) == "Non-combat Pet" or UnitCreatureType(Unit) == "Gas Cloud" or UnitCreatureType(Unit) == "Wild Pet"
-	if ObjectExists(Unit) and not UnitIsDeadOrGhost(Unit) and not UnitIsFriend(Unit, "player") 
-		and not trivial and (threat or dummy or (not threat and canAttackUnit and (myTarget or inAggroRange))) 
-	then
-		if combat or (not combat and inAggroRange and canAttackPlayer) then
-			return true
-		end
+	if ObjectExists(Unit) and not UnitIsDeadOrGhost(Unit) and not UnitIsFriend(Unit, "player") and canAttackUnit and not trivial then
+		-- Only consider Units that are in 20yrs or I have targeted when not in Combat and not in an Instance.
+		if not combat and not instance and (inAggroRange or myTarget) then return true end
+		-- Only consider Units that I have threat with or I am alone and have targeted when not in Combat and in an Instance.
+		if not combat and instance and (threat or (solo and myTarget)) then return true end 
+		-- Only consider Units that I have threat with or I can attack and have targeted or are dummies within 20yrds when in Combat.
+		if combat and (threat or myTarget or (dummy and inAggroRange)) then return true end
 	end
 	return false
 end

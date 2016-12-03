@@ -278,9 +278,9 @@ if select(2, UnitClass("player")) == "DRUID" then
 					  	if cast.travelForm() then return end
 					end
 				-- Cat Form
-					if not cat then
+					if not cat and not IsMounted() then
 				    	-- Cat Form when not swimming or flying or stag and not in combat
-				    	if not inCombat and moving and not swimming and not flying and not travel and not IsMounted() and not isValidUnit("target") then
+				    	if not inCombat and moving and not swimming and not flying and not travel and not isValidUnit("target") then
 			        		if cast.catForm() then return end
 			        	end
 			        	-- Cat Form when not in combat and target selected and within 20yrds
@@ -295,7 +295,7 @@ if select(2, UnitClass("player")) == "DRUID" then
 				end -- End Shapeshift Form Management
 			-- Perma Fire Cat
 				-- check if its check and player out of combat an not stealthed
-				if isChecked("Perma Fire Cat") and not inCombat and not stealth and cat then
+				if isChecked("Perma Fire Cat") and not inCombat and not buff.prowl.exists and cat then
 					-- check if Burning Essence buff expired
 					if getBuffRemain("player",138927)==0 then
 						-- check if player has the Fandral's Seed Pouch

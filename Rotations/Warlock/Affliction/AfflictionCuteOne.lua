@@ -363,7 +363,7 @@ if select(2, UnitClass("player")) == "WARLOCK" then
             local function actionList_PreCombat()
                 -- Summon Pet
                 -- summon_pet,if=!talent.grimoire_of_supremacy.enabled&(!talent.grimoire_of_sacrifice.enabled|buff.demonic_power.down)
-                if not (IsFlying() or IsMounted()) and not talent.grimoireOfSupremacy and (not talent.grimoireOfSacrifice or not buff.demonicPower.exists) then
+                if not (IsFlying() or IsMounted()) and not talent.grimoireOfSupremacy and (not talent.grimoireOfSacrifice or not buff.demonicPower.exists) and level >= 5 then
                     if (activePetId == 0 or activePetId ~= summonId) and (lastSpell ~= castSummonId or activePetId ~= summonId) then
                         if summonPet == 1 then
                             if isKnown(spell.summonFelImp) then
@@ -437,6 +437,9 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                         end
                     -- Opening Ability
                         if cast.agony("target") then return end
+                        if level < 10 then 
+                            if cast.shadowBolt() then return end
+                        end
                     end
                 end -- End No Combat
             end -- End Action List - PreCombat
@@ -476,7 +479,9 @@ if select(2, UnitClass("player")) == "WARLOCK" then
     ---------------------------
     --- Pre-Combat Rotation ---
     ---------------------------
-                if actionList_PreCombat() then return end
+                if isValidUnit("target") then
+                    if actionList_PreCombat() then return end
+                end
     --------------------------
     --- In Combat Rotation ---
     --------------------------
@@ -513,7 +518,7 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                             local thisUnit = enemies.yards40[i]
                             local agony = debuff.agony[thisUnit]
                             if agony ~= nil then
-                                if isValidUnit(thisUnit) and agony.remain <= 2 + gcd then
+                                if hasThreat(thisUnit) and agony.remain <= 2 + gcd then
                                     interruptDrain()
                                     if cast.agony(thisUnit) then return end
                                 end
@@ -583,7 +588,7 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                             local thisUnit = enemies.yards40[i]
                             local corruption = debuff.corruption[thisUnit]
                             if corruptiion ~= nil then
-                                if isValidUnit(thisUnit) and ((not talent.absoluteCorruption and corruption.remain <= 2 + gcd) or (talent.absoluteCorruption and corruption.remain == 0)) then
+                                if hasThreat(thisUnit) and ((not talent.absoluteCorruption and corruption.remain <= 2 + gcd) or (talent.absoluteCorruption and corruption.remain == 0)) then
                                     interruptDrain()
                                     if cast.corruption(thisUnit) then return end
                                 end
@@ -595,7 +600,7 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                             local thisUnit = enemies.yards40[i]
                             local siphonLife = debuff.siphonLife[thisUnit]
                             if siphonLife ~= nil then
-                                if isValidUnit(thisUnit) and siphonLife.remain <= 3 + gcd then
+                                if hasThreat(thisUnit) and siphonLife.remain <= 3 + gcd then
                                     interruptDrain()
                                     if cast.siphonLife(thisUnit) then return end
                                 end
@@ -627,7 +632,7 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                             local thisUnit = enemies.yards40[i]
                             local agony = debuff.agony[thisUnit]
                             if agony ~= nil then
-                                if isValidUnit(thisUnit) and agony.refresh and ttd(thisUnit) >= agony.remain then
+                                if hasThreat(thisUnit) and agony.refresh and ttd(thisUnit) >= agony.remain then
                                     interruptDrain()
                                     if cast.agony(thisUnit) then return end
                                 end
@@ -639,7 +644,7 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                             local thisUnit = enemies.yards40[i]
                             local corruption = debuff.corruption[thisUnit]
                             if corruption ~= nil then
-                                if isValidUnit(thisUnit) and ((not talent.absoluteCorruption and corruption.refresh and ttd(thisUnit) >= corruption.remain) or (talent.absoluteCorruption and corruption.remain == 0)) then
+                                if hasThreat(thisUnit) and ((not talent.absoluteCorruption and corruption.refresh and ttd(thisUnit) >= corruption.remain) or (talent.absoluteCorruption and corruption.remain == 0)) then
                                     interruptDrain()
                                     if cast.corruption(thisUnit) then return end
                                 end
@@ -657,7 +662,7 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                             local thisUnit = enemies.yards40[i]
                             local siphonLife = debuff.siphonLife[thisUnit]
                             if siphonLife ~= nil then
-                                if isValidUnit(thisUnit) and siphonLife.refresh and ttd(thisUnit) >= siphonLife.remain then
+                                if hasThreat(thisUnit) and siphonLife.refresh and ttd(thisUnit) >= siphonLife.remain then
                                     interruptDrain()
                                     if cast.siphonLife(thisUnit) then return end
                                 end
@@ -685,6 +690,10 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                         --life_tap
                         if manaPercent < 70 and php > getOptionValue("Life Tap HP Limit") then
                             if cast.lifeTap() then return end
+                        end
+            -- Shadow Bolt
+                        if level < 13 then
+                            if cast.shadowBolt() then return end
                         end
                     end -- End SimC APL
         ----------------------

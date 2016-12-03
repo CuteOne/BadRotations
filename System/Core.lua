@@ -204,6 +204,14 @@ function frame:OnEvent(event, arg1, arg2)
 
         -- Update Selected Spec/Profile
         br.selectedSpec = select(2,GetSpecializationInfo(GetSpecialization()))
+        br.activeSpecGroup = GetActiveSpecGroup()
+        br.talent = {}
+        for r = 1, 7 do --search each talent row
+            for c = 1, 3 do -- search each talent column
+                local _,_,_,selected,_,talentID = GetTalentInfo(r,c,br.activeSpecGroup)
+                table.insert(br.talent,talentID,selected)
+            end
+        end
         if br.data.options[br.selectedSpec]["RotationDrop"] == nil then
 	        br.selectedProfile = 1
 	    else
@@ -225,6 +233,14 @@ function frame:OnEvent(event, arg1, arg2)
     if event == "PLAYER_ENTERING_WORLD" then
     	-- Update Selected Spec
         br.selectedSpec = select(2,GetSpecializationInfo(GetSpecialization()))
+        br.activeSpecGroup = GetActiveSpecGroup()
+        br.talent = {}
+        for r = 1, 7 do --search each talent row
+            for c = 1, 3 do -- search each talent column
+                local _,_,_,selected,_,talentID = GetTalentInfo(r,c,br.activeSpecGroup)
+                table.insert(br.talent,talentID,selected)
+            end
+        end
     	-- Update Selected Spec
     	if not br.loadedIn then
     		bagsUpdated = true
