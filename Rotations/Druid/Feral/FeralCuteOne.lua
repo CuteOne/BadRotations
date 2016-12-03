@@ -554,7 +554,7 @@ if select(2, UnitClass("player")) == "DRUID" then
             -- Tiger's Fury
                     if isChecked("Tiger's Fury") then
                         -- if=(!buff.clearcasting.react&energy.deficit>=60)|energy.deficit>=80|(t18_class_trinket&buff.berserk.up&buff.tigers_fury.down)
-                        if (not clearcast and br.player.powerDeficit >= 60) or br.player.powerDeficit >= 80 or (hasEquiped(124514) and buff.berserk.exists and not buff.tigersFury.exists) then
+                        if ((not clearcast and br.player.powerDeficit >= 60) or br.player.powerDeficit >= 80 or (hasEquiped(124514) and buff.berserk.exists and not buff.tigersFury.exists)) and cd.shred == 0 then
                             if cast.tigersFury() then return end
                         end
                     end
