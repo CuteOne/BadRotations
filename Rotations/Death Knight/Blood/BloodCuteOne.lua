@@ -490,7 +490,7 @@ local function runRotation()
                     end
                     --#dump rp with deathstrike
                     --actions+=/death_strike,if=(talent.bonestorm.enabled&cooldown.bonestorm>2)|spell_targets.bonestorm<3)|(!talent.bonestorm.enabled&runic_power.deficit<30)
-                    if ((talent.bonestorm and cd.bonestorm > 3) or (talent.bonestorm and #enemies.yards8 < getOptionValue("Bonestorm Targets")) or (not talent.bonestorm or not isChecked("Use Bonestorm"))) and runicPower > 95 then
+                    if ((talent.bonestorm and cd.bonestorm > 3) or (talent.bonestorm and #enemies.yards8 < getOptionValue("Bonestorm Targets")) or (not talent.bonestorm or not isChecked("Use Bonestorm"))) and br.player.powerDeficit <= 30 then
                         if cast.deathStrike() then return end
                     end    
                     --actions+=/marrowrend,if=(talent.ossuary.enabled&buff.bone_shield.stacks<=4)|(!talent.ossuary.enabled&buff.bone_shield.stacks<2)|buff.bone_shield.remains<3|!buff.bone_shield.up
