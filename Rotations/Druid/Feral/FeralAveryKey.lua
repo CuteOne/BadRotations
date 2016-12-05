@@ -149,7 +149,7 @@ local function runRotation()
 		for i=1, #bleed.rip do
 			local rip = bleed.rip[i]
 			local thisUnit = rip.unit
-			if rip.remain > 0 and rip.remain < 3 and thp(thisUnit) < 25 then
+			if rip.remain > 0 and rip.remain < 3 and getHP(thisUnit) < 25 then
 				if isChecked("Debug") then print("Ferocious Bite Rip Execute Refresh") end
 				CastSpellByName(GetSpellInfo(1079),thisUnit)
 			end
@@ -188,7 +188,7 @@ local function runRotation()
 				local rip = bleed.rip[i]
 				local thisUnit = rip.unit
 				local distance = getDistance("player",thisUnit)	
-				if rip.remain < 2 and ttd(thisUnit) - rip.remain > 18 and (thp(thisUnit) > 25 or rip.remain < 2) 
+				if rip.remain < 2 and ttd(thisUnit) - rip.remain > 18 and (getHP(thisUnit) > 25 or rip.remain < 2) 
 					and distance < 5 then
 					if isChecked("Debug") then print("Rip < 2") end
 					CastSpellByName(GetSpellInfo(1079),thisUnit)
@@ -199,7 +199,7 @@ local function runRotation()
 				local rip = bleed.rip[i]
 				local thisUnit = rip.unit
 				local distance = getDistance("player",thisUnit)	
-				if power > 50 and thp(thisUnit) <= 25 and rip.remain > 0 
+				if power > 50 and getHP(thisUnit) <= 25 and rip.remain > 0 
 					and distance < 5 then
 					if isChecked("Debug") then print("Ferocious Bite < 25") end
 					CastSpellByName(GetSpellInfo(22568),thisUnit)

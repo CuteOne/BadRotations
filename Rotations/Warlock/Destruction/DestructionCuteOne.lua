@@ -623,7 +623,7 @@ local function runRotation()
                     -- summon_doomguard,if=!talent.grimoire_of_supremacy.enabled&spell_targets.infernal_awakening<3&(target.time_to_die>180|target.health.pct<=20|target.time_to_die<30)
                     if useCDs() and isChecked("Summon Doomguard") then
                         if not talent.grimoireOfSupremacy and #enemies.yards8 < 3
-                            and (ttd(units.dyn40) > 180 or thp(units.dyn40) <= 20 or ttd(units.dyn40) < 30)
+                            and (ttd(units.dyn40) > 180 or getHP(units.dyn40) <= 20 or ttd(units.dyn40) < 30)
                         then
                             if cast.summonDoomguard() then return end
                         end
