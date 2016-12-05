@@ -435,8 +435,15 @@ end -- salvage()
 
 -- Used to merge two tables
 function mergeTables(a, b)
+	if a == nil then a = {} end
     if type(a) == 'table' and type(b) == 'table' then
-        for k,v in pairs(b) do if type(v)=='table' and type(a[k] or false)=='table' then merge(a[k],v) else a[k]=v end end
+        for k,v in pairs(b) do 
+        	if type(v)=='table' and type(a[k] or false)=='table' then
+        		mergeTables(a[k],v) 
+        	else
+        		a[k]=v 
+        	end 
+        end
     end
     return a
 end
@@ -447,6 +454,28 @@ function mergeSpellTables(tSpell, tCharacter, tClass, tSpec)
   tSpell = mergeTables(tSpell, tClass)
   tSpell = mergeTables(tSpell, tSpec)
   return tSpell
+end
+function mergeIdTables(idTable)
+	local class = select(2,UnitClass("player"))
+	local spec = select(2, GetSpecializationInfo(GetSpecialization()))
+	if br.idList.Shared ~= nil then
+		idTable = mergeTables(idTable, br.idList.Shared)
+	end
+	if br.idList[class] ~= nil then
+		if br.idList[class].Shared ~= nil then
+			idTable = mergeTables(idTable, br.idList[class].Shared)
+			if br.idList[class].Shared.abilities ~= nil then
+				idTable = mergeTables(idTable, br.idList[class].Shared.abilities)
+			end
+		end
+		if br.idList[class][spec] ~= nil then
+			idTable = mergeTables(idTable, br.idList[class][spec])
+			if br.idList[class][spec].abilities ~= nil then
+				idTable = mergeTables(idTable, br.idList[class][spec].abilities)
+			end
+		end
+	end
+	return idTable
 end
 
 --- Checks if a table contains given value

@@ -106,6 +106,17 @@ function br.read.combatLog()
         end
       end
     end
+    ---------------------
+    --[[ Swing Timer ]]--
+    if param == "SWING_DAMAGE" then
+      swingTimer = 0
+      lastMH = GetTime()
+      nextMH = lastMH + UnitAttackSpeed('player')
+    end
+    
+    if swingTimer then
+      swingTimer = nextMH - GetTime()
+    end
     -----------------------------------
     --[[ Item Use Success Recorder ]]
     if param == "SPELL_CAST_SUCCESS" and isInCombat("player") then
@@ -274,10 +285,9 @@ function br.read.combatLog()
                     end
                     if br.player ~= nil and getDistance(thisUnit) < 40 then
                         local debuff = br.player.debuff
-                        local classDebuffID = br.player.spell.class.debuffs
-                        local specDebuffID = br.player.spell.spec.debuffs
-                        if classDebuffID ~= nil then
-                            for k, v in pairs(classDebuffID) do
+                        local debuffID = br.player.spell.debuffs
+                        if debuffID ~= nil then
+                            for k, v in pairs(debuffID) do
                                 if spell == v then
                                     if param == "SPELL_AURA_REMOVED" then
                                         if debuff[k][thisUnit] ~= nil then
@@ -291,26 +301,6 @@ function br.read.combatLog()
                                             debuff[k][thisUnit].applied = debuff[k][thisUnit].calc
                                         elseif debuff[k]["target"] ~= nil and UnitIsUnit(thisUnit,"target") then 
                                             debuff[k]["target"].applied = debuff[k][thisUnit].calc
-                                        end
-                                    end
-                                end
-                            end
-                        end
-                        if specDebuffID ~= nil then
-                            for k, v in pairs(specDebuffID) do
-                                if spell == v then
-                                    if param == "SPELL_AURA_REMOVED" then
-                                        if debuff[k][thisUnit] ~= nil then
-                                            debuff[k][thisUnit].applied = 0
-                                        elseif debuff[k]["target"] ~= nil then
-                                            debuff[k]["target"].applied = 0
-                                        end
-                                    end
-                                    if param == "SPELL_AURA_APPLIED" or param == "SPELL_AURA_REFRESH" then
-                                        if debuff[k][thisUnit] ~= nil then
-                                            debuff[k][thisUnit].applied = debuff[k][thisUnit].calc
-                                        elseif debuff[k]["target"] ~= nil then
-                                            debuff[k]["target"].applied = debuff[k]["target"].calc
                                         end
                                     end
                                 end

@@ -9,7 +9,7 @@ BadRotations.lua
 bindings.xml
 
 ## System
-System\Beautycase.lua
+# System\Beautycase.lua
 System\Core.lua
 System\GeneralFunctions.lua
 System\Config.lua
@@ -72,186 +72,94 @@ Custom\Functions.lua
 
 ## Rotation
 Rotations\cCharacter.lua
-Rotations\cClassSpec.lua
+Rotations\cBuilder.lua
+Rotations\idList.lua
 
 ## DeathKnight ---------------------------------------------------
-Rotations\Death Knight\cDeathKnight.lua
 
-Rotations\Death Knight\Frost\cFrost.lua
-Rotations\Death Knight\Frost\Frost.lua
 Rotations\Death Knight\Frost\FrostCuteOne.lua
 
-Rotations\Death Knight\Blood\cBlood.lua
-Rotations\Death Knight\Blood\Blood.lua
 Rotations\Death Knight\Blood\BloodCuteOne.lua
 
-Rotations\Death Knight\Unholy\cUnholy.lua
-Rotations\Death Knight\Unholy\Unholy.lua
 
 ## DemonHunter ---------------------------------------------------
-Rotations\Demon Hunter\cDemonHunter.lua
 
-Rotations\Demon Hunter\Havoc\cHavoc.lua
-Rotations\Demon Hunter\Havoc\Havoc.lua
 Rotations\Demon Hunter\Havoc\HavocCuteOne.lua
-Rotations\Demon Hunter\Havoc\HavocCpoworks.lua
 
-Rotations\Demon Hunter\Vengeance\cVengeance.lua
-Rotations\Demon Hunter\Vengeance\Vengeance.lua
 Rotations\Demon Hunter\Vengeance\VengeanceCuteOne.lua
 Rotations\Demon Hunter\Vengeance\VengeanceDub.lua
 
 ## Druid ---------------------------------------------------
-Rotations\Druid\cDruid.lua
 
-Rotations\Druid\Feral\cFeral.lua
-Rotations\Druid\Feral\Feral.lua
 Rotations\Druid\Feral\FeralCuteOne.lua
 Rotations\Druid\Feral\FeralAveryKey.lua
 
-Rotations\Druid\Guardian\cGuardian.lua
-Rotations\Druid\Guardian\Guardian.lua
 Rotations\Druid\Guardian\GuardianCuteOne.lua
 
-Rotations\Druid\Moonkin\cMoonkin.lua
-Rotations\Druid\Moonkin\Moonkin.lua
-
-Rotations\Druid\Restoration\cRestoration.lua
-Rotations\Druid\Restoration\Restoration.lua
 Rotations\Druid\Restoration\RestorationCuteOne.lua
 
 ## Hunter ---------------------------------------------------
-Rotations\Hunter\cHunter.lua
 
-Rotations\Hunter\Beastmaster\cBeastmaster.lua
-Rotations\Hunter\Beastmaster\Beastmaster.lua
 Rotations\Hunter\Beastmaster\BeastmasterCpoworks.lua
 
-Rotations\Hunter\Marksmanship\cMarksmanship.lua
-Rotations\Hunter\Marksmanship\Marksmanship.lua
 Rotations\Hunter\Marksmanship\MarksmanshipCpoworks.lua
 
-Rotations\Hunter\Survival\cSurvival.lua
-Rotations\Hunter\Survival\Survival.lua
-
 ## Mage ---------------------------------------------------
-Rotations\Mage\cMage.lua
 
-Rotations\Mage\Arcane\cArcane.lua
-Rotations\Mage\Arcane\Arcane.lua
-
-Rotations\Mage\Fire\cFire.lua
-Rotations\Mage\Fire\Fire.lua
 Rotations\Mage\Fire\FireCuteOne.lua
 
-Rotations\Mage\Frost\cFrost.lua
-Rotations\Mage\Frost\Frost.lua
-
 ## Monk ---------------------------------------------------
-Rotations\Monk\cMonk.lua
 
-Rotations\Monk\Brewmaster\cBrewmaster.lua
-Rotations\Monk\Brewmaster\Brewmaster.lua
-
-Rotations\Monk\Mistweaver\cMistweaver.lua
-Rotations\Monk\Mistweaver\Mistweaver.lua
 Rotations\Monk\Mistweaver\MistweaverCpoworks.lua
 
-Rotations\Monk\Windwalker\cWindwalker.lua
-Rotations\Monk\Windwalker\Windwalker.lua
 Rotations\Monk\Windwalker\WindwalkerCuteOne.lua
 
 ## Paladin ---------------------------------------------------
-Rotations\Paladin\cPaladin.lua
 
-Rotations\Paladin\Holy\cHoly.lua
-Rotations\Paladin\Holy\Holy.lua
 Rotations\Paladin\Holy\HolyGabbz.lua
 
-Rotations\Paladin\Protection\cProtection.lua
-Rotations\Paladin\Protection\Protection.lua
 Rotations\Paladin\Protection\protectionSimC.lua
 
-Rotations\Paladin\Retribution\cRetribution.lua
-Rotations\Paladin\Retribution\Retribution.lua
 Rotations\Paladin\Retribution\RetributionCuteOne.lua
 
 ## Priest ---------------------------------------------------
-Rotations\Priest\cPriest.lua
 
-Rotations\Priest\Discipline\cDiscipline.lua
-Rotations\Priest\Discipline\Discipline.lua
 Rotations\Priest\Discipline\DisciplineCpoworks.lua
 Rotations\Priest\Discipline\DisciplineSvs.lua
 
-Rotations\Priest\Holy\cHoly.lua
-Rotations\Priest\Holy\Holy.lua
-
-Rotations\Priest\Shadow\cShadow.lua
-Rotations\Priest\Shadow\Shadow.lua
 Rotations\Priest\Shadow\ShadowCpoworks.lua
 
 ## Rogue ---------------------------------------------------
-Rotations\Rogue\cRogue.lua
 
-Rotations\Rogue\Assassination\cAssassination.lua
-Rotations\Rogue\Assassination\Assassination.lua
 Rotations\Rogue\Assassination\AssassinationCuteOne.lua
 
-Rotations\Rogue\Outlaw\cOutlaw.lua
-Rotations\Rogue\Outlaw\Outlaw.lua
 Rotations\Rogue\Outlaw\OutlawCuteOne.lua
 
-Rotations\Rogue\Subtlety\cSubtlety.lua
-Rotations\Rogue\Subtlety\Subtlety.lua
 Rotations\Rogue\Subtlety\SubtletyCuteOne.lua
 
 ## Shaman  ---------------------------------------------------
-Rotations\Shaman\cShaman.lua
 
-Rotations\Shaman\Enhancement\cEnhancement.lua
-Rotations\Shaman\Enhancement\Enhancement.lua
-Rotations\Shaman\Enhancement\EnhancementCuteOne.lua
-
-Rotations\Shaman\Elemental\cElemental.lua
-Rotations\Shaman\Elemental\Elemental.lua
 Rotations\Shaman\Elemental\ElementalCuteOne.lua
 
-Rotations\Shaman\Restoration\cRestoration.lua
-Rotations\Shaman\Restoration\Restoration.lua
+Rotations\Shaman\Enhancement\EnhancementCuteOne.lua
+
 Rotations\Shaman\Restoration\RestorationKuu.lua
 
-## Warrior ---------------------------------------------------
-Rotations\Warrior\cWarrior.lua
-
-Rotations\Warrior\Arms\cArms.lua
-Rotations\Warrior\Arms\Arms.lua
-Rotations\Warrior\Arms\ArmsCuteOne.lua
-
-Rotations\Warrior\Fury\cFury.lua
-Rotations\Warrior\Fury\Fury.lua
-Rotations\Warrior\Fury\FuryCuteOne.lua
-
-Rotations\Warrior\Protection\cProtection.lua
-Rotations\Warrior\Protection\Protection.lua
-Rotations\Warrior\Protection\ProtectionCuteOne.lua
-
 ## Warlock ---------------------------------------------------
-Rotations\Warlock\cWarlock.lua
 
-Rotations\Warlock\Affliction\cAffliction.lua
-Rotations\Warlock\Affliction\Affliction.lua
 Rotations\Warlock\Affliction\AfflictionCuteOne.lua
 
-Rotations\Warlock\Demonology\cDemonology.lua
-Rotations\Warlock\Demonology\Demonology.lua
 Rotations\Warlock\Demonology\DemonologyCuteOne.lua
 
-Rotations\Warlock\Destruction\cDestruction.lua
-Rotations\Warlock\Destruction\Destruction.lua
 Rotations\Warlock\Destruction\DestructionCuteOne.lua
-Rotations\Warlock\Destruction\DestructionKuu.lua
-Rotations\Warlock\Destruction\DestructionTest.lua
+
+## Warrior ---------------------------------------------------
+
+Rotations\Warrior\Arms\ArmsCuteOne.lua
+
+Rotations\Warrior\Fury\FuryCuteOne.lua
+
+Rotations\Warrior\Protection\ProtectionCuteOne.lua
 
 ## Non-Class Specific Rotations ------------------------------
 
