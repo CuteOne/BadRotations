@@ -316,7 +316,7 @@ local function runRotation()
                 end
             end
     -- Bribe
-            if isChecked("Bribe") and UnitCreatureType(units.dyn30) == "Humanoid" and not isDummy(units.dyn30) then
+            if isChecked("Bribe") and UnitCreatureType(units.dyn30) == "Humanoid" and not isDummy(units.dyn30) and UnitIsEnemy(units.dyn30,"player") then
                 if cast.bribe(units.dyn30) then return end
             end
     -- Grappling Hook
