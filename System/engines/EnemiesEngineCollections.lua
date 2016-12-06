@@ -2,11 +2,12 @@
 SLASH_dumpInfo1 = "/dumpinfo"
 function SlashCmdList.dumpInfo(msg, editbox)
 	-- find unit in our engines
-	for i = 1, #br.enemy do
-		if br.enemy[i].guid == UnitGUID("target") then
+	-- for i = 1, #br.enemy do
+	for k, v in pairs(br.enemy) do
+		if br.enemy[k].guid == UnitGUID("target") then
 			targetInfo = { }
 			targetInfo.name = UnitName("target")
-			local thisUnit = br.enemy[i]
+			local thisUnit = br.enemy[k].unit
 			targetInfo.unitID = thisUnit.id
 			local spellCastersTable = br.im.casters
 			for j = 1, #spellCastersTable do

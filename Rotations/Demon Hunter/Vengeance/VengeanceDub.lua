@@ -298,7 +298,7 @@ local function runRotation()
                 end -- End Pre-Pull
                 if ObjectExists("target") and not UnitIsDeadOrGhost("target") and UnitCanAttack("target", "player") and getDistance("target") < 5 then
             -- Start Attack
-                    StartAttack()
+                    if not IsCurrentSpell(6603) then StartAttack() end
                 end
             end -- End No Combat
         end -- End Action List - PreCombat 
@@ -338,7 +338,7 @@ local function runRotation()
                 -- if true then return end
         -- actions=auto_attack
                 if getDistance(units.dyn5) < 5 then
-                    StartAttack()
+                    if not IsCurrentSpell(6603) then StartAttack() end
                 end
                 if isChecked("Trinkets") and getDistance("target") < 5 then
                     if canUse(13) then

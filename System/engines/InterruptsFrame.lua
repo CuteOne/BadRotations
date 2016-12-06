@@ -200,12 +200,13 @@ function im:manageCast(...)
 	        return false
 	    end
 	end
-	if br.enemy ~= nil and #br.enemy > 0 then
-		for i = #br.enemy,1,-1 do
+	if br.enemy ~= nil then
+		-- for i = #br.enemy,1,-1 do
+		for k, v in pairs(br.enemy) do	
 
-			if GetObjectExists(br.enemy[i]) then
-				if br.enemy[i] and br.enemy[i].unit and sourceGUID == br.enemy[i].guid  then
-					local thisUnit = br.enemy[i]
+			if GetObjectExists(br.enemy[k]) then
+				if br.enemy[k] and br.enemy[k].unit and sourceGUID == br.enemy[k].guid  then
+					local thisUnit = br.enemy[k].unit
 					-- gather our infos
 					if getOptionCheck("Only Known Units") and not isInteruptCandidate(thisUnit.unit, spellID) then
 						im:debug(sourceName.." started casting "..spellID.." but is not gonna be interrupt.")

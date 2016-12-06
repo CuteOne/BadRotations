@@ -554,7 +554,7 @@ local function runRotation()
         -- Tiger's Fury
                 if isChecked("Tiger's Fury") then
                     -- if=(!buff.clearcasting.react&energy.deficit>=60)|energy.deficit>=80|(t18_class_trinket&buff.berserk.up&buff.tigers_fury.down)
-                    if ((not clearcast and br.player.powerDeficit >= 60) or br.player.powerDeficit >= 80 or (hasEquiped(124514) and buff.berserk.exists and not buff.tigersFury.exists)) and (cd.shred == 0 or cd.shred <= getLatency()) then
+                    if ((not clearcast and br.player.powerDeficit >= 60) or br.player.powerDeficit >= 80 or (hasEquiped(124514) and buff.berserk.exists and not buff.tigersFury.exists)) and cd.global == 0 then
                         if cast.tigersFury() then return end
                     end
                 end
@@ -939,7 +939,7 @@ local function runRotation()
                 elseif not stealth then
                     -- auto_attack
                     if getDistance("target") < 5 then
-                        StartAttack()
+                        if not IsCurrentSpell(6603) then StartAttack() end
                     end
     ------------------------------
     --- In Combat - Interrupts ---

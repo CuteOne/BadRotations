@@ -61,13 +61,14 @@ function castCrowdControl(Unit,SpellID)
 	-- if "any" parameter is provided to target, we scan all the targets
 	if Unit == "any" then
 		-- test all targets
-		for i = 1, #br.enemy do
+		-- for i = 1, #br.enemy do
+		for k, v in pairs(br.enemy) do
 			-- check if unit is valid
-			if GetObjectExists(br.enemy[i].unit) then
+			if GetObjectExists(br.enemy[k].unit) then
 				-- if this unit is a cc candidate and is in range
-				if br.enemy[i].cc == true and br.enemy[i].distance < spellDistance then
+				if br.enemy[k].cc == true and br.enemy[k].distance < spellDistance then
 					-- cast the spell
-					if castSpell(br.enemy[i].unit,SpellID,true,false) then
+					if castSpell(br.enemy[k].unit,SpellID,true,false) then
 						return true
 					end
 				end
@@ -98,8 +99,9 @@ function castDotCycle(units,spellID,range,facingCheck,movementCheck,duration)
 	duration = duration or 1
 	-- cycle our units if we want MORE DOTS
 	if getDebuffCount(spellID) < units then
-		for i = 1, #br.enemy do
-			local thisUnit = br.enemy[i]
+		-- for i = 1, #br.enemy do
+		for k, v in pairs(br.enemy) do
+			local thisUnit = br.enemy[k].unit
 			-- check if unit is valid
 			if GetObjectExists(thisUnit.unit) then
 				if thisUnit.isCC == false and UnitLevel(thisUnit.unit) < UnitLevel("player") + 5 then
@@ -123,8 +125,9 @@ function castDispelOffensiveBuffs(spell)
 		spellDistance = 5
 	end
 	-- iterate our enemies
-	for i = 1,#br.enemy do
-		local thisUnit = br.enemy[i]
+	-- for i = 1,#br.enemy do
+	for k, v in pairs(br.enemy) do
+		local thisUnit = br.enemy[k].unit
 		if GetObjectExists(thisUnit.unit) then
 			if thisUnit.distance <= spellDistance and thisUnit.offensiveBuff == true then
 				if castSpell(thisUnit.unit,spell,false,false) then

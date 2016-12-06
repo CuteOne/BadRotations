@@ -338,7 +338,7 @@ local function runRotation()
                     end
         -- auto_attack
                     if canAttack() and not UnitIsDeadOrGhost("target") and getDistance("target") <= 5 then
-                       StartAttack()
+                       if not IsCurrentSpell(6603) then StartAttack() end
                     end
                 end
             end -- End No Combat
@@ -371,7 +371,7 @@ local function runRotation()
             if inCombat and profileStop==false and isValidUnit(units.dyn5) then
                 -- auto_attack
                 if getDistance("target") < 5 then
-                    StartAttack()
+                    if not IsCurrentSpell(6603) then StartAttack() end
                 end
     ------------------------------
     --- In Combat - Interrupts ---

@@ -273,7 +273,7 @@ local function runRotation()
             end -- Pre-Pull
         -- Start Attack
             if attacktar and not deadtar and getDistance("target")<5 and not inCombat then
-                StartAttack()
+                if not IsCurrentSpell(6603) then StartAttack() end
             end
         end -- End Action List - PreCombat
 ---------------------
@@ -288,7 +288,7 @@ local function runRotation()
             if actionList_PreCombat() then return end
             if not inCombat and ObjectExists("target") and not UnitIsDeadOrGhost("target") and UnitCanAttack("target", "player") then
                 if getDistance("target")<5 then
-                    StartAttack()
+                    if not IsCurrentSpell(6603) then StartAttack() end
                 end
             end
 -----------------
@@ -298,7 +298,7 @@ local function runRotation()
             -- Auto Attack
                 -- auto_attack
                 if ObjectExists("target") then
-                    StartAttack()
+                    if not IsCurrentSpell(6603) then StartAttack() end
                 end
                 if actionList_Interrupts() then return end  
             end -- End Combat Check

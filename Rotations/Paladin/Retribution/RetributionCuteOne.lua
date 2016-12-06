@@ -390,7 +390,7 @@ local function runRotation()
         -- Judgment
                 if cast.judgment("target") then return end
         -- Start Attack
-                if getDistance("target") < 5 then StartAttack() end
+                if getDistance("target") < 5 then if not IsCurrentSpell(6603) then StartAttack() end end
             end
         end -- End Action List - Opener
 ---------------------

@@ -657,7 +657,7 @@ local function runRotation()
                 end
                 if (not stealthing or (isDummy("target") and lastSpell == spell.vanish)) and opener == true then
                 	if getDistance(units.dyn5) < 5 then
-                		StartAttack()
+                		if not IsCurrentSpell(6603) then StartAttack() end
                 	end
        	-- Call Action List - Maintain
        				-- call_action_list,name=maintain 

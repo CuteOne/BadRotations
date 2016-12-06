@@ -1694,9 +1694,7 @@ function getSpellCD(SpellID)
 	else
 		local Start ,CD = GetSpellCooldown(SpellID)
 		local MyCD = Start + CD - GetTime()
-		if getOptionCheck("Latency Compensation") then
-			MyCD = MyCD - getLatency()
-		end
+		MyCD = MyCD - getLatency()
 		return MyCD
 	end
 end

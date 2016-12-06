@@ -75,7 +75,7 @@ local function runRotation()
 		
 		--auto_attack
 		if UnitExists("target") and getDistance("target") < 5 then
-			StartAttack()
+			if not IsCurrentSpell(6603) then StartAttack() end
 		end
 		
 		--auto_target

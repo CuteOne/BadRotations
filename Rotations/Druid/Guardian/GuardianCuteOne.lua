@@ -502,7 +502,7 @@ local function runRotation()
                     end
                 end -- End No Stealth
                 if getDistance("target") < 5 and isValidUnit("target") then
-                    StartAttack()
+                    if not IsCurrentSpell(6603) then StartAttack() end
                 end
             end -- End No Combat
         end -- End Action List - PreCombat 

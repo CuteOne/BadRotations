@@ -257,7 +257,7 @@ function cCharacter:new(class)
 -- Starts auto attack when in melee range and facing enemy
 	function self.startMeleeAttack()
 		if self.inCombat and (isInMelee() and getFacing("player","target") == true) then
-			StartAttack()
+			if not IsCurrentSpell(6603) then StartAttack() end
 		end
 	end
 

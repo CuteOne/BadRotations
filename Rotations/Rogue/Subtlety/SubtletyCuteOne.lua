@@ -543,7 +543,7 @@ local function runRotation()
             	end
 		-- Start Attack
             	if getDistance("target") < 5 and not stealthingAll and mode.pickPocket ~= 2 then		
-                	StartAttack()
+                	if not IsCurrentSpell(6603) then StartAttack() end
                 end
             end
 		end -- End Action List - Opener

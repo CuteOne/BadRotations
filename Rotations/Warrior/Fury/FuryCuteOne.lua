@@ -651,7 +651,7 @@ local function runRotation()
             if not inCombat and isValidUnit("target") then
                 if actionList_PreCombat() then return end
                 if getDistance(units.dyn5)<5 then
-                    StartAttack()
+                    if not IsCurrentSpell(6603) then StartAttack() end
                 else
             -- Action List - Movement
                     -- run_action_list,name=movement,if=movement.getDistance(units.dyn5)>5
@@ -667,7 +667,7 @@ local function runRotation()
             -- Auto Attack
                 --auto_attack
                 if getDistance(units.dyn5) < 5 then
-                    StartAttack()
+                    if not IsCurrentSpell(6603) then StartAttack() end
                 end
             -- Action List - Movement
                 -- run_action_list,name=movement,if=movement.getDistance(units.dyn5)>5
