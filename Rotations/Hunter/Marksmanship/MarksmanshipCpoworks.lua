@@ -176,7 +176,8 @@ local function runRotation()
             local UnitDebuffID = UnitDebuffID
             local huntersMarkCount = 0
             local vulnerableCount = 0
-
+            
+            if not br.player.debuffcount then br.player.debuffcount = {} end
             if huntersMarkCount>0 and not inCombat then huntersMarkCount = 0 end
             if vulnerableCount>0 and not inCombat then vulnerableCount = 0 end
 
@@ -529,6 +530,7 @@ local function runRotation()
         elseif (inCombat and profileStop==true) or pause() or mode.rotation==4  then
             return true
         else
+            br.player.getDebuffsCount()
 -----------------------
 --- Extras Rotation ---
 -----------------------
