@@ -231,8 +231,8 @@ local function runRotation()
         if vanishTime == nil then vanishTime = GetTime() end
         if buff.sharkInfestedWaters.exists then rtbBuff5 = true else rtbBuff5 = false end
         if buff.trueBearing.exists then rtbBuff6 = true else rtbBuff6 = false end
-        --if buff.broadsides.exists or buff.buriedTreasure.exists or buff.grandMelee.exists or buff.jollyRoger.exists or buff.sharkInfestedWaters.exists then rtbBuff5 = true else rtbBuff5 = false end
-        --if buff.broadsides.exists or buff.buriedTreasure.exists or buff.grandMelee.exists or buff.jollyRoger.exists or buff.sharkInfestedWaters.exists or buff.trueBearing.exists then rtbBuff6 = true else rtbBuff6 = false end
+        -- if buff.broadsides.exists or buff.buriedTreasure.exists or buff.grandMelee.exists or buff.jollyRoger.exists or buff.sharkInfestedWaters.exists then rtbBuff5 = true else rtbBuff5 = false end
+        -- if buff.broadsides.exists or buff.buriedTreasure.exists or buff.grandMelee.exists or buff.jollyRoger.exists or buff.sharkInfestedWaters.exists or buff.trueBearing.exists then rtbBuff6 = true else rtbBuff6 = false end
 
         buff.rollTheBones.count    = 0
         buff.rollTheBones.duration = 0
@@ -246,12 +246,7 @@ local function runRotation()
         end
 
         -- rtb_reroll,value=!talent.slice_and_dice.enabled&(rtb_buffs<=1&!rtb_list.any.6&((!buff.curse_of_the_dreadblades.up&!buff.adrenaline_rush.up)|!rtb_list.any.5))
-        --if not talent.sliceAndDice and (buff.rollTheBones.count <= 1 and not rtbBuff6 and ((not buff.curseOfTheDreadblades.exists and not buff.adrenalineRush.exists) or not rtbBuff5)) then
-            --rtbReroll = true
-        --else
-            --rtbReroll = false
-        --end
-        if not talent.sliceAndDice and (buff.rollTheBones.count <= 1 and not rtbBuff6 and ((--[[not buff.curseOfTheDreadblades.exists and ]]not buff.adrenalineRush.exists) or not rtbBuff5)) then
+        if not talent.sliceAndDice and (buff.rollTheBones.count <= 1 and not rtbBuff6 and ((not debuff.curseOfTheDreadblades["player"].exists and not buff.adrenalineRush.exists) or not rtbBuff5)) then
             rtbReroll = true
         else
             rtbReroll = false
@@ -517,7 +512,7 @@ local function runRotation()
         local function actionList_Generators()
         -- Ghostly Strike
             -- ghostly_strike,if=combo_points.deficit>=1+buff.broadsides.up&!buff.curse_of_the_dreadblades.up&(debuff.ghostly_strike.remains<debuff.ghostly_strike.duration*0.3|(cooldown.curse_of_the_dreadblades.remains<3&debuff.ghostly_strike.remains<14))&(combo_points>=3|(variable.rtb_reroll&time>=10))
-            if comboDeficit >= 1 + broadUp and not buff.curseOfTheDreadblades.exists and ((not debuff.ghostlyStrike[units.dyn5].exists or debuff.ghostlyStrike[units.dyn5].refresh) 
+            if comboDeficit >= 1 + broadUp and not debuff.curseOfTheDreadblades["player"].exists and ((not debuff.ghostlyStrike[units.dyn5].exists or debuff.ghostlyStrike[units.dyn5].refresh) 
                 or (cd.curseOfTheDreadblades < 3 and debuff.ghostlyStrike[units.dyn5].remain < 14)) and (combo >= 3 or (rtbReroll and cTime >= 10)) 
             then
                 if cast.ghostlyStrike() then return end
@@ -536,7 +531,7 @@ local function runRotation()
     -- Action List - Stealth
         local function actionList_Stealth()
             -- stealth_condition,value=(combo_points.deficit>=2+2*(talent.ghostly_strike.enabled&!debuff.ghostly_strike.up)+buff.broadsides.up&energy>60&!buff.jolly_roger.up&!buff.hidden_blade.up&!buff.curse_of_the_dreadblades.up)
-            if ((comboDeficit >= 2 + 2 * gsBuff + broadUp) and power > 60 and not buff.jollyRoger.exists and not buff.hiddenBlade.exists and not buff.curseOfTheDreadblades.exists) and not buff.stealth.exists then
+            if ((comboDeficit >= 2 + 2 * gsBuff + broadUp) and power > 60 and not buff.jollyRoger.exists and not buff.hiddenBlade.exists and not debuff.curseOfTheDreadblades["player"].exists) and not buff.stealth.exists then
                 stealthable = true
             else
                 stealthable = false
