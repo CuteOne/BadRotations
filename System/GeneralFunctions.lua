@@ -752,6 +752,10 @@ function castSpell(Unit,SpellID,FacingCheck,MovementCheck,SpamAllowed,KnownSkip,
 								timersTable[SpellID] = GetTime()
 								currentTarget = UnitGUID(Unit)
 								CastSpellByName(GetSpellInfo(SpellID),Unit)
+								if IsAoEPending() then
+									local X,Y,Z = ObjectPosition(Unit)
+									ClickPosition(X,Y,Z)
+								end
 								--lastSpellCast = SpellID
 								-- change main button icon
 								if getOptionCheck("Start/Stop BadRotations") then
@@ -769,6 +773,10 @@ function castSpell(Unit,SpellID,FacingCheck,MovementCheck,SpamAllowed,KnownSkip,
 					else
 						currentTarget = UnitGUID(Unit)
 						CastSpellByName(GetSpellInfo(SpellID),Unit)
+						if IsAoEPending() then
+							local X,Y,Z = ObjectPosition(Unit)
+							ClickPosition(X,Y,Z)
+						end
 						if getOptionCheck("Start/Stop BadRotations") then
 							mainButton:SetNormalTexture(select(3,GetSpellInfo(SpellID)))
 							lastSpellCast = SpellID

@@ -35,6 +35,7 @@ function br.loader:new(spec,specName)
         -- Call baseUpdate()
         self.baseUpdate()
         self.cBuilder()
+        self.getPetInfo()
         self.getToggleModes()
         -- Start selected rotation
         self:startRotation()

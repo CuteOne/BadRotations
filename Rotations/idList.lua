@@ -1830,9 +1830,9 @@ br.idList = {
             },
             debuffs                         = {
                 agony                       = 980,
-                corruption                  = 146739, --172
+                corruption                  = 146739,
                 siphonLife                  = 63106,  
-                -- unstableAffliction          = 233496, 233490
+                unstableAffliction          = 233490,
             },
             glyphs                          = {
 

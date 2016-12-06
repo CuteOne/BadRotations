@@ -246,15 +246,6 @@ local function runRotation()
                 if thisUnit == 89 then infernal = true end
             end
         end
-        local function interruptDrain()
-            if isCastingSpell(spell.drainLife,"player") or isCastingSpell(spell.drainSoul,"player") then
-                MoveBackwardStart()
-                MoveBackwardStop()
-                return
-            else
-                return
-            end
-        end
 
 --------------------
 --- Action Lists ---
@@ -366,22 +357,22 @@ local function runRotation()
                 if (activePetId == 0 or activePetId ~= summonId) and (lastSpell ~= castSummonId or activePetId ~= summonId) then
                     if summonPet == 1 then
                         if isKnown(spell.summonFelImp) then
-                            if cast.summonFelImp() then castSummonId = spell.summonFelImp; return end
+                            if cast.summonFelImp("player") then castSummonId = spell.summonFelImp; return end
                         else  
-                            if cast.summonImp() then castSummonId = spell.summonImp; return end
+                            if cast.summonImp("player") then castSummonId = spell.summonImp; return end
                         end
                     end
                     if summonPet == 2 then
-                        if cast.summonVoidwalker() then castSummonId = spell.summonVoidwalker; return end
+                        if cast.summonVoidwalker("player") then castSummonId = spell.summonVoidwalker; return end
                     end
                     if summonPet == 3 then
-                        if cast.summonFelhunter() then castSummonId = spell.summonFelhunter; return end
+                        if cast.summonFelhunter("player") then castSummonId = spell.summonFelhunter; return end
                     end
                     if summonPet == 4 then
-                        if cast.summonSuccubus() then castSummonId = spell.summonSuccubus; return end
+                        if cast.summonSuccubus("player") then castSummonId = spell.summonSuccubus; return end
                     end
                     if summonPet == 5 then
-                        if cast.summonFelguard() then castSummonId = spell.summonFelguard; return end
+                        if cast.summonFelguard("player") then castSummonId = spell.summonFelguard; return end
                     end
                     if summonPet == 6 then return end
                 end
@@ -478,9 +469,7 @@ local function runRotation()
 ---------------------------
 --- Pre-Combat Rotation ---
 ---------------------------
-            if isValidUnit("target") then
-                if actionList_PreCombat() then return end
-            end
+			if actionList_PreCombat() then return end
 --------------------------
 --- In Combat Rotation ---
 --------------------------
@@ -502,13 +491,13 @@ local function runRotation()
         -- Reap Souls
                     -- reap_souls,if=actions=reap_souls,if=!buff.deadwind_harvester.remains&(buff.soul_harvest.remains|buff.tormented_souls.react>=8|target.time_to_die<=buff.tormented_souls.react*5|trinket.proc.any.react)
                     if not buff.deadwindHarvester.exists and (buff.soulHarvest.exists or buff.tormentedSouls.stack >= 8 or ttd(units.dyn40) <= buff.tormentedSouls.stack * 5) then
-                        interruptDrain()
+
                         if cast.reapSouls() then return end
                     end
         -- Soul Effigy
                     -- soul_effigy,if=!pet.soul_effigy.active
                     if not effigied then
-                        interruptDrain()
+                        
                         if cast.soulEffigy() then return end
                     end
         -- Agony
@@ -517,8 +506,8 @@ local function runRotation()
                         local thisUnit = enemies.yards40[i]
                         local agony = debuff.agony[thisUnit]
                         if agony ~= nil then
-                            if hasThreat(thisUnit) and agony.remain <= 2 + gcd then
-                                interruptDrain()
+                            if isValidUnit(thisUnit) and agony.remain <= 2 + gcd then
+                                
                                 if cast.agony(thisUnit) then return end
                             end
                         end
@@ -528,19 +517,19 @@ local function runRotation()
                     if ObjectExists("target") then
                         if debuff.corruption["target"].exists and debuff.agony["target"].exists and br.timer:useTimer("castGrim", gcd) then
                             if grimoirePet == 1 then
-                                if cast.grimoireImp() then prevService = "Imp"; return end
+                                if cast.grimoireImp("player") then prevService = "Imp"; return end
                             end
                             if grimoirePet == 2 then
-                                if cast.grimoireVoidwalker() then prevService = "Voidwalker"; return end
+                                if cast.grimoireVoidwalker("player") then prevService = "Voidwalker"; return end
                             end
                             if grimoirePet == 3 then
-                                if cast.grimoireFelhunter() then prevService = "Felhunter"; return end
+                                if cast.grimoireFelhunter("player") then prevService = "Felhunter"; return end
                             end
                             if grimoirePet == 4 then
-                                if cast.grimoireSuccubus() then prevService = "Succubus"; return end
+                                if cast.grimoireSuccubus("player") then prevService = "Succubus"; return end
                             end
                             if grimoirePet == 5 then
-                                if cast.grimoireFelguard() then prevService = "Felguard"; return end
+                                if cast.grimoireFelguard("player") then prevService = "Felguard"; return end
                             end
                             if grimoirePet == 6 then return end
                         end
@@ -551,7 +540,7 @@ local function runRotation()
                         if not talent.grimoireOfSupremacy and #enemies.yards8 < 3
                             and (ttd(units.dyn40) > 180 or getHP(units.dyn40) <= 20 or ttd(units.dyn40) < 30)
                         then
-                            interruptDrain()
+                            
                             if cast.summonDoomguard() then summonTime = GetTime(); return end
                         end
                     end
@@ -559,7 +548,7 @@ local function runRotation()
                     -- summon_infernal,if=!talent.grimoire_of_supremacy.enabled&spell_targets.summon_infernal>=3
                     if useCDs() and isChecked("Summon Infernal") then
                         if not talent.grimoireOfSupremacy and #enemies.yards8 >= 3 then
-                            interruptDrain()
+                            
                             if cast.summonInfernal() then summonTime = GetTime(); return end
                         end
                     end
@@ -567,7 +556,7 @@ local function runRotation()
                     -- summon_doomguard,if=talent.grimoire_of_supremacy.enabled&spell_targets.summon_infernal<3&equipped.132379&!cooldown.sindorei_spite_icd.remains
                     if useCDs() and isChecked("Summon Doomguard") then
                         if talent.grimoireOfSupremacy and #enemies.yards8 < 3 and hasEquiped(132379) and GetTime() > summonTime + 275 then
-                            interruptDrain()
+                            
                             if cast.summonDoomguard() then summonTime = GetTime(); return end
                         end
                     end
@@ -575,7 +564,7 @@ local function runRotation()
                     -- summon_infernal,if=talent.grimoire_of_supremacy.enabled&spell_targets.summon_infernal>=3&equipped.132379&!cooldown.sindorei_spite_icd.remains
                     if useCDs() and isChecked("Summon Infernal") then
                         if talent.grimoireOfSupremacy and #enemies.yards8 >= 3 and hasEquiped(132379) and GetTime() > summonTime + 275 then
-                            interruptDrain()
+                            
                             if cast.summonInfernal() then summonTime = GetTime(); return end
                         end
                     end
@@ -587,8 +576,8 @@ local function runRotation()
                         local thisUnit = enemies.yards40[i]
                         local corruption = debuff.corruption[thisUnit]
                         if corruptiion ~= nil then
-                            if hasThreat(thisUnit) and ((not talent.absoluteCorruption and corruption.remain <= 2 + gcd) or (talent.absoluteCorruption and corruption.remain == 0)) then
-                                interruptDrain()
+                            if isValidUnit(thisUnit) and ((not talent.absoluteCorruption and corruption.remain <= 2 + gcd) or (talent.absoluteCorruption and corruption.remain == 0)) then
+                                
                                 if cast.corruption(thisUnit) then return end
                             end
                         end
@@ -599,8 +588,8 @@ local function runRotation()
                         local thisUnit = enemies.yards40[i]
                         local siphonLife = debuff.siphonLife[thisUnit]
                         if siphonLife ~= nil then
-                            if hasThreat(thisUnit) and siphonLife.remain <= 3 + gcd then
-                                interruptDrain()
+                            if isValidUnit(thisUnit) and siphonLife.remain <= 3 + gcd then
+                                
                                 if cast.siphonLife(thisUnit) then return end
                             end
                         end
@@ -608,20 +597,20 @@ local function runRotation()
         -- Mana Tap
                     -- mana_tap,if=buff.mana_tap.remains<=buff.mana_tap.duration*0.3&(mana.pct<20|buff.mana_tap.remains<=gcd)&target.time_to_die>buff.mana_tap.duration*0.3
                     if buff.manaTap.refresh and (manaPercent < 20 or buff.manaTap.remain <= gcd) and ttd(units.dyn40) > buff.manaTap.duration * 0.3 then
-                        interruptDrain()
+                        
                         if cast.manaTap() then return end
                     end
         -- Phantom Singularity
                     -- phantom_singularity
                     if castable.phantomSingularity then
-                        interruptDrain()
+                        
                         if cast.phantomSingularity() then return end
                     end
         -- Unsable Affliction
                     -- unstable_affliction,if=talent.contagion.enabled|(soul_shard>=4|trinket.proc.intellect.react|trinket.stacking_proc.mastery.react|trinket.proc.mastery.react|trinket.proc.crit.react|trinket.proc.versatility.react|buff.soul_harvest.remains|buff.deadwind_harvester.remains|buff.compounding_horror.react=5|target.time_to_die<=20)
                     if talent.contagion or (shards >= 4 or buff.soulHarvest.exists or buff.deadwindHarvester.exists or buff.compoundingHorror.stack == 5 or ttd(units.dyn40) <= 20) then
                         if lastSpell ~= spell.unstableAffliction then
-                            interruptDrain()
+                            
                             if cast.unstableAffliction() then return end
                         end
                     end
@@ -631,8 +620,8 @@ local function runRotation()
                         local thisUnit = enemies.yards40[i]
                         local agony = debuff.agony[thisUnit]
                         if agony ~= nil then
-                            if hasThreat(thisUnit) and agony.refresh and ttd(thisUnit) >= agony.remain then
-                                interruptDrain()
+                            if isValidUnit(thisUnit) and agony.refresh and ttd(thisUnit) >= agony.remain then
+                                
                                 if cast.agony(thisUnit) then return end
                             end
                         end
@@ -643,8 +632,8 @@ local function runRotation()
                         local thisUnit = enemies.yards40[i]
                         local corruption = debuff.corruption[thisUnit]
                         if corruption ~= nil then
-                            if hasThreat(thisUnit) and ((not talent.absoluteCorruption and corruption.refresh and ttd(thisUnit) >= corruption.remain) or (talent.absoluteCorruption and corruption.remain == 0)) then
-                                interruptDrain()
+                            if isValidUnit(thisUnit) and ((not talent.absoluteCorruption and corruption.refresh and ttd(thisUnit) >= corruption.remain) or (talent.absoluteCorruption and corruption.remain == 0)) then
+                                
                                 if cast.corruption(thisUnit) then return end
                             end
                         end
@@ -652,7 +641,7 @@ local function runRotation()
         -- Haunt
                     -- haunt
                     if castable.haunt then
-                        interruptDrain()
+                        
                         if cast.haunt() then return end
                     end
         -- Siphon Life
@@ -661,8 +650,8 @@ local function runRotation()
                         local thisUnit = enemies.yards40[i]
                         local siphonLife = debuff.siphonLife[thisUnit]
                         if siphonLife ~= nil then
-                            if hasThreat(thisUnit) and siphonLife.refresh and ttd(thisUnit) >= siphonLife.remain then
-                                interruptDrain()
+                            if isValidUnit(thisUnit) and siphonLife.refresh and ttd(thisUnit) >= siphonLife.remain then
+                                
                                 if cast.siphonLife(thisUnit) then return end
                             end
                         end
@@ -670,7 +659,7 @@ local function runRotation()
         -- Life Tap
                     -- life_tap,if=mana.pct<=30
                     if manaPercent <= 10 and php > getOptionValue("Life Tap HP Limit") then
-                        interruptDrain()
+                        
                         if cast.lifeTap() then return end
                     end
         -- Drain Soul

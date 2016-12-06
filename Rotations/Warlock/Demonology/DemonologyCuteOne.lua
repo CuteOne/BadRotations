@@ -383,22 +383,22 @@ local function runRotation()
                 if (activePetId == 0 or activePetId ~= summonId) and (lastSpell ~= castSummonId or activePetId ~= summonId) then
                     if summonPet == 1 then
                         if isKnown(spell.summonFelImp) then
-                            if cast.summonFelImp() then castSummonId = spell.summonFelImp; return end
+                            if cast.summonFelImp("player") then castSummonId = spell.summonFelImp; return end
                         else  
-                            if cast.summonImp() then castSummonId = spell.summonImp; return end
+                            if cast.summonImp("player") then castSummonId = spell.summonImp; return end
                         end
                     end
                     if summonPet == 2 then
-                        if cast.summonVoidwalker() then castSummonId = spell.summonVoidwalker; return end
+                        if cast.summonVoidwalker("player") then castSummonId = spell.summonVoidwalker; return end
                     end
                     if summonPet == 3 then
-                        if cast.summonFelhunter() then castSummonId = spell.summonFelhunter; return end
+                        if cast.summonFelhunter("player") then castSummonId = spell.summonFelhunter; return end
                     end
                     if summonPet == 4 then
-                        if cast.summonSuccubus() then castSummonId = spell.summonSuccubus; return end
+                        if cast.summonSuccubus("player") then castSummonId = spell.summonSuccubus; return end
                     end
                     if summonPet == 5 then
-                        if cast.summonFelguard() then castSummonId = spell.summonFelguard; return end
+                        if cast.summonFelguard("player") then castSummonId = spell.summonFelguard; return end
                     end
                 end
             end
@@ -414,14 +414,14 @@ local function runRotation()
                     -- summon_infernal,if=talent.grimoire_of_supremacy.enabled&active_enemies>=3
                     if useCDs() and isChecked("Summon Infernal") then
                         if talent.grimoireOfSupremacy and #enemies.yards8t >= 3 then
-                            if cast.summonInfernal("target") then return end
+                            if cast.summonInfernal() then return end
                         end
                     end
                 -- Summon Doomguard
                     -- summon_doomguard,if=talent.grimoire_of_supremacy.enabled&active_enemies<3
                     if useCDs() and isChecked("Summon Doomguard") then
                         if talent.grimoireOfSupremacy and #enemies.yards8t < 3 then
-                            if cast.summonDoomguard() then return end
+                            if cast.summonDoomguard("player") then return end
                         end
                     end
                     if isChecked("Pre-Pull Timer") and pullTimer <= getOptionValue("Pre-Pull Timer") then
@@ -615,19 +615,19 @@ local function runRotation()
                     -- if=cooldown.summon_doomguard.remains>25
                     if --[[((cd.summonDoomguard <= gcd and shards >= 2) or cd.summonDoomguard > 25) and]] br.timer:useTimer("castGrim", gcd) then
                         if grimoirePet == 1 then
-                            if cast.grimoireImp() then prevService = "Imp"; return end
+                            if cast.grimoireImp("player") then prevService = "Imp"; return end
                         end
                         if grimoirePet == 2 then
-                            if cast.grimoireVoidwalker() then prevService = "Voidwalker"; return end
+                            if cast.grimoireVoidwalker("player") then prevService = "Voidwalker"; return end
                         end
                         if grimoirePet == 3 then
-                            if cast.grimoireFelhunter() then prevService = "Felhunter"; return end
+                            if cast.grimoireFelhunter("player") then prevService = "Felhunter"; return end
                         end
                         if grimoirePet == 4 then
-                            if cast.grimoireSuccubus() then prevService = "Succubus"; return end
+                            if cast.grimoireSuccubus("player") then prevService = "Succubus"; return end
                         end
                         if grimoirePet == 5 then
-                            if cast.grimoireFelguard() then prevService = "Felguard"; return end
+                            if cast.grimoireFelguard("player") then prevService = "Felguard"; return end
                         end
                     end
         -- Summon Doomguard
@@ -647,7 +647,7 @@ local function runRotation()
                         if (talent.grimoireOfService and prevService == "Felguard" and #enemies.yards8t >= 3)
                             or (talent.grimoireOfSynergy and #enemies.yards8t >=3)
                         then
-                            if cast.summonInfernal("target") then return end
+                            if cast.summonInfernal() then return end
                         end
                     end
         -- Call Dreadstalkers
@@ -716,7 +716,7 @@ local function runRotation()
                     end
         -- Felstorm
                     -- felguard:felstorm
-                    if felguard and petInfo[1].numEnemies > 0 then
+                    if felguard and petInfo[1].numEnemies > 0 and getSpellCD(89751) == 0 then
                         if cast.commandDemon() then return end
                     end
         -- Doom
