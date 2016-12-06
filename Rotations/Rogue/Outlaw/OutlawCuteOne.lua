@@ -65,6 +65,7 @@ local function createOptions()
             br.ui:createCheckbox(section, "Grappling Hook")
             -- Opening Attack
             br.ui:createDropdown(section, "Opener", {"Ambush", "Cheap Shot"},  1, "|cffFFFFFFSelect Attack to Break Stealth with")
+            br.ui:createCheckbox("Marked For Death - Precombat")
             -- Pre-Pull Timer
             br.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
         	-- Stealth
@@ -479,7 +480,7 @@ local function runRotation()
 			end
 		-- Marked for Death
 			-- marked_for_death
-			if getDistance("target") < 30 and isValidUnit("target") then
+			if isChecked("Marked For Death - Precombat") and getDistance("target") < 30 and isValidUnit("target") then
 				if cast.markedForDeath("target") then return end
 			end
 		-- Roll The Bones
@@ -531,7 +532,7 @@ local function runRotation()
 			end
 		-- Ambush/Cheap Shot
 			-- ambush
-			if isValidUnit("target") and getDistance("target") < 5 and stealthing then
+			if isChecked("Opener") and isValidUnit("target") and getDistance("target") < 5 and stealthing then
 				if getOptionValue("Opener") == 1 then
 					if power <= 60 then
 						return true
