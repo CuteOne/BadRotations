@@ -79,7 +79,7 @@ local function createOptions()
             -- Crimson Vial
             br.ui:createSpinner(section, "SS Range",  5,  5,  15,  1,  "|cffFFBB00Shadow Strike range, 5 = Melee")
             --Shuriken Toss OOR
-            br.ui:createSpinner(section, "Shuriken Toss OOR",  85,  5,  100,  5,  "|cffFFBB00Check to use Shuriken Toss out of range and energy to use at.")
+            br.ui:createSpinner(section, "Shuriken Toss OOR",  85,  5,  100,  5,  "|cffFFBB00Check to use Pistol Shot out of range and energy to use at.")
             -- Racial
             br.ui:createCheckbox(section,"Racial")
             -- Trinkets
@@ -529,12 +529,12 @@ local function runRotation()
             if isValidUnit("target") then 
         -- Marked For Death
                 -- marked_for_death,if=raid_event.adds.in>40
-                if isChecked("Marked For Death - Precombat") then
+                if isChecked("Marked For Death - Precombat") and not inCombat then
                     if cast.markedForDeath("target") then return end
                 end
         -- Symbols of Death
                 -- symbols_of_death
-            if isChecked("Symbols of Death - Precombat") then
+            if isChecked("Symbols of Death - Precombat") and not inCombat then
                 if cast.symbolsOfDeath("player") then return end
             end
             end
