@@ -2020,6 +2020,7 @@ br.idList = {
             },
             buffs                           = {
                 backdraft                   = 117828, --196406,
+                demonicPower                = 196099,
                 conflagrationOfChaos        = 196546,
                 lordOfFlames                = 224103,
                 manaTap                     = 196104,
