@@ -292,14 +292,16 @@ function br.read.combatLog()
                                     if param == "SPELL_AURA_REMOVED" then
                                         if debuff[k][thisUnit] ~= nil then
                                             debuff[k][thisUnit].applied = 0
-                                        elseif debuff[k]["target"] ~= nil and UnitIsUnit(thisUnit,"target") then
+                                        end
+                                        if debuff[k]["target"] ~= nil and UnitIsUnit(thisUnit,"target") then
                                             debuff[k]["target"].applied = 0
                                         end
                                     end
                                     if param == "SPELL_AURA_APPLIED" or param == "SPELL_AURA_REFRESH" then
                                         if debuff[k][thisUnit] ~= nil then
                                             debuff[k][thisUnit].applied = debuff[k][thisUnit].calc
-                                        elseif debuff[k]["target"] ~= nil and UnitIsUnit(thisUnit,"target") then 
+                                        end
+                                        if debuff[k]["target"] ~= nil and UnitIsUnit(thisUnit,"target") then 
                                             debuff[k]["target"].applied = debuff[k][thisUnit].calc
                                         end
                                     end

@@ -171,6 +171,8 @@ local function runRotation()
         UpdateToggle("Defensive",0.25)
         UpdateToggle("Interrupt",0.25)
         UpdateToggle("Mover",0.25)
+        br.player.mode.mover = br.data["Mover"]
+        
 --------------
 --- Locals ---
 --------------
@@ -364,7 +366,7 @@ local function runRotation()
         end  -- End Action List - Pre-Combat
     -- Action List - Movement
         function actionList_Movement()
-            if useMover() and isValidUnit("target") then
+            if mode.mover == 1 and isValidUnit("target") then
         -- Heroic Leap
                 -- heroic_leap
                 if isChecked("Heroic Leap") and (getOptionValue("Heroic Leap")==6 or (SpecificToggle("Heroic Leap") and not GetCurrentKeyBoardFocus())) then

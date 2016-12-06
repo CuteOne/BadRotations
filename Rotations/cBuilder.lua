@@ -121,38 +121,36 @@ function br.loader:new(spec,specName)
         -- Build Debuff Info
         function self.getSnapshotValue(dot)
             -- Feral Bleeds
-            if cFileName == "spec" then
-                if GetSpecializationInfo(GetSpecialization()) == 103 then
-                    local multiplier        = 1.00
-                    local Bloodtalons       = 1.30
-                    local SavageRoar        = 1.40
-                    local TigersFury        = 1.15
-                    local RakeMultiplier    = 1
-                    -- Bloodtalons
-                    if self.buff.bloodtalons.exists then multiplier = multiplier*Bloodtalons end
-                    -- Savage Roar
-                    if self.buff.savageRoar.exists then multiplier = multiplier*SavageRoar end
-                    -- Tigers Fury
-                    if self.buff.tigersFury.exists then multiplier = multiplier*TigersFury end
-                    -- rip
-                    if dot == self.spell.debuffs.rip then
-                        -- -- Versatility
-                        -- multiplier = multiplier*(1+Versatility*0.1)
-                        -- return rip
-                        return 5*multiplier
-                    end
-                    -- rake
-                    if dot == self.spell.debuffs.rake then
-                        -- Incarnation/Prowl
-                        if self.buff.incarnationKingOfTheJungle.exists or self.buff.prowl.exists then
-                            RakeMultiplier = 2
-                        end
-                        -- return rake
-                        return multiplier*RakeMultiplier
-                    end
+            if GetSpecializationInfo(GetSpecialization()) == 103 then
+                local multiplier        = 1.00
+                local Bloodtalons       = 1.30
+                local SavageRoar        = 1.40
+                local TigersFury        = 1.15
+                local RakeMultiplier    = 1
+                -- Bloodtalons
+                if self.buff.bloodtalons.exists then multiplier = multiplier*Bloodtalons end
+                -- Savage Roar
+                if self.buff.savageRoar.exists then multiplier = multiplier*SavageRoar end
+                -- Tigers Fury
+                if self.buff.tigersFury.exists then multiplier = multiplier*TigersFury end
+                -- rip
+                if dot == self.spell.debuffs.rip then
+                    -- -- Versatility
+                    -- multiplier = multiplier*(1+Versatility*0.1)
+                    -- return rip
+                    return 5*multiplier
                 end
+                -- rake
+                if dot == self.spell.debuffs.rake then
+                    -- Incarnation/Prowl
+                    if self.buff.incarnationKingOfTheJungle.exists or self.buff.prowl.exists then
+                        RakeMultiplier = 2
+                    end
+                    -- return rake
+                    return multiplier*RakeMultiplier
+                end
+                return 0
             end
-            return 0
         end
         for k,v in pairs(self.spell.debuffs) do
             -- Build Debuff Table for all enemy units

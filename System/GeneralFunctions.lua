@@ -2544,14 +2544,15 @@ end
 function isValidUnit(Unit)
 	local threat = hasThreat(Unit)
 	local inAggroRange = getDistance(Unit) <= 20
+	local myTarget = UnitIsUnit(Unit,"target")
 	local trivial = UnitCreatureType(Unit) == "Critter" or UnitCreatureType(Unit) == "Non-combat Pet" or UnitCreatureType(Unit) == "Gas Cloud" or UnitCreatureType(Unit) == "Wild Pet"
-	if ObjectExists(Unit) and not UnitIsDeadOrGhost(Unit) and not UnitIsFriend(Unit, "player") and UnitCanAttack("player",Unit) and not trivial then
+	if ObjectExists(Unit) and not UnitIsDeadOrGhost(Unit) and not UnitIsFriend(Unit, "player") and UnitCanAttack("player",Unit) and not trivial and (not UnitCreatureType(Unit) == "Totem" or myTarget) then
 		-- Only consider Units that are in 20yrs or I have targeted when not in Combat and not in an Instance.
-		if not UnitAffectingCombat("player") and not IsInInstance() and (inAggroRange or UnitIsUnit(Unit,"target")) then return true end
+		if not UnitAffectingCombat("player") and not IsInInstance() and (inAggroRange or myTarget) then return true end
 		-- Only consider Units that I have threat with or I am alone and have targeted when not in Combat and in an Instance.
-		if not UnitAffectingCombat("player") and IsInInstance() and (threat or (#br.friend == 1 and UnitIsUnit(Unit,"target"))) then return true end 
+		if not UnitAffectingCombat("player") and IsInInstance() and (threat or (#br.friend == 1 and myTarget)) then return true end 
 		-- Only consider Units that I have threat with or I can attack and have targeted or are dummies within 20yrds when in Combat.
-		if UnitAffectingCombat("player") and (threat or UnitIsUnit(Unit,"target") or (isDummy(Unit) and inAggroRange)) then return true end
+		if UnitAffectingCombat("player") and (threat or myTarget or (isDummy(Unit) and inAggroRange)) then return true end
 	end
 	return false
 end
