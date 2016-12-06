@@ -62,7 +62,11 @@ local function createOptions()
             -- Dummy DPS Test
             br.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
             -- Grappling Hook
-            br.ui:createCheckbox(section, "Grappling Hook")
+            br.ui:createCheckbox(section, "Grappling Hook")         
+	    -- Sprint with Boots
+            br.ui:createCheckbox(section, "Sprint with Legendary Boots") 
+            -- Pistol Shot OOR
+            br.ui:createSpinner(section, "Pistol Shot out of range", 85,  5,  100,  5,  "|cffFFFFFFCheck to use Pistol Shot out of range and energy to use at.")
             -- Opening Attack
             br.ui:createDropdown(section, "Opener", {"Ambush", "Cheap Shot"},  1, "|cffFFFFFFSelect Attack to Break Stealth with")
             br.ui:createCheckbox(section, "Marked For Death - Precombat")
@@ -225,8 +229,10 @@ local function runRotation()
 		if talent.anticipation then antital = 1 else antital = 0 end
 		if cd.deathFromAbove == 0 then dfaCooldown = 1 else dfaCooldown = 0 end
 		if vanishTime == nil then vanishTime = GetTime() end
-		if buff.broadsides.exists or buff.buriedTreasure.exists or buff.grandMelee.exists or buff.jollyRoger.exists or buff.sharkInfestedWaters.exists then rtbBuff5 = true else rtbBuff5 = false end
-		if buff.broadsides.exists or buff.buriedTreasure.exists or buff.grandMelee.exists or buff.jollyRoger.exists or buff.sharkInfestedWaters.exists or buff.trueBearing.exists then rtbBuff6 = true else rtbBuff6 = false end
+        if buff.sharkInfestedWaters.exists then rtbBuff5 = true else rtbBuff5 = false end
+        if buff.trueBearing.exists then rtbBuff6 = true else rtbBuff6 = false end
+		--if buff.broadsides.exists or buff.buriedTreasure.exists or buff.grandMelee.exists or buff.jollyRoger.exists or buff.sharkInfestedWaters.exists then rtbBuff5 = true else rtbBuff5 = false end
+		--if buff.broadsides.exists or buff.buriedTreasure.exists or buff.grandMelee.exists or buff.jollyRoger.exists or buff.sharkInfestedWaters.exists or buff.trueBearing.exists then rtbBuff6 = true else rtbBuff6 = false end
 
 		buff.rollTheBones.count    = 0
         buff.rollTheBones.duration = 0
@@ -240,11 +246,16 @@ local function runRotation()
         end
 
 		-- rtb_reroll,value=!talent.slice_and_dice.enabled&(rtb_buffs<=1&!rtb_list.any.6&((!buff.curse_of_the_dreadblades.up&!buff.adrenaline_rush.up)|!rtb_list.any.5))
-		if not talent.sliceAndDice and (buff.rollTheBones.count <= 1 and not rtbBuff6 and ((not buff.curseOfTheDreadblades.exists and not buff.adrenalineRush.exists) or not rtbBuff5)) then
-			rtbReroll = true
-		else
-			rtbReroll = false
-		end			
+		--if not talent.sliceAndDice and (buff.rollTheBones.count <= 1 and not rtbBuff6 and ((not buff.curseOfTheDreadblades.exists and not buff.adrenalineRush.exists) or not rtbBuff5)) then
+			--rtbReroll = true
+		--else
+			--rtbReroll = false
+		--end
+        if not talent.sliceAndDice and (buff.rollTheBones.count <= 1 and not rtbBuff6 and ((--[[not buff.curseOfTheDreadblades.exists and ]]not buff.adrenalineRush.exists) or not rtbBuff5)) then
+            rtbReroll = true
+        else
+            rtbReroll = false
+        end
 		-- ss_useable_noreroll,value=(combo_points<5+talent.deeper_stratagem.enabled-(buff.broadsides.up|buff.jolly_roger.up)-(talent.alacrity.enabled&buff.alacrity.stack<=4))
 		if combo < 5 + dStrat - broadRoger - lowAlacrity then
 			ssUsableNoreroll = true
@@ -318,7 +329,7 @@ local function runRotation()
                 if cast.grapplingHook("target") then return end 
             end
     -- Pistol Shot
-    		if isValidUnit("target") and power > 75 and (not inCombat or getDistance("target") > 5) and not stealthing then
+    		if isChecked("Pistol Shot out of range") and isValidUnit("target") and power >= getOptionValue("Pistol Shot out of range") and (not inCombat or getDistance("target") > 8) and not stealthing then
     			if cast.pistolShot("target") then return end
     		end
 		end -- End Action List - Extras
@@ -447,7 +458,7 @@ local function runRotation()
 				end
 		-- Sprint
 				-- sprint,if=equipped.thraxis_tricksy_treads&!variable.ss_useable
-				if hasEquiped(137031) and not ssUsable then
+				if isChecked("Sprint with Legendary Boots") and hasEquiped(137031) and not ssUsable then
 					if cast.sprint() then return end
 				end
 		-- Curse of the Dreadblades
