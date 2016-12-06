@@ -18,7 +18,7 @@ local function createToggles()
         [2] = { mode = "On", value = 1 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spell.trueshot },
         [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.trueshot }
     };
-   	CreateButton("Cooldown",2,0)
+    CreateButton("Cooldown",2,0)
 -- Defensive Button
     DefensiveModes = {
         [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spell.aspectOfTheTurtle },
@@ -169,14 +169,15 @@ local function runRotation()
         local ttm                                           = br.player.timeToMax
         local units                                         = br.player.units
         
-   		if leftCombat == nil then leftCombat = GetTime() end
-		if profileStop == nil then profileStop = false end
+        if leftCombat == nil then leftCombat = GetTime() end
+        if profileStop == nil then profileStop = false end
 
         function br.player.getDebuffsCount()
             local UnitDebuffID = UnitDebuffID
             local huntersMarkCount = 0
             local vulnerableCount = 0
-
+            
+            if not br.player.debuffcount then br.player.debuffcount = {} end
             if huntersMarkCount>0 and not inCombat then huntersMarkCount = 0 end
             if vulnerableCount>0 and not inCombat then vulnerableCount = 0 end
 
@@ -236,67 +237,67 @@ local function runRotation()
                 end
             end
         end
-	-- Action List - Extras
-		local function actionList_Extras()
-		-- Dummy Test
-			if isChecked("DPS Testing") then
-				if ObjectExists("target") then
-					if getCombatTime() >= (tonumber(getOptionValue("DPS Testing"))*60) and isDummy() then
-						StopAttack()
-						ClearTarget()
-						print(tonumber(getOptionValue("DPS Testing")) .." Minute Dummy Test Concluded - Profile Stopped")
-						profileStop = true
-					end
-				end
-			end -- End Dummy Test
-		end -- End Action List - Extras
-	-- Action List - Defensive
-		local function actionList_Defensive()
-			if useDefensive() then
-		-- Pot/Stoned
-	            if isChecked("Pot/Stoned") and php <= getOptionValue("Pot/Stoned") 
-	            	and inCombat and (hasHealthPot() or hasItem(5512)) 
-	            then
+    -- Action List - Extras
+        local function actionList_Extras()
+        -- Dummy Test
+            if isChecked("DPS Testing") then
+                if ObjectExists("target") then
+                    if getCombatTime() >= (tonumber(getOptionValue("DPS Testing"))*60) and isDummy() then
+                        StopAttack()
+                        ClearTarget()
+                        print(tonumber(getOptionValue("DPS Testing")) .." Minute Dummy Test Concluded - Profile Stopped")
+                        profileStop = true
+                    end
+                end
+            end -- End Dummy Test
+        end -- End Action List - Extras
+    -- Action List - Defensive
+        local function actionList_Defensive()
+            if useDefensive() then
+        -- Pot/Stoned
+                if isChecked("Pot/Stoned") and php <= getOptionValue("Pot/Stoned") 
+                    and inCombat and (hasHealthPot() or hasItem(5512)) 
+                then
                     if canUse(5512) then
                         useItem(5512)
                     elseif canUse(healPot) then
                         useItem(healPot)
                     end
-	            end
-	    -- Heirloom Neck
-	    		if isChecked("Heirloom Neck") and php <= getOptionValue("Heirloom Neck") then
-	    			if hasEquiped(122668) then
-	    				if GetItemCooldown(122668)==0 then
-	    					useItem(122668)
-	    				end
-	    			end
-	    		end
-		-- Engineering: Shield-o-tronic
-				if isChecked("Shield-o-tronic") and php <= getOptionValue("Shield-o-tronic") 
-					and inCombat and canUse(118006) 
-				then
-					useItem(118006)
-				end
-    		end -- End Defensive Toggle
-		end -- End Action List - Defensive
-	-- Action List - Interrupts
-		local function actionList_Interrupts()
-			if useInterrupts() then
+                end
+        -- Heirloom Neck
+                if isChecked("Heirloom Neck") and php <= getOptionValue("Heirloom Neck") then
+                    if hasEquiped(122668) then
+                        if GetItemCooldown(122668)==0 then
+                            useItem(122668)
+                        end
+                    end
+                end
+        -- Engineering: Shield-o-tronic
+                if isChecked("Shield-o-tronic") and php <= getOptionValue("Shield-o-tronic") 
+                    and inCombat and canUse(118006) 
+                then
+                    useItem(118006)
+                end
+            end -- End Defensive Toggle
+        end -- End Action List - Defensive
+    -- Action List - Interrupts
+        local function actionList_Interrupts()
+            if useInterrupts() then
 
-		 	end -- End useInterrupts check
-		end -- End Action List - Interrupts
-	-- Action List - Cooldowns
-		local function actionList_Cooldowns()
-			if useCDs() then
-		-- Trinkets
-				if isChecked("Trinkets") then
+            end -- End useInterrupts check
+        end -- End Action List - Interrupts
+    -- Action List - Cooldowns
+        local function actionList_Cooldowns()
+            if useCDs() then
+        -- Trinkets
+                if isChecked("Trinkets") then
                     if canUse(13) then
-						useItem(13)
-					end
-					if canUse(14) then
-						useItem(14)
-					end
-				end
+                        useItem(13)
+                    end
+                    if canUse(14) then
+                        useItem(14)
+                    end
+                end
         -- Agi-Pot
                 if isChecked("Agi-Pot") and canUse(agiPot) and inRaid then
                     useItem(agiPot);
@@ -529,6 +530,7 @@ local function runRotation()
         elseif (inCombat and profileStop==true) or pause() or mode.rotation==4  then
             return true
         else
+            br.player.getDebuffsCount()
 -----------------------
 --- Extras Rotation ---
 -----------------------
@@ -605,8 +607,8 @@ local function runRotation()
                         -- SingleTarget
                         if actionList_SingleTarget() then return end          
                     end
-			end --End In Combat
-		end --End Rotation Logic
+            end --End In Combat
+        end --End Rotation Logic
     end -- End Timer
 end -- End runRotation
 local id = 254
