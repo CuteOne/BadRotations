@@ -65,7 +65,7 @@ local function createOptions()
             br.ui:createCheckbox(section, "Grappling Hook")
             -- Opening Attack
             br.ui:createDropdown(section, "Opener", {"Ambush", "Cheap Shot"},  1, "|cffFFFFFFSelect Attack to Break Stealth with")
-            br.ui:createCheckbox("Marked For Death - Precombat")
+            br.ui:createCheckbox(section, "Marked For Death - Precombat")
             -- Pre-Pull Timer
             br.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
         	-- Stealth
