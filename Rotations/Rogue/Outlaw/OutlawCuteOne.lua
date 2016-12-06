@@ -249,7 +249,7 @@ local function runRotation()
 		--else
 			--rtbReroll = false
 		--end
-        if not talent.sliceAndDice and (buff.rollTheBones.count <= 1 and not rtbBuff6 and ((not buff.curseOfTheDreadblades.exists and not buff.adrenalineRush.exists) or not rtbBuff5)) then
+        if not talent.sliceAndDice and (buff.rollTheBones.count <= 1 and not rtbBuff6 and ((--[[not buff.curseOfTheDreadblades.exists and ]]not buff.adrenalineRush.exists) or not rtbBuff5)) then
             rtbReroll = true
         else
             rtbReroll = false
