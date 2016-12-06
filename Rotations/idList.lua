@@ -1,6 +1,7 @@
 br.idList = {
     DEATHKNIGHT = {
-        Blood = {
+        -- Blood
+        [250] = {
             abilities                       = {
                 asphyxiate                  = 221562,
                 bloodBoil                   = 50842,
@@ -82,7 +83,8 @@ br.idList = {
                 willOfTheNecropolis         = 206967,
             },
         },
-        Frost = {
+        -- Frost
+        [251] = {
             abilities                       = {
 
             },
@@ -102,7 +104,8 @@ br.idList = {
 
             },
         },
-        Unholy = {
+        -- Unholy
+        [252] = {
             abilities                       = {
 
             },
@@ -122,6 +125,7 @@ br.idList = {
 
             },
         },
+        -- All
         Shared = {
             abilities                       = {
                 antimagicShell              = 48707,
@@ -160,7 +164,8 @@ br.idList = {
         },
     },
     DEMONHUNTER = {
-        Havoc = {
+        -- Havoc
+        [577] = {
             abilities                       = {
                 annihilation                = 201427,
                 bladeDance                  = 188499,
@@ -222,7 +227,8 @@ br.idList = {
                 unleashedPower              = 206477,
             },
         },
-        Vengeance = {
+        -- Vengeance
+        [581] = {
             abilities                       = {
                 demonSpikes                 = 203720,
                 empowerWards                = 218256,
@@ -285,6 +291,7 @@ br.idList = {
                 soulBarrier                 = 227225,
             },
         },
+        -- All
         Shared = {
             abilities                       = {
                 consumeMagic                    = 183752,
@@ -321,7 +328,29 @@ br.idList = {
         },
     },
     DRUID = {
-        Feral = {
+        -- Balance
+        [102] = {
+            abilities                       = {
+
+            },
+            artifacts                       = {
+
+            },
+            buffs                           = {
+
+            },
+            debuffs                         = {
+
+            },
+            glyphs                          = {
+
+            },
+            talents                         = {
+
+            },
+        },
+        -- Feral
+        [103] = {
             abilities                       = {
                 ashamanesFrenzy             = 210722,
                 berserk                     = 106951,
@@ -406,7 +435,8 @@ br.idList = {
                 soulOfTheForest             = 158476,
             },
         },
-        Guardian = {
+        -- Guardian
+        [104] = {
             abilities                       = {
                 barkskin                    = 22812,
                 bristlingFur                = 155835,
@@ -464,27 +494,8 @@ br.idList = {
                 survivalOfTheFittest        = 203965,
             },
         },
-        Moonkin = {
-            abilities                       = {
-
-            },
-            artifacts                       = {
-
-            },
-            buffs                           = {
-
-            },
-            debuffs                         = {
-
-            },
-            glyphs                          = {
-
-            },
-            talents                         = {
-
-            },
-        },
-        Restoration = {
+        -- Restoration
+        [105] = {
             abilities                       = {
                 barkskin                    = 22812,
                 cenarionWard                = 102351,
@@ -562,6 +573,7 @@ br.idList = {
                 stonebark                   = 197061,
             },
         },
+        -- All
         Shared = {
             abilities                       = {
                 bearForm                    = 5487,
@@ -622,7 +634,8 @@ br.idList = {
         },
     },
     HUNTER = {
-        BeastMastery = {
+        -- BeastMastery
+        [253] = {
             abilities                       = {
 
             },
@@ -642,7 +655,8 @@ br.idList = {
 
             },
         },
-        Marksmanship = {
+        -- Marksmanship
+        [254] = {
             abilities                       = {
                 aMurderOfCrows              = 131894,
                 aimedShot                   = 19434,
@@ -703,7 +717,8 @@ br.idList = {
                 trickShot                   = 199544,
             },
         },
-        Survival = {
+        -- Survival
+        [255] = {
             abilities                       = {
 
             },
@@ -723,6 +738,7 @@ br.idList = {
 
             },
         },
+        -- All
         Shared = {
             abilities                       = {
 
@@ -745,7 +761,8 @@ br.idList = {
         },
     },
     MAGE = {
-        Arcane = {
+        -- Arcane
+        [62] = {
             abilities                       = {
 
             },
@@ -765,7 +782,8 @@ br.idList = {
 
             },
         },
-        Fire = {
+        -- Fire
+        [63] = {
             abilities                       = {
                 blastWave                   = 157981,
                 cinderstorm                 = 198929,
@@ -811,7 +829,8 @@ br.idList = {
                 mirrorImage                 = 55342,
             },
         },
-        Frost = {
+        -- Frost
+        [64] = {
             abilities                       = {
 
             },
@@ -831,6 +850,7 @@ br.idList = {
 
             },
         },
+        -- All
         Shared = {
             abilities                       = {
                 counterspell                    = 2139,
@@ -857,7 +877,8 @@ br.idList = {
         },
     },
     MONK = {
-        Brewmaster = {
+        -- Brewmaster
+        [268] = {
             abilities                       = {
 
             },
@@ -877,7 +898,8 @@ br.idList = {
 
             },
         },
-        Mistweaver = {
+        -- Mistweaver
+        [270] = {
             abilities                       = {
                 detox                       = 115450,
                 envelopingMist              = 124682,
@@ -926,7 +948,8 @@ br.idList = {
                 zenPulse                    = 124081,
             },
         },
-        Windwalker = {
+        -- Windwalker
+        [269] = {
             abilities                       = {
                 chiWave                     = 115098,
                 detox                       = 218164,
@@ -998,6 +1021,7 @@ br.idList = {
                 whirlingDragonPunch         = 152175,
             },
         },
+        -- All
         Shared = {
             abilities                       = {
                 blackoutKick                = 100784,
@@ -1043,7 +1067,50 @@ br.idList = {
         },
     },    
     PALADIN = {
-        Retribution = {
+        -- Holy
+        [65] = {
+            abilities                       = {
+
+            },
+            artifacts                       = {
+
+            },
+            buffs                           = {
+
+            },
+            debuffs                         = {
+
+            },
+            glyphs                          = {
+
+            },
+            talents                         = {
+
+            },
+        },
+        -- Protection
+        [66] = {
+            abilities                       = {
+
+            },
+            artifacts                       = {
+
+            },
+            buffs                           = {
+
+            },
+            debuffs                         = {
+
+            },
+            glyphs                          = {
+
+            },
+            talents                         = {
+
+            },
+        },
+        -- Retribution
+        [70] = {
             abilities                       = {
                 avengingWrath               = 31884,
                 bladeOfJustice              = 184575,
@@ -1122,6 +1189,7 @@ br.idList = {
                 zeal                        = 217020,
             },
         },
+        -- All
         Shared = {
             abilities                       = {
                 blessingOfFreedom           = 1044,
@@ -1161,7 +1229,8 @@ br.idList = {
         },
     },
     PRIEST = {
-        Discipline = {
+        -- Discipline
+        [256] = {
             abilities                       = {
                 angelicFeather              = 121536,
                 divineStar                  = 110744,
@@ -1200,7 +1269,8 @@ br.idList = {
 
             },
         },
-        Holy = {
+        -- Holy
+        [257] = {
             abilities                       = {
 
             },
@@ -1220,7 +1290,8 @@ br.idList = {
 
             },
         },
-        Shadow = {
+        -- Shadow
+        [258] = {
             abilities                       = {
                 dispersion                  = 47585,
                 mindBlast                   = 8092,
@@ -1261,6 +1332,7 @@ br.idList = {
 
             },
         },
+        -- All
         Shared = {
             abilities                       = {
                 dispelMagic                 = 528,
@@ -1296,7 +1368,8 @@ br.idList = {
         },
     },
     ROGUE = {
-        Assassination = {
+        -- Assassination
+        [259] = {
             abilities                       = {
                 agonizingPoison             = 200802,
                 assassinsResolve            = 84601,
@@ -1384,7 +1457,8 @@ br.idList = {
                 venomRush                   = 152152,
             },
         },
-        Outlaw = {
+        -- Outlaw
+        [260] = {
             abilities                       = {
                 adrenalineRush              = 13750,
                 ambush                      = 8676,
@@ -1479,7 +1553,8 @@ br.idList = {
                 quickDraw                   = 196938,
             },
         },
-        Subtlety = {
+        -- Subtlety
+        [261] = {
             abilities                       = {
                 backstab                    = 53,
                 blind                       = 2094,
@@ -1548,6 +1623,7 @@ br.idList = {
                 weaponmaster                = 193537,
             },
         },
+        -- All
         Shared = {
             abilities                       = {
                 cheapShot                   = 1833,
@@ -1598,7 +1674,8 @@ br.idList = {
         },
     },
     SHAMAN = {
-        Elemental = {
+        -- Elemental
+        [262] = {
             abilities                       = {
                 ascendance                  = 114050,
                 chainLightning              = 188443,
@@ -1655,7 +1732,8 @@ br.idList = {
                 totemMastery                = 210643,
             },
         },
-        Enhancement = {
+        -- Enhancement
+        [263] = {
             abilities                       = {
                 ascendance                  = 114051,
                 boulderfist                 = 201897,
@@ -1731,7 +1809,8 @@ br.idList = {
                 windsong                    = 201898,
             },
         },
-        Restoration = {
+        -- Restoration
+        [264] = {
             abilities                       = {
 
             },
@@ -1751,6 +1830,7 @@ br.idList = {
 
             },
         },
+        -- All
         Shared = {
             abilities                       = {
                 ancestralSpirit             = 2008,
@@ -1786,7 +1866,8 @@ br.idList = {
         },
     },
     WARLOCK = {
-        Affliction = {
+        -- Affliction
+        [265] = {
             abilities                       = {
                 agony                       = 980,
                 corruption                  = 172,
@@ -1855,7 +1936,8 @@ br.idList = {
                 writheInAgony               = 196102,
             },
         },
-        Demonology = {
+        -- Demonology
+        [266] = {
             abilities                       = {
                 callDreadstalkers           = 104316,
                 commandDemon                = 119898,
@@ -1896,7 +1978,8 @@ br.idList = {
                 summonDarkglare             = 205180,
             },
         },
-        Destruction = {
+        -- Destruction
+        [267] = {
             abilities                       = {
                 cataclysm                   = 152108,
                 channelDemonfire            = 196447,
@@ -1964,6 +2047,7 @@ br.idList = {
                 wreakHavoc                  = 196410, 
             },
         },
+        -- All
         Shared = {
             abilities                       = {
                 darkPact                    = 108416,
@@ -2013,7 +2097,8 @@ br.idList = {
         },
     },    
     WARRIOR = {
-        Arms = {
+        -- Arms
+        [71] = {
             abilities                       = {
 
             },
@@ -2033,7 +2118,8 @@ br.idList = {
 
             },
         },
-        Fury = {
+        -- Fury
+        [72] = {
             abilities                       = {
                 bladestorm                  = 46924,
                 bloodbath                   = 12292,
@@ -2090,7 +2176,8 @@ br.idList = {
                 outburst                    = 206320,
             },
         },
-        Protection = {
+        -- Protection
+        [73] = {
             abilities                       = {
                 defensiveStance             = 71,
                 demoralizingShout           = 1160,
@@ -2167,6 +2254,7 @@ br.idList = {
                 warlordsChallenge           = 223662, 
             },
         },
+        -- All
         Shared = {
             abilities                       = {
                 avatar                      = 107574,
@@ -2199,6 +2287,7 @@ br.idList = {
             },
         },
     },
+    -- Global
     Shared = {
         abilities                           = {
             giftOfTheNaaru                  = 28880,
