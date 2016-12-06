@@ -8,6 +8,7 @@ br.dropOptions.Toggle = {"LeftCtrl","LeftShift","RightCtrl","RightShift","RightA
 br.dropOptions.Toggle2 ={"LeftCtrl","LeftShift","LeftAlt","RightCtrl","RightShift","RightAlt","MMouse","Mouse4","Mouse5","None" }
 br.dropOptions.CD = {"Never","CDs","Always" }
 br.loadedIn = false
+br.rotations = {}
 -- developers debug, use /run br.data["isDebugging"] = true
 br.debug = {}
 function br.debug:print(message)

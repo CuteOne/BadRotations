@@ -300,46 +300,57 @@ function BadRotationsUpdate(self)
 
 		--[[Class/Spec Selector]]
 	    br.selectedProfile = br.data.options[br.selectedSpec]["Rotation".."Drop"] or 1
-		local functionSelector = {
-			[ 62] = {className = "Mage", 		specName = "Arcane"},
-			[ 63] = {className = "Mage", 		specName = "Fire"},
-			[ 64] = {className = "Mage", 		specName = "Frost"},
-			[ 65] = {className = "Paladin",		specName = "Holy"},
-			[ 66] = {className = "Paladin", 	specName = "Protection"},
-			[ 70] = {className = "Paladin", 	specName = "Retribution"},
-			[ 71] = {className = "Warrior", 	specName = "Arms"},
-			[ 72] = {className = "Warrior", 	specName = "Fury"},
-			[ 73] = {className = "Warrior", 	specName = "Protection"},
-			[102] = {className = "Druid", 		specName = "Balance"},
-			[103] = {className = "Druid", 		specName = "Feral"},
-			[104] = {className = "Druid", 		specName = "Guardian"},
-			[105] = {className = "Druid", 		specName = "Restoration"},
-		 	[250] = {className = "DeathKnight", specName = "Blood"},
-		 	[251] = {className = "DeathKnight", specName = "Frost"},
-		 	[252] = {className = "DeathKnight", specName = "Unholy"},
-		 	[253] = {className = "Hunter", 		specName = "BeastMastery"},
-		 	[254] = {className = "Hunter", 		specName = "Marksmanship"},
-		 	[255] = {className = "Hunter", 		specName = "Survival"},
-		 	[256] = {className = "Priest", 		specName = "Discipline"},
-		 	[257] = {className = "Priest", 		specName = "Holy"},
-		 	[258] = {className = "Priest", 		specName = "Shadow"},
-		 	[259] = {className = "Rogue", 		specName = "Assassination"},
-		 	[260] = {className = "Rogue", 		specName = "Outlaw"},
-		 	[261] = {className = "Rogue", 		specName = "Subtlety"},
-		 	[262] = {className = "Shaman", 		specName = "Elemental"},
-		 	[263] = {className = "Shaman", 		specName = "Enhancement"},
-		 	[264] = {className = "Shaman", 		specName = "Restoration"},
-		 	[265] = {className = "Warlock", 	specName = "Affliction"},
-		 	[266] = {className = "Warlock", 	specName = "Demonology"},
-		 	[267] = {className = "Warlock", 	specName = "Destruction"},
-		 	[268] = {className = "Monk", 		specName = "Brewmaster"},
-		 	[269] = {className = "Monk", 		specName = "Windwalker"},
-		 	[270] = {className = "Monk", 		specName = "Mistweaver"},
-		 	[577] = {className = "DemonHunter", specName = "Havoc"},
-		 	[581] = {className = "DemonHunter", specName = "Vengeance"},
-		}
+		-- local functionSelector = {
+		-- 	[ 62] = {className = "Mage", 		specName = "Arcane"},
+		-- 	[ 63] = {className = "Mage", 		specName = "Fire"},
+		-- 	[ 64] = {className = "Mage", 		specName = "Frost"},
+		-- 	[ 65] = {className = "Paladin",		specName = "Holy"},
+		-- 	[ 66] = {className = "Paladin", 	specName = "Protection"},
+		-- 	[ 70] = {className = "Paladin", 	specName = "Retribution"},
+		-- 	[ 71] = {className = "Warrior", 	specName = "Arms"},
+		-- 	[ 72] = {className = "Warrior", 	specName = "Fury"},
+		-- 	[ 73] = {className = "Warrior", 	specName = "Protection"},
+		-- 	[102] = {className = "Druid", 		specName = "Balance"},
+		-- 	[103] = {className = "Druid", 		specName = "Feral"},
+		-- 	[104] = {className = "Druid", 		specName = "Guardian"},
+		-- 	[105] = {className = "Druid", 		specName = "Restoration"},
+		--  	[250] = {className = "DeathKnight", specName = "Blood"},
+		--  	[251] = {className = "DeathKnight", specName = "Frost"},
+		--  	[252] = {className = "DeathKnight", specName = "Unholy"},
+		--  	[253] = {className = "Hunter", 		specName = "BeastMastery"},
+		--  	[254] = {className = "Hunter", 		specName = "Marksmanship"},
+		--  	[255] = {className = "Hunter", 		specName = "Survival"},
+		--  	[256] = {className = "Priest", 		specName = "Discipline"},
+		--  	[257] = {className = "Priest", 		specName = "Holy"},
+		--  	[258] = {className = "Priest", 		specName = "Shadow"},
+		--  	[259] = {className = "Rogue", 		specName = "Assassination"},
+		--  	[260] = {className = "Rogue", 		specName = "Outlaw"},
+		--  	[261] = {className = "Rogue", 		specName = "Subtlety"},
+		--  	[262] = {className = "Shaman", 		specName = "Elemental"},
+		--  	[263] = {className = "Shaman", 		specName = "Enhancement"},
+		--  	[264] = {className = "Shaman", 		specName = "Restoration"},
+		--  	[265] = {className = "Warlock", 	specName = "Affliction"},
+		--  	[266] = {className = "Warlock", 	specName = "Demonology"},
+		--  	[267] = {className = "Warlock", 	specName = "Destruction"},
+		--  	[268] = {className = "Monk", 		specName = "Brewmaster"},
+		--  	[269] = {className = "Monk", 		specName = "Windwalker"},
+		--  	[270] = {className = "Monk", 		specName = "Mistweaver"},
+		--  	[577] = {className = "DemonHunter", specName = "Havoc"},
+		--  	[581] = {className = "DemonHunter", specName = "Vengeance"},
+		-- }
 		local playerSpec = GetSpecializationInfo(GetSpecialization())
-		_G[functionSelector[playerSpec].className..functionSelector[playerSpec].specName]()
+		br.playerSpecName = select(2,GetSpecializationInfo(GetSpecialization())) --functionSelector[playerSpec].specName
+
+		if br.player == nil or br.player.profile ~= br.playerSpecName then
+            br.player = br.loader:new(playerSpec,br.playerSpecName)
+            setmetatable(br.player, {__index = br.loader})
+            br.player:createOptions()
+            br.player:createToggles()
+            br.player:update()
+        end
+        if br.player ~= nil then
+        	br.player:update()
+        end
 	end
 end
 
