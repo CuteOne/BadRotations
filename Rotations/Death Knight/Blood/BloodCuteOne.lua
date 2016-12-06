@@ -525,8 +525,8 @@ local function runRotation()
                         end
                     end
                     --actions+=/blood_boil,if=charges.time_to_max<1.5*gcd
-                    if isChecked("Blood Boil High Prio") and (charges.frac.bloodBoil >= 1.75 and getDistance(thisUnit) <= 8) then
-                        if cast.bloodBoil(player) then return end
+                    if isChecked("Blood Boil High Prio") and (charges.frac.bloodBoil >= 1.75 and getDistance("target") <= 8) then
+                        if cast.bloodBoil("player") then return end
                     end 
                     --actions+=/blood_tap,if=rune<3
                     if talent.bloodTap and runes < 3 then
@@ -562,7 +562,7 @@ local function runRotation()
                         end
                     end
                     --actions+=/blood_boil
-                    if getDistance(thisUnit) <= 8 then
+                    if getDistance("target") <= 8 then
                         if cast.bloodBoil("player") then return end
                     end
                     --actions+=/death_and_decay,if=!talent.rapid.decomposition.enabled&buff.crimson_scourge_up
