@@ -156,40 +156,52 @@ function br.loader:new(spec,specName)
             -- Build Debuff Table for all enemy units
             if self.debuff[k] == nil then self.debuff[k] = {} end
             -- Setup debuff table per valid unit and per debuff
+                if #br.friend > 0 then
+                    for i = 1, #br.friend do
+                        local thisUnit = br.friend[i].unit
+                        if self.debuff[k][thisUnit]         == nil then self.debuff[k][thisUnit]            = {} end
+                        if self.debuff[k][thisUnit].applied == nil then self.debuff[k][thisUnit].applied    = 0 end
+                        self.debuff[k][thisUnit].exists         = UnitDebuffID(thisUnit,v,"player") ~= nil
+                        self.debuff[k][thisUnit].duration       = getDebuffDuration(thisUnit,v,"player")
+                        self.debuff[k][thisUnit].remain         = getDebuffRemain(thisUnit,v,"player")
+                        self.debuff[k][thisUnit].refresh        = self.debuff[k][thisUnit].remain <= self.debuff[k][thisUnit].duration * 0.3
+                        self.debuff[k][thisUnit].stack          = getDebuffStacks(thisUnit,v,"player")
+                        self.debuff[k][thisUnit].calc           = self.getSnapshotValue(v)
+                        self.debuff[k][thisUnit].count          = getDebuffCount(v)
+                    end
+                end
                 if #self.enemies.yards40 > 0 then
                     for i = 1, #self.enemies.yards40 do
                         local thisUnit = self.enemies.yards40[i]
-                        -- if hasThreat(thisUnit) or (not hasThreat(thisUnit) and getHP(thisUnit) < 100 and UnitIsUnit(thisUnit,"target")) or isDummy(thisUnit) then
-                            if self.debuff[k][thisUnit]         == nil then self.debuff[k][thisUnit]            = {} end
-                            if self.debuff[k][thisUnit].applied == nil then self.debuff[k][thisUnit].applied    = 0 end
-                            self.debuff[k][thisUnit].exists         = UnitDebuffID(thisUnit,v,"player") ~= nil
-                            if self.debuff[k][thisUnit].exists then
-                                self.debuff[k][thisUnit].duration       = getDebuffDuration(thisUnit,v,"player")
-                                self.debuff[k][thisUnit].remain         = getDebuffRemain(thisUnit,v,"player")
-                                self.debuff[k][thisUnit].refresh        = self.debuff[k][thisUnit].remain <= self.debuff[k][thisUnit].duration * 0.3
-                                self.debuff[k][thisUnit].stack          = getDebuffStacks(thisUnit,v,"player")
-                                self.debuff[k][thisUnit].calc           = self.getSnapshotValue(v)
-                                self.debuff[k][thisUnit].count          = getDebuffCount(v)
-                            else
-                                self.debuff[k][thisUnit].duration       = 0
-                                self.debuff[k][thisUnit].remain         = 0
-                                self.debuff[k][thisUnit].refresh        = true
-                                self.debuff[k][thisUnit].stack          = 0
-                                self.debuff[k][thisUnit].calc           = 0
-                                self.debuff[k][thisUnit].count          = 0
-                            end
-                            if UnitIsUnit(thisUnit,"target") then self.debuff[k]["target"] = self.debuff[k][thisUnit] end
-                            if self.debuff[k]["target"] == nil then 
-                                self.debuff[k]["target"]                = {} 
-                                self.debuff[k]["target"].exists         = false
-                                self.debuff[k]["target"].duration       = 0
-                                self.debuff[k]["target"].remain         = 0
-                                self.debuff[k]["target"].refresh        = true
-                                self.debuff[k]["target"].stack          = 0
-                                self.debuff[k]["target"].calc           = 0
-                                self.debuff[k]["target"].count          = 0
-                            end
-                        -- end
+                        if self.debuff[k][thisUnit]         == nil then self.debuff[k][thisUnit]            = {} end
+                        if self.debuff[k][thisUnit].applied == nil then self.debuff[k][thisUnit].applied    = 0 end
+                        self.debuff[k][thisUnit].exists         = UnitDebuffID(thisUnit,v,"player") ~= nil
+                        if self.debuff[k][thisUnit].exists then
+                            self.debuff[k][thisUnit].duration       = getDebuffDuration(thisUnit,v,"player")
+                            self.debuff[k][thisUnit].remain         = getDebuffRemain(thisUnit,v,"player")
+                            self.debuff[k][thisUnit].refresh        = self.debuff[k][thisUnit].remain <= self.debuff[k][thisUnit].duration * 0.3
+                            self.debuff[k][thisUnit].stack          = getDebuffStacks(thisUnit,v,"player")
+                            self.debuff[k][thisUnit].calc           = self.getSnapshotValue(v)
+                            self.debuff[k][thisUnit].count          = getDebuffCount(v)
+                        else
+                            self.debuff[k][thisUnit].duration       = 0
+                            self.debuff[k][thisUnit].remain         = 0
+                            self.debuff[k][thisUnit].refresh        = true
+                            self.debuff[k][thisUnit].stack          = 0
+                            self.debuff[k][thisUnit].calc           = 0
+                            self.debuff[k][thisUnit].count          = 0
+                        end
+                        if UnitIsUnit(thisUnit,"target") then self.debuff[k]["target"] = self.debuff[k][thisUnit] end
+                        if self.debuff[k]["target"] == nil then 
+                            self.debuff[k]["target"]                = {} 
+                            self.debuff[k]["target"].exists         = false
+                            self.debuff[k]["target"].duration       = 0
+                            self.debuff[k]["target"].remain         = 0
+                            self.debuff[k]["target"].refresh        = true
+                            self.debuff[k]["target"].stack          = 0
+                            self.debuff[k]["target"].calc           = 0
+                            self.debuff[k]["target"].count          = 0
+                        end
                     end
                 else
                     if self.debuff[k]["target"] == nil then self.debuff[k]["target"] = {} end
@@ -319,27 +331,29 @@ function br.loader:new(spec,specName)
 --- PET INFO ---
 ----------------
     function self.getPetInfo()
-        self.petInfo = {}
-        for i = 1, ObjectCount() do
-            -- define our unit
-            local thisUnit = GetObjectWithIndex(i)
-            -- check if it a unit first
-            if ObjectIsType(thisUnit, ObjectTypes.Unit)  then
-                local unitName      = UnitName(thisUnit)
-                local unitID        = GetObjectID(thisUnit)
-                local unitGUID      = UnitGUID(thisUnit)
-                local unitCreator   = UnitCreator(thisUnit)
-                local player        = GetObjectWithGUID(UnitGUID("player"))
-                if unitCreator == player and (unitID == 55659 or unitID == 98035 or unitID == 103673 or unitID == 11859 or unitID == 89 
-                    or unitID == 416 or unitID == 1860 or unitID == 417 or unitID == 1863 or unitID == 17252) 
-                then
-                    if self.spell.buffs.demonicEmpowerment ~= nil then
-                        demoEmpBuff   = UnitBuffID(thisUnit,self.spell.buffs.demonicEmpowerment) ~= nil
-                    else
-                        demoEmpBuff   = false
+        if select(2,UnitClass("player")) == "HUNTER" or select(2,UnitClass("player")) == "WARLOCK" then
+            self.petInfo = {}
+            for i = 1, ObjectCount() do
+                -- define our unit
+                local thisUnit = GetObjectWithIndex(i)
+                -- check if it a unit first
+                if ObjectIsType(thisUnit, ObjectTypes.Unit)  then
+                    local unitName      = UnitName(thisUnit)
+                    local unitID        = GetObjectID(thisUnit)
+                    local unitGUID      = UnitGUID(thisUnit)
+                    local unitCreator   = UnitCreator(thisUnit)
+                    local player        = GetObjectWithGUID(UnitGUID("player"))
+                    if unitCreator == player and (unitID == 55659 or unitID == 98035 or unitID == 103673 or unitID == 11859 or unitID == 89 
+                        or unitID == 416 or unitID == 1860 or unitID == 417 or unitID == 1863 or unitID == 17252) 
+                    then
+                        if self.spell.buffs.demonicEmpowerment ~= nil then
+                            demoEmpBuff   = UnitBuffID(thisUnit,self.spell.buffs.demonicEmpowerment) ~= nil
+                        else
+                            demoEmpBuff   = false
+                        end
+                        local unitCount     = #getEnemies(tostring(thisUnit),10) or 0
+                        tinsert(self.petInfo,{name = unitName, guid = unitGUID, id = unitID, creator = unitCreator, deBuff = demoEmpBuff, numEnemies = unitCount})
                     end
-                    local unitCount     = #getEnemies(tostring(thisUnit),10) or 0
-                    tinsert(self.petInfo,{name = unitName, guid = unitGUID, id = unitID, creator = unitCreator, deBuff = demoEmpBuff, numEnemies = unitCount})
                 end
             end
         end
