@@ -8,7 +8,7 @@ function br.loader:new(spec,specName)
             end
         end
     end
-    local self = cCharacter:new(tostring(select(1,UnitClass("player"))))--br.cClass:new(spec)
+    local self = cCharacter:new(tostring(select(1,UnitClass("player"))))
     local player = "player" -- if someone forgets ""
 
     self.profile = specName
