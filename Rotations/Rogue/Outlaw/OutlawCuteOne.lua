@@ -62,7 +62,9 @@ local function createOptions()
             -- Dummy DPS Test
             br.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
             -- Grappling Hook
-            br.ui:createCheckbox(section, "Grappling Hook")            
+            br.ui:createCheckbox(section, "Grappling Hook")         
+	    -- Sprint with Boots
+            br.ui:createCheckbox(section, "Sprint with Legendary Boots") 
             -- Pistol Shot OOR
             br.ui:createSpinner(section, "Pistol Shot out of range", 85,  5,  100,  5,  "|cffFFFFFFCheck to use Pistol Shot out of range and energy to use at.")
             -- Opening Attack
@@ -456,7 +458,7 @@ local function runRotation()
 				end
 		-- Sprint
 				-- sprint,if=equipped.thraxis_tricksy_treads&!variable.ss_useable
-				if hasEquiped(137031) and not ssUsable then
+				if isChecked("Sprint with Legendary Boots") and hasEquiped(137031) and not ssUsable then
 					if cast.sprint() then return end
 				end
 		-- Curse of the Dreadblades
