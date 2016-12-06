@@ -982,7 +982,7 @@ local function runRotation()
         -- Start Attack
                 -- auto_attack
                 if isValidUnit("target") and getDistance("target") < 5 then
-                    if not IsCurrentSpell(6603) then StartAttack() end
+                    StartAttack()
                 end
             end -- End No Combat Check
         end --End Action List - Pre-Combat
@@ -1034,7 +1034,7 @@ local function runRotation()
         -- Auto Attack
                 -- auto_attack
                 if getDistance(units.dyn5) < 5 then
-                    if not IsCurrentSpell(6603) then StartAttack() end
+                    StartAttack()
                 end
     ---------------------------------
     --- APL Mode: SimulationCraft ---

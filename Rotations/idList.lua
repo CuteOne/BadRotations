@@ -1512,6 +1512,7 @@ br.idList = {
                 bladeFlurry                 = 13877,
                 broadsides                  = 193356,
                 buriedTreasure              = 199600,
+                curseOfTheDreadblades       = 202665,
                 grandMelee                  = 193358,
                 greenskinsWaterloggedWristcuffs = 209420,
                 hiddenBlade                 = 202754,
@@ -1531,7 +1532,6 @@ br.idList = {
                 trueBearing                 = 193359,
             },
             debuffs                         = {
-                curseOfTheDreadblades       = 202665,
                 ghostlyStrike               = 196937,
                 parley                      = 199743,
             },
@@ -2291,7 +2291,6 @@ br.idList = {
     Shared = {
         abilities                           = {
             giftOfTheNaaru                  = 28880,
-            global                          = 61304,
             shadowmeld                      = 58984,
         },
         artifacts                           = {

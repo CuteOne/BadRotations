@@ -431,7 +431,7 @@ local function runRotation()
                     end
             -- Start Attack
                     if getDistance("target") < 5 then
-                        if not IsCurrentSpell(6603) then StartAttack() end
+                        StartAttack()
                     end
                 end
             end -- End No Combat
@@ -484,7 +484,7 @@ local function runRotation()
                     end
             -- Start Attack
                     if getDistance("target") < 5 then
-                        if not IsCurrentSpell(6603) then StartAttack() end
+                        StartAttack()
                     end
             -- Doom Winds
                     -- doom_winds,if=talent.hailstorm.enabled&buff.frostbrand.up&buff.flametongue.up

@@ -544,7 +544,7 @@ local function runRotation()
                     end
             -- Start Attack
                     if getDistance("target") < 5 then
-                        if not IsCurrentSpell(6603) then StartAttack() end
+                        StartAttack()
                     end
                 end
             end -- End No Combat
@@ -584,7 +584,7 @@ local function runRotation()
                 if getOptionValue("APL Mode") == 1 then
             -- Start Attack
                     if getDistance(units.dyn5) < 5 then
-                        if not IsCurrentSpell(6603) then StartAttack() end
+                        StartAttack()
                     end
             -- Blur
                     -- blur,if=artifact.demon_speed.enabled&cooldown.fel_rush.charges_fractional<0.5&cooldown.vengeful_retreat.remains-buff.momentum.remains>4

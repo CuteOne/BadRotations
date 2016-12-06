@@ -344,7 +344,7 @@ local function runRotation()
             if not inCombat and ObjectExists("target") and not UnitIsDeadOrGhost("target") and UnitCanAttack("target", "player") then
                 if actionList_PreCombat() then return end
                 if inRange(spell.slam,units.dyn5) then
-                    if not IsCurrentSpell(6603) then StartAttack() end
+                    StartAttack()
                 else
                     if cast.charge("target") then return end
                 end

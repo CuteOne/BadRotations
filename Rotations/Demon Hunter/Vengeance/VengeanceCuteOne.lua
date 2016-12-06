@@ -304,7 +304,7 @@ local function runRotation()
                 end -- End Pre-Pull
                 if ObjectExists("target") and not UnitIsDeadOrGhost("target") and UnitCanAttack("target", "player") and getDistance("target") < 5 then
             -- Start Attack
-                    if not IsCurrentSpell(6603) then StartAttack() end
+                    StartAttack()
                 end
             end -- End No Combat
         end -- End Action List - PreCombat 
@@ -343,7 +343,7 @@ local function runRotation()
     -- Start Attack
                 -- actions=auto_attack
                 if getDistance(units.dyn5) < 5 then
-                    if not IsCurrentSpell(6603) then StartAttack() end
+                    StartAttack()
                 end
     -- Soul Carver
                 if cast.soulCarver() then return end

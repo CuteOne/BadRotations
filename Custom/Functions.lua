@@ -7,9 +7,8 @@
 --[[ ragnar                                                                                         ]]
 --[[                                                                                                ]]
 function unitLookup(Unit,returnType)
-	-- for i=1,#br.enemy do
-	for k, v in pairs(br.enemy) do
-		if br.enemy[k].guid == Unit or br.enemy[k].unit == Unit then
+	for i=1,#br.enemy do
+		if br.enemy[i].guid == Unit or br.enemy[i].unit == Unit then
 			if returnType == "guid" then
 				return br.enemy[i].guid
 			elseif returnType == "table" then
@@ -23,10 +22,9 @@ end
 
 function getUnitCount(ID,maxRange,tapped)
 	local counter = 0
-	-- for i=1,#br.enemy do
-	for k, v in pairs(br.enemy) do
-		local thisUnit = br.enemy[k].unit
-		local thisUnitID = br.enemy[k].id
+	for i=1,#br.enemy do
+		local thisUnit = br.enemy[i].unit
+		local thisUnitID = br.enemy[i].id
 		if thisUnitID == ID then
 			if br.enemy[i].distance < maxRange then
 				if (tapped == true and UnitIsTappedByPlayer(thisUnit)) or tapped == nil or tapped == false then
@@ -163,9 +161,8 @@ function isUnitThere(unitNameOrID,distance)
 		-- isUnitThere("Shadowfel Warden")
 
 	if type(unitNameOrID)=="number" then
-		-- for i=1,#br.enemy do
-		for k, v in pairs(br.enemy) do
-			local thisUnit = br.enemy[k].unit
+		for i=1,#br.enemy do
+			local thisUnit = br.enemy[i].unit
 			if GetObjectID(thisUnit) then
 				if distance==nil or getDistance("player",thisUnit) < distance then
 					return true
@@ -174,9 +171,8 @@ function isUnitThere(unitNameOrID,distance)
 		end
 	end
 	if type(unitNameOrID)=="string" then
-		-- for i=1,#br.enemy do
-		for k, v in pairs(br.enemy) do
-			local thisUnit = br.enemy[k].unit
+		for i=1,#br.enemy do
+			local thisUnit = br.enemy[i].unit
 			if UnitName(thisUnit)==unitNameOrID then
 				if distance==nil or getDistance("player",thisUnit) < distance then
 					return true
@@ -329,12 +325,11 @@ function getUnitCluster(minUnits,maxRange,radius)
 	local enemiesInRange = 0
 	local theReturnUnit
 
-	-- for i=1,#br.enemy do
-	for k, v in pairs(br.enemy) do
-		local thisUnit = br.enemy[k].unit
+	for i=1,#br.enemy do
+		local thisUnit = br.enemy[i].unit
 		local thisEnemies = getNumEnemies(thisUnit,radius)
 		if getLineOfSight(thisUnit) == true then
-		if br.enemy[k].distance < maxRange then
+		if br.enemy[i].distance < maxRange then
 				if thisEnemies >= minUnits and thisEnemies > enemiesInRange then
 					theReturnUnit = thisUnit
 				end
@@ -361,11 +356,10 @@ function getBiggestUnitCluster(maxRange,radius)
 	local enemiesInRange = 0
 	local theReturnUnit
 
-	-- for i=1,#br.enemy do
-	for k, v in pairs(br.enemy) do
-		local thisUnit = br.enemy[k].unit
+	for i=1,#br.enemy do
+		local thisUnit = br.enemy[i].unit
 		if getLineOfSight(thisUnit) == true then
-			if br.enemy[k].distance < maxRange then
+			if br.enemy[i].distance < maxRange then
 				if getNumEnemies(thisUnit,radius) > enemiesInRange then
 					theReturnUnit = thisUnit
 				end

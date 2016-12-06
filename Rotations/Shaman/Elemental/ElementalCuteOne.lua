@@ -445,10 +445,10 @@ local function runRotation()
                     end
             -- Flame Shock
                     if debuff.flameShock[units.dyn10].refresh then
-                        if cast.flameShock("target") then if not IsCurrentSpell(6603) then StartAttack() end; return end
+                        if cast.flameShock("target") then StartAttack(); return end
                     else
             -- Lightning Bolt
-                        if cast.lightningBolt("target") then if not IsCurrentSpell(6603) then StartAttack() end; return end
+                        if cast.lightningBolt("target") then StartAttack(); return end
                     end
                 end
             end -- End No Combat
