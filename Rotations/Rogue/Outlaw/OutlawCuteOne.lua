@@ -218,7 +218,7 @@ local function runRotation()
 
 		if talent.deeperStrategem then dStrat = 1 else dStrat = 0 end
 		if talent.quickDraw then qDraw = 1 else qDraw = 0 end
-		if talent.ghostlyStrike and not debuff.ghostlyStrike[units.dyn5].exists then gsBuff = 1 else gsBuff = 0 end
+		if talent.ghostlyStrike and debuff.ghostlyStrike[units.dyn5] ~= nil and not debuff.ghostlyStrike[units.dyn5].exists then gsBuff = 1 else gsBuff = 0 end
 		if buff.broadsides.exists then broadUp = 1 else broadUp = 0 end
 		if buff.broadsides.exists and buff.jollyRoger.exists then broadRoger = 1 else broadRoger = 0 end
 		if talent.alacrity and buff.alacrity.stack <= 4 then lowAlacrity = 1 else lowAlacrity = 0 end
@@ -310,7 +310,7 @@ local function runRotation()
         		end
         	end
     -- Bribe
-    		if isChecked("Bribe") and UnitCreatureType(units.dyn30) ~= "Humanoid" and not isDummy(units.dyn30) then
+    		if isChecked("Bribe") and UnitCreatureType(units.dyn30) == "Humanoid" and not isDummy(units.dyn30) then
     			if cast.bribe(units.dyn30) then return end
     		end
     -- Grappling Hook
