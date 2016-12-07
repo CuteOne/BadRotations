@@ -302,7 +302,7 @@ function br.read.combatLog()
                                             debuff[k][thisUnit].applied = debuff[k][thisUnit].calc
                                         end
                                         if debuff[k]["target"] ~= nil and UnitIsUnit(thisUnit,"target") then 
-                                            debuff[k]["target"].applied = debuff[k][thisUnit].calc
+                                            debuff[k]["target"].applied = debuff[k]["target"].calc
                                         end
                                     end
                                 end
