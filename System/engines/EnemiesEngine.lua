@@ -158,10 +158,10 @@ function EnemiesEngine()
 	function cleanupEngine()
 		for k, v in pairs(br.enemy) do
 			-- here i want to scan the enemies table and find any occurances of invalid units
-			if not GetObjectExists(br.enemy[k].unit) then
+			if not GetObjectExists(br.enemy[k].unit) or UnitIsDeadOrGhost(br.enemy[k].unit) then
 				-- i will remove such units from table
 				br.enemy[k] = nil
-			elseif getDistance(k) > 40 then
+			elseif getDistance(br.enemy[k].unit) > 40 then
 				br.enemy[k] = nil
 			end
 		end
