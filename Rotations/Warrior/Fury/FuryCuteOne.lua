@@ -175,6 +175,7 @@ local function runRotation()
         UpdateToggle("Interrupt",0.25)
         UpdateToggle("Mover",0.25)
         br.player.mode.mover = br.data["Mover"]
+
 --------------
 --- Locals ---
 --------------
@@ -229,6 +230,17 @@ local function runRotation()
 --------------------
     -- Action list - Extras
         function actionList_Extra()
+            -- Dummy Test
+            if isChecked("DPS Testing") then
+                if ObjectExists("target") then
+                    if getCombatTime() >= (tonumber(getOptionValue("DPS Testing"))*60) and isDummy() then
+                        StopAttack()
+                        ClearTarget()
+                        print(tonumber(getOptionValue("DPS Testing")) .." Minute Dummy Test Concluded - Profile Stopped")
+                        profileStop = true
+                    end
+                end
+            end -- End Dummy Test
             -- Berserker Rage
             if isChecked("Berserker Rage") and hasNoControl(spell.berserkerRage) then
                 if cast.berserkerRage() then return end
@@ -343,9 +355,9 @@ local function runRotation()
         -- Potions
                 -- potion,name=old_war,if=(target.health.pct<20&buff.battle_cry.up)|target.time_to_die<30
         -- Battle Cry
-                -- battle_cry,if=(cooldown.odyns_fury.remains=0&(cooldown.bloodthirst.remains=0|(buff.enrage.remains>cooldown.bloodthirst.remains)))
+                -- battle_cry,if=(cooldown.odyns_fury.remains=0&(cooldown.bloodthirst.remains=0|(buff.enrage.remains>cooldown.bloodthirst.remains)))&buff.dragon_roar.up&gcd.remains<0.2
                 if isChecked("Battle Cry") then
-                    if (cd.odynsFury == 0 and (cd.bloodthirst == 0 or (buff.enrage.remain > cd.bloodthirst))) then
+                    if (cd.odynsFury == 0 and (cd.bloodthirst == 0 or (buff.enrage.remain > cd.bloodthirst))) and buff.dragonRoar.exists and cd.global < 0.2 then
                         if cast.battleCry() then return end
                     end
                 end
@@ -407,11 +419,11 @@ local function runRotation()
                 -- heroic_leap
                 if isChecked("Heroic Leap") and (getOptionValue("Heroic Leap")==6 or (SpecificToggle("Heroic Leap") and not GetCurrentKeyBoardFocus())) then
                     -- Best Location
-                    if getOptionValue("Heroic Leap - Target")==1 then
-                        if cast.heroicLeap("best",false,1,8) then return end
+                    if getOptionValue("Heroic Leap - Target") == 1 then
+                        if cast.heroicLeap("best",nil,1,8) then return end
                     end
                     -- Target
-                    if getOptionValue("Heroic Leap - Target")==2 then
+                    if getOptionValue("Heroic Leap - Target") == 2 then
                         if cast.heroicLeap("target","ground") then return end
                     end
                 end
@@ -464,7 +476,7 @@ local function runRotation()
             end
         -- Dragon Roar
             -- dragon_roar,if=cooldown.odyns_fury.remains>=10|cooldown.odyns_fury.remains<=3
-            if useCDs() and isChecked("Dragon Roar") then
+            if isChecked("Dragon Roar") then
                 if cd.odynsFury >= 10 or cd.odynsFury <= 3 then
                     if cast.dragonRoar() then return end
                 end
@@ -575,7 +587,7 @@ local function runRotation()
             end
         -- Dragon Roar
             -- dragon_roar
-            if useCDs() and isChecked("Dragon Roar") then
+            if isChecked("Dragon Roar") then
                 if cast.dragonRoar() then return end
             end
         -- Bloodthirst
@@ -619,7 +631,7 @@ local function runRotation()
             end
         -- Dragon Roar
             -- dragon_roar
-            if useCDs() and isChecked("Dragon Roar") then
+            if isChecked("Dragon Roar") then
                 if cast.dragonRoar() then return end
             end
         -- Rampage
