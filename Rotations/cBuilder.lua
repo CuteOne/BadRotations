@@ -72,17 +72,18 @@ function br.loader:new(spec,specName)
 
         -- Build Best Unit per Range
         local typicalRanges = {
-            40,
+            40, -- Typical Ranged Limit
             35,
             30,
             25,
             20,
             15,
-            13,
-            12,
-            10,
-            8,
-            5,
+            13, -- Feral Interrupt
+            12, 
+            10, -- Other Typical AoE Effect
+            9, -- Monk Artifact
+            8, -- Typical AoE Effect
+            5, -- Typical Melee
         }
         for x = 1, #typicalRanges do
             local i = typicalRanges[x]
