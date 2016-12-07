@@ -286,7 +286,7 @@ local function runRotation()
         	if usePickPocket() then
     			if (isValidUnit(units.dyn5) or mode.pickPocket == 2) and mode.pickPocket ~= 3 then
         			if not isPicked(units.dyn5) and not isDummy(units.dyn5) then
-        				if debuff.sap.remain < 1 and mode.pickPocket ~= 1 then
+        				if debuff.sap[units.dyn5].remain < 1 and mode.pickPocket ~= 1 then
         					if cast.sap(units.dyn5) then return end
         				end
         				if lastSpell ~= spell.vanish then

@@ -2049,6 +2049,16 @@ function isAlive(Unit)
 end
 -- isBoss()
 function isBoss(unit)
+	local function getInstanceBoss()
+		if IsInInstance() then
+			local lockTimeleft, isPreviousInstance, encountersTotal, encountersComplete = GetInstanceLockTimeRemaining();
+			for i=1,encountersTotal do
+				local bossName = select(1,GetInstanceLockTimeRemainingEncounter(i))
+				if UnitName(unit) == i then return true end
+			end
+		end
+		return false
+	end
 	if unit==nil then unit="target" end
 	if UnitExists(unit) then
 		local npcID = string.match(UnitGUID(unit),"-(%d+)-%x+$")
@@ -2060,10 +2070,10 @@ function isBoss(unit)
 			or (UnitClassification(unit) == "elite" and UnitHealthMax(unit)>(4*UnitHealthMax("player")) and select(2,IsInInstance())~="raid")--UnitLevel(unit) >= UnitLevel("player")+3) 
 			or UnitLevel(unit) < 0)
 				and not UnitIsTrivial(unit)
-				and select(2,IsInInstance())~="party"
+				-- and select(2,IsInInstance())~="party"
 		then
 			return true
-		elseif bossCheck or isDummy(unit) then
+		elseif bossCheck or isDummy(unit) or getInstanceBoss() then
 			return true
 		else
 			return false

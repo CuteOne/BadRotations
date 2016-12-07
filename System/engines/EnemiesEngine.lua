@@ -122,6 +122,7 @@ function EnemiesEngine()
 					local thisUnit 				= k
 					local burnValue 			= isBurnTarget(thisUnit) or 0
 					local shieldValue 			= isShieldedTarget(thisUnit) or 0
+					local unitThreat 			= UnitThreatSituation("player",thisUnit) or -1
 					br.enemy[k].name 			= UnitName(thisUnit)
 					br.enemy[k].guid 			= UnitGUID(thisUnit)
 					br.enemy[k].id 				= GetObjectID(thisUnit)
@@ -171,8 +172,8 @@ function EnemiesEngine()
 			local bestUnitCoef = 0
 			local bestUnit = "target"
 			for k, v in pairs(br.enemy) do
-				local thisUnit = br.enemy[k].unit
-				local thisDistance = getDistance("player",thisUnit)
+				local thisUnit = br.enemy[k]
+				local thisDistance = getDistance("player",thisUnit.unit)
 				if GetObjectExists(thisUnit.unit) then
 					if (not getOptionCheck("Safe Damage Check") or thisUnit.safe) and thisUnit.isCC == false and thisDistance < range and (facing == false or thisUnit.facing == true) then
 						if thisUnit.coeficient >= 0 and thisUnit.coeficient >= bestUnitCoef then
