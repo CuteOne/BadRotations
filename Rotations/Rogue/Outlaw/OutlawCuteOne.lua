@@ -435,7 +435,7 @@ local function runRotation()
                 if cast.bladeFlurry() then return end
             end
             -- blade_flurry,if=spell_targets.blade_flurry>=2&!buff.blade_flurry.up
-            if useAoE() and not buff.bladeFlurry.exists then
+            if useAoE() and not buff.bladeFlurry.exists and getDistance(units.dyn5) < 5 then
                 if cast.bladeFlurry() then return end
             end
         end
