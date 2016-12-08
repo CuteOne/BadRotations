@@ -44,6 +44,25 @@ local function createToggles()
       [3] = { mode = "Off", value = 3, overlay = "Pick Pocket Disabled", tip = "Profile will not use Pick Pocket.", highlight = 0, icon = br.player.spell.pickPocket}
     };
     CreateButton("Picker",6,0)
+                     -- MfD Button
+    MfDModes = {
+        [1] = { mode = "On", value = 1 , overlay = "MfD Reset Enabled", tip = "Rotation will reset MfD.", highlight = 1, icon = br.player.spell.markedForDeath },
+        [2] = { mode = "Off", value = 2 , overlay = "MfD Reset Disabled", tip = "Rotation will not reset MfD.", highlight = 0, icon = br.player.spell.markedForDeath }
+    };
+    CreateButton("MfD",7,0)
+
+              -- RerollTB Button
+    RerollTBModes = {
+        [1] = { mode = "On", value = 1 , overlay = "RerollTB Enabled", tip = "Rotation will Roll for TB.", highlight = 1, icon = br.player.spell.rollTheBones },
+        [2] = { mode = "Off", value = 2 , overlay = "RerollTB Disabled", tip = "Rotation will Roll for TB.", highlight = 0, icon = br.player.spell.rollTheBones }
+    };
+    CreateButton("RerollTB",8,0)
+              -- Roll for one Button
+    RollForOneModes = {
+        [1] = { mode = "On", value = 1 , overlay = "Roll for one Enabled", tip = "Rotation will Roll for only one buff.", highlight = 1, icon = br.player.spell.pistolShot },
+        [2] = { mode = "Off", value = 2 , overlay = "Roll for one Disabled", tip = "Rotation will Roll for only one buff.", highlight = 0, icon = br.player.spell.pistolShot }
+    };
+    CreateButton("RollForOne",9,0)
 end
 
 ---------------
@@ -169,6 +188,12 @@ local function runRotation()
         br.player.mode.cleave = br.data["Cleave"]
         UpdateToggle("Picker",0.25)
         br.player.mode.pickPocket = br.data["Picker"]
+		UpdateToggle("MfD",0.25)
+        br.player.mode.MfD = br.data["MfD"]
+		UpdateToggle("RerollTB",0.25)
+        br.player.mode.RerollTB = br.data["RerollTB"]
+		UpdateToggle("RollForOne",0.25)
+        br.player.mode.RollForOne = br.data["RollForOne"]
 
 --------------
 --- Locals ---
@@ -246,19 +271,15 @@ local function runRotation()
         end
 
         -- rtb_reroll,value=!talent.slice_and_dice.enabled&(rtb_buffs<=1&!rtb_list.any.6&((!buff.curse_of_the_dreadblades.up&!buff.adrenaline_rush.up)|!rtb_list.any.5))
-        if not talent.sliceAndDice and (buff.rollTheBones.count <= 1 and not rtbBuff6 and ((not debuff.curseOfTheDreadblades["player"].exists and not buff.adrenalineRush.exists) or not rtbBuff5)) then
-            rtbReroll = true
-        else
-            rtbReroll = false
-        end
-        -- ss_useable_noreroll,value=(combo_points<5+talent.deeper_stratagem.enabled-(buff.broadsides.up|buff.jolly_roger.up)-(talent.alacrity.enabled&buff.alacrity.stack<=4))
-        if combo < 5 + dStrat - broadRoger - lowAlacrity then
-            ssUsableNoreroll = true
-        else
-            ssUsableNoreroll = false
-        end 
+		if not talent.sliceAndDice and (buff.rollTheBones.count >= 2  or buff.trueBearing.exists or (useRollForOne() and buff.rollTheBones.count >= 1) or 
+			   ( buff.sharkInfestedWaters.exists and (buff.adrenalineRush.exists  or debuff.curseOfTheDreadblades["player"].exists or cd.curseOfTheDreadblades < 15 or cd.adrenalineRush < 15 )))then
+			rtbReroll = false
+		else
+			rtbReroll = true
+		end	
+ 
         -- ss_useable,value=(talent.anticipation.enabled&combo_points<4)|(!talent.anticipation.enabled&((variable.rtb_reroll&combo_points<4+talent.deeper_stratagem.enabled)|(!variable.rtb_reroll&variable.ss_useable_noreroll)))
-        if (talent.anticipation and combo < 4) or (not talent.anticipation and ((rtbReroll and combo < 4 + dStrat) or (not rtbReroll and ssUsableNoreroll))) then
+        if (talent.anticipation and combo <= 4) or (not talent.anticipation and combo < 5) then
             ssUsable = true
         else
             ssUsable = false
@@ -414,7 +435,7 @@ local function runRotation()
                 if cast.bladeFlurry() then return end
             end
             -- blade_flurry,if=spell_targets.blade_flurry>=2&!buff.blade_flurry.up
-            if useAoE() and not buff.bladeFlurry.exists then
+            if useAoE() and not buff.bladeFlurry.exists and getDistance(units.dyn5) < 5 then
                 if cast.bladeFlurry() then return end
             end
         end
@@ -428,29 +449,29 @@ local function runRotation()
                 end
         -- Adrenaline Rush
                 -- adrenaline_rush,if=!buff.adrenaline_rush.up&energy.deficit>0
-                if not buff.adrenalineRush.exists and powerDeficit > 0 then
+                if not buff.adrenalineRush.exists and powerDeficit > 20 and (cd.curseOfTheDreadblades > 15 or cd.curseOfTheDreadblades == 0) then
                     if cast.adrenalineRush() then return end
                 end
-        -- Marked For Death
-                if isChecked("Marked For Death") then
-                    if getOptionValue("Marked For Death") == 1 then
-                        -- marked_for_death,if=combo_points.deficit>=4+talent.deeper_strategem.enabled+talent.anticipation.enabled
-                        if comboDeficit >= 4 + dStrat + antital then
-                            if cast.markedForDeath() then return end
-                        end
-                    end
-                    if getOptionValue("Marked For Death") == 2 then
-                        -- marked_for_death,if=target.time_to_die<combo_points.deficit 
-                        for i = 1, #enemies.yards30 do
-                            local thisUnit = enemies.yards30[i]
-                            if (multidot or (UnitIsUnit(thisUnit,units.dyn5) and not multidot)) then
-                                if ttd(thisUnit) < comboDeficit then
-                                    if cast.markedForDeath(thisUnit) then return end
-                                end
-                            end
-                        end
-                    end
-                end
+        -- -- Marked For Death
+        --         if isChecked("Marked For Death") then
+        --             if getOptionValue("Marked For Death") == 1 then
+        --                 -- marked_for_death,if=combo_points.deficit>=4+talent.deeper_strategem.enabled+talent.anticipation.enabled
+        --                 if comboDeficit >= 4 + dStrat + antital then
+        --                     if cast.markedForDeath() then return end
+        --                 end
+        --             end
+        --             if getOptionValue("Marked For Death") == 2 then
+        --                 -- marked_for_death,if=target.time_to_die<combo_points.deficit 
+        --                 for i = 1, #enemies.yards30 do
+        --                     local thisUnit = enemies.yards30[i]
+        --                     if (multidot or (UnitIsUnit(thisUnit,units.dyn5) and not multidot)) then
+        --                         if ttd(thisUnit) < comboDeficit then
+        --                             if cast.markedForDeath(thisUnit) then return end
+        --                         end
+        --                     end
+        --                 end
+        --             end
+        --         end
         -- Sprint
                 -- sprint,if=equipped.thraxis_tricksy_treads&!variable.ss_useable
                 if isChecked("Sprint with Legendary Boots") and hasEquiped(137031) and not ssUsable then
@@ -458,11 +479,16 @@ local function runRotation()
                 end
         -- Curse of the Dreadblades
                 -- curse_of_the_dreadblades,if=combo_points.deficit>=4&(!talent.ghostly_strike.enabled|debuff.ghostly_strike.up)
-                if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()) then
-                    if comboDeficit >= 4 and (not talent.ghostlyStrike or debuff.ghostlyStrike[units.dyn5].exists) then
-                        if cast.curseOfTheDreadblades() then return end
-                    end
-                end
+  					if ((getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs())) and cd.curseOfTheDreadblades == 0 and
+						 comboDeficit >= 4 and inCombat and (not talent.ghostlyStrike or debuff.ghostlyStrike[units.dyn5].remain < 14)) and (buff.adrenalineRush.exists or cd.adrenalineRush > 15) then
+                            if ttm > 2 then
+                                return true
+                            else if ttm < 2 or buff.adrenalineRush.exists then
+							if cast.curseOfTheDreadblades() then return end
+						    end
+                                end
+						
+					end
             end -- End Cooldown Usage Check
         end -- End Action List - Cooldowns
     -- Action List - PreCombat
@@ -486,9 +512,9 @@ local function runRotation()
             end
         -- Marked for Death
             -- marked_for_death
-            if isChecked("Marked For Death - Precombat") and getDistance("target") < 30 and isValidUnit("target") then
-                if cast.markedForDeath("target") then return end
-            end
+            -- if isChecked("Marked For Death - Precombat") and getDistance("target") < 30 and isValidUnit("target") then
+            --     if cast.markedForDeath("target") then return end
+            -- end
         -- Roll The Bones
             -- roll_the_bones,if=!talent.slice_and_dice.enabled
             if not talent.sliceAndDice and not buff.rollTheBones.count == 0 and isValidUnit("target") and getDistance("target") < 5 then
@@ -623,9 +649,31 @@ local function runRotation()
                     -- if not buff.stealth and not buff.vanish and not buff.shadowmeld and GetTime() > vanishTime + 2 and getDistance(units.dyn5) < 5 then          
                     if not stealthing and inCombat then 
                         StartAttack()
+
+                     -- MfD toggle
+                    if br.data['MfD'] == 1 then
+                
+                            if getOptionValue("Marked For Death") == 1 then
+                                -- marked_for_death,if=combo_points.deficit>=4+talent.deeper_strategem.enabled+talent.anticipation.enabled
+                                if comboDeficit >= 4 + dStrat + antital and not debuff.curseOfTheDreadblades["player"].exists then
+                                    if cast.markedForDeath() then return end
+                                end
+                            end
+                            if getOptionValue("Marked For Death") == 2 then
+                                -- marked_for_death,if=target.time_to_die<combo_points.deficit 
+                                for i = 1, #enemies.yards30 do
+                                    local thisUnit = enemies.yards30[i]
+                                    if (multidot or (UnitIsUnit(thisUnit,units.dyn5) and not multidot)) then
+                                        if ttd(thisUnit) < comboDeficit then
+                                            if cast.markedForDeath(thisUnit) then return end
+                                        end
+                                    end
+                                end
+                            end
+                    end
         -- Death from Above
                         -- death_from_above,if=energy.time_to_max>2&!variable.ss_useable_noreroll
-                        if ttm > 2 and not ssUsableNoreroll then
+                        if ttm > 2 and not ssUsable then
                             if cast.deathFromAbove() then return end
                         end
         -- Slice and Dice
@@ -636,9 +684,9 @@ local function runRotation()
         -- Roll the Bones
                         -- roll_the_bones,if=combo_points>=5&buff.roll_the_bones.remains<target.time_to_die&(buff.roll_the_bones.remains<=3|rtb_buffs<=1)
                         -- roll_the_bones,if=!variable.ss_useable&buff.roll_the_bones.remains<target.time_to_die&(buff.roll_the_bones.remains<=3|variable.rtb_reroll)
-                        if not ssUsable and buff.rollTheBones.remain < ttd(units.dyn5) and (buff.rollTheBones.remain <= 3 or rtbReroll) then
-                            if cast.rollTheBones() then return end
-                        end
+						if not ssUsable and ((buff.rollTheBones.remain <= 10 and buff.rollTheBones.count < 2) or (buff.rollTheBones.count >= 2 and buff.rollTheBones.remain <= 5) or (useRollForTB() and not buff.trueBearing.exists) or rtbReroll) then
+							if cast.rollTheBones() then return end
+						end
         -- Killing Spree
                         -- killing_spree,if=energy.time_to_max>5|energy<15
                         if useCDs() and (ttm > 5 or power < 15) then
