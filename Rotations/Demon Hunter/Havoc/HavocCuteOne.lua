@@ -318,7 +318,7 @@ local function runRotation()
         -- Fel Rush
             if mode.mover == 1 and getDistance("target") < 5 then
                 cancelRushAnimation()
-            elseif mode.mover == 2 or getDistance("target") >= 5 then
+            elseif mode.mover == 2 or (getDistance("target") >= 5 and mode.mover ~= 3) then
                 if cast.felRush() then return end
             end
         -- Fel Blade
@@ -359,7 +359,7 @@ local function runRotation()
             if getFacing("player","target",10) and not talent.prepared and not talent.momentum then
                 if mode.mover == 1 and getDistance("target") < 5 then
                     cancelRushAnimation()
-                elseif mode.mover == 2 or getDistance("target") >= 5 then
+                elseif mode.mover == 2 or (getDistance("target") >= 5 and mode.mover ~= 3) then
                     if cast.felRush() then return end
                 end
             end
@@ -401,7 +401,7 @@ local function runRotation()
             if getFacing("player","target",10) then
                 if mode.mover == 1 and getDistance("target") < 5 then
                     cancelRushAnimation()
-                elseif mode.mover == 2 or getDistance("target") >= 5 then
+                elseif mode.mover == 2 or (getDistance("target") >= 5 and mode.mover ~= 3) then
                     if cast.felRush() then return end
                 end
             end
@@ -538,7 +538,7 @@ local function runRotation()
                     if getOptionValue("APL Mode") == 1 and getFacing("player","target",10) then
                         if mode.mover == 1 and getDistance("target") < 5 then
                             cancelRushAnimation()
-                        elseif mode.mover == 2 or getDistance("target") >= 5 then
+                        elseif mode.mover == 2 or (getDistance("target") >= 5 and mode.mover ~= 3) then
                             if cast.felRush() then return end
                         end
                     end
@@ -599,7 +599,7 @@ local function runRotation()
                     if combatTime < 1 and getFacing("player","target",10) then
                         if mode.mover == 1 and getDistance("target") < 5 then
                             cancelRushAnimation()
-                        elseif mode.mover == 2 or getDistance("target") >= 5 then
+                        elseif mode.mover == 2 or (getDistance("target") >= 5 and mode.mover ~= 3) then
                             if cast.felRush() then return end
                         end
                     end
@@ -625,7 +625,7 @@ local function runRotation()
                     then
                         if mode.mover == 1 and getDistance("target") < 5 then
                             cancelRushAnimation()
-                        elseif mode.mover == 2 or getDistance("target") >= 5 then
+                        elseif mode.mover == 2 or (getDistance("target") >= 5 and mode.mover ~= 3) then
                             if cast.felRush() then return end
                         end
                     end
@@ -718,7 +718,7 @@ local function runRotation()
                     if getFacing("player","target",10) and not talent.momentum and moveIn > charges.felRush * 10 then
                         if mode.mover == 1 and getDistance("target") < 5 then
                             cancelRushAnimation()
-                        elseif mode.mover == 2 or getDistance("target") >= 5 then
+                        elseif mode.mover == 2 or (getDistance("target") >= 5 and mode.mover ~= 3) then
                             if cast.felRush() then return end
                         end
                     end
@@ -740,7 +740,7 @@ local function runRotation()
                     if getFacing("player","target",10) and getDistance("target") >= 15 then
                         if mode.mover == 1 and getDistance("target") < 5 then
                             cancelRushAnimation()
-                        elseif mode.mover == 2 or getDistance("target") >= 5 then
+                        elseif mode.mover == 2 or (getDistance("target") >= 5 and mode.mover ~= 3) then
                             if cast.felRush() then return end
                         end
                     end

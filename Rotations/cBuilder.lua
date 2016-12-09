@@ -297,7 +297,7 @@ function br.loader:new(spec,specName)
                 end
                 if minUnits == nil then minUnits = 1 end
                 if effectRng == nil then effectRng = 8 end
-                if IsUsableSpell(v) and getSpellCD(v) == 0 and isKnown(v) and amIinRange then
+                if not select(2,IsUsableSpell(v)) and getSpellCD(v) == 0 and isKnown(v) and amIinRange then
                     if debug == "debug" then
                         return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                     else
@@ -309,10 +309,10 @@ function br.loader:new(spec,specName)
                             end
                         elseif debug == "dead" then
                             if thisUnit == nil then thisUnit = "player" end
-                            return castSpell(thisUnit,spellCast,false,false,false,false,true)
+                            return castSpell(thisUnit,spellCast,false,false,false,true,true,true,true,false)
                         else
                             if thisUnit == nil then thisUnit = "player" end
-                            return castSpell(thisUnit,spellCast,false,false,false)
+                            return castSpell(thisUnit,spellCast,false,false,false,true,false,true,true,false)
                         end
                     end
                 elseif debug == "debug" then

@@ -434,7 +434,7 @@ local function runRotation()
             -- neltharions_fury,if=incoming_damage_2500ms>health.max*0.20&!buff.shield_block.up
             if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useDefensives()) then
                 if buff.battleCry.exists then
-                    if cast.neltharionsFury() then return end
+                    if cast.neltharionsFury("player") then return end
                 end
             end
         -- Shield Slam
@@ -537,7 +537,7 @@ local function runRotation()
             -- neltharions_fury,if=incoming_damage_2500ms>health.max*0.20&!buff.shield_block.up
             if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useDefensive()) then
                 if php < getOptionValue("Artifact HP") and inCombat and not buff.shieldBlock.exists then
-                    if cast.neltharionsFury() then return end
+                    if cast.neltharionsFury("player") then return end
                 end
             end
         -- Shield Slam

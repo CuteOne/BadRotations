@@ -133,6 +133,6 @@ Raidable means if its good to raid with.
 |Destruction|100%|CuteOne|7.1|:interrobang:
 ||||
 | **Warrior** |||
-|Arms|100%|CuteOne|7.1|:interrobang:
+|Arms|100%|CuteOne|7.1|:white_check_mark:
 |Fury|100%|CuteOne|7.1|:interrobang:
 |Protection|100%|CuteOne|7.1|:white_check_mark:

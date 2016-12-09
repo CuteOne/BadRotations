@@ -2148,6 +2148,7 @@ br.idList = {
                 preciseStrikes              = 209493,
                 shatteredDefenses           = 209706,
                 stoneHeart                  = 225947,
+                tactician                   = 199854,
                 victorious                  = 32216,
             },
             debuffs                         = {
@@ -2352,6 +2353,7 @@ br.idList = {
             giftOfTheNaaru                  = 28880,
             global                          = 61304,
             shadowmeld                      = 58984,
+            quakingPalm                     = 107079,
         },
         artifacts                           = {
             artificialDamage                = 226829,
