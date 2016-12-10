@@ -267,7 +267,7 @@ local function runRotation()
                 end
         -- Gift of the Naaru
                 if isChecked("Gift of the Naaru") and php <= getOptionValue("Gift of the Naaru") and php > 0 and br.player.race == "Draenei" then
-                    if castSpell("player",racial,false,false,false) then return end
+                    if cast.giftOfTheNaaru() then return end
                 end
         -- Ancestral Spirit
                 if isChecked("Ancestral Spirit") then

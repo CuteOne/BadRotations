@@ -751,6 +751,8 @@ function castSpell(Unit,SpellID,FacingCheck,MovementCheck,SpamAllowed,KnownSkip,
 							else 
 								timersTable[SpellID] = GetTime()
 								currentTarget = UnitGUID(Unit)
+								botCast = true
+								botSpell = SpellID
 								CastSpellByName(GetSpellInfo(SpellID),Unit)
 								if IsAoEPending() then
 									local X,Y,Z = ObjectPosition(Unit)
@@ -772,6 +774,8 @@ function castSpell(Unit,SpellID,FacingCheck,MovementCheck,SpamAllowed,KnownSkip,
 						return true
 					else
 						currentTarget = UnitGUID(Unit)
+						botCast = true
+						botSpell = SpellID
 						CastSpellByName(GetSpellInfo(SpellID),Unit)
 						if IsAoEPending() then
 							local X,Y,Z = ObjectPosition(Unit)
@@ -2051,8 +2055,20 @@ function isInstanceBoss(unit)
 	if IsInInstance() then
 		local lockTimeleft, isPreviousInstance, encountersTotal, encountersComplete = GetInstanceLockTimeRemaining();
 		for i=1,encountersTotal do
-			local bossName = select(1,GetInstanceLockTimeRemainingEncounter(i))
-			if UnitName(unit) == bossName then return true end
+			if unit == "player" then
+				local bossList = select(1,GetInstanceLockTimeRemainingEncounter(i))
+				print(bossList)
+			end
+			if ObjectExists(unit) then
+				local bossName = GetInstanceLockTimeRemainingEncounter(i)
+				local targetName = UnitName(unit)
+				-- print("Target: "..targetName.." | Boss: "..bossName.." | Match: "..tostring(targetName == bossName))
+				if targetName == bossName then return true end
+			end
+		end
+		for i = 1, 5 do
+			local bossNum = "boss"..i
+			if UnitIsUnit(bossNum,unit) then return true end
 		end
 	end
 	return false

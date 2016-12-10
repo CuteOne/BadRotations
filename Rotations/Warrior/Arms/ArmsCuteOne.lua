@@ -231,90 +231,28 @@ local function runRotation()
 
         if useAvatar == nil then useAvatar = false end
         if cd.warbreaker <= 3 then usedWarbreaker = false end
-        -- -- Heroic Leap for Charge (Credit: TitoBR)
-        -- local function heroicLeapCharge()
-        --     local thisUnit = units.dyn5
-        --     local X, Y, Z = GetObjectPosition("player")
-        --     local face = GetObjectFacing("player")
-        --     local hitBoxCompensation = UnitCombatReach(thisUnit) / GetDistanceBetweenObjects("player",thisUnit)
-        --     local yardsNeg = -9 - hitBoxCompensation
-        --     local X2, Y2, Z2 = GetPositionFromPosition(X, Y, Z, yardsNeg, face, 0)
-        --     if TraceLine (X, Y, Z + 2.25, X2, Y2, Z2 + 2.25, 0x10) == nil then
-        --         if cd.heroicLeap == 0 then
-        --             CastSpellByName(GetSpellInfo(spell.heroicLeap))
-        --             if IsAoEPending() then
-        --                 ClickPosition(X2,Y2,Z2)
-        --             end
-        --         end
-        --     else
-        --         local yardsPos = 9 - hitBoxCompensation
-        --         local X3, Y3, Z3 = GetPositionFromPosition(X, Y, Z, yardsPos, face, 0)
-        --         if TraceLine (X, Y, Z + 2.25, X2, Y2, Z2 + 2.25, 0x10) == nil then
-        --             if cd.heroicLeap == 0 then
-        --                 CastSpellByName(GetSpellInfo(spell.heroicLeap))
-        --                 if IsAoEPending() then
-        --                     ClickPosition(X3,Y3,Z3)
-        --                 end
-        --             end
-        --         end    
-        --     end
-        -- end
+
+        ChatOverlay(tostring(isInstanceBoss("target")))
 
         -- Heroic Leap for Charge (Credit: TitoBR)
-        --function GetPositionFromPosition (X, Y, Z, Distance, AngleXY, AngleXYZ)
         local function heroicLeapCharge()
-            return
-            -- local thisUnit = units.dyn5
-            -- local X, Y, Z = GetObjectPosition(thisUnit)
-            -- local hitBoxCompensation = UnitCombatReach(thisUnit) / GetDistanceBetweenObjects("player",thisUnit)
-            -- local yards = 9 + hitBoxCompensation
-            -- for deg = 0, 360, 45 do
-            --     local X2, Y2, Z2 = GetPositionFromPosition(X, Y, Z, yards, math.rad(deg), 2.25)
-            --     if TraceLine (X, Y, Z, X2, Y2, Z2, 0x10) == nil and cd.heroicLeap == 0 then
-            --         CastSpellByName(GetSpellInfo(spell.heroicLeap))
-            --         if IsAoEPending() then
-            --             ClickPosition(X2,Y2,Z2)
-            --             break
-            --         end
-            --     end
-            -- end
+            local thisUnit = units.dyn5
+            local X, Y, Z = GetObjectPosition(thisUnit)
+            local hitBoxCompensation = UnitCombatReach(thisUnit) / GetDistanceBetweenObjects("player",thisUnit)
+            local yards = 15 + hitBoxCompensation
+            for deg = 0, 360, 45 do
+                local X2, Y2, Z2 = GetPositionFromPosition(X, Y, Z, yards, deg, 0)
+                if TraceLine(X, Y, Z + 2.25, X2, Y2, Z2 + 2.25, 0x10) == nil and cd.heroicLeap == 0 then
+                    if not IsAoEPending() then    
+                        CastSpellByName(GetSpellInfo(spell.heroicLeap))
+                    end
+                    if IsAoEPending() then
+                        ClickPosition(X2,Y2,Z2)
+                        break
+                    end
+                end
+            end
         end
-
-        -- function heroicLeapCharge()
-        --     local thisUnit = units.dyn5
-        --     local X, Y, Z = GetObjectPosition(thisUnit)
-        --     local hitBoxCompensation = UnitCombatReach(thisUnit) / GetDistanceBetweenObjects("player",thisUnit)
-        --     local radius = math.pi * (-9 - hitBoxCompensation)
-        --     for i = 1, 360, 45 do
-        --         local X2 = X + math.sin(radius*i)
-        --         local Y2 = Y + math.cos(radius*i)
-        --         if TraceLine (X, Y, Z, X2, Y2, Z, 0x10) == nil and cd.heroicLeap == 0 then
-        --             CastSpellByName(GetSpellInfo(spell.heroicLeap))
-        --             if IsAoEPending() then
-        --                 ClickPosition(X2,Y2,Z);
-        --                 break
-        --             end
-        --         end
-        --     end
-        -- end
-
-        -- function heroicLeapCharge()
-        --     local thisUnit = "target"
-        --     local X, Y, Z = GetObjectPosition(thisUnit)
-        --     local hitBoxCompensation = UnitCombatReach(thisUnit) / GetDistanceBetweenObjects("player",thisUnit)
-        --     local radius = 9 + hitBoxCompensation
-        --     for i = 1, 360 do
-        --         local angle = math.rad(i) -- * math.pi / 180
-        --         local X2, Y2 = X + radius * math.cos( angle ), Y + radius * math.sin( angle )
-        --         if TraceLine (X, Y, Z + 2.25, X2, Y2, Z + 2.25, 0x10) == nil and cd.heroicLeap == 0 then
-        --             CastSpellByName(GetSpellInfo(spell.heroicLeap))
-        --             if IsAoEPending() then
-        --                 ClickPosition(X2,Y2,Z);
-        --                 break
-        --             end
-        --         end
-        --     end
-        -- end
 
 --------------------
 --- Action Lists ---
@@ -510,7 +448,7 @@ local function runRotation()
         -- Charge
                 -- charge
                 if isChecked("Charge") then
-                    if (cd.heroicLeap > 0 and cd.heroicLeap < 28) or level < 26 then
+                    if (cd.heroicLeap > 0 and cd.heroicLeap < 29) or level < 26 then
                         if cast.charge("target") then return end
                     end
                 end
@@ -765,9 +703,9 @@ local function runRotation()
                 else
             -- Action List - Movement
                     -- run_action_list,name=movement,if=movement.getDistance(units.dyn5)>5
-                    if getDistance("target") >= 8 then
+                    -- if getDistance("target") >= 8 then
                         if actionList_Movement() then return end
-                    end
+                    -- end
                 end
             end
 -----------------------------
@@ -786,9 +724,9 @@ local function runRotation()
                 end
             -- Action List - Movement
                 -- run_action_list,name=movement,if=movement.getDistance(units.dyn5)>5
-                if getDistance(units.dyn8) > 8 then
+                -- if getDistance(units.dyn8) > 8 then
                     if actionList_Movement() then return end
-                end
+                -- end
             -- Action List - Interrupts
                 if actionList_Interrupts() then return end
             -- Action List - Cooldowns

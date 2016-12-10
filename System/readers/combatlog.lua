@@ -137,7 +137,8 @@ function br.read.combatLog()
       --[[ Cast Failed --> Queue]]
         if param == "SPELL_CAST_FAILED" then
             if sourceName ~= nil then
-                if isInCombat("player") and UnitIsUnit(sourceName,"player") --[[source == br.guid]] and spell ~= lastSpellCast then
+                if isInCombat("player") and UnitIsUnit(sourceName,"player") --[[source == br.guid]] and spell ~= botSpell and not botCast then
+                    print("Spell: "..spell.." | Last: "..lastSpellCast)
                     -- set destination
                     if destination == "" then
                       queueDest = nil
@@ -169,6 +170,7 @@ function br.read.combatLog()
       ------------------
       --[[Queue Casted]]
         if param == "SPELL_CAST_SUCCESS" then
+            if botCast == true then botCast = false end
             if sourceName ~= nil then
                 if isInCombat("player") and UnitIsUnit(sourceName,"player") --[[source == br.guid]] then
                     if #br.player.queue ~= 0 then
