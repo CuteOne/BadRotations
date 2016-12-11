@@ -443,7 +443,7 @@ local function runRotation()
         end -- End Action List - Interrupts
     -- Action List - Cooldowns
         function actionList_Cooldown()
-            if useCDs() and getDistance("target") < 5 then
+            if useCDs() and getDistance(units.dyn5) < 5 then
         -- Trinkets
                 if isChecked("Trinkets") and getDistance(units.dyn5) < 5 then
                     if canUse(13) then
@@ -777,12 +777,12 @@ local function runRotation()
             if actionList_Cooldown() then return end
         -- Racial - Arcane Torrent
             -- arcane_torrent,if=chiMax-chi>=1&energy.time_to_max>=0.
-            if chiMax >= chi and ttm >= 0.5 and isChecked("Racial") and race == "BloodElf" then
+            if chiMax >= chi and ttm >= 0.5 and isChecked("Racial") and race == "BloodElf" and getDistance("target") < 5 then
                 if castSpell("player",racial,false,false,false) then return end
             end
         -- Energizing Elixir
             -- energizing_elixir,if=energy<energy.max&chi<=1
-            if power < powerMax and chi <= 1 then
+            if power < powerMax and chi <= 1 and getDistance("target") < 5 then
                 if cast.energizingElixir() then return end
             end
         -- Strike of the Windlord
@@ -863,7 +863,9 @@ local function runRotation()
             if mode.sef == 1 then
         -- Energizing Elixir
                 -- energizing_elixir
-                if cast.energizingElixir() then return end
+                if getDistance("target") < 5 then
+                    if cast.energizingElixir() then return end
+                end
         -- Racial - Arcane Torrent
                 -- arcane_torrent,if=chiMax-chi>=1&energy.time_to_max>=0.
                 if chiMax >= chi and ttm >= 0.5 and isChecked("Racial") and race == "BloodElf" then
@@ -892,7 +894,9 @@ local function runRotation()
             if actionList_Cooldown() then return end
         -- Serenity
             -- serenity
-            if cast.serenity() then return end
+            if getDistance("target") < 5 then
+                if cast.serenity() then return end
+            end
         -- Strike of the Windlord
             -- strike_of_the_windlord
             if buff.serenity.exists then
@@ -1043,7 +1047,7 @@ local function runRotation()
         -- Potion
                     -- potion,name=old_war,if=buff.serenity.up|buff.storm_earth_and_fire.up|(!talent.serenity.enabled&trinket.proc.agility.react)|buff.bloodlust.react|target.time_to_die<=60
                     -- TODO: Agility Proc
-                    if canUse(127844) and inRaid and isChecked("Potion") then
+                    if canUse(127844) and inRaid and isChecked("Potion") and getDistance("target") < 5 then
                         if buff.serenity.exists or buff.stormEarthAndFire.exists or hasBloodLust() or ttd <= 60 then
                             useItem(127844)
                         end
