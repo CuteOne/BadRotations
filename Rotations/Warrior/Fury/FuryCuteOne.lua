@@ -471,19 +471,19 @@ local function runRotation()
             end
         -- Berserker Rage
             -- berserker_rage,if=talent.outburst.enabled&cooldown.odyns_fury.remains=0&buff.enrage.down
-            if talent.outburst and cd.odynsFury == 0 and not buff.enrage.exists then
+            if talent.outburst and cd.odynsFury == 0 and not buff.enrage.exists and getDistance(units.dyn5) < 5 then
                 if cast.berserkerRage() then return end
             end
         -- Dragon Roar
             -- dragon_roar,if=cooldown.odyns_fury.remains>=10|cooldown.odyns_fury.remains<=3
-            if isChecked("Dragon Roar") then
+            if isChecked("Dragon Roar") and getDistance(units.dyn5) < 5 then
                 if cd.odynsFury >= 10 or cd.odynsFury <= 3 then
                     if cast.dragonRoar() then return end
                 end
             end
         -- Odyn's Fury
             -- odyns_fury,if=buff.battle_cry.up&buff.enrage.up
-            if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()) then
+            if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()) and getDistance(units.dyn5) < 5 then
                 if buff.battleCry.exists and buff.enrage.exists then
                     if cast.odynsFury() then return end
                 end
@@ -542,7 +542,7 @@ local function runRotation()
             if actionList_Bladestorm() then return end
         -- Bloodbath
             -- bloodbath,if=buff.frothing_berserker.up|(rage>80&!talent.frothing_berserker.enabled)
-            if useCDs() and isChecked("Bloodbath") then
+            if useCDs() and isChecked("Bloodbath") and getDistance(units.dyn5) < 5 then
                 if buff.frothingBerserker.exists or (power > 80 and not talent.frothingBerserker) then
                     if cast.bloodbath() then return end
                 end
@@ -570,7 +570,7 @@ local function runRotation()
             end
         -- Odyn's Fury
             -- odyns_fury,if=buff.battle_cry.up&buff.enrage.up
-            if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()) then
+            if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()) and getDistance(units.dyn5) < 5 then
                 if buff.battleCry.exists and buff.enrage.exists then
                     if cast.odynsFury() then return end
                 end
@@ -587,7 +587,7 @@ local function runRotation()
             end
         -- Dragon Roar
             -- dragon_roar
-            if isChecked("Dragon Roar") then
+            if isChecked("Dragon Roar") and getDistance(units.dyn5) < 5 then
                 if cast.dragonRoar() then return end
             end
         -- Bloodthirst
@@ -619,7 +619,7 @@ local function runRotation()
             if actionList_Bladestorm() then return end
         -- Odyn's Fury
             -- odyns_fury,if=buff.battle_cry.up&buff.enrage.up
-            if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()) then
+            if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()) and getDistance(units.dyn5) < 5 then
                 if buff.battleCry.exists and buff.enrage.exists then
                     if cast.odynsFury() then return end
                 end
@@ -631,7 +631,7 @@ local function runRotation()
             end
         -- Dragon Roar
             -- dragon_roar
-            if isChecked("Dragon Roar") then
+            if isChecked("Dragon Roar") and getDistance(units.dyn5) < 5 then
                 if cast.dragonRoar() then return end
             end
         -- Rampage
