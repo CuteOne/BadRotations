@@ -6,10 +6,10 @@ local DiesalTools = LibStub('DiesalTools-1.0')
 -- ~~| Lua Upvalues |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 local type, select, pairs, tonumber									= type, select, pairs, tonumber
 local setmetatable, getmetatable, next								= setmetatable, getmetatable, next
-local sub, format, lower, upper 										= string.sub, string.format, string.lower, string.upper 
+local sub, format, lower, upper 									= string.sub, string.format, string.lower, string.upper 
 local floor, ceil, min, max, abs, modf								= math.floor, math.ceil, math.min, math.max, math.abs, math.modf
 -- ~~| WoW Upvalues |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-local GetCursorPosition 												= GetCursorPosition
+local GetCursorPosition 											= GetCursorPosition
 -- ~~| ScrollingMessageFrame |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 local Type 		= 'ScrollingMessageFrameBR'
 local Version 	= 1
@@ -38,7 +38,6 @@ local styleSheet = {
 		color			= '060606',
 	},		
 }
-
 local wireFrame = {
 	['frame-white'] = {
 		type			= 'outline',
@@ -79,21 +78,25 @@ local methods = {
 	['OnAcquire'] = function(self)					
 		self:ApplySettings()
 		self:AddStyleSheet(styleSheet)
-		--self:AddStyleSheet(wireFrame)
+		-- self:AddStyleSheet(wireFrame)
 		self:Show()
 	end,
 	['OnRelease'] = function(self)						
 	end,	
 	['ApplySettings'] = function(self)		
-		local settings		= self.settings			
-		local scrollFrame	= self.scrollFrame		
+		local settings				= self.settings			
+		local scrollFrame			= self.scrollFrame
+		local scrollingMessageFrame = self.scrollingMessageFrame		
 		
 		scrollFrame:SetPoint('TOPLEFT',settings.contentPadLeft,-settings.contentPadTop)
 		scrollFrame:SetPoint('BOTTOMRIGHT',-settings.contentPadRight,settings.contentPadBottom)
 			
 		self.scrollBar:SetWidth(settings.scrollBarWidth)	
 		self.buttonDown:SetHeight(settings.scrollBarButtonHeight)
-		self.buttonUp:SetHeight(settings.scrollBarButtonHeight)			
+		self.buttonUp:SetHeight(settings.scrollBarButtonHeight)	
+
+		scrollingMessageFrame:SetJustifyH(settings.justifyH)
+		scrollingMessageFrame:SetJustifyV(settings.justifyV)		
 	end,
 	['ShowScrollBar'] = function(self,show)	
 		if show then 
@@ -110,12 +113,12 @@ local methods = {
 	end,		
 	['SetGripSize'] = function(self)			
 		local contentSize 			= self.scrollFrame:GetVerticalScrollRange() + self.scrollFrame:GetHeight()
-		local windowSize 				= self.scrollFrame:GetHeight()		
-		local trackSize 				= self.track:GetHeight()
+		local windowSize 			= self.scrollFrame:GetHeight()		
+		local trackSize 			= self.track:GetHeight()
 		local windowContentRatio 	= windowSize / contentSize
 		local gripSize 				= DiesalTools:Round(trackSize * windowContentRatio)
 		
-		gripSize = max(gripSize, 10) -- might give this a setting?
+		-- gripSize = max(gripSize, 10) -- might give this a setting?
 		gripSize = min(gripSize, trackSize)		
 		
 		self.grip:SetHeight(gripSize)		
@@ -124,7 +127,7 @@ local methods = {
 		local verticalScrollRange 	= self.scrollFrame:GetVerticalScrollRange() -- windowScrollAreaSize (rounded no need to round)
 		if verticalScrollRange < 1 then	self.grip:SetPoint('TOP',0,0) return end		
 		local verticalScroll 		= self.scrollFrame:GetVerticalScroll() -- windowPosition
-		local trackSize 				= self.track:GetHeight()
+		local trackSize 			= self.track:GetHeight()
 		local gripSize 				= self.grip:GetHeight()	
 					
 		local windowPositionRatio 	= verticalScroll / verticalScrollRange			
@@ -140,10 +143,11 @@ local methods = {
 	['AddMessage'] = function(self,msg)			
 		if not msg then return end	
 		self.scrollingMessageFrame:AddMessage(msg) 
-		--ChatFrame1:AddMessage(self.scrollingMessageFrame:GetNumRegions()		)
+		-- ChatFrame1:AddMessage(self.scrollingMessageFrame:GetNumRegions()		)
 	end,
-	['SetText'] = function(self,txt)			
-		-- self.editBox:SetText(txt or '')			
+	['SetText'] = function(self,txt)
+		self.settings.text = txt			
+		self.scrollingMessageFrame:SetText(txt or '')				
 	end,				
 }
 -- ~~| ScrollingMessageFrame Constructor |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -152,20 +156,21 @@ local function Constructor()
 	local frame		= CreateFrame('Frame',nil,UIParent)		
 	self.frame		= frame	
 	-- ~~ Default Settings ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	-- ~~ Default Settings ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	self.defaults = {
-		scrollBarButtonHeight	= 1,
+		scrollBarButtonHeight		= 1,
 		scrollBarWidth				= 6,		
 		contentPadLeft				= 0,
-		contentPadRight			= 0,
+		contentPadRight				= 0,
 		contentPadTop				= 0,
 		contentPadBottom			= 0,
+		justifyH					= "LEFT",
+		justifyV					= "TOP",
 		forceScrollBottom			= true,
 	}
 	-- ~~ Events ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	-- OnAcquire, OnRelease, OnHeightSet, OnWidthSet	
 	-- OnHide
-	-- ~~ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~	
+	-- ~~ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~	
 	frame:SetScript("OnHide",function(this) self:FireEvent("OnHide") end)
 	
 	local scrollFrameContainer = self:CreateRegion("Frame", 'scrollFrameContainer', frame)	
@@ -211,14 +216,13 @@ local function Constructor()
 	local scrollingMessageFrame = self:CreateRegion("ScrollingMessageFrame", 'scrollingMessageFrame', scrollFrame)	
 	scrollingMessageFrame:SetPoint("TOPLEFT")	
 	scrollingMessageFrame:SetPoint("TOPRIGHT")
-	scrollingMessageFrame:SetJustifyH("LEFT")
-	scrollingMessageFrame:SetJustifyV("TOP")	
+	-- scrollingMessageFrame:SetJustifyH("LEFT")
+	-- scrollingMessageFrame:SetJustifyV("TOP")	
 	scrollingMessageFrame:SetInsertMode("BOTTOM")
 	scrollingMessageFrame:SetMaxLines(500)
-	scrollingMessageFrame:SetHeight(200) -- BadRotations Adjust
+	scrollingMessageFrame:SetHeight(300) -- BadRotations Adjust
 	scrollingMessageFrame:SetFading(false)	
 	scrollFrame:SetScrollChild(scrollingMessageFrame)	
-	
 	
 	local scrollBar = self:CreateRegion("Frame", 'scrollBar', frame)	
 	scrollBar:SetPoint('TOPRIGHT')

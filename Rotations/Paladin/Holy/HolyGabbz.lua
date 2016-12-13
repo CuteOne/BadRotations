@@ -94,7 +94,7 @@ end
 ----------------
 local function runRotation()
     if br.timer:useTimer("debugHoly", math.random(0.15,0.3)) then
-        -- print("Running: "..rotationName)
+        -- Print("Running: "..rotationName)
 
 ---------------
 --- Toggles ---
@@ -169,18 +169,18 @@ local function runRotation()
         ----------------------
         -- Testing Area, does not work
         ----------------------
-            print("Debug")
+            Print("Debug")
            -- for i = 1, #br.friend do
            --     --Check if tank based on role or if having beacon of light, extract to tank table
            --     if br.friend[i].role == "TANK" or UnitBuffID(br.friend[i].unit, 53563) then 
-           --         print("Debug: Found Tank")
+           --         Print("Debug: Found Tank")
            --         tinsert(tank, br.friend[i])
                     --tank.hp = br.friend[i].hp
                     --tank.unit = br.friend[i].unit
                     --tank.range = br.friend[i].range
            --     end
            --     if br.friend[i].hp < lowest.hp then
-           --         print("Debug: Found New Lowest")
+           --         Print("Debug: Found New Lowest")
            --         lowest.hp = br.friend[i].hp
            --         lowest.role = br.friend[i].role
            --         lowest.unit = br.friend[i].unit
@@ -190,7 +190,7 @@ local function runRotation()
             ----    averageHealth = averageHealth + br.friend[i].hp
             ----end
             ----averageHealth = averageHealth/#br.friend
-            ----print("Debug: averageHealth and friends : " ..averageHealth ..#br.friend)
+            ----Print("Debug: averageHealth and friends : " ..averageHealth ..#br.friend)
 
                 ----------------------
                 -- Healing Candidate checks

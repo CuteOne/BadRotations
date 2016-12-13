@@ -114,7 +114,7 @@ end
 ----------------
 local function runRotation()
     if br.timer:useTimer("debugMistweaver", 0.1) then --change "debugFury" to "debugSpec" (IE: debugFire)
-        --print("Running: "..rotationName)
+        --Print("Running: "..rotationName)
 
 ---------------
 --- Toggles --- -- List toggles here in order to update when pressed

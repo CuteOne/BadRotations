@@ -37,7 +37,7 @@ function PokeSwapper()
                   Favorite = FavoriteConvert,
                   Wild = WildConvert,
                 } )
-                -- print("Inserted "..petID.." "..level.." "..FavoriteConvert.." "..WildConvert)
+                -- Print("Inserted "..petID.." "..level.." "..FavoriteConvert.." "..WildConvert)
               end
             end
           end
@@ -85,7 +85,7 @@ function PokeSwapper()
                       Favorite = FavoriteConvert,
                       Wild = WildConvert,
                     } )
-                    -- print("Inserted Ringner "..petID.." "..level.." "..FavoriteConvert.." "..WildConvert)
+                    -- Print("Inserted Ringner "..petID.." "..level.." "..FavoriteConvert.." "..WildConvert)
                   end
                 end
               end

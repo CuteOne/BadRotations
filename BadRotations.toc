@@ -9,21 +9,18 @@ BadRotations.lua
 bindings.xml
 
 ## System
-# System\Beautycase.lua
 System\Core.lua
-System\GeneralFunctions.lua
-System\Config.lua
-System\DebugFrame.lua
 System\Debugging.lua
-System\UI.lua
-System\UsefulFeatures.lua
+System\GeneralFunctions.lua
 System\LootManager.lua
+System\UsefulFeatures.lua
+System\SlashCommands.lua
 
 ## Readers
-System\readers\combatlog.lua
-System\readers\common.lua
+System\Readers\combatlog.lua
+System\Readers\common.lua
 
-## LIBS
+## Libs
 #@no-lib-strip@
 System\Libs\LibStub-1.0\LibStub.lua
 System\Libs\!LibDraw\LibDraw.lua
@@ -37,35 +34,41 @@ System\Libs\DiesalStyle-1.0\DiesalStyle-1.0.lua
 System\Libs\DiesalGUI-1.0\DiesalGUI-1.0.xml
 System\Libs\DiesalMenu-1.0\DiesalMenu-1.0.xml
 System\Libs\LibArtifactData-1.0\LibArtifactData-1.0.lua
-System\newui.lua
 #@end-no-lib-strip@
 
-System\drawer\drawer.lua
+System\Drawer\drawer.lua
 
 ## Engines
-System\engines\ArtifactTable.lua
-System\engines\EnemiesEngine.lua
-System\engines\EnemiesEngineCollections.lua
-System\engines\EnemiesEngineFrame.lua
-System\engines\EnemiesEngineFunctions.lua
-System\engines\HealingEngine.lua
-System\engines\HealingEngineCollections.lua
-System\engines\HealingEngineFrame.lua
-System\engines\HealingEngineFunctions.lua
-System\engines\InterruptsFrame.lua
-System\engines\Interrupts.lua
-System\engines\ttdTable.lua
+System\Engines\ArtifactTable.lua
+System\Engines\EnemiesEngine.lua
+System\Engines\EnemiesEngineCollections.lua
+System\Engines\EnemiesEngineFrame.lua
+System\Engines\EnemiesEngineFunctions.lua
+System\Engines\HealingEngine.lua
+System\Engines\HealingEngineCollections.lua
+System\Engines\HealingEngineFrame.lua
+System\Engines\HealingEngineFunctions.lua
+System\Engines\InterruptsFrame.lua
+System\Engines\Interrupts.lua
+System\Engines\ttdTable.lua
 
 ## BadRotations UI
-System\ui\button.lua
-System\ui\checkbox.lua
-System\ui\debugelement.lua
-System\ui\dropdownmenu.lua
-System\ui\frame.lua
-System\ui\statusbar.lua
-System\ui\textframe.lua
-System\ui\ui.lua
-System\ui\wrapper.lua
+System\UI\UI.lua
+System\UI\Toggles.lua
+System\UI\Elements\Arrow.lua
+System\UI\Elements\Button.lua
+System\UI\Elements\Checkbox.lua
+System\UI\Elements\Dropdown.lua
+System\UI\Elements\PageDropdown.lua
+System\UI\Elements\RotationDropdown.lua
+System\UI\Elements\Section.lua
+System\UI\Elements\Spinner.lua
+System\UI\Elements\Text.lua
+System\UI\Elements\Window.lua
+System\UI\Windows\Config.lua
+System\UI\Windows\Debug.lua
+System\UI\Windows\Help.lua
+System\UI\Windows\Profile.lua
 
 ## Custom Functions
 Custom\Functions.lua

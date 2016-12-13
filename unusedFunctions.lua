@@ -130,7 +130,7 @@ function nDbDmg(tar,spellID,player)
             nGTT:SetUnitDebuff(tar,i,player)
             scanText=_G["MyScanningTooltipTextLeft2"]:GetText()
             local DoTDamage = scanText:match("([0-9]+%.?[0-9]*)")
-            --if not issecure() then print(issecure()) end -- function is called inside the profile
+            --if not issecure() then Print(issecure()) end -- function is called inside the profile
             --SetCVar("DotDamage",tonumber(DoTDamage))
             return tonumber(DoTDamage)
             --return tonumber(GetCVar("DotDamage"))

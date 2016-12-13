@@ -188,7 +188,7 @@ function cCharacter:new(class)
 		self.baseGetEquip()
 		if getOptionCheck("Queue Casting") and #self.queue ~= 0 then
 			self.queue = {} -- Reset Queue Casting Table out of combat
-			print("Out of Combat - Queue List Cleared")
+			Print("Out of Combat - Queue List Cleared")
 		end
 	end
 
@@ -196,10 +196,10 @@ function cCharacter:new(class)
     -- TODO: here should only happen generic ones like Defensive etc.
 	function self.getToggleModes()
 
-		self.mode.rotation  = br.data["Rotation"]
-		self.mode.cooldown 	= br.data["Cooldown"]
-		self.mode.defensive = br.data["Defensive"]
-		self.mode.interrupt = br.data["Interrupt"]
+		self.mode.rotation  = br.data.settings[br.selectedSpec].toggles["Rotation"]
+		self.mode.cooldown 	= br.data.settings[br.selectedSpec].toggles["Cooldown"]
+		self.mode.defensive = br.data.settings[br.selectedSpec].toggles["Defensive"]
+		self.mode.interrupt = br.data.settings[br.selectedSpec].toggles["Interrupt"]
 	end
 
 -- Dynamic unit update

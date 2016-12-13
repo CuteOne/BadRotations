@@ -102,7 +102,7 @@ end
 ----------------
 local function runRotation()
     if br.timer:useTimer("debugShadow", 0.1) then
-        --print("Running: "..rotationName)
+        --Print("Running: "..rotationName)
 
 ---------------
 --- Toggles ---

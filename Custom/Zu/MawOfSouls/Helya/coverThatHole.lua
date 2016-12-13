@@ -43,7 +43,7 @@ function coverThatHole()
     if name == "Swirling Pool" and ObjectExists(object) and not blackasfuck(x,y,z) then
       blacklistthatshit(x,y,z)
       placeMarker()
-      print(x,y,z)
+      Print(x,y,z)
       ClickPosition(ObjectPosition(object))
     else
     end
