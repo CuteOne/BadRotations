@@ -319,6 +319,7 @@ function TogglesFrame()
 	mainText:SetTextHeight(br.data.settings["buttonSize"]/3)
 	mainText:SetPoint("CENTER",3,-(br.data.settings["buttonSize"]/8))
 	mainText:SetTextColor(.90,.90,.90,1)
+	if br.data.settings[br.selectedSpec].toggles == nil then br.data.settings[br.selectedSpec].toggles = {} end
 	if br.data.settings[br.selectedSpec].toggles['Power'] == 0 then
 		br.data.settings[br.selectedSpec].toggles['Power'] = 0
 		mainText:SetText("Off")
@@ -410,7 +411,8 @@ function TogglesFrame()
 		-- 	_G["SLASH_" .. Name .. "1"] = "/br"..Name
 		-- 	SlashCmdList[Name] = function(msg, editbox)
 		-- 		ToggleValue(Name)
-		-- 	end 
+		-- 	end
+		 
 		SlashCommandHelp("br toggle "..Name.." 1-"..#_G[Name.."Modes"],"Toggles "..Name.." Modes, Optional: specify number")
 		-- end
 	end

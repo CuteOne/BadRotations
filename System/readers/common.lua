@@ -94,6 +94,7 @@ function br.read.commonReaders()
 		if event == "PLAYER_REGEN_DISABLED" then
 			-- here we should manage stats snapshots
 			AgiSnap = getAgility()
+			
 			br.data.settings[br.selectedSpec]["Combat Started"] = GetTime()
 			ChatOverlay("|cffFF0000Entering Combat")
 		end
