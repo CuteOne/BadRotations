@@ -140,7 +140,7 @@ end
 ----------------
 local function runRotation()
     if br.timer:useTimer("debugElemental", math.random(0.15,0.3)) then
-        --print("Running: "..rotationName)
+        --Print("Running: "..rotationName)
 
 ---------------
 --- Toggles ---
@@ -217,7 +217,7 @@ local function runRotation()
                     if getCombatTime() >= (tonumber(getOptionValue("DPS Testing"))*60) and isDummy() then
                         StopAttack()
                         ClearTarget()
-                        print(tonumber(getOptionValue("DPS Testing")) .." Minute Dummy Test Concluded - Profile Stopped")
+                        Print(tonumber(getOptionValue("DPS Testing")) .." Minute Dummy Test Concluded - Profile Stopped")
                         profileStop = true
                     end
                 end
@@ -267,7 +267,7 @@ local function runRotation()
                 end
         -- Gift of the Naaru
                 if isChecked("Gift of the Naaru") and php <= getOptionValue("Gift of the Naaru") and php > 0 and br.player.race == "Draenei" then
-                    if castSpell("player",racial,false,false,false) then return end
+                    if cast.giftOfTheNaaru() then return end
                 end
         -- Ancestral Spirit
                 if isChecked("Ancestral Spirit") then

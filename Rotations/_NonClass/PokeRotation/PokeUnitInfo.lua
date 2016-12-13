@@ -30,7 +30,7 @@ function PetSwapper()
               favorite = FavoriteConvert,
               Wild = WildConvert,
             } )
-            --print("Inserted "..petID.." "..level.." "..FavoriteConvert.." "..WildConvert)
+            --Print("Inserted "..petID.." "..level.." "..FavoriteConvert.." "..WildConvert)
           end
         end
       end
@@ -80,7 +80,7 @@ function PetSwapper()
                   favorite = FavoriteConvert,
                   Wild = WildConvert,
                 } )
-                --print("Inserted Ringner "..petID.." "..level.." "..FavoriteConvert.." "..WildConvert)
+                --Print("Inserted Ringner "..petID.." "..level.." "..FavoriteConvert.." "..WildConvert)
               end
             end
           end

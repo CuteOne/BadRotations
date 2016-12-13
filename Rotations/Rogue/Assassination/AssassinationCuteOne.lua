@@ -146,7 +146,7 @@ end
 ----------------
 local function runRotation()
     if br.timer:useTimer("debugAssassination", math.random(0.15,0.3)) then
-        --print("Running: "..rotationName)
+        --Print("Running: "..rotationName)
 
 ---------------
 --- Toggles ---
@@ -156,9 +156,9 @@ local function runRotation()
         UpdateToggle("Defensive",0.25)
         UpdateToggle("Interrupt",0.25)
         UpdateToggle("Cleave",0.25)
-        br.player.mode.cleave = br.data["Cleave"]
+        br.player.mode.cleave = br.data.settings[br.selectedSpec].toggles["Cleave"]
         UpdateToggle("Picker",0.25)
-        br.player.mode.pickPocket = br.data["Picker"]
+        br.player.mode.pickPocket = br.data.settings[br.selectedSpec].toggles["Picker"]
 
 --------------
 --- Locals ---
@@ -286,7 +286,7 @@ local function runRotation()
         	if usePickPocket() then
     			if (isValidUnit(units.dyn5) or mode.pickPocket == 2) and mode.pickPocket ~= 3 then
         			if not isPicked(units.dyn5) and not isDummy(units.dyn5) then
-        				if debuff.sap.remain < 1 and mode.pickPocket ~= 1 then
+        				if debuff.sap[units.dyn5].remain < 1 and mode.pickPocket ~= 1 then
         					if cast.sap(units.dyn5) then return end
         				end
         				if lastSpell ~= spell.vanish then
@@ -566,9 +566,9 @@ local function runRotation()
        				elseif VEN1 and not RAC1 then
        		-- Racial
        					if race == "Orc" or race == "Troll" or race == "BloodElf" then
-       						if castSpell("player",racial,false,false,false) then print("5: Racial"); RAC1 = true; return else print("5: Racial (Uncastable)"); RAC1 = true; return end
+       						if castSpell("player",racial,false,false,false) then Print("5: Racial"); RAC1 = true; return else Print("5: Racial (Uncastable)"); RAC1 = true; return end
        					else
-       						print("5: Racial (Uncastable)");
+       						Print("5: Racial (Uncastable)");
        						RAC1 = true;
        						return
        					end 

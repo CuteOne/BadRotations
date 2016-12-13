@@ -129,7 +129,7 @@ end
 ----------------
 local function runRotation()
     if br.timer:useTimer("debugHavoc", math.random(0.15,0.3)) then
-        --print("Running: "..rotationName)
+        --Print("Running: "..rotationName)
 
 ---------------
 --- Toggles ---
@@ -139,7 +139,7 @@ local function runRotation()
         UpdateToggle("Defensive",0.25)
         UpdateToggle("Interrupt",0.25)
         UpdateToggle("Mover",0.25)
-        br.player.mode.mover = br.data["Mover"]
+        br.player.mode.mover = br.data.settings[br.selectedSpec].toggles["Mover"]
 
 --------------
 --- Locals ---
@@ -238,7 +238,7 @@ local function runRotation()
 					if getCombatTime() >= (tonumber(getOptionValue("DPS Testing"))*60) and isDummy() then
 						StopAttack()
 						ClearTarget()
-						print(tonumber(getOptionValue("DPS Testing")) .." Minute Dummy Test Concluded - Profile Stopped")
+						Print(tonumber(getOptionValue("DPS Testing")) .." Minute Dummy Test Concluded - Profile Stopped")
 						profileStop = true
 					end
 				end
@@ -318,7 +318,7 @@ local function runRotation()
         -- Fel Rush
             if mode.mover == 1 and getDistance("target") < 5 then
                 cancelRushAnimation()
-            elseif mode.mover == 2 or getDistance("target") >= 5 then
+            elseif mode.mover == 2 or (getDistance("target") >= 5 and mode.mover ~= 3) then
                 if cast.felRush() then return end
             end
         -- Fel Blade
@@ -330,11 +330,13 @@ local function runRotation()
             if cast.felEruption() then return end
         -- Death Sweep
             -- if HasTalent(FirstBlood)
-            if talent.firstBlood then
+            if buff.metamorphosis.exists and talent.firstBlood then
                 if cast.deathSweep() then return end
             end
         -- Annihilation
-            if cast.annihilation() then return end
+            if buff.metamorphosis.exists then
+                if cast.annihilation() then return end
+            end
         -- Fel Barrage
             -- if ChargesRemaining(FelBarrage) = SpellCharges(FelBarrage)
             if charges.felBarrage == charges.max.felBarrage then
@@ -359,7 +361,7 @@ local function runRotation()
             if getFacing("player","target",10) and not talent.prepared and not talent.momentum then
                 if mode.mover == 1 and getDistance("target") < 5 then
                     cancelRushAnimation()
-                elseif mode.mover == 2 or getDistance("target") >= 5 then
+                elseif mode.mover == 2 or (getDistance("target") >= 5 and mode.mover ~= 3) then
                     if cast.felRush() then return end
                 end
             end
@@ -387,7 +389,9 @@ local function runRotation()
     -- Action List - MultiTarget
         local function actionList_MultiTarget()
         -- Death Sweep
-            if cast.deathSweep() then return end
+            if buff.metamorphosis.exists then
+                if cast.deathSweep() then return end
+            end
         -- Fel Barrage
             -- if ChargesRemaining(FelBarrage) = SpellCharges(FelBarrage)
             if charges.felBarrage == charges.max.felBarrage then
@@ -401,7 +405,7 @@ local function runRotation()
             if getFacing("player","target",10) then
                 if mode.mover == 1 and getDistance("target") < 5 then
                     cancelRushAnimation()
-                elseif mode.mover == 2 or getDistance("target") >= 5 then
+                elseif mode.mover == 2 or (getDistance("target") >= 5 and mode.mover ~= 3) then
                     if cast.felRush() then return end
                 end
             end
@@ -414,7 +418,7 @@ local function runRotation()
             if cast.throwGlaive() then return end
         -- Annihilation
             -- if HasTalent(ChaosCleave)
-            if talent.chaosCleave then
+            if buff.metamorphosis.exists and talent.chaosCleave then
                 if cast.annihilation() then return end
             end
         -- Chaos Strike
@@ -538,7 +542,7 @@ local function runRotation()
                     if getOptionValue("APL Mode") == 1 and getFacing("player","target",10) then
                         if mode.mover == 1 and getDistance("target") < 5 then
                             cancelRushAnimation()
-                        elseif mode.mover == 2 or getDistance("target") >= 5 then
+                        elseif mode.mover == 2 or (getDistance("target") >= 5 and mode.mover ~= 3) then
                             if cast.felRush() then return end
                         end
                     end
@@ -599,7 +603,7 @@ local function runRotation()
                     if combatTime < 1 and getFacing("player","target",10) then
                         if mode.mover == 1 and getDistance("target") < 5 then
                             cancelRushAnimation()
-                        elseif mode.mover == 2 or getDistance("target") >= 5 then
+                        elseif mode.mover == 2 or (getDistance("target") >= 5 and mode.mover ~= 3) then
                             if cast.felRush() then return end
                         end
                     end
@@ -625,7 +629,7 @@ local function runRotation()
                     then
                         if mode.mover == 1 and getDistance("target") < 5 then
                             cancelRushAnimation()
-                        elseif mode.mover == 2 or getDistance("target") >= 5 then
+                        elseif mode.mover == 2 or (getDistance("target") >= 5 and mode.mover ~= 3) then
                             if cast.felRush() then return end
                         end
                     end
@@ -718,7 +722,7 @@ local function runRotation()
                     if getFacing("player","target",10) and not talent.momentum and moveIn > charges.felRush * 10 then
                         if mode.mover == 1 and getDistance("target") < 5 then
                             cancelRushAnimation()
-                        elseif mode.mover == 2 or getDistance("target") >= 5 then
+                        elseif mode.mover == 2 or (getDistance("target") >= 5 and mode.mover ~= 3) then
                             if cast.felRush() then return end
                         end
                     end
@@ -740,7 +744,7 @@ local function runRotation()
                     if getFacing("player","target",10) and getDistance("target") >= 15 then
                         if mode.mover == 1 and getDistance("target") < 5 then
                             cancelRushAnimation()
-                        elseif mode.mover == 2 or getDistance("target") >= 5 then
+                        elseif mode.mover == 2 or (getDistance("target") >= 5 and mode.mover ~= 3) then
                             if cast.felRush() then return end
                         end
                     end

@@ -107,7 +107,7 @@ end
 ----------------
 local function runRotation()
     if br.timer:useTimer("debugFire", math.random(0.15,0.3)) then
-        --print("Running: "..rotationName)
+        --Print("Running: "..rotationName)
 
 ---------------
 --- Toggles ---
@@ -180,7 +180,7 @@ local function runRotation()
 					if getCombatTime() >= (tonumber(getOptionValue("DPS Testing"))*60) and isDummy() then
 						StopAttack()
 						ClearTarget()
-						print(tonumber(getOptionValue("DPS Testing")) .." Minute Dummy Test Concluded - Profile Stopped")
+						Print(tonumber(getOptionValue("DPS Testing")) .." Minute Dummy Test Concluded - Profile Stopped")
 						profileStop = true
 					end
 				end
@@ -324,8 +324,9 @@ local function runRotation()
         -- Call Action List - Cooldowns
             if actionList_Cooldowns() then return end
         -- Pyroblast
+            -- pyroblast,if=buff.kaelthas_ultimate_ability.react&buff.combustion.remains>execute_time 
             -- pyroblast,if=buff.hot_streak.up
-            if buff.hotStreak.exists then
+            if (buff.kaelthasUltimateAbility.exists and buff.combustion.remain > getCastTime(spell.pyroblast)) or buff.hotStreak.exists then
                 if cast.pyroblast() then return end
             end
         -- Fire Blast
@@ -335,9 +336,7 @@ local function runRotation()
             end
         -- Phoenix's Flames
             -- phoenixs_flames
-            if buff.heatingUp.exists then
-                if cast.phoenixsFlames() then return end
-            end
+            if cast.phoenixsFlames() then return end
         -- Scorch
             -- scorch,if=buff.combustion.remains>cast_time
             -- scorch,if=target.health.pct<=25&equipped.132454

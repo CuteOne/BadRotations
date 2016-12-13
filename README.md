@@ -78,7 +78,7 @@ Raidable means if its good to raid with.
 |:----|------:|:-------|:---:|:-----:|
 ||||
 | **Death Knight** |||
-|Frost|0%||7.0|
+|Frost|0%|CuteOne|7.1|:interrobang:
 |Blood|95%|CuteOne/Vilt|7.1|:white_check_mark:
 |Unholy|0%||7.0|
 ||||
@@ -123,16 +123,16 @@ Raidable means if its good to raid with.
 |Subtlety|100%|CuteOne|7.0|:interrobang::x:
 ||||
 | **Shaman** |||
-|Elemental|100%|CuteOne|7.0|
+|Elemental|100%|CuteOne|7.0|:interrobang:
 |Enhancement|100%|CuteOne|7.1|:white_check_mark:
 |Restoration|0%||7.0|
 ||||
 | **Warlock** |||
 |Affliction|90%|CuteOne|7.1|:interrobang:
 |Demonology|100%|CuteOne|7.1|:interrobang:
-|Destruction|100%|CuteOne|7.1|:interrobang:
+|Destruction|100%|CuteOne|7.1|:white_check_mark:
 ||||
 | **Warrior** |||
-|Arms|0%||7.0|
+|Arms|100%|CuteOne|7.1|:white_check_mark:
 |Fury|100%|CuteOne|7.1|:interrobang:
-|Protection|100%||7.1|:interrobang:
+|Protection|100%|CuteOne|7.1|:white_check_mark:

@@ -20,7 +20,7 @@ function EnemiesEngine()
 	--[[------------------------------------------------------------------------------------------------------------------]]
 	--[[------------------------------------------------------------------------------------------------------------------]]
 	--[[------------------------------------------------------------------------------------------------------------------]]
-	local varDir = br.data.options[br.selectedSpec]
+	local varDir = br.data.settings[br.selectedSpec]
 	br.enemy = {}
 	function makeEnemiesTable(maxDistance)
 		br.enemyTimer = 0
@@ -29,7 +29,7 @@ function EnemiesEngine()
 		if br.enemy then cleanupEngine() end
 		if br.enemy == nil or br.enemyTimer == nil or br.enemyTimer <= GetTime() - 0.1 then
             local startTime
-            if br.data["isDebugging"] == true then
+            if br.data.settings[br.selectedSpec].toggles["isDebugging"] == true then
                 startTime = debugprofilestop()
             end
 
@@ -122,6 +122,7 @@ function EnemiesEngine()
 					local thisUnit 				= k
 					local burnValue 			= isBurnTarget(thisUnit) or 0
 					local shieldValue 			= isShieldedTarget(thisUnit) or 0
+					local unitThreat 			= UnitThreatSituation("player",thisUnit) or -1
 					br.enemy[k].name 			= UnitName(thisUnit)
 					br.enemy[k].guid 			= UnitGUID(thisUnit)
 					br.enemy[k].id 				= GetObjectID(thisUnit)
@@ -144,7 +145,7 @@ function EnemiesEngine()
 				end
 			end
 
-            if br.data["isDebugging"] == true then
+            if br.data.settings[br.selectedSpec].toggles["isDebugging"] == true then
                 br.debug.cpu.enemiesEngine.makeEnemiesTableCount = br.debug.cpu.enemiesEngine.makeEnemiesTableCount + 1
                 br.debug.cpu.enemiesEngine.makeEnemiesTableCurrent = debugprofilestop()-startTime
                 br.debug.cpu.enemiesEngine.makeEnemiesTable = br.debug.cpu.enemiesEngine.makeEnemiesTable + debugprofilestop()-startTime
@@ -157,10 +158,10 @@ function EnemiesEngine()
 	function cleanupEngine()
 		for k, v in pairs(br.enemy) do
 			-- here i want to scan the enemies table and find any occurances of invalid units
-			if not GetObjectExists(br.enemy[k].unit) then
+			if not GetObjectExists(br.enemy[k].unit) or UnitIsDeadOrGhost(br.enemy[k].unit) then
 				-- i will remove such units from table
 				br.enemy[k] = nil
-			elseif getDistance(k) > 40 then
+			elseif getDistance(br.enemy[k].unit) > 40 then
 				br.enemy[k] = nil
 			end
 		end
@@ -171,8 +172,8 @@ function EnemiesEngine()
 			local bestUnitCoef = 0
 			local bestUnit = "target"
 			for k, v in pairs(br.enemy) do
-				local thisUnit = br.enemy[k].unit
-				local thisDistance = getDistance("player",thisUnit)
+				local thisUnit = br.enemy[k]
+				local thisDistance = getDistance("player",thisUnit.unit)
 				if GetObjectExists(thisUnit.unit) then
 					if (not getOptionCheck("Safe Damage Check") or thisUnit.safe) and thisUnit.isCC == false and thisDistance < range and (facing == false or thisUnit.facing == true) then
 						if thisUnit.coeficient >= 0 and thisUnit.coeficient >= bestUnitCoef then
@@ -335,7 +336,7 @@ function EnemiesEngine()
 				coef = coef + shieldValue
 				local displayCoef = math.floor(coef*10)/10
 				local displayName = UnitName(unit) or "invalid"
-				-- print("Unit "..displayName.." - "..displayCoef)
+				-- Print("Unit "..displayName.." - "..displayCoef)
 			end
 		end
 		return coef

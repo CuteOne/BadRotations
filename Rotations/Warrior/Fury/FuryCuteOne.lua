@@ -164,7 +164,7 @@ end
 ----------------
 local function runRotation()
     if br.timer:useTimer("debugFury", 0.1) then
-        --print("Running: "..rotationName)
+        --Print("Running: "..rotationName)
 
 ---------------
 --- Toggles ---
@@ -174,7 +174,8 @@ local function runRotation()
         UpdateToggle("Defensive",0.25)
         UpdateToggle("Interrupt",0.25)
         UpdateToggle("Mover",0.25)
-        br.player.mode.mover = br.data["Mover"]
+        br.player.mode.mover = br.data.settings[br.selectedSpec].toggles["Mover"]
+
 --------------
 --- Locals ---
 --------------
@@ -229,6 +230,17 @@ local function runRotation()
 --------------------
     -- Action list - Extras
         function actionList_Extra()
+            -- Dummy Test
+            if isChecked("DPS Testing") then
+                if ObjectExists("target") then
+                    if getCombatTime() >= (tonumber(getOptionValue("DPS Testing"))*60) and isDummy() then
+                        StopAttack()
+                        ClearTarget()
+                        Print(tonumber(getOptionValue("DPS Testing")) .." Minute Dummy Test Concluded - Profile Stopped")
+                        profileStop = true
+                    end
+                end
+            end -- End Dummy Test
             -- Berserker Rage
             if isChecked("Berserker Rage") and hasNoControl(spell.berserkerRage) then
                 if cast.berserkerRage() then return end
@@ -343,9 +355,9 @@ local function runRotation()
         -- Potions
                 -- potion,name=old_war,if=(target.health.pct<20&buff.battle_cry.up)|target.time_to_die<30
         -- Battle Cry
-                -- battle_cry,if=(cooldown.odyns_fury.remains=0&(cooldown.bloodthirst.remains=0|(buff.enrage.remains>cooldown.bloodthirst.remains)))
+                -- battle_cry,if=(cooldown.odyns_fury.remains=0&(cooldown.bloodthirst.remains=0|(buff.enrage.remains>cooldown.bloodthirst.remains)))&buff.dragon_roar.up&gcd.remains<0.2
                 if isChecked("Battle Cry") then
-                    if (cd.odynsFury == 0 and (cd.bloodthirst == 0 or (buff.enrage.remain > cd.bloodthirst))) then
+                    if (cd.odynsFury == 0 and (cd.bloodthirst == 0 or (buff.enrage.remain > cd.bloodthirst))) and buff.dragonRoar.exists and cd.global < 0.2 then
                         if cast.battleCry() then return end
                     end
                 end
@@ -407,11 +419,11 @@ local function runRotation()
                 -- heroic_leap
                 if isChecked("Heroic Leap") and (getOptionValue("Heroic Leap")==6 or (SpecificToggle("Heroic Leap") and not GetCurrentKeyBoardFocus())) then
                     -- Best Location
-                    if getOptionValue("Heroic Leap - Target")==1 then
-                        if cast.heroicLeap("best",false,1,8) then return end
+                    if getOptionValue("Heroic Leap - Target") == 1 then
+                        if cast.heroicLeap("best",nil,1,8) then return end
                     end
                     -- Target
-                    if getOptionValue("Heroic Leap - Target")==2 then
+                    if getOptionValue("Heroic Leap - Target") == 2 then
                         if cast.heroicLeap("target","ground") then return end
                     end
                 end
@@ -459,19 +471,19 @@ local function runRotation()
             end
         -- Berserker Rage
             -- berserker_rage,if=talent.outburst.enabled&cooldown.odyns_fury.remains=0&buff.enrage.down
-            if talent.outburst and cd.odynsFury == 0 and not buff.enrage.exists then
+            if talent.outburst and cd.odynsFury == 0 and not buff.enrage.exists and getDistance(units.dyn5) < 5 then
                 if cast.berserkerRage() then return end
             end
         -- Dragon Roar
             -- dragon_roar,if=cooldown.odyns_fury.remains>=10|cooldown.odyns_fury.remains<=3
-            if useCDs() and isChecked("Dragon Roar") then
+            if isChecked("Dragon Roar") and getDistance(units.dyn5) < 5 then
                 if cd.odynsFury >= 10 or cd.odynsFury <= 3 then
                     if cast.dragonRoar() then return end
                 end
             end
         -- Odyn's Fury
             -- odyns_fury,if=buff.battle_cry.up&buff.enrage.up
-            if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()) then
+            if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()) and getDistance(units.dyn5) < 5 then
                 if buff.battleCry.exists and buff.enrage.exists then
                     if cast.odynsFury() then return end
                 end
@@ -530,7 +542,7 @@ local function runRotation()
             if actionList_Bladestorm() then return end
         -- Bloodbath
             -- bloodbath,if=buff.frothing_berserker.up|(rage>80&!talent.frothing_berserker.enabled)
-            if useCDs() and isChecked("Bloodbath") then
+            if useCDs() and isChecked("Bloodbath") and getDistance(units.dyn5) < 5 then
                 if buff.frothingBerserker.exists or (power > 80 and not talent.frothingBerserker) then
                     if cast.bloodbath() then return end
                 end
@@ -558,7 +570,7 @@ local function runRotation()
             end
         -- Odyn's Fury
             -- odyns_fury,if=buff.battle_cry.up&buff.enrage.up
-            if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()) then
+            if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()) and getDistance(units.dyn5) < 5 then
                 if buff.battleCry.exists and buff.enrage.exists then
                     if cast.odynsFury() then return end
                 end
@@ -575,7 +587,7 @@ local function runRotation()
             end
         -- Dragon Roar
             -- dragon_roar
-            if useCDs() and isChecked("Dragon Roar") then
+            if isChecked("Dragon Roar") and getDistance(units.dyn5) < 5 then
                 if cast.dragonRoar() then return end
             end
         -- Bloodthirst
@@ -607,7 +619,7 @@ local function runRotation()
             if actionList_Bladestorm() then return end
         -- Odyn's Fury
             -- odyns_fury,if=buff.battle_cry.up&buff.enrage.up
-            if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()) then
+            if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()) and getDistance(units.dyn5) < 5 then
                 if buff.battleCry.exists and buff.enrage.exists then
                     if cast.odynsFury() then return end
                 end
@@ -619,7 +631,7 @@ local function runRotation()
             end
         -- Dragon Roar
             -- dragon_roar
-            if useCDs() and isChecked("Dragon Roar") then
+            if isChecked("Dragon Roar") and getDistance(units.dyn5) < 5 then
                 if cast.dragonRoar() then return end
             end
         -- Rampage

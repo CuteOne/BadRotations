@@ -53,7 +53,7 @@ function DumpGreys(Num)
 		if greyTable[i]~= nil then
 			PickupContainerItem(greyTable[i].Bag, greyTable[i].Slot)
 			DeleteCursorItem()
-			print("|cffFF0000Removed Grey Item:"..greyTable[i].Item)
+			Print("|cffFF0000Removed Grey Item:"..greyTable[i].Item)
 		end
 	end
 end
@@ -66,7 +66,7 @@ lM = lootManager
 function lootManager:debug(message)
 	if lM.showDebug then
 		if message and lM.oldMessage ~= message then
-			print("<lootManager> "..(math.floor(GetTime()*1000)/1000).. " "..message)
+			Print("<lootManager> "..(math.floor(GetTime()*1000)/1000).. " "..message)
 			lM.oldMessage = message
 		end
 	end

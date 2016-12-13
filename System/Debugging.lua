@@ -58,7 +58,7 @@ function br.debug.getEXspeed(cycles, func)
 
     local duration = debugprofilestop()-startTime
     local average = duration/cycles
-    print(format("Function %i times executed in %f ms (%f average)", cycles, duration, average))
+    Print(format("Function %i times executed in %f ms (%f average)", cycles, duration, average))
 end
 
 -- INTO TIMER LUA

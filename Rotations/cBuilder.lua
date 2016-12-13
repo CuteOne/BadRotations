@@ -16,8 +16,119 @@ function br.loader:new(spec,specName)
     -- Mandatory !
     self.rotations = br.loader.rotations
 
-    -- Spell Table
+    -- Spells From Spell Table
     self.spell = mergeIdTables(self.spell)
+
+    -- if br.spellList == nil then br.spellList = {} end
+    -- -- All Spells
+    -- for i = 1, 999999 do
+    --     if IsPlayerSpell(i) then
+    --         local spellName = convertName(GetSpellInfo(i))
+    --         -- Table Companion Pets
+    --         critterFound = false
+    --         for x = 1, C_PetJournal.GetNumPets() do
+    --             local petName = select(8,C_PetJournal.GetPetInfoByIndex(x))
+    --             if petName == select(1,GetSpellInfo(i)) then 
+    --                 critterFound = true;
+    --                 if br.spellList.critter == nil then br.spellList.critter = {} end 
+    --                 br.spellList.critter[spellName] = i
+    --                 break 
+    --             end
+    --         end
+    --         -- Table Mounts
+    --         mountFound = false
+    --         for x = 1, C_MountJournal.GetNumMounts() do
+    --             local _, spellID = C_MountJournal.GetDisplayedMountInfo(x)
+    --             if spellID == i then 
+    --                 mountFound = true;
+    --                 if br.spellList.mount == nil then br.spellList.mount = {} end 
+    --                 br.spellList.mount[spellName] = i 
+    --                 break 
+    --             end
+    --         end
+    --         -- Table Professions
+    --         professionFound = false
+    --         -- --    prof1, prof2, archaeology, fishing, cooking, firstAid
+    --         -- local prof1, prof2, prof3, prof4, prof5, prof6 = GetProfessions()
+    --         -- for x = 1, 6 do
+    --         --     local profIndex = select(x,GetProfessions())
+    --         --     if profIndex ~= nil then
+    --         --         for y = 1, profIndex do
+    --         --             local skillName = GetProfessionInfo(y)
+    --         --             Print(skillName)
+    --         --             if skillName == select(1,GetSpellInfo(i)) then
+    --         --                 professionFound = true;
+    --         --                 if br.spellList.profession == nil then br.spellList.profession = {} end
+    --         --                 br.spellList.profession[spellName] = i
+    --         --             end
+    --         --         end
+    --         --     end
+    --         -- end
+    --         if not critterFound and not mountFound and not professionFound then
+    --             br.spellList[spellName] = i
+    --         end
+    --     end
+    -- end
+
+    -- -- Active Spells From Spellbook
+    -- for i = 1, GetNumSpellTabs() do
+    --     local spellTabName,_,spellTabOffset,spellTabCount = GetSpellTabInfo(i)
+    --     if i == 1 or spellTabName == br.playerSpecName then
+    --         for x = 1, spellTabCount do
+    --             local spellIndex = x + spellTabOffset
+    --             local spellID = select(2,GetSpellBookItemInfo(spellIndex,"spell"))
+    --             local spellName = GetSpellInfo(spellID)
+    --             local isPassive = IsPassiveSpell(spellIndex,"spell")
+    --             if spellName ~= nil then 
+    --                 if not isPassive then
+    --                     local spellName = convertName(spellName)
+    --                     -- br.spellList[convertName(spellName)] = spellID
+    --                     self.spell['abilities'][spellName] = spellID
+    --                     self.spell[spellName] = spellID
+    --                 end
+    --             end
+    --         end
+    --     end
+    -- end
+    -- -- Active Spells From Spellbook Flyouts
+    -- for y = 1, GetNumFlyouts() do
+    --     local flyoutID = GetFlyoutID(y)
+    --     local _,_,spellFlyoutCount,isKnown = GetFlyoutInfo(flyoutID)
+    --     if isKnown then 
+    --         for z = 1, spellFlyoutCount do
+    --             local spellID = GetFlyoutSlotInfo(flyoutID, z);
+    --             local spellName = convertName(select(1,GetSpellInfo(spellID)))
+    --             -- local spellName = convertName(spellName)
+    --             -- br.spellList[convertName(spellName)] = spellID
+    --             self.spell['abilities'][spellName] = spellID
+    --             self.spell[spellName] = spellID
+    --         end
+    --     end
+    -- end
+    local function getTalentInfo()
+        -- Update Talent Info
+        br.activeSpecGroup = GetActiveSpecGroup()
+        if self.talent == nil then self.talent = {} end
+        for r = 1, 7 do --search each talent row
+            for c = 1, 3 do -- search each talent column
+                if not activeOnly then
+                -- Cache Talent IDs for talent checks
+                    local _,_,_,selected,_,talentID = GetTalentInfo(r,c,br.activeSpecGroup)
+                    local spellName = convertName(GetSpellInfo(talentID))
+                    self.talent[spellName] = selected
+                    if not IsPassiveSpell(talentID) then
+                        self.spell['abilities'][spellName] = talentID
+                        self.spell[spellName] = talentID 
+                    end
+                end
+            end
+        end
+    end
+    getTalentInfo()
+    AddEventCallback("PLAYER_TALENT_UPDATE",function()
+        getTalentInfo()
+    end)
+
 ------------------
 --- OOC UPDATE ---
 ------------------
@@ -58,6 +169,7 @@ function br.loader:new(spec,specName)
         self.soulShards     = UnitPower("player", 7)
         self.lunarPower     = UnitPower("player", 8)
         self.holyPower      = UnitPower("player", 9)
+        self.holyPowerMax   = UnitPowerMax("player",9)
         self.altPower       = UnitPower("player",10)
         self.maelstrom      = UnitPower("player",11)
         self.chi            = UnitPower("player",12)
@@ -72,17 +184,18 @@ function br.loader:new(spec,specName)
 
         -- Build Best Unit per Range
         local typicalRanges = {
-            40,
+            40, -- Typical Ranged Limit
             35,
             30,
             25,
             20,
             15,
-            13,
-            12,
-            10,
-            8,
-            5,
+            13, -- Feral Interrupt
+            12, 
+            10, -- Other Typical AoE Effect
+            9, -- Monk Artifact
+            8, -- Typical AoE Effect
+            5, -- Typical Melee
         }
         for x = 1, #typicalRanges do
             local i = typicalRanges[x]
@@ -99,10 +212,10 @@ function br.loader:new(spec,specName)
                 self.artifact.rank[k] = getPerkRank(v) or 0
             end
 
-            -- Build Talent Info
-            for k,v in pairs(self.spell.talents) do
-                self.talent[k] = br.talent[v]
-            end
+            -- Update Talent Info
+            -- for k,v in pairs(self.spell.talents) do
+            --     self.talent[k] = br.talent[v]
+            -- end
         end
 
         -- Build Buff Info
@@ -296,7 +409,7 @@ function br.loader:new(spec,specName)
                 end
                 if minUnits == nil then minUnits = 1 end
                 if effectRng == nil then effectRng = 8 end
-                if IsUsableSpell(v) and getSpellCD(v) == 0 and isKnown(v) and amIinRange then
+                if not select(2,IsUsableSpell(v)) and getSpellCD(v) == 0 and isKnown(v) and amIinRange then
                     if debug == "debug" then
                         return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                     else
@@ -308,10 +421,10 @@ function br.loader:new(spec,specName)
                             end
                         elseif debug == "dead" then
                             if thisUnit == nil then thisUnit = "player" end
-                            return castSpell(thisUnit,spellCast,false,false,false,false,true)
+                            return castSpell(thisUnit,spellCast,false,false,false,true,true,true,true,false)
                         else
                             if thisUnit == nil then thisUnit = "player" end
-                            return castSpell(thisUnit,spellCast,false,false,false)
+                            return castSpell(thisUnit,spellCast,false,false,false,true,false,true,true,false)
                         end
                     end
                 elseif debug == "debug" then
@@ -324,7 +437,7 @@ function br.loader:new(spec,specName)
     -- local duration = debugprofilestop()-timeStart
     -- local average = duration/1
     -- local cycles = 1
-    -- print(format("Function executed %i time(s) in %f ms (%f average)", cycles, duration, average))
+    -- Print(format("Function executed %i time(s) in %f ms (%f average)", cycles, duration, average))
     end
 
 ----------------
@@ -365,10 +478,10 @@ function br.loader:new(spec,specName)
 
     function self.getToggleModes()
 
-        self.mode.rotation      = br.data["Rotation"]
-        self.mode.cooldown      = br.data["Cooldown"]
-        self.mode.defensive     = br.data["Defensive"]
-        self.mode.interrupt     = br.data["Interrupt"]
+        self.mode.rotation      = br.data.settings[br.selectedSpec].toggles["Rotation"]
+        self.mode.cooldown      = br.data.settings[br.selectedSpec].toggles["Cooldown"]
+        self.mode.defensive     = br.data.settings[br.selectedSpec].toggles["Defensive"]
+        self.mode.interrupt     = br.data.settings[br.selectedSpec].toggles["Interrupt"]
     end
 
     -- Create the toggle defined within rotation files
@@ -394,7 +507,8 @@ function br.loader:new(spec,specName)
     -- end
      -- Creates the option/profile window
     function self.createOptions()
-        br.ui.window.profile = br.ui:createProfileWindow(self.profile)
+        -- br.ui:createProfileWindow(self.profile)
+        br.ui:createProfileWindow(self.profile)
 
         -- Get the names of all profiles and create rotation dropdown
         local names = {}
@@ -432,7 +546,8 @@ function br.loader:new(spec,specName)
 
         -- Create pages dropdown
         br.ui:createPagesDropdown(br.ui.window.profile, optionTable)
-        br:checkProfileWindowStatus()
+        -- br:checkProfileWindowStatus()
+        br.ui:checkWindowStatus("profile")
     end
 
 ------------------------
@@ -467,6 +582,30 @@ function br.loader:new(spec,specName)
 
     function useInterrupts()
         if self.mode.interrupt == 1 then
+            return true
+        else
+            return false
+        end
+    end
+
+    function useMfD()
+        if self.mode.mfd == 1 then
+            return true
+        else
+            return false
+        end
+    end
+
+    function useRollForTB()
+        if self.mode.RerollTB == 1 then
+            return true
+        else
+            return false
+        end
+    end
+
+     function useRollForOne()
+        if self.mode.RollForOne == 1  then
             return true
         else
             return false
