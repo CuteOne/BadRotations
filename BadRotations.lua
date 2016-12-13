@@ -43,6 +43,7 @@ function br:Run()
 		[9]				= {class = "Warlock", 		B=0.79,	G=0.51,	R=0.58,	hex="|cff9482c9"},
 		[10]			= {class = "Monk",			B=0.59,	G=1,	R=0,	hex="|cff00ff96"},
 		[11]			= {class = "Druid", 		B=0.04,	G=0.49,	R=1,	hex="|cffff7d0a"},
+		[12] 			= {class = "Demonhunter", 	B=0.79, G=0.19, R=0.64, hex="|cffa330c9"},
 		-- ["Training Dummy"] = {B=0.76,  G=0.76,  	R=0.76, hex="|cffC0C0C0"},
 		-- ["Black"]		= {B=0.1, 	G=0.1,	R=0.12,	hex="|cff191919"},
 		-- ["Hunter"]		= {B=0.45,	G=0.83,	R=0.67,	hex="|cffabd473"},
