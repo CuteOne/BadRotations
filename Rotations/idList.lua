@@ -1427,6 +1427,7 @@ br.idList = {
                 stealth                     = 1784,
                 theDreadlordsDeceit         = 208692,
                 woundPoison                 = 8679,
+                subterfuge                  = 115192,                
             },
             debuffs                         = {
                 agonizingPoison             = 200803,
@@ -1601,6 +1602,7 @@ br.idList = {
                 stealth                     = 115191,
                 symbolsOfDeath              = 212283,
                 theDreadlordsDeceit         = 228224,
+                subterfuge                  = 115192,
             },
             debuffs                         = {
                 nightblade                  = 195452,
