@@ -67,7 +67,7 @@ end
 ----------------
 local function runRotation()
     if br.timer:useTimer("debugDiscipline", 0.1) then
-        --Print("Running: "..rotationName)
+        --print("Running: "..rotationName)
 
 ---------------
 --- Toggles --- -- List toggles here in order to update when pressed

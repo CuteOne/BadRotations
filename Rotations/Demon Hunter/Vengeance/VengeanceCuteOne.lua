@@ -55,12 +55,6 @@ local function createOptions()
             br.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
         -- Pre-Pull Timer
             br.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
-        -- Fiery Brand
-            br.ui:createCheckbox(section,"Fiery Brand")
-        -- Immolation Aura
-            br.ui:createCheckbox(section,"Immolation Aura")
-        -- Sigil of Flames
-            br.ui:createCheckbox(section,"Sigil of Flames")
         br.ui:checkSectionState(section)
     -- Cooldown Options
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
@@ -81,8 +75,6 @@ local function createOptions()
             br.ui:createSpinner(section, "Pot/Stoned",  60,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
         -- Heirloom Neck
             br.ui:createSpinner(section, "Heirloom Neck",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.");
-        -- Demon Spikes
-            br.ui:createSpinner(section, "Demon Spikes",  50,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.");
         -- Empower Wards
             br.ui:createCheckbox(section, "Empower Wards")
         -- Fel Devastation
@@ -136,7 +128,7 @@ end
 ----------------
 local function runRotation()
     if br.timer:useTimer("debugVengeance", math.random(0.15,0.3)) then
-        --Print("Running: "..rotationName)
+        --print("Running: "..rotationName)
 
 ---------------
 --- Toggles ---
@@ -146,7 +138,7 @@ local function runRotation()
         UpdateToggle("Defensive",0.25)
         UpdateToggle("Interrupt",0.25)
         UpdateToggle("Mover",0.25)
-        br.player.mode.mover = br.data.settings[br.selectedSpec].toggles["Mover"]
+        br.player.mode.mover = br.data["Mover"]
 
 --------------
 --- Locals ---
@@ -212,7 +204,7 @@ local function runRotation()
 					if getCombatTime() >= (tonumber(getOptionValue("DPS Testing"))*60) and isDummy() then
 						StopAttack()
 						ClearTarget()
-						Print(tonumber(getOptionValue("DPS Testing")) .." Minute Dummy Test Concluded - Profile Stopped")
+						print(tonumber(getOptionValue("DPS Testing")) .." Minute Dummy Test Concluded - Profile Stopped")
 						profileStop = true
 					end
 				end
@@ -241,10 +233,6 @@ local function runRotation()
 	    				end
 	    			end
 	    		end
-        -- Demon Spikes
-                if isChecked("Demon Spikes") and php <= getOptionValue("Demon Spikes") and inCombat then
-                    if cast.demonSpikes() then return end
-                end
         -- Sigil of Misery
                 if isChecked("Sigil of Misery - HP") and php <= getOptionValue("Sigil of Misery - HP") and inCombat and #enemies.yards8 > 0 then
                     if cast.sigilOfMisery("player","ground") then return end
@@ -361,10 +349,8 @@ local function runRotation()
                 if cast.soulCarver() then return end
     -- Fiery Brand    
                 -- actions+=/fiery_brand,if=buff.demon_spikes.down&buff.metamorphosis.down
-                if isChecked("Fiery Brand") then
-                    if not buff.demonSpikes.exists and not buff.metamorphosis.exists then
-                        if cast.fieryBrand() then return end
-                    end
+                if not buff.demonSpikes.exists and not buff.metamorphosis.exists then
+                    if cast.fieryBrand() then return end
                 end
     -- Demon Spikes
                 -- actions+=/demon_spikes,if=charges=2|buff.demon_spikes.down&!dot.fiery_brand.ticking&buff.metamorphosis.down
@@ -403,10 +389,8 @@ local function runRotation()
                 end
     -- Immolation Aura
                 -- actions+=/immolation_aura,if=pain<=80
-                if isChecked("Immolation Aura") then
-                    if pain <= 80 and getDistance(units.dyn8AoE) < 8 then
-                        if cast.immolationAura() then return end
-                    end
+                if pain <= 80 and getDistance(units.dyn8AoE) < 8 then
+                    if cast.immolationAura() then return end
                 end
     -- Felblade
                 -- actions+=/felblade,if=pain<=70
@@ -447,7 +431,7 @@ local function runRotation()
                 if cast.felEruption() then return end
     -- Sigil of Flame
                 -- actions+=/sigil_of_flame,if=remains-delay<=0.3*duration
-                if isChecked("Sigil of Flames") and not isMoving(units.dyn5) then
+                if not isMoving(units.dyn5) then
                     if cast.sigilOfFlame("best",false,1,8) then return end
                 end
     -- Fracture

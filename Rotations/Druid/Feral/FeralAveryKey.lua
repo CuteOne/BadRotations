@@ -99,12 +99,12 @@ local function runRotation()
 		end
 		
 		--Skull Bash
-		if br.data.settings[br.selectedSpec].toggles["Interrupt"] == 1 then
+		if br.data["Interrupt"] == 1 then
 			for i = 1, #getEnemies("player",13) do
 				local thisUnit = getEnemies("player",13)[i]
 				local distance = getDistance("player",thisUnit)						
 				if distance < 13 and canInterrupt(thisUnit,100) then
-					if isChecked("Debug") then Print("Skull Bash") end
+					if isChecked("Debug") then print("Skull Bash") end
 					CastSpellByName(GetSpellInfo(106839),thisUnit)
 				end
 			end
@@ -112,35 +112,35 @@ local function runRotation()
 		
 		local targetDistance = getDistance("player","target")
 		--Berserk
-		if br.data.settings[br.selectedSpec].toggles["Cooldown"] == 1 then			
+		if br.data["Cooldown"] == 1 then			
 			if buff.tigersFury and (buff.incarnationKingOfTheJungle or not talent.incarnationKingOfTheJungle) and targetDistance < 5 then
-				if isChecked("Debug") then Print("Berserk") end
+				if isChecked("Debug") then print("Berserk") end
 				CastSpellByName(GetSpellInfo(106951))
 			end
 		end
 		
 		--Tigers Fury
 		if ((not clearcast and br.player.powerDeficit >= 60) or br.player.powerDeficit >= 80) and targetDistance < 5 then
-			if isChecked("Debug") then Print("Tigers Fury") end
+			if isChecked("Debug") then print("Tigers Fury") end
 			CastSpellByName(GetSpellInfo(5217))
 		end
 		
 		--Incarnation - King of the Jungle
-		if br.data.settings[br.selectedSpec].toggles["Cooldown"] == 1 then
+		if br.data["Cooldown"] == 1 then
 			if buff.remain.berserk < 10 and ttm > 1 and targetDistance < 5 then
-				if isChecked("Debug") then Print("Incarnation - King of the Jungle") end
+				if isChecked("Debug") then print("Incarnation - King of the Jungle") end
 				CastSpellByName(GetSpellInfo(102543))
 			end
 		end
 		
 		--Trinkets
-		if br.data.settings[br.selectedSpec].toggles["Cooldown"] == 1 then
+		if br.data["Cooldown"] == 1 then
 			if canUse(13) and canTrinket(13) and targetDistance < 5 then
-				if isChecked("Debug") then Print("/use 13") end
+				if isChecked("Debug") then print("/use 13") end
 				RunMacroText("/use 13")
 			end
 			if canUse(14) and canTrinket(14) and targetDistance < 5 then
-				if isChecked("Debug") then Print("/use 14") end
+				if isChecked("Debug") then print("/use 14") end
 				RunMacroText("/use 14")
 			end
 		end
@@ -150,21 +150,21 @@ local function runRotation()
 			local rip = bleed.rip[i]
 			local thisUnit = rip.unit
 			if rip.remain > 0 and rip.remain < 3 and getHP(thisUnit) < 25 then
-				if isChecked("Debug") then Print("Ferocious Bite Rip Execute Refresh") end
+				if isChecked("Debug") then print("Ferocious Bite Rip Execute Refresh") end
 				CastSpellByName(GetSpellInfo(1079),thisUnit)
 			end
 		end
 
 		--Healing Touch Bloodtalons
 		if talent.bloodtalons and buff.predatorySwiftness and (combo >= 4 or buff.remain.predatorySwiftness < 1.5) then
-			if isChecked("Debug") then Print("Healing Touch Bloodtalons") end
+			if isChecked("Debug") then print("Healing Touch Bloodtalons") end
 			CastSpellByName(GetSpellInfo(5185),"player")
 		end
 		
 		--Savage Roar If Down
 		if not buff.savageRoar then
 			if combo >= 1 then
-				if isChecked("Debug") then Print("Savage Roar If Down") end
+				if isChecked("Debug") then print("Savage Roar If Down") end
 				CastSpellByName(GetSpellInfo(52610))
 			end
 		end
@@ -175,7 +175,7 @@ local function runRotation()
 			local thisUnit = thrash.unit
 			local distance = getDistance("player",thisUnit)	
 			if thrash.remain < 4.5 and distance < 8 and #getEnemies("player", 8) >= 4 then
-				if isChecked("Debug") then Print("Thrash < 4.5 & Enemies >= 4") end
+				if isChecked("Debug") then print("Thrash < 4.5 & Enemies >= 4") end
 				CastSpellByName("Thrash")--GetSpellInfo(106830))	
 			end
 		end
@@ -190,7 +190,7 @@ local function runRotation()
 				local distance = getDistance("player",thisUnit)	
 				if rip.remain < 2 and ttd(thisUnit) - rip.remain > 18 and (getHP(thisUnit) > 25 or rip.remain < 2) 
 					and distance < 5 then
-					if isChecked("Debug") then Print("Rip < 2") end
+					if isChecked("Debug") then print("Rip < 2") end
 					CastSpellByName(GetSpellInfo(1079),thisUnit)
 				end
 			end
@@ -201,7 +201,7 @@ local function runRotation()
 				local distance = getDistance("player",thisUnit)	
 				if power > 50 and getHP(thisUnit) <= 25 and rip.remain > 0 
 					and distance < 5 then
-					if isChecked("Debug") then Print("Ferocious Bite < 25") end
+					if isChecked("Debug") then print("Ferocious Bite < 25") end
 					CastSpellByName(GetSpellInfo(22568),thisUnit)
 				end
 			end
@@ -212,7 +212,7 @@ local function runRotation()
 				local distance = getDistance("player",thisUnit)	
 				if rip.remain < 7.2 and rip.calc > rip.applied and ttd(thisUnit) - rip.remain > 18 
 					and distance < 5 then
-					if isChecked("Debug") then Print("Rip < 7.2 & Current Rip Mult. > Rip Applied Mult.") end
+					if isChecked("Debug") then print("Rip < 7.2 & Current Rip Mult. > Rip Applied Mult.") end
 					CastSpellByName(GetSpellInfo(1079),thisUnit)
 				end
 			end
@@ -225,14 +225,14 @@ local function runRotation()
 					and (ttm<=1 or (not talent.bloodtalons)) 
 					and ttd(thisUnit) - rip.remain > 18 
 					and distance < 5 then
-					if isChecked("Debug") then Print("Rip < 7.2 & Current Rip Mult. = Rip Applied Mult.") end
+					if isChecked("Debug") then print("Rip < 7.2 & Current Rip Mult. = Rip Applied Mult.") end
 					CastSpellByName(GetSpellInfo(1079),thisUnit)
 				end
 			end
 			--Savage Roar < 12.6
 			if (ttm<=1 or buff.berserk or cd.tigersFury < 3) and buff.remain.savageRoar < 12.6 
 				and getDistance("target") < 5 then
-				if isChecked("Debug") then Print("Savage Roar < 12.6") end
+				if isChecked("Debug") then print("Savage Roar < 12.6") end
 				CastSpellByName(GetSpellInfo(52610))
 			end
 			--Ferocious Bite
@@ -241,7 +241,7 @@ local function runRotation()
 				local distance = getDistance("player",thisUnit)	
 				if (ttm <= 1 or buff.berserk or cd.tigersFury < 3) 
 					and distance < 5 then
-					if isChecked("Debug") then Print("Ferocious Bite") end
+					if isChecked("Debug") then print("Ferocious Bite") end
 					CastSpellByName(GetSpellInfo(22568),thisUnit)
 				end
 			end
@@ -251,7 +251,7 @@ local function runRotation()
 		--Savage Roar < GCD
 		if br.player.buff.remain.savageRoar < gcd then
 			if combo >= 1 then
-				if isChecked("Debug") then Print("Savage Roar < GCD") end
+				if isChecked("Debug") then print("Savage Roar < GCD") end
 				CastSpellByName(GetSpellInfo(52610))
 			end
 		end
@@ -267,7 +267,7 @@ local function runRotation()
 				if rake.remain < 3 
 					and ((ttd(thisUnit) - rake.remain > 3 and #getEnemies("player", 8) < 3) or ttd(thisUnit) - rake.remain > 6) 
 					and distance < 5 then
-					if isChecked("Debug") then Print("Rake < 3") end
+					if isChecked("Debug") then print("Rake < 3") end
 					CastSpellByName(GetSpellInfo(1822),thisUnit)
 				end
 			end
@@ -280,7 +280,7 @@ local function runRotation()
 					and (rake.calc >= rake.applied or (talent.bloodtalons and (buff.bloodtalons or not buff.predatorySwiftness))) 
 					and ((ttd(thisUnit) - rake.remain > 3 and #getEnemies("player", 8) < 3) or ttd(thisUnit) - rake.remain > 6) 
 					and distance < 5 then
-					if isChecked("Debug") then Print("Rake < 4.5") end
+					if isChecked("Debug") then print("Rake < 4.5") end
 					CastSpellByName(GetSpellInfo(1822),thisUnit)
 				end
 			end 
@@ -292,7 +292,7 @@ local function runRotation()
 					local distance = getDistance("player",thisUnit)		
 					if moonfire.remain < 4.2 and #getEnemies("player", 8) <= 5 and (ttd(thisUnit) - moonfire.remain) > (mfTick * 5)
 						and distance < 40 then
-						if isChecked("Debug") then Print("Moonfire < 4.2") end
+						if isChecked("Debug") then print("Moonfire < 4.2") end
 						CastSpellByName(GetSpellInfo(8921),thisUnit)
 					end
 				end
@@ -305,7 +305,7 @@ local function runRotation()
 				if rake.calc > rake.applied and #getEnemies("player", 8) == 1 
 					and ((ttd(thisUnit) - rake.remain > 3 and #getEnemies("player", 8) < 3) or ttd(thisUnit) - rake.remain > 6) 
 					and distance < 5 then
-					if isChecked("Debug") then Print("Current Rake Mult. > Rake Applied Mult.") end
+					if isChecked("Debug") then print("Current Rake Mult. > Rake Applied Mult.") end
 					CastSpellByName(GetSpellInfo(1822),thisUnit)
 				end
 			end	
@@ -318,7 +318,7 @@ local function runRotation()
 			local thisUnit = thrash.unit
 			local distance = getDistance("player",thisUnit)	
 			if thrash.remain < 4.5 and distance < 8 and #getEnemies("player", 8) >= 2 then
-				if isChecked("Debug") then Print("Thrash < 4.5 & Enemies >= 2") end
+				if isChecked("Debug") then print("Thrash < 4.5 & Enemies >= 2") end
 				CastSpellByName("Thrash")--GetSpellInfo(106830))	
 			end
 		end
@@ -332,7 +332,7 @@ local function runRotation()
 					local thisUnit = getEnemies("player",5)[i]
 					local distance = getDistance("player",thisUnit)
 					if distance < 5 then
-						if isChecked("Debug") then Print("Shred") end
+						if isChecked("Debug") then print("Shred") end
 						CastSpellByName(GetSpellInfo(5221),thisUnit)	
 					end
 				end
@@ -346,7 +346,7 @@ local function runRotation()
 						counter = counter + 1							
 					end
 					if counter >= 3 then
-						if isChecked("Debug") then Print("Swipe") end
+						if isChecked("Debug") then print("Swipe") end
 						CastSpellByName(GetSpellInfo(106785))	
 						counter = 0
 					end

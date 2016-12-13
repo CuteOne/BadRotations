@@ -73,21 +73,21 @@ function castGroundAtBestLocation(spellID, radius, minUnits, maxRange, minRange,
 	-- Make function usable between enemies and friendlies
 	if spellType == "heal" then	unitTable = br.friend else unitTable = br.enemy end
 	-- fill allUnitsInRange with data from enemiesEngine/healingEngine
-	--Print("______________________1")
+	--print("______________________1")
 	-- for i=1,#unitTable do
 	for k, v in pairs(unitTable) do
 		local thisUnit = unitTable[k].unit
 		local thisDistance = getDistance(thisUnit)
 		local hasThreat = isValidUnit(thisUnit) or UnitIsFriend(thisUnit,"player") --hasThreat(br.enemy[i].unit)
-		--Print(thisUnit.." - "..thisDistance)
+		--print(thisUnit.." - "..thisDistance)
 		if isNotBlacklisted(thisUnit) then
-			--Print("blacklist passed")
+			--print("blacklist passed")
 			if thisDistance < maxRange and thisDistance >= minRange and hasThreat then
-				--Print("distance passed")
+				--print("distance passed")
 				if not UnitIsDeadOrGhost(thisUnit) and (getFacing("player",thisUnit) or UnitIsUnit(thisUnit,"player")) and getLineOfSight(thisUnit) and not isMoving(thisUnit) then
-					--Print("ghost passed")
+					--print("ghost passed")
 					if UnitAffectingCombat(thisUnit) or (spellType == "heal" and getHP(Unit) < 100) or isDummy(thisUnit) then
-						--Print("combat and dummy passed")
+						--print("combat and dummy passed")
 						table.insert(allUnitsInRange,thisUnit)
 					end
 				end
@@ -95,34 +95,34 @@ function castGroundAtBestLocation(spellID, radius, minUnits, maxRange, minRange,
 		end
 	end
 	-- check units in allUnitsInRange against each them
-	--Print("______________________2")
+	--print("______________________2")
 	local goodUnits = {}
 	for i=1,#allUnitsInRange do
 		local thisUnit = allUnitsInRange[i]
 		local unitsAroundThisUnit = {}
-		--Print("units around "..thisUnit..":")
+		--print("units around "..thisUnit..":")
 		for j=1,#allUnitsInRange do
 			local checkUnit = allUnitsInRange[j]
-			--Print(checkUnit.."?")
+			--print(checkUnit.."?")
 			if getDistance(thisUnit,checkUnit) < radius then
-				--Print(checkUnit.." added")
+				--print(checkUnit.." added")
 				table.insert(unitsAroundThisUnit,checkUnit)
 			end
 		end
 		if #goodUnits <= #unitsAroundThisUnit then
-			--Print("units around check: "..#unitsAroundThisUnit.." >= "..#goodUnits)
+			--print("units around check: "..#unitsAroundThisUnit.." >= "..#goodUnits)
 			if tonumber(minUnits) <= #unitsAroundThisUnit then
-				--Print("enough units around: "..#unitsAroundThisUnit)
+				--print("enough units around: "..#unitsAroundThisUnit)
 				goodUnits = unitsAroundThisUnit
 			end
 		end
 	end
 	-- where to cast
-	--Print("______________________3")
+	--print("______________________3")
 	if #goodUnits > 0 then
-		--Print("goodUnits > 0")
+		--print("goodUnits > 0")
 		if #goodUnits > 1 then
-			--Print("goodUnits > 1")
+			--print("goodUnits > 1")
 			local mX, mY,mZ = 0,0,0
 			for i=1,#goodUnits do
 				local thisUnit = goodUnits[i]
@@ -135,7 +135,7 @@ function castGroundAtBestLocation(spellID, radius, minUnits, maxRange, minRange,
 					mZ = 0.5*(mZ + thisZ)
 				end
 			end
-			--Print(mX.." "..mY.." "..mZ)
+			--print(mX.." "..mY.." "..mZ)
 			if mX ~= 0 and mY ~= 0 and mZ ~= 0 then
 				CastSpellByName(GetSpellInfo(spellID))
 				ClickPosition(mX,mY,mZ)

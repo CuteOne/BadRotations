@@ -162,7 +162,7 @@ end
 ----------------
 local function runRotation()
     if br.timer:useTimer("debugFeral", math.random(0.15,0.3)) then
-        --Print("Running: "..rotationName)
+        --print("Running: "..rotationName)
 
 ---------------
 --- Toggles ---
@@ -172,9 +172,9 @@ local function runRotation()
         UpdateToggle("Defensive",0.25)
         UpdateToggle("Interrupt",0.25)
         UpdateToggle("Cleave",0.25)
-        br.player.mode.cleave = br.data.settings[br.selectedSpec].toggles["Cleave"]
+        br.player.mode.cleave = br.data["Cleave"]
         UpdateToggle("Prowl",0.25)
-        br.player.mode.prowl = br.data.settings[br.selectedSpec].toggles["Prowl"]
+        br.player.mode.prowl = br.data["Prowl"]
 
 --------------
 --- Locals ---
@@ -347,7 +347,7 @@ local function runRotation()
 					if getCombatTime() >= (tonumber(getOptionValue("DPS Testing"))*60) and isDummy() then
 						StopAttack()
 						ClearTarget()
-						Print(tonumber(getOptionValue("DPS Testing")) .." Minute Dummy Test Concluded - Profile Stopped")
+						print(tonumber(getOptionValue("DPS Testing")) .." Minute Dummy Test Concluded - Profile Stopped")
 						profileStop = true
 					end
 				end

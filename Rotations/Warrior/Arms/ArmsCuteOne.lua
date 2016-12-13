@@ -37,12 +37,6 @@ local function createToggles()
         [2] = { mode = "Off", value = 2 , overlay = "Mover Disabled", tip = "Will NOT use Charge/Heroic Leap.", highlight = 0, icon = br.player.spell.charge }
     };
     CreateButton("Mover",5,0)
--- Heroic Charge
-    HeroicModes = {
-        [1] = { mode = "On", value = 1 , overlay = "Heroic Charge Enabled", tip = "Will use Heroic Charge.", highlight = 1, icon = br.player.spell.heroicLeap },
-        [2] = { mode = "Off", value = 2 , overlay = "Heroic Charge Disabled", tip = "Will NOT use Heroic Charge.", highlight = 0, icon = br.player.spell.heroicLeap }
-    };
-    CreateButton("Heroic",6,0)
 end
 
 ---------------
@@ -73,7 +67,6 @@ local function createOptions()
             -- Heroic Leap
             br.ui:createDropdown(section,"Heroic Leap", br.dropOptions.Toggle, 6, "Set auto usage (No Hotkey) or desired hotkey to use Heroic Leap.")
             br.ui:createDropdownWithout(section,"Heroic Leap - Target",{"Best","Target"},1,"Desired Target of Heroic Leap")
-            br.ui:createSpinner(section, "Heroic Charge",  15,  8,  25,  1,  "|cffFFFFFFSet to desired yards to Heroic Leap out to. Min: 8 / Max: 25 / Interval: 1")
             -- Shockwave
             br.ui:createCheckbox(section, "Shockwave")
             -- Storm Bolt
@@ -98,7 +91,7 @@ local function createOptions()
             -- Battle Cry
             br.ui:createDropdownWithout(section, "Battle Cry", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Battle Cry Ability.")
             -- Bladestorm
-            br.ui:createSpinnerWithout(section, "Bladestorm",  5,  1,  10,  1,  "|cffFFFFFFSet to desired targets to use Bladestorm when set to AOE. Min: 1 / Max: 10 / Interval: 1")
+            br.ui:createSpinner(section, "Bladestorm",  5,  1,  10,  1,  "|cffFFFFFFSet to desired targets to use Bladestorm when set to AOE. Min: 1 / Max: 10 / Interval: 1")
             -- Ravager
             br.ui:createDropdown(section,"Ravager",{"Best","Target"},1,"Desired Target of Heroic Leap")
         br.ui:checkSectionState(section)
@@ -150,17 +143,15 @@ local function createOptions()
         ----------------------
         section = br.ui:createSection(br.ui.window.profile,  "Toggle Keys")
             -- Single/Multi Toggle
-            br.ui:createDropdownWithout(section,  "Rotation Mode", br.dropOptions.Toggle,  4)
+            br.ui:createDropdown(section,  "Rotation Mode", br.dropOptions.Toggle,  4)
             --Cooldown Key Toggle
-            br.ui:createDropdownWithout(section,  "Cooldown Mode", br.dropOptions.Toggle,  3)
+            br.ui:createDropdown(section,  "Cooldown Mode", br.dropOptions.Toggle,  3)
             --Defensive Key Toggle
-            br.ui:createDropdownWithout(section,  "Defensive Mode", br.dropOptions.Toggle,  6)
+            br.ui:createDropdown(section,  "Defensive Mode", br.dropOptions.Toggle,  6)
             -- Interrupts Key Toggle
-            br.ui:createDropdownWithout(section,  "Interrupt Mode", br.dropOptions.Toggle,  6)
+            br.ui:createDropdown(section,  "Interrupt Mode", br.dropOptions.Toggle,  6)
             -- Mover Toggle
-            br.ui:createDropdownWithout(section,  "Mover Mode", br.dropOptions.Toggle,  6)
-            -- Heroic Toggle
-            br.ui:createDropdownWithout(section,  "Heroic Mode", br.dropOptions.Toggle,  6)
+            br.ui:createDropdown(section,  "Mover Mode", br.dropOptions.Toggle,  6)
             -- Pause Toggle
             br.ui:createDropdown(section,  "Pause Mode", br.dropOptions.Toggle,  6)   
         br.ui:checkSectionState(section)
@@ -177,7 +168,7 @@ end
 ----------------
 local function runRotation()
     if br.timer:useTimer("debugArms", 0) then
-        --Print("Running: "..rotationName)
+        --print("Running: "..rotationName)
 
 ---------------
 --- Toggles ---
@@ -187,9 +178,7 @@ local function runRotation()
         UpdateToggle("Defensive",0.25)
         UpdateToggle("Interrupt",0.25)
         UpdateToggle("Mover",0.25)
-        br.player.mode.mover = br.data.settings[br.selectedSpec].toggles["Mover"]
-        UpdateToggle("Heroic",0.25)
-        br.player.mode.heroic = br.data.settings[br.selectedSpec].toggles["Heroic"]
+        br.player.mode.mover = br.data["Mover"]
 
 --------------
 --- Locals ---
@@ -243,23 +232,22 @@ local function runRotation()
         if useAvatar == nil then useAvatar = false end
         if cd.warbreaker <= 3 then usedWarbreaker = false end
 
-        -- ChatOverlay(tostring(isInstanceBoss("target")))
+        ChatOverlay(tostring(isInstanceBoss("target")))
 
         -- Heroic Leap for Charge (Credit: TitoBR)
         local function heroicLeapCharge()
             local thisUnit = units.dyn5
-            local sX, sY, sZ = GetObjectPosition(thisUnit)
+            local X, Y, Z = GetObjectPosition(thisUnit)
             local hitBoxCompensation = UnitCombatReach(thisUnit) / GetDistanceBetweenObjects("player",thisUnit)
-            local yards = getOptionValue("Heroic Charge") + hitBoxCompensation
+            local yards = 15 + hitBoxCompensation
             for deg = 0, 360, 45 do
-                local dX, dY, dZ = GetPositionFromPosition(sX, sY, sZ, yards, deg, 0)
-                if TraceLine(sX, sY, sZ + 2.25, dX, dY, dZ + 2.25, 0x10) == nil and cd.heroicLeap == 0 and charges.charge > 0 then
+                local X2, Y2, Z2 = GetPositionFromPosition(X, Y, Z, yards, deg, 0)
+                if TraceLine(X, Y, Z + 2.25, X2, Y2, Z2 + 2.25, 0x10) == nil and cd.heroicLeap == 0 then
                     if not IsAoEPending() then    
                         CastSpellByName(GetSpellInfo(spell.heroicLeap))
-                        -- cast.heroicLeap("player")
                     end
                     if IsAoEPending() then
-                        ClickPosition(dX,dY,dZ)
+                        ClickPosition(X2,Y2,Z2)
                         break
                     end
                 end
@@ -277,7 +265,7 @@ local function runRotation()
                     if getCombatTime() >= (tonumber(getOptionValue("DPS Testing"))*60) and isDummy() then
                         StopAttack()
                         ClearTarget()
-                        Print(tonumber(getOptionValue("DPS Testing")) .." Minute Dummy Test Concluded - Profile Stopped")
+                        print(tonumber(getOptionValue("DPS Testing")) .." Minute Dummy Test Concluded - Profile Stopped")
                         profileStop = true
                     end
                 end
@@ -446,17 +434,17 @@ local function runRotation()
         function actionList_Movement()
             if mode.mover == 1 and isValidUnit("target") then
         -- Heroic Leap
-                -- -- heroic_leap
-                -- if isChecked("Heroic Leap") and (getOptionValue("Heroic Leap")==6 or (SpecificToggle("Heroic Leap") and not GetCurrentKeyBoardFocus())) then
-                --     -- Best Location
-                --     if getOptionValue("Heroic Leap - Target") == 1 then
-                --         if cast.heroicLeap("best",nil,1,8) then return end
-                --     end
-                --     -- Target
-                --     if getOptionValue("Heroic Leap - Target") == 2 then
-                --         if cast.heroicLeap("target","ground") then return end
-                --     end
-                -- end
+                -- heroic_leap
+                if isChecked("Heroic Leap") and (getOptionValue("Heroic Leap")==6 or (SpecificToggle("Heroic Leap") and not GetCurrentKeyBoardFocus())) then
+                    -- Best Location
+                    if getOptionValue("Heroic Leap - Target") == 1 then
+                        if cast.heroicLeap("best",nil,1,8) then return end
+                    end
+                    -- Target
+                    if getOptionValue("Heroic Leap - Target") == 2 then
+                        if cast.heroicLeap("target","ground") then return end
+                    end
+                end
         -- Charge
                 -- charge
                 if isChecked("Charge") then
@@ -490,7 +478,7 @@ local function runRotation()
     -- Action List - Bladestorm
         function actionList_Bladestorm()
             -- if cd.bladestorm > gcd or level < 65 then return end
-            if isChecked("Bladestorm") and getDistance(units.dyn5) < 5 then
+            if isChecked("Bladestorm") then
                 if #enemies.yards8 >= getOptionValue("Bladestorm") then
                     if artifact.warbreaker then
                         if cast.warbreaker("player") then usedWarbreaker = true; end
@@ -535,7 +523,7 @@ local function runRotation()
                         end
         -- Heroic Charge
                         -- heroic_charge,if=rage.deficit>=40&(!cooldown.heroic_leap.remains|swing.mh.remains>1.2)
-                        if mode.heroic == 1 and powerDeficit >= 40 and (cd.heroicLeap == 0 or swingTimer > 1.2) and getDistance(units.dyn5) < 5 then
+                        if powerDeficit >= 40 and (cd.heroicLeap == 0 or swingTimer > 1.2) then
                             heroicLeapCharge()
                         end
         -- Execute
@@ -601,7 +589,7 @@ local function runRotation()
             end
         -- Heroic Charge
             -- heroic_charge,if=rage.deficit>=40&(!cooldown.heroic_leap.remains|swing.mh.remains>1.2)
-            if mode.heroic == 1 and powerDeficit >= 40 and (cd.heroicLeap == 0 or swingTimer > 1.2) and getDistance(units.dyn5) < 5 then
+            if powerDeficit >= 40 and (cd.heroicLeap == 0 or swingTimer > 1.2) then
                 heroicLeapCharge()
             end
         -- Avatar

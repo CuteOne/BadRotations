@@ -170,7 +170,7 @@ function PokeUI()
             end
           end
         end
-        --Print("done")
+        --print("done")
       end
 
       function InsertEnnemyBuff(value,buffID)

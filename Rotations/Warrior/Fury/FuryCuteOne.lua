@@ -164,7 +164,7 @@ end
 ----------------
 local function runRotation()
     if br.timer:useTimer("debugFury", 0.1) then
-        --Print("Running: "..rotationName)
+        --print("Running: "..rotationName)
 
 ---------------
 --- Toggles ---
@@ -174,7 +174,7 @@ local function runRotation()
         UpdateToggle("Defensive",0.25)
         UpdateToggle("Interrupt",0.25)
         UpdateToggle("Mover",0.25)
-        br.player.mode.mover = br.data.settings[br.selectedSpec].toggles["Mover"]
+        br.player.mode.mover = br.data["Mover"]
 
 --------------
 --- Locals ---
@@ -236,7 +236,7 @@ local function runRotation()
                     if getCombatTime() >= (tonumber(getOptionValue("DPS Testing"))*60) and isDummy() then
                         StopAttack()
                         ClearTarget()
-                        Print(tonumber(getOptionValue("DPS Testing")) .." Minute Dummy Test Concluded - Profile Stopped")
+                        print(tonumber(getOptionValue("DPS Testing")) .." Minute Dummy Test Concluded - Profile Stopped")
                         profileStop = true
                     end
                 end

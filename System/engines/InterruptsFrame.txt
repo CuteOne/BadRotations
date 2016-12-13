@@ -61,7 +61,7 @@ local getSpellCD = getSpellCD
 local GetSpellInfo = GetSpellInfo
 local GetTime = GetTime
 local GetObjectID = GetObjectID
-local Print = Print
+local print = print
 --local ObjectExists,ObjectPosition = ObjectExists,ObjectPosition
 local select = select
 local tinsert,tremove,sort = tinsert,tremove,table.sort
@@ -172,7 +172,7 @@ end
 -- debug
 function im:debug(message,force)
 	if showDebug == true or (force == true and showForced == true) then
-		return Print("|cffFFDD11<|cffFF1100Interrupt Manager|cffFFDD11>|cffFFFFFF"..GetTime().."|cffFFDD11 "..message)
+		return print("|cffFFDD11<|cffFF1100Interrupt Manager|cffFFDD11>|cffFFFFFF"..GetTime().."|cffFFDD11 "..message)
 	end
 end
 -- remove unit from table via guid
@@ -214,13 +214,13 @@ function im:manageCast(...)
 					local unitCasting,unitCastLenght,unitCastTime,unitCantBeInterrupt,unitCastType = getCastingInfo(thisUnit.unit)
 					--local _, ObjectPosition7,ObjectPosition8,ObjectPosition9 = pcall(ObjectPosition,thisUnit.unit)
 					--local _, ObjectPosition1,ObjectPosition2,ObjectPosition3 = pcall(ObjectPosition,thisUnit)
-					--Print(ObjectPosition7)
-					--Print(ObjectPosition8)
-					--Print(ObjectPosition9)
+					--print(ObjectPosition7)
+					--print(ObjectPosition8)
+					--print(ObjectPosition9)
 					local X1,Y1,Z1 = thisUnit.x,thisUnit.y,thisUnit.z
-					--Print(X1)
-					--Print(Y1)
-					--Print(Z1)
+					--print(X1)
+					--print(Y1)
+					--print(Z1)
 					tinsert(casters,
 						{
 							cast = spellID,

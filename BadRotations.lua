@@ -9,11 +9,11 @@ br.dropOptions.Toggle2 ={"LeftCtrl","LeftShift","LeftAlt","RightCtrl","RightShif
 br.dropOptions.CD = {"Never","CDs","Always" }
 br.loadedIn = false
 br.rotations = {}
--- developers debug, use /run br.data.settings[br.selectedSpec].toggles["isDebugging"] = true
+-- developers debug, use /run br.data["isDebugging"] = true
 br.debug = {}
-function br.debug:Print(message)
-	if br.data.settings[br.selectedSpec].toggles["isDebugging"] == true then
-		Print(message)
+function br.debug:print(message)
+	if br.data["isDebugging"] == true then
+		print(message)
 	end
 end
 function br:Run()
@@ -22,8 +22,12 @@ function br:Run()
 	minRange, maxRange = rc:GetRange('target')
 	-- lets wipe and start up fresh.
 	br.data = brdata
-	if br.data == nil or brdata == nil or (br.data and br.data.settings and br.data.settings.wiped ~= true) then
-		br.data = {}
+	if br.data == nil or brdata == nil or (br.data and br.data.wiped ~= true) then
+		br.data = {
+			buttonSize = 32,
+			wiped = true
+		}
+		brdata = br.data
 	end
 	--[[Init the readers codes (System/Reader.lua)]]
 	-- combat log
@@ -65,8 +69,37 @@ function br:Run()
 		grey = "9d9d9d"
 	}
 	-- load common used stuff on first load
-	if br.data.settings == nil then
-		br.data.settings = {
+	-- options table that will hold specs subtable
+	if br.data.options == nil then
+		br.data.options = {}
+		br.data.options[br.selectedSpec] = {}
+		-- br.data.options[1] = {}
+		-- br.data.options[2] = {}
+		-- br.data.options[3] = {}
+		-- br.data.options[4] = {}
+		-- br.data.options[5] = {}
+    end
+    if br.data.options[br.selectedSpec] == nil then
+        br.data.options[br.selectedSpec] = {}
+    end
+    -- if GetSpecialization() == nil then
+    -- 	br.selectedSpec = 5
+    -- 	br.selectedProfile = 1
+    -- else
+    	-- br.selectedSpec = select(2,GetSpecializationInfo(GetSpecialization()))
+    -- end
+    if br.data.options[br.selectedSpec]["Rotation".."Drop"] == nil then
+        br.selectedProfile = 1
+    else
+        br.selectedProfile = br.data.options[br.selectedSpec]["Rotation".."Drop"]
+    end
+    --br.selectedProfile = br.data.options[br.selectedSpec]["Rotation".."Drop"] or 1
+    if br.data.options[br.selectedSpec][br.selectedProfile]  == nil then
+        br.data.options[br.selectedSpec][br.selectedProfile] = {}
+    end
+	-- uncomment that when all ready
+	if br.data.BadRotationsUI == nil then
+		br.data.BadRotationsUI = {
 			mainButton = {
 				pos = {
 					anchor = "CENTER",
@@ -74,31 +107,192 @@ function br:Run()
 					y = -200
 				}
 			},
-			buttonSize = 32,
+			alpha = 1,
+			buttonSize = 1,
+			configshown = true,
+			debugFrame = {
+				color = {
+					r = 16,
+					g = 16,
+					b = 16,
+					a = 1,
+				},
+				heigth = 150,
+				pos = {
+					anchor = "LEFT",
+					x = 1 ,
+					y = 1
+				},
+				scale = 0.9,
+				width = 200,
+			},
 			font = "Fonts/arialn.ttf",
+			fonts = {
+				"Fonts/skurri.ttf",
+				"Fonts/morpheus.ttf",
+				"Fonts/arialn.ttf",
+				"Fonts/skurri.ttf"
+			},
 			fontsize = 16,
-			wiped = true,
-		}
-		br.data.settings[br.selectedSpec] = {
-			toggles = {},
+			iconSize = 1,
+			icons = {
+				emptyIcon = [[Interface\FrameGeneral\UI-Background-Marble]],
+				backIconOn = [[Interface\ICONS\Spell_Holy_PowerWordShield]],
+				backIconOff = [[Interface\ICONS\SPELL_HOLY_DEVOTIONAURA]],
+				genericIconOff = [[Interface\GLUES\CREDITS\Arakkoa1]],
+				genericIconOn = [[Interface/BUTTONS/CheckButtonGlow]]
+			},
+			optionsFrame = {
+				generalButton = {
+					tip = "General Options",
+				},
+				enemiesEngineButton = {
+					tip = "Enemies Engine Options",
+				},
+				healingEngineButton = {
+					tip = "Healing Engine Options",
+				},
+				interruptEngineButton = {
+					tip = "Interrupts Engine Options",
+				},
+				color = {
+					r = 16,
+					g = 16,
+					b = 16,
+					a = 1,
+				},
+				heigth = 300,
+				pos = {
+					anchor = "RIGHT",
+					x = 1 ,
+					y = 1
+				},
+				selected = "options",
+				scale = 0.9,
+				width = 200,
+			},
+			profileFrame = {
+				color = {
+					r = 16,
+					g = 16,
+					b = 16,
+					a = 1,
+				},
+				heigth = 400,
+				pos = {
+					anchor = "CENTER",
+					x = 1 ,
+					y = 1 },
+				scale = 0.9,
+				width = 270,
+			},
+			uiScale = 1,
 		}
 	end
-	-- settings table that will hold specs subtable
-	if br.data.settings == nil then
-		br.data.settings = {}
-		br.data.settings[br.selectedSpec] = {}
-    end
-    if br.data.settings[br.selectedSpec] == nil then
-        br.data.settings[br.selectedSpec] = {}
-    end
-    if br.data.settings[br.selectedSpec]["Rotation".."Drop"] == nil then
-        br.selectedProfile = 1
-    else
-        br.selectedProfile = br.data.settings[br.selectedSpec]["Rotation".."Drop"]
-    end
-    if br.data.settings[br.selectedSpec][br.selectedProfile]  == nil then
-        br.data.settings[br.selectedSpec][br.selectedProfile] = {}
-    end	
+	---------------------------------
+	commandHelp = "|cffFF0000BadRotations Slash Commands"
+	function SlashCommandHelp(cmd,msg)
+		if cmd == nil then cmd = "" end
+		if msg == nil then msg = "" end
+		if cmd == "Print Help" then print(tostring(commandHelp)); return end
+		commandHelp = commandHelp.."|cffFFFFFF\n        /"..cmd.."|cffFFDD11 - "..msg
+	 end
+	-- Macro Toggle ON/OFF
+	SLASH_BadRotations1 = "/BadRotations"
+	SlashCommandHelp("BadRotations","Toggles BadRotations On/Off")
+	function SlashCmdList.BadRotations(msg, editbox, ...)
+		print(...)
+        if msg == "" then
+		    mainButton:Click()
+        elseif msg == "hide" then
+            BadRotationsButton:Hide()
+        elseif msg == "show" then
+            BadRotationsButton:Show()
+        end
+
+	end
+	SLASH_BRHelp1 = "/BRHelp"
+	function SlashCmdList.BRHelp(msg, editbox)
+		-- print(tostring(commandHelp))
+		SlashCommandHelp("Print Help")
+	end
+	SLASH_FHStop1 = "/fhstop"
+	function SlashCmdList.FHStop(msg, editbox)
+		StopFalling()
+		StopMoving()
+	end
+	SLASH_BlackList1, SLASH_BlackList2 = "/blacklist", "/brb"
+	SlashCommandHelp("blacklist or /brb","Adds/Removes mouseover unit to healing blacklist.")
+	SlashCommandHelp("blacklist dump or /brb dump","Prints all units currently on blacklist.")
+	SlashCommandHelp("blacklist clear or /brb clear","Clears the blacklist.")
+	function SlashCmdList.BlackList(msg, editbox)
+		if br.data.blackList == nil then br.data.blackList = { } end
+		if msg == "dump" then
+			print("|cffFF0000BadRotations Blacklist:")
+			if #br.data.blackList == (0 or nil) then print("|cffFFDD11Empty") end
+			if br.data.blackList then
+				for i = 1, #br.data.blackList do
+					print("|cffFFDD11- "..br.data.blackList[i].name)
+				end
+			end
+		elseif msg == "clear" then
+			br.data.blackList = { }
+			print("|cffFF0000BadRotations Blacklist Cleared")
+		else
+			if UnitExists("mouseover") then
+				local mouseoverName = UnitName("mouseover")
+				local mouseoverGUID = UnitGUID("mouseover")
+				-- Now we're trying to find that unit in the blackList table to remove
+				local found
+				for k,v in pairs(br.data.blackList) do
+					-- Now we're trying to find that unit in the Cache table to remove
+					if UnitGUID("mouseover") == v.guid then
+						tremove(br.data.blackList, k)
+						print("|cffFFDD11"..mouseoverName.. "|cffFF0000 Removed from Blacklist")
+						found = true
+						--blackList[k] = nil
+					end
+				end
+				if not found then
+					print("|cffFFDD11"..mouseoverName.. "|cffFF0000 Added to Blacklist")
+					tinsert(br.data.blackList, { guid = mouseoverGUID, name = mouseoverName})
+				end
+			end
+		end
+	end
+	SLASH_Queue1 = "/queue"
+	SlashCommandHelp("Queue clear","Clears the Spell Queue of all queued spells.")
+	function SlashCmdList.Queue(msg, editbox)
+		if br.player ~= nil then
+			if msg == "clear" then
+				if br.player.queue == nil then print("Queue Already Cleared") end
+				if #br.player.queue == 0 then print("Queue Already Cleared") end
+				if #br.player.queue > 0 then br.player.queue = {}; print("Cleared Queue") end
+			end
+		end
+	end
+	SLASH_Pause1 = "/Pause"
+	SlashCommandHelp("Pause","Toggles Pause On/Off")
+	function SlashCmdList.Pause(msg, editbox)
+		if br.data['Pause'] == 0 then
+			ChatOverlay("\124cFFED0000 -- Paused -- ")
+			br.data['Pause'] = 1
+		else
+			ChatOverlay("\124cFF3BB0FF -- Pause Removed -- ")
+			br.data['Pause'] = 0
+		end
+	end
+	SLASH_Power1 = "/Power"
+	SlashCommandHelp("Power","Toggles BadRotations On/Off")
+	function SlashCmdList.Power(msg, editbox)
+		if br.data['Power'] == 0 then
+			ChatOverlay("\124cFF3BB0FF -- BadRotations Enabled -- ")
+			br.data['Power'] = 1
+		else
+			ChatOverlay("\124cFFED0000 -- BadRotations Disabled -- ")
+			br.data['Power'] = 0
+		end
+	end
 	-- Build up pulse frame (hearth)
 	br:Engine()
 	-- add minimap fire icon
@@ -106,12 +300,10 @@ function br:Run()
 	-- build up UI
 	br:StartUI()
 
-    if br.data.settings[br.selectedSpec] == nil then br.data.settings[br.selectedSpec] = {} end
-    if br.data.settings[br.selectedSpec][br.selectedProfile] == nil then br.data.settings[br.selectedSpec][br.selectedProfile] = {} end
-
-    -- Creates and Shows the Bot Options Window
+    if br.data.options[br.selectedSpec] == nil then br.data.options[br.selectedSpec] = {} end
+    if br.data.options[br.selectedSpec][br.selectedProfile] == nil then br.data.options[br.selectedSpec][br.selectedProfile] = {} end
+    --br.selectedProfile = br.data.options[br.selectedSpec]["Rotation".."Drop"] or 1
     br.ui:createConfigWindow()
-    br.ui:createDebugWindow()
 
 	-- start up enemies Engine
 	enemiesEngineRange = 55
@@ -121,7 +313,12 @@ function br:Run()
 end
 --[[Startup UI]]
 function br:StartUI()
-	TogglesFrame()
+	-- trigger frame creation in ui.lua
+	ConstructUI()
+	-- select the active option(refresh)
+	_G["options"..br.data.options.selected.."Button"]:Click()
+	-- Build up buttons frame (toggles)
+	BadRotationsFrame()
 end
 
 br.pulse = {}
@@ -165,6 +362,18 @@ function br:PulseUI()
     br.pulse:getDist()
     br.pulse:dispDist()
 
+	-- Check if FH got injected correctly
+	-- has a bug, if bug happen shouldBePlayer = nil
+	-- turns distance color to red
+	--local shouldBePlayer,_ = UnitName(ObjectPointer("Player"))
+	--if shouldBePlayer == GetUnitName("player") then
+	--	displayDistance = math.ceil(targetDistance)
+	--else
+	--	displayDistance = "|cffFF0011"..math.ceil(targetDistance)
+	--end
+	-- End Bug Check
+    -- Disabled as of october 2015, bug seems to be fixed for awhile
+
 	mainText:SetText(displayDistance)
 	-- enemies
     br.pulse:makeEnTable()
@@ -178,7 +387,8 @@ function br:PulseUI()
     end
 	-- Pulse other features
 	-- PokeEngine()
-	-- ProfessionHelper()
-	-- SalvageHelper()	
+	ProfessionHelper()
+	SalvageHelper()
+	
 end
 

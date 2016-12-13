@@ -125,7 +125,7 @@ end
 ----------------
 local function runRotation()
     if br.timer:useTimer("debugDemonology", math.random(0.15,0.3)) then
-        --Print("Running: "..rotationName)
+        --print("Running: "..rotationName)
 
 ---------------
 --- Toggles ---
@@ -285,7 +285,7 @@ local function runRotation()
                         StopAttack()
                         ClearTarget()
                         PetFollow()
-						Print(tonumber(getOptionValue("DPS Testing")) .." Minute Dummy Test Concluded - Profile Stopped")
+						print(tonumber(getOptionValue("DPS Testing")) .." Minute Dummy Test Concluded - Profile Stopped")
 						profileStop = true
 					end
 				end
@@ -467,7 +467,7 @@ local function runRotation()
                 -- Potion
                     -- potion,name=deadly_grace
                     elseif useCDs() and canUse(127843) and isChecked("Potion") and getDistance("target") < 15 then
-                        Print("Potion Used!");
+                        print("Potion Used!");
                         useItem(127843)
                 -- Demonbolt/Shadowbolt
                     elseif DE1 and not DSB1 then

@@ -153,7 +153,7 @@ end
 ----------------
 local function runRotation()
     if br.timer:useTimer("debugSubtlety", math.random(0.15,0.3)) then
-        --Print("Running: "..rotationName)
+        --print("Running: "..rotationName)
 
 ---------------
 --- Toggles ---
@@ -163,9 +163,9 @@ local function runRotation()
         UpdateToggle("Defensive",0.25)
         UpdateToggle("Interrupt",0.25)
         UpdateToggle("Cleave",0.25)
-        br.player.mode.cleave = br.data.settings[br.selectedSpec].toggles["Cleave"]
+        br.player.mode.cleave = br.data["Cleave"]
         UpdateToggle("Picker",0.25)
-        br.player.mode.pickPocket = br.data.settings[br.selectedSpec].toggles["Picker"]
+        br.player.mode.pickPocket = br.data["Picker"]
 
 --------------
 --- Locals ---
@@ -188,9 +188,9 @@ local function runRotation()
         local dynTar15                                      = br.player.units.dyn15 
         local dynTar20AoE                                   = br.player.units.dyn20AoE --Stealth
         local dynTar30AoE                                   = br.player.units.dyn30AoE
-        local dynTable5                                     = (br.data.settings[br.selectedSpec].toggles['Cleave']==1 and br.enemy) or { [1] = {["unit"]=dynTar5, ["distance"] = getDistance(dynTar5)}}
-        local dynTable15                                    = (br.data.settings[br.selectedSpec].toggles['Cleave']==1 and br.enemy) or { [1] = {["unit"]=dynTar15, ["distance"] = getDistance(dynTar15)}}
-        local dynTable20AoE                                 = (br.data.settings[br.selectedSpec].toggles['Cleave']==1 and br.enemy) or { [1] = {["unit"]=dynTar20AoE, ["distance"] = getDistance(dynTar20AoE)}}
+        local dynTable5                                     = (br.data['Cleave']==1 and br.enemy) or { [1] = {["unit"]=dynTar5, ["distance"] = getDistance(dynTar5)}}
+        local dynTable15                                    = (br.data['Cleave']==1 and br.enemy) or { [1] = {["unit"]=dynTar15, ["distance"] = getDistance(dynTar15)}}
+        local dynTable20AoE                                 = (br.data['Cleave']==1 and br.enemy) or { [1] = {["unit"]=dynTar20AoE, ["distance"] = getDistance(dynTar20AoE)}}
         local enemies                                       = br.player.enemies
         local flaskBuff, canFlask                           = getBuffRemain("player",br.player.flask.wod.buff.agilityBig), canUse(br.player.flask.wod.agilityBig)   
         local gcd                                           = br.player.gcd
@@ -349,7 +349,7 @@ local function runRotation()
         end -- End Action List - Interrupts
     -- Action List - Cooldowns
         local function actionList_Cooldowns()
-            -- Print("Cooldowns")
+            -- print("Cooldowns")
             if useCDs() and getDistance(units.dyn5) < 5 then
         -- Trinkets
                 if isChecked("Trinkets") then
@@ -409,7 +409,7 @@ local function runRotation()
     -- Action List - Stealth Cooldowns
         local function actionList_StealthCooldowns()
             if getDistance(units.dyn5) < 5 then
-            -- Print("Stealth Cooldowns")
+            -- print("Stealth Cooldowns")
         -- Shadow Dance
                 -- shadow_dance,if=charges_fractional>=2.45
                 if charges.frac.shadowDance >= 2.45 then
@@ -444,7 +444,7 @@ local function runRotation()
         end
     -- Action List - Finishers
         local function actionList_Finishers()
-            -- Print("Finishers")
+            -- print("Finishers")
         -- Enveloping Shadows
             -- enveloping_shadows,if=buff.enveloping_shadows.remains<target.time_to_die&buff.enveloping_shadows.remains<=combo_points*1.8
             if buff.envelopingShadows.remain < ttd(units.dyn5) and buff.envelopingShadows.remain <= combo * 1.8 then
@@ -469,7 +469,7 @@ local function runRotation()
         end -- End Action List - Finishers
     -- Action List - Stealthed
         local function actionList_Stealthed()
-            -- Print("Stealth")
+            -- print("Stealth")
         -- Symbols of Death
             -- symbols_of_death,if=buff.shadowmeld.down&((buff.symbols_of_death.remains<target.time_to_die-4&buff.symbols_of_death.remains<=buff.symbols_of_death.duration*0.3)|(equipped.shadow_satyrs_walk&energy.time_to_max<0.25))
             if not buff.shadowmeld.exists and ((buff.symbolsOfDeath.remain < ttd(units.dyn5) - 4 and buff.symbolsOfDeath.refresh) 
@@ -495,7 +495,7 @@ local function runRotation()
         end
     -- Action List - Generators
         local function actionList_Generators()
-            -- Print("Generator")
+            -- print("Generator")
         -- Shuriken Storm
             -- shuriken_storm,if=spell_targets.shuriken_storm>=2
             if #enemies.yards10 >= 2 then
@@ -508,7 +508,7 @@ local function runRotation()
         end -- End Action List - Generators
     -- Action List - PreCombat
         local function actionList_PreCombat()
-            -- Print("PreCombat")
+            -- print("PreCombat")
         -- Stealth
             -- stealth
             if isChecked("Stealth") and (not IsResting() or isDummy("target")) then

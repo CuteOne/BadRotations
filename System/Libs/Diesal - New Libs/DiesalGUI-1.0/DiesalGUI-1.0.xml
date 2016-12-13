@@ -1,0 +1,22 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/
+..\FrameXML\UI.xsd">
+	<Script file="DiesalGUI-1.0.lua"/>	
+	<!-- Objects -->
+	<Script file="Objects\Window.lua"/>	
+	<Script file="Objects\ScrollFrame.lua"/>
+	<Script file="Objects\ScrollingEditBox.lua"/>
+	<Script file="Objects\ScrollingMessageFrame.lua"/>
+	<Script file="Objects\CheckBox.lua"/>	
+	<Script file="Objects\Button.lua"/>	
+	<Script file="Objects\Spinner.lua"/>
+	<Script file="Objects\Input.lua"/>		
+	<Script file="Objects\Dropdown.lua"/>
+	<Script file="Objects\DropdownItem.lua"/>
+	<Script file="Objects\ComboBox.lua"/>
+	<Script file="Objects\ComboBoxItem.lua"/>	
+	<Script file="Objects\Accordian.lua"/>
+	<Script file="Objects\AccordianSection.lua"/>	
+	<Script file="Objects\Tree.lua"/>
+	<Script file="Objects\Branch.lua"/>	
+	<Script file="Objects\Bar.lua"/>	
+</Ui>

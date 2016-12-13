@@ -157,7 +157,7 @@ end
 ----------------
 local function runRotation()
     if br.timer:useTimer("debugWindwalker", math.random(0.15,0.3)) then
-        --Print("Running: "..rotationName)
+        --print("Running: "..rotationName)
 
 ---------------
 --- Toggles ---
@@ -167,9 +167,9 @@ local function runRotation()
         UpdateToggle("Defensive",0.25)
         UpdateToggle("Interrupt",0.25)
         UpdateToggle("SEF",0.25)
-        br.player.mode.sef = br.data.settings[br.selectedSpec].toggles["SEF"]
+        br.player.mode.sef = br.data["SEF"]
         UpdateToggle("FSK",0.25)
-        br.player.mode.fsk = br.data.settings[br.selectedSpec].toggles["FSK"]
+        br.player.mode.fsk = br.data["FSK"]
         BurstToggle("burstKey", 0.25)
         
 --------------
@@ -272,11 +272,11 @@ local function runRotation()
         --     maxComboReached = false
         -- end
         -- if inCombat and maxComboReached and not maxCombo then
-        --     Print(select(1,GetSpellInfo(lastSpell)).." Reset Hit Combo!")
+        --     print(select(1,GetSpellInfo(lastSpell)).." Reset Hit Combo!")
         --     maxComboReached = false
         -- end
         -- if inCombat and lastSpell ~= prevSpell then
-        --     Print(select(1,GetSpellInfo(lastSpell)))
+        --     print(select(1,GetSpellInfo(lastSpell)))
         --     prevSpell = lastSpell
         -- end
 
@@ -341,7 +341,7 @@ local function runRotation()
                         ClearTarget()
                         StopAttack()
                         ClearTarget()
-                        Print(tonumber(getValue("DPS Testing")) .." Minute Dummy Test Concluded - Profile Stopped")
+                        print(tonumber(getValue("DPS Testing")) .." Minute Dummy Test Concluded - Profile Stopped")
                     end
                 end
             end
@@ -500,7 +500,7 @@ local function runRotation()
                             if getDistance("target") >= 25 then
                                 castOpener("chiWave","OoRchiWave",1)
                             else
-                                Print("1: Chi Wave (Uncastable)");
+                                print("1: Chi Wave (Uncastable)");
                                 OoRchiWave = true
                             end
         -- Flying Serpent Kick (No Hit)
@@ -510,13 +510,13 @@ local function runRotation()
                             if getDistance("target") >= 15 and mode.fsk == 1 then
                                 castOpener("flyingSerpentKick","FSK",2)
                             else
-                                Print("2: Flying Serpent Kick (Uncastable)");
+                                print("2: Flying Serpent Kick (Uncastable)");
                                 FSK = true
                             end
         -- Potion
                         -- potion,name=old_war
                         elseif useCDs() and canUse(127844) and isChecked("Potion") and getDistance("target") < 15 then
-                            Print("Potion Used!");
+                            print("Potion Used!");
                             useItem(127844)
                         end
                     end
@@ -525,7 +525,7 @@ local function runRotation()
                         if getDistance("target") < 25 then
                             castOpener("chiWave","iRchiWave",3)
                         else
-                            Print("3: Chi Wave (Uncastable)");
+                            print("3: Chi Wave (Uncastable)");
                             iRchiWave = true
                         end
                     elseif getDistance("target") < 5 then
@@ -537,7 +537,7 @@ local function runRotation()
                             if not debuff.touchOfDeath["target"].exists then
                                 castOpener("touchOfDeath","ToD",5)
                             else
-                                Print("5: Touch of Death (Uncastable)");
+                                print("5: Touch of Death (Uncastable)");
                                 ToD = true
                             end
         -- Storm, Earth, and Fire
@@ -545,7 +545,7 @@ local function runRotation()
                             if mode.sef == 1 then
                                 castOpener("stormEarthAndFire","SEF",6)
                             else
-                                Print("6: Storm, Earth, and Fire (Uncastable)");
+                                print("6: Storm, Earth, and Fire (Uncastable)");
                                 SEF = true
                             end
         -- Rising Sun Kick
@@ -570,7 +570,7 @@ local function runRotation()
                         elseif WDP and not RSK2 then
                             castOpener("risingSunKick","RSK2",13)
                         elseif RSK2 then
-                            Print("Opener Complete")
+                            print("Opener Complete")
                             opener = true
                         end
                     end
@@ -583,7 +583,7 @@ local function runRotation()
                             if getDistance("target") >= 25 then
                                 castOpener("chiWave","OoRchiWave",1)
                             else
-                                Print("1: Chi Wave (Uncastable)");
+                                print("1: Chi Wave (Uncastable)");
                                 OoRchiWave = true
                             end
         -- Flying Serpent Kick (No Hit)
@@ -593,13 +593,13 @@ local function runRotation()
                             if getDistance("target") >= 15 and mode.fsk == 1 then
                                 castOpener("flyingSerpentKick","FSK",2)
                             else
-                                Print("2: Flying Serpent Kick (Uncastable)");
+                                print("2: Flying Serpent Kick (Uncastable)");
                                 FSK = true
                             end
         -- Potion
                         -- potion,name=old_war
                         elseif useCDs() and canUse(127844) and isChecked("Potion") and getDistance("target") < 15 then
-                            Print("Potion Used!");
+                            print("Potion Used!");
                             useItem(127844)
                         end
                     end
@@ -608,7 +608,7 @@ local function runRotation()
                         if getDistance("target") < 25 then
                             castOpener("chiWave","iRchiWave",3)
                         else
-                            Print("3: Chi Wave (Uncastable)");
+                            print("3: Chi Wave (Uncastable)");
                             iRchiWave = true
                         end
                     elseif getDistance("target") < 5 then
@@ -620,7 +620,7 @@ local function runRotation()
                             if not debuff.touchOfDeath["target"].exists then
                                 castOpener("touchOfDeath","ToD",5)
                             else
-                                Print("5: Touch of Death (Uncastable)");
+                                print("5: Touch of Death (Uncastable)");
                                 ToD = true
                             end
         -- Tiger Palm
@@ -631,7 +631,7 @@ local function runRotation()
                             if mode.sef == 1 then
                                 castOpener("stormEarthAndFire","SEF",7)
                             else
-                                Print("7: Storm, Earth, and Fire (Uncastable)");
+                                print("7: Storm, Earth, and Fire (Uncastable)");
                                 SEF = true
                             end
         -- Fists of Fury
@@ -653,7 +653,7 @@ local function runRotation()
                         elseif WDP and not TP4 then
                             castOpener("tigerPalm","TP4",13)
                         elseif TP4 then
-                            Print("Opener Complete")
+                            print("Opener Complete")
                             opener = true
                         end
                     end                
@@ -666,7 +666,7 @@ local function runRotation()
                             if getDistance("target") >= 25 then
                                 castOpener("chiWave","OoRchiWave",1)
                             else
-                                Print("1: Chi Wave (Uncastable)");
+                                print("1: Chi Wave (Uncastable)");
                                 OoRchiWave = true
                             end
         -- Flying Serpent Kick (No Hit)
@@ -676,13 +676,13 @@ local function runRotation()
                             if getDistance("target") >= 15 and mode.fsk == 1 then
                                 castOpener("flyingSerpentKick","FSK",2)
                             else
-                                Print("2: Flying Serpent Kick (Uncastable)");
+                                print("2: Flying Serpent Kick (Uncastable)");
                                 FSK = true
                             end
         -- Potion
                         -- potion,name=old_war
                         elseif useCDs() and canUse(127844) and isChecked("Potion") and getDistance("target") < 15 then
-                            Print("Potion Used!");
+                            print("Potion Used!");
                             useItem(127844)
                         end
                     end
@@ -691,7 +691,7 @@ local function runRotation()
                         if getDistance("target") < 25 then
                             castOpener("chiWave","iRchiWave",3)
                         else
-                            Print("3: Chi Wave (Uncastable)");
+                            print("3: Chi Wave (Uncastable)");
                             iRchiWave = true
                         end
                     elseif getDistance("target") < 5 then
@@ -703,7 +703,7 @@ local function runRotation()
                             if not debuff.touchOfDeath["target"].exists then
                                 castOpener("touchOfDeath","ToD",5)
                             else
-                                Print("5: Touch of Death (Uncastable)");
+                                print("5: Touch of Death (Uncastable)");
                                 ToD = true
                             end
         -- Serenity
@@ -714,7 +714,7 @@ local function runRotation()
                             if buff.serenity.exists then
                                 castOpener("risingSunKick","RSK1",7)
                             else
-                                Print("7: Rising Sun Kick (Uncastable)"); 
+                                print("7: Rising Sun Kick (Uncastable)"); 
                                 RSK1 = true
                             end
         -- Strike of the Windlord
@@ -722,7 +722,7 @@ local function runRotation()
                             if buff.serenity.exists then
                                 castOpener("strikeOfTheWindlord","SotW",8)
                             else
-                                Print("8: Strike of the Windlord (Uncastable)"); 
+                                print("8: Strike of the Windlord (Uncastable)"); 
                                 SotW = true
                             end
         -- Fists of Fury
@@ -730,7 +730,7 @@ local function runRotation()
                             if buff.serenity.exists then
                                 castOpener("fistsOfFury","FoF1",9)
                             else
-                                Print("9: Fists of Fury (Uncastable)"); 
+                                print("9: Fists of Fury (Uncastable)"); 
                                 FoF1 = true
                             end
         -- Rising Sun Kick
@@ -738,7 +738,7 @@ local function runRotation()
                             if buff.serenity.exists then
                                 castOpener("risingSunKick","RSK2",10)
                             else
-                                Print("10: Rising Sun Kick (Uncastable)"); 
+                                print("10: Rising Sun Kick (Uncastable)"); 
                                 RSK2 = true
                             end
         -- Spinning Crane Kick
@@ -746,7 +746,7 @@ local function runRotation()
                             if buff.serenity.exists then
                                castOpener("spinningCraneKick","SCK",10)
                             else
-                                Print("11: Spinning Crane Kick (Uncastable)"); 
+                                print("11: Spinning Crane Kick (Uncastable)"); 
                                 SCK = true
                             end
         -- Blackout Kick
@@ -754,11 +754,11 @@ local function runRotation()
                             if buff.serenity.exists then
                                castOpener("blackoutKick","BOK",10)
                             else
-                                Print("12: Blackout Kick (Uncastable)"); 
+                                print("12: Blackout Kick (Uncastable)"); 
                                 BOK = true
                             end
                         elseif BOK then
-                            Print("Opener Complete");
+                            print("Opener Complete");
                             opener = true;
                             return
                         end

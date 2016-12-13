@@ -151,7 +151,7 @@ end
 ----------------
 local function runRotation()
     if br.timer:useTimer("debugFrost", 0.1) then
-        --Print("Running: "..rotationName)
+        --print("Running: "..rotationName)
 
 ---------------
 --- Toggles ---
@@ -174,8 +174,8 @@ local function runRotation()
         local disease           = br.player.disease
         local dynTar5AoE        = br.player.units.dyn5AoE
         local dynTar30AoE       = br.player.units.dyn30AoE
-        local dynTable5AoE      = (br.data.settings[br.selectedSpec].toggles['Cleave']==1 and br.enemy) or { [1] = {["unit"]=dynTar5AoE, ["distance"] = getDistance(dynTar5AoE)}} 
-        local dynTable30AoE     = (br.data.settings[br.selectedSpec].toggles['Cleave']==1 and br.enemy) or { [1] = {["unit"]=dynTar30AoE, ["distance"] = getDistance(dynTar30AoE)}} 
+        local dynTable5AoE      = (br.data['Cleave']==1 and br.enemy) or { [1] = {["unit"]=dynTar5AoE, ["distance"] = getDistance(dynTar5AoE)}} 
+        local dynTable30AoE     = (br.data['Cleave']==1 and br.enemy) or { [1] = {["unit"]=dynTar30AoE, ["distance"] = getDistance(dynTar30AoE)}} 
         local glyph             = br.player.glyph
         local inCombat          = br.player.inCombat
         local level             = br.player.level
@@ -212,7 +212,7 @@ local function runRotation()
                         profileStop = true
                         StopAttack()
                         ClearTarget()
-                        Print(tonumber(getValue("DPS Testing")) .." Minute Dummy Test Concluded - Profile Stopped")
+                        print(tonumber(getValue("DPS Testing")) .." Minute Dummy Test Concluded - Profile Stopped")
                         return true
                     end
                 end
@@ -279,7 +279,7 @@ local function runRotation()
 ---------------------
 --- Out Of Combat ---
 ---------------------
-        if pause() or br.data.settings[br.selectedSpec].toggles['AoE']==4 then
+        if pause() or br.data['AoE']==4 then
             return true
         else
             if actionList_Extras() then return end

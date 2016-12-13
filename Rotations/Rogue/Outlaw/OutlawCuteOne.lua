@@ -82,8 +82,8 @@ local function createOptions()
             br.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
             -- Grappling Hook
             br.ui:createCheckbox(section, "Grappling Hook")         
-        -- SPrint with Boots
-            br.ui:createCheckbox(section, "SPrint with Legendary Boots") 
+        -- Sprint with Boots
+            br.ui:createCheckbox(section, "Sprint with Legendary Boots") 
             -- Pistol Shot OOR
             br.ui:createSpinner(section, "Pistol Shot out of range", 85,  5,  100,  5,  "|cffFFFFFFCheck to use Pistol Shot out of range and energy to use at.")
             -- Opening Attack
@@ -175,7 +175,7 @@ end
 ----------------
 local function runRotation()
     if br.timer:useTimer("debugOutlaw", math.random(0.15,0.3)) then
-        --Print("Running: "..rotationName)
+        --print("Running: "..rotationName)
 
 ---------------
 --- Toggles ---
@@ -185,15 +185,15 @@ local function runRotation()
         UpdateToggle("Defensive",0.25)
         UpdateToggle("Interrupt",0.25)
         UpdateToggle("Cleave",0.25)
-        br.player.mode.cleave = br.data.settings[br.selectedSpec].toggles["Cleave"]
+        br.player.mode.cleave = br.data["Cleave"]
         UpdateToggle("Picker",0.25)
-        br.player.mode.pickPocket = br.data.settings[br.selectedSpec].toggles["Picker"]
+        br.player.mode.pickPocket = br.data["Picker"]
 		UpdateToggle("MfD",0.25)
-        br.player.mode.MfD = br.data.settings[br.selectedSpec].toggles["MfD"]
+        br.player.mode.MfD = br.data["MfD"]
 		UpdateToggle("RerollTB",0.25)
-        br.player.mode.RerollTB = br.data.settings[br.selectedSpec].toggles["RerollTB"]
+        br.player.mode.RerollTB = br.data["RerollTB"]
 		UpdateToggle("RollForOne",0.25)
-        br.player.mode.RollForOne = br.data.settings[br.selectedSpec].toggles["RollForOne"]
+        br.player.mode.RollForOne = br.data["RollForOne"]
 
 --------------
 --- Locals ---
@@ -215,9 +215,9 @@ local function runRotation()
         local dynTar15                                      = br.player.units.dyn15 
         local dynTar20AoE                                   = br.player.units.dyn20AoE --Stealth
         local dynTar30AoE                                   = br.player.units.dyn30AoE
-        local dynTable5                                     = (br.data.settings[br.selectedSpec].toggles['Cleave']==1 and br.enemy) or { [1] = {["unit"]=dynTar5, ["distance"] = getDistance(dynTar5)}}
-        local dynTable15                                    = (br.data.settings[br.selectedSpec].toggles['Cleave']==1 and br.enemy) or { [1] = {["unit"]=dynTar15, ["distance"] = getDistance(dynTar15)}}
-        local dynTable20AoE                                 = (br.data.settings[br.selectedSpec].toggles['Cleave']==1 and br.enemy) or { [1] = {["unit"]=dynTar20AoE, ["distance"] = getDistance(dynTar20AoE)}}
+        local dynTable5                                     = (br.data['Cleave']==1 and br.enemy) or { [1] = {["unit"]=dynTar5, ["distance"] = getDistance(dynTar5)}}
+        local dynTable15                                    = (br.data['Cleave']==1 and br.enemy) or { [1] = {["unit"]=dynTar15, ["distance"] = getDistance(dynTar15)}}
+        local dynTable20AoE                                 = (br.data['Cleave']==1 and br.enemy) or { [1] = {["unit"]=dynTar20AoE, ["distance"] = getDistance(dynTar20AoE)}}
         local enemies                                       = br.player.enemies
         local flaskBuff, canFlask                           = getBuffRemain("player",br.player.flask.wod.buff.agilityBig), canUse(br.player.flask.wod.agilityBig)   
         local gcd                                           = br.player.gcd
@@ -472,10 +472,10 @@ local function runRotation()
         --                 end
         --             end
         --         end
-        -- SPrint
-                -- sPrint,if=equipped.thraxis_tricksy_treads&!variable.ss_useable
-                if isChecked("SPrint with Legendary Boots") and hasEquiped(137031) and not ssUsable then
-                    if cast.sPrint() then return end
+        -- Sprint
+                -- sprint,if=equipped.thraxis_tricksy_treads&!variable.ss_useable
+                if isChecked("Sprint with Legendary Boots") and hasEquiped(137031) and not ssUsable then
+                    if cast.sprint() then return end
                 end
         -- Curse of the Dreadblades
                 -- curse_of_the_dreadblades,if=combo_points.deficit>=4&(!talent.ghostly_strike.enabled|debuff.ghostly_strike.up)
@@ -651,7 +651,7 @@ local function runRotation()
                         StartAttack()
 
                      -- MfD toggle
-                    if br.data.settings[br.selectedSpec].toggles['MfD'] == 1 then
+                    if br.data['MfD'] == 1 then
                 
                             if getOptionValue("Marked For Death") == 1 then
                                 -- marked_for_death,if=combo_points.deficit>=4+talent.deeper_strategem.enabled+talent.anticipation.enabled

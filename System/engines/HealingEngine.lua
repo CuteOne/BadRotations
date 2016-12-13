@@ -258,7 +258,7 @@ if not metaTable1 then
 		end
 		-- Updating the values of the Unit
 		function o:UpdateUnit()
-            if br.data.settings[br.selectedSpec].toggles["isDebugging"] == true then
+            if br.data["isDebugging"] == true then
                 local startTime, duration
                 local debugprofilestop = debugprofilestop
 
@@ -378,7 +378,7 @@ if not metaTable1 then
 		end
 		-- Adding the user and functions we just created to this cached version in case we need it again
 		-- This will also serve as a good check for if the unit is already in the table easily
-		--Print(UnitName(unit), select(2, getGUID(unit)))
+		--print(UnitName(unit), select(2, getGUID(unit)))
 		memberSetup.cache[select(2, o:nGUID())] = o
 		return o
 	end
@@ -389,7 +389,7 @@ if not metaTable1 then
 			local refreshTimer = 0.666
 			if br.friendTableTimer == nil or br.friendTableTimer <= GetTime() - refreshTimer then
 				br.friendTableTimer = GetTime()
-				-- Print("HEAL PULSE: "..GetTime())		-- debug Print to check update time
+				-- print("HEAL PULSE: "..GetTime())		-- debug print to check update time
 				-- This is for special situations, IE world healing or NPC healing in encounters
 				local selectedMode,SpecialTargets = getOptionValue("Special Heal"), {}
 				if getOptionCheck("Special Heal") == true then

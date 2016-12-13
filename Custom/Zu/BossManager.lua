@@ -17,7 +17,7 @@ function bossManager()
 --|Check Please|--
 --+------------+--
 AddEventCallback("ZONE_CHANGED_NEW_AREA", function()
-Print("We are in", GetRealZoneText())
+print("We are in", GetRealZoneText())
 inMawOfSouls()
 
 end)

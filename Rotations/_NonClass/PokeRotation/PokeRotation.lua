@@ -1,9 +1,9 @@
 function PokeRunner()
-  if br.data.settings[br.selectedSpec].toggles["Check PokeRotation"] ~= 1 then return false; end
+  if br.data["Check PokeRotation"] ~= 1 then return false; end
   -- pulsed
 
 
-  --Print(br.data.wait .. " " .. br.data.abilitiesOnCD)
+  --print(br.data.wait .. " " .. br.data.abilitiesOnCD)
 
 
 
@@ -44,10 +44,10 @@ function PokeRunner()
       br.data.abilitiesOnCD = 0
     end
   end
-  -- if Attacking if wait == 0 then Print Attacking and set wait = 2
+  -- if Attacking if wait == 0 then print Attacking and set wait = 2
   if br.data.abilitiesOnCD == 1 then
     if br.data.wait ~= 2 then
-      --Print("ATTACKING "..br.data.wait)
+      --print("ATTACKING "..br.data.wait)
       waiter = nil;
       br.data.wait = 2;
     end
@@ -57,14 +57,14 @@ function PokeRunner()
   if br.data.abilitiesOnCD == 0 and br.data.wait == 2 then
     if waiter == nil then
       waiter = GetTime();
-      --Print("WAIT")
+      --print("WAIT")
       br.data.wait = 1;
     end
   end
-  -- if wait == 1 and waiter ~= nil and waiter <= GetTime()-0.1 then Print Go set waiter = nil wait = 3
+  -- if wait == 1 and waiter ~= nil and waiter <= GetTime()-0.1 then print Go set waiter = nil wait = 3
   if br.data.abilitiesOnCD == 0 and br.data.wait == 0 and waiter and waiter <= GetTime() - 0.1 then
     if br.data.wait ~= 3 then
-      --Print(br.data.wait.. br.data.abilitiesOnCD)
+      --print(br.data.wait.. br.data.abilitiesOnCD)
       br.data.wait = 3;
       pokeValueFrame.Border:SetTexture([[Interface\FullScreenTextures\OutOfControl]]);
     end
@@ -242,7 +242,7 @@ function PokeRotationRun()
           end
         end
       end
-      --Print("done")
+      --print("done")
     end
 
     function InsertEnnemyBuff(value,buffID)
@@ -992,7 +992,7 @@ function PokeEngine()
                 Favorite = FavoriteConvert,
                 Wild = WildConvert,
               } )
-              -- Print("Inserted "..petID.." "..level.." "..FavoriteConvert.." "..WildConvert)
+              -- print("Inserted "..petID.." "..level.." "..FavoriteConvert.." "..WildConvert)
             end
           end
         end
@@ -1040,7 +1040,7 @@ function PokeEngine()
                     Favorite = FavoriteConvert,
                     Wild = WildConvert,
                   } )
-                  -- Print("Inserted Ringner "..petID.." "..level.." "..FavoriteConvert.." "..WildConvert)
+                  -- print("Inserted Ringner "..petID.." "..level.." "..FavoriteConvert.." "..WildConvert)
                 end
               end
             end
@@ -2278,7 +2278,7 @@ function PokeEngine()
 
   -- Rotation
 
-  if inBattle and ObjectiveValue == 1 and br.data.wait == 1 and br.data.settings[br.selectedSpec].toggles["Check PokeRotation"] == 1 then
+  if inBattle and ObjectiveValue == 1 and br.data.wait == 1 and br.data["Check PokeRotation"] == 1 then
     rotationRun = true
     HealingDone = nil
     Switch();
