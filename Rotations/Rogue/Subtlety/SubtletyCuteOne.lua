@@ -90,6 +90,8 @@ local function createOptions()
             br.ui:createCheckbox(section, "Shadow Dance")
             -- Vanish
             br.ui:createCheckbox(section, "Vanish")
+            -- SSW Offset
+            br.ui:createSpinner(section, "SSW Offset", 0, 0, 10, 1, "|cffFFBB00For Advanced Users, check SimC Wiki. Leave this at 0 if you don't know what you're doing.")
         br.ui:checkSectionState(section)
         -------------------------
         --- DEFENSIVE OPTIONS ---
@@ -211,8 +213,8 @@ local function runRotation()
         local solo                                          = #br.friend < 2    
         local spell                                         = br.player.spell
         local stealth                                       = br.player.buff.stealth.exists
-        local stealthingAll                                 = br.player.buff.stealth.exists or br.player.buff.vanish.exists or br.player.buff.shadowmeld.exists or br.player.buff.shadowDance.exists
-        local stealthingRogue                               = br.player.buff.stealth.exists or br.player.buff.vanish.exists or br.player.buff.shadowDance.exists
+        local stealthingAll                                 = br.player.buff.stealth.exists or br.player.buff.vanish.exists or br.player.buff.shadowmeld.exists or br.player.buff.shadowDance.exists or br.player.buff.subterfuge.exists
+        local stealthingRogue                               = br.player.buff.stealth.exists or br.player.buff.vanish.exists or br.player.buff.shadowDance.exists or br.player.buff.subterfuge.exists
         local t18_4pc                                       = br.player.eq.t18_4pc
         local talent                                        = br.player.talent
         local time                                          = getCombatTime()
@@ -229,9 +231,10 @@ local function runRotation()
         if vanishTime == nil then vanishTime = GetTime() end
         if hasEquiped(137032) then shadowWalker = 1 else shadowWalker = 0 end
         -- variable,name=ssw_er,value=equipped.shadow_satyrs_walk*(10-floor(target.distance*0.5))
-        local sswVar = shadowWalker * (10 - math.floor(getDistance(units.dyn5)*0.5))
+        --local sswVar = shadowWalker * (10 - math.floor(getDistance(units.dyn5)*0.5))
+        local sswRefund = shadowWalker * (12 + getOptionValue("SSW Offset"))
         -- variable,name=ed_threshold,value=energy.deficit<=(20+talent.vigor.enabled*35+talent.master_of_shadows.enabled*25+variable.ssw_er)
-        local edThreshVar = (powerDeficit <= (20 + (vigorous * 35) + (mosTalent * 25) + sswVar))
+        local edThreshVar = (powerDeficit <= (15 + (vigorous * 35) + (mosTalent * 30) + sswRefund))
 
         -- Custom Functions
         local function usePickPocket()
@@ -376,12 +379,12 @@ local function runRotation()
                 end
         -- Shadow Blades
                 -- shadow_blades,if=!stealthed.all
-                if not stealthingAll then
+                if combo <= 2 or (hasEquiped(137100) and combo >= 1) then
                     if cast.shadowBlades() then return end
                 end
         -- Goremaws Bite
                 -- goremaws_bite,if=!stealthed.all&((combo_points.deficit>=4-(time<10)*2&energy.deficit>50+talent.vigor.enabled*25-(time>=10)*15)|target.time_to_die<8)
-                if not stealthingAll and ((comboDeficit >= 4 - justStarted * 2 and powerDeficit > 50 + vigorous * 25 - justStarted * 15) or ttd(units.dyn5) < 8) then
+                if not stealthingAll and charges.frac.shadowDance <= 2.45 and ((comboDeficit >= 4 - justStarted * 2 and powerDeficit > 50 + vigorous * 25 - justStarted * 15) or ttd(units.dyn5) < 8) then
                     if cast.goremawsBite() then return end
                 end
         -- Marked For Death
@@ -429,9 +432,9 @@ local function runRotation()
                 -- pool_resource,for_next=1,extra_amount=40-variable.ssw_er
                 -- shadowmeld,if=energy>=40-variable.ssw_er&energy.deficit>10
                 if isChecked("Racial") and not solo then
-                    if power < 40 - sswVar then
+                    if power < 40 - sswRefund then
                         return true
-                    elseif power >= 40 - sswVar and powerDeficit > 10 then
+                    elseif power >= 40 - sswRefund and powerDeficit >= 10 + sswRefund then
                         if cast.shadowmeld() then return end
                     end
                 end
@@ -543,11 +546,11 @@ local function runRotation()
         local function actionList_Opener()
             if isValidUnit("target") then
         -- Shadowstep
-                if isChecked("Shadowstep") and (not stealthingAll or power < 40) then
+                if isChecked("Shadowstep") and (not stealthingAll or power < 40) and not inCombat then
                     if cast.shadowstep("target") then return end 
                 end
         -- Shadowstrike
-                if (not isChecked("Shadowstep") or stealthingAll) and getDistance("target") <= getOptionValue ("SS Range") and mode.pickPocket ~= 2 then
+                if (not isChecked("Shadowstep") or stealthingAll) and getDistance("target") <= getOptionValue ("SS Range") and mode.pickPocket ~= 2 and not inCombat then
                     if cast.shadowstrike("target") then return end
                 end
         -- Start Attack
@@ -619,7 +622,7 @@ local function runRotation()
                     end
         -- Stealth Cooldowns
                     -- call_action_list,name=stealth_cds,if=combo_points.deficit>=2+talent.premeditation.enabled&(variable.ed_threshold|(cooldown.shadowmeld.up&!cooldown.vanish.up&cooldown.shadow_dance.charges<=1)|target.time_to_die<12)
-                    if comboDeficit >= 2 + premed and (edThreshVar or ((cd.shadowmeld == 0 or not isChecked("Racial") or solo) and (cd.vanish ~= 0 or not isChecked("Vanish") or solo) and charges.shadowDance <= 1) or ttd("target") < 12 or #enemies.yards10 >=5) then
+                    if comboDeficit >= 2 + premed and ((edThreshVar and (not hasEquiped(137032) or powerDeficit >= 10)) or ((cd.shadowmeld == 0 or not isChecked("Racial") or solo) and (cd.vanish ~= 0 or not isChecked("Vanish") or solo) and charges.shadowDance <= 1) or (ttd("target") < 12 * charges.frac.shadowDance * (1 + (shadowWalker * 0.5))) or #enemies.yards10 >=5) then
                         if actionList_StealthCooldowns() then return end
                     end
         -- Generators
