@@ -61,23 +61,21 @@ function br:MinimapButton()
 	button:SetScript("OnMouseDown",function(self, button)
 		if button == "RightButton" then
 			if br.data.settings[br.selectedSpec] then
-				if not FireHack then
-						Print("|cffFF1100BadRotations |cffFFFFFFCannot Start... |cffFF1100Firehack |cffFFFFFFis not loaded. Please attach Firehack.")
-                else
-                    if br.ui.window.profile.parent then
-                        if br.data.settings[br.selectedSpec].profile["active"] == true then
-                            br.ui.window.profile.parent.closeButton:Click()
-                        else
-                            br.ui.window.profile.parent:Show()
-                            br.data.settings[br.selectedSpec].profile["active"] = true
-                        end
+                if br.ui.window.profile.parent then
+                    if br.data.settings[br.selectedSpec].profile["active"] == true then
+                        br.ui.window.profile.parent.closeButton:Click()
+                    else
+                        br.ui.window.profile.parent:Show()
+                        br.data.settings[br.selectedSpec].profile["active"] = true
                     end
-				end
+                end
 			end
         end
         if button == "MiddleButton" then
-            if br.ui.window.help then
+            if br.ui.window.help.parent then
                 br.ui.window.help.parent:Show()
+            elseif br.ui.window.help.parent == nil then
+            	br.ui:createHelpWindow()
             end
         end
 		if IsShiftKeyDown() and IsAltKeyDown() then
@@ -189,6 +187,7 @@ end
 function br:saveWindowPosition()
     br:savePosition("config")
     br:savePosition("debug")
+    br:savePosition("help")
     br:savePosition("profile")
 end
 
@@ -215,7 +214,7 @@ frame:SetScript("OnEvent", frame.OnEvent)
 --[[-------------------------------------------------------------------------------------------------------------------------------------------------------]]
 --[[-------------------------------------------------------------------------------------------------------------------------------------------------------]]
 --[[-------------------------------------------------------------------------------------------------------------------------------------------------------]]
---[[This function is refired everytime wow ticks. This frame is located in Core.lua]]
+--[[This function is refired everytime wow ticks. This frame is located at the top of Core.lua]]
 function BadRotationsUpdate(self)
 	local tempTime = GetTime();
 	if not self.lastUpdateTime then
@@ -231,8 +230,8 @@ function BadRotationsUpdate(self)
 			-- _G["debugFrame"]:Hide()
 			br.ui.window.config.parent:Hide()
 			br.ui.window.debug.parent:Hide()
-			-- br.ui.window.help.parent:Hide()
-			br.ui.window.profile.parent:Hide()
+			if br.ui.window.help.parent ~= nil then br.ui.window.help.parent:Hide() end
+			if br.ui.window.profile.parent ~= nil then br.ui.window.profile.parent:Hide() end
 			return false
 		end
 		if FireHack == nil then
@@ -240,10 +239,13 @@ function BadRotationsUpdate(self)
 			-- _G["debugFrame"]:Hide()
 			br.ui.window.config.parent:Hide()
 			br.ui.window.debug.parent:Hide()
-			-- br.ui.window.help.parent:Hide()
-			br.ui.window.profile.parent:Hide()
+			if br.ui.window.help.parent ~= nil then br.ui.window.help.parent:Hide() end
+			if br.ui.window.profile.parent ~= nil then br.ui.window.profile.parent:Hide() end
 			if getOptionCheck("Start/Stop BadRotations") then
 				ChatOverlay("FireHack not Loaded.")
+				if br.timer:useTimer("notLoaded", 10) then
+					Print("|cffFFFFFFCannot Start... |cffFF1100Firehack |cffFFFFFFis not loaded. Please attach Firehack.")
+				end	
 			end
 			return
 		end
@@ -255,8 +257,7 @@ function BadRotationsUpdate(self)
 	    -- global -> br.DBM.Timer
 	    br.DBM:getBars()
 
-	    -- Create Rotation Log
-    	if br.ui.window.debug.parent == nil then br.ui:createDebugWindow() end
+	    -- Rotation Log
 	    if getOptionCheck("Rotation Log") then
 			br.ui.window.debug.parent:Show()
 	        br.data.settings[br.selectedSpec].debug["active"] = true

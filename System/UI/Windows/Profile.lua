@@ -1,5 +1,5 @@
 function br.ui:createProfileWindow(spec)
-    br.ui.window.profile = br.ui:createWindow("profile", 275, 400, spec)
+    br.ui.window.profile = br.ui:createWindow("profile", 275, 400, spec, classColors[select(3,UnitClass("player"))].hex)
     -- local window = DiesalGUI:Create('Window')
     -- window:SetTitle('BadRotations', name)
     -- window.settings.width = width or 300
