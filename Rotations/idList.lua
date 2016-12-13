@@ -294,12 +294,12 @@ br.idList = {
         -- All
         Shared = {
             abilities                       = {
-                -- consumeMagic                    = 183752,
-                -- felblade                        = 232893,
-                -- felEruption                     = 211881,
-                -- glide                           = 131347,
-                -- imprison                        = 217832,
-                -- spectralSight                   = 188501,
+                consumeMagic                    = 183752,
+                felblade                        = 232893,
+                felEruption                     = 211881,
+                glide                           = 131347,
+                imprison                        = 217832,
+                spectralSight                   = 188501,
             },
             artifacts                       = {
 

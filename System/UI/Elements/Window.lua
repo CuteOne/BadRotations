@@ -1,10 +1,11 @@
 local DiesalGUI = LibStub("DiesalGUI-1.0")
 
 -- Window creators
-function br.ui:createWindow(name, width, height, title)
+function br.ui:createWindow(name, width, height, title, color)
     if title == nil then titleName = name end
+    if color == nil then color = "|cffa330c9" end
     local window = DiesalGUI:Create('Window')
-    window:SetTitle('BadRotations', title)
+    window:SetTitle(color..'BadRotations', title)
     window.settings.width = width or 250
     window.settings.height = height or 250
     window.settings.header = true
@@ -52,10 +53,11 @@ function br.ui:createWindow(name, width, height, title)
     return scrollFrame
 end
 
-function br.ui:createMessageWindow(name, width, height, title)
+function br.ui:createMessageWindow(name, width, height, title, color)
     if title == nil then title = name end
+    if color == nil then color = "|cffa330c9" end
     local window = DiesalGUI:Create('Window')
-    window:SetTitle('BadRotations', title)
+    window:SetTitle(color..'BadRotations', title)
     window.settings.width = width or 300
     window.settings.height = height or 250
     window.frame:SetClampedToScreen(true)

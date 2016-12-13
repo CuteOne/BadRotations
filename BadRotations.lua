@@ -32,31 +32,31 @@ function br:Run()
 	br.read.commonReaders()
 	-- Globals
 	classColors = {
-		[1]				= {class = "Warrior", 	B=0.43,	G=0.61,	R=0.78,	hex="|cffc79c6e"},
-		[2]				= {class = "Paladin", 	B=0.73,	G=0.55,	R=0.96,	hex="|cfff58cba"},
-		[3]				= {class = "Hunter",	B=0.45,	G=0.83,	R=0.67,	hex="|cffabd473"},
-		[4]				= {class = "Rogue",		B=0.41,	G=0.96,	R=1,	hex="|cfffff569"},
-		[5]				= {class = "Priest",	B=1,	G=1,	R=1,	hex="|cffffffff"},
-		[6]				= {class = "Deathknight",B=0.23,	G=0.12,	R=0.77,	hex="|cffc41f3b"},
-		[7]				= {class = "Shaman",	B=0.87,	G=0.44,	R=0,	hex="|cff0070de"},
-		[8]				= {class = "Mage",		B=0.94,	G=0.8,	R=0.41,	hex="|cff69ccf0"},
-		[9]				= {class = "Warlock", 	B=0.79,	G=0.51,	R=0.58,	hex="|cff9482c9"},
-		[10]			= {class = "Monk",		B=0.59,	G=1,	R=0,	hex="|cff00ff96"},
-		[11]			= {class = "Druid", 	B=0.04,	G=0.49,	R=1,	hex="|cffff7d0a"},
-		["Training Dummy"] = {B=0.76,  G=0.76,  R=0.76, hex="|cffC0C0C0"},
-		["Black"]		= {B=0.1, 	G=0.1,	R=0.12,	hex="|cff191919"},
-		["Hunter"]		= {B=0.45,	G=0.83,	R=0.67,	hex="|cffabd473"},
-		["Gray"]		= {B=0.2,	G=0.2,	R=0.2,	hex="|cff333333"},
-		["Warrior"]		= {B=0.43,	G=0.61,	R=0.78,	hex="|cffc79c6e"},
-		["Paladin"] 	= {B=0.73,	G=0.55,	R=0.96,	hex="|cfff58cba"},
-		["Mage"]		= {B=0.94,	G=0.8,	R=0.41,	hex="|cff69ccf0"},
-		["Priest"]		= {B=1,		G=1,	R=1,	hex="|cffffffff"},
-		["Warlock"]		= {B=0.79,	G=0.51,	R=0.58,	hex="|cff9482c9"},
-		["Shaman"]		= {B=0.87,	G=0.44,	R=0,	hex="|cff0070de"},
-		["DeathKnight"]	= {B=0.23,	G=0.12,	R=0.77,	hex="|cffc41f3b"},
-		["Druid"]		= {B=0.04,	G=0.49,	R=1,	hex="|cffff7d0a"},
-		["Monk"]		= {B=0.59,	G=1,	R=0,	hex="|cff00ff96"},
-		["Rogue"]		= {B=0.41,	G=0.96,	R=1,	hex="|cfffff569"}
+		[1]				= {class = "Warrior", 		B=0.43,	G=0.61,	R=0.78,	hex="|cffc79c6e"},
+		[2]				= {class = "Paladin", 		B=0.73,	G=0.55,	R=0.96,	hex="|cfff58cba"},
+		[3]				= {class = "Hunter",		B=0.45,	G=0.83,	R=0.67,	hex="|cffabd473"},
+		[4]				= {class = "Rogue",			B=0.41,	G=0.96,	R=1,	hex="|cfffff569"},
+		[5]				= {class = "Priest",		B=1,	G=1,	R=1,	hex="|cffffffff"},
+		[6]				= {class = "Deathknight",	B=0.23,	G=0.12,	R=0.77,	hex="|cffc41f3b"},
+		[7]				= {class = "Shaman",		B=0.87,	G=0.44,	R=0,	hex="|cff0070de"},
+		[8]				= {class = "Mage",			B=0.94,	G=0.8,	R=0.41,	hex="|cff69ccf0"},
+		[9]				= {class = "Warlock", 		B=0.79,	G=0.51,	R=0.58,	hex="|cff9482c9"},
+		[10]			= {class = "Monk",			B=0.59,	G=1,	R=0,	hex="|cff00ff96"},
+		[11]			= {class = "Druid", 		B=0.04,	G=0.49,	R=1,	hex="|cffff7d0a"},
+		-- ["Training Dummy"] = {B=0.76,  G=0.76,  	R=0.76, hex="|cffC0C0C0"},
+		-- ["Black"]		= {B=0.1, 	G=0.1,	R=0.12,	hex="|cff191919"},
+		-- ["Hunter"]		= {B=0.45,	G=0.83,	R=0.67,	hex="|cffabd473"},
+		-- ["Gray"]		= {B=0.2,	G=0.2,	R=0.2,	hex="|cff333333"},
+		-- ["Warrior"]		= {B=0.43,	G=0.61,	R=0.78,	hex="|cffc79c6e"},
+		-- ["Paladin"] 	= {B=0.73,	G=0.55,	R=0.96,	hex="|cfff58cba"},
+		-- ["Mage"]		= {B=0.94,	G=0.8,	R=0.41,	hex="|cff69ccf0"},
+		-- ["Priest"]		= {B=1,		G=1,	R=1,	hex="|cffffffff"},
+		-- ["Warlock"]		= {B=0.79,	G=0.51,	R=0.58,	hex="|cff9482c9"},
+		-- ["Shaman"]		= {B=0.87,	G=0.44,	R=0,	hex="|cff0070de"},
+		-- ["DeathKnight"]	= {B=0.23,	G=0.12,	R=0.77,	hex="|cffc41f3b"},
+		-- ["Druid"]		= {B=0.04,	G=0.49,	R=1,	hex="|cffff7d0a"},
+		-- ["Monk"]		= {B=0.59,	G=1,	R=0,	hex="|cff00ff96"},
+		-- ["Rogue"]		= {B=0.41,	G=0.96,	R=1,	hex="|cfffff569"}
 	}
 	qualityColors = {
 		blue = "0070dd",
@@ -109,7 +109,7 @@ function br:Run()
     if br.data.settings[br.selectedSpec] == nil then br.data.settings[br.selectedSpec] = {} end
     if br.data.settings[br.selectedSpec][br.selectedProfile] == nil then br.data.settings[br.selectedSpec][br.selectedProfile] = {} end
 
-    -- Creates and Shows the Bot Options Window
+    -- Creates and Shows the Bot Options Window and Rotation Log Window
     br.ui:createConfigWindow()
     br.ui:createDebugWindow()
 
@@ -117,6 +117,7 @@ function br:Run()
 	enemiesEngineRange = 55
 	EnemiesEngine()
 	ChatOverlay("-= BadRotations Loaded =-")
+	Print("Loaded")
 	br.loadedIn = true
 end
 --[[Startup UI]]
