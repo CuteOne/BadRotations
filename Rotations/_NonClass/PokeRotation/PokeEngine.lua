@@ -1,5 +1,5 @@
 function PokeEngine()
-  if br.data["Check PokeRotation"] ~= 1 then return false; end
+  if br.data.settings[br.selectedSpec].toggles["Check PokeRotation"] ~= 1 then return false; end
   -- pulsed
   if not PokeRotationStarted then
     PokeData()
@@ -163,7 +163,7 @@ function PokeEngine()
 
     --[[                                       Normal Rotation                                             ]]
 
-    if inBattle and br.data["Check PokeRotation"] == 1 then
+    if inBattle and br.data.settings[br.selectedSpec].toggles["Check PokeRotation"] == 1 then
 
       Switch();
       SimpleHealing();

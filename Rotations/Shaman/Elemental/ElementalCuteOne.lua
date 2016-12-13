@@ -148,7 +148,7 @@ end
 ----------------
 local function runRotation()
     if br.timer:useTimer("debugElemental", math.random(0.15,0.3)) then
-        --print("Running: "..rotationName)
+        --Print("Running: "..rotationName)
 
 ---------------
 --- Toggles ---
@@ -224,7 +224,7 @@ local function runRotation()
 					if getCombatTime() >= (tonumber(getOptionValue("DPS Testing"))*60) and isDummy() then
 						StopAttack()
 						ClearTarget()
-						print(tonumber(getOptionValue("DPS Testing")) .." Minute Dummy Test Concluded - Profile Stopped")
+						Print(tonumber(getOptionValue("DPS Testing")) .." Minute Dummy Test Concluded - Profile Stopped")
 						profileStop = true
 					end
 				end

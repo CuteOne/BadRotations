@@ -56,7 +56,7 @@ end
 ----------------
 local function runRotation()
     if br.timer:useTimer("debugDiscipline", 0.1) then
-        --print("Running: "..rotationName)
+        --Print("Running: "..rotationName)
 
 ---------------
 --- Toggles --- -- List toggles here in order to update when pressed
@@ -205,7 +205,7 @@ local function runRotation()
             if isChecked("Plea") then
                 for i = 1, #br.friend do                           
                     if br.friend[i].hp <= getValue("Plea") and getBuffRemain(br.friend[i].unit, spell.buffs.atonement, "player") < 1 and lastSpell ~= spell.plea and atonementCount < 6 then
-                    	--print("Atonement Count: "..atonementCount)
+                    	--Print("Atonement Count: "..atonementCount)
                         if cast.plea(br.friend[i].unit) then return end     
                     end
                 end
