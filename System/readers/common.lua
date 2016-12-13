@@ -17,7 +17,7 @@ function br.read.commonReaders()
 	local frame = CreateFrame('Frame')
 	frame:RegisterEvent("LOSS_OF_CONTROL_UPDATE")
 	local function lostControl(self,event,...)
-		-- print(...)
+		-- Print(...)
 	end
 	frame:SetScript("OnEvent",lostControl)
 	----------------
@@ -94,7 +94,7 @@ function br.read.commonReaders()
 		if event == "PLAYER_REGEN_DISABLED" then
 			-- here we should manage stats snapshots
 			AgiSnap = getAgility()
-			br.data["Combat Started"] = GetTime()
+			br.data.settings[br.selectedSpec]["Combat Started"] = GetTime()
 			ChatOverlay("|cffFF0000Entering Combat")
 		end
 	end
@@ -121,7 +121,7 @@ function br.read.commonReaders()
 			leftCombat = GetTime()
 			br.data.successCasts = 0
 			br.data.failCasts = 0
-			br.data["Combat Started"] = 0
+			br.data.settings[br.selectedSpec]["Combat Started"] = 0
 			ChatOverlay("|cff00FF00Leaving Combat")
 			-- clean up out of combat
 			Rip_sDamage = {}
@@ -139,27 +139,27 @@ function br.read.commonReaders()
 		lastError = ...; lastErrorTime = GetTime()
 		local param = (...)
 		if param == ERR_PET_SPELL_DEAD  then
-			br.data["Pet Dead"] = true
-			br.data["Pet Whistle"] = false
+			br.data.settings[br.selectedSpec]["Pet Dead"] = true
+			br.data.settings[br.selectedSpec]["Pet Whistle"] = false
 		end
 		if param == PETTAME_NOTDEAD.. "." then
-			br.data["Pet Dead"] = false
-			br.data["Pet Whistle"] = true
+			br.data.settings[br.selectedSpec]["Pet Dead"] = false
+			br.data.settings[br.selectedSpec]["Pet Whistle"] = true
 		end
 		if param == SPELL_FAILED_ALREADY_HAVE_PET then
-			br.data["Pet Dead"] = true
-			br.data["Pet Whistle"] = false
+			br.data.settings[br.selectedSpec]["Pet Dead"] = true
+			br.data.settings[br.selectedSpec]["Pet Whistle"] = false
 		end
 		if param == PETTAME_CANTCONTROLEXOTIC.. "." then
-			if br.data["Box PetManager"] < 5 then
-				br.data["Box PetManager"] = br.data["Box PetManager"] + 1
+			if br.data.settings[br.selectedSpec]["Box PetManager"] < 5 then
+				br.data.settings[br.selectedSpec]["Box PetManager"] = br.data.settings[br.selectedSpec]["Box PetManager"] + 1
 			else
-				br.data["Box PetManager"] = 1
+				br.data.settings[br.selectedSpec]["Box PetManager"] = 1
 			end
 		end
 		if param == PETTAME_NOPETAVAILABLE.. "." then
-			br.data["Pet Dead"] = false
-			br.data["Pet Whistle"] = true
+			br.data.settings[br.selectedSpec]["Pet Dead"] = false
+			br.data.settings[br.selectedSpec]["Pet Whistle"] = true
 		end
 		if param == SPELL_FAILED_TARGET_NO_WEAPONS then
 			isDisarmed = true
@@ -233,11 +233,11 @@ function br.read.commonReaders()
 		function DBM:AddMsg(text, prefix)
 			prefix = prefix or (self.localization and self.localization.general.name) or "Deadly Boss Mods"
 			local frame = _G[tostring(DBM.Options.ChatFrame)]
-			print("!!")
+			Print("!!")
 			frame = frame and frame:IsShown() and frame or DEFAULT_CHAT_FRAME
 			frame:AddMessage(("|cffff7d0a<|r|cffffd200%s|r|cffff7d0a>|r %s"):format(tostring(prefix), tostring(text)), 0.41, 0.8, 0.94)
 		end
-		print(...)
+		Print(...)
 	end
 	--Frame:SetScript("OnEvent", addonReader)
 	---------------------------
@@ -260,7 +260,7 @@ function br.read.commonReaders()
 			local SourceUnit 	= select(1,...)
 			local SpellName 	= select(2,...)
 			spellCastTarget 	= select(4,...)
-			--print("UNIT_SPELLCAST_SENT spellCastTarget = "..spellCastTarget)
+			--Print("UNIT_SPELLCAST_SENT spellCastTarget = "..spellCastTarget)
 			local MyClass = UnitClass("player")
 			if SourceUnit == "player" then
 				if MyClass == "Mage" then -- Mage
@@ -373,7 +373,7 @@ function br.read.commonReaders()
 			if SourceUnit == "player" and isKnown(SpellID) then
 				-- Kill Command
 				if SpellID == 34026 then
-				---print("Kill Command FAILED")
+				---Print("Kill Command FAILED")
 				end
 				-- Whistle failed
 				if SpellID == 883 or SpellID == 83242 or SpellID == 83243 or SpellID == 83244 or SpellID == 83245 then
@@ -433,21 +433,21 @@ function br.read.commonReaders()
 			local SourceUnit 	= select(1,...)
 			local SpellID 		= select(5,...)
 			if SourceUnit == "player" then
-			--print("Channel Start")
+			--Print("Channel Start")
 			end
 		end
 		if event == "UNIT_SPELLCAST_CHANNEL_STOP" then
 			local SourceUnit 	= select(1,...)
 			local SpellID 		= select(5,...)
 			if SourceUnit == "player" then
-			--print("Channel STOP")
+			--Print("Channel STOP")
 			end
 		end
 		if event == "UNIT_SPELLCAST_CHANNEL_UPDATE" then
 			local SourceUnit 	= select(1,...)
 			local SpellID 		= select(5,...)
 			if SourceUnit == "player" then
-			--print("Channel Update")
+			--Print("Channel Update")
 			end
 		end
 	end

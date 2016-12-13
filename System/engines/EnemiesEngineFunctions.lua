@@ -39,7 +39,7 @@ function br.castOffensiveDispel(spell)
 						--if selectedMode == 4 or isSelectedTarget(thisUnit.unit) then
 						if getDistance("player",thisUnit.unit) < allowedDistance then
 							if castSpell(thisUnit.unit,spell,false,false) then
-								--print("Cast Dispel "..thisUnit.name.." with "..spell)
+								--Print("Cast Dispel "..thisUnit.name.." with "..spell)
 								return true
 							end
 						end

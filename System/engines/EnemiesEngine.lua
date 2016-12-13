@@ -20,7 +20,7 @@ function EnemiesEngine()
 	--[[------------------------------------------------------------------------------------------------------------------]]
 	--[[------------------------------------------------------------------------------------------------------------------]]
 	--[[------------------------------------------------------------------------------------------------------------------]]
-	local varDir = br.data.options[br.selectedSpec]
+	local varDir = br.data.settings[br.selectedSpec]
 	br.enemy = {}
 	function makeEnemiesTable(maxDistance)
 		br.enemyTimer = 0
@@ -29,7 +29,7 @@ function EnemiesEngine()
 		if br.enemy then cleanupEngine() end
 		if br.enemy == nil or br.enemyTimer == nil or br.enemyTimer <= GetTime() - 0.1 then
             local startTime
-            if br.data["isDebugging"] == true then
+            if br.data.settings[br.selectedSpec].toggles["isDebugging"] == true then
                 startTime = debugprofilestop()
             end
 
@@ -145,7 +145,7 @@ function EnemiesEngine()
 				end
 			end
 
-            if br.data["isDebugging"] == true then
+            if br.data.settings[br.selectedSpec].toggles["isDebugging"] == true then
                 br.debug.cpu.enemiesEngine.makeEnemiesTableCount = br.debug.cpu.enemiesEngine.makeEnemiesTableCount + 1
                 br.debug.cpu.enemiesEngine.makeEnemiesTableCurrent = debugprofilestop()-startTime
                 br.debug.cpu.enemiesEngine.makeEnemiesTable = br.debug.cpu.enemiesEngine.makeEnemiesTable + debugprofilestop()-startTime
@@ -336,7 +336,7 @@ function EnemiesEngine()
 				coef = coef + shieldValue
 				local displayCoef = math.floor(coef*10)/10
 				local displayName = UnitName(unit) or "invalid"
-				-- print("Unit "..displayName.." - "..displayCoef)
+				-- Print("Unit "..displayName.." - "..displayCoef)
 			end
 		end
 		return coef
