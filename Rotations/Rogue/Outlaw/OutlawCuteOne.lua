@@ -83,9 +83,9 @@ local function createOptions()
             -- Grappling Hook
             br.ui:createCheckbox(section, "Grappling Hook")         
         -- SPrint with Boots
-            br.ui:createCheckbox(section, "SPrint with Legendary Boots") 
+            br.ui:createCheckbox(section, "Sprint with Legendary Boots") 
             -- Pistol Shot OOR
-            br.ui:createSpinner(section, "Pistol Shot out of range", 85,  5,  100,  5,  "|cffFFFFFFCheck to use Pistol Shot out of range and energy to use at.")
+            br.ui:createSpinner(section, "Pistol Shot - Out of Range", 85,  5,  100,  5,  "|cffFFFFFFCheck to use Pistol Shot out of range and energy to use at.")
             -- Opening Attack
             br.ui:createDropdown(section, "Opener", {"Ambush", "Cheap Shot"},  1, "|cffFFFFFFSelect Attack to Break Stealth with")
             br.ui:createCheckbox(section, "Marked For Death - Precombat")
@@ -345,7 +345,7 @@ local function runRotation()
                 if cast.grapplingHook("target") then return end 
             end
     -- Pistol Shot
-            if isChecked("Pistol Shot out of range") and isValidUnit("target") and power >= getOptionValue("Pistol Shot out of range") and (not inCombat or getDistance("target") > 8) and not stealthing then
+            if isChecked("Pistol Shot - Out of Range") and isValidUnit("target") and power >= getOptionValue("Pistol Shot - Out of Range") and (not inCombat or getDistance("target") > 8) and not stealthing then
                 if cast.pistolShot("target") then return end
             end
         end -- End Action List - Extras
@@ -474,7 +474,7 @@ local function runRotation()
         --         end
         -- SPrint
                 -- sPrint,if=equipped.thraxis_tricksy_treads&!variable.ss_useable
-                if isChecked("SPrint with Legendary Boots") and hasEquiped(137031) and not ssUsable then
+                if isChecked("Sprint with Legendary Boots") and hasEquiped(137031) and not ssUsable then
                     if cast.sPrint() then return end
                 end
         -- Curse of the Dreadblades
