@@ -57,17 +57,21 @@ local function getStringIndex(string,index)
 	return nil
 end
 
-SLASH_BR1, SLASH_BR2 = '/br', '/badrotations'
-SlashCommandHelp("br","Toggles BadRotations On/Off")
-SlashCommandHelp("br help","Displays this list of help commands. ***Obviously***")
-SlashCommandHelp("br blacklist","Adds/Removes mouseover unit to healing blacklist.")
-SlashCommandHelp("br blacklist dump","Prints all units currently on blacklist.")
-SlashCommandHelp("br blacklist clear","Clears the blacklist.")
--- SlashCommandHelp("br pause hold","Pauses while held (via macro).")
-SlashCommandHelp("br pause toggle","Switches Pause On/Off")
-SlashCommandHelp("br queue clear","Clears the Spell Queue of all queued spells.")
-SlashCommandHelp("br queue add spellId","Adds the Spell to the Queue by Spell Id.")
-SlashCommandHelp("br queue remove spellId","Removes the Spell from the Queue by Spell Id.")
+function slashHelpList()
+	SLASH_BR1, SLASH_BR2 = '/br', '/badrotations'
+	SlashCommandHelp("br","Toggles BadRotations On/Off")
+	SlashCommandHelp("br help","Displays this list of help commands. ***Obviously***")
+	SlashCommandHelp("br blacklist","Adds/Removes mouseover unit to healing blacklist.")
+	SlashCommandHelp("br blacklist dump","Prints all units currently on blacklist.")
+	SlashCommandHelp("br blacklist clear","Clears the blacklist.")
+	-- SlashCommandHelp("br pause hold","Pauses while held (via macro).")
+	SlashCommandHelp("br pause toggle","Switches Pause On/Off")
+	SlashCommandHelp("br queue clear","Clears the Spell Queue of all queued spells.")
+	SlashCommandHelp("br queue add spellId","Adds the Spell to the Queue by Spell Id.")
+	SlashCommandHelp("br queue remove spellId","Removes the Spell from the Queue by Spell Id.")
+end
+
+slashHelpList()
 function handler(message, editbox)
     local msg = string.lower(message)
     local msg1 = getStringIndex(message,1)
