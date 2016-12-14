@@ -637,7 +637,28 @@ br.idList = {
         -- BeastMastery
         [253] = {
             abilities                       = {
-
+                aMurderOfCrows              = 131894,
+                aspectOfTheCheetah          = 186257,
+                aspectOfTheTurtle           = 186265,
+                aspectOfTheWild             = 193530,
+                barrage                     = 120360,
+                bestialWrath                = 19574,
+                bindingShot                 = 109248,
+                cobraShot                   = 193455,
+                concussiveShot              = 5116,
+                counterShot                 = 147362,
+                direBeast                   = 120679,
+                disengage                   = 781,
+                eagleEye                    = 6197,
+                exhilaration                = 109304,
+                feignDeath                  = 5384,
+                flare                       = 1543,
+                killCommand                 = 34026,
+                misdirection                = 34477,
+                multiShot                   = 2643,
+                stampede                    = 201430,
+                titansThunder               = 207097,
+                volley                      = 194386
             },
             artifacts                       = {
 
@@ -652,7 +673,21 @@ br.idList = {
 
             },
             talents                         = {
-
+                loneWolf                    = 155228,
+                steadyFocus                 = 193533,
+                carfulAim                   = 53238,
+                lockAndLoad                 = 194595,
+                blackArrow                  = 194599,
+                trueAim                     = 199527,
+                explosiveShot               = 212431,
+                sentinel                    = 206817,
+                patientSniper               = 213423,
+                aMurderOfCrows              = 131894,
+                barrage                     = 120360,
+                volley                      = 194386,
+                sidewinders                 = 214579,
+                piercingShot                = 198670,
+                trickShot                   = 199544
             },
         },
         -- Marksmanship
