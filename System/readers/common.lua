@@ -122,7 +122,9 @@ function br.read.commonReaders()
 			leftCombat = GetTime()
 			br.data.successCasts = 0
 			br.data.failCasts = 0
-			br.data.settings[br.selectedSpec]["Combat Started"] = 0
+			if br.data.settings ~= nil then
+				br.data.settings[br.selectedSpec]["Combat Started"] = 0
+			end
 			ChatOverlay("|cff00FF00Leaving Combat")
 			-- clean up out of combat
 			Rip_sDamage = {}

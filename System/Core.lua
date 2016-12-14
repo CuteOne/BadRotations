@@ -269,6 +269,8 @@ function BadRotationsUpdate(self)
 	        -- Recreate Config Window and commandHelp with new Spec
 	        if br.ui.window.config.parent == nil then br.ui:createConfigWindow() end
 			commandHelp = nil
+			commandHelp = ""
+			slashHelpList()
 	    end
 
 		-- prevent ticking when firechack isnt loaded
