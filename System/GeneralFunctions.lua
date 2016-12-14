@@ -2680,10 +2680,10 @@ function pause(skipCastingCheck)
 		-- or (UnitIsDeadOrGhost("target") and not UnitIsPlayer("target"))
 		or UnitBuffID("player",80169) -- Eating
 		or UnitBuffID("player",87959) -- Drinking
-		or UnitBuffID("target",117961) --Impervious Shield - Qiang the Merciless
-		or UnitDebuffID("player",135147) --Dead Zone - Iron Qon: Dam'ren
-		or (((UnitHealth("target")/UnitHealthMax("target"))*100) > 10 and UnitBuffID("target",143593)) --Defensive Stance - General Nagrazim
-		or UnitBuffID("target",140296) --Conductive Shield - Thunder Lord / Lightning Guardian
+		-- or UnitBuffID("target",117961) --Impervious Shield - Qiang the Merciless
+		-- or UnitDebuffID("player",135147) --Dead Zone - Iron Qon: Dam'ren
+		-- or (((UnitHealth("target")/UnitHealthMax("target"))*100) > 10 and UnitBuffID("target",143593)) --Defensive Stance - General Nagrazim
+		-- or UnitBuffID("target",140296) --Conductive Shield - Thunder Lord / Lightning Guardian
 	then
 		if (UnitCastingInfo("player") and not skipCastingCheck) or (UnitChannelInfo("player") and not skipCastingCheck) then
 			return true
