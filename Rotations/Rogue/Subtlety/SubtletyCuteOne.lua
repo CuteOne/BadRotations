@@ -420,18 +420,18 @@ local function runRotation()
                 end
         -- Vanish
                 -- vanish
-                if isChecked("Vanish") and not solo then
+                if useCDs() and isChecked("Vanish") and not solo then
                     if cast.vanish() then vanishTime = GetTime(); return end
                 end
         -- Shadow Dance
                 -- shadow_dance,if=charges>=2&combo_points<=1
-                if isChecked("Shadow Dance") and charges.shadowDance >= 2 and combo <= 1 then
+                if useCDs() and isChecked("Shadow Dance") and charges.shadowDance >= 2 and combo <= 1 then
                     if cast.shadowDance() then return end
                 end
         -- Shadowmeld
                 -- pool_resource,for_next=1,extra_amount=40-variable.ssw_er
                 -- shadowmeld,if=energy>=40-variable.ssw_er&energy.deficit>10
-                if isChecked("Racial") and not solo then
+                if useCDs() and isChecked("Racial") and not solo then
                     if power < 40 - sswRefund then
                         return true
                     elseif power >= 40 - sswRefund and powerDeficit >= 10 + sswRefund then
@@ -440,7 +440,7 @@ local function runRotation()
                 end
         -- Shadow Dance
                 -- shadow_dance,if=combo_points<=1
-                if isChecked("Shadow Dance") and combo <= 1 then
+                if useCDs() and isChecked("Shadow Dance") and combo <= 1 then
                     if cast.shadowDance() then return end
                 end
             end
