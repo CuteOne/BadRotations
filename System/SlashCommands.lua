@@ -145,54 +145,66 @@ function handler(message, editbox)
 		end
 	-- Queue
 	elseif msg1 == "queue" then
-		if msg2 == "clear" then
-			if br.player.queue == nil then Print("Queue Already Cleared") end
-			if #br.player.queue == 0 then Print("Queue Already Cleared") end
-			if #br.player.queue > 0 then br.player.queue = {}; Print("Cleared Queue") end
-		elseif msg2 == "add" then
-			if msg3 == nil then
-				Print("No Spell Provided")
-			else
-				local spellName,_,_,_,_,_,spellId = GetSpellInfo(msg3)
-				local target = msg4
-				if #br.player.queue == 0 then 
-                    tinsert(br.player.queue,{id = spellId, name = spellName, target = queueDest})
-                    Print("Added |cFFFF0000"..spellName.."|r to the queue.")
-                elseif #br.player.queue ~= 0 then
-                    for i = 1, #br.player.queue do
-                        if spellId == br.player.queue[i].id then
-                            Print("|cFFFF0000"..spellName.."|r is already queued.")
-                            break
-                        else
-                            tinsert(br.player.queue,{id = spellId, name = spellName, target = queueDest})
-                            Print("Added |cFFFF0000"..spellName.."|r to the queue.")
-                            break
-                        end
-                    end
-                end
+		if isChecked("Queue Casting") then
+			if msg2 == "clear" then
+				if br.player.queue == nil then Print("Queue Already Cleared") end
+				if #br.player.queue == 0 then Print("Queue Already Cleared") end
+				if #br.player.queue > 0 then br.player.queue = {}; Print("Cleared Queue") end
+			elseif msg2 == "add" then
+				if msg3 == nil then
+					Print("No Spell Provided to add to Queue.")
+				else
+					local spellName,_,_,_,_,_,spellId = GetSpellInfo(msg3)
+					local target = msg4
+					if spellName == nil then
+	            		Print("Invalid Spell ID: |cffFFDD11 Unable to add.")
+	            	else
+						if #br.player.queue == 0 then 
+		                    tinsert(br.player.queue,{id = spellId, name = spellName, target = queueDest})
+		                    Print("Added |cFFFF0000"..spellName.."|r to the queue.")
+		                elseif #br.player.queue ~= 0 then
+		                    for i = 1, #br.player.queue do
+		                        if spellId == br.player.queue[i].id then
+		                            Print("|cFFFF0000"..spellName.."|r is already queued.")
+		                            break
+		                        else
+		                            tinsert(br.player.queue,{id = spellId, name = spellName, target = queueDest})
+		                            Print("Added |cFFFF0000"..spellName.."|r to the queue.")
+		                            break
+		                        end
+		                    end
+		                end
+		            end
+				end
+			elseif msg2 == "remove" then
+				if msg3 == nil then
+					Print("No Spell Provided to remove from Queue.")
+				else
+	            	local spellName,_,_,_,_,_,spellId = GetSpellInfo(msg3)
+	            	local removedSpell = false
+					if #br.player.queue ~= 0 then
+		                for i = 1, #br.player.queue do
+		                    if spellId == br.player.queue[i].id then
+		                        tremove(br.player.queue,i)
+		                        Print("Removed |cFFFF0000"..spellName.."|r from the queue.")
+		                        removedSpell = true
+		                        break
+		                    end
+		                end
+		            end
+		            if not removedSpell then
+		            	if spellName == nil then
+		            		Print("Invalid Spell ID: |cffFFDD11 Unable to remove.")
+		            	else	
+		            		Print("Spell Not Found: Failed to remove |cFFFF0000"..spellName.."|r from the queue. ")
+		            	end
+		            end
+		        end
+			elseif msg2 == nil then
+				Print("Invalid Option for: |cFFFF0000" .. msg1 .. "|r try |cffFFDD11 /br queue clear |r - Clears the Queue list or |cffFFDD11 /br queue add (spell)|r - Adds specified spell to Queue list or |cffFFDD11 /br queue remove (spell) |r - Removes specifid from Queue list.")
 			end
-		elseif msg2 == "remove" then
-			if msg3 == nil then
-				Print("No Spell Provided")
-			else
-            	local spellName,_,_,_,_,_,spellId = GetSpellInfo(msg3)
-            	local removedSpell = false
-				if #br.player.queue ~= 0 then
-	                for i = 1, #br.player.queue do
-	                    if spellId == br.player.queue[i].id then
-	                        tremove(br.player.queue,i)
-	                        Print("Removed |cFFFF0000"..spellName.."|r from the queue.")
-	                        removedSpell = true
-	                        break
-	                    end
-	                end
-	            end
-	            if not removedSpell then
-	            	Print("Spell Not Found: Failed to remove |cFFFF0000"..spellName.."|r from the queue. ")
-	            end
-	        end
-		elseif msg2 == nil then
-			Print("Invalid Option for: |cFFFF0000" .. msg1 .. "|r try |cffFFDD11 /br queue clear |r - Clears the Queue list or |cffFFDD11 /br queue add (spell)|r - Adds specified spell to Queue list or |cffFFDD11 /br queue remove (spell) |r - Removes specifid from Queue list.")
+		else
+			Print("Queue Casting Disabled: |cffFFDD11 Check Bot Options to enable.")
 		end
 	else
 	    Print("Invalid Command: |cFFFF0000" .. msg .. "|r try |cffFFDD11 /br help")

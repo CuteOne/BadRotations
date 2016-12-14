@@ -131,17 +131,18 @@ end
 --[[---------  -----  ----           ---  ------------  ---            -------------------------------------------------------------------------------------------------------------------]]
 --[[-------------------------------------------------------------------------------------------------------------------------------------------------------]]
 local frame = CreateFrame("FRAME")
-frame:RegisterEvent("ADDON_LOADED")
-frame:RegisterEvent("PLAYER_LOGIN")
+-- frame:RegisterEvent("ADDON_LOADED")
+-- frame:RegisterEvent("PLAYER_LOGIN")
 frame:RegisterEvent("PLAYER_LOGOUT")
-frame:RegisterUnitEvent("ACTIVE_TALENT_GROUP_CHANGED")
-frame:RegisterUnitEvent("CHARACTER_POINTS_CHANGED")
+-- frame:RegisterUnitEvent("ACTIVE_TALENT_GROUP_CHANGED")
+-- frame:RegisterUnitEvent("CHARACTER_POINTS_CHANGED")
 frame:RegisterUnitEvent("PLAYER_ENTERING_WORLD")
 frame:RegisterUnitEvent("PLAYER_EQUIPMENT_CHANGED")
-frame:RegisterUnitEvent("PLAYER_LEVEL_UP")
-frame:RegisterUnitEvent("PLAYER_TALENT_UPDATE")
-frame:RegisterUnitEvent("ZONE_CHANGED")
-frame:RegisterUnitEvent("ZONE_CHANGED_NEW_AREA")
+-- frame:RegisterUnitEvent("PLAYER_LEVEL_UP")
+-- frame:RegisterUnitEvent("PLAYER_TALENT_UPDATE")
+frame:RegisterUnitEvent("UNIT_SPELLCAST_SUCCEEDED")
+-- frame:RegisterUnitEvent("ZONE_CHANGED")
+-- frame:RegisterUnitEvent("ZONE_CHANGED_NEW_AREA")
 function br:reloadOnSpecChange()
     if br.data.settings[br.selectedSpec].toggles["Power"] == 1 then
         ReloadUI()
@@ -191,7 +192,7 @@ function br:saveWindowPosition()
     br:savePosition("profile")
 end
 
-function frame:OnEvent(event, arg1, arg2)
+function frame:OnEvent(event, arg1, arg2, arg3, arg4, arg5)
     if event == "PLAYER_LOGOUT" then
         br:saveWindowPosition()
         brdata = br.data
@@ -208,6 +209,28 @@ function frame:OnEvent(event, arg1, arg2)
         	br:Run()
         end
         brdata = br.data
+    end
+    if event == "UNIT_SPELLCAST_SUCCEEDED" then
+    	local sourceName, spellName, rank, line, spell = arg1, arg2, arg3, arg4, arg5
+    	-- Print("Source: "..sourceName..", Spell: "..spellName..", ID: "..spell)
+		if botCast == true then botCast = false end
+        if sourceName ~= nil then
+            if UnitIsUnit(sourceName,"player") then
+            	if br.player ~= nil then
+	                if #br.player.queue ~= 0 then
+	                    for i = 1, #br.player.queue do
+	                        if GetSpellInfo(spell) == GetSpellInfo(br.player.queue[i].id) then
+	                            tremove(br.player.queue,i)
+	                            if not isChecked("Mute Queue") then
+	                            	Print("Cast Success! - Removed |cFFFF0000"..spellName.."|r from the queue.")
+	                            end
+	                            break
+	                        end
+	                    end
+	                end
+	            end
+            end
+        end
     end
 end
 frame:SetScript("OnEvent", frame.OnEvent)
@@ -236,8 +259,9 @@ function BadRotationsUpdate(self)
 	        br.selectedSpec = select(2,GetSpecializationInfo(GetSpecialization()))
 	        br.activeSpecGroup = GetActiveSpecGroup()
 
-	        -- Recreate ConfigWindow with new Spec
+	        -- Recreate Config Window and commandHelp with new Spec
 	        if br.ui.window.config.parent == nil then br.ui:createConfigWindow() end
+			commandHelp = nil
 	    end
 
 		-- prevent ticking when firechack isnt loaded
@@ -245,19 +269,19 @@ function BadRotationsUpdate(self)
 		if not getOptionCheck("Start/Stop BadRotations") or br.data.settings[br.selectedSpec].toggles["Power"] ~= 1 then
 			-- optionsFrame:Hide()
 			-- _G["debugFrame"]:Hide()
-			if br.ui.window.config.parent ~= nil then br.ui.window.config.parent:Hide() end
-			if br.ui.window.debug.parent ~= nil then br.ui.window.debug.parent:Hide() end
-			if br.ui.window.help.parent ~= nil then br.ui.window.help.parent:Hide() end
-			if br.ui.window.profile.parent ~= nil then br.ui.window.profile.parent:Hide() end
+			if br.ui.window.config.parent ~= nil then br.ui.window.config.parent.closeButton:Click() end
+	        if br.ui.window.debug.parent ~= nil then br.ui.window.debug.parent.closeButton:Click() end
+	        if br.ui.window.help.parent ~= nil then br.ui.window.help.parent.closeButton:Click() end
+	        if br.ui.window.profile.parent ~= nil then br.ui.window.profile.parent.closeButton:Click() end
 			return false
 		end
 		if FireHack == nil then
 			-- optionsFrame:Hide()
 			-- _G["debugFrame"]:Hide()
-			br.ui.window.config.parent:Hide()
-			br.ui.window.debug.parent:Hide()
-			if br.ui.window.help.parent ~= nil then br.ui.window.help.parent:Hide() end
-			if br.ui.window.profile.parent ~= nil then br.ui.window.profile.parent:Hide() end
+			if br.ui.window.config.parent ~= nil then br.ui.window.config.parent.closeButton:Click() end
+	        if br.ui.window.debug.parent ~= nil then br.ui.window.debug.parent.closeButton:Click() end
+	        if br.ui.window.help.parent ~= nil then br.ui.window.help.parent.closeButton:Click() end
+	        if br.ui.window.profile.parent ~= nil then br.ui.window.profile.parent.closeButton:Click() end
 			if getOptionCheck("Start/Stop BadRotations") then
 				ChatOverlay("FireHack not Loaded.")
 				if br.timer:useTimer("notLoaded", 10) then
@@ -280,7 +304,7 @@ function BadRotationsUpdate(self)
 	        br.data.settings[br.selectedSpec].debug["active"] = true
 	    end
 	    if not getOptionCheck("Rotation Log") then
-	    	br.ui.window.debug.parent:Hide()
+	    	br.ui.window.debug.parent.closeButton:Click()
 	    end		
 
 		-- accept dungeon queues
