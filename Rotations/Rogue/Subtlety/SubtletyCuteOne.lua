@@ -154,7 +154,7 @@ end
 --- ROTATION ---
 ----------------
 local function runRotation()
-    if br.timer:useTimer("debugSubtlety", math.random(0.15,0.3)) then
+    if br.timer:useTimer("debugSubtlety", math.random(0.10,0.2)) then
         --Print("Running: "..rotationName)
 
 ---------------
@@ -229,6 +229,8 @@ local function runRotation()
         if talent.vigor then vigorous = 1 else vigorous = 0 end
         if combatTime < 10 then justStarted = 1 else justStarted = 0 end
         if vanishTime == nil then vanishTime = GetTime() end
+        if ShDCdTime == nil then stealthCdTime = GetTime() end
+        if ShdMTime == nil then ShdMTime = GetTime() end
         if hasEquiped(137032) then shadowWalker = 1 else shadowWalker = 0 end
         -- variable,name=ssw_er,value=equipped.shadow_satyrs_walk*(10-floor(target.distance*0.5))
         --local sswVar = shadowWalker * (10 - math.floor(getDistance(units.dyn5)*0.5))
@@ -416,7 +418,7 @@ local function runRotation()
         -- Shadow Dance
                 -- shadow_dance,if=charges_fractional>=2.45
                 if charges.frac.shadowDance >= 2.45 then
-                    if cast.shadowDance() then return end
+                    if cast.shadowDance() then ShDCdTime = GetTime(); return end
                 end
         -- Vanish
                 -- vanish
@@ -426,7 +428,7 @@ local function runRotation()
         -- Shadow Dance
                 -- shadow_dance,if=charges>=2&combo_points<=1
                 if useCDs() and isChecked("Shadow Dance") and charges.shadowDance >= 2 and combo <= 1 then
-                    if cast.shadowDance() then return end
+                    if cast.shadowDance() then ShDCdTime = GetTime(); return end
                 end
         -- Shadowmeld
                 -- pool_resource,for_next=1,extra_amount=40-variable.ssw_er
@@ -435,13 +437,13 @@ local function runRotation()
                     if power < 40 - sswRefund then
                         return true
                     elseif power >= 40 - sswRefund and powerDeficit >= 10 + sswRefund then
-                        if cast.shadowmeld() then return end
+                        if cast.shadowmeld() then ShdMTime = GetTime(); return end
                     end
                 end
         -- Shadow Dance
                 -- shadow_dance,if=combo_points<=1
                 if useCDs() and isChecked("Shadow Dance") and combo <= 1 then
-                    if cast.shadowDance() then return end
+                    if cast.shadowDance() then ShDCdTime = GetTime(); return end
                 end
             end
         end
@@ -627,7 +629,7 @@ local function runRotation()
                     end
         -- Generators
                     -- call_action_list,name=build,if=variable.ed_threshold
-                    if edThreshVar then
+                    if GetTime() > vanishTime + 1 and GetTime() > ShDCdTime + 1 and GetTime() > ShdMTime + 1 and edThreshVar then
                         if actionList_Generators() then return end
                     end
                 end
