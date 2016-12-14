@@ -582,7 +582,7 @@ local function runRotation()
         -- Vanish
             -- vanish,if=variable.stealth_condition
             if useCDs() and isChecked("Vanish") and stealthable and isValidUnit(units.dyn5) and getDistance(units.dyn5) < 5 then
-                if cast.vanish() then return end
+                if cast.vanish() then vanishTime = GetTime(); return end
             end
         -- Shadowmeld
             -- shadowmeld,if=variable.stealth_condition
@@ -694,7 +694,9 @@ local function runRotation()
                         end
         -- Generators
                         -- call_action_list,name=build
-                        if actionList_Generators() then return end
+                        if GetTime() > vanishTime + 1 then
+                            if actionList_Generators() then return end
+                        end
         -- Finishers
                         -- call_action_list,name=finish,if=!variable.ss_useable
                         if not ssUsable then
