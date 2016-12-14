@@ -151,6 +151,7 @@ end
 function br.pulse:queue()
 	-- Queue Casting
 	if isChecked("Queue Casting") and not UnitChannelInfo("player") then
+		-- Catch for spells not registering on Combat log
 		if br.player ~= nil then
 			if br.player.queue ~= nil then
 				if #br.player.queue > 0 and br.player.queue[1].id ~= lastSpellCast then

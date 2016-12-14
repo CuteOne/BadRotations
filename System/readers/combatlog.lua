@@ -136,8 +136,7 @@ function br.read.combatLog()
             --[[ Cast Failed --> Queue]]
             if param == "SPELL_CAST_FAILED" then
                 if sourceName ~= nil then
-                    if isInCombat("player") and UnitIsUnit(sourceName,"player") --[[source == br.guid]] and spell ~= botSpell and not botCast then
-                        -- Print("Spell: "..spell.." | Last: "..lastSpellCast)
+                    if isInCombat("player") and UnitIsUnit(sourceName,"player") and spell ~= botSpell and not botCast then
                         -- set destination
                         if destination == "" then
                           queueDest = nil
@@ -146,19 +145,21 @@ function br.read.combatLog()
                         end
                         if #br.player.queue == 0 then 
                             tinsert(br.player.queue,{id = spell, name = spellName, target = queueDest})
-                            Print("Added "..spellName.." to the queue.")
-                            -- Print(tostring(queueDest))
-                            -- Print(spell.." | "..lastSpellCast)
+                            if not isChecked("Mute Queue") then
+                                Print("Added |cFFFF0000"..spellName.."|r to the queue.")
+                            end
                         elseif #br.player.queue ~= 0 then
                             for i = 1, #br.player.queue do
                                 if spell == br.player.queue[i].id then
-                                    Print(spellName.." is already queued.")
+                                    if not isChecked("Mute Queue") then
+                                        Print("|cFFFF0000"..spellName.."|r is already queued.")
+                                    end
                                     break
                                 else
                                     tinsert(br.player.queue,{id = spell, name = spellName, target = queueDest})
-                                    Print("Added "..spellName.." to the queue.")
-                                    -- Print(tostring(queueDest))
-                                    -- Print(spell.." | "..lastSpellCast)
+                                    if not isChecked("Mute Queue") then
+                                        Print("Added |cFFFF0000"..spellName.."|r to the queue.")
+                                    end
                                     break
                                 end
                             end
@@ -171,12 +172,14 @@ function br.read.combatLog()
             if param == "SPELL_CAST_SUCCESS" then
                 if botCast == true then botCast = false end
                 if sourceName ~= nil then
-                    if isInCombat("player") and UnitIsUnit(sourceName,"player") --[[source == br.guid]] then
+                    if isInCombat("player") and UnitIsUnit(sourceName,"player") then
                         if #br.player.queue ~= 0 then
                             for i = 1, #br.player.queue do
                                 if spell == br.player.queue[i].id then
                                     tremove(br.player.queue,i)
-                                    Print("Cast Success! - Removed "..spellName.." from the queue.")
+                                    if not isChecked("Mute Queue") then
+                                        Print("Cast Success! - Removed |cFFFF0000"..spellName.."|r from the queue.")
+                                    end
                                     break
                                 end
                             end
@@ -201,6 +204,8 @@ function br.read.combatLog()
                 local white = "|cffFFFFFF"
                 local red = "|cffFF001E"
                 local yellow = "|cffFFDD11"
+                if lastCount == nil then lastCount = 0 end
+                if castCount == nil then castCount = 0 end
                 -- add counters
                 if param == "SPELL_CAST_SUCCESS" then
                     if br.data.successCasts == nil then

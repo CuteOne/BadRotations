@@ -383,6 +383,7 @@ function cCharacter:new(class)
         -- Base Wrap
         local section_base = br.ui:createSection(br.ui.window.profile, "Base Options")
         br.ui:createCheckbox(section_base, "Ignore Combat")
+        br.ui:createCheckbox(section_base, "Mute Queue")
         br.ui:createDropdown(section_base, "Pause Mode", br.dropOptions.Toggle, 2, "Define a key which pauses the rotation.")
         br.ui:createCheckbox(section_base, "Use Crystal")
         br.ui:createCheckbox(section_base, "Use emp. Rune")
