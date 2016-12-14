@@ -644,10 +644,12 @@ br.idList = {
                 barrage                     = 120360,
                 bestialWrath                = 19574,
                 bindingShot                 = 109248,
+                chimaeraShot                = 53209,
                 cobraShot                   = 193455,
                 concussiveShot              = 5116,
                 counterShot                 = 147362,
                 direBeast                   = 120679,
+                direfrenzy                  = 217200,
                 disengage                   = 781,
                 eagleEye                    = 6197,
                 exhilaration                = 109304,
@@ -664,7 +666,8 @@ br.idList = {
 
             },
             buffs                           = {
-
+                bestialWrath                = 19574,
+                direBeast                   = 120694
             },
             debuffs                         = {
 
@@ -673,21 +676,10 @@ br.idList = {
 
             },
             talents                         = {
-                loneWolf                    = 155228,
-                steadyFocus                 = 193533,
-                carfulAim                   = 53238,
-                lockAndLoad                 = 194595,
-                blackArrow                  = 194599,
-                trueAim                     = 199527,
-                explosiveShot               = 212431,
-                sentinel                    = 206817,
-                patientSniper               = 213423,
+                direfrenzy                  = 217200,
                 aMurderOfCrows              = 131894,
                 barrage                     = 120360,
-                volley                      = 194386,
-                sidewinders                 = 214579,
-                piercingShot                = 198670,
-                trickShot                   = 199544
+                volley                      = 194386
             },
         },
         -- Marksmanship
