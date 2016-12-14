@@ -202,6 +202,7 @@ function frame:OnEvent(event, arg1, arg2)
     if event == "PLAYER_ENTERING_WORLD" then
     	-- Update Selected Spec
         br.selectedSpec = select(2,GetSpecializationInfo(GetSpecialization()))
+        br.activeSpecGroup = GetActiveSpecGroup()
     	if not br.loadedIn then
     		bagsUpdated = true
         	br:Run()
@@ -223,13 +224,29 @@ function BadRotationsUpdate(self)
 	if self.lastUpdateTime and (tempTime - self.lastUpdateTime) > (1/10) then
 		self.lastUpdateTime = tempTime
 
+		-- Close windows and swap br.selectedSpec on Spec Change
+		if select(2,GetSpecializationInfo(GetSpecialization())) ~= br.selectedSpec then
+	    	-- Closing the windows will save the position
+	        if br.ui.window.config.parent ~= nil then br.ui.window.config.parent.closeButton:Click() end
+	        if br.ui.window.debug.parent ~= nil then br.ui.window.debug.parent.closeButton:Click() end
+	        if br.ui.window.help.parent ~= nil then br.ui.window.help.parent.closeButton:Click() end
+	        if br.ui.window.profile.parent ~= nil then br.ui.window.profile.parent.closeButton:Click() end
+	        	
+	    	-- Update Selected Spec/Profile
+	        br.selectedSpec = select(2,GetSpecializationInfo(GetSpecialization()))
+	        br.activeSpecGroup = GetActiveSpecGroup()
+
+	        -- Recreate ConfigWindow with new Spec
+	        if br.ui.window.config.parent == nil then br.ui:createConfigWindow() end
+	    end
+
 		-- prevent ticking when firechack isnt loaded
 		-- if user click power button, stop everything from pulsing and hide frames.
 		if not getOptionCheck("Start/Stop BadRotations") or br.data.settings[br.selectedSpec].toggles["Power"] ~= 1 then
 			-- optionsFrame:Hide()
 			-- _G["debugFrame"]:Hide()
-			br.ui.window.config.parent:Hide()
-			br.ui.window.debug.parent:Hide()
+			if br.ui.window.config.parent ~= nil then br.ui.window.config.parent:Hide() end
+			if br.ui.window.debug.parent ~= nil then br.ui.window.debug.parent:Hide() end
 			if br.ui.window.help.parent ~= nil then br.ui.window.help.parent:Hide() end
 			if br.ui.window.profile.parent ~= nil then br.ui.window.profile.parent:Hide() end
 			return false
