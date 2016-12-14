@@ -52,6 +52,8 @@ local function createOptions()
             br.ui:createCheckbox(section, "Hand of Freedom")
             -- Hand of Hindeance
             br.ui:createCheckbox(section, "Hand of Hinderance")
+            -- Divine Storm Units
+            br.ui:createSpinner(section, "Divine Storm Units",  2,  2,  3,  1,  "|cffFFBB00Units to use Divine Storm. Leave at 2 if you have Divine Tempest and Righteous Blade Artifact Traits. Set to 3 if you don't have these traits.")
             -- Artifact 
             br.ui:createDropdownWithout(section,"Artifact", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Artifact Ability.")
         br.ui:checkSectionState(section)
@@ -487,7 +489,7 @@ local function runRotation()
                     -- divine_storm,if=debuff.judgment.up&spell_targets.divine_storm>=2&holy_power>=5&buff.divine_purpose.react
                     -- divine_storm,if=debuff.judgment.up&spell_targets.divine_storm>=2&holy_power>=5&(!talent.crusade.enabled|cooldown.crusade.remains>gcd*3)
                     if not isChecked("Justicar's Vengeance") or php >= getOptionValue("Justicar's Vengeance") then
-                        if judgmentVar and #enemies.yards8 >= 2 and ((buff.divinePurpose.exists and buff.divinePurpose.remain < gcd * 2)
+                        if judgmentVar and #enemies.yards8 >= getOptionValue("Divine Storm Units") and ((buff.divinePurpose.exists and buff.divinePurpose.remain < gcd * 2)
                             or (holyPower >= 5 and buff.divinePurpose.exists)
                             or (holyPower >= 5 and (not talent.crusade or cd.crusade > gcd * 3)))
                         then
@@ -519,7 +521,7 @@ local function runRotation()
             -- Divine Storm
                     -- divine_storm,if=debuff.judgment.up&holy_power>=3&spell_targets.divine_storm>=2&(cooldown.wake_of_ashes.remains<gcd*2&artifact.wake_of_ashes.enabled|buff.whisper_of_the_nathrezim.up&buff.whisper_of_the_nathrezim.remains<gcd)&(!talent.crusade.enabled|cooldown.crusade.remains>gcd*4)
                     if not isChecked("Justicar's Vengeance") or php >= getOptionValue("Justicar's Vengeance") then
-                        if judgmentVar and holyPower >= 3 and #enemies.yards8 >= 2 
+                        if judgmentVar and holyPower >= 3 and #enemies.yards8 >= getOptionValue("Divine Storm Units") 
                             and ((cd.wakeOfAshes < gcd * 2 and artifact.wakeOfAshes) or (buff.whisperOfTheNathrezim.exists and buff.whisperOfTheNathrezim.remain < gcd) or not artifact.wakeOfAshes) 
                             and (not talent.crusade or cd.crusade > gcd * 4 or not isChecked("Crusade") or not useCDs()) 
                         then
@@ -584,7 +586,7 @@ local function runRotation()
                     -- divine_storm,if=debuff.judgment.up&spell_targets.divine_storm>=2&buff.the_fires_of_justice.react&(!talent.crusade.enabled|cooldown.crusade.remains>gcd*3)
                     -- divine_storm,if=debuff.judgment.up&spell_targets.divine_storm>=2&holy_power>=4&(!talent.crusade.enabled|cooldown.crusade.remains>gcd*4)
                     if not isChecked("Justicar's Vengeance") or php >= getOptionValue("Justicar's Vengeance") then
-                        if judgmentVar and #enemies.yards8 >= 2 and (buff.divinePurpose.exists
+                        if judgmentVar and #enemies.yards8 >= getOptionValue("Divine Storm Units") and (buff.divinePurpose.exists
                             or (buff.theFiresOfJustice.exists and (not talent.crusade or cd.crusade > gcd * 3 or not isChecked("Crusade") or not useCDs()))
                             or (holyPower >= 4 and (not talent.crusade or cd.crusade > gcd * 4 or not isChecked("Crusade") or not useCDs())))
                         then
@@ -622,7 +624,7 @@ local function runRotation()
                     end
             -- Divine Storm
                     -- divine_storm,if=debuff.judgment.up&holy_power>=3&spell_targets.divine_storm>=2&(!talent.crusade.enabled|cooldown.crusade.remains>gcd*5)
-                    if judgmentVar and holyPower >= 3 and #enemies.yards8 >= 2 and (not talent.crusade or cd.crusade > gcd * 5 or not isChecked("Crusade") or not useCDs()) then
+                    if judgmentVar and holyPower >= 3 and #enemies.yards8 >= getOptionValue("Divine Storm Units") and (not talent.crusade or cd.crusade > gcd * 5 or not isChecked("Crusade") or not useCDs()) then
                         if cast.divineStorm() then return end
                     end
             -- Templar's Verdict
