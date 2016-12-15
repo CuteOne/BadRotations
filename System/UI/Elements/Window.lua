@@ -1,9 +1,11 @@
 local DiesalGUI = LibStub("DiesalGUI-1.0")
 
+br.ui.window = {}
+
 -- Window creators
 function br.ui:createWindow(name, width, height, title, color)
     if title == nil then titleName = name end
-    if color == nil then color = "|cffa330c9" end
+    if color == nil then color = br.classColor end
     local window = DiesalGUI:Create('Window')
     window:SetTitle(color..'BadRotations', title)
     window.settings.width = width or 250
@@ -13,7 +15,7 @@ function br.ui:createWindow(name, width, height, title, color)
     window:ApplySettings()
 
     window.closeButton:SetScript("OnClick", function(this, button)
-        br:savePosition(name)
+        br.ui:savePosition(name)
         br.data.settings[br.selectedSpec][name]["active"] = false
         DiesalGUI:OnMouse(this,button)
         PlaySound("gsTitleOptionExit")
@@ -55,7 +57,7 @@ end
 
 function br.ui:createMessageWindow(name, width, height, title, color)
     if title == nil then title = name end
-    if color == nil then color = "|cffa330c9" end
+    if color == nil then color = br.classColor end
     local window = DiesalGUI:Create('Window')
     window:SetTitle(color..'BadRotations', title)
     window.settings.width = width or 300
@@ -64,7 +66,7 @@ function br.ui:createMessageWindow(name, width, height, title, color)
     window:ApplySettings()
 
     window.closeButton:SetScript("OnClick", function(this, button)
-        br:savePosition(name)
+        br.ui:savePosition(name)
         br.data.settings[br.selectedSpec][name]["active"] = false
         DiesalGUI:OnMouse(this,button)
         PlaySound("gsTitleOptionExit")
@@ -143,11 +145,81 @@ function br.ui:checkWindowStatus(windowName)
     end
 end
 
-function br.ui:recreateWindows()
-    br.ui.window.config.parent.closeButton:Click()
-    br.ui.window.debug.parent.closeButton:Click()
-    br.ui.window.profile.parent.closeButton:Click()
+function br.ui:savePosition(windowName)
+    if br.selectedSpec == nil then br.selectedSpec = select(2,GetSpecializationInfo(GetSpecialization())) end
+    if br.data.settings[br.selectedSpec] == nil then br.data.settings[br.selectedSpec] = {} end
+    if br.data.settings[br.selectedSpec][windowName] == nil then br.data.settings[br.selectedSpec][windowName] = {} end
+    if br.ui.window[windowName] ~= nil then
+        if br.ui.window[windowName].parent ~= nil then
+            local point, relativeTo, relativePoint, xOfs, yOfs = br.ui.window[windowName].parent:GetPoint(1)
+            br.data.settings[br.selectedSpec][windowName]["point"] = point
+            br.data.settings[br.selectedSpec][windowName]["relativeTo"] = relativeTo:GetName()
+            br.data.settings[br.selectedSpec][windowName]["relativePoint"] = relativePoint
+            br.data.settings[br.selectedSpec][windowName]["xOfs"] = xOfs
+            br.data.settings[br.selectedSpec][windowName]["yOfs"] = yOfs
+            point, relativeTo, relativePoint, xOfs, yOfs = br.ui.window[windowName].parent:GetPoint(2)
+            if point then
+                br.data.settings[br.selectedSpec][windowName]["point2"] = point
+                br.data.settings[br.selectedSpec][windowName]["relativeTo2"] = relativeTo:GetName()
+                br.data.settings[br.selectedSpec][windowName]["relativePoint2"] = relativePoint
+                br.data.settings[br.selectedSpec][windowName]["xOfs2"] = xOfs
+                br.data.settings[br.selectedSpec][windowName]["yOfs2"] = yOfs
+            end
+            br.data.settings[br.selectedSpec][windowName]["width"]  = br.ui.window[windowName].parent:GetWidth()
+            br.data.settings[br.selectedSpec][windowName]["height"] = br.ui.window[windowName].parent:GetHeight()
+        end
+    end
+end
 
+function br.ui:saveWindowPosition()
+    for k, v in pairs(br.ui.window) do
+        if br.ui.window[k].parent ~= nil then
+            br.ui:savePosition(k)
+        end
+    end
+end
+
+function br.ui:showWindow(windowName)
+    for k, v in pairs(br.ui.window) do
+        if k == windowName then
+            if br.ui.window[k].parent ~= nil then
+                br.ui.window[k].parent:Show()
+                br.data.settings[br.selectedSpec][k].active = true
+            end
+        end
+    end
+end
+
+function br.ui:closeWindow(windowName)
+    for k, v in pairs(br.ui.window) do
+        if k == windowName or windowName == "all" then
+            if br.ui.window[k].parent ~= nil then
+                if br.data.settings[br.selectedSpec][k].active then
+                    br.ui.window[k].parent.closeButton:Click()
+                    if k == windowName then break end
+                end
+            end
+        end
+    end
+end
+
+function br.ui:toggleWindow(windowName)
+    for k, v in pairs(br.ui.window) do
+        if k == windowName then
+            if br.ui.window[k].parent ~= nil then
+                if br.data.settings[br.selectedSpec][k].active then
+                    br.ui.window[k].parent.closeButton:Click()
+                else
+                    br.ui.window[k].parent:Show()
+                    br.data.settings[br.selectedSpec][k].active = true
+                end
+            end
+        end
+    end
+end
+
+function br.ui:recreateWindows()
+    br.ui:closeWindows("all")
     br.ui:createConfigWindow()
     br.ui:createDebugWindow()
 end

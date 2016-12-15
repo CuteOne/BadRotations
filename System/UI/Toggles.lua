@@ -405,15 +405,7 @@ function TogglesFrame()
 			mainButton:Show()
 		else
 			mainButton:Hide()
-		end
-		-- Create button slash command
-		-- if _G["SLASH_" .. Name .. "1"] == nil then
-		-- 	_G["SLASH_" .. Name .. "1"] = "/br"..Name
-		-- 	SlashCmdList[Name] = function(msg, editbox)
-		-- 		ToggleValue(Name)
-		-- 	end
-		 
+		end		 
 		SlashCommandHelp("br toggle "..Name.." 1-"..#_G[Name.."Modes"],"Toggles "..Name.." Modes, Optional: specify number")
-		-- end
 	end
 end

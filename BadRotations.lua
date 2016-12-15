@@ -44,21 +44,8 @@ function br:Run()
 		[10]			= {class = "Monk",			B=0.59,	G=1,	R=0,	hex="|cff00ff96"},
 		[11]			= {class = "Druid", 		B=0.04,	G=0.49,	R=1,	hex="|cffff7d0a"},
 		[12] 			= {class = "Demonhunter", 	B=0.79, G=0.19, R=0.64, hex="|cffa330c9"},
-		-- ["Training Dummy"] = {B=0.76,  G=0.76,  	R=0.76, hex="|cffC0C0C0"},
-		-- ["Black"]		= {B=0.1, 	G=0.1,	R=0.12,	hex="|cff191919"},
-		-- ["Hunter"]		= {B=0.45,	G=0.83,	R=0.67,	hex="|cffabd473"},
-		-- ["Gray"]		= {B=0.2,	G=0.2,	R=0.2,	hex="|cff333333"},
-		-- ["Warrior"]		= {B=0.43,	G=0.61,	R=0.78,	hex="|cffc79c6e"},
-		-- ["Paladin"] 	= {B=0.73,	G=0.55,	R=0.96,	hex="|cfff58cba"},
-		-- ["Mage"]		= {B=0.94,	G=0.8,	R=0.41,	hex="|cff69ccf0"},
-		-- ["Priest"]		= {B=1,		G=1,	R=1,	hex="|cffffffff"},
-		-- ["Warlock"]		= {B=0.79,	G=0.51,	R=0.58,	hex="|cff9482c9"},
-		-- ["Shaman"]		= {B=0.87,	G=0.44,	R=0,	hex="|cff0070de"},
-		-- ["DeathKnight"]	= {B=0.23,	G=0.12,	R=0.77,	hex="|cffc41f3b"},
-		-- ["Druid"]		= {B=0.04,	G=0.49,	R=1,	hex="|cffff7d0a"},
-		-- ["Monk"]		= {B=0.59,	G=1,	R=0,	hex="|cff00ff96"},
-		-- ["Rogue"]		= {B=0.41,	G=0.96,	R=1,	hex="|cfffff569"}
 	}
+	br.classColor = classColors[select(3,UnitClass("player"))].hex
 	qualityColors = {
 		blue = "0070dd",
 		green = "1eff00",

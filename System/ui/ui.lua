@@ -1,16 +1,7 @@
--- local DiesalTools = LibStub("DiesalTools-1.0")
--- local DiesalStyle = LibStub("DiesalStyle-1.0") 
 local DiesalGUI = LibStub("DiesalGUI-1.0")
--- local DiesalMenu = LibStub("DiesalMenu-1.0")
--- local SharedMedia = LibStub("LibSharedMedia-3.0")
 
 -- Global setup
 br.ui = {}
-br.ui.window = {}
-br.ui.window.config = {}
-br.ui.window.debug = {}
-br.ui.window.help = {}
-br.ui.window.profile = {}
 br.spacing = 15
 
 --[[ FROM PE ]]--
@@ -112,66 +103,66 @@ DiesalGUI:RegisterObjectConstructor("StatusBar", function()
 end, 1)
 
 -- Styles
-local buttonStyleSheet = {
-    ['frame-color'] = {
+local buttonStyleSheet  = {
+    ['frame-color']     = {
         type			= 'texture',
         layer			= 'BACKGROUND',
         color			= '2f353b',
-        offset		= 0,
+        offset		    = 0,
     },
     ['frame-highlight'] = {
         type			= 'texture',
         layer			= 'BORDER',
-        gradient	= 'VERTICAL',
+        gradient	    = 'VERTICAL',
         color			= 'FFFFFF',
-        alpha 		= 0,
-        alphaEnd	= .1,
-        offset		= -1,
+        alpha 		    = 0,
+        alphaEnd	    = .1,
+        offset		    = -1,
     },
-    ['frame-outline'] = {
+    ['frame-outline']   = {
         type			= 'outline',
         layer			= 'BORDER',
         color			= '000000',
-        offset		= 0,
+        offset		    = 0,
     },
-    ['frame-inline'] = {
+    ['frame-inline']    = {
         type			= 'outline',
         layer			= 'BORDER',
-        gradient	= 'VERTICAL',
+        gradient	    = 'VERTICAL',
         color			= 'ffffff',
-        alpha 		= .02,
-        alphaEnd	= .09,
-        offset		= -1,
+        alpha 		    = .02,
+        alphaEnd	    = .09,
+        offset		    = -1,
     },
-    ['frame-hover'] = {
+    ['frame-hover']     = {
         type			= 'texture',
         layer			= 'HIGHLIGHT',
         color			= 'ffffff',
         alpha			= .1,
-        offset		= 0,
+        offset		    = 0,
     },
-    ['text-color'] = {
+    ['text-color']      = {
         type			= 'Font',
         color			= 'b8c2cc',
     },
 }
-local arrowRight = {
-    type            = 'texture',
-    offset     = {-2,nil,-2,nil},
-    height    = 16,
-    width        = 16,
-    alpha         = .7,
-    texFile    = 'DiesalGUIcons',
-    --texColor    = 'ffff00',
-    texCoord    = {7,5,16,256,128},
+local arrowRight        = {
+    type                = 'texture',
+    offset              = {-2,nil,-2,nil},
+    height              = 16,
+    width               = 16,
+    alpha               = .7,
+    texFile             = 'DiesalGUIcons',
+    -- texColor            = 'ffff00',
+    texCoord            = {7,5,16,256,128},
 }
-local arrowLeft =    {
-    type            = 'texture',
-    offset     = {-2,nil,-2,nil},
-    height    = 16,
-    width        = 16,
-    alpha         = .7,
-    texFile    = 'DiesalGUIcons',
-    --texColor    = 'ffff00',
-    texCoord    = {8,5,16,256,128},
+local arrowLeft         = {
+    type                = 'texture',
+    offset              = {-2,nil,-2,nil},
+    height              = 16,
+    width               = 16,
+    alpha               = .7,
+    texFile             = 'DiesalGUIcons',
+    -- texColor            = 'ffff00',
+    texCoord            = {8,5,16,256,128},
 }

@@ -1978,7 +1978,7 @@ function hasNoControl(spellID,unit)
 	return false
 end
 function getSpellCost(spell)
-	local t = GetSpellPowerCost(spell)
+	local t = GetSpellPowerCost(GetSpellInfo(spell))
 	if not t then
 		return 0
 	elseif not t[1]["minCost"] then

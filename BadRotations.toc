@@ -53,6 +53,8 @@ System\Engines\Interrupts.lua
 System\Engines\ttdTable.lua
 
 ## BadRotations UI
+System\UI\ChatOverlay.lua
+System\UI\MinimapButton.lua
 System\UI\UI.lua
 System\UI\Toggles.lua
 System\UI\Elements\Arrow.lua
@@ -110,6 +112,8 @@ Rotations\Hunter\Marksmanship\MarksmanshipCpoworks.lua
 ## Mage ---------------------------------------------------
 
 Rotations\Mage\Fire\FireCuteOne.lua
+
+Rotations\Mage\Frost\FrostCuteOne.lua
 
 ## Monk ---------------------------------------------------
 

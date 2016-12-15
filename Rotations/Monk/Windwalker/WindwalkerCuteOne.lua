@@ -14,9 +14,9 @@ local function createToggles()
     CreateButton("Rotation",1,0)
 -- Cooldown Button
     CooldownModes = {
-        [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spell.invokeXuen },
-        [2] = { mode = "On", value = 1 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spell.invokeXuen },
-        [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.invokeXuen }
+        [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spell.invokeXuenTheWhiteTiger },
+        [2] = { mode = "On", value = 1 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spell.invokeXuenTheWhiteTiger },
+        [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.invokeXuenTheWhiteTiger }
     };
     CreateButton("Cooldown",2,0)
 -- Defensive Button
@@ -456,7 +456,7 @@ local function runRotation()
         -- Invoke Xuen
                 -- invoke_xuen
                 if isChecked("Xuen") then
-                    if cast.invokeXuen() then return end
+                    if cast.invokeXuenTheWhiteTiger() then return end
                 end
         -- Racial - Blood Fury / Berserking
                 -- blood_fury
@@ -1122,7 +1122,7 @@ local function runRotation()
                         end
         --  Invoke Xuen
                         if isChecked("Xuen") then
-                            if cast.invokeXuen() then return end
+                            if cast.invokeXuenTheWhiteTiger() then return end
                         end
         -- Serenity
                         -- if CooldownSecRemaining(FistsOfFury) < 6 and CooldownSecRemaining(StrikeOfTheWindlord) < 5 and CooldownSecRemaining(WhirlingDragonPunch) < 5

@@ -447,16 +447,16 @@ local function runRotation()
             if mode.mover == 1 and isValidUnit("target") then
         -- Heroic Leap
                 -- -- heroic_leap
-                -- if isChecked("Heroic Leap") and (getOptionValue("Heroic Leap")==6 or (SpecificToggle("Heroic Leap") and not GetCurrentKeyBoardFocus())) then
-                --     -- Best Location
-                --     if getOptionValue("Heroic Leap - Target") == 1 then
-                --         if cast.heroicLeap("best",nil,1,8) then return end
-                --     end
-                --     -- Target
-                --     if getOptionValue("Heroic Leap - Target") == 2 then
-                --         if cast.heroicLeap("target","ground") then return end
-                --     end
-                -- end
+                if isChecked("Heroic Leap") and (getOptionValue("Heroic Leap")==6 or (SpecificToggle("Heroic Leap") and not GetCurrentKeyBoardFocus())) then
+                    -- Best Location
+                    if getOptionValue("Heroic Leap - Target") == 1 then
+                        if cast.heroicLeap("best",nil,1,8) then return end
+                    end
+                    -- Target
+                    if getOptionValue("Heroic Leap - Target") == 2 then
+                        if cast.heroicLeap("target","ground") then return end
+                    end
+                end
         -- Charge
                 -- charge
                 if isChecked("Charge") then

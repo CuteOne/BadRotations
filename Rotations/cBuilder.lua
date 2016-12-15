@@ -70,41 +70,38 @@ function br.loader:new(spec,specName)
     --     end
     -- end
 
-    -- -- Active Spells From Spellbook
-    -- for i = 1, GetNumSpellTabs() do
-    --     local spellTabName,_,spellTabOffset,spellTabCount = GetSpellTabInfo(i)
-    --     if i == 1 or spellTabName == br.playerSpecName then
-    --         for x = 1, spellTabCount do
-    --             local spellIndex = x + spellTabOffset
-    --             local spellID = select(2,GetSpellBookItemInfo(spellIndex,"spell"))
-    --             local spellName = GetSpellInfo(spellID)
-    --             local isPassive = IsPassiveSpell(spellIndex,"spell")
-    --             if spellName ~= nil then 
-    --                 if not isPassive then
-    --                     local spellName = convertName(spellName)
-    --                     -- br.spellList[convertName(spellName)] = spellID
-    --                     self.spell['abilities'][spellName] = spellID
-    --                     self.spell[spellName] = spellID
-    --                 end
-    --             end
-    --         end
-    --     end
-    -- end
-    -- -- Active Spells From Spellbook Flyouts
-    -- for y = 1, GetNumFlyouts() do
-    --     local flyoutID = GetFlyoutID(y)
-    --     local _,_,spellFlyoutCount,isKnown = GetFlyoutInfo(flyoutID)
-    --     if isKnown then 
-    --         for z = 1, spellFlyoutCount do
-    --             local spellID = GetFlyoutSlotInfo(flyoutID, z);
-    --             local spellName = convertName(select(1,GetSpellInfo(spellID)))
-    --             -- local spellName = convertName(spellName)
-    --             -- br.spellList[convertName(spellName)] = spellID
-    --             self.spell['abilities'][spellName] = spellID
-    --             self.spell[spellName] = spellID
-    --         end
-    --     end
-    -- end
+    -- Active Spells From Spellbook
+    for i = 1, GetNumSpellTabs() do
+        local spellTabName,_,spellTabOffset,spellTabCount = GetSpellTabInfo(i)
+        if i == 1 or spellTabName == br.selectedSpec then --br.playerSpecName then
+            for x = 1, spellTabCount do
+                local spellIndex = x + spellTabOffset
+                local spellID = select(2,GetSpellBookItemInfo(spellIndex,"spell"))
+                local spellName = GetSpellInfo(spellID)
+                local isPassive = IsPassiveSpell(spellIndex,"spell")
+                if spellName ~= nil then 
+                    if not isPassive then
+                        local spellName = convertName(spellName)
+                        self.spell['abilities'][spellName] = spellID
+                        self.spell[spellName] = spellID
+                    end
+                end
+            end
+        end
+    end
+    -- Active Spells From Spellbook Flyouts
+    for y = 1, GetNumFlyouts() do
+        local flyoutID = GetFlyoutID(y)
+        local _,_,spellFlyoutCount,isKnown = GetFlyoutInfo(flyoutID)
+        if isKnown then 
+            for z = 1, spellFlyoutCount do
+                local spellID = GetFlyoutSlotInfo(flyoutID, z);
+                local spellName = convertName(select(1,GetSpellInfo(spellID)))
+                self.spell['abilities'][spellName] = spellID
+                self.spell[spellName] = spellID
+            end
+        end
+    end
     local function getTalentInfo()
         -- Update Talent Info
         br.activeSpecGroup = GetActiveSpecGroup()
@@ -211,11 +208,6 @@ function br.loader:new(spec,specName)
                 self.artifact[k] = hasPerk(v) or false
                 self.artifact.rank[k] = getPerkRank(v) or 0
             end
-
-            -- Update Talent Info
-            -- for k,v in pairs(self.spell.talents) do
-            --     self.talent[k] = br.talent[v]
-            -- end
         end
 
         -- Build Buff Info
