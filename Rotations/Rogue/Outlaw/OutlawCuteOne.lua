@@ -234,7 +234,8 @@ local function runRotation()
         local power, powerDeficit, powerRegen               = br.player.power, br.player.powerDeficit, br.player.powerRegen
         local pullTimer                                     = br.DBM:getPulltimer()
         local rtbCount                                      = br.rtbCount
-        local solo                                          = GetNumGroupMembers() == 0 
+        --local solo                                          = GetNumGroupMembers() == 0
+        local solo                                          = #br.friend < 2 
         local spell                                         = br.player.spell
         local stealth                                       = br.player.buff.stealth.exists
         local stealthing                                    = br.player.buff.stealth.exists or br.player.buff.vanish.exists or br.player.buff.shadowmeld.exists
@@ -557,7 +558,7 @@ local function runRotation()
     -- Action List - Stealth
         local function actionList_Stealth()
             -- stealth_condition,value=(combo_points.deficit>=2+2*(talent.ghostly_strike.enabled&!debuff.ghostly_strike.up)+buff.broadsides.up&energy>60&!buff.jolly_roger.up&!buff.hidden_blade.up&!buff.curse_of_the_dreadblades.up)
-            if ((comboDeficit >= 2 + 2 * gsBuff + broadUp) and power > 60 and not buff.jollyRoger.exists and not buff.hiddenBlade.exists and not debuff.curseOfTheDreadblades["player"].exists) and not buff.stealth.exists then
+            if ((comboDeficit >= 2 + 2 * gsBuff + broadUp) and power > 60 and not buff.jollyRoger.exists and not buff.hiddenBlade.exists and not debuff.curseOfTheDreadblades["player"].exists) and not buff.stealth.exists and not solo then
                 stealthable = true
             else
                 stealthable = false
