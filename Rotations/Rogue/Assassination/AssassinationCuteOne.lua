@@ -172,7 +172,7 @@ local function runRotation()
 		local cast 											= br.player.cast
 		local cd 											= br.player.cd
 		local charge 										= br.player.charges
-		local combo, comboDeficit, comboMax					= br.player.comboPoints, UnitPowerMax("player", 4) - br.player.comboPoints, UnitPowerMax("player", 4)
+		local combo, comboDeficit, comboMax					= br.player.power.amount.comboPoints, br.player.power.comboPoints.deficit, br.player.power.comboPoints.max
 		local cTime 										= getCombatTime()
         local deadtar                                       = UnitIsDeadOrGhost("target")
         local debuff                                        = br.player.debuff
@@ -191,18 +191,18 @@ local function runRotation()
         local multidot                                      = br.player.mode.cleave == 1
         local perk                                          = br.player.perk
         local php                                           = br.player.health
-        local power, powerDeficit, powerRegen               = br.player.power, br.player.powerDeficit, br.player.powerRegen
+        local power, powerDeficit, powerRegen               = br.player.power.amount.energy, br.player.power.energy.deficit, br.player.power.regen
         local pullTimer                                     = br.DBM:getPulltimer()
         local race                                          = br.player.race
         local racial                                        = br.player.racial
-        local solo                                          = GetNumGroupMembers() == 0 
+        local solo                                          = #br.friend < 2 
         local spell                                         = br.player.spell
         local stealth                                       = br.player.buff.stealth.exists
         local stealthing                                    = br.player.buff.stealth.exists or br.player.buff.vanish.exists or br.player.buff.shadowmeld.exists
         local t18_4pc                                       = br.player.eq.t18_4pc
         local talent                                        = br.player.talent
         local ttd                                           = getTTD
-        local ttm                                           = br.player.powerTTM --timeToMax
+        local ttm                                           = br.player.power.ttm
         local units                                         = br.player.units
 
 		if opener == nil then opener = false end

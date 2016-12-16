@@ -147,7 +147,7 @@ local function runRotation()
         local perk                                          = br.player.perk        
         local php                                           = br.player.health
         local playerMouse                                   = UnitIsPlayer("mouseover")
-        local power, powmax, powgen, powerDeficit           = br.player.power, br.player.powerMax, br.player.powerRegen, br.player.powerDeficit
+        local power, powmax, powgen, powerDeficit           = br.player.power.amount.mana, br.player.power.mana.max, br.player.power.regen, br.player.power.deficit
         local pullTimer                                     = br.DBM:getPulltimer()
         local racial                                        = br.player.getRacial()
         local recharge                                      = br.player.recharge
@@ -156,7 +156,7 @@ local function runRotation()
         local talent                                        = br.player.talent
         local thp                                           = getHP(br.player.units.dyn40)
         local ttd                                           = getTTD
-        local ttm                                           = br.player.timeToMax
+        local ttm                                           = br.player.power.ttm
         local units                                         = br.player.units
         
         local SWPmaxTargets                                 = getOptionValue("SWP Max Targets")

@@ -19,111 +19,40 @@ function br.loader:new(spec,specName)
     -- Spells From Spell Table
     self.spell = mergeIdTables(self.spell)
 
-    -- if br.spellList == nil then br.spellList = {} end
-    -- -- All Spells
-    -- for i = 1, 999999 do
-    --     if IsPlayerSpell(i) then
-    --         local spellName = convertName(GetSpellInfo(i))
-    --         -- Table Companion Pets
-    --         critterFound = false
-    --         for x = 1, C_PetJournal.GetNumPets() do
-    --             local petName = select(8,C_PetJournal.GetPetInfoByIndex(x))
-    --             if petName == select(1,GetSpellInfo(i)) then 
-    --                 critterFound = true;
-    --                 if br.spellList.critter == nil then br.spellList.critter = {} end 
-    --                 br.spellList.critter[spellName] = i
-    --                 break 
-    --             end
-    --         end
-    --         -- Table Mounts
-    --         mountFound = false
-    --         for x = 1, C_MountJournal.GetNumMounts() do
-    --             local _, spellID = C_MountJournal.GetDisplayedMountInfo(x)
-    --             if spellID == i then 
-    --                 mountFound = true;
-    --                 if br.spellList.mount == nil then br.spellList.mount = {} end 
-    --                 br.spellList.mount[spellName] = i 
-    --                 break 
-    --             end
-    --         end
-    --         -- Table Professions
-    --         professionFound = false
-    --         -- --    prof1, prof2, archaeology, fishing, cooking, firstAid
-    --         -- local prof1, prof2, prof3, prof4, prof5, prof6 = GetProfessions()
-    --         -- for x = 1, 6 do
-    --         --     local profIndex = select(x,GetProfessions())
-    --         --     if profIndex ~= nil then
-    --         --         for y = 1, profIndex do
-    --         --             local skillName = GetProfessionInfo(y)
-    --         --             Print(skillName)
-    --         --             if skillName == select(1,GetSpellInfo(i)) then
-    --         --                 professionFound = true;
-    --         --                 if br.spellList.profession == nil then br.spellList.profession = {} end
-    --         --                 br.spellList.profession[spellName] = i
-    --         --             end
-    --         --         end
-    --         --     end
-    --         -- end
-    --         if not critterFound and not mountFound and not professionFound then
-    --             br.spellList[spellName] = i
-    --         end
-    --     end
-    -- end
+    -- Add Artifact Ability
+    for k,v in pairs(self.spell.artifacts) do
+        if not IsPassiveSpell(v) then
+            self.spell['abilities'][k] = v
+            self.spell[k] = v
+            break
+        end
+    end 
 
-    -- -- Active Spells From Spellbook
-    -- for i = 1, GetNumSpellTabs() do
-    --     local spellTabName,_,spellTabOffset,spellTabCount = GetSpellTabInfo(i)
-    --     if i == 1 or spellTabName == br.playerSpecName then
-    --         for x = 1, spellTabCount do
-    --             local spellIndex = x + spellTabOffset
-    --             local spellID = select(2,GetSpellBookItemInfo(spellIndex,"spell"))
-    --             local spellName = GetSpellInfo(spellID)
-    --             local isPassive = IsPassiveSpell(spellIndex,"spell")
-    --             if spellName ~= nil then 
-    --                 if not isPassive then
-    --                     local spellName = convertName(spellName)
-    --                     -- br.spellList[convertName(spellName)] = spellID
-    --                     self.spell['abilities'][spellName] = spellID
-    --                     self.spell[spellName] = spellID
-    --                 end
-    --             end
-    --         end
-    --     end
-    -- end
-    -- -- Active Spells From Spellbook Flyouts
-    -- for y = 1, GetNumFlyouts() do
-    --     local flyoutID = GetFlyoutID(y)
-    --     local _,_,spellFlyoutCount,isKnown = GetFlyoutInfo(flyoutID)
-    --     if isKnown then 
-    --         for z = 1, spellFlyoutCount do
-    --             local spellID = GetFlyoutSlotInfo(flyoutID, z);
-    --             local spellName = convertName(select(1,GetSpellInfo(spellID)))
-    --             -- local spellName = convertName(spellName)
-    --             -- br.spellList[convertName(spellName)] = spellID
-    --             self.spell['abilities'][spellName] = spellID
-    --             self.spell[spellName] = spellID
-    --         end
-    --     end
-    -- end
+    -- Update Talent Info
     local function getTalentInfo()
-        -- Update Talent Info
         br.activeSpecGroup = GetActiveSpecGroup()
         if self.talent == nil then self.talent = {} end
         for r = 1, 7 do --search each talent row
             for c = 1, 3 do -- search each talent column
-                if not activeOnly then
-                -- Cache Talent IDs for talent checks
-                    local _,_,_,selected,_,talentID = GetTalentInfo(r,c,br.activeSpecGroup)
-                    local spellName = convertName(GetSpellInfo(talentID))
-                    self.talent[spellName] = selected
-                    if not IsPassiveSpell(talentID) then
-                        self.spell['abilities'][spellName] = talentID
-                        self.spell[spellName] = talentID 
+            -- Cache Talent IDs for talent checks
+                local _,_,_,selected,_,talentID = GetTalentInfo(r,c,br.activeSpecGroup)
+                -- Compare Row/Column Spell Id to Talent Id List for matches
+                for k,v in pairs(self.spell.talents) do
+                    if v == talentID then
+                        -- Add All Matches to Talent List for Boolean Checks
+                        self.talent[k] = selected
+                        -- Add All Active Ability Matches to Ability/Spell List for Use Checks
+                        if not IsPassiveSpell(v) then
+                            self.spell['abilities'][k] = v
+                            self.spell[k] = v
+                        end
                     end
                 end
             end
         end
     end
+
+    -- Update Talent Info on Init and Talent Change
     getTalentInfo()
     AddEventCallback("PLAYER_TALENT_UPDATE",function()
         getTalentInfo()
@@ -159,28 +88,84 @@ function br.loader:new(spec,specName)
 
         -- local timeStart = debugprofilestop()
         -- Update Power
-        self.mana           = UnitPower("player", 0)
-        self.rage           = UnitPower("player", 1)
-        self.focus          = UnitPower("player", 2)
-        self.energy         = UnitPower("player", 3)
-        self.comboPoints    = UnitPower("player", 4)
-        self.runes          = UnitPower("player", 5)
-        self.runicPower     = UnitPower("player", 6)
-        self.soulShards     = UnitPower("player", 7)
-        self.lunarPower     = UnitPower("player", 8)
-        self.holyPower      = UnitPower("player", 9)
-        self.holyPowerMax   = UnitPowerMax("player",9)
-        self.altPower       = UnitPower("player",10)
-        self.maelstrom      = UnitPower("player",11)
-        self.chi            = UnitPower("player",12)
-        self.insanity       = UnitPower("player",13)
-        self.obsolete       = UnitPower("player",14)
-        self.obsolete2      = UnitPower("player",15)
-        self.arcaneCharges  = UnitPower("player",16)
-        self.fury           = UnitPower("player",17)
-        self.pain           = UnitPower("player",18)
-        self.powerRegen     = getRegen("player")
-        self.timeToMax      = getTimeToMax("player")
+        -- self.mana           = UnitPower("player", 0)
+        -- self.rage           = UnitPower("player", 1)
+        -- self.focus          = UnitPower("player", 2)
+        -- self.energy         = UnitPower("player", 3)
+        -- self.comboPoints    = UnitPower("player", 4)
+        -- self.runes          = UnitPower("player", 5)
+        -- self.runicPower     = UnitPower("player", 6)
+        -- self.soulShards     = UnitPower("player", 7)
+        -- self.lunarPower     = UnitPower("player", 8)
+        -- self.holyPower      = UnitPower("player", 9)
+        -- self.altPower       = UnitPower("player",10)
+        -- self.maelstrom      = UnitPower("player",11)
+        -- self.chi            = UnitPower("player",12)
+        -- self.insanity       = UnitPower("player",13)
+        -- self.obsolete       = UnitPower("player",14)
+        -- self.obsolete2      = UnitPower("player",15)
+        -- self.arcaneCharges  = UnitPower("player",16)
+        -- self.fury           = UnitPower("player",17)
+        -- self.pain           = UnitPower("player",18)
+        -- self.powerRegen     = getRegen("player")
+        -- self.timeToMax      = getTimeToMax("player")
+
+        local powerList     = {
+            mana            = 0,
+            rage            = 1,
+            focus           = 2,
+            energy          = 3,
+            comboPoints     = 4,
+            runes           = 5,
+            runicPower      = 6,
+            soulShards      = 7,
+            lunarPower      = 8,
+            holyPower       = 9,
+            altPower        = 10,
+            maelstrom       = 11,
+            chi             = 12,
+            insanity        = 13,
+            obsolete        = 14,
+            obsolete2       = 15,
+            arcaneCharges   = 16,
+            fury            = 17,
+            pain            = 18,
+        }
+        local function runeCDPercent(runeIndex)
+            if GetRuneCount(runeIndex) == 0 then
+                return (GetTime() - select(1,GetRuneCooldown(runeIndex))) / select(2,GetRuneCooldown(runeIndex))
+            else
+                return 0
+            end
+        end 
+        if self.power == nil then self.power = {} end
+        -- for i = 0, #powerList do
+        for k, v in pairs(powerList) do
+            if UnitPower("player",v) ~= nil then
+                if self.power[k] == nil then self.power[k] = {} end
+                if self.power.amount == nil then self.power.amount = {} end
+                if k == "runes" then
+                    local runeCount = 0
+                    for i = 1, 6 do
+                        runeCount = runeCount + GetRuneCount(i)
+                    end
+                    self.power.amount[k]    = runeCount
+                    self.power[k].frac      = runeCount + math.max(runeCDPercent(1),runeCDPercent(2),runeCDPercent(3),runeCDPercent(4),runeCDPercent(5),runeCDPercent(6))
+                    self.power[k].amount    = UnitPower("player",v)
+                    self.power[k].max       = UnitPowerMax("player",v)
+                    self.power[k].deficit   = UnitPowerMax("player",v) - UnitPower("player",v)
+                    self.power[k].percent   = (UnitPower("player",v) / UnitPowerMax("player",v)) / 100
+                else
+                    self.power[k].amount    = UnitPower("player",v)
+                    self.power[k].max       = UnitPowerMax("player",v)
+                    self.power[k].deficit   = UnitPowerMax("player",v) - UnitPower("player",v)
+                    self.power[k].percent   = (UnitPower("player",v) / UnitPowerMax("player",v)) / 100
+                    self.power.amount[k]    = UnitPower("player",v)
+                end
+            end
+        end
+        self.power.regen     = getRegen("player")
+        self.power.ttm       = getTimeToMax("player") 
 
         -- Build Best Unit per Range
         local typicalRanges = {
@@ -211,11 +196,6 @@ function br.loader:new(spec,specName)
                 self.artifact[k] = hasPerk(v) or false
                 self.artifact.rank[k] = getPerkRank(v) or 0
             end
-
-            -- Update Talent Info
-            -- for k,v in pairs(self.spell.talents) do
-            --     self.talent[k] = br.talent[v]
-            -- end
         end
 
         -- Build Buff Info

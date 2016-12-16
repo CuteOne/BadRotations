@@ -188,7 +188,7 @@ local function runRotation()
         local cast                                          = br.player.cast
         local clearcast                                     = br.player.buff.clearcasting.exists
         local combatTime                                    = getCombatTime()
-        local combo                                         = br.player.comboPoints
+        local combo                                         = br.player.power.amount.comboPoints
         local cd                                            = br.player.cd
         local charges                                       = br.player.charges
         local deadMouse                                     = UnitIsDeadOrGhost("mouseover")
@@ -215,7 +215,7 @@ local function runRotation()
         local php                                           = br.player.health
         local playerMouse                                   = UnitIsPlayer("mouseover")
         local potion                                        = br.player.potion
-        local power, powmax, powgen                         = br.player.energy, br.player.powerMax, br.player.powerRegen
+        local power, powmax, powgen                         = br.player.power.amount.energy, br.player.power.energy.max, br.player.power.regen
         local pullTimer                                     = br.DBM:getPulltimer()
         local racial                                        = br.player.getRacial()
         local recharge                                      = br.player.recharge
@@ -232,7 +232,7 @@ local function runRotation()
         local travel, flight, cat, noform                   = br.player.buff.travelForm.exists, br.player.buff.flightForm.exists, br.player.buff.catForm.exists, GetShapeshiftForm()==0
         local trinketProc                                   = false
         local ttd                                           = getTTD
-        local ttm                                           = br.player.timeToMax
+        local ttm                                           = br.player.power.ttm
         local units                                         = br.player.units
 
    		if leftCombat == nil then leftCombat = GetTime() end
@@ -446,7 +446,7 @@ local function runRotation()
 				end
 		-- Regrowth
 	            if isChecked("Regrowth") and (buff.predatorySwiftness.exists or not inCombat) then
-	            	if getOptionValue("Auto Heal")==1
+	            	if getOptionValue("Auto Heal")==1 and getDistance(br.friend[1].unit) < 40
                         and ((getHP(br.friend[1].unit) <= getOptionValue("Regrowth")/2 and inCombat)
                             or (getHP(br.friend[1].unit) <= getOptionValue("Regrowth") and not inCombat)
                             or (buff.predatorySwiftness.remain < 1 and buff.predatorySwiftness.exists))
@@ -572,7 +572,7 @@ local function runRotation()
         -- Regrowth
             -- healing_touch,if=talent.bloodtalons.enabled&combo_points=5&!buff.bloodtalons.up&!dot.rip.ticking
             if talent.sabertooth and combo == 5 and not buff.bloodtalons.exists and not debuff.rip[units.dyn5].exists then
-                if getOptionValue("Auto Heal")==1 then
+                if getOptionValue("Auto Heal")==1 and getDistance(br.friend[1].unit) < 40 then
                     if cast.regrowth(br.friend[1].unit) then return end
                 end
                 if getOptionValue("Auto Heal")==2 then
@@ -975,7 +975,7 @@ local function runRotation()
                                 or (talent.bloodtalons and combo == 2 and not buff.bloodtalons.exists and cd.ashamanesFrenzy < gcd)
                                 or (talent.elunesGuidance and ((cd.elunesGuidance < gcd and combo == 0) or (buff.elunesGuidance.exists and combo >= 4))))
                         then
-                            if getOptionValue("Auto Heal")==1 then
+                            if getOptionValue("Auto Heal")==1 and getDistance(br.friend[1].unit) < 40 then
                                 if cast.regrowth(br.friend[1].unit) then return end
                             end
                             if getOptionValue("Auto Heal")==2 then
@@ -990,7 +990,7 @@ local function runRotation()
         -- Regrowth
                         -- healing_touch,if=equipped.ailuro_pouncers&talent.bloodtalons.enabled&buff.predatory_swiftness.stack>1&buff.bloodtalons.down
                         if hasEquiped(137024) and talent.bloodtalons and buff.predatorySwiftness.stack > 1 and not buff.bloodtalons.exists then
-                            if getOptionValue("Auto Heal")==1 then
+                            if getOptionValue("Auto Heal")==1 and getDistance(br.friend[1].unit) < 40 then
                                 if cast.regrowth(br.friend[1].unit) then return end
                             end
                             if getOptionValue("Auto Heal")==2 then
@@ -1011,7 +1011,7 @@ local function runRotation()
         -- Regrowth
                         -- if HasTalent(Bloodtalons) and HasBuff(PredatorySwiftness) and not HasBuff(Prowl)
                         if talent.bloodtalons and buff.predatorySwiftness.exists and not buff.prowl.exists then
-                            if getOptionValue("Auto Heal")==1 then
+                            if getOptionValue("Auto Heal")==1 and getDistance(br.friend[1].unit) < 40 then
                                 if cast.regrowth(br.friend[1].unit) then return end
                             end
                             if getOptionValue("Auto Heal")==2 then

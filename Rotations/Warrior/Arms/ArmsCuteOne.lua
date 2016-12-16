@@ -222,18 +222,18 @@ local function runRotation()
         local perk                                          = br.player.perk        
         local php                                           = br.player.health
         local playerMouse                                   = UnitIsPlayer("mouseover")
-        local power, powerDeficit, powerMax, powerGen       = br.player.power, br.player.powerDeficit, br.player.powerMax, br.player.powerRegen
+        local power, powerDeficit, powerMax, powerGen       = br.player.power.amount.rage, br.player.power.rage.deficit, br.player.power.rage.max, br.player.power.regen
         local pullTimer                                     = br.DBM:getPulltimer()
         local race                                          = br.player.race
         local racial                                        = br.player.getRacial()
         local recharge                                      = br.player.recharge
-        local rage                                          = br.player.rage
+        local rage                                          = br.player.power.amount.rage
         local solo                                          = br.player.instance=="none"
         local spell                                         = br.player.spell
         local talent                                        = br.player.talent
         local thp                                           = getHP(br.player.units.dyn5)
         local ttd                                           = getTTD
-        local ttm                                           = br.player.timeToMax
+        local ttm                                           = br.player.power.ttm
         local units                                         = br.player.units
         
         if leftCombat == nil then leftCombat = GetTime() end
@@ -447,16 +447,16 @@ local function runRotation()
             if mode.mover == 1 and isValidUnit("target") then
         -- Heroic Leap
                 -- -- heroic_leap
-                -- if isChecked("Heroic Leap") and (getOptionValue("Heroic Leap")==6 or (SpecificToggle("Heroic Leap") and not GetCurrentKeyBoardFocus())) then
-                --     -- Best Location
-                --     if getOptionValue("Heroic Leap - Target") == 1 then
-                --         if cast.heroicLeap("best",nil,1,8) then return end
-                --     end
-                --     -- Target
-                --     if getOptionValue("Heroic Leap - Target") == 2 then
-                --         if cast.heroicLeap("target","ground") then return end
-                --     end
-                -- end
+                if isChecked("Heroic Leap") and (getOptionValue("Heroic Leap")==6 or (SpecificToggle("Heroic Leap") and not GetCurrentKeyBoardFocus())) then
+                    -- Best Location
+                    if getOptionValue("Heroic Leap - Target") == 1 then
+                        if cast.heroicLeap("best",nil,1,8) then return end
+                    end
+                    -- Target
+                    if getOptionValue("Heroic Leap - Target") == 2 then
+                        if cast.heroicLeap("target","ground") then return end
+                    end
+                end
         -- Charge
                 -- charge
                 if isChecked("Charge") then

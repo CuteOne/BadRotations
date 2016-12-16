@@ -686,7 +686,8 @@ function castHealGround(SpellID,Radius,Health,NumberOfPlayers)
 end
 -- getLatency()
 function getLatency()
-	local lag = ((select(3,GetNetStats()) + select(4,GetNetStats())) / 1000)
+	-- local lag = ((select(3,GetNetStats()) + select(4,GetNetStats())) / 1000)
+	local lag = select(4,GetNetStats()) / 1000
 	if lag < .05 then
 		lag = .05
 	elseif lag > .4 then
@@ -1978,7 +1979,7 @@ function hasNoControl(spellID,unit)
 	return false
 end
 function getSpellCost(spell)
-	local t = GetSpellPowerCost(spell)
+	local t = GetSpellPowerCost(GetSpellInfo(spell))
 	if not t then
 		return 0
 	elseif not t[1]["minCost"] then
@@ -2671,7 +2672,10 @@ function pause(skipCastingCheck)
 	-- Pause Hold/Auto
 	if (pausekey and GetCurrentKeyBoardFocus() == nil and isChecked("Pause Mode"))
 		or profileStop
-		or (IsMounted() and (ObjectExists("target") and GetObjectID("target") ~= 56877) and not UnitBuffID("player",164222) and not UnitBuffID("player",165803) and not UnitBuffID("player",157059) and not UnitBuffID("player",157060))
+		or (IsMounted() and (ObjectExists("target") and GetObjectID("target") ~= 56877) 
+			and not UnitBuffID("player",190784) and not UnitBuffID("player",164222) 
+			and not UnitBuffID("player",165803) and not UnitBuffID("player",157059) 
+			and not UnitBuffID("player",157060))
 		or SpellIsTargeting()
 		-- or (not UnitCanAttack("player","target") and not UnitIsPlayer("target") and UnitExists("target"))
 		or (UnitCastingInfo("player") and not skipCastingCheck)

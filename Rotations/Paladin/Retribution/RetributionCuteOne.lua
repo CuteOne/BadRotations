@@ -175,8 +175,8 @@ local function runRotation()
         local gcd           = br.player.gcd
         local hastar        = ObjectExists("target")
         local healPot       = getHealthPot()
-        local holyPower     = br.player.holyPower
-        local holyPowerMax  = br.player.holyPowerMax
+        local holyPower     = br.player.power.amount.holyPower
+        local holyPowerMax  = br.player.holyPower.max
         local inCombat      = br.player.inCombat
         local level         = br.player.level
         local mode          = br.player.mode

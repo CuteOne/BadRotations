@@ -160,7 +160,7 @@ local function runRotation()
         local php                                           = br.player.health
         local playerMouse                                   = UnitIsPlayer("mouseover")
         local potion                                        = br.player.potion
-        local power, powermax, powergen                     = br.player.energy, br.player.powerMax, br.player.powerRegen
+        local power, powermax, powergen                     = br.player.power.amount.mana, br.player.power.mana.max, br.player.power.regen
         local pullTimer                                     = br.DBM:getPulltimer()
         local racial                                        = br.player.getRacial()
         local recharge                                      = br.player.recharge
@@ -175,7 +175,7 @@ local function runRotation()
         local travel, flight, cat, noform                   = br.player.buff.travelForm.exists, br.player.buff.flightForm.exists, br.player.buff.catForm.exists, GetShapeshiftForm()==0
         local trinketProc                                   = false
         local ttd                                           = getTTD
-        local ttm                                           = br.player.timeToMax
+        local ttm                                           = br.player.power.ttm
         local units                                         = br.player.units
 
    		if leftCombat == nil then leftCombat = GetTime() end

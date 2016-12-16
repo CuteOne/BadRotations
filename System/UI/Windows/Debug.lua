@@ -1,4 +1,5 @@
 -- TODO: create new debug frame
+br.ui.window.debug = {}
 function br.ui:createDebugWindow()
     br.ui.window.debug = br.ui:createMessageWindow("debug",300,250,"Rotation Log")
     br.ui.window.debug.parent.closeButton:SetScript("OnClick", function()

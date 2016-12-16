@@ -79,7 +79,7 @@ Raidable means if its good to raid with.
 ||||
 | **Death Knight** |||
 |Frost|0%|CuteOne|7.1|:interrobang:
-|Blood|95%|CuteOne/Vilt|7.1|:white_check_mark:
+|Blood|100%|CuteOne/Vilt|7.1|:white_check_mark:
 |Unholy|0%||7.0|
 ||||
 | **Demon Hunter** |||
@@ -99,8 +99,8 @@ Raidable means if its good to raid with.
 ||||
 | **Mage** |||
 |Arcane|0%||7.0|
-|Fire|70%|CuteOne|7.0|:interrobang:
-|Frost|0%||7.0|
+|Fire|100%|CuteOne|7.1|:interrobang:
+|Frost|100%||7.1|:interrobang:
 ||||
 | **Monk** |||
 |Brewmaster|0%||7.0|
@@ -118,9 +118,9 @@ Raidable means if its good to raid with.
 |Shadow|70%|Cpoworks/Svs|7.1|:heavy_check_mark:
 ||||
 | **Rogue** |||
-|Assassination|100%|CuteOne|7.0|:interrobang:
-|Outlaw|100%|CuteOne|7.0|:interrobang:
-|Subtlety|100%|CuteOne|7.0|:interrobang::x:
+|Assassination|100%|CuteOne|7.1|:interrobang:
+|Outlaw|100%|CuteOne|7.1|:interrobang:
+|Subtlety|100%|CuteOne|7.1|:interrobang::x:
 ||||
 | **Shaman** |||
 |Elemental|100%|CuteOne|7.0|:interrobang:
@@ -128,7 +128,7 @@ Raidable means if its good to raid with.
 |Restoration|0%||7.0|
 ||||
 | **Warlock** |||
-|Affliction|90%|CuteOne|7.1|:interrobang:
+|Affliction|100%|CuteOne|7.1|:interrobang:
 |Demonology|100%|CuteOne|7.1|:interrobang:
 |Destruction|100%|CuteOne|7.1|:white_check_mark:
 ||||

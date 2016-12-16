@@ -86,22 +86,55 @@ br.idList = {
         -- Frost
         [251] = {
             abilities                       = {
-
+                chainsOfIce                 = 45524,
+                empowerRuneWeapon           = 47568,
+                frostStrike                 = 49143,
+                howlingBlast                = 49184,
+                obliterate                  = 49020,
+                pillarOfFrost               = 51271,
+                remorselessWinter           = 196770,
             },
             artifacts                       = {
-
+                
             },
             buffs                           = {
-
+                breathOfSindragosa          = 152279,
+                darkSuccor                  = 101568,
+                icyTalons                   = 194879,
+                killingMachine              = 51124,
+                obliteration                = 207256,
+                pillarOfFrost               = 51271,
+                rime                        = 59052,
             },
             debuffs                         = {
-
+                frostFever                  = 55095,
+                chainsOfIce                 = 45524,
             },
             glyphs                          = {
 
             },
             talents                         = {
-
+                abominaitonsMight           = 207161,
+                avalanche                   = 207142,
+                blindingSleet               = 207167,
+                breathOfSindragosa          = 152279,
+                freezingFog                 = 207060,
+                frostscythe                 = 207230,
+                frozenPulse                 = 194909,
+                gatheringStorms             = 194912,
+                glacialAdvance              = 194913,
+                hornOfWinter                = 57330,
+                hungeringRuneWeapon         = 207127,
+                icecap                      = 207126,
+                icyTalons                   = 194878,
+                murderousEffeciency         = 207061,
+                obliteration                = 207256,
+                permafrost                  = 207200,
+                runicAttenuation            = 207104,
+                shatteringStrikes           = 207057,
+                volatileShielding           = 207188,
+                whiteWalker                 = 212765,
+                winterIsComing              = 207170, 
             },
         },
         -- Unholy
@@ -135,7 +168,7 @@ br.idList = {
                 deathGate                   = 50977,
                 deathGrip                   = 49576,
                 deathStrike                 = 49998,
-                frostBreath                 = 190780,
+                iceboundFortitude           = 48792,
                 mindFreeze                  = 47528,
                 pathOfFrost                 = 3714,
                 raiseAlly                   = 61999,
@@ -146,6 +179,7 @@ br.idList = {
             },
             buffs                           = {
                 pathOfFrost                 = 3714,
+                unholyStrength              = 53365,
                 wraithWalk                  = 212552,
             },
             debuffs                         = {
@@ -154,6 +188,7 @@ br.idList = {
                 darkCommand                 = 56222,
                 frostBreath                 = 190780,
                 frostFever                  = 55095,
+                razorice                    = 51714,
             },
             glyphs                          = {
 
@@ -206,25 +241,25 @@ br.idList = {
 
             },
             talents                         = {
-                -- blindFury                   = 203550,
-                -- bloodlet                    = 206473,
-                -- chaosBlades                 = 211048,
-                -- chaosCleave                 = 206475,
-                -- demonBlades                 = 203555,
-                -- demonic                     = 213410,
-                -- demonicAppetite             = 206478,
-                -- demonReborn                 = 193897,
-                -- desperateInstincts          = 205411,
-                -- felBarrage                  = 211053,
-                -- felMastery                  = 192939,
-                -- firstBlood                  = 206416,
-                -- mastersOfTheGlaive          = 203556,
-                -- momentum                    = 206476,
-                -- nemesis                     = 206491,
-                -- netherwalk                  = 196555,
-                -- prepared                    = 203551,
-                -- soulRending                 = 204909,
-                -- unleashedPower              = 206477,
+                blindFury                   = 203550,
+                bloodlet                    = 206473,
+                chaosBlades                 = 211048,
+                chaosCleave                 = 206475,
+                demonBlades                 = 203555,
+                demonic                     = 213410,
+                demonicAppetite             = 206478,
+                demonReborn                 = 193897,
+                desperateInstincts          = 205411,
+                felBarrage                  = 211053,
+                felMastery                  = 192939,
+                firstBlood                  = 206416,
+                mastersOfTheGlaive          = 203556,
+                momentum                    = 206476,
+                nemesis                     = 206491,
+                netherwalk                  = 196555,
+                prepared                    = 203551,
+                soulRending                 = 204909,
+                unleashedPower              = 206477,
             },
         },
         -- Vengeance
@@ -270,25 +305,25 @@ br.idList = {
 
             },
             talents                         = {
-                -- abyssalStrike               = 207550,
-                -- agonizingFlames             = 207548,
-                -- razorSpikes                 = 209400,
-                -- feastofSouls                = 207697,
-                -- fallout                     = 227174,
-                -- burningAlive                = 207739,
-                -- flameCrash                  = 227322,
-                -- feedTheDemon                = 218612,
-                -- fracture                    = 209795,
-                -- soulRending                 = 217996,
-                -- consentratedSigils          = 207666,
-                -- sigilOfChains               = 202138,
-                -- quickenedSigils             = 209281,
-                -- felDevastation              = 212084,
-                -- bladeTurning                = 203753,
-                -- spiritBomb                  = 218679,
-                -- lastResort                  = 209258,
-                -- netherBond                  = 207810,
-                -- soulBarrier                 = 227225,
+                abyssalStrike               = 207550,
+                agonizingFlames             = 207548,
+                razorSpikes                 = 209400,
+                feastofSouls                = 207697,
+                fallout                     = 227174,
+                burningAlive                = 207739,
+                flameCrash                  = 227322,
+                feedTheDemon                = 218612,
+                fracture                    = 209795,
+                soulRending                 = 217996,
+                consentratedSigils          = 207666,
+                sigilOfChains               = 202138,
+                quickenedSigils             = 209281,
+                felDevastation              = 212084,
+                bladeTurning                = 203753,
+                spiritBomb                  = 218679,
+                lastResort                  = 209258,
+                netherBond                  = 207810,
+                soulBarrier                 = 227225,
             },
         },
         -- All
@@ -846,50 +881,87 @@ br.idList = {
 
             },
             talents                         = {
-                cinderstorm                 = 198929,
                 blastWave                   = 157981,
+                cinderstorm                 = 198929,
+                conflagration               = 205023,
+                controlledBurn              = 205033,
+                firestarter                 = 205026,
                 flameOn                     = 205029,
                 flamePatch                  = 205037,
                 kindling                    = 155148,
                 livingBomb                  = 44457,
                 meteor                      = 153561,
                 mirrorImage                 = 55342,
+                pyromaniac                  = 205020,
             },
         },
         -- Frost
         [64] = {
             abilities                       = {
-
+                blizzard                    = 190356,
+                coneOfCold                  = 120,
+                fireBlast                   = 108853,
+                flurry                      = 44614,
+                freeze                      = 231596,
+                frostbolt                   = 116,
+                frostBomb                   = 112948,
+                frozenOrb                   = 84714,
+                iceLance                    = 30455,
+                icyVeins                    = 12472,
+                summonWaterElemental        = 31687,
             },
             artifacts                       = {
-
+                ebonBolt                    = 214634,
+                icyHand                     = 220817,
             },
             buffs                           = {
-
+                brainFreeze                 = 190447,
+                fingersOfFrost              = 112965, 
+                icyVeins                    = 12472,
+                zannesuJourney              = 226852,
             },
             debuffs                         = {
-
+                frostBomb                   = 112948,
+                wintersChill                = 228358, 
             },
             glyphs                          = {
 
             },
             talents                         = {
-
+                articGale                   = 205038,
+                boneChilling                = 205027,            
+                cometStorm                  = 153595,
+                frostBomb                   = 112948,
+                frozenTouch                 = 205030,
+                glacialSpike                = 199786,
+                iceNova                     = 157997,
+                lonelyWinter                = 205024,
+                rayOfFrost                  = 205021,
+                splittingIce                = 56377,
+                thermalVoid                 = 155149,
             },
         },
         -- All
         Shared = {
             abilities                       = {
-                counterspell                    = 2139,
-                frostNova                       = 122,
-                runeOfPower                     = 116011,
+                blink                       = 1953,
+                counterspell                = 2139,
+                frostNova                   = 122,
+                iceBarrier                  = 11426,
+                iceBlock                    = 45438,
+                invisibility                = 66,
+                runeOfPower                 = 116011,
+                slowFall                    = 130,
+                spellsteal                  = 30449,
+                timeWarp                    = 80353,                
+                waterJet                    = 135029,
             },
             artifacts                       = {
 
             },
             buffs                           = {
-                incantersFlow                   = 1463,
-                runeOfPower                     = 116014,
+                incantersFlow               = 1463,
+                runeOfPower                 = 116014,
             },
             debuffs                         = {
 
@@ -898,8 +970,16 @@ br.idList = {
 
             },
             talents                         = {
-                incantersFlow                   = 1463,
-                runeOfPower                     = 116011,
+                cauterize                   = 86949,
+                coldSnap                    = 11958,
+                incantersFlow               = 1463,
+                iceFloes                    = 108839,
+                iceWard                     = 205036,
+                mirrorImage                 = 55342,
+                ringOfFrost                 = 113724,
+                runeOfPower                 = 116011,
+                shimmer                     = 212653,
+                unstableMagic               = 157976,                
             },
         },
     },
@@ -986,7 +1066,7 @@ br.idList = {
                 flyingSerpentKick           = 101545,
                 flyingSerpentKickEnd        = 115057,
                 healingElixir               = 122281,
-                invokeXuen                  = 123904,
+                invokeXuenTheWhiteTiger     = 123904,
                 risingSunKick               = 107428,
                 rushingJadeWind             = 116847,
                 serenity                    = 152173,

@@ -43,14 +43,14 @@ local function runRotation()
 
 	--locals
 	local inCombat 					= br.player.inCombat
-	local combo 					= GetComboPoints("player")
+	local combo 					= br.player.power.amount.comboPoints
 	local bleed 					= br.player.bleed
 	local incarnationBuff 			= UnitBuffID("player", 102543) 
-	local power, powmax, powgen 	= br.player.power, br.player.powerMax, br.player.powerRegen
+	local power, powmax, powgen 	= br.player.power.amount.energy, br.player.power.energy.max, br.player.power.regen
 	local mfTick 					= 20.0/(1+UnitSpellHaste("player")/100)/10
 	local talent 					= br.player.talent
 	local buff 						= br.player.buff
-	local ttm 						= br.player.timeToMax
+	local ttm 						= br.player.power.ttm
 	local cd 						= br.player.cd
 	local clearcast 				= br.player.buff.clearcast
 	local gcd 						= br.player.gcd

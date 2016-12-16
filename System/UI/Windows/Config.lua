@@ -1,4 +1,5 @@
 -- This creates the normal BadBay Configuration Window
+br.ui.window.config = {}
 function br.ui:createConfigWindow()
     br.ui.window.config = br.ui:createWindow("config", 275, 400,"Configuration")
 
@@ -89,8 +90,6 @@ function br.ui:createConfigWindow()
         --     [2] = callOtherFeaturesEngine,
         -- },
     })
-
-    -- br.ui:loadWindowPositions("config")
 
     br.ui:checkWindowStatus("config")
 end

@@ -1,7 +1,7 @@
 -- Slash Commands
 ---------------------------------
 function Print(msg)
-	print("|cffa330c9[BadRotations] |cffFFFFFF"..msg)
+	print(br.classColor.."[BadRotations] |cffFFFFFF"..msg)
 end
 commandHelp = "|cffFF0000Slash Commands"
 function SlashCommandHelp(cmd,msg)
