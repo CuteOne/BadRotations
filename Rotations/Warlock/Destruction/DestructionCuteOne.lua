@@ -179,7 +179,7 @@ local function runRotation()
         local php                                           = br.player.health
         local playerMouse                                   = UnitIsPlayer("mouseover")
         local power, powmax, powgen, powerDeficit           = br.player.power.amount.mana, br.player.power.mana.max, br.player.power.regen, br.player.power.mana.deficit
-        local powerPercentMana                              = br.player.powerPercentMana
+        local powerPercentMana                              = br.player.power.mana.percent
         local pullTimer                                     = br.DBM:getPulltimer()
         local queue                                         = br.player.queue
         local racial                                        = br.player.getRacial()
