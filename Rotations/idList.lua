@@ -95,16 +95,16 @@ br.idList = {
                 remorselessWinter           = 196770,
             },
             artifacts                       = {
-                
+                sindragosasFury             = 190778,
             },
             buffs                           = {
                 breathOfSindragosa          = 152279,
                 darkSuccor                  = 101568,
-                icyTalons                   = 194879,
                 killingMachine              = 51124,
                 obliteration                = 207256,
                 pillarOfFrost               = 51271,
                 rime                        = 59052,
+                icyTalons                   = 194878,
             },
             debuffs                         = {
                 frostFever                  = 55095,
@@ -114,7 +114,7 @@ br.idList = {
 
             },
             talents                         = {
-                abominaitonsMight           = 207161,
+                abominationsMight           = 207161,
                 avalanche                   = 207142,
                 blindingSleet               = 207167,
                 breathOfSindragosa          = 152279,
