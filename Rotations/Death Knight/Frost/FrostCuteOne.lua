@@ -49,9 +49,12 @@ local function createOptions()
             -- Dummy DPS Test
             br.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
             -- Artifact 
-            br.ui:createDropdownWithout(section, "Artifact", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Artifact Ability.")           
+            br.ui:createDropdownWithout(section, "Artifact", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Artifact Ability.")            
+            br.ui:createSpinnerWithout(section, "Artifact Units",  5,  1,  10,  1,  "|cffFFFFFFSet to desired targets to use Singragosa's Fury on. Min: 1 / Max: 10 / Interval: 1")           
             -- Death Grip
             br.ui:createCheckbox(section,"Death Grip")
+            -- Glacial Advance
+            br.ui:createSpinner(section, "Glacial Advance",  5,  1,  10,  1,  "|cffFFFFFFSet to desired targets to use Glacial Advance on. Min: 1 / Max: 10 / Interval: 1") 
             -- Path of Frost
             br.ui:createCheckbox(section,"Path of Frost")
             -- Pre-Pull Timer
@@ -107,22 +110,22 @@ local function createOptions()
             -- Mind Freeze
             br.ui:createCheckbox(section,"Mind Freeze")
             -- Interrupt Percentage
-            br.ui:createSpinner(section,  "InterruptAt",  0,  0,  95,  5,  "|cffFFBB00Cast Percentage to use at.")
+            br.ui:createSpinnerWithout(section,  "InterruptAt",  0,  0,  95,  5,  "|cffFFBB00Cast Percentage to use at.")
         br.ui:checkSectionState(section)
         ----------------------
         --- TOGGLE OPTIONS ---
         ----------------------
         section = br.ui:createSection(br.ui.window.profile,  "Toggle Keys")
             -- Single/Multi Toggle
-            br.ui:createDropdown(section,  "Rotation Mode", br.dropOptions.Toggle,  4)
+            br.ui:createDropdownWithout(section,  "Rotation Mode", br.dropOptions.Toggle,  4)
             --Cooldown Key Toggle
-            br.ui:createDropdown(section,  "Cooldown Mode", br.dropOptions.Toggle,  3)
+            br.ui:createDropdownWithout(section,  "Cooldown Mode", br.dropOptions.Toggle,  3)
             --Defensive Key Toggle
-            br.ui:createDropdown(section,  "Defensive Mode", br.dropOptions.Toggle,  6)
+            br.ui:createDropdownWithout(section,  "Defensive Mode", br.dropOptions.Toggle,  6)
             -- Interrupts Key Toggle
-            br.ui:createDropdown(section,  "Interrupt Mode", br.dropOptions.Toggle,  6)
+            br.ui:createDropdownWithout(section,  "Interrupt Mode", br.dropOptions.Toggle,  6)
             -- Cleave Toggle
-            br.ui:createDropdown(section,  "Cleave Mode", br.dropOptions.Toggle,  6)
+            br.ui:createDropdownWithout(section,  "Cleave Mode", br.dropOptions.Toggle,  6)
             -- Pause Toggle
             br.ui:createDropdown(section,  "Pause Mode", br.dropOptions.Toggle,  6)
         br.ui:checkSectionState(section)
@@ -169,8 +172,8 @@ local function runRotation()
         local power             = br.player.power
         local pullTimer         = br.DBM:getPulltimer()
         local runicPower        = br.player.power.amount.runicPower
-        local runitPowerDeficit = br.player.power.runicPower.deficit
-        local runes             = br.player.power.amount.runes
+        local runicPowerDeficit = br.player.power.runicPower.deficit
+        local runes             = br.player.power.runes.frac
         local swimming          = IsSwimming()
         local talent            = br.player.talent
         local units             = br.player.units
@@ -365,7 +368,7 @@ local function runRotation()
             -- obliterate,if=dot.breath_of_sindragosa.ticking&runic_power<70
             -- obliterate,if=dot.breath_of_sindragosa.ticking&rune>=3
             -- obliterate,if=!dot.breath_of_sindragosa.ticking
-            if (buff.breathOfSindragosa.exists and (runicPower < 70 or rune.amount >= 3)) or not buff.breathOfSindragosa then
+            if (buff.breathOfSindragosa.exists and (runicPower < 70 or runes >= 3)) or not buff.breathOfSindragosa then
                 if cast.obliterate() then return end
             end
         -- Remorseless Winter
@@ -413,7 +416,9 @@ local function runRotation()
             end
         -- Glacial Advance
             -- glacial_advance
-            if cast.glacialAdvance() then return end
+            if isChecked("Glacial Advance") and #enemies.yards30 >= getOptionValue("Glacial Advance") then
+                if cast.glacialAdvance() then return end
+            end
         -- Obliterate
             -- obliterate,if=buff.killing_machine.react
             if buff.killingMachine.exists then
@@ -436,7 +441,7 @@ local function runRotation()
             end
         -- Remorseless Winter
             -- remorseless_winter,if=rune>=3&buff.icy_talons.remains>=gcd+0.1
-            if rune.amount >= 3 and buff.icyTalons.remain >= gcd + 0.1 then
+            if runes >= 3 and buff.icyTalons.remain >= gcd + 0.1 then
                 if cast.remorselessWinter() then return end
             end
         -- Howling Blast
@@ -451,12 +456,14 @@ local function runRotation()
             end
         -- Glacial Advance
             -- glacial_advance,if=buff.icy_talons.remains>=gcd+0.1
-            if buff.icyTalons.remain >= gcd + 0.01 then
-                if cast.glacialAdvance() then return end
+            if isChecked("Glacial Advance") and #enemies.yards30 >= getOptionValue("Glacial Advance") then
+                if buff.icyTalons.remain >= gcd + 0.01 then
+                    if cast.glacialAdvance() then return end
+                end
             end
         -- Obliterate
             -- obliterate,if=(cooldown.remorseless_winter.remains>2|dot.remorseless_winter.ticking|rune>=3)&buff.icy_talons.remains>=gcd+0.1
-            if (cd.remorselessWinter > 2 or debuff.remorselessWinter[units.dyn25].exists or rune.amount >= 3) and buff.icyTalons.remain >= gcd + 0.1 then
+            if (cd.remorselessWinter > 2 or debuff.remorselessWinter[units.dyn25].exists or runes >= 3) and buff.icyTalons.remain >= gcd + 0.1 then
                 if cast.obliterate() then return end
             end
         -- Frost Strike
@@ -466,15 +473,17 @@ local function runRotation()
             end
         -- Remorseless Winter
             -- remorseless_winter,if=rune>=3
-            if rune.amount >= 3 then
+            if runes >= 3 then
                 if cast.remorselessWinter() then return end
             end
         -- Glacial Advance
             -- glacial_advance
-            if cast.glacialAdvance() then return end
+            if isChecked("Glacial Advance") and #enemies.yards15 >= getOptionValue("Glacial Advance") then
+                if cast.glacialAdvance() then return end
+            end
         -- Obliterate
             -- obliterate,if=cooldown.remorseless_winter.remains>2|dot.remorseless_winter.ticking|rune>=3
-            if cd.remorselessWinter > 2 or debuff.remorselessWinter[units.dyn25].exists or rune.amount >= 3 then
+            if cd.remorselessWinter > 2 or debuff.remorselessWinter[units.dyn25].exists or runes >= 3 then
                 if cast.obliterate() then return end
             end
         -- Frost Strike
@@ -562,7 +571,7 @@ local function runRotation()
         -- Obliteration
             -- obliteration,if=rune>=2&runic_power>=25
             if isChecked("Obliteration") and useCDs() then
-                if rune.amount >= 2 and runicPower >= 25 then
+                if runes >= 2 and runicPower >= 25 then
                     if cast.obliteration() then return end
                 end
             end
@@ -573,12 +582,12 @@ local function runRotation()
             end
         -- Obliterate
             -- obliterate,if=buff.icy_talons.remains>gcd+0.1&buff.killing_machine.up&runic_power<15&buff.obliteration.remains>=gcd+01
-            if buff.icyTalons.remain > gcd + 0.1 and buff.killingMachine.exists and runicPower.amount < 15 and buff.obliteration.remain >= gcd + 0.1 then
+            if buff.icyTalons.remain > gcd + 0.1 and buff.killingMachine.exists and runicPower < 15 and buff.obliteration.remain >= gcd + 0.1 then
                 if cast.obliterate() then return end
             end
         -- Frostscythe
             -- frostscythe,if=buff.icy_talons.remains>=gcd+0.1&buff.killing_machine.up&rune=1
-            if buff.icyTalons.remain >= gcd + 0.1 and buff.killingMachine.exists and rune.amount == 1 then
+            if buff.icyTalons.remain >= gcd + 0.1 and buff.killingMachine.exists and runes == 1 then
                 if cast.frostscythe() then return end
             end
         -- Obliterate
@@ -588,8 +597,10 @@ local function runRotation()
             end
         -- Glacial Advance
             -- glacial_advance,if=buff.icy_talons.remains>=gcd+0.1
-            if buff.icyTalons.remain > gcd + 0.1 then
-                if cast.glacialAdvance() then return end
+            if isChecked("Glacial Advance") and #enemies.yards30 >= getOptionValue("Glacial Advance") then
+                if buff.icyTalons.remain > gcd + 0.1 then
+                    if cast.glacialAdvance() then return end
+                end
             end
         -- Remorseless Winter
             -- remorseless_winter,if=buff.icy_talons.remains>=gcd+0.1&!buff.killing_machine.up
@@ -606,7 +617,9 @@ local function runRotation()
             if cast.obliterate() then return end
         -- Glacial Advance
             -- glacial_advance
-            if cast.glacialAdvance() then return end
+            if isChecked("Glacial Advance") and #enemies.yards30 >= getOptionValue("Glacial Advance") then
+                if cast.glacialAdvance() then return end
+            end
         -- Remorseless Winder
             -- remorseless_winter,if=!buff.killing_machine.up
             if not buff.killingMachine.exists then
@@ -628,13 +641,13 @@ local function runRotation()
         -- Empowering Rune Weapoon
                 -- empower_rune_weapon,if=rune<1&runic_power<40&talent.breath_of_sindragosa.enabled&cooldown.breath_of_sindragosa.remains>15
                 -- empower_rune_weapon,if=rune<1&runic_power<40&!talent.breath_of_sindragosa.enabled
-                if rune.amount < 1 and runicPower < 40 and ((talent.breathOfSindragosa and cd.breathOfSindragosa > 15) or not talent.breathOfSindragosa) then
+                if runes < 1 and runicPower < 40 and ((talent.breathOfSindragosa and cd.breathOfSindragosa > 15) or not talent.breathOfSindragosa) then
                     if cast.empowerRuneWeapon() then return end
                 end
         -- Hungering Rune Weapoon
                 -- hungering_rune_weapon,if=rune<1&runic_power<40&talent.breath_of_sindragosa.enabled&cooldown.breath_of_sindragosa.remains>15
                 -- hungering_rune_weapon,if=rune<1&runic_power<40&!talent.breath_of_sindragosa.enabled
-                if rune.amount < 1 and runicPower < 40 and ((talent.breathOfSindragosa and cd.breathOfSindragosa > 15) or not talent.breathOfSindragosa) then
+                if runes < 1 and runicPower < 40 and ((talent.breathOfSindragosa and cd.breathOfSindragosa > 15) or not talent.breathOfSindragosa) then
                     if cast.hungeringRuneWeapon() then return end
                 end
             end
@@ -732,7 +745,7 @@ local function runRotation()
         -- Singragosa's Fury
                     -- sindragosas_fury,if=buff.pillar_of_frost.up&debuff.razorice.stack=5&buff.unholy_strength.up
                     if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()) then
-                        if buff.pillarOfFrost.exists and debuff.razorice[units.dyn5].stack == 5 and buff.unholyStrength.exists then
+                        if buff.pillarOfFrost.exists and debuff.razorice[units.dyn5].stack == 5 and buff.unholyStrength.exists and #enemies.yards40 >= getOptionValue("Artifact Units") then
                             if cast.sindragosasFury() then return end
                         end
                     end
@@ -762,12 +775,12 @@ local function runRotation()
                     end
         -- Machinegun
                     -- call_action_list,name=machinegun,if=(talent.icy_talons.enabled&(talent.runic_attenuation.enabled|talent.frostscythe.enabled))
-                    if (talent.icyTalons and (talent.runicAttenuation or talent.frostscythe)) then
+                    if (talent.icyTalons and (talent.runicAttenuation or talent.frostscythe)) or level < 90 then
                         if actionList_Machinegun() then return end
                     end
         -- Generic
                     -- call_action_list,name=generic,if=(!talent.shattering_strikes.enabled&!talent.icy_talons.enabled)
-                    if (not talent.shatteringStrikes and not talent.icyTalons) or level < 90 then
+                    if (not talent.shatteringStrikes and not talent.icyTalons) then --or level < 90 then
                         if actionList_Generic() then return end
                     end
                 end -- End Simc APL 
