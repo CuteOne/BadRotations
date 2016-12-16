@@ -104,7 +104,7 @@ br.idList = {
                 obliteration                = 207256,
                 pillarOfFrost               = 51271,
                 rime                        = 59052,
-                icyTalons                   = 194878,
+                icyTalons                   = 194879,
             },
             debuffs                         = {
                 frostFever                  = 55095,
