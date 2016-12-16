@@ -19,8 +19,17 @@ function br.loader:new(spec,specName)
     -- Spells From Spell Table
     self.spell = mergeIdTables(self.spell)
 
+    -- Add Artifact Ability
+    for k,v in pairs(self.spell.artifacts) do
+        if not IsPassiveSpell(v) then
+            self.spell['abilities'][k] = v
+            self.spell[k] = v
+            break
+        end
+    end 
+
+    -- Update Talent Info
     local function getTalentInfo()
-        -- Update Talent Info
         br.activeSpecGroup = GetActiveSpecGroup()
         if self.talent == nil then self.talent = {} end
         for r = 1, 7 do --search each talent row
@@ -33,9 +42,9 @@ function br.loader:new(spec,specName)
                         -- Add All Matches to Talent List for Boolean Checks
                         self.talent[k] = selected
                         -- Add All Active Ability Matches to Ability/Spell List for Use Checks
-                        if not IsPassiveSpell(talentID) then
-                            self.spell['abilities'][k] = talentID
-                            self.spell[k] = talentID 
+                        if not IsPassiveSpell(v) then
+                            self.spell['abilities'][k] = v
+                            self.spell[k] = v
                         end
                     end
                 end
@@ -79,28 +88,78 @@ function br.loader:new(spec,specName)
 
         -- local timeStart = debugprofilestop()
         -- Update Power
-        self.mana           = UnitPower("player", 0)
-        self.rage           = UnitPower("player", 1)
-        self.focus          = UnitPower("player", 2)
-        self.energy         = UnitPower("player", 3)
-        self.comboPoints    = UnitPower("player", 4)
-        self.runes          = UnitPower("player", 5)
-        self.runicPower     = UnitPower("player", 6)
-        self.soulShards     = UnitPower("player", 7)
-        self.lunarPower     = UnitPower("player", 8)
-        self.holyPower      = UnitPower("player", 9)
-        self.holyPowerMax   = UnitPowerMax("player",9)
-        self.altPower       = UnitPower("player",10)
-        self.maelstrom      = UnitPower("player",11)
-        self.chi            = UnitPower("player",12)
-        self.insanity       = UnitPower("player",13)
-        self.obsolete       = UnitPower("player",14)
-        self.obsolete2      = UnitPower("player",15)
-        self.arcaneCharges  = UnitPower("player",16)
-        self.fury           = UnitPower("player",17)
-        self.pain           = UnitPower("player",18)
-        self.powerRegen     = getRegen("player")
-        self.timeToMax      = getTimeToMax("player")
+        -- self.mana           = UnitPower("player", 0)
+        -- self.rage           = UnitPower("player", 1)
+        -- self.focus          = UnitPower("player", 2)
+        -- self.energy         = UnitPower("player", 3)
+        -- self.comboPoints    = UnitPower("player", 4)
+        -- self.runes          = UnitPower("player", 5)
+        -- self.runicPower     = UnitPower("player", 6)
+        -- self.soulShards     = UnitPower("player", 7)
+        -- self.lunarPower     = UnitPower("player", 8)
+        -- self.holyPower      = UnitPower("player", 9)
+        -- self.altPower       = UnitPower("player",10)
+        -- self.maelstrom      = UnitPower("player",11)
+        -- self.chi            = UnitPower("player",12)
+        -- self.insanity       = UnitPower("player",13)
+        -- self.obsolete       = UnitPower("player",14)
+        -- self.obsolete2      = UnitPower("player",15)
+        -- self.arcaneCharges  = UnitPower("player",16)
+        -- self.fury           = UnitPower("player",17)
+        -- self.pain           = UnitPower("player",18)
+        -- self.powerRegen     = getRegen("player")
+        -- self.timeToMax      = getTimeToMax("player")
+
+        local powerList     = {
+            mana            = 0,
+            rage            = 1,
+            focus           = 2,
+            energy          = 3,
+            comboPoints     = 4,
+            runes           = 5,
+            runicPower      = 6,
+            soulShards      = 7,
+            lunarPower      = 8,
+            holyPower       = 9,
+            altPower        = 10,
+            maelstrom       = 11,
+            chi             = 12,
+            insanity        = 13,
+            obsolete        = 14,
+            obsolete2       = 15,
+            arcaneCharges   = 16,
+            fury            = 17,
+            pain            = 18,
+        }
+        local function runeCDPercent(runeIndex)
+            if GetRuneCount(runeIndex) == 0 then
+                return (GetTime() - select(1,GetRuneCooldown(runeIndex))) / select(2,GetRuneCooldown(runeIndex))
+            else
+                return 0
+            end
+        end 
+        if self.power == nil then self.power = {} end
+        -- for i = 0, #powerList do
+        for k, v in pairs(powerList) do
+            if UnitPower("player",v) ~= nil then
+                if self.power[k] == nil then self.power[k] = {} end
+                if self.power.amount == nil then self.power.amount = {} end
+                self.power[k].amount    = UnitPower("player",v)
+                self.power[k].max       = UnitPowerMax("player",v)
+                self.power[k].deficit   = UnitPowerMax("player",v) - UnitPower("player",v)
+                self.power[k].percent   = (UnitPower("player",v) / UnitPowerMax("player",v)) / 100
+                self.power.amount[k]    = UnitPower("player",v)
+                if k == "runes" then
+                    local runeCount = 0
+                    for i = 1, 6 do
+                        runeCount = runeCount + GetRuneCount(i)
+                    end
+                    self.power[k].frac  = runeCount + math.max(runeCDPercent(1),runeCDPercent(2),runeCDPercent(3),runeCDPercent(4),runeCDPercent(5),runeCDPercent(6))
+                end
+            end
+        end
+        self.power.regen     = getRegen("player")
+        self.power.ttm       = getTimeToMax("player") 
 
         -- Build Best Unit per Range
         local typicalRanges = {

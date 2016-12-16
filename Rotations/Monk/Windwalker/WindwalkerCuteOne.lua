@@ -187,8 +187,8 @@ local function runRotation()
         local castTimeHS        = 2-(2*UnitSpellHaste("player")/100)
         local cd                = br.player.cd
         local charges           = br.player.charges
-        local chi               = br.player.chi
-        local chiMax            = UnitPowerMax("player",12)
+        local chi               = br.player.power.amount.chi
+        local chiMax            = br.player.power.chi.max
         local combatTime        = getCombatTime()
         local debuff            = br.player.debuff
         local enemies           = br.player.enemies
@@ -202,14 +202,14 @@ local function runRotation()
         local level             = br.player.level
         local mode              = br.player.mode
         local php               = br.player.health
-        local power             = br.player.power
-        local powerMax          = br.player.powerMax
+        local power             = br.player.power.amount.energy
+        local powerMax          = br.player.power.energy.max
         local pullTimer         = br.DBM:getPulltimer()
         local queue             = br.player.queue
         local race              = br.player.race
         local racial            = br.player.getRacial()
         local recharge          = br.player.recharge
-        local regen             = br.player.powerRegen
+        local regen             = br.player.power.regen
         local solo              = select(2,IsInInstance())=="none"
         local spell             = br.player.spell
         local t17_2pc           = br.player.eq.t17_2pc
@@ -219,7 +219,7 @@ local function runRotation()
         local thp               = getHP(br.player.units.dyn5)
         local trinketProc       = false --br.player.hasTrinketProc()
         local ttd               = getTTD(br.player.units.dyn5)
-        local ttm               = br.player.timeToMax
+        local ttm               = br.player.power.ttm
         local units             = br.player.units
         if lastSpell == nil then lastSpell = 0 end
         if leftCombat == nil then leftCombat = GetTime() end
@@ -886,74 +886,76 @@ local function runRotation()
         end -- End SEF - Action List
     -- Action List - Serenity
         function actionList_Serenity()
+            if isChecked("Serenity") then
         -- Energizing Elixir
-            -- energizing_elixir
-            if cast.energizingElixir() then return end
+                -- energizing_elixir
+                if cast.energizingElixir() then return end
         -- Call Action List - Cooldowns
-            -- call_action_list,name=cd
-            if actionList_Cooldown() then return end
+                -- call_action_list,name=cd
+                if actionList_Cooldown() then return end
         -- Serenity
-            -- serenity
-            if getDistance("target") < 5 then
-                if cast.serenity() then return end
-            end
+                -- serenity
+                if getDistance("target") < 5 then
+                    if cast.serenity() then return end
+                end
         -- Strike of the Windlord
-            -- strike_of_the_windlord
-            if buff.serenity.exists then
-                if cast.strikeOfTheWindlord() then return end
-            end
+                -- strike_of_the_windlord
+                if buff.serenity.exists then
+                    if cast.strikeOfTheWindlord() then return end
+                end
         -- Rising Sun Kick
             -- rising_sun_kick,cycle_targets=1,if=active_enemies<3
-            if #enemies.yards5 < 3 then
-                for i = 1, #enemies.yards5 do
-                    local thisUnit = enemies.yards5[i]
-                    local markOfTheCraneRemain = getDebuffRemain(thisUnit,spell.debuffs.markOfTheCrane,"player")
-                    if markOfTheCraneRemain < 5 or markOfTheCraneCount == #enemies.yards5 then
-                        if cast.risingSunKick(thisUnit) then return end
+                if #enemies.yards5 < 3 then
+                    for i = 1, #enemies.yards5 do
+                        local thisUnit = enemies.yards5[i]
+                        local markOfTheCraneRemain = getDebuffRemain(thisUnit,spell.debuffs.markOfTheCrane,"player")
+                        if markOfTheCraneRemain < 5 or markOfTheCraneCount == #enemies.yards5 then
+                            if cast.risingSunKick(thisUnit) then return end
+                        end
                     end
                 end
-            end
         -- Fists of Fury
-            -- fists_of_fury
-            if markPercent < 75 or #enemies.yards5 < 3 then
-                if cast.fistsOfFury() then return end
-            end
+                -- fists_of_fury
+                if markPercent < 75 or #enemies.yards5 < 3 then
+                    if cast.fistsOfFury() then return end
+                end
         -- Spinning Crane Kick
-            -- spinning_crane_kick,if=active_enemies>=3&!prev_gcd.spinning_crane_kick
-            if #enemies.yards5 >= 3 and markPercent >= 75 and (lastSpell ~= spell.spinningCraneKick or level < 78) then
-                if cast.spinningCraneKick() then return end
-            end
+                -- spinning_crane_kick,if=active_enemies>=3&!prev_gcd.spinning_crane_kick
+                if #enemies.yards5 >= 3 and markPercent >= 75 and (lastSpell ~= spell.spinningCraneKick or level < 78) then
+                    if cast.spinningCraneKick() then return end
+                end
         -- Rising Sun Kick
-            -- rising_sun_kick,cycle_targets=1,if=active_enemies>=3
-            if #enemies.yards5 >= 3 then
-                for i = 1, #enemies.yards5 do
-                    local thisUnit = enemies.yards5[i]
-                    local markOfTheCraneRemain = getDebuffRemain(thisUnit,spell.debuffs.markOfTheCrane,"player")
-                    if markOfTheCraneRemain < 5 or markOfTheCraneCount == #enemies.yards5 then
-                        if cast.risingSunKick(thisUnit) then return end
+                -- rising_sun_kick,cycle_targets=1,if=active_enemies>=3
+                if #enemies.yards5 >= 3 then
+                    for i = 1, #enemies.yards5 do
+                        local thisUnit = enemies.yards5[i]
+                        local markOfTheCraneRemain = getDebuffRemain(thisUnit,spell.debuffs.markOfTheCrane,"player")
+                        if markOfTheCraneRemain < 5 or markOfTheCraneCount == #enemies.yards5 then
+                            if cast.risingSunKick(thisUnit) then return end
+                        end
                     end
                 end
-            end
         -- Blackout Kick
-            -- blackout_kick,cycle_targets=1,if=!prev_gcd.blackout_kick
-            if lastSpell ~= spell.blackoutKick or level < 78 then
-                for i = 1, #enemies.yards5 do
-                    local thisUnit = enemies.yards5[i]
-                    local markOfTheCraneRemain = getDebuffRemain(thisUnit,spell.debuffs.markOfTheCrane,"player")
-                    if markOfTheCraneRemain < 5 or markOfTheCraneCount == #enemies.yards5 then
-                        if cast.blackoutKick(thisUnit) then return end
+                -- blackout_kick,cycle_targets=1,if=!prev_gcd.blackout_kick
+                if lastSpell ~= spell.blackoutKick or level < 78 then
+                    for i = 1, #enemies.yards5 do
+                        local thisUnit = enemies.yards5[i]
+                        local markOfTheCraneRemain = getDebuffRemain(thisUnit,spell.debuffs.markOfTheCrane,"player")
+                        if markOfTheCraneRemain < 5 or markOfTheCraneCount == #enemies.yards5 then
+                            if cast.blackoutKick(thisUnit) then return end
+                        end
                     end
                 end
-            end
         -- Spinning Crane Kick
-            -- spinning_crane_kick,if=!prev_gcd.spinning_crane_kick
-            if #enemies.yards5 >= 3 and markPercent >= 75 and (lastSpell ~= spell.spinningCraneKick or level < 78) then
-                if cast.spinningCraneKick() then return end
-            end
+                -- spinning_crane_kick,if=!prev_gcd.spinning_crane_kick
+                if #enemies.yards5 >= 3 and markPercent >= 75 and (lastSpell ~= spell.spinningCraneKick or level < 78) then
+                    if cast.spinningCraneKick() then return end
+                end
         -- Rushing Jade Wind
-            -- rushing_jade_wind,if=!prev_gcd.rushing_jade_wind
-            if lastSpell ~= spell.rushingJadeWind or level < 78 then
-                if cast.rushingJadeWind() then return end
+                -- rushing_jade_wind,if=!prev_gcd.rushing_jade_wind
+                if lastSpell ~= spell.rushingJadeWind or level < 78 then
+                    if cast.rushingJadeWind() then return end
+                end
             end
         end
     -- Action List - Pre-Combat

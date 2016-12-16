@@ -170,7 +170,7 @@ local function runRotation()
         local level                                         = br.player.level
         local lootDelay                                     = getOptionValue("LootDelay")
         local lowestHP                                      = br.friend[1].unit
-        local manaPercent                                   = br.player.powerPercentMana
+        local manaPercent                                   = br.player.power.mana.percent
         local mode                                          = br.player.mode
         local moveIn                                        = 999
         local moving                                        = isMoving("player")
@@ -178,20 +178,20 @@ local function runRotation()
         local petInfo                                       = br.player.petInfo        
         local php                                           = br.player.health
         local playerMouse                                   = UnitIsPlayer("mouseover")
-        local power, powmax, powgen, powerDeficit           = br.player.power, br.player.powerMax, br.player.powerRegen, br.player.powerDeficit
+        local power, powmax, powgen, powerDeficit           = br.player.power.amount.mana, br.player.power.mana.max, br.player.power.regen, br.player.power.mana.deficit
         local powerPercentMana                              = br.player.powerPercentMana
         local pullTimer                                     = br.DBM:getPulltimer()
         local queue                                         = br.player.queue
         local racial                                        = br.player.getRacial()
         local recharge                                      = br.player.recharge
-        local shards                                        = br.player.soulShards
+        local shards                                        = br.player.power.amount.soulShards
         local summonPet                                     = getOptionValue("Summon Pet")
         local solo                                          = br.player.instance=="none"
         local spell                                         = br.player.spell
         local talent                                        = br.player.talent
         local travelTime                                    = getDistance("target")/16
         local ttd                                           = getTTD
-        local ttm                                           = br.player.timeToMax
+        local ttm                                           = br.player.power.ttm
         local units                                         = br.player.units
         
    		if leftCombat == nil then leftCombat = GetTime() end
@@ -515,7 +515,7 @@ local function runRotation()
                         if  (mode.rotation == 1 and #enemies.yards40 > 1) or mode.rotation == 2 then
                             for i = 1, #enemies.yards40 do
                                 local thisUnit = enemies.yards40[i]
-                                if not UnitIsUnit(thisUnit,"target") and isValidUnit(thisUnit) then
+                                if not UnitIsUnit(thisUnit,"target") and isValidUnit(thisUnit) and (not UnitExists("focus") or (UnitExists("focus") and UnitIsUnit(thisUnit,"focus"))) then
                                     if debuff.havoc[thisUnit] ~= nil then
                                         if #enemies.yards40 < 6 and not debuff.havoc[thisUnit].exists then
                                             if cast.havoc(thisUnit) then return end

@@ -183,16 +183,9 @@ local function runRotation()
         local cd                                            = br.player.cd
         local charges                                       = br.player.charges
         local combatTime                                    = getCombatTime()
-        local combo, comboDeficit, comboMax                 = br.player.comboPoints, UnitPowerMax("player", 4) - br.player.comboPoints, UnitPowerMax("player", 4)
+        local combo, comboDeficit, comboMax                 = br.player.power.amount.comboPoints, br.player.power.comboPoints.deficit, br.player.power.comboPoints.max
         local deadtar                                       = UnitIsDeadOrGhost("target")
         local debuff                                        = br.player.debuff
-        local dynTar5                                       = br.player.units.dyn5 --Melee
-        local dynTar15                                      = br.player.units.dyn15 
-        local dynTar20AoE                                   = br.player.units.dyn20AoE --Stealth
-        local dynTar30AoE                                   = br.player.units.dyn30AoE
-        local dynTable5                                     = (br.data.settings[br.selectedSpec].toggles['Cleave']==1 and br.enemy) or { [1] = {["unit"]=dynTar5, ["distance"] = getDistance(dynTar5)}}
-        local dynTable15                                    = (br.data.settings[br.selectedSpec].toggles['Cleave']==1 and br.enemy) or { [1] = {["unit"]=dynTar15, ["distance"] = getDistance(dynTar15)}}
-        local dynTable20AoE                                 = (br.data.settings[br.selectedSpec].toggles['Cleave']==1 and br.enemy) or { [1] = {["unit"]=dynTar20AoE, ["distance"] = getDistance(dynTar20AoE)}}
         local enemies                                       = br.player.enemies
         local flaskBuff, canFlask                           = getBuffRemain("player",br.player.flask.wod.buff.agilityBig), canUse(br.player.flask.wod.agilityBig)   
         local gcd                                           = br.player.gcd
@@ -206,7 +199,7 @@ local function runRotation()
         local multidot                                      = (br.player.mode.cleave == 1 or br.player.mode.rotation ~= 3)
         local perk                                          = br.player.perk
         local php                                           = br.player.health
-        local power, powerDeficit, powerRegen, powerTTM     = br.player.power, br.player.powerDeficit, br.player.powerRegen, br.player.powerTTM
+        local power, powerDeficit, powerRegen, powerTTM     = br.player.power.amount.energy, br.player.power.energy.deficit, br.player.power.regen, br.player.power.ttm
         local pullTimer                                     = br.DBM:getPulltimer()
         local race                                          = br.player.race
         local racial                                        = br.player.getRacial()
@@ -219,7 +212,7 @@ local function runRotation()
         local talent                                        = br.player.talent
         local time                                          = getCombatTime()
         local ttd                                           = getTTD
-        local ttm                                           = br.player.timeToMax
+        local ttm                                           = br.player.power.ttm
         local units                                         = br.player.units
 
         if talent.anticipation then antital = 1 else antital = 0 end

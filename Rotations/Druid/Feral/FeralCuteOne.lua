@@ -188,7 +188,7 @@ local function runRotation()
         local cast                                          = br.player.cast
         local clearcast                                     = br.player.buff.clearcasting.exists
         local combatTime                                    = getCombatTime()
-        local combo                                         = br.player.comboPoints
+        local combo                                         = br.player.power.amount.comboPoints
         local cd                                            = br.player.cd
         local charges                                       = br.player.charges
         local deadMouse                                     = UnitIsDeadOrGhost("mouseover")
@@ -215,7 +215,7 @@ local function runRotation()
         local php                                           = br.player.health
         local playerMouse                                   = UnitIsPlayer("mouseover")
         local potion                                        = br.player.potion
-        local power, powmax, powgen                         = br.player.energy, br.player.powerMax, br.player.powerRegen
+        local power, powmax, powgen                         = br.player.power.amount.energy, br.player.power.energy.max, br.player.power.regen
         local pullTimer                                     = br.DBM:getPulltimer()
         local racial                                        = br.player.getRacial()
         local recharge                                      = br.player.recharge
@@ -232,7 +232,7 @@ local function runRotation()
         local travel, flight, cat, noform                   = br.player.buff.travelForm.exists, br.player.buff.flightForm.exists, br.player.buff.catForm.exists, GetShapeshiftForm()==0
         local trinketProc                                   = false
         local ttd                                           = getTTD
-        local ttm                                           = br.player.timeToMax
+        local ttm                                           = br.player.power.ttm
         local units                                         = br.player.units
 
    		if leftCombat == nil then leftCombat = GetTime() end

@@ -86,22 +86,54 @@ br.idList = {
         -- Frost
         [251] = {
             abilities                       = {
-
+                chainsOfIce                 = 45524,
+                empowerRuneWeapon           = 47568,
+                frostStrike                 = 49143,
+                howlingBlast                = 49184,
+                obliterate                  = 49020,
+                pillarOfFrost               = 51271,
+                remorselessWinter           = 196770,
             },
             artifacts                       = {
-
+                
             },
             buffs                           = {
-
+                breathOfSindragosa          = 152279,
+                darkSuccor                  = 101568,
+                killingMachine              = 51124,
+                obliteration                = 207256,
+                pillarOfFrost               = 51271,
+                rime                        = 59052,
             },
             debuffs                         = {
-
+                frostFever                  = 55095,
+                chainsOfIce                 = 45524,
             },
             glyphs                          = {
 
             },
             talents                         = {
-
+                abominaitonsMight           = 207161,
+                avalanche                   = 207142,
+                blindingSleet               = 207167,
+                breathOfSindragosa          = 152279,
+                freezingFog                 = 207060,
+                frostscythe                 = 207230,
+                frozenPulse                 = 194909,
+                gatheringStorms             = 194912,
+                glacialAdvance              = 194913,
+                hornOfWinter                = 57330,
+                hungeringRuneWeapon         = 207127,
+                icecap                      = 207126,
+                icyTalons                   = 194878,
+                murderousEffeciency         = 207061,
+                obliteration                = 207256,
+                permafrost                  = 207200,
+                runicAttenuation            = 207104,
+                shatteringStrikes           = 207057,
+                volatileShielding           = 207188,
+                whiteWalker                 = 212765,
+                winterIsComing              = 207170, 
             },
         },
         -- Unholy
@@ -135,7 +167,7 @@ br.idList = {
                 deathGate                   = 50977,
                 deathGrip                   = 49576,
                 deathStrike                 = 49998,
-                frostBreath                 = 190780,
+                iceboundFortitude           = 48792,
                 mindFreeze                  = 47528,
                 pathOfFrost                 = 3714,
                 raiseAlly                   = 61999,
@@ -146,6 +178,7 @@ br.idList = {
             },
             buffs                           = {
                 pathOfFrost                 = 3714,
+                unholyStrength              = 53365,
                 wraithWalk                  = 212552,
             },
             debuffs                         = {
@@ -154,6 +187,7 @@ br.idList = {
                 darkCommand                 = 56222,
                 frostBreath                 = 190780,
                 frostFever                  = 55095,
+                razorice                    = 51714,
             },
             glyphs                          = {
 
@@ -1031,7 +1065,7 @@ br.idList = {
                 flyingSerpentKick           = 101545,
                 flyingSerpentKickEnd        = 115057,
                 healingElixir               = 122281,
-                invokeXuen                  = 123904,
+                invokeXuenTheWhiteTiger     = 123904,
                 risingSunKick               = 107428,
                 rushingJadeWind             = 116847,
                 serenity                    = 152173,
