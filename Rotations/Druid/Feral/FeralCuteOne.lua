@@ -215,7 +215,7 @@ local function runRotation()
         local php                                           = br.player.health
         local playerMouse                                   = UnitIsPlayer("mouseover")
         local potion                                        = br.player.potion
-        local power, powmax, powgen                         = br.player.power.amount.energy, br.player.power.energy.max, br.player.power.regen
+        local power, powmax, powgen, powerDeficit           = br.player.power.amount.energy, br.player.power.energy.max, br.player.power.regen, br.player.power.energy.deficit
         local pullTimer                                     = br.DBM:getPulltimer()
         local racial                                        = br.player.getRacial()
         local recharge                                      = br.player.recharge
@@ -554,7 +554,7 @@ local function runRotation()
         -- Tiger's Fury
                 if isChecked("Tiger's Fury") then
                     -- if=(!buff.clearcasting.react&energy.deficit>=60)|energy.deficit>=80|(t18_class_trinket&buff.berserk.up&buff.tigers_fury.down)
-                    if ((not clearcast and br.player.powerDeficit >= 60) or br.player.powerDeficit >= 80 or (hasEquiped(124514) and buff.berserk.exists and not buff.tigersFury.exists)) and (cd.shred == 0 or cd.shred <= getLatency()) then
+                    if ((not clearcast and powerDeficit >= 60) or powerDeficit >= 80 or (hasEquiped(124514) and buff.berserk.exists and not buff.tigersFury.exists)) and (cd.shred == 0 or cd.shred <= getLatency()) then
                         if cast.tigersFury() then return end
                     end
                 end

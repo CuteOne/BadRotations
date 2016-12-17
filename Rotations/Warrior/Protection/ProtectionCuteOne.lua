@@ -432,7 +432,7 @@ local function runRotation()
             end
         -- Neltharion's Fury
             -- neltharions_fury,if=incoming_damage_2500ms>health.max*0.20&!buff.shield_block.up
-            if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useDefensives()) then
+            if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useDefensive()) then
                 if buff.battleCry.exists then
                     if cast.neltharionsFury("player") then return end
                 end

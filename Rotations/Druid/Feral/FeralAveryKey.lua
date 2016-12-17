@@ -120,7 +120,7 @@ local function runRotation()
 		end
 		
 		--Tigers Fury
-		if ((not clearcast and br.player.powerDeficit >= 60) or br.player.powerDeficit >= 80) and targetDistance < 5 then
+		if ((not clearcast and br.player.power.energy.deficit >= 60) or br.player.power.energy.deficit >= 80) and targetDistance < 5 then
 			if isChecked("Debug") then Print("Tigers Fury") end
 			CastSpellByName(GetSpellInfo(5217))
 		end
