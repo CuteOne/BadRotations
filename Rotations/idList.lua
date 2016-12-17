@@ -95,7 +95,25 @@ br.idList = {
                 remorselessWinter           = 196770,
             },
             artifacts                       = {
-                
+                ambidexterity               = 189092,
+                artificialStamina           = 211309,
+                badToTheBone                = 189147,
+                bladesOfFrost               = 218931,
+                blastRadius                 = 189086,
+                chillOfTheGrave             = 205209,
+                coldAsIce                   = 189080,
+                crystallineSwords           = 189186,
+                deadOfWinter                = 189164,
+                frozenCore                  = 189179,
+                frozenSkin                  = 204875,
+                frozenSoul                  = 189184,
+                hypothermia                 = 189185,
+                iceInYourVeins              = 189154,
+                mirrorBall                  = 189180,
+                nothingButTheBoots          = 189144,
+                overPowered                 = 189097,
+                sindragosasFury             = 190778,
+                soulbiter                   = 214904,
             },
             buffs                           = {
                 breathOfSindragosa          = 152279,
@@ -114,7 +132,7 @@ br.idList = {
 
             },
             talents                         = {
-                abominaitonsMight           = 207161,
+                abominationsMight           = 207161,
                 avalanche                   = 207142,
                 blindingSleet               = 207167,
                 breathOfSindragosa          = 152279,
