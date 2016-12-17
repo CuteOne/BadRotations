@@ -110,7 +110,7 @@ function br.loader:new(spec,specName)
         -- self.powerRegen     = getRegen("player")
         -- self.timeToMax      = getTimeToMax("player")
 
-        local powerList     = {
+        powerList     = {
             mana            = 0,
             rage            = 1,
             focus           = 2,
@@ -144,23 +144,19 @@ function br.loader:new(spec,specName)
             if UnitPower("player",v) ~= nil then
                 if self.power[k] == nil then self.power[k] = {} end
                 if self.power.amount == nil then self.power.amount = {} end
-                if k == "runes" then
+                self.power[k].amount    = UnitPower("player",v)
+                self.power[k].max       = UnitPowerMax("player",v)
+                self.power[k].deficit   = UnitPowerMax("player",v) - UnitPower("player",v)
+                self.power[k].percent   = (UnitPower("player",v) / UnitPowerMax("player",v)) / 100
+                self.power.amount[k]    = UnitPower("player",v)
+                -- DKs are special snowflakes
+                if select(2,UnitClass("player")) == "DEATHKNIGHT" and v == 5 then
                     local runeCount = 0
                     for i = 1, 6 do
                         runeCount = runeCount + GetRuneCount(i)
                     end
                     self.power.amount[k]    = runeCount
                     self.power[k].frac      = runeCount + math.max(runeCDPercent(1),runeCDPercent(2),runeCDPercent(3),runeCDPercent(4),runeCDPercent(5),runeCDPercent(6))
-                    self.power[k].amount    = UnitPower("player",v)
-                    self.power[k].max       = UnitPowerMax("player",v)
-                    self.power[k].deficit   = UnitPowerMax("player",v) - UnitPower("player",v)
-                    self.power[k].percent   = (UnitPower("player",v) / UnitPowerMax("player",v)) / 100
-                else
-                    self.power[k].amount    = UnitPower("player",v)
-                    self.power[k].max       = UnitPowerMax("player",v)
-                    self.power[k].deficit   = UnitPowerMax("player",v) - UnitPower("player",v)
-                    self.power[k].percent   = (UnitPower("player",v) / UnitPowerMax("player",v)) / 100
-                    self.power.amount[k]    = UnitPower("player",v)
                 end
             end
         end

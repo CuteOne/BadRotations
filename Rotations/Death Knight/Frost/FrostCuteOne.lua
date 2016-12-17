@@ -411,12 +411,12 @@ local function runRotation()
             end
         -- Frostscythe
             -- frostscythe,if=!talent.breath_of_sindragosa.enabled&(buff.killing_machine.react|spell_targets.frostscythe>=4)
-            if not talent.breathOfSindragosa and (buff.killingMachine.exists or #enemies.yards8 >= 4) then
+            if not talent.breathOfSindragosa and (buff.killingMachine.exists or #enemies.yards8 >= 4) and getFacing("player",units.dyn8) then
                 if cast.frostscythe() then return end
             end
         -- Glacial Advance
             -- glacial_advance
-            if isChecked("Glacial Advance") and #enemies.yards30 >= getOptionValue("Glacial Advance") then
+            if isChecked("Glacial Advance") and #enemies.yards15 >= getOptionValue("Glacial Advance") and getFacing("player",units.dyn15) then
                 if cast.glacialAdvance() then return end
             end
         -- Obliterate
@@ -456,7 +456,7 @@ local function runRotation()
             end
         -- Glacial Advance
             -- glacial_advance,if=buff.icy_talons.remains>=gcd+0.1
-            if isChecked("Glacial Advance") and #enemies.yards30 >= getOptionValue("Glacial Advance") then
+            if isChecked("Glacial Advance") and #enemies.yards15 >= getOptionValue("Glacial Advance") and getFacing("player",units.dyn15) then
                 if buff.icyTalons.remain >= gcd + 0.01 then
                     if cast.glacialAdvance() then return end
                 end
@@ -478,7 +478,7 @@ local function runRotation()
             end
         -- Glacial Advance
             -- glacial_advance
-            if isChecked("Glacial Advance") and #enemies.yards15 >= getOptionValue("Glacial Advance") then
+            if isChecked("Glacial Advance") and #enemies.yards15 >= getOptionValue("Glacial Advance") and getFacing("player",units.dyn15) then
                 if cast.glacialAdvance() then return end
             end
         -- Obliterate
@@ -587,7 +587,7 @@ local function runRotation()
             end
         -- Frostscythe
             -- frostscythe,if=buff.icy_talons.remains>=gcd+0.1&buff.killing_machine.up&rune=1
-            if buff.icyTalons.remain >= gcd + 0.1 and buff.killingMachine.exists and runes == 1 then
+            if buff.icyTalons.remain >= gcd + 0.1 and buff.killingMachine.exists and runes == 1 and getFacing("player",units.dyn8) then
                 if cast.frostscythe() then return end
             end
         -- Obliterate
@@ -597,7 +597,7 @@ local function runRotation()
             end
         -- Glacial Advance
             -- glacial_advance,if=buff.icy_talons.remains>=gcd+0.1
-            if isChecked("Glacial Advance") and #enemies.yards30 >= getOptionValue("Glacial Advance") then
+            if isChecked("Glacial Advance") and #enemies.yards15 >= getOptionValue("Glacial Advance") and getFacing("player",units.dyn15) then
                 if buff.icyTalons.remain > gcd + 0.1 then
                     if cast.glacialAdvance() then return end
                 end
@@ -617,7 +617,7 @@ local function runRotation()
             if cast.obliterate() then return end
         -- Glacial Advance
             -- glacial_advance
-            if isChecked("Glacial Advance") and #enemies.yards30 >= getOptionValue("Glacial Advance") then
+            if isChecked("Glacial Advance") and #enemies.yards15 >= getOptionValue("Glacial Advance") and getFacing("player",units.dyn15) then
                 if cast.glacialAdvance() then return end
             end
         -- Remorseless Winder
@@ -745,7 +745,9 @@ local function runRotation()
         -- Singragosa's Fury
                     -- sindragosas_fury,if=buff.pillar_of_frost.up&debuff.razorice.stack=5&buff.unholy_strength.up
                     if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()) then
-                        if buff.pillarOfFrost.exists and debuff.razorice[units.dyn5].stack == 5 and buff.unholyStrength.exists and #enemies.yards40 >= getOptionValue("Artifact Units") then
+                        if buff.pillarOfFrost.exists and debuff.razorice[units.dyn5].stack == 5 and buff.unholyStrength.exists 
+                            and #enemies.yards40 >= getOptionValue("Artifact Units") and getFacing("player",units.dyn8) 
+                        then
                             if cast.sindragosasFury() then return end
                         end
                     end
