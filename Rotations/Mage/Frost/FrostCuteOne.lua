@@ -18,7 +18,7 @@ local function createToggles()
         [2] = { mode = "On", value = 1 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spell.combustion},
         [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.combustion}
     };
-   	CreateButton("Cooldown",2,0)
+    CreateButton("Cooldown",2,0)
 -- Defensive Button
     DefensiveModes = {
         [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spell.iceBarrier},
@@ -164,32 +164,32 @@ local function runRotation()
         local ttm                                           = br.player.power.ttm
         local units                                         = br.player.units
         
-   		if leftCombat == nil then leftCombat = GetTime() end
-		if profileStop == nil then profileStop = false end
-        if aritfact.icyHand then iceHand= 1 else iceHand = 0 end
+        if leftCombat == nil then leftCombat = GetTime() end
+        if profileStop == nil then profileStop = false end
+        if artifact.icyHand then iceHand= 1 else iceHand = 0 end
 
 --------------------
 --- Action Lists ---
 --------------------
-	-- Action List - Extras
-		local function actionList_Extras()
-		-- Dummy Test
-			if isChecked("DPS Testing") then
-				if ObjectExists("target") then
-					if getCombatTime() >= (tonumber(getOptionValue("DPS Testing"))*60) and isDummy() then
-						StopAttack()
-						ClearTarget()
-						Print(tonumber(getOptionValue("DPS Testing")) .." Minute Dummy Test Concluded - Profile Stopped")
-						profileStop = true
-					end
-				end
-			end -- End Dummy Test
+    -- Action List - Extras
+        local function actionList_Extras()
+        -- Dummy Test
+            if isChecked("DPS Testing") then
+                if ObjectExists("target") then
+                    if getCombatTime() >= (tonumber(getOptionValue("DPS Testing"))*60) and isDummy() then
+                        StopAttack()
+                        ClearTarget()
+                        Print(tonumber(getOptionValue("DPS Testing")) .." Minute Dummy Test Concluded - Profile Stopped")
+                        profileStop = true
+                    end
+                end
+            end -- End Dummy Test
 
-		end -- End Action List - Extras
-	-- Action List - Defensive
-		local function actionList_Defensive()
-			if useDefensive() then
-		-- Pot/Stoned
+        end -- End Action List - Extras
+    -- Action List - Defensive
+        local function actionList_Defensive()
+            if useDefensive() then
+        -- Pot/Stoned
                 if isChecked("Pot/Stoned") and php <= getOptionValue("Pot/Stoned") 
                     and inCombat and (hasHealthPot() or hasItem(5512)) 
                 then
@@ -215,11 +215,11 @@ local function runRotation()
                 if isChecked("Frost Nova") and php <= getOptionValue("Frost Nova") and #enemies.yards12 > 0 then
                     if cast.frostNova() then return end
                 end
-    		end -- End Defensive Toggle
-		end -- End Action List - Defensive
-	-- Action List - Interrupts
-		local function actionList_Interrupts()
-			if useInterrupts() then
+            end -- End Defensive Toggle
+        end -- End Action List - Defensive
+    -- Action List - Interrupts
+        local function actionList_Interrupts()
+            if useInterrupts() then
                 for i=1, #enemies.yards30 do
                     thisUnit = enemies.yards30[i]
                     if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
@@ -230,10 +230,10 @@ local function runRotation()
                     end
                 end
             end -- End useInterrupts check
-		end -- End Action List - Interrupts
-	-- Action List - Cooldowns
-		local function actionList_Cooldowns()
-			if useCDs() and getDistance(units.dyn40) < 40 then
+        end -- End Action List - Interrupts
+    -- Action List - Cooldowns
+        local function actionList_Cooldowns()
+            if useCDs() and getDistance(units.dyn40) < 40 then
         -- Rune of Power
                 -- rune_of_power,if=cooldown.icy_veins.remains<cast_time|charges_fractional>1.9&cooldown.icy_veins.remains>10|buff.icy_veins.up|target.time_to_die.remains+5<charges_fractional*10
                 -- TODO
@@ -413,8 +413,8 @@ local function runRotation()
                 if getOptionValue("APL Mode") == 2 then
 
                 end
-			end --End In Combat
-		end --End Rotation Logic
+            end --End In Combat
+        end --End Rotation Logic
     end -- End Timer
 end -- End runRotation
 local id = 64
