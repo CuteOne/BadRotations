@@ -65,12 +65,14 @@ frame:SetScript("OnEvent", frame.OnEvent)
 --[[This function is refired everytime wow ticks. This frame is located at the top of Core.lua]]
 
 function BadRotationsUpdate(self)
+	-- getEnemiesInRect(6,25)
 	local tempTime = GetTime();
 	if not self.lastUpdateTime then
 		self.lastUpdateTime = tempTime
 	end
 	if self.lastUpdateTime and (tempTime - self.lastUpdateTime) > (1/10) then
 		self.lastUpdateTime = tempTime
+
 
 		-- Close windows and swap br.selectedSpec on Spec Change
 		if select(2,GetSpecializationInfo(GetSpecialization())) ~= br.selectedSpec then

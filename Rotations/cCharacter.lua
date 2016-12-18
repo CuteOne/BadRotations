@@ -246,7 +246,7 @@ function cCharacter:new(class)
 
 -- Returns the Global Cooldown time
 	function self.getGlobalCooldown()
-		local gcd = (1.5 / ((UnitSpellHaste("player")/100)+1)) --getSpellCD(61304)
+		local gcd = getSpellCD(61304) --(1.5 / ((UnitSpellHaste("player")/100)+1))
 		if gcd < 1 then
 			return  1
 		else

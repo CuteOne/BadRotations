@@ -124,6 +124,7 @@ function br.pulse:dispDist()
     displayDistance = math.ceil(targetDistance)
 end
 function br.pulse:makeEnTable()
+	EnemiesEngine()
     if br.pulse.makeTable then
     	if br.pulse.makeTableTimer == nil then br.pulse.makeTableTimer = GetTime() end 
 		if br.pulse.makeTableTimer < GetTime() - 1 or br.enemy == nil then

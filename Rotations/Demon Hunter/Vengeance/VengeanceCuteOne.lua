@@ -181,7 +181,7 @@ local function runRotation()
         local mode                                          = br.player.mode
         local moveIn                                        = 999
         -- local multidot                                      = (useCleave() or br.player.mode.rotation ~= 3)
-        local pain                                          = br.player.pain
+        local pain                                          = br.player.power.amount.pain
         local perk                                          = br.player.perk        
         local php                                           = br.player.health
         local playerMouse                                   = UnitIsPlayer("mouseover")

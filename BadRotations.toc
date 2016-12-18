@@ -1,6 +1,6 @@
 ## Interface: 70100
-## Title: |cffD90000BadRotations
-## Notes: |cffD90000By CuteOne.
+## Title: |cffa330c9BadRotations
+## Notes: |cffa330c9By CuteOne.
 ## Author: CuteOne
 ## Version: 2.0
 ## SavedVariablesPerCharacter: brdata

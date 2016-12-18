@@ -179,7 +179,7 @@ br.idList = {
         -- All
         Shared = {
             abilities                       = {
-                antimagicShell              = 48707,
+                antiMagicShell              = 48707,
                 controlUndead               = 111673,
                 corpseExplosion             = 127344,
                 darkCommand                 = 56222,

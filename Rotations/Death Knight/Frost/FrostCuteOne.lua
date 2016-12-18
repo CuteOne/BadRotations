@@ -343,7 +343,7 @@ local function runRotation()
         function actionList_BreathOfSindragosa()
         -- Howling Blast
             -- howling_blast,target_if=!dot.frost_fever.ticking
-            if not debuff.frostFever[units.dyn30].exists then
+            if debuff.frostFever[units.dyn30] ~= nil and not debuff.frostFever[units.dyn30].exists then
                 if cast.howlingBlast() then return end
             end
         -- Breath of Sindragosa
@@ -436,7 +436,7 @@ local function runRotation()
             end
         -- Howling Blast
             -- howling_blast,target_if=!dot.frost_fever.ticking&buff.icy_talons.remains>=gcd+0.1
-            if not debuff.frostFever[units.dyn30].exists and buff.icyTalons.remain >= gcd + 0.1 then
+            if debuff.frostFever[units.dyn30] ~= nil and not debuff.frostFever[units.dyn30].exists and buff.icyTalons.remain >= gcd + 0.1 then
                 if cast.howlingBlast() then return end
             end
         -- Remorseless Winter
@@ -517,7 +517,7 @@ local function runRotation()
         -- Howling Blast
             -- howling_blast,target_if=!dot.frost_fever.ticking
             -- howling_blast,if=buff.rime.react
-            if not debuff.frostFever[units.dyn30].exists or buff.rime.exists then
+            if debuff.frostFever[units.dyn30] ~= nil and not debuff.frostFever[units.dyn30].exists or buff.rime.exists then
                 if cast.howlingBlast() then return end
             end
         -- Frost Strike
@@ -565,7 +565,7 @@ local function runRotation()
         -- Howling Blast
             -- howling_blast,target_if=!dot.frost_fever.ticking&buff.icy_talons.remains>=gcd+0.1
             -- howling_blast,if=buff.rime.up&!buff.obliteration.up
-            if (not debuff.frostFever[units.dyn30].exists and buff.icyTalons.remain >= gcd + 0.1) or buff.rime.exists or not buff.obliteration.exists then
+            if (debuff.frostFever[units.dyn30] ~= nil and not debuff.frostFever[units.dyn30].exists and buff.icyTalons.remain >= gcd + 0.1) or buff.rime.exists or not buff.obliteration.exists then
                 if cast.howlingBlast() then return end
             end
         -- Obliteration
@@ -662,7 +662,7 @@ local function runRotation()
         -- Howling Blast
             -- howling_blast,target_if=!dot.frost_fever.ticking
             -- howling_blast,if=buff.rime.react
-            if not debuff.frostFever[units.dyn5].exists or buff.rime.exists then
+            if debuff.frostFever[units.dyn30] ~= nil and not debuff.frostFever[units.dyn5].exists or buff.rime.exists then
                 if cast.howlingBlast() then return end
             end
         -- Frost Strike
@@ -777,12 +777,12 @@ local function runRotation()
                     end
         -- Machinegun
                     -- call_action_list,name=machinegun,if=(talent.icy_talons.enabled&(talent.runic_attenuation.enabled|talent.frostscythe.enabled))
-                    if (talent.icyTalons and (talent.runicAttenuation or talent.frostscythe)) or level < 90 then
+                    if (talent.icyTalons and (talent.runicAttenuation or talent.frostscythe)) then
                         if actionList_Machinegun() then return end
                     end
         -- Generic
                     -- call_action_list,name=generic,if=(!talent.shattering_strikes.enabled&!talent.icy_talons.enabled)
-                    if (not talent.shatteringStrikes and not talent.icyTalons) then --or level < 90 then
+                    if (not talent.shatteringStrikes and not talent.icyTalons) or level < 90 then
                         if actionList_Generic() then return end
                     end
                 end -- End Simc APL 

@@ -271,6 +271,88 @@ function EnemiesEngine()
 		end
 		return getTableEnemies
 	end
+
+	function getEnemiesInRect(width,length)
+		local LibDraw = LibStub("LibDraw-1.0")
+		local playerX, playerY, playerZ = GetObjectPosition("player")
+		local facing = ObjectFacing("player")
+
+		-- Near Left
+		local nlX, nlY, nlZ = GetPositionFromPosition(playerX, playerY, playerZ, width/2, facing + math.rad(90), 0)
+		LibDraw.Line(nlX, nlY, nlZ, playerX, playerY, playerZ)
+
+		-- Near Right
+		local nrX, nrY, nrZ = GetPositionFromPosition(playerX, playerY, playerZ, width/2, facing + math.rad(270), 0)
+		LibDraw.Line(nrX, nrY, nrZ, playerX, playerY, playerZ)
+
+		-- Far Left
+		local flX, flY, flZ = GetPositionFromPosition(nlX, nlY, nlZ, length, facing + math.rad(0), 0)
+		LibDraw.Line(flX, flY, flZ, nlX, nlY, nlZ)
+
+		-- Far Right
+		local frX, frY, frZ = GetPositionFromPosition(nrX, nrY, nrZ, length, facing + math.rad(0), 0)
+		LibDraw.Line(frX, frY, frZ, nrX, nrY, nrZ)
+
+		-- Box Complete
+		LibDraw.Line(frX, frY, frZ, flX, flY, flZ)
+
+		local enemiesTable = getEnemies("player",length)
+		local enemyCounter = 0
+		local maxX = math.max(nrX,nlX,frX,flX)
+		local minX = math.min(nrX,nlX,frX,flX)
+		local maxY = math.max(nrY,nlY,frY,flY)
+		local minY = math.min(nrY,nlY,frY,flY)
+		for i = 1, ObjectCount() do
+            local thisUnit = GetObjectWithIndex(i)
+            if ObjectIsType(thisUnit, ObjectTypes.Unit) and isDummy(thisUnit) then
+				local tX, tY, tZ = GetObjectPosition(thisUnit)
+				if tX < maxX and tX > minX and tY < maxY and tY > minY then
+					LibDraw.Circle(tX, tY, tZ, UnitBoundingRadius(thisUnit))
+					enemyCounter = enemyCounter + 1
+				end
+			end
+		end
+		return enemyCounter
+	end
+
+		local function isObjectInRectangle(tX,tY,aX,aY,bX,bY,cX,cY,dX,dY)
+			local areaRectangle = 0.5 * math.abs((aY - cY) * (dX - bX) + (bY - dY) * (aX - cX))
+			local abt = 0.5 * (aX * (bY - tY) + bX * (tY - aY) + tX * (aY - bY))
+			local bct = 0.5 * (bX * (cY - tY) + cX * (tY - bY) + tX * (bY - cY))
+			local cdt = 0.5 * (cX * (dY - tY) + dX * (tY - cY) + tX * (cY - dY))
+			local dat = 0.5 * (dX * (aY - tY) + aX * (tY - dY) + tX * (dY - aY))
+			return areaRectangle == (abt + bct + cdt + dat)
+		end
+
+		-- local function intersects(circle, rect)
+		local function intersects(tX,tY,tR,aX,aY,cX,cY)
+		    -- if circle ~= nil then
+		        local circleDistance_x = math.abs(tX + tR - aX - (aX - cX)/2)
+    			local circleDistance_y = math.abs(tY + tR - aY - (aY - cY)/2)
+
+		        if (circleDistance_x > ((aX - cX)/2 + tR)) then 
+		            return false
+		        end
+		        if (circleDistance_y > ((aY - cY)/2 + tR)) then  
+		            return false
+		        end
+
+		        if (circleDistance_x <= ((aX - cX)/2)) then
+		            return true
+		        end
+
+		        if (circleDistance_y <= ((aY - cY)/2)) then
+		            return true
+		        end
+
+		        cornerDistance_sq = (circleDistance_x - (aX - cX)/2)^2 + (circleDistance_y - (aY - cY)/2)^2
+
+		        return (cornerDistance_sq <= (tR^2));
+		        -- else
+		        --     return false
+		    -- end
+		end
+
 	-- returns true if unit have an Offensive Buff that we should dispel
 	function getOffensiveBuffs(unit,guid)
 		if GetObjectExists(unit) then

@@ -242,6 +242,7 @@ local function runRotation()
 
         if useAvatar == nil then useAvatar = false end
         if cd.warbreaker <= 3 then usedWarbreaker = false end
+        if getOptionValue("Battle Cry") == 3 or (getOptionValue("Battle Cry") == 2 and not useCDs()) then ignoreBattleCry = true else ignoreBattleCry = false end
 
         -- ChatOverlay(tostring(isInstanceBoss("target")))
 
@@ -378,7 +379,7 @@ local function runRotation()
         function actionList_Cooldowns()
             if getDistance(units.dyn5) < 5 then
             -- Ring of Collapsing Futures
-                if buff.battleCry.exists then
+                if buff.battleCry.exists or ignoreBattleCry then
                     if isChecked("Ring of Collapsing Futures") and hasEquiped(142173) and canUse(142173) and select(2,IsInInstance()) ~= "pvp"  then
                         useItem(142173)
                         return true
@@ -395,8 +396,8 @@ local function runRotation()
                 -- blood_fury,if=buff.battle_cry.up|target.time_to_die<=16
                 -- berserking,if=buff.battle_cry.up|target.time_to_die<=11
                 -- arcane_torrent,if=buff.battle_cry_deadly_calm.down&rage.deficit>40
-                if useCDs() and ((br.player.race == "Orc" and (buff.battleCry.exists or ttd(units.dyn5) <= 16)) 
-                    or (br.player.race == "Troll" and (buff.battleCry.exists or ttd(units.dyn5) <= 11)) 
+                if useCDs() and ((br.player.race == "Orc" and (buff.battleCry.exists or ignoreBattleCry or ttd(units.dyn5) <= 16)) 
+                    or (br.player.race == "Troll" and (buff.battleCry.exists or ignoreBattleCry or ttd(units.dyn5) <= 11)) 
                     or (br.player.race == "BloodElf" and (not buff.battleCry.exists and powerDeficit > 40))) 
                 then
                     if castSpell("player",racial,false,false,false) then return end
@@ -518,7 +519,7 @@ local function runRotation()
                         --     StartAttack(executeUnit)
                         -- end
         -- Focused Rage
-                        if (buff.focusedRage.stack < 3 and buff.battleCry.exists) or powerDeficit < 25 or (buff.focusedRage.remain < 3 and buff.focusedRage.stack > 0) then
+                        if (buff.focusedRage.stack < 3 and (buff.battleCry.exists or ignoreBattleCry)) or powerDeficit < 25 or (buff.focusedRage.remain < 3 and buff.focusedRage.stack > 0) then
                             if cast.focusedRage(executeUnit) then return end
                         end
         -- Battle Cry
@@ -530,7 +531,7 @@ local function runRotation()
                         end
         -- Mortal Strike
                         -- mortal_strike,if=cooldown_react&buff.battle_cry.up&buff.focused_rage.stack=3
-                        if (buff.battleCry.exists and buff.focusedRage.stack == 3) or (buff.focusedRage.remain < cd.battleCry and cd.battleCry < 5) then
+                        if ((buff.battleCry.exists or ignoreBattleCry) and buff.focusedRage.stack == 3) or (buff.focusedRage.remain < cd.battleCry and cd.battleCry < 5) or ignoreBattleCry then
                             if cast.mortalStrike(executeUnit) then return end
                         end
         -- Heroic Charge
@@ -540,7 +541,7 @@ local function runRotation()
                         end
         -- Execute
                         -- execute,if=buff.battle_cry_deadly_calm.up
-                        if (buff.battleCry.exists and talent.deadlyCalm) then
+                        if ((buff.battleCry.exists or ignoreBattleCry) and talent.deadlyCalm) then
                             if cast.execute(executeUnit) then return end
                         end
         -- Warbreaker
@@ -614,7 +615,7 @@ local function runRotation()
         -- Focused Rage
             -- focused_rage,if=!buff.battle_cry_deadly_calm.up&buff.focused_rage.stack<3&!cooldown.colossus_smash.up&(rage>=50|debuff.colossus_smash.down|cooldown.battle_cry.remains<=8)
             if (buff.battleCry.remain > cd.focusedRage and (buff.focusedRage.stack < 3 or cd.mortalStrike > 0)) 
-                or (not (buff.battleCry.exists and talent.deadlyCalm) and buff.focusedRage.stack < 3 and cd.colossusSmash > 0 
+                or (not ((buff.battleCry.exists or ignoreBattleCry) and talent.deadlyCalm) and buff.focusedRage.stack < 3 and cd.colossusSmash > 0 
                     and (rage >= 50 or not debuff.colossusSmash[units.dyn5].exists or cd.battleCry <= 8)) 
             then
                 -- if cast.focusedRage() then return end
@@ -628,7 +629,7 @@ local function runRotation()
                 end
             end
         -- Mortal Strike
-            if cd.battleCry > gcd then
+            if cd.battleCry > gcd or ignoreBattleCry then
                 if cast.mortalStrike() then return end
             end
         -- Execute
@@ -644,7 +645,7 @@ local function runRotation()
                     if cast.whirlwind() then return end
                 elseif #enemies.yards8 == 1 then
         -- Slam
-                    if rage > 32 or (buff.battleCry.exists and talent.deadlyCalm) then
+                    if rage > 32 or ((buff.battleCry.exists or ignoreBattleCry) and talent.deadlyCalm) then
                         if cast.slam() then return end
                     end
                 end
