@@ -100,6 +100,8 @@ local function createOptions()
             br.ui:createSpinner(section, "Heirloom Neck",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
         -- Effuse
             br.ui:createSpinner(section, "Effuse",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
+        -- Detox
+            br.ui:createCheckbox(section,"Detox")
         -- Healing Elixir
             br.ui:createSpinner(section, "Healing Elixir", 50, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
         -- Leg Sweep
@@ -293,15 +295,6 @@ local function runRotation()
             if hasNoControl() or (inCombat and getDistance("target") > 10 and isValidUnit("target")) then
                 if cast.tigersLust() then return end
             end
-        -- Detox
-            if canDispel("player",spell.detox) then
-                if cast.detox("player") then return end
-            end
-            if UnitIsPlayer("mouseover") and not UnitIsDeadOrGhost("mouseover") then
-                if canDispel("mouseover",spell.detox) then
-                    if cast.detox("mouseover") then return end
-                end
-            end
         -- Resuscitate
             if isChecked("Resuscitate") then
                 if getOptionValue("Resuscitate") == 1 
@@ -383,13 +376,24 @@ local function runRotation()
                         end
                     end
                 end
+        -- Dampen Harm
+                if isChecked("Diffuse/Dampen") and php <= getValue("Dampen Harm") and inCombat then
+                    if cast.dampenHarm() then return end
+                end
         -- Diffuse Magic
                 if isChecked("Diffuse/Dampen") and ((php <= getValue("Diffuse Magic") and inCombat) or canDispel("player",br.player.spell.diffuseMagic)) then
                     if cast.diffuseMagic() then return end
                 end
-        -- Dampen Harm
-                if isChecked("Diffuse/Dampen") and php <= getValue("Dampen Harm") and inCombat then
-                    if cast.dampenHarm() then return end
+        -- Detox
+                if isChecked("Detox") then
+                    if canDispel("player",spell.detox) then
+                        if cast.detox("player") then return end
+                    end
+                    if UnitIsPlayer("mouseover") and not UnitIsDeadOrGhost("mouseover") then
+                        if canDispel("mouseover",spell.detox) then
+                            if cast.detox("mouseover") then return end
+                        end
+                    end
                 end
         -- Effuse
                 if isChecked("Effuse") and ((not inCombat and php <= getOptionValue("Effuse")) --[[or (inCombat and php <= getOptionValue("Effuse") / 2)]]) then
