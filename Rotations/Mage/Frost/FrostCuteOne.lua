@@ -353,7 +353,7 @@ local function runRotation()
                     end
             -- Water Jet
                     -- water_jet,if=prev_gcd.frostbolt&buff.fingers_of_frost.stack<(2+artifact.icy_hand.enabled)&buff.brain_freeze.react=0
-                    if lastSpell == spell.frostbolt and buff.fingersOfFrost.stack < (2 + artifact.icyHand) and not buff.brainFreeze.exists then
+                    if lastSpell == spell.frostbolt and buff.fingersOfFrost.stack < (2 + iceHand) and not buff.brainFreeze.exists then
                         if cast.waterJet() then return end
                     end
             -- Ray of Frost
