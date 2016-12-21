@@ -44,12 +44,12 @@ local function createOptions()
     -- General Options
         section = br.ui:createSection(br.ui.window.profile, "General")
         -- APL
-            br.ui:createDropdownWithout(section, "APL Mode", {"|cffFFFFFFSimC","|cffFFFFFFAMR"}, 1, "|cffFFFFFFSet APL Mode to use.")
+            br.ui:createDropdownWithout(section, "APL Mode", {"|cffFFFFFFSimC","|cffFFFFFFAMR","|cff00ccffDBT","|cffff0000Testing"}, 1, "|cffFFFFFFSet APL Mode to use.")
         -- Dummy DPS Test
             br.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
         -- Pre-Pull Timer
             br.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
-        -- Artifact 
+        -- Artifact
             br.ui:createDropdownWithout(section,"Artifact", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Artifact Ability.")
         br.ui:checkSectionState(section)
     -- Cooldown Options
@@ -72,7 +72,7 @@ local function createOptions()
                 br.ui:createSpinner(section, "Gift of the Naaru",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
             end
         -- Frost Nova
-            br.ui:createSpinner(section, "Frost Nva",  50,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.");
+            br.ui:createSpinner(section, "Frost Nova",  50,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.");
         br.ui:checkSectionState(section)
     -- Interrupt Options
         section = br.ui:createSection(br.ui.window.profile, "Interrupts")
@@ -120,7 +120,7 @@ local function runRotation()
 --------------
 --- Locals ---
 --------------
-        local addsExist                                     = false 
+        local addsExist                                     = false
         local addsIn                                        = 999
         local artifact                                      = br.player.artifact
         local buff                                          = br.player.buff
@@ -150,7 +150,7 @@ local function runRotation()
         local mode                                          = br.player.mode
         local moveIn                                        = 999
         local moving                                        = isMoving("player")
-        local perk                                          = br.player.perk        
+        local perk                                          = br.player.perk
         local php                                           = br.player.health
         local playerMouse                                   = UnitIsPlayer("mouseover")
         local power, powmax, powgen, powerDeficit           = br.player.power.amount.mana, br.player.power.mana.max, br.player.power.regen, br.player.power.mana.deficit
@@ -163,7 +163,7 @@ local function runRotation()
         local ttd                                           = getTTD
         local ttm                                           = br.player.power.ttm
         local units                                         = br.player.units
-        
+
         if leftCombat == nil then leftCombat = GetTime() end
         if profileStop == nil then profileStop = false end
         if artifact.icyHand then iceHand= 1 else iceHand = 0 end
@@ -190,8 +190,8 @@ local function runRotation()
         local function actionList_Defensive()
             if useDefensive() then
         -- Pot/Stoned
-                if isChecked("Pot/Stoned") and php <= getOptionValue("Pot/Stoned") 
-                    and inCombat and (hasHealthPot() or hasItem(5512)) 
+                if isChecked("Pot/Stoned") and php <= getOptionValue("Pot/Stoned")
+                    and inCombat and (hasHealthPot() or hasItem(5512))
                 then
                     if canUse(5512) then
                         useItem(5512)
@@ -265,7 +265,7 @@ local function runRotation()
                 if isChecked("Racial") and (br.player.race == "Orc" or br.player.race == "Troll" or br.player.race == "Blood Elf") then
                     if castSpell("player",racial,false,false,false) then return end
                 end
-        
+
             end -- End useCDs check
         end -- End Action List - Cooldowns
     -- Action List - PreCombat
@@ -407,12 +407,95 @@ local function runRotation()
                     -- frostbolt
                     if cast.frostbolt() then return end
                 end -- End SimC APL
+  ----------------------
+  --- Start AMR APL ---
+  ----------------------
+              if getOptionValue("APL Mode") == 2 then
+              end
     ----------------------
-    --- AskMrRobot APL ---
+    --- Start DBT APL ---
     ----------------------
-                if getOptionValue("APL Mode") == 2 then
+    -------   TODO -------
+    -- Pet Freeze with 2 targets Rootable
+    -- Frost Bomb Single target
+    -- Frost Bomb Target
+    -- AOE roation
+    -- Pet Management
 
-                end
+              if getOptionValue("APL Mode") == 3 then
+            --Icy Veins
+                    -- icyVeins, If Rune of power Up (we always want to Icyveins with RoP)
+                    if buff.runeOfPower.exists then
+                        if cast.icyVeins() then return end
+                    end
+            -- Prolong RoP when IV Up
+                    -- If Icy Veins active, or we have capped rune of power Use RoP
+                    if buff.icyVeins.exists or charges.runeOfPower == 2 then
+                        if cast.runeOfPower() then return end
+                    end
+            -- Cast Icyveins if the CD is ready, and we have atleast 1 charge of rune_of_power, but not capped rune_of_power
+                    if (cd.icyVeins == 0 and charges.runeOfPower >= 1 and charges.runeOfPower < 2) then
+                        if cast.runeOfPower() then return end
+                        if cast.icyVeins() then return end
+                    end
+            -- Frozen Orb
+                    -- Cast frozen_orb on Cd
+                    if cast.frozenOrb() then return end
+            -- Frost Bomb AOE
+                    -- Damn Frost Bomb
+                    --TODO
+            -- Ebonbolt
+                    -- ebonbolt,if=buff.fingers_of_frost.stack<=(0+artifact.icy_hand.enabled)
+                    -- If we have 0 (1 w/ Icy Hand) stacks of fingersOfFrost cast Ebon Bolt.
+                    -- If we also do not have Brain freeze to no lose the free ice lance crit after flurry and burn a FoF Proc
+                    if buff.fingersOfFrost.stack <= (0 + iceHand) and not buff.brainFreeze.exists then
+                        if cast.ebonbolt() then return end
+                    end
+           -- Ice Lance capped
+                    -- ice_lance,if=buff.fingers_of_frost.react=0&prev_gcd.flurry
+                    -- ice lance if FoF capped at 3 or 2 without iceHand
+                    -- If icyVeins is up cast Ice lance to prolong IV (If Talented to thermalVoid)
+                    -- TODO Add Thermal Void logic, By default we use Icelance at high priopirty during Icy veins
+                    if buff.fingersOfFrost.stack == (2 + iceHand) or (buff.icyVeins.exists and buff.fingersOfFrost.exists) then
+                        if cast.iceLance() then return end
+                    end
+           -- Frozen Touch
+                    -- frozen_touch,if=buff.fingers_of_frost.stack<=(0+artifact.icy_hand.enabled)&((cooldown.icy_veins.remains>30&talent.thermal_void.enabled)|!talent.thermal_void.enabled)
+                    --
+                    if buff.fingersOfFrost.stack <= (0 + iceHand) and ((cd.icyVeins > 30 and talent.thermalVoid) or not talent.thermalVoid) then
+                        if cast.frozenTouch() then return end
+                    end
+          -- Flurry
+                    -- flurry,if=buff.brain_freeze.react&buff.fingers_of_frost.react=0&prev_gcd.frostbolt
+                   -- FLurry with brainFreeze Proc
+                    if buff.brainFreeze.exists and buff.fingersOfFrost.stack <= (2 + iceHand) then
+                        if cast.flurry() then return end
+                    end
+                    -- If we just Flurried Cast Ice Lance for winters_chill
+                    if lastSpell == spell.flurry then
+                        if cast.iceLance() then return end
+                        lastSpell = lastSpellCast
+                    end
+            -- Frost Bomb Single Target
+                    -- Frost bomb, if Frost bomb is not up on the target.
+                    --TODO
+            --Ice Lance all fingersOfFrost procs
+                     if buff.fingersOfFrost.exists then
+                         if cast.iceLance() then return end
+                     end
+            -- Frostbolt
+                    -- frostbolt
+                    if cast.frostbolt() then return end
+              end -- End DBT APL
+   ----------------------
+   --- Start Testing APL ---
+   ----------------------
+                if getOptionValue("APL Mode") == 4 then
+            -- Test Ground for Casts
+                    if cast.frostbolt() then return end
+                    if cast.waterJet() then return end
+                end -- End Testing APL
+
             end --End In Combat
         end --End Rotation Logic
     end -- End Timer
