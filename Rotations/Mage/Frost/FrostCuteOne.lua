@@ -424,30 +424,38 @@ local function runRotation()
     -- Frost Bomb Target
     -- AOE roation
     -- Pet Management
-    -- optimal Rune of Power Usage
-    -- TODO Add Thermal Void logic, By default we use Icelance at high priopirty during Icy veins
-    -- Ray of Frost
+    -- TODO Make this into a new funtion
     ---------------------
-
-              if getOptionValue("APL Mode") == 3 then
+            if getOptionValue("APL Mode") == 3 then
             --Icy Veins (ROP Trigger)
+                if talent.runeOfPower then
                     -- icyVeins, If Rune of power Up (we always want to Icyveins with RoP)
                     if buff.runeOfPower.exists then
                         if cast.icyVeins() then return end
                     end
+                    -- Rune of Power advanced
+                    -- Use RoP If icy veins is 40+ secs away, Frost Orb is soon, We Have FoF procs
+                    if charges.runeOfPower >= 1 and cd.icyVeins > 40 and (cd.frozenOrb < 1 or cd.frozenTouch < 1 ) and buff.fingersOfFrost.stack <= 1 and not buff.runeOfPower.exists then
+                        -- print("Optimal Rune of Power triggered")
+                        if cast.runeOfPower() then return end
+                    end
+                    -- Prolong RoP when Icy Veins Up
+                    -- If Icy Veins active, or we have capped rune of power Use RoP
+                    -- Since we are about to trigger RoP cast Orb if up to ready FoF procs
+                    if buff.icyVeins.exists or charges.runeOfPower == 2 then
+                        if not talent.rayOfFrost then
+                            -- Print("Orbing for RoP Opener.....")
+                            if cast.frozenOrb() then end
+                        end
+                            if cast.runeOfPower() then return end
+                    end
+                end
             --Icy Veins (incantersFlow Trigger)
                     if buff.incantersFlow.stack >2 then
                         if cast.icyVeins() then return end
                     end
-            -- Prolong RoP when Icy Veins Up
-                    -- If Icy Veins active, or we have capped rune of power Use RoP
-                    --**Since we are about to trigger RoP cast Orb if up to ready FoF procs
-                    if buff.icyVeins.exists or charges.runeOfPower == 2 then
-                        if cast.frozenOrb() then Print("Orbing for RoP Opener.....") end
-                        if cast.runeOfPower() then return end
-                    end
-            -- Cast Icyveins if the CD is ready, and we have atleast 1 charge of rune_of_power, but not capped rune_of_power
 
+            -- Cast Icy veins if the CD is ready, and we have atleast 1 charge of rune_of_power, but not capped rune_of_power
                     if (cd.icyVeins == 0 and charges.runeOfPower >= 1 and charges.runeOfPower < 2) then
                         if cast.runeOfPower() then return end
                         if cast.icyVeins() then return end
@@ -457,9 +465,19 @@ local function runRotation()
                     if cast.frozenOrb() then return end
             -- Ray of Frost
                     -- ray_of_frost,if=buff.icy_veins.up|(cooldown.icy_veins.remains>action.ray_of_frost.cooldown&buff.rune_of_power.down)
-                    if buff.icyVeins.exists or (buff.icyVeins.remain > getCastTime(spell.rayOfFrost)) then
-                        if cast.rayOfFrost() then return end
-                    elseif (cd.rayOfFrost == 0 and cd.icyVeins > 10) then
+                    if buff.icyVeins.exists or (cd.icyVeins > getCastTime(spell.rayOfFrost) and buff.runeOfPower.exists) then
+                        if talent.thermalVoid and buff.fingersOfFrost.stack <= 1 and castable.rayOfFrost then
+                            -- print("thermalVoid -> 1 or Less FoF -> rayOfFrost")
+                            if cast.rayOfFrost() then return end
+                        end
+                        if not talent.thermalVoid and castable.rayOfFrost then
+                              -- print("No thermalVoid -> rayOfFrost")
+                            if cast.rayOfFrost() then return end
+                        end
+                    end
+
+                    if (cd.rayOfFrost == 0 and cd.icyVeins > 10 and (buff.runeOfPower.exists or  buff.incantersFlow.exists) and talent.rayOfFrost) then
+                          -- print("DEBUG: RayOfFrost ON CD, Icy veins is too far, RoP / incantersFlow is UP")
                         if cast.rayOfFrost() then return end
                     end
             -- Frost Bomb AOE
@@ -481,15 +499,23 @@ local function runRotation()
                     end
            -- Frozen Touch
                     -- frozen_touch,if=buff.fingers_of_frost.stack<=(0+artifact.icy_hand.enabled)&((cooldown.icy_veins.remains>30&talent.thermal_void.enabled)|!talent.thermal_void.enabled)
-                    --
                     if buff.fingersOfFrost.stack <= (0 + iceHand) and ((cd.icyVeins > 30 and talent.thermalVoid) or not talent.thermalVoid) then
                         if cast.frozenTouch() then return end
                     end
           -- Flurry
                     -- flurry,if=buff.brain_freeze.react&buff.fingers_of_frost.react=0&prev_gcd.frostbolt
                    -- FLurry with brainFreeze Proc
-                    if buff.brainFreeze.exists and buff.fingersOfFrost.stack <= (2 + iceHand) then
-                        if cast.flurry() then return end
+                    if buff.brainFreeze.exists then
+                        -- Dump fingersOfFrost before Flurry
+                        for i=1, buff.fingersOfFrost.stack do
+                            -- print("Clearing Ice lance #" .. i .." ")
+                            if cast.iceLance() then return end
+                        end
+                        -- Frost bolt then Brain freeze Flurry
+                        if lastSpell == spell.frostbolt then
+                          -- print("Flurry Logic .. Last Spell was a Frost Bolt ")
+                          if cast.flurry() then end
+                        end
                     end
                     -- If we just Flurried Cast Ice Lance for winters_chill
                     if lastSpell == spell.flurry then
@@ -522,7 +548,7 @@ local function runRotation()
                 if getOptionValue("APL Mode") == 4 then
             -- Test Ground for Casts
                     if cast.frostbolt() then return end
-                    if cast.waterJet() then return end
+                    --if cast.waterJet() then return end
                 end -- End Testing APL
 
             end --End In Combat
