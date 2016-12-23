@@ -929,7 +929,7 @@ br.idList = {
                 summonWaterElemental        = 31687,
             },
             artifacts                       = {
-                ebonBolt                    = 214634,
+                ebonbolt                    = 214634,
                 icyHand                     = 220817,
             },
             buffs                           = {
