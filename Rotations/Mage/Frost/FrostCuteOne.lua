@@ -140,6 +140,7 @@ local function runRotation()
         local friendly                                      = friendly or UnitIsFriend("target", "player")
         local gcd                                           = br.player.gcd
         local hasMouse                                      = ObjectExists("mouseover")
+        local hasPet                                        = IsPetActive()
         local hasteAmount                                   = GetHaste()/100
         local healPot                                       = getHealthPot()
         local inCombat                                      = br.player.inCombat
@@ -283,6 +284,11 @@ local function runRotation()
                 -- augmentation,type=defiled
             -- Water Elemental
                 -- water_elemental
+                if not hasPet then
+                --  print("We have no Out of Combat pet ")
+                  CastSpellByName("Summon Water Elemental", "")
+                --  if cast.summonPet("notarget") then end
+                end
                 if isChecked("Pre-Pull Timer") and pullTimer <= getOptionValue("Pre-Pull Timer") then
 
                 end -- End Pre-Pull
@@ -323,7 +329,12 @@ local function runRotation()
 ------------------------------
 --- Out of Combat Rotation ---
 ------------------------------
-            if actionList_PreCombat() then return end
+            if actionList_PreCombat() then
+                if not hasPet then
+                -- print("we have no pet ")
+                CastSpellByName("Summon Water Elemental", "")
+                end
+            end
 --------------------------
 --- In Combat Rotation ---
 --------------------------
@@ -332,6 +343,7 @@ local function runRotation()
     --- In Combat - Interrupts ---
     ------------------------------
                 if actionList_Interrupts() then return end
+
     ---------------------------
     --- SimulationCraft APL ---
     ---------------------------
@@ -423,10 +435,13 @@ local function runRotation()
     -- Frost Bomb Single target
     -- Frost Bomb Target
     -- AOE roation
-    -- Pet Management
     -- TODO Make this into a new funtion
     ---------------------
             if getOptionValue("APL Mode") == 3 then
+            -- Pet Attack
+                if not UnitIsUnit("pettarget","target") then
+                       PetAttack()
+                end
             --Icy Veins (ROP Trigger)
                 if talent.runeOfPower then
                     -- icyVeins, If Rune of power Up (we always want to Icyveins with RoP)
@@ -475,7 +490,6 @@ local function runRotation()
                             if cast.rayOfFrost() then return end
                         end
                     end
-
                     if (cd.rayOfFrost == 0 and cd.icyVeins > 10 and (buff.runeOfPower.exists or  buff.incantersFlow.exists) and talent.rayOfFrost) then
                           -- print("DEBUG: RayOfFrost ON CD, Icy veins is too far, RoP / incantersFlow is UP")
                         if cast.rayOfFrost() then return end
@@ -538,6 +552,11 @@ local function runRotation()
                      if buff.fingersOfFrost.exists then
                          if cast.iceLance() then return end
                      end
+          -- Water Jet
+                     -- water_jet,if=prev_gcd.frostbolt&buff.fingers_of_frost.stack<(2+artifact.icy_hand.enabled)&buff.brain_freeze.react=0
+                     if lastSpell == spell.frostbolt and buff.fingersOfFrost.stack < (2 + iceHand) and not buff.brainFreeze.exists then
+                         if CastPetAction(6,"target") then return end
+                     end
           -- Frostbolt
                     -- frostbolt
                     if cast.frostbolt() then return end
@@ -547,10 +566,9 @@ local function runRotation()
    ----------------------
                 if getOptionValue("APL Mode") == 4 then
             -- Test Ground for Casts
-                    if cast.frostbolt() then return end
-                    --if cast.waterJet() then return end
-                end -- End Testing APL
+                    CastSpellByName("Frostbolt")
 
+                end -- End Testing APL
             end --End In Combat
         end --End Rotation Logic
     end -- End Timer
