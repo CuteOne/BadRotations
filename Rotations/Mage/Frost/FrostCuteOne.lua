@@ -122,6 +122,8 @@ local function runRotation()
 --------------
         local addsExist                                     = false
         local addsIn                                        = 999
+        local activePet                                     = br.player.pet
+        local activePetId                                   = br.player.petId
         local artifact                                      = br.player.artifact
         local buff                                          = br.player.buff
         local cast                                          = br.player.cast
@@ -151,6 +153,7 @@ local function runRotation()
         local moveIn                                        = 999
         local moving                                        = isMoving("player")
         local perk                                          = br.player.perk
+        local petInfo                                       = br.player.petInfo
         local php                                           = br.player.health
         local playerMouse                                   = UnitIsPlayer("mouseover")
         local power, powmax, powgen, powerDeficit           = br.player.power.amount.mana, br.player.power.mana.max, br.player.power.regen, br.player.power.mana.deficit
@@ -421,19 +424,30 @@ local function runRotation()
     -- Frost Bomb Target
     -- AOE roation
     -- Pet Management
+    -- optimal Rune of Power Usage
+    -- TODO Add Thermal Void logic, By default we use Icelance at high priopirty during Icy veins
+    -- Ray of Frost
+    ---------------------
 
               if getOptionValue("APL Mode") == 3 then
-            --Icy Veins
+            --Icy Veins (ROP Trigger)
                     -- icyVeins, If Rune of power Up (we always want to Icyveins with RoP)
                     if buff.runeOfPower.exists then
                         if cast.icyVeins() then return end
                     end
-            -- Prolong RoP when IV Up
+            --Icy Veins (incantersFlow Trigger)
+                    if buff.incantersFlow.stack >2 then
+                        if cast.icyVeins() then return end
+                    end
+            -- Prolong RoP when Icy Veins Up
                     -- If Icy Veins active, or we have capped rune of power Use RoP
+                    --**Since we are about to trigger RoP cast Orb if up to ready FoF procs
                     if buff.icyVeins.exists or charges.runeOfPower == 2 then
+                        if cast.frozenOrb() then Print("Orbing for RoP Opener.....") end
                         if cast.runeOfPower() then return end
                     end
             -- Cast Icyveins if the CD is ready, and we have atleast 1 charge of rune_of_power, but not capped rune_of_power
+
                     if (cd.icyVeins == 0 and charges.runeOfPower >= 1 and charges.runeOfPower < 2) then
                         if cast.runeOfPower() then return end
                         if cast.icyVeins() then return end
@@ -441,6 +455,13 @@ local function runRotation()
             -- Frozen Orb
                     -- Cast frozen_orb on Cd
                     if cast.frozenOrb() then return end
+            -- Ray of Frost
+                    -- ray_of_frost,if=buff.icy_veins.up|(cooldown.icy_veins.remains>action.ray_of_frost.cooldown&buff.rune_of_power.down)
+                    if buff.icyVeins.exists or (buff.icyVeins.remain > getCastTime(spell.rayOfFrost)) then
+                        if cast.rayOfFrost() then return end
+                    elseif (cd.rayOfFrost == 0 and cd.icyVeins > 10) then
+                        if cast.rayOfFrost() then return end
+                    end
             -- Frost Bomb AOE
                     -- Damn Frost Bomb
                     --TODO
@@ -455,7 +476,6 @@ local function runRotation()
                     -- ice_lance,if=buff.fingers_of_frost.react=0&prev_gcd.flurry
                     -- ice lance if FoF capped at 3 or 2 without iceHand
                     -- If icyVeins is up cast Ice lance to prolong IV (If Talented to thermalVoid)
-                    -- TODO Add Thermal Void logic, By default we use Icelance at high priopirty during Icy veins
                     if buff.fingersOfFrost.stack == (2 + iceHand) or (buff.icyVeins.exists and buff.fingersOfFrost.exists) then
                         if cast.iceLance() then return end
                     end
@@ -476,14 +496,23 @@ local function runRotation()
                         if cast.iceLance() then return end
                         lastSpell = lastSpellCast
                     end
-            -- Frost Bomb Single Target
+          -- Glacial Spike
+                    -- glacial_spike
+                    if cast.glacialSpike() then return end
+          --Comet Storm
+                    -- comet_storm
+                    if cast.cometStorm() then return end
+          --Ice Nova
+                    -- ice_nova
+                    if cast.iceNova() then return end
+          -- Frost Bomb Single Target
                     -- Frost bomb, if Frost bomb is not up on the target.
                     --TODO
-            --Ice Lance all fingersOfFrost procs
+          --Ice Lance all fingersOfFrost procs
                      if buff.fingersOfFrost.exists then
                          if cast.iceLance() then return end
                      end
-            -- Frostbolt
+          -- Frostbolt
                     -- frostbolt
                     if cast.frostbolt() then return end
               end -- End DBT APL
