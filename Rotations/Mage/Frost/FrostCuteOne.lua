@@ -171,7 +171,7 @@ local function runRotation()
         if leftCombat == nil then leftCombat = GetTime() end
         if profileStop == nil then profileStop = false end
         if artifact.icyHand then iceHand= 1 else iceHand = 0 end
-
+        local fofMax = (2 + iceHand)
 --------------------
 --- Action Lists ---
 --------------------
@@ -269,6 +269,14 @@ local function runRotation()
                 if isChecked("Racial") and (br.player.race == "Orc" or br.player.race == "Troll" or br.player.race == "Blood Elf") then
                     if castSpell("player",racial,false,false,false) then return end
                 end
+                -- Frost Mage CDs --------------------------------------------
+                -- Cooldowns Spell TimeWarp if HasItem(ShardOfTheExodar) and not HasBuff(Bloodlust)
+                -- Cooldowns Spell RuneOfPower if CooldownSecRemaining(IcyVeins) < SpellCastTimeSec(RuneOfPower)
+                -- Cooldowns Spell IcyVeins if not HasBuff(IcyVeins)
+                -- Cooldowns Spell RuneOfPower if ChargesRemaining(RuneOfPower) = SpellCharges(RuneOfPower) and (CanUse(GlacialSpike) or not HasTalent(GlacialSpike))
+                -- Cooldowns Spell RuneOfPower if BuffRemainingSec(Bloodlust) > BuffDurationSec(RuneOfPower) + SpellCastTimeSec(RuneOfPower) or BuffRemainingSec(TimeWarp) > BuffDurationSec(RuneOfPower) + SpellCastTimeSec(RuneOfPower)
+                -- Cooldowns Spell RuneOfPower if FightSecRemaining < BuffDurationSec(RuneOfPower) + SpellCastTimeSec(RuneOfPower) + SpellCastTimeSec(GlacialSpike)
+                -- Frost Mage CDs --------------------------------------------
 
             end -- End useCDs check
         end -- End Action List - Cooldowns
@@ -356,9 +364,9 @@ local function runRotation()
             -- Cooldowns
                     -- call_action_list,name=cooldown
                     if actionList_Cooldowns() then return end
-            -- Ice Nova
+            -- Ice Nova w/ winterchill (SimC)
                     -- ice_nova,if=debuff.winters_chill.up
-                    if debuff.wintersChill[units.dyn40].exists then
+                    if UnitDebuffID("target",228358) then -- Winter Chill Call
                         if cast.iceNova() then return end
                     end
             -- Frostbolt
@@ -381,8 +389,8 @@ local function runRotation()
                     if buff.brainFreeze.exists and not buff.fingersOfFrost.exists and lastSpell == spell.frostbolt then
                         if cast.flurry() then return end
                     end
-            -- Frozen Touch
-                    -- frozen_touch,if=buff.fingers_of_frost.stack<=(0+artifact.icy_hand.enabled)&((cooldown.icy_veins.remains>30&talent.thermal_void.enabled)|!talent.thermal_void.enabled)
+            -- Frozen Touch (SimC)
+                    -- SimC: frozen_touch,if=buff.fingers_of_frost.stack<=(0+artifact.icy_hand.enabled)&((cooldown.icy_veins.remains>30&talent.thermal_void.enabled)|!talent.thermal_void.enabled)
                     if buff.fingersOfFrost.stack <= (0 + iceHand) and ((cd.icyVeins > 30 and talent.thermalVoid) or not talent.thermalVoid) then
                         if cast.frozenTouch() then return end
                     end
@@ -430,18 +438,26 @@ local function runRotation()
     ----------------------
     --- Start DBT APL ---
     ----------------------
-    -------   TODO -------
+    -------   TODO   -------
     -- Pet Freeze with 2 targets Rootable
-    -- Frost Bomb Single target
-    -- Frost Bomb Target
+    -- Change Frost Bombs to AMR logic
     -- AOE roation
-    -- TODO Make this into a new funtion
-    ---------------------
+    -- Formal CD rotation
+    -- personalized Prints for all Spells
+    -- Rotation counts and Passed metrics
+    -------------------------
             if getOptionValue("APL Mode") == 3 then
+
             -- Pet Attack
                 if not UnitIsUnit("pettarget","target") then
                        PetAttack()
                 end
+            -- Ice Lance + Flurry (AMR)
+                if not buff.fingersOfFrost.exists and lastSpellCast == spell.flurry and not talent.glacialSpike then
+                    -- If we just Flurried Cast Ice Lance for winters_chill
+                    if cast.iceLance() then return end
+                end
+      -------------- CD'S Start -------------------------
             --Icy Veins (ROP Trigger)
                 if talent.runeOfPower then
                     -- icyVeins, If Rune of power Up (we always want to Icyveins with RoP)
@@ -469,105 +485,90 @@ local function runRotation()
                     if buff.incantersFlow.stack >2 then
                         if cast.icyVeins() then return end
                     end
-
             -- Cast Icy veins if the CD is ready, and we have atleast 1 charge of rune_of_power, but not capped rune_of_power
                     if (cd.icyVeins == 0 and charges.runeOfPower >= 1 and charges.runeOfPower < 2) then
                         if cast.runeOfPower() then return end
                         if cast.icyVeins() then return end
                     end
+     -------------- CD'S END -------------------------
+            -- Frost bolt w/ Water Jet (AMR)
+                    -- Frostbolt if IsPetCasting(PetWaterElemental, WaterJet)
+                    if UnitChannelInfo("Pet") then
+                        Print("Casting Frostbolt because water jet is chanelling")
+                        if cast.frostbolt() then Print("Waterbolt - Frosbolt Casted") end
+                        return;
+                    end
+             -- Water Jet (AMR)
+                    -- water_jet,if=prev_gcd.frostbolt&buff.fingers_of_frost.stack<(2+artifact.icy_hand.enabled)&buff.brain_freeze.react=0
+                    -- WaterJet if BuffStack(FingersOfFrost) < BuffMaxStack(FingersOfFrost) and WasLastCast(Frostbolt) and not HasBuff(BrainFreeze) and not HasTalent(GlacialSpike)
+                    if buff.fingersOfFrost.stack < (2 + iceHand) and lastSpellCast == spell.frostbolt and not buff.brainFreeze.exists and not talent.glacialSpike then
+                        if CastPetAction(6,"target") then return end
+                    end
+             -- Ray of Frost (AMR)
+                    -- ray_of_frost,if=buff.icy_veins.up|(cooldown.icy_veins.remains>action.ray_of_frost.cooldown&buff.rune_of_power.down)
+                    -- if buff.icyVeins.exists or (cd.icyVeins > getCastTime(spell.rayOfFrost) and buff.runeOfPower.exists) then
+                    -- RayOfFrost if HasBuff(IcyVeins)
+                    if buff.icyVeins.exists then
+                        if cast.rayOfFrost() then return end
+                    end
+             -- Glacial Spike (AMR)
+                    -- GlacialSpike
+                    if castable.glacialSpike then
+                      if cast.glacialSpike() then Print("Casted Glacial Spike") return end
+                    end
+             --Flurry (AMR)
+                    -- Spell Flurry if HasBuff(BrainFreeze) and ((not HasBuff(FingersOfFrost) and not HasTalent(GlacialSpike)) or (HasTalent(GlacialSpike) and WasLastCast(Frostbolt)))
+                    if buff.brainFreeze.exists and ((not buff.fingersOfFrost.exists and not talent.glacialSpike) or (talent.glacialSpike and lastSpellCast == spell.frostbolt)) then
+                        if cast.flurry() then end
+                    end
+            -- Frozen Touch (AMR)
+                    -- FrozenTouch if BuffStack(FingersOfFrost) < BuffMaxStack(FingersOfFrost) - 2
+                    if buff.fingersOfFrost.stack < (fofMax - 2) then
+                        if cast.frozenTouch() then return end
+                    end
             -- Frost Bomb
                     -- Frost bomb, if Frost bomb is not up on the target. and we have 2 fingersOfFrost
-                    if UnitDebuffID("target",112948) then
-                        print("Frost Bomb is on target")
-                    elseif not UnitDebuffID("target",112948) and lastSpellCast ~= spell.frostBomb then
-                        print("NO Frost Bomb")
-                        if buff.fingersOfFrost.stack >= 2 or (cd.frozenOrb < 2 or cd.frozenTouch < 3 or cd.ebonbolt < 4) then
-                       -- print("2 FoF -> frostBomb")
-                          cast.frostBomb()
+                    --frost_bomb,if=debuff.frost_bomb.remains<action.ice_lance.travel_time&buff.fingers_of_frost.react>0
+                    -- AMR?
+                    if talent.frostBomb then
+                        if UnitDebuffID("target",112948) then
+                            -- print("Frost Bomb is on target")
+                        elseif not UnitDebuffID("target",112948) and lastSpellCast ~= spell.frostBomb then
+                            print("NO Frost Bomb")
+                            if buff.fingersOfFrost.stack >= 2 or (cd.frozenOrb < 2 or cd.frozenTouch < 3 or cd.ebonbolt < 4) then
+                            -- print("2 FoF -> frostBomb")
+                            cast.frostBomb()
+                            end
                         end
-                     end
+                    end
+
+            -- Ice Lance NO GS (AMR)
+                    -- ice_lance,if=buff.fingers_of_frost.react>0&cooldown.icy_veins.remains>10|buff.fingers_of_frost.react>2
+                    -- IceLance if ((HasBuff(FingersOfFrost) and CooldownSecRemaining(IcyVeins) > 10) or BuffStack(FingersOfFrost) = BuffMaxStack(FingersOfFrost)) and not HasTalent(GlacialSpike)
+                    if (buff.fingersOfFrost.exists and cd.icyVeins > 10) or (buff.fingersOfFrost.stack == (fofMax) and not talent.GlacialSpike) then
+                        if cast.iceLance() then return end
+                    end
+            -- Ice Lance w/ GS (AMR)
+                    -- ice_lance,if=buff.fingers_of_frost.react>0&cooldown.icy_veins.remains>10|buff.fingers_of_frost.react>2
+                    -- IceLance if HasTalent(GlacialSpike) and HasBuff(FingersOfFrost) and BuffStack(ChainReaction) = BuffMaxStack(ChainReaction)
+                    if talent.GlacialSpike and buff.fingersOfFrost.exists and (buff.chainReaction == 3) then
+                        if cast.iceLance() then return end
+                    end
             -- Frozen Orb
                     -- Cast frozen_orb on Cd
                     if cast.frozenOrb() then return end
-            -- Ray of Frost
-                    -- ray_of_frost,if=buff.icy_veins.up|(cooldown.icy_veins.remains>action.ray_of_frost.cooldown&buff.rune_of_power.down)
-                    if buff.icyVeins.exists or (cd.icyVeins > getCastTime(spell.rayOfFrost) and buff.runeOfPower.exists) then
-                        if talent.thermalVoid and buff.fingersOfFrost.stack <= 1 and castable.rayOfFrost then
-                            -- print("thermalVoid -> 1 or Less FoF -> rayOfFrost")
-                            if cast.rayOfFrost() then return end
-                        end
-                        if not talent.thermalVoid and castable.rayOfFrost then
-                              -- print("No thermalVoid -> rayOfFrost")
-                            if cast.rayOfFrost() then return end
-                        end
-                    end
-                    if (cd.rayOfFrost == 0 and cd.icyVeins > 10 and (buff.runeOfPower.exists or  buff.incantersFlow.exists) and talent.rayOfFrost) then
-                          -- print("DEBUG: RayOfFrost ON CD, Icy veins is too far, RoP / incantersFlow is UP")
-                        if cast.rayOfFrost() then return end
-                    end
-            -- Frost Bomb AOE
-                    -- Damn Frost Bomb
-                    --TODO
-            -- Ebonbolt
-                    -- ebonbolt,if=buff.fingers_of_frost.stack<=(0+artifact.icy_hand.enabled)
-                    -- If we have 0 (1 w/ Icy Hand) stacks of fingersOfFrost cast Ebon Bolt.
-                    -- If we also do not have Brain freeze to no lose the free ice lance crit after flurry and burn a FoF Proc
-                    if buff.fingersOfFrost.stack <= (0 + iceHand) and not buff.brainFreeze.exists then
-                        if cast.ebonbolt() then return end
-                    end
-           -- Ice Lance capped
-                    -- ice_lance,if=buff.fingers_of_frost.react=0&prev_gcd.flurry
-                    -- ice lance if FoF capped at 3 or 2 without iceHand
-                    -- If icyVeins is up cast Ice lance to prolong IV (If Talented to thermalVoid)
-                    if buff.fingersOfFrost.stack == (2 + iceHand) or (buff.icyVeins.exists and buff.fingersOfFrost.exists) then
-                        if cast.iceLance() then return end
-                    end
-
-           -- Frozen Touch
-                    -- frozen_touch,if=buff.fingers_of_frost.stack<=(0+artifact.icy_hand.enabled)&((cooldown.icy_veins.remains>30&talent.thermal_void.enabled)|!talent.thermal_void.enabled)
-                    if buff.fingersOfFrost.stack <= (0 + iceHand) and ((cd.icyVeins > 30 and talent.thermalVoid) or not talent.thermalVoid) then
-                        if cast.frozenTouch() then return end
-                    end
-          -- Flurry
-                    -- flurry,if=buff.brain_freeze.react&buff.fingers_of_frost.react=0&prev_gcd.frostbolt
-                   -- FLurry with brainFreeze Proc
-                    if buff.brainFreeze.exists then
-                        -- Dump fingersOfFrost before Flurry
-                        for i=1, buff.fingersOfFrost.stack do
-                            -- print("Clearing Ice lance #" .. i .." ")
-                            if cast.iceLance() then return end
-                        end
-                        -- Frost bolt then Brain freeze Flurry
-                        if lastSpell == spell.frostbolt then
-                          -- print("Flurry Logic .. Last Spell was a Frost Bolt ")
-                          if cast.flurry() then end
-                        end
-                    end
-                    -- If we just Flurried Cast Ice Lance for winters_chill
-                    if lastSpell == spell.flurry then
-                        if cast.iceLance() then return end
-                        lastSpell = lastSpellCast
-                    end
-          -- Glacial Spike
-                    -- glacial_spike
-                    if cast.glacialSpike() then return end
-          --Comet Storm
-                    -- comet_storm
-                    if cast.cometStorm() then return end
-          --Ice Nova
+            --Ice Nova (AMR)
                     -- ice_nova
                     if cast.iceNova() then return end
-
-          --Ice Lance all fingersOfFrost procs
-                     if buff.fingersOfFrost.exists then
-                         if cast.iceLance() then return end
-                     end
-          -- Water Jet
-                     -- water_jet,if=prev_gcd.frostbolt&buff.fingers_of_frost.stack<(2+artifact.icy_hand.enabled)&buff.brain_freeze.react=0
-                     if lastSpell == spell.frostbolt and buff.fingersOfFrost.stack < (2 + iceHand) and not buff.brainFreeze.exists then
-                         if CastPetAction(6,"target") then return end
-                     end
-          -- Frostbolt
+            --Comet Storm (AMR)
+                    -- comet_storm
+                    if cast.cometStorm() then return end
+            -- Ebonbolt (AMR)
+                    -- Ebonbolt if BuffStack(FingersOfFrost) < BuffMaxStack(FingersOfFrost) - 2 and not HasTalent(GlacialSpike)
+                    if (buff.fingersOfFrost.stack < (fofMax - 2)) and not talent.glacialSpike then
+                        if cast.ebonbolt() then return end
+                    end
+            -- Frostbolt
                     -- frostbolt
                     if cast.frostbolt() then return end
               end -- End DBT APL
@@ -578,6 +579,11 @@ local function runRotation()
             -- Test Ground for Casts
                     --if CastSpellByName("Frostbolt") then return end
                     if cast.frostbolt() then return end
+                    if UnitChannelInfo("Pet") then
+		                    print("Casting Frostbolt because water jet is chanelling")
+		                    cast.frostbolt()
+		                    return;
+	                  end
 
 
                 end -- End Testing APL
