@@ -475,6 +475,17 @@ local function runRotation()
                         if cast.runeOfPower() then return end
                         if cast.icyVeins() then return end
                     end
+            -- Frost Bomb
+                    -- Frost bomb, if Frost bomb is not up on the target. and we have 2 fingersOfFrost
+                    if UnitDebuffID("target",112948) then
+                        print("Frost Bomb is on target")
+                    elseif not UnitDebuffID("target",112948) and lastSpellCast ~= spell.frostBomb then
+                        print("NO Frost Bomb")
+                        if buff.fingersOfFrost.stack >= 2 or (cd.frozenOrb < 2 or cd.frozenTouch < 3 or cd.ebonbolt < 4) then
+                       -- print("2 FoF -> frostBomb")
+                          cast.frostBomb()
+                        end
+                     end
             -- Frozen Orb
                     -- Cast frozen_orb on Cd
                     if cast.frozenOrb() then return end
@@ -511,6 +522,7 @@ local function runRotation()
                     if buff.fingersOfFrost.stack == (2 + iceHand) or (buff.icyVeins.exists and buff.fingersOfFrost.exists) then
                         if cast.iceLance() then return end
                     end
+
            -- Frozen Touch
                     -- frozen_touch,if=buff.fingers_of_frost.stack<=(0+artifact.icy_hand.enabled)&((cooldown.icy_veins.remains>30&talent.thermal_void.enabled)|!talent.thermal_void.enabled)
                     if buff.fingersOfFrost.stack <= (0 + iceHand) and ((cd.icyVeins > 30 and talent.thermalVoid) or not talent.thermalVoid) then
@@ -545,9 +557,7 @@ local function runRotation()
           --Ice Nova
                     -- ice_nova
                     if cast.iceNova() then return end
-          -- Frost Bomb Single Target
-                    -- Frost bomb, if Frost bomb is not up on the target.
-                    --TODO
+
           --Ice Lance all fingersOfFrost procs
                      if buff.fingersOfFrost.exists then
                          if cast.iceLance() then return end
@@ -566,7 +576,9 @@ local function runRotation()
    ----------------------
                 if getOptionValue("APL Mode") == 4 then
             -- Test Ground for Casts
-                    CastSpellByName("Frostbolt")
+                    --if CastSpellByName("Frostbolt") then return end
+                    if cast.frostbolt() then return end
+
 
                 end -- End Testing APL
             end --End In Combat
