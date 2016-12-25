@@ -539,9 +539,12 @@ local function runRotation()
                     end
         -- Immolate
                     -- immolate,if=remains<=tick_time
-                    if debuff.immolate[units.dyn40] ~= nil then
-                        if debuff.immolate[units.dyn40].remain <= 3 then
-                            if cast.immolate(units.dyn40) then return end
+                    for i = 1, #enemies.yards40 do
+                        local thisUnit = enemies.yards40[i]
+                        if debuff.immolate[thisUnit] ~= nil then
+                            if debuff.immolate[thisUnit].remain <= 3 then
+                                if cast.immolate(thisUnit) then return end
+                            end
                         end
                     end
                     -- immolate,cycle_targets=1,if=active_enemies>1&remains<=tick_time&!debuff.roaring_blaze.remains&action.conflagrate.charges<2
