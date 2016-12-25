@@ -152,7 +152,7 @@ br.idList = {
                 shatteringStrikes           = 207057,
                 volatileShielding           = 207188,
                 whiteWalker                 = 212765,
-                winterIsComing              = 207170, 
+                winterIsComing              = 207170,
             },
         },
         -- Unholy
@@ -227,7 +227,7 @@ br.idList = {
                 chaosNova                   = 179057,
                 chaosStrike                 = 162794,
                 darkness                    = 196718,
-                deathSweep                  = 210152,  
+                deathSweep                  = 210152,
                 demonsBite                  = 162243,
                 eyeBeam                     = 198013,
                 felBarrage                  = 211053,
@@ -507,7 +507,7 @@ br.idList = {
                 skullBash                   = 106839,
                 stampedingRoar              = 106898,
                 survivalInstincts           = 61336,
-                swipe                       = 213771, --106785, 
+                swipe                       = 213771, --106785,
                 thrash                      = 77758, -- 106830,
             },
             artifacts                       = {
@@ -934,20 +934,22 @@ br.idList = {
             },
             buffs                           = {
                 brainFreeze                 = 190447,
-                fingersOfFrost              = 112965, 
+                frostBomb                   = 112948,
+                fingersOfFrost              = 112965,
                 icyVeins                    = 12472,
+                chainReaction               = 195418,
                 zannesuJourney              = 226852,
             },
             debuffs                         = {
                 frostBomb                   = 112948,
-                wintersChill                = 228358, 
+                wintersChill                = 228358,
             },
             glyphs                          = {
 
             },
             talents                         = {
                 articGale                   = 205038,
-                boneChilling                = 205027,            
+                boneChilling                = 205027,
                 cometStorm                  = 153595,
                 frostBomb                   = 112948,
                 frozenTouch                 = 205030,
@@ -971,7 +973,7 @@ br.idList = {
                 runeOfPower                 = 116011,
                 slowFall                    = 130,
                 spellsteal                  = 30449,
-                timeWarp                    = 80353,                
+                timeWarp                    = 80353,
                 waterJet                    = 135029,
             },
             artifacts                       = {
@@ -997,7 +999,7 @@ br.idList = {
                 ringOfFrost                 = 113724,
                 runeOfPower                 = 116011,
                 shimmer                     = 212653,
-                unstableMagic               = 157976,                
+                unstableMagic               = 157976,
             },
         },
     },
@@ -1190,7 +1192,7 @@ br.idList = {
                 tigersLust                  = 116841,
             },
         },
-    },    
+    },
     PALADIN = {
         -- Holy
         [65] = {
@@ -1552,7 +1554,7 @@ br.idList = {
                 stealth                     = 1784,
                 theDreadlordsDeceit         = 208692,
                 woundPoison                 = 8679,
-                subterfuge                  = 115192,                
+                subterfuge                  = 115192,
             },
             debuffs                         = {
                 agonizingPoison             = 200803,
@@ -1675,7 +1677,7 @@ br.idList = {
                 killingSpree                = 51690,
                 parley                      = 199743,
                 sliceAndDice                = 5171,
-                swordmaster                 = 200733,  
+                swordmaster                 = 200733,
                 quickDraw                   = 196938,
             },
         },
@@ -2041,7 +2043,7 @@ br.idList = {
             debuffs                         = {
                 agony                       = 980,
                 corruption                  = 146739,
-                siphonLife                  = 63106,  
+                siphonLife                  = 63106,
                 unstableAffliction          = 233490,
             },
             glyphs                          = {
@@ -2172,7 +2174,7 @@ br.idList = {
                 roaringBlaze                = 205184,
                 shadowburn                  = 17877,
                 shadowfury                  = 30283,
-                wreakHavoc                  = 196410, 
+                wreakHavoc                  = 196410,
             },
         },
         -- All
@@ -2223,7 +2225,7 @@ br.idList = {
                 soulHarvest                     = 196098,
             },
         },
-    },    
+    },
     WARRIOR = {
         -- Arms
         [71] = {
@@ -2378,7 +2380,7 @@ br.idList = {
                 ravager                     = 228920,
                 revenge                     = 6572,
                 shieldBlock                 = 2565,
-                shieldSlam                  = 23922,        
+                shieldSlam                  = 23922,
                 shieldWall                  = 871,
                 spellReflect                = 23920,
                 thunderClap                 = 6343,
@@ -2438,7 +2440,7 @@ br.idList = {
                 ultimatum                   = 122509,
                 vengeance                   = 202572,
                 warbringer                  = 103828,
-                warlordsChallenge           = 223662, 
+                warlordsChallenge           = 223662,
             },
         },
         -- All
@@ -2571,5 +2573,5 @@ br.idList = {
 
             },
         },
-    },  
-} 
+    },
+}
