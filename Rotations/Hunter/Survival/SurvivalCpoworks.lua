@@ -248,19 +248,6 @@ local function runRotation()
                     end
                 end
             end -- End Dummy Test
-
-            --Misdirection
-            -- if getSpellCD(34477) <= 0.1 then
-            --     if UnitThreatSituation("player", "target") ~= nil and UnitAffectingCombat("player") then
-            --         for i = 1, #br.friend do        
-            --             if (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and UnitAffectingCombat(br.friend[i].unit) then 
-            --                 if UnitChecks(br.friend[i].unit) then
-            --                     CastSpellByName(GetSpellInfo(34477),br.friend[i].unit)
-            --                 end
-            --             end
-            --         end
-            --     end
-            -- end
         end -- End Action List - Extras
     -- Action List - Defensive
         local function actionList_Defensive()
@@ -376,7 +363,7 @@ local function runRotation()
 -----------------------------
 --- In Combat - Rotations --- 
 -----------------------------
-            if inCombat then
+            if inCombat and isValidUnit(units.dyn40) and getDistance(units.dyn5) < 5 then
     -----------------
     --- Pet Logic ---
     -----------------             
