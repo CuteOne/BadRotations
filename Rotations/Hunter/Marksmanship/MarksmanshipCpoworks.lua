@@ -636,9 +636,9 @@ local function runRotation()
                     if getOptionValue("APL Mode") == 2 then
                         -- Volley
                         -- If you choose this talent, you will do more damage by having it always on, even against one target.
-                        if talent.volley then
-                            if cast.volley(units.dyn40) then return end
-                        end
+                        -- if talent.volley then
+                        --     if cast.volley(units.dyn40) then return end
+                        -- end
                         -- Arcane Shot
                         -- if WasLastSpell(ArcaneShot) and HasTalent(SteadyFocus) and not HasBuff(SteadyFocus) and PowerToMax >= GlobalCooldownSec * 2 * PowerRegen + 10
                         if lastSpellCast == spell.arcaneShot and talent.steadyFocus and not buff.steadyFocus.exists and powerDeficit >= gcd * 2 * powerRegen + 10 then

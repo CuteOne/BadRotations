@@ -800,7 +800,25 @@ br.idList = {
         -- Survival
         [255] = {
             abilities                       = {
-
+                aMurderOfCrows              = 131894,
+                aspectOfTheCheetah          = 186257,
+                aspectOfTheEagle            = 186289,
+                aspectOfTheTurtle           = 186265,
+                carve                       = 187708,
+                eagleEye                    = 6197,
+                exhilaration                = 109304,
+                explosiveTrap               = 191433,
+                feignDeath                  = 5384,
+                flankingStrike              = 202800,
+                flare                       = 1543,
+                furyOfTheEagle              = 203415,
+                harpoon                     = 190925,
+                hatchetToss                 = 193265,
+                lacerate                    = 185855,
+                mongooseBite                = 190928,
+                muzzle                      = 187707,
+                rangersNet                  = 200108,
+                raptorStrike                = 186270,
             },
             artifacts                       = {
 

@@ -1,4 +1,4 @@
-local rotationName = "Cpoworks"
+local rotationName = "Cpoworks" -- Change to name of profile listed in options drop down
 
 ---------------
 --- Toggles ---
@@ -18,7 +18,7 @@ local function createToggles()
         [2] = { mode = "On", value = 1 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spell.bestialWrath },
         [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.bestialWrath }
     };
-   	CreateButton("Cooldown",2,0)
+    CreateButton("Cooldown",2,0)
 -- Defensive Button
     DefensiveModes = {
         [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spell.aspectOfTheTurtle },
@@ -115,17 +115,16 @@ end
 --- ROTATION ---
 ----------------
 local function runRotation()
-    if br.timer:useTimer("debugBeastmaster", math.random(0.15,0.3)) then
+    if br.timer:useTimer("debugSurvival", 0.1) then --change "debugFury" to "debugSpec" (IE: debugFire)
         --Print("Running: "..rotationName)
 
 ---------------
---- Toggles ---
+--- Toggles --- -- List toggles here in order to update when pressed
 ---------------
         UpdateToggle("Rotation",0.25)
         UpdateToggle("Cooldown",0.25)
         UpdateToggle("Defensive",0.25)
         UpdateToggle("Interrupt",0.25)
-
 --------------
 --- Locals ---
 --------------
@@ -180,13 +179,13 @@ local function runRotation()
         -- BeastCleave 118445
         local beastCleaveTimer                              = getBuffDuration("pet", 118445)
 
-   		if leftCombat == nil then leftCombat = GetTime() end
-		if profileStop == nil then profileStop = false end
+        if leftCombat == nil then leftCombat = GetTime() end
+        if profileStop == nil then profileStop = false end
 
 --------------------
 --- Action Lists ---
 --------------------
-	-- Action List - Pet Management
+    -- Action List - Pet Management
         local function actionList_PetManagement()
             if not IsMounted() then
                 if isChecked("Auto Summon") and not UnitExists("pet") and (UnitIsDead("pet") ~= nil or UnitIsDead("pet") == false) then
@@ -342,153 +341,59 @@ local function runRotation()
                 end
             end -- End useCooldowns check
         end -- End Action List - Cooldowns
-    -- Action List - Single Target
-        local function actionList_SingleTarget()
-            -- Titan's Thunder
-            -- if PetCount(DireBeast) > 0 or HasTalent(DireFrenzy)
-            if buff.direBeast.exists or talent.direfrenzy then
-                if cast.titansThunder(units.dyn40) then return end
-            end
-            -- Stampede
-            -- if HasBuff(BestialWrath)
-            if buff.bestialWrath.exists then
-                if cast.stampede(units.dyn40) then return end
-            end
-            -- A Murder of Crows
-            -- if HasBuff(BestialWrath)
-            if buff.bestialWrath.exists then
-                if cast.aMurderOfCrows(units.dyn40) then return end
-            end
-            -- Dire Frenzy
-            -- if CooldownSecRemaining(BestialWrath) > 7.5
-            -- You get a very slight damage increase by holding onto this until Bestial Wrath if it will cool down soon.
-            if cd.bestialWrath > 7.5 then
-                if cast.direfrenzy(units.dyn40) then return end
-            end
-            -- Dire Beast
-            if cast.direBeast(units.dyn40) then return end
-            -- Kill Command
-            if cast.killCommand(units.dyn40) then return end
-            -- Chimaera Shot
-            if cast.chimaeraShot(units.dyn40) then return end
-            -- Multi-Shot
-            -- if BuffRemainingSec(BeastCleaveTracker) <= GlobalCooldownSec and TargetsInRadius(MultiShot) > 1 and Power > 70 - PowerRegen * CooldownSecRemaining(KillCommand)
-            if beastCleaveTimer <= gcd and #multishotTargets > 1 and power > 70 - powerRegen * cd.killCommand then
-                if cast.multiShot(units.dyn40) then return end
-            end
-            -- Cobra Shot
-            -- if Power > 70 - PowerRegen * CooldownSecRemaining(KillCommand) and TargetsInRadius(MultiShot) < 2
-            -- Use Cobra Shot if it won't end up delaying a Kill Command.
-            if power > 70 - powerRegen * cd.killCommand and #multishotTargets < 2 then
-                if cast.cobraShot(units.dyn40) then return end
-            end
-        end -- End Action List - Single Target
-    -- Action List - Multit Target
-        local function actionList_MultiTarget()
-            -- Multi-Shot
-            -- if BuffRemainingSec(BeastCleaveTracker) <= GlobalCooldownSec
-            if beastCleaveTimer <= gcd then
-                if cast.multiShot(units.dyn40) then return end
-            end
-            -- Stampede
-            if cast.stampede(units.dyn40) then return end
-            -- Titan's Thunder
-            -- if PetCount(DireBeast) > 0 or HasTalent(DireFrenzy)
-            if buff.direBeast.exists or talent.direfrenzy then
-                    if cast.titansThunder(units.dyn40) then return end
-                end
-            -- Barrage
-            if cast.barrage(units.dyn40) then return end
-            -- A Murder of Crows
-            -- The targeting logic is in the Target Priorities section.
-            if cast.aMurderOfCrows(units.dyn40) then return end
-            -- Dire Frenzy
-            -- if CooldownSecRemaining(BestialWrath) > 7.5
-            if cd.bestialWrath > 7.5 then
-                if cast.direfrenzy(units.dyn40) then return end
-            end
-            -- Dire Beast
-            if cast.direBeast(units.dyn40) then return end
-            -- Multi-Shot
-            -- if (BuffRemainingSec(BeastCleaveTracker) <= GlobalCooldownSec or TargetsInRadius(MultiShot) > 6) and (not HasTalent(Barrage) or CooldownSecRemaining(Barrage) > 3)
-            if (beastCleaveTimer <= gcd or multishotTargets > 6) and (not talent.barrage or cd.barrage > 3) then
-                if cast.multiShot(units.dyn40) then return end
-            end
-            -- Kill Command
-            if cast.killCommand(units.dyn40) then return end
-            -- Chimaera Shot
-            if cast.chimaeraShot(units.dyn40) then return end
-            -- Cobra Shot
-            -- if PowerToMax <= GlobalCooldownSec * 2 * PowerRegen
-            -- Pool Focus for Multi-Shot when in AoE. Only use Cobra Shot if you will cap Focus.
-            if powerDeficit <= gcd * 2 * powerRegen then
-                if cast.cobraShot(units.dyn40) then return end
-            end
-        end -- End Action List - Multi Target
----------------------
---- Begin Profile ---
----------------------
-    -- Profile Stop | Pause
-        if not inCombat and not hastar and profileStop==true then
-            profileStop = false
-        elseif (inCombat and profileStop==true) or pause() or mode.rotation==4 then
+
+
+        
+-----------------
+--- Rotations ---
+-----------------
+        -- Pause
+        if pause() or (UnitExists("target") and (UnitIsDeadOrGhost("target") or not UnitCanAttack("target", "player"))) or mode.rotation == 4 then
             return true
         else
------------------------
---- Extras Rotation ---
------------------------
-            if actionList_Extras() then return end
---------------------------
---- Defensive Rotation ---
---------------------------
-            if actionList_Defensive() then return end
------------------
---- Pet Logic ---
------------------             
+---------------------------------
+--- Out Of Combat - Rotations ---
+---------------------------------
+            if not inCombat and ObjectExists("target") and not UnitIsDeadOrGhost("target") and UnitCanAttack("target", "player") then
+        -----------------
+    --- Pet Logic ---
+    -----------------             
             if actionList_PetManagement() then return end
---------------------------
---- In Combat Rotation ---
---------------------------
-            if inCombat and isValidUnit(units.dyn40) and getDistance(units.dyn40) < 40 then
-    ------------------------------
-    --- In Combat - Interrupts ---
-    ------------------------------
-                    if actionList_Interrupts() then return end
+
+
+            end -- End Out of Combat Rotation
+-----------------------------
+--- In Combat - Rotations --- 
+-----------------------------
+            if inCombat then
+    -----------------
+    --- Pet Logic ---
+    -----------------             
+            if actionList_PetManagement() then return end
+
     ---------------------------
     --- SimulationCraft APL ---
     ---------------------------
                     if getOptionValue("APL Mode") == 1 then
-
+    ------------------------------
+    --- In Combat - Interrupts ---
+    ------------------------------
+                    if actionList_Interrupts() then return end
                     end -- End SimC APL
     ------------------------
     --- Ask Mr Robot APL ---
     ------------------------
                     if getOptionValue("APL Mode") == 2 then
-                        -- Volley
-                        -- If you take Volley, you do more damage by leaving it on all the time.
-                        -- if talent.volley then
-                        --     if cast.volley(units.dyn40) then return end
-                        -- end
-                        -- Cooldowns
-                        -- if HasBuff(BestialWrath)
-                        -- Bestial Wrath
-                        -- Aspect of the Wild
-                        -- if PowerToMax >= 30
-                        if actionList_Cooldowns() then return end
-                        -- MultiTarget
-                        -- if TargetsInRadius(MultiShot) > 2
-                        if (#multishotTargets > 2 and mode.rotation == 1) or mode.rotation == 2 then
-                            if actionList_MultiTarget() then return end
-                        end
-                        -- SingleTarget
-                        -- if TargetsInRadius(MultiShot) <= 2
-                        if actionList_SingleTarget() then return end
+
+                        
+                        
+                        
                     end
-			end --End In Combat
-		end --End Rotation Logic
+            end -- End In Combat Rotation
+        end -- Pause
     end -- End Timer
-end -- End runRotation
-local id = 253
+end -- End runRotation 
+local id = 255 -- Change to the spec id profile is for.
 if br.rotations[id] == nil then br.rotations[id] = {} end
 tinsert(br.rotations[id],{
     name = rotationName,

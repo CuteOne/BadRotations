@@ -109,6 +109,7 @@ Rotations\Hunter\Beastmaster\BeastmasterCpoworks.lua
 
 Rotations\Hunter\Marksmanship\MarksmanshipCpoworks.lua
 
+Rotations\Hunter\Survival\SurvivalCpoworks.lua
 ## Mage ---------------------------------------------------
 
 Rotations\Mage\Fire\FireCuteOne.lua
