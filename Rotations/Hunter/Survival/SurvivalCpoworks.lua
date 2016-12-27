@@ -65,10 +65,8 @@ local function createOptions()
             br.ui:createCheckbox(section,"Racial")
         -- Trinkets
             br.ui:createCheckbox(section,"Trinkets")
-        -- Bestial Wrath
-            br.ui:createCheckbox(section,"Bestial Wrath")
-        -- Trueshot
-            br.ui:createCheckbox(section,"Aspect of the Wild")
+        -- Aspect of the Eagle
+            br.ui:createCheckbox(section,"Aspect of the Eagle")
         br.ui:checkSectionState(section)
     -- Defensive Options
         section = br.ui:createSection(br.ui.window.profile, "Defensive")
@@ -86,7 +84,7 @@ local function createOptions()
     -- Interrupt Options
         section = br.ui:createSection(br.ui.window.profile, "Interrupts")
         -- Counter Shot
-            br.ui:createCheckbox(section,"Counter Shot")
+            br.ui:createCheckbox(section,"Muzzle")
         -- Interrupt Percentage
             br.ui:createSpinner(section, "Interrupts",  0,  0,  95,  5,  "|cffFFFFFFCast Percent to Cast At")
         br.ui:checkSectionState(section)
@@ -310,38 +308,51 @@ local function runRotation()
     -- Action List - Cooldowns
         local function actionList_Cooldowns()
             if useCDs() then
-                if buff.bestialWrath.exists then
-                    -- Trinkets
-                    if isChecked("Trinkets") then
-                        if canUse(13) then
-                            useItem(13)
-                        end
-                        if canUse(14) then
-                            useItem(14)
-                        end
+                -- Trinkets
+                if isChecked("Trinkets") then
+                    if canUse(13) then
+                        useItem(13)
                     end
-                    -- Agi-Pot
-                    if isChecked("Agi-Pot") and canUse(agiPot) and inRaid then
-                        useItem(agiPot);
-                        return true
-                    end
-                    -- Racial: Orc Blood Fury | Troll Berserking | Blood Elf Arcane Torrent
-                    if isChecked("Racial") and (br.player.race == "Orc" or br.player.race == "Troll" or br.player.race == "BloodElf") then
-                         if castSpell("player",racial,false,false,false) then return end
+                    if canUse(14) then
+                        useItem(14)
                     end
                 end
-                -- Bestial Wrath
-                if isChecked("Bestial Wrath") then
-                    if cast.bestialWrath(units.dyn40) then return end
+                -- Agi-Pot
+                if isChecked("Agi-Pot") and canUse(agiPot) and inRaid then
+                    useItem(agiPot);
+                    return true
                 end
-                -- Aspect of the Wild
-                -- if PowerToMax >= 30
-                if isChecked("Aspect of the Wild") and powerDeficit >= 30 then
-                    if cast.aspectOfTheWild(units.dyn40) then return end
+                -- Racial: Orc Blood Fury | Troll Berserking | Blood Elf Arcane Torrent
+                if isChecked("Racial") and (br.player.race == "Orc" or br.player.race == "Troll" or br.player.race == "BloodElf") then
+                     if castSpell("player",racial,false,false,false) then return end
+                end
+                -- Aspect of the Eagle
+                if isChecked("Aspect of the Eagle") then
+                    if cast.aspectOfTheEagle(units.dyn40) then return end
                 end
             end -- End useCooldowns check
         end -- End Action List - Cooldowns
+    -- Action List - Multi Target
+        local function actionList_MultiTarget()
+            -- Dragonsfire Grenade
+            if talent.dragonsfireGrenade then
+                if cast.dragonsfireGrenade(units.dyn5) then return end
+            end
+            -- Explosive Trap
+            if cast.explosiveTrap(units.dyn5) then return end
+            -- Caltrops
+            -- if DotCount(Caltrops) < TargetsInRadius(Caltrops)
+            if talent.caltrops then
 
+            end
+            -- Butchery / Carve
+            if talent.butchery then
+                if cast.butchery(units.dyn5) then return end
+            else
+                if cast.carve(units.dyn5) then return end
+            end
+
+        end -- End Action List - Multi Target
 
         
 -----------------
@@ -384,10 +395,94 @@ local function runRotation()
     --- Ask Mr Robot APL ---
     ------------------------
                     if getOptionValue("APL Mode") == 2 then
+                        -- Harpoon
+                        -- if not HasDot(OnTheTrail) and ArtifactTraitRank(EaglesBite) > 0
+                        
+                        -- Cooldowns
+                        -- if TargetsInRadius(Carve) > 2 or HasBuff(MongooseFury) or ChargesRemaining(MongooseBite) = SpellCharges(MongooseBite)
+                        -- Use your cooldowns during or just before Mongoose Fury or an AoE phase.
+                        if #units.dyn5 > 2 or buff.mongooseFury.exists or charges.mongooseBite == charges.max.mongooseBite then
+                            if actionList_Cooldowns() then return end
+                        end
+                        -- MultiTarget
+                        -- if TargetsInRadius(Carve) > 2
+                        if (#units.dyn5 > 2 and mode.rotation == 1) or mode.rotation == 2 then
+                            if actionList_MultiTarget() then return end
+                        end
+                        -- Explosive Trap
+                        if cast.explosiveTrap(units.dyn5) then return end
+                        -- Dragonsfire Grenade
+                        if talent.dragonsfireGrenade then
+                            if cast.dragonsfireGrenade(units.dyn5) then return end
+                        end
+                        -- Raptor Strike
+                        -- if HasTalent(WayOfTheMokNathal) and BuffRemainingSec(MokNathalTactics) <= GlobalCooldownSec
+                        if talent.wayOfTheMokNathal and buff.mokNathalTactics.remain <= gcd then
+                            if cast.raptorStrike(units.dyn5) then return end
+                        end
+                        -- Snake Hunter
+                        -- if ChargesRemaining(MongooseBite) = 0 and BuffRemainingSec(MongooseFury) > GlobalCooldownSec * 4
+                        if talent.snakeHunter and charges.mongooseBite == 0 and buff.mongooseFury.remain > gcd * 4 then
+                            if cast.snakeHunter(units.dyn5) then return end
+                        end
+                        -- Fury of the Eagle
+                        -- if HasBuff(MongooseFury) and BuffRemainingSec(MongooseFury) <= GlobalCooldownSec * 2
+                        -- You want to use this near the end of Mongoose Fury, but leave time to use one or two Mongoose Bite charges you might gain during the channel.
+                        if buff.mongooseFury.exists and buff.mongooseFury.remain <= gcd * 2 then
+                            if cast.furyOfTheEagle(units.dyn5) then return end
+                        end
+                        -- Mongoose Bite
+                        -- if HasBuff(MongooseFury) or ChargesRemaining(MongooseBite) = SpellCharges(MongooseBite)
+                        -- Once you hit max charges of Mongoose Bite, use it.
+                        if buff.mongooseFury or charges.mongooseBite == charges.max.mongooseBite then
+                            if cast.mongooseBite(units.dyn5) then return end
+                        end
+                        -- Steel Trap
+                        if talent.steelTrap then
+                            if cast.steelTrap(units.dyn5) then return end
+                        end
+                        -- Caltrops
+                        -- if not HasDot(Caltrops) or DotCount(Caltrops) < TargetsInRadius(Caltrops)
+                        if talent.caltrops and not debuff.caltrops[units.dyn5].exists then
+                            if cast.caltrops(units.dyn5) then return end
+                        end
+                        -- A Murder of Crows
+                        if talent.aMurderOfCrows then
+                            if cast.aMurderOfCrows(units.dyn5) then return end
+                        end
+                        -- Lacerate
+                        -- if CanRefreshDot(Lacerate)
+                        if debuff.lacerate[units.dyn5].refresh then
+                            if cast.lacerate(units.dyn5) then return end
+                        end
+                        -- Spitting Cobra
+                        if cast.splittingCobra(units.dyn5) then return end
+                        -- Raptor Strike
+                        -- if (HasTalent(SerpentSting) and CanRefreshDot(SerpentSting))
+                        if talent.serpentSting and debuff.serpentSting[units.dyn5].refresh then
+                            if cast.raptorStrike(units.dyn5) then return end
+                        end
+                        -- Flanking Strike
+                        if cast.flankingStrike(units.dyn5) then return end
+                        -- Butchery
+                        -- if TargetsInRadius(Butchery) > 1
+                        if talent.butchery and #units.dyn5 > 1 then
+                            if cast.butchery(units.dyn5) then return end
+                        end
+                        -- Carve
+                        -- if TargetsInRadius(Carve) > 1
+                        if not talent.butchery and #units.dyn5 > 1 then
+                            if cast.carve(units.dyn5) then return end
+                        end
+                        -- Throwing Axes
+                        if cast.throwingAxes(units.dyn5) then return end
+                        -- Raptor Strike
+                        -- if Power > 75 - CooldownSecRemaining(FlankingStrike) * PowerRegen and not HasTalent(ThrowingAxes)
+                        -- If using Raptor Strike could possibly delay a Flanking Strike by using up your Focus, it is better to just wait for Flanking Strike to come off GCD. It is also not worth using if you have Throwing Axes talented.
+                        if power > 75 - cd.flankingStrike * powerRegen and not talent.throwingAxes then
+                            if cast.raptorStrike(units.dyn5) then return end
+                        end
 
-                        
-                        
-                        
                     end
             end -- End In Combat Rotation
         end -- Pause

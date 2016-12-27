@@ -804,7 +804,10 @@ br.idList = {
                 aspectOfTheCheetah          = 186257,
                 aspectOfTheEagle            = 186289,
                 aspectOfTheTurtle           = 186265,
+                butchery                    = 212436,
                 carve                       = 187708,
+                caltrops                    = 187698,
+                dragonsfireGrenade          = 194855,
                 eagleEye                    = 6197,
                 exhilaration                = 109304,
                 explosiveTrap               = 191433,
@@ -819,21 +822,38 @@ br.idList = {
                 muzzle                      = 187707,
                 rangersNet                  = 200108,
                 raptorStrike                = 186270,
+                splittingCobra              = 194407,
+                snakeHunter                 = 201078,
+                steelTrap                   = 187650,
+                throwingAxes                = 200163,
             },
             artifacts                       = {
 
             },
             buffs                           = {
-
+                mokNathalTactics            = 201081,
+                mongooseFury                = 190931,
             },
             debuffs                         = {
-
+                caltrops                    = 187698,
+                lacerate                    = 185855,
+                serpentSting                = 118253,
             },
             glyphs                          = {
 
             },
             talents                         = {
-
+                animalInstincts             = 204315,
+                throwingAxes                = 200163,
+                wayOfTheMokNathal           = 201082,
+                caltrops                    = 194277,
+                steelTrap                   = 162488,
+                aMurderOfCrows              = 206505,
+                snakeHunter                 = 201078,
+                butchery                    = 212436,
+                dragonsfireGrenade          = 194855,
+                serpentSting                = 87935,
+                
             },
         },
         -- All

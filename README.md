@@ -93,9 +93,9 @@ Raidable means if its good to raid with.
 |Moonkin|0%||7.0|
 ||||
 | **Hunter** |||
-|Beastmaster|0%|Cpoworks|7.1|:interrobang::x:
+|Beastmaster|70%|Cpoworks|7.1|:heavy_check_mark:
 |Marksmanship|70% (SimC/AMR)|Cpoworks|7.1|:heavy_check_mark:
-|Survival|0%|Cpoworks|7.1|:interrobang::x:
+|Survival|70% (AMR)|Cpoworks|7.1|:heavy_check_mark:
 ||||
 | **Mage** |||
 |Arcane|0%||7.0|
