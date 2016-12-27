@@ -383,7 +383,7 @@ local function runRotation()
                 if cast.cobraShot(units.dyn40) then return end
             end
         end -- End Action List - Single Target
-    -- Action List - Multit Target
+    -- Action List - Multi Target
         local function actionList_MultiTarget()
             -- Multi-Shot
             -- if BuffRemainingSec(BeastCleaveTracker) <= GlobalCooldownSec

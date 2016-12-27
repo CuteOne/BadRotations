@@ -6,17 +6,17 @@ local rotationName = "Cpoworks" -- Change to name of profile listed in options d
 local function createToggles()
 -- Rotation Button
     RotationModes = {
-        [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range.", highlight = 1, icon = br.player.spell.cobraShot },
-        [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = br.player.spell.volley },
-        [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = br.player.spell.killCommand },
-        [4] = { mode = "Off", value = 4 , overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spell.aspectOfTheWild}
+        [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range.", highlight = 1, icon = br.player.spell.furyOfTheEagle },
+        [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = br.player.spell.carve },
+        [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = br.player.spell.mongooseBite },
+        [4] = { mode = "Off", value = 4 , overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spell.throwingAxes}
     };
     CreateButton("Rotation",1,0)
 -- Cooldown Button
     CooldownModes = {
-        [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spell.bestialWrath },
-        [2] = { mode = "On", value = 1 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spell.bestialWrath },
-        [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.bestialWrath }
+        [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spell.aspectOfTheEagle },
+        [2] = { mode = "On", value = 1 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spell.aspectOfTheEagle },
+        [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.aspectOfTheEagle }
     };
     CreateButton("Cooldown",2,0)
 -- Defensive Button
@@ -27,8 +27,8 @@ local function createToggles()
     CreateButton("Defensive",3,0)
 -- Interrupt Button
     InterruptModes = {
-        [1] = { mode = "On", value = 1 , overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spell.counterShot },
-        [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.counterShot }
+        [1] = { mode = "On", value = 1 , overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spell.muzzle },
+        [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.muzzle }
     };
     CreateButton("Interrupt",4,0)
 end
@@ -401,12 +401,12 @@ local function runRotation()
                         -- Cooldowns
                         -- if TargetsInRadius(Carve) > 2 or HasBuff(MongooseFury) or ChargesRemaining(MongooseBite) = SpellCharges(MongooseBite)
                         -- Use your cooldowns during or just before Mongoose Fury or an AoE phase.
-                        if #units.dyn5 > 2 or buff.mongooseFury.exists or charges.mongooseBite == charges.max.mongooseBite then
+                        if #enemies.yards5 > 2 or buff.mongooseFury.exists or charges.mongooseBite == charges.max.mongooseBite then
                             if actionList_Cooldowns() then return end
                         end
                         -- MultiTarget
                         -- if TargetsInRadius(Carve) > 2
-                        if (#units.dyn5 > 2 and mode.rotation == 1) or mode.rotation == 2 then
+                        if (#enemies.yards5 > 2 and mode.rotation == 1) or mode.rotation == 2 then
                             if actionList_MultiTarget() then return end
                         end
                         -- Explosive Trap
@@ -443,7 +443,7 @@ local function runRotation()
                         end
                         -- Caltrops
                         -- if not HasDot(Caltrops) or DotCount(Caltrops) < TargetsInRadius(Caltrops)
-                        if talent.caltrops and not debuff.caltrops[units.dyn5].exists then
+                        if talent.caltrops and not not UnitDebuffID(units.dyn5,spell.debuffs.caltrops,"player") then
                             if cast.caltrops(units.dyn5) then return end
                         end
                         -- A Murder of Crows
@@ -459,19 +459,19 @@ local function runRotation()
                         if cast.splittingCobra(units.dyn5) then return end
                         -- Raptor Strike
                         -- if (HasTalent(SerpentSting) and CanRefreshDot(SerpentSting))
-                        if talent.serpentSting and debuff.serpentSting[units.dyn5].refresh then
+                        if talent.serpentSting and not UnitDebuffID(units.dyn5,spell.debuffs.serpentSting,"player") then
                             if cast.raptorStrike(units.dyn5) then return end
                         end
                         -- Flanking Strike
                         if cast.flankingStrike(units.dyn5) then return end
                         -- Butchery
                         -- if TargetsInRadius(Butchery) > 1
-                        if talent.butchery and #units.dyn5 > 1 then
+                        if talent.butchery and #enemies.yards5 > 1 then
                             if cast.butchery(units.dyn5) then return end
                         end
                         -- Carve
                         -- if TargetsInRadius(Carve) > 1
-                        if not talent.butchery and #units.dyn5 > 1 then
+                        if not talent.butchery and #enemies.yards5 > 1 then
                             if cast.carve(units.dyn5) then return end
                         end
                         -- Throwing Axes
