@@ -147,7 +147,7 @@ function br.loader:new(spec,specName)
                 self.power[k].amount    = UnitPower("player",v)
                 self.power[k].max       = UnitPowerMax("player",v)
                 self.power[k].deficit   = UnitPowerMax("player",v) - UnitPower("player",v)
-                self.power[k].percent   = (UnitPower("player",v) / UnitPowerMax("player",v)) / 100
+                self.power[k].percent   = (UnitPower("player",v) / UnitPowerMax("player",v)) * 100
                 self.power.amount[k]    = UnitPower("player",v)
                 -- DKs are special snowflakes
                 if select(2,UnitClass("player")) == "DEATHKNIGHT" and v == 5 then
