@@ -815,7 +815,7 @@ local function runRotation()
             end
         -- Shred
             -- shred,if=combo_points<5&(spell_targets.swipe_cat<3|talent.brutal_slash.enabled)
-            if combo < 5 and (((mode.rotation == 1 and #enemies.yards8 < 3) or mode.rotation == 3) or talent.brutalSlash or level < 32) then
+            if combo < 5 and not debuff.rake[units.dyn5].refresh and (((mode.rotation == 1 and #enemies.yards8 < 3) or mode.rotation == 3) or talent.brutalSlash or level < 32) then
                 if cast.shred(units.dyn5) then return end
             end
         end
