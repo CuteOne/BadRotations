@@ -1952,7 +1952,7 @@ br.idList = {
             },
             debuffs                         = {
                 frostbrand                  = 147732,
-                stormTempests               = 214265,
+                stormTempest                = 214265,
             },
             glyphs                          = {
 

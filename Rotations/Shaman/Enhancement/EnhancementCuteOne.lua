@@ -171,6 +171,7 @@ local function runRotation()
         local flaskBuff                                     = getBuffRemain("player",br.player.flask.wod.buff.agilityBig)
         local friendly                                      = UnitIsFriend("target", "player")
         local gcd                                           = br.player.gcd
+        local hastar                                        = ObjectExists("target")
         local healPot                                       = getHealthPot()
         local inCombat                                      = br.player.inCombat
         local inInstance                                    = br.player.instance=="party"
@@ -194,8 +195,7 @@ local function runRotation()
         local ttd                                           = getTTD
         local ttm                                           = br.player.power.ttm
         local units                                         = br.player.units
-        
-        if leftCombat == nil then leftCombat = GetTime() end
+
         if profileStop == nil then profileStop = false end
         if feralSpiritCastTime == nil then feralSpiritCastTime = 0 end
         if feralSpiritRemain == nil then feralSpiritRemain = 0 end
@@ -460,7 +460,7 @@ local function runRotation()
 --------------------------
 --- In Combat Rotation ---
 --------------------------
-            if inCombat and profileStop==false and isValidUnit(units.dyn5) then
+            if inCombat and profileStop==false then
     ------------------------------
     --- In Combat - Interrupts ---
     ------------------------------
@@ -513,7 +513,7 @@ local function runRotation()
                     if buff.stormbringer.exists and hasEquiped(137103) then
                         for i = 1, #enemies.yards5 do
                             local thisUnit = enemies.yards5[i]
-                            if not debuff.tempest[thisUnit].exists then
+                            if not debuff.stormTempest[thisUnit].exists then
                                 if buff.ascendance.exists then
                                     if cast.windstrike(thisUnit) then return end
                                 else
@@ -583,7 +583,7 @@ local function runRotation()
                     if hasEquiped(137103) then
                         for i = 1, #enemies.yards5 do
                             local thisUnit = enemies.yards5[i]
-                            if not debuff.tempest[thisUnit].exists then
+                            if not debuff.stormTempest[thisUnit].exists then
                                 if buff.ascendance.exists then
                                     if cast.windstrike(thisUnit) then return end
                                 else
