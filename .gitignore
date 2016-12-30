@@ -24,3 +24,6 @@ config.ini
 AutoIndent.exe
 QuickIndent.exe
 .idea
+Rotations/Death Knight/Frost/FrostVilt.lua
+Rotations/Rogue/Outlaw/OutlawVilt.lua
+BadRotations.toc
