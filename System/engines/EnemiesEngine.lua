@@ -1,4 +1,5 @@
 -- Function to create and populate table of enemies within a distance from player.
+br.enemy = {}
 function EnemiesEngine()
 	-- Todo: So i think the prioritisation should be large by determined by threat or burn prio and then hp.
 	-- So design should be,
@@ -21,7 +22,6 @@ function EnemiesEngine()
 	--[[------------------------------------------------------------------------------------------------------------------]]
 	--[[------------------------------------------------------------------------------------------------------------------]]
 	local varDir = br.data.settings[br.selectedSpec]
-	br.enemy = {}
 	function makeEnemiesTable(maxDistance)
 		br.enemyTimer = 0
 		--local LibDraw = LibStub("LibDraw-1.0")
