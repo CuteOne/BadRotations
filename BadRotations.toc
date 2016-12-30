@@ -83,7 +83,6 @@ Rotations\idList.lua
 ## DeathKnight ---------------------------------------------------
 
 Rotations\Death Knight\Frost\FrostCuteOne.lua
-Rotations\Death Knight\Frost\FrostVilt.lua
 
 Rotations\Death Knight\Blood\BloodCuteOne.lua
 
@@ -143,7 +142,6 @@ Rotations\Priest\Shadow\ShadowCpoworks.lua
 Rotations\Rogue\Assassination\AssassinationCuteOne.lua
 
 Rotations\Rogue\Outlaw\OutlawCuteOne.lua
-Rotations\Rogue\Outlaw\OutlawVilt.lua
 
 Rotations\Rogue\Subtlety\SubtletyCuteOne.lua
 
