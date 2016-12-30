@@ -730,8 +730,7 @@ function castSpell(Unit,SpellID,FacingCheck,MovementCheck,SpamAllowed,KnownSkip,
 		if DistanceSkip == true then spellRange = 40 end
 		-- Check unit,if it's player then we can skip facing
 		if (Unit == nil or UnitIsUnit("player",Unit)) or -- Player
-			(Unit ~= nil and UnitIsFriend("player",Unit)) or
-			IsHackEnabled("AlwaysFacing") then  -- Ally
+			(Unit ~= nil and UnitIsFriend("player",Unit)) then  -- Ally
 			FacingCheck = true
 		elseif isSafeToAttack(Unit) ~= true then -- enemy
 			return false
