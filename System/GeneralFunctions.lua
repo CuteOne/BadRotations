@@ -1264,9 +1264,9 @@ function getDistance(Unit1,Unit2,option)
 		if option == "dist4" then return dist4 end
 		if dist > 13 then
 			return dist
-		elseif dist2 > 8 then
+		elseif dist2 > 8 and dist3 > 8 then
 			return dist2
-		elseif dist3 > 5 then
+		elseif dist3 > 5 and dist4 > 5 then
 			return dist3
 		elseif dist4 > meleeRange then -- Thanks Ssateneth
 			return dist4
