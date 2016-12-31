@@ -513,11 +513,13 @@ local function runRotation()
                     if buff.stormbringer.exists and hasEquiped(137103) then
                         for i = 1, #enemies.yards5 do
                             local thisUnit = enemies.yards5[i]
-                            if not debuff.stormTempest[thisUnit].exists then
-                                if buff.ascendance.exists then
-                                    if cast.windstrike(thisUnit) then return end
-                                else
-                                    if cast.stormstrike(thisUnit) then return end
+                            if debuff.stormTempest[thisUnit] ~= nil then
+                                if not debuff.stormTempest[thisUnit].exists then
+                                    if buff.ascendance.exists then
+                                        if cast.windstrike(thisUnit) then return end
+                                    else
+                                        if cast.stormstrike(thisUnit) then return end
+                                    end
                                 end
                             end
                         end
@@ -583,11 +585,13 @@ local function runRotation()
                     if hasEquiped(137103) then
                         for i = 1, #enemies.yards5 do
                             local thisUnit = enemies.yards5[i]
-                            if not debuff.stormTempest[thisUnit].exists then
-                                if buff.ascendance.exists then
-                                    if cast.windstrike(thisUnit) then return end
-                                else
-                                    if cast.stormstrike(thisUnit) then return end
+                            if debuff.stormTempest[thisUnit] ~= nil then
+                                if not debuff.stormTempest[thisUnit].exists then
+                                    if buff.ascendance.exists then
+                                        if cast.windstrike(thisUnit) then return end
+                                    else
+                                        if cast.stormstrike(thisUnit) then return end
+                                    end
                                 end
                             end
                         end
