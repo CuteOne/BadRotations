@@ -318,6 +318,71 @@ local function runRotation()
                 -- Frost Mage CDs ----------------------------------------
             end -- End useCDs check
         end -- End Action List - Cooldowns
+        local function actionList_AOE()
+          -- Frozen Orb
+              -- Cast frozen_orb on Cd
+              if cast.frozenOrb() then return end
+          -- Frost Bomb  if Frost bomb is down
+              if not debuff.frostBomb[units.dyn40].exists and buff.fingersOfFrost.stack >= 2 then
+                  Print("Frost Bomb is down")
+                  cast.frostBomb()
+              end
+          -- If Frost Bomb is up Dump Ice lances
+              if debuff.frostBomb[units.dyn40].exists and buff.fingersOfFrost.exists then
+                  if cast.iceLance() then return end
+              end
+          -- Frozen Orb
+              -- Cast frozen_orb on Cd
+              if cast.frozenOrb() then return end
+
+          -- Pet Freeze #enemies > 2
+              if ((#enemies.yards8t >= 2 and mode.rotation == 1) or mode.rotation == 2) and buff.fingersOfFrost.stack <= (2+iceHand)-2 then
+                  Print("AOE stance")
+                  CastPetAction(4,"target")
+                  local X,Y,Z = ObjectPosition("target")
+                   -- print("x /y/z  " .. X ..":".. Y ..":".. Z)
+                  ClickPosition(X,Y,Z)
+              end
+          -- Blizzard AOE
+              if ((#enemies.yards8t >= 4 and mode.rotation == 1) or mode.rotation == 2) then
+                  Print("AOE stance")
+                  cast.blizzard("target")
+                  local X,Y,Z = ObjectPosition("target")
+                  -- print("x /y/z  " .. X ..":".. Y ..":".. Z)
+                  ClickPosition(X,Y,Z)
+              end
+        end
+        local function actionList_Moving()
+          if isMoving("player") and buff.fingersOfFrost.exists then
+              cast.iceLance()
+          end
+          if not buff.iceFloes.exists and isMoving("player") then
+              cast.iceFloes()
+          return end
+          --Flurry (AMR)
+          -- Spell Flurry if HasBuff(BrainFreeze) and ((not HasBuff(FingersOfFrost) and not HasTalent(GlacialSpike)) or (HasTalent(GlacialSpike) and WasLastCast(Frostbolt)))
+          if  isMoving("player") and buff.brainFreeze.exists and ((not buff.fingersOfFrost.exists and not talent.glacialSpike) or (talent.glacialSpike and lastSpellCast == spell.frostbolt)) then
+              if cast.flurry() then
+                  if lastSpellCast == spell.flurry then
+                      flurryCount = flurryCount + 1
+                      if debug == true then Print(dt .. "|cff00ccff|  " .. "|cffFFFFFF " .. " Casting Flurry  " .. "   #:  ".. flurryCount) end
+                  end
+               end
+           end
+           -- Ice Lance + Flurry (AMR)
+          if  isMoving("player") and not buff.fingersOfFrost.exists and lastSpellCast == spell.flurry and not talent.glacialSpike and castable.iceLance then
+           -- If we just Flurried Cast Ice Lance for winters_chill
+              ilfCount = ilfCount + 1
+              icelanceCount = icelanceCount + 1
+              if cast.iceLance() then
+                  if debug == true then Print(dt .. "|cff00ccff|  " .. "|cffFFFFFF " .. " Casting Ice Lance after Flurry" .. "   #:  ".. ilfCount) return end
+               end
+           end
+           if isMoving("player") and not buff.fingersOfFrost.exists and not buff.iceBarrier.exists then
+               cast.iceBarrier()
+           end
+
+        end
     -- Action List - PreCombat
         local function actionList_PreCombat()
             if not inCombat and not (IsFlying() or IsMounted()) then
@@ -494,6 +559,18 @@ local function runRotation()
                 if not UnitIsUnit("pettarget","target") then
                        PetAttack()
                 end
+            -- Movement Logic
+                if isMoving("player") then
+                  Print("on the move ! ")
+                  if actionList_Moving() then return end
+                end
+    -------------- AOE Start -------------------------
+    -- AOE
+                if ((#enemies.yards8t >= 2 and mode.rotation == 1) or mode.rotation == 2) then
+                    if actionList_AOE() then return end
+                end
+    -------------- AOE End -------------------------
+
             -- Ice Lance + Flurry (AMR)
                 if not buff.fingersOfFrost.exists and lastSpellCast == spell.flurry and not talent.glacialSpike and castable.iceLance then
                     -- If we just Flurried Cast Ice Lance for winters_chill
@@ -566,8 +643,8 @@ local function runRotation()
                         if UnitDebuffID("target",112948) then
                             -- print("Frost Bomb is on target")
                         elseif not UnitDebuffID("target",112948) and lastSpellCast ~= spell.frostBomb then
-                            print("NO Frost Bomb")
-                            if buff.fingersOfFrost.stack >= 2 or (cd.frozenOrb < 2 or cd.frozenTouch < 3 or cd.ebonbolt < 4) then
+                            --print("NO Frost Bomb")
+                            if buff.fingersOfFrost.stack >= 2 or (cd.frozenOrb < 1 or cd.frozenTouch < 2 or cd.ebonbolt < 2) then
                             -- print("2 FoF -> frostBomb")
                             cast.frostBomb()
                             end
@@ -619,15 +696,13 @@ local function runRotation()
                 if getOptionValue("APL Mode") == 4 then
             -- Test Ground for Casts
                     --if CastSpellByName("Frostbolt") then return end
-
-
-                        if cast.frostbolt() then
-                            frostboltCount = frostboltCount + 1
-                            Print(dt .. "|cff00ccff|  " .. "|cffFFFFFF " .. " Casting Frost Bolt" .. "   #:  ".. frostboltCount)
-                            return
-                        end
-
-
+                  if isMoving("player") then
+                    Print("on the move ! ")
+                    if actionList_Moving() then return end
+                  end
+                  -- Frostbolt
+                          -- frostbolt
+                          if cast.frostbolt() then return end
 
 
                 end -- End Testing APL

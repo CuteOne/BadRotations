@@ -978,6 +978,8 @@ br.idList = {
                 chainReaction               = 195418,
                 zannesuJourney              = 226852,
                 timeWarp                    = 80353,
+                iceFloes                    = 108839,
+                iceBarrier                  = 11426,
             },
             debuffs                         = {
                 frostBomb                   = 112948,
