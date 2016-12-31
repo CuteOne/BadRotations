@@ -44,7 +44,7 @@ local function createOptions()
     -- General Options
         section = br.ui:createSection(br.ui.window.profile, "General")
         -- APL
-            br.ui:createDropdownWithout(section, "APL Mode", {"|cffFFFFFFIcy-Veins","|cffFFFFFFAMR","|cffFFFFFFVilt-Test"}, 1, "|cffFFFFFFSet APL Mode to use.")
+            br.ui:createDropdownWithout(section, "APL Mode", {"|cffFFFFFFIcy-Veins","|cffFFFFFFAMR","|cffFFFFFFVilt"}, 3, "|cffFFFFFFSet APL Mode to use.")
         -- Dummy DPS Test
             br.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
         -- Pre-Pull Timer
@@ -69,20 +69,18 @@ local function createOptions()
         br.ui:checkSectionState(section)
     -- Vilt Rotation Options
     section = br.ui:createSection(br.ui.window.profile, "Vilt Rotation Options")
-        -- Use Death and Decay
-            br.ui:createCheckbox(section,"Death and Decay", "I suggest you turn this off and use it manually.")
         -- Death and Decay Target Amount
-            br.ui:createSpinner(section, "Death and Decay Targets", 3, 0, 10, 1, "|cffFFBB00Amount of Targets for DnD.")
+            br.ui:createSpinner(section, "Death and Decay", 3, 0, 10, 1, "|cffFFBB00Check to use Death and Decay, Amount of Targets for DnD.")
         -- Use Bonestorm
             br.ui:createCheckbox(section,"Use Bonestorm")
         -- Bonestorm Target Amount
-            br.ui:createSpinner(section, "Bonestorm Targets", 2, 0, 10, 1, "|cffFFBB00Amount of Targets for Bonestorm") 
+            br.ui:createSpinnerWithout(section, "Bonestorm Targets", 2, 0, 10, 1, "|cffFFBB00Amount of Targets for Bonestorm") 
         -- Bonestorm RP Amount
-            br.ui:createSpinner(section, "Bonestorm RP", 90, 0, 125, 5, "|cffFFBB00Amount of RP to use Bonestorm") 
+            br.ui:createSpinnerWithout(section, "Bonestorm RP", 90, 0, 125, 5, "|cffFFBB00Amount of RP to use Bonestorm") 
         -- DS High prio
-            br.ui:createSpinner(section, "Death Strike High Prio", 35, 0, 100, 1, "|cffFFBB00Percent Hp to use High Prio Death Strike") 
+            br.ui:createSpinnerWithout(section, "Death Strike High Prio", 35, 0, 100, 1, "|cffFFBB00Percent Hp to use High Prio Death Strike") 
         -- DS Low prio
-            br.ui:createSpinner(section, "Death Strike Low Prio", 75, 0, 100, 1, "|cffFFBB00Percent Hp to use Low Prio Death Strike")
+            br.ui:createSpinnerWithout(section, "Death Strike Low Prio", 75, 0, 100, 1, "|cffFFBB00Percent Hp to use Low Prio Death Strike")
         -- Consumption with Vampiric Blood up
             br.ui:createSpinner(section, "Consumption VB", 85, 0, 100, 1, "|cffFFBB00Percent Hp to use Consumption with Vampiric Blood as High Prio, when VB isn't active Consumption will be used as filler.")
         -- high prio blood boil for more dps
@@ -472,26 +470,21 @@ local function runRotation()
     --- Vilt APL ---
     ---------------------------
                 if getOptionValue("APL Mode") == 3 then
-                    --actions+=/death_and_decay,if=(buff.crimson_scourge.up&talent.rapid_decomposition.enabled)|spell_targets.death_and_decay>=2
-                    if --[[((buff.crimsonScourge.exists and talent.rapidDecomposition) or]] #enemies.yards8 >= getOptionValue("Death and Decay Targets") and isChecked("Death and Decay") then
+                    if --[[((buff.crimsonScourge.exists and talent.rapidDecomposition) or]] #enemies.yards8 >= getOptionValue("Death and Decay") and isChecked("Death and Decay") then
                         if cast.deathAndDecay("best",false,#enemies.yards8,8) then return end
                     end
-                    --#dump rp with deathstrike
-                    --actions+=/death_strike,if=(talent.bonestorm.enabled&cooldown.bonestorm>2)|spell_targets.bonestorm<3)|(!talent.bonestorm.enabled&runic_power.deficit<30)
+                    --dump rp with deathstrike
                     if ((talent.bonestorm and cd.bonestorm > 3) or (talent.bonestorm and #enemies.yards8 < getOptionValue("Bonestorm Targets")) or (not talent.bonestorm or not isChecked("Use Bonestorm"))) and br.player.power.runicPower.deficit <= 30 then
                         if cast.deathStrike() then return end
                     end    
-                    --actions+=/marrowrend,if=(talent.ossuary.enabled&buff.bone_shield.stacks<=4)|(!talent.ossuary.enabled&buff.bone_shield.stacks<2)|buff.bone_shield.remains<3|!buff.bone_shield.up
                     if (talent.ossuary and buff.boneShield.stack <=4) or (not talent.ossuary and buff.boneShield.stack <=2) or buff.boneShield.remain < 4 or not buff.boneShield.exists then
                         if cast.marrowrend() then return end
                     end
                     --#high prio heal
-                    --actions+=/death_strike,if=incoming_damage_5s>=health.max*0.45
                     --I'll just use flat hp numbers defined by the user for simplicity and tends to work a little bit better anyway
                     if php < getOptionValue("Death Strike High Prio") then
                         if cast.deathStrike() then return end
                     end
-                    --actions+=/bonestorm,if=talent.bonestorm.enabled&spell_targets.bonestorm>=2&runic_power>=90
                     if talent.bonestorm and isChecked("Use Bonestorm") and #enemies.yards8 >= getOptionValue("Bonestorm Targets") and runicPower >= getOptionValue("Bonestorm RP") then
                         if cast.bonestorm("Player") then return end
                     end
@@ -512,53 +505,36 @@ local function runRotation()
                             end
                         end
                     end
-                    --actions+=/blood_boil,if=charges.time_to_max<1.5*gcd
                     if isChecked("Blood Boil High Prio") and (charges.frac.bloodBoil >= 1.75 and getDistance("target") <= 8) then
                         if cast.bloodBoil("player") then return end
                     end 
-                    --actions+=/blood_tap,if=rune<3
                     if talent.bloodTap and runes < 3 then
                         if cast.bloodTap() then return end
                     end
-                    --actions+=/consumption,if=buff.vampiric_blood.up&health.max<0.9
-                    if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()) then
+                    if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()) and isChecked("Consumption VB") then
                         if getFacing("player","target",105) == true and buff.vampiricBlood.exists and php < getOptionValue("Consumption VB") and getDistance(thisUnit) <= 5 then
                             if cast.consumption() then return end
                         end
                     end
                     --#low prio heal
-                    --actions+=/death_strike,if=incoming_damage_5s>=health.max*0.15
                     if php < getOptionValue("Death Strike Low Prio") then
                         if cast.deathStrike() then return end
                     end
-                    --actions+=/marrowrend,if=rune>2.5&buff_bone_shield.stacks<=7
                     if runes >= 2.5 and buff.boneShield.stack <=6 then
                         if cast.marrowrend() then return end
-                    end
-                    --actions+=/death_and_decay,if=talent.rapid.decomposition.enabled
-                    --if talent.rapidDecomposition and isChecked("Death and Decay") then
-                    --    if cast.deathAndDecay("best",false,#enemies.yards8,8) then return end
-                    --end                        
-                    --actions+=/heart_strike,if=rune>2.5
+                    end                     
                     if runes >= 2.5 then
                         if cast.heartStrike() then return end
                     end
-                    --actions+=/consumption
                     if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()) then
                         if getFacing("player","target",105) == true and getDistance(thisUnit) <= 5 then
                             if cast.consumption() then return end
                         end
                     end
-                    --actions+=/blood_boil
                     if getDistance("target") <= 8 then
                         if cast.bloodBoil("player") then return end
                     end
-                    --actions+=/death_and_decay,if=!talent.rapid.decomposition.enabled&buff.crimson_scourge_up
-                    --if not talent.rapidDecomposition and buff.crimsonScourge.exists and isChecked("Death and Decay") then
-                    --    if cast.deathAndDecay("best",false,#enemies.yards8,8) then return end
-                    --end
-                end -- End Vilt APL        
-
+                end -- End Vilt APL
             end --End In Combat 
         end --End Rotation Logic
     end -- End Timer
