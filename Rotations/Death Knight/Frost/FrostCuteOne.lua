@@ -89,8 +89,8 @@ local function createOptions()
             br.ui:createSpinner(section, "Heirloom Neck",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
             -- Anti-Magic Shell
             br.ui:createSpinner(section, "Anti-Magic Shell",  75,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
-            -- Blinding Sheet
-            br.ui:createSpinner(section, "Blinding Sheet",  75,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
+            -- Blinding Sleet
+            br.ui:createSpinner(section, "Blinding Sleet",  75,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
             -- Death Strike
             br.ui:createSpinner(section, "Death Strike",  75,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
             -- Icebound Fortitude
@@ -105,8 +105,8 @@ local function createOptions()
         section = br.ui:createSection(br.ui.window.profile, "Interrupts")
             -- Anti-Magic Zone
             -- br.ui:createCheckbox(section,"Anti-Magic Zone - Int")
-            -- Blinding Sheet
-            -- br.ui:createCheckbox(section,"Blinding Sheet - Int")
+            -- Blinding Sleet
+            -- br.ui:createCheckbox(section,"Blinding Sleet - Int")
             -- Mind Freeze
             br.ui:createCheckbox(section,"Mind Freeze")
             -- Interrupt Percentage
@@ -228,9 +228,9 @@ local function runRotation()
                 if isChecked("Anti-Magic Shell") and php < getOptionValue("Anti-Magic Shell") and inCombat then
                     if cast.antiMagicShell() then return end
                 end
-        -- Blinding Sheet
-                if isChecked("Blinding Sheet") and php < getOptionValue("Blinding Sheet") and inCombat then
-                    if cast.blindingSheet() then return end
+        -- Blinding Sleet
+                if isChecked("Blinding Sleet") and php < getOptionValue("Blinding Sleet") and inCombat then
+                    if cast.blindingSleet() then return end
                 end
         -- Death Strike
                 if isChecked("Death Strike") and (buff.darkSuccor or php < getOptionValue("Death Strike")) and inCombat then
@@ -387,12 +387,12 @@ local function runRotation()
             if isChecked("Empower/Hungering Rune Weapon") and useCDs() then
         -- Empower Rune Weapon
                 -- empower_rune_weapon,if=runic_power<=40
-                if runicPower <= 40 then
+                if runicPower <= 40 and runes < 1 then
                     if cast.empowerRuneWeapon() then return end
                 end
         -- Hungering Rune Weapon
                 -- hungering_rune_weapon,if=runic_power<=40
-                if runicPower <= 40 then
+                if runicPower <= 40 and runes < 1 then
                     if cast.hungeringRuneWeapon() then return end
                 end
             end
@@ -501,13 +501,13 @@ local function runRotation()
         -- Empower Rune Weapon
                 -- empower_rune_weapon,if=talent.breath_of_sindragosa.enabled&cooldown.breath_of_sindragosa.remains>15
                 -- empower_rune_weapon,if=!talent.breath_of_sindragosa.enabled
-                if (talent.breathOfSindragosa and cd.breathOfSindragosa > 15) or not talent.breathOfSindragosa then
+                if ((talent.breathOfSindragosa and cd.breathOfSindragosa > 15) or not talent.breathOfSindragosa) and runes < 1 then
                     if cast.empowerRuneWeapon() then return end
                 end
         -- Hungering Rune Weapon
                 -- empower_rune_weapon,if=talent.breath_of_sindragosa.enabled&cooldown.breath_of_sindragosa.remains>15
                 -- hungering_rune_weapon,if=!talent.breath_of_sindragosa.enabled
-                if (talent.breathOfSindragosa and cd.breathOfSindragosa > 15) or not talent.breathOfSindragosa then
+                if ((talent.breathOfSindragosa and cd.breathOfSindragosa > 15) or not talent.breathOfSindragosa) and runes < 1 then
                     if cast.hungeringRuneWeapon() then return end
                 end
             end
@@ -544,13 +544,13 @@ local function runRotation()
         -- Empower Rune Weapon
                 -- empower_rune_weapon,if=talent.breath_of_sindragosa.enabled&cooldown.breath_of_sindragosa.remains>15
                 -- empower_rune_weapon,if=!talent.breath_of_sindragosa.enabled
-                if (talent.breathOfSindragosa and cd.breathOfSindragosa > 15) or not talent.breathOfSindragosa then
+                if ((talent.breathOfSindragosa and cd.breathOfSindragosa > 15) or not talent.breathOfSindragosa) and runes < 1 then
                     if cast.empowerRuneWeapon() then return end
                 end
         -- Hungering Rune Weapon
                 -- empower_rune_weapon,if=talent.breath_of_sindragosa.enabled&cooldown.breath_of_sindragosa.remains>15
                 -- hungering_rune_weapon,if=!talent.breath_of_sindragosa.enabled
-                if (talent.breathOfSindragosa and cd.breathOfSindragosa > 15) or not talent.breathOfSindragosa then
+                if ((talent.breathOfSindragosa and cd.breathOfSindragosa > 15) or not talent.breathOfSindragosa) and runes < 1 then
                     if cast.hungeringRuneWeapon() then return end
                 end
             end
@@ -689,13 +689,13 @@ local function runRotation()
         -- Empower Rune Weapon
                 -- empower_rune_weapon,if=talent.breath_of_sindragosa.enabled&cooldown.breath_of_sindragosa.remains>15
                 -- empower_rune_weapon,if=!talent.breath_of_sindragosa.enabled
-                if (talent.breathOfSindragosa and cd.breathOfSindragosa > 15) or not talent.breathOfSindragosa then
+                if ((talent.breathOfSindragosa and cd.breathOfSindragosa > 15) or not talent.breathOfSindragosa) and runes < 1 then
                     if cast.empowerRuneWeapon() then return end
                 end
         -- Hungering Rune Weapon
                 -- empower_rune_weapon,if=talent.breath_of_sindragosa.enabled&cooldown.breath_of_sindragosa.remains>15
                 -- hungering_rune_weapon,if=!talent.breath_of_sindragosa.enabled
-                if (talent.breathOfSindragosa and cd.breathOfSindragosa > 15) or not talent.breathOfSindragosa then
+                if ((talent.breathOfSindragosa and cd.breathOfSindragosa > 15) or not talent.breathOfSindragosa) and runes < 1 then
                     if cast.hungeringRuneWeapon() then return end
                 end
             end

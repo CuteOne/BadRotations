@@ -531,7 +531,7 @@ local function runRotation()
                         end
         -- Mortal Strike
                         -- mortal_strike,if=cooldown_react&buff.battle_cry.up&buff.focused_rage.stack=3
-                        if ((buff.battleCry.exists or ignoreBattleCry) and buff.focusedRage.stack == 3) or (buff.focusedRage.remain < cd.battleCry and cd.battleCry < 5) or ignoreBattleCry then
+                        if ((buff.battleCry.exists or ignoreBattleCry) and buff.focusedRage.stack == 3) or ((buff.focusedRage.remain < cd.battleCry and cd.battleCry < 5) or (buff.focusedRage.remain < 5 and ignoreBattleCry)) then
                             if cast.mortalStrike(executeUnit) then return end
                         end
         -- Heroic Charge
@@ -614,7 +614,7 @@ local function runRotation()
             end
         -- Focused Rage
             -- focused_rage,if=!buff.battle_cry_deadly_calm.up&buff.focused_rage.stack<3&!cooldown.colossus_smash.up&(rage>=50|debuff.colossus_smash.down|cooldown.battle_cry.remains<=8)
-            if (buff.battleCry.remain > cd.focusedRage and (buff.focusedRage.stack < 3 or cd.mortalStrike > 0)) 
+            if ((buff.battleCry.remain > cd.focusedRage or ignoreBattleCry) and (buff.focusedRage.stack < 3 or cd.mortalStrike > 0)) 
                 or (not ((buff.battleCry.exists or ignoreBattleCry) and talent.deadlyCalm) and buff.focusedRage.stack < 3 and cd.colossusSmash > 0 
                     and (rage >= 50 or not debuff.colossusSmash[units.dyn5].exists or cd.battleCry <= 8)) 
             then

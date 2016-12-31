@@ -213,6 +213,14 @@ local function runRotation()
         if lastSpell == spell.totemMastery then resonanceTotemCastTime = GetTime() + 120 end
         if resonanceTotemCastTime > GetTime() then resonanceTotemTimer = resonanceTotemCastTime - GetTime() else resonanceTotemCastTime = 0; resonanceTotemTimer = 0 end
 
+        flameShockCounter = 0
+        for i = 1, #enemies.yards40 do
+            local thisUnit = enemies.yards40[i]
+            if debuff.flameShock[thisUnit].exists then
+                flameShockCounter = flameShockCounter + 1
+            end
+        end
+
 --------------------
 --- Action Lists ---
 --------------------
@@ -587,9 +595,9 @@ local function runRotation()
             end
         -- Flame Shock
             -- flame_shock,if=spell_targets.chain_lightning=3&maelstrom>=20,target_if=refreshable
-            if power >= 20 then
-                for i = 1, #enemies.yards8 do
-                    local thisUnit = enemies.yards8[i]
+            if flameShockCounter < 4 and power >= 20 then
+                for i = 1, #enemies.yards40 do
+                    local thisUnit = enemies.yards40[i]
                     if debuff.flameShock[thisUnit].remain < 2 and (UnitIsUnit(thisUnit,"target") or hasThreat(thisUnit) or isDummy(thisUnit)) then
                         if cast.flameShock(thisUnit) then return end
                     end
@@ -622,9 +630,9 @@ local function runRotation()
             end
         -- Flame Shock
             -- flame_shock,moving=1,target_if=refreshable
-            if moving then
-                for i = 1, #enemies.yards8 do
-                    local thisUnit = enemies.yards8[i]
+            if flameShockCounter < 4 and moving then
+                for i = 1, #enemies.yards40 do
+                    local thisUnit = enemies.yards40[i]
                     if debuff.flameShock[thisUnit].remain < 2 and (UnitIsUnit(thisUnit,"target") or hasThreat(thisUnit) or isDummy(thisUnit)) then
                         if cast.flameShock(thisUnit) then return end
                     end

@@ -221,7 +221,14 @@ local function runRotation()
         end
     -- Custom Functions
         local function cancelRushAnimation()
-            return cast.felRush()
+            if castable.felRush then 
+                MoveBackwardStart()
+                JumpOrAscendStart()
+                cast.felRush()
+                MoveBackwardStop()
+                AscendStop()
+            end
+            return
         end
         local function cancelRetreatAnimation()
             return cast.vengefulRetreat()
@@ -645,7 +652,7 @@ local function runRotation()
                     end
             -- Fury of the Illidari
                     -- fury_of_the_illidari,if=active_enemies>desired_targets|raid_event.adds.in>55&(!talent.momentum.enabled|buff.momentum.up)
-                    if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()) and getDistance(units.dyn8) < 5 then
+                    if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()) and getDistance("target") < 5 then
                         if #enemies.yards8 > getOptionValue("Eye Beam Targets") or addsIn > 55 and (not talent.momentum or buff.momentum.exists) then
                             if cast.furyOfTheIllidari() then return end
                         end

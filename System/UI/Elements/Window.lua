@@ -194,10 +194,23 @@ function br.ui:closeWindow(windowName)
     for k, v in pairs(br.ui.window) do
         if k == windowName or windowName == "all" then
             if br.ui.window[k].parent ~= nil then
-                if br.data.settings[br.selectedSpec][k].active then
+                if k == windowName then 
+                    br.ui.window[k].parent.closeButton:Click(); 
+                    break 
+                else
                     br.ui.window[k].parent.closeButton:Click()
-                    if k == windowName then break end
                 end
+                -- for l, w in pairs(br.data.settings) do
+                --     if l ~= br.selectedSpec and br.data.settings[l] ~= nil then
+                --         if br.data.settings[l][k] ~= nil then
+                --         print(br.data.settings[l][k])
+                --             if br.data.settings[l][k].active then br.ui.window[k].parent.closeButton:Click() end
+                -- -- if br.data.settings[br.selectedSpec][k] ~= nil then
+                --     -- if br.data.settings[br.selectedSpec][k].active then
+                --         -- br.ui.window[k].parent.closeButton:Click()
+                --         end
+                --     end
+                -- end
             end
         end
     end

@@ -260,6 +260,11 @@ local function runRotation()
                 end
             end
         end
+        if power > 50 or (power > 25 and buff.berserk.exists) or buff.clearcasting.exists then
+            fbMaxEnergy = true
+        else
+            fbMaxEnergy = false
+        end
         -- ChatOverlay(round2(getDistance("target","player","dist"),2)..", "..round2(getDistance("target","player","dist2"),2)..", "..round2(getDistance("target","player","dist3"),2)..", "..round2(getDistance("target","player","dist4"),2))
 
 --------------------
@@ -678,7 +683,7 @@ local function runRotation()
             -- ferocious_bite,max_energy=1,cycle_targets=1,if=$(fb_finisher_conditions)
             for i = 1, #enemies.yards5 do
                 local thisUnit = enemies.yards5[i]
-                if power > 50 and animality then
+                if fbMaxEnergy and animality then
                     if cast.ferociousBite(thisUnit) then return end
                 end
             end
@@ -757,8 +762,8 @@ local function runRotation()
                 local rake = debuff.rake[thisUnit]
                 if rake ~= nil then
                     if (multidot or (UnitIsUnit(thisUnit,units.dyn5) and not multidot)) and getDistance(thisUnit) < 5 then
-                        if combo < 5 and (rake.remain == 0 or (not talent.bloodtalons and rake.refresh)
-                            or (talent.bloodtalons and buff.bloodtalons.exists and (not talent.soulOfTheForest and rake.remain <= 7 or rake.remain <= 5)
+                        if combo < 5 and (not rake.exists or (not talent.bloodtalons and rake.refresh)
+                            or (talent.bloodtalons and buff.bloodtalons.exists and ((not talent.soulOfTheForest and rake.remain <= 7) or rake.remain <= 5)
                                 and rake.calc > rake.applied * 0.80)) and ttd(thisUnit) - rake.remain > rkTick
                         then
                             if power <= select(1, getSpellCost(spell.rake)) then
@@ -815,7 +820,7 @@ local function runRotation()
             end
         -- Shred
             -- shred,if=combo_points<5&(spell_targets.swipe_cat<3|talent.brutal_slash.enabled)
-            if combo < 5 and not debuff.rake[units.dyn5].refresh and (((mode.rotation == 1 and #enemies.yards8 < 3) or mode.rotation == 3) or talent.brutalSlash or level < 32) then
+            if combo < 5 and debuff.rake[units.dyn5].exists and (((mode.rotation == 1 and #enemies.yards8 < 3) or mode.rotation == 3) or talent.brutalSlash or level < 32) then
                 if cast.shred(units.dyn5) then return end
             end
         end

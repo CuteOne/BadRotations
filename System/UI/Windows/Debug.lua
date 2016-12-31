@@ -3,7 +3,9 @@ br.ui.window.debug = {}
 function br.ui:createDebugWindow()
     br.ui.window.debug = br.ui:createMessageWindow("debug",300,250,"Rotation Log")
     br.ui.window.debug.parent.closeButton:SetScript("OnClick", function()
-		br.data.settings[br.selectedSpec][br.selectedProfile]["Rotation LogCheck"] = false
+    	if br.data.settings[br.selectedSpec][br.selectedProfile] ~= nil then
+			br.data.settings[br.selectedSpec][br.selectedProfile]["Rotation LogCheck"] = false
+		end
     	rotationLog:SetChecked(false)
         br.data.settings[br.selectedSpec].debug["active"] = false
         br.ui.window.debug.parent:Hide()
