@@ -390,12 +390,12 @@ local function runRotation()
             end
         -- Phoenix's Flames
             -- /phoenixs_flames,if=charges_fractional>2.7&active_enemies>2
-            if charges.frac.phoenixsFlames > 2.7 and ((#enemies.yards10 > 2 and mode.roation == 1) or mode.roation == 2) then
+            if charges.frac.phoenixsFlames > 2.7 and ((#enemies.yards10 > 2 and mode.rotation == 1) or mode.rotation == 2) then
                 if cast.phoenixsFlames() then return end
             end
         -- Flamestrike
             -- flamestrike,if=talent.flame_patch.enabled&active_enemies>2&buff.hot_streak.react
-            if ((#enemies.yards10 > 2 and mode.roation == 1) or mode.roation == 2) and buff.hotStreak.exists then
+            if ((#enemies.yards10 > 2 and mode.rotation == 1) or mode.rotation == 2) and buff.hotStreak.exists then
                 if cast.flamestrike("best",nil,2,8) then return end
             end
         -- Pyroblast
