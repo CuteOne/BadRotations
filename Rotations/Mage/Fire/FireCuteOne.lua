@@ -304,7 +304,7 @@ local function runRotation()
             end
         -- Living Bomb
             -- living_bomb,if=active_enemies>1&buff.combustion.down
-            if ((#enemies.yards10 > 1 and mode.rotation == 1) or mode.rotation == 2) and not buff.combustion.exists then
+            if ((#enemies.yards10t > 1 and mode.rotation == 1) or mode.rotation == 2) and not buff.combustion.exists then
                 if cast.livingBomb("target") then return end
             end
         end -- End Active Talents Action List
@@ -390,12 +390,12 @@ local function runRotation()
             end
         -- Phoenix's Flames
             -- /phoenixs_flames,if=charges_fractional>2.7&active_enemies>2
-            if charges.frac.phoenixsFlames > 2.7 and ((#enemies.yards10 > 2 and mode.rotation == 1) or mode.rotation == 2) then
+            if charges.frac.phoenixsFlames > 2.7 and ((#enemies.yards10t > 2 and mode.rotation == 1) or mode.rotation == 2) then
                 if cast.phoenixsFlames() then return end
             end
         -- Flamestrike
             -- flamestrike,if=talent.flame_patch.enabled&active_enemies>2&buff.hot_streak.react
-            if ((#enemies.yards10 > 2 and mode.rotation == 1) or mode.rotation == 2) and buff.hotStreak.exists then
+            if ((#enemies.yards10t > 2 and mode.rotation == 1) or mode.rotation == 2) and buff.hotStreak.exists then
                 if cast.flamestrike("best",nil,2,8) then return end
             end
         -- Pyroblast
