@@ -882,9 +882,17 @@ br.idList = {
         -- Arcane
         [62] = {
             abilities                       = {
+                arcaneBarage                = 44425,
+                arcaneBlast                 = 30451,
+                arcaneExplosion             = 1449,
+                arcaneMissles               = 5143,
+                arcanePower                 = 12042,
+                evocation                   = 12051,
+                
 
             },
             artifacts                       = {
+                markOfAluneth               = 224968,
 
             },
             buffs                           = {
@@ -897,6 +905,8 @@ br.idList = {
 
             },
             talents                         = {
+                netherTempest               = 114923,
+                arcaneFamilliar             = 205022,
 
             },
         },
