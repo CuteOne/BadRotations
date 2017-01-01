@@ -466,9 +466,9 @@ local function runRotation()
                     if getOptionValue("APL Mode") == 2 then
                         -- Volley
                         -- If you take Volley, you do more damage by leaving it on all the time.
-                        -- if talent.volley then
-                        --     if cast.volley(units.dyn40) then return end
-                        -- end
+                        if talent.volley and not buff.volley.exists then
+                            if cast.volley(units.dyn40) then return end
+                        end
                         -- Cooldowns
                         -- if HasBuff(BestialWrath)
                         -- Bestial Wrath

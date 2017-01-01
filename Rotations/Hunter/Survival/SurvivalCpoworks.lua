@@ -353,12 +353,10 @@ local function runRotation()
 --- Out Of Combat - Rotations ---
 ---------------------------------
             if not inCombat and ObjectExists("target") and not UnitIsDeadOrGhost("target") and UnitCanAttack("target", "player") then
-        -----------------
+    -----------------
     --- Pet Logic ---
     -----------------             
-            if actionList_PetManagement() then return end
-
-
+                if actionList_PetManagement() then return end
             end -- End Out of Combat Rotation
 -----------------------------
 --- In Combat - Rotations --- 
@@ -367,110 +365,140 @@ local function runRotation()
     -----------------
     --- Pet Logic ---
     -----------------             
-            if actionList_PetManagement() then return end
-
-    ---------------------------
-    --- SimulationCraft APL ---
-    ---------------------------
-                    if getOptionValue("APL Mode") == 1 then
+                if actionList_PetManagement() then return end
     ------------------------------
     --- In Combat - Interrupts ---
     ------------------------------
-                    if actionList_Interrupts() then return end
-                    end -- End SimC APL
+                if actionList_Interrupts() then return end
+                    
+    ---------------------------
+    --- SimulationCraft APL ---
+    ---------------------------
+                if getOptionValue("APL Mode") == 1 then
+                    -- actions=auto_attack
+                    if getDistance(units.dyn5) < 5 then
+                        StartAttack()
+                    end
+                    -- actions+=/arcane_torrent,if=focus.deficit>=30
+                    -- actions+=/blood_fury
+                    -- actions+=/berserking
+                    -- actions+=/use_item,name=tirathons_betrayal
+                    -- actions+=/potion,name=old_war,if=buff.aspect_of_the_eagle.remains
+                    -- actions+=/fury_of_the_eagle,if=(buff.mongoose_fury.up&buff.mongoose_fury.remains<=gcd)|target.time_to_die<=execute_time
+                    -- actions+=/raptor_strike,if=talent.way_of_the_moknathal.enabled&buff.moknathal_tactics.remains&buff.moknathal_tactics.remains<gcd.max
+                    -- actions+=/a_murder_of_crows
+                    -- actions+=/steel_trap
+                    -- actions+=/explosive_trap
+                    -- actions+=/dragonsfire_grenade
+                    -- actions+=/caltrops
+                    -- actions+=/carve,cycle_targets=1,if=talent.serpent_sting.enabled&active_enemies>=3&(!dot.serpent_sting.ticking|dot.serpent_sting.remains<=gcd.max)
+                    -- actions+=/raptor_strike,cycle_targets=1,if=talent.serpent_sting.enabled&active_enemies<=2&(!dot.serpent_sting.ticking|dot.serpent_sting.remains<=gcd.max)|talent.way_of_the_moknathal.enabled&buff.moknathal_tactics.down
+                    -- actions+=/aspect_of_the_eagle
+                    -- actions+=/snake_hunter,if=action.mongoose_bite.charges<=0&buff.mongoose_fury.remains
+                    -- actions+=/mongoose_bite,if=buff.aspect_of_the_eagle.up&(charges>=2|charges>=1&cooldown.mongoose_bite.remains<=2)|(buff.mongoose_fury.up|cooldown.fury_of_the_eagle.remains<5|charges=3)
+                    -- actions+=/lacerate,if=dot.lacerate.ticking&dot.lacerate.remains<=3|target.time_to_die>=5
+                    -- actions+=/flanking_strike,if=talent.way_of_the_moknathal.enabled&(buff.moknathal_tactics.remains>=3)|!talent.way_of_the_moknathal.enabled
+                    -- actions+=/butchery,if=spell_targets.butchery>=2
+                    -- actions+=/carve,if=spell_targets.carve>=4
+                    -- actions+=/spitting_cobra
+                    -- actions+=/throwing_axes
+                    -- actions+=/raptor_strike,if=!talent.throwing_axes.enabled&focus>75-cooldown.flanking_strike.remains*focus.regen
+                end -- End SimC APL
     ------------------------
     --- Ask Mr Robot APL ---
     ------------------------
-                    if getOptionValue("APL Mode") == 2 then
-                        -- Harpoon
-                        -- if not HasDot(OnTheTrail) and ArtifactTraitRank(EaglesBite) > 0
-                        
-                        -- Cooldowns
-                        -- if TargetsInRadius(Carve) > 2 or HasBuff(MongooseFury) or ChargesRemaining(MongooseBite) = SpellCharges(MongooseBite)
-                        -- Use your cooldowns during or just before Mongoose Fury or an AoE phase.
-                        if #enemies.yards5 > 2 or buff.mongooseFury.exists or charges.mongooseBite == charges.max.mongooseBite then
-                            if actionList_Cooldowns() then return end
-                        end
-                        -- MultiTarget
-                        -- if TargetsInRadius(Carve) > 2
-                        if (#enemies.yards5 > 2 and mode.rotation == 1) or mode.rotation == 2 then
-                            if actionList_MultiTarget() then return end
-                        end
-                        -- Explosive Trap
-                        if cast.explosiveTrap(units.dyn5) then return end
-                        -- Dragonsfire Grenade
-                        if talent.dragonsfireGrenade then
-                            if cast.dragonsfireGrenade(units.dyn5) then return end
-                        end
-                        -- Raptor Strike
-                        -- if HasTalent(WayOfTheMokNathal) and BuffRemainingSec(MokNathalTactics) <= GlobalCooldownSec
-                        if talent.wayOfTheMokNathal and buff.mokNathalTactics.remain <= gcd then
-                            if cast.raptorStrike(units.dyn5) then return end
-                        end
-                        -- Snake Hunter
-                        -- if ChargesRemaining(MongooseBite) = 0 and BuffRemainingSec(MongooseFury) > GlobalCooldownSec * 4
-                        if talent.snakeHunter and charges.mongooseBite == 0 and buff.mongooseFury.remain > gcd * 4 then
-                            if cast.snakeHunter(units.dyn5) then return end
-                        end
-                        -- Fury of the Eagle
-                        -- if HasBuff(MongooseFury) and BuffRemainingSec(MongooseFury) <= GlobalCooldownSec * 2
-                        -- You want to use this near the end of Mongoose Fury, but leave time to use one or two Mongoose Bite charges you might gain during the channel.
-                        if buff.mongooseFury.exists and buff.mongooseFury.remain <= gcd * 2 then
-                            if cast.furyOfTheEagle(units.dyn5) then return end
-                        end
-                        -- Mongoose Bite
-                        -- if HasBuff(MongooseFury) or ChargesRemaining(MongooseBite) = SpellCharges(MongooseBite)
-                        -- Once you hit max charges of Mongoose Bite, use it.
-                        if buff.mongooseFury or charges.mongooseBite == charges.max.mongooseBite then
-                            if cast.mongooseBite(units.dyn5) then return end
-                        end
-                        -- Steel Trap
-                        if talent.steelTrap then
-                            if cast.steelTrap(units.dyn5) then return end
-                        end
-                        -- Caltrops
-                        -- if not HasDot(Caltrops) or DotCount(Caltrops) < TargetsInRadius(Caltrops)
-                        if talent.caltrops and not not UnitDebuffID(units.dyn5,spell.debuffs.caltrops,"player") then
-                            if cast.caltrops(units.dyn5) then return end
-                        end
-                        -- A Murder of Crows
-                        if talent.aMurderOfCrows then
-                            if cast.aMurderOfCrows(units.dyn5) then return end
-                        end
-                        -- Lacerate
-                        -- if CanRefreshDot(Lacerate)
-                        if debuff.lacerate[units.dyn5].refresh then
-                            if cast.lacerate(units.dyn5) then return end
-                        end
-                        -- Spitting Cobra
-                        if cast.splittingCobra(units.dyn5) then return end
-                        -- Raptor Strike
-                        -- if (HasTalent(SerpentSting) and CanRefreshDot(SerpentSting))
-                        if talent.serpentSting and not UnitDebuffID(units.dyn5,spell.debuffs.serpentSting,"player") then
-                            if cast.raptorStrike(units.dyn5) then return end
-                        end
-                        -- Flanking Strike
-                        if cast.flankingStrike(units.dyn5) then return end
-                        -- Butchery
-                        -- if TargetsInRadius(Butchery) > 1
-                        if talent.butchery and #enemies.yards5 > 1 then
-                            if cast.butchery(units.dyn5) then return end
-                        end
-                        -- Carve
-                        -- if TargetsInRadius(Carve) > 1
-                        if not talent.butchery and #enemies.yards5 > 1 then
-                            if cast.carve(units.dyn5) then return end
-                        end
-                        -- Throwing Axes
-                        if cast.throwingAxes(units.dyn5) then return end
-                        -- Raptor Strike
-                        -- if Power > 75 - CooldownSecRemaining(FlankingStrike) * PowerRegen and not HasTalent(ThrowingAxes)
-                        -- If using Raptor Strike could possibly delay a Flanking Strike by using up your Focus, it is better to just wait for Flanking Strike to come off GCD. It is also not worth using if you have Throwing Axes talented.
-                        if power > 75 - cd.flankingStrike * powerRegen and not talent.throwingAxes then
-                            if cast.raptorStrike(units.dyn5) then return end
-                        end
-
+                if getOptionValue("APL Mode") == 2 then
+                    if getDistance(units.dyn5) < 5 then
+                        StartAttack()
                     end
+                    -- Harpoon
+                    -- if not HasDot(OnTheTrail) and ArtifactTraitRank(EaglesBite) > 0
+                    
+                    -- Cooldowns
+                    -- if TargetsInRadius(Carve) > 2 or HasBuff(MongooseFury) or ChargesRemaining(MongooseBite) = SpellCharges(MongooseBite)
+                    -- Use your cooldowns during or just before Mongoose Fury or an AoE phase.
+                    if #enemies.yards5 > 2 or buff.mongooseFury.exists or charges.mongooseBite == charges.max.mongooseBite then
+                        if actionList_Cooldowns() then return end
+                    end
+                    -- MultiTarget
+                    -- if TargetsInRadius(Carve) > 2
+                    if (#enemies.yards5 > 2 and mode.rotation == 1) or mode.rotation == 2 then
+                        if actionList_MultiTarget() then return end
+                    end
+                    -- Explosive Trap
+                    if cast.explosiveTrap(units.dyn5) then return end
+                    -- Dragonsfire Grenade
+                    if talent.dragonsfireGrenade then
+                        if cast.dragonsfireGrenade(units.dyn5) then return end
+                    end
+                    -- Raptor Strike
+                    -- if HasTalent(WayOfTheMokNathal) and BuffRemainingSec(MokNathalTactics) <= GlobalCooldownSec
+                    if talent.wayOfTheMokNathal and buff.mokNathalTactics.remain <= gcd then
+                        if cast.raptorStrike(units.dyn5) then return end
+                    end
+                    -- Snake Hunter
+                    -- if ChargesRemaining(MongooseBite) = 0 and BuffRemainingSec(MongooseFury) > GlobalCooldownSec * 4
+                    if talent.snakeHunter and charges.mongooseBite == 0 and buff.mongooseFury.remain > gcd * 4 then
+                        if cast.snakeHunter(units.dyn5) then return end
+                    end
+                    -- Fury of the Eagle
+                    -- if HasBuff(MongooseFury) and BuffRemainingSec(MongooseFury) <= GlobalCooldownSec * 2
+                    -- You want to use this near the end of Mongoose Fury, but leave time to use one or two Mongoose Bite charges you might gain during the channel.
+                    if buff.mongooseFury.exists and buff.mongooseFury.remain <= gcd * 2 then
+                        if cast.furyOfTheEagle(units.dyn5) then return end
+                    end
+                    -- Mongoose Bite
+                    -- if HasBuff(MongooseFury) or ChargesRemaining(MongooseBite) = SpellCharges(MongooseBite)
+                    -- Once you hit max charges of Mongoose Bite, use it.
+                    if buff.mongooseFury or charges.mongooseBite == charges.max.mongooseBite then
+                        if cast.mongooseBite(units.dyn5) then return end
+                    end
+                    -- Steel Trap
+                    if talent.steelTrap then
+                        if cast.steelTrap(units.dyn5) then return end
+                    end
+                    -- Caltrops
+                    -- if not HasDot(Caltrops) or DotCount(Caltrops) < TargetsInRadius(Caltrops)
+                    if talent.caltrops and not not UnitDebuffID(units.dyn5,spell.debuffs.caltrops,"player") then
+                        if cast.caltrops(units.dyn5) then return end
+                    end
+                    -- A Murder of Crows
+                    if talent.aMurderOfCrows then
+                        if cast.aMurderOfCrows(units.dyn5) then return end
+                    end
+                    -- Lacerate
+                    -- if CanRefreshDot(Lacerate)
+                    if debuff.lacerate[units.dyn5].refresh then
+                        if cast.lacerate(units.dyn5) then return end
+                    end
+                    -- Spitting Cobra
+                    if cast.splittingCobra(units.dyn5) then return end
+                    -- Raptor Strike
+                    -- if (HasTalent(SerpentSting) and CanRefreshDot(SerpentSting))
+                    if talent.serpentSting and not UnitDebuffID(units.dyn5,spell.debuffs.serpentSting,"player") then
+                        if cast.raptorStrike(units.dyn5) then return end
+                    end
+                    -- Flanking Strike
+                    if cast.flankingStrike(units.dyn5) then return end
+                    -- Butchery
+                    -- if TargetsInRadius(Butchery) > 1
+                    if talent.butchery and #enemies.yards5 > 1 then
+                        if cast.butchery(units.dyn5) then return end
+                    end
+                    -- Carve
+                    -- if TargetsInRadius(Carve) > 1
+                    if not talent.butchery and #enemies.yards5 > 1 then
+                        if cast.carve(units.dyn5) then return end
+                    end
+                    -- Throwing Axes
+                    if cast.throwingAxes(units.dyn5) then return end
+                    -- Raptor Strike
+                    -- if Power > 75 - CooldownSecRemaining(FlankingStrike) * PowerRegen and not HasTalent(ThrowingAxes)
+                    -- If using Raptor Strike could possibly delay a Flanking Strike by using up your Focus, it is better to just wait for Flanking Strike to come off GCD. It is also not worth using if you have Throwing Axes talented.
+                    if power > 75 - cd.flankingStrike * powerRegen and not talent.throwingAxes then
+                        if cast.raptorStrike(units.dyn5) then return end
+                    end
+                end -- End AMR
             end -- End In Combat Rotation
         end -- Pause
     end -- End Timer

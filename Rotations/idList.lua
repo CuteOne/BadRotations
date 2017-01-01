@@ -720,7 +720,8 @@ br.idList = {
             },
             buffs                           = {
                 bestialWrath                = 19574,
-                direBeast                   = 120694
+                direBeast                   = 120694,
+                volley                      = 194386
             },
             debuffs                         = {
 
@@ -771,6 +772,7 @@ br.idList = {
                 lockAndLoad                 = 194594,
                 markingTargets              = 223138,
                 trueshot                    = 193526,
+                volley                      = 194386
             },
             debuffs                         = {
                 huntersMark                 = 185365,
