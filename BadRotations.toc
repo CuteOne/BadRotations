@@ -111,6 +111,7 @@ Rotations\Hunter\Marksmanship\MarksmanshipCpoworks.lua
 
 Rotations\Hunter\Survival\SurvivalCpoworks.lua
 ## Mage ---------------------------------------------------
+Rotations\Mage\Arcane\ArcaneDBT.lua
 
 Rotations\Mage\Fire\FireCuteOne.lua
 
