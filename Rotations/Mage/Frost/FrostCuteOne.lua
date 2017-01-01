@@ -319,6 +319,26 @@ local function runRotation()
             end -- End useCDs check
         end -- End Action List - Cooldowns
         local function actionList_AOE()
+          -- Ice lance if capped
+              if buff.fingersOfFrost.stack > (2 + iceHand) then
+                  if cast.iceLance() then return end
+              end
+          -- Blizzard AOE
+              if ((#enemies.yards8t >= 4 and mode.rotation == 1) or mode.rotation == 2) then
+                  Print("AOE stance")
+                  cast.blizzard("target")
+                  local X,Y,Z = ObjectPosition("target")
+                  -- print("x /y/z  " .. X ..":".. Y ..":".. Z)
+                  ClickPosition(X,Y,Z)
+              end
+          -- Pet Freeze #enemies > 2
+              if ((#enemies.yards8t >= 2 and mode.rotation == 1) or mode.rotation == 2) and buff.fingersOfFrost.stack <= (2+iceHand)-2 then
+                  Print("AOE stance")
+                  CastPetAction(4,"target")
+                  local X,Y,Z = ObjectPosition("target")
+                  -- print("x /y/z  " .. X ..":".. Y ..":".. Z)
+                  ClickPosition(X,Y,Z)
+              end
           -- Frozen Orb
               -- Cast frozen_orb on Cd
               if cast.frozenOrb() then return end
@@ -335,22 +355,7 @@ local function runRotation()
               -- Cast frozen_orb on Cd
               if cast.frozenOrb() then return end
 
-          -- Pet Freeze #enemies > 2
-              if ((#enemies.yards8t >= 2 and mode.rotation == 1) or mode.rotation == 2) and buff.fingersOfFrost.stack <= (2+iceHand)-2 then
-                  Print("AOE stance")
-                  CastPetAction(4,"target")
-                  local X,Y,Z = ObjectPosition("target")
-                   -- print("x /y/z  " .. X ..":".. Y ..":".. Z)
-                  ClickPosition(X,Y,Z)
-              end
-          -- Blizzard AOE
-              if ((#enemies.yards8t >= 4 and mode.rotation == 1) or mode.rotation == 2) then
-                  Print("AOE stance")
-                  cast.blizzard("target")
-                  local X,Y,Z = ObjectPosition("target")
-                  -- print("x /y/z  " .. X ..":".. Y ..":".. Z)
-                  ClickPosition(X,Y,Z)
-              end
+
         end
         local function actionList_Moving()
           if isMoving("player") and buff.fingersOfFrost.exists then
