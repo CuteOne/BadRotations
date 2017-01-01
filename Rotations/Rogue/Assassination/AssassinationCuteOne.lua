@@ -458,9 +458,12 @@ local function runRotation()
 			-- garrote,cycle_targets=1,if=refreshable&(!exsanguinated|remains<=1.5)&target.time_to_die-remains>4
 			for i=1, #enemies.yards5 do
 				local thisUnit = enemies.yards5[i]
+                local garrote =  debuff.garrote[thisUnit]
                 if (multidot or (UnitIsUnit(thisUnit,units.dyn5) and not multidot)) then
-                    if garroteRefresh and (not exsanguinated or debuff.garrote[thisUnit].remain <= 1.5) and (ttd(thisUnit) - debuff.garrote[thisUnit].remain > 4 or isDummy(thisUnit)) then
-                    	if cast.garrote(thisUnit) then return end
+                    if garrote ~= nil then
+                        if garrote.refresh and (not exsanguinated or garrote.remain <= 1.5) and (ttd(thisUnit) - garrote.remain > 4 or isDummy(thisUnit)) then
+                        	if cast.garrote(thisUnit) then return end
+                        end
                     end
                 end
             end
@@ -530,7 +533,7 @@ local function runRotation()
 				end
 		-- Stealth
 			-- stealth
-			if isChecked("Stealth") and (not IsResting() or (isDummy("target") and lastSpell ~= spell.vanish)) then
+			if isChecked("Stealth") and not inCombat and (not IsResting() or (isDummy("target") and lastSpell ~= spell.vanish)) then
 				if getOptionValue("Stealth") == 1 then
 					if cast.stealth() then return end
 				end
@@ -544,7 +547,7 @@ local function runRotation()
 	-- Action List - Opener
 		local function actionList_Opener()
 		-- Shadowstep
-            if isChecked("Shadowstep") and isValidUnit("target") then
+            if isChecked("Shadowstep") and isValidUnit("target") and getDistance("target") > 8 then
                 if cast.shadowstep("target") then return end 
             end
 		-- Start Attack
@@ -649,7 +652,7 @@ local function runRotation()
 --- In Combat - Begin Rotation ---
 ----------------------------------
 		-- Shadowstep
-                if isChecked("Shadowstep") then
+                if isChecked("Shadowstep") and getDistance("target") > 8 then
                     if cast.shadowstep("target") then return end 
                 end
                 if opener == false and isChecked("Opener") and isBoss("target") then
