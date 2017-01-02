@@ -122,6 +122,7 @@ local function runRotation()
 --------------
         local addsExist                                     = false
         local addsIn                                        = 999
+        local arcaneCharges                                 = br.player.power.amount.arcaneCharges
         local activePet                                     = br.player.pet
         local activePetId                                   = br.player.petId
         local artifact                                      = br.player.artifact
@@ -158,6 +159,7 @@ local function runRotation()
         local php                                           = br.player.health
         local playerMouse                                   = UnitIsPlayer("mouseover")
         local power, powmax, powgen, powerDeficit           = br.player.power.amount.mana, br.player.power.mana.max, br.player.power.regen, br.player.power.mana.deficit
+        local manaPercent                                   = br.player.power.mana.percent
         local pullTimer                                     = br.DBM:getPulltimer()
         local racial                                        = br.player.getRacial()
         local recharge                                      = br.player.recharge
@@ -173,13 +175,13 @@ local function runRotation()
         if leftCombat == nil then leftCombat = GetTime() end
         if profileStop == nil then profileStop = false end
         -- if artifact.icyHand then iceHand= 1 else iceHand = 0 end
-       
+
 --------------------
 --- Action Lists ---
 --------------------
     -- Action List - Extras
         local function actionList_Extras()
-        -- Dummy Test
+            -- Dummy Test
             if isChecked("DPS Testing") then
                 if ObjectExists("target") then
                     if getCombatTime() >= (tonumber(getOptionValue("DPS Testing"))*60) and isDummy() then
@@ -190,12 +192,11 @@ local function runRotation()
                     end
                 end
             end -- End Dummy Test
-
         end -- End Action List - Extras
     -- Action List - Defensive
         local function actionList_Defensive()
             if useDefensive() then
-        -- Pot/Stoned
+                -- Pot/Stoned
                 if isChecked("Pot/Stoned") and php <= getOptionValue("Pot/Stoned")
                     and inCombat and (hasHealthPot() or hasItem(5512))
                 then
@@ -205,7 +206,7 @@ local function runRotation()
                         useItem(healPot)
                     end
                 end
-        -- Heirloom Neck
+                -- Heirloom Neck
                 if isChecked("Heirloom Neck") and php <= getOptionValue("Heirloom Neck") then
                     if hasEquiped(122668) then
                         if GetItemCooldown(122668)==0 then
@@ -213,11 +214,11 @@ local function runRotation()
                         end
                     end
                 end
-        -- Gift of the Naaru
+                -- Gift of the Naaru
                 if isChecked("Gift of the Naaru") and php <= getOptionValue("Gift of the Naaru") and php > 0 and br.player.race == "Draenei" then
                     if castSpell("player",racial,false,false,false) then return end
                 end
-        -- Frost Nova
+                -- Frost Nova
                 if isChecked("Frost Nova") and php <= getOptionValue("Frost Nova") and #enemies.yards12 > 0 then
                     if cast.frostNova() then return end
                 end
@@ -229,7 +230,7 @@ local function runRotation()
                 for i=1, #enemies.yards30 do
                     thisUnit = enemies.yards30[i]
                     if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
-        -- Counterspell
+                        -- Counterspell
                         if isChecked("Counterspell") then
                             if cast.counterspell(thisUnit) then return end
                         end
@@ -240,24 +241,24 @@ local function runRotation()
     -- Action List - Cooldowns
         local function actionList_Cooldowns()
             if useCDs() and getDistance(units.dyn40) < 40 then
-        -- Rune of Power
+                -- Rune of Power
                 -- rune_of_power,if=cooldown.icy_veins.remains<cast_time|charges_fractional>1.9&cooldown.icy_veins.remains>10|buff.icy_veins.up|target.time_to_die.remains+5<charges_fractional*10
                 -- TODO
-        -- Potion
+                -- Potion
                 -- potion,name=deadly_grace
                 -- TODO
-        -- Arcane Power
+                  -- Arcane Power
                 -- icy_veins,if=buff.icy_veins.down
                 -- TODO
-        -- Mirror Image
+                -- Mirror Image
                 -- mirror_image
                 if isChecked("Mirror Image") then
                     if cast.mirrorImage() then return end
                 end
-        -- Use Neck
+                -- Use Neck
                 -- use_item,slot=neck
                 -- TODO
-        -- Trinkets
+                -- Trinkets
                 if isChecked("Trinkets") then
                     if canUse(13) then
                         useItem(13)
@@ -266,23 +267,34 @@ local function runRotation()
                         useItem(14)
                     end
                 end
-        -- Racial: Orc Blood Fury | Troll Berserking | Blood Elf Arcane Torrent
+                -- Racial: Orc Blood Fury | Troll Berserking | Blood Elf Arcane Torrent
                 -- blood_fury | berserking | arcane_torrent
                 if isChecked("Racial") and (br.player.race == "Orc" or br.player.race == "Troll" or br.player.race == "Blood Elf") then
                     if castSpell("player",racial,false,false,false) then return end
                 end
             end -- End useCDs check
         end -- End Action List - Cooldowns
-    -- Action List - AOE    
+    -- Action List - AOE
         local function actionList_AOE()
         -- AOE
         end
         local function actionList_Moving()
-        -- Moving  
+        -- Moving
         end
     -- Action List - PreCombat
         local function actionList_PreCombat()
             if not inCombat and not (IsFlying() or IsMounted()) then
+            -- Arcane familiar
+              if not buff.arcaneFamiliar.exists then
+                Print("Familiar is DOWN Pre.")
+                if not hasPet then
+                  print("we have no pet -- Pr Combat ")
+                  CastSpellByName("Arcane Familiar", "")
+                end
+              end
+                if buff.arcaneFamiliar.exists then
+                  --Print("Familiar is UP Pre.")
+                end
             -- Flask
                 -- flask,type=flask_of_the_whispered_pact
                 -- TODO
@@ -302,14 +314,16 @@ local function runRotation()
             -- Potion
                     -- potion,name=deadly_grace
                     -- TODO
-            -- Frostbolt
-                    -- frostbolt
-                    if br.timer:useTimer("delayFB", getCastTime(spell.frostbolt)+0.5) then
-                        if cast.frostbolt("target") then return end
+
+            -- Arcane Blast
+                    -- Arcane blast
+                    if br.timer:useTimer("delayAB", getCastTime(spell.arcaneBlast)+0.5) then
+                        if cast.arcaneBlast("target") then return end
                     end
                 end
             end -- End No Combat
         end -- End Action List - PreCombat
+
 ---------------------
 --- Begin Profile ---
 ---------------------
@@ -331,6 +345,11 @@ local function runRotation()
 --- Out of Combat Rotation ---
 ------------------------------
             if actionList_PreCombat() then
+              -- Arcane Familiar
+              if not hasPet then
+                  print("we have no pet Out of Combat ")
+                  CastSpellByName("Arcane Familiar", "")
+              end
             end
 --------------------------
 --- In Combat Rotation ---
@@ -355,12 +374,44 @@ local function runRotation()
     --- Start DBT APL ---
     ----------------------
             if getOptionValue("APL Mode") == 3 then
+            -- Mirror Image
+            -- mirror_image,if=buff.arcane_power.down
+                if not buff.arcanePower.exists then
+                    cast.mirrorImage()
+                end
+
+                if manaPercent > 80 then
+                  maxCharges = 4
+                elseif manaPercent < 50 then
+                  maxCharges = 2
+                else
+                  maxCharges = 3
+                end
+
+
+                if arcaneCharges >= maxCharges and talent.netherTempest and not debuff.netherTempest[units.dyn40].exists then
+                    cast.netherTempest()
+                end
+                if buff.arcaneMissles.exists and arcaneCharges >= maxCharges then
+                    cast.arcaneMissles()
+                end
+                if arcaneCharges >= maxCharges and not buff.arcaneMissles.exists then
+                    cast.arcaneBarage()
+                end
+                if arcaneCharges < maxCharges then
+                    cast.arcaneBlast()
+                end
+
+
+                Print("Mana% ... :   " .. manaPercent .. "Max Charges ... :   " .. maxCharges)
+
             end -- End DBT APL
 	----------------------
 	--- Start Testing APL ---
 	----------------------
             if getOptionValue("APL Mode") == 4 then
             -- Test Ground for Casts
+              --cast.arcaneBlast()
             end -- End Testing APL
          	end --End In Combat
         end --End Rotation Logic
