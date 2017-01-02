@@ -890,7 +890,9 @@ br.idList = {
                 arcaneMissles               = 5143,
                 arcanePower                 = 12042,
                 evocation                   = 12051,
-                
+                arcaneFamiliar              = 205022,
+                arcaneCharge                = 36032,
+
 
             },
             artifacts                       = {
@@ -898,9 +900,15 @@ br.idList = {
 
             },
             buffs                           = {
+              arcaneFamiliar                = 210126,
+              arcanePower                   = 12042,
+              arcaneCharge                  = 36032,
+              arcaneMissles                 = 79683,
 
             },
             debuffs                         = {
+              arcaneCharge                  = 36032,
+              netherTempest                 = 114923,
 
             },
             glyphs                          = {
@@ -908,7 +916,7 @@ br.idList = {
             },
             talents                         = {
                 netherTempest               = 114923,
-                arcaneFamilliar             = 205022,
+                arcaneFamiliar              = 205022,
 
             },
         },
