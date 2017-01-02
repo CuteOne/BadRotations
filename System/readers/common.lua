@@ -94,7 +94,7 @@ function br.read.commonReaders()
 		if event == "PLAYER_REGEN_DISABLED" then
 			-- here we should manage stats snapshots
 			AgiSnap = getAgility()
-			
+
 			br.data.settings[br.selectedSpec]["Combat Started"] = GetTime()
 			ChatOverlay("|cffFF0000Entering Combat")
 		end
@@ -266,11 +266,6 @@ function br.read.commonReaders()
 			--Print("UNIT_SPELLCAST_SENT spellCastTarget = "..spellCastTarget)
 			local MyClass = UnitClass("player")
 			if SourceUnit == "player" then
-				if MyClass == "Mage" then -- Mage
-					if SpellName == "Arcane Blast" then --ArcaneBlast
-						insertSpellCastSent(ArcaneBlast, GetTime())
-				end
-				end
 			end
 		end
 
@@ -280,9 +275,6 @@ function br.read.commonReaders()
 			if SourceUnit == "player" then
 				local MyClass = UnitClass("player")
 				if MyClass == "Mage" then -- Mage
-					if SpellID == 30451 then --ArcaneBlast
-						insertSpellCastInterrupted(ArcaneBlast, GetTime())
-				end
 				end
 			end
 		end
@@ -314,9 +306,6 @@ function br.read.commonReaders()
 					end
 				end
 				if MyClass == "Mage" then -- Mage
-					if SpellID == 30451 then --ArcaneBlast
-						insertSpellCastStart(ArcaneBlast, GetTime())
-				end
 				end
 			end
 		end
@@ -326,9 +315,6 @@ function br.read.commonReaders()
 			if SourceUnit == "player" then
 				local MyClass = UnitClass("player")
 				if MyClass == "Mage" then -- Mage
-					if SpellID == 30451 then --ArcaneBlast
-						insertSpellCastStop(ArcaneBlast, GetTime())
-				end
 				end
 			end
 		end
@@ -361,9 +347,6 @@ function br.read.commonReaders()
 					end
 				end
 				if MyClass == "Mage" then -- Mage
-					if SpellID == 30451 then --ArcaneBlast
-						insertSpellCastSucceeded(ArcaneBlast, GetTime())
-					end
 				end
 			end
 		end
@@ -385,9 +368,6 @@ function br.read.commonReaders()
 			end
 			if SourceUnit == "player" then
 				if MyClass == "Mage" then -- Mage
-					if SpellID == 30451 then --ArcaneBlast
-						insertSpellCastFailed(ArcaneBlast, GetTime())
-					end
 				end
 			end
 		end
