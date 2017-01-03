@@ -301,15 +301,6 @@ local function runRotation()
                 return false
             end
         end
-        if delayBladeFlurry ~= nil then
-            if delayBladeFlurry ~= 0 then
-                ChatOverlay(delayBladeFlurry - GetTime())
-            else
-                ChatOverlay(delayBladeFlurry)
-            end
-        else
-            ChatOverlay(0)
-        end
 --------------------
 --- Action Lists ---
 --------------------
