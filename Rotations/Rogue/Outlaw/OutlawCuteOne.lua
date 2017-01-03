@@ -301,7 +301,15 @@ local function runRotation()
                 return false
             end
         end
-
+        if delayBladeFlurry ~= nil then
+            if delayBladeFlurry ~= 0 then
+                ChatOverlay(delayBladeFlurry - GetTime())
+            else
+                ChatOverlay(delayBladeFlurry)
+            end
+        else
+            ChatOverlay(0)
+        end
 --------------------
 --- Action Lists ---
 --------------------
@@ -425,11 +433,19 @@ local function runRotation()
         -- Blade Flurry
             -- cancel_buff,name=blade_flurry,if=equipped.shivarran_symmetry&cooldown.blade_flurry.up&buff.blade_flurry.up&spell_targets.blade_flurry>=2|spell_targets.blade_flurry<2&buff.blade_flurry.up
             if not useAoE() and buff.bladeFlurry.exists then
-                if cast.bladeFlurry() then return end
+                -- if cast.bladeFlurry() then return end
+                if not delayBladeFlurry or delayBladeFlurry == 0 then 
+                    delayBladeFlurry = GetTime() + 3
+                elseif delayBladeFlurry < GetTime() then
+                    CastSpellByName(GetSpellInfo(spell.bladeFlurry),"player");
+                end
+            end
+            if ((useAoE() and buff.bladeFlurry.exists) or (not useAoE() and not buff.bladeFlurry.exists)) and delayBladeFlurry then
+                delayBladeFlurry = 0
             end
             -- blade_flurry,if=spell_targets.blade_flurry>=2&!buff.blade_flurry.up
             if useAoE() and not buff.bladeFlurry.exists and getDistance(units.dyn5) < 5 then
-                if cast.bladeFlurry() then return end
+                CastSpellByName(GetSpellInfo(spell.bladeFlurry),"player");
             end
         end
     -- Action List - Cooldowns

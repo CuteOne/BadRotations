@@ -357,7 +357,7 @@ local function runRotation()
         -- Battle Cry
                 -- battle_cry,if=(cooldown.odyns_fury.remains=0&(cooldown.bloodthirst.remains=0|(buff.enrage.remains>cooldown.bloodthirst.remains)))&buff.dragon_roar.up&gcd.remains<0.2
                 if isChecked("Battle Cry") then
-                    if (cd.odynsFury == 0 and (cd.bloodthirst == 0 or (buff.enrage.remain > cd.bloodthirst))) and buff.dragonRoar.exists and cd.global < 0.2 then
+                    if ((not artifact.odynsFury or cd.odynsFury == 0) and (cd.bloodthirst == 0 or (buff.enrage.remain > cd.bloodthirst))) and (buff.dragonRoar.exists or not talent.dragonRoar) and cd.global < 0.2 then
                         if cast.battleCry() then return end
                     end
                 end
@@ -679,7 +679,9 @@ local function runRotation()
             -- Auto Attack
                 --auto_attack
                 if getDistance(units.dyn5) < 5 then
-                    StartAttack()
+                    if not IsCurrentSpell(6603) then
+                        StartAttack(units.dyn5)
+                    end
                 end
             -- Action List - Movement
                 -- run_action_list,name=movement,if=movement.getDistance(units.dyn5)>5

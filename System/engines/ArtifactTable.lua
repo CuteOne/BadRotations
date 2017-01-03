@@ -5,7 +5,7 @@ br.artifact = {}
 function updateArtifact()
     local artifactId = select(1,C_ArtifactUI.GetEquippedArtifactInfo())
     local _, data = LAD:GetArtifactInfo(artifactId)
-    br.artifact = {}
+    if br.artifact == nil then br.artifact = {} end
     br.artifact.id = artifactId
     br.artifact.info = data
 end

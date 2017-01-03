@@ -439,6 +439,12 @@ local function runRotation()
 --- In Combat - SimCraft APL ---
 --------------------------------
                 if getOptionValue("APL Mode") == 1 then
+            -- Start Attack
+                    if getDistance(units.dyn5) < 5 then
+                        if not IsCurrentSpell(6603) then
+                            StartAttack(units.dyn5)
+                        end
+                    end
                     if useCDs() then
             -- Holy Wrath
                         -- holy_wrath

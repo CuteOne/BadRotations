@@ -24,8 +24,13 @@ function br.ui:createPagesDropdown(window, menuPages)
         window.currentPageName = value
         window.pages[key][2]()
         --Print(key.." - "..tostring(value))
+        br.data.settings[br.selectedSpec][br.selectedProfile]["currentPage"] = window.currentPage
     end)
-    newDropdown:SetValue(1)
+    if br.data.settings[br.selectedSpec][br.selectedProfile]["currentPage"] == nil then
+        newDropdown:SetValue(1)
+    else
+        newDropdown:SetValue(br.data.settings[br.selectedSpec][br.selectedProfile]["currentPage"])
+    end
     newDropdown:ApplySettings()
     window.parent:AddChild(newDropdown)
 end
