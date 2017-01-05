@@ -320,8 +320,10 @@ local function runRotation()
             if actionList_ActiveTalents() then return end
         -- Combustion
             -- combustion
-            if cast.combustion() then return end
-        -- Call Action List - Cooldowns
+            if (mode.cooldown == 1 and isBoss()) or mode.cooldown == 2 then
+                if cast.combustion() then return end
+            end
+      -- Call Action List - Cooldowns
             if actionList_Cooldowns() then return end
         -- Pyroblast
             -- pyroblast,if=buff.kaelthas_ultimate_ability.react&buff.combustion.remains>execute_time 
@@ -336,7 +338,9 @@ local function runRotation()
             end
         -- Phoenix's Flames
             -- phoenixs_flames
-            if cast.phoenixsFlames() then return end
+            if charges.phoenixsFlames > 1 and charges.frac.phoenixsFlames < 2.7 then
+               if cast.phoenixsFlames() then return end
+           end
         -- Scorch
             -- scorch,if=buff.combustion.remains>cast_time
             if buff.combustion.remain > getCastTime(spell.scorch) then
@@ -399,8 +403,14 @@ local function runRotation()
             end
         -- Phoenix's Flames
             -- /phoenixs_flames,if=charges_fractional>2.7&active_enemies>2
-            if charges.frac.phoenixsFlames > 2.7 and ((#enemies.yards10t > 2 and mode.rotation == 1) or mode.rotation == 2) then
-                if cast.phoenixsFlames() then return end
+            if charges.frac.phoenixsFlames > 2.7 then
+                if ((mode.cooldown == 1 and isBoss()) or mode.cooldown == 2) then
+                    if cast.phoenixsFlames() then return end
+                end
+            elseif (charges.phoenixsFlames > 1 and charges.frac.phoenixsFlames < 2.7) then
+                if ((#enemies.yards10t > 2 and mode.rotation == 1) or mode.rotation == 2) then
+                    if cast.phoenixsFlames() then return end
+                end
             end
         -- Flamestrike
             -- flamestrike,if=talent.flame_patch.enabled&active_enemies>2&buff.hot_streak.react
