@@ -87,6 +87,8 @@ local function createOptions()
         section = br.ui:createSection(br.ui.window.profile, "Interrupts")
         -- Counter Shot
             br.ui:createCheckbox(section,"Counter Shot")
+	-- Intimidation
+            br.ui:createCheckbox(section,"Intimidation")
         -- Interrupt Percentage
             br.ui:createSpinner(section, "Interrupts",  0,  0,  95,  5,  "|cffFFFFFFCast Percent to Cast At")
         br.ui:checkSectionState(section)
@@ -305,7 +307,25 @@ local function runRotation()
     -- Action List - Interrupts
         local function actionList_Interrupts()
             if useInterrupts() then
-
+	        -- Counter Shot
+                if isChecked("Counter Shot") then
+                    for i=1, #enemies.yards40 do
+                        thisUnit = enemies.yards40[i]
+                        if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
+                            if cast.counterShot(thisUnit) then return end
+			end
+                    end
+                end
+                -- Intimidation
+                if isChecked("Intimidation") and talent.intimidation and cd.intimidation == 0 and
+                UnitExists("pet") and (UnitIsDead("pet") ~= nil or UnitIsDead("pet") == false) then
+                    for i=1, #enemies.yards40 do
+			thisUnit = enemies.yards40[i]
+			if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
+                            if cast.intimidation(thisUnit) then return end
+			end
+                    end
+		end
             end -- End useInterrupts check
         end -- End Action List - Interrupts
     -- Action List - Cooldowns

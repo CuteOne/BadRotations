@@ -708,6 +708,7 @@ br.idList = {
                 exhilaration                = 109304,
                 feignDeath                  = 5384,
                 flare                       = 1543,
+                intimidation  	            = 19577,
                 killCommand                 = 34026,
                 misdirection                = 34477,
                 multiShot                   = 2643,
@@ -733,7 +734,8 @@ br.idList = {
                 direfrenzy                  = 217200,
                 aMurderOfCrows              = 131894,
                 barrage                     = 120360,
-                volley                      = 194386
+                volley                      = 194386,
+		intimidation		    = 19577,
             },
         },
         -- Marksmanship
@@ -756,6 +758,7 @@ br.idList = {
                 explosiveShot               = 212431,
                 feignDeath                  = 5384,
                 flare                       = 1543,
+		intimidation                = 19577,
                 markedShot                  = 185901,
                 misdirection                = 34477,
                 multiShot                   = 2643,
@@ -797,6 +800,7 @@ br.idList = {
                 sidewinders                 = 214579,
                 piercingShot                = 198670,
                 trickShot                   = 199544,
+		intimidation                = 19577,
             },
         },
         -- Survival
@@ -819,6 +823,7 @@ br.idList = {
                 furyOfTheEagle              = 203415,
                 harpoon                     = 190925,
                 hatchetToss                 = 193265,
+                intimidation                = 19577,
                 lacerate                    = 185855,
                 mongooseBite                = 190928,
                 muzzle                      = 187707,
@@ -855,6 +860,7 @@ br.idList = {
                 butchery                    = 212436,
                 dragonsfireGrenade          = 194855,
                 serpentSting                = 87935,
+                intimidation                = 19577,
 
             },
         },
