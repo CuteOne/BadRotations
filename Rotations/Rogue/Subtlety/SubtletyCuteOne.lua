@@ -77,9 +77,9 @@ local function createOptions()
             br.ui:createCheckbox(section, "Marked For Death - Precombat")
             br.ui:createCheckbox(section, "Symbols of Death - Precombat")            
             -- Crimson Vial
-            br.ui:createSpinner(section, "SS Range",  5,  5,  15,  1,  "|cffFFBB00Shadow Strike range, 5 = Melee")
+            br.ui:createSpinnerWithout(section, "SS Range",  5,  5,  15,  1,  "|cffFFBB00Shadow Strike range, 5 = Melee")
             --Shuriken Toss OOR
-            br.ui:createSpinner(section, "Shuriken Toss OOR",  85,  5,  100,  5,  "|cffFFBB00Check to use Pistol Shot out of range and energy to use at.")
+            br.ui:createSpinner(section, "Shuriken Toss OOR",  85,  5,  100,  5,  "|cffFFBB00Check to use Shuriken Toss out of range and energy to use at.")
             -- Racial
             br.ui:createCheckbox(section,"Racial")
             -- Trinkets
@@ -91,7 +91,9 @@ local function createOptions()
             -- Vanish
             br.ui:createCheckbox(section, "Vanish")
             -- SSW Offset
-            br.ui:createSpinner(section, "SSW Offset", 0, 0, 10, 1, "|cffFFBB00For Advanced Users, check SimC Wiki. Leave this at 0 if you don't know what you're doing.")
+            br.ui:createSpinnerWithout(section, "SSW Offset", 0, 0, 10, 1, "|cffFFBB00For Advanced Users, check SimC Wiki. Leave this at 0 if you don't know what you're doing.")
+            -- NB TTD
+            br.ui:createSpinner(section, "Nightblade Multidot", 8, 0, 16, 1, "|cffFFBB00Multidot Nightblade | Minimum TTD to use.")
         br.ui:checkSectionState(section)
         -------------------------
         --- DEFENSIVE OPTIONS ---
@@ -222,7 +224,7 @@ local function runRotation()
         if talent.vigor then vigorous = 1 else vigorous = 0 end
         if combatTime < 10 then justStarted = 1 else justStarted = 0 end
         if vanishTime == nil then vanishTime = GetTime() end
-        if ShDCdTime == nil then stealthCdTime = GetTime() end
+        if ShDCdTime == nil then ShDCdTime = GetTime() end
         if ShdMTime == nil then ShdMTime = GetTime() end
         if hasEquiped(137032) then shadowWalker = 1 else shadowWalker = 0 end
         -- variable,name=ssw_er,value=equipped.shadow_satyrs_walk*(10-floor(target.distance*0.5))
@@ -374,34 +376,14 @@ local function runRotation()
                 end
         -- Shadow Blades
                 -- shadow_blades,if=!stealthed.all
-                if combo <= 2 or (hasEquiped(137100) and combo >= 1) then
+                if (combo <= 2 or (hasEquiped(137100) and combo >= 1)) and cd.backstab == 0 then
                     if cast.shadowBlades() then return end
                 end
         -- Goremaws Bite
                 -- goremaws_bite,if=!stealthed.all&((combo_points.deficit>=4-(time<10)*2&energy.deficit>50+talent.vigor.enabled*25-(time>=10)*15)|target.time_to_die<8)
                 if not stealthingAll and charges.frac.shadowDance <= 2.45 and ((comboDeficit >= 4 - justStarted * 2 and powerDeficit > 50 + vigorous * 25 - justStarted * 15) or ttd(units.dyn5) < 8) then
                     if cast.goremawsBite() then return end
-                end
-        -- Marked For Death
-                if isChecked("Marked For Death") then
-                    if getOptionValue("Marked For Death") == 1 then
-                        -- marked_for_death,if=combo_points.deficit>=4+talent.deeper_strategem.enabled+talent.anticipation.enabled
-                        if comboDeficit >= 4 + dStrat + antital then
-                            if cast.markedForDeath() then return end
-                        end
-                    end
-                    if getOptionValue("Marked For Death") == 2 then
-                        -- marked_for_death,if=target.time_to_die<combo_points.deficit 
-                        for i = 1, #enemies.yards30 do
-                            local thisUnit = enemies.yards30[i]
-                            if (multidot or (UnitIsUnit(thisUnit,units.dyn5) and not multidot)) then
-                                if ttd(thisUnit) < comboDeficit then
-                                    if cast.markedForDeath(thisUnit) then return end
-                                end
-                            end
-                        end
-                    end
-                end
+                end                
             end -- End Cooldown Usage Check
         end -- End Action List - Cooldowns
     -- Action List - Stealth Cooldowns
@@ -450,14 +432,27 @@ local function runRotation()
             end
         -- Death from Above
             -- death_from_above,if=spell_targets.death_from_above>=6
-            if #enemies.yards15 >= 6 then
+            if #enemies.yards8 >= 6 then
                 if cast.deathFromAbove() then return end
             end
         -- Night Blade
-            -- nightblade,target_if=max:target.time_to_die,if=target.time_to_die>8&((refreshable&(!finality|buff.finality_nightblade.up))|remains<tick_time)
-            if ttd(units.dyn5) > 8 and ((debuff.nightblade[units.dyn5].refresh and (not artifact.finality or buff.finalityNightblade.exists)) or debuff.nightblade[units.dyn5].remain < 2) then
-                if cast.nightblade() then return end
-            end
+            -- nightblade,target_if=max:target.time_to_die,if=target.time_to_die>8&((refreshable&(!finality|buff.finality_nightblade.up))|remains<tick_time)            
+                if ttd("target") > 8 and ((debuff.nightblade["target"].refresh and (not artifact.finality or buff.finalityNightblade.exists)) or debuff.nightblade["target"].remain < 2) then
+                    if cast.nightblade("target") then return end
+                end
+                if isChecked("Nightblade Multidot") then
+                    for i=1, #enemies.yards5 do
+                        local thisUnit = enemies.yards5[i]
+                        local nightblade = debuff.nightblade[thisUnit]
+                        if nightblade ~= nil then
+                            if getDistance(thisUnit) <= 5 then
+                                if ttd(thisUnit) >= getOptionValue("Nightblade Multidot") and ((debuff.nightblade[thisUnit].refresh and (not artifact.finality or buff.finalityNightblade.exists)) or debuff.nightblade[thisUnit].remain < 2) then                        
+                                    if cast.nightblade(thisUnit) then return end
+                                end
+                            end
+                        end
+                    end
+                end        
         -- Death from Above
             -- death_from_above
             if cast.deathFromAbove() then return end
@@ -597,6 +592,26 @@ local function runRotation()
         -- Shadowstep
                 if isChecked("Shadowstep") then
                     if cast.shadowstep("target") then return end 
+                end
+        -- Marked for Death
+                if isChecked("Marked For Death") then
+                    if getOptionValue("Marked For Death") == 1 then
+                        -- marked_for_death,if=combo_points.deficit>=4+talent.deeper_strategem.enabled+talent.anticipation.enabled
+                        if comboDeficit >= 4 + dStrat + antital then
+                            if cast.markedForDeath() then return end
+                        end
+                    end
+                    if getOptionValue("Marked For Death") == 2 then
+                        -- marked_for_death,if=target.time_to_die<combo_points.deficit 
+                        for i = 1, #enemies.yards30 do
+                            local thisUnit = enemies.yards30[i]
+                            if (multidot or (UnitIsUnit(thisUnit,units.dyn5) and not multidot)) then
+                                if ttd(thisUnit) < comboDeficit then
+                                    if cast.markedForDeath(thisUnit) then return end
+                                end
+                            end
+                        end
+                    end
                 end
         -- Cooldowns
                 -- call_action_list,name=cds
