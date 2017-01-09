@@ -366,31 +366,39 @@ local function runRotation()
         end  -- End Action List - Pre-Combat
     -- Action List - Movement
         function actionList_Movement()
-            if mode.mover == 1 and isValidUnit("target") then
-        -- Heroic Leap
-                -- heroic_leap
-                if isChecked("Heroic Leap") and (getOptionValue("Heroic Leap")==6 or (SpecificToggle("Heroic Leap") and not GetCurrentKeyBoardFocus())) then
-                    -- Best Location
-                    if getOptionValue("Heroic Leap - Target")==1 then
-                        if cast.heroicLeap("best",false,1,8) then return end
-                    end
-                    -- Target
-                    if getOptionValue("Heroic Leap - Target")==2 then
-                        if cast.heroicLeap("target","ground") then return end
-                    end
-                end
+            if mode.mover == 1 then
         -- Charge
                 -- charge
                 if (cd.heroicLeap > 0 and cd.heroicLeap < 43) or level < 26 then
-                    if cast.charge("target") then return end
+                    if isValidUnit("target") or (UnitIsFriend("target") and level >= 28) then
+                        if level < 28 then
+                            if cast.charge("target") then return end
+                        else
+                            if cast.intercept("target") then return end
+                        end
+                    end
                 end
+                if isValidUnit("target") then
+        -- Heroic Leap
+                    -- heroic_leap
+                    if isChecked("Heroic Leap") and (getOptionValue("Heroic Leap")==6 or (SpecificToggle("Heroic Leap") and not GetCurrentKeyBoardFocus())) then
+                        -- Best Location
+                        if getOptionValue("Heroic Leap - Target")==1 then
+                            if cast.heroicLeap("best",false,1,8) then return end
+                        end
+                        -- Target
+                        if getOptionValue("Heroic Leap - Target")==2 then
+                            if cast.heroicLeap("target","ground") then return end
+                        end
+                    end
         -- Storm Bolt
-                -- storm_bolt
-                if cast.stormBolt("target") then return end
+                    -- storm_bolt
+                    if cast.stormBolt("target") then return end
         -- Heroic Throw
-                -- heroic_throw
-                if lastSpell == spell.charge or charges.charge == 0 then
-                    if cast.heroicThrow("target") then return end
+                    -- heroic_throw
+                    if ((lastSpell == spell.charge or charges.charge == 0) and level < 28) or ((lastSpell == spell.intercept or charges.intercept == 0) and level >= 28) then
+                        if cast.heroicThrow("target") then return end
+                    end
                 end
             end
         end
