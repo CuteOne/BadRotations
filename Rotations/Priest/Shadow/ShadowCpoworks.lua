@@ -147,7 +147,7 @@ local function runRotation()
         local perk                                          = br.player.perk        
         local php                                           = br.player.health
         local playerMouse                                   = UnitIsPlayer("mouseover")
-        local power, powmax, powgen, powerDeficit           = br.player.power.amount.mana, br.player.power.mana.max, br.player.power.regen, br.player.power.deficit
+        local power, powmax, powgen, powerDeficit           = br.player.power.amount.insanity, br.player.power.insanity.max, br.player.power.regen, br.player.power.insanity.deficit
         local pullTimer                                     = br.DBM:getPulltimer()
         local racial                                        = br.player.getRacial()
         local recharge                                      = br.player.recharge
@@ -257,7 +257,7 @@ local function runRotation()
             
             -- Shadow Word Death
             -- if ChargesRemaining(ShadowWordDeath) = SpellCharges(ShadowWordDeath)
-            if charges.shadowWordDeath == charges.max.shadowWordDeath then
+            if charges.shadowWordDeath == charges.max.shadowWordDeath and getHP(units.dyn40) < 20 then
                 if cast.shadowWordDeath() then return end
             end
             -- Mind Blast
@@ -266,7 +266,7 @@ local function runRotation()
             if getDebuffRemain(units.dyn40,spell.shadowWordPain,"player") <= 4 then
                 for i=1,#enemies.yards40 do
                     local thisUnit = enemies.yards40[i]
-                    if isAggroed(thisUnit) and hasThreat(thisUnit) then
+                    if getDebuffRemain(thisUnit,spell.shadowWordPain,"player") <= 4 and isValidUnit(thisUnit) then --isAggroed(thisUnit) and hasThreat(thisUnit) then
                         if cast.shadowWordPain(thisUnit) then return end 
                     end
                 end
@@ -275,7 +275,7 @@ local function runRotation()
             if getDebuffRemain(units.dyn40,spell.shadowWordPain,"player") > 4 and debuff.shadowWordPain[units.dyn40].count < SWPmaxTargets and (debuff.vampiricTouch[units.dyn40].count >= 1 or isMoving("player")) then
                 for i=1,#enemies.yards40 do
                     local thisUnit = enemies.yards40[i]
-                    if getDebuffRemain(thisUnit,spell.shadowWordPain,"player") <= 4 and isAggroed(thisUnit) and hasThreat(thisUnit) then
+                    if getDebuffRemain(thisUnit,spell.shadowWordPain,"player") <= 4 and isValidUnit(thisUnit) then --isAggroed(thisUnit) and hasThreat(thisUnit) then
                         if cast.shadowWordPain(thisUnit) then return end 
                     end
                 end
@@ -284,7 +284,7 @@ local function runRotation()
             if getDebuffRemain(units.dyn40,spell.vampiricTouch,"player") <= 6 and not isCastingSpell(spell.vampiricTouch) then
                 for i=1,#enemies.yards40 do
                     local thisUnit = enemies.yards40[i]
-                    if isAggroed(thisUnit) and hasThreat(thisUnit) then
+                    if isValidUnit(thisUnit) then --isAggroed(thisUnit) and hasThreat(thisUnit) then
                         if cast.vampiricTouch(thisUnit) then return end 
                     end
                 end
@@ -292,7 +292,7 @@ local function runRotation()
             if getDebuffRemain(units.dyn40,spell.vampiricTouch,"player") > 6 and not isCastingSpell(spell.vampiricTouch) and debuff.vampiricTouch[units.dyn40].count < VTmaxTargets and debuff.shadowWordPain[units.dyn40].count >= 1 then
                 for i=1,#enemies.yards40 do
                     local thisUnit = enemies.yards40[i]
-                    if getDebuffRemain(thisUnit,spell.vampiricTouch,"player") <= 6 and isAggroed(thisUnit) and hasThreat(thisUnit) then
+                    if getDebuffRemain(thisUnit,spell.vampiricTouch,"player") <= 6 and isValidUnit(thisUnit) then --isAggroed(thisUnit) and hasThreat(thisUnit) then
                         if cast.vampiricTouch(thisUnit) then return end 
                     end
                 end
