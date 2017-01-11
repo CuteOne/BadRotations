@@ -47,7 +47,7 @@ local function createOptions()
             -- Dummy DPS Test
             br.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")               
             -- Greater Blessing of Might
-            br.ui:createCheckbox(section, "Greater Blessing of Might")
+            -- br.ui:createCheckbox(section, "Greater Blessing of Might")
             -- Hand of Freedom
             br.ui:createCheckbox(section, "Hand of Freedom")
             -- Hand of Hindeance
@@ -214,9 +214,9 @@ local function runRotation()
             if thisHP < lowestHP then
                 lowestUnit = thisUnit
             end
-            if UnitBuffID(thisUnit,spell.buffs.greaterBlessingOfMight) ~= nil then
-                greaterBuff = greaterBuff + 1
-            end
+            -- if UnitBuffID(thisUnit,spell.buffs.greaterBlessingOfMight) ~= nil then
+            --     greaterBuff = greaterBuff + 1
+            -- end
         end
 
 --------------------
@@ -233,15 +233,15 @@ local function runRotation()
                 if cast.handOfHinderance("target") then return end
             end
         -- Greater Blessing of Might
-            if isChecked("Greater Blessing of Might") and greaterBuff < 3 then
-                for i = 1, #br.friend do
-                    local thisUnit = br.friend[i].unit
-                    local unitRole = UnitGroupRolesAssigned(thisUnit)
-                    if UnitBuffID(thisUnit,spell.buffs.greaterBlessingOfMight) == nil and (unitRole == "DAMAGER" or solo) then
-                        if cast.greaterBlessingOfMight(thisUnit) then return end
-                    end
-                end
-            end
+            -- if isChecked("Greater Blessing of Might") and greaterBuff < 3 then
+            --     for i = 1, #br.friend do
+            --         local thisUnit = br.friend[i].unit
+            --         local unitRole = UnitGroupRolesAssigned(thisUnit)
+            --         if UnitBuffID(thisUnit,spell.buffs.greaterBlessingOfMight) == nil and (unitRole == "DAMAGER" or solo) then
+            --             if cast.greaterBlessingOfMight(thisUnit) then return end
+            --         end
+            --     end
+            -- end
         end -- End Action List - Extras
     -- Action List - Defensives
         local function actionList_Defensive()
