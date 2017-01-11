@@ -1189,8 +1189,9 @@ br.idList = {
             buffs                           = {
                 serenity                    = 152173,
                 stormEarthAndFire           = 137639,
-                touchOfKarma                = 122470,
                 hitCombo                    = 196741,
+                theEmperorsCapacitor        = 235054,
+                touchOfKarma                = 122470,
             },
             debuffs                         = {
                 markOfTheCrane              = 228287,

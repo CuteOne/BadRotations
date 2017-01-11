@@ -228,6 +228,7 @@ local function runRotation()
         if profileStop == nil then profileStop = false end
         if opener == nil then opener = false end
 
+
         if not inCombat and not ObjectExists("target") then 
             OoRchiWave = false
             FSK = false
@@ -250,7 +251,7 @@ local function runRotation()
             opener = false
         end
         
-         -- Mark of the Crane Count
+        -- Mark of the Crane Count
         markOfTheCraneCount = 0
         for i=1, #enemies.yards5 do
             local thisUnit = enemies.yards5[i]
@@ -263,6 +264,18 @@ local function runRotation()
             markPercent = (markOfTheCraneCount/#enemies.yards5)*100
         else
             markPercent = 0
+        end
+
+        if not canToD then canToD = false end
+        if ToDTime == nil then ToDTimer = GetTime() end
+        if hasEquiped(137057) then
+            if lastSpell == spell.touchOfDeath and not canToD then
+                ToDTimer = GetTime() + 3;
+                canToD = true
+            end
+            if canToD and GetTime() > ToDTimer then
+                canToD = false
+            end
         end
         -- ChatOverlay("Mark Count: "..markOfTheCraneCount..", Num Enemies: "..#enemies.yards5..", Mark %: "..markPercent)
         -- ChatOverlay("Mark of the Crane Remain: "..getDebuffRemain("target",spell.debuffs.markOfTheCrane,"player"))
@@ -469,25 +482,31 @@ local function runRotation()
                     if castSpell("player",racial,false,false,false) then return end
                 end
         -- Touch of Death
-                -- touch_of_death,cycle_targets=1,max_cycle_targets=2,if=!artifact.gale_burst.enabled&equipped.137057&!prev_gcd.touch_of_death
-                -- touch_of_death,if=!artifact.gale_burst.enabled&!equipped.137057
-                -- touch_of_death,cycle_targets=1,max_cycle_targets=2,if=artifact.gale_burst.enabled&equipped.137057&cooldown.strike_of_the_windlord.remains<8&cooldown.fists_of_fury.remains<=4&cooldown.rising_sun_kick.remains<7&!prev_gcd.touch_of_death
-                -- touch_of_death,if=artifact.gale_burst.enabled&!equipped.137057&cooldown.strike_of_the_windlord.remains<8&cooldown.fists_of_fury.remains<=4&cooldown.rising_sun_kick.remains<7
-                if isChecked("Touch of Death")
-                    and ((not artifact.galeBurst and hasEquiped(137057) and lastSpell ~= spell.touchOfDeath)
-                        or (not artifact.galeBurst and not hasEquiped(137057))
-                        or (artifact.galeBurst and hasEquiped(137057) and cd.strikeOfTheWindlord < 8 and cd.fistsOfFury <= 4 and cd.risingSunKick < 7 and lastSpell ~= spell.touchOfDeath)
-                        or (artifact.galeBurst and not hasEquiped(137057) and cd.strikeOfTheWindlord < 8 and cd.fistsOfFury <= 4 and cd.risingSunKick < 7)) 
-                then
-                    if hasEquiped(137057) then
+                if isChecked("Touch of Death") then
+                -- touch_of_death,cycle_targets=1,max_cycle_targets=2,if=!artifact.gale_burst.enabled&equipped.hidden_masters_forbidden_touch&(prev_gcd.2.touch_of_death|prev_gcd.3.touch_of_death|prev_gcd.4.touch_of_death)
+                    if not artifact.galeBurst and hasEquiped(137057) and canToD then
                         for i = 1, #enemies.yards5 do
                             local thisUnit = enemies.yards5[i]
-                            local touchOfDeathDebuff = UnitDebuffID(thisUnit,spell.debuffs.touchOfDeath,"player") ~= nil
-                            if not touchOfDeathDebuff then
-                                if cast.touchOfDeath() then return end
-                            end
+                            if cast.touchOfDeath(thisUnit) then canToD = false; return end
                         end
-                    else
+                    end
+                -- touch_of_death,if=!artifact.gale_burst.enabled&!equipped.hidden_masters_forbidden_touch
+                    if not artifact.galeBurst and not hasEquiped(137057) then
+                        if cast.touchOfDeath() then return end
+                    end
+                -- touch_of_death,cycle_targets=1,max_cycle_targets=2,if=artifact.gale_burst.enabled&equipped.hidden_masters_forbidden_touch&cooldown.strike_of_the_windlord.remains<8&cooldown.fists_of_fury.remains<=4&cooldown.rising_sun_kick.remains<7&(prev_gcd.2.touch_of_death|prev_gcd.3.touch_of_death|prev_gcd.4.touch_of_death)
+                    if artifact.galeBurst and hasEquiped(137057) and cd.strikeOfTheWindlord < 8 and cd.fistsOfFury.remain <= 4 and cd.risingSunKick < 7 and canToD then
+                        for i = 1, #enemies.yards5 do
+                            local thisUnit = enemies.yards5[i]
+                            if cast.touchOfDeath(thisUnit) then canToD = false; return end
+                        end
+                    end
+                -- touch_of_death,if=artifact.gale_burst.enabled&!talent.serenity.enabled&!equipped.hidden_masters_forbidden_touch&cooldown.strike_of_the_windlord.remains<8&cooldown.fists_of_fury.remains<=4&cooldown.rising_sun_kick.remains<7&chi>=2
+                    if artifact.galeBurst and not talent.serenity and not hasEquiped(137057) and cd.strikeOfTheWindlord < 8 and cd.fistsOfFury <= 4 and cd.risingSunKick < 7 and chi >= 2 then
+                        if cast.touchOfDeath() then return end
+                    end
+                -- touch_of_death,if=artifact.gale_burst.enabled&talent.serenity.enabled&!equipped.hidden_masters_forbidden_touch&cooldown.strike_of_the_windlord.remains<8&cooldown.fists_of_fury.remains<=4&cooldown.rising_sun_kick.remains<7
+                    if artifact.galeBurst and not talent.serenity and not hasEquiped(137057) and cd.strikeOfTheWindlord < 8 and cd.fistsOfFury <= 4 and cd.risingSunKick < 7 then
                         if cast.touchOfDeath() then return end
                     end
                 end
@@ -779,38 +798,66 @@ local function runRotation()
         -- Action List - Cooldown
             -- call_action_list,name=cd
             if actionList_Cooldown() then return end
-        -- Racial - Arcane Torrent
-            -- arcane_torrent,if=chiMax-chi>=1&energy.time_to_max>=0.
-            if chiMax >= chi and ttm >= 0.5 and isChecked("Racial") and race == "BloodElf" and getDistance("target") < 5 then
-                if castSpell("player",racial,false,false,false) then return end
-            end
         -- Energizing Elixir
             -- energizing_elixir,if=energy<energy.max&chi<=1
             if power < powerMax and chi <= 1 and getDistance("target") < 5 then
                 if cast.energizingElixir() then return end
             end
+        -- Racial - Arcane Torrent
+            -- arcane_torrent,if=chiMax-chi>=1&energy.time_to_max>=0.5
+            if chiMax >= chi and ttm >= 0.5 and isChecked("Racial") and race == "BloodElf" and getDistance("target") < 5 then
+                if castSpell("player",racial,false,false,false) then return end
+            end
         -- Strike of the Windlord
-            -- strike_of_the_windlord,if=talent.serenity.enabled|active_enemies<6
-            if ((talent.serenity and cd.serenity > 20) or not isChecked("Serenity") or not useCDs()) or (not talent.serenity and #enemies.yards5 < 6) then
-                if cast.strikeOfTheWindlord() then return end
+            -- strike_of_the_windlord,if=equipped.convergence_of_fates&talent.serenity.enabled&cooldown.serenity.remains>=10
+            -- strike_of_the_windlord,if=equipped.convergence_of_fates&!talent.serenity.enabled
+            -- strike_of_the_windlord,if=!equipped.convergence_of_fates
+            if ((talent.serenity and cd.serenity >= 10) or not isChecked("Serenity") or not useCDs()) or (not talent.serenity and #enemies.yards5 < 6) then
+                if not hasEquiped(140806) or (hasEquiped(140806) and (not talent.serenity or (talent.serenity and cd.serenity >= 10))) then
+                    if cast.strikeOfTheWindlord() then return end
+                end
             end
         -- Fists of Fury
-            -- fists_of_fury
+            -- fists_of_fury,if=equipped.convergence_of_fates&talent.serenity.enabled&cooldown.serenity.remains>=5
+            -- fists_of_fury,if=equipped.convergence_of_fates&!talent.serenity.enabled
+            -- fists_of_fury,if=!equipped.convergence_of_fates
             if markPercent < 75 or #enemies.yards5 < 3 then
-                if cast.fistsOfFury() then return end
+                if not hasEquiped(140806) or (hasEquiped(140806) and (not talent.serenity or (talent.serenity and cd.serenity >= 5))) then
+                    if cast.fistsOfFury() then return end
+                end
+            end
+        -- Tiger Palm
+            -- tiger_palm,cycle_targets=1,if=!prev_gcd.1.tiger_palm&energy=energy.max&chi<=3&buff.storm_earth_and_fire.up
+            if lastSpell ~= spell.tigerPalm and power == powerMax and chi <= 3 and buff.stormEarthAndFire.exists then
+                for i = 1, #enemies.yards5 do
+                    local thisUnit = enemies.yards5[i]
+                    local markOfTheCraneRemain = getDebuffRemain(thisUnit,spell.debuffs.markOfTheCrane,"player")
+                    if markOfTheCraneRemain < 5 or markOfTheCraneCount == #enemies.yards5 then
+                        if cast.tigerPalm(thisUnit) then return end
+                    end
+                end
             end
         -- Rising Sun Kick
-            -- rising_sun_kick
-            for i = 1, #enemies.yards5 do
-                local thisUnit = enemies.yards5[i]
-                local markOfTheCraneRemain = getDebuffRemain(thisUnit,spell.debuffs.markOfTheCrane,"player")
-                if markOfTheCraneRemain < 5 or markOfTheCraneCount == #enemies.yards5 then
-                    if cast.risingSunKick(thisUnit) then return end
+            -- rising_sun_kick,cycle_targets=1,if=equipped.convergence_of_fates&talent.serenity.enabled&cooldown.serenity.remains>=2
+            -- rising_sun_kick,cycle_targets=1,if=equipped.convergence_of_fates&!talent.serenity.enabled
+            -- rising_sun_kick,cycle_targets=1,if=!equipped.convergence_of_fates
+            if not hasEquiped(140806) or (hasEquiped(140806) and (not talent.serenity or (talent.serenity and cd.serenity >= 2))) then
+                for i = 1, #enemies.yards5 do
+                    local thisUnit = enemies.yards5[i]
+                    local markOfTheCraneRemain = getDebuffRemain(thisUnit,spell.debuffs.markOfTheCrane,"player")
+                    if markOfTheCraneRemain < 5 or markOfTheCraneCount == #enemies.yards5 then
+                        if cast.risingSunKick(thisUnit) then return end
+                    end
                 end
             end
         -- Whirling Dragon Punch
             -- whirling_dragon_punch
             if cast.whirlingDragonPunch() then return end
+        -- Crackling Jade Lightning
+            -- crackling_jade_lightning,if=equipped.the_emperors_capacitor&buff.the_emperors_capacitor.stack>=19
+            if hasEquiped(144239) and buff.theEmperorsCapacitor.stack >= 19 then
+                if cast.cracklingJadeLightning() then return end
+            end
         -- Spinning Crane Kick
             -- spinning_crane_kick,if=active_enemies>=3&!prev_gcd.spinning_crane_kick
             if #enemies.yards5 >= 3 and markPercent >= 75 and (lastSpell ~= spell.spinningCraneKick or level < 78) then
@@ -853,22 +900,14 @@ local function runRotation()
                     end
                 end
             end
-        -- Crackling Jade Lightning
-            -- crackling_jade_lightning,interrupt=1,if=talent.rushing_jade_wind.enabled&chiMax-chi=1&prev_gcd.blackout_kick&cooldown.rising_sun_kick.remains>1&cooldown.fists_of_fury.remains>1&cooldown.strike_of_the_windlord.remains>1&cooldown.rushing_jade_wind.remains>1
-            -- crackling_jade_lightning,interrupt=1,if=!talent.rushing_jade_wind.enabled&chiMax-chi=1&prev_gcd.blackout_kick&cooldown.rising_sun_kick.remains>1&cooldown.fists_of_fury.remains>1&cooldown.strike_of_the_windlord.remains>1
-            if chiMax - chi == 1 and lastSpell == spell.blackoutKick and cd.risingSunKick > 1 and cd.fistsOfFury > 1 
-                and cd.strikeOfTheWindlord > 1 and ((talent.rushingJadeWind and cd.rushingJadeWind > 1) or not talent.rushingJadeWind) 
-            then
-                if cast.cracklingJadeLightning() then return end
-            end
         end -- End Action List - Single Target 
     -- Action List - Storm, Earth, and Fire
-        function actionList_SEF()
+        function actionList_StormEarthAndFire()
             if mode.sef == 1 then
-        -- Energizing Elixir
-                -- energizing_elixir
-                if getDistance("target") < 5 then
-                    if cast.energizingElixir() then return end
+        -- Tiger Palm
+                -- tiger_palm,if=energy=energy.max&chi<1
+                if power == powerMax and chi < 1 then
+                    if cast.tigerPalm() then return end
                 end
         -- Racial - Arcane Torrent
                 -- arcane_torrent,if=chiMax-chi>=1&energy.time_to_max>=0.
@@ -878,10 +917,23 @@ local function runRotation()
         -- Call Action List - Cooldowns
                 -- call_action_list,name=cd
                 if actionList_Cooldown() then return end
+                if getDistance("target") < 5 and not buff.stormEarthAndFire.exists then
         -- Storm, Earth, and Fire
-                -- storm_earth_and_fire
-                if getDistance("target") < 5 then
-                    if cast.stormEarthAndFire() then return end
+                    -- storm_earth_and_fire,if=!buff.storm_earth_and_fire.up&(cooldown.touch_of_death.remains<=8|cooldown.touch_of_death.remains>85)
+                    -- storm_earth_and_fire,if=!buff.storm_earth_and_fire.up&cooldown.storm_earth_and_fire.charges=2
+                    -- storm_earth_and_fire,if=!buff.storm_earth_and_fire.up&target.time_to_die<=25
+                    -- storm_earth_and_fire,if=!buff.storm_earth_and_fire.up&cooldown.fists_of_fury.remains<=1&chi>=3
+                    if cd.touchOfDeath <= 8 or cd.touchOfDeath > 85 or charges.stormEarthAndFire == 2 or ttd <= 25 or (cd.fistsOfFury <= 1 and chi >= 3) then
+                        if cast.stormEarthAndFire() then return end
+                    end
+        -- Fists of Fury
+                    -- fists_of_fury,if=buff.storm_earth_and_fire.up
+                    if cast.fistsOfFury() then return end
+        -- Rising Sun Kick
+                    -- rising_sun_kick,if=buff.storm_earth_and_fire.up&chi=2&energy<energy.max
+                    if chi == 2 and power < powerMax then
+                        if cast.risingSunKick() then return end
+                    end
                 end
         -- Call Action List - Single Target
                 -- call_action_list,name=st
@@ -891,9 +943,6 @@ local function runRotation()
     -- Action List - Serenity
         function actionList_Serenity()
             if isChecked("Serenity") then
-        -- Energizing Elixir
-                -- energizing_elixir
-                if cast.energizingElixir() then return end
         -- Call Action List - Cooldowns
                 -- call_action_list,name=cd
                 if actionList_Cooldown() then return end
@@ -902,63 +951,63 @@ local function runRotation()
                 if getDistance("target") < 5 then
                     if cast.serenity() then return end
                 end
-        -- Strike of the Windlord
-                -- strike_of_the_windlord
                 if buff.serenity.exists then
+        -- Strike of the Windlord
+                    -- strike_of_the_windlord
                     if cast.strikeOfTheWindlord() then return end
-                end
         -- Rising Sun Kick
-            -- rising_sun_kick,cycle_targets=1,if=active_enemies<3
-                if #enemies.yards5 < 3 then
-                    for i = 1, #enemies.yards5 do
-                        local thisUnit = enemies.yards5[i]
-                        local markOfTheCraneRemain = getDebuffRemain(thisUnit,spell.debuffs.markOfTheCrane,"player")
-                        if markOfTheCraneRemain < 5 or markOfTheCraneCount == #enemies.yards5 then
-                            if cast.risingSunKick(thisUnit) then return end
+                    -- rising_sun_kick,cycle_targets=1,if=active_enemies<3
+                    if #enemies.yards5 < 3 then
+                        for i = 1, #enemies.yards5 do
+                            local thisUnit = enemies.yards5[i]
+                            local markOfTheCraneRemain = getDebuffRemain(thisUnit,spell.debuffs.markOfTheCrane,"player")
+                            if markOfTheCraneRemain < 5 or markOfTheCraneCount == #enemies.yards5 then
+                                if cast.risingSunKick(thisUnit) then return end
+                            end
                         end
                     end
-                end
         -- Fists of Fury
-                -- fists_of_fury
-                if markPercent < 75 or #enemies.yards5 < 3 then
+                    -- fists_of_fury
+                    -- if markPercent < 75 or #enemies.yards5 < 3 then
                     if cast.fistsOfFury() then return end
-                end
+                    -- end
         -- Spinning Crane Kick
-                -- spinning_crane_kick,if=active_enemies>=3&!prev_gcd.spinning_crane_kick
-                if #enemies.yards5 >= 3 and markPercent >= 75 and (lastSpell ~= spell.spinningCraneKick or level < 78) then
-                    if cast.spinningCraneKick() then return end
-                end
+                    -- spinning_crane_kick,if=active_enemies>=3&!prev_gcd.spinning_crane_kick
+                    if #enemies.yards5 >= 3 --[[and markPercent >= 75 ]]and (lastSpell ~= spell.spinningCraneKick or level < 78) then
+                        if cast.spinningCraneKick() then return end
+                    end
         -- Rising Sun Kick
-                -- rising_sun_kick,cycle_targets=1,if=active_enemies>=3
-                if #enemies.yards5 >= 3 then
-                    for i = 1, #enemies.yards5 do
-                        local thisUnit = enemies.yards5[i]
-                        local markOfTheCraneRemain = getDebuffRemain(thisUnit,spell.debuffs.markOfTheCrane,"player")
-                        if markOfTheCraneRemain < 5 or markOfTheCraneCount == #enemies.yards5 then
-                            if cast.risingSunKick(thisUnit) then return end
+                    -- rising_sun_kick,cycle_targets=1,if=active_enemies>=3
+                    if #enemies.yards5 >= 3 then
+                        for i = 1, #enemies.yards5 do
+                            local thisUnit = enemies.yards5[i]
+                            local markOfTheCraneRemain = getDebuffRemain(thisUnit,spell.debuffs.markOfTheCrane,"player")
+                            if markOfTheCraneRemain < 5 or markOfTheCraneCount == #enemies.yards5 then
+                                if cast.risingSunKick(thisUnit) then return end
+                            end
                         end
                     end
-                end
         -- Blackout Kick
                 -- blackout_kick,cycle_targets=1,if=!prev_gcd.blackout_kick
-                if lastSpell ~= spell.blackoutKick or level < 78 then
-                    for i = 1, #enemies.yards5 do
-                        local thisUnit = enemies.yards5[i]
-                        local markOfTheCraneRemain = getDebuffRemain(thisUnit,spell.debuffs.markOfTheCrane,"player")
-                        if markOfTheCraneRemain < 5 or markOfTheCraneCount == #enemies.yards5 then
-                            if cast.blackoutKick(thisUnit) then return end
+                    if lastSpell ~= spell.blackoutKick or level < 78 then
+                        for i = 1, #enemies.yards5 do
+                            local thisUnit = enemies.yards5[i]
+                            local markOfTheCraneRemain = getDebuffRemain(thisUnit,spell.debuffs.markOfTheCrane,"player")
+                            if markOfTheCraneRemain < 5 or markOfTheCraneCount == #enemies.yards5 then
+                                if cast.blackoutKick(thisUnit) then return end
+                            end
                         end
                     end
-                end
-        -- Spinning Crane Kick
-                -- spinning_crane_kick,if=!prev_gcd.spinning_crane_kick
-                if #enemies.yards5 >= 3 and markPercent >= 75 and (lastSpell ~= spell.spinningCraneKick or level < 78) then
-                    if cast.spinningCraneKick() then return end
-                end
+        -- -- Spinning Crane Kick
+        --         -- spinning_crane_kick,if=!prev_gcd.spinning_crane_kick
+        --         if #enemies.yards5 >= 3 and markPercent >= 75 and (lastSpell ~= spell.spinningCraneKick or level < 78) then
+        --             if cast.spinningCraneKick() then return end
+        --         end
         -- Rushing Jade Wind
-                -- rushing_jade_wind,if=!prev_gcd.rushing_jade_wind
-                if lastSpell ~= spell.rushingJadeWind or level < 78 then
-                    if cast.rushingJadeWind() then return end
+                    -- rushing_jade_wind,if=!prev_gcd.rushing_jade_wind
+                    if lastSpell ~= spell.rushingJadeWind or level < 78 then
+                        if cast.rushingJadeWind() then return end
+                    end
                 end
             end
         end
@@ -996,7 +1045,6 @@ local function runRotation()
                 end
             end -- End No Combat Check
         end --End Action List - Pre-Combat
-
 ---------------------
 --- Begin Profile ---
 ---------------------
@@ -1058,38 +1106,37 @@ local function runRotation()
                             useItem(127844)
                         end
                     end
+        -- Touch of Death
+                    -- touch_of_death,if=target.time_to_die<=9
+                    if useCDs() and isChecked("Touch of Death") and ttd <= 9 then
+                        if cast.touchOfDeath() then return end
+                    end
         -- Call Action List - Serenity
-                    -- call_action_list,name=serenity,if=talent.serenity.enabled&((artifact.strike_of_the_windlord.enabled&cooldown.strike_of_the_windlord.remains<=14&cooldown.rising_sun_kick.remains<=4)|buff.serenity.up)
-                    if talent.serenity and ((useCDs() and artifact.strikeOfTheWindlord and cd.strikeOfTheWindlord <= 14 and cd.risingSunKick <= 4) or buff.serenity.exists) then
+                    -- call_action_list,name=serenity,if=(talent.serenity.enabled&cooldown.serenity.remains<=0)|buff.serenity.up
+                    if useCDs() and isChecked("Serenity") and ((talent.serenity and cd.serenity <= 0) or buff.serenity.exists) then
                         if actionList_Serenity() then return end
                     end
         -- Call Action List - Storm, Earth, and Fire
-                    -- call_action_list,name=sef,if=!talent.serenity.enabled&((artifact.strike_of_the_windlord.enabled&cooldown.strike_of_the_windlord.remains<=14&cooldown.fists_of_fury.remains<=6&cooldown.rising_sun_kick.remains<=6)|buff.storm_earth_and_fire.up)
-                    if not talent.serenity and ((artifact.strikeOfTheWindlord and cd.strikeOfTheWindlord <= 14 and cd.fistsOfFury <= 6 and cd.risingSunKick <= 6) or buff.stormEarthAndFire.exists) then
-                        if actionList_SEF() then return end
+                    -- call_action_list,name=sef,if=!talent.serenity.enabled&equipped.drinking_horn_cover&((cooldown.fists_of_fury.remains<=1&chi>=3)|buff.storm_earth_and_fire.up|cooldown.storm_earth_and_fire.charges=2|cooldowntarget.time_to_die<=25|cooldown.touch_of_death.remains>=85)
+                    if mode.sef == 1 and not talent.serenity and hasEquiped(137097) and ((cd.fistsOfFury <= 1 and chi >= 3) or buff.stormEarthAndFire.exists or charges.stormEarthAndFire == 2 or ttd <= 25 or cd.touchOfDeath >= 85) then
+                        if actionList_StormEarthAndFire() then return end
                     end
-        -- Call Action List - Serenity
-                    -- call_action_list,name=serenity,if=(!artifact.strike_of_the_windlord.enabled&cooldown.strike_of_the_windlord.remains<14&cooldown.fists_of_fury.remains<=15&cooldown.rising_sun_kick.remains<7)|buff.serenity.up
-                    if (useCDs() and not artifact.strikeOfTheWindlord and cd.fistsOfFury <= 15 and cd.risingSunKick < 7) or buff.serenity.exists then
-                        if actionList_Serenity() then return end
+                    -- call_action_list,name=sef,if=!talent.serenity.enabled&!equipped.drinking_horn_cover&((artifact.strike_of_the_windlord.enabled&cooldown.strike_of_the_windlord.remains<=14&cooldown.fists_of_fury.remains<=6&cooldown.rising_sun_kick.remains<=6)|buff.storm_earth_and_fire.up)           
+                    if mode.sef == 1 and not talent.serenity and not hasEquiped(137097) and ((artifact.strikeOfTheWindlord and cd.strikeOfTheWindlord <= 14 and cd.fistsOfFury <= 6 and cd.risingSunKick <= 6) or buff.stormEarthAndFire) then
+                        if actionList_StormEarthAndFire() then return end
                     end
-        -- Call Action Lsit - Storm, Earth, and Fire
-                    -- call_action_list,name=sef,if=!talent.serenity.enabled&((!artifact.strike_of_the_windlord.enabled&cooldown.fists_of_fury.remains<=9&cooldown.rising_sun_kick.remains<=5)|buff.storm_earth_and_fire.up)
-                    if not talent.serenity and ((not artifact.strikeOfTheWindlord and cd.fistsOfFury <= 9 and cd.risingSunKick <= 5) or buff.stormEarthAndFire.exists) then
-                        if actionList_SEF() then return end
-                    end             
         -- Call Action List - Single Target
                     -- call_action_list,name=st
                     if actionList_SingleTarget() then return end
-        -- No Chi
-                    if lastSpell == spell.tigerPalm then
-                        if chi == 1 then
-                            if cast.blackoutKick() then return end
-                        end
-                        if chi == 0 then
-                            if cast.tigerPalm() then return end
-                        end
-                    end
+        -- -- No Chi
+        --             if lastSpell == spell.tigerPalm then
+        --                 if chi == 1 then
+        --                     if cast.blackoutKick() then return end
+        --                 end
+        --                 if chi == 0 then
+        --                     if cast.tigerPalm() then return end
+        --                 end
+        --             end
                 end -- End Simulation Craft APL
     ----------------------------
     --- APL Mode: AskMrRobot ---

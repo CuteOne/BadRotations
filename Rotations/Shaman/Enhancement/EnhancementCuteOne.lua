@@ -394,6 +394,10 @@ local function runRotation()
     -- Action List - PreCombat
         local function actionList_PreCombat()
             if not inCombat and not (IsFlying() or IsMounted()) then
+            -- Fury of Air
+                if buff.furyOfAir.exists then
+                    if cast.furyOfAir() then return end
+                end
             -- Flask / Crystal
                 -- flask,type=flask_of_the_seventh_demon
                 if isChecked("Flask / Crystal") then
@@ -480,7 +484,7 @@ local function runRotation()
                 if getOptionValue("APL Mode") == 1 then
             -- Fury of Air - Off
                     -- if TargetsInRadius(FuryOfAir) = 1
-                    if buff.furyOfAir.exists and power <= 22 then
+                    if buff.furyOfAir.exists and (power <= 22 or #enemies.yards8 == 0) then
                         if cast.furyOfAir() then return end
                     end
             -- Feral Lunge
@@ -507,7 +511,7 @@ local function runRotation()
                     end
             -- Fury of Air
                     -- fury_of_air,if=!ticking&maelstrom>22
-                    if not buff.furyOfAir.exists and power > 22 then
+                    if not buff.furyOfAir.exists and power > 22 and #enemies.yards8 > 0 then
                         if cast.furyOfAir() then return end
                     end
             -- Frostbrand

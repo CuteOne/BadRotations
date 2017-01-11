@@ -111,6 +111,8 @@ local function createOptions()
             -- Shockwave
             br.ui:createSpinner(section, "Shockwave - HP", 60, 0, 100, 5, "|cffFFBB00Health Percentage to use at.")
             br.ui:createSpinner(section, "Shockwave - Units", 3, 1, 10, 1, "|cffFFBB00Minimal units to cast on.")
+            -- Spell Reflection
+            br.ui:createSpinner(section, "Spell Reflection",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.") 
             -- Storm Bolt
             br.ui:createSpinner(section, "Storm Bolt", 60, 0, 100, 5, "|cffFFBB00Health Percentage to use at.") 
             -- Victory Rush
@@ -258,10 +260,30 @@ local function runRotation()
                 if isChecked("Gift of the Naaru") and php <= getOptionValue("Gift of the Naaru") and php > 0 and cd.giftOfTheNaaru==0 then
                     if cast.giftOfTheNaaru() then return end
                 end
+            -- Demoralizing Shout
+                -- demoralizing_shout,if=incoming_damage_2500ms>health.max*0.20
+                if inCombat and isChecked("Demoralizing Shout") and php <= getOptionValue("Demoralizing Shout") then
+                    if cast.demoralizingShout() then return end
+                end
+            -- Last Stand
+                -- last_stand,if=incoming_damage_2500ms>health.max*0.50
+                if inCombat and isChecked("Last Stand") and php <= getOptionValue("Last Stand") then
+                    if cast.lastStand() then return end
+                end
+            -- Shield Wall
+                -- shield_wall,if=incoming_damage_2500ms>health.max*0.50&!cooldown.last_stand.remains=0
+                if inCombat and isChecked("Shield Wall") and php <= getOptionValue("Shield Wall") and cd.lastStand > 0 then
+                    if cast.shieldWall() then return end
+                end
             -- Shockwave
                 if inCombat and ((isChecked("Shockwave - HP") and php <= getOptionValue("Shockwave - HP")) or (isChecked("Shockwave - Units") and #enemies.yards8 >= getOptionValue("Shockwave - Units"))) then
                     if cast.shockwave() then return end
                 end
+            -- Spell Reflection
+                -- spell_reflection,if=incoming_damage_2500ms>health.max*0.20
+                if inCombat and isChecked("Spell Reflection") and php <= getOptionValue("Spell Reflection") then
+                    if cast.spellReflection() then return end
+                end 
             -- Storm Bolt
                 if inCombat and isChecked("Storm Bolt") and php <= getOptionValue("Storm Bolt") then
                     if cast.stormBolt() then return end
@@ -402,128 +424,28 @@ local function runRotation()
                 end
             end
         end
-    -- Action List - MultiTarget
-        function actionList_MultiTarget()
+    -- Action List - Main
+        function actionList_Main()
         -- Touch of the Void
-            if isChecked("Touch of the Void") and getDistance(units.dyn5) < 5 then
+            if isChecked("Touch of the Void") and getDistance(units.dyn5) < 5 and ((mode.rotation == 1 and #enemies.yards8 >= 4) or mode.rotation == 2) then
                 if hasEquiped(128318) then
                     if GetItemCooldown(128318)==0 then
                         useItem(128318)
                     end
                 end
             end
-        -- Focused Rage
-            -- focused_rage,if=talent.ultimatum.enabled&buff.ultimatum.up&!talent.vengeance.enabled
-            if talent.ultimatum and buff.ultimatum.exists and not talent.vengeance then
-                if cast.focusedRage() then return end
-            end
-        -- Battle Cry
-            -- battle_cry,if=(talent.vengeance.enabled&talent.ultimatum.enabled&cooldown.shield_slam.remains<=5-gcd.max-0.5)|!talent.vengeance.enabled
-            if useCDs() and isChecked("Battle Cry") then
-                if (talent.vengeance and talent.ultimatum and cd.shieldSlam <= 5 - gcd - 0.5) or talent.vengeance then
-                    if cast.battleCry() then return end
-                end
-            end
-        -- Demoralizing Shout
-            -- demoralizing_shout,if=talent.booming_voice.enabled&buff.battle_cry.up
-            if useCDs() and isChecked("Demoralizing Shout - CD") then
-                if talent.boomingVoice and buff.battleCry.exists then
-                    if cast.demoralizingShout() then return end
-                end
-            end
-        -- Ravager
-            -- ravager,if=talent.ravager.enabled&buff.battle_cry.up
-            if useCDs() and isChecked("Ravager") then
-                if talent.ravager and buff.battleCry.exists then
-                    if cast.ravager("best",false,1,8) then return end
-                end
-            end
-        -- Neltharion's Fury
-            -- neltharions_fury,if=incoming_damage_2500ms>health.max*0.20&!buff.shield_block.up
-            if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useDefensive()) then
-                if buff.battleCry.exists then
-                    if cast.neltharionsFury("player") then return end
-                end
-            end
-        -- Shield Slam
-            -- shield_slam,if=!(cooldown.shield_block.remains<=gcd.max*2&!buff.shield_block.up&talent.heavy_repercussions.enabled)
-            if not (cd.shieldBlock <= gcd * 2 and not buff.shieldBlock.exists and talent.heavyRepercussions) then
-                if cast.shieldSlam() then return end
-            end
-        -- Revenge
-            -- revenge
-            if cast.revenge() then return end
-        -- Thunder Clap
-            -- thunder_clap,if=spell_targets.thunder_clap>=3
-            if #enemies.yards8 >= 3 then
-                if cast.thunderClap() then return end
-            end
-        -- Devastate
-            -- devastate
-            if cast.devastate() then return end 
-        end -- End Action List - MultiTarget
-    -- Action List - Main
-        function actionList_Main()
         -- Shield Block
             -- shield_block,if=!buff.neltharions_fury.up&((cooldown.shield_slam.remains<6&!buff.shield_block.up)|(cooldown.shield_slam.remains<6+buff.shield_block.remains&buff.shield_block.up))
             if not buff.neltharionsFury.exists and ((cd.shieldSlam < 6 and not buff.shieldBlock.exists) or (cd.shieldSlam < 6 + buff.shieldBlock.remain and buff.shieldBlock.exists)) then
                 if cast.shieldBlock() then return end
             end
-        -- Ignore Pain
-            -- ignore_pain,if=(rage>=60&!talent.vengeance.enabled)|(buff.vengeance_ignore_pain.up&buff.ultimatum.up)|(buff.vengeance_ignore_pain.up&rage>=39)|(talent.vengeance.enabled&!buff.ultimatum.up&!buff.vengeance_ignore_pain.up&!buff.vengeance_focused_rage.up&rage<30)
-            if (rage >= 60 and not talent.vengeance) or (buff.vengeanceIgnorePain.exists and buff.ultimatum.exists) or (buff.vengeanceIgnorePain.exists and rage >= 39) 
-                or (talent.vengeance and not buff.ultimatum.exists and not buff.vengeanceIgnorePain.exists and not buff.vengeanceFocusedRage.exists and rage < 30) 
-            then 
-                if cast.ignorePain() then return end
-            end
-        -- Focused Rage
-            -- focused_rage,if=(buff.vengeance_focused_rage.up&!buff.vengeance_ignore_pain.up)|(buff.ultimatum.up&buff.vengeance_focused_rage.up&!buff.vengeance_ignore_pain.up)|(talent.vengeance.enabled&buff.ultimatum.up&!buff.vengeance_ignore_pain.up&!buff.vengeance_focused_rage.up)|(talent.vengeance.enabled&!buff.vengeance_ignore_pain.up&!buff.vengeance_focused_rage.up&rage>=30)|(buff.ultimatum.up&buff.vengeance_ignore_pain.up&cooldown.shield_slam.remains=0&rage<10)|(rage>=100)
-            if (buff.vengeanceFocusedRage.exits and not buff.vengeanceIgnorePain.exists) 
-                or (buff.ultimatum.exists and buff.vengeanceFocusedRage.exists and not buff.vengeanceIgnorePain.exists) 
-                or (talent.vengence and buff.ultimatum.exists and not vengeanceIgnorePain.exists and not vengeanceFocusedRage.exists) 
-                or (talent.vengeance and not buff.vengeanceIgnorePain.exists and not buff.vengeanceFocusedRage.exists and rage >= 30) 
-                or (buff.ultimatum.exists and buff.vengeanceIgnorePain.exists and cd.shieldSlam == 0 and rage < 10) or rage >= 100 
-            then
-                if cast.focusedRage() then return end
-            end
-        -- Demoralizing Shout
-            -- demoralizing_shout,if=incoming_damage_2500ms>health.max*0.20
-            if useDefensive() and isChecked("Demoralizing Shout") then
-                if php < getOptionValue("Demoralizing Shout") and inCombat then
-                    if cast.demoralizingShout() then return end
-                end
-            end
-        -- Shield Wall
-            -- shield_wall,if=incoming_damage_2500ms>health.max*0.50
-            if useDefensive() and isChecked("Shield Wall") then
-                if php < getOptionValue("Shield Wall") and inCombat then
-                    if cast.shieldWall() then return end
-                end
-            end
-        -- Last Stand
-            -- last_stand,if=incoming_damage_2500ms>health.max*0.50&!cooldown.shield_wall.remains=0
-            if useDefensive() and isChecked("Last Stand") then
-                if php < getOptionValue("Last Stand") and inCombat then
-                    if cast.lastStand() then return end
-                end
-            end
         -- Potion
             -- potion,name=unbending_potion,if=(incoming_damage_2500ms>health.max*0.15&!buff.potion.up)|target.time_to_die<=25
             -- TODO
-        -- Call Action List - Multitarget
-            -- call_action_list,name=prot_aoe,if=spell_targets.neltharions_fury>=2
-            if #enemies.yards8 >= 2 then
-                if actionList_MultiTarget() then return end
-            end
-        -- Focused Rage
-            -- focused_rage,if=talent.ultimatum.enabled&buff.ultimatum.up&!talent.vengeance.enabled
-            if talent.ultimatum and buff.ultimatum.exists and not talent.vengeance then
-                if cast.focusedRage() then return end
-            end
         -- Battle Cry
-            -- battle_cry,if=(talent.vengeance.enabled&talent.ultimatum.enabled&cooldown.shield_slam.remains<=5-gcd.max-0.5)|!talent.vengeance.enabled
+            -- battle_cry,if=cooldown.shield_slam.remains=0
             if useCDs() and isChecked("Battle Cry") then
-                if (talent.vengeance and talent.ultimatum and cd.shieldSlam <= 5 - gcd - 0.5) or not talent.vengeance then
+                if cd.shieldSlam == 0 then
                     if cast.battleCry() then return end
                 end
             end
@@ -542,11 +464,16 @@ local function runRotation()
                 end
             end
         -- Neltharion's Fury
-            -- neltharions_fury,if=incoming_damage_2500ms>health.max*0.20&!buff.shield_block.up
+            -- neltharions_fury,if=!buff.shield_block.up&cooldown.shield_block.remains>3&cooldown.shield_slam.remains>3
             if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useDefensive()) then
-                if php < getOptionValue("Artifact HP") and inCombat and not buff.shieldBlock.exists then
+                if php < getOptionValue("Artifact HP") and inCombat and not buff.shieldBlock.exists and cd.shieldBlock > 3 and cd.shieldSlam > 3 then
                     if cast.neltharionsFury("player") then return end
                 end
+            end
+        -- Shield Block
+            -- shield_block,if=!buff.neltharions_fury.up&(cooldown.shield_slam.remains=0|action.shield_block.charges=2)
+            if not buff.neltharionsFury and (cd.shieldSlam == 0 or charges.shieldBlock == 2) then
+                if cast.shieldBlock() then return end
             end
         -- Shield Slam
             -- shield_slam,if=!(cooldown.shield_block.remains<=gcd.max*2&!buff.shield_block.up&talent.heavy_repercussions.enabled)
@@ -555,8 +482,21 @@ local function runRotation()
             end
         -- Revenge
             -- revenge,if=cooldown.shield_slam.remains<=gcd.max*2
-            if cd.shieldSlam <= gcd * 2 then
+            -- revenge,if=cooldown.shield_slam.remains<=gcd.max*1.5|spell_targets.revenge>=2
+            if cd.shieldSlam <= gcd * 1.5 or ((mode.rotation == 1 and #enemies.yards5 >= 2) or mode.rotation == 2) then
                 if cast.revenge() then return end
+            end
+        -- Ignore Pain
+            -- ignore_pain,if=(rage>=60&!talent.vengeance.enabled)|(buff.vengeance_ignore_pain.up&rage>=39)|(talent.vengeance.enabled&!buff.ultimatum.up&!buff.vengeance_ignore_pain.up&!buff.vengeance_focused_rage.up&rage<30)
+            if (rage >= 60 and not talent.vengeance) or (buff.vengeanceIgnorePain.exists and rage >= 39) 
+                or (talent.vengeance and not buff.ultimatum.exists and not buff.vengeanceIgnorePain.exists and not buff.vengeanceFocusedRage.exists and rage < 30) 
+            then 
+                if cast.ignorePain() then return end
+            end
+        -- Thunder Clap
+            -- thunder_clap,if=spell_targets.thunder_clap>=4
+            if ((mode.rotation == 1 and #enemies.yards8 >= 4) or mode.rotation == 2) then
+                if cast.thunderClap() then return end
             end
         -- Devastate
             -- devastate
