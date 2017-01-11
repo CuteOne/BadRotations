@@ -1074,15 +1074,32 @@ br.idList = {
         -- Brewmaster
         [268] = {
             abilities                       = {
-
+                blackoxBrew                 = 115399,
+                blackoutStrike              = 205523,
+                breathofFire                = 115181,
+                chiBurst                    = 123986,
+                chiWave                     = 115098,
+                detox                       = 218164,
+                effuse                      = 116694,
+                expelHarm                   = 115072,
+                explodingKeg                = 214326,
+                fortifyingBrew              = 115203,
+                healingElixir               = 122281,
+                ironskinBrew                = 115308,
+                kegSmash                    = 121253,
+                purifyingBrew               = 119582,
+                spearHandStrike             = 116705,
             },
             artifacts                       = {
 
             },
             buffs                           = {
+                ironskinBrew                = 215479,
 
             },
             debuffs                         = {
+                moderateStagger             = 124274,
+                heavyStagger                = 124273,
 
             },
             glyphs                          = {
