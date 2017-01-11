@@ -510,7 +510,7 @@ local function runRotation()
             end
         -- Execute
             -- execute,if=talent.inner_rage.enabled|!talent.inner_rage.enabled&rage>50
-            if talent.innerRage or (not talent.innerRage and power > 50) then
+            if getHP(units.dyn5) < 20 and (talent.innerRage or (not talent.innerRage and power > 50)) then
                 if cast.execute() then return end
             end
         -- Bloodthirst
@@ -520,17 +520,19 @@ local function runRotation()
             end
         -- Raging Blow
             -- raging_blow,if=buff.enrage.down
-            if not buff.enrage.exists then
+            if talent.innerRage and not buff.enrage.exists then
                 if cast.ragingBlow() then return end
             end
         -- Execute
             -- execute,if=artifact.juggernaut.enabled
-            if artifact.juggernaut then
+            if getHP(units.dyn5) < 20 and artifact.juggernaut then
                 if cast.execute() then return end
             end
         -- Raging Blow
             -- raging_blow
-            if cast.ragingBlow() then return end
+            if buff.enrage.exists or talent.innerRage then
+                if cast.ragingBlow() then return end
+            end
         -- Bloodthirst
             -- bloodthirst
             if cast.bloodthirst() then return end
