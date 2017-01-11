@@ -708,7 +708,7 @@ br.idList = {
                 exhilaration                = 109304,
                 feignDeath                  = 5384,
                 flare                       = 1543,
-                intimidation  	            = 19577,
+                intimidation                = 19577,
                 killCommand                 = 34026,
                 misdirection                = 34477,
                 multiShot                   = 2643,
@@ -735,7 +735,7 @@ br.idList = {
                 aMurderOfCrows              = 131894,
                 barrage                     = 120360,
                 volley                      = 194386,
-		intimidation		    = 19577,
+        intimidation            = 19577,
             },
         },
         -- Marksmanship
@@ -758,7 +758,7 @@ br.idList = {
                 explosiveShot               = 212431,
                 feignDeath                  = 5384,
                 flare                       = 1543,
-		intimidation                = 19577,
+        intimidation                = 19577,
                 markedShot                  = 185901,
                 misdirection                = 34477,
                 multiShot                   = 2643,
@@ -800,7 +800,7 @@ br.idList = {
                 sidewinders                 = 214579,
                 piercingShot                = 198670,
                 trickShot                   = 199544,
-		intimidation                = 19577,
+        intimidation                = 19577,
             },
         },
         -- Survival
@@ -1826,6 +1826,7 @@ br.idList = {
                 cloakOfShadows              = 31224,
                 crimsonVial                 = 185311,
                 deathFromAbove              = 152150,
+                detection                   = 56814,
                 distract                    = 1725,
                 feint                       = 1966,
                 goremawsBite                = 209783, --809784

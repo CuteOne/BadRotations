@@ -60,7 +60,7 @@ local function createOptions()
             br.ui:createSpinner(section, "Eye Beam Targets", 3, 1, 10, 1, "|cffFFBB00Number of Targets to use at.")
         -- Glide Fall Time
             br.ui:createSpinner(section, "Glide", 2, 0, 10, 1, "|cffFFBB00Seconds until Glide will be used while falling.")
-        -- Artifact 
+        -- Artifact
             br.ui:createDropdownWithout(section,"Artifact", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Artifact Ability.")
         br.ui:checkSectionState(section)
     -- Cooldown Options
@@ -144,7 +144,7 @@ local function runRotation()
 --------------
 --- Locals ---
 --------------
-        local addsExist                                     = false 
+        local addsExist                                     = false
         local addsIn                                        = 999
         local artifact                                      = br.player.artifact
         local buff                                          = br.player.buff
@@ -174,7 +174,7 @@ local function runRotation()
         local mode                                          = br.player.mode
         local moveIn                                        = 999
         -- local multidot                                      = (useCleave() or br.player.mode.rotation ~= 3)
-        local perk                                          = br.player.perk        
+        local perk                                          = br.player.perk
         local php                                           = br.player.health
         local playerMouse                                   = UnitIsPlayer("mouseover")
         local power, powmax, powgen, powerDeficit           = br.player.power.amount.fury, br.player.power.fury.max, br.player.power.regen, br.player.power.fury.deficit
@@ -221,7 +221,7 @@ local function runRotation()
         end
     -- Custom Functions
         local function cancelRushAnimation()
-            if castable.felRush then 
+            if castable.felRush then
                 MoveBackwardStart()
                 JumpOrAscendStart()
                 cast.felRush()
@@ -261,8 +261,8 @@ local function runRotation()
 		local function actionList_Defensive()
 			if useDefensive() then
 		-- Pot/Stoned
-	            if isChecked("Pot/Stoned") and php <= getOptionValue("Pot/Stoned") 
-	            	and inCombat and (hasHealthPot() or hasItem(5512)) 
+	            if isChecked("Pot/Stoned") and php <= getOptionValue("Pot/Stoned")
+	            	and inCombat and (hasHealthPot() or hasItem(5512))
 	            then
                     if canUse(5512) then
                         useItem(5512)
@@ -443,9 +443,9 @@ local function runRotation()
 		local function actionList_Cooldowns()
 			if useCDs() and getDistance(units.dyn5) < 5 then
         -- Trinkets
-                -- use_item,slot=trinket2,if=buff.chaos_blades.up|!talent.chaos_blades.enabled 
+                -- use_item,slot=trinket2,if=buff.chaos_blades.up|!talent.chaos_blades.enabled
                 if isChecked("Trinkets") then
-                    if buff.chaosBlades.exists or not talent.chaosBlades then 
+                    if buff.chaosBlades.exists or not talent.chaosBlades then
                         if canUse(13) then
                             useItem(13)
                         end
@@ -505,7 +505,7 @@ local function runRotation()
                     -- if CooldownSecRemaining(Metamorphosis) > SpellCooldownSec(ChaosBlades) - BuffDurationSec(ChaosBlades) or HasBuff(Metamorphosis)
                     if (cd.metamorphosis > cd.chaosBlades - buff.chaosBlades.duration or buff.metamorphosis.exists) and getDistance(units.dyn5) < 5 then
                         if cast.chaosBlades() then return end
-                    end 
+                    end
                 end
         -- Agi-Pot
                 -- potion,name=deadly_grace,if=buff.metamorphosis.remains>25
@@ -559,7 +559,7 @@ local function runRotation()
                     end
                 end
             end -- End No Combat
-        end -- End Action List - PreCombat 
+        end -- End Action List - PreCombat
 ---------------------
 --- Begin Profile ---
 ---------------------
@@ -605,7 +605,7 @@ local function runRotation()
             -- Cooldowns
                     -- call_action_list,name=cooldown
                     if actionList_Cooldowns() then return end
-            -- Fel Rush 
+            -- Fel Rush
                     -- fel_rush,animation_cancel=1,if=time=0
                     if combatTime < 1 and getFacing("player","target",10) then
                         if mode.mover == 1 and getDistance("target") < 5 then
@@ -618,7 +618,7 @@ local function runRotation()
                     -- pick_up_fragment,if=talent.demonic_appetite.enabled&fury.deficit>=30
                     if talent.demonicAppetite and powerDeficit >= 30 then
                         ChatOverlay("Low Fury - Collect Fragments!")
-                    end 
+                    end
             -- Vengeful Retreat
                     -- vengeful_retreat,if=(talent.prepared.enabled|talent.momentum.enabled)&buff.prepared.down&buff.momentum.down
                     if mode.mover == 1 and (talent.prepared or talent.momentum) and not buff.prepared.exists and not buff.momentum.exists and getDistance("target") < 5 then
@@ -627,12 +627,12 @@ local function runRotation()
                         elseif mode.mover == 2 and charges.felRush > 0 then
                             if cast.vengefulRetreat() then return end
                         end
-                    end                
+                    end
             -- Fel Rush
                     -- fel_rush,animation_cancel=1,if=(talent.momentum.enabled|talent.fel_mastery.enabled)&(!talent.momentum.enabled|(charges=2|cooldown.vengeful_retreat.remains>4)&buff.momentum.down)&(!talent.fel_mastery.enabled|fury.deficit>=25)&(charges=2|(raid_event.movement.in>10&raid_event.adds.in>10))
-                    if mode.mover == 1 and getFacing("player","target",10) 
-                        and (talent.momentum or talent.felMastery) and (not talent.momentum or (charges.felRush == 2 or cd.vengefulRetreat > 4) and not buff.momentum.exists) 
-                        and (not talent.felMastery or powerDeficit >= 25) and (charges.felRush == 2 or (moveIn > charges.felRush * 10 and addsIn > 10)) 
+                    if mode.mover == 1 and getFacing("player","target",10)
+                        and (talent.momentum or talent.felMastery) and (not talent.momentum or (charges.felRush == 2 or cd.vengefulRetreat > 4) and not buff.momentum.exists)
+                        and (not talent.felMastery or powerDeficit >= 25) and (charges.felRush == 2 or (moveIn > charges.felRush * 10 and addsIn > 10))
                     then
                         if mode.mover == 1 and getDistance("target") < 5 then
                             cancelRushAnimation()
@@ -642,7 +642,7 @@ local function runRotation()
                     end
             -- Fel Barrage
                     -- fel_barrage,if=charges>=5&(buff.momentum.up|!talent.momentum.enabled)&(active_enemies>desired_targets|raid_event.adds.in>30)
-                    if charges.felBarrage >= 5 and (buff.momentum.exists or not talent.momentum) and (#enemies.yards20 > getOptionValue("Eye Beam Targets") or addsIn > 30) then
+                    if charges.felBarrage >= 5 and (buff.momentum.exists or not talent.momentum) and (#enemies.yards20 >= 1 or addsIn > 30) then
                         if cast.felBarrage(units.dyn5) then return end
                     end
             -- Throw Glaive
@@ -653,7 +653,7 @@ local function runRotation()
             -- Fury of the Illidari
                     -- fury_of_the_illidari,if=active_enemies>desired_targets|raid_event.adds.in>55&(!talent.momentum.enabled|buff.momentum.up)
                     if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()) and getDistance("target") < 5 then
-                        if #enemies.yards8 > getOptionValue("Eye Beam Targets") or addsIn > 55 and (not talent.momentum or buff.momentum.exists) then
+                        if #enemies.yards8 >= 1 or addsIn > 55 and (not talent.momentum or buff.momentum.exists) then
                             if cast.furyOfTheIllidari() then return end
                         end
                     end
@@ -735,10 +735,10 @@ local function runRotation()
                     end
             -- Demon's Bite
                     -- demons_bite
-                    if cast.demonsBite() then return end 
+                    if cast.demonsBite() then return end
             -- Throw Glaive
                     -- throw_glaive,if=buff.out_of_range.up|buff.raid_movement.up
-                    if getDistance("target") >= 15 then 
+                    if getDistance("target") >= 15 then
                         if cast.throwGlaive("target") then return end
                     end
             -- Felblade
@@ -769,8 +769,8 @@ local function runRotation()
                     -- if IsSwitchOn(Vaulted) and not WasLastSpell(VengefulRetreat)
                     if actionList_PostVengeful() then return end
             -- Vengeful Retreat
-                    -- if (HasTalent(Prepared) or HasTalent(Momentum)) and 
-                    -- ((CooldownSecRemaining(FelRush) <= GlobalCooldownSec or (CanUse(EyeBeam) and CooldownSecRemaining(FelRush) < SpellChannelTimeSec(EyeBeam))) or 
+                    -- if (HasTalent(Prepared) or HasTalent(Momentum)) and
+                    -- ((CooldownSecRemaining(FelRush) <= GlobalCooldownSec or (CanUse(EyeBeam) and CooldownSecRemaining(FelRush) < SpellChannelTimeSec(EyeBeam))) or
                     -- (HasTalent(Felblade) and CooldownSecRemaining(Felblade) <= GlobalCooldownSec or (CanUse(EyeBeam) and CooldownSecRemaining(Felblade) < SpellChannelTimeSec(EyeBeam))))
                     if mode.mover == 1 and (talent.prepared or talent.momentum) and ((cd.felRush <= gcd or (castable.eyeBeam and cd.felRush < eyeBeamCastRemain())) or (talent.felblade and cd.felblade <= gcd or (castable.eyeBeam and cd.felblade < eyeBeamCastRemain()))) and getDistance("target") < 5 then
                         if mode.mover == 1 then

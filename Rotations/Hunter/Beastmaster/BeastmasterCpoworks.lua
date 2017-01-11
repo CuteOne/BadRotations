@@ -69,6 +69,10 @@ local function createOptions()
             br.ui:createCheckbox(section,"Bestial Wrath")
         -- Trueshot
             br.ui:createCheckbox(section,"Aspect of the Wild")
+        -- Stampede
+            br.ui:createCheckbox(section,"Stampede")
+        -- A Murder of Crows / Barrage
+            br.ui:createCheckbox(section,"A Murder Of Crows / Barrage")
         br.ui:checkSectionState(section)
     -- Defensive Options
         section = br.ui:createSection(br.ui.window.profile, "Defensive")
@@ -131,7 +135,7 @@ local function runRotation()
 --------------
 --- Locals ---
 --------------
-        local addsExist                                     = false 
+        local addsExist                                     = false
         local addsIn                                        = 999
         local animality                                     = false
         local artifact                                      = br.player.artifact
@@ -162,7 +166,7 @@ local function runRotation()
         local mode                                          = br.player.mode
         local multidot                                      = (br.player.mode.cleave == 1 or br.player.mode.rotation == 2) and br.player.mode.rotation ~= 3
         local multishotTargets                              = getEnemies("pet",8)
-        local perk                                          = br.player.perk        
+        local perk                                          = br.player.perk
         local php                                           = br.player.health
         local playerMouse                                   = UnitIsPlayer("mouseover")
         local potion                                        = br.player.potion
@@ -178,7 +182,7 @@ local function runRotation()
         local ttd                                           = getTTD
         local ttm                                           = br.player.power.ttm
         local units                                         = br.player.units
-        
+
         -- BeastCleave 118445
         local beastCleaveTimer                              = getBuffDuration("pet", 118445)
 
@@ -238,7 +242,7 @@ local function runRotation()
                         PetStopAttack()
                     end
                 end
-            
+
         end
     -- Action List - Extras
         local function actionList_Extras()
@@ -253,12 +257,16 @@ local function runRotation()
                     end
                 end
             end -- End Dummy Test
-
+        -- Volley
+        -- Should be active all the time
+            if talent.volley and not buff.volley.exists then
+                if cast.volley() then return end
+            end
             --Misdirection
             -- if getSpellCD(34477) <= 0.1 then
             --     if UnitThreatSituation("player", "target") ~= nil and UnitAffectingCombat("player") then
-            --         for i = 1, #br.friend do        
-            --             if (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and UnitAffectingCombat(br.friend[i].unit) then 
+            --         for i = 1, #br.friend do
+            --             if (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and UnitAffectingCombat(br.friend[i].unit) then
             --                 if UnitChecks(br.friend[i].unit) then
             --                     CastSpellByName(GetSpellInfo(34477),br.friend[i].unit)
             --                 end
@@ -271,8 +279,8 @@ local function runRotation()
         local function actionList_Defensive()
             if useDefensive() then
         -- Pot/Stoned
-                if isChecked("Pot/Stoned") and php <= getOptionValue("Pot/Stoned") 
-                    and inCombat and (hasHealthPot() or hasItem(5512)) 
+                if isChecked("Pot/Stoned") and php <= getOptionValue("Pot/Stoned")
+                    and inCombat and (hasHealthPot() or hasItem(5512))
                 then
                     if canUse(5512) then
                         useItem(5512)
@@ -289,8 +297,8 @@ local function runRotation()
                     end
                 end
         -- Engineering: Shield-o-tronic
-                if isChecked("Shield-o-tronic") and php <= getOptionValue("Shield-o-tronic") 
-                    and inCombat and canUse(118006) 
+                if isChecked("Shield-o-tronic") and php <= getOptionValue("Shield-o-tronic")
+                    and inCombat and canUse(118006)
                 then
                     useItem(118006)
                 end
@@ -310,27 +318,31 @@ local function runRotation()
 	        -- Counter Shot
                 if isChecked("Counter Shot") then
                     for i=1, #enemies.yards40 do
-                        thisUnit = enemies.yards40[i]
+                    thisUnit = enemies.yards40[i]
                         if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
                             if cast.counterShot(thisUnit) then return end
-			end
+                        end
                     end
                 end
-                -- Intimidation
+            -- Intimidation
                 if isChecked("Intimidation") and talent.intimidation and cd.intimidation == 0 and
                 UnitExists("pet") and (UnitIsDead("pet") ~= nil or UnitIsDead("pet") == false) then
                     for i=1, #enemies.yards40 do
-			thisUnit = enemies.yards40[i]
-			if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
+                    thisUnit = enemies.yards40[i]
+                        if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
                             if cast.intimidation(thisUnit) then return end
-			end
+                        end
                     end
-		end
+                end
             end -- End useInterrupts check
         end -- End Action List - Interrupts
     -- Action List - Cooldowns
         local function actionList_Cooldowns()
             if useCDs() then
+                -- Blood Elf Arcane Torrent on focus deficit (SimC)
+                if isChecked("Racial") and (br.player.race == "BloodElf") and powerDeficit >= 30 then
+                     if castSpell("player",racial,false,false,false) then return end
+                end
                 if buff.bestialWrath.exists then
                     -- Trinkets
                     if isChecked("Trinkets") then
@@ -346,19 +358,26 @@ local function runRotation()
                         useItem(agiPot);
                         return true
                     end
-                    -- Racial: Orc Blood Fury | Troll Berserking | Blood Elf Arcane Torrent
-                    if isChecked("Racial") and (br.player.race == "Orc" or br.player.race == "Troll" or br.player.race == "BloodElf") then
+                    -- Racial: Orc Blood Fury | Troll Berserking
+                    if isChecked("Racial") and (br.player.race == "Orc" or br.player.race == "Troll") then
                          if castSpell("player",racial,false,false,false) then return end
                     end
+                    -- Aspect of the Wild
+                    if isChecked("Aspect of the Wild") then
+                        if cast.aspectOfTheWild() then return end
+                    end
+                    -- Stampede
+                    if isChecked("Stampede") then
+                        if cast.stampede(units.dyn40) then return end
+                    end
+                end
+                -- A Murder of Crows
+                if isChecked("A Murder Of Crows / Barrage") then
+                    if cast.aMurderOfCrows(units.dyn40) then return end
                 end
                 -- Bestial Wrath
                 if isChecked("Bestial Wrath") then
-                    if cast.bestialWrath(units.dyn40) then return end
-                end
-                -- Aspect of the Wild
-                -- if PowerToMax >= 30
-                if isChecked("Aspect of the Wild") and powerDeficit >= 30 then
-                    if cast.aspectOfTheWild(units.dyn40) then return end
+                    if cast.bestialWrath() then return end
                 end
             end -- End useCooldowns check
         end -- End Action List - Cooldowns
@@ -368,16 +387,6 @@ local function runRotation()
             -- if PetCount(DireBeast) > 0 or HasTalent(DireFrenzy)
             if buff.direBeast.exists or talent.direfrenzy then
                 if cast.titansThunder(units.dyn40) then return end
-            end
-            -- Stampede
-            -- if HasBuff(BestialWrath)
-            if buff.bestialWrath.exists then
-                if cast.stampede(units.dyn40) then return end
-            end
-            -- A Murder of Crows
-            -- if HasBuff(BestialWrath)
-            if buff.bestialWrath.exists then
-                if cast.aMurderOfCrows(units.dyn40) then return end
             end
             -- Dire Frenzy
             -- if CooldownSecRemaining(BestialWrath) > 7.5
@@ -464,7 +473,7 @@ local function runRotation()
             if actionList_Defensive() then return end
 -----------------
 --- Pet Logic ---
------------------             
+-----------------
             if actionList_PetManagement() then return end
 --------------------------
 --- In Combat Rotation ---
@@ -478,17 +487,59 @@ local function runRotation()
     --- SimulationCraft APL ---
     ---------------------------
                     if getOptionValue("APL Mode") == 1 then
-
+                -- Start Attack
+                        if getDistance(units.dyn40) < 40 then
+                            StartAttack()
+                        end
+                -- A Murder of Crows
+                -- Should always be used
+                        if isChecked("A Murder Of Crows / Barrage") then
+                            if cast.aMurderOfCrows(units.dyn40) then return end
+                        end
+                -- DireBeast
+                        if cd.bestialWrath > 3 then
+                            if cast.direBeast(units.dyn40) then return end
+                        end
+                -- DireFrenzy
+                        if cd.bestialWrath > 6 then
+                            if cast.direfrenzy(units.dyn40) then return end
+                        end
+                -- Barrage
+                        if isChecked("A Murder Of Crows / Barrage") and #multishotTargets > 1 then
+                            if cast.barrage(units.dyn40) then return end
+                        end
+                -- Titans Thunder
+                        if talent.direfrenzy or cd.direBeast >= 3 or (buff.bestialWrath.exists and buff.direBeast.exists) then
+                            if cast.titansThunder(units.dyn40) then return end
+                        end
+                -- Bestial Wrath
+                -- Should always be used
+                        if isChecked("Bestial Wrath") then
+                            if cast.bestialWrath() then return end
+                        end
+                -- Multi Shot
+                        if #multishotTargets > 4 and (beastCleaveTimer <= gcd * 2 ) then
+                            if cast.multiShot(units.dyn40) then return end
+                        end
+                -- Kill Command
+                        if cast.killCommand(units.dyn40) then return end
+                -- Multi Shot
+                        if #multishotTargets > 1 and (beastCleaveTimer <= gcd) then
+                            if cast.multiShot(units.dyn40) then return end
+                        end
+                -- Chimaera Shot
+                        if power < 90 then
+                            if cast.chimaeraShot(units.dyn40) then return end
+                        end
+                -- Cobra Shot
+                        if power > 70 - powerRegen * cd.killCommand and power > 70 - powerRegen * cd.bestialWrath or (buff.bestialWrath.exists and powerRegen * cd.killCommand > 30) then
+                            if cast.cobraShot(units.dyn40) then return end
+                        end
                     end -- End SimC APL
     ------------------------
     --- Ask Mr Robot APL ---
     ------------------------
                     if getOptionValue("APL Mode") == 2 then
-                        -- Volley
-                        -- If you take Volley, you do more damage by leaving it on all the time.
-                        if talent.volley and not buff.volley.exists then
-                            if cast.volley(units.dyn40) then return end
-                        end
                         -- Cooldowns
                         -- if HasBuff(BestialWrath)
                         -- Bestial Wrath
