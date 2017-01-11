@@ -105,7 +105,7 @@ Raidable means if its good to raid with.
 | **Monk** |||
 |Brewmaster|0%||7.0|
 |Mistweaver|70%|Cpoworks/Svs/Zu|7.1|:heavy_check_mark:
-|Windwalker|100% (SimC/AMR)|CuteOne|7.1|:white_check_mark:
+|Windwalker|100% (SimC/AMR)|CuteOne|7.1.5|:white_check_mark:
 ||||
 | **Paladin** |||
 |Holy|0%||7.0|
@@ -135,4 +135,4 @@ Raidable means if its good to raid with.
 | **Warrior** |||
 |Arms|100%|CuteOne|7.1|:white_check_mark:
 |Fury|100%|CuteOne|7.1|:interrobang:
-|Protection|100%|CuteOne|7.1|:white_check_mark:
+|Protection|100%|CuteOne|7.1.5|:white_check_mark:
