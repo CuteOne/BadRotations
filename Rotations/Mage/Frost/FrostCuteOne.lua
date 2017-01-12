@@ -404,7 +404,7 @@ local function runRotation()
                 -- augmentation,type=defiled
             -- Water Elemental
                 -- water_elemental
-                if not hasPet then
+                if not hasPet and not talent.lonelyWinter then
                 --  print("We have no Out of Combat pet ")
                   CastSpellByName("Summon Water Elemental", "")
                 --  if cast.summonPet("notarget") then end
@@ -450,7 +450,7 @@ local function runRotation()
 --- Out of Combat Rotation ---
 ------------------------------
             if actionList_PreCombat() then
-                if not hasPet then
+                if not hasPet and not talent.lonelyWinter then
                 -- print("we have no pet ")
                 CastSpellByName("Summon Water Elemental", "")
                 end
@@ -592,7 +592,7 @@ local function runRotation()
      -------------- CD'S END -------------------------
             -- Frost bolt w/ Water Jet (AMR)
                     -- Frostbolt if IsPetCasting(PetWaterElemental, WaterJet)
-                    if UnitChannelInfo("Pet") then
+                    if UnitChannelInfo("Pet") and not talent.lonelyWinter then
                         if debug == true then Print("Casting Frostbolt because water jet is chanelling") end
                         if castable.frostbolt then
                           wjfrostCount = wjfrostCount + 1
@@ -606,7 +606,7 @@ local function runRotation()
              -- Water Jet (AMR)
                     -- water_jet,if=prev_gcd.frostbolt&buff.fingers_of_frost.stack<(2+artifact.icy_hand.enabled)&buff.brain_freeze.react=0
                     -- WaterJet if BuffStack(FingersOfFrost) < BuffMaxStack(FingersOfFrost) and WasLastCast(Frostbolt) and not HasBuff(BrainFreeze) and not HasTalent(GlacialSpike)
-                    if buff.fingersOfFrost.stack < (2 + iceHand) and lastSpellCast == spell.frostbolt and not buff.brainFreeze.exists and not talent.glacialSpike then
+                    if not talent.lonelyWinter and buff.fingersOfFrost.stack < (2 + iceHand) and lastSpellCast == spell.frostbolt and not buff.brainFreeze.exists and not talent.glacialSpike then
                         if CastPetAction(6,"target") then return end
                             if UnitChannelInfo("Pet") then
                                 wjCount = wjCount + 1
@@ -634,11 +634,6 @@ local function runRotation()
                             if debug == true then Print(dt .. "|cff00ccff|  " .. "|cffFFFFFF " .. " Casting Flurry  " .. "   #:  ".. flurryCount) end
                           end
                         end
-                    end
-            -- Frozen Touch (AMR)
-                    -- FrozenTouch if BuffStack(FingersOfFrost) < BuffMaxStack(FingersOfFrost) - 2
-                    if buff.fingersOfFrost.stack <= (2+iceHand)-2 then
-                        if cast.frozenTouch() then return end
                     end
             -- Frost Bomb
                     -- Frost bomb, if Frost bomb is not up on the target. and we have 2 fingersOfFrost
