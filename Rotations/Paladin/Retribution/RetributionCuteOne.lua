@@ -187,7 +187,7 @@ local function runRotation()
         local solo          = GetNumGroupMembers() == 0
         local spell         = br.player.spell
         local talent        = br.player.talent
-        local ttd           = getTTD(units.dyn5)
+        local ttd           = getTTD(br.player.units.dyn5)
         local units         = br.player.units           
 
         if profileStop == nil then profileStop = false end
