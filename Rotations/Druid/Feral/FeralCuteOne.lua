@@ -575,7 +575,7 @@ local function runRotation()
     -- Action List - SBTOpener
         local function actionList_SBTOpener()
         -- Regrowth
-            -- healing_touch,if=talent.bloodtalons.enabled&combo_points=5&!buff.bloodtalons.up&!dot.rip.ticking
+            -- regrowth,if=talent.bloodtalons.enabled&combo_points=5&!buff.bloodtalons.up&!dot.rip.ticking
             if talent.sabertooth and combo == 5 and not buff.bloodtalons.exists and not debuff.rip[units.dyn5].exists then
                 if getOptionValue("Auto Heal")==1 and getDistance(br.friend[1].unit) < 40 then
                     if cast.regrowth(br.friend[1].unit) then return end
@@ -593,10 +593,10 @@ local function runRotation()
     -- Action List - Finisher
         local function actionList_Finisher()
         -- Finisher Condition
-            -- combo_points=5&(energy.time_to_max<1|buff.berserk.up|buff.incarnation.up|buff.elunes_guidance.up|cooldown.tigers_fury.remains<3|set_bonus.tier18_4pc|buff.clearcasting.react|talent.soul_of_the_forest.enabled|!dot.rip.ticking|(dot.rake.remains<1.5&spell_targets.swipe_cat<6))
+            -- combo_points=5&(energy.time_to_max<1|buff.berserk.up|buff.incarnation.up|buff.elunes_guidance.up|cooldown.tigers_fury.remains<3|set_bonus.tier18_4pc|(buff.clearcasting.react&energy>65)|talent.soul_of_the_forest.enabled|!dot.rip.ticking|(dot.rake.remains<1.5&spell_targets.swipe_cat<6))
             if debuff.rip[units.dyn5] ~= nil and debuff.rake[units.dyn5] ~= nil then
                 if combo == 5 and (ttm < 1 or buff.berserk.exists or buff.incarnationKingOfTheJungle.exists or buff.elunesGuidance.exists or cd.tigersFury < 3 or t18_4pc
-                    or buff.clearcasting.exists or talent.soulOfTheForest or not debuff.rip[units.dyn5].exists or (debuff.rake[units.dyn5].remain < 1.5 and #enemies.yards8 < 6))
+                    or (buff.clearcasting.exists and power < 65) or talent.soulOfTheForest or not debuff.rip[units.dyn5].exists or (debuff.rake[units.dyn5].remain < 1.5 and #enemies.yards8 < 6))
                 then
                     fatality = true
                 end
@@ -674,6 +674,7 @@ local function runRotation()
             end
         -- Swipe
             -- swipe_cat,if=combo_points=5&(spell_targets.swipe_cat>=6|(spell_targets.swipe_cat>=3&!talent.bloodtalons.enabled))&$(fb_finisher_conditions)
+            -- swipe_cat,if=combo_points=5&(spell_targets.swipe_cat>=6|(spell_targets.swipe_cat>=3&!talent.bloodtalons.enabled))&
             if useAoE() then
                 if combo == 5 and (#enemies.yards8 >= 6 or (#enemies.yards8 >= 3 and not talent.bloodtalons)) and animality then
                     if cast.swipe("player") then return end
@@ -698,7 +699,7 @@ local function runRotation()
                 end
             end
         -- Ashamane's Frenzy
-            -- if=combo_points<=2&buff.elunes_guidance.down&(buff.bloodtalons.up|!talent.bloodtalons.enabled)&(buff.savage_roar.up|!talent.savage_roar.enabled)
+            -- ashamanes_frenzy,if=combo_points<=2&buff.elunes_guidance.down&(buff.bloodtalons.up|!talent.bloodtalons.enabled)&(buff.savage_roar.up|!talent.savage_roar.enabled)
             if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()) then
                 if combo <= 2 and not buff.elunesGuidance.exists and (buff.bloodtalons.exists or not talent.bloodtalons) and (buff.savageRoar.exists or not talent.savageRoar) then
                     if cast.ashamanesFrenzy(units.dyn5) then return end
