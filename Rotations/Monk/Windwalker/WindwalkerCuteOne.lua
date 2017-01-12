@@ -911,7 +911,7 @@ local function runRotation()
                 end
         -- Racial - Arcane Torrent
                 -- arcane_torrent,if=chiMax-chi>=1&energy.time_to_max>=0.
-                if chiMax >= chi and ttm >= 0.5 and isChecked("Racial") and race == "BloodElf" then
+                if chiMax >= chi and ttm >= 0.5 and isChecked("Racial") and race == "BloodElf" and getSpellCD(racial) == 0 then
                     if castSpell("player",racial,false,false,false) then return end
                 end
         -- Call Action List - Cooldowns
@@ -1157,7 +1157,7 @@ local function runRotation()
                             end
                         end
         -- Racial: Orc Blood Fury | Troll Berserking | Blood Elf Arcane Torrent
-                        if (br.player.race == "Orc" or br.player.race == "Troll" or br.player.race == "BloodElf") then
+                        if (br.player.race == "Orc" or br.player.race == "Troll" or br.player.race == "BloodElf") and getSpellCD(racial) == 0 then
                             if castSpell("player",racial,false,false,false) then return end
                         end
         -- Legendary Ring
