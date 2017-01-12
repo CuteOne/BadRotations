@@ -100,7 +100,7 @@ Raidable means if its good to raid with.
 | **Mage** |||
 |Arcane|0%||7.0|
 |Fire|100%|CuteOne|7.1|:interrobang:
-|Frost|100%||7.1|:interrobang:
+|Frost|100%|CuteOne/dbtftw|7.1.5|:interrobang:
 ||||
 | **Monk** |||
 |Brewmaster|0%||7.0|
@@ -110,7 +110,7 @@ Raidable means if its good to raid with.
 | **Paladin** |||
 |Holy|0%||7.0|
 |Protection|0%||7.0|
-|Retribution|100%|CuteOne|7.1|:interrobang:
+|Retribution|100%|CuteOne|7.1.5|:interrobang:
 ||||
 | **Priest** |||
 |Discipline|70%|Cpoworks/Svs|7.1|:heavy_check_mark:

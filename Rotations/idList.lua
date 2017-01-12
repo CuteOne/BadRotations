@@ -1330,7 +1330,7 @@ br.idList = {
                 bladeOfJustice              = 184575,
                 cleanseToxins               = 213644,
                 consecration                = 205228,
-                crusade                     = 224668,
+                crusade                     = 231895,
                 divineHammer                = 198034,
                 divineStorm                 = 53385,
                 executionSentence           = 213757,
@@ -1369,6 +1369,7 @@ br.idList = {
                 wrathOfTheAshbringer        = 186945,
             },
             buffs                           = {
+                crusade                     = 231895,
                 divinePurpose               = 223819,
                 greaterBlessingOfKings      = 203538,
                 greaterBlessingOfWisdom     = 203539,
@@ -2579,7 +2580,12 @@ br.idList = {
             artificialStamina               = 211309,
         },
         buffs                               = {
+            ancientHysteria                 = 90355,
+            bloodlust                       = 2825,
+            heroism                         = 32182,
+            netherwinds                     = 160452,
             shadowmeld                      = 58984,
+            timeWarp                        = 80353,
         },
     },
     ClassTemplate = {
