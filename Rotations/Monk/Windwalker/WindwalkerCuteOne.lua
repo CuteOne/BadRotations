@@ -280,7 +280,7 @@ local function runRotation()
         -- ChatOverlay("Mark Count: "..markOfTheCraneCount..", Num Enemies: "..#enemies.yards5..", Mark %: "..markPercent)
         -- ChatOverlay("Mark of the Crane Remain: "..getDebuffRemain("target",spell.debuffs.markOfTheCrane,"player"))
 
-        -- if buff.stacks.hitCombo == 8 then maxCombo = true else maxCombo = false end
+        -- if buff.hitCombo.stack == 8 then maxCombo = true else maxCombo = false end
         -- if inCombat and maxCombo then 
         --     maxComboReached = true 
         -- elseif not inCombat or (maxComboReached and not maxCombo) then
@@ -478,7 +478,7 @@ local function runRotation()
         -- Racial - Blood Fury / Berserking
                 -- blood_fury
                 -- berserking
-                if isChecked("Racial") and (race == "Orc" or race == "Troll") then
+                if isChecked("Racial") and (race == "Orc" or race == "Troll") and getSpellCD(racial) == 0 then
                     if castSpell("player",racial,false,false,false) then return end
                 end
         -- Touch of Death
@@ -805,7 +805,7 @@ local function runRotation()
             end
         -- Racial - Arcane Torrent
             -- arcane_torrent,if=chiMax-chi>=1&energy.time_to_max>=0.5
-            if chiMax >= chi and ttm >= 0.5 and isChecked("Racial") and race == "BloodElf" and getDistance("target") < 5 then
+            if chiMax >= chi and ttm >= 0.5 and isChecked("Racial") and race == "BloodElf" and getSpellCD(racial) == 0 and getDistance("target") < 5 then
                 if castSpell("player",racial,false,false,false) then return end
             end
         -- Strike of the Windlord
