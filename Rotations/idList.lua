@@ -123,6 +123,7 @@ br.idList = {
                 killingMachine              = 51124,
                 obliteration                = 207256,
                 pillarOfFrost               = 51271,
+                remorselessWinter           = 196770,
                 rime                        = 59052,
             },
             debuffs                         = {
