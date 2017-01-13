@@ -533,21 +533,18 @@ local function runRotation()
                     end
         -- Immolate
                     -- immolate,if=remains<=tick_time
-                    for i = 1, #enemies.yards40 do
-                        local thisUnit = enemies.yards40[i]
-                        if debuff.immolate[thisUnit] ~= nil then
-                            if debuff.immolate[thisUnit].remain <= 3 then
-                                if cast.immolate(thisUnit) then return end
-                            end
+                    if debuff.immolate[units.dyn40] ~= nil then
+                        if debuff.immolate[units.dyn40].remain <= 3 then
+                            if cast.immolate(thisUnit) then print("Immolate 1"); return end
                         end
                     end
                     -- immolate,cycle_targets=1,if=active_enemies>1&remains<=tick_time&(!talent.roaring_blaze.enabled|(!debuff.roaring_blaze.remains&action.conflagrate.charges<2))
-                    if (mode.rotation == 1 and #enemies.yards40 > 1) or mode.rotation == 2 then
-                        for i = 1, #enemies.yards40 do
-                            local thisUnit = enemies.yards40[i]
+                    if (mode.rotation == 1 and #enemies.yards10t > 1) or mode.rotation == 2 then
+                        for i = 1, #enemies.yards10t do
+                            local thisUnit = enemies.yards10t[i]
                             if isValidUnit(thisUnit) and debuff.immolate[thisUnit] ~= nil and debuff.roaringBlaze[thisUnit] ~= nil then
                                 if debuff.immolate[thisUnit].remain <= 3 and (not talent.roaringBlaze or (not debuff.roaringBlaze[thisUnit].exists and charges.conflagrate < 2)) then
-                                    if cast.immolate(thisUnit) then return end
+                                    if cast.immolate(thisUnit) then print("Immolate 2"); return end
                                 end
                             end
                         end
@@ -557,7 +554,7 @@ local function runRotation()
                         if talent.roaringBlaze and debuff.roaringBlaze[units.dyn40].remain <= debuff.roaringBlaze[units.dyn40].duration and not debuff.roaringBlaze[units.dyn40].exists 
                             and ttd(units.dyn40) > 10 and (charges.conflagrate == 2 or (charges.conflagrate >= 1 and recharge.conflagrate < getCastTime(spell.conflagrate) + gcd) or ttd(units.dyn40) < 24) 
                         then
-                            if cast.immolate(units.dyn40) then return end
+                            if cast.immolate(units.dyn40) then print("Immolate 3"); return end
                         end
                     end 
         -- Racial: Orc Blood Fury | Troll Berserking | Blood Elf Arcane Torrent

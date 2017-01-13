@@ -363,7 +363,7 @@ local function runRotation()
             end
         -- Howling Blast
             -- howling_blast,if=buff.rime.react&(dot.remorseless_winter.ticking|cooldown.remorseless_winter.remains>1.5|!equipped.132459)
-            if buff.rime.exists and (debuff.remorselessWinter[units.dyn5].exists or cd.remorselessWinter > 1.5 or not hasEquiped(132459)) then
+            if buff.rime.exists and (buff.remorselessWinter.exists or cd.remorselessWinter > 1.5 or not hasEquiped(132459)) then
                 if cast.howlingBlast() then return end
             end
         -- Frost Strike
