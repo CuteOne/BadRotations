@@ -171,6 +171,7 @@ local function runRotation()
         local php               = br.player.health
         local power             = br.player.power
         local pullTimer         = br.DBM:getPulltimer()
+        local racial            = br.player.getRacial()
         local runicPower        = br.player.power.amount.runicPower
         local runicPowerDeficit = br.player.power.runicPower.deficit
         local runes             = br.player.power.runes.frac
@@ -291,10 +292,10 @@ local function runRotation()
                 -- arcane_torrent,if=runic_power.deficit>20
                 -- blood_fury,if=buff.pillar_of_frost.up
                 -- berserking,if=buff.pillar_of_frost.up
-                if ((br.player.race == "Troll" or br.player.race == "Orc") and buff.pillarOfFrost.exist) 
-                    or (br.player.race == "BloodElf" and runicPowerDeficit > 20) 
+                if (((br.player.race == "Troll" or br.player.race == "Orc") and buff.pillarOfFrost.exist) 
+                    or (br.player.race == "BloodElf" and runicPowerDeficit > 20)) and getSpellCD(racial) == 0 
                 then
-                    if br.player.castRacial() then return end
+                    if castSpell("player",racial,false,false,false) then return end
                 end
         -- Potion
                 -- potion,name=old_war,if=buff.pillar_of_frost.up
