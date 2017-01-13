@@ -715,7 +715,7 @@ local function runRotation()
         -- Life Tap
                     -- mana_tap,if=buff.mana_tap.remains<=buff.mana_tap.duration*0.3&(mana.pct<20|buff.mana_tap.remains<=action.chaos_bolt.cast_time)&target.time_to_die>buff.mana_tap.duration*0.3
                     -- life_tap,if=talent.empowered_life_tap.enabled&buff.empowered_life_tap.remains<duration*0.3
-                    if talent.empoweredLifeTap and buff.improvedLifeTap.refresh then
+                    if talent.empoweredLifeTap and buff.empoweredLifeTap.refresh then
                         if cast.lifeTap() then return end
                     end
         -- Cataclysm
