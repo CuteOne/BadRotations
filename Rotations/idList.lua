@@ -118,6 +118,7 @@ br.idList = {
             buffs                           = {
                 breathOfSindragosa          = 152279,
                 darkSuccor                  = 101568,
+                hungeringRuneWeapon         = 207127,
                 icyTalons                   = 194879,
                 killingMachine              = 51124,
                 obliteration                = 207256,

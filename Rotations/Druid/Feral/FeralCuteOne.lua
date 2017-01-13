@@ -524,7 +524,7 @@ local function runRotation()
 		-- Trinkets
                 -- TODO: if=(buff.tigers_fury.up&(target.time_to_die>trinket.stat.any.cooldown|target.time_to_die<45))|buff.incarnation.remains>20
 				if useCDs() and isChecked("Trinkets") and getDistance(units.dyn5) < 5 then
-                    if (buff.tigersFury.exists and (ttd(units.dyn5) > 60 or ttd(units.dyn5) < 45)) or buff.incarnationKingOfTheJungle.remain > 20 then
+                    if (buff.tigersFury.exists and (ttd(units.dyn5) > 60 or ttd(units.dyn5) < 45 or isDummy(units.dyn5))) or buff.incarnationKingOfTheJungle.remain > 20 then
 						if canUse(13) then
 							useItem(13)
 						end
@@ -659,7 +659,7 @@ local function runRotation()
                     if (multidot or (UnitIsUnit(thisUnit,units.dyn5) and not multidot)) then
                         if getDistance(thisUnit) < 5 then
                             if (rip.remain == 0 or (rip.remain < 8 and getHP(thisUnit) > 25 and not talent.sabertooth)
-                                or rip.calc > rip.applied) and ttd(thisUnit) - rip.remain > rpTick * 4 and fatality
+                                or rip.calc > rip.applied) and (ttd(thisUnit) - rip.remain > rpTick * 4 or isDummy()) and fatality
                             then
                                if cast.rip(thisUnit) then return end
                             end
@@ -765,7 +765,7 @@ local function runRotation()
                     if (multidot or (UnitIsUnit(thisUnit,units.dyn5) and not multidot)) and getDistance(thisUnit) < 5 then
                         if combo < 5 and (not rake.exists or (not talent.bloodtalons and rake.refresh)
                             or (talent.bloodtalons and buff.bloodtalons.exists and ((not talent.soulOfTheForest and rake.remain <= 7) or rake.remain <= 5)
-                                and rake.calc > rake.applied * 0.80)) and ttd(thisUnit) - rake.remain > rkTick
+                                and rake.calc > rake.applied * 0.80)) and (ttd(thisUnit) - rake.remain > rkTick or isDummy(thisUnit))
                         then
                             if power <= select(1, getSpellCost(spell.rake)) then
                                 return true
@@ -784,7 +784,7 @@ local function runRotation()
                     local moonfire = debuff.moonfire[thisUnit]
                     if moonfire ~= nil then
                         if multidot or (UnitIsUnit(thisUnit,units.dyn5) and not multidot) then
-                            if combo < 5 and moonfire.remain <= 4.2 and ((ttd(thisUnit) - moonfire.remain > mfTick * 2 and not isDummy(thisUnit)) or (isDummy(thisUnit) and getDistance(thisUnit) < 8)) then
+                            if combo < 5 and moonfire.remain <= 4.2 and ((ttd(thisUnit) - moonfire.remain > mfTick * 2 or isDummy(thisUnit)) or (isDummy(thisUnit) and getDistance(thisUnit) < 8)) then
                                if cast.moonfire(thisUnit) then return end
                             end
                         end
@@ -967,7 +967,7 @@ local function runRotation()
                             if rip ~= nil then
                                 if (multidot or (UnitIsUnit(thisUnit,units.dyn5) and not multidot)) then
                                     if getDistance(thisUnit) < 5 then
-                                        if rip.remain > 0 and rip.remain < 3 and ttd(thisUnit) > 3 and (getHP(thisUnit) < 25 or talent.sabertooth) then
+                                        if rip.remain > 0 and rip.remain < 3 and (ttd(thisUnit) > 3 or isDummy(thisUnit)) and (getHP(thisUnit) < 25 or talent.sabertooth) then
                                             if cast.ferociousBite(thisUnit) then return end
                                         end
                                     end
@@ -990,9 +990,9 @@ local function runRotation()
                         end
         -- Call Action List - SBTOpener
                         -- call_action_list,name=sbt_opener,if=talent.sabertooth.enabled&time<20
-                        if talent.sabertooth and combatTime < 20 then
-                            if actionList_SBTOpener() then return end
-                        end
+                        -- if talent.sabertooth and combatTime < 20 then
+                        --     if actionList_SBTOpener() then return end
+                        -- end
         -- Regrowth
                         -- healing_touch,if=equipped.ailuro_pouncers&talent.bloodtalons.enabled&buff.predatory_swiftness.stack>1&buff.bloodtalons.down
                         if hasEquiped(137024) and talent.bloodtalons and buff.predatorySwiftness.stack > 1 and not buff.bloodtalons.exists then
