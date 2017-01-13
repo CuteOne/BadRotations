@@ -292,7 +292,7 @@ local function runRotation()
                 -- blood_fury,if=buff.pillar_of_frost.up
                 -- berserking,if=buff.pillar_of_frost.up
                 if ((br.player.race == "Troll" or br.player.race == "Orc") and buff.pillarOfFrost.exist) 
-                    or (br.player.race == "Blood Elf" and runicPowerDeficit > 20) 
+                    or (br.player.race == "BloodElf" and runicPowerDeficit > 20) 
                 then
                     if br.player.castRacial() then return end
                 end
