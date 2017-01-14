@@ -340,6 +340,11 @@ local function runRotation()
             if talent.icyTalons and buff.icyTalons.remain < 1.5 and cd.breathOfSindragosa > 6 then
                 if cast.frostStrike() then return end
             end
+        -- Remorseless Winter
+            -- remorseless_winter,if=talent.gathering_storm.enable
+            if talent.gatheringStorm then
+                if cast.remorselessWinter() then return end
+            end
         -- Howling Blast
             -- howling_blast,target_if=!dot.frost_fever.ticking
             if debuff.frostFever[units.dyn30] ~= nil and not debuff.frostFever[units.dyn30].exists then
@@ -358,8 +363,8 @@ local function runRotation()
             --     if cast.frostStrike() then return end
             -- end
         -- Remorseless Winter
-            -- remorseless_winter,if=(buff.rime.react&equipped.132459)|talent.gathering_storm.enabled
-            if (buff.rime.exists and hasEquiped(132459)) or talent.gatheringStorm then
+            -- remorseless_winter,if=buff.rime.react&equipped.132459
+            if (buff.rime.exists and hasEquiped(132459)) then
                 if cast.remorselessWinter() then return end
             end
         -- Howling Blast
@@ -401,19 +406,14 @@ local function runRotation()
                 if cast.howlingBlast() then return end
             end
         -- Remorseless Winter
-            -- remorseless_winter,if=((runic_power>=20&set_bonus.tier19_4pc)|runic_power>=30)&((buff.rime.react&!dot.hungering_rune_weapon.ticking&equipped.132459)|talent.gathering_storm.enabled)
-            if (--[[(runicPower >= 20 and tier19_4pc) or]] runicPower >= 30) and ((buff.rime.exists and not buff.hungeringRuneWeapon.exists and hasEquiped(132459)) or talent.gatheringStorm) then
+            -- remorseless_winter,if=((runic_power>=20&set_bonus.tier19_4pc)|runic_power>=30)&buff.rime.react&(equipped.132459|talent.gathering_storm.enabled)
+            if (--[[(runicPower >= 20 and tier19_4pc) or]] runicPower >= 30) and buff.rime.exists and (hasEquiped(132459) or talent.gatheringStorm) then
                 if cast.remorselessWinter() then return end
             end
         -- Howling Blast
             -- howling_blast,if=((runic_power>=20&set_bonus.tier19_4pc)|runic_power>=30)&buff.rime.react&!dot.hungering_rune_weapon.ticking
-            if (--[[(runicPower >= 20 and tier19_4pc) or]] runicPower >= 30) and buff.rime.exists and not buff.hungeringRuneWeapon.exists then
+            if (--[[(runicPower >= 20 and tier19_4pc) or]] runicPower >= 30) and buff.rime.exists then
                 if cast.howlingBlast() then return end
-            end
-        -- Frost Strike
-            -- frost_strike,if=runic_power>=95&dot.hungering_rune_weapon.ticking
-            if runicPower >= 95 and buff.hungeringRuneWeapon.exists then
-                if cast.frostStrike() then return end
             end
         -- Obliterate
             -- obliterate,if=runic_power<=70|rune>3
@@ -427,8 +427,8 @@ local function runRotation()
             end
             if isChecked("Empower/Hungering Rune Weapon") and useCDs() then
         -- Hungering Rune Weapon
-                -- hungering_rune_weapon,if=runic_power<20&!dot.hungering_rune_weapon.ticking
-                if runicPower < 20 and not buff.hungeringRuneWeapon.exists then
+                -- hungering_rune_weapon,if=runic_power<30&!dot.hungering_rune_weapon.ticking
+                if runicPower < 30 and not buff.hungeringRuneWeapon.exists then
                     if cast.hungeringRuneWeapon() then return end
                 end
         -- Empower Rune Weapon
@@ -438,8 +438,8 @@ local function runRotation()
                 end
             end
         -- Remorseless Winter
-            -- remorseless_winter,if=runic_power<20
-            if runicPower < 20 then
+            -- remorseless_winter,if=talent.gathering_storm.enabled|!set_bonus.tier19_4pc|runic_power<30
+            if talent.gatheringStorm --[[or not tier19_4pc ]]or runicPower < 20 then -- TODO: T19 Check
                 if cast.remorselessWinter() then return end
             end
         end
@@ -495,7 +495,7 @@ local function runRotation()
             end
         -- Glacial Advance
             -- glacial_advance,if=spell_targets.glacial_advance>=2
-            if ((mode.rotation == 1 and #enemies.yards10 >= 2) or mode.rotation == 2) then
+            if ((mode.rotation == 1 and #enemies.yards10 >= getOptionValue("Glacial Advance")) or mode.rotation == 2) then
                 if cast.glacialAdvance() then return end
             end
         -- Frostscythe
@@ -512,7 +512,9 @@ local function runRotation()
             if cast.obliterate() then return end
         -- Glacial Advance
             -- glacial_advance
-            if cast.glacialAdvance() then return end
+            if #enemies.yards10 >= getOptionValue("Glacial Advance") then
+                if cast.glacialAdvance() then return end
+            end
         -- Horn of Winter
             -- horn_of_winter,if=!dot.hungering_rune_weapon.ticking
             if not buff.hungeringRuneWeapon.exists then
@@ -545,6 +547,13 @@ local function runRotation()
             if buff.rime.exists and not (buff.obliteration.exists and ((mode.rotation == 1 and #enemies.yards10t < 2) or mode.rotation == 3)) then
                 if cast.howlingBlast() then return end
             end
+        -- Obliteration 
+            -- obliteration,if=(!talent.frozen_pulse.enabled|(rune<2&runic_power<28))
+            if isChecked("Obliteration") and useCDs() then
+                if not talent.frozenPulse or (runes < 2 and runicPower < 28) then
+                    if cast.obliteration() then return end
+                end
+            end
         -- Obliterate
             -- obliterate,if=rune>3|buff.killing_machine.react|buff.obliteration.up
             if runes > 3 or buff.killingMachine.exists or buff.obliteration.exists then
@@ -565,7 +574,9 @@ local function runRotation()
             end
         -- Glacial Advance
             -- glacial_advance
-            if cast.glacialAdvance() then return end
+            if #enemies.yards10 >= getOptionValue("Glacial Advance") then
+                if cast.glacialAdvance() then return end
+            end
         -- Frost Strike
             -- frost_strike
             if cast.frostStrike() then return end
@@ -640,8 +651,8 @@ local function runRotation()
                         end
                     end 
         -- Generic
-                    -- call_action_list,name=generic,if=!talent.breath_of_sindragosa.enabled
-                    if not talent.breathOfSindragosa then
+                    -- call_action_list,name=generic,if=!talent.breath_of_sindragosa.enabled&!(talent.gathering_storm.enabled&buff.remorseless_winter.remains)
+                    if not talent.breathOfSindragosa and not (talent.gatheringStorm and buff.remorselessWinder.exists) then
                         if actionList_Generic() then return end
                     end
         -- Breath of Sindragosa
@@ -656,8 +667,8 @@ local function runRotation()
                         end
                     end
         -- Gathering Storm
-                    -- call_action_list,name=gs_ticking,if=talent.gathering_storm.enabled&buff.remorseless_winter.remains
-                    if talent.gatheringStorm and buff.remorselessWinter.exists then
+                    -- call_action_list,name=gs_ticking,if=talent.gathering_storm.enabled&buff.remorseless_winter.remains&!talent.breath_of_sindragosa.enabled
+                    if talent.gatheringStorm and buff.remorselessWinter.exists and not talent.breathOfSindragosa then
                         if actionList_GatheringStormTicking() then return end
                     end 
                 end -- End Simc APL 

@@ -22,7 +22,9 @@ function br.ui:createPagesDropdown(window, menuPages)
         window:ReleaseChildren()
         window.currentPage = key
         window.currentPageName = value
-        window.pages[key][2]()
+        if key ~= nil then
+            window.pages[key][2]()
+        end
         --Print(key.." - "..tostring(value))
         br.data.settings[br.selectedSpec][br.selectedProfile]["currentPage"] = window.currentPage
     end)

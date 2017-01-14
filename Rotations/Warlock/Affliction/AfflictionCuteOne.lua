@@ -411,14 +411,14 @@ local function runRotation()
 
                     end -- End Pre-Pull
                     if isValidUnit("target") and getDistance("target") < 40 and (not isChecked("Opener") or opener == true) then
+                -- Life Tap
+                        -- life_tap,if=talent.empowered_life_tap.enabled&!buff.empowered_life_tap.remains
+                        if talent.empoweredLifeTap and not buff.empoweredLifeTap.exists then
+                            if cast.lifeTap() then return end
+                        end
                 -- Potion
                         -- potion,name=deadly_grace
                         -- TODO
-                -- Mana Tap
-                        -- mana_tap,if=talent.mana_tap.enabled&!buff.mana_tap.remains
-                        if talent.manaTap and not buff.manaTap.exists then
-                            if cast.manaTap() then return end
-                        end
                 -- Pet Attack/Follow
                         if UnitExists("target") and not UnitAffectingCombat("pet") then
                             PetAssistMode()
@@ -489,15 +489,13 @@ local function runRotation()
                         PetAttack()
                     end
         -- Reap Souls
-                    -- reap_souls,if=actions=reap_souls,if=!buff.deadwind_harvester.remains&(buff.soul_harvest.remains|buff.tormented_souls.react>=8|target.time_to_die<=buff.tormented_souls.react*5|trinket.proc.any.react)
+                    -- reap_souls,if=!buff.deadwind_harvester.remains&(buff.soul_harvest.remains|buff.tormented_souls.react>=8|target.time_to_die<=buff.tormented_souls.react*5|trinket.proc.any.react|trinket.stacking_proc.any.react)
                     if not buff.deadwindHarvester.exists and (buff.soulHarvest.exists or buff.tormentedSouls.stack >= 8 or ttd(units.dyn40) <= buff.tormentedSouls.stack * 5) then
-
                         if cast.reapSouls() then return end
                     end
         -- Soul Effigy
                     -- soul_effigy,if=!pet.soul_effigy.active
                     if not effigied then
-                        
                         if cast.soulEffigy() then return end
                     end
         -- Agony
@@ -507,7 +505,6 @@ local function runRotation()
                         local agony = debuff.agony[thisUnit]
                         if agony ~= nil then
                             if isValidUnit(thisUnit) and agony.remain <= 2 + gcd then
-                                
                                 if cast.agony(thisUnit) then return end
                             end
                         end
@@ -535,9 +532,9 @@ local function runRotation()
                         end
                     end
         -- Summon Doomguard
-                    -- summon_doomguard,if=!talent.grimoire_of_supremacy.enabled&spell_targets.summon_infernal<3&(target.time_to_die>180|target.health.pct<=20|target.time_to_die<30)
+                    -- summon_doomguard,if=!talent.grimoire_of_supremacy.enabled&spell_targets.summon_infernal<=2&(target.time_to_die>180|target.health.pct<=20|target.time_to_die<30)
                     if useCDs() and isChecked("Summon Doomguard") then
-                        if not talent.grimoireOfSupremacy and #enemies.yards8 < 3
+                        if not talent.grimoireOfSupremacy and #enemies.yards8 <= 2
                             and (ttd(units.dyn40) > 180 or getHP(units.dyn40) <= 20 or ttd(units.dyn40) < 30)
                         then
                             
@@ -545,9 +542,9 @@ local function runRotation()
                         end
                     end
         -- Summon Infernal
-                    -- summon_infernal,if=!talent.grimoire_of_supremacy.enabled&spell_targets.summon_infernal>=3
+                    -- summon_infernal,if=!talent.grimoire_of_supremacy.enabled&spell_targets.summon_infernal>2
                     if useCDs() and isChecked("Summon Infernal") then
-                        if not talent.grimoireOfSupremacy and #enemies.yards8 >= 3 then
+                        if not talent.grimoireOfSupremacy and #enemies.yards8 > 2 then
                             
                             if cast.summonInfernal() then summonTime = GetTime(); return end
                         end
@@ -562,8 +559,9 @@ local function runRotation()
                     end
         -- Summon Infernal
                     -- summon_infernal,if=talent.grimoire_of_supremacy.enabled&spell_targets.summon_infernal>=3&equipped.132379&!cooldown.sindorei_spite_icd.remains
+                    -- summon_infernal,if=talent.grimoire_of_supremacy.enabled&spell_targets.summon_infernal>1&equipped.132379&!cooldown.sindorei_spite_icd.remains
                     if useCDs() and isChecked("Summon Infernal") then
-                        if talent.grimoireOfSupremacy and #enemies.yards8 >= 3 and hasEquiped(132379) and GetTime() > summonTime + 275 then
+                        if talent.grimoireOfSupremacy and #enemies.yards8 > 1 and hasEquiped(132379) and GetTime() > summonTime + 275 then
                             
                             if cast.summonInfernal() then summonTime = GetTime(); return end
                         end
@@ -571,87 +569,144 @@ local function runRotation()
         -- Cooldowns
                     if actionList_Cooldowns() then return end
         -- Corruption
-                    -- corruption,cycle_targets=1,if=remains<=tick_time+gcd
+                    -- corruption,if=remains<=tick_time+gcd
+                    if debuff.corruption[units.dyn40] ~= nil then
+                        if debuff.corruption[units.dyn40].remain <= 2 + gcd then
+                            if cast.corruption() then return end
+                        end
+                    end
+                    -- corruption,cycle_targets=1,if=(talent.absolute_corruption.enabled|!talent.malefic_grasp.enabled|!talent.soul_effigy.enabled)&remains<=tick_time+gcd
                     for i = 1, #enemies.yards40 do
                         local thisUnit = enemies.yards40[i]
                         local corruption = debuff.corruption[thisUnit]
                         if corruptiion ~= nil then
-                            if isValidUnit(thisUnit) and ((not talent.absoluteCorruption and corruption.remain <= 2 + gcd) or (talent.absoluteCorruption and corruption.remain == 0)) then
-                                
+                            if isValidUnit(thisUnit) and (talent.absoluteCorruption or not talent.maleficGrasp or not talent.soulEffigy) and corruption.remain <= 2 + gcd then                                
                                 if cast.corruption(thisUnit) then return end
                             end
                         end
                     end
         -- Siphon Life
-                    -- siphon_life,cycle_targets=1,if=remains<=tick_time+gcd
+                    -- siphon_life,if=remains<=tick_time+gcd
+                    if debuff.siphonLife[units.dyn40] ~= nil then
+                        if debuff.siphonLife[units.dyn40].remain <= 2 + gcd then
+                            if cast.siphonLife() then return end
+                        end
+                    end
+                    -- siphon_life,cycle_targets=1,if=(!talent.malefic_grasp.enabled||!talent.soul_effigy.enabled)&remains<=tick_time+gcd
                     for i = 1, #enemies.yards40 do
                         local thisUnit = enemies.yards40[i]
                         local siphonLife = debuff.siphonLife[thisUnit]
                         if siphonLife ~= nil then
-                            if isValidUnit(thisUnit) and siphonLife.remain <= 3 + gcd then
-                                
+                            if isValidUnit(thisUnit) and (not talent.maleficGrasp or not talent.soulEffigy) and siphonLife.remain <= 2 + gcd then                                
                                 if cast.siphonLife(thisUnit) then return end
                             end
                         end
                     end
-        -- Mana Tap
-                    -- mana_tap,if=buff.mana_tap.remains<=buff.mana_tap.duration*0.3&(mana.pct<20|buff.mana_tap.remains<=gcd)&target.time_to_die>buff.mana_tap.duration*0.3
-                    if buff.manaTap.refresh and (manaPercent < 20 or buff.manaTap.remain <= gcd) and ttd(units.dyn40) > buff.manaTap.duration * 0.3 then
-                        
-                        if cast.manaTap() then return end
+        -- Life Tap
+                    -- life_tap,if=talent.empowered_life_tap.enabled&buff.empowered_life_tap.remains<=gcd
+                    if talent.empoweredLifeTap and buff.empoweredLifeTap.remain <= gcd then
+                        if cast.empoweredLifeTap() then return end
                     end
         -- Phantom Singularity
                     -- phantom_singularity
                     if castable.phantomSingularity then
-                        
                         if cast.phantomSingularity() then return end
-                    end
-        -- Unsable Affliction
-                    -- unstable_affliction,if=talent.contagion.enabled|(soul_shard>=4|trinket.proc.intellect.react|trinket.stacking_proc.mastery.react|trinket.proc.mastery.react|trinket.proc.crit.react|trinket.proc.versatility.react|buff.soul_harvest.remains|buff.deadwind_harvester.remains|buff.compounding_horror.react=5|target.time_to_die<=20)
-                    if talent.contagion or (shards >= 4 or buff.soulHarvest.exists or buff.deadwindHarvester.exists or buff.compoundingHorror.stack == 5 or ttd(units.dyn40) <= 20) then
-                        if lastSpell ~= spell.unstableAffliction then
-                            
-                            if cast.unstableAffliction() then return end
-                        end
-                    end
-        -- Agony
-                    -- agony,cycle_targets=1,if=remains<=duration*0.3&target.time_to_die>=remains
-                    for i = 1, #enemies.yards40 do
-                        local thisUnit = enemies.yards40[i]
-                        local agony = debuff.agony[thisUnit]
-                        if agony ~= nil then
-                            if isValidUnit(thisUnit) and agony.refresh and ttd(thisUnit) >= agony.remain then
-                                
-                                if cast.agony(thisUnit) then return end
-                            end
-                        end
-                    end
-        -- Corruption
-                    -- corruption,cycle_targets=1,if=remains<=duration*0.3&target.time_to_die>=remains
-                    for i = 1, #enemies.yards40 do
-                        local thisUnit = enemies.yards40[i]
-                        local corruption = debuff.corruption[thisUnit]
-                        if corruption ~= nil then
-                            if isValidUnit(thisUnit) and ((not talent.absoluteCorruption and corruption.refresh and ttd(thisUnit) >= corruption.remain) or (talent.absoluteCorruption and corruption.remain == 0)) then
-                                
-                                if cast.corruption(thisUnit) then return end
-                            end
-                        end
                     end
         -- Haunt
                     -- haunt
                     if castable.haunt then
-                        
                         if cast.haunt() then return end
                     end
+        -- Unsable Affliction
+                    -- unstable_affliction,if=talent.writhe_in_agony.enabled&talent.contagion.enabled
+                    if talent.writheInAgony and talent.contagion then
+                        if cast.unstableAffliction() then return end
+                    end
+                    -- unstable_affliction,if=talent.writhe_in_agony.enabled&(soul_shard>=4|trinket.proc.intellect.react|trinket.stacking_proc.mastery.react|trinket.proc.mastery.react|trinket.proc.crit.react|trinket.proc.versatility.react|buff.soul_harvest.remains|buff.deadwind_harvester.remains|buff.compounding_horror.react=5|target.time_to_die<=20)
+                    if talent.writheInAgony and (shards >= 4 or buff.soulHarvest.exists or buff.deadwindHarvester.exists or buff.compoundingHorror.stack == 5 or ttd(units.dyn40) <= 20) then
+                        if cast.unstableAffliction() then return end
+                    end
+                    -- unstable_affliction,if=talent.malefic_grasp.enabled&target.time_to_die<30
+                    if talent.maleficGrasp and ttd(units.dyn40) < 30 then
+                        if cast.unstableAffliction() then return end
+                    end
+                    -- unstable_affliction,if=talent.malefic_grasp.enabled&soul_shard>=4
+                    if talent.maleficGrasp and shards >= 4 then
+                        if cast.unstableAffliction() then return end
+                    end
+                    -- unstable_affliction,if=talent.malefic_grasp.enabled&!prev_gcd.3.unstable_affliction&dot.agony.remains>cast_time+6.5&(dot.corruption.remains>cast_time+6.5|talent.absolute_corruption.enabled)&(dot.siphon_life.remains>cast_time+6.5|!talent.siphon_life.enabled)
+                    if talent.maleficGrasp and lastSpell ~= spell.unstableAffliction and debuff.agony[units.dyn40].remain > getCastTime(spell.unstableAffliction) + 6.5 and (debuff.corruption[units.dyn40].remain > getCastTime(spell.unstableAffliction) + 6.5 or talent.absoluteCorruption) and (debuff.siphonLife[units.dyn40].remain > getCastTime(spell.unstableAffliction) + 6.5 or not talent.siphonLife) then
+                        if cast.unstableAffliction() then return end
+                    end
+                    -- unstable_affliction,if=talent.haunt.enabled&(soul_shard>=4|debuff.haunt.remains|target.time_to_die<30)
+                    if talent.haunt and (shards >= 4 or debuff.haunt[units.dyn40].exists or ttd(units.dyn40) < 30) then
+                        if cast.unstableAffliction() then return end
+                    end
+        -- Reap Soul
+                    -- reap_souls,if=!buff.deadwind_harvester.remains&!trinket.has_stacking_stat.any&!trinket.has_stat.any&prev_gcd.1.unstable_affliction
+                    if not buff.deadwindHarvester.exists and lastSpell == spell.unstableAffliction then
+                        if cast.reapSouls() then return end
+                    end
+        -- Life Tap
+                    -- life_tap,if=talent.empowered_life_tap.enabled&buff.empowered_life_tap.remains<duration*0.3
+                    if talent.empoweredLifeTap and buff.empoweredLifeTap.refresh then
+                        if cast.lifeTap() then return end
+                    end
+        -- Agony
+                    -- agony,cycle_targets=1,if=!talent.malefic_grasp.enabled&remains<=duration*0.3&target.time_to_die>=remains
+                    -- agony,cycle_targets=1,if=remains<=duration*0.3&target.time_to_die>=remains&!dot.unstable_affliction_1.remains&!dot.unstable_affliction_2.remains&!dot.unstable_affliction_3.remains&!dot.unstable_affliction_4.remains&!dot.unstable_affliction_5.remains
+                    for i = 1, #enemies.yards40 do
+                        local thisUnit = enemies.yards40[i]
+                        local agony = debuff.agony[thisUnit]
+                        if agony ~= nil then
+                            if isValidUnit(thisUnit) then
+                                if not talent.maleficGrasp and agony.refresh and ttd(thisUnit) >= agony.remain then
+                                    if cast.agony(thisUnit) then return end
+                                end
+                                if agony.refresh and ttd(thisUnit) >= agony.remain and not debuff.unstableAffliction[thisUnit].exists then
+                                    if cast.agony(thisUnit) then return end
+                                end
+                            end
+                        end
+                    end
+        -- Corruption
+                    if debuff.corruption[units.dyn40] ~= nil then
+                        -- corruption,if=!talent.malefic_grasp.enabled&remains<=duration*0.3&target.time_to_die>=remains
+                        if not talent.maleficGrasp and debuff.corruption[units.dyn40].refresh and ttd(units.dyn40) >= debuff.corruption[units.dyn40].remain then
+                            if cast.corruption() then return end
+                        end
+                        -- corruption,if=remains<=duration*0.3&target.time_to_die>=remains&!dot.unstable_affliction_1.remains&!dot.unstable_affliction_2.remains&!dot.unstable_affliction_3.remains&!dot.unstable_affliction_4.remains&!dot.unstable_affliction_5.remains
+                        if debuff.corruption[units.dyn40].refresh and not debuff.unstableAffliction[units.dyn40].exists then
+                            if cast.corruption() then return end
+                        end
+                    end
+                    -- corruption,cycle_targets=1,if=(talent.absolute_corruption.enabled|!talent.malefic_grasp.enabled|!talent.soul_effigy.enabled)&remains<=duration*0.3&target.time_to_die>=remains
+                    for i = 1, #enemies.yards40 do
+                        local thisUnit = enemies.yards40[i]
+                        local corruption = debuff.corruption[thisUnit]
+                        if corruption ~= nil then
+                            if isValidUnit(thisUnit) and (talent.absoluteCorruption or not talent.maleficGrasp or not talent.soulEffigy) and corruption.refresh and ttd(thisUnit) >= corruption.remain then
+                                if cast.corruption(thisUnit) then return end
+                            end
+                        end
+                    end
         -- Siphon Life
-                    -- siphon_life,cycle_targets=1,if=remains<=duration*0.3&target.time_to_die>=remains
+                    if debuff.siphonLife[units.dyn40] ~= nil then
+                        -- siphon_life,if=!talent.malefic_grasp.enabled&remains<=duration*0.3&target.time_to_die>=remains
+                        if not talent.maleficGrasp and debuff.siphonLife[units.dyn40].refresh and ttd(units.dyn40) >= debuff.siphonLife[units.dyn40].remain then
+                            if cast.siphonLife() then return end
+                        end
+                        -- siphon_life,if=remains<=duration*0.3&target.time_to_die>=remains&!dot.unstable_affliction_1.remains&!dot.unstable_affliction_2.remains&!dot.unstable_affliction_3.remains&!dot.unstable_affliction_4.remains&!dot.unstable_affliction_5.remains
+                        if debuff.siphonLife[units.dyn40].refresh and not debuff.unstableAffliction[units.dyn40].exists then
+                            if cast.siphonLife() then return end
+                        end
+                    end
+                    -- siphon_life,cycle_targets=1,if=(!talent.malefic_grasp.enabled|!talent.soul_effigy.enabled)&remains<=duration*0.3&target.time_to_die>=remains
                     for i = 1, #enemies.yards40 do
                         local thisUnit = enemies.yards40[i]
                         local siphonLife = debuff.siphonLife[thisUnit]
                         if siphonLife ~= nil then
-                            if isValidUnit(thisUnit) and siphonLife.refresh and ttd(thisUnit) >= siphonLife.remain then
-                                
+                            if isValidUnit(thisUnit) and (not talent.maleficGrasp or not talent.soulEffigy) and siphonLife.refresh and ttd(thisUnit) >= siphonLife.remain then
                                 if cast.siphonLife(thisUnit) then return end
                             end
                         end
@@ -659,7 +714,6 @@ local function runRotation()
         -- Life Tap
                     -- life_tap,if=mana.pct<=30
                     if manaPercent <= 10 and php > getOptionValue("Life Tap HP Limit") then
-                        
                         if cast.lifeTap() then return end
                     end
         -- Drain Soul
@@ -667,12 +721,6 @@ local function runRotation()
                     if not isCastingSpell(spell.drainSoul,"player") then
                         if not ObjectExists("target") then TargetUnit("target") end
                         if cast.drainSoul("target") then return end
-                    end
-        -- Drain Life
-                    -- drain_life,chain=1,interrupt=1
-                    if not isCastingSpell(spell.drainLife,"player") then
-                        if not ObjectExists("target") then TargetUnit(units.dyn40) end
-                        if cast.drainLife("target") then return end
                     end
         -- Life Tap
                     --life_tap

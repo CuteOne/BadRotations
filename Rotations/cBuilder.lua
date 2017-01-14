@@ -352,6 +352,7 @@ function br.loader:new(spec,specName)
                 local spellName = GetSpellInfo(v)
                 local minRange = select(5,GetSpellInfo(spellName))
                 local maxRange = select(6,GetSpellInfo(spellName))
+                if spellName == nil then print(v) end
                 if IsHelpfulSpell(spellName) then
                     if thisUnit == nil or not UnitIsFriend(thisUnit,"player") then 
                         thisUnit = "player"
