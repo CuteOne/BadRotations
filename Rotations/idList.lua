@@ -1815,6 +1815,7 @@ br.idList = {
             buffs                           = {
                 envelopingShadows           = 206237,
                 finalityNightblade          = 197498,
++               shadowBlades                = 121471,
                 shadowDance                 = 185422,
                 stealth                     = 115191,
                 symbolsOfDeath              = 212283,
