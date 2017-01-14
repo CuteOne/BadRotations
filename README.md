@@ -83,7 +83,7 @@ Raidable means if its good to raid with.
 |Unholy|0%||7.0|
 ||||
 | **Demon Hunter** |||
-|Havoc|100% (SimC)|CuteOne|7.1|:white_check_mark:
+|Havoc|100% (SimC)|CuteOne|7.1.5|:white_check_mark:
 |Vengeance|100% (SimC)|Dubwub/CuteOne|7.1|:white_check_mark:
 ||||
 | **Druid** |||
@@ -128,7 +128,7 @@ Raidable means if its good to raid with.
 |Restoration|0%||7.0|
 ||||
 | **Warlock** |||
-|Affliction|100%|CuteOne|7.1|:interrobang:
+|Affliction|100%|CuteOne|7.1.5|:interrobang:
 |Demonology|100%|CuteOne|7.1|:interrobang:
 |Destruction|100%|CuteOne|7.1.5|:white_check_mark:
 ||||

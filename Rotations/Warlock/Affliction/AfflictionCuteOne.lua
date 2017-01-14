@@ -579,7 +579,7 @@ local function runRotation()
                     for i = 1, #enemies.yards40 do
                         local thisUnit = enemies.yards40[i]
                         local corruption = debuff.corruption[thisUnit]
-                        if corruptiion ~= nil then
+                        if corruption ~= nil then
                             if isValidUnit(thisUnit) and (talent.absoluteCorruption or not talent.maleficGrasp or not talent.soulEffigy) and corruption.remain <= 2 + gcd then                                
                                 if cast.corruption(thisUnit) then return end
                             end
