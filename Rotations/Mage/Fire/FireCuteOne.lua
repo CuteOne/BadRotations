@@ -396,6 +396,10 @@ local function runRotation()
         end -- End ROP Phase Action List
     -- Action List - Single Target
         local function actionList_Single()
+        -- Blazing Barrier
+            if getBuffRemain("player", spell.blazingBarrier) < 1 then
+                if cast.blazingBarrier() then return end
+            end
         -- Pyroblast
             -- pyroblast,if=buff.hot_streak.up&buff.hot_streak.remains<action.fireball.execute_time
             if buff.hotStreak.exists and buff.hotStreak.remain < getCastTime(spell.fireball) then
@@ -486,7 +490,7 @@ local function runRotation()
 --------------------------
 --- In Combat Rotation ---
 --------------------------
-            if inCombat and profileStop==false and isValidUnit(units.dyn40) and getDistance(units.dyn40) < 40 then
+            if inCombat and not IsMounted() and profileStop==false and isValidUnit(units.dyn40) and getDistance(units.dyn40) < 40 then
     ------------------------------
     --- In Combat - Interrupts ---
     ------------------------------

@@ -930,6 +930,7 @@ br.idList = {
         -- Fire
         [63] = {
             abilities                       = {
+            	blazingBarrier              = 235313,
                 blastWave                   = 157981,
                 cinderstorm                 = 198929,
                 combustion                  = 190319,
@@ -951,6 +952,7 @@ br.idList = {
                 phoenixsFlames              = 194466,
             },
             buffs                           = {
+            	blazingBarrier              = 235313,
                 combustion                  = 190319,
                 heatingUp                   = 48107,
                 hotStreak                   = 48108,
