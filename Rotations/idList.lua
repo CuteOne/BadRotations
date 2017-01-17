@@ -1515,7 +1515,6 @@ br.idList = {
                 mindBlast                   = 8092,
                 mindBomb                    = 205369,
                 mindFlay                    = 15407,
-                mindSear                    = 48045,
                 mindSpike                   = 73510,
                 mindVision                  = 2096,
                 shadowCrash                 = 205385,
