@@ -1513,6 +1513,7 @@ br.idList = {
         [258] = {
             abilities                       = {
                 dispersion                  = 47585,
+                mindBender                  = 200174,
                 mindBlast                   = 8092,
                 mindBomb                    = 205369,
                 mindFlay                    = 15407,
@@ -1522,6 +1523,7 @@ br.idList = {
                 shadowform                  = 232698,
                 shadowMend                  = 186263,
                 shadowWordDeath             = 32379,
+                shadowWordPain              = 589,
                 shadowWordVoid              = 205351,
                 silence                     = 15487,
                 vampiricEmbrace             = 15286,
@@ -1547,7 +1549,8 @@ br.idList = {
 
             },
             talents                         = {
-
+                bodyAndSoul                 = 64129,
+                powerInfusion               = 10060,
             },
         },
         -- All
