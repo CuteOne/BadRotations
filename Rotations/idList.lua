@@ -1093,6 +1093,7 @@ br.idList = {
                 ironskinBrew                = 115308,
                 kegSmash                    = 121253,
                 purifyingBrew               = 119582,
+                rushingJadeWind             = 116847,
                 spearHandStrike             = 116705,
             },
             artifacts                       = {

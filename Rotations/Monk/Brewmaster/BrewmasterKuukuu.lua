@@ -458,7 +458,7 @@ local function runRotation()
             if cast.chiWave() then return end
         --  Rushing Jade Wind
             --actions.st+=/rushing_jade_wind
-        --  if cast.rushingJadeWind() then return end
+            if cast.rushingJadeWind() then return end
         --Breath of Fire
             --actions.st+=/breath_of_fire
             if cast.breathofFire() then return end
@@ -493,7 +493,7 @@ local function runRotation()
             if cast.chiWave() then return end
         --  Rushing Jade Wind
             --actions.st+=/rushing_jade_wind
-        --  if cast.rushingJadeWind() then return end
+            if cast.rushingJadeWind() then return end
         --Breath of Fire
             --actions.st+=/breath_of_fire
             if cast.breathofFire() then return end
@@ -561,7 +561,7 @@ local function runRotation()
 --- In Combat Rotation ---
 --------------------------
         -- FIGHT!
-            if inCombat and profileStop==false and isValidUnit(units.dyn5) then
+            if inCombat and not IsMounted() and profileStop==false and isValidUnit(units.dyn5) then
     ------------------
     --- Interrupts ---
     ------------------
