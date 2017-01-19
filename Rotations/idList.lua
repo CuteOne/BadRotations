@@ -759,7 +759,7 @@ br.idList = {
                 explosiveShot               = 212431,
                 feignDeath                  = 5384,
                 flare                       = 1543,
-        intimidation                = 19577,
+                intimidation                = 19577,
                 markedShot                  = 185901,
                 misdirection                = 34477,
                 multiShot                   = 2643,
@@ -801,7 +801,7 @@ br.idList = {
                 sidewinders                 = 214579,
                 piercingShot                = 198670,
                 trickShot                   = 199544,
-        intimidation                = 19577,
+                intimidation                = 19577,
             },
         },
         -- Survival

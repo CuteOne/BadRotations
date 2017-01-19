@@ -446,13 +446,8 @@ local function runRotation()
     -- Action List - Single Target
         local function actionList_SingleTarget()
             -- A Murder of Crows
-            -- if not HasBuff(HuntersMark) or (BuffRemainingSec(Vulnerable) > GlobalCooldownSec and HasBuff(HuntersMark))
-            if talent.aMurderOfCrows and debuff.huntersMark[units.dyn40].exists == false or (debuff.vulnerable[units.dyn40].remain > gcd and debuff.huntersMark[units.dyn40].exists) then
+            if talent.aMurderOfCrows and (debuff.vulnerable[units.dyn40].exists or (debuff.vulnerable[units.dyn40].remain < getCastTime(spell.aimedShot) and not buff.lockAndLoad.exists )) then
                 if cast.aMurderOfCrows(units.dyn40) then return end
-            end
-            -- Barrage
-            if talent.barrage then
-                if cast.barrage(units.dyn40) then return end
             end
             -- Piercing Shot
             -- if not HasTalent(PatientSniper) and Power > 50
@@ -463,7 +458,7 @@ local function runRotation()
             if cast.windburst(units.dyn40) then return end
             -- Aimed Shot
             -- if HasBuff(LockAndLoad) and HasBuff(Vulnerable) and HasTalent(PatientSniper)
-            if talent.patientSniper and buff.lockAndLoad.exists and debuff.vulnerable[units.dyn40].exists then
+            if buff.lockAndLoad.exists and debuff.vulnerable[units.dyn40].exists then
                 if cast.aimedShot(units.dyn40) then return end
             end
             -- Arcane Shot
@@ -483,19 +478,16 @@ local function runRotation()
             -- Aimed Shot
             -- if SpellCastTimeSec(AimedShot) < BuffRemainingSec(Vulnerable) and 
             -- (not HasTalent(Barrage) or CooldownSecRemaining(Barrage) > GlobalCooldownSec)
-            if getCastTime(spell.aimedShot) < debuff.vulnerable[units.dyn40].remain and (not talent.barrage or cd.barrage > gcd) then
+            if getCastTime(spell.aimedShot) < debuff.vulnerable[units.dyn40].remain and (not talent.piercingShot or cd.piercingShot > debuff.vulnerable[units.dyn40].remain) then
                 if cast.aimedShot(units.dyn40) then return end
             end
             -- Marked Shot
-            if cast.markedShot(units.dyn40) then return end
+            if not talent.patientSniper or debuff.vulnerable[units.dyn40].remain < getCastTime(spell.aimedShot) then
+                if cast.markedShot(units.dyn40) then return end
+            end
             -- Bursting Shot
             -- if HasItem(MagnetizedBlastingCapLauncher) and SecondsUntilAoe(2,8) > SpellCooldownSec(BurstingShot)
             
-            -- Piercing Shot
-            -- if Power > 80
-            if talent.piercingShot and power > 80 then
-                if cast.piercingShot(units.dyn40) then return end
-            end
             -- Black Arrow
             if talent.blackArrow then
                 if cast.blackArrow(units.dyn40) then return end
@@ -504,8 +496,13 @@ local function runRotation()
             if talent.explosiveShot then
                 if cast.explosiveShot(units.dyn40) then return end
             end
+            -- Aimed Shot
+            if powerDeficit < 25 then
+                if cast.aimedShot(units.dyn40) then return end
+            end
             -- Sidewinders
-            -- if not HasBuff(HuntersMark) and (HasBuff(MarkingTargets) or HasBuff(Trueshot)) or ChargeSecRemaining(Sidewinders) < BuffDurationSec(Vulnerable) - SpellCastTimeSec(AimedShot)
+            -- if not HasBuff(HuntersMark) and (HasBuff(MarkingTargets) or HasBuff(Trueshot)) or 
+            -- ChargeSecRemaining(Sidewinders) < BuffDurationSec(Vulnerable) - SpellCastTimeSec(AimedShot)
             if talent.sidewinders and debuff.huntersMark[units.dyn40].exists == false and (buff.markingTargets.exists or buff.trueshot.exists) or recharge.sidewinders < debuff.vulnerable[units.dyn40].duration - getCastTime(spell.aimedShot) then
                 if cast.sidewinders(units.dyn40) then return end
             end 
@@ -597,38 +594,7 @@ local function runRotation()
     --- SimulationCraft APL ---
     ---------------------------
                     if getOptionValue("APL Mode") == 1 then
-                        -- actions=auto_shot
-                        -- actions+=/arcane_torrent,if=focus.deficit>=30&(!talent.sidewinders.enabled|cooldown.sidewinders.charges<2)
-                        -- actions+=/blood_fury
-                        -- actions+=/berserking
-                        -- if useCDs() and isChecked("Racial") and (br.player.race == "Orc" or br.player.race == "Troll" or (br.player.race == "BloodElf" and powerDeficit > 30 and (not talent.sidewinders or charges.sidewinders < 2))) then
-                        --      if castSpell("player",racial,false,false,false) then return end
-                        -- end
-                        -- actions+=/volley,toggle=on
-                        -- actions+=/auto_shot
-                        -- actions+=/variable,name=safe_to_build,value=debuff.hunters_mark.down|(buff.trueshot.down&buff.marking_targets.down)
-                        -- safeToBuild = debuff.huntersMark[units.dyn40] == nil or (not buff.trueshot.exists and not buff.markingTargets.exists)
-                        -- actions+=/variable,name=use_multishot,value=((buff.marking_targets.up|buff.trueshot.up)&spell_targets.multishot>1)|(buff.marking_targets.down&buff.trueshot.down&spell_targets.multishot>2)
-                        -- useMultishot = ((buff.markingTargets.exists or buff.trueshot.exists) and #multishotTargets > 1) or (not buff.markingTargets.exists and not buff.trueshot.exists and #multishotTargets > 2)
-                        -- actions+=/call_action_list,name=open,if=active_enemies=1&time<=15
-                        -- actions+=/a_murder_of_crows,if=(target.time_to_die>=cooldown+duration|target.health.pct<20)&(debuff.hunters_mark.down|(debuff.hunters_mark.remains>execute_time&debuff.vulnerability.remains>execute_time&focus+(focus.regen*debuff.vulnerability.remains)>=60&focus+(focus.regen*debuff.hunters_mark.remains)>=60))
-                        
-                        -- actions+=/call_action_list,name=cooldowns
-                        -- if actionList_Cooldowns() then return end
-                        -- actions+=/call_action_list,name=trueshotaoe,if=(target.time_to_die>=cooldown+duration|target.health.pct<20)&(debuff.hunters_mark.down|(debuff.hunters_mark.remains>execute_time&debuff.vulnerability.remains>execute_time&focus+(focus.regen*debuff.vulnerability.remains)>=60&focus+(focus.regen*debuff.hunters_mark.remains)>=60))
-                        -- actions+=/black_arrow,if=debuff.hunters_mark.down|(debuff.hunters_mark.remains>execute_time&debuff.vulnerability.remains>execute_time&focus+(focus.regen*debuff.vulnerability.remains)>=70&focus+(focus.regen*debuff.hunters_mark.remains)>=70)
-                        
-                        -- actions+=/barrage,if=(target.time_to_20pct>10|target.health.pct<=20|spell_targets>1)&((buff.trueshot.down|(target.health.pct<=20&buff.bullseye.stack<29)|spell_targets>1)&debuff.hunters_mark.down|(debuff.hunters_mark.remains>execute_time&debuff.vulnerability.remains>execute_time&focus+(focus.regen*debuff.vulnerability.remains)>=90&focus+(focus.regen*debuff.hunters_mark.remains)>=90))
-                        
-                        -- actions+=/call_action_list,name=targetdie,if=target.time_to_die<6&active_enemies=1
-                        -- actions+=/call_action_list,name=patient_sniper,if=talent.patient_sniper.enabled
-                        -- if talent.patientSniper then
-                        --     if actionList_patientSniper() then return end
-                        -- end
-                        -- actions+=/call_action_list,name=non_patient_sniper,if=!talent.patient_sniper.enabled
-                        -- if not talent.patientSniper then
-                        --     if actionList_nonPatientSniper() then return end
-                        -- end
+
                     end -- End SimC APL
     ------------------------
     --- Ask Mr Robot APL ---
@@ -636,9 +602,9 @@ local function runRotation()
                     if getOptionValue("APL Mode") == 2 then
                         -- Volley
                         -- If you choose this talent, you will do more damage by having it always on, even against one target.
-                        -- if talent.volley then
-                        --     if cast.volley(units.dyn40) then return end
-                        -- end
+                        if not buff.volley.exists then
+                            if cast.volley(units.dyn40) then return end
+                        end
                         -- Arcane Shot
                         -- if WasLastSpell(ArcaneShot) and HasTalent(SteadyFocus) and not HasBuff(SteadyFocus) and PowerToMax >= GlobalCooldownSec * 2 * PowerRegen + 10
                         if lastSpellCast == spell.arcaneShot and talent.steadyFocus and not buff.steadyFocus.exists and powerDeficit >= gcd * 2 * powerRegen + 10 then
