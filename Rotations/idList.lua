@@ -1550,7 +1550,9 @@ br.idList = {
             },
             talents                         = {
                 bodyAndSoul                 = 64129,
+                legacyOfTheVoid             = 193225,
                 powerInfusion               = 10060,
+                shadowCrash                 = 205385,
             },
         },
         -- All
