@@ -18,7 +18,7 @@ local function createToggles()
         [2] = { mode = "On", value = 1 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spell.combustion},
         [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.combustion}
     };
-   	CreateButton("Cooldown",2,0)
+    CreateButton("Cooldown",2,0)
 -- Defensive Button
     DefensiveModes = {
         [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spell.iceBarrier},
@@ -73,6 +73,8 @@ local function createOptions()
             end
         -- Frost Nova
             br.ui:createSpinner(section, "Frost Nova",  50,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.");
+        -- Blazing Barrier
+            br.ui:createCheckbox(section,"Blazing Barrier")
         br.ui:checkSectionState(section)
     -- Interrupt Options
         section = br.ui:createSection(br.ui.window.profile, "Interrupts")
@@ -164,33 +166,33 @@ local function runRotation()
         local ttm                                           = br.player.power.ttm
         local units                                         = br.player.units
         
-   		if leftCombat == nil then leftCombat = GetTime() end
-		if profileStop == nil then profileStop = false end
+        if leftCombat == nil then leftCombat = GetTime() end
+        if profileStop == nil then profileStop = false end
         if talent.kindling then kindle = 1 else kindle = 0 end
         if not talent.kindling then notKindle = 1 else notKindle = 0 end
 
 --------------------
 --- Action Lists ---
 --------------------
-	-- Action List - Extras
-		local function actionList_Extras()
-		-- Dummy Test
-			if isChecked("DPS Testing") then
-				if ObjectExists("target") then
-					if getCombatTime() >= (tonumber(getOptionValue("DPS Testing"))*60) and isDummy() then
-						StopAttack()
-						ClearTarget()
-						Print(tonumber(getOptionValue("DPS Testing")) .." Minute Dummy Test Concluded - Profile Stopped")
-						profileStop = true
-					end
-				end
-			end -- End Dummy Test
+    -- Action List - Extras
+        local function actionList_Extras()
+        -- Dummy Test
+            if isChecked("DPS Testing") then
+                if ObjectExists("target") then
+                    if getCombatTime() >= (tonumber(getOptionValue("DPS Testing"))*60) and isDummy() then
+                        StopAttack()
+                        ClearTarget()
+                        Print(tonumber(getOptionValue("DPS Testing")) .." Minute Dummy Test Concluded - Profile Stopped")
+                        profileStop = true
+                    end
+                end
+            end -- End Dummy Test
 
-		end -- End Action List - Extras
-	-- Action List - Defensive
-		local function actionList_Defensive()
-			if useDefensive() then
-		-- Pot/Stoned
+        end -- End Action List - Extras
+    -- Action List - Defensive
+        local function actionList_Defensive()
+            if useDefensive() then
+        -- Pot/Stoned
                 if isChecked("Pot/Stoned") and php <= getOptionValue("Pot/Stoned") 
                     and inCombat and (hasHealthPot() or hasItem(5512)) 
                 then
@@ -216,11 +218,11 @@ local function runRotation()
                 if isChecked("Frost Nova") and php <= getOptionValue("Frost Nova") and #enemies.yards12 > 0 then
                     if cast.frostNova() then return end
                 end
-    		end -- End Defensive Toggle
-		end -- End Action List - Defensive
-	-- Action List - Interrupts
-		local function actionList_Interrupts()
-			if useInterrupts() then
+            end -- End Defensive Toggle
+        end -- End Action List - Defensive
+    -- Action List - Interrupts
+        local function actionList_Interrupts()
+            if useInterrupts() then
                 for i=1, #enemies.yards30 do
                     thisUnit = enemies.yards30[i]
                     if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
@@ -231,10 +233,10 @@ local function runRotation()
                     end
                 end
             end -- End useInterrupts check
-		end -- End Action List - Interrupts
-	-- Action List - Cooldowns
-		local function actionList_Cooldowns()
-			if useCDs() and getDistance(units.dyn40) < 40 then
+        end -- End Action List - Interrupts
+    -- Action List - Cooldowns
+        local function actionList_Cooldowns()
+            if useCDs() and getDistance(units.dyn40) < 40 then
         -- Potion
                 -- potion,name=deadly_grace
                 -- TODO
@@ -263,16 +265,16 @@ local function runRotation()
                 if isChecked("Pre-Pull Timer") and pullTimer <= getOptionValue("Pre-Pull Timer") then
 
                 end -- End Pre-Pull
-                if isValidUnit("target") and getDistance("target") < 40 then
-            -- Mirror Image
-                    if isChecked("Mirror Image") then
-                        if cast.mirrorImage() then return end
-                    end
-            -- Pyroblast
-                    if br.timer:useTimer("delayPyro", getCastTime(spell.pyroblast)+0.5) then
-                        if cast.pyroblast("target") then return end
-                    end
-                end
+            --     if isValidUnit("target") and getDistance("target") < 40 then
+            -- -- Mirror Image
+            --         if isChecked("Mirror Image") then
+            --             if cast.mirrorImage() then return end
+            --         end
+            -- -- Pyroblast
+            --         if br.timer:useTimer("delayPyro", getCastTime(spell.pyroblast)+0.5) then
+            --             if cast.pyroblast("target") then return end
+            --         end
+            --     end
             end -- End No Combat
         end -- End Action List - PreCombat
     -- Action List - Active Talents
@@ -397,7 +399,7 @@ local function runRotation()
     -- Action List - Single Target
         local function actionList_Single()
         -- Blazing Barrier
-            if getBuffRemain("player", spell.blazingBarrier) < 1 then
+            if isChecked("Blazing Barrier") and getBuffRemain("player", spell.blazingBarrier) < 1 then
                 if cast.blazingBarrier() then return end
             end
         -- Pyroblast
@@ -533,8 +535,8 @@ local function runRotation()
                 if getOptionValue("APL Mode") == 2 then
 
                 end
-			end --End In Combat
-		end --End Rotation Logic
+            end --End In Combat
+        end --End Rotation Logic
     end -- End Timer
 end -- End runRotation
 local id = 63
