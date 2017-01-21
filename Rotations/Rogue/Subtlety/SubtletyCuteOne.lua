@@ -504,7 +504,7 @@ local function runRotation()
             -- Print("PreCombat")
         -- Stealth
             -- stealth
-            if isChecked("Stealth") and (not IsResting() or isDummy("target")) then
+            if isChecked("Stealth") and (not IsResting() or isDummy("target")) and not inCombat then
                 if getOptionValue("Stealth") == 1 then
                     if cast.stealth() then return end
                 end
@@ -536,7 +536,7 @@ local function runRotation()
         local function actionList_Opener()
             if isValidUnit("target") then
         -- Shadowstep
-                if isChecked("Shadowstep") and (not stealthingAll or power < 40) and not inCombat then
+                if isChecked("Shadowstep") and (not stealthingAll or power < 40) and not inCombat and getDistance("target") >= 8 then
                     if cast.shadowstep("target") then return end 
                 end
         -- Shadowstrike
@@ -590,7 +590,7 @@ local function runRotation()
 --- In Combat - Begin Rotation ---
 ----------------------------------
         -- Shadowstep
-                if isChecked("Shadowstep") then
+                if isChecked("Shadowstep") and getDistance("target") >= 8 then
                     if cast.shadowstep("target") then return end 
                 end
         -- Marked for Death

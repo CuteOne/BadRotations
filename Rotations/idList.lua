@@ -2249,6 +2249,7 @@ br.idList = {
                 conflagrationOfChaos        = 196546,
                 demonicPower                = 196099,
                 empoweredLifeTap            = 235156,
+                lessonsOfSpaceTime          = 236174,
                 lordOfFlames                = 224103,
             },
             debuffs                         = {
