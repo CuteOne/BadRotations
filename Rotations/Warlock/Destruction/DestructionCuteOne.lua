@@ -550,8 +550,8 @@ local function runRotation()
                         end
                     end
                     -- immolate,if=talent.roaring_blaze.enabled&remains<=duration&!debuff.roaring_blaze.remains&target.time_to_die>10&(action.conflagrate.charges=2+set_bonus.tier19_4pc|(action.conflagrate.charges>=1+set_bonus.tier19_4pc&action.conflagrate.recharge_time<cast_time+gcd)|target.time_to_die<24
-                    if debuff.roaringBlaze[units.dyn40] ~= nil then -- TODO: needs T19 logic added
-                        if talent.roaringBlaze and debuff.roaringBlaze[units.dyn40].remain <= debuff.roaringBlaze[units.dyn40].duration and not debuff.roaringBlaze[units.dyn40].exists 
+                    if debuff.roaringBlaze[units.dyn40] ~= nil and debuff.immolate[units.dyn40] ~= nil then -- TODO: needs T19 logic added
+                        if talent.roaringBlaze and debuff.immolate[units.dyn40].refresh and not debuff.roaringBlaze[units.dyn40].exists 
                             and ttd(units.dyn40) > 10 and (charges.conflagrate == 2 or (charges.conflagrate >= 1 and recharge.conflagrate < getCastTime(spell.conflagrate) + gcd) or ttd(units.dyn40) < 24) 
                         then
                             if cast.immolate(units.dyn40) then return end
