@@ -713,7 +713,7 @@ local function runRotation()
                     if cast.cataclysm() then return end
         -- Chaos Bolt
                     -- chaos_bolt,if=(cooldown.havoc.remains>12&cooldown.havoc.remains|active_enemies<3|talent.wreak_havoc.enabled&active_enemies<6)
-                    if (cd.havoc > 12 and (cd.havoc > 0 or #enemies.yards8t < 3 or (talent.wreakHavoc and #enemies.yards8t < 6))) then
+                    if cd.havoc > 12 or #enemies.yards40 < 3 or (talent.wreakHavoc and #enemies.yards40 < 6) then
                         if cast.chaosBolt() then return end
                     end
         -- Shadowburn
