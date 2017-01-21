@@ -595,7 +595,7 @@ local function runRotation()
                     end
         -- Life Tap
                     -- life_tap,if=talent.empowered_life_tap.enabled&buff.empowered_life_tap.remains<=gcd
-                    if talent.empoweredLifeTap and buff.lifeTap.remain <= gcd then
+                    if talent.empoweredLifeTap and buff.empoweredLifeTap.remain <= gcd then
                         if cast.lifeTap() then return end
                     end
         -- Dimensional Rift
