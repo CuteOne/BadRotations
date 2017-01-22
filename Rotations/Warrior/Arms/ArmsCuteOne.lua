@@ -87,6 +87,8 @@ local function createOptions()
             br.ui:createCheckbox(section, "Potion")
             -- Flask / Crystal
             br.ui:createCheckbox(section, "Flask / Crystal")
+            -- Racial
+            br.ui:createCheckbox(section, "Racial")
             -- Legendary Ring
             br.ui:createCheckbox(section, "Ring of Collapsing Futures")
             -- Trinkets
@@ -396,7 +398,7 @@ local function runRotation()
                 -- blood_fury,if=buff.battle_cry.up|target.time_to_die<=16
                 -- berserking,if=buff.battle_cry.up|target.time_to_die<=11
                 -- arcane_torrent,if=buff.battle_cry_deadly_calm.down&rage.deficit>40
-                if useCDs() and ((br.player.race == "Orc" and (buff.battleCry.exists or ignoreBattleCry or ttd(units.dyn5) <= 16)) 
+                if useCDs() and isChecked("Racial") and ((br.player.race == "Orc" and (buff.battleCry.exists or ignoreBattleCry or ttd(units.dyn5) <= 16)) 
                     or (br.player.race == "Troll" and (buff.battleCry.exists or ignoreBattleCry or ttd(units.dyn5) <= 11)) 
                     or (br.player.race == "BloodElf" and (not buff.battleCry.exists and powerDeficit > 40))) 
                 then
