@@ -270,7 +270,7 @@ br.idList = {
                 demonicAppetite             = 206478,
                 demonReborn                 = 193897,
                 desperateInstincts          = 205411,
-                felBarrage                  = 211053, 
+                felBarrage                  = 211053,
                 felMastery                  = 192939,
                 firstBlood                  = 206416,
                 masterOfTheGlaive           = 203556,
@@ -1134,6 +1134,8 @@ br.idList = {
                 spinningCraneKick           = 101546,
                 thunderFocusTea             = 116680,
                 vivify                      = 116670,
+                soothingMist                = 115175,
+                tigersLust                  = 116841,
             },
             artifacts                       = {
 
@@ -1142,6 +1144,9 @@ br.idList = {
                 lifeCocoon                  = 116849,
                 sheilunsGift                = 205406,
                 upliftingTrance             = 197206,
+                lifecyclesEnvelopingMist    = 197919,
+                lifecyclesVivify            = 197916,
+                thunderFocusTea             = 116680,
             },
             debuffs                         = {
 
