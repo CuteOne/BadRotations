@@ -550,7 +550,7 @@ local function runRotation()
             -- Eye Beam
                     -- eye_beam,if=talent.demonic.enabled&(talent.demon_blades.enabled|talent.blind_fury.enabled|(!talent.blind_fury.enabled&fury.deficit<30))&((active_enemies>desired_targets&active_enemies>1)|raid_event.adds.in>30)
                     if talent.demonic and (talent.demonBlades or talent.blindFury or (not talent.blindFury and powerDeficit < 30)) 
-                        and (((mode.rotation == 1 and #enemies.yards8 > getOptionValue("Eye Beam Targets")) or mode.rotation == 2) or addsIn > 30) 
+                        and (((mode.rotation == 1 and #enemies.yards8 > getOptionValue("Eye Beam Targets")) or mode.rotation == 2) --[[or addsIn > 30]]) 
                         and getDistance(units.dyn8) < 8 and getFacing("player",units.dyn5,45) 
                     then
                         if cast.eyeBeam(units.dyn5) then return end
@@ -652,7 +652,7 @@ local function runRotation()
                     end
             -- Felblade
                     -- felblade,if=movement.distance|buff.out_of_range.up
-                    if getDistance("target") >= 15 then
+                    if getDistance("target") >= 5 and power <= 90 then
                         if cast.felblade("target") then return end
                     end
             -- Fel Rush
