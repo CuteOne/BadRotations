@@ -573,9 +573,9 @@ local function runRotation()
                     then
                         if cast.throwGlaive(units.dyn5) then return end
                     end
-            -- Fel Blade
+            -- Felblade
                     -- felblade,if=fury.deficit>=30+buff.prepared.up*8
-                    if powerDeficit >= 30 + (prepared * 8) then
+                    if powerDeficit >= 30 + (prepared * 8) and getDistance(units.dyn5) < 5 then
                         if cast.felblade(units.dyn5) then return end
                     end
             -- Eye Beam
@@ -596,9 +596,9 @@ local function runRotation()
             -- Eye Beam
                     -- eye_beam,if=!talent.demonic.enabled&!talent.blind_fury.enabled&((spell_targets.eye_beam_tick>desired_targets&active_enemies>1)|(raid_event.adds.in>45&!variable.pooling_for_meta&buff.metamorphosis.down&(artifact.anguish_of_the_deceiver.enabled|active_enemies>1)&!talent.chaos_cleave.enabled))
                     if not talent.demonic and not talent.blindFury 
-                        and ((((mode.rotation == 1 and #enemies.yards20 >= getOptionValue("Eye Beam Targets")) or mode.rotation == 2) and #enemies.yards8 > 1) 
-                            or (addsIn > 45 and not poolForMeta and not buff.metamorphosis.exists and (artifact.anguishOfTheDeceiver or ((mode.rotation == 1 and #enemies.yards8 > 1) or mode.rotation == 2)) 
-                                and not talent.chaosCleave)) 
+                        and ((((mode.rotation == 1 and #enemies.yards20 >= getOptionValue("Eye Beam Targets")) or mode.rotation == 2) and #enemies.yards8 > 1)) 
+                            --or (addsIn > 45 and not poolForMeta and not buff.metamorphosis.exists and (artifact.anguishOfTheDeceiver or ((mode.rotation == 1 and #enemies.yards8 > 1) or mode.rotation == 2)) 
+                            --    and not talent.chaosCleave)) 
                         and getDistance(units.dyn8) < 8 and getFacing("player",units.dyn5,45) 
                     then
                         if cast.eyeBeam(units.dyn5) then return end
@@ -652,7 +652,7 @@ local function runRotation()
                     end
             -- Felblade
                     -- felblade,if=movement.distance|buff.out_of_range.up
-                    if getDistance("target") >= 5 and power <= 90 then
+                    if getDistance("target") < 5 and power <= 90 then
                         if cast.felblade("target") then return end
                     end
             -- Fel Rush
