@@ -118,7 +118,7 @@ Raidable means if its good to raid with.
 |Shadow|70%|Cpoworks/Svs|7.1|:heavy_check_mark:
 ||||
 | **Rogue** |||
-|Assassination|100%|CuteOne|7.1|:interrobang:
+|Assassination|100%|CuteOne|7.1.5|:interrobang:
 |Outlaw|100%|CuteOne|7.1|:interrobang:
 |Subtlety|100%|CuteOne|7.1.5|:white_check_mark:
 ||||

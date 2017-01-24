@@ -222,9 +222,9 @@ local function runRotation()
 		-- if not inCombat and lastSpell ~= spell.vanish then opener = false end
 
 		-- Exsanguinated Bleeds
-		if not debuff.rupture[units.dyn5].exists then exRupture = false end
-		if not debuff.garrote[units.dyn5].exists then exGarrote = false end
-		if not debuff.internalBleeding[units.dyn5].exists then exInternalBleeding = false end
+		if debuff.rupture[units.dyn5] == nil or not debuff.rupture[units.dyn5].exists then exRupture = false end
+		if debuff.garrote[units.dyn5] == nil or not debuff.garrote[units.dyn5].exists then exGarrote = false end
+		if debuff.internalBleeding[units.dyn5] == nil or not debuff.internalBleeding[units.dyn5].exists then exInternalBleeding = false end
 		if lastSpell == spell.exsanguinate then exsanguinateCast = true else exsanguinateCast = false end
 		if exsanguinateCast and debuff.rupture[units.dyn5].exists then exRupture = true end
 		if exsanguinateCast and debuff.garrote[units.dyn5].exists then exGarrote = true end
@@ -237,13 +237,15 @@ local function runRotation()
         if talent.masterPoisoner then masterPoison = 1 else masterPoison = 0 end
         if talent.exsanguinate then exsanguinated = 1 else exsanguinated = 0 end
         if not talent.exsanguinate then noExsanguinate = 1 else noExsanguinate = 0 end
+        if not talent.venomRush then noVenom = 1 else noVenom = 0 end
         if artifact.urgeToKill then urges = 1 else urges = 0 end
+        if hasEquiped(140806) then convergingFate = 1 else convergingFate = 0 end
 --          if debuff.vendetta then vendy = 1 else vendy = 0 end
 --          if artifact.bagOfTricks then trickyBag = 1 else trickyBag = 0 end
 --          if talent.elaboratePlanning then ePlan = 1 else ePlan = 0 end
         -- Custom Functions
         local function usePickPocket()
-            if br.player.mode.pickPocket == 1 or br.player.mode.pickPocket == 2 then
+            if (mode.pickPocket == 1 or mode.pickPocket == 2) and buff.stealth.exists then
                 return true
             else
                 return false
@@ -377,16 +379,16 @@ local function runRotation()
 				if isChecked("Marked For Death") then
 					if getOptionValue("Marked For Death") == 1 then
 						-- marked_for_death,if=combo_points.deficit>=4+talent.deeper_strategem.enabled+talent.anticipation.enabled
-						if comboDeficit >= 4 + dStrat + antital then
-							if cast.markedForDeath() then return end
-						end
-					end
-					if getOptionValue("Marked For Death") == 2 then
-						-- marked_for_death,if=target.time_to_die<combo_points.deficit 
+                        if comboDeficit >= 4 + dStrat + antital then
+                            if cast.markedForDeath() then return end
+                        end
+                    end
+                    if getOptionValue("Marked For Death") == 2 then
+                        -- marked_for_death,target_if=min:target.time_to_die,if=target.time_to_die<combo_points.deficit|combo_points.deficit>=5
 						for i = 1, #enemies.yards30 do
 							local thisUnit = enemies.yards30[i]
 							if (multidot or (UnitIsUnit(thisUnit,units.dyn5) and not multidot)) then
-								if ttd(thisUnit) < comboDeficit then
+								if ttd(thisUnit) < comboDeficit or comboDeficit >= 5 then
 									if cast.markedForDeath(thisUnit) then return end
 								end
 							end
@@ -395,9 +397,11 @@ local function runRotation()
 				end
 		-- Vendetta
 				-- vendetta,if=talent.exsanguinate.enabled&cooldown.exsanguinate.remains<5&dot.rupture.ticking
-				-- vendetta,if=!talent.exsanguinate.enabled&(!artifact.urge_to_kill.enabled|energy.deficit>=70)
-					if (talent.exsanguinate and cd.exsanguinate < 5 and debuff.rupture[units.dyn5].exists) 
-						or (not talent.exsanguinate and (not artifact.urgeToKill or powerDeficit >= 70)) 
+                -- vendetta,if=talent.exsanguinate.enabled&(artifact.master_assassin.rank>=4-equipped.convergence_of_fates|equipped.duskwalkers_footpads)&energy.deficit>=75&!(artifact.master_assassin.rank=5-equipped.convergence_of_fates&equipped.duskwalkers_footpads)
+                -- vendetta,if=!talent.exsanguinate.enabled&energy.deficit>=88-!talent.venom_rush.enabled*10
+					if (talent.exsanguinate and ((cd.exsanguinate < 5 and debuff.rupture[units.dyn5].exists)
+                        or ((artifact.rank.masterAssassin >= 4 - convergingFate or hasEquiped(137030)) and powerDeficit >= 75 and not (artifact.rank.masterAssassin == 5 - convergingFate and hasEquiped(137030))))) 
+						or (not talent.exsanguinate and powerDeficit >= 88 - noVenom * 10) 
 					then
 						if cast.vendetta() then return end
 					end 
@@ -428,30 +432,39 @@ local function runRotation()
 				if cast.deathFromAbove() then return end
 			end
 		-- Envenom
-			-- envenom,if=combo_points>=cp_max_spend-talent.master_poisoner.enabled|(talent.elaborate_planning.enabled&combo_points>=3+!talent.exsanguinate.enabled&buff.elaborate_planning.remains<2)
-			if combo >= select(5,getSpellCost(spell.envenom)) - masterPoison or (talent.elaboratePlanning and combo >= 3 + noExsanguinate and buff.elaboratePlanning.remain < 2) then
+            -- envenom,if=combo_points>=4|(talent.elaborate_planning.enabled&combo_points>=3+!talent.exsanguinate.enabled&buff.elaborate_planning.remains<0.1)
+			if combo >= 4 or (talent.elaboratePlanning and combo >= 3 + noExsanguinate and buff.elaboratePlanning.remain < 0.1) then
 				if cast.envenom() then return end
 			end
 		end -- End Action List - Finishers
 	-- Action List - Maintain
 		local function actionList_Maintain()
 		-- Rupture
-			-- rupture,if=(talent.nightstalker.enabled&stealthed.rogue)|(talent.exsanguinate.enabled&((combo_points>=cp_max_spend&cooldown.exsanguinate.remains<1)|(!ticking&(time>10|combo_points>=2+artifact.urge_to_kill.enabled))))
-			if (talent.nightstalker and stealthing) or (talent.exsanguinate and ((combo >= select(5,getSpellCost(spell.rupture)) and cd.exsanguinate < 1) or (not debuff.rupture[units.dyn5].exists and (cTime > 10 or combo >= 2 + urges)))) then
-				if cast.rupture() then return end
-			end
+            -- rupture,if=talent.nightstalker.enabled&stealthed.rogue
+            if talent.nightstalker and stealthing then
+                if cast.rupture() then return end
+            end
+            -- rupture,if=talent.exsanguinate.enabled&((combo_points>=cp_max_spend&cooldown.exsanguinate.remains<1)|(!ticking&(time>10|combo_points>=2+artifact.urge_to_kill.enabled)))
+            if talent.exsanguinate and ((comboPoints >= select(5,getSpellCost(spell.rupture)) and cd.exsanguinate < 1) or (not debuff.rupture[units.dyn5].exists and (cTime >= 2 + urges))) then
+                if cast.rupture() then return end
+            end
+			-- rupture,if=!talent.exsanguinate.enabled&!ticking
+            if not talent.exsanguinate and not debuff.rupture[units.dyn5].exists then
+                if cast.rupture() then return end
+            end
 			-- rupture,cycle_targets=1,if=combo_points>=cp_max_spend-talent.exsanguinate.enabled&refreshable&(!exsanguinated|remains<=1.5)&target.time_to_die-remains>4
 			for i=1, #enemies.yards5 do
 				local thisUnit = enemies.yards5[i]
-                if (multidot or (UnitIsUnit(thisUnit,units.dyn5) and not multidot)) then
-                    if combo >= select(5,getSpellCost(spell.rupture)) - exsanguinated and debuff.rupture[thisUnit].refresh and (not exsanguinated or debuff.rupture[thisUnit].remain <= 1.5) and (ttd(thisUnit) - debuff.rupture[thisUnit].remain > 4 or isDummy(thisUnit)) then
+                local rupture = debuff.rupture[thisUnit]
+                if (multidot or (UnitIsUnit(thisUnit,units.dyn5) and not multidot)) and rupture ~= nil then
+                    if combo >= select(5,getSpellCost(spell.rupture)) - exsanguinated and rupture.refresh and (not exsanguinated or rupture.remain <= 1.5) and (ttd(thisUnit) - rupture.remain > 4 or isDummy(thisUnit)) then
                     	if cast.rupture(thisUnit) then return end
                     end
                 end
             end
         -- Kingsbane
-        	-- kingsbane,if=(talent.exsanguinate.enabled&dot.rupture.exsanguinated)|(!talent.exsanguinate.enabled&(debuff.vendetta.up|cooldown.vendetta.remains>10))
-			if (talent.exsanguinate and exRupture) or (not talent.exsanguinate and (debuff.vendetta[units.dyn5].exists or cd.vendetta > 10)) then
+            -- kingsbane,if=(talent.exsanguinate.enabled&dot.rupture.exsanguinated)|(!talent.exsanguinate.enabled&buff.envenom.up&(debuff.vendetta.up|cooldown.vendetta.remains>10))
+			if (talent.exsanguinate and exRupture) or (not talent.exsanguinate and buff.envenom.exists and (debuff.vendetta[units.dyn5].exists or cd.vendetta > 10)) then
 				if cast.kingsbane() then return end
 			end
 		-- Garrote
@@ -472,14 +485,16 @@ local function runRotation()
 		local function actionList_Generators()
 		-- Hemorrhage
 			-- hemorrhage,if=refreshable
-			if debuff.hemorrhage[units.dyn5].refresh then
+			if debuff.hemorrhage[units.dyn5] ~= nil and debuff.hemorrhage[units.dyn5].refresh then
 				if cast.hemorrhage() then return end
 			end
 			-- hemorrhage,cycle_targets=1,if=refreshable&dot.rupture.ticking&spell_targets.fan_of_knives<=3
 			for i=1, #enemies.yards5 do
                 local thisUnit = enemies.yards5[i]
-                if (multidot or (UnitIsUnit(thisUnit,units.dyn5) and not multidot)) then
-                    if debuff.hemorrhage[thisUnit].refresh and debuff.rupture[thisUnit].remain > 0 and #enemies.yards10 <= 3 then
+                local hemorrhage = debuff.hemorrhage[thisUnit]
+                local rupture = debuff.rupture[thisUnit]
+                if (multidot or (UnitIsUnit(thisUnit,units.dyn5) and not multidot)) and hemorrhage ~= nil and rupture ~= nil then
+                    if hemorrhage.refresh and rupture.remain > 0 and #enemies.yards10 <= 3 then
                        if cast.hemorrhage(thisUnit) then return end
                     end
                 end
@@ -494,8 +509,10 @@ local function runRotation()
 			if ((mode.rotation == 1 and #enemies.yards8 < 3) or mode.rotation == 3) then
 				for i=1, #enemies.yards5 do
                     local thisUnit = enemies.yards5[i]
-                    if (multidot or (UnitIsUnit(thisUnit,units.dyn5) and not multidot)) then
-                    	if (not talent.agonizingPoison and debuff.deadlyPoison[thisUnit].refresh) or (talent.agonizingPoison and debuff.agonizingPoison[thisUnit].refresh) then
+                    local agonizingPoison = debuff.agonizingPoison[thisUnit]
+                    local deadlyPoison = debuff.deadlyPoison[thisUnit]
+                    if (multidot or (UnitIsUnit(thisUnit,units.dyn5) and not multidot)) and (agonizingPoison ~= nil or deadlyPoison ~= nil) then
+                    	if (not talent.agonizingPoison and deadlyPoison.refresh) or (talent.agonizingPoison and agonizingPoison.refresh) then
                     		if cast.mutilate(thisUnit) then return end
                     	end
                     end
@@ -547,7 +564,7 @@ local function runRotation()
 	-- Action List - Opener
 		local function actionList_Opener()
 		-- Shadowstep
-            if isChecked("Shadowstep") and isValidUnit("target") and getDistance("target") > 8 then
+            if isChecked("Shadowstep") and isValidUnit("target") and getDistance("target") > 8 and getDistance("target") < 25 then
                 if cast.shadowstep("target") then return end 
             end
 		-- Start Attack
@@ -652,7 +669,7 @@ local function runRotation()
 --- In Combat - Begin Rotation ---
 ----------------------------------
 		-- Shadowstep
-                if isChecked("Shadowstep") and getDistance("target") > 8 then
+                if isChecked("Shadowstep") and getDistance("target") > 8 and getDistance("target") < 25 then
                     if cast.shadowstep("target") then return end 
                 end
                 if opener == false and isChecked("Opener") and isBoss("target") then
