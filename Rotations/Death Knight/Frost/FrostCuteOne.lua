@@ -77,7 +77,7 @@ local function createOptions()
             -- Obliteration
             br.ui:createCheckbox(section,"Obliteration")
             -- Pillar of Frost
-            br.ui:createCheckbox(section,"Pillar of Frost")
+            br.ui:createDropdownWithout(section, "Pillar of Frost", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Pillar of Frost Ability.")
         br.ui:checkSectionState(section)
         -------------------------
         --- DEFENSIVE OPTIONS ---
@@ -274,11 +274,6 @@ local function runRotation()
     -- Action List - Cooldowns
         local function actionList_Cooldowns()
             if useCDs() and getDistance(units.dyn5) < 5 then
-        -- Pillar of Frost
-                -- pillar_of_frost
-                if isChecked("Pillar of Frost") then
-                    if cast.pillarOfFrost() then return end
-                end
         -- Trinkets
                 if isChecked("Trinkets") then
                     if canUse(13) then
@@ -628,6 +623,11 @@ local function runRotation()
     -----------------------------
     --- In Combat - Cooldowns ---
     -----------------------------
+        -- Pillar of Frost
+                -- pillar_of_frost
+                if getOptionValue("Pillar of Frost") == 1 or (getOptionValue("Pillar of Frost") == 2 and useCDs()) then
+                    if cast.pillarOfFrost() then return end
+                end
                 if actionList_Cooldowns() then return end
     ---------------------------
     --- SimulationCraft APL ---
