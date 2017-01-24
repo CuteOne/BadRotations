@@ -216,8 +216,10 @@ local function runRotation()
         flameShockCounter = 0
         for i = 1, #enemies.yards40 do
             local thisUnit = enemies.yards40[i]
-            if debuff.flameShock[thisUnit].exists then
-                flameShockCounter = flameShockCounter + 1
+            if debuff.flameShock[thisUnit] ~= nil then
+                if debuff.flameShock[thisUnit].exists then
+                    flameShockCounter = flameShockCounter + 1
+                end
             end
         end
 

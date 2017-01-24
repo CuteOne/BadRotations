@@ -633,6 +633,10 @@ local function runRotation()
                     then
                         if cast.felBarrage(units.dyn5) then return end
                     end
+            -- Throw Glaive
+                    if talent.demonBlades then
+                        if cast.throwGlaive("target") then return end
+                    end
             -- Fel Rush
                     -- fel_rush,animation_cancel=1,if=!talent.momentum.enabled&raid_event.movement.in>charges*10
                     if getFacing("player","target",10) and not talent.momentum and moveIn > charges.felRush * 10 then
