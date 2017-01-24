@@ -282,7 +282,7 @@ local function runRotation()
                 for i = 1, #br.friend do
                     if br.friend[i].hp <= getValue("Thunder Focus Tea") then
                         if buff.thunderFocusTea then
-                            if cast.Vivify(br.friend[i].unit) then return end
+                            if cast.vivify(br.friend[i].unit) then return end
                         end
                     end
                 end
