@@ -123,7 +123,7 @@ Raidable means if its good to raid with.
 |Subtlety|100%|CuteOne|7.1.5|:white_check_mark:
 ||||
 | **Shaman** |||
-|Elemental|100%|CuteOne|7.0|:interrobang:
+|Elemental|100%|CuteOne|7.1.5|:interrobang:
 |Enhancement|100%|CuteOne|7.1.5|:white_check_mark:
 |Restoration|0%||7.0|
 ||||

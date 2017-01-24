@@ -337,7 +337,7 @@ local function runRotation()
             end
         -- Remorseless Winter
             -- remorseless_winter,if=talent.gathering_storm.enable
-            if talent.gatheringStorm then
+            if talent.gatheringStorm and getDistance(units.dyn5) < 5 then
                 if cast.remorselessWinter() then return end
             end
         -- Howling Blast
@@ -359,7 +359,7 @@ local function runRotation()
             -- end
         -- Remorseless Winter
             -- remorseless_winter,if=buff.rime.react&equipped.132459
-            if (buff.rime.exists and hasEquiped(132459)) then
+            if (buff.rime.exists and hasEquiped(132459)) and getDistance(units.dyn5) < 5 then
                 if cast.remorselessWinter() then return end
             end
         -- Howling Blast
@@ -389,7 +389,7 @@ local function runRotation()
             end
         -- Remorseless Winter
             -- remorseless_winter,if=cooldown.breath_of_sindragosa.remains>10
-            if cd.breathOfSindragosa > 10 then
+            if cd.breathOfSindragosa > 10 and getDistance(units.dyn5) < 5 then
                 if cast.remorselessWinter() then return end
             end
         end
@@ -402,7 +402,7 @@ local function runRotation()
             end
         -- Remorseless Winter
             -- remorseless_winter,if=((runic_power>=20&set_bonus.tier19_4pc)|runic_power>=30)&buff.rime.react&(equipped.132459|talent.gathering_storm.enabled)
-            if (--[[(runicPower >= 20 and tier19_4pc) or]] runicPower >= 30) and buff.rime.exists and (hasEquiped(132459) or talent.gatheringStorm) then
+            if (--[[(runicPower >= 20 and tier19_4pc) or]] runicPower >= 30) and buff.rime.exists and (hasEquiped(132459) or talent.gatheringStorm) and getDistance(units.dyn5) < 5 then
                 if cast.remorselessWinter() then return end
             end
         -- Howling Blast
@@ -434,7 +434,7 @@ local function runRotation()
             end
         -- Remorseless Winter
             -- remorseless_winter,if=talent.gathering_storm.enabled|!set_bonus.tier19_4pc|runic_power<30
-            if talent.gatheringStorm --[[or not tier19_4pc ]]or runicPower < 20 then -- TODO: T19 Check
+            if (talent.gatheringStorm --[[or not tier19_4pc ]]or runicPower < 20) and getDistance(units.dyn5) < 5 then -- TODO: T19 Check
                 if cast.remorselessWinter() then return end
             end
         end
@@ -461,7 +461,9 @@ local function runRotation()
             -- end
         -- Remorseless Winter
             -- remorseless_winter,if=(buff.rime.react&equipped.132459&!(buff.obliteration.up&spell_targets.howling_blast<2))|talent.gathering_storm.enabled
-            if (buff.rime.exists and hasEquiped(132459) and not (buff.obliteration.exists and ((mode.rotation == 1 and #enemies.yards10 < 2) or mode.rotation == 3))) or talent.gatheringStorm then
+            if ((buff.rime.exists and hasEquiped(132459) and not (buff.obliteration.exists and ((mode.rotation == 1 and #enemies.yards10 < 2) or mode.rotation == 3))) or talent.gatheringStorm)  
+                and getDistance(units.dyn5) < 5 
+            then
                 if cast.remorselessWinter() then return end
             end
         -- Howling Blast
@@ -480,7 +482,7 @@ local function runRotation()
             end
         -- Remorseless Winter
             -- remorseless_winter,if=spell_targets.remorseless_winter>=2&!(talent.frostscythe.enabled&buff.killing_machine.react&spell_targets.frostscythe>=2)
-            if #enemies.yards10t >= 2 and not (talent.frostscythe and buff.killingMachine.exists and ((mode.rotation == 1 and #enemies.yards8 >= 2) or mode.rotation == 2)) then
+            if #enemies.yards10t >= 2 and getDistance(units.dyn5) < 5 and not (talent.frostscythe and buff.killingMachine.exists and ((mode.rotation == 1 and #enemies.yards8 >= 2) or mode.rotation == 2)) then
                 if cast.remorselessWinter() then return end
             end
         -- Frostscythe
@@ -491,7 +493,7 @@ local function runRotation()
         -- Glacial Advance
             -- glacial_advance,if=spell_targets.glacial_advance>=2
             if ((mode.rotation == 1 and #enemies.yards10 >= getOptionValue("Glacial Advance")) or mode.rotation == 2) then
-                if cast.glacialAdvance() then return end
+                if cast.glacialAdvance("player") then return end
             end
         -- Frostscythe
             -- frostscythe,if=spell_targets.frostscythe>=3
@@ -508,7 +510,7 @@ local function runRotation()
         -- Glacial Advance
             -- glacial_advance
             if #enemies.yards10 >= getOptionValue("Glacial Advance") then
-                if cast.glacialAdvance() then return end
+                if cast.glacialAdvance("player") then return end
             end
         -- Horn of Winter
             -- horn_of_winter,if=!dot.hungering_rune_weapon.ticking
@@ -570,7 +572,7 @@ local function runRotation()
         -- Glacial Advance
             -- glacial_advance
             if #enemies.yards10 >= getOptionValue("Glacial Advance") then
-                if cast.glacialAdvance() then return end
+                if cast.glacialAdvance("player") then return end
             end
         -- Frost Strike
             -- frost_strike
