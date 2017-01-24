@@ -129,9 +129,9 @@ local function runRotation()
         --- Toggles ---
         ---------------
         UpdateToggle("Dispell",0.25)
-        br.player.mode.dispell = br.data.settings[br.selectedSpec].toggles["Dispell"]
+        player.mode.dispell = br.data.settings[br.selectedSpec].toggles["Dispell"]
         UpdateToggle("Fistweaving",0.25)
-        br.player.mode.fistweaving = br.data.settings[br.selectedSpec].toggles["Fistweaving"]
+        player.fistweaving = br.data.settings[br.selectedSpec].toggles["Fistweaving"]
         UpdateToggle("Interrupt",0.25)
 
 
@@ -271,9 +271,6 @@ local function runRotation()
         --------------------
         function multiTargetBurst()
             if getLowAllies(getOptionValue("Revival")) >= getOptionValue("Revival Targets") then
-                --                Print("Revival")
-                --                castSpell("player",player.spell.revival,false,false,true,true,true,true,true,false)
-                --                return
                 if  player.cast.revival() then
                     lastSpellCasted = ""
                     lastSpellCatedOnPlayer = ""
@@ -281,9 +278,6 @@ local function runRotation()
                 end
             end
             if getLowAllies(getOptionValue("Invoke Chi-Ji")) >= getOptionValue("Invoke Chi-Ji Targets") then
-                --                Print("Invoke Chi-Ji")
-                --                castSpell("player",player.spell.invokeChiJi,false,false,true,true,true,true,true,false)
-                --                return
                 if  player.cast.invokeChiJi(lowest.unit) then
                     lastSpellCasted = ""
                     lastSpellCatedOnPlayer = ""
@@ -298,7 +292,6 @@ local function runRotation()
             multiTargetBurst()
             if not isMoving("player") then
                 if player.talent.chiBurst and getLowAllies(getOptionValue("Chi Burst")) >= getOptionValue("Chi Burst Targets") and player.cd.chiBurst == 0 then
-                    --                    if player.cast.chiBurst() then
                     if castSpell("player",player.spell.chiBurst,false,false,true,true,true,true,true,false) then
                         lastSpellCasted = ""
                         lastSpellCatedOnPlayer = ""
@@ -423,13 +416,12 @@ local function runRotation()
         --- In Combat - Rotations ---
         -----------------------------
         if player.inCombat then
-            --            Print("aa")
             extra()
-            multiTarget()
-            singleTarget()
             if player.mode.dispell == 1 then
                 castDetox()
             end
+            multiTarget()
+            singleTarget()
             if useInterrupts() then
                 interrupt()
             end
