@@ -188,6 +188,7 @@ local function runRotation()
         local summonPet                                     = getOptionValue("Summon Pet")
         local solo                                          = br.player.instance=="none"
         local spell                                         = br.player.spell
+        local t19_4pc                                       = TierScan("T19") >= 4
         local talent                                        = br.player.talent
         local travelTime                                    = getDistance("target")/16
         local ttd                                           = getTTD
@@ -199,6 +200,7 @@ local function runRotation()
         if castSummonId == nil then castSummonId = 0 end
         if summonTime == nil then summonTime = 0 end
         if effigied == nil then effigied = false end
+        if t19_4pc then hasT19 = 1 else hasT19 = 0 end
 
         -- Opener Variables
         if not inCombat and not ObjectExists("target") then 
@@ -552,7 +554,7 @@ local function runRotation()
                     -- immolate,if=talent.roaring_blaze.enabled&remains<=duration&!debuff.roaring_blaze.remains&target.time_to_die>10&(action.conflagrate.charges=2+set_bonus.tier19_4pc|(action.conflagrate.charges>=1+set_bonus.tier19_4pc&action.conflagrate.recharge_time<cast_time+gcd)|target.time_to_die<24
                     if debuff.roaringBlaze[units.dyn40] ~= nil and debuff.immolate[units.dyn40] ~= nil then -- TODO: needs T19 logic added
                         if talent.roaringBlaze and debuff.immolate[units.dyn40].remain <= 18 --[[debuff.immolate[units.dyn40].duration * 0.7 ]]and not debuff.roaringBlaze[units.dyn40].exists 
-                            and ttd(units.dyn40) > 10 and (charges.conflagrate == 2 or (charges.conflagrate >= 1 and recharge.conflagrate < getCastTime(spell.conflagrate) + gcd) or ttd(units.dyn40) < 24) 
+                            and ttd(units.dyn40) > 10 and (charges.conflagrate == 2 + hasT19 or (charges.conflagrate >= 1 and recharge.conflagrate < getCastTime(spell.conflagrate) + gcd) or ttd(units.dyn40) < 24) 
                         then
                             if cast.immolate(units.dyn40) then return end
                         end
@@ -576,7 +578,7 @@ local function runRotation()
                     end
         -- Conflagrate
                     -- conflagrate,if=talent.roaring_blaze.enabled&(charges=2+set_bonus.tier19_4pc|(charges>=1+set_bonus.tier19_4pc&recharge_time<gcd)|target.time_to_die<24)
-                    if talent.roaringBlaze and (charges.conflagrate == 2 or (charges.conflagrate >= 1 and recharge.conflagrate < gcd) or ttd(units.dyn40) < 24) then
+                    if talent.roaringBlaze and (charges.conflagrate == 2 + hasT19 or (charges.conflagrate >= 1 + hasT19 and recharge.conflagrate < gcd) or ttd(units.dyn40) < 24) then
                         if cast.conflagrate(units.dyn40) then return end
                     end
                     -- conflagrate,if=talent.roaring_blaze.enabled&debuff.roaring_blaze.stack>0&dot.immolate.remains>dot.immolate.duration*0.3&(active_enemies=1|soul_shard<3)&soul_shard<5

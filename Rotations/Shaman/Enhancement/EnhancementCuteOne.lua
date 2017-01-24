@@ -191,6 +191,7 @@ local function runRotation()
         local recharge                                      = br.player.recharge
         local solo                                          = br.player.instance=="none"
         local spell                                         = br.player.spell
+        local t19pc4                                        = TierScan("T19") >= 4
         local talent                                        = br.player.talent
         local ttd                                           = getTTD
         local ttm                                           = br.player.power.ttm
@@ -598,7 +599,7 @@ local function runRotation()
                     end
             -- Crash Lightning
                     -- crash_lightning,if=((active_enemies>1|talent.crashing_storm.enabled|talent.boulderfist.enabled)&!set_bonus.tier19_4pc)|feral_spirit.remains>5
-                    if (((mode.rotation == 1 and #enemies.yards8 > 1) or talent.crashingStorm or talent.boulderfist or mode.rotation == 2) --[[and not t19pc4]]) or feralSpiritRemain > 5 then
+                    if (((mode.rotation == 1 and #enemies.yards8 > 1) or talent.crashingStorm or talent.boulderfist or mode.rotation == 2) and not t19pc4) or feralSpiritRemain > 5 then
                         if cast.crashLightning() then return end
                     end
             -- Frostbrand
@@ -607,16 +608,16 @@ local function runRotation()
                         if cast.frostbrand() then return end
                     end
             -- Lava Lash
-                    -- lava_lash,if=talent.fury_of_air.enabled&talent.overcharge.enabled&(set_bonus.tier19_4pc&maelstrom>=80) -- need t19 check
-                    -- if talent.furyOfAir and talent.overcharge and (t19pc4 and power >= 80) then
-                    --     if cast.lavaLash() then return end
-                    -- end
-                    -- lava_lash,if=talent.fury_of_air.enabled&!talent.overcharge.enabled&(set_bonus.tier19_4pc&maelstrom>=53) -- need t19 check
-                    -- if talent.furyOfAir and not talent.overcharge and (t19pc4 and power >= 53) then
-                    --     if cast.lavaLash() then return end
-                    -- end
+                    -- lava_lash,if=talent.fury_of_air.enabled&talent.overcharge.enabled&(set_bonus.tier19_4pc&maelstrom>=80)
+                    if talent.furyOfAir and talent.overcharge and (t19pc4 and power >= 80) then
+                        if cast.lavaLash() then return end
+                    end
+                    -- lava_lash,if=talent.fury_of_air.enabled&!talent.overcharge.enabled&(set_bonus.tier19_4pc&maelstrom>=53)
+                    if talent.furyOfAir and not talent.overcharge and (t19pc4 and power >= 53) then
+                        if cast.lavaLash() then return end
+                    end
                     -- lava_lash,if=(!set_bonus.tier19_4pc&maelstrom>=120)|(!talent.fury_of_air.enabled&set_bonus.tier19_4pc&maelstrom>=40)
-                    if (--[[not t19pc4 and]] power >= 120) --[[or (not talent.furyOfAir and t19pc4 and power >= 40) ]]then
+                    if (not t19pc4 and power >= 120) or (not talent.furyOfAir and t19pc4 and power >= 40) then
                         if cast.lavaLash() then return end
                     end
             -- Flametongue

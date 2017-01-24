@@ -225,7 +225,6 @@ local function runRotation()
         local friendsInRange                                = friendsInRange
         local spell                                         = br.player.spell
         local stealth                                       = br.player.stealth
-        local t17_2pc                                       = TierScan("T17")>=2 --br.player.eq.t17_2pc
         local t18_2pc                                       = TierScan("T18")>=2 --br.player.eq.t18_2pc
         local t18_4pc                                       = TierScan("T18")>=4 --br.player.eq.t18_4pc
         local talent                                        = br.player.talent

@@ -1652,10 +1652,11 @@ br.idList = {
                 elaboratePlanning           = 193641,
                 envenom                     = 32645,
                 leechingPoison              = 108211,
+                mutilatedFlesh              = 211672,
                 stealth                     = 1784,
+                subterfuge                  = 115192,
                 theDreadlordsDeceit         = 208692,
                 woundPoison                 = 8679,
-                subterfuge                  = 115192,
             },
             debuffs                         = {
                 agonizingPoison             = 200803,

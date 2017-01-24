@@ -2985,6 +2985,104 @@ function TierScan(thisTier)
 				124346, -- shoulder
 			},
 		},
+		["T19"] = {
+			["DEATHKNIGHT"] = {
+				138355, -- head
+				138349, -- chest
+				138361, -- shoulder
+				138352, -- hands
+				138358, -- legs
+				138364, -- back
+			},
+			["DEMONHUNTER"] = {
+				138378, -- head
+				138376, -- chest
+				138380, -- shoulder
+				138377, -- hands
+				138379, -- legs
+				138375, -- back
+			},
+			["DRUID"] = {
+				138330, -- head
+				138324, -- chest
+				138336, -- shoulder
+				138327, -- hands
+				138333, -- legs
+				138366, -- back
+			},
+			["HUNTER"] = {
+				138342, -- head
+				138339, -- chest
+				138347, -- shoulder
+				138340, -- hands
+				138344, -- legs
+				138368, -- back
+			},
+			["MAGE"] = {
+				138312, -- head
+				138318, -- chest
+				138321, -- shoulder
+				138309, -- hands
+				138315, -- legs
+				138365, -- back
+			},
+			["MONK"] = {
+				138331, -- head
+				138325, -- chest
+				138337, -- shoulder
+				138328, -- hands
+				138334, -- legs
+				138367, -- back
+			},
+			["PALADIN"] = {
+				138356, -- head
+				138350, -- chest
+				138362, -- shoulder
+				138353, -- hands
+				138359, -- legs
+				138369, -- back
+			},
+			["PRIEST"] = {
+				138313, -- head
+				138319, -- chest
+				138322, -- shoulder
+				138310, -- hands
+				138316, -- legs
+				138370, -- back
+			},
+			["ROGUE"] = {
+				138332, -- head
+				138326, -- chest
+				138338, -- shoulder
+				138329, -- hands
+				138335, -- legs
+				138371, -- back
+			},
+			["SHAMAN"] = {
+				138343, -- head
+				138346, -- chest
+				138348, -- shoulder
+				138341, -- hands
+				138345, -- legs
+				138372, -- back
+			},
+			["WARLOCK"] = {
+				138314, -- head
+				138320, -- chest
+				138323, -- shoulder
+				138311, -- hands
+				138317, -- legs
+				138373, -- back
+			},
+			["WARRIOR"] = {
+				138357, -- head
+				138351, -- chest
+				138363, -- shoulder
+				138354, -- hands
+				138360, -- legs
+				138374, -- back
+			},
+		},
 	}
 	-- scan every items
 	for i=1, 19 do

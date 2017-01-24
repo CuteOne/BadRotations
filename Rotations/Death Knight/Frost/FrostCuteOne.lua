@@ -177,6 +177,8 @@ local function runRotation()
         local runes             = br.player.power.runes.frac
         local swimming          = IsSwimming()
         local talent            = br.player.talent
+        local t19_2pc           = TierScan("T19") >= 2
+        local t19_4pc           = TierScan("T19") >= 4
         local ttd               = getTTD
         local units             = br.player.units
 
@@ -353,10 +355,10 @@ local function runRotation()
             end
             -- end
         -- Frost Strike
-            -- frost_strike,if=runic_power>=90&set_bonus.tier19_4pc -- Needs T19 logic
-            -- if runicPower >= 90 and tier19_4pc then
-            --     if cast.frostStrike() then return end
-            -- end
+            -- frost_strike,if=runic_power>=90&set_bonus.tier19_4pc
+            if runicPower >= 90 and t19_4pc then
+                if cast.frostStrike() then return end
+            end
         -- Remorseless Winter
             -- remorseless_winter,if=buff.rime.react&equipped.132459
             if (buff.rime.exists and hasEquiped(132459)) and getDistance(units.dyn5) < 5 then
@@ -402,12 +404,12 @@ local function runRotation()
             end
         -- Remorseless Winter
             -- remorseless_winter,if=((runic_power>=20&set_bonus.tier19_4pc)|runic_power>=30)&buff.rime.react&(equipped.132459|talent.gathering_storm.enabled)
-            if (--[[(runicPower >= 20 and tier19_4pc) or]] runicPower >= 30) and buff.rime.exists and (hasEquiped(132459) or talent.gatheringStorm) and getDistance(units.dyn5) < 5 then
+            if ((runicPower >= 20 and t19_4pc) or runicPower >= 30) and buff.rime.exists and (hasEquiped(132459) or talent.gatheringStorm) and getDistance(units.dyn5) < 5 then
                 if cast.remorselessWinter() then return end
             end
         -- Howling Blast
             -- howling_blast,if=((runic_power>=20&set_bonus.tier19_4pc)|runic_power>=30)&buff.rime.react&!dot.hungering_rune_weapon.ticking
-            if (--[[(runicPower >= 20 and tier19_4pc) or]] runicPower >= 30) and buff.rime.exists then
+            if ((runicPower >= 20 and t19_4pc) or runicPower >= 30) and buff.rime.exists then
                 if cast.howlingBlast() then return end
             end
         -- Obliterate
@@ -434,7 +436,7 @@ local function runRotation()
             end
         -- Remorseless Winter
             -- remorseless_winter,if=talent.gathering_storm.enabled|!set_bonus.tier19_4pc|runic_power<30
-            if (talent.gatheringStorm --[[or not tier19_4pc ]]or runicPower < 20) and getDistance(units.dyn5) < 5 then -- TODO: T19 Check
+            if (talent.gatheringStorm or not t19_4pc or runicPower < 20) and getDistance(units.dyn5) < 5 then
                 if cast.remorselessWinter() then return end
             end
         end
@@ -455,10 +457,10 @@ local function runRotation()
                 if cast.howlingBlast() then return end
             end
         -- Obliterate
-            -- obliterate,if=equipped.132366&talent.runic_attenuation.enabled&set_bonus.tier19_2pc=1 -- TODO T19 Logic
-            -- if hasEquiped(132366) and talent.runicAttenuation and tier19_2pc then
-            --     if cast.obliterate() then return end
-            -- end
+            -- obliterate,if=equipped.132366&talent.runic_attenuation.enabled&set_bonus.tier19_2pc=1
+            if hasEquiped(132366) and talent.runicAttenuation and t19_2pc then
+                if cast.obliterate() then return end
+            end
         -- Remorseless Winter
             -- remorseless_winter,if=(buff.rime.react&equipped.132459&!(buff.obliteration.up&spell_targets.howling_blast<2))|talent.gathering_storm.enabled
             if ((buff.rime.exists and hasEquiped(132459) and not (buff.obliteration.exists and ((mode.rotation == 1 and #enemies.yards10 < 2) or mode.rotation == 3))) or talent.gatheringStorm)  

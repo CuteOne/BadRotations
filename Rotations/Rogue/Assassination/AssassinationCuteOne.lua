@@ -200,6 +200,7 @@ local function runRotation()
         local stealth                                       = br.player.buff.stealth.exists
         local stealthing                                    = br.player.buff.stealth.exists or br.player.buff.vanish.exists or br.player.buff.shadowmeld.exists
         local t18_4pc                                       = br.player.eq.t18_4pc
+        local t19_2pc                                       = TierScan("T19") >= 2
         local talent                                        = br.player.talent
         local ttd                                           = getTTD
         local ttm                                           = br.player.power.ttm
@@ -512,7 +513,9 @@ local function runRotation()
                     local agonizingPoison = debuff.agonizingPoison[thisUnit]
                     local deadlyPoison = debuff.deadlyPoison[thisUnit]
                     if (multidot or (UnitIsUnit(thisUnit,units.dyn5) and not multidot)) and (agonizingPoison ~= nil or deadlyPoison ~= nil) then
-                    	if (not talent.agonizingPoison and deadlyPoison.refresh) or (talent.agonizingPoison and agonizingPoison.refresh) then
+                    	if (not talent.agonizingPoison and deadlyPoison.refresh) or (talent.agonizingPoison and agonizingPoison.refresh) 
+                            or (t19_2pc and debuff.mutilatedFlesh[thisUnit] ~= nil and debuff.mutilatedFlesh[thisUnit].refresh)
+                        then
                     		if cast.mutilate(thisUnit) then return end
                     	end
                     end

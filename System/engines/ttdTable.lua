@@ -76,7 +76,7 @@ end
 function getTTD(unit)
 	local thisUnit = unit
 	if not string.find(thisUnit,"0x") then
-		if UnitExists(thisUnit) and not UnitIsDeadOrGhost(thisUnit) then
+		if ObjectExists(thisUnit) and not UnitIsDeadOrGhost(thisUnit) and UnitIsVisible(thisUnit) then
 			thisUnit = GetObjectWithGUID(UnitGUID(thisUnit))
 		else
 			return -2
