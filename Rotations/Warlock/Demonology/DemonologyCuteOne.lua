@@ -196,6 +196,13 @@ local function runRotation()
 		if profileStop == nil or not inCombat then profileStop = false end
         if castSummonId == nil then castSummonId = 0 end
         if handTimer == nil then handTimer = GetTime() end
+        if sindoreiSpiteOffCD == nil then sindoreiSpiteOffCD = true end
+        if buff.sindoreiSpite.exits and sindoreiSpiteOffCD then 
+            sindoreiSpiteOffCD = false 
+            C_Timer.After(180, function()
+                sindoreiSpiteOffCD = true
+            end) 
+        end
 
         -- Opener Variables
         if not inCombat and not ObjectExists("target") then 
@@ -231,7 +238,9 @@ local function runRotation()
         local wildImpDE = false
         local wildImpNoDEcount = 0
         local dreadStalkers = false
+        local dreadStalkersCount = 0
         local dreadStalkersDE = false
+        local dreadStalkersNoDEcount = 0
         local darkglare = false
         local darkglareDE = false
         local doomguard = false
@@ -250,7 +259,12 @@ local function runRotation()
                     wildImpDE = hasDEbuff
                     if not hasDEbuff then wildImpNoDEcount = wildImpNoDEcount + 1 end 
                 end
-                if thisUnit == 98035 then dreadStalkers = true; dreadStalkersDE = hasDEbuff end
+                if thisUnit == 98035 then 
+                    dreadStalkers = true 
+                    dreadStalkersCount = dreadStalkersCount + 1
+                    dreadStalkersDE = hasDEbuff
+                    if not hasDEbuff then dreadStalkersNoDEcount = dreadStalkersNoDEcount + 1 end
+                end
                 if thisUnit == 103673 then darkglare = true; darkglareDE = hasDEbuff end
                 if thisUnit == 11859 then doomguard = true; doomguardDE = hasDEbuff end
                 if thisUnit == 89 then infernal = true; infernalDE = hasDEbuff end
@@ -415,7 +429,7 @@ local function runRotation()
                     if useCDs() and isChecked("Summon Infernal") then
                         if talent.grimoireOfSupremacy and #enemies.yards8t >= 3 then
                             if cast.summonInfernal() then return end
-                        end
+                        end 
                     end
                 -- Summon Doomguard
                     -- summon_doomguard,if=talent.grimoire_of_supremacy.enabled&active_enemies<3
@@ -592,28 +606,26 @@ local function runRotation()
                         PetAttack()
                     end
         -- Implosion
-                    -- implosion,if=wild_imp_remaining_duration<=action.shadow_bolt.execute_time&buff.demonic_synergy.remains
-                    -- implosion,if=prev_gcd.hand_of_guldan&wild_imp_remaining_duration<=3&buff.demonic_synergy.remains
-                    -- implosion,if=wild_imp_count<=4&wild_imp_remaining_duration<=action.shadow_bolt.execute_time&spell_targets.implosion>1
-                    -- implosion,if=prev_gcd.hand_of_guldan&wild_imp_remaining_duration<=4&spell_targets.implosion>2
-                    if wildImpCount > 0 and ((wildImpRemain <= getCastTime(spell.shadowbolt) and buff.demonicSynergy.exists) 
-                        or (lastSpell == spell.handOfGuldan and wildImpRemain <= 3 and buff.demonicSynergy.exists)
-                        or (wildImpCount <= 4 and wildImpRemain <= getCastTime(spell.shadowbolt) and #enemies.yards8t > 1)
-                        or (lastSpell == spell.handOfGuldan and wildImpRemain <= 4 and #enemies.yards8t > 2))
-                    then
+                    -- implosion,if=wild_imp_remaining_duration<=action.shadow_bolt.execute_time&(buff.demonic_synergy.remains|talent.soul_conduit.enabled|(!talent.soul_conduit.enabled&spell_targets.implosion>1)|wild_imp_count<=4)
+                    if wildImpRemain <= getCastTime(spell.shadowbolt) and (buff.demonicSynergy.exists or talent.soulConduit or (not talent.soulConduit and #enemies.yards8t > 1) or wildImpCount <= 4) then
+                        if cast.implosion() then return end
+                    end
+                    -- implosion,if=prev_gcd.1.hand_of_guldan&((wild_imp_remaining_duration<=3&buff.demonic_synergy.remains)|(wild_imp_remaining_duration<=4&spell_targets.implosion>2))
+                    if lastSpell == spell.handOfGuldan and ((wildImpRemain <= 3 and buff.demonicSynergy.exists) or (wildImpRemain <= 4 and #enemies.yards8t)) then
                         if cast.implosion() then return end
                     end
         -- Shadowflame
-                    -- shadowflame,if=debuff.shadowflame.stack>0&remains<action.shadow_bolt.cast_time+travel_time
+                    -- shadowflame,if=((debuff.shadowflame.stack>0&remains<action.shadow_bolt.cast_time+travel_time)|(charges=2&soul_shard<5))&spell_targets.demonwrath<5
                     if debuff.shadowflame[units.dyn40] ~= nil then
-                        if debuff.shadowflame[units.dyn40].stack > 0 and debuff.shadowflame[units.dyn40].remain < getCastTime(spell.shadowbolt) + travelTime --[[and br.timer:useTimer("travelTime", travelTime)]] then
+                        if ((debuff.shadowflame[units.dyn40].stack > 0 and debuff.shadowflame[units.dyn40].remain < getCastTime(spell.shadowbolt) + travelTime) 
+                            or (charges.shadowflame == 2 and shards < 5)) and #enemies.yards8t < 5 
+                        then
                             if cast.shadowflame() then return end
                         end
                     end
         -- Service Pet
-                    -- if=cooldown.summon_doomguard.remains<=gcd&soul_shard>=2
-                    -- if=cooldown.summon_doomguard.remains>25
-                    if --[[((cd.summonDoomguard <= gcd and shards >= 2) or cd.summonDoomguard > 25) and]] br.timer:useTimer("castGrim", gcd) then
+                    -- service_pet
+                    if br.timer:useTimer("castGrim", gcd) then
                         if grimoirePet == 1 then
                             if cast.grimoireImp("player") then prevService = "Imp"; return end
                         end
@@ -631,28 +643,32 @@ local function runRotation()
                         end
                     end
         -- Summon Doomguard
-                    -- summon_doomguard,if=talent.grimoire_of_service.enabled&prev.service_felguard&spell_targets.infernal_awakening<3
-                    -- summon_doomguard,if=talent.grimoire_of_synergy.enabled&spell_targets.infernal_awakening<3
+                    -- summon_doomguard,if=!talent.grimoire_of_supremacy.enabled&spell_targets.infernal_awakening<=2&(target.time_to_die>180|target.health.pct<=20|target.time_to_die<30)
                     if useCDs() and isChecked("Summon Doomguard") then
-                        if (talent.grimoireOfService and prevService == "Felguard" and #enemies.yards8t < 3)
-                            or (talent.grimoireOfSynergy and #enemies.yards8t < 3)
-                        then
+                        if not talent.grimoireOfSupremacy and #enemies.yards8t <= 2 and (ttd("target") > 180 or getHP("target") <= 20 or ttd("target") < 30) then
                             if cast.summonDoomguard() then return end
                         end
                     end
         -- Summon Infernal
-                    -- summon_infernal,if=talent.grimoire_of_service.enabled&prev.service_felguard&spell_targets.infernal_awakening>=3
-                    -- summon_infernal,if=talent.grimoire_of_synergy.enabled&spell_targets.infernal_awakening>=3
+                    -- summon_infernal,if=!talent.grimoire_of_supremacy.enabled&spell_targets.infernal_awakening>2
                     if useCDs() and isChecked("Summon Infernal") then
-                        if (talent.grimoireOfService and prevService == "Felguard" and #enemies.yards8t >= 3)
-                            or (talent.grimoireOfSynergy and #enemies.yards8t >=3)
-                        then
+                        if not talent.grimoireOfSupremacy and #enemies.yards8t > 2 then
                             if cast.summonInfernal() then return end
                         end
                     end
+        -- Summon Doomguard
+                    -- summon_doomguard,if=talent.grimoire_of_supremacy.enabled&spell_targets.summon_infernal=1&equipped.132379&!cooldown.sindorei_spite_icd.remains
+                    if talent.grimoireOfSupremacy and #enemies.yards8t == 1 and hasEquiped(132379) and not sindoreiSpiteOffCD then
+                        if cast.summonDoomguard() then return end
+                    end
+        -- Summon Infernal
+                    -- summon_infernal,if=talent.grimoire_of_supremacy.enabled&spell_targets.summon_infernal>1&equipped.132379&!cooldown.sindorei_spite_icd.remains
+                    if talent.grimoireOfSupremacy and #enemies.yards8t > 1 and hasEquiped(132379) and not sindoreiSpiteOffCD then
+                        if cast.summonInfernal() then return end
+                    end
         -- Call Dreadstalkers
-                    -- call_dreadstalkers,if=!talent.summon_darkglare.enabled&(spell_targets.implosion<3|!talent.implosion.enabled)
-                    if not talent.summonDarkglare and (#enemies.yards8t < 3 or not talent.implosion) then
+                    -- call_dreadstalkers,if=(!talent.summon_darkglare.enabled|talent.power_trip.enabled)&(spell_targets.implosion<3|!talent.implosion.enabled)
+                    if (not talent.summonDarkglare or talent.powerTrip) and (#enemies.yards8t < 3 or not talent.implosion) then
                         if cast.callDreadstalkers() then return end
                     end
         -- Hand of Guldan
@@ -663,61 +679,52 @@ local function runRotation()
                         end
                     end
         -- Summon Darkglare
-                    -- summon_darkglare,if=prev_gcd.hand_of_guldan
-                    -- summon_darkglare,if=prev_gcd.call_dreadstalkers
+                    -- summon_darkglare,if=prev_gcd.1.hand_of_guldan|prev_gcd.1.call_dreadstalkers|talent.power_trip.enabled
+                    if lastSpell == spell.handOfGuldan or lastSpell == spell.callDreadstalkers or talent.powerTrip then
+                        if cast.summonDarkglare() then return end
+                    end
                     -- summon_darkglare,if=cooldown.call_dreadstalkers.remains>5&soul_shard<3
-                    -- summon_darkglare,if=cooldown.call_dreadstalkers.remains<=action.summon_darkglare.cast_time&soul_shard>=3
-                    -- summon_darkglare,if=cooldown.call_dreadstalkers.remains<=action.summon_darkglare.cast_time&soul_shard>=1&buff.demonic_calling.react
-                    if lastSpell == spell.handOfGuldan or lastSpell == spell.callDreadstalkers or (cd.callDreadstalkers > 5 and shards < 3)
-                        or (cd.callDreadstalkers <= getCastTime(spell.summonDarkglare) and shards >= 3)
-                        or (cd.callDreadstalkers <= getCastTime(spell.summonDarkglare) and shards >= 1 and buff.demonicCalling.exists)
-                    then
+                    if cd.callDreadstalkers > 5 and shards < 3 then
+                        if cast.summonDarkglare() then return end
+                    end
+                    -- summon_darkglare,if=cooldown.call_dreadstalkers.remains<=action.summon_darkglare.cast_time&(soul_shard>=3|soul_shard>=1&buff.demonic_calling.react)
+                    if cd.callDreadstalkers <= getCastTime(spell.summonDarkglare) and (shards >= 3 or shards >= 1 and buff.demonicCalling.exists) then
                         if cast.summonDarkglare() then return end
                     end
         -- Call Dreadstalkers
-                    -- call_dreadstalkers,if=talent.summon_darkglare.enabled&(spell_targets.implosion<3|!talent.implosion.enabled)&cooldown.summon_darkglare.remains>2
-                    -- call_dreadstalkers,if=talent.summon_darkglare.enabled&(spell_targets.implosion<3|!talent.implosion.enabled)&prev_gcd.summon_darkglare
-                    -- call_dreadstalkers,if=talent.summon_darkglare.enabled&(spell_targets.implosion<3|!talent.implosion.enabled)&cooldown.summon_darkglare.remains<=action.call_dreadstalkers.cast_time&soul_shard>=3
-                    -- call_dreadstalkers,if=talent.summon_darkglare.enabled&(spell_targets.implosion<3|!talent.implosion.enabled)&cooldown.summon_darkglare.remains<=action.call_dreadstalkers.cast_time&soul_shard>=1&buff.demonic_calling.react
+                    -- call_dreadstalkers,if=talent.summon_darkglare.enabled&(spell_targets.implosion<3|!talent.implosion.enabled)&(cooldown.summon_darkglare.remains>2|prev_gcd.1.summon_darkglare|cooldown.summon_darkglare.remains<=action.call_dreadstalkers.cast_time&soul_shard>=3|cooldown.summon_darkglare.remains<=action.call_dreadstalkers.cast_time&soul_shard>=1&buff.demonic_calling.react)
                     if talent.summonDarkglare and (#enemies.yards8t < 3 or not talent.implosion) 
-                        and (cd.summonDarkglare > 2 or lastSpell == spell.summonDarkglare 
-                            or (cd.summonDarkglare <= getCastTime(spell.callDreadstalkers) and shards >= 3)
+                        and (cd.summonDarkglare > 2 or lastSpell == summonDarkglare 
+                            or (cd.summonDarkglare <= getCastTime(spell.callDreadstalkers) and shards >= 3) 
                             or (cd.summonDarkglare <= getCastTime(spell.callDreadstalkers) and shards >= 1 and buff.demonicCalling.exists))
                     then
                         if cast.callDreadstalkers() then return end
                     end
         -- Hand of Guldan
-                    -- hand_of_guldan,if=soul_shard>=3&prev_gcd.call_dreadstalkers
-                    -- hand_of_guldan,if=soul_shard>=5&cooldown.summon_darkglare.remains<=action.hand_of_guldan.cast_time
-                    -- hand_of_guldan,if=soul_shard>=4&cooldown.summon_darkglare.remains>2
-                    if lastSpell ~= spell.handOfGuldan and ((shards >= 3 and lastSpell == spell.callDreadstalkers)
-                            or (shards >= 5 and cd.summonDarkglare <= getCastTime(spell.handOfGuldan))
-                            or (shards >= 4 and cd.summonDarkglare > 2)) 
-                    then
+                    -- hand_of_guldan,if=(soul_shard>=3&prev_gcd.1.call_dreadstalkers)|soul_shard>=5|(soul_shard>=4&cooldown.summon_darkglare.remains>2)
+                    if (shards >= 3 and lastSpell == spell.callDreadstalkers) or shards >= 5 or (shards >= 4 and cd.summonDarkglare > 2) then
                         if GetTime() > handTimer then 
                             if cast.handOfGuldan() then handTimer = GetTime() + 2; return end
                         end
-                    end
+                    end        
         -- Demonic Empowerment
-                    -- demonic_empowerment,if=wild_imp_no_de>3|prev_gcd.hand_of_guldan
-                    -- demonic_empowerment,if=dreadstalker_no_de>0|darkglare_no_de>0|doomguard_no_de>0|infernal_no_de>0|service_no_de>0
-                    if activePet ~= "None" and (((wildImpNoDEcount > 3 and wildImpCount > 3) or lastSpell == spell.handOfGuldan) 
-                        or ((not dreadStalkersDE and dreadStalkers) or (not darkglareDE and darkglare) 
-                            or (not doomguardDE and doomguard) or (not infernalDE and infernal) or not petDE)) 
+                    -- demonic_empowerment,if=(((talent.power_trip.enabled&(!talent.implosion.enabled|spell_targets.demonwrath<=1))|!talent.implosion.enabled|(talent.implosion.enabled&!talent.soul_conduit.enabled&spell_targets.demonwrath<=3))&(wild_imp_no_de>3|prev_gcd.1.hand_of_guldan))|(prev_gcd.1.hand_of_guldan&wild_imp_no_de=0&wild_imp_remaining_duration<=0)|(prev_gcd.1.implosion&wild_imp_no_de>0)
+                    if (((talent.powerTrip and (not talent.implosion or #enemies.yards8t <= 1)) or not talent.implosion 
+                            or (talent.implosion and not talent.soulConduit and #enemies.yards8t <= 3)) 
+                            and ((wildImp and wildImpNoDEcount > 3) or lastSpell == spell.handOfGuldan)) 
+                        or (lastSpell == spell.handOfGuldan and wildImpNoDEcount == 0 and wildImpRemain <= 0) 
+                        or (lastSpell == spell.implosion and wildImp and wildImpNoDEcount > 0) 
                     then
-                        if deTimer == nil then deTimer = GetTime() end
-                        for i = 1, #petInfo do
-                            if not petInfo[i].deBuff and GetTime() > deTimer then
-                                cast.demonicEmpowerment() 
-                                deTimer = GetTime() + 2
-                                break
-                            end
-                        end
+                        if cast.demonicEmpowerment() then return end
                     end
-        -- Felstorm
-                    -- felguard:felstorm
-                    if felguard and petInfo[1].numEnemies > 0 and getSpellCD(89751) == 0 then
-                        if cast.commandDemon() then return end
+                    -- demonic_empowerment,if=dreadstalker_no_de>0|darkglare_no_de>0|doomguard_no_de>0|infernal_no_de>0|service_no_de>0
+                    if (dreadStalkers and dreadStalkersNoDEcount > 0) 
+                        or (darkglare and not darkglareDE) 
+                        or (doomguard and not doomguardDE) 
+                        or (infernal and not infernalDE) 
+                        or (activePet and not petDE) 
+                    then
+                        if cast.demonicEmpowerment() then return end
                     end
         -- Doom
                     -- doom,cycle_targets=1,if=!talent.hand_of_doom.enabled&target.time_to_die>duration&(!ticking|remains<duration*0.3)
@@ -735,8 +742,8 @@ local function runRotation()
         -- Cooldowns
                     if actionList_Cooldowns() then return end
         -- Shadowflame
-                    -- shadowflame,if=charges=2
-                    if charges.shadowflame == 2 --[[and br.timer:useTimer("travelTime", travelTime)]] then 
+                    -- shadowflame,if=charges=2&spell_targets.demonwrath<5
+                    if charges.shadowflame == 2 and #enemies.yards8t < 5 then 
                         if cast.shadowflame() then return end
                     end
         -- Thal'kiel's Consumption

@@ -2210,6 +2210,7 @@ br.idList = {
                 demonicCalling              = 205146,
                 demonicEmpowerment          = 193396,
                 demonwrath                  = 193440,
+                sindoreiSpite               = 208871,
             },
             debuffs                         = {
                 doom                        = 603,
