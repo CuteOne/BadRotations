@@ -140,8 +140,6 @@ local function runRotation()
         --- SINGLE TARGET ---
         ---------------------
         function singleTargetBurst()
-            --            Print("aaa")
-
             if lowest.hp <= getOptionValue("Life Coccon") then
                 if player.cast.lifeCocoon(lowest.unit) then
                     lastSpellCasted = ""
@@ -178,7 +176,6 @@ local function runRotation()
         end
 
         function extraThunderFocus()
-            --            Print("aaaa")
             if player.buff.thunderFocusTea.exists then
                 if lowest.hp <= getOptionValue("TF + EM")*1.6 and (getBuffRemain(lowest.unit, player.spell.envelopingMist, "player") < 3 or (lastSpellCasted ~= "EM" or lastSpellCatedOnPlayer ~= lowest.unit))  then
                     if player.cast.envelopingMist(lowest.unit) then
@@ -231,7 +228,6 @@ local function runRotation()
             selfHealing()
 
             if not isMoving("player") then
-                --            Print("aaaaa")
                 if lowest.hp <= getOptionValue("Sheilun's Gift") and  GetSpellCount(player.spell.sheilunsGift) >= 5 then
                     if player.cast.sheilunsGift(lowest.unit) then
                         lastSpellCasted = ""
