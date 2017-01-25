@@ -690,11 +690,11 @@ local function runRotation()
         -- Single/Execute
             if rage < 20 or level < 40 then
                 -- run_action_list,name=execute,target_if=target.health.pct<=20&spell_targets.whirlwind<5
-                if level >= 28 then
+                if level >= 8 then
                     if actionList_Execute() then return end
                 end
                 -- run_action_list,name=single,if=target.health.pct>20
-                if getHP(units.dyn5) > 20 or level < 28 then
+                if getHP(units.dyn5) > 20 or level < 8 then
                     if actionList_Single() then return end
                 end  
             end
@@ -780,11 +780,11 @@ local function runRotation()
                 if #enemies.yards5 > 0 and ((mode.rotation == 1 and #enemies.yards5 < getOptionValue("AoE Threshold")) or mode.rotation == 3) then
             -- Action List - Single/Execute
                     -- run_action_list,name=execute,target_if=target.health.pct<=20&spell_targets.whirlwind<5
-                    if level >= 28 then
+                    if level >= 8 then
                         if actionList_Execute() then return end
                     end
                     -- run_action_list,name=single,if=target.health.pct>20
-                    if getHP(units.dyn5) > 20 or level < 28 then
+                    if getHP(units.dyn5) > 20 or level < 8 then
                         if actionList_Single() then return end
                     end
                 end
