@@ -398,7 +398,7 @@ local function runRotation()
                 -- blood_fury,if=buff.battle_cry.up|target.time_to_die<=16
                 -- berserking,if=buff.battle_cry.up|target.time_to_die<=11
                 -- arcane_torrent,if=buff.battle_cry_deadly_calm.down&rage.deficit>40
-                if useCDs() and isChecked("Racial") and ((br.player.race == "Orc" and (buff.battleCry.exists or ignoreBattleCry or ttd(units.dyn5) <= 16)) 
+                if useCDs() and isChecked("Racial") and getSpellCD(racial) == 0 and ((br.player.race == "Orc" and (buff.battleCry.exists or ignoreBattleCry or ttd(units.dyn5) <= 16)) 
                     or (br.player.race == "Troll" and (buff.battleCry.exists or ignoreBattleCry or ttd(units.dyn5) <= 11)) 
                     or (br.player.race == "BloodElf" and (not buff.battleCry.exists and powerDeficit > 40))) 
                 then
@@ -639,13 +639,13 @@ local function runRotation()
             if buff.stoneHeart.exists then
                 if cast.execute() then return end
             end
-            if cd.mortalStrike > gcd and cd.colossusSmash > gcd then
-                if #enemies.yards8 > 1 then
+            if (cd.mortalStrike > gcd and cd.colossusSmash > gcd) or level < 20 then
+                if #enemies.yards8 > 1 and level >= 40 then
         -- Cleave
                     if cast.cleave() then return end
         -- Whirlwind
                     if cast.whirlwind() then return end
-                elseif #enemies.yards8 == 1 then
+                elseif #enemies.yards8 == 1 or level < 40 then
         -- Slam
                     if rage > 32 or ((buff.battleCry.exists or ignoreBattleCry) and talent.deadlyCalm) then
                         if cast.slam() then return end
@@ -684,15 +684,17 @@ local function runRotation()
             if cast.cleave() then return end
         -- Whirlwind
             -- whirlwind,if=rage>=40
-            if rage >= 40 then
+            if rage >= 40 and level >= 40 then
                 if cast.whirlwind() then return end
             end
         -- Single/Execute
-            if rage < 20 then
+            if rage < 20 or level < 40 then
                 -- run_action_list,name=execute,target_if=target.health.pct<=20&spell_targets.whirlwind<5
-                if actionList_Execute() then return end
+                if level >= 28 then
+                    if actionList_Execute() then return end
+                end
                 -- run_action_list,name=single,if=target.health.pct>20
-                if getHP(units.dyn5) > 20 then
+                if getHP(units.dyn5) > 20 or level < 28 then
                     if actionList_Single() then return end
                 end  
             end
@@ -778,9 +780,11 @@ local function runRotation()
                 if #enemies.yards5 > 0 and ((mode.rotation == 1 and #enemies.yards5 < getOptionValue("AoE Threshold")) or mode.rotation == 3) then
             -- Action List - Single/Execute
                     -- run_action_list,name=execute,target_if=target.health.pct<=20&spell_targets.whirlwind<5
-                    if actionList_Execute() then return end
+                    if level >= 28 then
+                        if actionList_Execute() then return end
+                    end
                     -- run_action_list,name=single,if=target.health.pct>20
-                    if getHP(units.dyn5) > 20 then
+                    if getHP(units.dyn5) > 20 or level < 28 then
                         if actionList_Single() then return end
                     end
                 end
