@@ -131,7 +131,7 @@ local function runRotation()
         UpdateToggle("Dispell",0.25)
         player.mode.dispell = br.data.settings[br.selectedSpec].toggles["Dispell"]
         UpdateToggle("Fistweaving",0.25)
-        player.fistweaving = br.data.settings[br.selectedSpec].toggles["Fistweaving"]
+        player.mode.fistweaving = br.data.settings[br.selectedSpec].toggles["Fistweaving"]
         UpdateToggle("Interrupt",0.25)
 
 
