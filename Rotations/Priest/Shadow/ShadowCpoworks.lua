@@ -306,7 +306,7 @@ local function runRotation()
             --Cooldowns
             if actionList_Cooldowns() then return end
             --Void Torrent
-            if ttd(units.dyn40) > 5 and getDebuffRemain(units.dyn40,spell.vampiricTouch,"player") >= 6 and getDebuffRemain(units.dyn40,spell.shadowWordPain,"player") >= 4 then
+            if useCDs() and ttd(units.dyn40) > 5 and getDebuffRemain(units.dyn40,spell.vampiricTouch,"player") >= 6 and getDebuffRemain(units.dyn40,spell.shadowWordPain,"player") >= 4 and buff.voidForm.stack >= 23 then
                 if cast.voidTorrent() then return end
             end
             --VoidBolt

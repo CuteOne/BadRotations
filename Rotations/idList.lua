@@ -1544,7 +1544,7 @@ br.idList = {
                 silence                     = 15487,
                 vampiricEmbrace             = 15286,
                 vampiricTouch               = 34914,
-                voidBolt                    = 205448,
+                voidBolt                    = 231688,
                 voidEruption                = 228260,
                 voidTorrent                 = 205065,
             },
