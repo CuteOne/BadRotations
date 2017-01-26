@@ -202,30 +202,13 @@ function br.ui:closeWindow(windowName)
                         if br.data.settings[tostring(l)] ~= nil and type(w) ~= "string" and type(w) ~= "number" and type(w) ~= "boolean" then
                             for m, x in pairs(br.data.settings[tostring(l)]) do
                                 if m == k then
-                                    if br.data.settings[l][m].active == nil or br.data.settings[l][m].active == true then 
-                                        br.ui.window[k].parent.closeButton:Click() 
-                                        br.data.settings[l][m].active = false
-                                    end
+                                    br.ui.window[k].parent.closeButton:Click() 
+                                    br.data.settings[l][m].active = false
                                 end
                             end
-                            -- if br.data.settings[tostring(l)][w] ~= nil then
-                            --     print(br.data.settings[tostring(l)][w])
-                            -- --     if br.data.settings[l][k].active then br.ui.window[k].parent.closeButton:Click() end
-                            -- end
                         end
                     end
                 end
-                -- for l, w in pairs(br.data.settings) do
-                --     if l ~= br.selectedSpec and br.data.settings[l] ~= nil then
-                --         if br.data.settings[l][k] ~= nil then
-                --         print(br.data.settings[l][k])
-                --             if br.data.settings[l][k].active then br.ui.window[k].parent.closeButton:Click() end
-                -- -- if br.data.settings[br.selectedSpec][k] ~= nil then
-                --     -- if br.data.settings[br.selectedSpec][k].active then
-                --         -- br.ui.window[k].parent.closeButton:Click()
-                --         end
-                --     end
-                -- end
             end
         end
     end
@@ -235,7 +218,6 @@ function br.ui:toggleWindow(windowName)
     for k, v in pairs(br.ui.window) do
         if k == windowName then
             if br.ui.window[k].parent ~= nil then
-                -- if br.data.settings[br.selectedSpec] == nil then br.ui:recreateWindows() end
                 if br.data.settings[br.selectedSpec][k].active then
                     br.ui.window[k].parent.closeButton:Click()
                 else
