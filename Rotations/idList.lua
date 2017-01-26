@@ -814,6 +814,7 @@ br.idList = {
                 butchery                    = 212436,
                 carve                       = 187708,
                 caltrops                    = 187698,
+                camouflague                 = 199483,
                 dragonsfireGrenade          = 194855,
                 eagleEye                    = 6197,
                 exhilaration                = 109304,
@@ -833,17 +834,20 @@ br.idList = {
                 splittingCobra              = 194407,
                 snakeHunter                 = 201078,
                 steelTrap                   = 187650,
+                stickyBomb                  = 191241,
                 throwingAxes                = 200163,
             },
             artifacts                       = {
 
             },
             buffs                           = {
+                aspectOfTheEagle            = 186289,
                 mokNathalTactics            = 201081,
                 mongooseFury                = 190931,
+                spittingCobra               = 194407,
             },
             debuffs                         = {
-                caltrops                    = 187698,
+                caltrops                    = 194277,
                 lacerate                    = 185855,
                 serpentSting                = 118253,
             },
@@ -851,17 +855,24 @@ br.idList = {
 
             },
             talents                         = {
+                aMurderOfCrows              = 206505,
                 animalInstincts             = 204315,
+                aspectOfTheBeast            = 191384,
+                butchery                    = 212436,
+                caltrops                    = 194277,
+                camouflague                 = 199483,
+                dragonsfireGrenade          = 194855,
+                expertTrapper               = 199543,
+                guerrilaTactics             = 236698,
+                mortalWounds                = 200108,
+                rangersNet                  = 201075,
+                serpentSting                = 87935,
+                snakeHunter                 = 201078,
+                spittingCobra               = 194407,
+                steelTrap                   = 162488,
+                stickyBomb                  = 191241,
                 throwingAxes                = 200163,
                 wayOfTheMokNathal           = 201082,
-                caltrops                    = 194277,
-                steelTrap                   = 162488,
-                aMurderOfCrows              = 206505,
-                snakeHunter                 = 201078,
-                butchery                    = 212436,
-                dragonsfireGrenade          = 194855,
-                serpentSting                = 87935,
-                intimidation                = 19577,
 
             },
         },
@@ -2163,7 +2174,11 @@ br.idList = {
                 agony                       = 980,
                 corruption                  = 146739,
                 siphonLife                  = 63106,
-                unstableAffliction          = 233490,
+                unstableAffliction1         = 233490,
+                unstableAffliction2         = 233496,
+                unstableAffliction3         = 233497,
+                unstableAffliction4         = 233498,
+                unstableAffliction5         = 233499,
             },
             glyphs                          = {
 
@@ -2210,7 +2225,6 @@ br.idList = {
                 demonicCalling              = 205146,
                 demonicEmpowerment          = 193396,
                 demonwrath                  = 193440,
-                sindoreiSpite               = 208871,
             },
             debuffs                         = {
                 doom                        = 603,
@@ -2326,6 +2340,7 @@ br.idList = {
             },
             buffs                           = {
                 demonicSynergy              = 171982,
+                sindoreiSpite               = 208871,
                 soulHarvest                 = 196098,
             },
             debuffs                         = {

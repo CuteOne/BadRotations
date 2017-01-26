@@ -310,8 +310,12 @@ local function runRotation()
                     return true
                 end
                 -- Racial: Orc Blood Fury | Troll Berserking | Blood Elf Arcane Torrent
-                if isChecked("Racial") and (br.player.race == "Orc" or br.player.race == "Troll" or br.player.race == "BloodElf") then
-                     if castSpell("player",racial,false,false,false) then return end
+                if isChecked("Racial") and getSpellCD(racial) == 0 then
+                    if (((br.player.race == "Orc" or br.player.race == "Troll") and (buff.spittingCobra.exists or (not talent.spittingCobra and buff.aspectOfTheEagle.exists))) 
+                        or (br.player.race == "BloodElf" and powerDeficit >= 30)) 
+                    then
+                        if castSpell("player",racial,false,false,false) then return end
+                    end
                 end
                 -- Aspect of the Eagle
                 if isChecked("Aspect of the Eagle") then
@@ -340,6 +344,316 @@ local function runRotation()
             end
 
         end -- End Action List - Multi Target
+    -- Action List - Way of the Moknathal
+        local function actionList_WayOfTheMokNathal()
+        -- Raptor Strike
+            -- raptor_strike,if=buff.moknathal_tactics.stack<=1
+            if buff.mokNathalTactics.stack <= 1 then
+                if cast.raptorStrike() then return end
+            end
+            -- raptor_strike,if=buff.moknathal_tactics.remains<gcd
+            if buff.mokNathalTactics.remain < gcd then
+                if cast.raptorStrike() then return end
+            end
+        -- Snake Hunter
+            -- snake_hunter,if=cooldown.mongoose_bite.charges<=0&buff.mongoose_fury.remains>3*gcd
+            if charges.mongooseBite <= 0 and buff.mongooseFury.remain > 3 * gcd then
+                if cast.snakeHunter() then return end
+            end
+        -- A Murder of Crows
+            -- a_murder_of_crows,if=focus>55&buff.mongoose_fury.stack<4&buff.mongoose_fury.duration>=gcd
+            if power > 55 and buff.mongooseFury.stack < 4 and buff.mongooseFury.duration >= gcd then
+                if cast.aMurderOfCrows() then return end
+            end
+        -- Steel Trap
+            -- steel_trap,if=buff.mongoose_fury.duration>=gcd&buff.mongoose_fury.stack<4
+            if buff.mongooseFury.duration >= gcd and buff.mongooseFury.stack < 4 then
+                if cast.steelTrap() then return end
+            end
+        -- Caltrops
+            -- caltrops,if=(buff.mongoose_fury.duration>=gcd&buff.mongoose_fury.stack<4&!dot.caltrops.ticking)
+            if (buff.mongooseFury.duration >= gcd and buff.mongooseFury.stack < 4 and not debuff.caltrops[units.dyn5].exists) then
+                if cast.caltrops() then return end
+            end
+        -- Flanking Strike
+            -- flanking_strike,if=cooldown.mongoose_bite.charges<=0&buff.aspect_of_the_eagle.remains>=gcd&focus>75
+            if charges.mongooseBite <= 0 and buff.aspectOfTheEagle.remain >= gcd and power > 75 then
+                if cast.flankingStrike() then return end
+            end
+        -- Lacerate
+            -- lacerate,if=focus>60&buff.mongoose_fury.duration>=gcd&dot.lacerate.remains<=3&cooldown.mongoose_bite.charges>=0&buff.mongoose_fury.stack<4
+            if power > 60 and buff.mongooseFury.duration >= gcd and debuff.lacerate[units.dyn5].remain <= 3 and charges.mongooseBite >= 0 and buff.mongooseFury.stack < 4 then
+                if cast.lacerate() then return end
+            end
+        -- Spitting Cobra
+            -- spitting_cobra,if=buff.mongoose_fury.duration>=gcd&cooldown.mongoose_bite.charges>=0&buff.mongoose_fury.stack<4&buff.moknathal_tactics.stack=4
+            if buff.mongooseFury.duration >= gcd and charges.mongooseBite >= 0 and buff.mongooseFury.stack < 4 and buff.mokNathalTactics.stack == 4 then
+                if cast.spittingCobra() then return end
+            end
+        -- Steel Trap
+            -- steel_trap,if=buff.mongoose_fury.duration>=gcd&buff.mongoose_fury.stack<4
+            if buff.mongooseFury.duration >= gcd and buff.mongooseFury.stack < 4 then
+                if cast.steelTrap() then return end
+            end
+        -- Explosive Trap
+            -- explosive_trap,if=buff.mongoose_fury.duration>=gcd&cooldown.mongoose_bite.charges>=0&buff.mongoose_fury.stack<4
+            if buff.mongooseFury.duration >= gcd and charges.mongooseBite >= 0 and buff.mongooseFury.stack < 4 then
+                if cast.explosiveTrap() then return end
+            end
+        -- Dragonsfire Grenade
+            -- dragonsfire_grenade,if=buff.mongoose_fury.duration>=gcd&cooldown.mongoose_bite.charges>=0&buff.mongoose_fury.stack<4
+            if buff.mongooseFury.duration >= gcd and charges.mongooseBite >= 0 and buff.mongooseFury.stack < 4 then
+                if cast.dragonsfireGrenade() then return end
+            end
+        -- Raptor Strike
+            -- raptor_strike,if=talent.serpent_sting.enabled&dot.serpent_sting.remains<gcd
+            if talent.serpentSting and debuff.serpentSting[units.dyn5].remain < gcd then
+                if cast.raptorStrike() then return end
+            end
+            -- raptor_strike,if=buff.moknathal_tactics.remains<4&buff.mongoose_fury.stack=6&buff.mongoose_fury.remains>=gcd
+            if buff.mokNathalTactics.remain < 4 and buff.mongooseFury.stack == 6 and buff.MongooseFury.remain >= gcd then
+                if cast.raptorStrike() then return end
+            end
+        -- Fury of the Eagle
+            -- fury_of_the_eagle,if=buff.moknathal_tactics.remains>4&buff.mongoose_fury.stack=6&cooldown.mongoose_bite.charges<=2
+            if buff.mokNathalTactics.remain > 4 and buff.mongooseFury.stack == 6 and charges.mongooseBite <= 2 then
+                if cast.furyOfTheEagle() then return end
+            end
+        -- Mongoose Bite
+            -- mongoose_bite,if=buff.aspect_of_the_eagle.up&buff.mongoose_fury.up&buff.moknathal_tactics.stack>=4
+            if buff.aspectOfTheEagle.exists and buff.mongooseFury.exists and buff.mokNathalTactics.stack >= 4 then
+                if cast.mongooseBite() then return end
+            end
+        -- Fury of the Eagle
+            -- fury_of_the_eagle,if=(buff.moknathal_tactics.remains>4&(buff.mongoose_fury.stack=6&cooldown.mongoose_bite.charges<=0|buff.mongoose_fury.up&buff.mongoose_fury.remains<=2*gcd))
+            if (buff.mokNathalTactics.remain > 4 and (buff.mongooseFury.stack == 6 and charges.mongooseBite <= 0) or (buff.mongooseFury.exists and buff.mongooseFury.remain <= 2* gcd)) then
+                if cast.furyOfTheEagle() then return end
+            end
+        -- Raptor Strike
+            -- raptor_strike,if=buff.moknathal_tactics.stack<=3
+            if buff.mokNathalTactics.stack <= 3 then
+                if cast.raptorStrike() then return end
+            end
+        -- Aspect of the Eagle
+            -- aspect_of_the_eagle,if=buff.mongoose_fury.up&buff.mongoose_fury.remains>6&cooldown.mongoose_bite.charges>=2
+            if isChecked("Aspect of the Eagle") and useCDs() then
+                if buff.mongooseFury.exists and buff.mongooseFury.remain > 6 and charges.mongooseBite >= 2 then
+                    if cast.aspectOfTheEagle() then return end
+                end
+            end
+        -- Flanking Strike
+            -- flanking_strike,if=cooldown.mongoose_bite.charges<=2&buff.mongoose_fury.remains>(1+action.mongoose_bite.charges*gcd)&focus>75
+            if charges.mongooseBite <= 2 and buff.mongooseFury.remain > (1 + charges.mongooseBite * gcd) and power > 75 then
+                if cast.flankingStrike() then return end
+            end
+        -- Mongoose Bite
+            -- mongoose_bite,if=buff.mongoose_fury.up&buff.mongoose_fury.remains<cooldown.aspect_of_the_eagle.remains
+            if buff.mongooseFury.exists and buff.mongooseFury.remain < cd.aspectOfTheEagle then
+                if cast.mongooseBite() then return end
+            end
+        -- A Murder of Crows
+            -- a_murder_of_crows,if=focus>55
+            if power > 55 then
+                if cast.aMurderOfCrows() then return end
+            end
+        -- Spitting Cobra
+            -- spitting_cobra
+            if cast.spittingCobra() then return end
+        -- Steel Trap
+            -- steel_trap
+            if cast.steelTrap() then return end
+        -- Explosive Trap
+            -- explosive_trap
+            if cast.explosiveTrap() then return end
+        -- Caltrops
+            -- caltrops,if=(!dot.caltrops.ticking)
+            if not debuff.caltrops[units.dyn5].exists then
+                if cast.caltrops() then return end
+            end
+        -- Lacerate
+            -- lacerate,if=(!dot.lacerate.ticking|dot.lacerate.remains<3)
+            if (not debuff.lacerate[units.dyn5].exists or debuff.lacerate[units.dyn5].remain < 3) then
+                if cast.lacerate() then return end
+            end
+        -- Dragonsfire Grenade
+            -- dragonsfire_grenade
+            if cast.dragonsfireGrenade() then return end
+        -- Butchery
+            -- butchery,if=(charges=3&focus>65)
+            if charges.butchery == 3 and power > 65 then
+                if cast.butchery() then return end
+            end
+        -- Mongoose Bite
+            -- mongoose_bite,if=(charges>=2&cooldown.mongoose_bite.remains<=gcd|charges=3)
+            if (charges.mongooseBite >= 2 and cd.mongooseBite <= gcd) or charges == 3 then
+                if cast.mongooseBite() then return end
+            end
+        -- Butchery
+            -- butchery,if=focus>65
+            if power > 65 then
+                if cast.butchery() then return end
+            end
+        -- Flanking Strike
+            -- flanking_strike,if=focus>75
+            if power > 75 then
+                if cast.flankingStrike() then return end
+            end
+        -- Raptor Strike
+            -- raptor_strike,if=focus>75-cooldown.flanking_strike.remains*focus.regen
+            if power > 75 - cd.flankingStrike * powerRegen then
+                if cast.raptorStrike() then return end
+            end 
+
+        end -- End Action List - Way of the Moknathal
+    -- Action List - No of the MokNathal
+        local function actionList_NoOfTheMokNathal()
+            -- A Murder of Crows
+            -- a_murder_of_crows,if=cooldown.mongoose_bite.charges>=0&buff.mongoose_fury.stack<4
+            if charges.mongooseBite >= 0 and buff.mongooseFury.stack < 4 then
+                if cast.aMurderOfCrows() then return end
+            end
+            -- Snake Hunter
+            -- snake_hunter,if=action.mongoose_bite.charges<=0&buff.mongoose_fury.remains>3*gcd
+            if charges.mongooseBite <= 0 and buff.mongooseFury.remain > 3 * gcd then
+                if cast.snakeHunter() then return end
+            end
+            -- Steel Trap
+            -- steel_trap,if=buff.mongoose_fury.duration>=gcd&buff.mongoose_fury.stack<4
+            if buff.mongooseFury.duration >= gcd and buff.mongooseFury.stack < 4 then
+                if cast.steelTrap() then return end
+            end
+            -- Caltrops
+            -- caltrops,if=(buff.mongoose_fury.duration>=gcd&buff.mongoose_fury.stack<4&!dot.caltrops.ticking)
+            if (buff.mongooseFury.duration >= gcd and buff.mongooseFury.stack < 4 and not debuff.caltrops[units.dyn5].exists) then
+                if cast.caltrops() then return end
+            end
+            -- Flanking Strike
+            -- flanking_strike,if=cooldown.mongoose_bite.charges<=0&buff.aspect_of_the_eagle.remains>=gcd
+            if charges.mongooseBite <= 0 and buff.aspectOfTheEagle.remain >= gcd then
+                if cast.flankingStrike() then return end
+            end
+            -- Lacerate
+            -- lacerate,if=buff.mongoose_fury.duration>=gcd&dot.lacerate.remains<=1&&cooldown.mongoose_bite.charges>=0&buff.mongoose_fury.stack<4
+            if buff.mongooseFury.duration >= gcd and debuff.lacerate[units.dyn5].remain <= 1 and charges.mongooseBite >= 0 and buff.mongooseFury.stack < 4 then
+                if cast.lacerate() then return end
+            end
+            -- Spitting Cobra
+            -- spitting_cobra,if=buff.mongoose_fury.duration>=gcd&cooldown.mongoose_bite.charges>=0&buff.mongoose_fury.stack<4
+            if buff.mongooseFury.duration >= gcd and charges.mongooseBite >= 0 and buff.mongooseFury.stack < 4 then
+                if cast.spittingCobra() then return end
+            end
+            -- Steel Trap
+            -- steel_trap,if=buff.mongoose_fury.duration>=gcd&buff.mongoose_fury.stack<4
+            if buff.mongooseFury.duration >= gcd and buff.mongooseFury.stack < 4 then
+                if cast.steelTrap() then return end
+            end
+            -- Explosive Trap
+            -- explosive_trap,if=buff.mongoose_fury.duration>=gcd&cooldown.mongoose_bite.charges>=0&buff.mongoose_fury.stack<4
+            if buff.mongooseFury.duration >= gcd and charges.mongooseBite >= 0 and buff.mongooseFury.stack < 4 then
+                if cast.explosiveTrap() then return end
+            end
+            -- Dragonsfire Grenade
+            -- dragonsfire_grenade,if=buff.mongoose_fury.duration>=gcd&cooldown.mongoose_bite.charges>=0&buff.mongoose_fury.stack<4
+            if buff.mongooseFury.duration >= gcd and charges.mongooseBite >= 0 and buff.mongooseFury.stack < 4 then
+                if cast.dragonsfireGrenade() then return end
+            end
+            -- Raptor Strike
+            -- raptor_strike,if=talent.serpent_sting.enabled&dot.serpent_sting.remains<gcd
+            if talent.serpentSting and debuff.serpentString[units.dyn5].remain < gcd then
+                if cast.raptorStrike() then return end
+            end
+            -- Fury of the Eagle
+            -- fury_of_the_eagle,if=buff.mongoose_fury.stack=6&cooldown.mongoose_bite.charges<=2
+            if buff.mongooseFury.stack == 6 and charges.mongooseBite <= 2 then
+                if cast.furyOfTheEagle() then return end
+            end
+            -- Mongoose Bite
+            -- mongoose_bite,if=buff.aspect_of_the_eagle.up&buff.mongoose_fury.up
+            if buff.aspectOfTheEagle.exists and buff.mongooseFury.exists then
+                if cast.mongooseBite() then return end
+            end
+            -- Aspect of the Eagle
+            -- aspect_of_the_eagle,if=buff.mongoose_fury.up&buff.mongoose_fury.duration>6&cooldown.mongoose_bite.charges>=2
+            if isChecked("Aspect of the Eagle") and useCDs() then
+                if buff.mongooseFury.exists and buff.mongooseFury.duration > 6 and charges.mongooseBite >= 2 then
+                    if cast.aspectOfTheEagle() then return end
+                end
+            end
+            -- Fury of the Eagle
+            -- fury_of_the_eagle,if=cooldown.mongoose_bite.charges<=0&buff.mongoose_fury.duration>6
+            if charges.mongooseBite <= 0 and buff.mongooseFury.duration > 6 then
+                if cast.furyOfTheEagle() then return end
+            end
+            -- Flanking Strike
+            -- flanking_strike,if=cooldown.mongoose_bite.charges<2&buff.mongoose_fury.remains>(1+action.mongoose_bite.charges*gcd)
+            if charges.mongooseBite < 2 and buff.mongooseFury.remain > (1 + charges.mongooseBite * gcd) then
+                if cast.flankingStrike() then return end
+            end 
+            -- Mongoose Bite
+            -- mongoose_bite,if=buff.mongoose_fury.up&buff.mongoose_fury.remains<cooldown.aspect_of_the_eagle.remains
+            if buff.mongooseFury.exists and buff.mongooseFury.remain < cd.aspectOfTheEagle then
+                if cast.mongooseBite() then return end
+            end
+            -- Flanking Strike
+            -- flanking_strike,if=talent.animal_instincts.enabled&cooldown.mongoose_bite.charges<3
+            if talent.animalInstincts and charges.mongooseBite < 3 then
+                if cast.flankingStrike() then return end
+            end
+            -- A Murder of Crows
+            -- a_murder_of_crows
+            if cast.aMurderOfCrows() then return end
+            -- Spitting Cobra
+            -- spitting_cobra
+            if cast.spittingCobra() then return end
+            -- Steel Trap
+            -- steel_trap
+            if cast.steelTrap() then return end
+            -- Explosive Trap
+            -- explosive_trap
+            if cast.explosiveTrap() then return end
+            -- Caltrops
+            -- caltrops,if=(!dot.caltrops.ticking)
+            if not debuff.caltrops[units.dyn5].exists then
+                if cast.caltrops() then return end
+            end
+            -- Lacerate
+            -- lacerate,if=(!dot.lacerate.ticking|dot.lacerate.remains<3)
+            if (not debuff.lacerate[units.dyn5].exists or debuff.lacerate[units.dyn5].remain < 3) then
+                if cast.lacerate() then return end
+            end
+            -- Dragonsfire Grenade
+            -- dragonsfire_grenade
+            if cast.dragonsfireGrenade() then return end
+            -- Butchery
+            -- butchery,if=(charges=3)
+            if charges.butchery == 3 then
+                if cast.butchery() then return end
+            end
+            -- Throwing Axes
+            -- throwing_axes,if=cooldown.throwing_axes.charges=2
+            if charges.throwingAxes == 2 then
+                if cast.throwingAxes() then return end
+            end
+            -- Mongoose Bite
+            -- mongoose_bite,if=(charges>=2&cooldown.mongoose_bite.remains<=gcd|charges=3)
+            if (charges.mongooseBite >= 2 and cd.mongooseBite <= gcd) or charges == 3 then
+                if cast.mongooseBite() then return end
+            end
+            -- Butchery
+            -- butchery
+            if cast.butchery() then return end
+            -- Throwing Axes
+            -- throwing_axes
+            if cast.throwingAxes() then return end
+            -- Flanking Strike
+            -- flanking_strike
+            if cast.flankingStrike() then return end
+            -- Raptor Strike
+            -- raptor_strike,if=focus>75-cooldown.flanking_strike.remains*focus.regen
+            if power > 75 - cd.flankingStrike * powerRegen then
+                if cast.raptorStrike() then return end
+            end
+        end
 
         
 -----------------
@@ -379,30 +693,19 @@ local function runRotation()
                     if getDistance(units.dyn5) < 5 then
                         StartAttack()
                     end
-                    -- actions+=/arcane_torrent,if=focus.deficit>=30
-                    -- actions+=/blood_fury
-                    -- actions+=/berserking
-                    -- actions+=/use_item,name=tirathons_betrayal
-                    -- actions+=/potion,name=old_war,if=buff.aspect_of_the_eagle.remains
-                    -- actions+=/fury_of_the_eagle,if=(buff.mongoose_fury.up&buff.mongoose_fury.remains<=gcd)|target.time_to_die<=execute_time
-                    -- actions+=/raptor_strike,if=talent.way_of_the_moknathal.enabled&buff.moknathal_tactics.remains&buff.moknathal_tactics.remains<gcd.max
-                    -- actions+=/a_murder_of_crows
-                    -- actions+=/steel_trap
-                    -- actions+=/explosive_trap
-                    -- actions+=/dragonsfire_grenade
-                    -- actions+=/caltrops
-                    -- actions+=/carve,cycle_targets=1,if=talent.serpent_sting.enabled&active_enemies>=3&(!dot.serpent_sting.ticking|dot.serpent_sting.remains<=gcd.max)
-                    -- actions+=/raptor_strike,cycle_targets=1,if=talent.serpent_sting.enabled&active_enemies<=2&(!dot.serpent_sting.ticking|dot.serpent_sting.remains<=gcd.max)|talent.way_of_the_moknathal.enabled&buff.moknathal_tactics.down
-                    -- actions+=/aspect_of_the_eagle
-                    -- actions+=/snake_hunter,if=action.mongoose_bite.charges<=0&buff.mongoose_fury.remains
-                    -- actions+=/mongoose_bite,if=buff.aspect_of_the_eagle.up&(charges>=2|charges>=1&cooldown.mongoose_bite.remains<=2)|(buff.mongoose_fury.up|cooldown.fury_of_the_eagle.remains<5|charges=3)
-                    -- actions+=/lacerate,if=dot.lacerate.ticking&dot.lacerate.remains<=3|target.time_to_die>=5
-                    -- actions+=/flanking_strike,if=talent.way_of_the_moknathal.enabled&(buff.moknathal_tactics.remains>=3)|!talent.way_of_the_moknathal.enabled
-                    -- actions+=/butchery,if=spell_targets.butchery>=2
-                    -- actions+=/carve,if=spell_targets.carve>=4
-                    -- actions+=/spitting_cobra
-                    -- actions+=/throwing_axes
-                    -- actions+=/raptor_strike,if=!talent.throwing_axes.enabled&focus>75-cooldown.flanking_strike.remains*focus.regen
+                    -- Cooldowns
+                    if getDistance(units.dyn5) < 5 then
+                        if actionList_Cooldowns() then return end
+                    end
+                    -- Call Action List - Way of the Moknathal
+                    -- call_action_list,name=moknathal,if=talent.way_of_the_moknathal.enabled
+                    if talent.wayOfTheMokNathal then
+                        if actionList_WayOfTheMokNathal() then return end
+                    end
+                    -- Call Action List - No of the Moknathal
+                    if not talent.wayOfTheMokNathal then
+                        if actionList_NoOfTheMokNathal() then return end
+                    end 
                 end -- End SimC APL
     ------------------------
     --- Ask Mr Robot APL ---
