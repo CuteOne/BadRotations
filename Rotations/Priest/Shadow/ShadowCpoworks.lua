@@ -278,7 +278,7 @@ local function runRotation()
                 local vt = debuff.vampiricTouch[thisUnit]
                 if vt ~= nil then
                     if UnitIsUnit(thisUnit,"target") or hasThreat(thisUnit) or isDummy(thisUnit) then
-                        if ttd(thisUnit) > vt.duration and (not vt or vt.refresh) then
+                        if ttd(thisUnit) > vt.duration and (not vt or vt.refresh) and lastSpellCast ~= spell.vampiricTouch then
                             if cast.vampiricTouch(thisUnit) then return end
                         end
                     end
@@ -376,7 +376,7 @@ local function runRotation()
                 local vt = debuff.vampiricTouch[thisUnit]
                 if vt ~= nil then
                     if UnitIsUnit(thisUnit,"target") or hasThreat(thisUnit) or isDummy(thisUnit) then
-                        if ttd(thisUnit) > vt.duration and (not vt or vt.refresh) then
+                        if ttd(thisUnit) > vt.duration and (not vt or vt.refresh) and lastSpellCast ~= spell.vampiricTouch then
                             if cast.vampiricTouch(thisUnit) then return end
                         end
                     end
@@ -395,8 +395,10 @@ local function runRotation()
 -----------------
 --- Rotations ---
 -----------------
-        if actionList_Extra() then return end
-        if actionList_Defensive() then return end
+        if not IsMounted() then
+            if actionList_Extra() then return end
+            if actionList_Defensive() then return end
+        end
 ---------------------------------
 --- Out Of Combat - Rotations ---
 ---------------------------------
