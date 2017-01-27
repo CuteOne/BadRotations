@@ -159,8 +159,6 @@ local function runRotation()
         UpdateToggle("Defensive",0.25)
         UpdateToggle("Interrupt",0.25)
 
---- FELL FREE TO EDIT ANYTHING BELOW THIS AREA THIS IS JUST HOW I LIKE TO SETUP MY ROTATIONS ---
-
 --------------
 --- Locals ---
 --------------
@@ -191,6 +189,8 @@ local function runRotation()
         local units         = br.player.units           
 
         if profileStop == nil then profileStop = false end
+        if opener == nil then opener = false end
+        if not inCombat and not ObjectExists("target") then opener = false end
         if debuff.judgment[units.dyn5] ~= nil then
             judgmentExists = debuff.judgment[units.dyn5].exists
             judgmentRemain = debuff.judgment[units.dyn5].remain
@@ -389,11 +389,12 @@ local function runRotation()
         end -- End Action List - PreCombat
     -- Action List - Opener
         local function actionList_Opener()
-            if isValidUnit("target") then
+            if isValidUnit("target") and not opener then
         -- Judgment
                 if cast.judgment("target") then return end
         -- Start Attack
                 if getDistance("target") < 5 then StartAttack() end
+                opener = true
             end
         end -- End Action List - Opener
 ---------------------
@@ -462,12 +463,12 @@ local function runRotation()
                         if cast.judgment() then return end
             -- Blade of Justice
                         -- blade_of_justice,if=time<2&(equipped.137048|race.blood_elf)
-                        if hasEquiped(137048) or race == "BloodElf" then
+                        if not talent.divineHammer and (hasEquiped(137048) or race == "BloodElf") then
                             if cast.bladeOfJustice() then return end
                         end
             -- Divine Hammer
                         -- divine_hammer,if=time<2&(equipped.137048|race.blood_elf)
-                        if hasEquiped(137048) or race == "BloodElf" then
+                        if talent.divineHammer and (hasEquiped(137048) or race == "BloodElf") then
                             if cast.divineHammer() then return end
                         end
             -- Wake of Ashes
@@ -581,13 +582,13 @@ local function runRotation()
                     end
             -- Blade of Justice
                     -- blade_of_justice,if=holy_power<=3&buff.whisper_of_the_nathrezim.up&buff.whisper_of_the_nathrezim.remains>gcd&buff.whisper_of_the_nathrezim.remains<gcd*3&debuff.judgment.up&debuff.judgment.remains>gcd*2
-                    if holyPower <= 3 and buff.whisperOfTheNathrezim.exists and buff.whisperOfTheNathrezim.remain > gcd and buff.whisperOfTheNathrezim.remain < gcd * 3 and judgmentVar and debuff.judgment[units.dyn5].remain > gcd * 2 then
+                    if not talent.divineHammer and holyPower <= 3 and buff.whisperOfTheNathrezim.exists and buff.whisperOfTheNathrezim.remain > gcd and buff.whisperOfTheNathrezim.remain < gcd * 3 and judgmentVar and debuff.judgment[units.dyn5].remain > gcd * 2 then
                         if cast.bladeOfJustice() then return end
                     end
             -- Divine Hammer
                     -- divine_hammer,if=holy_power<=3&buff.whisper_of_the_nathrezim.up&buff.whisper_of_the_nathrezim.remains>gcd&buff.whisper_of_the_nathrezim.remains<gcd*3&debuff.judgment.up&debuff.judgment.remains>gcd*2
-                    if holyPower <= 3 and buff.whisperOfTheNathrezim.exists and buff.whisperOfTheNathrezim.remain > gcd and buff.whisperOfTheNathrezim.remain < gcd * 3 and judgmentVar and debuff.judgment[units.dyn5].remain > gcd * 2 then
-                        if cast.bladeOfJustice() then return end
+                    if talent.divineHammer and holyPower <= 3 and buff.whisperOfTheNathrezim.exists and buff.whisperOfTheNathrezim.remain > gcd and buff.whisperOfTheNathrezim.remain < gcd * 3 and judgmentVar and debuff.judgment[units.dyn5].remain > gcd * 2 then
+                        if cast.divineHammer() then return end
                     end
             -- Blade of Justice
                     -- blade_of_justice,if=talent.blade_of_wrath.enabled&holy_power<=3
@@ -596,22 +597,22 @@ local function runRotation()
                     end
             -- Zeal
                     -- zeal,if=charges=2&holy_power<=4
-                    if charges.zeal == 2 and holyPower <= 4 then
+                    if talent.zeal and charges.zeal == 2 and holyPower <= 4 then
                         if cast.zeal() then return end
                     end
             -- Crusader Strike
                     -- crusader_strike,if=charges=2&holy_power<=4
-                    if charges.crusaderStrike == 2 and holyPower <= 4 then
+                    if not talent.zeal and charges.crusaderStrike == 2 and holyPower <= 4 then
                         if cast.crusaderStrike() then return end
                     end
             -- Blade of Justice
                     -- blade_of_justice,if=holy_power<=2|(holy_power<=3&(cooldown.zeal.charges_fractional<=1.34|cooldown.crusader_strike.charges_fractional<=1.34))
-                    if holyPower <= 2 or (holyPower <= 3 and (charges.frac.zeal <= 1.34 or charges.frac.crusaderStrike <= 1.34)) then
+                    if not talent.divineHammer and (holyPower <= 2 or (holyPower <= 3 and (charges.frac.zeal <= 1.34 or charges.frac.crusaderStrike <= 1.34))) then
                         if cast.bladeOfJustice() then return end
                     end
             -- Divine Hammer
                     -- divine_hammer,if=holy_power<=2|(holy_power<=3&(cooldown.zeal.charges_fractional<=1.34|cooldown.crusader_strike.charges_fractional<=1.34))
-                    if holyPower <= 2 or (holyPower <= 3 and (charges.frac.zeal <= 1.34 or charges.frac.crusaderStrike <= 1.34)) then
+                    if talent.divineHammer and holyPower <= 2 or (holyPower <= 3 and (charges.frac.zeal <= 1.34 or charges.frac.crusaderStrike <= 1.34)) then
                         if cast.divineHammer() then return end
                     end
             -- Judgement
@@ -659,12 +660,12 @@ local function runRotation()
                     end
             -- Zeal
                     -- zeal,if=holy_power<=4
-                    if holyPower <= 4 then
+                    if talent.zeal and holyPower <= 4 then
                         if cast.zeal() then return end
                     end
             -- Crusader Strike
                     -- crusader_strike,if=holy_power<=4
-                    if holyPower <= 4 then
+                    if not talent.zeal and holyPower <= 4 then
                         if cast.crusaderStrike() then return end
                     end
             -- Divine Storm
