@@ -201,7 +201,7 @@ function br.loader:new(spec,specName)
             if k ~= "rollTheBones" then
                 self.buff[k].exists     = UnitBuffID("player",v) ~= nil
                 self.buff[k].duration   = getBuffDuration("player",v)
-                self.buff[k].remain     = getBuffRemain("player",v)
+                self.buff[k].remain     = math.abs(getBuffRemain("player",v))
                 self.buff[k].refresh    = self.buff[k].remain <= self.buff[k].duration * 0.3
                 self.buff[k].stack      = getBuffStacks("player",v)
             end
@@ -252,7 +252,7 @@ function br.loader:new(spec,specName)
                     if self.debuff[k][thisUnit].applied == nil then self.debuff[k][thisUnit].applied    = 0 end
                     self.debuff[k][thisUnit].exists         = UnitDebuffID(thisUnit,v,"player") ~= nil
                     self.debuff[k][thisUnit].duration       = getDebuffDuration(thisUnit,v,"player")
-                    self.debuff[k][thisUnit].remain         = getDebuffRemain(thisUnit,v,"player")
+                    self.debuff[k][thisUnit].remain         = math.abs(getDebuffRemain(thisUnit,v,"player"))
                     self.debuff[k][thisUnit].refresh        = self.debuff[k][thisUnit].remain <= self.debuff[k][thisUnit].duration * 0.3
                     self.debuff[k][thisUnit].stack          = getDebuffStacks(thisUnit,v,"player")
                     self.debuff[k][thisUnit].calc           = self.getSnapshotValue(v)
@@ -277,7 +277,7 @@ function br.loader:new(spec,specName)
                     self.debuff[k][thisUnit].exists = UnitDebuffID(thisUnit,v,"player") ~= nil
                     if self.debuff[k][thisUnit].exists then
                         self.debuff[k][thisUnit].duration       = getDebuffDuration(thisUnit,v,"player")
-                        self.debuff[k][thisUnit].remain         = getDebuffRemain(thisUnit,v,"player")
+                        self.debuff[k][thisUnit].remain         = math.abs(getDebuffRemain(thisUnit,v,"player"))
                         self.debuff[k][thisUnit].refresh        = self.debuff[k][thisUnit].remain <= self.debuff[k][thisUnit].duration * 0.3
                         self.debuff[k][thisUnit].stack          = getDebuffStacks(thisUnit,v,"player")
                         self.debuff[k][thisUnit].calc           = self.getSnapshotValue(v)
