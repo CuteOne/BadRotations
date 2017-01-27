@@ -21,8 +21,8 @@ local function createToggles()
     CreateButton("Cooldown",2,0)
 -- Defensive Button
     DefensiveModes = {
-        [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spell.iceBarrier},
-        [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spell.iceBarrier}
+        [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spell.blazingBarrier},
+        [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spell.blazingBarrier}
     };
     CreateButton("Defensive",3,0)
 -- Interrupt Button
@@ -73,8 +73,6 @@ local function createOptions()
             end
         -- Frost Nova
             br.ui:createSpinner(section, "Frost Nova",  50,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.");
-        -- Blazing Barrier
-            br.ui:createCheckbox(section,"Blazing Barrier")
         br.ui:checkSectionState(section)
     -- Interrupt Options
         section = br.ui:createSection(br.ui.window.profile, "Interrupts")
@@ -265,16 +263,16 @@ local function runRotation()
                 if isChecked("Pre-Pull Timer") and pullTimer <= getOptionValue("Pre-Pull Timer") then
 
                 end -- End Pre-Pull
-            --     if isValidUnit("target") and getDistance("target") < 40 then
-            -- -- Mirror Image
-            --         if isChecked("Mirror Image") then
-            --             if cast.mirrorImage() then return end
-            --         end
-            -- -- Pyroblast
-            --         if br.timer:useTimer("delayPyro", getCastTime(spell.pyroblast)+0.5) then
-            --             if cast.pyroblast("target") then return end
-            --         end
-            --     end
+                if isValidUnit("target") and getDistance("target") < 40 then
+            -- Mirror Image
+                    if isChecked("Mirror Image") then
+                        if cast.mirrorImage() then return end
+                    end
+            -- Pyroblast
+                    if br.timer:useTimer("delayPyro", getCastTime(spell.pyroblast)+0.5) then
+                        if cast.pyroblast("target") then return end
+                    end
+                end
             end -- End No Combat
         end -- End Action List - PreCombat
     -- Action List - Active Talents
@@ -398,10 +396,6 @@ local function runRotation()
         end -- End ROP Phase Action List
     -- Action List - Single Target
         local function actionList_Single()
-        -- Blazing Barrier
-            if isChecked("Blazing Barrier") and getBuffRemain("player", spell.blazingBarrier) < 1 then
-                if cast.blazingBarrier() then return end
-            end
         -- Pyroblast
             -- pyroblast,if=buff.hot_streak.up&buff.hot_streak.remains<action.fireball.execute_time
             if buff.hotStreak.exists and buff.hotStreak.remain < getCastTime(spell.fireball) then
@@ -413,18 +407,20 @@ local function runRotation()
                 if ((mode.cooldown == 1 and isBoss()) or mode.cooldown == 2) then
                     if cast.phoenixsFlames() then return end
                 end
-            elseif (charges.phoenixsFlames > 1 and charges.frac.phoenixsFlames < 2.7) then
+            elseif (charges.phoenixsFlames > 1 and charges.frac.phoenixsFlames < 3) then
                 if ((#enemies.yards10t > 2 and mode.rotation == 1) or mode.rotation == 2) then
                     if cast.phoenixsFlames() then return end
                 end
             end
         -- Flamestrike
             -- flamestrike,if=talent.flame_patch.enabled&active_enemies>2&buff.hot_streak.react
-            if ((#enemies.yards10t > 2 and mode.rotation == 1) or mode.rotation == 2) and buff.hotStreak.exists then
+            if ((#enemies.yards8t >= 3 and mode.rotation == 1) or mode.rotation == 2) and buff.hotStreak.exists then
+                if cast.flamestrike("best",nil,2,8) then return end
+            elseif ((#enemies.yards8t >= 3 and mode.rotation == 1) or mode.rotation == 2) and buff.hotStreak.exists and not talent.pyromaniac then
                 if cast.flamestrike("best",nil,2,8) then return end
             end
         -- Dragon's Breath
-            if ((#enemies.yards12 > 2 and mode.rotation == 1) or mode.rotation == 2) then
+            if ((#enemies.yards12 > 3 and mode.rotation == 1) or mode.rotation == 2) then
                 if cast.dragonsBreath() then return end
             end
         -- Pyroblast
@@ -451,7 +447,7 @@ local function runRotation()
         -- Phoenix's Flames
             -- phoenixs_flames,if=(buff.combustion.up|buff.rune_of_power.up|buff.incanters_flow.stack>3|talent.mirror_image.enabled)&artifact.phoenix_reborn.enabled&(4-charges_fractional)*13<cooldown.combustion.remains+5|target.time_to_die.remains<10
             -- phoenixs_flames,if=(buff.combustion.up|buff.rune_of_power.up)&(4-charges_fractional)*30<cooldown.combustion.remains+5
-            if (((buff.combustion.exists or buff.runeOfPower.exists or buff.incantersFlow.stack > 3 or talent.mirrorImage) and artifact.phoenixReborn and (4 - charges.frac.phoenixsFlames) * 13 < cd.combustion + 5 or ttd("target") < 10) 
+            if (charges.phoenixsFlames > 1 or useCDs()) and (((buff.combustion.exists or buff.runeOfPower.exists or buff.incantersFlow.stack > 3 or talent.mirrorImage) and artifact.phoenixReborn and (4 - charges.frac.phoenixsFlames) * 13 < cd.combustion + 5 or ttd("target") < 10) 
                 or ((buff.combustion.exists or buff.runeOfPower.exists) and (4 - charges.frac.phoenixsFlames) * 30 < cd.combustion + 5))
             then
                 if cast.phoenixsFlames() then return end
