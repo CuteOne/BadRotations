@@ -852,7 +852,9 @@ local function runRotation()
             end
         -- Whirling Dragon Punch
             -- whirling_dragon_punch
-            if cast.whirlingDragonPunch() then return end
+            if cd.fistsOfFury ~= 0 and cd.risingSunKick ~= 0 then            	
+            	if cast.whirlingDragonPunch() then return end
+            end
         -- Crackling Jade Lightning
             -- crackling_jade_lightning,if=equipped.the_emperors_capacitor&buff.the_emperors_capacitor.stack>=19
             if hasEquiped(144239) and buff.theEmperorsCapacitor.stack >= 19 then
