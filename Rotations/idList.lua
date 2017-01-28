@@ -1325,21 +1325,67 @@ br.idList = {
         -- Protection
         [66] = {
             abilities                       = {
-
+				aegisOfLight                = 204150,
+                ardentDefender              = 31850,
+                avengersShield				= 31935,
+				avengingWrath               = 31884,
+                bastionOfLight              = 204035,
+				blessedHammer				= 204019,
+                blessingOfSpellwarding      = 204018,                
+				cleanseToxins               = 213644,
+				consecration                = 26573,
+                divineSteed                 = 190784,
+                eyeOfTyr                    = 209202,
+                guardianOfAncientKings      = 86659,
+                hammerOfTheRighteous        = 53595,
+                handOfTheProtector          = 213652,
+                lightOfTheProtector         = 184092,
+                rebuke                      = 96231,
+                shieldOfTheRighteous        = 53600,
             },
             artifacts                       = {
+				eyeOfTyr					= 209202,
 
             },
             buffs                           = {
+                ardentDefender              = 31850,
+                bulwarkOfOrder              = 209388,
+                consecration                = 188370,
+                divineSteed                 = 221883,
+				guardianOfAncientKings      = 86659,
+                seraphim					= 152262,
+                shieldOfTheRighteous        = 132403,
 
             },
             debuffs                         = {
-
+                eyeOfTyr                    = 209202,
+                blessedHammer               = 204301,
             },
             glyphs                          = {
 
             },
             talents                         = {
+                holyShield                  = 152261,
+                blessedHammer               = 204019,
+                consecratedHammer           = 203785,
+                firstAvenger                = 203776,
+                bastionOfLight              = 204035,
+                crusadersJudgment           = 204023,
+                fistOfJustice               = 198054,
+                repentance                  = 20066,
+                blindingLight               = 115750,
+                blessingOfSpellwarding      = 204018,
+                cavalier                    = 230332,
+                retributionAura             = 203797,
+                handOfTheProtector          = 213652,
+                knightTemplar               = 204139,
+                finalStand                  = 204077,
+                aegisOfLight                = 204150,
+                consecratedGround           = 204054,
+                judgmentOfLight             = 183778,
+                righteousProtector          = 204074,
+                seraphim                    = 152262,
+                lastDefender                = 203791,
 
             },
         },
