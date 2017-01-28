@@ -117,7 +117,8 @@ function BadRotationsUpdate(self)
 
 	    -- Rotation Log
 	    if getOptionCheck("Rotation Log") then
-	    	br.ui:createDebugWindow()
+	    	if not br.ui.window['debug']['parent'] then br.ui:createDebugWindow() end
+	    	br.ui:showWindow("debug")
 	    else
 	    	br.ui:closeWindow("debug")
 	    end		

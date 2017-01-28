@@ -575,10 +575,15 @@ local function runRotation()
                         if cast.moonfire("target") then return end
                     end
         -- Pulverize
-                    for i = 1, #enemies.yards5 do
-                        local thisUnit = enemies.yards5[i]
-                        if not buff.pulverize.exists then 
-                            if cast.pulverize(thisUnit) then return end
+                    if talent.pulverize then
+                        for i = 1, #enemies.yards5 do
+                            local thisUnit = enemies.yards5[i]
+                            local thrash = debuff.thrash[thisUnit]
+                            if thrash ~= nil then
+                                if not buff.pulverize.exists and thrash.stack >= 2 then 
+                                    if cast.pulverize(thisUnit) then return end
+                                end
+                            end
                         end
                     end
         -- Thrash
@@ -588,19 +593,29 @@ local function runRotation()
         -- Mangle
                     if cast.mangle() then return end
         -- Pulverize
-                    for i = 1, #enemies.yards5 do
-                        local thisUnit = enemies.yards5[i]
-                        if buff.pulverize.remain < gcd then 
-                            if cast.pulverize(thisUnit) then return end
+                    if talent.pulverize then
+                        for i = 1, #enemies.yards5 do
+                            local thisUnit = enemies.yards5[i]
+                            local thrash = debuff.thrash[thisUnit]
+                            if thrash ~= nil then
+                                if buff.pulverize.remain < gcd and thrash.stack >= 2 then 
+                                    if cast.pulverize(thisUnit) then return end
+                                end
+                            end
                         end
                     end
         -- Lunar Beam
                     if cast.lunarBeam() then return end
         -- Pulverize
-                    for i = 1, #enemies.yards5 do
-                        local thisUnit = enemies.yards5[i]
-                        if buff.pulverize.remain < 3.6 then 
-                            if cast.pulverize(thisUnit) then return end
+                    if talent.pulverize then
+                        for i = 1, #enemies.yards5 do
+                            local thisUnit = enemies.yards5[i]
+                            local thrash = debuff.thrash[thisUnit]
+                            if thrash ~= nil then
+                                if buff.pulverize.remain < 3.6 and thrash.stack >= 2 then 
+                                    if cast.pulverize(thisUnit) then return end
+                                end
+                            end
                         end
                     end
         -- Thrash
