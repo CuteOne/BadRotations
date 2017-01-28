@@ -207,7 +207,7 @@ function br.ui:closeWindow(windowName)
                                             br.ui.window[k].parent.closeButton:Click() 
                                             br.data.settings[l][m].active = false
                                         end
-                                    else
+                                    elseif br.data.settings[l][m].active == nil or br.data.settings[l][m].active then
                                         br.ui.window[k].parent.closeButton:Click() 
                                         br.data.settings[l][m].active = false
                                     end

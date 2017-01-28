@@ -93,9 +93,11 @@ function BadRotationsUpdate(self)
 
 		-- prevent ticking when firechack isnt loaded
 		-- if user click power button, stop everything from pulsing and hide frames.
-		if not getOptionCheck("Start/Stop BadRotations") or (br.data.settings[br.selectedSpec].toggles["Power"] ~= nil and br.data.settings[br.selectedSpec].toggles["Power"] ~= 1) then
-			br.ui:closeWindow("all")
-			return false
+		if FireHack ~= nil then
+			if not getOptionCheck("Start/Stop BadRotations") or (br.data.settings[br.selectedSpec].toggles["Power"] ~= nil and br.data.settings[br.selectedSpec].toggles["Power"] ~= 1) then
+				br.ui:closeWindow("all")
+				return false
+			end
 		end
 		if FireHack == nil then
 		 	br.ui:closeWindow("all")
