@@ -242,7 +242,7 @@ local function runRotation()
             if rkTick == 3 then rkTick = rkTick - (rkTick * 0.3) end
             if rpTick == 2 then rpTick = rpTick - (rpTick * 0.3) end
         end
-        if br.player.potion ~= nil then
+        if br.player.potion.agility ~= nil then
             if br.player.potion.agility[1] ~= nil then
                 agiPot = br.player.potion.agility[1].itemID
             else

@@ -77,7 +77,6 @@ function BadRotationsUpdate(self)
 		-- Close windows and swap br.selectedSpec on Spec Change
 		if select(2,GetSpecializationInfo(GetSpecialization())) ~= br.selectedSpec then
 	    	-- Closing the windows will save the position
-	    	print("Closing 1")
 	        br.ui:closeWindow("all")
 	        	
 	    	-- Update Selected Spec/Profile
@@ -95,12 +94,10 @@ function BadRotationsUpdate(self)
 		-- prevent ticking when firechack isnt loaded
 		-- if user click power button, stop everything from pulsing and hide frames.
 		if not getOptionCheck("Start/Stop BadRotations") or (br.data.settings[br.selectedSpec].toggles["Power"] ~= nil and br.data.settings[br.selectedSpec].toggles["Power"] ~= 1) then
-			print("Closing 2")
 			br.ui:closeWindow("all")
 			return false
 		end
 		if FireHack == nil then
-			print("Closing 3")
 		 	br.ui:closeWindow("all")
 			if getOptionCheck("Start/Stop BadRotations") then
 				ChatOverlay("FireHack not Loaded.")
@@ -120,7 +117,7 @@ function BadRotationsUpdate(self)
 
 	    -- Rotation Log
 	    if getOptionCheck("Rotation Log") then
-	    	br.ui:showWindow("debug")
+	    	br.ui:createDebugWindow()
 	    else
 	    	br.ui:closeWindow("debug")
 	    end		
