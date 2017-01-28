@@ -224,7 +224,7 @@ end
 function br.ui:toggleWindow(windowName)
     for k, v in pairs(br.ui.window) do
         if k == windowName then
-            if br.ui.window[k].parent ~= nil then
+            if br.ui.window[k].parent ~= nil then 
                 if br.data.settings[br.selectedSpec][k].active then
                     br.ui.window[k].parent.closeButton:Click()
                 else
@@ -236,8 +236,8 @@ function br.ui:toggleWindow(windowName)
     end
 end
 
-function br.ui:recreateWindows()
-    br.ui:closeWindow("all")
-    br.ui:createConfigWindow()
-    br.ui:createDebugWindow()
-end
+-- function br.ui:recreateWindows()
+--     br.ui:closeWindow("all")
+--     br.ui:createConfigWindow()
+--     br.ui:createDebugWindow()
+-- end

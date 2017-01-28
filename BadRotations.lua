@@ -53,7 +53,26 @@ function br:Run()
 		grey = "9d9d9d"
 	}
 	-- load common used stuff on first load
-	if br.data.settings == nil then
+ 	br:loadSettings()
+	-- Build up pulse frame (hearth)
+	br:Engine()
+	-- add minimap fire icon
+	br:MinimapButton()
+	-- build up UI
+	br:StartUI()
+
+	-- start up enemies Engine
+	enemiesEngineRange = 55
+	EnemiesEngine()
+	ChatOverlay("-= BadRotations Loaded =-")
+	Print("Loaded")
+	br.loadedIn = true
+end
+
+-- Load Settings
+function br:loadSettings()
+	-- Base Settings
+	if br.data.settings == nil then 
 		br.data.settings = {
 			mainButton = {
 				pos = {
@@ -67,47 +86,23 @@ function br:Run()
 			fontsize = 16,
 			wiped = true,
 		}
-		br.data.settings[br.selectedSpec] = {
-			toggles = {},
-		}
 	end
-	-- settings table that will hold specs subtable
-	if br.data.settings == nil then
-		br.data.settings = {}
-		br.data.settings[br.selectedSpec] = {}
-    end
-    if br.data.settings[br.selectedSpec] == nil then
-        br.data.settings[br.selectedSpec] = {}
-    end
-    if br.data.settings[br.selectedSpec]["Rotation".."Drop"] == nil then
+	-- Settings Per Spec
+    if br.data.settings[br.selectedSpec] == nil then br.data.settings[br.selectedSpec] = {} end
+	if br.data.settings[br.selectedSpec].toggles == nil then br.data.settings[br.selectedSpec].toggles = {} end
+    if br.data.settings[br.selectedSpec]["RotationDrop"] == nil then
         br.selectedProfile = 1
     else
-        br.selectedProfile = br.data.settings[br.selectedSpec]["Rotation".."Drop"]
+        br.selectedProfile = br.data.settings[br.selectedSpec]["RotationDrop"]
     end
-    if br.data.settings[br.selectedSpec][br.selectedProfile]  == nil then
-        br.data.settings[br.selectedSpec][br.selectedProfile] = {}
-    end	
-	-- Build up pulse frame (hearth)
-	br:Engine()
-	-- add minimap fire icon
-	br:MinimapButton()
-	-- build up UI
-	br:StartUI()
-
-    if br.data.settings[br.selectedSpec] == nil then br.data.settings[br.selectedSpec] = {} end
     if br.data.settings[br.selectedSpec][br.selectedProfile] == nil then br.data.settings[br.selectedSpec][br.selectedProfile] = {} end
-
-    -- Creates and Shows the Bot Options Window and Rotation Log Window
-    br.ui:createConfigWindow()
-    br.ui:createDebugWindow()
-
-	-- start up enemies Engine
-	enemiesEngineRange = 55
-	EnemiesEngine()
-	ChatOverlay("-= BadRotations Loaded =-")
-	Print("Loaded")
-	br.loadedIn = true
+    -- Creates and Shows the Windows
+	br.ui:createConfigWindow()
+	if br.data.settings[br.selectedSpec]["debug"] == nil then br.ui:createDebugWindow() end
+	if br.data.settings[br.selectedSpec]["profile"] == nil then br.ui:createProfileWindow(br.selectedSpec) end
+	if br.data.settings[br.selectedSpec]["help"] == nil then br.ui:createHelpWindow() end
 end
+
 --[[Startup UI]]
 function br:StartUI()
 	TogglesFrame()

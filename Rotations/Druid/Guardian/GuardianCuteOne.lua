@@ -556,7 +556,7 @@ local function runRotation()
                         if cast.bristlingFur() then return end
                     end
         -- Ironfur
-                    if not buff.ironfur.exists or powerDeficit < 25 then
+                    if not buff.ironfur.exists or powerDeficit < 25 or buff.ironfur.remain < 2 then
                         if cast.ironfur() then return end
                     end
         -- Moonfire

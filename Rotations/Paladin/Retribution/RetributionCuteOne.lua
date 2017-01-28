@@ -313,7 +313,7 @@ local function runRotation()
                     end
                 end
         -- Hammer of Justice
-                if isChecked("Hammre of Justice - HP") and php <= getOptionValue("Hammer of Justice - HP") and inCombat then
+                if isChecked("Hammer of Justice - HP") and php <= getOptionValue("Hammer of Justice - HP") and inCombat then
                     if cast.hammerOfJustice() then return end
                 end
         -- Lay On Hands
