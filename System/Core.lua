@@ -65,6 +65,14 @@ frame:SetScript("OnEvent", frame.OnEvent)
 --[[This function is refired everytime wow ticks. This frame is located at the top of Core.lua]]
 
 function BadRotationsUpdate(self)
+	-- LoS Line Draw *TEMP*
+	if FireHack and isChecked("Healer Line of Sight Indicator") then
+		if UnitExists("focus") then 
+			inLoSHealer("focus")
+		else
+			inLoSHealer()
+		end
+	end
 	-- getEnemiesInRect(6,25)
 	local tempTime = GetTime();
 	if not self.lastUpdateTime then

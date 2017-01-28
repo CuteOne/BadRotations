@@ -181,3 +181,31 @@ function isBadlyDeBuffed(Unit)
 	end
 	return false
 end
+
+function inLoSHealer(healer)
+	local function drawHealers(healer)
+		local LibDraw 					= LibStub("LibDraw-1.0")
+		local facing 					= ObjectFacing("player")
+		local playerX, playerY, playerZ = GetObjectPosition("player")
+		local locateX, locateY, locateZ = GetObjectPosition(healer)
+		local distance 					= LibDraw.Distance(playerX, playerY, playerZ, locateX, locateY, locateZ)
+		-- local healerX, healerY, healerZ = GetPositionFromPosition(playerX, playerY, playerZ, distance, 0, 0) --facing - math.rad(0)
+		local healerX, healerY, healerZ = GetObjectPosition(healer)
+		if getLineOfSight("player",healer) then
+			LibDraw.SetColor(0, 255, 0)
+		else
+			LibDraw.SetColor(255, 0, 0)
+		end
+		return LibDraw.Line(playerX, playerY, playerZ, healerX, healerY, healerZ)
+	end
+	if healer == nil then 
+		for i = 1, #br.friend do
+			local thisUnit = br.friend[i].unit
+			if not UnitIsUnit(thisUnit,"player") and  UnitGroupRolesAssigned(thisUnit) == "HEALER" then
+				drawHealers(thisUnit)
+			end
+		end
+	else
+		drawHealers(healer)
+	end		
+end
