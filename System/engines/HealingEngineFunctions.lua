@@ -188,8 +188,6 @@ function inLoSHealer(healer)
 		local facing 					= ObjectFacing("player")
 		local playerX, playerY, playerZ = GetObjectPosition("player")
 		local locateX, locateY, locateZ = GetObjectPosition(healer)
-		local distance 					= LibDraw.Distance(playerX, playerY, playerZ, locateX, locateY, locateZ)
-		-- local healerX, healerY, healerZ = GetPositionFromPosition(playerX, playerY, playerZ, distance, 0, 0) --facing - math.rad(0)
 		local healerX, healerY, healerZ = GetObjectPosition(healer)
 		if getLineOfSight("player",healer) then
 			LibDraw.SetColor(0, 255, 0)
