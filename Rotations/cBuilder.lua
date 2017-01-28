@@ -256,7 +256,7 @@ function br.loader:new(spec,specName)
                     self.debuff[k][thisUnit].refresh        = self.debuff[k][thisUnit].remain <= self.debuff[k][thisUnit].duration * 0.3
                     self.debuff[k][thisUnit].stack          = getDebuffStacks(thisUnit,v,"player")
                     self.debuff[k][thisUnit].calc           = self.getSnapshotValue(v)
-                    self.debuff[k][thisUnit].count          = getDebuffCount(v)
+                    self.debuff[k][thisUnit].count          = tonumber(getDebuffCount(v))
                 end
             end
             if self.debuff[k]["target"] == nil then self.debuff[k]["target"] = {} end
@@ -281,7 +281,7 @@ function br.loader:new(spec,specName)
                         self.debuff[k][thisUnit].refresh        = self.debuff[k][thisUnit].remain <= self.debuff[k][thisUnit].duration * 0.3
                         self.debuff[k][thisUnit].stack          = getDebuffStacks(thisUnit,v,"player")
                         self.debuff[k][thisUnit].calc           = self.getSnapshotValue(v)
-                        self.debuff[k][thisUnit].count          = getDebuffCount(v)
+                        self.debuff[k][thisUnit].count          = tonumber(getDebuffCount(v))
                     else
                         self.debuff[k][thisUnit].duration       = 0
                         self.debuff[k][thisUnit].remain         = 0
@@ -390,6 +390,9 @@ function br.loader:new(spec,specName)
                         elseif debug == "dead" then
                             if thisUnit == nil then thisUnit = "player" end
                             return castSpell(thisUnit,spellCast,false,false,false,true,true,true,true,false)
+                        elseif debug == "aoe" then
+                            if thisUnit == nil then thisUnit = "player" end
+                            return castSpell(thisUnit,spellCast,true,false,false,true,false,true,true,false)
                         else
                             if thisUnit == nil then thisUnit = "player" end
                             return castSpell(thisUnit,spellCast,false,false,false,true,false,true,true,false)
@@ -413,7 +416,8 @@ function br.loader:new(spec,specName)
 ----------------
     function self.getPetInfo()
         if select(2,UnitClass("player")) == "HUNTER" or select(2,UnitClass("player")) == "WARLOCK" then
-            self.petInfo = {}
+            if self.petInfo == nil then self.petInfo = {} end
+            self.petInfo = table.wipe(self.petInfo)
             for i = 1, ObjectCount() do
                 -- define our unit
                 local thisUnit = GetObjectWithIndex(i)
@@ -424,8 +428,17 @@ function br.loader:new(spec,specName)
                     local unitGUID      = UnitGUID(thisUnit)
                     local unitCreator   = UnitCreator(thisUnit)
                     local player        = GetObjectWithGUID(UnitGUID("player"))
-                    if unitCreator == player and (unitID == 55659 or unitID == 98035 or unitID == 103673 or unitID == 11859 or unitID == 89 
-                        or unitID == 416 or unitID == 1860 or unitID == 417 or unitID == 1863 or unitID == 17252) 
+                    if unitCreator == player 
+                        and (unitID == 55659 -- Wild Imp
+                            or unitID == 98035 -- Dreadstalker
+                            or unitID == 103673 -- Darkglare
+                            or unitID == 78158 or unitID == 11859 -- Doomguard
+                            or unitID == 78217 or unitID == 89 -- Infernal
+                            or unitID == 416 -- Imp
+                            or unitID == 1860 -- Voidwalker
+                            or unitID == 417 -- Felhunter
+                            or unitID == 1863 -- Succubus
+                            or unitID == 17252) -- Felguard
                     then
                         if self.spell.buffs.demonicEmpowerment ~= nil then
                             demoEmpBuff   = UnitBuffID(thisUnit,self.spell.buffs.demonicEmpowerment) ~= nil

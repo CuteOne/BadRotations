@@ -1026,6 +1026,17 @@ function getDebuffStacks(Unit,DebuffID,Source)
 		return 0
 	end
 end
+-- function getDebuffCount(Range,DebuffID,Source)
+-- 	local debuffCount = 0
+-- 	for i = 1, #getEnemies(Range,false) do
+-- 		local thisUnit = getEnemies(Range,false)[i]
+-- 		local thisDebuff = UnitDebuffID(thisUnit,DebuffID,Source) ~= nil
+-- 		if thisDebuff then
+-- 			debuffCount = debuffCount + 1
+-- 		end
+-- 	end
+-- 	return debuffCount
+-- end
 
 -- if getBuffDuration("target",12345) < 3 then
 function getBuffDuration(Unit,BuffID,Source)

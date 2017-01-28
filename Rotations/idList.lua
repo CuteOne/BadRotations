@@ -2215,7 +2215,6 @@ br.idList = {
                 shadowbolt                  = 686,
                 shadowflame                 = 205181,
                 summonDarkglare             = 205180,
-                summonFelguard              = 30146,
                 thalkielsConsumption        = 211714,
             },
             artifacts                       = {
@@ -2327,6 +2326,7 @@ br.idList = {
                 mortalCoil                  = 6789,
                 soulHarvest                 = 196098,
                 summonDoomguard             = 18540,
+                summonFelguard              = 30146,
                 summonFelhunter             = 691,
                 summonFelImp                = 688,
                 summonImp                   = 688,

@@ -174,7 +174,7 @@ function EnemiesEngine()
 			for k, v in pairs(br.enemy) do
 				local thisUnit = br.enemy[k]
 				local thisDistance = getDistance("player",thisUnit.unit)
-				if GetObjectExists(thisUnit.unit) then
+				if GetObjectExists(thisUnit.unit) and ObjectID(thisUnit.unit) ~= 103679 then
 					if (not getOptionCheck("Safe Damage Check") or thisUnit.safe) and thisUnit.isCC == false and thisDistance < range and (facing == false or thisUnit.facing == true) then
 						if thisUnit.coeficient >= 0 and thisUnit.coeficient >= bestUnitCoef then
 							bestUnitCoef = thisUnit.coeficient
@@ -223,7 +223,7 @@ function EnemiesEngine()
 				end
 			end
 		end
-		return counter
+		return tonumber(counter)
 	end
 	-- to enlight redundant checks in getDistance within getEnemies
 	function getDistanceXYZ(unit1,unit2)

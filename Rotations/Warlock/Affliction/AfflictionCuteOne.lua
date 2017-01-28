@@ -51,14 +51,17 @@ local function createOptions()
             br.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
         -- Opener
             br.ui:createCheckbox(section,"Opener")
-        -- Artifact 
-            br.ui:createDropdownWithout(section,"Artifact", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Artifact Ability.")
         -- Summon Pet
-            br.ui:createDropdownWithout(section, "Summon Pet", {"Imp","Voidwalker","Felhunter","Succubus","Felguard","None"}, 1, "|cffFFFFFFSelect default pet to summon.")
+            br.ui:createDropdownWithout(section, "Summon Pet", {"Imp","Voidwalker","Felhunter","Succubus","Felguard", "Doomguard", "Infernal", "None"}, 1, "|cffFFFFFFSelect default pet to summon.")
         -- Grimoire of Service
             br.ui:createDropdownWithout(section, "Grimoire of Service", {"Imp","Voidwalker","Felhunter","Succubus","Felguard","None"}, 1, "|cffFFFFFFSelect pet to Grimoire.")
+        -- Artifact 
+            br.ui:createDropdownWithout(section,"Artifact", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Artifact Ability.")
         -- Mana Tap
-            br.ui:createSpinner(section, "Life Tap HP Limit", 30, 0, 100, 5, "|cffFFFFFFHP Limit that Life Tap will not cast below.") 
+            br.ui:createSpinner(section, "Life Tap HP Limit", 30, 0, 100, 5, "|cffFFFFFFHP Limit that Life Tap will not cast below.")
+        -- Multi-Dot Limit
+            br.ui:createSpinnerWithout(section, "Multi-Dot Limit", 5, 0, 10, 1, "|cffFFFFFFUnit Count Limit that DoTs will be cast on.")
+            br.ui:createSpinnerWithout(section, "Multi-Dot HP Limit", 5, 0, 10, 1, "|cffFFFFFFHP Limit that DoTs will be cast/refreshed on.") 
         br.ui:checkSectionState(section)
     -- Cooldown Options
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
@@ -191,12 +194,18 @@ local function runRotation()
         local ttd                                           = getTTD
         local ttm                                           = br.player.power.ttm
         local units                                         = br.player.units
+
+        local agonyCount = getDebuffCount(spell.debuffs.agony)
+        local corruptionCount = getDebuffCount(spell.debuffs.corruption)
+        local siphonLifeCount = getDebuffCount(spell.debuffs.siphonLife)
         
    		if leftCombat == nil then leftCombat = GetTime() end
 		if profileStop == nil or not inCombat then profileStop = false end
         if castSummonId == nil then castSummonId = 0 end
         if summonTime == nil then summonTime = 0 end
-        if effigied == nil then effigied = false end
+        if effigied == nil then effigied = false; effigyCount = 0 end
+        if isBoss() then dotHPLimit = getOptionValue("Multi-Dot HP Limit")/10 else dotHPLimit = getOptionValue("Multi-Dot HP Limit") end
+
         if debuff.unstableAffliction1[units.dyn40] ~= nil then
             if debuff.unstableAffliction1[units.dyn40].exists then UA1 = 1; UA1remain = debuff.unstableAffliction1[units.dyn40].remain else UA1 = 0; UA1remain = 0 end
         end
@@ -246,8 +255,10 @@ local function runRotation()
             local thisUnit = enemies.yards40[i]
             if ObjectID(thisUnit) == 103679 then
                 effigied = true;
+                effigyCount = 1;
                 break
             end
+            effigyCount = 0;
             effigied = false
         end
 
@@ -257,6 +268,8 @@ local function runRotation()
         if summonPet == 3 then summonId = 417 end
         if summonPet == 4 then summonId = 1863 end
         if summonPet == 5 then summonId = 17252 end
+        if summonPet == 6 then summonId = 78158 end
+        if summonPet == 7 then summonId = 78217 end
         if cd.grimoireOfService == 0 or prevService == nil then prevService = "None" end
         
         local doomguard = false
@@ -375,7 +388,7 @@ local function runRotation()
         local function actionList_PreCombat()
             -- Summon Pet
             -- summon_pet,if=!talent.grimoire_of_supremacy.enabled&(!talent.grimoire_of_sacrifice.enabled|buff.demonic_power.down)
-            if not (IsFlying() or IsMounted()) and not talent.grimoireOfSupremacy and (not talent.grimoireOfSacrifice or not buff.demonicPower.exists) and level >= 5 then
+            if not (IsFlying() or IsMounted()) and (not talent.grimoireOfSacrifice or not buff.demonicPower.exists) and level >= 5 and br.timer:useTimer("summonPet", getCastTime(spell.summonVoidwalker) + gcd) then
                 if (activePetId == 0 or activePetId ~= summonId) and (lastSpell ~= castSummonId or activePetId ~= summonId) then
                     if summonPet == 1 then
                         if isKnown(spell.summonFelImp) then
@@ -396,7 +409,17 @@ local function runRotation()
                     if summonPet == 5 then
                         if cast.summonFelguard("player") then castSummonId = spell.summonFelguard; return end
                     end
-                    if summonPet == 6 then return end
+                    if summonPet == 6 then
+                       if talent.grimoireOfSupremacy then
+                            if cast.summonDoomguard("player") then castSummonId = spell.summonDoomguard; return end
+                        end 
+                    end
+                    if summonPet == 7 then
+                        if talent.grimoireOfSupremacy then
+                            if cast.summonInfernal("player") then castSummonId = spell.summonInfernal; return end
+                        end
+                    end
+                    if summonPet == 8 then return end
                 end
             end
             if not inCombat and not (IsFlying() or IsMounted()) then
@@ -407,20 +430,6 @@ local function runRotation()
                 -- food,type=azshari_salad
                 -- TODO
                 if (not isChecked("Opener") or opener == true) then
-                -- Summon Infernal
-                    -- summon_infernal,if=talent.grimoire_of_supremacy.enabled&active_enemies>=3
-                    if useCDs() and isChecked("Summon Infernal") then
-                        if talent.grimoireOfSupremacy and #enemies.yards8 >= 3 then
-                            if cast.summonInfernal() then return end
-                        end
-                    end
-                -- Summon Doomguard
-                    -- summon_doomguard,if=talent.grimoire_of_supremacy.enabled&active_enemies<3&artifact.lord_of_flames.rank=0
-                    if useCDs() and isChecked("Summon Doomguard") then
-                        if talent.grimoireOfSupremacy and #enemies.yards8 < 3 then
-                            if cast.summonDoomguard() then return end
-                        end
-                    end
                 -- Augmentation
                     -- augmentation,type=defiled
                     -- TODO
@@ -447,7 +456,7 @@ local function runRotation()
                             PetAttack("target")
                         end
                 -- Opening Ability
-                        if cast.agony("target") then return end
+                        if cast.agony("target","aoe") then return end
                         if level < 10 then 
                             if cast.shadowBolt() then return end
                         end
@@ -506,19 +515,42 @@ local function runRotation()
     --- SimulationCraft APL ---
     ---------------------------
                 if getOptionValue("APL Mode") == 1 then
+                    if not UnitExists("target") then TargetUnit(units.dyn40) end
         -- Pet Attack
-                    if not UnitIsUnit("pettarget","target") then
+                    if UnitIsUnit("target",units.dyn40) and not UnitIsUnit("pettarget",units.dyn40) then
                         PetAttack()
                     end
         -- Reap Souls
                     -- reap_souls,if=!buff.deadwind_harvester.remains&(buff.soul_harvest.remains|buff.tormented_souls.react>=8|target.time_to_die<=buff.tormented_souls.react*5|!talent.malefic_grasp.enabled&(trinket.proc.any.react|trinket.stacking_proc.any.react))
-                    if not buff.deadwindHarvester.exists and (buff.soulHarvest.exists or buff.tormentedSouls.stack >= 8 or ttd(units.dyn40) <= buff.tormentedSouls.stack * 5 or not talent.maleficGrasp) then
+                    --if not buff.deadwindHarvester.exists and (buff.soulHarvest.exists or buff.tormentedSouls.stack >= 8 or ttd(units.dyn40) <= buff.tormentedSouls.stack * 5) then
+                    if (getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs())) 
+                        and (buff.tormentedSouls.stack >= 8 or (hasEquiped(144364) and buff.tormentedSouls.stack >= 6)) 
+                    then
                         if cast.reapSouls() then return end
                     end
         -- Soul Effigy
                     -- soul_effigy,if=!pet.soul_effigy.active
                     if not effigied then
-                        if cast.soulEffigy() then return end
+                        if cast.soulEffigy("target") then return end
+                    end
+                    if effigied then
+                        for i = 1, #enemies.yards40 do
+                            local thisUnit = enemies.yards40[i]
+                            if ObjectID(thisUnit) == 103679 then
+                                -- Agony
+                                if getDebuffRemain(thisUnit,spell.debuffs.agony,"player") < 2 + gcd then
+                                    if cast.agony(thisUnit,"aoe") then return end
+                                end
+                                -- Corruption
+                                if getDebuffRemain(thisUnit,spell.debuffs.agony,"player") < 2 + gcd then
+                                    if cast.agony(thisUnit,"aoe") then return end
+                                end
+                                -- Siphon Life
+                                if getDebuffRemain(thisUnit,spell.debuffs.agony,"player") < 2 + gcd then
+                                    if cast.agony(thisUnit,"aoe") then return end
+                                end
+                            end
+                        end
                     end
         -- Agony
                     -- agony,cycle_targets=1,if=remains<=tick_time+gcd
@@ -526,15 +558,15 @@ local function runRotation()
                         local thisUnit = enemies.yards40[i]
                         local agony = debuff.agony[thisUnit]
                         if agony ~= nil then
-                            if isValidUnit(thisUnit) and agony.remain <= 2 + gcd then
-                                if cast.agony(thisUnit) then return end
+                            if agonyCount < getOptionValue("Multi-Dot Limit") + effigyCount and getHP(thisUnit) > dotHPLimit and isValidUnit(thisUnit) and agony.remain <= 2 + gcd then
+                                if cast.agony(thisUnit,"aoe") then return end
                             end
                         end
                     end
         -- Service Pet
                     -- service_pet,if=dot.corruption.remains&dot.agony.remains
                     if ObjectExists("target") then
-                        if debuff.corruption["target"].exists and debuff.agony["target"].exists and br.timer:useTimer("castGrim", gcd) then
+                        if debuff.corruption["target"].exists and debuff.agony["target"].exists and br.timer:useTimer("summonPet", getCastTime(spell.summonVoidwalker)+gcd) then
                             if grimoirePet == 1 then
                                 if cast.grimoireImp("player") then prevService = "Imp"; return end
                             end
@@ -550,16 +582,25 @@ local function runRotation()
                             if grimoirePet == 5 then
                                 if cast.grimoireFelguard("player") then prevService = "Felguard"; return end
                             end
-                            if grimoirePet == 6 then return end
+                            if summonPet == 6 then
+                               if talent.grimoireOfSupremacy and not hasEquiped(132379) then
+                                    if cast.summonDoomguard("player") then castSummonId = spell.summonDoomguard; return end
+                                end 
+                            end
+                            if summonPet == 7 then
+                                if talent.grimoireOfSupremacy and not hasEquiped(132379) then
+                                    if cast.summonInfernal("player") then castSummonId = spell.summonInfernal; return end
+                                end
+                            end
+                            if summonPet == 8 then return end
                         end
                     end
         -- Summon Doomguard
                     -- summon_doomguard,if=!talent.grimoire_of_supremacy.enabled&spell_targets.summon_infernal<=2&(target.time_to_die>180|target.health.pct<=20|target.time_to_die<30)
                     if useCDs() and isChecked("Summon Doomguard") then
                         if not talent.grimoireOfSupremacy and #enemies.yards8t <= 2
-                            and (ttd(units.dyn40) > 180 or getHP(units.dyn40) <= 20 or ttd(units.dyn40) < 30)
+                            and (ttd(units.dyn40) > 180 or getHP(units.dyn40) <= 20 or ttd(units.dyn40) < 30 or isDummy())
                         then
-                            
                             if cast.summonDoomguard() then summonTime = GetTime(); return end
                         end
                     end
@@ -567,7 +608,6 @@ local function runRotation()
                     -- summon_infernal,if=!talent.grimoire_of_supremacy.enabled&spell_targets.summon_infernal>2
                     if useCDs() and isChecked("Summon Infernal") then
                         if not talent.grimoireOfSupremacy and #enemies.yards8t > 2 then
-                            
                             if cast.summonInfernal() then summonTime = GetTime(); return end
                         end
                     end
@@ -592,8 +632,10 @@ local function runRotation()
         -- Corruption
                     -- corruption,if=remains<=tick_time+gcd&(spell_targets.seed_of_corruption<3&talent.sow_the_seeds.enabled|spell_targets.seed_of_corruption<4)
                     if debuff.corruption[units.dyn40] ~= nil then
-                        if debuff.corruption[units.dyn40].remain <= 2 + gcd and ((#enemies.yards10t < 10 and talent.sowTheSeeds) or #enemies.yards10t < 4) then
-                            if cast.corruption() then return end
+                        if corruptionCount < getOptionValue("Multi-Dot Limit") + effigyCount and getHP(units.dyn40) > dotHPLimit then
+                            if debuff.corruption[units.dyn40].remain <= 2 + gcd and ((#enemies.yards10t < 10 and talent.sowTheSeeds) or #enemies.yards10t < 4) then
+                                if cast.corruption(units.dyn40,"aoe") then return end
+                            end
                         end
                     end
                     -- corruption,cycle_targets=1,if=(talent.absolute_corruption.enabled|!talent.malefic_grasp.enabled|!talent.soul_effigy.enabled)&remains<=tick_time+gcd&(spell_targets.seed_of_corruption<3&talent.sow_the_seeds.enabled|spell_targets.seed_of_corruption<4)
@@ -601,10 +643,12 @@ local function runRotation()
                         local thisUnit = enemies.yards40[i]
                         local corruption = debuff.corruption[thisUnit]
                         if corruption ~= nil then
-                            if isValidUnit(thisUnit) and (talent.absoluteCorruption or not talent.maleficGrasp or not talent.soulEffigy) and corruption.remain <= 2 + gcd 
-                                and ((#enemies.yards10t < 10 and talent.sowTheSeeds) or #enemies.yards10t < 4) 
-                            then                                
-                                if cast.corruption(thisUnit) then return end
+                            if corruptionCount < getOptionValue("Multi-Dot Limit") + effigyCount and getHP(thisUnit) > dotHPLimit and isValidUnit(thisUnit) then
+                                if (talent.absoluteCorruption or not talent.maleficGrasp or not talent.soulEffigy) and corruption.remain <= 2 + gcd 
+                                    and ((#enemies.yards10t < 10 and talent.sowTheSeeds) or #enemies.yards10t < 4) 
+                                then                                
+                                    if cast.corruption(thisUnit,"aoe") then return end
+                                end
                             end
                         end
                     end
@@ -612,8 +656,10 @@ local function runRotation()
                     -- siphon_life,if=remains<=tick_time+gcd
                     -- siphon_life,if=remains<=tick_time+gcd&(dot.unstable_affliction_1.ticking+dot.unstable_affliction_2.ticking+dot.unstable_affliction_3.ticking+dot.unstable_affliction_4.ticking+dot.unstable_affliction_5.ticking)<2
                     if debuff.siphonLife[units.dyn40] ~= nil then
-                        if debuff.siphonLife[units.dyn40].remain <= 2 + gcd and (UA1 + UA2 + UA3 + UA4 + UA5) < 2 then
-                            if cast.siphonLife() then return end
+                        if siphonLifeCount < getOptionValue("Multi-Dot Limit") + effigyCount and getHP(units.dyn40) > dotHPLimit then
+                            if debuff.siphonLife[units.dyn40].remain <= 2 + gcd and (UA1 + UA2 + UA3 + UA4 + UA5) < 2 then
+                                if cast.siphonLife(units.dyn40,"aoe") then return end
+                            end
                         end
                     end
                     -- siphon_life,cycle_targets=1,if=(!talent.malefic_grasp.enabled||!talent.soul_effigy.enabled)&remains<=tick_time+gcd
@@ -621,15 +667,17 @@ local function runRotation()
                         local thisUnit = enemies.yards40[i]
                         local siphonLife = debuff.siphonLife[thisUnit]
                         if siphonLife ~= nil then
-                            if isValidUnit(thisUnit) and (not talent.maleficGrasp or not talent.soulEffigy) and siphonLife.remain <= 2 + gcd then                                
-                                if cast.siphonLife(thisUnit) then return end
+                            if siphonLifeCount < getOptionValue("Multi-Dot Limit") + effigyCount and getHP(thisUnit) > dotHPLimit and isValidUnit(thisUnit) then
+                                if (not talent.maleficGrasp or not talent.soulEffigy) and siphonLife.remain <= 2 + gcd then                                
+                                    if cast.siphonLife(thisUnit,"aoe") then return end
+                                end
                             end
                         end
                     end
         -- Life Tap
                     -- life_tap,if=talent.empowered_life_tap.enabled&buff.empowered_life_tap.remains<=gcd
                     if talent.empoweredLifeTap and buff.empoweredLifeTap.remain <= gcd then
-                        if cast.empoweredLifeTap() then return end
+                        if cast.lifeTap() then return end
                     end
         -- Phantom Singularity
                     -- phantom_singularity
@@ -656,14 +704,14 @@ local function runRotation()
                         if ua4 ~= nil and ua4.exists then ua4count = 1 else ua4count = 0 end
                         if ua5 ~= nil and ua5.exists then ua5count = 1 else ua5count = 0 end
                         if agony ~= nil then
-                            if isValidUnit(thisUnit) then
+                            if agonyCount < getOptionValue("Multi-Dot Limit") + effigyCount and getHP(thisUnit) > dotHPLimit and isValidUnit(thisUnit) then
                                 -- agony,cycle_targets=1,if=!talent.malefic_grasp.enabled&remains<=duration*0.3&target.time_to_die>=remains
                                 if not talent.maleficGrasp and agony.refresh and ttd(thisUnit) >= agony.remain then
-                                    if cast.agony(thisUnit) then return end
+                                    if cast.agony(thisUnit,"aoe") then return end
                                 end
                                 -- agony,cycle_targets=1,if=remains<=duration*0.3&target.time_to_die>=remains&(dot.unstable_affliction_1.ticking+dot.unstable_affliction_2.ticking+dot.unstable_affliction_3.ticking+dot.unstable_affliction_4.ticking+dot.unstable_affliction_5.ticking)=0
                                 if agony.refresh and ttd(thisUnit) >= agony.remain and (ua1count + ua2count + ua3count + ua4count + ua5count) == 0 then
-                                    if cast.agony(thisUnit) then return end
+                                    if cast.agony(thisUnit,"aoe") then return end
                                 end
                             end
                         end
@@ -680,13 +728,15 @@ local function runRotation()
                     end
         -- Corruption
                     if debuff.corruption[units.dyn40] ~= nil then
-                        -- corruption,if=!talent.malefic_grasp.enabled&remains<=duration*0.3&target.time_to_die>=remains
-                        if not talent.maleficGrasp and debuff.corruption[units.dyn40].refresh and ttd(units.dyn40) >= debuff.corruption[units.dyn40].remain then
-                            if cast.corruption() then return end
-                        end
-                        -- corruption,if=remains<=duration*0.3&target.time_to_die>=remains&(dot.unstable_affliction_1.ticking+dot.unstable_affliction_2.ticking+dot.unstable_affliction_3.ticking+dot.unstable_affliction_4.ticking+dot.unstable_affliction_5.ticking)=0
-                        if debuff.corruption[units.dyn40].refresh and (UA1 + UA2 + UA3 + UA4 + UA5) == 0 then
-                            if cast.corruption() then return end
+                        if corruptionCount < getOptionValue("Multi-Dot Limit") + effigyCount and getHP(units.dyn40) > dotHPLimit then
+                            -- corruption,if=!talent.malefic_grasp.enabled&remains<=duration*0.3&target.time_to_die>=remains
+                            if not talent.maleficGrasp and debuff.corruption[units.dyn40].refresh and ttd(units.dyn40) >= debuff.corruption[units.dyn40].remain then
+                                if cast.corruption(units.dyn40,"aoe") then return end
+                            end
+                            -- corruption,if=remains<=duration*0.3&target.time_to_die>=remains&(dot.unstable_affliction_1.ticking+dot.unstable_affliction_2.ticking+dot.unstable_affliction_3.ticking+dot.unstable_affliction_4.ticking+dot.unstable_affliction_5.ticking)=0
+                            if debuff.corruption[units.dyn40].refresh and (UA1 + UA2 + UA3 + UA4 + UA5) == 0 then
+                                if cast.corruption(units.dyn40,"aoe") then return end
+                            end
                         end
                     end
                     -- corruption,cycle_targets=1,if=(talent.absolute_corruption.enabled|!talent.malefic_grasp.enabled|!talent.soul_effigy.enabled)&remains<=duration*0.3&target.time_to_die>=remains
@@ -694,20 +744,24 @@ local function runRotation()
                         local thisUnit = enemies.yards40[i]
                         local corruption = debuff.corruption[thisUnit]
                         if corruption ~= nil then
-                            if isValidUnit(thisUnit) and (talent.absoluteCorruption or not talent.maleficGrasp or not talent.soulEffigy) and corruption.refresh and ttd(thisUnit) >= corruption.remain then
-                                if cast.corruption(thisUnit) then return end
+                            if corruptionCount < getOptionValue("Multi-Dot Limit") + effigyCount and getHP(thisUnit) > dotHPLimit and isValidUnit(thisUnit) then
+                                if (talent.absoluteCorruption or not talent.maleficGrasp or not talent.soulEffigy) and corruption.refresh and ttd(thisUnit) >= corruption.remain then
+                                    if cast.corruption(thisUnit,"aoe") then return end
+                                end
                             end
                         end
                     end
         -- Siphon Life
                     if debuff.siphonLife[units.dyn40] ~= nil then
-                        -- siphon_life,if=!talent.malefic_grasp.enabled&remains<=duration*0.3&target.time_to_die>=remains
-                        if not talent.maleficGrasp and debuff.siphonLife[units.dyn40].refresh and ttd(units.dyn40) >= debuff.siphonLife[units.dyn40].remain then
-                            if cast.siphonLife() then return end
-                        end
-                        -- siphon_life,if=remains<=duration*0.3&target.time_to_die>=remains&(dot.unstable_affliction_1.ticking+dot.unstable_affliction_2.ticking+dot.unstable_affliction_3.ticking+dot.unstable_affliction_4.ticking+dot.unstable_affliction_5.ticking)=0
-                        if debuff.siphonLife[units.dyn40].refresh and (UA1 + UA2 + UA3 + UA4 + UA5) == 0 then
-                            if cast.siphonLife() then return end
+                        if siphonLifeCount < getOptionValue("Multi-Dot Limit") + effigyCount and getHP(units.dyn40) > dotHPLimit then
+                            -- siphon_life,if=!talent.malefic_grasp.enabled&remains<=duration*0.3&target.time_to_die>=remains
+                            if not talent.maleficGrasp and debuff.siphonLife[units.dyn40].refresh and ttd(units.dyn40) >= debuff.siphonLife[units.dyn40].remain then
+                                if cast.siphonLife(units.dyn40,"aoe") then return end
+                            end
+                            -- siphon_life,if=remains<=duration*0.3&target.time_to_die>=remains&(dot.unstable_affliction_1.ticking+dot.unstable_affliction_2.ticking+dot.unstable_affliction_3.ticking+dot.unstable_affliction_4.ticking+dot.unstable_affliction_5.ticking)=0
+                            if debuff.siphonLife[units.dyn40].refresh and (UA1 + UA2 + UA3 + UA4 + UA5) == 0 then
+                                if cast.siphonLife(units.dyn40,"aoe") then return end
+                            end
                         end
                     end
                     -- siphon_life,cycle_targets=1,if=(!talent.malefic_grasp.enabled|!talent.soul_effigy.enabled)&remains<=duration*0.3&target.time_to_die>=remains
@@ -715,8 +769,10 @@ local function runRotation()
                         local thisUnit = enemies.yards40[i]
                         local siphonLife = debuff.siphonLife[thisUnit]
                         if siphonLife ~= nil then
-                            if isValidUnit(thisUnit) and (not talent.maleficGrasp or not talent.soulEffigy) and siphonLife.refresh and ttd(thisUnit) >= siphonLife.remain then
-                                if cast.siphonLife(thisUnit) then return end
+                            if siphonLifeCount < getOptionValue("Multi-Dot Limit") + effigyCount and getHP(thisUnit) > dotHPLimit and isValidUnit(thisUnit) then
+                                if isValidUnit(thisUnit) and (not talent.maleficGrasp or not talent.soulEffigy) and siphonLife.refresh and ttd(thisUnit) >= siphonLife.remain then
+                                    if cast.siphonLife(thisUnit,"aoe") then return end
+                                end
                             end
                         end
                     end
@@ -726,21 +782,21 @@ local function runRotation()
                     if (not talent.sowTheSeeds or #enemies.yards10t < 3) and #enemies.yards10t < 4 and talent.writheInAgony 
                         and talent.contagion and talent.contagion and UA1remain < getCastTime(spell.unstableAffliction) 
                     then
-                        if cast.unstableAffliction() then return end
+                        if cast.unstableAffliction(units.dyn40,"aoe") then return end
                     end
                     -- unstable_affliction,if=(!talent.sow_the_seeds.enabled|spell_targets.seed_of_corruption<3)&spell_targets.seed_of_corruption<4&talent.writhe_in_agony.enabled&(soul_shard>=4|trinket.proc.intellect.react|trinket.stacking_proc.mastery.react|trinket.proc.mastery.react|trinket.proc.crit.react|trinket.proc.versatility.react|buff.soul_harvest.remains|buff.deadwind_harvester.remains|buff.compounding_horror.react=5|target.time_to_die<=20)
                     if (not talent.sowTheSeeds or #enemies.yards10t < 3) and #enemies.yards10t < 4 and talent.writheInAgony 
                         and (shards >= 4 or buff.soulHarvest.exists or buff.deadwindHarvester.exists or buff.compoundingHorror.stack == 5 or ttd(units.dyn40) <= 20) 
                     then
-                        if cast.unstableAffliction() then return end
+                        if cast.unstableAffliction(units.dyn40,"aoe") then return end
                     end
                     -- unstable_affliction,if=(!talent.sow_the_seeds.enabled|spell_targets.seed_of_corruption<3)&spell_targets.seed_of_corruption<4&talent.malefic_grasp.enabled&target.time_to_die<30
                     if (not talent.sowTheSeeds or #enemies.yards10t < 3) and #enemies.yards10t < 4 and talent.maleficGrasp and ttd(units.dyn40) < 30 then
-                        if cast.unstableAffliction() then return end
+                        if cast.unstableAffliction(units.dyn40,"aoe") then return end
                     end
                     -- unstable_affliction,if=(!talent.sow_the_seeds.enabled|spell_targets.seed_of_corruption<3)&spell_targets.seed_of_corruption<4&talent.malefic_grasp.enabled&(soul_shard=5|talent.contagion.enabled&soul_shard>=4)
                     if (not talent.sowTheSeeds or #enemies.yards10t < 3) and #enemies.yards10t < 4 and talent.maleficGrasp and (shards == 5 or (talent.contagion and shards >= 4)) then
-                        if cast.unstableAffliction() then return end
+                        if cast.unstableAffliction(units.dyn40,"aoe") then return end
                     end
                     -- unstable_affliction,if=(!talent.sow_the_seeds.enabled|spell_targets.seed_of_corruption<3)&spell_targets.seed_of_corruption<4&talent.malefic_grasp.enabled&!prev_gcd.3.unstable_affliction&dot.agony.remains>cast_time*3+6.5&(!talent.soul_effigy.enabled|pet.soul_effigy.dot.agony.remains>cast_time*3+6.5)&(dot.corruption.remains>cast_time+6.5|talent.absolute_corruption.enabled)&(dot.siphon_life.remains>cast_time+6.5|!talent.siphon_life.enabled)
                     if (not talent.sowTheSeeds or #enemies.yards10t < 3) and #enemies.yards10t < 4 and talent.maleficGrasp 
@@ -749,23 +805,23 @@ local function runRotation()
                         and (debuff.corruption[units.dyn40] ~= nil and debuff.corruption[units.dyn40].remain > getCastTime(spell.unstableAffliction) + 6.5 or talent.absoluteCorruption) 
                         and (debuff.siphonLife[units.dyn40] ~= nil and debuff.siphonLife[units.dyn40].remain > getCastTime(spell.unstableAffliction) + 6.5 or not talent.siphonLife) 
                     then
-                        if cast.unstableAffliction() then return end
+                        if cast.unstableAffliction(units.dyn40,"aoe") then return end
                     end
                     -- unstable_affliction,if=(!talent.sow_the_seeds.enabled|spell_targets.seed_of_corruption<3)&talent.haunt.enabled&(soul_shard>=4|debuff.haunt.remains>6.5|target.time_to_die<30)
                     if (not talent.sowTheSeeds or #enemies.yards10t < 3) and #enemies.yards10t < 4 and talent.haunt 
                         and (shards >= 4 or (debuff.haunt[units.dyn40] ~= nil and debuff.haunt[units.dyn40].exists) or ttd(units.dyn40) < 30) 
                     then
-                        if cast.unstableAffliction() then return end
+                        if cast.unstableAffliction(units.dyn40,"aoe") then return end
                     end
-        -- Reap Soul
-                    -- reap_souls,if=!buff.deadwind_harvester.remains&(dot.unstable_affliction_1.ticking+dot.unstable_affliction_2.ticking+dot.unstable_affliction_3.ticking+dot.unstable_affliction_4.ticking+dot.unstable_affliction_5.ticking)>1&((!trinket.has_stacking_stat.any&!trinket.has_stat.any)|talent.malefic_grasp.enabled)
-                    if not buff.deadwindHarvester.exists and (UA1 + UA2 + UA3 + UA4 + UA5) > 1 and talent.maleGrasp then
-                        if cast.reapSouls() then return end
-                    end
-                    -- reap_souls,if=!buff.deadwind_harvester.remains&prev_gcd.1.unstable_affliction&((!trinket.has_stacking_stat.any&!trinket.has_stat.any)|talent.malefic_grasp.enabled)&buff.tormented_souls.react>1
-                    if not buff.deadwindHarvester.exists and (lastSpell ~= spell.unstableAffliction and UA1) and talent.maleGrasp and buff.tormentedSouls.stack > 1 then
-                        if cast.reapSouls() then return end
-                    end
+        -- -- Reap Soul
+        --             -- reap_souls,if=!buff.deadwind_harvester.remains&(dot.unstable_affliction_1.ticking+dot.unstable_affliction_2.ticking+dot.unstable_affliction_3.ticking+dot.unstable_affliction_4.ticking+dot.unstable_affliction_5.ticking)>1&((!trinket.has_stacking_stat.any&!trinket.has_stat.any)|talent.malefic_grasp.enabled)
+        --             if not buff.deadwindHarvester.exists and (UA1 + UA2 + UA3 + UA4 + UA5) > 1 and talent.maleGrasp then
+        --                 if cast.reapSouls() then return end
+        --             end
+        --             -- reap_souls,if=!buff.deadwind_harvester.remains&prev_gcd.1.unstable_affliction&((!trinket.has_stacking_stat.any&!trinket.has_stat.any)|talent.malefic_grasp.enabled)&buff.tormented_souls.react>1
+        --             if not buff.deadwindHarvester.exists and (lastSpell ~= spell.unstableAffliction and UA1) and talent.maleGrasp and buff.tormentedSouls.stack > 1 then
+        --                 if cast.reapSouls() then return end
+        --             end
         -- Life Tap
                     -- life_tap,if=mana.pct<=10
                     if manaPercent <= 10 and php > getOptionValue("Life Tap HP Limit") then
