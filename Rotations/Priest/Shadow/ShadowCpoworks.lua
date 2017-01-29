@@ -267,7 +267,7 @@ local function runRotation()
                 if swp ~= nil then
                     if UnitIsUnit(thisUnit,"target") or hasThreat(thisUnit) or isDummy(thisUnit) then
                         if ttd(thisUnit) > swp.duration and (not swp or swp.refresh) then
-                            if cast.shadowWordPain(thisUnit) then return end
+                            if cast.shadowWordPain(thisUnit,"aoe") then return end
                         end
                     end
                 end
@@ -279,7 +279,7 @@ local function runRotation()
                 if vt ~= nil then
                     if UnitIsUnit(thisUnit,"target") or hasThreat(thisUnit) or isDummy(thisUnit) then
                         if ttd(thisUnit) > vt.duration and (not vt or vt.refresh) and lastSpellCast ~= spell.vampiricTouch then
-                            if cast.vampiricTouch(thisUnit) then return end
+                            if cast.vampiricTouch(thisUnit,"aoe") then return end
                         end
                     end
                 end
@@ -365,7 +365,7 @@ local function runRotation()
                 if swp ~= nil then
                     if UnitIsUnit(thisUnit,"target") or hasThreat(thisUnit) or isDummy(thisUnit) then
                         if ttd(thisUnit) > swp.duration and (not swp or swp.refresh) then
-                            if cast.shadowWordPain(thisUnit) then return end
+                            if cast.shadowWordPain(thisUnit,"aoe") then return end
                         end
                     end
                 end
@@ -377,7 +377,7 @@ local function runRotation()
                 if vt ~= nil then
                     if UnitIsUnit(thisUnit,"target") or hasThreat(thisUnit) or isDummy(thisUnit) then
                         if ttd(thisUnit) > vt.duration and (not vt or vt.refresh) and lastSpellCast ~= spell.vampiricTouch then
-                            if cast.vampiricTouch(thisUnit) then return end
+                            if cast.vampiricTouch(thisUnit,"aoe") then return end
                         end
                     end
                 end

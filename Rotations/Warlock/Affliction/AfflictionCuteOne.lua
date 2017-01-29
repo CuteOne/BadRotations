@@ -254,10 +254,12 @@ local function runRotation()
         for i = 1, #enemies.yards40 do
             local thisUnit = enemies.yards40[i]
             if ObjectID(thisUnit) == 103679 then
+                effigyUnit = thisUnit;
                 effigied = true;
                 effigyCount = 1;
                 break
             end
+            effigyUnit = "player";
             effigyCount = 0;
             effigied = false
         end
@@ -281,6 +283,7 @@ local function runRotation()
                 if thisUnit == 89 then infernal = true end
             end
         end
+        if UnitExists(effigyUnit) and UnitIsUnit("target",effigyUnit) then FocusUnit(effigyUnit); ClearTarget(); TargetUnit(units.dyn40); return end
 
 --------------------
 --- Action Lists ---
@@ -477,7 +480,7 @@ local function runRotation()
     -- Profile Stop | Pause
         if not inCombat and not hastar and profileStop==true then
             profileStop = false
-        elseif (inCombat and profileStop==true) or pause() or mode.rotation==4 then
+        elseif (inCombat and profileStop==true) or pause(true) or isCastingSpell(spell.soulEffigy) or mode.rotation==4 then
             if not pause() then
                 PetFollow()
             end
@@ -515,7 +518,6 @@ local function runRotation()
     --- SimulationCraft APL ---
     ---------------------------
                 if getOptionValue("APL Mode") == 1 then
-                    if not UnitExists("target") then TargetUnit(units.dyn40) end
         -- Pet Attack
                     if UnitIsUnit("target",units.dyn40) and not UnitIsUnit("pettarget",units.dyn40) then
                         PetAttack()
@@ -542,12 +544,12 @@ local function runRotation()
                                     if cast.agony(thisUnit,"aoe") then return end
                                 end
                                 -- Corruption
-                                if getDebuffRemain(thisUnit,spell.debuffs.agony,"player") < 2 + gcd then
-                                    if cast.agony(thisUnit,"aoe") then return end
+                                if math.abs(getDebuffRemain(thisUnit,spell.debuffs.corruption,"player")) < 2 + gcd then
+                                    if cast.corruption(thisUnit,"aoe") then return end
                                 end
                                 -- Siphon Life
-                                if getDebuffRemain(thisUnit,spell.debuffs.agony,"player") < 2 + gcd then
-                                    if cast.agony(thisUnit,"aoe") then return end
+                                if getDebuffRemain(thisUnit,spell.debuffs.siphonLife,"player") < 2 + gcd then
+                                    if cast.siphonLife(thisUnit,"aoe") then return end
                                 end
                             end
                         end
@@ -780,7 +782,7 @@ local function runRotation()
         -- Unsable Affliction
                    -- unstable_affliction,if=(!talent.sow_the_seeds.enabled|spell_targets.seed_of_corruption<3)&spell_targets.seed_of_corruption<4&talent.writhe_in_agony.enabled&talent.contagion.enabled&dot.unstable_affliction_1.remains<cast_time&dot.unstable_affliction_2.remains<cast_time&dot.unstable_affliction_3.remains<cast_time&dot.unstable_affliction_4.remains<cast_time&dot.unstable_affliction_5.remains<cast_time
                     if (not talent.sowTheSeeds or #enemies.yards10t < 3) and #enemies.yards10t < 4 and talent.writheInAgony 
-                        and talent.contagion and talent.contagion and UA1remain < getCastTime(spell.unstableAffliction) 
+                        and talent.contagion and UA1remain < getCastTime(spell.unstableAffliction) 
                     then
                         if cast.unstableAffliction(units.dyn40,"aoe") then return end
                     end
