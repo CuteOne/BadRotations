@@ -67,11 +67,7 @@ frame:SetScript("OnEvent", frame.OnEvent)
 function BadRotationsUpdate(self)
 	-- LoS Line Draw *TEMP*
 	if FireHack and isChecked("Healer Line of Sight Indicator") then
-		if UnitExists("focus") then 
-			inLoSHealer("focus")
-		else
-			inLoSHealer()
-		end
+		inLoSHealer()
 	end
 	-- getEnemiesInRect(6,25)
 	local tempTime = GetTime();

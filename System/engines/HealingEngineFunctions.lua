@@ -182,7 +182,7 @@ function isBadlyDeBuffed(Unit)
 	return false
 end
 
-function inLoSHealer(healer)
+function inLoSHealer()
 	local function drawHealers(healer)
 		local LibDraw 					= LibStub("LibDraw-1.0")
 		local facing 					= ObjectFacing("player")
@@ -196,14 +196,10 @@ function inLoSHealer(healer)
 		end
 		return LibDraw.Line(playerX, playerY, playerZ, healerX, healerY, healerZ)
 	end
-	if healer == nil then 
-		for i = 1, #br.friend do
-			local thisUnit = br.friend[i].unit
-			if not UnitIsUnit(thisUnit,"player") and  UnitGroupRolesAssigned(thisUnit) == "HEALER" then
-				drawHealers(thisUnit)
-			end
+	for i = 1, #br.friend do
+		local thisUnit = br.friend[i].unit
+		if not UnitIsUnit(thisUnit,"player") and  UnitGroupRolesAssigned(thisUnit) == "HEALER" then
+			drawHealers(thisUnit)
 		end
-	else
-		drawHealers(healer)
-	end		
+	end
 end
