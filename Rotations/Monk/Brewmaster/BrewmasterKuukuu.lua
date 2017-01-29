@@ -204,28 +204,7 @@ local function runRotation()
         if profileStop == nil then profileStop = false end
         if opener == nil then opener = false end
 
-        if not inCombat and not ObjectExists("target") then 
-            OoRchiWave = false
-            FSK = false
-            iRchiWave = false
-            EE = false
-            ToD = false
-            TP1 = false
-            SER = false
-            TP2 = false
-            TP3 = false
-            TP4 = false
-            RSK1 = false
-            RSK2 = false
-            SotW = false
-            FoF1 = false
-            SCK = false
-            BOK = false
-            SEF = false
-            WDP = false 
-            opener = false
-        end
-
+ 
 --------------------
 --- Action Lists ---
 --------------------
@@ -264,7 +243,6 @@ local function runRotation()
             if isChecked("DPS Testing") then
                 if ObjectExists("target") then
                     if combatTime >= (tonumber(getValue("DPS Testing"))*60) and isDummy() then
-                        CancelUnitBuff("player", GetSpellInfo(br.player.spell.stormEarthAndFire))
                         StopAttack()
                         ClearTarget()
                         StopAttack()
@@ -292,7 +270,7 @@ local function runRotation()
         function actionList_Defensive()
             if useDefensive() then
         -- Purifying Brew
-                if debuff.moderateStagger.exists or debuff.heavyStagger.exists then
+                if debuff.moderateStagger["player"].exists or debuff.heavyStagger["player"].exists then
                     if cast.purifyingBrew() then return end
                 end
         -- Pot/Stoned
