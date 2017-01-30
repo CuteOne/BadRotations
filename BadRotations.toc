@@ -129,7 +129,7 @@ Rotations\Monk\Windwalker\WindwalkerCuteOne.lua
 ## Paladin ---------------------------------------------------
 
 Rotations\Paladin\Holy\HolyGabbz.lua
-
+Rotations\Paladin\Protection\protectionPrettyBoy.lua
 Rotations\Paladin\Protection\protectionSimC.lua
 
 Rotations\Paladin\Retribution\RetributionCuteOne.lua
