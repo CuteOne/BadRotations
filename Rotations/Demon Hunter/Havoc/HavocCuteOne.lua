@@ -244,7 +244,12 @@ local function runRotation()
             return
         end
         local function cancelRetreatAnimation()
-            return cast.vengefulRetreat()
+            if castable.vengefulRetreat then
+                C_Timer.After(.001, function() SetHackEnabled("NoKnockback", true) end)
+                C_Timer.After(.35, function() cast.vengefulRetreat() end)
+                C_Timer.After(.55, function() SetHackEnabled("NoKnockback", false) end)
+            end
+            return
         end
 
 --------------------
@@ -426,36 +431,36 @@ local function runRotation()
                 if isChecked("Pre-Pull Timer") and pullTimer <= getOptionValue("Pre-Pull Timer") then
 
                 end -- End Pre-Pull
-                if isValidUnit("target") then
-            -- Throw Glaive
-                    if getDistance("target") < 30 and getFacing("player","target") then
-                        if cast.throwGlaive("target") then return end
-                    end
-            -- Fel Rush
-                    if getOptionValue("APL Mode") == 1 and getFacing("player","target",10) then
-                        if mode.mover == 1 and getDistance("target") < 5 then
-                            cancelRushAnimation()
-                        elseif mode.mover == 2 or (getDistance("target") >= 5 and mode.mover ~= 3) then
-                            if cast.felRush() then return end
-                        end
-                    end
-            -- Start Attack
-                    if getDistance("target") < 5 then
-                        StartAttack()
-                    end
-            -- Metamorphosis
-                    if useCDs() and isChecked("Metamorphosis") and not (talent.demonReborn and talent.demonic) then
-                        -- if cast.metamorphosis("best",false,1,8) then return end
-                        if cast.metamorphosis("player") then return end
-                    end
-                end
+            --     if isValidUnit("target") then
+            -- -- Throw Glaive
+            --         if getDistance("target") < 30 and getFacing("player","target") then
+            --             if cast.throwGlaive("target") then return end
+            --         end
+            -- -- Fel Rush
+            --         if getOptionValue("APL Mode") == 1 and getFacing("player","target",10) then
+            --             if mode.mover == 1 and getDistance("target") < 5 then
+            --                 cancelRushAnimation()
+            --             elseif mode.mover == 2 or (getDistance("target") >= 5 and mode.mover ~= 3) then
+            --                 if cast.felRush() then return end
+            --             end
+            --         end
+            -- -- Start Attack
+            --         if getDistance("target") < 5 then
+            --             StartAttack()
+            --         end
+            -- -- Metamorphosis
+            --         if useCDs() and isChecked("Metamorphosis") and not (talent.demonReborn and talent.demonic) then
+            --             -- if cast.metamorphosis("best",false,1,8) then return end
+            --             if cast.metamorphosis("player") then return end
+            --         end
+            --     end
             end -- End No Combat
         end -- End Action List - PreCombat
 ---------------------
 --- Begin Profile ---
 ---------------------
     -- Profile Stop | Pause
-        if not inCombat and not hastar and profileStop==true then
+        if not inCombat and not IsMounted() and not hastar and profileStop==true then
             profileStop = false
         elseif (inCombat and profileStop==true) or (IsMounted() or IsFlying()) or pause() or mode.rotation==4 then
             return true
@@ -475,7 +480,7 @@ local function runRotation()
 --------------------------
 --- In Combat Rotation ---
 --------------------------
-            if inCombat and profileStop==false and isValidUnit(units.dyn5) and not isCastingSpell(spell.eyeBeam) then
+            if inCombat and not IsMounted() and profileStop==false and isValidUnit(units.dyn5) and not isCastingSpell(spell.eyeBeam) then
     ------------------------------
     --- In Combat - Interrupts ---
     ------------------------------
@@ -562,7 +567,7 @@ local function runRotation()
                     -- eye_beam,if=talent.demonic.enabled&(talent.demon_blades.enabled|(talent.blind_fury.enabled&fury.deficit>=35)|(!talent.blind_fury.enabled&fury.deficit<30))&((active_enemies>desired_targets&active_enemies>1)|raid_event.adds.in>30)
                     if not metaEyeBeam and talent.demonic and (talent.demonBlades or (talent.blindFury and powerDeficit >= 35) or (not talent.blindFury and powerDeficit < 30)) 
                         and (((mode.rotation == 1 and #enemies.yards8 > getOptionValue("Eye Beam Targets")) or mode.rotation == 2) --[[or addsIn > 30]]) 
-                        and getDistance(units.dyn8) < 8 and getFacing("player",units.dyn5,45) 
+                        and getDistance(units.dyn8) < 5 and getFacing("player",units.dyn5,45) 
                     then
                         if cast.eyeBeam(units.dyn5) then return end
                     end
