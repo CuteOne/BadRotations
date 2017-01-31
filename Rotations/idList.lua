@@ -1930,7 +1930,7 @@ br.idList = {
                 pickPocket                  = 921,
                 sap                         = 6770,
                 shadowmeld                  = 58984,
-                sPrint                      = 2983,
+                sprint                      = 2983,
                 tricksOfTheTrade            = 57934,
                 vanish                      = 1856,
             },
@@ -1940,6 +1940,8 @@ br.idList = {
             buffs                           = {
                 cloakOfShadows              = 31224,
                 feint                       = 1966,
+                masterAssassinsInitiative   = 235027,
+                sprint                      = 2983,
                 vanish                      = 11327,
             },
             debuffs                         = {
