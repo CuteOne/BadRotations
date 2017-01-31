@@ -127,7 +127,7 @@ local function runRotation()
 --------------
 --- Locals ---
 --------------
-        local addsExist                                     = false 
+        local addsExist                                     = false
         local addsIn                                        = 999
         local animality                                     = false
         local artifact                                      = br.player.artifact
@@ -157,7 +157,7 @@ local function runRotation()
         local mode                                          = br.player.mode
         local multidot                                      = (br.player.mode.cleave == 1 or br.player.mode.rotation == 2) and br.player.mode.rotation ~= 3
         local multishotTargets                              = getEnemies(br.player.units.dyn40,8)
-        local perk                                          = br.player.perk        
+        local perk                                          = br.player.perk
         local php                                           = br.player.health
         local playerMouse                                   = UnitIsPlayer("mouseover")
         local potion                                        = br.player.potion
@@ -173,7 +173,7 @@ local function runRotation()
         local ttd                                           = getTTD
         local ttm                                           = br.player.power.ttm
         local units                                         = br.player.units
-        
+
         if leftCombat == nil then leftCombat = GetTime() end
         if profileStop == nil then profileStop = false end
 
@@ -181,7 +181,7 @@ local function runRotation()
             local UnitDebuffID = UnitDebuffID
             local huntersMarkCount = 0
             local vulnerableCount = 0
-            
+
             if not br.player.debuffcount then br.player.debuffcount = {} end
             if huntersMarkCount>0 and not inCombat then huntersMarkCount = 0 end
             if vulnerableCount>0 and not inCombat then vulnerableCount = 0 end
@@ -198,7 +198,18 @@ local function runRotation()
             br.player.debuffcount.huntersMark       = huntersMarkCount or 0
             br.player.debuffcount.vulnerable        = vulnerableCount or 0
         end
-
+        local function getExplosiveDistance(otherUnit)
+            for i = 1, ObjectCount() do
+                local thisUnit = GetObjectWithIndex(i)
+                if GetObjectID(thisUnit) == 11492 then
+                    return GetDistanceBetweenObjects(thisUnit,otherUnit)
+                end
+            end
+            return 40
+        end
+        if explosiveTarget ~= nil and getExplosiveDistance(explosiveTarget) < 5 then
+            if castSpell(explosiveTarget,spell.explosiveShotDetonate,false,false,false,true,false,true,true,false) then print("ASPLODED!"); return end
+        end
 --------------------
 --- Action Lists ---
 --------------------
@@ -272,8 +283,8 @@ local function runRotation()
         local function actionList_Defensive()
             if useDefensive() then
         -- Pot/Stoned
-                if isChecked("Pot/Stoned") and php <= getOptionValue("Pot/Stoned") 
-                    and inCombat and (hasHealthPot() or hasItem(5512)) 
+                if isChecked("Pot/Stoned") and php <= getOptionValue("Pot/Stoned")
+                    and inCombat and (hasHealthPot() or hasItem(5512))
                 then
                     if canUse(5512) then
                         useItem(5512)
@@ -290,8 +301,8 @@ local function runRotation()
                     end
                 end
         -- Engineering: Shield-o-tronic
-                if isChecked("Shield-o-tronic") and php <= getOptionValue("Shield-o-tronic") 
-                    and inCombat and canUse(118006) 
+                if isChecked("Shield-o-tronic") and php <= getOptionValue("Shield-o-tronic")
+                    and inCombat and canUse(118006)
                 then
                     useItem(118006)
                 end
@@ -337,7 +348,7 @@ local function runRotation()
                     if cast.trueshot("player") then return end
                 end
             end -- End useCooldowns check
-        end -- End Action List - Cooldowns 
+        end -- End Action List - Cooldowns
     -- Action List - Non Patient Sniper
         local function actionList_nonPatientSniper()
             -- actions.non_patient_sniper=windburst
@@ -429,7 +440,7 @@ local function runRotation()
             -- actions.patient_sniper+=/sidewinders,if=(buff.marking_targets.up&debuff.hunters_mark.down&buff.trueshot.down)|(cooldown.sidewinders.charges_fractional>1&target.time_to_die<11)
             if (buff.markingTargets and debuff.huntersMark[units.dyn40].exists == false and buff.trueshot.exists == false) or (charges.frac.sidewinders > 1 and ttd(units.dyn40) < 11)then
                 if cast.sidewinders(units.dyn40) then return end
-            end 
+            end
             -- actions.patient_sniper+=/arcane_shot,if=variable.safe_to_build&!variable.use_multishot&focus.deficit>5+gcd*focus.regen
             if safeToBuild and not useMultishot and powerDeficit > 5 + gcd*powerRegen then
                 if cast.arcaneShot(units.dyn40) then return end
@@ -441,7 +452,7 @@ local function runRotation()
             -- actions.patient_sniper+=/aimed_shot,if=debuff.vulnerability.down&focus>80&cooldown.windburst.remains>focus.time_to_max
             if not debuff.vulnerable[units.dyn40].exists  and power > 80 then
                 if cast.aimedShot(units.dyn40) then return end
-            end 
+            end
         end -- End Action List - Patient Sniper
     -- Action List - Single Target
         local function actionList_SingleTarget()
@@ -465,7 +476,7 @@ local function runRotation()
             -- if (HasBuff(MarkingTargets) or HasBuff(Trueshot)) and not HasBuff(HuntersMark)
             if (buff.markingTargets.exists or buff.trueshot.exists) and debuff.huntersMark[units.dyn40].exists == false then
                 if cast.arcaneShot(units.dyn40) then return end
-            end 
+            end
             -- Multi-Shot
             -- if TargetsInRadius(MultiShot) > 1 and HasBuff(MarkingTargets) and BuffCount(HuntersMark) < TargetsInRadius(MultiShot)
             if #multishotTargets > 1 and buff.markingTargets.exists and debuffcount.huntersMark < #multishotTargets then
@@ -474,9 +485,9 @@ local function runRotation()
             -- Sentinel
             -- if not HasBuff(HuntersMark) and not HasBuff(Vulnerable) and not HasBuff(MarkingTargets)
             -- is a cooldown
-            
+
             -- Aimed Shot
-            -- if SpellCastTimeSec(AimedShot) < BuffRemainingSec(Vulnerable) and 
+            -- if SpellCastTimeSec(AimedShot) < BuffRemainingSec(Vulnerable) and
             -- (not HasTalent(Barrage) or CooldownSecRemaining(Barrage) > GlobalCooldownSec)
             if getCastTime(spell.aimedShot) < debuff.vulnerable[units.dyn40].remain and (not talent.piercingShot or cd.piercingShot > debuff.vulnerable[units.dyn40].remain) then
                 if cast.aimedShot(units.dyn40) then return end
@@ -487,25 +498,25 @@ local function runRotation()
             end
             -- Bursting Shot
             -- if HasItem(MagnetizedBlastingCapLauncher) and SecondsUntilAoe(2,8) > SpellCooldownSec(BurstingShot)
-            
+
             -- Black Arrow
             if talent.blackArrow then
                 if cast.blackArrow(units.dyn40) then return end
             end
             -- Explosive Shot
             if talent.explosiveShot then
-                if cast.explosiveShot(units.dyn40) then return end
+                if cast.explosiveShot(units.dyn40) then explosiveTarget = units.dyn40; return end
             end
             -- Aimed Shot
             if powerDeficit < 25 then
                 if cast.aimedShot(units.dyn40) then return end
             end
             -- Sidewinders
-            -- if not HasBuff(HuntersMark) and (HasBuff(MarkingTargets) or HasBuff(Trueshot)) or 
+            -- if not HasBuff(HuntersMark) and (HasBuff(MarkingTargets) or HasBuff(Trueshot)) or
             -- ChargeSecRemaining(Sidewinders) < BuffDurationSec(Vulnerable) - SpellCastTimeSec(AimedShot)
             if talent.sidewinders and debuff.huntersMark[units.dyn40].exists == false and (buff.markingTargets.exists or buff.trueshot.exists) or recharge.sidewinders < debuff.vulnerable[units.dyn40].duration - getCastTime(spell.aimedShot) then
                 if cast.sidewinders(units.dyn40) then return end
-            end 
+            end
             -- Arcane Shot
             -- if not HasBuff(HuntersMark) or not HasBuff(MarkingTargets)
             if debuff.huntersMark[units.dyn40].exists == false or buff.markingTargets.exists == false then
@@ -525,10 +536,10 @@ local function runRotation()
             end
             -- Bursting Shot
             -- if HasItem(MagnetizedBlastingCapLauncher)
-            
+
             -- Explosive Shot
             if talent.explosiveShot then
-                if cast.explosiveShot(units.dyn40) then return end
+                if cast.explosiveShot(units.dyn40) then explosiveTarget = units.dyn40; return end
             end
             -- Multi-Shot
             -- if BuffCount(HuntersMark) < 2 and (HasBuff(MarkingTargets) or HasBuff(Trueshot))
@@ -542,12 +553,12 @@ local function runRotation()
             end
             -- Sentinel
             -- if BuffCount(HuntersMark) < TargetsInRadius(MultiShot)
-            
+
             -- Marked Shot
             if cast.markedShot(units.dyn40) then return end
             -- Aimed Shot
             -- if BuffStack(SentinelsSight) = BuffMaxStack(SentinelsSight)
-            
+
             -- Aimed Shot
             -- if HasTalent(TrickShot) and BuffCount(Vulnerable) > 1 and HasBuff(LockAndLoad)
             if talent.trickShot and debuffcount.vulnerable > 1 and buff.lockAndLoad.exists then
@@ -580,7 +591,7 @@ local function runRotation()
             if actionList_Defensive() then return end
 -----------------
 --- Pet Logic ---
------------------             
+-----------------
             if actionList_PetManagement() then return end
 --------------------------
 --- In Combat Rotation ---
@@ -589,7 +600,7 @@ local function runRotation()
     ------------------------------
     --- In Combat - Interrupts ---
     ------------------------------
-                    if actionList_Interrupts() then return end              
+                    if actionList_Interrupts() then return end
     ---------------------------
     --- SimulationCraft APL ---
     ---------------------------
@@ -618,7 +629,7 @@ local function runRotation()
                             if actionList_MultiTarget() then return end
                         end
                         -- SingleTarget
-                        if actionList_SingleTarget() then return end          
+                        if actionList_SingleTarget() then return end
                     end
             end --End In Combat
         end --End Rotation Logic
