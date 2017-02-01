@@ -163,7 +163,6 @@ local function runRotation()
         local canFlask          = canUse(br.player.flask.wod.agilityBig)
         local cast              = br.player.cast
         local castable          = br.player.cast.debug
-        local castTimeFoF       = 4-(4*UnitSpellHaste("player")/100)
         local castTimeHS        = 2-(2*UnitSpellHaste("player")/100)
         local cd                = br.player.cd
         local charges           = br.player.charges
@@ -176,7 +175,6 @@ local function runRotation()
         local healthPot         = getHealthPot() or 0
         local inCombat          = br.player.inCombat
         local inRaid            = select(2,IsInInstance())=="raid"
-        local lastSpell         = lastSpellCast
         local level             = br.player.level
         local mode              = br.player.mode
         local php               = br.player.health
@@ -199,10 +197,9 @@ local function runRotation()
         local ttd               = getTTD(br.player.units.dyn5)
         local ttm               = br.player.power.ttm
         local units             = br.player.units
-        if lastSpell == nil then lastSpell = 0 end
         if leftCombat == nil then leftCombat = GetTime() end
         if profileStop == nil then profileStop = false end
-        if opener == nil then opener = false end
+        
 
  
 --------------------
@@ -228,8 +225,7 @@ local function runRotation()
                 end
             end
         -- Provoke
-            if not inCombat and select(3,GetSpellInfo(101545)) ~= "INTERFACE\\ICONS\\priest_icon_chakra_green" 
-                and getDistance("target") > 10 and isValidUnit("target") and not isBoss("target")
+            if not inCombat and getDistance("target") > 10 and isValidUnit("target") and not isBoss("target")
             then
                 if solo or #br.friend == 1 then
                     if cast.provoke() then return end
@@ -270,7 +266,7 @@ local function runRotation()
         function actionList_Defensive()
             if useDefensive() then
         -- Purifying Brew
-                if debuff.moderateStagger["player"].exists or debuff.heavyStagger["player"].exists then
+                if (UnitDebuffID("player",124274) or UnitDebuffID("player",124273))  then
                     if cast.purifyingBrew() then return end
                 end
         -- Pot/Stoned
@@ -379,25 +375,6 @@ local function runRotation()
                 -- berserking
                 if isChecked("Racial") and (race == "Orc" or race == "Troll") then
                     if castSpell("player",racial,false,false,false) then return end
-                end
-        -- Touch of Death
-                if isChecked("Touch of Death")
-                    and ((not artifact.galeBurst and hasEquiped(137057) and lastSpell ~= spell.touchOfDeath)
-                        or (not artifact.galeBurst and not hasEquiped(137057))
-                        or (artifact.galeBurst and hasEquiped(137057) and lastSpell ~= spell.touchOfDeath)
-                        or (artifact.galeBurst and not hasEquiped(137057))) 
-                then
-                    if hasEquiped(137057) then
-                        for i = 1, #enemies.yards5 do
-                            local thisUnit = enemies.yards5[i]
-                            local touchOfDeathDebuff = UnitDebuffID(thisUnit,spell.debuffs.touchOfDeath,"player") ~= nil
-                            if not touchOfDeathDebuff then
-                                if cast.touchOfDeath() then return end
-                            end
-                        end
-                    else
-                        if cast.touchOfDeath() then return end
-                    end
                 end
             end
         end -- End Cooldown - Action List
@@ -523,6 +500,7 @@ local function runRotation()
         elseif (inCombat and profileStop==true) or pause() or (IsMounted() or IsFlying()) or mode.rotation==4 then
             return true
         else
+            --print (debuff.moderateStagger["player"].exists)
 -----------------------
 --- Extras Rotation ---
 -----------------------
