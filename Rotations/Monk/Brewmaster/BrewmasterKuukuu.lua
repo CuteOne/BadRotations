@@ -163,8 +163,6 @@ local function runRotation()
         local canFlask          = canUse(br.player.flask.wod.agilityBig)
         local cast              = br.player.cast
         local castable          = br.player.cast.debug
-        local castTimeFoF       = 4-(4*UnitSpellHaste("player")/100)
-        local castTimeHS        = 2-(2*UnitSpellHaste("player")/100)
         local cd                = br.player.cd
         local charges           = br.player.charges
         local combatTime        = getCombatTime()
@@ -176,7 +174,6 @@ local function runRotation()
         local healthPot         = getHealthPot() or 0
         local inCombat          = br.player.inCombat
         local inRaid            = select(2,IsInInstance())=="raid"
-        local lastSpell         = lastSpellCast
         local level             = br.player.level
         local mode              = br.player.mode
         local php               = br.player.health
@@ -199,11 +196,9 @@ local function runRotation()
         local ttd               = getTTD(br.player.units.dyn5)
         local ttm               = br.player.power.ttm
         local units             = br.player.units
-        if lastSpell == nil then lastSpell = 0 end
         if leftCombat == nil then leftCombat = GetTime() end
         if profileStop == nil then profileStop = false end
-        if opener == nil then opener = false end
-
+        
  
 --------------------
 --- Action Lists ---
@@ -228,8 +223,7 @@ local function runRotation()
                 end
             end
         -- Provoke
-            if not inCombat and select(3,GetSpellInfo(101545)) ~= "INTERFACE\\ICONS\\priest_icon_chakra_green" 
-                and getDistance("target") > 10 and isValidUnit("target") and not isBoss("target")
+            if not inCombat and getDistance("target") > 10 and isValidUnit("target") and not isBoss("target")
             then
                 if solo or #br.friend == 1 then
                     if cast.provoke() then return end
@@ -270,7 +264,7 @@ local function runRotation()
         function actionList_Defensive()
             if useDefensive() then
         -- Purifying Brew
-                if debuff.moderateStagger["player"].exists or debuff.heavyStagger["player"].exists then
+                if (debuff.moderateStagger["player"].exists or debuff.heavyStagger["player"].exists) then
                     if cast.purifyingBrew() then return end
                 end
         -- Pot/Stoned

@@ -12,7 +12,7 @@ function br.loader:new(spec,specName)
     local player = "player" -- if someone forgets ""
 
     self.profile = specName
-    
+
     -- Mandatory !
     self.rotations = br.loader.rotations
 
@@ -26,7 +26,7 @@ function br.loader:new(spec,specName)
             self.spell[k] = v
             break
         end
-    end 
+    end
 
     -- Update Talent Info
     local function getTalentInfo()
@@ -137,7 +137,7 @@ function br.loader:new(spec,specName)
             else
                 return 0
             end
-        end 
+        end
         if self.power == nil then self.power = {} end
         -- for i = 0, #powerList do
         for k, v in pairs(powerList) do
@@ -161,7 +161,7 @@ function br.loader:new(spec,specName)
             end
         end
         self.power.regen     = getRegen("player")
-        self.power.ttm       = getTimeToMax("player") 
+        self.power.ttm       = getTimeToMax("player")
 
         -- Build Best Unit per Range
         local typicalRanges = {
@@ -172,7 +172,7 @@ function br.loader:new(spec,specName)
             20,
             15,
             13, -- Feral Interrupt
-            12, 
+            12,
             10, -- Other Typical AoE Effect
             9, -- Monk Artifact
             8, -- Typical AoE Effect
@@ -181,7 +181,7 @@ function br.loader:new(spec,specName)
         for x = 1, #typicalRanges do
             local i = typicalRanges[x]
             self.units["dyn"..tostring(i)]                  = dynamicTarget(i, true)
-            self.units["dyn"..tostring(i).."AoE"]           = dynamicTarget(i, false) 
+            self.units["dyn"..tostring(i).."AoE"]           = dynamicTarget(i, false)
             self.enemies["yards"..tostring(i)]              = getEnemies("player",i)
             self.enemies["yards"..tostring(i).."t"]         = getEnemies(self.units["dyn"..tostring(i)],i)
         end
@@ -245,18 +245,38 @@ function br.loader:new(spec,specName)
             -- Build Debuff Table for all enemy units
             if self.debuff[k] == nil then self.debuff[k] = {} end
             -- Setup debuff table per valid unit and per debuff
+            if self.debuff[k]["player"] == nil then self.debuff[k]["player"] = {} end
+            self.debuff[k]["player"].exists = UnitDebuffID("player",v,"player") ~= nil
+            if not self.debuff[k]["player"].exists then
+                self.debuff[k]["player"].duration       = 0
+                self.debuff[k]["player"].remain         = 0
+                self.debuff[k]["player"].refresh        = true
+                self.debuff[k]["player"].stack          = 0
+                self.debuff[k]["player"].calc           = 0
+                self.debuff[k]["player"].count          = 0
+            end
             if #br.friend > 0 then
                 for i = 1, #br.friend do
                     local thisUnit = br.friend[i].unit
                     if self.debuff[k][thisUnit]         == nil then self.debuff[k][thisUnit]            = {} end
                     if self.debuff[k][thisUnit].applied == nil then self.debuff[k][thisUnit].applied    = 0 end
-                    self.debuff[k][thisUnit].exists         = UnitDebuffID(thisUnit,v,"player") ~= nil
-                    self.debuff[k][thisUnit].duration       = getDebuffDuration(thisUnit,v,"player")
-                    self.debuff[k][thisUnit].remain         = math.abs(getDebuffRemain(thisUnit,v,"player"))
-                    self.debuff[k][thisUnit].refresh        = self.debuff[k][thisUnit].remain <= self.debuff[k][thisUnit].duration * 0.3
-                    self.debuff[k][thisUnit].stack          = getDebuffStacks(thisUnit,v,"player")
-                    self.debuff[k][thisUnit].calc           = self.getSnapshotValue(v)
-                    self.debuff[k][thisUnit].count          = tonumber(getDebuffCount(v))
+                    self.debuff[k][thisUnit].exists = UnitDebuffID(thisUnit,v,"player") ~= nil
+                    if self.debuff[k][thisUnit].exists then
+                        self.debuff[k][thisUnit].duration       = getDebuffDuration(thisUnit,v,"player")
+                        self.debuff[k][thisUnit].remain         = math.abs(getDebuffRemain(thisUnit,v,"player"))
+                        self.debuff[k][thisUnit].refresh        = self.debuff[k][thisUnit].remain <= self.debuff[k][thisUnit].duration * 0.3
+                        self.debuff[k][thisUnit].stack          = getDebuffStacks(thisUnit,v,"player")
+                        self.debuff[k][thisUnit].calc           = self.getSnapshotValue(v)
+                        self.debuff[k][thisUnit].count          = tonumber(getDebuffCount(v))
+                    else
+                        self.debuff[k][thisUnit].duration       = 0
+                        self.debuff[k][thisUnit].remain         = 0
+                        self.debuff[k][thisUnit].refresh        = true
+                        self.debuff[k][thisUnit].stack          = 0
+                        self.debuff[k][thisUnit].calc           = 0
+                        self.debuff[k][thisUnit].count          = 0
+                    end
+                    if UnitIsUnit(thisUnit,"player") then self.debuff[k]["player"] = self.debuff[k][thisUnit] end
                 end
             end
             if self.debuff[k]["target"] == nil then self.debuff[k]["target"] = {} end
@@ -297,7 +317,7 @@ function br.loader:new(spec,specName)
             for c,v in pairs(self.debuff[k]) do
                 local thisUnit = c
                 if (not ObjectExists(thisUnit) or UnitIsDeadOrGhost(thisUnit)) and not UnitIsUnit(thisUnit,"target") then self.debuff[k][thisUnit] = nil end
-            end 
+            end
         end
         -- for k,v in pairs(self.spell.debuffs) do
         --     -- Build Debuff Table for all units in 40yrds
@@ -335,7 +355,7 @@ function br.loader:new(spec,specName)
             if self.cast            == nil then self.cast               = {} end        -- Cast Spell Functions
             if self.cast.debug      == nil then self.cast.debug         = {} end        -- Cast Spell Debugging
             if self.charges.frac    == nil then self.charges.frac       = {} end        -- Charges Fractional
-            if self.charges.max     == nil then self.charges.max        = {} end        -- Charges Maximum 
+            if self.charges.max     == nil then self.charges.max        = {} end        -- Charges Maximum
 
             -- Build Spell Charges
             self.charges[k]     = getCharges(v)
@@ -354,18 +374,18 @@ function br.loader:new(spec,specName)
                 local maxRange = select(6,GetSpellInfo(spellName))
                 --if spellName == nil then print(v) end
                 if IsHelpfulSpell(spellName) then
-                    if thisUnit == nil or not UnitIsFriend(thisUnit,"player") then 
+                    if thisUnit == nil or not UnitIsFriend(thisUnit,"player") then
                         thisUnit = "player"
                     end
-                    amIinRange = true 
+                    amIinRange = true
                 elseif thisUnit == nil then
                     if IsUsableSpell(v) and isKnown(v) then
                         if maxRange ~= nil and maxRange > 0 then
                             thisUnit = self.units["dyn"..tostring(maxRange)]
-                            amIinRange = getDistance(thisUnit) < maxRange 
+                            amIinRange = getDistance(thisUnit) < maxRange
                         else
                             thisUnit = self.units.dyn5
-                            amIinRange = getDistance(thisUnit) < 5  
+                            amIinRange = getDistance(thisUnit) < 5
                         end
                     end
                 elseif thisUnit == "best" then
@@ -384,7 +404,7 @@ function br.loader:new(spec,specName)
                         if thisUnit == "best" then
                             return castGroundAtBestLocation(spellCast,effectRng,minUnits,maxRange,minRange,debug)
                         elseif debug == "ground" then
-                            if getLineOfSight(thisUnit) then 
+                            if getLineOfSight(thisUnit) then
                                return castGround(thisUnit,spellCast,maxRange,minRange)
                             end
                         elseif debug == "dead" then
@@ -428,7 +448,7 @@ function br.loader:new(spec,specName)
                     local unitGUID      = UnitGUID(thisUnit)
                     local unitCreator   = UnitCreator(thisUnit)
                     local player        = GetObjectWithGUID(UnitGUID("player"))
-                    if unitCreator == player 
+                    if unitCreator == player
                         and (unitID == 55659 -- Wild Imp
                             or unitID == 98035 -- Dreadstalker
                             or unitID == 103673 -- Darkglare
@@ -451,7 +471,7 @@ function br.loader:new(spec,specName)
                 end
             end
         end
-    end    
+    end
 
 ---------------
 --- TOGGLES ---
@@ -514,7 +534,7 @@ function br.loader:new(spec,specName)
 
         -- Get profile defined options
         local profileTable = profileTable
-        if self.rotations[br.selectedProfile] ~= nil then 
+        if self.rotations[br.selectedProfile] ~= nil then
             profileTable = self.rotations[br.selectedProfile].options()
         else
             return
