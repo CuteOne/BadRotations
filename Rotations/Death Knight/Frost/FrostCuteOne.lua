@@ -427,20 +427,20 @@ local function runRotation()
             if isChecked("Empower/Hungering Rune Weapon") and useCDs() then
         -- Hungering Rune Weapon
                 -- hungering_rune_weapon,if=equipped.140806&(runic_power<30|(runic_power<70&talent.gathering_storm.enabled))&!buff.hungering_rune_weapon.up&rune<2
-                if hasEquiped(140806) and (runicPower < 30 or (runicPower < 70 and talent.gatheringStorm)) and not buff.hungeringRuneWeapon.exists and runes < 2 then
+                if hasEquiped(140806) and (runicPower < 30 or (runicPower < 70 and talent.gatheringStorm)) and not buff.hungeringRuneWeapon.exists and cd.hornOfWinter ~= 0 then --and runes < 2 then
                     if cast.hungeringRuneWeapon() then return end
                 end
                 -- hungering_rune_weapon,if=talent.runic_attenuation.enabled&runic_power<30&!buff.hungering_rune_weapon.up&rune<2
-                if talent.runicAttenuation and runicPower < 30 and not buff.hungeringRuneWeapon.exists then --and runes < 6 then
+                if talent.runicAttenuation and runicPower < 30 and not buff.hungeringRuneWeapon.exists and cd.hornOfWinter ~= 0 then --and runes < 6 then
                     if cast.hungeringRuneWeapon() then return end
                 end
                 -- hungering_rune_weapon,if=runic_power<25&!buff.hungering_rune_weapon.up&rune<2
-                if runicPower < 30 and not buff.hungeringRuneWeapon.exists then --and runes < 6 then
+                if runicPower < 30 and not buff.hungeringRuneWeapon.exists and cd.hornOfWinter ~= 0 then --and runes < 6 then
                     if cast.hungeringRuneWeapon() then return end
                 end
         -- Empower Rune Weapon
                 -- empower_rune_weapon,if=runic_power<20
-                if runicPower < 20 then
+                if runicPower < 20 and cd.hornOfWinter ~= 0 then
                     if cast.empowerRuneWeapon() then return end
                 end
             end
