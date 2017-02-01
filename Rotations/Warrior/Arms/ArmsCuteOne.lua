@@ -62,7 +62,7 @@ local function createOptions()
             br.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
             -- AoE Slider
             br.ui:createSpinnerWithout(section, "AoE Threshold",  7,  1,  10,  1,  "|cffFFFFFFSet to desired targets to start AoE Rotation. Min: 1 / Max: 10 / Interval: 1")
-            -- Artifact 
+            -- Artifact
             br.ui:createDropdownWithout(section,"Artifact", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Artifact Ability.")
             -- Berserker Rage
             br.ui:createCheckbox(section,"Berserker Rage", "Check to use Berserker Rage")
@@ -128,7 +128,7 @@ local function createOptions()
             br.ui:createSpinner(section, "Shockwave - HP", 60, 0, 100, 5, "|cffFFBB00Health Percentage to use at.")
             br.ui:createSpinner(section, "Shockwave - Units", 3, 1, 10, 1, "|cffFFBB00Minimal units to cast on.")
             -- Storm Bolt
-            br.ui:createSpinner(section, "Storm Bolt", 60, 0, 100, 5, "|cffFFBB00Health Percentage to use at.") 
+            br.ui:createSpinner(section, "Storm Bolt", 60, 0, 100, 5, "|cffFFBB00Health Percentage to use at.")
             -- Victory Rush
             br.ui:createSpinner(section, "Victory Rush", 60, 0, 100, 5, "|cffFFBB00Health Percentage to use at.")
         br.ui:checkSectionState(section)
@@ -145,7 +145,7 @@ local function createOptions()
             -- Storm Bolt
             br.ui:createCheckbox(section,"Storm Bolt - Int")
             -- Interrupt Percentage
-            br.ui:createSpinner(section,  "InterruptAt",  0,  0,  95,  5,  "|cffFFBB00Cast Percentage to use at.")    
+            br.ui:createSpinner(section,  "InterruptAt",  0,  0,  95,  5,  "|cffFFBB00Cast Percentage to use at.")
         br.ui:checkSectionState(section)
         ----------------------
         --- TOGGLE OPTIONS ---
@@ -164,7 +164,7 @@ local function createOptions()
             -- Heroic Toggle
             br.ui:createDropdownWithout(section,  "Heroic Mode", br.dropOptions.Toggle,  6)
             -- Pause Toggle
-            br.ui:createDropdown(section,  "Pause Mode", br.dropOptions.Toggle,  6)   
+            br.ui:createDropdown(section,  "Pause Mode", br.dropOptions.Toggle,  6)
         br.ui:checkSectionState(section)
     end
     optionTable = {{
@@ -196,7 +196,7 @@ local function runRotation()
 --------------
 --- Locals ---
 --------------
-        local addsExist                                     = false 
+        local addsExist                                     = false
         local addsIn                                        = 999
         local artifact                                      = br.player.artifact
         local buff                                          = br.player.buff
@@ -221,7 +221,7 @@ local function runRotation()
         local lootDelay                                     = getOptionValue("LootDelay")
         local lowestHP                                      = br.friend[1].unit
         local mode                                          = br.player.mode
-        local perk                                          = br.player.perk        
+        local perk                                          = br.player.perk
         local php                                           = br.player.health
         local playerMouse                                   = UnitIsPlayer("mouseover")
         local power, powerDeficit, powerMax, powerGen       = br.player.power.amount.rage, br.player.power.rage.deficit, br.player.power.rage.max, br.player.power.regen
@@ -237,7 +237,7 @@ local function runRotation()
         local ttd                                           = getTTD
         local ttm                                           = br.player.power.ttm
         local units                                         = br.player.units
-        
+
         if leftCombat == nil then leftCombat = GetTime() end
         if profileStop == nil then profileStop = false end
         if focusTimer == nil then focusTimer = 0 end
@@ -257,7 +257,7 @@ local function runRotation()
             for deg = 0, 360, 45 do
                 local dX, dY, dZ = GetPositionFromPosition(sX, sY, sZ, yards, deg, 0)
                 if TraceLine(sX, sY, sZ + 2.25, dX, dY, dZ + 2.25, 0x10) == nil and cd.heroicLeap == 0 and charges.charge > 0 then
-                    if not IsAoEPending() then    
+                    if not IsAoEPending() then
                         CastSpellByName(GetSpellInfo(spell.heroicLeap))
                         -- cast.heroicLeap("player")
                     end
@@ -294,8 +294,8 @@ local function runRotation()
         function actionList_Defensive()
             if useDefensive() then
             -- Healthstone/Health Potion
-                if isChecked("Healthstone/Potion") and php <= getOptionValue("Healthstone/Potion") 
-                    and inCombat and (hasHealthPot() or hasItem(5512)) 
+                if isChecked("Healthstone/Potion") and php <= getOptionValue("Healthstone/Potion")
+                    and inCombat and (hasHealthPot() or hasItem(5512))
                 then
                     if canUse(5512) then
                         useItem(5512)
@@ -310,7 +310,7 @@ local function runRotation()
                             useItem(heirloomNeck)
                         end
                     end
-                end 
+                end
             -- Gift of the Naaru
                 if isChecked("Gift of the Naaru") and php <= getOptionValue("Gift of the Naaru") and br.player.race=="Draenei" and cd.giftOfTheNaaru == 0 then
                     if castSpell("player",racial,false,false,false) then return end
@@ -330,7 +330,7 @@ local function runRotation()
             -- Die By The Sword
                 if isChecked("Die By The Sword") and inCombat and php <= getOptionValue("Die By The Sword") then
                     if cast.dieByTheSword() then return end
-                end 
+                end
             -- Intimidating Shout
                 if isChecked("Intimidating Shout") and inCombat and php <= getOptionValue("Intimidating Shout") then
                     if cast.intimidatingShout() then return end
@@ -398,9 +398,9 @@ local function runRotation()
                 -- blood_fury,if=buff.battle_cry.up|target.time_to_die<=16
                 -- berserking,if=buff.battle_cry.up|target.time_to_die<=11
                 -- arcane_torrent,if=buff.battle_cry_deadly_calm.down&rage.deficit>40
-                if useCDs() and isChecked("Racial") and getSpellCD(racial) == 0 and ((br.player.race == "Orc" and (buff.battleCry.exists or ignoreBattleCry or ttd(units.dyn5) <= 16)) 
-                    or (br.player.race == "Troll" and (buff.battleCry.exists or ignoreBattleCry or ttd(units.dyn5) <= 11)) 
-                    or (br.player.race == "BloodElf" and (not buff.battleCry.exists and powerDeficit > 40))) 
+                if useCDs() and isChecked("Racial") and getSpellCD(racial) == 0 and ((br.player.race == "Orc" and (buff.battleCry.exists or ignoreBattleCry or ttd(units.dyn5) <= 16))
+                    or (br.player.race == "Troll" and (buff.battleCry.exists or ignoreBattleCry or ttd(units.dyn5) <= 11))
+                    or (br.player.race == "BloodElf" and (not buff.battleCry.exists and powerDeficit > 40)))
                 then
                     if castSpell("player",racial,false,false,false) then return end
                 end
@@ -513,10 +513,10 @@ local function runRotation()
             if actionList_Bladestorm() then return end
             for i = 1, #enemies.yards8 do
                 local executeUnit = enemies.yards8[i]
-                if getDistance(executeUnit) < 5 and getFacing("player",executeUnit) then 
+                if getDistance(executeUnit) < 5 and getFacing("player",executeUnit) then
                     if getHP(executeUnit) <= 20 then
-                        -- if IsCurrentSpell(6603) and not UnitIsUnit(units.dyn5,executeUnit) then 
-                        --     StopAttack() 
+                        -- if IsCurrentSpell(6603) and not UnitIsUnit(units.dyn5,executeUnit) then
+                        --     StopAttack()
                         -- else
                         --     StartAttack(executeUnit)
                         -- end
@@ -543,7 +543,10 @@ local function runRotation()
                         end
         -- Execute
                         -- execute,if=buff.battle_cry_deadly_calm.up
-                        if ((buff.battleCry.exists or ignoreBattleCry) and talent.deadlyCalm) then
+                        if (debuff.colossusSmash[units.dyn5].exists or (cd.colossusSmash ~= 0 and (cd.warbreaker ~= 0 or not artifact.warbreaker
+                            or (getOptionValue("Artifact") == 2 and not useCDs()) or getOptionValue("Artifact") == 3))) and buff.shatteredDefenses.exists
+                            and ((buff.battleCry.exists or ignoreBattleCry) and talent.deadlyCalm)
+                        then
                             if cast.execute(executeUnit) then return end
                         end
         -- Warbreaker
@@ -567,7 +570,10 @@ local function runRotation()
                         end
         -- Execute
                         -- execute,if=buff.shattered_defenses.up&(rage>=17.6|buff.stone_heart.react)
-                        if buff.shatteredDefenses.exists and (rage >= 17.6 or buff.stoneHeart.exists) then
+                        if (debuff.colossusSmash[units.dyn5].exists or (cd.colossusSmash ~= 0 and (cd.warbreaker ~= 0 or not artifact.warbreaker
+                            or (getOptionValue("Artifact") == 2 and not useCDs()) or getOptionValue("Artifact") == 3))) and buff.shatteredDefenses.exists
+                            and (rage >= 17.6 or buff.stoneHeart.exists)
+                        then
                             if cast.execute(executeUnit) then return end
                         end
         -- Mortal Strike
@@ -577,10 +583,12 @@ local function runRotation()
                         end
         -- Execute
                         -- execute,if=buff.shattered_defenses.down
-                        if not buff.shatteredDefenses.exists then
+                        if (debuff.colossusSmash[units.dyn5].exists or (cd.colossusSmash ~= 0 and (cd.warbreaker ~= 0 or not artifact.warbreaker
+                            or (getOptionValue("Artifact") == 2 and not useCDs()) or getOptionValue("Artifact") == 3))) and not buff.shatteredDefenses.exists
+                        then
                             if cast.execute(executeUnit) then return end
                         end
-                    else 
+                    else
                         return
                     end
                 end
@@ -596,7 +604,7 @@ local function runRotation()
                 if not buff.shatteredDefenses.exists and cd.colossusSmash > gcd and getDistance(units.dyn5) < 5 then
                     if cast.warbreaker("player") then usedWarbreaker = true; return end
                 end
-            end 
+            end
         -- Colossus Smash
             -- colossus_smash,if=cooldown_react&buff.shattered_defenses.down&(buff.battle_cry.down|buff.battle_cry.up&buff.battle_cry.remains>=gcd)
             if debuff.colossusSmash[units.dyn5].remain < gcd or (not buff.shatteredDefenses.exists and (not buff.battleCry.exists or (buff.battleCry.exists and buff.battleCry.remain >= gcd))) then
@@ -616,9 +624,9 @@ local function runRotation()
             end
         -- Focused Rage
             -- focused_rage,if=!buff.battle_cry_deadly_calm.up&buff.focused_rage.stack<3&!cooldown.colossus_smash.up&(rage>=50|debuff.colossus_smash.down|cooldown.battle_cry.remains<=8)
-            if ((buff.battleCry.remain > cd.focusedRage or ignoreBattleCry) and (buff.focusedRage.stack < 3 or cd.mortalStrike > 0)) 
-                or (not ((buff.battleCry.exists or ignoreBattleCry) and talent.deadlyCalm) and buff.focusedRage.stack < 3 and cd.colossusSmash > 0 
-                    and (rage >= 50 or not debuff.colossusSmash[units.dyn5].exists or cd.battleCry <= 8)) 
+            if ((buff.battleCry.remain > cd.focusedRage or ignoreBattleCry) and (buff.focusedRage.stack < 3 or cd.mortalStrike > 0))
+                or (not ((buff.battleCry.exists or ignoreBattleCry) and talent.deadlyCalm) and buff.focusedRage.stack < 3 and cd.colossusSmash > 0
+                    and (rage >= 50 or not debuff.colossusSmash[units.dyn5].exists or cd.battleCry <= 8))
             then
                 -- if cast.focusedRage() then return end
                 cast.focusedRage()
@@ -640,12 +648,12 @@ local function runRotation()
                 if cast.execute() then return end
             end
             if (cd.mortalStrike > gcd and cd.colossusSmash > gcd) or level < 20 then
-                if #enemies.yards8 > 1 and level >= 40 then
+                if ((mode.rotation == 1 and #enemies.yards8 > 1) or mode.rotation == 2) and level >= 40 then
         -- Cleave
                     if cast.cleave() then return end
         -- Whirlwind
                     if cast.whirlwind() then return end
-                elseif #enemies.yards8 == 1 or level < 40 then
+                elseif ((mode.rotation == 1 and #enemies.yards8 == 1) or mode.rotation == 3) or level < 40 then
         -- Slam
                     if rage > 32 or ((buff.battleCry.exists or ignoreBattleCry) and talent.deadlyCalm) then
                         if cast.slam() then return end
@@ -656,7 +664,7 @@ local function runRotation()
             -- focused_rage,if=equipped.archavons_heavy_hand&buff.focused_rage.stack<3
             if hasEquiped(137060) and buff.focusedRage.stack < 3 then
                 if cast.focusedRage() then return end
-            end  
+            end
         end -- End Action List - Single
     -- Action List - MultiTarget
         function actionList_MultiTarget()
@@ -696,7 +704,7 @@ local function runRotation()
                 -- run_action_list,name=single,if=target.health.pct>20
                 if getHP(units.dyn5) > 20 or level < 8 then
                     if actionList_Single() then return end
-                end  
+                end
             end
         end -- End Action List - MultiTarget
 -----------------
@@ -726,13 +734,13 @@ local function runRotation()
                 end
             end
 -----------------------------
---- In Combat - Rotations --- 
+--- In Combat - Rotations ---
 -----------------------------
             if inCombat and isValidUnit(units.dyn5) then
             -- Auto Attack
                 --auto_attack
-                -- if IsCurrentSpell(6603) and not UnitIsUnit(units.dyn5,"target") then 
-                --     StopAttack() 
+                -- if IsCurrentSpell(6603) and not UnitIsUnit(units.dyn5,"target") then
+                --     StopAttack()
                 -- else
                 --     StartAttack(units.dyn5)
                 -- end
@@ -763,7 +771,7 @@ local function runRotation()
                     -- Target
                     if getOptionValue("Ravager") == 2 then
                         if cast.ravager("target","ground") then return end
-                    end 
+                    end
                 end
             -- Overpower
                 -- overpower,if=buff.overpower.react

@@ -43,10 +43,10 @@ local function createOptions()
         -----------------------
         section = br.ui:createSection(br.ui.window.profile,  "General")
             -- Dummy DPS Test
-            br.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")               
+            br.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
             -- Hand of Freedom
             br.ui:createCheckbox(section, "Hand of Freedom")
-            -- Artifact 
+            -- Artifact
             --br.ui:createDropdownWithout(section,"Artifact", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Artifact Ability.")
         br.ui:checkSectionState(section)
         ------------------------
@@ -78,7 +78,7 @@ local function createOptions()
                 br.ui:createSpinner(section, "Gift of the Naaru",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
             end
             -- Blessing of Protection
-            br.ui:createSpinner(section, "Blessing of Protection",  50,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")  
+            br.ui:createSpinner(section, "Blessing of Protection",  50,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
             -- Blinding Light
             br.ui:createSpinner(section, "Blinding Light - HP", 50, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
             br.ui:createSpinner(section, "Blinding Light - AoE", 3, 0, 10, 1, "|cffFFFFFFNumber of Units in 5 Yards to Cast At")
@@ -88,7 +88,7 @@ local function createOptions()
             br.ui:createSpinner(section, "Divine Shield",  5,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
             -- Eye of Tyr
             br.ui:createSpinner(section, "Eye of Tyr - HP", 35, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
-            br.ui:createSpinner(section, "Eye of Tyr - AoE", 4, 0, 10, 1, "|cffFFFFFFNumber of Units in 10 Yards to Cast At")            
+            br.ui:createSpinner(section, "Eye of Tyr - AoE", 4, 0, 10, 1, "|cffFFFFFFNumber of Units in 10 Yards to Cast At")
             -- Flash of Light
             br.ui:createSpinner(section, "Flash of Light",  50,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
             -- Hammer of Justice
@@ -102,7 +102,7 @@ local function createOptions()
             -- Shield of the Righteous
             br.ui:createSpinner(section, "Shield of the Righteous - HP", 60, 0 , 100, 5, "|cffFFBB00Health Percentage to use at.")
             -- Redemption
-            br.ui:createDropdown(section, "Redemption", {"|cffFFFF00Selected Target","|cffFF0000Mouseover Target"}, 1, "|ccfFFFFFFTarget to Cast On")               
+            br.ui:createDropdown(section, "Redemption", {"|cffFFFF00Selected Target","|cffFF0000Mouseover Target"}, 1, "|ccfFFFFFFTarget to Cast On")
         br.ui:checkSectionState(section)
         -------------------------
         --- INTERRUPT OPTIONS ---
@@ -117,7 +117,7 @@ local function createOptions()
             -- Avenger's Shield
             br.ui:createCheckbox(section, "Avenger's Shield - INT")
             -- Interrupt Percentage
-            br.ui:createSpinner(section,  "Interrupt At",  35,  0,  95,  5,  "|cffFFBB00Cast Percentage to use at.")         
+            br.ui:createSpinner(section,  "Interrupt At",  35,  0,  95,  5,  "|cffFFBB00Cast Percentage to use at.")
         br.ui:checkSectionState(section)
         ------------------------
         --- ROTATION OPTIONS ---
@@ -126,19 +126,19 @@ local function createOptions()
             -- Avenger's Shield
             br.ui:createCheckbox(section,"Avenger's Shield")
             -- Consecration
-            br.ui:createCheckbox(section,"Consecration") 
+            br.ui:createCheckbox(section,"Consecration")
             -- Blessed Hammer
             br.ui:createCheckbox(section,"Blessed Hammer")
             -- Blessed Hammer / Hammer of the Righteous Units
-            --br.ui:createSpinner(section, "Blessed Hammer Units",  2,  2,  10,  1,  "|cffFFBB00Units to use Blessed/Righteous Hammer.")            
+            --br.ui:createSpinner(section, "Blessed Hammer Units",  2,  2,  10,  1,  "|cffFFBB00Units to use Blessed/Righteous Hammer.")
             -- Hammer of the Righteous
             br.ui:createCheckbox(section,"Hammer of the Righteous")
             -- Judgment
             br.ui:createCheckbox(section,"Judgment")
             -- Shield of the Righteous
             br.ui:createCheckbox(section,"Shield of the Righteous")
-           
-        br.ui:checkSectionState(section)                
+
+        br.ui:checkSectionState(section)
         ----------------------
         --- TOGGLE OPTIONS ---
         ----------------------
@@ -152,7 +152,7 @@ local function createOptions()
             -- Interrupts Key Toggle
             br.ui:createDropdown(section,  "Interrupt Mode", br.dropOptions.Toggle,  6)
             -- Pause Toggle
-            br.ui:createDropdown(section,  "Pause Mode", br.dropOptions.Toggle,  6)                    
+            br.ui:createDropdown(section,  "Pause Mode", br.dropOptions.Toggle,  6)
         br.ui:checkSectionState(section)
     end
     optionTable = {{
@@ -204,7 +204,7 @@ local function runRotation()
         local spell         = br.player.spell
         local talent        = br.player.talent
         local ttd           = getTTD(br.player.units.dyn5)
-        local units         = br.player.units           
+        local units         = br.player.units
 
         if profileStop == nil then profileStop = false end
         if debuff.judgment[units.dyn5] ~= nil then
@@ -213,11 +213,11 @@ local function runRotation()
             if debuff.judgment[units.dyn5].exists or level < 42 or (cd.judgment > 2 and not debuff.judgment[units.dyn5].exists) then
                 judgmentVar = true
             else
-                judgmentVar = false 
+                judgmentVar = false
             end
         else
             judgmentExists = false
-            judgmentRemain = 0 
+            judgmentRemain = 0
             judgmentVar = false
         end
         local greaterBuff
@@ -264,8 +264,8 @@ local function runRotation()
                     end
                 end
         -- Pot/Stoned
-                if isChecked("Pot/Stoned") and php <= getOptionValue("Pot/Stoned") 
-                    and inCombat and (hasHealthPot() or hasItem(5512)) 
+                if isChecked("Pot/Stoned") and php <= getOptionValue("Pot/Stoned")
+                    and inCombat and (hasHealthPot() or hasItem(5512))
                 then
                     if canUse(5512) then
                         useItem(5512)
@@ -322,7 +322,7 @@ local function runRotation()
                 end
                 if isChecked("Eye of Tyr - AoE") and #enemies.yards10 >= getOptionValue("Eye of Tyr - AoE") and inCombat then
                     if cast.eyeOfTyr() then return end
-                end                
+                end
         -- Shield of the Righteous
                 if isChecked("Shield of the Righteous - HP") then
                     if php <= getOptionValue("Shield of the Righteous - HP") and inCombat and not buff.shieldOfTheRighteous.exists then
@@ -331,7 +331,7 @@ local function runRotation()
                 end
         -- Flash of Light
                 if isChecked("Flash of Light") then
-                    if (forceHeal or (inCombat and php <= getOptionValue("Flash of Light") / 2) or (not inCombat and php <= getOptionValue("Flash of Light"))) and not isMoving("player") then 
+                    if (forceHeal or (inCombat and php <= getOptionValue("Flash of Light") / 2) or (not inCombat and php <= getOptionValue("Flash of Light"))) and not isMoving("player") then
                         if cast.flashOfLight() then return end
                     end
                 end
@@ -353,7 +353,7 @@ local function runRotation()
                     if getOptionValue("Redemption")==2 and not isMoving("player") and resable then
                         if cast.redemption("mouseover","dead") then return end
                     end
-                end             
+                end
             end
         end -- End Action List - Defensive
     -- Action List - Interrupts
@@ -369,7 +369,7 @@ local function runRotation()
                             end
                         end
                     end
-                end                
+                end
                 for i = 1, #enemies.yards10 do
                     local thisUnit = enemies.yards10[i]
                     local distance = getDistance(thisUnit)
@@ -423,7 +423,7 @@ local function runRotation()
     --Profile Stop | Pause
         if not inCombat and not hastar and profileStop == true then
             profileStop = false
-        elseif (inCombat and profileStop == true) or pause() or mode.rotation == 4 then
+        elseif (inCombat and profileStop == true) or (IsMounted() or IsFlying()) or pause() or mode.rotation == 4 then
             return true
         else
 -----------------------
@@ -475,7 +475,7 @@ actions+=/blessed_hammer
 actions+=/eye_of_tyr
 actions+=/blinding_light
 actions+=/hammer_of_the_righteous]]
-                
+
             -- Start Attack
                     if getDistance(units.dyn5) < 5 then
                         if not IsCurrentSpell(6603) then
@@ -502,12 +502,12 @@ actions+=/hammer_of_the_righteous]]
                             if isChecked("Avenging Wrath") and (not talent.seraphim or buff.seraphim.remain > 15) and (getOptionValue("Avenging Wrath") <= ttd ) then
                                 if cast.avengingWrath() then return end
                             end
-                        
+
             -- Bastion of Light
                         -- actions+=/bastion_of_light,if=(action.shield_of_the_righteous.charges<0.2)&(!talent.seraphim.enabled|buff.seraphim.up)
                         if isChecked("Bastion of Light") and (charges.frac.shieldOfTheRighteous < 0.2) and (not talent.seraphim or buff.seraphim.exists) then
                             if cast.bastionOfLight() then return end
-                        end                        
+                        end
                     end
             -- Shield of the Righteous
                         --actions+=/shield_of_the_righteous,if=(!talent.seraphim.enabled|buff.seraphim.up|action.shield_of_the_righteous.charges>2.5)
@@ -538,9 +538,9 @@ actions+=/hammer_of_the_righteous]]
             -- Hammer of the Righteous actions+=/hammer_of_the_righteous
                     if isChecked("Hammer of the Righteous") and getDistance(units.dyn5) < 5 then
                         if cast.blessedHammer() then return end
-                    end                    
-            
-                
+                    end
+
+
 
             end -- End In Combat
         end -- End Profile
