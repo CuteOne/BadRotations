@@ -520,7 +520,7 @@ local function runRotation()
                     if php < getOptionValue("Death Strike Low Prio") then
                         if cast.deathStrike() then return end
                     end
-                    if runes >= 2.5 and buff.boneShield.stack <=6 then
+                    if runes >= 2.5 and talent.ossuary and buff.boneShield.stack <=6 then
                         if cast.marrowrend() then return end
                     end                     
                     if runes >= 2.5 then

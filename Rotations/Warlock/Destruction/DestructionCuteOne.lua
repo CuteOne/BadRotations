@@ -51,14 +51,14 @@ local function createOptions()
             br.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
         -- Opener
             br.ui:createCheckbox(section,"Opener")
-        -- Artifact 
+        -- Artifact
             br.ui:createDropdownWithout(section,"Artifact", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Artifact Ability.")
         -- Summon Pet
             br.ui:createDropdownWithout(section, "Summon Pet", {"Imp","Voidwalker","Felhunter","Succubus","Felguard","None"}, 1, "|cffFFFFFFSelect default pet to summon.")
         -- Grimoire of Service
             br.ui:createDropdownWithout(section, "Grimoire of Service", {"Imp","Voidwalker","Felhunter","Succubus","Felguard","None"}, 1, "|cffFFFFFFSelect pet to Grimoire.")
         -- Life Tap
-            br.ui:createSpinner(section, "Life Tap HP Limit", 30, 0, 100, 5, "|cffFFFFFFHP Limit that Life Tap will not cast below.") 
+            br.ui:createSpinner(section, "Life Tap HP Limit", 30, 0, 100, 5, "|cffFFFFFFHP Limit that Life Tap will not cast below.")
         br.ui:checkSectionState(section)
     -- Cooldown Options
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
@@ -138,7 +138,7 @@ local function runRotation()
 --------------
 --- Locals ---
 --------------
-        local addsExist                                     = false 
+        local addsExist                                     = false
         local addsIn                                        = 999
         local activePet                                     = br.player.pet
         local activePetId                                   = br.player.petId
@@ -175,7 +175,7 @@ local function runRotation()
         local moveIn                                        = 999
         local moving                                        = isMoving("player")
         local perk                                          = br.player.perk
-        local petInfo                                       = br.player.petInfo        
+        local petInfo                                       = br.player.petInfo
         local php                                           = br.player.health
         local playerMouse                                   = UnitIsPlayer("mouseover")
         local power, powmax, powgen, powerDeficit           = br.player.power.amount.mana, br.player.power.mana.max, br.player.power.regen, br.player.power.mana.deficit
@@ -194,16 +194,16 @@ local function runRotation()
         local ttd                                           = getTTD
         local ttm                                           = br.player.power.ttm
         local units                                         = br.player.units
-        
-   		if leftCombat == nil then leftCombat = GetTime() end
-		if profileStop == nil or not inCombat then profileStop = false end
+
+   		  if leftCombat == nil then leftCombat = GetTime() end
+		    if profileStop == nil or not inCombat then profileStop = false end
         if castSummonId == nil then castSummonId = 0 end
         if summonTime == nil then summonTime = 0 end
         if effigied == nil then effigied = false end
         if t19_4pc then hasT19 = 1 else hasT19 = 0 end
 
         -- Opener Variables
-        if not inCombat and not ObjectExists("target") then 
+        if not inCombat and not ObjectExists("target") then
             -- DE1 = false
             -- DSB1 = false
             -- DOOM = false
@@ -240,7 +240,7 @@ local function runRotation()
         if summonPet == 4 then summonId = 1863 end
         if summonPet == 5 then summonId = 17252 end
         if cd.grimoireOfService == 0 or prevService == nil then prevService = "None" end
-        
+
         local doomguard = false
         local infernal = false
         if br.player.petInfo ~= nil then
@@ -258,7 +258,7 @@ local function runRotation()
             else
                 return
             end
-        end  
+        end
 
         local hasHavoc
         hasHavoc = false
@@ -293,8 +293,8 @@ local function runRotation()
 		local function actionList_Defensive()
 			if useDefensive() then
 		-- Pot/Stoned
-                if isChecked("Pot/Stoned") and php <= getOptionValue("Pot/Stoned") 
-                    and inCombat and (hasHealthPot() or hasItem(5512)) 
+                if isChecked("Pot/Stoned") and php <= getOptionValue("Pot/Stoned")
+                    and inCombat and (hasHealthPot() or hasItem(5512))
                 then
                     if canUse(5512) then
                         useItem(5512)
@@ -347,9 +347,9 @@ local function runRotation()
 		local function actionList_Cooldowns()
 			if useCDs() and getDistance(units.dyn40) < 40 then
         -- Trinkets
-                -- use_item,slot=trinket2,if=buff.chaos_blades.up|!talent.chaos_blades.enabled 
+                -- use_item,slot=trinket2,if=buff.chaos_blades.up|!talent.chaos_blades.enabled
                 if isChecked("Trinkets") then
-                    -- if buff.chaosBlades or not talent.chaosBlades then 
+                    -- if buff.chaosBlades or not talent.chaosBlades then
                         if canUse(13) then
                             useItem(13)
                         end
@@ -382,7 +382,7 @@ local function runRotation()
                     if summonPet == 1 then
                         if isKnown(spell.summonFelImp) then
                             if cast.summonFelImp() then castSummonId = spell.summonFelImp; return end
-                        else  
+                        else
                             if cast.summonImp() then castSummonId = spell.summonImp; return end
                         end
                     end
@@ -495,8 +495,8 @@ local function runRotation()
 --------------------------
 --- In Combat Rotation ---
 --------------------------
-            if inCombat and profileStop==false and isValidUnit(units.dyn40) and getDistance(units.dyn40) < 40 
-                and (opener == true or not isChecked("Opener") or not isBoss("target")) 
+            if inCombat and profileStop==false and isValidUnit(units.dyn40) and getDistance(units.dyn40) < 40
+                and (opener == true or not isChecked("Opener") or not isBoss("target"))
             then
     ------------------------------
     --- In Combat - Interrupts ---
@@ -553,12 +553,12 @@ local function runRotation()
                     end
                     -- immolate,if=talent.roaring_blaze.enabled&remains<=duration&!debuff.roaring_blaze.remains&target.time_to_die>10&(action.conflagrate.charges=2+set_bonus.tier19_4pc|(action.conflagrate.charges>=1+set_bonus.tier19_4pc&action.conflagrate.recharge_time<cast_time+gcd)|target.time_to_die<24
                     if debuff.roaringBlaze[units.dyn40] ~= nil and debuff.immolate[units.dyn40] ~= nil then -- TODO: needs T19 logic added
-                        if talent.roaringBlaze and debuff.immolate[units.dyn40].remain <= 18 --[[debuff.immolate[units.dyn40].duration * 0.7 ]]and not debuff.roaringBlaze[units.dyn40].exists 
-                            and ttd(units.dyn40) > 10 and (charges.conflagrate == 2 + hasT19 or (charges.conflagrate >= 1 and recharge.conflagrate < getCastTime(spell.conflagrate) + gcd) or ttd(units.dyn40) < 24) 
+                        if talent.roaringBlaze and debuff.immolate[units.dyn40].remain <= 18 --[[debuff.immolate[units.dyn40].duration * 0.7 ]]and not debuff.roaringBlaze[units.dyn40].exists
+                            and ttd(units.dyn40) > 10 and (charges.conflagrate == 2 + hasT19 or (charges.conflagrate >= 1 and recharge.conflagrate < getCastTime(spell.conflagrate) + gcd) or ttd(units.dyn40) < 24)
                         then
                             if cast.immolate(units.dyn40) then return end
                         end
-                    end 
+                    end
         -- Racial: Orc Blood Fury | Troll Berserking | Blood Elf Arcane Torrent
                     -- blood_fury | berserking | arcane_torrent
                     if useCDs() and isChecked("Racial") and (br.player.race == "Orc" or br.player.race == "Troll" or br.player.race == "Blood Elf") then
@@ -602,8 +602,8 @@ local function runRotation()
                     end
         -- Dimensional Rift
                     -- dimensional_rift,if=equipped.144369&!buff.lessons_of_spacetime.remains&((!talent.grimoire_of_supremacy.enabled&!cooldown.summon_doomguard.remains)|(talent.grimoire_of_service.enabled&!cooldown.service_pet.remains)|(talent.soul_harvest.enabled&!cooldown.soul_harvest.remains))
-                    if hasEquiped(144369) and not buff.lessonsOfSpaceTime.exists 
-                        and ((not talent.grimoireOfSupremacy and cd.summonDoomguard > 0) or (not talent.grimoireOfService and cd.grimoireVoidwalker > 0) or (talent.soulHarvest and cd.soulHarvest > 0)) 
+                    if hasEquiped(144369) and not buff.lessonsOfSpaceTime.exists
+                        and ((not talent.grimoireOfSupremacy and cd.summonDoomguard > 0) or (not talent.grimoireOfService and cd.grimoireVoidwalker > 0) or (talent.soulHarvest and cd.soulHarvest > 0))
                     then
                         if cast.dimensionalRift() then return end
                     end

@@ -48,13 +48,13 @@ local function createOptions()
             br.ui:createDropdownWithout(section, "APL Mode", {"|cffFFFFFFSimC"}, 1, "|cffFFFFFFSet APL Mode to use.")
             -- Dummy DPS Test
             br.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
-            -- Artifact 
-            br.ui:createDropdownWithout(section, "Artifact", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Artifact Ability.")            
-            br.ui:createSpinnerWithout(section, "Artifact Units",  5,  1,  10,  1,  "|cffFFFFFFSet to desired targets to use Singragosa's Fury on. Min: 1 / Max: 10 / Interval: 1")           
+            -- Artifact
+            br.ui:createDropdownWithout(section, "Artifact", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Artifact Ability.")
+            br.ui:createSpinnerWithout(section, "Artifact Units",  5,  1,  10,  1,  "|cffFFFFFFSet to desired targets to use Singragosa's Fury on. Min: 1 / Max: 10 / Interval: 1")
             -- Death Grip
             br.ui:createCheckbox(section,"Death Grip")
             -- Glacial Advance
-            br.ui:createSpinner(section, "Glacial Advance",  5,  1,  10,  1,  "|cffFFFFFFSet to desired targets to use Glacial Advance on. Min: 1 / Max: 10 / Interval: 1") 
+            br.ui:createSpinner(section, "Glacial Advance",  5,  1,  10,  1,  "|cffFFFFFFSet to desired targets to use Glacial Advance on. Min: 1 / Max: 10 / Interval: 1")
             -- Path of Frost
             br.ui:createCheckbox(section,"Path of Frost")
             -- Pre-Pull Timer
@@ -205,8 +205,8 @@ local function runRotation()
             if isChecked("Chains of Ice") then
                 for i = 1, #enemies.yards30 do
                     local thisUnit = enemies.yards30[i]
-                    if not debuff.chainsOfIce[thisUnit].exists and not getFacing(thisUnit,"player") and getFacing("player",thisUnit) 
-                        and isMoving(thisUnit) and getDistance(thisUnit) > 8 and inCombat 
+                    if not debuff.chainsOfIce[thisUnit].exists and not getFacing(thisUnit,"player") and getFacing("player",thisUnit)
+                        and isMoving(thisUnit) and getDistance(thisUnit) > 8 and inCombat
                     then
                         if cast.chainsOfIce(thisUnit) then return end
                     end
@@ -237,7 +237,9 @@ local function runRotation()
                     if cast.blindingSleet() then return end
                 end
         -- Death Strike
-                if isChecked("Death Strike") and (buff.darkSuccor or php < getOptionValue("Death Strike")) and inCombat then
+                if isChecked("Death Strike") and inCombat and (buff.darkSuccor or (php < getOptionValue("Death Strike")
+                    and cd.breathOfSindragosa > 15 and not buff.breathOfSindragosa.exists))
+                then
                     if cast.deathStrike() then return end
                 end
         -- Icebound Fortitude
@@ -256,7 +258,7 @@ local function runRotation()
                     then
                         if cast.raiseAlly("mouseover","dead") then return end
                     end
-                end 
+                end
             end -- End Use Defensive Check
         end -- End Action List - Defensive
     -- Action List - Interrupts
@@ -284,20 +286,20 @@ local function runRotation()
                     if canUse(14) then
                         useItem(14)
                     end
-                end                
+                end
         -- Racial: Orc Blood Fury | Troll Berserking | Blood Elf Arcane Torrent
                 -- arcane_torrent,if=runic_power.deficit>20
                 -- blood_fury,if=buff.pillar_of_frost.up
                 -- berserking,if=buff.pillar_of_frost.up
-                if (((br.player.race == "Troll" or br.player.race == "Orc") and buff.pillarOfFrost.exist) 
-                    or (br.player.race == "BloodElf" and runicPowerDeficit > 20)) and getSpellCD(racial) == 0 
+                if (((br.player.race == "Troll" or br.player.race == "Orc") and buff.pillarOfFrost.exist)
+                    or (br.player.race == "BloodElf" and runicPowerDeficit > 20)) and getSpellCD(racial) == 0
                 then
                     if castSpell("player",racial,false,false,false) then return end
                 end
         -- Potion
                 -- potion,name=old_war,if=buff.pillar_of_frost.up
                 if raid and buff.pillarOfFrost.exists then
-                    -- TODO                    
+                    -- TODO
                 end
             end -- End Use Cooldowns Check
         end -- End Action List - Cooldowns
@@ -419,7 +421,7 @@ local function runRotation()
             end
         -- Horn of Winter
             -- horn_of_winter,if=runic_power<70&!buff.hungering_rune_weapon.up&rune<5
-            if runicPower < 70 and not buff.hungeringRuneWeapon.exists and runes < 5 then
+            if runicPower < 70 and not buff.hungeringRuneWeapon.exists then --and runes < 5 then
                 if cast.hornOfWinter() then return end
             end
             if isChecked("Empower/Hungering Rune Weapon") and useCDs() then
@@ -429,11 +431,11 @@ local function runRotation()
                     if cast.hungeringRuneWeapon() then return end
                 end
                 -- hungering_rune_weapon,if=talent.runic_attenuation.enabled&runic_power<30&!buff.hungering_rune_weapon.up&rune<2
-                if talent.runicAttenuation and runicPower < 30 and not buff.hungeringRuneWeapon.exists and runes < 2 then
+                if talent.runicAttenuation and runicPower < 30 and not buff.hungeringRuneWeapon.exists then --and runes < 6 then
                     if cast.hungeringRuneWeapon() then return end
                 end
                 -- hungering_rune_weapon,if=runic_power<25&!buff.hungering_rune_weapon.up&rune<2
-                if runicPower < 25 and not buff.hungeringRuneWeapon.exists and runes < 2 then
+                if runicPower < 30 and not buff.hungeringRuneWeapon.exists then --and runes < 6 then
                     if cast.hungeringRuneWeapon() then return end
                 end
         -- Empower Rune Weapon
@@ -471,8 +473,8 @@ local function runRotation()
             end
         -- Remorseless Winter
             -- remorseless_winter,if=(buff.rime.react&equipped.132459&!(buff.obliteration.up&spell_targets.howling_blast<2))|talent.gathering_storm.enabled
-            if ((buff.rime.exists and hasEquiped(132459) and not (buff.obliteration.exists and ((mode.rotation == 1 and #enemies.yards10 < 2) or mode.rotation == 3))) or talent.gatheringStorm)  
-                and getDistance(units.dyn5) < 5 
+            if ((buff.rime.exists and hasEquiped(132459) and not (buff.obliteration.exists and ((mode.rotation == 1 and #enemies.yards10 < 2) or mode.rotation == 3))) or talent.gatheringStorm)
+                and getDistance(units.dyn5) < 5
             then
                 if cast.remorselessWinter() then return end
             end
@@ -568,7 +570,7 @@ local function runRotation()
             if buff.rime.exists and not (buff.obliteration.exists and ((mode.rotation == 1 and #enemies.yards10t < 2) or mode.rotation == 3)) then
                 if cast.howlingBlast() then return end
             end
-        -- Obliteration 
+        -- Obliteration
             -- obliteration,if=(!talent.frozen_pulse.enabled|(rune<2&runic_power<28))
             if isChecked("Obliteration") and useCDs() then
                 if not talent.frozenPulse or (runes < 2 and runicPower < 28) then
@@ -610,7 +612,7 @@ local function runRotation()
         -- Empower Rune Weapon
                 -- empower_rune_weapon
                 if cast.empowerRuneWeapon() then return end
-            end       
+            end
         end
 ---------------------
 --- Begin Profile ---
@@ -662,9 +664,9 @@ local function runRotation()
         -- Singragosa's Fury
                     -- sindragosas_fury,if=buff.pillar_of_frost.up&(buff.unholy_strength.up|(buff.pillar_of_frost.remains<3&target.time_to_die<60))&debuff.razorice.stack==5&!buff.obliteration.up
                     if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()) then
-                        if buff.pillarOfFrost.exists and (buff.unholyStrength.exists or (buff.pillarOfFrost.remain < 3 and (ttd(units.dyn5) < 60 or isDummy(units.dyn5)))) 
-                            and debuff.razorice[units.dyn5].stack == 5 and not buff.obliteration.exists 
-                            and #enemies.yards40 >= getOptionValue("Artifact Units") and getFacing("player",units.dyn8) 
+                        if buff.pillarOfFrost.exists and (buff.unholyStrength.exists or (buff.pillarOfFrost.remain < 3 and (ttd(units.dyn5) < 60 or isDummy(units.dyn5))))
+                            and debuff.razorice[units.dyn5].stack == 5 and not buff.obliteration.exists
+                            and #enemies.yards40 >= getOptionValue("Artifact Units") and getFacing("player",units.dyn8)
                         then
                             if cast.sindragosasFury() then return end
                         end
@@ -675,10 +677,10 @@ local function runRotation()
                         if (not talent.frozenPulse or (runes < 2 and runicPower < 28)) or not talent.gatheringStorm then
                             if cast.obliteration() then return end
                         end
-                    end 
+                    end
         -- Generic
                     -- call_action_list,name=generic,if=!talent.breath_of_sindragosa.enabled&!(talent.gathering_storm.enabled&buff.remorseless_winter.remains)
-                    if not talent.breathOfSindragosa and not (talent.gatheringStorm and buff.remorselessWinder.exists) then
+                    if (not talent.breathOfSindragosa or not isChecked("Breath of Sindragosa")) and not (talent.gatheringStorm and buff.remorselessWinder.exists) then
                         if actionList_Generic() then return end
                     end
         -- Breath of Sindragosa
@@ -694,10 +696,10 @@ local function runRotation()
                     end
         -- Gathering Storm
                     -- call_action_list,name=gs_ticking,if=talent.gathering_storm.enabled&buff.remorseless_winter.remains&!talent.breath_of_sindragosa.enabled
-                    if talent.gatheringStorm and buff.remorselessWinter.exists and not talent.breathOfSindragosa then
+                    if talent.gatheringStorm and buff.remorselessWinter.exists and (not talent.breathOfSindragosa or not isChecked("Breath of Sindragosa")) then
                         if actionList_GatheringStormTicking() then return end
-                    end 
-                end -- End Simc APL 
+                    end
+                end -- End Simc APL
             end -- End Combat Check
         end -- End Rotation Pause
     end -- End Timer
