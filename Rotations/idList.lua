@@ -1327,9 +1327,6 @@ br.idList = {
                 ruleOfLaw                   = 214202;
                 tyrsDeliverance             = 200652,
 
-
-
-
             },
             artifacts                       = {
 
@@ -1337,6 +1334,8 @@ br.idList = {
             buffs                           = {
                 auraOfMercy                 = 183415;
                 avengingWrath               = 31842;
+                beaconOfFaith               = 53563;
+                bestowFaith                 = 223306;
                 divineProtection            = 498;
                 divinePurpose               = 216411;
                 infusionOfLight             = 54149;
