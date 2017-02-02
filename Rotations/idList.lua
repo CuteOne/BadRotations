@@ -1305,12 +1305,41 @@ br.idList = {
         -- Holy
         [65] = {
             abilities                       = {
-
+                absolution                  = 212056,
+                auraMastery                 = 31821,
+                avengingWrath               = 31842,
+                beaconofFaith               = 156910,
+                beaconofLight               = 53563,
+                bestowFaith                 = 223306,
+                blessingOfFreedom           = 1044,
+                blessingOfProtection        = 1022,
+                blessingofSacrifice         = 6940,
+                blindingLight               = 115750,
+                cleanse                     = 4987,
+                consecration                = 26573,
+                crusaderStrike              = 35395,
+                divineProtection            = 498,
+                divineShield                = 642,
+                divineSteed                 = 190784,
+                flashOfLight                = 19750,
+                hammerOfJustice             = 853,
+                handOfReckoning             = 62124,
+                holyAvenger                 = 105809,
+                holyLight                   = 82326,
+                holyShock                   = 20473,
+                judgment                    = 20271,
+                layOnHands                  = 633,
+                lightofDawn                 = 85222,
+                lightoftheMartyr            = 183998,
+                redemption                  = 7328,
+                ruleofLaw                   = 214202,
             },
             artifacts                       = {
 
             },
             buffs                           = {
+                beaconofLight               = 53563,
+                bestowFaith                 = 223306,
 
             },
             debuffs                         = {
@@ -1320,6 +1349,10 @@ br.idList = {
 
             },
             talents                         = {
+                beaconofFaith               = 156910,
+                bestowFaith                 = 223306,
+                blindingLight               = 115750,
+                holyAvenger                 = 105809,
 
             },
         },
