@@ -1403,6 +1403,7 @@ br.idList = {
             },
             buffs                           = {
                 ardentDefender              = 31850,
+                avengingWrath               = 31884,
                 bulwarkOfOrder              = 209388,
                 consecration                = 188370,
                 divineSteed                 = 221883,
