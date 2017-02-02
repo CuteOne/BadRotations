@@ -36,11 +36,11 @@ If you are a developer or are interested in being a beta tester, feel free to ge
 If you have code to improve a class you can send a "pull request".
 We will look over it and may merge it with BadRotations.
 
-Current Coders: CuteOne, Gabbz, Cpoworks
+Current Coders: CuteOne, Gabbz, Cpoworks, kuukuukatchu
 
 Pausing Coders until Legion: ragnar, Defmaster
 
-Past Contributors: Masoud, Gabbz, AveryKey, Chumii, Kinks, kuukuukatchu, NOCARRIER and Sphoenix
+Past Contributors: Masoud, Gabbz, AveryKey, Chumii, Kinks, NOCARRIER and Sphoenix
 
 **If you've contributed and you are not list here then please let CuteOne know so you can be added!
 
@@ -103,12 +103,12 @@ Raidable means if its good to raid with.
 |Frost|100%|CuteOne/dbtftw|7.1.5|:interrobang:
 ||||
 | **Monk** |||
-|Brewmaster|0%||7.0|
+|Brewmaster|80%|Kuukuu|7.1.5|:heavy_check_mark:
 |Mistweaver|70%|Cpoworks/Svs/Zu|7.1|:heavy_check_mark:
 |Windwalker|100% (SimC/AMR)|CuteOne|7.1.5|:white_check_mark:
 ||||
 | **Paladin** |||
-|Holy|0%||7.0|
+|Holy|30%|Kuukuu|7.1.5|
 |Protection|0%||7.0|
 |Retribution|100%|CuteOne|7.1.5|:interrobang:
 ||||

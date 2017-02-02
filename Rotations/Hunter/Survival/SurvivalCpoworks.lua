@@ -126,7 +126,7 @@ local function runRotation()
 --------------
 --- Locals ---
 --------------
-        local addsExist                                     = false 
+        local addsExist                                     = false
         local addsIn                                        = 999
         local animality                                     = false
         local artifact                                      = br.player.artifact
@@ -157,7 +157,7 @@ local function runRotation()
         local mode                                          = br.player.mode
         local multidot                                      = (br.player.mode.cleave == 1 or br.player.mode.rotation == 2) and br.player.mode.rotation ~= 3
         local multishotTargets                              = getEnemies("pet",8)
-        local perk                                          = br.player.perk        
+        local perk                                          = br.player.perk
         local php                                           = br.player.health
         local playerMouse                                   = UnitIsPlayer("mouseover")
         local potion                                        = br.player.potion
@@ -173,7 +173,7 @@ local function runRotation()
         local ttd                                           = getTTD
         local ttm                                           = br.player.power.ttm
         local units                                         = br.player.units
-        
+
         -- BeastCleave 118445
         local beastCleaveTimer                              = getBuffDuration("pet", 118445)
 
@@ -233,7 +233,7 @@ local function runRotation()
                         PetStopAttack()
                     end
                 end
-            
+
         end
     -- Action List - Extras
         local function actionList_Extras()
@@ -253,8 +253,8 @@ local function runRotation()
         local function actionList_Defensive()
             if useDefensive() then
         -- Pot/Stoned
-                if isChecked("Pot/Stoned") and php <= getOptionValue("Pot/Stoned") 
-                    and inCombat and (hasHealthPot() or hasItem(5512)) 
+                if isChecked("Pot/Stoned") and php <= getOptionValue("Pot/Stoned")
+                    and inCombat and (hasHealthPot() or hasItem(5512))
                 then
                     if canUse(5512) then
                         useItem(5512)
@@ -271,8 +271,8 @@ local function runRotation()
                     end
                 end
         -- Engineering: Shield-o-tronic
-                if isChecked("Shield-o-tronic") and php <= getOptionValue("Shield-o-tronic") 
-                    and inCombat and canUse(118006) 
+                if isChecked("Shield-o-tronic") and php <= getOptionValue("Shield-o-tronic")
+                    and inCombat and canUse(118006)
                 then
                     useItem(118006)
                 end
@@ -311,8 +311,8 @@ local function runRotation()
                 end
                 -- Racial: Orc Blood Fury | Troll Berserking | Blood Elf Arcane Torrent
                 if isChecked("Racial") and getSpellCD(racial) == 0 then
-                    if (((br.player.race == "Orc" or br.player.race == "Troll") and (buff.spittingCobra.exists or (not talent.spittingCobra and buff.aspectOfTheEagle.exists))) 
-                        or (br.player.race == "BloodElf" and powerDeficit >= 30)) 
+                    if (((br.player.race == "Orc" or br.player.race == "Troll") and (buff.spittingCobra.exists or (not talent.spittingCobra and buff.aspectOfTheEagle.exists)))
+                        or (br.player.race == "BloodElf" and powerDeficit >= 30))
                     then
                         if castSpell("player",racial,false,false,false) then return end
                     end
@@ -500,10 +500,17 @@ local function runRotation()
             end
         -- Raptor Strike
             -- raptor_strike,if=focus>75-cooldown.flanking_strike.remains*focus.regen
-            if power > 75 - cd.flankingStrike * powerRegen then
-                if cast.raptorStrike() then return end
-            end 
-
+            if ((mode.rotation == 1 and #enemies.yards8 == 1) or mode.rotation == 3) or level < 42 then
+                if power > 75 - cd.flankingStrike * powerRegen then
+                    if cast.raptorStrike() then return end
+                end
+            end
+        -- Carve
+            if ((mode.rotation == 1 and #enemies.yards8 > 1) or mode.rotation == 2) and level >= 42 then
+                if power > 90 - cd.flankingStrike * powerRegen then
+                    if cast.carve("player") then return end
+                end
+            end
         end -- End Action List - Way of the Moknathal
     -- Action List - No of the MokNathal
         local function actionList_NoOfTheMokNathal()
@@ -588,7 +595,7 @@ local function runRotation()
             -- flanking_strike,if=cooldown.mongoose_bite.charges<2&buff.mongoose_fury.remains>(1+action.mongoose_bite.charges*gcd)
             if charges.mongooseBite < 2 and buff.mongooseFury.remain > (1 + charges.mongooseBite * gcd) then
                 if cast.flankingStrike() then return end
-            end 
+            end
             -- Mongoose Bite
             -- mongoose_bite,if=buff.mongoose_fury.up&buff.mongoose_fury.remains<cooldown.aspect_of_the_eagle.remains
             if buff.mongooseFury.exists and buff.mongooseFury.remain < cd.aspectOfTheEagle then
@@ -650,12 +657,18 @@ local function runRotation()
             if cast.flankingStrike() then return end
             -- Raptor Strike
             -- raptor_strike,if=focus>75-cooldown.flanking_strike.remains*focus.regen
-            if power > 75 - cd.flankingStrike * powerRegen then
-                if cast.raptorStrike() then return end
+            if ((mode.rotation == 1 and #enemies.yards8 == 1) or mode.rotation == 3) or level < 42 then
+                if power > 75 - cd.flankingStrike * powerRegen then
+                    if cast.raptorStrike() then return end
+                end
+            end
+            -- Carve
+            if ((mode.rotation == 1 and #enemies.yards8 > 1) or mode.rotation == 2) and level >= 42 then
+                if power > 90 - cd.flankingStrike * powerRegen then
+                    if cast.carve("player") then return end
+                end
             end
         end
-
-        
 -----------------
 --- Rotations ---
 -----------------
@@ -669,22 +682,22 @@ local function runRotation()
             if not inCombat and ObjectExists("target") and not UnitIsDeadOrGhost("target") and UnitCanAttack("target", "player") then
     -----------------
     --- Pet Logic ---
-    -----------------             
+    -----------------
                 if actionList_PetManagement() then return end
             end -- End Out of Combat Rotation
 -----------------------------
---- In Combat - Rotations --- 
+--- In Combat - Rotations ---
 -----------------------------
             if inCombat and isValidUnit(units.dyn40) and getDistance(units.dyn5) < 5 then
     -----------------
     --- Pet Logic ---
-    -----------------             
+    -----------------
                 if actionList_PetManagement() then return end
     ------------------------------
     --- In Combat - Interrupts ---
     ------------------------------
                 if actionList_Interrupts() then return end
-                    
+
     ---------------------------
     --- SimulationCraft APL ---
     ---------------------------
@@ -705,7 +718,7 @@ local function runRotation()
                     -- Call Action List - No of the Moknathal
                     if not talent.wayOfTheMokNathal then
                         if actionList_NoOfTheMokNathal() then return end
-                    end 
+                    end
                 end -- End SimC APL
     ------------------------
     --- Ask Mr Robot APL ---
@@ -716,7 +729,7 @@ local function runRotation()
                     end
                     -- Harpoon
                     -- if not HasDot(OnTheTrail) and ArtifactTraitRank(EaglesBite) > 0
-                    
+
                     -- Cooldowns
                     -- if TargetsInRadius(Carve) > 2 or HasBuff(MongooseFury) or ChargesRemaining(MongooseBite) = SpellCharges(MongooseBite)
                     -- Use your cooldowns during or just before Mongoose Fury or an AoE phase.
@@ -805,7 +818,7 @@ local function runRotation()
             end -- End In Combat Rotation
         end -- Pause
     end -- End Timer
-end -- End runRotation 
+end -- End runRotation
 local id = 255 -- Change to the spec id profile is for.
 if br.rotations[id] == nil then br.rotations[id] = {} end
 tinsert(br.rotations[id],{

@@ -89,7 +89,7 @@ function EnemiesEngine()
 							end
 						end
 						-- If not then add enemy
-						if addEnemy then							
+						if addEnemy then
 							br.enemy[thisUnit] 	= {
 								name 			= unitName,
 								guid 			= unitGUID,
@@ -330,10 +330,10 @@ function EnemiesEngine()
 		        local circleDistance_x = math.abs(tX + tR - aX - (aX - cX)/2)
     			local circleDistance_y = math.abs(tY + tR - aY - (aY - cY)/2)
 
-		        if (circleDistance_x > ((aX - cX)/2 + tR)) then 
+		        if (circleDistance_x > ((aX - cX)/2 + tR)) then
 		            return false
 		        end
-		        if (circleDistance_y > ((aY - cY)/2 + tR)) then  
+		        if (circleDistance_y > ((aY - cY)/2 + tR)) then
 		            return false
 		        end
 
@@ -368,7 +368,7 @@ function EnemiesEngine()
 	-- returns true if Unit is a valid enemy
 	function getSanity(unit)
 		if  UnitIsVisible(unit) == true and getCreatureType(unit) == true
-			and ((UnitCanAttack(unit, "player") == true or not UnitIsFriend(unit,"player") or isDummy(unit)) and getLineOfSight(unit, "player")) 
+			and ((UnitCanAttack(unit, "player") == true or not UnitIsFriend(unit,"player") or isDummy(unit)) and getLineOfSight(unit, "player"))
 			and UnitIsDeadOrGhost(unit) == false
 		then
 			return true

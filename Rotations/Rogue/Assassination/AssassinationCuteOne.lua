@@ -446,7 +446,7 @@ local function runRotation()
                 if cast.rupture() then return end
             end
             -- rupture,if=talent.exsanguinate.enabled&((combo_points>=cp_max_spend&cooldown.exsanguinate.remains<1)|(!ticking&(time>10|combo_points>=2+artifact.urge_to_kill.enabled)))
-            if talent.exsanguinate and ((comboPoints >= select(5,getSpellCost(spell.rupture)) and cd.exsanguinate < 1) or (not debuff.rupture[units.dyn5].exists and (cTime >= 2 + urges))) then
+            if talent.exsanguinate and ((combo >= select(5,getSpellCost(spell.rupture)) and cd.exsanguinate < 1) or (not debuff.rupture[units.dyn5].exists and (cTime >= 2 + urges))) then
                 if cast.rupture() then return end
             end
 			-- rupture,if=!talent.exsanguinate.enabled&!ticking

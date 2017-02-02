@@ -757,6 +757,7 @@ br.idList = {
                 eagleEye                    = 6197,
                 exhilaration                = 109304,
                 explosiveShot               = 212431,
+                explosiveShotDetonate       = 212679,
                 feignDeath                  = 5384,
                 flare                       = 1543,
                 intimidation                = 19577,
@@ -1304,12 +1305,41 @@ br.idList = {
         -- Holy
         [65] = {
             abilities                       = {
-
+                absolution                  = 212056,
+                auraMastery                 = 31821,
+                avengingWrath               = 31842,
+                beaconofFaith               = 156910,
+                beaconofLight               = 53563,
+                bestowFaith                 = 223306,
+                blessingOfFreedom           = 1044,
+                blessingOfProtection        = 1022,
+                blessingofSacrifice         = 6940,
+                blindingLight               = 115750,
+                cleanse                     = 4987,
+                consecration                = 26573,
+                crusaderStrike              = 35395,
+                divineProtection            = 498,
+                divineShield                = 642,
+                divineSteed                 = 190784,
+                flashOfLight                = 19750,
+                hammerOfJustice             = 853,
+                handOfReckoning             = 62124,
+                holyAvenger                 = 105809,
+                holyLight                   = 82326,
+                holyShock                   = 20473,
+                judgment                    = 20271,
+                layOnHands                  = 633,
+                lightofDawn                 = 85222,
+                lightoftheMartyr            = 183998,
+                redemption                  = 7328,
+                ruleofLaw                   = 214202,
             },
             artifacts                       = {
 
             },
             buffs                           = {
+                beaconofLight               = 53563,
+                bestowFaith                 = 223306,
 
             },
             debuffs                         = {
@@ -1319,6 +1349,10 @@ br.idList = {
 
             },
             talents                         = {
+                beaconofFaith               = 156910,
+                bestowFaith                 = 223306,
+                blindingLight               = 115750,
+                holyAvenger                 = 105809,
 
             },
         },
@@ -1331,7 +1365,7 @@ br.idList = {
 				avengingWrath               = 31884,
                 bastionOfLight              = 204035,
 				blessedHammer				= 204019,
-                blessingOfSpellwarding      = 204018,                
+                blessingOfSpellwarding      = 204018,
 				cleanseToxins               = 213644,
 				consecration                = 26573,
                 divineSteed                 = 190784,
@@ -1435,6 +1469,7 @@ br.idList = {
                 wrathOfTheAshbringer        = 186945,
             },
             buffs                           = {
+                avengingWrath               = 31884,
                 crusade                     = 231895,
                 divinePurpose               = 223819,
                 greaterBlessingOfKings      = 203538,
@@ -1929,7 +1964,7 @@ br.idList = {
                 pickPocket                  = 921,
                 sap                         = 6770,
                 shadowmeld                  = 58984,
-                sPrint                      = 2983,
+                sprint                      = 2983,
                 tricksOfTheTrade            = 57934,
                 vanish                      = 1856,
             },
@@ -1939,6 +1974,8 @@ br.idList = {
             buffs                           = {
                 cloakOfShadows              = 31224,
                 feint                       = 1966,
+                masterAssassinsInitiative   = 235027,
+                sprint                      = 2983,
                 vanish                      = 11327,
             },
             debuffs                         = {
