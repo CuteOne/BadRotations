@@ -1436,6 +1436,7 @@ br.idList = {
                 wrathOfTheAshbringer        = 186945,
             },
             buffs                           = {
+                avengingWrath               = 31884,
                 crusade                     = 231895,
                 divinePurpose               = 223819,
                 greaterBlessingOfKings      = 203538,

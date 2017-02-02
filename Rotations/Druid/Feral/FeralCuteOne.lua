@@ -652,7 +652,7 @@ local function runRotation()
                     if rip ~= nil and rake ~= nil then
                         if (multidot or (UnitIsUnit(thisUnit,units.dyn5) and not multidot)) then
                             if getDistance(thisUnit) < 5 then
-                                if (not rip.exists or (rip.remain < 8 and getHP(thisUnit) > 25 and not talent.sabertooth) or rip.calc > rip.applied) and (ttd(thisUnit) - rip.remain > rpTick * 4 or isDummy()) 
+                                if (not rip.exists or (rip.remain < 8 and getHP(thisUnit) > 25 and not talent.sabertooth) or rip.calc > rip.applied) and (ttd(thisUnit) - rip.remain > rpTick * 4 or isDummy())
                                     and (ttm < 1 or buff.berserk.exists or buff.incarnationKingOfTheJungle.exists or buff.elunesGuidance.exists or cd.tigersFury < 3 or t18_4pc
                                     or (buff.clearcasting.exists and power < 65) or talent.soulOfTheForest or not rip.exists or (rake.remain < 1.5 and #enemies.yards8 < 6))
                                 then
@@ -676,7 +676,7 @@ local function runRotation()
         -- Swipe
             -- swipe_cat,if=combo_points=5&(spell_targets.swipe_cat>=6|(spell_targets.swipe_cat>=3&!talent.bloodtalons.enabled))&combo_points=5&(energy.time_to_max<1|buff.berserk.up|buff.incarnation.up|buff.elunes_guidance.up|cooldown.tigers_fury.remains<3|set_bonus.tier18_4pc|(talent.moment_of_clarity.enabled&buff.clearcasting.react))
             if useAoE() then
-                if combo == 5 and (#enemies.yards8 >= 6 or (#enemies.yards8 >= 3 and not talent.bloodtalons)) 
+                if combo == 5 and (#enemies.yards8 >= 6 or (#enemies.yards8 >= 3 and not talent.bloodtalons))
                     and combo == 5 and (ttm < 1 or buff.berserk.exists or buff.incarnationKingOfTheJungle.exists or buff.elunesGuidance.exists or cd.tigersFury < 3 or t18_4pc
                     or (talent.momentOfClarity and buff.clearcasting.exists))
                 then
@@ -742,7 +742,7 @@ local function runRotation()
             end
         -- Shadowmeld
             -- shadowmeld,if=combo_points<5&energy>=action.rake.cost&dot.rake.pmultiplier<2.1&buff.tigers_fury.up&(buff.bloodtalons.up|!talent.bloodtalons.enabled)&(!talent.incarnation.enabled|cooldown.incarnation.remains>18)&!buff.incarnation.up
-            if useCDs() and br.player.race == "NightElf" then
+            if useCDs() and isChecked("Racial") and br.player.race == "NightElf" then
                 for i = 1, #enemies.yards5 do
                     local thisUnit = enemies.yards5[i]
                     local rake = debuff.rake[thisUnit]
