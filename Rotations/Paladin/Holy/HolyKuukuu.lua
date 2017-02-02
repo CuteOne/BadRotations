@@ -56,7 +56,7 @@ local function createOptions()
             br.ui:createCheckbox(section, "Hammer of Justice")
         -- Interrupt Percentage
             br.ui:createSpinner(section,  "InterruptAt",  0,  0,  95,  5,  "|cffFFBB00Cast Percentage to use at.")
-        br.ui:checkSectionState(section)            
+        br.ui:checkSectionState(section)
         -------------------------
         ---- SINGLE TARGET ------
         -------------------------
@@ -77,8 +77,8 @@ local function createOptions()
         -------------------------
         section = br.ui:createSection(br.ui.window.profile, "AOE Healing")
             -- Light of Dawn
-            br.ui:createSpinner(section, "Light of Dawn",  80,  0,  100,  5,  "Health Percent to Cast At") 
-            br.ui:createSpinner(section, "LoD Targets",  6,  0,  40,  1,  "Minimum Essence Font Targets")   
+            br.ui:createSpinner(section, "Light of Dawn",  80,  0,  100,  5,  "Health Percent to Cast At")
+            br.ui:createSpinner(section, "LoD Targets",  6,  0,  40,  1,  "Minimum Essence Font Targets")
         br.ui:checkSectionState(section)
         -------------------------
         ------ COOL  DOWNS ------
@@ -133,7 +133,7 @@ local function runRotation()
         local lowestHP                                      = br.friend[1].unit
         local mana                                          = br.player.powerPercentMana
         local mode                                          = br.player.mode
-        local perk                                          = br.player.perk        
+        local perk                                          = br.player.perk
         local php                                           = br.player.health
         local power, powmax, powgen                         = br.player.power.amount.mana, br.player.power.mana.max, br.player.power.regen
         local pullTimer                                     = br.DBM:getPulltimer()
@@ -144,13 +144,13 @@ local function runRotation()
         local talent                                        = br.player.talent
         local ttm                                           = br.player.power.ttm
         local units                                         = br.player.units
-        
+
         local lowest                                        = {}    --Lowest Unit
         lowest.hp                                           = br.friend[1].hp
         lowest.role                                         = br.friend[1].role
         lowest.unit                                         = br.friend[1].unit
         lowest.range                                        = br.friend[1].range
-        lowest.guid                                         = br.friend[1].guid                      
+        lowest.guid                                         = br.friend[1].guid
         local tank                                          = {}    --Tank
         local averageHealth                                 = 100
 
@@ -169,12 +169,12 @@ local function runRotation()
 ---------------------------------
         if not inCombat then
 
-            if not buff.beaconofLight.exists then
-                if cast.beaconofLight("player") then return end
+            if not buff.beaconOfLight.exists then
+                if cast.beaconOfLight("player") then return end
             end
         end -- End Out of Combat Rotation
 -----------------------------
---- In Combat - Rotations --- 
+--- In Combat - Rotations ---
 -----------------------------
     -- Action List - Interrupts
             if useInterrupts() then
@@ -189,7 +189,7 @@ local function runRotation()
                             end
                         end
                     end
-                end 
+                end
             end -- End Interrupt Check
 
         if inCombat then
@@ -203,19 +203,19 @@ local function runRotation()
                     if br.friend[i].hp <= getValue("Flash of Light") then
                         if cast.flashOfLight(br.friend[i].unit) then return end
                     end
-                end                    
-            end       
+                end
+            end
             -- Holy Shock
             if isChecked("Holy Shock") then
-                if lowest.hp <= getValue("Holy Shock") then         
-                    if cast.holyShock(lowest.unit) then return end                                    
+                if lowest.hp <= getValue("Holy Shock") then
+                    if cast.holyShock(lowest.unit) then return end
                 end
             end
             -- Bestow Faith
             if isChecked("Bestow Faith") then
                 for i = 1, #br.friend do
-                    if br.friend[i].hp <= getValue("Bestow Faith") and not UnitBuffID(br.friend[i].unit,223306) then         
-                        if cast.bestowFaith(br.friend[i].unit) then return end                                    
+                    if br.friend[i].hp <= getValue("Bestow Faith") and not UnitBuffID(br.friend[i].unit,223306) then
+                        if cast.bestowFaith(br.friend[i].unit) then return end
                     end
                 end
             end
@@ -225,8 +225,8 @@ local function runRotation()
                     if br.friend[i].hp <= getValue("Holy Light") then
                         if cast.holyLight(br.friend[i].unit) then return end
                     end
-                end                    
-            end 
+                end
+            end
 
             if isChecked("Light of the Martyr") then
                 for i = 1, #br.friend do
@@ -235,13 +235,13 @@ local function runRotation()
                     end
                 end
             end
-           
+
             ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
             --AOE Healing----AOE Healing----AOE Healing----AOE Healing----AOE Healing----AOE Healing----AOE Healing----AOE Healing----AOE Healing----AOE Healing----AOE Healing----AOE Healing
             ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
         end -- End In Combat Rotation
     end -- End Timer
-end -- End runRotation 
+end -- End runRotation
 
                 if isChecked("Boss Helper") then
                         bossManager()

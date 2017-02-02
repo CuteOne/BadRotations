@@ -9,6 +9,7 @@ BadRotations.lua
 bindings.xml
 
 ## System
+
 System\Core.lua
 System\Debugging.lua
 System\GeneralFunctions.lua
@@ -17,10 +18,12 @@ System\UsefulFeatures.lua
 System\SlashCommands.lua
 
 ## Readers
+
 System\Readers\combatlog.lua
 System\Readers\common.lua
 
 ## Libs
+
 #@no-lib-strip@
 System\Libs\LibStub-1.0\LibStub.lua
 System\Libs\!LibDraw\LibDraw.lua
@@ -39,6 +42,7 @@ System\Libs\LibArtifactData-1.0\LibArtifactData-1.0.lua
 System\Drawer\drawer.lua
 
 ## Engines
+
 System\Engines\ArtifactTable.lua
 System\Engines\EnemiesEngine.lua
 System\Engines\EnemiesEngineCollections.lua
@@ -53,6 +57,7 @@ System\Engines\Interrupts.lua
 System\Engines\ttdTable.lua
 
 ## BadRotations UI
+
 System\UI\ChatOverlay.lua
 System\UI\MinimapButton.lua
 System\UI\UI.lua
@@ -73,9 +78,11 @@ System\UI\Windows\Help.lua
 System\UI\Windows\Profile.lua
 
 ## Custom Functions
+
 Custom\Functions.lua
 
 ## Rotation
+
 Rotations\cCharacter.lua
 Rotations\cBuilder.lua
 Rotations\idList.lua
@@ -111,6 +118,7 @@ Rotations\Hunter\Marksmanship\MarksmanshipCpoworks.lua
 
 Rotations\Hunter\Survival\SurvivalCpoworks.lua
 ## Mage ---------------------------------------------------
+
 Rotations\Mage\Arcane\ArcaneDBT.lua
 
 Rotations\Mage\Fire\FireCuteOne.lua
@@ -118,6 +126,7 @@ Rotations\Mage\Fire\FireCuteOne.lua
 Rotations\Mage\Frost\FrostCuteOne.lua
 
 ## Monk ---------------------------------------------------
+
 Rotations\Monk\Mistweaver\MistweaverLyLoLoq.lua
 
 Rotations\Monk\Mistweaver\MistweaverCpoworks.lua
@@ -128,7 +137,6 @@ Rotations\Monk\Windwalker\WindwalkerCuteOne.lua
 
 ## Paladin ---------------------------------------------------
 
-Rotations\Paladin\Holy\HolyGabbz.lua
 Rotations\Paladin\Holy\HolyKuukuu.lua
 
 Rotations\Paladin\Protection\protectionPrettyBoy.lua
@@ -177,6 +185,7 @@ Rotations\Warrior\Protection\ProtectionCuteOne.lua
 ## Non-Class Specific Rotations ------------------------------
 
 ## PokeRotation ----------------------------------------------
+
 Rotations\_NonClass\PokeRotation\PokeAbilities.lua
 Rotations\_NonClass\PokeRotation\PokeCollections.lua
 Rotations\_NonClass\PokeRotation\PokeData.lua
@@ -186,9 +195,11 @@ Rotations\_NonClass\PokeRotation\PokeUI.lua
 Rotations\_NonClass\PokeRotation\PokeUnitInfo.lua
 
 ## ProfessionHelper -----------------------------------------
+
 Rotations\_NonClass\ProfessionHelper\ProfessionHelper.lua
 
 ## Zu BossManager -------------------------------------
+
 Custom\Zu\BossManager.lua
 Custom\Zu\MawOfSouls\Helya\coverThatHole.lua
 Custom\Zu\MawOfSouls\Helya.lua

@@ -172,13 +172,13 @@ function CancelUnitBuffID(unit,spellID,filter)
 end
 function UnitAuraID(unit,spellID)
 	local spellName = GetSpellInfo(spellID)
-	if UnitAura(unit,spellName) ~= nil then 
+	if UnitAura(unit,spellName) ~= nil then
 		return UnitAura(unit,spellName)
 	elseif UnitAura(unit,spellName,nil,"PLAYER HARMFUL") ~= nil then
 		return UnitAura(unit,spellName,nil,"PLAYER HARMFUL")
-	else 
+	else
 		return nil
-	end 
+	end
 end
 function UnitBuffID(unit,spellID,filter)
 	local spellName = GetSpellInfo(spellID)
@@ -231,7 +231,7 @@ function UnitDebuffID(unit,spellID,filter)
 	end
 end
 function canAoE(unit,distance)
-	local notValid = false 
+	local notValid = false
 	if unit == nil then return false end
 	if distance == nil then distance = 8 end
 	for i = 1, #getEnemies(unit,distance) do
@@ -310,8 +310,8 @@ function canDispel(Unit,spellID)
 	if ClassNum == 7 then --Shaman
 		-- Cleanse Spirit
 		if spellID == 51886 then typesList = { "Curse" } end
-		-- Purge 
-		if spellID == 370 then typesList = { "Magic" } end 
+		-- Purge
+		if spellID == 370 then typesList = { "Magic" } end
 	end
 	if ClassNum == 8 then --Mage
 		typesList = { }
@@ -364,7 +364,7 @@ function canDispel(Unit,spellID)
 	end
 	local ValidDebuffType = false
 	local i = 1
-	if UnitIsFriend("player",Unit) then 
+	if UnitIsFriend("player",Unit) then
 		while UnitDebuff(Unit,i) do
 			local _,_,_,_,debuffType,_,_,_,_,_,debuffid = UnitDebuff(Unit,i)
 			-- Blackout Debuffs
@@ -507,7 +507,7 @@ function canUse(itemID)
 	if itemID==0 then return false end
 	if (GetItemCount(itemID,false,false) > 0 or PlayerHasToy(itemID) or itemID<19) then
 		if itemID<=19 then
-			if GetItemSpell(GetInventoryItemID("player",itemID))~=nil then 
+			if GetItemSpell(GetInventoryItemID("player",itemID))~=nil then
 				local slotItemID = GetInventoryItemID("player",itemID)
 				if GetItemCooldown(slotItemID)==0 then
 					return true
@@ -634,8 +634,8 @@ function castHealGround(SpellID,Radius,Health,NumberOfPlayers)
 				if UnitIsVisible(br.friend[i].unit) and GetObjectExists(br.friend[i].unit) then
 					local X,Y,Z = GetObjectPosition(br.friend[i].unit)
 					tinsert(lowHPTargets,{ unit = br.friend[i].unit,x = X,y = Y,z = Z })
-				end 
-			end 
+				end
+			end
 		end
 		if #lowHPTargets >= NumberOfPlayers then
 			for i = 1,#lowHPTargets do
@@ -644,18 +644,18 @@ function castHealGround(SpellID,Radius,Health,NumberOfPlayers)
 						if math.sqrt(((lowHPTargets[j].x-lowHPTargets[i].x)^2)+((lowHPTargets[j].y-lowHPTargets[i].y)^2)) < Radius then
 							for k = 1,#lowHPTargets do
 								if lowHPTargets[i].unit ~= lowHPTargets[k].unit and lowHPTargets[j].unit ~= lowHPTargets[k].unit then
-									if math.sqrt(((lowHPTargets[k].x-lowHPTargets[i].x)^2)+((lowHPTargets[k].y-lowHPTargets[i].y)^2)) < Radius 
-										and math.sqrt(((lowHPTargets[k].x-lowHPTargets[j].x)^2)+((lowHPTargets[k].y-lowHPTargets[j].y)^2)) < Radius 
+									if math.sqrt(((lowHPTargets[k].x-lowHPTargets[i].x)^2)+((lowHPTargets[k].y-lowHPTargets[i].y)^2)) < Radius
+										and math.sqrt(((lowHPTargets[k].x-lowHPTargets[j].x)^2)+((lowHPTargets[k].y-lowHPTargets[j].y)^2)) < Radius
 									then
 										tinsert(foundTargets,{ unit = lowHPTargets[i].unit,x = lowHPTargets[i].x,y = lowHPTargets[i].y,z = lowHPTargets[i].z })
 										tinsert(foundTargets,{ unit = lowHPTargets[j].unit,x = lowHPTargets[j].x,y = lowHPTargets[j].y,z = lowHPTargets[i].z })
 										tinsert(foundTargets,{ unit = lowHPTargets[k].unit,x = lowHPTargets[k].x,y = lowHPTargets[k].y,z = lowHPTargets[i].z })
-									end 
-								end 
-							end 
-						end 
-					end 
-				end 
+									end
+								end
+							end
+						end
+					end
+				end
 			end
 			local medX,medY,medZ = 0,0,0
 			if foundTargets ~= nil and #foundTargets >= NumberOfPlayers then
@@ -678,8 +678,8 @@ function castHealGround(SpellID,Radius,Health,NumberOfPlayers)
 				ClickPosition(myX,myY,myZ,true)
 				if SpellID == 145205 then shroomsTable[1] = { x = medX,y = medY,z = medZ} end
 				return true
-			end 
-		end 
+			end
+		end
 	else
 		return false
 	end
@@ -748,9 +748,9 @@ function castSpell(Unit,SpellID,FacingCheck,MovementCheck,SpamAllowed,KnownSkip,
 					-- get our last/current cast
 					if timersTable == nil or (timersTable ~= nil and (timersTable[SpellID] == nil or timersTable[SpellID] <= GetTime() -0.6)) then
 						if (FacingCheck == true or getFacing("player",Unit) == true) and (UnitIsUnit("player",Unit) or getLineOfSight("player",Unit) == true) then
-							if noCast then 
+							if noCast then
 								return true
-							else 
+							else
 								timersTable[SpellID] = GetTime()
 								currentTarget = UnitGUID(Unit)
 								botCast = true
@@ -802,17 +802,17 @@ function castQueue()
     local spellName = GetSpellInfo(br.player.queue[1].id)
     local minRange 	= select(5,GetSpellInfo(spellName))
     local maxRange 	= select(6,GetSpellInfo(spellName))
-    if IsHelpfulSpell(spellName) then 
+    if IsHelpfulSpell(spellName) then
         thisUnit = "player"
-        amIinRange = true 
+        amIinRange = true
     elseif br.player.queue[1].target == nil then
         if IsUsableSpell(spellCast) and isKnown(spellCast) then
             if maxRange ~= nil and maxRange > 0 then
                 thisUnit = dynamicTarget(maxRange,  true)
-                amIinRange = getDistance(thisUnit) < maxRange 
+                amIinRange = getDistance(thisUnit) < maxRange
             else
                 thisUnit = dynamicTarget(5,  true)
-                amIinRange = getDistance(thisUnit) < 5  
+                amIinRange = getDistance(thisUnit) < 5
             end
         end
     elseif IsSpellInRange(spellName,thisUnit) == nil then
@@ -883,9 +883,9 @@ function castSpellMacro(Unit,SpellID,FacingCheck,MovementCheck,SpamAllowed,Known
 					-- get our last/current cast
 					if timersTable == nil or (timersTable ~= nil and (timersTable[SpellID] == nil or timersTable[SpellID] <= GetTime() -0.6)) then
 						if (FacingCheck == true or getFacing("player",Unit) == true) and (UnitIsUnit("player",Unit) or getLineOfSight("player",Unit) == true) then
-							if noCast then 
+							if noCast then
 								return true
-							else 
+							else
 								timersTable[SpellID] = GetTime()
 								currentTarget = UnitGUID(Unit)
 								RunMacroText("/cast [@"..Unit.."] "..GetSpellInfo(SpellID))
@@ -1026,18 +1026,20 @@ function getDebuffStacks(Unit,DebuffID,Source)
 		return 0
 	end
 end
--- function getDebuffCount(Range,DebuffID,Source)
--- 	local debuffCount = 0
--- 	for i = 1, #getEnemies(Range,false) do
--- 		local thisUnit = getEnemies(Range,false)[i]
--- 		local thisDebuff = UnitDebuffID(thisUnit,DebuffID,Source) ~= nil
--- 		if thisDebuff then
--- 			debuffCount = debuffCount + 1
--- 		end
--- 	end
--- 	return debuffCount
--- end
-
+function getDebuffCount(spellID)
+  local counter = 0
+  for k, v in pairs(br.enemy) do
+    local thisUnit = br.enemy[k].unit
+    -- check if unit is valid
+    if GetObjectExists(thisUnit) then
+      -- increase counter for each occurences
+      if UnitDebuffID(thisUnit,spellID,"player") then
+        counter = counter + 1
+      end
+    end
+  end
+  return tonumber(counter)
+end
 -- if getBuffDuration("target",12345) < 3 then
 function getBuffDuration(Unit,BuffID,Source)
 	if UnitBuffID(Unit,BuffID,Source) ~= nil then
@@ -1060,6 +1062,20 @@ function getBuffStacks(unit,BuffID,Source)
 		return 0
 	end
 end
+function getBuffCount(spellID)
+  	local counter = 0
+  	for k, v in pairs(br.friend) do
+    	local thisUnit = br.friend[k].unit
+    	-- check if unit is valid
+    	if GetObjectExists(thisUnit) then
+      		-- increase counter for each occurences
+      		if UnitBuffID(thisUnit,spellID,"player") then
+        		counter = counter + 1
+      		end
+    	end
+  	end
+  	return tonumber(counter)
+end
 -- if getCharges(115399) > 0 then
 function getCharges(spellID)
 	return select(1,GetSpellCharges(spellID))
@@ -1068,8 +1084,8 @@ function getChargesFrac(spellID,chargeMax)
 	local charges,maxCharges,start,duration = GetSpellCharges(spellID)
 	if chargeMax == nil then chargeMax = false end
 	if maxCharges ~= nil then
-		if chargeMax then 
-			return maxCharges 
+		if chargeMax then
+			return maxCharges
 		else
 			if start <= GetTime() then
 				local endTime = start + duration
@@ -1252,7 +1268,7 @@ function getDistance(Unit1,Unit2,option)
 	end
 	-- Check if objects exists and are visible
 	if GetObjectExists(Unit1) and UnitIsVisible(Unit1) == true
-		and GetObjectExists(Unit2) and UnitIsVisible(Unit2) == true 
+		and GetObjectExists(Unit2) and UnitIsVisible(Unit2) == true
 	then
 	-- Get the distance
 		local X1,Y1,Z1 = GetObjectPosition(Unit1)
@@ -1262,7 +1278,7 @@ function getDistance(Unit1,Unit2,option)
 		local MeleeCombatReachConstant = 4/3
     	if isMoving(Unit1) and isMoving(Unit2) then
 			IfSourceAndTargetAreRunning = 8/3
-		else 
+		else
 			IfSourceAndTargetAreRunning = 0
     	end
 		local dist = math.sqrt(((X2-X1)^2) + ((Y2-Y1)^2) + ((Z2-Z1)^2)) - (PlayerCombatReach + TargetCombatReach) - rangeMod
@@ -1903,10 +1919,10 @@ function hasNoControl(spellID,unit)
 		local class = select(3,UnitClass("player"))
 		-- Warrior
 		if class == 1 then
-			if spellID == 18499 
+			if spellID == 18499
 				-- Fear, Sap and Incapacitate
 				and (text == LOSS_OF_CONTROL_DISPLAY_FEAR
-				or text == LOSS_OF_CONTROL_DISPLAY_ROOT 
+				or text == LOSS_OF_CONTROL_DISPLAY_ROOT
 				or text == LOSS_OF_CONTROL_DISPLAY_SNARE
 				or text == LOSS_OF_CONTROL_DISPLAY_STUN)
 			then
@@ -1915,8 +1931,8 @@ function hasNoControl(spellID,unit)
 		end
 		-- Paladin
 		if class == 2 then
-			if spellID == 1044 
-				and (text == LOSS_OF_CONTROL_DISPLAY_ROOT or text == LOSS_OF_CONTROL_DISPLAY_SNARE) 
+			if spellID == 1044
+				and (text == LOSS_OF_CONTROL_DISPLAY_ROOT or text == LOSS_OF_CONTROL_DISPLAY_SNARE)
 			then
 				return true
 			end
@@ -2022,7 +2038,7 @@ function hasThreat(unit,playerUnit)
 	local unit = unit or "target"
 	local playerUnit = playerUnit or "player"
 	local unitThreat
-	local targetOfTarget 
+	local targetOfTarget
 	local targetFriend
 	if UnitExists("targettarget") then targetOfTarget = UnitTarget(unit) else targetOfTarget = "player" end
 	if UnitExists("targettarget") then targetFriend = (UnitInParty(targetOfTarget) or UnitInRaid(targetOfTarget)) else targetFriend = false end
@@ -2032,7 +2048,7 @@ function hasThreat(unit,playerUnit)
 			return true
 		end
 	end
-	if UnitThreatSituation(playerUnit, unit)~=nil then 
+	if UnitThreatSituation(playerUnit, unit)~=nil then
 		return true
 	elseif targetFriend then
 		return true
@@ -2096,9 +2112,9 @@ function isBoss(unit)
 		-- local bossCheck = br.player.BossIDs[tonumber(npcID)] or false
 		local bossCheck = isInstanceBoss(unit)
 		if ((UnitClassification(unit) == "rare" and UnitHealthMax(unit)>(4*UnitHealthMax("player")))
-			or UnitClassification(unit) == "rareelite" 
-			or UnitClassification(unit) == "worldboss" 
-			or (UnitClassification(unit) == "elite" and UnitHealthMax(unit)>(4*UnitHealthMax("player")) and select(2,IsInInstance())~="raid")--UnitLevel(unit) >= UnitLevel("player")+3) 
+			or UnitClassification(unit) == "rareelite"
+			or UnitClassification(unit) == "worldboss"
+			or (UnitClassification(unit) == "elite" and UnitHealthMax(unit)>(4*UnitHealthMax("player")) and select(2,IsInInstance())~="raid")--UnitLevel(unit) >= UnitLevel("player")+3)
 			or UnitLevel(unit) < 0)
 				and not UnitIsTrivial(unit)
 				and select(2,IsInInstance())~="party"
@@ -2217,7 +2233,7 @@ function isDummy(Unit)
 			[17578]  = "Hellfire Training Dummy",     -- Lvl 1 (The Shattered Halls)
 			[60197]  = "Training Dummy",              -- Lvl 1 (Scarlet Monastery)
 			[64446]  = "Training Dummy",              -- Lvl 1 (Scarlet Monastery)
-		-- Level 3	
+		-- Level 3
 			[44171]  = "Training Dummy",              -- Lvl 3 (New Tinkertown, Dun Morogh)
 			[44389]  = "Training Dummy",              -- Lvl 3 (Coldridge Valley)
 			[44848]  = "Training Dummy", 			  -- Lvl 3 (Camp Narache, Mulgore)
@@ -2228,7 +2244,7 @@ function isDummy(Unit)
 			[44820]  = "Training Dummy",              -- Lvl 3 (Valley of Trials, Durotar)
 			[44937]  = "Training Dummy",              -- Lvl 3 (Eversong Woods, Sunstrider Isle)
 			[48304]  = "Training Dummy",              -- Lvl 3 (Kezan)
-		-- Level 55	
+		-- Level 55
 			[32541]  = "Initiate's Training Dummy",   -- Lvl 55 (Plaguelands: The Scarlet Enclave)
 			[32545]  = "Initiate's Training Dummy",   -- Lvl 55 (Eastern Plaguelands)
 		-- Level 60
@@ -2246,7 +2262,7 @@ function isDummy(Unit)
 			[46647]  = "Training Dummy",              -- Lvl 85 (Orgrimmar, Stormwind City)
 		-- Level 90
 			[67127]  = "Training Dummy",              -- Lvl 90 (Vale of Eternal Blossoms)
-		-- Level 95	
+		-- Level 95
 			[79414]  = "Training Dummy",              -- Lvl 95 (Broken Shore, Talador)
 		-- Level 100
 			[87317]  = "Training Dummy",              -- Lvl 100 (Lunarfall, Frostwall) - Damage
@@ -2293,11 +2309,11 @@ function isDummy(Unit)
 			[87761]  = "Dungeoneer's Training Dummy", -- Lvl 102 (Frostwall) - Damage
 			[88288]  = "Dungeoneer's Training Dummy", -- Lvl 102 (Frostwall) - Tank
 			[88314]  = "Dungeoneer's Training Dummy", -- Lvl 102 (Lunarfall) - Tank
-			[88836]  = "Dungeoneer's Training Dummy", -- Lvl 102 (Warspear) - Tank	
+			[88836]  = "Dungeoneer's Training Dummy", -- Lvl 102 (Warspear) - Tank
 			[93828]  = "Training Dummy",              -- Lvl 102 (Hellfire Citadel)
 			[97668]  = "Boxer's Trianing Dummy",      -- Lvl 102 (Highmountain)
 			[98581]  = "Prepfoot Training Dummy",     -- Lvl 102 (Highmountain)
-		-- Level ??		
+		-- Level ??
 			[24792]  = "Advanced Training Dummy",     -- Lvl ?? Boss (Location Unknonw)
 			[30527]  = "Training Dummy", 		      -- Lvl ?? Boss (Location Unknonw)
 			[31146]  = "Raider's Training Dummy",     -- Lvl ?? (Orgrimmar, Stormwind City, Ironforge, ...)
@@ -2589,7 +2605,7 @@ function isValidUnit(Unit)
 		-- Only consider Units that are in 20yrs or I have targeted when not in Combat and not in an Instance.
 		if not UnitAffectingCombat("player") and not IsInInstance() and (inAggroRange or myTarget) then return true end
 		-- Only consider Units that I have threat with or I am alone and have targeted when not in Combat and in an Instance.
-		if not UnitAffectingCombat("player") and IsInInstance() and (threat or (#br.friend == 1 and myTarget)) then return true end 
+		if not UnitAffectingCombat("player") and IsInInstance() and (threat or (#br.friend == 1 and myTarget)) then return true end
 		-- Only consider Units that I have threat with or I can attack and have targeted or are dummies within 20yrds when in Combat.
 		if UnitAffectingCombat("player") and (threat or myTarget or (isDummy(Unit) and inAggroRange)) then return true end
 		-- Unit is Soul Effigy
@@ -2598,7 +2614,7 @@ function isValidUnit(Unit)
 	return false
 end
 function SpecificToggle(toggle)
-	if customToggle then 
+	if customToggle then
 		return false
 	elseif getOptionValue(toggle) == 1 then
         return IsLeftControlKeyDown();
@@ -2641,7 +2657,7 @@ function SlashCommandHelp(cmd,msg)
 	if cmd == nil then cmd = "" end
 	if msg == nil then msg = "" end
 	if cmd == "Print Help" then Print(tostring(commandHelp)); return end
-	if commandHelp == nil then 
+	if commandHelp == nil then
 		commandHelp = "BadRotations Slash Commands\n        /"..cmd.." - "..msg
 	else
 		commandHelp = commandHelp.."\n        /"..cmd.." - "..msg
@@ -2687,9 +2703,9 @@ function pause(skipCastingCheck)
 	-- Pause Hold/Auto
 	if (pausekey and GetCurrentKeyBoardFocus() == nil and isChecked("Pause Mode"))
 		or profileStop
-		or (IsMounted() and (ObjectExists("target") and GetObjectID("target") ~= 56877) 
-			and not UnitBuffID("player",190784) and not UnitBuffID("player",164222) 
-			and not UnitBuffID("player",165803) and not UnitBuffID("player",157059) 
+		or (IsMounted() and (ObjectExists("target") and GetObjectID("target") ~= 56877)
+			and not UnitBuffID("player",190784) and not UnitBuffID("player",164222)
+			and not UnitBuffID("player",165803) and not UnitBuffID("player",157059)
 			and not UnitBuffID("player",157060))
 		or SpellIsTargeting()
 		-- or (not UnitCanAttack("player","target") and not UnitIsPlayer("target") and UnitExists("target"))
@@ -2706,7 +2722,7 @@ function pause(skipCastingCheck)
 	then
 		if (UnitCastingInfo("player") and not skipCastingCheck) or (UnitChannelInfo("player") and not skipCastingCheck) then
 			return true
-		else 
+		else
 			ChatOverlay("Profile Paused")
 			if UnitExists("pet") and UnitAffectingCombat("pet") then PetFollow() end
 			return true
@@ -2727,7 +2743,7 @@ end
 function useItem(itemID)
 	--br.itemSpamDelay = br.itemSpamDelay or 0
 	if itemID<=19 then
-		if GetItemSpell(GetInventoryItemID("player",itemID))~=nil then 
+		if GetItemSpell(GetInventoryItemID("player",itemID))~=nil then
 			local slotItemID = GetInventoryItemID("player",itemID)
 			if GetItemCooldown(slotItemID)==0 then
 				if not br.itemSpamDelay or GetTime() > br.itemSpamDelay then
@@ -2810,7 +2826,7 @@ end
 function getHealthPot()
 	local potion = br.player.potion
 	if potion ~= nil then
-		if potion.health ~= nil then 
+		if potion.health ~= nil then
 			if potion.health[1]~=nil then
 				return potion.health[1].itemID
 			elseif potion.rejuve[1]~=nil then
@@ -3102,7 +3118,7 @@ function TierScan(thisTier)
 			-- compare to items in our items list
 			for j = 1, 5 do
 				if sets[thisTier][myClass][j] ~= nil then
-					--Print(sets[thisTier][myClass][j]) 
+					--Print(sets[thisTier][myClass][j])
 					if GetItemInfo(GetInventoryItemID("player", i)) == GetItemInfo(sets[thisTier][myClass][j]) then
 						equippedItems = equippedItems + 1;
 					end
@@ -3119,7 +3135,7 @@ function hasEquiped(itemID)
 	for i=1, 19 do
 		-- if there is an item in that slot
 		if GetInventoryItemID("player", i) ~= nil then
-			-- check if it matches 
+			-- check if it matches
 			if GetInventoryItemID("player", i) == itemID then
 				foundItem = true
 			end
