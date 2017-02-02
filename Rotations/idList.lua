@@ -942,7 +942,7 @@ br.idList = {
         -- Fire
         [63] = {
             abilities                       = {
-            	blazingBarrier              = 235313,
+                blazingBarrier              = 235313,
                 blastWave                   = 157981,
                 cinderstorm                 = 198929,
                 combustion                  = 190319,
@@ -964,7 +964,7 @@ br.idList = {
                 phoenixsFlames              = 194466,
             },
             buffs                           = {
-            	blazingBarrier              = 235313,
+                blazingBarrier              = 235313,
                 combustion                  = 190319,
                 heatingUp                   = 48107,
                 hotStreak                   = 48108,
@@ -1305,41 +1305,42 @@ br.idList = {
         -- Holy
         [65] = {
             abilities                       = {
-                absolution                  = 212056,
-                auraMastery                 = 31821,
-                avengingWrath               = 31842,
-                beaconofFaith               = 156910,
-                beaconofLight               = 53563,
-                bestowFaith                 = 223306,
-                blessingOfFreedom           = 1044,
-                blessingOfProtection        = 1022,
-                blessingofSacrifice         = 6940,
-                blindingLight               = 115750,
-                cleanse                     = 4987,
-                consecration                = 26573,
-                crusaderStrike              = 35395,
-                divineProtection            = 498,
-                divineShield                = 642,
-                divineSteed                 = 190784,
-                flashOfLight                = 19750,
-                hammerOfJustice             = 853,
-                handOfReckoning             = 62124,
-                holyAvenger                 = 105809,
-                holyLight                   = 82326,
-                holyShock                   = 20473,
-                judgment                    = 20271,
-                layOnHands                  = 633,
-                lightofDawn                 = 85222,
-                lightoftheMartyr            = 183998,
-                redemption                  = 7328,
-                ruleofLaw                   = 214202,
+                absolution                  = 212056;
+                auraMastery                 = 31821;
+                avengingWrath               = 31842;
+                beaconOfFaith               = 156910;
+                beaconOfLight               = 53563;
+                beaconOfVirtue              = 200025;
+                bestowFaith                 = 223306;
+                blessingOfSacrifice         = 6940;
+                cleanse                     = 4987;
+                consecration                = 26573;
+                crusaderStrike              = 35395;
+                divineProtection            = 498;
+                divineSteed                 = 190784;
+                holyAvenger                 = 105809;
+                holyLight                   = 82326;
+                holyPrism                   = 114165;
+                lightOfDawn                 = 85222;
+                lightOfTheMartyr            = 183998;
+                lightsHammer                = 114158;
+                ruleOfLaw                   = 214202;
+                tyrsDeliverance             = 200652,
+
             },
             artifacts                       = {
 
             },
             buffs                           = {
-                beaconofLight               = 53563,
-                bestowFaith                 = 223306,
+                auraOfMercy                 = 183415;
+                avengingWrath               = 31842;
+                beaconOfFaith               = 53563;
+                bestowFaith                 = 223306;
+                divineProtection            = 498;
+                divinePurpose               = 216411;
+                infusionOfLight             = 54149;
+                ruleOfLaw                   = 214202;
+                vindicator                  = 200376;
 
             },
             debuffs                         = {
@@ -1349,25 +1350,44 @@ br.idList = {
 
             },
             talents                         = {
-                beaconofFaith               = 156910,
-                bestowFaith                 = 223306,
-                blindingLight               = 115750,
-                holyAvenger                 = 105809,
+                bestowFaith                 = 223306;
+                lightsHammer                = 114158;
+                crusadersMight              = 196926;
+                cavalier                    = 230332;
+                unbreakableSpirit           = 114154;
+                ruleOfLaw                   = 214202;
+                fistOfJustice               = 198054;
+                repentance                  = 20066;
+                blindingLight               = 115750;
+                devotionAura                = 183425;
+                auraOfSacrifice             = 183416;
+                auraOfMercy                 = 183415;
+                divinePurpose               = 197646;
+                holyAvenger                 = 105809;
+                holyPrism                   = 114165;
+                ferventMartyr               = 196923;
+                sanctifiedWrath             = 53376;
+                judgmentOfLight             = 183778;
+                beaconOfFaith               = 156910;
+                beaconOfTheLightBringer     = 197446;
+                beaconOfVirtue              = 200025;
+
+
 
             },
         },
         -- Protection
         [66] = {
             abilities                       = {
-				aegisOfLight                = 204150,
+                aegisOfLight                = 204150,
                 ardentDefender              = 31850,
-                avengersShield				= 31935,
-				avengingWrath               = 31884,
+                avengersShield              = 31935,
+                avengingWrath               = 31884,
                 bastionOfLight              = 204035,
-				blessedHammer				= 204019,
+                blessedHammer               = 204019,
                 blessingOfSpellwarding      = 204018,
-				cleanseToxins               = 213644,
-				consecration                = 26573,
+                cleanseToxins               = 213644,
+                consecration                = 26573,
                 divineSteed                 = 190784,
                 eyeOfTyr                    = 209202,
                 guardianOfAncientKings      = 86659,
@@ -1378,7 +1398,7 @@ br.idList = {
                 shieldOfTheRighteous        = 53600,
             },
             artifacts                       = {
-				eyeOfTyr					= 209202,
+                eyeOfTyr                    = 209202,
 
             },
             buffs                           = {
@@ -1386,8 +1406,8 @@ br.idList = {
                 bulwarkOfOrder              = 209388,
                 consecration                = 188370,
                 divineSteed                 = 221883,
-				guardianOfAncientKings      = 86659,
-                seraphim					= 152262,
+                guardianOfAncientKings      = 86659,
+                seraphim                    = 152262,
                 shieldOfTheRighteous        = 132403,
 
             },
@@ -1469,7 +1489,6 @@ br.idList = {
                 wrathOfTheAshbringer        = 186945,
             },
             buffs                           = {
-                avengingWrath               = 31884,
                 crusade                     = 231895,
                 divinePurpose               = 223819,
                 greaterBlessingOfKings      = 203538,
@@ -1519,7 +1538,7 @@ br.idList = {
                 layOnHands                  = 633,
                 redemption                  = 7328,
                 repentance                  = 20066,
-                tyrsDeliverance             = 200654,
+                
             },
             artifacts                       = {
 
