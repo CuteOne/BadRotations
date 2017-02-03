@@ -1539,7 +1539,7 @@ br.idList = {
                 layOnHands                  = 633,
                 redemption                  = 7328,
                 repentance                  = 20066,
-                
+
             },
             artifacts                       = {
 
@@ -2620,7 +2620,7 @@ br.idList = {
                 shieldBlock                 = 2565,
                 shieldSlam                  = 23922,
                 shieldWall                  = 871,
-                spellReflect                = 23920,
+                spellReflection             = 23920,
                 thunderClap                 = 6343,
                 victoryRush                 = 34428,
             },
