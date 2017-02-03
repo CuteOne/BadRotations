@@ -62,6 +62,7 @@ function br:Run()
 	br:StartUI()
 
 	-- start up enemies Engine
+	makeTableQueued = false
 	enemiesEngineRange = 55
 	EnemiesEngine()
 	ChatOverlay("-= BadRotations Loaded =-")
@@ -72,7 +73,7 @@ end
 -- Load Settings
 function br:loadSettings()
 	-- Base Settings
-	if br.data.settings == nil then 
+	if br.data.settings == nil then
 		br.data.settings = {
 			mainButton = {
 				pos = {
@@ -118,16 +119,6 @@ end
 function br.pulse:dispDist()
     displayDistance = math.ceil(targetDistance)
 end
-function br.pulse:makeEnTable()
-	EnemiesEngine()
-    if br.pulse.makeTable then
-    	if br.pulse.makeTableTimer == nil then br.pulse.makeTableTimer = GetTime() end 
-		if br.pulse.makeTableTimer < GetTime() - 1 or br.enemy == nil then
-        	makeEnemiesTable(40);
-        	br.pulse.makeTableTimer = GetTime()
-        end
-    end
-end
 function br.pulse:ttd()
     TTDRefresh()
 end
@@ -145,6 +136,20 @@ function br.pulse:queue()
 		end
 	end
 end
+C_Timer.NewTicker(0.1, function()
+	if getOptionCheck("Start/Stop BadRotations")
+	or (br.data.settings[br.selectedSpec].toggles["Power"] ~= nil
+	and br.data.settings[br.selectedSpec].toggles["Power"] == 1)
+	then
+		makeEnemiesTable();
+		EnemiesEngine();
+	end
+end)
+C_Timer.NewTicker(0.1, function()
+	if isChecked("HE Active") then
+		br.friend:Update()
+	end
+end)
 --[[Updating UI]]
 function br:PulseUI()
 	-- distance on main icon
@@ -152,19 +157,19 @@ function br:PulseUI()
     br.pulse:dispDist()
 
 	mainText:SetText(displayDistance)
-	-- enemies
-    br.pulse:makeEnTable()
+	-- -- enemies
+	-- if not makeTableQueued then
+	-- 	br.pulse:makeEnTable()
+	-- 	makeTableQueued = true
+	-- end
 	-- ttd
     br.pulse:ttd()
     -- queue
     br.pulse:queue()
 	-- allies
-    if isChecked("HE Active") then
-	    br.friend:Update()
-    end
+
 	-- Pulse other features
 	-- PokeEngine()
 	-- ProfessionHelper()
-	-- SalvageHelper()	
+	-- SalvageHelper()
 end
-

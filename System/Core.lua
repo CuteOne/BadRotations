@@ -70,19 +70,21 @@ function BadRotationsUpdate(self)
 		inLoSHealer()
 	end
 	-- getEnemiesInRect(6,25)
+	-- C_Timer.After(0.1, function()
+	--
+	-- end)
 	local tempTime = GetTime();
 	if not self.lastUpdateTime then
 		self.lastUpdateTime = tempTime
 	end
-	if self.lastUpdateTime and (tempTime - self.lastUpdateTime) > (1/10) then
+	if self.lastUpdateTime and (tempTime - self.lastUpdateTime) > 0.1 then
 		self.lastUpdateTime = tempTime
-
 
 		-- Close windows and swap br.selectedSpec on Spec Change
 		if select(2,GetSpecializationInfo(GetSpecialization())) ~= br.selectedSpec then
 	    	-- Closing the windows will save the position
 	        br.ui:closeWindow("all")
-	        	
+
 	    	-- Update Selected Spec/Profile
 	        br.selectedSpec = select(2,GetSpecializationInfo(GetSpecialization()))
 	        br.activeSpecGroup = GetActiveSpecGroup()
@@ -109,7 +111,7 @@ function BadRotationsUpdate(self)
 				ChatOverlay("FireHack not Loaded.")
 				if br.timer:useTimer("notLoaded", 10) then
 					Print("|cffFFFFFFCannot Start... |cffFF1100Firehack |cffFFFFFFis not loaded. Please attach Firehack.")
-				end	
+				end
 			end
 			return false
 		end
@@ -127,7 +129,7 @@ function BadRotationsUpdate(self)
 	    	br.ui:showWindow("debug")
 	    else
 	    	br.ui:closeWindow("debug")
-	    end		
+	    end
 
 		-- Accept dungeon queues
 		br:AcceptQueues()

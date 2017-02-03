@@ -19,10 +19,10 @@ br.debug.cpu.healingEngine = {
     absorbANDhp = 0,
 }
 br.debug.cpu.enemiesEngine = {
-    makeEnemiesTable = 0,
-    makeEnemiesTableCount = 0,
-    makeEnemiesTableCurrent = 0,
-    makeEnemiesTableAverage = 0,
+    elapsedTime = 0,
+    totalIterations = 0,
+    currentTime = 0,
+    averageTime = 0,
     sanityTargets = 0,
     unitTargets = 0,
 }
