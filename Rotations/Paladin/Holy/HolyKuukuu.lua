@@ -6,10 +6,10 @@ local rotationName = "Kuukuu" -- Change to name of profile listed in options dro
 local function createToggles() -- Define custom toggles
 -- Rotation Button
     RotationModes = {
-        [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range.", highlight = 1, icon = br.player.spell.beaconofLight },
-        [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = br.player.spell.beaconofLight },
+        [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range.", highlight = 1, icon = br.player.spell.beaconOfLight },
+        [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = br.player.spell.beaconOfLight },
         [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = br.player.spell.holyShock },
-        [4] = { mode = "Off", value = 4 , overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spell.blessingofSacrifice}
+        [4] = { mode = "Off", value = 4 , overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spell.blessingOfSacrifice}
     };
     CreateButton("Rotation",1,0)
 -- Cooldown Button
@@ -22,7 +22,7 @@ local function createToggles() -- Define custom toggles
 -- Defensive Button
     DefensiveModes = {
         [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spell.divineProtection},
-        [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spell.blessingofProtection}
+        [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spell.blessingOfProtection}
     };
     CreateButton("Defensive",3,0)
 -- Interrupt Button
@@ -44,9 +44,9 @@ local function createOptions()
         --- GENERAL OPTIONS --- -- Define General Options
         -----------------------
         section = br.ui:createSection(br.ui.window.profile,  "General")
-            br.ui:createCheckbox(section, "Boss Helper")
+        --    br.ui:createCheckbox(section, "Boss Helper")
             --Cleanse
-            br.ui:createCheckbox(section, "Cleanse")
+        --    br.ui:createCheckbox(section, "Cleanse")
         br.ui:checkSectionState(section)
         -------------------------
         --- INTERRUPT OPTIONS ---
@@ -64,13 +64,15 @@ local function createOptions()
             --Flash of Light
             br.ui:createSpinner(section, "Flash of Light",  30,  0,  100,  5,  "Health Percent to Cast At")
             --Holy Light
-            br.ui:createSpinner(section, "Holy Light",  99,  0,  100,  1,  "Health Percent to Cast At")
+            br.ui:createSpinner(section, "Holy Light",  85,  0,  100,  5,  "Health Percent to Cast At")
             --Holy Shock
             br.ui:createSpinner(section, "Holy Shock", 99, 0, 100, 5, "Health Percent to Cast At")
             --Bestow Faith
             br.ui:createSpinner(section, "Bestow Faith", 99, 0, 100, 5, "Health Percent to Cast At")
-
-            br.ui:createSpinner(section, "Light of the Martyr", 50, 0, 100, 1, "Health Percent to Cast At")
+            -- Light of the Martyr
+            br.ui:createSpinner(section, "Light of the Martyr", 50, 0, 100, 5, "Health Percent to Cast At")
+            -- Tyr's Deliverance
+            br.ui:createSpinner(section, "Tyr's Deliverance", 50, 0, 100, 5, "Health Percent to Cast At")
         br.ui:checkSectionState(section)
         -------------------------
         ------ AOE HEALING ------
@@ -78,18 +80,18 @@ local function createOptions()
         section = br.ui:createSection(br.ui.window.profile, "AOE Healing")
             -- Light of Dawn
             br.ui:createSpinner(section, "Light of Dawn",  80,  0,  100,  5,  "Health Percent to Cast At")
-            br.ui:createSpinner(section, "LoD Targets",  6,  0,  40,  1,  "Minimum Essence Font Targets")
+            br.ui:createSpinner(section, "LoD Targets",  6,  0,  40,  1,  "Minimum Light of Dawn Targets")
         br.ui:checkSectionState(section)
         -------------------------
         ------ COOL  DOWNS ------
         -------------------------
         section = br.ui:createSection(br.ui.window.profile, "Cool Downs")
             -- Avenging Wrath
-            br.ui:createSpinner(section, "Avenging Wrath", 50, 0, 100, 5, "Health Percent to Cast At")
+            br.ui:createSpinner(section, "Avenging Wrath", 30, 0, 100, 5, "Health Percent to Cast At")
             -- Lay on Hands
             br.ui:createSpinner(section, "Lay on Hands", 20, 0, 100, 5, "Health Percent to Cast At")
-            -- Tyr's Deliverance
-            br.ui:createSpinner(section, "Tyr's Deliverance", 30, 0, 100, 5, "Health Percent to Cast At")
+            -- Holy Avenger
+            br.ui:createSpinner(section, "Holy Avenger", 50, 0, 100, 5, "Health Percent to Cast At")
     end
     optionTable = {{
         [1] = "Rotation Options",
@@ -168,10 +170,6 @@ local function runRotation()
 --- Out Of Combat - Rotations ---
 ---------------------------------
         if not inCombat then
-
-            if not buff.beaconOfLight.exists then
-                if cast.beaconOfLight("player") then return end
-            end
         end -- End Out of Combat Rotation
 -----------------------------
 --- In Combat - Rotations ---
@@ -194,10 +192,52 @@ local function runRotation()
 
         if inCombat then
 
+            ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+            --Cooldowns ----- Cooldowns -----Cooldowns ----- Cooldowns ----- Cooldowns ----- Cooldowns ----- Cooldowns ----- Cooldowns ----- Cooldowns ----- Cooldowns ----- Cooldowns ----- 
+            ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+            -- Avenging Wrath
+            if isChecked("Avenging Wrath") then
+                for i = 1, #br.friend do
+                    if br.friend[i].hp <= getValue ("Avenging Wrath") then
+                        if cast.avengingWrath("player") then return end
+                    end
+                end
+            end
+            -- Lay on Hands
+            if isChecked("Lay on Hands") then
+                for i = 1, #br.friend do
+                    if br.friend[i].hp <= getValue ("Lay on Hands") then
+                        if cast.layOnHands(br.friend[i].unit) then return end
+                    end
+                end
+            end
+            -- Holy Avenger
+            if isChecked("Holy Avenger") then
+                for i = 1, #br.friend do
+                    if br.friend[i].hp <= getValue ("Holy Avenger") then
+                        if cast.holyAvenger("player") then return end
+                    end
+                end
+            end
+             ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+            --AOE Healing----AOE Healing----AOE Healing----AOE Healing----AOE Healing----AOE Healing----AOE Healing----AOE Healing----AOE Healing----AOE Healing----AOE Healing----AOE Healing
+            ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+            -- Beacon of Light on Tank
+            for i = 1, #br.friend do
+                if not UnitBuffID(br.friend[i].unit,53563) and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
+                    if cast.beaconOfLight(br.friend[i].unit) then return end
+                end
+            end
+            -- Light of Dawn
+            if isChecked("Light of Dawn") then
+                if getLowAllies(getValue"Light of Dawn") >= getValue("LoD Targets") and getFacing("player",lowest.unit) and getDistance("player",lowest.unit) <= 15 then
+                    if cast.lightOfDawn(lowest.unit) then return end
+                end
+            end       
             -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
             --Single Target Healing----Single Target Healing----Single Target Healing----Single Target Healing----Single Target Healing----Single Target Healing----Single Target Healing--
             -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-            --Flash of Light
+            -- Flash of Light
             if isChecked("Flash of Light") then
                 for i = 1, #br.friend do
                     if br.friend[i].hp <= getValue("Flash of Light") then
@@ -205,10 +245,20 @@ local function runRotation()
                     end
                 end
             end
+            -- Tyr's Deliverance
+            if isChecked("Tyr's Deliverance") then
+                for i = 1, #br.friend do
+                    if br.friend[i].hp <= getValue("Tyr's Deliverance") then
+                        if cast.tyrsDeliverance(br.friend[i].unit) then return end
+                    end
+                end
+            end
             -- Holy Shock
             if isChecked("Holy Shock") then
                 if lowest.hp <= getValue("Holy Shock") then
                     if cast.holyShock(lowest.unit) then return end
+--                else 
+--                    if cast.holyShock(units.dyn30) then return end
                 end
             end
             -- Bestow Faith
@@ -228,17 +278,13 @@ local function runRotation()
                 end
             end
 
-            if isChecked("Light of the Martyr") then
+            if isChecked("Light of the Martyr") and isMoving("player") then
                 for i = 1, #br.friend do
                     if br.friend[i].hp <= getValue("Light of the Martyr") then
-                        if cast.lightoftheMartyr(br.friend[i].unit) then return end
+                        if cast.lightOfTheMartyr(br.friend[i].unit) then return end
                     end
                 end
             end
-
-            ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-            --AOE Healing----AOE Healing----AOE Healing----AOE Healing----AOE Healing----AOE Healing----AOE Healing----AOE Healing----AOE Healing----AOE Healing----AOE Healing----AOE Healing
-            ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
         end -- End In Combat Rotation
     end -- End Timer
 end -- End runRotation
