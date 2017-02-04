@@ -208,8 +208,8 @@ local function runRotation()
         local rtbCount                                      = br.rtbCount
         local solo                                          = #br.friend < 2 
         local spell                                         = br.player.spell
-        local stealth                                       = br.player.buff.stealth.exists
-        local stealthing                                    = br.player.buff.stealth.exists or br.player.buff.vanish.exists or br.player.buff.shadowmeld.exists
+        local stealth                                       = br.player.buff.stealth.exists()
+        local stealthing                                    = br.player.buff.stealth.exists() or br.player.buff.vanish.exists() or br.player.buff.shadowmeld.exists()
         local talent                                        = br.player.talent
         local time                                          = getCombatTime()
         local ttd                                           = getTTD
@@ -224,14 +224,14 @@ local function runRotation()
         if leftCombat == nil then leftCombat = GetTime() end
         if talent.deeperStrategem then dStrat = 1 else dStrat = 0 end
         if talent.quickDraw then qDraw = 1 else qDraw = 0 end
-        if talent.ghostlyStrike and debuff.ghostlyStrike[units.dyn5] ~= nil and not debuff.ghostlyStrike[units.dyn5].exists then gsBuff = 1 else gsBuff = 0 end
-        if buff.broadsides.exists then broadUp = 1 else broadUp = 0 end
-        if buff.broadsides.exists or buff.jollyRoger.exists then broadRoger = 1 else broadRoger = 0 end
+        if talent.ghostlyStrike and debuff.ghostlyStrike[units.dyn5] ~= nil and not debuff.ghostlyStrike[units.dyn5].exists() then gsBuff = 1 else gsBuff = 0 end
+        if buff.broadsides.exists() then broadUp = 1 else broadUp = 0 end
+        if buff.broadsides.exists() or buff.jollyRoger.exists() then broadRoger = 1 else broadRoger = 0 end
         if talent.alacrity and buff.alacrity.stack <= 4 then lowAlacrity = 1 else lowAlacrity = 0 end
         if talent.anticipation then antital = 1 else antital = 0 end
         if cd.deathFromAbove == 0 then dfaCooldown = 1 else dfaCooldown = 0 end
         if vanishTime == nil then vanishTime = GetTime() end
-        if buff.hiddenBlade.exists then hBss = 1 else hBss = 0 end
+        if buff.hiddenBlade.exists() then hBss = 1 else hBss = 0 end
 
         ------------------------------------------
         --------------Roll the Bones--------------
@@ -249,7 +249,7 @@ local function runRotation()
         end
 
         if getOptionValue("RTB") == 1 then
-            if not talent.sliceAndDice and (buff.rollTheBones.count >= 3 or buff.trueBearing.exists) then
+            if not talent.sliceAndDice and (buff.rollTheBones.count >= 3 or buff.trueBearing.exists()) then
                 rtbReroll = false
             else
                 rtbReroll = true
@@ -257,7 +257,7 @@ local function runRotation()
         end
 
         if getOptionValue("RTB") == 2 then
-            if not talent.sliceAndDice and (buff.rollTheBones.count >= 2  or buff.trueBearing.exists or (buff.sharkInfestedWaters.exists and (buff.adrenalineRush.exists or debuff.curseOfTheDreadblades["player"].exists))) then
+            if not talent.sliceAndDice and (buff.rollTheBones.count >= 2  or buff.trueBearing.exists() or (buff.sharkInfestedWaters.exists() and (buff.adrenalineRush.exists() or debuff.curseOfTheDreadblades["player"].exists()))) then
                 rtbReroll = false
             else
                 rtbReroll = true
@@ -289,15 +289,15 @@ local function runRotation()
             ssUsable = false
         end      
 
-        if buff.trueBearing.exists and cd.markedForDeath > 1 and not cd.markedForDeath == 0 and cd.markedForDeath <= combo*2 and not debuff.curseOfTheDreadblades["player"].exists and lastSpell~=1856 then
+        if buff.trueBearing.exists() and cd.markedForDeath > 1 and not cd.markedForDeath == 0 and cd.markedForDeath <= combo*2 and not debuff.curseOfTheDreadblades["player"].exists() and lastSpell~=1856 then
             clearMFD = true
         else
             clearMFD = false
         end
 
         -- stealth_condition,value=(combo_points.deficit>=2+2*(talent.ghostly_strike.enabled&!debuff.ghostly_strike.up)+buff.broadsides.up&energy>60&!buff.jolly_roger.up&!buff.hidden_blade.up&!buff.curse_of_the_dreadblades.up)
-        if ((comboDeficit >= 2 + (2 * gsBuff) + broadUp) and power > 58 and not buff.jollyRoger.exists and not buff.hiddenBlade.exists and not debuff.curseOfTheDreadblades["player"].exists) and not buff.stealth.exists and not solo and isChecked("Vanish") and useCDs() and cd.vanish == 0 then
-        --if (not solo or isDummy("target")) and inCombat and cd.vanish == 0 and not rtbReroll and ((comboDeficit >= 2 + 2 * gsBuff + broadUp) and power > 58 and (not buff.jollyRoger.exists or buff.trueBearing.exists) and not buff.hiddenBlade.exists and not debuff.curseOfTheDreadblades["player"].exists) then
+        if ((comboDeficit >= 2 + (2 * gsBuff) + broadUp) and power > 58 and not buff.jollyRoger.exists() and not buff.hiddenBlade.exists() and not debuff.curseOfTheDreadblades["player"].exists()) and not buff.stealth.exists() and not solo and isChecked("Vanish") and useCDs() and cd.vanish == 0 then
+        --if (not solo or isDummy("target")) and inCombat and cd.vanish == 0 and not rtbReroll and ((comboDeficit >= 2 + 2 * gsBuff + broadUp) and power > 58 and (not buff.jollyRoger.exists() or buff.trueBearing.exists()) and not buff.hiddenBlade.exists() and not debuff.curseOfTheDreadblades["player"].exists()) then
             stealthable = true
         else
             stealthable = false
@@ -338,7 +338,7 @@ local function runRotation()
             if usePickPocket() and stealth and not inCombat then
                 if UnitCanAttack(units.dyn5,"player") and (UnitExists("target") or mode.pickPocket == 2) and mode.pickPocket ~= 3 then
                     if not isPicked(units.dyn5) and not isDummy(units.dyn5) and getDistance(units.dyn5) <= 6 then
-                        if debuff.sap[units.dyn5].remain < 1 and mode.pickPocket ~= 1 then
+                        if debuff.sap[units.dyn5].remain() < 1 and mode.pickPocket ~= 1 then
                             if cast.sap(units.dyn5) then return end
                         end
                         if cast.pickPocket() then return end
@@ -422,7 +422,7 @@ local function runRotation()
     -- Action List - Blade Flurry
         local function actionList_BladeFlurry()
         -- Blade Flurry
-            if #getEnemies("player",7) < 2 and buff.bladeFlurry.exists then
+            if #getEnemies("player",7) < 2 and buff.bladeFlurry.exists() then
                 -- if cast.bladeFlurry() then return end
                 if not delayBladeFlurry or delayBladeFlurry == 0 then 
                     delayBladeFlurry = GetTime() + getOptionValue("Blade Flurry")
@@ -430,11 +430,11 @@ local function runRotation()
                     CastSpellByName(GetSpellInfo(spell.bladeFlurry),"player");
                 end
             end
-            if ((#getEnemies("player",7) >=2 and buff.bladeFlurry.exists) or (#getEnemies("player",7) < 2 and not buff.bladeFlurry.exists)) and delayBladeFlurry then
+            if ((#getEnemies("player",7) >=2 and buff.bladeFlurry.exists()) or (#getEnemies("player",7) < 2 and not buff.bladeFlurry.exists())) and delayBladeFlurry then
                 delayBladeFlurry = 0
             end
             -- blade_flurry,if=spell_targets.blade_flurry>=2&!buff.blade_flurry.up
-            if #getEnemies("player",7) >= 2 and not buff.bladeFlurry.exists then
+            if #getEnemies("player",7) >= 2 and not buff.bladeFlurry.exists() then
                 CastSpellByName(GetSpellInfo(spell.bladeFlurry),"player");
             end
         end
@@ -454,7 +454,7 @@ local function runRotation()
                 end
         -- Pots
                 if isChecked("Agi-Pot") then
-                    if ttd("target") <= 25 or buff.adrenalineRush.exists or hasBloodLust() then 
+                    if ttd("target") <= 25 or buff.adrenalineRush.exists() or hasBloodLust() then 
                         if canUse(127844) and inRaid then
                                 useItem(127844)
                         end
@@ -471,7 +471,7 @@ local function runRotation()
                 end
         -- Adrenaline Rush
                 -- adrenaline_rush,if=!buff.adrenaline_rush.up&energy.deficit>0
-                if not buff.adrenalineRush.exists and powerDeficit > 0 and cd.saberSlash == 0 then
+                if not buff.adrenalineRush.exists() and powerDeficit > 0 and cd.saberSlash == 0 then
                     if cast.adrenalineRush() then return end
                 end
         -- Sprint
@@ -482,7 +482,7 @@ local function runRotation()
         -- Curse of the Dreadblades
                 -- curse_of_the_dreadblades,if=combo_points.deficit>=4&(!talent.ghostly_strike.enabled|debuff.ghostly_strike.up)
                 if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()) and (cd.saberSlash == 0 or cd.pistolShot == 0) then
-                    if comboDeficit >= 4 and (power >= 48 or buff.opportunity.exists) and (not talent.ghostlyStrike or debuff.ghostlyStrike[units.dyn5].exists) then
+                    if comboDeficit >= 4 and (power >= 48 or buff.opportunity.exists()) and (not talent.ghostlyStrike or debuff.ghostlyStrike[units.dyn5].exists()) then
                         if cast.curseOfTheDreadblades() then return end
                     end
                 end
@@ -530,11 +530,11 @@ local function runRotation()
         local function actionList_Finishers()
         -- Between the Eyes
             -- between_the_eyes,if=equipped.greenskins_waterlogged_wristcuffs&!buff.greenskins_waterlogged_wristcuffs.up
-            if hasEquiped(137099) and not buff.greenskinsWaterloggedWristcuffs.exists then
+            if hasEquiped(137099) and not buff.greenskinsWaterloggedWristcuffs.exists() then
                 if cast.betweenTheEyes() then return end
             end
         -- Run Through
-            -- run_through,if=!talent.death_from_above.enabled|energy.time_to_max<cooldown.death_from_above.remains+3.5
+            -- run_through,if=!talent.death_from_above.enabled|energy.time_to_max<cooldown.death_from_above.remain()s+3.5
             if not talent.deathFromAbove or ttm < cd.deathFromAbove + 3.5 then
                 if cast.runThrough() then return end
             end
@@ -543,15 +543,15 @@ local function runRotation()
         local function actionList_Build()
         -- Ghostly Strike
             -- ghostly_strike,if=combo_points.deficit>=1+buff.broadsides.up&!buff.curse_of_the_dreadblades.up&
-            --(debuff.ghostly_strike.remains<debuff.ghostly_strike.duration*0.3|(cooldown.curse_of_the_dreadblades.remains<3&debuff.ghostly_strike.remains<14))&(combo_points>=3|(variable.rtb_reroll&time>=10))
-            if comboDeficit >= (1 + broadUp) and not debuff.curseOfTheDreadblades["player"].exists and ((not debuff.ghostlyStrike.exists or debuff.ghostlyStrike.refresh) 
-                or (cd.curseOfTheDreadblades < 3 and debuff.ghostlyStrike.remain < 14 and useCDs())) and (combo >= 3 or (rtbReroll and (cTime >= 10 or solo))) 
+            --(debuff.ghostly_strike.remain()s<debuff.ghostly_strike.duration*0.3|(cooldown.curse_of_the_dreadblades.remain()s<3&debuff.ghostly_strike.remain()s<14))&(combo_points>=3|(variable.rtb_reroll&time>=10))
+            if comboDeficit >= (1 + broadUp) and not debuff.curseOfTheDreadblades["player"].exists() and ((not debuff.ghostlyStrike.exists() or debuff.ghostlyStrike.refresh) 
+                or (cd.curseOfTheDreadblades < 3 and debuff.ghostlyStrike.remain() < 14 and useCDs())) and (combo >= 3 or (rtbReroll and (cTime >= 10 or solo))) 
             then
                 if cast.ghostlyStrike("target") then return end
             end
         -- Pistol Shot
             -- pistol_shot,if=combo_points.deficit>=1+buff.broadsides.up&buff.opportunity.up&(energy.time_to_max>2-talent.quick_draw.enabled|(buff.blunderbuss.up&buff.greenskins_waterlogged_wristcuffs.up))
-            if comboDeficit >= (1 + broadUp) and buff.opportunity.exists and ((ttm > 2 - qDraw) or (buff.adrenalineRush.exists and ttm > 1.5) or (castable.blunderbuss and buff.greenskinsWaterloggedWristcuffs.exists)) and not stealthing then
+            if comboDeficit >= (1 + broadUp) and buff.opportunity.exists() and ((ttm > 2 - qDraw) or (buff.adrenalineRush.exists() and ttm > 1.5) or (castable.blunderbuss and buff.greenskinsWaterloggedWristcuffs.exists())) and not stealthing then
                 if cast.pistolShot("target") then return end
             end
         -- Saber Slash
@@ -594,7 +594,7 @@ local function runRotation()
         -- Shadowmeld
             -- shadowmeld,if=variable.stealth_condition
             if isChecked("Use Racial") and br.player.race == "NightElf" and stealthable and inCombat and isValidUnit(units.dyn5) 
-                and getDistance(units.dyn5) < 5 and not buff.vanish.exists and cd.vanish ~= 0 and not moving then
+                and getDistance(units.dyn5) < 5 and not buff.vanish.exists() and cd.vanish ~= 0 and not moving then
                 if cast.shadowmeld() then return end
             end
         end
@@ -619,7 +619,7 @@ local function runRotation()
 ------------------------------
 --- Out of Combat Rotation ---
 ------------------------------
-            if (not inCombat or buff.stealth.exists) then
+            if (not inCombat or buff.stealth.exists()) then
                 if actionList_PreCombat() then return end
             end
 --------------------------
@@ -687,13 +687,13 @@ local function runRotation()
                             if cast.deathFromAbove() then return end
                         end
         -- Slice and Dice
-                        -- slice_and_dice,if=!variable.ss_useable&buff.slice_and_dice.remains<target.time_to_die&buff.slice_and_dice.remains<(1+combo_points)*1.8
-                        if not ssUsable and buff.sliceAndDice.remain < ttd(units.dyn5) and buff.sliceAndDice.remain < (1 + combo) * 1.8 then
+                        -- slice_and_dice,if=!variable.ss_useable&buff.slice_and_dice.remain()s<target.time_to_die&buff.slice_and_dice.remain()s<(1+combo_points)*1.8
+                        if not ssUsable and buff.sliceAndDice.remain() < ttd(units.dyn5) and buff.sliceAndDice.remain() < (1 + combo) * 1.8 then
                             if cast.sliceAndDice() then return end
                         end
         -- Roll the Bones
-                        -- roll_the_bones,if=!variable.ss_useable&buff.roll_the_bones.remains<target.time_to_die&(buff.roll_the_bones.remains<=3|variable.rtb_reroll)
-                        if isChecked("RTB") and not ssUsable and buff.rollTheBones.remain < ttd("target") and (buff.rollTheBones.remain <= 3 or rtbReroll) and not talent.sliceAndDice then
+                        -- roll_the_bones,if=!variable.ss_useable&buff.roll_the_bones.remain()s<target.time_to_die&(buff.roll_the_bones.remain()s<=3|variable.rtb_reroll)
+                        if isChecked("RTB") and not ssUsable and buff.rollTheBones.remain() < ttd("target") and (buff.rollTheBones.remain() <= 3 or rtbReroll) and not talent.sliceAndDice then
                             if cast.rollTheBones() then return end
                         end
         -- Killing Spree
@@ -716,7 +716,7 @@ local function runRotation()
                         end
         -- Gouge
                         -- gouge,if=talent.dirty_tricks.enabled&combo_points.deficit>=1
-                        if talent.dirtyTricks and comboDeficit >= 1 and not debuff.curseOfTheDreadblades["player"].exists then
+                        if talent.dirtyTricks and comboDeficit >= 1 and not debuff.curseOfTheDreadblades["player"].exists() then
                             for i = 1, #enemies.yards5 do
                                 local thisUnit = enemies.yards5[i]
                                 if not isBoss(thisUnit) and getFacing(thisUnit,"player") then
