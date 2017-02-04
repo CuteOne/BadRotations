@@ -206,9 +206,9 @@ local function runRotation()
     local racial                                        = br.player.getRacial()
     local solo                                          = #br.friend < 2    
     local spell                                         = br.player.spell
-    local stealth                                       = br.player.buff.stealth.exists
-    local stealthingAll                                 = br.player.buff.stealth.exists or br.player.buff.vanish.exists or br.player.buff.shadowmeld.exists or br.player.buff.shadowDance.exists or br.player.buff.subterfuge.exists
-    local stealthingRogue                               = br.player.buff.stealth.exists or br.player.buff.vanish.exists or br.player.buff.shadowDance.exists or br.player.buff.subterfuge.exists
+    local stealth                                       = br.player.buff.stealth.exists()
+    local stealthingAll                                 = br.player.buff.stealth.exists() or br.player.buff.vanish.exists() or br.player.buff.shadowmeld.exists() or br.player.buff.shadowDance.exists() or br.player.buff.subterfuge.exists()
+    local stealthingRogue                               = br.player.buff.stealth.exists() or br.player.buff.vanish.exists() or br.player.buff.shadowDance.exists() or br.player.buff.subterfuge.exists()
     local talent                                        = br.player.talent
     local time                                          = getCombatTime()
     local ttd                                           = getTTD
@@ -229,15 +229,15 @@ local function runRotation()
     if ShDCdTime == nil then ShDCdTime = GetTime() end
     if ShdMTime == nil then ShdMTime = GetTime() end
     if hasEquiped(137032) then shadowWalker = 1 else shadowWalker = 0 end
-    if buff.shadowBlades.exists then sBladesUp = 1 else sBladesUp = 0 end
+    if buff.shadowBlades.exists() then sBladesUp = 1 else sBladesUp = 0 end
 
     --Sprint for Vanish stuff
     if sprintTimer == nil then sprintTimer = GetTime() end
     if sprintphp == nil then sprintphp = 1 end
     if resume == nil then resume = 2 end
-    if buff.sprint.exists and resume == 0 and getHP("player") > sprintphp then sprintphp = getHP("player") end
+    if buff.sprint.exists() and resume == 0 and getHP("player") > sprintphp then sprintphp = getHP("player") end
     --if GetTime() > (sprintTimer + 3) and mode.rotation == 4 then toggle("rotation",1) end    
-    if buff.sprint.exists and resume == 0 and getHP("player") < sprintphp then resume = 1 end
+    if buff.sprint.exists() and resume == 0 and getHP("player") < sprintphp then resume = 1 end
     if GetTime() > (sprintTimer + 3) and mode.rotation == 4 then resume = 1 end
     if resume == 1 then toggle("rotation",1); resume = 0 end
     
@@ -295,7 +295,7 @@ local function runRotation()
         if usePickPocket() then
             if UnitCanAttack(units.dyn5,"player") and (UnitExists(units.dyn5) or mode.pickPocket == 2) and mode.pickPocket ~= 3 then
                 if not isPicked(units.dyn5) and not isDummy() then
-                    if debuff.sap[units.dyn5].remain < 1 and mode.pickPocket ~= 1 then
+                    if debuff.sap[units.dyn5].remain() < 1 and mode.pickPocket ~= 1 then
                         if cast.sap(units.dyn5) then return end
                     end
                     if cast.pickPocket() then return end
@@ -377,7 +377,7 @@ local function runRotation()
     --        if isChecked("Draught of Souls") then
     --            if hasEquiped(140808) and canUse(140808) then
      --               if getOptionValue("Draught of Souls") == 2 then
-    --                    if charges.frac.shadowDance <= 2.45 and not buff.shadowDance.exists then
+    --                    if charges.frac.shadowDance <= 2.45 and not buff.shadowDance.exists() then
      --                       useItem(140808)
     --                    end
      --               end
@@ -394,7 +394,7 @@ local function runRotation()
     -- Potion
             -- potion,name=old_war,if=buff.bloodlust.react|target.time_to_die<=25|buff.shadow_blades.up
             if isChecked("Agi-Pot") and isBoss("target") and (hasItem(127884) or hasItem(142117)) then
-                if ttd("target") <= 25 or buff.shadowBlades.exists or hasBloodLust() then
+                if ttd("target") <= 25 or buff.shadowBlades.exists() or hasBloodLust() then
                     if canUse(127844) then
                         useItem(127844)
                     end
@@ -432,7 +432,7 @@ local function runRotation()
         end
 -- Vanish
         -- vanish,if=mantle_duration<=3
-        if useCDs() and isChecked("Vanish") and not solo and cd.backstab == 0 and (buff.masterAssassinsInitiative.remain <= 3 or not buff.masterAssassinsInitiative.exists) and charges.frac.shadowDance <= ShDVar then
+        if useCDs() and isChecked("Vanish") and not solo and cd.backstab == 0 and (buff.masterAssassinsInitiative.remain() <= 3 or not buff.masterAssassinsInitiative.exists()) and charges.frac.shadowDance <= ShDVar then
             if cast.vanish() then vanishTime = GetTime(); return end
         end
 -- Shadow Dance
@@ -481,8 +481,8 @@ local function runRotation()
 -- Action List - Finishers
     local function actionList_Finishers()
     -- Enveloping Shadows
-        -- enveloping_shadows,if=buff.enveloping_shadows.remains<target.time_to_die&buff.enveloping_shadows.remains<=combo_points*1.8
-        if buff.envelopingShadows.remain < ttd("target") and buff.envelopingShadows.remain <= combo * 1.8 then
+        -- enveloping_shadows,if=buff.enveloping_shadows.remain()s<target.time_to_die&buff.enveloping_shadows.remain()s<=combo_points*1.8
+        if buff.envelopingShadows.remain() < ttd("target") and buff.envelopingShadows.remain() <= combo * 1.8 then
             if cast.envelopingShadows() then return end
         end
     -- Death from Above
@@ -492,7 +492,7 @@ local function runRotation()
         end
     -- Night Blade
         -- nightblade,cycle_targets=1,if=target.time_to_die>8&((refreshable&(!finality|buff.finality_nightblade.up))|remains<tick_time)           
-            if getTTD("target") >= 8 and ((debuff.nightblade["target"].refresh and (not artifact.finality or buff.finalityNightblade.exists)) or debuff.nightblade["target"].remain < 2) then
+            if getTTD("target") >= 8 and ((debuff.nightblade["target"].refresh and (not artifact.finality or buff.finalityNightblade.exists())) or debuff.nightblade["target"].remain() < 2) then
                 if cast.nightblade("target") then return end
             end
             if isChecked("Nightblade Multidot") then
@@ -501,7 +501,7 @@ local function runRotation()
                     local nightblade = debuff.nightblade[thisUnit]
                     if nightblade ~= nil then
                         if getDistance(thisUnit) <= 5 then
-                            if ttd(thisUnit) >= getOptionValue("Nightblade Multidot") and ((debuff.nightblade[thisUnit].refresh and (not artifact.finality or buff.finalityNightblade.exists)) or debuff.nightblade[thisUnit].remain < 2) then                        
+                            if ttd(thisUnit) >= getOptionValue("Nightblade Multidot") and ((debuff.nightblade[thisUnit].refresh and (not artifact.finality or buff.finalityNightblade.exists()())) or debuff.nightblade[thisUnit].remain() < 2) then                        
                                 if cast.nightblade(thisUnit) then return end
                             end
                         end
@@ -518,14 +518,14 @@ local function runRotation()
 -- Action List - Stealthed
     local function actionList_Stealthed()
     -- Symbols of Death
-        -- symbols_of_death,if=(buff.symbols_of_death.remains<target.time_to_die-4&buff.symbols_of_death.remains<=buff.symbols_of_death.duration*0.3)|(equipped.shadow_satyrs_walk&energy.time_to_max<0.25)
-        if (buff.symbolsOfDeath.remain < (ttd("target") - 4) and buff.symbolsOfDeath.refresh) or (hasEquiped(137032) and ttm < 0.25) then
+        -- symbols_of_death,if=(buff.symbols_of_death.remain()s<target.time_to_die-4&buff.symbols_of_death.remain()s<=buff.symbols_of_death.duration*0.3)|(equipped.shadow_satyrs_walk&energy.time_to_max<0.25)
+        if (buff.symbolsOfDeath.remain() < (ttd("target") - 4) and buff.symbolsOfDeath.refresh) or (hasEquiped(137032) and ttm < 0.25) then
             if cast.symbolsOfDeath() then return end
         end
     -- Shuriken Storm
         --shuriken_storm,if=buff.shadowmeld.down&((combo_points.deficit>=3&spell_targets.shuriken_storm>=2+talent.premeditation.enabled+equipped.shadow_satyrs_walk)|(combo_points.deficit>=1+buff.shadow_blades.up&buff.the_dreadlords_deceit.stack>=29))
-        --if comboDeficit >= (1 + sBladesUp) and not buff.shadowmeld.exists and ((comboDeficit >= 3 and #getEnemies("player",9.6) >= (2 + premed + shadowWalker)) or buff.theDreadlordsDeceit.stack >= 29) then
-        if not buff.shadowmeld.exists and ((comboDeficit >= 3 and #getEnemies("player",9.6) >= (2 + premed + shadowWalker)) or (comboDeficit >= (1 + sBladesUp) and buff.theDreadlordsDeceit.stack >= 29)) then
+        --if comboDeficit >= (1 + sBladesUp) and not buff.shadowmeld.exists() and ((comboDeficit >= 3 and #getEnemies("player",9.6) >= (2 + premed + shadowWalker)) or buff.theDreadlordsDeceit.stack >= 29) then
+        if not buff.shadowmeld.exists() and ((comboDeficit >= 3 and #getEnemies("player",9.6) >= (2 + premed + shadowWalker)) or (comboDeficit >= (1 + sBladesUp) and buff.theDreadlordsDeceit.stack >= 29)) then
             if cast.shurikenStorm() then return end
         end
     -- Shadowstrike
@@ -542,7 +542,7 @@ local function runRotation()
         end
     -- Shuriken Storm
         -- shuriken_storm,if=buff.shadowmeld.down&((combo_points.deficit>=3&spell_targets.shuriken_storm>=2+talent.premeditation.enabled+equipped.shadow_satyrs_walk)|buff.the_dreadlords_deceit.stack>=29)
-    --    if not buff.shadowmeld.exists and ((comboDeficit >= 3 and #getEnemies("player",9.6) >= (2 + premed + shadowWalker)) or buff.theDreadlordsDeceit.stack >= 29) then
+    --    if not buff.shadowmeld.exists() and ((comboDeficit >= 3 and #getEnemies("player",9.6) >= (2 + premed + shadowWalker)) or buff.theDreadlordsDeceit.stack >= 29) then
     --        if cast.shurikenStorm() then return end
     --    end
     -- Shadowstrike
@@ -718,7 +718,7 @@ local function runRotation()
                     if actionList_Build() then return end
                 end
     -- Shuriken Toss Out of Range
-                if isChecked("Shuriken Toss OOR") and isValidUnit("target") and power >= getOptionValue("Shuriken Toss OOR") and (combo < comboMax or ttm <= 1) and #enemies.yards8 == 0 and not stealth and not buff.sprint.exists then
+                if isChecked("Shuriken Toss OOR") and isValidUnit("target") and power >= getOptionValue("Shuriken Toss OOR") and (combo < comboMax or ttm <= 1) and #enemies.yards8 == 0 and not stealth and not buff.sprint.exists() then
                     if cast.shurikenToss("target") then return end
                 end
                     end
