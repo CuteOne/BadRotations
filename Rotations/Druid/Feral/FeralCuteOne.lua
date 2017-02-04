@@ -755,7 +755,7 @@ local function runRotation()
                 for i = 1, #enemies.yards5 do
                     local thisUnit = enemies.yards5[i]
                     if (multidot or (UnitIsUnit(thisUnit,units.dyn5) and not multidot)) and getDistance(thisUnit) < 5 then
-                        if (not debuff.rake.exists(thisUnit) or (not talent.bloodtalons and deubff.rake.refresh(thisUnit))
+                        if (not debuff.rake.exists(thisUnit) or (not talent.bloodtalons and debuff.rake.refresh(thisUnit))
                             or (talent.bloodtalons and buff.bloodtalons.exists() and ((not talent.soulOfTheForest and debuff.rake.remain(thisUnit) <= 7) or debuff.rake.remain(thisUnit) <= 5)
                                 and debuff.rake.calc() > debuff.rake.applied[thisUnit] * 0.80)) and (ttd(thisUnit) - debuff.rake.remain(thisUnit) > rkTick or isDummy(thisUnit))
                         then

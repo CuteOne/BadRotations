@@ -211,13 +211,14 @@ local function runRotation()
   			GAR1 = false
   			MUT1 = false
   			RUP1 = false
-  			VEN1 = false
-  			RAC1 = false
-  			MUT2 = false
-  			VAN1 = false
-  			RUP2 = false
-  			EXS1 = false
+			MUT2 = false
+			MUT3 = false
+			VAN1 = false
+			RUP2 = false
+			VEN1 = false
+			MUT4 = false
   			KIN1 = false
+			ENV1 = false
   			opener = false
 		end
 		-- if not inCombat and lastSpell ~= spell.vanish then opener = false end
@@ -411,10 +412,11 @@ local function runRotation()
 				-- vanish,if=talent.subterfuge.enabled&dot.garrote.refresh()able&((spell_targets.fan_of_knives<=3&combo_points.deficit>=1+spell_targets.fan_of_knives)|(spell_targets.fan_of_knives>=4&combo_points.deficit>=4))
 				-- vanish,if=talent.shadow_focus.enabled&energy.time_to_max>=2&combo_points.deficit>=4
 				if isChecked("Vanish") and not solo then
-					if (talent.nightstalker and combo >= select(5,getSpellCost(spell.rupture)) and ((talent.exsanguinate and cd.exsanguinate < 1 and (debuff.rupture.exists(units.dyn5) or cTime > 10)) or (not talent.exsanguinate and debuff.rupture.refresh(units.dyn5))))
-						or (talent.subterfuge and debuff.garrote.refresh(units.dyn5) and (#enemies.yards10 <= 3 and comboDeficit >= 1 + #enemies.yards10) or (#enemies.yards10 >= 4 and comboDeficit >= 4))
-						or (talent.shadowFocus and ttm >= 2 and comboDeficit >= 4)
-						then
+					if (talent.nightstalker and combo >= select(5,getSpellCost(spell.rupture)) and ((talent.exsanguinate and cd.exsanguinate < 1 and (debuff.rupture.exists(units.dyn5)
+						or cTime > 10)) or (not talent.exsanguinate and debuff.rupture.refresh(units.dyn5)))) or (talent.subterfuge and debuff.garrote.refresh(units.dyn5)
+						and (#enemies.yards10 <= 3 and comboDeficit >= 1 + #enemies.yards10) or (#enemies.yards10 >= 4 and comboDeficit >= 4))	or (talent.shadowFocus and ttm >= 2
+						and comboDeficit >= 4)
+					then
 						if cast.vanish() then return end
 					end
 				end
@@ -434,9 +436,15 @@ local function runRotation()
 			end
 		-- Envenom
             -- envenom,if=combo_points>=4|(talent.elaborate_planning.enabled&combo_points>=3+!talent.exsanguinate.enabled&buff.elaborate_planning.remain()s<0.1)
-			if combo >= 4 or (talent.elaboratePlanning and combo >= 3 + noExsanguinate and buff.elaboratePlanning.remain() < 0.1) then
-				if cast.envenom() then return end
-			end
+			-- if combo >= 4 or (talent.elaboratePlanning and combo >= 3 + noExsanguinate and buff.elaboratePlanning.remain() < 0.1) then
+			-- 	if cast.envenom() then return end
+			-- end
+			if (combo >= 4 and power >= 150) or (combo >= 4 and debuff.surgeOfToxins.remain(units.dyn5) <= 0.2 and (debuff.surgeOfToxins.exists(units.dyn5) or cd.vendetta <= 3
+				or debuff.garrote.remain(units.dyn5) <= 2 or not debuff.garrote.exists(units.dyn5) or cd.kingsbane <= 1 or debuff.kingsbane.exists(units.dyn5)
+				or debuff.vendetta.exists(units.dyn5))) or (talent.elaboratePlanning and combo >= 3 + noExsanguinate and buff.elaboratePlanning.remain < 0.1)
+			then
+			   if cast.envenom() then return end
+		   end
 		end -- End Action List - Finishers
 	-- Action List - Maintain
 		local function actionList_Maintain()
@@ -575,34 +583,31 @@ local function runRotation()
        				elseif MUT1 and not RUP1 then
        		-- Rupture
        					if castOpener("rupture","RUP1",3) then return end
-       				elseif RUP1 and not VEN1 then
+              		elseif RUP1 and not MUT2 then
+          	-- Mutilate
+						if castOpener("mutilate","MUT2",4) then return end
+					elseif MUT2 and not MUT3 then
+          	-- Mutilate
+                		if castOpener("mutilate","MUT3",5) then return end
+			  		elseif MUT3 and not VAN1 then
+            -- Vanish
+			    		if castOpener("vanish","VAN1",6) then return end
+					elseif VAN1 and not RUP2 then
+            -- Rupture
+                        if castOpener("rupture","RUP2",7) then return end
+                    elseif RUP2 and not VEN1 then
        		-- Vendetta
-       					if castOpener("vendetta","VEN1",4) then return end
-       				elseif VEN1 and not RAC1 then
-       		-- Racial
-       					if race == "Orc" or race == "Troll" or race == "BloodElf" then
-       						if castSpell("player",racial,false,false,false) then Print("5: Racial"); RAC1 = true; return else Print("5: Racial (Uncastable)"); RAC1 = true; return end
-       					else
-       						Print("5: Racial (Uncastable)");
-       						RAC1 = true;
-       						return
-       					end
-           			elseif RAC1 and not MUT2 then
+       					if castOpener("vendetta","VEN1",8) then return end
+       				elseif VEN1 and not MUT4 then
        		-- Mutilate
-       					if castOpener("mutilate","MUT2",6) then return end
-       				elseif MUT2 and not VAN1 then
-       		-- Vanish
-       					if castOpener("vanish","VAN1",7) then return end
-       				elseif VAN1 and not RUP2 then
-       		-- Rupture
-       					if castOpener("rupture","RUP2",8) then return end
-       				elseif RUP2 and not EXS1 then
-       		-- Exsanguinate
-       					if castOpener("exsanguinate","EXS1",9) then return end
-       				elseif EXS1 and not KIN1 then
+       					if castOpener("mutilate","MUT4",9) then return end
+       				elseif MUT4 and not KIN1 then
        		-- Kingsbane
        					if castOpener("kingsbane","KIN1",10) then return end
-       				elseif KIN1 then
+					elseif KIN1 and not ENV1 then
+			-- Envenom
+                        if castOpener("envenom","ENV1",11) then return end
+                    elseif ENV1 then
        					opener = true;
        					return
        				end
@@ -682,7 +687,8 @@ local function runRotation()
        				if (not talent.exsanguinate or cd.exsanguinate > 2) and (not debuff.rupture.refresh(units.dyn5)
 						or (exRupture and debuff.rupture.remain(units.dyn5) >= 3.5)
 						or (ttd(units.dyn5) - debuff.rupture.remain(units.dyn5) <= 4 or isDummy(units.dyn5)))
-						and (debuff.rupture.count(units.dyn5) >= #enemies.yards5 or not multidot)
+						and (debuff.rupture.count() >= #enemies.yards5 or not multidot)
+						and debuff.rupture.count() >= 4
 					then
        					if actionList_Finishers() then return end
        				end

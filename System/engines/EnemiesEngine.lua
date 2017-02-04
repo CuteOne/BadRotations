@@ -90,40 +90,42 @@ function EnemiesEngine()
         br.debug.cpu.enemiesEngine.sanityTargets = 0
         br.debug.cpu.enemiesEngine.unitTargets = 0
         -- Build Enemies
-        for i = 1, ObjectCount() do
-			-- define our unit
-            local thisUnit = GetObjectWithIndex(i)
-			-- check if it a unit first
-            if ObjectIsType(thisUnit, ObjectTypes.Unit)  then
-                br.debug.cpu.enemiesEngine.unitTargets = br.debug.cpu.enemiesEngine.unitTargets + 1
-				-- sanity checks
-				if isValidUnit(thisUnit) and getDistance(thisUnit) < 50 then
-				-- if UnitIsVisible(thisUnit) and getDistance(thisUnit) < 50 and UnitIsEnemy(thisUnit,"player") then
-                    br.debug.cpu.enemiesEngine.sanityTargets = br.debug.cpu.enemiesEngine.sanityTargets + 1
-					local noEnemy
-					if noEnemy == nil then noEnemy = true end
-					-- Check if we already have this enemy and update
-					if br.enemy ~= nil then
-						for k, v in pairs(br.enemy) do
-							if k == thisUnit then
-								noEnemy = false
-								break
+		if FireHack ~= nil then
+	        for i = 1, ObjectCount() do
+				-- define our unit
+	            local thisUnit = GetObjectWithIndex(i)
+				-- check if it a unit first
+	            if ObjectIsType(thisUnit, ObjectTypes.Unit)  then
+	                br.debug.cpu.enemiesEngine.unitTargets = br.debug.cpu.enemiesEngine.unitTargets + 1
+					-- sanity checks
+					if isValidUnit(thisUnit) and getDistance(thisUnit) < 50 then
+					-- if UnitIsVisible(thisUnit) and getDistance(thisUnit) < 50 and UnitIsEnemy(thisUnit,"player") then
+	                    br.debug.cpu.enemiesEngine.sanityTargets = br.debug.cpu.enemiesEngine.sanityTargets + 1
+						local noEnemy
+						if noEnemy == nil then noEnemy = true end
+						-- Check if we already have this enemy and update
+						if br.enemy ~= nil then
+							for k, v in pairs(br.enemy) do
+								if k == thisUnit then
+									noEnemy = false
+									break
+								end
 							end
 						end
-					end
-					-- If not then add enemy
-					if noEnemy then
-						AddEnemy(thisUnit)
+						-- If not then add enemy
+						if noEnemy then
+							AddEnemy(thisUnit)
+						end
 					end
 				end
 			end
-			-- Debugging
-            if br.data.settings[br.selectedSpec].toggles["isDebugging"] == true then
-                br.debug.cpu.enemiesEngine.totalIterations = br.debug.cpu.enemiesEngine.totalIterations + 1
-                br.debug.cpu.enemiesEngine.currentTime = debugprofilestop()-startTime
-                br.debug.cpu.enemiesEngine.elapsedTime = br.debug.cpu.enemiesEngine.elapsedTime + debugprofilestop()-startTime
-                br.debug.cpu.enemiesEngine.averageTime = br.debug.cpu.enemiesEngine.elapsedTime / br.debug.cpu.enemiesEngine.totalIterations
-            end
+		end
+		-- Debugging
+		if br.data.settings[br.selectedSpec].toggles["isDebugging"] == true then
+			br.debug.cpu.enemiesEngine.totalIterations = br.debug.cpu.enemiesEngine.totalIterations + 1
+			br.debug.cpu.enemiesEngine.currentTime = debugprofilestop()-startTime
+			br.debug.cpu.enemiesEngine.elapsedTime = br.debug.cpu.enemiesEngine.elapsedTime + debugprofilestop()-startTime
+			br.debug.cpu.enemiesEngine.averageTime = br.debug.cpu.enemiesEngine.elapsedTime / br.debug.cpu.enemiesEngine.totalIterations
 		end
 	end
 

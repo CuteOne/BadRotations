@@ -1780,6 +1780,7 @@ br.idList = {
                 hemorrhage                  = 16511,
                 internalBleeding            = 154953,
                 rupture                     = 1943,
+                surgeOfToxins               = 192425,
                 vendetta                    = 79140,
                 woundPoison                 = 8680,
             },
