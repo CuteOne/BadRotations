@@ -26,6 +26,18 @@ br.debug.cpu.enemiesEngine = {
     sanityTargets = 0,
     unitTargets = 0,
 }
+br.debug.cpu.cBuilder = {
+    elapsedTime = 0,
+    totalIterations = 0,
+    currentTime = 0,
+    averageTime = 0,
+}
+br.debug.cpu.pulse = {
+    elapsedTime = 0,
+    totalIterations = 0,
+    currentTime = 0,
+    averageTime = 0,
+}
 -- just for testing
 function br.debug.cpu:getHealingEngine()
     local usage, calls

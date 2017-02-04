@@ -461,7 +461,7 @@ local function runRotation()
             end
         -- Execute
             -- execute,if=(artifact.juggernaut.enabled&(!buff.juggernaut.up|buff.juggernaut.remain()s<2))|buff.stone_heart.react
-            if (artifact.juggernaut and (not buff.juggernaut.exists() or buff.juggernaut.remain())) or buff.stoneHeart.exists() then
+            if (artifact.juggernaut and (not buff.juggernaut.exists() or buff.juggernaut.remain() < 2)) or buff.stoneHeart.exists() then
                 if cast.execute() then return end
             end
         -- Rampage

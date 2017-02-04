@@ -252,6 +252,7 @@ local function runRotation()
         -- if buff.broadsides.exists() or buff.buriedTreasure.exists() or buff.grandMelee.exists() or buff.jollyRoger.exists() or buff.sharkInfestedWaters.exists() then rtbBuff5 = true else rtbBuff5 = false end
         -- if buff.broadsides.exists() or buff.buriedTreasure.exists() or buff.grandMelee.exists() or buff.jollyRoger.exists() or buff.sharkInfestedWaters.exists() or buff.trueBearing.exists() then rtbBuff6 = true else rtbBuff6 = false end
 
+        if buff.rollTheBones == nil then buff.rollTheBones = {} end
         buff.rollTheBones.count    = 0
         buff.rollTheBones.duration = 0
         buff.rollTheBones.remain   = 0
@@ -264,7 +265,7 @@ local function runRotation()
         end
 
         -- rtb_reroll,value=!talent.slice_and_dice.enabled&(rtb_buffs<=1&!rtb_list.any.6&((!buff.curse_of_the_dreadblades.up&!buff.adrenaline_rush.up)|!rtb_list.any.5))
-		if not talent.sliceAndDice and (buff.rollTheBones.count() >= 2  or buff.trueBearing.exists() or (useRollForOne() and buff.rollTheBones.count() >= 1) or
+		if not talent.sliceAndDice and (buff.rollTheBones.count >= 2  or buff.trueBearing.exists() or (useRollForOne() and buff.rollTheBones.count >= 1) or
 			   ( buff.sharkInfestedWaters.exists() and (buff.adrenalineRush.exists()  or debuff.curseOfTheDreadblades.exists("player") or cd.curseOfTheDreadblades < 15 or cd.adrenalineRush < 15 )))then
 			rtbReroll = false
 		else
@@ -517,7 +518,7 @@ local function runRotation()
             -- end
         -- Roll The Bones
             -- roll_the_bones,if=!talent.slice_and_dice.enabled
-            if not talent.sliceAndDice and not buff.rollTheBones.count() == 0 and isValidUnit("target") and getDistance("target") < 5 then
+            if not talent.sliceAndDice and not buff.rollTheBones.count == 0 and isValidUnit("target") and getDistance("target") < 5 then
                 if cast.rollTheBones() then return end
             end
         end -- End Action List - PreCombat
@@ -684,7 +685,7 @@ local function runRotation()
         -- Roll the Bones
                         -- roll_the_bones,if=combo_points>=5&buff.roll_the_bones.remain()s<target.time_to_die&(buff.roll_the_bones.remain()s<=3|rtb_buffs<=1)
                         -- roll_the_bones,if=!variable.ss_useable&buff.roll_the_bones.remain()s<target.time_to_die&(buff.roll_the_bones.remain()s<=3|variable.rtb_reroll)
-						if not ssUsable and ((buff.rollTheBones.remain() <= 10 and buff.rollTheBones.count() < 2) or (buff.rollTheBones.count() >= 2 and buff.rollTheBones.remain() <= 5) or (useRollForTB() and not buff.trueBearing.exists()) or rtbReroll) then
+						if not ssUsable and ((buff.rollTheBones.remain <= 10 and buff.rollTheBones.count < 2) or (buff.rollTheBones.count >= 2 and buff.rollTheBones.remain <= 5) or (useRollForTB() and not buff.trueBearing.exists()) or rtbReroll) then
 							if cast.rollTheBones() then return end
 						end
         -- Killing Spree

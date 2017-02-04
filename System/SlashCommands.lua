@@ -24,7 +24,7 @@ local function toggleUI()
     end
 end
 
-local function toggle(name,index,check)
+function toggle(name,index,check)
 	if check == nil then check = false end
 	if toggleFound == nil then toggleFound = false end
 	for k, v in pairs(br.data.settings[br.selectedSpec].toggles) do
@@ -47,8 +47,8 @@ end
 
 local function getStringIndex(string,index)
 	local s = string
-	local count = 0 
-	for i in string.gmatch(s, "%S+") do 
+	local count = 0
+	for i in string.gmatch(s, "%S+") do
 		count = count + 1
 		if count == index then
 	    	return i
@@ -79,7 +79,7 @@ function handler(message, editbox)
 	local msg3 = getStringIndex(message,3)
 	if msg == "" or msg == nil then
 	    toggleUI()
-	-- Help    
+	-- Help
 	elseif msg == "help" then
 		SlashCommandHelp("Print Help")
 	-- Blacklist
@@ -137,7 +137,7 @@ function handler(message, editbox)
 			Print("Invalid Option for: |cFFFF0000"..msg1.."|r try "..--[["|cffFFDD11 /br pause hold |r - Pauses while held (via macro) or ]]"|cffFFDD11 /br pause toggle |r - Switches Pause On/Off")
 		end
 	-- Toggles
-	elseif msg1 == "toggle" then 
+	elseif msg1 == "toggle" then
 		if msg2 ~= nil then
 			if toggle(msg2,msg3,true) then
 				toggle(msg2,msg3)
@@ -163,7 +163,7 @@ function handler(message, editbox)
 					if spellName == nil then
 	            		Print("Invalid Spell ID: |cffFFDD11 Unable to add.")
 	            	else
-						if #br.player.queue == 0 then 
+						if #br.player.queue == 0 then
 		                    tinsert(br.player.queue,{id = spellId, name = spellName, target = queueDest})
 		                    Print("Added |cFFFF0000"..spellName.."|r to the queue.")
 		                elseif #br.player.queue ~= 0 then
@@ -199,7 +199,7 @@ function handler(message, editbox)
 		            if not removedSpell then
 		            	if spellName == nil then
 		            		Print("Invalid Spell ID: |cffFFDD11 Unable to remove.")
-		            	else	
+		            	else
 		            		Print("Spell Not Found: Failed to remove |cFFFF0000"..spellName.."|r from the queue. ")
 		            	end
 		            end

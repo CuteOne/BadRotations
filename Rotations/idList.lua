@@ -1779,6 +1779,7 @@ br.idList = {
                 garrote                     = 703,
                 hemorrhage                  = 16511,
                 internalBleeding            = 154953,
+                kingsbane                   = 192759,
                 rupture                     = 1943,
                 surgeOfToxins               = 192425,
                 vendetta                    = 79140,

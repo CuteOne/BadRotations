@@ -163,17 +163,17 @@ local function runRotation()
 --------------
 --- Locals ---
 --------------
-    		if leftCombat == nil then leftCombat = GetTime() end
-    		if profileStop == nil then profileStop = false end
-    		local addsIn                                        = 999
-    		local artifact 										= br.player.artifact
-    		local attacktar 									= UnitCanAttack("target","player")
-    		local buff											= br.player.buff
-    		local cast 											= br.player.cast
-    		local cd 											= br.player.cd
-    		local charge 										= br.player.charges
-    		local combo, comboDeficit, comboMax					= br.player.power.amount.comboPoints, br.player.power.comboPoints.deficit, br.player.power.comboPoints.max
-    		local cTime 										= getCombatTime()
+		if leftCombat == nil then leftCombat = GetTime() end
+		if profileStop == nil then profileStop = false end
+		local addsIn                                        = 999
+		local artifact 										= br.player.artifact
+		local attacktar 									= UnitCanAttack("target","player")
+		local buff											= br.player.buff
+		local cast 											= br.player.cast
+		local cd 											= br.player.cd
+		local charge 										= br.player.charges
+		local combo, comboDeficit, comboMax					= br.player.power.amount.comboPoints, br.player.power.comboPoints.deficit, br.player.power.comboPoints.max
+		local cTime 										= getCombatTime()
         local deadtar                                       = UnitIsDeadOrGhost("target")
         local debuff                                        = br.player.debuff
         local enemies                                       = br.player.enemies
@@ -439,11 +439,11 @@ local function runRotation()
 			-- if combo >= 4 or (talent.elaboratePlanning and combo >= 3 + noExsanguinate and buff.elaboratePlanning.remain() < 0.1) then
 			-- 	if cast.envenom() then return end
 			-- end
-			if (combo >= 4 and power >= 150) or (combo >= 4 and debuff.surgeOfToxins.remain(units.dyn5) <= 0.2 and (debuff.surgeOfToxins.exists(units.dyn5) or cd.vendetta <= 3
+			if (combo >= 4 and ttm <= 1) or (combo >= 4 and debuff.surgeOfToxins.remain(units.dyn5) <= 0.2 and (debuff.surgeOfToxins.exists(units.dyn5) or cd.vendetta <= 3
 				or debuff.garrote.remain(units.dyn5) <= 2 or not debuff.garrote.exists(units.dyn5) or cd.kingsbane <= 1 or debuff.kingsbane.exists(units.dyn5)
-				or debuff.vendetta.exists(units.dyn5))) or (talent.elaboratePlanning and combo >= 3 + noExsanguinate and buff.elaboratePlanning.remain < 0.1)
+				or debuff.vendetta.exists(units.dyn5))) or (talent.elaboratePlanning and combo >= 3 + noExsanguinate and buff.elaboratePlanning.remain() < 0.1)
 			then
-			   if cast.envenom() then return end
+			   if cast.envenom(units.dyn5) then return end
 		   end
 		end -- End Action List - Finishers
 	-- Action List - Maintain
@@ -462,10 +462,10 @@ local function runRotation()
                 if cast.rupture() then return end
             end
 			-- rupture,cycle_targets=1,if=combo_points>=cp_max_spend-talent.exsanguinate.enabled&refreshable&(!exsanguinated|remains<=1.5)&target.time_to_die-remains>4
-			for i=1, #enemies.yards5 do
+			for i = 1, #enemies.yards5 do
 				local thisUnit = enemies.yards5[i]
                 if (multidot or (UnitIsUnit(thisUnit,units.dyn5) and not multidot)) then
-                    if combo >= select(5,getSpellCost(spell.rupture)) - exsanguinated and debuff.rupture.refresh(thisUnit) and (not exsanguinated or debuff.rupture.remain(thisUnit) <= 1.5) and (ttd(thisUnit) - rupture.remain() > 4 or isDummy(thisUnit)) then
+                    if combo >= select(5,getSpellCost(spell.rupture)) - exsanguinated and debuff.rupture.refresh(thisUnit) and (not exsanguinated or debuff.rupture.remain(thisUnit) <= 1.5) and (ttd(thisUnit) - debuff.rupture.remain(thisUnit) > 4 or isDummy(thisUnit)) then
                     	if cast.rupture(thisUnit) then return end
                     end
                 end
@@ -574,41 +574,43 @@ local function runRotation()
             -- auto_attack
             if isValidUnit("target") and getDistance("target") < 5 and mode.pickPocket ~= 2 then
             	if isChecked("Opener") and isBoss("target") and opener == false then
-					if not GAR1 then
+					if not GAR1 and power >= 45 then
+						Print("Starting Opener")
             -- Garrote
        					if castOpener("garrote","GAR1",1) then return end
-       				elseif GAR1 and not MUT1 then
+       				elseif GAR1 and not MUT1 and power >= 55 then
        		-- Mutilate
        					if castOpener("mutilate","MUT1",2) then return end
-       				elseif MUT1 and not RUP1 then
+       				elseif MUT1 and not RUP1 and power >= 25 then
        		-- Rupture
        					if castOpener("rupture","RUP1",3) then return end
-              		elseif RUP1 and not MUT2 then
+              		elseif RUP1 and not MUT2 and power >= 55 then
           	-- Mutilate
 						if castOpener("mutilate","MUT2",4) then return end
-					elseif MUT2 and not MUT3 then
+					elseif MUT2 and not MUT3 and power >= 55 then
           	-- Mutilate
                 		if castOpener("mutilate","MUT3",5) then return end
 			  		elseif MUT3 and not VAN1 then
             -- Vanish
 			    		if castOpener("vanish","VAN1",6) then return end
-					elseif VAN1 and not RUP2 then
+					elseif VAN1 and not RUP2 and power >= 25 then
             -- Rupture
                         if castOpener("rupture","RUP2",7) then return end
                     elseif RUP2 and not VEN1 then
        		-- Vendetta
        					if castOpener("vendetta","VEN1",8) then return end
-       				elseif VEN1 and not MUT4 then
+       				elseif VEN1 and not MUT4 and power >= 55 then
        		-- Mutilate
        					if castOpener("mutilate","MUT4",9) then return end
-       				elseif MUT4 and not KIN1 then
+       				elseif MUT4 and not KIN1 and power >= 35 then
        		-- Kingsbane
        					if castOpener("kingsbane","KIN1",10) then return end
-					elseif KIN1 and not ENV1 then
+					elseif KIN1 and not ENV1 and power >= 35 then
 			-- Envenom
                         if castOpener("envenom","ENV1",11) then return end
                     elseif ENV1 then
        					opener = true;
+						Print("Opener Complete")
        					return
        				end
             	elseif not isBoss("target") or not isChecked("Opener") then
@@ -684,11 +686,15 @@ local function runRotation()
        				if actionList_Maintain() then return end
        	-- Call Action List - Finisher
        				-- call_action_list,name=finish,if=(!talent.exsanguinate.enabled|cooldown.exsanguinate.remain()s>2)&(!dot.rupture.refresh()able|(dot.rupture.exsanguinated&dot.rupture.remain()s>=3.5)|target.time_to_die-dot.rupture.remain()s<=4)&active_dot.rupture>=spell_targets.rupture
-       				if (not talent.exsanguinate or cd.exsanguinate > 2) and (not debuff.rupture.refresh(units.dyn5)
+       	-- 			if (not talent.exsanguinate or cd.exsanguinate > 2) and (not debuff.rupture.refresh(units.dyn5)
+					-- 	or (exRupture and debuff.rupture.remain(units.dyn5) >= 3.5)
+					-- 	or (ttd(units.dyn5) - debuff.rupture.remain(units.dyn5) <= 4 or isDummy(units.dyn5)))
+					-- 	and (debuff.rupture.count() >= #enemies.yards5 or not multidot)
+					-- then
+					if ((not talent.exsanguinate or cd.exsanguinate > 2) and (not debuff.rupture.refresh(units.dyn5)
 						or (exRupture and debuff.rupture.remain(units.dyn5) >= 3.5)
 						or (ttd(units.dyn5) - debuff.rupture.remain(units.dyn5) <= 4 or isDummy(units.dyn5)))
-						and (debuff.rupture.count() >= #enemies.yards5 or not multidot)
-						and debuff.rupture.count() >= 4
+						and (debuff.rupture.count() >= #enemies.yards5 or not multidot)) or debuff.rupture.count() >= 5
 					then
        					if actionList_Finishers() then return end
        				end

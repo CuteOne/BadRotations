@@ -65,6 +65,7 @@ frame:SetScript("OnEvent", frame.OnEvent)
 --[[This function is refired everytime wow ticks. This frame is located at the top of Core.lua]]
 
 function BadRotationsUpdate(self)
+	local startTime = debugprofilestop()
 	-- LoS Line Draw *TEMP*
 	if FireHack and isChecked("Healer Line of Sight Indicator") then
 		inLoSHealer()
@@ -145,10 +146,11 @@ function BadRotationsUpdate(self)
             br.player:createToggles()
             br.player:update()
         end
-        if br.player ~= nil then
-        	br.player:update()
-        end
 	end
+	br.debug.cpu.pulse.totalIterations = br.debug.cpu.pulse.totalIterations + 1
+	br.debug.cpu.pulse.currentTime = debugprofilestop()-startTime
+	br.debug.cpu.pulse.elapsedTime = br.debug.cpu.pulse.elapsedTime + debugprofilestop()-startTime
+	br.debug.cpu.pulse.averageTime = br.debug.cpu.pulse.elapsedTime / br.debug.cpu.pulse.totalIterations
 end
 
 --[[-------------------------------------------------------------------------------------------------------------------------------------------------------]]

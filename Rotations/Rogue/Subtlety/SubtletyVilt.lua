@@ -60,11 +60,11 @@ local function createOptions()
             -- Stealth
             br.ui:createDropdown(section,  "Stealth", {"|cff00FF00Always", "|cffFFDD00PrePot", "|cffFF000020Yards"},  1, "Stealthing method.")
             -- Pre-Pull Timer
-            br.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")            
+            br.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
             --Shuriken Toss OOR
             br.ui:createSpinner(section, "Shuriken Toss OOR",  85,  5,  100,  5,  "|cffFFBB00Check to use Shuriken Toss out of range and energy to use at.")
             -- SoD Prepull
-            br.ui:createCheckbox(section, "Symbols of Death - Precombat")            
+            br.ui:createCheckbox(section, "Symbols of Death - Precombat")
             -- Crimson Vial
             br.ui:createSpinnerWithout(section, "SS Range",  5,  5,  15,  1,  "|cffFFBB00Shadow Strike range, 5 = Melee")
             -- SSW Offset
@@ -85,7 +85,7 @@ local function createOptions()
             -- Trinkets
             br.ui:createCheckbox(section,"Trinkets")
             -- Marked For Death
-            br.ui:createDropdown(section, "Marked For Death", {"|cff00FF00Target", "|cffFFDD00Lowest"}, 1, "|cffFFBB00Health Percentage to use at.")            
+            br.ui:createDropdown(section, "Marked For Death", {"|cff00FF00Target", "|cffFFDD00Lowest"}, 1, "|cffFFBB00Health Percentage to use at.")
             -- Shadow Blades
             br.ui:createCheckbox(section, "Shadow Blades")
             -- Shadow Dance
@@ -123,7 +123,7 @@ local function createOptions()
             -- Blind
             br.ui:createCheckbox(section, "Blind")
             -- Interrupt Percentage
-            br.ui:createSpinner(section, "Interrupt At",  0,  0,  95,  5,  "|cffFFBB00Cast Percentage to use at.")    
+            br.ui:createSpinner(section, "Interrupt At",  0,  0,  95,  5,  "|cffFFBB00Cast Percentage to use at.")
         br.ui:checkSectionState(section)
         ----------------------
         --- TOGGLE OPTIONS ---
@@ -142,7 +142,7 @@ local function createOptions()
             -- Pick Pocket Toggle
             br.ui:createDropdown(section,  "Pick Pocket Mode", br.dropOptions.Toggle,  6)
             -- Pause Toggle
-            br.ui:createDropdown(section,  "Pause Mode", br.dropOptions.Toggle,  6)   
+            br.ui:createDropdown(section,  "Pause Mode", br.dropOptions.Toggle,  6)
         br.ui:checkSectionState(section)
     end
     optionTable = {{
@@ -175,7 +175,7 @@ local function runRotation()
 --------------
     if leftCombat == nil then leftCombat = GetTime() end
     if profileStop == nil then profileStop = false end
-    local addsExist                                     = false 
+    local addsExist                                     = false
     local addsIn                                        = 999
     local artifact                                      = br.player.artifact
     local attacktar                                     = UnitCanAttack("target","player")
@@ -188,7 +188,7 @@ local function runRotation()
     local deadtar                                       = UnitIsDeadOrGhost("target")
     local debuff                                        = br.player.debuff
     local enemies                                       = br.player.enemies
-    local flaskBuff, canFlask                           = getBuffRemain("player",br.player.flask.wod.buff.agilityBig), canUse(br.player.flask.wod.agilityBig)   
+    local flaskBuff, canFlask                           = getBuffRemain("player",br.player.flask.wod.buff.agilityBig), canUse(br.player.flask.wod.agilityBig)
     local gcd                                           = br.player.gcd
     local glyph                                         = br.player.glyph
     local hastar                                        = ObjectExists("target")
@@ -204,7 +204,7 @@ local function runRotation()
     local pullTimer                                     = br.DBM:getPulltimer()
     local race                                          = br.player.race
     local racial                                        = br.player.getRacial()
-    local solo                                          = #br.friend < 2    
+    local solo                                          = #br.friend < 2
     local spell                                         = br.player.spell
     local stealth                                       = br.player.buff.stealth.exists()
     local stealthingAll                                 = br.player.buff.stealth.exists() or br.player.buff.vanish.exists() or br.player.buff.shadowmeld.exists() or br.player.buff.shadowDance.exists() or br.player.buff.subterfuge.exists()
@@ -215,8 +215,6 @@ local function runRotation()
     local ttm                                           = br.player.power.ttm
     local units                                         = br.player.units
     local lootDelay                                     = getOptionValue("LootDelay")
-
-    ChatOverlay(getTTD("target"))
 
     if talent.anticipation then antital = 1 else antital = 0 end
     if talent.deeperStrategem then dStrat = 1 else dStrat = 0 end
@@ -236,11 +234,11 @@ local function runRotation()
     if sprintphp == nil then sprintphp = 1 end
     if resume == nil then resume = 2 end
     if buff.sprint.exists() and resume == 0 and getHP("player") > sprintphp then sprintphp = getHP("player") end
-    --if GetTime() > (sprintTimer + 3) and mode.rotation == 4 then toggle("rotation",1) end    
+    --if GetTime() > (sprintTimer + 3) and mode.rotation == 4 then toggle("rotation",1) end
     if buff.sprint.exists() and resume == 0 and getHP("player") < sprintphp then resume = 1 end
     if GetTime() > (sprintTimer + 3) and mode.rotation == 4 then resume = 1 end
     if resume == 1 then toggle("rotation",1); resume = 0 end
-    
+
 
     -- variable,name=ssw_refund,value=equipped.shadow_satyrs_walk*(6+ssw_refund_offset)
     --local sswVar = shadowWalker * (10 - math.floor(getDistance(units.dyn5)*0.5))
@@ -278,7 +276,7 @@ local function runRotation()
 --- Action Lists ---
 --------------------
 -- Mythic Dungeon Logic
-    --local function actionList_MythicDungeon()        
+    --local function actionList_MythicDungeon()
     --end
 --Emerald Nightmare Logic
     --local function actionList_EmeraldNightmare()
@@ -295,21 +293,21 @@ local function runRotation()
         if usePickPocket() then
             if UnitCanAttack(units.dyn5,"player") and (UnitExists(units.dyn5) or mode.pickPocket == 2) and mode.pickPocket ~= 3 then
                 if not isPicked(units.dyn5) and not isDummy() then
-                    if debuff.sap[units.dyn5].remain() < 1 and mode.pickPocket ~= 1 then
+                    if debuff.sap.remain(units.dyn5) < 1 and mode.pickPocket ~= 1 then
                         if cast.sap(units.dyn5) then return end
                     end
                     if cast.pickPocket() then return end
                 end
             end
-        end        
-    
+        end
+
     end -- End Action List - Extras
 -- Action List - Defensives
     local function actionList_Defensive()
         if useDefensive() and not stealth then
         -- Pot/Stoned
-            if isChecked("Healing Potion/Healthstone") and php <= getOptionValue("Healing Potion/Healthstone") 
-                and inCombat and (hasHealthPot() or hasItem(5512)) 
+            if isChecked("Healing Potion/Healthstone") and php <= getOptionValue("Healing Potion/Healthstone")
+                and inCombat and (hasHealthPot() or hasItem(5512))
             then
                 if canUse(5512) then
                     useItem(5512)
@@ -354,7 +352,7 @@ local function runRotation()
                         if cast.blind(thisUnit) then return end
                     end
                 end
-            end 
+            end
         end -- End Interrupt and No Stealth Check
     end -- End Action List - Interrupts
 -- Action List - Cooldowns
@@ -399,7 +397,7 @@ local function runRotation()
                         useItem(127844)
                     end
                     if canUse(142117) then
-                        useItem(142117)                            
+                        useItem(142117)
                     end
                 end
             end
@@ -419,7 +417,7 @@ local function runRotation()
             -- goremaws_bite,if=!stealthed.all&cooldown.shadow_dance.charges_fractional<=2.45&((combo_points.deficit>=4-(time<10)*2&energy.deficit>50+talent.vigor.enabled*25-(time>=10)*15)|target.time_to_die<8)
             if not stealthingAll and charges.frac.shadowDance <= 2.45 and ((comboDeficit >= (4 - (justStarted * 2)) and powerDeficit >= (50 + (vigorous * 25) - (beenAWhile * 15))) or (comboDeficit >=1 and ttd("target") < 8)) then
                 if cast.goremawsBite("target") then return end
-            end                
+            end
         end -- End Cooldown Usage Check
     end -- End Action List - Cooldowns
 -- Action List - Stealth Cooldowns
@@ -455,7 +453,7 @@ local function runRotation()
         if useCDs() and isChecked("Shadow Dance") and combo <= 1 then
             if cast.shadowDance() then ShDCdTime = GetTime(); return end
         end
-    end    
+    end
 -- Action List - Stealth Starter
     local function actionList_ALS()
         if getDistance(units.dyn5) <= 6 then
@@ -491,23 +489,20 @@ local function runRotation()
             if cast.deathFromAbove() then return end
         end
     -- Night Blade
-        -- nightblade,cycle_targets=1,if=target.time_to_die>8&((refreshable&(!finality|buff.finality_nightblade.up))|remains<tick_time)           
-            if getTTD("target") >= 8 and ((debuff.nightblade["target"].refresh and (not artifact.finality or buff.finalityNightblade.exists())) or debuff.nightblade["target"].remain() < 2) then
+        -- nightblade,cycle_targets=1,if=target.time_to_die>8&((refreshable&(!finality|buff.finality_nightblade.up))|remains<tick_time)
+            if getTTD("target") >= 8 and ((debuff.nightblade.refresh() and (not artifact.finality or buff.finalityNightblade.exists())) or debuff.nightblade.remain() < 2) then
                 if cast.nightblade("target") then return end
             end
             if isChecked("Nightblade Multidot") then
                 for i=1, #enemies.yards5 do
                     local thisUnit = enemies.yards5[i]
-                    local nightblade = debuff.nightblade[thisUnit]
-                    if nightblade ~= nil then
-                        if getDistance(thisUnit) <= 5 then
-                            if ttd(thisUnit) >= getOptionValue("Nightblade Multidot") and ((debuff.nightblade[thisUnit].refresh and (not artifact.finality or buff.finalityNightblade.exists()())) or debuff.nightblade[thisUnit].remain() < 2) then                        
-                                if cast.nightblade(thisUnit) then return end
-                            end
+                    if getDistance(thisUnit) <= 5 then
+                        if ttd(thisUnit) >= getOptionValue("Nightblade Multidot") and ((debuff.nightblade.refresh(thisUnit) and (not artifact.finality or buff.finalityNightblade.exists())) or debuff.nightblade.remain(thisUnit) < 2) then
+                            if cast.nightblade(thisUnit) then return end
                         end
                     end
                 end
-            end        
+            end
     -- Death from Above
         -- death_from_above
         if cast.deathFromAbove() then return end
@@ -519,13 +514,13 @@ local function runRotation()
     local function actionList_Stealthed()
     -- Symbols of Death
         -- symbols_of_death,if=(buff.symbols_of_death.remain()s<target.time_to_die-4&buff.symbols_of_death.remain()s<=buff.symbols_of_death.duration*0.3)|(equipped.shadow_satyrs_walk&energy.time_to_max<0.25)
-        if (buff.symbolsOfDeath.remain() < (ttd("target") - 4) and buff.symbolsOfDeath.refresh) or (hasEquiped(137032) and ttm < 0.25) then
+        if (buff.symbolsOfDeath.remain() < (ttd("target") - 4) and buff.symbolsOfDeath.refresh()) or (hasEquiped(137032) and ttm < 0.25) then
             if cast.symbolsOfDeath() then return end
         end
     -- Shuriken Storm
         --shuriken_storm,if=buff.shadowmeld.down&((combo_points.deficit>=3&spell_targets.shuriken_storm>=2+talent.premeditation.enabled+equipped.shadow_satyrs_walk)|(combo_points.deficit>=1+buff.shadow_blades.up&buff.the_dreadlords_deceit.stack>=29))
         --if comboDeficit >= (1 + sBladesUp) and not buff.shadowmeld.exists() and ((comboDeficit >= 3 and #getEnemies("player",9.6) >= (2 + premed + shadowWalker)) or buff.theDreadlordsDeceit.stack >= 29) then
-        if not buff.shadowmeld.exists() and ((comboDeficit >= 3 and #getEnemies("player",9.6) >= (2 + premed + shadowWalker)) or (comboDeficit >= (1 + sBladesUp) and buff.theDreadlordsDeceit.stack >= 29)) then
+        if not buff.shadowmeld.exists() and ((comboDeficit >= 3 and #getEnemies("player",9.6) >= (2 + premed + shadowWalker)) or (comboDeficit >= (1 + sBladesUp) and buff.theDreadlordsDeceit.stack() >= 29)) then
             if cast.shurikenStorm() then return end
         end
     -- Shadowstrike
@@ -595,7 +590,7 @@ local function runRotation()
             end
         end
         -- symbols_of_death
-        if isChecked("Symbols of Death - Precombat") and not inCombat and buff.symbolsOfDeath.refresh and stealth then
+        if isChecked("Symbols of Death - Precombat") and not inCombat and buff.symbolsOfDeath.refresh() and stealth then
             if cast.symbolsOfDeath("player") then return end
         end
     end -- End Action List - PreCombat
@@ -607,7 +602,7 @@ local function runRotation()
                 if cast.shadowstrike("target") then return end
             end
     -- Start Attack
-            if getDistance("target") < 5 and not stealthingAll and mode.pickPocket ~= 2 then        
+            if getDistance("target") < 5 and not stealthingAll and mode.pickPocket ~= 2 then
                 StartAttack()
             end
         end
@@ -640,7 +635,7 @@ local function runRotation()
         if actionList_Defensive() then return end
 ------------------------------
 --- Out of Combat Rotation ---
-------------------------------        
+------------------------------
         if actionList_PreCombat() then return end
 ----------------------------
 --- Out of Combat Opener ---
@@ -656,7 +651,7 @@ local function runRotation()
             if actionList_Interrupts() then return end
 ----------------------------------
 --- In Combat - Begin Rotation ---
-----------------------------------    
+----------------------------------
     -- Cooldowns
             -- call_action_list,name=cds
             if actionList_Cooldowns() then return end
@@ -672,7 +667,7 @@ local function runRotation()
                     if getOptionValue("Marked For Death") == 2 then
                         for i = 1, #enemies.yards30 do
                             local thisUnit = enemies.yards30[i]
-                            if comboDeficit >= 6 then comboDeficit = (5 + dStrat) end                        
+                            if comboDeficit >= 6 then comboDeficit = (5 + dStrat) end
                             if ttd(thisUnit) > 0 and ttd(thisUnit) <= 100 then
                                 if ttd(thisUnit) < comboDeficit*1.2 then
                                     if cast.markedForDeath(thisUnit) then return end
