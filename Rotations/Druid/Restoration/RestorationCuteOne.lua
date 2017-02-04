@@ -131,7 +131,7 @@ local function runRotation()
         local buff                                          = br.player.buff
         local canFlask                                      = canUse(br.player.flask.wod.agilityBig)
         local cast                                          = br.player.cast
-        local clearcast                                     = br.player.buff.clearcasting.exists
+        local clearcast                                     = br.player.buff.clearcasting.exists()
         local combatTime                                    = getCombatTime()
         local combo                                         = br.player.comboPoints
         local cd                                            = br.player.cd
@@ -172,7 +172,7 @@ local function runRotation()
         local t18_2pc                                       = TierScan("T18")>=2 --br.player.eq.t18_2pc
         local t18_4pc                                       = TierScan("T18")>=4 --br.player.eq.t18_4pc
         local talent                                        = br.player.talent
-        local travel, flight, cat, noform                   = br.player.buff.travelForm.exists, br.player.buff.flightForm.exists, br.player.buff.catForm.exists, GetShapeshiftForm()==0
+        local travel, flight, cat, noform                   = br.player.buff.travelForm.exists(), br.player.buff.flightForm.exists(), br.player.buff.catForm.exists(), GetShapeshiftForm()==0
         local trinketProc                                   = false
         local ttd                                           = getTTD
         local ttm                                           = br.player.power.ttm
@@ -216,7 +216,7 @@ local function runRotation()
 	                if cast.travelForm() then return end
 		        end
 			-- Aquatic Form
-			    if swimming and not travel and not hastar and not deadtar and not buff.prowl.exists then
+			    if swimming and not travel and not hastar and not deadtar and not buff.prowl.exists() then
 				  	if cast.travelForm() then return end
 				end
 			-- Cat Form
@@ -249,7 +249,7 @@ local function runRotation()
 		end -- End Action List - Extras
 	-- Action List - Defensive
 		local function actionList_Defensive()
-			if useDefensive() and not stealth and not flight and not buff.prowl.exists then
+			if useDefensive() and not stealth and not flight and not buff.prowl.exists() then
 		--Revive/Rebirth
 				if isChecked("Rebirth") then
 					if getOptionValue("Rebirth - Target")==1
@@ -338,7 +338,7 @@ local function runRotation()
 		local function actionList_Cooldowns()
 			if getDistance("target") < 5 then
 		-- Trinkets
-                -- TODO: if=(buff.tigers_fury.up&(target.time_to_die>trinket.stat.any.cooldown|target.time_to_die<45))|buff.incarnation.remains>20
+                -- TODO: if=(buff.tigers_fury.up&(target.time_to_die>trinket.stat.any.cooldown|target.time_to_die<45))|buff.incarnation.remain()s>20
 				if useCDs() and isChecked("Trinkets") and getDistance(units.dyn5) < 5 then
 					if canUse(13) then
 						useItem(13)
@@ -348,7 +348,7 @@ local function runRotation()
 					end
 				end
         -- Potion
-                -- if=((buff.berserk.remains>10|buff.incarnation.remains>20)&(target.time_to_die<180|(trinket.proc.all.react&target.health.pct<25)))|target.time_to_die<=40
+                -- if=((buff.berserk.remain()s>10|buff.incarnation.remain()s>20)&(target.time_to_die<180|(trinket.proc.all.react&target.health.pct<25)))|target.time_to_die<=40
                 if useCDs() and isChecked("Agi-Pot") and canUse(agiPot) and inRaid then
                     useItem(agiPot);
                     return true
@@ -457,7 +457,7 @@ local function runRotation()
         -- Wild Growth
                         -- if (HasBuff(SoulOfTheForest) or (HotCount(Rejuvenation,None) > 5 and Power > MaxPower * 0.1) or CooldownSecRemaining(EssenceOfGHanir) <= GlobalCooldownSec) and
                         -- (not HasTalent(Flourish) or CooldownSecRemaining(Flourish) > SpellCooldownSec(WildGrowth) or CooldownSecRemaining(Flourish) <= GlobalCooldownSec)
-                        if (buff.soulOfTheForest.exists or (rejuvCount > 5 and power > powermax * 0.1) or cd.essenceOfGhanir <= gcd)
+                        if (buff.soulOfTheForest.exists() or (rejuvCount > 5 and power > powermax * 0.1) or cd.essenceOfGhanir <= gcd)
                             and (not talent.flourish or cd.flourish < cd.wildGrowth or cd.flourish <= gcd)
 							and getHP(lowestHP) < 100 and safeToHeal(lowestHP,spell.wildGrowth)
                         then
@@ -486,10 +486,10 @@ local function runRotation()
                             local regrowthRefresh = getBuffRemain(thisUnit,spell.buffs.regrowth,"player") <= getBuffDuration(thisUnit,spell.buffs.regrowth,"player") * 0.3
                             local npcID = string.match(UnitGUID(thisUnit),"-(%d+)-%x+$")
                             if (UnitGroupRolesAssigned(thisUnit) == "TANK" or npcID == "72218") and getHP(thisUnit) < 100 then
-                                if buff.clearcasting.remain > getCastTime(spell.regrowth) and regrowthRefresh and safeToHeal(thisUnit,spell.regrowth) then
+                                if buff.clearcasting.remain() > getCastTime(spell.regrowth) and regrowthRefresh and safeToHeal(thisUnit,spell.regrowth) then
                                     if cast.regrowth(thisUnit) then return end
                                 end
-                            elseif buff.clearcasting.remain > getCastTime(spell.regrowth) and regrowthRefresh and safeToHeal(thisUnit,spell.regrowth) then
+                            elseif buff.clearcasting.remain() > getCastTime(spell.regrowth) and regrowthRefresh and safeToHeal(thisUnit,spell.regrowth) then
                                 if cast.regrowth(thisUnit) then return end
                             end
                         end

@@ -207,9 +207,9 @@ local function runRotation()
         local racial                                        = br.player.getRacial()
         local solo                                          = #br.friend < 2
         local spell                                         = br.player.spell
-        local stealth                                       = br.player.buff.stealth.exists
-        local stealthingAll                                 = br.player.buff.stealth.exists or br.player.buff.vanish.exists or br.player.buff.shadowmeld.exists or br.player.buff.shadowDance.exists or br.player.buff.subterfuge.exists
-        local stealthingRogue                               = br.player.buff.stealth.exists or br.player.buff.vanish.exists or br.player.buff.shadowDance.exists or br.player.buff.subterfuge.exists
+        local stealth                                       = br.player.buff.stealth.exists()
+        local stealthingAll                                 = br.player.buff.stealth.exists() or br.player.buff.vanish.exists() or br.player.buff.shadowmeld.exists() or br.player.buff.shadowDance.exists() or br.player.buff.subterfuge.exists()
+        local stealthingRogue                               = br.player.buff.stealth.exists() or br.player.buff.vanish.exists() or br.player.buff.shadowDance.exists() or br.player.buff.subterfuge.exists()
         local t18_4pc                                       = br.player.eq.t18_4pc
         local talent                                        = br.player.talent
         local time                                          = getCombatTime()
@@ -276,7 +276,7 @@ local function runRotation()
             if usePickPocket() then
                 if UnitCanAttack(units.dyn5,"player") and (UnitExists(units.dyn5) or mode.pickPocket == 2) and mode.pickPocket ~= 3 then
                     if not isPicked(units.dyn5) and not isDummy() then
-                        if debuff.sap[units.dyn5].remain < 1 and mode.pickPocket ~= 1 then
+                        if debuff.sap.remain(units.dyn5) < 1 and mode.pickPocket ~= 1 then
                             if cast.sap(units.dyn5) then return end
                         end
                         if cast.pickPocket() then return end
@@ -363,7 +363,7 @@ local function runRotation()
         -- Potion
                 -- potion,name=old_war,if=buff.bloodlust.react|target.time_to_die<=25|buff.shadow_blades.up
                 if isChecked("Agi-Pot") and canUse(127844) and inRaid then
-                    if ttd(units.dyn5) <= 25 or buff.shadowBlades.exists or hasBloodLust() then
+                    if ttd(units.dyn5) <= 25 or buff.shadowBlades.exists() or hasBloodLust() then
                         useItem(127844)
                     end
                 end
@@ -426,8 +426,8 @@ local function runRotation()
         local function actionList_Finishers()
             -- Print("Finishers")
         -- Enveloping Shadows
-            -- enveloping_shadows,if=buff.enveloping_shadows.remains<target.time_to_die&buff.enveloping_shadows.remains<=combo_points*1.8
-            if buff.envelopingShadows.remain < ttd(units.dyn5) and buff.envelopingShadows.remain <= combo * 1.8 then
+            -- enveloping_shadows,if=buff.enveloping_shadows.remain()s<target.time_to_die&buff.enveloping_shadows.remain()s<=combo_points*1.8
+            if buff.envelopingShadows.remain() < ttd(units.dyn5) and buff.envelopingShadows.remain() <= combo * 1.8 then
                 if cast.envelopingShadows() then return end
             end
         -- Death from Above
@@ -437,18 +437,15 @@ local function runRotation()
             end
         -- Night Blade
             -- nightblade,target_if=max:target.time_to_die,if=target.time_to_die>8&((refreshable&(!finality|buff.finality_nightblade.up))|remains<tick_time)
-                if ttd("target") > 8 and ((debuff.nightblade["target"].refresh and (not artifact.finality or buff.finalityNightblade.exists)) or debuff.nightblade["target"].remain < 2) then
+                if ttd("target") > 8 and ((debuff.nightblade.refresh() and (not artifact.finality or buff.finalityNightblade.exists())) or debuff.nightblade.remain() < 2) then
                     if cast.nightblade("target") then return end
                 end
                 if isChecked("Nightblade Multidot") then
                     for i=1, #enemies.yards5 do
                         local thisUnit = enemies.yards5[i]
-                        local nightblade = debuff.nightblade[thisUnit]
-                        if nightblade ~= nil then
-                            if getDistance(thisUnit) <= 5 then
-                                if ttd(thisUnit) >= getOptionValue("Nightblade Multidot") and ((debuff.nightblade[thisUnit].refresh and (not artifact.finality or buff.finalityNightblade.exists)) or debuff.nightblade[thisUnit].remain < 2) then
-                                    if cast.nightblade(thisUnit) then return end
-                                end
+                        if getDistance(thisUnit) <= 5 then
+                            if ttd(thisUnit) >= getOptionValue("Nightblade Multidot") and ((debuff.nightblade.refresh(thisUnit) and (not artifact.finality or buff.finalityNightblade.exists())) or debuff.nightblade.remain(thisUnit) < 2) then
+                                if cast.nightblade(thisUnit) then return end
                             end
                         end
                     end
@@ -464,8 +461,8 @@ local function runRotation()
         local function actionList_Stealthed()
             -- Print("Stealth")
         -- Symbols of Death
-            -- symbols_of_death,if=buff.shadowmeld.down&((buff.symbols_of_death.remains<target.time_to_die-4&buff.symbols_of_death.remains<=buff.symbols_of_death.duration*0.3)|(equipped.shadow_satyrs_walk&energy.time_to_max<0.25))
-            if not buff.shadowmeld.exists and ((buff.symbolsOfDeath.remain < ttd(units.dyn5) - 4 and buff.symbolsOfDeath.refresh)
+            -- symbols_of_death,if=buff.shadowmeld.down&((buff.symbols_of_death.remain()s<target.time_to_die-4&buff.symbols_of_death.remain()s<=buff.symbols_of_death.duration()*0.3)|(equipped.shadow_satyrs_walk&energy.time_to_max<0.25))
+            if not buff.shadowmeld.exists() and ((buff.symbolsOfDeath.remain() < ttd(units.dyn5) - 4 and buff.symbolsOfDeath.refresh())
                 or (hasEquiped(137032) and powerTTM < 0.25))
             then
                 if cast.symbolsOfDeath() then return end
@@ -476,8 +473,8 @@ local function runRotation()
                 if actionList_Finishers() then return end
             end
         -- Shuriken Storm
-            -- shuriken_storm,if=buff.shadowmeld.down&((combo_points.deficit>=3&spell_targets.shuriken_storm>=2+talent.premeditation.enabled+equipped.shadow_satyrs_walk)|buff.the_dreadlords_deceit.stack>=29)
-            if not buff.shadowmeld.exists and ((comboDeficit >= 3 and #enemies.yards10 >= 2 + premed + shadowWalker) or buff.theDreadlordsDeceit.stack >= 29) then
+            -- shuriken_storm,if=buff.shadowmeld.down&((combo_points.deficit>=3&spell_targets.shuriken_storm>=2+talent.premeditation.enabled+equipped.shadow_satyrs_walk)|buff.the_dreadlords_deceit.stack()>=29)
+            if not buff.shadowmeld.exists() and ((comboDeficit >= 3 and #enemies.yards10 >= 2 + premed + shadowWalker) or buff.theDreadlordsDeceit.stack() >= 29) then
                 if cast.shurikenStorm() then return end
             end
         -- Shadowstrike

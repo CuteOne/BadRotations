@@ -83,6 +83,7 @@ local function createOptions()
             br.ui:createSpinner(section, "Heirloom Neck",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.");
         -- Demon Spikes
             br.ui:createSpinner(section, "Demon Spikes",  50,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.");
+            br.ui:createSpinnerWithout(section, "Hold Demon Spikes", 1, 0, 2, 1, "|cffFFBB00Number of Demon Spikes the bot will hold for manual use.");
         -- Empower Wards
             br.ui:createCheckbox(section, "Empower Wards")
         -- Fel Devastation
@@ -91,7 +92,7 @@ local function createOptions()
             br.ui:createSpinner(section, "Metamorphosis",  50,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.");
         -- Sigil of Misery
             br.ui:createSpinner(section, "Sigil of Misery - HP",  50,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.");
-            br.ui:createSpinner(section, "Sigil of Misery - AoE", 3, 0, 10, 1, "|cffFFFFFFNumber of Units in 8 Yards to Cast At") 
+            br.ui:createSpinner(section, "Sigil of Misery - AoE", 3, 0, 10, 1, "|cffFFFFFFNumber of Units in 8 Yards to Cast At")
         -- Soul Barrier
             br.ui:createSpinner(section, "Soul Barrier",  50,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.");
         -- Soul Cleave
@@ -151,7 +152,7 @@ local function runRotation()
 --------------
 --- Locals ---
 --------------
-        local addsExist                                     = false 
+        local addsExist                                     = false
         local addsIn                                        = 999
         local artifact                                      = br.player.artifact
         local buff                                          = br.player.buff
@@ -182,7 +183,7 @@ local function runRotation()
         local moveIn                                        = 999
         -- local multidot                                      = (useCleave() or br.player.mode.rotation ~= 3)
         local pain                                          = br.player.power.amount.pain
-        local perk                                          = br.player.perk        
+        local perk                                          = br.player.perk
         local php                                           = br.player.health
         local playerMouse                                   = UnitIsPlayer("mouseover")
         local power, powmax, powgen, powerDeficit           = br.player.power.amount.pain, br.player.power.pain.max, br.player.power.regen, br.player.power.pain.deficit
@@ -195,7 +196,7 @@ local function runRotation()
         local ttd                                           = getTTD
         local ttm                                           = br.player.power.ttm
         local units                                         = br.player.units
-        
+
    		if leftCombat == nil then leftCombat = GetTime() end
 		if profileStop == nil then profileStop = false end
         if talent.chaosCleave then chaleave = 1 else chaleave = 0 end
@@ -222,8 +223,8 @@ local function runRotation()
 		local function actionList_Defensive()
 			if useDefensive() then
 		-- Pot/Stoned
-	            if isChecked("Pot/Stoned") and php <= getOptionValue("Pot/Stoned") 
-	            	and inCombat and (hasHealthPot() or hasItem(5512)) 
+	            if isChecked("Pot/Stoned") and php <= getOptionValue("Pot/Stoned")
+	            	and inCombat and (hasHealthPot() or hasItem(5512))
 	            then
                     if canUse(5512) then
                         useItem(5512)
@@ -242,7 +243,7 @@ local function runRotation()
 	    			end
 	    		end
         -- Demon Spikes
-                if isChecked("Demon Spikes") and php <= getOptionValue("Demon Spikes") and inCombat then
+                if isChecked("Demon Spikes") and php <= getOptionValue("Demon Spikes") and charges.demonSpikes > getOptionValue("Hold Demon Spikes") and inCombat then
                     if cast.demonSpikes() then return end
                 end
         -- Sigil of Misery
@@ -269,11 +270,11 @@ local function runRotation()
                             if cast.sigilOfSilence(thisUnit,"ground") then return end
                         end
         -- Sigil of Misery
-                        if isChecked("Sigil of Misery") and cd.consumeMagic > 0 and cd.sigilOfSilence > 0 and cd.sigilOfSilence < 45 then                        
+                        if isChecked("Sigil of Misery") and cd.consumeMagic > 0 and cd.sigilOfSilence > 0 and cd.sigilOfSilence < 45 then
                             if cast.sigilOfMisery(thisUnit,"ground") then return end
                         end
                     end
-                end  
+                end
 		 	end -- End useInterrupts check
 		end -- End Action List - Interrupts
 	-- Action List - Cooldowns
@@ -286,7 +287,7 @@ local function runRotation()
                     end
                     if canUse(14) and getNumEnemies("player",12) >= 1 then
                         useItem(14)
-                    end                            
+                    end
                 end
             end -- End useCDs check
         end -- End Action List - Cooldowns
@@ -319,7 +320,7 @@ local function runRotation()
                     StartAttack()
                 end
             end -- End No Combat
-        end -- End Action List - PreCombat 
+        end -- End Action List - PreCombat
 ---------------------
 --- Begin Profile ---
 ---------------------
@@ -359,17 +360,17 @@ local function runRotation()
                 end
     -- Soul Carver
                 if cast.soulCarver() then return end
-    -- Fiery Brand    
+    -- Fiery Brand
                 -- actions+=/fiery_brand,if=buff.demon_spikes.down&buff.metamorphosis.down
                 if isChecked("Fiery Brand") then
-                    if not buff.demonSpikes.exists and not buff.metamorphosis.exists then
+                    if not buff.demonSpikes.exists() and not buff.metamorphosis.exists() then
                         if cast.fieryBrand() then return end
                     end
                 end
     -- Demon Spikes
                 -- actions+=/demon_spikes,if=charges=2|buff.demon_spikes.down&!dot.fiery_brand.ticking&buff.metamorphosis.down
-                if debuff.fieryBrand[units.dyn5] ~= nil then
-                    if (charges.demonSpikes == 2 or not buff.demonSpikes.exists) and not debuff.fieryBrand[units.dyn5].exists and not buff.metamorphosis.exists then
+                if isChecked("Demon Spikes") and charges.demonSpikes > getOptionValue("Hold Demon Spikes") then
+                    if (charges.demonSpikes == 2 or not buff.demonSpikes.exists()) and not debuff.fieryBrand.exists(units.dyn5) and not buff.metamorphosis.exists() then
                         if cast.demonSpikes() then return end
                     end
                 end
@@ -385,10 +386,11 @@ local function runRotation()
                 end
     -- Infernal Strike
                 -- actions+=/infernal_strike,if=!sigil_placed&!in_flight&remains-travel_time-delay<0.3*duration&artifact.fiery_demise.enabled&dot.fiery_brand.ticking
-                -- actions+=/infernal_strike,if=!sigil_placed&!in_flight&remains-travel_time-delay<0.3*duration&(!artifact.fiery_demise.enabled|(max_charges-charges_fractional)*recharge_time<cooldown.fiery_brand.remains+5)&(cooldown.sigil_of_flame.remains>7|charges=2)
+                -- actions+=/infernal_strike,if=!sigil_placed&!in_flight&remains-travel_time-delay<0.3*duration&(!artifact.fiery_demise.enabled|(max_charges-charges_fractional)*recharge_time<cooldown.fiery_brand.remain()s+5)&(cooldown.sigil_of_flame.remain()s>7|charges=2)
                 if mode.mover == 1 and getDistance(units.dyn5) < 5 and charges.infernalStrike > 1 then
-                    if (artifact.fieryDemise and debuff.fieryBrand[units.dyn5].exists) 
-                        or (not artifact.fieryDemise or (charges.max.infernalStrike - charges.frac.infernalStrike) * recharge.infernalStrike < cd.fieryBrand + 5) and (cd.sigilOfFlame > 7 or charges.infernalStrike == 2) 
+                    if (artifact.fieryDemise and debuff.fieryBrand.exists(units.dyn5))
+                        or (not artifact.fieryDemise or (charges.max.infernalStrike - charges.frac.infernalStrike) * recharge.infernalStrike < cd.fieryBrand + 5)
+                        and (cd.sigilOfFlame > 7 or charges.infernalStrike == 2)
                     then
                         -- if cast.infernalStrike("best",false,1,6) then return end
                         if cast.infernalStrike("player","ground") then return end
@@ -396,10 +398,8 @@ local function runRotation()
                 end
     -- Spirit Bomb
                 -- actions+=/spirit_bomb,if=debuff.frailty.down
-                if debuff.frailty[units.dyn5] ~= nil then
-                    if not debuff.frailty[units.dyn5].exists then
-                        if cast.spiritBomb() then return end
-                    end
+                if not debuff.frailty.exists(units.dyn5) then
+                    if cast.spiritBomb() then return end
                 end
     -- Immolation Aura
                 -- actions+=/immolation_aura,if=pain<=80
@@ -421,15 +421,15 @@ local function runRotation()
                     end
     -- Soul Cleave
                     -- actions+=/soul_cleave,if=soul_fragments=5
-                    if isChecked("Soul Cleave") and buff.soulFragments.stack == 5 then
+                    if isChecked("Soul Cleave") and buff.soulFragments.stack() == 5 then
                         if cast.soulCleave() then return end
                     end
     -- Metamorphosis
                     -- actions+=/metamorphosis,if=buff.demon_spikes.down&!dot.fiery_brand.ticking&buff.metamorphosis.down&incoming_damage_5s>health.max*0.70
-                    if debuff.fieryBrand[units.dyn5] ~= nil then
-                        if isChecked("Metamorphosis") and not buff.demonSpikes.exists and not debuff.fieryBrand[units.dyn5].exists and not buff.metamorphosis.exists and php < getOptionValue("Metamorphosis") then
-                            if cast.metamorphosis() then return end
-                        end
+                    if isChecked("Metamorphosis") and not buff.demonSpikes.exists() and not debuff.fieryBrand.exists(units.dyn5)
+                        and not buff.metamorphosis.exists() and php < getOptionValue("Metamorphosis")
+                    then
+                        if cast.metamorphosis() then return end
                     end
     -- Fel Devastation
                     -- actions+=/fel_devastation,if=incoming_damage_5s>health.max*0.70
@@ -452,7 +452,7 @@ local function runRotation()
                 end
     -- Fracture
                 -- actions+=/fracture,if=pain>=80&soul_fragments<4&incoming_damage_4s<=health.max*0.20
-                if pain >= 80 and buff.soulFragments.stack < 4 then
+                if pain >= 80 and buff.soulFragments.stack() < 4 then
                     if cast.fracture() then return end
                 end
     -- Soul Cleave

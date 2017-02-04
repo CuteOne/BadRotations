@@ -67,7 +67,7 @@ local function createOptions()
         -- Roll
             br.ui:createCheckbox(section, "Roll")
         -- Resuscitate
-            br.ui:createDropdown(section, "Resuscitate", {"|cff00FF00Target","|cffFF0000Mouseover"}, 1, "|cffFFFFFFTarget to cast on")         
+            br.ui:createDropdown(section, "Resuscitate", {"|cff00FF00Target","|cffFF0000Mouseover"}, 1, "|cffFFFFFFTarget to cast on")
         br.ui:checkSectionState(section)
         ------------------------
         --- COOLDOWN OPTIONS ---
@@ -173,7 +173,7 @@ local function runRotation()
         UpdateToggle("FSK",0.25)
         br.player.mode.fsk = br.data.settings[br.selectedSpec].toggles["FSK"]
         BurstToggle("burstKey", 0.25)
-        
+
 --------------
 --- Locals ---
 --------------
@@ -215,7 +215,7 @@ local function runRotation()
         local solo              = select(2,IsInInstance())=="none"
         local spell             = br.player.spell
         local t17_2pc           = br.player.eq.t17_2pc
-        local t18_2pc           = br.player.eq.t18_2pc 
+        local t18_2pc           = br.player.eq.t18_2pc
         local t18_4pc           = br.player.eq.t18_4pc
         local talent            = br.player.talent
         local thp               = getHP(br.player.units.dyn5)
@@ -229,7 +229,7 @@ local function runRotation()
         if opener == nil then opener = false end
 
 
-        if not inCombat and not ObjectExists("target") then 
+        if not inCombat and not ObjectExists("target") then
             OoRchiWave = false
             FSK = false
             iRchiWave = false
@@ -247,16 +247,16 @@ local function runRotation()
             SCK = false
             BOK = false
             SEF = false
-            WDP = false 
+            WDP = false
             opener = false
         end
-        
+
         -- Mark of the Crane Count
         markOfTheCraneCount = 0
         for i=1, #enemies.yards5 do
             local thisUnit = enemies.yards5[i]
-            local markOfTheCraneRemain = getDebuffRemain(thisUnit,spell.debuffs.markOfTheCrane,"player") or 0
-            if markOfTheCraneRemain > 0 then
+            -- local markOfTheCraneRemain = getDebuffRemain(thisUnit,spell.debuffs.markOfTheCrane,"player") or 0
+            if debuff.markOfTheCrane.remain(thisUnit) > 0 then --markOfTheCraneRemain > 0 then
                 markOfTheCraneCount = markOfTheCraneCount + 1
             end
         end
@@ -280,9 +280,9 @@ local function runRotation()
         -- ChatOverlay("Mark Count: "..markOfTheCraneCount..", Num Enemies: "..#enemies.yards5..", Mark %: "..markPercent)
         -- ChatOverlay("Mark of the Crane Remain: "..getDebuffRemain("target",spell.debuffs.markOfTheCrane,"player"))
 
-        -- if buff.hitCombo.stack == 8 then maxCombo = true else maxCombo = false end
-        -- if inCombat and maxCombo then 
-        --     maxComboReached = true 
+        -- if buff.hitCombo.stack() == 8 then maxCombo = true else maxCombo = false end
+        -- if inCombat and maxCombo then
+        --     maxComboReached = true
         -- elseif not inCombat or (maxComboReached and not maxCombo) then
         --     maxComboReached = false
         -- end
@@ -310,19 +310,19 @@ local function runRotation()
             end
         -- Resuscitate
             if isChecked("Resuscitate") then
-                if getOptionValue("Resuscitate") == 1 
+                if getOptionValue("Resuscitate") == 1
                     and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and UnitIsFriend("target","player")
                 then
                     if cast.resuscitate("target") then return end
                 end
-                if getOptionValue("Resuscitate") == 2 
+                if getOptionValue("Resuscitate") == 2
                     and UnitIsPlayer("mouseover") and UnitIsDeadOrGhost("mouseover") and UnitIsFriend("mouseover","player")
                 then
                     if cast.resuscitate("mouseover") then return end
                 end
             end
         -- Provoke
-            if not inCombat and select(3,GetSpellInfo(101545)) ~= "INTERFACE\\ICONS\\priest_icon_chakra_green" 
+            if not inCombat and select(3,GetSpellInfo(101545)) ~= "INTERFACE\\ICONS\\priest_icon_chakra_green"
                 and cd.flyingSerpentKick > 1 and getDistance("target") > 10 and isValidUnit("target") and not isBoss("target")
             then
                 if solo or #br.friend == 1 then
@@ -331,7 +331,7 @@ local function runRotation()
             end
         -- Flying Serpent Kick
             if mode.fsk == 1 then
-                -- if cast.flyingSerpentKick() then return end 
+                -- if cast.flyingSerpentKick() then return end
                 -- if cast.flyingSerpentKickEnd() then return end
             end
         -- Roll
@@ -352,8 +352,8 @@ local function runRotation()
                 end
             end
         -- Crackling Jade Lightning
-            -- if getDistance(units.dyn5) >= 5 and ((useFSK() and cd.flyingSerpentKick > 1) or not useFSK()) 
-            --     and not isCastingSpell(spell.cracklingJadeLightning) and (hasThreat("target") or isDummy()) and not isMoving("player") 
+            -- if getDistance(units.dyn5) >= 5 and ((useFSK() and cd.flyingSerpentKick > 1) or not useFSK())
+            --     and not isCastingSpell(spell.cracklingJadeLightning) and (hasThreat("target") or isDummy()) and not isMoving("player")
             -- then
             --     if cast.cracklingJadeLightning() then return end
             -- end
@@ -455,7 +455,7 @@ local function runRotation()
                             if cast.paralysis(thisUnit) then return end
                         end
                     end
-                end 
+                end
             end -- End Interrupt Check
         end -- End Action List - Interrupts
     -- Action List - Cooldowns
@@ -469,7 +469,7 @@ local function runRotation()
                     if canUse(14) then
                         useItem(14)
                     end
-                end                    
+                end
         -- Invoke Xuen
                 -- invoke_xuen
                 if isChecked("Xuen") then
@@ -494,18 +494,18 @@ local function runRotation()
                     if not artifact.galeBurst and not hasEquiped(137057) then
                         if cast.touchOfDeath() then return end
                     end
-                -- touch_of_death,cycle_targets=1,max_cycle_targets=2,if=artifact.gale_burst.enabled&equipped.hidden_masters_forbidden_touch&cooldown.strike_of_the_windlord.remains<8&cooldown.fists_of_fury.remains<=4&cooldown.rising_sun_kick.remains<7&(prev_gcd.2.touch_of_death|prev_gcd.3.touch_of_death|prev_gcd.4.touch_of_death)
-                    if artifact.galeBurst and hasEquiped(137057) and cd.strikeOfTheWindlord < 8 and cd.fistsOfFury.remain <= 4 and cd.risingSunKick < 7 and canToD then
+                -- touch_of_death,cycle_targets=1,max_cycle_targets=2,if=artifact.gale_burst.enabled&equipped.hidden_masters_forbidden_touch&cooldown.strike_of_the_windlord.remain()s<8&cooldown.fists_of_fury.remain()s<=4&cooldown.rising_sun_kick.remain()s<7&(prev_gcd.2.touch_of_death|prev_gcd.3.touch_of_death|prev_gcd.4.touch_of_death)
+                    if artifact.galeBurst and hasEquiped(137057) and cd.strikeOfTheWindlord < 8 and cd.fistsOfFury.remain() <= 4 and cd.risingSunKick < 7 and canToD then
                         for i = 1, #enemies.yards5 do
                             local thisUnit = enemies.yards5[i]
                             if cast.touchOfDeath(thisUnit) then canToD = false; return end
                         end
                     end
-                -- touch_of_death,if=artifact.gale_burst.enabled&!talent.serenity.enabled&!equipped.hidden_masters_forbidden_touch&cooldown.strike_of_the_windlord.remains<8&cooldown.fists_of_fury.remains<=4&cooldown.rising_sun_kick.remains<7&chi>=2
+                -- touch_of_death,if=artifact.gale_burst.enabled&!talent.serenity.enabled&!equipped.hidden_masters_forbidden_touch&cooldown.strike_of_the_windlord.remain()s<8&cooldown.fists_of_fury.remain()s<=4&cooldown.rising_sun_kick.remain()s<7&chi>=2
                     if artifact.galeBurst and not talent.serenity and not hasEquiped(137057) and cd.strikeOfTheWindlord < 8 and cd.fistsOfFury <= 4 and cd.risingSunKick < 7 and chi >= 2 then
                         if cast.touchOfDeath() then return end
                     end
-                -- touch_of_death,if=artifact.gale_burst.enabled&talent.serenity.enabled&!equipped.hidden_masters_forbidden_touch&cooldown.strike_of_the_windlord.remains<8&cooldown.fists_of_fury.remains<=4&cooldown.rising_sun_kick.remains<7
+                -- touch_of_death,if=artifact.gale_burst.enabled&talent.serenity.enabled&!equipped.hidden_masters_forbidden_touch&cooldown.strike_of_the_windlord.remain()s<8&cooldown.fists_of_fury.remain()s<=4&cooldown.rising_sun_kick.remain()s<7
                     if artifact.galeBurst and not talent.serenity and not hasEquiped(137057) and cd.strikeOfTheWindlord < 8 and cd.fistsOfFury <= 4 and cd.risingSunKick < 7 then
                         if cast.touchOfDeath() then return end
                     end
@@ -527,7 +527,7 @@ local function runRotation()
                                 OoRchiWave = true
                             end
         -- Flying Serpent Kick (No Hit)
-                        elseif getDistance("target") < 15 and select(3,GetSpellInfo(101545)) == 463281 then                                   
+                        elseif getDistance("target") < 15 and select(3,GetSpellInfo(101545)) == 463281 then
                             if cast.flyingSerpentKickEnd() then return end
                         elseif OoRchiWave and not FSK then
                             if getDistance("target") >= 15 and mode.fsk == 1 then
@@ -557,7 +557,7 @@ local function runRotation()
                             castOpener("tigerPalm","TP1",4)
         -- Touch of Death
                         elseif TP1 and not ToD then
-                            if not debuff.touchOfDeath["target"].exists then
+                            if not debuff.touchOfDeath.exists() then
                                 castOpener("touchOfDeath","ToD",5)
                             else
                                 Print("5: Touch of Death (Uncastable)");
@@ -610,7 +610,7 @@ local function runRotation()
                                 OoRchiWave = true
                             end
         -- Flying Serpent Kick (No Hit)
-                        elseif getDistance("target") < 15 and select(3,GetSpellInfo(101545)) == 463281 then                                   
+                        elseif getDistance("target") < 15 and select(3,GetSpellInfo(101545)) == 463281 then
                             if cast.flyingSerpentKickEnd() then return end
                         elseif OoRchiWave and not FSK then
                             if getDistance("target") >= 15 and mode.fsk == 1 then
@@ -640,7 +640,7 @@ local function runRotation()
                             castOpener("tigerPalm","TP1",4)
         -- Touch of Death
                         elseif TP1 and not ToD then
-                            if not debuff.touchOfDeath["target"].exists then
+                            if not debuff.touchOfDeath.exists() then
                                 castOpener("touchOfDeath","ToD",5)
                             else
                                 Print("5: Touch of Death (Uncastable)");
@@ -679,7 +679,7 @@ local function runRotation()
                             Print("Opener Complete")
                             opener = true
                         end
-                    end                
+                    end
                 end -- End Whirling Dragon Punch + Power Strikes
                 if talent.serenity then
                     -- TP -> ToD -> Serenity + RSK -> SotWL ->  FoF -> RSK -> SCK -> BoK (If it will fit in Serenity)
@@ -693,7 +693,7 @@ local function runRotation()
                                 OoRchiWave = true
                             end
         -- Flying Serpent Kick (No Hit)
-                        elseif getDistance("target") < 15 and select(3,GetSpellInfo(101545)) == 463281 then                                   
+                        elseif getDistance("target") < 15 and select(3,GetSpellInfo(101545)) == 463281 then
                             if cast.flyingSerpentKickEnd() then return end
                         elseif OoRchiWave and not FSK then
                             if getDistance("target") >= 15 and mode.fsk == 1 then
@@ -723,7 +723,7 @@ local function runRotation()
                             castOpener("tigerPalm","TP1",4)
         -- Touch of Death
                         elseif TP1 and not ToD then
-                            if not debuff.touchOfDeath["target"].exists then
+                            if not debuff.touchOfDeath.exists() then
                                 castOpener("touchOfDeath","ToD",5)
                             else
                                 Print("5: Touch of Death (Uncastable)");
@@ -734,50 +734,50 @@ local function runRotation()
                             castOpener("serenity","SER",6)
         -- Rising Sun Kick
                         elseif SER and not RSK1 then
-                            if buff.serenity.exists then
+                            if buff.serenity.exists() then
                                 castOpener("risingSunKick","RSK1",7)
                             else
-                                Print("7: Rising Sun Kick (Uncastable)"); 
+                                Print("7: Rising Sun Kick (Uncastable)");
                                 RSK1 = true
                             end
         -- Strike of the Windlord
                         elseif RSK1 and not SotW then
-                            if buff.serenity.exists then
+                            if buff.serenity.exists() then
                                 castOpener("strikeOfTheWindlord","SotW",8)
                             else
-                                Print("8: Strike of the Windlord (Uncastable)"); 
+                                Print("8: Strike of the Windlord (Uncastable)");
                                 SotW = true
                             end
         -- Fists of Fury
                         elseif SotW and not FoF1 then
-                            if buff.serenity.exists then
+                            if buff.serenity.exists() then
                                 castOpener("fistsOfFury","FoF1",9)
                             else
-                                Print("9: Fists of Fury (Uncastable)"); 
+                                Print("9: Fists of Fury (Uncastable)");
                                 FoF1 = true
                             end
         -- Rising Sun Kick
                         elseif FoF1 and not RSK2 then
-                            if buff.serenity.exists then
+                            if buff.serenity.exists() then
                                 castOpener("risingSunKick","RSK2",10)
                             else
-                                Print("10: Rising Sun Kick (Uncastable)"); 
+                                Print("10: Rising Sun Kick (Uncastable)");
                                 RSK2 = true
                             end
         -- Spinning Crane Kick
                         elseif RSK2 and not SCK then
-                            if buff.serenity.exists then
+                            if buff.serenity.exists() then
                                castOpener("spinningCraneKick","SCK",10)
                             else
-                                Print("11: Spinning Crane Kick (Uncastable)"); 
+                                Print("11: Spinning Crane Kick (Uncastable)");
                                 SCK = true
                             end
         -- Blackout Kick
                         elseif SCK and not BOK then
-                            if buff.serenity.exists then
+                            if buff.serenity.exists() then
                                castOpener("blackoutKick","BOK",10)
                             else
-                                Print("12: Blackout Kick (Uncastable)"); 
+                                Print("12: Blackout Kick (Uncastable)");
                                 BOK = true
                             end
                         elseif BOK then
@@ -809,7 +809,7 @@ local function runRotation()
                 if castSpell("player",racial,false,false,false) then return end
             end
         -- Strike of the Windlord
-            -- strike_of_the_windlord,if=equipped.convergence_of_fates&talent.serenity.enabled&cooldown.serenity.remains>=10
+            -- strike_of_the_windlord,if=equipped.convergence_of_fates&talent.serenity.enabled&cooldown.serenity.remain()s>=10
             -- strike_of_the_windlord,if=equipped.convergence_of_fates&!talent.serenity.enabled
             -- strike_of_the_windlord,if=!equipped.convergence_of_fates
             if ((talent.serenity and cd.serenity >= 10) or not isChecked("Serenity") or not useCDs()) or (not talent.serenity and #enemies.yards5 < 6) then
@@ -818,7 +818,7 @@ local function runRotation()
                 end
             end
         -- Fists of Fury
-            -- fists_of_fury,if=equipped.convergence_of_fates&talent.serenity.enabled&cooldown.serenity.remains>=5
+            -- fists_of_fury,if=equipped.convergence_of_fates&talent.serenity.enabled&cooldown.serenity.remain()s>=5
             -- fists_of_fury,if=equipped.convergence_of_fates&!talent.serenity.enabled
             -- fists_of_fury,if=!equipped.convergence_of_fates
             if markPercent < 75 or #enemies.yards5 < 3 then
@@ -828,36 +828,34 @@ local function runRotation()
             end
         -- Tiger Palm
             -- tiger_palm,cycle_targets=1,if=!prev_gcd.1.tiger_palm&energy=energy.max&chi<=3&buff.storm_earth_and_fire.up
-            if lastSpell ~= spell.tigerPalm and power == powerMax and chi <= 3 and buff.stormEarthAndFire.exists then
+            if lastSpell ~= spell.tigerPalm and power == powerMax and chi <= 3 and buff.stormEarthAndFire.exists() then
                 for i = 1, #enemies.yards5 do
                     local thisUnit = enemies.yards5[i]
-                    local markOfTheCraneRemain = getDebuffRemain(thisUnit,spell.debuffs.markOfTheCrane,"player")
-                    if markOfTheCraneRemain < 5 or markOfTheCraneCount == #enemies.yards5 then
+                    if debuff.markOfTheCrane.remain(thisUnit) < 5 or markOfTheCraneCount == #enemies.yards5 then
                         if cast.tigerPalm(thisUnit) then return end
                     end
                 end
             end
         -- Rising Sun Kick
-            -- rising_sun_kick,cycle_targets=1,if=equipped.convergence_of_fates&talent.serenity.enabled&cooldown.serenity.remains>=2
+            -- rising_sun_kick,cycle_targets=1,if=equipped.convergence_of_fates&talent.serenity.enabled&cooldown.serenity.remain()s>=2
             -- rising_sun_kick,cycle_targets=1,if=equipped.convergence_of_fates&!talent.serenity.enabled
             -- rising_sun_kick,cycle_targets=1,if=!equipped.convergence_of_fates
             if not hasEquiped(140806) or (hasEquiped(140806) and (not talent.serenity or (talent.serenity and cd.serenity >= 2))) then
                 for i = 1, #enemies.yards5 do
                     local thisUnit = enemies.yards5[i]
-                    local markOfTheCraneRemain = getDebuffRemain(thisUnit,spell.debuffs.markOfTheCrane,"player")
-                    if markOfTheCraneRemain < 5 or markOfTheCraneCount == #enemies.yards5 then
+                    if debuff.markOfTheCrane.remain(thisUnit) < 5 or markOfTheCraneCount == #enemies.yards5 then
                         if cast.risingSunKick(thisUnit) then return end
                     end
                 end
             end
         -- Whirling Dragon Punch
             -- whirling_dragon_punch
-            if cd.fistsOfFury ~= 0 and cd.risingSunKick ~= 0 then            	
+            if cd.fistsOfFury ~= 0 and cd.risingSunKick ~= 0 then
             	if cast.whirlingDragonPunch() then return end
             end
         -- Crackling Jade Lightning
-            -- crackling_jade_lightning,if=equipped.the_emperors_capacitor&buff.the_emperors_capacitor.stack>=19
-            if hasEquiped(144239) and buff.theEmperorsCapacitor.stack >= 19 then
+            -- crackling_jade_lightning,if=equipped.the_emperors_capacitor&buff.the_emperors_capacitor.stack()>=19
+            if hasEquiped(144239) and buff.theEmperorsCapacitor.stack() >= 19 then
                 if cast.cracklingJadeLightning() then return end
             end
         -- Spinning Crane Kick
@@ -872,11 +870,10 @@ local function runRotation()
             end
         -- Blackout Kick
             -- blackout_kick,cycle_targets=1,if=(chi>1|buff.bok_proc.up)&!prev_gcd.blackout_kick
-            if (chi > 1 or buff.blackoutKick.exists) and (lastSpell ~= spell.blackoutKick or level < 78) then
+            if (chi > 1 or buff.blackoutKick.exists()) and (lastSpell ~= spell.blackoutKick or level < 78) then
                 for i = 1, #enemies.yards5 do
                     local thisUnit = enemies.yards5[i]
-                    local markOfTheCraneRemain = getDebuffRemain(thisUnit,spell.debuffs.markOfTheCrane,"player")
-                    if markOfTheCraneRemain < 5 or markOfTheCraneCount == #enemies.yards5 then
+                    if debuff.markOfTheCrane.remain(thisUnit) < 5 or markOfTheCraneCount == #enemies.yards5 then
                         if cast.blackoutKick(thisUnit) then return end
                     end
                 end
@@ -896,13 +893,12 @@ local function runRotation()
             if lastSpell ~= spell.tigerPalm or level < 78 then
                 for i = 1, #enemies.yards5 do
                     local thisUnit = enemies.yards5[i]
-                    local markOfTheCraneRemain = getDebuffRemain(thisUnit,spell.debuffs.markOfTheCrane,"player")
-                    if markOfTheCraneRemain < 5 or markOfTheCraneCount == #enemies.yards5 then
+                    if debuff.markOfTheCrane.remain(thisUnit) < 5 or markOfTheCraneCount == #enemies.yards5 then
                         if cast.tigerPalm(thisUnit) then return end
                     end
                 end
             end
-        end -- End Action List - Single Target 
+        end -- End Action List - Single Target
     -- Action List - Storm, Earth, and Fire
         function actionList_StormEarthAndFire()
             if mode.sef == 1 then
@@ -919,12 +915,12 @@ local function runRotation()
         -- Call Action List - Cooldowns
                 -- call_action_list,name=cd
                 if actionList_Cooldown() then return end
-                if getDistance("target") < 5 and not buff.stormEarthAndFire.exists then
+                if getDistance("target") < 5 and not buff.stormEarthAndFire.exists() then
         -- Storm, Earth, and Fire
-                    -- storm_earth_and_fire,if=!buff.storm_earth_and_fire.up&(cooldown.touch_of_death.remains<=8|cooldown.touch_of_death.remains>85)
+                    -- storm_earth_and_fire,if=!buff.storm_earth_and_fire.up&(cooldown.touch_of_death.remain()s<=8|cooldown.touch_of_death.remain()s>85)
                     -- storm_earth_and_fire,if=!buff.storm_earth_and_fire.up&cooldown.storm_earth_and_fire.charges=2
                     -- storm_earth_and_fire,if=!buff.storm_earth_and_fire.up&target.time_to_die<=25
-                    -- storm_earth_and_fire,if=!buff.storm_earth_and_fire.up&cooldown.fists_of_fury.remains<=1&chi>=3
+                    -- storm_earth_and_fire,if=!buff.storm_earth_and_fire.up&cooldown.fists_of_fury.remain()s<=1&chi>=3
                     if cd.touchOfDeath <= 8 or cd.touchOfDeath > 85 or charges.stormEarthAndFire == 2 or ttd <= 25 or (cd.fistsOfFury <= 1 and chi >= 3) then
                         if cast.stormEarthAndFire() then return end
                     end
@@ -953,7 +949,7 @@ local function runRotation()
                 if getDistance("target") < 5 then
                     if cast.serenity() then return end
                 end
-                if buff.serenity.exists then
+                if buff.serenity.exists() then
         -- Strike of the Windlord
                     -- strike_of_the_windlord
                     if cast.strikeOfTheWindlord() then return end
@@ -962,8 +958,7 @@ local function runRotation()
                     if #enemies.yards5 < 3 then
                         for i = 1, #enemies.yards5 do
                             local thisUnit = enemies.yards5[i]
-                            local markOfTheCraneRemain = getDebuffRemain(thisUnit,spell.debuffs.markOfTheCrane,"player")
-                            if markOfTheCraneRemain < 5 or markOfTheCraneCount == #enemies.yards5 then
+                            if debuff.markOfTheCrane.remain(thisUnit) < 5 or markOfTheCraneCount == #enemies.yards5 then
                                 if cast.risingSunKick(thisUnit) then return end
                             end
                         end
@@ -983,8 +978,7 @@ local function runRotation()
                     if #enemies.yards5 >= 3 then
                         for i = 1, #enemies.yards5 do
                             local thisUnit = enemies.yards5[i]
-                            local markOfTheCraneRemain = getDebuffRemain(thisUnit,spell.debuffs.markOfTheCrane,"player")
-                            if markOfTheCraneRemain < 5 or markOfTheCraneCount == #enemies.yards5 then
+                            if debuff.markOfTheCrane.remain(thisUnit) < 5 or markOfTheCraneCount == #enemies.yards5 then
                                 if cast.risingSunKick(thisUnit) then return end
                             end
                         end
@@ -994,8 +988,7 @@ local function runRotation()
                     if lastSpell ~= spell.blackoutKick or level < 78 then
                         for i = 1, #enemies.yards5 do
                             local thisUnit = enemies.yards5[i]
-                            local markOfTheCraneRemain = getDebuffRemain(thisUnit,spell.debuffs.markOfTheCrane,"player")
-                            if markOfTheCraneRemain < 5 or markOfTheCraneCount == #enemies.yards5 then
+                            if debuff.markOfTheCrane.remain(thisUnit) < 5 or markOfTheCraneCount == #enemies.yards5 then
                                 if cast.blackoutKick(thisUnit) then return end
                             end
                         end
@@ -1030,7 +1023,7 @@ local function runRotation()
                         end
                     end
                 end
-        -- Food 
+        -- Food
                 -- food,type=salty_squid_roll
         -- Snapshot Stats
                 -- snapshot_stats
@@ -1082,7 +1075,7 @@ local function runRotation()
 --- In Combat Rotation ---
 --------------------------
         -- FIGHT!
-            if inCombat and profileStop==false and isValidUnit(units.dyn5) and (opener == true or not isChecked("Opener") or not isBoss("target")) then 
+            if inCombat and profileStop==false and isValidUnit(units.dyn5) and (opener == true or not isChecked("Opener") or not isBoss("target")) then
     ------------------
     --- Interrupts ---
     ------------------
@@ -1104,7 +1097,7 @@ local function runRotation()
                     -- potion,name=old_war,if=buff.serenity.up|buff.storm_earth_and_fire.up|(!talent.serenity.enabled&trinket.proc.agility.react)|buff.bloodlust.react|target.time_to_die<=60
                     -- TODO: Agility Proc
                     if canUse(127844) and inRaid and isChecked("Potion") and getDistance("target") < 5 then
-                        if buff.serenity.exists or buff.stormEarthAndFire.exists or hasBloodLust() or ttd <= 60 then
+                        if buff.serenity.exists() or buff.stormEarthAndFire.exists() or hasBloodLust() or ttd <= 60 then
                             useItem(127844)
                         end
                     end
@@ -1114,16 +1107,16 @@ local function runRotation()
                         if cast.touchOfDeath() then return end
                     end
         -- Call Action List - Serenity
-                    -- call_action_list,name=serenity,if=(talent.serenity.enabled&cooldown.serenity.remains<=0)|buff.serenity.up
-                    if useCDs() and isChecked("Serenity") and ((talent.serenity and cd.serenity <= 0) or buff.serenity.exists) then
+                    -- call_action_list,name=serenity,if=(talent.serenity.enabled&cooldown.serenity.remain()s<=0)|buff.serenity.up
+                    if useCDs() and isChecked("Serenity") and ((talent.serenity and cd.serenity <= 0) or buff.serenity.exists()) then
                         if actionList_Serenity() then return end
                     end
         -- Call Action List - Storm, Earth, and Fire
-                    -- call_action_list,name=sef,if=!talent.serenity.enabled&equipped.drinking_horn_cover&((cooldown.fists_of_fury.remains<=1&chi>=3)|buff.storm_earth_and_fire.up|cooldown.storm_earth_and_fire.charges=2|cooldowntarget.time_to_die<=25|cooldown.touch_of_death.remains>=85)
-                    if mode.sef == 1 and not talent.serenity and hasEquiped(137097) and ((cd.fistsOfFury <= 1 and chi >= 3) or buff.stormEarthAndFire.exists or charges.stormEarthAndFire == 2 or ttd <= 25 or cd.touchOfDeath >= 85) then
+                    -- call_action_list,name=sef,if=!talent.serenity.enabled&equipped.drinking_horn_cover&((cooldown.fists_of_fury.remain()s<=1&chi>=3)|buff.storm_earth_and_fire.up|cooldown.storm_earth_and_fire.charges=2|cooldowntarget.time_to_die<=25|cooldown.touch_of_death.remain()s>=85)
+                    if mode.sef == 1 and not talent.serenity and hasEquiped(137097) and ((cd.fistsOfFury <= 1 and chi >= 3) or buff.stormEarthAndFire.exists() or charges.stormEarthAndFire == 2 or ttd <= 25 or cd.touchOfDeath >= 85) then
                         if actionList_StormEarthAndFire() then return end
                     end
-                    -- call_action_list,name=sef,if=!talent.serenity.enabled&!equipped.drinking_horn_cover&((artifact.strike_of_the_windlord.enabled&cooldown.strike_of_the_windlord.remains<=14&cooldown.fists_of_fury.remains<=6&cooldown.rising_sun_kick.remains<=6)|buff.storm_earth_and_fire.up)           
+                    -- call_action_list,name=sef,if=!talent.serenity.enabled&!equipped.drinking_horn_cover&((artifact.strike_of_the_windlord.enabled&cooldown.strike_of_the_windlord.remain()s<=14&cooldown.fists_of_fury.remain()s<=6&cooldown.rising_sun_kick.remain()s<=6)|buff.storm_earth_and_fire.up)
                     if mode.sef == 1 and not talent.serenity and not hasEquiped(137097) and ((artifact.strikeOfTheWindlord and cd.strikeOfTheWindlord <= 14 and cd.fistsOfFury <= 6 and cd.risingSunKick <= 6) or buff.stormEarthAndFire) then
                         if actionList_StormEarthAndFire() then return end
                     end
@@ -1146,7 +1139,7 @@ local function runRotation()
                 if getOptionValue("APL Mode") == 2 then
                     if useCDs() then
         -- Touch of Death
-                        if not debuff[units.dyn5].touchOfDeath.exists then
+                        if not debuff.touchOfDeath.exists(units.dyn5) then
                             if cast.touchOfDeath() then return end
                         end
         -- Trinkets
@@ -1188,13 +1181,13 @@ local function runRotation()
                         end
         -- Energizing Elixir
                         -- if AlternatePower = 0 and Power < MaxPower and not HasBuff(Serenity)
-                        if chi == 0 and power < powerMax and not buff.serenity.exists then
+                        if chi == 0 and power < powerMax and not buff.serenity.exists() then
                             if cast.energizingElixir() then return end
                         end
         -- Storm, Earth, and Fire
                         -- if not HasBuff(StormEarthAndFire) and CooldownSecRemaining(FistsOfFury) < 11 and CooldownSecRemaining(WhirlingDragonPunch) < 14 and CooldownSecRemaining(StrikeOfTheWindlord) < 14
                         if mode.sef == 1 then
-                            if not buff.stormEarthAndFire.exists and cd.fistsOfFury < 11 and cd.whirlingDragonPunch < 14 and cd.strikeOfTheWindlord < 14 and getDistance("target") < 5 then
+                            if not buff.stormEarthAndFire.exists() and cd.fistsOfFury < 11 and cd.whirlingDragonPunch < 14 and cd.strikeOfTheWindlord < 14 and getDistance("target") < 5 then
                                 if cast.stormEarthAndFire() then return end
                             end
                         end
@@ -1203,7 +1196,7 @@ local function runRotation()
         -- Storm, Earth, and Fire
                         -- if not HasBuff(StormEarthAndFire) and CooldownSecRemaining(FistsOfFury) < 11 and CooldownSecRemaining(WhirlingDragonPunch) < 14 and CooldownSecRemaining(StrikeOfTheWindlord) < 14
                         if mode.sef == 1 then
-                            if not buff.stormEarthAndFire.exists and cd.fistsOfFury < 11 and cd.whirlingDragonPunch < 14 and cd.strikeOfTheWindlord < 14 and getDistance("target") < 5 then
+                            if not buff.stormEarthAndFire.exists() and cd.fistsOfFury < 11 and cd.whirlingDragonPunch < 14 and cd.strikeOfTheWindlord < 14 and getDistance("target") < 5 then
                                 if cast.stormEarthAndFire() then return end
                             end
                         end
@@ -1227,7 +1220,7 @@ local function runRotation()
                     if cast.risingSunKick() then return end
         -- Rushing Jade Wind
                     -- if AlternatePower > 1 or HasBuff(Serenity)
-                    if chi > 1 or buff.serenity.exists then
+                    if chi > 1 or buff.serenity.exists() then
                         if cast.rushingJadeWind() then return end
                     end
         -- Chi Burst
@@ -1236,7 +1229,7 @@ local function runRotation()
                     if cast.chiWave() then return end
         -- Blackout Kick
                     -- if not WasLastCast(BlackoutKick) and (HasBuff(ComboBreaker) or AlternatePower > 1 or HasBuff(Serenity))
-                    if (lastSpell ~= spell.blackoutKick or level < 78) and (buff.blackoutKick.exists or chi > 1 or buff.serenity.exists) then
+                    if (lastSpell ~= spell.blackoutKick or level < 78) and (buff.blackoutKick.exists() or chi > 1 or buff.serenity.exists()) then
                         if cast.blackoutKick() then return end
                     end
         -- Tiger Palm
@@ -1244,7 +1237,7 @@ local function runRotation()
                     if lastSpell ~= spell.tigerPalm or chi < 2 or level < 78 then
                         if cast.tigerPalm() then return end
                     end
-                end -- End AskMrRobot APL  
+                end -- End AskMrRobot APL
             end -- End Combat Check
         end -- End Pause
     end -- End Timer

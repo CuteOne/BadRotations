@@ -49,7 +49,7 @@ local function createOptions()
             br.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
         -- Pre-Pull Timer
             br.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
-        -- Artifact 
+        -- Artifact
             br.ui:createDropdownWithout(section, "Artifact", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Artifact Ability.")
         -- Dark Command
             br.ui:createCheckbox(section,"Dark Command","|cffFFFFFFAuto Dark Command usage.")
@@ -74,18 +74,18 @@ local function createOptions()
         -- Use Bonestorm
             br.ui:createCheckbox(section,"Use Bonestorm")
         -- Bonestorm Target Amount
-            br.ui:createSpinnerWithout(section, "Bonestorm Targets", 2, 0, 10, 1, "|cffFFBB00Amount of Targets for Bonestorm") 
+            br.ui:createSpinnerWithout(section, "Bonestorm Targets", 2, 0, 10, 1, "|cffFFBB00Amount of Targets for Bonestorm")
         -- Bonestorm RP Amount
-            br.ui:createSpinnerWithout(section, "Bonestorm RP", 90, 0, 125, 5, "|cffFFBB00Amount of RP to use Bonestorm") 
+            br.ui:createSpinnerWithout(section, "Bonestorm RP", 90, 0, 125, 5, "|cffFFBB00Amount of RP to use Bonestorm")
         -- DS High prio
-            br.ui:createSpinnerWithout(section, "Death Strike High Prio", 35, 0, 100, 1, "|cffFFBB00Percent Hp to use High Prio Death Strike") 
+            br.ui:createSpinnerWithout(section, "Death Strike High Prio", 35, 0, 100, 1, "|cffFFBB00Percent Hp to use High Prio Death Strike")
         -- DS Low prio
             br.ui:createSpinnerWithout(section, "Death Strike Low Prio", 75, 0, 100, 1, "|cffFFBB00Percent Hp to use Low Prio Death Strike")
         -- Consumption with Vampiric Blood up
             br.ui:createSpinner(section, "Consumption VB", 85, 0, 100, 1, "|cffFFBB00Percent Hp to use Consumption with Vampiric Blood as High Prio, when VB isn't active Consumption will be used as filler.")
         -- high prio blood boil for more dps
             br.ui:createCheckbox(section,"Blood Boil High Prio", "|cffFFBB00Lower Survivability, Higher DPS")
-        br.ui:checkSectionState(section)    
+        br.ui:checkSectionState(section)
     -- Defensive Options
         section = br.ui:createSection(br.ui.window.profile, "Defensive")
         -- Healthstone
@@ -147,7 +147,7 @@ local function runRotation()
 --------------
 --- Locals ---
 --------------
-        local addsExist                                     = false 
+        local addsExist                                     = false
         local addsIn                                        = 999
         local artifact                                      = br.player.artifact
         local buff                                          = br.player.buff
@@ -175,7 +175,7 @@ local function runRotation()
         local lowestHP                                      = br.friend[1].unit
         local mode                                          = br.player.mode
         local multidot                                      = (br.player.mode.cleave == 1 or br.player.mode.rotation == 2) and br.player.mode.rotation ~= 3
-        local perk                                          = br.player.perk        
+        local perk                                          = br.player.perk
         local php                                           = br.player.health
         local playerMouse                                   = UnitIsPlayer("mouseover")
         local potion                                        = br.player.potion
@@ -184,7 +184,7 @@ local function runRotation()
         local racial                                        = br.player.getRacial()
         local recharge                                      = br.player.recharge
         local runes                                         = br.player.power.runes.frac
-        local runicPower                                    = br.player.power.amount.runicPower             
+        local runicPower                                    = br.player.power.amount.runicPower
         local solo                                          = #br.friend < 2
         local friendsInRange                                = friendsInRange
         local spell                                         = br.player.spell
@@ -194,7 +194,7 @@ local function runRotation()
         local ttd                                           = getTTD
         local ttm                                           = br.player.power.ttm
         local units                                         = br.player.units
-        
+
         if leftCombat == nil then leftCombat = GetTime() end
         if profileStop == nil then profileStop = false end
 
@@ -228,8 +228,8 @@ local function runRotation()
         local function actionList_Defensive()
             if useDefensive() and not stealth and not flight then
         -- Pot/Stoned
-                if isChecked("Pot/Stoned") and php <= getOptionValue("Pot/Stoned") 
-                    and inCombat and (hasHealthPot() or hasItem(5512)) 
+                if isChecked("Pot/Stoned") and php <= getOptionValue("Pot/Stoned")
+                    and inCombat and (hasHealthPot() or hasItem(5512))
                 then
                     if canUse(5512) then
                         useItem(5512)
@@ -252,12 +252,12 @@ local function runRotation()
         -- Icebound Fortitude
                 if isChecked("Icebound Fortitude") and php <= getOptionValue("Icebound Fortitude") then
                     if cast.iceboundFortitude() then return end
-                end         
+                end
         -- Vampiric Blood
                 if isChecked("Vampiric Blood") and php <= getOptionValue("Vampiric Blood") then
                     if cast.vampiricBlood() then return end
                 end
-            end                    
+            end
         end -- End Action List - Defensive
     -- Action List - Interrupts
         local function actionList_Interrupts()
@@ -301,7 +301,7 @@ local function runRotation()
         -- Dancing Rune Weapon
                 if isChecked("Dancing Rune Weapon") then
                     if cast.dancingRuneWeapon() then return end
-                end           
+                end
             end -- End useCooldowns check
         end -- End Action List - Cooldowns
     -- Action List - PreCombat
@@ -328,7 +328,7 @@ local function runRotation()
                     end
                 end
             end -- End No Combat
-        end -- End Action List - PreCombat 
+        end -- End Action List - PreCombat
 ---------------------
 --- Begin Profile ---
 ---------------------
@@ -372,21 +372,18 @@ local function runRotation()
     ---------------------------
                 if getOptionValue("APL Mode") == 1 then
         -- Marrowrend
-                    if buff.boneShield.remain < 3 or #enemies.yards8 == 0 then
+                    if buff.boneShield.remain() < 3 or #enemies.yards8 == 0 then
                         if cast.marrowrend() then return end
                     end
         -- Blood Boil
                     for i = 1, #enemies.yards8 do
                         local thisUnit = enemies.yards8[i]
-                        local bloodPlague = debuff.bloodPlague[thisUnit]
-                        if bloodPlague ~= nil then
-                            if not bloodPlague.exists then
-                                if cast.bloodBoil("player") then return end
-                            end
+                        if not debuff.bloodPlague.exists(thisUnit) then
+                            if cast.bloodBoil("player") then return end
                         end
                     end
         -- Death and Decay
-                    if (buff.crimsonScourge.exists or level < 63) and (#enemies.yards8 > 1 or (#enemies.yards8 == 1 and talent.RapidDecomposition)) then
+                    if (buff.crimsonScourge.exists() or level < 63) and (#enemies.yards8 > 1 or (#enemies.yards8 == 1 and talent.RapidDecomposition)) then
                         if cast.deathAndDecay("best",false,#enemies.yards8,8) then return end
                     end
         -- Death Strike
@@ -394,7 +391,7 @@ local function runRotation()
                         if cast.deathStrike() then return end
                     end
         -- Marrowrend
-                    if buff.boneShield.stack <= 6 then
+                    if buff.boneShield.stack() <= 6 then
                         if cast.marrowrend() then return end
                     end
         -- Death and Decay
@@ -402,13 +399,13 @@ local function runRotation()
                         if cast.deathAndDecay("best",false,#enemies.yards8,8) then return end
                     end
         -- Heart Strike
-                    if runes >= 3 or ((not talent.ossuary or buff.boneShield.stack < 5) and power < 45) or (talent.ossuary and buff.boneShield.stack >= 5 and power < 40) then
+                    if runes >= 3 or ((not talent.ossuary or buff.boneShield.stack() < 5) and power < 45) or (talent.ossuary and buff.boneShield.stack() >= 5 and power < 40) then
                         if cast.heartStrike() then return end
                     end
         -- Consumption
                     if cast.consumption() then return end
         -- Blood Boil
-                    if cast.bloodBoil("player") then return end         
+                    if cast.bloodBoil("player") then return end
                 end -- End SimC APL
     ------------------------
     --- Ask Mr Robot APL ---
@@ -416,7 +413,7 @@ local function runRotation()
                 if getOptionValue("APL Mode") == 2 then
         -- Soulgorge
                      --if DotRemainingSec(BloodPlague) < 3 and HasDot(BloodPlague)
-                    if debuff.bloodPlague[units.dyn30AoE].exists and debuff.bloodPlague[units.dyn30AoE].remain < 3 then
+                    if debuff.bloodPlague.exists(units.dyn30AoE) and debuff.bloodPlague.remain(units.dyn30AoE) < 3 then
                         if cast.soulgorge() then return end
                     end
         -- Bonestorm
@@ -431,18 +428,18 @@ local function runRotation()
                     end
         -- Death's Caress
                      --if not HasDot(BloodPlague) and HasTalent(Soulgorge)
-                    if not debuff.bloodPlague[units.dyn30AoE].exists and talent.soulGorge then
+                    if not debuff.bloodPlague.exists(units.dyn30AoE) and talent.soulGorge then
                         if cast.deathsCaress() then return end
                     end
         -- Blood Tap
                      --if Power < 2 and BuffStack(BoneShield) <= BuffMaxStack(BoneShield) - 3
-                    if runes < 2 and buff.boneshield.stack <= 7 then
+                    if runes < 2 and buff.boneshield.stack() <= 7 then
                         if cast.bloodTap() then return end
                     end
         -- Marrowrend
-                     --if (BuffStack(BoneShield) <= BuffMaxStack(BoneShield) - 3 and (ArtifactTraitRank(MouthOfHell) = 0 or not HasBuff(DancingRuneWeapon))) or 
+                     --if (BuffStack(BoneShield) <= BuffMaxStack(BoneShield) - 3 and (ArtifactTraitRank(MouthOfHell) = 0 or not HasBuff(DancingRuneWeapon))) or
                      --(BuffStack(BoneShield) <= BuffMaxStack(BoneShield) - 4 and ArtifactTraitRank(MouthOfHell) > 0 and HasBuff(DancingRuneWeapon))
-                    if (buff.boneShield.stack <= 7 and (artifact.mouthOfHell or not buff.dancingRuneWeapon.exists)) or (buff.boneShield.stack <= 6 and artifact.mouthOfHell and buff.dancingRuneWeapon.exists) then
+                    if (buff.boneShield.stack() <= 7 and (artifact.mouthOfHell or not buff.dancingRuneWeapon.exists())) or (buff.boneShield.stack() <= 6 and artifact.mouthOfHell and buff.dancingRuneWeapon.exists()) then
                         if cast.marrowrend() then return end
                     end
         -- Blooddrinker
@@ -454,30 +451,30 @@ local function runRotation()
                     if cast.bloodBoil("player") then return end
         -- Death and Decay
                      --if HasBuff(CrimsonScourge) or HasTalent(RapidDecomposition)
-                    if buff.crimsonScourge.exists or talent.rapidDecomposition then
+                    if buff.crimsonScourge.exists() or talent.rapidDecomposition then
                         if cast.deathAndDecay("best",false,#enemies.yards8,8) then return end
                     end
         -- Heart Strike
                     if cast.heartStrike() then return end
         -- Mark of Blood
                      --if not HasBuff(MarkOfBlood)
-                    if not buff.markOfBlood.exists then 
+                    if not buff.markOfBlood.exists() then 
                         if cast.markOfBlood() then return end
-                    end      
+                    end
                 end
 
     ---------------------------
     --- Vilt APL ---
     ---------------------------
                 if getOptionValue("APL Mode") == 3 then
-                    if --[[((buff.crimsonScourge.exists and talent.rapidDecomposition) or]] #enemies.yards8 >= getOptionValue("Death and Decay") and isChecked("Death and Decay") then
+                    if --[[((buff.crimsonScourge.exists() and talent.rapidDecomposition) or]] #enemies.yards8 >= getOptionValue("Death and Decay") and isChecked("Death and Decay") then
                         if cast.deathAndDecay("best",false,#enemies.yards8,8) then return end
                     end
                     --dump rp with deathstrike
                     if ((talent.bonestorm and cd.bonestorm > 3) or (talent.bonestorm and #enemies.yards8 < getOptionValue("Bonestorm Targets")) or (not talent.bonestorm or not isChecked("Use Bonestorm"))) and br.player.power.runicPower.deficit <= 30 then
                         if cast.deathStrike() then return end
-                    end    
-                    if (talent.ossuary and buff.boneShield.stack <=4) or (not talent.ossuary and buff.boneShield.stack <=2) or buff.boneShield.remain < 4 or not buff.boneShield.exists then
+                    end
+                    if (talent.ossuary and buff.boneShield.stack() <=4) or (not talent.ossuary and buff.boneShield.stack() <=2) or buff.boneShield.remain() < 4 or not buff.boneShield.exists() then
                         if cast.marrowrend() then return end
                     end
                     --#high prio heal
@@ -489,30 +486,27 @@ local function runRotation()
                         if cast.bonestorm("Player") then return end
                     end
                     --#soulgorge/deathcaressmultidot NEEDS TO BE FIXED, SOON™
-                    --#actions+=/soulgorge,if=talent.soulgorge.enabled&target_if=min:target.debuff.blood_plague,if=target.debuff.blood_plague.remaining<=2&spell_targets.soulgorge>=3
-                    --#actions+=/deaths_caress,cycle_targets=1,if=talent.soulgorge.enabled&spell_targets.soulgorge<3&(debuff.blood_plague.refreshable|!debuff.blood_plague.up)
+                    --#actions+=/soulgorge,if=talent.soulgorge.enabled&target_if=min:target.debuff.blood_plague,if=target.debuff.blood_plague.remain()ing<=2&spell_targets.soulgorge>=3
+                    --#actions+=/deaths_caress,cycle_targets=1,if=talent.soulgorge.enabled&spell_targets.soulgorge<3&(debuff.blood_plague.refresh()able|!debuff.blood_plague.up)
                     --Not gonna bother with this because worthless talent anyway, might add later.
-                    --actions+=/blood_boil,if=!talent.soulgorge.enabled&(debuff.blood_plague.refreshable|!debuff.blood_plague.up)
-                    --borrowing your blood boil code 
+                    --actions+=/blood_boil,if=!talent.soulgorge.enabled&(debuff.blood_plague.refresh()able|!debuff.blood_plague.up)
+                    --borrowing your blood boil code
                     if not talent.soulgorge then
                         for i = 1, #enemies.yards8 do
                             local thisUnit = enemies.yards8[i]
-                            local bloodPlague = debuff.bloodPlague[thisUnit]
-                            if bloodPlague ~= nil then
-                                if not bloodPlague.exists then
-                                    if cast.bloodBoil("player") then return end
-                                end
+                            if not debuff.bloodPlague.exists(thisUnit) then
+                                if cast.bloodBoil("player") then return end
                             end
                         end
                     end
                     if isChecked("Blood Boil High Prio") and (charges.frac.bloodBoil >= 1.75 and getDistance("target") <= 8) then
                         if cast.bloodBoil("player") then return end
-                    end 
+                    end
                     if talent.bloodTap and runes < 3 then
                         if cast.bloodTap() then return end
                     end
                     if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()) and isChecked("Consumption VB") then
-                        if getFacing("player","target",105) == true and buff.vampiricBlood.exists and php < getOptionValue("Consumption VB") and getDistance(thisUnit) <= 5 then
+                        if getFacing("player","target",105) == true and buff.vampiricBlood.exists() and php < getOptionValue("Consumption VB") and getDistance(thisUnit) <= 5 then
                             if cast.consumption() then return end
                         end
                     end
@@ -520,9 +514,9 @@ local function runRotation()
                     if php < getOptionValue("Death Strike Low Prio") then
                         if cast.deathStrike() then return end
                     end
-                    if runes >= 2.5 and talent.ossuary and buff.boneShield.stack <=6 then
+                    if runes >= 2.5 and talent.ossuary and buff.boneShield.stack() <=6 then
                         if cast.marrowrend() then return end
-                    end                     
+                    end
                     if runes >= 2.5 then
                         if cast.heartStrike() then return end
                     end
@@ -535,7 +529,7 @@ local function runRotation()
                         if cast.bloodBoil("player") then return end
                     end
                 end -- End Vilt APL
-            end --End In Combat 
+            end --End In Combat
         end --End Rotation Logic
     end -- End Timer
 end -- End runRotation

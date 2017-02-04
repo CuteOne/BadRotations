@@ -63,7 +63,7 @@ local function createOptions()
             br.ui:createCheckbox(section,"Piercing Howl", "Check to use Piercing Howl")
             -- Pre-Pull Timer
             br.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
-            -- Artifact 
+            -- Artifact
             br.ui:createDropdownWithout(section,"Artifact", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Artifact Ability.")
         br.ui:checkSectionState(section)
         ------------------------
@@ -117,7 +117,7 @@ local function createOptions()
             br.ui:createSpinner(section, "Shockwave - HP", 60, 0, 100, 5, "|cffFFBB00Health Percentage to use at.")
             br.ui:createSpinner(section, "Shockwave - Units", 3, 1, 10, 1, "|cffFFBB00Minimal units to cast on.")
             -- Storm Bolt
-            br.ui:createSpinner(section, "Storm Bolt", 60, 0, 100, 5, "|cffFFBB00Health Percentage to use at.") 
+            br.ui:createSpinner(section, "Storm Bolt", 60, 0, 100, 5, "|cffFFBB00Health Percentage to use at.")
         br.ui:checkSectionState(section)
         -------------------------
         --- INTERRUPT OPTIONS ---
@@ -132,7 +132,7 @@ local function createOptions()
             -- Storm Bolt
             br.ui:createCheckbox(section,"Storm Bolt - Int")
             -- Interrupt Percentage
-            br.ui:createSpinner(section,  "InterruptAt",  0,  0,  95,  5,  "|cffFFBB00Cast Percentage to use at.")    
+            br.ui:createSpinner(section,  "InterruptAt",  0,  0,  95,  5,  "|cffFFBB00Cast Percentage to use at.")
         br.ui:checkSectionState(section)
         ----------------------
         --- TOGGLE OPTIONS ---
@@ -149,7 +149,7 @@ local function createOptions()
             -- Mover Toggle
             br.ui:createDropdown(section,  "Mover Mode", br.dropOptions.Toggle,  6)
             -- Pause Toggle
-            br.ui:createDropdown(section,  "Pause Mode", br.dropOptions.Toggle,  6)   
+            br.ui:createDropdown(section,  "Pause Mode", br.dropOptions.Toggle,  6)
         br.ui:checkSectionState(section)
     end
     optionTable = {{
@@ -179,7 +179,7 @@ local function runRotation()
 --------------
 --- Locals ---
 --------------
-        local addsExist                                     = false 
+        local addsExist                                     = false
         local addsIn                                        = 999
         local artifact                                      = br.player.artifact
         local buff                                          = br.player.buff
@@ -204,7 +204,7 @@ local function runRotation()
         local lootDelay                                     = getOptionValue("LootDelay")
         local lowestHP                                      = br.friend[1].unit
         local mode                                          = br.player.mode
-        local perk                                          = br.player.perk        
+        local perk                                          = br.player.perk
         local php                                           = br.player.health
         local playerMouse                                   = UnitIsPlayer("mouseover")
         local power, powerMax, powerGen                     = br.player.power.amount.rage, br.player.power.rage.max, br.player.power.regen
@@ -219,7 +219,7 @@ local function runRotation()
         local ttd                                           = getTTD
         local ttm                                           = br.player.power.ttm
         local units                                         = br.player.units
-        
+
         if leftCombat == nil then leftCombat = GetTime() end
         if profileStop == nil then profileStop = false end
 
@@ -259,8 +259,8 @@ local function runRotation()
         function actionList_Defensive()
             if useDefensive() then
             -- Healthstone/Health Potion
-                if isChecked("Healthstone/Potion") and php <= getOptionValue("Healthstone/Potion") 
-                    and inCombat and (hasHealthPot() or hasItem(5512)) 
+                if isChecked("Healthstone/Potion") and php <= getOptionValue("Healthstone/Potion")
+                    and inCombat and (hasHealthPot() or hasItem(5512))
                 then
                     if canUse(5512) then
                         useItem(5512)
@@ -275,7 +275,7 @@ local function runRotation()
                             useItem(heirloomNeck)
                         end
                     end
-                end 
+                end
             -- Gift of the Naaru
                 if isChecked("Gift of the Naaru") and php <= getOptionValue("Gift of the Naaru") and php > 0 and cd.giftOfTheNaaru==0 then
                     if cast.giftOfTheNaaru() then return end
@@ -351,27 +351,27 @@ local function runRotation()
                     end
                 end
         -- Draught of Souls
-                -- use_item,name=draught_of_souls,if=(spell_targets.whirlwind>1|!raid_event.adds.exists)&((talent.bladestorm.enabled&cooldown.bladestorm.remains=0)|buff.battle_cry.up|target.time_to_die<25)
+                -- use_item,name=draught_of_souls,if=(spell_targets.whirlwind>1|!raid_event.adds.exists())&((talent.bladestorm.enabled&cooldown.bladestorm.remain()s=0)|buff.battle_cry.up|target.time_to_die<25)
         -- Potions
                 -- potion,name=old_war,if=(target.health.pct<20&buff.battle_cry.up)|target.time_to_die<30
         -- Battle Cry
-                -- battle_cry,if=(cooldown.odyns_fury.remains=0&(cooldown.bloodthirst.remains=0|(buff.enrage.remains>cooldown.bloodthirst.remains)))&buff.dragon_roar.up&gcd.remains<0.2
+                -- battle_cry,if=(cooldown.odyns_fury.remain()s=0&(cooldown.bloodthirst.remain()s=0|(buff.enrage.remain()s>cooldown.bloodthirst.remain()s)))&buff.dragon_roar.up&gcd.remain()s<0.2
                 if isChecked("Battle Cry") then
-                    if ((not artifact.odynsFury or cd.odynsFury == 0) and (cd.bloodthirst == 0 or (buff.enrage.remain > cd.bloodthirst))) and (buff.dragonRoar.exists or not talent.dragonRoar) and cd.global < 0.2 then
+                    if ((not artifact.odynsFury or cd.odynsFury == 0) and (cd.bloodthirst == 0 or (buff.enrage.remain() > cd.bloodthirst))) and (buff.dragonRoar.exists() or not talent.dragonRoar) and cd.global < 0.2 then
                         if cast.battleCry() then return end
                     end
                 end
         -- Avatar
-                -- avatar,if=buff.battle_cry.up|(target.time_to_die<(cooldown.battle_cry.remains+10))
+                -- avatar,if=buff.battle_cry.up|(target.time_to_die<(cooldown.battle_cry.remain()s+10))
                 if isChecked("Avatar") then
-                    if buff.battleCry.exists or (ttd(units.dyn5) < (cd.battleCry + 10)) then
+                    if buff.battleCry.exists() or (ttd(units.dyn5) < (cd.battleCry + 10)) then
                         if cast.avatar() then return end
                     end
                 end
         -- Bloodbath
-                -- bloodbath,if=buff.dragon_roar.up|(!talent.dragon_roar.enabled&(buff.battle_cry.up|cooldown.battle_cry.remains>10))
+                -- bloodbath,if=buff.dragon_roar.up|(!talent.dragon_roar.enabled&(buff.battle_cry.up|cooldown.battle_cry.remain()s>10))
                 if isChecked("Bloodbath") then
-                    if buff.dragonRoar.exists or (not talent.dragonRoar and (buff.battleCry.exists or cd.battleCry > 10)) then
+                    if buff.dragonRoar.exists() or (not talent.dragonRoar and (buff.battleCry.exists() or cd.battleCry > 10)) then
                         if cast.bloodbath() then return end
                     end
                 end
@@ -380,11 +380,11 @@ local function runRotation()
                 -- berserking,if=buff.battle_cry.up
                 -- arcane_torrent,if=rage<rage.max-40
                 if isChecked("Racial") then
-                    if ((race == "Orc" or race == "Troll") and buff.battleCry.exists) or (race == "BloodElf" and power < powerMax - 40) then
+                    if ((race == "Orc" or race == "Troll") and buff.battleCry.exists()) or (race == "BloodElf" and power < powerMax - 40) then
                         if castSpell("target",racial,false,false,false) then return end
                     end
                 end
-            end 
+            end
         end
     -- Action List - Pre-Combat
         function actionList_PreCombat()
@@ -431,7 +431,7 @@ local function runRotation()
                 -- charge
                 if (cd.heroicLeap > 0 and cd.heroicLeap < 43) or level < 26 then
                     if cast.charge("target") then return end
-                end 
+                end
         -- Storm Bolt
                 -- storm_bolt
                 if cast.stormBolt("target") then return end
@@ -443,11 +443,11 @@ local function runRotation()
             end
         end
     -- Action List - Bladestorm (OH GOD WHY!?!?!)
-        function actionList_Bladestorm() 
+        function actionList_Bladestorm()
         -- Bladestorm
-            -- bladestorm,if=buff.enrage.remains>2&(raid_event.adds.in>90|!raid_event.adds.exists|spell_targets.bladestorm_mh>desired_targets)
+            -- bladestorm,if=buff.enrage.remain()s>2&(raid_event.adds.in>90|!raid_event.adds.exists()|spell_targets.bladestorm_mh>desired_targets)
             if useCDs() and isChecked("Bladestorm") and getDistance(units.dyn8) < 8 then
-                if buff.enrage.remain > 2 and (addsIn > 90 or not addsExists or #enemies.yards8 > getOptionValue("Bladestorm Units")) then
+                if buff.enrage.remain() > 2 and (addsIn > 90 or not addsExists or #enemies.yards8 > getOptionValue("Bladestorm Units")) then
                     if cast.bladestorm() then return end
                 end
             end
@@ -455,27 +455,27 @@ local function runRotation()
     -- Action List - Single
         function actionList_Single()
         -- Bloodthirst
-            -- bloodthirst,if=buff.fujiedas_fury.up&buff.fujiedas_fury.remains<2
-            if buff.fujiedasFury.exists and buff.fujiedasFury.remain < 2 then
+            -- bloodthirst,if=buff.fujiedas_fury.up&buff.fujiedas_fury.remain()s<2
+            if buff.fujiedasFury.exists() and buff.fujiedasFury.remain() < 2 then
                 if cast.bloodthirst() then return end
             end
         -- Execute
-            -- execute,if=(artifact.juggernaut.enabled&(!buff.juggernaut.up|buff.juggernaut.remains<2))|buff.stone_heart.react
-            if (artifact.juggernaut and (not buff.juggernaut.exists or buff.juggernaut.remain)) or buff.stoneHeart.exists then
+            -- execute,if=(artifact.juggernaut.enabled&(!buff.juggernaut.up|buff.juggernaut.remain()s<2))|buff.stone_heart.react
+            if (artifact.juggernaut and (not buff.juggernaut.exists() or buff.juggernaut.remain())) or buff.stoneHeart.exists() then
                 if cast.execute() then return end
             end
         -- Rampage
-            -- rampage,if=rage=100&(target.health.pct>20|target.health.pct<20&!talent.massacre.enabled)|buff.massacre.react&buff.enrage.remains<1
-            if (power == 100 and (thp > 20 or (thp < 20 and not talent.massacre))) or (buff.massacre.exists and buff.enrage.remain < 1) then
+            -- rampage,if=rage=100&(target.health.pct>20|target.health.pct<20&!talent.massacre.enabled)|buff.massacre.react&buff.enrage.remain()s<1
+            if (power == 100 and (thp > 20 or (thp < 20 and not talent.massacre))) or (buff.massacre.exists() and buff.enrage.remain() < 1) then
                 if cast.rampage() then return end
             end
         -- Berserker Rage
-            -- berserker_rage,if=talent.outburst.enabled&cooldown.odyns_fury.remains=0&buff.enrage.down
-            if talent.outburst and cd.odynsFury == 0 and not buff.enrage.exists and getDistance(units.dyn5) < 5 then
+            -- berserker_rage,if=talent.outburst.enabled&cooldown.odyns_fury.remain()s=0&buff.enrage.down
+            if talent.outburst and cd.odynsFury == 0 and not buff.enrage.exists() and getDistance(units.dyn5) < 5 then
                 if cast.berserkerRage() then return end
             end
         -- Dragon Roar
-            -- dragon_roar,if=cooldown.odyns_fury.remains>=10|cooldown.odyns_fury.remains<=3
+            -- dragon_roar,if=cooldown.odyns_fury.remain()s>=10|cooldown.odyns_fury.remain()s<=3
             if isChecked("Dragon Roar") and getDistance(units.dyn5) < 5 then
                 if cd.odynsFury >= 10 or cd.odynsFury <= 3 then
                     if cast.dragonRoar() then return end
@@ -484,28 +484,28 @@ local function runRotation()
         -- Odyn's Fury
             -- odyns_fury,if=buff.battle_cry.up&buff.enrage.up
             if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()) and getDistance(units.dyn5) < 5 then
-                if buff.battleCry.exists and buff.enrage.exists then
+                if buff.battleCry.exists() and buff.enrage.exists() then
                     if cast.odynsFury() then return end
                 end
             end
         -- Rampage
             -- rampage,if=buff.enrage.down&buff.juggernaut.down
-            if not buff.enrage.exists and not buff.juggernaut.exists then
+            if not buff.enrage.exists() and not buff.juggernaut.exists() then
                 if cast.rampage() then return end
             end
         -- Furious Slash
-            -- furious_slash,if=talent.frenzy.enabled&(buff.frenzy.down|buff.frenzy.remains<=3)
-            if talent.frenzy and (not buff.frenzy.exists or buff.frenzy.remain <= 3) then
+            -- furious_slash,if=talent.frenzy.enabled&(buff.frenzy.down|buff.frenzy.remain()s<=3)
+            if talent.frenzy and (not buff.frenzy.exists() or buff.frenzy.remain() <= 3) then
                 if cast.furiousSlash() then return end
             end
         -- Raging Blow
             -- raging_blow,if=buff.juggernaut.down&buff.enrage.up
-            if not buff.juggernaut.exists and buff.enrage.exists then
+            if not buff.juggernaut.exists() and buff.enrage.exists() then
                 if cast.ragingBlow() then return end
             end
         -- Whirlwind
             -- whirlwind,if=buff.wrecking_ball.react&buff.enrage.up
-            if buff.wreckingBall.exists and buff.enrage.exists and getDistance(units.dyn8) < 8 then
+            if buff.wreckingBall.exists() and buff.enrage.exists() and getDistance(units.dyn8) < 8 then
                 if cast.whirlwind() then return end
             end
         -- Execute
@@ -515,12 +515,12 @@ local function runRotation()
             end
         -- Bloodthirst
             -- bloodthirst,if=buff.enrage.down
-            if not buff.enrage.exists then
+            if not buff.enrage.exists() then
                 if cast.bloodthirst() then return end
             end
         -- Raging Blow
             -- raging_blow,if=buff.enrage.down
-            if talent.innerRage and not buff.enrage.exists then
+            if talent.innerRage and not buff.enrage.exists() then
                 if cast.ragingBlow() then return end
             end
         -- Execute
@@ -530,7 +530,7 @@ local function runRotation()
             end
         -- Raging Blow
             -- raging_blow
-            if buff.enrage.exists or talent.innerRage then
+            if buff.enrage.exists() or talent.innerRage then
                 if cast.ragingBlow() then return end
             end
         -- Bloodthirst
@@ -545,7 +545,7 @@ local function runRotation()
         -- Bloodbath
             -- bloodbath,if=buff.frothing_berserker.up|(rage>80&!talent.frothing_berserker.enabled)
             if useCDs() and isChecked("Bloodbath") and getDistance(units.dyn5) < 5 then
-                if buff.frothingBerserker.exists or (power > 80 and not talent.frothingBerserker) then
+                if buff.frothingBerserker.exists() or (power > 80 and not talent.frothingBerserker) then
                     if cast.bloodbath() then return end
                 end
             end
@@ -554,7 +554,7 @@ local function runRotation()
         function actionList_TwoTargets()
         -- Whirlwind
             -- whirlwind,if=buff.meat_cleaver.down
-            if not buff.meatCleaver.exists and getDistance(units.dyn8) < 8 then
+            if not buff.meatCleaver.exists() and getDistance(units.dyn8) < 8 then
                 if cast.whirlwind() then return end
             end
         -- Call Action List: Bladestorm
@@ -562,18 +562,18 @@ local function runRotation()
             if actionList_Bladestorm() then return end
         -- Rampage
             -- rampage,if=buff.enrage.down|(rage=100&buff.juggernaut.down)|buff.massacre.up
-            if not buff.enrage.exists or (power == 100 and not buff.juggernaut.exists) or buff.massacre.exists then
+            if not buff.enrage.exists() or (power == 100 and not buff.juggernaut.exists()) or buff.massacre.exists() then
                 if cast.rampage() then return end
             end
         -- Bloodthirst
             -- bloodthirst,if=buff.enrage.down
-            if not buff.enrage.exists then
+            if not buff.enrage.exists() then
                 if cast.bloodthirst() then return end
             end
         -- Odyn's Fury
             -- odyns_fury,if=buff.battle_cry.up&buff.enrage.up
             if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()) and getDistance(units.dyn5) < 5 then
-                if buff.battleCry.exists and buff.enrage.exists then
+                if buff.battleCry.exists() and buff.enrage.exists() then
                     if cast.odynsFury() then return end
                 end
             end
@@ -613,7 +613,7 @@ local function runRotation()
             end
         -- Bloodthirst
             -- bloodthirst,if=buff.enrage.down|rage<50
-            if not buff.enrage.exists or power < 50 then
+            if not buff.enrage.exists() or power < 50 then
                 if cast.bloodthirst() then return end
             end
         -- Call Action List Bladestorm
@@ -622,13 +622,13 @@ local function runRotation()
         -- Odyn's Fury
             -- odyns_fury,if=buff.battle_cry.up&buff.enrage.up
             if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()) and getDistance(units.dyn5) < 5 then
-                if buff.battleCry.exists and buff.enrage.exists then
+                if buff.battleCry.exists() and buff.enrage.exists() then
                     if cast.odynsFury() then return end
                 end
             end
         -- Whirlwind
             -- whirlwind,if=buff.enrage.up
-            if buff.enrage.exists and getDistance(units.dyn8) < 8 then
+            if buff.enrage.exists() and getDistance(units.dyn8) < 8 then
                 if cast.whirlwind() then return end
             end
         -- Dragon Roar
@@ -638,7 +638,7 @@ local function runRotation()
             end
         -- Rampage
             -- rampage,if=buff.meat_cleaver.up
-            if buff.meatCleaver.exists then
+            if buff.meatCleaver.exists() then
                 if cast.rampage() then return end
             end
         -- Bloodthirst
@@ -675,7 +675,7 @@ local function runRotation()
                 end
             end
 -----------------------------
---- In Combat - Rotations --- 
+--- In Combat - Rotations ---
 -----------------------------
             if inCombat and isValidUnit(units.dyn5) then
             -- Auto Attack
@@ -712,7 +712,7 @@ local function runRotation()
             end -- End Combat Rotation
         end -- Pause
     end -- End Timer
-end -- End runRotation 
+end -- End runRotation
 local id = 72
 if br.rotations[id] == nil then br.rotations[id] = {} end
 tinsert(br.rotations[id],{

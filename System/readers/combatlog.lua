@@ -112,7 +112,7 @@ function br.read.combatLog()
             lastMH = GetTime()
             nextMH = lastMH + UnitAttackSpeed('player')
         end
-        
+
         if swingTimer then
             swingTimer = nextMH - GetTime()
         end
@@ -143,7 +143,7 @@ function br.read.combatLog()
                         else
                           queueDest = destination
                         end
-                        if #br.player.queue == 0 then 
+                        if #br.player.queue == 0 then
                             tinsert(br.player.queue,{id = spell, name = spellName, target = queueDest})
                             if not isChecked("Mute Queue") then
                                 Print("Added |cFFFF0000"..spellName.."|r to the queue.")
@@ -287,7 +287,7 @@ function br.read.combatLog()
             end
             return
         end
-    end  
+    end
     function cl:Druid(...)
         local timeStamp, param, hideCaster, source, sourceName, sourceFlags, sourceRaidFlags, destination,
             destName, destFlags, destRaidFlags, spell, spellName, _, spellType = ...
@@ -301,7 +301,7 @@ function br.read.combatLog()
                     if FireHack then
                         if ObjectExists(destination) then
                             thisUnit = GetObjectWithGUID(destination)
-                        elseif ObjectExists("target") then 
+                        elseif ObjectExists("target") then
                             thisUnit = GetObjectWithGUID(UnitGUID("target"))
                         else
                             thisUnit = GetObjectWithGUID(UnitGUID("player"))
@@ -310,23 +310,20 @@ function br.read.combatLog()
                             local debuff = br.player.debuff
                             local debuffID = br.player.spell.debuffs
                             if debuffID ~= nil then
-                                for k, v in pairs(debuffID) do
-                                    if spell == v then
-                                        if param == "SPELL_AURA_REMOVED" then
-                                            if debuff[k][thisUnit] ~= nil then
-                                                debuff[k][thisUnit].applied = 0
-                                            end
-                                            if debuff[k]["target"] ~= nil and UnitIsUnit(thisUnit,"target") then
-                                                debuff[k]["target"].applied = 0
-                                            end
+                                if spell == debuffID.rake or spell == debuffID.rip then
+                                    if spell == debuffID.rake then k = "rake" end
+                                    if spell == debuffID.rip then k = "rip" end
+                                    if debuff[k].applied[thisUnit] == nil then debuff[k].applied[thisUnit] = 0 end
+                                    if param == "SPELL_AURA_REMOVED" then
+                                        debuff[k].applied[thisUnit] = 0
+                                        if UnitIsUnit(thisUnit,"target") then
+                                            debuff[k].applied["target"] = 0
                                         end
-                                        if param == "SPELL_AURA_APPLIED" or param == "SPELL_AURA_REFRESH" then
-                                            if debuff[k][thisUnit] ~= nil then
-                                                debuff[k][thisUnit].applied = debuff[k][thisUnit].calc
-                                            end
-                                            if debuff[k]["target"] ~= nil and UnitIsUnit(thisUnit,"target") then 
-                                                debuff[k]["target"].applied = debuff[k]["target"].calc
-                                            end
+                                    end
+                                    if param == "SPELL_AURA_APPLIED" or param == "SPELL_AURA_REFRESH" then
+                                        debuff[k].applied[thisUnit] = debuff[k].calc()
+                                        if UnitIsUnit(thisUnit,"target") then
+                                            debuff[k].applied["target"] = debuff[k].calc()
                                         end
                                     end
                                 end
@@ -334,9 +331,6 @@ function br.read.combatLog()
                         end
                     end
                 end
-            end
-            if not UnitAffectingCombat("player") then
-                if br.player ~= nil and br.player.bleed ~= nil then br.player.bleed.combatLog = {} end
             end
         end
         -----------------------

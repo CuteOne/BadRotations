@@ -30,7 +30,7 @@ local function createToggles()
         [1] = { mode = "On", value = 1 , overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spell.skullBash },
         [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.skullBash }
     };
-    CreateButton("Interrupt",4,0)       
+    CreateButton("Interrupt",4,0)
 -- Cleave Button
 	CleaveModes = {
         [1] = { mode = "On", value = 1 , overlay = "Cleaving Enabled", tip = "Rotation will cleave targets.", highlight = 1, icon = br.player.spell.thrash },
@@ -171,7 +171,7 @@ local function runRotation()
 --------------
 --- Locals ---
 --------------
-        local addsExist                                     = false 
+        local addsExist                                     = false
         local addsIn                                        = 999
         local artifact                                      = br.player.artifact
         local buff                                          = br.player.buff
@@ -199,7 +199,7 @@ local function runRotation()
         local lowestHP                                      = br.friend[1].unit
         local mfTick                                        = 20.0/(1+UnitSpellHaste("player")/100)/10
         local mode                                          = br.player.mode
-        local multidot                                      = br.player.mode.cleave        
+        local multidot                                      = br.player.mode.cleave
         local php                                           = br.player.health
         local playerMouse                                   = UnitIsPlayer("mouseover")
         local potion                                        = br.player.potion
@@ -211,12 +211,12 @@ local function runRotation()
         local snapLossHP                                    = 0
         local spell                                         = br.player.spell
         local talent                                        = br.player.talent
-        local travel, flight, bear, cat, noform             = br.player.buff.travelForm.exists, br.player.buff.flightForm.exists, br.player.buff.bearForm.exists, buff.catForm.exists, GetShapeshiftForm()==0
+        local travel, flight, bear, cat, noform             = br.player.buff.travelForm.exists(), br.player.buff.flightForm.exists(), br.player.buff.bearForm.exists(), buff.catForm.exists(), GetShapeshiftForm()==0
         local trinketProc                                   = false
         local ttd                                           = getTTD
         local ttm                                           = br.player.power.ttm
         local units                                         = br.player.units
-        
+
    		if leftCombat == nil then leftCombat = GetTime() end
 		if profileStop == nil then profileStop = false end
 		if lastSpellCast == nil then lastSpellCast = spell.bearForm end
@@ -256,7 +256,7 @@ local function runRotation()
 		-- Shapeshift Form Management
 			if isChecked("Auto Shapeshifts") and not UnitBuffID("player",202477) then
 			-- Flight Form
-				if IsFlyableArea() and ((not (isInDraenor() or isInLegion())) or isKnown(191633)) and not swimming and falling > 1 and level>=58 then 
+				if IsFlyableArea() and ((not (isInDraenor() or isInLegion())) or isKnown(191633)) and not swimming and falling > 1 and level>=58 then
 	                if cast.travelForm() then return end
 		        end
 			-- Aquatic Form
@@ -278,7 +278,7 @@ local function runRotation()
                         if cast.bearForm() then return end
                     end
                 end
-            end -- End Shapeshift Form Management 
+            end -- End Shapeshift Form Management
         -- Dummy Test
             if isChecked("DPS Testing") then
                 if ObjectExists("target") then
@@ -293,7 +293,7 @@ local function runRotation()
         end -- End Action List - Extras
     -- Action List - Defensive
         local function actionList_Defensive()
-            if useDefensive() and not buff.prowl.exists and not flight then
+            if useDefensive() and not buff.prowl.exists() and not flight then
         -- Heirloom Neck
                 if isChecked("Heirloom Neck") then
                     if hasEquiped(122668) and php <= getOptionValue("Heirloom Neck") then
@@ -303,8 +303,8 @@ local function runRotation()
                     end
                 end
         -- Pot/Stoned
-                if isChecked("Pot/Stoned") and php <= getOptionValue("Pot/Stoned") 
-                    and inCombat and (hasHealthPot() or hasItem(5512)) 
+                if isChecked("Pot/Stoned") and php <= getOptionValue("Pot/Stoned")
+                    and inCombat and (hasHealthPot() or hasItem(5512))
                 then
                     if canUse(5512) then
                         useItem(5512)
@@ -320,7 +320,7 @@ local function runRotation()
                 end
         -- Frenzied Regeneration
                 if isChecked("Frenzied Regeneration") then
-                    if (snapLossHP >= getOptionValue("Frenzied Regeneration") or (snapLossHP > php and snapLossHP > 5)) and not buff.frenziedRegeneration.exists then
+                    if (snapLossHP >= getOptionValue("Frenzied Regeneration") or (snapLossHP > php and snapLossHP > 5)) and not buff.frenziedRegeneration.exists() then
                         if cast.frenziedRegeneration() then snapLossHP = 0; return end
                     end
                 end
@@ -356,24 +356,24 @@ local function runRotation()
                 end
         --Revive/Rebirth
                 if isChecked("Rebirth") then
-                    if getOptionValue("Rebirth - Target")==1 
+                    if getOptionValue("Rebirth - Target")==1
                         and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and UnitIsFriend("target","player")
                     then
                         if cast.rebirth("target","dead") then return end
                     end
-                    if getOptionValue("Rebirth - Target")==2 
+                    if getOptionValue("Rebirth - Target")==2
                         and UnitIsPlayer("mouseover") and UnitIsDeadOrGhost("mouseover") and UnitIsFriend("mouseover","player")
                     then
                         if cast.rebirth("mouseover","dead") then return end
                     end
                 end
                 if isChecked("Revive") then
-                    if getOptionValue("Revive - Target")==1 
+                    if getOptionValue("Revive - Target")==1
                         and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and UnitIsFriend("target","player")
                     then
                         if cast.revive("target","dead") then return end
                     end
-                    if getOptionValue("Revive - Target")==2 
+                    if getOptionValue("Revive - Target")==2
                         and UnitIsPlayer("mouseover") and UnitIsDeadOrGhost("mouseover") and UnitIsFriend("mouseover","player")
                     then
                         if cast.revive("mouseover","dead") then return end
@@ -381,7 +381,7 @@ local function runRotation()
                 end
         -- Survival Instincts
                 if isChecked("Survival Instincts") then
-                    if php <= getOptionValue("Survival Instincts") and inCombat and not buff.survivalInstincts.exists then
+                    if php <= getOptionValue("Survival Instincts") and inCombat and not buff.survivalInstincts.exists() then
                         if cast.survivalInstincts() then return end
                     end
                 end
@@ -430,7 +430,7 @@ local function runRotation()
                     end
                 end
         -- Incapacitating Roar
-                if isChecked("Incapacitating Roar") then 
+                if isChecked("Incapacitating Roar") then
                     for i=1, #enemies.yards10 do
                         thisUnit = enemies.yards10[i]
                         if canInterrupt(thisUnit,getOptionValue("InterruptAt")) then
@@ -444,9 +444,9 @@ local function runRotation()
 		local function actionList_Cooldowns()
 			if useCDs() and getDistance(units.dyn5) < 5 then
 		-- Trinkets
-                -- TODO: if=(buff.tigers_fury.up&(target.time_to_die>trinket.stat.any.cooldown|target.time_to_die<45))|buff.incarnation.remains>20
+                -- TODO: if=(buff.tigers_fury.up&(target.time_to_die>trinket.stat.any.cooldown|target.time_to_die<45))|buff.incarnation.remain()s>20
 				if isChecked("Trinkets") then
-                    -- if (buff.tigersFury and (ttd(units.dyn5) > 60 or ttd(units.dyn5) < 45)) or buff.remain.incarnationKingOfTheJungle > 20 then 
+                    -- if (buff.tigersFury and (ttd(units.dyn5) > 60 or ttd(units.dyn5) < 45)) or buff.remain().incarnationKingOfTheJungle > 20 then
 						if canUse(13) then
 							useItem(13)
 						end
@@ -456,9 +456,9 @@ local function runRotation()
                     -- end
 				end
         -- Agi-Pot
-                -- -- if=((buff.berserk.remains>10|buff.incarnation.remains>20)&(target.time_to_die<180|(trinket.proc.all.react&target.health.pct<25)))|target.time_to_die<=40
+                -- -- if=((buff.berserk.remain()s>10|buff.incarnation.remain()s>20)&(target.time_to_die<180|(trinket.proc.all.react&target.health.pct<25)))|target.time_to_die<=40
                 -- if useCDs() and isChecked("Agi-Pot") and canUse(0) and inRaid then
-                --     if ((buff.remain.berserk > 10 or buff.remain.incarnationKingOfTheJungle > 20) and (ttd(units.dyn5) < 180 or (trinketProc and getHP(units.dyn5)<25))) or ttd(units.dyn5)<=40 then
+                --     if ((buff.remain().berserk > 10 or buff.remain().incarnationKingOfTheJungle > 20) and (ttd(units.dyn5) < 180 or (trinketProc and getHP(units.dyn5)<25))) or ttd(units.dyn5)<=40 then
                 --         useItem(agiPot);
                 --         return true
                 --     end
@@ -485,7 +485,7 @@ local function runRotation()
     -- Action List - PreCombat
         local function actionList_PreCombat()
             if not inCombat and not (IsFlying() or IsMounted()) then
-                if not buff.prowl.exists then
+                if not buff.prowl.exists() then
         -- Flask / Crystal
                     -- flask,type=flask_of_the_seventh_demon
                     if isChecked("Flask / Crystal") and not stealth then
@@ -505,7 +505,7 @@ local function runRotation()
                     StartAttack()
                 end
             end -- End No Combat
-        end -- End Action List - PreCombat 
+        end -- End Action List - PreCombat
 ---------------------
 --- Begin Profile ---
 ---------------------
@@ -552,37 +552,31 @@ local function runRotation()
                         if cast.maul() then return end
                     end
         -- Bristling Fur
-                    if buff.ironfur.remain < 2 and power < 40 then
+                    if buff.ironfur.remain() < 2 and power < 40 then
                         if cast.bristlingFur() then return end
                     end
         -- Ironfur
-                    if not buff.ironfur.exists or powerDeficit < 25 or buff.ironfur.remain < 2 then
+                    if not buff.ironfur.exists() or powerDeficit < 25 or buff.ironfur.remain() < 2 then
                         if cast.ironfur() then return end
                     end
         -- Moonfire
                     if #enemies.yards40 < 4 then
                         for i = 1, #enemies.yards40 do
                             local thisUnit = enemies.yards40[i]
-                            local moonfire = debuff.moonfireGuardian[thisUnit]
-                            if moonfire ~= nil then
-                                if moonfire.refresh and buff.galacticGuardian.exists and isValidUnit(thisUnit) then
-                                    if cast.moonfire(thisUnit) then return end
-                                end
+                            if debuff.moonfire.refresh(thisUnit) and buff.galacticGuardian.exists() and isValidUnit(thisUnit) then
+                                if cast.moonfire(thisUnit) then return end
                             end
                         end
                     end
-                    if buff.galacticGuardian.exists and isValidUnit("target") then
+                    if buff.galacticGuardian.exists() and isValidUnit("target") then
                         if cast.moonfire("target") then return end
                     end
         -- Pulverize
                     if talent.pulverize then
                         for i = 1, #enemies.yards5 do
                             local thisUnit = enemies.yards5[i]
-                            local thrash = debuff.thrash[thisUnit]
-                            if thrash ~= nil then
-                                if not buff.pulverize.exists and thrash.stack >= 2 then 
-                                    if cast.pulverize(thisUnit) then return end
-                                end
+                            if not buff.pulverize.exists() and debuff.thrash.stack(thisUnit) >= 2 then
+                                if cast.pulverize(thisUnit) then return end
                             end
                         end
                     end
@@ -596,11 +590,8 @@ local function runRotation()
                     if talent.pulverize then
                         for i = 1, #enemies.yards5 do
                             local thisUnit = enemies.yards5[i]
-                            local thrash = debuff.thrash[thisUnit]
-                            if thrash ~= nil then
-                                if buff.pulverize.remain < gcd and thrash.stack >= 2 then 
-                                    if cast.pulverize(thisUnit) then return end
-                                end
+                            if buff.pulverize.remain() < gcd and debuff.thrash.stack(thisUnit) >= 2 then
+                                if cast.pulverize(thisUnit) then return end
                             end
                         end
                     end
@@ -610,16 +601,13 @@ local function runRotation()
                     if talent.pulverize then
                         for i = 1, #enemies.yards5 do
                             local thisUnit = enemies.yards5[i]
-                            local thrash = debuff.thrash[thisUnit]
-                            if thrash ~= nil then
-                                if buff.pulverize.remain < 3.6 and thrash.stack >= 2 then 
-                                    if cast.pulverize(thisUnit) then return end
-                                end
+                            if buff.pulverize.remain() < 3.6 and debuff.thrash.stack(thisUnit) >= 2 then
+                                if cast.pulverize(thisUnit) then return end
                             end
                         end
                     end
         -- Thrash
-                    if talent.pulverize and buff.pulverize.remain < 3.6 then
+                    if talent.pulverize and buff.pulverize.remain() < 3.6 then
                         if cast.thrash() then return end
                     end
         -- Thrash
@@ -630,12 +618,9 @@ local function runRotation()
                     if #enemies.yards40 < 4 then
                         for i = 1, #enemies.yards40 do
                             local thisUnit = enemies.yards40[i]
-                            local moonfire = debuff.moonfireGuardian[thisUnit]
-                            if moonfire ~= nil then
-                                if isValidUnit(thisUnit) and (multidot or (UnitIsUnit(thisUnit,units.dyn5) and not multidot)) then
-                                    if (moonfire.remain == 0 or moonfire.remain < 3.6 or moonfire.remain < 7.2) then
-                                        if cast.moonfire(thisUnit) then return end
-                                    end
+                            if isValidUnit(thisUnit) and (multidot or (UnitIsUnit(thisUnit,units.dyn5) and not multidot)) then
+                                if (debuff.moonfire.remain(thisUnit) == 0 or debuff.moonfire.remain(thisUnit) < 3.6 or debuff.moonfire.remain(thisUnit) < 7.2) then
+                                    if cast.moonfire(thisUnit) then return end
                                 end
                             end
                         end

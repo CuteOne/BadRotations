@@ -47,7 +47,7 @@ local function createOptions()
             -- Hand of Freedom
             br.ui:createCheckbox(section, "Hand of Freedom")
         -- Taunt
-            br.ui:createCheckbox(section,"Taunt","|cffFFFFFFAuto Taunt usage.")            
+            br.ui:createCheckbox(section,"Taunt","|cffFFFFFFAuto Taunt usage.")
             -- Artifact
             --br.ui:createDropdownWithout(section,"Artifact", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Artifact Ability.")
         br.ui:checkSectionState(section)
@@ -74,7 +74,7 @@ local function createOptions()
             -- Healthstone
             br.ui:createSpinner(section, "Pot/Stoned",  30,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
             -- Ardent Defender
-            br.ui:createSpinner(section, "Ardent Defender",  30,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")             
+            br.ui:createSpinner(section, "Ardent Defender",  30,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
             -- Blessing of Protection
             br.ui:createSpinner(section, "Blessing of Protection",  50,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
             -- Blinding Light
@@ -90,7 +90,7 @@ local function createOptions()
             -- Flash of Light
             br.ui:createSpinner(section, "Flash of Light",  50,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
             -- Guardian of Ancient Kings
-            br.ui:createSpinner(section, "Guardian of Ancient Kings",  20,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")            
+            br.ui:createSpinner(section, "Guardian of Ancient Kings",  20,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
             -- Hammer of Justice
             br.ui:createSpinner(section, "Hammer of Justice - HP",  75,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
             -- Light of the Protector
@@ -106,7 +106,7 @@ local function createOptions()
             -- Gift of The Naaru
             if br.player.race == "Draenei" then
                 br.ui:createSpinner(section, "Gift of the Naaru",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
-            end            
+            end
             -- Heirloom Neck
             br.ui:createSpinner(section, "Heirloom Neck",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.");
         br.ui:checkSectionState(section)
@@ -213,19 +213,14 @@ local function runRotation()
         local units         = br.player.units
 
         if profileStop == nil then profileStop = false end
-        if debuff.judgment[units.dyn5] ~= nil then
-            judgmentExists = debuff.judgment[units.dyn5].exists
-            judgmentRemain = debuff.judgment[units.dyn5].remain
-            if debuff.judgment[units.dyn5].exists or level < 42 or (cd.judgment > 2 and not debuff.judgment[units.dyn5].exists) then
-                judgmentVar = true
-            else
-                judgmentVar = false
-            end
+        judgmentExists = debuff.judgment.exists(units.dyn5)
+        judgmentRemain = debuff.judgment.remain(units.dyn5)
+        if debuff.judgment.exists(units.dyn5) or level < 42 or (cd.judgment > 2 and not debuff.judgment.exists(units.dyn5)) then
+            judgmentVar = true
         else
-            judgmentExists = false
-            judgmentRemain = 0
             judgmentVar = false
         end
+
         local greaterBuff
         greaterBuff = 0
         local lowestUnit
@@ -259,7 +254,7 @@ local function runRotation()
                         if cast.handOfReckoning(thisUnit) then return end
                     end
                 end
-            end            
+            end
 
         end -- End Action List - Extras
     -- Action List - Defensives
@@ -291,25 +286,25 @@ local function runRotation()
                 end
                 if isChecked("Blinding Light - AoE") and #enemies.yards5 >= getOptionValue("Blinding Light - AoE") and inCombat then
                     if cast.blindingLight() then return end
-                end                
+                end
         -- Shield of the Righteous
                 if isChecked("Shield of the Righteous - HP") then
-                    if php <= getOptionValue("Shield of the Righteous - HP") and inCombat and not buff.shieldOfTheRighteous.exists then
+                    if php <= getOptionValue("Shield of the Righteous - HP") and inCombat and not buff.shieldOfTheRighteous.exists() then
                         if cast.shieldOfTheRighteous() then return end
                     end
                 end
         -- Guardian of Ancient Kings
                 if isChecked("Guardian of Ancient Kings") then
-                    if php <= getOptionValue("Guardian of Ancient Kings") and inCombat and not buff.ardentDefender.exists then
+                    if php <= getOptionValue("Guardian of Ancient Kings") and inCombat and not buff.ardentDefender.exists() then
                         if cast.guardianOfAncientKings() then return end
                     end
                 end
         -- Ardent Defender
                 if isChecked("Ardent Defender") then
-                    if php <= getOptionValue("Ardent Defender") and inCombat and not buff.guardianOfAncientKings.exists then
+                    if php <= getOptionValue("Ardent Defender") and inCombat and not buff.guardianOfAncientKings.exists() then
                         if cast.ardentDefender() then return end
                     end
-                end         
+                end
         -- Pot/Stoned
                 if isChecked("Pot/Stoned") and php <= getOptionValue("Pot/Stoned")
                     and inCombat and (hasHealthPot() or hasItem(5512))
@@ -335,7 +330,7 @@ local function runRotation()
         -- Hammer of Justice
                 if isChecked("Hammer of Justice - HP") and php <= getOptionValue("Hammer of Justice - HP") and inCombat then
                     if cast.hammerOfJustice() then return end
-                end                
+                end
         -- Blessing of Protection
                 if isChecked("Blessing of Protection") then
                     if getHP(lowestUnit) < getOptionValue("Blessing of Protection") and inCombat then
@@ -360,7 +355,7 @@ local function runRotation()
                     if getHP(lowestUnit) < getOptionValue("Lay On Hands") and inCombat then
                         if cast.layOnHands(lowestUnit) then return end
                     end
-                end                
+                end
         -- Divine Shield
                 if isChecked("Divine Shield") then
                     if php <= getOptionValue("Divine Shield") and inCombat then
@@ -425,7 +420,7 @@ local function runRotation()
         local function actionList_Cooldowns()
             if useCDs() or burst then
             -- Trinkets
-                if isChecked("Trinkets") and getDistance(units.dyn5) < 5 and buff.avengingWrath.remain >= getOptionValue("Trinkets") then
+                if isChecked("Trinkets") and getDistance(units.dyn5) < 5 and buff.avengingWrath.remain() >= getOptionValue("Trinkets") then
                     if canUse(13) then
                         useItem(13)
                     end
@@ -530,19 +525,19 @@ actions+=/hammer_of_the_righteous]]
                             end
             -- Avenging Wrath
                             -- actions+=/avenging_wrath,if=!talent.seraphim.enabled|buff.seraphim.up
-                            if isChecked("Avenging Wrath") and (not talent.seraphim or buff.seraphim.remain > 15) and (getOptionValue("Avenging Wrath") <= ttd ) then
+                            if isChecked("Avenging Wrath") and (not talent.seraphim or buff.seraphim.remain() > 15) and (getOptionValue("Avenging Wrath") <= ttd ) then
                                 if cast.avengingWrath() then return end
                             end
 
             -- Bastion of Light
                         -- actions+=/bastion_of_light,if=(action.shield_of_the_righteous.charges<0.2)&(!talent.seraphim.enabled|buff.seraphim.up)
-                        if isChecked("Bastion of Light") and (charges.frac.shieldOfTheRighteous < 0.2) and (not talent.seraphim or buff.seraphim.exists) then
+                        if isChecked("Bastion of Light") and (charges.frac.shieldOfTheRighteous < 0.2) and (not talent.seraphim or buff.seraphim.exists()) then
                             if cast.bastionOfLight() then return end
                         end
                     end
             -- Shield of the Righteous
                         --actions+=/shield_of_the_righteous,if=(!talent.seraphim.enabled|buff.seraphim.up|action.shield_of_the_righteous.charges>2.5)
-                        --if isChecked("Shield of the Righteous") and (not talent.seraphim or buff.seraphim.exists or charges.frac.shieldOfTheRighteous > 2.5) then
+                        --if isChecked("Shield of the Righteous") and (not talent.seraphim or buff.seraphim.exists() or charges.frac.shieldOfTheRighteous > 2.5) then
                         if isChecked("Shield of the Righteous") and (charges.frac.shieldOfTheRighteous > 2.5) then
                             if cast.shieldOfTheRighteous(units.dyn5) then return end
                         end
@@ -551,7 +546,7 @@ actions+=/hammer_of_the_righteous]]
                         if cast.avengersShield() then return end
                     end
             -- Consecration actions+=/consecration
-                    if isChecked("Consecration") and not isMoving("player") and (not buff.consecration.exists) and getDistance(units.dyn5) < 5 then
+                    if isChecked("Consecration") and not isMoving("player") and (not buff.consecration.exists()) and getDistance(units.dyn5) < 5 then
                         if cast.consecration() then return end
                     end
             -- Judgment actions+=/judgment

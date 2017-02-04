@@ -176,7 +176,7 @@ local function runRotation()
         end
 
         function extraThunderFocus()
-            if player.buff.thunderFocusTea.exists then
+            if player.buff.thunderFocusTea.exists() then
                 if lowest.hp <= getOptionValue("TF + EM")*1.6 and (getBuffRemain(lowest.unit, player.spell.envelopingMist, "player") < 3 or (lastSpellCasted ~= "EM" or lastSpellCatedOnPlayer ~= lowest.unit))  then
                     if player.cast.envelopingMist(lowest.unit) then
                         FaceDirection(GetAnglesBetweenObjects("Player", lowest.unit), true)
@@ -185,7 +185,7 @@ local function runRotation()
                         return
                     end
                 end
-                if br.player.buff.thunderFocusTea.remain < 2 then
+                if br.player.buff.thunderFocusTea.remain() < 2 then
                     castRenewingMist()
                 end
 

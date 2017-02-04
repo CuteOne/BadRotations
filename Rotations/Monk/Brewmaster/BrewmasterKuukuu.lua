@@ -55,7 +55,7 @@ local function createOptions()
         -- Roll
         --    br.ui:createCheckbox(section, "Roll")
         -- Resuscitate
-            br.ui:createDropdown(section, "Resuscitate", {"|cff00FF00Target","|cffFF0000Mouseover"}, 1, "|cffFFFFFFTarget to cast on")         
+            br.ui:createDropdown(section, "Resuscitate", {"|cff00FF00Target","|cffFF0000Mouseover"}, 1, "|cffFFFFFFTarget to cast on")
         br.ui:checkSectionState(section)
         ------------------------
         --- COOLDOWN OPTIONS ---
@@ -151,7 +151,7 @@ local function runRotation()
         UpdateToggle("Defensive",0.25)
         UpdateToggle("Interrupt",0.25)
         BurstToggle("burstKey", 0.25)
-        
+
 --------------
 --- Locals ---
 --------------
@@ -188,7 +188,7 @@ local function runRotation()
         local solo              = select(2,IsInInstance())=="none"
         local spell             = br.player.spell
         local t17_2pc           = br.player.eq.t17_2pc
-        local t18_2pc           = br.player.eq.t18_2pc 
+        local t18_2pc           = br.player.eq.t18_2pc
         local t18_4pc           = br.player.eq.t18_4pc
         local talent            = br.player.talent
         local thp               = getHP(br.player.units.dyn5)
@@ -198,8 +198,8 @@ local function runRotation()
         local units             = br.player.units
         if leftCombat == nil then leftCombat = GetTime() end
         if profileStop == nil then profileStop = false end
-        
- 
+
+
 --------------------
 --- Action Lists ---
 --------------------
@@ -211,12 +211,12 @@ local function runRotation()
             end
         -- Resuscitate
             if isChecked("Resuscitate") then
-                if getOptionValue("Resuscitate") == 1 
+                if getOptionValue("Resuscitate") == 1
                     and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and UnitIsFriend("target","player")
                 then
                     if cast.resuscitate("target") then return end
                 end
-                if getOptionValue("Resuscitate") == 2 
+                if getOptionValue("Resuscitate") == 2
                     and UnitIsPlayer("mouseover") and UnitIsDeadOrGhost("mouseover") and UnitIsFriend("mouseover","player")
                 then
                     if cast.resuscitate("mouseover") then return end
@@ -246,8 +246,8 @@ local function runRotation()
                 end
             end
         -- Crackling Jade Lightning
-            -- if getDistance(units.dyn5) >= 5 and ((useFSK() and cd.flyingSerpentKick > 1) or not useFSK()) 
-            --     and not isCastingSpell(spell.cracklingJadeLightning) and (hasThreat("target") or isDummy()) and not isMoving("player") 
+            -- if getDistance(units.dyn5) >= 5 and ((useFSK() and cd.flyingSerpentKick > 1) or not useFSK())
+            --     and not isCastingSpell(spell.cracklingJadeLightning) and (hasThreat("target") or isDummy()) and not isMoving("player")
             -- then
             --     if cast.cracklingJadeLightning() then return end
             -- end
@@ -264,7 +264,7 @@ local function runRotation()
         function actionList_Defensive()
             if useDefensive() then
         -- Purifying Brew
-                if (debuff.moderateStagger["player"].exists or debuff.heavyStagger["player"].exists) then
+                if (debuff.moderateStagger.exists("player") or debuff.heavyStagger.exists("player")) then
                     if cast.purifyingBrew() then return end
                 end
         -- Pot/Stoned
@@ -353,7 +353,7 @@ local function runRotation()
                             if cast.paralysis(thisUnit) then return end
                         end
                     end
-                end 
+                end
             end -- End Interrupt Check
         end -- End Action List - Interrupts
     -- Action List - Cooldowns
@@ -367,7 +367,7 @@ local function runRotation()
                     if canUse(14) then
                         useItem(14)
                     end
-                end                    
+                end
         -- Racial - Blood Fury / Berserking
                 -- blood_fury
                 -- berserking
@@ -379,7 +379,7 @@ local function runRotation()
                     and ((not artifact.galeBurst and hasEquiped(137057) and lastSpell ~= spell.touchOfDeath)
                         or (not artifact.galeBurst and not hasEquiped(137057))
                         or (artifact.galeBurst and hasEquiped(137057) and lastSpell ~= spell.touchOfDeath)
-                        or (artifact.galeBurst and not hasEquiped(137057))) 
+                        or (artifact.galeBurst and not hasEquiped(137057)))
                 then
                     if hasEquiped(137057) then
                         for i = 1, #enemies.yards5 do
@@ -409,7 +409,7 @@ local function runRotation()
                 if cast.blackoxBrew() then return end
             end
         -- Ironskin Brew
-            if charges.purifyingBrew > 1 and not buff.ironskinBrew.exists then
+            if charges.purifyingBrew > 1 and not buff.ironskinBrew.exists() then
                 if cast.ironskinBrew() then return end
             end
         -- Keg Smash
@@ -434,12 +434,12 @@ local function runRotation()
         --Breath of Fire
             --actions.st+=/breath_of_fire
             if cast.breathofFire() then return end
-        --Tiger Palm            
+        --Tiger Palm
             --actions.st+=/tiger_palm
             if power > 65 and getDistance("target") < 15 then
                 if cast.tigerPalm() then return end
             end
-        end -- End Action List - Single Target 
+        end -- End Action List - Single Target
     --Action List AoE
         function actionList_MultiTarget()
         -- Racial - Arcane Torrent
@@ -469,10 +469,10 @@ local function runRotation()
         --Breath of Fire
             --actions.st+=/breath_of_fire
             if cast.breathofFire() then return end
-        --Tiger Palm            
+        --Tiger Palm
             --actions.st+=/tiger_palm
             if cast.tigerPalm() then return end
-        end -- End Action List - Single Target 
+        end -- End Action List - Single Target
     -- Action List - Pre-Combat
         function actionList_PreCombat()
             if not inCombat then
@@ -490,7 +490,7 @@ local function runRotation()
                         end
                     end
                 end
-        -- Food 
+        -- Food
                 -- food,type=salty_squid_roll
         -- Snapshot Stats
                 -- snapshot_stats

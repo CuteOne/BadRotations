@@ -358,75 +358,73 @@ local function runRotation()
                 if cast.piercingShot(units.dyn40) then return end
             end
             -- actions.non_patient_sniper+=/sentinel,if=debuff.hunters_mark.down&focus>30&buff.trueshot.down
-            -- actions.non_patient_sniper+=/sidewinders,if=debuff.vulnerability.remains<gcd&time>6
+            -- actions.non_patient_sniper+=/sidewinders,if=debuff.vulnerability.remain()s<gcd&time>6
             -- actions.non_patient_sniper+=/aimed_shot,if=buff.lock_and_load.up&spell_targets.barrage<3
             -- actions.non_patient_sniper+=/marked_shot
             if cast.markedShot(units.dyn40) then return end
             -- actions.non_patient_sniper+=/explosive_shot
             if cast.explosiveShot(units.dyn40) then return end
             -- actions.non_patient_sniper+=/sidewinders,if=((buff.marking_targets.up|buff.trueshot.up)&focus.deficit>70)|charges_fractional>=1.9
-            -- actions.non_patient_sniper+=/arcane_shot,if=!variable.use_multishot&(buff.marking_targets.up|(talent.steady_focus.enabled&(buff.steady_focus.down|buff.steady_focus.remains<2)))
-            -- actions.non_patient_sniper+=/multishot,if=variable.use_multishot&(buff.marking_targets.up|(talent.steady_focus.enabled&(buff.steady_focus.down|buff.steady_focus.remains<2)))
-            -- actions.non_patient_sniper+=/aimed_shot,if=!talent.piercing_shot.enabled|cooldown.piercing_shot.remains>3
+            -- actions.non_patient_sniper+=/arcane_shot,if=!variable.use_multishot&(buff.marking_targets.up|(talent.steady_focus.enabled&(buff.steady_focus.down|buff.steady_focus.remain()s<2)))
+            -- actions.non_patient_sniper+=/multishot,if=variable.use_multishot&(buff.marking_targets.up|(talent.steady_focus.enabled&(buff.steady_focus.down|buff.steady_focus.remain()s<2)))
+            -- actions.non_patient_sniper+=/aimed_shot,if=!talent.piercing_shot.enabled|cooldown.piercing_shot.remain()s>3
             -- actions.non_patient_sniper+=/arcane_shot,if=!variable.use_multishot
             -- actions.non_patient_sniper+=/multishot,if=variable.use_multishot
         end -- End Action List - Non Patient Sniper
     -- Action List - Patient Sniper
         local function actionList_patientSniper()
-            -- actions.patient_sniper=marked_shot,cycle_targets=1,if=(talent.sidewinders.enabled&talent.barrage.enabled&spell_targets>2)|debuff.hunters_mark.remains<2|((debuff.vulnerability.up|talent.sidewinders.enabled)&debuff.vulnerability.remains<gcd)
+            -- actions.patient_sniper=marked_shot,cycle_targets=1,if=(talent.sidewinders.enabled&talent.barrage.enabled&spell_targets>2)|debuff.hunters_mark.remain()s<2|((debuff.vulnerability.up|talent.sidewinders.enabled)&debuff.vulnerability.remain()s<gcd)
             for i = 1, #enemies.yards40 do
                 local thisUnit = enemies.yards40[i]
-                local huntersMark = debuff.huntersMark[thisUnit]
-                local vulnerable = debuff.vulnerable[thisUnit]
                 if UnitIsUnit(thisUnit,"target") or hasThreat(thisUnit) or isDummy(thisUnit) then
-                    if (talent.sidewinders and talent.barrage) or (huntersMark.exists and huntersMark.remain < 2) or ((vulnerable.exists or talent.sidewinders) and (vulnerable.exists and vulnerable.remain < gcd)) then
+                    if (talent.sidewinders and talent.barrage) or (debuff.huntersMark.exists(thisUnit) and debuff.huntersMark.remain(thisUnit) < 2) or ((debuff.vulnerable.exists(thisUnit) or talent.sidewinders) and (debuff.vulnerable.exists(thisUnit) and debuff.vulnerable.remain(thisUnit) < gcd)) then
                         if cast.markedShot(thisUnit) then return end
                     end
                 end
             end
-            -- actions.patient_sniper+=/windburst,if=talent.sidewinders.enabled&(debuff.hunters_mark.down|(debuff.hunters_mark.remains>execute_time&focus+(focus.regen*debuff.hunters_mark.remains)>=50))|buff.trueshot.up
-            if talent.sidewinders and (debuff.huntersMark[units.dyn40].exists == false or (debuff.huntersMark[units.dyn40].exists and debuff.huntersMark[units.dyn40].remain > ttd(units.dyn40) and (debuff.huntersMark[units.dyn40].exists and power + powerRegen * debuff.huntersMark[units.dyn40].remain >= 50))) or buff.trueshot.exists then
+            -- actions.patient_sniper+=/windburst,if=talent.sidewinders.enabled&(debuff.hunters_mark.down|(debuff.hunters_mark.remain()s>execute_time&focus+(focus.regen*debuff.hunters_mark.remain()s)>=50))|buff.trueshot.up
+            if talent.sidewinders and (debuff.huntersMark.exists(units.dyn40) == false or (debuff.huntersMark.exists(units.dyn40) and debuff.huntersMark.remain(units.dyn40) > ttd(units.dyn40) and (debuff.huntersMark.exists(units.dyn40) and power + powerRegen * debuff.huntersMark.remain(units.dyn40) >= 50))) or buff.trueshot.exists() then
                 if cast.windburst(units.dyn40) then return end
             end
-            -- actions.patient_sniper+=/sidewinders,if=buff.trueshot.up&((buff.marking_targets.down&buff.trueshot.remains<2)|(charges_fractional>=1.9&(focus.deficit>70|spell_targets>1)))
+            -- actions.patient_sniper+=/sidewinders,if=buff.trueshot.up&((buff.marking_targets.down&buff.trueshot.remain()s<2)|(charges_fractional>=1.9&(focus.deficit>70|spell_targets>1)))
             -- TODO:Finish statement
-            if buff.trueshot.exists and ((buff.markingTargets.exists == false and buff.trueshot.remains < 2) or (charges.frac.sidewinders >= 1.9 and (powerDeficit > 70 or multishotTargets > 1))) then
+            if buff.trueshot.exists() and ((buff.markingTargets.exists() == false and buff.trueshot.remain() < 2) or (charges.frac.sidewinders >= 1.9 and (powerDeficit > 70 or multishotTargets > 1))) then
                 if cast.sidewinders(units.dyn40) then return end
             end
             -- actions.patient_sniper+=/multishot,if=buff.marking_targets.up&debuff.hunters_mark.down&variable.use_multishot&focus.deficit>2*spell_targets+gcd*focus.regen
-            if buff.markingTargets.exists and debuff.huntersMark[units.dyn40].exists == false and useMultishot and powerDeficit > 2 * #enemies.yards40 + gcd * powerRegen then
+            if buff.markingTargets.exists() and debuff.huntersMark.exists(units.dyn40) == false and useMultishot and powerDeficit > 2 * #enemies.yards40 + gcd * powerRegen then
                 if cast.multiShot(units.dyn40) then return end
             end
-            -- actions.patient_sniper+=/aimed_shot,if=buff.lock_and_load.up&buff.trueshot.up&debuff.vulnerability.remains>execute_time
-            if buff.lockAndLoad.exists and buff.trueshot.exists and (debuff.vulnerable[units.dyn40].exists and debuff.vulnerable[units.dyn40].remain > ttd(units.dyn40)) then
+            -- actions.patient_sniper+=/aimed_shot,if=buff.lock_and_load.up&buff.trueshot.up&debuff.vulnerability.remain()s>execute_time
+            if buff.lockAndLoad.exists() and buff.trueshot.exists() and (debuff.vulnerable.exists(units.dyn40) and debuff.vulnerable.remain(units.dyn40) > ttd(units.dyn40)) then
                 if cast.aimedShot(units.dyn40) then return end
             end
             -- actions.patient_sniper+=/marked_shot,if=buff.trueshot.up&!talent.sidewinders.enabled
-            if buff.trueshot.exists and not talent.sidewinders then
+            if buff.trueshot.exists() and not talent.sidewinders then
                 if cast.markedShot(units.dyn40) then return end
             end
             -- actions.patient_sniper+=/arcane_shot,if=buff.trueshot.up
-            if buff.trueshot.exists then
+            if buff.trueshot.exists() then
                 if cast.arcaneShot(units.dyn40) then return end
             end
-            -- actions.patient_sniper+=/aimed_shot,if=debuff.hunters_mark.down&debuff.vulnerability.remains>execute_time
-            if debuff.huntersMark[units.dyn40].exists == false and debuff.vulnerable[units.dyn40].remain > ttd(units.dyn40) then
+            -- actions.patient_sniper+=/aimed_shot,if=debuff.hunters_mark.down&debuff.vulnerability.remain()s>execute_time
+            if debuff.huntersMark.exists(units.dyn40) == false and debuff.vulnerable.remain(units.dyn40) > ttd(units.dyn40) then
                 if cast.aimedShot(units.dyn40) then return end
             end
-            -- actions.patient_sniper+=/aimed_shot,if=talent.sidewinders.enabled&debuff.hunters_mark.remains>execute_time&debuff.vulnerability.remains>execute_time&(buff.lock_and_load.up|(focus+debuff.hunters_mark.remains*focus.regen>=80&focus+focus.regen*debuff.vulnerability.remains>=80))&(!talent.piercing_shot.enabled|cooldown.piercing_shot.remains>5|focus>120)
-            if talent.sidewinders and debuff.huntersMark[units.dyn40].remain > ttd(units.dyn40) and debuff.vulnerable[units.dyn40].remain > ttd(units.dyn40) and (buff.lockAndLoad.exists or (power + debuff.huntersMark[units.dyn40].remain * powerRegen >= 80 and power + powerRegen*debuff.vulnerable[units.dyn40].remain >= 80)) and (not talent.piercingShot or cd.piercingShot > 5 or power > 120) then
+            -- actions.patient_sniper+=/aimed_shot,if=talent.sidewinders.enabled&debuff.hunters_mark.remain()s>execute_time&debuff.vulnerability.remain()s>execute_time&(buff.lock_and_load.up|(focus+debuff.hunters_mark.remain()s*focus.regen>=80&focus+focus.regen*debuff.vulnerability.remain()s>=80))&(!talent.piercing_shot.enabled|cooldown.piercing_shot.remain()s>5|focus>120)
+            if talent.sidewinders and debuff.huntersMark.remain(units.dyn40) > ttd(units.dyn40) and debuff.vulnerable.remain(units.dyn40) > ttd(units.dyn40) and (buff.lockAndLoad.exists() or (power + debuff.huntersMark.remain(units.dyn40) * powerRegen >= 80 and power + powerRegen*debuff.vulnerable.remain(units.dyn40) >= 80)) and (not talent.piercingShot or cd.piercingShot > 5 or power > 120) then
                 if cast.aimedShot(units.dyn40) then return end
             end
-            -- actions.patient_sniper+=/aimed_shot,if=!talent.sidewinders.enabled&debuff.hunters_mark.remains>execute_time&debuff.vulnerability.remains>execute_time&(buff.lock_and_load.up|(buff.trueshot.up&focus>=80)|(buff.trueshot.down&focus+debuff.hunters_mark.remains*focus.regen>=80&focus+focus.regen*debuff.vulnerability.remains>=80))&(!talent.piercing_shot.enabled|cooldown.piercing_shot.remains>5|focus>120)
-            if not talent.sidewinders and debuff.huntersMark[units.dyn40].remain > ttd(units.dyn40) and debuff.vulnerable[units.dyn40].remain > ttd(units.dyn40) and (buff.lockAndLoad.exists or (buff.trueshot.exists and focus>=80) or (not buff.trueshot.exists and power + debuff.huntersMark[units.dyn40].remain * powerRegen >= 80 and power + powerRegen*debuff.vulnerable[units.dyn40].remain >= 80)) and (not talent.piercingShot or cd.piercingShot > 5 or power > 120) then
+            -- actions.patient_sniper+=/aimed_shot,if=!talent.sidewinders.enabled&debuff.hunters_mark.remain()s>execute_time&debuff.vulnerability.remain()s>execute_time&(buff.lock_and_load.up|(buff.trueshot.up&focus>=80)|(buff.trueshot.down&focus+debuff.hunters_mark.remain()s*focus.regen>=80&focus+focus.regen*debuff.vulnerability.remain()s>=80))&(!talent.piercing_shot.enabled|cooldown.piercing_shot.remain()s>5|focus>120)
+            if not talent.sidewinders and debuff.huntersMark.remain(units.dyn40) > ttd(units.dyn40) and debuff.vulnerable.remain(units.dyn40) > ttd(units.dyn40) and (buff.lockAndLoad.exists() or (buff.trueshot.exists() and focus>=80) or (not buff.trueshot.exists() and power + debuff.huntersMark.remain(units.dyn40) * powerRegen >= 80 and power + powerRegen*debuff.vulnerable.remain(units.dyn40) >= 80)) and (not talent.piercingShot or cd.piercingShot > 5 or power > 120) then
                 if cast.aimedShot(units.dyn40) then return end
             end
-            -- actions.patient_sniper+=/windburst,if=!talent.sidewinders.enabled&focus>80&(debuff.hunters_mark.down|(debuff.hunters_mark.remains>execute_time&focus+(focus.regen*debuff.hunters_mark.remains)>=50))
-            if not talent.sidewinders and power > 80 and (debuff.huntersMark[units.dyn40].exists == false or (debuff.huntersMark[units.dyn40].remains > ttd(units.dyn40) and power + (powerRegen * debuff.huntersMark[units.dyn40].remains) >= 50)) then
+            -- actions.patient_sniper+=/windburst,if=!talent.sidewinders.enabled&focus>80&(debuff.hunters_mark.down|(debuff.hunters_mark.remain()s>execute_time&focus+(focus.regen*debuff.hunters_mark.remain()s)>=50))
+            if not talent.sidewinders and power > 80 and (debuff.huntersMark.exists(units.dyn40) == false or (debuff.huntersMark.remain(units.dyn40) > ttd(units.dyn40) and power + (powerRegen * debuff.huntersMark.remain(units.dyn40)) >= 50)) then
                 if cast.windburst(units.dyn40) then return end
             end
             -- actions.patient_sniper+=/marked_shot,if=(talent.sidewinders.enabled&spell_targets>1)|focus.deficit<50|buff.trueshot.up|(buff.marking_targets.up&(!talent.sidewinders.enabled|cooldown.sidewinders.charges_fractional>=1.2))
-            if (talent.sidewinders and #multishotTargets > 1) or powerDeficit < 50 or buff.trueshot.exists or (buff.markingTargets.exists and (not talent.sidewinders or charges.frac.sidewinders > 1.2)) then
+            if (talent.sidewinders and #multishotTargets > 1) or powerDeficit < 50 or buff.trueshot.exists() or (buff.markingTargets.exists() and (not talent.sidewinders or charges.frac.sidewinders > 1.2)) then
                 if cast.markedShot(units.dyn40) then return end
             end
             -- actions.patient_sniper+=/piercing_shot,if=focus>80
@@ -434,11 +432,11 @@ local function runRotation()
                 if cast.piercingShot(units.dyn40) then return end
             end
             -- actions.patient_sniper+=/sidewinders,if=variable.safe_to_build&((buff.trueshot.up&focus.deficit>70)|charges_fractional>=1.9)
-            if safeToBuild and ((buff.trueshot.exists and powerDeficit > 70) or charges.frac.sidewinders > 1.9) then
+            if safeToBuild and ((buff.trueshot.exists() and powerDeficit > 70) or charges.frac.sidewinders > 1.9) then
                 if cast.sidewinders(units.dyn40) then return end
             end
             -- actions.patient_sniper+=/sidewinders,if=(buff.marking_targets.up&debuff.hunters_mark.down&buff.trueshot.down)|(cooldown.sidewinders.charges_fractional>1&target.time_to_die<11)
-            if (buff.markingTargets and debuff.huntersMark[units.dyn40].exists == false and buff.trueshot.exists == false) or (charges.frac.sidewinders > 1 and ttd(units.dyn40) < 11)then
+            if (buff.markingTargets and debuff.huntersMark.exists(units.dyn40) == false and buff.trueshot.exists() == false) or (charges.frac.sidewinders > 1 and ttd(units.dyn40) < 11)then
                 if cast.sidewinders(units.dyn40) then return end
             end
             -- actions.patient_sniper+=/arcane_shot,if=variable.safe_to_build&!variable.use_multishot&focus.deficit>5+gcd*focus.regen
@@ -449,15 +447,15 @@ local function runRotation()
             if safeToBuild and useMultishot and powerDeficit > 5 + gcd + powerRegen then
                 if cast.multiShot(units.dyn40) then return end
             end
-            -- actions.patient_sniper+=/aimed_shot,if=debuff.vulnerability.down&focus>80&cooldown.windburst.remains>focus.time_to_max
-            if not debuff.vulnerable[units.dyn40].exists  and power > 80 then
+            -- actions.patient_sniper+=/aimed_shot,if=debuff.vulnerability.down&focus>80&cooldown.windburst.remain()s>focus.time_to_max
+            if not debuff.vulnerable.exists(units.dyn40)  and power > 80 then
                 if cast.aimedShot(units.dyn40) then return end
             end
         end -- End Action List - Patient Sniper
     -- Action List - Single Target
         local function actionList_SingleTarget()
             -- A Murder of Crows
-            if talent.aMurderOfCrows and (debuff.vulnerable[units.dyn40].exists or (debuff.vulnerable[units.dyn40].remain < getCastTime(spell.aimedShot) and not buff.lockAndLoad.exists )) then
+            if talent.aMurderOfCrows and (debuff.vulnerable.exists(units.dyn40) or (debuff.vulnerable.remain(units.dyn40) < getCastTime(spell.aimedShot) and not buff.lockAndLoad.exists() )) then
                 if cast.aMurderOfCrows(units.dyn40) then return end
             end
             -- Piercing Shot
@@ -469,17 +467,17 @@ local function runRotation()
             if cast.windburst(units.dyn40) then return end
             -- Aimed Shot
             -- if HasBuff(LockAndLoad) and HasBuff(Vulnerable) and HasTalent(PatientSniper)
-            if buff.lockAndLoad.exists and debuff.vulnerable[units.dyn40].exists then
+            if buff.lockAndLoad.exists() and debuff.vulnerable.exists(units.dyn40) then
                 if cast.aimedShot(units.dyn40) then return end
             end
             -- Arcane Shot
             -- if (HasBuff(MarkingTargets) or HasBuff(Trueshot)) and not HasBuff(HuntersMark)
-            if (buff.markingTargets.exists or buff.trueshot.exists) and debuff.huntersMark[units.dyn40].exists == false then
+            if (buff.markingTargets.exists() or buff.trueshot.exists()) and debuff.huntersMark.exists(units.dyn40) == false then
                 if cast.arcaneShot(units.dyn40) then return end
             end
             -- Multi-Shot
             -- if TargetsInRadius(MultiShot) > 1 and HasBuff(MarkingTargets) and BuffCount(HuntersMark) < TargetsInRadius(MultiShot)
-            if #multishotTargets > 1 and buff.markingTargets.exists and debuffcount.huntersMark < #multishotTargets then
+            if #multishotTargets > 1 and buff.markingTargets.exists() and debuffcount.huntersMark < #multishotTargets then
                 if cast.multiShot(units.dyn40) then return end
             end
             -- Sentinel
@@ -489,11 +487,11 @@ local function runRotation()
             -- Aimed Shot
             -- if SpellCastTimeSec(AimedShot) < BuffRemainingSec(Vulnerable) and
             -- (not HasTalent(Barrage) or CooldownSecRemaining(Barrage) > GlobalCooldownSec)
-            if getCastTime(spell.aimedShot) < debuff.vulnerable[units.dyn40].remain and (not talent.piercingShot or cd.piercingShot > debuff.vulnerable[units.dyn40].remain) then
+            if getCastTime(spell.aimedShot) < debuff.vulnerable.remain(units.dyn40) and (not talent.piercingShot or cd.piercingShot > debuff.vulnerable.remain(units.dyn40)) then
                 if cast.aimedShot(units.dyn40) then return end
             end
             -- Marked Shot
-            if not talent.patientSniper or debuff.vulnerable[units.dyn40].remain < getCastTime(spell.aimedShot) then
+            if not talent.patientSniper or debuff.vulnerable.remain(units.dyn40) < getCastTime(spell.aimedShot) then
                 if cast.markedShot(units.dyn40) then return end
             end
             -- Bursting Shot
@@ -514,12 +512,12 @@ local function runRotation()
             -- Sidewinders
             -- if not HasBuff(HuntersMark) and (HasBuff(MarkingTargets) or HasBuff(Trueshot)) or
             -- ChargeSecRemaining(Sidewinders) < BuffDurationSec(Vulnerable) - SpellCastTimeSec(AimedShot)
-            if talent.sidewinders and debuff.huntersMark[units.dyn40].exists == false and (buff.markingTargets.exists or buff.trueshot.exists) or recharge.sidewinders < debuff.vulnerable[units.dyn40].duration - getCastTime(spell.aimedShot) then
+            if talent.sidewinders and debuff.huntersMark.exists(units.dyn40) == false and (buff.markingTargets.exists() or buff.trueshot.exists()) or recharge.sidewinders < debuff.vulnerable.duration(units.dyn40) - getCastTime(spell.aimedShot) then
                 if cast.sidewinders(units.dyn40) then return end
             end
             -- Arcane Shot
             -- if not HasBuff(HuntersMark) or not HasBuff(MarkingTargets)
-            if debuff.huntersMark[units.dyn40].exists == false or buff.markingTargets.exists == false then
+            if debuff.huntersMark.exists(units.dyn40) == false or buff.markingTargets.exists() == false then
                 if cast.arcaneShot(units.dyn40) then return end
             end
         end -- End Action List - Single Target
@@ -543,12 +541,12 @@ local function runRotation()
             end
             -- Multi-Shot
             -- if BuffCount(HuntersMark) < 2 and (HasBuff(MarkingTargets) or HasBuff(Trueshot))
-            if debuffcount.huntersMark < 2 and (buff.markingTargets.exists or buff.trueshot.exists) then
+            if debuffcount.huntersMark < 2 and (buff.markingTargets.exists() or buff.trueshot.exists()) then
                 if cast.multiShot(units.dyn40) then return end
             end
             -- Sidewinders
             -- if BuffCount(HuntersMark) < 2 and (HasBuff(MarkingTargets) or HasBuff(Trueshot))
-            if debuffcount.huntersMark < 2 and (buff.markingTargets.exists or buff.trueshot.exists) then
+            if debuffcount.huntersMark < 2 and (buff.markingTargets.exists() or buff.trueshot.exists()) then
                 if cast.sidewinders(units.dyn40) then return end
             end
             -- Sentinel
@@ -561,7 +559,7 @@ local function runRotation()
 
             -- Aimed Shot
             -- if HasTalent(TrickShot) and BuffCount(Vulnerable) > 1 and HasBuff(LockAndLoad)
-            if talent.trickShot and debuffcount.vulnerable > 1 and buff.lockAndLoad.exists then
+            if talent.trickShot and debuffcount.vulnerable > 1 and buff.lockAndLoad.exists() then
                 if cast.aimedShot(units.dyn40) then return end
             end
             -- Multi-Shot
@@ -596,7 +594,7 @@ local function runRotation()
 --------------------------
 --- In Combat Rotation ---
 --------------------------
-            if inCombat and isValidUnit(units.dyn40) and getDistance(units.dyn40) < 40 and (debuff.huntersMark[units.dyn40] ~= nil and debuff.vulnerable[units.dyn40] ~= nil) and isCastingSpell(spell.barrage) == false then
+            if inCombat and isValidUnit(units.dyn40) and getDistance(units.dyn40) < 40 and isCastingSpell(spell.barrage) == false then
     ------------------------------
     --- In Combat - Interrupts ---
     ------------------------------
@@ -613,12 +611,12 @@ local function runRotation()
                     if getOptionValue("APL Mode") == 2 then
                         -- Volley
                         -- If you choose this talent, you will do more damage by having it always on, even against one target.
-                        if not buff.volley.exists then
+                        if not buff.volley.exists() then
                             if cast.volley(units.dyn40) then return end
                         end
                         -- Arcane Shot
                         -- if WasLastSpell(ArcaneShot) and HasTalent(SteadyFocus) and not HasBuff(SteadyFocus) and PowerToMax >= GlobalCooldownSec * 2 * PowerRegen + 10
-                        if lastSpellCast == spell.arcaneShot and talent.steadyFocus and not buff.steadyFocus.exists and powerDeficit >= gcd * 2 * powerRegen + 10 then
+                        if lastSpellCast == spell.arcaneShot and talent.steadyFocus and not buff.steadyFocus.exists() and powerDeficit >= gcd * 2 * powerRegen + 10 then
                             if cast.arcaneShot(units.dyn40) then return end
                         end
                         -- Cooldowns

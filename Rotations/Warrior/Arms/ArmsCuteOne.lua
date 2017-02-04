@@ -321,9 +321,9 @@ local function runRotation()
                 end
             -- Defensive Stance
                 if isChecked("Defensive Stance") then
-                    if php <= getOptionValue("Defensive Stance") and not buff.defensiveStance.exists then
+                    if php <= getOptionValue("Defensive Stance") and not buff.defensiveStance.exists() then
                         if cast.defensiveStance() then return end
-                    elseif buff.defensiveStance.exists then
+                    elseif buff.defensiveStance.exists() then
                         if cast.defensiveStance() then return end
                     end
                 end
@@ -344,7 +344,7 @@ local function runRotation()
                     if cast.stormBolt() then return end
                 end
             -- Victory Rush
-                if inCombat and isChecked("Victory Rush") and php <= getOptionValue("Victory Rush") and buff.victorious.exists then
+                if inCombat and isChecked("Victory Rush") and php <= getOptionValue("Victory Rush") and buff.victorious.exists() then
                     if cast.victoryRush() then return end
                 end
             end -- End Defensive Check
@@ -381,7 +381,7 @@ local function runRotation()
         function actionList_Cooldowns()
             if getDistance(units.dyn5) < 5 then
             -- Ring of Collapsing Futures
-                if buff.battleCry.exists or ignoreBattleCry then
+                if buff.battleCry.exists() or ignoreBattleCry then
                     if isChecked("Ring of Collapsing Futures") and hasEquiped(142173) and canUse(142173) and select(2,IsInInstance()) ~= "pvp"  then
                         useItem(142173)
                         return true
@@ -390,7 +390,7 @@ local function runRotation()
             -- Potion
                 -- potion,name=old_war,if=buff.avatar.up&buff.battle_cry.up&debuff.colossus_smash.up|target.time_to_die<=26
                 -- if useCDs() and canUse(strPot) and inRaid and isChecked("Potion") then
-                --     if (buff.avatar.exists and buff.battleCry.exists and debuff.colossusSmash[units.dyn5].exists) or ttd(units.dyn5) <= 26 then
+                --     if (buff.avatar.exists() and buff.battleCry.exists() and debuff.colossusSmash[units.dyn5].exists()) or ttd(units.dyn5) <= 26 then
                 --         useItem(strPot)
                 --     end
                 -- end
@@ -398,9 +398,9 @@ local function runRotation()
                 -- blood_fury,if=buff.battle_cry.up|target.time_to_die<=16
                 -- berserking,if=buff.battle_cry.up|target.time_to_die<=11
                 -- arcane_torrent,if=buff.battle_cry_deadly_calm.down&rage.deficit>40
-                if useCDs() and isChecked("Racial") and getSpellCD(racial) == 0 and ((br.player.race == "Orc" and (buff.battleCry.exists or ignoreBattleCry or ttd(units.dyn5) <= 16))
-                    or (br.player.race == "Troll" and (buff.battleCry.exists or ignoreBattleCry or ttd(units.dyn5) <= 11))
-                    or (br.player.race == "BloodElf" and (not buff.battleCry.exists and powerDeficit > 40)))
+                if useCDs() and isChecked("Racial") and getSpellCD(racial) == 0 and ((br.player.race == "Orc" and (buff.battleCry.exists() or ignoreBattleCry or ttd(units.dyn5) <= 16))
+                    or (br.player.race == "Troll" and (buff.battleCry.exists() or ignoreBattleCry or ttd(units.dyn5) <= 11))
+                    or (br.player.race == "BloodElf" and (not buff.battleCry.exists() and powerDeficit > 40)))
                 then
                     if castSpell("player",racial,false,false,false) then return end
                 end
@@ -521,7 +521,7 @@ local function runRotation()
                         --     StartAttack(executeUnit)
                         -- end
         -- Focused Rage
-                        if (buff.focusedRage.stack < 3 and (buff.battleCry.exists or ignoreBattleCry)) or powerDeficit < 25 or (buff.focusedRage.remain < 3 and buff.focusedRage.stack > 0) then
+                        if (buff.focusedRage.stack() < 3 and (buff.battleCry.exists() or ignoreBattleCry)) or powerDeficit < 25 or (buff.focusedRage.remain() < 3 and buff.focusedRage.stack() > 0) then
                             if cast.focusedRage(executeUnit) then return end
                         end
         -- Battle Cry
@@ -532,47 +532,47 @@ local function runRotation()
                             end
                         end
         -- Mortal Strike
-                        -- mortal_strike,if=cooldown_react&buff.battle_cry.up&buff.focused_rage.stack=3
-                        if ((buff.battleCry.exists or ignoreBattleCry) and buff.focusedRage.stack == 3) or ((buff.focusedRage.remain < cd.battleCry and cd.battleCry < 5) or (buff.focusedRage.remain < 5 and ignoreBattleCry)) then
+                        -- mortal_strike,if=cooldown_react&buff.battle_cry.up&buff.focused_rage.stack()=3
+                        if ((buff.battleCry.exists() or ignoreBattleCry) and buff.focusedRage.stack() == 3) or ((buff.focusedRage.remain() < cd.battleCry and cd.battleCry < 5) or (buff.focusedRage.remain() < 5 and ignoreBattleCry)) then
                             if cast.mortalStrike(executeUnit) then return end
                         end
         -- Heroic Charge
-                        -- heroic_charge,if=rage.deficit>=40&(!cooldown.heroic_leap.remains|swing.mh.remains>1.2)
+                        -- heroic_charge,if=rage.deficit>=40&(!cooldown.heroic_leap.remain()s|swing.mh.remain()s>1.2)
                         if mode.heroic == 1 and powerDeficit >= 40 and (cd.heroicLeap == 0 or swingTimer > 1.2) and getDistance(units.dyn5) < 5 then
                             heroicLeapCharge()
                         end
         -- Execute
                         -- execute,if=buff.battle_cry_deadly_calm.up
-                        if (debuff.colossusSmash[units.dyn5].exists or (cd.colossusSmash ~= 0 and (cd.warbreaker ~= 0 or not artifact.warbreaker
-                            or (getOptionValue("Artifact") == 2 and not useCDs()) or getOptionValue("Artifact") == 3))) and buff.shatteredDefenses.exists
-                            and ((buff.battleCry.exists or ignoreBattleCry) and talent.deadlyCalm)
+                        if (debuff.colossusSmash.exists(units.dyn5) or (cd.colossusSmash ~= 0 and (cd.warbreaker ~= 0 or not artifact.warbreaker
+                            or (getOptionValue("Artifact") == 2 and not useCDs()) or getOptionValue("Artifact") == 3))) and buff.shatteredDefenses.exists()
+                            and ((buff.battleCry.exists() or ignoreBattleCry) and talent.deadlyCalm)
                         then
                             if cast.execute(executeUnit) then return end
                         end
         -- Warbreaker
-                        -- warbreaker,if=debuff.colossus_smash.remains<gcd
+                        -- warbreaker,if=debuff.colossus_smash.remain()s<gcd
                         if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()) then
-                            if not buff.shatteredDefenses.exists and cd.colossusSmash > gcd and getDistance(units.dyn5) < 5 then
+                            if not buff.shatteredDefenses.exists() and cd.colossusSmash > gcd and getDistance(units.dyn5) < 5 then
                                 if cast.warbreaker("player") then usedWarbreaker = true; return end
                             end
                         end
         -- Colossus Smash
                         -- colossus_smash,if=cooldown_react&buff.shattered_defenses.down
-                        if debuff.colossusSmash[units.dyn5].remain < gcd or not buff.shatteredDefenses.exists then
+                        if debuff.colossusSmash.remain(units.dyn5) < gcd or not buff.shatteredDefenses.exists() then
                             if cast.colossusSmash(executeUnit) then return end
                         end
         -- Avatar
-                        -- avatar,if=gcd.remains<0.25&(buff.battle_cry.up|cooldown.battle_cry.remains<15)|target.time_to_die<=20
+                        -- avatar,if=gcd.remain()s<0.25&(buff.battle_cry.up|cooldown.battle_cry.remain()s<15)|target.time_to_die<=20
                         if (getOptionValue("Avatar") == 1 or (getOptionValue("Avatar") == 2 and useCDs())) then
-                            if (buff.battleCry.exists or cd.battleCry < 15) and lastSpell ~= spell.charge and lastSpell ~= spell.heroicThrow then
+                            if (buff.battleCry.exists() or cd.battleCry < 15) and lastSpell ~= spell.charge and lastSpell ~= spell.heroicThrow then
                                 if cast.avatar() then return end
                             end
                         end
         -- Execute
                         -- execute,if=buff.shattered_defenses.up&(rage>=17.6|buff.stone_heart.react)
-                        if (debuff.colossusSmash[units.dyn5].exists or (cd.colossusSmash ~= 0 and (cd.warbreaker ~= 0 or not artifact.warbreaker
-                            or (getOptionValue("Artifact") == 2 and not useCDs()) or getOptionValue("Artifact") == 3))) and buff.shatteredDefenses.exists
-                            and (rage >= 17.6 or buff.stoneHeart.exists)
+                        if (debuff.colossusSmash.exists(units.dyn5) or (cd.colossusSmash ~= 0 and (cd.warbreaker ~= 0 or not artifact.warbreaker
+                            or (getOptionValue("Artifact") == 2 and not useCDs()) or getOptionValue("Artifact") == 3))) and buff.shatteredDefenses.exists()
+                            and (rage >= 17.6 or buff.stoneHeart.exists())
                         then
                             if cast.execute(executeUnit) then return end
                         end
@@ -583,8 +583,8 @@ local function runRotation()
                         end
         -- Execute
                         -- execute,if=buff.shattered_defenses.down
-                        if (debuff.colossusSmash[units.dyn5].exists or (cd.colossusSmash ~= 0 and (cd.warbreaker ~= 0 or not artifact.warbreaker
-                            or (getOptionValue("Artifact") == 2 and not useCDs()) or getOptionValue("Artifact") == 3))) and not buff.shatteredDefenses.exists
+                        if (debuff.colossusSmash.exists(units.dyn5) or (cd.colossusSmash ~= 0 and (cd.warbreaker ~= 0 or not artifact.warbreaker
+                            or (getOptionValue("Artifact") == 2 and not useCDs()) or getOptionValue("Artifact") == 3))) and not buff.shatteredDefenses.exists()
                         then
                             if cast.execute(executeUnit) then return end
                         end
@@ -599,34 +599,34 @@ local function runRotation()
         -- Action List - Bladestorm
             if actionList_Bladestorm() then return end
         -- Warbreaker
-            -- warbreaker,if=debuff.colossus_smash.remains<gcd
+            -- warbreaker,if=debuff.colossus_smash.remain()s<gcd
             if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()) then
-                if not buff.shatteredDefenses.exists and cd.colossusSmash > gcd and getDistance(units.dyn5) < 5 then
+                if not buff.shatteredDefenses.exists() and cd.colossusSmash > gcd and getDistance(units.dyn5) < 5 then
                     if cast.warbreaker("player") then usedWarbreaker = true; return end
                 end
             end
         -- Colossus Smash
-            -- colossus_smash,if=cooldown_react&buff.shattered_defenses.down&(buff.battle_cry.down|buff.battle_cry.up&buff.battle_cry.remains>=gcd)
-            if debuff.colossusSmash[units.dyn5].remain < gcd or (not buff.shatteredDefenses.exists and (not buff.battleCry.exists or (buff.battleCry.exists and buff.battleCry.remain >= gcd))) then
+            -- colossus_smash,if=cooldown_react&buff.shattered_defenses.down&(buff.battle_cry.down|buff.battle_cry.up&buff.battle_cry.remain()s>=gcd)
+            if debuff.colossusSmash.remain(units.dyn5) < gcd or (not buff.shatteredDefenses.exists() and (not buff.battleCry.exists() or (buff.battleCry.exists() and buff.battleCry.remain() >= gcd))) then
                 if cast.colossusSmash() then return end
             end
         -- Heroic Charge
-            -- heroic_charge,if=rage.deficit>=40&(!cooldown.heroic_leap.remains|swing.mh.remains>1.2)
+            -- heroic_charge,if=rage.deficit>=40&(!cooldown.heroic_leap.remain()s|swing.mh.remain()s>1.2)
             if mode.heroic == 1 and powerDeficit >= 40 and (cd.heroicLeap == 0 or swingTimer > 1.2) and getDistance(units.dyn5) < 5 then
                 heroicLeapCharge()
             end
         -- Avatar
-            -- avatar,if=gcd.remains<0.25&(buff.battle_cry.up|cooldown.battle_cry.remains<15)|target.time_to_die<=20
+            -- avatar,if=gcd.remain()s<0.25&(buff.battle_cry.up|cooldown.battle_cry.remain()s<15)|target.time_to_die<=20
             if (getOptionValue("Avatar") == 1 or (getOptionValue("Avatar") == 2 and useCDs())) then
-                if (buff.battleCry.exists or cd.battleCry < 15) and lastSpell ~= spell.charge and lastSpell ~= spell.heroicThrow then
+                if (buff.battleCry.exists() or cd.battleCry < 15) and lastSpell ~= spell.charge and lastSpell ~= spell.heroicThrow then
                     if cast.avatar() then return end
                 end
             end
         -- Focused Rage
-            -- focused_rage,if=!buff.battle_cry_deadly_calm.up&buff.focused_rage.stack<3&!cooldown.colossus_smash.up&(rage>=50|debuff.colossus_smash.down|cooldown.battle_cry.remains<=8)
-            if ((buff.battleCry.remain > cd.focusedRage or ignoreBattleCry) and (buff.focusedRage.stack < 3 or cd.mortalStrike > 0))
-                or (not ((buff.battleCry.exists or ignoreBattleCry) and talent.deadlyCalm) and buff.focusedRage.stack < 3 and cd.colossusSmash > 0
-                    and (rage >= 50 or not debuff.colossusSmash[units.dyn5].exists or cd.battleCry <= 8))
+            -- focused_rage,if=!buff.battle_cry_deadly_calm.up&buff.focused_rage.stack()<3&!cooldown.colossus_smash.up&(rage>=50|debuff.colossus_smash.down|cooldown.battle_cry.remain()s<=8)
+            if ((buff.battleCry.remain() > cd.focusedRage or ignoreBattleCry) and (buff.focusedRage.stack() < 3 or cd.mortalStrike > 0))
+                or (not ((buff.battleCry.exists() or ignoreBattleCry) and talent.deadlyCalm) and buff.focusedRage.stack() < 3 and cd.colossusSmash > 0
+                    and (rage >= 50 or not debuff.colossusSmash.exists(units.dyn5) or cd.battleCry <= 8))
             then
                 -- if cast.focusedRage() then return end
                 cast.focusedRage()
@@ -644,7 +644,7 @@ local function runRotation()
             end
         -- Execute
             -- execute,if=buff.stone_heart.react
-            if buff.stoneHeart.exists then
+            if buff.stoneHeart.exists() then
                 if cast.execute() then return end
             end
             if (cd.mortalStrike > gcd and cd.colossusSmash > gcd) or level < 20 then
@@ -655,14 +655,14 @@ local function runRotation()
                     if cast.whirlwind() then return end
                 elseif ((mode.rotation == 1 and #enemies.yards8 == 1) or mode.rotation == 3) or level < 40 then
         -- Slam
-                    if rage > 32 or ((buff.battleCry.exists or ignoreBattleCry) and talent.deadlyCalm) then
+                    if rage > 32 or ((buff.battleCry.exists() or ignoreBattleCry) and talent.deadlyCalm) then
                         if cast.slam() then return end
                     end
                 end
             end
         -- Focused Rage
-            -- focused_rage,if=equipped.archavons_heavy_hand&buff.focused_rage.stack<3
-            if hasEquiped(137060) and buff.focusedRage.stack < 3 then
+            -- focused_rage,if=equipped.archavons_heavy_hand&buff.focused_rage.stack()<3
+            if hasEquiped(137060) and buff.focusedRage.stack() < 3 then
                 if cast.focusedRage() then return end
             end
         end -- End Action List - Single
@@ -758,7 +758,7 @@ local function runRotation()
                 if actionList_Cooldowns() then return end
             -- Rend
                 -- rend,if=remains<gcd
-                if debuff.rend[units.dyn5].remain < gcd then
+                if debuff.rend.remain(units.dyn5) < gcd then
                     if cast.rend() then return end
                 end
             -- Ravager
@@ -775,7 +775,7 @@ local function runRotation()
                 end
             -- Overpower
                 -- overpower,if=buff.overpower.react
-                if buff.overpower.exists then
+                if buff.overpower.exists() then
                     if cast.overpower() then return end
                 end
             -- Action List - Bladestorm

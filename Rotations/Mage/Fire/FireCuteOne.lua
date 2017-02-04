@@ -49,7 +49,7 @@ local function createOptions()
             br.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
         -- Pre-Pull Timer
             br.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
-        -- Artifact 
+        -- Artifact
             br.ui:createDropdownWithout(section,"Artifact", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Artifact Ability.")
         br.ui:checkSectionState(section)
     -- Cooldown Options
@@ -120,7 +120,7 @@ local function runRotation()
 --------------
 --- Locals ---
 --------------
-        local addsExist                                     = false 
+        local addsExist                                     = false
         local addsIn                                        = 999
         local artifact                                      = br.player.artifact
         local buff                                          = br.player.buff
@@ -150,7 +150,7 @@ local function runRotation()
         local mode                                          = br.player.mode
         local moveIn                                        = 999
         local moving                                        = isMoving("player")
-        local perk                                          = br.player.perk        
+        local perk                                          = br.player.perk
         local php                                           = br.player.health
         local playerMouse                                   = UnitIsPlayer("mouseover")
         local power, powmax, powgen, powerDeficit           = br.player.power.amount.mana, br.player.power.mana.max, br.player.power.regen, br.player.power.mana.deficit
@@ -163,7 +163,7 @@ local function runRotation()
         local ttd                                           = getTTD
         local ttm                                           = br.player.power.ttm
         local units                                         = br.player.units
-        
+
         if leftCombat == nil then leftCombat = GetTime() end
         if profileStop == nil then profileStop = false end
         if talent.kindling then kindle = 1 else kindle = 0 end
@@ -191,8 +191,8 @@ local function runRotation()
         local function actionList_Defensive()
             if useDefensive() then
         -- Pot/Stoned
-                if isChecked("Pot/Stoned") and php <= getOptionValue("Pot/Stoned") 
-                    and inCombat and (hasHealthPot() or hasItem(5512)) 
+                if isChecked("Pot/Stoned") and php <= getOptionValue("Pot/Stoned")
+                    and inCombat and (hasHealthPot() or hasItem(5512))
                 then
                     if canUse(5512) then
                         useItem(5512)
@@ -239,9 +239,9 @@ local function runRotation()
                 -- potion,name=deadly_grace
                 -- TODO
         -- Trinkets
-                -- use_item,slot=trinket2,if=buff.chaos_blades.up|!talent.chaos_blades.enabled 
+                -- use_item,slot=trinket2,if=buff.chaos_blades.up|!talent.chaos_blades.enabled
                 if isChecked("Trinkets") then
-                    -- if buff.chaosBlades or not talent.chaosBlades then 
+                    -- if buff.chaosBlades or not talent.chaosBlades then
                         if canUse(13) then
                             useItem(13)
                         end
@@ -278,23 +278,23 @@ local function runRotation()
     -- Action List - Active Talents
         local function actionList_ActiveTalents()
         -- Flame On
-            -- flame_on,if=action.fire_blast.charges=0&(cooldown.combustion.remains>40+(talent.kindling.enabled*25)|target.time_to_die.remains<cooldown.combustion.remains)
+            -- flame_on,if=action.fire_blast.charges=0&(cooldown.combustion.remain()s>40+(talent.kindling.enabled*25)|target.time_to_die.remain()s<cooldown.combustion.remain()s)
             if charges.fireBlast == 0 and (cd.combustion > 40 + (kindle * 25) or (ttd("target") < cd.combustion) or (isDummy("target") and cd.combustion > 45)) then
                 if cast.flameOn() then return end
             end
         -- Blast Wave
             -- blast_wave,if=(buff.combustion.down)|(buff.combustion.up&action.fire_blast.charges<1&action.phoenixs_flames.charges<1)
-            if (not buff.combustion.exists) or (buff.combustion.exists and charges.fireBlast < 1 and charges.phoenixsFlames < 1) then
+            if (not buff.combustion.exists()) or (buff.combustion.exists() and charges.fireBlast < 1 and charges.phoenixsFlames < 1) then
                 if cast.blastWave() then return end
             end
         -- Meteor
-            -- meteor,if=cooldown.combustion.remains>30|(cooldown.combustion.remains>target.time_to_die)|buff.rune_of_power.up
-            if cd.combustion > 30 or (cd.combustion > ttd("target")) or buff.runeOfPower.exists then
+            -- meteor,if=cooldown.combustion.remain()s>30|(cooldown.combustion.remain()s>target.time_to_die)|buff.rune_of_power.up
+            if cd.combustion > 30 or (cd.combustion > ttd("target")) or buff.runeOfPower.exists() then
                 if cast.meteor() then return end
             end
         -- Cinderstorm
-            -- cinderstorm,if=cooldown.combustion.remains<cast_time&(buff.rune_of_power.up|!talent.rune_on_power.enabled)|cooldown.combustion.remains>10*spell_haste&!buff.combustion.up
-            if cd.combustion < getCastTime(spell.cinderstorm) and (buff.runeOfPower.exists or not talent.runeOfPower) or cd.combustion > 10 * hasteAmount and not buff.combustion.exists then
+            -- cinderstorm,if=cooldown.combustion.remain()s<cast_time&(buff.rune_of_power.up|!talent.rune_on_power.enabled)|cooldown.combustion.remain()s>10*spell_haste&!buff.combustion.up
+            if cd.combustion < getCastTime(spell.cinderstorm) and (buff.runeOfPower.exists() or not talent.runeOfPower) or cd.combustion > 10 * hasteAmount and not buff.combustion.exists() then
                 if cast.cinderstorm() then return end
             end
         -- Dragon's Breath
@@ -304,7 +304,7 @@ local function runRotation()
             end
         -- Living Bomb
             -- living_bomb,if=active_enemies>1&buff.combustion.down
-            if ((#enemies.yards10t > 1 and mode.rotation == 1) or mode.rotation == 2) and not buff.combustion.exists then
+            if ((#enemies.yards10t > 1 and mode.rotation == 1) or mode.rotation == 2) and not buff.combustion.exists() then
                 if cast.livingBomb("target") then return end
             end
         end -- End Active Talents Action List
@@ -312,7 +312,7 @@ local function runRotation()
         local function actionList_CombustionPhase()
         -- Rune of Power
             -- rune_of_power,if=buff.combustion.down
-            if not buff.combustion.exists then 
+            if not buff.combustion.exists() then
                 if cast.runeOfPower("player","ground") then return end
             end
         -- Call Action List - Active Talents
@@ -326,14 +326,14 @@ local function runRotation()
       -- Call Action List - Cooldowns
             if actionList_Cooldowns() then return end
         -- Pyroblast
-            -- pyroblast,if=buff.kaelthas_ultimate_ability.react&buff.combustion.remains>execute_time 
+            -- pyroblast,if=buff.kaelthas_ultimate_ability.react&buff.combustion.remain()s>execute_time
             -- pyroblast,if=buff.hot_streak.up
-            if (buff.kaelthasUltimateAbility.exists and buff.combustion.remain > getCastTime(spell.pyroblast)) or buff.hotStreak.exists then
+            if (buff.kaelthasUltimateAbility.exists() and buff.combustion.remain() > getCastTime(spell.pyroblast)) or buff.hotStreak.exists() then
                 if cast.pyroblast() then return end
             end
         -- Fire Blast
             -- fire_blast,if=buff.heating_up.up
-            if buff.heatingUp.exists then
+            if buff.heatingUp.exists() then
                 if cast.fireBlast() then return end
             end
         -- Phoenix's Flames
@@ -342,8 +342,8 @@ local function runRotation()
                if cast.phoenixsFlames() then return end
            end
         -- Scorch
-            -- scorch,if=buff.combustion.remains>cast_time
-            if buff.combustion.remain > getCastTime(spell.scorch) then
+            -- scorch,if=buff.combustion.remain()s>cast_time
+            if buff.combustion.remain() > getCastTime(spell.scorch) then
                 if cast.scorch() then return end
             end
         -- Dragon's Breath
@@ -364,7 +364,7 @@ local function runRotation()
             if cast.runeOfPower() then return end
         -- Pyroblast
             -- pyroblast,if=buff.hot_streak.up
-            if buff.hotStreak.exists then
+            if buff.hotStreak.exists() then
                 if cast.pyroblast() then return end
             end
         -- Call Action List - Active Talents
@@ -372,7 +372,7 @@ local function runRotation()
             if actionList_ActiveTalents() then return end
         -- Pyroblast
             -- pyroblast,if=buff.kaelthas_ultimate_ability.react
-            if buff.kaelthasUltimateAbility.exists then
+            if buff.kaelthasUltimateAbility.exists() then
                 if cast.pyroblast() then return end
             end
         -- Fire Blast
@@ -397,8 +397,8 @@ local function runRotation()
     -- Action List - Single Target
         local function actionList_Single()
         -- Pyroblast
-            -- pyroblast,if=buff.hot_streak.up&buff.hot_streak.remains<action.fireball.execute_time
-            if buff.hotStreak.exists and buff.hotStreak.remain < getCastTime(spell.fireball) then
+            -- pyroblast,if=buff.hot_streak.up&buff.hot_streak.remain()s<action.fireball.execute_time
+            if buff.hotStreak.exists() and buff.hotStreak.remain() < getCastTime(spell.fireball) then
                 if cast.pyroblast() then return end
             end
         -- Phoenix's Flames
@@ -414,9 +414,9 @@ local function runRotation()
             end
         -- Flamestrike
             -- flamestrike,if=talent.flame_patch.enabled&active_enemies>2&buff.hot_streak.react
-            if ((#enemies.yards8t >= 3 and mode.rotation == 1) or mode.rotation == 2) and buff.hotStreak.exists then
+            if ((#enemies.yards8t >= 3 and mode.rotation == 1) or mode.rotation == 2) and buff.hotStreak.exists() then
                 if cast.flamestrike("best",nil,2,8) then return end
-            elseif ((#enemies.yards8t >= 3 and mode.rotation == 1) or mode.rotation == 2) and buff.hotStreak.exists and not talent.pyromaniac then
+            elseif ((#enemies.yards8t >= 3 and mode.rotation == 1) or mode.rotation == 2) and buff.hotStreak.exists() and not talent.pyromaniac then
                 if cast.flamestrike("best",nil,2,8) then return end
             end
         -- Dragon's Breath
@@ -427,9 +427,9 @@ local function runRotation()
             -- pyroblast,if=buff.hot_streak.up&!prev_gcd.pyroblast
             -- pyroblast,if=buff.hot_streak.react&target.health.pct<=25&equipped.132454
             -- pyroblast,if=buff.kaelthas_ultimate_ability.react
-            if (buff.hotStreak.exists and lastSpell ~= spell.pyroblast)
-                or (buff.hotStreak.exists and getHP("target") <= 25 and hasEquiped(132454))
-                or buff.kaelthasUltimateAbility.exists 
+            if (buff.hotStreak.exists() and lastSpell ~= spell.pyroblast)
+                or (buff.hotStreak.exists() and getHP("target") <= 25 and hasEquiped(132454))
+                or buff.kaelthasUltimateAbility.exists()
             then
                 if cast.pyroblast() then return end
             end
@@ -437,18 +437,18 @@ local function runRotation()
             -- call_action_list,name=active_talents
             if actionList_ActiveTalents() then return end
         -- Fire Blast
-            -- fire_blast,if=!talent.kindling.enabled&buff.heating_up.up&(!talent.rune_of_power.enabled|charges_fractional>1.4|cooldown.combustion.remains<40)&(3-charges_fractional)*(12*spell_haste)<cooldown.combustion.remains+3|target.time_to_die.remains<4
-            -- fire_blast,if=talent.kindling.enabled&buff.heating_up.up&(!talent.rune_of_power.enabled|charges_fractional>1.5|cooldown.combustion.remains<40)&(3-charges_fractional)*(18*spell_haste)<cooldown.combustion.remains+3|target.time_to_die.remains<4
-            if (not talent.kindling and buff.heatingUp.exists and (not talent.runeOfPower or charges.frac.fireBlast > 1.4 or cd.combustion < 40) and (3 - charges.frac.fireBlast) * (12 * hasteAmount) < cd.combustion + 3 or ttd("target") < 4)
-                or (talent.kindling and buff.heatingUp.exists and (not talent.runeOfPower or charges.frac.fireBlast > 1.5 or cd.combustion < 40) and (3 - charges.frac.fireBlast) * (18 * hasteAmount) < cd.combustion + 3 or ttd("target") < 4)
+            -- fire_blast,if=!talent.kindling.enabled&buff.heating_up.up&(!talent.rune_of_power.enabled|charges_fractional>1.4|cooldown.combustion.remain()s<40)&(3-charges_fractional)*(12*spell_haste)<cooldown.combustion.remain()s+3|target.time_to_die.remain()s<4
+            -- fire_blast,if=talent.kindling.enabled&buff.heating_up.up&(!talent.rune_of_power.enabled|charges_fractional>1.5|cooldown.combustion.remain()s<40)&(3-charges_fractional)*(18*spell_haste)<cooldown.combustion.remain()s+3|target.time_to_die.remain()s<4
+            if (not talent.kindling and buff.heatingUp.exists() and (not talent.runeOfPower or charges.frac.fireBlast > 1.4 or cd.combustion < 40) and (3 - charges.frac.fireBlast) * (12 * hasteAmount) < cd.combustion + 3 or ttd("target") < 4)
+                or (talent.kindling and buff.heatingUp.exists() and (not talent.runeOfPower or charges.frac.fireBlast > 1.5 or cd.combustion < 40) and (3 - charges.frac.fireBlast) * (18 * hasteAmount) < cd.combustion + 3 or ttd("target") < 4)
             then
                 if cast.fireBlast() then return end
             end
         -- Phoenix's Flames
-            -- phoenixs_flames,if=(buff.combustion.up|buff.rune_of_power.up|buff.incanters_flow.stack>3|talent.mirror_image.enabled)&artifact.phoenix_reborn.enabled&(4-charges_fractional)*13<cooldown.combustion.remains+5|target.time_to_die.remains<10
-            -- phoenixs_flames,if=(buff.combustion.up|buff.rune_of_power.up)&(4-charges_fractional)*30<cooldown.combustion.remains+5
-            if (charges.phoenixsFlames > 1 or useCDs()) and (((buff.combustion.exists or buff.runeOfPower.exists or buff.incantersFlow.stack > 3 or talent.mirrorImage) and artifact.phoenixReborn and (4 - charges.frac.phoenixsFlames) * 13 < cd.combustion + 5 or ttd("target") < 10) 
-                or ((buff.combustion.exists or buff.runeOfPower.exists) and (4 - charges.frac.phoenixsFlames) * 30 < cd.combustion + 5))
+            -- phoenixs_flames,if=(buff.combustion.up|buff.rune_of_power.up|buff.incanters_flow.stack()>3|talent.mirror_image.enabled)&artifact.phoenix_reborn.enabled&(4-charges_fractional)*13<cooldown.combustion.remain()s+5|target.time_to_die.remain()s<10
+            -- phoenixs_flames,if=(buff.combustion.up|buff.rune_of_power.up)&(4-charges_fractional)*30<cooldown.combustion.remain()s+5
+            if (charges.phoenixsFlames > 1 or useCDs()) and (((buff.combustion.exists() or buff.runeOfPower.exists() or buff.incantersFlow.stack() > 3 or talent.mirrorImage) and artifact.phoenixReborn and (4 - charges.frac.phoenixsFlames) * 13 < cd.combustion + 5 or ttd("target") < 10)
+                or ((buff.combustion.exists() or buff.runeOfPower.exists()) and (4 - charges.frac.phoenixsFlames) * 30 < cd.combustion + 5))
             then
                 if cast.phoenixsFlames() then return end
             end
@@ -468,7 +468,7 @@ local function runRotation()
         if not inCombat and not hastar and profileStop==true then
             profileStop = false
         elseif (inCombat and profileStop==true) or pause() or mode.rotation==4 then
-            if buff.heatingUp.exists then
+            if buff.heatingUp.exists() then
                 if cast.fireBlast() then return end
             end
             return true
@@ -499,22 +499,22 @@ local function runRotation()
                 if getOptionValue("APL Mode") == 1 then
         -- Mirror Image
                     -- mirror_image,if=buff.combustion.down
-                    if isChecked("Mirror Image") and not buff.combustion.exists then
+                    if isChecked("Mirror Image") and not buff.combustion.exists() then
                         if cast.mirrorImage() then return end
                     end
         -- Rune of Power
-                    -- rune_of_power,if=cooldown.combustion.remains>40&buff.combustion.down&(cooldown.flame_on.remains<5|cooldown.flame_on.remains>30)&!talent.kindling.enabled|target.time_to_die.remains<11|talent.kindling.enabled&(charges_fractional>1.8|time<40)&cooldown.combustion.remains>40
-                    if cd.combustion > 40 and not buff.combustion.exists and (cd.flameOn < 5 or cd.flameOn > 30) and (not talent.kindling or ttd("target") < 11 or (talent.kindling and (charges.frac.fireBlast > 1.8 or combatTime < 40) and cd.combustion > 40)) then
+                    -- rune_of_power,if=cooldown.combustion.remain()s>40&buff.combustion.down&(cooldown.flame_on.remain()s<5|cooldown.flame_on.remain()s>30)&!talent.kindling.enabled|target.time_to_die.remain()s<11|talent.kindling.enabled&(charges_fractional>1.8|time<40)&cooldown.combustion.remain()s>40
+                    if cd.combustion > 40 and not buff.combustion.exists() and (cd.flameOn < 5 or cd.flameOn > 30) and (not talent.kindling or ttd("target") < 11 or (talent.kindling and (charges.frac.fireBlast > 1.8 or combatTime < 40) and cd.combustion > 40)) then
                         if cast.runeOfPower("player","ground") then return end
                     end
         -- Action List - Combustion Phase
-                    -- call_action_list,name=combustion_phase,if=cooldown.combustion.remains<=action.rune_of_power.cast_time+(!talent.kindling.enabled*gcd)|buff.combustion.up
-                    if cd.combustion < getCastTime(spell.runeOfPower) + (notKindle * gcd) or buff.combustion.exists then
+                    -- call_action_list,name=combustion_phase,if=cooldown.combustion.remain()s<=action.rune_of_power.cast_time+(!talent.kindling.enabled*gcd)|buff.combustion.up
+                    if cd.combustion < getCastTime(spell.runeOfPower) + (notKindle * gcd) or buff.combustion.exists() then
                         if actionList_CombustionPhase() then return end
                     end
         -- Action List - Rune of Power Phase
                     -- call_action_list,name=rop_phase,if=buff.rune_of_power.up&buff.combustion.down
-                    if buff.runeOfPower.exists and not buff.combustion.exists then
+                    if buff.runeOfPower.exists() and not buff.combustion.exists() then
                         if actionList_ROPPhase() then return end
                     end
         -- Action List - Single

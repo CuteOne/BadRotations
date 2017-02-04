@@ -242,7 +242,7 @@ local function runRotation()
         local function actionList_Cooldowns()
             if useCDs() and getDistance(units.dyn40) < 40 then
                 -- Rune of Power
-                -- rune_of_power,if=cooldown.icy_veins.remains<cast_time|charges_fractional>1.9&cooldown.icy_veins.remains>10|buff.icy_veins.up|target.time_to_die.remains+5<charges_fractional*10
+                -- rune_of_power,if=cooldown.icy_veins.remain()s<cast_time|charges_fractional>1.9&cooldown.icy_veins.remain()s>10|buff.icy_veins.up|target.time_to_die.remain()s+5<charges_fractional*10
                 -- TODO
                 -- Potion
                 -- potion,name=deadly_grace
@@ -285,14 +285,14 @@ local function runRotation()
         local function actionList_PreCombat()
             if not inCombat and not (IsFlying() or IsMounted()) then
             -- Arcane familiar
-              if not buff.arcaneFamiliar.exists then
+              if not buff.arcaneFamiliar.exists() then
                 Print("Familiar is DOWN Pre.")
                 if not hasPet then
                   print("we have no pet -- Pr Combat ")
                   CastSpellByName("Arcane Familiar", "")
                 end
               end
-                if buff.arcaneFamiliar.exists then
+                if buff.arcaneFamiliar.exists() then
                   --Print("Familiar is UP Pre.")
                 end
             -- Flask
@@ -376,7 +376,7 @@ local function runRotation()
             if getOptionValue("APL Mode") == 3 then
             -- Mirror Image
             -- mirror_image,if=buff.arcane_power.down
-                if not buff.arcanePower.exists then
+                if not buff.arcanePower.exists() then
                     cast.mirrorImage()
                 end
 
@@ -389,13 +389,13 @@ local function runRotation()
                 end
 
 
-                if arcaneCharges >= maxCharges and talent.netherTempest and not debuff.netherTempest[units.dyn40].exists then
+                if arcaneCharges >= maxCharges and talent.netherTempest and not debuff.netherTempest.exists(units.dyn40) then
                     cast.netherTempest()
                 end
-                if buff.arcaneMissles.exists and arcaneCharges >= maxCharges then
+                if buff.arcaneMissles.exists() and arcaneCharges >= maxCharges then
                     cast.arcaneMissles()
                 end
-                if arcaneCharges >= maxCharges and not buff.arcaneMissles.exists then
+                if arcaneCharges >= maxCharges and not buff.arcaneMissles.exists() then
                     cast.arcaneBarage()
                 end
                 if arcaneCharges < maxCharges then

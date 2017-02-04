@@ -148,7 +148,7 @@ local function runRotation()
         local charges                                       = br.player.charges
         local deadMouse                                     = UnitIsDeadOrGhost("mouseover")
         local deadtar, attacktar, hastar, playertar         = deadtar or UnitIsDeadOrGhost("target"), attacktar or UnitCanAttack("target", "player"), hastar or ObjectExists("target"), UnitIsPlayer("target")
-        local debuff, debuffcount                           = br.player.debuff, br.player.debuffcount
+        local debuff                                        = br.player.debuff
         local enemies                                       = br.player.enemies
         local falling, swimming, flying, moving             = getFallTime(), IsSwimming(), IsFlying(), GetUnitSpeed("player")>0
         local fatality                                      = false
@@ -259,7 +259,7 @@ local function runRotation()
             end -- End Dummy Test
         -- Volley
         -- Should be active all the time
-            if talent.volley and not buff.volley.exists then
+            if talent.volley and not buff.volley.exists() then
                 if cast.volley() then return end
             end
             --Misdirection
@@ -343,7 +343,7 @@ local function runRotation()
                 if isChecked("Racial") and (br.player.race == "BloodElf") and powerDeficit >= 30 then
                      if castSpell("player",racial,false,false,false) then return end
                 end
-                if buff.bestialWrath.exists then
+                if buff.bestialWrath.exists() then
                     -- Trinkets
                     if isChecked("Trinkets") then
                         if canUse(13) then
@@ -385,7 +385,7 @@ local function runRotation()
         local function actionList_SingleTarget()
             -- Titan's Thunder
             -- if PetCount(DireBeast) > 0 or HasTalent(DireFrenzy)
-            if buff.direBeast.exists or talent.direfrenzy then
+            if buff.direBeast.exists() or talent.direfrenzy then
                 if cast.titansThunder(units.dyn40) then return end
             end
             -- Dire Frenzy
@@ -423,7 +423,7 @@ local function runRotation()
             if cast.stampede(units.dyn40) then return end
             -- Titan's Thunder
             -- if PetCount(DireBeast) > 0 or HasTalent(DireFrenzy)
-            if buff.direBeast.exists or talent.direfrenzy then
+            if buff.direBeast.exists() or talent.direfrenzy then
                     if cast.titansThunder(units.dyn40) then return end
                 end
             -- Barrage
@@ -509,7 +509,7 @@ local function runRotation()
                             if cast.barrage(units.dyn40) then return end
                         end
                 -- Titans Thunder
-                        if talent.direfrenzy or cd.direBeast >= 3 or (buff.bestialWrath.exists and buff.direBeast.exists) then
+                        if talent.direfrenzy or cd.direBeast >= 3 or (buff.bestialWrath.exists() and buff.direBeast.exists()) then
                             if cast.titansThunder(units.dyn40) then return end
                         end
                 -- Bestial Wrath
@@ -532,7 +532,7 @@ local function runRotation()
                             if cast.chimaeraShot(units.dyn40) then return end
                         end
                 -- Cobra Shot
-                        if power > 70 - powerRegen * cd.killCommand and power > 70 - powerRegen * cd.bestialWrath or (buff.bestialWrath.exists and powerRegen * cd.killCommand > 30) then
+                        if power > 70 - powerRegen * cd.killCommand and power > 70 - powerRegen * cd.bestialWrath or (buff.bestialWrath.exists() and powerRegen * cd.killCommand > 30) then
                             if cast.cobraShot(units.dyn40) then return end
                         end
                     end -- End SimC APL

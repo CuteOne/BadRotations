@@ -108,7 +108,7 @@ local function runRotation()
 --------------
 --- Locals ---
 --------------
-        local addsExist                                     = false 
+        local addsExist                                     = false
         local addsIn                                        = 999
         local artifact                                      = br.player.artifact
         local buff                                          = br.player.buff
@@ -138,7 +138,7 @@ local function runRotation()
         local mode                                          = br.player.mode
         local moveIn                                        = 999
         -- local multidot                                      = (useCleave() or br.player.mode.rotation ~= 3)
-        local perk                                          = br.player.perk        
+        local perk                                          = br.player.perk
         local php                                           = br.player.health
         local playerMouse                                   = UnitIsPlayer("mouseover")
         local power, powmax, powgen, powerDeficit           = br.player.power.amount.insanity, br.player.power.insanity.max, br.player.power.regen, br.player.power.insanity.deficit
@@ -152,7 +152,7 @@ local function runRotation()
         local ttd                                           = getTTD
         local ttm                                           = br.player.power.ttm
         local units                                         = br.player.units
-        
+
         local SWPmaxTargets                                 = getOptionValue("SWP Max Targets")
         local VTmaxTargets                                  = getOptionValue("VT Max Targets")
 
@@ -175,13 +175,13 @@ local function runRotation()
         end -- End Action List - Extra
         -- Action List - Defensive
         function actionList_Defensive()
-            if useDefensive() and getHP("player")>0 then     
+            if useDefensive() and getHP("player")>0 then
                 -- Gift of the Naaru
                 if isChecked("Gift of the Naaru") and php <= getOptionValue("Gift of the Naaru") and php > 0 and br.player.race=="Draenei" then
                     if castSpell("player",racial,false,false,false) then return end
                 end
                 -- Power Word: Shield
-                if isChecked("Power Word: Shield") and php <= getOptionValue("Power Word: Shield") and not buff.powerWordShield.exists then
+                if isChecked("Power Word: Shield") and php <= getOptionValue("Power Word: Shield") and not buff.powerWordShield.exists() then
                     if cast.powerWordShield("player") then return end
                 end
             end -- End Defensive Check
@@ -216,18 +216,18 @@ local function runRotation()
                     if canUse(14) then
                         useItem(14)
                     end
-                end     
+                end
             end
         end -- End Action List - Cooldowns
         -- Action List - Pre-Combat
         function actionList_PreCombat()
-            if not buff.shadowform.exists then
+            if not buff.shadowform.exists() then
                 cast.shadowform()
             end
             -- Power Word: Shield Body and Soul
             if talent.bodyAndSoul and isMoving("player") and not IsMounted() then
                 if cast.powerWordShield("player") then return end
-            end                
+            end
         end  -- End Action List - Pre-Combat
         -- Action List - Single
         function actionList_Auto()
@@ -235,7 +235,7 @@ local function runRotation()
             --Mouseover Dotting
             if isChecked("Mouseover Dotting") and hasMouse and isValidTarget("mouseover") then
                 if getDebuffRemain("mouseover",spell.shadowWordPain,"player") <= 1 then
-                    if cast.shadowWordPain("mouseover") then return end 
+                    if cast.shadowWordPain("mouseover") then return end
                 end
             end
             --MindBender
@@ -252,7 +252,7 @@ local function runRotation()
                 if cast.shadowCrash("best",nil,1,8) then return end
             end
             --if cast.shadowCrash("best",false,1,8) then return end
-            
+
             -- Shadow Word Death
             -- if ChargesRemaining(ShadowWordDeath) = SpellCharges(ShadowWordDeath)
             if charges.shadowWordDeath == charges.max.shadowWordDeath and getHP(units.dyn40) < 20 then
@@ -260,27 +260,21 @@ local function runRotation()
             end
             -- Mind Blast
             if cast.mindBlast() then return end
-            -- Shadow Word: Pain  
+            -- Shadow Word: Pain
             for i = 1, #enemies.yards40 do
                 local thisUnit = enemies.yards40[i]
-                local swp = debuff.shadowWordPain[thisUnit]
-                if swp ~= nil then
-                    if UnitIsUnit(thisUnit,"target") or hasThreat(thisUnit) or isDummy(thisUnit) then
-                        if ttd(thisUnit) > swp.duration and (not swp or swp.refresh) then
-                            if cast.shadowWordPain(thisUnit,"aoe") then return end
-                        end
+                if UnitIsUnit(thisUnit,"target") or hasThreat(thisUnit) or isDummy(thisUnit) then
+                    if ttd(thisUnit) > debuff.shadowWordPain.duration(thisUnit) and debuff.shadowWordPain.refresh(thisUnit) then
+                        if cast.shadowWordPain(thisUnit,"aoe") then return end
                     end
                 end
-            end            
+            end
             -- Vampiric Touch
             for i = 1, #enemies.yards40 do
                 local thisUnit = enemies.yards40[i]
-                local vt = debuff.vampiricTouch[thisUnit]
-                if vt ~= nil then
-                    if UnitIsUnit(thisUnit,"target") or hasThreat(thisUnit) or isDummy(thisUnit) then
-                        if ttd(thisUnit) > vt.duration and (not vt or vt.refresh) and lastSpellCast ~= spell.vampiricTouch then
-                            if cast.vampiricTouch(thisUnit,"aoe") then return end
-                        end
+                if UnitIsUnit(thisUnit,"target") or hasThreat(thisUnit) or isDummy(thisUnit) then
+                    if ttd(thisUnit) > debuff.vampiricTouch.duration(thisUnit) and debuff.vampiricTouch.refresh(thisUnit) and lastSpellCast ~= spell.vampiricTouch then
+                        if cast.vampiricTouch(thisUnit,"aoe") then return end
                     end
                 end
             end
@@ -306,24 +300,24 @@ local function runRotation()
             --Cooldowns
             if actionList_Cooldowns() then return end
             --Void Torrent
-            if useCDs() and ttd(units.dyn40) > 5 and getDebuffRemain(units.dyn40,spell.vampiricTouch,"player") >= 6 and getDebuffRemain(units.dyn40,spell.shadowWordPain,"player") >= 4 and buff.voidForm.stack >= 23 then
+            if useCDs() and ttd(units.dyn40) > 5 and getDebuffRemain(units.dyn40,spell.vampiricTouch,"player") >= 6 and getDebuffRemain(units.dyn40,spell.shadowWordPain,"player") >= 4 and buff.voidForm.stack() >= 23 then
                 if cast.voidTorrent() then return end
             end
             --VoidBolt
-            if cast.voidBolt("target") then return end 
+            if cast.voidBolt("target") then return end
             --Dispersion
             -- if HasBuff(SurrenderedSoul) and Abs(AlternatePowerRegen * GlobalCooldownSec) > AlternatePower and not CanUse(ShadowWordDeath)
-            if buff.surrenderedSoul.exists and (powgen * gcd) > power and not cast.shadowWordDeath(units.dyn40,true) then
+            if buff.surrenderedSoul.exists() and (powgen * gcd) > power and not cast.shadowWordDeath(units.dyn40,true) then
                 if cast.dispersion() then return end
             end
             --MindBender
             if useCDs() and isChecked("Shadowfiend / Mind Bender") and talent.mindBender then
-                if cast.mindBender() then return end  
+                if cast.mindBender() then return end
             end
             --Power Infusion
             -- if (BuffStack(Voidform) >= 10 and not HasBuff(SurrenderedSoul)) or BuffStack(Voidform) > 60
-            if useCDs() and isChecked("Power Infusion") and (buff.voidForm.stack >= 10 and not buff.surrenderedSoul.exists) or buff.voidForm.stack >= 60 then
-                if cast.powerInfusion() then return end 
+            if useCDs() and isChecked("Power Infusion") and (buff.voidForm.stack() >= 10 and not buff.surrenderedSoul.exists()) or buff.voidForm.stack() >= 60 then
+                if cast.powerInfusion() then return end
             end
             --Shadow Crash
             if talent.shadowCrash then
@@ -331,12 +325,12 @@ local function runRotation()
             end
             --SWD
             -- if not HasBuff(SurrenderedSoul) and ((HasTalent(ReaperOfSouls) and AlternatePowerToMax >= 30) or not HasTalent(ReaperOfSouls))
-            if not buff.surrenderedSoul.exists and (talent.reaperOfSouls and powerDeficit >= 30) or not talent.reaperOfSouls then
+            if not buff.surrenderedSoul.exists() and (talent.reaperOfSouls and powerDeficit >= 30) or not talent.reaperOfSouls then
                 if cast.shadowWordDeath()then return end
             end
             --SWD
             --if HasBuff(SurrenderedSoul) and ((AlternatePowerToMax >= 75 and HasTalent(ReaperOfSouls)) or (AlternatePowerToMax >= 25 and not HasTalent(ReaperOfSouls)))
-            if buff.surrenderedSoul.exists and ((powerDeficit >= 75 and talent.reaperOfSouls) or (powerDeficit >= 25 and not talent.reaperOfSouls)) then
+            if buff.surrenderedSoul.exists() and ((powerDeficit >= 75 and talent.reaperOfSouls) or (powerDeficit >= 25 and not talent.reaperOfSouls)) then
                 if cast.shadowWordDeath()then return end
             end
             -- Mind Blast
@@ -351,40 +345,34 @@ local function runRotation()
             end
             -- Shadow Word: Void
             -- if (AlternatePowerToMax >= 35 and not HasBuff(SurrenderedSoul)) or (HasBuff(SurrenderedSoul) and AlternatePowerToMax >= 50)
-            if (powerDeficit >= 35 and not buff.surrenderedSoul.exists) or (buff.surrenderedSoul.exists and powerDeficit >= 50) then
+            if (powerDeficit >= 35 and not buff.surrenderedSoul.exists()) or (buff.surrenderedSoul.exists() and powerDeficit >= 50) then
                 if cast.shadowWordVoid() then return end
             end
             -- Shadowfiend
-            if useCDs() and isChecked("Shadowfiend / Mind Bender") and buff.voidForm.stack > 15 then
+            if useCDs() and isChecked("Shadowfiend / Mind Bender") and buff.voidForm.stack() > 15 then
                 if cast.shadowfiend() then return end
             end
             -- Shadow Word: Pain
             for i = 1, #enemies.yards40 do
                 local thisUnit = enemies.yards40[i]
-                local swp = debuff.shadowWordPain[thisUnit]
-                if swp ~= nil then
-                    if UnitIsUnit(thisUnit,"target") or hasThreat(thisUnit) or isDummy(thisUnit) then
-                        if ttd(thisUnit) > swp.duration and (not swp or swp.refresh) then
-                            if cast.shadowWordPain(thisUnit,"aoe") then return end
-                        end
+                if UnitIsUnit(thisUnit,"target") or hasThreat(thisUnit) or isDummy(thisUnit) then
+                    if ttd(thisUnit) > debuff.shadowWordPain.duration(thisUnit) and debuff.shadowWordPain.refresh(thisUnit) then
+                        if cast.shadowWordPain(thisUnit,"aoe") then return end
                     end
                 end
-            end             
+            end
             -- Vampiric Touch
             for i = 1, #enemies.yards40 do
                 local thisUnit = enemies.yards40[i]
-                local vt = debuff.vampiricTouch[thisUnit]
-                if vt ~= nil then
-                    if UnitIsUnit(thisUnit,"target") or hasThreat(thisUnit) or isDummy(thisUnit) then
-                        if ttd(thisUnit) > vt.duration and (not vt or vt.refresh) and lastSpellCast ~= spell.vampiricTouch then
-                            if cast.vampiricTouch(thisUnit,"aoe") then return end
-                        end
+                if UnitIsUnit(thisUnit,"target") or hasThreat(thisUnit) or isDummy(thisUnit) then
+                    if ttd(thisUnit) > debuff.vampiricTouch.duration(thisUnit) and debuff.vampiricTouch.refresh(thisUnit) and lastSpellCast ~= spell.vampiricTouch then
+                        if cast.vampiricTouch(thisUnit,"aoe") then return end
                     end
                 end
             end
             --  if getDebuffRemain(units.dyn40,spell.vampiricTouch,"player") <= 6 and not isCastingSpell(spell.vampiricTouch) then
-            --     if cast.vampiricTouch(units.dyn40) then return end 
-            -- end 
+            --     if cast.vampiricTouch(units.dyn40) then return end
+            -- end
             -- Mind Spike / Mind Flay
             if talent.mindSpike then
                 if cast.mindSpike() then return end
@@ -406,15 +394,15 @@ local function runRotation()
             if actionList_PreCombat() then return end
         end
 -----------------------------
---- In Combat - Rotations --- 
+--- In Combat - Rotations ---
 -----------------------------
         if inCombat and not IsMounted() and isValidUnit(units.dyn40) and getDistance(units.dyn40) < 40 and not isCastingSpell(spell.voidTorrent) then
 
-            if buff.voidForm.exists then
+            if buff.voidForm.exists() then
                 if actionList_VoidForm() then return end
             else
                 if actionList_Auto() then return end
-            end     
+            end
         end -- End Combat Rotation
     end -- End Timer
 end -- Run Rotation

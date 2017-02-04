@@ -55,7 +55,7 @@ local function createOptions()
             br.ui:createCheckbox(section,"Spirit Walk")
         -- Water Walking
             br.ui:createCheckbox(section,"Water Walking")
-        -- Artifact 
+        -- Artifact
             br.ui:createDropdownWithout(section,"Artifact", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Artifact Ability.")
         br.ui:checkSectionState(section)
     -- Cooldown Options
@@ -90,7 +90,7 @@ local function createOptions()
         -- Ancestral Spirit
             br.ui:createDropdown(section, "Ancestral Spirit", {"|cffFFFF00Selected Target","|cffFF0000Mouseover Target"}, 1, "|ccfFFFFFFTarget to Cast On")
         -- Astral Shift
-            br.ui:createSpinner(section, "Astral Shift",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")    
+            br.ui:createSpinner(section, "Astral Shift",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
         -- Cleanse Spirit
             br.ui:createDropdown(section, "Clease Spirit", {"|cff00FF00Player Only","|cffFFFF00Selected Target","|cffFF0000Mouseover Target"}, 1, "|ccfFFFFFFTarget to Cast On")
         -- Earth Elemental Totem
@@ -161,7 +161,7 @@ local function runRotation()
 --------------
 --- Locals ---
 --------------
-        local addsExist                                     = false 
+        local addsExist                                     = false
         local addsIn                                        = 999
         local artifact                                      = br.player.artifact
         local buff                                          = br.player.buff
@@ -192,7 +192,7 @@ local function runRotation()
         local moveIn                                        = 999
         local moving                                        = isMoving("player")
         -- local multidot                                      = (useCleave() or br.player.mode.rotation ~= 3)
-        local perk                                          = br.player.perk        
+        local perk                                          = br.player.perk
         local php                                           = br.player.health
         local playerMouse                                   = UnitIsPlayer("mouseover")
         local power, powmax, powgen, powerDeficit           = br.player.power.amount.maelstrom, br.player.power.maelstrom.max, br.player.power.regen, br.player.power.maelstrom.deficit
@@ -205,7 +205,7 @@ local function runRotation()
         local ttd                                           = getTTD
         local ttm                                           = br.player.power.ttm
         local units                                         = br.player.units
-        
+
    		if leftCombat == nil then leftCombat = GetTime() end
 		if profileStop == nil then profileStop = false end
         if resonanceTotemCastTime == nil then resonanceTotemCastTime = 0 end
@@ -216,10 +216,8 @@ local function runRotation()
         flameShockCounter = 0
         for i = 1, #enemies.yards40 do
             local thisUnit = enemies.yards40[i]
-            if debuff.flameShock[thisUnit] ~= nil then
-                if debuff.flameShock[thisUnit].exists then
-                    flameShockCounter = flameShockCounter + 1
-                end
+            if debuff.flameShock.exists(thisUnit) then
+                flameShockCounter = flameShockCounter + 1
             end
         end
 
@@ -241,7 +239,7 @@ local function runRotation()
 			end -- End Dummy Test
         -- Ghost Wolf
             if isChecked("Ghost Wolf") and not UnitBuffID("player",202477) then
-                if ((#enemies.yards20 == 0 and not inCombat) or (#enemies.yards10 == 0 and inCombat)) and isMoving("player") and not buff.ghostWolf.exists then
+                if ((#enemies.yards20 == 0 and not inCombat) or (#enemies.yards10 == 0 and inCombat)) and isMoving("player") and not buff.ghostWolf.exists() then
                     if cast.ghostWolf() then return end
                 end
             end
@@ -254,7 +252,7 @@ local function runRotation()
                 if cast.spiritWalk() then return end
             end
         -- Water Walking
-            if falling > 1.5 and buff.waterWalking.exists then
+            if falling > 1.5 and buff.waterWalking.exists() then
                 CancelUnitBuffID("player", spell.waterWalking)
             end
             if isChecked("Water Walking") and not inCombat and IsSwimming() then
@@ -265,8 +263,8 @@ local function runRotation()
 		local function actionList_Defensive()
 			if useDefensive() then
 		-- Pot/Stoned
-                if isChecked("Pot/Stoned") and php <= getOptionValue("Pot/Stoned") 
-                    and inCombat and (hasHealthPot() or hasItem(5512)) 
+                if isChecked("Pot/Stoned") and php <= getOptionValue("Pot/Stoned")
+                    and inCombat and (hasHealthPot() or hasItem(5512))
                 then
                     if canUse(5512) then
                         useItem(5512)
@@ -324,9 +322,9 @@ local function runRotation()
                     end
                 end
         -- Healing Surge
-                if isChecked("Healing Surge") 
-                    and ((inCombat and ((php <= getOptionValue("Healing Surge") / 2 and power > 20) 
-                        or (power >= 90 and php <= getOptionValue("Healing Surge")))) or (not inCombat and php <= getOptionValue("Healing Surge") and not moving)) 
+                if isChecked("Healing Surge")
+                    and ((inCombat and ((php <= getOptionValue("Healing Surge") / 2 and power > 20)
+                        or (power >= 90 and php <= getOptionValue("Healing Surge")))) or (not inCombat and php <= getOptionValue("Healing Surge") and not moving))
                 then
                     if cast.healingSurge() then return end
                 end
@@ -384,9 +382,9 @@ local function runRotation()
 		local function actionList_Cooldowns()
 			if useCDs() and getDistance(units.dyn40) < 40 then
         -- Trinkets
-                -- use_item,slot=trinket2,if=buff.chaos_blades.up|!talent.chaos_blades.enabled 
+                -- use_item,slot=trinket2,if=buff.chaos_blades.up|!talent.chaos_blades.enabled
                 if isChecked("Trinkets") then
-                    -- if buff.chaosBlades or not talent.chaosBlades then 
+                    -- if buff.chaosBlades or not talent.chaosBlades then
                         if canUse(13) then
                             useItem(13)
                         end
@@ -414,9 +412,9 @@ local function runRotation()
 
                 end
         -- Agi-Pot
-                -- potion,name=deadly_grace,if=buff.metamorphosis.remains>25
+                -- potion,name=deadly_grace,if=buff.metamorphosis.remain()s>25
                 if isChecked("Agi-Pot") and canUse(109217) and inRaid then
-                    -- if buff.remain.metamorphosis > 25 then
+                    -- if buff.remain().metamorphosis > 25 then
                         useItem(109217)
                     -- end
                 end
@@ -446,7 +444,7 @@ local function runRotation()
                 end -- End Pre-Pull
                 if isValidUnit("target") and getDistance("target") < 40 then
             -- Totem Mastery
-                    if br.timer:useTimer("delayTotemMastery", gcd) and lastSpell ~= spell.totemMastery and not buff.resonanceTotem.exists then
+                    if br.timer:useTimer("delayTotemMastery", gcd) and lastSpell ~= spell.totemMastery and not buff.resonanceTotem.exists() then
                         if cast.totemMastery() then resonanceTotemCastTime = GetTime() + 120; return end
                     end
             -- Stormkeeper
@@ -454,7 +452,7 @@ local function runRotation()
                         if cast.stormkeeper() then return end
                     end
             -- Flame Shock
-                    if debuff.flameShock[units.dyn40].refresh then
+                    if debuff.flameShock.refresh(units.dyn40) then
                         if cast.flameShock("target") then StartAttack(); return end
                     else
             -- Lightning Bolt
@@ -478,14 +476,12 @@ local function runRotation()
         -- Liquid Magma Totem
             -- liquid_magma_totem
             if lastSpell ~= spell.liquidMagmaTotem then
-                if cast.liquidMagmaTotem("target") then return end 
+                if cast.liquidMagmaTotem("target") then return end
             end
         -- Flame Shock
             -- flame_shock,if=spell_targets.chain_lightning<4&maelstrom>=20&!talent.lightning_rod.enabled,target_if=refreshable
-            if debuff.flameShock[units.dyn40] ~= nil then
-                if #enemies.yards8t < 4 and power >= 20 and not talent.lightningRod and debuff.flameShock[units.dyn40].refresh then
-                    if cast.flameShock(thisUnit) then return end
-                end
+            if #enemies.yards8t < 4 and power >= 20 and not talent.lightningRod and debuff.flameShock.refresh(units.dyn40) then
+                if cast.flameShock(thisUnit) then return end
             end
         -- Earthquake
             -- earthquake
@@ -494,9 +490,9 @@ local function runRotation()
             end
         -- Lava Burst
             -- lava_burst,if=buff.lava_surge.up&spell_targets.chain_lightning=3
-            -- lava_burst,if=dot.flame_shock.remains>cast_time&buff.lava_surge.up&!talent.lightning_rod.enabled&spell_targets.chain_lightning<4
-            if debuff.flameShock[units.dyn40] ~= nil and debuff.flameShock[units.dyn40].remain > getCastTime(spell.lavaBurst) and buff.lavaSurge.exists and not talent.lightningRod 
-                and ((mode.rotation == 1 and #enemies.yards8t < 4) or mode.rotation == 2) 
+            -- lava_burst,if=dot.flame_shock.remain()s>cast_time&buff.lava_surge.up&!talent.lightning_rod.enabled&spell_targets.chain_lightning<4
+            if debuff.flameShock.remain(units.dyn40) > getCastTime(spell.lavaBurst) and buff.lavaSurge.exists() and not talent.lightningRod
+                and ((mode.rotation == 1 and #enemies.yards8t < 4) or mode.rotation == 2)
             then
                 if cast.lavaBurst() then return end
             end
@@ -511,7 +507,7 @@ local function runRotation()
         -- Chain Lightning
             -- chain_lightning,target_if=!debuff.lightning_rod.up
             -- chain_lightning
-            if not debuff.lightningRod[units.dyn40].exists then
+            if not debuff.lightningRod.exists(units.dyn40) then
                 if cast.chainLightning() then return end
             end
             if cast.chainLightning() then return end
@@ -525,10 +521,8 @@ local function runRotation()
             if flameShockCounter < 4 and moving then
                 for i = 1, #enemies.yards40 do
                     local thisUnit = enemies.yards40[i]
-                    if debuff.flameShock[thisUnit] ~= nil then
-                        if debuff.flameShock[thisUnit].remain < 2 and (UnitIsUnit(thisUnit,"target") or hasThreat(thisUnit) or isDummy(thisUnit)) then
-                            if cast.flameShock(thisUnit) then return end
-                        end
+                    if debuff.flameShock.remain(units.dyn40) < 2 and (UnitIsUnit(thisUnit,"target") or hasThreat(thisUnit) or isDummy(thisUnit)) then
+                        if cast.flameShock(thisUnit) then return end
                     end
                 end
             end
@@ -536,37 +530,37 @@ local function runRotation()
     -- Action List - Single Target: Ascendance
         local function actionList_Ascendance()
         -- Ascendance
-            -- ascendance,if=dot.flame_shock.remains>buff.ascendance.duration&(time>=60|buff.bloodlust.up)&cooldown.lava_burst.remains>0&!buff.stormkeeper.up
+            -- ascendance,if=dot.flame_shock.remain()s>buff.ascendance.duration()&(time>=60|buff.bloodlust.up)&cooldown.lava_burst.remain()s>0&!buff.stormkeeper.up
             if useCDs() and isChecked("Ascendance") then
-                if debuff.flameShock[units.dyn40] ~= nil and debuff.flameShock[units.dyn40].remain > buff.ascendance.duration 
-                    and (combatTime >= 60 or hasBloodLust()) and cd.lavaBurst > 0 and not buff.stormkeeper.exits 
+                if debuff.flameShock.remain(units.dyn40) > buff.ascendance.duration()
+                    and (combatTime >= 60 or hasBloodLust()) and cd.lavaBurst > 0 and not buff.stormkeeper.exits
                 then
                     if cast.ascendance() then return end
                 end
             end
         -- Flame Shock
-            -- flame_shock,if=!ticking|dot.flame_shock.remains<=gcd
-            if debuff.flameShock[units.dyn40] ~= nil and (not debuff.flameShock[units.dyn40].exists or debuff.flameShock[units.dyn40].remain <= gcd) then
+            -- flame_shock,if=!ticking|dot.flame_shock.remain()s<=gcd
+            if (not debuff.flameShock.exists(units.dyn40) or debuff.flameShock.remain(units.dyn40) <= gcd) then
                 if cast.flameShock() then return end
             end
-            -- flame_shock,if=maelstrom>=20&remains<=buff.ascendance.duration&cooldown.ascendance.remains+buff.ascendance.duration<=duration
-            if power >= 20 and debuff.flameShock[units.dyn40] ~= nil and debuff.flameShock[units.dyn40].remain <= buff.ascendance.duration 
-                and cd.ascendance + buff.ascendance.duration <= debuff.flameShock[units.dyn40].duration 
+            -- flame_shock,if=maelstrom>=20&remains<=buff.ascendance.duration()&cooldown.ascendance.remain()s+buff.ascendance.duration()<=duration
+            if power >= 20 and debuff.flameShock.remain(units.dyn40) <= buff.ascendance.duration()
+                and cd.ascendance + buff.ascendance.duration() <= debuff.flameShock.duration(units.dyn40)
             then
                 if cast.flameShock() then return end
             end
         -- Earthquake
             -- earthquake,if=buff.echoes_of_the_great_sundering.up&!buff.ascendance.up&maelstrom>=86
-            if buff.echoesOfTheGreatSundering.exists and not buff.ascendance.exists and power >= 86 then
+            if buff.echoesOfTheGreatSundering.exists() and not buff.ascendance.exists() and power >= 86 then
                 if cast.earthquake() then return end
             end
         -- Earth Shock
             -- earth_shock,if=maelstrom>=92&!buff.ascendance.up
-            if power >= 92 and not buff.ascendance.exists then
+            if power >= 92 and not buff.ascendance.exists() then
                 if cast.earthShock() then return end
             end
         -- Stormkeeper
-            -- stormkeeper,if=raid_event.adds.count<3|raid_event.adds.in>50
+            -- stormkeeper,if=raid_event.adds.count()<3|raid_event.adds.in>50
             if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()) and (#enemies.yards40 < 3 or addsIn > 50) then
                 if cast.stormkeeper() then return end
             end
@@ -574,23 +568,23 @@ local function runRotation()
             -- elemental_blast
             if cast.elementalBlast() then return end
         -- Liquid Magma Totem
-            -- liquid_magma_totem,if=raid_event.adds.count<3|raid_event.adds.in>50
+            -- liquid_magma_totem,if=raid_event.adds.count()<3|raid_event.adds.in>50
             if (#enemies.yards8 < 3 or addsIn > 50) and getDistance(units.dyn8) < 8 and lastSpell ~= spell.liquidMagmaTotem then
                 if cast.liquidMagmaTotem("target") then return end
             end
         -- Lightning Bolt
             -- lightning_bolt,if=buff.power_of_the_maelstrom.up&buff.stormkeeper.up&spell_targets.chain_lightning<3
-            if buff.powerOfTheMaelstrom.exists and buff.stormkeeper.exists and #enemies.yards8t < 3 then
+            if buff.powerOfTheMaelstrom.exists() and buff.stormkeeper.exists() and #enemies.yards8t < 3 then
                 if cast.lightningBolt() then return end
             end
         -- Lava Burst
-            -- lava_burst,if=dot.flame_shock.remains>cast_time&(cooldown_react|buff.ascendance.up)
-            if debuff.flameShock[units.dyn40] ~= nil and debuff.flameShock[units.dyn40].remain > getCastTime(spell.lavaBurst) and (cd.lavaBurst == 0 or buff.ascendance.exists) then
+            -- lava_burst,if=dot.flame_shock.remain()s>cast_time&(cooldown_react|buff.ascendance.up)
+            if debuff.flameShock.remain(units.dyn40) > getCastTime(spell.lavaBurst) and (cd.lavaBurst == 0 or buff.ascendance.exists()) then
                 if cast.lavaBurst() then return end
             end
         -- Flame Shock
             -- flame_shock,if=maelstrom>=20&buff.elemental_focus.up,target_if=refreshable
-            if debuff.flameShock[units.dyn40] ~= nil and power >= 20 and buff.elementalFocus.exists and debuff.flameShock[units.dyn40].refresh then
+            if power >= 20 and buff.elementalFocus.exists() and debuff.flameShock.refresh(units.dyn40) then
                 if cast.flameShock() then return end
             end
         -- Earth Shock
@@ -599,13 +593,13 @@ local function runRotation()
                 if cast.earthShock() then return end
             end
         -- Totem Mastery
-            -- totem_mastery,if=buff.resonance_totem.remains<10|(buff.resonance_totem.remains<(buff.ascendance.duration+cooldown.ascendance.remains)&cooldown.ascendance.remains<15)
-            if (resonanceTotemTimer < 10 or (resonanceTotemTimer < (buff.ascendance.duration + cd.ascendance) and cd.ascendance < 15)) and lastSpell ~= spell.totemMastery then
+            -- totem_mastery,if=buff.resonance_totem.remain()s<10|(buff.resonance_totem.remain()s<(buff.ascendance.duration()+cooldown.ascendance.remain()s)&cooldown.ascendance.remain()s<15)
+            if (resonanceTotemTimer < 10 or (resonanceTotemTimer < (buff.ascendance.duration() + cd.ascendance) and cd.ascendance < 15)) and lastSpell ~= spell.totemMastery then
                 if cast.totemMastery() then resonanceTotemCastTime = GetTime() + 120; return end
-            end 
+            end
         -- Earthquake
             -- earthquake,if=buff.echoes_of_the_great_sundering.up
-            if buff.echoesOfTheGreatSundering.exists then
+            if buff.echoesOfTheGreatSundering.exists() then
                 if cast.earthquake() then return end
             end
         -- Lava Beam
@@ -615,7 +609,7 @@ local function runRotation()
             end
         -- Lightning Bolt
             -- lightning_bolt,if=buff.power_of_the_maelstrom.up&spell_targets.chain_lightning<3
-            if buff.powerOfTheMaelstrom.exists and #enemies.yards8t < 3 then
+            if buff.powerOfTheMaelstrom.exists() and #enemies.yards8t < 3 then
                 if cast.lightningBolt() then return end
             end
         -- Chain Lightning
@@ -628,7 +622,7 @@ local function runRotation()
             if cast.lightningBolt() then return end
         -- Flame Shock
             -- flame_shock,moving=1,target_if=refreshable
-            if moving and debuff.flameShock[units.dyn40] ~= nil and debuff.flameShock[units.dyn40].refresh then
+            if moving and debuff.flameShock.refresh(units.dyn40) then
                 if cast.flameShock() then return end
             end
         -- Earth Shock
@@ -645,18 +639,18 @@ local function runRotation()
     -- Action List - Single Target: Icefury
         local function actionList_Icefury()
         -- Flame Shock
-            -- flame_shock,if=!ticking|dot.flame_shock.remains<=gcd
-            if debuff.flameShock[units.dyn40] ~= nil and (not debuff.flameShock[units.dyn40].exists or debuff.flameShock[units.dyn40].remain <= gcd) then
+            -- flame_shock,if=!ticking|dot.flame_shock.remain()s<=gcd
+            if (not debuff.flameShock.exists(units.dyn40) or debuff.flameShock.remain(units.dyn40) <= gcd) then
                 if cast.flameShock() then return end
             end
         -- Earthquake
             -- earthquake,if=buff.echoes_of_the_great_sundering.up&maelstrom>=86
-            if buff.echoesOfTheGreatSundering.exists and power >= 86 then
+            if buff.echoesOfTheGreatSundering.exists() and power >= 86 then
                 if cast.earthquake() then return end
             end
         -- Frost Shock
             -- frost_shock,if=buff.icefury.up&maelstrom>=86
-            if buff.icefury.exists and power >= 86 then
+            if buff.icefury.exists() and power >= 86 then
                 if cast.frostShock() then return end
             end
         -- Earth Shock
@@ -665,7 +659,7 @@ local function runRotation()
                 if cast.earthShock() then return end
             end
         -- Stormkeeper
-            -- stormkeeper,if=raid_event.adds.count<3|raid_event.adds.in>50
+            -- stormkeeper,if=raid_event.adds.count()<3|raid_event.adds.in>50
             if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()) and (#enemies.yards40 < 3 or addsIn > 50) then
                 if cast.stormkeeper() then return end
             end
@@ -678,33 +672,33 @@ local function runRotation()
                 if cast.icefury() then return end
             end
         -- Liquid Magma Totem
-            -- liquid_magma_totem,if=raid_event.adds.count<3|raid_event.adds.in>50
+            -- liquid_magma_totem,if=raid_event.adds.count()<3|raid_event.adds.in>50
             if (#enemies.yards8 < 3 or addsIn > 50) and getDistance(units.dyn8) < 8 and lastSpell ~= spell.liquidMagmaTotem then
                 if cast.liquidMagmaTotem("target") then return end
-            end  
+            end
         -- Lightning Bolt
             -- lightning_bolt,if=buff.power_of_the_maelstrom.up&buff.stormkeeper.up&spell_targets.chain_lightning<3
-            if buff.powerOfTheMaelstrom.exists and buff.stormkeeper.exists and #enemies.yards8t < 3 then
+            if buff.powerOfTheMaelstrom.exists() and buff.stormkeeper.exists() and #enemies.yards8t < 3 then
                 if cast.lightningBolt() then return end
             end
         -- Lava Burst
-            -- lava_burst,if=dot.flame_shock.remains>cast_time&cooldown_react
-            if debuff.flameShock[units.dyn40] ~= nil and debuff.flameShock[units.dyn40].remain > getCastTime(spell.lavaBurst) and cd.lavaBurst == 0 then
+            -- lava_burst,if=dot.flame_shock.remain()s>cast_time&cooldown_react
+            if debuff.flameShock.remain(units.dyn40) > getCastTime(spell.lavaBurst) and cd.lavaBurst == 0 then
                 if cast.lavaBurst() then return end
             end
         -- Frost Shock
-            -- frost_shock,if=buff.icefury.up&((maelstrom>=20&raid_event.movement.in>buff.icefury.remains)|buff.icefury.remains<(1.5*spell_haste*buff.icefury.stack+1))
-            if buff.icefury.exists and ((power >= 20 and moveIn > buff.icefury.remain) or buff.icefury.remain < (1.5 * UnitSpellHaste("player") * buff.icefury.stack + 1)) then
+            -- frost_shock,if=buff.icefury.up&((maelstrom>=20&raid_event.movement.in>buff.icefury.remain()s)|buff.icefury.remain()s<(1.5*spell_haste*buff.icefury.stack()+1))
+            if buff.icefury.exists() and ((power >= 20 and moveIn > buff.icefury.remain()) or buff.icefury.remain() < (1.5 * UnitSpellHaste("player") * buff.icefury.stack() + 1)) then
                 if cast.frostShock() then return end
             end
         -- Flame Shock
             -- flame_shock,if=maelstrom>=20&buff.elemental_focus.up,target_if=refreshable
-            if power >= 20 and buff.elementalFocus.exists and debuff.flameShock[units.dyn40] ~= nil and debuff.flameShock[units.dyn40].refresh then
+            if power >= 20 and buff.elementalFocus.exists() and debuff.flameShock.refresh(units.dyn40) then
                 if cast.flameShock() then return end
             end
         -- Frost Shock
             -- frost_shock,moving=1,if=buff.icefury.up
-            if moving and buff.icefury.exists then
+            if moving and buff.icefury.exists() then
                 if cast.frostShock() then return end
             end
         -- Earth Shock
@@ -713,18 +707,18 @@ local function runRotation()
                 if cast.earthShock() then return end
             end
         -- Totem Mastery
-            -- totem_mastery,if=buff.resonance_totem.remains<10
+            -- totem_mastery,if=buff.resonance_totem.remain()s<10
             if resonanceTotemTimer < 10 and lastSpell ~= spell.totemMastery then
                 if cast.totemMastery() then resonanceTotemCastTime = GetTime() + 120; return end
             end
         -- Earthquake
             -- earthquake,if=buff.echoes_of_the_great_sundering.up
-            if buff.echoesOfTheGreatSundering.exists then
+            if buff.echoesOfTheGreatSundering.exists() then
                 if cast.earthquake() then return end
             end
         -- Lightning Bolt
             -- lightning_bolt,if=buff.power_of_the_maelstrom.up&spell_targets.chain_lightning<3
-            if buff.powerOfTheMaelstrom.exists and #enemies.yards8t < 3 then
+            if buff.powerOfTheMaelstrom.exists() and #enemies.yards8t < 3 then
                 if cast.lightningBolt() then return end
             end
         -- Chain Lightning
@@ -737,7 +731,7 @@ local function runRotation()
             if cast.lightningBolt() then return end
         -- Flame Shock
             -- flame_shock,moving=1,target_if=refreshable
-            if moving and debuff.flameShock[units.dyn40] ~= nil and debuff.flameShock[units.dyn40].refresh then
+            if moving and debuff.flameShock.refresh(units.dyn40) then
                 if cast.flameShock() then return end
             end
         -- Earth Shock
@@ -749,18 +743,18 @@ local function runRotation()
             -- flame_shock,moving=1,if=movement.distance>6
             if moving and getDistance("target") > 6 then
                 if cast.flameShock("target") then return end
-            end  
+            end
         end -- End Action List - Single Target: Icy Fury
     -- Action List - Single Target: Lightning Rod
         local function actionList_LightningRod()
         -- Flame Shock
-            -- flame_shock,if=!ticking|dot.flame_shock.remains<=gcd
-            if debuff.flameShock[units.dyn40] ~= nil and (not debuff.flameShock[units.dyn40].exists or debuff.flameShock[units.dyn40].remain <= gcd) then
+            -- flame_shock,if=!ticking|dot.flame_shock.remain()s<=gcd
+            if (not debuff.flameShock.exists(units.dyn40) or debuff.flameShock.remain(units.dyn40) <= gcd) then
                 if cast.flameShock() then return end
             end
         -- Earthquake
             -- earthquake,if=buff.echoes_of_the_great_sundering.up&maelstrom>=86
-            if buff.echoesOfTheGreatSundering.exists and power >= 86 then
+            if buff.echoesOfTheGreatSundering.exists() and power >= 86 then
                 if cast.earthquake() then return end
             end
         -- Earth Shock
@@ -769,7 +763,7 @@ local function runRotation()
                 if cast.earthShock() then return end
             end
         -- Stormkeeper
-            -- stormkeeper,if=raid_event.adds.count<3|raid_event.adds.in>50
+            -- stormkeeper,if=raid_event.adds.count()<3|raid_event.adds.in>50
             if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()) and (#enemies.yards40 < 3 or addsIn > 50) then
                 if cast.stormkeeper() then return end
             end
@@ -777,18 +771,18 @@ local function runRotation()
             -- elemental_blast
             if cast.elementalBlast() then return end
         -- Liquid Magma Totem
-            -- liquid_magma_totem,if=raid_event.adds.count<3|raid_event.adds.in>50
+            -- liquid_magma_totem,if=raid_event.adds.count()<3|raid_event.adds.in>50
             if (#enemies.yards8 < 3 or addsIn > 50) and getDistance(units.dyn8) < 8 and lastSpell ~= spell.liquidMagmaTotem then
                 if cast.liquidMagmaTotem("target") then return end
-            end    
+            end
         -- Lava Burst
-            -- lava_burst,if=dot.flame_shock.remains>cast_time&cooldown_react
-            if debuff.flameShock[units.dyn40] ~= nil and debuff.flameShock[units.dyn40].remain > getCastTime(spell.lavaBurst) and cd.lavaBurst == 0 then
+            -- lava_burst,if=dot.flame_shock.remain()s>cast_time&cooldown_react
+            if debuff.flameShock.remain(units.dyn40) > getCastTime(spell.lavaBurst) and cd.lavaBurst == 0 then
                 if cast.lavaBurst() then return end
             end
         -- Flame Shock
             -- flame_shock,if=maelstrom>=20&buff.elemental_focus.up,target_if=refreshable
-            if power >= 20 and buff.elementalFocus.exists and debuff.flameShock[units.dyn40].exists and debuff.flameShock[units.dyn40].refresh then
+            if power >= 20 and buff.elementalFocus.exists() and debuff.flameShock.exists(units.dyn40) and debuff.flameShock.refresh(units.dyn40) then
                 if cast.flameShock() then return end
             end
         -- Earth Shock
@@ -796,28 +790,28 @@ local function runRotation()
             if power >= 86 then
                 if cast.earthShock() then return end
             end
-        -- Totem Mastery 
-            -- totem_mastery,if=buff.resonance_totem.remains<10|(buff.resonance_totem.remains<(buff.ascendance.duration+cooldown.ascendance.remains)&cooldown.ascendance.remains<15)
-            if (resonanceTotemTimer < 10 or (resonanceTotemTimer < (buff.ascendance.duration + cd.ascendance) and cd.ascendance < 15)) and lastSpell ~= spell.totemMastery then
+        -- Totem Mastery
+            -- totem_mastery,if=buff.resonance_totem.remain()s<10|(buff.resonance_totem.remain()s<(buff.ascendance.duration()+cooldown.ascendance.remain()s)&cooldown.ascendance.remain()s<15)
+            if (resonanceTotemTimer < 10 or (resonanceTotemTimer < (buff.ascendance.duration() + cd.ascendance) and cd.ascendance < 15)) and lastSpell ~= spell.totemMastery then
                 if cast.totemMastery() then resonanceTotemCastTime = GetTime() + 120; return end
             end
         -- Earthquake
             -- earthquake,if=buff.echoes_of_the_great_sundering.up
-            if buff.echoesOfTheGreatSundering.exists then
+            if buff.echoesOfTheGreatSundering.exists() then
                 if cast.earthquake() then return end
             end
         -- Lightning Bolt
             -- lightning_bolt,if=buff.power_of_the_maelstrom.up&spell_targets.chain_lightning<3,target_if=debuff.lightning_rod.down
-            if buff.powerOfTheMaelstrom.exists and #enemies.yards8t < 3 and debuff.lightningRod[units.dyn40] ~= nil and not debuff.lightningRod[units.dyn40].exists then
+            if buff.powerOfTheMaelstrom.exists() and #enemies.yards8t < 3 and not debuff.lightningRod.exists(units.dyn40) then
                 if cast.lightningBolt() then return end
-            end     
+            end
             -- lightning_bolt,if=buff.power_of_the_maelstrom.up&spell_targets.chain_lightning<3
-            if buff.powerOfTheMaelstrom.exists and #enemies.yards8t < 3 then
+            if buff.powerOfTheMaelstrom.exists() and #enemies.yards8t < 3 then
                 if cast.lightningBolt() then return end
             end
         -- Chain Lightning
             -- chain_lightning,if=active_enemies>1&spell_targets.chain_lightning>1,target_if=debuff.lightning_rod.down
-            if #enemies.yards8 > 1 and not mode.rotation == 3 and debuff.lightningRod[units.dyn40] ~= nil and not debuff.lightningRod[units.dyn40].exists then
+            if #enemies.yards8 > 1 and not mode.rotation == 3 and not debuff.lightningRod.exists(units.dyn40) then
                 if cast.chainLightning() then return end
             end
             -- chain_lightning,if=active_enemies>1&spell_targets.chain_lightning>1
@@ -826,14 +820,14 @@ local function runRotation()
             end
         -- Lightning Bolt
             -- lightning_bolt,target_if=!debuff.lightning_rod.up
-            if debuff.lightningRod[units.dyn40] ~= nil and not debuff.lightningRod[units.dyn40].exists then
+            if not debuff.lightningRod.exists(units.dyn40) then
                 if cast.lightningBolt() then return end
             end
             -- lightning_bolt
             if cast.lightningBolt() then return end
         -- Flame Shock
             -- flame_shock,moving=1,target_if=refreshable
-            if moving and debuff.flameShock[units.dyn40] ~= nil and debuff.flameShock[units.dyn40].refresh then
+            if moving and debuff.flameShock.refresh(units.dyn40) then
                 if cast.flameShock() then return end
             end
         -- Earth Shock
@@ -884,7 +878,7 @@ local function runRotation()
                     -- if=buff.ascendance.up|target.time_to_die<=30
                     -- TODO
             -- Totem Mastery
-                    -- totem_mastery,if=buff.resonance_totem.remains<2
+                    -- totem_mastery,if=buff.resonance_totem.remain()s<2
                     if resonanceTotemTimer < 2 and lastSpell ~= spell.totemMastery then
                         if cast.totemMastery() then resonanceTotemCastTime = GetTime() + 120; return end
                     end
@@ -903,14 +897,14 @@ local function runRotation()
                             if cast.elementalMastery() then return end
                         end
             -- Racials
-                        -- blood_fury,if=!talent.ascendance.enabled|buff.ascendance.up|cooldown.ascendance.remains>50
+                        -- blood_fury,if=!talent.ascendance.enabled|buff.ascendance.up|cooldown.ascendance.remain()s>50
                         -- berserking,if=!talent.ascendance.enabled|buff.ascendance.up
-                        if not talent.ascendance or buff.ascendance.exists or cd.ascendance > 50 then
+                        if not talent.ascendance or buff.ascendance.exists() or cd.ascendance > 50 then
                             if race == "Orc" then
                                 if castRacial() then return end
                             end
                         end
-                        if not talent.ascendance or buff.ascendance.exists then
+                        if not talent.ascendance or buff.ascendance.exists() then
                             if race == "Troll" then
                                 if castRacial() then return end
                             end

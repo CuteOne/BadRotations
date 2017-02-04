@@ -265,9 +265,7 @@ local function runRotation()
         if #enemies.yards40 > 0 then
             for i = 1, #enemies.yards40 do
                 local thisUnit = enemies.yards40[i]
-                if debuff.havoc[thisUnit] ~= nil then
-                    if debuff.havoc[thisUnit].exists then hasHavoc = true; break end
-                end
+                if debuff.havoc.exists(thisUnit) then hasHavoc = true; break end
             end
         end
 
@@ -369,7 +367,7 @@ local function runRotation()
                     if cast.soulHarvest() then return end
                 end
         -- Potion
-                -- potion,name=deadly_grace,if=buff.soul_harvest.remains|target.time_to_die<=45|trinket.proc.any.react
+                -- potion,name=deadly_grace,if=buff.soul_harvest.remain()s|target.time_to_die<=45|trinket.proc.any.react
                 -- TODO
             end -- End useCDs check
         end -- End Action List - Cooldowns
@@ -377,7 +375,7 @@ local function runRotation()
         local function actionList_PreCombat()
             -- Summon Pet
             -- summon_pet,if=!talent.grimoire_of_supremacy.enabled&(!talent.grimoire_of_sacrifice.enabled|buff.demonic_power.down)
-            if not (IsFlying() or IsMounted()) and not talent.grimoireOfSupremacy and (not talent.grimoireOfSacrifice or not buff.demonicPower.exists) then
+            if not (IsFlying() or IsMounted()) and not talent.grimoireOfSupremacy and (not talent.grimoireOfSacrifice or not buff.demonicPower.exists()) then
                 if (activePetId == 0 or activePetId ~= summonId) and (lastSpell ~= castSummonId or activePetId ~= summonId) then
                     if summonPet == 1 then
                         if isKnown(spell.summonFelImp) then
@@ -436,8 +434,8 @@ local function runRotation()
                     end -- End Pre-Pull
                     if isValidUnit("target") and getDistance("target") < 40 and (not isChecked("Opener") or opener == true) then
                 -- Life Tap
-                        -- life_tap,if=talent.empowered_life_tap.enabled&!buff.empowered_life_tap.remains
-                        if talent.empoweredLifeTap and not buff.empoweredLifeTap.exists then
+                        -- life_tap,if=talent.empowered_life_tap.enabled&!buff.empowered_life_tap.remain()s
+                        if talent.empoweredLifeTap and not buff.empoweredLifeTap.exists() then
                             if cast.lifeTap() then return end
                         end
                 -- Potion
@@ -511,16 +509,14 @@ local function runRotation()
                         PetAttack()
                     end
         -- Havoc
-                    -- havoc,target=2,if=active_enemies>1&active_enemies<6&!debuff.havoc.remains
+                    -- havoc,target=2,if=active_enemies>1&active_enemies<6&!debuff.havoc.remain()s
                     if not hasHavoc then
                         if ((mode.rotation == 1 and #enemies.yards40 > 1) or mode.rotation == 2) and #enemies.yards40 < 6 then
                             for i = 1, #enemies.yards40 do
                                 local thisUnit = enemies.yards40[i]
                                 if not UnitIsUnit(thisUnit,"target") and isValidUnit(thisUnit) and (not UnitExists("focus") or (UnitExists("focus") and UnitIsUnit(thisUnit,"focus"))) then
-                                    if debuff.havoc[thisUnit] ~= nil then
-                                        if not debuff.havoc[thisUnit].exists then
-                                            if cast.havoc(thisUnit) then return end
-                                        end
+                                    if not debuff.havoc.exists(thisUnit) then
+                                        if cast.havoc(thisUnit) then return end
                                     end
                                 end
                             end
@@ -535,29 +531,25 @@ local function runRotation()
                     end
         -- Immolate
                     -- immolate,if=remains<=tick_time
-                    if debuff.immolate[units.dyn40] ~= nil then
-                        if debuff.immolate[units.dyn40].remain <= 3 then
-                            if cast.immolate(thisUnit) then return end
-                        end
+                    if debuff.immolate.remain(units.dyn40) <= 3 then
+                        if cast.immolate(thisUnit) then return end
                     end
-                    -- immolate,cycle_targets=1,if=active_enemies>1&remains<=tick_time&(!talent.roaring_blaze.enabled|(!debuff.roaring_blaze.remains&action.conflagrate.charges<2))
+                    -- immolate,cycle_targets=1,if=active_enemies>1&remains<=tick_time&(!talent.roaring_blaze.enabled|(!debuff.roaring_blaze.remain()s&action.conflagrate.charges<2))
                     if (mode.rotation == 1 and #enemies.yards10t > 1) or mode.rotation == 2 then
                         for i = 1, #enemies.yards10t do
                             local thisUnit = enemies.yards10t[i]
-                            if isValidUnit(thisUnit) and debuff.immolate[thisUnit] ~= nil and debuff.roaringBlaze[thisUnit] ~= nil then
-                                if debuff.immolate[thisUnit].remain <= 3 and (not talent.roaringBlaze or (not debuff.roaringBlaze[thisUnit].exists and charges.conflagrate < 2)) then
+                            if isValidUnit(thisUnit) then
+                                if debuff.immolate.remain(thisUnit) <= 3 and (not talent.roaringBlaze or (not debuff.roaringBlaze.exists(thisUnit) and charges.conflagrate < 2)) then
                                     if cast.immolate(thisUnit) then return end
                                 end
                             end
                         end
                     end
-                    -- immolate,if=talent.roaring_blaze.enabled&remains<=duration&!debuff.roaring_blaze.remains&target.time_to_die>10&(action.conflagrate.charges=2+set_bonus.tier19_4pc|(action.conflagrate.charges>=1+set_bonus.tier19_4pc&action.conflagrate.recharge_time<cast_time+gcd)|target.time_to_die<24
-                    if debuff.roaringBlaze[units.dyn40] ~= nil and debuff.immolate[units.dyn40] ~= nil then -- TODO: needs T19 logic added
-                        if talent.roaringBlaze and debuff.immolate[units.dyn40].remain <= 18 --[[debuff.immolate[units.dyn40].duration * 0.7 ]]and not debuff.roaringBlaze[units.dyn40].exists
-                            and ttd(units.dyn40) > 10 and (charges.conflagrate == 2 + hasT19 or (charges.conflagrate >= 1 and recharge.conflagrate < getCastTime(spell.conflagrate) + gcd) or ttd(units.dyn40) < 24)
-                        then
-                            if cast.immolate(units.dyn40) then return end
-                        end
+                    -- immolate,if=talent.roaring_blaze.enabled&remains<=duration&!debuff.roaring_blaze.remain()s&target.time_to_die>10&(action.conflagrate.charges=2+set_bonus.tier19_4pc|(action.conflagrate.charges>=1+set_bonus.tier19_4pc&action.conflagrate.recharge_time<cast_time+gcd)|target.time_to_die<24
+                    if talent.roaringBlaze and debuff.immolate.remain(units.dyn40) <= 18 --[[debuff.immolate.duration(units.dyn40) * 0.7 ]]and not debuff.roaringBlaze.exists(units.dyn40)
+                        and ttd(units.dyn40) > 10 and (charges.conflagrate == 2 + hasT19 or (charges.conflagrate >= 1 and recharge.conflagrate < getCastTime(spell.conflagrate) + gcd) or ttd(units.dyn40) < 24)
+                    then
+                        if cast.immolate(units.dyn40) then return end
                     end
         -- Racial: Orc Blood Fury | Troll Berserking | Blood Elf Arcane Torrent
                     -- blood_fury | berserking | arcane_torrent
@@ -565,11 +557,11 @@ local function runRotation()
                         if castSpell("player",racial,false,false,false) then return end
                     end
         -- Potion
-                    -- potion,name=deadly_grace,if=(buff.soul_harvest.remains|trinket.proc.any.react|target.time_to_die<=45)
+                    -- potion,name=deadly_grace,if=(buff.soul_harvest.remain()s|trinket.proc.any.react|target.time_to_die<=45)
                     -- TODO
         -- Shadowburn
-                    -- shadowburn,if=buff.conflagration_of_chaos.remains<=action.chaos_bolt.cast_time
-                    if buff.conflagrationOfChaos.remain <= getCastTime(spell.chaosBolt) then
+                    -- shadowburn,if=buff.conflagration_of_chaos.remain()s<=action.chaos_bolt.cast_time
+                    if buff.conflagrationOfChaos.remain() <= getCastTime(spell.chaosBolt) then
                         if cast.shadowburn(units.dyn40) then return end
                     end
                     -- shadowburn,if=(charges=1&recharge_time<action.chaos_bolt.cast_time|charges=2)&soul_shard<5
@@ -581,28 +573,26 @@ local function runRotation()
                     if talent.roaringBlaze and (charges.conflagrate == 2 + hasT19 or (charges.conflagrate >= 1 + hasT19 and recharge.conflagrate < gcd) or ttd(units.dyn40) < 24) then
                         if cast.conflagrate(units.dyn40) then return end
                     end
-                    -- conflagrate,if=talent.roaring_blaze.enabled&debuff.roaring_blaze.stack>0&dot.immolate.remains>dot.immolate.duration*0.3&(active_enemies=1|soul_shard<3)&soul_shard<5
-                    if debuff.immolate[units.dyn40] ~= nil then
-                        if talent.roaringBlaze and debuff.roaringBlaze[units.dyn40].stack > 0 and debuff.immolate[units.dyn40].refresh and (#enemies.yards40 == 1 or shards < 3) and shards < 5 then
-                            if cast.conflagrate(units.dyn40) then return end
-                        end
-                    end
-                    -- conflagrate,if=!talent.roaring_blaze.enabled&!buff.backdraft.remains&buff.conflagration_of_chaos.remains<=action.chaos_bolt.cast_time
-                    if not talent.roaringBlaze and not buff.backdraft.exists and buff.conflagrationOfChaos.remain <= getCastTime(spell.chaosBolt) then
+                    -- conflagrate,if=talent.roaring_blaze.enabled&debuff.roaring_blaze.stack()>0&dot.immolate.remain()s>dot.immolate.duration()*0.3&(active_enemies=1|soul_shard<3)&soul_shard<5
+                    if talent.roaringBlaze and debuff.roaringBlaze.stack(units.dyn40) > 0 and debuff.immolate.refresh(units.dyn40) and (#enemies.yards40 == 1 or shards < 3) and shards < 5 then
                         if cast.conflagrate(units.dyn40) then return end
                     end
-                    -- conflagrate,if=!talent.roaring_blaze.enabled&!buff.backdraft.remains&(charges=1&recharge_time<action.chaos_bolt.cast_time|charges=2)&soul_shard<5
-                    if not talent.roaringBlaze and not buff.backdraft.exists and ((charges.conflagrate == 1 and recharge.conflagrate < getCastTime(spell.chaosBolt)) or charges.conflagrate == 2) and shards < 5 then
+                    -- conflagrate,if=!talent.roaring_blaze.enabled&!buff.backdraft.remain()s&buff.conflagration_of_chaos.remain()s<=action.chaos_bolt.cast_time
+                    if not talent.roaringBlaze and not buff.backdraft.exists() and buff.conflagrationOfChaos.remain() <= getCastTime(spell.chaosBolt) then
+                        if cast.conflagrate(units.dyn40) then return end
+                    end
+                    -- conflagrate,if=!talent.roaring_blaze.enabled&!buff.backdraft.remain()s&(charges=1&recharge_time<action.chaos_bolt.cast_time|charges=2)&soul_shard<5
+                    if not talent.roaringBlaze and not buff.backdraft.exists() and ((charges.conflagrate == 1 and recharge.conflagrate < getCastTime(spell.chaosBolt)) or charges.conflagrate == 2) and shards < 5 then
                         if cast.conflagrate(units.dyn40) then return end
                     end
         -- Life Tap
-                    -- life_tap,if=talent.empowered_life_tap.enabled&buff.empowered_life_tap.remains<=gcd
-                    if talent.empoweredLifeTap and buff.empoweredLifeTap.remain <= gcd then
+                    -- life_tap,if=talent.empowered_life_tap.enabled&buff.empowered_life_tap.remain()s<=gcd
+                    if talent.empoweredLifeTap and buff.empoweredLifeTap.remain() <= gcd then
                         if cast.lifeTap() then return end
                     end
         -- Dimensional Rift
-                    -- dimensional_rift,if=equipped.144369&!buff.lessons_of_spacetime.remains&((!talent.grimoire_of_supremacy.enabled&!cooldown.summon_doomguard.remains)|(talent.grimoire_of_service.enabled&!cooldown.service_pet.remains)|(talent.soul_harvest.enabled&!cooldown.soul_harvest.remains))
-                    if hasEquiped(144369) and not buff.lessonsOfSpaceTime.exists
+                    -- dimensional_rift,if=equipped.144369&!buff.lessons_of_spacetime.remain()s&((!talent.grimoire_of_supremacy.enabled&!cooldown.summon_doomguard.remain()s)|(talent.grimoire_of_service.enabled&!cooldown.service_pet.remain()s)|(talent.soul_harvest.enabled&!cooldown.soul_harvest.remain()s))
+                    if hasEquiped(144369) and not buff.lessonsOfSpaceTime.exists()
                         and ((not talent.grimoireOfSupremacy and cd.summonDoomguard > 0) or (not talent.grimoireOfService and cd.grimoireVoidwalker > 0) or (talent.soulHarvest and cd.soulHarvest > 0))
                     then
                         if cast.dimensionalRift() then return end
@@ -630,9 +620,9 @@ local function runRotation()
                         end
                     end
         -- Summon Infernal
-                    -- summon_infernal,if=artifact.lord_of_flames.rank>0&!buff.lord_of_flames.remains
+                    -- summon_infernal,if=artifact.lord_of_flames.rank>0&!buff.lord_of_flames.remain()s
                     if useCDs() and isChecked("Summon Infernal") then
-                        if artifact.lordOfFlames and not buff.lordOfFlames.exists then
+                        if artifact.lordOfFlames and not buff.lordOfFlames.exists() then
                             if cast.summonInfernal() then return end
                         end
                     end
@@ -653,12 +643,12 @@ local function runRotation()
                         end
                     end
         -- Summon Doomguard
-                    -- summon_doomguard,if=talent.grimoire_of_supremacy.enabled&spell_targets.summon_infernal=1&artifact.lord_of_flames.rank>0&buff.lord_of_flames.remains&!pet.doomguard.active
-                    if talent.grimoireOfSupremacy and #enemies.yards8 < 3 and artifact.lordOfFlames and buff.lordOfFlames.exists then
+                    -- summon_doomguard,if=talent.grimoire_of_supremacy.enabled&spell_targets.summon_infernal=1&artifact.lord_of_flames.rank>0&buff.lord_of_flames.remain()s&!pet.doomguard.active
+                    if talent.grimoireOfSupremacy and #enemies.yards8 < 3 and artifact.lordOfFlames and buff.lordOfFlames.exists() then
                         if cast.summonDoomguard() then return end
                     end
         -- Summon Doomguard
-                    -- summon_doomguard,if=talent.grimoire_of_supremacy.enabled&spell_targets.summon_infernal<3&equipped.132379&!cooldown.sindorei_spite_icd.remains
+                    -- summon_doomguard,if=talent.grimoire_of_supremacy.enabled&spell_targets.summon_infernal<3&equipped.132379&!cooldown.sindorei_spite_icd.remain()s
                     if useCDs() and isChecked("Summon Doomguard") then
                         if talent.grimoireOfSupremacy and #enemies.yards8 < 3 and hasEquiped(132379) and GetTime() > summonTime + 275 then
                             interruptDrain()
@@ -666,7 +656,7 @@ local function runRotation()
                         end
                     end
         -- Summon Infernal
-                    -- summon_infernal,if=talent.grimoire_of_supremacy.enabled&spell_targets.summon_infernal>=3&equipped.132379&!cooldown.sindorei_spite_icd.remains
+                    -- summon_infernal,if=talent.grimoire_of_supremacy.enabled&spell_targets.summon_infernal>=3&equipped.132379&!cooldown.sindorei_spite_icd.remain()s
                     if useCDs() and isChecked("Summon Infernal") then
                         if talent.grimoireOfSupremacy and #enemies.yards8 >= 3 and hasEquiped(132379) and GetTime() > summonTime + 275 then
                             interruptDrain()
@@ -676,21 +666,19 @@ local function runRotation()
         -- Cooldowns
                     if actionList_Cooldowns() then return end
         -- Channel Demonfire
-                    -- channel_demonfire,if=dot.immolate.remains>cast_time
-                    if debuff.immolate[units.dyn40] ~= nil then
-                        if debuff.immolate[units.dyn40].remain > getCastTime(spell.immolate) then
-                            if cast.channelDemonfire() then return end
-                        end
+                    -- channel_demonfire,if=dot.immolate.remain()s>cast_time
+                    if debuff.immolate.remain(units.dyn40) > getCastTime(spell.immolate) then
+                        if cast.channelDemonfire() then return end
                     end
         -- Havoc
-                    -- havoc,if=active_enemies=1&talent.wreak_havoc.enabled&equipped.132375&!debuff.havoc.remains
-                    if not hasHavoc and debuff.havoc[units.dyn40] ~= nil then
-                        if #enemies.yards40 == 1 and talent.wreakHavoc and hasEquiped(132375) and not debuff.havoc[units.dyn40].exists then
+                    -- havoc,if=active_enemies=1&talent.wreak_havoc.enabled&equipped.132375&!debuff.havoc.remain()s
+                    if not hasHavoc then
+                        if #enemies.yards40 == 1 and talent.wreakHavoc and hasEquiped(132375) and not debuff.havoc.exists(units.dyn40) then
                             if cast.havoc(units.dyn40) then return end
                         end
                     end
         -- Rain of Fire
-                    -- rain_of_fire,if=active_enemies>=3&cooldown.havoc.remains<=12&!talent.wreak_havoc.enabled
+                    -- rain_of_fire,if=active_enemies>=3&cooldown.havoc.remain()s<=12&!talent.wreak_havoc.enabled
                     if ((mode.rotation == 1 and #enemies.yards8t >= 3) or mode.rotation == 2) and cd.havoc <= 12 and not talent.wreakHavoc then
                         if cast.rainOfFire(units.dyn40,"ground") then return end
                     end
@@ -699,22 +687,22 @@ local function runRotation()
                         if cast.rainOfFire(units.dyn40,"ground") then return end
                     end
         -- Dimensional Rift
-                    -- dimensional_rift,if=!equipped.144369|charges>1|((!talent.grimoire_of_service.enabled|recharge_time<cooldown.service_pet.remains)&(!talent.soul_harvest.enabled|recharge_time<cooldown.soul_harvest.remains)&(!talent.grimoire_of_supremacy.enabled|recharge_time<cooldown.summon_doomguard.remains))
+                    -- dimensional_rift,if=!equipped.144369|charges>1|((!talent.grimoire_of_service.enabled|recharge_time<cooldown.service_pet.remain()s)&(!talent.soul_harvest.enabled|recharge_time<cooldown.soul_harvest.remain()s)&(!talent.grimoire_of_supremacy.enabled|recharge_time<cooldown.summon_doomguard.remain()s))
                     if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()) then
                         if not hasEquiped(144369) or charges.dimensionalRift > 1 or ((not talent.grimoireOfSacrifice or recharge.dimensionalRift < cd.grimoireVoidwalker) and (not talent.soulHarvest or recharge.dimensionalRift < cd.soulHarvest) and (not talent.grimoireOfSupremacy or recharge.dimensionalRift < cd.summonDoomguard)) then
                             if cast.dimensionalRift() then return end
                         end
                     end
         -- Life Tap
-                    -- life_tap,if=talent.empowered_life_tap.enabled&buff.empowered_life_tap.remains<duration*0.3
-                    if talent.empoweredLifeTap and buff.empoweredLifeTap.refresh then
+                    -- life_tap,if=talent.empowered_life_tap.enabled&buff.empowered_life_tap.remain()s<duration*0.3
+                    if talent.empoweredLifeTap and buff.empoweredLifeTap.refresh() then
                         if cast.lifeTap() then return end
                     end
         -- Cataclysm
                     -- cataclysm
                     if cast.cataclysm() then return end
         -- Chaos Bolt
-                    -- chaos_bolt,if=(cooldown.havoc.remains>12&cooldown.havoc.remains|active_enemies<3|talent.wreak_havoc.enabled&active_enemies<6)
+                    -- chaos_bolt,if=(cooldown.havoc.remain()s>12&cooldown.havoc.remain()s|active_enemies<3|talent.wreak_havoc.enabled&active_enemies<6)
                     if cd.havoc > 12 or #enemies.yards40 < 3 or (talent.wreakHavoc and #enemies.yards40 < 6) then
                         if cast.chaosBolt() then return end
                     end
@@ -722,16 +710,14 @@ local function runRotation()
                     -- shadowburn
                     if cast.shadowburn() then return end
         -- Conflagrate
-                    -- conflagrate,if=!talent.roaring_blaze.enabled&!buff.backdraft.remains
-                    if not talent.roaringBlaze and not buff.backdraft.exists then
+                    -- conflagrate,if=!talent.roaring_blaze.enabled&!buff.backdraft.remain()s
+                    if not talent.roaringBlaze and not buff.backdraft.exists() then
                         if cast.conflagrate() then return end
                     end
         -- Immolate
                     -- immolate,if=!talent.roaring_blaze.enabled&remains<=duration*0.3
-                    if debuff.immolate[units.dyn40] ~= nil then
-                        if not talent.roaringBlaze and debuff.immolate[units.dyn40].refresh then
-                            if cast.immolate(units.dyn40) then return end
-                        end
+                    if not talent.roaringBlaze and debuff.immolate.refresh(units.dyn40) then
+                        if cast.immolate(units.dyn40) then return end
                     end
         -- Incinerate
                     -- incinerate
