@@ -224,7 +224,7 @@ local function runRotation()
                 if cast.handOfFreedom() then return end
             end
         -- Hand of Hinderance
-            if isMoving("target") and not getFacing("target","player") and getDistance("target") > 8 then
+            if isChecked("Hand of Hinderance") and isMoving("target") and not getFacing("target","player") and getDistance("target") > 8 then
                 if cast.handOfHinderance("target") then return end
             end
         -- Greater Blessing of Might

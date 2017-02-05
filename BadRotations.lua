@@ -150,11 +150,6 @@ C_Timer.NewTicker(0.1, function()
 		br.friend:Update()
 	end
 end)
-C_Timer.NewTicker(0.1, function()
-	if br.player ~= nil then
-		br.player:update()
-	end
-end)
 --[[Updating UI]]
 function br:PulseUI()
 	-- distance on main icon
