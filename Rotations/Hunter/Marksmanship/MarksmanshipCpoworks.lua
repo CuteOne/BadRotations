@@ -54,6 +54,8 @@ local function createOptions()
             br.ui:createDropdown(section, "Auto Summon", {"Pet 1","Pet 2","Pet 3","Pet 4","Pet 5",}, 1, "Select the pet you want to use")
         -- Mend Pet
             br.ui:createSpinner(section, "Mend Pet",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
+        -- Explosive Shor
+            br.ui:createCheckbox(section, "Explosive Shot")
         br.ui:checkSectionState(section)
     -- Cooldown Options
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
@@ -502,7 +504,7 @@ local function runRotation()
                 if cast.blackArrow(units.dyn40) then return end
             end
             -- Explosive Shot
-            if talent.explosiveShot then
+            if isChecked("Explosive Shot") and talent.explosiveShot then
                 if cast.explosiveShot(units.dyn40) then explosiveTarget = units.dyn40; return end
             end
             -- Aimed Shot
@@ -536,7 +538,7 @@ local function runRotation()
             -- if HasItem(MagnetizedBlastingCapLauncher)
 
             -- Explosive Shot
-            if talent.explosiveShot then
+            if isChecked("Explosive Shot") and talent.explosiveShot then
                 if cast.explosiveShot(units.dyn40) then explosiveTarget = units.dyn40; return end
             end
             -- Multi-Shot
