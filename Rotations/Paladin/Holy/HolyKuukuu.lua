@@ -47,6 +47,8 @@ local function createOptions()
         --    br.ui:createCheckbox(section, "Boss Helper")
             --Cleanse
         --    br.ui:createCheckbox(section, "Cleanse")
+        --Beacon of Light
+            br.ui:createCheckbox(section, "Beacon of Light")
         br.ui:checkSectionState(section)
         -------------------------
         --- INTERRUPT OPTIONS ---
@@ -166,11 +168,6 @@ local function runRotation()
 -----------------
 --- Rotations ---
 -----------------
----------------------------------
---- Out Of Combat - Rotations ---
----------------------------------
-        if not inCombat then
-        end -- End Out of Combat Rotation
 -----------------------------
 --- In Combat - Rotations ---
 -----------------------------
@@ -219,13 +216,20 @@ local function runRotation()
                     end
                 end
             end
+        end
+            ---------------------------------
+--- Out Of Combat - Rotations ---
+---------------------------------
+        if not inCombat then
              ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
             --AOE Healing----AOE Healing----AOE Healing----AOE Healing----AOE Healing----AOE Healing----AOE Healing----AOE Healing----AOE Healing----AOE Healing----AOE Healing----AOE Healing
             ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
             -- Beacon of Light on Tank
-            for i = 1, #br.friend do
-                if not UnitBuffID(br.friend[i].unit,53563) and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
-                    if cast.beaconOfLight(br.friend[i].unit) then return end
+            if isChecked("Beacon of Light") then
+                for i = 1, #br.friend do
+                    if not UnitBuffID(br.friend[i].unit,53563) and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
+                        if cast.beaconOfLight(br.friend[i].unit) then return end
+                    end
                 end
             end
             -- Light of Dawn
