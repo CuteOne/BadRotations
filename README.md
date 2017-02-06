@@ -89,7 +89,7 @@ Raidable means if its good to raid with.
 | **Druid** |||
 |Feral|100% (SimC)|CuteOne|7.1.5|:white_check_mark:
 |Guardian|100% (SimC)|CuteOne|7.1|:white_check_mark:
-|Restoration|0%||7.0|
+|Restoration|80%|Svs|7.1.5|:heavy_check_mark:
 |Moonkin|0%||7.0|
 ||||
 | **Hunter** |||
