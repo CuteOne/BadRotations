@@ -16,7 +16,7 @@ function GetObjectPosition(Unit)
     if FireHack and GetObjectExists(Unit) then
         return ObjectPosition(Unit)
     else
-        return false
+        return 0, 0, 0
     end
 end
 function GetObjectType(Unit)

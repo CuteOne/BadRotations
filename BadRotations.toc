@@ -108,7 +108,7 @@ Rotations\Druid\Feral\FeralAveryKey.lua
 
 Rotations\Druid\Guardian\GuardianCuteOne.lua
 
-Rotations\Druid\Restoration\RestorationCuteOne.lua
+Rotations\Druid\Restoration\RestorationSvs.lua
 
 ## Hunter ---------------------------------------------------
 
