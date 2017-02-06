@@ -81,6 +81,14 @@ function br.read.combatLog()
             local timeStamp, param, hideCaster, source, sourceName, sourceFlags, sourceRaidFlags, destination,
                 destName, destFlags, destRaidFlags, spell, spellName, _, spellType = ...
             br.guid = UnitGUID("player")
+            -- Last Cast Success for Spec Abilities Only
+            if param == "SPELL_CAST_SUCCESS" and isInCombat("player") then
+                if br.player ~= nil then
+                    for k, v in pairs(br.player.spell.abilities) do
+                        if v == spell then lastCast = spell end
+                    end
+                end
+            end
             -- br.tracker.handleEvent(...)
             ----------------
             --[[Item locks]]
@@ -313,17 +321,18 @@ function br.read.combatLog()
                                 if spell == debuffID.rake or spell == debuffID.rip then
                                     if spell == debuffID.rake then k = "rake" end
                                     if spell == debuffID.rip then k = "rip" end
-                                    if debuff[k].applied[thisUnit] == nil then debuff[k].applied[thisUnit] = 0 end
+                                    if debuff[k].bleed == nil then debuff[k].bleed = {} end
+                                    if debuff[k].bleed[thisUnit] == nil then debuff[k].bleed[thisUnit] = 0 end
                                     if param == "SPELL_AURA_REMOVED" then
-                                        debuff[k].applied[thisUnit] = 0
+                                        debuff[k].bleed[thisUnit] = 0
                                         if UnitIsUnit(thisUnit,"target") then
-                                            debuff[k].applied["target"] = 0
+                                            debuff[k].bleed["target"] = 0
                                         end
                                     end
                                     if param == "SPELL_AURA_APPLIED" or param == "SPELL_AURA_REFRESH" then
-                                        debuff[k].applied[thisUnit] = debuff[k].calc()
+                                        debuff[k].bleed[thisUnit] = debuff[k].calc()
                                         if UnitIsUnit(thisUnit,"target") then
-                                            debuff[k].applied["target"] = debuff[k].calc()
+                                            debuff[k].bleed["target"] = debuff[k].calc()
                                         end
                                     end
                                 end

@@ -452,6 +452,7 @@ br.idList = {
                 bloodtalons                 = 145152,
                 clearcasting                = 135700,
                 elunesGuidance              = 202060,
+                fieryRedMaimers             = 236757,
                 incarnationKingOfTheJungle  = 102543,
                 predatorySwiftness          = 69369,
                 savageRoar                  = 52610,

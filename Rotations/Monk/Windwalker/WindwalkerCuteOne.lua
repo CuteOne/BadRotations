@@ -200,7 +200,7 @@ local function runRotation()
         local healthPot         = getHealthPot() or 0
         local inCombat          = br.player.inCombat
         local inRaid            = select(2,IsInInstance())=="raid"
-        local lastSpell         = lastSpellCast
+        local lastSpell         = lastCast
         local level             = br.player.level
         local mode              = br.player.mode
         local php               = br.player.health
@@ -223,7 +223,7 @@ local function runRotation()
         local ttd               = getTTD(br.player.units.dyn5)
         local ttm               = br.player.power.ttm
         local units             = br.player.units
-        if lastSpell == nil then lastSpell = 0 end
+        if lastSpell == nil or not inCombat then lastSpell = 6603 end
         if leftCombat == nil then leftCombat = GetTime() end
         if profileStop == nil then profileStop = false end
         if opener == nil then opener = false end
@@ -294,6 +294,8 @@ local function runRotation()
         --     Print(select(1,GetSpellInfo(lastSpell)))
         --     prevSpell = lastSpell
         -- end
+
+        -- Print(GetSpellInfo(lastSpell))
 
 --------------------
 --- Action Lists ---
@@ -509,6 +511,9 @@ local function runRotation()
                     if artifact.galeBurst and not talent.serenity and not hasEquiped(137057) and cd.strikeOfTheWindlord < 8 and cd.fistsOfFury <= 4 and cd.risingSunKick < 7 then
                         if cast.touchOfDeath() then return end
                     end
+            -- Draught of Souls
+                -- use_item,name=draught_of_souls,if=talent.serenity.enabled&cooldown.serenity.remains>=20&!buff.serenity.up
+                -- use_item,name=draught_of_souls,if=!talent.serenity.enabled&!buff.storm_earth_and_fire.up
                 end
             end
         end -- End Cooldown - Action List
@@ -915,13 +920,14 @@ local function runRotation()
         -- Call Action List - Cooldowns
                 -- call_action_list,name=cd
                 if actionList_Cooldown() then return end
-                if getDistance("target") < 5 and not buff.stormEarthAndFire.exists() then
+                if getDistance("target") < 5 then
         -- Storm, Earth, and Fire
-                    -- storm_earth_and_fire,if=!buff.storm_earth_and_fire.up&(cooldown.touch_of_death.remain()s<=8|cooldown.touch_of_death.remain()s>85)
+                    -- storm_earth_and_fire,if=!buff.storm_earth_and_fire.up&(cooldown.touch_of_death.remains<=8|cooldown.touch_of_death.remains>85)
+                    -- storm_earth_and_fire,if=!buff.storm_earth_and_fire.up&(cooldown.touch_of_death.remains<=8|cooldown.touch_of_death.remains>85)
                     -- storm_earth_and_fire,if=!buff.storm_earth_and_fire.up&cooldown.storm_earth_and_fire.charges=2
                     -- storm_earth_and_fire,if=!buff.storm_earth_and_fire.up&target.time_to_die<=25
                     -- storm_earth_and_fire,if=!buff.storm_earth_and_fire.up&cooldown.fists_of_fury.remain()s<=1&chi>=3
-                    if cd.touchOfDeath <= 8 or cd.touchOfDeath > 85 or charges.stormEarthAndFire == 2 or ttd <= 25 or (cd.fistsOfFury <= 1 and chi >= 3) then
+                    if not buff.stormEarthAndFire.exists() and (cd.touchOfDeath <= 8 or cd.touchOfDeath > 85 or charges.stormEarthAndFire == 2 or ttd <= 25 or (cd.fistsOfFury <= 1 and chi >= 3)) then
                         if cast.stormEarthAndFire() then return end
                     end
         -- Fists of Fury
@@ -965,12 +971,10 @@ local function runRotation()
                     end
         -- Fists of Fury
                     -- fists_of_fury
-                    -- if markPercent < 75 or #enemies.yards5 < 3 then
                     if cast.fistsOfFury() then return end
-                    -- end
         -- Spinning Crane Kick
                     -- spinning_crane_kick,if=active_enemies>=3&!prev_gcd.spinning_crane_kick
-                    if #enemies.yards5 >= 3 --[[and markPercent >= 75 ]]and (lastSpell ~= spell.spinningCraneKick or level < 78) then
+                    if #enemies.yards5 >= 3 and (lastSpell ~= spell.spinningCraneKick or level < 78) then
                         if cast.spinningCraneKick() then return end
                     end
         -- Rising Sun Kick
@@ -993,11 +997,6 @@ local function runRotation()
                             end
                         end
                     end
-        -- -- Spinning Crane Kick
-        --         -- spinning_crane_kick,if=!prev_gcd.spinning_crane_kick
-        --         if #enemies.yards5 >= 3 and markPercent >= 75 and (lastSpell ~= spell.spinningCraneKick or level < 78) then
-        --             if cast.spinningCraneKick() then return end
-        --         end
         -- Rushing Jade Wind
                     -- rushing_jade_wind,if=!prev_gcd.rushing_jade_wind
                     if lastSpell ~= spell.rushingJadeWind or level < 78 then
@@ -1123,15 +1122,6 @@ local function runRotation()
         -- Call Action List - Single Target
                     -- call_action_list,name=st
                     if actionList_SingleTarget() then return end
-        -- -- No Chi
-        --             if lastSpell == spell.tigerPalm then
-        --                 if chi == 1 then
-        --                     if cast.blackoutKick() then return end
-        --                 end
-        --                 if chi == 0 then
-        --                     if cast.tigerPalm() then return end
-        --                 end
-        --             end
                 end -- End Simulation Craft APL
     ----------------------------
     --- APL Mode: AskMrRobot ---

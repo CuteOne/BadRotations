@@ -129,18 +129,6 @@ function br.loader:new(spec,specName)
     for k,v in pairs(self.spell.debuffs) do
         if self.debuff[k] == nil then self.debuff[k] = {} end
         local debuff = self.debuff[k]
-        if debuff.applied == nil then debuff.applied  = {} end
-        for k, v in pairs(br.enemy) do
-            local thisUnit = br.enemy[k].unit
-            if debuff.applied[k] == nil then debuff.applied[k] = 0 end
-        end    
-        for l, w in pairs(debuff.applied) do
-            if not UnitAffectingCombat("player") or UnitIsDeadOrGhost(l) then
-                debuff.applied[l] = nil
-            elseif not UnitDebuffID(l,v,"player") then
-                debuff.applied[l] = 0
-            end
-        end
         debuff.exists = function(thisUnit,sourceUnit)
             if thisUnit == nil then thisUnit = 'target' end
             if sourceUnit == nil then sourceUnit = 'player' end
@@ -171,6 +159,9 @@ function br.loader:new(spec,specName)
         end
         debuff.count = function()
             return tonumber(getDebuffCount(v))
+        end
+        debuff.applied = function(thisUnit)
+            return debuff.bleed[thisUnit] or 0
         end
     end
 
@@ -361,11 +352,15 @@ function br.loader:new(spec,specName)
             self.units["dyn"..tostring(i).."AoE"] = dynamicTarget(i, false)
             -- Prep Enemies Per Yards tables
             if self.enemies["yards"..tostring(i)] == nil then self.enemies["yards"..tostring(i)] = {} else table.wipe(self.enemies["yards"..tostring(i)]) end
-            if self.enemies["yards"..tostring(i).."t"] == nil then self.enemies["yards"..tostring(i).."t"] = {} else table.wipe(self.enemies["yards"..tostring(i).."t"]) end
+            if i <= 10 then
+                if self.enemies["yards"..tostring(i).."t"] == nil then self.enemies["yards"..tostring(i).."t"] = {} else table.wipe(self.enemies["yards"..tostring(i).."t"]) end
+            end
         end
         for k, v in pairs(br.enemy) do
-            if self.debuff.applied == nil then self.debuff.applied = {} end
-            if self.debuff.applied[k] == nil then self.debuff.applied[k] = 0 end
+            -- -- Store enemies in Debuff Applied for adding applied bleed values to
+            -- if self.debuff.applied == nil then self.debuff.applied = {} end
+            -- if self.debuff.applied[k] == nil then self.debuff.applied[k] = 0 end
+            -- Find ranges enemy is present in and add to tables
             local thisUnit = br.enemy[k].unit
             local thisDistance = getDistance(thisUnit)
             for x = 1, #typicalRanges do
@@ -375,7 +370,7 @@ function br.loader:new(spec,specName)
                     table.insert(self.enemies["yards"..tostring(i)],thisUnit)
                 end
                 local thisDistanceT = getDistance(self.units["dyn"..tostring(i)],thisUnit)
-                if thisDistanceT < i then
+                if thisDistanceT < i and i <= 10 then
                     table.insert(self.enemies["yards"..tostring(i).."t"],thisUnit)
                 end
             end
@@ -386,6 +381,19 @@ function br.loader:new(spec,specName)
             for k,v in pairs(self.spell.artifacts) do
                 self.artifact[k] = hasPerk(v) or false
                 self.artifact.rank[k] = getPerkRank(v) or 0
+            end
+        end
+
+        for k, v in pairs(self.debuff) do
+            if k == "rake" or k == "rip" then
+                if self.debuff[k].bleed == nil then self.debuff[k].bleed = {} end
+                for l, w in pairs(self.debuff[k].bleed) do
+                    if not UnitAffectingCombat("player") or UnitIsDeadOrGhost(l) then
+                        self.debuff[k].bleed[l] = nil
+                    elseif not self.debuff[k].exists(l) then
+                        self.debuff[k].bleed[l] = 0
+                    end
+                end
             end
         end
 

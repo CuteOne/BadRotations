@@ -23,14 +23,14 @@ function GetObjectType(Unit)
     if FireHack and GetObjectExists(Unit) then
         return ObjectType(Unit)
     else
-        return false
+        return 65561
     end
 end
 function GetObjectIndex(Index)
     if FireHack and GetObjectExists(GetObjectWithIndex(Index)) then
         return GetObjectWithIndex(Index)
     else
-        return false
+        return 0
     end
 end
 function GetObjectCountBR()
