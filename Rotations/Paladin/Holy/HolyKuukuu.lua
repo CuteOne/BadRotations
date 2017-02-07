@@ -155,7 +155,10 @@ local function runRotation()
         lowest.unit                                         = br.friend[1].unit
         lowest.range                                        = br.friend[1].range
         lowest.guid                                         = br.friend[1].guid
-        local tank                                          = {}    --Tank
+        local lowestTank                                    = {}    --Tank
+        --lowestTank.hp                                       = br.friend[i].hp
+        --lowestTank.unit                                     = br.friend[i].unit
+        local tHp                                           = 101
         local averageHealth                                 = 100
 
         if leftCombat == nil then leftCombat = GetTime() end
@@ -168,70 +171,9 @@ local function runRotation()
 -----------------
 --- Rotations ---
 -----------------
------------------------------
---- In Combat - Rotations ---
------------------------------
-    -- Action List - Interrupts
-            if useInterrupts() then
-                for i=1, #getEnemies("player",20) do
-                    thisUnit = getEnemies("player",20)[i]
-                    distance = getDistance(thisUnit)
-                    if canInterrupt(thisUnit,getOptionValue("InterruptAt")) then
-                        if distance < 5 then
-        -- Hammer of Justice
-                            if isChecked("Hammer of Justice") then
-                                if cast.hammerOfJustice(thisUnit) then return end
-                            end
-                        end
-                    end
-                end
-            end -- End Interrupt Check
-
-        if inCombat then
-
-            ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-            --Cooldowns ----- Cooldowns -----Cooldowns ----- Cooldowns ----- Cooldowns ----- Cooldowns ----- Cooldowns ----- Cooldowns ----- Cooldowns ----- Cooldowns ----- Cooldowns ----- 
-            ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-            -- Avenging Wrath
-            if isChecked("Avenging Wrath") then
-                for i = 1, #br.friend do
-                    if br.friend[i].hp <= getValue ("Avenging Wrath") then
-                        if cast.avengingWrath("player") then return end
-                    end
-                end
-            end
-            -- Lay on Hands
-            if isChecked("Lay on Hands") then
-                for i = 1, #br.friend do
-                    if br.friend[i].hp <= getValue ("Lay on Hands") then
-                        if cast.layOnHands(br.friend[i].unit) then return end
-                    end
-                end
-            end
-            -- Holy Avenger
-            if isChecked("Holy Avenger") then
-                for i = 1, #br.friend do
-                    if br.friend[i].hp <= getValue ("Holy Avenger") then
-                        if cast.holyAvenger("player") then return end
-                    end
-                end
-            end
-        end
-            ---------------------------------
---- Out Of Combat - Rotations ---
----------------------------------
-        if not inCombat then
              ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
             --AOE Healing----AOE Healing----AOE Healing----AOE Healing----AOE Healing----AOE Healing----AOE Healing----AOE Healing----AOE Healing----AOE Healing----AOE Healing----AOE Healing
             ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-            -- Beacon of Light on Tank
-            if isChecked("Beacon of Light") then
-                for i = 1, #br.friend do
-                    if not UnitBuffID(br.friend[i].unit,53563) and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
-                        if cast.beaconOfLight(br.friend[i].unit) then return end
-                    end
-                end
-            end
             -- Light of Dawn
             if isChecked("Light of Dawn") then
                 if getLowAllies(getValue"Light of Dawn") >= getValue("LoD Targets") and getFacing("player",lowest.unit) and getDistance("player",lowest.unit) <= 15 then
@@ -289,7 +231,73 @@ local function runRotation()
                     end
                 end
             end
-        end -- End In Combat Rotation
+        if inCombat then
+            -- Beacon of Light on Tank
+            if isChecked("Beacon of Light") then
+                if inInstance then                    
+                    for i = 1, #br.friend do
+                        if not buff.beaconOfLight.exists(br.friend[i].unit) and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
+                            if cast.beaconOfLight(br.friend[i].unit) then return end
+                        end
+                    end
+                else 
+                    if inRaid then
+                        for i =1, #br.friend do
+                            if br.friend[i].hp < tHp and not buff.beaconOfLight.exists(br.friend[i].unit) then
+                                lowestTank = br.friend[i].unit 
+                                tHP = br.friend[i].hp
+                                if cast.beaconOfLight(lowestTank) then return end
+                            end
+                        end
+                    end
+                end
+            end
+            ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+            --Cooldowns ----- Cooldowns -----Cooldowns ----- Cooldowns ----- Cooldowns ----- Cooldowns ----- Cooldowns ----- Cooldowns ----- Cooldowns ----- Cooldowns ----- Cooldowns ----- 
+            ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+            -- Avenging Wrath
+            if isChecked("Avenging Wrath") then
+                for i = 1, #br.friend do
+                    if br.friend[i].hp <= getValue ("Avenging Wrath") then
+                        if cast.avengingWrath("player") then return end
+                    end
+                end
+            end
+            -- Lay on Hands
+            if isChecked("Lay on Hands") then
+                for i = 1, #br.friend do
+                    if br.friend[i].hp <= getValue ("Lay on Hands") then
+                        if cast.layOnHands(br.friend[i].unit) then return end
+                    end
+                end
+            end
+            -- Holy Avenger
+            if isChecked("Holy Avenger") then
+                for i = 1, #br.friend do
+                    if br.friend[i].hp <= getValue ("Holy Avenger") then
+                        if cast.holyAvenger("player") then return end
+                    end
+                end
+            end
+    -- Action List - Interrupts
+            if useInterrupts() then
+                for i=1, #getEnemies("player",20) do
+                    thisUnit = getEnemies("player",20)[i]
+                    distance = getDistance(thisUnit)
+                    if canInterrupt(thisUnit,getOptionValue("InterruptAt")) then
+                        if distance < 5 then
+        -- Hammer of Justice
+                            if isChecked("Hammer of Justice") then
+                                if cast.hammerOfJustice(thisUnit) then return end
+                            end
+                        end
+                    end
+                end
+            end -- End Interrupt Check
+        end -- End In Combat Check
+        if not inCombat then
+            tHp = 101
+        end
     end -- End Timer
 end -- End runRotation
 
@@ -302,5 +310,5 @@ tinsert(br.rotations[id],{
     name = rotationName,
     toggles = createToggles,
     options = createOptions,
-    run = runRotation,
+    run = runRotation, 
 })
