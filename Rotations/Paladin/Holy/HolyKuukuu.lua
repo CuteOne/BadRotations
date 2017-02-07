@@ -158,7 +158,7 @@ local function runRotation()
         local lowestTank                                    = {}    --Tank
         --lowestTank.hp                                       = br.friend[i].hp
         --lowestTank.unit                                     = br.friend[i].unit
-        local tHp                                           = 101
+        local tHp                                           = 95
         local averageHealth                                 = 100
 
         if leftCombat == nil then leftCombat = GetTime() end
@@ -309,7 +309,7 @@ local function runRotation()
             end -- End Interrupt Check
         end -- End In Combat Check
         if not inCombat then
-            tHp = 101
+            tHp = 95
         end
     end -- End Timer
 end -- End runRotation
