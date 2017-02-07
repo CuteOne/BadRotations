@@ -77,13 +77,11 @@ local function createOptions()
         br.ui:checkSectionState(section)
     -- Healing Options
         section = br.ui:createSection(br.ui.window.profile, "Healing")
-        --Nature's Cure
-            br.ui:createCheckbox(section, "Nature's Cure")
         -- Efflorescence
             br.ui:createDropdown(section,"Efflorescence", br.dropOptions.Toggle, 6, "Set auto usage (No Hotkey) or desired hotkey to use Efflorescence.")
             --br.ui:createDropdownWithout(section,"Efflorescence - Target",{"Best","Target"},1,"Desired Target of Efflorescence")
         -- Lifebloom
-            br.ui:createSpinner(section, "Lifebloom",  95,  0,  100,  1,  "|cffFFFFFFHealth Percent to Cast At")
+            br.ui:createCheckbox(section,"Lifebloom","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFLifebloom usage.|cffFFBB00.")
         -- Rejuvenaion
             br.ui:createSpinner(section, "Rejuvenation",  90,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
         -- Regrowth
@@ -168,17 +166,11 @@ local function runRotation()
         local recharge                                      = br.player.recharge
         local spell                                         = br.player.spell
         local talent                                        = br.player.talent
-        local travel, flight, cat, noform                   = br.player.buff.travelForm.exists, br.player.buff.flightForm.exists, br.player.buff.catForm.exists, GetShapeshiftForm()==0
+        local travel, flight, cat, noform                   = br.player.buff.travelForm.exists(), br.player.buff.flightForm.exists(), br.player.buff.catForm.exists(), GetShapeshiftForm()==0
         local ttm                                           = br.player.power.ttm
         local units                                         = br.player.units
-
-        local lowest                                        = {}    --Lowest Unit
-        lowest.hp                                           = br.friend[1].hp
-        lowest.role                                         = br.friend[1].role
-        lowest.unit                                         = br.friend[1].unit
-        lowest.range                                        = br.friend[1].range
-        lowest.guid                                         = br.friend[1].guid                      
-        local tank                                          = {}    --Tank
+        local lowestTank                                    = {}    --Tank
+        local tHp                                           = 95
 
 --------------------
 --- Action Lists ---
@@ -335,9 +327,21 @@ local function runRotation()
             end
             -- Lifebloom
             if isChecked("Lifebloom") and not isCastingSpell(spell.tranquility) then
-                for i = 1, #br.friend do
-                    if buff.lifebloom.remain(br.friend[i].unit) <= 1 and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
-                        if cast.lifebloom(br.friend[i].unit) then return end     
+                if inInstance then                    
+                    for i = 1, #br.friend do
+                        if not buff.lifebloom.exists(br.friend[i].unit) and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
+                            if cast.lifebloom(br.friend[i].unit) then return end
+                        end
+                    end
+                else 
+                    if inRaid then
+                        for i =1, #br.friend do
+                            if br.friend[i].hp < tHp and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" and not buff.lifebloom.exists(br.friend[i].unit) then
+                                lowestTank = br.friend[i].unit 
+                                tHP = br.friend[i].hp
+                                if cast.lifebloom(lowestTank) then return end
+                            end
+                        end
                     end
                 end
             end
