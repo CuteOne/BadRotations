@@ -46,7 +46,7 @@ local function createOptions()
         section = br.ui:createSection(br.ui.window.profile,  "General")
         --    br.ui:createCheckbox(section, "Boss Helper")
             --Cleanse
-        --    br.ui:createCheckbox(section, "Cleanse")
+            br.ui:createCheckbox(section, "Cleanse")
         --Beacon of Light
             br.ui:createCheckbox(section, "Beacon of Light")
         br.ui:checkSectionState(section)
@@ -171,6 +171,19 @@ local function runRotation()
 -----------------
 --- Rotations ---
 -----------------
+
+            if isChecked("Cleanse") then
+                for i = 1, #br.friend do
+                    for n = 1,40 do
+                        local buff,_,_,count,bufftype,duration = UnitDebuff(br.friend[i].unit, n)
+                        if buff then
+                            if bufftype == "Disease" or bufftype == "Magic" or bufftype == "Poison" then
+                                if cast.cleanse(br.friend[i].unit) then return end
+                            end
+                        end
+                    end
+                end
+            end
              ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
             --AOE Healing----AOE Healing----AOE Healing----AOE Healing----AOE Healing----AOE Healing----AOE Healing----AOE Healing----AOE Healing----AOE Healing----AOE Healing----AOE Healing
             ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -243,7 +256,7 @@ local function runRotation()
                 else 
                     if inRaid then
                         for i =1, #br.friend do
-                            if br.friend[i].hp < tHp and not buff.beaconOfLight.exists(br.friend[i].unit) then
+                            if br.friend[i].hp < tHp and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" and not buff.beaconOfLight.exists(br.friend[i].unit) then
                                 lowestTank = br.friend[i].unit 
                                 tHP = br.friend[i].hp
                                 if cast.beaconOfLight(lowestTank) then return end
