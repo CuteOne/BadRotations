@@ -391,7 +391,7 @@ local function runRotation()
         --- EXTRA ---
         -------------
         function extra()
-            if player.power.mana.percent <= getOptionValue("Arcane Torrent") then
+            if player.power.mana.percent <= getOptionValue("Arcane Torrent") and (br.player.race == "Orc" or br.player.race == "Troll" or br.player.race == "Blood Elf") then
                 if castSpell("player",player.getRacial(),false,false,false) then
                     lastSpellCasted = ""
                     lastSpellCatedOnPlayer = ""
