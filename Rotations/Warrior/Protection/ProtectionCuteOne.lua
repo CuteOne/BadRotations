@@ -483,7 +483,7 @@ local function runRotation()
         -- Revenge
             -- revenge,if=cooldown.shield_slam.remain()s<=gcd.max*2
             -- revenge,if=cooldown.shield_slam.remain()s<=gcd.max*1.5|spell_targets.revenge>=2
-            if cd.shieldSlam <= gcd * 1.5 or ((mode.rotation == 1 and #enemies.yards5 >= 2) or mode.rotation == 2) then
+            if cd.shieldSlam <= gcd * 1.5 or ((mode.rotation == 1 and #enemies.yards5 >= 1) or mode.rotation == 2) then
                 if cast.revenge() then return end
             end
         -- Ignore Pain
