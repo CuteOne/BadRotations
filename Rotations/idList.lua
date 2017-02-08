@@ -1205,6 +1205,8 @@ br.idList = {
                 strikeOfTheWindlord         = 205320,
                 touchOfDeath                = 115080,
                 touchOfKarma                = 122470,
+                transcendence               = 101643,
+                transcendenceTransfer       = 119996,
                 whirlingDragonPunch         = 152175,
             },
             artifacts                       = {
@@ -1230,9 +1232,11 @@ br.idList = {
             buffs                           = {
                 serenity                    = 152173,
                 stormEarthAndFire           = 137639,
+                healingWinds                = 195381,
                 hitCombo                    = 196741,
                 theEmperorsCapacitor        = 235054,
                 touchOfKarma                = 122470,
+                transcendence               = 101643,
             },
             debuffs                         = {
                 markOfTheCrane              = 228287,
