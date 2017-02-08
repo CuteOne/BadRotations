@@ -262,7 +262,7 @@ local function runRotation()
                         for i = 1, #br.friend do
                             if beacon == nil and not buff.beaconOfLight.exists(br.friend[i].unit) and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
                                 beacon = br.friend[i].hp
-                                if cast.beaconofLight(br.friend[i].unit) then return end
+                                if cast.beaconOfLight(br.friend[i].unit) then return end
                             else
                                 if buff.beaconOfLight.exists(br.friend[i].unit) then
                                     beacon = br.friend[i].hp
