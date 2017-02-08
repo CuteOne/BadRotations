@@ -495,7 +495,7 @@ local function runRotation()
             end
         -- Thunder Clap
             -- thunder_clap,if=spell_targets.thunder_clap>=4
-            if ((mode.rotation == 1 and #enemies.yards8 >= 4) or mode.rotation == 2) then
+            if ((mode.rotation == 1 and #enemies.yards8 >= 1) or mode.rotation == 2) then
                 if cast.thunderClap() then return end
             end
         -- Devastate
