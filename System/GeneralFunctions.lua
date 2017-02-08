@@ -205,6 +205,18 @@ function UnitBuffID(unit,spellID,filter)
 		end
 	end
 end
+-- function UnitBuffID(unit,spellID)
+-- 	for i=1,40 do
+-- 		local _,_,_,_,_,_,_,buffCaster,_,_,buffSpellID = UnitBuff(unit,i)
+-- 		if buffSpellID ~= nil then
+-- 			if buffSpellID == spellID then
+-- 				return true
+-- 			end
+-- 		end
+-- 	end
+-- 	return false
+-- end
+
 function UnitDebuffID(unit,spellID,filter)
 	local spellName = GetSpellInfo(spellID)
 	if filter == nil then

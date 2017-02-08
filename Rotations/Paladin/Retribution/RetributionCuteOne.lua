@@ -367,11 +367,11 @@ local function runRotation()
                 end
                 if getOptionValue("APL Mode") == 2 then
             -- Crusade
-                    if isChecked("Crusade") then
+                    if isChecked("Crusade") and talent.crusade then
                         if cast.crusade() then return end
                     end
             -- Avenging Wrath
-                    if isChecked("Avenging Wrath") then
+                    if isChecked("Avenging Wrath") and not talent.crusade then
                         if cast.avengingWrath() then return end
                     end
                 end
@@ -481,7 +481,7 @@ local function runRotation()
                         end
             -- Avenging Wrath
                         -- avenging_wrath
-                        if isChecked("Avenging Wrath") then
+                        if isChecked("Avenging Wrath") and not talent.crusade then
                             if cast.avengingWrath() then return end
                         end
             -- Shield of Vengeance
@@ -491,7 +491,7 @@ local function runRotation()
                         end
             -- Crusade
                         -- crusade,if=holy_power>=5&!equipped.137048|((equipped.137048|race.blood_elf)&time<2|time>2&holy_power>=4)
-                        if isChecked("Crusade") then
+                        if isChecked("Crusade") and talent.crusade then
                             if (holyPower >= 5 and not hasEquiped(137048)) or ((hasEquiped(137048) or race == "BloodElf") and combatTime < 2 or combatTime > 2 and holyPower >= 4) then
                                 if cast.crusade() then return end
                             end
