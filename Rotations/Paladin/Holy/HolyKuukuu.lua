@@ -156,8 +156,7 @@ local function runRotation()
         lowest.range                                        = br.friend[1].range
         lowest.guid                                         = br.friend[1].guid
         local lowestTank                                    = {}    --Tank
-        --lowestTank.hp                                       = br.friend[i].hp
-        --lowestTank.unit                                     = br.friend[i].unit
+        local beacon                                       
         local tHp                                           = 95
         local averageHealth                                 = 100
 
@@ -247,19 +246,33 @@ local function runRotation()
         if inCombat then
             -- Beacon of Light on Tank
             if isChecked("Beacon of Light") then
-                if inInstance then                    
+                if inInstance then    
                     for i = 1, #br.friend do
-                        if not buff.beaconOfLight.exists(br.friend[i].unit) and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
+                        if beacon == nil and not buff.beaconOfLight.exists(br.friend[i].unit) and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
+                            beacon = br.friend[i].hp
                             if cast.beaconOfLight(br.friend[i].unit) then return end
+                        else
+                            if buff.beaconOfLight.exists(br.friend[i].unit) then
+                                beacon = br.friend[i].hp
+                            end
                         end
-                    end
+                    end              
                 else 
                     if inRaid then
+                        for i = 1, #br.friend do
+                            if beacon == nil and not buff.beaconOfLight.exists(br.friend[i].unit) and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
+                                beacon = br.friend[i].hp
+                                if cast.beaconofLight(br.friend[i].unit) then return end
+                            else
+                                if buff.beaconOfLight.exists(br.friend[i].unit) then
+                                    beacon = br.friend[i].hp
+                                end
+                            end
+                        end
                         for i =1, #br.friend do
-                            if br.friend[i].hp < tHp and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" and not buff.beaconOfLight.exists(br.friend[i].unit) then
-                                lowestTank = br.friend[i].unit 
-                                tHP = br.friend[i].hp
-                                if cast.beaconOfLight(lowestTank) then return end
+                            if br.friend[i].hp < beacon and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" and not buff.beaconOfLight.exists(br.friend[i].unit) then
+                                beacon = br.friend[i].hp
+                                if cast.beaconOfLight(br.friend[i].unit) then return end
                             end
                         end
                     end
