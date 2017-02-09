@@ -161,7 +161,7 @@ local function runRotation()
         local charges           = br.player.charges
         local deadtar           = UnitIsDeadOrGhost("target") or isDummy()
         local debuff            = br.player.debuff
-        local enemies           = br.player.enemies
+        local enemies           = enemies or {}
         local gcd               = br.player.gcd
         local glyph             = br.player.glyph
         local inCombat          = br.player.inCombat
@@ -180,7 +180,17 @@ local function runRotation()
         local t19_2pc           = TierScan("T19") >= 2
         local t19_4pc           = TierScan("T19") >= 4
         local ttd               = getTTD
-        local units             = br.player.units
+        local units             = units or {}
+
+        units.dyn5 = br.player.units.dyn5()
+        units.dyn8 = br.player.units.dyn8()
+        units.dyn30 = br.player.units.dyn30()
+        enemies.yards8 = br.player.enemies.yards8()
+        enemies.yards10 = br.player.enemies.yards10()
+        enemies.yards10t = br.player.enemies.yards10(br.player.units.dyn10(true))
+        enemies.yards15 = br.player.enemies.yards15()
+        enemies.yards30 = br.player.enemies.yards30()
+        enemies.yards40 = br.player.enemies.yards40()
 
     -- Profile Stop
         if profileStop == nil then profileStop = false end

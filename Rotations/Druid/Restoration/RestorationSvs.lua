@@ -146,7 +146,7 @@ local function runRotation()
         local cd                                            = br.player.cd
         local charges                                       = br.player.charges
         local debuff                                        = br.player.debuff
-        local enemies                                       = br.player.enemies
+        local enemies                                       = enemies or {}
         local falling, swimming, flying, moving             = getFallTime(), IsSwimming(), IsFlying(), GetUnitSpeed("player")>0
         local gcd                                           = br.player.gcd
         local healPot                                       = getHealthPot()
@@ -168,9 +168,11 @@ local function runRotation()
         local talent                                        = br.player.talent
         local travel, flight, cat, noform                   = br.player.buff.travelForm.exists(), br.player.buff.flightForm.exists(), br.player.buff.catForm.exists(), GetShapeshiftForm()==0
         local ttm                                           = br.player.power.ttm
-        local units                                         = br.player.units
+        local units                                         = units or {}
         local lowestTank                                    = {}    --Tank
         local tHp                                           = 95
+
+        units.dyn5 = br.player.units.dyn5()
 
 --------------------
 --- Action Lists ---

@@ -190,7 +190,7 @@ local function runRotation()
         local deadMouse                                     = UnitIsDeadOrGhost("mouseover")
         local deadtar, attacktar, hastar, playertar         = deadtar or UnitIsDeadOrGhost("target"), attacktar or UnitCanAttack("target", "player"), hastar or ObjectExists("target"), UnitIsPlayer("target")
         local debuff                                        = br.player.debuff
-        local enemies                                       = br.player.enemies
+        local enemies                                       = enemies or {}
         local falling, swimming, flying, moving             = getFallTime(), IsSwimming(), IsFlying(), GetUnitSpeed("player")>0
         local friendly                                      = friendly or UnitIsFriend("target", "player")
         local gcd                                           = br.player.gcd
@@ -215,11 +215,17 @@ local function runRotation()
         local solo                                          = br.player.instance=="none"
         local spell                                         = br.player.spell
         local talent                                        = br.player.talent
-        local thp                                           = getHP(br.player.units.dyn5)
+        local thp                                           = getHP(br.player.units.dyn5())
         local tier19_2pc                                    = TierScan("T19") >= 2
         local ttd                                           = getTTD
         local ttm                                           = br.player.power.ttm
-        local units                                         = br.player.units
+        local units                                         = units or {}
+
+        units.dyn5 = br.player.units.dyn5()
+        units.dyn8 = br.player.units.dyn8()
+        enemies.yards8 = br.player.enemies.yards8()
+        enemies.yards15 = br.player.enemies.yards15()
+        enemies.yards40 = br.player.enemies.yards40()
 
         if leftCombat == nil then leftCombat = GetTime() end
         if profileStop == nil then profileStop = false end

@@ -195,7 +195,7 @@ local function runRotation()
         local charges       = br.player.charges
         local combatTime    = getCombatTime()
         local debuff        = br.player.debuff
-        local enemies       = br.player.enemies
+        local enemies       = enemies or {}
         local gcd           = br.player.gcd
         local hastar        = ObjectExists("target")
         local healPot       = getHealthPot()
@@ -209,8 +209,13 @@ local function runRotation()
         local solo          = GetNumGroupMembers() == 0
         local spell         = br.player.spell
         local talent        = br.player.talent
-        local ttd           = getTTD(br.player.units.dyn5)
-        local units         = br.player.units
+        local ttd           = getTTD(br.player.units.dyn5())
+        local units         = units or {}
+
+        units.dyn5 = br.player.units.dyn5()
+        enemies.yards5 = br.player.enemies.yards5()
+        enemies.yards10 = br.player.enemies.yards10()
+        enemies.yards30 = br.player.enemies.yards30()
 
         if profileStop == nil then profileStop = false end
         judgmentExists = debuff.judgment.exists(units.dyn5)

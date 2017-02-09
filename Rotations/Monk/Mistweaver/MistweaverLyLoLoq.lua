@@ -120,6 +120,11 @@ local lastSpellCatedOnPlayer = ""
 local function runRotation()
     local player = br.player
     local lowest = br.friend[1]
+    local enemies = enemies or {}
+
+    enemies.yards5 = br.player.enemies.yards5()
+    enemies.yards20 = br.player.enemies.yards20()
+    enemies.yards40 = br.player.enemies.yards40()
 
     --    if br.timer:useTimer("debugMistweaver", player.gcd) then
     if br.timer:useTimer("debugMistweaver", math.random(0.15,0.3)) then

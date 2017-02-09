@@ -204,44 +204,44 @@ function cCharacter:new(class)
 
 -- Dynamic unit update
 	function self.baseGetDynamicUnits()
-		local dynamicTarget = dynamicTarget
+		-- local dynamicTarget = dynamicTarget
 
-        -- Throttle dynamic target updating
-        if br.timer:useTimer("dynTarUpdate", self.dynTargetTimer) then
-        	if self.talent.balanceAffinity ~= nil then
-        		if self.talent.balanceAffinity then
-	            	-- Normal
-		            self.units.dyn5  = dynamicTarget(10,true) -- Melee
-		            self.units.dyn30 = dynamicTarget(35,true) -- used for most range attacks
-		            self.units.dyn40 = dynamicTarget(45,true) -- used for most heals
+  --       -- Throttle dynamic target updating
+  --       if br.timer:useTimer("dynTarUpdate", self.dynTargetTimer) then
+  --       	if self.talent.balanceAffinity ~= nil then
+  --       		if self.talent.balanceAffinity then
+	 --            	-- Normal
+		--             self.units.dyn5  = dynamicTarget(10,true) -- Melee
+		--             self.units.dyn30 = dynamicTarget(35,true) -- used for most range attacks
+		--             self.units.dyn40 = dynamicTarget(45,true) -- used for most heals
 
-		            -- AoE
-		            self.units.dyn5AoE  = dynamicTarget(10,false) -- Melee
-		            self.units.dyn30AoE = dynamicTarget(35,false) -- used for most range attacks
-		            self.units.dyn40AoE = dynamicTarget(45,false) -- used for most heal
-        		else
-        			-- Normal
-		            self.units.dyn5  = dynamicTarget(5,true) -- Melee
-		            self.units.dyn30 = dynamicTarget(30,true) -- used for most range attacks
-		            self.units.dyn40 = dynamicTarget(40,true) -- used for most heals
+		--             -- AoE
+		--             self.units.dyn5AoE  = dynamicTarget(10,false) -- Melee
+		--             self.units.dyn30AoE = dynamicTarget(35,false) -- used for most range attacks
+		--             self.units.dyn40AoE = dynamicTarget(45,false) -- used for most heal
+  --       		else
+  --       			-- Normal
+		--             self.units.dyn5  = dynamicTarget(5,true) -- Melee
+		--             self.units.dyn30 = dynamicTarget(30,true) -- used for most range attacks
+		--             self.units.dyn40 = dynamicTarget(40,true) -- used for most heals
 
-		            -- AoE
-		            self.units.dyn5AoE  = dynamicTarget(5,false) -- Melee
-		            self.units.dyn30AoE = dynamicTarget(30,false) -- used for most range attacks
-		            self.units.dyn40AoE = dynamicTarget(40,false) -- used for most heals
-		        end
-        	else
-	            -- Normal
-	            self.units.dyn5  = dynamicTarget(5,true) -- Melee
-	            self.units.dyn30 = dynamicTarget(30,true) -- used for most range attacks
-	            self.units.dyn40 = dynamicTarget(40,true) -- used for most heals
+		--             -- AoE
+		--             self.units.dyn5AoE  = dynamicTarget(5,false) -- Melee
+		--             self.units.dyn30AoE = dynamicTarget(30,false) -- used for most range attacks
+		--             self.units.dyn40AoE = dynamicTarget(40,false) -- used for most heals
+		--         end
+  --       	else
+	 --            -- Normal
+	 --            self.units.dyn5  = dynamicTarget(5,true) -- Melee
+	 --            self.units.dyn30 = dynamicTarget(30,true) -- used for most range attacks
+	 --            self.units.dyn40 = dynamicTarget(40,true) -- used for most heals
 
-	            -- AoE
-	            self.units.dyn5AoE  = dynamicTarget(5,false) -- Melee
-	            self.units.dyn30AoE = dynamicTarget(30,false) -- used for most range attacks
-	            self.units.dyn40AoE = dynamicTarget(40,false) -- used for most heals
-	        end
-        end
+	 --            -- AoE
+	 --            self.units.dyn5AoE  = dynamicTarget(5,false) -- Melee
+	 --            self.units.dyn30AoE = dynamicTarget(30,false) -- used for most range attacks
+	 --            self.units.dyn40AoE = dynamicTarget(40,false) -- used for most heals
+	 --        end
+  --       end
 	end
 
 -- Returns the Global Cooldown time

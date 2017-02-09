@@ -187,7 +187,7 @@ local function runRotation()
     local combo, comboDeficit, comboMax                 = br.player.power.amount.comboPoints, br.player.power.comboPoints.deficit, br.player.power.comboPoints.max
     local deadtar                                       = UnitIsDeadOrGhost("target")
     local debuff                                        = br.player.debuff
-    local enemies                                       = br.player.enemies
+    local enemies                                       = enemies or {}
     local flaskBuff, canFlask                           = getBuffRemain("player",br.player.flask.wod.buff.agilityBig), canUse(br.player.flask.wod.agilityBig)
     local gcd                                           = br.player.gcd
     local glyph                                         = br.player.glyph
@@ -213,8 +213,17 @@ local function runRotation()
     local time                                          = getCombatTime()
     local ttd                                           = getTTD
     local ttm                                           = br.player.power.ttm
-    local units                                         = br.player.units
+    local units                                         = units or {}
     local lootDelay                                     = getOptionValue("LootDelay")
+
+    units.dyn5 = br.player.units.dyn5()
+    units.dyn8 = br.player.units.dyn8()
+    units.dyn30 = br.player.units.dyn30()
+    enemies.yards5 = br.player.enemies.yards5()
+    enemies.yards8 = br.player.enemies.yards8()
+    enemies.yards10 = br.player.enemies.yards10()
+    enemies.yards20 = br.player.enemies.yards20()
+    enemies.yards30 = br.player.enemies.yards30()
 
     if talent.anticipation then antital = 1 else antital = 0 end
     if talent.deeperStrategem then dStrat = 1 else dStrat = 0 end

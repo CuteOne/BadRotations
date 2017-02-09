@@ -165,6 +165,48 @@ function br.loader:new(spec,specName)
         end
     end
 
+    -- self.bestUnit = function(range,aoe)
+    --     if aoe == nil then aoe = false end
+    --     if aoe then
+    --         return dynamicTarget(range, false)
+    --     else
+    --         return dynamicTarget(range, true)
+    --     end
+    -- end
+
+-- Build Best Unit and Enemies List per Range
+    local typicalRanges = {
+        40, -- Typical Ranged Limit
+        35,
+        30,
+        25,
+        20,
+        15,
+        13, -- Feral Interrupt
+        12,
+        10, -- Other Typical AoE Effect
+        9, -- Monk Artifact
+        8, -- Typical AoE Effect
+        5, -- Typical Melee
+    }
+    for x = 1, #typicalRanges do
+        local i = typicalRanges[x]
+
+        self.units["dyn"..i] = function(aoe)
+            if aoe == nil then aoe = false end
+            if aoe then
+                return dynamicTarget(i, false)
+            else
+                return dynamicTarget(i, true)
+            end
+        end
+
+        self.enemies["yards"..i] = function(unit)
+            if unit == nil then unit = "player" end
+            return getEnemies(unit,i)
+        end
+    end
+
     -- Cycle through Abilities List
     for k,v in pairs(self.spell.abilities) do
         if self.cast            == nil then self.cast               = {} end        -- Cast Spell Functions
@@ -196,10 +238,10 @@ function br.loader:new(spec,specName)
             elseif thisUnit == nil then
                 if IsUsableSpell(v) and isKnown(v) then
                     if maxRange ~= nil and maxRange > 0 then
-                        thisUnit = self.units["dyn"..tostring(maxRange)]
+                        thisUnit = self.units["dyn"..tostring(maxRange)]()
                         amIinRange = getDistance(thisUnit) < maxRange
                     else
-                        thisUnit = self.units.dyn5
+                        thisUnit = self.units.dyn5()
                         amIinRange = getDistance(thisUnit) < 5
                     end
                 end
@@ -329,52 +371,52 @@ function br.loader:new(spec,specName)
         self.power.regen     = getRegen("player")
         self.power.ttm       = getTimeToMax("player")
 
-        -- Build Best Unit and Enemies List per Range
-        local typicalRanges = {
-            40, -- Typical Ranged Limit
-            35,
-            30,
-            25,
-            20,
-            15,
-            13, -- Feral Interrupt
-            12,
-            10, -- Other Typical AoE Effect
-            9, -- Monk Artifact
-            8, -- Typical AoE Effect
-            5, -- Typical Melee
-        }
-        for x = 1, #typicalRanges do
-            local i = typicalRanges[x]
-            -- Assign Best Target In Front for Set Yards
-            self.units["dyn"..tostring(i)] = dynamicTarget(i, true)
-            -- Assign Best Target In AoE for Set Yards
-            self.units["dyn"..tostring(i).."AoE"] = dynamicTarget(i, false)
-            -- Prep Enemies Per Yards tables
-            if self.enemies["yards"..tostring(i)] == nil then self.enemies["yards"..tostring(i)] = {} else table.wipe(self.enemies["yards"..tostring(i)]) end
-            if i <= 10 then
-                if self.enemies["yards"..tostring(i).."t"] == nil then self.enemies["yards"..tostring(i).."t"] = {} else table.wipe(self.enemies["yards"..tostring(i).."t"]) end
-            end
-        end
-        for k, v in pairs(br.enemy) do
-            -- -- Store enemies in Debuff Applied for adding applied bleed values to
-            -- if self.debuff.applied == nil then self.debuff.applied = {} end
-            -- if self.debuff.applied[k] == nil then self.debuff.applied[k] = 0 end
-            -- Find ranges enemy is present in and add to tables
-            local thisUnit = br.enemy[k].unit
-            local thisDistance = getDistance(thisUnit)
-            for x = 1, #typicalRanges do
-                local i = typicalRanges[x]
-                -- Assign enemies to tables for specific yard
-                if thisDistance < i then
-                    table.insert(self.enemies["yards"..tostring(i)],thisUnit)
-                end
-                local thisDistanceT = getDistance(self.units["dyn"..tostring(i)],thisUnit)
-                if thisDistanceT < i and i <= 10 then
-                    table.insert(self.enemies["yards"..tostring(i).."t"],thisUnit)
-                end
-            end
-        end
+        -- -- Build Best Unit and Enemies List per Range
+        -- local typicalRanges = {
+        --     40, -- Typical Ranged Limit
+        --     35,
+        --     30,
+        --     25,
+        --     20,
+        --     15,
+        --     13, -- Feral Interrupt
+        --     12,
+        --     10, -- Other Typical AoE Effect
+        --     9, -- Monk Artifact
+        --     8, -- Typical AoE Effect
+        --     5, -- Typical Melee
+        -- }
+        -- for x = 1, #typicalRanges do
+        --     local i = typicalRanges[x]
+        --     -- Assign Best Target In Front for Set Yards
+        --     self.units["dyn"..tostring(i)] = dynamicTarget(i, true)
+        --     -- Assign Best Target In AoE for Set Yards
+        --     self.units["dyn"..tostring(i).."AoE"] = dynamicTarget(i, false)
+        --     -- Prep Enemies Per Yards tables
+        --     if self.enemies["yards"..tostring(i)] == nil then self.enemies["yards"..tostring(i)] = {} else table.wipe(self.enemies["yards"..tostring(i)]) end
+        --     if i <= 10 then
+        --         if self.enemies["yards"..tostring(i).."t"] == nil then self.enemies["yards"..tostring(i).."t"] = {} else table.wipe(self.enemies["yards"..tostring(i).."t"]) end
+        --     end
+        -- end
+        -- for k, v in pairs(br.enemy) do
+        --     -- -- Store enemies in Debuff Applied for adding applied bleed values to
+        --     -- if self.debuff.applied == nil then self.debuff.applied = {} end
+        --     -- if self.debuff.applied[k] == nil then self.debuff.applied[k] = 0 end
+        --     -- Find ranges enemy is present in and add to tables
+        --     local thisUnit = br.enemy[k].unit
+        --     local thisDistance = getDistance(thisUnit)
+        --     for x = 1, #typicalRanges do
+        --         local i = typicalRanges[x]
+        --         -- Assign enemies to tables for specific yard
+        --         if thisDistance < i then
+        --             table.insert(self.enemies["yards"..tostring(i)],thisUnit)
+        --         end
+        --         local thisDistanceT = getDistance(self.units["dyn"..tostring(i)],thisUnit)
+        --         if thisDistanceT < i and i <= 10 then
+        --             table.insert(self.enemies["yards"..tostring(i).."t"],thisUnit)
+        --         end
+        --     end
+        -- end
 
         if not UnitAffectingCombat("player") then
             -- Build Artifact Info

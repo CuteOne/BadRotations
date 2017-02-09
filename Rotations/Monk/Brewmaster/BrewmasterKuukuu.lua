@@ -167,7 +167,7 @@ local function runRotation()
         local charges           = br.player.charges
         local combatTime        = getCombatTime()
         local debuff            = br.player.debuff
-        local enemies           = br.player.enemies
+        local enemies           = enemies or {}
         local flaskBuff         = getBuffRemain("player",br.player.flask.wod.buff.agilityBig) or 0
         local gcd               = br.player.gcd
         local glyph             = br.player.glyph
@@ -191,13 +191,17 @@ local function runRotation()
         local t18_2pc           = br.player.eq.t18_2pc
         local t18_4pc           = br.player.eq.t18_4pc
         local talent            = br.player.talent
-        local thp               = getHP(br.player.units.dyn5)
+        local thp               = getHP(br.player.units.dyn5())
         local trinketProc       = false --br.player.hasTrinketProc()
-        local ttd               = getTTD(br.player.units.dyn5)
+        local ttd               = getTTD(br.player.units.dyn5())
         local ttm               = br.player.power.ttm
-        local units             = br.player.units
+        local units             = units or {}
         if leftCombat == nil then leftCombat = GetTime() end
         if profileStop == nil then profileStop = false end
+
+        units.dyn5 = br.player.units.dyn5()
+        enemies.yards5 = br.player.enemies.yards5()
+        enemies.yards8 = br.player.enemies.yards8()
 
 
 --------------------
