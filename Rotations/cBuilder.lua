@@ -176,7 +176,7 @@ function br.loader:new(spec,specName)
 
     self.enemies = function(range,unit)
         if unit == nil then unit = "player" end
-        return getEnemies(range,unit)
+        return getEnemies(unit,range)
     end
 
 -- Build Best Unit and Enemies List per Range
