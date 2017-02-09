@@ -1339,14 +1339,17 @@ br.idList = {
             },
             buffs                           = {
                 auraOfMercy                 = 183415;
+                auraMastery                 = 31821;
                 avengingWrath               = 31842;
                 beaconOfLight               = 53563;
                 beaconOfFaith               = 53563;
                 bestowFaith                 = 223306;
                 divineProtection            = 498;
                 divinePurpose               = 216411;
+                ferventMartyr               = 196923;
                 infusionOfLight             = 54149;
                 ruleOfLaw                   = 214202;
+                theLightSaves               = 200421;
                 vindicator                  = 200376;
 
             },
