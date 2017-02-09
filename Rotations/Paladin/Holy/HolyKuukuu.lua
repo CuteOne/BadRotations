@@ -53,6 +53,8 @@ local function createOptions()
             br.ui:createCheckbox(section, "Beacon of Light")
         -- Crusader Strike
             br.ui:createCheckbox(section, "Crusader Strike")
+        -- Redemption
+            br.ui:createDropdownWithout(section, "Redemption", {"|cffFFFFFFTarget","|cffFFFFFFMouseover"}, 1, "|cffFFFFFFSelect Redemption Mode.")
         br.ui:checkSectionState(section)
         -------------------------
         --- INTERRUPT OPTIONS ---
@@ -187,6 +189,19 @@ local function runRotation()
 --- Rotations ---
 -----------------
         if getOptionValue("Mode") == 1 then
+            -- Redemption
+            if isChecked("Redemption") then
+                if getOptionValue("Redemption") == 1
+                    and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and UnitIsFriend("target","player")
+                then
+                    if cast.redemption("target") then return end
+                end
+                if getOptionValue("Redemption") == 2
+                    and UnitIsPlayer("mouseover") and UnitIsDeadOrGhost("mouseover") and UnitIsFriend("mouseover","player")
+                then
+                    if cast.redemption("mouseover") then return end
+                end
+            end
             -- Cleanse
             if isChecked("Cleanse") then
                 for i = 1, #br.friend do
@@ -340,6 +355,19 @@ local function runRotation()
             end -- End In Combat Check
         end -- NOrmal Mode Check
         if getOptionValue("Mode") == 2 then
+            -- Redemption
+            if isChecked("Redemption") then
+                if getOptionValue("Redemption") == 1
+                    and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and UnitIsFriend("target","player")
+                then
+                    if cast.redemption("target") then return end
+                end
+                if getOptionValue("Redemption") == 2
+                    and UnitIsPlayer("mouseover") and UnitIsDeadOrGhost("mouseover") and UnitIsFriend("mouseover","player")
+                then
+                    if cast.redemption("mouseover") then return end
+                end
+            end
             if isChecked("Cleanse") then
                 for i = 1, #br.friend do
                     for n = 1,40 do
@@ -491,7 +519,7 @@ local function runRotation()
             -- Light of Martyr
             if isChecked("Light of the Martyr") then
                 if talent.ferventMartyr then
-                    if buff.ferventMartyr.count == 2 then
+                    if getBuffStacks("player", 223316) == 2 then
                         for i = 1, #br.friend do
                             if br.friend[i].hp <= getValue ("Light of the Martyr") then
                                 if cast.lightOfTheMartyr(br.friend[i].unit) then return end
@@ -526,7 +554,9 @@ local function runRotation()
             end
             -- Crusader Strike
             if isChecked("Crusader Strike") then
-                if cast.crusaderStrike(units.dyn5) then return end
+                if not UnitIsFriend(units.dyn5, "player") then
+                    if cast.crusaderStrike(units.dyn5) then return end
+                end
             end
          end -- Test Mode
     end -- End Timer
