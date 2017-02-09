@@ -58,6 +58,8 @@ local function createOptions()
             br.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
         -- Eye Beam Targets
             br.ui:createSpinner(section, "Eye Beam Targets", 3, 1, 10, 1, "|cffFFBB00Number of Targets to use at.")
+        -- Fel Rush Charge Hold
+            br.ui:createSpinnerWithout(section, "Hold Fel Rush Charge", 1, 0, 2, 1, "|cffFFBB00Number of Fel Rush charges the bot will hold for manual use.");
         -- Glide Fall Time
             br.ui:createSpinner(section, "Glide", 2, 0, 10, 1, "|cffFFBB00Seconds until Glide will be used while falling.")
         -- Artifact
@@ -518,10 +520,11 @@ local function runRotation()
                         end
                     end
             -- Fel Rush
-                    -- fel_rush,if=(talent.momentum.enabled|talent.fel_mastery.enabled)&(!talent.momentum.enabled|(charges=2|cooldown.vengeful_retreat.remain()s>4)&buff.momentum.down)&(!talent.fel_mastery.enabled|fury.deficit>=25)&(charges=2|(raid_event.movement.in>10&raid_event.adds.in>10))
+                    -- fel_rush,if=(talent.momentum.enabled|talent.fel_mastery.enabled)&(!talent.momentum.enabled|(charges=2|cooldown.vengeful_retreat.remains>4)&buff.momentum.down)&(!talent.fel_mastery.enabled|fury.deficit>=25)&(charges=2|(raid_event.movement.in>10&raid_event.adds.in>10))
+                    -- fel_rush,if=(talent.momentum.enabled|talent.fel_mastery.enabled)&(!talent.momentum.enabled|(charges=2|cooldown.vengeful_retreat.remains>4)&buff.momentum.down)&(!talent.fel_mastery.enabled|fury.deficit>=25)&(charges=2|(raid_event.movement.in>10&raid_event.adds.in>10))
                     if getFacing("player","target",10)
-                        and (talent.momentum or talent.felMastery) and (not talent.momentum or (charges.felRush == 2 or cd.vengefulRetreat > 4) and not buff.momentum.exists())
-                        and (not talent.felMastery or powerDeficit >= 25) and (charges.felRush == 2 --[[or (moveIn > charges.felRush * 10 and addsIn > 10)]])
+                        and (talent.momentum or talent.felMastery) and (not talent.momentum or ((charges.felRush > getOptionValue("Hold Fel Rush Charge") or cd.vengefulRetreat > 4) and not buff.momentum.exists())
+                        and (not talent.felMastery or powerDeficit >= 25) and (charges.felRush > getOptionValue("Hold Fel Rush Charge") --[[or (moveIn > charges.felRush * 10 and addsIn > 10)]]))
                     then
                         if mode.mover == 1 and getDistance("target") < 5 then
                             cancelRushAnimation()
@@ -553,7 +556,7 @@ local function runRotation()
                     end
             -- Fel Rush
                     -- fel_rush,if=charges=2&!talent.momentum.enabled&!talent.fel_mastery.enabled
-                    if getFacing("player","target",10) and charges.felRush == 2 and not talent.momentum and not talent.felMastery then
+                    if getFacing("player","target",10) and charges.felRush > getOptionValue("Hold Fel Rush Charge") and not talent.momentum and not talent.felMastery then
                         if mode.mover == 1 and getDistance("target") < 5 then
                             cancelRushAnimation()
                         elseif mode.mover == 2 or (getDistance("target") >= 5 and mode.mover ~= 3) then
@@ -657,7 +660,7 @@ local function runRotation()
                     end
             -- Fel Rush
                     -- fel_rush,if=!talent.momentum.enabled&raid_event.movement.in>charges*10&(talent.demon_blades.enabled|buff.metamorphosis.down)
-                    if getFacing("player","target",10) and not talent.momentum and moveIn > charges.felRush * 10 and (talent.demonBlades or not buff.metamorphosis.exists()) then
+                    if getFacing("player","target",10) and not talent.momentum and charges.felRush > getOptionValue("Hold Fel Rush Charge") --[[moveIn > charges.felRush * 10]] and (talent.demonBlades or not buff.metamorphosis.exists()) then
                         if mode.mover == 1 and getDistance("target") < 5 then
                             cancelRushAnimation()
                         elseif mode.mover == 2 or (getDistance("target") >= 5 and mode.mover ~= 3) then
@@ -679,7 +682,7 @@ local function runRotation()
                     end
             -- Fel Rush
                     --fel_rush,if=movement.distance>15|(buff.out_of_range.up&!talent.momentum.enabled)
-                    if getFacing("player","target",10) and getDistance("target") >= 15 then
+                    if getFacing("player","target",10) and getDistance("target") >= 15 and charges.felRush > getOptionValue("Hold Fel Rush Charge") then
                         if mode.mover == 1 and getDistance("target") < 5 then
                             cancelRushAnimation()
                         elseif mode.mover == 2 or (getDistance("target") >= 5 and mode.mover ~= 3) then
