@@ -1575,7 +1575,7 @@ br.idList = {
             },
         },
     },
-    PRIEST = {
+        PRIEST = {
         -- Discipline
         [256] = {
             abilities                       = {
@@ -1588,15 +1588,17 @@ br.idList = {
                 painSuppression             = 33206,
                 penance                     = 47540,
                 plea                        = 200829,
-                powerWordBarrier            = 62618,
+                powerInfusion               = 10060,
                 powerWordRadiance           = 194509,
                 powerWordShield             = 17,
                 powerWordSolace             = 129250,
                 purgeTheWicked              = 204197,
                 purify                      = 527,
                 rapture                     = 47536,
-                shadowMend                  = 186263,
                 schism                      = 214621,
+                shadowMend                  = 186263,
+                shadowWordPain              = 589,
+                shadowfiend                 = 34433,
             },
             artifacts                       = {
 
@@ -1613,7 +1615,12 @@ br.idList = {
 
             },
             talents                         = {
-
+                bodyAndSoul                 = 64129,
+                dominantMind                = 205367,
+                masochism                   = 193063,
+                powerInfusion               = 10060,
+                psychicVoice                = 196704,
+                twistOfFate                 = 109142,
             },
         },
         -- Holy
@@ -1641,27 +1648,33 @@ br.idList = {
         [258] = {
             abilities                       = {
                 dispersion                  = 47585,
-                mindBender                  = 200174,
                 mindBlast                   = 8092,
                 mindBomb                    = 205369,
+                mindbender                  = 200174,
                 mindFlay                    = 15407,
-                mindSpike                   = 73510,
                 mindVision                  = 2096,
+                powerInfusion               = 10060,
+                powerWordShield             = 17,
+                psychicScream               = 8122,
+                purifyDisease               = 213634,
                 shadowCrash                 = 205385,
-                shadowform                  = 232698,
                 shadowMend                  = 186263,
                 shadowWordDeath             = 32379,
                 shadowWordPain              = 589,
                 shadowWordVoid              = 205351,
+                shadowfiend                 = 34433,
+                shadowform                  = 232698,
                 silence                     = 15487,
+                surrenderToMadness          = 193223,
                 vampiricEmbrace             = 15286,
                 vampiricTouch               = 34914,
-                voidBolt                    = 231688,
+                voidBolt                    = 228266, --231688,
                 voidEruption                = 228260,
-                voidTorrent                 = 205065,
+                voidForm                    = 228264,
             },
             artifacts                       = {
-
+                massHysteria                = 194378,
+                unleashTheShadows           = 194093,
             },
             buffs                           = {
                 shadowyInsight              = 124430,
@@ -1677,10 +1690,27 @@ br.idList = {
 
             },
             talents                         = {
+                auspiciousSpirits           = 155271,
                 bodyAndSoul                 = 64129,
+                dominantMind                = 205367,
+                fortressOfTheMind           = 193195,
                 legacyOfTheVoid             = 193225,
+                lingeringInsanty            = 199849,
+                mania                       = 193173,
+                masochism                   = 193063,
+                mindBomb                    = 205369,
+                mindbender                  = 200174,
+                misery                      = 238558,
                 powerInfusion               = 10060,
+                psychicVoice                = 196704,
+                reaperOfSouls               = 199853,
+                sanlayn                     = 199855,
                 shadowCrash                 = 205385,
+                shadowWordVoid              = 205351,
+                shadowyInsight              = 162452,
+                surrenderToMadness          = 193223,
+                twistOfFate                 = 109142,
+                voidRay                     = 205371,
             },
         },
         -- All
@@ -1688,18 +1718,13 @@ br.idList = {
             abilities                       = {
                 dispelMagic                 = 528,
                 fade                        = 586,
+                flashHeal                   = 2061,
                 levitate                    = 1706,
                 massDispel                  = 32375,
-                mindBender                  = 200174,
-                shadowMend                  = 186263,
-                shadowWordPain              = 589,
-                shadowfiend                 = 34433,
-                smite                       = 585,
-                powerInfusion               = 10060,
-                powerWordShield             = 17,
-                purifyDisease               = 213634,
+                powerWordBarrier            = 81782,
                 resurrection                = 2006,
                 shackleUndead               = 9484,
+                smite                       = 585,
             },
             artifacts                       = {
 
@@ -1775,7 +1800,6 @@ br.idList = {
                 elaboratePlanning           = 193641,
                 envenom                     = 32645,
                 leechingPoison              = 108211,
-                mutilatedFlesh              = 211672,
                 stealth                     = 1784,
                 subterfuge                  = 115192,
                 theDreadlordsDeceit         = 208692,
@@ -1789,6 +1813,7 @@ br.idList = {
                 hemorrhage                  = 16511,
                 internalBleeding            = 154953,
                 kingsbane                   = 192759,
+                mutilatedFlesh              = 211672,
                 rupture                     = 1943,
                 surgeOfToxins               = 192425,
                 vendetta                    = 79140,
