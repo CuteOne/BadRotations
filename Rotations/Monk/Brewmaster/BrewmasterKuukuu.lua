@@ -48,8 +48,8 @@ local function createOptions()
         --    br.ui:createDropdownWithout(section, "APL Mode", {"|cffFFFFFFSimC","|cffFFFFFFAMR"}, 1, "|cffFFFFFFSet APL Mode to use.")
         -- Dummy DPS Test
             br.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
-        -- Opener
-        --    br.ui:createCheckbox(section, "Opener")
+        -- Provoke
+            br.ui:createCheckbox(section, "Provoke","|cffFFFFFFAuto Provoke usage.")
         -- Pre-Pull Timer
         --    br.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
         -- Roll
@@ -403,6 +403,15 @@ local function runRotation()
         function actionList_SingleTarget()
         -- Action List - Cooldown
             -- call_action_list,name=cd
+            -- Provoke
+            if isChecked("Provoke") then
+                for i = 1, #enemies.yards40 do
+                    local thisUnit = enemies.yards40[i]
+                    if not isAggroed(thisUnit) and hasThreat(thisUnit) then
+                        if cast.provoke(thisUnit) then return end
+                    end
+                end
+            end
 --        -- Racial - Arcane Torrent
             -- arcane_torrent,if=chiMax-chi>=1&energy.time_to_max>=0.
             if ttm >= 0.5 and isChecked("Racial") and race == "BloodElf" and getDistance("target") < 5 then
