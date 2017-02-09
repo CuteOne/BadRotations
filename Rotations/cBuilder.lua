@@ -176,11 +176,13 @@ function br.loader:new(spec,specName)
 
 -- Build Best Unit and Enemies List per Range
     local typicalRanges = {
+        45,
         40, -- Typical Ranged Limit
         35,
         30,
         25,
         20,
+        18,
         15,
         13, -- Feral Interrupt
         12,
