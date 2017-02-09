@@ -168,7 +168,7 @@ local function runRotation()
         local talent                                        = br.player.talent
         local ttd                                           = getTTD
         local ttm                                           = br.player.power.ttm
-        local units                                         = units = {}
+        local units                                         = units or {}
         local dt                                            = date("%H:%M:%S")
         local debug                                         = false
 

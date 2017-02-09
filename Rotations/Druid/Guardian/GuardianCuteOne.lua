@@ -215,7 +215,7 @@ local function runRotation()
         local trinketProc                                   = false
         local ttd                                           = getTTD
         local ttm                                           = br.player.power.ttm
-        local units                                         = units = {}
+        local units                                         = units or {}
 
         units.dyn5 = br.player.units.dyn5()
         enemies.yards5 = br.player.enemies.yards5()

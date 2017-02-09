@@ -205,6 +205,7 @@ local function runRotation()
         local lastSpell         = lastCast
         local level             = br.player.level
         local mode              = br.player.mode
+        local moving            = GetUnitSpeed("player")>0
         local php               = br.player.health
         local power             = br.player.power.amount.energy
         local powerMax          = br.player.power.energy.max
@@ -421,7 +422,7 @@ local function runRotation()
                     end
                 end
         -- Healing Winds
-                if isChecked("Healing Winds") and php <= getOptionValue("Healing Winds") and artifact.healingWinds then
+                if isChecked("Healing Winds") and php <= getOptionValue("Healing Winds") and artifact.healingWinds and not moving then
                     if not buff.transcendence.exists() then
                         if cast.transcendence("player") then tPX, tPY, tPz = GetObjectPosition("player"); return end
                     end
