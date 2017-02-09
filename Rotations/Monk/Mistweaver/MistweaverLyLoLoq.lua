@@ -326,8 +326,8 @@ local function runRotation()
         --- MULTI TARGET ---
         --------------------
         function interrupt()
-                for i = 1, #player.enemies.yards20 do
-                    local thisUnit = player.enemies.yards20[i]
+                for i = 1, #enemies.yards20 do
+                    local thisUnit = enemies.yards20[i]
                     distance = getDistance(thisUnit)
                     if canInterrupt(thisUnit,getOptionValue("InterruptAt")) then
                         if distance < 5 then
@@ -357,10 +357,10 @@ local function runRotation()
         -------------------
         function fistweaving()
             if not isCastingSpell(player.spell.soothingMist) then
-                    for i = 1, #player.enemies.yards5 do
-                        local thisUnit = player.enemies.yards5[i]
+                    for i = 1, #enemies.yards5 do
+                        local thisUnit = enemies.yards5[i]
 
-                        if #player.enemies.yards5 >= 3 and player.cd.spinningCraneKick < player.gcd  and player.cast.spinningCraneKick() then
+                        if #enemies.yards5 >= 3 and player.cd.spinningCraneKick < player.gcd  and player.cast.spinningCraneKick() then
                             lastSpellCasted = ""
                             lastSpellCatedOnPlayer = ""
                             return
@@ -382,8 +382,8 @@ local function runRotation()
 
                         end
                     end
-                    for i = 1, #player.enemies.yards40 do
-                        if player.cd.cracklingJadeLightning < player.gcd and player.cast.cracklingJadeLightning(player.enemies.yards40[i]) then
+                    for i = 1, #enemies.yards40 do
+                        if player.cd.cracklingJadeLightning < player.gcd and player.cast.cracklingJadeLightning(enemies.yards40[i]) then
                             lastSpellCasted = ""
                             lastSpellCatedOnPlayer = ""
                             return
