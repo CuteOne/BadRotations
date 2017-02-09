@@ -217,14 +217,14 @@ local function runRotation()
         local ttm                                           = br.player.power.ttm
         local units                                         = units or {}
 
-        units.dyn5 = br.player.units.dyn5()
-        enemies.yards5 = br.player.enemies.yards5()
-        enemies.yards8 = br.player.enemies.yards8()
-        enemies.yards10 = br.player.enemies.yards10()
-        enemies.yards13 = br.player.enemies.yards13()
-        enemies.yards20 = br.player.enemies.yards20()
-        enemies.yards30 = br.player.enemies.yards30()
-        enemies.yards40 = br.player.enemies.yards40()
+        units.dyn5 = br.player.units(5)
+        enemies.yards5 = br.player.enemies(5)
+        enemies.yards8 = br.player.enemies(8)
+        enemies.yards10 = br.player.enemies(10)
+        enemies.yards13 = br.player.enemies(13)
+        enemies.yards20 = br.player.enemies(20)
+        enemies.yards30 = br.player.enemies(30)
+        enemies.yards40 = br.player.enemies(40)
 
    		if leftCombat == nil then leftCombat = GetTime() end
 		if profileStop == nil then profileStop = false end

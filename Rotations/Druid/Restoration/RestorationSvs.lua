@@ -172,7 +172,7 @@ local function runRotation()
         local lowestTank                                    = {}    --Tank
         local tHp                                           = 95
 
-        units.dyn5 = br.player.units.dyn5()
+        units.dyn5 = br.player.units(5)
 
 --------------------
 --- Action Lists ---

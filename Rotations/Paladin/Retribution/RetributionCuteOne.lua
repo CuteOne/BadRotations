@@ -185,13 +185,13 @@ local function runRotation()
         local solo          = GetNumGroupMembers() == 0
         local spell         = br.player.spell
         local talent        = br.player.talent
-        local ttd           = getTTD(br.player.units.dyn5())
+        local ttd           = getTTD(br.player.units(5))
         local units         = units or {}
 
-        units.dyn5 = br.player.units.dyn5()
-        enemies.yards5 = br.player.enemies.yards5()
-        enemies.yards8 = br.player.enemies.yards8()
-        enemies.yards10 = br.player.enemies.yards10()
+        units.dyn5 = br.player.units(5)
+        enemies.yards5 = br.player.enemies(5)
+        enemies.yards8 = br.player.enemies(8)
+        enemies.yards10 = br.player.enemies(10)
 
         if profileStop == nil then profileStop = false end
         if opener == nil then opener = false end

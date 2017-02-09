@@ -206,11 +206,11 @@ local function runRotation()
         local ttm                                           = br.player.power.ttm
         local units                                         = units or {}
 
-        units.dyn5 = br.player.units.dyn5()
-        enemies.yards5 = br.player.enemies.yards5()
-        enemies.yards8 = br.player.enemies.yards8()
-        enemies.yards10 = br.player.enemies.yards10()
-        enemies.yards30 = br.player.enemies.yards30()
+        units.dyn5 = br.player.units(5)
+        enemies.yards5 = br.player.enemies(5)
+        enemies.yards8 = br.player.enemies(8)
+        enemies.yards10 = br.player.enemies(10)
+        enemies.yards30 = br.player.enemies(30)
 
 		if opener == nil then opener = false end
 		if not inCombat and not ObjectExists("target") and lastSpell ~= spell.vanish then

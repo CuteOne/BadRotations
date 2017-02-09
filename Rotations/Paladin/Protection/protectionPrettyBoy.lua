@@ -209,13 +209,13 @@ local function runRotation()
         local solo          = GetNumGroupMembers() == 0
         local spell         = br.player.spell
         local talent        = br.player.talent
-        local ttd           = getTTD(br.player.units.dyn5())
+        local ttd           = getTTD(br.player.units(5))
         local units         = units or {}
 
-        units.dyn5 = br.player.units.dyn5()
-        enemies.yards5 = br.player.enemies.yards5()
-        enemies.yards10 = br.player.enemies.yards10()
-        enemies.yards30 = br.player.enemies.yards30()
+        units.dyn5 = br.player.units(5)
+        enemies.yards5 = br.player.enemies(5)
+        enemies.yards10 = br.player.enemies(10)
+        enemies.yards30 = br.player.enemies(30)
 
         if profileStop == nil then profileStop = false end
         judgmentExists = debuff.judgment.exists(units.dyn5)

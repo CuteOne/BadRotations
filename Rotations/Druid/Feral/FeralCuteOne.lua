@@ -233,18 +233,18 @@ local function runRotation()
         local units                                         = units or {}
 
         -- Get Best Unit for Range
-        units.dyn40   = br.player.units.dyn40()
-        units.dyn20   = br.player.units.dyn20()
-        units.dyn8AoE = br.player.units.dyn8(true)
-        units.dyn8    = br.player.units.dyn8()
-        units.dyn5    = br.player.units.dyn5()
+        units.dyn40   = br.player.units(40)
+        units.dyn20   = br.player.units(20)
+        units.dyn8AoE = br.player.units(8,true)
+        units.dyn8    = br.player.units(8)
+        units.dyn5    = br.player.units(5)
 
         -- Get List of Enemies for Range
-        enemies.yards40 = br.player.enemies.yards40()
-        enemies.yards20 = br.player.enemies.yards20()
-        enemies.yards13 = br.player.enemies.yards13()
-        enemies.yards8  = br.player.enemies.yards8()
-        enemies.yards5  = br.player.enemies.yards5()
+        enemies.yards40 = br.player.enemies(40)
+        enemies.yards20 = br.player.enemies(20)
+        enemies.yards13 = br.player.enemies(13)
+        enemies.yards8  = br.player.enemies(8)
+        enemies.yards5  = br.player.enemies(5)
 
    		if leftCombat == nil then leftCombat = GetTime() end
 		if profileStop == nil then profileStop = false end

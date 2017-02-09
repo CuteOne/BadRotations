@@ -104,7 +104,7 @@ local function runRotation()
         local tank                                          = {}    --Tank
         local averageHealth                                 = 0
 
-        units.dyn40 = br.player.units.dyn40()
+        units.dyn40 = br.player.units(40)
 
 		for i = 1, #br.friend do
 			if UnitIsDeadOrGhost(br.friend[i].unit) or getDistance(br.friend[i].unit) > 40 then 

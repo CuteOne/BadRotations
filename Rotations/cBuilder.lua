@@ -165,52 +165,57 @@ function br.loader:new(spec,specName)
         end
     end
 
-    -- self.bestUnit = function(range,aoe)
-    --     if aoe == nil then aoe = false end
-    --     if aoe then
-    --         return dynamicTarget(range, false)
-    --     else
-    --         return dynamicTarget(range, true)
-    --     end
-    -- end
-
--- Build Best Unit and Enemies List per Range
-    local typicalRanges = {
-        50,
-        45,
-        40, -- Typical Ranged Limit
-        35,
-        30,
-        25,
-        23,
-        22.75,
-        20,
-        18,
-        15,
-        13, -- Feral Interrupt
-        12,
-        10, -- Other Typical AoE Effect
-        9, -- Monk Artifact
-        8, -- Typical AoE Effect
-        5, -- Typical Melee
-    }
-    for x = 1, #typicalRanges do
-        local i = typicalRanges[x]
-
-        self.units["dyn"..i] = function(aoe)
-            if aoe == nil then aoe = false end
-            if aoe then
-                return dynamicTarget(i, false)
-            else
-                return dynamicTarget(i, true)
-            end
-        end
-
-        self.enemies["yards"..i] = function(unit)
-            if unit == nil then unit = "player" end
-            return getEnemies(unit,i)
+    self.units = function(range,aoe)
+        if aoe == nil then aoe = false end
+        if aoe then
+            return dynamicTarget(range, false)
+        else
+            return dynamicTarget(range, true)
         end
     end
+
+    self.enemies = function(range,unit)
+        if unit == nil then unit = "player" end
+        return getEnemies(range,unit)
+    end
+
+-- Build Best Unit and Enemies List per Range
+    -- local typicalRanges = {
+    --     50,
+    --     45,
+    --     40, -- Typical Ranged Limit
+    --     35,
+    --     30,
+    --     25,
+    --     23,
+    --     22.75,
+    --     20,
+    --     18,
+    --     15,
+    --     13, -- Feral Interrupt
+    --     12,
+    --     10, -- Other Typical AoE Effect
+    --     9, -- Monk Artifact
+    --     8, -- Typical AoE Effect
+    --     5, -- Typical Melee
+    -- }
+    -- for x = 1, #typicalRanges do
+    --     local i = typicalRanges[x]
+
+    --     self.units["dyn"..i] = function(aoe)
+    --         if aoe == nil then aoe = false end
+    --         if aoe then
+    --             return dynamicTarget(i, false)
+    --         else
+    --             return dynamicTarget(i, true)
+    --         end
+    --     end
+
+    --     self.enemies["yards"..i] = function(unit)
+    --         if unit == nil then unit = "player" end
+    --         return getEnemies(unit,i)
+    --     end
+    -- end
 
     -- Cycle through Abilities List
     for k,v in pairs(self.spell.abilities) do
@@ -243,11 +248,11 @@ function br.loader:new(spec,specName)
             elseif thisUnit == nil then
                 if IsUsableSpell(v) and isKnown(v) then
                     if maxRange ~= nil and maxRange > 0 then
-                        if maxRange > 50 then maxRange = 50 end
-                        thisUnit = self.units["dyn"..tostring(maxRange)]()
+                        -- if maxRange > 50 then maxRange = 50 end
+                        thisUnit = self.units(maxRange) --self.units["dyn"..tostring(maxRange)]()
                         amIinRange = getDistance(thisUnit) < maxRange
                     else
-                        thisUnit = self.units.dyn5()
+                        thisUnit = self.units(5) --self.units.dyn5()
                         amIinRange = getDistance(thisUnit) < 5
                     end
                 end

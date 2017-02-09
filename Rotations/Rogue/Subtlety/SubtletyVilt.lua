@@ -216,14 +216,14 @@ local function runRotation()
     local units                                         = units or {}
     local lootDelay                                     = getOptionValue("LootDelay")
 
-    units.dyn5 = br.player.units.dyn5()
-    units.dyn8 = br.player.units.dyn8()
-    units.dyn30 = br.player.units.dyn30()
-    enemies.yards5 = br.player.enemies.yards5()
-    enemies.yards8 = br.player.enemies.yards8()
-    enemies.yards10 = br.player.enemies.yards10()
-    enemies.yards20 = br.player.enemies.yards20()
-    enemies.yards30 = br.player.enemies.yards30()
+    units.dyn5 = br.player.units(5)
+    units.dyn8 = br.player.units(8)
+    units.dyn30 = br.player.units(30)
+    enemies.yards5 = br.player.enemies(5)
+    enemies.yards8 = br.player.enemies(8)
+    enemies.yards10 = br.player.enemies(10)
+    enemies.yards20 = br.player.enemies(20)
+    enemies.yards30 = br.player.enemies(30)
 
     if talent.anticipation then antital = 1 else antital = 0 end
     if talent.deeperStrategem then dStrat = 1 else dStrat = 0 end

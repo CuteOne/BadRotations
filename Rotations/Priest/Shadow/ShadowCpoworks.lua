@@ -148,7 +148,7 @@ local function runRotation()
         local solo                                          = br.player.instance=="none"
         local spell                                         = br.player.spell
         local talent                                        = br.player.talent
-        local thp                                           = getHP(br.player.units.dyn40())
+        local thp                                           = getHP(br.player.units(40))
         local ttd                                           = getTTD
         local ttm                                           = br.player.power.ttm
         local units                                         = units or {}
@@ -156,14 +156,25 @@ local function runRotation()
         local SWPmaxTargets                                 = getOptionValue("SWP Max Targets")
         local VTmaxTargets                                  = getOptionValue("VT Max Targets")
 
-        units.dyn5 = br.player.units.dyn5()
-        units.dyn40 = br.player.units.dyn40()
-        enemies.yards40 = br.player.enemies.yards40()
+        units.dyn5 = br.player.units(5)
+        units.dyn40 = br.player.units(40)
+        enemies.yards40 = br.player.enemies(40)
 
         if useMindBlast == nil then useMindBlast = false end
         if leftCombat == nil then leftCombat = GetTime() end
         if profileStop == nil then profileStop = false end
         if IsHackEnabled("NoKnockback") ~= nil then SetHackEnabled("NoKnockback", false) end
+
+        -- variable,op=set,name=actors_fight_time_mod,value=0
+        actorsFightTimeMod = 0
+        -- variable,op=set,name=actors_fight_time_mod,value=-((-(450)+(time+target.time_to_die))%10),if=time+target.time_to_die>450&time+target.time_to_die<600
+        if combatTime + ttd(units.dyn40) > 420 and combatTime + ttd(units.dyn40) < 600 then
+            actorsFightTimeMod = -((-(450)+(combatTime + ttd(units.dyn40)))/10)
+        end
+        -- variable,op=set,name=actors_fight_time_mod,value=((450-(time+target.time_to_die))%5),if=time+target.time_to_die<=450
+        -- variable,op=set,name=s2mcheck,value=(0.8*(83-(5*talent.sanlayn.enabled)+(33*talent.reaper_of_souls.enabled)+set_bonus.tier19_2pc*4+8*variable.s2mbeltcheck+((raw_haste_pct*10))*(2+(0.8*set_bonus.tier19_2pc)+(1*talent.reaper_of_souls.enabled)+(2*artifact.mass_hysteria.rank)-(1*talent.sanlayn.enabled))))-(variable.actors_fight_time_mod*nonexecute_actors_pct)
+        -- variable,op=min,name=s2mcheck,value=180
+
 
 
 

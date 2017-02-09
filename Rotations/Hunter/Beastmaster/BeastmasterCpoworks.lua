@@ -183,8 +183,8 @@ local function runRotation()
         local ttm                                           = br.player.power.ttm
         local units                                         = units or {}
 
-        units.dyn40 = br.player.units.dyn40()
-        enemies.yards40 = br.player.units.dyn40()
+        units.dyn40 = br.player.units(40)
+        enemies.yards40 = br.player.units(40)
 
         -- BeastCleave 118445
         local beastCleaveTimer                              = getBuffDuration("pet", 118445)

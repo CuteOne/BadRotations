@@ -238,11 +238,11 @@ local function runRotation()
         local ttm                                           = br.player.power.ttm
         local units                                         = units or {}
 
-        units.dyn5 = br.player.units.dyn5()
-        units.dyn30 = br.player.units.dyn30()
-        enemies.yards20 = br.player.enemies.yards20()
-        enemies.yards30 = br.player.enemies.yards30()
-        enemies.yards35 = br.player.enemies.yards35()
+        units.dyn5 = br.player.units(5)
+        units.dyn30 = br.player.units(30)
+        enemies.yards20 = br.player.enemies(20)
+        enemies.yards30 = br.player.enemies(30)
+        enemies.yards35 = br.player.enemies(35)
 
         if talent.deeperStrategem then dStrat = 1 else dStrat = 0 end
         if talent.quickDraw then qDraw = 1 else qDraw = 0 end

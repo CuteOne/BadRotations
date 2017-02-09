@@ -221,14 +221,14 @@ local function runRotation()
         local t18_2pc           = br.player.eq.t18_2pc
         local t18_4pc           = br.player.eq.t18_4pc
         local talent            = br.player.talent
-        local thp               = getHP(br.player.units.dyn5())
+        local thp               = getHP(br.player.units(5))
         local trinketProc       = false --br.player.hasTrinketProc()
-        local ttd               = getTTD(br.player.units.dyn5())
+        local ttd               = getTTD(br.player.units(5))
         local ttm               = br.player.power.ttm
         local units             = units or {}
 
-        units.dyn5 = br.player.units.dyn5()
-        enemies.yards5 = br.player.enemies.yards5()
+        units.dyn5 = br.player.units(5)
+        enemies.yards5 = br.player.enemies(5)
 
         if lastSpell == nil or not inCombat then lastSpell = 6603 end
         if leftCombat == nil then leftCombat = GetTime() end

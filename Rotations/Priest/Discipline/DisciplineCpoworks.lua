@@ -105,7 +105,7 @@ local function runRotation()
         local ttm                                           = br.player.power.ttm
         local units                                         = units or {}
 
-        units.dyn40 = br.player.units.dyn40()
+        units.dyn40 = br.player.units(40)
         
         if leftCombat == nil then leftCombat = GetTime() end
         if profileStop == nil then profileStop = false end

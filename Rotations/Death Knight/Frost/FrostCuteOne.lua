@@ -184,15 +184,15 @@ local function runRotation()
         local ttd               = getTTD
         local units             = units or {}
 
-        units.dyn5 = br.player.units.dyn5()
-        units.dyn8 = br.player.units.dyn8()
-        units.dyn30 = br.player.units.dyn30()
-        enemies.yards8 = br.player.enemies.yards8()
-        enemies.yards10 = br.player.enemies.yards10()
-        enemies.yards10t = br.player.enemies.yards10(br.player.units.dyn10(true))
-        enemies.yards15 = br.player.enemies.yards15()
-        enemies.yards30 = br.player.enemies.yards30()
-        enemies.yards40 = br.player.enemies.yards40()
+        units.dyn5 = br.player.units(5)
+        units.dyn8 = br.player.units(8)
+        units.dyn30 = br.player.units(30)
+        enemies.yards8 = br.player.enemies(8)
+        enemies.yards10 = br.player.enemies(10)
+        enemies.yards10t = br.player.enemies(10,br.player.units(10,true))
+        enemies.yards15 = br.player.enemies(15)
+        enemies.yards30 = br.player.enemies(30)
+        enemies.yards40 = br.player.enemies(40)
 
     -- Profile Stop
         if profileStop == nil then profileStop = false end
