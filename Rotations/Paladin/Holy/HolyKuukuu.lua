@@ -136,7 +136,7 @@ local function runRotation()
         local cd                                            = br.player.cd
         local charges                                       = br.player.charges
         local debuff                                        = br.player.debuff
-        local enemies                                       = br.player.enemies
+        local enemies                                       = enemies or {}
         local falling, swimming, flying, moving             = getFallTime(), IsSwimming(), IsFlying(), GetUnitSpeed("player")>0
         local gcd                                           = br.player.gcd
         local healPot                                       = getHealthPot()
@@ -157,7 +157,13 @@ local function runRotation()
         local spell                                         = br.player.spell
         local talent                                        = br.player.talent
         local ttm                                           = br.player.power.ttm
-        local units                                         = br.player.units
+        local units                                         = units or {}
+
+        units.dyn5 = br.player.units.dyn5()
+        units.dyn30AoE = br.player.units.dyn30(true)
+        enemies.yards8 = br.player.enemies.yards8()
+        enemies.yards30 = br.player.enemies.yards30()
+        enemies.yards40 = br.player.enemies.yards40()
 
         local lowest                                        = {}    --Lowest Unit
         lowest.hp                                           = br.friend[1].hp
