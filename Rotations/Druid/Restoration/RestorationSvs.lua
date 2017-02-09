@@ -56,6 +56,9 @@ local function createOptions()
             br.ui:createCheckbox(section,"Racial")
         -- Trinkets
             br.ui:createCheckbox(section,"Trinkets")
+        --Incarnation: Tree of Life
+            br.ui:createSpinner(section, "Incarnation: Tree of Life",  50,  0,  100,  5,  "Health Percent to Cast At") 
+            br.ui:createSpinner(section, "Incarnation: Tree of Life Targets",  3,  0,  40,  1,  "Minimum Flourish Targets")
         -- Flourish
             br.ui:createSpinner(section, "Flourish",  80,  0,  100,  5,  "Health Percent to Cast At") 
             br.ui:createSpinner(section, "Flourish Targets",  3,  0,  40,  1,  "Minimum Flourish Targets")
@@ -82,6 +85,8 @@ local function createOptions()
             --br.ui:createDropdownWithout(section,"Efflorescence - Target",{"Best","Target"},1,"Desired Target of Efflorescence")
         -- Lifebloom
             br.ui:createCheckbox(section,"Lifebloom","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFLifebloom usage.|cffFFBB00.")
+        -- Cenarion Ward
+            br.ui:createSpinner(section, "Cenarion Ward",  90,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
         -- Rejuvenaion
             br.ui:createSpinner(section, "Rejuvenation",  90,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
         -- Regrowth
@@ -170,6 +175,7 @@ local function runRotation()
         local ttm                                           = br.player.power.ttm
         local units                                         = units or {}
         local lowestTank                                    = {}    --Tank
+        local bloom
         local tHp                                           = 95
 
         units.dyn5 = br.player.units(5)
@@ -205,8 +211,10 @@ local function runRotation()
         function actionList_PreCombat()
             -- Rejuvenation
             if isChecked("Rejuvenation") then
-                for i = 1, #br.friend do                           
-                    if br.friend[i].hp <= getValue("Rejuvenation") and buff.rejuvenation.remain(br.friend[i].unit) <= 1 then
+                for i = 1, #br.friend do
+                    if br.friend[i].hp <= getValue("Rejuvenation") and talent.germination and (buff.rejuvenation.remain(br.friend[i].unit) <= 1 or not buff.rejuvenationGermination.exists(br.friend[i].unit)) then
+                        if cast.rejuvenation(br.friend[i].unit) then return end
+                    elseif br.friend[i].hp <= getValue("Rejuvenation") and buff.rejuvenation.remain(br.friend[i].unit) <= 1 then
                         if cast.rejuvenation(br.friend[i].unit) then return end     
                     end
                 end
@@ -234,8 +242,14 @@ local function runRotation()
         end  -- End Action List - Pre-Combat
         function actionList_Cooldowns()
             if useCDs() then
+            -- Incarnation: Tree of Life
+                if isChecked("Incarnation: Tree of Life") and talent.incarnationTreeOfLife and not buff.incarnationTreeOfLife.exists() and not isCastingSpell(spell.tranquility) then
+                    if getLowAllies(getValue("Incarnation: Tree of Life")) >= getValue("Incarnation: Tree of Life Targets") then    
+                        if cast.incarnationTreeOfLife() then return end    
+                    end
+                end
             -- Flourish
-                if isChecked("Flourish") and not isCastingSpell(spell.tranquility) then
+                if isChecked("Flourish") and talent.flourish and not isCastingSpell(spell.tranquility) then
                     if getLowAllies(getValue("Flourish")) >= getValue("Flourish Targets") then    
                         if cast.flourish() then return end    
                     end
@@ -319,29 +333,53 @@ local function runRotation()
                     end
                 end
             end
-            -- Rejuvenation
-            if isChecked("Rejuvenation") and not isCastingSpell(spell.tranquility) then
+            -- Cenarion Ward
+           if isChecked("Cenarion Ward") and talent.cenarionWard and not isCastingSpell(spell.tranquility) then
                 for i = 1, #br.friend do                           
-                    if br.friend[i].hp <= getValue("Rejuvenation") and buff.rejuvenation.remain(br.friend[i].unit) <= 1 then
+                    if br.friend[i].hp <= getValue("Cenarion Ward") and buff.cenarionWard.remain(br.friend[i].unit) <= 1 then
+                        if cast.cenarionWard(br.friend[i].unit) then return end     
+                    end
+                end
+            end
+            -- Rejuvenation
+            if isChecked("Rejuvenation") then
+                for i = 1, #br.friend do
+                    if br.friend[i].hp <= getValue("Rejuvenation") and talent.germination and (buff.rejuvenation.remain(br.friend[i].unit) <= 1 or not buff.rejuvenationGermination.exists(br.friend[i].unit)) then
+                        if cast.rejuvenation(br.friend[i].unit) then return end
+                    elseif br.friend[i].hp <= getValue("Rejuvenation") and buff.rejuvenation.remain(br.friend[i].unit) <= 1 then
                         if cast.rejuvenation(br.friend[i].unit) then return end     
                     end
                 end
             end
             -- Lifebloom
             if isChecked("Lifebloom") and not isCastingSpell(spell.tranquility) then
-                if inInstance then                    
+                if inInstance then    
                     for i = 1, #br.friend do
-                        if not buff.lifebloom.exists(br.friend[i].unit) and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
+                        if bloom == nil and not buff.lifebloom.exists(br.friend[i].unit) and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
+                            bloom = br.friend[i].hp
                             if cast.lifebloom(br.friend[i].unit) then return end
+                        else
+                            if buff.lifebloom.exists(br.friend[i].unit) then
+                                bloom = br.friend[i].hp
+                            end
                         end
-                    end
+                    end              
                 else 
                     if inRaid then
+                        for i = 1, #br.friend do
+                            if bloom == nil and not buff.lifebloom.exists(br.friend[i].unit) and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
+                                bloom = br.friend[i].hp
+                                if cast.lifebloom(br.friend[i].unit) then return end
+                            else
+                                if buff.lifebloom.exists(br.friend[i].unit) then
+                                    bloom = br.friend[i].hp
+                                end
+                            end
+                        end
                         for i =1, #br.friend do
-                            if br.friend[i].hp < tHp and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" and not buff.lifebloom.exists(br.friend[i].unit) then
-                                lowestTank = br.friend[i].unit 
-                                tHP = br.friend[i].hp
-                                if cast.lifebloom(lowestTank) then return end
+                            if br.friend[i].hp < bloom and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" and not buff.lifebloom.exists(br.friend[i].unit) then
+                                bloom = br.friend[i].hp
+                                if cast.lifebloom(br.friend[i].unit) then return end
                             end
                         end
                     end
@@ -376,7 +414,7 @@ local function runRotation()
 --- Rotations ---
 -----------------
         -- Pause
-        if pause() --[[or (UnitExists("target") and (UnitIsDeadOrGhost("target") or not UnitCanAttack("target", "player")))]] or mode.rotation == 4 then
+        if pause() or mode.rotation == 4 then
             return true
         else
 ---------------------------------
