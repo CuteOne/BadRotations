@@ -554,7 +554,9 @@ local function runRotation()
             end
             -- Crusader Strike
             if isChecked("Crusader Strike") then
-                if cast.crusaderStrike(units.dyn5) then return end
+                if not UnitIsFriend(units.dyn5, "player") then
+                    if cast.crusaderStrike(units.dyn5) then return end
+                end
             end
          end -- Test Mode
     end -- End Timer
