@@ -176,6 +176,7 @@ function br.loader:new(spec,specName)
 
 -- Build Best Unit and Enemies List per Range
     local typicalRanges = {
+        50,
         45,
         40, -- Typical Ranged Limit
         35,
@@ -240,6 +241,7 @@ function br.loader:new(spec,specName)
             elseif thisUnit == nil then
                 if IsUsableSpell(v) and isKnown(v) then
                     if maxRange ~= nil and maxRange > 0 then
+                        if maxRange > 50 then maxRange = 50 end
                         thisUnit = self.units["dyn"..tostring(maxRange)]()
                         amIinRange = getDistance(thisUnit) < maxRange
                     else
