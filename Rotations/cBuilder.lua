@@ -182,6 +182,8 @@ function br.loader:new(spec,specName)
         35,
         30,
         25,
+        23,
+        22.75,
         20,
         18,
         15,
