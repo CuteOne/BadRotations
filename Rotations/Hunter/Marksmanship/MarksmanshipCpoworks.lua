@@ -469,7 +469,7 @@ local function runRotation()
                 if cast.piercingShot(units.dyn40) then return end
             end
             -- Windburst
-            if cast.windburst(units.dyn40) then return end
+            if cast.windburst(units.dyn40) and not debuff.vulnerable.exists(units.dyn40) then return end
             -- Aimed Shot
             -- if HasBuff(LockAndLoad) and HasBuff(Vulnerable) and HasTalent(PatientSniper)
             if buff.lockAndLoad.exists() and debuff.vulnerable.exists(units.dyn40) then
@@ -496,7 +496,7 @@ local function runRotation()
                 if cast.aimedShot(units.dyn40) then return end
             end
             -- Marked Shot
-            if not talent.patientSniper or debuff.vulnerable.remain(units.dyn40) < getCastTime(spell.aimedShot) then
+            if not talent.patientSniper or (debuff.vulnerable.remain(units.dyn40) < getCastTime(spell.aimedShot) and (debuff.huntersMark.remain(units.dyn40) < gcd or power > 75)) then
                 if cast.markedShot(units.dyn40) then return end
             end
             -- Bursting Shot
@@ -517,7 +517,7 @@ local function runRotation()
             -- Sidewinders
             -- if not HasBuff(HuntersMark) and (HasBuff(MarkingTargets) or HasBuff(Trueshot)) or
             -- ChargeSecRemaining(Sidewinders) < BuffDurationSec(Vulnerable) - SpellCastTimeSec(AimedShot)
-            if talent.sidewinders and debuff.huntersMark.exists(units.dyn40) == false and (buff.markingTargets.exists() or buff.trueshot.exists()) or recharge.sidewinders < debuff.vulnerable.duration(units.dyn40) - getCastTime(spell.aimedShot) then
+            if talent.sidewinders and debuff.huntersMark.exists(units.dyn40) == false and (buff.markingTargets.exists() or buff.trueshot.exists()) or recharge.sidewinders < (debuff.vulnerable.duration(units.dyn40) - getCastTime(spell.aimedShot)) then
                 if cast.sidewinders(units.dyn40) then return end
             end
             -- Arcane Shot
