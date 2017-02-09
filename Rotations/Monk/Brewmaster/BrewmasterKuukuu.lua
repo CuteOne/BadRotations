@@ -193,7 +193,7 @@ local function runRotation()
         local talent            = br.player.talent
         local thp               = getHP(br.player.units(5))
         local trinketProc       = false --br.player.hasTrinketProc()
-        local ttd               = getTTD(br.player.unit(5))
+        local ttd               = getTTD(br.player.units(5))
         local ttm               = br.player.power.ttm
         local units             = units or {}
         if leftCombat == nil then leftCombat = GetTime() end
