@@ -70,7 +70,7 @@ local function createOptions()
         section = br.ui:createSection(br.ui.window.profile, "Defensive")
         -- Rebirth
             br.ui:createCheckbox(section,"Rebirth")
-            br.ui:createDropdownWithout(section, "Rebirth - Target", {"|cff00FF00Target","|cffFF0000Mouseover"}, 1, "|cffFFFFFFTarget to cast on")
+            br.ui:createDropdownWithout(section, "Rebirth - Target", {"|cff00FF00Target","|cffFF0000Mouseover","|cffFFBB00Auto"}, 1, "|cffFFFFFFTarget to cast on")
         -- Healthstone
             br.ui:createSpinner(section, "Healthstone",  30,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
         -- Heirloom Neck
@@ -176,6 +176,7 @@ local function runRotation()
         local units                                         = units or {}
         local lowestTank                                    = {}    --Tank
         local bloom
+        local bloomTimer
         local tHp                                           = 95
 
         units.dyn5 = br.player.units(5)
@@ -367,8 +368,9 @@ local function runRotation()
                 else 
                     if inRaid then
                         for i = 1, #br.friend do
-                            if bloom == nil and not buff.lifebloom.exists(br.friend[i].unit) and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
+                            if (bloomTimer == nil or (GetTime() - bloomTimer > 15)) and bloom == nil and not buff.lifebloom.exists(br.friend[i].unit) and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
                                 bloom = br.friend[i].hp
+                                bloomTimer = GetTime()
                                 if cast.lifebloom(br.friend[i].unit) then return end
                             else
                                 if buff.lifebloom.exists(br.friend[i].unit) then
@@ -377,8 +379,9 @@ local function runRotation()
                             end
                         end
                         for i =1, #br.friend do
-                            if br.friend[i].hp < bloom and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" and not buff.lifebloom.exists(br.friend[i].unit) then
+                            if (bloomTimer == nil or (GetTime() - bloomTimer > 15)) and br.friend[i].hp < bloom and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" and not buff.lifebloom.exists(br.friend[i].unit) then
                                 bloom = br.friend[i].hp
+                                bloomTimer = GetTime()
                                 if cast.lifebloom(br.friend[i].unit) then return end
                             end
                         end
@@ -455,6 +458,13 @@ local function runRotation()
                         and UnitIsPlayer("mouseover") and UnitIsDeadOrGhost("mouseover") and UnitIsFriend("mouseover","player")
                     then
                         if cast.rebirth("mouseover","dead") then return end
+                    end
+                    if getOptionValue("Rebirth - Target") == 3 then
+                        for i =1, #br.friend do
+                            if UnitIsPlayer(br.friend[i].unit) and UnitIsDeadOrGhost(br.friend[i].unit) then
+                                if cast.rebirth(br.friend[i].unit) then return end
+                            end
+                        end
                     end
                 end
             -- Efflorescence

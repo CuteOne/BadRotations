@@ -202,6 +202,7 @@ local function runRotation()
         units.dyn5 = br.player.units(5)
         enemies.yards5 = br.player.enemies(5)
         enemies.yards8 = br.player.enemies(8)
+        enemies.yards40 = br.player.enemies(40)
 
 
 --------------------
