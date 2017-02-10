@@ -71,11 +71,11 @@ local function createOptions()
             --Plea
             br.ui:createSpinner(section, "Plea",  90,  0,  100,  1,  "|cffFFFFFFHealth Percent to Cast At")
             --Power Word: Shield
-            br.ui:createSpinner(section, "Power Word: Shield",  99,  0,  100,  1,  "|cffFFFFFFHealth Percent to Cast At")
+            br.ui:createSpinner(section, "Power Word: Shield",  75,  0,  100,  1,  "|cffFFFFFFHealth Percent to Cast At")
             --Penance Heal
             br.ui:createSpinner(section, "Penance Heal",  70,  0,  100,  1,  "|cffFFFFFFHealth Percent to Cast At")
             --Shadow Mend
-            br.ui:createSpinner(section, "Shadow Mend",  60,  0,  100,  1,  "|cffFFFFFFHealth Percent to Cast At")
+            br.ui:createSpinner(section, "Shadow Mend",  75,  0,  100,  1,  "|cffFFFFFFHealth Percent to Cast At")
             --Clarity of Will
             br.ui:createSpinner(section, "Clarity of Will",  40,  0,  100,  1,  "|cffFFFFFFHealth Percent to Cast At")
             --Pain Suppression Tank
@@ -88,6 +88,8 @@ local function createOptions()
             br.ui:createSpinner(section, "Leap Of Faith",  20,  0,  100,  1,  "|cffFFFFFFHealth Percent to Cast At")
             --Purify
             br.ui:createCheckbox(section, "Purify")
+            --Angelic Feather
+            br.ui:createCheckbox(section, "Angelic Feather")
             --Fade
             br.ui:createSpinner(section, "Fade",  99,  0,  100,  1,  "|cffFFFFFFHealth Percent to Cast At")
             --Resurrection
@@ -132,6 +134,10 @@ local function createOptions()
             br.ui:createCheckbox(section,"Power Infusion")
             --Rapture and PW:S
             br.ui:createCheckbox(section,"Rapture and PW:S","|cffFFFFFFAlways cast Rapture and apply Power Word: Shield to all players on CD")
+            --Divine Star CD
+            br.ui:createCheckbox(section,"Divine Star CD")
+            --Halo CD
+            br.ui:createCheckbox(section,"Halo CD")
         br.ui:checkSectionState(section)
         -------------------------
         ------- DEFENSIVE -------
@@ -300,35 +306,51 @@ local function runRotation()
                         useItem(14)
                     end
                 end
+                --Mindbender/Shadowfiend
+                if isChecked("Mindbender/Shadowfiend") then
+                    if cast.mindbender() then return end
+                    if cast.shadowfiend() then return end
+                end
                 --Rapture and PW:S
                 if isChecked("Rapture and PW:S") then
-                    if cast.rapture() then return end
-                    for i = 1, #br.friend do                           
-                        if getBuffRemain(br.friend[i].unit, spell.powerWordShield, "player") < 1 then
-                            if cast.powerWordShield(br.friend[i].unit) then return end     
+                    if cast.rapture() then
+                        for i = 1, #br.friend do                           
+                            if getBuffRemain(br.friend[i].unit, spell.powerWordShield, "player") < 1 then
+                                if cast.powerWordShield(br.friend[i].unit) then return end     
+                            end
                         end
                     end
                 end
                 --Always use on CD
                 if isChecked("Always use on CD") then
-                    if getSpellCD(207946) == 0 then
+                    if getSpellCD(spell.lightsWrath) == 0 then
                         actionList_SpreadAtonement()
                         if isBoss("target") and getDistance("player","target") < 40 then
                            if cast.lightsWrath("target") then return end
                         end
                     end
                 end
-                --Mindbender/Shadowfiend
-                if isChecked("Mindbender/Shadowfiend") then
-                    if cast.mindbender() then return end
-                    if cast.shadowfiend() then return end
+                --Divine Star CD
+                if isChecked("Divine Star CD") then
+                    if cast.divineStar() then return end
+                end
+                --Halo CD
+                if isChecked("Halo CD") then
+                    if cast.halo() then return end
                 end
             end
         end -- End Action List - Cooldowns
         -- Action List - Pre-Combat
         function actionList_PreCombat()
             -- Power Word: Shield Body and Soul
-            if isMoving("player") then -- talent.bodyandSoul and 
+            if isMoving("player") then -- talent.bodyandSoul and
+                if isChecked("Angelic Feather") and talent.angelicFeather then
+                    if cast.angelicFeather("player") then
+                        for i = 1, #br.friend do                           
+                            if cast.angelicFeather(br.friend[math.random(#br.friend)].unit) then return end
+                        end
+                    end
+                end
                 if cast.powerWordShield("player") then return end
             end                
         end  -- End Action List - Pre-Combat
@@ -423,7 +445,7 @@ local function runRotation()
             --Clarity of Will
             if isChecked("Clarity of Will") and talent.clarityOfWill then
                 for i = 1, #br.friend do                           
-                    if br.friend[i].hp <= getValue("Clarity of Will") then
+                    if br.friend[i].hp <= getValue("Clarity of Will") and lastSpell ~= spell.clarityOfWill then
                         if cast.clarityOfWill(br.friend[i].unit) then return end     
                     end
                 end
@@ -445,8 +467,21 @@ local function runRotation()
                 end
                 if getOptionValue("Resurrection - Target") == 3 then
                     for i =1, #br.friend do
-                        if UnitIsPlayer(br.friend[i].unit) and UnitIsDeadOrGhost(br.friend[i].unit) then
+                        if UnitIsPlayer(br.friend[i].unit) and UnitIsDeadOrGhost(br.friend[i].unit) and lastSpell ~= spell.resurrection then
                             if cast.resurrection(br.friend[i].unit) then return end
+                        end
+                    end
+                end
+            end
+            --Purify
+            if isChecked("Purify") then
+            for i = 1, #br.friend do
+                for n = 1,40 do
+                        local buff,_,_,count,bufftype,duration = UnitDebuff(br.friend[i].unit, n)
+                        if buff then
+                            if bufftype == "Curse" or bufftype == "Magic" then
+                                if cast.purify(br.friend[i].unit) then return end
+                            end
                         end
                     end
                 end
@@ -473,19 +508,6 @@ local function runRotation()
                     if br.friend[i].hp <= getValue("Plea") and getBuffRemain(br.friend[i].unit, spell.buffs.atonement, "player") < 1 and lastSpell ~= spell.plea and atonementCount < 6 then
                         --Print("Atonement Count: "..atonementCount)
                         if cast.plea(br.friend[i].unit) then return end     
-                    end
-                end
-            end
-            --Purify
-            if isChecked("Purify") then
-            for i = 1, #br.friend do
-                for n = 1,40 do
-                        local buff,_,_,count,bufftype,duration = UnitDebuff(br.friend[i].unit, n)
-                        if buff then
-                            if bufftype == "Curse" or bufftype == "Magic" then
-                                if cast.purify(br.friend[i].unit) then return end
-                            end
-                        end
                     end
                 end
             end
@@ -546,12 +568,12 @@ local function runRotation()
             end
             --Light's Wrath
             if isChecked("Light's Wrath") then
-                if isChecked("Save Overloaded with Light for CD") and UnitBuffID("player",223166) then return end
+                if isChecked("Save Overloaded with Light for CD") and UnitBuffID("player",spell.buffs.overloadedWithLight) then return end
                 elseif getLowAllies(getValue("Light's Wrath")) >= getValue("Light's Wrath Targets") then
                     if not inInstance and not inRaid then
                         if cast.lightsWrath() then return end
                     else
-                        if getSpellCD(207946) == 0 then
+                        if getSpellCD(spell.lightsWrath) == 0 then
                             actionList_SpreadAtonement()
                             if cast.lightsWrath() then return end
                     end
