@@ -502,7 +502,7 @@ local function runRotation()
             if isChecked("Light's Wrath") then
                 if isChecked("Save Overloaded with Light for CD") and UnitBuffID("player",223166) then return end
                 elseif getLowAllies(getValue("Light's Wrath")) >= getValue("Light's Wrath Targets") then
-                    if solo then
+                    if not inInstance and not inRaid then
                         if cast.lightsWrath() then return end
                     else
                         if getSpellCD(207946) == 0 then
@@ -513,7 +513,7 @@ local function runRotation()
             end
             --Smite
             if isChecked("Smite") and power > 20 then
-                if solo then
+                if not inInstance and not inRaid then
                     if cast.smite() then return end
                 else
                     if atonementCount >= 5 then
