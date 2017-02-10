@@ -393,7 +393,7 @@ local function runRotation()
             --Shining Force
             if isChecked("Shining Force") then
                 for i = 1, #br.friend do
-                    if br.friend[i].hp <= getValue("Shining Force") then
+                    if br.friend[i].hp <= getValue("Shining Force") and lastSpell ~= spell.shiningForce then
                         if cast.shiningForce(br.friend[i].unit) then return end
                     end
                 end
@@ -556,7 +556,7 @@ local function runRotation()
 ---------------------------------
             if not inCombat and not IsMounted() then
                 actionList_PreCombat()
-                actionList_AOEHealing()
+                actionList_SingleTarget()
             end -- End Out of Combat Rotation
 -----------------------------
 --- In Combat - Rotations --- 
