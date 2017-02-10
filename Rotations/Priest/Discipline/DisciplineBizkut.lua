@@ -84,6 +84,8 @@ local function createOptions()
             br.ui:createSpinner(section, "Pain Suppression",  30,  0,  100,  1,  "|cffFFFFFFHealth Percent to Cast At")
             --Shining Force
             br.ui:createSpinner(section, "Shining Force",  50,  0,  100,  1,  "|cffFFFFFFHealth Percent to Cast At")
+            --Leap Of Faith
+            br.ui:createSpinner(section, "Leap Of Faith",  20,  0,  100,  1,  "|cffFFFFFFHealth Percent to Cast At")
             --Purify
             br.ui:createCheckbox(section, "Purify")
             --Fade
@@ -343,12 +345,12 @@ local function runRotation()
         function actionList_AOEHealing()
             --Power Word: Barrier
             if isChecked("Power Word: Barrier") then
-                if getLowAllies(getValue("Power Word: Barrier")) >= getValue("PWB Targets") and lastSpell ~= spell.powerWordBarrier then    
+                if getLowAllies(getValue("Power Word: Barrier")) >= getValue("PWB Targets") then    
                     if cast.powerWordBarrier(lowest.unit) then return end    
                 end
             end
             --Shadow Covenant
-            if isChecked("Shadow Covenant") then
+            if isChecked("Shadow Covenant") and talent.shadowCovenant then
                 if getLowAllies(getValue("Shadow Covenant")) >= getValue("Shadow Covenant Targets") and lastSpell ~= spell.shadowCovenant then    
                     if cast.shadowCovenant(lowest.unit) then return end    
                 end
@@ -372,8 +374,16 @@ local function runRotation()
                 end
             end
         end
-        -- Single Target
-        function actionList_SingleTarget()
+        --Single Target Defence
+        function actionList_SingleTargetDefence()
+            --Leap Of Faith
+            if isChecked("Leap Of Faith") then
+                for i = 1, #br.friend do                           
+                    if php > br.friend[i].hp and br.friend[i].hp <= getValue("Leap Of Faith") then
+                        if cast.leapOfFaith(br.friend[i].unit) then return end     
+                    end
+                end
+            end
         	--Pain Suppression Tank
             if isChecked("Pain Suppression Tank") then
                 for i = 1, #br.friend do
@@ -391,9 +401,9 @@ local function runRotation()
                 end
             end
             --Shining Force
-            if isChecked("Shining Force") then
+            if isChecked("Shining Force") and talent.shiningForce then
                 for i = 1, #br.friend do
-                    if br.friend[i].hp <= getValue("Shining Force") and lastSpell ~= spell.shiningForce then
+                    if br.friend[i].hp <= getValue("Shining Force") then
                         if cast.shiningForce(br.friend[i].unit) then return end
                     end
                 end
@@ -408,13 +418,16 @@ local function runRotation()
                 end
             end
             --Clarity of Will
-            if isChecked("Clarity of Will") then
+            if isChecked("Clarity of Will") and talent.clarityOfWill then
                 for i = 1, #br.friend do                           
-                    if br.friend[i].hp <= getValue("Clarity of Will") and lastSpell ~= spell.clarityOfWill then
+                    if br.friend[i].hp <= getValue("Clarity of Will") then
                         if cast.clarityOfWill(br.friend[i].unit) then return end     
                     end
                 end
             end
+        end
+        --Single Target Heal
+        function actionList_SingleTargetHeal()
             --Shadow Mend
             if isChecked("Shadow Mend") then
                 for i = 1, #br.friend do                           
@@ -426,7 +439,7 @@ local function runRotation()
             --Penance Heal
             if isChecked("Penance Heal") and talent.thePenitent then
                 for i = 1, #br.friend do                           
-                    if br.friend[i].hp <= getValue("Penance Heal") and lastSpell ~= spell.penance then
+                    if br.friend[i].hp <= getValue("Penance Heal") then
                         if cast.penance(br.friend[i].unit) then return end     
                     end
                 end
@@ -455,7 +468,7 @@ local function runRotation()
             end
             --Fade
             if isChecked("Fade") then                         
-                if php <= getValue("Fade") and lastSpell ~= spell.fade then
+                if php <= getValue("Fade") then
                     if cast.fade() then return end     
                 end
             end
@@ -465,7 +478,7 @@ local function runRotation()
         ------------
         function actionList_Damage()
             --Purge The Wicked
-            if isChecked("Purge The Wicked") then
+            if isChecked("Purge The Wicked") and talent.purgeTheWicked then
                 for i = 1, #enemies.dyn40 do
                     local thisUnit = enemies.dyn40[i]
                     if UnitIsUnit(thisUnit,"target") or hasThreat(thisUnit) or isDummy(thisUnit) then
@@ -500,7 +513,7 @@ local function runRotation()
             end
            --Shadowfiend
             if isChecked("Shadowfiend") then
-                if getLowAllies(getValue("Shadowfiend")) >= getValue("Shadowfiend Targets") and lastSpell ~= spell.shadowfiend then    
+                if getLowAllies(getValue("Shadowfiend")) >= getValue("Shadowfiend Targets") then    
                     if cast.shadowfiend() then return end    
                 end
             end
@@ -532,13 +545,13 @@ local function runRotation()
                 end
             end
             --Divine Star
-            if isChecked("Divine Star") then
+            if isChecked("Divine Star") and talent.divineStar then
                 if #enemies.dyn30 >= getOptionValue("Divine Star") then
                     if cast.divineStar() then return end
                 end
             end
             --Halo Damage
-            if isChecked("Halo Damage") then
+            if isChecked("Halo Damage") and talent.halo then
                 if #enemies.dyn30 >= getOptionValue("Halo Damage") then
                     if cast.halo(lowest.unit) then return end
                 end
@@ -556,7 +569,7 @@ local function runRotation()
 ---------------------------------
             if not inCombat and not IsMounted() then
                 actionList_PreCombat()
-                actionList_SingleTarget()
+                actionList_SingleTargetHeal()
             end -- End Out of Combat Rotation
 -----------------------------
 --- In Combat - Rotations --- 
@@ -565,7 +578,8 @@ local function runRotation()
                 actionList_Defensive()
                 actionList_Cooldowns()
                 actionList_AOEHealing()
-                actionList_SingleTarget()
+                actionList_SingleTargetDefence()
+                actionList_SingleTargetHeal()
                 actionList_Damage()
                 
             end -- End In Combat Rotation
