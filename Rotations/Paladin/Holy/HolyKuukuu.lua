@@ -255,7 +255,9 @@ local function runRotation()
             -- Light of Dawn
             if isChecked("Light of Dawn") then
                 if getLowAllies(getValue"Light of Dawn") >= getValue("LoD Targets") and getFacing("player",lowest.unit) and getDistance("player",lowest.unit) <= 15 then
-                    if cast.lightOfDawn(lowest.unit) then return end
+                    if cast.ruleOfLaw() then 
+                        if cast.lightOfDawn(lowest.unit) then return end
+                    end
                 end
             end       
             -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
