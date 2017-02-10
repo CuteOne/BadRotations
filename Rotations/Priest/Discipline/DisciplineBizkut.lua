@@ -32,7 +32,7 @@ local function createOptions()
         section = br.ui:createSection(br.ui.window.profile, "Artifact")
             --Light's Wrath
             br.ui:createSpinner(section, "Light's Wrath",  85,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At") 
-            br.ui:createSpinner(section, "Light's Wrath Targets",  3,  0,  40,  1,  "|cffFFFFFFMinimum Light's Wrath Targets")
+            br.ui:createSpinnerWithout(section, "Light's Wrath Targets",  3,  0,  40,  1,  "|cffFFFFFFMinimum Light's Wrath Targets")
             --Save Overloaded with Light for CD
             br.ui:createCheckbox(section,"Save Overloaded with Light for CD")
             --Always use on CD
@@ -62,7 +62,7 @@ local function createOptions()
             br.ui:createSpinner(section,"Mindbender",  90,  0,  100,  1,  "|cffFFFFFFMana Percent to Cast At")
             --Shadowfiend
             br.ui:createSpinner(section, "Shadowfiend",  80,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At") 
-            br.ui:createSpinner(section, "Shadowfiend Targets",  3,  0,  40,  1,  "|cffFFFFFFMinimum Shadowfiend Targets")  
+            br.ui:createSpinnerWithout(section, "Shadowfiend Targets",  3,  0,  40,  1,  "|cffFFFFFFMinimum Shadowfiend Targets")  
         br.ui:checkSectionState(section)
         -------------------------
         ---- SINGLE TARGET ------
@@ -90,6 +90,9 @@ local function createOptions()
             br.ui:createCheckbox(section, "Purify")
             --Fade
             br.ui:createSpinner(section, "Fade",  99,  0,  100,  1,  "|cffFFFFFFHealth Percent to Cast At")
+            --Resurrection
+            br.ui:createCheckbox(section,"Resurrection")
+            br.ui:createDropdownWithout(section, "Resurrection - Target", {"|cff00FF00Target","|cffFF0000Mouseover","|cffFFBB00Auto"}, 1, "|cffFFFFFFTarget to cast on")
         br.ui:checkSectionState(section)
         -------------------------
         ------ AOE HEALING ------
@@ -97,26 +100,26 @@ local function createOptions()
         section = br.ui:createSection(br.ui.window.profile, "AOE Healing")
             --Rapture
             br.ui:createSpinner(section, "Rapture",  80,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At") 
-            br.ui:createSpinner(section, "Rapture Targets",  3,  0,  40,  1,  "|cffFFFFFFMinimum Rapture Targets") 
+            br.ui:createSpinnerWithout(section, "Rapture Targets",  3,  0,  40,  1,  "|cffFFFFFFMinimum Rapture Targets") 
             --Power Word: Radiance
             br.ui:createSpinner(section, "Power Word: Radiance",  75,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At") 
-            br.ui:createSpinner(section, "PWR Targets",  3,  0,  40,  1,  "|cffFFFFFFMinimum PWR Targets")  
+            br.ui:createSpinnerWithout(section, "PWR Targets",  3,  0,  40,  1,  "|cffFFFFFFMinimum PWR Targets")  
             --Power Word: Barrier
             br.ui:createSpinner(section, "Power Word: Barrier",  60,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At") 
-            br.ui:createSpinner(section, "PWB Targets",  3,  0,  40,  1,  "|cffFFFFFFMinimum PWB Targets")
+            br.ui:createSpinnerWithout(section, "PWB Targets",  3,  0,  40,  1,  "|cffFFFFFFMinimum PWB Targets")
             --Shadow Covenant
             br.ui:createSpinner(section, "Shadow Covenant",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At") 
-            br.ui:createSpinner(section, "Shadow Covenant Targets",  3,  0,  40,  1,  "|cffFFFFFFMinimum Shadow Covenant Targets") 
+            br.ui:createSpinnerWithout(section, "Shadow Covenant Targets",  3,  0,  40,  1,  "|cffFFFFFFMinimum Shadow Covenant Targets") 
             --Halo
             br.ui:createSpinner(section, "Halo",  80,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At") 
-            br.ui:createSpinner(section, "Halo Targets",  3,  0,  40,  1,  "|cffFFFFFFMinimum Halo Targets")
+            br.ui:createSpinnerWithout(section, "Halo Targets",  3,  0,  40,  1,  "|cffFFFFFFMinimum Halo Targets")
         br.ui:checkSectionState(section)
         -------------------------
         ------- COOLDOWNS -------
         -------------------------
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
             --Int Pot
-            br.ui:createCheckbox(section,"Prolonged Pot","|cffFFFFFFUse Prolonged Power Potion")
+            br.ui:createCheckbox(section,"Prolonged Pot","|cffFFFFFFUse Potion of Prolonged Power")
             --Trinkets
             br.ui:createCheckbox(section,"Trinkets")
             --Touch of the Void
@@ -428,6 +431,26 @@ local function runRotation()
         end
         --Single Target Heal
         function actionList_SingleTargetHeal()
+            --Resurrection
+            if isChecked("Resurrection") and not inCombat then
+                if getOptionValue("Resurrection - Target") == 1 
+                    and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and UnitIsFriend("target","player")
+                then
+                    if cast.resurrection("target","dead") then return end
+                end
+                if getOptionValue("Resurrection - Target") == 2 
+                    and UnitIsPlayer("mouseover") and UnitIsDeadOrGhost("mouseover") and UnitIsFriend("mouseover","player")
+                then
+                    if cast.resurrection("mouseover","dead") then return end
+                end
+                if getOptionValue("Resurrection - Target") == 3 then
+                    for i =1, #br.friend do
+                        if UnitIsPlayer(br.friend[i].unit) and UnitIsDeadOrGhost(br.friend[i].unit) then
+                            if cast.resurrection(br.friend[i].unit) then return end
+                        end
+                    end
+                end
+            end
             --Shadow Mend
             if isChecked("Shadow Mend") then
                 for i = 1, #br.friend do                           
