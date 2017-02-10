@@ -388,19 +388,6 @@ local function runRotation()
                     end
                 end
             end
-            --Purify
-            if isChecked("Purify") then
-            for i = 1, #br.friend do
-                for n = 1,40 do
-                        local buff,_,_,count,bufftype,duration = UnitDebuff(br.friend[i].unit, n)
-                        if buff then
-                            if bufftype == "Curse" or bufftype == "Magic" then
-                                if cast.purify(br.friend[i].unit) then return end
-                            end
-                        end
-                    end
-                end
-            end
             --Power Word: Shield
             if isChecked("Power Word: Shield") then
                 for i = 1, #br.friend do                           
@@ -440,6 +427,19 @@ local function runRotation()
                     if br.friend[i].hp <= getValue("Plea") and getBuffRemain(br.friend[i].unit, spell.buffs.atonement, "player") < 1 and lastSpell ~= spell.plea and atonementCount < 6 then
                         --Print("Atonement Count: "..atonementCount)
                         if cast.plea(br.friend[i].unit) then return end     
+                    end
+                end
+            end
+            --Purify
+            if isChecked("Purify") then
+            for i = 1, #br.friend do
+                for n = 1,40 do
+                        local buff,_,_,count,bufftype,duration = UnitDebuff(br.friend[i].unit, n)
+                        if buff then
+                            if bufftype == "Curse" or bufftype == "Magic" then
+                                if cast.purify(br.friend[i].unit) then return end
+                            end
+                        end
                     end
                 end
             end
