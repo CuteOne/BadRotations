@@ -82,6 +82,8 @@ local function createOptions()
             br.ui:createSpinner(section, "Pain Suppression Tank",  40,  0,  100,  1,  "|cffFFFFFFHealth Percent to Cast At")
             --Pain Suppression
             br.ui:createSpinner(section, "Pain Suppression",  30,  0,  100,  1,  "|cffFFFFFFHealth Percent to Cast At")
+            --Shining Force
+            br.ui:createSpinner(section, "Shining Force",  50,  0,  100,  1,  "|cffFFFFFFHealth Percent to Cast At")
             --Purify
             br.ui:createCheckbox(section, "Purify")
             --Fade
@@ -385,6 +387,14 @@ local function runRotation()
                 for i = 1, #br.friend do
                     if br.friend[i].hp <= getValue("Pain Suppression") and getBuffRemain(br.friend[i].unit, spell.painSuppression, "player") < 1 then
                         if cast.painSuppression(br.friend[i].unit) then return end
+                    end
+                end
+            end
+            --Shining Force
+            if isChecked("Shining Force") then
+                for i = 1, #br.friend do
+                    if br.friend[i].hp <= getValue("Shining Force") then
+                        if cast.shiningForce(br.friend[i].unit) then return end
                     end
                 end
             end
