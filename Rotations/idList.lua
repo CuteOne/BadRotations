@@ -980,6 +980,7 @@ br.idList = {
 
             },
             talents                         = {
+                alexstraszasFury            = 235870,
                 blastWave                   = 157981,
                 cinderstorm                 = 198929,
                 conflagration               = 205023,
