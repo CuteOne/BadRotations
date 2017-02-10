@@ -1610,6 +1610,7 @@ br.idList = {
             },
             buffs                           = {
                 atonement                   = 194384,
+                overloadedWithLight         = 223166,
             },
             debuffs                         = {
                 purgeTheWicked              = 204213,
