@@ -15,7 +15,7 @@ local function createToggles()
 -- Cooldown Button
     CooldownModes = {
         [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spell.combustion},
-        [2] = { mode = "On", value = 1 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spell.combustion},
+        [2] = { mode = "On", value = 2 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spell.combustion},
         [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.combustion}
     };
     CreateButton("Cooldown",2,0)
@@ -287,9 +287,9 @@ local function runRotation()
         local function actionList_ActiveTalents()
         -- Flame On
             -- flame_on,if=action.fire_blast.charges=0&(cooldown.combustion.remains>40+(talent.kindling.enabled*25)|target.time_to_die.remains<cooldown.combustion.remains)
-            if charges.fireBlast == 0 and (cd.combustion > 40 + (kindle * 25) or (ttd("target") < cd.combustion) or (isDummy("target") and cd.combustion > 45)) then
-                if cast.flameOn() then return end
-            end
+            --if charges.fireBlast == 0 and (cd.combustion > 40 + (kindle * 25) or (ttd("target") < cd.combustion) or (isDummy("target") and cd.combustion > 45)) then
+            --    if cast.flameOn() then return end
+            --end
         -- Blast Wave
             -- blast_wave,if=(buff.combustion.down)|(buff.combustion.up&action.fire_blast.charges<1&action.phoenixs_flames.charges<1)
             if (not buff.combustion.exists()) or (buff.combustion.exists() and charges.fireBlast < 1 and charges.phoenixsFlames < 1) then
@@ -307,7 +307,9 @@ local function runRotation()
             end
         -- Dragon's Breath
             -- dragons_breath,if=equipped.132863
-            if hasEquiped(132863) then
+            if talent.alexstraszasFury and hasEquiped(132863) then
+                if cast.dragonsBreath() then return end
+            elseif talent.alexstraszasFury or hasEquiped(132863) then
                 if cast.dragonsBreath() then return end
             end
         -- Living Bomb
@@ -341,7 +343,9 @@ local function runRotation()
             end
         -- Fire Blast
             -- fire_blast,if=buff.heating_up.up
-            if buff.heatingUp.exists() then
+            if (charges.frac.fireBlast > 1.5 and cd.combustion == 0) then
+                if cast.fireBlast() then return end
+            elseif buff.heatingUp.exists() and buff.combustion.exists() then
                 if cast.fireBlast() then return end
             end
         -- Phoenix's Flames
@@ -358,6 +362,8 @@ local function runRotation()
             -- dragons_breath,if=buff.hot_streak.down&action.fire_blast.charges<1&action.phoenixs_flames.charges<1
             if not buff.hotStreak and charges.fireBlast < 1 and charges.phoenixsFlames < 1 then
                 if cast.dragonsBreath() then return end
+            elseif not buff.hotStreak and talent.alexstraszasFury and hasEquiped(132863) then
+                if cast.dragonsBreath() then return end
             end
         -- Scorch
             -- scorch,if=target.health.pct<=25&equipped.132454
@@ -369,7 +375,7 @@ local function runRotation()
         local function actionList_ROPPhase()
         -- Rune of Power
             -- rune_of_power
-            if not moving then
+            if not moving and useCDs() then
                 if cast.runeOfPower() then return end
             end
         -- Pyroblast
@@ -431,6 +437,8 @@ local function runRotation()
             end
         -- Dragon's Breath
             if ((#enemies.yards12 > 3 and mode.rotation == 1) or mode.rotation == 2) then
+                if cast.dragonsBreath() then return end
+            elseif talent.alexstraszasFury and hasEquiped(132863) and (#enemies.yards12 > 1 and mode.rotation == 1) then
                 if cast.dragonsBreath() then return end
             end
         -- Pyroblast
@@ -525,7 +533,7 @@ local function runRotation()
                     end
         -- Rune of Power
                     -- rune_of_power,if=cooldown.combustion.remains>40&buff.combustion.down&(cooldown.flame_on.remains<5|cooldown.flame_on.remains>30)&!talent.kindling.enabled|target.time_to_die.remains<11|talent.kindling.enabled&(charges_fractional>1.8|time<40)&cooldown.combustion.remains>40
-                    if cd.combustion > 40 and not buff.combustion.exists() and (cd.flameOn < 5 or cd.flameOn > 30) and (not talent.kindling or ttd("target") < 11 or (talent.kindling and (charges.frac.fireBlast > 1.8 or combatTime < 40) and cd.combustion > 40)) then
+                    if useCDs() and cd.combustion > 40 and not buff.combustion.exists() and (cd.flameOn < 5 or cd.flameOn > 30) and (not talent.kindling or ttd("target") < 11 or (talent.kindling and (charges.frac.fireBlast > 1.8 or combatTime < 40) and cd.combustion > 40)) then
                         if cast.runeOfPower("player","ground") then return end
                     end
         -- Action List - Combustion Phase
