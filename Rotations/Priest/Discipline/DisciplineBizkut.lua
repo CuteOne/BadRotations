@@ -39,35 +39,11 @@ local function createOptions()
             br.ui:createCheckbox(section,"Always use on CD")
         br.ui:checkSectionState(section)
         -------------------------
-        ----- DAMAGE OPTIONS ----
-        -------------------------
-        section = br.ui:createSection(br.ui.window.profile, "Damage")
-            --Shadow Word: Pain
-            br.ui:createCheckbox(section,"Shadow Word: Pain")
-            --Purge The Wicked
-            br.ui:createCheckbox(section,"Purge The Wicked")
-            --Schism
-            br.ui:createCheckbox(section,"Schism")
-            --Penance
-            br.ui:createCheckbox(section,"Penance")
-            --Power Word: Solace
-            br.ui:createCheckbox(section,"Power Word: Solace")
-            --Smite
-            br.ui:createCheckbox(section,"Smite")
-            --Divine Star
-            br.ui:createSpinner(section, "Divine Star",  3,  0,  10,  1,  "|cffFFFFFFMinimum Divine Star Targets")
-            --Halo Damage
-            br.ui:createSpinner(section, "Halo Damage",  3,  0,  10,  1,  "|cffFFFFFFMinimum Halo Damage Targets")
-            --Mindbender
-            br.ui:createSpinner(section,"Mindbender",  90,  0,  100,  1,  "|cffFFFFFFMana Percent to Cast At")
-            --Shadowfiend
-            br.ui:createSpinner(section, "Shadowfiend",  80,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At") 
-            br.ui:createSpinnerWithout(section, "Shadowfiend Targets",  3,  0,  40,  1,  "|cffFFFFFFMinimum Shadowfiend Targets")  
-        br.ui:checkSectionState(section)
-        -------------------------
         ---- SINGLE TARGET ------
         -------------------------
         section = br.ui:createSection(br.ui.window.profile, "Single Target Healing")
+            --Max Atonement
+            br.ui:createSpinnerWithout(section, "Max Atonement",  40,  0,  40,  1,  "|cffFFFFFFMaximum Atonement to keep at a time")
             --Plea
             br.ui:createSpinner(section, "Plea",  90,  0,  100,  1,  "|cffFFFFFFHealth Percent to Cast At")
             --Power Word: Shield
@@ -117,9 +93,37 @@ local function createOptions()
             br.ui:createSpinnerWithout(section, "Halo Targets",  3,  0,  40,  1,  "|cffFFFFFFMinimum Halo Targets")
         br.ui:checkSectionState(section)
         -------------------------
+        ----- DAMAGE OPTIONS ----
+        -------------------------
+        section = br.ui:createSection(br.ui.window.profile, "Damage")
+            --Shadow Word: Pain
+            br.ui:createCheckbox(section,"Shadow Word: Pain")
+            --Purge The Wicked
+            br.ui:createCheckbox(section,"Purge The Wicked")
+            --Schism
+            br.ui:createCheckbox(section,"Schism")
+            --Penance
+            br.ui:createCheckbox(section,"Penance")
+            --Power Word: Solace
+            br.ui:createCheckbox(section,"Power Word: Solace")
+            --Smite
+            br.ui:createCheckbox(section,"Smite")
+            --Divine Star
+            br.ui:createSpinner(section, "Divine Star",  3,  0,  10,  1,  "|cffFFFFFFMinimum Divine Star Targets")
+            --Halo Damage
+            br.ui:createSpinner(section, "Halo Damage",  3,  0,  10,  1,  "|cffFFFFFFMinimum Halo Damage Targets")
+            --Mindbender
+            br.ui:createSpinner(section,"Mindbender",  90,  0,  100,  1,  "|cffFFFFFFMana Percent to Cast At")
+            --Shadowfiend
+            br.ui:createSpinner(section, "Shadowfiend",  80,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At") 
+            br.ui:createSpinnerWithout(section, "Shadowfiend Targets",  3,  0,  40,  1,  "|cffFFFFFFMinimum Shadowfiend Targets")  
+        br.ui:checkSectionState(section)
+        -------------------------
         ------- COOLDOWNS -------
         -------------------------
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
+            --Pre Pot
+            br.ui:createSpinner(section, "Pre-Pot Timer",  3,  1,  10,  1,  "|cffFFFFFFSet to desired time for Pre-Pot using Potion of Prolonged Power (DBM Required). Min: 1 / Max: 10 / Interval: 1")
             --Int Pot
             br.ui:createCheckbox(section,"Prolonged Pot","|cffFFFFFFUse Potion of Prolonged Power")
             --Trinkets
@@ -131,13 +135,13 @@ local function createOptions()
             --Mindbender/Shadowfiend
             br.ui:createCheckbox(section,"Mindbender/Shadowfiend","|cffFFFFFFAlways cast Mindbender or Shadowfiend on CD")
             --Power Infusion
-            br.ui:createCheckbox(section,"Power Infusion")
+            br.ui:createCheckbox(section,"Power Infusion","|cffFFFFFFAlways use Power Infusion on CD")
             --Rapture and PW:S
             br.ui:createCheckbox(section,"Rapture and PW:S","|cffFFFFFFAlways cast Rapture and apply Power Word: Shield to all players on CD")
             --Divine Star CD
-            br.ui:createCheckbox(section,"Divine Star CD")
+            br.ui:createCheckbox(section,"Divine Star CD","|cffFFFFFFAlways use Divine Star on CD")
             --Halo CD
-            br.ui:createCheckbox(section,"Halo CD")
+            br.ui:createCheckbox(section,"Halo CD","|cffFFFFFFAlways use Halo on CD")
         br.ui:checkSectionState(section)
         -------------------------
         ------- DEFENSIVE -------
@@ -315,7 +319,7 @@ local function runRotation()
                 if isChecked("Rapture and PW:S") then
                     if cast.rapture() then return end
                     for i = 1, #br.friend do                           
-                        if getBuffRemain(br.friend[i].unit, spell.powerWordShield) < 1 then
+                        if getBuffRemain(br.friend[i].unit, spell.powerWordShield, "player") < 1 then
                             if cast.powerWordShield(br.friend[i].unit) then return end     
                         end
                     end
@@ -350,17 +354,21 @@ local function runRotation()
                     end
                 end
                 if cast.powerWordShield("player") then return end
-            end                
+            end
+            if (isChecked("Pre-Pot Timer") and pullTimer <= getOptionValue("Pre-Pot Timer")) and canUse(142117) and not solo then
+                useItem(142117)
+            end
         end  -- End Action List - Pre-Combat
         --Spread Atonement
         function actionList_SpreadAtonement()
             --Plea
-            if isChecked("Plea") then
-                for i = 1, #br.friend do                           
-                    if getBuffRemain(br.friend[i].unit, spell.buffs.atonement, "player") < 1 and lastSpell ~= spell.plea and atonementCount < 6 then
-                        --Print("Atonement Count: "..atonementCount)
-                        if cast.plea(br.friend[i].unit) then return end     
-                    end
+            for i = 1, #br.friend do                           
+                if getBuffRemain(br.friend[i].unit, spell.buffs.atonement, "player") < 1 and lastSpell ~= spell.plea and atonementCount < 6 then
+                    --Print("Atonement Count: "..atonementCount)
+                    if cast.plea(br.friend[i].unit) then return end     
+                end
+                if inRaid and getBuffRemain(br.friend[i].unit, spell.buffs.atonement, "player") < 1 and lastSpell ~= spell.powerWordRadiance and atonementCount <= getOptionValue("Max Atonement") and i < 5 then
+                    if cast.powerWordRadiance(br.friend[i].unit) then return end
                 end
             end
         end
@@ -435,7 +443,7 @@ local function runRotation()
             if isChecked("Power Word: Shield") then
                 for i = 1, #br.friend do                           
                     if br.friend[i].hp <= getValue("Power Word: Shield") 
-                    and getBuffRemain(br.friend[i].unit, spell.powerWordShield) < 1 then
+                    and getBuffRemain(br.friend[i].unit, spell.powerWordShield, "player") < 1 then
                         if cast.powerWordShield(br.friend[i].unit) then return end     
                     end
                 end
@@ -532,7 +540,7 @@ local function runRotation()
                 end
             end
             --Shadow Word: Pain
-            if isChecked("Shadow Word: Pain") then
+            if isChecked("Shadow Word: Pain") and not talent.purgeTheWicked then
                 for i = 1, #enemies.dyn40 do
                     local thisUnit = enemies.dyn40[i]
                     if UnitIsUnit(thisUnit,"target") or hasThreat(thisUnit) or isDummy(thisUnit) then
@@ -566,22 +574,14 @@ local function runRotation()
             end
             --Light's Wrath
             if isChecked("Light's Wrath") then
-                if isChecked("Save Overloaded with Light for CD") and UnitBuffID("player",spell.buffs.overloadedWithLight) then return end
-                elseif getLowAllies(getValue("Light's Wrath")) >= getValue("Light's Wrath Targets") then
+                if getLowAllies(getValue("Light's Wrath")) >= getValue("Light's Wrath Targets") then
+                    if isChecked("Save Overloaded with Light for CD") and getBuffRemain("player",spell.buffs.overloadedWithLight) ~= 0 then return end
                     if not inInstance and not inRaid then
                         if cast.lightsWrath() then return end
-                    elseif getSpellCD(spell.lightsWrath) == 0 then
+                    end
+                    if getSpellCD(spell.lightsWrath) == 0 then
                         actionList_SpreadAtonement()
                         if cast.lightsWrath() then return end
-                end
-            end
-            --Smite
-            if isChecked("Smite") and power > 20 then
-                if not inInstance and not inRaid then
-                    if cast.smite() then return end
-                else
-                    if atonementCount >= 5 then
-                        if cast.smite() then return end
                     end
                 end
             end
@@ -595,6 +595,12 @@ local function runRotation()
             if isChecked("Halo Damage") and talent.halo then
                 if #enemies.dyn30 >= getOptionValue("Halo Damage") then
                     if cast.halo(lowest.unit) then return end
+                end
+            end
+            --Smite
+            if isChecked("Smite") and power > 20 then
+                if not inInstance and not inRaid or atonementCount >= 5 then
+                    if cast.smite() then return end
                 end
             end
         end
