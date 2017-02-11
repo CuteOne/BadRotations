@@ -51,7 +51,7 @@ local function createOptions()
     -- General Options
         section = br.ui:createSection(br.ui.window.profile, "General")
         -- APL
-            br.ui:createDropdownWithout(section, "APL Mode", {"|cffFFFFFFSimC","|cffFFFFFFAMR"}, 1, "|cffFFFFFFSet APL Mode to use.")
+            br.ui:createDropdownWithout(section, "APL Mode", {"|cffFFFFFFSimC","|cffFFFFFFAMR","|cffFFFFFFWH"}, 1, "|cffFFFFFFSet APL Mode to use.")
         -- Dummy DPS Test
             br.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
         -- Pre-Pull Timer
@@ -440,29 +440,6 @@ local function runRotation()
                 if isChecked("Pre-Pull Timer") and pullTimer <= getOptionValue("Pre-Pull Timer") then
 
                 end -- End Pre-Pull
-            --     if isValidUnit("target") then
-            -- -- Throw Glaive
-            --         if getDistance("target") < 30 and getFacing("player","target") then
-            --             if cast.throwGlaive("target") then return end
-            --         end
-            -- -- Fel Rush
-            --         if getOptionValue("APL Mode") == 1 and getFacing("player","target",10) then
-            --             if mode.mover == 1 and getDistance("target") < 5 then
-            --                 cancelRushAnimation()
-            --             elseif mode.mover == 2 or (getDistance("target") >= 5 and mode.mover ~= 3) then
-            --                 if cast.felRush() then return end
-            --             end
-            --         end
-            -- -- Start Attack
-            --         if getDistance("target") < 5 then
-            --             StartAttack()
-            --         end
-            -- -- Metamorphosis
-            --         if useCDs() and isChecked("Metamorphosis") and not (talent.demonReborn and talent.demonic) then
-            --             -- if cast.metamorphosis("best",false,1,8) then return end
-            --             if cast.metamorphosis("player") then return end
-            --         end
-            --     end
             end -- End No Combat
         end -- End Action List - PreCombat
 ---------------------
@@ -576,7 +553,7 @@ local function runRotation()
             -- Eye Beam
                     -- eye_beam,if=talent.demonic.enabled&(talent.demon_blades.enabled|(talent.blind_fury.enabled&fury.deficit>=35)|(!talent.blind_fury.enabled&fury.deficit<30))&((active_enemies>desired_targets&active_enemies>1)|raid_event.adds.in>30)
                     if not metaEyeBeam and talent.demonic and (talent.demonBlades or (talent.blindFury and powerDeficit >= 35) or (not talent.blindFury and powerDeficit < 30))
-                        and (((mode.rotation == 1 and #enemies.yards8 > getOptionValue("Eye Beam Targets")) or mode.rotation == 2) --[[or addsIn > 30]])
+                        --and (((mode.rotation == 1 and #enemies.yards8 > getOptionValue("Eye Beam Targets")) or mode.rotation == 2) -or addsIn > 30)
                         and getDistance(units.dyn8) < 5 and getFacing("player",units.dyn5,45)
                     then
                         if cast.eyeBeam(units.dyn5) then return end
@@ -618,8 +595,7 @@ local function runRotation()
                     -- eye_beam,if=!talent.demonic.enabled&!talent.blind_fury.enabled&((spell_targets.eye_beam_tick>desired_targets&active_enemies>1)|(raid_event.adds.in>45&!variable.pooling_for_meta&buff.metamorphosis.down&(artifact.anguish_of_the_deceiver.enabled|active_enemies>1)&!talent.chaos_cleave.enabled))
                     if not metaEyeBeam and not talent.demonic and not talent.blindFury
                         and ((((mode.rotation == 1 and #enemies.yards20 >= getOptionValue("Eye Beam Targets")) or mode.rotation == 2) and #enemies.yards8 > 1)
-                            or (addsIn > 45 and not poolForMeta and not buff.metamorphosis.exists() and (artifact.anguishOfTheDeceiver or ((mode.rotation == 1 and #enemies.yards8 > 1) or mode.rotation == 2))
-                               and not talent.chaosCleave))
+                            or (addsIn > 45 and not poolForMeta and not buff.metamorphosis.exists() and not talent.chaosCleave))
                         and getDistance(units.dyn8) < 8 and getFacing("player",units.dyn5,45)
                     then
                         if cast.eyeBeam(units.dyn5) then return end
@@ -699,7 +675,227 @@ local function runRotation()
     --- AskMrRobot APL ---
     ----------------------
                 if getOptionValue("APL Mode") == 2 then
-
+            -- Vengeful Retreat
+                    -- if HasTalent(Prepared) or HasTalent(Momentum) and not HasBuff(Momentum)
+                    if castable.vengefulRetreat and (talent.prepared or talent.momentum) and not buff.momentum.exists() then
+                        if mode.mover == 1 then
+                            cancelRetreatAnimation()
+                        elseif mode.mover == 2 and charges.felRush > 0 then
+                            cast.vengefulRetreat()
+                        end
+                    end
+            -- Fel Rush
+                    -- if HasTalent(Momentum) and not HasBuff(Momentum) and CooldownSecRemaining(VengefulRetreat) > BuffDurationSec(Momentum)
+                    if castable.felRush and talent.momentum and not buff.momentum.exists() and cd.vengefulRetreat > buff.momentum.duration() then
+                        if mode.mover == 1 and getDistance("target") < 5 then
+                            cancelRushAnimation()
+                        elseif mode.mover == 2 or (getDistance("target") >= 5 and mode.mover ~= 3) then
+                            cast.felRush()
+                        end
+                    end
+            -- Fury of the Illidari
+                    if (getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs())) and castable.furyOfTheIllidari and getDistance("target") < 5 then
+                        cast.furyOfTheIllidari()
+                    end
+            -- Begin AoE Rotation
+                    if ((mode.rotation == 1 and #enemies.yards8 > 1) or mode.rotation == 2) then
+            -- Death Sweep
+                        if castable.deathSweep and buff.metamorphosis.exists() then
+                            cast.deathSweep()
+                        end
+            -- Fel Barrage
+                        -- if ChargesRemaining(FelBarrage) = SpellCharges(FelBarrage)
+                        if castable.felBarrage and charges.felBarrage == 5 then
+                            cast.felBarrage()
+                        end
+            -- Eye Beam
+                        if castable.eyeBeam then
+                            cast.eyeBeam()
+                        end
+            -- Fel Rush
+                        if castable.felRush then
+                            cast.felRush()
+                        end
+            -- Blade Dance
+                        -- if CooldownSecRemaining(EyeBeam) > 0
+                        if castable.bladeDance and not buff.metamorphosis.exists() and cd.eyeBeam > 0 then
+                            cast.bladeDance()
+                        end
+            -- Throw Glaive
+                        if castable.throwGlaive then
+                            cast.throwGlaive()
+                        end 
+            -- Annihilation
+                        -- if HasTalent(ChaosCleave)
+                        if castable.annihilation and talent.chaosCleave then
+                            cast.annihilation()
+                        end
+            -- Chaos Strike
+                        -- if HasTalent(ChaosCleave)
+                        if castable.chaosStrike and talent.chaosCleave then
+                            cast.chaosStrike()
+                        end
+            -- Chaos Nova
+                        -- if CooldownSecRemaining(EyeBeam) > 0 or HasTalent(UnleashedPower)
+                        if castable.chaosNova and (cd.eyeBeam > 0 or talent.unleashedPower) then
+                            cast.chaosNova()
+                        end
+                    end
+            -- Begin Single Rotation
+            -- Fel Eruption
+                    if castable.felEruption then
+                        cast.felEruption()
+                    end
+            -- Death Sweep
+                    -- if HasTalent(FirstBlood) 
+                    if castable.deathSweep and talent.firstBlood and buff.metamorphosis.exists() then
+                        cast.deathSweep()
+                    end
+            -- Annihilation
+                    -- if not HasTalent(Momentum) or (HasBuff(Momentum) or PowerToMax <= 30 + TimerSecRemaining(PreparedTimer) * 8)
+                    if castable.annihilation and (not talent.momentum or (buff.momentum.exists() or ttm <= 30 + buff.prepared.remain() * 8)) then
+                        cast.annihilation()
+                    end
+            -- Fel Barrage
+                    -- if ChargesRemaining(FelBarrage) = SpellCharges(FelBarrage) and (not HasTalent(Momentum) or HasBuff(Momentum))
+                    if ((mode.rotation == 1 and #enemies.yards8 >= 2) or mode.rotation == 2) and castable.felBarrage and charges.felBarrage == 5 and (not talent.momentum or buff.momentum.exists()) then
+                        cast.felBarrage()
+                    end
+            -- Throw Glaive
+                    -- if HasTalent(Bloodlet)
+                    if castable.throwGlaive and talent.bloodlet then
+                        cast.throwGlaive()
+                    end
+            -- Eye Beam
+                    -- if not HasBuff(Metamorphosis) and (not HasTalent(Momentum) or HasBuff(Momentum))
+                    if ((mode.rotation == 1 and #enemies.yards8 >= 2) or mode.rotation == 2) and castable.eyeBeam and not buff.metamorphosis.exists() and (not talent.momentum or buff.momentum.exists()) then
+                        cast.eyeBeam()
+                    end
+            -- Blade Dance
+                    -- if CooldownSecRemaining(EyeBeam) > 0 and HasTalent(FirstBlood)
+                    if castable.bladeDance and cd.eyeBeam > 0 and talent.firstBlood then
+                        cast.bladeDance()
+                    end
+            -- Chaos Strike
+                    -- if CooldownSecRemaining(EyeBeam) > 0 or (HasBuff(Momentum) or PowerToMax <= 30 + TimerSecRemaining(PreparedTimer) * 8)
+                    if castable.chaosStrike and (cd.eyeBeam > 0 or (buff.momentum.exists() or ttm <= 30 + buff.prepared.remain() * 8)) then
+                        cast.chaosStrike()
+                    end
+            -- Felblade
+                    if castable.felBlade then
+                        cast.felblade()
+                    end
+            -- Fel Rush
+                    -- if not HasTalent(Momentum)
+                    if castable.felRush and not talent.momentum then
+                        if mode.mover == 1 and getDistance("target") < 5 then
+                            cancelRushAnimation()
+                        elseif mode.mover == 2 or (getDistance("target") >= 5 and mode.mover ~= 3) then
+                            cast.felRush()
+                        end
+                    end
+            -- Demon's Bite
+                    if castable.demonsBite then
+                        cast.demonsBite()
+                    end
+            -- Throw Glaive
+                    if castable.throwGlaive then
+                        cast.throwGlaive()
+                    end    
+                end
+    -------------------
+    --- WoWHead APL ---
+    -------------------
+                if getOptionValue("APL Mode") == 3 then
+            -- Fel Rush
+                    if charges.felRush > getOptionValue("Hold Fel Rush Charge") and (not talent.felMastery or (talent.felMastery and powerDeficit > 30)) 
+                        and (not talent.momentum or (talent.momentum and not buff.momentum.exists())) 
+                    then
+                        if mode.mover == 1 and getDistance("target") < 5 then
+                            cancelRushAnimation()
+                        elseif mode.mover == 2 or (getDistance("target") >= 5 and mode.mover ~= 3) then
+                            if cast.felRush() then return end
+                        end
+                    end
+            -- Vengeful Retreat
+                    if talent.prepared or (talent.momentum and not buff.momentum.exists()) then
+                       if mode.mover == 1 then
+                            cancelRetreatAnimation()
+                        elseif mode.mover == 2 and charges.felRush > 0 then
+                            if cast.vengefulRetreat() then return end
+                        end
+                    end
+            -- Fel Barrage
+                    if charges.felBarrage >= 5 and (not talent.momentum or (talent.momentum and not buff.momentum.exists())) then
+                        if cast.felBarrage() then return end
+                    end
+            -- Throw Glaive
+                    if talent.bloodlet and talent.masterOfTheGlaive and (not talent.momentum or (talent.momentum and not buff.momentum.exists())) then
+                        if cast.throwGlaive() then return end
+                    end
+            -- Fel Eruption
+                    if cast.felEruption() then return end
+            -- Fury of the Illidari
+                    if (getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs())) and getDistance("target") < 5 then
+                        if not talent.momentum or (talent.momentum and buff.momentum.exists()) then
+                            if cast.furyOfTheIllidari() then return end
+                        end
+                    end
+            -- Eye Beam
+                    if talent.demonic and getDistance(units.dyn8) < 8 and getFacing("player",units.dyn5,45) then
+                        if cast.eyeBeam() then return end
+                    end
+            -- Blade Dance / Death Sweep
+                    if talent.firstBlood or (mode.rotation == 1 and #enemies.yards8 >= 3 + chaleave) or mode.rotation == 2 then
+                        if buff.metamorphosis.exists() then
+                            if cast.deathSweep() then return end
+                        else
+                            if cast.bladeDance() then return end
+                        end
+                    end
+            -- Throw Glaive
+                    if talent.bloodlet and ((mode.rotation == 1 and #enemies.yards8 >= 2) or mode.rotation == 2) and (not talent.momentum or (talent.momentum and buff.momentum.exists())) then
+                        if cast.throwGlaive() then return end
+                    end
+            -- Felblade
+                    if powerDeficit > 30 then
+                        if cast.felblade() then return end
+                    end
+            -- Annihilation
+                    if buff.metamorphosis.exists() and (powerDeficit < 40 or (talent.momentum and buff.momentum.exists())) then
+                        -- print("Trying to Annihilate")
+                        if cast.annihilation() then return end
+                    end
+            -- Throw Glaive
+                    if talent.bloodlet and (not talent.momentum or (talent.momentum and buff.momentum.exists())) then
+                        if cast.throwGlaive() then return end
+                    end
+            -- Eye Beam
+                    if not buff.metamorphosis.exists() and not talent.blindFury and not talent.chaosCleave and not talent.demonic 
+                        and ((mode.rotation == 1 and #enemies.yards8 >= 2 and artifact.anguishOfTheDeceiver) or mode.rotation == 2) 
+                    then
+                        if cast.eyeBeam() then return end
+                    end
+            -- Throw Glaive
+                    if not buff.metamorphosis.exists() and ((mode.rotation == 1 and #enemies.yards8 >= 2) or mode.rotation == 2) then
+                        if cast.throwGlaive() then return end
+                    end
+            -- Chaos Strike
+                    if not buff.metamorphosis.exists() and (powerDeficit < 40 or (talent.momentum and buff.momentum.exists())) then
+                        if cast.chaosStrike() then return end
+                    end
+            -- Fel Barrage
+                    if charges.felBarrage >= 4 and (not talent.momentum or (talent.momentum and not buff.momentum.exists())) then
+                        if cast.felBarrage() then return end
+                    end
+            -- Demon's Bite
+                    if powerDeficit >= 40 then
+                        if cast.demonsBite() then return end
+                    end
+            -- Throw Glaive
+                    if not talent.bloodlet and talent.demonBlades then
+                        if cast.throwGlaive() then return end
+                    end
                 end
 			end --End In Combat
 		end --End Rotation Logic
