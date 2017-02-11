@@ -163,6 +163,17 @@ local function createOptions()
                 br.ui:createSpinner(section, "Gift of the Naaru",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
             end
         br.ui:checkSectionState(section)
+        -- Toggle Key Options
+        section = br.ui:createSection(br.ui.window.profile, "Toggle Keys")
+        -- Single/Multi Toggle
+            br.ui:createDropdown(section, "Rotation Mode", br.dropOptions.Toggle,  4)
+        -- Cooldown Key Toggle
+            br.ui:createDropdown(section, "Cooldown Mode", br.dropOptions.Toggle,  3)
+        -- Defensive Key Toggle
+            br.ui:createDropdown(section, "Defensive Mode", br.dropOptions.Toggle,  6)
+        -- Pause Toggle
+            br.ui:createDropdown(section, "Pause Mode", br.dropOptions.Toggle,  6)
+        br.ui:checkSectionState(section)
     end
     optionTable = {{
         [1] = "Rotation Options",
@@ -341,11 +352,11 @@ local function runRotation()
                     end
                 end
                 --Divine Star CD
-                if isChecked("Divine Star CD") then
+                if isChecked("Divine Star CD") and isBoss("target") and getDistance("player","target") < 30 then
                     if cast.divineStar() then return end
                 end
                 --Halo CD
-                if isChecked("Halo CD") then
+                if isChecked("Halo CD") and isBoss("target") and getDistance("player","target") < 30 then
                     if cast.halo() then return end
                 end
             end
@@ -494,7 +505,7 @@ local function runRotation()
                 for n = 1,40 do
                         local buff,_,_,count,bufftype,duration = UnitDebuff(br.friend[i].unit, n)
                         if buff then
-                            if bufftype == "Curse" or bufftype == "Magic" then
+                            if bufftype == "Curse" or bufftype == "Magic" and lastSpell ~= spell.purify then
                                 if cast.purify(br.friend[i].unit) then return end
                             end
                         end
@@ -608,7 +619,7 @@ local function runRotation()
             end
             --Smite
             if isChecked("Smite") and power > 20 then
-                if atonementCount >= getValue("Smite") then
+                if not inInstance and not inRaid or atonementCount >= getValue("Smite") then
                     if cast.smite() then return end
                 end
             end
@@ -637,7 +648,6 @@ local function runRotation()
                 actionList_SingleTargetDefence()
                 actionList_SingleTargetHeal()
                 actionList_Damage()
-                
             end -- End In Combat Rotation
         end -- Pause
     end -- End Timer
