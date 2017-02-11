@@ -367,7 +367,7 @@ local function runRotation()
                     --Print("Atonement Count: "..atonementCount)
                     if cast.plea(br.friend[i].unit) then return end     
                 end
-                if inRaid and getBuffRemain(br.friend[i].unit, spell.buffs.atonement, "player") < 1 and lastSpell ~= spell.powerWordRadiance and atonementCount <= getOptionValue("Max Atonement") and i < 5 then
+                if inRaid and getBuffRemain(br.friend[i].unit, spell.buffs.atonement, "player") < 1 and lastSpell ~= spell.powerWordRadiance and atonementCount <= getOptionValue("Max Atonement") then
                     if cast.powerWordRadiance(br.friend[i].unit) then return end
                 end
             end
