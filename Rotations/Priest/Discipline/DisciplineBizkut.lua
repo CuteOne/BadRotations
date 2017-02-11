@@ -43,7 +43,7 @@ local function createOptions()
         -------------------------
         section = br.ui:createSection(br.ui.window.profile, "Single Target Healing")
             --Max Atonement
-            br.ui:createSpinnerWithout(section, "Max Atonement",  40,  0,  40,  1,  "|cffFFFFFFMaximum Atonement to keep at a time")
+            br.ui:createSpinnerWithout(section, "Max Atonement",  20,  0,  40,  1,  "|cffFFFFFFMaximum Atonement to keep at a time")
             --Plea
             br.ui:createSpinner(section, "Plea",  90,  0,  100,  1,  "|cffFFFFFFHealth Percent to Cast At")
             --Power Word: Shield
