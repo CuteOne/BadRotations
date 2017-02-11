@@ -313,11 +313,10 @@ local function runRotation()
                 end
                 --Rapture and PW:S
                 if isChecked("Rapture and PW:S") then
-                    if cast.rapture() then
-                        for i = 1, #br.friend do                           
-                            if getBuffRemain(br.friend[i].unit, spell.powerWordShield, "player") < 1 then
-                                if cast.powerWordShield(br.friend[i].unit) then return end     
-                            end
+                    if cast.rapture() then return end
+                    for i = 1, #br.friend do                           
+                        if getBuffRemain(br.friend[i].unit, spell.powerWordShield) < 1 then
+                            if cast.powerWordShield(br.friend[i].unit) then return end     
                         end
                     end
                 end
@@ -345,10 +344,9 @@ local function runRotation()
             -- Power Word: Shield Body and Soul
             if isMoving("player") then -- talent.bodyandSoul and
                 if isChecked("Angelic Feather") and talent.angelicFeather then
-                    if cast.angelicFeather("player") then
-                        for i = 1, #br.friend do                           
-                            if cast.angelicFeather(br.friend[math.random(#br.friend)].unit) then return end
-                        end
+                    if cast.angelicFeather("player") then return end
+                    for i = 1, #br.friend do                           
+                        if cast.angelicFeather(br.friend[math.random(#br.friend)].unit) then return end
                     end
                 end
                 if cast.powerWordShield("player") then return end
@@ -437,7 +435,7 @@ local function runRotation()
             if isChecked("Power Word: Shield") then
                 for i = 1, #br.friend do                           
                     if br.friend[i].hp <= getValue("Power Word: Shield") 
-                    and getBuffRemain(br.friend[i].unit, spell.powerWordShield, "player") < 1 then
+                    and getBuffRemain(br.friend[i].unit, spell.powerWordShield) < 1 then
                         if cast.powerWordShield(br.friend[i].unit) then return end     
                     end
                 end
@@ -572,11 +570,9 @@ local function runRotation()
                 elseif getLowAllies(getValue("Light's Wrath")) >= getValue("Light's Wrath Targets") then
                     if not inInstance and not inRaid then
                         if cast.lightsWrath() then return end
-                    else
-                        if getSpellCD(spell.lightsWrath) == 0 then
-                            actionList_SpreadAtonement()
-                            if cast.lightsWrath() then return end
-                    end
+                    elseif getSpellCD(spell.lightsWrath) == 0 then
+                        actionList_SpreadAtonement()
+                        if cast.lightsWrath() then return end
                 end
             end
             --Smite
