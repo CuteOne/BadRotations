@@ -39,6 +39,26 @@ local function createOptions()
             br.ui:createCheckbox(section,"Always use on CD")
         br.ui:checkSectionState(section)
         -------------------------
+        -------- UTILITY --------
+        -------------------------
+        section = br.ui:createSection(br.ui.window.profile, "Utility")
+            --Purify
+            br.ui:createCheckbox(section, "Purify")
+            --Body and Soul
+            br.ui:createCheckbox(section, "Body and Soul")
+            --Angelic Feather
+            br.ui:createCheckbox(section, "Angelic Feather")
+            --Fade
+            br.ui:createSpinner(section, "Fade",  99,  0,  100,  1,  "|cffFFFFFFHealth Percent to Cast At")
+            --Shining Force
+            br.ui:createSpinner(section, "Shining Force",  50,  0,  100,  1,  "|cffFFFFFFHealth Percent to Cast At")
+            --Leap Of Faith
+            br.ui:createSpinner(section, "Leap Of Faith",  20,  0,  100,  1,  "|cffFFFFFFHealth Percent to Cast At")
+            --Resurrection
+            br.ui:createCheckbox(section,"Resurrection")
+            br.ui:createDropdownWithout(section, "Resurrection - Target", {"|cff00FF00Target","|cffFF0000Mouseover","|cffFFBB00Auto"}, 1, "|cffFFFFFFTarget to cast on")
+        br.ui:checkSectionState(section)
+        -------------------------
         ---- SINGLE TARGET ------
         -------------------------
         section = br.ui:createSection(br.ui.window.profile, "Single Target Healing")
@@ -58,19 +78,6 @@ local function createOptions()
             br.ui:createSpinner(section, "Pain Suppression Tank",  40,  0,  100,  1,  "|cffFFFFFFHealth Percent to Cast At")
             --Pain Suppression
             br.ui:createSpinner(section, "Pain Suppression",  30,  0,  100,  1,  "|cffFFFFFFHealth Percent to Cast At")
-            --Shining Force
-            br.ui:createSpinner(section, "Shining Force",  50,  0,  100,  1,  "|cffFFFFFFHealth Percent to Cast At")
-            --Leap Of Faith
-            br.ui:createSpinner(section, "Leap Of Faith",  20,  0,  100,  1,  "|cffFFFFFFHealth Percent to Cast At")
-            --Purify
-            br.ui:createCheckbox(section, "Purify")
-            --Angelic Feather
-            br.ui:createCheckbox(section, "Angelic Feather")
-            --Fade
-            br.ui:createSpinner(section, "Fade",  99,  0,  100,  1,  "|cffFFFFFFHealth Percent to Cast At")
-            --Resurrection
-            br.ui:createCheckbox(section,"Resurrection")
-            br.ui:createDropdownWithout(section, "Resurrection - Target", {"|cff00FF00Target","|cffFF0000Mouseover","|cffFFBB00Auto"}, 1, "|cffFFFFFFTarget to cast on")
         br.ui:checkSectionState(section)
         -------------------------
         ------ AOE HEALING ------
@@ -107,7 +114,7 @@ local function createOptions()
             --Power Word: Solace
             br.ui:createCheckbox(section,"Power Word: Solace")
             --Smite
-            br.ui:createCheckbox(section,"Smite")
+            br.ui:createSpinner(section,"Smite",  5,  0,  40,  1,  "|cffFFFFFFMinimum Atonement for casting Smite")
             --Divine Star
             br.ui:createSpinner(section, "Divine Star",  3,  0,  10,  1,  "|cffFFFFFFMinimum Divine Star Targets")
             --Halo Damage
@@ -346,14 +353,16 @@ local function runRotation()
         -- Action List - Pre-Combat
         function actionList_PreCombat()
             -- Power Word: Shield Body and Soul
-            if isMoving("player") then -- talent.bodyandSoul and
+            if isMoving("player") then
                 if isChecked("Angelic Feather") and talent.angelicFeather then
                     if cast.angelicFeather("player") then return end
                     for i = 1, #br.friend do                           
                         if cast.angelicFeather(br.friend[math.random(#br.friend)].unit) then return end
                     end
                 end
-                if cast.powerWordShield("player") then return end
+                if isChecked("Body and Soul") and talent.bodyAndSoul then
+                    if cast.powerWordShield("player") then return end
+                end
             end
             if (isChecked("Pre-Pot Timer") and pullTimer <= getOptionValue("Pre-Pot Timer")) and canUse(142117) and not solo then
                 useItem(142117)
@@ -599,7 +608,7 @@ local function runRotation()
             end
             --Smite
             if isChecked("Smite") and power > 20 then
-                if not inInstance and not inRaid or atonementCount >= 5 then
+                if atonementCount >= getValue("Smite") then
                     if cast.smite() then return end
                 end
             end
