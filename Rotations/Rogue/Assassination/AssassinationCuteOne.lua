@@ -685,7 +685,7 @@ local function runRotation()
                 end
                 if (not stealthing or (ObjectExists(units.dyn5) and lastSpell == spell.vanish)) and opener == true then
                     if stealthing then
-                        if talent.nightstalker and comboPoints > 0 then
+                        if talent.nightstalker and combo > 0 then
                             if cast.rupture() then return end
                         else
                             if cast.mutilate() then return end

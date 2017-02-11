@@ -303,9 +303,11 @@ local function runRotation()
         -- end
 
         -- Healing Winds - Transcendence Cancel
-        if tPX == nil or tPY == nil or tPZ == nil then tPX, tPY, tPZ = ObjectPosition("player") end
-        if getDistanceToObject("player",tPX,tPY,tPZ) > 40 or (not inCombat and php > getOptionValue("Healing Winds")) then
-            CancelUnitBuff("player",GetSpellInfo(spell.buffs.transcendence))
+        if isChecked("Healing Winds") then
+            if tPX == nil or tPY == nil or tPZ == nil then tPX, tPY, tPZ = ObjectPosition("player") end
+            if getDistanceToObject("player",tPX,tPY,tPZ) > 40 or (not inCombat and php > getOptionValue("Healing Winds")) then
+                CancelUnitBuff("player",GetSpellInfo(spell.buffs.transcendence))
+            end
         end
 
 --------------------
@@ -616,7 +618,7 @@ local function runRotation()
                         elseif SotW and not TP2 then
                             castOpener("tigerPalm","TP2",11)
         -- Whirling Dragon Punch
-                        elseif TP2 and not WDP then
+                        elseif TP2 and not WDP and getDistance(units.dyn5) < 5 then
                             castOpener("whirlingDragonPunch","WDP",12)
         -- Rising Sun Kick
                         elseif WDP and not RSK2 then
@@ -703,7 +705,7 @@ local function runRotation()
                         elseif TP3 and not RSK1 then
                             castOpener("risingSunKick","RSK1",11)
         -- Whirling Dragon Punch
-                        elseif RSK1 and not WDP then
+                        elseif RSK1 and not WDP and getDistance(units.dyn5) < 5 then
                             castOpener("whirlingDragonPunch","WDP",12)
         -- Tiger Palm
                         elseif WDP and not TP4 then
@@ -887,7 +889,7 @@ local function runRotation()
             end
         -- Whirling Dragon Punch
             -- whirling_dragon_punch
-            if cd.fistsOfFury ~= 0 and cd.risingSunKick ~= 0 then
+            if cd.fistsOfFury ~= 0 and cd.risingSunKick ~= 0 and getDistance(units.dyn5) < 5 then
             	if cast.whirlingDragonPunch() then return end
             end
         -- Crackling Jade Lightning
@@ -1245,7 +1247,9 @@ local function runRotation()
         -- Fists of Fury
                     if cast.fistsOfFury() then return end
         -- Whirling Dragon Punch
-                    if cast.whirlingDragonPunch() then return end
+                    if getDistance(units.dyn5) < 5 then
+                        if cast.whirlingDragonPunch() then return end
+                    end
         -- Strike of the Windlord
                     if (((talent.serenity and cd.serenity > 20) or not isChecked("Serenity") or not useCDs()) or not talent.serenity) and getDistance(units.dyn5) < 5 then
                         if cast.strikeOfTheWindlord() then return end
