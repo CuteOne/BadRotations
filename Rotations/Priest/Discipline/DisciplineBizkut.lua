@@ -239,6 +239,7 @@ local function runRotation()
 
         units.dyn30 = br.player.units(30)
         units.dyn40 = br.player.units(40)
+        enemies.dyn24 = br.player.enemies(24)
         enemies.dyn30 = br.player.enemies(30)
         enemies.dyn40 = br.player.enemies(40)
 
@@ -352,7 +353,7 @@ local function runRotation()
                     end
                 end
                 --Divine Star CD
-                if isChecked("Divine Star CD") and isBoss("target") and getDistance("player","target") < 30 then
+                if isChecked("Divine Star CD") and isBoss("target") and getDistance("player","target") < 24 and getFacing("player","target",10) then
                     if cast.divineStar() then return end
                 end
                 --Halo CD
@@ -607,7 +608,7 @@ local function runRotation()
             end
             --Divine Star
             if isChecked("Divine Star") and talent.divineStar then
-                if #enemies.dyn30 >= getOptionValue("Divine Star") then
+                if #enemies.dyn24 >= getOptionValue("Divine Star") and getFacing("player","target",10) then
                     if cast.divineStar() then return end
                 end
             end
