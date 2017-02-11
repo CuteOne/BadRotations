@@ -194,6 +194,7 @@ local function runRotation()
         units.dyn8 = br.player.units(8)
         enemies.yards5 = br.player.enemies(5)
         enemies.yards8 = br.player.enemies(8)
+        enemies.yards10t = br.player.enemies(10,br.player.units(10,true))
         enemies.yards20 = br.player.enemies(20)
         enemies.yards30 = br.player.enemies(30)
 
@@ -529,7 +530,7 @@ local function runRotation()
             -- Death Sweep
                     -- death_sweep,if=variable.blade_dance
                     if bladeDanceVar then
-                        if cast.deathSweep() then return end
+                        if cast.bladeDance() then return end
                     end
             -- Fel Rush
                     -- fel_rush,if=charges=2&!talent.momentum.enabled&!talent.fel_mastery.enabled
@@ -565,9 +566,10 @@ local function runRotation()
                     end
             -- Throw Glaive
                     -- throw_glaive,if=talent.bloodlet.enabled&spell_targets>=2&(!talent.master_of_the_glaive.enabled|!talent.momentum.enabled|buff.momentum.up)&(spell_targets>=3|raid_event.adds.in>recharge_time+cooldown)
-                    if talent.bloodlet and ((mode.rotation == 1 and #enemies.yards30 >= 2 + chaleave) or mode.rotation == 2)
+                    if talent.bloodlet and ((mode.rotation == 1 and #enemies.yards10t >= 2 + chaleave) or mode.rotation == 2)
                         and (not talent.masterOfTheGlaive or not talent.momentum or buff.momentum.exists())
-                        and (((mode.rotation == 1 and #enemies.yards30 >= 3) or mode.rotation == 2) --[[or addsIn > recharge.throwGlaive + cd.throwGlaive]])
+                        and (((mode.rotation == 1 and #enemies.yards10t >= 3) or mode.rotation == 2) --[[or addsIn > recharge.throwGlaive + cd.throwGlaive]])
+                        and getDistance(units.dyn5) < 30
                     then
                         if cast.throwGlaive(units.dyn5) then return end
                     end
@@ -584,7 +586,7 @@ local function runRotation()
             -- Annihilation
                     -- annihilation,if=(talent.demon_blades.enabled|!talent.momentum.enabled|buff.momentum.up|fury.deficit<30+buff.prepared.up*8|buff.metamorphosis.remain()s<5)&!variable.pooling_for_blade_dance
                     if (talent.demonBlades or not talent.momentum or powerDeficit < 30 + prepared * 8 or buff.metamorphosis.remain() < 5) and not poolForBladeDance then
-                        if cast.annihilation() then return end
+                        if cast.chaosStrike() then return end
                     end
             -- Throw Glaive
                     -- throw_glaive,if=talent.bloodlet.enabled&(!talent.master_of_the_glaive.enabled|!talent.momentum.enabled|buff.momentum.up)&raid_event.adds.in>recharge_time+cooldown
@@ -611,7 +613,7 @@ local function runRotation()
                     end
             -- Throw Glaive
                     -- throw_glaive,if=buff.metamorphosis.down&spell_targets>=2
-                    if not buff.metamorphosis.exists() and ((mode.rotation == 1 and #enemies.yards30 >= 2) or mode.rotation == 2) then
+                    if not buff.metamorphosis.exists() and ((mode.rotation == 1 and #enemies.yards10t >= 2) or mode.rotation == 2) and getDistance("target") < 30 then
                         if cast.throwGlaive("target") then return end
                     end
             -- Chaos Strike
@@ -701,7 +703,7 @@ local function runRotation()
                     if ((mode.rotation == 1 and #enemies.yards8 > 1) or mode.rotation == 2) then
             -- Death Sweep
                         if castable.deathSweep and buff.metamorphosis.exists() then
-                            cast.deathSweep()
+                            cast.bladeDance()
                         end
             -- Fel Barrage
                         -- if ChargesRemaining(FelBarrage) = SpellCharges(FelBarrage)
@@ -728,7 +730,7 @@ local function runRotation()
             -- Annihilation
                         -- if HasTalent(ChaosCleave)
                         if castable.annihilation and talent.chaosCleave then
-                            cast.annihilation()
+                            cast.chaosStrike()
                         end
             -- Chaos Strike
                         -- if HasTalent(ChaosCleave)
@@ -749,12 +751,12 @@ local function runRotation()
             -- Death Sweep
                     -- if HasTalent(FirstBlood) 
                     if castable.deathSweep and talent.firstBlood and buff.metamorphosis.exists() then
-                        cast.deathSweep()
+                        cast.bladeDance()
                     end
             -- Annihilation
                     -- if not HasTalent(Momentum) or (HasBuff(Momentum) or PowerToMax <= 30 + TimerSecRemaining(PreparedTimer) * 8)
                     if castable.annihilation and (not talent.momentum or (buff.momentum.exists() or ttm <= 30 + buff.prepared.remain() * 8)) then
-                        cast.annihilation()
+                        cast.chaosStrike()
                     end
             -- Fel Barrage
                     -- if ChargesRemaining(FelBarrage) = SpellCharges(FelBarrage) and (not HasTalent(Momentum) or HasBuff(Momentum))
@@ -848,7 +850,7 @@ local function runRotation()
             -- Blade Dance / Death Sweep
                     if talent.firstBlood or (mode.rotation == 1 and #enemies.yards8 >= 3 + chaleave) or mode.rotation == 2 then
                         if buff.metamorphosis.exists() then
-                            if cast.deathSweep() then return end
+                            if cast.bladeDance() then return end
                         else
                             if cast.bladeDance() then return end
                         end
@@ -864,7 +866,7 @@ local function runRotation()
             -- Annihilation
                     if buff.metamorphosis.exists() and (powerDeficit < 40 or (talent.momentum and buff.momentum.exists())) then
                         -- print("Trying to Annihilate")
-                        if cast.annihilation() then return end
+                        if cast.chaosStrike() then return end
                     end
             -- Throw Glaive
                     if talent.bloodlet and (not talent.momentum or (talent.momentum and buff.momentum.exists())) then

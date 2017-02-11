@@ -2437,15 +2437,13 @@ function isKnown(spellID)
 	local spellName = GetSpellInfo(spellID)
 	if GetSpellBookItemInfo(tostring(spellName)) ~= nil then
 		return true
-	end
-	if IsPlayerSpell(tonumber(spellID)) == true then
+	elseif IsPlayerSpell(tonumber(spellID)) == true then
 		return true
-	end
-	-- artifact
-    if hasPerk(spellID) == true then
+	elseif IsSpellKnown(spellID) == true then
+		return true
+	elseif hasPerk(spellID) == true then
         return true
     end
-
 	return false
 end
 --if isLongTimeCCed("target") then
