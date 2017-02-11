@@ -194,6 +194,7 @@ local function runRotation()
         units.dyn8 = br.player.units(8)
         enemies.yards5 = br.player.enemies(5)
         enemies.yards8 = br.player.enemies(8)
+        enemies.yards10t = br.player.enemies(10,br.player.units(10,true))
         enemies.yards20 = br.player.enemies(20)
         enemies.yards30 = br.player.enemies(30)
 
@@ -565,9 +566,10 @@ local function runRotation()
                     end
             -- Throw Glaive
                     -- throw_glaive,if=talent.bloodlet.enabled&spell_targets>=2&(!talent.master_of_the_glaive.enabled|!talent.momentum.enabled|buff.momentum.up)&(spell_targets>=3|raid_event.adds.in>recharge_time+cooldown)
-                    if talent.bloodlet and ((mode.rotation == 1 and #enemies.yards30 >= 2 + chaleave) or mode.rotation == 2)
+                    if talent.bloodlet and ((mode.rotation == 1 and #enemies.yards1t0 >= 2 + chaleave) or mode.rotation == 2)
                         and (not talent.masterOfTheGlaive or not talent.momentum or buff.momentum.exists())
-                        and (((mode.rotation == 1 and #enemies.yards30 >= 3) or mode.rotation == 2) --[[or addsIn > recharge.throwGlaive + cd.throwGlaive]])
+                        and (((mode.rotation == 1 and #enemies.yards10t >= 3) or mode.rotation == 2) --[[or addsIn > recharge.throwGlaive + cd.throwGlaive]])
+                        and getDistance(units.dyn5) < 30
                     then
                         if cast.throwGlaive(units.dyn5) then return end
                     end
@@ -611,7 +613,7 @@ local function runRotation()
                     end
             -- Throw Glaive
                     -- throw_glaive,if=buff.metamorphosis.down&spell_targets>=2
-                    if not buff.metamorphosis.exists() and ((mode.rotation == 1 and #enemies.yards30 >= 2) or mode.rotation == 2) then
+                    if not buff.metamorphosis.exists() and ((mode.rotation == 1 and #enemies.yards10t >= 2) or mode.rotation == 2) and getDistance("target") < 30 then
                         if cast.throwGlaive("target") then return end
                     end
             -- Chaos Strike
