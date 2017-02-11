@@ -246,7 +246,7 @@ function br.loader:new(spec,specName)
                 end
                 amIinRange = true
             elseif thisUnit == nil then
-                if IsUsableSpell(v) --[[and isKnown(v)]] then
+                if IsUsableSpell(v) and isKnown(v) then
                     if maxRange ~= nil and maxRange > 0 then
                         -- if maxRange > 50 then maxRange = 50 end
                         thisUnit = self.units(maxRange) --self.units["dyn"..tostring(maxRange)]()
@@ -265,7 +265,7 @@ function br.loader:new(spec,specName)
             end
             if minUnits == nil then minUnits = 1 end
             if effectRng == nil then effectRng = 8 end
-            if not select(2,IsUsableSpell(v)) and getSpellCD(v) == 0 --[[and isKnown(v)]] and amIinRange then
+            if not select(2,IsUsableSpell(v)) and getSpellCD(v) == 0 and isKnown(v) and amIinRange then
                 if debug == "debug" then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
