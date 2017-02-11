@@ -566,7 +566,7 @@ local function runRotation()
                     end
             -- Throw Glaive
                     -- throw_glaive,if=talent.bloodlet.enabled&spell_targets>=2&(!talent.master_of_the_glaive.enabled|!talent.momentum.enabled|buff.momentum.up)&(spell_targets>=3|raid_event.adds.in>recharge_time+cooldown)
-                    if talent.bloodlet and ((mode.rotation == 1 and #enemies.yards1t0 >= 2 + chaleave) or mode.rotation == 2)
+                    if talent.bloodlet and ((mode.rotation == 1 and #enemies.yards10t >= 2 + chaleave) or mode.rotation == 2)
                         and (not talent.masterOfTheGlaive or not talent.momentum or buff.momentum.exists())
                         and (((mode.rotation == 1 and #enemies.yards10t >= 3) or mode.rotation == 2) --[[or addsIn > recharge.throwGlaive + cd.throwGlaive]])
                         and getDistance(units.dyn5) < 30
