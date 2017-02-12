@@ -57,7 +57,8 @@ local function createOptions()
         -- Pre-Pull Timer
             br.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
         -- Eye Beam Targets
-            br.ui:createSpinner(section, "Eye Beam Targets", 3, 1, 10, 1, "|cffFFBB00Number of Targets to use at.")
+            br.ui:createDropdownWithout(section,"Eye Beam Usage",{"|cff00FF00Per APL","|cffFFFF00AoE Only","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Eye Beam.")
+            br.ui:createSpinnerWithout(section, "Eye Beam Targets", 3, 1, 10, 1, "|cffFFBB00Number of Targets to use at.")
         -- Fel Rush Charge Hold
             br.ui:createSpinnerWithout(section, "Hold Fel Rush Charge", 1, 0, 2, 1, "|cffFFBB00Number of Fel Rush charges the bot will hold for manual use.");
         -- Glide Fall Time
@@ -449,7 +450,7 @@ local function runRotation()
     -- Profile Stop | Pause
         if not inCombat and not IsMounted() and not hastar and profileStop==true then
             profileStop = false
-        elseif (inCombat and profileStop==true) or (IsMounted() or IsFlying()) or pause() or mode.rotation==4 then
+        elseif (inCombat and profileStop==true) or (IsMounted() or IsFlying()) or pause() or mode.rotation==4 or isCastingSpell(spell.eyeBeam) then
             return true
         else
 -----------------------
@@ -467,7 +468,8 @@ local function runRotation()
 --------------------------
 --- In Combat Rotation ---
 --------------------------
-            if inCombat and not IsMounted() and profileStop==false and isValidUnit(units.dyn5) and not isCastingSpell(spell.eyeBeam) then
+            -- print(tostring(isCastingSpell(spell.eyeBeam)))
+            if inCombat and not IsMounted() and profileStop==false and isValidUnit(units.dyn5) then
     ------------------------------
     --- In Combat - Interrupts ---
     ------------------------------
@@ -554,7 +556,7 @@ local function runRotation()
             -- Eye Beam
                     -- eye_beam,if=talent.demonic.enabled&(talent.demon_blades.enabled|(talent.blind_fury.enabled&fury.deficit>=35)|(!talent.blind_fury.enabled&fury.deficit<30))&((active_enemies>desired_targets&active_enemies>1)|raid_event.adds.in>30)
                     if not metaEyeBeam and talent.demonic and (talent.demonBlades or (talent.blindFury and powerDeficit >= 35) or (not talent.blindFury and powerDeficit < 30))
-                        --and (((mode.rotation == 1 and #enemies.yards8 > getOptionValue("Eye Beam Targets")) or mode.rotation == 2) -or addsIn > 30)
+                        and ((mode.rotation == 1 and #enemies.yards8 > getOptionValue("Eye Beam Targets") and getOptionValue("Eye Beam Usage") ~= 3) or mode.rotation == 2)
                         and getDistance(units.dyn8) < 5 and getFacing("player",units.dyn5,45)
                     then
                         if cast.eyeBeam(units.dyn5) then return end
@@ -580,7 +582,10 @@ local function runRotation()
                     end
             -- Eye Beam
                     -- eye_beam,if=talent.blind_fury.enabled&(spell_targets.eye_beam_tick>desired_targets|fury.deficit>=35)
-                    if not metaEyeBeam and talent.blindFury and (((mode.rotation == 1 and #enemies.yards8 > getOptionValue("Eye Beam Targets")) or mode.rotation == 2) or powerDeficit >= 35) then
+                    if not metaEyeBeam and talent.blindFury
+                        and (((mode.rotation == 1 and #enemies.yards8 > getOptionValue("Eye Beam Targets") and getOptionValue("Eye Beam Usage") ~= 3) or mode.rotation == 2) 
+                            or (powerDeficit >= 35 and getOptionValue("Eye Beam Usage") == 1)) 
+                    then
                         if cast.eyeBeam(units.dyn5) then return end
                     end
             -- Annihilation
@@ -596,8 +601,8 @@ local function runRotation()
             -- Eye Beam
                     -- eye_beam,if=!talent.demonic.enabled&!talent.blind_fury.enabled&((spell_targets.eye_beam_tick>desired_targets&active_enemies>1)|(raid_event.adds.in>45&!variable.pooling_for_meta&buff.metamorphosis.down&(artifact.anguish_of_the_deceiver.enabled|active_enemies>1)&!talent.chaos_cleave.enabled))
                     if not metaEyeBeam and not talent.demonic and not talent.blindFury
-                        and ((((mode.rotation == 1 and #enemies.yards20 >= getOptionValue("Eye Beam Targets")) or mode.rotation == 2) and #enemies.yards8 > 1)
-                            or (addsIn > 45 and not poolForMeta and not buff.metamorphosis.exists() and not talent.chaosCleave))
+                        and (((mode.rotation == 1 and #enemies.yards8 > getOptionValue("Eye Beam Targets") and getOptionValue("Eye Beam Usage") ~= 3) or mode.rotation == 2)
+                            or (addsIn > 45 and not poolForMeta and not buff.metamorphosis.exists() and not talent.chaosCleave and getOptionValue("Eye Beam Usage") == 1))
                         and getDistance(units.dyn8) < 8 and getFacing("player",units.dyn5,45)
                     then
                         if cast.eyeBeam(units.dyn5) then return end
@@ -711,7 +716,7 @@ local function runRotation()
                             cast.felBarrage()
                         end
             -- Eye Beam
-                        if castable.eyeBeam then
+                        if castable.eyeBeam and (((mode.rotation == 1 and #enemies.yards8 > getOptionValue("Eye Beam Targets") and getOptionValue("Eye Beam Usage") == 1) or mode.rotation == 2) and getOptionValue("Eye Beam Usage") ~= 3) then
                             cast.eyeBeam()
                         end
             -- Fel Rush
@@ -770,7 +775,9 @@ local function runRotation()
                     end
             -- Eye Beam
                     -- if not HasBuff(Metamorphosis) and (not HasTalent(Momentum) or HasBuff(Momentum))
-                    if ((mode.rotation == 1 and #enemies.yards8 >= 2) or mode.rotation == 2) and castable.eyeBeam and not buff.metamorphosis.exists() and (not talent.momentum or buff.momentum.exists()) then
+                    if (((mode.rotation == 1 and #enemies.yards8 > getOptionValue("Eye Beam Targets") and getOptionValue("Eye Beam Usage") == 1) or mode.rotation == 2) and getOptionValue("Eye Beam Usage") ~= 3) 
+                        and castable.eyeBeam and not buff.metamorphosis.exists() and (not talent.momentum or buff.momentum.exists()) 
+                    then
                         cast.eyeBeam()
                     end
             -- Blade Dance
@@ -844,7 +851,9 @@ local function runRotation()
                         end
                     end
             -- Eye Beam
-                    if talent.demonic and getDistance(units.dyn8) < 8 and getFacing("player",units.dyn5,45) then
+                    if talent.demonic and getDistance(units.dyn8) < 8 and getFacing("player",units.dyn5,45) 
+                        and (((mode.rotation == 1 and #enemies.yards8 > getOptionValue("Eye Beam Targets") and getOptionValue("Eye Beam Usage") == 1) or mode.rotation == 2) and getOptionValue("Eye Beam Usage") ~= 3)
+                    then
                         if cast.eyeBeam() then return end
                     end
             -- Blade Dance / Death Sweep
@@ -874,7 +883,8 @@ local function runRotation()
                     end
             -- Eye Beam
                     if not buff.metamorphosis.exists() and not talent.blindFury and not talent.chaosCleave and not talent.demonic 
-                        and ((mode.rotation == 1 and #enemies.yards8 >= 2 and artifact.anguishOfTheDeceiver) or mode.rotation == 2) 
+                        and (((mode.rotation == 1 and #enemies.yards8 > getOptionValue("Eye Beam Targets") and artifact.anguishOfTheDeceiver and getOptionValue("Eye Beam Usage") == 1) or mode.rotation == 2) 
+                        and getOptionValue("Eye Beam Usage") ~= 3) 
                     then
                         if cast.eyeBeam() then return end
                     end

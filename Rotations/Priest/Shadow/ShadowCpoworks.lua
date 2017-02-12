@@ -58,6 +58,8 @@ local function createOptions()
             end
             -- Shadowfiend
             br.ui:createCheckbox(section,"Shadowfiend / Mind Bender")
+            -- Surrender To Madness
+            br.ui:createCheckbox(section,"Surrender To Madness")
             -- Power Infusion
             br.ui:createCheckbox(section,"Power Infusion")
         br.ui:checkSectionState(section)
@@ -147,6 +149,9 @@ local function runRotation()
         local recharge                                      = br.player.recharge
         local solo                                          = br.player.instance=="none"
         local spell                                         = br.player.spell
+        local t18_2pc                                       = TierScan("T18")>=2
+        local t19_2pc                                       = TierScan("T19")>=2
+        local t19_4pc                                       = TierScan("T19")>=4
         local talent                                        = br.player.talent
         local thp                                           = getHP(br.player.units(40))
         local ttd                                           = getTTD
@@ -165,15 +170,25 @@ local function runRotation()
         if profileStop == nil then profileStop = false end
         if IsHackEnabled("NoKnockback") ~= nil then SetHackEnabled("NoKnockback", false) end
 
+        -- variable,op=set,name=s2mbeltcheck,value=cooldown.mind_blast.charges>=2
+        if charges.mindBlast >= 2 then s2mBeltCheck = 1 else s2mBeltCheck = 0 end
         -- variable,op=set,name=actors_fight_time_mod,value=0
-        actorsFightTimeMod = 0
+        if actorsFightTimeMod == nil then actorsFightTimeMod = 0 end
         -- variable,op=set,name=actors_fight_time_mod,value=-((-(450)+(time+target.time_to_die))%10),if=time+target.time_to_die>450&time+target.time_to_die<600
         if combatTime + ttd(units.dyn40) > 420 and combatTime + ttd(units.dyn40) < 600 then
-            actorsFightTimeMod = -((-(450)+(combatTime + ttd(units.dyn40)))/10)
+            actorsFightTimeMod = - (( - (450) + (combatTime + ttd(units.dyn40))) / 10)
         end
         -- variable,op=set,name=actors_fight_time_mod,value=((450-(time+target.time_to_die))%5),if=time+target.time_to_die<=450
+        if combatTime + ttd(units.dyn40) <= 450 then
+            actorsFightTimeMod = ((450 - (combatTime + ttd(units.dyn40))) / 5)
+        end
         -- variable,op=set,name=s2mcheck,value=(0.8*(83-(5*talent.sanlayn.enabled)+(33*talent.reaper_of_souls.enabled)+set_bonus.tier19_2pc*4+8*variable.s2mbeltcheck+((raw_haste_pct*10))*(2+(0.8*set_bonus.tier19_2pc)+(1*talent.reaper_of_souls.enabled)+(2*artifact.mass_hysteria.rank)-(1*talent.sanlayn.enabled))))-(variable.actors_fight_time_mod*nonexecute_actors_pct)
+        if talent.sanlayn then sanlayn = 1 else sanlayn = 0 end
+        if talent.reaperOfSouls then reaperOfSouls = 1 else reaperOfSouls = 0 end
+        if t19_2pc then t19pc2 = 1 else t19pc2 = 0 end
+        s2mCheck = (0.8 * (83 - (5 * sanlayn) + (33 * reaperOfSouls) + t19pc2 * 4 + 8 * s2mBeltCheck + ((UnitSpellHaste("player") * 10)) * (2 + (0.8 * t19pc2) + (1 * reaperOfSouls) + (2 * artifact.rank.massHysteria) - (1 * sanlayn)))) - (actorsFightTimeMod * 1)
         -- variable,op=min,name=s2mcheck,value=180
+        if s2mCheck < 180 then s2mCheck = 180 end 
 
 
 
@@ -244,66 +259,155 @@ local function runRotation()
                 if cast.powerWordShield("player") then return end
             end
         end  -- End Action List - Pre-Combat
-        -- Action List - Single
-        function actionList_Auto()
-            --Surrender to Madness
-            --Mouseover Dotting
-            if isChecked("Mouseover Dotting") and hasMouse and isValidTarget("mouseover") then
-                if getDebuffRemain("mouseover",spell.shadowWordPain,"player") <= 1 then
-                    if cast.shadowWordPain("mouseover") then return end
+        -- Action List - Main
+        function actionList_Main()
+        -- Surrender To Madness
+            -- surrender_to_madness,if=talent.surrender_to_madness.enabled&target.time_to_die<=variable.s2mcheck
+            if isChecked("Surrender To Madness") and useCDs() then
+                if talent.surrenderToMadness and ttd(units.dyn40) <= s2mCheck then
+                    if cast.surrenderToMadness() then return end
                 end
             end
-            --MindBender
-            if isChecked("Shadowfiend / Mind Bender") and talent.mindBender then
-                if cast.mindBender() then return end
+        -- Mindbender
+            -- mindbender,if=talent.mindbender.enabled&((talent.surrender_to_madness.enabled&target.time_to_die>variable.s2mcheck+60)|!talent.surrender_to_madness.enabled)
+            if talent.mindbender and ((talent.surrenderToMadness and ttd(units.dyn40) > s2mCheck + 60) or not talent.surrenderToMadness) then
+                if cast.mindbender() then return end
             end
-            -- Void Eruption
-            if ((talent.legacyOfTheVoid and power > 65) or power > 99) then
-                if cast.voidEruption("target") then return end
-            end
-            -- Shadow Crash
-            -- castGroundAtBestLocation(spellID, radius, minUnits, maxRange, minRange, spellType)
-            if talent.shadowCrash then
-                if cast.shadowCrash("best",nil,1,8) then return end
-            end
-            --if cast.shadowCrash("best",false,1,8) then return end
-
-            -- Shadow Word Death
-            -- if ChargesRemaining(ShadowWordDeath) = SpellCharges(ShadowWordDeath)
-            if charges.shadowWordDeath == charges.max.shadowWordDeath and getHP(units.dyn40) < 20 then
-                if cast.shadowWordDeath() then return end
-            end
-            -- Mind Blast
-            if cast.mindBlast() then return end
-            -- Shadow Word: Pain
-            for i = 1, #enemies.yards40 do
-                local thisUnit = enemies.yards40[i]
-                if UnitIsUnit(thisUnit,"target") or hasThreat(thisUnit) or isDummy(thisUnit) then
-                    if ttd(thisUnit) > debuff.shadowWordPain.duration(thisUnit) and debuff.shadowWordPain.refresh(thisUnit) then
+        -- Shadow Word: Pain
+            -- shadow_word_pain,if=talent.misery.enabled&dot.shadow_word_pain.remains<gcd.max,moving=1,cycle_targets=1
+            if moving and talent.misery then
+                for i = 1, #enemies.yards40 do
+                    local thisUnit = enemies.yards40[i]
+                    if debuff.shadowWordPain.remain(thisUnit) < gcd then
                         if cast.shadowWordPain(thisUnit,"aoe") then return end
                     end
                 end
             end
-            -- Vampiric Touch
-            for i = 1, #enemies.yards40 do
-                local thisUnit = enemies.yards40[i]
-                if UnitIsUnit(thisUnit,"target") or hasThreat(thisUnit) or isDummy(thisUnit) then
-                    if ttd(thisUnit) > debuff.vampiricTouch.duration(thisUnit) and debuff.vampiricTouch.refresh(thisUnit) and lastSpellCast ~= spell.vampiricTouch then
+        -- Vampiric Touch
+            -- vampiric_touch,if=talent.misery.enabled&(dot.vampiric_touch.remains<3*gcd.max|dot.shadow_word_pain.remains<3*gcd.max),cycle_targets=1
+            if talent.misery then
+                for i = 1, #enemies.yards40 do
+                    local thisUnit = enemies.yards40[i]
+                    if (debuff.vampiricTouch.remain(thisUnit) < 3 * gcd or debuff.shadowWordPain.remain(thisUnit) < 3 * gcd) then
                         if cast.vampiricTouch(thisUnit,"aoe") then return end
                     end
                 end
             end
-            -- Shadow Word: Void
-            if cast.shadowWordVoid() then return end
-            -- Mind Shear
-            -- Mind Spike / Mind Flay
+        -- Shadow Word: Pain
+            -- shadow_word_pain,if=!talent.misery.enabled&dot.shadow_word_pain.remains<(3+(4%3))*gcd
+            if not talent.misery and debuff.shadowWordPain.remain(units.dyn40) < (3 + (4 / 3)) * gcd then
+                if cast.shadowWordPain() then return end
+            end
+        -- Vampiric Touch
+            -- vampiric_touch,if=!talent.misery.enabled&dot.vampiric_touch.remains<(4+(4%3))*gcd
+            if not talent.misery and debuff.vampiricTouch.remain(units.dyn40) < (3 + (4 / 3)) * gcd then
+                if cast.vampiricTouch() then return end
+            end
+        -- Void Eruption
+            -- void_eruption,if=insanity>=70|(talent.auspicious_spirits.enabled&insanity>=(65-shadowy_apparitions_in_flight*3))|set_bonus.tier19_4pc
+            if power >= 70 or (talent.auspiciousSpirits and power >= (65 - 3)) or tier19_4pc then -- TODO: Track Auspicious Spirits In Flight
+                if cast.voidEruption() then return end
+            end
+        -- Shadow Crash
+            -- shadow_crash,if=talent.shadow_crash.enabled
+            if talent.shadowCrash then
+                if cast.shadowCrash("best",nil,1,8) then return end
+            end
+        -- Mindbender
+            -- mindbender,if=talent.mindbender.enabled&set_bonus.tier18_2pc
+            if talent.mindbender and tier18_2pc then
+                if cast.mindbender() then return end
+            end
+        -- Shadow Word: Pain
+            -- shadow_word_pain,if=!talent.misery.enabled&!ticking&talent.legacy_of_the_void.enabled&insanity>=70,cycle_targets=1
+            if not talent.misery and talent.legacyOfTheVoid and power >= 70 then
+                for i = 1, #enemies.yards40 do
+                    local thisUnit = enemies.yards40[i]
+                    if not debuff.shadowWordPain.exists(thisUnit) then
+                        if cast.shadowWordPain(thisUnit,"aoe") then return end
+                    end
+                end
+            end
+        -- Vampiric Touch
+            -- vampiric_touch,if=!talent.misery.enabled&!ticking&talent.legacy_of_the_void.enabled&insanity>=70,cycle_targets=1
+            if not talent.misery and talent.legacyOfTheVoid and power >= 70 then
+                for i = 1, #enemies.yards40 do
+                    local thisUnit = enemies.yards40[i]
+                    if not debuff.vampiricTouch.exists(thisUnit) then
+                        if cast.vampiricTouch(thisUnit,"aoe") then return end
+                    end
+                end
+            end 
+        -- Shadow Word: Death
+            -- shadow_word_death,if=(active_enemies<=4|(talent.reaper_of_souls.enabled&active_enemies<=2))&cooldown.shadow_word_death.charges=2&insanity<=(85-15*talent.reaper_of_souls.enabled)
+            if (((mode.rotation == 1 and #enemies.yards40 <= 4) or mode.rotation == 3) or (talent.reaperOfSouls and ((mode.rotation == 1 and #enemies.yards40 <= 4) or mode.rotation == 2))) 
+                and charges.shadowWordDeath == 2 and power <= (85 - 15 * reaperOfSouls) and thp < 20
+            then
+                if cast.shadowWordDeath() then return end
+            end
+        -- Mind Blast
+            -- mind_blast,if=active_enemies<=4&talent.legacy_of_the_void.enabled&(insanity<=81|(insanity<=75.2&talent.fortress_of_the_mind.enabled))
+            if ((mode.rotation == 1 and #enemies.yards40 <= 4) or mode.rotation == 3) and talent.legacyOfTheVoid and (power <= 81 or (power <= 75.2 and talent.fortressOfTheMind)) then
+                if cast.mindBlast() then return end
+            end
+        -- Mind Blast
+            -- mind_blast,if=active_enemies<=4&!talent.legacy_of_the_void.enabled|(insanity<=96|(insanity<=95.2&talent.fortress_of_the_mind.enabled))
+            if ((mode.rotation == 1 and #enemies.yards40 <= 4) or mode.rotation == 3) and not talent.legacyOfTheVoid and (power <= 96 or (power <= 95.2 and talent.fortressOfTheMind)) then
+                if cast.mindBlast() then return end
+            end
+        -- Shadow Word: Pain
+            -- shadow_word_pain,if=!talent.misery.enabled&!ticking&target.time_to_die>10&(active_enemies<5&(talent.auspicious_spirits.enabled|talent.shadowy_insight.enabled)),cycle_targets=1
+            if not talent.mistery and ((mode.rotation == 1 and #enemies.yards40 < 5) or mode.rotation == 3) and (talent.auspiciousSpirits or talent.shadowyInsight) then
+                for i = 1, #enemies.yards40 do
+                    local thisUnit = enemies.yards40[i]
+                    if not debuff.shadowWordPain.exists(thisUnit) and ttd(thisUnit) > 10 then
+                        if cast.shadowWordPain(thisUnit,"aoe") then return end
+                    end
+                end
+            end
+        -- Vampiric Touch
+            -- vampiric_touch,if=!talent.misery.enabled&!ticking&target.time_to_die>10&(active_enemies<4|talent.sanlayn.enabled|(talent.auspicious_spirits.enabled&artifact.unleash_the_shadows.rank)),cycle_targets=1
+            if not talent.mistery and (((mode.rotation == 1 and #enemies.yards40 < 4) or mode.rotation == 3) or talent.sanlayn or (talent.auspiciousSpirits and artifact.unleashTheShadows)) then
+                for i = 1, #enemies.yards40 do
+                    local thisUnit = enemies.yards40[i]
+                    if not debuff.vampiricTouch.exists(thisUnit) and ttd(thisUnit) > 10 then
+                        if cast.vampiricTouch(thisUnit,"aoe") then return end
+                    end
+                end
+            end
+        -- Shadow Word: Pain
+            -- shadow_word_pain,if=!talent.misery.enabled&!ticking&target.time_to_die>10&(active_enemies<5&artifact.sphere_of_insanity.rank),cycle_targets=1
+            if not talent.misery and ((mode.rotation == 1 and #enemies.yards40 < 5) or mode.rotation == 3) and artifact.sphereOfInsanity then
+                for i = 1, #enemies.yards40 do
+                    local thisUnit = enemies.yards40[i]
+                    if not debuff.shadowWordPain.exists(thisUnit) and ttd(thisUnit) > 10 then
+                        if cast.shadowWordPain(thisUnit,"aoe") then return end
+                    end
+                end
+            end
+        -- Shadow Word: Void
+            -- shadow_word_void,if=talent.shadow_word_void.enabled&(insanity<=70&talent.legacy_of_the_void.enabled)|(insanity<=85&!talent.legacy_of_the_void.enabled)
+            if talent.shadowWordVoid and ((power <= 70 and talent.legacyOfTheVoid) or (power <= 85 and not talent.legacyOfTheVoid)) then
+                if cast.shadowWordVoid() then return end
+            end
+        -- Mind Flay
             if talent.mindSpike then
                 if cast.mindSpike() then return end
-            else
+            elseif not isCastingSpell(spell.mindFlay) then
                 if cast.mindFlay() then return end
             end
-        end -- End Action List - Single
-
+        -- Shadow Word: Pain
+            if not debuff.shadowWordPain.exists(units.dyn40) then
+                if cast.shadowWordPain() then return end
+            end
+        end
+        -- Action List - Surrender To Madness
+        function actionList_SurrenderToMadness()
+        -- Void Bolt
+            -- void_bolt,if=buff.insanity_drain_stacks.stack<6&set_bonus.tier19_4pc
+            -- if buff.insanity
+            
+        end -- End Action List - Surrender To Madness
     -- Action List - VoidForm
         function actionList_VoidForm()
             --NoMindBlastSwitch
@@ -336,7 +440,7 @@ local function runRotation()
             end
             --Shadow Crash
             if talent.shadowCrash then
-                if cast.shadowCrash("best",nil,1,8) then return end
+                -- if cast.shadowCrash("best",nil,1,8) then return end
             end
             --SWD
             -- if not HasBuff(SurrenderedSoul) and ((HasTalent(ReaperOfSouls) and AlternatePowerToMax >= 30) or not HasTalent(ReaperOfSouls))
@@ -411,13 +515,10 @@ local function runRotation()
 -----------------------------
 --- In Combat - Rotations ---
 -----------------------------
-        if inCombat and not IsMounted() and isValidUnit(units.dyn40) and getDistance(units.dyn40) < 40 and not isCastingSpell(spell.voidTorrent) then
-
-            if buff.voidForm.exists() then
-                if actionList_VoidForm() then return end
-            else
-                if actionList_Auto() then return end
-            end
+        if inCombat and not IsMounted() and isValidUnit(units.dyn40) and getDistance(units.dyn40) < 40 then --and not isCastingSpell(spell.voidTorrent) then
+        -- Action List - Main
+            -- run_action_list,name=main
+            if actionList_Main() then return end
         end -- End Combat Rotation
     end -- End Timer
 end -- Run Rotation

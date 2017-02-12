@@ -58,7 +58,7 @@ local function createOptions()
         -- Grimoire of Service
             br.ui:createDropdownWithout(section, "Grimoire of Service", {"Imp","Voidwalker","Felhunter","Succubus","Felguard","None"}, 1, "|cffFFFFFFSelect pet to Grimoire.")
         -- Life Tap
-            br.ui:createSpinner(section, "Life Tap HP Limit", 30, 0, 100, 5, "|cffFFFFFFHP Limit that Life Tap will not cast below.")
+            br.ui:createSpinner(section, "Life Tap", 30, 0, 100, 5, "|cffFFFFFFHP Limit that Life Tap will not cast below.")
         br.ui:checkSectionState(section)
     -- Cooldown Options
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
@@ -442,7 +442,7 @@ local function runRotation()
                     if isValidUnit("target") and getDistance("target") < 40 and (not isChecked("Opener") or opener == true) then
                 -- Life Tap
                         -- life_tap,if=talent.empowered_life_tap.enabled&!buff.empowered_life_tap.remain()s
-                        if talent.empoweredLifeTap and not buff.empoweredLifeTap.exists() then
+                        if isChecked("Life Tap") and php > getOptionValue("Life Tap") and talent.empoweredLifeTap and not buff.empoweredLifeTap.exists() then
                             if cast.lifeTap() then return end
                         end
                 -- Potion
@@ -594,7 +594,7 @@ local function runRotation()
                     end
         -- Life Tap
                     -- life_tap,if=talent.empowered_life_tap.enabled&buff.empowered_life_tap.remain()s<=gcd
-                    if talent.empoweredLifeTap and buff.empoweredLifeTap.remain() <= gcd then
+                    if isChecked("Life Tap") and php > getOptionValue("Life Tap") and talent.empoweredLifeTap and buff.empoweredLifeTap.remain() <= gcd then
                         if cast.lifeTap() then return end
                     end
         -- Dimensional Rift
@@ -702,7 +702,7 @@ local function runRotation()
                     end
         -- Life Tap
                     -- life_tap,if=talent.empowered_life_tap.enabled&buff.empowered_life_tap.remain()s<duration*0.3
-                    if talent.empoweredLifeTap and buff.empoweredLifeTap.refresh() then
+                    if isChecked("Life Tap") and php > getOptionValue("Life Tap") and talent.empoweredLifeTap and buff.empoweredLifeTap.refresh() then
                         if cast.lifeTap() then return end
                     end
         -- Cataclysm
@@ -731,7 +731,7 @@ local function runRotation()
                     if cast.incinerate() then return end
         -- Life Tap
                     -- life_tap
-                    if php > getOptionValue("Life Tap HP Limit") then
+                    if isChecked("Life Tap") and php > getOptionValue("Life Tap") then
                         if cast.lifeTap() then return end
                     end
                 end -- End SimC APL
