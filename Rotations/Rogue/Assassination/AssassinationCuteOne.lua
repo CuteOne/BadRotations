@@ -205,11 +205,13 @@ local function runRotation()
         local ttd                                           = getTTD
         local ttm                                           = br.player.power.ttm
         local units                                         = units or {}
+        local lootDelay                                     = getOptionValue("LootDelay")
 
         units.dyn5 = br.player.units(5)
         enemies.yards5 = br.player.enemies(5)
         enemies.yards8 = br.player.enemies(8)
         enemies.yards10 = br.player.enemies(10)
+        enemies.yards20 = br.player.enemies(20)
         enemies.yards30 = br.player.enemies(30)
 
 		if opener == nil then opener = false end
@@ -558,12 +560,31 @@ local function runRotation()
 					end
 				end
 		-- Stealth
-			-- stealth
-			if isChecked("Stealth") and not inCombat and (not IsResting() or (isDummy("target") and lastSpell ~= spell.vanish)) then
-				if getOptionValue("Stealth") == 1 then
-					if cast.stealth() then return end
-				end
-			end
+        		if not inCombat then
+                    if isChecked("Stealth") and (not IsResting() or isDummy("target")) then
+                        if getOptionValue("Stealth") == 1 then
+                            if cast.stealth() then return end
+                        end
+                        --if getOptionValue("Stealth") == 3 then
+                        --    for i=1, #enemies.yards20 do
+                        --        local thisUnit = enemies.yards20
+                        --        if getDistance(thisUnit) <= 20 then
+                        --            if ObjectExists(thisUnit) and UnitCanAttack(thisUnit,"player") and GetTime()-leftCombat > lootDelay then
+                        --                if cast.stealth() then return end
+                        --            end
+                        --        end
+                        --    end
+                        --end
+                        if not stealth and #enemies.yards20 > 0 and getOptionValue("Stealth") == 3 and not IsResting() and GetTime()-leftCombat > lootDelay then
+                            for i = 1, #enemies.yards20 do
+                                local thisUnit = enemies.yards20[i]
+                                if UnitIsEnemy(thisUnit,"player") or isDummy("target") then
+                                    if cast.stealth("player") then return end
+                                end
+                            end
+                        end
+                    end
+                end
 		-- Marked For Death
 			-- marked_for_death,if=raid_event.adds.in>40
 			if addsIn > 40 and isValidUnit("target") then
