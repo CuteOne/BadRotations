@@ -62,6 +62,7 @@ local function createOptions()
         -- Multi-Dot Limit
             br.ui:createSpinnerWithout(section, "Multi-Dot Limit", 5, 0, 10, 1, "|cffFFFFFFUnit Count Limit that DoTs will be cast on.")
             br.ui:createSpinnerWithout(section, "Multi-Dot HP Limit", 5, 0, 10, 1, "|cffFFFFFFHP Limit that DoTs will be cast/refreshed on.")
+            br.ui:createSpinnerWithout(section, "Agony Boss HP Limit", 10, 1, 20, 1, "|cffFFFFFFHP Limit that Agony will be cast/refreshed on in relation to Boss HP.")
         -- Seed of Corruption units
             br.ui:createSpinnerWithout(section, "Seed Units", 4, 3, 10, 1, "|cffFFFFFFNumber of Units Seed of Corruption will be cast on.")
         br.ui:checkSectionState(section)
@@ -248,6 +249,7 @@ local function runRotation()
             opener = false
         end
 
+        -- Effigy Info
         for i = 1, #enemies.yards40 do
             local thisUnit = enemies.yards40[i]
             if ObjectID(thisUnit) == 103679 then
@@ -260,6 +262,7 @@ local function runRotation()
             effigyCount = 0;
             effigied = false
         end
+        if UnitExists(effigyUnit) and UnitIsUnit("target",effigyUnit) then FocusUnit(effigyUnit); ClearTarget(); TargetUnit(units.dyn40); return end
 
         -- Pet Data
         if summonPet == 1 then summonId = 416 end
@@ -280,11 +283,22 @@ local function runRotation()
                 if thisUnit == 89 then infernal = true end
             end
         end
-        if UnitExists(effigyUnit) and UnitIsUnit("target",effigyUnit) then FocusUnit(effigyUnit); ClearTarget(); TargetUnit(units.dyn40); return end
 
+        -- Boss Active/Health Max
+        local bossHPMax = bossHPMax or 0
+        local inBossFight = inBossFight or false
+        for i = 1, #enemies.yards40 do
+            local thisUnit = enemies.yards40[i]
+            if isBoss(thisUnit) then 
+                bossHPMax = UnitHealthMax(thisUnit)
+                inBossFight = true
+                break 
+            end
+        end
+
+        -- Agony - Drain Soul Break
+        -- agony,cycle_targets=1,if=remains<=tick_time+gcd
         if mode.rotation ~= 4 and inCombat and isCastingSpell(spell.drainSoul) then
-            -- Agony
-            -- agony,cycle_targets=1,if=remains<=tick_time+gcd
             for i = 1, #enemies.yards40 do
                 local thisUnit = enemies.yards40[i]
                 if effigied and ObjectID(thisUnit) == 103679 then
@@ -292,7 +306,9 @@ local function runRotation()
                         if cast.agony(thisUnit,"aoe") then return end
                     end
                 end
-                if debuff.agony.count() < getOptionValue("Multi-Dot Limit") + effigyCount and getHP(thisUnit) > dotHPLimit and isValidUnit(thisUnit) and debuff.agony.remain(thisUnit) < 2 + gcd then
+                if debuff.agony.count() < getOptionValue("Multi-Dot Limit") + effigyCount and getHP(thisUnit) > dotHPLimit and isValidUnit(thisUnit) and debuff.agony.remain(thisUnit) < 2 + gcd 
+                    and (not inBossFight or (inBossFight and UnitHealthMax(thisUnit) > bossHPMax * (getOptionValue("Agony Boss HP Limit") / 100)))
+                then
                     if cast.agony(thisUnit,"aoe") then return end
                 end
             end
@@ -571,7 +587,9 @@ local function runRotation()
                     -- agony,cycle_targets=1,if=remains<=tick_time+gcd
                     for i = 1, #enemies.yards40 do
                         local thisUnit = enemies.yards40[i]
-                        if debuff.agony.count() < getOptionValue("Multi-Dot Limit") + effigyCount and getHP(thisUnit) > dotHPLimit and isValidUnit(thisUnit) and debuff.agony.remain(thisUnit) <= 2 + gcd then
+                        if debuff.agony.count() < getOptionValue("Multi-Dot Limit") + effigyCount and getHP(thisUnit) > dotHPLimit and isValidUnit(thisUnit) and debuff.agony.remain(thisUnit) <= 2 + gcd 
+                            and (not inBossFight or (inBossFight and UnitHealthMax(thisUnit) > bossHPMax * (getOptionValue("Agony Boss HP Limit") / 100)))
+                        then
                             if cast.agony(thisUnit,"aoe") then return end
                         end
                     end
@@ -704,7 +722,9 @@ local function runRotation()
                         if ua3 ~= nil and ua3.exists(thisUnit) then ua3count = 1 else ua3count = 0 end
                         if ua4 ~= nil and ua4.exists(thisUnit) then ua4count = 1 else ua4count = 0 end
                         if ua5 ~= nil and ua5.exists(thisUnit) then ua5count = 1 else ua5count = 0 end
-                        if debuff.agony.count() < getOptionValue("Multi-Dot Limit") + effigyCount and getHP(thisUnit) > dotHPLimit and isValidUnit(thisUnit) then
+                        if debuff.agony.count() < getOptionValue("Multi-Dot Limit") + effigyCount and getHP(thisUnit) > dotHPLimit and isValidUnit(thisUnit) 
+                            and (not inBossFight or (inBossFight and UnitHealthMax(thisUnit) > bossHPMax * (getOptionValue("Agony Boss HP Limit") / 100)))
+                        then
                             -- agony,cycle_targets=1,if=!talent.malefic_grasp.enabled&remains<=duration*0.3&target.time_to_die>=remains
                             if not talent.maleficGrasp and debuff.agony.refresh(thisUnit) and ttd(thisUnit) >= debuff.agony.remain(thisUnit) then
                                 if cast.agony(thisUnit,"aoe") then return end
