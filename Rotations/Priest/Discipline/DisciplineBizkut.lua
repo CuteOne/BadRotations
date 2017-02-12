@@ -1,4 +1,4 @@
-local rotationName = "Bizkut" 
+local rotationName = "Bizkut"
 
 ---------------
 --- Toggles ---
@@ -38,12 +38,12 @@ local function createOptions()
         -------------------------
         section = br.ui:createSection(br.ui.window.profile, "Artifact")
             --Light's Wrath
-            br.ui:createSpinner(section, "Light's Wrath",  85,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At") 
-            br.ui:createSpinnerWithout(section, "Light's Wrath Targets",  3,  0,  40,  1,  "|cffFFFFFFMinimum Light's Wrath Targets")
+            br.ui:createSpinner(section, "Light's Wrath",  80,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At. Default: 80") 
+            br.ui:createSpinnerWithout(section, "Light's Wrath Targets",  3,  0,  40,  1,  "|cffFFFFFFMinimum Light's Wrath Targets. Default: 3")
             --Save Overloaded with Light for CD
-            br.ui:createCheckbox(section,"Save Overloaded with Light for CD")
+            br.ui:createCheckbox(section, "Save Overloaded with Light for CD")
             --Always use on CD
-            br.ui:createCheckbox(section,"Always use on CD")
+            br.ui:createCheckbox(section, "Always use on CD")
         br.ui:checkSectionState(section)
         -------------------------
         -------- UTILITY --------
@@ -56,90 +56,95 @@ local function createOptions()
             --Angelic Feather
             br.ui:createCheckbox(section, "Angelic Feather","|cffFFFFFFThis is weird")
             --Fade
-            br.ui:createSpinner(section, "Fade",  99,  0,  100,  1,  "|cffFFFFFFHealth Percent to Cast At")
+            br.ui:createSpinner(section, "Fade",  99,  0,  100,  1,  "|cffFFFFFFHealth Percent to Cast At. Default: 99")
             --Shining Force
-            br.ui:createSpinner(section, "Shining Force",  50,  0,  100,  1,  "|cffFFFFFFHealth Percent to Cast At")
+            br.ui:createSpinner(section, "Shining Force",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At. Default: 50")
             --Leap Of Faith
-            br.ui:createSpinner(section, "Leap Of Faith",  20,  0,  100,  1,  "|cffFFFFFFHealth Percent to Cast At")
+            br.ui:createSpinner(section, "Leap Of Faith",  20,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At. Default: 20")
             --Resurrection
-            br.ui:createCheckbox(section,"Resurrection")
+            br.ui:createCheckbox(section, "Resurrection")
             br.ui:createDropdownWithout(section, "Resurrection - Target", {"|cff00FF00Target","|cffFF0000Mouseover","|cffFFBB00Auto"}, 1, "|cffFFFFFFTarget to cast on")
         br.ui:checkSectionState(section)
         -------------------------
         ---- SINGLE TARGET ------
         -------------------------
         section = br.ui:createSection(br.ui.window.profile, "Single Target Healing")
+            --Atonement
+            br.ui:createSpinner(section, "Atonement HP",  95,  0,  100,  5,  "|cffFFFFFFApply Atonement using Power Word: Shield, Plea and Power Word: Radiance. Health Percent to Cast At. Default: 95")
             --Max Atonement
-            br.ui:createSpinnerWithout(section, "Max Atonement",  20,  0,  40,  1,  "|cffFFFFFFMaximum Atonement to keep at a time")
-            --Plea
-            br.ui:createSpinner(section, "Plea",  95,  0,  100,  1,  "|cffFFFFFFHealth Percent to Cast At")
+            br.ui:createSpinner(section, "Max Atonement",  40,  0,  40,  1,  "|cffFFFFFFMaximum Atonement to keep at a time. Default: 40")
+            --Max Plea
+            br.ui:createSpinner(section, "Max Plea",  5,  0,  40,  1,  "|cffFFFFFFMaximum Atonement before we avoid using Plea as it becomes too expensive. Default: 5")
             --Power Word: Shield
-            br.ui:createSpinner(section, "Power Word: Shield",  95,  0,  100,  1,  "|cffFFFFFFHealth Percent to Cast At")
+            br.ui:createSpinner(section, "Power Word: Shield",  95,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At. Default: 95")
             --Penance Heal
-            br.ui:createSpinner(section, "Penance Heal",  75,  0,  100,  1,  "|cffFFFFFFHealth Percent to Cast At")
+            br.ui:createSpinner(section, "Penance Heal",  60,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At. Default: 60")
             --Shadow Mend
-            br.ui:createSpinner(section, "Shadow Mend",  75,  0,  100,  1,  "|cffFFFFFFHealth Percent to Cast At")
+            br.ui:createSpinner(section, "Shadow Mend",  65,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At. Default: 65")
             --Clarity of Will
-            br.ui:createSpinner(section, "Clarity of Will",  40,  0,  100,  1,  "|cffFFFFFFHealth Percent to Cast At")
+            br.ui:createSpinner(section, "Clarity of Will",  40,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At. Default: 40")
             --Pain Suppression Tank
-            br.ui:createSpinner(section, "Pain Suppression Tank",  40,  0,  100,  1,  "|cffFFFFFFHealth Percent to Cast At")
+            br.ui:createSpinner(section, "Pain Suppression Tank",  30,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At. Default: 30")
             --Pain Suppression
-            br.ui:createSpinner(section, "Pain Suppression",  30,  0,  100,  1,  "|cffFFFFFFHealth Percent to Cast At")
+            br.ui:createSpinner(section, "Pain Suppression",  25,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At. Default: 25")
         br.ui:checkSectionState(section)
         -------------------------
         ------ AOE HEALING ------
         -------------------------
         section = br.ui:createSection(br.ui.window.profile, "AOE Healing")
+            --Power Infusion
+            br.ui:createSpinner(section, "Power Infusion",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At. Default: 50")
+            br.ui:createSpinnerWithout(section, "Power Infusion Targets",  3,  0,  40,  1,  "|cffFFFFFFMinimum Power Infusion Targets. Default: 3")
             --Rapture
-            br.ui:createSpinner(section, "Rapture",  80,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At") 
-            br.ui:createSpinnerWithout(section, "Rapture Targets",  3,  0,  40,  1,  "|cffFFFFFFMinimum Rapture Targets") 
+            br.ui:createSpinner(section, "Rapture",  60,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At. Default: 60")
+            br.ui:createSpinnerWithout(section, "Rapture Targets",  3,  0,  40,  1,  "|cffFFFFFFMinimum Rapture Targets. Default: 3")
             --Power Word: Radiance
-            br.ui:createSpinner(section, "Power Word: Radiance",  75,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At") 
-            br.ui:createSpinnerWithout(section, "PWR Targets",  3,  0,  40,  1,  "|cffFFFFFFMinimum PWR Targets")  
+            br.ui:createSpinner(section, "Power Word: Radiance",  70,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At. Default: 70")
+            br.ui:createSpinnerWithout(section, "PWR Targets",  3,  0,  40,  1,  "|cffFFFFFFMinimum PWR Targets. Default: 3")
             --Power Word: Barrier
-            br.ui:createSpinner(section, "Power Word: Barrier",  60,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At") 
-            br.ui:createSpinnerWithout(section, "PWB Targets",  3,  0,  40,  1,  "|cffFFFFFFMinimum PWB Targets")
+            br.ui:createSpinner(section, "Power Word: Barrier",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At. Default: 50")
+            br.ui:createSpinnerWithout(section, "PWB Targets",  3,  0,  40,  1,  "|cffFFFFFFMinimum PWB Targets. Default: 3")
             --Shadow Covenant
-            br.ui:createSpinner(section, "Shadow Covenant",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At") 
-            br.ui:createSpinnerWithout(section, "Shadow Covenant Targets",  3,  0,  40,  1,  "|cffFFFFFFMinimum Shadow Covenant Targets") 
+            br.ui:createSpinner(section, "Shadow Covenant",  85,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At. Default: 85")
+            br.ui:createSpinnerWithout(section, "Shadow Covenant Targets",  4,  0,  40,  1,  "|cffFFFFFFMinimum Shadow Covenant Targets. Default: 4")
             --Halo
-            br.ui:createSpinner(section, "Halo",  80,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At") 
-            br.ui:createSpinnerWithout(section, "Halo Targets",  3,  0,  40,  1,  "|cffFFFFFFMinimum Halo Targets")
+            br.ui:createSpinner(section, "Halo",  90,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At. Default: 90")
+            br.ui:createSpinnerWithout(section, "Halo Targets",  5,  0,  40,  1,  "|cffFFFFFFMinimum Halo Targets. Default: 5")
         br.ui:checkSectionState(section)
         -------------------------
         ----- DAMAGE OPTIONS ----
         -------------------------
         section = br.ui:createSection(br.ui.window.profile, "Damage")
             --Shadow Word: Pain
-            br.ui:createCheckbox(section,"Shadow Word: Pain")
+            br.ui:createCheckbox(section, "Shadow Word: Pain")
             --Purge The Wicked
-            br.ui:createCheckbox(section,"Purge The Wicked")
+            br.ui:createCheckbox(section, "Purge The Wicked")
             --Schism
-            br.ui:createCheckbox(section,"Schism")
+            br.ui:createCheckbox(section, "Schism")
             --Penance
-            br.ui:createCheckbox(section,"Penance")
+            br.ui:createCheckbox(section, "Penance")
             --Power Word: Solace
-            br.ui:createCheckbox(section,"Power Word: Solace")
+            br.ui:createCheckbox(section, "Power Word: Solace")
             --Smite
-            br.ui:createSpinner(section,"Smite",  5,  0,  40,  1,  "|cffFFFFFFMinimum Atonement for casting Smite")
+            br.ui:createSpinner(section, "Smite",  5,  0,  40,  1,  "|cffFFFFFFMinimum Atonement for casting Smite. Default: 5")
             --Divine Star
-            br.ui:createSpinner(section, "Divine Star",  3,  0,  10,  1,  "|cffFFFFFFMinimum Divine Star Targets")
+            br.ui:createSpinner(section, "Divine Star",  3,  0,  10,  1,  "|cffFFFFFFMinimum Divine Star Targets. Default: 3")
             --Halo Damage
-            br.ui:createSpinner(section, "Halo Damage",  3,  0,  10,  1,  "|cffFFFFFFMinimum Halo Damage Targets")
+            br.ui:createSpinner(section, "Halo Damage",  3,  0,  10,  1,  "|cffFFFFFFMinimum Halo Damage Targets. Default: 3")
             --Mindbender
-            br.ui:createSpinner(section,"Mindbender",  90,  0,  100,  1,  "|cffFFFFFFMana Percent to Cast At")
+            br.ui:createSpinner(section, "Mindbender",  90,  0,  100,  5,  "|cffFFFFFFMana Percent to Cast At. Default: 90")
             --Shadowfiend
-            br.ui:createSpinner(section, "Shadowfiend",  80,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At") 
-            br.ui:createSpinnerWithout(section, "Shadowfiend Targets",  3,  0,  40,  1,  "|cffFFFFFFMinimum Shadowfiend Targets")  
+            br.ui:createSpinner(section, "Shadowfiend",  80,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At. Default: 80")
+            br.ui:createSpinnerWithout(section, "Shadowfiend Targets",  3,  0,  40,  1,  "|cffFFFFFFMinimum Shadowfiend Targets. Default: 3")  
         br.ui:checkSectionState(section)
         -------------------------
         ------- COOLDOWNS -------
         -------------------------
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
             --Drink
-            br.ui:createSpinner(section, "Drink",   50,  0,  100,  5,   "|cffFFFFFFMinimum mana to drink Ley-Enriched Water")
+            br.ui:createSpinner(section, "Drink",   50,  0,  100,  5,   "|cffFFFFFFMinimum mana to drink Ley-Enriched Water. Default: 50")
             --Pre Pot
-            br.ui:createSpinner(section, "Pre-Pot Timer",  3,  1,  10,  1,  "|cffFFFFFFSet to desired time for Pre-Pot using Potion of Prolonged Power (DBM Required). Min: 1 / Max: 10 / Interval: 1")
+            br.ui:createSpinner(section, "Pre-Pot Timer",  3,  1,  10,  1,  "|cffFFFFFFSet to desired time for Pre-Pot using Potion of Prolonged Power (DBM Required). Min: 1 / Max: 10 / Interval: 1. Default: 3")
             --Int Pot
             br.ui:createCheckbox(section,"Prolonged Pot","|cffFFFFFFUse Potion of Prolonged Power")
             --Trinkets
@@ -149,27 +154,27 @@ local function createOptions()
                 br.ui:createCheckbox(section,"Touch of the Void")
             end
             --Mindbender/Shadowfiend
-            br.ui:createCheckbox(section,"Mindbender/Shadowfiend","|cffFFFFFFAlways cast Mindbender or Shadowfiend on CD")
-            --Power Infusion
-            br.ui:createCheckbox(section,"Power Infusion","|cffFFFFFFAlways use Power Infusion on CD")
+            br.ui:createCheckbox(section, "Mindbender/Shadowfiend","|cffFFFFFFAlways cast Mindbender or Shadowfiend on CD")
+            --Power Infusion CD
+            br.ui:createCheckbox(section, "Power Infusion CD","|cffFFFFFFAlways use Power Infusion on CD")
             --Rapture and PW:S
-            br.ui:createCheckbox(section,"Rapture and PW:S","|cffFFFFFFAlways cast Rapture and apply Power Word: Shield to all players on CD")
+            br.ui:createCheckbox(section, "Rapture and PW:S","|cffFFFFFFAlways cast Rapture and apply Power Word: Shield to all players on CD")
             --Divine Star CD
-            br.ui:createCheckbox(section,"Divine Star CD","|cffFFFFFFAlways use Divine Star on CD")
+            br.ui:createCheckbox(section, "Divine Star CD","|cffFFFFFFAlways use Divine Star on CD")
             --Halo CD
-            br.ui:createCheckbox(section,"Halo CD","|cffFFFFFFAlways use Halo on CD")
+            br.ui:createCheckbox(section, "Halo CD","|cffFFFFFFAlways use Halo on CD")
         br.ui:checkSectionState(section)
         -------------------------
         ------- DEFENSIVE -------
         -------------------------
         section = br.ui:createSection(br.ui.window.profile, "Defensive")
         -- Healthstone
-            br.ui:createSpinner(section, "Pot/Stoned",  35,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
+            br.ui:createSpinner(section, "Pot/Stoned",  35,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At. Default: 35")
         -- Heirloom Neck
-            br.ui:createSpinner(section, "Heirloom Neck",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.");
+            br.ui:createSpinner(section, "Heirloom Neck",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.. Default: 60");
         -- Gift of The Naaru
             if br.player.race == "Draenei" then
-                br.ui:createSpinner(section, "Gift of the Naaru",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
+                br.ui:createSpinner(section, "Gift of the Naaru",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At. Default: 50")
             end
         br.ui:checkSectionState(section)
         -- Toggle Key Options
@@ -323,7 +328,7 @@ local function runRotation()
                     useItem(142117)
                 end
                 --Power Infusion
-                if isChecked("Power Infusion") then
+                if isChecked("Power Infusion CD") then
                     if cast.powerInfusion() then return end
                 end
                 --Touch of the Void
@@ -350,13 +355,13 @@ local function runRotation()
                 end
                 --Rapture and PW:S
                 if isChecked("Rapture and PW:S") then
-                    if isChecked("Power Infusion") and getBuffRemain("player", spell.buffs.powerInfusion) < 5 then return end
+                    if isChecked("Power Infusion CD") and getBuffRemain("player", spell.buffs.powerInfusion) < 5 then return end
                     if cast.rapture() then return end
                     if getBuffRemain("player",spell.buffs.rapture) > 1 then
                         for i = 1, #br.friend do                           
                             if getBuffRemain(br.friend[i].unit, spell.powerWordShield, "player") < 1 then
                                 if mode.healer == 1 then
-                                     if cast.powerWordShield(br.friend[i].unit) then return end     
+                                    if cast.powerWordShield(br.friend[i].unit) then return end     
                                 end
                                 if mode.healer == 2 and br.friend[i].unit == "player" then
                                     if cast.powerWordShield("player") then return end
@@ -369,7 +374,9 @@ local function runRotation()
                 if isChecked("Always use on CD") then
                     if getSpellCD(spell.lightsWrath) == 0 then
                         if mode.healer == 1 then
-                            actionList_SpreadAtonement()
+                            for i = 1, #br.friend do
+                                actionList_SpreadAtonement(br.friend[i].unit)
+                            end
                         end
                         if isBoss("target") and getDistance("player","target") < 40 then
                            if cast.lightsWrath("target") then return end
@@ -408,48 +415,81 @@ local function runRotation()
             end
         end  -- End Action List - Pre-Combat
         --Spread Atonement
-        function actionList_SpreadAtonement()
-            --Plea
-            for i = 1, #br.friend do
-                if getBuffRemain(br.friend[i].unit, spell.buffs.atonement, "player") < 1 and lastSpell ~= spell.plea and atonementCount < 6 and getOptionValue("Max Atonement") >= atonementCount then
-                    --Print("Atonement Count: "..atonementCount)
-                    if cast.plea(br.friend[i].unit) then return end     
-                end
-                if inRaid and getBuffRemain(br.friend[i].unit, spell.buffs.atonement, "player") < 1 and lastSpell ~= spell.powerWordRadiance and atonementCount <= getOptionValue("Max Atonement") then
-                    if cast.powerWordRadiance(br.friend[i].unit) then return end
-                end
+        function actionList_SpreadAtonement(friendUnit)
+            --Spread Atonement
+            if isChecked("Max Atonement") and atonementCount < getOptionValue("Max Atonement") then
+                --for i = 1, #br.friend do
+                    if getBuffRemain(friendUnit, spell.buffs.atonement, "player") < 1 and getSpellCD(spell.powerWordShield) == 0 then
+                         Print("Shield: "..friendUnit)
+                        if mode.healer == 1 then
+                            if cast.powerWordShield(friendUnit) then return end
+                        end
+                        if mode.healer == 2 and friendUnit == "player" then
+                            if cast.powerWordShield("player") then return end
+                        end
+                    end
+                    if getBuffRemain(friendUnit, spell.buffs.atonement, "player") < 1 and lastSpell ~= spell.plea and lastSpell ~= spell.powerWordShield and atonementCount < getOptionValue("Max Plea") then
+                     Print("Plea: "..friendUnit)
+                        if mode.healer == 1 then
+                            if cast.plea(friendUnit) then return end     
+                        end
+                        if mode.healer == 2 and friendUnit == "player" then
+                            if cast.plea("player") then return end
+                        end
+                    end
+                    if getBuffRemain(friendUnit, spell.buffs.atonement, "player") < 1 and lastSpell ~= spell.powerWordRadiance and atonementCount > getOptionValue("Max Plea") then
+                        Print("Radiance: "..friendUnit)
+                        if cast.powerWordRadiance(friendUnit) then return end
+                    end
+                --end
             end
         end
         --AOE Healing
         function actionList_AOEHealing()
             --Power Word: Barrier
             if isChecked("Power Word: Barrier") and mode.healer == 1 then
-                if getLowAllies(getValue("Power Word: Barrier")) >= getValue("PWB Targets") then    
-                    if cast.powerWordBarrier(lowest.unit) then return end    
+                if getLowAllies(getValue("Power Word: Barrier")) >= getValue("PWB Targets") then
+                    if cast.powerWordBarrier(lowest.unit) then return end
                 end
             end
             --Shadow Covenant
             if isChecked("Shadow Covenant") and talent.shadowCovenant and mode.healer == 1 then
-                if getLowAllies(getValue("Shadow Covenant")) >= getValue("Shadow Covenant Targets") and lastSpell ~= spell.shadowCovenant then    
-                    if cast.shadowCovenant(lowest.unit) then return end    
+                if getLowAllies(getValue("Shadow Covenant")) >= getValue("Shadow Covenant Targets") and lastSpell ~= spell.shadowCovenant then
+                    if cast.shadowCovenant(lowest.unit) then return end
+                end
+            end
+            --Power Infusion
+            if isChecked("Power Infusion") then
+                if getLowAllies(getValue("Power Infusion")) >= getValue("Power Infusion Targets") then
+                    if cast.powerInfusion() then return end
                 end
             end
             --Rapture
             if isChecked("Rapture") then
-                if getLowAllies(getValue("Rapture")) >= getValue("Rapture Targets") then    
-                    if cast.rapture() then return end                   
+                if getLowAllies(getValue("Rapture")) >= getValue("Rapture Targets") then
+                    if cast.rapture() then return end
+                    if getBuffRemain("player",spell.buffs.rapture) > 1 then
+                        if mode.healer == 1 then
+                            for i = 1, #br.friend do
+                                actionList_SpreadAtonement(br.friend[i].unit)
+                            end
+                        end
+                        if mode.healer == 2 then
+                            actionList_SpreadAtonement("player")
+                        end
+                    end
                 end
             end
             --Power Word: Radiance
             if isChecked("Power Word: Radiance") and mode.healer == 1 then
-                if getLowAllies(getValue("Power Word: Radiance")) >= getValue("PWR Targets") and lastSpell ~= spell.powerWordRadiance then    
-                    if cast.powerWordRadiance(lowest.unit) then return end    
+                if getLowAllies(getValue("Power Word: Radiance")) >= getValue("PWR Targets") and lastSpell ~= spell.powerWordRadiance then
+                    if cast.powerWordRadiance(lowest.unit) then return end
                 end
             end
             --Halo
             if isChecked("Halo") then
-                if getLowAllies(getValue("Halo")) >= getValue("Halo Targets") then    
-                    if cast.halo(lowest.unit) then return end    
+                if getLowAllies(getValue("Halo")) >= getValue("Halo Targets") then
+                    if cast.halo(lowest.unit) then return end
                 end
             end
         end
@@ -457,9 +497,9 @@ local function runRotation()
         function actionList_SingleTargetDefence()
             --Leap Of Faith
             if isChecked("Leap Of Faith") and mode.healer == 1 then
-                for i = 1, #br.friend do                           
+                for i = 1, #br.friend do
                     if php > br.friend[i].hp and br.friend[i].hp <= getValue("Leap Of Faith") then
-                        if cast.leapOfFaith(br.friend[i].unit) then return end     
+                        if cast.leapOfFaith(br.friend[i].unit) then return end
                     end
                 end
             end
@@ -482,7 +522,7 @@ local function runRotation()
                             if cast.painSuppression("player") then return end
                         end
                     end
-                end                
+                end
             end
             --Shining Force
             if isChecked("Shining Force") and talent.shiningForce then
@@ -499,7 +539,7 @@ local function runRotation()
             end
             --Power Word: Shield
             if isChecked("Power Word: Shield") then
-                for i = 1, #br.friend do                           
+                for i = 1, #br.friend do
                     if br.friend[i].hp <= getValue("Power Word: Shield") and getBuffRemain(br.friend[i].unit, spell.powerWordShield, "player") < 1 then
                         if mode.healer == 1 then
                             if cast.powerWordShield(br.friend[i].unit) then return end
@@ -552,7 +592,7 @@ local function runRotation()
                 for n = 1,40 do
                         local buff,_,_,count,bufftype,duration = UnitDebuff(br.friend[i].unit, n)
                         if buff then
-                            if bufftype == "Curse" or bufftype == "Magic" and lastSpell ~= spell.purify then
+                            if (bufftype == "Curse" or bufftype == "Magic") and lastSpell ~= spell.purify then
                                 if mode.healer == 1 then
                                     if cast.purify(br.friend[i].unit) then return end
                                 end
@@ -590,16 +630,15 @@ local function runRotation()
                     end
                 end
             end
-            --Plea
-            if isChecked("Plea") then
-                for i = 1, #br.friend do                           
-                    if br.friend[i].hp <= getValue("Plea") and getBuffRemain(br.friend[i].unit, spell.buffs.atonement, "player") < 1 and lastSpell ~= spell.plea and atonementCount < 6 and getOptionValue("Max Atonement") >= atonementCount then
-                        --Print("Atonement Count: "..atonementCount)
+            --Atonement
+            if isChecked("Atonement HP") then
+                for i = 1, #br.friend do
+                    if br.friend[i].hp <= getValue("Atonement HP") then
                         if mode.healer == 1 then
-                            if cast.plea(br.friend[i].unit) then return end     
+                            actionList_SpreadAtonement(br.friend[i].unit)
                         end
                         if mode.healer == 2 and br.friend[i].unit == "player" then
-                            if cast.plea("player") then return end
+                            actionList_SpreadAtonement("player")
                         end
                     end
                 end
@@ -668,7 +707,9 @@ local function runRotation()
                     end
                     if getSpellCD(spell.lightsWrath) == 0 then
                         if mode.healer == 1 then
-                            actionList_SpreadAtonement()
+                            for i = 1, #br.friend do
+                                actionList_SpreadAtonement(br.friend[i].unit)
+                            end
                         end
                         if cast.lightsWrath() then return end
                     end
@@ -683,7 +724,7 @@ local function runRotation()
             --Halo Damage
             if isChecked("Halo Damage") and talent.halo then
                 if #enemies.dyn30 >= getOptionValue("Halo Damage") then
-                    if cast.halo(lowest.unit) then return end
+                    if cast.halo() then return end
                 end
             end
             --Smite
@@ -703,7 +744,7 @@ local function runRotation()
 ---------------------------------
 --- Out Of Combat - Rotations ---
 ---------------------------------
-            if not inCombat and not IsMounted() and getBuffRemain("player", 192001) < 1 and getBuffRemain("player", 192002) < 10 then
+            if not inCombat and not IsMounted() and (getBuffRemain("player", 192001) < 1 or powcent == 100) and getBuffRemain("player", 192002) < 10 and getBuffRemain("player", 188023) < 1 then
                 actionList_PreCombat()
                 actionList_SingleTargetHeal()
             end -- End Out of Combat Rotation
