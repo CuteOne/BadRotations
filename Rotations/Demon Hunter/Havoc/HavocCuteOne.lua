@@ -450,7 +450,7 @@ local function runRotation()
     -- Profile Stop | Pause
         if not inCombat and not IsMounted() and not hastar and profileStop==true then
             profileStop = false
-        elseif (inCombat and profileStop==true) or (IsMounted() or IsFlying()) or pause() or mode.rotation==4 then
+        elseif (inCombat and profileStop==true) or (IsMounted() or IsFlying()) or pause() or mode.rotation==4 or isCastingSpell(spell.eyeBeam) then
             return true
         else
 -----------------------
@@ -468,7 +468,8 @@ local function runRotation()
 --------------------------
 --- In Combat Rotation ---
 --------------------------
-            if inCombat and not IsMounted() and profileStop==false and isValidUnit(units.dyn5) and not isCastingSpell(spell.eyeBeam) then
+            -- print(tostring(isCastingSpell(spell.eyeBeam)))
+            if inCombat and not IsMounted() and profileStop==false and isValidUnit(units.dyn5) then
     ------------------------------
     --- In Combat - Interrupts ---
     ------------------------------
