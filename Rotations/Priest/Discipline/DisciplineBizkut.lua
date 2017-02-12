@@ -420,7 +420,6 @@ local function runRotation()
             if isChecked("Max Atonement") and atonementCount < getOptionValue("Max Atonement") then
                 --for i = 1, #br.friend do
                     if getBuffRemain(friendUnit, spell.buffs.atonement, "player") < 1 and getSpellCD(spell.powerWordShield) == 0 then
-                         Print("Shield: "..friendUnit)
                         if mode.healer == 1 then
                             if cast.powerWordShield(friendUnit) then return end
                         end
@@ -429,7 +428,6 @@ local function runRotation()
                         end
                     end
                     if getBuffRemain(friendUnit, spell.buffs.atonement, "player") < 1 and lastSpell ~= spell.plea and lastSpell ~= spell.powerWordShield and atonementCount < getOptionValue("Max Plea") then
-                     Print("Plea: "..friendUnit)
                         if mode.healer == 1 then
                             if cast.plea(friendUnit) then return end     
                         end
@@ -438,7 +436,6 @@ local function runRotation()
                         end
                     end
                     if getBuffRemain(friendUnit, spell.buffs.atonement, "player") < 1 and lastSpell ~= spell.powerWordRadiance and atonementCount > getOptionValue("Max Plea") then
-                        Print("Radiance: "..friendUnit)
                         if cast.powerWordRadiance(friendUnit) then return end
                     end
                 --end
