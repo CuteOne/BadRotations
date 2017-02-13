@@ -252,7 +252,6 @@ local function runRotation()
         lowest.range                                        = br.friend[1].range
         lowest.guid                                         = br.friend[1].guid                      
         local tank                                          = {}    --Tank
-        local averageHealth                                 = 0
 
         units.dyn30 = br.player.units(30)
         units.dyn40 = br.player.units(40)
@@ -260,15 +259,6 @@ local function runRotation()
         enemies.dyn30 = br.player.enemies(30)
         enemies.dyn40 = br.player.enemies(40)
 
-        for i = 1, #br.friend do
-            if UnitIsDeadOrGhost(br.friend[i].unit) or getDistance(br.friend[i].unit) > 40 then 
-                br.friend[i].hp = 100 
-            end
-            averageHealth = averageHealth + br.friend[i].hp
-        end
-        averageHealth = averageHealth/#br.friend
-
-        -- Atonement Count
         atonementCount = 0
         for i=1, #br.friend do
             local atonementRemain = getBuffRemain(br.friend[i].unit,spell.buffs.atonement,"player") or 0 -- 194384
