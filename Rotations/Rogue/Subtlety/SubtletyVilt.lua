@@ -67,6 +67,7 @@ local function createOptions()
             br.ui:createCheckbox(section, "Symbols of Death - Precombat")
             -- Crimson Vial
             br.ui:createSpinnerWithout(section, "SS Range",  5,  5,  15,  1,  "|cffFFBB00Shadow Strike range, 5 = Melee")
+            br.ui:createCheckbox(section, "Open from Stealth")
             -- SSW Offset
             br.ui:createSpinnerWithout(section, "SSW Offset", 0, 0, 10, 1, "|cffFFBB00For Advanced Users, check SimC Wiki. Leave this at 0 if you don't know what you're doing.")
             -- NB TTD
@@ -522,11 +523,16 @@ local function runRotation()
 -- Action List - Stealthed
     local function actionList_Stealthed()
     -- Symbols of Death
-        -- symbols_of_death,if=(buff.symbols_of_death.remain()s<target.time_to_die-4&buff.symbols_of_death.remain()s<=buff.symbols_of_death.duration*0.3)|(equipped.shadow_satyrs_walk&energy.time_to_max<0.25)
-        if (buff.symbolsOfDeath.remain() < (ttd("target") - 4) and buff.symbolsOfDeath.refresh()) or (hasEquiped(137032) and ttm < 0.25) then
+        -- symbols_of_death,if=(buff.symbols_of_death.remain()s<target.time_to_die-4&buff.symbols_of_death.remain()s<=buff.symbols_of_death.duration*0.3)
+        if (buff.symbolsOfDeath.remain() < (ttd("target") - 4) and buff.symbolsOfDeath.refresh()) then
             if cast.symbolsOfDeath() then return end
         end
     -- Shuriken Storm
+    -- i quit this shit game a week ago lul
+        --call_action_list,name=finish,if=combo_points>=5&spell_targets.shuriken_storm>=2+talent.premeditation.enabled+equipped.shadow_satyrs_walk
+        if combo >= 5 and #getEnemies("player",9.6) >= (2 + premed + shadowWalker) then
+            if actionList_Finishers() then return end
+        end
         --shuriken_storm,if=buff.shadowmeld.down&((combo_points.deficit>=3&spell_targets.shuriken_storm>=2+talent.premeditation.enabled+equipped.shadow_satyrs_walk)|(combo_points.deficit>=1+buff.shadow_blades.up&buff.the_dreadlords_deceit.stack>=29))
         --if comboDeficit >= (1 + sBladesUp) and not buff.shadowmeld.exists() and ((comboDeficit >= 3 and #getEnemies("player",9.6) >= (2 + premed + shadowWalker)) or buff.theDreadlordsDeceit.stack >= 29) then
         if not buff.shadowmeld.exists() and ((comboDeficit >= 3 and #getEnemies("player",9.6) >= (2 + premed + shadowWalker)) or (comboDeficit >= (1 + sBladesUp) and buff.theDreadlordsDeceit.stack() >= 29)) then
@@ -607,7 +613,7 @@ local function runRotation()
     local function actionList_Opener()
         if isValidUnit("target") then
     -- Shadowstrike
-            if stealthingAll and getDistance("target") <= getOptionValue ("SS Range") and mode.pickPocket ~= 2 and not inCombat then
+            if isChecked("Open from Stealth") and stealthingAll and getDistance("target") <= getOptionValue ("SS Range") and mode.pickPocket ~= 2 and not inCombat then
                 if cast.shadowstrike("target") then return end
             end
     -- Start Attack

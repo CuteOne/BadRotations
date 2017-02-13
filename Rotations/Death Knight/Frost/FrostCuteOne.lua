@@ -249,7 +249,7 @@ local function runRotation()
                     if cast.blindingSleet() then return end
                 end
         -- Death Strike
-                if isChecked("Death Strike") and inCombat and (buff.darkSuccor or php < getOptionValue("Death Strike"))
+                if isChecked("Death Strike") and inCombat and (buff.darkSuccor.exists() or php < getOptionValue("Death Strike"))
                     and cd.breathOfSindragosa > 15 and not buff.breathOfSindragosa.exists()
                 then
                     if cast.deathStrike() then return end

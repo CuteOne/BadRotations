@@ -304,7 +304,7 @@ local function runRotation()
 
         -- Healing Winds - Transcendence Cancel
         if isChecked("Healing Winds") then
-            if tPX == nil or tPY == nil or tPZ == nil then tPX, tPY, tPZ = ObjectPosition("player") end
+            if tPX == nil or tPY == nil or not buff.transcendence.exists() then tPX, tPY, tPZ = ObjectPosition("player") end
             if getDistanceToObject("player",tPX,tPY,tPZ) > 40 or (not inCombat and php > getOptionValue("Healing Winds")) then
                 CancelUnitBuff("player",GetSpellInfo(spell.buffs.transcendence))
             end
