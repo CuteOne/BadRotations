@@ -6,31 +6,37 @@ local rotationName = "Svs"
 local function createToggles()
 -- Rotation Button
     RotationModes = {
-        [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range.", highlight = 1, icon = br.player.spell.wildGrowth },
-        [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = br.player.spell.wildGrowth },
-        [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = br.player.spell.regrowth },
+        [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range", highlight = 1, icon = br.player.spell.wildGrowth },
+        [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used", highlight = 0, icon = br.player.spell.wildGrowth },
+        [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used", highlight = 0, icon = br.player.spell.regrowth },
         [4] = { mode = "Off", value = 4 , overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spell.rejuvenation}
     };
     CreateButton("Rotation",1,0)
 -- Cooldown Button
     CooldownModes = {
-        [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spell.tranquility },
-        [2] = { mode = "On", value = 1 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spell.tranquility },
-        [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.tranquility }
+        [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection", highlight = 1, icon = br.player.spell.tranquility },
+        [2] = { mode = "On", value = 1 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target", highlight = 0, icon = br.player.spell.tranquility },
+        [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used", highlight = 0, icon = br.player.spell.tranquility }
     };
     CreateButton("Cooldown",2,0)
 -- Defensive Button
     DefensiveModes = {
-        [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spell.barkskin },
-        [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spell.barkskin }
+        [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns", highlight = 1, icon = br.player.spell.barkskin },
+        [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used", highlight = 0, icon = br.player.spell.barkskin }
     };
     CreateButton("Defensive",3,0)
 -- Decurse Button
     DecurseModes = {
-        [1] = { mode = "On", value = 1 , overlay = "Decurse Enabled", tip = "Decurse Enabled.", highlight = 1, icon = br.player.spell.naturesCure },
-        [2] = { mode = "Off", value = 2 , overlay = "Decurse Disabled", tip = "Decurse Disabled.", highlight = 0, icon = br.player.spell.naturesCure }
+        [1] = { mode = "On", value = 1 , overlay = "Decurse Enabled", tip = "Decurse Enabled", highlight = 1, icon = br.player.spell.naturesCure },
+        [2] = { mode = "Off", value = 2 , overlay = "Decurse Disabled", tip = "Decurse Disabled", highlight = 0, icon = br.player.spell.naturesCure }
     };
     CreateButton("Decurse",4,0)
+-- DPS Button
+    DPSModes = {
+        [1] = { mode = "On", value = 1 , overlay = "DPS Enabled", tip = "DPS Enabled", highlight = 1, icon = br.player.spell.rake },
+        [2] = { mode = "Off", value = 2 , overlay = "DPS Disabled", tip = "DPS Disabled", highlight = 0, icon = br.player.spell.regrowth }
+    };
+    CreateButton("DPS",5,0)
 end
 
 ---------------
@@ -86,9 +92,11 @@ local function createOptions()
         -- Lifebloom
             br.ui:createCheckbox(section,"Lifebloom","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFLifebloom usage.|cffFFBB00.")
         -- Cenarion Ward
-            br.ui:createSpinner(section, "Cenarion Ward",  90,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
+            br.ui:createSpinner(section, "Cenarion Ward",  70,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
         -- Rejuvenaion
             br.ui:createSpinner(section, "Rejuvenation",  90,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
+        -- Germination
+            br.ui:createSpinner(section, "Germination",  70,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
         -- Regrowth
             br.ui:createSpinner(section, "Regrowth",  80,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
         -- Swiftmend
@@ -139,7 +147,9 @@ local function runRotation()
         UpdateToggle("Cooldown",0.25)
         UpdateToggle("Defensive",0.25)
         UpdateToggle("Decurse",0.25)
+        UpdateToggle("DPS",0.25)
         br.player.mode.decurse = br.data.settings[br.selectedSpec].toggles["Decurse"]
+        br.player.mode.dps = br.data.settings[br.selectedSpec].toggles["DPS"]
 --------------
 --- Locals ---
 --------------
@@ -148,6 +158,7 @@ local function runRotation()
         local buff                                          = br.player.buff
         local cast                                          = br.player.cast
         local combatTime                                    = getCombatTime()
+        local combo                                         = br.player.power.amount.comboPoints
         local cd                                            = br.player.cd
         local charges                                       = br.player.charges
         local debuff                                        = br.player.debuff
@@ -169,6 +180,8 @@ local function runRotation()
         local race                                          = br.player.race
         local racial                                        = br.player.getRacial()
         local recharge                                      = br.player.recharge
+        local rkTick                                        = 3
+        local rpTick                                        = 2
         local spell                                         = br.player.spell
         local talent                                        = br.player.talent
         local travel, flight, cat, noform                   = br.player.buff.travelForm.exists(), br.player.buff.flightForm.exists(), br.player.buff.catForm.exists(), GetShapeshiftForm()==0
@@ -180,6 +193,10 @@ local function runRotation()
         local tHp                                           = 95
 
         units.dyn5 = br.player.units(5)
+        units.dyn8    = br.player.units(8)
+
+        enemies.yards5  = br.player.enemies(5)
+        enemies.yards8  = br.player.enemies(8)
 
 --------------------
 --- Action Lists ---
@@ -210,10 +227,14 @@ local function runRotation()
         end -- End Action List - Extras
         -- Action List - Pre-Combat
         function actionList_PreCombat()
+            -- Efflorescence
+                if isChecked("Efflorescence") and (getOptionValue("Efflorescence") == 6 or (SpecificToggle("Efflorescence") and not GetCurrentKeyBoardFocus())) then
+                    if cast.efflorescence("mouseover","ground") then return end
+                end
             -- Rejuvenation
             if isChecked("Rejuvenation") then
                 for i = 1, #br.friend do
-                    if br.friend[i].hp <= getValue("Rejuvenation") and talent.germination and (buff.rejuvenation.remain(br.friend[i].unit) <= 1 or not buff.rejuvenationGermination.exists(br.friend[i].unit)) then
+                    if br.friend[i].hp <= getValue("Germination") and talent.germination and not buff.rejuvenationGermination.exists(br.friend[i].unit) then
                         if cast.rejuvenation(br.friend[i].unit) then return end
                     elseif br.friend[i].hp <= getValue("Rejuvenation") and buff.rejuvenation.remain(br.friend[i].unit) <= 1 then
                         if cast.rejuvenation(br.friend[i].unit) then return end     
@@ -288,7 +309,7 @@ local function runRotation()
                 end
             end -- End useCooldowns check
         end -- End Action List - Cooldowns
-        --AOE Healing
+        -- AOE Healing
         function actionList_AOEHealing()
             -- Wild Growth
             if isChecked("Wild Growth") and not isCastingSpell(spell.tranquility) and not moving then
@@ -334,24 +355,6 @@ local function runRotation()
                     end
                 end
             end
-            -- Cenarion Ward
-           if isChecked("Cenarion Ward") and talent.cenarionWard and not isCastingSpell(spell.tranquility) then
-                for i = 1, #br.friend do                           
-                    if br.friend[i].hp <= getValue("Cenarion Ward") and buff.cenarionWard.remain(br.friend[i].unit) <= 1 then
-                        if cast.cenarionWard(br.friend[i].unit) then return end     
-                    end
-                end
-            end
-            -- Rejuvenation
-            if isChecked("Rejuvenation") then
-                for i = 1, #br.friend do
-                    if br.friend[i].hp <= getValue("Rejuvenation") and talent.germination and (buff.rejuvenation.remain(br.friend[i].unit) <= 1 or not buff.rejuvenationGermination.exists(br.friend[i].unit)) then
-                        if cast.rejuvenation(br.friend[i].unit) then return end
-                    elseif br.friend[i].hp <= getValue("Rejuvenation") and buff.rejuvenation.remain(br.friend[i].unit) <= 1 then
-                        if cast.rejuvenation(br.friend[i].unit) then return end     
-                    end
-                end
-            end
             -- Lifebloom
             if isChecked("Lifebloom") and not isCastingSpell(spell.tranquility) then
                 if inInstance then    
@@ -388,6 +391,24 @@ local function runRotation()
                     end
                 end
             end
+            -- Cenarion Ward
+           if isChecked("Cenarion Ward") and talent.cenarionWard and not isCastingSpell(spell.tranquility) then
+                for i = 1, #br.friend do                           
+                    if br.friend[i].hp <= getValue("Cenarion Ward") and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" and not buff.cenarionWard.exists(br.friend[i].unit) then
+                        if cast.cenarionWard(br.friend[i].unit) then return end     
+                    end
+                end
+            end
+            -- Rejuvenation
+            if isChecked("Rejuvenation") then
+                for i = 1, #br.friend do
+                    if br.friend[i].hp <= getValue("Rejuvenation") and talent.germination and (buff.rejuvenation.remain(br.friend[i].unit) <= 1 or not buff.rejuvenationGermination.exists(br.friend[i].unit)) then
+                        if cast.rejuvenation(br.friend[i].unit) then return end
+                    elseif br.friend[i].hp <= getValue("Rejuvenation") and buff.rejuvenation.remain(br.friend[i].unit) <= 1 then
+                        if cast.rejuvenation(br.friend[i].unit) then return end     
+                    end
+                end
+            end
             -- Regrowth
            if isChecked("Regrowth") and not isCastingSpell(spell.tranquility) then
                 for i = 1, #br.friend do                           
@@ -413,6 +434,68 @@ local function runRotation()
                 end
             end
         end
+    -- Action List - DPS
+        local function actionList_DPS()
+        -- Sunfire
+            if not cat and not debuff.sunfire.exists("target") then
+                if cast.sunfire("target") then return end
+            end
+        -- Feral Affinity
+            if talent.feralAffinity then
+            -- Cat form
+                if not cat and getDistance(units.dyn5) < 5 then
+                    if cast.catForm() then return end
+                end
+            -- Rake
+                if combo < 5 then
+                    for i = 1, #enemies.yards5 do
+                        local thisUnit = enemies.yards5[i]
+                        if getDistance(thisUnit) < 5 then
+                            if not debuff.rake.exists(thisUnit)
+                            then
+                                if power <= select(1, getSpellCost(spell.rake)) then
+                                    return true
+                                elseif power > select(1, getSpellCost(spell.rake)) then
+                                    if cast.rake(thisUnit) then return end
+                                end
+                            end
+                        end
+                    end
+                end
+            -- Rip
+                if combo == 5 then
+                    for i = 1, #enemies.yards5 do
+                        local thisUnit = enemies.yards5[i]
+                        if getDistance(thisUnit) < 5 then
+                            if not debuff.rip.exists(thisUnit) or debuff.rip.remain(thisUnit) < 4 then
+                               if cast.rip(thisUnit) then return end
+                            end
+                        end
+                    end
+                end
+            -- Ferocious Bite
+                if combo == 5 then
+                    for i = 1, #enemies.yards5 do
+                        local thisUnit = enemies.yards5[i]
+                        if getDistance(thisUnit) < 5 and debuff.rip.exists(thisUnit) then
+                            if cast.ferociousBite(thisUnit) then return end
+                        end
+                    end
+                end
+            -- Swipe
+                if ((mode.rotation == 1 and #enemies.yards8 >= 6) or mode.rotation == 2) then
+                    if power <= select(1, getSpellCost(spell.swipe)) then
+                        return true
+                    elseif power > select(1, getSpellCost(spell.swipe)) then
+                        if cast.swipe("player") then return end
+                    end
+                end
+            -- Shred
+                if combo < 5 and debuff.rake.exists(units.dyn5) and (((mode.rotation == 1 and #enemies.yards8 < 3) or mode.rotation == 3) or level < 32) then
+                    if cast.shred(units.dyn5) then return end
+                end
+            end -- End - Feral Affinity
+        end -- End Action List - DPS
 -----------------
 --- Rotations ---
 -----------------
@@ -430,7 +513,7 @@ local function runRotation()
 -----------------------------
 --- In Combat - Rotations --- 
 -----------------------------
-            if inCombat and not IsMounted()  and getBuffRemain("player", 192002 ) < 10 then
+            if inCombat and not IsMounted() and getBuffRemain("player", 192002 ) < 10 then
                 -- Barkskin
                 if isChecked("Barkskin") then
                     if php <= getOptionValue("Barkskin") and inCombat then
@@ -461,8 +544,8 @@ local function runRotation()
                     end
                     if getOptionValue("Rebirth - Target") == 3 then
                         for i =1, #br.friend do
-                            if UnitIsPlayer(br.friend[i].unit) and UnitIsDeadOrGhost(br.friend[i].unit) then
-                                if cast.rebirth(br.friend[i].unit) then return end
+                            if UnitIsPlayer(br.friend[i].unit) and UnitIsDeadOrGhost(br.friend[i].unit) and UnitIsFriend(br.friend[i].unit,"player") then
+                                if cast.rebirth(br.friend[i].unit,"dead") then return end
                             end
                         end
                     end
@@ -474,6 +557,9 @@ local function runRotation()
                 actionList_Cooldowns()
                 actionList_AOEHealing()
                 actionList_SingleTarget()
+                if br.player.mode.dps == 1 then
+                    actionList_DPS()
+                end
             end -- End In Combat Rotation
         end -- Pause
     end -- End Timer
