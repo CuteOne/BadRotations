@@ -52,6 +52,8 @@ local function createOptions()
         section = br.ui:createSection(br.ui.window.profile, "Utility")
             --Purify
             br.ui:createCheckbox(section, "Purify")
+            --Boss helper at Xavius. Darkening Soul/Blackening Soul Helper
+            br.ui:createSpinner(section, "Darkening Soul/Blackening Soul Helper",  3,  0,  10,  1,  "|cffFFFFFFDebuff stack before dispel in Dream Simulacrum at Xavius. Default: 3")
             --Body and Soul
             br.ui:createCheckbox(section, "Body and Soul")
             --Angelic Feather
@@ -562,24 +564,6 @@ local function runRotation()
                     end
                 end
             end
-            --Purify
-            if isChecked("Purify") then
-            for i = 1, #br.friend do
-                for n = 1,40 do
-                        local buff,_,_,count,bufftype,duration = UnitDebuff(br.friend[i].unit, n)
-                        if buff then
-                            if (bufftype == "Curse" or bufftype == "Magic") and lastSpell ~= spell.purify then
-                                if mode.healer == 1 or mode.healer == 2 then
-                                    if cast.purify(br.friend[i].unit) then return end
-                                end
-                                if mode.healer == 3 and br.friend[i].unit == "player" then
-                                    if cast.purify("player") then return end
-                                end
-                            end
-                        end
-                    end
-                end
-            end
             --Penance Heal
             if isChecked("Penance Heal") and talent.thePenitent then
                 for i = 1, #br.friend do                           
@@ -609,7 +593,7 @@ local function runRotation()
             --Shadow Mend
             if isChecked("Shadow Mend") then
                 for i = 1, #br.friend do                           
-                    if br.friend[i].hp <= getValue("Shadow Mend") and lastSpell ~= spell.shadowMend then
+                    if br.friend[i].hp <= getValue("Shadow Mend") and lastSpell ~= spell.shadowMend and getBuffRemain(br.friend[i].unit, spell.buffs.atonement, "player") < 1 then
                         if mode.healer == 1 or mode.healer == 2 then
                             if cast.shadowMend(br.friend[i].unit) then return end
                         end
@@ -632,6 +616,29 @@ local function runRotation()
                     end
                     if mode.healer == 2 then
                         actionList_SpreadAtonement(br.friend[i].unit)
+                    end
+                end
+            end
+            --Purify
+            if isChecked("Purify") then
+                for i = 1, #br.friend do
+                    for n = 1,40 do
+                        local buff,_,_,count,bufftype,duration = UnitDebuff(br.friend[i].unit, n)
+                        if buff then
+                            if (bufftype == "Curse" or bufftype == "Magic") and lastSpell ~= spell.purify then
+                                --Xavius dispel helper
+                                if isChecked("Darkening Soul/Blackening Soul Helper") and (getDebuffStacks(br.friend[i].unit,206651) >= 1 or getDebuffStacks(br.friend[i].unit,209158) >= 1) then
+                                    local debuffStack = getValue("Darkening Soul/Blackening Soul Helper")
+                                    if getDebuffRemain("player",206005) > 1 and (getDebuffStacks(br.friend[i].unit,206651) >= debuffStack or getDebuffStacks(br.friend[i].unit,209158) >= debuffStack) then
+                                        if cast.purify(br.friend[i].unit) then return end
+                                    end
+                                elseif mode.healer == 1 or mode.healer == 2 then
+                                        if cast.purify(br.friend[i].unit) then return end
+                                elseif mode.healer == 3 and br.friend[i].unit == "player" then
+                                        if cast.purify("player") then return end
+                                end
+                            end
+                        end
                     end
                 end
             end
