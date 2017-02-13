@@ -237,9 +237,8 @@ local function runRotation()
             if isChecked("Rejuvenation") then
                 rejuvCount = 0
                 for i=1, #br.friend do
-                    if buff.rejuvenation.remain(br.friend[i].unit) > 3 then
+                    if buff.rejuvenation.remain(br.friend[i].unit) > 1 then
                         rejuvCount = rejuvCount + 1
-                        ChatOverlay("Rejuvenation Count: "..rejuvCount)
                     end
                 end
                 for i = 1, #br.friend do
@@ -412,7 +411,7 @@ local function runRotation()
             if isChecked("Rejuvenation") then
                 rejuvCount = 0
                 for i=1, #br.friend do
-                    if buff.rejuvenation.remain(br.friend[i].unit) > 3 then
+                    if buff.rejuvenation.remain(br.friend[i].unit) > 1 then
                         rejuvCount = rejuvCount + 1
                     end
                 end
