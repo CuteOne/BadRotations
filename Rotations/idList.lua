@@ -1681,6 +1681,7 @@ br.idList = {
                 voidBolt                    = 228266, --231688,
                 voidEruption                = 228260,
                 voidForm                    = 228264,
+                voidTorrent                 = 205065,
             },
             artifacts                       = {
                 massHysteria                = 194378,
