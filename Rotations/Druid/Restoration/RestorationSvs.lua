@@ -95,6 +95,7 @@ local function createOptions()
             br.ui:createSpinner(section, "Cenarion Ward",  70,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
         -- Rejuvenaion
             br.ui:createSpinner(section, "Rejuvenation",  90,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
+            br.ui:createSpinner(section, "Max Rejuvenation Targets",  10,  0,  20,  1,  "|cffFFFFFFMaximum Rejuvenation Targets")
         -- Germination
             br.ui:createSpinner(section, "Germination",  70,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
         -- Regrowth
@@ -180,6 +181,7 @@ local function runRotation()
         local race                                          = br.player.race
         local racial                                        = br.player.getRacial()
         local recharge                                      = br.player.recharge
+        local rejuvCount                                    = 0
         local rkTick                                        = 3
         local rpTick                                        = 2
         local spell                                         = br.player.spell
@@ -233,10 +235,17 @@ local function runRotation()
                 end
             -- Rejuvenation
             if isChecked("Rejuvenation") then
+                rejuvCount = 0
+                for i=1, #br.friend do
+                    if buff.rejuvenation.remain(br.friend[i].unit) > 3 then
+                        rejuvCount = rejuvCount + 1
+                        ChatOverlay("Rejuvenation Count: "..rejuvCount)
+                    end
+                end
                 for i = 1, #br.friend do
-                    if br.friend[i].hp <= getValue("Germination") and talent.germination and not buff.rejuvenationGermination.exists(br.friend[i].unit) then
+                    if br.friend[i].hp <= getValue("Germination") and talent.germination and (rejuvCount < getValue("Max Rejuvenation Targets")) and not buff.rejuvenationGermination.exists(br.friend[i].unit) then
                         if cast.rejuvenation(br.friend[i].unit) then return end
-                    elseif br.friend[i].hp <= getValue("Rejuvenation") and buff.rejuvenation.remain(br.friend[i].unit) <= 1 then
+                    elseif br.friend[i].hp <= getValue("Rejuvenation") and buff.rejuvenation.remain(br.friend[i].unit) <= 1 and (rejuvCount < getValue("Max Rejuvenation Targets")) then
                         if cast.rejuvenation(br.friend[i].unit) then return end     
                     end
                 end
@@ -401,10 +410,16 @@ local function runRotation()
             end
             -- Rejuvenation
             if isChecked("Rejuvenation") then
+                rejuvCount = 0
+                for i=1, #br.friend do
+                    if buff.rejuvenation.remain(br.friend[i].unit) > 3 then
+                        rejuvCount = rejuvCount + 1
+                    end
+                end
                 for i = 1, #br.friend do
-                    if br.friend[i].hp <= getValue("Rejuvenation") and talent.germination and (buff.rejuvenation.remain(br.friend[i].unit) <= 1 or not buff.rejuvenationGermination.exists(br.friend[i].unit)) then
+                    if br.friend[i].hp <= getValue("Germination") and talent.germination and (rejuvCount < getValue("Max Rejuvenation Targets")) and not buff.rejuvenationGermination.exists(br.friend[i].unit) then
                         if cast.rejuvenation(br.friend[i].unit) then return end
-                    elseif br.friend[i].hp <= getValue("Rejuvenation") and buff.rejuvenation.remain(br.friend[i].unit) <= 1 then
+                    elseif br.friend[i].hp <= getValue("Rejuvenation") and buff.rejuvenation.remain(br.friend[i].unit) <= 1 and (rejuvCount < getValue("Max Rejuvenation Targets")) then
                         if cast.rejuvenation(br.friend[i].unit) then return end     
                     end
                 end
@@ -451,13 +466,8 @@ local function runRotation()
                     for i = 1, #enemies.yards5 do
                         local thisUnit = enemies.yards5[i]
                         if getDistance(thisUnit) < 5 then
-                            if not debuff.rake.exists(thisUnit)
-                            then
-                                if power <= select(1, getSpellCost(spell.rake)) then
-                                    return true
-                                elseif power > select(1, getSpellCost(spell.rake)) then
-                                    if cast.rake(thisUnit) then return end
-                                end
+                            if not debuff.rake.exists(thisUnit) then
+                                if cast.rake(thisUnit) then return end
                             end
                         end
                     end
@@ -484,11 +494,7 @@ local function runRotation()
                 end
             -- Swipe
                 if ((mode.rotation == 1 and #enemies.yards8 >= 6) or mode.rotation == 2) then
-                    if power <= select(1, getSpellCost(spell.swipe)) then
-                        return true
-                    elseif power > select(1, getSpellCost(spell.swipe)) then
-                        if cast.swipe("player") then return end
-                    end
+                    if cast.swipe("player") then return end
                 end
             -- Shred
                 if combo < 5 and debuff.rake.exists(units.dyn5) and (((mode.rotation == 1 and #enemies.yards8 < 3) or mode.rotation == 3) or level < 32) then
