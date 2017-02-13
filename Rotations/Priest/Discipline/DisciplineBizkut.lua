@@ -419,7 +419,7 @@ local function runRotation()
         function actionList_SpreadAtonement(friendUnit)
             --Spread Atonement
             if isChecked("Max Atonement") and atonementCount < getOptionValue("Max Atonement") and getBuffRemain(friendUnit, spell.buffs.atonement, "player") < 1 then
-                if getSpellCD(spell.powerWordShield) == 0 then
+                if getSpellCD(spell.powerWordShield) == 0 and getBuffRemain(br.friend[i].unit, spell.powerWordShield, "player") < 1 then
                     if cast.powerWordShield(friendUnit) then return end
                 end
                 if lastSpell ~= spell.plea and lastSpell ~= spell.powerWordShield and atonementCount < getOptionValue("Max Plea") then
@@ -526,7 +526,7 @@ local function runRotation()
             --Power Word: Shield
             if isChecked("Power Word: Shield") then
                 for i = 1, #br.friend do
-                    if br.friend[i].hp <= getValue("Power Word: Shield") and not buff.powerWordShield.exists(br.friend[i].unit) then
+                    if br.friend[i].hp <= getValue("Power Word: Shield") and getBuffRemain(br.friend[i].unit, spell.powerWordShield, "player") < 1 then
                         if mode.healer == 1 then
                             if cast.powerWordShield(br.friend[i].unit) then return end
                         end
