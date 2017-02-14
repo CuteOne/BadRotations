@@ -202,7 +202,7 @@ local function runRotation()
         local healthPot         = getHealthPot() or 0
         local inCombat          = br.player.inCombat
         local inRaid            = select(2,IsInInstance())=="raid"
-        local lastSpell         = lastCast
+        local lastSpell         = lastSpell
         local level             = br.player.level
         local mode              = br.player.mode
         local moving            = GetUnitSpeed("player")>0
@@ -230,7 +230,9 @@ local function runRotation()
         units.dyn5 = br.player.units(5)
         enemies.yards5 = br.player.enemies(5)
 
-        if lastSpell == nil or not inCombat then lastSpell = 6603 end
+        if not inCombat or lastSpell == nil then lastSpell = 6603 end
+        -- if not inCombat and lastSpell ~= 6603 then Print("Combat Dropped") end
+        if lastCast ~= 137639 and (inCombat and lastCast ~= 6603) then lastSpell = lastCast end
         if leftCombat == nil then leftCombat = GetTime() end
         if profileStop == nil then profileStop = false end
         if opener == nil then opener = false end
@@ -286,20 +288,22 @@ local function runRotation()
         end
         -- ChatOverlay("Mark Count: "..markOfTheCraneCount..", Num Enemies: "..#enemies.yards5..", Mark %: "..markPercent)
         -- ChatOverlay("Mark of the Crane Remain: "..getDebuffRemain("target",spell.debuffs.markOfTheCrane,"player"))
-
-        -- if buff.hitCombo.stack() == 8 then maxCombo = true else maxCombo = false end
-        -- if inCombat and maxCombo then
+        -- local maxComboReached = maxComboReached or false
+        -- local prevSpell = prevSpell or 6603
+        -- if inCombat and buff.hitCombo.stack() == 8 then
         --     maxComboReached = true
-        -- elseif not inCombat or (maxComboReached and not maxCombo) then
+        -- elseif not inCombat or (maxComboReached and buff.hitCombo.stack() ~= 8) then
         --     maxComboReached = false
         -- end
-        -- if inCombat and maxComboReached and not maxCombo then
+        -- if inCombat and maxComboReached and buff.hitCombo.stack() ~= 8 then
         --     Print(select(1,GetSpellInfo(lastSpell)).." Reset Hit Combo!")
         --     maxComboReached = false
         -- end
         -- if inCombat and lastSpell ~= prevSpell then
-        --     Print(select(1,GetSpellInfo(lastSpell)))
         --     prevSpell = lastSpell
+        -- end
+        -- if inCombat then
+        --     Print(select(1,GetSpellInfo(lastSpell)).." | "..lastSpell.." | ".."Max Combo? "..tostring(maxComboReached))
         -- end
 
         -- Healing Winds - Transcendence Cancel
@@ -912,7 +916,7 @@ local function runRotation()
             if (chi > 1 or buff.blackoutKick.exists()) and (lastSpell ~= spell.blackoutKick or level < 78) then
                 for i = 1, #enemies.yards5 do
                     local thisUnit = enemies.yards5[i]
-                    if debuff.markOfTheCrane.remain(thisUnit) < 5 or markOfTheCraneCount == #enemies.yards5 then
+                    if (debuff.markOfTheCrane.remain(thisUnit) < 5 or markOfTheCraneCount == #enemies.yards5) and (lastSpell ~= spell.blackoutKick or level < 78) then
                         if cast.blackoutKick(thisUnit) then return end
                     end
                 end
@@ -1028,7 +1032,7 @@ local function runRotation()
                     if lastSpell ~= spell.blackoutKick or level < 78 then
                         for i = 1, #enemies.yards5 do
                             local thisUnit = enemies.yards5[i]
-                            if debuff.markOfTheCrane.remain(thisUnit) < 5 or markOfTheCraneCount == #enemies.yards5 then
+                            if (debuff.markOfTheCrane.remain(thisUnit) < 5 or markOfTheCraneCount == #enemies.yards5) and (lastSpell ~= spell.blackoutKick or level < 78) then
                                 if cast.blackoutKick(thisUnit) then return end
                             end
                         end
@@ -1171,7 +1175,7 @@ local function runRotation()
         -- Tiger Palm
                     -- Less than equal to 1 Chi and Last Spell == Blackout Kick
                     if chi <= 1 and lastSpell ~= spell.tigerPalm then
-                        if cast.blackoutKick() then return end
+                        if cast.tigerPalm() then return end
                     end
                 end -- End Simulation Craft APL
     ----------------------------
