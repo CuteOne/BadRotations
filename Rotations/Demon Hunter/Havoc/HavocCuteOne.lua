@@ -353,15 +353,7 @@ local function runRotation()
 		end -- End Action List - Interrupts
 	-- Action List - Cooldowns
 		local function actionList_Cooldowns()
-			if useCDs() and getDistance(units.dyn5) < 5 then
-                    
-        -- Legendary Ring
-                -- use_item,slot=finger1
-                if isChecked("Legendary Ring") then
-                    if hasEquiped(124636) and canUse(124636) then
-                        useItem(124636)
-                    end
-                end
+			if useCDs() and getDistance(units.dyn5) < 5 then                
         -- Racial: Orc Blood Fury | Troll Berserking | Blood Elf Arcane Torrent
                 -- blood_fury,buff.tigers_fury | berserking,buff.tigers_fury | arcane_torrent,buff.tigers_fury
                 if isChecked("Racial") and (br.player.race == "Orc" or br.player.race == "Troll" or br.player.race == "Blood Elf") then
