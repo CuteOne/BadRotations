@@ -81,7 +81,7 @@ local function createOptions()
         -- Metamorphosis
             br.ui:createCheckbox(section,"Metamorphosis")
         -- Draught of Souls
-            br.ui:createDropdown(section, "Draught of Souls")
+            br.ui:createCheckbox(section, "Draught of Souls")
         br.ui:checkSectionState(section)
     -- Defensive Options
         section = br.ui:createSection(br.ui.window.profile, "Defensive")
