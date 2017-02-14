@@ -80,6 +80,8 @@ local function createOptions()
             br.ui:createCheckbox(section,"Trinkets")
         -- Metamorphosis
             br.ui:createCheckbox(section,"Metamorphosis")
+        -- Draught of Souls
+            br.ui:createDropdown(section, "Draught of Souls")
         br.ui:checkSectionState(section)
     -- Defensive Options
         section = br.ui:createSection(br.ui.window.profile, "Defensive")
@@ -353,6 +355,14 @@ local function runRotation()
 		local function actionList_Cooldowns()
 			if useCDs() and getDistance(units.dyn5) < 5 then
         -- Trinkets
+                -- Draught of Souls
+                if isChecked("Draught of Souls") then
+                    if hasEquiped(140808) and canUse(140808) then
+                        if not buff.metamorphosis.exists() and (not talent.firstBlood or cd.bladeDance ~= 0) and (not talent.nemesis or cd.nemesis > 30 or ttd("target") < cd.nemesis + 3) then
+                            useItem(140808)
+                        end
+                    end
+                end
                 -- use_item,slot=trinket2,if=buff.chaos_blades.up|!talent.chaos_blades.enabled
                 if isChecked("Trinkets") then
                     if buff.chaosBlades.exists() or not talent.chaosBlades then
@@ -363,7 +373,7 @@ local function runRotation()
                             useItem(14)
                         end
                     end
-                end
+                end            
         -- Legendary Ring
                 -- use_item,slot=finger1
                 if isChecked("Legendary Ring") then
