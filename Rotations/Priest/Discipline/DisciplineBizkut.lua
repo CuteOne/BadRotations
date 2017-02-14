@@ -146,6 +146,8 @@ local function createOptions()
         ------- COOLDOWNS -------
         -------------------------
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
+            --Disable CD during Speed: Slow on Chromatic Anomaly
+            br.ui:createCheckbox(section,"Disable CD during Speed: Slow","|cffFFFFFFDisable CD during Speed: Slow debuff on Chromatic Anomaly")
             --Drink
             br.ui:createSpinner(section, "Drink",   50,  0,  100,  5,   "|cffFFFFFFMinimum mana to drink Ley-Enriched Water. Default: 50")
             --Pre Pot
@@ -313,85 +315,88 @@ local function runRotation()
         -----------------
         function actionList_Cooldowns()
             if useCDs() then
-                --Racials
-                --blood_fury
-                --arcane_torrent
-                --berserking
-                if (br.player.race == "Orc" or br.player.race == "Troll" or br.player.race == "Blood Elf") then
-                    if br.player.castRacial() then return end
-                end
-                --potion,name=prolonged_power
-                if isChecked("Prolonged Pot") and canUse(142117) and not solo then
-                    useItem(142117)
-                end
-                --Power Infusion
-                if isChecked("Power Infusion CD") then
-                    if cast.powerInfusion() then return end
-                end
-                --Touch of the Void
-                if isChecked("Touch of the Void") and getDistance(br.player.units.dyn5)<5 then
-                    if hasEquiped(128318) then
-                        if GetItemCooldown(128318)==0 then
-                            useItem(128318)
-                        end
+                if isChecked("Disable CD during Speed: Slow") and UnitDebuffID("player",207011) then -- Speed: Slow debuff during the Chromatic Anomaly encounter
+                else
+                    --Racials
+                    --blood_fury
+                    --arcane_torrent
+                    --berserking
+                    if (br.player.race == "Orc" or br.player.race == "Troll" or br.player.race == "Blood Elf") then
+                        if br.player.castRacial() then return end
                     end
-                end
-                --Trinkets
-                if isChecked("Trinkets") then
-                    if canUse(13) then
-                        useItem(13)
+                    --potion,name=prolonged_power
+                    if isChecked("Prolonged Pot") and canUse(142117) and not solo then
+                        useItem(142117)
                     end
-                    if canUse(14) then
-                        useItem(14)
-                    end
-                end
-                --Mindbender/Shadowfiend
-                if isChecked("Mindbender/Shadowfiend") then
-                    if cast.mindbender() then return end
-                    if cast.shadowfiend() then return end
-                end
-                --Rapture and PW:S
-                if isChecked("Rapture and PW:S") then
-                    if isChecked("Power Infusion CD") and not buff.powerInfusion.exists("player") then
+                    --Power Infusion
+                    if isChecked("Power Infusion CD") then
                         if cast.powerInfusion() then return end
                     end
-                    if cast.rapture() then return end
-                    if buff.rapture.exists("player") then
-                        for i = 1, #br.friend do                           
-                            if not buff.powerWordShield.exists(br.friend[i].unit) then
-                                if mode.healer == 1 or mode.healer == 2 then
-                                    if cast.powerWordShield(br.friend[i].unit) then return end     
-                                end
-                                if mode.healer == 3 and br.friend[i].unit == "player" then
-                                    if cast.powerWordShield("player") then return end
+                    --Touch of the Void
+                    if isChecked("Touch of the Void") and getDistance(br.player.units.dyn5)<5 then
+                        if hasEquiped(128318) then
+                            if GetItemCooldown(128318)==0 then
+                                useItem(128318)
+                            end
+                        end
+                    end
+                    --Trinkets
+                    if isChecked("Trinkets") then
+                        if canUse(13) then
+                            useItem(13)
+                        end
+                        if canUse(14) then
+                            useItem(14)
+                        end
+                    end
+                    --Mindbender/Shadowfiend
+                    if isChecked("Mindbender/Shadowfiend") then
+                        if cast.mindbender() then return end
+                        if cast.shadowfiend() then return end
+                    end
+                    --Rapture and PW:S
+                    if isChecked("Rapture and PW:S") then
+                        if isChecked("Power Infusion CD") and not buff.powerInfusion.exists("player") then
+                            if cast.powerInfusion() then return end
+                        end
+                        if cast.rapture() then return end
+                        if buff.rapture.exists("player") then
+                            for i = 1, #br.friend do                           
+                                if not buff.powerWordShield.exists(br.friend[i].unit) then
+                                    if mode.healer == 1 or mode.healer == 2 then
+                                        if cast.powerWordShield(br.friend[i].unit) then return end     
+                                    end
+                                    if mode.healer == 3 and br.friend[i].unit == "player" then
+                                        if cast.powerWordShield("player") then return end
+                                    end
                                 end
                             end
                         end
                     end
-                end
-                if isChecked("Power Word: Barrier CD") and powcent >= getValue("Power Word: Barrier CD") then
-                    if cast.powerWordBarrier(lowest.unit) then return end
-                end
-                --Always use on CD
-                if isChecked("Always use on CD") then
-                    if getSpellCD(spell.lightsWrath) == 0 then
-                        if mode.healer == 1 or mode.healer == 2 then
-                            for i = 1, #br.friend do
-                                actionList_SpreadAtonement(br.friend[i].unit)
+                    if isChecked("Power Word: Barrier CD") and powcent >= getValue("Power Word: Barrier CD") then
+                        if cast.powerWordBarrier(lowest.unit) then return end
+                    end
+                    --Always use on CD
+                    if isChecked("Always use on CD") then
+                        if getSpellCD(spell.lightsWrath) == 0 then
+                            if mode.healer == 1 or mode.healer == 2 then
+                                for i = 1, #br.friend do
+                                    actionList_SpreadAtonement(br.friend[i].unit)
+                                end
+                            end
+                            if isBoss("target") and getDistance("player","target") < 40 then
+                               if cast.lightsWrath("target") then return end
                             end
                         end
-                        if isBoss("target") and getDistance("player","target") < 40 then
-                           if cast.lightsWrath("target") then return end
-                        end
                     end
-                end
-                --Divine Star CD
-                if isChecked("Divine Star CD") and isBoss("target") and getDistance("player","target") < 24 and getFacing("player","target",10) then
-                    if cast.divineStar() then return end
-                end
-                --Halo CD
-                if isChecked("Halo CD") and isBoss("target") and getDistance("player","target") < 30 then
-                    if cast.halo() then return end
+                    --Divine Star CD
+                    if isChecked("Divine Star CD") and isBoss("target") and getDistance("player","target") < 24 and getFacing("player","target",10) then
+                        if cast.divineStar() then return end
+                    end
+                    --Halo CD
+                    if isChecked("Halo CD") and isBoss("target") and getDistance("player","target") < 30 then
+                        if cast.halo() then return end
+                    end
                 end
             end
         end -- End Action List - Cooldowns
@@ -644,7 +649,7 @@ local function runRotation()
                                 --Xavius dispel helper
                                 if isChecked("Darkening Soul/Blackening Soul Helper") and (getDebuffStacks(br.friend[i].unit,206651) >= 1 or getDebuffStacks(br.friend[i].unit,209158) >= 1) then
                                     local debuffStack = getValue("Darkening Soul/Blackening Soul Helper")
-                                    if getDebuffRemain("player",206005) > 1 and (getDebuffStacks(br.friend[i].unit,206651) >= debuffStack or getDebuffStacks(br.friend[i].unit,209158) >= debuffStack) then
+                                    if UnitDebuffID("player",206005) and (getDebuffStacks(br.friend[i].unit,206651) >= debuffStack or getDebuffStacks(br.friend[i].unit,209158) >= debuffStack) then
                                         if cast.purify(br.friend[i].unit) then return end
                                     end
                                 elseif mode.healer == 1 or mode.healer == 2 then
