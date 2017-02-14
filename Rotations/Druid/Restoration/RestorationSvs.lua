@@ -100,6 +100,8 @@ local function createOptions()
             br.ui:createSpinner(section, "Germination",  70,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
         -- Regrowth
             br.ui:createSpinner(section, "Regrowth",  80,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
+        -- Regrowth Clearcasting
+            br.ui:createSpinner(section, "Regrowth Clearcasting",  80,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
         -- Swiftmend
             br.ui:createSpinner(section, "Swiftmend",  60,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
         -- Healing Touch
@@ -251,8 +253,10 @@ local function runRotation()
             end
             -- Regrowth
            if isChecked("Regrowth") then
-                for i = 1, #br.friend do                           
-                    if br.friend[i].hp <= getValue("Regrowth") and buff.regrowth.remain(br.friend[i].unit) <= 1 then
+                for i = 1, #br.friend do
+                    if br.friend[i].hp <= getValue("Regrowth Clearcasting") and buff.regrowth.remain(br.friend[i].unit) <= 1 then
+                        if cast.regrowth(br.friend[i].unit) then return end     
+                    elseif br.friend[i].hp <= getValue("Regrowth") and buff.regrowth.remain(br.friend[i].unit) <= 1 then
                         if cast.regrowth(br.friend[i].unit) then return end     
                     end
                 end
@@ -264,10 +268,6 @@ local function runRotation()
                         if cast.swiftmend(br.friend[i].unit) then return end     
                     end
                 end
-            end
-            -- Efflorescence
-            if isChecked("Efflorescence") and (getOptionValue("Efflorescence") == 6 or (SpecificToggle("Efflorescence") and not GetCurrentKeyBoardFocus())) then
-                if cast.efflorescence("mouseover","ground") then return end
             end
         end  -- End Action List - Pre-Combat
         function actionList_Cooldowns()
@@ -424,9 +424,11 @@ local function runRotation()
                 end
             end
             -- Regrowth
-           if isChecked("Regrowth") and not isCastingSpell(spell.tranquility) then
-                for i = 1, #br.friend do                           
-                    if br.friend[i].hp <= getValue("Regrowth") and buff.regrowth.remain(br.friend[i].unit) <= 1 then
+           if isChecked("Regrowth") then
+                for i = 1, #br.friend do
+                    if br.friend[i].hp <= getValue("Regrowth Clearcasting") and buff.regrowth.remain(br.friend[i].unit) <= 1 then
+                        if cast.regrowth(br.friend[i].unit) then return end     
+                    elseif br.friend[i].hp <= getValue("Regrowth") and buff.regrowth.remain(br.friend[i].unit) <= 1 then
                         if cast.regrowth(br.friend[i].unit) then return end     
                     end
                 end
