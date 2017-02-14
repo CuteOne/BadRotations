@@ -80,6 +80,8 @@ local function createOptions()
             br.ui:createCheckbox(section,"Trinkets")
         -- Metamorphosis
             br.ui:createCheckbox(section,"Metamorphosis")
+        -- Draught of Souls
+            br.ui:createDropdown(section, "Draught of Souls")
         br.ui:checkSectionState(section)
     -- Defensive Options
         section = br.ui:createSection(br.ui.window.profile, "Defensive")
@@ -351,26 +353,7 @@ local function runRotation()
 		end -- End Action List - Interrupts
 	-- Action List - Cooldowns
 		local function actionList_Cooldowns()
-			if useCDs() and getDistance(units.dyn5) < 5 then
-        -- Trinkets
-                -- use_item,slot=trinket2,if=buff.chaos_blades.up|!talent.chaos_blades.enabled
-                if isChecked("Trinkets") then
-                    if buff.chaosBlades.exists() or not talent.chaosBlades then
-                        if canUse(13) then
-                            useItem(13)
-                        end
-                        if canUse(14) then
-                            useItem(14)
-                        end
-                    end
-                end
-        -- Legendary Ring
-                -- use_item,slot=finger1
-                if isChecked("Legendary Ring") then
-                    if hasEquiped(124636) and canUse(124636) then
-                        useItem(124636)
-                    end
-                end
+			if useCDs() and getDistance(units.dyn5) < 5 then                
         -- Racial: Orc Blood Fury | Troll Berserking | Blood Elf Arcane Torrent
                 -- blood_fury,buff.tigers_fury | berserking,buff.tigers_fury | arcane_torrent,buff.tigers_fury
                 if isChecked("Racial") and (br.player.race == "Orc" or br.player.race == "Troll" or br.player.race == "Blood Elf") then
@@ -400,6 +383,26 @@ local function runRotation()
                         if poolForMeta and powerDeficit < 30 then
                             -- if cast.metamorphosis("best",false,1,8) then return end
                             if cast.metamorphosis("player") then return end
+                        end
+                    end
+        -- Trinkets
+                    -- Draught of Souls
+                    if isChecked("Draught of Souls") then
+                        if hasEquiped(140808) and canUse(140808) then
+                            if not buff.metamorphosis.exists() and (not talent.firstBlood or cd.bladeDance > 3) and (not talent.nemesis or cd.nemesis > 30 or ttd("target") < cd.nemesis + 3) then
+                                useItem(140808)
+                            end
+                        end
+                    end
+                    -- use_item,slot=trinket2,if=buff.chaos_blades.up|!talent.chaos_blades.enabled
+                    if isChecked("Trinkets") then
+                        if buff.chaosBlades.exists() or not talent.chaosBlades then
+                            if canUse(13) then
+                                useItem(13)
+                            end
+                            if canUse(14) then
+                                useItem(14)
+                            end
                         end
                     end
         -- Potion

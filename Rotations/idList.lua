@@ -119,6 +119,7 @@ br.idList = {
                 breathOfSindragosa          = 152279,
                 darkSuccor                  = 101568,
                 hungeringRuneWeapon         = 207127,
+                iceboundFortitude           = 48792,
                 icyTalons                   = 194879,
                 killingMachine              = 51124,
                 obliteration                = 207256,
@@ -141,7 +142,7 @@ br.idList = {
                 freezingFog                 = 207060,
                 frostscythe                 = 207230,
                 frozenPulse                 = 194909,
-                gatheringStorms             = 194912,
+                gatheringStorm              = 194912,
                 glacialAdvance              = 194913,
                 hornOfWinter                = 57330,
                 hungeringRuneWeapon         = 207127,
@@ -2249,22 +2250,52 @@ br.idList = {
         -- Restoration
         [264] = {
             abilities                       = {
-
+                ancestralGuidance           = 108281,
+                ascendance                  = 114052,
+                chainHeal                   = 1064,
+                chainLightning              = 421,
+                cloudburstTotem             = 157153,
+                flameShock                  = 188838,
+                giftOfTheQueen              = 207778,
+                healingRain                 = 73920,
+                healingSurge                = 8004,
+                healingStreamTotem          = 5394,
+                healingTideTotem            = 108280,
+                healingWave                 = 77472,
+                heroism                     = 32182,
+                lavaBurst                   = 51505,
+                lightningBolt               = 403,
+                purifySpirit                = 77130,
+                riptide                     = 61295,
+                spiritLinkTotem             = 98008,
+                spiritwalkersGrace          = 79206,
+                wellspring                  = 197995,
             },
             artifacts                       = {
-
+                giftOfTheQueen              = 207778,
             },
             buffs                           = {
-
+                ascendance                  = 114052,
+                cloudburstTotem             = 157504,
+                healingRain                 = 73920,
+                riptide                     = 61295,
+                tidalWaves                  = 53390,
             },
             debuffs                         = {
-
+                flameShock                  = 188838,
             },
             glyphs                          = {
-
             },
             talents                         = {
-
+                ancestralGuidance           = 108281,
+                ancestralProtectionTotem    = 207399,
+                ascendance                  = 114052,
+                cloudburstTotem             = 157153,
+                earthenShieldTotem          = 198838,
+                gustOfWind                  = 192063,
+                unleashLife                 = 73685,
+                wellspring                  = 197995,
+                windRushTotem               = 192077,
             },
         },
         -- All
@@ -2272,6 +2303,7 @@ br.idList = {
             abilities                       = {
                 ancestralSpirit             = 2008,
                 astralShift                 = 108271,
+                earthbindTotem              = 2484,
                 earthgrabTotem              = 51485,
                 ghostWolf                   = 2645,
                 hex                         = 51514,
