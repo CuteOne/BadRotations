@@ -61,6 +61,10 @@ local function createOptions()
             br.ui:createSpinnerWithout(section, "Multi-Dot Limit", 5, 0, 10, 1, "|cffFFFFFFUnit Count Limit that DoTs will be cast on.")
             br.ui:createSpinnerWithout(section, "Multi-Dot HP Limit", 5, 0, 10, 1, "|cffFFFFFFHP Limit that DoTs will be cast/refreshed on.")
             br.ui:createSpinnerWithout(section, "Immolate Boss HP Limit", 10, 1, 20, 1, "|cffFFFFFFHP Limit that Immolate will be cast/refreshed on in relation to Boss HP.")
+        -- Cataclysm
+            br.ui:createCheckbox(section, "Cataclysm")
+        -- Rain of Fire
+            br.ui:createSpinner(section, "Rain of Fire", 3, 1, 5, 1, "|cffFFFFFFUnit Count Minimum that Rain of Fire will be cast on.")
         -- Life Tap
             br.ui:createSpinner(section, "Life Tap", 30, 0, 100, 5, "|cffFFFFFFHP Limit that Life Tap will not cast below.")
         br.ui:checkSectionState(section)
@@ -546,8 +550,11 @@ local function runRotation()
                     end
         -- Immolate
                     -- immolate,if=remains<=tick_time
-                    if debuff.immolate.remain(units.dyn40) <= 3 then
-                        if cast.immolate(thisUnit) then return end
+                    if debuff.immolate.remain(units.dyn40) <= 3 
+                        and debuff.immolate.count() < getOptionValue("Multi-Dot Limit") and getHP(units.dyn40) > dotHPLimit 
+                        and (not inBossFight or (inBossFight and UnitHealthMax(units.dyn40) > bossHPMax * (getOptionValue("Immolate Boss HP Limit") / 100)))
+                    then
+                        if cast.immolate(units.dyn40) then return end
                     end
                     -- immolate,cycle_targets=1,if=active_enemies>1&remains<=tick_time&(!talent.roaring_blaze.enabled|(!debuff.roaring_blaze.remain()s&action.conflagrate.charges<2))
                     if (mode.rotation == 1 and #enemies.yards10t > 1) or mode.rotation == 2 then
@@ -697,14 +704,16 @@ local function runRotation()
                         end
                     end
         -- Rain of Fire
-                    -- rain_of_fire,if=active_enemies>=3&cooldown.havoc.remain()s<=12&!talent.wreak_havoc.enabled
-                    if ((mode.rotation == 1 and #enemies.yards8t >= 3) or mode.rotation == 2) and cd.havoc <= 12 and not talent.wreakHavoc then
-                        if cast.rainOfFire(units.dyn40,"ground") then return end
-                    end
-                    -- rain_of_fire,if=active_enemies>=6&talent.wreak_havoc.enabled
-                    if ((mode.rotation == 1 and #enemies.yards8t >= 6) or mode.rotation == 2) and talent.wreakHavoc then
-                        if cast.rainOfFire(units.dyn40,"ground") then return end
-                    end
+                    if isChecked("Rain of Fire") then
+                        -- rain_of_fire,if=active_enemies>=3&cooldown.havoc.remain()s<=12&!talent.wreak_havoc.enabled
+                        if ((mode.rotation == 1 and #enemies.yards8t >= getOptionValue("Rain of Fire")) or mode.rotation == 2) and cd.havoc <= 12 and not talent.wreakHavoc then
+                            if cast.rainOfFire(units.dyn40,"ground") then return end
+                        end
+                        -- rain_of_fire,if=active_enemies>=6&talent.wreak_havoc.enabled
+                        if ((mode.rotation == 1 and #enemies.yards8t >= getOptionValue("Rain of Fire") + 3) or mode.rotation == 2) and talent.wreakHavoc then
+                            if cast.rainOfFire(units.dyn40,"ground") then return end
+                        end
+                    end 
         -- Dimensional Rift
                     -- dimensional_rift,if=!equipped.144369|charges>1|((!talent.grimoire_of_service.enabled|recharge_time<cooldown.service_pet.remain()s)&(!talent.soul_harvest.enabled|recharge_time<cooldown.soul_harvest.remain()s)&(!talent.grimoire_of_supremacy.enabled|recharge_time<cooldown.summon_doomguard.remain()s))
                     if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()) then
@@ -719,10 +728,12 @@ local function runRotation()
                     end
         -- Cataclysm
                     -- cataclysm
-                    if cast.cataclysm() then return end
+                    if isChecked("Cataclysm") then
+                        if cast.cataclysm("best",nil,4,8) then return end
+                    end
         -- Chaos Bolt
-                    -- chaos_bolt,if=(cooldown.havoc.remain()s>12&cooldown.havoc.remain()s|active_enemies<3|talent.wreak_havoc.enabled&active_enemies<6)
-                    if cd.havoc > 12 or #enemies.yards40 < 3 or (talent.wreakHavoc and #enemies.yards40 < 6) then
+                    -- chaos_bolt,if=(cooldown.havoc.remains>12&cooldown.havoc.remains|active_enemies<3|talent.wreak_havoc.enabled&active_enemies<6)
+                    if ((mode.rotation == 1 and ((cd.havoc > 12 and cd.havoc > 0) or #enemies.yards40 < 3 or (talent.wreakHavoc and #enemies.yards40 < 6))) or mode.rotation == 3) and shards >= 4 then
                         if cast.chaosBolt() then return end
                     end
         -- Shadowburn

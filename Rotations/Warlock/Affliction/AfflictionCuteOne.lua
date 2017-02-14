@@ -302,11 +302,11 @@ local function runRotation()
             for i = 1, #enemies.yards40 do
                 local thisUnit = enemies.yards40[i]
                 if effigied and ObjectID(thisUnit) == 103679 then
-                    if debuff.agony.remain(thisUnit) < 2 + gcd then
+                    if debuff.agony.remain(thisUnit) < 4 + gcd then
                         if cast.agony(thisUnit,"aoe") then return end
                     end
                 end
-                if debuff.agony.count() < getOptionValue("Multi-Dot Limit") + effigyCount and getHP(thisUnit) > dotHPLimit and isValidUnit(thisUnit) and debuff.agony.remain(thisUnit) < 2 + gcd 
+                if debuff.agony.count() < getOptionValue("Multi-Dot Limit") + effigyCount and getHP(thisUnit) > dotHPLimit and isValidUnit(thisUnit) and debuff.agony.remain(thisUnit) < 4 + gcd 
                     and (not inBossFight or (inBossFight and UnitHealthMax(thisUnit) > bossHPMax * (getOptionValue("Agony Boss HP Limit") / 100)))
                 then
                     if cast.agony(thisUnit,"aoe") then return end
@@ -569,15 +569,15 @@ local function runRotation()
                             local thisUnit = enemies.yards40[i]
                             if ObjectID(thisUnit) == 103679 then
                                 -- Agony
-                                if debuff.agony.remain(thisUnit) < 2 + gcd then
+                                if debuff.agony.remain(thisUnit) < 4 + gcd then
                                     if cast.agony(thisUnit,"aoe") then return end
                                 end
                                 -- Corruption
-                                if debuff.corruption.remain(thisUnit) < 2 + gcd then
+                                if debuff.corruption.remain(thisUnit) < 3 + gcd then
                                     if cast.corruption(thisUnit,"aoe") then return end
                                 end
                                 -- Siphon Life
-                                if debuff.siphonLife.remain(thisUnit) < 2 + gcd then
+                                if debuff.siphonLife.remain(thisUnit) < 3 + gcd then
                                     if cast.siphonLife(thisUnit,"aoe") then return end
                                 end
                             end
@@ -587,7 +587,7 @@ local function runRotation()
                     -- agony,cycle_targets=1,if=remains<=tick_time+gcd
                     for i = 1, #enemies.yards40 do
                         local thisUnit = enemies.yards40[i]
-                        if debuff.agony.count() < getOptionValue("Multi-Dot Limit") + effigyCount and getHP(thisUnit) > dotHPLimit and isValidUnit(thisUnit) and debuff.agony.remain(thisUnit) <= 2 + gcd 
+                        if debuff.agony.count() < getOptionValue("Multi-Dot Limit") + effigyCount and getHP(thisUnit) > dotHPLimit and isValidUnit(thisUnit) and debuff.agony.remain(thisUnit) <= 4 + gcd 
                             and (not inBossFight or (inBossFight and UnitHealthMax(thisUnit) > bossHPMax * (getOptionValue("Agony Boss HP Limit") / 100)))
                         then
                             if cast.agony(thisUnit,"aoe") then return end
@@ -662,7 +662,7 @@ local function runRotation()
         -- Corruption
                     -- corruption,if=remains<=tick_time+gcd&(spell_targets.seed_of_corruption<3&talent.sow_the_seeds.enabled|spell_targets.seed_of_corruption<4)
                     if debuff.corruption.count() < getOptionValue("Multi-Dot Limit") + effigyCount and getHP(units.dyn40) > dotHPLimit then
-                        if debuff.corruption.remain(units.dyn40) <= 2 + gcd and ((#enemies.yards10t < 10 and talent.sowTheSeeds) or #enemies.yards10t < 4) then
+                        if debuff.corruption.remain(units.dyn40) <= 3 + gcd and ((#enemies.yards10t < 10 and talent.sowTheSeeds) or #enemies.yards10t < 4) then
                             if cast.corruption(units.dyn40,"aoe") then return end
                         end
                     end
@@ -670,7 +670,7 @@ local function runRotation()
                     for i = 1, #enemies.yards40 do
                         local thisUnit = enemies.yards40[i]
                         if debuff.corruption.count() < getOptionValue("Multi-Dot Limit") + effigyCount and getHP(thisUnit) > dotHPLimit and isValidUnit(thisUnit) then
-                            if (talent.absoluteCorruption or not talent.maleficGrasp or not talent.soulEffigy) and debuff.corruption.remain(thisUnit) <= 2 + gcd
+                            if (talent.absoluteCorruption or not talent.maleficGrasp or not talent.soulEffigy) and debuff.corruption.remain(thisUnit) <= 3 + gcd
                                 and ((#enemies.yards10t < 10 and talent.sowTheSeeds) or #enemies.yards10t < 4)
                             then
                                 if cast.corruption(thisUnit,"aoe") then return end
@@ -681,7 +681,7 @@ local function runRotation()
                     -- siphon_life,if=remains<=tick_time+gcd
                     -- siphon_life,if=remains<=tick_time+gcd&(dot.unstable_affliction_1.ticking+dot.unstable_affliction_2.ticking+dot.unstable_affliction_3.ticking+dot.unstable_affliction_4.ticking+dot.unstable_affliction_5.ticking)<2
                     if debuff.siphonLife.count() < getOptionValue("Multi-Dot Limit") + effigyCount and getHP(units.dyn40) > dotHPLimit then
-                        if debuff.siphonLife.remain(units.dyn40) <= 2 + gcd and (UA1 + UA2 + UA3 + UA4 + UA5) < 2 then
+                        if debuff.siphonLife.remain(units.dyn40) <= 3 + gcd and (UA1 + UA2 + UA3 + UA4 + UA5) < 2 then
                             if cast.siphonLife(units.dyn40,"aoe") then return end
                         end
                     end
@@ -689,7 +689,7 @@ local function runRotation()
                     for i = 1, #enemies.yards40 do
                         local thisUnit = enemies.yards40[i]
                         if debuff.siphonLife.count() < getOptionValue("Multi-Dot Limit") + effigyCount and getHP(thisUnit) > dotHPLimit and isValidUnit(thisUnit) then
-                            if (not talent.maleficGrasp or not talent.soulEffigy) and debuff.siphonLife.remain(thisUnit) <= 2 + gcd then
+                            if (not talent.maleficGrasp or not talent.soulEffigy) and debuff.siphonLife.remain(thisUnit) <= 3 + gcd then
                                 if cast.siphonLife(thisUnit,"aoe") then return end
                             end
                         end

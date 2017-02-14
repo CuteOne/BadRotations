@@ -1711,10 +1711,12 @@ br.idList = {
                 unleashTheShadows           = 194093,
             },
             buffs                           = {
+                dispersion                  = 47585,
                 shadowyInsight              = 124430,
-                voidForm                    = 194249,
-                surrenderedSoul             = 212570,
                 shadowform                  = 232698,
+                surrenderedSoul             = 212570,
+                voidForm                    = 194249,
+                voidTorrent                 = 205065,
             },
             debuffs                         = {
                 shadowWordPain              = 589,

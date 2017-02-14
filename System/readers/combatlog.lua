@@ -82,10 +82,14 @@ function br.read.combatLog()
                 destName, destFlags, destRaidFlags, spell, spellName, _, spellType = ...
             br.guid = UnitGUID("player")
             -- Last Cast Success for Spec Abilities Only
-            if param == "SPELL_CAST_SUCCESS" and isInCombat("player") then
-                if br.player ~= nil then
-                    for k, v in pairs(br.player.spell.abilities) do
-                        if v == spell then lastCast = spell end
+            if param == "SPELL_CAST_SUCCESS" then
+                if sourceName ~= nil then
+                    if isInCombat("player") and UnitIsUnit(sourceName,"player") then
+                        if br.player ~= nil then
+                            for k, v in pairs(br.player.spell.abilities) do
+                                if v == spell then lastCast = spell end
+                            end
+                        end
                     end
                 end
             end
@@ -126,15 +130,19 @@ function br.read.combatLog()
         end
         -----------------------------------
         --[[ Item Use Success Recorder ]]
-        if param == "SPELL_CAST_SUCCESS" and isInCombat("player") then
-            if usePot == nil then
-                usePot = true
-            end
-            if spell == 105697 then --Virmen's Bite Buff
-                usePot = false
-            end
-            if spell == 105708 then --Healing Potions
-                usePot = false
+        if param == "SPELL_CAST_SUCCESS" then
+            if sourceName ~= nil then
+                if isInCombat("player") and UnitIsUnit(sourceName,"player") then
+                    if usePot == nil then
+                        usePot = true
+                    end
+                    if spell == 105697 then --Virmen's Bite Buff
+                        usePot = false
+                    end
+                    if spell == 105708 then --Healing Potions
+                        usePot = false
+                    end
+                end
             end
         end
         ------------------
