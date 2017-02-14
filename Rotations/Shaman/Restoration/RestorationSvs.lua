@@ -121,8 +121,11 @@ local function createOptions()
             br.ui:createSpinner(section, "Chain Heal",  80,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
             br.ui:createSpinner(section, "Chain Heal Targets",  3,  0,  40,  1,  "Minimum Chain Heal Targets")  
         -- Gift of the Queen
-            br.ui:createSpinner(section, "Gift of the Queen",  70,  0,  100,  5,  "Health Percent to Cast At") 
+            br.ui:createSpinner(section, "Gift of the Queen",  75,  0,  100,  5,  "Health Percent to Cast At") 
             br.ui:createSpinner(section, "Gift of the Queen Targets",  3,  0,  40,  1,  "Minimum Gift of the Queen Targets")
+        -- Wellspring
+            br.ui:createSpinner(section, "Wellspring",  80,  0,  100,  5,  "Health Percent to Cast At") 
+            br.ui:createSpinner(section, "Wellspring Targets",  3,  0,  40,  1,  "Minimum Wellspring Targets")
         br.ui:checkSectionState(section)
     -- Toggle Key Options
         section = br.ui:createSection(br.ui.window.profile, "Toggle Keys")
@@ -379,6 +382,16 @@ local function runRotation()
                     end
                 end
             end
+            -- Wellspring
+            if isChecked("Wellspring") then
+                if getLowAllies(getValue("Wellspring")) >= getValue("Wellspring Targets") then
+                    if talent.cloudburstTotem and buff.cloudburstTotem.exists() then
+                        if cast.wellspring() then return end    
+                    else
+                        if cast.wellspring() then return end
+                    end
+                end
+            end
         end -- End Action List - AOEHealing
         -- Single Target
         function actionList_SingleTarget()
@@ -453,7 +466,21 @@ local function runRotation()
         end -- End Action List Single Target
     -- Action List - DPS
         local function actionList_DPS()
-
+            -- Flameshock
+            for i = 1, #enemies.yards40 do
+                local thisUnit = enemies.yards5[i]
+                if ttd(thisUnit) > 20 then
+                    if not debuff.flameShock.exists(thisUnit) then
+                        if cast.flameShock(thisUnit) then return end
+                    end
+                end
+            end
+            -- Lava Burst
+            if debuff.flameShock.remain(units.dyn40) > getCastTime(spell.lavaBurst) then
+                if cast.lavaBurst() then return end
+            end
+            -- Lightning Bolt
+            if cast.lightningBolt() then return end
         end -- End Action List - DPS
 -----------------
 --- Rotations ---

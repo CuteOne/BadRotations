@@ -2243,11 +2243,10 @@ br.idList = {
                 riptide                     = 61295,
                 spiritLinkTotem             = 98008,
                 spiritwalkersGrace          = 79206,
-
+                wellspring                  = 197995,
             },
             artifacts                       = {
                 giftOfTheQueen              = 207778,
-
             },
             buffs                           = {
                 ascendance                  = 114052,
@@ -2255,13 +2254,11 @@ br.idList = {
                 healingRain                 = 73920,
                 riptide                     = 61295,
                 tidalWaves                  = 53390,
-
             },
             debuffs                         = {
-
+                flameShock                  = 188838,
             },
             glyphs                          = {
-
             },
             talents                         = {
                 ancestralGuidance           = 108281,
