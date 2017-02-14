@@ -51,7 +51,13 @@ local function createOptions()
         ------------------------------
         section = br.ui:createSection(br.ui.window.profile, "Single Target Healing - BURST", "Quick cast")
         --Thunder Focus + Enveloping Mist
-        br.ui:createSpinnerWithout(section, "TF + EM", 40, 0, 100, 1, "", "[Thunder Focus + Enveloping Mist] Health Percent to Cast At")
+        br.ui:createSpinner(section, "TF + EM", 40, 0, 100, 1, "", "[Thunder Focus + Enveloping Mist] Health Percent to Cast At")
+        --Thunder Focus + Renewing Mist
+        br.ui:createSpinner(section, "TF + RM", 90, 0, 100, 1, "", "[Thunder Focus + Renewing Mist] Health Percent to Cast At")
+        --Thunder Focus + Vivify
+        br.ui:createSpinner(section, "TF + Vivify", 40, 0, 100, 1, "", "[Thunder Focus + Vivify] Health Percent to Cast At")
+        --Thunder Focus + Vivify
+        br.ui:createSpinnerWithout(section, "Mana TF + Vivify", 70, 0, 100, 1, "", "[Thunder Focus + Vivify] Mana Percent to Cast At")
         --Life Coccon
         br.ui:createSpinnerWithout(section, "Life Coccon", 20, 0, 100, 1, "", "Health Percent to Cast At")
         br.ui:checkSectionState(section)
@@ -118,17 +124,16 @@ end
 local lastSpellCasted = ""
 local lastSpellCatedOnPlayer = ""
 local function runRotation()
-    local player = br.player
-    local lowest = br.friend[1]
-    local enemies = enemies or {}
+    local player            = br.player
+    local lowest            = br.friend[1]
+    local enemies           = enemies or {}
 
-    enemies.yards5 = br.player.enemies(5)
-    enemies.yards20 = br.player.enemies(20)
-    enemies.yards40 = br.player.enemies(40)
+    enemies.yards5 = player.enemies(5)
+    enemies.yards20 = player.enemies(20)
+    enemies.yards40 = player.enemies(40)
 
-    --    if br.timer:useTimer("debugMistweaver", player.gcd) then
+
     if br.timer:useTimer("debugMistweaver", math.random(0.15,0.3)) then
-
 
         ---------------
         --- Toggles ---
@@ -152,7 +157,7 @@ local function runRotation()
                     return
                 end
             end
-            if player.talent.focusedThunder  and lowest.hp <= getOptionValue("TF + EM")  and (getBuffRemain(lowest.unit, player.spell.envelopingMist, "player") < 3 or (lastSpellCasted ~= "EM" or lastSpellCatedOnPlayer ~= lowest.unit)) then
+            if player.talent.focusedThunder and isChecked("TF + EM") and lowest.hp <= getOptionValue("TF + EM")  and (getBuffRemain(lowest.unit, player.spell.envelopingMist, "player") < 3 or (lastSpellCasted ~= "EM" or lastSpellCatedOnPlayer ~= lowest.unit)) then
                 if player.cast.thunderFocusTea() then
                     FaceDirection(GetAnglesBetweenObjects("Player", lowest.unit), true)
                     if player.cast.envelopingMist(lowest.unit) then
@@ -163,6 +168,26 @@ local function runRotation()
 
                 end
             end
+            if lowest.hp <= getOptionValue("TF + RM") and isChecked("TF + RM") and (getBuffRemain(lowest.unit, player.spell.renewingMist, "player") < 3 ) then
+                if player.cast.thunderFocusTea() then
+                    if player.cast.renewingMist(lowest.unit) then
+                        lastSpellCasted = ""
+                        lastSpellCatedOnPlayer = ""
+                        return
+                    end
+
+                end
+            end
+            if isChecked("TF + Vivify") and getLowAllies(getOptionValue("TF + Vivify")) >= 3 and player.power.mana.percent <= getOptionValue("Mana TF + Vivify") then
+                if player.cast.thunderFocusTea() then
+                    if player.cast.vivify(lowest.unit) then
+                        lastSpellCasted = ""
+                        lastSpellCatedOnPlayer = ""
+                        return
+                    end
+                end
+            end
+
 
         end
 
@@ -182,7 +207,7 @@ local function runRotation()
 
         function extraThunderFocus()
             if player.buff.thunderFocusTea.exists() then
-                if lowest.hp <= getOptionValue("TF + EM")*1.6 and (getBuffRemain(lowest.unit, player.spell.envelopingMist, "player") < 3 or (lastSpellCasted ~= "EM" or lastSpellCatedOnPlayer ~= lowest.unit))  then
+                if isChecked("TF + EM") and lowest.hp <= getOptionValue("TF + EM")*1.6 and (getBuffRemain(lowest.unit, player.spell.envelopingMist, "player") < 3 or (lastSpellCasted ~= "EM" or lastSpellCatedOnPlayer ~= lowest.unit))  then
                     if player.cast.envelopingMist(lowest.unit) then
                         FaceDirection(GetAnglesBetweenObjects("Player", lowest.unit), true)
                         lastSpellCasted = "EM"
@@ -190,8 +215,15 @@ local function runRotation()
                         return
                     end
                 end
-                if br.player.buff.thunderFocusTea.remain() < 2 then
+                if player.buff.thunderFocusTea.remain() < 2 and isChecked("TF + RM") then
                     castRenewingMist()
+                end
+                if isChecked("TF + Vivify") and getLowAllies(getOptionValue("TF + Vivify")) >= 3 and player.power.mana.percent <= getOptionValue("Mana TF + Vivify") then
+                    if player.cast.vivify(lowest.unit) then
+                        lastSpellCasted = ""
+                        lastSpellCatedOnPlayer = ""
+                        return
+                    end
                 end
 
             end
@@ -396,7 +428,7 @@ local function runRotation()
         --- EXTRA ---
         -------------
         function extra()
-            if player.power.mana.percent <= getOptionValue("Arcane Torrent") and br.player.race == "Blood Elf" then
+            if player.power.mana.percent <= getOptionValue("Arcane Torrent") and player.race == "BloodElf" then
                 if castSpell("player",player.getRacial(),false,false,false) then
                     lastSpellCasted = ""
                     lastSpellCatedOnPlayer = ""
@@ -416,7 +448,7 @@ local function runRotation()
         -----------------------------
         --- In Combat - Rotations ---
         -----------------------------
-        if player.inCombat then
+        if player.inCombat and not isCastingSpell(player.spell.essenceFont) then
             extra()
             if player.mode.dispell == 1 then
                 castDetox()
