@@ -67,6 +67,14 @@ What to do if you have crash to desktop or 134 errors.
 
 ## Profile Status
 
+Active Status Meanings
+* Full - Developer is active and able to fully manage profile.
+* Limited - Developer still supports but is unable to fully manage profile.
+* Sporatic - Developer is not regularly active but still or is assumed to still support.
+* Inactive - Developer has not appeared nor suppported in sometime.
+* Unknown - Status of Developer is unknown. 
+
+
 Raidable means if its good to raid with.
 * :white_check_mark: - works good
 * :x: - should not be used in raid
@@ -77,28 +85,41 @@ Raidable means if its good to raid with.
 ### Death Knight
   * Blood
 
-|author|patch|status|raidable?|
-|:-------|:---:|------:|:-----:|
-|||
-|CuteOne|7.1|100%|:white_check_mark:|
-|Vilt|7.1|100%|:white_check_mark:|
-|||
+|author|active|patch|status|raidable?|
+|:-------|:---:|:---:|------:|:-----:|
+||||
+|CuteOne|Full|7.1|100%|:white_check_mark:|
+|Vilt|Limited|7.1|100%|:white_check_mark:|
 
   * Frost
 
-|author|patch|status|raidable?|
-|:-------|:---:|------:|:-----:|
-|||
-|CuteOne|7.1.5|100%|:interrobang:
-|||
+|author|active|patch|status|raidable?|
+|:-------|:---:|:---:|------:|:-----:|
+||||
+|CuteOne|Full|7.1.5|100%|:interrobang:|
 
   * Unholy
   
-|author|patch|status|raidable?|
-|:-------|:---:|------:|:-----:|
-|||
-|No Profiles Yet||
-|||
+|author|active|patch|status|raidable?|
+|:-------|:---:|:---:|------:|:-----:|
+||||
+|No Profiles Yet|||
+
+### Demon Hunter
+  * Havoc
+
+|author|active|patch|status|raidable?|
+|:-------|:---:|:---:|------:|:-----:|
+||||
+|CuteOne|Full|7.1.5|100%|:white_check_mark:|
+
+  * Vengeance
+
+|author|active|patch|status|raidable?|
+|:-------|:---:|:---:|------:|:-----:|
+||||
+|CuteOne|Full|7.1|100%|:white_check_mark:|
+|Dubwub|Inactive|7.1.5|100%|:white_check_mark:|   
 
 
 |spec |status|author|patch|raidable?|
