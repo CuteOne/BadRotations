@@ -229,7 +229,7 @@ local function runRotation()
                 -- blood_fury
                 -- arcane_torrent
                 -- berserking
-                if (br.player.race == "Orc" or br.player.race == "Troll" or br.player.race == "Blood Elf") then
+                if (br.player.race == "Orc" or br.player.race == "Troll" or br.player.race == "BloodElf") then
                     if br.player.castRacial() then return end
                 end
                 -- Touch of the Void
