@@ -216,6 +216,7 @@ local function runRotation()
         if summonTime == nil then summonTime = 0 end
         if effigied == nil then effigied = false end
         if t19_4pc then hasT19 = 1 else hasT19 = 0 end
+        if isBoss() then dotHPLimit = getOptionValue("Multi-Dot HP Limit")/10 else dotHPLimit = getOptionValue("Multi-Dot HP Limit") end
 
         -- Opener Variables
         if not inCombat and not ObjectExists("target") then

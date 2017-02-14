@@ -206,9 +206,8 @@ local function runRotation()
         enemies.yards40 = br.player.enemies(40)
 
         if t19_4pc then hasT19 = 1 else hasT19 = 0 end
-
-   		  if leftCombat == nil then leftCombat = GetTime() end
-		    if profileStop == nil or not inCombat then profileStop = false end
+		if leftCombat == nil then leftCombat = GetTime() end
+	    if profileStop == nil or not inCombat then profileStop = false end
         if castSummonId == nil then castSummonId = 0 end
         if summonTime == nil then summonTime = 0 end
         if effigied == nil then effigied = false; effigyCount = 0 end
