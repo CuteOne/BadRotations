@@ -6,9 +6,9 @@ local rotationName = "CuteOne"
 local function createToggles()
 -- Rotation Button
     RotationModes = {
-        [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range.", highlight = 1, icon = br.player.spell.agony},
-        [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = br.player.spell.corruption},
-        [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = br.player.spell.drainLife},
+        [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range.", highlight = 1, icon = br.player.spell.chaosBolt},
+        [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = br.player.spell.rainOfFire},
+        [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = br.player.spell.immolate},
         [4] = { mode = "Off", value = 4 , overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spell.healthFunnel}
     };
     CreateButton("Rotation",1,0)
@@ -57,6 +57,10 @@ local function createOptions()
             br.ui:createDropdownWithout(section, "Summon Pet", {"Imp","Voidwalker","Felhunter","Succubus","Felguard","None"}, 1, "|cffFFFFFFSelect default pet to summon.")
         -- Grimoire of Service
             br.ui:createDropdownWithout(section, "Grimoire of Service", {"Imp","Voidwalker","Felhunter","Succubus","Felguard","None"}, 1, "|cffFFFFFFSelect pet to Grimoire.")
+        -- Multi-Dot Limit
+            br.ui:createSpinnerWithout(section, "Multi-Dot Limit", 5, 0, 10, 1, "|cffFFFFFFUnit Count Limit that DoTs will be cast on.")
+            br.ui:createSpinnerWithout(section, "Multi-Dot HP Limit", 5, 0, 10, 1, "|cffFFFFFFHP Limit that DoTs will be cast/refreshed on.")
+            br.ui:createSpinnerWithout(section, "Immolate Boss HP Limit", 10, 1, 20, 1, "|cffFFFFFFHP Limit that Immolate will be cast/refreshed on in relation to Boss HP.")
         -- Life Tap
             br.ui:createSpinner(section, "Life Tap", 30, 0, 100, 5, "|cffFFFFFFHP Limit that Life Tap will not cast below.")
         br.ui:checkSectionState(section)
@@ -231,15 +235,6 @@ local function runRotation()
             opener = false
         end
 
-        for i = 1, #enemies.yards40 do
-            local thisUnit = enemies.yards40[i]
-            if ObjectID(thisUnit) == 103679 then
-                effigied = true;
-                break
-            end
-            effigied = false
-        end
-
         -- Pet Data
         if summonPet == 1 then summonId = 416 end
         if summonPet == 2 then summonId = 1860 end
@@ -267,12 +262,25 @@ local function runRotation()
             end
         end
 
+        -- Havoc Check
         local hasHavoc
         hasHavoc = false
         if #enemies.yards40 > 0 then
             for i = 1, #enemies.yards40 do
                 local thisUnit = enemies.yards40[i]
                 if debuff.havoc.exists(thisUnit) then hasHavoc = true; break end
+            end
+        end
+
+        -- Boss Active/Health Max
+        local bossHPMax = bossHPMax or 0
+        local inBossFight = inBossFight or false
+        for i = 1, #enemies.yards40 do
+            local thisUnit = enemies.yards40[i]
+            if isBoss(thisUnit) then 
+                bossHPMax = UnitHealthMax(thisUnit)
+                inBossFight = true
+                break 
             end
         end
 
@@ -545,7 +553,9 @@ local function runRotation()
                     if (mode.rotation == 1 and #enemies.yards10t > 1) or mode.rotation == 2 then
                         for i = 1, #enemies.yards10t do
                             local thisUnit = enemies.yards10t[i]
-                            if isValidUnit(thisUnit) then
+                            if isValidUnit(thisUnit) and debuff.immolate.count() < getOptionValue("Multi-Dot Limit") and getHP(thisUnit) > dotHPLimit 
+                                and (not inBossFight or (inBossFight and UnitHealthMax(thisUnit) > bossHPMax * (getOptionValue("Immolate Boss HP Limit") / 100)))
+                            then
                                 if debuff.immolate.remain(thisUnit) <= 3 and (not talent.roaringBlaze or (not debuff.roaringBlaze.exists(thisUnit) and charges.conflagrate < 2)) then
                                     if cast.immolate(thisUnit) then return end
                                 end
@@ -555,6 +565,8 @@ local function runRotation()
                     -- immolate,if=talent.roaring_blaze.enabled&remains<=duration&!debuff.roaring_blaze.remain()s&target.time_to_die>10&(action.conflagrate.charges=2+set_bonus.tier19_4pc|(action.conflagrate.charges>=1+set_bonus.tier19_4pc&action.conflagrate.recharge_time<cast_time+gcd)|target.time_to_die<24
                     if talent.roaringBlaze and debuff.immolate.remain(units.dyn40) <= 18 --[[debuff.immolate.duration(units.dyn40) * 0.7 ]]and not debuff.roaringBlaze.exists(units.dyn40)
                         and ttd(units.dyn40) > 10 and (charges.conflagrate == 2 + hasT19 or (charges.conflagrate >= 1 and recharge.conflagrate < getCastTime(spell.conflagrate) + gcd) or ttd(units.dyn40) < 24)
+                        and debuff.immolate.count() < getOptionValue("Multi-Dot Limit") and getHP(units.dyn40) > dotHPLimit
+                        and (not inBossFight or (inBossFight and UnitHealthMax(units.dyn40) > bossHPMax * (getOptionValue("Immolate Boss HP Limit") / 100))) 
                     then
                         if cast.immolate(units.dyn40) then return end
                     end
@@ -723,7 +735,9 @@ local function runRotation()
                     end
         -- Immolate
                     -- immolate,if=!talent.roaring_blaze.enabled&remains<=duration*0.3
-                    if not talent.roaringBlaze and debuff.immolate.refresh(units.dyn40) then
+                    if not talent.roaringBlaze and debuff.immolate.refresh(units.dyn40) and debuff.immolate.count() < getOptionValue("Multi-Dot Limit") and getHP(units.dyn40) > dotHPLimit 
+                        and (not inBossFight or (inBossFight and UnitHealthMax(units.dyn40) > bossHPMax * (getOptionValue("Immolate Boss HP Limit") / 100)))
+                    then
                         if cast.immolate(units.dyn40) then return end
                     end
         -- Incinerate

@@ -229,7 +229,7 @@ local function runRotation()
                 end
 
                 -- Pet Attack / retreat
-                if inCombat and isValidUnit(units.dyn40) and getDistance(units.dyn40) < 40 then
+                if inCombat and UnitAffectingCombat("target") and isValidUnit("target") and getDistance("target") < 40 then
                     if not UnitIsUnit("target","pettarget") then
                         PetAttack()
                     end
@@ -373,7 +373,7 @@ local function runRotation()
         -- Steel Trap
             -- steel_trap,if=buff.mongoose_fury.duration()>=gcd&buff.mongoose_fury.stack()<4
             if buff.mongooseFury.duration() >= gcd and buff.mongooseFury.stack() < 4 then
-                if cast.steelTrap() then return end
+                if cast.steelTrap("best",nil,1,5) then return end
             end
         -- Caltrops
             -- caltrops,if=(buff.mongoose_fury.duration()>=gcd&buff.mongoose_fury.stack()<4&!dot.caltrops.ticking)
@@ -398,12 +398,12 @@ local function runRotation()
         -- Steel Trap
             -- steel_trap,if=buff.mongoose_fury.duration()>=gcd&buff.mongoose_fury.stack()<4
             if buff.mongooseFury.duration() >= gcd and buff.mongooseFury.stack() < 4 then
-                if cast.steelTrap() then return end
+                if cast.steelTrap("best",nil,1,5) then return end
             end
         -- Explosive Trap
             -- explosive_trap,if=buff.mongoose_fury.duration()>=gcd&cooldown.mongoose_bite.charges>=0&buff.mongoose_fury.stack()<4
             if buff.mongooseFury.duration() >= gcd and charges.mongooseBite >= 0 and buff.mongooseFury.stack() < 4 then
-                if cast.explosiveTrap() then return end
+                if cast.explosiveTrap("best",nil,1,5) then return end
             end
         -- Dragonsfire Grenade
             -- dragonsfire_grenade,if=buff.mongoose_fury.duration()>=gcd&cooldown.mongoose_bite.charges>=0&buff.mongoose_fury.stack()<4
@@ -466,10 +466,10 @@ local function runRotation()
             if cast.spittingCobra() then return end
         -- Steel Trap
             -- steel_trap
-            if cast.steelTrap() then return end
+            if cast.steelTrap("best",nil,1,5) then return end
         -- Explosive Trap
             -- explosive_trap
-            if cast.explosiveTrap() then return end
+            if cast.explosiveTrap("best",nil,1,5) then return end
         -- Caltrops
             -- caltrops,if=(!dot.caltrops.ticking)
             if not debuff.caltrops.exists(units.dyn5) then
@@ -532,7 +532,7 @@ local function runRotation()
             -- Steel Trap
             -- steel_trap,if=buff.mongoose_fury.duration()>=gcd&buff.mongoose_fury.stack()<4
             if buff.mongooseFury.duration() >= gcd and buff.mongooseFury.stack() < 4 then
-                if cast.steelTrap() then return end
+                if cast.steelTrap("best",nil,1,5) then return end
             end
             -- Caltrops
             -- caltrops,if=(buff.mongoose_fury.duration()>=gcd&buff.mongoose_fury.stack()<4&!dot.caltrops.ticking)
@@ -557,12 +557,12 @@ local function runRotation()
             -- Steel Trap
             -- steel_trap,if=buff.mongoose_fury.duration()>=gcd&buff.mongoose_fury.stack()<4
             if buff.mongooseFury.duration() >= gcd and buff.mongooseFury.stack() < 4 then
-                if cast.steelTrap() then return end
+                if cast.steelTrap("best",nil,1,5) then return end
             end
             -- Explosive Trap
             -- explosive_trap,if=buff.mongoose_fury.duration()>=gcd&cooldown.mongoose_bite.charges>=0&buff.mongoose_fury.stack()<4
             if buff.mongooseFury.duration() >= gcd and charges.mongooseBite >= 0 and buff.mongooseFury.stack() < 4 then
-                if cast.explosiveTrap() then return end
+                if cast.explosiveTrap("best",nil,1,5) then return end
             end
             -- Dragonsfire Grenade
             -- dragonsfire_grenade,if=buff.mongoose_fury.duration()>=gcd&cooldown.mongoose_bite.charges>=0&buff.mongoose_fury.stack()<4
@@ -619,10 +619,10 @@ local function runRotation()
             if cast.spittingCobra() then return end
             -- Steel Trap
             -- steel_trap
-            if cast.steelTrap() then return end
+            if cast.steelTrap("best",nil,1,5) then return end
             -- Explosive Trap
             -- explosive_trap
-            if cast.explosiveTrap() then return end
+            if cast.explosiveTrap("best",nil,1,5) then return end
             -- Caltrops
             -- caltrops,if=(!dot.caltrops.ticking)
             if not debuff.caltrops.exists(units.dyn5) then
@@ -674,6 +674,44 @@ local function runRotation()
                 end
             end
         end
+    -- Action List - Pre-Combat
+        local function actionList_PreCombat()
+        -- Flask / Crystal
+            -- flask,name=countless_armies
+            if isChecked("Flask / Crystal") and not (IsFlying() or IsMounted()) then
+                if (raid or solo) and not (buff.agilityFlaskLow or buff.agilityFlaskBig) then--Draenor Str Flasks
+                    if not UnitBuffID("player",176151) and canUse(118922) then --Draenor Insanity Crystal
+                        if br.player.useCrystal() then return end
+                    end
+                end
+            end
+        -- Food
+            -- food,type=food,name=azshari_salad
+            -- TODO
+        -- Augmentation
+            -- augmentation,name=defiled
+            -- TODO
+        -- Potion
+            -- potion,name=prolonged_power
+            -- TODO
+        -- Pre-pull
+            if isChecked("Pre-Pull Timer") and pullTimer <= getOptionValue("Pre-Pull Timer") then
+
+            end -- Pre-Pull
+            if isValidUnit("target") and not inCombat then
+        -- Explosive Trap
+                -- explosive_trap
+                if cast.explosiveTrap("best",nil,1,5) then return end
+        -- Steel Trap
+                -- steel_trap
+                if cast.steelTrap("best",nil,1,5) then return end
+        -- Dragonsfire Grenade
+                -- dragonsfire_grenade
+                if cast.dragonsfireGrenade() then return end
+        -- Start Attack
+                StartAttack()
+            end
+        end -- End Action List - PreCombat
 -----------------
 --- Rotations ---
 -----------------
@@ -689,6 +727,10 @@ local function runRotation()
     --- Pet Logic ---
     -----------------
                 if actionList_PetManagement() then return end
+    ------------------
+    --- Pre-Combat ---
+    ------------------
+                if actionList_PreCombat() then return end
             end -- End Out of Combat Rotation
 -----------------------------
 --- In Combat - Rotations ---
