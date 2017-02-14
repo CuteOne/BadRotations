@@ -577,7 +577,7 @@ local function runRotation()
                         and (not inBossFight or (inBossFight and UnitHealthMax(units.dyn40) > bossHPMax * (getOptionValue("Immolate Boss HP Limit") / 100))) 
                     then
                         if cast.immolate(units.dyn40) then return end
-                    endWW
+                    end
         -- Racial: Orc Blood Fury | Troll Berserking | Blood Elf Arcane Torrent
                     -- blood_fury | berserking | arcane_torrent
                     if useCDs() and isChecked("Racial") and (br.player.race == "Orc" or br.player.race == "Troll" or br.player.race == "BloodElf") then
