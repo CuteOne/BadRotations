@@ -74,19 +74,29 @@ Raidable means if its good to raid with.
 * :interrobang: - currently unknown or in development; give feedback :D
 * BH - has BossHelper support, features things like using specific spell based on current boss etc.
 
-|:-------|:---:|------:|:-----:|
-| ##Death Knight ||
-|||
+### Death Knight
+  * Blood
+
 |author|patch|status|raidable?|
-| ###Blood ||
+|:-------|:---:|------:|:-----:|
 |||
 |CuteOne|7.1|100%|:white_check_mark:|
 |Vilt|7.1|100%|:white_check_mark:|
 |||
-| ###Frost ||
+
+  * Frost
+
+|author|patch|status|raidable?|
+|:-------|:---:|------:|:-----:|
+|||
 |CuteOne|7.1.5|100%|:interrobang:
 |||
-| ###Unholy ||
+
+  * Unholy
+  
+|author|patch|status|raidable?|
+|:-------|:---:|------:|:-----:|
+|||
 |No Profiles Yet||
 |||
 
