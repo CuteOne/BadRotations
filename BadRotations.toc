@@ -166,7 +166,7 @@ Rotations\Shaman\Elemental\ElementalCuteOne.lua
 
 Rotations\Shaman\Enhancement\EnhancementCuteOne.lua
 
-Rotations\Shaman\Restoration\RestorationKuu.lua
+Rotations\Shaman\Restoration\RestorationSvs.lua
 
 ## Warlock ---------------------------------------------------
 

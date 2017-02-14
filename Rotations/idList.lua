@@ -2224,12 +2224,37 @@ br.idList = {
         -- Restoration
         [264] = {
             abilities                       = {
+                ancestralGuidance           = 108281,
+                ascendance                  = 114052,
+                chainHeal                   = 1064,
+                chainLightning              = 421,
+                cloudburstTotem             = 157153,
+                flameShock                  = 188838,
+                giftOfTheQueen              = 207778,
+                healingRain                 = 73920,
+                healingSurge                = 8004,
+                healingStreamTotem          = 5394,
+                healingTideTotem            = 108280,
+                healingWave                 = 77472,
+                heroism                     = 32182,
+                lavaBurst                   = 51505,
+                lightningBolt               = 403,
+                purifySpirit                = 77130,
+                riptide                     = 61295,
+                spiritLinkTotem             = 98008,
+                spiritwalkersGrace          = 79206,
 
             },
             artifacts                       = {
+                giftOfTheQueen              = 207778,
 
             },
             buffs                           = {
+                ascendance                  = 114052,
+                cloudburstTotem             = 157504,
+                healingRain                 = 73920,
+                riptide                     = 61295,
+                tidalWaves                  = 53390,
 
             },
             debuffs                         = {
@@ -2239,7 +2264,15 @@ br.idList = {
 
             },
             talents                         = {
-
+                ancestralGuidance           = 108281,
+                ancestralProtectionTotem    = 207399,
+                ascendance                  = 114052,
+                cloudburstTotem             = 157153,
+                earthenShieldTotem          = 198838,
+                gustOfWind                  = 192063,
+                unleashLife                 = 73685,
+                wellspring                  = 197995,
+                windRushTotem               = 192077,
             },
         },
         -- All
@@ -2247,6 +2280,7 @@ br.idList = {
             abilities                       = {
                 ancestralSpirit             = 2008,
                 astralShift                 = 108271,
+                earthbindTotem              = 2484,
                 earthgrabTotem              = 51485,
                 ghostWolf                   = 2645,
                 hex                         = 51514,
