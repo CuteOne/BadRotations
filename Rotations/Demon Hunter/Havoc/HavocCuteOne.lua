@@ -358,7 +358,7 @@ local function runRotation()
                 -- Draught of Souls
                 if isChecked("Draught of Souls") then
                     if hasEquiped(140808) and canUse(140808) then
-                        if not buff.metamorphosis.exists() and (not talent.firstBlood or cd.bladeDance ~= 0) and (not talent.nemesis or cd.nemesis > 30 or ttd("target") < cd.nemesis + 3) then
+                        if not buff.metamorphosis.exists() and (not talent.firstBlood or cd.bladeDance > 3) and (not talent.nemesis or cd.nemesis > 30 or ttd("target") < cd.nemesis + 3) then
                             useItem(140808)
                         end
                     end
