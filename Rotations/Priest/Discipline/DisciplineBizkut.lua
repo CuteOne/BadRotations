@@ -65,7 +65,7 @@ local function createOptions()
             --Psychic Scream
             br.ui:createSpinner(section, "Psychic Scream",  40,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At. Default: 40")
             --Leap Of Faith
-            br.ui:createSpinner(section, "Leap Of Faith",  35,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At. Default: 35")
+            br.ui:createSpinner(section, "Leap Of Faith",  20,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At. Default: 20")
             --Resurrection
             br.ui:createCheckbox(section, "Resurrection")
             br.ui:createDropdownWithout(section, "Resurrection - Target", {"|cff00FF00Target","|cffFF0000Mouseover","|cffFFBB00Auto"}, 1, "|cffFFFFFFTarget to cast on")
@@ -93,7 +93,7 @@ local function createOptions()
             --Pain Suppression Tank
             br.ui:createSpinner(section, "Pain Suppression Tank",  30,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At. Default: 30")
             --Pain Suppression
-            br.ui:createSpinner(section, "Pain Suppression",  25,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At. Default: 25")
+            br.ui:createSpinner(section, "Pain Suppression",  15,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At. Default: 15")
         br.ui:checkSectionState(section)
         -------------------------
         ------ AOE HEALING ------
