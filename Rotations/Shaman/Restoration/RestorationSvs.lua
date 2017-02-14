@@ -439,19 +439,19 @@ local function runRotation()
                     end
                 end
             end
-            -- Healing Wave
-            if isChecked("Healing Wave") then
-                for i = 1, #br.friend do                           
-                    if br.friend[i].hp <= getValue("Healing Wave") and buff.tidalWaves.exists() then
-                        if cast.healingWave(br.friend[i].unit) then return end     
-                    end
-                end
-            end
             -- Healing Surge
             if isChecked("Healing Surge") then
                 for i = 1, #br.friend do                           
                     if br.friend[i].hp <= getValue("Healing Surge") and buff.tidalWaves.exists() then
                         if cast.healingSurge(br.friend[i].unit) then return end     
+                    end
+                end
+            end
+            -- Healing Wave
+            if isChecked("Healing Wave") then
+                for i = 1, #br.friend do                           
+                    if br.friend[i].hp <= getValue("Healing Wave") and buff.tidalWaves.exists() then
+                        if cast.healingWave(br.friend[i].unit) then return end     
                     end
                 end
             end
@@ -469,10 +469,8 @@ local function runRotation()
             -- Flameshock
             for i = 1, #enemies.yards40 do
                 local thisUnit = enemies.yards5[i]
-                if ttd(thisUnit) > 20 then
-                    if not debuff.flameShock.exists(thisUnit) then
-                        if cast.flameShock(thisUnit) then return end
-                    end
+                if not debuff.flameShock.exists(thisUnit) then
+                    if cast.flameShock(thisUnit) then return end
                 end
             end
             -- Lava Burst
