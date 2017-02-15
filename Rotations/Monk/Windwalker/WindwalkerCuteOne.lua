@@ -232,7 +232,7 @@ local function runRotation()
 
         if not inCombat or lastSpell == nil then lastSpell = 6603 end
         -- if not inCombat and lastSpell ~= 6603 then Print("Combat Dropped") end
-        if lastCast ~= 137639 and (inCombat and lastCast ~= 6603) then lastSpell = lastCast end
+        if (inCombat and lastCast ~= 6603) and lastCast ~= spell.stormEarthAndFire and lastCast ~= spell.energizingElixir then lastSpell = lastCast end
         if leftCombat == nil then leftCombat = GetTime() end
         if profileStop == nil then profileStop = false end
         if opener == nil then opener = false end
