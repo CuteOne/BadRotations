@@ -321,6 +321,10 @@ local function runRotation()
         end  -- End Action List - Pre-Combat
         function actionList_Cooldowns()
             if useCDs() then
+            -- Cloudburst Totem
+            if talent.cloudburstTotem and not buff.cloudburstTotem.exists() then
+                if cast.cloudburstTotem() then return end
+            end
             -- Ancestral Guidance
                 if isChecked("Ancestral Guidance") and talent.ancestralGuidance then
                     if getLowAllies(getValue("Ancestral Guidance")) >= getValue("Ancestral Guidance Targets") then
@@ -427,10 +431,6 @@ local function runRotation()
             if talent.earthenShieldTotem then
                 if cast.earthenShieldTotem() then return end
             end
-            -- Cloudburst Totem
-            if talent.cloudburstTotem and not buff.cloudburstTotem.exists() then
-                if cast.cloudburstTotem() then return end
-            end
             -- Healing Stream Totem
             if isChecked("Healing Stream Totem") then
                 for i = 1, #br.friend do                           
@@ -466,6 +466,10 @@ local function runRotation()
         end -- End Action List Single Target
     -- Action List - DPS
         local function actionList_DPS()
+            -- Lava Burst - Lava Surge
+            if buff.lavaSurge.exists() then
+                if cast.lavaBurst() then return end
+            end
             -- Flameshock
             for i = 1, #enemies.yards40 do
                 local thisUnit = enemies.yards5[i]
@@ -501,8 +505,8 @@ local function runRotation()
                 actionList_Defensive()
                 actionList_Interrupts()
                 actionList_Cooldowns()
-                actionList_AOEHealing()
                 actionList_SingleTarget()
+                actionList_AOEHealing()
                 if br.player.mode.dps == 1 then
                     actionList_DPS()
                 end

@@ -20,6 +20,8 @@ local function createOptions()
         section = br.ui:createSection(br.ui.window.profile, "Single Target Healing")
             --Purify
             br.ui:createCheckbox(section, "Purify")
+            -- Trinkets
+            br.ui:createCheckbox(section,"Trinkets")
             --Pain Suppression
             br.ui:createSpinner(section, "Pain Suppression",  30,  0,  100,  5,  "Health Percent to Cast At")
             --Power Word Shield
@@ -163,6 +165,21 @@ local function runRotation()
         end
         -- Single Target
         function actionList_SingleTarget()
+            -- Trinkets
+                if isChecked("Trinkets") then
+                    if canUse(11) then
+                        useItem(11)
+                    end
+                    if canUse(12) then
+                        useItem(12)
+                    end
+                    if canUse(13) then
+                        useItem(13)
+                    end
+                    if canUse(14) then
+                        useItem(14)
+                    end
+                end
         	-- Pain Suppression
             if isChecked("Pain Suppression") then
                 for i = 1, #br.friend do
@@ -220,7 +237,6 @@ local function runRotation()
             --MindbBender/Shadowfiend
             if isChecked("Rapture") then
                 if getLowAllies(getValue("Rapture")) >= getValue("Rapture Targets") then    
-                    if cast.mindBender() then return end
                     if cast.shadowfiend() then return end    
                 end
             end

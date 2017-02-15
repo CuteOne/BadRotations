@@ -360,7 +360,7 @@ local function runRotation()
         -- Battle Cry
                 if isChecked("Battle Cry") then
                     -- battle_cry,if=gcd.remains=0&talent.reckless_abandon.enabled
-                    if cd.global == 0 and (talent.recklessAbandon or (level < 100 and power >= 100 and buff.enrage.exists())) then
+                    if cd.global == 0 and (talent.recklessAbandon or (level < 100 and (not talent.frothingBerserker or (talent.frothingBerserker and buff.frothingBerserker.exists())))) then
                         if cast.battleCry() then return end
                     end
                     -- battle_cry,if=gcd.remains=0&talent.bladestorm.enabled&(raid_event.adds.in>90|!raid_event.adds.exists|spell_targets.bladestorm_mh>desired_targets)
@@ -511,7 +511,7 @@ local function runRotation()
             end
         -- Rampage
             -- rampage,if=talent.reckless_abandon.enabled&!talent.frothing_berserker.enabled|(talent.frothing_berserker.enabled&rage>=100)
-            if talent.recklessAbandon and not talent.frothingBerserker or (talent.frothingBerserker and power >= 100) then
+            if talent.recklessAbandon and not talent.frothingBerserker or (talent.frothingBerserker and buff.frothingBerserker.exists()) then
                 if cast.rampage() then return end
             end
         -- Berserker Rage
@@ -643,7 +643,7 @@ local function runRotation()
             end
         -- Rampage
             -- rampage,if=buff.meat_cleaver.up&((buff.enrage.down&!talent.frothing_berserker.enabled)|(rage>=100&talent.frothing_berserker.enabled))|buff.massacre.react
-            if (buff.meatCleaver.exists() and ((not buff.enrage.exists() and not talent.frothingBerserker) or (power >= 100 and talent.frothingBerserker))) or buff.massacre.exists() then
+            if (buff.meatCleaver.exists() and ((not buff.enrage.exists() and not talent.frothingBerserker) or (buff.frothingBerserker.exists() and talent.frothingBerserker))) or buff.massacre.exists() then
                 if cast.rampage() then return end
             end
         -- Raging Blow
