@@ -119,13 +119,110 @@ Raidable means if its good to raid with.
 |:-------|:---:|:---:|------:|:-----:|
 ||||
 |CuteOne|Full|7.1|100%|:white_check_mark:|
-|Dubwub|Inactive|7.1.5|100%|:white_check_mark:|   
+|Dubwub|Inactive|7.1.5|100%|:white_check_mark:|
 
+### Druid
+  * Feral
+
+|author|active|patch|status|raidable?|
+|:-------|:---:|:---:|------:|:-----:|
+||||
+|Averykey|Inactive|7.0|100%|:interrobang:|
+|CuteOne|Full|7.1.5|100%|:white_check_mark:|
+
+  * Guardian
+
+|author|active|patch|status|raidable?|
+|:-------|:---:|:---:|------:|:-----:|
+||||
+|CuteOne|Full|7.1|100%|:white_check_mark:|
+
+  * Moonkin
+
+|author|active|patch|status|raidable?|
+|:-------|:---:|:---:|------:|:-----:|
+||||
+|No Profiles Yet|||
+
+  * Restoration
+
+|author|active|patch|status|raidable?|
+|:-------|:---:|:---:|------:|:-----:|
+||||
+|Svs|Full|7.1.5|90%|:heavy_check_mark:|
+
+
+### Hunter
+  * Beastmaster
+
+|author|active|patch|status|raidable?|
+|:-------|:---:|:---:|------:|:-----:|
+||||
+|Cpoworks|Sporatic|7.1|70%|:heavy_check_mark:|
+
+  * Marksmanship
+
+|author|active|patch|status|raidable?|
+|:-------|:---:|:---:|------:|:-----:|
+||||
+|Cpoworks|Sporatic|7.1|70%|:heavy_check_mark:|
+
+  * Survival
+
+|author|active|patch|status|raidable?|
+|:-------|:---:|:---:|------:|:-----:|
+||||
+|CuteOne/Cpoworks|Full/Sporatic|7.1.5|90%|:interrobang:|
+
+### Mage
+  * Arcane
+
+|author|active|patch|status|raidable?|
+|:-------|:---:|:---:|------:|:-----:|
+||||
+|dbtftw|Inactive|7.1|90%|:interrobang:|
+
+  * Fire
+
+|author|active|patch|status|raidable?|
+|:-------|:---:|:---:|------:|:-----:|
+||||
+|winston/cryteks|Full|7.1.5|100%|:interrobang:|
+
+  * Frost
+
+|author|active|patch|status|raidable?|
+|:-------|:---:|:---:|------:|:-----:|
+||||
+|dbtftw|Inactive|7.1.5|100%|:interrobang:|
+
+### Monk
+  * Brewmaster
+
+|author|active|patch|status|raidable?|
+|:-------|:---:|:---:|------:|:-----:|
+||||
+|Kuukuu|Full|7.1.5|80%|:heavy_check_mark:|
+
+  * Mistweaver
+
+|author|active|patch|status|raidable?|
+|:-------|:---:|:---:|------:|:-----:|
+||||
+|Cpoworks|Sporatic|7.1.5|70%|:heavy_check_mark:
+|Lyloloq|Full|7.1.5|100%|:interrobang:|
+
+  * Windwalker
+
+|author|active|patch|status|raidable?|
+|:-------|:---:|:---:|------:|:-----:|
+||||
+|CuteOne|Full|7.1.5|100%|:white_check_mark:|
 
 |spec |status|author|patch|raidable?|
 |:----|------:|:-------|:---:|:-----:|
 ||||
-| **Death Knight** |||
+<!-- | **Death Knight** |||
 |Frost|100%|CuteOne|7.1.5|:interrobang:
 |Blood|100%|CuteOne/Vilt|7.1|:white_check_mark:
 |Unholy|0%||7.0|
@@ -133,28 +230,28 @@ Raidable means if its good to raid with.
 | **Demon Hunter** |||
 |Havoc|100% (SimC)|CuteOne|7.1.5|:white_check_mark:
 |Vengeance|100% (SimC)|Dubwub/CuteOne|7.1|:white_check_mark:
-||||
-| **Druid** |||
+|||| -->
+<!-- | **Druid** |||
 |Feral|100% (SimC)|CuteOne|7.1.5|:white_check_mark:
 |Guardian|100% (SimC)|CuteOne|7.1|:white_check_mark:
 |Restoration|90%|Svs|7.1.5|:heavy_check_mark:
 |Moonkin|0%||7.0|
-||||
-| **Hunter** |||
+|||| -->
+<!-- | **Hunter** |||
 |Beastmaster|70%|Cpoworks|7.1|:heavy_check_mark:
 |Marksmanship|70% (SimC/AMR)|Cpoworks|7.1|:heavy_check_mark:
 |Survival|70% (AMR)|Cpoworks|7.1|:heavy_check_mark:
-||||
-| **Mage** |||
+|||| -->
+<!-- | **Mage** |||
 |Arcane|0%||7.0|
 |Fire|100%|CuteOne|7.1|:interrobang:
 |Frost|100%|CuteOne/dbtftw|7.1.5|:interrobang:
-||||
-| **Monk** |||
+|||| -->
+<!-- | **Monk** |||
 |Brewmaster|80%|Kuukuu|7.1.5|:heavy_check_mark:
 |Mistweaver|70%|Cpoworks/Svs/Zu|7.1|:heavy_check_mark:
 |Windwalker|100% (SimC/AMR)|CuteOne|7.1.5|:white_check_mark:
-||||
+|||| -->
 | **Paladin** |||
 |Holy|30%|Kuukuu|7.1.5|
 |Protection|0%||7.0|
