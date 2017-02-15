@@ -65,7 +65,7 @@ local function createOptions()
             --Psychic Scream
             br.ui:createSpinner(section, "Psychic Scream",  40,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At. Default: 40")
             --Leap Of Faith
-            br.ui:createSpinner(section, "Leap Of Faith",  20,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At. Default: 20")
+            br.ui:createSpinner(section, "Leap Of Faith",  10,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At. Will never use on tank. Default: 10")
             --Resurrection
             br.ui:createCheckbox(section, "Resurrection")
             br.ui:createDropdownWithout(section, "Resurrection - Target", {"|cff00FF00Target","|cffFF0000Mouseover","|cffFFBB00Auto"}, 1, "|cffFFFFFFTarget to cast on")
@@ -490,7 +490,7 @@ local function runRotation()
             --Leap Of Faith
             if isChecked("Leap Of Faith") and (mode.healer == 1 or mode.healer == 2) then
                 for i = 1, #br.friend do
-                    if php > br.friend[i].hp and br.friend[i].hp <= getValue("Leap Of Faith") then
+                    if php > br.friend[i].hp and br.friend[i].hp <= getValue("Leap Of Faith") and UnitGroupRolesAssigned(br.friend[i].unit) ~= "TANK" then
                         if cast.leapOfFaith(br.friend[i].unit) then return end
                     end
                 end
