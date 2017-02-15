@@ -2254,6 +2254,7 @@ br.idList = {
                 ascendance                  = 114052,
                 cloudburstTotem             = 157504,
                 healingRain                 = 73920,
+                lavaSurge                   = 77762,
                 riptide                     = 61295,
                 tidalWaves                  = 53390,
             },
