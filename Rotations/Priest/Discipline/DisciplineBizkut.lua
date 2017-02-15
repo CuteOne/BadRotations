@@ -82,8 +82,6 @@ local function createOptions()
             br.ui:createSpinner(section, "Max Atonement",  40,  0,  40,  1,  "|cffFFFFFFMaximum Atonement to keep at a time. Default: 40")
             --Max Plea
             br.ui:createSpinner(section, "Max Plea",  5,  0,  40,  1,  "|cffFFFFFFMaximum Atonement before we avoid using Plea as it becomes too expensive. Default: 5")
-            --Power Word: Shield
-            br.ui:createSpinner(section, "Power Word: Shield",  95,  0,  100,  1,  "|cffFFFFFFHealth Percent to Cast At. Default: 95")
             --Penance Heal
             br.ui:createSpinner(section, "Penance Heal",  60,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At. Default: 60")
             --Shadow Mend
@@ -139,7 +137,7 @@ local function createOptions()
             --Halo Damage
             br.ui:createSpinner(section, "Halo Damage",  3,  0,  10,  1,  "|cffFFFFFFMinimum Halo Damage Targets. Default: 3")
             --Mindbender
-            br.ui:createSpinner(section, "Mindbender",  90,  0,  100,  5,  "|cffFFFFFFMana Percent to Cast At. Default: 90")
+            br.ui:createSpinner(section, "Mindbender",  80,  0,  100,  5,  "|cffFFFFFFMana Percent to Cast At. Default: 80")
             --Shadowfiend
             br.ui:createSpinner(section, "Shadowfiend",  80,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At. Default: 80")
             br.ui:createSpinnerWithout(section, "Shadowfiend Targets",  3,  0,  40,  1,  "|cffFFFFFFMinimum Shadowfiend Targets. Default: 3")  
@@ -426,14 +424,14 @@ local function runRotation()
         --Spread Atonement
         function actionList_SpreadAtonement(friendUnit)
             --Spread Atonement
-            if isChecked("Max Atonement") and atonementCount < getOptionValue("Max Atonement") and getBuffRemain(friendUnit, spell.buffs.atonement, "player") < 1 then
+            if isChecked("Max Atonement") and atonementCount < getOptionValue("Max Atonement") and (not buff.powerWordShield.exists(friendUnit) or getBuffRemain(friendUnit, spell.buffs.atonement, "player") < 1) then
                 if getSpellCD(spell.powerWordShield) == 0 and not buff.powerWordShield.exists(friendUnit) then
                     if cast.powerWordShield(friendUnit) then return end
                 end
-                if lastSpell ~= spell.plea and lastSpell ~= spell.powerWordShield and atonementCount < getOptionValue("Max Plea") then
+                if lastSpell ~= spell.plea and lastSpell ~= spell.powerWordShield and atonementCount < getOptionValue("Max Plea") and getBuffRemain(friendUnit, spell.buffs.atonement, "player") < 1 then
                     if cast.plea(friendUnit) then return end     
                 end
-                if lastSpell ~= spell.powerWordRadiance and atonementCount > getOptionValue("Max Plea") then
+                if lastSpell ~= spell.powerWordRadiance and atonementCount > getOptionValue("Max Plea") and getBuffRemain(friendUnit, spell.buffs.atonement, "player") < 1 then
                     if cast.powerWordRadiance(friendUnit) then return end
                 end
             end
@@ -537,19 +535,6 @@ local function runRotation()
                     end
                 end
             end
-            --Power Word: Shield
-            if isChecked("Power Word: Shield") then
-                for i = 1, #br.friend do
-                    if br.friend[i].hp <= getValue("Power Word: Shield") and not buff.powerWordShield.exists(br.friend[i].unit) then
-                        if mode.healer == 1 or mode.healer == 2 then
-                            if cast.powerWordShield(br.friend[i].unit) then return end
-                        end
-                        if mode.healer == 3 and br.friend[i].unit == "player" then
-                            if cast.powerWordShield("player") then return end
-                        end
-                    end
-                end
-            end
             --Clarity of Will
             if isChecked("Clarity of Will") and talent.clarityOfWill then
                 for i = 1, #br.friend do                           
@@ -589,15 +574,23 @@ local function runRotation()
             --Atonement
             if isChecked("Atonement HP") then
                 for i = 1, #br.friend do
+                    local tankBuff = 0
+                    if  (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and not buff.powerWordShield.exists(br.friend[i].unit) then
+                        tankBuff = i
+                    end
                     if br.friend[i].hp <= getValue("Atonement HP") then
-                        if mode.healer == 1 then
+                        if mode.healer == 1 and tankBuff ~= 0 then
+                            actionList_SpreadAtonement(br.friend[tankBuff].unit)
+                        elseif mode.healer == 1 then
                             actionList_SpreadAtonement(br.friend[i].unit)
                         end
                         if mode.healer == 3 and br.friend[i].unit == "player" then
                             actionList_SpreadAtonement("player")
                         end
                     end
-                    if mode.healer == 2 then
+                    if mode.healer == 2 and tankBuff ~= 0 then
+                        actionList_SpreadAtonement(br.friend[tankBuff].unit)
+                    elseif mode.healer == 2 then
                         actionList_SpreadAtonement(br.friend[i].unit)
                     end
                 end
