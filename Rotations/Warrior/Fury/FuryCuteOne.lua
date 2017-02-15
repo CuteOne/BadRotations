@@ -70,18 +70,14 @@ local function createOptions()
         --- COOLDOWN OPTIONS ---
         ------------------------
         section = br.ui:createSection(br.ui.window.profile,  "Cooldowns")
-            -- Agi Pot
-            br.ui:createCheckbox(section,"Str-Pot")
-            -- Legendary Ring
-            br.ui:createCheckbox(section, "Legendary Ring", "Enable or Disable usage of Legendary Ring.")
             -- Flask / Crystal
             br.ui:createCheckbox(section,"Flask / Crystal")
+            -- Potion
+            br.ui:createCheckbox(section,"Potion")
             -- Racials
             br.ui:createCheckbox(section,"Racial")
             -- Trinkets
             br.ui:createCheckbox(section,"Trinkets")
-            -- Touch of the Void
-            br.ui:createCheckbox(section,"Touch of the Void")
             -- Avatar
             br.ui:createCheckbox(section,"Avatar")
             -- Battle Cry
@@ -340,29 +336,20 @@ local function runRotation()
     -- Action List - Cooldowns
         function actionList_Cooldowns()
             if useCDs() and getDistance("target") < 5 then
-        -- Touch of the Void
-                if isChecked("Touch of the Void") then
-                    if hasEquiped(128318) then
-                        if GetItemCooldown(128318)==0 then
-                            useItem(128318)
-                        end
-                    end
-                end
-        -- Trinkets
-                if isChecked("Trinkets") then
-                    if canUse(13) then
-                        useItem(13)
-                    end
-                    if canUse(14) then
-                        useItem(14)
-                    end
-                end
-        -- Draught of Souls
-                -- use_item,name=draught_of_souls,if=(spell_targets.whirlwind>1|!raid_event.adds.exists())&((talent.bladestorm.enabled&cooldown.bladestorm.remain()s=0)|buff.battle_cry.up|target.time_to_die<25)
         -- Potions
                 -- potion,name=old_war,if=(target.health.pct<20&buff.battle_cry.up)|target.time_to_die<30
+                if inRaid and isChecked("Potion") and ((thp < 20 and buff.battleCry.exists()) or ttd(units.dyn5) < 30) then
+                    if canUse(127844) then
+                        useItem(127844)
+                    end
+                end
         -- Ring of Collapsing Futures
                 -- use_item,name=ring_of_collapsing_futures,if=equipped.ring_of_collapsing_futures&buff.battle_cry.up&buff.enrage.up&!buff.temptation.up
+                if hasEquiped(142173) and buff.battleCry.exists() and buff.enrage.exists() and not buff.temptation.exists() then
+                    if canUse(142173) then
+                        useItem(142173)
+                    end
+                end
         -- Dragon Roar
                 -- dragon_roar,if=(equipped.convergence_of_fates&cooldown.battle_cry.remains<2)|!equipped.convergence_of_fates&(!cooldown.battle_cry.remains<=10|cooldown.battle_cry.remains<2)
                 if isChecked("Dragon Roar") then
@@ -371,27 +358,41 @@ local function runRotation()
                     end
                 end
         -- Battle Cry
-                -- battle_cry,if=gcd.remains=0&!talent.dragon_roar.enabled&(!equipped.convergence_of_fates|!talent.bloodbath.enabled|!cooldown.bloodbath.remains|cooldown.bloodbath.remains>=10)
-                -- battle_cry,if=gcd.remains=0&buff.dragon_roar.up&(cooldown.bloodthirst.remains=0|buff.enrage.remains>cooldown.bloodthirst.remains)
                 if isChecked("Battle Cry") then
-                    if cd.global == 0 and not talent.dragonRoar and (not hasEquiped(140806) or not talent.bloodbath or cd.bloodbath == 0 or cd.bloodbath >= 10) then
+                    -- battle_cry,if=gcd.remains=0&talent.reckless_abandon.enabled
+                    if cd.global == 0 and (talent.recklessAbandon or (level < 100 and power >= 100 and buff.enrage.exists())) then
                         if cast.battleCry() then return end
                     end
+                    -- battle_cry,if=gcd.remains=0&talent.bladestorm.enabled&(raid_event.adds.in>90|!raid_event.adds.exists|spell_targets.bladestorm_mh>desired_targets)
+                    if cd.global == 0 and talent.bladestorm and ((mode.rotation == 1 and #enemies.yards8 > getOptionValue("Bladestorm Units")) or mode.rotation == 2) then
+                        if cast.battleCry() then return end
+                    end
+                    -- battle_cry,if=gcd.remains=0&buff.dragon_roar.up&(cooldown.bloodthirst.remains=0|buff.enrage.remains>cooldown.bloodthirst.remains)
                     if cd.global == 0 and buff.dragonRoar.exists() and (cd.bloodthirst == 0 or buff.enrage.remain() > cd.bloodthirst) then
                         if cast.battleCry() then return end
                     end
                 end
+        -- Trinkets
+                -- use_item,slot=trinket1,if=buff.battle_cry.up&buff.enrage.up
+                if isChecked("Trinkets") and buff.battleCry.exists() and buff.enrage.exists() then
+                    if canUse(13) then
+                        useItem(13)
+                    end
+                    if canUse(14) then
+                        useItem(14)
+                    end
+                end
         -- Avatar
-                -- avatar,if=buff.battle_cry.up|(target.time_to_die<(cooldown.battle_cry.remain()s+10))
+                -- avatar,if=buff.battle_cry.remains>6|cooldown.battle_cry.remains<10|(target.time_to_die<(cooldown.battle_cry.remains+10))
                 if isChecked("Avatar") then
-                    if buff.battleCry.exists() or (ttd(units.dyn5) < (cd.battleCry + 10)) then
+                    if buff.battleCry.remain() > 6 or cd.battleCry < 10 or (ttd(units.dyn5) < (cd.battleCry + 10)) then
                         if cast.avatar() then return end
                     end
                 end
         -- Bloodbath
-                -- bloodbath,if=buff.dragon_roar.up|!talent.dragon_roar.enabled&buff.battle_cry.up
+                -- bloodbath,if=buff.dragon_roar.up|(!talent.dragon_roar.enabled&(buff.battle_cry.up|cooldown.battle_cry.remains>40))
                 if isChecked("Bloodbath") then
-                    if buff.dragonRoar.exists() or (not talent.dragonRoar and buff.battleCry.exists()) then
+                    if buff.dragonRoar.exists() or (not talent.dragonRoar and (buff.battleCry.exists() or cd.battleCry > 40)) then
                         if cast.bloodbath() then return end
                     end
                 end
@@ -412,7 +413,7 @@ local function runRotation()
             -- flask,type=greater_draenic_strength_flask
             if isChecked("Str-Pot") then
                 if inRaid and canFlask and flaskBuff==0 and not UnitBuffID("player",176151) then
-                    useItem(br.player.flask.wod.strengthBig)
+                    useItem(br.player.flask.leg.strengthBig)
                     return true
                 end
                 if flaskBuff==0 then
@@ -425,10 +426,10 @@ local function runRotation()
             --     if br.player.castBattleStance() then return end
             -- end
             -- snapshot_stats
-            -- potion,name=draenic_strength
+            -- potion,name=old_war
             if useCDs() and inRaid and isChecked("Str-Pot") and isChecked("Pre-Pull Timer") and pullTimer <= getOptionValue("Pre-Pull Timer") then
-                if canUse(109219) then
-                    useItem(109219)
+                if canUse(127844) then
+                    useItem(127844)
                 end
             end
         end  -- End Action List - Pre-Combat
@@ -469,15 +470,15 @@ local function runRotation()
             if talent.massacre and buff.massacre.exists() and buff.enrage.remain() < 1 then
                 if cast.rampage() then return end
             end
-        -- Bloodthirst
-            -- bloodthirst,if=target.health.pct<20&buff.enrage.remains<1
-            if thp < 20 and buff.enrage.remain() > 1 then
-                if cast.bloodthirst() then return end
-            end
         -- Execute
             -- execute,if=equipped.draught_of_souls&cooldown.draught_of_souls.remains<1&buff.juggernaut.remains<3
             if hasEquiped(140808) and GetItemCooldown(140808) < 1 and buff.juggernaut.remain() < 3 and (buff.stoneHeart.exists() or thp < 20) then
                 if cast.execute() then return end
+            end
+        -- Bloodthirst
+            -- bloodthirst,if=target.health.pct<20&buff.enrage.remains<1
+            if thp < 20 and buff.enrage.remain() > 1 then
+                if cast.bloodthirst() then return end
             end
         -- Draught of Souls
             -- use_item,name=draught_of_souls,if=equipped.draught_of_souls&buff.battle_cry.remains>2&buff.enrage.remains>2&((talent.dragon_roar.enabled&buff.dragon_roar.remains>=3)|!talent.dragon_roar.enabled)
@@ -509,8 +510,8 @@ local function runRotation()
                 if cast.ragingBlow() then return end
             end
         -- Rampage
-            -- rampage,if=!talent.frothing_berserker.enabled|(talent.frothing_berserker.enabled&rage>=100)
-            if not talent.frothingBerserker or (talent.frothingBerserker and power >= 100) then
+            -- rampage,if=talent.reckless_abandon.enabled&!talent.frothing_berserker.enabled|(talent.frothing_berserker.enabled&rage>=100)
+            if talent.recklessAbandon and not talent.frothingBerserker or (talent.frothingBerserker and power >= 100) then
                 if cast.rampage() then return end
             end
         -- Berserker Rage
@@ -523,29 +524,24 @@ local function runRotation()
             if buff.enrage.remain() < 1 and not talent.outburst then
                 if cast.bloodthirst() then return end
             end
-        -- Raging Blow
-            -- raging_blow,if=talent.inner_rage.enabled
-            if talent.innerRage then
-                if cast.ragingBlow() then return end
-            end
         -- Odyn's Fury
             -- odyns_fury
             if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()) and getDistance(units.dyn5) < 5 then
                 if cast.odynsFury() then return end
-            end
-        -- Whirlwind
-            -- whirlwind,if=buff.wrecking_ball.react&buff.enrage.up
-            if buff.wreckingBall.exists() and buff.enrage.exists() then
-                if cast.whirlwind() then return end
-            end
+            end 
         -- Raging Blow
-            -- raging_blow,if=!talent.inner_rage.enabled
-            if not talent.innerRage and buff.enrage.exists() then
+            -- raging_blow
+            if talent.innerRage or buff.enrage.exists() then
                 if cast.ragingBlow() then return end
             end
         -- Bloodthirst
             -- bloodthirst
             if cast.bloodthirst() then return end
+        -- Whirlwind
+            -- whirlwind,if=buff.wrecking_ball.react&buff.enrage.up
+            if buff.wreckingBall.exists() and buff.enrage.exists() then
+                if cast.whirlwind() then return end
+            end
         -- Furious Slash
             -- furious_slash
             if cast.furiousSlash() then return end
@@ -562,57 +558,32 @@ local function runRotation()
             if talent.frenzy and (not buff.frenzy.exists() or buff.frenzy.remain() <= 2) then
                 if cast.furiousSlash() then return end
             end
-        -- Whirlwind
-            -- whirlwind,if=spell_targets.whirlwind=3&buff.wrecking_ball.react
-            if ((mode.rotation == 1 and #enemies.yards8 == 3) or mode.rotation == 2) and buff.wreckingBall.exists() then
-                if cast.whirlwind() then return end
-            end
         -- Raging Blow
             -- raging_blow,if=talent.inner_rage.enabled&buff.enrage.up
             if talent.innerRage and buff.enrage.exists() then
                 if cast.ragingBlow() then return end
-            end
-        -- Whirlwind
-            -- whirlwind,if=spell_targets.whirlwind>1&buff.meat_cleaver.down
-            if ((mode.rotation == 1 and #enemies.yards8 > 1) or mode.rotation == 2) and buff.meatCleaver.exists() then
-                if cast.whirlwind() then return end
             end
         -- Rampage
             -- rampage,if=(buff.enrage.down&!talent.frothing_berserker.enabled)|buff.massacre.react|rage>=100
             if (not buff.enrage.exists() and not talent.frothingBerserker) or buff.massacre.exists() or power >= 100 then
                 if cast.rampage() then return end
             end
-        -- Raging Blow
-            -- raging_blow,if=talent.inner_rage.enabled
-            if talent.innerRage then
-                if cast.ragingBlow() then return end
-            end
         -- Execute
-            -- execute,if=buff.stone_heart.react
-            if buff.stoneHeart.exists() then
+            -- execute,if=buff.stone_heart.react&((talent.inner_rage.enabled&cooldown.raging_blow.remains>1)|buff.enrage.up)
+            if buff.stoneHeart.exists() and ((talent.innerRage and cd.ragingBlow > 1) or buff.enrage.exists()) then
                 if cast.execute() then return end
-            end
-        -- Whirlwind
-            -- whirlwind,if=buff.wrecking_ball.react&buff.enrage.up
-            if buff.wreckingBall.exists() and buff.enrage.exists() then
-                if cast.whirlwind() then return end
-            end
-        -- Bladestorm
-            -- bladestorm,if=buff.enrage.remains>2&(raid_event.adds.in>90|!raid_event.adds.exists|spell_targets.bladestorm_mh>1)
-            if isChecked("Bladestorm") and buff.enrage.remain() > 2 and ((mode.rotation == 1 and #enemies.yards8 > getOptionValue("Bladestorm Units")) or mode.rotation == 2) then
-                if cast.bladestorm() then return end
             end
         -- Bloodthirst
             -- bloodthirst
             if cast.bloodthirst() then return end
         -- Raging Blow
-            -- raging_blow,if=!set_bonus.tier19_2pc&!talent.inner_rage.enabled
-            if not tier19_2pc and not talent.innerRage and buff.enrage.exists() then
+            -- raging_blow
+            if talent.innerRage or buff.enrage.exists() then
                 if cast.ragingBlow() then return end
             end
         -- Whirlwind
-            -- whirlwind,if=spell_targets.whirlwind>2
-            if ((mode.rotation == 1 and #enemies.yards8 > 2) or mode.rotation == 2) then
+            -- whirlwind,if=buff.wrecking_ball.react&buff.enrage.up
+            if buff.wreckingBall.exists() and buff.enrage.exists() then
                 if cast.whirlwind() then return end
             end
         -- Furious Slash
@@ -649,11 +620,6 @@ local function runRotation()
         -- Bloodthirst
             -- bloodthirst
             if cast.bloodthirst() then return end
-        -- Whirlwind
-            -- whirlwind,if=spell_targets.whirlwind=3&buff.wrecking_ball.react&buff.enrage.up
-            if ((mode.rotation == 1 and #enemies.yards8 == 3) or mode.rotation == 2) and buff.wreckingBall.exists() and buff.enrage.exists() then
-                if cast.whirlwind() then return end
-            end
         -- Furious Slash
             -- furious_slash,if=set_bonus.tier19_2pc
             if tier19_2pc then
@@ -668,6 +634,32 @@ local function runRotation()
             -- furious_slash
             if cast.furiousSlash() then return end
         end -- End Action List - Execute
+    -- Action List - Three Targets
+        function actionList_ThreeTargets()
+        -- Execute
+            -- execute,if=buff.stone_heart.react
+            if buff.stoneHeart.exists() then
+                if cast.execute() then return end
+            end
+        -- Rampage
+            -- rampage,if=buff.meat_cleaver.up&((buff.enrage.down&!talent.frothing_berserker.enabled)|(rage>=100&talent.frothing_berserker.enabled))|buff.massacre.react
+            if (buff.meatCleaver.exists() and ((not buff.enrage.exists() and not talent.frothingBerserker) or (power >= 100 and talent.frothingBerserker))) or buff.massacre.exists() then
+                if cast.rampage() then return end
+            end
+        -- Raging Blow
+            -- raging_blow,if=talent.inner_rage.enabled&(spell_targets.whirlwind=2|(spell_targets.whirlwind=3&!equipped.najentuss_vertebrae))
+            if talent.innerRage and (#enemies.yards8 == 2 or (#enemies.yards8 == 3 and not hasEquiped(137087))) then
+                if cast.ragingBlow() then return end
+            end
+        -- Bloodthirst
+            -- bloodthirst
+            if cast.bloodthirst() then return end
+        -- Whirlwind
+            -- whirlwind
+            if getDistance(units.dyn8) < 8 then
+                if cast.whirlwind() then return end
+            end
+        end -- End Action List - Three Targets
     -- Action List - MultiTarget
         function actionList_MultiTarget()
         -- Touch of the Void
@@ -679,24 +671,19 @@ local function runRotation()
                 end
             end
         -- Bloodthirst
-            -- bloodthirst,if=buff.enrage.down|rage<50
-            if not buff.enrage.exists() or power < 50 then
+            -- bloodthirst,if=buff.enrage.down&rage<90
+            if not buff.enrage.exists() and power < 90 then
                 if cast.bloodthirst() then return end
             end
         -- Bladestorm
-            -- call_action_list,name=bladestormbladestorm,if=raid_event.adds.in>90|!raid_event.adds.exists|spell_targets.bladestorm_mh>1
-            if isChecked("Bladestorm") and ((mode.rotation == 1 and #enemies.yards8 > getOptionValue("Bladestorm Units")) or mode.rotation == 2) then
+            -- bladestorm,if=buff.enrage.remains>2&(raid_event.adds.in>90|!raid_event.adds.exists|spell_targets.bladestorm_mh>desired_targets)
+            if isChecked("Bladestorm") and ((mode.rotation == 1 and #enemies.yards8 > getOptionValue("Bladestorm Units")) or mode.rotation == 2) and buff.enrage.remain() > 2 then
                 if cast.bladestorm() then return end
             end
         -- Whirlwind
             -- whirlwind,if=buff.meat_cleaver.down
             if not buff.meatCleaver.exists() and getDistance(units.dyn8) < 8 then
                 if cast.whirlwind() then return end
-            end
-        -- Execute
-            -- execute,if=spell_targets.whirlwind<6&talent.massacre.enabled&!buff.massacre.react
-            if ((mode.rotation == 1 and #enemies.yards8 < 6) or mode.rotation == 2) and talent.massacre and not buff.massacre.exists() and (buff.stoneHeart.exists() or thp < 20) then
-                if cast.execute() then return end
             end
         -- Rampage
             -- rampage,if=buff.meat_cleaver.up&(buff.enrage.down&!talent.frothing_berserker.enabled|buff.massacre.react|rage>=100)
@@ -761,9 +748,14 @@ local function runRotation()
                 if buff.battleCry.exists() then
                     if actionList_BattleCryWindow() then return end
                 end
+            -- Action List - Three Targets
+                -- call_action_list,name=three_targets,if=target.health.pct>20&(spell_targets.whirlwind=3|spell_targets.whirlwind=4)
+                if thp > 20 and (#enemies.yards8 == 3 or #enemies.yards8 == 4) then
+                    if actionList_ThreeTargets() then return end
+                end
             -- Action List - Multi Target
-                -- call_action_list,name=aoe,if=spell_targets.whirlwind>3
-                if ((#enemies.yards8 > 3 and mode.rotation == 1) or mode.rotation == 2) and level >= 28 then
+                -- call_action_list,name=aoe,if=spell_targets.whirlwind>4
+                if ((#enemies.yards8 > 4 and mode.rotation == 1) or mode.rotation == 2) and level >= 28 then
                     if actionList_MultiTarget() then return end
                 end
             -- Action List - Execute
