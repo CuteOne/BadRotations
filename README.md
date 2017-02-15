@@ -269,15 +269,15 @@ Raidable means if its good to raid with.
 |author|active|patch|status|raidable?|
 |:-------|:---:|:---:|------:|:-----:|
 ||||
-|CuteOne|Full|7.1.5|100%|:white_check_mark|
+|CuteOne|Full|7.1.5|100%|:white_check_mark:|
 
   * Outlaw
 
 |author|active|patch|status|raidable?|
 |:-------|:---:|:---:|------:|:-----:|
 ||||
-|CuteOne|Full|7.1.5|100%|:white_check_mark|
-|Vilt|Limited|7.1.5|100%|:white_check_mark|
+|CuteOne|Full|7.1.5|100%|:white_check_mark:|
+|Vilt|Limited|7.1.5|100%|:white_check_mark:|
 
   * Subtlety
 
@@ -285,7 +285,7 @@ Raidable means if its good to raid with.
 |:-------|:---:|:---:|------:|:-----:|
 ||||
 |CuteOne|Full|7.1.5|90%|:x:|
-|Vilt|Limited|7.1.5|100%|:white_check_mark|
+|Vilt|Limited|7.1.5|100%|:white_check_mark:|
 
 ### Shaman
   * Elemental
@@ -300,14 +300,14 @@ Raidable means if its good to raid with.
 |author|active|patch|status|raidable?|
 |:-------|:---:|:---:|------:|:-----:|
 ||||
-|CuteOne|Full|7.1.5|100%|:white_check_mark|
+|CuteOne|Full|7.1.5|100%|:white_check_mark:|
 
   * Restoration
 
 |author|active|patch|status|raidable?|
 |:-------|:---:|:---:|------:|:-----:|
 ||||
-|Svs|Full|7.1.5|90%|:heavy_check_mark:
+|Svs|Full|7.1.5|90%|:heavy_check_mark:|
 
 ### Warlock
   * Affliction
@@ -352,68 +352,3 @@ Raidable means if its good to raid with.
 |:-------|:---:|:---:|------:|:-----:|
 ||||
 |CuteOne|Full|7.1.5|100%|:white_check_mark:|
-
-
-
-|spec |status|author|patch|raidable?|
-|:----|------:|:-------|:---:|:-----:|
-||||
-<!-- | **Death Knight** |||
-|Frost|100%|CuteOne|7.1.5|:interrobang:
-|Blood|100%|CuteOne/Vilt|7.1|:white_check_mark:
-|Unholy|0%||7.0|
-||||
-| **Demon Hunter** |||
-|Havoc|100% (SimC)|CuteOne|7.1.5|:white_check_mark:
-|Vengeance|100% (SimC)|Dubwub/CuteOne|7.1|:white_check_mark:
-|||| -->
-<!-- | **Druid** |||
-|Feral|100% (SimC)|CuteOne|7.1.5|:white_check_mark:
-|Guardian|100% (SimC)|CuteOne|7.1|:white_check_mark:
-|Restoration|90%|Svs|7.1.5|:heavy_check_mark:
-|Moonkin|0%||7.0|
-|||| -->
-<!-- | **Hunter** |||
-|Beastmaster|70%|Cpoworks|7.1|:heavy_check_mark:
-|Marksmanship|70% (SimC/AMR)|Cpoworks|7.1|:heavy_check_mark:
-|Survival|70% (AMR)|Cpoworks|7.1|:heavy_check_mark:
-|||| -->
-<!-- | **Mage** |||
-|Arcane|0%||7.0|
-|Fire|100%|CuteOne|7.1|:interrobang:
-|Frost|100%|CuteOne/dbtftw|7.1.5|:interrobang:
-|||| -->
-<!-- | **Monk** |||
-|Brewmaster|80%|Kuukuu|7.1.5|:heavy_check_mark:
-|Mistweaver|70%|Cpoworks/Svs/Zu|7.1|:heavy_check_mark:
-|Windwalker|100% (SimC/AMR)|CuteOne|7.1.5|:white_check_mark:
-|||| -->
-<!-- | **Paladin** |||
-|Holy|30%|Kuukuu|7.1.5|
-|Protection|0%||7.0|
-|Retribution|100%|CuteOne|7.1.5|:interrobang:
-|||| -->
-<!-- | **Priest** |||
-|Discipline|70%|Cpoworks/Svs|7.1|:heavy_check_mark:
-|Holy|0%|||
-|Shadow|70%|Cpoworks/Svs|7.1|:heavy_check_mark:
-|||| -->
-<!-- | **Rogue** |||
-|Assassination|100%|CuteOne|7.1.5|:interrobang:
-|Outlaw|100%|CuteOne|7.1|:interrobang:
-|Subtlety|100%|CuteOne|7.1.5|:white_check_mark:
-|||| -->
-<!-- | **Shaman** |||
-|Elemental|100%|CuteOne|7.1.5|:interrobang:
-|Enhancement|100%|CuteOne|7.1.5|:white_check_mark:
-|Restoration|90%|Svs|7.1.5|:heavy_check_mark:
-|||| -->
-<!-- | **Warlock** |||
-|Affliction|100%|CuteOne|7.1.5|:interrobang:
-|Demonology|100%|CuteOne|7.1.5|:interrobang:
-|Destruction|100%|CuteOne|7.1.5|:white_check_mark:
-|||| -->
-<!-- | **Warrior** |||
-|Arms|100%|CuteOne|7.1.5|:white_check_mark:
-|Fury|100%|CuteOne|7.1.5|:white_check_mark:
-|Protection|100%|CuteOne|7.1.5|:white_check_mark: -->
