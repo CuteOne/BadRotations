@@ -50,6 +50,8 @@ local function createOptions()
             br.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
         -- Provoke
             br.ui:createCheckbox(section, "Provoke","|cffFFFFFFAuto Provoke usage.")
+        -- Opener
+            br.ui:createCheckbox(section, "Opener","|cffFFFFFFBest Ironskin Uptime at Start.")            
         -- Pre-Pull Timer
         --    br.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
         -- Roll
@@ -169,6 +171,7 @@ local function runRotation()
         local charges           = br.player.charges
         local combatTime        = getCombatTime()
         local debuff            = br.player.debuff
+        local deadtar, attacktar, hastar, playertar         = deadtar or UnitIsDeadOrGhost("target"), attacktar or UnitCanAttack("target", "player"), hastar or ObjectExists("target"), UnitIsPlayer("target")
         local enemies           = enemies or {}
         local flaskBuff         = getBuffRemain("player",br.player.flask.wod.buff.agilityBig) or 0
         local gcd               = br.player.gcd
@@ -205,7 +208,17 @@ local function runRotation()
         enemies.yards5 = br.player.enemies(5)
         enemies.yards8 = br.player.enemies(8)
         enemies.yards40 = br.player.enemies(40)
+        if opener == nil then opener = false end
 
+        if not inCombat and not ObjectExists("target") then
+            iB1 = false
+            KG = false
+            iB2 = false
+            iB3 = false
+            bOB = false
+            iB4 = false
+            opener = false
+        end
 
 --------------------
 --- Action Lists ---
@@ -402,6 +415,45 @@ local function runRotation()
                 end
             end
         end -- End Cooldown - Action List
+    -- Action List - Opener
+        function actionList_Opener()
+            if opener == false then
+                --Ironskin Brew
+                if not iB1 == true then
+                    if cast.ironskinBrew() then
+                        iB1 = true 
+                    end
+                -- Keg Smash
+                elseif iB1 == true and not KG and getDistance("target") < 5 then
+                    if cast.kegSmash("target") then
+                        KG = true
+                    end
+                -- Ironskin Brew
+                elseif KG == true and not iB2 then
+                    if cast.ironskinBrew() then 
+                        iB2 = true
+                    end
+                -- Ironskin Brew
+                elseif iB2 == true and not iB3 then
+                    if cast.ironskinBrew() then 
+                        iB3 = true
+                    end
+                -- Black Ox Brew
+                elseif iB3 == true and not bOB then
+                    if cast.blackoxBrew() then 
+                        bOB = true
+                    end
+                --Iron Skin Brew
+                elseif bOB == true and not iB4 then
+                    if cast.ironskinBrew() then
+                        iB4 = true
+                        opener = true
+                        print("Opener Complete")
+                    end
+                end
+            end
+        end
+
     -- Action List - Single Target
         function actionList_SingleTarget()
         -- Action List - Cooldown
@@ -425,7 +477,7 @@ local function runRotation()
                 if cast.blackoxBrew() then return end
             end
         -- Ironskin Brew
-            if charges.purifyingBrew > 1 and not buff.ironskinBrew.exists() then
+            if (charges.purifyingBrew > 1 and not buff.ironskinBrew.exists()) or charges.purifyingBrew == 3 then
                 if cast.ironskinBrew() then return end
             end
         -- Keg Smash
@@ -455,6 +507,11 @@ local function runRotation()
             if power > 65 and getDistance("target") < 15 then
                 if cast.tigerPalm() then return end
             end
+        -- Expel Harm
+            if GetSpellCount(115072) ~= nil and GetSpellCount(115072) >= 1 and php <= getValue("Expel Harm") then
+                if cast.expelHarm() then return end
+            end
+
         end -- End Action List - Single Target
     --Action List AoE
         function actionList_MultiTarget()
@@ -550,8 +607,17 @@ local function runRotation()
 --------------------------
 --- In Combat Rotation ---
 --------------------------
+            if isChecked("Opener") then
+                if opener == false and hastar and isBoss("target") and getDistance("target") < 10 then
+                    if actionList_Opener() then return end
+                elseif opener == false and hastar and charges.purifyingBrew < 3 then
+                    opener = true
+                elseif opener == false and hastar and not isBoss("target") then
+                    opener = true
+                end
+            end
         -- FIGHT!
-            if inCombat and not IsMounted() and profileStop==false and isValidUnit(units.dyn5) then
+            if inCombat and not IsMounted() and profileStop==false and isValidUnit(units.dyn5) and opener == true then
     ------------------
     --- Interrupts ---
     ------------------

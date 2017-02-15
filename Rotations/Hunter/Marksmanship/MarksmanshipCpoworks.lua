@@ -475,15 +475,15 @@ local function runRotation()
             if buff.lockAndLoad.exists() and debuff.vulnerable.exists(units.dyn40) then
                 if cast.aimedShot(units.dyn40) then return end
             end
-            -- Arcane Shot
-            -- if (HasBuff(MarkingTargets) or HasBuff(Trueshot)) and not HasBuff(HuntersMark)
-            if (buff.markingTargets.exists() or buff.trueshot.exists()) and debuff.huntersMark.exists(units.dyn40) == false then
-                if cast.arcaneShot(units.dyn40) then return end
-            end
             -- Multi-Shot
             -- if TargetsInRadius(MultiShot) > 1 and HasBuff(MarkingTargets) and BuffCount(HuntersMark) < TargetsInRadius(MultiShot)
             if #multishotTargets > 1 and buff.markingTargets.exists() and debuffcount.huntersMark < #multishotTargets then
                 if cast.multiShot(units.dyn40) then return end
+            end
+            -- Arcane Shot
+            -- if (HasBuff(MarkingTargets) or HasBuff(Trueshot)) and not HasBuff(HuntersMark)
+            if (buff.markingTargets.exists() or buff.trueshot.exists()) and debuff.huntersMark.exists(units.dyn40) == false then
+                if cast.arcaneShot(units.dyn40) then return end
             end
             -- Sentinel
             -- if not HasBuff(HuntersMark) and not HasBuff(Vulnerable) and not HasBuff(MarkingTargets)
@@ -492,12 +492,16 @@ local function runRotation()
             -- Aimed Shot
             -- if SpellCastTimeSec(AimedShot) < BuffRemainingSec(Vulnerable) and
             -- (not HasTalent(Barrage) or CooldownSecRemaining(Barrage) > GlobalCooldownSec)
-            if getCastTime(spell.aimedShot) < debuff.vulnerable.remain(units.dyn40) and (not talent.piercingShot or cd.piercingShot > debuff.vulnerable.remain(units.dyn40)) then
+            if getCastTime(spell.aimedShot) < debuff.vulnerable.remain(units.dyn40) and (not talent.piercingShot or cd.piercingShot > debuff.vulnerable.remain(units.dyn40)) then       
                 if cast.aimedShot(units.dyn40) then return end
             end
             -- Marked Shot
-            if not talent.patientSniper or (debuff.vulnerable.remain(units.dyn40) < getCastTime(spell.aimedShot) and (debuff.huntersMark.remain(units.dyn40) < gcd or power > 75)) then
-                if cast.markedShot(units.dyn40) then return end
+            if not talent.patientSniper then
+                if (debuff.vulnerable.remain(units.dyn40) < getCastTime(spell.aimedShot) and debuff.huntersMark.exists(units.dyn40))then
+                    if cast.markedShot(units.dyn40) then
+                        return 
+                    end
+                end
             end
             -- Bursting Shot
             -- if HasItem(MagnetizedBlastingCapLauncher) and SecondsUntilAoe(2,8) > SpellCooldownSec(BurstingShot)
