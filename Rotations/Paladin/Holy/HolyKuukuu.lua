@@ -51,6 +51,9 @@ local function createOptions()
             br.ui:createCheckbox(section, "Cleanse")
         --Beacon of Light
             br.ui:createCheckbox(section, "Beacon of Light")
+        -- Beacon of Virtue
+            br.ui:createSpinner(section, "Beacon of Virtue", 30, 0, 100, 5, "Health Percent to Cast At")
+            br.ui:createSpinner(section, "BoV Targets",  6,  0,  40,  1,  "Minimum Beacon of Virtue Targets")
         -- Crusader Strike
             br.ui:createCheckbox(section, "Crusader Strike")
         -- Redemption
@@ -188,7 +191,7 @@ local function runRotation()
 -----------------
 --- Rotations ---
 -----------------
-        if getOptionValue("Mode") == 1 then
+        if getOptionValue("Mode") == 1 and not isMounted() then
             -- Redemption
             if isChecked("Redemption") then
                 if getOptionValue("Redemption") == 1
@@ -356,7 +359,7 @@ local function runRotation()
                 end -- End Interrupt Check
             end -- End In Combat Check
         end -- NOrmal Mode Check
-        if getOptionValue("Mode") == 2 then
+        if getOptionValue("Mode") == 2 and not isMounted() then
             -- Redemption
             if isChecked("Redemption") then
                 if getOptionValue("Redemption") == 1
@@ -440,7 +443,7 @@ local function runRotation()
             if talent.beaconOfVirtue then
                 for i= 1, #br.friend do
                     if not buff.beaconOfVirtue.exists(br.friend[i].unit) and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
-                        if cast.beaconOfVirtue(br.friend[i].unit) then return end
+                        if castAoEHeal(200025,getValue("BoV Targets"),getValue("Beacon of Virtue"),30) then return end
                     end
                 end
             end
