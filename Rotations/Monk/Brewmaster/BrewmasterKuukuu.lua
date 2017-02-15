@@ -73,6 +73,8 @@ local function createOptions()
             br.ui:createCheckbox(section,"Touch of the Void")
         -- Touch of Death
             br.ui:createCheckbox(section,"Touch of Death")
+        -- Exploding Keg 
+            br.ui:createCheckbox(section,"Exploding Keg")
         br.ui:checkSectionState(section)
         -------------------------
         --- DEFENSIVE OPTIONS ---
@@ -466,7 +468,9 @@ local function runRotation()
             if cast.blackoutStrike() then return end
         --Exploding Keg
             --actions.st+=/exploding_keg
-            if cast.explodingKeg() then return end
+            if isChecked ("Exploding Keg") then
+                if cast.explodingKeg("best",false,#enemies.yards8,8) then return end
+            end
         -- Keg Smash
            -- actions.st=keg_smash
             if power >= 40 and getDistance("target") < 15 then
