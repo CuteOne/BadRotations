@@ -360,7 +360,7 @@ local function runRotation()
         -- Battle Cry
                 if isChecked("Battle Cry") then
                     -- battle_cry,if=gcd.remains=0&talent.reckless_abandon.enabled
-                    if cd.global == 0 and (talent.recklessAbandon or (level < 100 and power >= 100 and buff.enrage.exists())) then
+                    if cd.global == 0 and (talent.recklessAbandon or (level < 100 and power >= 90 and buff.enrage.exists())) then
                         if cast.battleCry() then return end
                     end
                     -- battle_cry,if=gcd.remains=0&talent.bladestorm.enabled&(raid_event.adds.in>90|!raid_event.adds.exists|spell_targets.bladestorm_mh>desired_targets)
