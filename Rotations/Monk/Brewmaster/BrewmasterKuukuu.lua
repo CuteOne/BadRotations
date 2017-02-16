@@ -478,11 +478,11 @@ local function runRotation()
                 if cast.blackoutStrike() then return end
             -- Keg Smash
                 if buff.blackoutCombo.exists() then
-                    if cast.kegSmash() then
+                    if cast.kegSmash() then return end
                 end
             -- Breath of Fire
                 if buff.blackoutCombo.exists() and not hasEquiped(137016) then
-                    if cast.breathOfFire() then
+                    if cast.breathOfFire() then return end
                 end
             -- Breath of Fire (Legendary Chest)
                 if not buff.blackoutCombo.exists() and hasEquiped(137016) then
@@ -490,7 +490,7 @@ local function runRotation()
                 end
             -- Tiger Palm
                 if buff.blackoutCombo.exists() then
-                    if cast.tigerPalm() then
+                    if cast.tigerPalm() then return end
                 end
                 -- Ironskin Brew
                 if ((charges.purifyingBrew > 1 and not buff.ironskinBrew.exists()) or charges.purifyingBrew == 3) and not buff.blackoutCombo.exists() then
@@ -507,7 +507,7 @@ local function runRotation()
             -- Expel Harm
                 if GetSpellCount(115072) ~= nil and GetSpellCount(115072) >= 1 and php <= getValue("Expel Harm") then
                     if cast.expelHarm() then return end
-                end
+               wend
             end
         end
 
