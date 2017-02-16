@@ -1,11 +1,11 @@
 ## Interface: 70100
-## Title: |cffa330c9BadRotations
+## Title: |cffa330c9BudakJahat
 ## Notes: |cffa330c9By CuteOne.
 ## Author: CuteOne
 ## Version: 2.0
 ## SavedVariablesPerCharacter: brdata
 
-BadRotations.lua
+BudakJahat.lua
 bindings.xml
 
 ## System
