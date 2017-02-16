@@ -667,6 +667,14 @@ local function runRotation()
         -- DAMAGE --
         ------------
         function actionList_Damage()
+            for i = 1, #enemies.dyn40 do
+                local thisUnit = enemies.dyn40[i]
+                if UnitIsUnit(thisUnit,"target") or hasThreat(thisUnit) or isDummy(thisUnit) then
+                    if debuff.schism.exists(thisUnit) then
+                        schismBuff = thisUnit
+                    end
+                end
+            end
             if isChecked("Blacklist The Eye of Il'gynoth") and UnitBuffID("target",209915) then
             else
                 --Shadow Word: Pain/Purge The Wicked
@@ -698,7 +706,11 @@ local function runRotation()
                 end
                 --Penance
                 if isChecked("Penance") then
-                    if cast.penance() then return end
+                    if schismBuff then
+                        if cast.penance(schismBuff) then return end
+                    else
+                        if cast.penance() then return end
+                    end
                 end
                 --Mindbender
                 if isChecked("Mindbender") and powcent <= getValue("Mindbender") then
@@ -712,7 +724,11 @@ local function runRotation()
                 end
                 --PowerWordSolace
                 if isChecked("Power Word: Solace") then
-                    if cast.powerWordSolace() then return end
+                    if schismBuff then
+                        if cast.powerWordSolace(schismBuff) then return end
+                    else
+                        if cast.powerWordSolace() then return end
+                    end
                 end
                 --Light's Wrath
                 if isChecked("Light's Wrath") then
@@ -746,7 +762,11 @@ local function runRotation()
                 --Smite
                 if isChecked("Smite") and powcent > 20 then
                     if not inInstance and not inRaid or atonementCount >= getValue("Smite") then
-                        if cast.smite() then return end
+                        if schismBuff then
+                            if cast.smite(schismBuff) then return end
+                        else
+                            if cast.smite() then return end
+                        end
                     end
                 end
             end
