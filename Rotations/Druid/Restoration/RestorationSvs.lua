@@ -206,6 +206,8 @@ local function runRotation()
             RunMacroText("/stopcasting")
         end
 
+        --ChatOverlay("|cff00FF00Abundance stacks: "..buff.abundance.stack().."")
+
 --------------------
 --- Action Lists ---
 --------------------
@@ -419,7 +421,7 @@ local function runRotation()
                     elseif br.friend[i].hp <= getValue("Regrowth") and buff.regrowth.remain(br.friend[i].unit) <= 1 then
                         if talent.abundance and buff.abundance.stack() < 3 then
                             if cast.regrowth(br.friend[i].unit) then return end
-                        else
+                        elseif not talent.abundance then
                             if cast.regrowth(br.friend[i].unit) then return end
                         end
                     end
@@ -446,8 +448,9 @@ local function runRotation()
                 for i = 1, #br.friend do                           
                     if br.friend[i].hp <= getValue("Healing Touch") then
                         if talent.abundance and buff.abundance.stack() >= 3 then
+                            --ChatOverlay("Casting HT! |cff00FF00Abundance stacks: "..buff.abundance.stack().."")
                             if cast.healingTouch(br.friend[i].unit) then return end
-                        else
+                        elseif not talent.abundance then
                             if cast.healingTouch(br.friend[i].unit) then return end
                         end
                     end
@@ -459,7 +462,7 @@ local function runRotation()
                     if br.friend[i].hp <= 30 then 
                         if talent.abundance and buff.abundance.stack() < 3 then
                             if cast.regrowth(br.friend[i].unit) then return end
-                        else
+                        elseif not talent.abundance then
                             if cast.regrowth(br.friend[i].unit) then return end
                         end
                     end
