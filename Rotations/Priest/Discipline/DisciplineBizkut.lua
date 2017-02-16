@@ -402,13 +402,13 @@ local function runRotation()
         end -- End Action List - Cooldowns
         -- Action List - Pre-Combat
         function actionList_PreCombat()
-            -- Power Word: Shield Body and Soul
             if isMoving("player") then
-                if isChecked("Angelic Feather") and talent.angelicFeather then
-                    for i = 1, #br.friend do                           
-                        if castGround(br.friend[i].unit,spell.angelicFeather,40) then return end
+                if isChecked("Angelic Feather") and talent.angelicFeather and not buff.angelicFeather.exists("player") then
+                    if cast.angelicFeather("player") then
+                        RunMacroText("/stopspelltarget")
                     end
                 end
+                -- Power Word: Shield Body and Soul
                 if isChecked("Body and Soul") and talent.bodyAndSoul then
                     if cast.powerWordShield("player") then return end
                 end
