@@ -472,8 +472,7 @@ local function runRotation()
             -- Black Ox Brew
                 if charges.purifyingBrew == 0 then
                     if cast.blackoxBrew() then return end
-                end
-            
+                end        
             -- Blackout Strike
                 if cast.blackoutStrike() then return end
             -- Keg Smash
@@ -681,6 +680,8 @@ local function runRotation()
                 elseif opener == false and hastar and not isBoss("target") then
                     opener = true
                 end
+            else
+                opener = true
             end
         -- FIGHT!
             if inCombat and not IsMounted() and profileStop==false and isValidUnit(units.dyn5) and opener == true then
