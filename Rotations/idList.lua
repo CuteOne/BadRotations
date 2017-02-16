@@ -1623,6 +1623,7 @@ br.idList = {
 
             },
             buffs                           = {
+                angelicFeather              = 121557,
                 atonement                   = 194384,
                 overloadedWithLight         = 223166,
                 powerInfusion               = 10060,
