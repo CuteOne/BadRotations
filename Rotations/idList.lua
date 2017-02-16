@@ -603,6 +603,7 @@ br.idList = {
                 tranquilMind                = 189857,
             },
             buffs                           = {
+                abundance                   = 207640,
                 cenarionWard                = 102352,
                 clearcasting                = 16870,
                 incarnationTreeOfLife       = 33891,

@@ -202,6 +202,10 @@ local function runRotation()
         enemies.yards5  = br.player.enemies(5)
         enemies.yards8  = br.player.enemies(8)
 
+        if isCastingSpell(spell.healingTouch) and buff.clearcasting.exists() then
+            RunMacroText("/stopcasting")
+        end
+
 --------------------
 --- Action Lists ---
 --------------------
@@ -407,6 +411,20 @@ local function runRotation()
                     end
                 end
             end
+            -- Regrowth
+           if isChecked("Regrowth") then
+                for i = 1, #br.friend do
+                    if br.friend[i].hp <= getValue("Regrowth Clearcasting") and buff.clearcasting.exists() then
+                        if cast.regrowth(br.friend[i].unit) then return end     
+                    elseif br.friend[i].hp <= getValue("Regrowth") and buff.regrowth.remain(br.friend[i].unit) <= 1 then
+                        if talent.abundance and buff.abundance.stack() < 3 then
+                            if cast.regrowth(br.friend[i].unit) then return end
+                        else
+                            if cast.regrowth(br.friend[i].unit) then return end
+                        end
+                    end
+                end
+            end
             -- Rejuvenation
             if isChecked("Rejuvenation") then
                 rejuvCount = 0
@@ -423,29 +441,27 @@ local function runRotation()
                     end
                 end
             end
-            -- Regrowth
-           if isChecked("Regrowth") then
-                for i = 1, #br.friend do
-                    if br.friend[i].hp <= getValue("Regrowth Clearcasting") and buff.clearcasting.exists() then
-                        if cast.regrowth(br.friend[i].unit) then return end     
-                    elseif br.friend[i].hp <= getValue("Regrowth") and buff.regrowth.remain(br.friend[i].unit) <= 1 then
-                        if cast.regrowth(br.friend[i].unit) then return end     
-                    end
-                end
-            end
             -- Healing Touch
            if isChecked("Healing Touch") and not isCastingSpell(spell.tranquility) then
                 for i = 1, #br.friend do                           
                     if br.friend[i].hp <= getValue("Healing Touch") then
-                        if cast.healingTouch(br.friend[i].unit) then return end     
+                        if talent.abundance and buff.abundance.stack() >= 3 then
+                            if cast.healingTouch(br.friend[i].unit) then return end
+                        else
+                            if cast.healingTouch(br.friend[i].unit) then return end
+                        end
                     end
                 end
             end
             -- Oh Shit! Regrowth
            if isChecked("Regrowth") and not isCastingSpell(spell.tranquility) then
                 for i = 1, #br.friend do                           
-                    if br.friend[i].hp <= 30 then
-                        if cast.regrowth(br.friend[i].unit) then return end     
+                    if br.friend[i].hp <= 30 then 
+                        if talent.abundance and buff.abundance.stack() < 3 then
+                            if cast.regrowth(br.friend[i].unit) then return end
+                        else
+                            if cast.regrowth(br.friend[i].unit) then return end
+                        end
                     end
                 end
             end
