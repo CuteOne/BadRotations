@@ -10,6 +10,7 @@ function cCharacter:new(class)
 		Agility   = 175456,
 		Strength  = 175439,
 		Intellect = 175457,
+		Legion	  = 224001, 
     }
     self.artifact       = {} 		-- Artifact Perk IDs
     self.artifact.rank 	= {} 		-- Artifact Perk ID Ranks
@@ -413,11 +414,17 @@ function cCharacter:new(class)
 -- Use Empowered Augment Rune +50 to prim. Stat - ID: 128482 Alliance / ID: 128475 Horde
 	function self.useEmpoweredRune()
 		if self.options.useEmpoweredRune then
-			if getBuffRemain("player",self.augmentRune[self.primaryStat]) < 600 and not IsFlying() then
-				if self.faction == "Alliance" then
-					useItem(128482)
-				else
-					useItem(128475)
+			if self.level < 110 then
+				if getBuffRemain("player",self.augmentRune[self.primaryStat]) < 600 and not IsFlying() then
+					if self.faction == "Alliance" and self.level < 110 then
+						useItem(128482)
+					else 
+						useItem(128475)
+					end
+				end
+			elseif self.level >= 110 then
+				if getBuffRemain("player",224001) < 600 and not IsFlying() and not IsMounted() then
+					useItem(140587)
 				end
 			end
 		end
