@@ -479,12 +479,10 @@ local function runRotation()
             -- Keg Smash
                 if buff.blackoutCombo.exists() then
                     if cast.kegSmash() then
-                    print("Empowering Keg Smash") return end
                 end
             -- Breath of Fire
                 if buff.blackoutCombo.exists() and not hasEquiped(137016) then
                     if cast.breathOfFire() then
-                    print("Empowering Breath of Fire") return end
                 end
             -- Breath of Fire (Legendary Chest)
                 if not buff.blackoutCombo.exists() and hasEquiped(137016) then
@@ -493,7 +491,6 @@ local function runRotation()
             -- Tiger Palm
                 if buff.blackoutCombo.exists() then
                     if cast.tigerPalm() then
-                    print("Empowering Tiger Palm") return end
                 end
                 -- Ironskin Brew
                 if ((charges.purifyingBrew > 1 and not buff.ironskinBrew.exists()) or charges.purifyingBrew == 3) and not buff.blackoutCombo.exists() then
