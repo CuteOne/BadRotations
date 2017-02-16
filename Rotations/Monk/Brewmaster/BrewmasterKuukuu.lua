@@ -507,7 +507,7 @@ local function runRotation()
             -- Expel Harm
                 if GetSpellCount(115072) ~= nil and GetSpellCount(115072) >= 1 and php <= getValue("Expel Harm") then
                     if cast.expelHarm() then return end
-               wend
+               end
             end
         end
 
