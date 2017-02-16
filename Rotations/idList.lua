@@ -1631,6 +1631,7 @@ br.idList = {
             },
             debuffs                         = {
                 purgeTheWicked              = 204213,
+                schism                      = 214621,
                 shadowWordPain              = 589,
                 smite                       = 585,
             },
