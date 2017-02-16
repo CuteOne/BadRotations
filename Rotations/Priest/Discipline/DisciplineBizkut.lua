@@ -43,8 +43,8 @@ local function createOptions()
             br.ui:createSpinnerWithout(section, "Light's Wrath Targets",  3,  0,  40,  1,  "|cffFFFFFFMinimum Light's Wrath Targets. Default: 3")
             --Save Overloaded with Light for CD
             br.ui:createCheckbox(section, "Save Overloaded with Light for CD")
-            --Always use on CD
-            br.ui:createCheckbox(section, "Always use on CD")
+            --Always use on Boss
+            br.ui:createCheckbox(section, "Always use on Boss")
         br.ui:checkSectionState(section)
         -------------------------
         -------- UTILITY --------
@@ -376,8 +376,8 @@ local function runRotation()
                     if isChecked("Power Word: Barrier CD") and powcent >= getValue("Power Word: Barrier CD") then
                         if cast.powerWordBarrier(lowest.unit) then return end
                     end
-                    --Always use on CD
-                    if isChecked("Always use on CD") then
+                    --Always use on Boss
+                    if isChecked("Always use on Boss") then
                         if getSpellCD(spell.lightsWrath) == 0 then
                             if mode.healer == 1 or mode.healer == 2 then
                                 for i = 1, #br.friend do
@@ -405,9 +405,8 @@ local function runRotation()
             -- Power Word: Shield Body and Soul
             if isMoving("player") then
                 if isChecked("Angelic Feather") and talent.angelicFeather then
-                    if cast.angelicFeather("player") then return end
                     for i = 1, #br.friend do                           
-                        if cast.angelicFeather(br.friend[i].unit) then return end
+                        if castGround(br.friend[i].unit,spell.angelicFeather,40) then return end
                     end
                 end
                 if isChecked("Body and Soul") and talent.bodyAndSoul then
