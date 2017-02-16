@@ -1106,7 +1106,7 @@ br.idList = {
             abilities                       = {
                 blackoxBrew                 = 115399,
                 blackoutStrike              = 205523,
-                breathofFire                = 115181,
+                breathOfFire                = 115181,
                 chiBurst                    = 123986,
                 chiWave                     = 115098,
                 detox                       = 218164,
@@ -1126,6 +1126,7 @@ br.idList = {
             },
             buffs                           = {
                 ironskinBrew                = 215479,
+                blackoutCombo               = 228563,
 
             },
             debuffs                         = {
@@ -1137,6 +1138,7 @@ br.idList = {
 
             },
             talents                         = {
+                blackoutCombo               = 196736,
 
             },
         },

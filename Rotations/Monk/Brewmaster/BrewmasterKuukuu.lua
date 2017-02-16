@@ -7,7 +7,7 @@ local function createToggles()
 -- Rotation Button
     RotationModes = {
         [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range.", highlight = 1, icon = br.player.spell.blackoutStrike },
-        [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = br.player.spell.breathofFire },
+        [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = br.player.spell.breathOfFire },
         [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = br.player.spell.tigerPalm },
         [4] = { mode = "Off", value = 4 , overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spell.effuse}
     };
@@ -453,6 +453,65 @@ local function runRotation()
                 end
             end
         end
+    -- Action List - Black Out Combo
+        function actionList_BlackOutCombo()
+            if talent.blackoutCombo then
+            -- Provoke
+                if isChecked("Provoke") then
+                    for i = 1, #enemies.yards40 do
+                        local thisUnit = enemies.yards40[i]
+                        if not isAggroed(thisUnit) and hasThreat(thisUnit) then
+                            if cast.provoke(thisUnit) then return end
+                        end
+                    end
+                end
+            -- Racial - Arcane Torrent
+                if ttm >= 0.5 and isChecked("Racial") and race == "BloodElf" and getDistance("target") < 5 then
+                    if castSpell("player",racial,false,false,false) then return end
+                end
+            -- Black Ox Brew
+                if charges.purifyingBrew == 0 then
+                    if cast.blackoxBrew() then return end
+                end        
+            -- Blackout Strike
+                if cast.blackoutStrike() then return end
+            -- Keg Smash
+                if buff.blackoutCombo.exists() then
+                    if cast.kegSmash() then return end
+                end
+            -- Breath of Fire
+                if buff.blackoutCombo.exists() and not hasEquiped(137016) then
+                    if cast.breathOfFire() then return end
+                end
+            -- Breath of Fire (Legendary Chest)
+                if not buff.blackoutCombo.exists() and hasEquiped(137016) then
+                    if cast.breathOfFire() then return end
+                end
+            -- Tiger Palm
+                if buff.blackoutCombo.exists() then
+                    if cast.tigerPalm() then return end
+                end
+                -- Ironskin Brew
+                if ((charges.purifyingBrew > 1 and not buff.ironskinBrew.exists()) or charges.purifyingBrew == 3) and not buff.blackoutCombo.exists() then
+                    if cast.ironskinBrew() then return end
+                end
+            --Exploding Keg
+                if isChecked("Exploding Keg") then
+                    if cast.explodingKeg() then return end
+                end
+            --Chi Burst
+                --actions.st+=/chi_burst
+            -- Chi Wave
+                if cast.chiWave() then return end
+            --  Rushing Jade Wind
+                if cast.rushingJadeWind() then return end
+            -- Expel Harm
+                if GetSpellCount(115072) ~= nil and GetSpellCount(115072) >= 1 and php <= getValue("Expel Harm") then
+                    if cast.expelHarm() then return end
+               end
+            end
+        end
+
 
     -- Action List - Single Target
         function actionList_SingleTarget()
@@ -467,8 +526,7 @@ local function runRotation()
                     end
                 end
             end
---        -- Racial - Arcane Torrent
-            -- arcane_torrent,if=chiMax-chi>=1&energy.time_to_max>=0.
+        -- Racial - Arcane Torrent
             if ttm >= 0.5 and isChecked("Racial") and race == "BloodElf" and getDistance("target") < 5 then
                 if castSpell("player",racial,false,false,false) then return end
             end
@@ -485,12 +543,22 @@ local function runRotation()
             if power >= 40 and getDistance("target") < 15 then
                 if cast.kegSmash() then return end
             end
+        --Breath of Fire
+            --actions.st+=/breath_of_fire
+            if cast.breathOfFire() then return end
         -- Blackout Strike
             --actions.st+=/blackout_strike
             if cast.blackoutStrike() then return end
+        --Tiger Palm
+            --actions.st+=/tiger_palm
+            if power > 65 and getDistance("target") < 15 then
+                if cast.tigerPalm() then return end
+            end
         --Exploding Keg
             --actions.st+=/exploding_keg
-            if cast.explodingKeg() then return end
+            if isChecked("Exploding Keg") then
+                if cast.explodingKeg() then return end
+            end
         --Chi Burst
             --actions.st+=/chi_burst
         -- Chi Wave
@@ -499,14 +567,6 @@ local function runRotation()
         --  Rushing Jade Wind
             --actions.st+=/rushing_jade_wind
             if cast.rushingJadeWind() then return end
-        --Breath of Fire
-            --actions.st+=/breath_of_fire
-            if cast.breathofFire() then return end
-        --Tiger Palm
-            --actions.st+=/tiger_palm
-            if power > 65 and getDistance("target") < 15 then
-                if cast.tigerPalm() then return end
-            end
         -- Expel Harm
             if GetSpellCount(115072) ~= nil and GetSpellCount(115072) >= 1 and php <= getValue("Expel Harm") then
                 if cast.expelHarm() then return end
@@ -515,6 +575,15 @@ local function runRotation()
         end -- End Action List - Single Target
     --Action List AoE
         function actionList_MultiTarget()
+            -- Provoke
+            if isChecked("Provoke") then
+                for i = 1, #enemies.yards40 do
+                    local thisUnit = enemies.yards40[i]
+                    if not isAggroed(thisUnit) and hasThreat(thisUnit) then
+                        if cast.provoke(thisUnit) then return end
+                    end
+                end
+            end
         -- Racial - Arcane Torrent
             -- arcane_torrent,if=chiMax-chi>=1&energy.time_to_max>=0.
             if ttm >= 0.5 and isChecked("Racial") and race == "BloodElf" and getDistance("target") < 5 then
@@ -543,7 +612,7 @@ local function runRotation()
             if cast.rushingJadeWind() then return end
         --Breath of Fire
             --actions.st+=/breath_of_fire
-            if cast.breathofFire() then return end
+            if cast.breathOfFire() then return end
         --Tiger Palm
             --actions.st+=/tiger_palm
             if cast.tigerPalm() then return end
@@ -608,13 +677,15 @@ local function runRotation()
 --- In Combat Rotation ---
 --------------------------
             if isChecked("Opener") then
-                if opener == false and hastar and isBoss("target") and getDistance("target") < 10 then
+                if opener == false and hastar and isBoss("target") and getDistance("target") < 10 and charges.purifyingBrew == 3 then
                     if actionList_Opener() then return end
                 elseif opener == false and hastar and charges.purifyingBrew < 3 then
                     opener = true
                 elseif opener == false and hastar and not isBoss("target") then
                     opener = true
                 end
+            else
+                opener = true
             end
         -- FIGHT!
             if inCombat and not IsMounted() and profileStop==false and isValidUnit(units.dyn5) and opener == true then
@@ -640,12 +711,17 @@ local function runRotation()
                     if canUse(127844) and inRaid and isChecked("Potion") and getDistance("target") < 5 then
                         useItem(127844)
                     end
+                    if talent.blackoutCombo then
+                        if actionList_BlackOutCombo() then return end
+                    end
                     if ((mode.rotation == 1 and #enemies.yards8 >= 4) or mode.rotation == 2) then
                         if actionList_MultiTarget() then return end
                     end
         -- Call Action List - Single Target
                     -- call_action_list,name=st
-                    if actionList_SingleTarget() then return end
+                    if not talent.blackoutCombo then
+                        if actionList_SingleTarget() then return end
+                    end
             end -- End Combat Check
         end -- End Pause
     end -- End Timer
