@@ -496,7 +496,9 @@ local function runRotation()
                     if cast.ironskinBrew() then return end
                 end
             --Exploding Keg
-                if cast.explodingKeg() then return end
+                if isChecked("Exploding Keg") then
+                    if cast.explodingKeg() then return end
+                end
             --Chi Burst
                 --actions.st+=/chi_burst
             -- Chi Wave
@@ -554,7 +556,9 @@ local function runRotation()
             end
         --Exploding Keg
             --actions.st+=/exploding_keg
-            if cast.explodingKeg() then return end
+            if isChecked("Exploding Keg") then
+                if cast.explodingKeg() then return end
+            end
         --Chi Burst
             --actions.st+=/chi_burst
         -- Chi Wave
