@@ -359,7 +359,7 @@ local function runRotation()
                 end -- End Interrupt Check
             end -- End In Combat Check
         end -- NOrmal Mode Check
-        if getOptionValue("Mode") == 2 and not isMounted() then
+        if getOptionValue("Mode") == 2 and not IsMounted() then
             -- Redemption
             if isChecked("Redemption") then
                 if getOptionValue("Redemption") == 1
