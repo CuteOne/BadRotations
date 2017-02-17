@@ -149,7 +149,7 @@ Raidable means if its good to raid with.
 |author|active|patch|status|raidable?|
 |:-------|:---:|:---:|------:|:-----:|
 ||||
-|Svs|Full|7.1.5|90%|:heavy_check_mark:|
+|Svs|Full|7.1.5|100%|:white_check_mark:|
 
 
 ### Hunter

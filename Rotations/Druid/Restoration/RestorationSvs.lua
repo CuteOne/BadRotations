@@ -188,7 +188,7 @@ local function runRotation()
         local rpTick                                        = 2
         local spell                                         = br.player.spell
         local talent                                        = br.player.talent
-        local travel, flight, cat, noform                   = br.player.buff.travelForm.exists(), br.player.buff.flightForm.exists(), br.player.buff.catForm.exists(), GetShapeshiftForm()==0
+        local travel, flight, cat, moonkin, noform          = br.player.buff.travelForm.exists(), br.player.buff.flightForm.exists(), br.player.buff.catForm.exists(), br.player.buff.moonkinForm.exists(), GetShapeshiftForm()==0
         local ttm                                           = br.player.power.ttm
         local units                                         = units or {}
         local lowestTank                                    = {}    --Tank
@@ -197,9 +197,11 @@ local function runRotation()
 
         units.dyn5 = br.player.units(5)
         units.dyn8    = br.player.units(8)
+        units.dyn40 = br.player.units(40)
 
         enemies.yards5  = br.player.enemies(5)
         enemies.yards8  = br.player.enemies(8)
+        enemies.yards40 = br.player.enemies(40)
 
         if isCastingSpell(spell.healingTouch) and buff.clearcasting.exists() then
             RunMacroText("/stopcasting")
@@ -508,6 +510,39 @@ local function runRotation()
                     if cast.shred(units.dyn5) then return end
                 end
             end -- End - Feral Affinity
+        -- Balance Affinity 
+            if talent.balanceAffinity then
+            -- Moonkin form
+                if not moonkin then
+                    if cast.moonkinForm() then return end
+                end
+            -- Lunar Strike 3 charges
+                if buff.lunarEmpowerment.stack() == 3 then
+                    if cast.lunarStrike() then return end
+                end
+            -- Starsurge
+                if cast.starsurge() then return end
+            -- Sunfire
+                if not debuff.sunfire.exists(units.dyn40) then
+                    if cast.sunfire(units.dyn40) then return end
+                end
+            -- Moonfire
+                if not debuff.moonfire.exists(units.dyn40) then
+                    if cast.moonfire(units.dyn40) then return end
+                end
+            -- Lunar Strike charged
+                if buff.lunarEmpowerment.exists() then
+                    if cast.lunarStrike() then return end
+                end
+            -- Solar Wrath charged
+                if buff.solarEmpowerment.exists() then
+                    if cast.solarWrath() then return end
+                end
+            -- Solar Wrath uncharged
+                if cast.solarWrath() then return end
+            -- Lunar Strike uncharged
+                if cast.lunarStrike() then return end
+            end -- End -- Balance Affinity
         end -- End Action List - DPS
 -----------------
 --- Rotations ---
