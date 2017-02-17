@@ -192,8 +192,7 @@ local function runRotation()
         local ttm                                           = br.player.power.ttm
         local units                                         = units or {}
         local lowestTank                                    = {}    --Tank
-        local bloom
-        local bloomTimer
+        local bloomCount                                    = 0
         local tHp                                           = 95
 
         units.dyn5 = br.player.units(5)
@@ -373,32 +372,20 @@ local function runRotation()
             if isChecked("Lifebloom") and not isCastingSpell(spell.tranquility) then
                 if inInstance then    
                     for i = 1, #br.friend do
-                        if bloom == nil and not buff.lifebloom.exists(br.friend[i].unit) and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
-                            bloom = br.friend[i].hp
+                        if not buff.lifebloom.exists(br.friend[i].unit) and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
                             if cast.lifebloom(br.friend[i].unit) then return end
-                        else
-                            if buff.lifebloom.exists(br.friend[i].unit) then
-                                bloom = br.friend[i].hp
-                            end
                         end
                     end              
                 else 
                     if inRaid then
-                        for i = 1, #br.friend do
-                            if (bloomTimer == nil or (GetTime() - bloomTimer > 15)) and bloom == nil and not buff.lifebloom.exists(br.friend[i].unit) and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
-                                bloom = br.friend[i].hp
-                                bloomTimer = GetTime()
-                                if cast.lifebloom(br.friend[i].unit) then return end
-                            else
-                                if buff.lifebloom.exists(br.friend[i].unit) then
-                                    bloom = br.friend[i].hp
-                                end
+                        bloomCount = 0
+                        for i=1, #br.friend do
+                            if buff.lifebloom.exists(br.friend[i].unit) then
+                                bloomCount = bloomCount + 1
                             end
                         end
-                        for i =1, #br.friend do
-                            if (bloomTimer == nil or (GetTime() - bloomTimer > 15)) and br.friend[i].hp < bloom and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" and not buff.lifebloom.exists(br.friend[i].unit) then
-                                bloom = br.friend[i].hp
-                                bloomTimer = GetTime()
+                        for i = 1, #br.friend do
+                            if bloomCount < 1 and not buff.lifebloom.exists(br.friend[i].unit) and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
                                 if cast.lifebloom(br.friend[i].unit) then return end
                             end
                         end
