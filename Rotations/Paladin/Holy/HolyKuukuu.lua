@@ -191,7 +191,7 @@ local function runRotation()
 -----------------
 --- Rotations ---
 -----------------
-        if getOptionValue("Mode") == 1 and not isMounted() then
+        if getOptionValue("Mode") == 1 and not IsMounted() then
             -- Redemption
             if isChecked("Redemption") then
                 if getOptionValue("Redemption") == 1
