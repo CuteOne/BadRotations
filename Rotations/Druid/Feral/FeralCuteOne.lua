@@ -63,6 +63,8 @@ local function createOptions()
             br.ui:createCheckbox(section,"Perma Fire Cat","|cff15FF00Enable|cffFFFFFF/|cffD60000Disable |cffFFFFFFautomatic use of Fandrel's Seed Pouch or Burning Seeds.")
         -- Dummy DPS Test
             br.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
+		-- Opener
+			br.ui:createCheckbox(section, "Opener")
         -- Pre-Pull Timer
             br.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
         -- Travel Shapeshifts
@@ -185,6 +187,7 @@ local function runRotation()
         local buff                                          = br.player.buff
         local canFlask                                      = canUse(br.player.flask.wod.agilityBig)
         local cast                                          = br.player.cast
+		local castable          							= br.player.cast.debug
         local clearcast                                     = br.player.buff.clearcasting.exists()
         local combatTime                                    = getCombatTime()
         local combo                                         = br.player.power.amount.comboPoints
@@ -249,7 +252,11 @@ local function runRotation()
    		if leftCombat == nil then leftCombat = GetTime() end
 		if profileStop == nil then profileStop = false end
 		if lastSpellCast == nil then lastSpellCast = spell.catForm end
+        if opener == nil then opener = false end
         if lastForm == nil then lastForm = 0 end
+		if not inCombat and not hastar and profileStop==true then
+            profileStop = false
+		end
         if talent.jaggedWounds then
             if rkTick == 3 then rkTick = rkTick - (rkTick * 0.3) end
             if rpTick == 2 then rpTick = rpTick - (rpTick * 0.3) end
@@ -271,10 +278,22 @@ local function runRotation()
                 end
             end
         end
-        if power > 50 or (power > 25 and buff.berserk.exists()) then
+        if power > 50 then
             fbMaxEnergy = true
         else
             fbMaxEnergy = false
+        end
+        if not inCombat and not ObjectExists("target") then
+			shredCount = 7
+            RK1 = false
+            SR1 = false
+            BER1 = false
+            TF1 = false
+            AF1 = false
+            MF1 = false
+            SHR1 = false
+            RIP1 = false
+            opener = false
         end
         -- ChatOverlay(round2(getDistance("target","player","dist"),2)..", "..round2(getDistance("target","player","dist2"),2)..", "..round2(getDistance("target","player","dist3"),2)..", "..round2(getDistance("target","player","dist4"),2))
 
@@ -583,6 +602,66 @@ local function runRotation()
                 end
             end -- End useCooldowns check
         end -- End Action List - Cooldowns
+    -- Action List - Opener
+        function actionList_Opener()
+        -- Wild Charge
+            if isChecked("Wild Charge") and isValidUnit("target") and getDistance("target") >= 8 and getDistance("target") < 30 then
+                if cast.wildCharge("target") then return end
+            end
+		-- Start Attack
+            -- auto_attack
+            if isValidUnit("target") and getDistance("target") < 5 then
+            	if isChecked("Opener") and isBoss("target") and opener == false then
+					if not RK1 and power >= 35 then
+						Print("Starting Opener")
+            -- Rake
+       					if castOpener("rake","RK1",1) then return end
+       				elseif RK1 and not SR1 and power >= 40 then
+       		-- Savage Roar
+       					if castOpener("savageRoar","SR1",2) then return end
+       				elseif SR1 and not TF1 then
+       		-- Tiger's Fury
+       					if castOpener("tigersFury","TF1",3) then return end
+              		elseif TF1 and not BER1 then
+          	-- Berserk
+						if isChecked("Berserk") and useCDs() then
+							if castOpener("berserk","BER1",4) then return end
+						else
+							Print("4: Berserk (Uncastable)")
+							BER1 = true
+						end
+					elseif BER1 and not AF1 then
+          	-- Ashamane's Frenzy
+						if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()) then
+                			if castOpener("ashamanesFrenzy","AF1",5) then return end
+						else
+							Print("5: Ashamane's Frenzy (Uncastable)")
+							AF1 = true
+						end
+			  		elseif AF1 and not MF1 then
+            -- Moonfire
+                        if talent.moonfire then
+			    			if castOpener("moonfire","VAN1",6) then return end
+						else
+							Print("6: Moonfire (Uncastable)");
+							MF1 = true
+						end
+					elseif MF1 and (not SHR1 or combo < 5) and power >= 40 then
+            -- Shred
+						if castOpener("shred","SHR1",shredCount) then shredCount = shredCount + 1 return end
+                    elseif SHR1 and not RIP1 and power >= 30 then
+       		-- Rip
+       					if castOpener("rip","RIP1",shredCount) then return end
+                    elseif RIP1 then
+       					opener = true;
+						Print("Opener Complete")
+       					return
+       				end
+				else
+					opener = true
+				end
+			end
+        end -- End Action List - Opener
     -- Action List - SBTOpener
         local function actionList_SBTOpener()
         -- Regrowth
@@ -686,12 +765,14 @@ local function runRotation()
             end
         -- Ferocious Bite
             -- ferocious_bite,max_energy=1,cycle_targets=1,if=combo_points=5&(energy.time_to_max<1|buff.berserk.up|buff.incarnation.up|buff.elunes_guidance.up|cooldown.tigers_fury.remains<3)
-            if fbMaxEnergy and combo == 5 and (ttm < 1 or buff.berserk.exists() or buff.incarnationKingOfTheJungle.exists()
-                or buff.elunesGuidance.exists() or cd.tigersFury < 3)
-            then
+            if fbMaxEnergy and combo == 5 then
                 for i = 1, #enemies.yards5 do
                     local thisUnit = enemies.yards5[i]
-                    if cast.ferociousBite(thisUnit) then return end
+                    if (ttm < 1 or buff.berserk.exists() or buff.incarnationKingOfTheJungle.exists()
+                        or buff.elunesGuidance.exists() or cd.tigersFury < 3 or (debuff.rip.remain(thisUnit) > 10 and buff.savageRoar.remain() > 10))
+                    then
+                        if cast.ferociousBite(thisUnit) then return end
+                    end
                 end
             end
         end
@@ -862,6 +943,8 @@ local function runRotation()
                     if talent.bloodtalons and not buff.bloodtalons.exists() and (htTimer == nil or htTimer < GetTime() - 1) then
                         if cast.regrowth("player") then htTimer = GetTime(); return end
                     end
+		-- Incarnation - King of the Jungle
+					if cast.incarnationKingOfTheJungle() then return end
         -- Prowl
                     if buff.bloodtalons.exists() and mode.prowl == 1 then
                         if cast.prowl("player") then return end
@@ -869,15 +952,15 @@ local function runRotation()
                     if buff.prowl.exists() then
         -- Pre-Pot
                         -- potion,name=old_war
-                        if useCDs() and isChecked("Agi-Pot") and canUse(agiPot) then
-                            useItem(agiPot);
-                            return true
-                        end
+                        -- if useCDs() and isChecked("Agi-Pot") and canUse(agiPot) then
+                        --     useItem(agiPot);
+                        --     return true
+                        -- end
                     end -- End Prowl
                 end -- End Pre-Pull
         -- Rake/Shred
                 -- buff.prowl.up|buff.shadowmeld.up
-                if isValidUnit("target") then
+                if isValidUnit("target") and (not isBoss("target") or not isChecked("Opener")) then
                     if level < 6 then
                         if cast.shred() then return end
                     else
@@ -907,6 +990,7 @@ local function runRotation()
 --- Out of Combat Rotation ---
 ------------------------------
             if actionList_PreCombat() then return end
+			if actionList_Opener() then return end
 --------------------------
 --- In Combat Rotation ---
 --------------------------
@@ -923,15 +1007,17 @@ local function runRotation()
                 -- displacer_beast,if=movement.distance>10
         -- TODO: Dash/Worgen Racial
                 -- dash,if=movement.distance&buff.displacer_beast.down&buff.wild_charge_movement.down
+		-- Opener
+				if actionList_Opener() then return end
         -- Rake/Shred from Stealth
                 -- rake,if=buff.prowl.up|buff.shadowmeld.up
-                if buff.prowl.exists() or buff.shadowmeld.exists() then
+                if (buff.prowl.exists() or buff.shadowmeld.exists()) and opener == true then
                     if debuff.rake.exists(units.dyn5) or level < 6 then
                         if cast.shred(units.dyn5) then return end
                     else
                        if cast.rake(units.dyn5) then return end
                     end
-                elseif not stealth then
+                elseif not stealth and opener == true then
                     -- auto_attack
                     if getDistance("target") < 5 then
                         StartAttack()

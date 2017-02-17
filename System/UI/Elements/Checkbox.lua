@@ -1,6 +1,6 @@
 local DiesalGUI = LibStub("DiesalGUI-1.0")
 
-function br.ui:createCheckbox(parent, text, tooltip)
+function br.ui:createCheckbox(parent, text, tooltip, checked)
     local newBox = DiesalGUI:Create('Toggle')
     local parent = parent
     local anchor = anchor or "TOPLEFT"
@@ -32,7 +32,8 @@ function br.ui:createCheckbox(parent, text, tooltip)
 
     -- Read check value from config, false if nothing found
     -- Set default
-    if br.data.settings[br.selectedSpec][br.selectedProfile][text.."Check"] == nil then br.data.settings[br.selectedSpec][br.selectedProfile][text.."Check"] = false end
+    if br.data.settings[br.selectedSpec][br.selectedProfile][text.."Check"] == nil and not checked then br.data.settings[br.selectedSpec][br.selectedProfile][text.."Check"] = false end
+    if br.data.settings[br.selectedSpec][br.selectedProfile][text.."Check"] == nil and checked then br.data.settings[br.selectedSpec][br.selectedProfile][text.."Check"] = true end
     local check = br.data.settings[br.selectedSpec][br.selectedProfile][text.."Check"]
     if check == 0 then check = false end
     if check == 1 then check = true end

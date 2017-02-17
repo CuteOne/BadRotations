@@ -936,9 +936,9 @@ function castOpener(spellIndex,flag,index)
     if (not br.player.cast.debug[spellIndex] and (br.player.cd[spellIndex] == 0 or br.player.cd[spellIndex] > br.player.gcd)) then
         Print(index..": "..select(1,GetSpellInfo(br.player.spell[spellIndex])).." (Uncastable)");
         _G[flag] = true;
-        return
+        return true
     else
-        if br.player.cast[spellIndex]() then Print(index..": "..select(1,GetSpellInfo(br.player.spell[spellIndex]))); _G[flag] = true; return end
+        if br.player.cast[spellIndex]() then Print(index..": "..select(1,GetSpellInfo(br.player.spell[spellIndex]))); _G[flag] = true; return true end
     end
 end
 function canCast(spellID,unit)

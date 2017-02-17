@@ -421,10 +421,6 @@ local function runRotation()
                 end
             end
             -- food,type=pickled_eel
-            -- stance,choose=battle
-            -- if not buff.battleStance and php > getOptionValue("Defensive Stance") then
-            --     if br.player.castBattleStance() then return end
-            -- end
             -- snapshot_stats
             -- potion,name=old_war
             if useCDs() and inRaid and isChecked("Str-Pot") and isChecked("Pre-Pull Timer") and pullTimer <= getOptionValue("Pre-Pull Timer") then
@@ -511,7 +507,7 @@ local function runRotation()
             end
         -- Rampage
             -- rampage,if=talent.reckless_abandon.enabled&!talent.frothing_berserker.enabled|(talent.frothing_berserker.enabled&rage>=100)
-            if talent.recklessAbandon and not talent.frothingBerserker or (talent.frothingBerserker and buff.frothingBerserker.exists()) then
+            if talent.recklessAbandon and (not talent.frothingBerserker or (talent.frothingBerserker and buff.frothingBerserker.exists())) then
                 if cast.rampage() then return end
             end
         -- Berserker Rage

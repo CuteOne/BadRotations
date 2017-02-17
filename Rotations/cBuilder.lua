@@ -265,7 +265,7 @@ function br.loader:new(spec,specName)
             end
             if minUnits == nil then minUnits = 1 end
             if effectRng == nil then effectRng = 8 end
-            if not select(2,IsUsableSpell(v)) and getSpellCD(v) == 0 and isKnown(v) and amIinRange then
+            if --[[isChecked("Use: "..spellName) and ]]not select(2,IsUsableSpell(v)) and getSpellCD(v) == 0 and isKnown(v) and amIinRange then
                 if debug == "debug" then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
@@ -546,6 +546,15 @@ function br.loader:new(spec,specName)
     --     local section = br.ui:createSection(br.ui.window.profile,  "Class Options", "Nothing")
     --     br.ui:checkSectionState(section)
     -- end
+    -- Create Spell Index
+    -- function self.createSpellIndex()
+    --     section = br.ui:createSection(br.ui.window.profile,  "Spells - Uncheck to prevent bot use")
+    --     for k,v in pairs(self.spell.abilities) do
+    --         if v ~= 61304 and v ~= 28880 and v ~= 58984 and v ~= 107079 then
+    --             br.ui:createCheckbox(section, "Use: "..tostring(GetSpellInfo(v)),"|cFFED0000 WARNING!".."|cFFFFFFFF Unchecking spell may cause rotation to not function correctly or at all.",true)
+    --         end
+    --     end
+    -- end
      -- Creates the option/profile window
     function self.createOptions()
         -- br.ui:createProfileWindow(self.profile)
@@ -567,8 +576,8 @@ function br.loader:new(spec,specName)
                 [2] = self.createBaseOptions,
             },
             -- {
-            --     [1] = "Class Options",
-            --     [2] = self.createClassOptions,
+            --     [1] = "Spell Index",
+            --     [2] = self.createSpellIndex,
             -- },
         }
 
@@ -587,6 +596,7 @@ function br.loader:new(spec,specName)
 
         -- Create pages dropdown
         br.ui:createPagesDropdown(br.ui.window.profile, optionTable)
+
         -- br:checkProfileWindowStatus()
         br.ui:checkWindowStatus("profile")
     end

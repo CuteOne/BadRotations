@@ -383,7 +383,11 @@ local function runRotation()
         -- Flanking Strike
             -- flanking_strike,if=cooldown.mongoose_bite.charges<=0&buff.aspect_of_the_eagle.remain()s>=gcd&focus>75
             if charges.mongooseBite <= 0 and buff.aspectOfTheEagle.remain() >= gcd and power > 75 then
-                if cast.flankingStrike() then return end
+                if ((mode.rotation == 1 and #enemies.yards8 == 1) or mode.rotation == 3) or level < 42 then
+                    if cast.flankingStrike() then return end
+                elseif ((mode.rotation == 1 and #enemies.yards8 > 1) or mode.rotation == 2) then
+                    if cast.carve() then return end
+                end
             end
         -- Lacerate
             -- lacerate,if=focus>60&buff.mongoose_fury.duration()>=gcd&dot.lacerate.remain()s<=3&cooldown.mongoose_bite.charges>=0&buff.mongoose_fury.stack()<4
@@ -449,7 +453,11 @@ local function runRotation()
         -- Flanking Strike
             -- flanking_strike,if=cooldown.mongoose_bite.charges<=2&buff.mongoose_fury.remain()s>(1+action.mongoose_bite.charges*gcd)&focus>75
             if charges.mongooseBite <= 2 and buff.mongooseFury.remain() > (1 + charges.mongooseBite * gcd) and power > 75 then
-                if cast.flankingStrike() then return end
+                if ((mode.rotation == 1 and #enemies.yards8 == 1) or mode.rotation == 3) or level < 42 then
+                    if cast.flankingStrike() then return end
+                elseif ((mode.rotation == 1 and #enemies.yards8 > 1) or mode.rotation == 2) then
+                    if cast.carve() then return end
+                end
             end
         -- Mongoose Bite
             -- mongoose_bite,if=buff.mongoose_fury.up&buff.mongoose_fury.remain()s<cooldown.aspect_of_the_eagle.remain()s
@@ -501,7 +509,11 @@ local function runRotation()
         -- Flanking Strike
             -- flanking_strike,if=focus>75
             if power > 75 then
-                if cast.flankingStrike() then return end
+                if ((mode.rotation == 1 and #enemies.yards8 == 1) or mode.rotation == 3) or level < 42 then
+                    if cast.flankingStrike() then return end
+                elseif ((mode.rotation == 1 and #enemies.yards8 > 1) or mode.rotation == 2) then
+                    if cast.carve() then return end
+                end
             end
         -- Raptor Strike
             -- raptor_strike,if=focus>75-cooldown.flanking_strike.remain()s*focus.regen
@@ -512,9 +524,9 @@ local function runRotation()
             end
             -- Carve
             if ((mode.rotation == 1 and #enemies.yards8 > 1) or mode.rotation == 2) and level >= 42 then
-                if (power > 90 - cd.flankingStrike * powerRegen) or (power > 90 and cd.flankingStrike == 0) then
+                -- if (power > 90 - cd.flankingStrike * powerRegen) or (power > 90 and cd.flankingStrike == 0) then
                     if cast.carve("player") then return end
-                end
+                -- end
             end
         end -- End Action List - Way of the Moknathal
     -- Action List - No of the MokNathal
@@ -542,7 +554,11 @@ local function runRotation()
             -- Flanking Strike
             -- flanking_strike,if=cooldown.mongoose_bite.charges<=0&buff.aspect_of_the_eagle.remain()s>=gcd
             if charges.mongooseBite <= 0 and buff.aspectOfTheEagle.remain() >= gcd then
-                if cast.flankingStrike() then return end
+                if ((mode.rotation == 1 and #enemies.yards8 == 1) or mode.rotation == 3) or level < 42 then
+                    if cast.flankingStrike() then return end
+                elseif ((mode.rotation == 1 and #enemies.yards8 > 1) or mode.rotation == 2) then
+                    if cast.carve() then return end
+                end
             end
             -- Lacerate
             -- lacerate,if=buff.mongoose_fury.duration()>=gcd&dot.lacerate.remain()s<=1&&cooldown.mongoose_bite.charges>=0&buff.mongoose_fury.stack()<4
@@ -599,7 +615,11 @@ local function runRotation()
             -- Flanking Strike
             -- flanking_strike,if=cooldown.mongoose_bite.charges<2&buff.mongoose_fury.remain()s>(1+action.mongoose_bite.charges*gcd)
             if charges.mongooseBite < 2 and buff.mongooseFury.remain() > (1 + charges.mongooseBite * gcd) then
-                if cast.flankingStrike() then return end
+                if ((mode.rotation == 1 and #enemies.yards8 == 1) or mode.rotation == 3) or level < 42 then
+                    if cast.flankingStrike() then return end
+                elseif ((mode.rotation == 1 and #enemies.yards8 > 1) or mode.rotation == 2) then
+                    if cast.carve() then return end
+                end
             end
             -- Mongoose Bite
             -- mongoose_bite,if=buff.mongoose_fury.up&buff.mongoose_fury.remain()s<cooldown.aspect_of_the_eagle.remain()s
@@ -609,7 +629,11 @@ local function runRotation()
             -- Flanking Strike
             -- flanking_strike,if=talent.animal_instincts.enabled&cooldown.mongoose_bite.charges<3
             if talent.animalInstincts and charges.mongooseBite < 3 then
-                if cast.flankingStrike() then return end
+                if ((mode.rotation == 1 and #enemies.yards8 == 1) or mode.rotation == 3) or level < 42 then
+                    if cast.flankingStrike() then return end
+                elseif ((mode.rotation == 1 and #enemies.yards8 > 1) or mode.rotation == 2) then
+                    if cast.carve() then return end
+                end
             end
             -- A Murder of Crows
             -- a_murder_of_crows
@@ -659,7 +683,11 @@ local function runRotation()
             if cast.throwingAxes() then return end
             -- Flanking Strike
             -- flanking_strike
-            if cast.flankingStrike() then return end
+            if ((mode.rotation == 1 and #enemies.yards8 == 1) or mode.rotation == 3) or level < 42 then
+                if cast.flankingStrike() then return end
+            elseif ((mode.rotation == 1 and #enemies.yards8 > 1) or mode.rotation == 2) then
+                if cast.carve() then return end
+            end
             -- Raptor Strike
             -- raptor_strike,if=focus>75-cooldown.flanking_strike.remain()s*focus.regen
             if ((mode.rotation == 1 and #enemies.yards8 == 1) or mode.rotation == 3) or level < 42 then
@@ -669,9 +697,9 @@ local function runRotation()
             end
             -- Carve
             if ((mode.rotation == 1 and #enemies.yards8 > 1) or mode.rotation == 2) and level >= 42 then
-                if (power > 90 - cd.flankingStrike * powerRegen) or (power > 90 and cd.flankingStrike == 0) then
+                -- if (power > 90 - cd.flankingStrike * powerRegen) or (power > 90 and cd.flankingStrike == 0) then
                     if cast.carve("player") then return end
-                end
+                -- end
             end
         end
     -- Action List - Pre-Combat

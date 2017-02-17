@@ -65,95 +65,99 @@ frame:SetScript("OnEvent", frame.OnEvent)
 --[[This function is refired everytime wow ticks. This frame is located at the top of Core.lua]]
 
 function BadRotationsUpdate(self)
-	-- local startTime = debugprofilestop()
-	-- LoS Line Draw *TEMP*
-	if FireHack and isChecked("Healer Line of Sight Indicator") then
-		inLoSHealer()
-	end
-	-- getEnemiesInRect(6,25)
-	-- C_Timer.After(0.1, function()
-	--
-	-- end)
-	local tempTime = GetTime();
-	if not self.lastUpdateTime then
-		self.lastUpdateTime = tempTime
-	end
-	if self.lastUpdateTime and (tempTime - self.lastUpdateTime) > 0.1 then
-		self.lastUpdateTime = tempTime
-
-		-- Close windows and swap br.selectedSpec on Spec Change
-		if select(2,GetSpecializationInfo(GetSpecialization())) ~= br.selectedSpec then
-	    	-- Closing the windows will save the position
-	        br.ui:closeWindow("all")
-
-	    	-- Update Selected Spec/Profile
-	        br.selectedSpec = select(2,GetSpecializationInfo(GetSpecialization()))
-	        br.activeSpecGroup = GetActiveSpecGroup()
-	        br:loadSettings()
-
-	        -- Recreate Config Window and commandHelp with new Spec
-	        if br.ui.window.config.parent == nil then br.ui:createConfigWindow() end
-			commandHelp = nil
-			commandHelp = ""
-			slashHelpList()
-	    end
-
-		-- prevent ticking when firechack isnt loaded
-		-- if user click power button, stop everything from pulsing and hide frames.
-		if FireHack ~= nil then
-			if not getOptionCheck("Start/Stop BadRotations") or (br.data.settings[br.selectedSpec].toggles["Power"] ~= nil and br.data.settings[br.selectedSpec].toggles["Power"] ~= 1) then
-				br.ui:closeWindow("all")
-				return false
-			end
+	if br.updateInProgress ~= true then 
+		self.updateInProgress = true
+		-- local startTime = debugprofilestop()
+		-- LoS Line Draw *TEMP*
+		if FireHack and isChecked("Healer Line of Sight Indicator") then
+			inLoSHealer()
 		end
-		if FireHack == nil then
-		 	br.ui:closeWindow("all")
-			if getOptionCheck("Start/Stop BadRotations") then
-				ChatOverlay("FireHack not Loaded.")
-				if br.timer:useTimer("notLoaded", 10) then
-					Print("|cffFFFFFFCannot Start... |cffFF1100Firehack |cffFFFFFFis not loaded. Please attach Firehack.")
+		-- getEnemiesInRect(6,25)
+		-- C_Timer.After(0.1, function()
+		--
+		-- end)
+		local tempTime = GetTime();
+		if not self.lastUpdateTime then
+			self.lastUpdateTime = tempTime
+		end
+		if self.lastUpdateTime and (tempTime - self.lastUpdateTime) > 0.1 then
+			self.lastUpdateTime = tempTime
+
+			-- Close windows and swap br.selectedSpec on Spec Change
+			if select(2,GetSpecializationInfo(GetSpecialization())) ~= br.selectedSpec then
+		    	-- Closing the windows will save the position
+		        br.ui:closeWindow("all")
+
+		    	-- Update Selected Spec/Profile
+		        br.selectedSpec = select(2,GetSpecializationInfo(GetSpecialization()))
+		        br.activeSpecGroup = GetActiveSpecGroup()
+		        br:loadSettings()
+
+		        -- Recreate Config Window and commandHelp with new Spec
+		        if br.ui.window.config.parent == nil then br.ui:createConfigWindow() end
+				commandHelp = nil
+				commandHelp = ""
+				slashHelpList()
+		    end
+
+			-- prevent ticking when firechack isnt loaded
+			-- if user click power button, stop everything from pulsing and hide frames.
+			if FireHack ~= nil then
+				if not getOptionCheck("Start/Stop BadRotations") or (br.data.settings[br.selectedSpec].toggles["Power"] ~= nil and br.data.settings[br.selectedSpec].toggles["Power"] ~= 1) then
+					br.ui:closeWindow("all")
+					return false
 				end
 			end
-			return false
+			if FireHack == nil then
+			 	br.ui:closeWindow("all")
+				if getOptionCheck("Start/Stop BadRotations") then
+					ChatOverlay("FireHack not Loaded.")
+					if br.timer:useTimer("notLoaded", 10) then
+						Print("|cffFFFFFFCannot Start... |cffFF1100Firehack |cffFFFFFFis not loaded. Please attach Firehack.")
+					end
+				end
+				return false
+			end
+
+			-- Pulse enemiesEngine
+			-- br:PulseUI()
+
+		    -- get DBM Timer/Bars
+		    -- global -> br.DBM.Timer
+		    br.DBM:getBars()
+
+		    -- Rotation Log
+		    if getOptionCheck("Rotation Log") then
+		    	if not br.ui.window['debug']['parent'] then br.ui:createDebugWindow() end
+		    	br.ui:showWindow("debug")
+		    else
+		    	br.ui:closeWindow("debug")
+		    end
+
+			-- Accept dungeon queues
+			br:AcceptQueues()
+
+			-- Load Spec Profiles
+		    br.selectedProfile = br.data.settings[br.selectedSpec]["Rotation".."Drop"] or 1
+			local playerSpec = GetSpecializationInfo(GetSpecialization())
+
+			if br.player == nil or br.player.profile ~= br.selectedSpec then
+	            br.player = br.loader:new(playerSpec,br.selectedSpec)
+	            setmetatable(br.player, {__index = br.loader})
+	            br.player:createOptions()
+	            br.player:createToggles()
+	            br.player:update()
+	        end
+	        if br.player ~= nil then
+				br.player:update()
+			end
 		end
-
-		-- Pulse enemiesEngine
-		br:PulseUI()
-
-	    -- get DBM Timer/Bars
-	    -- global -> br.DBM.Timer
-	    br.DBM:getBars()
-
-	    -- Rotation Log
-	    if getOptionCheck("Rotation Log") then
-	    	if not br.ui.window['debug']['parent'] then br.ui:createDebugWindow() end
-	    	br.ui:showWindow("debug")
-	    else
-	    	br.ui:closeWindow("debug")
-	    end
-
-		-- Accept dungeon queues
-		br:AcceptQueues()
-
-		-- Load Spec Profiles
-	    br.selectedProfile = br.data.settings[br.selectedSpec]["Rotation".."Drop"] or 1
-		local playerSpec = GetSpecializationInfo(GetSpecialization())
-
-		if br.player == nil or br.player.profile ~= br.selectedSpec then
-            br.player = br.loader:new(playerSpec,br.selectedSpec)
-            setmetatable(br.player, {__index = br.loader})
-            br.player:createOptions()
-            br.player:createToggles()
-            br.player:update()
-        end
-        if br.player ~= nil then
-			br.player:update()
-		end
+		-- br.debug.cpu.pulse.totalIterations = br.debug.cpu.pulse.totalIterations + 1
+		-- br.debug.cpu.pulse.currentTime = debugprofilestop()-startTime
+		-- br.debug.cpu.pulse.elapsedTime = br.debug.cpu.pulse.elapsedTime + debugprofilestop()-startTime
+		-- br.debug.cpu.pulse.averageTime = br.debug.cpu.pulse.elapsedTime / br.debug.cpu.pulse.totalIterations
+		self.updateInProgress = false 
 	end
-	-- br.debug.cpu.pulse.totalIterations = br.debug.cpu.pulse.totalIterations + 1
-	-- br.debug.cpu.pulse.currentTime = debugprofilestop()-startTime
-	-- br.debug.cpu.pulse.elapsedTime = br.debug.cpu.pulse.elapsedTime + debugprofilestop()-startTime
-	-- br.debug.cpu.pulse.averageTime = br.debug.cpu.pulse.elapsedTime / br.debug.cpu.pulse.totalIterations
 end
 
 --[[-------------------------------------------------------------------------------------------------------------------------------------------------------]]
