@@ -708,9 +708,8 @@ local function runRotation()
                 if isChecked("Penance") then
                     if schismBuff then
                         if cast.penance(schismBuff) then return end
-                    else
-                        if cast.penance() then return end
                     end
+                    if cast.penance() then return end
                 end
                 --Mindbender
                 if isChecked("Mindbender") and powcent <= getValue("Mindbender") then
@@ -726,9 +725,8 @@ local function runRotation()
                 if isChecked("Power Word: Solace") then
                     if schismBuff then
                         if cast.powerWordSolace(schismBuff) then return end
-                    else
-                        if cast.powerWordSolace() then return end
                     end
+                    if cast.powerWordSolace() then return end
                 end
                 --Light's Wrath
                 if isChecked("Light's Wrath") then
@@ -762,11 +760,10 @@ local function runRotation()
                 --Smite
                 if isChecked("Smite") and powcent > 20 then
                     if not inInstance and not inRaid or atonementCount >= getValue("Smite") then
-                        if schismBuff then
+                        if schismBuff and lastSpell ~= spell.smite then
                             if cast.smite(schismBuff) then return end
-                        else
-                            if cast.smite() then return end
                         end
+                        if cast.smite() then return end
                     end
                 end
             end
