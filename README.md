@@ -254,7 +254,7 @@ Raidable means if its good to raid with.
 |author|active|patch|status|raidable?|
 |:-------|:---:|:---:|------:|:-----:|
 ||||
-|Kuukuu|Full|7.1.5|Unknown|:interrobang:|
+|No Profiles Yet|||
 
   * Shadow
 
