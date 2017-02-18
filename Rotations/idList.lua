@@ -819,7 +819,7 @@ br.idList = {
                 aMurderOfCrows              = 131894,
                 barrage                     = 120360,
                 volley                      = 194386,
-        intimidation            = 19577,
+                intimidation                = 19577,
             },
         },
         -- Marksmanship
@@ -957,7 +957,6 @@ br.idList = {
                 stickyBomb                  = 191241,
                 throwingAxes                = 200163,
                 wayOfTheMokNathal           = 201082,
-
             },
         },
         -- All
