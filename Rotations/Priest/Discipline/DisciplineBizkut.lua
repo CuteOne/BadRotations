@@ -78,6 +78,8 @@ local function createOptions()
         section = br.ui:createSection(br.ui.window.profile, "Single Target Healing")
             --Atonement
             br.ui:createSpinner(section, "Atonement HP",  95,  0,  100,  1,  "|cffFFFFFFApply Atonement using Power Word: Shield, Plea and Power Word: Radiance. Health Percent to Cast At. Default: 95")
+            --Power Word: Shield
+            br.ui:createSpinner(section, "Power Word: Shield",  99,  0,  100,  1,  "|cffFFFFFFHealth Percent to Cast At. Default: 99")
             --Max Atonement
             br.ui:createSpinner(section, "Max Atonement",  40,  0,  40,  1,  "|cffFFFFFFMaximum Atonement to keep at a time. Default: 40")
             --Max Plea
@@ -547,6 +549,19 @@ local function runRotation()
                     end
                 end
             end
+            --Power Word: Shield
+            if isChecked("Power Word: Shield") then
+                for i = 1, #br.friend do
+                    if br.friend[i].hp <= getValue("Power Word: Shield") and not buff.powerWordShield.exists(br.friend[i].unit) then
+                        if mode.healer == 1 or mode.healer == 2 then
+                            if cast.powerWordShield(br.friend[i].unit) then return end
+                        end
+                        if mode.healer == 3 and br.friend[i].unit == "player" then
+                            if cast.powerWordShield("player") then return end
+                        end
+                    end
+                end
+            end
         end
         --Single Target Heal
         function actionList_SingleTargetHeal()
@@ -573,23 +588,15 @@ local function runRotation()
             --Atonement
             if isChecked("Atonement HP") then
                 for i = 1, #br.friend do
-                    local tankBuff = 0
-                    if  (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and not buff.powerWordShield.exists(br.friend[i].unit) then
-                        tankBuff = i
-                    end
                     if br.friend[i].hp <= getValue("Atonement HP") then
-                        if mode.healer == 1 and tankBuff ~= 0 then
-                            actionList_SpreadAtonement(br.friend[tankBuff].unit)
-                        elseif mode.healer == 1 then
+                        if mode.healer == 1 then
                             actionList_SpreadAtonement(br.friend[i].unit)
                         end
                         if mode.healer == 3 and br.friend[i].unit == "player" then
                             actionList_SpreadAtonement("player")
                         end
                     end
-                    if mode.healer == 2 and tankBuff ~= 0 then
-                        actionList_SpreadAtonement(br.friend[tankBuff].unit)
-                    elseif mode.healer == 2 then
+                    if mode.healer == 2 then
                         actionList_SpreadAtonement(br.friend[i].unit)
                     end
                 end
