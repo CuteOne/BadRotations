@@ -549,7 +549,7 @@ local function runRotation()
                     end
                 end
             end
-            Power Word: Shield
+            --Power Word: Shield
             if isChecked("Power Word: Shield") and getSpellCD(spell.powerWordShield) == 0 then
                 for i = 1, #br.friend do
                     if br.friend[i].hp <= getValue("Power Word: Shield") and not buff.powerWordShield.exists(br.friend[i].unit) then
