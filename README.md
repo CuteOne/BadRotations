@@ -144,7 +144,6 @@ Raidable means if its good to raid with.
 ||||
 |LyLoLoq|Full|7.1.5|100%|:white_check_mark:|
 ||||
-|No Profiles Yet|||
 
   * Restoration
 
