@@ -148,10 +148,6 @@ Rotations\Paladin\Retribution\RetributionCuteOne.lua
 ## Priest ---------------------------------------------------
 
 Rotations\Priest\Discipline\DisciplineBizkut.lua
-<<<<<<< HEAD:BudakJahat.toc
-Rotations\Priest\Discipline\DisciplineBizkutRaid.lua
-=======
->>>>>>> 0a1fabe1f9d470c5af82482a019f071a989e9a60:BadRotations.toc
 Rotations\Priest\Discipline\DisciplineCpoworks.lua
 Rotations\Priest\Discipline\DisciplineSvs.lua
 
