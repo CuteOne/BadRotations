@@ -276,24 +276,7 @@ local function runRotation()
                 atonementCount = atonementCount + 1
             end
         end
-        
-        --Atonement
-        if isChecked("Atonement HP") then
-            for i = 1, #br.friend do
-                if br.friend[i].hp <= getValue("Atonement HP") then
-                    if mode.healer == 1 then
-                        actionList_SpreadAtonement(br.friend[i].unit)
-                    end
-                    if mode.healer == 3 and br.friend[i].unit == "player" then
-                        actionList_SpreadAtonement("player")
-                    end
-                end
-                if mode.healer == 2 then
-                    actionList_SpreadAtonement(br.friend[i].unit)
-                end
-            end
-        end
-        
+
         -- Mana percent
         powcent = power/powmax*100
         
@@ -579,6 +562,22 @@ local function runRotation()
                     end
                 end
             end
+            --Atonement
+            if isChecked("Atonement HP") then
+                for i = 1, #br.friend do
+                    if br.friend[i].hp <= getValue("Atonement HP") then
+                        if mode.healer == 1 then
+                            actionList_SpreadAtonement(br.friend[i].unit)
+                        end
+                        if mode.healer == 3 and br.friend[i].unit == "player" then
+                            actionList_SpreadAtonement("player")
+                        end
+                    end
+                    if mode.healer == 2 then
+                        actionList_SpreadAtonement(br.friend[i].unit)
+                    end
+                end
+            end
         end
         --Single Target Heal
         function actionList_SingleTargetHeal()
@@ -599,22 +598,6 @@ local function runRotation()
                         if UnitIsPlayer(br.friend[i].unit) and UnitIsDeadOrGhost(br.friend[i].unit) and lastSpell ~= spell.resurrection then
                             if cast.resurrection(br.friend[i].unit) then return end
                         end
-                    end
-                end
-            end
-            --Atonement
-            if isChecked("Atonement HP") then
-                for i = 1, #br.friend do
-                    if br.friend[i].hp <= getValue("Atonement HP") then
-                        if mode.healer == 1 then
-                            actionList_SpreadAtonement(br.friend[i].unit)
-                        end
-                        if mode.healer == 3 and br.friend[i].unit == "player" then
-                            actionList_SpreadAtonement("player")
-                        end
-                    end
-                    if mode.healer == 2 then
-                        actionList_SpreadAtonement(br.friend[i].unit)
                     end
                 end
             end
