@@ -150,6 +150,8 @@ local function createOptions()
             br.ui:createSpinner(section, "Darkening Soul/Blackening Soul Helper",  3,  0,  10,  1,  "|cffFFFFFFDebuff stack before dispel in Dream Simulacrum at Xavius. Default: 3")
             --Disable CD during Speed: Slow on Chromatic Anomaly
             br.ui:createCheckbox(section, "Disable CD during Speed: Slow","|cffFFFFFFDisable CD during Speed: Slow debuff on Chromatic Anomaly")
+            --High Botanist Tel'arn Parasitic Fetter dispel helper. Dispel 10 feet from allies
+            br.ui:createCheckbox(section, "Parasitic Fetter Dispel Helper","|cffFFFFFFHigh Botanist Tel'arn Parasitic Fetter dispel helper")
             --Drink
             br.ui:createSpinner(section, "Drink",   50,  0,  100,  5,   "|cffFFFFFFMinimum mana to drink Ley-Enriched Water. Default: 50")
             --Pre Pot
@@ -647,8 +649,13 @@ local function runRotation()
                         local buff,_,_,count,bufftype,duration = UnitDebuff(br.friend[i].unit, n)
                         if buff then
                             if (bufftype == "Curse" or bufftype == "Magic") and lastSpell ~= spell.purify then
+                                --High Botanist Tel'arn Parasitic Fetter dispel helper
+                                if isChecked("Parasitic Fetter Dispel Helper") and UnitDebuffID(br.friend[i].unit,218304) then
+                                    if #getAllies(br.friend[i].unit,10) < 2 then
+                                        if cast.purify(br.friend[i].unit) then return end
+                                    end
                                 --Xavius dispel helper
-                                if isChecked("Darkening Soul/Blackening Soul Helper") and (getDebuffStacks(br.friend[i].unit,206651) >= 1 or getDebuffStacks(br.friend[i].unit,209158) >= 1) then
+                                elseif isChecked("Darkening Soul/Blackening Soul Helper") and (getDebuffStacks(br.friend[i].unit,206651) >= 1 or getDebuffStacks(br.friend[i].unit,209158) >= 1) then
                                     local debuffStack = getValue("Darkening Soul/Blackening Soul Helper")
                                     if UnitDebuffID("player",206005) and (getDebuffStacks(br.friend[i].unit,206651) >= debuffStack or getDebuffStacks(br.friend[i].unit,209158) >= debuffStack) then
                                         if cast.purify(br.friend[i].unit) then return end
