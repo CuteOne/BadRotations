@@ -336,7 +336,7 @@ function br.loader:new(spec,specName)
             runes           = 5,
             runicPower      = 6,
             soulShards      = 7,
-            lunarPower      = 8,
+            astralPower     = 8,
             holyPower       = 9,
             altPower        = 10,
             maelstrom       = 11,
