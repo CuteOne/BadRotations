@@ -139,9 +139,11 @@ local function runRotation()
     local flaskBuff                                     = getBuffRemain("player",br.player.flask.wod.buff.intellectBig)
     local pullTimer                                     = br.DBM:getPulltimer()
 
-    local enemies           = enemies or {}
+    local enemies                                       = enemies or {}
+    local units                                         = units or {}
 
-    enemies.yards45 = player.enemies(45)
+    enemies.yards40 = player.enemies(40)
+    units.dyn40 = player.units(40)
 
 
     ---------------
@@ -170,7 +172,7 @@ local function runRotation()
 
     --    if br.timer:useTimer("debugBalance", math.random(0.5,0.8)) then
 
-    if UnitCastingInfo("player") == nil then
+    if UnitCastingInfo("player") == nil and isValidUnit(units.dyn40) and getDistance(units.dyn40) < 40 then
 
         local function actionList_Extras()
             if isChecked("Innervate") and (SpecificToggle("Innervate") and not GetCurrentKeyBoardFocus()) and player.cd.innervate == 0 then
@@ -291,8 +293,8 @@ local function runRotation()
             end
 
             if multidot then
-                for i = 1, #enemies.yards45 do
-                    local thisUnit = enemies.yards45[i]
+                for i = 1, #enemies.yards40 do
+                    local thisUnit = enemies.yards40[i]
                     --actions.fury_of_elune+=/moonfire,if=buff.fury_of_elune_up.down&remains<=6.6
                     if not player.buff.furyOfElune.exists() and player.debuff.moonfire.remain(thisUnit) <= 6.6  then
                         if player.debuff.moonfire.remain(thisUnit) < player.gcd and (player.debuff.moonfire.count() < getOptionValue("Moonfire targets")) then
@@ -309,7 +311,7 @@ local function runRotation()
             else
                 if not player.buff.furyOfElune.exists() and player.debuff.moonfire.remain() <= 6.6  then
                     if player.debuff.moonfire.remain() < player.gcd and (player.debuff.moonfire.count() < getOptionValue("Moonfire targets")) then
-                        if player.cast.moonfire() then return end
+                        if player.cast.moonfire() then Print("2") return end
                     end
                 end
                 --actions.fury_of_elune+=/sunfire,if=buff.fury_of_elune_up.down&remains<5.4
@@ -321,12 +323,12 @@ local function runRotation()
             end
 
             --actions.fury_of_elune+=/stellar_flare,if=remains<7.2&active_enemies=1
-            if player.talent.stellarFlare and #enemies.yards45 == 1 and astralPower >= 10 and player.debuff.stellarFlare.remain() < 7.2 then
+            if player.talent.stellarFlare and #enemies.yards40 == 1 and astralPower >= 10 and player.debuff.stellarFlare.remain() < 7.2 then
                 if player.cast.stellarFlare() then return end
             end
             if multidot then
-                for i = 1, #enemies.yards45 do
-                    local thisUnit = enemies.yards45[i]
+                for i = 1, #enemies.yards40 do
+                    local thisUnit = enemies.yards40[i]
                     --actions.fury_of_elune+=/starfall,if=(active_enemies>=2&talent.stellar_flare.enabled|active_enemies>=3)&buff.fury_of_elune_up.down&cooldown.fury_of_elune.remains>10 #BROKEN
                     if #getEnemies(thisUnit,10) >= 3 and not player.buff.furyOfElune.exists() and player.cd.furyOfElune > 10 then
                         if player.cast.starfall(thisUnit, "ground") then return end
@@ -336,7 +338,7 @@ local function runRotation()
 
             --actions.fury_of_elune+=/starsurge,if=active_enemies<=2&buff.fury_of_elune_up.down&cooldown.fury_of_elune.remains>7
             if not player.buff.furyOfElune.exists() and player.cd.furyOfElune > 7 then
-                if (#enemies.yards45 <= 2) or not multidot then
+                if (#enemies.yards40 <= 2) or not multidot then
                     if player.cast.starsurge() then return end
                 end
             end
@@ -374,11 +376,11 @@ local function runRotation()
                 if player.cast.starsurge() then return end
             end
             if multidot then
-                for i = 1, #enemies.yards45 do
-                    local thisUnit = enemies.yards45[i]
+                for i = 1, #enemies.yards40 do
+                    local thisUnit = enemies.yards40[i]
                     --actions.ed+=/stellar_flare,cycle_targets=1,max_cycle_targets=4,if=active_enemies<4&remains<7.2&astral_power>=15
                     if player.debuff.stellarFlare.count() <= 4 then
-                        if player.talent.stellarFlare and #enemies.yards45 <= 4 and astralPower >= 15 and player.debuff.stellarFlare.remain(thisUnit) < 7.2 then
+                        if player.talent.stellarFlare and #enemies.yards40 <= 4 and astralPower >= 15 and player.debuff.stellarFlare.remain(thisUnit) < 7.2 then
                             if player.cast.stellarFlare(thisUnit) then return end
                         end
                     end
@@ -403,7 +405,7 @@ local function runRotation()
                 --actions.ed+=/moonfire,if=((talent.natures_balance.enabled&remains<3)|(remains<6.6&!talent.natures_balance.enabled))&(buff.the_emerald_dreamcatcher.remains>gcd.max|!buff.the_emerald_dreamcatcher.up)
                 if (player.talent.naturesBalance and player.debuff.moonfire.remain() < 3) or (player.debuff.moonfire.remain() < 6.6 and not player.talent.naturesBalance)  then
                     if player.debuff.moonfire.remain() < player.gcd  and (player.debuff.moonfire.count() < getOptionValue("Moonfire targets")) then
-                        if player.cast.moonfire() then return end
+                        if player.cast.moonfire() then Print("3") return end
                     end
                 end
                 --actions.ed+=/sunfire,if=((talent.natures_balance.enabled&remains<3)|(remains<5.4&!talent.natures_balance.enabled))&(buff.the_emerald_dreamcatcher.remains>gcd.max|!buff.the_emerald_dreamcatcher.up)
@@ -414,8 +416,8 @@ local function runRotation()
                 end
             end
             if multidot then
-                for i = 1, #enemies.yards45 do
-                    local thisUnit = enemies.yards45[i]
+                for i = 1, #enemies.yards40 do
+                    local thisUnit = enemies.yards40[i]
                     --actions.ed+=/starfall,if=buff.oneths_overconfidence.up&buff.the_emerald_dreamcatcher.remains>execute_time&remains<2
                     if player.buff.onethsOverconfidence.exists() and player.buff.emeraldDreamcatcher.remains() > player.gcd then
                         if player.cast.starfall(thisUnit, "ground") then return end
@@ -451,8 +453,8 @@ local function runRotation()
                 if player.cast.starsurge() then return end
             end
             if multidot then
-                for i = 1, #enemies.yards45 do
-                    local thisUnit = enemies.yards45[i]
+                for i = 1, #enemies.yards40 do
+                    local thisUnit = enemies.yards40[i]
                     --actions.ed+=/starfall,if=buff.oneths_overconfidence.up&remains<2
                     if player.buff.onethsOverconfidence.remains()<2 then
                         if player.cast.starfall(thisUnit, "ground") then return end
@@ -491,8 +493,8 @@ local function runRotation()
 
             if multidot then
                 --actions.celestial_alignment_phase=starfall,if=((active_enemies>=2&talent.stellar_drift.enabled)|active_enemies>=3)
-                for i = 1, #enemies.yards45 do
-                    local thisUnit = enemies.yards45[i]
+                for i = 1, #enemies.yards40 do
+                    local thisUnit = enemies.yards40[i]
                     --actions.single_target+=/starfall,if=((active_enemies>=2&talent.stellar_drift.enabled)|active_enemies>=3)
                     if (#getEnemies(thisUnit,10) >= 2 and player.talent.stellarDrift) or #getEnemies(thisUnit,10) >= 3 then
                         if player.cast.starfall(thisUnit, "ground") then return end
@@ -500,7 +502,7 @@ local function runRotation()
                 end
             end
             --actions.celestial_alignment_phase+=/starsurge,if=active_enemies<=2
-            if #enemies.yards45 <= 2 or not multidot then
+            if #enemies.yards40 <= 2 or not multidot then
                 if player.cast.starsurge() then return end
             end
             --actions.celestial_alignment_phase+=/warrior_of_elune
@@ -545,8 +547,8 @@ local function runRotation()
                 if player.cast.fullMoon() then return end
             end
             if multidot then
-                for i = 1, #enemies.yards45 do
-                    local thisUnit = enemies.yards45[i]
+                for i = 1, #enemies.yards40 do
+                    local thisUnit = enemies.yards40[i]
                     --actions.single_target+=/starfall,if=((active_enemies>=2&talent.stellar_drift.enabled)|active_enemies>=3)
                     if (#getEnemies(thisUnit,10) >= 2 and player.talent.stellarDrift) or #getEnemies(thisUnit,10) >= 3 then
                         if player.cast.starfall(thisUnit, "ground") then return end
@@ -554,7 +556,7 @@ local function runRotation()
                 end
             end
             --actions.single_target+=/starsurge,if=active_enemies<=2
-            if #enemies.yards45 <= 2 or not multidot then
+            if #enemies.yards40 <= 2 or not multidot then
                 if player.cast.starsurge() then return end
             end
             --actions.single_target+=/warrior_of_elune
@@ -610,9 +612,9 @@ local function runRotation()
             --TODO:actions=potion,name=deadly_grace,if=buff.celestial_alignment.up|buff.incarnation.up
             if player.talent.blessingOfTheAncients then
                 --actions+=/blessing_of_elune,if=active_enemies<=2&talent.blessing_of_the_ancients.enabled&buff.blessing_of_elune.down
-                if ((#enemies.yards45 <= 2 or not multidot) and not player.buff.blessingOfElune.exists())  then
+                if ((#enemies.yards40 <= 2 or not multidot) and not player.buff.blessingOfElune.exists())  then
                     if player.cast.blessingOfTheAncients() then return end
-                elseif #enemies.yards45 >= 3  and not player.buff.blessingOfAnshe.exists() and multidot then
+                elseif #enemies.yards40 >= 3  and not player.buff.blessingOfAnshe.exists() and multidot then
                     --actions+=/blessing_of_elune,if=active_enemies>=3&talent.blessing_of_the_ancients.enabled&buff.blessing_of_anshe.down
                     if player.cast.blessingOfTheAncients() then return end
                 end
@@ -633,9 +635,8 @@ local function runRotation()
                 end
             end
             --actions+=/call_action_list,name=ed,if=equipped.the_emerald_dreamcatcher&active_enemies<=2
-            if hasEquiped(137062) and #enemies.yards45 <= 2 then
+            if hasEquiped(137062) and #enemies.yards40 <= 2 then
                 actionList_EmeralDreamcatcher()
-                return
             end
             --actions+=/new_moon,if=(charges=2&recharge_time<5)|charges=3
             if (GetSpellCount(player.spell.newMoon) == 2 and player.cd.newMoon < 5) or GetSpellCount(player.spell.newMoon) == 3 then
@@ -650,11 +651,11 @@ local function runRotation()
                 if player.cast.fullMoon() then return end
             end
             if multidot then
-                for i = 1, #enemies.yards45 do
-                    local thisUnit = enemies.yards45[i]
+                for i = 1, #enemies.yards40 do
+                    local thisUnit = enemies.yards40[i]
                     --actions+=/stellar_flare,cycle_targets=1,max_cycle_targets=4,if=active_enemies<4&remains<7.2&astral_power>=15
                     if player.debuff.stellarFlare.count() <= 4 then
-                        if player.talent.stellarFlare and #enemies.yards45 <= 4 and astralPower >= 15 and player.debuff.stellarFlare.remain(thisUnit) < 7.2 then
+                        if player.talent.stellarFlare and #enemies.yards40 <= 4 and astralPower >= 15 and player.debuff.stellarFlare.remain(thisUnit) < 7.2 then
                             if player.cast.stellarFlare(thisUnit) then return end
                         end
                     end
@@ -677,7 +678,7 @@ local function runRotation()
                 end
                 if (player.talent.naturesBalance and player.debuff.moonfire.remain() < 3) or (player.debuff.moonfire.remain() < 6.6 and not player.talent.naturesBalance) then
                     if player.debuff.moonfire.remain() < player.gcd and (player.debuff.moonfire.count() < getOptionValue("Moonfire targets")) then
-                        if player.cast.moonfire() then return end
+                        if player.cast.moonfire() then Print("4") return end
                     end
                 end
                 if (player.talent.naturesBalance and player.debuff.sunfire.remain() < 3) or (player.debuff.sunfire.remain() < 5.4 and not player.talent.naturesBalance) then
@@ -703,8 +704,8 @@ local function runRotation()
             --actions+=/starfall,if=buff.oneths_overconfidence.up
             if player.buff.onethsOverconfidence.exists() then
                 if multidot then
-                    for i = 1, #enemies.yards45 do
-                        local thisUnit = enemies.yards45[i]
+                    for i = 1, #enemies.yards40 do
+                        local thisUnit = enemies.yards40[i]
                         if player.cast.starfall(thisUnit, "ground") then return end
                     end
                 else
@@ -729,12 +730,12 @@ local function runRotation()
 
         local function actionList_CombatMoving()
             --actions.single_target+=/starsurge,if=active_enemies<=2
-            if #enemies.yards45 <= 2 or not multidot then
+            if #enemies.yards40 <= 2 or not multidot then
                 if player.cast.starsurge() then return end
             end
             if multidot then
-                for i = 1, #enemies.yards45 do
-                    local thisUnit = enemies.yards45[i]
+                for i = 1, #enemies.yards40 do
+                    local thisUnit = enemies.yards40[i]
                     if (#getEnemies(thisUnit,10) >= 2 and player.talent.stellarDrift) or #getEnemies(thisUnit,10) >= 3 then
                         if player.cast.starfall(thisUnit, "ground") then return end
                     end
@@ -752,7 +753,7 @@ local function runRotation()
             else
                 if player.debuff.moonfire.remain() < 6.6  and (player.debuff.moonfire.count() < getOptionValue("Moonfire targets")) then
                     if player.debuff.moonfire.remain() < player.gcd then
-                        if player.cast.moonfire() then return end
+                        if player.cast.moonfire() then Print("5") return end
                     end
                 end
                 if player.debuff.sunfire.remain() < 5.4  and (player.debuff.sunfire.count() < getOptionValue("Sunfire targets")) then
@@ -770,8 +771,8 @@ local function runRotation()
 
             --just to do something
             if multidot then
-                for i = 1, #enemies.yards45 do
-                    local thisUnit = enemies.yards45[i]
+                for i = 1, #enemies.yards40 do
+                    local thisUnit = enemies.yards40[i]
                     if player.debuff.moonfire.remain(thisUnit) <= player.debuff.sunfire.remain(thisUnit) then
                         if player.cast.moonfire(thisUnit,"aoe") then return end
                     else
@@ -780,7 +781,7 @@ local function runRotation()
                 end
             else
                 if player.debuff.moonfire.remain() <= player.debuff.sunfire.remain() then
-                    if player.cast.moonfire() then return end
+                    if player.cast.moonfire() then Print("1") return end
                 else
                     if player.cast.sunfire() then return end
                 end
@@ -789,8 +790,8 @@ local function runRotation()
 
         local function actionList_Interrupts()
             if useInterrupts() and player.cd.solarBeam == 0 then
-                for i = 1, #enemies.yards45 do
-                    local thisUnit = enemies.yards45[i]
+                for i = 1, #enemies.yards40 do
+                    local thisUnit = enemies.yards40[i]
                     if canInterrupt(thisUnit,getOptionValue("Interrupt at")) then
                         if player.cast.solarBeam(thisUnit) then
                             if player.talent.massEntanglement then
@@ -925,6 +926,7 @@ local function runRotation()
             end -- End Defensive Toggle
         end
 
+
         if player.inCombat then
             if (profileStop==true) or pause() or player.mode.rotation==4 then
                 return true
@@ -932,9 +934,9 @@ local function runRotation()
             actionList_Extras()
             actionList_Interrupts()
             actionList_Defensive()
-            if (not isMoving("player") or player.buff.stellarDrift.exists()) and not nodps and hastar and not deadtar and attacktar then
+            if (not isMoving("player") or player.buff.stellarDrift.exists()) then
                 actionList_Combat()
-            elseif isMoving("player") and not nodps and not nodps and hastar and not deadtar and attacktar then
+            elseif isMoving("player")then
                 actionList_CombatMoving()
             end
         else
