@@ -46,7 +46,7 @@ local function createOptions()
         -- Dummy DPS Test
         br.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
         -- Opener
-        br.ui:createCheckbox(section, "Opener")
+        br.ui:createCheckbox(section, "Opener - NOT WORKING YET")
         -- Pre-Pull Timer
         br.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
         -- Travel Shapeshifts
@@ -166,9 +166,11 @@ local function runRotation()
 
     if lastForm == nil then lastForm = 0 end
     if profileStop == nil then profileStop = false end
+    if opener == nil then opener = false end
     if not player.inCombat and not hastar and profileStop==true then
         profileStop = false
     end
+
 
     --    if br.timer:useTimer("debugBalance", math.random(0.5,0.8)) then
 
@@ -457,7 +459,7 @@ local function runRotation()
                 for i = 1, #enemies.yards40 do
                     local thisUnit = enemies.yards40[i]
                     --actions.ed+=/starfall,if=buff.oneths_overconfidence.up&remains<2
-                    if player.buff.onethsOverconfidence.remain()<2 then
+                    if player.buff.onethsOverconfidence.exists() and player.buff.onethsOverconfidence.remain()<2 then
                         if player.cast.starfall(thisUnit, "ground") then return end
                     end
                 end
@@ -927,6 +929,19 @@ local function runRotation()
             end -- End Defensive Toggle
         end
 
+        local function actionList_Opener()
+            --TODO
+        end
+        -----------------------
+        --- Opener Rotation ---
+        -----------------------
+--        if opener == false and isChecked("Opener") and isBoss("target") then
+--            if isChecked("Pre-Pull Timer") and player.inCombat then
+--                opener = true;
+--                return
+--            end
+--            if actionList_Opener() then return end
+--        end
 
         if player.inCombat and isValidUnit(units.dyn40) and getDistance(units.dyn40) < 40 then
             if (profileStop==true) or pause() or player.mode.rotation==4 then
