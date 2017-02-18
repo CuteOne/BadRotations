@@ -231,8 +231,6 @@ local function runRotation()
             return uaStack
         end
 
-        ChatOverlay(debuff.unstableAffliction.stack())
-
         function debuff.unstableAffliction.remain(stack,unit)
             if unit == nil then unit = units.dyn40 end
             return debuff["unstableAffliction"..stack].remain(unit)

@@ -110,6 +110,8 @@ Rotations\Druid\Guardian\GuardianCuteOne.lua
 
 Rotations\Druid\Restoration\RestorationSvs.lua
 
+Rotations\Druid\Balance\BalanceLyLoLoq.lua
+
 ## Hunter ---------------------------------------------------
 
 Rotations\Hunter\Beastmaster\BeastmasterCpoworks.lua
