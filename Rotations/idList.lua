@@ -1427,6 +1427,7 @@ br.idList = {
                 avengingWrath               = 31842;
                 beaconOfLight               = 53563;
                 beaconOfFaith               = 53563;
+                beaconOfVirtue              = 200025;
                 bestowFaith                 = 223306;
                 divineProtection            = 498;
                 divinePurpose               = 216411;
