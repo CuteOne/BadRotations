@@ -52,10 +52,6 @@ local function createOptions()
         section = br.ui:createSection(br.ui.window.profile, "Utility")
             --Purify
             br.ui:createCheckbox(section, "Purify")
-            --Boss helper at Xavius. Darkening Soul/Blackening Soul Helper
-            br.ui:createSpinner(section, "Darkening Soul/Blackening Soul Helper",  3,  0,  10,  1,  "|cffFFFFFFDebuff stack before dispel in Dream Simulacrum at Xavius. Default: 3")
-            --Blacklist The Eye of Il'gynoth
-            br.ui:createCheckbox(section, "Blacklist The Eye of Il'gynoth","|cffFFFFFFSo you don't waste the CD")
             --Body and Soul
             br.ui:createCheckbox(section, "Body and Soul")
             --Angelic Feather
@@ -148,8 +144,12 @@ local function createOptions()
         ------- COOLDOWNS -------
         -------------------------
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
+            --Blacklist The Eye of Il'gynoth
+            br.ui:createCheckbox(section, "Blacklist The Eye of Il'gynoth","|cffFFFFFFSo you don't waste the CD")
+            --Boss helper at Xavius. Darkening Soul/Blackening Soul Helper
+            br.ui:createSpinner(section, "Darkening Soul/Blackening Soul Helper",  3,  0,  10,  1,  "|cffFFFFFFDebuff stack before dispel in Dream Simulacrum at Xavius. Default: 3")
             --Disable CD during Speed: Slow on Chromatic Anomaly
-            br.ui:createCheckbox(section,"Disable CD during Speed: Slow","|cffFFFFFFDisable CD during Speed: Slow debuff on Chromatic Anomaly")
+            br.ui:createCheckbox(section, "Disable CD during Speed: Slow","|cffFFFFFFDisable CD during Speed: Slow debuff on Chromatic Anomaly")
             --Drink
             br.ui:createSpinner(section, "Drink",   50,  0,  100,  5,   "|cffFFFFFFMinimum mana to drink Ley-Enriched Water. Default: 50")
             --Pre Pot
