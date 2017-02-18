@@ -311,7 +311,7 @@ local function runRotation()
             else
                 if not player.buff.furyOfElune.exists() and player.debuff.moonfire.remain() <= 6.6  then
                     if player.debuff.moonfire.remain() < player.gcd and (player.debuff.moonfire.count() < getOptionValue("Moonfire targets")) then
-                        if player.cast.moonfire() then Print("2") return end
+                        if player.cast.moonfire() then return end
                     end
                 end
                 --actions.fury_of_elune+=/sunfire,if=buff.fury_of_elune_up.down&remains<5.4
@@ -405,7 +405,7 @@ local function runRotation()
                 --actions.ed+=/moonfire,if=((talent.natures_balance.enabled&remains<3)|(remains<6.6&!talent.natures_balance.enabled))&(buff.the_emerald_dreamcatcher.remains>gcd.max|!buff.the_emerald_dreamcatcher.up)
                 if (player.talent.naturesBalance and player.debuff.moonfire.remain() < 3) or (player.debuff.moonfire.remain() < 6.6 and not player.talent.naturesBalance)  then
                     if player.debuff.moonfire.remain() < player.gcd  and (player.debuff.moonfire.count() < getOptionValue("Moonfire targets")) then
-                        if player.cast.moonfire() then Print("3") return end
+                        if player.cast.moonfire() then  return end
                     end
                 end
                 --actions.ed+=/sunfire,if=((talent.natures_balance.enabled&remains<3)|(remains<5.4&!talent.natures_balance.enabled))&(buff.the_emerald_dreamcatcher.remains>gcd.max|!buff.the_emerald_dreamcatcher.up)
@@ -678,7 +678,7 @@ local function runRotation()
                 end
                 if (player.talent.naturesBalance and player.debuff.moonfire.remain() < 3) or (player.debuff.moonfire.remain() < 6.6 and not player.talent.naturesBalance) then
                     if player.debuff.moonfire.remain() < player.gcd and (player.debuff.moonfire.count() < getOptionValue("Moonfire targets")) then
-                        if player.cast.moonfire() then Print("4") return end
+                        if player.cast.moonfire() then return end
                     end
                 end
                 if (player.talent.naturesBalance and player.debuff.sunfire.remain() < 3) or (player.debuff.sunfire.remain() < 5.4 and not player.talent.naturesBalance) then
@@ -753,7 +753,7 @@ local function runRotation()
             else
                 if player.debuff.moonfire.remain() < 6.6  and (player.debuff.moonfire.count() < getOptionValue("Moonfire targets")) then
                     if player.debuff.moonfire.remain() < player.gcd then
-                        if player.cast.moonfire() then Print("5") return end
+                        if player.cast.moonfire() then return end
                     end
                 end
                 if player.debuff.sunfire.remain() < 5.4  and (player.debuff.sunfire.count() < getOptionValue("Sunfire targets")) then
@@ -781,7 +781,7 @@ local function runRotation()
                 end
             else
                 if player.debuff.moonfire.remain() <= player.debuff.sunfire.remain() then
-                    if player.cast.moonfire() then Print("1") return end
+                    if player.cast.moonfire() then return end
                 else
                     if player.cast.sunfire() then return end
                 end
