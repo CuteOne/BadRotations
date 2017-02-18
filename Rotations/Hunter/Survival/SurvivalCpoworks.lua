@@ -218,27 +218,24 @@ local function runRotation()
                   end
                 end
             end
-                --Revive
-                if isChecked("Auto Summon") and UnitIsDeadOrGhost("pet") then
-                  if castSpell("player",982) then return; end
+            --Revive
+            if isChecked("Auto Summon") and UnitIsDeadOrGhost("pet") then
+              if castSpell("player",982) then return; end
+            end
+            -- Mend Pet
+            if isChecked("Mend Pet") and getHP("pet") < getValue("Mend Pet") and not UnitBuffID("pet",136) then
+              if castSpell("pet",136) then return; end
+            end
+            -- Pet Attack / retreat
+            if inCombat and UnitAffectingCombat("target") and isValidUnit("target") and getDistance("target") < 40 then
+                if not UnitIsUnit("target","pettarget") then
+                    PetAttack()
                 end
-
-                -- Mend Pet
-                if isChecked("Mend Pet") and getHP("pet") < getValue("Mend Pet") and not UnitBuffID("pet",136) then
-                  if castSpell("pet",136) then return; end
+            else
+                if IsPetAttackActive() then
+                    PetStopAttack()
                 end
-
-                -- Pet Attack / retreat
-                if inCombat and UnitAffectingCombat("target") and isValidUnit("target") and getDistance("target") < 40 then
-                    if not UnitIsUnit("target","pettarget") then
-                        PetAttack()
-                    end
-                else
-                    if IsPetAttackActive() then
-                        PetStopAttack()
-                    end
-                end
-
+            end
         end
     -- Action List - Extras
         local function actionList_Extras()
@@ -285,7 +282,7 @@ local function runRotation()
                 if isChecked("Exhilaration") and php <= getOptionValue("Exhilaration") then
                     if cast.exhilaration("player") then return end
                 end
-        -- Exhilaration
+        -- Aspect of the Turtle
                 if isChecked("Aspect Of The Turtle") and php <= getOptionValue("Aspect Of The Turtle") then
                     if cast.aspectOfTheTurtle("player") then return end
                 end
@@ -294,7 +291,15 @@ local function runRotation()
     -- Action List - Interrupts
         local function actionList_Interrupts()
             if useInterrupts() then
-
+        -- Muzzle
+                if isChecked("Skull Bash") then
+                    for i=1, #enemies.yards5 do
+                        thisUnit = enemies.yards5[i]
+                        if canInterrupt(thisUnit,getOptionValue("InterruptAt")) then
+                            if cast.muzzle(thisUnit) then return end
+                        end
+                    end
+                end
             end -- End useInterrupts check
         end -- End Action List - Interrupts
     -- Action List - Cooldowns
@@ -750,14 +755,18 @@ local function runRotation()
 ---------------------------------
 --- Out Of Combat - Rotations ---
 ---------------------------------
-            if not inCombat and ObjectExists("target") and not UnitIsDeadOrGhost("target") and UnitCanAttack("target", "player") then
     -----------------
     --- Pet Logic ---
     -----------------
-                if actionList_PetManagement() then return end
+            if actionList_PetManagement() then return end
+    -----------------
+    --- Defensive ---
+    -----------------
+            if actionList_Defensive() then return end
     ------------------
     --- Pre-Combat ---
     ------------------
+            if not inCombat and ObjectExists("target") and not UnitIsDeadOrGhost("target") and UnitCanAttack("target", "player") then
                 if actionList_PreCombat() then return end
             end -- End Out of Combat Rotation
 -----------------------------

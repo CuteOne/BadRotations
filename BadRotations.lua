@@ -116,10 +116,6 @@ function br:StartUI()
 	TogglesFrame()
 end
 
--- br.pulse = {}
--- br.pulse.makeTable = true
--- br.pulse.gathering = true
-
 -- Elements on Update Timer
 C_Timer.NewTicker(0.1, function()
 	if getOptionCheck("Start/Stop BadRotations")
@@ -151,11 +147,3 @@ C_Timer.NewTicker(0.1, function()
 		end
 	end
 end)
-
---[[Updating UI]]
-function br:PulseUI()
-	-- Pulse other features
-	-- PokeEngine()
-	-- ProfessionHelper()
-	-- SalvageHelper()
-end

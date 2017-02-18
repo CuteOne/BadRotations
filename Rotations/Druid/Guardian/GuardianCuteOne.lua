@@ -581,9 +581,7 @@ local function runRotation()
                         if cast.mangle() then return end
                     end
         -- Thrash
-                    if #enemies.yards8 >= 2 then
-                        if cast.thrash() then return end
-                    end
+                    if cast.thrash() then return end
         -- Mangle
                     if ((mode.rotation == 1 and #enemies.yards8 > 1) or mode.rotation == 2) then
                         if cast.mangle() then return end
