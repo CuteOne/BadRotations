@@ -280,7 +280,6 @@ local function runRotation()
         --Atonement
         if isChecked("Atonement HP") then
             for i = 1, #br.friend do
-            Print("HP: "..php)
                 if br.friend[i].hp <= getValue("Atonement HP") then
                     if mode.healer == 1 then
                         actionList_SpreadAtonement(br.friend[i].unit)
