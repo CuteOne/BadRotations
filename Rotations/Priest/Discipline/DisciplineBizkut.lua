@@ -564,22 +564,6 @@ local function runRotation()
                     end
                 end
             end
-            --Atonement
-            if isChecked("Atonement HP") then
-                for i = 1, #br.friend do
-                    if br.friend[i].hp <= getValue("Atonement HP") then
-                        if mode.healer == 1 then
-                            actionList_SpreadAtonement(br.friend[i].unit)
-                        end
-                        if mode.healer == 3 and br.friend[i].unit == "player" then
-                            actionList_SpreadAtonement("player")
-                        end
-                    end
-                    if mode.healer == 2 then
-                        actionList_SpreadAtonement(br.friend[i].unit)
-                    end
-                end
-            end
         end
         --Single Target Heal
         function actionList_SingleTargetHeal()
@@ -639,6 +623,22 @@ local function runRotation()
                         if mode.healer == 3 and br.friend[i].unit == "player" then
                             if cast.shadowMend("player") then return end
                         end
+                    end
+                end
+            end
+            --Atonement
+            if isChecked("Atonement HP") then
+                for i = 1, #br.friend do
+                    if br.friend[i].hp <= getValue("Atonement HP") then
+                        if mode.healer == 1 then
+                            actionList_SpreadAtonement(br.friend[i].unit)
+                        end
+                        if mode.healer == 3 and br.friend[i].unit == "player" then
+                            actionList_SpreadAtonement("player")
+                        end
+                    end
+                    if mode.healer == 2 then
+                        actionList_SpreadAtonement(br.friend[i].unit)
                     end
                 end
             end
