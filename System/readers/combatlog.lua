@@ -119,6 +119,8 @@ function br.read.combatLog()
         end
         ---------------------
         --[[ Swing Timer ]]--
+        if swingTimer == nil then swingTimer = 0 end
+        if nextMH == nil then nextMH = GetTime() + UnitAttackSpeed('player') end
         if param == "SWING_DAMAGE" and source == br.guid then
             swingTimer = 0
             lastMH = GetTime()

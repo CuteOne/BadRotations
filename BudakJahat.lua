@@ -116,65 +116,44 @@ function br:StartUI()
 	TogglesFrame()
 end
 
-br.pulse = {}
-br.pulse.makeTable = true
-br.pulse.gathering = true
--- debug
-function br.pulse:getDist()
-    targetDistance = getDistance("target") or 0
-end
-function br.pulse:dispDist()
-    displayDistance = math.ceil(targetDistance)
-end
-function br.pulse:ttd()
-    TTDRefresh()
-end
-function br.pulse:queue()
+-- br.pulse = {}
+-- br.pulse.makeTable = true
+-- br.pulse.gathering = true
+
+-- Elements on Update Timer
+C_Timer.NewTicker(0.1, function()
+	if getOptionCheck("Start/Stop BadRotations")
+		or (br.data.settings[br.selectedSpec].toggles["Power"] ~= nil
+		and br.data.settings[br.selectedSpec].toggles["Power"] == 1)
+	then
+	-- Display Distance on Main Icon
+    	targetDistance = getDistance("target") or 0
+    	displayDistance = math.ceil(targetDistance)
+		mainText:SetText(displayDistance)
+	-- Enemies Engine
+		makeEnemiesTable();
+		EnemiesEngine();
+	-- Healing Engine
+		if isChecked("HE Active") then
+			br.friend:Update()
+		end
 	-- Queue Casting
-	if isChecked("Queue Casting") and not UnitChannelInfo("player") then
-		-- Catch for spells not registering on Combat log
-		if br.player ~= nil then
-			if br.player.queue ~= nil then
-				if #br.player.queue > 0 and br.player.queue[1].id ~= lastSpellCast then
-				    castQueue();
-				    return
+		if isChecked("Queue Casting") and not UnitChannelInfo("player") then
+			-- Catch for spells not registering on Combat log
+			if br.player ~= nil then
+				if br.player.queue ~= nil then
+					if #br.player.queue > 0 and br.player.queue[1].id ~= lastSpellCast then
+					    castQueue();
+					    return
+					end
 				end
 			end
 		end
 	end
-end
-C_Timer.NewTicker(0.1, function()
-	if getOptionCheck("Start/Stop BadRotations")
-	or (br.data.settings[br.selectedSpec].toggles["Power"] ~= nil
-	and br.data.settings[br.selectedSpec].toggles["Power"] == 1)
-	then
-		makeEnemiesTable();
-		EnemiesEngine();
-	end
 end)
-C_Timer.NewTicker(0.1, function()
-	if isChecked("HE Active") then
-		br.friend:Update()
-	end
-end)
+
 --[[Updating UI]]
 function br:PulseUI()
-	-- distance on main icon
-    br.pulse:getDist()
-    br.pulse:dispDist()
-
-	mainText:SetText(displayDistance)
-	-- -- enemies
-	-- if not makeTableQueued then
-	-- 	br.pulse:makeEnTable()
-	-- 	makeTableQueued = true
-	-- end
-	-- ttd
-    br.pulse:ttd()
-    -- queue
-    br.pulse:queue()
-	-- allies
-
 	-- Pulse other features
 	-- PokeEngine()
 	-- ProfessionHelper()
