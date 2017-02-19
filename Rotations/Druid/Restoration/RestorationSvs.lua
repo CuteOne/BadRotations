@@ -460,10 +460,19 @@ local function runRotation()
         end
     -- Action List - DPS
         local function actionList_DPS()
-        -- Sunfire
-            if not cat and not debuff.sunfire.exists("target") then
-                if cast.sunfire("target") then return end
-            end
+        -- Guardian Affinity/Level < 45
+            if talent.guardianAffinity or level < 45 then
+            -- Sunfire
+                if not debuff.sunfire.exists(units.dyn40) then
+                    if cast.sunfire(units.dyn40) then return end
+                end
+            -- Moonfire
+                if not debuff.moonfire.exists(units.dyn40) then
+                    if cast.moonfire(units.dyn40) then return end
+                end
+            -- Solar Wrath
+                if cast.solarWrath() then return end
+            end 
         -- Feral Affinity
             if talent.feralAffinity then
             -- Cat form
