@@ -442,8 +442,11 @@ local function runRotation()
             --Beacon of Virtue
             if talent.beaconOfVirtue then
                 for i= 1, #br.friend do
-                    if not buff.beaconOfVirtue.exists(br.friend[i].unit) and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
-                        if castAoEHeal(200025,getValue("BoV Targets"),getValue("Beacon of Virtue"),30) then return end
+                    if not buff.beaconOfVirtue.exists(br.friend[i].unit)  then
+                        local lowHealthCandidates = getUnitsToHealAround(br.friend[i].unit,30,getValue("Beacon of Virtue"),#br.friend)
+                        if #lowHealthCandidates >= getValue("BoV Targets") then
+                            if cast.beaconOfVirtue(br.friend[i].unit) then return end
+                        end
                     end
                 end
             end
@@ -496,9 +499,11 @@ local function runRotation()
             -- Light of Dawn
             if isChecked("Light of Dawn") then
                 if getLowAllies(getValue"Light of Dawn") >= getValue("LoD Targets") and getFacing("player",lowest.unit) and getDistance("player",lowest.unit) <= 15 then
-                    if cast.lightOfDawn(lowest.unit) then return end
+                    if cast.ruleOfLaw() then 
+                        if cast.lightOfDawn(lowest.unit) then return end
+                    end
                 end
-            end  
+            end    
             -- Judgement
             if talent.judgementOfLight then
                 if cast.judgement(units.dyn40) then return end
