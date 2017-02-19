@@ -2,27 +2,38 @@ function ProfessionHelper()
   if isChecked("Profession Helper") then
     if not isInCombat("player") and not (IsMounted() or IsFlying()) then
       local lootDelay = getValue("Profession Helper")
+      
 
       local function processThatTable(thisTable,spell)
-        for i = 1,#thisTable do
-          local thisItem = thisTable[i]
-          if GetItemCount(thisItem,false,false) >= 5 then
-            if lootTimer == nil or lootTimer <= GetTime() - lootDelay then
-              if castSpell("player", spell, true) then
-                UseItemByName(thisTable[i])
-                lootTimer = GetTime()
-                return
+          for i = 1,#thisTable do
+            local thisItem = thisTable[i]
+            if GetItemCount(thisItem,false,false) >= 5 then
+              if lootTimer == nil or lootTimer <= GetTime() - lootDelay then
+                if castSpell("player", spell, true) then
+                  UseItemByName(thisTable[i])
+                  lootTimer = GetTime()
+                  return
+                end
               end
             end
-          end
-        end
+          end 
       end
       ------------------------------------------------------------------------------------------------------
       -- Milling -------------------------------------------------------------------------------------------
       ------------------------------------------------------------------------------------------------------
       if isChecked("Mill Herbs") and IsSpellKnown(51005) then
         local millMode = getValue("Mill Herbs")
-        if millMode == 4 or millMode == 1 then
+        if millMode == 5 or millMode == 1 then
+          local tableMillLegion = {
+            124105, -- Starlight Rose
+            124104, -- Fjarnskaggl
+            124103, -- Foxflower
+            124102, -- Dreamleaf
+            124101 -- Aethril
+          }
+          processThatTable(tableMillLegion,51005)
+        end
+        if millMode == 5 or millMode == 2 then
           local tableMillWoD = {
             109124, -- Frostweed
             109125, -- Fireweed
@@ -33,7 +44,7 @@ function ProfessionHelper()
           }
           processThatTable(tableMillWoD,51005)
         end
-        if millMode == 4 or millMode == 2 then
+        if millMode == 5 or millMode == 3 then
           local tableMillMoP = {
             72234, -- Green Tea Leaf
             72237, -- Rain Poppy
@@ -44,7 +55,7 @@ function ProfessionHelper()
           }
           processThatTable(tableMillMoP,51005)
         end
-        if millMode == 4 and millMode == 3 then
+        if millMode == 5 and millMode == 4 then
           local tableMillCata = {
             52986, -- Heartblossom
             52984, -- Stormvine
@@ -60,14 +71,21 @@ function ProfessionHelper()
       ------------------------------------------------------------------------------------------------------
       if isChecked("Prospect Ore") and IsSpellKnown(31252) then
         local prospectMode = getValue("Prospect Ore")
-        if prospectMode == 4 or prospectMode == 1 then
+        if prospectMode == 5 or prospectMode == 1 then
+          local tableProspectLegion = {
+            123918, -- Leystone Ore
+            123919 -- Felslate Ore
+          }
+          processThatTable(tableProspectLegion,31252)
+        end
+        if prospectMode == 5 or prospectMode == 2 then
           local tableProspectWoD = {
             109119, -- True Iron Ore
             109118 -- Blackrock Ore
           }
           processThatTable(tableProspectWoD,31252)
         end
-        if prospectMode == 4 or prospectMode == 2 then
+        if prospectMode == 5 or prospectMode == 3 then
           local tableProspectMoP = {
             72092, -- Ghost Iron Ore
             72093, -- Kyparite
@@ -76,7 +94,7 @@ function ProfessionHelper()
           }
           processThatTable(tableProspectMoP,31252)
         end
-        if prospectMode == 4 or prospectMode == 2 then
+        if prospectMode == 5 or prospectMode == 4 then
           local tableProspectCata = {
             52183, -- Pyrite Ore
             52185, -- Elementium Ore
