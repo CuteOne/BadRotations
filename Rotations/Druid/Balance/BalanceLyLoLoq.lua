@@ -46,7 +46,7 @@ local function createOptions()
         -- Dummy DPS Test
         br.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
         -- Opener
-        br.ui:createCheckbox(section, "Opener")
+        br.ui:createCheckbox(section, "Opener - NOT WORKING YET")
         -- Pre-Pull Timer
         br.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
         -- Travel Shapeshifts
@@ -166,13 +166,15 @@ local function runRotation()
 
     if lastForm == nil then lastForm = 0 end
     if profileStop == nil then profileStop = false end
+    if opener == nil then opener = false end
     if not player.inCombat and not hastar and profileStop==true then
         profileStop = false
     end
 
+
     --    if br.timer:useTimer("debugBalance", math.random(0.5,0.8)) then
 
-    if UnitCastingInfo("player") == nil and isValidUnit(units.dyn40) and getDistance(units.dyn40) < 40 then
+    if br.timer:useTimer("debugBalance", math.random(0.1,0.4)) then
 
         local function actionList_Extras()
             if isChecked("Innervate") and (SpecificToggle("Innervate") and not GetCurrentKeyBoardFocus()) and player.cd.innervate == 0 then
@@ -309,14 +311,14 @@ local function runRotation()
                     end
                 end
             else
-                if not player.buff.furyOfElune.exists() and player.debuff.moonfire.remain() <= 6.6  then
-                    if player.debuff.moonfire.remain() < player.gcd and (player.debuff.moonfire.count() < getOptionValue("Moonfire targets")) then
+                if not player.buff.furyOfElune.exists() and player.debuff.moonfire.remain(units.dyn40) <= 6.6  then
+                    if player.debuff.moonfire.remain(units.dyn40) < player.gcd and (player.debuff.moonfire.count() < getOptionValue("Moonfire targets")) then
                         if player.cast.moonfire() then return end
                     end
                 end
                 --actions.fury_of_elune+=/sunfire,if=buff.fury_of_elune_up.down&remains<5.4
-                if not player.buff.furyOfElune.exists() and player.debuff.sunfire.remain() <= 5.4 then
-                    if player.debuff.sunfire.remain() < player.gcd and (player.debuff.sunfire.count() < getOptionValue("Sunfire targets"))  then
+                if not player.buff.furyOfElune.exists() and player.debuff.sunfire.remain(units.dyn40) <= 5.4 then
+                    if player.debuff.sunfire.remain(units.dyn40) < player.gcd and (player.debuff.sunfire.count() < getOptionValue("Sunfire targets"))  then
                         if player.cast.sunfire() then return end
                     end
                 end
@@ -356,6 +358,7 @@ local function runRotation()
             end
             --actions.fury_of_elune+=/solar_wrath
             if player.cast.solarWrath() then return end
+            return
         end
 
         local function actionList_EmeralDreamcatcher()
@@ -403,14 +406,14 @@ local function runRotation()
                     if player.cast.stellarFlare() then return end
                 end
                 --actions.ed+=/moonfire,if=((talent.natures_balance.enabled&remains<3)|(remains<6.6&!talent.natures_balance.enabled))&(buff.the_emerald_dreamcatcher.remains>gcd.max|!buff.the_emerald_dreamcatcher.up)
-                if (player.talent.naturesBalance and player.debuff.moonfire.remain() < 3) or (player.debuff.moonfire.remain() < 6.6 and not player.talent.naturesBalance)  then
-                    if player.debuff.moonfire.remain() < player.gcd  and (player.debuff.moonfire.count() < getOptionValue("Moonfire targets")) then
+                if (player.talent.naturesBalance and player.debuff.moonfire.remain(units.dyn40) < 3) or (player.debuff.moonfire.remain(units.dyn40) < 6.6 and not player.talent.naturesBalance)  then
+                    if player.debuff.moonfire.remain(units.dyn40) < player.gcd  and (player.debuff.moonfire.count() < getOptionValue("Moonfire targets")) then
                         if player.cast.moonfire() then  return end
                     end
                 end
                 --actions.ed+=/sunfire,if=((talent.natures_balance.enabled&remains<3)|(remains<5.4&!talent.natures_balance.enabled))&(buff.the_emerald_dreamcatcher.remains>gcd.max|!buff.the_emerald_dreamcatcher.up)
-                if (player.talent.naturesBalance and player.debuff.sunfire.remain() < 3) or (player.debuff.sunfire.remain() < 5.4 and not player.talent.naturesBalance) then
-                    if player.debuff.sunfire.remain() < player.gcd and (player.debuff.sunfire.count() < getOptionValue("Sunfire targets"))  then
+                if (player.talent.naturesBalance and player.debuff.sunfire.remain(units.dyn40) < 3) or (player.debuff.sunfire.remain(units.dyn40) < 5.4 and not player.talent.naturesBalance) then
+                    if player.debuff.sunfire.remain(units.dyn40) < player.gcd and (player.debuff.sunfire.count() < getOptionValue("Sunfire targets"))  then
                         if player.cast.sunfire() then return end
                     end
                 end
@@ -419,49 +422,49 @@ local function runRotation()
                 for i = 1, #enemies.yards40 do
                     local thisUnit = enemies.yards40[i]
                     --actions.ed+=/starfall,if=buff.oneths_overconfidence.up&buff.the_emerald_dreamcatcher.remains>execute_time&remains<2
-                    if player.buff.onethsOverconfidence.exists() and player.buff.emeraldDreamcatcher.remains() > player.gcd then
+                    if player.buff.onethsOverconfidence.exists() and player.buff.emeraldDreamcatcher.remain() > player.gcd then
                         if player.cast.starfall(thisUnit, "ground") then return end
                     end
                 end
             else
-                if player.buff.onethsOverconfidence.exists() and player.buff.emeraldDreamcatcher.remains() > player.gcd then
+                if player.buff.onethsOverconfidence.exists() and player.buff.emeraldDreamcatcher.remain() > player.gcd then
                     if player.cast.starsurge() then return end
                 end
             end
             --actions.ed+=/half_moon,if=astral_power<=80&buff.the_emerald_dreamcatcher.remains>execute_time&astral_power>=6
-            if astralPower <= 80 and player.buff.emeraldDreamcatcher.remains() > getCastTime(player.spell.halfMoon) then
+            if astralPower <= 80 and player.buff.emeraldDreamcatcher.remain() > getCastTime(player.spell.halfMoon) then
                 if player.cast.halfMoon() then return end
             end
             --actions.ed+=/full_moon,if=astral_power<=60&buff.the_emerald_dreamcatcher.remains>execute_time
-            if astralPower <= 60 and player.buff.emeraldDreamcatcher.remains() > getCastTime(player.spell.fullMoon) then
+            if astralPower <= 60 and player.buff.emeraldDreamcatcher.remain() > getCastTime(player.spell.fullMoon) then
                 if player.cast.fullMoon() then return end
             end
             --actions.ed+=/solar_wrath,if=buff.solar_empowerment.stack>1&buff.the_emerald_dreamcatcher.remains>2*execute_time&astral_power>=6&(dot.moonfire.remains>5|(dot.sunfire.remains<5.4&dot.moonfire.remains>6.6))&(!(buff.celestial_alignment.up|buff.incarnation.up)&astral_power<=90|(buff.celestial_alignment.up|buff.incarnation.up)&astral_power<=85)
-            if player.buff.solarEmpowerment.exists() and player.buff.emeraldDreamcatcher.remains() > 2*getCastTime(player.spell.solarWrath) and astralPower >=6 and (player.debuff.moonfire.remain()>5 or player.debuff.sunfire.remain()<5.4 and player.debuff.moonfire.remain()>6.6) and (not(player.buff.celestialAlignment.exists() or player.buff.incarnationChoseOfElune.exists()) and astralPower <=90 or (player.buff.celestialAlignment.exists() or player.buff.incarnationChoseOfElune.exists()) and astralPower<=85) then
+            if player.buff.solarEmpowerment.exists() and player.buff.emeraldDreamcatcher.remain() > 2*getCastTime(player.spell.solarWrath) and astralPower >=6 and (player.debuff.moonfire.remain(units.dyn40)>5 or player.debuff.sunfire.remain(units.dyn40)<5.4 and player.debuff.moonfire.remain(units.dyn40)>6.6) and (not(player.buff.celestialAlignment.exists() or player.buff.incarnationChoseOfElune.exists()) and astralPower <=90 or (player.buff.celestialAlignment.exists() or player.buff.incarnationChoseOfElune.exists()) and astralPower<=85) then
                 if player.cast.solarWrath() then return end
             end
             --actions.ed+=/lunar_strike,if=buff.lunar_empowerment.up&buff.the_emerald_dreamcatcher.remains>execute_time&astral_power>=11&(!(buff.celestial_alignment.up|buff.incarnation.up)&astral_power<=85|(buff.celestial_alignment.up|buff.incarnation.up)&astral_power<=77.5)
-            if player.buff.lunarEmpowerment.exists() and player.buff.emeraldDreamcatcher.remains()> getCastTime(player.spell.lunarStrike) and astralPower >=11 and(not(player.buff.celestialAlignment.exists() or player.buff.incarnationChoseOfElune.exists()) and astralPower <=85 or (player.buff.celestialAlignment.exists() or player.buff.incarnationChoseOfElune.exists()) and astralPower<= 77.5) then
+            if player.buff.lunarEmpowerment.exists() and player.buff.emeraldDreamcatcher.remain()> getCastTime(player.spell.lunarStrike) and astralPower >=11 and(not(player.buff.celestialAlignment.exists() or player.buff.incarnationChoseOfElune.exists()) and astralPower <=85 or (player.buff.celestialAlignment.exists() or player.buff.incarnationChoseOfElune.exists()) and astralPower<= 77.5) then
                 if player.cast.lunarStrike() then return end
             end
             --actions.ed+=/solar_wrath,if=buff.solar_empowerment.up&buff.the_emerald_dreamcatcher.remains>execute_time&astral_power>=16&(!(buff.celestial_alignment.up|buff.incarnation.up)&astral_power<=90|(buff.celestial_alignment.up|buff.incarnation.up)&astral_power<=85)
-            if player.buff.solarEmpowerment.exists() and player.buff.emeraldDreamcatcher.remains() > getCastTime(player.spell.solarWrath) and astralPower >=16 and (not(player.buff.celestialAlignment.exists() or player.buff.incarnationChoseOfElune.exists()) and astralPower<=90 or (player.buff.celestialAlignment.exists() or player.buff.incarnationChoseOfElune.exists()) and astralPower<= 85) then
+            if player.buff.solarEmpowerment.exists() and player.buff.emeraldDreamcatcher.remain() > getCastTime(player.spell.solarWrath) and astralPower >=16 and (not(player.buff.celestialAlignment.exists() or player.buff.incarnationChoseOfElune.exists()) and astralPower<=90 or (player.buff.celestialAlignment.exists() or player.buff.incarnationChoseOfElune.exists()) and astralPower<= 85) then
                 if player.cast.solarWrath() then return end
             end
             --actions.ed+=/starsurge,if=(buff.the_emerald_dreamcatcher.up&buff.the_emerald_dreamcatcher.remains<gcd.max)|astral_power>90|((buff.celestial_alignment.up|buff.incarnation.up)&astral_power>=85)|(buff.the_emerald_dreamcatcher.up&astral_power>=77.5&(buff.celestial_alignment.up|buff.incarnation.up))
-            if (player.buff.emeraldDreamcatcher.exists() and player.buff.emeraldDreamcatcher.remains() < player.gcd) or astralPower>90 or ((player.buff.celestialAlignment.exists() or player.buff.incarnationChoseOfElune.exists()) and astralPower>=85) or (player.buff.emeraldDreamcatcher.exists() and astralPower >=77.5 and (player.buff.celestialAlignment.exists() or player.buff.incarnationChoseOfElune.exists())) then
+            if (player.buff.emeraldDreamcatcher.exists() and player.buff.emeraldDreamcatcher.remain() < player.gcd) or astralPower>90 or ((player.buff.celestialAlignment.exists() or player.buff.incarnationChoseOfElune.exists()) and astralPower>=85) or (player.buff.emeraldDreamcatcher.exists() and astralPower >=77.5 and (player.buff.celestialAlignment.exists() or player.buff.incarnationChoseOfElune.exists())) then
                 if player.cast.starsurge() then return end
             end
             if multidot then
                 for i = 1, #enemies.yards40 do
                     local thisUnit = enemies.yards40[i]
                     --actions.ed+=/starfall,if=buff.oneths_overconfidence.up&remains<2
-                    if player.buff.onethsOverconfidence.remains()<2 then
+                    if player.buff.onethsOverconfidence.exists() and player.buff.onethsOverconfidence.remain()<2 then
                         if player.cast.starfall(thisUnit, "ground") then return end
                     end
                 end
             else
-                if player.buff.onethsOverconfidence.remains()<2 then
+                if player.buff.onethsOverconfidence.remain()<2 then
                     if player.cast.starsurge() then return end
                 end
             end
@@ -473,7 +476,7 @@ local function runRotation()
             if astralPower <= 80 then
                 if player.cast.halfMoon() then return end
             end
-            --actions.ed+=/full_moon,if=astral_power<=60&((cooldown.incarnation.remains>65&cooldown.full_moon.charges>0)|(cooldown.incarnation.remains>50&cooldown.full_moon.charges>1)|(cooldown.incarnation.remains>25&cooldown.full_moon.charges>2))
+            --actions.ed+=/full_moon,if=astral_power<=60&((cooldown.incarnation.remains>65&cooldown.full_moonfire.charges>0)|(cooldown.incarnation.remains>50&cooldown.full_moonfire.charges>1)|(cooldown.incarnation.remains>25&cooldown.full_moonfire.charges>2))
             if astralPower <= 60 and ((player.cd.incarnationChoseOfElune > 65 and GetSpellCount(player.spell.fullMoon) > 0) or (player.cd.incarnationChoseOfElune > 50 and GetSpellCount(player.spell.fullMoon) > 1) or player.cd.incarnationChoseOfElune > 25 and GetSpellCount(player.spell.fullMoon) > 2) then
                 if player.cast.fullMoon() then return end
             end
@@ -487,6 +490,7 @@ local function runRotation()
             end
             --actions.ed+=/solar_wrath
             if player.cast.solarWrath() then return end
+            return
         end
 
         local function actionList_CelestialAlignmentPhase()
@@ -522,11 +526,11 @@ local function runRotation()
                 if player.cast.lunarStrike() then return end
             end
             --actions.celestial_alignment_phase+=/solar_wrath,if=talent.natures_balance.enabled&dot.sunfire_dmg.remains<5&cast_time<dot.sunfire_dmg.remains
-            if player.talent.naturesBalance and player.debuff.sunfire.remain() < 5 and getCastTime(player.spell.sunfire) < player.debuff.sunfire.remain() then
+            if player.talent.naturesBalance and player.debuff.sunfire.remain(units.dyn40) < 5 and getCastTime(player.spell.sunfire) < player.debuff.sunfire.remain(units.dyn40) then
                 if player.cast.solarWrath() then return end
             end
             --actions.celestial_alignment_phase+=/lunar_strike,if=(talent.natures_balance.enabled&dot.moonfire_dmg.remains<5&cast_time<dot.moonfire_dmg.remains)|active_enemies>=2
-            if (player.talent.naturesBalance and player.debuff.moonfire.remain() < 5 and getCastTime(player.spell.moonfire) < player.debuff.moonfire.remain()) or #getEnemies("target",5) >= 2 then
+            if (player.talent.naturesBalance and player.debuff.moonfire.remain(units.dyn40) < 5 and getCastTime(player.spell.moonfire) < player.debuff.moonfire.remain(units.dyn40)) or #getEnemies("target",5) >= 2 then
                 if player.cast.lunarStrike() then return end
             end
             --actions.celestial_alignment_phase+=/solar_wrath
@@ -576,11 +580,11 @@ local function runRotation()
                 if player.cast.lunarStrike() then return end
             end
             --actions.single_target+=/solar_wrath,if=talent.natures_balance.enabled&dot.sunfire_dmg.remains<5&cast_time<dot.sunfire_dmg.remains
-            if player.talent.naturesBalance and player.debuff.sunfire.remain() < 5 and getCastTime(player.spell.sunfire) < player.debuff.sunfire.remain() then
+            if player.talent.naturesBalance and player.debuff.sunfire.remain(units.dyn40) < 5 and getCastTime(player.spell.sunfire) < player.debuff.sunfire.remain(units.dyn40) then
                 if player.cast.solarWrath() then return end
             end
             --actions.single_target+=/lunar_strike,if=(talent.natures_balance.enabled&dot.moonfire_dmg.remains<5&cast_time<dot.moonfire_dmg.remains)|active_enemies>=2
-            if (player.talent.naturesBalance and player.debuff.moonfire.remain() < 5 and getCastTime(player.spell.moonfire) < player.debuff.moonfire.remain()) or #getEnemies("target",5) >= 2 then
+            if (player.talent.naturesBalance and player.debuff.moonfire.remain(units.dyn40) < 5 and getCastTime(player.spell.moonfire) < player.debuff.moonfire.remain(units.dyn40)) or #getEnemies("target",5) >= 2 then
                 if player.cast.lunarStrike() then return end
             end
             --actions.single_target+=/solar_wrath
@@ -631,7 +635,6 @@ local function runRotation()
                 --if player.cd.furyOfElune < getTTD("target") then
                 if player.cd.furyOfElune < 99 then
                     actionList_FuryOfElune()
-                    return
                 end
             end
             --actions+=/call_action_list,name=ed,if=equipped.the_emerald_dreamcatcher&active_enemies<=2
@@ -676,13 +679,13 @@ local function runRotation()
                 if player.talent.stellarFlare and astralPower >= 15 and player.debuff.stellarFlare.remain() < 7.2 then
                     if player.cast.stellarFlare() then return end
                 end
-                if (player.talent.naturesBalance and player.debuff.moonfire.remain() < 3) or (player.debuff.moonfire.remain() < 6.6 and not player.talent.naturesBalance) then
-                    if player.debuff.moonfire.remain() < player.gcd and (player.debuff.moonfire.count() < getOptionValue("Moonfire targets")) then
+                if (player.talent.naturesBalance and player.debuff.moonfire.remain(units.dyn40) < 3) or (player.debuff.moonfire.remain(units.dyn40) < 6.6 and not player.talent.naturesBalance) then
+                    if player.debuff.moonfire.remain(units.dyn40) < player.gcd and (player.debuff.moonfire.count() < getOptionValue("Moonfire targets")) then
                         if player.cast.moonfire() then return end
                     end
                 end
-                if (player.talent.naturesBalance and player.debuff.sunfire.remain() < 3) or (player.debuff.sunfire.remain() < 5.4 and not player.talent.naturesBalance) then
-                    if player.debuff.sunfire.remain() < player.gcd and (player.debuff.sunfire.count() < getOptionValue("Sunfire targets"))  then
+                if (player.talent.naturesBalance and player.debuff.sunfire.remain(units.dyn40) < 3) or (player.debuff.sunfire.remain(units.dyn40) < 5.4 and not player.talent.naturesBalance) then
+                    if player.debuff.sunfire.remain(units.dyn40) < player.gcd and (player.debuff.sunfire.count() < getOptionValue("Sunfire targets"))  then
                         if player.cast.sunfire() then return end
                     end
                 end
@@ -751,13 +754,13 @@ local function runRotation()
                     end
                 end
             else
-                if player.debuff.moonfire.remain() < 6.6  and (player.debuff.moonfire.count() < getOptionValue("Moonfire targets")) then
-                    if player.debuff.moonfire.remain() < player.gcd then
+                if player.debuff.moonfire.remain(units.dyn40) < 6.6  and (player.debuff.moonfire.count() < getOptionValue("Moonfire targets")) then
+                    if player.debuff.moonfire.remain(units.dyn40) < player.gcd then
                         if player.cast.moonfire() then return end
                     end
                 end
-                if player.debuff.sunfire.remain() < 5.4  and (player.debuff.sunfire.count() < getOptionValue("Sunfire targets")) then
-                    if player.debuff.sunfire.remain() < player.gcd then
+                if player.debuff.sunfire.remain(units.dyn40) < 5.4  and (player.debuff.sunfire.count() < getOptionValue("Sunfire targets")) then
+                    if player.debuff.sunfire.remain(units.dyn40) < player.gcd then
                         if player.cast.sunfire() then return end
                     end
                 end
@@ -780,7 +783,7 @@ local function runRotation()
                     end
                 end
             else
-                if player.debuff.moonfire.remain() <= player.debuff.sunfire.remain() then
+                if player.debuff.moonfire.remain(units.dyn40) <= player.debuff.sunfire.remain(units.dyn40) then
                     if player.cast.moonfire() then return end
                 else
                     if player.cast.sunfire() then return end
@@ -926,8 +929,21 @@ local function runRotation()
             end -- End Defensive Toggle
         end
 
+        local function actionList_Opener()
+            --TODO
+        end
+        -----------------------
+        --- Opener Rotation ---
+        -----------------------
+--        if opener == false and isChecked("Opener") and isBoss("target") then
+--            if isChecked("Pre-Pull Timer") and player.inCombat then
+--                opener = true;
+--                return
+--            end
+--            if actionList_Opener() then return end
+--        end
 
-        if player.inCombat then
+        if player.inCombat and isValidUnit(units.dyn40) and getDistance(units.dyn40) < 40 then
             if (profileStop==true) or pause() or player.mode.rotation==4 then
                 return true
             end
