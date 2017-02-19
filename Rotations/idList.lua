@@ -707,6 +707,7 @@ br.idList = {
                 astralCommunion             = 202359,
                 stellarDrift                = 202354,
                 warriorOfElune              = 202425,
+                soulOfTheForest             = 114107,
             },
         },
         -- All
