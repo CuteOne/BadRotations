@@ -46,7 +46,7 @@ local function createOptions()
         -- Dummy DPS Test
         br.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
         -- Opener
-        br.ui:createCheckbox(section, "Opener - NOT WORKING YET")
+        br.ui:createCheckbox(section, "Opener")
         -- Deadly Chicken
         br.ui:createCheckbox(section, "Deadly Chicken","|cff15FF00Enable|cffFFFFFF|cffFFFFFF this mode when running through low level content where you 1 hit kill mobs.")
         -- Deadly Chicken - DONT KILL BOSS
@@ -162,19 +162,24 @@ local function runRotation()
     UpdateToggle("Defensive",0.25)
     UpdateToggle("Interrupt",0.25)
 
-    if player.potion.intellect ~= nil then
-        if player.potion.intellect[1] ~= nil then
-            intPot = player.potion.intellect[1].itemID
-        else
-            intPot = 0
-        end
-    else
-        intPot = 0
-    end
 
     if lastForm == nil then lastForm = 0 end
     if profileStop == nil then profileStop = false end
     if opener == nil then opener = false end
+
+
+    if not player.inCombat and not ObjectExists("target") then
+        SW = false
+        MM1 = false
+        MF = false
+        AC = false
+        SF = false
+        CA = false
+        RA = false
+        MM2 = false
+        MM3 = false
+        opener = false
+    end
     if player.talent.stellarDrift then starfallRadius = 19.5 else starfallRadius = 15 end
     if not player.inCombat and not hastar and profileStop==true then
         profileStop = false
@@ -183,7 +188,7 @@ local function runRotation()
 
     --    if br.timer:useTimer("debugBalance", math.random(0.5,0.8)) then
 
-    if br.timer:useTimer("debugBalance", math.random(0.1,0.4)) then
+    if br.timer:useTimer("debugBalance", math.random(0.1,0.4))  then
 
         local function actionList_Extras()
             if isChecked("Innervate") and (SpecificToggle("Innervate") and not GetCurrentKeyBoardFocus()) and player.cd.innervate == 0 then
@@ -252,10 +257,10 @@ local function runRotation()
                 end
                 --TODO:actions.precombat+=/potion,name=deadly_grace
                 --actions.precombat+=/new_moon
-                if isChecked("Pre-Pull Timer") and pullTimer <= getOptionValue("Pre-Pull Timer") then
-                    if player.cast.newMoon() then return end
-                    if player.cast.solarWrath() then return end
-                end
+                --                if isChecked("Pre-Pull Timer") and pullTimer <= getOptionValue("Pre-Pull Timer") then
+                --                    if player.cast.newMoon() then return end
+                --                    if player.cast.solarWrath() then return end
+                --                end
             end
         end
 
@@ -274,15 +279,15 @@ local function runRotation()
                 if player.cast.furyOfElune("target", "best", nil, 3) then return end
             end
             --actions.fury_of_elune+=/new_moon,if=((charges=2&recharge_time<5)|charges=3)&&(buff.fury_of_elune_up.up|(cooldown.fury_of_elune.remains>gcd*3&astral_power<=90))
-            if ((GetSpellCount(player.spell.newMoon) == 2 and player.cd.newMoon < 5) or GetSpellCount(player.spell.newMoon) == 3) and (player.buff.furyOfElune.exists() or (player.cd.furyOfElune > player.gcd*3 and astralPower <= 90)) then
+            if ((getCharges(player.spell.newMoon) == 2 and player.recharge.newMoon < 5) or getCharges(player.spell.newMoon) == 3) and (player.buff.furyOfElune.exists() or (player.cd.furyOfElune > player.gcd*3 and astralPower <= 90)) then
                 if player.cast.newMoon() then return end
             end
             --actions.fury_of_elune+=/half_moon,if=((charges=2&recharge_time<5)|charges=3)&&(buff.fury_of_elune_up.up|(cooldown.fury_of_elune.remains>gcd*3&astral_power<=80))
-            if (GetSpellCount(player.spell.halfMoon) == 2 and player.cd.halfMoon < 5) or (GetSpellCount(player.spell.halfMoon) == 3) and (player.buff.furyOfElune.exists() or (player.cd.furyOfElune > player.gcd*3 and astralPower <= 80)) then
+            if (getCharges(player.spell.halfMoon) == 2 and player.recharge.halfMoon < 5) or (getCharges(player.spell.halfMoon) == 3) and (player.buff.furyOfElune.exists() or (player.cd.furyOfElune > player.gcd*3 and astralPower <= 80)) then
                 if player.cast.halfMoon() then return end
             end
             --actions.fury_of_elune+=/full_moon,if=((charges=2&recharge_time<5)|charges=3)&&(buff.fury_of_elune_up.up|(cooldown.fury_of_elune.remains>gcd*3&astral_power<=60))
-            if (GetSpellCount(player.spell.fullMoon) == 2 and player.cd.fullMoon < 5) or(GetSpellCount(player.spell.fullMoon) == 3) and (player.buff.furyOfElune.exists() or (player.cd.furyOfElune > player.gcd*3 and astralPower <= 60)) then
+            if (getCharges(player.spell.fullMoon) == 2 and player.recharge.fullMoon < 5) or(getCharges(player.spell.fullMoon) == 3) and (player.buff.furyOfElune.exists() or (player.cd.furyOfElune > player.gcd*3 and astralPower <= 60)) then
                 if player.cast.fullMoon() then return end
             end
             --actions.fury_of_elune+=/astral_communion,if=buff.fury_of_elune_up.up&astral_power<=25
@@ -490,7 +495,7 @@ local function runRotation()
                 if player.cast.halfMoon() then return end
             end
             --actions.ed+=/full_moon,if=astral_power<=60&((cooldown.incarnation.remains>65&cooldown.full_moonfire.charges>0)|(cooldown.incarnation.remains>50&cooldown.full_moonfire.charges>1)|(cooldown.incarnation.remains>25&cooldown.full_moonfire.charges>2))
-            if astralPower <= 60 and ((player.cd.incarnationChoseOfElune > 65 and GetSpellCount(player.spell.fullMoon) > 0) or (player.cd.incarnationChoseOfElune > 50 and GetSpellCount(player.spell.fullMoon) > 1) or player.cd.incarnationChoseOfElune > 25 and GetSpellCount(player.spell.fullMoon) > 2) then
+            if astralPower <= 60 and ((player.cd.incarnationChoseOfElune > 65 and getCharges(player.spell.fullMoon) > 0) or (player.cd.incarnationChoseOfElune > 50 and getCharges(player.spell.fullMoon) > 1) or player.cd.incarnationChoseOfElune > 25 and getCharges(player.spell.fullMoon) > 2) then
                 if player.cast.fullMoon() then return end
             end
             --actions.ed+=/solar_wrath,if=buff.solar_empowerment.up
@@ -608,9 +613,9 @@ local function runRotation()
                     end
                 end
             end
-            if useCDs() and isChecked("Int-Pot") and canUse(intPot) and (inRaid or inInstance) then
+            if useCDs() and isChecked("Potion") and canUse(127843) and (inRaid or inInstance) then
                 if player.buff.incarnationChoseOfElune.exists() or player.buff.celestialAlignment.exists() then
-                    useItem(intPot)
+                    useItem(127843)
                     return true
                 end
             end
@@ -647,15 +652,15 @@ local function runRotation()
                 actionList_EmeralDreamcatcher()
             end
             --actions+=/new_moon,if=(charges=2&recharge_time<5)|charges=3
-            if (GetSpellCount(player.spell.newMoon) == 2 and player.cd.newMoon < 5) or GetSpellCount(player.spell.newMoon) == 3 then
+            if (getCharges(player.spell.newMoon) == 2 and player.recharge.newMoon < 5) or getCharges(player.spell.newMoon) == 3 then
                 if player.cast.newMoon() then return end
             end
             --actions+=/half_moon,if=(charges=2&recharge_time<5)|charges=3|(target.time_to_die<15&charges=2)
-            if (GetSpellCount(player.spell.halfMoon) == 2 and player.cd.halfMoon < 5) or (GetSpellCount(player.spell.halfMoon) == 3) or (getTTD("target")<15 and GetSpellCount(player.spell.halfMoon) == 2) then
+            if (getCharges(player.spell.halfMoon) == 2 and player.recharge.halfMoon < 5) or (getCharges(player.spell.halfMoon) == 3) or (getTTD("target")<15 and getCharges(player.spell.halfMoon) == 2) then
                 if player.cast.halfMoon() then return end
             end
             --actions+=/full_moon,if=(charges=2&recharge_time<5)|charges=3|target.time_to_die<15
-            if (GetSpellCount(player.spell.fullMoon) == 2 and player.cd.fullMoon < 5) or(GetSpellCount(player.spell.fullMoon) == 3) or (getTTD("target")<15 and GetSpellCount(player.spell.fullMoon) == 2) then
+            if (getCharges(player.spell.fullMoon) == 2 and player.recharge.fullMoon < 5) or(getCharges(player.spell.fullMoon) == 3) or (getTTD("target")<15 and getCharges(player.spell.fullMoon) == 2) then
                 if player.cast.fullMoon() then return end
             end
             if multidot then
@@ -934,19 +939,94 @@ local function runRotation()
             end -- End Defensive Toggle
         end
 
-        local function actionList_Opener()
-            --TODO
+        local function actionList_OpenerDefault()
+            if isValidUnit("target") and opener == false then
+                if (isChecked("Pre-Pull Timer") and (pullTimer <= getOptionValue("Pre-Pull Timer") or (pullTimer == 999 and SW))) or not isChecked("Pre-Pull Timer") then
+                    -- potion,name=Potion of Deadly Grace
+                    if useCDs() and isChecked("Potion") and getDistance("target") <= 45 then
+                        if canUse(127843) then
+                            useItem(127843)
+                            Print("Potion Used!");
+                        end
+                        if canUse(142117) then
+                            useItem(142117)
+                            Print("Potion Used!");
+                        end
+                    end
+                    -- Solar Wrath
+                    if not SW then
+                        castOpener("solarWrath","SW",1)
+                        -- New Moon | Half Moon | Full Moon
+                    elseif not MM1 then
+                        if getCharges(player.spell.newMoon) > 0 then castOpener("newMoon","MM1",2)
+                        else
+                            Print("2: Moon Spells (Cooldown)")
+                            MM1 = true
+                        end
+                        --Moonfire
+                    elseif not MF then
+                        castOpener("moonfire","MF",3)
+                        --Astral Communion
+                    elseif not AC and useCDs() and isChecked("Astral Communion") and astralPower <= 20 then
+                        if player.cd.astralCommunion == 0 then
+                            castOpener("astralCommunion","AC","3.5")
+                        else
+                            Print("3.5: Astral Communion (Cooldown)")
+                            AC = true
+                        end
+                        --Sunfire
+                    elseif not SF then
+                        castOpener("sunfire","SF",4)
+                        --Celestial Alignment | Incarnation
+                    elseif not CA and useCDs() and isChecked("Incarnation: Chosen of Elune/Celestial Alignament") then
+                        if (player.talent.incarnationChoseOfElune and player.cd.incarnationChoseOfElune == 0) or (not player.talent.incarnationChoseOfElune and player.cd.celestialAlignment == 0) then
+                            castOpener("celestialAlignment","CA",5)
+                        else
+                            Print("5: Incarnation: Chosen of Elune/Celestial Alignament (Cooldown)")
+                            CA = true
+                        end
+                        --Racial
+                    elseif not RA and  (player.race == "Orc" or player.race == "Troll") and useCDs()  and isChecked("Racial") then
+                        if getSpellCD(player.getRacial()) == 0 then
+                            if castSpell("player",player.getRacial(),false,false,false) then
+                                Print("5.5: Racial")
+                                RA = true
+                            end
+                        else
+                            RA = true
+                            Print("5.5: Racial (Cooldown)")
+                        end
+                        -- Starsurge
+                    elseif astralPower == 99 or astralPower == 59 then
+                        if player.cast.starfall("best", nil, getOptionValue("Starfall targets"), starfallRadius) then Print("5.55: Starfall") return else if player.cast.starsurge() then Print("5.55: Starsurge") return end end
+                        -- New Moon | Half Moon | Full Moon
+                    elseif not MM2 then
+                        if getCharges(player.spell.newMoon) > 0 then castOpener("newMoon","MM2",6)
+                        else
+                            Print("6: Moon Spells (Cooldown)")
+                            MM2 = true
+                        end
+                        -- New Moon | Half Moon | Full Moon
+                    elseif not MM3 then
+                        if getCharges(player.spell.newMoon) > 0 then castOpener("newMoon","MM3",7) else
+                            Print("7: Moon Spells (Cooldown)")
+                            MM3 = true
+                        end
+                    else
+                        Print("--Opener Complete--")
+                        opener = true
+                    end
+                end
+            end
         end
-        -----------------------
-        --- Opener Rotation ---
-        -----------------------
-        --        if opener == false and isChecked("Opener") and isBoss("target") then
-        --            if isChecked("Pre-Pull Timer") and player.inCombat then
-        --                opener = true;
-        --                return
-        --            end
-        --            if actionList_Opener() then return end
-        -- end
+
+        local function actionList_Opener()
+--            if hasEquiped(137062) then
+--                actionList_OpenerEmealdDreamCatcher()
+--            else
+                actionList_OpenerDefault()
+--            end
+        end
 
         local function deadlyChicken()
             for i = 1, ObjectCount() do
@@ -974,26 +1054,41 @@ local function runRotation()
             end
         end
 
-        if isChecked("Deadly Chicken") then
-            deadlyChicken()
-        elseif player.inCombat and isValidUnit(units.dyn40) and getDistance(units.dyn40) < 40 then
-            if (profileStop==true) or pause() or player.mode.rotation==4 then
-                return true
+
+        ---------------------
+        --- Begin Profile ---
+        ---------------------
+        -- Profile Stop | Pause
+        if not player.inCombat and not hastar and profileStop==true then
+            profileStop = false
+        elseif (player.inCombat and profileStop==true) or pause() or (IsMounted() or IsFlying()) or player.mode.rotation==4 then
+            return true
+        else
+            -----------------------
+            --- Opener Rotation ---
+            -----------------------
+            if opener == false and isChecked("Opener") and isBoss("target") then
+                if actionList_Opener() then return end
             end
-            if not(moving and player.buff.dash.exists()) then
-                actionList_Extras()
-                actionList_Interrupts()
-                actionList_Defensive()
-                if (not isMoving("player") or player.buff.stellarDrift.exists()) then
-                    actionList_Combat()
-                elseif isMoving("player") then
-                    actionList_CombatMoving()
+
+            if isChecked("Deadly Chicken") then
+                deadlyChicken()
+            elseif player.inCombat and isValidUnit(units.dyn40) and getDistance(units.dyn40) < 40 and (opener == true or not isChecked("Opener")) then
+                if not(moving and player.buff.dash.exists()) then
+                    actionList_Extras()
+                    actionList_Interrupts()
+                    actionList_Defensive()
+                    if (not isMoving("player") or player.buff.stellarDrift.exists()) then
+                        actionList_Combat()
+                    elseif isMoving("player") then
+                        actionList_CombatMoving()
+                    end
                 end
+                --        elseif isChecked("Pre-Pull Timer") and pullTimer <= 10 then
+                --            actionList_PreCombat()
             end
-        elseif isChecked("Pre-Pull Timer") and pullTimer <= 10 then
-            actionList_PreCombat()
-        end
-        return
+            return
+        end--End Pause
     end -- End Timer
 end-- End runRotation
 local id = 102

@@ -570,7 +570,7 @@ local function runRotation()
         -- Potion
                         -- potion,name=old_war
                         elseif useCDs() and isChecked("Potion") and getDistance("target") < 15 then
-                            if canUse(127884) and talent.serenity then
+                            if canUse((127844)) and talent.serenity then
                                 useItem(127844)
                             end
                             if canUse(142117) and talent.whirlingDragonPunch then
@@ -657,7 +657,7 @@ local function runRotation()
         -- Potion
                         -- potion,name=old_war
                         elseif useCDs() and isChecked("Potion") and getDistance("target") < 15 then
-                            if canUse(127884) and talent.serenity then
+                            if canUse((127844)) and talent.serenity then
                                 useItem(127844)
                             end
                             if canUse(142117) and talent.whirlingDragonPunch then
@@ -744,7 +744,7 @@ local function runRotation()
         -- Potion
                         -- potion,name=old_war
                         elseif useCDs() and isChecked("Potion") and getDistance("target") < 15 then
-                            if canUse(127884) and talent.serenity then
+                            if canUse((127844)) and talent.serenity then
                                 useItem(127844)
                             end
                             if canUse(142117) and talent.whirlingDragonPunch then
@@ -1137,7 +1137,7 @@ local function runRotation()
                     -- TODO: Agility Proc
                     if inRaid and isChecked("Potion") and useCDs() and getDistance("target") < 5 then
                         if buff.serenity.exists() or buff.stormEarthAndFire.exists() or hasBloodLust() or ttd <= 60 then
-                            if canUse(127884) and talent.serenity then
+                            if canUse((127844)) and talent.serenity then
                                 useItem(127844)
                             end
                             if canUse(142117) and talent.whirlingDragonPunch then
