@@ -406,7 +406,9 @@ local function runRotation()
            if isChecked("Regrowth") then
                 for i = 1, #br.friend do
                     if br.friend[i].hp <= getValue("Regrowth Clearcasting") and buff.clearcasting.exists() then
-                        if cast.regrowth(br.friend[i].unit) then return end     
+                        if cast.regrowth(br.friend[i].unit) then return end
+                    elseif buff.lifebloom.exists(br.friend[i].unit) and buff.regrowth.remain(br.friend[i].unit) <= 1 then
+                        if cast.regrowth(br.friend[i].unit) then return end
                     elseif br.friend[i].hp <= getValue("Regrowth") and buff.regrowth.remain(br.friend[i].unit) <= 1 then
                         if talent.abundance and buff.abundance.stack() < 3 then
                             if cast.regrowth(br.friend[i].unit) then return end
