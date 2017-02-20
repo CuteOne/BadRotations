@@ -197,19 +197,28 @@ local function runRotation()
                     return end
             end
             if isChecked("Auto Shapeshifts") then
-                -- Balance Form
-                if player.inCombat and not chicken and not (flight or travel or IsMounted() or IsFlying()) then
-                    if player.cast.balanceForm() then return end
-                else
-                    -- Flight Form
-                    if IsFlyableArea() and ((not (isInDraenor() or isInLegion())) or isKnown(191633)) and not swimming and falling > 1 and player.level>=58 then
-                        if player.cast.travelForm() then return end
+                -- Flight Form
+                if IsFlyableArea() and ((not (isInDraenor() or isInLegion())) or isKnown(191633)) and not swimming and falling > 1 and player.level>=58 then
+                    if player.cast.travelForm() then return end
+                end
+                -- Aquatic Form
+                if swimming and not travel and not hastar and not deadtar and not player.buff.prowl.exists() then
+                    if player.cast.travelForm() then return end
+                end
+                -- balanceForm
+                if not chicken and not IsMounted() then
+                    -- balanceForm when not swimming or flying or stag and not in combat
+                    if not player.inCombat and moving and not swimming and not flying and not travel and not isValidUnit("target") then
+                        if player.cast.balanceForm() then return end
                     end
-                    -- Aquatic Form
-                    if swimming and not travel and not hastar and not deadtar and not player.buff.prowl.exists() then
-                        if player.cast.travelForm() then return end
+                    -- balanceForm when not in combat and target selected and within 40yrds
+                    if not player.inCombat and isValidUnit("target") and getDistance("target") < 40 then
+                        if player.cast.balanceForm() then return end
                     end
-
+                    --balanceForm when in combat and not flying
+                    if player.inCombat and not flying then
+                        if player.cast.balanceForm() then return end
+                    end
                 end
             end
             if isChecked("DPS Testing") then
@@ -941,7 +950,7 @@ local function runRotation()
 
         local function actionList_OpenerDefault()
             if isValidUnit("target") and opener == false then
-                if (isChecked("Pre-Pull Timer") and (pullTimer <= getOptionValue("Pre-Pull Timer") or (pullTimer == 999 and SW))) or not isChecked("Pre-Pull Timer") then
+                if (isChecked("Pre-Pull Timer") and (pullTimer <= getOptionValue("Pre-Pull Timer") or (pullTimer == 999 and SW))) or not isChecked("Pre-Pull Timer") or player.inCombat then
                     -- potion,name=Potion of Deadly Grace
                     if useCDs() and isChecked("Potion") and getDistance("target") <= 45 then
                         if canUse(127843) then
@@ -1021,11 +1030,11 @@ local function runRotation()
         end
 
         local function actionList_Opener()
---            if hasEquiped(137062) then
---                actionList_OpenerEmealdDreamCatcher()
---            else
-                actionList_OpenerDefault()
---            end
+            --            if hasEquiped(137062) then
+            --                actionList_OpenerEmealdDreamCatcher()
+            --            else
+            actionList_OpenerDefault()
+            --            end
         end
 
         local function deadlyChicken()
@@ -1055,6 +1064,9 @@ local function runRotation()
         end
 
 
+
+        if actionList_Extras() then return end
+        if actionList_PreCombat() then return end
         ---------------------
         --- Begin Profile ---
         ---------------------
@@ -1068,14 +1080,15 @@ local function runRotation()
             --- Opener Rotation ---
             -----------------------
             if opener == false and isChecked("Opener") and isBoss("target") then
+                if isChecked("Pre-Pull Timer") and player.inCombat then
+                    opener = true;
+                    return
+                end
                 if actionList_Opener() then return end
-            end
-
-            if isChecked("Deadly Chicken") then
+            elseif isChecked("Deadly Chicken") then
                 deadlyChicken()
-            elseif player.inCombat and isValidUnit(units.dyn40) and getDistance(units.dyn40) < 40 and (opener == true or not isChecked("Opener")) then
+            elseif player.inCombat and profileStop==false and isValidUnit(units.dyn40) and (opener == true or not isChecked("Opener") or not isBoss("target")) then
                 if not(moving and player.buff.dash.exists()) then
-                    actionList_Extras()
                     actionList_Interrupts()
                     actionList_Defensive()
                     if (not isMoving("player") or player.buff.stellarDrift.exists()) then
