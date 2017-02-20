@@ -440,7 +440,7 @@ local function runRotation()
             --Judgement
             --if HasItem(IlterendiCrownJewelOfSilvermoon) and (not HasTalent(BeaconOfVirtue) or CooldownSecRemaining(BeaconOfVirtue) < 10 and BuffCount(BeaconOfLight) > 0)
             --Beacon of Virtue
-            if talent.beaconOfVirtue then
+            if talent.beaconOfVirtue and isChecked("Beacon of Virtue") then
                 for i= 1, #br.friend do
                     if not buff.beaconOfVirtue.exists(br.friend[i].unit)  then
                         local lowHealthCandidates = getUnitsToHealAround(br.friend[i].unit,30,getValue("Beacon of Virtue"),#br.friend)
@@ -498,12 +498,17 @@ local function runRotation()
             end
             -- Light of Dawn
             if isChecked("Light of Dawn") then
-                if getLowAllies(getValue"Light of Dawn") >= getValue("LoD Targets") and getFacing("player",lowest.unit) and getDistance("player",lowest.unit) <= 15 then
-                    if cast.ruleOfLaw() then 
-                        if cast.lightOfDawn(lowest.unit) then return end
+                 for i = 1, #br.friend do
+                    if br.friend[i].hp <= getValue("Light of Dawn") then
+                        local lowHealthCandidates = getUnitsToHealAround(br.friend[i].unit,15,getValue("Light of Dawn"),#br.friend)
+                        if #lowHealthCandidates >= getValue("LoD Targets") then
+                            if cast.ruleOfLaw() then
+                                if cast.lightOfDawn(br.friend[i].unit) then return end
+                            end
+                        end
                     end
                 end
-            end    
+            end
             -- Judgement
             if talent.judgementOfLight then
                 if cast.judgement(units.dyn40) then return end
