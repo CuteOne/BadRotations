@@ -1080,7 +1080,7 @@ local function runRotation()
             --- Opener Rotation ---
             -----------------------
             if opener == false and isChecked("Opener") and isBoss("target") then
-                if isChecked("Pre-Pull Timer") and player.inCombat and (getCombatTime() > 5 or not SW)then
+                if isChecked("Pre-Pull Timer") and player.inCombat and getCombatTime() > 10 then
                     opener = true;
                     return
                 end
