@@ -357,12 +357,8 @@ local function runRotation()
     -- Action List - Way of the Moknathal
         local function actionList_WayOfTheMokNathal()
         -- Raptor Strike
-            -- raptor_strike,if=buff.moknathal_tactics.stack()<=1
-            if buff.mokNathalTactics.stack() < 4 then --<= 1 then
-                if cast.raptorStrike() then return end
-            end
             -- raptor_strike,if=buff.moknathal_tactics.remains<gcd
-            if buff.mokNathalTactics.remain() < gcd then
+            if buff.mokNathalTactics.remain() < gcd * 2 then
                 if cast.raptorStrike() then return end
             end
         -- Carve
@@ -391,7 +387,7 @@ local function runRotation()
                 if cast.carve() then return end
             end
         -- Mongoose Bite
-            if buff.mongooseFury.exists() or charges.frac.mongooseBite > 2.1 then
+            if buff.mongooseFury.exists() then
                 if cast.mongooseBite() then return end
             end
         -- Snake Hunter
@@ -438,9 +434,9 @@ local function runRotation()
             end
         -- Raptor Strike
             -- raptor_strike,if=buff.moknathal_tactics.stack=2
-            if buff.mokNathalTactics.stack() == 2 then
-                if cast.raptorStrike() then return end
-            end 
+            -- if buff.mokNathalTactics.stack() == 2 then
+            --     if cast.raptorStrike() then return end
+            -- end 
         -- Dragonsfire Grenade
             -- dragonsfire_grenade,if=buff.mongoose_fury.duration>=gcd&cooldown.mongoose_bite.charges>=0&buff.mongoose_fury.stack<1
             if buff.mongooseFury.duration() >= gcd and charges.mongooseBite >= 0 and buff.mongooseFury.stack() < 1 and buff.mokNathalTactics.remain() > gcd then
@@ -529,6 +525,15 @@ local function runRotation()
             if buff.mokNathalTactics.remain() > gcd then
                 if cast.dragonsfireGrenade() then return end
             end
+        -- Raptor Strike
+            -- raptor_strike,if=buff.moknathal_tactics.stack()<=1
+            if buff.mokNathalTactics.stack() < 3 then --<= 1 then
+                if cast.raptorStrike() then return end
+            end
+        -- Mongoose Bite
+            if charges.frac.mongooseBite > 2.1 then
+                if cast.mongooseBite() then return end
+            end 
         -- -- Mongoose Bite
         --     -- mongoose_bite,if=(charges>=2&cooldown.mongoose_bite.remains<=gcd|charges=3)
         --     if (charges.mongooseBite >= 1 and cd.mongooseBite <= gcd) or charges == 3 then

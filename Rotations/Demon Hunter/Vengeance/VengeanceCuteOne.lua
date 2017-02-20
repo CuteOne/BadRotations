@@ -454,7 +454,7 @@ local function runRotation()
                 if cast.felEruption() then return end
     -- Sigil of Flame
                 -- actions+=/sigil_of_flame,if=remains-delay<=0.3*duration
-                if isChecked("Sigil of Flames") and not isMoving(units.dyn5) then
+                if isChecked("Sigil of Flames") and not isMoving(units.dyn5) and getDistance(units.dyn5) < 5 then
                     if cast.sigilOfFlame("best",false,1,8) then return end
                 end
     -- Fracture
