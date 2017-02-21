@@ -689,6 +689,7 @@ br.idList = {
                 emeraldDreamcatcher         = 208190,
                 rejuvenation                = 774,
                 barkskin                    = 22812,
+                owlkinFrenzy                = 157228,
             },
             debuffs                         = {
                 stellarFlare                = 202347,

@@ -65,6 +65,8 @@ local function createOptions()
         br.ui:createSpinnerWithout(section, "Stellar Flare targets",  4,  1,  100,  1,  "Maximum Stellar Flare targets. Min: 1 / Max: 100")
         -- Minimium Starfall Targets
         br.ui:createSpinnerWithout(section, "Starfall targets",  3,  2,  100,  1,  "Minimum starfall targets. Min: 2 / Max: 100")
+        -- Displacer Beast
+        br.ui:createDropdown(section, "Displacer Beast", br.dropOptions.Toggle, 3, "Set hotkey to use Displacer Beast.")
         br.ui:checkSectionState(section)
         -- Cooldown Options
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
@@ -95,8 +97,8 @@ local function createOptions()
         br.ui:createCheckbox(section,"Remove Corruption")
         br.ui:createDropdownWithout(section, "Remove Corruption - Target", {"|cff00FF00Player","|cffFFFF00Target","|cffFF0000Mouseover"}, 1, "|cffFFFFFFTarget to cast on")
         -- Innervate
-        br.ui:createDropdown(section, "Innervate", br.dropOptions.Toggle, 1, "Set hotkey to use Innervate on |cffFF0000Mouseover.")
-        br.ui:createCheckbox(section, "Announce Inervate", "Should announce on /i innervate target?")
+        br.ui:createDropdown(section, "Innervate", br.dropOptions.Toggle, 3, "Set hotkey to use Innervate on |cffFF0000Mouseover.")
+        br.ui:createCheckbox(section, "Announce Inervate", "Should announce on /yell innervate target?")
         -- Renewal
         br.ui:createSpinner(section, "Renewal",  40,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
         -- Healthstone
@@ -193,7 +195,14 @@ local function runRotation()
         local function actionList_Extras()
             if isChecked("Innervate") and (SpecificToggle("Innervate") and not GetCurrentKeyBoardFocus()) and player.cd.innervate == 0 then
                 if player.cast.innervate("mouseover") then
-                    SendChatMessage("Innervate casted on " .. UnitName("mouseover"), "INSTANCE_CHAT", nil, UnitName("mouseover"))
+                    if isChecked("Announce Inervate") then
+                        SendChatMessage("Innervate casted on " .. UnitName("mouseover"), "YELL", nil, UnitName("mouseover"))
+                    end
+                    return true
+                end
+            end
+            if isChecked("Displacer Beast") and player.talent.displacerBeast and (SpecificToggle("Displacer Beast") and not GetCurrentKeyBoardFocus()) and player.cd.displacerBeast == 0 then
+                if player.cast.displacerBeast() then
                     return true end
             end
             if isChecked("Auto Shapeshifts") then
@@ -265,12 +274,6 @@ local function runRotation()
                         if player.cast.blessingOfTheAncients() then return true end
                     end
                 end
-                --TODO:actions.precombat+=/potion,name=deadly_grace
-                --actions.precombat+=/new_moon
-                --                if isChecked("Pre-Pull Timer") and pullTimer <= getOptionValue("Pre-Pull Timer") then
-                --                    if player.cast.newMoon() then return true end
-                --                    if player.cast.solarWrath() then return true end
-                --                end
             end
             return false
         end
@@ -310,7 +313,7 @@ local function runRotation()
                 if player.cast.warriorOfElune() then return true end
             end
             --actions.fury_of_elune+=/lunar_strike,if=buff.warrior_of_elune.up&(astral_power<=90|(astral_power<=85&buff.incarnation.up))
-            if player.buff.warriorOfElune.exists() and (astralPower <= 90 or player.buff.incarnationChoseOfElune.exists()) then
+            if player.buff.warriorOfElune.exists() or player.buff.owlkinFrenzy.exists() and (astralPower <= 90 or player.buff.incarnationChoseOfElune.exists()) then
                 if player.cast.lunarStrike() then return true end
             end
             --actions.fury_of_elune+=/new_moon,if=astral_power<=90&buff.fury_of_elune_up.up
@@ -366,7 +369,7 @@ local function runRotation()
                 --actions.fury_of_elune+=/starfall,if=(active_enemies>=2&talent.stellar_flare.enabled|active_enemies>=3)&buff.fury_of_elune_up.down&cooldown.fury_of_elune.remains>10
                 if not player.buff.furyOfElune.exists() and player.cd.furyOfElune > 10 then
                     if (astralPower >= 60) or (astralPower >= 40 and player.talent.soulOfTheForest) then
-                        if player.cast.starfall("best", nil, getOptionValue("Starfall targets"), starfallRadius) then return else if player.cast.starsurge() then return true end end
+                        if player.cast.starfall("best", nil, getOptionValue("Starfall targets"), starfallRadius) then return true else if player.cast.starsurge() then return true end end
                     end
                 end
             end
@@ -383,14 +386,22 @@ local function runRotation()
             end
             --actions.fury_of_elune+=/solar_wrath,if=buff.solar_empowerment.up
             if player.buff.solarEmpowerment.exists() then
-                if player.cast.solarWrath() then return true end
+                if player.buff.owlkinFrenzy.exists() then
+                    if player.cast.lunarStrike() then return true end
+                else
+                    if player.cast.solarWrath() then return true end
+                end
             end
             --actions.fury_of_elune+=/lunar_strike,if=buff.lunar_empowerment.stack=3|(buff.lunar_empowerment.remains<5&buff.lunar_empowerment.up)|active_enemies>=2
             if player.buff.lunarEmpowerment.stack() == 3 or (player.buff.lunarEmpowerment.remain() < 5 and player.buff.lunarEmpowerment.exists()) or #getEnemies("target",5)>=2 then
                 if player.cast.lunarStrike() then return true end
             end
             --actions.fury_of_elune+=/solar_wrath
-            if player.cast.solarWrath() then return true end
+            if player.buff.owlkinFrenzy.exists() then
+                if player.cast.lunarStrike() then return true end
+            else
+                if player.cast.solarWrath() then return true end
+            end
             return true
         end
 
@@ -473,7 +484,11 @@ local function runRotation()
             end
             --actions.ed+=/solar_wrath,if=buff.solar_empowerment.stack>1&buff.the_emerald_dreamcatcher.remains>2*execute_time&astral_power>=6&(dot.moonfire.remains>5|(dot.sunfire.remains<5.4&dot.moonfire.remains>6.6))&(!(buff.celestial_alignment.up|buff.incarnation.up)&astral_power<=90|(buff.celestial_alignment.up|buff.incarnation.up)&astral_power<=85)
             if player.buff.solarEmpowerment.exists() and player.buff.emeraldDreamcatcher.remain() > 2*getCastTime(player.spell.solarWrath) and astralPower >=6 and (player.debuff.moonfire.remain()>5 or player.debuff.sunfire.remain()<5.4 and player.debuff.moonfire.remain()>6.6) and (not(player.buff.celestialAlignment.exists() or player.buff.incarnationChoseOfElune.exists()) and astralPower <=90 or (player.buff.celestialAlignment.exists() or player.buff.incarnationChoseOfElune.exists()) and astralPower<=85) then
-                if player.cast.solarWrath() then return true end
+                if player.buff.owlkinFrenzy.exists() then
+                    if player.cast.lunarStrike() then return true end
+                else
+                    if player.cast.solarWrath() then return true end
+                end
             end
             --actions.ed+=/lunar_strike,if=buff.lunar_empowerment.up&buff.the_emerald_dreamcatcher.remains>execute_time&astral_power>=11&(!(buff.celestial_alignment.up|buff.incarnation.up)&astral_power<=85|(buff.celestial_alignment.up|buff.incarnation.up)&astral_power<=77.5)
             if player.buff.lunarEmpowerment.exists() and player.buff.emeraldDreamcatcher.remain()> getCastTime(player.spell.lunarStrike) and astralPower >=11 and(not(player.buff.celestialAlignment.exists() or player.buff.incarnationChoseOfElune.exists()) and astralPower <=85 or (player.buff.celestialAlignment.exists() or player.buff.incarnationChoseOfElune.exists()) and astralPower<= 77.5) then
@@ -481,7 +496,11 @@ local function runRotation()
             end
             --actions.ed+=/solar_wrath,if=buff.solar_empowerment.up&buff.the_emerald_dreamcatcher.remains>execute_time&astral_power>=16&(!(buff.celestial_alignment.up|buff.incarnation.up)&astral_power<=90|(buff.celestial_alignment.up|buff.incarnation.up)&astral_power<=85)
             if player.buff.solarEmpowerment.exists() and player.buff.emeraldDreamcatcher.remain() > getCastTime(player.spell.solarWrath) and astralPower >=16 and (not(player.buff.celestialAlignment.exists() or player.buff.incarnationChoseOfElune.exists()) and astralPower<=90 or (player.buff.celestialAlignment.exists() or player.buff.incarnationChoseOfElune.exists()) and astralPower<= 85) then
-                if player.cast.solarWrath() then return true end
+                if player.buff.owlkinFrenzy.exists() then
+                    if player.cast.lunarStrike() then return true end
+                else
+                    if player.cast.solarWrath() then return true end
+                end
             end
             --actions.ed+=/starsurge,if=(buff.the_emerald_dreamcatcher.up&buff.the_emerald_dreamcatcher.remains<gcd.max)|astral_power>90|((buff.celestial_alignment.up|buff.incarnation.up)&astral_power>=85)|(buff.the_emerald_dreamcatcher.up&astral_power>=77.5&(buff.celestial_alignment.up|buff.incarnation.up))
             if (player.buff.emeraldDreamcatcher.exists() and player.buff.emeraldDreamcatcher.remain() < player.gcd) or astralPower>90 or ((player.buff.celestialAlignment.exists() or player.buff.incarnationChoseOfElune.exists()) and astralPower>=85) or (player.buff.emeraldDreamcatcher.exists() and astralPower >=77.5 and (player.buff.celestialAlignment.exists() or player.buff.incarnationChoseOfElune.exists())) then
@@ -490,7 +509,7 @@ local function runRotation()
             if multidot then
                 --actions.ed+=/starfall,if=buff.oneths_overconfidence.up&remains<2
                 if player.buff.onethsOverconfidence.exists() and player.buff.onethsOverconfidence.remain() < 2 then
-                    if player.cast.starfall("best", nil, getOptionValue("Starfall targets"), starfallRadius) then return else if player.cast.starsurge() then return true end end
+                    if player.cast.starfall("best", nil, getOptionValue("Starfall targets"), starfallRadius) then return true else if player.cast.starsurge() then return true end end
                 end
             else
                 if player.buff.onethsOverconfidence.remain()<2 then
@@ -511,14 +530,22 @@ local function runRotation()
             end
             --actions.ed+=/solar_wrath,if=buff.solar_empowerment.up
             if player.buff.solarEmpowerment.exists() then
-                if player.cast.solarWrath() then return true end
+                if player.buff.owlkinFrenzy.exists() then
+                    if player.cast.lunarStrike() then return true end
+                else
+                    if player.cast.solarWrath() then return true end
+                end
             end
             --actions.ed+=/lunar_strike,if=buff.lunar_empowerment.up
             if player.buff.lunarEmpowerment.exists() then
                 if player.cast.lunarStrike() then return true end
             end
             --actions.ed+=/solar_wrath
-            if player.cast.solarWrath() then return true end
+            if player.buff.owlkinFrenzy.exists() then
+                if player.cast.lunarStrike() then return true end
+            else
+                if player.cast.solarWrath() then return true end
+            end
             return true
         end
 
@@ -526,7 +553,7 @@ local function runRotation()
             if multidot then
                 --if=((active_enemies>=2&talent.stellar_drift.enabled)|active_enemies>=3)
                 if (astralPower >= 60) or (astralPower >= 40 and player.talent.soulOfTheForest) then
-                    if player.cast.starfall("best", nil, getOptionValue("Starfall targets"), starfallRadius) then return else if player.cast.starsurge() then return true end end
+                    if player.cast.starfall("best", nil, getOptionValue("Starfall targets"), starfallRadius) then return true else if player.cast.starsurge() then return true end end
                 end
             end
             --actions.celestial_alignment_phase+=/starsurge,if=active_enemies<=2
@@ -538,7 +565,7 @@ local function runRotation()
                 if player.cast.warriorOfElune() then return true end
             end
             --actions.celestial_alignment_phase+=/lunar_strike,if=buff.warrior_of_elune.up
-            if player.buff.warriorOfElune.exists() then
+            if player.buff.warriorOfElune.exists() or player.buff.owlkinFrenzy.exists() then
                 if player.cast.lunarStrike() then return true end
             end
             --actions.celestial_alignment_phase+=/solar_wrath,if=buff.solar_empowerment.up
@@ -558,7 +585,11 @@ local function runRotation()
                 if player.cast.lunarStrike() then return true end
             end
             --actions.celestial_alignment_phase+=/solar_wrath
-            if player.cast.solarWrath() then return true end
+            if player.buff.owlkinFrenzy.exists() then
+                if player.cast.lunarStrike() then return true end
+            else
+                if player.cast.solarWrath() then return true end
+            end
             return true
         end
 
@@ -578,7 +609,7 @@ local function runRotation()
             if multidot then
                 --actions.single_target+=/starfall,if=((active_enemies>=2&talent.stellar_drift.enabled)|active_enemies>=3)
                 if (astralPower >= 60) or (astralPower >= 40 and player.talent.soulOfTheForest) then
-                    if player.cast.starfall("best", nil, getOptionValue("Starfall targets"), starfallRadius) then return else if player.cast.starsurge() then return true end end
+                    if player.cast.starfall("best", nil, getOptionValue("Starfall targets"), starfallRadius) then return true else if player.cast.starsurge() then return true end end
                 end
             end
             --actions.single_target+=/starsurge,if=active_enemies<=2
@@ -590,12 +621,16 @@ local function runRotation()
                 if player.cast.warriorOfElune() then return true end
             end
             --actions.single_target+=/lunar_strike,if=buff.warrior_of_elune.up
-            if player.buff.warriorOfElune.exists() then
+            if player.buff.warriorOfElune.exists() or player.buff.owlkinFrenzy.exists() then
                 if player.cast.lunarStrike() then return true end
             end
             --actions.single_target+=/solar_wrath,if=buff.solar_empowerment.up
             if player.buff.solarEmpowerment.exists() then
-                if player.cast.solarWrath() then return true end
+                if player.buff.owlkinFrenzy.exists() then
+                    if player.cast.lunarStrike() then return true end
+                else
+                    if player.cast.solarWrath() then return true end
+                end
             end
             --actions.single_target+=/lunar_strike,if=buff.lunar_empowerment.up
             if player.buff.lunarEmpowerment.exists() then
@@ -603,14 +638,22 @@ local function runRotation()
             end
             --actions.single_target+=/solar_wrath,if=talent.natures_balance.enabled&dot.sunfire_dmg.remains<5&cast_time<dot.sunfire_dmg.remains
             if player.talent.naturesBalance and player.debuff.sunfire.remain() < 5 and getCastTime(player.spell.sunfire) < player.debuff.sunfire.remain() then
-                if player.cast.solarWrath() then return true end
+                if player.buff.owlkinFrenzy.exists() then
+                    if player.cast.lunarStrike() then return true end
+                else
+                    if player.cast.solarWrath() then return true end
+                end
             end
             --actions.single_target+=/lunar_strike,if=(talent.natures_balance.enabled&dot.moonfire_dmg.remains<5&cast_time<dot.moonfire_dmg.remains)|active_enemies>=2
             if (player.talent.naturesBalance and player.debuff.moonfire.remain() < 5 and getCastTime(player.spell.moonfire) < player.debuff.moonfire.remain()) or #getEnemies("target",5) >= 2 then
                 if player.cast.lunarStrike() then return true end
             end
             --actions.single_target+=/solar_wrath
-            if player.cast.solarWrath() then return true end
+            if player.buff.owlkinFrenzy.exists() then
+                if player.cast.lunarStrike() then return true end
+            else
+                if player.cast.solarWrath() then return true end
+            end
             return false
         end
 
@@ -735,7 +778,7 @@ local function runRotation()
             if player.buff.onethsOverconfidence.exists() then
                 if multidot then
                     if (astralPower >= 60) or (astralPower >= 40 and player.talent.soulOfTheForest) then
-                        if player.cast.starfall("best", nil, getOptionValue("Starfall targets"), starfallRadius) then return else if player.cast.starsurge() then return true end end
+                        if player.cast.starfall("best", nil, getOptionValue("Starfall targets"), starfallRadius) then return true else if player.cast.starsurge() then return true end end
                     end
                 else
                     if player.cast.starsurge() then return true end
@@ -743,7 +786,11 @@ local function runRotation()
             end
             --actions+=/solar_wrath,if=buff.solar_empowerment.stack=3
             if player.buff.solarEmpowerment.stack() == 3 then
-                if player.cast.solarWrath() then return true end
+                if player.buff.owlkinFrenzy.exists() then
+                    if player.cast.lunarStrike() then return true end
+                else
+                    if player.cast.solarWrath() then return true end
+                end
             end
             --actions+=/lunar_strike,if=buff.lunar_empowerment.stack=3
             if player.buff.lunarEmpowerment.stack() == 3 then
@@ -765,7 +812,7 @@ local function runRotation()
             end
             if multidot then
                 if (astralPower >= 60) or (astralPower >= 40 and player.talent.soulOfTheForest) then
-                    if player.cast.starfall("best", nil, getOptionValue("Starfall targets"), starfallRadius) then return else if player.cast.starsurge() then return true end end
+                    if player.cast.starfall("best", nil, getOptionValue("Starfall targets"), starfallRadius) then return true else if player.cast.starsurge() then return true end end
                 end
                 for i = 1, #enemies.yards40 do
                     local thisUnit = enemies.yards40[i]
@@ -792,10 +839,7 @@ local function runRotation()
                     end
                 end
             end
-            if player.buff.warriorOfElune.exists() then
-                if player.cast.lunarStrike() then return true end
-            end
-            if player.buff.warriorOfElune.exists() then
+            if player.buff.warriorOfElune.exists() or player.buff.owlkinFrenzy.exists() then
                 if player.cast.lunarStrike() then return true end
             end
 
@@ -1026,7 +1070,7 @@ local function runRotation()
                         end
                         -- Starsurge
                     elseif astralPower == 99 or astralPower == 59 then
-                        if player.cast.starfall("best", nil, getOptionValue("Starfall targets"), starfallRadius) then Print("5.55: Starfall") return else if player.cast.starsurge() then Print("5.55: Starsurge") return true end end
+                        if player.cast.starfall("best", nil, getOptionValue("Starfall targets"), starfallRadius) then Print("5.55: Starfall") return true else if player.cast.starsurge() then Print("5.55: Starsurge") return true end end
                         -- New Moon | Half Moon | Full Moon
                     elseif not MM2 then
                         if getCharges(player.spell.newMoon) > 0 then
@@ -1083,11 +1127,11 @@ local function runRotation()
                             if isChecked("Deadly Chicken - DONT KILL BOSS") then
                                 if not isBoss(thisUnit) then
                                     CastSpellByName(GetSpellInfo(player.spell.sunfire),thisUnit)
-                                    return
+                                    return true
                                 end
                             else
                                 CastSpellByName(GetSpellInfo(player.spell.sunfire),thisUnit)
-                                return
+                                return true
                             end
                         end
                     end
@@ -1114,7 +1158,7 @@ local function runRotation()
             if opener == false and isChecked("Opener") and isBoss("target") then
                 if isChecked("Pre-Pull Timer") and player.inCombat and getCombatTime() > 10 then
                     opener = true;
-                    return
+                    return true
                 end
                 if actionList_Opener() then return true end
             elseif isChecked("Deadly Chicken") then
@@ -1130,7 +1174,6 @@ local function runRotation()
                     end
                 end
             end
-            return
         end--End Pause
         return false
     end -- End Timer
