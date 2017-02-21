@@ -366,7 +366,7 @@ local function runRotation()
                         if cast.rapture() then return end
                         if buff.rapture.exists("player") then
                             for i = 1, #br.friend do                           
-                                if not buff.powerWordShield.exists(br.friend[i].unit) then
+                                if not buff.powerWordShield.exists(br.friend[i].unit) and lastSpell ~= spell.powerWordShield then
                                     if mode.healer == 1 or mode.healer == 2 then
                                         if cast.powerWordShield(br.friend[i].unit) then return end     
                                     end
@@ -554,7 +554,7 @@ local function runRotation()
             --Power Word: Shield
             if isChecked("Power Word: Shield") and getSpellCD(spell.powerWordShield) == 0 then
                 for i = 1, #br.friend do
-                    if br.friend[i].hp <= getValue("Power Word: Shield") and not buff.powerWordShield.exists(br.friend[i].unit) then
+                    if br.friend[i].hp <= getValue("Power Word: Shield") and not buff.powerWordShield.exists(br.friend[i].unit) and lastSpell ~= spell.powerWordShield then
                         if mode.healer == 1 or mode.healer == 2 then
                             if cast.powerWordShield(br.friend[i].unit) then return end
                         end
