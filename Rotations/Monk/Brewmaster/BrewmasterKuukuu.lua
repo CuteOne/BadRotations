@@ -54,8 +54,8 @@ local function createOptions()
             br.ui:createCheckbox(section, "Opener","|cffFFFFFFBest Ironskin Uptime at Start.")            
         -- Pre-Pull Timer
         --    br.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
-        -- Roll
-        --    br.ui:createCheckbox(section, "Roll")
+        -- Purifying Brew
+            br.ui:createDropdown(section, "Purifying Brew",  {"|cff00FF00Both","|cffFF0000Heavy Only"}, 1, "|cffFFFFFFStagger to cast on")
         -- Resuscitate
             br.ui:createDropdown(section, "Resuscitate", {"|cff00FF00Target","|cffFF0000Mouseover"}, 1, "|cffFFFFFFTarget to cast on")
         br.ui:checkSectionState(section)
@@ -284,8 +284,17 @@ local function runRotation()
         function actionList_Defensive()
             if useDefensive() then
         -- Purifying Brew
-                if (debuff.moderateStagger.exists("player") or debuff.heavyStagger.exists("player")) then
-                    if cast.purifyingBrew() then return end
+                if isChecked("Purifying Brew") then
+                    if getOptionValue("Purifying Brew") == 1 then
+                        if (debuff.moderateStagger.exists("player") or debuff.heavyStagger.exists("player")) then
+                            if cast.purifyingBrew() then return end
+                        end
+                    end
+                    if getOptionValue("Purifying Brew") == 2 then
+                        if debuff.heavyStagger.exists() then
+                            if cast.purfiyingBrew() then return end
+                        end
+                    end
                 end
         -- Pot/Stoned
                 if isChecked("Pot/Stoned") and getHP("player") <= getValue("Pot/Stoned") and inCombat then

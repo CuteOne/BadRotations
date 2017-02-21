@@ -401,7 +401,7 @@ local function runRotation()
      --       end
     -- Potion
             -- potion,name=old_war,if=buff.bloodlust.react|target.time_to_die<=25|buff.shadow_blades.up
-            if isChecked("Agi-Pot") and isBoss("target") and (hasItem(127884) or hasItem(142117)) then
+            if isChecked("Agi-Pot") and isBoss("target") and (hasItem((127844)) or hasItem(142117)) then
                 if ttd("target") <= 25 or buff.shadowBlades.exists() or hasBloodLust() then
                     if canUse(127844) then
                         useItem(127844)

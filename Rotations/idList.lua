@@ -689,6 +689,7 @@ br.idList = {
                 emeraldDreamcatcher         = 208190,
                 rejuvenation                = 774,
                 barkskin                    = 22812,
+                owlkinFrenzy                = 157228,
             },
             debuffs                         = {
                 stellarFlare                = 202347,
@@ -707,6 +708,7 @@ br.idList = {
                 astralCommunion             = 202359,
                 stellarDrift                = 202354,
                 warriorOfElune              = 202425,
+                soulOfTheForest             = 114107,
             },
         },
         -- All
@@ -819,7 +821,7 @@ br.idList = {
                 aMurderOfCrows              = 131894,
                 barrage                     = 120360,
                 volley                      = 194386,
-        intimidation            = 19577,
+                intimidation                = 19577,
             },
         },
         -- Marksmanship
@@ -957,7 +959,6 @@ br.idList = {
                 stickyBomb                  = 191241,
                 throwingAxes                = 200163,
                 wayOfTheMokNathal           = 201082,
-
             },
         },
         -- All
@@ -1428,6 +1429,7 @@ br.idList = {
                 avengingWrath               = 31842;
                 beaconOfLight               = 53563;
                 beaconOfFaith               = 53563;
+                beaconOfVirtue              = 200025;
                 bestowFaith                 = 223306;
                 divineProtection            = 498;
                 divinePurpose               = 216411;

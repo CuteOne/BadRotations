@@ -469,7 +469,7 @@ local function runRotation()
         -- Charge
                 -- charge
                 if isChecked("Charge") then
-                    if (cd.heroicLeap > 0 and cd.heroicLeap < 29) or level < 26 then
+                    if (cd.heroicLeap > 0 and cd.heroicLeap < 29) or not isChecked("Heroic Leap") or level < 26 then
                         if cast.charge("target") then return end
                     end
                 end
@@ -478,7 +478,7 @@ local function runRotation()
                 if cast.stormBolt("target") then return end
         -- Heroic Throw
                 -- heroic_throw
-                if lastSpell == spell.charge or charges.charge == 0 then
+                if lastSpell == spell.charge or charges.charge == 0 or not isChecked("Charge") then
                     if cast.heroicThrow("target") then return end
                 end
             end
