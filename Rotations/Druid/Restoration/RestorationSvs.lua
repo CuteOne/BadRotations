@@ -406,7 +406,9 @@ local function runRotation()
            if isChecked("Regrowth") then
                 for i = 1, #br.friend do
                     if br.friend[i].hp <= getValue("Regrowth Clearcasting") and buff.clearcasting.exists() then
-                        if cast.regrowth(br.friend[i].unit) then return end     
+                        if cast.regrowth(br.friend[i].unit) then return end
+                    elseif buff.lifebloom.exists(br.friend[i].unit) and buff.regrowth.remain(br.friend[i].unit) <= 1 then
+                        if cast.regrowth(br.friend[i].unit) then return end
                     elseif br.friend[i].hp <= getValue("Regrowth") and buff.regrowth.remain(br.friend[i].unit) <= 1 then
                         if talent.abundance and buff.abundance.stack() < 3 then
                             if cast.regrowth(br.friend[i].unit) then return end
@@ -460,10 +462,19 @@ local function runRotation()
         end
     -- Action List - DPS
         local function actionList_DPS()
-        -- Sunfire
-            if not cat and not debuff.sunfire.exists("target") then
-                if cast.sunfire("target") then return end
-            end
+        -- Guardian Affinity/Level < 45
+            if talent.guardianAffinity or level < 45 then
+            -- Sunfire
+                if not debuff.sunfire.exists(units.dyn40) then
+                    if cast.sunfire(units.dyn40) then return end
+                end
+            -- Moonfire
+                if not debuff.moonfire.exists(units.dyn40) then
+                    if cast.moonfire(units.dyn40) then return end
+                end
+            -- Solar Wrath
+                if cast.solarWrath() then return end
+            end 
         -- Feral Affinity
             if talent.feralAffinity then
             -- Cat form

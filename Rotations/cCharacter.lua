@@ -387,7 +387,7 @@ function cCharacter:new(class)
         br.ui:createCheckbox(section_base, "Mute Queue")
         br.ui:createDropdown(section_base, "Pause Mode", br.dropOptions.Toggle, 2, "Define a key which pauses the rotation.")
         br.ui:createCheckbox(section_base, "Use Crystal")
-        br.ui:createCheckbox(section_base, "Use emp. Rune")
+        br.ui:createDropdown(section_base, "Use emp. Rune", {"|cff00FF00Normal","|cffFF0000Raid Only"}, 1, "Use rune anytime or only in raids")
         br.ui:createCheckbox(section_base, "Use Racial")
         br.ui:checkSectionState(section_base)
     end
@@ -415,16 +415,34 @@ function cCharacter:new(class)
 	function self.useEmpoweredRune()
 		if self.options.useEmpoweredRune then
 			if self.level < 110 then
-				if getBuffRemain("player",self.augmentRune[self.primaryStat]) < 600 and not IsFlying() then
-					if self.faction == "Alliance" and self.level < 110 then
-						useItem(128482)
-					else 
-						useItem(128475)
+				if getOptionValue("Use emp. Rune") == 1 then
+					if getBuffRemain("player",self.augmentRune[self.primaryStat]) < 600 and not IsFlying() then
+						if self.faction == "Alliance" and self.level < 110 then
+							useItem(128482)
+						else 
+							useItem(128475)
+						end
+					end
+				end
+				if getOptionValue("Use emp. Rune") == 2 and br.player.instance=="raid" then
+					if getBuffRemain("player",self.augmentRune[self.primaryStat]) < 600 and not IsFlying() then
+						if self.faction == "Alliance" and self.level < 110 then
+							useItem(128482)
+						else 
+							useItem(128475)
+						end
 					end
 				end
 			elseif self.level >= 110 then
-				if getBuffRemain("player",224001) < 600 and not IsFlying() and not IsMounted() then
-					useItem(140587)
+				if getOptionValue("Use emp. Rune") == 1 then
+					if getBuffRemain("player",224001) < 600 and not IsFlying() and not IsMounted() then
+						useItem(140587)
+					end
+				end
+				if getOptionValue("Use emp. Rune") == 2 and br.player.instance=="raid" then
+					if getBuffRemain("player",224001) < 600 and not IsFlying() and not IsMounted() then
+						useItem(140587)
+					end
 				end
 			end
 		end

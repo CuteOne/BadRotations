@@ -217,6 +217,7 @@ function br.read.combatLog()
                 and SpellID ~= 88263      -- 88263
                 -- and SpellID ~= 172        -- Corruption
                 and SpellID ~= 8690         -- Hearthstone
+                and SpellID ~= 194279     -- Caltrop DoT
             then
                 local color = "|cff12C8FF"
                 local white = "|cffFFFFFF"

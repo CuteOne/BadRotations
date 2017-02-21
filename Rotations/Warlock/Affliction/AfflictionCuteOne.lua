@@ -601,7 +601,7 @@ local function runRotation()
                     end
         -- Agony
                     -- agony,cycle_targets=1,if=remains<=tick_time+gcd
-                    if debuff.agony.exists(lowestAgony) and debuff.agony.remain(lowestAgony) <= 3 + gcd then
+                    if debuff.agony.exists(lowestAgony) and debuff.agony.remain(lowestAgony) <= 2 + gcd then
                         if cast.agony(lowestAgony,"aoe") then return end
                     end
         -- Soul Effigy
@@ -614,15 +614,15 @@ local function runRotation()
                             local thisUnit = enemies.yards40[i]
                             if ObjectID(thisUnit) == 103679 then
                                 -- Agony
-                                if debuff.agony.remain(thisUnit) < 4 + gcd then
+                                if debuff.agony.remain(thisUnit) < 3 + gcd then
                                     if cast.agony(thisUnit,"aoe") then return end
                                 end
                                 -- Corruption
-                                if debuff.corruption.remain(thisUnit) < 3 + gcd then
+                                if debuff.corruption.remain(thisUnit) < 2 + gcd then
                                     if cast.corruption(thisUnit,"aoe") then return end
                                 end
                                 -- Siphon Life
-                                if debuff.siphonLife.remain(thisUnit) < 3 + gcd then
+                                if debuff.siphonLife.remain(thisUnit) < 2 + gcd then
                                     if cast.siphonLife(thisUnit,"aoe") then return end
                                 end
                             end
@@ -707,7 +707,7 @@ local function runRotation()
         -- Corruption
                     -- corruption,if=remains<=tick_time+gcd&(spell_targets.seed_of_corruption<3&talent.sow_the_seeds.enabled|spell_targets.seed_of_corruption<4)
                     if debuff.corruption.count() < getOptionValue("Multi-Dot Limit") + effigyCount and getHP(units.dyn40) > dotHPLimit then
-                        if debuff.corruption.remain(units.dyn40) <= 3 + gcd and ((#enemies.yards10t < 10 and talent.sowTheSeeds) or #enemies.yards10t < 4) then
+                        if debuff.corruption.remain(units.dyn40) <= 2 + gcd and ((#enemies.yards10t < 10 and talent.sowTheSeeds) or #enemies.yards10t < 4) then
                             if cast.corruption(units.dyn40,"aoe") then return end
                         end
                     end
@@ -726,7 +726,7 @@ local function runRotation()
                     -- siphon_life,if=remains<=tick_time+gcd
                     -- siphon_life,if=remains<=tick_time+gcd&(dot.unstable_affliction_1.ticking+dot.unstable_affliction_2.ticking+dot.unstable_affliction_3.ticking+dot.unstable_affliction_4.ticking+dot.unstable_affliction_5.ticking)<2
                     if debuff.siphonLife.count() < getOptionValue("Multi-Dot Limit") + effigyCount and getHP(units.dyn40) > dotHPLimit then
-                        if debuff.siphonLife.remain(units.dyn40) <= 3 + gcd and debuff.unstableAffliction.stack() < 2 then --(UA1 + UA2 + UA3 + UA4 + UA5) < 2 then
+                        if debuff.siphonLife.remain(units.dyn40) <= 2 + gcd and debuff.unstableAffliction.stack() < 2 then --(UA1 + UA2 + UA3 + UA4 + UA5) < 2 then
                             if cast.siphonLife(units.dyn40,"aoe") then return end
                         end
                     end
@@ -734,7 +734,7 @@ local function runRotation()
                     for i = 1, #enemies.yards40 do
                         local thisUnit = enemies.yards40[i]
                         if debuff.siphonLife.count() < getOptionValue("Multi-Dot Limit") + effigyCount and getHP(thisUnit) > dotHPLimit and isValidUnit(thisUnit) then
-                            if (not talent.maleficGrasp or not talent.soulEffigy) and debuff.siphonLife.remain(thisUnit) <= 3 + gcd then
+                            if (not talent.maleficGrasp or not talent.soulEffigy) and debuff.siphonLife.remain(thisUnit) <= 2 + gcd then
                                 if cast.siphonLife(thisUnit,"aoe") then return end
                             end
                         end
@@ -841,25 +841,34 @@ local function runRotation()
                             if cast.unstableAffliction(units.dyn40,"aoe") then return end
                         end
                         -- unstable_affliction,if=(!talent.sow_the_seeds.enabled|spell_targets.seed_of_corruption<3)&spell_targets.seed_of_corruption<4&talent.writhe_in_agony.enabled&(soul_shard>=4|trinket.proc.intellect.react|trinket.stack()ing_proc.mastery.react|trinket.proc.mastery.react|trinket.proc.crit.react|trinket.proc.versatility.react|buff.soul_harvest.remain()s|buff.deadwind_harvester.remain()s|buff.compounding_horror.react=5|target.time_to_die<=20)
-                        if talent.writheInAgony and (shards >= 3 - hasT19 or buff.soulHarvest.exists() or buff.deadwindHarvester.exists() or buff.compoundingHorror.stack() == 5
+                        if talent.writheInAgony and (shards >= 4 - hasT19 or buff.soulHarvest.exists() or buff.deadwindHarvester.exists() or buff.compoundingHorror.stack() == 5
                             or (ttd(units.dyn40) <= 20 and debuff.unstableAffliction.stack() < 1))
                         then
                             if cast.unstableAffliction(units.dyn40,"aoe") then return end
                         end
                         -- unstable_affliction,if=(!talent.sow_the_seeds.enabled|spell_targets.seed_of_corruption<3)&spell_targets.seed_of_corruption<4&talent.malefic_grasp.enabled&target.time_to_die<30
-                        if talent.maleficGrasp and (ttd(units.dyn40) < 30 and debuff.unstableAffliction.stack() < 1) then
+                        if talent.maleficGrasp and (ttd(units.dyn40) < 30 and debuff.unstableAffliction.stack() <= 2) then
                             if cast.unstableAffliction(units.dyn40,"aoe") then return end
                         end
                         -- unstable_affliction,if=(!talent.sow_the_seeds.enabled|spell_targets.seed_of_corruption<3)&spell_targets.seed_of_corruption<4&talent.malefic_grasp.enabled&(soul_shard=5|talent.contagion.enabled&soul_shard>=4)
-                        if talent.maleficGrasp and (shards >= 5 - hasT19 or (talent.contagion and shards >= 4 - hasT19)) then
+                        if talent.maleficGrasp and (shards > 3 - hasT19 or (talent.contagion and shards > 3 - hasT19)) then
                             if cast.unstableAffliction(units.dyn40,"aoe") then return end
                         end
                         -- unstable_affliction,if=(!talent.sow_the_seeds.enabled|spell_targets.seed_of_corruption<3)&spell_targets.seed_of_corruption<4&talent.malefic_grasp.enabled&!prev_gcd.3.unstable_affliction&dot.agony.remain()s>cast_time*3+6.5&(!talent.soul_effigy.enabled|pet.soul_effigy.dot.agony.remain()s>cast_time*3+6.5)&(dot.corruption.remain()s>cast_time+6.5|talent.absolute_corruption.enabled)&(dot.siphon_life.remain()s>cast_time+6.5|!talent.siphon_life.enabled)
                         if talent.maleficGrasp and debuff.unstableAffliction.stack() < 3 --(lastSpell ~= spell.unstableAffliction and not UA3)
                             and debuff.agony.remain(units.dyn40) > getCastTime(spell.unstableAffliction) * 3 + 6.5
                             and (not talent.soulEffigy or debuff.agony.remain("Soul Effigy") > getCastTime(spell.unstableAffliction) * 3 + 6.5)
-                            and (debuff.corruption.remain(units.dyn40) > getCastTime(spell.unstableAffliction) + 6.5 or talent.absoluteCorruption)
-                            and (debuff.siphonLife.remain(units.dyn40) > getCastTime(spell.unstableAffliction) + 6.5 or not talent.siphonLife)
+                            and (debuff.corruption.remain(units.dyn40) > getCastTime(spell.unstableAffliction) + 3 or talent.absoluteCorruption)
+                            and (debuff.siphonLife.remain(units.dyn40) > getCastTime(spell.unstableAffliction) + 3 or not talent.siphonLife)
+                        then
+                            if cast.unstableAffliction(units.dyn40,"aoe") then return end
+                        end
+						-- With Reap
+						 if talent.maleficGrasp and buff.deadwindHarvester.exists and debuff.unstableAffliction.stack() < 4 
+                            and debuff.agony.remain(units.dyn40) > getCastTime(spell.unstableAffliction) * 3 + 6.5
+                            and (not talent.soulEffigy or debuff.agony.remain("Soul Effigy") > getCastTime(spell.unstableAffliction) * 3 + 6.5)
+                            and (debuff.corruption.remain(units.dyn40) > getCastTime(spell.unstableAffliction) + 3 or talent.absoluteCorruption)
+                            and (debuff.siphonLife.remain(units.dyn40) > getCastTime(spell.unstableAffliction) + 3 or not talent.siphonLife)
                         then
                             if cast.unstableAffliction(units.dyn40,"aoe") then return end
                         end

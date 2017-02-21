@@ -389,7 +389,7 @@ local function runRotation()
                         end
                     end
         -- Death and Decay
-                    if (buff.crimsonScourge.exists() or level < 63) and (#enemies.yards8 > 1 or (#enemies.yards8 == 1 and talent.RapidDecomposition)) then
+                    if (buff.crimsonScourge.exists() or level < 63) and (#enemies.yards8 > 1 or (#enemies.yards8 == 1 and talent.rapidDecomposition)) then
                         if cast.deathAndDecay("best",false,#enemies.yards8,8) then return end
                     end
         -- Death Strike

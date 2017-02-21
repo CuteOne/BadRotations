@@ -145,6 +145,7 @@ function BadRotationsUpdate(self)
 	        if br.player ~= nil then
 				br.player:update()
 			end
+			ProfessionHelper()
 		end
 		-- br.debug.cpu.pulse.totalIterations = br.debug.cpu.pulse.totalIterations + 1
 		-- br.debug.cpu.pulse.currentTime = debugprofilestop()-startTime

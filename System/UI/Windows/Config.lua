@@ -59,18 +59,16 @@ function br.ui:createConfigWindow()
         br.ui:checkSectionState(section)
     end
 
-    -- local function callOtherFeaturesEngine()
-    --     -- Other Features
-    --     section = br.ui:createSection(br.ui.window.config, "Other Features")
-    --     br.ui:createSpinner(section, "Profession Helper", 0.5, 0, 1, 0.1, "Check to enable Professions Helper.", "Set Desired Recast Delay.")
-    --     br.ui:createDropdown(section, "Prospect Ores", {"WoD", "MoP", "Cata", "All"}, 1, "Prospect Desired Ores.")
-    --     br.ui:createDropdown(section, "Mill Herbs", {"WoD", "MoP", "Cata", "All"}, 1, "Mill Desired Herbs.")
-    --     br.ui:createCheckbox(section, "Disenchant", "Disenchant Cata blues/greens.")
-    --     br.ui:createCheckbox(section, "Leather Scraps", "Combine leather scraps.")
-    --     br.ui:createSpinner(section, "Salvage", 15, 5, 30, 1, "Check to enable Salvage Helper.", "Set Desired waiting after full inventory.")
-    --     br.ui:createCheckbox(section, "Use Drawer", "EXPERIMENTAL!")
-    --     br.ui:checkSectionState(section)
-    -- end
+    local function callOtherFeaturesEngine()
+        -- Other Features
+        section = br.ui:createSection(br.ui.window.config, "Other Features")
+        br.ui:createSpinner(section, "Profession Helper", 0.5, 0, 1, 0.1, "Check to enable Professions Helper.", "Set Desired Recast Delay.")
+        br.ui:createDropdown(section, "Prospect Ores", {"Legion","WoD", "MoP", "Cata", "All"}, 1, "Prospect Desired Ores.")
+        br.ui:createDropdown(section, "Mill Herbs", {"Legion","WoD", "MoP", "Cata", "All"}, 1, "Mill Desired Herbs.")
+        br.ui:createCheckbox(section, "Disenchant", "Disenchant Cata blues/greens.")
+        br.ui:createCheckbox(section, "Leather Scraps", "Combine leather scraps.")
+        br.ui:checkSectionState(section)
+    end
 
     -- Add Page Dropdown
     br.ui:createPagesDropdown(br.ui.window.config, {
@@ -86,10 +84,10 @@ function br.ui:createConfigWindow()
             [1] = "Healing Engine",
             [2] = callHealingEngine,
         },
-        -- {
-        --     [1] = "Other Features",
-        --     [2] = callOtherFeaturesEngine,
-        -- },
+        {
+            [1] = "Other Features",
+            [2] = callOtherFeaturesEngine,
+        },
     })
 
     br.ui:checkWindowStatus("config")

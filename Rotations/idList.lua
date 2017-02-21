@@ -689,6 +689,7 @@ br.idList = {
                 emeraldDreamcatcher         = 208190,
                 rejuvenation                = 774,
                 barkskin                    = 22812,
+                owlkinFrenzy                = 157228,
             },
             debuffs                         = {
                 stellarFlare                = 202347,
@@ -707,6 +708,7 @@ br.idList = {
                 astralCommunion             = 202359,
                 stellarDrift                = 202354,
                 warriorOfElune              = 202425,
+                soulOfTheForest             = 114107,
             },
         },
         -- All
