@@ -52,10 +52,6 @@ local function createOptions()
         section = br.ui:createSection(br.ui.window.profile, "Utility")
             --Purify
             br.ui:createCheckbox(section, "Purify")
-            --Boss helper at Xavius. Darkening Soul/Blackening Soul Helper
-            br.ui:createSpinner(section, "Darkening Soul/Blackening Soul Helper",  3,  0,  10,  1,  "|cffFFFFFFDebuff stack before dispel in Dream Simulacrum at Xavius. Default: 3")
-            --Blacklist The Eye of Il'gynoth
-            br.ui:createCheckbox(section, "Blacklist The Eye of Il'gynoth","|cffFFFFFFSo you don't waste the CD")
             --Body and Soul
             br.ui:createCheckbox(section, "Body and Soul")
             --Angelic Feather
@@ -148,8 +144,14 @@ local function createOptions()
         ------- COOLDOWNS -------
         -------------------------
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
+            --Blacklist The Eye of Il'gynoth
+            br.ui:createCheckbox(section, "Blacklist The Eye of Il'gynoth","|cffFFFFFFSo you don't waste the CD")
+            --Boss helper at Xavius. Darkening Soul/Blackening Soul Helper
+            br.ui:createSpinner(section, "Darkening Soul/Blackening Soul Helper",  3,  0,  10,  1,  "|cffFFFFFFDebuff stack before dispel in Dream Simulacrum at Xavius. Default: 3")
             --Disable CD during Speed: Slow on Chromatic Anomaly
-            br.ui:createCheckbox(section,"Disable CD during Speed: Slow","|cffFFFFFFDisable CD during Speed: Slow debuff on Chromatic Anomaly")
+            br.ui:createCheckbox(section, "Disable CD during Speed: Slow","|cffFFFFFFDisable CD during Speed: Slow debuff on Chromatic Anomaly")
+            --High Botanist Tel'arn Parasitic Fetter dispel helper. Dispel 10 feet from allies
+            br.ui:createCheckbox(section, "Parasitic Fetter Dispel Helper","|cffFFFFFFHigh Botanist Tel'arn Parasitic Fetter dispel helper")
             --Drink
             br.ui:createSpinner(section, "Drink",   50,  0,  100,  5,   "|cffFFFFFFMinimum mana to drink Ley-Enriched Water. Default: 50")
             --Pre Pot
@@ -276,7 +278,7 @@ local function runRotation()
                 atonementCount = atonementCount + 1
             end
         end
-        
+
         -- Mana percent
         powcent = power/powmax*100
         
@@ -364,7 +366,7 @@ local function runRotation()
                         if cast.rapture() then return end
                         if buff.rapture.exists("player") then
                             for i = 1, #br.friend do                           
-                                if not buff.powerWordShield.exists(br.friend[i].unit) then
+                                if not buff.powerWordShield.exists(br.friend[i].unit) and lastSpell ~= spell.powerWordShield then
                                     if mode.healer == 1 or mode.healer == 2 then
                                         if cast.powerWordShield(br.friend[i].unit) then return end     
                                     end
@@ -426,10 +428,10 @@ local function runRotation()
         function actionList_SpreadAtonement(friendUnit)
             --Spread Atonement
             if isChecked("Max Atonement") and atonementCount < getOptionValue("Max Atonement") and (not buff.powerWordShield.exists(friendUnit) or getBuffRemain(friendUnit, spell.buffs.atonement, "player") < 1) then
-                if getSpellCD(spell.powerWordShield) == 0 and not buff.powerWordShield.exists(friendUnit) then
+                if lastSpell ~= spell.powerWordShield and getSpellCD(spell.powerWordShield) == 0 and not buff.powerWordShield.exists(friendUnit) then
                     if cast.powerWordShield(friendUnit) then return end
                 end
-                if lastSpell ~= spell.plea and lastSpell ~= spell.powerWordShield and atonementCount < getOptionValue("Max Plea") and getBuffRemain(friendUnit, spell.buffs.atonement, "player") < 1 then
+                if lastSpell ~= spell.plea and atonementCount < getOptionValue("Max Plea") and not buff.powerWordShield.exists(friendUnit) and getBuffRemain(friendUnit, spell.buffs.atonement, "player") < 1 then
                     if cast.plea(friendUnit) then return end     
                 end
                 if lastSpell ~= spell.powerWordRadiance and atonementCount > getOptionValue("Max Plea") and getBuffRemain(friendUnit, spell.buffs.atonement, "player") < 1 then
@@ -550,9 +552,9 @@ local function runRotation()
                 end
             end
             --Power Word: Shield
-            if isChecked("Power Word: Shield") then
+            if isChecked("Power Word: Shield") and getSpellCD(spell.powerWordShield) == 0 then
                 for i = 1, #br.friend do
-                    if br.friend[i].hp <= getValue("Power Word: Shield") and not buff.powerWordShield.exists(br.friend[i].unit) then
+                    if br.friend[i].hp <= getValue("Power Word: Shield") and not buff.powerWordShield.exists(br.friend[i].unit) and lastSpell ~= spell.powerWordShield then
                         if mode.healer == 1 or mode.healer == 2 then
                             if cast.powerWordShield(br.friend[i].unit) then return end
                         end
@@ -582,22 +584,6 @@ local function runRotation()
                         if UnitIsPlayer(br.friend[i].unit) and UnitIsDeadOrGhost(br.friend[i].unit) and lastSpell ~= spell.resurrection then
                             if cast.resurrection(br.friend[i].unit) then return end
                         end
-                    end
-                end
-            end
-            --Atonement
-            if isChecked("Atonement HP") then
-                for i = 1, #br.friend do
-                    if br.friend[i].hp <= getValue("Atonement HP") then
-                        if mode.healer == 1 then
-                            actionList_SpreadAtonement(br.friend[i].unit)
-                        end
-                        if mode.healer == 3 and br.friend[i].unit == "player" then
-                            actionList_SpreadAtonement("player")
-                        end
-                    end
-                    if mode.healer == 2 then
-                        actionList_SpreadAtonement(br.friend[i].unit)
                     end
                 end
             end
@@ -640,6 +626,22 @@ local function runRotation()
                     end
                 end
             end
+            --Atonement
+            if isChecked("Atonement HP") then
+                for i = 1, #br.friend do
+                    if br.friend[i].hp <= getValue("Atonement HP") then
+                        if mode.healer == 1 then
+                            actionList_SpreadAtonement(br.friend[i].unit)
+                        end
+                        if mode.healer == 3 and br.friend[i].unit == "player" then
+                            actionList_SpreadAtonement("player")
+                        end
+                    end
+                    if mode.healer == 2 then
+                        actionList_SpreadAtonement(br.friend[i].unit)
+                    end
+                end
+            end
             --Purify
             if isChecked("Purify") then
                 for i = 1, #br.friend do
@@ -647,8 +649,13 @@ local function runRotation()
                         local buff,_,_,count,bufftype,duration = UnitDebuff(br.friend[i].unit, n)
                         if buff then
                             if (bufftype == "Curse" or bufftype == "Magic") and lastSpell ~= spell.purify then
+                                --High Botanist Tel'arn Parasitic Fetter dispel helper
+                                if isChecked("Parasitic Fetter Dispel Helper") and UnitDebuffID(br.friend[i].unit,218304) then
+                                    if #getAllies(br.friend[i].unit,10) < 2 then
+                                        if cast.purify(br.friend[i].unit) then return end
+                                    end
                                 --Xavius dispel helper
-                                if isChecked("Darkening Soul/Blackening Soul Helper") and (getDebuffStacks(br.friend[i].unit,206651) >= 1 or getDebuffStacks(br.friend[i].unit,209158) >= 1) then
+                                elseif isChecked("Darkening Soul/Blackening Soul Helper") and (getDebuffStacks(br.friend[i].unit,206651) >= 1 or getDebuffStacks(br.friend[i].unit,209158) >= 1) then
                                     local debuffStack = getValue("Darkening Soul/Blackening Soul Helper")
                                     if UnitDebuffID("player",206005) and (getDebuffStacks(br.friend[i].unit,206651) >= debuffStack or getDebuffStacks(br.friend[i].unit,209158) >= debuffStack) then
                                         if cast.purify(br.friend[i].unit) then return end
