@@ -302,7 +302,7 @@ local function runRotation()
         end
 
         -- stealth_condition,value=(combo_points.deficit>=2+2*(talent.ghostly_strike.enabled&!debuff.ghostly_strike.up)+buff.broadsides.up&energy>60&!buff.jolly_roger.up&!buff.hidden_blade.up&!buff.curse_of_the_dreadblades.up)
-        if ((comboDeficit >= 2 + (2 * gsBuff) + broadUp) and power > 58 and not buff.jollyRoger.exists() and not buff.hiddenBlade.exists() and not debuff.curseOfTheDreadblades.exists("player")) and not buff.stealth.exists() and not solo and isChecked("Vanish") and useCDs() and cd.vanish == 0 then
+        if (comboDeficit >= 2 + (2 * gsBuff) + broadUp) and power > 58 and not buff.jollyRoger.exists() and not buff.hiddenBlade.exists() and not debuff.curseOfTheDreadblades.exists("player") and not buff.stealth.exists() and not solo and isChecked("Vanish") and useCDs() and cd.vanish == 0 then
         --if (not solo or isDummy("target")) and inCombat and cd.vanish == 0 and not rtbReroll and ((comboDeficit >= 2 + 2 * gsBuff + broadUp) and power > 58 and (not buff.jollyRoger.exists() or buff.trueBearing.exists()) and not buff.hiddenBlade.exists() and not debuff.curseOfTheDreadblades["player"].exists()) then
             stealthable = true
         else
@@ -594,7 +594,7 @@ local function runRotation()
             end
         -- Vanish
             -- vanish,if=variable.stealth_condition
-            if isChecked("Vanish") and stealthable and isValidUnit("target") and getDistance("target") <= 5 then
+            if isChecked("Vanish") and (stealthable or (hasEquiped(144236) and buff.trueBearing.exists())) and isValidUnit("target") and getDistance("target") <= 5 then
                 if cast.vanish() then vanishTime = GetTime(); return end
             end
         -- Shadowmeld
