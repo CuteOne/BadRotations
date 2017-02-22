@@ -324,11 +324,11 @@ local function runRotation()
     -- Action List - Interrupts
         local function actionList_Interrupts()
             if useInterrupts() then
-                for i=1, #getEnemies("player",20) do
-                    thisUnit = getEnemies("player",20)[i]
+                for i=1, #getEnemies("player",50) do
+                    thisUnit = getEnemies("player",50)[i]
                     distance = getDistance(thisUnit)
                     if canInterrupt(thisUnit,getOptionValue("Interrupts")) then
-                        if distance < 5 then
+                        if distance < 50 then
         -- Counter Shot
                             if isChecked("Counter Shot") then
                                 if cast.counterShot(thisUnit) then return end
