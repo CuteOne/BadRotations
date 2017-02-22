@@ -557,6 +557,26 @@ local function runRotation()
         end -- End Action List - Way of the Moknathal
     -- Action List - No of the MokNathal
         local function actionList_NoOfTheMokNathal()
+        -- Carve
+            -- carve,if=equipped.frizzos_fingertrap&dot.lacerate.ticking&dot.lacerate.refreshable&focus>65&buff.mongoose_fury.remains>=gcd
+            if hasEquiped(137043) and debuff.lacerate.exists() and debuff.lacerate.refresh(units.dyn5) and power > 65 and buff.mongooseFury.remain() >= gcd then
+                if cast.carve() then return end
+            end
+        -- Butchery
+            -- butchery,if=equipped.frizzos_fingertrap&dot.lacerate.ticking&dot.lacerate.refreshable&focus>65&buff.mongoose_fury.remains>=gcd
+            if hasEquiped(137043) and debuff.lacerate.exists() and debuff.lacerate.refresh(units.dyn5) and power > 65 and buff.mongooseFury.remain() >= gcd then
+                if cast.butchery() then return end
+            end
+        -- Butchery
+            -- butchery,if=active_enemies>1&focus>65-buff.moknathal_tactics.remains*focus.regen&(buff.mongoose_fury.down|buff.mongoose_fury.remains>gcd*cooldown.mongoose_bite.charges)
+            if ((mode.rotation == 1 and #enemies.yards5 > 1) or mode.rotation == 2) then
+                if cast.butchery() then return end
+            end
+        -- Carve
+            -- carve,if=active_enemies>1&focus>65-buff.moknathal_tactics.remains*focus.regen&(buff.mongoose_fury.down&focus>65-buff.moknathal_tactics.remains*focus.regen|buff.mongoose_fury.remains>gcd*cooldown.mongoose_bite.charges&focus>70-buff.moknathal_tactics.remains*focus.regen)
+            if ((mode.rotation == 1 and #enemies.yards5 > 1) or mode.rotation == 2) then
+                if cast.carve() then return end
+            end
         -- Spitting Cobra
             -- spitting_cobra,if=buff.mongoose_fury.duration>=gcd&cooldown.mongoose_bite.charges>=0&buff.mongoose_fury.stack<4
             if buff.mongooseFury.duration() >= gcd and charges.mongooseBite >= 0 and buff.mongooseFury.stack() < 4 then
@@ -586,16 +606,6 @@ local function runRotation()
             -- flanking_strike,if=cooldown.mongoose_bite.charges<=1&buff.aspect_of_the_eagle.remains>=gcd
             if charges.mongooseBite <= 1 and buff.aspectOfTheEagle.remain() >= gcd then
                 if cast.flankingStrike() then return end
-            end
-        -- Carve
-            -- carve,if=equipped.frizzos_fingertrap&dot.lacerate.ticking&dot.lacerate.refreshable&focus>65&buff.mongoose_fury.remains>=gcd
-            if hasEquiped(137043) and debuff.lacerate.exists() and debuff.lacerate.refresh(units.dyn5) and power > 65 and buff.mongooseFury.remain() >= gcd then
-                if cast.carve() then return end
-            end
-        -- Butchery
-            -- butchery,if=equipped.frizzos_fingertrap&dot.lacerate.ticking&dot.lacerate.refreshable&focus>65&buff.mongoose_fury.remains>=gcd
-            if hasEquiped(137043) and debuff.lacerate.exists() and debuff.lacerate.refresh(units.dyn5) and power > 65 and buff.mongooseFury.remain() >= gcd then
-                if cast.butchery() then return end
             end
         -- Lacerate
             -- lacerate,if=buff.mongoose_fury.duration>=gcd&refreshable&cooldown.mongoose_bite.charges=0&buff.mongoose_fury.stack<2|buff.mongoose_fury.down&cooldown.mongoose_bite.charges<3&refreshable
