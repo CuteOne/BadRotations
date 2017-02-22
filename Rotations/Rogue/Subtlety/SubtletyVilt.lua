@@ -510,7 +510,7 @@ local function runRotation()
             for i=1, #enemies.yards5 do
                 local thisUnit = enemies.yards5[i]
                 if getDistance(thisUnit) <= 5 then
-                    if ttd(thisUnit) >= getOptionValue("Nightblade Multidot") and ((debuff.nightblade.refresh(thisUnit) and (not artifact.finality or buff.finalityNightblade.exists())) or debuff.nightblade.remain(thisUnit) < 2) then
+                    if ttd(thisUnit) >= getOptionValue("Nightblade Multidot") and ((debuff.nightblade.refresh(thisUnit) and (not artifact.finality or buff.finalityNightblade.exists())) or debuff.nightblade.remain(thisUnit) < 3) then
                         if cast.nightblade(thisUnit) then return end
                     end
                 end
