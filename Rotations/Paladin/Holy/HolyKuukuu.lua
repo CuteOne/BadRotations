@@ -74,6 +74,7 @@ local function createOptions()
         section = br.ui:createSection(br.ui.window.profile, "Single Target Healing")
             --Flash of Light
             br.ui:createSpinner(section, "Flash of Light",  30,  0,  100,  5,  "Health Percent to Cast At")
+            br.ui:createDropdownWithout(section, "FoL Infuse", {"|cffFFFFFFNormal","|cffFFFFFFOnly Infuse"}, 1, "|cffFFFFFFOnly Use Infusion Procs.")
             --Holy Light
             br.ui:createSpinner(section, "Holy Light",  85,  0,  100,  5,  "Health Percent to Cast At")
             br.ui:createDropdownWithout(section, "Holy Light Infuse", {"|cffFFFFFFNormal","|cffFFFFFFOnly Infuse"}, 1, "|cffFFFFFFOnly Use Infusion Procs.")
@@ -544,7 +545,7 @@ local function runRotation()
                 end
             end
             -- Flash of Light
-            if isChecked("Flash of Light") then
+            if isChecked("Flash of Light") and (getOptionValue("FOL Infuse") == 1 or (getOptionValue("FoL Infuse") == 2 and buff.infusionOfLight.exists("player"))) then
                 for i = 1, #br.friend do
                     if br.friend[i].hp <= getValue("Flash of Light") then
                         if cast.flashOfLight(br.friend[i].unit) then return end
