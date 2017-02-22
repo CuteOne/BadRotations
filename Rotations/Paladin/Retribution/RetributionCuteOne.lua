@@ -467,7 +467,7 @@ local function runRotation()
                         end
             -- Divine Hammer
                         -- divine_hammer,if=time<2&(equipped.137048|race.blood_elf)
-                        if talent.divineHammer and (hasEquiped(137048) or race == "BloodElf") and ((mode.rotation == 1 and #enemies.yards8 >= getOptionValue("Divine Storm Units")) or mode.rotation == 2) then
+                        if talent.divineHammer and (hasEquiped(137048) or race == "BloodElf") then
                             if cast.divineHammer() then return end
                         end
             -- Wake of Ashes
@@ -588,11 +588,11 @@ local function runRotation()
                     end
             -- Divine Hammer
                     -- divine_hammer,if=holy_power<=3&buff.whisper_of_the_nathrezim.up&buff.whisper_of_the_nathrezim.remain()s>gcd&buff.whisper_of_the_nathrezim.remain()s<gcd*3&debuff.judgment.up&debuff.judgment.remain()s>gcd*2
-                    if ((mode.rotation == 1 and #enemies.yards8 >= getOptionValue("Divine Storm Units")) or mode.rotation == 2) then
+                    -- if ((mode.rotation == 1 and #enemies.yards8 >= getOptionValue("Divine Storm Units")) or mode.rotation == 2) then
                         if talent.divineHammer and holyPower <= 3 and buff.whisperOfTheNathrezim.exists() and buff.whisperOfTheNathrezim.remain() > gcd and buff.whisperOfTheNathrezim.remain() < gcd * 3 and judgmentVar and debuff.judgment.remain(units.dyn5) > gcd * 2 then
                             if cast.divineHammer() then return end
                         end
-                    end
+                    -- end
             -- Blade of Justice
                     -- blade_of_justice,if=talent.blade_of_wrath.enabled&holy_power<=3
                     if talent.bladeOfWrath and holyPower <= 3 then
@@ -615,11 +615,11 @@ local function runRotation()
                     end
             -- Divine Hammer
                     -- divine_hammer,if=holy_power<=2|(holy_power<=3&(cooldown.zeal.charges_fractional<=1.34|cooldown.crusader_strike.charges_fractional<=1.34))
-                    if ((mode.rotation == 1 and #enemies.yards8 >= getOptionValue("Divine Storm Units")) or mode.rotation == 2) then
+                    -- if ((mode.rotation == 1 and #enemies.yards8 >= getOptionValue("Divine Storm Units")) or mode.rotation == 2) then
                         if talent.divineHammer and holyPower <= 2 or (holyPower <= 3 and (charges.frac.zeal <= 1.34 or charges.frac.crusaderStrike <= 1.34)) then
                             if cast.divineHammer() then return end
                         end
-                    end
+                    -- end
             -- Judgement
                     -- judgment,if=holy_power>=3|((cooldown.zeal.charges_fractional<=1.67|cooldown.crusader_strike.charges_fractional<=1.67)&(cooldown.divine_hammer.remain()s>gcd|cooldown.blade_of_justice.remain()s>gcd))|(talent.greater_judgment.enabled&target.health.pct>50)
                     if holyPower >= 3 or ((charges.frac.zeal <= 1.67 or charges.frac.crusaderStrike <= 1.67) and (cd.divineHammer > gcd or cd.bladeOfJustice > gcd))
