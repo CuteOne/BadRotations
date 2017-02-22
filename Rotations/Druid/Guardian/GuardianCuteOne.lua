@@ -597,23 +597,6 @@ local function runRotation()
                     end
         -- Lunar Beam
                     if cast.lunarBeam() then return end
-        -- -- Pulverize
-        --             if talent.pulverize then
-        --                 for i = 1, #enemies.yards5 do
-        --                     local thisUnit = enemies.yards5[i]
-        --                     if buff.pulverize.remain() < 3.6 and debuff.thrash.stack(thisUnit) >= 2 then
-        --                         if cast.pulverize(thisUnit) then return end
-        --                     end
-        --                 end
-        --             end
-        -- -- Thrash
-        --             if talent.pulverize and buff.pulverize.remain() < 3.6 then
-        --                 if cast.thrash() then return end
-        --             end
-        -- -- Thrash
-        --             if #enemies.yards8 > 0 then
-        --                 if cast.thrash() then return end
-        --             end
         -- Moonfire
                     if ((mode.rotation == 1 and #enemies.yards8 > 1) or mode.rotation == 2) then
                         if #enemies.yards40 < 4 then

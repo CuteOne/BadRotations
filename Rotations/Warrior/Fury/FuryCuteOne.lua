@@ -375,10 +375,10 @@ local function runRotation()
         -- Trinkets
                 -- use_item,slot=trinket1,if=buff.battle_cry.up&buff.enrage.up
                 if isChecked("Trinkets") and buff.battleCry.exists() and buff.enrage.exists() then
-                    if canUse(13) then
+                    if canUse(13) and not hasEquiped(140808) then
                         useItem(13)
                     end
-                    if canUse(14) then
+                    if canUse(14) and not hasEquiped(140808) then
                         useItem(14)
                     end
                 end
