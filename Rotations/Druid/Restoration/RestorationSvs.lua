@@ -49,6 +49,7 @@ local function createOptions()
         local section
     -- General Options
         section = br.ui:createSection(br.ui.window.profile, "General")
+            br.ui:createCheckbox(section,"OOC Healing","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFout of combat healing.|cffFFBB00.")
         -- Travel Shapeshifts
             br.ui:createCheckbox(section,"Auto Shapeshifts","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFAuto Shapeshifting to best form for situation.|cffFFBB00.")
         -- Break Crowd Control
@@ -564,7 +565,9 @@ local function runRotation()
 ---------------------------------
             if not inCombat and not IsMounted() and getBuffRemain("player", 192002 ) < 10 then
                 actionList_Extras()
-                actionList_PreCombat()
+                if isChecked("OOC Healing") then
+                    actionList_PreCombat()
+                end
             end -- End Out of Combat Rotation
 -----------------------------
 --- In Combat - Rotations --- 
