@@ -49,11 +49,11 @@ local function createOptions()
         local section
     -- General Options
         section = br.ui:createSection(br.ui.window.profile, "General")
-            br.ui:createCheckbox(section,"OOC Healing","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFout of combat healing.|cffFFBB00.")
+            br.ui:createCheckbox(section,"OOC Healing","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFout of combat healing|cffFFBB00.")
         -- Travel Shapeshifts
-            br.ui:createCheckbox(section,"Auto Shapeshifts","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFAuto Shapeshifting to best form for situation.|cffFFBB00.")
+            br.ui:createCheckbox(section,"Auto Shapeshifts","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFAuto Shapeshifting to best form for situation|cffFFBB00.")
         -- Break Crowd Control
-            br.ui:createCheckbox(section,"Break Crowd Control","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFAuto Shapeshifting to break crowd control.|cffFFBB00.")
+            br.ui:createCheckbox(section,"Break Crowd Control","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFAuto Shapeshifting to break crowd control|cffFFBB00.")
         br.ui:checkSectionState(section)
     -- Cooldown Options
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
@@ -64,14 +64,14 @@ local function createOptions()
         -- Trinkets
             br.ui:createCheckbox(section,"Trinkets")
         --Incarnation: Tree of Life
-            br.ui:createSpinner(section, "Incarnation: Tree of Life",  50,  0,  100,  5,  "Health Percent to Cast At") 
+            br.ui:createSpinner(section, "Incarnation: Tree of Life",  60,  0,  100,  5,  "Health Percent to Cast At") 
             br.ui:createSpinner(section, "Incarnation: Tree of Life Targets",  3,  0,  40,  1,  "Minimum Flourish Targets")
+-- Tranquility
+            br.ui:createSpinner(section, "Tranquility",  50,  0,  100,  5,  "Health Percent to Cast At") 
+            br.ui:createSpinner(section, "Tranquility Targets",  3,  0,  40,  1,  "Minimum Tranquility Targets")
         -- Flourish
             br.ui:createSpinner(section, "Flourish",  80,  0,  100,  5,  "Health Percent to Cast At") 
             br.ui:createSpinner(section, "Flourish Targets",  3,  0,  40,  1,  "Minimum Flourish Targets")
-        -- Tranquility
-            br.ui:createSpinner(section, "Tranquility",  60,  0,  100,  5,  "Health Percent to Cast At") 
-            br.ui:createSpinner(section, "Tranquility Targets",  3,  0,  40,  1,  "Minimum Tranquility Targets")
         br.ui:checkSectionState(section)
     -- Defensive Options
         section = br.ui:createSection(br.ui.window.profile, "Defensive")
@@ -81,22 +81,22 @@ local function createOptions()
         -- Healthstone
             br.ui:createSpinner(section, "Healthstone",  30,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
         -- Heirloom Neck
-            br.ui:createSpinner(section, "Heirloom Neck",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.");
+            br.ui:createSpinner(section, "Heirloom Neck",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at");
         -- Barkskin
-            br.ui:createSpinner(section, "Barkskin",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.");
+            br.ui:createSpinner(section, "Barkskin",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at");
         br.ui:checkSectionState(section)
     -- Healing Options
         section = br.ui:createSection(br.ui.window.profile, "Healing")
         -- Efflorescence
-            br.ui:createCheckbox(section,"Efflorescence","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFEfflorescence usage.|cffFFBB00.")
-            br.ui:createSpinner(section, "Efflorescence recast delay",  15,  8,  29,  2,  "|cffFFFFFFDelay to recast Efflo in seconds")
+            br.ui:createCheckbox(section,"Efflorescence","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFEfflorescence usage|cffFFBB00.")
+            br.ui:createSpinner(section, "Efflorescence recast delay", 15, 8, 29, 2, "|cffFFFFFFDelay to recast Efflo in seconds|cffFFBB00.","", true)
         -- Lifebloom
-            br.ui:createCheckbox(section,"Lifebloom","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFLifebloom usage.|cffFFBB00.")
+            br.ui:createCheckbox(section,"Lifebloom","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFLifebloom usage|cffFFBB00.")
         -- Cenarion Ward
             br.ui:createSpinner(section, "Cenarion Ward",  70,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
         -- Rejuvenaion
             br.ui:createSpinner(section, "Rejuvenation",  90,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
-            br.ui:createSpinner(section, "Max Rejuvenation Targets",  10,  0,  20,  1,  "|cffFFFFFFMaximum Rejuvenation Targets")
+            br.ui:createSpinner(section, "Max Rejuvenation Targets",  10,  0,  20,  1,  "|cffFFFFFFMaximum Rejuvenation Targets","", true)
         -- Germination
             br.ui:createSpinner(section, "Germination",  70,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
         -- Regrowth
@@ -104,7 +104,7 @@ local function createOptions()
         -- Regrowth Clearcasting
             br.ui:createSpinner(section, "Regrowth Clearcasting",  80,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
         -- Regrowth on tank
-            br.ui:createCheckbox(section,"Keep Regrowth on tank","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFRegrowth usage.|cffFFBB00.")
+            br.ui:createCheckbox(section,"Keep Regrowth on tank","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFRegrowth usage|cffFFBB00.")
         -- Swiftmend
             br.ui:createSpinner(section, "Swiftmend",  60,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
         -- Healing Touch
