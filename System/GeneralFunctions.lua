@@ -35,7 +35,7 @@ function GetObjectIndex(Index)
 end
 function GetObjectCountBR()
 	if FireHack then
-    	return objectCount
+    	return GetObjectCount()
     else
     	return 0
     end

@@ -2,7 +2,7 @@
 --|Am I Fighting Helya?|--
 --+--------------------+--
 function isBadRotationsHelya()
-  for i = 1, objectCount do
+  for i = 1, GetObjectCount() do
     local name = ObjectName(ObjectWithIndex(i))
     local object = ObjectWithIndex(i)
     if name == "Helya" and ObjectExists(object) then

@@ -80,7 +80,6 @@ function EnemiesEngine()
 	--[[------------------------------------------------------------------------------------------------------------------]]
 	--[[------------------------------------------------------------------------------------------------------------------]]
 	--[[------------------------------------------------------------------------------------------------------------------]]
-	objectCount = GetObjectCountBR()
 	function makeEnemiesTable()
 		--local LibDraw = LibStub("LibDraw-1.0")
 		-- DEBUG
@@ -91,8 +90,8 @@ function EnemiesEngine()
         br.debug.cpu.enemiesEngine.sanityTargets = 0
         br.debug.cpu.enemiesEngine.unitTargets = 0
         -- Build Enemies
-		if FireHack ~= nil then
-	        for i = 1, objectCount do
+		if FireHack ~= nil and GetObjectCount() > 0 then
+	        for i = 1, GetObjectCount() do
 				-- define our unit
 	            local thisUnit = GetObjectWithIndex(i)
 				-- check if it a unit first
@@ -281,7 +280,7 @@ function EnemiesEngine()
 		local minX = math.min(nrX,nlX,frX,flX)
 		local maxY = math.max(nrY,nlY,frY,flY)
 		local minY = math.min(nrY,nlY,frY,flY)
-		for i = 1, objectCount do
+		for i = 1, GetObjectCount() do
             local thisUnit = GetObjectWithIndex(i)
             if ObjectIsType(thisUnit, ObjectTypes.Unit) and isDummy(thisUnit) then
 				local tX, tY, tZ = GetObjectPosition(thisUnit)

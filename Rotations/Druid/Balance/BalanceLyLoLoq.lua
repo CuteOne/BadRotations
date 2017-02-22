@@ -1221,7 +1221,7 @@ local function runRotation()
         end
 
         local function deadlyChicken()
-            for i = 1, objectCount do
+            for i = 1, GetObjectCount() do
                 -- define our unit
                 local thisUnit = GetObjectWithIndex(i)
                 -- check if it a unit first
