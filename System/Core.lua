@@ -112,7 +112,6 @@ function BadRotationsUpdate(self)
 			if FireHack ~= nil then
 				if br.data.settings[br.selectedSpec].toggles["Power"] ~= nil and br.data.settings[br.selectedSpec].toggles["Power"] ~= 1 then
 					br.ui:closeWindow("all")
-					-- br.ui:closeWindow("profile")
 					return false
 				end
 			end

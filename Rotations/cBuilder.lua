@@ -270,6 +270,7 @@ function br.loader:new(spec,specName)
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
                     if thisUnit == "best" then
+                        -- print("Casting "..spellName..", EffRng: "..effectRng..", minUnits "..minUnits..", maxRange "..maxRange..", minRange "..minRange)
                         return castGroundAtBestLocation(spellCast,effectRng,minUnits,maxRange,minRange,debug)
                     elseif debug == "ground" then
                         if getLineOfSight(thisUnit) then
