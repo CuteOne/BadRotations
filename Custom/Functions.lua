@@ -78,19 +78,21 @@ function castGroundAtBestLocation(spellID, radius, minUnits, maxRange, minRange,
 	-- for i=1,#unitTable do
 
 	for k, v in pairs(unitTable) do
-		local thisUnit = unitTable[k].unit
-		local thisDistance = getDistance(thisUnit)
-		local hasThreat = isValidUnit(thisUnit) or UnitIsFriend(thisUnit,"player") --hasThreat(br.enemy[i].unit)
-		if isNotBlacklisted(thisUnit) then
-			-- Print("blacklist passed")
-			if thisDistance < maxRange and thisDistance >= minRange and hasThreat then
-				-- Print("distance passed")
-				if not UnitIsDeadOrGhost(thisUnit) and (getFacing("player",thisUnit) or UnitIsUnit(thisUnit,"player")) and getLineOfSight(thisUnit) and not isMoving(thisUnit) then
-					-- Print("ghost passed")
-					if UnitAffectingCombat(thisUnit) or (spellType == "heal" and getHP(thisUnit) < 90) or isDummy(thisUnit) then
-						-- Print("combat and dummy passed")
-						table.insert(allUnitsInRange,thisUnit)
-						-- Print("insert end")
+		if (type(k) == "number" and spellType == "heal") or spellType == nil then 
+			local thisUnit = unitTable[k].unit
+			local thisDistance = getDistance(thisUnit)
+			local hasThreat = isValidUnit(thisUnit) or UnitIsFriend(thisUnit,"player") --hasThreat(br.enemy[i].unit)
+			if isNotBlacklisted(thisUnit) then
+				-- Print("blacklist passed")
+				if thisDistance < maxRange and thisDistance >= minRange and hasThreat then
+					-- Print("distance passed")
+					if not UnitIsDeadOrGhost(thisUnit) and (getFacing("player",thisUnit) or UnitIsUnit(thisUnit,"player")) and getLineOfSight(thisUnit) and not isMoving(thisUnit) then
+						-- Print("ghost passed")
+						if UnitAffectingCombat(thisUnit) or (spellType == "heal" and getHP(thisUnit) < 90) or isDummy(thisUnit) then
+							-- Print("combat and dummy passed")
+							table.insert(allUnitsInRange,thisUnit)
+							-- Print("insert end")
+						end
 					end
 				end
 			end
