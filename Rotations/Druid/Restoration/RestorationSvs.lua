@@ -87,8 +87,7 @@ local function createOptions()
     -- Healing Options
         section = br.ui:createSection(br.ui.window.profile, "Healing")
         -- Efflorescence
-            br.ui:createDropdown(section,"Efflorescence", br.dropOptions.Toggle, 6, "Set auto usage (No Hotkey) or desired hotkey to use Efflorescence.")
-            --br.ui:createDropdownWithout(section,"Efflorescence - Target",{"Best","Target"},1,"Desired Target of Efflorescence")
+            br.ui:createCheckbox(section,"Efflorescence","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFEfflorescence usage.|cffFFBB00.")
         -- Lifebloom
             br.ui:createCheckbox(section,"Lifebloom","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFLifebloom usage.|cffFFBB00.")
         -- Cenarion Ward
@@ -102,6 +101,8 @@ local function createOptions()
             br.ui:createSpinner(section, "Regrowth",  80,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
         -- Regrowth Clearcasting
             br.ui:createSpinner(section, "Regrowth Clearcasting",  80,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
+        -- Regrowth on tank
+            br.ui:createCheckbox(section,"Keep Regrowth on tank","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFRegrowth usage.|cffFFBB00.")
         -- Swiftmend
             br.ui:createSpinner(section, "Swiftmend",  60,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
         -- Healing Touch
@@ -238,10 +239,6 @@ local function runRotation()
         end -- End Action List - Extras
         -- Action List - Pre-Combat
         function actionList_PreCombat()
-            -- Efflorescence
-                if isChecked("Efflorescence") and (getOptionValue("Efflorescence") == 6 or (SpecificToggle("Efflorescence") and not GetCurrentKeyBoardFocus())) then
-                    if cast.efflorescence("mouseover","ground") then return end
-                end
             -- Rejuvenation
             if isChecked("Rejuvenation") then
                 rejuvCount = 0
@@ -407,7 +404,7 @@ local function runRotation()
                 for i = 1, #br.friend do
                     if br.friend[i].hp <= getValue("Regrowth Clearcasting") and buff.clearcasting.exists() then
                         if cast.regrowth(br.friend[i].unit) then return end
-                    elseif buff.lifebloom.exists(br.friend[i].unit) and buff.regrowth.remain(br.friend[i].unit) <= 1 then
+                    elseif isChecked("Keep Regrowth on tank") and buff.lifebloom.exists(br.friend[i].unit) and buff.regrowth.remain(br.friend[i].unit) <= 1 then
                         if cast.regrowth(br.friend[i].unit) then return end
                     elseif br.friend[i].hp <= getValue("Regrowth") and buff.regrowth.remain(br.friend[i].unit) <= 1 then
                         if talent.abundance and buff.abundance.stack() < 3 then
@@ -610,8 +607,12 @@ local function runRotation()
                     end
                 end
             -- Efflorescence
-                if isChecked("Efflorescence") and (getOptionValue("Efflorescence") == 6 or (SpecificToggle("Efflorescence") and not GetCurrentKeyBoardFocus())) then
-                    if cast.efflorescence("mouseover","ground") then return end
+                if isChecked("Efflorescence") and (not LastEfflorescenceTime or GetTime() - LastEfflorescenceTime > 8) then --and (getOptionValue("Efflorescence") == 6 or (SpecificToggle("Efflorescence") and not GetCurrentKeyBoardFocus()))
+                    -- castGroundAtBestLocation(spellID, radius, minUnits, maxRange, minRange, spellType)
+                    if castGroundAtBestLocation(spell.efflorescence, 20, 0, 40, 0, "heal") then
+                        LastEfflorescenceTime = GetTime()
+                        return 
+                    end
                 end
                 actionList_Cooldowns()
                 actionList_AOEHealing()
