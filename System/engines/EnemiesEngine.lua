@@ -90,8 +90,9 @@ function EnemiesEngine()
         br.debug.cpu.enemiesEngine.sanityTargets = 0
         br.debug.cpu.enemiesEngine.unitTargets = 0
         -- Build Enemies
-		if FireHack ~= nil and GetObjectCount() > 0 then
-	        for i = 1, GetObjectCount() do
+        local objectCount = GetObjectCount()
+		if FireHack ~= nil and objectCount > 0 then
+	        for i = 1, objectCount do
 				-- define our unit
 	            local thisUnit = GetObjectWithIndex(i)
 				-- check if it a unit first
@@ -280,7 +281,8 @@ function EnemiesEngine()
 		local minX = math.min(nrX,nlX,frX,flX)
 		local maxY = math.max(nrY,nlY,frY,flY)
 		local minY = math.min(nrY,nlY,frY,flY)
-		for i = 1, GetObjectCount() do
+		local objectCount = GetObjectCount()
+		for i = 1, objectCount do
             local thisUnit = GetObjectWithIndex(i)
             if ObjectIsType(thisUnit, ObjectTypes.Unit) and isDummy(thisUnit) then
 				local tX, tY, tZ = GetObjectPosition(thisUnit)
