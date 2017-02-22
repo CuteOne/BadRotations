@@ -89,6 +89,7 @@ local function createOptions()
         section = br.ui:createSection(br.ui.window.profile, "Healing")
         -- Efflorescence
             br.ui:createCheckbox(section,"Efflorescence","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFEfflorescence usage.|cffFFBB00.")
+            br.ui:createSpinner(section, "Efflorescence recast delay",  15,  8,  29,  2,  "|cffFFFFFFDelay to recast Efflo in seconds")
         -- Lifebloom
             br.ui:createCheckbox(section,"Lifebloom","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFLifebloom usage.|cffFFBB00.")
         -- Cenarion Ward
@@ -610,7 +611,7 @@ local function runRotation()
                     end
                 end
             -- Efflorescence
-                if isChecked("Efflorescence") and (not LastEfflorescenceTime or GetTime() - LastEfflorescenceTime > 8) then --and (getOptionValue("Efflorescence") == 6 or (SpecificToggle("Efflorescence") and not GetCurrentKeyBoardFocus()))
+                if isChecked("Efflorescence") and (not LastEfflorescenceTime or GetTime() - LastEfflorescenceTime > getOptionValue("Efflorescence recast delay")) then
                     -- castGroundAtBestLocation(spellID, radius, minUnits, maxRange, minRange, spellType)
                     if castGroundAtBestLocation(spell.efflorescence, 20, 0, 40, 0, "heal") then
                         LastEfflorescenceTime = GetTime()
