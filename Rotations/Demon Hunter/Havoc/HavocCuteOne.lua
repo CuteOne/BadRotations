@@ -284,7 +284,7 @@ local function runRotation()
         -- Glide
             if isChecked("Glide") then
                 if falling >= getOptionValue("Glide") then
-                    if cast.glide() then return end
+                    if cast.glide("player") then return end
                 end
             end
 		end -- End Action List - Extras

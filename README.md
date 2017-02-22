@@ -1,4 +1,4 @@
-# BadRotations
+De BadRotations
 
 ## Patch 7.0+
 
@@ -295,7 +295,7 @@ CuteOne |  Full   | 7.1.5 |   100% | :white_check_mark:
 
 author | support | patch | status |     raidable?
 :----- | :-----: | :---: | -----: | :----------------:
-Svs    |  Full   | 7.1.5 |    90% | :heavy_check_mark:
+Svs    |  Full   | 7.1.5 |    100% | :white_check_mark:
 
 ### Warlock
 
@@ -311,7 +311,7 @@ author  | support | patch | status |     raidable?
 :------ | :-----: | :---: | -----: | :----------------:
 CuteOne |  Full   | 7.1.5 |   100% | :white_check_mark:
 
-- Destrustruction
+- Destruction
 
 author  | support | patch | status |     raidable?
 :------ | :-----: | :---: | -----: | :----------------:

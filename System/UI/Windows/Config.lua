@@ -9,8 +9,9 @@ function br.ui:createConfigWindow()
         -- General
         section = br.ui:createSection(br.ui.window.config, "General")
         -- As you should use the toggle to stop, i (defmaster) just activated this toggle default and made it non interactive
-        local startStop = br.ui:createCheckbox(section, "Start/Stop BadRotations", "Uncheck to prevent BadRotations pulsing.");
+        local startStop = br.ui:createCheckbox(section, "Start/Stop BadRotations", "Toggle this option from the Toggle Bar (Shift Left Click on the Minimap Icon.");
         startStop:SetChecked(true); br.data.settings[br.selectedSpec][br.selectedProfile]["Start/Stop BadRotationsCheck"] = true; startStop.frame:Disable()
+        -- br.ui:createCheckbox(section, "Start/Stop BadRotations", "Uncheck to prevent BadRotations pulsing.");
         rotationLog = br.ui:createCheckbox(section, "Rotation Log", "Display Rotation Log.");
         -- br.ui:createCheckbox(section, "Rotation Log", "Display Rotation Log.")
         br.ui:createCheckbox(section, "Display Failcasts", "Dispaly Failcasts in Debug.")
@@ -19,6 +20,7 @@ function br.ui:createConfigWindow()
         br.ui:createCheckbox(section, "Auto-Sell/Repair", "Automatically sells grays and repairs when you open a repair vendor.")
         br.ui:createCheckbox(section, "Accept Queues", "Automatically accept LFD, LFR, .. queue.")
         br.ui:createCheckbox(section, "Overlay Messages", "Check to enable chat overlay messages.")
+        br.ui:createCheckbox(section, "Reset Options", "|cffFF0000 WARNING!|cffFFFFFF Checking this will reset setting on reload!")
         br.ui:checkSectionState(section)
     end
 

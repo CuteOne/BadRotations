@@ -107,8 +107,7 @@ local function createOptions()
     -- Healing Options
         section = br.ui:createSection(br.ui.window.profile, "Healing")
         -- Healing Rain
-            br.ui:createDropdown(section,"Healing Rain", br.dropOptions.Toggle, 6, "Set auto usage (No Hotkey) or desired hotkey to use Healing Rain.")
-            --br.ui:createDropdownWithout(section,"Healing Rain - Target",{"Best","Tank"},1,"Desired Target of Healing Rain")
+            br.ui:createCheckbox(section,"Healing Rain","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFHealing Rain usage.|cffFFBB00.")
         -- Riptide
             br.ui:createSpinner(section, "Riptide",  90,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
         -- Healing Stream Totem
@@ -298,10 +297,6 @@ local function runRotation()
         end -- End Action List - Interrupts
         -- Action List - Pre-Combat
         function actionList_PreCombat()
-            -- Healing Rain
-            if isChecked("Healing Rain") and (getOptionValue("Healing Rain") == 6 or (SpecificToggle("Healing Rain") and not GetCurrentKeyBoardFocus())) then
-                if cast.healingRain("mouseover","ground") then return end
-            end
             -- Riptide
             if isChecked("Riptide") then
                 for i = 1, #br.friend do
@@ -412,10 +407,6 @@ local function runRotation()
                     end
                 end
             end
-            -- Healing Rain
-            if isChecked("Healing Rain") and (getOptionValue("Healing Rain") == 6 or (SpecificToggle("Healing Rain") and not GetCurrentKeyBoardFocus())) then
-                if cast.healingRain("mouseover","ground") then return end
-            end
             -- Riptide
             if isChecked("Riptide") then
                 if not buff.tidalWaves.exists() then
@@ -428,7 +419,7 @@ local function runRotation()
                 end
             end
             -- Earthen Shield Totem
-            if talent.earthenShieldTotem then
+            if talent.earthenShieldTotem and not moving then
                 if cast.earthenShieldTotem() then return end
             end
             -- Healing Stream Totem
@@ -505,6 +496,12 @@ local function runRotation()
                 actionList_Defensive()
                 actionList_Interrupts()
                 actionList_Cooldowns()
+            -- Healing Rain
+                if isChecked("Healing Rain") and not buff.healingRain.exists() and not moving then
+                    if castGroundAtBestLocation(spell.healingRain, 20, 0, 40, 0, "heal") then
+                        return 
+                    end
+                end
                 actionList_SingleTarget()
                 actionList_AOEHealing()
                 if br.player.mode.dps == 1 then

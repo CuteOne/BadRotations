@@ -321,14 +321,14 @@ local function runRotation()
             end
             if activeMoon == 2 then
                 --actions.fury_of_elune+=/half_moon,if=((charges=2&recharge_time<5)|charges=3)&&(buff.fury_of_elune_up.up|(cooldown.fury_of_elune.remains>gcd*3&astral_power<=80))
-                if (getCharges(player.spell.halfMoon) == 2 and player.recharge.halfMoon < 5) or (getCharges(player.spell.halfMoon) == 3) and (player.buff.furyOfElune.exists() or (player.cd.furyOfElune > player.gcd*3 and astralPower <= 80)) then
-                    if player.cast.halfMoon() then return true end
+                if (getCharges(player.spell.newMoon) == 2 and player.recharge.newMoon < 5) or (getCharges(player.spell.newMoon) == 3) and (player.buff.furyOfElune.exists() or (player.cd.furyOfElune > player.gcd*3 and astralPower <= 80)) then
+                    if player.cast.newMoon() then return true end
                 end
             end
             if activeMoon == 1 then
                 --actions.fury_of_elune+=/full_moon,if=((charges=2&recharge_time<5)|charges=3)&&(buff.fury_of_elune_up.up|(cooldown.fury_of_elune.remains>gcd*3&astral_power<=60))
-                if (getCharges(player.spell.fullMoon) == 2 and player.recharge.fullMoon < 5) or(getCharges(player.spell.fullMoon) == 3) and (player.buff.furyOfElune.exists() or (player.cd.furyOfElune > player.gcd*3 and astralPower <= 60)) then
-                    if player.cast.fullMoon() then return true end
+                if (getCharges(player.spell.newMoon) == 2 and player.recharge.newMoon < 5) or(getCharges(player.spell.newMoon) == 3) and (player.buff.furyOfElune.exists() or (player.cd.furyOfElune > player.gcd*3 and astralPower <= 60)) then
+                    if player.cast.newMoon() then return true end
                 end
             end
             --actions.fury_of_elune+=/astral_communion,if=buff.fury_of_elune_up.up&astral_power<=25
@@ -355,14 +355,14 @@ local function runRotation()
             end
             if activeMoon == 2 then
                 --actions.fury_of_elune+=/half_moon,if=astral_power<=80&buff.fury_of_elune_up.up&astral_power>cast_time*12
-                if astralPower <= 80 and player.buff.furyOfElune.exists() and astralPower > getCastTime(player.spell.halfMoon)*12 then
-                    if player.cast.halfMoon() then return true end
+                if astralPower <= 80 and player.buff.furyOfElune.exists() and astralPower > getCastTime(player.spell.newMoon)*12 then
+                    if player.cast.newMoon() then return true end
                 end
             end
             if activeMoon == 1 then
                 --actions.fury_of_elune+=/full_moon,if=astral_power<=60&buff.fury_of_elune_up.up&astral_power>cast_time*12
-                if astralPower <= 60 and player.buff.furyOfElune.exists() and astralPower > getCastTime(player.spell.fullMoon)*12 then
-                    if player.cast.fullMoon() then return true end
+                if astralPower <= 60 and player.buff.furyOfElune.exists() and astralPower > getCastTime(player.spell.newMoon)*12 then
+                    if player.cast.newMoon() then return true end
                 end
             end
 
@@ -528,12 +528,12 @@ local function runRotation()
                 end
             end
             --actions.ed+=/half_moon,if=astral_power<=80&buff.the_emerald_dreamcatcher.remains>execute_time&astral_power>=6
-            if astralPower <= 80 and player.buff.emeraldDreamcatcher.remain() > getCastTime(player.spell.halfMoon) then
-                if player.cast.halfMoon() then return true end
+            if astralPower <= 80 and player.buff.emeraldDreamcatcher.remain() > getCastTime(player.spell.newMoon) then
+                if player.cast.newMoon() then return true end
             end
             --actions.ed+=/full_moon,if=astral_power<=60&buff.the_emerald_dreamcatcher.remains>execute_time
-            if astralPower <= 60 and player.buff.emeraldDreamcatcher.remain() > getCastTime(player.spell.fullMoon) then
-                if player.cast.fullMoon() then return true end
+            if astralPower <= 60 and player.buff.emeraldDreamcatcher.remain() > getCastTime(player.spell.newMoon) then
+                if player.cast.newMoon() then return true end
             end
             --actions.ed+=/solar_wrath,if=buff.solar_empowerment.stack>1&buff.the_emerald_dreamcatcher.remains>2*execute_time&astral_power>=6&(dot.moonfire.remains>5|(dot.sunfire.remains<5.4&dot.moonfire.remains>6.6))&(!(buff.celestial_alignment.up|buff.incarnation.up)&astral_power<=90|(buff.celestial_alignment.up|buff.incarnation.up)&astral_power<=85)
             if player.buff.solarEmpowerment.exists() and player.buff.emeraldDreamcatcher.remain() > 2*getCastTime(player.spell.solarWrath) and astralPower >=6 and (player.debuff.moonfire.remain()>5 or player.debuff.sunfire.remain()<5.4 and player.debuff.moonfire.remain()>6.6) and (not(player.buff.celestialAlignment.exists() or player.buff.incarnationChoseOfElune.exists()) and astralPower <=90 or (player.buff.celestialAlignment.exists() or player.buff.incarnationChoseOfElune.exists()) and astralPower<=85) then
@@ -578,13 +578,13 @@ local function runRotation()
             if activeMoon == 2 then
                 --actions.ed+=/half_moon,if=astral_power<=80
                 if astralPower <= 80 then
-                    if player.cast.halfMoon() then return true end
+                    if player.cast.newMoon() then return true end
                 end
             end
             if activeMoon == 1 then
                 --actions.ed+=/full_moon,if=astral_power<=60&((cooldown.incarnation.remains>65&cooldown.full_moonfire.charges>0)|(cooldown.incarnation.remains>50&cooldown.full_moonfire.charges>1)|(cooldown.incarnation.remains>25&cooldown.full_moonfire.charges>2))
-                if astralPower <= 60 and ((player.cd.incarnationChoseOfElune > 65 and getCharges(player.spell.fullMoon) > 0) or (player.cd.incarnationChoseOfElune > 50 and getCharges(player.spell.fullMoon) > 1) or player.cd.incarnationChoseOfElune > 25 and getCharges(player.spell.fullMoon) > 2) then
-                    if player.cast.fullMoon() then return true end
+                if astralPower <= 60 and ((player.cd.incarnationChoseOfElune > 65 and getCharges(player.spell.newMoon) > 0) or (player.cd.incarnationChoseOfElune > 50 and getCharges(player.spell.newMoon) > 1) or player.cd.incarnationChoseOfElune > 25 and getCharges(player.spell.newMoon) > 2) then
+                    if player.cast.newMoon() then return true end
                 end
             end
             --actions.ed+=/solar_wrath,if=buff.solar_empowerment.up
@@ -664,13 +664,13 @@ local function runRotation()
             if activeMoon == 2 then
                 --actions.single_target+=/half_moon,if=astral_power<=80
                 if astralPower <= 80 then
-                    if player.cast.halfMoon() then return true end
+                    if player.cast.newMoon() then return true end
                 end
             end
             if activeMoon == 1 then
                 --actions.single_target+=/full_moon,if=astral_power<=60
                 if astralPower <= 60 then
-                    if player.cast.fullMoon() then return true end
+                    if player.cast.newMoon() then return true end
                 end
             end
             if multidot then
@@ -785,14 +785,14 @@ local function runRotation()
             end
             if activeMoon == 2 then
                 --actions+=/half_moon,if=(charges=2&recharge_time<5)|charges=3|(target.time_to_die<15&charges=2)
-                if (getCharges(player.spell.halfMoon) == 2 and player.recharge.halfMoon < 5) or (getCharges(player.spell.halfMoon) == 3) or (getTTD("target")<15 and getCharges(player.spell.halfMoon) == 2) then
-                    if player.cast.halfMoon() then return true end
+                if (getCharges(player.spell.newMoon) == 2 and player.recharge.newMoon < 5) or (getCharges(player.spell.newMoon) == 3) or (getTTD("target")<15 and getCharges(player.spell.newMoon) == 2) then
+                    if player.cast.newMoon() then return true end
                 end
             end
             if activeMoon == 1 then
                 --actions+=/full_moon,if=(charges=2&recharge_time<5)|charges=3|target.time_to_die<15
-                if (getCharges(player.spell.fullMoon) == 2 and player.recharge.fullMoon < 5) or(getCharges(player.spell.fullMoon) == 3) or (getTTD("target")<15 and getCharges(player.spell.fullMoon) == 2) then
-                    if player.cast.fullMoon() then return true end
+                if (getCharges(player.spell.newMoon) == 2 and player.recharge.newMoon < 5) or(getCharges(player.spell.newMoon) == 3) or (getTTD("target")<15 and getCharges(player.spell.newMoon) == 2) then
+                    if player.cast.newMoon() then return true end
                 end
             end
             if multidot then
@@ -1221,7 +1221,7 @@ local function runRotation()
         end
 
         local function deadlyChicken()
-            for i = 1, ObjectCount() do
+            for i = 1, GetObjectCount() do
                 -- define our unit
                 local thisUnit = GetObjectWithIndex(i)
                 -- check if it a unit first

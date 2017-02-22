@@ -49,10 +49,11 @@ local function createOptions()
         local section
     -- General Options
         section = br.ui:createSection(br.ui.window.profile, "General")
+            br.ui:createCheckbox(section,"OOC Healing","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFout of combat healing|cffFFBB00.")
         -- Travel Shapeshifts
-            br.ui:createCheckbox(section,"Auto Shapeshifts","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFAuto Shapeshifting to best form for situation.|cffFFBB00.")
+            br.ui:createCheckbox(section,"Auto Shapeshifts","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFAuto Shapeshifting to best form for situation|cffFFBB00.")
         -- Break Crowd Control
-            br.ui:createCheckbox(section,"Break Crowd Control","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFAuto Shapeshifting to break crowd control.|cffFFBB00.")
+            br.ui:createCheckbox(section,"Break Crowd Control","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFAuto Shapeshifting to break crowd control|cffFFBB00.")
         br.ui:checkSectionState(section)
     -- Cooldown Options
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
@@ -63,14 +64,14 @@ local function createOptions()
         -- Trinkets
             br.ui:createCheckbox(section,"Trinkets")
         --Incarnation: Tree of Life
-            br.ui:createSpinner(section, "Incarnation: Tree of Life",  50,  0,  100,  5,  "Health Percent to Cast At") 
+            br.ui:createSpinner(section, "Incarnation: Tree of Life",  60,  0,  100,  5,  "Health Percent to Cast At") 
             br.ui:createSpinner(section, "Incarnation: Tree of Life Targets",  3,  0,  40,  1,  "Minimum Flourish Targets")
+-- Tranquility
+            br.ui:createSpinner(section, "Tranquility",  50,  0,  100,  5,  "Health Percent to Cast At") 
+            br.ui:createSpinner(section, "Tranquility Targets",  3,  0,  40,  1,  "Minimum Tranquility Targets")
         -- Flourish
             br.ui:createSpinner(section, "Flourish",  80,  0,  100,  5,  "Health Percent to Cast At") 
             br.ui:createSpinner(section, "Flourish Targets",  3,  0,  40,  1,  "Minimum Flourish Targets")
-        -- Tranquility
-            br.ui:createSpinner(section, "Tranquility",  60,  0,  100,  5,  "Health Percent to Cast At") 
-            br.ui:createSpinner(section, "Tranquility Targets",  3,  0,  40,  1,  "Minimum Tranquility Targets")
         br.ui:checkSectionState(section)
     -- Defensive Options
         section = br.ui:createSection(br.ui.window.profile, "Defensive")
@@ -80,28 +81,30 @@ local function createOptions()
         -- Healthstone
             br.ui:createSpinner(section, "Healthstone",  30,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
         -- Heirloom Neck
-            br.ui:createSpinner(section, "Heirloom Neck",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.");
+            br.ui:createSpinner(section, "Heirloom Neck",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at");
         -- Barkskin
-            br.ui:createSpinner(section, "Barkskin",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.");
+            br.ui:createSpinner(section, "Barkskin",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at");
         br.ui:checkSectionState(section)
     -- Healing Options
         section = br.ui:createSection(br.ui.window.profile, "Healing")
         -- Efflorescence
-            br.ui:createDropdown(section,"Efflorescence", br.dropOptions.Toggle, 6, "Set auto usage (No Hotkey) or desired hotkey to use Efflorescence.")
-            --br.ui:createDropdownWithout(section,"Efflorescence - Target",{"Best","Target"},1,"Desired Target of Efflorescence")
+            br.ui:createCheckbox(section,"Efflorescence","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFEfflorescence usage|cffFFBB00.")
+            br.ui:createSpinner(section, "Efflorescence recast delay", 15, 8, 29, 2, "|cffFFFFFFDelay to recast Efflo in seconds|cffFFBB00.","", true)
         -- Lifebloom
-            br.ui:createCheckbox(section,"Lifebloom","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFLifebloom usage.|cffFFBB00.")
+            br.ui:createCheckbox(section,"Lifebloom","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFLifebloom usage|cffFFBB00.")
         -- Cenarion Ward
             br.ui:createSpinner(section, "Cenarion Ward",  70,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
         -- Rejuvenaion
             br.ui:createSpinner(section, "Rejuvenation",  90,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
-            br.ui:createSpinner(section, "Max Rejuvenation Targets",  10,  0,  20,  1,  "|cffFFFFFFMaximum Rejuvenation Targets")
+            br.ui:createSpinner(section, "Max Rejuvenation Targets",  10,  0,  20,  1,  "|cffFFFFFFMaximum Rejuvenation Targets","", true)
         -- Germination
             br.ui:createSpinner(section, "Germination",  70,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
         -- Regrowth
             br.ui:createSpinner(section, "Regrowth",  80,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
         -- Regrowth Clearcasting
             br.ui:createSpinner(section, "Regrowth Clearcasting",  80,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
+        -- Regrowth on tank
+            br.ui:createCheckbox(section,"Keep Regrowth on tank","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFRegrowth usage|cffFFBB00.")
         -- Swiftmend
             br.ui:createSpinner(section, "Swiftmend",  60,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
         -- Healing Touch
@@ -238,10 +241,6 @@ local function runRotation()
         end -- End Action List - Extras
         -- Action List - Pre-Combat
         function actionList_PreCombat()
-            -- Efflorescence
-                if isChecked("Efflorescence") and (getOptionValue("Efflorescence") == 6 or (SpecificToggle("Efflorescence") and not GetCurrentKeyBoardFocus())) then
-                    if cast.efflorescence("mouseover","ground") then return end
-                end
             -- Rejuvenation
             if isChecked("Rejuvenation") then
                 rejuvCount = 0
@@ -407,7 +406,7 @@ local function runRotation()
                 for i = 1, #br.friend do
                     if br.friend[i].hp <= getValue("Regrowth Clearcasting") and buff.clearcasting.exists() then
                         if cast.regrowth(br.friend[i].unit) then return end
-                    elseif buff.lifebloom.exists(br.friend[i].unit) and buff.regrowth.remain(br.friend[i].unit) <= 1 then
+                    elseif isChecked("Keep Regrowth on tank") and buff.lifebloom.exists(br.friend[i].unit) and buff.regrowth.remain(br.friend[i].unit) <= 1 then
                         if cast.regrowth(br.friend[i].unit) then return end
                     elseif br.friend[i].hp <= getValue("Regrowth") and buff.regrowth.remain(br.friend[i].unit) <= 1 then
                         if talent.abundance and buff.abundance.stack() < 3 then
@@ -567,7 +566,9 @@ local function runRotation()
 ---------------------------------
             if not inCombat and not IsMounted() and getBuffRemain("player", 192002 ) < 10 then
                 actionList_Extras()
-                actionList_PreCombat()
+                if isChecked("OOC Healing") then
+                    actionList_PreCombat()
+                end
             end -- End Out of Combat Rotation
 -----------------------------
 --- In Combat - Rotations --- 
@@ -610,8 +611,12 @@ local function runRotation()
                     end
                 end
             -- Efflorescence
-                if isChecked("Efflorescence") and (getOptionValue("Efflorescence") == 6 or (SpecificToggle("Efflorescence") and not GetCurrentKeyBoardFocus())) then
-                    if cast.efflorescence("mouseover","ground") then return end
+                if isChecked("Efflorescence") and (not LastEfflorescenceTime or GetTime() - LastEfflorescenceTime > getOptionValue("Efflorescence recast delay")) then
+                    -- castGroundAtBestLocation(spellID, radius, minUnits, maxRange, minRange, spellType)
+                    if castGroundAtBestLocation(spell.efflorescence, 20, 0, 40, 0, "heal") then
+                        LastEfflorescenceTime = GetTime()
+                        return 
+                    end
                 end
                 actionList_Cooldowns()
                 actionList_AOEHealing()

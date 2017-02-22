@@ -204,7 +204,7 @@ local function runRotation()
             br.player.debuffcount.vulnerable        = vulnerableCount or 0
         end
         local function getExplosiveDistance(otherUnit)
-            for i = 1, ObjectCount() do
+            for i = 1, GetObjectCount() do
                 local thisUnit = GetObjectWithIndex(i)
                 if GetObjectID(thisUnit) == 11492 then
                     return GetDistanceBetweenObjects(thisUnit,otherUnit)
@@ -324,11 +324,11 @@ local function runRotation()
     -- Action List - Interrupts
         local function actionList_Interrupts()
             if useInterrupts() then
-                for i=1, #getEnemies("player",20) do
-                    thisUnit = getEnemies("player",20)[i]
+                for i=1, #getEnemies("player",50) do
+                    thisUnit = getEnemies("player",50)[i]
                     distance = getDistance(thisUnit)
                     if canInterrupt(thisUnit,getOptionValue("Interrupts")) then
-                        if distance < 5 then
+                        if distance < 50 then
         -- Counter Shot
                             if isChecked("Counter Shot") then
                                 if cast.counterShot(thisUnit) then return end

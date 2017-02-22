@@ -270,6 +270,7 @@ function br.loader:new(spec,specName)
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
                     if thisUnit == "best" then
+                        -- print("Casting "..spellName..", EffRng: "..effectRng..", minUnits "..minUnits..", maxRange "..maxRange..", minRange "..minRange)
                         return castGroundAtBestLocation(spellCast,effectRng,minUnits,maxRange,minRange,debug)
                     elseif debug == "ground" then
                         if getLineOfSight(thisUnit) then
@@ -478,7 +479,7 @@ function br.loader:new(spec,specName)
         if select(2,UnitClass("player")) == "HUNTER" or select(2,UnitClass("player")) == "WARLOCK" then
             if self.petInfo == nil then self.petInfo = {} end
             self.petInfo = table.wipe(self.petInfo)
-            for i = 1, ObjectCount() do
+            for i = 1, GetObjectCount() do
                 -- define our unit
                 local thisUnit = GetObjectWithIndex(i)
                 -- check if it a unit first
@@ -557,16 +558,25 @@ function br.loader:new(spec,specName)
     -- end
      -- Creates the option/profile window
     function self.createOptions()
-        -- br.ui:createProfileWindow(self.profile)
+        -- if br.ui:closeWindow("profile")
+        for i = 1, #br.data.settings[br.selectedSpec] do
+            local thisProfile = br.data.settings[br.selectedSpec][i]
+            if thisProfile ~= br.data.settings[br.selectedSpec][br.selectedProfile] then
+                br.ui:closeWindow("profile")
+            end
+        end
+        if br.data.settings[br.selectedSpec][br.selectedProfile] == nil then br.data.settings[br.selectedSpec][br.selectedProfile] = {} end
         br.ui:createProfileWindow(self.profile)
 
         -- Get the names of all profiles and create rotation dropdown
         local names = {}
         for i=1,#self.rotations do
+
             -- if spec == self.rotations[i].spec then
                 tinsert(names, self.rotations[i].name)
             -- end
         end
+
         br.ui:createRotationDropdown(br.ui.window.profile.parent, names)
 
         -- Create Base and Class option table

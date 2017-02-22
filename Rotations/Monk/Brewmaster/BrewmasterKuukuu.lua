@@ -292,7 +292,7 @@ local function runRotation()
                     end
                     if getOptionValue("Purifying Brew") == 2 then
                         if debuff.heavyStagger.exists() then
-                            if cast.purfiyingBrew() then return end
+                            if cast.purifyingBrew() then return end
                         end
                     end
                 end
