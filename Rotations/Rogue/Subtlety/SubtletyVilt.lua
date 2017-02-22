@@ -73,7 +73,7 @@ local function createOptions()
             -- NB TTD
             br.ui:createSpinner(section, "Nightblade Multidot", 8, 0, 16, 1, "|cffFFBB00Multidot Nightblade | Minimum TTD to use.")
             -- DfA Targets
-            br.ui:createSpinner(section, "DfA Targets", 5, 0, 10, 1, "|cffFFBB00Amount of Targets for DfA")
+            br.ui:createSpinner(section, "DfA Targets", 5, 1, 10, 1, "|cffFFBB00Amount of Targets for DfA")
             --[[ Enable Special dungeon/boss logic
             br.ui:createCheckbox(section, "Use Boss/Dungeon Logic")]]
         br.ui:checkSectionState(section)
