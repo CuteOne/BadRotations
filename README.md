@@ -1,4 +1,4 @@
-# BadRotations
+De BadRotations
 
 ## Patch 7.0+
 
@@ -311,7 +311,7 @@ author  | support | patch | status |     raidable?
 :------ | :-----: | :---: | -----: | :----------------:
 CuteOne |  Full   | 7.1.5 |   100% | :white_check_mark:
 
-- Destrustruction
+- Destruction
 
 author  | support | patch | status |     raidable?
 :------ | :-----: | :---: | -----: | :----------------:
