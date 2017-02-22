@@ -279,7 +279,7 @@ local function runRotation()
             effigyCount = 0;
             effigied = false
         end
-        if UnitExists(effigyUnit) and UnitIsUnit("target",effigyUnit) then FocusUnit(effigyUnit); ClearTarget(); TargetUnit(units.dyn40); return end
+        if UnitExists(effigyUnit) and UnitIsUnit("target",effigyUnit) and not UnitIsUnit("target","player") then FocusUnit(effigyUnit); ClearTarget(); TargetUnit(units.dyn40); return end
 
         -- Pet Data
         if summonPet == 1 then summonId = 416 end

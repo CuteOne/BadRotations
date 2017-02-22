@@ -1400,6 +1400,31 @@ function getFacing(Unit1,Unit2,Degrees)
 		end
 	end
 end
+function getFacingDistance()
+    if UnitIsVisible("player") and UnitIsVisible("target") then
+        --local targetDistance = getRealDistance("target")
+        local targetDistance = getDistance("target")
+        local Y1,X1,Z1 = GetObjectPosition("player");
+        local Y2,X2,Z2 = GetObjectPosition("target");
+        local Angle1 = GetObjectFacing("player")
+        local deltaY = Y2 - Y1
+        local deltaX = X2 - X1
+        Angle1 = math.deg(math.abs(Angle1-math.pi*2))
+        if deltaX > 0 then
+            Angle2 = math.deg(math.atan(deltaY/deltaX)+(math.pi/2)+math.pi)
+        elseif deltaX <0 then
+            Angle2 = math.deg(math.atan(deltaY/deltaX)+(math.pi/2))
+        end
+        local Dist = round2(math.tan(math.abs(Angle2 - Angle1)*math.pi/180)*targetDistance*10000)/10000
+        if ObjectIsFacing("player","target") then
+            return Dist
+        else
+            return -(math.abs(Dist))
+        end
+    else
+        return 1000
+    end
+end
 function getGUID(unit)
 	local nShortHand = ""
 	if GetObjectExists(unit) then
