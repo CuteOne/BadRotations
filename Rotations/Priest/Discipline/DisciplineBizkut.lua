@@ -371,9 +371,6 @@ local function runRotation()
                                     actionList_SpreadAtonement(br.friend[i].unit)
                                 end
                             end
-                            if isChecked("Always use on Boss") and isBoss("target") and getDistance("player","target") < 40 and atonementCount >=5 then
-                                if cast.lightsWrath("target") then return end
-                            end
                         end
                     end
                     if isChecked("Power Word: Barrier CD") and powcent >= getValue("Power Word: Barrier CD") then
@@ -386,7 +383,7 @@ local function runRotation()
                                 for i = 1, #br.friend do
                                     actionList_SpreadAtonement(br.friend[i].unit)
                                 end
-                                if isBoss("target") and getDistance("player","target") < 40 and atonementCount >= 5 then
+                                if isBoss("target") and getDistance("player","target") < 40 and ((inRaid and atonementCount >= getOptionValue("Max Atonement")) or (inInstance and atonementCount >= 5)) then
                                     if cast.lightsWrath("target") then return end
                                 end
                             end
@@ -753,7 +750,7 @@ local function runRotation()
                                 for i = 1, #br.friend do
                                     actionList_SpreadAtonement(br.friend[i].unit)
                                 end
-                                if atonementCount >= 5 then
+                                if (inRaid and atonementCount >= getOptionValue("Max Atonement")) or (inInstance and atonementCount >= 5) then
                                     if cast.lightsWrath() then return end
                                 end
                             end

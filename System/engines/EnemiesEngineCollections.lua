@@ -79,7 +79,9 @@ shieldedUnitCandidates = {
 doNotTouchUnitCandidates = {
 	-- Iron Docks
 	{ unitID = 87451, buff = 164504, spell = 164426 }, --Fleshrender Nok'gar, do not attack during defensive stance buff, Todo: Should stop when he cast 164504
-	{ unitID = 1, buff = 163689 } -- Never attack Sanguine Sphere
+	{ unitID = 1, buff = 163689 }, -- Never attack Sanguine Sphere
+    { unitID = 105906, buff = 209915 }, -- Don't attack The Eye of Il'gynoth when it has Stuff of Nightmares buff
+    { unitID = 95888, buff = 205004 }, -- Don't attack Cordana Felsong when she casts Vengence
 }
 -- list of units to stun, either always or udner certain condition such as having a buff or wirldwinding etc
 crowdControlCandidates = {
