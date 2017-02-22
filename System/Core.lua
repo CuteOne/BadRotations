@@ -15,14 +15,22 @@ end
 --[[---------  -----  ----           ---  ------------  ---            -------------------------------------------------------------------------------------------------------------------]]
 --[[-------------------------------------------------------------------------------------------------------------------------------------------------------]]
 local frame = CreateFrame("FRAME")
+frame:RegisterEvent("ADDON_LOADED");
 frame:RegisterEvent("PLAYER_LOGOUT")
 frame:RegisterUnitEvent("PLAYER_ENTERING_WORLD")
 frame:RegisterUnitEvent("PLAYER_EQUIPMENT_CHANGED")
 frame:RegisterUnitEvent("UNIT_SPELLCAST_SUCCEEDED")
 function frame:OnEvent(event, arg1, arg2, arg3, arg4, arg5)
+	if event == "ADDON_LOADED" and arg1 == "BadRotations" then
+		br.data = brdata
+	end
     if event == "PLAYER_LOGOUT" then
         br.ui:saveWindowPosition()
-        brdata = br.data
+        if getOptionCheck("Reset Options") then
+        	brdata = {}
+        else
+        	brdata = br.data
+        end
     end
     if event == "PLAYER_ENTERING_WORLD" then
     	-- Update Selected Spec
@@ -83,7 +91,9 @@ function BadRotationsUpdate(self)
 			-- Close windows and swap br.selectedSpec on Spec Change
 			if select(2,GetSpecializationInfo(GetSpecialization())) ~= br.selectedSpec then
 		    	-- Closing the windows will save the position
-		        br.ui:closeWindow("all")
+		        -- br.ui:closeWindow("all")
+		        -- br.ui:closeWindow("profile")
+		        -- br.ui:checkWindowStatus("profile")
 
 		    	-- Update Selected Spec/Profile
 		        br.selectedSpec = select(2,GetSpecializationInfo(GetSpecialization()))
@@ -100,8 +110,9 @@ function BadRotationsUpdate(self)
 			-- prevent ticking when firechack isnt loaded
 			-- if user click power button, stop everything from pulsing and hide frames.
 			if FireHack ~= nil then
-				if not getOptionCheck("Start/Stop BadRotations") or (br.data.settings[br.selectedSpec].toggles["Power"] ~= nil and br.data.settings[br.selectedSpec].toggles["Power"] ~= 1) then
+				if br.data.settings[br.selectedSpec].toggles["Power"] ~= nil and br.data.settings[br.selectedSpec].toggles["Power"] ~= 1 then
 					br.ui:closeWindow("all")
+					br.ui:closeWindow("profile")
 					return false
 				end
 			end

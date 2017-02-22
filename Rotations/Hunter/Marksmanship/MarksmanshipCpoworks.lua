@@ -204,7 +204,7 @@ local function runRotation()
             br.player.debuffcount.vulnerable        = vulnerableCount or 0
         end
         local function getExplosiveDistance(otherUnit)
-            for i = 1, ObjectCount() do
+            for i = 1, objectCount do
                 local thisUnit = GetObjectWithIndex(i)
                 if GetObjectID(thisUnit) == 11492 then
                     return GetDistanceBetweenObjects(thisUnit,otherUnit)

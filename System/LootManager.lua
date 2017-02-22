@@ -87,7 +87,8 @@ function lootManager:getLoot()
 	if lM:emptySlots() then
 		if UnitCastingInfo("player") == nil and UnitChannelInfo("player") == nil and DontMoveStartTime and GetTime() - DontMoveStartTime > 0 then
 			-- if we have a unit to loot, check if its time to
-			if lM.canLootUnit and lM.canLootTimer and lM.canLootTimer <= GetTime() - getOptionValue("Auto Loot") then
+			-- if lM.canLootUnit and lM.canLootTimer and lM.canLootTimer <= GetTime() - getOptionValue("Auto Loot") then
+			if br.timer:useTimer("debugLoot", getOptionValue("Auto Loot")) then
 				if GetObjectExists(lM.canLootUnit) and looted == 0 then
 					-- make sure the user have the auto loot selected, if its not ,we will enable it when we need it
 					if GetCVar("autoLootDefault") == "0" then
@@ -95,6 +96,7 @@ function lootManager:getLoot()
 						InteractUnit(lM.canLootUnit)
 						lM.canLootTimer = GetTime() + 1.5
 						lM:debug("Interact with "..lM.canLootUnit)
+						-- Print("Interact with "..lM.canLootUnit)
 						SetCVar("autoLootDefault", "0")
 						looted = 1
 						if FireHack then ClearTarget() end
@@ -103,6 +105,7 @@ function lootManager:getLoot()
 						InteractUnit(lM.canLootUnit)
 						lM.canLootTimer = GetTime() + 1.5
 						lM:debug("Interact with "..lM.canLootUnit)
+						-- Print("Interact with "..lM.canLootUnit)
 						looted = 1
 						if FireHack then ClearTarget() end
 					end
@@ -111,23 +114,8 @@ function lootManager:getLoot()
 					lM:debug("Clear Loot Timer and Unit")
 				end
 				-- find an unit to loot
-			elseif lM.canLootUnit == nil and (not lM.canLootTimer or lM.canLootTimer < GetTime()) then
-				lM:debug("Find Unit")
-				for i = 1, GetObjectCountBR() do
-					if bit.band(GetObjectIndex(i), ObjectTypes.Unit) == 8 then
-						local thisUnit = GetObjectIndex(i)
-						local hasLoot,canLoot = CanLootUnit(UnitGUID(thisUnit))
-						local inRange = getDistance("player",thisUnit) < 2
-						-- if we can loot thisUnit we set it as unit to be looted
-						if hasLoot and canLoot and inRange then
-							looted = 0
-							lM.canLootTimer = GetTime()
-							lM.canLootUnit = thisUnit
-							lM:debug("Should loot "..UnitName(thisUnit))
-							break
-						end
-					end
-				end
+			else--if lM.canLootUnit == nil or (not lM.canLootTimer or lM.canLootTimer < GetTime()) then
+
 			end
 		else
 			-- if we were casting, we reset the delay
@@ -135,6 +123,26 @@ function lootManager:getLoot()
 		end
 	else
 		ChatOverlay("Bags are full, nothing will be looted!")
+	end
+end
+
+function lootManager:findLoot()
+	lM:debug("Find Unit")
+	for i = 1, GetObjectCountBR() do
+		if bit.band(GetObjectIndex(i), ObjectTypes.Unit) == 8 then
+			local thisUnit = GetObjectIndex(i)
+			local hasLoot,canLoot = CanLootUnit(UnitGUID(thisUnit))
+			local inRange = getDistance("player",thisUnit) < 2
+			-- if we can loot thisUnit we set it as unit to be looted
+			if hasLoot and canLoot and inRange then
+				looted = 0
+				lM.canLootTimer = GetTime()
+				lM.canLootUnit = thisUnit
+				lM:debug("Should loot "..UnitName(thisUnit))
+				-- Print("Should loot "..UnitName(thisUnit))
+				lM:getLoot()
+			end
+		end
 	end
 end
 -- Frame
@@ -166,14 +174,30 @@ local function pulse()
 			if lM.shouldLoot == true then
 				lM:getLoot()
 			end
-			-- it we seen a loot in reader
-			if lM.lootedTimer and lM.lootedTimer < GetTime() - 0.5 then
-				if FireHack then ClearTarget() end
-				lM.lootedTimer = nil
-				lM.shouldLoot = false
-				lM:debug("Clear Target")
-			end
+			-- -- it we seen a loot in reader
+			-- if lM.lootedTimer and lM.lootedTimer < GetTime() - getOptionValue("Auto Loot") then
+			-- 	if FireHack then ClearTarget() end
+			-- 	-- lM.lootedTimer = nil
+			-- 	-- lM.shouldLoot = false
+			-- 	lM:debug("Clear Target")
+			-- end
 		end
 	end
 end
 Frame:SetScript("OnUpdate",pulse)
+function autoLoot()
+	if getOptionCheck("Auto Loot") then
+		if not isInCombat("player") then
+			-- start loot manager
+			if lM then
+				if not IsMounted("player") then
+					if not lM.canLootUnit then
+						lM:findLoot()
+					else
+						lM.canLootUnit = nil
+					end
+				end
+			end	
+		end
+	end
+end

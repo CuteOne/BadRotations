@@ -1,6 +1,8 @@
 -- define br global that will hold the bot global background features
 br = {}
-brdata = {}
+-- brdata = {}
+br.data = {}
+br.data.settings = {}
 br.selectedSpec = "None"
 br.selectedProfile = 1
 br.dropOptions = {}
@@ -27,11 +29,11 @@ function br:Run()
 	if br.selectedSpec == nil then br.selectedSpec = select(2,GetSpecializationInfo(GetSpecialization())) end
 	rc = LibStub("LibRangeCheck-2.0")
 	minRange, maxRange = rc:GetRange('target')
-	-- lets wipe and start up fresh.
-	br.data = brdata
-	if br.data == nil or brdata == nil or (br.data and br.data.settings and br.data.settings.wiped ~= true) then
-		br.data = {}
-	end
+	-- -- lets wipe and start up fresh.
+	-- br.data = brdata
+	-- if br.data == nil or brdata == nil or (br.data and br.data.settings and br.data.settings.wiped ~= true) then
+		-- br.data = {}
+	-- end
 	--[[Init the readers codes (System/Reader.lua)]]
 	-- combat log
 	br.read.combatLog()
@@ -80,6 +82,7 @@ end
 -- Load Settings
 function br:loadSettings()
 	-- Base Settings
+	if br.data == nil then br.data = {} end
 	if br.data.settings == nil then
 		br.data.settings = {
 			mainButton = {
@@ -107,7 +110,7 @@ function br:loadSettings()
     -- Creates and Shows the Windows
 	br.ui:createConfigWindow()
 	if br.data.settings[br.selectedSpec]["debug"] == nil then br.ui:createDebugWindow() end
-	if br.data.settings[br.selectedSpec]["profile"] == nil then br.ui:createProfileWindow(br.selectedSpec) end
+	-- if br.data.settings[br.selectedSpec]["profile"] == nil then br.ui:createProfileWindow(br.selectedSpec) end -- Creates extra blank window
 	if br.data.settings[br.selectedSpec]["help"] == nil then br.ui:createHelpWindow() end
 end
 
@@ -133,6 +136,8 @@ C_Timer.NewTicker(0.1, function()
 		if isChecked("HE Active") then
 			br.friend:Update()
 		end
+	-- Auto Loot
+		autoLoot()
 	-- Queue Casting
 		if isChecked("Queue Casting") and not UnitChannelInfo("player") then
 			-- Catch for spells not registering on Combat log
