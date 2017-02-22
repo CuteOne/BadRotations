@@ -651,6 +651,7 @@ br.idList = {
         -- Balance
         [102] = {
             abilities                       = {
+                forceOfNature               = 205636,
                 blessingOfTheAncients       = 202360,
                 furyOfElune                 = 202770,
                 newMoon                     = 202767,
@@ -671,6 +672,7 @@ br.idList = {
                 swiftmend                   = 18562,
                 innervate                   = 29166,
                 renewal                     = 108238,
+                wildCharge                  = 102383,
             },
             artifacts                       = {
             },
@@ -700,6 +702,7 @@ br.idList = {
 
             },
             talents                         = {
+                forceOfNature               = 205636,
                 blessingOfTheAncients       = 202360,
                 incarnationChoseOfElune     = 102560,
                 furyOfElune                 = 202770,
