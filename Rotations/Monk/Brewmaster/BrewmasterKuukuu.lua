@@ -73,8 +73,6 @@ local function createOptions()
             br.ui:createCheckbox(section,"Trinkets")
         -- Touch of the Void
             br.ui:createCheckbox(section,"Touch of the Void")
-        -- Touch of Death
-            br.ui:createCheckbox(section,"Touch of Death")
         -- Exploding Keg 
             br.ui:createCheckbox(section,"Exploding Keg")
         br.ui:checkSectionState(section)
@@ -179,6 +177,7 @@ local function runRotation()
         local healthPot         = getHealthPot() or 0
         local inCombat          = br.player.inCombat
         local inRaid            = select(2,IsInInstance())=="raid"
+        local inInstance        = br.player.instance=="party"
         local level             = br.player.level
         local mode              = br.player.mode
         local php               = br.player.health
@@ -207,6 +206,7 @@ local function runRotation()
         units.dyn5 = br.player.units(5)
         enemies.yards5 = br.player.enemies(5)
         enemies.yards8 = br.player.enemies(8)
+        enemies.yards30 = br.player.enemies(30)
         enemies.yards40 = br.player.enemies(40)
         if opener == nil then opener = false end
 
@@ -242,13 +242,6 @@ local function runRotation()
                     if cast.resuscitate("mouseover") then return end
                 end
             end
-        -- Provoke
-            if not inCombat and getDistance("target") > 10 and isValidUnit("target") and not isBoss("target")
-            then
-                if solo or #br.friend == 1 then
-                    if cast.provoke() then return end
-                end
-            end
         -- Roll
             if isChecked("Roll") and getDistance("target") > 10 and isValidUnit("target") and getFacingDistance() < 5 and getFacing("player","target",10) then
                 if cast.roll() then return end
@@ -265,12 +258,6 @@ local function runRotation()
                     end
                 end
             end
-        -- Crackling Jade Lightning
-            -- if getDistance(units.dyn5) >= 5 and ((useFSK() and cd.flyingSerpentKick > 1) or not useFSK())
-            --     and not isCastingSpell(spell.cracklingJadeLightning) and (hasThreat("target") or isDummy()) and not isMoving("player")
-            -- then
-            --     if cast.cracklingJadeLightning() then return end
-            -- end
         -- Touch of the Void
             if (useCDs() or useAoE()) and isChecked("Touch of the Void") and inCombat and getDistance(units.dyn5)<5 then
                 if hasEquiped(128318) then
@@ -403,25 +390,7 @@ local function runRotation()
                 if isChecked("Racial") and (race == "Orc" or race == "Troll") then
                     if castSpell("player",racial,false,false,false) then return end
                 end
-        -- Touch of Death
-                if isChecked("Touch of Death")
-                    and ((not artifact.galeBurst and hasEquiped(137057) and lastSpell ~= spell.touchOfDeath)
-                        or (not artifact.galeBurst and not hasEquiped(137057))
-                        or (artifact.galeBurst and hasEquiped(137057) and lastSpell ~= spell.touchOfDeath)
-                        or (artifact.galeBurst and not hasEquiped(137057)))
-                then
-                    if hasEquiped(137057) then
-                        for i = 1, #enemies.yards5 do
-                            local thisUnit = enemies.yards5[i]
-                            local touchOfDeathDebuff = UnitDebuffID(thisUnit,spell.debuffs.touchOfDeath,"player") ~= nil
-                            if not touchOfDeathDebuff then
-                                if cast.touchOfDeath() then return end
-                            end
-                        end
-                    else
-                        if cast.touchOfDeath() then return end
-                    end
-                end
+       
             end
         end -- End Cooldown - Action List
     -- Action List - Opener
@@ -466,10 +435,13 @@ local function runRotation()
         function actionList_BlackOutCombo()
             if talent.blackoutCombo then
             -- Provoke
-                if isChecked("Provoke") then
-                    for i = 1, #enemies.yards40 do
-                        local thisUnit = enemies.yards40[i]
-                        if not isAggroed(thisUnit) and hasThreat(thisUnit) then
+                if isChecked("Provoke") and (inRaid or inInstance) then
+                    for i = 1, #enemies.yards30 do
+                       local thisUnit = enemies.yards30[i]
+                       local enemyTarget = UnitTarget(thisUnit)
+                       print(UnitGroupRolesAssigned(enemyTarget))
+                       -- if not isAggroed(thisUnit) and hasThreat(thisUnit) then
+                       if enemyTarget ~= nil and UnitGroupRolesAssigned(enemyTarget) ~= "TANK" and UnitIsFriend(enemyTarget,"player") then
                             if cast.provoke(thisUnit) then return end
                         end
                     end
@@ -527,10 +499,13 @@ local function runRotation()
         -- Action List - Cooldown
             -- call_action_list,name=cd
             -- Provoke
-            if isChecked("Provoke") then
-                for i = 1, #enemies.yards40 do
-                    local thisUnit = enemies.yards40[i]
-                    if not isAggroed(thisUnit) and hasThreat(thisUnit) then
+            if isChecked("Provoke") and (inRaid or inInstance) then
+                for i = 1, #enemies.yards30 do
+                   local thisUnit = enemies.yards30[i]
+                   local enemyTarget = UnitTarget(thisUnit)
+                   print(UnitGroupRolesAssigned(enemyTarget))
+                   -- if not isAggroed(thisUnit) and hasThreat(thisUnit) then
+                   if enemyTarget ~= nil and UnitGroupRolesAssigned(enemyTarget) ~= "TANK" and UnitIsFriend(enemyTarget,"player") then
                         if cast.provoke(thisUnit) then return end
                     end
                 end
@@ -585,10 +560,13 @@ local function runRotation()
     --Action List AoE
         function actionList_MultiTarget()
             -- Provoke
-            if isChecked("Provoke") then
-                for i = 1, #enemies.yards40 do
-                    local thisUnit = enemies.yards40[i]
-                    if not isAggroed(thisUnit) and hasThreat(thisUnit) then
+            if isChecked("Provoke") and (inRaid or inInstance) then
+                for i = 1, #enemies.yards30 do
+                   local thisUnit = enemies.yards30[i]
+                   local enemyTarget = UnitTarget(thisUnit)
+                   print(UnitGroupRolesAssigned(enemyTarget))
+                   -- if not isAggroed(thisUnit) and hasThreat(thisUnit) then
+                   if enemyTarget ~= nil and UnitGroupRolesAssigned(enemyTarget) ~= "TANK" and UnitIsFriend(enemyTarget,"player") then
                         if cast.provoke(thisUnit) then return end
                     end
                 end
