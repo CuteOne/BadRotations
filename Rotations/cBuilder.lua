@@ -165,6 +165,88 @@ function br.loader:new(spec,specName)
         end
     end
 
+    -- -- Update Power
+    -- powerList     = {
+    --     mana            = 0,
+    --     rage            = 1,
+    --     focus           = 2,
+    --     energy          = 3,
+    --     comboPoints     = 4,
+    --     runes           = 5,
+    --     runicPower      = 6,
+    --     soulShards      = 7,
+    --     astralPower     = 8,
+    --     holyPower       = 9,
+    --     altPower        = 10,
+    --     maelstrom       = 11,
+    --     chi             = 12,
+    --     insanity        = 13,
+    --     obsolete        = 14,
+    --     obsolete2       = 15,
+    --     arcaneCharges   = 16,
+    --     fury            = 17,
+    --     pain            = 18,
+    -- }
+    -- if self.power == nil then self.power = {} end
+    -- -- for i = 0, #powerList do
+    -- for k, v in pairs(powerList) do
+    --     if UnitPower("player",v) ~= nil then
+    --         if self.power[k] == nil then self.power[k] = {} end
+    --         if self.power.amount == nil then self.power.amount = {} end
+    --         local powerV = UnitPower("player",v)
+    --         local powerMaxV = UnitPowerMax("player",v)
+    --         local power = self.power[k]
+    --         power.amount    = function()
+    --             if select(2,UnitClass("player")) == "DEATHKNIGHT" and v == 5 then
+    --                 local runeCount = 0
+    --                 for i = 1, 6 do
+    --                     runeCount = runeCount + GetRuneCount(i)
+    --                 end
+    --                 return runeCount
+    --             else
+    --                 return powerV
+    --             end
+    --         end
+    --         power.frac      = function()
+    --             if select(2,UnitClass("player")) == "DEATHKNIGHT" and v == 5 then
+    --                 local function runeCDPercent(runeIndex)
+    --                     if GetRuneCount(runeIndex) == 0 then
+    --                         return (GetTime() - select(1,GetRuneCooldown(runeIndex))) / select(2,GetRuneCooldown(runeIndex))
+    --                     else
+    --                         return 0
+    --                     end
+    --                 end
+    --                 local runeCount = 0
+    --                 for i = 1, 6 do
+    --                     runeCount = runeCount + GetRuneCount(i)
+    --                 end
+    --                 return runeCount + math.max(runeCDPercent(1),runeCDPercent(2),runeCDPercent(3),runeCDPercent(4),runeCDPercent(5),runeCDPercent(6))
+    --             else
+    --                 return 0
+    --             end
+    --         end
+    --         power.max       = function()
+    --             return powerMaxV
+    --         end
+    --         power.deficit   = function()
+    --             return powerMaxV - powerV
+    --         end
+    --         power.percent   = function()
+    --             if powerMaxV == 0 then 
+    --                 return 0 
+    --             else 
+    --                 return ((powerV / powerMaxV) * 100) 
+    --             end
+    --         end
+    --         power.regen     = function()
+    --             return getRegen("player")
+    --         end
+    --         power.ttm       = function()
+    --             return getTimeToMax("player")
+    --         end
+    --     end
+    -- end
+    
     self.units = function(range,aoe)
         if aoe == nil then aoe = false end
         if aoe then
@@ -178,44 +260,6 @@ function br.loader:new(spec,specName)
         if unit == nil then unit = "player" end
         return getEnemies(unit,range)
     end
-
--- Build Best Unit and Enemies List per Range
-    -- local typicalRanges = {
-    --     50,
-    --     45,
-    --     40, -- Typical Ranged Limit
-    --     35,
-    --     30,
-    --     25,
-    --     23,
-    --     22.75,
-    --     20,
-    --     18,
-    --     15,
-    --     13, -- Feral Interrupt
-    --     12,
-    --     10, -- Other Typical AoE Effect
-    --     9, -- Monk Artifact
-    --     8, -- Typical AoE Effect
-    --     5, -- Typical Melee
-    -- }
-    -- for x = 1, #typicalRanges do
-    --     local i = typicalRanges[x]
-
-    --     self.units["dyn"..i] = function(aoe)
-    --         if aoe == nil then aoe = false end
-    --         if aoe then
-    --             return dynamicTarget(i, false)
-    --         else
-    --             return dynamicTarget(i, true)
-    --         end
-    --     end
-
-    --     self.enemies["yards"..i] = function(unit)
-    --         if unit == nil then unit = "player" end
-    --         return getEnemies(unit,i)
-    --     end
-    -- end
 
     -- Cycle through Abilities List
     for k,v in pairs(self.spell.abilities) do
@@ -309,12 +353,7 @@ function br.loader:new(spec,specName)
     function self.update()
         -- Call baseUpdate()
         self.baseUpdate()
-        -- local startTime = debugprofilestop()
         self.cBuilder()
-        -- br.debug.cpu.cBuilder.totalIterations = br.debug.cpu.cBuilder.totalIterations + 1
-        -- br.debug.cpu.cBuilder.currentTime = debugprofilestop()-startTime
-        -- br.debug.cpu.cBuilder.elapsedTime = br.debug.cpu.cBuilder.elapsedTime + debugprofilestop()-startTime
-        -- br.debug.cpu.cBuilder.averageTime = br.debug.cpu.cBuilder.elapsedTime / br.debug.cpu.cBuilder.totalIterations
         self.getPetInfo()
         self.getToggleModes()
         -- Start selected rotation
@@ -325,7 +364,6 @@ function br.loader:new(spec,specName)
 --- BUILDER ---
 ---------------
     function self.cBuilder()
-
         -- local timeStart = debugprofilestop()
         -- Update Power
         powerList     = {
@@ -367,7 +405,11 @@ function br.loader:new(spec,specName)
                 self.power[k].amount    = powerV
                 self.power[k].max       = powerMaxV
                 self.power[k].deficit   = powerMaxV - powerV
-                self.power[k].percent   = ( powerV / powerMaxV) * 100
+                if powerMaxV == 0 then
+                    self.power[k].percent   = 0
+                else    
+                    self.power[k].percent   = ((powerV / powerMaxV) * 100)
+                end
                 self.power.amount[k]    = powerV
                 -- DKs are special snowflakes
                 if select(2,UnitClass("player")) == "DEATHKNIGHT" and v == 5 then
@@ -382,53 +424,6 @@ function br.loader:new(spec,specName)
         end
         self.power.regen     = getRegen("player")
         self.power.ttm       = getTimeToMax("player")
-
-        -- -- Build Best Unit and Enemies List per Range
-        -- local typicalRanges = {
-        --     40, -- Typical Ranged Limit
-        --     35,
-        --     30,
-        --     25,
-        --     20,
-        --     15,
-        --     13, -- Feral Interrupt
-        --     12,
-        --     10, -- Other Typical AoE Effect
-        --     9, -- Monk Artifact
-        --     8, -- Typical AoE Effect
-        --     5, -- Typical Melee
-        -- }
-        -- for x = 1, #typicalRanges do
-        --     local i = typicalRanges[x]
-        --     -- Assign Best Target In Front for Set Yards
-        --     self.units["dyn"..tostring(i)] = dynamicTarget(i, true)
-        --     -- Assign Best Target In AoE for Set Yards
-        --     self.units["dyn"..tostring(i).."AoE"] = dynamicTarget(i, false)
-        --     -- Prep Enemies Per Yards tables
-        --     if self.enemies["yards"..tostring(i)] == nil then self.enemies["yards"..tostring(i)] = {} else table.wipe(self.enemies["yards"..tostring(i)]) end
-        --     if i <= 10 then
-        --         if self.enemies["yards"..tostring(i).."t"] == nil then self.enemies["yards"..tostring(i).."t"] = {} else table.wipe(self.enemies["yards"..tostring(i).."t"]) end
-        --     end
-        -- end
-        -- for k, v in pairs(br.enemy) do
-        --     -- -- Store enemies in Debuff Applied for adding applied bleed values to
-        --     -- if self.debuff.applied == nil then self.debuff.applied = {} end
-        --     -- if self.debuff.applied[k] == nil then self.debuff.applied[k] = 0 end
-        --     -- Find ranges enemy is present in and add to tables
-        --     local thisUnit = br.enemy[k].unit
-        --     local thisDistance = getDistance(thisUnit)
-        --     for x = 1, #typicalRanges do
-        --         local i = typicalRanges[x]
-        --         -- Assign enemies to tables for specific yard
-        --         if thisDistance < i then
-        --             table.insert(self.enemies["yards"..tostring(i)],thisUnit)
-        --         end
-        --         local thisDistanceT = getDistance(self.units["dyn"..tostring(i)],thisUnit)
-        --         if thisDistanceT < i and i <= 10 then
-        --             table.insert(self.enemies["yards"..tostring(i).."t"],thisUnit)
-        --         end
-        --     end
-        -- end
 
         if not UnitAffectingCombat("player") then
             -- Build Artifact Info
@@ -479,7 +474,7 @@ function br.loader:new(spec,specName)
         if select(2,UnitClass("player")) == "HUNTER" or select(2,UnitClass("player")) == "WARLOCK" then
             if self.petInfo == nil then self.petInfo = {} end
             self.petInfo = table.wipe(self.petInfo)
-            local objectCount = GetObjectCount() or ObjectCount() or 0
+            local objectCount = GetObjectCount() or 0
             for i = 1, objectCount do
                 -- define our unit
                 local thisUnit = GetObjectWithIndex(i)

@@ -227,6 +227,7 @@ function br.ui:toggleWindow(windowName)
             if br.ui.window[k].parent ~= nil then 
                 if br.data.settings[br.selectedSpec][k].active then
                     br.ui.window[k].parent.closeButton:Click()
+                    br.data.settings[br.selectedSpec][k].active = false
                 else
                     br.ui.window[k].parent:Show()
                     br.data.settings[br.selectedSpec][k].active = true

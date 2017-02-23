@@ -51,7 +51,11 @@ function br:MinimapButton()
 					mainButton:Show()
 				end
 			elseif not IsShiftKeyDown() and not IsAltKeyDown() then
-				br.ui:toggleWindow("config")
+				if br.ui.window.config.parent == nil then
+	            	br.ui:createConfigWindow()
+	            else
+					br.ui:toggleWindow("config")
+				end
             end
 		end
 	end)

@@ -26,6 +26,9 @@ function addon:ARTIFACT_TRAITS_CHANGED()
     updateArtifact()
 end
 
+--New: ARTIFACT_RELIC_INFO_RECEIVED  
+--Old: ARTIFACT_UPDATE
+
 LAD.RegisterCallback(addon, "ARTIFACT_ADDED")
 LAD.RegisterCallback(addon, "ARTIFACT_EQUIPPED_CHANGED")
 LAD.RegisterCallback(addon, "ARTIFACT_DATA_MISSING")
