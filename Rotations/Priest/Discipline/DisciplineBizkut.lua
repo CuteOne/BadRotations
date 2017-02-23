@@ -317,7 +317,8 @@ local function runRotation()
         -----------------
         function actionList_Cooldowns()
             if useCDs() then
-                if isChecked("Disable CD during Speed: Slow") and UnitDebuffID("player",207011) then --Speed: Slow debuff during the Chromatic Anomaly encounter
+                if isChecked("Disable CD during Speed: Slow") and UnitDebuffID("player",207011) then
+                    return --Speed: Slow debuff during the Chromatic Anomaly encounter
                 else
                     --Racials
                     --blood_fury
