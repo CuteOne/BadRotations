@@ -121,8 +121,8 @@ end
 
 -- Elements on Update Timer
 C_Timer.NewTicker(0.1, function()
-	if getOptionCheck("Start/Stop BadRotations")
-		or (br.data.settings[br.selectedSpec].toggles["Power"] ~= nil
+	if --[[getOptionCheck("Start/Stop BadRotations")
+		or]] (br.data.settings[br.selectedSpec].toggles["Power"] ~= nil
 		and br.data.settings[br.selectedSpec].toggles["Power"] == 1)
 	then
 	-- Display Distance on Main Icon
