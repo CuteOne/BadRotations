@@ -91,7 +91,7 @@ function BadRotationsUpdate(self)
 			-- Close windows and swap br.selectedSpec on Spec Change
 			if select(2,GetSpecializationInfo(GetSpecialization())) ~= br.selectedSpec then
 		    	-- Closing the windows will save the position
-		        -- br.ui:closeWindow("all")
+		        br.ui:closeWindow("all")
 		        -- br.ui:closeWindow("profile")
 		        -- br.ui:checkWindowStatus("profile")
 

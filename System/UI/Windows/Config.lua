@@ -20,6 +20,7 @@ function br.ui:createConfigWindow()
         br.ui:createCheckbox(section, "Auto-Sell/Repair", "Automatically sells grays and repairs when you open a repair vendor.")
         br.ui:createCheckbox(section, "Accept Queues", "Automatically accept LFD, LFR, .. queue.")
         br.ui:createCheckbox(section, "Overlay Messages", "Check to enable chat overlay messages.")
+        br.ui:createSpinner(section, "Notify when FH not attached", 10, 5, 60, 5, "Will alert you at the set interval when FireHack or EWT is not attached.")
         br.ui:createCheckbox(section, "Reset Options", "|cffFF0000 WARNING!|cffFFFFFF Checking this will reset setting on reload!")
         br.ui:checkSectionState(section)
     end
