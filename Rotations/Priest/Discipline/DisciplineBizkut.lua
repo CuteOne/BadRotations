@@ -80,6 +80,8 @@ local function createOptions()
             br.ui:createSpinner(section, "Max Atonement",  40,  0,  40,  1,  "|cffFFFFFFMaximum Atonement to keep at a time. Default: 40")
             --Max Plea
             br.ui:createSpinner(section, "Max Plea",  5,  0,  40,  1,  "|cffFFFFFFMaximum Atonement before we avoid using Plea as it becomes too expensive. Default: 5")
+            --Debuff Shadow Mend/Penance Heal
+            br.ui:createSpinner(section, "Debuff Shadow Mend/Penance Heal",  90,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At. Default: 90")
             --Penance Heal
             br.ui:createSpinner(section, "Penance Heal",  60,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At. Default: 60")
             --Shadow Mend
@@ -580,6 +582,23 @@ local function runRotation()
                     for i =1, #br.friend do
                         if UnitIsPlayer(br.friend[i].unit) and UnitIsDeadOrGhost(br.friend[i].unit) and lastSpell ~= spell.resurrection then
                             if cast.resurrection(br.friend[i].unit) then return end
+                        end
+                    end
+                end
+            end
+            --Debuff Shadow Mend/Penance Heal
+            if isChecked("Debuff Shadow Mend/Penance Heal") then
+                for i = 1, #br.friend do
+                    if br.friend[i].hp <= getValue("Debuff Shadow Mend/Penance Heal") then
+                        for n = 1,40 do
+                            local buff,_,_,count,bufftype,duration = UnitDebuff(br.friend[i].unit, n)
+                            if buff then
+                                if isMoving("player") and talent.thePenitent then
+                                    if cast.penance(br.friend[i].unit) then return end
+                                else
+                                    if cast.shadowMend(br.friend[i].unit) then return end
+                                end
+                            end
                         end
                     end
                 end
