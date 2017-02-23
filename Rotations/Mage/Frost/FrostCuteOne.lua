@@ -480,7 +480,7 @@ local function runRotation()
                     end
             -- Cooldowns
                     -- call_action_list,name=cooldown
-                    if actionList_Cooldowns() then return end
+                    if actionList_CooldownsAMR() then return end
             -- Ice Nova w/ winterchill (SimC)
                     -- ice_nova,if=debuff.winters_chill.up
                     if UnitDebuffID("target",228358) then -- Winter Chill Call
