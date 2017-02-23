@@ -97,7 +97,7 @@ local function createOptions()
         ---------- DPS ----------
         -------------------------
         section = br.ui:createSection(br.ui.window.profile, "DPS")
-            br.ui:createSpinner(section, "DPS", 80, 0, 100, 5, "Maximum Health to DPS")
+            br.ui:createSpinner(section, "DPS", 80, 0, 100, 5, "Minimum Health to DPS")
             -- Consecration
             br.ui:createSpinner(section, "Consecration",  6,  0,  40,  1,  "Minimum Consecration Targets")
             -- Holy Prism
