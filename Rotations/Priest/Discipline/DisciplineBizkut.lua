@@ -600,7 +600,7 @@ local function runRotation()
             --Shadow Mend Emergency
             if isChecked("Shadow Mend Emergency") then
                 for i = 1, #br.friend do
-                    if br.friend[i].hp <= getValue("Shadow Mend Emergency") and lastSpell ~= spell.shadowMend then
+                    if br.friend[i].hp <= getValue("Shadow Mend Emergency") then
                         if mode.healer == 1 or mode.healer == 2 then
                             if cast.shadowMend(br.friend[i].unit) then return end
                         end
@@ -613,7 +613,7 @@ local function runRotation()
             --Shadow Mend
             if isChecked("Shadow Mend") then
                 for i = 1, #br.friend do                           
-                    if br.friend[i].hp <= getValue("Shadow Mend") and lastSpell ~= spell.shadowMend and (not inCombat or getBuffRemain(br.friend[i].unit, spell.buffs.atonement, "player") < 1) then
+                    if br.friend[i].hp <= getValue("Shadow Mend") and (not inCombat or getBuffRemain(br.friend[i].unit, spell.buffs.atonement, "player") < 1) then
                         if mode.healer == 1 or mode.healer == 2 then
                             if cast.shadowMend(br.friend[i].unit) then return end
                         end
