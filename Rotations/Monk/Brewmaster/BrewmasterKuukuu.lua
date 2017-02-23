@@ -439,7 +439,7 @@ local function runRotation()
                     for i = 1, #enemies.yards30 do
                        local thisUnit = enemies.yards30[i]
                        local enemyTarget = UnitTarget(thisUnit)
-                       print(UnitGroupRolesAssigned(enemyTarget))
+                      
                        -- if not isAggroed(thisUnit) and hasThreat(thisUnit) then
                        if enemyTarget ~= nil and UnitGroupRolesAssigned(enemyTarget) ~= "TANK" and UnitIsFriend(enemyTarget,"player") then
                             if cast.provoke(thisUnit) then return end
@@ -503,7 +503,7 @@ local function runRotation()
                 for i = 1, #enemies.yards30 do
                    local thisUnit = enemies.yards30[i]
                    local enemyTarget = UnitTarget(thisUnit)
-                   print(UnitGroupRolesAssigned(enemyTarget))
+                   
                    -- if not isAggroed(thisUnit) and hasThreat(thisUnit) then
                    if enemyTarget ~= nil and UnitGroupRolesAssigned(enemyTarget) ~= "TANK" and UnitIsFriend(enemyTarget,"player") then
                         if cast.provoke(thisUnit) then return end
@@ -564,7 +564,7 @@ local function runRotation()
                 for i = 1, #enemies.yards30 do
                    local thisUnit = enemies.yards30[i]
                    local enemyTarget = UnitTarget(thisUnit)
-                   print(UnitGroupRolesAssigned(enemyTarget))
+                  
                    -- if not isAggroed(thisUnit) and hasThreat(thisUnit) then
                    if enemyTarget ~= nil and UnitGroupRolesAssigned(enemyTarget) ~= "TANK" and UnitIsFriend(enemyTarget,"player") then
                         if cast.provoke(thisUnit) then return end
