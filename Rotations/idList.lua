@@ -1416,6 +1416,7 @@ br.idList = {
                 holyLight                   = 82326;
                 holyPrism                   = 114165;
                 holyShock                   = 20473;
+                judgment                    = 20271,
                 lightOfDawn                 = 85222;
                 lightOfTheMartyr            = 183998;
                 lightsHammer                = 114158;
@@ -1444,6 +1445,7 @@ br.idList = {
 
             },
             debuffs                         = {
+                judgement                   = 214222,
 
             },
             glyphs                          = {
