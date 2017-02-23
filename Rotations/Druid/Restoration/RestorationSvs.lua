@@ -241,6 +241,30 @@ local function runRotation()
         end -- End Action List - Extras
         -- Action List - Pre-Combat
         function actionList_PreCombat()
+            -- Lifebloom
+            if isChecked("Lifebloom") and not isCastingSpell(spell.tranquility) then
+                if inInstance then    
+                    for i = 1, #br.friend do
+                        if not buff.lifebloom.exists(br.friend[i].unit) and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
+                            if cast.lifebloom(br.friend[i].unit) then return end
+                        end
+                    end              
+                else 
+                    if inRaid then
+                        bloomCount = 0
+                        for i=1, #br.friend do
+                            if buff.lifebloom.exists(br.friend[i].unit) then
+                                bloomCount = bloomCount + 1
+                            end
+                        end
+                        for i = 1, #br.friend do
+                            if bloomCount < 1 and not buff.lifebloom.exists(br.friend[i].unit) and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
+                                if cast.lifebloom(br.friend[i].unit) then return end
+                            end
+                        end
+                    end
+                end
+            end
             -- Rejuvenation
             if isChecked("Rejuvenation") then
                 rejuvCount = 0
@@ -258,9 +282,9 @@ local function runRotation()
                 end
             end
             -- Regrowth
-           if isChecked("Regrowth") then
+           if isChecked("Regrowth") and lastSpell ~= spell.regrowth then
                 for i = 1, #br.friend do
-                    if br.friend[i].hp <= getValue("Regrowth Clearcasting") and buff.clearcasting.exists() then
+                    if br.friend[i].hp <= getValue("Regrowth Clearcasting") and buff.clearcasting.remain() > 1.5 then
                         if cast.regrowth(br.friend[i].unit) then return end     
                     elseif br.friend[i].hp <= getValue("Regrowth") and buff.regrowth.remain(br.friend[i].unit) <= 1 then
                         if cast.regrowth(br.friend[i].unit) then return end     
@@ -402,9 +426,9 @@ local function runRotation()
                 end
             end
             -- Regrowth
-           if isChecked("Regrowth") then
+           if isChecked("Regrowth") and lastSpell ~= spell.regrowth then
                 for i = 1, #br.friend do
-                    if br.friend[i].hp <= getValue("Regrowth Clearcasting") and buff.clearcasting.exists() then
+                    if br.friend[i].hp <= getValue("Regrowth Clearcasting") and buff.clearcasting.remain() > 1.5 then
                         if cast.regrowth(br.friend[i].unit) then return end
                     elseif isChecked("Keep Regrowth on tank") and buff.lifebloom.exists(br.friend[i].unit) and buff.regrowth.remain(br.friend[i].unit) <= 1 then
                         if cast.regrowth(br.friend[i].unit) then return end
