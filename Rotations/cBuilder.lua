@@ -479,7 +479,7 @@ function br.loader:new(spec,specName)
         if select(2,UnitClass("player")) == "HUNTER" or select(2,UnitClass("player")) == "WARLOCK" then
             if self.petInfo == nil then self.petInfo = {} end
             self.petInfo = table.wipe(self.petInfo)
-            local objectCount = GetObjectCount()
+            local objectCount = GetObjectCount() or ObjectCount() or 0
             for i = 1, objectCount do
                 -- define our unit
                 local thisUnit = GetObjectWithIndex(i)

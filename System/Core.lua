@@ -119,7 +119,7 @@ function BadRotationsUpdate(self)
 			 	br.ui:closeWindow("all")
 				if getOptionCheck("Start/Stop BadRotations") then
 					ChatOverlay("FireHack not Loaded.")
-					if br.timer:useTimer("notLoaded", 10) then
+					if isChecked("Notify when FH not attached") and br.timer:useTimer("notLoaded", getOptionValue("Notify when FH not attached")) then
 						Print("|cffFFFFFFCannot Start... |cffFF1100Firehack |cffFFFFFFis not loaded. Please attach Firehack.")
 					end
 				end
