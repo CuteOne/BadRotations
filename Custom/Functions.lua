@@ -78,7 +78,7 @@ function castGroundAtBestLocation(spellID, radius, minUnits, maxRange, minRange,
 	-- for i=1,#unitTable do
 
 	for k, v in pairs(unitTable) do
-		if (type(k) == "number" and spellType == "heal") or spellType == nil then 
+		if type(k) == "number" or spellType == nil then 
 			local thisUnit = unitTable[k].unit
 			local thisDistance = getDistance(thisUnit)
 			local hasThreat = isValidUnit(thisUnit) or UnitIsFriend(thisUnit,"player") --hasThreat(br.enemy[i].unit)
