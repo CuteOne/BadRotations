@@ -247,7 +247,7 @@ function pulseNovaDebug()
 	-- 	-- br.ui.window.healing:AddMessage(textString)
 	-- elseif br.ui.window['healing']['parent'] and br.data.settings[br.selectedSpec]["healing"].active == true then
 	-- 	br.ui:closeWindow("healing")
-	-- end
+	end
 end
 
 -- if getOptionCheck("Rotation Log") then
