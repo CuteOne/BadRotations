@@ -78,10 +78,10 @@ function castGroundAtBestLocation(spellID, radius, minUnits, maxRange, minRange,
 	-- for i=1,#unitTable do
 
 	for k, v in pairs(unitTable) do
-		if type(k) == "number" or spellType == nil then 
+		if type(k) == "number" or type(k) == "string" then 
 			local thisUnit = unitTable[k].unit
 			local thisDistance = getDistance(thisUnit)
-			local hasThreat = (spellType == nil and isValidUnit(thisUnit)) or UnitIsFriend(thisUnit,"player") --hasThreat(br.enemy[i].unit)
+			local hasThreat = (spellType ~= "heal" and isValidUnit(thisUnit)) or UnitIsFriend(thisUnit,"player") --hasThreat(br.enemy[i].unit)
 			if isNotBlacklisted(thisUnit) then
 				-- Print("blacklist passed")
 				if thisDistance < maxRange and thisDistance >= minRange and hasThreat then
@@ -416,7 +416,6 @@ function SalvageHelper()
 				salvageTimer = GetTime() -- if no more free slots, start timer
                 -- TEMP ! Trys to sell to close merchant (needs addon which sells items when opening merchant window)
                 CloseMerchant()
-                -- local objectCount = GetObjectCount() or 0
                 for i=1, ObjectCount() do
                     -- Locals
                     local thisObject = GetObjectWithIndex(i)
@@ -456,14 +455,15 @@ end
 
 -- Used by new Class Framework to put all seperat Spell-Tables into new spell table
 function mergeSpellTables(tSpell, tCharacter, tClass, tSpec)
-  tSpell = mergeTables(tSpell, tCharacter)
-  tSpell = mergeTables(tSpell, tClass)
-  tSpell = mergeTables(tSpell, tSpec)
-  return tSpell
+  	tSpell = mergeTables(tSpell, tCharacter)
+  	tSpell = mergeTables(tSpell, tClass)
+  	tSpell = mergeTables(tSpell, tSpec)
+  	return tSpell
 end
 function mergeIdTables(idTable)
 	local class = select(2,UnitClass("player"))
 	local spec = GetSpecializationInfo(GetSpecialization())
+	if idTable ~= nil then idTable = {} end
 	if br.idList.Shared ~= nil then
 		idTable = mergeTables(idTable, br.idList.Shared)
 	end

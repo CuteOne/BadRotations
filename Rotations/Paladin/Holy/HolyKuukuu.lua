@@ -625,7 +625,6 @@ local function runRotation()
             end
             -- Flash of Light
             if isChecked("Flash of Light") and (getOptionValue("FoL Infuse") == 1 or (getOptionValue("FoL Infuse") == 2 and buff.infusionOfLight.exists("player"))) then
-                print(getOptionValue("FoL Infuse"))
                 for i = 1, #br.friend do
                     if br.friend[i].hp <= getValue("Flash of Light")  then
                         if cast.flashOfLight(br.friend[i].unit) then return end

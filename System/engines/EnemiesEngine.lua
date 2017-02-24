@@ -1,15 +1,108 @@
 -- Function to create and populate table of enemies within a distance from player.
 br.enemy = {}
 
+-- Adds Enemies to the enemy table
+local function AddEnemy(thisUnit)
+	local startTime = debugprofilestop()
+	-- if br.enemy[thisUnit] == nil then
+		br.enemy[thisUnit] 	= {}
+		local enemy 		= br.enemy[thisUnit] 
+		enemy.unit 			= thisUnit
+		enemy.name 			= UnitName(thisUnit)
+		enemy.guid 			= UnitGUID(thisUnit)
+		enemy.id 			= GetObjectID(thisUnit)
+	-- end
+	br.debug.cpu.enemiesEngine.addTime = debugprofilestop()-startTime or 0
+end
+
+-- Updates Enemy Info
+local function UpdateEnemy(thisUnit)
+	local startTime 	= debugprofilestop()
+	local longTimeCC
+	if getOptionCheck("Don't break CCs") then
+		longTimeCC 		= isLongTimeCCed(thisUnit)
+	else
+		longTimeCC 		= false
+	end
+	local burnValue 	= isBurnTarget(thisUnit) or 0
+	local shieldValue 	= isShieldedTarget(thisUnit) or 0
+	local unitDistance 	= getDistance("player",thisUnit)
+	local unitThreat 	= UnitThreatSituation("player",thisUnit) or -1
+	local enemy 		= br.enemy[thisUnit]
+	enemy.inCombat 		= UnitAffectingCombat(thisUnit)
+	enemy.coeficient 	= getUnitCoeficient(thisUnit,unitDistance,unitThreat,burnValue,shieldValue) or 0
+	enemy.cc 			= isCrowdControlCandidates(thisUnit)
+	enemy.isCC 			= isLongTimeCCed(thisUnit)
+	enemy.facing 		= getFacing("player",thisUnit)
+	enemy.threat 		= UnitThreatSituation("player",thisUnit) or -1
+	enemy.hp 			= getHP(thisUnit)
+	enemy.hpabs 		= UnitHealth(thisUnit)
+	enemy.safe 			= isSafeToAttack(thisUnit)
+	enemy.burn 			= isBurnTarget(thisUnit) or 0
+	enemy.offensiveBuff = getOffensiveBuffs(thisUnit,unitGUID)
+	br.debug.cpu.enemiesEngine.updateTime = debugprofilestop()-startTime or 0
+end
+
+-- Remove Invalid Enemies
+local function DeleteEnemy(thisUnit)
+	if not isValidUnit(thisUnit) then
+		-- Print("Removing Enemy")
+		br.enemy[thisUnit] = nil
+	else
+		UpdateEnemy(thisUnit)
+	end
+end
+
+-- Find Enemies
+local function FindEnemy()
+	-- DEBUG
+    local startTime = debugprofilestop()
+    br.debug.cpu.enemiesEngine.unitTargets = 0
+    br.debug.cpu.enemiesEngine.sanityTargets = 0
+    local objectCount = GetObjectCount() 
+	if FireHack ~= nil and objectCount > 0 then --and (enemyCount == 0 or enemyCount < br.debug.cpu.enemiesEngine.sanityTargets) then
+        for i = 1, objectCount do
+			-- define our unit
+            local thisUnit = GetObjectWithIndex(i)
+			-- check if it a unit first
+            if ObjectIsType(thisUnit, ObjectTypes.Unit) and br.enemy[thisUnit] == nil then
+                br.debug.cpu.enemiesEngine.unitTargets = br.debug.cpu.enemiesEngine.unitTargets + 1
+				-- Enemies
+				if isValidUnit(thisUnit) then
+                    br.debug.cpu.enemiesEngine.sanityTargets = br.debug.cpu.enemiesEngine.sanityTargets + 1
+                    -- Print("Adding Enemy")
+					AddEnemy(thisUnit)
+				end
+			end
+		end
+	end
+	-- Debugging
+	br.debug.cpu.enemiesEngine.totalIterations = br.debug.cpu.enemiesEngine.totalIterations + 1
+	br.debug.cpu.enemiesEngine.currentTime = debugprofilestop()-startTime
+	br.debug.cpu.enemiesEngine.elapsedTime = br.debug.cpu.enemiesEngine.elapsedTime + debugprofilestop()-startTime
+	br.debug.cpu.enemiesEngine.averageTime = br.debug.cpu.enemiesEngine.elapsedTime / br.debug.cpu.enemiesEngine.totalIterations
+end
+
+function EnemiesEngine()
+	-- Run Update/Delete
+	if br.enemy ~= nil then
+		for k, v in pairs(br.enemy) do
+			DeleteEnemy(k)
+		end
+	end
+	FindEnemy()
+end
+
 -- returns prefered target for diferent spells
 function dynamicTarget(range,facing)
+	local startTime = debugprofilestop()
 	if getOptionCheck("Dynamic Targetting") then
 		local bestUnitCoef = 0
 		local bestUnit = "target"
 		for k, v in pairs(br.enemy) do
 			local thisUnit = br.enemy[k]
 			local thisDistance = getDistance("player",thisUnit.unit)
-			if GetObjectExists(thisUnit.unit) and ObjectID(thisUnit.unit) ~= 103679 then
+			if GetObjectExists(thisUnit.unit) and ObjectID(thisUnit.unit) ~= 103679 and thisUnit.coeficient ~= nil then
 				if (not getOptionCheck("Safe Damage Check") or thisUnit.safe) and not thisUnit.isCC
 					and thisDistance < range and (not facing or thisUnit.facing)
 				then
@@ -20,12 +113,43 @@ function dynamicTarget(range,facing)
 				end
 			end
 		end
+		br.debug.cpu.enemiesEngine.dynamicTarget = debugprofilestop()-startTime or 0
 		return bestUnit
-	-- else
-	-- 	return "target"
 	end
+	br.debug.cpu.enemiesEngine.dynamicTarget = debugprofilestop()-startTime or 0
 	return "target"
 end
+-- function dynamicTarget(range,facing)
+-- 	if getOptionCheck("Dynamic Targetting") then
+-- 		local bestUnitCoef = 0
+-- 		local bestUnit = "target"
+-- 		for i = 1, ObjectCount() do
+-- 			-- define our unit
+--             local thisUnit = GetObjectWithIndex(i)
+-- 			-- check if it a unit first
+--             if ObjectIsType(thisUnit, ObjectTypes.Unit) then
+--             	local unitDistance 		= getDistance("player",thisUnit)
+--             	local unitThreat 		= UnitThreatSituation("player",thisUnit) or -1
+--             	local burnValue 		= isBurnTarget(thisUnit) or 0
+-- 				local shieldValue 		= isShieldedTarget(thisUnit) or 0
+--             	local unitCoeficient 	= getUnitCoeficient(thisUnit,unitDistance,unitThreat,burnValue,shieldValue) or 0
+--             	-- sanity checks
+-- 				if isValidUnit(thisUnit) and ObjectID(thisUnit) ~= 103679 then
+-- 					if (not getOptionCheck("Safe Damage Check") or isSafeToAttack(thisUnit)) and not isLongTimeCCed(thisUnit)
+-- 						and unitDistance < range and (not facing or getFacing("player",thisUnit))
+-- 					then
+-- 						if unitCoeficient >= 0 and unitCoeficient >= bestUnitCoef then
+-- 							bestUnitCoef = unitCoeficient
+-- 							bestUnit = thisUnit
+-- 						end
+-- 					end
+-- 				end
+-- 			end
+-- 		end
+-- 		return bestUnit
+-- 	end
+-- 	return "target"
+-- end
 
 -- get the best aoe interupt unit for a given range
 function getBestAoEInterupt(Range)
@@ -78,6 +202,7 @@ end
 -- /dump UnitGUID("target")
 -- /dump getEnemies("target",10)
 function getEnemies(unit,Radius,InCombat,precise)
+	local startTime = debugprofilestop()
 	if GetObjectExists(unit) and UnitIsVisible(unit) then
 		local getEnemiesTable = { }
 		for k, v in pairs(br.enemy) do
@@ -100,6 +225,7 @@ function getEnemies(unit,Radius,InCombat,precise)
 	else
 		return { }
 	end
+	br.debug.cpu.enemiesEngine.getEnemies = debugprofilestop()-startTime or 0
 end
 
 function getTableEnemies(unit,Range,table)
@@ -374,94 +500,6 @@ function isShieldedTarget(unit)
 		end
 	end
 	return coef
-end
-
--- Adds Enemies to the enemy table
-local function AddEnemy(thisUnit)
-	local startTime = debugprofilestop()
-	if br.enemy[thisUnit] == nil then
-		br.enemy[thisUnit] 	= {}
-		local enemy 		= br.enemy[thisUnit] 
-		enemy.unit 			= thisUnit
-		enemy.name 			= UnitName(thisUnit)
-		enemy.guid 			= UnitGUID(thisUnit)
-		enemy.id 			= GetObjectID(thisUnit)
-	end
-	br.debug.cpu.enemiesEngine.addTime = debugprofilestop()-startTime or 0
-end
-
--- Updates Enemy Info
-local function UpdateEnemy(thisUnit)
-	local startTime 	= debugprofilestop()
-	local longTimeCC
-	if getOptionCheck("Don't break CCs") then
-		longTimeCC 		= isLongTimeCCed(thisUnit)
-	else
-		longTimeCC 		= false
-	end
-	local burnValue 	= isBurnTarget(thisUnit) or 0
-	local shieldValue 	= isShieldedTarget(thisUnit) or 0
-	local enemy 		= br.enemy[thisUnit]
-	enemy.inCombat 		= UnitAffectingCombat(thisUnit)
-	enemy.coeficient 	= getUnitCoeficient(thisUnit,unitDistance,unitThreat,burnValue,shieldValue) or 0
-	enemy.cc 			= isCrowdControlCandidates(thisUnit)
-	enemy.isCC 			= isLongTimeCCed(thisUnit)
-	enemy.facing 		= getFacing("player",thisUnit)
-	enemy.threat 		= UnitThreatSituation("player",thisUnit) or -1
-	enemy.hp 			= getHP(thisUnit)
-	enemy.hpabs 		= UnitHealth(thisUnit)
-	enemy.safe 			= isSafeToAttack(thisUnit)
-	enemy.burn 			= isBurnTarget(thisUnit) or 0
-	enemy.offensiveBuff = getOffensiveBuffs(thisUnit,unitGUID)
-	br.debug.cpu.enemiesEngine.updateTime = debugprofilestop()-startTime or 0
-end
-
--- Remove Invalid Enemies
-local function DeleteEnemy(thisUnit)
-	if not GetObjectExists(thisUnit) or UnitIsDeadOrGhost(thisUnit) or getDistance(thisUnit) >= 50 then
-		br.enemy[thisUnit] = nil
-	else
-		UpdateEnemy(thisUnit)
-	end
-end
-
-function EnemiesEngine()
-	-- DEBUG
-    local startTime = debugprofilestop()
-    br.debug.cpu.enemiesEngine.sanityTargets = 0
-    br.debug.cpu.enemiesEngine.unitTargets = 0
-    -- Find Enemies
-    -- local objectCount = GetObjectCount() or 0 
-	if FireHack ~= nil and ObjectCount() > 0 then
-        for i = 1, ObjectCount() do
-			-- define our unit
-            local thisUnit = GetObjectWithIndex(i)
-			-- check if it a unit first
-            if ObjectIsType(thisUnit, ObjectTypes.Unit) then
-            	local inCombat = UnitAffectingCombat("player")
-            	local range = getDistance(thisUnit)
-                br.debug.cpu.enemiesEngine.unitTargets = br.debug.cpu.enemiesEngine.unitTargets + 1
-				-- sanity checks
-				if ((inCombat and range < 50) or (not inCombat and range < 20)) then
-					if isValidUnit(thisUnit) then
-	                    br.debug.cpu.enemiesEngine.sanityTargets = br.debug.cpu.enemiesEngine.sanityTargets + 1
-						AddEnemy(thisUnit)
-					end
-				end
-			end
-		end
-	end
-	-- Run Update/Delete
-	if br.enemy ~= nil then
-		for k, v in pairs(br.enemy) do
-			DeleteEnemy(k)
-		end
-	end
-	-- Debugging
-	br.debug.cpu.enemiesEngine.totalIterations = br.debug.cpu.enemiesEngine.totalIterations + 1
-	br.debug.cpu.enemiesEngine.currentTime = debugprofilestop()-startTime
-	br.debug.cpu.enemiesEngine.elapsedTime = br.debug.cpu.enemiesEngine.elapsedTime + debugprofilestop()-startTime
-	br.debug.cpu.enemiesEngine.averageTime = br.debug.cpu.enemiesEngine.elapsedTime / br.debug.cpu.enemiesEngine.totalIterations
 end
 
 	-- Todo: So i think the prioritisation should be large by determined by threat or burn prio and then hp.
