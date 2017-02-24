@@ -55,7 +55,7 @@ local function createOptions()
             br.ui:createSpinner(section, "Beacon of Virtue", 30, 0, 100, 5, "Health Percent to Cast At")
             br.ui:createSpinner(section, "BoV Targets",  6,  0,  40,  1,  "Minimum Beacon of Virtue Targets")
         -- Redemption
-            br.ui:createDropdownWithout(section, "Redemption", {"|cffFFFFFFTarget","|cffFFFFFFMouseover"}, 1, "|cffFFFFFFSelect Redemption Mode.")
+            br.ui:createDropdown(section, "Redemption", {"|cffFFFFFFTarget","|cffFFFFFFMouseover"}, 1, "|cffFFFFFFSelect Redemption Mode.")
         br.ui:checkSectionState(section)
         -------------------------
         --- INTERRUPT OPTIONS ---
@@ -217,7 +217,7 @@ local function runRotation()
 -----------------
         if getOptionValue("Mode") == 1 and not IsMounted() then
             -- Redemption
-            if isChecked("Redemption") then
+            if isChecked("Redemption") then                
                 if getOptionValue("Redemption") == 1
                     and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and UnitIsFriend("target","player")
                 then
@@ -375,6 +375,7 @@ local function runRotation()
                             if distance <= 10 then
             -- Hammer of Justice
                                 if isChecked("Hammer of Justice") then
+
                                     if cast.hammerOfJustice(thisUnit) then return end
                                 end
                             end
@@ -386,14 +387,11 @@ local function runRotation()
         if getOptionValue("Mode") == 2 and not IsMounted() then
             -- Redemption
             if isChecked("Redemption") then
-                if getOptionValue("Redemption") == 1
-                    and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and UnitIsFriend("target","player")
-                then
+                print(UnitIsPlayer("mouseover"))
+                if getOptionValue("Redemption") == 1 and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and UnitIsFriend("target","player") then
                     if cast.redemption("target") then return end
                 end
-                if getOptionValue("Redemption") == 2
-                    and UnitIsPlayer("mouseover") and UnitIsDeadOrGhost("mouseover") and UnitIsFriend("mouseover","player")
-                then
+                if getOptionValue("Redemption") == 2 and UnitIsPlayer("mouseover") and UnitIsDeadOrGhost("mouseover") and UnitIsFriend("mouseover","player") then
                     if cast.redemption("mouseover") then return end
                 end
             end
@@ -409,6 +407,22 @@ local function runRotation()
                     end
                 end
             end
+            -- Interrupt
+            if useInterrupts() then
+                    for i=1, #getEnemies("player",10) do
+                        thisUnit = getEnemies("player",10)[i]
+                        distance = getDistance(thisUnit)
+                        if canInterrupt(thisUnit,getOptionValue("InterruptAt")) then
+                            if distance <= 10 then
+            -- Hammer of Justice
+                                if isChecked("Hammer of Justice") then
+
+                                    if cast.hammerOfJustice(thisUnit) then return end
+                                end
+                            end
+                        end
+                    end
+                end -- End Interrupt Check
             -- Beacon of Light on Tank
             if isChecked("Beacon of Light") then
                 if inInstance then    
