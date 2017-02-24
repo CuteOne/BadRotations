@@ -967,6 +967,7 @@ local function runRotation()
                                 end
                             end
                         end
+                    end
             -- Action List - Multi Target
                     -- run_action_list,name=aoe,if=active_enemies>2&(spell_targets.chain_lightning>2|spell_targets.lava_beam>2)
                     if (#enemies.yards8t > 2 and mode.rotation == 1) or mode.rotation == 2 then
