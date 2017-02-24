@@ -477,7 +477,7 @@ local function runRotation()
             ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
             -- DPS ----------- DPS ----------- DPS ----------- DPS ----------- DPS ----------- DPS ----------- DPS ----------- DPS ----------- DPS ----------- DPS ----------- DPS -----------
             ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-            if isChecked("DPS") and lowest.hp >= getValue("DPS") then
+            if isChecked("DPS") and lowest.hp >= getValue("DPS") and not UnitIsFriend("target", "player") then
                 --Consecration
                 if isChecked("Consecration") and #enemies.yards8 >= getValue("Consecration") and not isMoving("player") then
                     if cast.consecration() then return end
