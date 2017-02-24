@@ -81,7 +81,7 @@ local function createOptions()
             --Max Plea
             br.ui:createSpinner(section, "Max Plea",  5,  0,  40,  1,  "|cffFFFFFFMaximum Atonement before we avoid using Plea as it becomes too expensive. Default: 5")
             --Debuff Shadow Mend/Penance Heal
-            br.ui:createSpinner(section, "Debuff Shadow Mend/Penance Heal",  90,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At. Default: 90")
+            br.ui:createSpinner(section, "Debuff Shadow Mend/Penance Heal",  70,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At. Default: 70")
             --Penance Heal
             br.ui:createSpinner(section, "Penance Heal",  60,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At. Default: 60")
             --Shadow Mend
@@ -386,7 +386,7 @@ local function runRotation()
                                 for i = 1, #br.friend do
                                     actionList_SpreadAtonement(br.friend[i].unit)
                                 end
-                                if isBoss("target") and getDistance("player","target") < 40 and ((inRaid and atonementCount >= getOptionValue("Max Atonement")) or (inInstance and atonementCount >= 5)) then
+                                if isBoss("target") and getDistance("player","target") < 40 and ((inRaid and atonementCount >= getOptionValue("Max Atonement")) or (inInstance and atonementCount >= 5)) or (not inInstance and not inRaid) then
                                     if cast.lightsWrath("target") then return end
                                 end
                             end
@@ -703,67 +703,91 @@ local function runRotation()
                     if debuff.schism.exists(thisUnit) then
                         schismBuff = thisUnit
                     end
+                    if debuff.purgeTheWicked.exists(thisUnit) then
+                        ptwBuff = thisUnit
+                    end
                 end
             end
-            if isChecked("Blacklist The Eye of Il'gynoth") and UnitBuffID("target",209915) then
-            else
-                --Shadow Word: Pain/Purge The Wicked
-                if isChecked("Shadow Word: Pain/Purge The Wicked") then
-                    if talent.purgeTheWicked then
-                        for i = 1, #enemies.dyn40 do
-                            local thisUnit = enemies.dyn40[i]
-                            if UnitIsUnit(thisUnit,"target") or hasThreat(thisUnit) or isDummy(thisUnit) then
-                                if ttd(thisUnit) > debuff.purgeTheWicked.duration(thisUnit) and debuff.purgeTheWicked.refresh(thisUnit) then
+            --Schism
+            if isChecked("Schism") and powcent > 20 then
+                if cast.schism() then return end
+            end
+            --Shadow Word: Pain/Purge The Wicked
+            if isChecked("Shadow Word: Pain/Purge The Wicked") then
+                if talent.purgeTheWicked then
+                    for i = 1, #enemies.dyn40 do
+                        local thisUnit = enemies.dyn40[i]
+                        if UnitIsUnit(thisUnit,"target") or hasThreat(thisUnit) or isDummy(thisUnit) then
+                            if ttd(thisUnit) > debuff.purgeTheWicked.duration(thisUnit) and debuff.purgeTheWicked.refresh(thisUnit) then
+                                if talent.schism and schismBuff == thisUnit then 
+                                    if cast.purgeTheWicked(thisUnit) then return end
+                                end
+                                if not talent.schism or not isChecked("Schism") then
                                     if cast.purgeTheWicked(thisUnit,"aoe") then return end
                                 end
                             end
                         end
                     end
-                    if not talent.purgeTheWicked then
-                        for i = 1, #enemies.dyn40 do
-                            local thisUnit = enemies.dyn40[i]
-                            if UnitIsUnit(thisUnit,"target") or hasThreat(thisUnit) or isDummy(thisUnit) then
-                                if ttd(thisUnit) > debuff.shadowWordPain.duration(thisUnit) and debuff.shadowWordPain.refresh(thisUnit) then
-                                    if cast.shadowWordPain(thisUnit,"aoe") then return end
-                                end
+                end
+                if not talent.purgeTheWicked then
+                    for i = 1, #enemies.dyn40 do
+                        local thisUnit = enemies.dyn40[i]
+                        if UnitIsUnit(thisUnit,"target") or hasThreat(thisUnit) or isDummy(thisUnit) then
+                            if ttd(thisUnit) > debuff.shadowWordPain.duration(thisUnit) and debuff.shadowWordPain.refresh(thisUnit) then
+                                if cast.shadowWordPain(thisUnit,"aoe") then return end
                             end
                         end
                     end
                 end
-                --Schism
-                if isChecked("Schism") and powcent > 20 then
-                    if cast.schism() then return end
+            end
+            --Penance
+            if isChecked("Penance") then
+                if schismBuff then
+                    if cast.penance(schismBuff) then return end
                 end
-                --Penance
-                if isChecked("Penance") then
+                if ptwBuff then
+                    if cast.penance(ptwBuff) then return end
+                end
+                if cast.penance() then return end
+            end
+            --Mindbender
+            if isChecked("Mindbender") and powcent <= getValue("Mindbender") then
+                if schismBuff then
+                    if cast.mindbender(schismBuff) then return end
+                end
+                if cast.mindbender() then return end
+            end
+           --Shadowfiend
+            if isChecked("Shadowfiend") then
+                if getLowAllies(getValue("Shadowfiend")) >= getValue("Shadowfiend Targets") then
                     if schismBuff then
-                        if cast.penance(schismBuff) then return end
+                        if cast.shadowfiend(schismBuff) then return end
                     end
-                    if cast.penance() then return end
+                    if cast.shadowfiend() then return end    
                 end
-                --Mindbender
-                if isChecked("Mindbender") and powcent <= getValue("Mindbender") then
-                    if cast.mindbender() then return end
+            end
+            --PowerWordSolace
+            if isChecked("Power Word: Solace") then
+                if schismBuff then
+                    if cast.powerWordSolace(schismBuff) then return end
                 end
-               --Shadowfiend
-                if isChecked("Shadowfiend") then
-                    if getLowAllies(getValue("Shadowfiend")) >= getValue("Shadowfiend Targets") then    
-                        if cast.shadowfiend() then return end    
+                if cast.powerWordSolace() then return end
+            end
+            --Light's Wrath
+            if isChecked("Light's Wrath") then
+                if getLowAllies(getValue("Light's Wrath")) >= getValue("Light's Wrath Targets") then
+                    if isChecked("Save Overloaded with Light for CD") and getBuffRemain("player",spell.buffs.overloadedWithLight) ~= 0 then
+                        return false
                     end
-                end
-                --PowerWordSolace
-                if isChecked("Power Word: Solace") then
-                    if schismBuff then
-                        if cast.powerWordSolace(schismBuff) then return end
-                    end
-                    if cast.powerWordSolace() then return end
-                end
-                --Light's Wrath
-                if isChecked("Light's Wrath") then
-                    if getLowAllies(getValue("Light's Wrath")) >= getValue("Light's Wrath Targets") then
-                        if isChecked("Save Overloaded with Light for CD") and getBuffRemain("player",spell.buffs.overloadedWithLight) ~= 0 then return end
+                    for i = 1, #enemies.dyn40 do
+                        local thisUnit = enemies.dyn40[i]
                         if not inInstance and not inRaid then
-                            if cast.lightsWrath() then return end
+                            if talent.schism and schismBuff == thisUnit then
+                                if cast.lightsWrath(thisUnit) then return end
+                            end
+                            if not talent.schism or not isChecked("Schism") then
+                                if cast.lightsWrath() then return end
+                            end
                         end
                         if getSpellCD(spell.lightsWrath) == 0 then
                             if mode.healer == 1 or mode.healer == 2 then
@@ -771,35 +795,45 @@ local function runRotation()
                                     actionList_SpreadAtonement(br.friend[i].unit)
                                 end
                                 if (inRaid and atonementCount >= getOptionValue("Max Atonement")) or (inInstance and atonementCount >= 5) then
-                                    if cast.lightsWrath() then return end
+                                    if talent.schism and schismBuff == thisUnit then
+                                        if cast.lightsWrath(thisUnit) then return end
+                                    end
+                                    if not talent.schism or not isChecked("Schism") then
+                                        if cast.lightsWrath() then return end
+                                    end
                                 end
                             end
                             if mode.healer == 3 then
-                                if cast.lightsWrath() then return end
+                                if talent.schism and schismBuff == thisUnit then
+                                    if cast.lightsWrath(thisUnit) then return end
+                                end
+                                if not talent.schism or not isChecked("Schism") then
+                                    if cast.lightsWrath() then return end
+                                end
                             end
                         end
                     end
                 end
-                --Divine Star
-                if isChecked("Divine Star") and talent.divineStar then
-                    if #enemies.dyn24 >= getOptionValue("Divine Star") and getFacing("player","target",10) then
-                        if cast.divineStar() then return end
-                    end
+            end
+            --Divine Star
+            if isChecked("Divine Star") and talent.divineStar then
+                if #enemies.dyn24 >= getOptionValue("Divine Star") and getFacing("player","target",10) then
+                    if cast.divineStar() then return end
                 end
-                --Halo Damage
-                if isChecked("Halo Damage") and talent.halo then
-                    if #enemies.dyn30 >= getOptionValue("Halo Damage") then
-                        if cast.halo() then return end
-                    end
+            end
+            --Halo Damage
+            if isChecked("Halo Damage") and talent.halo then
+                if #enemies.dyn30 >= getOptionValue("Halo Damage") then
+                    if cast.halo() then return end
                 end
-                --Smite
-                if isChecked("Smite") and powcent > 20 then
-                    if not inInstance and not inRaid or atonementCount >= getValue("Smite") then
-                        if schismBuff and lastSpell ~= spell.smite then
-                            if cast.smite(schismBuff) then return end
-                        end
-                        if cast.smite() then return end
+            end
+            --Smite
+            if isChecked("Smite") and powcent > 20 then
+                if not inInstance and not inRaid or atonementCount >= getValue("Smite") then
+                    if schismBuff and lastSpell ~= spell.smite then
+                        if cast.smite(schismBuff) then return end
                     end
+                    if cast.smite() then return end
                 end
             end
         end
