@@ -43,9 +43,9 @@ function frame:OnEvent(event, arg1, arg2, arg3, arg4, arg5)
     		bagsUpdated = true
         	br:Run()
         end
-    	-- Cast anything in spell queue
     end
     if event == "UNIT_SPELLCAST_SUCCEEDED" then
+    	-- Cast anything in spell queue
     	local sourceName, spellName, rank, line, spell = arg1, arg2, arg3, arg4, arg5
     	-- Print("Source: "..sourceName..", Spell: "..spellName..", ID: "..spell)
 		if botCast == true then botCast = false end

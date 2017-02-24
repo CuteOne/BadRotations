@@ -563,18 +563,8 @@ local function runRotation()
         		if not inCombat then
                     if isChecked("Stealth") and (not IsResting() or isDummy("target")) then
                         if getOptionValue("Stealth") == 1 then
-                            if cast.stealth() then return end
+                            if cast.stealth("player") then return end
                         end
-                        --if getOptionValue("Stealth") == 3 then
-                        --    for i=1, #enemies.yards20 do
-                        --        local thisUnit = enemies.yards20
-                        --        if getDistance(thisUnit) <= 20 then
-                        --            if ObjectExists(thisUnit) and UnitCanAttack(thisUnit,"player") and GetTime()-leftCombat > lootDelay then
-                        --                if cast.stealth() then return end
-                        --            end
-                        --        end
-                        --    end
-                        --end
                         if not stealth and #enemies.yards20 > 0 and getOptionValue("Stealth") == 3 and not IsResting() and GetTime()-leftCombat > lootDelay then
                             for i = 1, #enemies.yards20 do
                                 local thisUnit = enemies.yards20[i]
