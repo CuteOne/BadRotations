@@ -32,8 +32,8 @@ local cubeShape = {
 LibDraw.Sync(function()
     if FireHack and isChecked("Use Drawer") == true then
         local drawTable = {}
-        local objectCount = GetObjectCount() or ObjectCount() or 0
-        for i=1, objectCount do
+        -- local objectCount = GetObjectCount() or 0
+        for i=1, ObjectCount() do
             -- Locals
             local thisObject = GetObjectWithIndex(i)
             if ObjectIsType(thisObject, ObjectTypes.GameObject) then

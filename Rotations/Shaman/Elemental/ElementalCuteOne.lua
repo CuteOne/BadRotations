@@ -392,16 +392,13 @@ local function runRotation()
 		local function actionList_Cooldowns()
 			if useCDs() and getDistance(units.dyn40) < 40 then
         -- Trinkets
-                -- use_item,slot=trinket2,if=buff.chaos_blades.up|!talent.chaos_blades.enabled
                 if isChecked("Trinkets") then
-                    -- if buff.chaosBlades or not talent.chaosBlades then
-                        if canUse(13) then
-                            useItem(13)
-                        end
-                        if canUse(14) then
-                            useItem(14)
-                        end
-                    -- end
+                    if canUse(13) then
+                        useItem(13)
+                    end
+                    if canUse(14) then
+                        useItem(14)
+                    end
                 end
         -- Legendary Ring
                 -- use_item,slot=finger1
@@ -412,7 +409,7 @@ local function runRotation()
                 end
         -- Racial: Orc Blood Fury | Troll Berserking | Blood Elf Arcane Torrent
                 -- blood_fury,buff.tigers_fury | berserking,buff.tigers_fury | arcane_torrent,buff.tigers_fury
-                if isChecked("Racial") and (br.player.race == "Orc" or br.player.race == "Troll" or br.player.race == "BloodElf") then
+                if isChecked("Racial") and (br.player.race == "Orc" or br.player.race == "Troll" or br.player.race == "BloodElf") and getSpellCD(racial) == 0 then
                     if castSpell("player",racial,false,false,false) then return end
                 end
                 if getOptionValue("APL Mode") == 1 then -- SimC
@@ -939,17 +936,35 @@ local function runRotation()
                             -- elemental_mastery
                             if cast.elementalMastery() then return end
                         end
-            -- Racials
-                        -- blood_fury,if=!talent.ascendance.enabled|buff.ascendance.up|cooldown.ascendance.remain()s>50
-                        -- berserking,if=!talent.ascendance.enabled|buff.ascendance.up
-                        if not talent.ascendance or buff.ascendance.exists() or cd.ascendance > 50 then
-                            if race == "Orc" then
-                                if castRacial() then return end
+            -- Trinkets
+                        if isChecked("Trinkets") then
+                            if canUse(13) then
+                                useItem(13)
+                            end
+                            if canUse(14) then
+                                useItem(14)
                             end
                         end
-                        if not talent.ascendance or buff.ascendance.exists() then
-                            if race == "Troll" then
-                                if castRacial() then return end
+        -- Legendary Ring
+                        -- use_item,slot=finger1
+                        if isChecked("Legendary Ring") then
+                            if hasEquiped(124636) and canUse(124636) then
+                                useItem(124636)
+                            end
+                        end
+        -- Racial: Orc Blood Fury | Troll Berserking
+                        -- blood_fury,if=!talent.ascendance.enabled|buff.ascendance.up|cooldown.ascendance.remain()s>50
+                        -- berserking,if=!talent.ascendance.enabled|buff.ascendance.up
+                        if isChecked("Racial") and getSpellCD(racial) == 0 then
+                            if not talent.ascendance or buff.ascendance.exists() or cd.ascendance > 50 then
+                                if br.player.race == "Orc" then
+                                    if castSpell("player",racial,false,false,false)  then return end
+                                end
+                            end
+                            if not talent.ascendance or buff.ascendance.exists() then
+                                if br.player.race == "Troll" then
+                                    if castSpell("player",racial,false,false,false)  then return end
+                                end
                             end
                         end
                     end

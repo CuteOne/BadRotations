@@ -577,6 +577,10 @@ local function runRotation()
             if ((mode.rotation == 1 and #enemies.yards5 > 1) or mode.rotation == 2) then
                 if cast.carve() then return end
             end
+        -- Mongoose Bite
+            if buff.mongooseFury.exists() then
+                if cast.mongooseBite() then return end
+            end
         -- Spitting Cobra
             -- spitting_cobra,if=buff.mongoose_fury.duration>=gcd&cooldown.mongoose_bite.charges>=0&buff.mongoose_fury.stack<4
             if buff.mongooseFury.duration() >= gcd and charges.mongooseBite >= 0 and buff.mongooseFury.stack() < 4 then
@@ -604,14 +608,12 @@ local function runRotation()
             end
         -- Flanking Strike
             -- flanking_strike,if=cooldown.mongoose_bite.charges<=1&buff.aspect_of_the_eagle.remains>=gcd
-            if charges.mongooseBite <= 1 and buff.aspectOfTheEagle.remain() >= gcd then
+            if charges.mongooseBite < 1 and buff.aspectOfTheEagle.remain() >= gcd then
                 if cast.flankingStrike() then return end
             end
         -- Lacerate
             -- lacerate,if=buff.mongoose_fury.duration>=gcd&refreshable&cooldown.mongoose_bite.charges=0&buff.mongoose_fury.stack<2|buff.mongoose_fury.down&cooldown.mongoose_bite.charges<3&refreshable
-            if (buff.mongooseFury.duration() >= gcd and debuff.lacerate.refresh(units.dyn5) and charges.mongooseBite == 0 and buff.mongooseFury.stack() < 2) 
-                or (not buff.mongooseFury.exists() and charges.mongooseBite < 3 and buff.mongooseFury.refresh()) 
-            then
+            if debuff.lacerate.refresh(units.dyn5) then
                 if cast.lacerate() then return end
             end
         -- Dragonsfire Grenade
@@ -648,14 +650,9 @@ local function runRotation()
                     if cast.aspectOfTheEagle() then return end
                 end
             end
-        -- Fury of the Eagle
-            -- fury_of_the_eagle,if=cooldown.mongoose_bite.charges<=1&buff.mongoose_fury.duration>6
-            if charges.mongooseBite <= 1 and buff.mongooseFury.duration() > 6 then
-                if cast.furyOfTheEagle() then return end
-            end
         -- Flanking Strike
             -- flanking_strike,if=cooldown.mongoose_bite.charges<=1&buff.mongoose_fury.remains>(1+action.mongoose_bite.charges*gcd)
-            if charges.mongooseBite <= 1 and buff.mongooseFury.remain() > (1 + charges.mongooseBite * gcd) then
+            if charges.mongooseBite < 1 and buff.mongooseFury.remain() > (1 + charges.mongooseBite * gcd) then
                 if cast.flankingStrike() then return end
             end
         -- Mongoose Bite
@@ -665,7 +662,7 @@ local function runRotation()
             end
         -- Flanking Strike
             -- flanking_strike,if=talent.animal_instincts.enabled&cooldown.mongoose_bite.charges<3
-            if talent.animalInstincts and charges.mongooseBite < 3 then
+            if talent.animalInstincts and charges.mongooseBite < 2 then
                 if cast.flankingStrike() then return end
             end
         -- Spitting Cobra
@@ -715,14 +712,9 @@ local function runRotation()
             end
         -- Flanking Strike
             -- flanking_strike
-            if ((mode.rotation == 1 and #enemies.yards8 == 1) or mode.rotation == 3) or level < 42 then
+            if charges.mongooseBite < 1 then
                 if cast.flankingStrike() then return end
-            elseif ((mode.rotation == 1 and #enemies.yards8 > 1) or mode.rotation == 2) then
-                if cast.carve() then return end
             end
-        -- Butchery
-            -- butchery
-            if cast.butchery() then return end
         -- Throwing Axes
             -- throwing_axes
             if cast.throwingAxes() then return end

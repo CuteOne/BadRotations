@@ -190,7 +190,7 @@ local function runRotation()
 		local castable          							= br.player.cast.debug
         local clearcast                                     = br.player.buff.clearcasting.exists()
         local combatTime                                    = getCombatTime()
-        local combo                                         = br.player.power.amount.comboPoints
+        local combo                                         = br.player.power.comboPoints.amount
         local cd                                            = br.player.cd
         local charges                                       = br.player.charges
         local deadMouse                                     = UnitIsDeadOrGhost("mouseover")
@@ -216,7 +216,7 @@ local function runRotation()
         local php                                           = br.player.health
         local playerMouse                                   = UnitIsPlayer("mouseover")
         local potion                                        = br.player.potion
-        local power, powmax, powgen, powerDeficit           = br.player.power.amount.energy, br.player.power.energy.max, br.player.power.regen, br.player.power.energy.deficit
+        local power, powmax, powgen, powerDeficit           = br.player.power.energy.amount, br.player.power.energy.max, br.player.power.regen, br.player.power.energy.deficit
         local pullTimer                                     = br.DBM:getPulltimer()
         local racial                                        = br.player.getRacial()
         local recharge                                      = br.player.recharge

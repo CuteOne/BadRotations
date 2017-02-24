@@ -29,11 +29,6 @@ function br:Run()
 	if br.selectedSpec == nil then br.selectedSpec = select(2,GetSpecializationInfo(GetSpecialization())) end
 	rc = LibStub("LibRangeCheck-2.0")
 	minRange, maxRange = rc:GetRange('target')
-	-- -- lets wipe and start up fresh.
-	-- br.data = brdata
-	-- if br.data == nil or brdata == nil or (br.data and br.data.settings and br.data.settings.wiped ~= true) then
-		-- br.data = {}
-	-- end
 	--[[Init the readers codes (System/Reader.lua)]]
 	-- combat log
 	br.read.combatLog()
@@ -68,12 +63,7 @@ function br:Run()
 	-- add minimap fire icon
 	br:MinimapButton()
 	-- build up UI
-	br:StartUI()
-
-	-- start up enemies Engine
-	makeTableQueued = false
-	enemiesEngineRange = 55
-	EnemiesEngine()
+	TogglesFrame()
 	ChatOverlay("-= BadRotations Loaded =-")
 	Print("Loaded")
 	br.loadedIn = true
@@ -107,48 +97,4 @@ function br:loadSettings()
         br.selectedProfile = br.data.settings[br.selectedSpec]["RotationDrop"]
     end
     if br.data.settings[br.selectedSpec][br.selectedProfile] == nil then br.data.settings[br.selectedSpec][br.selectedProfile] = {} end
-    -- Creates and Shows the Windows
-	br.ui:createConfigWindow()
-	if br.data.settings[br.selectedSpec]["debug"] == nil then br.ui:createDebugWindow() end
-	-- if br.data.settings[br.selectedSpec]["profile"] == nil then br.ui:createProfileWindow(br.selectedSpec) end -- Creates extra blank window
-	if br.data.settings[br.selectedSpec]["help"] == nil then br.ui:createHelpWindow() end
 end
-
---[[Startup UI]]
-function br:StartUI()
-	TogglesFrame()
-end
-
--- Elements on Update Timer
-C_Timer.NewTicker(0.1, function()
-	if --[[getOptionCheck("Start/Stop BadRotations")
-		or]] (br.data.settings[br.selectedSpec].toggles["Power"] ~= nil
-		and br.data.settings[br.selectedSpec].toggles["Power"] == 1)
-	then
-	-- Display Distance on Main Icon
-    	targetDistance = getDistance("target") or 0
-    	displayDistance = math.ceil(targetDistance)
-		mainText:SetText(displayDistance)
-	-- Enemies Engine
-		makeEnemiesTable();
-		EnemiesEngine();
-	-- Healing Engine
-		if isChecked("HE Active") then
-			br.friend:Update()
-		end
-	-- Auto Loot
-		autoLoot()
-	-- Queue Casting
-		if isChecked("Queue Casting") and not UnitChannelInfo("player") then
-			-- Catch for spells not registering on Combat log
-			if br.player ~= nil then
-				if br.player.queue ~= nil then
-					if #br.player.queue > 0 and br.player.queue[1].id ~= lastSpellCast then
-					    castQueue();
-					    return
-					end
-				end
-			end
-		end
-	end
-end)

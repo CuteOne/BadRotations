@@ -416,8 +416,8 @@ function SalvageHelper()
 				salvageTimer = GetTime() -- if no more free slots, start timer
                 -- TEMP ! Trys to sell to close merchant (needs addon which sells items when opening merchant window)
                 CloseMerchant()
-                local objectCount = GetObjectCount() or ObjectCount() or 0
-                for i=1, objectCount do
+                -- local objectCount = GetObjectCount() or 0
+                for i=1, ObjectCount() do
                     -- Locals
                     local thisObject = GetObjectWithIndex(i)
                     if ObjectIsType(thisObject, ObjectTypes.Unit) then
