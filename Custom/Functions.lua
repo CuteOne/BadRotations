@@ -81,7 +81,7 @@ function castGroundAtBestLocation(spellID, radius, minUnits, maxRange, minRange,
 		if type(k) == "number" or spellType == nil then 
 			local thisUnit = unitTable[k].unit
 			local thisDistance = getDistance(thisUnit)
-			local hasThreat = isValidUnit(thisUnit) or UnitIsFriend(thisUnit,"player") --hasThreat(br.enemy[i].unit)
+			local hasThreat = (spellType == nil and isValidUnit(thisUnit)) or UnitIsFriend(thisUnit,"player") --hasThreat(br.enemy[i].unit)
 			if isNotBlacklisted(thisUnit) then
 				-- Print("blacklist passed")
 				if thisDistance < maxRange and thisDistance >= minRange and hasThreat then

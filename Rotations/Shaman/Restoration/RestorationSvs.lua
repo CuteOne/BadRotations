@@ -55,6 +55,7 @@ local function createOptions()
         local section
     -- General Options
         section = br.ui:createSection(br.ui.window.profile, "General")
+            br.ui:createCheckbox(section,"OOC Healing","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFout of combat healing|cffFFBB00.")
         -- Dummy DPS Test
             br.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
         -- Pre-Pull Timer
@@ -94,6 +95,9 @@ local function createOptions()
             br.ui:createSpinner(section, "Astral Shift",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
         -- Purge
             br.ui:createCheckbox(section,"Purge")
+        -- Lightning Surge Totem
+            br.ui:createSpinner(section, "Lightning Surge Totem - HP", 50, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
+            br.ui:createSpinner(section, "Lightning Surge Totem - AoE", 5, 0, 10, 1, "|cffFFFFFFNumber of Units in 5 Yards to Cast At")
         br.ui:checkSectionState(section)
     -- Interrupt Options
         section = br.ui:createSection(br.ui.window.profile, "Interrupts")
@@ -107,7 +111,8 @@ local function createOptions()
     -- Healing Options
         section = br.ui:createSection(br.ui.window.profile, "Healing")
         -- Healing Rain
-            br.ui:createCheckbox(section,"Healing Rain","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFHealing Rain usage.|cffFFBB00.")
+            br.ui:createSpinner(section, "Healing Rain",  80,  0,  100,  5,  "Health Percent to Cast At") 
+            br.ui:createSpinner(section, "Healing Rain Targets",  2,  0,  40,  1,  "Minimum Healing Rain Targets","", true)
         -- Riptide
             br.ui:createSpinner(section, "Riptide",  90,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
         -- Healing Stream Totem
@@ -118,13 +123,13 @@ local function createOptions()
             br.ui:createSpinner(section, "Healing Surge",  60,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
         -- Chain Heal
             br.ui:createSpinner(section, "Chain Heal",  80,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
-            br.ui:createSpinner(section, "Chain Heal Targets",  3,  0,  40,  1,  "Minimum Chain Heal Targets")  
+            br.ui:createSpinner(section, "Chain Heal Targets",  3,  0,  40,  1,  "Minimum Chain Heal Targets","", true)  
         -- Gift of the Queen
             br.ui:createSpinner(section, "Gift of the Queen",  75,  0,  100,  5,  "Health Percent to Cast At") 
-            br.ui:createSpinner(section, "Gift of the Queen Targets",  3,  0,  40,  1,  "Minimum Gift of the Queen Targets")
+            br.ui:createSpinner(section, "Gift of the Queen Targets",  3,  0,  40,  1,  "Minimum Gift of the Queen Targets","", true)
         -- Wellspring
             br.ui:createSpinner(section, "Wellspring",  80,  0,  100,  5,  "Health Percent to Cast At") 
-            br.ui:createSpinner(section, "Wellspring Targets",  3,  0,  40,  1,  "Minimum Wellspring Targets")
+            br.ui:createSpinner(section, "Wellspring Targets",  3,  0,  40,  1,  "Minimum Wellspring Targets","", true)
         br.ui:checkSectionState(section)
     -- Toggle Key Options
         section = br.ui:createSection(br.ui.window.profile, "Toggle Keys")
@@ -313,6 +318,28 @@ local function runRotation()
                     end
                 end
             end
+            -- Healing Surge
+            if isChecked("Healing Surge") then
+                for i = 1, #br.friend do                           
+                    if br.friend[i].hp <= getValue("Healing Surge") and buff.tidalWaves.exists() then
+                        if cast.healingSurge(br.friend[i].unit) then return end     
+                    end
+                end
+            end
+            -- Healing Wave
+            if isChecked("Healing Wave") then
+                for i = 1, #br.friend do                           
+                    if br.friend[i].hp <= getValue("Healing Wave") and buff.tidalWaves.exists() then
+                        if cast.healingWave(br.friend[i].unit) then return end     
+                    end
+                end
+            end
+            -- Chain Heal
+            if isChecked("Chain Heal") and not moving and lastSpell ~= spell.chainHeal then
+                if getLowAllies(getValue("Chain Heal")) >= getValue("Chain Heal Targets") then    
+                    if cast.chainHeal() then return end    
+                end
+            end
         end  -- End Action List - Pre-Combat
         function actionList_Cooldowns()
             if useCDs() then
@@ -457,6 +484,13 @@ local function runRotation()
         end -- End Action List Single Target
     -- Action List - DPS
         local function actionList_DPS()
+            -- Lightning Surge Totem
+            if isChecked("Lightning Surge Totem - HP") and php <= getOptionValue("Lightning Surge Totem - HP") and inCombat and #enemies.yards5 > 0 and lastSpell ~= spell.lightningSurgeTotem then
+                if cast.lightningSurgeTotem("player","ground") then return end
+            end
+            if isChecked("Lightning Surge Totem - AoE") and #enemies.yards5 >= getOptionValue("Lightning Surge Totem - AoE") and inCombat and lastSpell ~= spell.lightningSurgeTotem then
+                if cast.lightningSurgeTotem("best",nil,getOptionValue("Lightning Surge Totem - AoE"),8) then return end
+            end
             -- Lava Burst - Lava Surge
             if buff.lavaSurge.exists() then
                 if cast.lavaBurst() then return end
@@ -487,7 +521,9 @@ local function runRotation()
 ---------------------------------
             if not inCombat and not IsMounted() and getBuffRemain("player", 192002 ) < 10 then
                 actionList_Extras()
-                actionList_PreCombat()
+                if isChecked("OOC Healing") then
+                    actionList_PreCombat()
+                end
             end -- End Out of Combat Rotation
 -----------------------------
 --- In Combat - Rotations --- 
@@ -496,10 +532,10 @@ local function runRotation()
                 actionList_Defensive()
                 actionList_Interrupts()
                 actionList_Cooldowns()
-            -- Healing Rain
-                if isChecked("Healing Rain") and not buff.healingRain.exists() and not moving then
-                    if castGroundAtBestLocation(spell.healingRain, 20, 0, 40, 0, "heal") then
-                        return 
+                -- Healing Rain
+                if isChecked("Healing Rain") and not moving and not buff.healingRain.exists() then
+                    if getLowAllies(getValue("Healing Rain")) >= getValue("Healing Rain Targets") then    
+                        if castGroundAtBestLocation(spell.healingRain, 20, 0, 40, 0, "heal") then return end    
                     end
                 end
                 actionList_SingleTarget()

@@ -387,7 +387,6 @@ local function runRotation()
         if getOptionValue("Mode") == 2 and not IsMounted() then
             -- Redemption
             if isChecked("Redemption") then
-                print(UnitIsPlayer("mouseover"))
                 if getOptionValue("Redemption") == 1 and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and UnitIsFriend("target","player") then
                     if cast.redemption("target") then return end
                 end
