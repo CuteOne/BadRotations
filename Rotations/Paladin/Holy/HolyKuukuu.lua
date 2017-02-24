@@ -82,6 +82,7 @@ local function createOptions()
             br.ui:createSpinner(section, "Bestow Faith", 99, 0, 100, 5, "Health Percent to Cast At")
             -- Light of the Martyr
             br.ui:createSpinner(section, "Light of the Martyr", 50, 0, 100, 5, "Health Percent to Cast At")
+            br.ui:createCheckbox(section, "Non Moving Martyr")
             -- Tyr's Deliverance
             br.ui:createSpinner(section, "Tyr's Deliverance", 50, 0, 100, 5, "Health Percent to Cast At")
         br.ui:checkSectionState(section)
@@ -640,7 +641,7 @@ local function runRotation()
                 end
             end
             -- Emergency Martyr Heals
-            if isMoving("player") then
+            if isMoving("player") or isChecked("Non Moving Martyr") then
                 for i = 1, #br.friend do
                     if br.friend[i].hp <= 20 then
                         if cast.lightOfTheMartyr(br.friend[i].unit) then return end
