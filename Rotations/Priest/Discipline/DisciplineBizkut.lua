@@ -43,6 +43,8 @@ local function createOptions()
             br.ui:createSpinnerWithout(section, "Light's Wrath Targets",  3,  0,  40,  1,  "|cffFFFFFFMinimum Light's Wrath Targets. Default: 3")
             --Save Overloaded with Light for CD
             br.ui:createCheckbox(section, "Save Overloaded with Light for CD")
+            --Only use on Boss with Overloaded with Light
+            br.ui:createCheckbox(section, "Only use on Boss with Overloaded with Light")
             --Always use on Boss
             br.ui:createCheckbox(section, "Always use on Boss")
         br.ui:checkSectionState(section)
@@ -73,13 +75,13 @@ local function createOptions()
         -------------------------
         section = br.ui:createSection(br.ui.window.profile, "Single Target Healing")
             --Atonement
-            br.ui:createSpinner(section, "Atonement HP",  90,  0,  100,  1,  "|cffFFFFFFApply Atonement using Power Word: Shield, Plea and Power Word: Radiance. Health Percent to Cast At. Default: 90")
+            br.ui:createSpinnerWithout(section, "Atonement HP",  90,  0,  100,  1,  "|cffFFFFFFApply Atonement using Power Word: Shield, Plea and Power Word: Radiance. Health Percent to Cast At. Default: 90")
             --Power Word: Shield
-            br.ui:createSpinner(section, "Power Word: Shield",  99,  0,  100,  1,  "|cffFFFFFFHealth Percent to Cast At. Default: 99")
+            br.ui:createSpinnerWithout(section, "Power Word: Shield",  99,  0,  100,  1,  "|cffFFFFFFHealth Percent to Cast At. Default: 99")
             --Max Atonement
-            br.ui:createSpinner(section, "Max Atonement",  10,  0,  40,  1,  "|cffFFFFFFMaximum Atonement to keep at a time. Default: 10")
+            br.ui:createSpinnerWithout(section, "Max Atonement",  10,  0,  40,  1,  "|cffFFFFFFMaximum Atonement to keep at a time. Default: 10")
             --Max Plea
-            br.ui:createSpinner(section, "Max Plea",  5,  0,  40,  1,  "|cffFFFFFFMaximum Atonement before we avoid using Plea as it becomes too expensive. Default: 5")
+            br.ui:createSpinnerWithout(section, "Max Plea",  5,  0,  40,  1,  "|cffFFFFFFMaximum Atonement before we avoid using Plea as it becomes too expensive. Default: 5")
             --Debuff Shadow Mend/Penance Heal
             br.ui:createSpinner(section, "Debuff Shadow Mend/Penance Heal",  70,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At. Default: 70")
             --Penance Heal
@@ -379,16 +381,17 @@ local function runRotation()
                     if isChecked("Power Word: Barrier CD") and powcent >= getValue("Power Word: Barrier CD") then
                         if cast.powerWordBarrier(lowest.unit) then return end
                     end
+                    --Only use on Boss with Overloaded with Light
                     --Always use on Boss
-                    if isChecked("Always use on Boss") then
+                    if isChecked("Always use on Boss") or (isChecked("Only use on Boss with Overloaded with Light") and getBuffRemain("player",spell.buffs.overloadedWithLight) ~= 0) then
                         if getSpellCD(spell.lightsWrath) == 0 then
                             if mode.healer == 1 or mode.healer == 2 then
                                 for i = 1, #br.friend do
                                     actionList_SpreadAtonement(br.friend[i].unit)
                                 end
-                                if isBoss("target") and getDistance("player","target") < 40 and ((inRaid and atonementCount >= getOptionValue("Max Atonement")) or (inInstance and atonementCount >= 5)) or (not inInstance and not inRaid) then
-                                    if cast.lightsWrath("target") then return end
-                                end
+                            end
+                            if isBoss("target") and getDistance("player","target") < 40 and ((inRaid and atonementCount >= getOptionValue("Max Atonement")) or (inInstance and atonementCount >= 5)) or (not inInstance and not inRaid) then
+                                if cast.lightsWrath("target") then return end
                             end
                         end
                     end
@@ -551,15 +554,13 @@ local function runRotation()
                 end
             end
             --Power Word: Shield
-            if isChecked("Power Word: Shield") and getSpellCD(spell.powerWordShield) == 0 then
-                for i = 1, #br.friend do
-                    if br.friend[i].hp <= getValue("Power Word: Shield") and not buff.powerWordShield.exists(br.friend[i].unit) then
-                        if mode.healer == 1 or mode.healer == 2 then
-                            if cast.powerWordShield(br.friend[i].unit) then return end
-                        end
-                        if mode.healer == 3 and br.friend[i].unit == "player" then
-                            if cast.powerWordShield("player") then return end
-                        end
+            for i = 1, #br.friend do
+                if br.friend[i].hp <= getValue("Power Word: Shield") and not buff.powerWordShield.exists(br.friend[i].unit) and getSpellCD(spell.powerWordShield) == 0 then
+                    if mode.healer == 1 or mode.healer == 2 then
+                        if cast.powerWordShield(br.friend[i].unit) then return end
+                    end
+                    if mode.healer == 3 and br.friend[i].unit == "player" then
+                        if cast.powerWordShield("player") then return end
                     end
                 end
             end
@@ -671,19 +672,17 @@ local function runRotation()
                 end
             end
             --Atonement
-            if isChecked("Atonement HP") then
-                for i = 1, #br.friend do
-                    if br.friend[i].hp <= getValue("Atonement HP") then
-                        if mode.healer == 1 then
-                            actionList_SpreadAtonement(br.friend[i].unit)
-                        end
-                        if mode.healer == 3 and br.friend[i].unit == "player" then
-                            actionList_SpreadAtonement("player")
-                        end
-                    end
-                    if mode.healer == 2 then
+            for i = 1, #br.friend do
+                if br.friend[i].hp <= getValue("Atonement HP") then
+                    if mode.healer == 1 then
                         actionList_SpreadAtonement(br.friend[i].unit)
                     end
+                    if mode.healer == 3 and br.friend[i].unit == "player" then
+                        actionList_SpreadAtonement("player")
+                    end
+                end
+                if mode.healer == 2 then
+                    actionList_SpreadAtonement(br.friend[i].unit)
                 end
             end
             --Fade
