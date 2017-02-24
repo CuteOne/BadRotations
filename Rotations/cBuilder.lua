@@ -503,7 +503,8 @@ function br.loader:new(spec,specName)
                     local unitID        = GetObjectID(thisUnit)
                     local unitGUID      = UnitGUID(thisUnit)
                     local unitCreator   = UnitCreator(thisUnit)
-                    if UnitIsUnit(unitCreator, "Player")
+                    local player        = GetObjectWithGUID(UnitGUID("player"))
+                    if unitCreator == player
                         and (unitID == 55659 -- Wild Imp
                             or unitID == 98035 -- Dreadstalker
                             or unitID == 103673 -- Darkglare
