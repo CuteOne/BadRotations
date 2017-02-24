@@ -203,11 +203,11 @@ local function runRotation()
             br.player.debuffcount.huntersMark       = huntersMarkCount or 0
             br.player.debuffcount.vulnerable        = vulnerableCount or 0
         end
-        local function getExplosiveDistance(otherUnit)
+        -- local function getExplosiveDistance(otherUnit)
             local objectCount = GetObjectCount() or 0
-            for i = 1, objectCount do
+            for i = 1, ObjectCount() do
                 local thisUnit = GetObjectWithIndex(i)
-                if GetObjectID(thisUnit) == 11492 then
+                if GetObjectID(thisUnit) == 11492 and UnitIsUnit("player",UnitCreator(thisUnit)) then
                     return GetDistanceBetweenObjects(thisUnit,otherUnit)
                 end
             end

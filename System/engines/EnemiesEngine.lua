@@ -144,8 +144,8 @@ function getEnemiesInRect(width,length)
 	local minX = math.min(nrX,nlX,frX,flX)
 	local maxY = math.max(nrY,nlY,frY,flY)
 	local minY = math.min(nrY,nlY,frY,flY)
-	local objectCount = GetObjectCount() or 0
-	for i = 1, objectCount do
+	-- local objectCount = GetObjectCount() or 0
+	for i = 1, ObjectCount() do
         local thisUnit = GetObjectWithIndex(i)
         if ObjectIsType(thisUnit, ObjectTypes.Unit) and isDummy(thisUnit) then
 			local tX, tY, tZ = GetObjectPosition(thisUnit)
@@ -431,9 +431,9 @@ function EnemiesEngine()
     br.debug.cpu.enemiesEngine.sanityTargets = 0
     br.debug.cpu.enemiesEngine.unitTargets = 0
     -- Find Enemies
-    local objectCount = GetObjectCount() or 0 
-	if FireHack ~= nil and objectCount > 0 then
-        for i = 1, objectCount do
+    -- local objectCount = GetObjectCount() or 0 
+	if FireHack ~= nil and ObjectCount() > 0 then
+        for i = 1, ObjectCount() do
 			-- define our unit
             local thisUnit = GetObjectWithIndex(i)
 			-- check if it a unit first
