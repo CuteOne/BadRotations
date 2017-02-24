@@ -582,9 +582,8 @@ local function runRotation()
                     if br.friend[i].hp <= getValue("Light of Dawn") then
                         local lowHealthCandidates = getUnitsToHealAround(br.friend[i].unit,15,getValue("Light of Dawn"),#br.friend)
                         if #lowHealthCandidates >= getValue("LoD Targets") then
-                            if cast.ruleOfLaw() then
-                                if cast.lightOfDawn(br.friend[i].unit) then return end
-                            end
+                            if cast.ruleOfLaw() then end
+                            if cast.lightOfDawn(br.friend[i].unit) then return end
                         end
                     end
                 end
@@ -624,9 +623,10 @@ local function runRotation()
                 end
             end
             -- Flash of Light
-            if isChecked("Flash of Light") and (getOptionValue("FOL Infuse") == 1 or (getOptionValue("FoL Infuse") == 2 and buff.infusionOfLight.exists("player"))) then
+            if isChecked("Flash of Light") and (getOptionValue("FoL Infuse") == 1 or (getOptionValue("FoL Infuse") == 2 and buff.infusionOfLight.exists("player"))) then
+                print(getOptionValue("FoL Infuse"))
                 for i = 1, #br.friend do
-                    if br.friend[i].hp <= getValue("Flash of Light") then
+                    if br.friend[i].hp <= getValue("Flash of Light")  then
                         if cast.flashOfLight(br.friend[i].unit) then return end
                     end
                 end
