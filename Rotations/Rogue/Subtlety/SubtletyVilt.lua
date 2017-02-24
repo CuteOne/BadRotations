@@ -535,7 +535,7 @@ local function runRotation()
     -- Shuriken Storm
     -- i quit this shit game a week ago lul
         --call_action_list,name=finish,if=combo_points>=5&(spell_targets.shuriken_storm>=2+talent.premeditation.enabled+equipped.shadow_satyrs_walk|(mantle_duration>0&mantle_duration<=1.2))
-        if combo >= 5 and (#getEnemies("player",9.6) >= (2 + premed + shadowWalker) or (buff.masterAssassinsInitiative.remain() <= 1.3 and (buff.masterAssassinsInitiative.remain() - cd.gcd) >= 0.3)) then
+        if combo >= 5 and (#getEnemies("player",9.6) >= (2 + premed + shadowWalker) or (buff.masterAssassinsInitiative.remain() <= 1.3 and (buff.masterAssassinsInitiative.remain() - cd.global) >= 0.3)) then
             if actionList_Finishers() then return end
         end
         --shuriken_storm,if=buff.shadowmeld.down&((combo_points.deficit>=3&spell_targets.shuriken_storm>=2+talent.premeditation.enabled+equipped.shadow_satyrs_walk)|(combo_points.deficit>=1+buff.shadow_blades.up&buff.the_dreadlords_deceit.stack>=29))
