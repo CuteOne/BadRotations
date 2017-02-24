@@ -17,16 +17,35 @@ function br.loader:new(spec,specName)
     self.rotations = br.loader.rotations
 
     -- Spells From Spell Table
-    self.spell = mergeIdTables(self.spell)
+    for unitClass , classTable in pairs(br.idList) do
+        if unitClass == select(2,UnitClass('player')) or unitClass == 'Shared' then
+            for spec, specTable in pairs(classTable) do
+                if spec == GetSpecializationInfo(GetSpecialization()) or spec == 'Shared' then
+                    for spellType, spellTypeTable in pairs(specTable) do
+                        if self.spell[spellType] == nil then self.spell[spellType] = {} end
+                        for spellRef, spellID in pairs(spellTypeTable) do
+                            self.spell[spellType][spellRef] = spellID
+                            if not IsPassiveSpell(spellID) then
+                                if self.spell.abilities == nil then self.spell.abilities = {} end
+                                self.spell.abilities[spellRef] = spellID
+                                self.spell[spellRef] = spellID
+                            end
+                        end
+                    end
+                end
+            end
+        end        
+    end
+    -- self.spell = mergeIdTables(self.spell)
 
     -- Add Artifact Ability
-    for k,v in pairs(self.spell.artifacts) do
-        if not IsPassiveSpell(v) then
-            self.spell['abilities'][k] = v
-            self.spell[k] = v
-            break
-        end
-    end
+    -- for k,v in pairs(self.spell.artifacts) do
+    --     if not IsPassiveSpell(v) then
+    --         self.spell['abilities'][k] = v
+    --         self.spell[k] = v
+    --         break
+    --     end
+    -- end
 
     -- Update Talent Info
     local function getTalentInfo()
@@ -484,8 +503,7 @@ function br.loader:new(spec,specName)
                     local unitID        = GetObjectID(thisUnit)
                     local unitGUID      = UnitGUID(thisUnit)
                     local unitCreator   = UnitCreator(thisUnit)
-                    local player        = GetObjectWithGUID(UnitGUID("player"))
-                    if unitCreator == player
+                    if UnitIsUnit(unitCreator, "Player")
                         and (unitID == 55659 -- Wild Imp
                             or unitID == 98035 -- Dreadstalker
                             or unitID == 103673 -- Darkglare

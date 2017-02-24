@@ -25,6 +25,9 @@ br.debug.cpu.enemiesEngine = {
     averageTime = 0,
     sanityTargets = 0,
     unitTargets = 0,
+    dynamicTarget = 0,
+    getEnemies = 0,
+    countTime = 0,
 }
 br.debug.cpu.cBuilder = {
     elapsedTime = 0,

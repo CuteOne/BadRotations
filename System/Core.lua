@@ -1,7 +1,10 @@
+local brMainThread = nil
+
 function br:Engine()
 	-- Hidden Frame
 	if Pulse_Engine == nil then
 		Pulse_Engine = CreateFrame("Frame", nil, UIParent)
+		-- Pulse_Engine:SetScript("OnUpdate", ThreadHelper)
 		Pulse_Engine:SetScript("OnUpdate", BadRotationsUpdate)
 		Pulse_Engine:Show()
 	end
@@ -78,51 +81,104 @@ frame:SetScript("OnEvent", frame.OnEvent)
 
 function BadRotationsUpdate(self)
 	local startTime = debugprofilestop()
-	if br.updateInProgress ~= true then
-		self.updateInProgress = true
-		local tempTime = GetTime();
-		if not self.lastUpdateTime then
-			self.lastUpdateTime = tempTime
+	-- Check for Unlocker
+	if FireHack == nil then
+	 	br.ui:closeWindow("all")
+		if getOptionCheck("Start/Stop BadRotations") then
+			ChatOverlay("FireHack not Loaded.")
+			if isChecked("Notify Not Unlocked") and br.timer:useTimer("notLoaded", getOptionValue("Notify Not Unlocked")) then
+				Print("|cffFFFFFFCannot Start... |cffFF1100Firehack |cffFFFFFFis not loaded. Please attach Firehack.")
+			end
 		end
-		if self.lastUpdateTime and (tempTime - self.lastUpdateTime) > 0.1 then
-			self.lastUpdateTime = tempTime
-			-- Check for Unlocker
-			if FireHack == nil then
-			 	br.ui:closeWindow("all")
-				if getOptionCheck("Start/Stop BadRotations") then
-					ChatOverlay("FireHack not Loaded.")
-					if isChecked("Notify Not Unlocked") and br.timer:useTimer("notLoaded", getOptionValue("Notify Not Unlocked")) then
-						Print("|cffFFFFFFCannot Start... |cffFF1100Firehack |cffFFFFFFis not loaded. Please attach Firehack.")
+		return false
+	else
+		if br.data.settings[br.selectedSpec].toggles["Power"] ~= nil and br.data.settings[br.selectedSpec].toggles["Power"] ~= 1 then
+			br.ui:closeWindow("all")
+			return false
+		else
+
+		-- Load Spec Profiles
+		    br.selectedProfile = br.data.settings[br.selectedSpec]["Rotation".."Drop"] or 1
+			local playerSpec = GetSpecializationInfo(GetSpecialization())
+
+			if br.player == nil or br.player.profile ~= br.selectedSpec then
+	            br.player = br.loader:new(playerSpec,br.selectedSpec)
+	            setmetatable(br.player, {__index = br.loader})
+	            br.player:createOptions()
+	            br.player:createToggles()
+	            br.player:update()
+	        end
+
+		-- Close windows and swap br.selectedSpec on Spec Change
+			if select(2,GetSpecializationInfo(GetSpecialization())) ~= br.selectedSpec then
+		    	-- Closing the windows will save the position
+		        br.ui:closeWindow("all")
+
+		    	-- Update Selected Spec/Profile
+		        br.selectedSpec = select(2,GetSpecializationInfo(GetSpecialization()))
+		        br.activeSpecGroup = GetActiveSpecGroup()
+		        br:loadSettings()
+
+		        -- Recreate Config Window and commandHelp with new Spec
+		        if br.ui.window.config.parent == nil then br.ui:createConfigWindow() end
+				commandHelp = nil
+				commandHelp = ""
+				slashHelpList()
+		    end
+
+		-- Display Distance on Main Icon
+	    	targetDistance = getDistance("target") or 0
+	    	displayDistance = math.ceil(targetDistance)
+			mainText:SetText(displayDistance)
+
+		-- Auto Loot
+			autoLoot()
+
+		-- Queue Casting
+			if isChecked("Queue Casting") and not UnitChannelInfo("player") then
+				-- Catch for spells not registering on Combat log
+				if br.player ~= nil then
+					if br.player.queue ~= nil then
+						if #br.player.queue > 0 and br.player.queue[1].id ~= lastSpellCast then
+						    castQueue();
+						    return
+						end
 					end
 				end
-				return false
-			else
-				if br.data.settings[br.selectedSpec].toggles["Power"] ~= nil and br.data.settings[br.selectedSpec].toggles["Power"] ~= 1 then
-					br.ui:closeWindow("all")
-					return false
-				else
-				-- Close windows and swap br.selectedSpec on Spec Change
-					if select(2,GetSpecializationInfo(GetSpecialization())) ~= br.selectedSpec then
-				    	-- Closing the windows will save the position
-				        br.ui:closeWindow("all")
+			end
 
-				    	-- Update Selected Spec/Profile
-				        br.selectedSpec = select(2,GetSpecializationInfo(GetSpecialization()))
-				        br.activeSpecGroup = GetActiveSpecGroup()
-				        br:loadSettings()
+		-- LoS Line Draw
+			if isChecked("Healer Line of Sight Indicator") then
+				inLoSHealer()
+			end
+			
+	    -- get DBM Timer/Bars
+		    -- global -> br.DBM.Timer
+		    br.DBM:getBars()
 
-				        -- Recreate Config Window and commandHelp with new Spec
-				        if br.ui.window.config.parent == nil then br.ui:createConfigWindow() end
-						commandHelp = nil
-						commandHelp = ""
-						slashHelpList()
-				    end
+		-- Accept dungeon queues
+			br:AcceptQueues()
 
-				-- Display Distance on Main Icon
-			    	targetDistance = getDistance("target") or 0
-			    	displayDistance = math.ceil(targetDistance)
-					mainText:SetText(displayDistance)
+		-- Profession Helper
+			ProfessionHelper()
 
+	    -- Rotation Log
+		    if getOptionCheck("Rotation Log") then
+		    	if not br.ui.window['debug']['parent'] then br.ui:createDebugWindow() end
+		    	br.ui:showWindow("debug")
+		    elseif br.ui.window['debug']['parent'] and br.data.settings[br.selectedSpec]["debug"].active == true then
+		    	br.ui:closeWindow("debug")
+		    end
+
+	    -- FPS Intensive Functions
+        	if br.updateInProgress ~= true then
+				self.updateInProgress = true
+				local tempTime = GetTime();
+				if not self.lastUpdateTime then
+					self.lastUpdateTime = tempTime
+				end
+				if self.lastUpdateTime and (tempTime - self.lastUpdateTime) > 0.1 then
+					self.lastUpdateTime = tempTime
 				-- Enemies Engine
 					EnemiesEngine();
 
@@ -131,70 +187,27 @@ function BadRotationsUpdate(self)
 						br.friend:Update()
 					end
 
-				-- Auto Loot
-					autoLoot()
-
-				-- Queue Casting
-					if isChecked("Queue Casting") and not UnitChannelInfo("player") then
-						-- Catch for spells not registering on Combat log
-						if br.player ~= nil then
-							if br.player.queue ~= nil then
-								if #br.player.queue > 0 and br.player.queue[1].id ~= lastSpellCast then
-								    castQueue();
-								    return
-								end
-							end
-						end
-					end
-
-				-- LoS Line Draw
-					if isChecked("Healer Line of Sight Indicator") then
-						inLoSHealer()
-					end
-					
-			    -- get DBM Timer/Bars
-				    -- global -> br.DBM.Timer
-				    br.DBM:getBars()
-
-				-- Accept dungeon queues
-					br:AcceptQueues()
-
-				-- Profession Helper
-					ProfessionHelper()
-
-			    -- Rotation Log
-				    if getOptionCheck("Rotation Log") then
-				    	if not br.ui.window['debug']['parent'] then br.ui:createDebugWindow() end
-				    	br.ui:showWindow("debug")
-				    elseif br.ui.window['debug']['parent'] and br.data.settings[br.selectedSpec]["debug"].active == true then
-				    	br.ui:closeWindow("debug")
-				    end
-
-				-- Load Spec Profiles
-				    br.selectedProfile = br.data.settings[br.selectedSpec]["Rotation".."Drop"] or 1
-					local playerSpec = GetSpecializationInfo(GetSpecialization())
-
-					if br.player == nil or br.player.profile ~= br.selectedSpec then
-			            br.player = br.loader:new(playerSpec,br.selectedSpec)
-			            setmetatable(br.player, {__index = br.loader})
-			            br.player:createOptions()
-			            br.player:createToggles()
-			            br.player:update()
-			        end
+				-- Update Player
 			        if br.player ~= nil then
 						br.player:update()
 					end
-				end -- End Main Button Active Check
-			end	-- End FireHack Check			
-		end --End Update Check
-		self.updateInProgress = false
-	end -- End Update In Progress Check
+				end --End Update Check
+				self.updateInProgress = false
+			end -- End Update In Progress Check
+		end -- End Main Button Active Check
+	end	-- End FireHack Check			
 	br.debug.cpu.pulse.totalIterations = br.debug.cpu.pulse.totalIterations + 1
 	br.debug.cpu.pulse.currentTime = debugprofilestop()-startTime
 	br.debug.cpu.pulse.elapsedTime = br.debug.cpu.pulse.elapsedTime + debugprofilestop()-startTime
 	br.debug.cpu.pulse.averageTime = br.debug.cpu.pulse.elapsedTime / br.debug.cpu.pulse.totalIterations
 end -- Enf Bad Rotations Update Function
-
+function ThreadHelper()
+	if not brMainThread or coroutine.status(brMainThread) == "dead" then
+        brMainThread = coroutine.create(BadRotationsUpdate)
+    end
+    coroutine.resume(brMainThread)
+	-- BadRotationsUpdate()
+end
 --[[-------------------------------------------------------------------------------------------------------------------------------------------------------]]
 
 --[[-------------------------------------------------------------------------------------------------------------------------------------------------------]]
