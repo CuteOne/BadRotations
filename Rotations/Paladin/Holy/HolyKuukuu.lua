@@ -120,6 +120,7 @@ local function createOptions()
             br.ui:createSpinner(section, "AW Targets",  6,  0,  40,  1,  "Minimum Avenging Wrath Targets")
             -- Lay on Hands
             br.ui:createSpinner(section, "Lay on Hands", 20, 0, 100, 5, "Health Percent to Cast At")
+            br.ui:createDropdownWithout(section, "Lay on Hands Target", {"|cffFFFFFFAll","|cffFFFFFFTanks", "|cffFFFFFFSelf"}, 1, "|cffFFFFFFTarget for LoH")
             -- Holy Avenger
             br.ui:createSpinner(section, "Holy Avenger", 50, 0, 100, 5, "Health Percent to Cast At")
             br.ui:createSpinner(section, "HA Targets",  6,  0,  40,  1,  "Minimum Holy Avenger Targets")
@@ -525,9 +526,21 @@ local function runRotation()
                 end
                 -- Lay on Hands
                 if isChecked("Lay on Hands") then
-                    for i = 1, #br.friend do
-                        if br.friend[i].hp <= getValue ("Lay on Hands") then
-                            if cast.layOnHands(br.friend[i].unit) then return end
+                    if getOptionValue("Lay on Hands Target") == 1 then
+                        for i = 1, #br.friend do
+                            if br.friend[i].hp <= getValue ("Lay on Hands") then
+                                if cast.layOnHands(br.friend[i].unit) then return end
+                            end
+                        end
+                    elseif getOptionValue("Lay on Hands Target") == 2 then
+                        for i = 1, #br.friend do
+                            if br.friend[i].hp <= getValue ("Lay on Hands") and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
+                                if cast.layOnHands(br.friend[i].unit) then return end
+                            end
+                        end
+                    elseif getOptionValue("Lay on Hands Target") == 3 then
+                        if php <= getValue("Lay on Hands") then
+                            if cast.layOnHands("player") then return end
                         end
                     end
                 end
