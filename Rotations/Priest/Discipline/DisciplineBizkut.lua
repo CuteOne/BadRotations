@@ -73,11 +73,11 @@ local function createOptions()
         -------------------------
         section = br.ui:createSection(br.ui.window.profile, "Single Target Healing")
             --Atonement
-            br.ui:createSpinner(section, "Atonement HP",  95,  0,  100,  1,  "|cffFFFFFFApply Atonement using Power Word: Shield, Plea and Power Word: Radiance. Health Percent to Cast At. Default: 95")
+            br.ui:createSpinner(section, "Atonement HP",  90,  0,  100,  1,  "|cffFFFFFFApply Atonement using Power Word: Shield, Plea and Power Word: Radiance. Health Percent to Cast At. Default: 90")
             --Power Word: Shield
             br.ui:createSpinner(section, "Power Word: Shield",  99,  0,  100,  1,  "|cffFFFFFFHealth Percent to Cast At. Default: 99")
             --Max Atonement
-            br.ui:createSpinner(section, "Max Atonement",  40,  0,  40,  1,  "|cffFFFFFFMaximum Atonement to keep at a time. Default: 40")
+            br.ui:createSpinner(section, "Max Atonement",  10,  0,  40,  1,  "|cffFFFFFFMaximum Atonement to keep at a time. Default: 10")
             --Max Plea
             br.ui:createSpinner(section, "Max Plea",  5,  0,  40,  1,  "|cffFFFFFFMaximum Atonement before we avoid using Plea as it becomes too expensive. Default: 5")
             --Debuff Shadow Mend/Penance Heal
