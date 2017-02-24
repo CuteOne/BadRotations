@@ -92,7 +92,7 @@ local function createOptions()
             br.ui:createSpinner(section, "Blinding Light - HP", 50, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
             br.ui:createSpinner(section, "Blinding Light - AoE", 3, 0, 10, 1, "|cffFFFFFFNumber of Units in 5 Yards to Cast At")
             -- Cleanse Toxin
-            br.ui:createDropdown(section, "Clease Toxin", {"|cff00FF00Player Only","|cffFFFF00Selected Target","|cffFF0000Mouseover Target"}, 1, "|ccfFFFFFFTarget to Cast On")
+            br.ui:createDropdown(section, "Clease Toxin", {"|cff00FF00Player Only","|cffFFFF00Selected Target","|cffFF0000Mouseover Target"}, 1, "|cffFFFFFFTarget to Cast On")
             -- Divine Shield
             br.ui:createSpinner(section, "Divine Shield",  50,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
             -- Eye for an Eye
@@ -105,8 +105,9 @@ local function createOptions()
             br.ui:createSpinner(section, "Justicar's Vengeance",  50,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
             -- Lay On Hands
             br.ui:createSpinner(section, "Lay On Hands",  50,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
+            br.ui:createDropdownWithout(section, "Lay on Hands Target", {"|cffFFFFFFAll","|cffFFFFFFTanks", "|cffFFFFFFSelf"}, 1, "|cffFFFFFFTarget for LoH")
             -- Redemption
-            br.ui:createDropdown(section, "Redemption", {"|cffFFFF00Selected Target","|cffFF0000Mouseover Target"}, 1, "|ccfFFFFFFTarget to Cast On")
+            br.ui:createDropdown(section, "Redemption", {"|cffFFFF00Selected Target","|cffFF0000Mouseover Target"}, 1, "|cffFFFFFFTarget to Cast On")
         br.ui:checkSectionState(section)
         -------------------------
         --- INTERRUPT OPTIONS ---
@@ -317,8 +318,25 @@ local function runRotation()
                 end
         -- Lay On Hands
                 if isChecked("Lay On Hands") then
-                    if getHP(lowestUnit) < getOptionValue("Lay On Hands") and inCombat then
-                        if cast.layOnHands(lowestUnit) then return end
+                    -- if getHP(lowestUnit) < getOptionValue("Lay On Hands") and inCombat then
+                    --     if cast.layOnHands(lowestUnit) then return end
+                    -- end
+                    if getOptionValue("Lay on Hands Target") == 1 then
+                        for i = 1, #br.friend do
+                            if br.friend[i].hp <= getValue ("Lay on Hands") then
+                                if cast.layOnHands(br.friend[i].unit) then return end
+                            end
+                        end
+                    elseif getOptionValue("Lay on Hands Target") == 2 then
+                        for i = 1, #br.friend do
+                            if br.friend[i].hp <= getValue ("Lay on Hands") and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
+                                if cast.layOnHands(br.friend[i].unit) then return end
+                            end
+                        end
+                    elseif getOptionValue("Lay on Hands Target") == 3 then
+                        if php <= getValue("Lay on Hands") then
+                            if cast.layOnHands("player") then return end
+                        end
                     end
                 end
         -- Redemption

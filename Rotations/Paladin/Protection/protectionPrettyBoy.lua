@@ -99,6 +99,7 @@ local function createOptions()
             br.ui:createSpinner(section, "Hand of the Protector - Party",  30,  0,  100,  5,  "|cffFFBB00Health Percentage to use at on others.")
             -- Lay On Hands
             br.ui:createSpinner(section, "Lay On Hands",  20,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
+            br.ui:createDropdownWithout(section, "Lay on Hands Target", {"|cffFFFFFFAll","|cffFFFFFFTanks", "|cffFFFFFFSelf"}, 1, "|cffFFFFFFTarget for LoH")
             -- Shield of the Righteous
             br.ui:createSpinner(section, "Shield of the Righteous - HP", 60, 0 , 100, 5, "|cffFFBB00Health Percentage to use at.")
             -- Redemption
@@ -357,8 +358,25 @@ local function runRotation()
                 end
         -- Lay On Hands
                 if isChecked("Lay On Hands") then
-                    if getHP(lowestUnit) < getOptionValue("Lay On Hands") and inCombat then
-                        if cast.layOnHands(lowestUnit) then return end
+                    -- if getHP(lowestUnit) < getOptionValue("Lay On Hands") and inCombat then
+                    --     if cast.layOnHands(lowestUnit) then return end
+                    -- end
+                    if getOptionValue("Lay on Hands Target") == 1 then
+                        for i = 1, #br.friend do
+                            if br.friend[i].hp <= getValue ("Lay on Hands") then
+                                if cast.layOnHands(br.friend[i].unit) then return end
+                            end
+                        end
+                    elseif getOptionValue("Lay on Hands Target") == 2 then
+                        for i = 1, #br.friend do
+                            if br.friend[i].hp <= getValue ("Lay on Hands") and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
+                                if cast.layOnHands(br.friend[i].unit) then return end
+                            end
+                        end
+                    elseif getOptionValue("Lay on Hands Target") == 3 then
+                        if php <= getValue("Lay on Hands") then
+                            if cast.layOnHands("player") then return end
+                        end
                     end
                 end
         -- Divine Shield

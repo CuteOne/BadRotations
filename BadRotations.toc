@@ -74,6 +74,7 @@ System\UI\Elements\Text.lua
 System\UI\Elements\Window.lua
 System\UI\Windows\Config.lua
 System\UI\Windows\Debug.lua
+System\UI\Windows\Healing.lua
 System\UI\Windows\Help.lua
 System\UI\Windows\Profile.lua
 
