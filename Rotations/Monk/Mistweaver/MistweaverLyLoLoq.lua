@@ -272,7 +272,7 @@ local function runRotation()
                         return
                     end
                 end
-                if lowest.hp <= getOptionValue("Enveloping Mist") and (getBuffRemain(lowest.unit, player.spell.envelopingMist, "player") < 3 or (lastSpellCasted ~= "EM" or lastSpellCatedOnPlayer ~= lowest.unit))  then
+                if lowest.hp <= getOptionValue("Enveloping Mist") and getBuffRemain(lowest.unit, player.spell.envelopingMist, "player") < 3  then
                     if player.cast.envelopingMist(lowest.unit) then
                         lastSpellCasted = "EM"
                         lastSpellCatedOnPlayer = lowest.unit
@@ -343,7 +343,7 @@ local function runRotation()
                         end
                     end
                 end
-                if isChecked("Essence Font") then
+                if isChecked("Essence Font") and not isCastingSpell(player.spell.essenceFont) then
                     if getLowAllies(getOptionValue("Essence Font")) >= getOptionValue("Essence Font Targets") then
                         if player.cast.essenceFont() then
                             lastSpellCasted = ""
@@ -415,10 +415,12 @@ local function runRotation()
                         end
                     end
                     for i = 1, #enemies.yards40 do
-                        if player.cd.cracklingJadeLightning < player.gcd and player.cast.cracklingJadeLightning(enemies.yards40[i]) then
-                            lastSpellCasted = ""
-                            lastSpellCatedOnPlayer = ""
-                            return
+                        if not isCastingSpell(player.spell.cracklingJadeLightning) then
+                            if player.cd.cracklingJadeLightning < player.gcd and player.cast.cracklingJadeLightning(enemies.yards40[i]) then
+                                lastSpellCasted = ""
+                                lastSpellCatedOnPlayer = ""
+                                return
+                            end
                         end
                 end
             end
@@ -448,7 +450,7 @@ local function runRotation()
         -----------------------------
         --- In Combat - Rotations ---
         -----------------------------
-        if player.inCombat and not isCastingSpell(player.spell.essenceFont) then
+        if player.inCombat  then
             extra()
             if player.mode.dispell == 1 then
                 castDetox()

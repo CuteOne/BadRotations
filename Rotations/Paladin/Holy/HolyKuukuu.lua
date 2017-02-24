@@ -55,7 +55,7 @@ local function createOptions()
             br.ui:createSpinner(section, "Beacon of Virtue", 30, 0, 100, 5, "Health Percent to Cast At")
             br.ui:createSpinner(section, "BoV Targets",  6,  0,  40,  1,  "Minimum Beacon of Virtue Targets")
         -- Redemption
-            br.ui:createDropdownWithout(section, "Redemption", {"|cffFFFFFFTarget","|cffFFFFFFMouseover"}, 1, "|cffFFFFFFSelect Redemption Mode.")
+            br.ui:createDropdown(section, "Redemption", {"|cffFFFFFFTarget","|cffFFFFFFMouseover"}, 1, "|cffFFFFFFSelect Redemption Mode.")
         br.ui:checkSectionState(section)
         -------------------------
         --- INTERRUPT OPTIONS ---
@@ -120,6 +120,7 @@ local function createOptions()
             br.ui:createSpinner(section, "AW Targets",  6,  0,  40,  1,  "Minimum Avenging Wrath Targets")
             -- Lay on Hands
             br.ui:createSpinner(section, "Lay on Hands", 20, 0, 100, 5, "Health Percent to Cast At")
+            br.ui:createDropdownWithout(section, "Lay on Hands Target", {"|cffFFFFFFAll","|cffFFFFFFTanks", "|cffFFFFFFSelf"}, 1, "|cffFFFFFFTarget for LoH")
             -- Holy Avenger
             br.ui:createSpinner(section, "Holy Avenger", 50, 0, 100, 5, "Health Percent to Cast At")
             br.ui:createSpinner(section, "HA Targets",  6,  0,  40,  1,  "Minimum Holy Avenger Targets")
@@ -216,7 +217,7 @@ local function runRotation()
 -----------------
         if getOptionValue("Mode") == 1 and not IsMounted() then
             -- Redemption
-            if isChecked("Redemption") then
+            if isChecked("Redemption") then                
                 if getOptionValue("Redemption") == 1
                     and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and UnitIsFriend("target","player")
                 then
@@ -374,6 +375,7 @@ local function runRotation()
                             if distance <= 10 then
             -- Hammer of Justice
                                 if isChecked("Hammer of Justice") then
+
                                     if cast.hammerOfJustice(thisUnit) then return end
                                 end
                             end
@@ -385,14 +387,11 @@ local function runRotation()
         if getOptionValue("Mode") == 2 and not IsMounted() then
             -- Redemption
             if isChecked("Redemption") then
-                if getOptionValue("Redemption") == 1
-                    and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and UnitIsFriend("target","player")
-                then
+                print(UnitIsPlayer("mouseover"))
+                if getOptionValue("Redemption") == 1 and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and UnitIsFriend("target","player") then
                     if cast.redemption("target") then return end
                 end
-                if getOptionValue("Redemption") == 2
-                    and UnitIsPlayer("mouseover") and UnitIsDeadOrGhost("mouseover") and UnitIsFriend("mouseover","player")
-                then
+                if getOptionValue("Redemption") == 2 and UnitIsPlayer("mouseover") and UnitIsDeadOrGhost("mouseover") and UnitIsFriend("mouseover","player") then
                     if cast.redemption("mouseover") then return end
                 end
             end
@@ -408,6 +407,22 @@ local function runRotation()
                     end
                 end
             end
+            -- Interrupt
+            if useInterrupts() then
+                    for i=1, #getEnemies("player",10) do
+                        thisUnit = getEnemies("player",10)[i]
+                        distance = getDistance(thisUnit)
+                        if canInterrupt(thisUnit,getOptionValue("InterruptAt")) then
+                            if distance <= 10 then
+            -- Hammer of Justice
+                                if isChecked("Hammer of Justice") then
+
+                                    if cast.hammerOfJustice(thisUnit) then return end
+                                end
+                            end
+                        end
+                    end
+                end -- End Interrupt Check
             -- Beacon of Light on Tank
             if isChecked("Beacon of Light") then
                 if inInstance then    
@@ -476,7 +491,7 @@ local function runRotation()
             ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
             -- DPS ----------- DPS ----------- DPS ----------- DPS ----------- DPS ----------- DPS ----------- DPS ----------- DPS ----------- DPS ----------- DPS ----------- DPS -----------
             ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-            if isChecked("DPS") and lowest.hp >= getValue("DPS") then
+            if isChecked("DPS") and lowest.hp >= getValue("DPS") and not UnitIsFriend("target", "player") then
                 --Consecration
                 if isChecked("Consecration") and #enemies.yards8 >= getValue("Consecration") and not isMoving("player") then
                     if cast.consecration() then return end
@@ -525,9 +540,21 @@ local function runRotation()
                 end
                 -- Lay on Hands
                 if isChecked("Lay on Hands") then
-                    for i = 1, #br.friend do
-                        if br.friend[i].hp <= getValue ("Lay on Hands") then
-                            if cast.layOnHands(br.friend[i].unit) then return end
+                    if getOptionValue("Lay on Hands Target") == 1 then
+                        for i = 1, #br.friend do
+                            if br.friend[i].hp <= getValue ("Lay on Hands") then
+                                if cast.layOnHands(br.friend[i].unit) then return end
+                            end
+                        end
+                    elseif getOptionValue("Lay on Hands Target") == 2 then
+                        for i = 1, #br.friend do
+                            if br.friend[i].hp <= getValue ("Lay on Hands") and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
+                                if cast.layOnHands(br.friend[i].unit) then return end
+                            end
+                        end
+                    elseif getOptionValue("Lay on Hands Target") == 3 then
+                        if php <= getValue("Lay on Hands") then
+                            if cast.layOnHands("player") then return end
                         end
                     end
                 end
