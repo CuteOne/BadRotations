@@ -586,17 +586,45 @@ local function runRotation()
                     end
                 end
             end
-            --Debuff Shadow Mend/Penance Heal
-            if isChecked("Debuff Shadow Mend/Penance Heal") then
+            --Purify
+            if isChecked("Purify") or isChecked("Debuff Shadow Mend/Penance Heal") then
                 for i = 1, #br.friend do
-                    if br.friend[i].hp <= getValue("Debuff Shadow Mend/Penance Heal") then
-                        for n = 1,40 do
-                            local buff,_,_,count,bufftype,duration = UnitDebuff(br.friend[i].unit, n)
-                            if buff then
+                    for n = 1,40 do
+                        local buff,_,_,count,bufftype,duration = UnitDebuff(br.friend[i].unit, n)
+                        if buff then
+                            if (bufftype == "Curse" or bufftype == "Magic") and lastSpell ~= spell.purify and isChecked("Purify") then
+                                --High Botanist Tel'arn Parasitic Fetter dispel helper
+                                if isChecked("Parasitic Fetter Dispel Helper") and UnitDebuffID(br.friend[i].unit,218304) then
+                                    if #getAllies(br.friend[i].unit,8) < 3 then
+                                        if cast.purify(br.friend[i].unit) then return end
+                                    end
+                                --Xavius dispel helper
+                                elseif isChecked("Darkening Soul/Blackening Soul Helper") and (getDebuffStacks(br.friend[i].unit,206651) >= 1 or getDebuffStacks(br.friend[i].unit,209158) >= 1) then
+                                    local debuffStack = getValue("Darkening Soul/Blackening Soul Helper")
+                                    if UnitDebuffID("player",206005) and (getDebuffStacks(br.friend[i].unit,206651) >= debuffStack or getDebuffStacks(br.friend[i].unit,209158) >= debuffStack) then
+                                        if cast.purify(br.friend[i].unit) then return end
+                                    end
+                                elseif mode.healer == 1 or mode.healer == 2 then
+                                        if cast.purify(br.friend[i].unit) then return end
+                                elseif mode.healer == 3 and br.friend[i].unit == "player" then
+                                        if cast.purify("player") then return end
+                                end
+                            end
+                            if br.friend[i].hp <= getValue("Debuff Shadow Mend/Penance Heal") and isChecked("Debuff Shadow Mend/Penance Heal") and lastSpell ~= spell.shadowMend then
                                 if isMoving("player") and talent.thePenitent then
-                                    if cast.penance(br.friend[i].unit) then return end
+                                    if mode.healer == 1 or mode.healer == 2 then
+                                        if cast.penance(br.friend[i].unit) then return end
+                                    end
+                                    if mode.healer == 3 and br.friend[i].unit == "player" then
+                                        if cast.penance("player") then return end
+                                    end
                                 else
-                                    if cast.shadowMend(br.friend[i].unit) then return end
+                                    if mode.healer == 1 or mode.healer == 2 then
+                                        if cast.shadowMend(br.friend[i].unit) then return end
+                                    end
+                                    if mode.healer == 3 and br.friend[i].unit == "player" then
+                                        if cast.shadowMend("player") then return end
+                                    end
                                 end
                             end
                         end
@@ -617,7 +645,7 @@ local function runRotation()
                 end
             end
             --Shadow Mend Emergency
-            if isChecked("Shadow Mend Emergency") then
+            if isChecked("Shadow Mend Emergency") and lastSpell ~= spell.shadowMend then
                 for i = 1, #br.friend do
                     if br.friend[i].hp <= getValue("Shadow Mend Emergency") then
                         if mode.healer == 1 or mode.healer == 2 then
@@ -632,7 +660,7 @@ local function runRotation()
             --Shadow Mend
             if isChecked("Shadow Mend") then
                 for i = 1, #br.friend do                           
-                    if br.friend[i].hp <= getValue("Shadow Mend") and (not inCombat or getBuffRemain(br.friend[i].unit, spell.buffs.atonement, "player") < 1) then
+                    if br.friend[i].hp <= getValue("Shadow Mend") and (not inCombat or getBuffRemain(br.friend[i].unit, spell.buffs.atonement, "player") < 1) and lastSpell ~= spell.shadowMend then
                         if mode.healer == 1 or mode.healer == 2 then
                             if cast.shadowMend(br.friend[i].unit) then return end
                         end
@@ -655,34 +683,6 @@ local function runRotation()
                     end
                     if mode.healer == 2 then
                         actionList_SpreadAtonement(br.friend[i].unit)
-                    end
-                end
-            end
-            --Purify
-            if isChecked("Purify") then
-                for i = 1, #br.friend do
-                    for n = 1,40 do
-                        local buff,_,_,count,bufftype,duration = UnitDebuff(br.friend[i].unit, n)
-                        if buff then
-                            if (bufftype == "Curse" or bufftype == "Magic") and lastSpell ~= spell.purify then
-                                --High Botanist Tel'arn Parasitic Fetter dispel helper
-                                if isChecked("Parasitic Fetter Dispel Helper") and UnitDebuffID(br.friend[i].unit,218304) then
-                                    if #getAllies(br.friend[i].unit,8) < 3 then
-                                        if cast.purify(br.friend[i].unit) then return end
-                                    end
-                                --Xavius dispel helper
-                                elseif isChecked("Darkening Soul/Blackening Soul Helper") and (getDebuffStacks(br.friend[i].unit,206651) >= 1 or getDebuffStacks(br.friend[i].unit,209158) >= 1) then
-                                    local debuffStack = getValue("Darkening Soul/Blackening Soul Helper")
-                                    if UnitDebuffID("player",206005) and (getDebuffStacks(br.friend[i].unit,206651) >= debuffStack or getDebuffStacks(br.friend[i].unit,209158) >= debuffStack) then
-                                        if cast.purify(br.friend[i].unit) then return end
-                                    end
-                                elseif mode.healer == 1 or mode.healer == 2 then
-                                        if cast.purify(br.friend[i].unit) then return end
-                                elseif mode.healer == 3 and br.friend[i].unit == "player" then
-                                        if cast.purify("player") then return end
-                                end
-                            end
-                        end
                     end
                 end
             end
