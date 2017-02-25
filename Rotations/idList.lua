@@ -1282,7 +1282,7 @@ br.idList = {
                 mistWwrap                   = 197900,
                 refreshingJadeWind          = 196725,
                 risingThunder               = 210804,
-                songOfChiJi                 = 1988898,
+                songOfChiJi                 = 198898,
                 spiritOfTheCrane            = 210802,
                 summonJadeSerpentStatue     = 115313,
                 zenPulse                    = 124081,
@@ -2933,23 +2933,25 @@ br.idList = {
     },
     -- Global
     Shared = {
-        abilities                           = {
-            giftOfTheNaaru                  = 28880,
-            global                          = 61304,
-            shadowmeld                      = 58984,
-            quakingPalm                     = 107079,
-        },
-        artifacts                           = {
-            artificialDamage                = 226829,
-            artificialStamina               = 211309,
-        },
-        buffs                               = {
-            ancientHysteria                 = 90355,
-            bloodlust                       = 2825,
-            heroism                         = 32182,
-            netherwinds                     = 160452,
-            shadowmeld                      = 58984,
-            timeWarp                        = 80353,
+        Shared = {
+            abilities                           = {
+                giftOfTheNaaru                  = 28880,
+                global                          = 61304,
+                shadowmeld                      = 58984,
+                quakingPalm                     = 107079,
+            },
+            artifacts                           = {
+                artificialDamage                = 226829,
+                artificialStamina               = 211309,
+            },
+            buffs                               = {
+                ancientHysteria                 = 90355,
+                bloodlust                       = 2825,
+                heroism                         = 32182,
+                netherwinds                     = 160452,
+                shadowmeld                      = 58984,
+                timeWarp                        = 80353,
+            },
         },
     },
     ClassTemplate = {

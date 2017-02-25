@@ -2079,8 +2079,8 @@ function hasThreat(unit,playerUnit)
 	local unitThreat
 	local targetOfTarget
 	local targetFriend
-	if UnitExists("targettarget") then targetOfTarget = UnitTarget(unit) else targetOfTarget = "player" end
-	if UnitExists("targettarget") then targetFriend = (UnitInParty(targetOfTarget) or UnitInRaid(targetOfTarget)) else targetFriend = false end
+	if ObjectExists("targettarget") and ObjectExists(unit) then targetOfTarget = UnitTarget(unit) else targetOfTarget = "player" end
+	if ObjectExists("targettarget") then targetFriend = (UnitInParty(targetOfTarget) or UnitInRaid(targetOfTarget)) else targetFriend = false end
 	for i = 1, #br.friend do
 		local thisUnit = br.friend[i].unit
 		if UnitThreatSituation(unit, thisUnit)~=nil then
