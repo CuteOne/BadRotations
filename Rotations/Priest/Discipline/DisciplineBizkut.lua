@@ -601,7 +601,7 @@ local function runRotation()
                                         if cast.purify("player") then return end
                                 end
                             end
-                            if br.friend[i].hp <= getValue("Debuff Shadow Mend/Penance Heal") and isChecked("Debuff Shadow Mend/Penance Heal") and lastSpell ~= spell.shadowMend then
+                            if br.friend[i].hp <= getValue("Debuff Shadow Mend/Penance Heal") and isChecked("Debuff Shadow Mend/Penance Heal") then
                                 if isMoving("player") and talent.thePenitent then
                                     if mode.healer == 1 or mode.healer == 2 then
                                         if cast.penance(br.friend[i].unit) then return end
@@ -633,7 +633,7 @@ local function runRotation()
                     end
                 end
                 --Shadow Mend Emergency
-                if isChecked("Shadow Mend Emergency") and lastSpell ~= spell.shadowMend then
+                if isChecked("Shadow Mend Emergency") then
                     if br.friend[i].hp <= getValue("Shadow Mend Emergency") then
                         if mode.healer == 1 or mode.healer == 2 then
                             if cast.shadowMend(br.friend[i].unit) then return end
