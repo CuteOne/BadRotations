@@ -1354,7 +1354,6 @@ br.idList = {
                 ascension                   = 115396,
                 chiOrbit                    = 196743,
                 chiWave                     = 115098,
-                dizzyingKicks               = 196722,
                 energizingElixir            = 115288,
                 eyeOfTheTiger               = 196607,
                 healingElixir               = 122281,
