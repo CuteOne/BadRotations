@@ -485,7 +485,9 @@ local function runRotation()
             -- Chi Wave
                 if cast.chiWave() then return end
             --  Rushing Jade Wind
-                if cast.rushingJadeWind() then return end
+                if getDistance(units.dyn5) < 5 then
+                    if cast.rushingJadeWind() then return end
+                end
             -- Expel Harm
                 if GetSpellCount(115072) ~= nil and GetSpellCount(115072) >= 1 and php <= getValue("Expel Harm") then
                     if cast.expelHarm() then return end
