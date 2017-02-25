@@ -593,7 +593,7 @@ local function runRotation()
             if cast.elementalBlast() then return end
         -- Liquid Magma Totem
             -- liquid_magma_totem,if=raid_event.adds.count()<3|raid_event.adds.in>50
-            if (#enemies.yards8 < 3 or addsIn > 50) and getDistance(units.dyn8) < 8 and lastSpell ~= spell.liquidMagmaTotem then
+            if (#enemies.yards8 < 3) and getDistance(units.dyn8) < 8 and lastSpell ~= spell.liquidMagmaTotem then
                 if cast.liquidMagmaTotem("target") then return end
             end
         -- Lightning Bolt
@@ -704,7 +704,7 @@ local function runRotation()
             end
         -- Liquid Magma Totem
             -- liquid_magma_totem,if=raid_event.adds.count()<3|raid_event.adds.in>50
-            if (#enemies.yards8 < 3 or addsIn > 50) and getDistance(units.dyn8) < 8 and lastSpell ~= spell.liquidMagmaTotem then
+            if (#enemies.yards8 < 3) and getDistance(units.dyn8) < 8 and lastSpell ~= spell.liquidMagmaTotem then
                 if cast.liquidMagmaTotem("target") then return end
             end
         -- Lightning Bolt
