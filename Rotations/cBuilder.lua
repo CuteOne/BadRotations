@@ -25,7 +25,9 @@ function br.loader:new(spec,specName)
                         if self.spell[spellType] == nil then self.spell[spellType] = {} end
                         for spellRef, spellID in pairs(spellTypeTable) do
                             self.spell[spellType][spellRef] = spellID
-                            if not IsPassiveSpell(spellID) then
+                            if not IsPassiveSpell(spellID) 
+                                and (spellType == 'abilities' or spellType == 'artifacts' or spellType == 'talents') 
+                            then
                                 if self.spell.abilities == nil then self.spell.abilities = {} end
                                 self.spell.abilities[spellRef] = spellID
                                 self.spell[spellRef] = spellID
