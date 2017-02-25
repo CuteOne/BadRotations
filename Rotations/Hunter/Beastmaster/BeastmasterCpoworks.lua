@@ -64,7 +64,7 @@ local function createOptions()
         -- Racial
             br.ui:createCheckbox(section,"Racial")
         -- Trinkets
-            br.ui:createCheckbox(section,"Trinkets")
+            br.ui:createDropdownWithout(section, "Trinkets", {"|cff00FF001st Only","|cff00FF002nd Only","|cffFFFF00Both","|cffFF0000None"}, 1, "|cffFFFFFFSelect Trinket Usage.")
         -- Bestial Wrath
             br.ui:createCheckbox(section,"Bestial Wrath")
         -- Trueshot
@@ -225,27 +225,26 @@ local function runRotation()
                   end
                 end
             end
-                --Revive
-                if isChecked("Auto Summon") and UnitIsDeadOrGhost("pet") then
-                  if castSpell("player",982) then return; end
-                end
+            --Revive
+            if isChecked("Auto Summon") and UnitIsDeadOrGhost("pet") then
+              if castSpell("player",982) then return; end
+            end
 
-                -- Mend Pet
-                if isChecked("Mend Pet") and getHP("pet") < getValue("Mend Pet") and not UnitBuffID("pet",136) then
-                  if castSpell("pet",136) then return; end
-                end
+            -- Mend Pet
+            if isChecked("Mend Pet") and getHP("pet") < getValue("Mend Pet") and not UnitBuffID("pet",136) then
+              if castSpell("pet",136) then return; end
+            end
 
-                -- Pet Attack / retreat
-                if inCombat and isValidUnit(units.dyn40) and getDistance(units.dyn40) < 40 then
-                    if not UnitIsUnit("target","pettarget") then
-                        PetAttack()
-                    end
-                else
-                    if IsPetAttackActive() then
-                        PetStopAttack()
-                    end
+            -- Pet Attack / retreat
+            if inCombat and isValidUnit(units.dyn40) and getDistance(units.dyn40) < 40 then
+                if not UnitIsUnit("target","pettarget") then
+                    PetAttack()
                 end
-
+            else
+                if IsPetAttackActive() then
+                    PetStopAttack()
+                end
+            end
         end
     -- Action List - Extras
         local function actionList_Extras()
@@ -255,6 +254,8 @@ local function runRotation()
                     if getCombatTime() >= (tonumber(getOptionValue("DPS Testing"))*60) and isDummy() then
                         StopAttack()
                         ClearTarget()
+                        PetStopAttack()
+                        PetFOllow()
                         Print(tonumber(getOptionValue("DPS Testing")) .." Minute Dummy Test Concluded - Profile Stopped")
                         profileStop = true
                     end
@@ -348,11 +349,11 @@ local function runRotation()
                 end
                 if buff.bestialWrath.exists() then
                     -- Trinkets
-                    if isChecked("Trinkets") then
-                        if canUse(13) then
+                    if useCDs() and getOptionValue("Trinkets") ~= 4 then
+                        if (getOptionValue("Trinkets") == 1 or getOptionValue("Trinkets") == 3) and canUse(13) then
                             useItem(13)
                         end
-                        if canUse(14) then
+                        if (getOptionValue("Trinkets") == 2 or getOptionValue("Trinkets") == 3) and canUse(14) then
                             useItem(14)
                         end
                     end
@@ -463,7 +464,11 @@ local function runRotation()
     -- Profile Stop | Pause
         if not inCombat and not hastar and profileStop==true then
             profileStop = false
-        elseif (inCombat and profileStop==true) or pause() or mode.rotation==4 then
+        elseif (inCombat and profileStop==true) or (IsMounted() or IsFlying()) or pause() or mode.rotation==4 then
+            if not pause() and IsPetAttackActive() then
+                PetStopAttack()
+                PetFollow()
+            end
             return true
         else
 -----------------------
