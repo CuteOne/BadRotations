@@ -602,18 +602,18 @@ local function runRotation()
                                 end
                             end
                             if br.friend[i].hp <= getValue("Debuff Shadow Mend/Penance Heal") and isChecked("Debuff Shadow Mend/Penance Heal") then
-                                if isMoving("player") and talent.thePenitent then
-                                    if mode.healer == 1 or mode.healer == 2 then
+                                if mode.healer == 1 or mode.healer == 2 then
+                                    actionList_SpreadAtonement(br.friend[i].unit)
+                                    if isMoving("player") and talent.thePenitent then
                                         if cast.penance(br.friend[i].unit) then return end
-                                    end
-                                    if mode.healer == 3 and br.friend[i].unit == "player" then
-                                        if cast.penance("player") then return end
-                                    end
-                                else
-                                    if mode.healer == 1 or mode.healer == 2 then
+                                    else
                                         if cast.shadowMend(br.friend[i].unit) then return end
                                     end
-                                    if mode.healer == 3 and br.friend[i].unit == "player" then
+                                if mode.healer == 3 and br.friend[i].unit == "player" then
+                                    actionList_SpreadAtonement("player")
+                                    if isMoving("player") and talent.thePenitent then
+                                        if cast.penance("player") then return end
+                                    else
                                         if cast.shadowMend("player") then return end
                                     end
                                 end
@@ -645,7 +645,7 @@ local function runRotation()
                 end
                 --Shadow Mend
                 if isChecked("Shadow Mend") then
-                    if br.friend[i].hp <= getValue("Shadow Mend") and (not inCombat or getBuffRemain(br.friend[i].unit, spell.buffs.atonement, "player") < 1) and lastSpell ~= spell.shadowMend then
+                    if br.friend[i].hp <= getValue("Shadow Mend") and (not inCombat or getBuffRemain(br.friend[i].unit, spell.buffs.atonement, "player") < 1) then
                         if mode.healer == 1 or mode.healer == 2 then
                             if cast.shadowMend(br.friend[i].unit) then return end
                         end
