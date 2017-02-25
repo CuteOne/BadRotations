@@ -637,10 +637,32 @@ local function runRotation()
                 if isChecked("Shadow Mend Emergency") then
                     if br.friend[i].hp <= getValue("Shadow Mend Emergency") then
                         if mode.healer == 1 or mode.healer == 2 then
-                            if cast.shadowMend(br.friend[i].unit) then return end
+                            if inCombat and getSpellCD(spell.penance) == 0 then
+                                actionList_SpreadAtonement(br.friend[i].unit)
+                                if schismBuff then
+                                    if cast.penance(schismBuff) then return end
+                                end
+                                if ptwBuff then
+                                    if cast.penance(ptwBuff) then return end
+                                end
+                                if cast.penance() then return end
+                            else
+                                if cast.shadowMend(br.friend[i].unit) then return end
+                            end
                         end
                         if mode.healer == 3 and br.friend[i].unit == "player" then
-                            if cast.shadowMend("player") then return end
+                            if inCombat and getSpellCD(spell.penance) == 0 then
+                                actionList_SpreadAtonement("player")
+                                if schismBuff then
+                                    if cast.penance(schismBuff) then return end
+                                end
+                                if ptwBuff then
+                                    if cast.penance(ptwBuff) then return end
+                                end
+                                if cast.penance() then return end
+                            else
+                                if cast.shadowMend("player") then return end
+                            end
                         end
                     end
                 end
@@ -648,10 +670,32 @@ local function runRotation()
                 if isChecked("Shadow Mend") then
                     if br.friend[i].hp <= getValue("Shadow Mend") and (not inCombat or getBuffRemain(br.friend[i].unit, spell.buffs.atonement, "player") < 1) then
                         if mode.healer == 1 or mode.healer == 2 then
-                            if cast.shadowMend(br.friend[i].unit) then return end
+                            if inCombat and getSpellCD(spell.penance) == 0 then
+                                actionList_SpreadAtonement(br.friend[i].unit)
+                                if schismBuff then
+                                    if cast.penance(schismBuff) then return end
+                                end
+                                if ptwBuff then
+                                    if cast.penance(ptwBuff) then return end
+                                end
+                                if cast.penance() then return end
+                            else
+                                if cast.shadowMend(br.friend[i].unit) then return end
+                            end
                         end
                         if mode.healer == 3 and br.friend[i].unit == "player" then
-                            if cast.shadowMend("player") then return end
+                            if inCombat and getSpellCD(spell.penance) == 0 then
+                                actionList_SpreadAtonement("player")
+                                if schismBuff then
+                                    if cast.penance(schismBuff) then return end
+                                end
+                                if ptwBuff then
+                                    if cast.penance(ptwBuff) then return end
+                                end
+                                if cast.penance() then return end
+                            else
+                                if cast.shadowMend("player") then return end
+                            end
                         end
                     end
                 end
@@ -692,10 +736,6 @@ local function runRotation()
                     end
                 end
             end
-            --Schism
-            if isChecked("Schism") and powcent > 20 then
-                if cast.schism() then return end
-            end
             --Shadow Word: Pain/Purge The Wicked
             if isChecked("Shadow Word: Pain/Purge The Wicked") then
                 if talent.purgeTheWicked then
@@ -706,8 +746,8 @@ local function runRotation()
                                 if talent.schism and schismBuff == thisUnit then 
                                     if cast.purgeTheWicked(thisUnit) then return end
                                 end
-                                if not talent.schism or not isChecked("Schism") then
-                                    if cast.purgeTheWicked(thisUnit,"aoe") then return end
+                                if not talent.schism or not isChecked("Schism") or schismBuff == nil then
+                                    if cast.purgeTheWicked(thisUnit) then return end
                                 end
                             end
                         end
@@ -723,6 +763,10 @@ local function runRotation()
                         end
                     end
                 end
+            end
+            --Schism
+            if isChecked("Schism") and powcent > 20 then
+                if cast.schism() then return end
             end
             --Penance
             if isChecked("Penance") then
