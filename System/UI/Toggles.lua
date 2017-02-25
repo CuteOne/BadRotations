@@ -186,7 +186,7 @@ function TogglesFrame()
 	buttonSize = br.data.settings["buttonSize"]
 	buttonWidth = br.data.settings["buttonSize"]
 	buttonHeight = br.data.settings["buttonSize"]
-	mainButton = CreateFrame("Button","MyButton",UIParent,"SecureHandlerClickTemplate")
+	mainButton = CreateFrame("Button","MyButtonBR",UIParent,"SecureHandlerClickTemplate")
 	mainButton:SetWidth(buttonWidth)
 	mainButton:SetHeight(buttonHeight)
 	mainButton:RegisterForClicks("AnyUp")
@@ -336,7 +336,7 @@ function TogglesFrame()
         -- todo: extend to use spec + profile specific variable; ATM it shares between profile AND spec, -> global for char
 		if br.data.settings[br.selectedSpec].toggles[Name] == nil or br.data.settings[br.selectedSpec].toggles[Name] > #_G[Name.."Modes"] then br.data.settings[br.selectedSpec].toggles[Name] = 1 end
 		tinsert(buttonsTable, { name = Name, bx = x, by = y })
-		_G["button"..Name] = CreateFrame("Button", "MyButton", mainButton, "SecureHandlerClickTemplate")
+		_G["button"..Name] = CreateFrame("Button", "MyButtonBR", mainButton, "SecureHandlerClickTemplate")
 		_G["button"..Name]:SetWidth(br.data.settings["buttonSize"])
 		_G["button"..Name]:SetHeight(br.data.settings["buttonSize"])
 		_G["button"..Name]:SetPoint("LEFT",x*(br.data.settings["buttonSize"])+(x*2),y*(br.data.settings["buttonSize"])+(y*2))

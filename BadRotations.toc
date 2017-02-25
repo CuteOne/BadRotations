@@ -61,7 +61,9 @@ System\Engines\ttdTable.lua
 System\UI\ChatOverlay.lua
 System\UI\MinimapButton.lua
 System\UI\UI.lua
-System\UI\Toggles.lua
+## System\UI\Toggles.lua
+System\UI\Toggles\ToggleFunctions.lua
+System\UI\Toggles\Toggles.lua
 System\UI\Elements\Arrow.lua
 System\UI\Elements\Button.lua
 System\UI\Elements\Checkbox.lua

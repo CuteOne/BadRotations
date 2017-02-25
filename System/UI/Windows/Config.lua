@@ -8,7 +8,7 @@ function br.ui:createConfigWindow()
     local function callGeneral()
         -- General
         section = br.ui:createSection(br.ui.window.config, "General")
-        br.ui:createSpinnerWithout(section, "Update Rate", 0.0, 0.1, 1.0, 0.1, "Adjust the update rate of FPS Intensive operations. Increase to improve FPS but may cause reaction delays. Default: 0.1")
+        br.ui:createSpinnerWithout(section, "Update Rate", 0.1, 0.0, 1.0, 0.1, "Adjust the update rate of FPS Intensive operations. Increase to improve FPS but may cause reaction delays. Default: 0.1")
         -- As you should use the toggle to stop, i (defmaster) just activated this toggle default and made it non interactive
         local startStop = br.ui:createCheckbox(section, "Start/Stop BadRotations", "Toggle this option from the Toggle Bar (Shift Left Click on the Minimap Icon.");
         startStop:SetChecked(true); br.data.settings[br.selectedSpec][br.selectedProfile]["Start/Stop BadRotationsCheck"] = true; startStop.frame:Disable()

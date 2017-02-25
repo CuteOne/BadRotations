@@ -2831,20 +2831,36 @@ function isSelected(Value)
 	end
 end
 -- if getValue("player") <= getValue("Eternal Flame") then
+-- function getValue(Value)
+-- 	if br.data~=nil then
+-- 		if br.data.settings[br.selectedSpec][br.selectedProfile]~=nil then
+-- 	        if br.data.settings[br.selectedSpec][br.selectedProfile][Value.."Status"] ~= nil then
+-- 	            return br.data.settings[br.selectedSpec][br.selectedProfile][Value.."Status"]
+-- 	        elseif br.data.settings[br.selectedSpec][br.selectedProfile][Value.."Drop"] ~= nil then
+-- 	            return br.data.settings[br.selectedSpec][br.selectedProfile][Value.."Drop"]
+-- 	        else
+-- 	            return 0
+-- 	        end
+-- 		end
+-- 	else
+-- 		return 0
+-- 	end
+-- end
 function getValue(Value)
-	if br.data~=nil then
-		if br.data.settings[br.selectedSpec][br.selectedProfile]~=nil then
-	        if br.data.settings[br.selectedSpec][br.selectedProfile][Value.."Status"] ~= nil then
-	            return br.data.settings[br.selectedSpec][br.selectedProfile][Value.."Status"]
-	        elseif br.data.settings[br.selectedSpec][br.selectedProfile][Value.."Drop"] ~= nil then
-	            return br.data.settings[br.selectedSpec][br.selectedProfile][Value.."Drop"]
-	        else
-	            return 0
-	        end
-		end
-	else
-		return 0
-	end
+    if br.data ~=nil then
+    local selectedProfile = br.data.settings[br.selectedSpec][br.selectedProfile]
+        if selectedProfile ~=nil then
+            if selectedProfile[Value.."Status"] ~= nil then
+                return selectedProfile[Value.."Status"]
+            elseif selectedProfile[Value.."Drop"] ~= nil then
+                return selectedProfile[Value.."Drop"]
+            else
+                return 0
+            end
+        end
+    else
+        return 0
+    end
 end
 -- used to gather informations from the bot options frame
 function getOptionCheck(Value)
