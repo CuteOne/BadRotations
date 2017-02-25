@@ -65,7 +65,7 @@ local function createOptions()
             --Psychic Scream
             br.ui:createSpinner(section, "Psychic Scream",  40,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At. Default: 40")
             --Leap Of Faith
-            br.ui:createSpinner(section, "Leap Of Faith",  10,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At. Will never use on tank. Default: 10")
+            br.ui:createSpinner(section, "Leap Of Faith",  20,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At. Will never use on tank. Default: 20")
             --Resurrection
             br.ui:createCheckbox(section, "Resurrection")
             br.ui:createDropdownWithout(section, "Resurrection - Target", {"|cff00FF00Target","|cffFF0000Mouseover","|cffFFBB00Auto"}, 1, "|cffFFFFFFTarget to cast on")
@@ -133,7 +133,7 @@ local function createOptions()
             --Power Word: Solace
             br.ui:createCheckbox(section, "Power Word: Solace")
             --Smite
-            br.ui:createSpinner(section, "Smite",  3,  0,  40,  1,  "|cffFFFFFFMinimum Atonement for casting Smite. Default: 3")
+            br.ui:createSpinner(section, "Smite",  5,  0,  40,  1,  "|cffFFFFFFMinimum Atonement for casting Smite. Default: 5")
             --Divine Star
             br.ui:createSpinner(section, "Divine Star",  3,  0,  10,  1,  "|cffFFFFFFMinimum Divine Star Targets. Default: 3")
             --Halo Damage
@@ -152,7 +152,7 @@ local function createOptions()
             br.ui:createSpinner(section, "Darkening Soul/Blackening Soul Helper",  3,  0,  10,  1,  "|cffFFFFFFDebuff stack before dispel in Dream Simulacrum at Xavius. Default: 3")
             --Disable CD during Speed: Slow on Chromatic Anomaly
             br.ui:createCheckbox(section, "Disable CD during Speed: Slow","|cffFFFFFFDisable CD during Speed: Slow debuff on Chromatic Anomaly")
-            --High Botanist Tel'arn Parasitic Fetter dispel helper. Dispel 10 feet from allies
+            --High Botanist Tel'arn Parasitic Fetter dispel helper. Dispel 8 yards from allies
             br.ui:createCheckbox(section, "Parasitic Fetter Dispel Helper","|cffFFFFFFHigh Botanist Tel'arn Parasitic Fetter dispel helper")
             --Drink
             br.ui:createSpinner(section, "Drink",   50,  0,  100,  5,   "|cffFFFFFFMinimum mana to drink Ley-Enriched Water. Default: 50")
@@ -173,7 +173,7 @@ local function createOptions()
             --Rapture and PW:S
             br.ui:createCheckbox(section, "Rapture and PW:S","|cffFFFFFFAlways cast Rapture and apply Power Word: Shield to all players on CD")
             --Power Word: Barrier CD
-            br.ui:createCheckbox(section, "Power Word: Barrier CD", "|cffFFFFFFAlways cast Power Word: Barrier on CD above mana percentage threshold. Default 50")
+            br.ui:createCheckbox(section, "Power Word: Barrier CD", "|cffFFFFFFAlways cast Power Word: Barrier on CD")
             --Divine Star CD
             br.ui:createCheckbox(section, "Divine Star CD","|cffFFFFFFAlways use Divine Star on CD")
             --Halo CD
@@ -586,7 +586,7 @@ local function runRotation()
                             if (bufftype == "Curse" or bufftype == "Magic") and lastSpell ~= spell.purify and isChecked("Purify") then
                                 --High Botanist Tel'arn Parasitic Fetter dispel helper
                                 if isChecked("Parasitic Fetter Dispel Helper") and UnitDebuffID(br.friend[i].unit,218304) then
-                                    if #getAllies(br.friend[i].unit,8) < 3 then
+                                    if #getAllies(br.friend[i].unit,8) < 2 then
                                         if cast.purify(br.friend[i].unit) then return end
                                     end
                                 --Xavius dispel helper
