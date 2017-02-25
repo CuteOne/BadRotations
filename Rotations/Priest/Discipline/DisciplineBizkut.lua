@@ -679,6 +679,8 @@ local function runRotation()
         -- DAMAGE --
         ------------
         function actionList_Damage()
+            schismBuff = nil
+            ptwBuff = nil
             for i = 1, #enemies.dyn40 do
                 local thisUnit = enemies.dyn40[i]
                 if UnitIsUnit(thisUnit,"target") or hasThreat(thisUnit) or isDummy(thisUnit) then
