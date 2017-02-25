@@ -609,6 +609,7 @@ local function runRotation()
                                     else
                                         if cast.shadowMend(br.friend[i].unit) then return end
                                     end
+                                end
                                 if mode.healer == 3 and br.friend[i].unit == "player" then
                                     actionList_SpreadAtonement("player")
                                     if isMoving("player") and talent.thePenitent then
@@ -810,7 +811,7 @@ local function runRotation()
             end
             --Smite
             if isChecked("Smite") and powcent > 20 then
-                if not inInstance and not inRaid or atonementCount >= getValue("Smite") then
+                if (not inInstance and not inRaid) or atonementCount >= getValue("Smite") then
                     if schismBuff and lastSpell ~= spell.smite then
                         if cast.smite(schismBuff) then return end
                     end
