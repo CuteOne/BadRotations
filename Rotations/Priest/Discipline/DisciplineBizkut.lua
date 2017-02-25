@@ -601,11 +601,20 @@ local function runRotation()
                                         if cast.purify("player") then return end
                                 end
                             end
-                            if br.friend[i].hp <= getValue("Debuff Shadow Mend/Penance Heal") and isChecked("Debuff Shadow Mend/Penance Heal") then
+                            if br.friend[i].hp <= getValue("Debuff Shadow Mend/Penance Heal") and isChecked("Debuff Shadow Mend/Penance Heal") and not UnitDebuffID(br.friend[i].unit,187464) then
                                 if mode.healer == 1 or mode.healer == 2 then
                                     actionList_SpreadAtonement(br.friend[i].unit)
                                     if isMoving("player") and talent.thePenitent then
                                         if cast.penance(br.friend[i].unit) then return end
+                                    end
+                                    if inCombat and getSpellCD(spell.penance) == 0 then
+                                        if schismBuff then
+                                            if cast.penance(schismBuff) then return end
+                                        end
+                                        if ptwBuff then
+                                            if cast.penance(ptwBuff) then return end
+                                        end
+                                        if cast.penance() then return end
                                     else
                                         if cast.shadowMend(br.friend[i].unit) then return end
                                     end
@@ -614,6 +623,15 @@ local function runRotation()
                                     actionList_SpreadAtonement("player")
                                     if isMoving("player") and talent.thePenitent then
                                         if cast.penance("player") then return end
+                                    end
+                                    if inCombat and getSpellCD(spell.penance) == 0 then
+                                        if schismBuff then
+                                            if cast.penance(schismBuff) then return end
+                                        end
+                                        if ptwBuff then
+                                            if cast.penance(ptwBuff) then return end
+                                        end
+                                        if cast.penance() then return end
                                     else
                                         if cast.shadowMend("player") then return end
                                     end
