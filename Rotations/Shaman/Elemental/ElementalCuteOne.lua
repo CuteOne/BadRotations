@@ -459,7 +459,7 @@ local function runRotation()
                         if cast.stormkeeper() then return end
                     end
             -- Flame Shock
-                    if debuff.flameShock.refresh(units.dyn40) then
+                    if debuff.flameShock.refresh("target") and ttd("target") > 15 then
                         if cast.flameShock("target") then StartAttack(); return end
                     else
             -- Lightning Bolt
@@ -493,7 +493,7 @@ local function runRotation()
             if debuff.flameShock.count() < 4 then
                 for i = 1, #enemies.yards40 do
                     local thisUnit = enemies.yards40[i]
-                    if debuff.flameShock.refresh(thisUnit) and (UnitIsUnit(thisUnit,"target") or hasThreat(thisUnit) or isDummy(thisUnit)) then
+                    if bossHPLimit(thisUnit,10) and debuff.flameShock.refresh(thisUnit) and ttd(thisUnit) > 15 and (UnitIsUnit(thisUnit,"target") or hasThreat(thisUnit) or isDummy(thisUnit)) then
                         if cast.flameShock(thisUnit) then return end
                     end
                 end
@@ -540,7 +540,7 @@ local function runRotation()
             if flameShockCounter < 4 and moving then
                 for i = 1, #enemies.yards40 do
                     local thisUnit = enemies.yards40[i]
-                    if debuff.flameShock.remain(thisUnit) < 2 and (UnitIsUnit(thisUnit,"target") or hasThreat(thisUnit) or isDummy(thisUnit)) then
+                    if bossHPLimit(thisUnit,10) and debuff.flameShock.refresh(thisUnit) and ttd(thisUnit) > 15 and debuff.flameShock.remain(thisUnit) < 2 and (UnitIsUnit(thisUnit,"target") or hasThreat(thisUnit) or isDummy(thisUnit)) then
                         if cast.flameShock(thisUnit) then return end
                     end
                 end
@@ -562,7 +562,7 @@ local function runRotation()
             if debuff.flameShock.count() < 3 then
                 for i = 1, #enemies.yards40 do
                     local thisUnit = enemies.yards40[i]
-                    if (not debuff.flameShock.exists(thisUnit) or debuff.flameShock.remain(thisUnit) <= gcd) then
+                    if bossHPLimit(thisUnit,10) and debuff.flameShock.refresh(thisUnit) and ttd(thisUnit) > 15 and (not debuff.flameShock.exists(thisUnit) or debuff.flameShock.remain(thisUnit) <= gcd) then
                         if cast.flameShock(thisUnit) then return end
                     end
                 end
@@ -570,6 +570,7 @@ local function runRotation()
             -- flame_shock,if=maelstrom>=20&remains<=buff.ascendance.duration()&cooldown.ascendance.remain()s+buff.ascendance.duration()<=duration
             if power >= 20 and debuff.flameShock.remain(units.dyn40) <= buff.ascendance.duration()
                 and cd.ascendance + buff.ascendance.duration() <= debuff.flameShock.duration(units.dyn40)
+                and ttd(units.dyn40) > 15
             then
                 if cast.flameShock() then return end
             end
@@ -608,7 +609,7 @@ local function runRotation()
             end
         -- Flame Shock
             -- flame_shock,if=maelstrom>=20&buff.elemental_focus.up,target_if=refreshable
-            if power >= 20 and buff.elementalFocus.exists() and debuff.flameShock.refresh(units.dyn40) then
+            if power >= 20 and buff.elementalFocus.exists() and debuff.flameShock.refresh(units.dyn40) and ttd(units.dyn40) > 15 then
                 if cast.flameShock() then return end
             end
         -- Earth Shock
@@ -648,7 +649,7 @@ local function runRotation()
             end
         -- Flame Shock
             -- flame_shock,moving=1,target_if=refreshable
-            if moving and debuff.flameShock.refresh(units.dyn40) then
+            if moving and debuff.flameShock.refresh(units.dyn40) and ttd(units.dyn40) > 15 then
                 if cast.flameShock() then return end
             end
         -- Earth Shock
@@ -658,7 +659,7 @@ local function runRotation()
             end
         -- Flame Shock
             -- flame_shock,moving=1,if=movement.distance>6
-            if moving and getDistance("target") > 6 then
+            if moving and getDistance("target") > 6 and ttd("target") > 15 then
                 if cast.flameShock("target") then return end
             end
         end -- End Action List - Single Target: Ascendance
@@ -669,7 +670,7 @@ local function runRotation()
             if debuff.flameShock.count() < 3 then
                 for i = 1, #enemies.yards40 do
                     local thisUnit = enemies.yards40[i]
-                    if (not debuff.flameShock.exists(thisUnit) or debuff.flameShock.remain(thisUnit) <= gcd) then
+                    if bossHPLimit(thisUnit,10) and debuff.flameShock.refresh(thisUnit) and ttd(thisUnit) > 15 and (not debuff.flameShock.exists(thisUnit) or debuff.flameShock.remain(thisUnit) <= gcd) then
                         if cast.flameShock(thisUnit) then return end
                     end
                 end
@@ -724,7 +725,7 @@ local function runRotation()
             end
         -- Flame Shock
             -- flame_shock,if=maelstrom>=20&buff.elemental_focus.up,target_if=refreshable
-            if power >= 20 and buff.elementalFocus.exists() and debuff.flameShock.refresh(units.dyn40) then
+            if power >= 20 and buff.elementalFocus.exists() and debuff.flameShock.refresh(units.dyn40) and ttd(units.dyn40) > 15 then
                 if cast.flameShock() then return end
             end
         -- Frost Shock
@@ -764,7 +765,7 @@ local function runRotation()
             end
         -- Flame Shock
             -- flame_shock,moving=1,target_if=refreshable
-            if moving and debuff.flameShock.refresh(units.dyn40) then
+            if moving and debuff.flameShock.refresh(units.dyn40) and ttd(units.dyn40) > 15 then
                 if cast.flameShock() then return end
             end
         -- Earth Shock
@@ -774,7 +775,7 @@ local function runRotation()
             end
         -- Flame Shock
             -- flame_shock,moving=1,if=movement.distance>6
-            if moving and getDistance("target") > 6 then
+            if moving and getDistance("target") > 6 and ttd("target") > 15 then
                 if cast.flameShock("target") then return end
             end
         end -- End Action List - Single Target: Icy Fury
@@ -785,7 +786,7 @@ local function runRotation()
             if debuff.flameShock.count() < 3 then
                 for i = 1, #enemies.yards40 do
                     local thisUnit = enemies.yards40[i]
-                    if (not debuff.flameShock.exists(thisUnit) or debuff.flameShock.remain(thisUnit) <= gcd) then
+                    if bossHPLimit(thisUnit,10) and debuff.flameShock.refresh(thisUnit) and ttd(thisUnit) > 15 and (not debuff.flameShock.exists(thisUnit) or debuff.flameShock.remain(thisUnit) <= gcd) then
                         if cast.flameShock(thisUnit) then return end
                     end
                 end
@@ -820,7 +821,7 @@ local function runRotation()
             end
         -- Flame Shock
             -- flame_shock,if=maelstrom>=20&buff.elemental_focus.up,target_if=refreshable
-            if power >= 20 and buff.elementalFocus.exists() and debuff.flameShock.exists(units.dyn40) and debuff.flameShock.refresh(units.dyn40) then
+            if power >= 20 and buff.elementalFocus.exists() and debuff.flameShock.exists(units.dyn40) and debuff.flameShock.refresh(units.dyn40) and ttd(units.dyn40) > 15 then
                 if cast.flameShock() then return end
             end
         -- Earth Shock
@@ -867,7 +868,7 @@ local function runRotation()
             end
         -- Flame Shock
             -- flame_shock,moving=1,target_if=refreshable
-            if moving and debuff.flameShock.refresh(units.dyn40) then
+            if moving and debuff.flameShock.refresh(units.dyn40) and ttd(units.dyn40) > 15 then
                 if cast.flameShock() then return end
             end
         -- Earth Shock
@@ -877,7 +878,7 @@ local function runRotation()
             end
         -- Flame Shock
             -- flame_shock,moving=1,if=movement.distance>6
-            if moving and getDistance("target") > 6 then
+            if moving and getDistance("target") > 6 and ttd("target") > 15 then
                 if cast.flameShock("target") then return end
             end
         end  -- End Single Target Action List

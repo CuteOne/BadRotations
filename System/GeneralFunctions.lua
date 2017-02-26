@@ -3213,3 +3213,19 @@ function convertName(name)
 	end
 	return "None"
 end
+
+function bossHPLimit(unit,hp)
+    -- Boss Active/Health Max
+    local bossHPMax = bossHPMax or 0
+    local inBossFight = inBossFight or false
+    local enemyList = br.player.enemies(40)
+    for i = 1, #enemyList do
+        local thisUnit = enemyList[i]
+        if isBoss(thisUnit) then
+            bossHPMax = UnitHealthMax(thisUnit)
+            inBossFight = true
+            break
+        end
+    end
+    return (not inBossFight or (inBossFight and UnitHealthMax(unit) > bossHPMax * (hp / 100)))
+end
