@@ -467,10 +467,10 @@ local function runRotation()
                             PetAssistMode()
                             PetAttack("target")
                         end
-                    end
                 -- Chaos Bolt
-                    -- chaos_bolt
-                    if cast.chaosBolt("target") then return end
+                        -- chaos_bolt
+                        if cast.chaosBolt("target") then return end
+                    end
                 end
             end -- End No Combat
         end -- End Action List - PreCombat
