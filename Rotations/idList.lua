@@ -1100,6 +1100,7 @@ br.idList = {
         [64] = {
             abilities                       = {
                 blizzard                    = 190356,
+                coldSnap                    = 235219,
                 coneOfCold                  = 120,
                 fireBlast                   = 108853,
                 flurry                      = 44614,
@@ -1179,7 +1180,6 @@ br.idList = {
             },
             talents                         = {
                 cauterize                   = 86949,
-                coldSnap                    = 11958,
                 incantersFlow               = 1463,
                 iceFloes                    = 108839,
                 iceWard                     = 205036,

@@ -177,6 +177,7 @@ local function runRotation()
         local deadtar                                       = UnitIsDeadOrGhost("target")
         local debuff                                        = br.player.debuff
         local enemies                                       = enemies or {}
+        local exsang                                        = exsang
         local exsanguinated                                 = exsanguinated
         local flaskBuff, canFlask                           = getBuffRemain("player",br.player.flask.wod.buff.agilityBig), canUse(br.player.flask.wod.agilityBig)
         local gcd                                           = br.player.gcd
@@ -245,7 +246,7 @@ local function runRotation()
         if talent.deeperStrategem then dStrat = 1 else dStrat = 0 end
         if talent.anticipation then antital = 1 else antital = 0 end
         if talent.masterPoisoner then masterPoison = 1 else masterPoison = 0 end
-        if talent.exsanguinate then exsanguinated = 1 else exsanguinated = 0 end
+        if talent.exsanguinate then exsang = 1 else exsang = 0 end
         if not talent.exsanguinate then noExsanguinate = 1 else noExsanguinate = 0 end
         if not talent.venomRush then noVenom = 1 else noVenom = 0 end
         if artifact.urgeToKill then urges = 1 else urges = 0 end
@@ -473,7 +474,10 @@ local function runRotation()
 			for i = 1, #enemies.yards5 do
 				local thisUnit = enemies.yards5[i]
                 if (multidot or (UnitIsUnit(thisUnit,units.dyn5) and not multidot)) then
-                    if combo >= select(5,getSpellCost(spell.rupture)) - exsanguinated and debuff.rupture.refresh(thisUnit) and (not exsanguinated or debuff.rupture.remain(thisUnit) <= 1.5) and (ttd(thisUnit) - debuff.rupture.remain(thisUnit) > 4 or isDummy(thisUnit)) then
+                    if combo >= select(5,getSpellCost(spell.rupture)) - exsang
+                        and debuff.rupture.refresh(thisUnit) and (not exsanguinated or debuff.rupture.remain(thisUnit) <= 1.5) 
+                        and (ttd(thisUnit) - debuff.rupture.remain(thisUnit) > 6 or isDummy(thisUnit)) 
+                    then
                     	if cast.rupture(thisUnit) then return end
                     end
                 end
@@ -589,7 +593,7 @@ local function runRotation()
             end
 		-- Start Attack
             -- auto_attack
-            if isValidUnit("target") and getDistance("target") < 5 and mode.pickPocket ~= 2 then
+            if isValidUnit("target") and getDistance("target") < 5 and mode.pickPocket ~= 2 and getFacing("player","target") == true then
             	if isChecked("Opener") and isBoss("target") and opener == false then
 					if not GAR1 and power >= 45 then
 						Print("Starting Opener")
