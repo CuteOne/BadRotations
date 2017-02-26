@@ -512,11 +512,9 @@ local function runRotation()
                 if cast.aimedShot(units.dyn40) then return end
             end
             -- Marked Shot
-            if not talent.patientSniper then
-                if (debuff.vulnerable.remain(units.dyn40) < getCastTime(spell.aimedShot) and debuff.huntersMark.exists(units.dyn40))then
-                    if cast.markedShot(units.dyn40) then
-                        return 
-                    end
+            if (debuff.vulnerable.remain(units.dyn40) < getCastTime(spell.aimedShot) and debuff.huntersMark.exists(units.dyn40))then
+                if cast.markedShot(units.dyn40) then
+                    return 
                 end
             end
             -- Bursting Shot
