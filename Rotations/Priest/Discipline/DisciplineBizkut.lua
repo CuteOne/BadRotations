@@ -603,11 +603,11 @@ local function runRotation()
                             end
                             if br.friend[i].hp <= getValue("Debuff Shadow Mend/Penance Heal") and isChecked("Debuff Shadow Mend/Penance Heal") and not UnitDebuffID(br.friend[i].unit,187464) then
                                 if mode.healer == 1 or mode.healer == 2 then
-                                    actionList_SpreadAtonement(br.friend[i].unit)
                                     if isMoving("player") and talent.thePenitent then
                                         if cast.penance(br.friend[i].unit) then return end
                                     end
                                     if inCombat and getSpellCD(spell.penance) == 0 then
+                                        actionList_SpreadAtonement(br.friend[i].unit)
                                         if schismBuff then
                                             if cast.penance(schismBuff) then return end
                                         end
@@ -620,11 +620,11 @@ local function runRotation()
                                     end
                                 end
                                 if mode.healer == 3 and br.friend[i].unit == "player" then
-                                    actionList_SpreadAtonement("player")
                                     if isMoving("player") and talent.thePenitent then
                                         if cast.penance("player") then return end
                                     end
                                     if inCombat and getSpellCD(spell.penance) == 0 then
+                                        actionList_SpreadAtonement("player")
                                         if schismBuff then
                                             if cast.penance(schismBuff) then return end
                                         end
