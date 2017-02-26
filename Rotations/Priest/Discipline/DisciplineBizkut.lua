@@ -741,6 +741,10 @@ local function runRotation()
         -- DAMAGE --
         ------------
         function actionList_Damage()
+            --Schism
+            if isChecked("Schism") and powcent > 20 then
+                if cast.schism() then return end
+            end
             schismBuff = nil
             ptwBuff = nil
             for i = 1, #enemies.dyn40 do
@@ -781,10 +785,6 @@ local function runRotation()
                         end
                     end
                 end
-            end
-            --Schism
-            if isChecked("Schism") and powcent > 20 then
-                if cast.schism() then return end
             end
             --Penance
             if isChecked("Penance") then
