@@ -301,18 +301,6 @@ local function runRotation()
             end
         end
 
-        -- Boss Active/Health Max
-        local bossHPMax = bossHPMax or 0
-        local inBossFight = inBossFight or false
-        for i = 1, #enemies.yards40 do
-            local thisUnit = enemies.yards40[i]
-            if isBoss(thisUnit) then
-                bossHPMax = UnitHealthMax(thisUnit)
-                inBossFight = true
-                break
-            end
-        end
-
         local lowestAgony = lowestAgony or "player"
         for i = 1, #enemies.yards40 do
             local thisUnit = enemies.yards40[i]
@@ -344,7 +332,7 @@ local function runRotation()
             --         end
             --     end
                 if (debuff.agony.count() < getOptionValue("Multi-Dot Limit") + effigyCount or debuff.agony.exists(thisUnit)) and getHP(thisUnit) > dotHPLimit and debuff.agony.remain(thisUnit) <= 3 + gcd
-                    and isValidUnit(thisUnit) and (not inBossFight or (inBossFight and UnitHealthMax(thisUnit) > bossHPMax * (getOptionValue("Agony Boss HP Limit") / 100)))
+                    and isValidUnit(thisUnit) and bossHPLimit(thisUnit,getOptionValue("Agony Boss HP Limit")) --(not inBossFight or (inBossFight and UnitHealthMax(thisUnit) > bossHPMax * (getOptionValue("Agony Boss HP Limit") / 100)))
                 then
                     if cast.agony(thisUnit,"aoe") then return end
                 end
@@ -635,7 +623,7 @@ local function runRotation()
                     for i = 1, #enemies.yards40 do
                         local thisUnit = enemies.yards40[i]
                         if (debuff.agony.count() < getOptionValue("Multi-Dot Limit") + effigyCount or debuff.agony.exists(thisUnit)) and getHP(thisUnit) > dotHPLimit and debuff.agony.remain(thisUnit) <= 3 + gcd
-                            and isValidUnit(thisUnit) and (not inBossFight or (inBossFight and UnitHealthMax(thisUnit) > bossHPMax * (getOptionValue("Agony Boss HP Limit") / 100)))
+                            and isValidUnit(thisUnit) and bossHPLimit(thisUnit,getOptionValue("Agony Boss HP Limit")) --(not inBossFight or (inBossFight and UnitHealthMax(thisUnit) > bossHPMax * (getOptionValue("Agony Boss HP Limit") / 100)))
                         then
                             if cast.agony(thisUnit,"aoe") then return end
                         end
@@ -770,7 +758,7 @@ local function runRotation()
                         -- if ua4 ~= nil and ua4.exists(thisUnit) then ua4count = 1 else ua4count = 0 end
                         -- if ua5 ~= nil and ua5.exists(thisUnit) then ua5count = 1 else ua5count = 0 end
                         if debuff.agony.count() < getOptionValue("Multi-Dot Limit") + effigyCount and getHP(thisUnit) > dotHPLimit and isValidUnit(thisUnit)
-                            and (not inBossFight or (inBossFight and UnitHealthMax(thisUnit) > bossHPMax * (getOptionValue("Agony Boss HP Limit") / 100)))
+                            and bossHPLimit(thisUnit,getOptionValue("Agony Boss HP Limit")) --(not inBossFight or (inBossFight and UnitHealthMax(thisUnit) > bossHPMax * (getOptionValue("Agony Boss HP Limit") / 100)))
                         then
                             -- agony,cycle_targets=1,if=!talent.malefic_grasp.enabled&remains<=duration*0.3&target.time_to_die>=remains
                             if not talent.maleficGrasp and debuff.agony.refresh(thisUnit) and ttd(thisUnit) >= debuff.agony.remain(thisUnit) then
