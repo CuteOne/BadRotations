@@ -54,7 +54,7 @@ local function createOptions()
             br.ui:createDropdown(section, "Auto Summon", {"Pet 1","Pet 2","Pet 3","Pet 4","Pet 5",}, 1, "Select the pet you want to use")
         -- Mend Pet
             br.ui:createSpinner(section, "Mend Pet",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
-        -- Explosive Shor
+        -- Explosive Shot
             br.ui:createCheckbox(section, "Explosive Shot")
         br.ui:checkSectionState(section)
     -- Cooldown Options
@@ -143,6 +143,7 @@ local function runRotation()
         local deadtar, attacktar, hastar, playertar         = deadtar or UnitIsDeadOrGhost("target"), attacktar or UnitCanAttack("target", "player"), hastar or ObjectExists("target"), UnitIsPlayer("target")
         local debuff, debuffcount                           = br.player.debuff, br.player.debuffcount
         local enemies                                       = enemies or {}
+        local explosiveTarget                               = explosiveTarget
         local falling, swimming, flying, moving             = getFallTime(), IsSwimming(), IsFlying(), GetUnitSpeed("player")>0
         local fatality                                      = false
         local flaskBuff                                     = getBuffRemain("player",br.player.flask.wod.buff.agilityBig)
@@ -207,14 +208,15 @@ local function runRotation()
             -- local objectCount = GetObjectCount() or 0
             for i = 1, ObjectCount() do
                 local thisUnit = GetObjectWithIndex(i)
-                if GetObjectID(thisUnit) == 11492 and UnitIsUnit("player",UnitCreator(thisUnit)) then
+                if GetObjectID(thisUnit) == 11492 then --and UnitIsUnit("player",UnitCreator(thisUnit)) then
                     return GetDistanceBetweenObjects(thisUnit,otherUnit)
                 end
             end
             return 40
         end
-        if explosiveTarget ~= nil and getExplosiveDistance(explosiveTarget) < 5 then
-            if castSpell(explosiveTarget,spell.explosiveShotDetonate,false,false,false,true,false,true,true,false) then print("ASPLODED!"); return end
+        if explosiveTarget == nil then explosiveTarget = "target" end
+        if getExplosiveDistance(explosiveTarget) < 5 then
+            if castSpell(explosiveTarget,spell.explosiveShotDetonate,false,false,false,true,false,true,true,false) then return end
         end
 --------------------
 --- Action Lists ---
