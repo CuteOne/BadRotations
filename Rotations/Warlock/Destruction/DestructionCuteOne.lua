@@ -67,6 +67,8 @@ local function createOptions()
             br.ui:createSpinner(section, "Rain of Fire", 3, 1, 5, 1, "|cffFFFFFFUnit Count Minimum that Rain of Fire will be cast on.")
         -- Life Tap
             br.ui:createSpinner(section, "Life Tap", 30, 0, 100, 5, "|cffFFFFFFHP Limit that Life Tap will not cast below.")
+        -- Chaos Bolt
+            br.ui:createSpinnerWithout(section, "Chaos Bolt at Shards", 4, 2, 5, 1, "|cffFFFFFFNumber of Shards to use Chaos Bolt At.")
         br.ui:checkSectionState(section)
     -- Cooldown Options
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
@@ -736,7 +738,7 @@ local function runRotation()
                     end
         -- Chaos Bolt
                     -- chaos_bolt,if=(cooldown.havoc.remains>12&cooldown.havoc.remains|active_enemies<3|talent.wreak_havoc.enabled&active_enemies<6)
-                    if ((mode.rotation == 1 and ((cd.havoc > 12 and cd.havoc > 0) or #enemies.yards40 < 3 or (talent.wreakHavoc and #enemies.yards40 < 6))) or mode.rotation == 3) and shards >= 4 then
+                    if ((mode.rotation == 1 and ((cd.havoc > 12 and cd.havoc > 0) or #enemies.yards40 < 3 or (talent.wreakHavoc and #enemies.yards40 < 6))) or mode.rotation == 3) and shards >= getOptionValue("Chaos Bolt at Shards") then
                         if cast.chaosBolt() then return end
                     end
         -- Shadowburn
