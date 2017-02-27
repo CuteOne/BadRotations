@@ -154,7 +154,9 @@ function br.read.combatLog()
             --[[ Cast Failed --> Queue]]
             if param == "SPELL_CAST_FAILED" then
                 if sourceName ~= nil then
-                    if isInCombat("player") and UnitIsUnit(sourceName,"player") and spell ~= botSpell and not botCast then
+                    if isInCombat("player") and UnitIsUnit(sourceName,"player") and spell ~= botSpell and not botCast 
+                        and spell ~= 48018 and spell ~= 48020 -- Warlock: Demonic Circle
+                    then
                         -- set destination
                         if destination == "" then
                           queueDest = nil
