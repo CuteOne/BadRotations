@@ -107,9 +107,9 @@ CuteOne |  Full   | 7.1.5 |   100% | :interrobang:
 
 - Unholy
 
-author          | support | patch | status | raidable?
-:-------------- | :-----: | :---: | -----: | :-------:
-No Profiles Yet |         |       |        |
+author   | support | patch | status | raidable?
+:------- | :-----: | :---: | -----: | :-------:
+THUnholy | Full    | 7.1.5 |  80%   | :interrobang:
 
 ### Demon Hunter
 
