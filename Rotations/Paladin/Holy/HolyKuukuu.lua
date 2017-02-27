@@ -4,33 +4,31 @@ local rotationName = "Kuukuu" -- Change to name of profile listed in options dro
 --- Toggles ---
 ---------------
 local function createToggles() -- Define custom toggles
--- Rotation Button
-    RotationModes = {
-        [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range.", highlight = 1, icon = br.player.spell.beaconOfLight },
-        [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = br.player.spell.beaconOfLight },
-        [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = br.player.spell.holyShock },
-        [4] = { mode = "Off", value = 4 , overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spell.blessingOfSacrifice}
-    };
-    CreateButton("Rotation",1,0)
 -- Cooldown Button
     CooldownModes = {
         [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spell.holyAvenger},
         [2] = { mode = "On", value = 1 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spell.auraMastery},
         [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.absolution}
     };
-    CreateButton("Cooldown",2,0)
+    CreateButton("Cooldown",1,0)
 -- Defensive Button
     DefensiveModes = {
         [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spell.divineProtection},
         [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spell.blessingOfProtection}
     };
-    CreateButton("Defensive",3,0)
+    CreateButton("Defensive",2,0)
 -- Interrupt Button
     InterruptModes = {
         [1] = { mode = "On", value = 1 , overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spell.hammerOfJustice},
         [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.hammerOfJustice}
     };
-    CreateButton("Interrupt",4,0)
+    CreateButton("Interrupt",3,0)
+    -- Cleanse Button
+    CleanseModes = {
+        [1] = { mode = "On", value = 1 , overlay = "Cleanse Enabled", tip = "Cleanse Enabled", highlight = 1, icon = br.player.spell.cleanse },
+        [2] = { mode = "Off", value = 2 , overlay = "Cleanse Disabled", tip = "Cleanse Disabled", highlight = 0, icon = br.player.spell.cleanse }
+    };
+    CreateButton("Cleanse",4,0)
 end
 
 ---------------
@@ -47,8 +45,6 @@ local function createOptions()
             --General or Test
             br.ui:createDropdownWithout(section, "Mode", {"|cffFFFFFFNormal","|cffFFFFFFTest"}, 1, "|cffFFFFFFSet Mode to use.")
         --    br.ui:createCheckbox(section, "Boss Helper")
-            --Cleanse
-            br.ui:createCheckbox(section, "Cleanse")
         --Beacon of Light
             br.ui:createCheckbox(section, "Beacon of Light")
         -- Beacon of Virtue
@@ -231,7 +227,7 @@ local function runRotation()
                 end
             end
             -- Cleanse
-            if isChecked("Cleanse") then
+            if br.player.mode.cleanse == 1 then
                 for i = 1, #br.friend do
                     for n = 1,40 do
                         local buff,_,_,count,bufftype,duration = UnitDebuff(br.friend[i].unit, n)
@@ -339,7 +335,7 @@ local function runRotation()
                     end
                 end
             end
-            if inCombat then
+            if inCombat and useCDs() then
                 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
                 --Cooldowns ----- Cooldowns -----Cooldowns ----- Cooldowns ----- Cooldowns ----- Cooldowns ----- Cooldowns ----- Cooldowns ----- Cooldowns ----- Cooldowns ----- Cooldowns ----- 
                 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -395,7 +391,7 @@ local function runRotation()
                     if cast.redemption("mouseover") then return end
                 end
             end
-            if isChecked("Cleanse") then
+            if br.player.mode.cleanse == 1 then
                 for i = 1, #br.friend do
                     for n = 1,40 do
                         local buff,_,_,count,bufftype,duration = UnitDebuff(br.friend[i].unit, n)
