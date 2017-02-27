@@ -184,7 +184,8 @@ function BadRotationsUpdate(self)
 				if not self.lastUpdateTime then
 					self.lastUpdateTime = tempTime
 				end
-				if self.lastUpdateTime and (tempTime - self.lastUpdateTime) > getOptionValue("Update Rate") then --0.1 then 
+				if getOptionValue("Update Rate") == nil then updateRate = 0.1 else updateRate = getOptionValue("Update Rate") end
+				if self.lastUpdateTime and (tempTime - self.lastUpdateTime) > updateRate then --0.1 then 
 					self.lastUpdateTime = tempTime
 				-- Enemies Engine
 					EnemiesEngine();

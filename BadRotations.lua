@@ -58,12 +58,12 @@ function br:Run()
 	}
 	-- load common used stuff on first load
  	br:loadSettings()
-	-- Build up pulse frame (hearth)
-	br:Engine()
 	-- add minimap fire icon
 	br:MinimapButton()
 	-- build up UI
 	TogglesFrame()
+	-- Build up pulse frame (hearth)
+	br:Engine()
 	ChatOverlay("-= BadRotations Loaded =-")
 	Print("Loaded")
 	br.loadedIn = true
