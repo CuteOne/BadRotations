@@ -158,7 +158,7 @@ function br.loader:new(spec,specName)
         debuff.duration = function(thisUnit,sourceUnit)
             if thisUnit == nil then thisUnit = 'target' end
             if sourceUnit == nil then sourceUnit = 'player' end
-            return getDebuffDuration(thisUnit,v,sourceUnit)
+            return getDebuffDuration(thisUnit,v,sourceUnit) or 0
         end
         debuff.remain = function(thisUnit,sourceUnit)
             if thisUnit == nil then thisUnit = 'target' end

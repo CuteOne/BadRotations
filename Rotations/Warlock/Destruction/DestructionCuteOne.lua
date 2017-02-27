@@ -737,6 +737,9 @@ local function runRotation()
                         if cast.cataclysm("best",nil,4,8) then return end
                     end
         -- Chaos Bolt
+                    if shards >= getOptionValue("Chaos Bolt at Shards") then
+                        if cast.chaosBolt() then return end
+                    end
                     -- chaos_bolt,if=(cooldown.havoc.remains>12&cooldown.havoc.remains|active_enemies<3|talent.wreak_havoc.enabled&active_enemies<6)
                     if ((mode.rotation == 1 and ((cd.havoc > 12 and cd.havoc > 0) or #enemies.yards40 < 3 or (talent.wreakHavoc and #enemies.yards40 < 6))) or mode.rotation == 3) and shards >= getOptionValue("Chaos Bolt at Shards") then
                         if cast.chaosBolt() then return end
