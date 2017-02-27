@@ -895,7 +895,7 @@ local function runRotation()
 --- Rotations ---
 -----------------
         -- Pause
-        if pause() or (UnitExists("target") and (UnitIsDeadOrGhost("target") or not UnitCanAttack("target", "player"))) or mode.rotation == 4 or mode.healer == 4 then
+        if pause() or mode.rotation == 4 or mode.healer == 4 then
             return true
         else
 ---------------------------------
