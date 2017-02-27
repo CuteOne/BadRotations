@@ -66,6 +66,8 @@ local function createOptions()
             br.ui:createSpinner(section, "Psychic Scream",  40,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At. Default: 40")
             --Leap Of Faith
             br.ui:createSpinner(section, "Leap Of Faith",  20,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At. Will never use on tank. Default: 20")
+            --Dominant Mind
+            br.ui:createSpinner(section, "Dominant Mind",  5,  0,  10,  1,  "|cffFFFFFFMinimum Dominant Mind Targets. Default: 5")
             --Resurrection
             br.ui:createCheckbox(section, "Resurrection")
             br.ui:createDropdownWithout(section, "Resurrection - Target", {"|cff00FF00Target","|cffFF0000Mouseover","|cffFFBB00Auto"}, 1, "|cffFFFFFFTarget to cast on")
@@ -880,6 +882,12 @@ local function runRotation()
                         if cast.smite(schismBuff) then return end
                     end
                     if cast.smite() then return end
+                end
+            end
+            --Dominant Mind
+            if isChecked("Dominant Mind") and talent.dominantMind then
+                if #enemies.dyn30 >= getOptionValue("Dominant Mind") then
+                    if cast.mindControl() then return end
                 end
             end
         end
