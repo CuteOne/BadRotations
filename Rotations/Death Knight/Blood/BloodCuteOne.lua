@@ -253,7 +253,7 @@ local function runRotation()
                 end
         -- Anti-Magic Shell
                 if isChecked("Anti-Magic Shell") and php <= getOptionValue("Anti-Magic Shell") then
-                    if cast.antimagicShell() then return end
+                    if cast.antiMagicShell() then return end
                 end
         -- Icebound Fortitude
                 if isChecked("Icebound Fortitude") and php <= getOptionValue("Icebound Fortitude") then

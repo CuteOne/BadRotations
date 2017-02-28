@@ -99,6 +99,7 @@ local function createOptions()
             br.ui:createSpinner(section, "Max Rejuvenation Targets",  10,  0,  20,  1,  "|cffFFFFFFMaximum Rejuvenation Targets","", true)
         -- Germination
             br.ui:createSpinner(section, "Germination",  70,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
+            br.ui:createCheckbox(section,"Germination on tank only","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFGermination on tank usage|cffFFBB00.")
         -- Regrowth
             br.ui:createSpinner(section, "Regrowth",  80,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
         -- Regrowth Clearcasting
@@ -441,6 +442,14 @@ local function runRotation()
                     end
                 end
             end
+            -- Healing Touch with abundance stacks >= 5
+           if isChecked("Healing Touch") and not isCastingSpell(spell.tranquility) then
+                for i = 1, #br.friend do                           
+                    if br.friend[i].hp <= getValue("Healing Touch") and talent.abundance and buff.abundance.stack() >= 5 then
+                        if cast.healingTouch(br.friend[i].unit) then return end
+                    end
+                end
+            end
             -- Rejuvenation
             if isChecked("Rejuvenation") then
                 rejuvCount = 0
@@ -451,7 +460,11 @@ local function runRotation()
                 end
                 for i = 1, #br.friend do
                     if br.friend[i].hp <= getValue("Germination") and talent.germination and (rejuvCount < getValue("Max Rejuvenation Targets")) and not buff.rejuvenationGermination.exists(br.friend[i].unit) then
-                        if cast.rejuvenation(br.friend[i].unit) then return end
+                        if isChecked("Germination on tank only") and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
+                            if cast.rejuvenation(br.friend[i].unit) then return end
+                        elseif not isChecked("Germination on tank only") then
+                            if cast.rejuvenation(br.friend[i].unit) then return end
+                        end
                     elseif br.friend[i].hp <= getValue("Rejuvenation") and buff.rejuvenation.remain(br.friend[i].unit) <= 1 and (rejuvCount < getValue("Max Rejuvenation Targets")) then
                         if cast.rejuvenation(br.friend[i].unit) then return end     
                     end

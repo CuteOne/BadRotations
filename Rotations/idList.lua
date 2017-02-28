@@ -161,22 +161,72 @@ br.idList = {
         -- Unholy
         [252] = {
             abilities                       = {
-
+                armyoftheDead               = 42650,
+                asphyxiate                  = 108194,
+                chainsOfIce                 = 45524,                
+                corpseShield                = 207319,
+                darkTransformation          = 63560,
+                deathAndDecay               = 43265,
+                deathCoil                   = 47541,
+                festeringStrike             = 85948,
+                huddle                      = 47484,
+                hook                        = 212468,
+                leap                        = 47482,
+                necroticStrike              = 223829,
+                outbreak                    = 77575,
+                protectiveBile              = 212384,
+                raiseDead                   = 46584,
+                scourgeStrike               = 55090,
+                summonGargoyle              = 49206,
             },
             artifacts                       = {
-
+                apocalypse                  = 220143,
             },
-            buffs                           = {
-
+            buffs                           = {                
+                corpseShield                = 207319,
+                darkSuccor                  = 101568,
+                darkTransformation          = 63560,
+                deathAndDecay               = 188290,
+                necrosis                    = 207346,
+                soulReaper                  = 215711,
+                suddenDoom                  = 49530,                
             },
             debuffs                         = {
-
+                chainsOfIce                 = 45524,                
+                festeringWound              = 194310,
+                necroticStrike              = 223829,
+                outbreak                    = 77575,
+                scourgeOfWorlds             = 191748,
+                soulReaper                  = 130736,
+                virulentPlague              = 191587,
             },
             glyphs                          = {
 
             },
             talents                         = {
-
+                allWillServe                = 194916,
+                burstingScores              = 207264,
+                ebonFever                   = 207269,
+                epidemic                    = 207317,
+                pestilentPustules           = 194917,
+                blightedRuneWeapon          = 194918,
+                unholyFrenzy                = 207289,
+                castigator                  = 207305,
+                clawingShadows              = 207311,
+                sludgeBelcher               = 207313,
+                asphyxiate                  = 108194,
+                debilitatingInfestation     = 207316,
+                spellEater                  = 207321,
+                corpseShield                = 207319,
+                lingeringApparition         = 212763,
+                shadowInfusion              = 198943,
+                necrosis                    = 207346,
+                infectedClaws               = 207272,
+                darkArbiter                 = 207349,
+                defile                      = 152280,
+                soulReaper                  = 130736,
+            --Honortalents
+                necroticStrike              = 223829,
             },
         },
         -- All
