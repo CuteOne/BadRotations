@@ -76,6 +76,7 @@ local function createOptions()
             br.ui:createSpinner(section, "Holy Shock", 99, 0, 100, 5, "Health Percent to Cast At")
             --Bestow Faith
             br.ui:createSpinner(section, "Bestow Faith", 99, 0, 100, 5, "Health Percent to Cast At")
+            br.ui:createDropdownWithout(section, "Bestow Faith Target", {"|cffFFFFFFAll","|cffFFFFFFTanks"}, 1, "|cffFFFFFFTarget for BF")
             -- Light of the Martyr
             br.ui:createSpinner(section, "Light of the Martyr", 50, 0, 100, 5, "Health Percent to Cast At")
             br.ui:createCheckbox(section, "Non Moving Martyr")
@@ -405,20 +406,19 @@ local function runRotation()
             end
             -- Interrupt
             if useInterrupts() then
-                    for i=1, #getEnemies("player",10) do
-                        thisUnit = getEnemies("player",10)[i]
-                        distance = getDistance(thisUnit)
-                        if canInterrupt(thisUnit,getOptionValue("InterruptAt")) then
-                            if distance <= 10 then
-            -- Hammer of Justice
-                                if isChecked("Hammer of Justice") then
-
-                                    if cast.hammerOfJustice(thisUnit) then return end
-                                end
+                for i=1, #getEnemies("player",10) do
+                    thisUnit = getEnemies("player",10)[i]
+                    distance = getDistance(thisUnit)
+                    if canInterrupt(thisUnit,getOptionValue("InterruptAt")) then
+                        if distance <= 10 then
+        -- Hammer of Justice
+                            if isChecked("Hammer of Justice") then
+                                if cast.hammerOfJustice(thisUnit) then return end
                             end
                         end
                     end
-                end -- End Interrupt Check
+                end
+            end -- End Interrupt Check
             -- Beacon of Light on Tank
             if isChecked("Beacon of Light") then
                 if inInstance then    
@@ -567,6 +567,8 @@ local function runRotation()
                     end
                 end
             end
+            if isCastingSpell(spell.holyLight) then return end
+            if isCastingSpell(spell.flashOfLight) then return end
             -- Holy Prism
             if isChecked("Holy Prism") and talent.holyPrism then
                 if getLowAllies(getValue"Holy Prism") >= getValue("Holy Prism Targets") then
@@ -579,8 +581,10 @@ local function runRotation()
                     if br.friend[i].hp <= getValue("Light of Dawn") then
                         local lowHealthCandidates = getUnitsToHealAround(br.friend[i].unit,15,getValue("Light of Dawn"),#br.friend)
                         if #lowHealthCandidates >= getValue("LoD Targets") then
-                            if cast.ruleOfLaw() then end
-                            if cast.lightOfDawn(br.friend[i].unit) then return end
+                            if GetSpellCooldown(85222) == 0 then
+                                if cast.ruleOfLaw() then end
+                                if cast.lightOfDawn(br.friend[i].unit) then return end
+                            end
                         end
                     end
                 end
@@ -591,9 +595,17 @@ local function runRotation()
             end
             -- Bestow Faith
             if isChecked("Bestow Faith") then
-                for i = 1, #br.friend do
-                    if br.friend[i].hp <= getValue("Bestow Faith") and not UnitBuffID(br.friend[i].unit,223306) then
-                        if cast.bestowFaith(br.friend[i].unit) then return end
+                if getOptionValue("Bestow Faith Target") == 1 then
+                    for i = 1, #br.friend do
+                        if br.friend[i].hp <= getValue ("Bestow Faith") then
+                            if cast.bestowFaith(br.friend[i].unit) then return end
+                        end
+                    end
+                elseif getOptionValue("Bestow Faith Target") == 2 then
+                    for i = 1, #br.friend do
+                        if br.friend[i].hp <= getValue ("Bestow Faith") and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
+                            if cast.bestowFaith(br.friend[i].unit) then return end
+                        end
                     end
                 end
             end
@@ -628,7 +640,7 @@ local function runRotation()
                 end
             end
             -- Holy Light
-            if isChecked("Holy Light") and (getOptionValue("Holy Light Infuse") == 1 or (getOptionValue("Holy Light Infuse") == 2 and buff.infusionOfLight.exists("player"))) then
+            if isChecked("Holy Light") and (getOptionValue("Holy Light Infuse") == 1 or (getOptionValue("Holy Light Infuse") == 2 and buff.infusionOfLight.exists("player"))) then                 
                 for i = 1, #br.friend do
                     if br.friend[i].hp <= getValue("Holy Light") then
                         if cast.holyLight(br.friend[i].unit) then return end
