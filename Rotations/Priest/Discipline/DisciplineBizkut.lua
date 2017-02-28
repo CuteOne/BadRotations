@@ -393,7 +393,13 @@ local function runRotation()
                                 end
                             end
                             if isBoss("target") and getDistance("player","target") < 40 and ((inRaid and atonementCount >= getOptionValue("Max Atonement")) or (inInstance and atonementCount >= 5)) or (not inInstance and not inRaid) then
-                                if cast.lightsWrath("target") then return end
+                                if cast.schism("target") then return end
+                                if talent.schism and schismBuff == thisUnit then 
+                                    if cast.lightsWrath("target") then return end
+                                end
+                                if not talent.schism or not isChecked("Schism") or schismBuff == nil then
+                                    if cast.lightsWrath("target") then return end
+                                end
                             end
                         end
                     end
@@ -833,7 +839,7 @@ local function runRotation()
                             if talent.schism and schismBuff == thisUnit then
                                 if cast.lightsWrath(thisUnit) then return end
                             end
-                            if not talent.schism or not isChecked("Schism") then
+                            if not talent.schism or not isChecked("Schism") or schismBuff == nil then
                                 if cast.lightsWrath() then return end
                             end
                         end
@@ -846,7 +852,7 @@ local function runRotation()
                                     if talent.schism and schismBuff == thisUnit then
                                         if cast.lightsWrath(thisUnit) then return end
                                     end
-                                    if not talent.schism or not isChecked("Schism") then
+                                    if not talent.schism or not isChecked("Schism") or schismBuff == nil then
                                         if cast.lightsWrath() then return end
                                     end
                                 end
@@ -855,7 +861,7 @@ local function runRotation()
                                 if talent.schism and schismBuff == thisUnit then
                                     if cast.lightsWrath(thisUnit) then return end
                                 end
-                                if not talent.schism or not isChecked("Schism") then
+                                if not talent.schism or not isChecked("Schism") or schismBuff == nil then
                                     if cast.lightsWrath() then return end
                                 end
                             end
@@ -895,7 +901,7 @@ local function runRotation()
 --- Rotations ---
 -----------------
         -- Pause
-        if pause() or mode.rotation == 4 or mode.healer == 4 then
+        if pause() or (UnitExists("target") and (UnitIsDeadOrGhost("target") or not UnitCanAttack("target", "player"))) or mode.rotation == 4 or mode.healer == 4 then
             return true
         else
 ---------------------------------
