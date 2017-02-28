@@ -53,6 +53,8 @@ local function createOptions()
             br.ui:createCheckbox(section,"Opener")
         -- Artifact
             br.ui:createDropdownWithout(section,"Artifact", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Artifact Ability.")
+        -- Pet Management
+            br.ui:createCheckbox(section, "Pet Management", "|cffFFFFFF Select to enable/disable auto pet management")
         -- Summon Pet
             br.ui:createDropdownWithout(section, "Summon Pet", {"Imp","Voidwalker","Felhunter","Succubus","Felguard","None"}, 1, "|cffFFFFFFSelect default pet to summon.")
         -- Grimoire of Service
@@ -302,8 +304,10 @@ local function runRotation()
 					if getCombatTime() >= (tonumber(getOptionValue("DPS Testing"))*60) and isDummy() then
                         StopAttack()
                         ClearTarget()
-                        PetStopAttack()
-                        PetFollow()
+                        if isChecked("Pet Management") then
+                            PetStopAttack()
+                            PetFollow()
+                        end
 						Print(tonumber(getOptionValue("DPS Testing")) .." Minute Dummy Test Concluded - Profile Stopped")
 						profileStop = true
 					end
@@ -398,7 +402,7 @@ local function runRotation()
         local function actionList_PreCombat()
             -- Summon Pet
             -- summon_pet,if=!talent.grimoire_of_supremacy.enabled&(!talent.grimoire_of_sacrifice.enabled|buff.demonic_power.down)
-            if not (IsFlying() or IsMounted()) and not talent.grimoireOfSupremacy and (not talent.grimoireOfSacrifice or not buff.demonicPower.exists()) then
+            if isChecked("Pet Management") and not (IsFlying() or IsMounted()) and not talent.grimoireOfSupremacy and (not talent.grimoireOfSacrifice or not buff.demonicPower.exists()) then
                 if (activePetId == 0 or activePetId ~= summonId) and (lastSpell ~= castSummonId or activePetId ~= summonId) then
                     if summonPet == 1 then
                         if isKnown(spell.summonFelImp) then
@@ -429,7 +433,7 @@ local function runRotation()
             -- Food
                 -- food,type=azshari_salad
                 -- TODO
-                if (not isChecked("Opener") or opener == true) then
+                if isChecked("Pet Management") and (not isChecked("Opener") or opener == true) then
                 -- Summon Infernal
                     -- summon_infernal,if=talent.grimoire_of_supremacy.enabled&active_enemies>=3
                     if useCDs() and isChecked("Summon Infernal") then
@@ -465,7 +469,7 @@ local function runRotation()
                         -- potion,name=deadly_grace
                         -- TODO
                 -- Pet Attack/Follow
-                        if UnitExists("target") and not UnitAffectingCombat("pet") then
+                        if isChecked("Pet Management") and UnitExists("target") and not UnitAffectingCombat("pet") then
                             PetAssistMode()
                             PetAttack("target")
                         end
@@ -490,7 +494,7 @@ local function runRotation()
         if not inCombat and not hastar and profileStop==true then
             profileStop = false
         elseif (inCombat and profileStop==true) or (IsMounted() or IsFlying())or pause() or mode.rotation==4 then
-            if not pause() and IsPetAttackActive() then
+            if not pause() and IsPetAttackActive() and isChecked("Pet Management") then
                 PetStopAttack()
                 PetFollow()
             end
@@ -529,7 +533,7 @@ local function runRotation()
     ---------------------------
                 if getOptionValue("APL Mode") == 1 then
         -- Pet Attack
-                    if not UnitIsUnit("pettarget","target") then
+                    if isChecked("Pet Management") and not UnitIsUnit("pettarget","target") then
                         PetAttack()
                     end
         -- Havoc
@@ -630,7 +634,7 @@ local function runRotation()
                     end
         -- Service Pet
                     -- service_pet
-                    if ObjectExists(units.dyn40) then
+                    if isChecked("Pet Management") and ObjectExists(units.dyn40) then
                         if br.timer:useTimer("castGrim", gcd) then
                             if grimoirePet == 1 then
                                 if cast.grimoireImp() then prevService = "Imp"; return end
@@ -652,14 +656,14 @@ local function runRotation()
                     end
         -- Summon Infernal
                     -- summon_infernal,if=artifact.lord_of_flames.rank>0&!buff.lord_of_flames.remain()s
-                    if useCDs() and isChecked("Summon Infernal") then
+                    if isChecked("Pet Management") and useCDs() and isChecked("Summon Infernal") then
                         if artifact.lordOfFlames and not buff.lordOfFlames.exists() then
                             if cast.summonInfernal() then return end
                         end
                     end
         -- Summon Doomguard
                     -- summon_doomguard,if=!talent.grimoire_of_supremacy.enabled&spell_targets.infernal_awakening<=2&(target.time_to_die>180|target.health.pct<=20|target.time_to_die<30)
-                    if useCDs() and isChecked("Summon Doomguard") then
+                    if isChecked("Pet Management") and useCDs() and isChecked("Summon Doomguard") then
                         if not talent.grimoireOfSupremacy and #enemies.yards8 <= 2
                             and (ttd(units.dyn40) > 180 or getHP(units.dyn40) <= 20 or ttd(units.dyn40) < 30)
                         then
@@ -668,19 +672,19 @@ local function runRotation()
                     end
         -- Summon Infernal
                     -- summon_infernal,if=!talent.grimoire_of_supremacy.enabled&spell_targets.summon_infernal>2
-                    if useCDs() and isChecked("Summon Infernal") then
+                    if isChecked("Pet Management") and useCDs() and isChecked("Summon Infernal") then
                         if not talent.grimoireOfSupremacy and #enemies.yards8 > 2 then
                             if cast.summonInfernal() then return end
                         end
                     end
         -- Summon Doomguard
                     -- summon_doomguard,if=talent.grimoire_of_supremacy.enabled&spell_targets.summon_infernal=1&artifact.lord_of_flames.rank>0&buff.lord_of_flames.remain()s&!pet.doomguard.active
-                    if talent.grimoireOfSupremacy and #enemies.yards8 < 3 and artifact.lordOfFlames and buff.lordOfFlames.exists() then
+                    if isChecked("Pet Management") and talent.grimoireOfSupremacy and #enemies.yards8 < 3 and artifact.lordOfFlames and buff.lordOfFlames.exists() then
                         if cast.summonDoomguard() then return end
                     end
         -- Summon Doomguard
                     -- summon_doomguard,if=talent.grimoire_of_supremacy.enabled&spell_targets.summon_infernal<3&equipped.132379&!cooldown.sindorei_spite_icd.remain()s
-                    if useCDs() and isChecked("Summon Doomguard") then
+                    if isChecked("Pet Management") and useCDs() and isChecked("Summon Doomguard") then
                         if talent.grimoireOfSupremacy and #enemies.yards8 < 3 and hasEquiped(132379) and GetTime() > summonTime + 275 then
                             interruptDrain()
                             if cast.summonDoomguard() then summonTime = GetTime(); return end
@@ -688,7 +692,7 @@ local function runRotation()
                     end
         -- Summon Infernal
                     -- summon_infernal,if=talent.grimoire_of_supremacy.enabled&spell_targets.summon_infernal>=3&equipped.132379&!cooldown.sindorei_spite_icd.remain()s
-                    if useCDs() and isChecked("Summon Infernal") then
+                    if isChecked("Pet Management") and useCDs() and isChecked("Summon Infernal") then
                         if talent.grimoireOfSupremacy and #enemies.yards8 >= 3 and hasEquiped(132379) and GetTime() > summonTime + 275 then
                             interruptDrain()
                             if cast.summonInfernal() then summonTime = GetTime(); return end

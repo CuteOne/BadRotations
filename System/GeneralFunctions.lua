@@ -833,10 +833,10 @@ function castQueue()
 					    elseif thisUnit == nil then
 					        if IsUsableSpell(spellCast) and isKnown(spellCast) then
 					            if maxRange ~= nil and maxRange > 0 then
-					                thisUnit = dynamicTarget(maxRange, true)
+					                thisUnit = "target" --dynamicTarget(maxRange, true)
 					                amIinRange = getDistance(thisUnit) < maxRange
 					            else
-					                thisUnit = dynamicTarget(5, true)
+					                thisUnit = "target" --dynamicTarget(5, true)
 					                amIinRange = getDistance(thisUnit) < 5
 					            end
 					        end
@@ -845,11 +845,6 @@ function castQueue()
 					    else
 					        amIinRange = IsSpellInRange(spellName,thisUnit) == 1
 					    end
-					    if not IsHarmfulSpell(spellName) and thisUnit == nil then
-				    		if not UnitIsFriend(thisUnit,"player") and ObjectExists("target") then
-				        		thisUnit = "target"
-				        	end
-				        end
 					    -- Cast if able
 					    if amIinRange then
 					        if UnitIsDeadOrGhost(thisUnit) then
