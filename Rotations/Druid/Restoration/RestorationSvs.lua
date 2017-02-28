@@ -462,7 +462,7 @@ local function runRotation()
                     if br.friend[i].hp <= getValue("Germination") and talent.germination and (rejuvCount < getValue("Max Rejuvenation Targets")) and not buff.rejuvenationGermination.exists(br.friend[i].unit) then
                         if isChecked("Germination on tank only") and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
                             if cast.rejuvenation(br.friend[i].unit) then return end
-                        else
+                        elseif not isChecked("Germination on tank only") then
                             if cast.rejuvenation(br.friend[i].unit) then return end
                         end
                     elseif br.friend[i].hp <= getValue("Rejuvenation") and buff.rejuvenation.remain(br.friend[i].unit) <= 1 and (rejuvCount < getValue("Max Rejuvenation Targets")) then
