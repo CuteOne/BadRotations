@@ -6,14 +6,14 @@ local rotationName = "LyLoLoq"
 local function createToggles()
     -- Dispell
     DispellModes = {
-        [1] = { mode = "On", value = 1 , overlay = "Dispell Enabled", tip = "", highlight = 1, icon = br.player.spell.detox },
-        [2] = { mode = "Off", value = 2 , overlay = "Dispell Disabled", tip = "", highlight = 0, icon = br.player.spell.detox }
+        [1] = { mode = "On", value = 1 , overlay = "Dispell Enabled", tip = "Dispell Enabled", highlight = 1, icon = br.player.spell.detox },
+        [2] = { mode = "Off", value = 2 , overlay = "Dispell Disabled", tip = "Dispell Disabled", highlight = 0, icon = br.player.spell.detox }
     };
     CreateButton("Dispell",1,0)
     -- Dispell
     FistweavingModes = {
-        [1] = { mode = "On", value = 1 , overlay = "Fistweaving Enabled", tip = "", highlight = 1, icon = br.player.spell.risingSunKick },
-        [2] = { mode = "Off", value = 2 , overlay = "Fistweaving Disabled", tip = "", highlight = 0, icon = br.player.spell.risingSunKick }
+        [1] = { mode = "On", value = 1 , overlay = "Fistweaving Enabled", tip = "Fistweaving Enabled", highlight = 1, icon = br.player.spell.risingSunKick },
+        [2] = { mode = "Off", value = 2 , overlay = "Fistweaving Disabled", tip = "Fistweaving Disabled", highlight = 0, icon = br.player.spell.risingSunKick }
     };
     CreateButton("Fistweaving",2,0)
     -- Interrupt Button
