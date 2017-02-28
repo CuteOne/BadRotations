@@ -1755,6 +1755,7 @@ br.idList = {
                 leapOfFaith                 = 73325,
                 lightsWrath                 = 207946,
                 mindbender                  = 123040,
+                mindControl                 = 205364,
                 mindVision                  = 2096,
                 painSuppression             = 33206,
                 penance                     = 47540,
