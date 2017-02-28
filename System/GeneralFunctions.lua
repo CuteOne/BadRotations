@@ -811,38 +811,63 @@ function castSpell(Unit,SpellID,FacingCheck,MovementCheck,SpamAllowed,KnownSkip,
 end
 -- Cast Spell Queue
 function castQueue()
-	local spellCast = br.player.queue[1].id
-    local spellName = GetSpellInfo(br.player.queue[1].id)
-    local minRange 	= select(5,GetSpellInfo(spellName))
-    local maxRange 	= select(6,GetSpellInfo(spellName))
-    if IsHelpfulSpell(spellName) then
-        thisUnit = "player"
-        amIinRange = true
-    elseif br.player.queue[1].target == nil then
-        if IsUsableSpell(spellCast) and isKnown(spellCast) then
-            if maxRange ~= nil and maxRange > 0 then
-                thisUnit = dynamicTarget(maxRange,  true)
-                amIinRange = getDistance(thisUnit) < maxRange
-            else
-                thisUnit = dynamicTarget(5,  true)
-                amIinRange = getDistance(thisUnit) < 5
-            end
-        end
-    elseif IsSpellInRange(spellName,thisUnit) == nil then
-        amIinRange = true
-    else
-        amIinRange = IsSpellInRange(spellName,thisUnit) == 1
-    end
-    if IsUsableSpell(spellCast) and getSpellCD(spellCast) == 0 and isKnown(spellCast) and amIinRange then
-        if UnitIsDeadOrGhost(thisUnit) then
-            if thisUnit == nil then thisUnit = "player" end
-            castSpell(thisUnit,spellCast,false,false,false,false,true)
-        else
-            if thisUnit == nil then thisUnit = "player" end
-            castSpell(thisUnit,spellCast,false,false,false)
-        end
-    end
-    return
+	-- Catch for spells not registering on Combat log
+	if br.player ~= nil then
+		if br.player.queue ~= nil and #br.player.queue > 0 then
+			for i = 1, #br.player.queue do
+				local queueIndex = br.player.queue[i]
+				local spellCast = queueIndex.id
+			    local spellName = GetSpellInfo(queueIndex.id)
+			    local minRange 	= select(5,GetSpellInfo(spellName))
+			    local maxRange 	= select(6,GetSpellInfo(spellName))
+			    local thisUnit 	= queueIndex.target
+				if spellCast ~= lastSpellCast then
+				    -- Can the spell be cast
+				    if not select(2,IsUsableSpell(spellCast)) and getSpellCD(spellCast) == 0 and isKnown(spellCast) then
+					    -- Find Best Target for Range 
+					    if IsHelpfulSpell(spellName) and thisUnit == nil then
+					    	if not UnitIsFriend(thisUnit,"player") then
+					        	thisUnit = "player"
+					        end
+					        amIinRange = true
+					    elseif thisUnit == nil then
+					        if IsUsableSpell(spellCast) and isKnown(spellCast) then
+					            if maxRange ~= nil and maxRange > 0 then
+					                thisUnit = dynamicTarget(maxRange, true)
+					                amIinRange = getDistance(thisUnit) < maxRange
+					            else
+					                thisUnit = dynamicTarget(5, true)
+					                amIinRange = getDistance(thisUnit) < 5
+					            end
+					        end
+					    elseif IsSpellInRange(spellName,thisUnit) == nil then
+					        amIinRange = true
+					    else
+					        amIinRange = IsSpellInRange(spellName,thisUnit) == 1
+					    end
+					    if not IsHarmfulSpell(spellName) and thisUnit == nil then
+				    		if not UnitIsFriend(thisUnit,"player") and ObjectExists("target") then
+				        		thisUnit = "target"
+				        	end
+				        end
+					    -- Cast if able
+					    if amIinRange then
+					        if UnitIsDeadOrGhost(thisUnit) then
+					            if thisUnit == nil then thisUnit = "player" end
+					            castSpell(thisUnit,spellCast,false,false,false,false,true)
+					            return true
+					        else
+					            if thisUnit == nil then thisUnit = "player" end
+					            Print("Casting Spell: "..spellName)
+					            castSpell(thisUnit,spellCast,false,false,false)
+					            return true
+					        end
+					    end
+					end
+				end
+			end
+		end
+	end
 end
 --[[castSpellMacro(Unit,SpellID,FacingCheck,MovementCheck,SpamAllowed,KnownSkip)
 Parameter 	Value

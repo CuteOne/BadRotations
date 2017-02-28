@@ -27,8 +27,8 @@ end
 -- Run
 function br:Run()
 	if br.selectedSpec == nil then br.selectedSpec = select(2,GetSpecializationInfo(GetSpecialization())) end
-	rc = LibStub("LibRangeCheck-2.0")
-	minRange, maxRange = rc:GetRange('target')
+	-- rc = LibStub("LibRangeCheck-2.0")
+	-- minRange, maxRange = rc:GetRange('target')
 	--[[Init the readers codes (System/Reader.lua)]]
 	-- combat log
 	br.read.combatLog()
@@ -63,10 +63,12 @@ function br:Run()
 	-- build up UI
 	TogglesFrame()
 	-- Build up pulse frame (hearth)
-	br:Engine()
-	ChatOverlay("-= BadRotations Loaded =-")
-	Print("Loaded")
-	br.loadedIn = true
+	if not br.loadedIn then
+		br:Engine()
+		ChatOverlay("-= BadRotations Loaded =-")
+		Print("Loaded")
+		br.loadedIn = true
+	end
 end
 
 -- Load Settings

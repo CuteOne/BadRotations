@@ -7,7 +7,7 @@ local function createToggles() -- Define custom toggles
 -- Rotation Button
     RotationModes = {
         [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of #enemies.yards8 in range.", highlight = 0, icon = br.player.spell.deathAndDecay },
-        [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = br.player.spell.bladestorm },
+        [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = br.player.spell.deathAndDecay },
         [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = br.player.spell.furiousSlash },
         [4] = { mode = "Off", value = 4 , overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spell.enragedRegeneration}
     };
@@ -65,7 +65,7 @@ local function createOptions()
             -- Racial
             br.ui:createCheckbox(section,"Racial")
             --Asphyxiate
-            br.ui:createCheckbox(section,"Asphyxiate")
+            --br.ui:createCheckbox(section,"Asphyxiate")
             --Summon Gargoyle
             br.ui:createCheckbox(section,"Summon Gargoyle")
 
@@ -122,6 +122,8 @@ local function createOptions()
             br.ui:createCheckbox(section,"Necrotic Strike")
              -- Chains of Ice
             br.ui:createCheckbox(section,"Chains of Ice")
+            -- AMS Counter
+            br.ui:createCheckbox(section,"AMS Counter")
          br.ui:checkSectionState(section)
         ----------------------
         --- TOGGLE OPTIONS --- -- Degine Toggle Options
@@ -318,6 +320,13 @@ local function runRotation()
         local function actionList_Defensive()
             if isChecked("Debug Info") then Print("actionList_Defensive") end
             if useDefensive() and not IsMounted() then
+            --- AMS Counter
+                if isChecked("AMS Counter") 
+                    and debuff.soulReaper.exists("player") 
+                then
+                    if cast.antiMagicShell() then return end
+                end
+
             --Healthstone
                 if isChecked("Healthstone") 
                     and php <= getOptionValue("Healthstone")
@@ -351,6 +360,10 @@ local function runRotation()
                     and inCombat 
                 then
                     if cast.corpseShield() then return end
+                end
+            -- Anti-Magic Shell
+                if isChecked("Anti-Magic Shell") and php <= getOptionValue("Anti-Magic Shell") then
+                    if cast.antiMagicShell() then return end
                 end
             -- Raise Ally
                 if isChecked("Raise Ally") then
@@ -386,12 +399,17 @@ local function runRotation()
                                 and not immunAotT
                             then  
                                 -- Leap Dark Transormation
-                                if buff.darkTransformation.exists("pet")
-                                    and getDistance(thisUnit) > 5
+                                if getDistance(thisUnit) > 5
                                     and getDistance(thisUnit) < 30
                                 then
-                                    waitforNextKick = GetTime()
-                                    if cast.leap(thisUnit) then print("Leap Kick") return end
+                                    if talent.sludgeBelcher then
+                                        waitforNextKick = GetTime()
+                                        if cast.hook(thisUnit) then print("Hook Kick") return end
+                                    elseif buff.darkTransformation.exists("pet")
+                                    then
+                                        waitforNextKick = GetTime()
+                                        if cast.leap(thisUnit) then print("Leap Kick") return end
+                                    end
                                 end
                                 -- Mind Freeze
                                 if isChecked("Mind Freeze") 
@@ -404,6 +422,7 @@ local function runRotation()
                                 end
                                 --Asphyxiate
                                 if isChecked("Asphyxiate Kick") 
+                                    and talent.asphyxiate
                                     and getDistance(thisUnit) < 20 
                                     and getFacing("player",thisUnit) 
                                 then
@@ -435,9 +454,16 @@ local function runRotation()
             if not IsMounted() then
                 --Corpse Shield
                 if buff.corpseShield.exists() then
-                    if cast.huddle() then return end
+                    if talent.sludgeBelcher then
+                        if cast.protectiveBile() then return end
+                    else
+                        if cast.huddle() then return end
+                    end
                 end
-                if getHP("pet") < 40 and UnitExists("pet") then
+                if getHP("pet") < 40 
+                    and UnitExists("pet") 
+                    and not buff.corpseShield.exists() 
+                then
                     print("Pet Dismiss - Low Health")
                     PetDismiss()
                 end
@@ -454,7 +480,7 @@ local function runRotation()
 
                 -- Pet Attack / retreat
                 if inCombat and isValidUnit(units.dyn30) and getDistance(units.dyn30) < 30 and isChecked("Pet Attack") then
-                    if not UnitIsUnit("target","pettarget") and attacktar then
+                    if not UnitIsUnit("target","pettarget") and attacktar and not IsPetAttackActive() then
                         PetAttack()
                         PetAssistMode()
                     end
@@ -469,8 +495,8 @@ local function runRotation()
     ---------------------------------------------------------------------------------------------------------------------------------
     -- Action List - Soul Reaper Debuff
     ---------------------------------------------------------------------------------------------------------------------------------
-    	local function actionList_SoulReaperDebuff()
-    	--Apocalypse
+        local function actionList_SoulReaperDebuff()
+        --Apocalypse
             if cd.apocalypse <= 0
                 and debuff.festeringWound.stack("target") >= 7
                 and not immun
@@ -483,29 +509,35 @@ local function runRotation()
                 and not immun
                 and not cloak
             then
-				if talent.clawingShadows then
+                if talent.clawingShadows then
                     if cast.clawingShadows("target") then return end
                 else
                     if cast.scourgeStrike("target") then return end
                 end
             end
-    	end
+        end
     ---------------------------------------------------------------------------------------------------------------------------------
     -- Action List - Generic
     ---------------------------------------------------------------------------------------------------------------------------------
         local function actionList_Generic()
             if isChecked("Debug Info") then Print("actionList_Generic") end
-            if waitfornextPrint ~= nil and waitfornextPrint < GetTime() -1 then
-               -- print ( "Pet HP :", getHP("pet"), " Necro :", talent.necroticStrike, " NecroWert : ", debuff.necroticStrike.stack("target") , "  GCD:  ", gcd) --, " || ", debuff.necroticStrike.value("target"))
-              -- print (cd.apocalypse, cd.soulReaper)
-                waitfornextPrint = GetTime()
-            end
+           
             if waitfornextPrint == nil then
                 waitfornextPrint = GetTime()
             end
             if waitfornextVirPlague == nil then
                 waitfornextVirPlague = 0
             end
+
+            --Soul Reaper if artifact == 0 and festeringWound > 6
+            if debuff.festeringWound.stack("target") >= 7
+                and cd.apocalypse <= 0
+                and not immun
+                and not bop
+                and not cloak
+            then 
+                if cast.soulReaper("target") then return end
+            end  
             --Apocalypse
             if cd.apocalypse <= 0
                 and cd.soulReaper > 10
@@ -528,7 +560,23 @@ local function runRotation()
                         return 
                     end
                 end
+                local unitWithoutVirPlague = "player"
+                for i = 1, #enemies.yards30 do
+                    local thisUnit = enemies.yards30[i]
+                    if not debuff.virulentPlague.exists(thisUnit) 
+                        and UnitAffectingCombat(thisUnit) 
+                        and not cloak
+                        and not immun
+                    then
+                        if cast.outbreak(thisUnit) then 
+                            waitfornextVirPlague = GetTime() 
+                            return 
+                        end
+                        break
+                    end
+                end
             end
+
              --Dark Transformation
             if not immun
                and not bop
@@ -538,8 +586,12 @@ local function runRotation()
             then
                 if cast.darkTransformation() then return end
             end
-            -- ScourgeStrike if Scourge of Worlds
-            if debuff.scourgeOfWorlds.exists("target") 
+            --Death and Decay
+            if #enemies.yards10 >= 3 then
+                if cast.deathAndDecay("player") then return end
+            end
+            -- ScourgeStrike if Scourge of Worlds / Death and Decay
+            if (debuff.scourgeOfWorlds.exists("target") or buff.deathAndDecay.exists())
                 and debuff.festeringWound.stack("target") > 1
                 and runicPower < 90
                 and (not (cd.apocalypse == 0) or getDistance("target") > 5)
@@ -547,7 +599,7 @@ local function runRotation()
                 and not immun
                 and not cloak
             then
-				if talent.clawingShadows then
+                if talent.clawingShadows then
                     if cast.clawingShadows("target") then return end
                 else
                     if cast.scourgeStrike("target") then return end
@@ -556,6 +608,7 @@ local function runRotation()
             -- Death Coil
             if (runicPower >= 65
                 or (buff.suddenDoom.exists() and buff.suddenDoom.remain() < 8))
+                and (not buff.necrosis.exists("player") or buff.suddenDoom.remain() < 2 or runicPower > 90)
                 and not immun
                 and not cloak
             then
@@ -581,17 +634,7 @@ local function runRotation()
             then
                 --print (" Soulreaper Cast Runes : ", runes)
                 if cast.soulReaper("target") then return end
-            end
-
-            --Soul Reaper if artifact == 0 and festeringWound > 6
-            if debuff.festeringWound.stack("target") >= 7
-                and cd.apocalypse <= 0
-                and not immun
-                and not bop
-                and not cloak
-            then 
-                if cast.soulReaper("target") then return end
-            end            
+            end          
 
             --Scourge
             if debuff.festeringWound.stack("target") > 3
@@ -615,7 +658,12 @@ local function runRotation()
                 end
             end
             --Clawing Shadow  is out of range
-            if  talent.clawingShadows and getDistance("target") > 5 and runes > 2 then
+            if  talent.clawingShadows 
+                and getDistance("target") > 5 
+                and runes > 2 
+                and not cloak
+                and not immun
+            then
                 if cast.clawingShadows("target") then return end
             end
             -- DeathCoil
@@ -647,13 +695,15 @@ local function runRotation()
 -----------------------------
             if inCombat then
                 if isChecked("Debug Info") then Print("inCombat") end
+
+
+                 --print (#br.player.queue)
                 -----------------
-               	--- SoulReaper --
-               	-----------------
-           		if talent.soulReaper and debuff.soulReaper.exists("target") and buff.soulReaper.stack("player") < 3  then
-           			if actionList_SoulReaperDebuff() then return end
-           		elseif br.player.queue ~= nil then
-                    if #br.player.queue == 0 then                   	
+                --- SoulReaper --
+                -----------------
+                if talent.soulReaper and debuff.soulReaper.exists("target") and buff.soulReaper.stack("player") < 3  then
+                    if actionList_SoulReaperDebuff() then return end
+                elseif #br.player.queue == 0 then                       
                     -----------------
                     --- Extras    ---
                     -----------------
@@ -681,35 +731,36 @@ local function runRotation()
                     -----------------
                     --- Queue     ---
                     -----------------
-                    elseif #br.player.queue > 0 then
-
-                      --  print(br.player.queue[i].name.." CD..", getSpellCD(br.player.queue[i].name) )
-                        if getSpellCD(br.player.queue[1].name) <= 0 then
-                            if waitfornextCastTry ~= nil then
-                                if castSpell("target", br.player.queue[1].id,true, false) then 
-                                    Print("Casted |cFFFF0000"..br.player.queue[1].name)
-                                    timeSet = false
-                                elseif timeSet == nil or not timeSet then
-                                    timeSet = true
-                                    waitfornextCastTry = GetTime()
-                                end
-                                if timeSet and waitfornextCastTry < GetTime() -2 then
-                                    Print("Removed |cFFFF0000"..br.player.queue[1].name.. "|r time over")
-                                    timeSet = false
-                                    if br.player.queue == nil then Print("Queue nil") end
-                                    if #br.player.queue == 0 then Print("Queue already 0") end
-                                    if #br.player.queue > 0 then br.player.queue = {}; Print("Queue Cleared") end
-                                end
-                            end
-                            if waitfornextCastTry == nil then
-                                timeSet = false
-                                waitfornextCastTry = GetTime()
-                            end
-                        elseif getSpellCD(br.player.queue[1].name) > 2 then
-                            Print("Removed |cFFFF0000"..br.player.queue[1].name.. "|r cause CD")
-                            tremove(br.player.queue,1)
-                        end
-                    end
+                -- else
+                --     for i = 1, #br.player.queue do
+                --         print(br.player.queue[i].name.." CD..", getSpellCD(br.player.queue[i].name) )
+                --         if getSpellCD(br.player.queue[i].name) <= 0 then
+                --             if waitforQueueCastToRemove ~= nil then
+                --                 if castSpell("target", br.player.queue[i].id,true, false) then 
+                --                     Print("Casted |cFFFF0000"..br.player.queue[i].name)
+                --                     timeSet = false
+                --                 elseif timeSet == nil or not timeSet then
+                --                     timeSet = true
+                --                     waitforQueueCastToRemove = GetTime()
+                --                 end
+                --                 if timeSet and waitforQueueCastToRemove < GetTime() -2 then
+                --                     Print("Removed |cFFFF0000"..br.player.queue[i].name.. "|r time over")
+                --                     timeSet = false
+                --                     if br.player.queue == nil then Print("Queue nil") end
+                --                     if #br.player.queue == 0 then Print("Queue already 0") end
+                --                     if #br.player.queue > 0 then br.player.queue = {}; Print("Queue Cleared") end
+                --                 end
+                --             end
+                --             if waitforQueueCastToRemove == nil then
+                --                 timeSet = false
+                --                 waitforQueueCastToRemove = GetTime()
+                --             end
+                --         elseif getSpellCD(br.player.queue[i].name) > 2 then
+                --             Print("Removed |cFFFF0000"..br.player.queue[i].name.. "|r cause CD")
+                --             timeSet = false
+                --             tremove(br.player.queue,i)
+                --         end
+                --     end
                 end
 
                 if isChecked("Debug Info") then uncheck("Debug Info") end

@@ -170,35 +170,35 @@ br.idList = {
                 deathCoil                   = 47541,
                 festeringStrike             = 85948,
                 huddle                      = 47484,
+                hook                        = 212468,
                 leap                        = 47482,
                 necroticStrike              = 223829,
                 outbreak                    = 77575,
+                protectiveBile              = 212384,
                 raiseDead                   = 46584,
                 scourgeStrike               = 55090,
                 summonGargoyle              = 49206,
-
             },
             artifacts                       = {
                 apocalypse                  = 220143,
-
             },
-            buffs                           = {
+            buffs                           = {                
                 corpseShield                = 207319,
-                darkTransformation          = 63560,
-                suddenDoom                  = 49530,
                 darkSuccor                  = 101568,
-                soulReaper                  = 215711,
+                darkTransformation          = 63560,
+                deathAndDecay               = 188290,
                 necrosis                    = 207346,
+                soulReaper                  = 215711,
+                suddenDoom                  = 49530,                
             },
             debuffs                         = {
-                chainsOfIce                 = 45524,
-                virulentPlague              = 191587,
+                chainsOfIce                 = 45524,                
                 festeringWound              = 194310,
-                soulReaper                  = 130736,
+                necroticStrike              = 223829,
                 outbreak                    = 77575,
                 scourgeOfWorlds             = 191748,
-                necroticStrike              = 223829,
-
+                soulReaper                  = 130736,
+                virulentPlague              = 191587,
             },
             glyphs                          = {
 
