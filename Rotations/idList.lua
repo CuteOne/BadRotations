@@ -3015,6 +3015,9 @@ br.idList = {
                 shadowmeld                      = 58984,
                 timeWarp                        = 80353,
             },
+            debuffs
+                dampening                       = 110310,
+            },
         },
     },
     ClassTemplate = {

@@ -52,8 +52,10 @@ local function createOptions()
         --- GENERAL OPTIONS --- -- Define General Options
         -----------------------
         section = br.ui:createSection(br.ui.window.profile,  "General")
-            -- Death Grip
-            --br.ui:createCheckbox(section,"Death Grip")
+            -- Dummy DPS Test
+            br.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
+            -- Remove Spells from queue with CD
+            br.ui:createSpinner(section, "SpellQueue Clear",  5,  0,  100,  5,  "|cffFFBB00Remove spell if cd is greater.")
             -- Debug
             br.ui:createCheckbox(section,"Debug Info")
 
@@ -111,19 +113,21 @@ local function createOptions()
             -- DeathGrip
             br.ui:createCheckbox(section,"Death Grip")
             -- Interrupt Percentage
-            br.ui:createSpinner(section,  "InterruptAt",  0,  0,  95,  5,  "|cffFFBB00Cast Percentage to use at.")    
+            br.ui:createSpinner(section,  "InterruptAt",  17,  0,  95,  5,  "|cffFFBB00Cast Percentage to use at.")    
         br.ui:checkSectionState(section)
 
         ---------------------
         --- PVP Option    ---
         ---------------------
-         section = br.ui:createSection(br.ui.window.profile,  "Toggle Keys")
+         section = br.ui:createSection(br.ui.window.profile,  "PVP")
             -- Necrotic Strike
             br.ui:createCheckbox(section,"Necrotic Strike")
              -- Chains of Ice
             br.ui:createCheckbox(section,"Chains of Ice")
             -- AMS Counter
             br.ui:createCheckbox(section,"AMS Counter")
+            -- Necro Spam
+            br.ui:createSpinner(section,  "Necro Spam",  45,  0,  100,  5,  "|cffFFBB00Prefer Necro at X percent dampening.")
          br.ui:checkSectionState(section)
         ----------------------
         --- TOGGLE OPTIONS --- -- Degine Toggle Options
@@ -269,7 +273,7 @@ local function runRotation()
             if isChecked("Summon Gargoyle") 
                 and (useCDs() or playertar)
                 and (not talent.soulReaper or buff.soulReaper.stack("player") == 3 or (not debuff.soulReaper.exists("target") and cd.soulReaper > 30))
-                and cd.summonGargoyle == 0 
+                and cd.summonGargoyle <= 0 
             then
                 if cast.summonGargoyle() then return end
             end
@@ -587,7 +591,7 @@ local function runRotation()
                 if cast.darkTransformation() then return end
             end
             --Death and Decay
-            if #enemies.yards10 >= 3 then
+            if #enemies.yards10 >= 3 and debuff.festeringWound.stack("target") >= 3 then
                 if cast.deathAndDecay("player") then return end
             end
             -- ScourgeStrike if Scourge of Worlds / Death and Decay
@@ -599,7 +603,15 @@ local function runRotation()
                 and not immun
                 and not cloak
             then
-                if talent.clawingShadows then
+                if playertar and isChecked("Necro Spam") and dampeningCount >= getOptionValue("Necro Spam") then 
+                    if cast.necroticStrike("target") then
+                        return 
+                    elseif talent.clawingShadows then
+                        if cast.clawingShadows("target") then return end
+                    else
+                        if cast.scourgeStrike("target") then return end
+                    end
+                elseif talent.clawingShadows then
                     if cast.clawingShadows("target") then return end
                 else
                     if cast.scourgeStrike("target") then return end
@@ -674,6 +686,31 @@ local function runRotation()
                 if cast.deathCoil("target") then return end
             end
         end
+    ---------------------------------------------------------------------------------------------------------------------------------
+    -- Action List - DebuffReader
+    ---------------------------------------------------------------------------------------------------------------------------------
+        local function actionList_DebuffReader()
+            if startDampeningTimer == nil then startDampeningTimer = false end
+            if printDampeningTimer == nil then printDampeningTimer = true end
+
+            if debuff.dampening.exists("player") and not startDampeningTimer then
+                startDampeningTimer = true
+                printDampeningTimer = true
+                dampeningStartTime = GetTime()                            
+            elseif not debuff.dampening.exists("player") then
+                startDampeningTimer = false
+            end
+
+            if startDampeningTimer then
+                dampeningCount = math.floor((GetTime() - dampeningStartTime) / 10) + 1
+            else
+                dampeningCount = 0
+            end
+            if isChecked("Necro Spam") and dampeningCount >= getOptionValue("Necro Spam")  and printDampeningTimer then
+                Print("Dampening level reached -> Necro Spam active")
+                printDampeningTimer = false
+            end
+        end
 -----------------
 --- Rotations ---
 -----------------
@@ -687,7 +724,7 @@ local function runRotation()
 ---------------------------------
             if not inCombat and ObjectExists("target") and not UnitIsDeadOrGhost("target") and UnitCanAttack("target", "player") then
                 if isChecked("Debug Info") then Print("OOC") end
-
+                startDampeningTimer = false
 
             end -- End Out of Combat Rotation
 -----------------------------
@@ -696,14 +733,16 @@ local function runRotation()
             if inCombat then
                 if isChecked("Debug Info") then Print("inCombat") end
 
-
+                if debuff.dampening ~= nil then
+                    if actionList_DebuffReader() then return end
+                end
                  --print (#br.player.queue)
                 -----------------
                 --- SoulReaper --
                 -----------------
-                if talent.soulReaper and debuff.soulReaper.exists("target") and buff.soulReaper.stack("player") < 3  then
-                    if actionList_SoulReaperDebuff() then return end
-                elseif #br.player.queue == 0 then                       
+                    if talent.soulReaper and debuff.soulReaper.exists("target") and buff.soulReaper.stack("player") < 3  then
+                        if actionList_SoulReaperDebuff() then return end
+                    else             
                     -----------------
                     --- Extras    ---
                     -----------------
@@ -731,37 +770,15 @@ local function runRotation()
                     -----------------
                     --- Queue     ---
                     -----------------
-                -- else
-                --     for i = 1, #br.player.queue do
-                --         print(br.player.queue[i].name.." CD..", getSpellCD(br.player.queue[i].name) )
-                --         if getSpellCD(br.player.queue[i].name) <= 0 then
-                --             if waitforQueueCastToRemove ~= nil then
-                --                 if castSpell("target", br.player.queue[i].id,true, false) then 
-                --                     Print("Casted |cFFFF0000"..br.player.queue[i].name)
-                --                     timeSet = false
-                --                 elseif timeSet == nil or not timeSet then
-                --                     timeSet = true
-                --                     waitforQueueCastToRemove = GetTime()
-                --                 end
-                --                 if timeSet and waitforQueueCastToRemove < GetTime() -2 then
-                --                     Print("Removed |cFFFF0000"..br.player.queue[i].name.. "|r time over")
-                --                     timeSet = false
-                --                     if br.player.queue == nil then Print("Queue nil") end
-                --                     if #br.player.queue == 0 then Print("Queue already 0") end
-                --                     if #br.player.queue > 0 then br.player.queue = {}; Print("Queue Cleared") end
-                --                 end
-                --             end
-                --             if waitforQueueCastToRemove == nil then
-                --                 timeSet = false
-                --                 waitforQueueCastToRemove = GetTime()
-                --             end
-                --         elseif getSpellCD(br.player.queue[i].name) > 2 then
-                --             Print("Removed |cFFFF0000"..br.player.queue[i].name.. "|r cause CD")
-                --             timeSet = false
-                --             tremove(br.player.queue,i)
-                --         end
-                --     end
-                end
+                        if #br.player.queue ~= 0 and isChecked("SpellQueue Clear") then
+                            for i = 1, #br.player.queue do
+                                if getSpellCD(br.player.queue[i].name) >=  getOptionValue("SpellQueue Clear") then
+                                    Print("Removed |cFFFF0000"..br.player.queue[i].name.. "|r cause CD")
+                                    tremove(br.player.queue,i)
+                                end
+                            end
+                        end
+                    end
 
                 if isChecked("Debug Info") then uncheck("Debug Info") end
             end -- End In Combat Rotation
