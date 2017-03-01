@@ -73,7 +73,7 @@ local function createOptions()
         br.ui:createSpinner(section, "Invoke Chi-Ji, the Red Crane",  30,  0,  100,  1,  colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.." use of Invoke Chi-Ji, the Red Crane.", colorWhite.."Health Percent to Cast At")
         br.ui:createSpinnerWithout(section, "Min Invoke Chi-Ji, the Red Crane Targets",  3,  1,  40,  1,  colorBlue.."Minimum Invoke Chi-Ji, the Red Crane Targets "..colorGold.."(This includes you)")
         br.ui:createSpinner(section, "Life Cocoon",  20,  0,  100,  1,  colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.." use of Life Cocoon.", colorWhite.."Health Percent to Cast At")
-        br.ui:createDropdownWithout(section, "Life Cocoon Target", {colorGreen.."Player",colorBlue.."Target",colorWhite.."Mouseover",colorRed.."Tank",colorGreen.."Healer",colorGreen.."Healer/Tank",colorBlue.."Player"}, 6, colorWhite.."Target to cast on")
+        br.ui:createDropdownWithout(section, "Life Cocoon Target", {colorGreen.."Player",colorBlue.."Target",colorWhite.."Mouseover",colorRed.."Tank",colorGreen.."Healer",colorGreen.."Healer/Tank",colorBlue.."Any"}, 6, colorWhite.."Target to cast on")
         br.ui:createSpinner(section, "Trinket 1",  50,  0,  100,  1,  colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.." use of Trinket 1.", colorWhite.."Health Percent to Cast At")
         br.ui:createSpinnerWithout(section, "Min Trinket 1 Targets",  1,  1,  40,  1,  colorBlue.."Minimum Trinket 1 Targets "..colorGold.."(This includes you)")
         br.ui:createSpinner(section, "Trinket 2",  50,  0,  100,  1,  colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.." use of Trinket 2.", colorWhite.."Health Percent to Cast At")
@@ -379,7 +379,7 @@ local function runRotation()
                             SpellStopCasting()
                             if cast.lifeCocoon(lowest.unit) then return true end
                         end
-                        -- Player
+                        -- Any
                     elseif  getOptionValue("Life Cocoon Target") == 7 then
                         SpellStopCasting()
                         if cast.lifeCocoon(lowest.unit) then return true end
