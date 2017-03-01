@@ -3015,7 +3015,7 @@ br.idList = {
                 shadowmeld                      = 58984,
                 timeWarp                        = 80353,
             },
-            debuffs
+            debuffs                             = {
                 dampening                       = 110310,
             },
         },
