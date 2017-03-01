@@ -316,7 +316,7 @@ local function runRotation()
                     end
                 end
             -- Tranquility
-                if isChecked("Tranquility") and not isCastingSpell(spell.tranquility) then
+                if isChecked("Tranquility") and not isCastingSpell(spell.tranquility) and not buff.incarnationTreeOfLife.exists() then
                     if getLowAllies(getValue("Tranquility")) >= getValue("Tranquility Targets") then    
                         if cast.tranquility() then return end    
                     end
