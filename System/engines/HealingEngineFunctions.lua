@@ -148,7 +148,7 @@ function getAllies(Unit,Radius)
 	for i=1,#br.friend do
 		if not UnitIsDeadOrGhost(br.friend[i].unit) then
 			if getDistance(Unit,br.friend[i].unit) <= Radius then
-				tinsert(alliesTable,br.friend[i].unit)
+				tinsert(alliesTable,br.friend[i])
 			end
 		end
 	end
@@ -202,4 +202,62 @@ function inLoSHealer()
 			drawHealers(thisUnit)
 		end
 	end
+end
+
+
+function isInside(x,y,ax,ay,bx,by,dx,dy)
+	bax = bx - ax
+	bay = by - ay
+	dax = dx - ax
+	day = dy - ay
+
+	if ((x - ax) * bax + (y - ay) * bay <= 0.0) then return false end
+	if ((x - bx) * bax + (y - by) * bay >= 0.0) then return false end
+	if ((x - ax) * dax + (y - ay) * day <= 0.0) then return false end
+	if ((x - dx) * dax + (y - dy) * day >= 0.0) then return false end
+
+	return true
+end
+
+function getUnitsInRect(width,length, showLines, hp)
+	local LibDraw = LibStub("LibDraw-1.0")
+	local playerX, playerY, playerZ = GetObjectPosition("player")
+	local facing = ObjectFacing("player")
+	-- Near Left
+	local nlX, nlY, nlZ = GetPositionFromPosition(playerX, playerY, playerZ, width/2, facing + math.rad(90), 0)
+	-- Near Right
+	local nrX, nrY, nrZ = GetPositionFromPosition(playerX, playerY, playerZ, width/2, facing + math.rad(270), 0)
+	-- Far Left
+	local flX, flY, flZ = GetPositionFromPosition(nlX, nlY, nlZ, length, facing + math.rad(0), 0)
+	-- Far Right
+	local frX, frY, frZ = GetPositionFromPosition(nrX, nrY, nrZ, length, facing + math.rad(0), 0)
+
+
+	if showLines then
+		-- Near Left
+		LibDraw.Line(nlX, nlY, nlZ, playerX, playerY, playerZ)
+		-- Near Right
+		LibDraw.Line(nrX, nrY, nrZ, playerX, playerY, playerZ)
+		-- Far Left
+		LibDraw.Line(flX, flY, flZ, nlX, nlY, nlZ)
+		-- Far Right
+		LibDraw.Line(frX, frY, frZ, nrX, nrY, nrZ)
+		-- Box Complete
+		LibDraw.Line(frX, frY, frZ, flX, flY, flZ)
+	end
+
+	local unitCounter = 0
+	for i = 1, #br.friend do
+		local thisUnit = br.friend[i]
+		if thisUnit.hp <= hp and not UnitIsDeadOrGhost(thisUnit.unit) then
+			local tX, tY = GetObjectPosition(thisUnit.unit)
+			if isInside(tX,tY,nlX,nlY,nrX,nrY,frX,frY) then
+				if showLines then
+					LibDraw.Circle(tX, tY, playerZ, UnitBoundingRadius(thisUnit.unit))
+				end
+				unitCounter = unitCounter + 1
+			end
+		end
+	end
+	return unitCounter
 end

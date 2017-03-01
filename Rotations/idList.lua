@@ -1298,56 +1298,88 @@ br.idList = {
         -- Mistweaver
         [270] = {
             abilities                       = {
-                detox                       = 115450,
-                envelopingMist              = 124682,
-                essenceFont                 = 191837,
-                healingElixir               = 122281,
-                invokeChiJi                 = 198664,
-                lifeCocoon                  = 116849,
-                manaTea                     = 197908,
-                reawaken                    = 212051,
-                refreshingJadeWind          = 196725,
-                renewingMist                = 115151,
-                revival                     = 115310,
-                risingSunKick               = 107428,
-                sheilunsGift                = 205406,
-                spinningCraneKick           = 101546,
-                thunderFocusTea             = 116680,
-                vivify                      = 116670,
-                soothingMist                = 115175,
-                tigersLust                  = 116841,
+                blackoutKick                = 100784;
+                chiBurst                    = 123986;
+                zenPulse                    = 124081;
+                mistwalk                    = 197945;
+                chiTorpedo                  = 115008;
+                tigersLust                  = 116841;
+                cracklingJadeLighting       = 117952;
+                detox                       = 115450;
+                effuse                      = 116694;
+                envelopingMist              = 124682;
+                essenceFont                 = 191837;
+                healingElixir               = 122281;
+                diffuseMagic                = 122783;
+                dampenHarm                  = 122278;
+                invokeChiJiTheRedCrane      = 198664;
+                refreshingJadeWind          = 196725;
+                summonJadeSerpentStatue     = 115313;
+                legSweep                    = 119381;
+                ringOfPeace                 = 116844;
+                songOfChiJi                 = 198898;
+                lifeCocoon                  = 116849;
+                paralysis                   = 115078;
+                provoke                     = 115546;
+                reawaken                    = 212051;
+                renewingMist                = 115151;
+                resuscitate                 = 115178;
+                revival                     = 115310;
+                risingSunKick               = 107428;
+                roll                        = 109132;
+                sheilunsGift                = 205406;
+                spinningCraneKick           = 101546;
+                thunderFocusTea             = 116680;
+                tigerPalm                   = 100780;
+                manaTea                     = 197908;
+                transcendence               = 101643;
+                transcendenceTransfer       = 119996;
+                vivify                      = 116670;
+                soothingMist                = 193884;
             },
             artifacts                       = {
-
             },
             buffs                           = {
-                lifeCocoon                  = 116849,
-                sheilunsGift                = 205406,
-                upliftingTrance             = 197206,
-                lifecyclesEnvelopingMist    = 197919,
-                lifecyclesVivify            = 197916,
+                soothingMist                = 115175,
+                renewingMist                = 119611,
+                envelopingMist              = 124682,
                 thunderFocusTea             = 116680,
+                lifeCyclesEnvelopingMist    = 197919,
+                lifeCyclesVivify            = 197916,
+                upliftTrance                = 197206,
+                refreshingJadeWind          = 196725,
+                lifeCocoon                  = 116849,
+                transcendence               = 101643,
+                tigersLust                  = 116841,
+                teachingsOfTheMonastery     = 202090,
+                diffuseMagic                = 122783,
+                dempenHarm                  = 122278;
+                innervate                   = 29166;
+                symbolOfHope                = 64901;
+                manaTea                     = 197908;
             },
             debuffs                         = {
-
             },
             glyphs                          = {
-
             },
             talents                         = {
-                focusedThunder              = 197895,
-                healingElixir               = 122281,
-                invokeChiJi                 = 198664,
-                lifecycles                  = 197915,
-                manaTea                     = 197908,
-                mistwalk                    = 197945,
-                mistWwrap                   = 197900,
-                refreshingJadeWind          = 196725,
-                risingThunder               = 210804,
-                songOfChiJi                 = 198898,
-                spiritOfTheCrane            = 210802,
-                summonJadeSerpentStatue     = 115313,
-                zenPulse                    = 124081,
+                chiBurst                    = 123986;
+                zenPulse                    = 124081;
+                mistwalk                    = 197945;
+                chiTorpedo                  = 115008;
+                tigersLust                  = 116841;
+                mistWrap                    = 197900;
+                spiritOfTheCrane            = 197900;
+                ringOfPeace                 = 116844;
+                songOfChiJi                 = 198898;
+                legSweep                    = 119381;
+                healingElixir               = 122281;
+                diffuseMagic                = 122783;
+                dampenHarm                  = 122278;
+                refreshingJadeWind          = 196725;
+                invokeChiJiTheRedCrane      = 198664;
+                summonJadeSerpentStatue     = 115313;
+                manaTea                     = 197908;
             },
         },
         -- Windwalker
