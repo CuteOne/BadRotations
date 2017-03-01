@@ -215,176 +215,7 @@ local function runRotation()
 --- Rotations ---
 -----------------
         if getOptionValue("Mode") == 1 and not IsMounted() then
-            -- Redemption
-            if isChecked("Redemption") then                
-                if getOptionValue("Redemption") == 1
-                    and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and UnitIsFriend("target","player")
-                then
-                    if cast.redemption("target") then return end
-                end
-                if getOptionValue("Redemption") == 2
-                    and UnitIsPlayer("mouseover") and UnitIsDeadOrGhost("mouseover") and UnitIsFriend("mouseover","player")
-                then
-                    if cast.redemption("mouseover") then return end
-                end
-            end
-            -- Cleanse
-            if br.player.mode.cleanse == 1 then
-                for i = 1, #br.friend do
-                    for n = 1,40 do
-                        local buff,_,_,count,bufftype,duration = UnitDebuff(br.friend[i].unit, n)
-                        if buff then
-                            if bufftype == "Disease" or bufftype == "Magic" or bufftype == "Poison" then
-                                if cast.cleanse(br.friend[i].unit) then return end
-                            end
-                        end
-                    end
-                end
-            end
-             -- Beacon of Light on Tank
-            if isChecked("Beacon of Light") then
-                if inInstance then    
-                    for i = 1, #br.friend do
-                        if beacon == nil and not buff.beaconOfLight.exists(br.friend[i].unit) and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
-                            beacon = br.friend[i].hp
-                            if cast.beaconOfLight(br.friend[i].unit) then return end
-                        else
-                            if buff.beaconOfLight.exists(br.friend[i].unit) then
-                                beacon = br.friend[i].hp
-                            end
-                        end
-                    end              
-                else 
-                    if inRaid then
-                        for i = 1, #br.friend do
-                            if beacon == nil and not buff.beaconOfLight.exists(br.friend[i].unit) and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
-                                beacon = br.friend[i].hp
-                                if cast.beaconOfLight(br.friend[i].unit) then return end
-                            else
-                                if buff.beaconOfLight.exists(br.friend[i].unit) then
-                                    beacon = br.friend[i].hp
-                                end
-                            end
-                        end
-                        for i =1, #br.friend do
-                            if br.friend[i].hp < beacon and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" and not buff.beaconOfLight.exists(br.friend[i].unit) then
-                                beacon = br.friend[i].hp
-                                if cast.beaconOfLight(br.friend[i].unit) then return end
-                            end
-                        end
-                    end
-                end
-            end
-            ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-            --AOE Healing----AOE Healing----AOE Healing----AOE Healing----AOE Healing----AOE Healing----AOE Healing----AOE Healing----AOE Healing----AOE Healing----AOE Healing----AOE Healing
-            ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-            -- Light of Dawn
-            if isChecked("Light of Dawn") then
-                if getLowAllies(getValue"Light of Dawn") >= getValue("LoD Targets") and getFacing("player",lowest.unit) and getDistance("player",lowest.unit) <= 15 then
-                    if cast.ruleOfLaw() then 
-                        if cast.lightOfDawn(lowest.unit) then return end
-                    end
-                end
-            end       
-            -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-            --Single Target Healing----Single Target Healing----Single Target Healing----Single Target Healing----Single Target Healing----Single Target Healing----Single Target Healing--
-            -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-            -- Holy Shock
-            if isChecked("Holy Shock") then
-                if lowest.hp <= getValue("Holy Shock") then
-                    if cast.holyShock(lowest.unit) then return end
-    --                else 
-    --                    if cast.holyShock(units.dyn30) then return end
-                end
-            end
-            -- Bestow Faith
-            if isChecked("Bestow Faith") then
-                for i = 1, #br.friend do
-                    if br.friend[i].hp <= getValue("Bestow Faith") and not UnitBuffID(br.friend[i].unit,223306) then
-                        if cast.bestowFaith(br.friend[i].unit) then return end
-                    end
-                end
-            end
-             -- Flash of Light
-            if isChecked("Flash of Light") then
-                for i = 1, #br.friend do
-                    if br.friend[i].hp <= getValue("Flash of Light") then
-                        if cast.flashOfLight(br.friend[i].unit) then return end
-                    end
-                end
-            end
-            -- Tyr's Deliverance
-            if isChecked("Tyr's Deliverance") then
-                for i = 1, #br.friend do
-                    if br.friend[i].hp <= getValue("Tyr's Deliverance") then
-                        if cast.tyrsDeliverance(br.friend[i].unit) then return end
-                    end
-                end
-            end
-            -- Holy Light
-            if isChecked("Holy Light") and (getOptionValue("Holy Light Infuse") == 1 or (getOptionValue("Holy Light Infuse") == 2 and buff.infusionOfLight.exists("player"))) then
-                for i = 1, #br.friend do
-                    if br.friend[i].hp <= getValue("Holy Light") then
-                        if cast.holyLight(br.friend[i].unit) then return end
-                    end
-                end
-            end
-            -- Light of the Martyr
-            if isChecked("Light of the Martyr") and isMoving("player") then
-                for i = 1, #br.friend do
-                    if br.friend[i].hp <= getValue("Light of the Martyr") then
-                        if cast.lightOfTheMartyr(br.friend[i].unit) then return end
-                    end
-                end
-            end
-            if inCombat and useCDs() then
-                ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-                --Cooldowns ----- Cooldowns -----Cooldowns ----- Cooldowns ----- Cooldowns ----- Cooldowns ----- Cooldowns ----- Cooldowns ----- Cooldowns ----- Cooldowns ----- Cooldowns ----- 
-                ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-                -- Avenging Wrath
-                if isChecked("Avenging Wrath") then
-                    for i = 1, #br.friend do
-                        if br.friend[i].hp <= getValue ("Avenging Wrath") then
-                            if cast.avengingWrath("player") then return end
-                        end
-                    end
-                end
-                -- Lay on Hands
-                if isChecked("Lay on Hands") then
-                    for i = 1, #br.friend do
-                        if br.friend[i].hp <= getValue ("Lay on Hands") then
-                            if cast.layOnHands(br.friend[i].unit) then return end
-                        end
-                    end
-                end
-                -- Holy Avenger
-                if isChecked("Holy Avenger") then
-                    for i = 1, #br.friend do
-                        if br.friend[i].hp <= getValue ("Holy Avenger") then
-                            if cast.holyAvenger("player") then return end
-                        end
-                    end
-                end
-                ----AOEction List - Interrupts
-                if useInterrupts() then
-                    for i=1, #getEnemies("player",10) do
-                        thisUnit = getEnemies("player",10)[i]
-                        distance = getDistance(thisUnit)
-                        if canInterrupt(thisUnit,getOptionValue("InterruptAt")) then
-                            if distance <= 10 then
-            -- Hammer of Justice
-                                if isChecked("Hammer of Justice") then
-
-                                    if cast.hammerOfJustice(thisUnit) then return end
-                                end
-                            end
-                        end
-                    end
-                end -- End Interrupt Check
-            end -- End In Combat Check
-        end -- NOrmal Mode Check
-        if getOptionValue("Mode") == 2 and not IsMounted() then
-            -- Redemption
+             -- Redemption
             if isChecked("Redemption") then
                 if getOptionValue("Redemption") == 1 and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and UnitIsFriend("target","player") then
                     if cast.redemption("target") then return end
@@ -393,13 +224,12 @@ local function runRotation()
                     if cast.redemption("mouseover") then return end
                 end
             end
-            print(br.player.mode.cleanse)
             if br.player.mode.cleanse == 1 then
                 for i = 1, #br.friend do
                     for n = 1,40 do
                         local buff,_,_,count,bufftype,duration = UnitDebuff(br.friend[i].unit, n)
                         if buff then
-                            if bufftype == "Disease" or bufftype == "Magic" or bufftype == "Poison" then
+                            if bufftype == "Disease" or bufftype == "Magic" or bufftype == "Poison" and UnitIsPlayer(br.friend[i].unit) then
                                 if cast.cleanse(br.friend[i].unit) then return end
                             end
                         end
@@ -525,7 +355,7 @@ local function runRotation()
                 -- Tyr's Deliverance
                 if isChecked("Tyr's Deliverance") then
                     for i = 1, #br.friend do
-                        if br.friend[i].hp <= getValue("Tyr's Deliverance") then
+                        if br.friend[i].hp <= getValue("Tyr's Deliverance") and getDistance("player",br.friend[i].unit) <= 15 then
                             if cast.tyrsDeliverance(br.friend[i].unit) then return end
                         end
                     end
@@ -533,6 +363,9 @@ local function runRotation()
                 -- Avenging Wrath
                 if isChecked("Avenging Wrath") and not buff.auraMastery.exists("player") then
                     if getLowAllies(getValue"Avenging Wrath") >= getValue("AW Targets") then
+                        if isCastingSpell(spell.holyLight) then
+                            SpellStopCasting()
+                        end    
                         if cast.avengingWrath() then return end
                     end
                 end
@@ -541,6 +374,9 @@ local function runRotation()
                     if getOptionValue("Lay on Hands Target") == 1 then
                         for i = 1, #br.friend do
                             if br.friend[i].hp <= getValue ("Lay on Hands") then
+                                if isCastingSpell(spell.holyLight) then
+                                    SpellStopCasting()
+                                end
                                 if cast.layOnHands(br.friend[i].unit) then return end
                             end
                         end
@@ -654,6 +490,329 @@ local function runRotation()
                 for i = 1, #br.friend do
                     if br.friend[i].hp <= 20 then
                         if cast.lightOfTheMartyr(br.friend[i].unit) then return end
+                    end
+                end
+            end
+            
+        end -- NOrmal Mode Check
+        if getOptionValue("Mode") == 2 and not IsMounted() then
+            -- Redemption
+            if isChecked("Redemption") then
+                if getOptionValue("Redemption") == 1 and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and UnitIsFriend("target","player") then
+                    if cast.redemption("target") then return end
+                end
+                if getOptionValue("Redemption") == 2 and UnitIsPlayer("mouseover") and UnitIsDeadOrGhost("mouseover") and UnitIsFriend("mouseover","player") then
+                    if cast.redemption("mouseover") then return end
+                end
+            end
+            if br.player.mode.cleanse == 1 then
+                for i = 1, #br.friend do
+                    for n = 1,40 do
+                        local buff,_,_,count,bufftype,duration = UnitDebuff(br.friend[i].unit, n)
+                        if buff then
+                            if bufftype == "Disease" or bufftype == "Magic" or bufftype == "Poison" and UnitIsPlayer(br.friend[i].unit) then
+                                if isCastingSpell(spell.holyLight) then
+                                    SpellStopCasting()
+                                end 
+                                if cast.cleanse(br.friend[i].unit) then return end
+                            end
+                        end
+                    end
+                end
+            end
+            -- Interrupt
+            if useInterrupts() then
+                for i=1, #getEnemies("player",10) do
+                    thisUnit = getEnemies("player",10)[i]
+                    distance = getDistance(thisUnit)
+                    if canInterrupt(thisUnit,getOptionValue("InterruptAt")) then
+                        if distance <= 10 then
+        -- Hammer of Justice
+                            if isChecked("Hammer of Justice") then
+                                if isCastingSpell(spell.holyLight) then
+                                    SpellStopCasting()
+                                end 
+                                if cast.hammerOfJustice(thisUnit) then return end
+                            end
+                        end
+                    end
+                end
+            end -- End Interrupt Check
+            -- Beacon of Light on Tank
+            if isChecked("Beacon of Light") then
+                if inInstance then    
+                    for i = 1, #br.friend do
+                        if beacon == nil and not buff.beaconOfLight.exists(br.friend[i].unit) and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
+                            beacon = br.friend[i].hp
+                            if cast.beaconOfLight(br.friend[i].unit) then return end
+                        else
+                            if buff.beaconOfLight.exists(br.friend[i].unit) then
+                                beacon = br.friend[i].hp
+                            end
+                        end
+                     end              
+                else 
+                    if inRaid then
+                        if not talent.beaconOfFaith then
+                            for i = 1, #br.friend do
+                                if beacon == nil and not buff.beaconOfLight.exists(br.friend[i].unit) and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
+                                    beacon = br.friend[i].hp
+                                    if cast.beaconOfLight(br.friend[i].unit) then return end
+                                else
+                                    if buff.beaconOfLight.exists(br.friend[i].unit) then
+                                        beacon = br.friend[i].hp
+                                    end
+                                end
+                            end
+                            for i =1, #br.friend do
+                                if br.friend[i].hp < beacon and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" and not buff.beaconOfLight.exists(br.friend[i].unit) then
+                                    beacon = br.friend[i].hp
+                                    if cast.beaconOfLight(br.friend[i].unit) then return end
+                                end
+                            end
+                        else
+                            if talent.beaconOfFaith then
+                                for i = 1, #br.friend do
+                                    if not buff.beaconOfLight.exists(br.friend[i].unit) and not buff.beaconOfFaith.exists(br.friend[i].unit) and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
+                                        if cast.beaconOfLight(br.friend[i].unit) then return end
+                                    end
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+            -- Beacon of Faith on Off Tank
+            if isChecked("Beacon of Faith") and inRaid and talent.beaconOfFaith then
+                for i = 1, #br.friend do
+                    if not buff.beaconOfLight.exists(br.friend[i].unit) and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
+                        if cast.beaconOfFaith(br.friend[i].unit) then return end
+                    end
+                end
+            end
+            --Judgement
+            --if HasItem(IlterendiCrownJewelOfSilvermoon) and (not HasTalent(BeaconOfVirtue) or CooldownSecRemaining(BeaconOfVirtue) < 10 and BuffCount(BeaconOfLight) > 0)
+            --Beacon of Virtue
+            if talent.beaconOfVirtue and isChecked("Beacon of Virtue") then
+                for i= 1, #br.friend do
+                    if not buff.beaconOfVirtue.exists(br.friend[i].unit)  then
+                        local lowHealthCandidates = getUnitsToHealAround(br.friend[i].unit,30,getValue("Beacon of Virtue"),#br.friend)
+                        if #lowHealthCandidates >= getValue("BoV Targets") then
+                            if cast.beaconOfVirtue(br.friend[i].unit) then return end
+                        end
+                    end
+                end
+            end
+            ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+            -- DPS ----------- DPS ----------- DPS ----------- DPS ----------- DPS ----------- DPS ----------- DPS ----------- DPS ----------- DPS ----------- DPS ----------- DPS -----------
+            ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+            if isChecked("DPS") and lowest.hp >= getValue("DPS") and not UnitIsFriend("target", "player") then
+                --Consecration
+                if isChecked("Consecration") and #enemies.yards8 >= getValue("Consecration") and not isMoving("player") then
+                    if cast.consecration() then return end
+                end
+                -- Holy Prism
+                if isChecked("Holy Prism Damage") and talent.holyPrism and #enemies.yards15 >= getValue("Holy Prism Damage") and php < 90 then
+                    if cast.holyPrism(units.dyn15) then return end
+                end
+                -- Light's Hammer
+                if isChecked("Light's Hammer Damage") and talent.lightsHammer and not isMoving("player") and #enemies.yards10 >= getValue("Light's Hammer Damage") then
+                    if cast.lightsHammer("best",nil,1,10) then return end
+                end
+                -- Judgement
+                if isChecked("Judgement") then
+                    if cast.judgment(units.dyn30) then return end
+                end
+                -- Holy Shock
+                if isChecked("Holy Shock Damage") then
+                    if cast.holyShock(units.dyn40) then return end
+                end
+                -- Crusader Strike
+                if isChecked("Crusader Strike") and (charges.crusaderStrike == 2 or debuff.judgement.exists(units.dyn5) or (charges.crusaderStrike >= 1 and recharge.crusaderStrike < 3)) then
+                    if not UnitIsFriend(units.dyn5, "player") then
+                        if cast.crusaderStrike(units.dyn5) then return end
+                    end
+                end
+            end
+            -- Cool downs
+            if inCombat then
+                ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+                --Cooldowns ----- Cooldowns -----Cooldowns ----- Cooldowns ----- Cooldowns ----- Cooldowns ----- Cooldowns ----- Cooldowns ----- Cooldowns ----- Cooldowns ----- Cooldowns ----- 
+                ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+                -- Tyr's Deliverance
+                if isChecked("Tyr's Deliverance") then
+                    for i = 1, #br.friend do
+                        if br.friend[i].hp <= getValue("Tyr's Deliverance") and getDistance("player", br.friend[i].unit) <= 15 then
+                            if cast.tyrsDeliverance() then return end
+                        end
+                    end
+                end
+                -- Avenging Wrath
+                if isChecked("Avenging Wrath") and not buff.auraMastery.exists("player") and GetSpellCooldown(31842) == 0 then
+                    if getLowAllies(getValue"Avenging Wrath") >= getValue("AW Targets") then
+                        if isCastingSpell(spell.holyLight) then
+                            SpellStopCasting()
+                        end    
+                        if cast.avengingWrath() then return end
+                    end
+                end
+                -- Lay on Hands
+                if isChecked("Lay on Hands") and GetSpellCooldown(633) == 0 then
+                    if getOptionValue("Lay on Hands Target") == 1 then
+                        for i = 1, #br.friend do
+                            if br.friend[i].hp <= getValue ("Lay on Hands") then
+                                if isCastingSpell(spell.holyLight) then
+                                    SpellStopCasting()
+                                end 
+                                if cast.layOnHands(br.friend[i].unit) then return end
+                            end
+                        end
+                    elseif getOptionValue("Lay on Hands Target") == 2 then
+                        for i = 1, #br.friend do
+                            if br.friend[i].hp <= getValue ("Lay on Hands") and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
+                                if isCastingSpell(spell.holyLight) then
+                                    SpellStopCasting()
+                                end 
+                                if cast.layOnHands(br.friend[i].unit) then return end
+                            end
+                        end
+                    elseif getOptionValue("Lay on Hands Target") == 3 then
+                        if php <= getValue("Lay on Hands") then
+                            if isCastingSpell(spell.holyLight) then
+                                SpellStopCasting()
+                            end 
+                            if cast.layOnHands("player") then return end
+                        end
+                    end
+                end
+                -- Holy Avenger
+                if isChecked("Holy Avenger") and talent.holyAvenger and GetSpellCooldown(105809) == 0 then
+                   if getLowAllies(getValue"Holy Avenger") >= getValue("HA Targets") then
+                        if isCastingSpell(spell.holyLight) then
+                            SpellStopCasting()
+                        end 
+                        if cast.holyAvenger() then return end
+                    end
+                end
+                -- Aura Mastery
+                if isChecked("Aura Mastery") and not buff.avengingWrath.exists("player") and GetSpellCooldown(31821) == 0 then
+                    if getLowAllies(getValue"Aura Mastery") >= getValue("AM Targets") then
+                        if isCastingSpell(spell.holyLight) then
+                            SpellStopCasting()
+                        end 
+                        if cast.auraMastery() then return end
+                    end
+                end
+            end
+            -- Holy Prism
+            if isChecked("Holy Prism") and talent.holyPrism then
+                if getLowAllies(getValue"Holy Prism") >= getValue("Holy Prism Targets") then
+                    if cast.holyPrism(units.dyn15) then return end
+                end
+            end
+            -- Light of Dawn
+            if isChecked("Light of Dawn") then
+                 for i = 1, #br.friend do
+                    if br.friend[i].hp <= getValue("Light of Dawn") then
+                        local lowHealthCandidates = getUnitsToHealAround(br.friend[i].unit,15,getValue("Light of Dawn"),#br.friend)
+                        if #lowHealthCandidates >= getValue("LoD Targets") then
+                            if GetSpellCooldown(85222) == 0 then
+                                if isCastingSpell(spell.holyLight) then
+                                    SpellStopCasting()
+                                end 
+                                if cast.ruleOfLaw() then end
+                                if cast.lightOfDawn(br.friend[i].unit) then return end
+                            end
+                        end
+                    end
+                end
+            end
+            -- Judgement
+            if talent.judgementOfLight then
+                if cast.judgement(units.dyn40) then return end
+            end
+            -- Bestow Faith
+            if isChecked("Bestow Faith") and GetSpellCooldown(223306) == 0 then
+                if getOptionValue("Bestow Faith Target") == 1 then
+                    for i = 1, #br.friend do
+                        if br.friend[i].hp <= getValue ("Bestow Faith") and not buff.bestowFaith.exists(br.friend[i].unit) then
+                            if isCastingSpell(spell.holyLight) and getCastTime(spell.holyLight) > 1 then
+                                SpellStopCasting()
+                            end
+                            if cast.bestowFaith(br.friend[i].unit) then return end
+                        end
+                    end
+                elseif getOptionValue("Bestow Faith Target") == 2 then
+                    for i = 1, #br.friend do
+                        if br.friend[i].hp <= getValue ("Bestow Faith") and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" and not buff.bestowFaith.exists(br.friend[i].unit) then
+                            if isCastingSpell(spell.holyLight) and getCastTime(spell.holyLight) > 1 then
+                                SpellStopCasting()
+                            end
+                            if cast.bestowFaith(br.friend[i].unit) then return end
+                        end
+                    end
+                end
+            end
+            -- Holy Shock
+            if isChecked("Holy Shock") and GetSpellCooldown(20473) == 0 then
+                if lowest.hp <= getValue("Holy Shock") then
+                    if isCastingSpell(spell.holyLight) and getCastTime(spell.holyLight) > 1 then
+                        SpellStopCasting()
+                    end 
+                    if cast.holyShock(lowest.unit) then return end
+                else 
+                    if not buff.infusionOfLight.exists("player") then
+                        if isCastingSpell(spell.holyLight) and getCastTime(spell.holyLight) > 1 then
+                            SpellStopCasting()
+                        end 
+                        if cast.holyShock(units.dyn30) then return end
+                    end
+                end
+            end
+            -- Light of Martyr
+            if isChecked("Light of the Martyr") then
+                if talent.ferventMartyr then
+                    if getBuffStacks("player", 223316) == 2 then
+                        for i = 1, #br.friend do
+                            if br.friend[i].hp <= getValue ("Light of the Martyr") then
+                                if isCastingSpell(spell.holyLight) then
+                                    SpellStopCasting()
+                                end 
+                                if cast.lightOfTheMartyr(br.friend[i].unit) then return end
+                            end
+                        end
+                    end
+                end
+            end
+            -- Flash of Light
+            if isChecked("Flash of Light") and (getOptionValue("FoL Infuse") == 1 or (getOptionValue("FoL Infuse") == 2 and buff.infusionOfLight.exists("player"))) and (not LastFoLTime or GetTime() - LastFoLTime > 8) then
+                for i = 1, #br.friend do
+                    if br.friend[i].hp <= getValue("Flash of Light")  then
+                        if isCastingSpell(spell.holyLight) then
+                            SpellStopCasting()
+                        end 
+                        if cast.flashOfLight(br.friend[i].unit) then
+                        LastFoLTime = GetTime()
+                        return 
+                        end
+                    end
+                end
+            end
+            -- Emergency Martyr Heals
+            if isMoving("player") or isChecked("Non Moving Martyr") then
+                for i = 1, #br.friend do
+                    if br.friend[i].hp <= 20 then
+                        if cast.lightOfTheMartyr(br.friend[i].unit) then return end
+                    end
+                end
+            end
+            -- Holy Light
+            if isChecked("Holy Light") and (getOptionValue("Holy Light Infuse") == 1 or (getOptionValue("Holy Light Infuse") == 2 and buff.infusionOfLight.exists("player"))) and not isMoving("player") then
+                if GetSpellCooldown(20473) >  getCastTime(spell.holyLight) then
+                    for i = 1, #br.friend do
+                        if br.friend[i].hp <= getValue("Holy Light") then
+                            if cast.holyLight(br.friend[i].unit) then return end
+                        end
                     end
                 end
             end
