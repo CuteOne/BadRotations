@@ -825,8 +825,8 @@ function castQueue()
 				    -- Can the spell be cast
 				    if not select(2,IsUsableSpell(spellCast)) and getSpellCD(spellCast) == 0 and isKnown(spellCast) then
 					    -- Find Best Target for Range 
-					    if IsHelpfulSpell(spellName) and thisUnit == nil then
-					    	if not UnitIsFriend(thisUnit,"player") then
+					    if IsHelpfulSpell(spellName) then
+					    	if thisUnit == nil or not UnitIsFriend(thisUnit,"player") then
 					        	thisUnit = "player"
 					        end
 					        amIinRange = true
