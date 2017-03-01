@@ -438,6 +438,10 @@ local function runRotation()
         end -- End Action List - Cooldowns
     -- Action List - Non Patient Sniper
         local function actionList_NonPatientSniper()
+        -- Bursting Shot
+            if ((mode.rotation == 1 and #enemies.yards40 > 1) or mode.rotation == 2) and hasEquiped(141353) and not debuff.vulnerable.remain(units.dyn40) then
+                if cast.burstingShot() then return end
+            end
         -- Explosive Shot
             -- explosive_shot
             if cast.explosiveShot(units.dyn40) then explosiveTarget = units.dyn40; return end
@@ -526,6 +530,10 @@ local function runRotation()
         end -- End Action List - Non Patient Sniper
     -- Action List - Patient Sniper
         local function actionList_PatientSniper()
+        -- Bursting Shot
+            if ((mode.rotation == 1 and #enemies.yards40 > 1) or mode.rotation == 2) and hasEquiped(141353) and not debuff.vulnerable.remain(units.dyn40) then
+                if cast.burstingShot() then return end
+            end
         -- Piercing Shot
             -- piercing_shot,if=cooldown.piercing_shot.up&spell_targets=1&lowest_vuln_within.5>0&lowest_vuln_within.5<1
             if cd.piercingShot == 0 and ((mode.rotation == 1 and #enemies.yards40 == 1) or mode.rotation == 3) and lowestVuln > 0 and lowestVuln < 1 then
