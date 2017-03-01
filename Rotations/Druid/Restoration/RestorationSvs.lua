@@ -322,7 +322,7 @@ local function runRotation()
                     end
                 end
             -- Innervate
-                if isChecked("Essence of G'Hanir") and not isCastingSpell(spell.tranquility) and not moving then
+                if isChecked("Essence of G'Hanir") and not isCastingSpell(spell.tranquility) and power < 80 then
                     if getLowAllies(getValue("Essence of G'Hanir")) >= getValue("Essence of G'Hanir Targets") then    
                         if cast.innervate() then return end    
                     end
