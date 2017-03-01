@@ -543,23 +543,23 @@ local function runRotation()
 				if isChecked("Lethal Poison") then
 					if br.timer:useTimer("Lethal Poison", 3.5) then
 						if getOptionValue("Lethal Poison") == 1 and not buff.deadlyPoison.exists() then
-							if cast.deadlyPoison() then return end
+							if cast.deadlyPoison("player") then return end
 						end
 						if getOptionValue("Lethal Poison") == 2 and not buff.woundPoison.exists() then
-							if cast.woundPoison() then return end
+							if cast.woundPoison"player"() then return end
 						end
 						if getOptionValue("Lethal Poison") == 3 and not buff.agonizingPoison.exists() then
-							if cast.agonizingPoison() then return end
+							if cast.agonizingPoison("player") then return end
 						end
 					end
 				end
 				if isChecked("Non-Lethal Poison") then
 					if br.timer:useTimer("Non-Lethal Poison", 3.5) then
 						if (getOptionValue("Non-Lethal Poison") == 1 or not talent.leechingPoison) and not buff.cripplingPoison.exists() then
-							if cast.cripplingPoison() then return end
+							if cast.cripplingPoison("player") then return end
 						end
 						if getOptionValue("Non-Lethal Poison") == 2 and not buff.leechingPoison.exists() then
-							if cast.leechingPoison() then return end
+							if cast.leechingPoison("player") then return end
 						end
 					end
 				end
