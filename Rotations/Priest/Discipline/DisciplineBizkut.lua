@@ -778,13 +778,7 @@ local function runRotation()
                         local thisUnit = enemies.dyn40[i]
                         if UnitIsUnit(thisUnit,"target") or hasThreat(thisUnit) or isDummy(thisUnit) then
                             if ttd(thisUnit) > debuff.purgeTheWicked.duration(thisUnit) and debuff.purgeTheWicked.refresh(thisUnit) then
-                                if talent.schism and schismBuff == thisUnit then
-                                    if cast.purgeTheWicked(thisUnit) then
-                                        ptwBuff = thisUnit
-                                        break
-                                    end
-                                end
-                                if not talent.schism or not isChecked("Schism") or schismBuff == nil then
+                                if schismBuff == thisUnit or not talent.schism or not isChecked("Schism") or schismBuff == nil then
                                     if cast.purgeTheWicked(thisUnit) then
                                         ptwBuff = thisUnit
                                         break
@@ -810,10 +804,12 @@ local function runRotation()
                 if schismBuff then
                     if cast.penance(schismBuff) then return end
                 end
-                if ptwBuff then
-                    if cast.penance(ptwBuff) then return end
+                if talent.purgeTheWicked and ptwBuff ~= nil and isChecked("Shadow Word: Pain/Purge The Wicked") then
+                    if cast.penance(ptwBuff) then return end    
                 end
-                if cast.penance() then return end
+                if not talent.purgeTheWicked or not isChecked("Shadow Word: Pain/Purge The Wicked") then
+                    if cast.penance() then return end
+                end
             end
             --Mindbender
             if isChecked("Mindbender") and powcent <= getValue("Mindbender") then
