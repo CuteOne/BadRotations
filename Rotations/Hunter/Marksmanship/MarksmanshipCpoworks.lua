@@ -439,7 +439,7 @@ local function runRotation()
     -- Action List - Non Patient Sniper
         local function actionList_NonPatientSniper()
         -- Bursting Shot
-            if ((mode.rotation == 1 and #enemies.yards40 > 1) or mode.rotation == 2) and hasEquiped(141353) and not debuff.vulnerable.remain(units.dyn40) then
+            if ((mode.rotation == 1 and #enemies.yards40 > 1) or mode.rotation == 2) and hasEquiped(141353) and not debuff.vulnerable.exists(units.dyn40) then
                 if cast.burstingShot() then return end
             end
         -- Explosive Shot
@@ -531,7 +531,7 @@ local function runRotation()
     -- Action List - Patient Sniper
         local function actionList_PatientSniper()
         -- Bursting Shot
-            if ((mode.rotation == 1 and #enemies.yards40 > 1) or mode.rotation == 2) and hasEquiped(141353) and not debuff.vulnerable.remain(units.dyn40) then
+            if ((mode.rotation == 1 and #enemies.yards40 > 1) or mode.rotation == 2) and hasEquiped(141353) and not debuff.vulnerable.exists(units.dyn40) then
                 if cast.burstingShot() then return end
             end
         -- Piercing Shot
