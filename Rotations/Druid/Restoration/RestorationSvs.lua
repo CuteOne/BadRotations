@@ -648,7 +648,7 @@ local function runRotation()
                     end
                 end
             -- Efflorescence
-                if isChecked("Efflorescence") and (not LastEfflorescenceTime or GetTime() - LastEfflorescenceTime > getOptionValue("Efflorescence recast delay")) then
+                if isChecked("Efflorescence") and not moving and (not LastEfflorescenceTime or GetTime() - LastEfflorescenceTime > getOptionValue("Efflorescence recast delay")) then
                     -- castGroundAtBestLocation(spellID, radius, minUnits, maxRange, minRange, spellType)
                     if castGroundAtBestLocation(spell.efflorescence, 20, 0, 40, 0, "heal") then
                         LastEfflorescenceTime = GetTime()
