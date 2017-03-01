@@ -1471,7 +1471,7 @@ function getHP(Unit)
 						return br.friend[i].hp
 					end
 				end
-				if getOptionCheck("No Incoming Heals") ~= true and UnitGetIncomingHeals(Unit,"player") ~= nil then
+				if getOptionCheck("Incoming Heals") == true and UnitGetIncomingHeals(Unit,"player") ~= nil then
 					return 100*(UnitHealth(Unit)+UnitGetIncomingHeals(Unit,"player"))/UnitHealthMax(Unit)
 				else
 					return 100*UnitHealth(Unit)/UnitHealthMax(Unit)
