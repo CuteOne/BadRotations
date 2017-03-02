@@ -554,6 +554,11 @@ local function runRotation()
             if talent.frenzy and (not buff.frenzy.exists() or buff.frenzy.remain() <= 2) then
                 if cast.furiousSlash() then return end
             end
+        -- Whirlwind
+            -- whirlwind,if=spell_targets.whirlwind=3&buff.wrecking_ball.react
+            if #enemies.yards8 == 3 and buff.wreckingBall.exists() then
+                if cast.whirlwind() then return end
+            end
         -- Raging Blow
             -- raging_blow,if=talent.inner_rage.enabled&buff.enrage.up
             if talent.innerRage and buff.enrage.exists() then
@@ -569,6 +574,11 @@ local function runRotation()
             if buff.stoneHeart.exists() and ((talent.innerRage and cd.ragingBlow > 1) or buff.enrage.exists()) then
                 if cast.execute() then return end
             end
+        -- Whirlwind
+            -- whirlwind,if=buff.wrecking_ball.react&buff.enrage.up
+            if buff.wreckingBall.exists() and buff.enrage.exists() then
+                if cast.whirlwind() then return end
+            end
         -- Bloodthirst
             -- bloodthirst
             if cast.bloodthirst() then return end
@@ -576,11 +586,6 @@ local function runRotation()
             -- raging_blow
             if talent.innerRage or buff.enrage.exists() then
                 if cast.ragingBlow() then return end
-            end
-        -- Whirlwind
-            -- whirlwind,if=buff.wrecking_ball.react&buff.enrage.up
-            if buff.wreckingBall.exists() and buff.enrage.exists() then
-                if cast.whirlwind() then return end
             end
         -- Furious Slash
             -- furious_slash

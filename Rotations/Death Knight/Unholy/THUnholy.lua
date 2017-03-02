@@ -66,6 +66,8 @@ local function createOptions()
         section = br.ui:createSection(br.ui.window.profile,  "Cooldowns")
             -- Racial
             br.ui:createCheckbox(section,"Racial")
+            -- Potion of prolongued Power
+            br.ui:createCheckbox(section,"Potion")
             --Asphyxiate
             --br.ui:createCheckbox(section,"Asphyxiate")
             --Summon Gargoyle
@@ -113,7 +115,7 @@ local function createOptions()
             -- DeathGrip
             br.ui:createCheckbox(section,"Death Grip")
             -- Interrupt Percentage
-            br.ui:createSpinner(section,  "InterruptAt",  17,  0,  95,  5,  "|cffFFBB00Cast Percentage to use at.")    
+            br.ui:createSpinner(section,"InterruptAt",  17,  0,  95,  5,  "|cffFFBB00Cast Percentage to use at.")    
         br.ui:checkSectionState(section)
 
         ---------------------
@@ -259,6 +261,17 @@ local function runRotation()
                 and getDistance("target") < 5
             then
                 if castSpell("player",racial,false,false,false) then return end
+            end
+        --Potion
+            if useCDs() and isChecked("Potion") and getDistance("target") < 15 then
+                --Old War
+                if hasItem(127844) and canUse(127844) then
+                    useItem(127844)
+                end
+                --Prolongued Power
+                if hasItem(142117) and canUse(142117) then
+                    useItem(142117)
+                end
             end
         -- Blighted Runeweapon
             if talent.blightedRuneWeapon
