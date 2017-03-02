@@ -583,7 +583,7 @@ local function runRotation()
             end
         -- Explosive Trap
             -- explosive_trap,if=buff.mongoose_fury.duration>=gcd&cooldown.mongoose_bite.charges=0&buff.mongoose_fury.stack<1
-            if buff.mongooseFury.duration() >= gcd and charges.mongooseBite == 0 and buff.mongooseFury.stack() < 1 then
+            if buff.mongooseFury.duration() >= gcd --[[and charges.mongooseBite == 0]] and buff.mongooseFury.stack() < 1 then
                 if cast.explosiveTrap("best",nil,1,5) then return end
             end
         -- Dragonsfire Grenade
@@ -622,9 +622,9 @@ local function runRotation()
             end
         -- Explosive Trap
             -- explosive_trap
-            if  getDistance(units.dyn5) >= 8 then
-                if cast.explosiveTrap("best",nil,1,5) then return end
-            end
+            -- if  getDistance(units.dyn5) >= 8 then
+            if cast.explosiveTrap("best",nil,1,5) then return end
+            -- end
         -- Carve
             -- carve,if=equipped.frizzos_fingertrap&dot.lacerate.ticking&dot.lacerate.refreshable&focus>65-buff.moknathal_tactics.remains*focus.regen
             if hasEquiped(137043) and debuff.lacerate.refresh(units.dyn5) then
