@@ -37,6 +37,10 @@ local function createOptions()
         local section
         -- General Options
         section = br.ui:createSection(br.ui.window.profile, "General")
+        -- Dummy DPS Test
+            br.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
+        -- Pre-Pull Timer
+            br.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
             -- Mouseover Dotting
             br.ui:createCheckbox(section,"Mouseover Dotting")
             -- SWP Max Targets
@@ -204,6 +208,17 @@ local function runRotation()
             -- if isChecked("Dispel Magic") and canDispel("target",br.player.spell.dispelMagic) and not isBoss() and ObjectExists("target") then
             --     if cast.dispelMagic() then return end
             -- end
+        -- Dummy Test
+            if isChecked("DPS Testing") then
+                if ObjectExists("target") then
+                    if getCombatTime() >= (tonumber(getOptionValue("DPS Testing"))*60) and isDummy() then
+                        StopAttack()
+                        ClearTarget()
+                        Print(tonumber(getOptionValue("DPS Testing")) .." Minute Dummy Test Concluded - Profile Stopped")
+                        profileStop = true
+                    end
+                end
+            end -- End Dummy Test
         end -- End Action List - Extra
         -- Action List - Defensive
         function actionList_Defensive()
@@ -240,8 +255,14 @@ local function runRotation()
                         end
                     end
                 end
-                -- Trinkets
+            -- Trinkets
                 if isChecked("Trinkets") then
+                    if canUse(11) then
+                        useItem(11)
+                    end
+                    if canUse(12) then
+                        useItem(12)
+                    end
                     if canUse(13) then
                         useItem(13)
                     end
@@ -265,10 +286,10 @@ local function runRotation()
             if isValidUnit("target") then
                 if cast.mindBlast("target") then return end
             end
-            -- -- Power Word: Shield Body and Soul
-            -- if talent.bodyAndSoul and isMoving("player") and not IsMounted() then
-            --     if cast.powerWordShield("player") then return end
-            -- end
+            -- Power Word: Shield Body and Soul
+            if talent.bodyAndSoul and isMoving("player") and not IsMounted() then
+                if cast.powerWordShield("player") then return end
+            end
         end  -- End Action List - Pre-Combat
         -- Action List - Check
         function actionList_Check()
@@ -291,6 +312,12 @@ local function runRotation()
         end
         -- Action List - Main
         function actionList_Main()
+        --Mouseover Dotting
+            if isChecked("Mouseover Dotting") and hasMouse and isValidTarget("mouseover") then
+                if getDebuffRemain("mouseover",spell.shadowWordPain,"player") <= 1 then
+                    if cast.shadowWordPain("mouseover") then return end
+                end
+            end
         -- Surrender To Madness
             -- surrender_to_madness,if=talent.surrender_to_madness.enabled&target.time_to_die<=variable.s2mcheck
             if isChecked("Surrender To Madness") and useCDs() then
@@ -317,7 +344,7 @@ local function runRotation()
             end
         -- Vampiric Touch
             -- vampiric_touch,if=talent.misery.enabled&(dot.vampiric_touch.remains<3*gcd.max|dot.shadow_word_pain.remains<3*gcd.max),cycle_targets=1
-            if talent.misery and debuff.vampiricTouch.count() < getOptionValue("VT Max Targets") then
+            if talent.misery and debuff.vampiricTouch.count() < getOptionValue("VT Max Targets") and lastSpell ~= spell.vampiricTouch then
                 for i = 1, #enemies.yards40 do
                     local thisUnit = enemies.yards40[i]
                     if (debuff.vampiricTouch.remain(thisUnit) < 3 * gcd or debuff.shadowWordPain.remain(thisUnit) < 3 * gcd) then
@@ -332,7 +359,7 @@ local function runRotation()
             end
         -- Vampiric Touch
             -- vampiric_touch,if=!talent.misery.enabled&dot.vampiric_touch.remains<(4+(4%3))*gcd
-            if not talent.misery and debuff.vampiricTouch.remain(units.dyn40) < (3 + (4 / 3)) * gcd then
+            if not talent.misery and debuff.vampiricTouch.remain(units.dyn40) < (3 + (4 / 3)) * gcd and lastSpell ~= spell.vampiricTouch then
                 if cast.vampiricTouch() then return end
             end
         -- Void Eruption
@@ -364,7 +391,7 @@ local function runRotation()
             end
         -- Vampiric Touch
             -- vampiric_touch,if=!talent.misery.enabled&!ticking&talent.legacy_of_the_void.enabled&insanity>=70,cycle_targets=1
-            if not talent.misery and talent.legacyOfTheVoid and power >= 70 and debuff.vampiricTouch.count() < getOptionValue("VT Max Targets") then
+            if not talent.misery and talent.legacyOfTheVoid and power >= 70 and debuff.vampiricTouch.count() < getOptionValue("VT Max Targets") and lastSpell ~= spell.vampiricTouch then
                 for i = 1, #enemies.yards40 do
                     local thisUnit = enemies.yards40[i]
                     if not debuff.vampiricTouch.exists(thisUnit) then
@@ -404,7 +431,7 @@ local function runRotation()
         -- Vampiric Touch
             -- vampiric_touch,if=!talent.misery.enabled&!ticking&target.time_to_die>10&(active_enemies<4|talent.sanlayn.enabled|(talent.auspicious_spirits.enabled&artifact.unleash_the_shadows.rank)),cycle_targets=1
             if not talent.mistery and (((mode.rotation == 1 and #enemies.yards40 < 4) or mode.rotation == 3) or talent.sanlayn or (talent.auspiciousSpirits and artifact.unleashTheShadows))
-                and debuff.vampiricTouch.count() < getOptionValue("VT Max Targets")
+                and debuff.vampiricTouch.count() < getOptionValue("VT Max Targets") and lastSpell ~= spell.vampiricTouch
             then
                 for i = 1, #enemies.yards40 do
                     local thisUnit = enemies.yards40[i]
@@ -450,6 +477,12 @@ local function runRotation()
         end -- End Action List - Surrender To Madness
     -- Action List - VoidForm
         function actionList_VoidForm()
+        --Mouseover Dotting
+            if isChecked("Mouseover Dotting") and hasMouse and isValidTarget("mouseover") then
+                if getDebuffRemain("mouseover",spell.shadowWordPain,"player") <= 1 then
+                    if cast.shadowWordPain("mouseover") then return end
+                end
+            end
         -- Surrender to Madness
             -- surrender_to_madness,if=talent.surrender_to_madness.enabled&insanity>=25&(cooldown.void_bolt.up|cooldown.void_torrent.up|cooldown.shadow_word_death.up|buff.shadowy_insight.up)&target.time_to_die<=variable.s2mcheck-(buff.insanity_drain_stacks.stack)
             if isChecked("Surrender To Madness") and useCDs() then
@@ -551,7 +584,7 @@ local function runRotation()
             end
         -- Vampiric Touch
             -- vampiric_touch,if=talent.misery.enabled&(dot.vampiric_touch.remains<3*gcd.max|dot.shadow_word_pain.remains<3*gcd.max),cycle_targets=1
-            if talent.misery and debuff.vampiricTouch.count() < getOptionValue("VT Max Targets") then
+            if talent.misery and debuff.vampiricTouch.count() < getOptionValue("VT Max Targets") and lastSpell ~= spell.vampiricTouch then
                 for i = 1, #enemies.yards40 do
                     local thisUnit = enemies.yards40[i]
                     if debuff.vampiricTouch.remain(thisUnit) < 3 * gcd or debuff.shadowWordPain.remain(thisUnit) < 3 * gcd then
@@ -568,7 +601,7 @@ local function runRotation()
             end
         -- Vampiric Touch
             -- vampiric_touch,if=!talent.misery.enabled&!ticking&(active_enemies<4|talent.sanlayn.enabled|(talent.auspicious_spirits.enabled&artifact.unleash_the_shadows.rank))
-            if not talent.misery and not debuff.vampiricTouch.exists()
+            if not talent.misery and not debuff.vampiricTouch.exists() and lastSpell ~= spell.vampiricTouch
                 and (((mode.rotation == 1 and #enemies.yards40 < 4) or mode.rotation == 3) or talent.sanlayn or (talent.auspiciousSpirits and artifact.unleashTheShadows))
             then
                 if cast.vampiricTouch() then return end
@@ -588,7 +621,7 @@ local function runRotation()
         -- Vampiric Touch
             -- vampiric_touch,if=!talent.misery.enabled&!ticking&target.time_to_die>10&(active_enemies<4|talent.sanlayn.enabled|(talent.auspicious_spirits.enabled&artifact.unleash_the_shadows.rank)),cycle_targets=1
             if not talent.misery and (((mode.rotation == 1 and #enemies.yards40 < 4) or mode.rotation == 3) or talent.sanlayn or (talent.auspiciousSpirits and artifact.unleashTheShadows))
-                and debuff.vampiricTouch.count() < getOptionValue("VT Max Targets")
+                and debuff.vampiricTouch.count() < getOptionValue("VT Max Targets") and lastSpell ~= spell.vampiricTouch
             then
                 for i = 1, #enemies.yards40 do
                     local thisUnit = enemies.yards40[i]
@@ -642,6 +675,7 @@ local function runRotation()
             if talent.surrenderToMadness and not buff.surrenderToMadness then
                 if actionList_Check() then return end
             end
+            actionList_Cooldowns()
         -- Action List - Void Form
             -- run_action_list,name=vf,if=buff.voidform.up
             if buff.voidForm.exists() then
