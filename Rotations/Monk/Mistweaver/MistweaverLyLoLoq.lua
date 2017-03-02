@@ -309,13 +309,13 @@ local function runRotation()
 
     local function actionList_Cooldown()
         if useCDs() then
-            if isChecked("Trinket - 1") and getLowAllies(getValue("Trinket - 1")) >= getValue("Min Trinket 1 Targets") then
+            if isChecked("Trinket 1") and getLowAllies(getValue("Trinket 1")) >= getValue("Min Trinket 1 Targets") then
                 if canUse(13) then
                     useItem(13)
                     return true
                 end
             end
-            if isChecked("Trinket - 2") and getLowAllies(getValue("Trinket - 2")) >= getValue("Min Trinket 2 Targets") then
+            if isChecked("Trinket 2") and getLowAllies(getValue("Trinket 2")) >= getValue("Min Trinket 2 Targets") then
                 if canUse(14) then
                     useItem(14)
                     return true
