@@ -965,8 +965,8 @@ local function runRotation()
                     -- storm_earth_and_fire,if=!buff.storm_earth_and_fire.up&cooldown.storm_earth_and_fire.charges=2
                     -- storm_earth_and_fire,if=!buff.storm_earth_and_fire.up&target.time_to_die<=25
                     -- storm_earth_and_fire,if=!buff.storm_earth_and_fire.up&cooldown.fists_of_fury.remain()s<=1&chi>=3
-                    if not buff.stormEarthAndFire.exists() and (cd.touchOfDeath <= 8 or cd.touchOfDeath > 85 or charges.stormEarthAndFire == 2 or ttd <= 25 or (cd.fistsOfFury <= 1 and chi >= 3)) then
-                        if cast.stormEarthAndFire() then return end
+                    if br.timer:useTimer("delaySEF1", gcd) and not buff.stormEarthAndFire.exists() and (cd.touchOfDeath <= 8 or cd.touchOfDeath > 85 or charges.stormEarthAndFire == 2 or ttd <= 25 or (cd.fistsOfFury <= 1 and chi >= 3)) then
+                        if cast.stormEarthAndFire() then Print("Casting SEF"); return end
                     end
         -- Fists of Fury
                     -- fists_of_fury,if=buff.storm_earth_and_fire.up
@@ -1232,8 +1232,8 @@ local function runRotation()
         -- Storm, Earth, and Fire
                         -- if not HasBuff(StormEarthAndFire) and CooldownSecRemaining(FistsOfFury) < 11 and CooldownSecRemaining(WhirlingDragonPunch) < 14 and CooldownSecRemaining(StrikeOfTheWindlord) < 14
                         if mode.sef == 1 then
-                            if not buff.stormEarthAndFire.exists() and cd.fistsOfFury < 11 and cd.whirlingDragonPunch < 14 and cd.strikeOfTheWindlord < 14 and getDistance("target") < 5 then
-                                if cast.stormEarthAndFire() then return end
+                            if br.timer:useTimer("delaySEF2", gcd) and not buff.stormEarthAndFire.exists() and cd.fistsOfFury < 11 and cd.whirlingDragonPunch < 14 and cd.strikeOfTheWindlord < 14 and getDistance("target") < 5 then
+                                if cast.stormEarthAndFire() then Print("Casting SEF"); return end
                             end
                         end
                     end -- End Cooldown Check
@@ -1241,8 +1241,8 @@ local function runRotation()
         -- Storm, Earth, and Fire
                         -- if not HasBuff(StormEarthAndFire) and CooldownSecRemaining(FistsOfFury) < 11 and CooldownSecRemaining(WhirlingDragonPunch) < 14 and CooldownSecRemaining(StrikeOfTheWindlord) < 14
                         if mode.sef == 1 then
-                            if not buff.stormEarthAndFire.exists() and cd.fistsOfFury < 11 and cd.whirlingDragonPunch < 14 and cd.strikeOfTheWindlord < 14 and getDistance("target") < 5 then
-                                if cast.stormEarthAndFire() then return end
+                            if br.timer:useTimer("delaySEF3", gcd) and not buff.stormEarthAndFire.exists() and cd.fistsOfFury < 11 and cd.whirlingDragonPunch < 14 and cd.strikeOfTheWindlord < 14 and getDistance("target") < 5 then
+                                if cast.stormEarthAndFire() then Print("Casting SEF"); return end
                             end
                         end
         -- Spinning Crane Kick

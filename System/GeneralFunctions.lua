@@ -1,8 +1,8 @@
 function GetObjectExists(Unit)
-    if FireHack and ObjectExists(Unit) == true then
-        return true
+    if FireHack then
+        return ObjectExists(Unit)
     else
-        return false
+        return UnitExists(Unit)
     end
 end
 function GetObjectFacing(Unit)

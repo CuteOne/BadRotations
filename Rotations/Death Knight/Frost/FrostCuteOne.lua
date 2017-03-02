@@ -303,7 +303,7 @@ local function runRotation()
                 -- arcane_torrent,if=runic_power.deficit>20
                 -- blood_fury,if=buff.pillar_of_frost.up
                 -- berserking,if=buff.pillar_of_frost.up
-                if isChecked("Racial") and (((br.player.race == "Troll" or br.player.race == "Orc") and buff.pillarOfFrost.exist())
+                if isChecked("Racial") and (((br.player.race == "Troll" or br.player.race == "Orc") and buff.pillarOfFrost.exists())
                     or (br.player.race == "BloodElf" and runicPowerDeficit > 20)) and getSpellCD(racial) == 0
                 then
                     if castSpell("player",racial,false,false,false) then return end
