@@ -292,7 +292,7 @@ local function runRotation()
         local function actionList_Interrupts()
             if useInterrupts() then
         -- Muzzle
-                if isChecked("Skull Bash") then
+                if isChecked("Muzzle") then
                     for i=1, #enemies.yards5 do
                         thisUnit = enemies.yards5[i]
                         if canInterrupt(thisUnit,getOptionValue("InterruptAt")) then

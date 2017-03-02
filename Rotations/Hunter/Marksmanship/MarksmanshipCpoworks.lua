@@ -260,16 +260,18 @@ local function runRotation()
 
         local function getExplosiveDistance(otherUnit)
             -- local objectCount = GetObjectCount() or 0
+            if otherUnit == nil then otherUnit = "target" end
             for i = 1, ObjectCount() do
                 local thisUnit = GetObjectWithIndex(i)
-                if GetObjectID(thisUnit) == 11492 then --and UnitIsUnit("player",UnitCreator(thisUnit)) then
+                if ObjectExists(otherUnit) and GetObjectID(thisUnit) == 11492 then --and UnitIsUnit("player",UnitCreator(thisUnit)) then
+
                     return GetDistanceBetweenObjects(thisUnit,otherUnit)
                 end
             end
             return 40
         end
-        if explosiveTarget == nil then explosiveTarget = "target" end
-        if getExplosiveDistance(explosiveTarget) < 5 then
+        if explosiveTarget == nil or not ObjectExists(explosiveTarget) then explosiveTarget = "target" end
+        if ObjectExists(explosiveTarget) and getExplosiveDistance(explosiveTarget) < 5 then
             if castSpell(explosiveTarget,spell.explosiveShotDetonate,false,false,false,true,false,true,true,false) then return end
         end
 --------------------
