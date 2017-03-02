@@ -2413,7 +2413,6 @@ br.idList = {
                 oldWar                      = 188028,
                 prolongedPower              = 229206,
                 stormbringer                = 201846,
-                temptation                  = 234143,
             },
             debuffs                         = {
                 frostbrand                  = 147732,
@@ -3045,6 +3044,7 @@ br.idList = {
                 heroism                         = 32182,
                 netherwinds                     = 160452,
                 shadowmeld                      = 58984,
+                temptation                      = 234143,
                 timeWarp                        = 80353,
             },
             debuffs                             = {
