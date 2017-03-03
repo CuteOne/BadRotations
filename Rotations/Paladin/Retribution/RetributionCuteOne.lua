@@ -434,24 +434,28 @@ local function runRotation()
                         if castOpener("judgment","JUD1",1) then return end
                     elseif JUD1 and not BOJ1 then
             -- Blade of Justice
-                        if castOpener("bladeOfJustice","BOJ1",2) then return end
+                        if talent.bladeOfWrath then
+                            if castOpener("bladeOfJustice","BOJ1",2) then return end
+                        else
+                            if castOpener("divineHammer","BOJ1",2) then return end
+                        end
                     elseif BOJ1 and not CRU1 then
             -- Crusade
                         if castOpener("avengingWrath","CRU1",3) then return end
                     elseif CRU1 and not EXE1 then
-            -- Execution Sentence / Crusader Strike
+            -- Execution Sentence / Templar's Verdict
                         if talent.executionSentence then
                             if castOpener("executionSentence","EXE1",4) then return end
                         else
-                            if castOpener("crusaderStrike","EXE1",4) then return end
+                            if castOpener("templarsVerdict","EXE1",4) then return end
                         end
-                    elseif EXE1 and not TMV1 then
-            -- Templar's Verdict
-                        if castOpener("templarsVerdict","TMV1",5) then return end
-                    elseif TMV1 and not WOA1 then
+                    elseif EXE1 and not WOA1 then
             -- Wake of Ashes
-                        if castOpener("wakeOfAshes","WOA1",6) then return end
-                    elseif WOA1 and not ARC1 then
+                        if castOpener("wakeOfAshes","WOA1",5) then return end
+                    elseif WOA1 and not TMV1 then
+            -- Templar's Verdict 
+                        if castOpener("templarsVerdict","TMV1",6) then return end
+                    elseif TMV1 and not ARC1 then
                         if br.player.race == "BloodElf" then
             -- Arcane Torrent
                             castSpell("player",racial,false,false,false)
