@@ -109,7 +109,7 @@ CuteOne |  Full   | 7.1.5 |   100% | :interrobang:
 
 author   | support | patch | status | raidable?
 :------- | :-----: | :---: | -----: | :-------:
-THUnholy | Full    | 7.1.5 |  90%   | :interrobang:
+THUnholy | Full    | 7.1.5 |  100%  | :white_check_mark:
 
 ### Demon Hunter
 

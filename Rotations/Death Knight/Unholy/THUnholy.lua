@@ -68,6 +68,12 @@ local function createOptions()
             br.ui:createCheckbox(section,"Racial")
             -- Potion of prolongued Power
             br.ui:createCheckbox(section,"Potion")
+            -- Dark Transformation
+            br.ui:createDropdownWithout(section, "Dark Transformation", {"|cff00FF00Units or Boss","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Dark Transformation ability.")
+            br.ui:createSpinnerWithout(section, "Dark Transformation Units",  1,  1,  10,  1,  "|cffFFFFFFSet to desired targets to use Dark Transformation on. Min: 1 / Max: 10 / Interval: 1")
+            --Death and Decay
+            br.ui:createSpinnerWithout(section, "Death and Decay", 1, 1, 10, 1, "|cffFFFFFFSet to desired targets to use Death and Decay on. Min: 1 / Max: 10 / Interval: 1")
+            br.ui:createSpinnerWithout(section, "DnD Festering Wounds", 1, 0, 8, 1, "|cffFFFFFFSet to Number of Wounds must exists before DnD. Min: 0 / Max: 8")
             --Asphyxiate
             --br.ui:createCheckbox(section,"Asphyxiate")
             --Summon Gargoyle
@@ -115,7 +121,7 @@ local function createOptions()
             -- DeathGrip
             br.ui:createCheckbox(section,"Death Grip")
             -- Interrupt Percentage
-            br.ui:createSpinner(section,"InterruptAt",  17,  0,  95,  5,  "|cffFFBB00Cast Percentage to use at.")    
+            br.ui:createSpinner(section,"InterruptAt",  17,  0,  85,  5,  "|cffFFBB00Cast Percentage to use at (+-5%).")    
         br.ui:checkSectionState(section)
 
         ---------------------
@@ -227,12 +233,18 @@ local function runRotation()
 
 
         if isChecked("Debug Info") then
-            local name, rank, icon, castingTime, minRange, maxRange, spellID = GetSpellInfo(223829)
-            print(name, rank, spellID)
+         --   local name, rank, icon, castingTime, minRange, maxRange, spellID = GetSpellInfo(223829)
+          --  print(name, rank, spellID)
+          print(getOptionValue("Dark Transformation"), "units: ",getOptionValue("Dark Transformation Units")," enemy: ",#enemies.yards10 )
+          print(getOptionValue("Death and Decay"), " dnd fw: ", getOptionValue("DnD Festering Wounds"))
+          print(isChecked("AMS Counter"))
         end
 
+        --print(getOptionValue("InterruptAt") + math.random(-5,5))
        -- print (cd.apocalypse, cd.soulReaper, debuff.festeringWound.stack("target"))
-
+-------------------
+--- Raise Pet   ---
+-------------------
         if not inCombat and not IsMounted() and isChecked("Auto Summon") and not UnitExists("pet") and (UnitIsDead("pet") ~= nil or UnitIsDead("pet") == false) then
             if waitForPetToAppear ~= nil and waitForPetToAppear < GetTime() - 2 and onlyOneTry ~= nil and not onlyOneTry then
                 onlyOneTry = true
@@ -262,6 +274,32 @@ local function runRotation()
             then
                 if castSpell("player",racial,false,false,false) then return end
             end
+        --Dark Transformation
+            if  (    
+                    (   getOptionValue("Dark Transformation") == 1 
+                        and #enemies.yards10 >= getOptionValue("Dark Transformation Units") 
+                        or useCDs() 
+                        or playertar
+                    )   
+                    or 
+                    (   getOptionValue("Dark Transformation") == 2 
+                        and (
+                                useCDs() or playertar
+                            )
+                    )
+                )
+                and not immun
+                and not bop
+                and ((hasEquiped(137075) and not (cd.apocalypse < 10)) or playertar)
+                and getDistance("target") < 5
+                and (not debuff.soulReaper.exists("target") or buff.soulReaper.stack("player") == 3)
+            then
+                if cast.darkTransformation() then return end
+            end
+        --Death and Decay
+            if #enemies.yards10 >= getOptionValue("Death and Decay") and debuff.festeringWound.stack("target") >= getOptionValue("DnD Festering Wounds") then
+                if cast.deathAndDecay("target") then return end
+            end
         --Potion
             if useCDs() and isChecked("Potion") and getDistance("target") < 15 then
                 --Old War
@@ -273,7 +311,7 @@ local function runRotation()
                     useItem(142117)
                 end
             end
-        -- Blighted Runeweapon
+        --Blighted Runeweapon
             if talent.blightedRuneWeapon
                 and (not talent.soulReaper or (not debuff.soulReaper.exists("target") or buff.soulReaper.stack("player") == 3))
                 and getDistance("target") < 5
@@ -282,7 +320,7 @@ local function runRotation()
             then
                 if cast.blightedRuneWeapon() then return end
             end
-         --Summon Gargoyle
+        --Summon Gargoyle
             if isChecked("Summon Gargoyle") 
                 and (useCDs() or playertar)
                 and (not talent.soulReaper or buff.soulReaper.stack("player") == 3 or (not debuff.soulReaper.exists("target") and cd.soulReaper > 30))
@@ -339,8 +377,9 @@ local function runRotation()
             if useDefensive() and not IsMounted() then
             --- AMS Counter
                 if isChecked("AMS Counter") 
-                    and debuff.soulReaper.exists("player") 
+                    and debuff.soulReaper.exists("player")
                 then
+                    print("AMS Counter")
                     if cast.antiMagicShell() then return end
                 end
 
@@ -404,14 +443,15 @@ local function runRotation()
             if isChecked("Debug Info") then Print("actionList_Interrupts") end
             if useInterrupts() then
                 if waitforNextKick ~= nil and waitforNextKick < GetTime() -2 then
-                    if cd.mindFreeze == 0 or cd.deathGrip == 0 or cd.asphyxiate ==0 or cd.leap == 0 then                
+                    if cd.mindFreeze <= 0 or cd.deathGrip <= 0 or cd.asphyxiate <=0 or cd.leap <= 0 or cd.hook <= 0 then
+                        local kickpercent = getOptionValue("InterruptAt") + math.random(-5,5)
                         for i=1, #enemies.yards30 do
                             thisUnit = enemies.yards30[i]
                             if inCombat 
                                 and (UnitIsPlayer(thisUnit) or not playertar)
                                 and isValidUnit(thisUnit) 
                                 and not isDummy(thisUnit) 
-                                and canInterrupt(thisUnit,getOptionValue("InterruptAt"))
+                                and canInterrupt(thisUnit,kickpercent)
                                 and not immunDS
                                 and not immunAotT
                             then  
@@ -521,7 +561,7 @@ local function runRotation()
             then
                 if cast.apocalypse("target") then return end
             end
-        -- ScourgeStrike if Soulreaper
+        --ScourgeStrike if Soulreaper
             if debuff.festeringWound.stack("target") >= 1
                 and not immun
                 and not cloak
@@ -545,8 +585,7 @@ local function runRotation()
             if waitfornextVirPlague == nil then
                 waitfornextVirPlague = 0
             end
-
-            --Soul Reaper if artifact == 0 and festeringWound > 6
+        --Soul Reaper if artifact == 0 and festeringWound > 6
             if debuff.festeringWound.stack("target") >= 7
                 and cd.apocalypse <= 0
                 and not immun
@@ -555,7 +594,7 @@ local function runRotation()
             then 
                 if cast.soulReaper("target") then return end
             end  
-            --Apocalypse
+        --Apocalypse
             if cd.apocalypse <= 0
                 and cd.soulReaper > 10
                 and debuff.festeringWound.stack("target") >= 7
@@ -564,7 +603,7 @@ local function runRotation()
             then
                 if cast.apocalypse("target") then return end
             end
-            -- Virulent Plague
+        --Virulent Plague
             if waitfornextVirPlague ~= nil and waitfornextVirPlague < GetTime() - 6 then
                 if (not debuff.virulentPlague.exists("target")
                     or debuff.virulentPlague.remain("target") < 1.5) 
@@ -593,21 +632,7 @@ local function runRotation()
                     end
                 end
             end
-
-             --Dark Transformation
-            if not immun
-               and not bop
-               and ((hasEquiped(137075) and not (cd.apocalypse < 10)) or playertar)
-               and getDistance("target") < 5
-               and (not debuff.soulReaper.exists("target") or buff.soulReaper.stack("player") == 3)
-            then
-                if cast.darkTransformation() then return end
-            end
-            --Death and Decay
-            if #enemies.yards10 >= 3 and debuff.festeringWound.stack("target") >= 3 then
-                if cast.deathAndDecay("player") then return end
-            end
-            -- ScourgeStrike if Scourge of Worlds / Death and Decay
+        --ScourgeStrike if Scourge of Worlds / Death and Decay
             if (debuff.scourgeOfWorlds.exists("target") or buff.deathAndDecay.exists())
                 and debuff.festeringWound.stack("target") > 1
                 and runicPower < 90
@@ -630,7 +655,7 @@ local function runRotation()
                     if cast.scourgeStrike("target") then return end
                 end
             end           
-            -- Death Coil
+        --Death Coil
             if (runicPower >= 65
                 or (buff.suddenDoom.exists() and buff.suddenDoom.remain() < 8))
                 and (not buff.necrosis.exists("player") or buff.suddenDoom.remain() < 2 or runicPower > 90)
@@ -639,7 +664,7 @@ local function runRotation()
             then
                 if cast.deathCoil("target") then return end
             end
-            -- Festering Strike
+        --Festering Strike
             if ((debuff.festeringWound.stack("target") < 5)
                 or (debuff.festeringWound.stack("target") < 8 and cd.apocalypse == 0))
                 and not immun
@@ -647,8 +672,7 @@ local function runRotation()
                 then
                 if cast.festeringStrike("target") then return end
             end
-
-            --Soul Reaper if not artifact== 0
+        --Soul Reaper if not artifact== 0
             if debuff.festeringWound.stack("target") >= 3 
                 and cd.soulReaper <= 0
                 and not (cd.apocalypse <= 0) 
@@ -659,9 +683,8 @@ local function runRotation()
             then
                 --print (" Soulreaper Cast Runes : ", runes)
                 if cast.soulReaper("target") then return end
-            end          
-
-            --Scourge
+            end
+        --Scourge
             if debuff.festeringWound.stack("target") > 3
                 and (not (cd.soulReaper < 5) or runes > 4)
                 and runes > 2
@@ -682,7 +705,7 @@ local function runRotation()
                     if cast.scourgeStrike("target") then return end
                 end
             end
-            --Clawing Shadow  is out of range
+        --Clawing Shadow  is out of range
             if  talent.clawingShadows 
                 and getDistance("target") > 5 
                 and runes > 2 
@@ -691,7 +714,7 @@ local function runRotation()
             then
                 if cast.clawingShadows("target") then return end
             end
-            -- DeathCoil
+        --DeathCoil
             if getDistance("target") > 5 
                 and not immun
                 and not cloak
@@ -749,49 +772,48 @@ local function runRotation()
                 if debuff.dampening ~= nil then
                     if actionList_DebuffReader() then return end
                 end
-                 --print (#br.player.queue)
+            -----------------
+            --- SoulReaper --
+            -----------------
+                if talent.soulReaper and debuff.soulReaper.exists("target") and buff.soulReaper.stack("player") < 3  then
+                    if actionList_SoulReaperDebuff() then return end
+                else             
                 -----------------
-                --- SoulReaper --
+                --- Extras    ---
                 -----------------
-                    if talent.soulReaper and debuff.soulReaper.exists("target") and buff.soulReaper.stack("player") < 3  then
-                        if actionList_SoulReaperDebuff() then return end
-                    else             
-                    -----------------
-                    --- Extras    ---
-                    -----------------
-                        if actionList_Extras() then return end
-                    -----------------
-                    --- Cooldowns ---
-                    -----------------
-                        if actionList_Cooldowns() then return end
-                    -----------------
-                    --- Interrupt ---
-                    -----------------
-                       if actionList_Interrupts() then return end
-                    -----------------
-                    --- Pet Logic ---
-                    -----------------
-                        if actionList_PetManagement() then return end
-                    --------------------------
-                    --- Defensive Rotation ---
-                    --------------------------
-                        if actionList_Defensive() then return end
-                    -----------------
-                    --- Generic -----
-                    -----------------
-                        if actionList_Generic() then return end
-                    -----------------
-                    --- Queue     ---
-                    -----------------
-                        if #br.player.queue ~= 0 and isChecked("SpellQueue Clear") then
-                            for i = 1, #br.player.queue do
-                                if getSpellCD(br.player.queue[i].name) >=  getOptionValue("SpellQueue Clear") then
-                                    Print("Removed |cFFFF0000"..br.player.queue[i].name.. "|r cause CD")
-                                    tremove(br.player.queue,i)
-                                end
+                    if actionList_Extras() then return end
+                -----------------
+                --- Cooldowns ---
+                -----------------
+                    if actionList_Cooldowns() then return end
+                -----------------
+                --- Interrupt ---
+                -----------------
+                   if actionList_Interrupts() then return end
+                -----------------
+                --- Pet Logic ---
+                -----------------
+                    if actionList_PetManagement() then return end
+                --------------------------
+                --- Defensive Rotation ---
+                --------------------------
+                    if actionList_Defensive() then return end
+                -----------------
+                --- Generic -----
+                -----------------
+                    if actionList_Generic() then return end
+                -----------------
+                --- Queue     ---
+                -----------------
+                    if #br.player.queue ~= 0 and isChecked("SpellQueue Clear") then
+                        for i = 1, #br.player.queue do
+                            if getSpellCD(br.player.queue[i].name) >=  getOptionValue("SpellQueue Clear") then
+                                Print("Removed |cFFFF0000"..br.player.queue[i].name.. "|r cause CD")
+                                tremove(br.player.queue,i)
                             end
                         end
                     end
+                end
 
                 if isChecked("Debug Info") then uncheck("Debug Info") end
             end -- End In Combat Rotation
