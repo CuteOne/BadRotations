@@ -247,10 +247,10 @@ local function runRotation()
     if sprintphp == nil then sprintphp = 1 end
     if resume == nil then resume = 2 end
     if buff.sprint.exists() and resume == 0 and getHP("player") > sprintphp then sprintphp = getHP("player") end
-    --if GetTime() > (sprintTimer + 3) and mode.rotation == 4 then toggle("rotation",1) end
+    --if GetTime() > (sprintTimer + 3) and mode.rotation == 4 then toggle("Rotation",1) end
     if buff.sprint.exists() and resume == 0 and getHP("player") < sprintphp then resume = 1 end
     if GetTime() > (sprintTimer + 3) and mode.rotation == 4 then resume = 1 end
-    if resume == 1 then toggle("rotation",1); resume = 0 end
+    if resume == 1 then toggle("Rotation",1); resume = 0 end
 
 
     -- variable,name=ssw_refund,value=equipped.shadow_satyrs_walk*(6+ssw_refund_offset)
@@ -719,7 +719,7 @@ local function runRotation()
                         sprintTimer = GetTime()
                         sprintphp = getHP("player")
                         resume = 0
-                        toggle("rotation",4)
+                        toggle("Rotation",4)
                     end
                 end
     -- Stealth Action List Starter

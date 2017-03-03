@@ -128,8 +128,8 @@ br.idList = {
                 rime                        = 59052,
             },
             debuffs                         = {
-                frostFever                  = 55095,
                 chainsOfIce                 = 45524,
+                frostFever                  = 55095,
             },
             glyphs                          = {
 

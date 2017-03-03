@@ -214,13 +214,13 @@ local function runRotation()
             waitForSentinel = false
         end
 
-        -- Vulnerable Windows
+        -- Vulnerable Window
         local vulnWindow = vulnWindow or 0
         -- vuln_window,op=set,value=debuff.vulnerability.remains
-        vulnWindow = debuff.vulnerable.remain(units.dyn40)
+        vulnWindow = debuff.vulnerable.remain(units.dyn40) - 0.5 
         -- vuln_window,op=set,value=(24-cooldown.sidewinders.charges_fractional*12)*attack_haste,if=talent.sidewinders.enabled&(24-cooldown.sidewinders.charges_fractional*12)*attack_haste<variable.vuln_window
         if talent.sidewinders and (24 - charges.frac.sidewinders * 12) * attackHaste < vulnWindow then 
-            vulnWindow = (24 - charges.frac.sidewinders * 12) * attackHaste
+            vulnWindow = ((24 - charges.frac.sidewinders * 12) * attackHaste) - 0.5
         end
 
         -- Vulnerable Aim Casts
