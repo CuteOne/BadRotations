@@ -370,7 +370,31 @@ local function runRotation()
                 if player.cast.newMoon() then return true end
             end
         end
-
+        if useAstralPower then
+            if multidot then
+                --actions.fury_of_elune+=/starfall,if=(active_enemies>=2&talent.stellar_flare.enabled|active_enemies>=3)&buff.fury_of_elune_up.down&cooldown.fury_of_elune.remains>10
+                if not player.buff.furyOfElune.exists() and player.cd.furyOfElune > 10 then
+                    if (astralPower >= 60) or (astralPower >= 40 and player.talent.soulOfTheForest) then
+                        if player.cast.starfall("best", nil, getValue("Starfall targets"), starfallRadius) then return true else if player.cast.starsurge() then  return true end end
+                    end
+                end
+                --actions.fury_of_elune+=/starsurge,if=buff.fury_of_elune_up.down&((astral_power>=92&cooldown.fury_of_elune.remains>gcd*3)|(cooldown.warrior_of_elune.remains<=5&cooldown.fury_of_elune.remains>=35&buff.lunar_empowerment.stack<2))
+                if not player.buff.furyOfElune.exists() and ((astralPower >= 92 and player.cd.furyOfElune > player.gcd*3) or (player.cd.warriorOfElune <=5 and player.cd.furyOfElune>=35 and player.buff.lunarEmpowerment.stack() < 2 )) then
+                    if player.cast.starfall("best", nil, getValue("Starfall targets"), starfallRadius) then return true else if player.cast.starsurge() then  return true end end
+                end
+            else
+                --actions.fury_of_elune+=/starsurge,if=active_enemies<=2&buff.fury_of_elune_up.down&cooldown.fury_of_elune.remains>7
+                if not player.buff.furyOfElune.exists() and player.cd.furyOfElune > 7 then
+                    if (#enemies.yards40 <= 2) or not multidot then
+                        if player.cast.starsurge() then  return true end
+                    end
+                end
+                --actions.fury_of_elune+=/starsurge,if=buff.fury_of_elune_up.down&((astral_power>=92&cooldown.fury_of_elune.remains>gcd*3)|(cooldown.warrior_of_elune.remains<=5&cooldown.fury_of_elune.remains>=35&buff.lunar_empowerment.stack<2))
+                if not player.buff.furyOfElune.exists() and ((astralPower >= 92 and player.cd.furyOfElune > player.gcd*3) or (player.cd.warriorOfElune <=5 and player.cd.furyOfElune>=35 and player.buff.lunarEmpowerment.stack() < 2 )) then
+                    if player.cast.starsurge() then  return true end
+                end
+            end
+        end
         if multidot then
             for i = 1, #enemies.yards40 do
                 local thisUnit = enemies.yards40[i]
@@ -412,29 +436,6 @@ local function runRotation()
         if player.talent.stellarFlare and astralPower >= 10 and player.debuff.stellarFlare.remain() < 7.2 then
             if player.debuff.stellarFlare.remain() < player.gcd and (player.debuff.stellarFlare.count() < getValue("Stellar Flare targets")) then
                 if player.cast.stellarFlare() then return true end
-            end
-        end
-        if useAstralPower then
-            if multidot then
-                --actions.fury_of_elune+=/starfall,if=(active_enemies>=2&talent.stellar_flare.enabled|active_enemies>=3)&buff.fury_of_elune_up.down&cooldown.fury_of_elune.remains>10
-                if not player.buff.furyOfElune.exists() and player.cd.furyOfElune > 10 then
-                    if (astralPower >= 60) or (astralPower >= 40 and player.talent.soulOfTheForest) then
-                        if player.cast.starfall("best", nil, getValue("Starfall targets"), starfallRadius) then return true else if player.cast.starsurge() then  return true end end
-                    end
-                end
-            else
-                --actions.fury_of_elune+=/starsurge,if=active_enemies<=2&buff.fury_of_elune_up.down&cooldown.fury_of_elune.remains>7
-                if not player.buff.furyOfElune.exists() and player.cd.furyOfElune > 7 then
-                    if (#enemies.yards40 <= 2) or not multidot then
-                        if player.cast.starsurge() then  return true end
-                    end
-                end
-            end
-        end
-        if useAstralPower then
-            --actions.fury_of_elune+=/starsurge,if=buff.fury_of_elune_up.down&((astral_power>=92&cooldown.fury_of_elune.remains>gcd*3)|(cooldown.warrior_of_elune.remains<=5&cooldown.fury_of_elune.remains>=35&buff.lunar_empowerment.stack<2))
-            if not player.buff.furyOfElune.exists() and ((astralPower >= 92 and player.cd.furyOfElune > player.gcd*3) or (player.cd.warriorOfElune <=5 and player.cd.furyOfElune>=35 and player.buff.lunarEmpowerment.stack() < 2 )) then
-                if player.cast.starsurge() then  return true end
             end
         end
         --actions.fury_of_elune+=/solar_wrath,if=buff.solar_empowerment.up
@@ -684,6 +685,13 @@ local function runRotation()
     end
 
     local function actionList_SingleTarget()
+        if useAstralPower then
+            if multidot then
+                if player.cast.starfall("best", nil, getValue("Starfall targets"), starfallRadius) then return true else if player.cast.starsurge() then  return true end end
+            else
+                if player.cast.starsurge() then   return true end
+            end
+        end
         --actions.single_target=new_moon,if=astral_power<=90
         if activeMoon == 3 then
             if astralPower <= 90 then
@@ -700,13 +708,6 @@ local function runRotation()
             --actions.single_target+=/full_moon,if=astral_power<=60
             if astralPower <= 60 then
                 if player.cast.newMoon() then return true end
-            end
-        end
-        if useAstralPower then
-            if multidot then
-                if player.cast.starfall("best", nil, getValue("Starfall targets"), starfallRadius) then return true else if player.cast.starsurge() then  return true end end
-            else
-                if player.cast.starsurge() then   return true end
             end
         end
         --actions.single_target+=/warrior_of_elune
@@ -805,7 +806,7 @@ local function runRotation()
         end
         if useAstralPower then
             --actions+=/starfall,if=buff.oneths_overconfidence.up
-            if player.buff.onethsOverconfidence.exists() then
+            --if player.buff.onethsOverconfidence.exists() then
                 if multidot then
                     if (astralPower >= 60) or (astralPower >= 40 and player.talent.soulOfTheForest) then
                         if player.cast.starfall("best", nil, getValue("Starfall targets"), starfallRadius) then return true else if player.cast.starsurge() then  return true end end
@@ -813,7 +814,7 @@ local function runRotation()
                 else
                     if player.cast.starsurge() then  return true end
                 end
-            end
+            --end
         end
         --actions+=/new_moon,if=(charges=2&recharge_time<5)|charges=3
         if activeMoon == 3 then
