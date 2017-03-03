@@ -226,11 +226,13 @@ local function runRotation()
             end
             if br.player.mode.cleanse == 1 then
                 for i = 1, #br.friend do
-                    for n = 1,40 do
-                        local buff,_,_,count,bufftype,duration = UnitDebuff(br.friend[i].unit, n)
-                        if buff then
-                            if bufftype == "Disease" or bufftype == "Magic" or bufftype == "Poison" and UnitIsPlayer(br.friend[i].unit) then
-                                if cast.cleanse(br.friend[i].unit) then return end
+                    if UnitIsPlayer(br.friend[i].unit) then
+                        for n = 1,40 do
+                            local buff,_,_,count,bufftype,duration = UnitDebuff(br.friend[i].unit, n)
+                            if buff then
+                                if bufftype == "Disease" or bufftype == "Magic" or bufftype == "Poison" then
+                                    if cast.cleanse(br.friend[i].unit) then return end
+                                end
                             end
                         end
                     end
@@ -244,7 +246,7 @@ local function runRotation()
                     if canInterrupt(thisUnit,getOptionValue("InterruptAt")) then
                         if distance <= 10 then
         -- Hammer of Justice
-                            if isChecked("Hammer of Justice") then
+                            if isChecked("Hammer of Justice") and GetSpellCooldown(853) == 0 then
                                 if cast.hammerOfJustice(thisUnit) then return end
                             end
                         end
@@ -507,14 +509,13 @@ local function runRotation()
             end
             if br.player.mode.cleanse == 1 then
                 for i = 1, #br.friend do
-                    for n = 1,40 do
-                        local buff,_,_,count,bufftype,duration = UnitDebuff(br.friend[i].unit, n)
-                        if buff then
-                            if bufftype == "Disease" or bufftype == "Magic" or bufftype == "Poison" and UnitIsPlayer(br.friend[i].unit) then
-                                if isCastingSpell(spell.holyLight) then
-                                    SpellStopCasting()
-                                end 
-                                if cast.cleanse(br.friend[i].unit) then return end
+                    if UnitIsPlayer(br.friend[i].unit) then
+                        for n = 1,40 do
+                            local buff,_,_,count,bufftype,duration = UnitDebuff(br.friend[i].unit, n)
+                            if buff then
+                                if bufftype == "Disease" or bufftype == "Magic" or bufftype == "Poison" then
+                                    if cast.cleanse(br.friend[i].unit) then return end
+                                end
                             end
                         end
                     end
@@ -528,7 +529,7 @@ local function runRotation()
                     if canInterrupt(thisUnit,getOptionValue("InterruptAt")) then
                         if distance <= 10 then
         -- Hammer of Justice
-                            if isChecked("Hammer of Justice") then
+                            if isChecked("Hammer of Justice") and GetSpellCooldown(853) == 0 then
                                 if isCastingSpell(spell.holyLight) then
                                     SpellStopCasting()
                                 end 
