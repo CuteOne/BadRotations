@@ -67,7 +67,7 @@ local function createOptions()
         -- Trinkets
             br.ui:createCheckbox(section,"Trinkets")
         -- Soul Harvest
-            br.ui:createCheckbox(section,"Soul Harvest")
+            br.ui:createSpinner(section,"Soul Harvest", 2, 1, 5, 1, "|cffFFFFFF Minimal Doom DoTs to cast Soul Harvest")
         -- Summon Doomguard
             br.ui:createCheckbox(section,"Summon Doomguard")
         -- Summon Infernal
@@ -387,7 +387,7 @@ local function runRotation()
                 end
         -- Soul Harvest
                 -- soul_harvest
-                if isChecked("Soul Harvest") then
+                if isChecked("Soul Harvest") and getOptionValue("Soul Harvest") >= debuff.doom.count() then
                     if cast.soulHarvest() then return end
                 end
         -- Potion

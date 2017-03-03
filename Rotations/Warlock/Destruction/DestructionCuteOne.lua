@@ -70,7 +70,7 @@ local function createOptions()
         -- Life Tap
             br.ui:createSpinner(section, "Life Tap", 30, 0, 100, 5, "|cffFFFFFFHP Limit that Life Tap will not cast below.")
         -- Chaos Bolt
-            br.ui:createSpinnerWithout(section, "Chaos Bolt at Shards", 4, 2, 5, 1, "|cffFFFFFFNumber of Shards to use Chaos Bolt At.")
+            br.ui:createSpinnerWithout(section, "Chaos Bolt at Shards", 3, 2, 5, 1, "|cffFFFFFFNumber of Shards to use Chaos Bolt At.")
         br.ui:checkSectionState(section)
     -- Cooldown Options
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
@@ -79,7 +79,7 @@ local function createOptions()
         -- Trinkets
             br.ui:createCheckbox(section,"Trinkets")
         -- Soul Harvest
-            br.ui:createCheckbox(section,"Soul Harvest")
+            br.ui:createSpinner(section,"Soul Harvest", 2, 1, 5, 1, "|cffFFFFFF Minimal Immolate DoTs to cast Soul Harvest")
         -- Summon Doomguard
             br.ui:createCheckbox(section,"Summon Doomguard")
         -- Summon Infernal
@@ -390,7 +390,7 @@ local function runRotation()
                 end
         -- Soul Harvest
                 -- soul_harvest
-                if isChecked("Soul Harvest") then
+                if isChecked("Soul Harvest") and getOptionValue("Soul Harvest") >= debuff.immolate.count() then
                     if cast.soulHarvest() then return end
                 end
         -- Potion
@@ -544,7 +544,7 @@ local function runRotation()
                                 local thisUnit = enemies.yards40[i]
                                 if not UnitIsUnit(thisUnit,"target") and isValidUnit(thisUnit) and (not UnitExists("focus") or (UnitExists("focus") and UnitIsUnit(thisUnit,"focus"))) then
                                     if not debuff.havoc.exists(thisUnit) then
-                                        if cast.havoc(thisUnit) then return end
+                                        if cast.havoc(thisUnit,"aoe") then return end
                                     end
                                 end
                             end
@@ -709,7 +709,7 @@ local function runRotation()
                     -- havoc,if=active_enemies=1&talent.wreak_havoc.enabled&equipped.132375&!debuff.havoc.remain()s
                     if not hasHavoc then
                         if #enemies.yards40 == 1 and talent.wreakHavoc and hasEquiped(132375) and not debuff.havoc.exists(units.dyn40) then
-                            if cast.havoc(units.dyn40) then return end
+                            if cast.havoc(units.dyn40,"aoe") then return end
                         end
                     end
         -- Rain of Fire
