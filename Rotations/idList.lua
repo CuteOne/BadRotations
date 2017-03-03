@@ -1852,13 +1852,36 @@ br.idList = {
         -- Holy
         [257] = {
             abilities                       = {
-
+                angelicFeather              = 121536,
+                bodyAndMind                 = 214121,
+                desperatePrayer             = 19236,
+                divineHymn                  = 64843,
+                flashHeal                   = 2061,
+                guardianSpirit              = 47788,
+                holyFire                    = 14914,
+                holyNova                    = 132157,
+                holyWordChastise            = 88625,
+                holyWordSanctify            = 34861,
+                holyWordSerenity            = 2050,
+                heal                        = 2060,
+                --lightOfTuure                = 208065,
+                prayerOfHealing             = 596,
+                prayerOfMending             = 33076,
+                purify                      = 527,
+                renew                       = 139,
+                smite                       = 585,
+                symbolOfHope                = 64901,
             },
             artifacts                       = {
 
             },
             buffs                           = {
-
+                angelicFeather              = 121557,
+                blessingOfTuure             = 196578,
+                divinity                    = 197031,
+                prayerOfMending             = 41635,
+                renew                       = 139,
+                surgeOfLight                = 109186,
             },
             debuffs                         = {
 
@@ -1867,7 +1890,16 @@ br.idList = {
 
             },
             talents                         = {
-
+                angelicFeather              = 121536,
+                apotheosis                  = 200183,
+                bindingHeal                 = 32546,
+                bodyAndMind                 = 214121,
+                circleOfHealing             = 204883,
+                divineStar                  = 110744,
+                halo                        = 120517,
+                shiningForce                = 204263,
+                surgeOfLight                = 109186,
+                symbolOfHope                = 64901,
             },
         },
         -- Shadow
