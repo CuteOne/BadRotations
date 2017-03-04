@@ -1865,7 +1865,7 @@ br.idList = {
                 holyWordSanctify            = 34861,
                 holyWordSerenity            = 2050,
                 heal                        = 2060,
-                --lightOfTuure                = 208065,
+                leapOfFaith                 = 73325,
                 prayerOfHealing             = 596,
                 prayerOfMending             = 33076,
                 purify                      = 527,
@@ -1874,12 +1874,13 @@ br.idList = {
                 symbolOfHope                = 64901,
             },
             artifacts                       = {
-
+                lightOfTuure                = 208065,
             },
             buffs                           = {
                 angelicFeather              = 121557,
                 blessingOfTuure             = 196578,
                 divinity                    = 197031,
+                echoOfLight                 = 77489,
                 prayerOfMending             = 41635,
                 renew                       = 139,
                 surgeOfLight                = 109186,

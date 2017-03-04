@@ -247,7 +247,7 @@ Bizkut       |     Full      | 7.1.5 |    100% |   :interrobang:
 
 author          | support | patch | status | raidable?
 :-------------- | :-----: | :---: | -----: | :-------:
-Svs    |  Full   | 7.1.5 |    80% | :heavy_check_mark:
+Svs    |  Full   | 7.1.5 |    100% | :white_check_mark:
 
 - Shadow
 
