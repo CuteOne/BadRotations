@@ -520,7 +520,7 @@ local function runRotation()
 ---------------------------------
 --- Out Of Combat - Rotations ---
 ---------------------------------
-            if not inCombat and isValidUnit("target") then
+            if not inCombat and not IsMounted() and isValidUnit("target") then
                 if actionList_PreCombat() then return end
                 if getDistance(units.dyn5)<5 then
                     StartAttack()
@@ -535,7 +535,7 @@ local function runRotation()
 -----------------------------
 --- In Combat - Rotations ---
 -----------------------------
-            if inCombat and isValidUnit(units.dyn5) then
+            if inCombat and not IsMounted() and isValidUnit(units.dyn5) then
             -- Auto Attack
                 --auto_attack
                 if getDistance(units.dyn5) < 5 then

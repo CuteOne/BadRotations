@@ -509,7 +509,7 @@ local function runRotation()
         --Power Infusion
             --power_infusion,if=cooldown.shadow_word_death.charges=0&cooldown.shadow_word_death.remains>3*gcd.max&buff.voidform.stack>50
             if isChecked("Power Infusion") and useCDs() then
-                if charges.shadowWordDeath == 0 and cd.shadowWordDeath > 3 * gcd and buff.voidForm.stack() > getOptionValue("Power Infusion Stacks") then
+                if charges.shadowWordDeath == 0 and cd.shadowWordDeath > 3 * gcd and buff.voidForm.stack() >= getOptionValue("Power Infusion Stacks") then
                 if cast.powerInfusion() then return end
                 end
             end
@@ -551,7 +551,7 @@ local function runRotation()
         --Shadow Fiend  
             --shadowfiend,if=!talent.mindbender.enabled,if=buff.voidform.stack>15
             if isChecked("Shadowfiend / Mindbender") and useCDs() then
-                if not talent.mindbender and buff.voidForm.stacks > getOptionValue("Shadowfiend Stacks") then
+                if not talent.mindbender and buff.voidForm.stack() >= getOptionValue("Shadowfiend Stacks") then
                     if cast.shadowfiend() then return end
                 end
             end
@@ -672,14 +672,14 @@ local function runRotation()
             end
         -- Mindbender
             -- mindbender,if=talent.mindbender.enabled&(!talent.surrender_to_madness.enabled|(talent.surrender_to_madness.enabled&target.time_to_die>variable.s2mcheck-(buff.insanity_drain_stacks.stack)+30))
-            if isChecked("Shadowfiend / Mindbender") and useCDs() and buff.voidForm.stacks >= getOptionValue("Shadowfiend Stacks") then
+            if isChecked("Shadowfiend / Mindbender") and useCDs() and buff.voidForm.stack() >= getOptionValue("Shadowfiend Stacks") then
                 if talent.mindbender and (not talent.surrenderToMadness or (talent.surrenderToMadness and ttd(units.dyn40) > s2mCheck - (drainStacks) + 30)) then
                     if cast.mindbender() then return end
                 end
             end
         -- Power Infusion
             -- power_infusion,if=buff.insanity_drain_stacks.stack>=(10+2*set_bonus.tier19_2pc+5*buff.bloodlust.up+5*variable.s2mbeltcheck)&(!talent.surrender_to_madness.enabled|(talent.surrender_to_madness.enabled&target.time_to_die>variable.s2mcheck-(buff.insanity_drain_stacks.stack)+61))
-            if isChecked("Power Infusion") and useCDs() and buff.voidForm.stacks >= getOptionValue("Power Infusion Stacks") then 
+            if isChecked("Power Infusion") and useCDs() and buff.voidForm.stack() >= getOptionValue("Power Infusion Stacks") then 
                 if drainStacks >= (10 + 2 * t19pc2 + 5 * lusting + 5 * s2mBeltCheck)
                     and (not talent.surrenderToMadness or (talent.surrenderToMadness and ttd(units.dyn40) > s2mCheck - (drainStacks) + 61))
                 then
@@ -726,7 +726,7 @@ local function runRotation()
         -- Shadowfiend
             -- shadowfiend,if=!talent.mindbender.enabled,if=buff.voidform.stack>15
             if isChecked("Shadowfiend / Mindbender") and useCDs() then
-                if not talent.mindbender and buff.voidForm.stacks >= getOptionValue("Shadowfiend Stacks") then
+                if not talent.mindbender and buff.voidForm.stack() >= getOptionValue("Shadowfiend Stacks") then
                     if cast.shadowfiend() then return end
                 end
             end

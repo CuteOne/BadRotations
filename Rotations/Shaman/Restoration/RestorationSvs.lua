@@ -460,7 +460,7 @@ local function runRotation()
             -- Healing Surge
             if isChecked("Healing Surge") then
                 for i = 1, #br.friend do                           
-                    if br.friend[i].hp <= getValue("Healing Surge") and (buff.tidalWaves.exists() or level < 34) then
+                    if br.friend[i].hp <= getValue("Healing Surge") and (buff.tidalWaves.exists() or level < 100) then
                         if cast.healingSurge(br.friend[i].unit) then return end     
                     end
                 end
@@ -468,7 +468,7 @@ local function runRotation()
             -- Healing Wave
             if isChecked("Healing Wave") then
                 for i = 1, #br.friend do                           
-                    if br.friend[i].hp <= getValue("Healing Wave") and (buff.tidalWaves.exists() or level < 34) then
+                    if br.friend[i].hp <= getValue("Healing Wave") and (buff.tidalWaves.exists() or level < 100) then
                         if cast.healingWave(br.friend[i].unit) then return end     
                     end
                 end
