@@ -77,10 +77,10 @@ local function createOptions()
             br.ui:createCheckbox(section,"Trinkets")
         -- Divine Hymn
             br.ui:createSpinner(section, "Divine Hymn",  50,  0,  100,  5,  "Health Percent to Cast At") 
-            br.ui:createSpinner(section, "Divine Hymn Targets",  3,  0,  40,  1,  "Minimum Divine Hymn Targets")
+            br.ui:createSpinnerWithout(section, "Divine Hymn Targets",  3,  0,  40,  1,  "Minimum Divine Hymn Targets")
         -- Symbol of Hope
             br.ui:createSpinner(section, "Symbol of Hope",  50,  0,  100,  5,  "Health Percent to Cast At") 
-            br.ui:createSpinner(section, "Symbol of Hope Targets",  3,  0,  40,  1,  "Minimum Symbol of Hope Targets")
+            br.ui:createSpinnerWithout(section, "Symbol of Hope Targets",  3,  0,  40,  1,  "Minimum Symbol of Hope Targets")
         br.ui:checkSectionState(section)
     -- Defensive Options
         section = br.ui:createSection(br.ui.window.profile, "Defensive")
@@ -97,14 +97,18 @@ local function createOptions()
         br.ui:checkSectionState(section)
         -- Healing Options
         section = br.ui:createSection(br.ui.window.profile, "Healing Options")
+        -- Leap of Faith
+            br.ui:createSpinner(section, "Leap of Faith",  20,  0,  100,  5,  "Health Percent to Cast At")
         -- Guardian Spirit
             br.ui:createSpinner(section, "Guardian Spirit",  30,  0,  100,  5,  "Health Percent to Cast At")
         -- Renew
             br.ui:createSpinner(section, "Renew",  90,  0,  100,  1,  "Health Percent to Cast At")
         -- Prayer of Mending
             br.ui:createSpinner(section, "Prayer of Mending",  80,  0,  100,  1,  "Health Percent to Cast At")
+        -- Light of T'uure
+            br.ui:createSpinner(section, "Light of T'uure",  80,  0,  100,  5,  "Health Percent to Cast At")
         -- Heal
-            br.ui:createSpinner(section, "Heal",  80,  0,  100,  5,  "Health Percent to Cast At")
+            br.ui:createSpinner(section, "Heal",  70,  0,  100,  5,  "Health Percent to Cast At")
         -- Flash Heal
             br.ui:createSpinner(section, "Flash Heal",  60,  0,  100,  5,  "Health Percent to Cast At")
         -- Flash Heal Surge of Light
@@ -113,16 +117,16 @@ local function createOptions()
             br.ui:createSpinner(section, "Holy Word: Serenity",  50,  0,  100,  5,  "Health Percent to Cast At")
             -- Holy Word: Sanctify
             br.ui:createSpinner(section, "Holy Word: Sanctify",  85,  0,  100,  5,  "Health Percent to Cast At") 
-            br.ui:createSpinner(section, "Holy Word: Sanctify Targets",  3,  0,  40,  1,  "Minimum Holy Word: Sanctify Targets")
+            br.ui:createSpinnerWithout(section, "Holy Word: Sanctify Targets",  3,  0,  40,  1,  "Minimum Holy Word: Sanctify Targets")
         -- Prayer of Healing
             br.ui:createSpinner(section, "Prayer of Healing",  80,  0,  100,  5,  "Health Percent to Cast At") 
             br.ui:createSpinner(section, "Prayer of Healing Targets",  3,  0,  40,  1,  "Minimum Prayer of Healing Targets")
-            br.ui:createSpinner(section, "Divine Star",  70,  0,  100,  1,  colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.."Divine Star usage.", colorWhite.."Health Percent to Cast At")
+            br.ui:createSpinner(section, "Divine Star",  80,  0,  100,  5,  colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.."Divine Star usage.", colorWhite.."Health Percent to Cast At")
             br.ui:createSpinnerWithout(section, "Min Divine Star Targets",  3,  1,  40,  1,  colorBlue.."Minimum Divine Star Targets "..colorGold.."(This includes you)")
-            br.ui:createCheckbox(section,"Show Lines",colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.."area of effect drawing.")
+            br.ui:createCheckbox(section,"Show Divine Star Area",colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.."area of effect drawing.")
             -- Halo
             br.ui:createSpinner(section, "Halo",  70,  0,  100,  5,  "Health Percent to Cast At") 
-            br.ui:createSpinner(section, "Halo Targets",  3,  0,  40,  1,  "Minimum Halo Targets")
+            br.ui:createSpinnerWithout(section, "Halo Targets",  3,  0,  40,  1,  "Minimum Halo Targets")
         br.ui:checkSectionState(section)
     end
     optionTable = {{
@@ -330,16 +334,28 @@ local function runRotation()
         end -- End Action List - Cooldowns
         -- AOE Healing
         function actionList_AOEHealing()
+        -- Holy Word: Serenity -> Holy Word: Sanctify -> Prayer of Healing Combo
+            if buff.blessingOfTuure.exists() then
+                if cast.holyWordSerenity(lowest.unit) then return end
+            end
+            if buff.divinity.exists() then
+                if castGroundAtBestLocation(spell.holyWordSanctify, 20, 0, 40, 0, "heal") then return end
+            end
+            if isChecked("Prayer of Healing") and buff.echoOfLight.exists() then
+                if getLowAllies(getValue("Prayer of Healing")) >= getValue("Prayer of Healing Targets") then
+                    if cast.prayerOfHealing(lowest.unit) then return end    
+                end
+            end
         -- Holy Word: Sanctify
-            if isChecked("Holy Word: Sanctify") and not moving then -- -- buff.blessingOfTuure.exists() and buff.divinity.exists()
+            if isChecked("Holy Word: Sanctify") and not moving then
                 if getLowAllies(getValue("Holy Word: Sanctify")) >= getValue("Holy Word: Sanctify Targets") then
-                    if castGroundAtBestLocation(spell.holyWordSanctify, 20, 0, 40, 0, "heal") then return end    
+                    if castGroundAtBestLocation(spell.holyWordSanctify, 20, 0, 40, 0, "heal") then return end
                 end
             end
         -- Prayer of Healing
             if isChecked("Prayer of Healing") then
-                if getLowAllies(getValue("Prayer of Healing")) >= getValue("Prayer of Healing Targets") then -- and lastSpell ~= spell.prayerOfHealing
-                    if cast.prayerOfHealing() then return end    
+                if getLowAllies(getValue("Prayer of Healing")) >= getValue("Prayer of Healing Targets") then
+                    if cast.prayerOfHealing(lowest.unit) then return end    
                 end
             end
         -- Divine Star
@@ -357,6 +373,14 @@ local function runRotation()
         end -- End Action List - AOE Healing
         -- Single Target
         function actionList_SingleTarget()
+        -- Leap of Faith
+            if isChecked("Leap of Faith") then
+                for i = 1, #br.friend do
+                    if br.friend[i].hp <= getValue("Leap of Faith") then
+                        if cast.leapOfFaith(br.friend[i].unit) then return end
+                    end
+                end                    
+            end
         -- Guardian Spirit
             if isChecked("Guardian Spirit") then
                 for i = 1, #br.friend do
@@ -410,6 +434,14 @@ local function runRotation()
                     end
                 end                    
             end
+        -- Light of T'uure
+            if isChecked("Light of T'uure") then
+                for i = 1, #br.friend do
+                    if br.friend[i].hp <= getValue("Light of T'uure") then
+                        if cast.lightOfTuure(br.friend[i].unit) then return end
+                    end
+                end                    
+            end
         -- Heal
             if isChecked("Heal") then
                 for i = 1, #br.friend do
@@ -449,13 +481,11 @@ local function runRotation()
             if cast.holyWordChastise() then return end
         -- Holy Fire
             if cast.holyFire() then return end
+        -- Divine Star
+            if cast.divineStar() then return end
         -- Smite
             if #enemies.yards8 < 3 then
                 if cast.smite() then return end
-            end
-        -- Divine Star
-            if talent.divineStar and #enemies.yards8t >= 3 then
-                if cast.divineStar() then return end
             end
         -- Holy Nova
             if #enemies.yards8 >= 3 and getDistance(units.dyn8AoE) < 12 then
