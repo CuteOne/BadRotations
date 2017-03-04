@@ -127,7 +127,7 @@ local function createOptions()
         -------------------------
         section = br.ui:createSection(br.ui.window.profile, "Damage")
             --Shadow Word: Pain/Purge The Wicked
-            br.ui:createCheckbox(section, "Shadow Word: Pain/Purge The Wicked")
+            br.ui:createSpinner(section, "Shadow Word: Pain/Purge The Wicked",  3,  0,  10,  1,  "|cffFFFFFFMaximum SWP/PTW targets. Default: 3")
             --Schism
             br.ui:createCheckbox(section, "Schism")
             --Penance
@@ -757,7 +757,9 @@ local function runRotation()
         function actionList_Damage()
             --Schism
             if isChecked("Schism") and powcent > 20 then
-                if cast.schism() then return end
+                if ttd("target") > debuff.schism.duration("target") and debuff.schism.refresh("target") then
+                    if cast.schism("target") then return end
+                end
             end
             schismBuff = nil
             ptwBuff = nil
@@ -775,14 +777,17 @@ local function runRotation()
             --Shadow Word: Pain/Purge The Wicked
             if isChecked("Shadow Word: Pain/Purge The Wicked") then
                 if talent.purgeTheWicked then
+                    ptwBuffcount = 0
                     for i = 1, #enemies.dyn40 do
                         local thisUnit = enemies.dyn40[i]
+                        if debuff.purgeTheWicked.exists(thisUnit) then
+                            ptwBuffcount = ptwBuffcount + 1
+                        end
                         if UnitIsUnit(thisUnit,"target") or hasThreat(thisUnit) or isDummy(thisUnit) then
-                            if ttd(thisUnit) > debuff.purgeTheWicked.duration(thisUnit) and debuff.purgeTheWicked.refresh(thisUnit) then
+                            if ttd(thisUnit) > debuff.purgeTheWicked.duration(thisUnit) and debuff.purgeTheWicked.refresh(thisUnit) and ptwBuffcount <= getValue("Shadow Word: Pain/Purge The Wicked") then
                                 if schismBuff == thisUnit or not talent.schism or not isChecked("Schism") or schismBuff == nil then
                                     if cast.purgeTheWicked(thisUnit) then
                                         ptwBuff = thisUnit
-                                        if cast.penance(ptwBuff) then return end
                                         break
                                     end
                                 end
@@ -791,10 +796,14 @@ local function runRotation()
                     end
                 end
                 if not talent.purgeTheWicked then
+                    swpBuffcount = 0
                     for i = 1, #enemies.dyn40 do
                         local thisUnit = enemies.dyn40[i]
+                        if debuff.shadowWordPain.exists(thisUnit) then
+                            swpBuffcount = swpBuffcount + 1
+                        end
                         if UnitIsUnit(thisUnit,"target") or hasThreat(thisUnit) or isDummy(thisUnit) then
-                            if ttd(thisUnit) > debuff.shadowWordPain.duration(thisUnit) and debuff.shadowWordPain.refresh(thisUnit) then
+                            if ttd(thisUnit) > debuff.shadowWordPain.duration(thisUnit) and debuff.shadowWordPain.refresh(thisUnit) and swpBuffcount <= getValue("Shadow Word: Pain/Purge The Wicked") then
                                 if cast.shadowWordPain(thisUnit,"aoe") then return end
                             end
                         end
