@@ -418,6 +418,8 @@ local function runRotation()
     -- Action List - PreCombat
         local function actionList_PreCombat()
             if isValidUnit("target") and (not isBoss("target") or not isChecked("Opener")) then
+        -- Divine Hammer
+                if cast.divineHammer() then return end
         -- Judgment
                 if cast.judgment("target") then return end
         -- Start Attack
@@ -430,6 +432,8 @@ local function runRotation()
                 if isChecked("Opener") and isBoss("target") and opener == false then
                     if not JUD1 then
                         Print("Starting Opener")
+            -- Divine Hammer
+                        cast.divineHammer()
             -- Judgment
                         if castOpener("judgment","JUD1",1) then return end
                     elseif JUD1 and not BOJ1 then
