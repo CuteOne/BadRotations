@@ -45,7 +45,7 @@ end
 
 -- Remove Invalid Enemies
 local function DeleteEnemy(thisUnit)
-	if not UnitIsVisible(thisUnit) then
+	if not ObjectExists(thisUnit) or not UnitIsVisible(thisUnit) then
 		br.enemy[thisUnit] = nil
 	elseif not isValidUnit(thisUnit) then
 		-- Print("Removing Enemy")
