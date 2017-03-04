@@ -1010,15 +1010,13 @@ local function runRotation()
             end
         -- Blackout Kick
             -- blackout_kick,cycle_targets=1,if=(chi>1|buff.bok_proc.up)&!prev_gcd.blackout_kick
-            if (chi > 1 or buff.blackoutKick.exists()) and (lastCombo ~= spell.blackoutKick or level < 78) then 
-                if cd.fistsOfFury >= gcd*0.7 and cd.fistsOfFury <= 2 then
-                    for i = 1, #enemies.yards5 do
-                        local thisUnit = enemies.yards5[i]
-                        if debuff.markOfTheCrane.refresh(thisUnit) then
-                            if cast.blackoutKick(thisUnit) then return end
-                        else
-                            if cast.blackoutKick() then return end
-                        end
+            if (chi > 1 or buff.blackoutKick.exists()) and (lastCombo ~= spell.blackoutKick or level < 78) then
+                for i = 1, #enemies.yards5 do
+                    local thisUnit = enemies.yards5[i]
+                    if debuff.markOfTheCrane.refresh(thisUnit) then
+                        if cast.blackoutKick(thisUnit) then return end
+                    else
+                        if cast.blackoutKick() then return end
                     end
                 end
             end
