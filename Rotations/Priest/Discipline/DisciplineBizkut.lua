@@ -246,6 +246,7 @@ local function runRotation()
         local inRaid                                        = br.player.instance=="raid"
         local lastSpell                                     = lastSpellCast
         local level                                         = br.player.level
+        local lootDelay                                     = getOptionValue("LootDelay")
         local lowestHP                                      = br.friend[1].unit
         local mode                                          = br.player.mode
         local perk                                          = br.player.perk        
@@ -430,7 +431,7 @@ local function runRotation()
             if isChecked("Pre-Pot Timer") and pullTimer <= getOptionValue("Pre-Pot Timer") and canUse(142117) and not solo then
                 useItem(142117)
             end
-            if isChecked("Drink") and powcent <= getOptionValue("Drink") and canUse(138292) then
+            if isChecked("Drink") and powcent <= getOptionValue("Drink") and canUse(138292) and not IsResting() and GetTime()-leftCombat > lootDelay then
                 useItem(138292)
             end
         end  -- End Action List - Pre-Combat
@@ -444,7 +445,7 @@ local function runRotation()
                 if lastSpell ~= spell.plea and atonementCount < getOptionValue("Max Plea") and not buff.powerWordShield.exists(friendUnit) and getBuffRemain(friendUnit, spell.buffs.atonement, "player") < 1 then
                     if cast.plea(friendUnit) then return end     
                 end
-                if #br.friend > atonementCount and lastSpell ~= spell.powerWordRadiance and atonementCount >= getOptionValue("Max Plea") and atonementCount < getOptionValue("Max Atonement") and not buff.powerWordShield.exists(friendUnit) and getBuffRemain(friendUnit, spell.buffs.atonement, "player") < 1 then
+                if lastSpell ~= spell.powerWordRadiance and atonementCount >= getOptionValue("Max Plea") and atonementCount < getOptionValue("Max Atonement") and not buff.powerWordShield.exists(friendUnit) and getBuffRemain(friendUnit, spell.buffs.atonement, "player") < 1 then
                     if cast.powerWordRadiance(friendUnit) then return end
                 end
             end
@@ -732,14 +733,14 @@ local function runRotation()
                 end
                 --Atonement
                 if br.friend[i].hp <= getValue("Atonement HP") then
-                    if mode.healer == 1 then
+                    if mode.healer == 1 and #br.friend > atonementCount then
                         actionList_SpreadAtonement(br.friend[i].unit)
                     end
                     if mode.healer == 3 and br.friend[i].unit == "player" then
                         actionList_SpreadAtonement("player")
                     end
                 end
-                if mode.healer == 2 then
+                if mode.healer == 2 and #br.friend > atonementCount then
                     actionList_SpreadAtonement(br.friend[i].unit)
                 end
                 --Fade
@@ -781,6 +782,7 @@ local function runRotation()
                                 if schismBuff == thisUnit or not talent.schism or not isChecked("Schism") or schismBuff == nil then
                                     if cast.purgeTheWicked(thisUnit) then
                                         ptwBuff = thisUnit
+                                        if cast.penance(ptwBuff) then return end
                                         break
                                     end
                                 end
