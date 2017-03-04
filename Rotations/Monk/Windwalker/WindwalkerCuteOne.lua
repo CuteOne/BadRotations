@@ -75,6 +75,8 @@ local function createOptions()
         --- COOLDOWN OPTIONS ---
         ------------------------
         section = br.ui:createSection(br.ui.window.profile,  "Cooldowns")
+        -- SEF Timer
+            br.ui:createSpinner(section, "SEF Timer",  0.3,  0,  1,  0.05,  "|cffFFFFFFDesired time in seconds to resume rotation after casting SEF so clones can get into place. This value changes based on different factors so requires some testing to find what works best for you. Only works for Non-Opener SEF.")
         -- Flask / Crystal
             br.ui:createCheckbox(section,"Flask / Crystal")
         -- Potion
@@ -243,8 +245,7 @@ local function runRotation()
         if profileStop == nil then profileStop = false end
         if opener == nil then opener = false end
         if SerenityTest == nil then SerenityTest = 0 end
-
-        
+        if SEFTimer == nil then SEFTimer = 0 end        
         
         if isCastingSpell(spell.cracklingJadeLightning) and getDistance(units.dyn5) <= 5 then
             SpellStopCasting()
@@ -1076,7 +1077,7 @@ local function runRotation()
                     -- storm_earth_and_fire,if=!buff.storm_earth_and_fire.up&target.time_to_die<=25
                     -- storm_earth_and_fire,if=!buff.storm_earth_and_fire.up&cooldown.fists_of_fury.remains<=1&chi>=3
                     if br.timer:useTimer("delaySEF1", gcd) and not buff.stormEarthAndFire.exists() and ((cd.touchOfDeath <= 8 or cd.touchOfDeath > 85) or charges.stormEarthAndFire == 2 or ttd <= 25 or (cd.fistsOfFury <= 1 and chi >= 3)) and GetTime() >= SerenityTest + gcd then
-                        if cast.stormEarthAndFire() then return end
+                        if cast.stormEarthAndFire() then SEFTimer = GetTime(); return end
                     end
         -- Fists of Fury
                     -- fists_of_fury,if=buff.storm_earth_and_fire.up
@@ -1256,7 +1257,7 @@ local function runRotation()
     ---------------------------------
     --- APL Mode: SimulationCraft ---
     ---------------------------------
-                if getOptionValue("APL Mode") == 1 and cd.global <= getLatency() then
+                if getOptionValue("APL Mode") == 1 and cd.global <= getLatency() and GetTime() >= SEFTimer + getOptionValue("SEF Timer") then
         -- Potion
                     -- potion,name=old_war,if=buff.serenity.up|buff.storm_earth_and_fire.up|(!talent.serenity.enabled&trinket.proc.agility.react)|buff.bloodlust.react|target.time_to_die<=60
                     -- TODO: Agility Proc
