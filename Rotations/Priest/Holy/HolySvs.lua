@@ -39,6 +39,15 @@ local function createToggles()
     CreateButton("DPS",5,0)
 end
 
+--------------
+--- COLORS ---
+--------------
+    local colorBlue     = "|cff00CCFF"
+    local colorGreen    = "|cff00FF00"
+    local colorRed      = "|cffFF0000"
+    local colorWhite    = "|cffFFFFFF"
+    local colorGold     = "|cffFFDD11"
+
 ---------------
 --- OPTIONS ---
 ---------------
@@ -108,7 +117,10 @@ local function createOptions()
         -- Prayer of Healing
             br.ui:createSpinner(section, "Prayer of Healing",  80,  0,  100,  5,  "Health Percent to Cast At") 
             br.ui:createSpinner(section, "Prayer of Healing Targets",  3,  0,  40,  1,  "Minimum Prayer of Healing Targets")
-        -- Halo
+            br.ui:createSpinner(section, "Divine Star",  70,  0,  100,  1,  colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.."Divine Star usage.", colorWhite.."Health Percent to Cast At")
+            br.ui:createSpinnerWithout(section, "Min Divine Star Targets",  3,  1,  40,  1,  colorBlue.."Minimum Divine Star Targets "..colorGold.."(This includes you)")
+            br.ui:createCheckbox(section,"Show Lines",colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.."area of effect drawing.")
+            -- Halo
             br.ui:createSpinner(section, "Halo",  70,  0,  100,  5,  "Health Percent to Cast At") 
             br.ui:createSpinner(section, "Halo Targets",  3,  0,  40,  1,  "Minimum Halo Targets")
         br.ui:checkSectionState(section)
@@ -180,7 +192,14 @@ local function runRotation()
         local tank                                          = {}    --Tank
         local averageHealth                                 = 0
 
+        units.dyn5 = br.player.units(5)
+        units.dyn8AoE = br.player.units(8,true)
         units.dyn40 = br.player.units(40)
+
+        enemies.yards5  = br.player.enemies(5)
+        enemies.yards8  = br.player.enemies(8)
+        enemies.yards8t = br.player.enemies(8,br.player.units(8,true))
+        enemies.yards40 = br.player.enemies(40)
 
 --------------------
 --- Action Lists ---
@@ -323,6 +342,12 @@ local function runRotation()
                     if cast.prayerOfHealing() then return end    
                 end
             end
+        -- Divine Star
+            if isChecked("Divine Star") and talent.chiBurst then
+                if getUnitsInRect(7,24,isChecked("Show Lines"),getValue("Divine Star")) >= getValue("Min Divine Star Targets") then
+                    if cast.divineStar("player") then return true end
+                end
+            end
         --Halo
             if isChecked("Halo") and talent.halo then
                 if getLowAllies(getValue("Halo")) >= getValue("Halo Targets") then    
@@ -420,7 +445,22 @@ local function runRotation()
         end -- End Action List - Single Target
         -- DPS
         function actionList_DPS()
-
+        -- Holy Word: Chastise
+            if cast.holyWordChastise() then return end
+        -- Holy Fire
+            if cast.holyFire() then return end
+        -- Smite
+            if #enemies.yards8 < 3 then
+                if cast.smite() then return end
+            end
+        -- Divine Star
+            if talent.divineStar and #enemies.yards8t >= 3 then
+                if cast.divineStar() then return end
+            end
+        -- Holy Nova
+            if #enemies.yards8 >= 3 and getDistance(units.dyn8AoE) < 12 then
+                if cast.holyNova() then return end
+            end
         end
 -----------------
 --- Rotations ---
@@ -446,7 +486,9 @@ local function runRotation()
                 actionList_Cooldowns()
             	actionList_AOEHealing()
             	actionList_SingleTarget()
-                actionList_DPS()
+                if br.player.mode.dps == 1 then
+                    actionList_DPS()
+                end
             end -- End In Combat Rotation
         end -- Pause
     end -- End Timer

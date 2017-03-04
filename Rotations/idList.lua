@@ -1856,6 +1856,7 @@ br.idList = {
                 bodyAndMind                 = 214121,
                 desperatePrayer             = 19236,
                 divineHymn                  = 64843,
+                divineStar                  = 110744,
                 flashHeal                   = 2061,
                 guardianSpirit              = 47788,
                 holyFire                    = 14914,
