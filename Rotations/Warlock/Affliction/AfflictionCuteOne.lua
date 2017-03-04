@@ -48,7 +48,7 @@ local function createOptions()
         -- Dummy DPS Test
             br.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
         -- Pre-Pull Timer
-            br.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
+            br.ui:createSpinner(section, "Pre-Pull Timer",  2,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
         -- Opener
             br.ui:createCheckbox(section,"Opener")
         -- Pet Management
@@ -502,8 +502,18 @@ local function runRotation()
                     if talent.grimoireOfSacrifice and ObjectExists("pet") and not UnitIsDeadOrGhost("pet") then
                         if cast.grimoireOfSacrifice() then return end
                     end
-                    if isChecked("Pre-Pull Timer") and pullTimer <= getOptionValue("Pre-Pull Timer") then
-
+                    if useCDs() and isChecked("Pre-Pull Timer") then --and pullTimer <= getOptionValue("Pre-Pull Timer") then
+                        if pullTimer <= getOptionValue("Pre-Pull Timer") then
+                            if canUse(142117) and not buff.prolongedPower.exists() then
+                                useItem(142117);
+                                return true
+                            end
+                        end
+                        if pullTimer <= getOptionValue("Pre-Pull Timer") - 1 then
+                            if not effigied then
+                                if cast.soulEffigy("target") then return end
+                            end
+                        end  
                     end -- End Pre-Pull
                     if isValidUnit("target") and getDistance("target") < 40 and (not isChecked("Opener") or opener == true) then
                 -- Life Tap
@@ -512,7 +522,7 @@ local function runRotation()
                             if cast.lifeTap() then return end
                         end
                 -- Potion
-                        -- potion,name=deadly_grace
+                        -- potion,name=prolonged_power
                         -- TODO
                 -- Pet Attack/Follow
                         if isChecked("Pet Management") and UnitExists("target") and not UnitAffectingCombat("pet") then
@@ -541,7 +551,7 @@ local function runRotation()
     -- Profile Stop | Pause
         if not inCombat and not hastar and profileStop==true then
             profileStop = false
-        elseif (inCombat and profileStop==true) or (IsMounted() or IsFlying()) or pause() or mode.rotation==4 then
+        elseif (inCombat and profileStop==true) or IsMounted() or IsFlying() or pause() or mode.rotation==4 then
             if not pause() and IsPetAttackActive() and isChecked("Pet Management") then
                 PetStopAttack()
                 PetFollow()

@@ -493,7 +493,7 @@ local function runRotation()
     -- Profile Stop | Pause
         if not inCombat and not hastar and profileStop==true then
             profileStop = false
-        elseif (inCombat and profileStop==true) or (IsMounted() or IsFlying())or pause() or mode.rotation==4 then
+        elseif (inCombat and profileStop==true) or IsMounted() or IsFlying() or pause() or mode.rotation==4 then
             if not pause() and IsPetAttackActive() and isChecked("Pet Management") then
                 PetStopAttack()
                 PetFollow()

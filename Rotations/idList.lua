@@ -3075,6 +3075,7 @@ br.idList = {
                 bloodlust                       = 2825,
                 heroism                         = 32182,
                 netherwinds                     = 160452,
+                prolongedPower                  = 229206,
                 shadowmeld                      = 58984,
                 temptation                      = 234143,
                 timeWarp                        = 80353,
