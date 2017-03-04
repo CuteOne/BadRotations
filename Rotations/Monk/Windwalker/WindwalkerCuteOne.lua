@@ -1225,7 +1225,6 @@ local function runRotation()
     ---------------------------------
     --- APL Mode: SimulationCraft ---
     ---------------------------------
-                if getOptionValue("APL Mode") == 1 --[[and GetTime() >= SerenityTest + gcd]] then
         -- Potion
                     -- potion,name=old_war,if=buff.serenity.up|buff.storm_earth_and_fire.up|(!talent.serenity.enabled&trinket.proc.agility.react)|buff.bloodlust.react|target.time_to_die<=60
                     -- TODO: Agility Proc
