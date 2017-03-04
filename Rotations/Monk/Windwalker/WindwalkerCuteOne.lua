@@ -371,12 +371,12 @@ local function runRotation()
         -- end
 
         -- Healing Winds - Transcendence Cancel
-        if isChecked("Healing Winds") then
-            if tPX == nil or tPY == nil or not buff.transcendence.exists() then tPX, tPY, tPZ = ObjectPosition("player") end
-            if getDistanceToObject("player",tPX,tPY,tPZ) > 40 or (not inCombat and php > getOptionValue("Healing Winds")) then
-                CancelUnitBuff("player",GetSpellInfo(spell.buffs.transcendence))
-            end
-        end
+        -- if isChecked("Healing Winds") then
+        --     if tPX == nil or tPY == nil or not buff.transcendence.exists() then tPX, tPY, tPZ = ObjectPosition("player") end
+        --     if getDistanceToObject("player",tPX,tPY,tPZ) > 40 or (not inCombat and php > getOptionValue("Healing Winds")) then 
+        --         CancelUnitBuff("player",GetSpellInfo(spell.buffs.transcendence))
+        --     end
+        -- end
 
 --------------------
 --- Action Lists ---
@@ -494,10 +494,10 @@ local function runRotation()
         -- Healing Winds
                 if isChecked("Healing Winds") and php <= getOptionValue("Healing Winds") and artifact.healingWinds and not moving then
                     if not buff.transcendence.exists() then
-                        if cast.transcendence("player") then tPX, tPY, tPz = GetObjectPosition("player"); return end
+                        if cast.transcendence("player") then return end
                     end
                     if buff.transcendence.exists() then
-                        if cast.transcendenceTransfer("player") then tPX, tPY, tPz = GetObjectPosition("player"); return end
+                        if cast.transcendenceTransfer("player") then CancelUnitBuff("player",GetSpellInfo(spell.buffs.transcendence)); return end
                     end
                 end
         -- Effuse
@@ -1070,7 +1070,7 @@ local function runRotation()
                     -- storm_earth_and_fire,if=!buff.storm_earth_and_fire.up&target.time_to_die<=25
                     -- storm_earth_and_fire,if=!buff.storm_earth_and_fire.up&cooldown.fists_of_fury.remains<=1&chi>=3
                     if br.timer:useTimer("delaySEF1", gcd) and not buff.stormEarthAndFire.exists() and ((cd.touchOfDeath <= 8 or cd.touchOfDeath > 85) or charges.stormEarthAndFire == 2 or ttd <= 25 or (cd.fistsOfFury <= 1 and chi >= 3)) and GetTime() >= SerenityTest + gcd then
-                        if cast.stormEarthAndFire() then Print("Casting SEF"); return end
+                        if cast.stormEarthAndFire() then return end
                     end
         -- Fists of Fury
                     -- fists_of_fury,if=buff.storm_earth_and_fire.up
@@ -1346,7 +1346,7 @@ local function runRotation()
                         -- if not HasBuff(StormEarthAndFire) and CooldownSecRemaining(FistsOfFury) < 11 and CooldownSecRemaining(WhirlingDragonPunch) < 14 and CooldownSecRemaining(StrikeOfTheWindlord) < 14
                         if (mode.sef == 2 or (mode.sef == 1 and useCDs())) then
                             if br.timer:useTimer("delaySEF2", gcd) and not buff.stormEarthAndFire.exists() and cd.fistsOfFury < 11 and cd.whirlingDragonPunch < 14 and cd.strikeOfTheWindlord < 14 and getDistance("target") < 5 then
-                                if cast.stormEarthAndFire() then Print("Casting SEF"); return end
+                                if cast.stormEarthAndFire() then return end
                             end
                         end
                     end -- End Cooldown Check
@@ -1355,7 +1355,7 @@ local function runRotation()
                         -- if not HasBuff(StormEarthAndFire) and CooldownSecRemaining(FistsOfFury) < 11 and CooldownSecRemaining(WhirlingDragonPunch) < 14 and CooldownSecRemaining(StrikeOfTheWindlord) < 14
                         if (mode.sef == 2 or (mode.sef == 1 and useCDs())) then
                             if br.timer:useTimer("delaySEF3", gcd) and not buff.stormEarthAndFire.exists() and cd.fistsOfFury < 11 and cd.whirlingDragonPunch < 14 and cd.strikeOfTheWindlord < 14 and getDistance("target") < 5 then
-                                if cast.stormEarthAndFire() then Print("Casting SEF"); return end
+                                if cast.stormEarthAndFire() then return end
                             end
                         end
         -- Spinning Crane Kick
