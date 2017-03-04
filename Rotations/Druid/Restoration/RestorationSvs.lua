@@ -316,13 +316,13 @@ local function runRotation()
                     end
                 end
             -- Tranquility
-                if isChecked("Tranquility") and not isCastingSpell(spell.tranquility) then
+                if isChecked("Tranquility") and not isCastingSpell(spell.tranquility) and not buff.incarnationTreeOfLife.exists() then
                     if getLowAllies(getValue("Tranquility")) >= getValue("Tranquility Targets") then    
                         if cast.tranquility() then return end    
                     end
                 end
             -- Innervate
-                if isChecked("Essence of G'Hanir") and not isCastingSpell(spell.tranquility) and not moving then
+                if isChecked("Essence of G'Hanir") and not isCastingSpell(spell.tranquility) and power < 80 then
                     if getLowAllies(getValue("Essence of G'Hanir")) >= getValue("Essence of G'Hanir Targets") then    
                         if cast.innervate() then return end    
                     end
@@ -648,7 +648,7 @@ local function runRotation()
                     end
                 end
             -- Efflorescence
-                if isChecked("Efflorescence") and (not LastEfflorescenceTime or GetTime() - LastEfflorescenceTime > getOptionValue("Efflorescence recast delay")) then
+                if isChecked("Efflorescence") and not moving and (not LastEfflorescenceTime or GetTime() - LastEfflorescenceTime > getOptionValue("Efflorescence recast delay")) then
                     -- castGroundAtBestLocation(spellID, radius, minUnits, maxRange, minRange, spellType)
                     if castGroundAtBestLocation(spell.efflorescence, 20, 0, 40, 0, "heal") then
                         LastEfflorescenceTime = GetTime()

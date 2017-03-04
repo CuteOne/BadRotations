@@ -123,7 +123,7 @@ if not metaTable1 then
 			end
 			-- incoming heals
 			local incomingheals
-			if getOptionCheck("No Incoming Heals") ~= true and UnitGetIncomingHeals(o.unit,"player") ~= nil then
+			if getOptionCheck("Incoming Heals") == true and UnitGetIncomingHeals(o.unit,"player") ~= nil then
 				incomingheals = UnitGetIncomingHeals(o.unit,"player")
 			else
 				incomingheals = 0

@@ -46,6 +46,8 @@ local function createOptions()
             br.ui:createDropdownWithout(section, "APL Mode", {"|cffFFFFFFSimC","|cffFFFFFFAMR"}, 1, "|cffFFFFFFSet APL Mode to use.")
             -- Dummy DPS Test
             br.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
+            -- Opener
+            br.ui:createCheckbox(section, "Opener")
             -- Greater Blessing of Might
             -- br.ui:createCheckbox(section, "Greater Blessing of Might")
             -- Hand of Freedom
@@ -196,7 +198,20 @@ local function runRotation()
 
         if profileStop == nil then profileStop = false end
         if opener == nil then opener = false end
-        if not inCombat and not ObjectExists("target") then opener = false end
+        if not inCombat and not ObjectExists("target") then
+            opener = false
+            JUD1 = false
+            BOJ1 = false
+            CRU1 = false
+            EXE1 = false
+            TMV1 = false
+            WOA1 = false
+            TMV2 = false
+            ARC1 = false
+            TMV3 = false
+            CRS1 = false
+            TMV4 = false
+        end
         judgmentExists = debuff.judgment.exists(units.dyn5)
         judgmentRemain = debuff.judgment.remain(units.dyn5)
         if debuff.judgment.exists(units.dyn5) or level < 42 or (cd.judgment > 2 and not debuff.judgment.exists(units.dyn5)) then
@@ -402,16 +417,62 @@ local function runRotation()
         end -- End Action List - Cooldowns
     -- Action List - PreCombat
         local function actionList_PreCombat()
-            -- PreCombat abilities listed here
-        end -- End Action List - PreCombat
-    -- Action List - Opener
-        local function actionList_Opener()
-            if isValidUnit("target") and not opener then
+            if isValidUnit("target") and (not isBoss("target") or not isChecked("Opener")) then
         -- Judgment
                 if cast.judgment("target") then return end
         -- Start Attack
                 if getDistance("target") < 5 then StartAttack() end
-                opener = true
+            end
+        end -- End Action List - PreCombat
+    -- Action List - Opener
+        local function actionList_Opener()
+            if isValidUnit("target") and getDistance("target") < 5 then
+                if isChecked("Opener") and isBoss("target") and opener == false then
+                    if not JUD1 then
+                        Print("Starting Opener")
+            -- Judgment
+                        if castOpener("judgment","JUD1",1) then return end
+                    elseif JUD1 and not BOJ1 then
+            -- Blade of Justice
+                        if talent.bladeOfWrath then
+                            if castOpener("bladeOfJustice","BOJ1",2) then return end
+                        else
+                            if castOpener("divineHammer","BOJ1",2) then return end
+                        end
+                    elseif BOJ1 and not CRU1 then
+            -- Crusade
+                        if castOpener("avengingWrath","CRU1",3) then return end
+                    elseif CRU1 and not EXE1 then
+            -- Execution Sentence / Templar's Verdict
+                        if talent.executionSentence then
+                            if castOpener("executionSentence","EXE1",4) then return end
+                        else
+                            if castOpener("templarsVerdict","EXE1",4) then return end
+                        end
+                    elseif EXE1 and not WOA1 then
+            -- Wake of Ashes
+                        if castOpener("wakeOfAshes","WOA1",5) then return end
+                    elseif WOA1 and not TMV1 then
+            -- Templar's Verdict 
+                        if castOpener("templarsVerdict","TMV1",6) then return end
+                    elseif TMV1 and not ARC1 then
+                        if br.player.race == "BloodElf" then
+            -- Arcane Torrent
+                            castSpell("player",racial,false,false,false)
+                            if castOpener("templarsVerdict","ARC1",7) then return end
+                        else
+                            if castOpener("crusaderStrike","ARC1",7) then return end
+                        end
+                    elseif ARC1 and not TMV2 then
+                        if castOpener("templarsVerdict","TMV2",8) then return end
+                    elseif TMV2 then
+                        opener = true;
+                        Print("Opener Complete")
+                        return
+                    end
+                else
+                    opener = true
+                end
             end
         end -- End Action List - Opener
 ---------------------
@@ -420,7 +481,7 @@ local function runRotation()
     --Profile Stop | Pause
         if not inCombat and not hastar and profileStop == true then
             profileStop = false
-        elseif (inCombat and profileStop == true) or (IsMounted() or IsFlying()) or pause() or mode.rotation == 4 then
+        elseif (inCombat and profileStop == true) or ((IsMounted() or IsFlying()) and not UnitBuffID("player",220507)) or pause() or mode.rotation == 4 then
             return true
         else
 -----------------------
@@ -458,6 +519,8 @@ local function runRotation()
 --- In Combat - SimCraft APL ---
 --------------------------------
                 if getOptionValue("APL Mode") == 1 then
+            -- Opener
+                    if actionList_Opener() then return end
             -- Start Attack
                     if getDistance(units.dyn5) < 5 then
                         if not IsCurrentSpell(6603) then

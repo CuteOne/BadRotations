@@ -1,8 +1,8 @@
 function GetObjectExists(Unit)
-    if FireHack and ObjectExists(Unit) == true then
-        return true
+    if FireHack then
+        return ObjectExists(Unit)
     else
-        return false
+        return UnitExists(Unit)
     end
 end
 function GetObjectFacing(Unit)
@@ -825,8 +825,8 @@ function castQueue()
 				    -- Can the spell be cast
 				    if not select(2,IsUsableSpell(spellCast)) and getSpellCD(spellCast) == 0 and isKnown(spellCast) then
 					    -- Find Best Target for Range 
-					    if IsHelpfulSpell(spellName) and thisUnit == nil then
-					    	if not UnitIsFriend(thisUnit,"player") then
+					    if IsHelpfulSpell(spellName) then
+					    	if thisUnit == nil or not UnitIsFriend(thisUnit,"player") then
 					        	thisUnit = "player"
 					        end
 					        amIinRange = true
@@ -1471,7 +1471,7 @@ function getHP(Unit)
 						return br.friend[i].hp
 					end
 				end
-				if getOptionCheck("No Incoming Heals") ~= true and UnitGetIncomingHeals(Unit,"player") ~= nil then
+				if getOptionCheck("Incoming Heals") == true and UnitGetIncomingHeals(Unit,"player") ~= nil then
 					return 100*(UnitHealth(Unit)+UnitGetIncomingHeals(Unit,"player"))/UnitHealthMax(Unit)
 				else
 					return 100*UnitHealth(Unit)/UnitHealthMax(Unit)
@@ -2052,7 +2052,7 @@ function hasNoControl(spellID,unit)
 		end
 		-- Monk
 		if class == 10 then
-			if text == LOSS_OF_CONTROL_DISPLAY_STUN or text == LOSS_OF_CONTROL_DISPLAY_FEAR or text == LOSS_OF_CONTROL_DISPLAY_ROOT or text == LOSS_OF_CONTROL_DISPLAY_HORROR then
+			if text == LOSS_OF_CONTROL_DISPLAY_ROOT or text == LOSS_OF_CONTROL_DISPLAY_SNARE then
 				return true
 			end
 		end

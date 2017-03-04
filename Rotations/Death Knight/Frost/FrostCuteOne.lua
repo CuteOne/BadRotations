@@ -250,7 +250,7 @@ local function runRotation()
                 end
         -- Death Strike
                 if isChecked("Death Strike") and inCombat and (buff.darkSuccor.exists() or php < getOptionValue("Death Strike"))
-                    and cd.breathOfSindragosa > 15 and not buff.breathOfSindragosa.exists()
+                    and (not talent.breathOfSindragosa or (cd.breathOfSindragosa > 15 and not buff.breathOfSindragosa.exists()))
                 then
                     if cast.deathStrike() then return end
                 end
@@ -303,7 +303,7 @@ local function runRotation()
                 -- arcane_torrent,if=runic_power.deficit>20
                 -- blood_fury,if=buff.pillar_of_frost.up
                 -- berserking,if=buff.pillar_of_frost.up
-                if isChecked("Racial") and (((br.player.race == "Troll" or br.player.race == "Orc") and buff.pillarOfFrost.exist())
+                if isChecked("Racial") and (((br.player.race == "Troll" or br.player.race == "Orc") and buff.pillarOfFrost.exists())
                     or (br.player.race == "BloodElf" and runicPowerDeficit > 20)) and getSpellCD(racial) == 0
                 then
                     if castSpell("player",racial,false,false,false) then return end
@@ -489,25 +489,20 @@ local function runRotation()
             if not debuff.frostFever.exists(units.dyn30) then
                 if cast.howlingBlast() then return end
             end
-        -- -- Obliterate
-        --     -- obliterate,if=equipped.132366&talent.frozen_pulse.enabled&set_bonus.tier19_2pc=1
-        --     if hasEquiped(132366) and talent.frozenPulse and t19_2pc then
-        --         if cast.obliterate() then return end
-        --     end
         -- Remorseless Winter
             -- remorseless_winter,if=(buff.rime.react&equipped.132459&!(buff.obliteration.up&spell_targets.howling_blast<2))|talent.gathering_storm.enabled
-            if ((buff.rime.exists() and hasEquiped(132459) and not (buff.obliteration.exists() and ((mode.rotation == 1 and #enemies.yards10 < 2) or mode.rotation == 3))) or talent.gatheringStorm)
+            if ((buff.rime.exists() and hasEquiped(132459) and not (buff.obliteration.exists() and #enemies.yards10 < 2)) or talent.gatheringStorm)
                 and getDistance(units.dyn5) < 5
             then
                 if cast.remorselessWinter() then return end
             end
         -- Howling Blast
             -- howling_blast,if=buff.rime.react&!(buff.obliteration.up&spell_targets.howling_blast<2)&!(equipped.132459&talent.gathering_storm.enabled)
-            if buff.rime.exist and not (buff.obliteration.exists() and ((mode.rotation == 1 and #enemies.yards10t < 2) or mode.rotation == 3)) and not (hasEquiped(132459) and talent.gatheringStorm) then
+            if buff.rime.exist and not (buff.obliteration.exists() and #enemies.yards10t < 2) and not (hasEquiped(132459) and talent.gatheringStorm) then
                 if cast.howlingBlast() then return end
             end
             -- howling_blast,if=buff.rime.react&!(buff.obliteration.up&spell_targets.howling_blast<2)&equipped.132459&talent.gathering_storm.enabled&(debuff.perseverance_of_the_ebon_martyr.up|cooldown.remorseless_winter.remains>3)
-            if buff.rime.exist and not (buff.obliteration.exists() and ((mode.rotation == 1 and #enemies.yards10t < 2) or mode.rotation == 3)) and hasEquiped(132459) and talent.gatheringStorm and (buff.remorselessWinter.exists() or cd.remorselessWinter > 3) then
+            if buff.rime.exist and not (buff.obliteration.exists() and #enemies.yards10t < 2) and hasEquiped(132459) and talent.gatheringStorm and (debuff.remorselessWinter.exists() or cd.remorselessWinter > 3) then
                 if cast.howlingBlast() then return end
             end
         -- Obliterate
@@ -607,7 +602,7 @@ local function runRotation()
                 if cast.howlingBlast() then return end
             end
             -- howling_blast,if=buff.rime.react&!(buff.obliteration.up&spell_targets.howling_blast<2)
-            if buff.rime.exists() and not (buff.obliteration.exists() and ((mode.rotation == 1 and #enemies.yards10t < 2) or mode.rotation == 3)) then
+            if buff.rime.exists() and not (buff.obliteration.exists() and #enemies.yards10t < 2) then
                 if cast.howlingBlast() then return end
             end
         -- Obliteration

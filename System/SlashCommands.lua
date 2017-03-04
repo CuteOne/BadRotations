@@ -28,8 +28,8 @@ function toggle(name,index,check)
 	if check == nil then check = false end
 	if toggleFound == nil then toggleFound = false end
 	for k, v in pairs(br.data.settings[br.selectedSpec].toggles) do
+		local toggle = name --(name:gsub("^%l", string.upper))
 		local name = string.lower(name)
-		local toggle = (name:gsub("^%l", string.upper))
 		local k = string.lower(k)
 		if name == k then
 			if check then toggleFound = true; break end

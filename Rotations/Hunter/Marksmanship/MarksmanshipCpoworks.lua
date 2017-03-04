@@ -214,13 +214,13 @@ local function runRotation()
             waitForSentinel = false
         end
 
-        -- Vulnerable Windows
+        -- Vulnerable Window
         local vulnWindow = vulnWindow or 0
         -- vuln_window,op=set,value=debuff.vulnerability.remains
-        vulnWindow = debuff.vulnerable.remain(units.dyn40)
+        vulnWindow = debuff.vulnerable.remain(units.dyn40) - 0.5 
         -- vuln_window,op=set,value=(24-cooldown.sidewinders.charges_fractional*12)*attack_haste,if=talent.sidewinders.enabled&(24-cooldown.sidewinders.charges_fractional*12)*attack_haste<variable.vuln_window
         if talent.sidewinders and (24 - charges.frac.sidewinders * 12) * attackHaste < vulnWindow then 
-            vulnWindow = (24 - charges.frac.sidewinders * 12) * attackHaste
+            vulnWindow = ((24 - charges.frac.sidewinders * 12) * attackHaste) - 0.5
         end
 
         -- Vulnerable Aim Casts
@@ -260,16 +260,18 @@ local function runRotation()
 
         local function getExplosiveDistance(otherUnit)
             -- local objectCount = GetObjectCount() or 0
+            if otherUnit == nil then otherUnit = "target" end
             for i = 1, ObjectCount() do
                 local thisUnit = GetObjectWithIndex(i)
-                if GetObjectID(thisUnit) == 11492 then --and UnitIsUnit("player",UnitCreator(thisUnit)) then
+                if ObjectExists(otherUnit) and GetObjectID(thisUnit) == 11492 then --and UnitIsUnit("player",UnitCreator(thisUnit)) then
+
                     return GetDistanceBetweenObjects(thisUnit,otherUnit)
                 end
             end
             return 40
         end
-        if explosiveTarget == nil then explosiveTarget = "target" end
-        if getExplosiveDistance(explosiveTarget) < 5 then
+        if explosiveTarget == nil or not ObjectExists(explosiveTarget) then explosiveTarget = "target" end
+        if ObjectExists(explosiveTarget) and getExplosiveDistance(explosiveTarget) < 5 then
             if castSpell(explosiveTarget,spell.explosiveShotDetonate,false,false,false,true,false,true,true,false) then return end
         end
 --------------------
@@ -438,6 +440,10 @@ local function runRotation()
         end -- End Action List - Cooldowns
     -- Action List - Non Patient Sniper
         local function actionList_NonPatientSniper()
+        -- Bursting Shot
+            if ((mode.rotation == 1 and #enemies.yards40 > 1) or mode.rotation == 2) and hasEquiped(141353) and not debuff.vulnerable.exists(units.dyn40) then
+                if cast.burstingShot() then return end
+            end
         -- Explosive Shot
             -- explosive_shot
             if cast.explosiveShot(units.dyn40) then explosiveTarget = units.dyn40; return end
@@ -526,6 +532,10 @@ local function runRotation()
         end -- End Action List - Non Patient Sniper
     -- Action List - Patient Sniper
         local function actionList_PatientSniper()
+        -- Bursting Shot
+            if ((mode.rotation == 1 and #enemies.yards40 > 1) or mode.rotation == 2) and hasEquiped(141353) and not debuff.vulnerable.exists(units.dyn40) then
+                if cast.burstingShot() then return end
+            end
         -- Piercing Shot
             -- piercing_shot,if=cooldown.piercing_shot.up&spell_targets=1&lowest_vuln_within.5>0&lowest_vuln_within.5<1
             if cd.piercingShot == 0 and ((mode.rotation == 1 and #enemies.yards40 == 1) or mode.rotation == 3) and lowestVuln > 0 and lowestVuln < 1 then
