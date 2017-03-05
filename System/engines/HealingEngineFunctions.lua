@@ -261,3 +261,32 @@ function getUnitsInRect(width,length, showLines, hp)
 	end
 	return unitCounter
 end
+
+function getAngles(X1,Y1,Z1,X2,Y2,Z2)
+	return math.atan2(Y2-Y1,X2-X1)
+end
+
+function getUnitsInCone(length,angle,hp)
+    local playerX, playerY, playerZ = GetObjectPosition("player")
+    local facing = ObjectFacing("player")
+    local units = {};
+
+    for i = 1, #br.friend do
+        local thisUnit = br.friend[i].unit
+        if not UnitIsUnit(thisUnit,"player") and ((isDummy(thisUnit) and UnitIsFriend(thisUnit,"player"))) then
+            local unitX, unitY, unitZ = GetObjectPosition(thisUnit)
+            if playerX and unitX then
+                local angleToUnit = getAngles(playerX,playerY,playerZ,unitX,unitY,unitZ)
+                local angleDifference = facing > angleToUnit and facing - angleToUnit or angleToUnit - facing
+                local shortestAngle = angleDifference < math.pi and angleDifference or math.pi*2 - angleDifference
+                local finalAngle = shortestAngle/math.pi*180
+                --print("Final")
+                --print(finalAngle)
+                if finalAngle < angle then
+                    table.insert(units, thisUnit)
+                end
+            end
+        end
+    end
+    return units
+end

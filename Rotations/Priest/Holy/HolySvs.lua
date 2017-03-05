@@ -66,6 +66,8 @@ local function createOptions()
             br.ui:createCheckbox(section,"Body and Mind","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFBody and Mind usage|cffFFBB00.")
         -- Dispel Magic
             br.ui:createCheckbox(section,"Dispel Magic","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFDispel Magic usage|cffFFBB00.")
+        -- Racial
+            br.ui:createCheckbox(section, "Racial")
         br.ui:checkSectionState(section)
     -- Cooldown Options
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")

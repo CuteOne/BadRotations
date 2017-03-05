@@ -181,25 +181,23 @@ local function runRotation()
         if talent.reaperOfSouls then reaperOfSouls = 1 else reaperOfSouls = 0 end
 
         -- Insanity Stacks
-        local drainStacks = buff.voidForm.stack()
-        -- local drainStacks = drainStacks or 0
-        -- if not inCombat or not buff.voidForm.exists() then drainStacks = 0 end
-        -- C_Timer.After(1, function()
-        --     if buff.voidForm.exists() and not (buff.dispersion.exists() or buff.voidTorrent.exists()) then
-        --         drainStacks = drainStacks + 1
-        --         Print(drainStacks)
-        --     end
-        -- end)
+        if buff.voidForm.stack() == 0 then drainStacks = 0 end
+        if inCombat and buff.voidForm.stack() > 0 and not (buff.dispersion.exists() or buff.voidTorrent.exists()) then
+            if br.timer:useTimer("drainStacker", 1) then
+                drainStacks = drainStacks + 1
+            end
+        end
 
         -- Mind Flay Ticks
-        local mfTick = mfTick or 0
-        if not inCombat or not isCastingSpell(spell.mindFlay) then mfTick = 0 end
+        local mfTick
+        if mfTick == nil or not inCombat or not isCastingSpell(spell.mindFlay) then mfTick = 0 end
         if br.timer:useTimer("Mind Flay Ticks", 0.75) and isCastingSpell(spell.mindFlay) then
             mfTick = mfTick + 1
         end
 
         -- Insanity Drain
-        insanityDrain = 6 + (2 / 3) * drainStacks
+        insanityDrain = 6 + (2 / 3 * (drainStacks)) 
+        -- insanityDrain = 9 + ((drainStacks - 1) / 2)
 
 --------------------
 --- Action Lists ---
