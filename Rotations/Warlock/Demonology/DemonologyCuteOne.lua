@@ -485,10 +485,10 @@ local function runRotation()
                     if not DE1 then
                         castOpener("demonicEmpowerment","DE1",1)
                 -- Potion
-                    -- potion,name=deadly_grace
-                    elseif useCDs() and canUse(127843) and isChecked("Potion") and getDistance("target") < 15 then
+                    -- potion
+                    elseif useCDs() and canUse(142117) and isChecked("Potion") and getDistance("target") < 15 then
                         Print("Potion Used!");
-                        useItem(127843)
+                        useItem(142117)
                 -- Demonbolt/Shadowbolt
                     elseif DE1 and not DSB1 then
                         if talent.demonbolt then
@@ -630,21 +630,21 @@ local function runRotation()
                     end
         -- Service Pet
                     -- service_pet
-                    if br.timer:useTimer("castGrim", gcd) then
+                    if br.timer:useTimer("castGrim", gcd+1) and shards > 0 then
                         if grimoirePet == 1 then
-                            if cast.grimoireImp("player") then prevService = "Imp"; return end
+                            if cast.grimoireImp("target") then prevService = "Imp"; return end
                         end
                         if grimoirePet == 2 then
-                            if cast.grimoireVoidwalker("player") then prevService = "Voidwalker"; return end
+                            if cast.grimoireVoidwalker("target") then prevService = "Voidwalker"; return end
                         end
                         if grimoirePet == 3 then
-                            if cast.grimoireFelhunter("player") then prevService = "Felhunter"; return end
+                            if cast.grimoireFelhunter("target") then prevService = "Felhunter"; return end
                         end
                         if grimoirePet == 4 then
-                            if cast.grimoireSuccubus("player") then prevService = "Succubus"; return end
+                            if cast.grimoireSuccubus("target") then prevService = "Succubus"; return end
                         end
                         if grimoirePet == 5 then
-                            if cast.grimoireFelguard("player") then prevService = "Felguard"; return end
+                            if cast.grimoireFelguard("target") then prevService = "Felguard"; return end
                         end
                     end
         -- Summon Doomguard
