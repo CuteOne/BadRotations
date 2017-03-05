@@ -93,7 +93,7 @@ local function createOptions()
             --Shadow Mend Emergency
             br.ui:createSpinner(section, "Shadow Mend Emergency",  35,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At. Will be casted to any members. Default: 35")
             --Clarity of Will
-            br.ui:createSpinner(section, "Clarity of Will",  40,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At. Default: 40")
+            br.ui:createSpinner(section, "Clarity of Will",  75,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At. Default: 75")
             --Pain Suppression Tank
             br.ui:createSpinner(section, "Pain Suppression Tank",  30,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At. Default: 30")
             --Pain Suppression
