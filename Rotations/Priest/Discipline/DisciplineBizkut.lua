@@ -547,7 +547,7 @@ local function runRotation()
                 end
                 --Clarity of Will
                 if isChecked("Clarity of Will") and talent.clarityOfWill then
-                    if br.friend[i].hp <= getValue("Clarity of Will") and lastSpell ~= spell.clarityOfWill then
+                    if br.friend[i].hp <= getValue("Clarity of Will") and lastSpell ~= spell.clarityOfWill and not isMoving("player") and getBuffRemain(br.friend[i].unit, spell.buffs.clarityOfWill, "player") == 0 and getBuffRemain(br.friend[i].unit, spell.buffs.atonement, "player") > 2 then
                         if mode.healer == 1 or mode.healer == 2 then
                             if cast.clarityOfWill(br.friend[i].unit) then return end
                         end
