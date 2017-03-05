@@ -630,21 +630,21 @@ local function runRotation()
                     end
         -- Service Pet
                     -- service_pet
-                    if br.timer:useTimer("castGrim", gcd) then
+                    if br.timer:useTimer("castGrim", gcd+1) and shards > 0 then
                         if grimoirePet == 1 then
-                            if cast.grimoireImp("player") then prevService = "Imp"; return end
+                            if cast.grimoireImp("target") then prevService = "Imp"; return end
                         end
                         if grimoirePet == 2 then
-                            if cast.grimoireVoidwalker("player") then prevService = "Voidwalker"; return end
+                            if cast.grimoireVoidwalker("target") then prevService = "Voidwalker"; return end
                         end
                         if grimoirePet == 3 then
-                            if cast.grimoireFelhunter("player") then prevService = "Felhunter"; return end
+                            if cast.grimoireFelhunter("target") then prevService = "Felhunter"; return end
                         end
                         if grimoirePet == 4 then
-                            if cast.grimoireSuccubus("player") then prevService = "Succubus"; return end
+                            if cast.grimoireSuccubus("target") then prevService = "Succubus"; return end
                         end
                         if grimoirePet == 5 then
-                            if cast.grimoireFelguard("player") then prevService = "Felguard"; return end
+                            if cast.grimoireFelguard("target") then prevService = "Felguard"; return end
                         end
                     end
         -- Summon Doomguard
