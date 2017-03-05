@@ -220,7 +220,7 @@ local function runRotation()
     -- Pool for Meta Variable
         -- pooling_for_meta,value=cooldown.metamorphosis.remains<6&fury.deficit>30&!talent.demonic.enabled&(!variable.waiting_for_nemesis|cooldown.nemesis.remains<10)&(!variable.waiting_for_chaos_blades|cooldown.chaos_blades.remains<6)
         if isChecked("Metamorphosis") and useCDs() 
-            and cd.metamorphosis < 6 and powerDeficit > 30 and not talent.demonic and (not waitForNemesis or cd.nemesis < 10) and (not waitForChaosBlades or cd.chaosBlades < 6) then
+            and cd.metamorphosis < 6 and powerDeficit > 30 and not talent.demonic and (not waitForNemesis or cd.nemesis < 10) and (not waitForChaosBlades or cd.chaosBlades < 6)
         then
             poolForMeta = true
         else
@@ -378,7 +378,7 @@ local function runRotation()
                     -- nemesis,if=!raid_event.adds.exists&(buff.chaos_blades.up|buff.metamorphosis.up|cooldown.metamorphosis.adjusted_remains<20|target.time_to_die<=60)
                     if buff.chaosBlades.exists() or buff.metamorphosis.exists() or cd.metamorphosis < 20 or ttd(units.dyn5) <= 60 then
                         for i = 1, #enemies.yards50 do
-                            local thisUnit = enemies.yards50[i] then
+                            local thisUnit = enemies.yards50[i]
                             local lowestTTD = lowestTTD or 999
                             if ttd(thisUnit) < lowestTTD then 
                                 lowestTTD = ttd(thisUnit)
