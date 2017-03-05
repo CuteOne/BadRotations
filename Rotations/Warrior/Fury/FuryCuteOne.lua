@@ -489,7 +489,7 @@ local function runRotation()
             -- odyns_fury,if=spell_targets.odyns_fury>1
             if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()) and getDistance(units.dyn5) < 5 then
                 if ((mode.rotation == 1 and #enemies.yards8 > 1) or mode.rotation == 2) then
-                    if cast.odynsFury() then return end
+                    if cast.odynsFury("player") then return end
                 end
             end
         -- Whirlwind
@@ -525,7 +525,7 @@ local function runRotation()
         -- Odyn's Fury
             -- odyns_fury
             if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()) and getDistance(units.dyn5) < 5 then
-                if cast.odynsFury() then return end
+                if cast.odynsFury("player") then return end
             end 
         -- Raging Blow
             -- raging_blow
