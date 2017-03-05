@@ -781,13 +781,14 @@ local function runRotation()
                     for i = 1, #enemies.dyn40 do
                         local thisUnit = enemies.dyn40[i]
                         if debuff.purgeTheWicked.exists(thisUnit) then
-                            ptwBuffcount = ptwBuffcount + 1
+                            ptwBuffcount = ptwBuffcount+1
                         end
                         if UnitIsUnit(thisUnit,"target") or hasThreat(thisUnit) or isDummy(thisUnit) then
-                            if ttd(thisUnit) > debuff.purgeTheWicked.duration(thisUnit) and debuff.purgeTheWicked.refresh(thisUnit) and ptwBuffcount <= getValue("Shadow Word: Pain/Purge The Wicked") then
+                            if ttd(thisUnit) > debuff.purgeTheWicked.duration(thisUnit) and debuff.purgeTheWicked.refresh(thisUnit) and ptwBuffcount < getValue("Shadow Word: Pain/Purge The Wicked") then
                                 if schismBuff == thisUnit or not talent.schism or not isChecked("Schism") or schismBuff == nil then
                                     if cast.purgeTheWicked(thisUnit) then
                                         ptwBuff = thisUnit
+                                        ptwBuffcount = ptwBuffcount+1
                                         break
                                     end
                                 end
