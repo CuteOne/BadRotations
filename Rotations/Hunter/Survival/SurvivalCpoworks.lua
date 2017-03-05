@@ -44,7 +44,7 @@ local function createOptions()
     -- General Options
         section = br.ui:createSection(br.ui.window.profile, "General")
         -- APL
-            br.ui:createDropdownWithout(section, "APL Mode", {"|cffFFFFFFSimC","|cffFFFFFFAMR"}, 1, "|cffFFFFFFSet APL Mode to use.")
+            br.ui:createDropdownWithout(section, "APL Mode", {"|cffFFFFFFSimC","|cffFFFFFFAMR"}, 2, "|cffFFFFFFSet APL Mode to use.")
         -- Dummy DPS Test
             br.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
         br.ui:checkSectionState(section)
@@ -449,20 +449,16 @@ local function runRotation()
             end
         -- Aspect of the Eagle
             if isChecked("Aspect of the Eagle") and useCDs() then
-                print("1")
                 -- aspect_of_the_eagle,if=buff.mongoose_fury.stack>4&time<15
                 if buff.mongooseFury.stack() > 4 and combatTime < 15 then
-                    print("2")
                     if cast.aspectOfTheEagle() then return end
                 end
                 -- aspect_of_the_eagle,if=buff.mongoose_fury.stack>1&time>15
                 if buff.mongooseFury.stack() > 1 and combatTime > 15 then
-                    print("3")
                     if cast.aspectOfTheEagle() then return end
                 end
                 -- aspect_of_the_eagle,if=buff.mongoose_fury.up&buff.mongoose_fury.remains>6&cooldown.mongoose_bite.charges<2
                 if buff.mongooseFury.exists() and buff.mongooseFury.remain() > 6 and charges.mongooseBite < 2 then
-                    print("4")
                     if cast.aspectOfTheEagle() then return end
                 end
             end
