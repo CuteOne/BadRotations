@@ -486,9 +486,9 @@ local function runRotation()
                         castOpener("demonicEmpowerment","DE1",1)
                 -- Potion
                     -- potion
-                    elseif useCDs() and canUse(229206) and isChecked("Potion") and getDistance("target") < 15 then
+                    elseif useCDs() and canUse(142117) and isChecked("Potion") and getDistance("target") < 15 then
                         Print("Potion Used!");
-                        useItem(229206)
+                        useItem(142117)
                 -- Demonbolt/Shadowbolt
                     elseif DE1 and not DSB1 then
                         if talent.demonbolt then
