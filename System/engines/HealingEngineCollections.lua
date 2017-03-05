@@ -128,3 +128,7 @@ novaEngineTables.BadlyDeBuffed = {
 		165195,--http://www.wowhead.com/spell=165195/prototype-pulse-grenade
 
 }
+-- Table for NPCs we do not want to add to table (eg. Hymdal/Odyn after they become friendly)
+novaEngineTables.skipNPC = {
+	
+}

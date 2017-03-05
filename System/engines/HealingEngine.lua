@@ -62,6 +62,14 @@ if not metaTable1 then
 		end
 		return true
 	end
+	local function CheckSkipNPC(tar)
+		for i=1, #novaEngineTables.skipNPC do
+			if getGUID(tar) == novaEngineTables.skipNPC[i] then
+				return false
+			end
+		end
+		return true
+	end
 	local function CheckCreatureType(tar)
 		local CreatureTypeList = {"Critter", "Totem", "Non-combat Pet", "Wild Pet"}
 		for i=1, #CreatureTypeList do
@@ -82,6 +90,7 @@ if not metaTable1 then
 			and CheckCreatureType(tar)
 			and getLineOfSight("player", tar)
 			and UnitInPhase(tar)
+			and CheckSkipNPC(tar)
 		then return true
 		else return false end
 	end
