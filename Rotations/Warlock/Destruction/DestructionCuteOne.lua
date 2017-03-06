@@ -402,26 +402,26 @@ local function runRotation()
         local function actionList_PreCombat()
             -- Summon Pet
             -- summon_pet,if=!talent.grimoire_of_supremacy.enabled&(!talent.grimoire_of_sacrifice.enabled|buff.demonic_power.down)
-            if isChecked("Pet Management") and not (IsFlying() or IsMounted()) and not talent.grimoireOfSupremacy and (not talent.grimoireOfSacrifice or not buff.demonicPower.exists()) then
+            if isChecked("Pet Management") and not (IsFlying() or IsMounted()) and not talent.grimoireOfSupremacy and (not talent.grimoireOfSacrifice or not buff.demonicPower.exists()) and br.timer:useTimer("summonPet", getCastTime(spell.summonVoidwalker) + gcd) then
                 if (activePetId == 0 or activePetId ~= summonId) and (lastSpell ~= castSummonId or activePetId ~= summonId) then
                     if summonPet == 1 then
-                        if isKnown(spell.summonFelImp) then
-                            if cast.summonFelImp() then castSummonId = spell.summonFelImp; return end
-                        else
-                            if cast.summonImp() then castSummonId = spell.summonImp; return end
+                        if isKnown(spell.summonFelImp) and (lastSpell ~= spell.summonFelImp or activePetId == 0) then
+                            if cast.summonFelImp("player") then castSummonId = spell.summonFelImp; return end
+                        elseif lastSpell ~= spell.summonImp then
+                            if cast.summonImp("player") then castSummonId = spell.summonImp; return end
                         end
                     end
-                    if summonPet == 2 then
-                        if cast.summonVoidwalker() then castSummonId = spell.summonVoidwalker; return end
+                    if summonPet == 2 and (lastSpell ~= spell.summonVoidwalker or activePetId == 0) then
+                        if cast.summonVoidwalker("player") then castSummonId = spell.summonVoidwalker; return end
                     end
-                    if summonPet == 3 then
-                        if cast.summonFelhunter() then castSummonId = spell.summonFelhunter; return end
+                    if summonPet == 3 and (lastSpell ~= spell.summonFelhunter or activePetId == 0) then
+                        if cast.summonFelhunter("player") then castSummonId = spell.summonFelhunter; return end
                     end
-                    if summonPet == 4 then
-                        if cast.summonSuccubus() then castSummonId = spell.summonSuccubus; return end
+                    if summonPet == 4 and (lastSpell ~= spell.summonSuccubus or activePetId == 0) then
+                        if cast.summonSuccubus("player") then castSummonId = spell.summonSuccubus; return end
                     end
-                    if summonPet == 5 then
-                        if cast.summonFelguard() then castSummonId = spell.summonFelguard; return end
+                    if summonPet == 5 and (lastSpell ~= spell.summonFelguard or activePetId == 0) then
+                        if cast.summonFelguard("player") then castSummonId = spell.summonFelguard; return end
                     end
                     if summonPet == 6 then return end
                 end
@@ -637,19 +637,19 @@ local function runRotation()
                     if isChecked("Pet Management") and ObjectExists(units.dyn40) then
                         if br.timer:useTimer("castGrim", gcd) then
                             if grimoirePet == 1 then
-                                if cast.grimoireImp() then prevService = "Imp"; return end
+                                if cast.grimoireImp("player") then prevService = "Imp"; return end
                             end
                             if grimoirePet == 2 then
-                                if cast.grimoireVoidwalker() then prevService = "Voidwalker"; return end
+                                if cast.grimoireVoidwalker("player") then prevService = "Voidwalker"; return end
                             end
                             if grimoirePet == 3 then
-                                if cast.grimoireFelhunter() then prevService = "Felhunter"; return end
+                                if cast.grimoireFelhunter("player") then prevService = "Felhunter"; return end
                             end
                             if grimoirePet == 4 then
-                                if cast.grimoireSuccubus() then prevService = "Succubus"; return end
+                                if cast.grimoireSuccubus("player") then prevService = "Succubus"; return end
                             end
                             if grimoirePet == 5 then
-                                if cast.grimoireFelguard() then prevService = "Felguard"; return end
+                                if cast.grimoireFelguard("player") then prevService = "Felguard"; return end
                             end
                             if grimoirePet == 6 then return end
                         end

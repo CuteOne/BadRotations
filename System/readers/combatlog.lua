@@ -87,13 +87,9 @@ function br.read.combatLog()
                     if isInCombat("player") and UnitIsUnit(sourceName,"player") then
                         if br.player ~= nil then
                             for k, v in pairs(br.player.spell.abilities) do
-                                if v == spell 
-                                    -- and v ~= br.player.spell.stormEarthAndFire
-                                    -- and v ~= br.player.spell.energizingElixir
-                                    -- and v ~= lastCast
-                                then 
+                                if v == spell then 
                                     lastCast = spell 
-                                end
+                                end                                     
                             end
                         end
                     end
