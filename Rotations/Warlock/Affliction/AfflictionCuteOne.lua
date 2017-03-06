@@ -879,7 +879,7 @@ local function runRotation()
                             if cast.unstableAffliction(units.dyn40,"aoe") then return end
                         end
                         -- unstable_affliction,if=(!talent.sow_the_seeds.enabled|spell_targets.seed_of_corruption<3)&spell_targets.seed_of_corruption<4&talent.malefic_grasp.enabled&(soul_shard=5|talent.contagion.enabled&soul_shard>=4)
-                        if talent.maleficGrasp and (shards > 3 - hasT19 or (talent.contagion and shards > 3 - hasT19)) then
+                        if talent.maleficGrasp and (shards > 4 - hasT19 or (talent.contagion and shards > 4 - hasT19)) then
                             if cast.unstableAffliction(units.dyn40,"aoe") then return end
                         end
                         -- unstable_affliction,if=(!talent.sow_the_seeds.enabled|spell_targets.seed_of_corruption<3)&spell_targets.seed_of_corruption<4&talent.malefic_grasp.enabled&!prev_gcd.3.unstable_affliction&dot.agony.remain()s>cast_time*3+6.5&(!talent.soul_effigy.enabled|pet.soul_effigy.dot.agony.remain()s>cast_time*3+6.5)&(dot.corruption.remain()s>cast_time+6.5|talent.absolute_corruption.enabled)&(dot.siphon_life.remain()s>cast_time+6.5|!talent.siphon_life.enabled)
@@ -943,8 +943,9 @@ local function runRotation()
                     -- drain_soul,chain=1,interrupt=1
                     if not isCastingSpell(spell.drainSoul,"player") and mode.multidot == 1 then
                         if not ObjectExists("target") then TargetUnit("target") end
-                        if (talent.maleficGrasp and ((not buff.deadwindHarvester.exists() and debuff.unstableAffliction.stack() >= 2) or (buff.deadwindHarvester.exists() and debuff.unstableAffliction.stack() >= 3))) 
-                            or (not talent.maleGrasp and shards >= 5)
+                        if (not talent.maleGrasp and shards >= 5) or (talent.maleficGrasp and (shards < 2 
+                            or (not buff.deadwindHarvester.exists() and debuff.unstableAffliction.stack() >= 2) 
+                            or (buff.deadwindHarvester.exists() and debuff.unstableAffliction.stack() >= 3))) 
                         then
                             if cast.drainSoul("target") then return end
                         end
