@@ -3085,6 +3085,7 @@ br.idList = {
             },
             debuffs                             = {
                 dampening                       = 110310,
+                eyeOfLeotheras                  = 206649,
             },
         },
     },
