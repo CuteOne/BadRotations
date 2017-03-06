@@ -547,7 +547,7 @@ local function runRotation()
                 end
                 --Clarity of Will
                 if isChecked("Clarity of Will") and talent.clarityOfWill then
-                    if br.friend[i].hp <= getValue("Clarity of Will") and lastSpell ~= spell.clarityOfWill and not isMoving("player") and getBuffRemain(br.friend[i].unit, spell.buffs.clarityOfWill, "player") == 0 and getBuffRemain(br.friend[i].unit, spell.buffs.atonement, "player") > 2 then
+                    if br.friend[i].hp <= getValue("Clarity of Will") and lastSpell ~= spell.clarityOfWill and not isMoving("player") and getBuffRemain(br.friend[i].unit, spell.buffs.clarityOfWill, "player") == 0 and buff.powerWordShield.exists(br.friend[i].unit) and br.friend[i].unit == lowest.unit then
                         if mode.healer == 1 or mode.healer == 2 then
                             if cast.clarityOfWill(br.friend[i].unit) then return end
                         end
@@ -620,7 +620,7 @@ local function runRotation()
                                     if isMoving("player") and talent.thePenitent then
                                         if cast.penance(br.friend[i].unit) then return end
                                     end
-                                    if inCombat and getSpellCD(spell.penance) <= 0 then
+                                    if inCombat and getSpellCD(spell.penance) <= 0 and getBuffRemain(lowest.unit, spell.buffs.atonement, "player") > 1 then
                                         actionList_SpreadAtonement(br.friend[i].unit)
                                         if schismBuff then
                                             if cast.penance(schismBuff) then return end
