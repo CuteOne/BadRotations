@@ -937,10 +937,9 @@ local function runRotation()
                     local thisUnit = enemies.yards5[i]
                     if debuff.markOfTheCrane.refresh(thisUnit) then
                         if cast.tigerPalm(thisUnit) then TPEETimer = GetTime(); return end
-                    else
-                        if cast.tigerPalm() then TPEETimer = GetTime(); return end
                     end
                 end
+                if cast.tigerPalm() then TPEETimer = GetTime(); return end
             end
         -- SCK
             if BetterThanRSK == true and lastCombo ~= spell.spinningCraneKick then
@@ -955,10 +954,9 @@ local function runRotation()
                     local thisUnit = enemies.yards5[i]
                     if debuff.markOfTheCrane.refresh(thisUnit) then
                         if cast.risingSunKick(thisUnit) then return end
-                    else
-                        if cast.risingSunKick() then return end
                     end
                 end
+                if cast.risingSunKick() then return end
             end
         -- SCK
             if BetterThanWDP == true and lastCombo ~= spell.spinningCraneKick then
@@ -976,11 +974,9 @@ local function runRotation()
                     local thisUnit = enemies.yards5[i]
                     if debuff.markOfTheCrane.refresh(thisUnit) then
                         if cast.tigerPalm(thisUnit) then TPEETimer = GetTime(); return end
-                    else
-                        if cast.tigerPalm() then TPEETimer = GetTime(); return end
-                    end
+                    end                    
                 end
-                    --if cast.tigerPalm() then TPEETimer = GetTime(); return end
+                if cast.tigerPalm() then TPEETimer = GetTime(); return end
             end
         -- Crackling Jade Lightning
             -- crackling_jade_lightning,if=equipped.the_emperors_capacitor&buff.the_emperors_capacitor.stack()>=19
@@ -1004,10 +1000,9 @@ local function runRotation()
                     local thisUnit = enemies.yards5[i]
                     if debuff.markOfTheCrane.refresh(thisUnit) then
                         if cast.blackoutKick(thisUnit) then return end
-                    else
-                        if cast.blackoutKick() then return end
-                    end
+                    end                    
                 end
+                if cast.blackoutKick() then return end
             end
         -- Chi Wave
             -- chi_wave,if=energy.time_to_max>=2.25
@@ -1025,15 +1020,14 @@ local function runRotation()
             end
         -- Tiger Palm
             -- tiger_palm,cycle_targets=1,if=!prev_gcd.tiger_palm
-            if lastCombo ~= spell.tigerPalm  and GetTime() >= SerenityTest + gcd and GetTime() >= TPEETimer + 0.2 then
+            if lastCombo ~= spell.tigerPalm  and GetTime() >= SerenityTest + gcd and GetTime() >= TPEETimer + 0.2 then                
                 for i = 1, #enemies.yards5 do
                     local thisUnit = enemies.yards5[i]
                     if debuff.markOfTheCrane.refresh(thisUnit) then
                         if cast.tigerPalm(thisUnit) then TPEETimer = GetTime(); return end
-                    else
-                        if cast.tigerPalm() then TPEETimer = GetTime(); return end
                     end
                 end
+                if cast.tigerPalm() then return end
             end
         end -- End Action List - Single Target
     -- Action List - Storm, Earth, and Fire
@@ -1100,11 +1094,10 @@ local function runRotation()
                         for i = 1, #enemies.yards5 do
                             local thisUnit = enemies.yards5[i]
                             if debuff.markOfTheCrane.refresh(thisUnit) then
-                                if cast.risingSunKick(thisUnit) then return end
-                            else
-                                if cast.risingSunKick() then return end
+                                if cast.risingSunKick(thisUnit) then return end                                
                             end
                         end
+                        if cast.risingSunKick() then return end
                     end
         -- Fists of Fury
                     -- fists_of_fury
@@ -1123,10 +1116,9 @@ local function runRotation()
                             local thisUnit = enemies.yards5[i]
                             if debuff.markOfTheCrane.refresh(thisUnit) then
                                 if cast.risingSunKick(thisUnit) then return end
-                            else
-                                if cast.risingSunKick() then return end
                             end
                         end
+                        if cast.risingSunKick() then return end
                     end
         -- Spinning Crane Kick
                     --actions.serenity+=/spinning_crane_kick,if=!prev_gcd.1.spinning_crane_kick
@@ -1140,10 +1132,9 @@ local function runRotation()
                             local thisUnit = enemies.yards5[i]
                             if debuff.markOfTheCrane.refresh(thisUnit) then
                                 if cast.blackoutKick(thisUnit) then return end
-                            else
-                                if cast.blackoutKick() then return end
                             end
                         end
+                        if cast.blackoutKick() then return end
                     end
         -- Rushing Jade Wind
                     -- rushing_jade_wind,if=!prev_gcd.rushing_jade_wind
