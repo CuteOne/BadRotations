@@ -127,7 +127,7 @@ local function createOptions()
         -------------------------
         section = br.ui:createSection(br.ui.window.profile, "Damage")
             --Shadow Word: Pain/Purge The Wicked
-            br.ui:createSpinner(section, "Shadow Word: Pain/Purge The Wicked",  3,  0,  10,  1,  "|cffFFFFFFMaximum SWP/PTW targets. Default: 3")
+            br.ui:createCheckbox(section, "Shadow Word: Pain/Purge The Wicked")
             --Schism
             br.ui:createCheckbox(section, "Schism")
             --Penance
@@ -620,8 +620,9 @@ local function runRotation()
                                     if isMoving("player") and talent.thePenitent then
                                         if cast.penance(br.friend[i].unit) then return end
                                     end
-                                    if inCombat and getSpellCD(spell.penance) <= 0 and getBuffRemain(lowest.unit, spell.buffs.atonement, "player") > 1 then
+                                    if inCombat and getSpellCD(spell.penance) <= 0 then
                                         actionList_SpreadAtonement(br.friend[i].unit)
+                                        actionList_SpreadAtonement(lowest.unit)
                                         if schismBuff then
                                             if cast.penance(schismBuff) then return end
                                         end
@@ -777,19 +778,14 @@ local function runRotation()
             --Shadow Word: Pain/Purge The Wicked
             if isChecked("Shadow Word: Pain/Purge The Wicked") then
                 if talent.purgeTheWicked then
-                    ptwBuffcount = 0
+                    ptwBuff = nil
                     for i = 1, #enemies.dyn40 do
                         local thisUnit = enemies.dyn40[i]
-                        if debuff.purgeTheWicked.exists(thisUnit) then
-                            ptwBuffcount = ptwBuffcount+1
-                        end
                         if UnitIsUnit(thisUnit,"target") or hasThreat(thisUnit) or isDummy(thisUnit) then
-                            if ttd(thisUnit) > debuff.purgeTheWicked.duration(thisUnit) and debuff.purgeTheWicked.refresh(thisUnit) and ptwBuffcount < getValue("Shadow Word: Pain/Purge The Wicked") then
+                            if ttd(thisUnit) > debuff.purgeTheWicked.duration(thisUnit) and debuff.purgeTheWicked.refresh(thisUnit) and ptwBuff == nil then
                                 if schismBuff == thisUnit or not talent.schism or not isChecked("Schism") or schismBuff == nil then
                                     if cast.purgeTheWicked(thisUnit) then
                                         ptwBuff = thisUnit
-                                        ptwBuffcount = ptwBuffcount+1
-                                        break
                                     end
                                 end
                             end
@@ -797,15 +793,14 @@ local function runRotation()
                     end
                 end
                 if not talent.purgeTheWicked then
-                    swpBuffcount = 0
+                    swpBuff = nil
                     for i = 1, #enemies.dyn40 do
                         local thisUnit = enemies.dyn40[i]
-                        if debuff.shadowWordPain.exists(thisUnit) then
-                            swpBuffcount = swpBuffcount + 1
-                        end
                         if UnitIsUnit(thisUnit,"target") or hasThreat(thisUnit) or isDummy(thisUnit) then
-                            if ttd(thisUnit) > debuff.shadowWordPain.duration(thisUnit) and debuff.shadowWordPain.refresh(thisUnit) and swpBuffcount <= getValue("Shadow Word: Pain/Purge The Wicked") then
-                                if cast.shadowWordPain(thisUnit,"aoe") then return end
+                            if ttd(thisUnit) > debuff.shadowWordPain.duration(thisUnit) and debuff.shadowWordPain.refresh(thisUnit) and swpBuff == nil then
+                                if cast.shadowWordPain(thisUnit) then
+                                    swpBuff = thisUnit
+                                end
                             end
                         end
                     end
