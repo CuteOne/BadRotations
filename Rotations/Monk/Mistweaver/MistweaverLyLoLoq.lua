@@ -566,8 +566,10 @@ local function runRotation()
         -- Pause
         if pause(true) or isCastingSpell(spell.essenceFont) then return true end
         if actionList_ThunderFocus() then return true end
-        if actionList_Extra() then return true end
-        if inCombat and not IsMounted() then
+        if not IsMounted() and getBuffRemain("player", 192002 ) < 10 then
+            if actionList_Extra() then return true end
+        end
+        if inCombat and not IsMounted() and getBuffRemain("player", 192002 ) < 10 then
             if actionList_Defensive() then return true end
             if actionList_Cooldown() then return true end
             if actionList_AOEHealing() then return true end
