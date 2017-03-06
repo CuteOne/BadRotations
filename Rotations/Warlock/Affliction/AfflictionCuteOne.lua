@@ -943,15 +943,13 @@ local function runRotation()
                     -- drain_soul,chain=1,interrupt=1
                     if not isCastingSpell(spell.drainSoul,"player") and mode.multidot == 1 then
                         if not ObjectExists("target") then TargetUnit("target") end
-                        if (talent.maleficGrasp and ((not buff.deadwindHarvester.exists() and debuff.unstableAffliction.stack() >= 2) or (buff.deadwindHarvester.exists() and debuff.unstableAffliction.stack() >= 3))) 
-                            or (not talent.maleGrasp and shards >= 5)
+                        if (not talent.maleGrasp and shards >= 5) or (talent.maleficGrasp and (shards < 2 
+                            or (not buff.deadwindHarvester.exists() and debuff.unstableAffliction.stack() >= 2) 
+                            or (buff.deadwindHarvester.exists() and debuff.unstableAffliction.stack() >= 3))) 
                         then
                             if cast.drainSoul("target") then return end
                         end
                     end
-					if talent.maleficGrasp and (shards < 2 ) then
-					if cast.drainSoul("target") then return end
-					end
         -- Life Tap
                     --life_tap
                     if manaPercent < 70 and php > getOptionValue("Life Tap HP Limit") then

@@ -67,10 +67,10 @@ local function FindEnemy()
 			-- define our unit
             local thisUnit = GetObjectWithIndex(i)
 			-- check if it a unit first
-            if ObjectIsType(thisUnit, ObjectTypes.Unit) and br.enemy[thisUnit] == nil then
+            if ObjectIsType(thisUnit, ObjectTypes.Unit) then
                 br.debug.cpu.enemiesEngine.unitTargets = br.debug.cpu.enemiesEngine.unitTargets + 1
 				-- Enemies
-				if isValidUnit(thisUnit) then
+				if ObjectExists(thisUnit) and isValidUnit(thisUnit) and br.enemy[thisUnit] == nil then
                     br.debug.cpu.enemiesEngine.sanityTargets = br.debug.cpu.enemiesEngine.sanityTargets + 1
                     -- Print("Adding Enemy")
 					AddEnemy(thisUnit)
