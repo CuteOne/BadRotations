@@ -3190,7 +3190,7 @@ function TierScan(thisTier)
 		-- if there is an item in that slot
 		if GetInventoryItemID("player", i) ~= nil then
 			-- compare to items in our items list
-			for j = 1, 5 do
+			for j = 1, #sets[thisTier][myClass] do
 				if sets[thisTier][myClass][j] ~= nil then
 					--Print(sets[thisTier][myClass][j])
 					if GetItemInfo(GetInventoryItemID("player", i)) == GetItemInfo(sets[thisTier][myClass][j]) then

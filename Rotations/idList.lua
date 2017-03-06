@@ -1546,6 +1546,7 @@ br.idList = {
                 bestowFaith                 = 223306;
                 divineProtection            = 498;
                 divinePurpose               = 216411;
+                divineSteed                 = 221886;
                 ferventMartyr               = 223316;
                 infusionOfLight             = 54149;
                 ruleOfLaw                   = 214202;

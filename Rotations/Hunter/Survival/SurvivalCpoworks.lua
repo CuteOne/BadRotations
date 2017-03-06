@@ -44,7 +44,7 @@ local function createOptions()
     -- General Options
         section = br.ui:createSection(br.ui.window.profile, "General")
         -- APL
-            br.ui:createDropdownWithout(section, "APL Mode", {"|cffFFFFFFSimC","|cffFFFFFFAMR"}, 2, "|cffFFFFFFSet APL Mode to use.")
+            br.ui:createDropdownWithout(section, "APL Mode", {"|cffFFFFFFSimC","|cffFFFFFFAMR"}, 1, "|cffFFFFFFSet APL Mode to use.")
         -- Dummy DPS Test
             br.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
         br.ui:checkSectionState(section)
