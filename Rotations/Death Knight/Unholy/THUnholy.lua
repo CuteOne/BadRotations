@@ -938,7 +938,7 @@ local function runRotation()
                     if actionList_DebuffReader() then return end
                 end
 
-                if if debuff.eyeOfLeotheras ~= nil and debuff.eyeOfLeotheras.exists("player") then
+                if debuff.eyeOfLeotheras ~= nil and debuff.eyeOfLeotheras.exists("player") then
                     ClearTarget()
                     if IsPetAttackActive() then
                         PetStopAttack()
