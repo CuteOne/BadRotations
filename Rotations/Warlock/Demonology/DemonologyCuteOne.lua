@@ -57,8 +57,14 @@ local function createOptions()
             br.ui:createDropdownWithout(section, "Summon Pet", {"Imp","Voidwalker","Felhunter","Succubus","Felguard","None"}, 1, "|cffFFFFFFSelect default pet to summon.")
         -- Grimoire of Service
             br.ui:createDropdownWithout(section, "Grimoire of Service", {"Imp","Voidwalker","Felhunter","Succubus","Felguard","None"}, 1, "|cffFFFFFFSelect pet to Grimoire.")
+        -- Felstorm
+            br.ui:createSpinner(section, "Felstorm", 3, 1, 10, 1, "|cffFFFFFFMinimal number of units Felguard's Felstorm will be used at.")
         -- Mana Tap
             br.ui:createSpinner(section, "Life Tap HP Limit", 30, 0, 100, 5, "|cffFFFFFFHP Limit that Life Tap will not cast below.")
+        -- Multi-Dot Limit
+            br.ui:createSpinnerWithout(section, "Multi-Dot Limit", 5, 0, 10, 1, "|cffFFFFFFUnit Count Limit that DoTs will be cast on.")
+            br.ui:createSpinnerWithout(section, "Multi-Dot HP Limit", 5, 0, 10, 1, "|cffFFFFFFHP Limit that DoTs will be cast/refreshed on.")
+            br.ui:createSpinnerWithout(section, "Boom Boss HP Limit", 10, 1, 20, 1, "|cffFFFFFFHP Limit that Doom will be cast/refreshed on in relation to Boss HP.")
         br.ui:checkSectionState(section)
     -- Cooldown Options
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
@@ -201,6 +207,7 @@ local function runRotation()
 		if profileStop == nil or not inCombat then profileStop = false end
         if castSummonId == nil then castSummonId = 0 end
         if handTimer == nil then handTimer = GetTime() end
+        if isBoss() then dotHPLimit = getOptionValue("Multi-Dot HP Limit")/10 else dotHPLimit = getOptionValue("Multi-Dot HP Limit") end
         if sindoreiSpiteOffCD == nil then sindoreiSpiteOffCD = true end
         if buff.sindoreiSpite.exits and sindoreiSpiteOffCD then
             sindoreiSpiteOffCD = false
@@ -445,8 +452,8 @@ local function runRotation()
                             if cast.summonDoomguard("player") then return end
                         end
                     end
-                    if isChecked("Pre-Pull Timer") and pullTimer <= getOptionValue("Pre-Pull Timer") then
-
+                    if isChecked("Pre-Pull Timer") and pullTimer <= getOptionValue("Pre-Pull Timer") and pullTimer ~= 999 then
+                        return true
                     end -- End Pre-Pull
                     if isValidUnit("target") and getDistance("target") < 40 then
                 -- Augmentation
@@ -481,7 +488,7 @@ local function runRotation()
         end -- End Action List - PreCombat
         local function actionList_Opener()
             if isBoss("target") and isValidUnit("target") and opener == false then
-                if (isChecked("Pre-Pull Timer") and pullTimer <= getOptionValue("Pre-Pull Timer")) or not isChecked("Pre-Pull Timer") then
+                if (isChecked("Pre-Pull Timer") and pullTimer <= getOptionValue("Pre-Pull Timer")) or not isChecked("Pre-Pull Timer") or pullTimer == 999 then
                 -- Demonic Empowerment
                     if not DE1 then
                         castOpener("demonicEmpowerment","DE1",1)
@@ -496,6 +503,10 @@ local function runRotation()
                             castOpener("demonbolt","DSB1",2)
                         else
                             castOpener("shadowbolt","DSB1",2)
+                        end
+                -- Pet Attack
+                        if not UnitIsUnit("pettarget","target") then
+                            PetAttack()
                         end
                 -- Doom
                     elseif DSB1 and not DOOM then
@@ -633,19 +644,19 @@ local function runRotation()
                     -- service_pet
                     if br.timer:useTimer("castGrim", gcd+1) and shards > 0 then
                         if grimoirePet == 1 then
-                            if cast.grimoireImp("player") then prevService = "Imp"; return end
+                            if cast.grimoireImp("target") then prevService = "Imp"; return end
                         end
                         if grimoirePet == 2 then
-                            if cast.grimoireVoidwalker("player") then prevService = "Voidwalker"; return end
+                            if cast.grimoireVoidwalker("target") then prevService = "Voidwalker"; return end
                         end
                         if grimoirePet == 3 then
-                            if cast.grimoireFelhunter("player") then prevService = "Felhunter"; return end
+                            if cast.grimoireFelhunter("target") then prevService = "Felhunter"; return end
                         end
                         if grimoirePet == 4 then
-                            if cast.grimoireSuccubus("player") then prevService = "Succubus"; return end
+                            if cast.grimoireSuccubus("target") then prevService = "Succubus"; return end
                         end
                         if grimoirePet == 5 then
-                            if cast.grimoireFelguard("player") then prevService = "Felguard"; return end
+                            if cast.grimoireFelguard("target") then prevService = "Felguard"; return end
                         end
                         if summonPet == 6 then return end
                     end
@@ -735,16 +746,20 @@ local function runRotation()
                     end
         -- Felstorm
                     -- felguard:felstorm
-                    if felguard and petInfo[1].numEnemies > 0 then
+                    if isChecked("Felstorm") and felguard and petInfo[1].numEnemies >= getOptionValue("Felstorm") and cd.felstorm == 0 then
                         if cast.commandDemon() then return end
                     end
         -- Doom
                     -- doom,cycle_targets=1,if=!talent.hand_of_doom.enabled&target.time_to_die>duration&(!ticking|remains<duration*0.3)
-                    for i = 1, #enemies.yards40 do
-                        local thisUnit = enemies.yards40[i]
-                        if UnitIsUnit(thisUnit,"target") or hasThreat(thisUnit) or isDummy(thisUnit) then
-                            if not talent.handOfDoom and ttd(thisUnit) > debuff.doom.duration(thisUnit) and debuff.doom.refresh(thisUnit) then
-                                if cast.doom(thisUnit) then return end
+                    if debuff.doom.count() < getOptionValue("Multi-Dot Limit") and getHP(thisUnit) > dotHPLimit and isValidUnit(thisUnit)
+                        and bossHPLimit(thisUnit,getOptionValue("Doom Boss HP Limit"))
+                    then
+                        for i = 1, #enemies.yards40 do
+                            local thisUnit = enemies.yards40[i]
+                            if UnitIsUnit(thisUnit,"target") or hasThreat(thisUnit) or isDummy(thisUnit) then
+                                if not talent.handOfDoom and ttd(thisUnit) > debuff.doom.duration(thisUnit) and debuff.doom.refresh(thisUnit) then
+                                    if cast.doom(thisUnit) then return end
+                                end
                             end
                         end
                     end
