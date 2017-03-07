@@ -134,4 +134,5 @@ novaEngineTables.BadlyDeBuffed = {
 novaEngineTables.skipNPC = {
     94960, -- Hynmdall
     95676, -- Odyn
+    100482, -- Senegos
 }
