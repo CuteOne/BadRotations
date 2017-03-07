@@ -529,7 +529,7 @@ local function runRotation()
         --Exploding Keg
             --actions.st+=/exploding_keg
             if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()) and #getEnemies("player",12) >= getOptionValue("Exploding Keg Targets") then
-                if cast.explodingKeg("best",false,#enemies.yards8,8) then return end
+                if cast.explodingKeg() then return end
             end
         --Chi Burst
             --actions.st+=/chi_burst
@@ -562,7 +562,7 @@ local function runRotation()
         --Exploding Keg
             --actions.st+=/exploding_keg
             if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()) and #getEnemies("player",12) >= getOptionValue("Exploding Keg Targets") then
-                if cast.explodingKeg("best",false,#enemies.yards8,8) then return end
+                if cast.explodingKeg() then return end
             end
         -- Keg Smash
            -- actions.st=keg_smash
