@@ -58,7 +58,7 @@ local function createOptions()
         -- Grimoire of Service
             br.ui:createDropdownWithout(section, "Grimoire of Service", {"Imp","Voidwalker","Felhunter","Succubus","Felguard","None"}, 1, "|cffFFFFFFSelect pet to Grimoire.")
         -- Demonwrath
-            br.ui:createCheckbox(section, "Demonwrath")
+            br.ui:createDropdownWithout(section, "Demonwrath", {"Both","AoE","Moving","None"}, 1, "|cffFFFFFF Select Demonwrath usage.")
         -- Felstorm
             br.ui:createSpinner(section, "Felstorm", 3, 1, 10, 1, "|cffFFFFFFMinimal number of units Felguard's Felstorm will be used at.")
         -- Mana Tap
@@ -795,7 +795,10 @@ local function runRotation()
         -- Demonwrath
                     -- demonwrath,chain=1,interrupt=1,if=spell_targets.demonwrath>=3
                     -- demonwrath,moving=1,chain=1,interrupt=1
-                    if isChecked("Demonwrath") and (demonwrathPet or moving) then
+                    if (getOptionValue("Demonwrath") == 1 and (demonwrathPet or moving)) 
+                        or (getOptionValue("Demonwrath") == 2 and demonwrathPet) 
+                        or (getOptionValue("Demonwrath") == 3 and moving) 
+                    then
                         if cast.demonwrath() then return end
                     end
         -- Demonbolt
