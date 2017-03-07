@@ -576,7 +576,7 @@ local function runRotation()
         --Chi Burst
             --actions.st+=/chi_burst
             --Width/Range values from LyloLoq
-            if getEnemiesInRect(7,47) >= getOptionValue("Chi Burst Targets") then
+            if talent.chiBurst and getEnemiesInRect(7,47) >= getOptionValue("Chi Burst Targets") then
                 if cast.chiBurst() then return end
             end
         -- Chi Wave
