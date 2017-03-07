@@ -657,8 +657,8 @@ local function runRotation()
             end
         -- Void Bolt
             -- void_bolt
-            if cd.vampiricTouch == 0 or buff.void.exists() then
-                if cast.voidBolt() then return end
+            if cd.voidBolt == 0 or buff.void.exists() then
+                if cast.voidBoltCast() then return end
             end
         -- Shadow Crash
             -- shadow_crash,if=talent.shadow_crash.enabled
@@ -697,8 +697,8 @@ local function runRotation()
             end
         -- Void Bolt
             -- void_bolt
-            if cd.vampiricTouch == 0 or buff.void.exists() then
-                if cast.voidBolt() then return end
+            if cd.voidBolt == 0 or buff.void.exists() then
+                if cast.voidBoltCast() then return end
             end
         -- Shadow Word - Death
             -- shadow_word_death,if=(active_enemies<=4|(talent.reaper_of_souls.enabled&active_enemies<=2))&current_insanity_drain*gcd.max>insanity&(insanity-(current_insanity_drain*gcd.max)+(15+15*talent.reaper_of_souls.enabled))<100
@@ -811,49 +811,55 @@ local function runRotation()
             end
         -- Mind Flay
             -- mind_flay,chain=1,interrupt_immediate=1,interrupt_if=ticks>=2&(action.void_bolt.usable|(current_insanity_drain*gcd.max>insanity&(insanity-(current_insanity_drain*gcd.max)+30)<100&cooldown.shadow_word_death.charges>=1))
-            if mfTick >= 2 and (cd.voidBolt == 0 or (insanityDrain * gcd > power and (power - (insanityDrain * gcd) + 30) < 100 and charges.shadowWordDeath >= 1)) 
-                and (lastSpell ~= spell.mindFlay or (lastSpell == spell.mindFlay and br.timer:useTimer("mindFlayRecast", getCastTime(spell.mindFlay) + gcd)))
-            then
+            if mfTick >= 2 and (cd.voidBolt == 0 or (insanityDrain * gcd > power and (power - (insanityDrain * gcd) + 30) < 100 and charges.shadowWordDeath >= 1)) then
                 return true
-            else
+            elseif (lastSpell ~= spell.mindFlay or (lastSpell == spell.mindFlay and br.timer:useTimer("mindFlayRecast", getCastTime(spell.mindFlay) + gcd))) then
                 if cast.mindFlay() then return end
             end
         -- Shadow Word - Pain
             -- shadow_word_pain
             if cast.shadowWordPain() then return end
         end -- End Action List - VoidForm
+---------------------
+--- Begin Profile ---
+---------------------
+    -- Profile Stop | Pause
+        if not inCombat and not hastar and profileStop==true then
+            profileStop = false
+        elseif (inCombat and profileStop==true) or IsMounted() or IsFlying() or pause() or mode.rotation==4 then
+            return true
+        else
 -----------------
 --- Rotations ---
 -----------------
-        if not IsMounted() then
             if actionList_Extra() then return end
             if actionList_Defensive() then return end
-        end
 ---------------------------------
 --- Out Of Combat - Rotations ---
 ---------------------------------
-        if not inCombat then --  and ObjectExists("target") and not UnitIsDeadOrGhost("target") and UnitCanAttack("target", "player")
-            if actionList_PreCombat() then return end
-        end
+            if not inCombat then --  and ObjectExists("target") and not UnitIsDeadOrGhost("target") and UnitCanAttack("target", "player")
+                if actionList_PreCombat() then return end
+            end
 -----------------------------
 --- In Combat - Rotations ---
 -----------------------------
-        if inCombat and not IsMounted() and isValidUnit(units.dyn40) and getDistance(units.dyn40) < 40 and not isCastingSpell(spell.voidTorrent) then
-        -- Action List - Check
-            -- call_action_list,name=check,if=talent.surrender_to_madness.enabled&!buff.surrender_to_madness.up
-            if talent.surrenderToMadness and not buff.surrenderToMadness then
-                if actionList_Check() then return end
-            end
-            actionList_Cooldowns()
-        -- Action List - Void Form
-            -- run_action_list,name=vf,if=buff.voidform.up
-            if buff.voidForm.exists() then
-                if actionList_VoidForm() then return end
-            end
-        -- Action List - Main
-            -- run_action_list,name=main
-            if actionList_Main() then return end
-        end -- End Combat Rotation
+            if inCombat and not IsMounted() and isValidUnit(units.dyn40) and getDistance(units.dyn40) < 40 and not isCastingSpell(spell.voidTorrent) then
+            -- Action List - Check
+                -- call_action_list,name=check,if=talent.surrender_to_madness.enabled&!buff.surrender_to_madness.up
+                if talent.surrenderToMadness and not buff.surrenderToMadness then
+                    if actionList_Check() then return end
+                end
+                actionList_Cooldowns()
+            -- Action List - Void Form
+                -- run_action_list,name=vf,if=buff.voidform.up
+                if buff.voidForm.exists() then
+                    if actionList_VoidForm() then return end
+                end
+            -- Action List - Main
+                -- run_action_list,name=main
+                if actionList_Main() then return end
+            end -- End Combat Rotation
+        end
     end -- End Timer
 end -- Run Rotation
 
