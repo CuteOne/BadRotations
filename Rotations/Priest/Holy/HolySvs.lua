@@ -361,7 +361,7 @@ local function runRotation()
                 end
             end
         -- Divine Star
-            if isChecked("Divine Star") and talent.chiBurst then
+            if isChecked("Divine Star") and talent.divineStar then
                 if getUnitsInRect(7,24,isChecked("Show Lines"),getValue("Divine Star")) >= getValue("Min Divine Star Targets") then
                     if cast.divineStar("player") then return true end
                 end
@@ -484,13 +484,15 @@ local function runRotation()
         -- Holy Fire
             if cast.holyFire() then return end
         -- Divine Star
-            if cast.divineStar() then return end
+            if getDistance("player","target") < 24 and getFacing("player","target",10) then
+                if cast.divineStar() then return end
+            end
         -- Smite
             if #enemies.yards8 < 3 then
                 if cast.smite() then return end
             end
         -- Holy Nova
-            if #enemies.yards8 >= 3 and getDistance(units.dyn8AoE) < 12 then
+            if #enemies.yards8 >= 3 and getDistance(units.dyn8AoE) < 12 and level > 25 then
                 if cast.holyNova() then return end
             end
         end
