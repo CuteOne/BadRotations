@@ -62,12 +62,12 @@ local function createOptions()
             end
             -- Shadowfiend
             br.ui:createCheckbox(section,"Shadowfiend / Mindbender")
-            br.ui:createSpinnerWithout(section, "Shadowfiend Stacks", 10, 5, 20, 1, "|cffFFFFFFSet to desired Void Form stacks to use at.")
+            br.ui:createSpinnerWithout(section, "Shadowfiend Stacks", 10, 5, 100, 5, "|cffFFFFFFSet to desired Void Form stacks to use at.")
             -- Surrender To Madness
             br.ui:createCheckbox(section,"Surrender To Madness")
             -- Power Infusion
             br.ui:createCheckbox(section,"Power Infusion")
-            br.ui:createSpinnerWithout(section, "Power Infusion Stacks", 10, 5, 20, 1, "|cffFFFFFFSet to desired Void Form stacks to use at.")
+            br.ui:createSpinnerWithout(section, "Power Infusion Stacks", 10, 5, 100, 5, "|cffFFFFFFSet to desired Void Form stacks to use at.")
         br.ui:checkSectionState(section)
         -- Defensive Options
         section = br.ui:createSection(br.ui.window.profile, "Defensive")
@@ -482,7 +482,7 @@ local function runRotation()
             end
         --Mind Bender
             --mindbender,if=talent.mindbender.enabled
-            if isChecked("Shadowfiend / Mindbender") and useCDs() then
+            if isChecked("Shadowfiend / Mindbender") and useCDs() and buff.voidForm.stack() >= getOptionValue("Shadowfiend Stacks") then
                 if talent.mindbender then
                     if cast.mindbender() then return end
                 end
