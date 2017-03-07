@@ -612,7 +612,7 @@ local function runRotation()
                         if cast.touchOfDeath() then SerenityTest = GetTime(); return end
                     end
                 -- touch_of_death,cycle_targets=1,max_cycle_targets=2,if=artifact.gale_burst.enabled&equipped.hidden_masters_forbidden_touch&cooldown.strike_of_the_windlord.remains<8&cooldown.fists_of_fury.remains<=4&cooldown.rising_sun_kick.remains<7&(prev_gcd.2.touch_of_death|prev_gcd.3.touch_of_death|prev_gcd.4.touch_of_death)
-                    if artifact.galeBurst and hasEquiped(137057) and cd.strikeOfTheWindlord < 8 and cd.fistsOfFury.remain() <= 4 and cd.risingSunKick < 7 and canToD and lastCombo ~= spell.touchOfDeath then
+                    if artifact.galeBurst and hasEquiped(137057) and cd.strikeOfTheWindlord < 8 and cd.fistsOfFury <= 4 and cd.risingSunKick < 7 and canToD and lastCombo ~= spell.touchOfDeath then
                         for i = 1, #enemies.yards5 do
                             local thisUnit = enemies.yards5[i]
                             if cast.touchOfDeath(thisUnit) then canToD = false; SerenityTest = GetTime(); return end

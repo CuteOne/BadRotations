@@ -57,6 +57,8 @@ local function createOptions()
             br.ui:createDropdownWithout(section, "Summon Pet", {"Imp","Voidwalker","Felhunter","Succubus","Felguard","None"}, 1, "|cffFFFFFFSelect default pet to summon.")
         -- Grimoire of Service
             br.ui:createDropdownWithout(section, "Grimoire of Service", {"Imp","Voidwalker","Felhunter","Succubus","Felguard","None"}, 1, "|cffFFFFFFSelect pet to Grimoire.")
+        -- Demonwrath
+            br.ui:createCheckbox(section, "Demonwrath")
         -- Felstorm
             br.ui:createSpinner(section, "Felstorm", 3, 1, 10, 1, "|cffFFFFFFMinimal number of units Felguard's Felstorm will be used at.")
         -- Mana Tap
@@ -64,7 +66,7 @@ local function createOptions()
         -- Multi-Dot Limit
             br.ui:createSpinnerWithout(section, "Multi-Dot Limit", 5, 0, 10, 1, "|cffFFFFFFUnit Count Limit that DoTs will be cast on.")
             br.ui:createSpinnerWithout(section, "Multi-Dot HP Limit", 5, 0, 10, 1, "|cffFFFFFFHP Limit that DoTs will be cast/refreshed on.")
-            br.ui:createSpinnerWithout(section, "Boom Boss HP Limit", 10, 1, 20, 1, "|cffFFFFFFHP Limit that Doom will be cast/refreshed on in relation to Boss HP.")
+            br.ui:createSpinnerWithout(section, "Doom Boss HP Limit", 10, 1, 20, 1, "|cffFFFFFFHP Limit that Doom will be cast/refreshed on in relation to Boss HP.")
         br.ui:checkSectionState(section)
     -- Cooldown Options
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
@@ -793,7 +795,7 @@ local function runRotation()
         -- Demonwrath
                     -- demonwrath,chain=1,interrupt=1,if=spell_targets.demonwrath>=3
                     -- demonwrath,moving=1,chain=1,interrupt=1
-                    if demonwrathPet or moving then
+                    if isChecked("Demonwrath") and (demonwrathPet or moving) then
                         if cast.demonwrath() then return end
                     end
         -- Demonbolt

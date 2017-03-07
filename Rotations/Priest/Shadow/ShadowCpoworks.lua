@@ -460,7 +460,7 @@ local function runRotation()
         -- Mind Flay
             if talent.mindSpike then
                 if cast.mindSpike() then return end
-            elseif not isCastingSpell(spell.mindFlay) then
+            elseif not isCastingSpell(spell.mindFlay) and (lastSpell ~= spell.mindFlay or (lastSpell == spell.mindFlay and br.timer:useTimer("mindFlayRecast", getCastTime(spell.mindFlay) + gcd))) then
                 if cast.mindFlay() then return end
             end
         -- Shadow Word: Pain
@@ -630,7 +630,9 @@ local function runRotation()
             end
         --Mind Flay 
             --mind_flay,chain=1,interrupt_immediate=1,interrupt_if=ticks>=2&(action.void_bolt.usable|(current_insanity_drain*gcd.max>insanity&(insanity-(current_insanity_drain*gcd.max)+60)<100&cooldown.shadow_word_death.charges>=1))
-            if mfTick >= 2 and (cd.voidBolt == 0 or (insanityDrain * gcd > power and (power - (insanityDrain * gcd) + 60) < 100 and charges.shadowWordDeath >= 1)) then
+            if mfTick >= 2 and (cd.voidBolt == 0 or (insanityDrain * gcd > power and (power - (insanityDrain * gcd) + 60) < 100 and charges.shadowWordDeath >= 1)) 
+                and (lastSpell ~= spell.mindFlay or (lastSpell == spell.mindFlay and br.timer:useTimer("mindFlayRecast", getCastTime(spell.mindFlay) + gcd)))
+            then
                 return true
             else
                 if cast.mindFlay() then return end
@@ -655,7 +657,9 @@ local function runRotation()
             end
         -- Void Bolt
             -- void_bolt
-            if cast.voidBolt() then return end
+            if cd.vampiricTouch == 0 or buff.void.exists() then
+                if cast.voidBolt() then return end
+            end
         -- Shadow Crash
             -- shadow_crash,if=talent.shadow_crash.enabled
             if talent.shadowCrash then
@@ -693,7 +697,9 @@ local function runRotation()
             end
         -- Void Bolt
             -- void_bolt
-            if cast.voidBolt() then return end
+            if cd.vampiricTouch == 0 or buff.void.exists() then
+                if cast.voidBolt() then return end
+            end
         -- Shadow Word - Death
             -- shadow_word_death,if=(active_enemies<=4|(talent.reaper_of_souls.enabled&active_enemies<=2))&current_insanity_drain*gcd.max>insanity&(insanity-(current_insanity_drain*gcd.max)+(15+15*talent.reaper_of_souls.enabled))<100
             if ((mode.rotation == 1 and (#enemies.yards40 <= 4 or (talent.reaperOfSouls and #enemies <= 2))) or mode.rotation == 3)
@@ -805,7 +811,9 @@ local function runRotation()
             end
         -- Mind Flay
             -- mind_flay,chain=1,interrupt_immediate=1,interrupt_if=ticks>=2&(action.void_bolt.usable|(current_insanity_drain*gcd.max>insanity&(insanity-(current_insanity_drain*gcd.max)+30)<100&cooldown.shadow_word_death.charges>=1))
-            if mfTick >= 2 and (cd.voidBolt == 0 or (insanityDrain * gcd > power and (power - (insanityDrain * gcd) + 30) < 100 and charges.shadowWordDeath >= 1)) then
+            if mfTick >= 2 and (cd.voidBolt == 0 or (insanityDrain * gcd > power and (power - (insanityDrain * gcd) + 30) < 100 and charges.shadowWordDeath >= 1)) 
+                and (lastSpell ~= spell.mindFlay or (lastSpell == spell.mindFlay and br.timer:useTimer("mindFlayRecast", getCastTime(spell.mindFlay) + gcd)))
+            then
                 return true
             else
                 if cast.mindFlay() then return end
