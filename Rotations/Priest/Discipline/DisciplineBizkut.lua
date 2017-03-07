@@ -258,6 +258,8 @@ local function runRotation()
         local recharge                                      = br.player.recharge
         local solo                                          = br.player.instance=="none"
         local spell                                         = br.player.spell
+        local t19_2pc                                       = TierScan("T19") >= 2
+        local t19_4pc                                       = TierScan("T19") >= 4
         local talent                                        = br.player.talent
         local ttd                                           = getTTD
         local ttm                                           = br.player.power.ttm
@@ -376,7 +378,7 @@ local function runRotation()
                                     actionList_SpreadAtonement(br.friend[i].unit)
                                 end
                                 if mode.healer == 3 and br.friend[i].unit == "player" then
-                                    actionList_SpreadAtonement(br.friend[i].unit)
+                                    actionList_SpreadAtonement("player")
                                 end
                             end
                         end
@@ -438,11 +440,15 @@ local function runRotation()
         --Spread Atonement
         function actionList_SpreadAtonement(friendUnit)
             --Spread Atonement
-            if atonementCount < getOptionValue("Max Atonement") and (not buff.powerWordShield.exists(friendUnit) or getBuffRemain(friendUnit, spell.buffs.atonement, "player") < 1) then
+            if atonementCount <= getOptionValue("Max Atonement") and (not buff.powerWordShield.exists(friendUnit) or getBuffRemain(friendUnit, spell.buffs.atonement, "player") < 1) then
                 if getSpellCD(spell.powerWordShield) <= 0 and not buff.powerWordShield.exists(friendUnit) then
-                    if cast.powerWordShield(friendUnit) then return end
+                    if t19_4pc and buff.rapture.exists("player") and (atonementCount >= getOptionValue("Max Atonement") or getBuffRemain(friendUnit, spell.buffs.atonement, "player") < 15) then
+                        if cast.powerWordShield(friendUnit) then return end
+                    elseif atonementCount < getOptionValue("Max Atonement") then                    
+                        if cast.powerWordShield(friendUnit) then return end
+                    end
                 end
-                if lastSpell ~= spell.plea and atonementCount < getOptionValue("Max Plea") and not buff.powerWordShield.exists(friendUnit) and getBuffRemain(friendUnit, spell.buffs.atonement, "player") < 1 then
+                if lastSpell ~= spell.plea and atonementCount < getOptionValue("Max Plea") and atonementCount < getOptionValue("Max Atonement") and not buff.powerWordShield.exists(friendUnit) and getBuffRemain(friendUnit, spell.buffs.atonement, "player") < 1 then
                     if cast.plea(friendUnit) then return end     
                 end
                 if ((inInstance and atonementCount < 5) or inRaid) and lastSpell ~= spell.powerWordRadiance and atonementCount >= getOptionValue("Max Plea") and atonementCount < getOptionValue("Max Atonement") and not buff.powerWordShield.exists(friendUnit) and getBuffRemain(friendUnit, spell.buffs.atonement, "player") < 1 then
