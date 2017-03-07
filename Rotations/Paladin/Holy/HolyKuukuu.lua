@@ -52,6 +52,9 @@ local function createOptions()
             br.ui:createSpinner(section, "BoV Targets",  6,  0,  40,  1,  "Minimum Beacon of Virtue Targets")
         -- Redemption
             br.ui:createDropdown(section, "Redemption", {"|cffFFFFFFTarget","|cffFFFFFFMouseover"}, 1, "|cffFFFFFFSelect Redemption Mode.")
+            br.ui:createSpinner(section, "Beacon of Virtue", 30, 0, 100, 5, "Health Percent to Cast At")
+
+            br.ui:createSpinner(section, "Critical HP", 30, 0, 100, 5, "Health Percent to Spam FoL")
         br.ui:checkSectionState(section)
         -------------------------
         --- INTERRUPT OPTIONS ---
@@ -786,6 +789,9 @@ local function runRotation()
                 end
             end
             -- Flash of Light
+            if isChecked("Critical HP") and lowest.hp <= getOptionValue("Critical HP") then
+                if cast.flashOfLight(lowest.unit) then return end
+            end
             if isChecked("Flash of Light") and (getOptionValue("FoL Infuse") == 1 or (getOptionValue("FoL Infuse") == 2 and buff.infusionOfLight.exists("player"))) and (not LastFoLTime or GetTime() - LastFoLTime > 8) then
                 for i = 1, #br.friend do
                     if br.friend[i].hp <= getValue("Flash of Light")  then

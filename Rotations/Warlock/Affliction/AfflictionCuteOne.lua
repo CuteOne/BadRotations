@@ -329,7 +329,7 @@ local function runRotation()
         end
         -- Agony - Drain Soul Break
         -- agony,cycle_targets=1,if=remains<=tick_time+gcd
-        if mode.rotation ~= 4 and inCombat then
+        if mode.rotation ~= 4 and inCombat and not (IsMounted() or IsFlying()) then
             if debuff.agony.exists(lowestAgony) and debuff.agony.remain(lowestAgony) <= 3 + gcd then
                 if cast.agony(lowestAgony,"aoe") then return end
             end
@@ -662,28 +662,28 @@ local function runRotation()
                     if isChecked("Pet Management") and ObjectExists("target") then
                         if debuff.corruption.exists() and debuff.agony.exists() and br.timer:useTimer("summonPet", getCastTime(spell.summonVoidwalker)+gcd) then
                             if grimoirePet == 1 and lastSpell ~= spell.grimoireImp then
-                                if cast.grimoireImp("player") then prevService = "Imp"; return end
+                                if cast.grimoireImp("target") then prevService = "Imp"; return end
                             end
                             if grimoirePet == 2 and lastSpell ~= spell.grimoireVoidwalker then
-                                if cast.grimoireVoidwalker("player") then prevService = "Voidwalker"; return end
+                                if cast.grimoireVoidwalker("target") then prevService = "Voidwalker"; return end
                             end
                             if grimoirePet == 3 and lastSpell ~= spell.grimoireFelhunter then
-                                if cast.grimoireFelhunter("player") then prevService = "Felhunter"; return end
+                                if cast.grimoireFelhunter("target") then prevService = "Felhunter"; return end
                             end
                             if grimoirePet == 4 and lastSpell ~= spell.summonSuccubus then
-                                if cast.grimoireSuccubus("player") then prevService = "Succubus"; return end
+                                if cast.grimoireSuccubus("target") then prevService = "Succubus"; return end
                             end
                             if grimoirePet == 5 and lastSpell ~= spell.summonFelguard then
-                                if cast.grimoireFelguard("player") then prevService = "Felguard"; return end
+                                if cast.grimoireFelguard("target") then prevService = "Felguard"; return end
                             end
                             if summonPet == 6 and lastSpell ~= spell.summonDoomguard then
                                if talent.grimoireOfSupremacy and not hasEquiped(132379) then
-                                    if cast.summonDoomguard("player") then castSummonId = spell.summonDoomguard; return end
+                                    if cast.summonDoomguard("target") then castSummonId = spell.summonDoomguard; return end
                                 end
                             end
                             if summonPet == 7 and lastSpell ~= spell.summonInfernal then
                                 if talent.grimoireOfSupremacy and not hasEquiped(132379) then
-                                    if cast.summonInfernal("player") then castSummonId = spell.summonInfernal; return end
+                                    if cast.summonInfernal("target") then castSummonId = spell.summonInfernal; return end
                                 end
                             end
                             if summonPet == 8 then return end

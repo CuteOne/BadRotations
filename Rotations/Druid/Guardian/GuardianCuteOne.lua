@@ -95,6 +95,8 @@ local function createOptions()
             br.ui:createSpinner(section, "Barkskin", 50, 0, 100, 5, "|cffFFBB00Health Percentage to use at.")
         -- Frenzied Regeneration
             br.ui:createSpinner(section, "Frenzied Regeneration", 50, 0, 100, 5, "|cffFFBB00Health Loss Percentage to use at.")
+        -- Ironfur
+            br.ui:createSpinner(section, "Ironfur", 50, 0, 100, 5, "|cffFFBB00Health Percentage to use at.")
         -- Mark of Ursol
             br.ui:createSpinner(section, "Mark of Ursol", 50, 0, 100, 5, "|cffFFBB00Health Percentage to use at.")
         -- Rage of the Sleeper
@@ -561,7 +563,7 @@ local function runRotation()
                         if cast.bristlingFur() then return end
                     end
         -- Ironfur
-                    if not buff.ironfur.exists() or powerDeficit < 25 or buff.ironfur.remain() < 2 then
+                    if isChecked("Ironfur") and php >= getOptionValue("Ironfur") and not buff.ironfur.exists() or powerDeficit < 25 or buff.ironfur.remain() < 2 then
                         if cast.ironfur() then return end
                     end
         -- Moonfire

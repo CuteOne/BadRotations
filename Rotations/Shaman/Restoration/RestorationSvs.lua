@@ -71,15 +71,18 @@ local function createOptions()
             br.ui:createCheckbox(section,"Racial")
         -- Trinkets
             br.ui:createCheckbox(section,"Trinkets")
+        -- Cloudburst Totem
+            br.ui:createSpinner(section, "Cloudburst Totem",  90,  0,  100,  5,  "Health Percent to Cast At") 
+            br.ui:createSpinnerWithout(section, "Cloudburst Totem Targets",  3,  0,  40,  1,  "Minimum Cloudburst Totem Targets")
         -- Ancestral Guidance
             br.ui:createSpinner(section, "Ancestral Guidance",  60,  0,  100,  5,  "Health Percent to Cast At") 
-            br.ui:createSpinner(section, "Ancestral Guidance Targets",  3,  0,  40,  1,  "Minimum Ancestral Guidance Targets")
+            br.ui:createSpinnerWithout(section, "Ancestral Guidance Targets",  3,  0,  40,  1,  "Minimum Ancestral Guidance Targets")
         -- Ascendance
-            br.ui:createSpinner(section,"Ascendance",  50,  0,  100,  5,  "Health Percent to Cast At")
-            br.ui:createSpinner(section, "Ascendance Targets",  3,  0,  40,  1,  "Minimum Ascendance Targets")
+            br.ui:createSpinner(section,"Ascendance",  60,  0,  100,  5,  "Health Percent to Cast At")
+            br.ui:createSpinnerWithout(section, "Ascendance Targets",  3,  0,  40,  1,  "Minimum Ascendance Targets")
         -- Healing Tide Totem
-            br.ui:createSpinner(section, "Healing Tide Totem",  40,  0,  100,  5,  "Health Percent to Cast At") 
-            br.ui:createSpinner(section, "Healing Tide Totem Targets",  3,  0,  40,  1,  "Minimum Healing Tide Totem Targets")
+            br.ui:createSpinner(section, "Healing Tide Totem",  50,  0,  100,  5,  "Health Percent to Cast At") 
+            br.ui:createSpinnerWithout(section, "Healing Tide Totem Targets",  3,  0,  40,  1,  "Minimum Healing Tide Totem Targets")
         br.ui:checkSectionState(section)
     -- Defensive Options
         section = br.ui:createSection(br.ui.window.profile, "Defensive")
@@ -112,24 +115,26 @@ local function createOptions()
         section = br.ui:createSection(br.ui.window.profile, "Healing")
         -- Healing Rain
             br.ui:createSpinner(section, "Healing Rain",  80,  0,  100,  5,  "Health Percent to Cast At") 
-            br.ui:createSpinner(section, "Healing Rain Targets",  2,  0,  40,  1,  "Minimum Healing Rain Targets","", true)
+            br.ui:createSpinnerWithout(section, "Healing Rain Targets",  2,  0,  40,  1,  "Minimum Healing Rain Targets")
         -- Riptide
             br.ui:createSpinner(section, "Riptide",  90,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
         -- Healing Stream Totem
             br.ui:createSpinner(section, "Healing Stream Totem",  80,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
+        -- Unleash Life
+            br.ui:createSpinner(section, "Unleash Life",  80,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
         -- Healing Wave
             br.ui:createSpinner(section, "Healing Wave",  70,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
         -- Healing Surge
             br.ui:createSpinner(section, "Healing Surge",  60,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
         -- Chain Heal
-            br.ui:createSpinner(section, "Chain Heal",  80,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
-            br.ui:createSpinner(section, "Chain Heal Targets",  3,  0,  40,  1,  "Minimum Chain Heal Targets","", true)  
+            br.ui:createSpinner(section, "Chain Heal",  70,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
+            br.ui:createSpinnerWithout(section, "Chain Heal Targets",  3,  0,  40,  1,  "Minimum Chain Heal Targets")  
         -- Gift of the Queen
-            br.ui:createSpinner(section, "Gift of the Queen",  75,  0,  100,  5,  "Health Percent to Cast At") 
-            br.ui:createSpinner(section, "Gift of the Queen Targets",  3,  0,  40,  1,  "Minimum Gift of the Queen Targets","", true)
+            br.ui:createSpinner(section, "Gift of the Queen",  80,  0,  100,  5,  "Health Percent to Cast At") 
+            br.ui:createSpinnerWithout(section, "Gift of the Queen Targets",  3,  0,  40,  1,  "Minimum Gift of the Queen Targets")
         -- Wellspring
             br.ui:createSpinner(section, "Wellspring",  80,  0,  100,  5,  "Health Percent to Cast At") 
-            br.ui:createSpinner(section, "Wellspring Targets",  3,  0,  40,  1,  "Minimum Wellspring Targets","", true)
+            br.ui:createSpinnerWithout(section, "Wellspring Targets",  3,  0,  40,  1,  "Minimum Wellspring Targets")
         br.ui:checkSectionState(section)
     -- Toggle Key Options
         section = br.ui:createSection(br.ui.window.profile, "Toggle Keys")
@@ -179,6 +184,7 @@ local function runRotation()
         local combatTime                                    = getCombatTime()
         local cd                                            = br.player.cd
         local charges                                       = br.player.charges
+        local CloudburstTotemTime                           = 0
         local debuff                                        = br.player.debuff
         local enemies                                       = enemies or {}
         local gcd                                           = br.player.gcd
@@ -302,7 +308,7 @@ local function runRotation()
         end -- End Action List - Interrupts
         -- Action List - Pre-Combat
         function actionList_PreCombat()
-            -- Riptide
+        -- Riptide
             if isChecked("Riptide") then
                 for i = 1, #br.friend do
                     if br.friend[i].hp <= getValue("Riptide") and buff.riptide.remain(br.friend[i].unit) <= 1 then
@@ -310,7 +316,7 @@ local function runRotation()
                     end
                 end
             end
-            -- Healing Stream Totem
+        -- Healing Stream Totem
            if isChecked("Healing Stream Totem") then
                 for i = 1, #br.friend do                           
                     if br.friend[i].hp <= getValue("Healing Stream Totem") then
@@ -318,7 +324,7 @@ local function runRotation()
                     end
                 end
             end
-            -- Healing Surge
+        -- Healing Surge
             if isChecked("Healing Surge") then
                 for i = 1, #br.friend do                           
                     if br.friend[i].hp <= getValue("Healing Surge") and (buff.tidalWaves.exists() or level < 34) then
@@ -326,7 +332,7 @@ local function runRotation()
                     end
                 end
             end
-            -- Healing Wave
+        -- Healing Wave
             if isChecked("Healing Wave") then
                 for i = 1, #br.friend do                           
                     if br.friend[i].hp <= getValue("Healing Wave") and (buff.tidalWaves.exists() or level < 34) then
@@ -334,7 +340,7 @@ local function runRotation()
                     end
                 end
             end
-            -- Chain Heal
+        -- Chain Heal
             if isChecked("Chain Heal") and not moving and lastSpell ~= spell.chainHeal then
                 if getLowAllies(getValue("Chain Heal")) >= getValue("Chain Heal Targets") then    
                     if cast.chainHeal() then return end    
@@ -344,11 +350,16 @@ local function runRotation()
         function actionList_Cooldowns()
             if useCDs() then
             -- Cloudburst Totem
-            if talent.cloudburstTotem and not buff.cloudburstTotem.exists() then
-                if cast.cloudburstTotem() then return end
-            end
+                if isChecked("Cloudburst Totem") and talent.cloudburstTotem and not buff.cloudburstTotem.exists() then
+                    if getLowAllies(getValue("Cloudburst Totem")) >= getValue("Cloudburst Totem Targets") then
+                        if cast.cloudburstTotem() then 
+                            CloudburstTotemTime = GetTime()
+                            return
+                        end
+                    end
+                end
             -- Ancestral Guidance
-                if isChecked("Ancestral Guidance") and talent.ancestralGuidance then
+                if isChecked("Ancestral Guidance") and talent.ancestralGuidance and not talent.cloudburstTotem then
                     if getLowAllies(getValue("Ancestral Guidance")) >= getValue("Ancestral Guidance Targets") then
                         if talent.cloudburstTotem and buff.cloudburstTotem.exists() then
                             if cast.ancestralGuidance() then return end    
@@ -358,13 +369,13 @@ local function runRotation()
                     end
                 end
             -- Ascendance
-                if isChecked("Ascendance") and talent.ascendance and not buff.ascendance.exists() then
+                if isChecked("Ascendance") and talent.ascendance and not buff.ascendance.exists() and not talent.cloudburstTotem then
                     if getLowAllies(getValue("Ascendance")) >= getValue("Ascendance") then    
                         if cast.ascendance() then return end    
                     end
                 end
             -- Healing Tide Totem
-                if isChecked("Healing Tide Totem") then
+                if isChecked("Healing Tide Totem") and not talent.cloudburstTotem then
                     if getLowAllies(getValue("Healing Tide Totem")) >= getValue("Healing Tide Totem Targets") then    
                         if cast.healingTideTotem() then return end    
                     end
@@ -390,25 +401,97 @@ local function runRotation()
                 end
             end -- End useCooldowns check
         end -- End Action List - Cooldowns
+        -- Cloudburst Totem
+        function actionList_CBT()
+        -- Ancestral Guidance
+            if isChecked("Ancestral Guidance") and talent.ancestralGuidance and (not CloudburstTotemTime or GetTime() - CloudburstTotemTime > 5) then
+                if getLowAllies(getValue("Ancestral Guidance")) >= getValue("Ancestral Guidance Targets") then
+                    if cast.ancestralGuidance() then return end
+                end
+            end
+        -- Ascendance
+            if isChecked("Ascendance") and talent.ascendance and not buff.ascendance.exists() then
+                if getLowAllies(getValue("Ascendance")) >= getValue("Ascendance") then    
+                    if cast.ascendance() then return end    
+                end
+            end
+        -- Healing Tide Totem
+            if isChecked("Healing Tide Totem") then
+                if getLowAllies(getValue("Healing Tide Totem")) >= getValue("Healing Tide Totem Targets") then    
+                    if cast.healingTideTotem() then return end    
+                end
+            end
+        -- Healing Rain
+            if isChecked("Healing Rain") and not moving and not buff.healingRain.exists() then
+                if getLowAllies(getValue("Healing Rain")) >= getValue("Healing Rain Targets") then
+                    if castGroundAtBestLocation(spell.healingRain, 20, 0, 40, 0, "heal") then return end    
+                end
+            end
+        -- Riptide
+            if isChecked("Riptide") then
+                if not buff.tidalWaves.exists() and level >= 34 then
+                    if cast.riptide(lowest) then return end
+                end
+                for i = 1, #br.friend do
+                    if br.friend[i].hp <= getValue("Riptide") and buff.riptide.remain(br.friend[i].unit) <= 1 then
+                        if cast.riptide(br.friend[i].unit) then return end     
+                    end
+                end
+            end
+        -- Gift of the Queen
+            if isChecked("Gift of the Queen") then
+                if getLowAllies(getValue("Gift of the Queen")) >= getValue("Gift of the Queen Targets") then
+                    if cast.giftOfTheQueen() then return end
+                end
+            end
+        -- Healing Stream Totem
+            if isChecked("Healing Stream Totem") then
+                for i = 1, #br.friend do                           
+                    if br.friend[i].hp <= getValue("Healing Stream Totem") then
+                        if cast.healingStreamTotem(br.friend[i].unit) then return end     
+                    end
+                end
+            end
+        -- Unleash Life
+            if isChecked("Unleash Life") and talent.unleashLife then
+                for i = 1, #br.friend do                           
+                    if br.friend[i].hp <= getValue("Unleash Life") then
+                        if cast.unleashLife() then return end     
+                    end
+                end
+            end
+        -- Healing Surge
+            if isChecked("Healing Surge") then
+                for i = 1, #br.friend do                           
+                    if br.friend[i].hp <= getValue("Healing Surge") and (buff.tidalWaves.exists() or level < 100) then
+                        if cast.healingSurge(br.friend[i].unit) then return end     
+                    end
+                end
+            end
+        -- Healing Wave
+            if isChecked("Healing Wave") then
+                for i = 1, #br.friend do                           
+                    if br.friend[i].hp <= getValue("Healing Wave") and (buff.tidalWaves.exists() or level < 100) then
+                        if cast.healingWave(br.friend[i].unit) then return end     
+                    end
+                end
+            end
+        end -- End Action List - Cloudburst Totem
         -- AOE Healing
         function actionList_AOEHealing()
-            -- Chain Heal
+        -- Chain Heal
             if isChecked("Chain Heal") and not moving and lastSpell ~= spell.chainHeal then
                 if getLowAllies(getValue("Chain Heal")) >= getValue("Chain Heal Targets") then    
                     if cast.chainHeal() then return end    
                 end
             end
-            -- Gift of the Queen
-            if isChecked("Gift of the Queen") then
+        -- Gift of the Queen
+            if isChecked("Gift of the Queen") and not talent.cloudburstTotem then
                 if getLowAllies(getValue("Gift of the Queen")) >= getValue("Gift of the Queen Targets") then
-                    if talent.cloudburstTotem and buff.cloudburstTotem.exists() then
-                        if cast.giftOfTheQueen() then return end    
-                    else
-                        if cast.giftOfTheQueen() then return end
-                    end
+                    if cast.giftOfTheQueen() then return end
                 end
             end
-            -- Wellspring
+        -- Wellspring
             if isChecked("Wellspring") then
                 if getLowAllies(getValue("Wellspring")) >= getValue("Wellspring Targets") then
                     if talent.cloudburstTotem and buff.cloudburstTotem.exists() then
@@ -421,7 +504,7 @@ local function runRotation()
         end -- End Action List - AOEHealing
         -- Single Target
         function actionList_SingleTarget()
-            -- Purify Spirit
+        -- Purify Spirit
             if br.player.mode.decurse == 1 then
                 for i = 1, #br.friend do
                     for n = 1,40 do
@@ -434,7 +517,7 @@ local function runRotation()
                     end
                 end
             end
-            -- Riptide
+        -- Riptide
             if isChecked("Riptide") then
                 if not buff.tidalWaves.exists() and level >= 34 then
                     if cast.riptide(lowest) then return end
@@ -445,11 +528,11 @@ local function runRotation()
                     end
                 end
             end
-            -- Earthen Shield Totem
+        -- Earthen Shield Totem
             if talent.earthenShieldTotem and not moving then
                 if cast.earthenShieldTotem() then return end
             end
-            -- Healing Stream Totem
+        -- Healing Stream Totem
             if isChecked("Healing Stream Totem") then
                 for i = 1, #br.friend do                           
                     if br.friend[i].hp <= getValue("Healing Stream Totem") then
@@ -457,7 +540,15 @@ local function runRotation()
                     end
                 end
             end
-            -- Healing Surge
+        -- Unleash Life
+            if isChecked("Unleash Life") and talent.unleashLife then
+                for i = 1, #br.friend do                           
+                    if br.friend[i].hp <= getValue("Unleash Life") then
+                        if cast.unleashLife() then return end     
+                    end
+                end
+            end
+        -- Healing Surge
             if isChecked("Healing Surge") then
                 for i = 1, #br.friend do                           
                     if br.friend[i].hp <= getValue("Healing Surge") and (buff.tidalWaves.exists() or level < 100) then
@@ -465,7 +556,7 @@ local function runRotation()
                     end
                 end
             end
-            -- Healing Wave
+        -- Healing Wave
             if isChecked("Healing Wave") then
                 for i = 1, #br.friend do                           
                     if br.friend[i].hp <= getValue("Healing Wave") and (buff.tidalWaves.exists() or level < 100) then
@@ -473,7 +564,7 @@ local function runRotation()
                     end
                 end
             end
-            -- Oh Shit! Healing Surge
+        -- Oh Shit! Healing Surge
             if isChecked("Healing Surge") then
                 for i = 1, #br.friend do                           
                     if br.friend[i].hp <= 30 then
@@ -484,29 +575,29 @@ local function runRotation()
         end -- End Action List Single Target
     -- Action List - DPS
         local function actionList_DPS()
-            -- Lightning Surge Totem
+        -- Lightning Surge Totem
             if isChecked("Lightning Surge Totem - HP") and php <= getOptionValue("Lightning Surge Totem - HP") and inCombat and #enemies.yards5 > 0 and lastSpell ~= spell.lightningSurgeTotem then
                 if cast.lightningSurgeTotem("player","ground") then return end
             end
             if isChecked("Lightning Surge Totem - AoE") and #enemies.yards5 >= getOptionValue("Lightning Surge Totem - AoE") and inCombat and lastSpell ~= spell.lightningSurgeTotem then
                 if cast.lightningSurgeTotem("best",nil,getOptionValue("Lightning Surge Totem - AoE"),8) then return end
             end
-            -- Lava Burst - Lava Surge
+        -- Lava Burst - Lava Surge
             if buff.lavaSurge.exists() then
                 if cast.lavaBurst() then return end
             end
-            -- Flameshock
+        -- Flameshock
             for i = 1, #enemies.yards40 do
                 local thisUnit = enemies.yards5[i]
                 if not debuff.flameShock.exists(thisUnit) then
                     if cast.flameShock(thisUnit) then return end
                 end
             end
-            -- Lava Burst
+        -- Lava Burst
             if debuff.flameShock.remain(units.dyn40) > getCastTime(spell.lavaBurst) or level < 20 then
                 if cast.lavaBurst() then return end
             end
-            -- Lightning Bolt
+        -- Lightning Bolt
             if cast.lightningBolt() then return end
         end -- End Action List - DPS
 -----------------
@@ -532,6 +623,9 @@ local function runRotation()
                 actionList_Defensive()
                 actionList_Interrupts()
                 actionList_Cooldowns()
+                if talent.cloudburstTotem and buff.cloudburstTotem.exists() then
+                    actionList_CBT()
+                end
                 -- Healing Rain
                 if isChecked("Healing Rain") and not moving and not buff.healingRain.exists() then
                     if getLowAllies(getValue("Healing Rain")) >= getValue("Healing Rain Targets") then    

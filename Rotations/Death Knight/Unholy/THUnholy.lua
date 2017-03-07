@@ -252,8 +252,18 @@ local function runRotation()
           print(isChecked("AMS Counter"))
         end
 
-        --print(getOptionValue("InterruptAt") + math.random(-5,5))
-       -- print (cd.apocalypse, cd.soulReaper, debuff.festeringWound.stack("target"))
+        if waitfornextPrint == nil or printevery2S == nil then
+                waitfornextPrint = GetTime()
+                printevery2S = true
+        end
+
+        if waitfornextPrint <= GetTime() -2 then
+            printevery2S = true
+            waitfornextPrint = GetTime()
+        else
+            printevery2S = false
+        end
+
 -------------------
 --- Raise Pet   ---
 -------------------
@@ -309,7 +319,7 @@ local function runRotation()
                 if cast.darkTransformation() then return end
             end
         --Death and Decay
-            if #enemies.yards10 >= getOptionValue("Death and Decay") and debuff.festeringWound.stack("target") >= getOptionValue("DnD Festering Wounds") then
+            if #enemies.yards10 >= getOptionValue("Death and Decay") and debuff.festeringWound.stack("target") >= getOptionValue("DnD Festering Wounds") and not isMoving("player") then
                 if cast.deathAndDecay("target") then return end
             end
         --Potion
@@ -337,7 +347,7 @@ local function runRotation()
                 and (useCDs() or playertar)
                 and (not talent.soulReaper or buff.soulReaper.stack("player") == 3 or (not debuff.soulReaper.exists("target") and cd.soulReaper > 30))
                 and cd.summonGargoyle <= 0 
-                and (not talent.darkArbiter or runicPowerDeficit < 5)
+                and (not talent.darkArbiter or runicPowerDeficit <= 10)
                 and hasEquiped(137075)
             then
                 if cast.darkTransformation() then return end
@@ -441,10 +451,22 @@ local function runRotation()
                 if isChecked("Death Strike") 
                     and inCombat 
                     and (buff.darkSuccor.exists() and (php < getOptionValue("Death Strike") or buff.darkSuccor.remain() < 2))
-                    or  runicPower >= 45  and php < getOptionValue("Death Strike")                         
+                    or  runicPower >= 45  
+                    and php < getOptionValue("Death Strike") 
+                    and (not talent.darkArbiter or (cd.darkArbiter <= 3 and not (useCDs() or playertar)))
                 then
-                    if isChecked("Debug Info") then Print("cast DS") end
-                    if cast.deathStrike() then return end
+                     -- Death strike everything in reach
+                    if getDistance("target") > 5 or immun or bop then
+                        for i=1, #getEnemies("player",20) do
+                            thisUnit = getEnemies("player",20)[i]
+                            distance = getDistance(thisUnit)
+                            if distance < 5 and getFacing("player",thisUnit) then
+                                if cast.deathStrike(thisUnit) then print("Random Hit Deathstrike") return end
+                            end
+                        end
+                    else
+                        if cast.deathStrike("target") then return end
+                    end
                 end
                 if isChecked("Debug Info") then Print("IBF") end
             -- Icebound Fortitude
@@ -580,15 +602,17 @@ local function runRotation()
                 end
 
                 -- Pet Attack / retreat
-                if inCombat and isValidUnit(units.dyn30) and getDistance(units.dyn30) < 30 and isChecked("Pet Attack") then
-                    if not UnitIsUnit("target","pettarget") and attacktar and not IsPetAttackActive() then
-                        PetAttack()
-                        PetAssistMode()
-                    end
-                else
-                    if IsPetAttackActive() then
-                        PetStopAttack()
-                        PetPassiveMode()
+                if  isChecked("Pet Attack") then
+                    if inCombat and isValidUnit(units.dyn30) and getDistance(units.dyn30) < 30 then
+                        if not UnitIsUnit("target","pettarget") and attacktar and not IsPetAttackActive() then
+                            PetAttack()
+                            PetAssistMode()
+                        end
+                    else
+                        if IsPetAttackActive() then
+                            PetStopAttack()
+                            PetPassiveMode()
+                        end
                     end
                 end
             end
@@ -623,9 +647,7 @@ local function runRotation()
         local function actionList_SoulReaper()
             if isChecked("Debug Info") then Print("actionList_Generic") end
            
-            if waitfornextPrint == nil then
-                waitfornextPrint = GetTime()
-            end
+          
         --Soul Reaper if artifact == 0 and festeringWound > 6
             if debuff.festeringWound.stack("target") >= 7
                 and cd.apocalypse <= 0
@@ -769,7 +791,7 @@ local function runRotation()
                 end
             end           
         --Death Coil
-            if (cd.darkArbiter >= 5 and runicPower >= 80
+            if ((not (useCDs() or playertar) or cd.darkArbiter >= 5) and runicPower >= 80
                 or (buff.suddenDoom.exists() and buff.suddenDoom.remain() < 8))
                 and (not buff.necrosis.exists("player") or buff.suddenDoom.remain() < 2 or runicPower > 90)
                 and not immun
@@ -827,13 +849,6 @@ local function runRotation()
     -- Action List - Dark Arbiter exist
     ---------------------------------------------------------------------------------------------------------------------------------
         local function actionList_DarkArbiter()
-            --Death coil to avoid CAP
-                if runicPowerDeficit <= 10 
-                    and not cloak
-                    and not immun
-                then
-                    if cast.deathCoil("target") then return end
-                end
             --DeathCoil Dump            
                 if runicPower >= 35 then
                     if not immun and not cloak
@@ -841,8 +856,16 @@ local function runRotation()
                         if cast.deathCoil("target") then return end
                     end
                 end
+             --Apocalypse
+                if cd.apocalypse <= 0
+                    and debuff.festeringWound.stack("target") >= 7
+                    and not immun
+                    and not bop
+                then
+                    if cast.apocalypse("target") then return end
+                end
             --Festering Strike
-                if runes >= 2 then
+                if runes >= 2 and debuff.festeringWound.stack("target") <= 5 then
                     if cast.festeringStrike("target") then return end
                 end
             --Scourge
@@ -905,7 +928,7 @@ local function runRotation()
 -----------------------------
 --- In Combat - Rotations --- 
 -----------------------------
-            if inCombat then
+            if inCombat and not isMounted and getBuffRemain("player", 192002 ) < 10 then
                 if isChecked("Debug Info") then Print("inCombat") end
 
                 if waitfornextVirPlague == nil then
@@ -913,6 +936,22 @@ local function runRotation()
                 end
                 if debuff.dampening ~= nil then
                     if actionList_DebuffReader() then return end
+                end
+
+                if debuff.eyeOfLeotheras ~= nil and debuff.eyeOfLeotheras.exists("player") then
+                    ClearTarget()
+                    if IsPetAttackActive() then
+                        PetStopAttack()
+                        PetPassiveMode()
+                    end
+                    Print("Warning : Eye of Leotheras detected")
+                    return
+                end
+
+                if not isValidUnit("target") and false then
+                    if #enemies.yards8 > 0 and inCombat then
+                        TargetUnit(enemies.yards8[1])
+                    end
                 end
             ---------------------------
             --- SoulReaper          ---

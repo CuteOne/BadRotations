@@ -242,30 +242,6 @@ local function runRotation()
         end -- End Action List - Extras
         -- Action List - Pre-Combat
         function actionList_PreCombat()
-            -- Lifebloom
-            if isChecked("Lifebloom") and not isCastingSpell(spell.tranquility) then
-                if inInstance then    
-                    for i = 1, #br.friend do
-                        if not buff.lifebloom.exists(br.friend[i].unit) and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
-                            if cast.lifebloom(br.friend[i].unit) then return end
-                        end
-                    end              
-                else 
-                    if inRaid then
-                        bloomCount = 0
-                        for i=1, #br.friend do
-                            if buff.lifebloom.exists(br.friend[i].unit) then
-                                bloomCount = bloomCount + 1
-                            end
-                        end
-                        for i = 1, #br.friend do
-                            if bloomCount < 1 and not buff.lifebloom.exists(br.friend[i].unit) and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
-                                if cast.lifebloom(br.friend[i].unit) then return end
-                            end
-                        end
-                    end
-                end
-            end
             -- Rejuvenation
             if isChecked("Rejuvenation") then
                 rejuvCount = 0
@@ -431,7 +407,7 @@ local function runRotation()
                 for i = 1, #br.friend do
                     if br.friend[i].hp <= getValue("Regrowth Clearcasting") and buff.clearcasting.remain() > 1.5 then
                         if cast.regrowth(br.friend[i].unit) then return end
-                    elseif isChecked("Keep Regrowth on tank") and buff.lifebloom.exists(br.friend[i].unit) and buff.regrowth.remain(br.friend[i].unit) <= 1 then
+                    elseif isChecked("Keep Regrowth on tank") and buff.lifebloom.exists(br.friend[i].unit) and buff.regrowth.remain(br.friend[i].unit) <= 1 and br.friend[i].hp <= getValue("Regrowth") then
                         if cast.regrowth(br.friend[i].unit) then return end
                     elseif br.friend[i].hp <= getValue("Regrowth") and buff.regrowth.remain(br.friend[i].unit) <= 1 then
                         if talent.abundance and buff.abundance.stack() < 3 then
@@ -494,6 +470,10 @@ local function runRotation()
                         end
                     end
                 end
+            end
+            -- Ephemeral Paradox trinket
+            if hasEquiped(140805) and getBuffRemain("player", 225766) > 2 then
+                if cast.healingTouch(lowestHP) then return end
             end
         end
     -- Action List - DPS
@@ -560,7 +540,7 @@ local function runRotation()
         -- Balance Affinity 
             if talent.balanceAffinity then
             -- Moonkin form
-                if not moonkin then
+                if not moonkin and not moving and not travel and not IsMounted() then
                     if cast.moonkinForm() then return end
                 end
             -- Lunar Strike 3 charges
