@@ -103,6 +103,8 @@ local function createOptions()
             br.ui:createCheckbox(section,"Draught of Souls")
         -- Gnawed Thumb Ring
             br.ui:createCheckbox(section,"Gnawed Thumb Ring")
+        -- Artifact
+            br.ui:createDropdownWithout(section,"Artifact", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Artifact Ability.")
         -- Experimental BoK Code Checkbox :P
             br.ui:createCheckbox(section,"Experimental BoK Logic", "Should provide a dps gain, however not fully tested. Disable if causing issues.")
         br.ui:checkSectionState(section)
@@ -679,7 +681,7 @@ local function runRotation()
                             end
         -- Storm, Earth, and Fire
                         elseif ToD and not SEF then
-                            if (mode.sef == 2 or (mode.sef == 1 and useCDs())) and GetTime() >= SerenityTest + (1 - 0.2 - getOptionValue("SEF Timer")) then
+                            if GetTime() >= SerenityTest + (1 - 0.2 - getOptionValue("SEF Timer")) then
                                 castOpener("stormEarthAndFire","SEF",5)
                             end
         -- Rising Sun Kick
@@ -729,7 +731,7 @@ local function runRotation()
                             end
         -- Storm, Earth, and Fire
                         elseif ToD and not SEF then
-                            if (mode.sef == 2 or (mode.sef == 1 and useCDs())) and GetTime() >= SerenityTest + (1 - 0.2 - getOptionValue("SEF Timer")) then
+                            if GetTime() >= SerenityTest + (1 - 0.2 - getOptionValue("SEF Timer")) then
                                 castOpener("stormEarthAndFire","SEF",5)
                             end
         -- Rising Sun Kick
@@ -790,7 +792,7 @@ local function runRotation()
                             castOpener("tigerPalm","TP2",4)
         -- Storm, Earth, and Fire
                         elseif TP2 and not SEF then
-                            if (mode.sef == 2 or (mode.sef == 1 and useCDs())) and GetTime() >= SerenityTest + (1 - getOptionValue("SEF Timer")) then
+                            if GetTime() >= SerenityTest + (1 - getOptionValue("SEF Timer")) then
                                 castOpener("stormEarthAndFire","SEF",5)
                             else
                                 Print("5: Storm, Earth, and Fire (Uncastable)");
@@ -931,9 +933,11 @@ local function runRotation()
             -- strike_of_the_windlord,if=equipped.convergence_of_fates&talent.serenity.enabled&cooldown.serenity.remains>=10
             -- strike_of_the_windlord,if=equipped.convergence_of_fates&!talent.serenity.enabled
             -- strike_of_the_windlord,if=!equipped.convergence_of_fates
-            if (((talent.serenity and cd.serenity >= 10) or not isChecked("Serenity") or not useCDs()) or (not talent.serenity and #enemies.yards5 < 6)) and getDistance(units.dyn5) < 5 and lastCombo ~= spell.strikeOfTheWindlord then
-                if not hasEquiped(140806) or (hasEquiped(140806) and (not talent.serenity or (talent.serenity and cd.serenity >= 10))) then
-                    if cast.strikeOfTheWindlord() then return end
+            if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()) then
+                if (((talent.serenity and cd.serenity >= 10) or not isChecked("Serenity") or not useCDs()) or (not talent.serenity and #enemies.yards5 < 6)) and getDistance(units.dyn5) < 5 and lastCombo ~= spell.strikeOfTheWindlord then
+                    if not hasEquiped(140806) or (hasEquiped(140806) and (not talent.serenity or (talent.serenity and cd.serenity >= 10))) then
+                        if cast.strikeOfTheWindlord() then return end
+                    end
                 end
             end
         -- SCK
@@ -1102,7 +1106,7 @@ local function runRotation()
                 if buff.serenity.exists() then
         -- Strike of the Windlord
                     -- strike_of_the_windlord
-                    if getDistance(units.dyn5) < 5 and lastCombo ~= spell.strikeOfTheWindlord then
+                    if getDistance(units.dyn5) < 5 and lastCombo ~= spell.strikeOfTheWindlord and getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()) then
                         if cast.strikeOfTheWindlord() then return end
                     end
         -- Rising Sun Kick
@@ -1369,7 +1373,7 @@ local function runRotation()
                         if cast.whirlingDragonPunch() then return end
                     end
         -- Strike of the Windlord
-                    if (((talent.serenity and cd.serenity > 20) or not isChecked("Serenity") or not useCDs()) or not talent.serenity) and getDistance(units.dyn5) < 5 and lastCombo ~= spell.strikeOfTheWindlord then
+                    if (((talent.serenity and cd.serenity > 20) or not isChecked("Serenity") or not useCDs()) or not talent.serenity) and getDistance(units.dyn5) < 5 and lastCombo ~= spell.strikeOfTheWindlord and getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()) then
                         if cast.strikeOfTheWindlord() then return end
                     end
         -- Tiger Palm

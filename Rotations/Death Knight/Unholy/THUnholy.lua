@@ -242,21 +242,14 @@ local function runRotation()
         
         if lastSpell == nil or not inCombat then lastSpell = 0 end
         if profileStop == nil then profileStop = false end
-
-
-        if isChecked("Debug Info") then
-         --   local name, rank, icon, castingTime, minRange, maxRange, spellID = GetSpellInfo(223829)
-          --  print(name, rank, spellID)
-          print(getOptionValue("Dark Transformation"), "units: ",getOptionValue("Dark Transformation Units")," enemy: ",#enemies.yards10 )
-          print(getOptionValue("Death and Decay"), " dnd fw: ", getOptionValue("DnD Festering Wounds"))
-          print(isChecked("AMS Counter"))
-        end
-
+        if waitfornextVirPlague == nil or objIDLastVirPlagueTarget == nil then
+            waitfornextVirPlague = GetTime() - 10
+            objIDLastVirPlagueTarget = 0
+        end      
         if waitfornextPrint == nil or printevery2S == nil then
                 waitfornextPrint = GetTime()
                 printevery2S = true
         end
-
         if waitfornextPrint <= GetTime() -2 then
             printevery2S = true
             waitfornextPrint = GetTime()
@@ -323,7 +316,7 @@ local function runRotation()
                 if cast.deathAndDecay("target") then return end
             end
         --Potion
-            if useCDs() and isChecked("Potion") and getDistance("target") < 15 then
+            if useCDs() and isChecked("Potion") and getDistance("target") < 15 and not isDummy() and not playertar then
                 --Old War
                 if hasItem(127844) and canUse(127844) then
                     useItem(127844)
@@ -394,15 +387,17 @@ local function runRotation()
                 end
             end
         --Virulent Plague
-            if waitfornextVirPlague ~= nil and waitfornextVirPlague < GetTime() - 6 then
+            if (UnitExists("target") and objIDLastVirPlagueTarget ~= ObjectID("target")) or waitfornextVirPlague < GetTime() - 6 then
                 if (not debuff.virulentPlague.exists("target")
                     or debuff.virulentPlague.remain("target") < 1.5) 
                     and not debuff.soulReaper.exists("target")
                     and not immun
                     and not cloak
+                    and not deadtar
                 then
                     if cast.outbreak("target") then 
                         waitfornextVirPlague = GetTime() 
+                        objIDLastVirPlagueTarget = ObjectID("target")
                         return 
                     end
                 end
@@ -416,6 +411,7 @@ local function runRotation()
                     then
                         if cast.outbreak(thisUnit) then 
                             waitfornextVirPlague = GetTime() 
+                            objIDLastVirPlagueTarget = ObjectID(thisUnit)
                             return 
                         end
                         break
@@ -646,6 +642,9 @@ local function runRotation()
     ---------------------------------------------------------------------------------------------------------------------------------
         local function actionList_SoulReaper()
             if isChecked("Debug Info") then Print("actionList_Generic") end
+            if printevery2S then
+               -- print(runicPowerDeficit, runicPower, runes)
+            end
            
           
         --Soul Reaper if artifact == 0 and festeringWound > 6
@@ -666,11 +665,32 @@ local function runRotation()
             then
                 if cast.apocalypse("target") then return end
             end
-        --ScourgeStrike if Scourge of Worlds / Death and Decay
-            if (debuff.scourgeOfWorlds.exists("target") or buff.deathAndDecay.exists())
+        --ScourgeStrike spam DnD
+            if buff.deathAndDecay.exists("player")
+                and #enemies.yards10 > 2
+                and not immun
+                and not cloak
+            then
+                if playertar and isChecked("Necro Spam") and dampeningCount >= getOptionValue("Necro Spam") then 
+                    if cast.necroticStrike("target") then
+                        return 
+                    elseif talent.clawingShadows then
+                        if cast.clawingShadows("target") then return end
+                    else
+                        if cast.scourgeStrike("target") then return end
+                    end
+                elseif talent.clawingShadows then
+                    if cast.clawingShadows("target") then return end
+                else
+                    if cast.scourgeStrike("target") then return end
+                end
+            end        
+
+        --ScourgeStrike if Scourge of Worlds / Necrosis
+            if (debuff.scourgeOfWorlds.exists("target")  or buff.necrosis.exists("player"))
                 and debuff.festeringWound.stack("target") > 1
-                and runicPower < 90
-                and (not (cd.apocalypse == 0) or getDistance("target") > 5)
+                and runicPowerDeficit > 13
+                and (not (cd.apocalypse == 0) or getDistance("target") > 5 )
                 and not (cd.soulReaper < 5)
                 and not immun
                 and not cloak
@@ -692,7 +712,7 @@ local function runRotation()
         --Death Coil
             if (runicPower >= 80
                 or (buff.suddenDoom.exists() and buff.suddenDoom.remain() < 8))
-                and (not buff.necrosis.exists("player") or buff.suddenDoom.remain() < 2 or runicPower > 90)
+                and (not buff.necrosis.exists("player") or (buff.suddenDoom.stack("player") and buff.suddenDoom.remain() < 2) or runicPowerDeficit >= 20)
                 and not immun
                 and not cloak
             then
@@ -715,7 +735,6 @@ local function runRotation()
                 and not bop
                 and not cloak
             then
-                --print (" Soulreaper Cast Runes : ", runes)
                 if cast.soulReaper("target") then return end
             end
         --Scourge
@@ -849,6 +868,7 @@ local function runRotation()
     -- Action List - Dark Arbiter exist
     ---------------------------------------------------------------------------------------------------------------------------------
         local function actionList_DarkArbiter()
+
             --DeathCoil Dump            
                 if runicPower >= 35 then
                     if not immun and not cloak
@@ -931,9 +951,6 @@ local function runRotation()
             if inCombat and not isMounted and getBuffRemain("player", 192002 ) < 10 then
                 if isChecked("Debug Info") then Print("inCombat") end
 
-                if waitfornextVirPlague == nil then
-                    waitfornextVirPlague = 0
-                end
                 if debuff.dampening ~= nil then
                     if actionList_DebuffReader() then return end
                 end
@@ -1000,7 +1017,9 @@ local function runRotation()
                 ---------------------------
                     if #br.player.queue ~= 0 and isChecked("SpellQueue Clear") then
                         for i = 1, #br.player.queue do
-                            if getSpellCD(br.player.queue[i].name) >=  getOptionValue("SpellQueue Clear") then
+                            if br.player.queue[i].name == nil then
+                                tremove(br.player.queue,i)
+                            elseif getSpellCD(br.player.queue[i].name) >=  getOptionValue("SpellQueue Clear") then
                                 Print("Removed |cFFFF0000"..br.player.queue[i].name.. "|r cause CD")
                                 tremove(br.player.queue,i)
                             end

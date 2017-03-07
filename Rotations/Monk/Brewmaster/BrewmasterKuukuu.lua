@@ -73,8 +73,16 @@ local function createOptions()
             br.ui:createCheckbox(section,"Trinkets")
         -- Touch of the Void
             br.ui:createCheckbox(section,"Touch of the Void")
-        -- Exploding Keg 
-            br.ui:createCheckbox(section,"Exploding Keg")
+        -- Chi Burst
+        	br.ui:createSpinnerWithout(section, "Chi Burst Targets",  1,  1,  10,  1)
+        -- Artifact
+            br.ui:createDropdownWithout(section,"Artifact", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Artifact Ability.")
+        -- Exploding Keg Targets
+        	br.ui:createSpinnerWithout(section, "Exploding Keg Targets",  2,  1,  10,  1,  "|cffFFFFFFAmount of Targets to cast Exploding Keg when enabled above.")        
+        -- Breath of Fire
+        	br.ui:createSpinnerWithout(section, "Breath of Fire Targets",  1,  1,  10,  1)
+        -- Keg Smash
+        	br.ui:createSpinnerWithout(section, "Keg Smash Targets",  1,  1,  10,  1)
         br.ui:checkSectionState(section)
         -------------------------
         --- DEFENSIVE OPTIONS ---
@@ -95,10 +103,12 @@ local function createOptions()
             br.ui:createSpinner(section, "Leg Sweep - AoE", 5, 0, 10, 1, "|cffFFFFFFNumber of Units in 5 Yards to Cast At")
         -- Fortifying Brew
             br.ui:createSpinner(section, "Fortifying Brew",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
-        -- Diffuse Magic/Dampen Harm
-            br.ui:createSpinner(section, "Diffuse/Dampen",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
+        -- Dampen Harm
+            br.ui:createSpinner(section, "Dampen Harm",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
         -- Expel Harm
             br.ui:createSpinner(section, "Expel Harm",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
+        -- Expel Harm Orbs
+        	br.ui:createSpinnerWithout(section, "Expel Harm Orbs",  3,  0,  15,  1,  "|cffFFFFFFMin amount of Gift of the Ox Orbs to cast.")
         br.ui:checkSectionState(section)
         -------------------------
         --- INTERRUPT OPTIONS ---
@@ -182,6 +192,7 @@ local function runRotation()
         local mode              = br.player.mode
         local php               = br.player.health
         local power             = br.player.power.amount.energy
+        local powgen			= br.player.power.regen
         local powerMax          = br.player.power.energy.max
         local pullTimer         = br.DBM:getPulltimer()
         local queue             = br.player.queue
@@ -206,8 +217,10 @@ local function runRotation()
         units.dyn5 = br.player.units(5)
         enemies.yards5 = br.player.enemies(5)
         enemies.yards8 = br.player.enemies(8)
+        enemies.yards8t = br.player.enemies(8,br.player.units(8,true))
         enemies.yards30 = br.player.enemies(30)
-        enemies.yards40 = br.player.enemies(40)
+
+
         if opener == nil then opener = false end
 
         if not inCombat and not ObjectExists("target") then
@@ -300,13 +313,13 @@ local function runRotation()
                     end
                 end
         -- Dampen Harm
-                if isChecked("Diffuse/Dampen") and php <= getValue("Dampen Harm") and inCombat then
+                if isChecked("Dampen Harm") and php <= getValue("Dampen Harm") and inCombat then
                     if cast.dampenHarm() then return end
                 end
         -- Diffuse Magic
-                if isChecked("Diffuse/Dampen") and ((php <= getValue("Diffuse Magic") and inCombat) or canDispel("player",br.player.spell.diffuseMagic)) then
+                --[[if isChecked("Diffuse/Dampen") and ((php <= getValue("Diffuse Magic") and inCombat) or canDispel("player",br.player.spell.diffuseMagic)) then
                     if cast.diffuseMagic() then return end
-                end
+                end]]
         -- Detox
                 if isChecked("Detox") then
                     if canDispel("player",spell.detox) then
@@ -338,7 +351,7 @@ local function runRotation()
                     if cast.fortifyingBrew() then return end
                 end
         --Expel Harm
-                if isChecked("Expel Harm") and php <= getValue("Expel Harm") and inCombat then
+                if isChecked("Expel Harm") and php <= getValue("Expel Harm") and inCombat and GetSpellCount(115027) >= getOptionValue("Expel Harm Orbs") then
                     if cast.expelHarm() then return end
                 end
             end -- End Defensive Check
@@ -350,7 +363,7 @@ local function runRotation()
                     thisUnit = getEnemies("player",20)[i]
                     distance = getDistance(thisUnit)
                     if canInterrupt(thisUnit,getOptionValue("InterruptAt")) then
-                        if distance < 5 then
+                        if distance <= 5 then
         -- Quaking Palm
                             if isChecked("Quaking Palm") then
                                 if cast.quakingPalm(thisUnit) then return end
@@ -433,66 +446,61 @@ local function runRotation()
         end
     -- Action List - Black Out Combo
         function actionList_BlackOutCombo()
-            if talent.blackoutCombo then
-            -- Provoke
-                if isChecked("Provoke") and (inRaid or inInstance) then
-                    for i = 1, #enemies.yards30 do
-                       local thisUnit = enemies.yards30[i]
-                       local enemyTarget = UnitTarget(thisUnit)
-                      
-                       -- if not isAggroed(thisUnit) and hasThreat(thisUnit) then
-                       if enemyTarget ~= nil and UnitGroupRolesAssigned(enemyTarget) ~= "TANK" and UnitIsFriend(enemyTarget,"player") then
-                            if cast.provoke(thisUnit) then return end
-                        end
-                    end
-                end
-            -- Racial - Arcane Torrent
-                if ttm >= 0.5 and isChecked("Racial") and race == "BloodElf" and getDistance("target") < 5 then
-                    if castSpell("player",racial,false,false,false) then return end
-                end
-            -- Black Ox Brew
-                if charges.purifyingBrew == 0 then
-                    if cast.blackoxBrew() then return end
-                end        
-            -- Blackout Strike
-                if cast.blackoutStrike() then return end
-            -- Keg Smash
-                if buff.blackoutCombo.exists() then
-                    if cast.kegSmash() then return end
-                end
-            -- Breath of Fire
-                if buff.blackoutCombo.exists() and not hasEquiped(137016) then
-                    if cast.breathOfFire() then return end
-                end
-            -- Breath of Fire (Legendary Chest)
-                if not buff.blackoutCombo.exists() and hasEquiped(137016) then
-                    if cast.breathOfFire() then return end
-                end
-            -- Tiger Palm
-                if buff.blackoutCombo.exists() then
-                    if cast.tigerPalm() then return end
-                end
-                -- Ironskin Brew
-                if ((charges.purifyingBrew > 1 and not buff.ironskinBrew.exists()) or charges.purifyingBrew == 3) and not buff.blackoutCombo.exists() then
-                    if cast.ironskinBrew() then return end
-                end
-            --Exploding Keg
-                if isChecked("Exploding Keg") then
-                    if cast.explodingKeg() then return end
-                end
-            --Chi Burst
-                --actions.st+=/chi_burst
-            -- Chi Wave
-                if cast.chiWave() then return end
-            --  Rushing Jade Wind
-                if getDistance(units.dyn5) < 5 then
-                    if cast.rushingJadeWind() then return end
-                end
-            -- Expel Harm
-                if GetSpellCount(115072) ~= nil and GetSpellCount(115072) >= 1 and php <= getValue("Expel Harm") then
-                    if cast.expelHarm() then return end
-               end
+        -- Racial - Arcane Torrent
+            if ttm >= 0.5 and isChecked("Racial") and race == "BloodElf" and getDistance("target") < 5 then
+                if castSpell("player",racial,false,false,false) then return end
             end
+        -- Keg Smash
+            if buff.blackoutCombo.exists() and #enemies.yards8t >= getOptionValue("Keg Smash Targets") then
+                if cast.kegSmash() then return end
+            end
+        -- Breath of Fire
+        	if buff.blackoutCombo.exists() and #getEnemies("player",12) >= getOptionValue("Breath of Fire Targets") then
+        		if cast.breathOfFire() then return end
+        	end
+        -- Blackout Strike
+            if cast.blackoutStrike() then return end
+        --[[ Breath of Fire
+            if buff.blackoutCombo.exists() and not hasEquiped(137016) and #getEnemies("player",12) >= getOptionValue("Breath of Fire Targets") then
+                if cast.breathOfFire() then return end
+            end
+        -- Breath of Fire (Legendary Chest)
+            if not buff.blackoutCombo.exists() and hasEquiped(137016) and #getEnemies("player",12) >= getOptionValue("Breath of Fire Targets") then
+                if cast.breathOfFire() then return end
+            end]]
+        -- Ironskin Brew
+            if ((charges.purifyingBrew > 1 and not buff.ironskinBrew.exists()) or charges.purifyingBrew == 3) and not buff.blackoutCombo.exists() then
+                if cast.ironskinBrew() then return end
+            end
+        --Exploding Keg
+            if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()) and #getEnemies("player",12) >= getOptionValue("Exploding Keg Targets") and not isMoving("target") then
+                if cast.explodingKeg() then return end
+            end
+        -- Tiger Palm
+            if (power + (powgen*cd.kegSmash)) >= 40 then
+                if cast.tigerPalm() then return end
+            end
+        --Chi Burst
+            --Width/Range values from LyloLoq
+            if talent.chiBurst and getEnemiesInRect(7,47) >= getOptionValue("Chi Burst Targets") then
+            	if cast.chiBurst() then return end
+            end
+        -- Chi Wave
+        	if talent.chiWave then
+            	if cast.chiWave() then return end
+            end
+        -- Rushing Jade Wind
+            if #enemies.yards8 >= 1 then
+                if cast.rushingJadeWind() then return end
+            end
+        -- Breath of Fire
+        	--[[if #getEnemies("player",12) >= getOptionValue("Breath of Fire Targets") then
+        		if cast.breathOfFire() then return end
+        	end]]        
+        -- Expel Harm
+            --[[if isChecked("Expel Harm") and php <= getValue("Expel Harm") and inCombat and GetSpellCount(115027) >= getOptionValue("Expel Harm Orbs") then
+                if cast.expelHarm() then return end
+            end]]
         end
 
 
@@ -500,111 +508,100 @@ local function runRotation()
         function actionList_SingleTarget()
         -- Action List - Cooldown
             -- call_action_list,name=cd
-            -- Provoke
-            if isChecked("Provoke") and (inRaid or inInstance) then
-                for i = 1, #enemies.yards30 do
-                   local thisUnit = enemies.yards30[i]
-                   local enemyTarget = UnitTarget(thisUnit)
-                   
-                   -- if not isAggroed(thisUnit) and hasThreat(thisUnit) then
-                   if enemyTarget ~= nil and UnitGroupRolesAssigned(enemyTarget) ~= "TANK" and UnitIsFriend(enemyTarget,"player") then
-                        if cast.provoke(thisUnit) then return end
-                    end
-                end
-            end
         -- Racial - Arcane Torrent
             if ttm >= 0.5 and isChecked("Racial") and race == "BloodElf" and getDistance("target") < 5 then
                 if castSpell("player",racial,false,false,false) then return end
-            end
-        -- Black Ox Brew
-            if charges.purifyingBrew == 0 then
-                if cast.blackoxBrew() then return end
-            end
-        -- Ironskin Brew
-            if (charges.purifyingBrew > 1 and not buff.ironskinBrew.exists()) or charges.purifyingBrew == 3 then
-                if cast.ironskinBrew() then return end
-            end
+            end        
         -- Keg Smash
            -- actions.st=keg_smash
-            if power >= 40 and getDistance("target") < 15 then
+            if #enemies.yards8t >= getOptionValue("Keg Smash Targets") then
                 if cast.kegSmash() then return end
             end
         --Breath of Fire
             --actions.st+=/breath_of_fire
-            if cast.breathOfFire() then return end
+            if #getEnemies("player",12) >= getOptionValue("Breath of Fire Targets") then
+            	if cast.breathOfFire() then return end
+            end
         -- Blackout Strike
             --actions.st+=/blackout_strike
             if cast.blackoutStrike() then return end
         --Tiger Palm
             --actions.st+=/tiger_palm
-            if power > 65 and getDistance("target") < 15 then
+            if (power + (powgen*cd.kegSmash)) >= 40 then
                 if cast.tigerPalm() then return end
             end
         --Exploding Keg
             --actions.st+=/exploding_keg
-            if isChecked("Exploding Keg") then
-                if cast.explodingKeg() then return end
+            if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()) and #getEnemies("player",12) >= getOptionValue("Exploding Keg Targets") and not isMoving("target") then
+                if cast.explodingKeg("best",false,#enemies.yards8,8) then return end
             end
         --Chi Burst
             --actions.st+=/chi_burst
+            --Width/Range values from LyloLoq
+            if talent.chiBurst and getEnemiesInRect(7,47) >= getOptionValue("Chi Burst Targets") then
+                if cast.chiBurst() then return end
+            end
         -- Chi Wave
             --actions.st+=/chi_wave
-            if cast.chiWave() then return end
+            if talent.chiWave then
+            	if cast.chiWave() then return end
+            end
         --  Rushing Jade Wind
             --actions.st+=/rushing_jade_wind
-            if cast.rushingJadeWind() then return end
-        -- Expel Harm
-            if GetSpellCount(115072) ~= nil and GetSpellCount(115072) >= 1 and php <= getValue("Expel Harm") then
-                if cast.expelHarm() then return end
+            if talent.rushingJadeWind and #enemies.yards8 >= 1 then
+            	if cast.rushingJadeWind() then return end
             end
-
+        -- Expel Harm
+            --[[if isChecked("Expel Harm") and php <= getValue("Expel Harm") and inCombat and GetSpellCount(115027) >= getOptionValue("Expel Harm Orbs") then
+                if cast.expelHarm() then return end
+            end]]
         end -- End Action List - Single Target
     --Action List AoE
         function actionList_MultiTarget()
-            -- Provoke
-            if isChecked("Provoke") and (inRaid or inInstance) then
-                for i = 1, #enemies.yards30 do
-                   local thisUnit = enemies.yards30[i]
-                   local enemyTarget = UnitTarget(thisUnit)
-                  
-                   -- if not isAggroed(thisUnit) and hasThreat(thisUnit) then
-                   if enemyTarget ~= nil and UnitGroupRolesAssigned(enemyTarget) ~= "TANK" and UnitIsFriend(enemyTarget,"player") then
-                        if cast.provoke(thisUnit) then return end
-                    end
-                end
-            end
         -- Racial - Arcane Torrent
             -- arcane_torrent,if=chiMax-chi>=1&energy.time_to_max>=0.
             if ttm >= 0.5 and isChecked("Racial") and race == "BloodElf" and getDistance("target") < 5 then
                 if castSpell("player",racial,false,false,false) then return end
-            end
-        -- Blackout Strike
-            --actions.st+=/blackout_strike
-            if cast.blackoutStrike() then return end
+            end        
         --Exploding Keg
             --actions.st+=/exploding_keg
-            if isChecked ("Exploding Keg") then
+            if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()) and #getEnemies("player",12) >= getOptionValue("Exploding Keg Targets") and not isMoving("target") then
                 if cast.explodingKeg("best",false,#enemies.yards8,8) then return end
             end
         -- Keg Smash
            -- actions.st=keg_smash
-            if power >= 40 and getDistance("target") < 15 then
+            if #enemies.yards8t >= getOptionValue("Keg Smash Targets") then
                 if cast.kegSmash() then return end
             end
         --Chi Burst
             --actions.st+=/chi_burst
+            --Width/Range values from LyloLoq
+            if talent.chiBurst and getEnemiesInRect(7,47) >= getOptionValue("Chi Burst Targets") then
+                if cast.chiBurst() then return end
+            end
         -- Chi Wave
             --actions.st+=/chi_wave
-            if cast.chiWave() then return end
-        --  Rushing Jade Wind
-            --actions.st+=/rushing_jade_wind
-            if cast.rushingJadeWind() then return end
+            if talent.chiWave then
+            	if cast.chiWave() then return end
+            end
         --Breath of Fire
             --actions.st+=/breath_of_fire
-            if cast.breathOfFire() then return end
+            if #getEnemies("player",12) >= getOptionValue("Breath of Fire Targets") then
+            	if cast.breathOfFire() then return end
+            end
+        --Rushing Jade Wind
+            --actions.st+=/rushing_jade_wind
+            if talent.rushingJadeWind and #enemies.yards8 >= 1 then
+            	if cast.rushingJadeWind() then return end
+            end        
         --Tiger Palm
             --actions.st+=/tiger_palm
-            if cast.tigerPalm() then return end
+            if cd.kegSmash >= gcd and (power+(powgen*cd.kegSmash)) >= 80 then
+            	if cast.tigerPalm() then return end
+            end
+        -- Blackout Strike
+            --actions.st+=/blackout_strike
+            if cast.blackoutStrike() then return end
         end -- End Action List - Single Target
     -- Action List - Pre-Combat
         function actionList_PreCombat()
@@ -623,17 +620,6 @@ local function runRotation()
                         end
                     end
                 end
-        -- Food
-                -- food,type=salty_squid_roll
-        -- Snapshot Stats
-                -- snapshot_stats
-                if baseAgility == 0 then
-                    baseAgility = UnitStat("player", 2)
-                end
-                if baseMultistrike == 0 then
-                    -- baseMultistrike = GetMultistrike()
-                end
-        -- Start Attack
                 -- auto_attack
                 if isValidUnit("target") and getDistance("target") < 5 then
                     StartAttack()
@@ -697,15 +683,34 @@ local function runRotation()
         -- Potion
                     -- potion,name=old_war,if=buff.serenity.up|buff.storm_earth_and_fire.up|(!talent.serenity.enabled&trinket.proc.agility.react)|buff.bloodlust.react|target.time_to_die<=60
                     -- TODO: Agility Proc
+                    if isChecked("Provoke") and (inRaid or inInstance) then
+		                for i = 1, #enemies.yards30 do
+		                   local thisUnit = enemies.yards30[i]
+		                   local enemyTarget = UnitTarget(thisUnit)
+		                   
+		                   -- if not isAggroed(thisUnit) and hasThreat(thisUnit) then
+		                   if enemyTarget ~= nil and UnitGroupRolesAssigned(enemyTarget) ~= "TANK" and UnitIsFriend(enemyTarget,"player") then
+		                        if cast.provoke(thisUnit) then return end
+		                    end
+		                end
+		            end
+		            -- Black Ox Brew
+		            if charges.purifyingBrew == 0 then
+		                if cast.blackoxBrew() then return end
+		            end
+		        -- Ironskin Brew
+		            if (charges.purifyingBrew > 1 and not buff.ironskinBrew.exists()) or charges.purifyingBrew == 3 then
+		                if cast.ironskinBrew() then return end
+		            end
                     if canUse(127844) and inRaid and isChecked("Potion") and getDistance("target") < 5 then
                         useItem(127844)
                     end
+                    if ((mode.rotation == 1 and #enemies.yards8 >= 3) or mode.rotation == 2) then
+                        if actionList_MultiTarget() then return end
+                    end  
                     if talent.blackoutCombo then
                         if actionList_BlackOutCombo() then return end
-                    end
-                    if ((mode.rotation == 1 and #enemies.yards8 >= 4) or mode.rotation == 2) then
-                        if actionList_MultiTarget() then return end
-                    end
+                    end                                      
         -- Call Action List - Single Target
                     -- call_action_list,name=st
                     if not talent.blackoutCombo then
