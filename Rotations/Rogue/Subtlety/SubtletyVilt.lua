@@ -99,6 +99,8 @@ local function createOptions()
             br.ui:createCheckbox(section, "Sprint for Vanish", "This doesn't work properly (yet). Manual attention required if using this.")
             -- Cloak Sprint Vanish
             br.ui:createCheckbox(section, "Cloak Sprint Vanish", "Will use Cloak before using Sprint for Vanish (To hopefully avoid environmental damage cancelling it.)")
+            -- Artifact
+            br.ui:createDropdownWithout(section,"Artifact", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Artifact Ability.")
             --[[ Draught of Souls
             br.ui:createDropdown(section, "Draught of Souls", {"|cff00FF00With Sprint","|cffFFFF00Always"}, 1)]]
         br.ui:checkSectionState(section)
@@ -428,7 +430,7 @@ local function runRotation()
             end
     -- Goremaws Bite
             -- goremaws_bite,if=!stealthed.all&cooldown.shadow_dance.charges_fractional<=variable.shd_fractionnal&((combo_points.deficit>=4-(time<10)*2&energy.deficit>50+talent.vigor.enabled*25-(time>=10)*15)|(combo_points.deficit>=1&target.time_to_die<8))
-            if not stealthingAll and charges.frac.shadowDance <= ShDVar and ((comboDeficit >= (4 - (justStarted * 2)) and powerDeficit >= (50 + (vigorous * 25) - (beenAWhile * 15))) or (comboDeficit >=1 and ttd("target") < 8)) then
+            if not stealthingAll and charges.frac.shadowDance <= ShDVar and ((comboDeficit >= (4 - (justStarted * 2)) and powerDeficit >= (50 + (vigorous * 25) - (beenAWhile * 15))) or (comboDeficit >=1 and ttd("target") < 8)) and getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()) then
                 if cast.goremawsBite("target") then return end
             end
         end -- End Cooldown Usage Check
