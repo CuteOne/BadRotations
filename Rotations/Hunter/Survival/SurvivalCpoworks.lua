@@ -47,6 +47,10 @@ local function createOptions()
             br.ui:createDropdownWithout(section, "APL Mode", {"|cffFFFFFFSimC","|cffFFFFFFAMR"}, 1, "|cffFFFFFFSet APL Mode to use.")
         -- Dummy DPS Test
             br.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
+        -- Artifact
+            br.ui:createDropdownWithout(section, "Artifact", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Artifact Ability.")
+        -- Trap Units
+            br.ui:createSpinnerWithout(section, "Trap Units", 3, 1, 10, 1, "|cffFFFFFFSet number of units threshold to use traps on.")
         br.ui:checkSectionState(section)
     -- Pet Options
         section = br.ui:createSection(br.ui.window.profile, "Pet")
@@ -177,7 +181,9 @@ local function runRotation()
         units.dyn5 = br.player.units(5)
         units.dyn40 = br.player.units(40)
         enemies.yards5 = br.player.enemies(5)
+        enemies.yards5t = br.player.enemies(5,br.player.units(5,true))
         enemies.yards8 = br.player.enemies(8)
+        enemies.yards40 = br.player.enemies(40)
 
         -- BeastCleave 118445
         local beastCleaveTimer                              = getBuffDuration("pet", 118445)
@@ -361,30 +367,34 @@ local function runRotation()
             if buff.mokNathalTactics.remain() < gcd * 2 then
                 if cast.raptorStrike() then return end
             end
+            if ((mode.rotation == 1 and (#enemies.yards5 > 1 or hasEquiped(137043))) or mode.rotation == 2) then
         -- Carve
-            -- carve,if=equipped.frizzos_fingertrap&dot.lacerate.ticking&dot.lacerate.refreshable&focus>65-buff.moknathal_tactics.remains*focus.regen&buff.mongoose_fury.remains>=gcd
-            if hasEquiped(137043) and debuff.lacerate.exists(units.dyn5) and debuff.lacerate.refresh(units.dyn5) and buff.mokNathalTactics.remain() > gcd then
-                if cast.carve() then return end
-            end
+                -- carve,if=equipped.frizzos_fingertrap&dot.lacerate.ticking&dot.lacerate.refreshable&focus>65-buff.moknathal_tactics.remains*focus.regen&buff.mongoose_fury.remains>=gcd
+                if hasEquiped(137043) and debuff.lacerate.exists(units.dyn5) and debuff.lacerate.refresh(units.dyn5) and buff.mokNathalTactics.remain() > gcd then
+                    if cast.carve() then return end
+                end
         -- Butchery
-            -- butchery,if=equipped.frizzos_fingertrap&dot.lacerate.ticking&dot.lacerate.refreshable&focus>65-buff.moknathal_tactics.remains*focus.regen&buff.mongoose_fury.remains>=gcd
-            if hasEquiped(137043) and debuff.lacerate.exists(units.dyn5) and debuff.lacerate.refresh(units.dyn5) and buff.mokNathalTactics.remain() > gcd then
-                if cast.butchery() then return end
-            end
+                -- butchery,if=equipped.frizzos_fingertrap&dot.lacerate.ticking&dot.lacerate.refreshable&focus>65-buff.moknathal_tactics.remains*focus.regen&buff.mongoose_fury.remains>=gcd
+                if hasEquiped(137043) and debuff.lacerate.exists(units.dyn5) and debuff.lacerate.refresh(units.dyn5) and buff.mokNathalTactics.remain() > gcd then
+                    if cast.butchery() then return end
+                end
         -- Butchery
-            -- butchery,if=active_enemies>1&focus>65-buff.moknathal_tactics.remains*focus.regen&(buff.mongoose_fury.down|buff.mongoose_fury.remains>gcd*cooldown.mongoose_bite.charges)
-            if ((mode.rotation == 1 and #enemies.yards5 > 1) or mode.rotation == 2) and buff.mokNathalTactics.remain() > gcd then
-                if cast.butchery() then return end
-            end
+                -- butchery,if=active_enemies>1&focus>65-buff.moknathal_tactics.remains*focus.regen&(buff.mongoose_fury.down|buff.mongoose_fury.remains>gcd*cooldown.mongoose_bite.charges)
+                if ((mode.rotation == 1 and #enemies.yards5 > 1) or mode.rotation == 2) and buff.mokNathalTactics.remain() > gcd then
+                    if cast.butchery() then return end
+                end
         -- Carve
-            -- carve,if=active_enemies>1&focus>65-buff.moknathal_tactics.remains*focus.regen&(buff.mongoose_fury.down&focus>65-buff.moknathal_tactics.remains*focus.regen|buff.mongoose_fury.remains>gcd*cooldown.mongoose_bite.charges&focus>70-buff.moknathal_tactics.remains*focus.regen)
-            if ((mode.rotation == 1 and #enemies.yards5 > 1) or mode.rotation == 2) and buff.mokNathalTactics.remain() > gcd then
-                if cast.carve() then return end
+                -- carve,if=active_enemies>1&focus>65-buff.moknathal_tactics.remains*focus.regen&(buff.mongoose_fury.down&focus>65-buff.moknathal_tactics.remains*focus.regen|buff.mongoose_fury.remains>gcd*cooldown.mongoose_bite.charges&focus>70-buff.moknathal_tactics.remains*focus.regen)
+                if ((mode.rotation == 1 and #enemies.yards5 > 1) or mode.rotation == 2) and buff.mokNathalTactics.remain() > gcd then
+                    if cast.carve() then return end
+                end
             end
 		-- Fury of the Eagle
             -- fury_of_the_eagle,if=buff.moknathal_tactics.remains>4&buff.mongoose_fury.stack=6&cooldown.mongoose_bite.charges<=1
-            if buff.mokNathalTactics.remain() > 4 and buff.mongooseFury.stack() == 6 and charges.mongooseBite < 1 then
-                if cast.furyOfTheEagle() then return end
+            if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()) then
+                if buff.mokNathalTactics.remain() > 4 and buff.mongooseFury.stack() == 6 and charges.mongooseBite < 1 then
+                    if cast.furyOfTheEagle() then return end
+                end
             end
         -- Mongoose Bite
             if buff.mongooseFury.exists() then
@@ -407,8 +417,10 @@ local function runRotation()
             end
         -- Steel Trap
             -- steel_trap,if=buff.mongoose_fury.duration>=gcd&buff.mongoose_fury.stack<1
-            if buff.mongooseFury.duration() >= gcd and buff.mongooseFury.stack() < 1 and buff.mokNathalTactics.remain() > gcd then
-                if cast.steelTrap("best",nil,1,5) then return end
+            if ((mode.rotation == 1 and #enemies.yards40 >= getOptionValue("Trap Units")) or mode.rotation == 2) then
+                if buff.mongooseFury.duration() >= gcd and buff.mongooseFury.stack() < 1 and buff.mokNathalTactics.remain() > gcd then
+                    if cast.steelTrap("best",nil,getOptionValue("Trap Units"),5) then return end
+                end
             end
         -- A Murder of Crows
             -- a_murder_of_crows,if=focus>55-buff.moknathal_tactics.remains*focus.regen&buff.mongoose_fury.stack<4&buff.mongoose_fury.duration>=gcd
@@ -422,15 +434,17 @@ local function runRotation()
             then 
                 if cast.lacerate() then return end
             end
+            if ((mode.rotation == 1 and #enemies.yards40 >= getOptionValue("Trap Units")) or mode.rotation == 2) then
         -- Caltrops
-            -- caltrops,if=(buff.mongoose_fury.duration>=gcd&buff.mongoose_fury.stack<1&!dot.caltrops.ticking)
-            if (buff.mongooseFury.duration() >= gcd and buff.mongooseFury.stack() < 1 and not debuff.caltrops.exists(units.dyn5)) and buff.mokNathalTactics.remain() > gcd then
-                if cast.caltrops("best",nil,1,5) then return end
-            end
+                -- caltrops,if=(buff.mongoose_fury.duration>=gcd&buff.mongoose_fury.stack<1&!dot.caltrops.ticking)
+                if (buff.mongooseFury.duration() >= gcd and buff.mongooseFury.stack() < 1 and not debuff.caltrops.exists(units.dyn5)) and buff.mokNathalTactics.remain() > gcd then
+                    if cast.caltrops("best",nil,getOptionValue("Trap Units"),5) then return end
+                end
         -- Explosive Trap
-            -- explosive_trap,if=buff.mongoose_fury.duration>=gcd&cooldown.mongoose_bite.charges=0&buff.mongoose_fury.stack<1
-            if buff.mongooseFury.duration() >= gcd and charges.mongooseBite == 0 and buff.mongooseFury.stack() < 1 and buff.mokNathalTactics.remain() > gcd then
-                if cast.explosiveTrap("best",nil,1,5) then return end
+                -- explosive_trap,if=buff.mongoose_fury.duration>=gcd&cooldown.mongoose_bite.charges=0&buff.mongoose_fury.stack<1
+                if buff.mongooseFury.duration() >= gcd and charges.mongooseBite == 0 and buff.mongooseFury.stack() < 1 and buff.mokNathalTactics.remain() > gcd then
+                    if cast.explosiveTrap("best",nil,getOptionValue("Trap Units"),5) then return end
+                end
             end
 		-- Raptor Strike
 			-- raptor_strike,if=buff.moknathal_tactics.stack()<=1
@@ -439,8 +453,10 @@ local function runRotation()
 			end
         -- Dragonsfire Grenade
             -- dragonsfire_grenade,if=buff.mongoose_fury.duration>=gcd&cooldown.mongoose_bite.charges>=0&buff.mongoose_fury.stack<1
-            if buff.mongooseFury.duration() >= gcd and charges.mongooseBite >= 0 and buff.mongooseFury.stack() < 1 and buff.mokNathalTactics.remain() > gcd then
-                if cast.dragonsfireGrenade() then return end
+            if ((mode.rotation == 1 and #enemies.yards40 > 1) or mode.rotation == 2) then
+                if buff.mongooseFury.duration() >= gcd and charges.mongooseBite >= 0 and buff.mongooseFury.stack() < 1 and buff.mokNathalTactics.remain() > gcd then
+                    if cast.dragonsfireGrenade() then return end
+                end
             end
         -- Raptor Strike
             -- raptor_strike,if=buff.moknathal_tactics.remains<4&buff.mongoose_fury.stack=6&buff.mongoose_fury.remains>cooldown.fury_of_the_eagle.remains&cooldown.fury_of_the_eagle.remains<=5
@@ -467,33 +483,39 @@ local function runRotation()
             if cast.spittingCobra() then return end
         -- Steel Trap
             -- steel_trap
-            if buff.mokNathalTactics.remain() > gcd then
-                if cast.steelTrap("best",nil,1,5) then return end
+            if ((mode.rotation == 1 and #enemies.yards40 >= getOptionValue("Trap Units")) or mode.rotation == 2) then
+                if buff.mokNathalTactics.remain() > gcd then
+                    if cast.steelTrap("best",nil,getOptionValue("Trap Units"),5) then return end
+                end
             end
         -- A Murder of Crows
             -- a_murder_of_crows,if=focus>55-buff.moknathal_tactics.remains*focus.regen
             if power > 55 - buff.mokNathalTactics.remain() * powerRegen or getDistance(units.dyn5) >= 8 then
                 if cast.aMurderOfCrows() then return end
             end
+            if ((mode.rotation == 1 and #enemies.yards40 >= getOptionValue("Trap Units")) or mode.rotation == 2) then
         -- Caltrops
-            -- caltrops,if=(!dot.caltrops.ticking)
-            if not debuff.caltrops.exists(units.dyn5) and buff.mokNathalTactics.remain() > gcd then
-                if cast.caltrops("best",nil,1,5) then return end
-            end
+                -- caltrops,if=(!dot.caltrops.ticking)
+                if not debuff.caltrops.exists(units.dyn5) and buff.mokNathalTactics.remain() > gcd then
+                    if cast.caltrops("best",nil,getOptionValue("Trap Units"),5) then return end
+                end
         -- Explosive Trap
-            -- explosive_trap
-            if buff.mokNathalTactics.remain() > gcd or getDistance(units.dyn5) >= 8 then
-                if cast.explosiveTrap("best",nil,1,5) then return end
+                -- explosive_trap
+                if buff.mokNathalTactics.remain() > gcd or getDistance(units.dyn5) >= 8 then
+                    if cast.explosiveTrap("best",nil,getOptionValue("Trap Units"),5) then return end
+                end
             end
+            if ((mode.rotation == 1 and #enemies.yards5 > 1) or mode.rotation == 2) then
         -- Carve
-            -- carve,if=equipped.frizzos_fingertrap&dot.lacerate.ticking&dot.lacerate.refreshable&focus>65-buff.moknathal_tactics.remains*focus.regen
-            if hasEquiped(137043) and debuff.lacerate.refresh(units.dyn5) and power > 65 - buff.mokNathalTactics.remain() * powerRegen then
-                if cast.carve() then return end
-            end
+                -- carve,if=equipped.frizzos_fingertrap&dot.lacerate.ticking&dot.lacerate.refreshable&focus>65-buff.moknathal_tactics.remains*focus.regen
+                if hasEquiped(137043) and debuff.lacerate.refresh(units.dyn5) and power > 65 - buff.mokNathalTactics.remain() * powerRegen then
+                    if cast.carve() then return end
+                end
         -- Butchery
-            -- butchery,if=equipped.frizzos_fingertrap&dot.lacerate.ticking&dot.lacerate.refreshable&focus>65-buff.moknathal_tactics.remains*focus.regen
-            if hasEquiped(137043) and debuff.lacerate.refresh(units.dyn5) and power > 65 - buff.mokNathalTactics.remain() * powerRegen then
-                if cast.butchery() then return end
+                -- butchery,if=equipped.frizzos_fingertrap&dot.lacerate.ticking&dot.lacerate.refreshable&focus>65-buff.moknathal_tactics.remains*focus.regen
+                if hasEquiped(137043) and debuff.lacerate.refresh(units.dyn5) and power > 65 - buff.mokNathalTactics.remain() * powerRegen then
+                    if cast.butchery() then return end
+                end
             end
         -- Lacerate
             -- lacerate,if=refreshable&focus>55-buff.moknathal_tactics.remains*focus.regen
@@ -502,8 +524,10 @@ local function runRotation()
             end
         -- Dragonsfire Grenade
             -- dragonsfire_grenade
-            if buff.mokNathalTactics.remain() > gcd then
-                if cast.dragonsfireGrenade() then return end
+            if ((mode.rotation == 1 and #enemies.yards40 > 1) or mode.rotation == 2) then
+                if buff.mokNathalTactics.remain() > gcd then
+                    if cast.dragonsfireGrenade() then return end
+                end
             end
         -- Mongoose Bite
             if charges.frac.mongooseBite > 2.1 then
@@ -539,8 +563,10 @@ local function runRotation()
             end
 		-- Fury of the Eagle
             -- fury_of_the_eagle,if=buff.moknathal_tactics.remains>4&buff.mongoose_fury.stack=6&cooldown.mongoose_bite.charges<=1
-            if buff.mongooseFury.stack() == 6 and charges.mongooseBite < 1 then
-                if cast.furyOfTheEagle() then return end
+            if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()) then
+                if buff.mongooseFury.stack() == 6 and charges.mongooseBite < 1 then
+                    if cast.furyOfTheEagle() then return end
+                end
             end
         -- Mongoose Bite
             if buff.mongooseFury.exists() then
@@ -563,8 +589,10 @@ local function runRotation()
             end
         -- Steel Trap
             -- steel_trap,if=buff.mongoose_fury.duration>=gcd&buff.mongoose_fury.stack<1
-            if buff.mongooseFury.duration() >= gcd and buff.mongooseFury.stack() < 1 then
-                if cast.steelTrap("best",nil,1,5) then return end
+            if ((mode.rotation == 1 and #enemies.yards40 >= getOptionValue("Trap Units")) or mode.rotation == 2) then
+                if buff.mongooseFury.duration() >= gcd and buff.mongooseFury.stack() < 1 then
+                    if cast.steelTrap("best",nil,getOptionValue("Trap Units"),5) then return end
+                end
             end
         -- A Murder of Crows
             -- a_murder_of_crows,if=focus>55-buff.moknathal_tactics.remains*focus.regen&buff.mongoose_fury.stack<4&buff.mongoose_fury.duration>=gcd
@@ -576,20 +604,24 @@ local function runRotation()
             if debuff.lacerate.refresh(units.dyn5) then
                 if cast.lacerate() then return end
             end
+            if ((mode.rotation == 1 and #enemies.yards40 >= getOptionValue("Trap Units")) or mode.rotation == 2) then
         -- Caltrops
-            -- caltrops,if=(buff.mongoose_fury.duration>=gcd&buff.mongoose_fury.stack<1&!dot.caltrops.ticking)
-            if (buff.mongooseFury.duration() >= gcd and buff.mongooseFury.stack() < 1 and not debuff.caltrops.exists(units.dyn5)) then
-                if cast.caltrops("best",nil,1,5) then return end
-            end
+                -- caltrops,if=(buff.mongoose_fury.duration>=gcd&buff.mongoose_fury.stack<1&!dot.caltrops.ticking)
+                if (buff.mongooseFury.duration() >= gcd and buff.mongooseFury.stack() < 1 and not debuff.caltrops.exists(units.dyn5)) then
+                    if cast.caltrops("best",nil,getOptionValue("Trap Units"),5) then return end
+                end
         -- Explosive Trap
-            -- explosive_trap,if=buff.mongoose_fury.duration>=gcd&cooldown.mongoose_bite.charges=0&buff.mongoose_fury.stack<1
-            if buff.mongooseFury.duration() >= gcd --[[and charges.mongooseBite == 0]] and buff.mongooseFury.stack() < 1 then
-                if cast.explosiveTrap("best",nil,1,5) then return end
+                -- explosive_trap,if=buff.mongoose_fury.duration>=gcd&cooldown.mongoose_bite.charges=0&buff.mongoose_fury.stack<1
+                if buff.mongooseFury.duration() >= gcd --[[and charges.mongooseBite == 0]] and buff.mongooseFury.stack() < 1 then
+                    if cast.explosiveTrap("best",nil,getOptionValue("Trap Units"),5) then return end
+                end
             end
+            if ((mode.rotation == 1 and #enemies.yards40 > 1) or mode.rotation == 2) then
         -- Dragonsfire Grenade
-            -- dragonsfire_grenade,if=buff.mongoose_fury.duration>=gcd&cooldown.mongoose_bite.charges>=0&buff.mongoose_fury.stack<1
-            if buff.mongooseFury.duration() >= gcd and charges.mongooseBite >= 0 and buff.mongooseFury.stack() < 1 then
-                if cast.dragonsfireGrenade() then return end
+                -- dragonsfire_grenade,if=buff.mongoose_fury.duration>=gcd&cooldown.mongoose_bite.charges>=0&buff.mongoose_fury.stack<1
+                if buff.mongooseFury.duration() >= gcd and charges.mongooseBite >= 0 and buff.mongooseFury.stack() < 1 then
+                    if cast.dragonsfireGrenade() then return end
+                end
             end
         -- Aspect of the Eagle
             if isChecked("Aspect of the Eagle") and useCDs() then
@@ -611,20 +643,24 @@ local function runRotation()
             if cast.spittingCobra() then return end
         -- Steel Trap
             -- steel_trap
-            if cast.steelTrap("best",nil,1,5) then return end
+            if ((mode.rotation == 1 and #enemies.yards40 >= getOptionValue("Trap Units")) or mode.rotation == 2) then
+                if cast.steelTrap("best",nil,getOptionValue("Trap Units"),5) then return end
+            end
         -- A Murder of Crows
             -- a_murder_of_crows,if=focus>55-buff.moknathal_tactics.remains*focus.regen
             if cast.aMurderOfCrows() then return end
+            if ((mode.rotation == 1 and #enemies.yards40 >= getOptionValue("Trap Units")) or mode.rotation == 2) then
         -- Caltrops
-            -- caltrops,if=(!dot.caltrops.ticking)
-            if not debuff.caltrops.exists(units.dyn5) then
-                if cast.caltrops("best",nil,1,5) then return end
-            end
+                -- caltrops,if=(!dot.caltrops.ticking)
+                if not debuff.caltrops.exists(units.dyn5) then
+                    if cast.caltrops("best",nil,getOptionValue("Trap Units"),5) then return end
+                end
         -- Explosive Trap
-            -- explosive_trap
-            -- if  getDistance(units.dyn5) >= 8 then
-            if cast.explosiveTrap("best",nil,1,5) then return end
-            -- end
+                -- explosive_trap
+                -- if  getDistance(units.dyn5) >= 8 then
+                if cast.explosiveTrap("best",nil,getOptionValue("Trap Units"),5) then return end
+                -- end
+            end
         -- Carve
             -- carve,if=equipped.frizzos_fingertrap&dot.lacerate.ticking&dot.lacerate.refreshable&focus>65-buff.moknathal_tactics.remains*focus.regen
             if hasEquiped(137043) and debuff.lacerate.refresh(units.dyn5) then
@@ -642,7 +678,9 @@ local function runRotation()
             end
         -- Dragonsfire Grenade
             -- dragonsfire_grenade
-            if cast.dragonsfireGrenade() then return end
+            if ((mode.rotation == 1 and #enemies.yards40 > 1) or mode.rotation == 2) then
+                if cast.dragonsfireGrenade() then return end
+            end
         -- Mongoose Bite
             if charges.frac.mongooseBite > 2.1 then
                 if cast.mongooseBite() then return end
@@ -683,15 +721,21 @@ local function runRotation()
 
             end -- Pre-Pull
             if isValidUnit("target") and not inCombat then
-        -- Explosive Trap
-                -- explosive_trap
-                if cast.explosiveTrap("best",nil,1,5) then return end
+                if ((mode.rotation == 1 and #enemies.yards40 >= getOptionValue("Trap Units")) or mode.rotation == 2) then   
         -- Steel Trap
-                -- steel_trap
-                if cast.steelTrap("best",nil,1,5) then return end
+                    -- steel_trap
+                    if cast.steelTrap("best",nil,getOptionValue("Trap Units"),5) then return end
+        -- Caltrops
+                    if cast.caltrops("best",nil,getOptionValue("Trap Units"),5) then return end
+        -- Explosive Trap
+                    -- explosive_trap
+                    if cast.explosiveTrap("best",nil,getOptionValue("Trap Units"),5) then return end
+                end
         -- Dragonsfire Grenade
                 -- dragonsfire_grenade
-                if cast.dragonsfireGrenade() then return end
+                if ((mode.rotation == 1 and #enemies.yards40 > 1) or mode.rotation == 2) then 
+                    if cast.dragonsfireGrenade() then return end
+                end
         -- Start Attack
                 StartAttack()
             end

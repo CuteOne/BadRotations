@@ -70,6 +70,8 @@ local function createOptions()
             br.ui:createCheckbox(section, "Roll")
         -- Resuscitate
             br.ui:createDropdown(section, "Resuscitate", {"|cff00FF00Target","|cffFF0000Mouseover"}, 1, "|cffFFFFFFTarget to cast on")
+        -- Tiger's Lust
+            br.ui:createCheckbox(section, "Tiger's Lust")
         br.ui:checkSectionState(section)
         ------------------------
         --- COOLDOWN OPTIONS ---
@@ -409,8 +411,10 @@ local function runRotation()
                 Print("channeling cjl")
             end
         -- Tiger's Lust
-            if hasNoControl() or (inCombat and getDistance("target") > 10 and isValidUnit("target")) then
-                if cast.tigersLust() then return end
+            if isChecked("Tiger's Lust") then
+                if hasNoControl() or (inCombat and getDistance("target") > 10 and isValidUnit("target")) then
+                    if cast.tigersLust() then return end
+                end
             end
         -- Resuscitate
             if isChecked("Resuscitate") then
@@ -639,6 +643,19 @@ local function runRotation()
     -- Action List - Opener
         function actionList_Opener()
             if isBoss("target") and isValidUnit("target") and opener == false then
+        -- Potion
+                -- potion,name=old_war,if=buff.serenity.up|buff.storm_earth_and_fire.up|(!talent.serenity.enabled&trinket.proc.agility.react)|buff.bloodlust.react|target.time_to_die<=60
+                -- TODO: Agility Proc
+                if inRaid and isChecked("Potion") and useCDs() then
+                    if isChecked("Pre-Pull Timer") and pullTimer <= getOptionValue("Pre-Pull Timer") then
+                        if canUse((127844)) and talent.serenity then
+                            useItem(127844)
+                        end
+                        if canUse(142117) and talent.whirlingDragonPunch then
+                            useItem(142117)
+                        end
+                    end
+                end
                 if talent.whirlingDragonPunch and talent.energizingElixir and t19_2pc then
                     -- TP -> ChiWave -> TP -> ToD -> SEF -> RSK -> SoTW -> EE -> FoF -> WDP -> RSK                    
                     if getDistance("target") <= 5 then
@@ -1203,10 +1220,10 @@ local function runRotation()
 --- Opener Rotation ---
 -----------------------
             if opener == false and isChecked("Opener") and isBoss("target") then
-                if isChecked("Pre-Pull Timer") and inCombat then
-                    opener = true;
-                    return
-                end
+                -- if isChecked("Pre-Pull Timer") and inCombat then
+                --     opener = true;
+                --     return
+                -- end
                 if actionList_Opener() then return end
             end
 --------------------------
