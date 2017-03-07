@@ -362,7 +362,7 @@ local function runRotation()
             end
         -- Divine Star
             if isChecked("Divine Star") and talent.divineStar then
-                if getUnitsInRect(7,24,isChecked("Show Lines"),getValue("Divine Star")) >= getValue("Min Divine Star Targets") then
+                if getUnitsInRect(7,24,isChecked("Show Divine Star Area"),getValue("Divine Star")) >= getValue("Min Divine Star Targets") then
                     if cast.divineStar("player") then return true end
                 end
             end
