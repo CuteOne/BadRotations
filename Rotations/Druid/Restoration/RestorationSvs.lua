@@ -471,6 +471,10 @@ local function runRotation()
                     end
                 end
             end
+            -- Ephemeral Paradox trinket
+            if hasEquiped(140805) and getBuffRemain("player", 225766) > 2 then
+                if cast.healingTouch(lowestHP) then return end
+            end
         end
     -- Action List - DPS
         local function actionList_DPS()
