@@ -2473,7 +2473,7 @@ end
 -- if IsInPvP() then
 function isInPvP()
 	local inpvp = GetPVPTimer()
-	if inpvp ~= 301000 and inpvp ~= -1 then
+	if (inpvp ~= 301000 and inpvp ~= -1) or (UnitIsPVP("player") and UnitIsPVP("target")) then
 		return true
 	else
 		return false
@@ -2659,7 +2659,7 @@ function isValidUnit(Unit)
 	local myTarget = UnitIsUnit(Unit,"target")
     local inCombat = UnitAffectingCombat("player")
     local inInstance =  IsInInstance()
-	if ObjectExists(Unit) and not UnitIsDeadOrGhost(Unit) and (not UnitIsFriend(Unit, "player") or isInPvP()) and UnitCanAttack("player",Unit) then
+	if ObjectExists(Unit) and not UnitIsDeadOrGhost(Unit) and (not UnitIsFriend(Unit, "player") or UnitIsEnemy(Unit, "player")) and UnitCanAttack("player",Unit) then
 		-- Only consider Units that are in 20yrs or I have targeted when not in Combat and not in an Instance.
 		if not inCombat and not inInstance and (inAggroRange or myTarget) then return true end
 		-- Only consider Units that I have threat with or I am alone and have targeted when not in Combat and in an Instance.
