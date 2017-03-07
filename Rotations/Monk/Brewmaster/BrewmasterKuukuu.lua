@@ -454,26 +454,22 @@ local function runRotation()
             if buff.blackoutCombo.exists() and #enemies.yards8t >= getOptionValue("Keg Smash Targets") then
                 if cast.kegSmash() then return end
             end
-        -- Breath of Fire
+        --[[ Breath of Fire
         	if buff.blackoutCombo.exists() and #getEnemies("player",12) >= getOptionValue("Breath of Fire Targets") then
         		if cast.breathOfFire() then return end
-        	end
-        -- Blackout Strike
-            if cast.blackoutStrike() then return end
-        --[[ Breath of Fire
+        	end]]        
+        -- Breath of Fire
             if buff.blackoutCombo.exists() and not hasEquiped(137016) and #getEnemies("player",12) >= getOptionValue("Breath of Fire Targets") then
                 if cast.breathOfFire() then return end
             end
         -- Breath of Fire (Legendary Chest)
             if not buff.blackoutCombo.exists() and hasEquiped(137016) and #getEnemies("player",12) >= getOptionValue("Breath of Fire Targets") then
                 if cast.breathOfFire() then return end
-            end]]
-        -- Ironskin Brew
-            if ((charges.purifyingBrew > 1 and not buff.ironskinBrew.exists()) or charges.purifyingBrew == 3) and not buff.blackoutCombo.exists() then
-                if cast.ironskinBrew() then return end
             end
+        -- Blackout Strike
+            if cast.blackoutStrike() then return end
         --Exploding Keg
-            if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()) and #getEnemies("player",12) >= getOptionValue("Exploding Keg Targets") and not isMoving("target") then
+            if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()) and #getEnemies("player",12) >= getOptionValue("Exploding Keg Targets") then
                 if cast.explodingKeg() then return end
             end
         -- Tiger Palm
@@ -532,7 +528,7 @@ local function runRotation()
             end
         --Exploding Keg
             --actions.st+=/exploding_keg
-            if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()) and #getEnemies("player",12) >= getOptionValue("Exploding Keg Targets") and not isMoving("target") then
+            if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()) and #getEnemies("player",12) >= getOptionValue("Exploding Keg Targets") then
                 if cast.explodingKeg("best",false,#enemies.yards8,8) then return end
             end
         --Chi Burst
@@ -565,7 +561,7 @@ local function runRotation()
             end        
         --Exploding Keg
             --actions.st+=/exploding_keg
-            if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()) and #getEnemies("player",12) >= getOptionValue("Exploding Keg Targets") and not isMoving("target") then
+            if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()) and #getEnemies("player",12) >= getOptionValue("Exploding Keg Targets") then
                 if cast.explodingKeg("best",false,#enemies.yards8,8) then return end
             end
         -- Keg Smash
@@ -694,12 +690,12 @@ local function runRotation()
 		                    end
 		                end
 		            end
-		            -- Black Ox Brew
+		        -- Black Ox Brew
 		            if charges.purifyingBrew == 0 then
 		                if cast.blackoxBrew() then return end
 		            end
 		        -- Ironskin Brew
-		            if (charges.purifyingBrew > 1 and not buff.ironskinBrew.exists()) or charges.purifyingBrew == 3 then
+		            if (charges.purifyingBrew > 1 and not buff.ironskinBrew.exists()) or charges.purifyingBrew == 3 and not buff.blackoutCombo.exists() then
 		                if cast.ironskinBrew() then return end
 		            end
                     if canUse(127844) and inRaid and isChecked("Potion") and getDistance("target") < 5 then
