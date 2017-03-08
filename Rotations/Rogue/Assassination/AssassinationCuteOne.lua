@@ -333,7 +333,7 @@ local function runRotation()
                     end
                 end
             -- Pot/Stoned
-                if isChecked("Healthstone") and php <= getOptionValue("Healthstone") and inCombat and hasHealthPot() then
+                if isChecked("Healthstone") and php <= getOptionValue("Healthstone") and inCombat and (hasHealthPot() or hasItem(5512)) then
                     if canUse(5512) then
                         useItem(5512)
                     elseif canUse(healPot) then
