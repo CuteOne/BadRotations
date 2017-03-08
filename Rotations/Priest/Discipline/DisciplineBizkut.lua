@@ -81,7 +81,9 @@ local function createOptions()
             --Power Word: Shield
             br.ui:createSpinnerWithout(section, "Power Word: Shield",  99,  0,  100,  1,  "|cffFFFFFFHealth Percent to Cast At. Default: 99")
             --Max Atonement
-            br.ui:createSpinnerWithout(section, "Max Atonement",  10,  0,  40,  1,  "|cffFFFFFFMaximum Atonement to keep at a time. Default: 10")
+            br.ui:createSpinnerWithout(section, "Max Atonement",  5,  0,  40,  1,  "|cffFFFFFFMaximum Atonement to keep at a time. Default: 5")
+            --Max Atonement when Rapture/PWS
+            br.ui:createSpinnerWithout(section, "Max Atonement when Rapture/PWS",  15,  0,  40,  1,  "|cffFFFFFFMaximum Atonement to burst when Rapture/PWS. Default: 15")
             --Max Plea
             br.ui:createSpinnerWithout(section, "Max Plea",  5,  0,  40,  1,  "|cffFFFFFFMaximum Atonement before we avoid using Plea as it becomes too expensive. Default: 5")
             --Debuff Shadow Mend/Penance Heal
@@ -361,10 +363,8 @@ local function runRotation()
                             useItem(14)
                         end
                     end
-                    --Mindbender/Shadowfiend
-                    if isChecked("Mindbender/Shadowfiend") then
-                        if cast.mindbender() then return end
-                        if cast.shadowfiend() then return end
+                    if isChecked("Power Word: Barrier CD") and powcent >= getValue("Power Word: Barrier CD") then
+                        if cast.powerWordBarrier(lowest.unit) then return end
                     end
                     --Rapture and PW:S
                     if isChecked("Rapture and PW:S") then
@@ -373,18 +373,20 @@ local function runRotation()
                         end
                         if cast.rapture() then return end
                         if buff.rapture.exists("player") then
-                            for i = 1, #br.friend do                           
-                                if mode.healer == 1 or mode.healer == 2 then
+                            if mode.healer == 1 or mode.healer == 2 then
+                                for i = 1, #br.friend do
                                     actionList_SpreadAtonement(br.friend[i].unit)
                                 end
-                                if mode.healer == 3 and br.friend[i].unit == "player" then
-                                    actionList_SpreadAtonement("player")
-                                end
+                            end
+                            if mode.healer == 3 then
+                                actionList_SpreadAtonement("player")
                             end
                         end
                     end
-                    if isChecked("Power Word: Barrier CD") and powcent >= getValue("Power Word: Barrier CD") then
-                        if cast.powerWordBarrier(lowest.unit) then return end
+                    --Mindbender/Shadowfiend
+                    if isChecked("Mindbender/Shadowfiend") then
+                        if cast.mindbender() then return end
+                        if cast.shadowfiend() then return end
                     end
                     --Only use on Boss with Overloaded with Light
                     --Always use on Boss
@@ -440,11 +442,16 @@ local function runRotation()
         --Spread Atonement
         function actionList_SpreadAtonement(friendUnit)
             --Spread Atonement
-            if atonementCount <= getOptionValue("Max Atonement") and (not buff.powerWordShield.exists(friendUnit) or getBuffRemain(friendUnit, spell.buffs.atonement, "player") < 1) then
+            if not buff.powerWordShield.exists(friendUnit) or getBuffRemain(friendUnit, spell.buffs.atonement, "player") < 1 then
                 if getSpellCD(spell.powerWordShield) <= 0 and not buff.powerWordShield.exists(friendUnit) then
-                    if t19_4pc and buff.rapture.exists("player") and (atonementCount >= getOptionValue("Max Atonement") or getBuffRemain(friendUnit, spell.buffs.atonement, "player") < 15) then
-                        if cast.powerWordShield(friendUnit) then return end
-                    elseif atonementCount < getOptionValue("Max Atonement") then                    
+                    if buff.rapture.exists("player") and atonementCount <= getValue("Max Atonement when Rapture/PWS") then
+                        if t19_4pc and (atonementCount >= getValue("Max Atonement when Rapture/PWS") or getBuffRemain(friendUnit, spell.buffs.atonement, "player") < 15) then
+                            if cast.powerWordShield(friendUnit) then return end
+                        end
+                        if not t19_4pc then
+                            if cast.powerWordShield(friendUnit) then return end
+                        end
+                    elseif atonementCount < getOptionValue("Max Atonement") and getBuffRemain(friendUnit, spell.buffs.atonement, "player") < 1 then
                         if cast.powerWordShield(friendUnit) then return end
                     end
                 end
@@ -480,16 +487,16 @@ local function runRotation()
             if isChecked("Rapture") then
                 if getLowAllies(getValue("Rapture")) >= getValue("Rapture Targets") then
                     if cast.rapture() then return end
-                    if buff.rapture.exists("player") then
-                        if mode.healer == 1 or mode.healer == 2 then
-                            for i = 1, #br.friend do
-                                actionList_SpreadAtonement(br.friend[i].unit)
-                            end
-                        end
-                        if mode.healer == 3 then
-                            actionList_SpreadAtonement("player")
-                        end
+                end
+            end
+            if buff.rapture.exists("player") then
+                if mode.healer == 1 or mode.healer == 2 then
+                    for i = 1, #br.friend do
+                        actionList_SpreadAtonement(br.friend[i].unit)
                     end
+                end
+                if mode.healer == 3 then
+                    actionList_SpreadAtonement("player")
                 end
             end
             --Power Word: Radiance
@@ -598,6 +605,15 @@ local function runRotation()
                 end
             end
             for i = 1, #br.friend do
+                --Check Rapture buff
+                if buff.rapture.exists("player") then
+                    if mode.healer == 1 or mode.healer == 2 then
+                        actionList_SpreadAtonement(br.friend[i].unit)
+                    end
+                    if mode.healer == 3 and br.friend[i].unit == "player" then
+                        actionList_SpreadAtonement("player")
+                    end
+                end
                 --Purify
                 if isChecked("Purify") or isChecked("Debuff Shadow Mend/Penance Heal") then
                     for n = 1,40 do
