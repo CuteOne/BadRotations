@@ -989,6 +989,7 @@ br.idList = {
                 feignDeath                  = 5384,
                 flankingStrike              = 202800,
                 flare                       = 1543,
+                freezingTrap                = 187650,
                 furyOfTheEagle              = 203415,
                 harpoon                     = 190925,
                 hatchetToss                 = 193265,

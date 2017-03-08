@@ -44,7 +44,6 @@ function frame:OnEvent(event, arg1, arg2, arg3, arg4, arg5)
         br.activeSpecGroup = GetActiveSpecGroup()
     	if not br.loadedIn then
     		bagsUpdated = true
-    		br.enemy = {}
         	br:Run()
         end
     end
