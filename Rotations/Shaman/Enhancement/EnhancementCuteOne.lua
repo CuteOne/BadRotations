@@ -357,6 +357,12 @@ local function runRotation()
             if useCDs() and getDistance("target") < 5 then
         -- Trinkets
                 if isChecked("Trinkets") then
+                    if canUse(11) then
+                        useItem(11)
+                    end
+                    if canUse(12) then
+                        useItem(12)
+                    end
                     if canUse(13) then
                         useItem(13)
                     end

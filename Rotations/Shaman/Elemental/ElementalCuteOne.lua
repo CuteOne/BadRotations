@@ -393,6 +393,12 @@ local function runRotation()
 			if useCDs() and getDistance(units.dyn40) < 40 then
         -- Trinkets
                 if isChecked("Trinkets") then
+                    if canUse(11) then
+                        useItem(11)
+                    end
+                    if canUse(12) then
+                        useItem(12)
+                    end
                     if canUse(13) then
                         useItem(13)
                     end
@@ -502,11 +508,11 @@ local function runRotation()
             end
         -- Earthquake
             -- earthquake
-            if lastSpell ~= spell.earthquake and power >= 50 and (not hasEquiped(137035) or not buff.echoesOfTheGreatSundering.exists() or #enemies.yards8t > 3) then
+            if lastSpell ~= spell.earthquake and power >= 50 and (not hasEquiped(137034) or not buff.echoesOfTheGreatSundering.exists() or #enemies.yards8t > 3) then
                 if cast.earthquake() then return end
             end
         -- Earth Shock
-            if power >= 50 and #enemies.yards8t < 4 and buff.echoesOfTheGreatSundering.exists() and hasEquiped(137035) then
+            if power >= 50 and #enemies.yards8t < 4 and buff.echoesOfTheGreatSundering.exists() and hasEquiped(137034) then
                 if cast.earthShock() then return end
             end
         -- Lava Burst

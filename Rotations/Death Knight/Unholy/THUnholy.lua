@@ -148,6 +148,8 @@ local function createOptions()
             br.ui:createCheckbox(section,"AMS Counter")
             -- Necro Spam
             br.ui:createSpinner(section,  "Necro Spam",  45,  0,  100,  5,  "|cffFFBB00Prefer Necro at X percent dampening.")
+            --Eye of Leotheras
+            br.ui:createCheckbox(section, "Eye of Leotheras", "Pause CR on Eye of Leotheras Debuff")
          br.ui:checkSectionState(section)
         ----------------------
         --- TOGGLE OPTIONS --- -- Degine Toggle Options
@@ -348,6 +350,103 @@ local function runRotation()
             end
         end
     ---------------------------------------------------------------------------------------------------------------------------------    
+    -- Action List - Defensive
+    ---------------------------------------------------------------------------------------------------------------------------------
+        local function actionList_Defensive()
+            if isChecked("Debug Info") then Print("actionList_Defensive") end
+            if useDefensive() and not IsMounted() and inCombat then
+            --- AMS Counter
+                if isChecked("AMS Counter") 
+                    and UnitDebuff("player","Soul Reaper") ~= nil
+                then                    
+                    if cast.antiMagicShell() then print("AMS Counter - Soul Reaper") return end
+                end
+            --Healthstone
+                if isChecked("Healthstone") 
+                    and php <= getOptionValue("Healthstone")     
+                    and hasItem(5512)
+                then
+                    if canUse(5512) then
+                        useItem(5512)
+                    end
+                end
+            -- Death Strike
+                if isChecked("Death Strike")  
+                    and (buff.darkSuccor.exists() and (php < getOptionValue("Death Strike") or buff.darkSuccor.remain() < 2))
+                    or  runicPower >= 45  
+                    and php < getOptionValue("Death Strike") 
+                    and (not talent.darkArbiter or (cd.darkArbiter <= 3 and not (useCDs() or playertar)))
+                then
+                     -- Death strike everything in reach
+                    if getDistance("target") > 5 or immun or bop then
+                        for i=1, #getEnemies("player",20) do
+                            thisUnit = getEnemies("player",20)[i]
+                            distance = getDistance(thisUnit)
+                            if distance < 5 and getFacing("player",thisUnit) then
+                                if cast.deathStrike(thisUnit) then print("Random Hit Deathstrike") return end
+                            end
+                        end
+                    else
+                        if cast.deathStrike("target") then return end
+                    end
+                end
+            -- Icebound Fortitude
+                if isChecked("Icebound Fortitude") 
+                    and php < getOptionValue("Icebound Fortitude") 
+                then
+                    if cast.iceboundFortitude() then return end
+                end
+            -- Corpse Shield
+                if isChecked("Corpse Shield") 
+                    and php < getOptionValue("Corpse Shield") 
+                then
+                    if cast.corpseShield() then return end
+                end
+            -- Anti-Magic Shell
+                if isChecked("Anti-Magic Shell") and php <= getOptionValue("Anti-Magic Shell") then
+                    if cast.antiMagicShell() then return end
+                end
+            -- Raise Ally
+                if isChecked("Raise Ally") then
+                    if getOptionValue("Raise Ally - Target")==1
+                        and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and UnitIsFriend("target","player")
+                    then
+                        if cast.raiseAlly("target","dead") then return end
+                    end
+                    if getOptionValue("Raise Ally - Target")==2
+                        and UnitIsPlayer("mouseover") and UnitIsDeadOrGhost("mouseover") and UnitIsFriend("mouseover","player")
+                    then
+                        if cast.raiseAlly("mouseover","dead") then return end
+                    end
+                end
+            end
+        end
+    ---------------------------------------------------------------------------------------------------------------------------------
+    -- Action List - DebuffReader
+    ---------------------------------------------------------------------------------------------------------------------------------
+        local function actionList_DebuffReader()
+            if startDampeningTimer == nil then startDampeningTimer = false end
+            if printDampeningTimer == nil then printDampeningTimer = true end
+
+            if debuff.dampening.exists("player") and not startDampeningTimer then
+                startDampeningTimer = true
+                printDampeningTimer = true
+                dampeningStartTime = GetTime()                            
+            elseif not debuff.dampening.exists("player") then
+                startDampeningTimer = false
+            end
+
+            if startDampeningTimer then
+                dampeningCount = math.floor((GetTime() - dampeningStartTime) / 10) + 1
+            else
+                dampeningCount = 0
+            end
+            if isChecked("Necro Spam") and dampeningCount >= getOptionValue("Necro Spam")  and printDampeningTimer then
+                Print("Dampening level reached -> Necro Spam active")
+                printDampeningTimer = false
+            end
+        end
+    ---------------------------------------------------------------------------------------------------------------------------------    
     -- Action List - Extras
     ---------------------------------------------------------------------------------------------------------------------------------
         local function actionList_Extras()        
@@ -387,13 +486,13 @@ local function runRotation()
                 end
             end
         --Virulent Plague
-            if (UnitExists("target") and objIDLastVirPlagueTarget ~= ObjectID("target")) or waitfornextVirPlague < GetTime() - 6 then
+            if (UnitExists("target") and objIDLastVirPlagueTarget ~= ObjectID("target")) or (waitfornextVirPlague < GetTime() - 6) then
                 if (not debuff.virulentPlague.exists("target")
                     or debuff.virulentPlague.remain("target") < 1.5) 
                     and not debuff.soulReaper.exists("target")
                     and not immun
                     and not cloak
-                    and not deadtar
+                    and not UnitIsDeadOrGhost("target")
                 then
                     if cast.outbreak("target") then 
                         waitfornextVirPlague = GetTime() 
@@ -415,85 +514,6 @@ local function runRotation()
                             return 
                         end
                         break
-                    end
-                end
-            end
-        end
-    ---------------------------------------------------------------------------------------------------------------------------------    
-    -- Action List - Defensive
-    ---------------------------------------------------------------------------------------------------------------------------------
-        local function actionList_Defensive()
-            if isChecked("Debug Info") then Print("actionList_Defensive") end
-            if useDefensive() and not IsMounted() then
-            --- AMS Counter
-                if isChecked("AMS Counter") 
-                    and debuff.soulReaper.exists("player")
-                then
-                    print("AMS Counter")
-                    if cast.antiMagicShell() then return end
-                end
-
-            --Healthstone
-                if isChecked("Healthstone") 
-                    and php <= getOptionValue("Healthstone")
-                    and inCombat 
-                    and hasItem(5512)
-                then
-                    if canUse(5512) then
-                        useItem(5512)
-                    end
-                end
-            -- Death Strike
-                if isChecked("Death Strike") 
-                    and inCombat 
-                    and (buff.darkSuccor.exists() and (php < getOptionValue("Death Strike") or buff.darkSuccor.remain() < 2))
-                    or  runicPower >= 45  
-                    and php < getOptionValue("Death Strike") 
-                    and (not talent.darkArbiter or (cd.darkArbiter <= 3 and not (useCDs() or playertar)))
-                then
-                     -- Death strike everything in reach
-                    if getDistance("target") > 5 or immun or bop then
-                        for i=1, #getEnemies("player",20) do
-                            thisUnit = getEnemies("player",20)[i]
-                            distance = getDistance(thisUnit)
-                            if distance < 5 and getFacing("player",thisUnit) then
-                                if cast.deathStrike(thisUnit) then print("Random Hit Deathstrike") return end
-                            end
-                        end
-                    else
-                        if cast.deathStrike("target") then return end
-                    end
-                end
-                if isChecked("Debug Info") then Print("IBF") end
-            -- Icebound Fortitude
-                if isChecked("Icebound Fortitude") 
-                    and php < getOptionValue("Icebound Fortitude") 
-                    and inCombat 
-                then
-                    if cast.iceboundFortitude() then return end
-                end
-            -- Corpse Shield
-                if isChecked("Corpse Shield") 
-                    and php < getOptionValue("Corpse Shield") 
-                    and inCombat 
-                then
-                    if cast.corpseShield() then return end
-                end
-            -- Anti-Magic Shell
-                if isChecked("Anti-Magic Shell") and php <= getOptionValue("Anti-Magic Shell") then
-                    if cast.antiMagicShell() then return end
-                end
-            -- Raise Ally
-                if isChecked("Raise Ally") then
-                    if getOptionValue("Raise Ally - Target")==1
-                        and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and UnitIsFriend("target","player")
-                    then
-                        if cast.raiseAlly("target","dead") then return end
-                    end
-                    if getOptionValue("Raise Ally - Target")==2
-                        and UnitIsPlayer("mouseover") and UnitIsDeadOrGhost("mouseover") and UnitIsFriend("mouseover","player")
-                    then
-                        if cast.raiseAlly("mouseover","dead") then return end
                     end
                 end
             end
@@ -776,7 +796,7 @@ local function runRotation()
             end
         end
     ---------------------------------------------------------------------------------------------------------------------------------
-    -- Action List - Pre Dark Arbiter
+    -- Action List - Dark Arbiter
     ---------------------------------------------------------------------------------------------------------------------------------
         local function actionList_PreDarkArbiter()
         --Apocalypse
@@ -904,31 +924,7 @@ local function runRotation()
                 end
                 
         end
-    ---------------------------------------------------------------------------------------------------------------------------------
-    -- Action List - DebuffReader
-    ---------------------------------------------------------------------------------------------------------------------------------
-        local function actionList_DebuffReader()
-            if startDampeningTimer == nil then startDampeningTimer = false end
-            if printDampeningTimer == nil then printDampeningTimer = true end
-
-            if debuff.dampening.exists("player") and not startDampeningTimer then
-                startDampeningTimer = true
-                printDampeningTimer = true
-                dampeningStartTime = GetTime()                            
-            elseif not debuff.dampening.exists("player") then
-                startDampeningTimer = false
-            end
-
-            if startDampeningTimer then
-                dampeningCount = math.floor((GetTime() - dampeningStartTime) / 10) + 1
-            else
-                dampeningCount = 0
-            end
-            if isChecked("Necro Spam") and dampeningCount >= getOptionValue("Necro Spam")  and printDampeningTimer then
-                Print("Dampening level reached -> Necro Spam active")
-                printDampeningTimer = false
-            end
-        end
+    
 -----------------
 --- Rotations ---
 -----------------
@@ -943,7 +939,6 @@ local function runRotation()
             if not inCombat and ObjectExists("target") and not UnitIsDeadOrGhost("target") and UnitCanAttack("target", "player") then
                 if isChecked("Debug Info") then Print("OOC") end
                 startDampeningTimer = false
-
             end -- End Out of Combat Rotation
 -----------------------------
 --- In Combat - Rotations --- 
@@ -955,7 +950,7 @@ local function runRotation()
                     if actionList_DebuffReader() then return end
                 end
 
-                if debuff.eyeOfLeotheras ~= nil and debuff.eyeOfLeotheras.exists("player") then
+                if isChecked("Eye of Leotheras") and UnitDebuff("player","Eye Of Leotheras") ~= nil then
                     ClearTarget()
                     if IsPetAttackActive() then
                         PetStopAttack()
