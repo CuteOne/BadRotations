@@ -369,8 +369,8 @@ local function runRotation()
                     end
                 end
             -- Ascendance
-                if isChecked("Ascendance") and talent.ascendance and not buff.ascendance.exists() and not talent.cloudburstTotem then
-                    if getLowAllies(getValue("Ascendance")) >= getValue("Ascendance") then    
+                if isChecked("Ascendance") and talent.ascendance and not talent.cloudburstTotem then
+                    if getLowAllies(getValue("Ascendance")) >= getValue("Ascendance Targets") then    
                         if cast.ascendance() then return end    
                     end
                 end
@@ -410,8 +410,8 @@ local function runRotation()
                 end
             end
         -- Ascendance
-            if isChecked("Ascendance") and talent.ascendance and not buff.ascendance.exists() then
-                if getLowAllies(getValue("Ascendance")) >= getValue("Ascendance") then    
+            if isChecked("Ascendance") and talent.ascendance then
+                if getLowAllies(getValue("Ascendance")) >= getValue("Ascendance Targets") then    
                     if cast.ascendance() then return end    
                 end
             end
