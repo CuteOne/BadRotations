@@ -84,6 +84,8 @@ local function createOptions()
             br.ui:createSpinner(section, "Heirloom Neck",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at");
         -- Barkskin
             br.ui:createSpinner(section, "Barkskin",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at");
+        -- Renewal
+            br.ui:createSpinner(section, "Renewal",  70,  0,  100,  5,  "|cffFFBB00Health Percentage to use at");
         br.ui:checkSectionState(section)
     -- Healing Options
         section = br.ui:createSection(br.ui.window.profile, "Healing")
@@ -591,10 +593,16 @@ local function runRotation()
 --- In Combat - Rotations --- 
 -----------------------------
             if inCombat and not IsMounted() and getBuffRemain("player", 192002 ) < 10 then
-                -- Barkskin
+            -- Barkskin
                 if isChecked("Barkskin") then
                     if php <= getOptionValue("Barkskin") and inCombat then
                         if cast.barkskin() then return end
+                    end
+                end
+            -- Renewal
+                if isChecked("Renewal") and talent.renewal then
+                    if php <= getOptionValue("Renewal") and inCombat then
+                        if cast.renewal() then return end
                     end
                 end
             -- Healthstone
