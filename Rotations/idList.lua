@@ -1381,6 +1381,7 @@ br.idList = {
                 invokeChiJiTheRedCrane      = 198664;
                 summonJadeSerpentStatue     = 115313;
                 manaTea                     = 197908;
+                risingThunder               = 210804,
             },
         },
         -- Windwalker

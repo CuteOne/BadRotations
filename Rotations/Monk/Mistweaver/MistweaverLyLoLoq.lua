@@ -490,7 +490,10 @@ local function runRotation()
     local function actionList_DPS()
         if useDPS then
             if lowest.hp >= getValue("DPS") then
-                if #enemies.yards8 >= 2 and not isCastingSpell(spell.spinningCraneKick) then
+                if talent.risingThunder then
+                    if cast.risingSunKick(enemies.yards5[1].unit) then return true end
+                end
+                if #enemies.yards8 >= 3 and not isCastingSpell(spell.spinningCraneKick) then
                     if cast.spinningCraneKick() then return true end
                 elseif #enemies.yards5 == 1 then
                     if cd.risingSunKick == 0 then
