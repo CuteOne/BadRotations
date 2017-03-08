@@ -501,6 +501,12 @@ local function runRotation()
                     end
                 end
             end
+        -- Healing Rain
+            if isChecked("Healing Rain") and not moving and not buff.healingRain.exists() then
+                if getLowAllies(getValue("Healing Rain")) >= getValue("Healing Rain Targets") then    
+                    if castGroundAtBestLocation(spell.healingRain, 20, 0, 40, 0, "heal") then return end    
+                end
+            end
         end -- End Action List - AOEHealing
         -- Single Target
         function actionList_SingleTarget()
@@ -626,14 +632,8 @@ local function runRotation()
                 if talent.cloudburstTotem and buff.cloudburstTotem.exists() then
                     actionList_CBT()
                 end
-                -- Healing Rain
-                if isChecked("Healing Rain") and not moving and not buff.healingRain.exists() then
-                    if getLowAllies(getValue("Healing Rain")) >= getValue("Healing Rain Targets") then    
-                        if castGroundAtBestLocation(spell.healingRain, 20, 0, 40, 0, "heal") then return end    
-                    end
-                end
-                actionList_SingleTarget()
                 actionList_AOEHealing()
+                actionList_SingleTarget()
                 if br.player.mode.dps == 1 then
                     actionList_DPS()
                 end
