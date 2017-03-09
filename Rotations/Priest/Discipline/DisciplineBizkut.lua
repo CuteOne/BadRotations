@@ -634,10 +634,21 @@ local function runRotation()
                                         if cast.purify("player") then return end
                                 end
                             end
-                            if br.friend[i].hp <= getValue("Debuff Shadow Mend/Penance Heal") and isChecked("Debuff Shadow Mend/Penance Heal") and not UnitDebuffID(br.friend[i].unit,187464) and not UnitDebuffID(br.friend[i].unit,207011) then
+                            if br.friend[i].hp <= getValue("Debuff Shadow Mend/Penance Heal") and isChecked("Debuff Shadow Mend/Penance Heal") and not UnitDebuffID(br.friend[i].unit,187464) and not UnitDebuffID(br.friend[i].unit,207011) and lastSpell ~= spell.shadowMend then
                                 if mode.healer == 1 or mode.healer == 2 then
                                     if isMoving("player") and talent.thePenitent then
                                         if cast.penance(br.friend[i].unit) then return end
+                                    end
+                                    if inCombat and getSpellCD(spell.penance) <= 0 then
+                                        actionList_SpreadAtonement(br.friend[i].unit)
+                                        actionList_SpreadAtonement(lowest.unit)
+                                        if schismBuff then
+                                            if cast.penance(schismBuff) then return end
+                                        end
+                                        if ptwBuff then
+                                            if cast.penance(ptwBuff) then return end
+                                        end
+                                        if cast.penance() then return end
                                     else
                                         if cast.shadowMend(br.friend[i].unit) then return end
                                     end
@@ -645,6 +656,16 @@ local function runRotation()
                                 if mode.healer == 3 and br.friend[i].unit == "player" then
                                     if isMoving("player") and talent.thePenitent then
                                         if cast.penance("player") then return end
+                                    end
+                                    if inCombat and getSpellCD(spell.penance) <= 0 then
+                                        actionList_SpreadAtonement("player")
+                                        if schismBuff then
+                                            if cast.penance(schismBuff) then return end
+                                        end
+                                        if ptwBuff then
+                                            if cast.penance(ptwBuff) then return end
+                                        end
+                                        if cast.penance() then return end
                                     else
                                         if cast.shadowMend("player") then return end
                                     end
@@ -666,7 +687,7 @@ local function runRotation()
                 end
                 --Shadow Mend Emergency
                 if isChecked("Shadow Mend Emergency") then
-                    if br.friend[i].hp <= getValue("Shadow Mend Emergency") then
+                    if br.friend[i].hp <= getValue("Shadow Mend Emergency") and lastSpell ~= spell.shadowMend then
                         if mode.healer == 1 or mode.healer == 2 then
                             if cast.shadowMend(br.friend[i].unit) then return end
                         end
@@ -677,12 +698,34 @@ local function runRotation()
                 end
                 --Shadow Mend
                 if isChecked("Shadow Mend") then
-                    if br.friend[i].hp <= getValue("Shadow Mend") and (not inCombat or getBuffRemain(br.friend[i].unit, spell.buffs.atonement, "player") < 1) then
+                    if br.friend[i].hp <= getValue("Shadow Mend") and (not inCombat or getBuffRemain(br.friend[i].unit, spell.buffs.atonement, "player") < 1) and lastSpell ~= spell.shadowMend then
                         if mode.healer == 1 or mode.healer == 2 then
-                            if cast.shadowMend(br.friend[i].unit) then return end
+                            if inCombat and getSpellCD(spell.penance) <= 0 then
+                                actionList_SpreadAtonement(br.friend[i].unit)
+                                if schismBuff then
+                                    if cast.penance(schismBuff) then return end
+                                end
+                                if ptwBuff then
+                                    if cast.penance(ptwBuff) then return end
+                                end
+                                if cast.penance() then return end
+                            else
+                                if cast.shadowMend(br.friend[i].unit) then return end
+                            end
                         end
                         if mode.healer == 3 and br.friend[i].unit == "player" then
-                            if cast.shadowMend("player") then return end
+                            if inCombat and getSpellCD(spell.penance) <= 0 then
+                                actionList_SpreadAtonement("player")
+                                if schismBuff then
+                                    if cast.penance(schismBuff) then return end
+                                end
+                                if ptwBuff then
+                                    if cast.penance(ptwBuff) then return end
+                                end
+                                if cast.penance() then return end
+                            else
+                                if cast.shadowMend("player") then return end
+                            end
                         end
                     end
                 end
@@ -731,7 +774,7 @@ local function runRotation()
                 for i = 1, #enemies.dyn40 do
                     local thisUnit = enemies.dyn40[i]
                     local ptwBuffRemain = debuff.purgeTheWicked.duration(thisUnit) or 0
-                    if swpBuffRemain > 0 then
+                    if ptwBuffRemain > 0 then
                         ptwBuffcount = ptwBuffcount + 1
                     end
                     local swpBuffRemain = debuff.shadowWordPain.duration(thisUnit) or 0
