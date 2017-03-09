@@ -264,7 +264,7 @@ local function runRotation()
             SpellStopCasting()
         end
 
-        if (chi >= FoFCost and cd.fistsOfFury <= gcd) or (chi >= 2 and (cd.risingSunKick <= gcd or (cd.strikeOfTheWindlord <= gcd and getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs())))) or (cd.whirlingDragonPunch <= gcd and cd.risingSunKick >= gcd and cd.fistsOfFury >= gcd) then
+        if (chi >= FoFCost and cd.fistsOfFury <= gcd) or (chi >= 2 and (cd.risingSunKick <= gcd or cd.strikeOfTheWindlord <= gcd)) or (cd.whirlingDragonPunch <= gcd and cd.risingSunKick >= gcd and cd.fistsOfFury >= gcd) then
             HoldBoK = true
         else
             HoldBoK = false
