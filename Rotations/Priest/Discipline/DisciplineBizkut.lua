@@ -572,7 +572,7 @@ local function runRotation()
                 --Power Word: Shield
                 if br.friend[i].hp <= getValue("Power Word: Shield") and not buff.powerWordShield.exists(br.friend[i].unit) and getSpellCD(spell.powerWordShield) <= 0 then
                     if mode.healer == 1 or mode.healer == 2 then
-                        if br.friend[i].unit == tankUnit or buff.powerWordShield.remain(tankUnit) > select(2,GetSpellCooldown(spell.powerWordShield)) then
+                        if tankUnit == nil or br.friend[i].unit == tankUnit or buff.powerWordShield.remain(tankUnit) > select(2,GetSpellCooldown(spell.powerWordShield)) then
                             if cast.powerWordShield(br.friend[i].unit) then return end
                         end
                     end
@@ -641,17 +641,6 @@ local function runRotation()
                                 if mode.healer == 1 or mode.healer == 2 then
                                     if isMoving("player") and talent.thePenitent then
                                         if cast.penance(br.friend[i].unit) then return end
-                                    end
-                                    if inCombat and getSpellCD(spell.penance) <= 0 then
-                                        actionList_SpreadAtonement(br.friend[i].unit)
-                                        actionList_SpreadAtonement(lowest.unit)
-                                        if schismBuff then
-                                            if cast.penance(schismBuff) then return end
-                                        end
-                                        if ptwBuff then
-                                            if cast.penance(ptwBuff) then return end
-                                        end
-                                        if cast.penance() then return end
                                     else
                                         if cast.shadowMend(br.friend[i].unit) then return end
                                     end
@@ -659,16 +648,6 @@ local function runRotation()
                                 if mode.healer == 3 and br.friend[i].unit == "player" then
                                     if isMoving("player") and talent.thePenitent then
                                         if cast.penance("player") then return end
-                                    end
-                                    if inCombat and getSpellCD(spell.penance) <= 0 then
-                                        actionList_SpreadAtonement("player")
-                                        if schismBuff then
-                                            if cast.penance(schismBuff) then return end
-                                        end
-                                        if ptwBuff then
-                                            if cast.penance(ptwBuff) then return end
-                                        end
-                                        if cast.penance() then return end
                                     else
                                         if cast.shadowMend("player") then return end
                                     end
@@ -692,32 +671,10 @@ local function runRotation()
                 if isChecked("Shadow Mend Emergency") then
                     if br.friend[i].hp <= getValue("Shadow Mend Emergency") then
                         if mode.healer == 1 or mode.healer == 2 then
-                            if inCombat and getSpellCD(spell.penance) <= 0 then
-                                actionList_SpreadAtonement(br.friend[i].unit)
-                                if schismBuff then
-                                    if cast.penance(schismBuff) then return end
-                                end
-                                if ptwBuff then
-                                    if cast.penance(ptwBuff) then return end
-                                end
-                                if cast.penance() then return end
-                            else
-                                if cast.shadowMend(br.friend[i].unit) then return end
-                            end
+                            if cast.shadowMend(br.friend[i].unit) then return end
                         end
                         if mode.healer == 3 and br.friend[i].unit == "player" then
-                            if inCombat and getSpellCD(spell.penance) <= 0 then
-                                actionList_SpreadAtonement("player")
-                                if schismBuff then
-                                    if cast.penance(schismBuff) then return end
-                                end
-                                if ptwBuff then
-                                    if cast.penance(ptwBuff) then return end
-                                end
-                                if cast.penance() then return end
-                            else
-                                if cast.shadowMend("player") then return end
-                            end
+                            if cast.shadowMend("player") then return end
                         end
                     end
                 end
@@ -725,32 +682,10 @@ local function runRotation()
                 if isChecked("Shadow Mend") then
                     if br.friend[i].hp <= getValue("Shadow Mend") and (not inCombat or getBuffRemain(br.friend[i].unit, spell.buffs.atonement, "player") < 1) then
                         if mode.healer == 1 or mode.healer == 2 then
-                            if inCombat and getSpellCD(spell.penance) <= 0 then
-                                actionList_SpreadAtonement(br.friend[i].unit)
-                                if schismBuff then
-                                    if cast.penance(schismBuff) then return end
-                                end
-                                if ptwBuff then
-                                    if cast.penance(ptwBuff) then return end
-                                end
-                                if cast.penance() then return end
-                            else
-                                if cast.shadowMend(br.friend[i].unit) then return end
-                            end
+                            if cast.shadowMend(br.friend[i].unit) then return end
                         end
                         if mode.healer == 3 and br.friend[i].unit == "player" then
-                            if inCombat and getSpellCD(spell.penance) <= 0 then
-                                actionList_SpreadAtonement("player")
-                                if schismBuff then
-                                    if cast.penance(schismBuff) then return end
-                                end
-                                if ptwBuff then
-                                    if cast.penance(ptwBuff) then return end
-                                end
-                                if cast.penance() then return end
-                            else
-                                if cast.shadowMend("player") then return end
-                            end
+                            if cast.shadowMend("player") then return end
                         end
                     end
                 end
