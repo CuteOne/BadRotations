@@ -726,13 +726,22 @@ local function runRotation()
             end
             --Shadow Word: Pain/Purge The Wicked
             if isChecked("Shadow Word: Pain/Purge The Wicked") then
+                ptwBuffcount = 0
+                swpBuffcount = 0
+                for i = 1, #enemies.dyn40 do
+                    local thisUnit = enemies.dyn40[i]
+                    local ptwBuffRemain = debuff.purgeTheWicked.duration(thisUnit) or 0
+                    if swpBuffRemain > 0 then
+                        ptwBuffcount = ptwBuffcount + 1
+                    end
+                    local swpBuffRemain = debuff.shadowWordPain.duration(thisUnit) or 0
+                    if swpBuffRemain > 0 then
+                        swpBuffcount = swpBuffcount + 1
+                    end
+                end
                 if talent.purgeTheWicked then
-                    ptwBuffcount = 0
                     for i = 1, #enemies.dyn40 do
                         local thisUnit = enemies.dyn40[i]
-                        if debuff.purgeTheWicked.exists(thisUnit) then
-                           ptwBuffcount = ptwBuffcount + 1
-                        end
                         if UnitIsUnit(thisUnit,"target") or hasThreat(thisUnit) or isDummy(thisUnit) then
                             if ttd(thisUnit) > debuff.purgeTheWicked.duration(thisUnit) and debuff.purgeTheWicked.refresh(thisUnit) and ptwBuffcount < getValue("Shadow Word: Pain/Purge The Wicked") then
                                 if schismBuff == thisUnit or not talent.schism or not isChecked("Schism") or schismBuff == nil then
@@ -745,12 +754,8 @@ local function runRotation()
                     end
                 end
                 if not talent.purgeTheWicked then
-                    swpBuffcount = 0
                     for i = 1, #enemies.dyn40 do
                         local thisUnit = enemies.dyn40[i]
-                        if debuff.shadowWordPain.exists(thisUnit) then
-                           swpBuffcount = swpBuffcount + 1
-                        end
                         if UnitIsUnit(thisUnit,"target") or hasThreat(thisUnit) or isDummy(thisUnit) then
                             if ttd(thisUnit) > debuff.shadowWordPain.duration(thisUnit) and debuff.shadowWordPain.refresh(thisUnit) and swpBuffcount < getValue("Shadow Word: Pain/Purge The Wicked") then
                                 if cast.shadowWordPain(thisUnit) then
