@@ -716,8 +716,6 @@ local function runRotation()
                     if cast.schism("target") then return end
                 end
             end
-            schismBuff = nil
-            ptwBuff = nil
             for i = 1, #enemies.dyn40 do
                 local thisUnit = enemies.dyn40[i]
                 if UnitIsUnit(thisUnit,"target") or hasThreat(thisUnit) or isDummy(thisUnit) then
@@ -765,10 +763,9 @@ local function runRotation()
                 if schismBuff then
                     if cast.penance(schismBuff) then return end
                 end
-                if talent.purgeTheWicked and ptwBuff ~= nil and isChecked("Shadow Word: Pain/Purge The Wicked") then
+                if ptwBuff then
                     if cast.penance(ptwBuff) then return end    
-                end
-                if not talent.purgeTheWicked or not isChecked("Shadow Word: Pain/Purge The Wicked") or ptwBuff == nil then
+                else
                     if cast.penance() then return end
                 end
             end
