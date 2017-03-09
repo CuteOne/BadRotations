@@ -541,7 +541,7 @@ local function runRotation()
                     end
             -- Doom Winds
                     -- doom_winds
-                    if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()) then
+                    if (getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs())) and getDistance("target") < 5 then
                         if cast.doomWinds() then return end
                     end
             -- Crash Lightning
@@ -681,7 +681,7 @@ local function runRotation()
             -- Windsong
                     if cast.windsong() then return end
             -- Doom Winds
-                    if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()) then
+                    if (getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs())) and getDistance("target") < 5 then
                         if cast.doomWinds() then return end
                     end
             -- Ascendance

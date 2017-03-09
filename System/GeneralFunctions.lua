@@ -847,12 +847,11 @@ function castQueue()
 					    end
 					    -- Cast if able
 					    if amIinRange then
+				            if thisUnit == nil then thisUnit = "player" end
 					        if UnitIsDeadOrGhost(thisUnit) then
-					            if thisUnit == nil then thisUnit = "player" end
 					            castSpell(thisUnit,spellCast,false,false,false,false,true)
 					            return true
 					        else
-					            if thisUnit == nil then thisUnit = "player" end
 					            Print("Casting Spell: "..spellName)
 					            castSpell(thisUnit,spellCast,false,false,false)
 					            return true

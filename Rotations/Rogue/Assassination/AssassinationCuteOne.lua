@@ -81,6 +81,8 @@ local function createOptions()
         section = br.ui:createSection(br.ui.window.profile,  "Cooldowns")
             -- Agi Pot
             br.ui:createCheckbox(section, "Agi-Pot")
+            -- Trinkets
+            br.ui:createCheckbox(section,"Trinkets")
             -- Legendary Ring
             br.ui:createCheckbox(section, "Legendary Ring")
             -- Marked For Death
@@ -387,6 +389,21 @@ local function runRotation()
                 -- if debuff.vendetta.exists(units.dyn5) and (race == "Orc" or race == "Troll" or (race == "BloodElf" and powerDeficit > 50)) then
                 --  if castSpell("player",racial,false,false,false) then return end
                 -- end
+        -- Trinkets
+                if isChecked("Trinkets") then
+                    if canUse(11) then
+                        useItem(11)
+                    end
+                    if canUse(12) then
+                        useItem(12)
+                    end
+                    if canUse(13) then
+                        useItem(13)
+                    end
+                    if canUse(14) then
+                        useItem(14)
+                    end
+                end
         -- Marked For Death
                 if isChecked("Marked For Death") then
                     if getOptionValue("Marked For Death") == 1 then
