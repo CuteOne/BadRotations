@@ -467,7 +467,7 @@ local function runRotation()
                     end
                 end
                 if not buff.powerWordShield.exists(friendUnit) and getBuffRemain(friendUnit, spell.buffs.atonement, "player") < 1 and mode.burst == 1 and (UnitBuffID("player",29166) == 1 or UnitBuffID("player",64901) == 1) then
-                    if cast.plea(friendUnit) then return end
+                    if cast.powerWordRadiance(friendUnit) then return end
                 end
                 if lastSpell ~= spell.plea and atonementCount < getOptionValue("Max Plea") and atonementCount < getOptionValue("Max Atonement") and not buff.powerWordShield.exists(friendUnit) and getBuffRemain(friendUnit, spell.buffs.atonement, "player") < 1 then
                     if cast.plea(friendUnit) then return end     
