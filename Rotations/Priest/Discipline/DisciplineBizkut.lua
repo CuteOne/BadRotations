@@ -1,5 +1,12 @@
 local rotationName = "Bizkut"
 
+--------------
+--- COLORS ---
+--------------
+local colorGreen    = "|cff00FF00"
+local colorRed      = "|cffFF0000"
+local colorWhite    = "|cffFFFFFF"
+
 ---------------
 --- Toggles ---
 ---------------
@@ -64,6 +71,8 @@ local function createOptions()
         section = br.ui:createSection(br.ui.window.profile, "Utility")
             --Purify
             br.ui:createCheckbox(section, "Purify")
+            -- Mass Dispel
+            br.ui:createDropdown(section, "Mass Dispel", br.dropOptions.Toggle, 1, colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.." Mass Dispel usage.")
             --Body and Soul
             br.ui:createCheckbox(section, "Body and Soul")
             --Angelic Feather
@@ -442,6 +451,12 @@ local function runRotation()
                 if isChecked("Body and Soul") and talent.bodyAndSoul then
                     if cast.powerWordShield("player") then return end
                 end
+            else
+	            -- Mass Dispel
+	            if isChecked("Mass Dispel") and (SpecificToggle("Mass Dispel") and not GetCurrentKeyBoardFocus()) then
+	                CastSpellByName(GetSpellInfo(spell.massDispel),"cursor")
+	                return true
+	            end
             end
             if isChecked("Pre-Pot Timer") and pullTimer <= getOptionValue("Pre-Pot Timer") and canUse(142117) and not solo then
                 useItem(142117)
