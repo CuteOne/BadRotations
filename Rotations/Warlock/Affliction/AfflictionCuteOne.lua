@@ -943,7 +943,7 @@ local function runRotation()
                     -- drain_soul,chain=1,interrupt=1
                     if not isCastingSpell(spell.drainSoul,"player") and mode.multidot == 1 then
                         if not ObjectExists("target") then TargetUnit("target") end
-                        if (not talent.maleGrasp and shards >= 5) or (talent.maleficGrasp and (shards < 2 
+                        if (not talent.maleGrasp and shards < 5) or (talent.maleficGrasp and (shards < 2 
                             or (not buff.deadwindHarvester.exists() and debuff.unstableAffliction.stack() >= 2) 
                             or (buff.deadwindHarvester.exists() and debuff.unstableAffliction.stack() >= 3))) 
                         then

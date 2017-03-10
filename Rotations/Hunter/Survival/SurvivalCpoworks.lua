@@ -747,11 +747,17 @@ local function runRotation()
                 StartAttack()
             end
         end -- End Action List - PreCombat
------------------
---- Rotations ---
------------------
-        -- Pause
-        if pause() or (UnitExists("target") and (UnitIsDeadOrGhost("target") or not UnitCanAttack("target", "player"))) or mode.rotation == 4 then
+---------------------
+--- Begin Profile ---
+---------------------
+    -- Profile Stop | Pause
+        if not inCombat and not hastar and profileStop==true then
+            profileStop = false
+        elseif (inCombat and profileStop==true) or (IsMounted() or IsFlying()) or pause() or mode.rotation==4 then
+            if not pause() and IsPetAttackActive() then
+                PetStopAttack()
+                PetFollow()
+            end
             return true
         else
 ---------------------------------
