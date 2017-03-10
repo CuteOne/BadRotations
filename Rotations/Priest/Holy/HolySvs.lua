@@ -66,6 +66,8 @@ local function createOptions()
             br.ui:createCheckbox(section,"Body and Mind","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFBody and Mind usage|cffFFBB00.")
         -- Dispel Magic
             br.ui:createCheckbox(section,"Dispel Magic","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFDispel Magic usage|cffFFBB00.")
+        -- Mass Dispel
+            br.ui:createDropdown(section, "Mass Dispel", br.dropOptions.Toggle, 6, colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.." Mass Dispel usage.")
         -- Racial
             br.ui:createCheckbox(section, "Racial")
         br.ui:checkSectionState(section)
@@ -234,6 +236,11 @@ local function runRotation()
                 if isChecked("Body and Mind") and talent.bodyAndMind then
                     if cast.bodyAndMind("player") then return end
                 end
+            end
+        -- Mass Dispel
+            if isChecked("Mass Dispel") and (SpecificToggle("Mass Dispel") and not GetCurrentKeyBoardFocus()) then
+                CastSpellByName(GetSpellInfo(spell.massDispel),"cursor")
+                return true
             end
         end -- End Action List - Extras
         -- Action List - Pre-Combat
