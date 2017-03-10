@@ -25,6 +25,11 @@ local function createToggles()
         [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spell.powerWordBarrier}
     };
     CreateButton("Defensive",3,0)
+    HaloModes = {
+        [1] = { mode = "On", value = 1 , overlay = "Halo Enabled", tip = "Halo Enabled.", highlight = 1, icon = br.player.spell.halo},
+        [2] = { mode = "Off", value = 2 , overlay = "Halo Disabled", tip = "Halo Disabled.", highlight = 0, icon = br.player.spell.halo}
+    };
+    CreateButton("Halo",4,0)
 end
 
 ---------------
@@ -228,7 +233,9 @@ local function runRotation()
         UpdateToggle("Healer",0.25)
         UpdateToggle("Cooldown",0.25)
         UpdateToggle("Defensive",0.25)
+        UpdateToggle("Halo",0.25)
         br.player.mode.healer = br.data.settings[br.selectedSpec].toggles["Healer"]
+        br.player.mode.halo = br.data.settings[br.selectedSpec].toggles["Halo"]
 --------------
 --- Locals ---
 --------------
@@ -410,7 +417,7 @@ local function runRotation()
                         if cast.divineStar() then return end
                     end
                     --Halo CD
-                    if isChecked("Halo CD") and isBoss("target") and getDistance("player","target") < 30 then
+                    if isChecked("Halo CD") and isBoss("target") and getDistance("player","target") < 30 and mode.halo == 1 then
                         if cast.halo() then return end
                     end
                 end
@@ -503,7 +510,7 @@ local function runRotation()
                 end
             end
             --Halo
-            if isChecked("Halo") then
+            if isChecked("Halo") and mode.halo == 1 then
                 if getLowAllies(getValue("Halo")) >= getValue("Halo Targets") then
                     if cast.halo(lowest.unit) then return end
                 end
@@ -892,7 +899,7 @@ local function runRotation()
                 end
             end
             --Halo Damage
-            if isChecked("Halo Damage") and talent.halo then
+            if isChecked("Halo Damage") and talent.halo and mode.halo == 1 then
                 if #enemies.dyn30 >= getOptionValue("Halo Damage") then
                     if cast.halo() then return end
                 end
