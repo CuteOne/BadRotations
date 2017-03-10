@@ -30,6 +30,11 @@ local function createToggles()
         [2] = { mode = "Off", value = 2 , overlay = "Halo Disabled", tip = "Halo Disabled.", highlight = 0, icon = br.player.spell.halo}
     };
     CreateButton("Halo",4,0)
+    BurstModes = {
+        [1] = { mode = "On", value = 1 , overlay = "Burst Enabled", tip = "Burst Atonement enabled when getting Innervate/Symbol of Hope.", highlight = 1, icon = br.player.spell.powerWordRadiance},
+        [2] = { mode = "Off", value = 2 , overlay = "Burst Disabled", tip = "Burst Atonement disabled when getting Innervate/Symbol of Hope.", highlight = 0, icon = br.player.spell.powerWordRadiance}
+    };
+    CreateButton("Burst",5,0)
 end
 
 ---------------
@@ -234,8 +239,10 @@ local function runRotation()
         UpdateToggle("Cooldown",0.25)
         UpdateToggle("Defensive",0.25)
         UpdateToggle("Halo",0.25)
+        UpdateToggle("Burst",0.25)
         br.player.mode.healer = br.data.settings[br.selectedSpec].toggles["Healer"]
         br.player.mode.halo = br.data.settings[br.selectedSpec].toggles["Halo"]
+        br.player.mode.burst = br.data.settings[br.selectedSpec].toggles["Burst"]
 --------------
 --- Locals ---
 --------------
@@ -458,6 +465,9 @@ local function runRotation()
                     elseif atonementCount < getOptionValue("Max Atonement") and getBuffRemain(friendUnit, spell.buffs.atonement, "player") < 1 then
                         if cast.powerWordShield(friendUnit) then return end
                     end
+                end
+                if not buff.powerWordShield.exists(friendUnit) and getBuffRemain(friendUnit, spell.buffs.atonement, "player") < 1 and mode.burst == 1 and (UnitBuffID("player",29166) == 1 or UnitBuffID("player",64901) == 1) then
+                    if cast.plea(friendUnit) then return end
                 end
                 if lastSpell ~= spell.plea and atonementCount < getOptionValue("Max Plea") and atonementCount < getOptionValue("Max Atonement") and not buff.powerWordShield.exists(friendUnit) and getBuffRemain(friendUnit, spell.buffs.atonement, "player") < 1 then
                     if cast.plea(friendUnit) then return end     
@@ -745,7 +755,7 @@ local function runRotation()
                         actionList_SpreadAtonement("player")
                     end
                 end
-                if mode.healer == 2 then
+                if mode.healer == 2 or (mode.burst == 1 and (UnitBuffID("player",29166) or UnitBuffID("player",64901))) then
                     actionList_SpreadAtonement(br.friend[i].unit)
                 end
                 --Fade
@@ -905,8 +915,8 @@ local function runRotation()
                 end
             end
             --Smite
-            if isChecked("Smite") and getMana("player") > 20 then
-                if (not inInstance and not inRaid) or atonementCount >= getValue("Smite") then
+            if isChecked("Smite") then
+                if (getMana("player") > 20 and ((not inInstance and not inRaid) or atonementCount >= getValue("Smite"))) or (mode.burst == 1 and (UnitBuffID("player",29166) or UnitBuffID("player",64901))) then
                     if schismBuff and lastSpell ~= spell.smite then
                         if cast.smite(schismBuff) then return end
                     end
