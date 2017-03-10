@@ -811,10 +811,10 @@ local function runRotation()
             end
             --Penance
             if isChecked("Penance") then
-                if isChecked("Schism") and talent.schism then
+                if schismBuff then
                     if cast.penance(schismBuff) then return end
                 end
-                if isChecked("Shadow Word: Pain/Purge The Wicked") and talent.purgeTheWicked then
+                if ptwBuff then
                     if cast.penance(ptwBuff) then return end    
                 else
                     if cast.penance() then return end
