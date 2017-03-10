@@ -498,7 +498,7 @@ local function runRotation()
             end
             --Power Word: Radiance
             if isChecked("Power Word: Radiance") and (mode.healer == 1 or mode.healer == 2) then
-                if getLowAllies(getValue("Power Word: Radiance")) >= getValue("PWR Targets") and lastSpell ~= spell.powerWordRadiance then
+                if getLowAllies(getValue("Power Word: Radiance")) >= getValue("PWR Targets") and lastSpell ~= spell.powerWordRadiance and getBuffRemain(lowest.unit, spell.buffs.atonement, "player") < 1 then
                     if cast.powerWordRadiance(lowest.unit) then return end
                 end
             end
