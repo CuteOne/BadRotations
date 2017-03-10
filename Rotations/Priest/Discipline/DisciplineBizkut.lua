@@ -816,8 +816,9 @@ local function runRotation()
                 end
                 if isChecked("Shadow Word: Pain/Purge The Wicked") and talent.purgeTheWicked then
                     if cast.penance(ptwBuff) then return end    
+                else
+                    if cast.penance() then return end
                 end
-                if cast.penance() then return end
             end
             --Mindbender
             if isChecked("Mindbender") and getMana("player") <= getValue("Mindbender") then
