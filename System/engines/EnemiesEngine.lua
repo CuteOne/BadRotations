@@ -478,9 +478,7 @@ end
 function isSafeToAttack(unit)
 	if getOptionCheck("Safe Damage Check") == true then
 		-- check if unit is valid
-		if GetObjectExists(unit) then
-			local unitID = GetObjectID(unit)
-		end
+		local unitID = GetObjectExists(unit) and GetObjectID(unit) or 0
 		for i = 1, #doNotTouchUnitCandidates do
 			if doNotTouchUnitCandidates[i].unitID == 1 or doNotTouchUnitCandidates[i].unitID == unitID then
 				if UnitBuffID(unit,doNotTouchUnitCandidates[i].buff) or UnitDebuffID(unit,doNotTouchUnitCandidates[i].buff) then
