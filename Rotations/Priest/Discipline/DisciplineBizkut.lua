@@ -514,8 +514,7 @@ local function runRotation()
             if buff.rapture.exists("player") or (mode.burst == 1 and (UnitBuffID("player",29166) or UnitBuffID("player",64901))) then
                 if getSpellCD(spell.rapture) <= 0 then
                     if cast.rapture() then return end
-                else
-                if mode.healer == 1 or mode.healer == 2 then
+                elseif mode.healer == 1 or mode.healer == 2 then
                     for i = 1, #br.friend do
                         actionList_SpreadAtonement(br.friend[i].unit)
                     end
