@@ -67,6 +67,8 @@ local function createOptions()
             br.ui:createCheckbox(section,"Piercing Howl", "Check to use Piercing Howl")
             -- Whirlwind Units
             br.ui:createSpinnerWithout(section, "Whirlwind Units", 3, 1, 10, 1, "|cffFFFFFFSet to desired minimal number of units required to use Whirlwind.")
+            -- Execute Phase
+            br.ui:createCheckbox(section, "Use Execute Phase")
         br.ui:checkSectionState(section)
         ------------------------
         --- COOLDOWN OPTIONS ---
@@ -763,12 +765,12 @@ local function runRotation()
                 end
             -- Action List - Execute
                 -- call_action_list,name=execute,if=target.health.pct<20
-                if thp < 20 and level >= 8 then
+                if thp < 20 and level >= 8 and isChecked("Use Execute Phase") then
                     if actionList_Execute() then return end
                 end
             -- Action List - Single Target
                 -- call_action_list,name=single_target,if=target.health.pct>20
-                if thp >= 20 or (thp < 20 and level < 8) or (((#enemies.yards8 > 3 and mode.rotation == 1) or mode.rotation == 2) and level < 28) then
+                if thp >= 20 or (thp < 20 and level < 8) or (((#enemies.yards8 > 3 and mode.rotation == 1) or mode.rotation == 2) and level < 28) or not isChecked("Use Execute Phase") then
                     if actionList_Single() then return end
                 end
             end -- End Combat Rotation
