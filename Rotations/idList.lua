@@ -1286,6 +1286,7 @@ br.idList = {
             debuffs                         = {
                 moderateStagger             = 124274,
                 heavyStagger                = 124273,
+                kegSmash                    = 121253,
 
             },
             glyphs                          = {
