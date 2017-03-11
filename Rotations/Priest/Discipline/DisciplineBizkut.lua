@@ -462,9 +462,13 @@ local function runRotation()
             --Spread Atonement
             if not buff.powerWordShield.exists(friendUnit) or getBuffRemain(friendUnit, spell.buffs.atonement, "player") < 1 then
                 if getSpellCD(spell.powerWordShield) <= 0 and not buff.powerWordShield.exists(friendUnit) then
-                    if buff.rapture.exists("player") and atonementCount <= getValue("Max Atonement when Rapture/PWS") then
-                        if atonementCount >= getValue("Max Atonement when Rapture/PWS") or getBuffRemain(friendUnit, spell.buffs.atonement, "player") < 1 then
+                    if buff.rapture.exists("player") then
+                        if mode.burst == 1 and (UnitBuffID("player",29166) or UnitBuffID("player",64901)) then
                             if cast.powerWordShield(friendUnit) then return end
+                        elseif atonementCount <= getValue("Max Atonement when Rapture/PWS") then
+                            if atonementCount >= getValue("Max Atonement when Rapture/PWS") or getBuffRemain(friendUnit, spell.buffs.atonement, "player") < 1 then
+                                if cast.powerWordShield(friendUnit) then return end
+                            end
                         end
                     elseif atonementCount < getOptionValue("Max Atonement") and getBuffRemain(friendUnit, spell.buffs.atonement, "player") < 1 then
                         if cast.powerWordShield(friendUnit) then return end
@@ -507,10 +511,10 @@ local function runRotation()
                     if cast.rapture() then return end
                 end
             end
-            if getSpellCD(spell.rapture) <= 0 and mode.burst == 1 and (UnitBuffID("player",29166) or UnitBuffID("player",64901)) then
-                if cast.rapture() then return end
-            end
-            if buff.rapture.exists("player") then
+            if buff.rapture.exists("player") or (mode.burst == 1 and (UnitBuffID("player",29166) or UnitBuffID("player",64901))) then
+                if getSpellCD(spell.rapture) <= 0 then
+                    if cast.rapture() then return end
+                else
                 if mode.healer == 1 or mode.healer == 2 then
                     for i = 1, #br.friend do
                         actionList_SpreadAtonement(br.friend[i].unit)
@@ -758,7 +762,7 @@ local function runRotation()
                         actionList_SpreadAtonement("player")
                     end
                 end
-                if mode.healer == 2 or (mode.burst == 1 and (UnitBuffID("player",29166) or UnitBuffID("player",64901))) then
+                if mode.healer == 2 then
                     actionList_SpreadAtonement(br.friend[i].unit)
                 end
                 --Fade
