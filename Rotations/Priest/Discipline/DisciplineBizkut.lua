@@ -318,7 +318,10 @@ local function runRotation()
         --Check Atonement
         function actionList_CheckAtonement()
             for i = 1, #br.friend do
-                if mode.healer == 2 then
+                -- Got Innervate/Symbol of Hope
+                if mode.burst == 1 and (buff.innervate.exists() or buff.symbolOfHope.exists()) then
+                    actionList_SpreadAtonement(br.friend[i].unit)
+                elseif mode.healer == 2 then
                     actionList_SpreadAtonement(br.friend[i].unit)
                 elseif br.friend[i].hp <= getValue("Atonement HP") then
                     if mode.healer == 1 then
@@ -334,9 +337,9 @@ local function runRotation()
         function actionList_SpreadAtonement(friendUnit)
             --Spread Atonement
             if not buff.powerWordShield.exists(friendUnit) or getBuffRemain(friendUnit, spell.buffs.atonement, "player") < 1 then
-                if getSpellCD(spell.powerWordShield) <= 0 and not buff.powerWordShield.exists(friendUnit) and lastSpell ~= spell.powerWordShield then
+                if getSpellCD(spell.powerWordShield) <= 0 and not buff.powerWordShield.exists(friendUnit) then
                     if buff.rapture.exists("player") then
-                        if mode.burst == 1 and (UnitBuffID("player",29166) or UnitBuffID("player",64901)) and getBuffRemain(friendUnit, spell.buffs.atonement, "player") < 1 then
+                        if mode.burst == 1 and (buff.innervate.exists() or buff.symbolOfHope.exists()) and getBuffRemain(friendUnit, spell.buffs.atonement, "player") < 1 then
                             if cast.powerWordShield(friendUnit) then return end
                         elseif atonementCount <= getValue("Max Atonement when Rapture/PWS") then
                             if atonementCount >= getValue("Max Atonement when Rapture/PWS") or getBuffRemain(friendUnit, spell.buffs.atonement, "player") < 1 then
@@ -344,24 +347,26 @@ local function runRotation()
                             end
                         end
                     end
-                    if atonementCount < getOptionValue("Max Atonement") and getBuffRemain(friendUnit, spell.buffs.atonement, "player") < 1 then
+                    if lastSpell ~= spell.powerWordShield and atonementCount < getOptionValue("Max Atonement") and getBuffRemain(friendUnit, spell.buffs.atonement, "player") < 1 then
                         if cast.powerWordShield(friendUnit) then return end
                     end
                 end
-                -- Getting Innervate/Symbol of Hope
-                if not buff.rapture.exists("player") and not buff.powerWordShield.exists(friendUnit) and getBuffRemain(friendUnit, spell.buffs.atonement, "player") < 1 and mode.burst == 1 and (UnitBuffID("player",29166) or UnitBuffID("player",64901)) then
-                    -- Legendary Chest, Estel 2% Haste per Atonement
-                    if hasEquiped(132861) and lastSpell ~= spell.plea then
-                        if cast.plea(friendUnit) then return end
-                    elseif lastSpell ~= spell.powerWordRadiance then
+                if not buff.rapture.exists("player") and not buff.powerWordShield.exists(friendUnit) and getBuffRemain(friendUnit, spell.buffs.atonement, "player") < 1 then
+                    -- Getting Innervate/Symbol of Hope
+                    if mode.burst == 1 and (buff.innervate.exists() or buff.symbolOfHope.exists()) then
+                        -- Legendary Chest, Estel 2% Haste per Atonement
+                        if hasEquiped(132861) and lastSpell ~= spell.plea then
+                            if cast.plea(friendUnit) then return end
+                        elseif lastSpell ~= spell.powerWordRadiance then
+                            if cast.powerWordRadiance(friendUnit) then return end
+                        end
+                    end
+                    if atonementCount < getOptionValue("Max Plea") and atonementCount < getOptionValue("Max Atonement") and lastSpell ~= spell.plea then
+                        if cast.plea(friendUnit) then return end     
+                    end
+                    if ((not inRaid and atonementCount < 5) or inRaid) and atonementCount >= getOptionValue("Max Plea") and atonementCount < getOptionValue("Max Atonement") and lastSpell ~= spell.powerWordRadiance then
                         if cast.powerWordRadiance(friendUnit) then return end
                     end
-                end
-                if lastSpell ~= spell.plea and atonementCount < getOptionValue("Max Plea") and atonementCount < getOptionValue("Max Atonement") and not buff.powerWordShield.exists(friendUnit) and getBuffRemain(friendUnit, spell.buffs.atonement, "player") <= 0 then
-                    if cast.plea(friendUnit) then return end     
-                end
-                if ((not inRaid and atonementCount < 5) or inRaid) and lastSpell ~= spell.powerWordRadiance and atonementCount >= getOptionValue("Max Plea") and atonementCount < getOptionValue("Max Atonement") and not buff.powerWordShield.exists(friendUnit) and getBuffRemain(friendUnit, spell.buffs.atonement, "player") < 1 then
-                    if cast.powerWordRadiance(friendUnit) then return end
                 end
             end
         end
@@ -503,7 +508,7 @@ local function runRotation()
             if isChecked("Pre-Pot Timer") and pullTimer <= getOptionValue("Pre-Pot Timer") and canUse(142117) and not solo then
                 useItem(142117)
             end
-            if isChecked("Drink") and getMana("player") <= getOptionValue("Drink") and canUse(138292) and not IsResting() and GetTime()-leftCombat > lootDelay+2 then
+            if isChecked("Drink") and getMana("player") <= getOptionValue("Drink") and canUse(138292) and not IsResting() and GetTime()-leftCombat > lootDelay+1 then
                 useItem(138292)
             end
         end  -- End Action List - Pre-Combat
@@ -934,8 +939,8 @@ local function runRotation()
                 end
             end
             --Smite
-            if isChecked("Smite") then
-                if (getMana("player") > 20 and ((not inInstance and not inRaid) or atonementCount >= getValue("Smite"))) or (mode.burst == 1 and (UnitBuffID("player",29166) or UnitBuffID("player",64901))) and lastSpell ~= spell.smite then
+            if isChecked("Smite") and lastSpell ~= spell.smite then
+                if (getMana("player") > 20 and ((not inInstance and not inRaid) or atonementCount >= getValue("Smite"))) or (mode.burst == 1 and (buff.innervate.exists() or buff.symbolOfHope.exists())) then
                     if schismBuff then
                         if cast.smite(schismBuff) then return end
                     end
