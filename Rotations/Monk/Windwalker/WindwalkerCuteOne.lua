@@ -338,7 +338,7 @@ local function runRotation()
         else
             BetterThanWDP = false
         end
-        if (markOfTheCraneCount >= 13 and #enemies.yards5 >= 3) or (markOfTheCraneCount >= 14 and #enemies.yards5 == 2) or (markOfTheCraneCount >= 16 and #enemies.yards5 == 1) then
+        if (markOfTheCraneCount >= 13 and #enemies.yards5 >= 3) or (markOfTheCraneCount >= 14 and #enemies.yards5 == 2) or markOfTheCraneCount >= 16 then
             BetterThanFoF = true
             --Print("Better than FoF")
         else

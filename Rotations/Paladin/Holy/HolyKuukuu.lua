@@ -57,6 +57,14 @@ local function createOptions()
             br.ui:createSpinner(section, "Critical HP", 30, 0, 100, 5, "Health Percent to Spam FoL")
         br.ui:checkSectionState(section)
         -------------------------
+        ------ DEFENSIVES -------
+        -------------------------
+        section = br.ui:createSection(br.ui.window.profile, "Defensive")
+            -- Pot/Stone
+            br.ui:createSpinner (section, "Pot/Stoned", 30, 0, 100, 5, "Health Percent to Cast At")
+            br.ui:createSpinner (section, "Divine Protection", 20, 0, 100, 5, "Health Percent to Cast At")
+        br.ui:checkSectionState(section)
+        -------------------------
         --- INTERRUPT OPTIONS ---
         -------------------------
         section = br.ui:createSection(br.ui.window.profile, "Interrupts")
@@ -213,11 +221,29 @@ local function runRotation()
 --------------------
 --- Action Lists ---
 --------------------
+        local function actionList_Defensive()
+            if useDefensive() then
+                if isChecked("Pot/Stoned") and php <= getValue("Pot/Stoned") and inCombat and (hasHealthPot() or hasItem(5512))
+                then
+                    if canUse(5512) then
+                        useItem(5512)
+                    elseif canUse(getHealthPot()) then
+                        useItem(getHealthPot())
+                    end
+                end
+                if isChecked("Divine Protection") then
+                    if php <= getOptionValue("Divine Protection") and inCombat then
+                        if cast.divineProtection() then return end
+                    end
+                end
+            end
+        end
 
 -----------------
 --- Rotations ---
 -----------------
         if getOptionValue("Mode") == 1 and not IsMounted() then
+            if actionList_Defensive() then return end
              -- Redemption
             if isChecked("Redemption") then
                 if getOptionValue("Redemption") == 1 and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and UnitIsFriend("target","player") then
@@ -501,6 +527,7 @@ local function runRotation()
             
         end -- NOrmal Mode Check
         if getOptionValue("Mode") == 2 and not IsMounted() then
+            if actionList_Defensive() then return end
             -- Redemption
             if isChecked("Redemption") then
                 if getOptionValue("Redemption") == 1 and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and UnitIsFriend("target","player") then
