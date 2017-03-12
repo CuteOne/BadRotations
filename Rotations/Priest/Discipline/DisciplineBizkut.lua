@@ -342,12 +342,12 @@ local function runRotation()
                         if mode.burst == 1 and (buff.innervate.exists() or buff.symbolOfHope.exists()) and getBuffRemain(friendUnit, spell.buffs.atonement, "player") < 1 then
                             if cast.powerWordShield(friendUnit) then return end
                         elseif atonementCount <= getValue("Max Atonement when Rapture/PWS") then
-                            if atonementCount >= getValue("Max Atonement when Rapture/PWS") or getBuffRemain(friendUnit, spell.buffs.atonement, "player") < 1 then
+                            if #br.friend < getValue("Max Atonement when Rapture/PWS") or atonementCount >= getValue("Max Atonement when Rapture/PWS") or getBuffRemain(friendUnit, spell.buffs.atonement, "player") < 1 then
                                 if cast.powerWordShield(friendUnit) then return end
                             end
                         end
                     end
-                    if lastSpell ~= spell.powerWordShield and atonementCount < getOptionValue("Max Atonement") and getBuffRemain(friendUnit, spell.buffs.atonement, "player") < 1 then
+                    if atonementCount < getOptionValue("Max Atonement") and getBuffRemain(friendUnit, spell.buffs.atonement, "player") < 1 then
                         if cast.powerWordShield(friendUnit) then return end
                     end
                 end
@@ -439,6 +439,25 @@ local function runRotation()
                     if isChecked("Power Word: Barrier CD") then
                         if cast.powerWordBarrier(lowest.unit) then return end
                     end
+                    --Only use on Boss with Overloaded with Light
+                    --Always use on Boss
+                    if isChecked("Always use on Boss") or (isChecked("Only use on Boss with Overloaded with Light") and getBuffRemain("player",spell.buffs.overloadedWithLight) ~= 0) then
+                        if getSpellCD(spell.lightsWrath) == 0 then
+                            if mode.healer == 1 or mode.healer == 2 then
+                                for i = 1, #br.friend do
+                                    actionList_SpreadAtonement(br.friend[i].unit)
+                                end
+                            end
+                            if isBoss("target") and getDistance("player","target") < 40 and ((inRaid and atonementCount >= getOptionValue("Max Atonement")) or (inInstance and atonementCount >= 5)) or (not inInstance and not inRaid) then
+                                if talent.schism and isChecked("Schism") then
+                                    if cast.schism("target") then return end
+                                    if cast.lightsWrath("target") then return end
+                                else
+                                    if cast.lightsWrath("target") then return end
+                                end
+                            end
+                        end
+                    end
                     --Rapture and PW:S
                     if isChecked("Rapture and PW:S") then
                         if isChecked("Power Infusion CD") and not buff.powerInfusion.exists("player") then
@@ -460,26 +479,6 @@ local function runRotation()
                     if isChecked("Mindbender/Shadowfiend") then
                         if cast.mindbender() then return end
                         if cast.shadowfiend() then return end
-                    end
-                    --Only use on Boss with Overloaded with Light
-                    --Always use on Boss
-                    if isChecked("Always use on Boss") or (isChecked("Only use on Boss with Overloaded with Light") and getBuffRemain("player",spell.buffs.overloadedWithLight) ~= 0) then
-                        if getSpellCD(spell.lightsWrath) == 0 and not buff.rapture.exists("player") then
-                            if mode.healer == 1 or mode.healer == 2 then
-                                for i = 1, #br.friend do
-                                    actionList_SpreadAtonement(br.friend[i].unit)
-                                end
-                            end
-                            if isBoss("target") and getDistance("player","target") < 40 and ((inRaid and atonementCount >= getOptionValue("Max Atonement")) or (inInstance and atonementCount >= 5)) or (not inInstance and not inRaid) then
-                                if cast.schism("target") then return end
-                                if talent.schism and schismBuff == thisUnit then 
-                                    if cast.lightsWrath("target") then return end
-                                end
-                                if not talent.schism or not isChecked("Schism") or schismBuff == nil then
-                                    if cast.lightsWrath("target") then return end
-                                end
-                            end
-                        end
                     end
                     --Divine Star CD
                     if isChecked("Divine Star CD") and isBoss("target") and getDistance("player","target") < 24 and getFacing("player","target",10) then
@@ -939,7 +938,7 @@ local function runRotation()
                 end
             end
             --Smite
-            if isChecked("Smite") and lastSpell ~= spell.smite then
+            if isChecked("Smite") then
                 if (getMana("player") > 20 and ((not inInstance and not inRaid) or atonementCount >= getValue("Smite"))) or (mode.burst == 1 and (buff.innervate.exists() or buff.symbolOfHope.exists())) then
                     if schismBuff then
                         if cast.smite(schismBuff) then return end
