@@ -58,7 +58,8 @@ local function createOptions()
         -- Summon Pet
             br.ui:createDropdownWithout(section, "Summon Pet", {"Imp","Voidwalker","Felhunter","Succubus","Felguard","None"}, 1, "|cffFFFFFFSelect default pet to summon.")
         -- Grimoire of Service
-            br.ui:createDropdownWithout(section, "Grimoire of Service", {"Imp","Voidwalker","Felhunter","Succubus","Felguard","None"}, 1, "|cffFFFFFFSelect pet to Grimoire.")
+            br.ui:createDropdownWithout(section, "Grimoire of Service - Pet", {"Imp","Voidwalker","Felhunter","Succubus","Felguard","None"}, 1, "|cffFFFFFFSelect pet to Grimoire.")
+            br.ui:createDropdownWithout(section,"Grimoire of Service - Use", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Grimoire Ability.")
         -- Multi-Dot Limit
             br.ui:createSpinnerWithout(section, "Multi-Dot Limit", 5, 0, 10, 1, "|cffFFFFFFUnit Count Limit that DoTs will be cast on.")
             br.ui:createSpinnerWithout(section, "Multi-Dot HP Limit", 5, 0, 10, 1, "|cffFFFFFFHP Limit that DoTs will be cast/refreshed on.")
@@ -169,7 +170,7 @@ local function runRotation()
         local flaskBuff                                     = getBuffRemain("player",br.player.flask.wod.buff.agilityBig)
         local friendly                                      = friendly or UnitIsFriend("target", "player")
         local gcd                                           = br.player.gcd
-        local grimoirePet                                   = getOptionValue("Grimoire of Service")
+        local grimoirePet                                   = getOptionValue("Grimoire of Service - Pet")
         local hasMouse                                      = ObjectExists("mouseover")
         local hasteAmount                                   = GetHaste()/100
         local hasPet                                        = IsPetActive()
@@ -634,7 +635,7 @@ local function runRotation()
                     end
         -- Service Pet
                     -- service_pet
-                    if isChecked("Pet Management") and ObjectExists(units.dyn40) then
+                    if isChecked("Pet Management") and ObjectExists(units.dyn40) and (getOptionValue("Grimoire of Service - Use") == 1 or (getOptionValue("Grimoire of Service - Use") == 2 and useCDs())) then
                         if br.timer:useTimer("castGrim", gcd) then
                             if grimoirePet == 1 then
                                 if cast.grimoireImp("target") then prevService = "Imp"; return end
