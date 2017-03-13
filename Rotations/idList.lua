@@ -1817,9 +1817,11 @@ br.idList = {
                 angelicFeather              = 121557,
                 atonement                   = 194384,
                 clarityOfWill               = 152118,
+                innervate                   = 29166;
                 overloadedWithLight         = 223166,
                 powerInfusion               = 10060,
                 rapture                     = 47536,
+                symbolOfHope                = 64901;
             },
             debuffs                         = {
                 purgeTheWicked              = 204213,
