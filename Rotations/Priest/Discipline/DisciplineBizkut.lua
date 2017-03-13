@@ -855,7 +855,7 @@ local function runRotation()
                 if ptwBuff and (atonementCount >= getValue("Penance")  or freeMana) then
                     if cast.penance(ptwBuff) then return end
                 end
-                if talent.schism and isChecked("Schism") and getMana("player") > 20 and getSpellCD(spell.schism) <= 0 and (atonementCount >= getValue("Schism") or freeMana) then
+                if talent.schism and isChecked("Schism") and getMana("player") > 20 and getSpellCD(spell.schism) <= 0 and (atonementCount >= getValue("Schism") or freeMana) and not isMoving("player") then
                     --Schism
                     if ttd("target") > debuff.schism.duration("target") and debuff.schism.refresh("target") then
                         if cast.schism("target") and (atonementCount >= getValue("Penance") or freeMana) then
