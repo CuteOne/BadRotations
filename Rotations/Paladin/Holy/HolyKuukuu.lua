@@ -317,7 +317,8 @@ local function runRotation()
                         else
                             if talent.beaconOfFaith then
                                 for i = 1, #br.friend do
-                                    if not buff.beaconOfLight.exists(br.friend[i].unit) and not buff.beaconOfFaith.exists(br.friend[i].unit) and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
+                                    if beacon == nil and not buff.beaconOfLight.exists(br.friend[i].unit) and not buff.beaconOfFaith.exists(br.friend[i].unit) and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
+                                        beacon = br.friend[i].hp
                                         if cast.beaconOfLight(br.friend[i].unit) then return end
                                     end
                                 end
@@ -329,7 +330,7 @@ local function runRotation()
             -- Beacon of Faith on Off Tank
             if isChecked("Beacon of Faith") and inRaid and talent.beaconOfFaith then
                 for i = 1, #br.friend do
-                    if not buff.beaconOfLight.exists(br.friend[i].unit) and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
+                    if not buff.beaconOfLight.exists(br.friend[i].unit) and not buff.beaconOfFaith.exists(br.friend[i].unit) and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
                         if cast.beaconOfFaith(br.friend[i].unit) then return end
                     end
                 end
@@ -392,7 +393,7 @@ local function runRotation()
                     end
                 end
                 -- Avenging Wrath
-                if isChecked("Avenging Wrath") and not buff.auraMastery.exists("player") then
+                if isChecked("Avenging Wrath") and not buff.auraMastery.exists("player") and GetSpellCooldown(31842) == 0 then
                     if getLowAllies(getValue"Avenging Wrath") >= getValue("AW Targets") then
                         if isCastingSpell(spell.holyLight) then
                             SpellStopCasting()
@@ -401,7 +402,7 @@ local function runRotation()
                     end
                 end
                 -- Lay on Hands
-                if isChecked("Lay on Hands") then
+                if isChecked("Lay on Hands") and GetSpellCooldown(633) == 0 then
                     if getOptionValue("Lay on Hands Target") == 1 then
                         for i = 1, #br.friend do
                             if br.friend[i].hp <= getValue ("Lay on Hands") then
@@ -604,7 +605,8 @@ local function runRotation()
                         else
                             if talent.beaconOfFaith then
                                 for i = 1, #br.friend do
-                                    if not buff.beaconOfLight.exists(br.friend[i].unit) and not buff.beaconOfFaith.exists(br.friend[i].unit) and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
+                                    if beacon == nil and not buff.beaconOfLight.exists(br.friend[i].unit) and not buff.beaconOfFaith.exists(br.friend[i].unit) and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
+                                        beacon = br.friend[i].hp
                                         if cast.beaconOfLight(br.friend[i].unit) then return end
                                     end
                                 end
@@ -616,7 +618,7 @@ local function runRotation()
             -- Beacon of Faith on Off Tank
             if isChecked("Beacon of Faith") and inRaid and talent.beaconOfFaith then
                 for i = 1, #br.friend do
-                    if not buff.beaconOfLight.exists(br.friend[i].unit) and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
+                    if not buff.beaconOfLight.exists(br.friend[i].unit) and not buff.beaconOfFaith.exists(br.friend[i].unit) and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
                         if cast.beaconOfFaith(br.friend[i].unit) then return end
                     end
                 end
