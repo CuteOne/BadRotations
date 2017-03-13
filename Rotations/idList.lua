@@ -857,7 +857,7 @@ br.idList = {
                 concussiveShot              = 5116,
                 counterShot                 = 147362,
                 direBeast                   = 120679,
-                direfrenzy                  = 217200,
+                direFrenzy                  = 217200,
                 disengage                   = 781,
                 eagleEye                    = 6197,
                 exhilaration                = 109304,
@@ -886,7 +886,7 @@ br.idList = {
 
             },
             talents                         = {
-                direfrenzy                  = 217200,
+                direFrenzy                  = 217200,
                 aMurderOfCrows              = 131894,
                 barrage                     = 120360,
                 volley                      = 194386,
