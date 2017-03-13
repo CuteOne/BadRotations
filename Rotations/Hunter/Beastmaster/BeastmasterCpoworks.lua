@@ -584,11 +584,11 @@ local function runRotation()
                     -- Potion of Prolonged Power
                         --TODO
                     -- Murder of Crows
-                        if talent.aMurderOfCrows then
+                        if talent.aMurderOfCrows and isChecked("A Murder Of Crows / Barrage") and useCDs() then
                             if cast.aMurderOfCrows(units.dyn40) then return end
                         end
                     -- Stampede
-                        if isChecked("Stampede") and (UnitBuffID("player", 2825) or UnitBuffID("player", 32182) or UnitBuffID("player", 90355) or UnitBuffID("player", 160452) or UnitBuffID("player", 80353) or buff.bestialWrath.exists() or buff.bestialWrath.remain() <= 2 or ttd(units.dyn40) <= 14) then
+                        if isChecked("Stampede") and useCDs() and (UnitBuffID("player", 2825) or UnitBuffID("player", 32182) or UnitBuffID("player", 90355) or UnitBuffID("player", 160452) or UnitBuffID("player", 80353) or buff.bestialWrath.exists() or buff.bestialWrath.remain() <= 2 or ttd(units.dyn40) <= 14) then
                             if cast.stampede(units.dyn40) then return end
                         end
                     -- Dire Beast
@@ -601,7 +601,7 @@ local function runRotation()
                             if cast.direFrenzy(units.dyn40) then return end
                         end
                     -- Aspect of the Wild
-                        if isChecked("Aspect of the Wild") and buff.bestialWrath.exists() or ttd(units.dyn40) < 12 then
+                        if isChecked("Aspect of the Wild") and useCDs() and buff.bestialWrath.exists() or ttd(units.dyn40) < 12 then
                             if cast.aspectOfTheWild() then return end
                         end
                     -- Barrage
@@ -613,7 +613,7 @@ local function runRotation()
                             if cast.titansThunder(units.dyn40) then return end
                         end
                     -- Bestial Wrath
-                        if isChecked("Bestial Wrath") and cd.aspectOfTheWild > 10 then
+                        if isChecked("Bestial Wrath") and useCDs() and cd.aspectOfTheWild > 10 then
                             if cast.bestialWrath() then return end
                         end
                     -- Multi Shot
