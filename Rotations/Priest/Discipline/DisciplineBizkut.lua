@@ -701,8 +701,10 @@ local function runRotation()
                                             if cast.penance(ptwBuff) then return end
                                         end
                                         if cast.penance() then return end
-                                    else
+                                    elseif not isMoving("player") then
                                         if cast.shadowMend(br.friend[i].unit) then return end
+                                    elseif atonementCount <= getValue("Max Plea") then
+                                        if cast.plea(br.friend[i].unit) then return end
                                     end
                                 end
                                 if mode.healer == 3 and br.friend[i].unit == "player" then
@@ -718,8 +720,10 @@ local function runRotation()
                                             if cast.penance(ptwBuff) then return end
                                         end
                                         if cast.penance() then return end
-                                    else
+                                    elseif not isMoving("player") then
                                         if cast.shadowMend("player") then return end
+                                    else
+                                        if cast.plea("player") then return end
                                     end
                                 end
                             end
