@@ -297,7 +297,7 @@ local function runRotation()
                     end
                 end
         --Expel Harm
-                if isChecked("Expel Harm") and php <= getValue("Expel Harm") and inCombat and GetSpellCount(115027) >= getOptionValue("Expel Harm Orbs") then
+                if isChecked("Expel Harm") and php <= getValue("Expel Harm") and inCombat and GetSpellCount(115072) >= getOptionValue("Expel Harm Orbs") then
                     if cast.expelHarm() then return end
                 end
         -- Pot/Stoned
