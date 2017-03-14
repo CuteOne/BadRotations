@@ -741,10 +741,18 @@ local function runRotation()
                 if isChecked("Shadow Mend Emergency") then
                     if br.friend[i].hp <= getValue("Shadow Mend Emergency") then
                         if mode.healer == 1 or mode.healer == 2 then
-                            if cast.shadowMend(br.friend[i].unit) then return end
+                            if not isMoving("player") then
+                                if cast.shadowMend(br.friend[i].unit) then return end
+                            elseif atonementCount <= getValue("Max Plea") then
+                                if cast.plea(br.friend[i].unit) then return end
+                            end
                         end
                         if mode.healer == 3 and br.friend[i].unit == "player" then
-                            if cast.shadowMend("player") then return end
+                            if not isMoving("player") then
+                                if cast.shadowMend("player") then return end
+                            else
+                                if cast.plea("player") then return end
+                            end
                         end
                     end
                 end
@@ -761,8 +769,10 @@ local function runRotation()
                                     if cast.penance(ptwBuff) then return end
                                 end
                                 if cast.penance() then return end
-                            else
+                            elseif not isMoving("player") then
                                 if cast.shadowMend(br.friend[i].unit) then return end
+                            elseif atonementCount <= getValue("Max Plea") then
+                                if cast.plea(br.friend[i].unit) then return end
                             end
                         end
                         if mode.healer == 3 and br.friend[i].unit == "player" then
@@ -775,8 +785,10 @@ local function runRotation()
                                     if cast.penance(ptwBuff) then return end
                                 end
                                 if cast.penance() then return end
-                            else
+                            elseif not isMoving("player") then
                                 if cast.shadowMend("player") then return end
+                            else
+                                if cast.plea("player") then return end
                             end
                         end
                     end
