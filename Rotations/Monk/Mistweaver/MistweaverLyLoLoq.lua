@@ -407,7 +407,7 @@ local function runRotation()
                 param = "player"
             end
             if tsPX == nil or tsPY == nil then
-                tsPX, tsPY, tsPY = GetObjectPosition(param)
+                tsPX, tsPY, tsPZ = GetObjectPosition(param)
                 if cast.summonJadeSerpentStatue(param) then return true end
             elseif getDistanceToObject("player",tsPX,tsPY,tsPZ) > 40 then
                 tsPX, tsPY, tsPZ = GetObjectPosition(param)
