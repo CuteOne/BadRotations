@@ -84,6 +84,8 @@ local function createOptions()
             br.ui:createSpinner(section, "Heirloom Neck",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at");
         -- Barkskin
             br.ui:createSpinner(section, "Barkskin",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at");
+        -- Renewal
+            br.ui:createSpinner(section, "Renewal",  70,  0,  100,  5,  "|cffFFBB00Health Percentage to use at");
         br.ui:checkSectionState(section)
     -- Healing Options
         section = br.ui:createSection(br.ui.window.profile, "Healing")
@@ -176,9 +178,11 @@ local function runRotation()
         local inCombat                                      = br.player.inCombat
         local inInstance                                    = br.player.instance=="party"
         local inRaid                                        = br.player.instance=="raid"
+        local stealthed                                     = UnitBuffID("player",5215) ~= nil
         local lastSpell                                     = lastSpellCast
         local level                                         = br.player.level
         local lowestHP                                      = br.friend[1].unit
+        local mana                                          = br.player.power.mana.percent
         local mode                                          = br.player.mode
         local perk                                          = br.player.perk        
         local php                                           = br.player.health
@@ -208,7 +212,7 @@ local function runRotation()
         enemies.yards40 = br.player.enemies(40)
 
         if isCastingSpell(spell.healingTouch) and buff.clearcasting.exists() then
-            RunMacroText("/stopcasting")
+            SpellStopCasting()
         end
 
         --ChatOverlay("|cff00FF00Abundance stacks: "..buff.abundance.stack().."")
@@ -298,9 +302,9 @@ local function runRotation()
                     end
                 end
             -- Innervate
-                if isChecked("Essence of G'Hanir") and not isCastingSpell(spell.tranquility) and power < 80 then
-                    if getLowAllies(getValue("Essence of G'Hanir")) >= getValue("Essence of G'Hanir Targets") then    
-                        if cast.innervate() then return end    
+                if not isCastingSpell(spell.tranquility) and mana ~= nil then
+                    if getLowAllies(getValue("Essence of G'Hanir")) >= getValue("Essence of G'Hanir Targets") and mana < 80 then    
+                        if cast.innervate("player") then return end    
                     end
                 end
             -- Trinkets
@@ -581,7 +585,7 @@ local function runRotation()
 ---------------------------------
 --- Out Of Combat - Rotations ---
 ---------------------------------
-            if not inCombat and not IsMounted() and getBuffRemain("player", 192002 ) < 10 then
+            if not inCombat and not IsMounted() and not stealthed and getBuffRemain("player", 192002 ) < 10 then
                 actionList_Extras()
                 if isChecked("OOC Healing") then
                     actionList_PreCombat()
@@ -590,11 +594,17 @@ local function runRotation()
 -----------------------------
 --- In Combat - Rotations --- 
 -----------------------------
-            if inCombat and not IsMounted() and getBuffRemain("player", 192002 ) < 10 then
-                -- Barkskin
+            if inCombat and not IsMounted() and not stealthed and getBuffRemain("player", 192002 ) < 10 then
+            -- Barkskin
                 if isChecked("Barkskin") then
                     if php <= getOptionValue("Barkskin") and inCombat then
                         if cast.barkskin() then return end
+                    end
+                end
+            -- Renewal
+                if isChecked("Renewal") and talent.renewal then
+                    if php <= getOptionValue("Renewal") and inCombat then
+                        if cast.renewal() then return end
                     end
                 end
             -- Healthstone

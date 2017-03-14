@@ -338,7 +338,7 @@ local function runRotation()
         else
             BetterThanWDP = false
         end
-        if (markOfTheCraneCount >= 13 and #enemies.yards5 >= 3) or (markOfTheCraneCount >= 14 and #enemies.yards5 == 2) or (markOfTheCraneCount >= 16 and #enemies.yards5 == 1) then
+        if (markOfTheCraneCount >= 13 and #enemies.yards5 >= 3) or (markOfTheCraneCount >= 14 and #enemies.yards5 == 2) or markOfTheCraneCount >= 16 then
             BetterThanFoF = true
             --Print("Better than FoF")
         else
@@ -396,6 +396,9 @@ local function runRotation()
         --ChatOverlay(tostring(isCastingSpell(spell.cracklingJadeLightning)))
 
         -- Healing Winds - Transcendence Cancel
+        if isChecked("Healing Winds") and buff.transcendence.exists() and (buff.healingWinds.exists() or php > getOptionValue("Healing Winds")) then
+            CancelUnitBuff("player",GetSpellInfo(spell.buffs.transcendence))
+        end
         -- if isChecked("Healing Winds") then
         --     if tPX == nil or tPY == nil or not buff.transcendence.exists() then tPX, tPY, tPZ = ObjectPosition("player") end
         --     if getDistanceToObject("player",tPX,tPY,tPZ) > 40 or (not inCombat and php > getOptionValue("Healing Winds")) then 
@@ -526,11 +529,11 @@ local function runRotation()
                     end
                 end
         -- Effuse
-                if isChecked("Effuse") and ((not inCombat and php <= getOptionValue("Effuse")) --[[or (inCombat and php <= getOptionValue("Effuse") / 2)]]) then
+                if isChecked("Effuse") and not inCombat and php <= getOptionValue("Effuse") then
                     if cast.effuse() then return end
                 end
         -- Healing Elixir
-                if isChecked("Healing Elixir") and php <= getOptionValue("Healing Elixir") then
+                if isChecked("Healing Elixir") and artifact.healingWinds and php <= getOptionValue("Healing Elixir") then
                     if cast.healingElixir() then return end
                 end
         -- Leg Sweep

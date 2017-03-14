@@ -132,6 +132,7 @@ novaEngineTables.BadlyDeBuffed = {
 }
 -- Table for NPCs we do not want to add to table (eg. Hymdal/Odyn after they become friendly)
 novaEngineTables.skipNPC = {
-	"95676", -- Odyn
-	"94960", -- Hymdall
+        "95676", -- Odyn
+        "94960", -- Hynmdall
+        "100482", -- Senegos
 };

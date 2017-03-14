@@ -357,6 +357,12 @@ local function runRotation()
             if useCDs() and getDistance("target") < 5 then
         -- Trinkets
                 if isChecked("Trinkets") then
+                    if canUse(11) then
+                        useItem(11)
+                    end
+                    if canUse(12) then
+                        useItem(12)
+                    end
                     if canUse(13) then
                         useItem(13)
                     end
@@ -535,7 +541,7 @@ local function runRotation()
                     end
             -- Doom Winds
                     -- doom_winds
-                    if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()) then
+                    if (getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs())) and getDistance("target") < 5 then
                         if cast.doomWinds() then return end
                     end
             -- Crash Lightning
@@ -675,7 +681,7 @@ local function runRotation()
             -- Windsong
                     if cast.windsong() then return end
             -- Doom Winds
-                    if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()) then
+                    if (getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs())) and getDistance("target") < 5 then
                         if cast.doomWinds() then return end
                     end
             -- Ascendance

@@ -109,7 +109,6 @@ Rotations\Demon Hunter\Vengeance\VengeanceDub.lua
 ## Druid ---------------------------------------------------
 
 Rotations\Druid\Feral\FeralCuteOne.lua
-Rotations\Druid\Feral\FeralAveryKey.lua
 
 Rotations\Druid\Guardian\GuardianCuteOne.lua
 

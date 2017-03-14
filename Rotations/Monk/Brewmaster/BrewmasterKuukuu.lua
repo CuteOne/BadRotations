@@ -353,7 +353,11 @@ local function runRotation()
         -- Fortifying Brew
                 if isChecked("Fortifying Brew") and php <= getValue("Fortifying Brew") and inCombat then
                     if cast.fortifyingBrew() then return end
-                end        
+                end
+        --Expel Harm
+                if isChecked("Expel Harm") and php <= getValue("Expel Harm") and inCombat and GetSpellCount(115072) >= getOptionValue("Expel Harm Orbs") then
+                    if cast.expelHarm() then return end
+                end
             end -- End Defensive Check
         end -- End Action List - Defensive
     -- Action List - Interrupts
@@ -502,7 +506,7 @@ local function runRotation()
         		if cast.breathOfFire() then return end
         	end]]        
         -- Expel Harm
-            --[[if isChecked("Expel Harm") and php <= getValue("Expel Harm") and inCombat and GetSpellCount(115027) >= getOptionValue("Expel Harm Orbs") then
+            --[[if isChecked("Expel Harm") and php <= getValue("Expel Harm") and inCombat and GetSpellCount(115072) >= getOptionValue("Expel Harm Orbs") then
                 if cast.expelHarm() then return end
             end]]
         end
@@ -556,7 +560,7 @@ local function runRotation()
             	if cast.rushingJadeWind() then return end
             end
         -- Expel Harm
-            --[[if isChecked("Expel Harm") and php <= getValue("Expel Harm") and inCombat and GetSpellCount(115027) >= getOptionValue("Expel Harm Orbs") then
+            --[[if isChecked("Expel Harm") and php <= getValue("Expel Harm") and inCombat and GetSpellCount(115072) >= getOptionValue("Expel Harm Orbs") then
                 if cast.expelHarm() then return end
             end]]
         end -- End Action List - Single Target

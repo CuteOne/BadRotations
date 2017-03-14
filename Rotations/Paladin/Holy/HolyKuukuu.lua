@@ -57,6 +57,14 @@ local function createOptions()
             br.ui:createSpinner(section, "Critical HP", 30, 0, 100, 5, "Health Percent to Spam FoL")
         br.ui:checkSectionState(section)
         -------------------------
+        ------ DEFENSIVES -------
+        -------------------------
+        section = br.ui:createSection(br.ui.window.profile, "Defensive")
+            -- Pot/Stone
+            br.ui:createSpinner (section, "Pot/Stoned", 30, 0, 100, 5, "Health Percent to Cast At")
+            br.ui:createSpinner (section, "Divine Protection", 20, 0, 100, 5, "Health Percent to Cast At")
+        br.ui:checkSectionState(section)
+        -------------------------
         --- INTERRUPT OPTIONS ---
         -------------------------
         section = br.ui:createSection(br.ui.window.profile, "Interrupts")
@@ -213,11 +221,29 @@ local function runRotation()
 --------------------
 --- Action Lists ---
 --------------------
+        local function actionList_Defensive()
+            if useDefensive() then
+                if isChecked("Pot/Stoned") and php <= getValue("Pot/Stoned") and inCombat and (hasHealthPot() or hasItem(5512))
+                then
+                    if canUse(5512) then
+                        useItem(5512)
+                    elseif canUse(getHealthPot()) then
+                        useItem(getHealthPot())
+                    end
+                end
+                if isChecked("Divine Protection") then
+                    if php <= getOptionValue("Divine Protection") and inCombat then
+                        if cast.divineProtection() then return end
+                    end
+                end
+            end
+        end
 
 -----------------
 --- Rotations ---
 -----------------
         if getOptionValue("Mode") == 1 and not IsMounted() then
+            if actionList_Defensive() then return end
              -- Redemption
             if isChecked("Redemption") then
                 if getOptionValue("Redemption") == 1 and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and UnitIsFriend("target","player") then
@@ -291,7 +317,8 @@ local function runRotation()
                         else
                             if talent.beaconOfFaith then
                                 for i = 1, #br.friend do
-                                    if not buff.beaconOfLight.exists(br.friend[i].unit) and not buff.beaconOfFaith.exists(br.friend[i].unit) and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
+                                    if beacon == nil and not buff.beaconOfLight.exists(br.friend[i].unit) and not buff.beaconOfFaith.exists(br.friend[i].unit) and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
+                                        beacon = br.friend[i].hp
                                         if cast.beaconOfLight(br.friend[i].unit) then return end
                                     end
                                 end
@@ -303,7 +330,7 @@ local function runRotation()
             -- Beacon of Faith on Off Tank
             if isChecked("Beacon of Faith") and inRaid and talent.beaconOfFaith then
                 for i = 1, #br.friend do
-                    if not buff.beaconOfLight.exists(br.friend[i].unit) and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
+                    if not buff.beaconOfLight.exists(br.friend[i].unit) and not buff.beaconOfFaith.exists(br.friend[i].unit) and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
                         if cast.beaconOfFaith(br.friend[i].unit) then return end
                     end
                 end
@@ -366,7 +393,7 @@ local function runRotation()
                     end
                 end
                 -- Avenging Wrath
-                if isChecked("Avenging Wrath") and not buff.auraMastery.exists("player") then
+                if isChecked("Avenging Wrath") and not buff.auraMastery.exists("player") and GetSpellCooldown(31842) == 0 then
                     if getLowAllies(getValue"Avenging Wrath") >= getValue("AW Targets") then
                         if isCastingSpell(spell.holyLight) then
                             SpellStopCasting()
@@ -375,7 +402,7 @@ local function runRotation()
                     end
                 end
                 -- Lay on Hands
-                if isChecked("Lay on Hands") then
+                if isChecked("Lay on Hands") and GetSpellCooldown(633) == 0 then
                     if getOptionValue("Lay on Hands Target") == 1 then
                         for i = 1, #br.friend do
                             if br.friend[i].hp <= getValue ("Lay on Hands") then
@@ -501,6 +528,7 @@ local function runRotation()
             
         end -- NOrmal Mode Check
         if getOptionValue("Mode") == 2 and not IsMounted() then
+            if actionList_Defensive() then return end
             -- Redemption
             if isChecked("Redemption") then
                 if getOptionValue("Redemption") == 1 and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and UnitIsFriend("target","player") then
@@ -577,7 +605,8 @@ local function runRotation()
                         else
                             if talent.beaconOfFaith then
                                 for i = 1, #br.friend do
-                                    if not buff.beaconOfLight.exists(br.friend[i].unit) and not buff.beaconOfFaith.exists(br.friend[i].unit) and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
+                                    if beacon == nil and not buff.beaconOfLight.exists(br.friend[i].unit) and not buff.beaconOfFaith.exists(br.friend[i].unit) and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
+                                        beacon = br.friend[i].hp
                                         if cast.beaconOfLight(br.friend[i].unit) then return end
                                     end
                                 end
@@ -589,7 +618,7 @@ local function runRotation()
             -- Beacon of Faith on Off Tank
             if isChecked("Beacon of Faith") and inRaid and talent.beaconOfFaith then
                 for i = 1, #br.friend do
-                    if not buff.beaconOfLight.exists(br.friend[i].unit) and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
+                    if not buff.beaconOfLight.exists(br.friend[i].unit) and not buff.beaconOfFaith.exists(br.friend[i].unit) and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
                         if cast.beaconOfFaith(br.friend[i].unit) then return end
                     end
                 end

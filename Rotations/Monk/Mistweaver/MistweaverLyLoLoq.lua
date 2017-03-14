@@ -115,6 +115,7 @@ local function createOptions()
         br.ui:createSpinner(section, "Sheilun's Gift",  70,  0,  100,  1,  colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.."Use of Sheilun's Gift.", colorWhite.."Health Percent to Cast At")
         br.ui:createSpinnerWithout(section, "Sheilun's Gift Charges",  5,  1,  12,  1,  colorBlue.."Minimum Sheilun's Gift charges")
         br.ui:createSpinner(section, "Enveloping Mist",  75,  0,  100,  1,  colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.."Use of Enveloping Mist.", colorWhite.."Health Percent to Cast At")
+        br.ui:createCheckbox(section, "Enveloping Mist - Tank Only", colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.."Use of Enveloping Mist on tank only.")
         br.ui:createSpinner(section, "Enveloping Mist with Lifecycles",  65,  0,  100,  1,  colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.."Use of Enveloping Mist.", colorWhite.."Health Percent to Cast At")
         br.ui:createSpinner(section, "Zen Pulse",  90,  0,  100,  1,  colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.."Use of Zen Pulse.", colorWhite.."Health Percent to Cast At")
         br.ui:createSpinnerWithout(section, "Zen Pulse Enemies",  3,  1,  100,  1,  colorBlue.."Minimum Zen Pulse Enemies")
@@ -423,12 +424,14 @@ local function runRotation()
                 if cast.zenPulse(lowest.unit) then return true end
             end
         end
-        if isChecked("Mistwalk") and talent.mistwalk and lowest.hp <= getValue("Mistwalk") and UnitIsPlayer(lowest.unit) then
+        if isChecked("Mistwalk") and talent.mistwalk and lowest.hp <= getValue("Mistwalk") and UnitIsPlayer(lowest.unit) and lowest.unit ~= "player" then
             if cast.mistwalk(lowest.unit) then return true end
         end
         if isChecked("Enveloping Mist") and (not buff.envelopingMist.exists(lowest.unit) or (botSpell ~= spell.envelopingMist and lastSpellTarget ~= UnitGUID(lowest.unit))) then
             if (not buff.envelopingMist.exists(lowest.unit) or buff.envelopingMist.remain(lowest.unit) <= getCastTime(spell.envelopingMist)) and lowest.hp <= getValue("Enveloping Mist")then
-                if cast.envelopingMist(lowest.unit) then return true end
+                if (isChecked("Enveloping Mist - Tank Only") and (lowest.role) == "TANK") or not isChecked("Enveloping Mist - Tank Only") then
+                    if cast.envelopingMist(lowest.unit) then return true end
+                end
             end
         end
         if isChecked("Enveloping Mist with Lifecycles") and (not buff.envelopingMist.exists(lowest.unit) or (botSpell ~= spell.envelopingMist and lastSpellTarget ~= UnitGUID(lowest.unit))) then
@@ -490,9 +493,12 @@ local function runRotation()
     local function actionList_DPS()
         if useDPS then
             if lowest.hp >= getValue("DPS") then
-                if #enemies.yards8 >= 2 and not isCastingSpell(spell.spinningCraneKick) then
+                if talent.risingThunder then
+                    if cast.risingSunKick() then return true end
+                end
+                if #enemies.yards8 >= 3 and not isCastingSpell(spell.spinningCraneKick) then
                     if cast.spinningCraneKick() then return true end
-                elseif #enemies.yards5 == 1 then
+                elseif #enemies.yards5 >= 1 then
                     if cd.risingSunKick == 0 then
                         if cast.risingSunKick(enemies.yards5[1].unit) then return true end
                     end

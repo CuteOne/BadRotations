@@ -857,7 +857,7 @@ br.idList = {
                 concussiveShot              = 5116,
                 counterShot                 = 147362,
                 direBeast                   = 120679,
-                direfrenzy                  = 217200,
+                direFrenzy                  = 217200,
                 disengage                   = 781,
                 eagleEye                    = 6197,
                 exhilaration                = 109304,
@@ -886,7 +886,7 @@ br.idList = {
 
             },
             talents                         = {
-                direfrenzy                  = 217200,
+                direFrenzy                  = 217200,
                 aMurderOfCrows              = 131894,
                 barrage                     = 120360,
                 volley                      = 194386,
@@ -989,6 +989,7 @@ br.idList = {
                 feignDeath                  = 5384,
                 flankingStrike              = 202800,
                 flare                       = 1543,
+                freezingTrap                = 187650,
                 furyOfTheEagle              = 203415,
                 harpoon                     = 190925,
                 hatchetToss                 = 193265,
@@ -1285,6 +1286,7 @@ br.idList = {
             debuffs                         = {
                 moderateStagger             = 124274,
                 heavyStagger                = 124273,
+                kegSmash                    = 121253,
 
             },
             glyphs                          = {
@@ -1380,6 +1382,7 @@ br.idList = {
                 invokeChiJiTheRedCrane      = 198664;
                 summonJadeSerpentStatue     = 115313;
                 manaTea                     = 197908;
+                risingThunder               = 210804,
             },
         },
         -- Windwalker
@@ -1813,9 +1816,12 @@ br.idList = {
             buffs                           = {
                 angelicFeather              = 121557,
                 atonement                   = 194384,
+                clarityOfWill               = 152118,
+                innervate                   = 29166;
                 overloadedWithLight         = 223166,
                 powerInfusion               = 10060,
                 rapture                     = 47536,
+                symbolOfHope                = 64901;
             },
             debuffs                         = {
                 purgeTheWicked              = 204213,

@@ -184,7 +184,6 @@ local function runRotation()
         local combatTime                                    = getCombatTime()
         local cd                                            = br.player.cd
         local charges                                       = br.player.charges
-        local CloudburstTotemTime                           = 0
         local debuff                                        = br.player.debuff
         local enemies                                       = enemies or {}
         local gcd                                           = br.player.gcd
@@ -213,6 +212,17 @@ local function runRotation()
         local lowestTank                                    = {}    --Tank
         local tHp                                           = 95
 
+        if CloudburstTotemTime == nil or cd.cloudburstTotem == 0 or not talent.cloudburstTotem then CloudburstTotemTime = 0 end
+
+        if inCombat and not IsMounted() then
+            if isChecked("Ancestral Guidance") and talent.ancestralGuidance and (not CloudburstTotemTime or GetTime() >= CloudburstTotemTime + 6) then
+                if getLowAllies(getValue("Ancestral Guidance")) >= getValue("Ancestral Guidance Targets") then
+                    if cast.ancestralGuidance() then return end
+                end
+            end
+        end
+
+        
         units.dyn8 = br.player.units(8)
         units.dyn40 = br.player.units(40)
         enemies.yards5 = br.player.enemies(5)
@@ -361,16 +371,12 @@ local function runRotation()
             -- Ancestral Guidance
                 if isChecked("Ancestral Guidance") and talent.ancestralGuidance and not talent.cloudburstTotem then
                     if getLowAllies(getValue("Ancestral Guidance")) >= getValue("Ancestral Guidance Targets") then
-                        if talent.cloudburstTotem and buff.cloudburstTotem.exists() then
-                            if cast.ancestralGuidance() then return end    
-                        else
-                            if cast.ancestralGuidance() then return end
-                        end
+                        if cast.ancestralGuidance() then return end
                     end
                 end
             -- Ascendance
-                if isChecked("Ascendance") and talent.ascendance and not buff.ascendance.exists() and not talent.cloudburstTotem then
-                    if getLowAllies(getValue("Ascendance")) >= getValue("Ascendance") then    
+                if isChecked("Ascendance") and talent.ascendance and not talent.cloudburstTotem then
+                    if getLowAllies(getValue("Ascendance")) >= getValue("Ascendance Targets") then    
                         if cast.ascendance() then return end    
                     end
                 end
@@ -404,14 +410,14 @@ local function runRotation()
         -- Cloudburst Totem
         function actionList_CBT()
         -- Ancestral Guidance
-            if isChecked("Ancestral Guidance") and talent.ancestralGuidance and (not CloudburstTotemTime or GetTime() - CloudburstTotemTime > 5) then
+            if isChecked("Ancestral Guidance") and talent.ancestralGuidance and (not CloudburstTotemTime or GetTime() >= CloudburstTotemTime + 6) then
                 if getLowAllies(getValue("Ancestral Guidance")) >= getValue("Ancestral Guidance Targets") then
                     if cast.ancestralGuidance() then return end
                 end
             end
         -- Ascendance
-            if isChecked("Ascendance") and talent.ascendance and not buff.ascendance.exists() then
-                if getLowAllies(getValue("Ascendance")) >= getValue("Ascendance") then    
+            if isChecked("Ascendance") and talent.ascendance then
+                if getLowAllies(getValue("Ascendance")) >= getValue("Ascendance Targets") then    
                     if cast.ascendance() then return end    
                 end
             end
@@ -499,6 +505,12 @@ local function runRotation()
                     else
                         if cast.wellspring() then return end
                     end
+                end
+            end
+        -- Healing Rain
+            if isChecked("Healing Rain") and not moving and not buff.healingRain.exists() then
+                if getLowAllies(getValue("Healing Rain")) >= getValue("Healing Rain Targets") then    
+                    if castGroundAtBestLocation(spell.healingRain, 20, 0, 40, 0, "heal") then return end    
                 end
             end
         end -- End Action List - AOEHealing
@@ -626,14 +638,8 @@ local function runRotation()
                 if talent.cloudburstTotem and buff.cloudburstTotem.exists() then
                     actionList_CBT()
                 end
-                -- Healing Rain
-                if isChecked("Healing Rain") and not moving and not buff.healingRain.exists() then
-                    if getLowAllies(getValue("Healing Rain")) >= getValue("Healing Rain Targets") then    
-                        if castGroundAtBestLocation(spell.healingRain, 20, 0, 40, 0, "heal") then return end    
-                    end
-                end
-                actionList_SingleTarget()
                 actionList_AOEHealing()
+                actionList_SingleTarget()
                 if br.player.mode.dps == 1 then
                     actionList_DPS()
                 end

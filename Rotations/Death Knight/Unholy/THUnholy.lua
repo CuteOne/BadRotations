@@ -68,6 +68,8 @@ local function createOptions()
             br.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
             -- Remove Spells from queue with CD
             br.ui:createSpinner(section, "SpellQueue Clear",  5,  0,  100,  5,  "|cffFFBB00Remove spell if cd is greater.")
+            --Autotarget
+            br.ui:createCheckbox(section,"Auto Target","Target none/friendly switch to enemy within 8y")
             -- Debug
             br.ui:createCheckbox(section,"Debug Info")
 
@@ -142,12 +144,16 @@ local function createOptions()
          section = br.ui:createSection(br.ui.window.profile,  "PVP")
             -- Necrotic Strike
             br.ui:createCheckbox(section,"Necrotic Strike")
-             -- Chains of Ice
-            br.ui:createCheckbox(section,"Chains of Ice")
+            -- Chains of Ice
+            br.ui:createCheckbox(section,"Chains of Ice", "Chains target")
+            -- Chians of Ice Focus
+            br.ui:createCheckbox(section,"Chains of Ice Focus", "Chains focus target")
             -- AMS Counter
             br.ui:createCheckbox(section,"AMS Counter")
             -- Necro Spam
             br.ui:createSpinner(section,  "Necro Spam",  45,  0,  100,  5,  "|cffFFBB00Prefer Necro at X percent dampening.")
+            --Eye of Leotheras
+            br.ui:createCheckbox(section, "Eye of Leotheras", "Pause CR on Eye of Leotheras Debuff")
          br.ui:checkSectionState(section)
         ----------------------
         --- TOGGLE OPTIONS --- -- Degine Toggle Options
@@ -245,17 +251,20 @@ local function runRotation()
         if waitfornextVirPlague == nil or objIDLastVirPlagueTarget == nil then
             waitfornextVirPlague = GetTime() - 10
             objIDLastVirPlagueTarget = 0
-        end      
+        end 
+        if waitForPetToAppear == nil then waitForPetToAppear = 0 end
+        if waitforNextKick == nil then waitforNextKick = 0 end     
         if waitfornextPrint == nil or printevery2S == nil then
-                waitfornextPrint = GetTime()
-                printevery2S = true
-        end
-        if waitfornextPrint <= GetTime() -2 then
+            waitfornextPrint = GetTime()
+            printevery2S = true
+        elseif waitfornextPrint <= GetTime() -2 then
             printevery2S = true
             waitfornextPrint = GetTime()
         else
             printevery2S = false
         end
+        if waitforNextIoC == nil then waitforNextIoC = 0 end
+        if waitforNextIoCFocus == nil then waitforNextIoCFocus = 0 end
 
 -------------------
 --- Raise Pet   ---
@@ -348,95 +357,20 @@ local function runRotation()
             end
         end
     ---------------------------------------------------------------------------------------------------------------------------------    
-    -- Action List - Extras
-    ---------------------------------------------------------------------------------------------------------------------------------
-        local function actionList_Extras()        
-            if isChecked("Debug Info") then Print("actionList_Extras") end
-        -- Dummy Test
-            if isChecked("DPS Testing") then
-                if GetObjectExists("target") then
-                    if getCombatTime() >= (tonumber(getValue("DPS Testing"))*60) and isDummy() then
-                        profileStop = true
-                        StopAttack()
-                        ClearTarget()
-                        Print(tonumber(getValue("DPS Testing")) .." Minute Dummy Test Concluded - Profile Stopped")
-                        return true
-                    end
-                end
-            end
-        -- Chains of Ice
-            if isChecked("Chains of Ice") then
-                if waitforNextIoC ~= nil and waitforNextIoC < GetTime() -1.5 then
-                    if playertar 
-                        and getDistance("target") > 5
-                        and (not debuff.chainsOfIce.exists("target"))
-                        and (not talent.soulReaper or not debuff.soulReaper.exists("target") or (buff.soulReaper.stack("player") == 3)  or  getDistance("target") > 5)
-                        and getFacing("player","target")
-                        and not (UnitBuff("target","Blessing of Freedom") ~= nil)
-                        and not immun
-                        and not cloak
-                      --  and isMoving(thisUnit) 
-                        and getDistance("target") <= 30
-                        and inCombat
-                    then
-                        if cast.chainsOfIce("target") then waitforNextIoC = GetTime() return end
-                    end
-                end
-                if waitforNextIoC == nil then
-                    waitforNextIoC = GetTime()
-                end
-            end
-        --Virulent Plague
-            if (UnitExists("target") and objIDLastVirPlagueTarget ~= ObjectID("target")) or waitfornextVirPlague < GetTime() - 6 then
-                if (not debuff.virulentPlague.exists("target")
-                    or debuff.virulentPlague.remain("target") < 1.5) 
-                    and not debuff.soulReaper.exists("target")
-                    and not immun
-                    and not cloak
-                    and not deadtar
-                then
-                    if cast.outbreak("target") then 
-                        waitfornextVirPlague = GetTime() 
-                        objIDLastVirPlagueTarget = ObjectID("target")
-                        return 
-                    end
-                end
-                local unitWithoutVirPlague = "player"
-                for i = 1, #enemies.yards30 do
-                    local thisUnit = enemies.yards30[i]
-                    if not debuff.virulentPlague.exists(thisUnit) 
-                        and UnitAffectingCombat(thisUnit) 
-                        and not cloak
-                        and not immun
-                    then
-                        if cast.outbreak(thisUnit) then 
-                            waitfornextVirPlague = GetTime() 
-                            objIDLastVirPlagueTarget = ObjectID(thisUnit)
-                            return 
-                        end
-                        break
-                    end
-                end
-            end
-        end
-    ---------------------------------------------------------------------------------------------------------------------------------    
     -- Action List - Defensive
     ---------------------------------------------------------------------------------------------------------------------------------
         local function actionList_Defensive()
             if isChecked("Debug Info") then Print("actionList_Defensive") end
-            if useDefensive() and not IsMounted() then
+            if useDefensive() and not IsMounted() and inCombat then
             --- AMS Counter
                 if isChecked("AMS Counter") 
-                    and debuff.soulReaper.exists("player")
-                then
-                    print("AMS Counter")
-                    if cast.antiMagicShell() then return end
+                    and UnitDebuff("player","Soul Reaper") ~= nil
+                then                    
+                    if cast.antiMagicShell() then print("AMS Counter - Soul Reaper") return end
                 end
-
             --Healthstone
                 if isChecked("Healthstone") 
-                    and php <= getOptionValue("Healthstone")
-                    and inCombat 
+                    and php <= getOptionValue("Healthstone")     
                     and hasItem(5512)
                 then
                     if canUse(5512) then
@@ -444,8 +378,7 @@ local function runRotation()
                     end
                 end
             -- Death Strike
-                if isChecked("Death Strike") 
-                    and inCombat 
+                if isChecked("Death Strike")  
                     and (buff.darkSuccor.exists() and (php < getOptionValue("Death Strike") or buff.darkSuccor.remain() < 2))
                     or  runicPower >= 45  
                     and php < getOptionValue("Death Strike") 
@@ -464,18 +397,15 @@ local function runRotation()
                         if cast.deathStrike("target") then return end
                     end
                 end
-                if isChecked("Debug Info") then Print("IBF") end
             -- Icebound Fortitude
                 if isChecked("Icebound Fortitude") 
                     and php < getOptionValue("Icebound Fortitude") 
-                    and inCombat 
                 then
                     if cast.iceboundFortitude() then return end
                 end
             -- Corpse Shield
                 if isChecked("Corpse Shield") 
                     and php < getOptionValue("Corpse Shield") 
-                    and inCombat 
                 then
                     if cast.corpseShield() then return end
                 end
@@ -499,13 +429,128 @@ local function runRotation()
             end
         end
     ---------------------------------------------------------------------------------------------------------------------------------
+    -- Action List - DebuffReader
+    ---------------------------------------------------------------------------------------------------------------------------------
+        local function actionList_DebuffReader()
+            if startDampeningTimer == nil then startDampeningTimer = false end
+            if printDampeningTimer == nil then printDampeningTimer = true end
+
+            if debuff.dampening.exists("player") and not startDampeningTimer then
+                startDampeningTimer = true
+                printDampeningTimer = true
+                dampeningStartTime = GetTime()                            
+            elseif not debuff.dampening.exists("player") then
+                startDampeningTimer = false
+            end
+
+            if startDampeningTimer then
+                dampeningCount = math.floor((GetTime() - dampeningStartTime) / 10) + 1
+            else
+                dampeningCount = 0
+            end
+            if isChecked("Necro Spam") and dampeningCount >= getOptionValue("Necro Spam")  and printDampeningTimer then
+                Print("Dampening level reached -> Necro Spam active")
+                printDampeningTimer = false
+            end
+        end
+    ---------------------------------------------------------------------------------------------------------------------------------    
+    -- Action List - Extras
+    ---------------------------------------------------------------------------------------------------------------------------------
+        local function actionList_Extras()        
+            if isChecked("Debug Info") then Print("actionList_Extras") end
+        -- Dummy Test
+            if isChecked("DPS Testing") then
+                if GetObjectExists("target") then
+                    if getCombatTime() >= (tonumber(getValue("DPS Testing"))*60) and isDummy() then
+                        profileStop = true
+                        StopAttack()
+                        ClearTarget()
+                        Print(tonumber(getValue("DPS Testing")) .." Minute Dummy Test Concluded - Profile Stopped")
+                        return true
+                    end
+                end
+            end
+        -- Chains of Ice
+            if isChecked("Chains of Ice") then
+                if waitforNextIoC < GetTime() -1.5 then
+                    if playertar 
+                        and (not debuff.chainsOfIce.exists("target"))
+                        and (not talent.soulReaper or not debuff.soulReaper.exists("target") or (buff.soulReaper.stack("player") == 3)  or  getDistance("target") > 5)
+                        and getFacing("player","target")
+                        and not (UnitBuff("target","Blessing of Freedom") ~= nil)
+                        and not immun
+                        and not cloak
+                      --  and isMoving(thisUnit) 
+                        and getDistance("target") <= 30
+                        and inCombat
+                    then
+                        if cast.chainsOfIce("target") then waitforNextIoC = GetTime() return end
+                    end
+                end
+                
+            end
+        --Chains of Ice focus
+            if isChecked("Chains of Ice Focus") then
+                if waitforNextIoCFocus < GetTime() -1.5 then
+                    if UnitExists("focus")
+                        and (not debuff.chainsOfIce.exists("focus"))
+                        and (not talent.soulReaper or not debuff.soulReaper.exists("target") or (buff.soulReaper.stack("player") == 3))
+                        and getFacing("player","focus")
+                        and not (UnitBuff("focus","Blessing of Freedom") ~= nil)
+                        and not immun
+                        and not cloak
+                      --  and isMoving(thisUnit) 
+                        and getDistance("focus") <= 30
+                    then
+                        if cast.chainsOfIce("focus") then waitforNextIoCFocus = GetTime() return end
+                    end
+                end
+            end
+        --Virulent Plague
+            if (UnitExists("target") and objIDLastVirPlagueTarget ~= ObjectID("target")) or (waitfornextVirPlague < GetTime() - 6) then
+                if (not debuff.virulentPlague.exists("target")
+                    or debuff.virulentPlague.remain("target") < 1.5) 
+                    and not debuff.soulReaper.exists("target")
+                    and not immun
+                    and not cloak
+                    and not UnitIsDeadOrGhost("target")
+                then
+                    if cast.outbreak("target") then 
+                        waitfornextVirPlague = GetTime() 
+                        objIDLastVirPlagueTarget = ObjectID("target")
+                        return 
+                    end
+                end
+                local unitWithoutVirPlague = "player"
+                for i = 1, #enemies.yards30 do
+                    local thisUnit = enemies.yards30[i]
+                    if not debuff.virulentPlague.exists(thisUnit) 
+                        and UnitAffectingCombat(thisUnit) 
+                        and not cloak
+                        and not immun
+                    then
+                        if cast.outbreak(thisUnit) then 
+                            waitfornextVirPlague = GetTime() 
+                            return 
+                        end
+                        break
+                    end
+                end
+            end
+        end
+    ---------------------------------------------------------------------------------------------------------------------------------
     -- Action List - Interrupts
     ---------------------------------------------------------------------------------------------------------------------------------
         local function actionList_Interrupts()
             if isChecked("Debug Info") then Print("actionList_Interrupts") end
             if useInterrupts() then
-                if waitforNextKick ~= nil and waitforNextKick < GetTime() -2 then
-                    if cd.mindFreeze <= 0 or cd.deathGrip <= 0 or cd.asphyxiate <=0 or cd.leap <= 0 or cd.hook <= 0 then
+                if waitforNextKick < GetTime() -2 then
+                    if cd.mindFreeze <= 0 
+                        or cd.deathGrip <= 0 
+                        or cd.asphyxiate <= 0 
+                        or (not talent.sludgeBelcher and cd.leap <= 0) 
+                        or (talent.sludgeBelcher and cd.hook <= 0) 
+                    then
                         local kickpercent = getOptionValue("InterruptAt") + math.random(-5,5)
                         for i=1, #enemies.yards30 do
                             thisUnit = enemies.yards30[i]
@@ -522,12 +567,10 @@ local function runRotation()
                                     and getDistance(thisUnit) < 30
                                 then
                                     if talent.sludgeBelcher then
-                                        waitforNextKick = GetTime()
-                                        if cast.hook(thisUnit) then print("Hook Kick") return end
+                                        if cast.hook(thisUnit) then waitforNextKick = GetTime(); print("Hook Kick") return end
                                     elseif buff.darkTransformation.exists("pet")
                                     then
-                                        waitforNextKick = GetTime()
-                                        if cast.leap(thisUnit) then print("Leap Kick") return end
+                                        if cast.leap(thisUnit) then waitforNextKick = GetTime(); print("Leap Kick") return end
                                     end
                                 end
                                 -- Mind Freeze
@@ -536,8 +579,7 @@ local function runRotation()
                                     and getDistance(thisUnit) < 15 
                                     and getFacing("player",thisUnit) 
                                 then
-                                    waitforNextKick = GetTime()
-                                    if cast.mindFreeze(thisUnit) then print("Mind Freeze") return end
+                                    if cast.mindFreeze(thisUnit) then waitforNextKick = GetTime(); print("Mind Freeze") return end
                                 end
                                 --Asphyxiate
                                 if isChecked("Asphyxiate Kick") 
@@ -545,24 +587,19 @@ local function runRotation()
                                     and getDistance(thisUnit) < 20 
                                     and getFacing("player",thisUnit) 
                                 then
-                                    waitforNextKick = GetTime()
-                                    if cast.asphyxiate(thisUnit) then  print("Asphyxiate Kick") return end
+                                    if cast.asphyxiate(thisUnit) then waitforNextKick = GetTime(); print("Asphyxiate Kick") return end
                                 end
                                 -- DeathGrip
                                 if isChecked("Death Grip") 
                                     and getDistance("target") < 5
                                     and getFacing("player",thisUnit) 
                                 then
-                                    waitforNextKick = GetTime()
-                                    if cast.deathGrip(thisUnit) then print ("Grip Kick") return end
+                                    if cast.deathGrip(thisUnit) then waitforNextKick = GetTime(); print ("Grip Kick") return end
                                 end
                             end
                         end --endfor
                     end --Kick auf CD                
                 end --Timer
-                if waitforNextKick == nil then
-                    waitforNextKick = GetTime()
-                end
             end -- End Use Interrupts Check
         end -- End Action List - Interrupts
     ---------------------------------------------------------------------------------------------------------------------------------
@@ -571,7 +608,7 @@ local function runRotation()
         local function actionList_PetManagement()
             if isChecked("Debug Info") then Print("actionList_PetManagement") end
             if not IsMounted() then
-                --Corpse Shield
+            --Corpse Shield
                 if buff.corpseShield.exists() then
                     if talent.sludgeBelcher then
                         if cast.protectiveBile() then return end
@@ -579,6 +616,7 @@ local function runRotation()
                         if cast.huddle() then return end
                     end
                 end
+            --PetDismiss
                 if getHP("pet") < 40 
                     and UnitExists("pet") 
                     and not buff.corpseShield.exists() 
@@ -586,18 +624,13 @@ local function runRotation()
                     print("Pet Dismiss - Low Health")
                     PetDismiss()
                 end
-
+            --Auto Summon
                 if isChecked("Auto Summon") and not UnitExists("pet") and (UnitIsDead("pet") ~= nil or UnitIsDead("pet") == false) then
-                    if waitForPetToAppear ~= nil and waitForPetToAppear < GetTime() - 2 then
-                        if cast.raiseDead() then return end
-                    end
-
-                    if waitForPetToAppear == nil then
-                        waitForPetToAppear = GetTime()
+                    if waitForPetToAppear < GetTime() - 2 then
+                        if cast.raiseDead() then waitForPetToAppear = GetTime(); return end
                     end
                 end
-
-                -- Pet Attack / retreat
+            -- Pet Attack / retreat
                 if  isChecked("Pet Attack") then
                     if inCombat and isValidUnit(units.dyn30) and getDistance(units.dyn30) < 30 then
                         if not UnitIsUnit("target","pettarget") and attacktar and not IsPetAttackActive() then
@@ -628,13 +661,14 @@ local function runRotation()
         --ScourgeStrike if Soulreaper
             if debuff.festeringWound.stack("target") >= 1
                 and not immun
-                and not cloak
             then
                 if talent.clawingShadows then
                     if cast.clawingShadows("target") then return end
                 else
                     if cast.scourgeStrike("target") then return end
                 end
+            elseif not immun then
+                if cast.festeringStrike("target") then return end
             end
         end
     ---------------------------------------------------------------------------------------------------------------------------------
@@ -684,8 +718,7 @@ local function runRotation()
                 else
                     if cast.scourgeStrike("target") then return end
                 end
-            end        
-
+            end      
         --ScourgeStrike if Scourge of Worlds / Necrosis
             if (debuff.scourgeOfWorlds.exists("target")  or buff.necrosis.exists("player"))
                 and debuff.festeringWound.stack("target") > 1
@@ -776,7 +809,7 @@ local function runRotation()
             end
         end
     ---------------------------------------------------------------------------------------------------------------------------------
-    -- Action List - Pre Dark Arbiter
+    -- Action List - Dark Arbiter
     ---------------------------------------------------------------------------------------------------------------------------------
         local function actionList_PreDarkArbiter()
         --Apocalypse
@@ -904,31 +937,7 @@ local function runRotation()
                 end
                 
         end
-    ---------------------------------------------------------------------------------------------------------------------------------
-    -- Action List - DebuffReader
-    ---------------------------------------------------------------------------------------------------------------------------------
-        local function actionList_DebuffReader()
-            if startDampeningTimer == nil then startDampeningTimer = false end
-            if printDampeningTimer == nil then printDampeningTimer = true end
-
-            if debuff.dampening.exists("player") and not startDampeningTimer then
-                startDampeningTimer = true
-                printDampeningTimer = true
-                dampeningStartTime = GetTime()                            
-            elseif not debuff.dampening.exists("player") then
-                startDampeningTimer = false
-            end
-
-            if startDampeningTimer then
-                dampeningCount = math.floor((GetTime() - dampeningStartTime) / 10) + 1
-            else
-                dampeningCount = 0
-            end
-            if isChecked("Necro Spam") and dampeningCount >= getOptionValue("Necro Spam")  and printDampeningTimer then
-                Print("Dampening level reached -> Necro Spam active")
-                printDampeningTimer = false
-            end
-        end
+    
 -----------------
 --- Rotations ---
 -----------------
@@ -943,7 +952,6 @@ local function runRotation()
             if not inCombat and ObjectExists("target") and not UnitIsDeadOrGhost("target") and UnitCanAttack("target", "player") then
                 if isChecked("Debug Info") then Print("OOC") end
                 startDampeningTimer = false
-
             end -- End Out of Combat Rotation
 -----------------------------
 --- In Combat - Rotations --- 
@@ -955,7 +963,7 @@ local function runRotation()
                     if actionList_DebuffReader() then return end
                 end
 
-                if debuff.eyeOfLeotheras ~= nil and debuff.eyeOfLeotheras.exists("player") then
+                if isChecked("Eye of Leotheras") and UnitDebuff("player","Eye Of Leotheras") ~= nil then
                     ClearTarget()
                     if IsPetAttackActive() then
                         PetStopAttack()
@@ -965,8 +973,11 @@ local function runRotation()
                     return
                 end
 
-                if not isValidUnit("target") and false then
-                    if #enemies.yards8 > 0 and inCombat then
+                if isChecked("Auto Target") 
+                    and not UnitExists("target") 
+                    or (not UnitIsEnemy("target", "player") and not UnitIsDeadOrGhost("target")) 
+                then
+                    if #enemies.yards8 > 0 and UnitAffectingCombat(enemies.yards8[1]) then
                         TargetUnit(enemies.yards8[1])
                     end
                 end

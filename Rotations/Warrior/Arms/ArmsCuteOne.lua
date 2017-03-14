@@ -91,6 +91,8 @@ local function createOptions()
             br.ui:createCheckbox(section, "Racial")
             -- Legendary Ring
             br.ui:createCheckbox(section, "Ring of Collapsing Futures")
+            -- Draught of Souls
+            br.ui:createCheckbox(section, "Draught of Souls")
             -- Trinkets
             br.ui:createDropdownWithout(section, "Trinkets", {"|cff00FF001st Only","|cff00FF002nd Only","|cffFFFF00Both","|cffFF0000None"}, 1, "|cffFFFFFFSelect Trinket Usage.")
             -- Touch of the Void
@@ -392,6 +394,12 @@ local function runRotation()
                         useItem(142173)
                         return true
                     end
+                end
+            -- Draught of Souls
+                --draught_of_souls,if=equipped.draught_of_souls&((prev_gcd.1.mortal_strike|cooldown.mortal_strike.remains>=3)&buff.battle_cry.remains>=3&debuff.colossus_smash.up&buff.avatar.remains>=3)
+                if hasEquiped(140808) and ((lastCast == spell.mortalStrike or cd.mortalStrike >= 3) and buff.battleCry.remain() >= 3 and debuff.colossusSmash.exists(units.dyn5) and buff.avatar.remain() >= 3) then
+                    useItem(140808)
+                    return true
                 end
             -- Potion
                 -- potion,name=old_war,if=buff.avatar.up&buff.battle_cry.up&debuff.colossus_smash.up|target.time_to_die<=26

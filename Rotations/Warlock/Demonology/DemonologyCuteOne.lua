@@ -56,7 +56,8 @@ local function createOptions()
         -- Summon Pet
             br.ui:createDropdownWithout(section, "Summon Pet", {"Imp","Voidwalker","Felhunter","Succubus","Felguard","None"}, 1, "|cffFFFFFFSelect default pet to summon.")
         -- Grimoire of Service
-            br.ui:createDropdownWithout(section, "Grimoire of Service", {"Imp","Voidwalker","Felhunter","Succubus","Felguard","None"}, 1, "|cffFFFFFFSelect pet to Grimoire.")
+            br.ui:createDropdownWithout(section, "Grimoire of Service - Pet", {"Imp","Voidwalker","Felhunter","Succubus","Felguard","None"}, 1, "|cffFFFFFFSelect pet to Grimoire.")
+            br.ui:createDropdownWithout(section,"Grimoire of Service - Use", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Grimoire Ability.")
         -- Demonwrath
             br.ui:createDropdownWithout(section, "Demonwrath", {"Both","AoE","Moving","None"}, 1, "|cffFFFFFF Select Demonwrath usage.")
         -- Felstorm
@@ -165,7 +166,7 @@ local function runRotation()
         local flaskBuff                                     = getBuffRemain("player",br.player.flask.wod.buff.agilityBig)
         local friendly                                      = friendly or UnitIsFriend("target", "player")
         local gcd                                           = br.player.gcd
-        local grimoirePet                                   = getOptionValue("Grimoire of Service")
+        local grimoirePet                                   = getOptionValue("Grimoire of Service - Pet")
         local hasMouse                                      = ObjectExists("mouseover")
         local hasteAmount                                   = GetHaste()/100
         local hasPet                                        = IsPetActive()
@@ -644,7 +645,7 @@ local function runRotation()
                     end
         -- Service Pet
                     -- service_pet
-                    if br.timer:useTimer("castGrim", gcd+1) and shards > 0 then
+                    if br.timer:useTimer("castGrim", gcd+1) and shards > 0 and (getOptionValue("Grimoire of Service - Use") == 1 or (getOptionValue("Grimoire of Service - Use") == 2 and useCDs())) then
                         if grimoirePet == 1 then
                             if cast.grimoireImp("target") then prevService = "Imp"; return end
                         end
