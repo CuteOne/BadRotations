@@ -150,9 +150,9 @@ local function createOptions()
             --Shadow Word: Pain/Purge The Wicked
             br.ui:createSpinner(section, "Shadow Word: Pain/Purge The Wicked",  3,  0,  10,  1,  "|cffFFFFFFMaximum Shadow Word: Pain/Purge The Wicked buff to keep at a time. Default: 3")
             --Schism
-            br.ui:createCheckbox(section, "Schism")
+            br.ui:createSpinner(section, "Schism",  1,  0,  40,  1,  "|cffFFFFFFMinimum Atonement for casting Schism. Default: 1")
             --Penance
-            br.ui:createCheckbox(section, "Penance")
+            br.ui:createSpinner(section, "Penance",  1,  0,  40,  1,  "|cffFFFFFFMinimum Atonement for casting Penance. Default: 1")
             --Power Word: Solace
             br.ui:createCheckbox(section, "Power Word: Solace")
             --Smite
@@ -309,12 +309,72 @@ local function runRotation()
             end
         end
 
+        freeMana = false
+        if mode.burst == 1 and (buff.innervate.exists() or buff.symbolOfHope.exists()) then
+            freeMana = true
+        end
+        
         if leftCombat == nil then leftCombat = GetTime() end
         if profileStop == nil then profileStop = false end
 
 --------------------
 --- Action Lists ---
 --------------------
+        --Check Atonement
+        function actionList_CheckAtonement()
+            for i = 1, #br.friend do
+                -- Got Innervate/Symbol of Hope
+                if mode.burst == 1 and (buff.innervate.exists() or buff.symbolOfHope.exists()) then
+                    actionList_SpreadAtonement(br.friend[i].unit)
+                elseif mode.healer == 2 then
+                    actionList_SpreadAtonement(br.friend[i].unit)
+                elseif br.friend[i].hp <= getValue("Atonement HP") then
+                    if mode.healer == 1 then
+                        actionList_SpreadAtonement(br.friend[i].unit)
+                    end
+                    if mode.healer == 3 and br.friend[i].unit == "player" then
+                        actionList_SpreadAtonement("player")
+                    end
+                end
+            end
+        end
+        --Spread Atonement
+        function actionList_SpreadAtonement(friendUnit)
+            --Spread Atonement
+            if not buff.powerWordShield.exists(friendUnit) or getBuffRemain(friendUnit, spell.buffs.atonement, "player") < 1 then
+                if getSpellCD(spell.powerWordShield) <= 0 and not buff.powerWordShield.exists(friendUnit) then
+                    if buff.rapture.exists("player") then
+                        if mode.burst == 1 and (buff.innervate.exists() or buff.symbolOfHope.exists()) and getBuffRemain(friendUnit, spell.buffs.atonement, "player") < 1 then
+                            if cast.powerWordShield(friendUnit) then return end
+                        elseif atonementCount <= getValue("Max Atonement when Rapture/PWS") then
+                            if #br.friend < getValue("Max Atonement when Rapture/PWS") or atonementCount >= getValue("Max Atonement when Rapture/PWS") or getBuffRemain(friendUnit, spell.buffs.atonement, "player") < 1 then
+                                if cast.powerWordShield(friendUnit) then return end
+                            end
+                        end
+                    end
+                    if atonementCount < getOptionValue("Max Atonement") and getBuffRemain(friendUnit, spell.buffs.atonement, "player") < 1 then
+                        if cast.powerWordShield(friendUnit) then return end
+                    end
+                end
+                if not buff.rapture.exists("player") and not buff.powerWordShield.exists(friendUnit) and getBuffRemain(friendUnit, spell.buffs.atonement, "player") < 1 then
+                    -- Getting Innervate/Symbol of Hope
+                    if mode.burst == 1 and (buff.innervate.exists() or buff.symbolOfHope.exists()) then
+                        -- Legendary Chest, Estel 2% Haste per Atonement
+                        if hasEquiped(132861) and lastSpell ~= spell.plea then
+                            if cast.plea(friendUnit) then return end
+                        elseif lastSpell ~= spell.powerWordRadiance then
+                            if cast.powerWordRadiance(friendUnit) then return end
+                        end
+                    end
+                    if atonementCount < getOptionValue("Max Plea") and atonementCount < getOptionValue("Max Atonement") and lastSpell ~= spell.plea then
+                        if cast.plea(friendUnit) then return end     
+                    end
+                    if ((not inRaid and atonementCount < 5) or inRaid) and atonementCount >= getOptionValue("Max Plea") and atonementCount < getOptionValue("Max Atonement") and lastSpell ~= spell.powerWordRadiance then
+                        if cast.powerWordRadiance(friendUnit) then return end
+                    end
+                end
+            end
+        end
         local function actionList_Defensive()
             if useDefensive() then
         -- Pot/Stoned
@@ -401,30 +461,29 @@ local function runRotation()
                             end
                         end
                     end
-                    --Mindbender/Shadowfiend
-                    if isChecked("Mindbender/Shadowfiend") then
-                        if cast.mindbender() then return end
-                        if cast.shadowfiend() then return end
-                    end
                     --Only use on Boss with Overloaded with Light
                     --Always use on Boss
                     if isChecked("Always use on Boss") or (isChecked("Only use on Boss with Overloaded with Light") and getBuffRemain("player",spell.buffs.overloadedWithLight) ~= 0) then
-                        if getSpellCD(spell.lightsWrath) == 0 then
+                        if getSpellCD(spell.lightsWrath) == 0 and not buff.rapture.exists("player") then
                             if mode.healer == 1 or mode.healer == 2 then
                                 for i = 1, #br.friend do
                                     actionList_SpreadAtonement(br.friend[i].unit)
                                 end
                             end
                             if isBoss("target") and getDistance("player","target") < 40 and ((inRaid and atonementCount >= getOptionValue("Max Atonement")) or (inInstance and atonementCount >= 5)) or (not inInstance and not inRaid) then
-                                if cast.schism("target") then return end
-                                if talent.schism and schismBuff == thisUnit then 
+                                if talent.schism and isChecked("Schism") then
+                                    if cast.schism("target") then return end
                                     if cast.lightsWrath("target") then return end
-                                end
-                                if not talent.schism or not isChecked("Schism") or schismBuff == nil then
+                                else
                                     if cast.lightsWrath("target") then return end
                                 end
                             end
                         end
+                    end
+                    --Mindbender/Shadowfiend
+                    if isChecked("Mindbender/Shadowfiend") then
+                        if cast.mindbender() then return end
+                        if cast.shadowfiend() then return end
                     end
                     --Divine Star CD
                     if isChecked("Divine Star CD") and isBoss("target") and getDistance("player","target") < 24 and getFacing("player","target",10) then
@@ -453,34 +512,10 @@ local function runRotation()
             if isChecked("Pre-Pot Timer") and pullTimer <= getOptionValue("Pre-Pot Timer") and canUse(142117) and not solo then
                 useItem(142117)
             end
-            if isChecked("Drink") and getMana("player") <= getOptionValue("Drink") and canUse(138292) and not IsResting() and GetTime()-leftCombat > lootDelay+2 then
+            if isChecked("Drink") and getMana("player") <= getOptionValue("Drink") and canUse(138292) and not IsResting() and GetTime()-leftCombat > lootDelay+1 then
                 useItem(138292)
             end
         end  -- End Action List - Pre-Combat
-        --Spread Atonement
-        function actionList_SpreadAtonement(friendUnit)
-            --Spread Atonement
-            if not buff.powerWordShield.exists(friendUnit) or getBuffRemain(friendUnit, spell.buffs.atonement, "player") < 1 then
-                if getSpellCD(spell.powerWordShield) <= 0 and not buff.powerWordShield.exists(friendUnit) then
-                    if buff.rapture.exists("player") and atonementCount <= getValue("Max Atonement when Rapture/PWS") then
-                        if atonementCount >= getValue("Max Atonement when Rapture/PWS") or getBuffRemain(friendUnit, spell.buffs.atonement, "player") < 1 then
-                            if cast.powerWordShield(friendUnit) then return end
-                        end
-                    elseif atonementCount < getOptionValue("Max Atonement") and getBuffRemain(friendUnit, spell.buffs.atonement, "player") < 1 then
-                        if cast.powerWordShield(friendUnit) then return end
-                    end
-                end
-                if not buff.powerWordShield.exists(friendUnit) and getBuffRemain(friendUnit, spell.buffs.atonement, "player") < 1 and mode.burst == 1 and (UnitBuffID("player",29166) or UnitBuffID("player",64901)) then
-                    if cast.powerWordRadiance(friendUnit) then return end
-                end
-                if atonementCount < getOptionValue("Max Plea") and atonementCount < getOptionValue("Max Atonement") and not buff.powerWordShield.exists(friendUnit) and getBuffRemain(friendUnit, spell.buffs.atonement, "player") < 1 then
-                    if cast.plea(friendUnit) then return end     
-                end
-                if ((not inRaid and atonementCount < 5) or inRaid) and lastSpell ~= spell.powerWordRadiance and atonementCount >= getOptionValue("Max Plea") and atonementCount < getOptionValue("Max Atonement") and not buff.powerWordShield.exists(friendUnit) and getBuffRemain(friendUnit, spell.buffs.atonement, "player") < 1 then
-                    if cast.powerWordRadiance(friendUnit) then return end
-                end
-            end
-        end
         --AOE Healing
         function actionList_AOEHealing()
             --Power Word: Barrier
@@ -506,9 +541,6 @@ local function runRotation()
                 if getLowAllies(getValue("Rapture")) >= getValue("Rapture Targets") then
                     if cast.rapture() then return end
                 end
-            end
-            if getSpellCD(spell.rapture) <= 0 and mode.burst == 1 and (UnitBuffID("player",29166) or UnitBuffID("player",64901)) then
-                if cast.rapture() then return end
             end
             if buff.rapture.exists("player") then
                 if mode.healer == 1 or mode.healer == 2 then
@@ -669,8 +701,10 @@ local function runRotation()
                                             if cast.penance(ptwBuff) then return end
                                         end
                                         if cast.penance() then return end
-                                    else
+                                    elseif not isMoving("player") then
                                         if cast.shadowMend(br.friend[i].unit) then return end
+                                    elseif atonementCount <= getValue("Max Plea") then
+                                        if cast.plea(br.friend[i].unit) then return end
                                     end
                                 end
                                 if mode.healer == 3 and br.friend[i].unit == "player" then
@@ -686,8 +720,10 @@ local function runRotation()
                                             if cast.penance(ptwBuff) then return end
                                         end
                                         if cast.penance() then return end
-                                    else
+                                    elseif not isMoving("player") then
                                         if cast.shadowMend("player") then return end
+                                    else
+                                        if cast.plea("player") then return end
                                     end
                                 end
                             end
@@ -709,10 +745,18 @@ local function runRotation()
                 if isChecked("Shadow Mend Emergency") then
                     if br.friend[i].hp <= getValue("Shadow Mend Emergency") then
                         if mode.healer == 1 or mode.healer == 2 then
-                            if cast.shadowMend(br.friend[i].unit) then return end
+                            if not isMoving("player") then
+                                if cast.shadowMend(br.friend[i].unit) then return end
+                            elseif atonementCount <= getValue("Max Plea") then
+                                if cast.plea(br.friend[i].unit) then return end
+                            end
                         end
                         if mode.healer == 3 and br.friend[i].unit == "player" then
-                            if cast.shadowMend("player") then return end
+                            if not isMoving("player") then
+                                if cast.shadowMend("player") then return end
+                            else
+                                if cast.plea("player") then return end
+                            end
                         end
                     end
                 end
@@ -729,8 +773,10 @@ local function runRotation()
                                     if cast.penance(ptwBuff) then return end
                                 end
                                 if cast.penance() then return end
-                            else
+                            elseif not isMoving("player") then
                                 if cast.shadowMend(br.friend[i].unit) then return end
+                            elseif atonementCount <= getValue("Max Plea") then
+                                if cast.plea(br.friend[i].unit) then return end
                             end
                         end
                         if mode.healer == 3 and br.friend[i].unit == "player" then
@@ -743,23 +789,13 @@ local function runRotation()
                                     if cast.penance(ptwBuff) then return end
                                 end
                                 if cast.penance() then return end
-                            else
+                            elseif not isMoving("player") then
                                 if cast.shadowMend("player") then return end
+                            else
+                                if cast.plea("player") then return end
                             end
                         end
                     end
-                end
-                --Atonement
-                if br.friend[i].hp <= getValue("Atonement HP") then
-                    if mode.healer == 1 then
-                        actionList_SpreadAtonement(br.friend[i].unit)
-                    end
-                    if mode.healer == 3 and br.friend[i].unit == "player" then
-                        actionList_SpreadAtonement("player")
-                    end
-                end
-                if mode.healer == 2 or (mode.burst == 1 and (UnitBuffID("player",29166) or UnitBuffID("player",64901))) then
-                    actionList_SpreadAtonement(br.friend[i].unit)
                 end
                 --Fade
                 if isChecked("Fade") then                         
@@ -773,12 +809,6 @@ local function runRotation()
         -- DAMAGE --
         ------------
         function actionList_Damage()
-            --Schism
-            if isChecked("Schism") and getMana("player") > 20 then
-                if ttd("target") > debuff.schism.duration("target") and debuff.schism.refresh("target") then
-                    if cast.schism("target") then return end
-                end
-            end
             schismBuff = nil
             for i = 1, #enemies.dyn40 do
                 local thisUnit = enemies.dyn40[i]
@@ -810,7 +840,7 @@ local function runRotation()
                     for i = 1, #enemies.dyn40 do
                         local thisUnit = enemies.dyn40[i]
                         if UnitIsUnit(thisUnit,"target") or hasThreat(thisUnit) or isDummy(thisUnit) then
-                            if ttd(thisUnit) > debuff.purgeTheWicked.duration(thisUnit) and debuff.purgeTheWicked.refresh(thisUnit) and ptwBuffcount < getValue("Shadow Word: Pain/Purge The Wicked") then
+                            if ttd(thisUnit) > debuff.purgeTheWicked.duration(thisUnit) and debuff.purgeTheWicked.refresh(thisUnit) and (ptwBuffcount < getValue("Shadow Word: Pain/Purge The Wicked") or freeMana) then
                                 if schismBuff == thisUnit or not talent.schism or not isChecked("Schism") or schismBuff == nil then
                                     if cast.purgeTheWicked(thisUnit) then
                                         ptwBuff = thisUnit
@@ -824,7 +854,7 @@ local function runRotation()
                     for i = 1, #enemies.dyn40 do
                         local thisUnit = enemies.dyn40[i]
                         if UnitIsUnit(thisUnit,"target") or hasThreat(thisUnit) or isDummy(thisUnit) then
-                            if ttd(thisUnit) > debuff.shadowWordPain.duration(thisUnit) and debuff.shadowWordPain.refresh(thisUnit) and swpBuffcount < getValue("Shadow Word: Pain/Purge The Wicked") then
+                            if ttd(thisUnit) > debuff.shadowWordPain.duration(thisUnit) and debuff.shadowWordPain.refresh(thisUnit) and (swpBuffcount < getValue("Shadow Word: Pain/Purge The Wicked") or freeMana) then
                                 if cast.shadowWordPain(thisUnit) then
                                     swpBuff = thisUnit
                                 end
@@ -834,14 +864,23 @@ local function runRotation()
                 end
             end
             --Penance
-            if isChecked("Penance") then
-                if schismBuff then
+            if isChecked("Penance") or isChecked("Schism") then
+                if schismBuff and (atonementCount >= getValue("Penance") or freeMana) then
                     if cast.penance(schismBuff) then return end
                 end
-                if ptwBuff then
-                    if cast.penance(ptwBuff) then return end   
+                if ptwBuff and (atonementCount >= getValue("Penance")  or freeMana) then
+                    if cast.penance(ptwBuff) then return end
                 end
-                if cast.penance() then return end
+                if talent.schism and isChecked("Schism") and getMana("player") > 20 and getSpellCD(spell.schism) <= 0 and (atonementCount >= getValue("Schism") or freeMana) and not isMoving("player") then
+                    --Schism
+                    if ttd("target") > debuff.schism.duration("target") and debuff.schism.refresh("target") then
+                        if cast.schism("target") and (atonementCount >= getValue("Penance") or freeMana) then
+                            if cast.penance("target") then return end
+                        end
+                    end
+                elseif atonementCount >= (getValue("Penance") or freeMana) then
+                    if cast.penance() then return end
+                end
             end
             --Mindbender
             if isChecked("Mindbender") and getMana("player") <= getValue("Mindbender") then
@@ -922,7 +961,7 @@ local function runRotation()
             end
             --Smite
             if isChecked("Smite") then
-                if (getMana("player") > 20 and ((not inInstance and not inRaid) or atonementCount >= getValue("Smite"))) or (mode.burst == 1 and (UnitBuffID("player",29166) or UnitBuffID("player",64901))) and lastSpell ~= spell.smite then
+                if (getMana("player") > 20 and ((not inInstance and not inRaid) or atonementCount >= getValue("Smite"))) or freeMana then
                     if schismBuff then
                         if cast.smite(schismBuff) then return end
                     end
@@ -948,6 +987,7 @@ local function runRotation()
 ---------------------------------
             if not inCombat and not IsMounted() and (getBuffRemain("player", 192001) < 1 or getMana("player") == 100) and getBuffRemain("player", 192002) < 10 and getBuffRemain("player", 188023) < 1 and getBuffRemain("player", 175833) < 1 then
                 actionList_PreCombat()
+                actionList_CheckAtonement()
                 actionList_SingleTargetHeal()
             end -- End Out of Combat Rotation
 -----------------------------
@@ -955,9 +995,11 @@ local function runRotation()
 -----------------------------
             if inCombat and not IsMounted() then
                 actionList_Defensive()
+                actionList_CheckAtonement()
                 actionList_Cooldowns()
                 actionList_SingleTargetDefence()
                 actionList_SingleTargetHeal()
+                actionList_CheckAtonement()
                 actionList_AOEHealing()
                 actionList_Damage()
             end -- End In Combat Rotation
