@@ -2531,6 +2531,7 @@ br.idList = {
                 ascendance                  = 114052,
                 cloudburstTotem             = 157153,
                 earthenShieldTotem          = 198838,
+                echoOfTheElements           = 108283,
                 gustOfWind                  = 192063,
                 unleashLife                 = 73685,
                 wellspring                  = 197995,

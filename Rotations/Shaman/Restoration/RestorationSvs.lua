@@ -548,7 +548,13 @@ local function runRotation()
             if isChecked("Healing Stream Totem") then
                 for i = 1, #br.friend do                           
                     if br.friend[i].hp <= getValue("Healing Stream Totem") then
-                        if cast.healingStreamTotem(br.friend[i].unit) then return end     
+                        if not talent.echoOfTheElements then
+                            if cast.healingStreamTotem(br.friend[i].unit) then return end
+                        elseif talent.echoOfTheElements and (not HSTime or GetTime() - HSTime > 15) then
+                            if cast.healingStreamTotem(br.friend[i].unit) then
+                            HSTime = GetTime()
+                            return true end
+                        end 
                     end
                 end
             end
