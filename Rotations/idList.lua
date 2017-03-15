@@ -181,6 +181,7 @@ br.idList = {
             },
             artifacts                       = {
                 apocalypse                  = 220143,
+                doubleDoom                  = 191741,
             },
             buffs                           = {                
                 corpseShield                = 207319,
