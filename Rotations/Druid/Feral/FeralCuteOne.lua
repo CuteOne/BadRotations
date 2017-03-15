@@ -390,7 +390,7 @@ local function runRotation()
 		end -- End Action List - Extras
 	-- Action List - Defensive
 		local function actionList_Defensive()
-			if useDefensive() and not stealth and not flight and not buff.prowl.exists() then
+			if useDefensive() and not IsMounted() and not stealth and not flight and not buff.prowl.exists() then
 		--Revive/Rebirth
 				if isChecked("Rebirth") then
 					if buff.predatorySwiftness.exists() then
