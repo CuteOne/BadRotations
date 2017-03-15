@@ -240,10 +240,10 @@ local function runRotation()
                     if cast.travelForm() then return end
                 end
             -- Travel Form
-                if swimming and not travel and not hastar and not deadtar and not buff.prowl.exists() then
+                if not inCombat and swimming and not travel and not hastar and not deadtar and not buff.prowl.exists() then
                     if cast.travelForm() then return end
                 end
-                if moving and not travel and not IsMounted() and not IsIndoors() then
+                if not inCombat and moving and not travel and not IsMounted() and not IsIndoors() then
                     if cast.travelForm() then return end
                 end
             -- Cat Form
