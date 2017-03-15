@@ -87,7 +87,7 @@ end
 function lootManager:getLoot()
 	if looted == nil then looted = 0 end
 	if lootFound == nil then lootFound = false end
-	if lM:emptySlots() then
+	if lM:emptySlots() ~= 0 then
 		if UnitCastingInfo("player") == nil and UnitChannelInfo("player") == nil and DontMoveStartTime and GetTime() - DontMoveStartTime > 0 then
 			-- if we have a unit to loot, check if its time to
 			if br.timer:useTimer("getLoot", getOptionValue("Auto Loot")) and lootFound then

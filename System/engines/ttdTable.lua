@@ -60,11 +60,13 @@ end
 function getTTD(unit)
 	TTDRefresh()
 	local thisUnit = unit
-	if not string.find(thisUnit,"0x") then
-		if ObjectExists(thisUnit) and not UnitIsDeadOrGhost(thisUnit) and UnitIsVisible(thisUnit) then
-			thisUnit = GetObjectWithGUID(UnitGUID(thisUnit))
-		else
-			return -2
+	if thisUnit ~= nil then
+		if not string.find(thisUnit,"0x") then
+			if ObjectExists(thisUnit) and not UnitIsDeadOrGhost(thisUnit) and UnitIsVisible(thisUnit) then
+				thisUnit = GetObjectWithGUID(UnitGUID(thisUnit))
+			else
+				return -2
+			end
 		end
 	end
 	
