@@ -71,6 +71,8 @@ local function createOptions()
         section = br.ui:createSection(br.ui.window.profile, "Utility")
             --Purify
             br.ui:createCheckbox(section, "Purify")
+            -- Dispel Magic
+            br.ui:createCheckbox(section,"Dispel Magic","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFDispel Magic usage|cffFFBB00.")
             -- Mass Dispel
             br.ui:createDropdown(section, "Mass Dispel", br.dropOptions.Toggle, 1, colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.." Mass Dispel usage.")
             --Body and Soul
@@ -369,7 +371,7 @@ local function runRotation()
                     if atonementCount < getOptionValue("Max Plea") and atonementCount < getOptionValue("Max Atonement") and lastSpell ~= spell.plea then
                         if cast.plea(friendUnit) then return end     
                     end
-                    if ((not inRaid and atonementCount < 5) or inRaid) and atonementCount >= getOptionValue("Max Plea") and atonementCount < getOptionValue("Max Atonement") and lastSpell ~= spell.powerWordRadiance then
+                    if inCombat and ((not inRaid and atonementCount < 5) or inRaid) and atonementCount >= getOptionValue("Max Plea") and atonementCount < getOptionValue("Max Atonement") and lastSpell ~= spell.powerWordRadiance then
                         if cast.powerWordRadiance(friendUnit) then return end
                     end
                 end
@@ -637,6 +639,10 @@ local function runRotation()
         end
         --Single Target Heal
         function actionList_SingleTargetHeal()
+            -- Dispel Magic
+            if isChecked("Dispel Magic") and canDispel("target",spell.dispelMagic) and not isBoss() and ObjectExists("target") then
+                if cast.dispelMagic() then return end
+            end
             -- Mass Dispel
             if not isMoving("player") and isChecked("Mass Dispel") and (SpecificToggle("Mass Dispel") and not GetCurrentKeyBoardFocus()) then
                 CastSpellByName(GetSpellInfo(spell.massDispel),"cursor")
