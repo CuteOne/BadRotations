@@ -231,6 +231,7 @@ local function runRotation()
             bOB = false
             iB4 = false
             opener = false
+            openerStarted = false
         end
 
 --------------------
@@ -413,6 +414,7 @@ local function runRotation()
     -- Action List - Opener
         function actionList_Opener()
             if opener == false then
+                openerStarted = true
                 --Ironskin Brew
                 if not iB1 == true then
                     if cast.ironskinBrew() then
@@ -660,9 +662,9 @@ local function runRotation()
 --- In Combat Rotation ---
 --------------------------
             if isChecked("Opener") then
-                if opener == false and hastar and isBoss("target") and getDistance("target") < 10 and charges.purifyingBrew == 3 then
+                if opener == false and hastar and isBoss("target") and getDistance("target") < 10 and (charges.purifyingBrew == 3 or openerStarted == true) then
                     if actionList_Opener() then return end
-                elseif opener == false and hastar and charges.purifyingBrew < 3 then
+                elseif opener == false and openerStarted == false and hastar and charges.purifyingBrew < 3 then
                     opener = true
                 elseif opener == false and hastar and not isBoss("target") then
                     opener = true
