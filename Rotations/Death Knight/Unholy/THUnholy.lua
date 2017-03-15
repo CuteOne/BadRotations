@@ -507,7 +507,7 @@ local function runRotation()
                 end
             end
         --Virulent Plague
-            if (UnitExists("target") and objIDLastVirPlagueTarget ~= ObjectID("target")) or (waitfornextVirPlague < GetTime() - 6) then
+            if (UnitExists("target") and (objIDLastVirPlagueTarget ~= ObjectID("target"))) or (waitfornextVirPlague < GetTime() - 6) then
                 if (not debuff.virulentPlague.exists("target")
                     or debuff.virulentPlague.remain("target") < 1.5) 
                     and not debuff.soulReaper.exists("target")
@@ -705,6 +705,7 @@ local function runRotation()
         --ScourgeStrike spam DnD
             if buff.deathAndDecay.exists("player")
                 and #enemies.yards10 > 2
+                and runicPowerDeficit > 13
                 and not immun
                 and not cloak
             then
@@ -748,7 +749,7 @@ local function runRotation()
         --Death Coil
             if (runicPower >= 80
                 or (buff.suddenDoom.exists() and buff.suddenDoom.remain() < 8))
-                and (not buff.necrosis.exists("player") or (buff.suddenDoom.stack("player") and buff.suddenDoom.remain() < 2) or runicPowerDeficit >= 20)
+                and (not buff.necrosis.exists("player") or ((not br.player.artifact.doubleDoom or buff.suddenDoom.stack("player") > 1) and buff.suddenDoom.remain() < 2) or runicPowerDeficit <= 20)
                 and not immun
                 and not cloak
             then
@@ -848,7 +849,7 @@ local function runRotation()
         --Death Coil
             if  (
                     runicPowerDeficit < 20 and (normalMob or cd.darkArbiter >= 5) 
-                    or (buff.suddenDoom.exists() and buff.suddenDoom.remain() < 8 and buff.suddenDoom.stack("player") > 1)
+                    or (buff.suddenDoom.exists() and buff.suddenDoom.remain() < 8 and (not br.player.artifact.doubleDoom or buff.suddenDoom.stack("player") > 1))
                 )
                 and (not buff.necrosis.exists("player") or buff.suddenDoom.remain() < 2 or runicPowerDeficit < 20)
                 and not immun
@@ -969,7 +970,7 @@ local function runRotation()
             --Death Coil
             if (runicPower >= 80
                 or (buff.suddenDoom.exists() and buff.suddenDoom.remain() < 8))
-                and (not buff.necrosis.exists("player") or (buff.suddenDoom.stack("player") and buff.suddenDoom.remain() < 2) or runicPowerDeficit >= 20)
+                and ((not buff.necrosis.exists("player") or buff.suddenDoom.remain() < 2) or runicPowerDeficit >= 20)
                 and not immun
                 and not cloak
             then
@@ -1039,7 +1040,7 @@ local function runRotation()
 -----------------------------
 --- In Combat - Rotations --- 
 -----------------------------
-            if inCombat and not isMounted and getBuffRemain("player", 192002 ) < 10 then
+            if inCombat and not IsMounted() and getBuffRemain("player", 192002 ) < 10 then
                 if isChecked("Debug Info") then Print("inCombat") end
 
                 if debuff.dampening ~= nil then

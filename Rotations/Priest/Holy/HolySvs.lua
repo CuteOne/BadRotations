@@ -500,9 +500,7 @@ local function runRotation()
         -- Holy Fire
             if cast.holyFire() then return end
         -- Divine Star
-            if getDistance("player","target") < 24 and getFacing("player","target",10) then
-                if cast.divineStar() then return end
-            end
+            if cast.divineStar(getBiggestUnitCluster(24,7)) then return end
         -- Smite
             if #enemies.yards8 < 3 then
                 if cast.smite() then return end
