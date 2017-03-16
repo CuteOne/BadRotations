@@ -2917,6 +2917,7 @@ br.idList = {
             artifacts                       = {
                 juggernaut                  = 200875,
                 odynsFury                   = 205545,
+                senseDeath                  = 200863,
             },
             buffs                           = {
                 bladestorm                  = 46924,
@@ -2931,6 +2932,7 @@ br.idList = {
                 juggernaut                  = 201009,
                 massacre                    = 206316,
                 meatCleaver                 = 85739,
+                senseDeath                  = 200979,
                 stoneHeart                  = 225947,
                 tasteForBlood               = 206333,
                 wreckingBall                = 215570,

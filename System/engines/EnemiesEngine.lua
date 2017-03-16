@@ -1,5 +1,6 @@
 -- Function to create and populate table of enemies within a distance from player.
 br.enemy = {}
+local findEnemiesThread = nil
 
 -- Adds Enemies to the enemy table
 local function AddEnemy(thisUnit)
@@ -45,7 +46,7 @@ end
 
 -- Remove Invalid Enemies
 local function DeleteEnemy(thisUnit)
-	if not ObjectExists(thisUnit) or not UnitIsVisible(thisUnit) then
+	if not UnitExists(thisUnit) or not UnitIsVisible(thisUnit) then
 		br.enemy[thisUnit] = nil
 	elseif not isValidUnit(thisUnit) then
 		-- Print("Removing Enemy")
@@ -56,13 +57,13 @@ local function DeleteEnemy(thisUnit)
 end
 
 -- Find Enemies
-local function FindEnemy()
+function FindEnemy()
 	-- DEBUG
     local startTime = debugprofilestop()
     br.debug.cpu.enemiesEngine.unitTargets = 0
     br.debug.cpu.enemiesEngine.sanityTargets = 0
     local objectCount = GetObjectCount() 
-	if FireHack ~= nil and objectCount > 0 then --and (enemyCount == 0 or enemyCount < br.debug.cpu.enemiesEngine.sanityTargets) then
+	if FireHack ~= nil and objectCount > 0 then
         for i = 1, objectCount do
 			-- define our unit
             local thisUnit = GetObjectWithIndex(i)
@@ -70,7 +71,7 @@ local function FindEnemy()
             if ObjectIsType(thisUnit, ObjectTypes.Unit) then
                 br.debug.cpu.enemiesEngine.unitTargets = br.debug.cpu.enemiesEngine.unitTargets + 1
 				-- Enemies
-				if ObjectExists(thisUnit) and isValidUnit(thisUnit) and br.enemy[thisUnit] == nil then
+				if UnitExists(thisUnit) and isValidUnit(thisUnit) and br.enemy[thisUnit] == nil then
                     br.debug.cpu.enemiesEngine.sanityTargets = br.debug.cpu.enemiesEngine.sanityTargets + 1
                     -- Print("Adding Enemy")
 					AddEnemy(thisUnit)
@@ -92,7 +93,7 @@ function EnemiesEngine()
 			DeleteEnemy(k)
 		end
 	end
-	FindEnemy()
+	-- FindEnemy()
 end
 
 -- returns prefered target for diferent spells
@@ -102,9 +103,9 @@ function dynamicTarget(range,facing)
 		local bestUnitCoef = 0
 		local bestUnit = "target"
 		for k, v in pairs(br.enemy) do
-			local thisUnit = br.enemy[k]
+			local thisUnit = v--br.enemy[k]
 			local thisDistance = getDistance("player",thisUnit.unit)
-			if GetObjectExists(thisUnit.unit) and ObjectID(thisUnit.unit) ~= 103679 and thisUnit.coeficient ~= nil then
+			if UnitExists(thisUnit.unit) and ObjectID(thisUnit.unit) ~= 103679 and thisUnit.coeficient ~= nil then
 				if (not getOptionCheck("Safe Damage Check") or thisUnit.safe) and not thisUnit.isCC
 					and thisDistance < range and (not facing or thisUnit.facing)
 				then
