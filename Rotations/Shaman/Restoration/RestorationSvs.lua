@@ -45,6 +45,15 @@ local function createToggles()
     CreateButton("DPS",6,0)
 end
 
+--------------
+--- COLORS ---
+--------------
+    local colorBlue     = "|cff00CCFF"
+    local colorGreen    = "|cff00FF00"
+    local colorRed      = "|cffFF0000"
+    local colorWhite    = "|cffFFFFFF"
+    local colorGold     = "|cffFFDD11"
+
 ---------------
 --- OPTIONS ---
 ---------------
@@ -116,6 +125,7 @@ local function createOptions()
         -- Healing Rain
             br.ui:createSpinner(section, "Healing Rain",  80,  0,  100,  5,  "Health Percent to Cast At") 
             br.ui:createSpinnerWithout(section, "Healing Rain Targets",  2,  0,  40,  1,  "Minimum Healing Rain Targets")
+            br.ui:createDropdown(section,"Healing Rain Key", br.dropOptions.Toggle, 6, colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.." Healing Rain manual usage.")
         -- Riptide
             br.ui:createSpinner(section, "Riptide",  90,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
         -- Healing Stream Totem
@@ -428,8 +438,11 @@ local function runRotation()
                 end
             end
         -- Healing Rain
-            if isChecked("Healing Rain") and not moving and not buff.healingRain.exists() then
-                if getLowAllies(getValue("Healing Rain")) >= getValue("Healing Rain Targets") then
+            if isChecked("Healing Rain") and not moving then
+                if (SpecificToggle("Healing Rain Key") and not GetCurrentKeyBoardFocus()) then
+                    if CastSpellByName(GetSpellInfo(spell.healingRain),"cursor") then return end 
+                end
+                if not buff.healingRain.exists() and getLowAllies(getValue("Healing Rain")) >= getValue("Healing Rain Targets") then    
                     if castGroundAtBestLocation(spell.healingRain, 20, 0, 40, 0, "heal") then return end    
                 end
             end
@@ -507,12 +520,6 @@ local function runRotation()
                     end
                 end
             end
-        -- Healing Rain
-            if isChecked("Healing Rain") and not moving and not buff.healingRain.exists() then
-                if getLowAllies(getValue("Healing Rain")) >= getValue("Healing Rain Targets") then    
-                    if castGroundAtBestLocation(spell.healingRain, 20, 0, 40, 0, "heal") then return end    
-                end
-            end
         end -- End Action List - AOEHealing
         -- Single Target
         function actionList_SingleTarget()
@@ -572,6 +579,15 @@ local function runRotation()
                     if br.friend[i].hp <= getValue("Healing Surge") and (buff.tidalWaves.exists() or level < 100) then
                         if cast.healingSurge(br.friend[i].unit) then return end     
                     end
+                end
+            end
+        -- Healing Rain
+            if isChecked("Healing Rain") and not moving then
+                if (SpecificToggle("Healing Rain Key") and not GetCurrentKeyBoardFocus()) then
+                    if CastSpellByName(GetSpellInfo(spell.healingRain),"cursor") then return end 
+                end
+                if not buff.healingRain.exists() and getLowAllies(getValue("Healing Rain")) >= getValue("Healing Rain Targets") then    
+                    if castGroundAtBestLocation(spell.healingRain, 20, 0, 40, 0, "heal") then return end    
                 end
             end
         -- Healing Wave

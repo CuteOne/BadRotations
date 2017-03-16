@@ -17,7 +17,49 @@ end
 --[[---------  ----  -----  -------------  ----------  ----  --------  -------------------------------------------------------------------------------------------------]]
 --[[---------  -----  ----           ---  ------------  ---            -------------------------------------------------------------------------------------------------------------------]]
 --[[-------------------------------------------------------------------------------------------------------------------------------------------------------]]
+local elapsedTime = 0
+function EnemyEngine(_, time)
+	elapsedTime = elapsedTime + time
+
+	if FireHack ~= nil and br.data.settings[br.selectedSpec].toggles["Power"] == 1 and elapsedTime >= getOptionValue("Update Rate") then --0.5 then
+		elapsedTime = 0
+		-- Enemies Engine
+		-- EnemiesEngine();
+		FindEnemy()
+		
+	end
+end
+
 local frame = CreateFrame("FRAME")
+frame:SetScript("OnUpdate", EnemyEngine)
+
+-- local elapsedTime2 = 0
+-- function PlayerUpdate(_, time)
+-- 	elapsedTime2 = elapsedTime + time
+-- 	if FireHack ~= nil and br.data.settings[br.selectedSpec].toggles["Power"] == 1 and elapsedTime2 >= getOptionValue("Player Update Rate") then
+-- 		elapsedTime2 = 0
+-- 	-- Load Spec Profiles
+-- 	    br.selectedProfile = br.data.settings[br.selectedSpec]["Rotation".."Drop"] or 1
+-- 		local playerSpec = GetSpecializationInfo(GetSpecialization())
+
+-- 		if br.player == nil or br.player.profile ~= br.selectedSpec then
+-- 	        br.player = br.loader:new(playerSpec,br.selectedSpec)
+-- 	        setmetatable(br.player, {__index = br.loader})
+-- 	        br.player:createOptions()
+-- 	        br.player:createToggles()
+-- 	        br.player:update()
+-- 	    end
+-- 	    -- Update Player
+-- 		if br.player ~= nil then
+-- 			br.player:update()
+-- 		end
+-- 	end
+-- end
+
+-- local playerUpdate = CreateFrame("Frame")
+-- playerUpdate:SetScript("OnUpdate", PlayerUpdate)
+
+
 frame:RegisterEvent("ADDON_LOADED");
 frame:RegisterEvent("PLAYER_LOGOUT")
 frame:RegisterUnitEvent("PLAYER_ENTERING_WORLD")
@@ -111,12 +153,16 @@ function BadRotationsUpdate(self)
 					local playerSpec = GetSpecializationInfo(GetSpecialization())
 
 					if br.player == nil or br.player.profile ~= br.selectedSpec then
-			            br.player = br.loader:new(playerSpec,br.selectedSpec)
-			            setmetatable(br.player, {__index = br.loader})
-			            br.player:createOptions()
-			            br.player:createToggles()
-			            br.player:update()
-			        end
+				        br.player = br.loader:new(playerSpec,br.selectedSpec)
+				        setmetatable(br.player, {__index = br.loader})
+				        br.player:createOptions()
+				        br.player:createToggles()
+				        br.player:update()
+				    end
+				    -- Update Player
+					if br.player ~= nil then
+						br.player:update()
+					end
 
 				-- Close windows and swap br.selectedSpec on Spec Change
 					if select(2,GetSpecializationInfo(GetSpecialization())) ~= br.selectedSpec then
@@ -180,18 +226,14 @@ function BadRotationsUpdate(self)
 				    end
 
 	    -- FPS Intensive Functions
-				-- Enemies Engine
-					EnemiesEngine();
-
 				-- Healing Engine
 					if isChecked("HE Active") then
 						br.friend:Update()
 					end
 
-				-- Update Player
-			        if br.player ~= nil then
-						br.player:update()
-					end
+				-- Enemies Engine
+					EnemiesEngine();
+
 				end --End Update Check
 				self.updateInProgress = false
 			end -- End Update In Progress Check
@@ -201,7 +243,7 @@ function BadRotationsUpdate(self)
 	br.debug.cpu.pulse.currentTime = debugprofilestop()-startTime
 	br.debug.cpu.pulse.elapsedTime = br.debug.cpu.pulse.elapsedTime + debugprofilestop()-startTime
 	br.debug.cpu.pulse.averageTime = br.debug.cpu.pulse.elapsedTime / br.debug.cpu.pulse.totalIterations
-end -- Enf Bad Rotations Update Function
+end -- End Bad Rotations Update Function
 function ThreadHelper()
 	if not brMainThread or coroutine.status(brMainThread) == "dead" then
         brMainThread = coroutine.create(BadRotationsUpdate)
@@ -209,6 +251,14 @@ function ThreadHelper()
     coroutine.resume(brMainThread)
 	-- BadRotationsUpdate()
 end
+
+-- Enemies Engine
+-- EnemiesEngine();
+
+-- -- Update Player
+-- if br.player ~= nil then
+-- 	br.player:update()
+-- end
 --[[-------------------------------------------------------------------------------------------------------------------------------------------------------]]
 
 --[[-------------------------------------------------------------------------------------------------------------------------------------------------------]]
