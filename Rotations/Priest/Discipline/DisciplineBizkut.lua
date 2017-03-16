@@ -694,6 +694,9 @@ local function runRotation()
                             end
                             if br.friend[i].hp <= getValue("Debuff Shadow Mend/Penance Heal") and isChecked("Debuff Shadow Mend/Penance Heal") and not UnitDebuffID(br.friend[i].unit,187464) and not UnitDebuffID(br.friend[i].unit,207011) and lastSpell ~= spell.shadowMend then
                                 if mode.healer == 1 or mode.healer == 2 then
+                                    if talent.grace and not inRaid then
+                                        actionList_SpreadAtonement(br.friend[i].unit)
+                                    end
                                     if isMoving("player") and talent.thePenitent then
                                         if cast.penance(br.friend[i].unit) then return end
                                     end
@@ -751,6 +754,9 @@ local function runRotation()
                 if isChecked("Shadow Mend Emergency") then
                     if br.friend[i].hp <= getValue("Shadow Mend Emergency") then
                         if mode.healer == 1 or mode.healer == 2 then
+                            if talent.grace and not inRaid then
+                                actionList_SpreadAtonement(br.friend[i].unit)
+                            end
                             if not isMoving("player") then
                                 if cast.shadowMend(br.friend[i].unit) then return end
                             elseif atonementCount <= getValue("Max Plea") then
@@ -770,6 +776,9 @@ local function runRotation()
                 if isChecked("Shadow Mend") then
                     if br.friend[i].hp <= getValue("Shadow Mend") and (not inCombat or getBuffRemain(br.friend[i].unit, spell.buffs.atonement, "player") < 1) then
                         if mode.healer == 1 or mode.healer == 2 then
+                            if talent.grace and not inRaid then
+                                actionList_SpreadAtonement(br.friend[i].unit)
+                            end
                             if inCombat and getSpellCD(spell.penance) <= 0 then
                                 actionList_SpreadAtonement(br.friend[i].unit)
                                 if schismBuff then
