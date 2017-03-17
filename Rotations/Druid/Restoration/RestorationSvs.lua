@@ -272,6 +272,7 @@ local function runRotation()
         end -- End Action List - Extras
         -- Action List - Pre-Combat
         function actionList_PreCombat()
+			Print("test git")
             -- Rejuvenation
             if isChecked("Rejuvenation") then
                 rejuvCount = 0
