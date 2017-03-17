@@ -2517,9 +2517,11 @@ br.idList = {
                 ascendance                  = 114052,
                 cloudburstTotem             = 157504,
                 healingRain                 = 73920,
+                jonatsFocus                 = 210607,
                 lavaSurge                   = 77762,
                 riptide                     = 61295,
                 tidalWaves                  = 53390,
+                unleashLife                 = 73685,
             },
             debuffs                         = {
                 flameShock                  = 188838,

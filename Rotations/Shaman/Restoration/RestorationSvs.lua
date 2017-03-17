@@ -362,8 +362,15 @@ local function runRotation()
             end
         -- Chain Heal
             if isChecked("Chain Heal") and not moving and lastSpell ~= spell.chainHeal then
-                if getLowAllies(getValue("Chain Heal")) >= getValue("Chain Heal Targets") then    
-                    if cast.chainHeal() then return end    
+                if getLowAllies(getValue("Chain Heal")) >= getValue("Chain Heal Targets") then
+                    if hasEquiped(137051) and talent.unleashLife then
+                        if cast.unleashLife(lowest) then return end
+                        if buff.unleashLife.remain() > 2 then
+                            if cast.chainHeal(lowest) then return end
+                        end
+                    else
+                        if cast.chainHeal(lowest) then return end
+                    end
                 end
             end
         end  -- End Action List - Pre-Combat
@@ -414,6 +421,17 @@ local function runRotation()
             -- Racial: Orc Blood Fury | Troll Berserking | Blood Elf Arcane Torrent
                 if isChecked("Racial") and (br.player.race == "Orc" or br.player.race == "Troll" or br.player.race == "BloodElf") then
                     if castSpell("player",racial,false,false,false) then return end
+                end
+            -- Chain Heal with Focuser of Jonat, the Elder legenadary ring
+                if hasEquiped(137051) and buff.jonatsFocus.stack() == 5 and not moving and lastSpell ~= spell.chainHeal then
+                    if talent.unleashLife then
+                        if cast.unleashLife(lowest) then return end
+                        if buff.unleashLife.remain() > 2 then
+                            if cast.chainHeal(lowest) then return end
+                        end
+                    else
+                        if cast.chainHeal(lowest) then return end
+                    end
                 end
             end -- End useCooldowns check
         end -- End Action List - Cooldowns
@@ -472,7 +490,7 @@ local function runRotation()
                 end
             end
         -- Unleash Life
-            if isChecked("Unleash Life") and talent.unleashLife then
+            if isChecked("Unleash Life") and talent.unleashLife and not hasEquiped(137051) then
                 for i = 1, #br.friend do                           
                     if br.friend[i].hp <= getValue("Unleash Life") then
                         if cast.unleashLife() then return end     
@@ -500,8 +518,15 @@ local function runRotation()
         function actionList_AOEHealing()
         -- Chain Heal
             if isChecked("Chain Heal") and not moving and lastSpell ~= spell.chainHeal then
-                if getLowAllies(getValue("Chain Heal")) >= getValue("Chain Heal Targets") then    
-                    if cast.chainHeal() then return end    
+                if getLowAllies(getValue("Chain Heal")) >= getValue("Chain Heal Targets") then
+                    if hasEquiped(137051) and talent.unleashLife then
+                        if cast.unleashLife(lowest) then return end
+                        if buff.unleashLife.remain() > 2 then
+                            if cast.chainHeal(lowest) then return end
+                        end
+                    else
+                        if cast.chainHeal(lowest) then return end
+                    end
                 end
             end
         -- Gift of the Queen
@@ -566,7 +591,7 @@ local function runRotation()
                 end
             end
         -- Unleash Life
-            if isChecked("Unleash Life") and talent.unleashLife then
+            if isChecked("Unleash Life") and talent.unleashLife and not hasEquiped(137051) then
                 for i = 1, #br.friend do                           
                     if br.friend[i].hp <= getValue("Unleash Life") then
                         if cast.unleashLife() then return end     
@@ -601,7 +626,7 @@ local function runRotation()
         -- Oh Shit! Healing Surge
             if isChecked("Healing Surge") then
                 for i = 1, #br.friend do                           
-                    if br.friend[i].hp <= 30 then
+                    if br.friend[i].hp <= 40 then
                         if cast.healingSurge(br.friend[i].unit) then return end     
                     end
                 end
