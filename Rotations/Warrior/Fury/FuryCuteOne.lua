@@ -572,7 +572,7 @@ local function runRotation()
             end
         -- Execute
             -- execute,if=artifact.juggernaut.enabled&(!buff.juggernaut.up|buff.juggernaut.remains<2)|buff.stone_heart.react
-            if power >= 25 or buff.sensedeath.exists() then
+            if power >= 25 or buff.senseDeath.exists() then
                 if cast.execute() then return end
             end
         -- Furious Slash
