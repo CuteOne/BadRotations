@@ -39,6 +39,15 @@ local function createToggles()
     CreateButton("DPS",5,0)
 end
 
+--------------
+--- COLORS ---
+--------------
+    local colorBlue     = "|cff00CCFF"
+    local colorGreen    = "|cff00FF00"
+    local colorRed      = "|cffFF0000"
+    local colorWhite    = "|cffFFFFFF"
+    local colorGold     = "|cffFFDD11"
+
 ---------------
 --- OPTIONS ---
 ---------------
@@ -66,7 +75,7 @@ local function createOptions()
         --Incarnation: Tree of Life
             br.ui:createSpinner(section, "Incarnation: Tree of Life",  60,  0,  100,  5,  "Health Percent to Cast At") 
             br.ui:createSpinner(section, "Incarnation: Tree of Life Targets",  3,  0,  40,  1,  "Minimum Flourish Targets")
--- Tranquility
+        -- Tranquility
             br.ui:createSpinner(section, "Tranquility",  50,  0,  100,  5,  "Health Percent to Cast At") 
             br.ui:createSpinner(section, "Tranquility Targets",  3,  0,  40,  1,  "Minimum Tranquility Targets")
         -- Flourish
@@ -90,15 +99,17 @@ local function createOptions()
     -- Healing Options
         section = br.ui:createSection(br.ui.window.profile, "Healing")
         -- Efflorescence
-            br.ui:createCheckbox(section,"Efflorescence","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFEfflorescence usage|cffFFBB00.")
-            br.ui:createSpinner(section, "Efflorescence recast delay", 15, 8, 29, 2, "|cffFFFFFFDelay to recast Efflo in seconds|cffFFBB00.","", true)
+            br.ui:createSpinner(section, "Efflorescence",  90,  0,  100,  5,  "Health Percent to Cast At") 
+            br.ui:createSpinnerWithout(section, "Efflorescence Targets",  2,  0,  40,  1,  "Minimum Efflorescence Targets")
+            br.ui:createDropdown(section,"Efflorescence Key", br.dropOptions.Toggle, 6, colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.." Efflorescence usage.")
+            br.ui:createSpinnerWithout(section, "Efflorescence recast delay", 15, 8, 30, 1, colorWhite.."Delay to recast Efflo in seconds.")
         -- Lifebloom
             br.ui:createCheckbox(section,"Lifebloom","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFLifebloom usage|cffFFBB00.")
         -- Cenarion Ward
             br.ui:createSpinner(section, "Cenarion Ward",  70,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
         -- Rejuvenaion
             br.ui:createSpinner(section, "Rejuvenation",  90,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
-            br.ui:createSpinner(section, "Max Rejuvenation Targets",  10,  0,  20,  1,  "|cffFFFFFFMaximum Rejuvenation Targets","", true)
+            br.ui:createSpinnerWithout(section, "Max Rejuvenation Targets",  10,  0,  20,  1,  "|cffFFFFFFMaximum Rejuvenation Targets")
         -- Germination
             br.ui:createSpinner(section, "Germination",  70,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
             br.ui:createCheckbox(section,"Germination on tank only","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFGermination on tank usage|cffFFBB00.")
@@ -229,10 +240,10 @@ local function runRotation()
                     if cast.travelForm() then return end
                 end
             -- Travel Form
-                if swimming and not travel and not hastar and not deadtar and not buff.prowl.exists() then
+                if not inCombat and swimming and not travel and not hastar and not deadtar and not buff.prowl.exists() then
                     if cast.travelForm() then return end
                 end
-                if moving and not travel and not IsMounted() and not IsIndoors() then
+                if not inCombat and moving and not travel and not IsMounted() and not IsIndoors() then
                     if cast.travelForm() then return end
                 end
             -- Cat Form
@@ -243,6 +254,21 @@ local function runRotation()
                     end
                 end
             end -- End Shapeshift Form Management
+        -- Efflorescence
+            if not moving then
+                if (SpecificToggle("Efflorescence Key") and not GetCurrentKeyBoardFocus()) then
+                    CastSpellByName(GetSpellInfo(spell.efflorescence),"cursor")
+                    LastEfflorescenceTime = GetTime()
+                    return
+                end
+                if isChecked("Efflorescence") and (not LastEfflorescenceTime or GetTime() - LastEfflorescenceTime > getOptionValue("Efflorescence recast delay")) then
+                    if getLowAllies(getValue("Efflorescence")) >= getValue("Efflorescence Targets") then
+                        if castGroundAtBestLocation(spell.efflorescence, 20, 0, 40, 0, "heal") then
+                        LastEfflorescenceTime = GetTime()
+                        return true end
+                    end
+                end
+            end
         end -- End Action List - Extras
         -- Action List - Pre-Combat
         function actionList_PreCombat()
@@ -281,6 +307,60 @@ local function runRotation()
                 end
             end
         end  -- End Action List - Pre-Combat
+        local function actionList_Defensive()
+            if useDefensive() then
+            -- Rebirth
+                if isChecked("Rebirth") then
+                    if getOptionValue("Rebirth - Target") == 1 
+                        and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and UnitIsFriend("target","player")
+                    then
+                        if cast.rebirth("target","dead") then return end
+                    end
+                    if getOptionValue("Rebirth - Target") == 2 
+                        and UnitIsPlayer("mouseover") and UnitIsDeadOrGhost("mouseover") and UnitIsFriend("mouseover","player")
+                    then
+                        if cast.rebirth("mouseover","dead") then return end
+                    end
+                    if getOptionValue("Rebirth - Target") == 3 then
+                        for i =1, #br.friend do
+                            if UnitIsPlayer(br.friend[i].unit) and UnitIsDeadOrGhost(br.friend[i].unit) and UnitIsFriend(br.friend[i].unit,"player") then
+                                if cast.rebirth(br.friend[i].unit,"dead") then return end
+                            end
+                        end
+                    end
+                end
+            -- Healthstone
+                if isChecked("Healthstone") and php <= getOptionValue("Healthstone") 
+                    and inCombat and (hasHealthPot() or hasItem(5512)) 
+                then
+                    if canUse(5512) then
+                        useItem(5512)
+                    elseif canUse(healPot) then
+                        useItem(healPot)
+                    end
+                end
+            -- Heirloom Neck
+                if isChecked("Heirloom Neck") and php <= getOptionValue("Heirloom Neck") then
+                    if hasEquiped(122668) then
+                        if GetItemCooldown(122668)==0 then
+                            useItem(122668)
+                        end
+                    end
+                end
+            -- Barkskin
+                if isChecked("Barkskin") then
+                    if php <= getOptionValue("Barkskin") and inCombat then
+                        if cast.barkskin() then return end
+                    end
+                end
+            -- Renewal
+                if isChecked("Renewal") and talent.renewal then
+                    if php <= getOptionValue("Renewal") and inCombat then
+                        if cast.renewal() then return end
+                    end
+                end
+            end -- End Defensive Toggle
+        end -- End Action List - Defensive
         function actionList_Cooldowns()
             if useCDs() then
             -- Incarnation: Tree of Life
@@ -595,56 +675,8 @@ local function runRotation()
 --- In Combat - Rotations --- 
 -----------------------------
             if inCombat and not IsMounted() and not stealthed and getBuffRemain("player", 192002 ) < 10 then
-            -- Barkskin
-                if isChecked("Barkskin") then
-                    if php <= getOptionValue("Barkskin") and inCombat then
-                        if cast.barkskin() then return end
-                    end
-                end
-            -- Renewal
-                if isChecked("Renewal") and talent.renewal then
-                    if php <= getOptionValue("Renewal") and inCombat then
-                        if cast.renewal() then return end
-                    end
-                end
-            -- Healthstone
-                if isChecked("Healthstone") and php <= getOptionValue("Healthstone") 
-                    and inCombat and (hasHealthPot() or hasItem(5512)) 
-                then
-                    if canUse(5512) then
-                        useItem(5512)
-                    elseif canUse(healPot) then
-                        useItem(healPot)
-                    end
-                end
-            -- Rebirth
-                if isChecked("Rebirth") then
-                    if getOptionValue("Rebirth - Target") == 1 
-                        and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and UnitIsFriend("target","player")
-                    then
-                        if cast.rebirth("target","dead") then return end
-                    end
-                    if getOptionValue("Rebirth - Target") == 2 
-                        and UnitIsPlayer("mouseover") and UnitIsDeadOrGhost("mouseover") and UnitIsFriend("mouseover","player")
-                    then
-                        if cast.rebirth("mouseover","dead") then return end
-                    end
-                    if getOptionValue("Rebirth - Target") == 3 then
-                        for i =1, #br.friend do
-                            if UnitIsPlayer(br.friend[i].unit) and UnitIsDeadOrGhost(br.friend[i].unit) and UnitIsFriend(br.friend[i].unit,"player") then
-                                if cast.rebirth(br.friend[i].unit,"dead") then return end
-                            end
-                        end
-                    end
-                end
-            -- Efflorescence
-                if isChecked("Efflorescence") and not moving and (not LastEfflorescenceTime or GetTime() - LastEfflorescenceTime > getOptionValue("Efflorescence recast delay")) then
-                    -- castGroundAtBestLocation(spellID, radius, minUnits, maxRange, minRange, spellType)
-                    if castGroundAtBestLocation(spell.efflorescence, 20, 0, 40, 0, "heal") then
-                        LastEfflorescenceTime = GetTime()
-                        return 
-                    end
-                end
+                actionList_Extras()
+                actionList_Defensive()
                 actionList_Cooldowns()
                 actionList_AOEHealing()
                 actionList_SingleTarget()

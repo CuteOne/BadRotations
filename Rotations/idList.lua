@@ -181,6 +181,7 @@ br.idList = {
             },
             artifacts                       = {
                 apocalypse                  = 220143,
+                doubleDoom                  = 191741,
             },
             buffs                           = {                
                 corpseShield                = 207319,
@@ -875,6 +876,7 @@ br.idList = {
 
             },
             buffs                           = {
+                aspectOfTheTurtle           = 186265,
                 bestialWrath                = 19574,
                 direBeast                   = 120694,
                 volley                      = 194386
@@ -1544,7 +1546,7 @@ br.idList = {
                 auraMastery                 = 31821;
                 avengingWrath               = 31842;
                 beaconOfLight               = 53563;
-                beaconOfFaith               = 53563;
+                beaconOfFaith               = 156910;
                 beaconOfVirtue              = 200025;
                 bestowFaith                 = 223306;
                 divineProtection            = 498;
@@ -2515,9 +2517,11 @@ br.idList = {
                 ascendance                  = 114052,
                 cloudburstTotem             = 157504,
                 healingRain                 = 73920,
+                jonatsFocus                 = 210607,
                 lavaSurge                   = 77762,
                 riptide                     = 61295,
                 tidalWaves                  = 53390,
+                unleashLife                 = 73685,
             },
             debuffs                         = {
                 flameShock                  = 188838,
@@ -2530,6 +2534,7 @@ br.idList = {
                 ascendance                  = 114052,
                 cloudburstTotem             = 157153,
                 earthenShieldTotem          = 198838,
+                echoOfTheElements           = 108283,
                 gustOfWind                  = 192063,
                 unleashLife                 = 73685,
                 wellspring                  = 197995,
@@ -2914,6 +2919,7 @@ br.idList = {
             artifacts                       = {
                 juggernaut                  = 200875,
                 odynsFury                   = 205545,
+                senseDeath                  = 200863,
             },
             buffs                           = {
                 bladestorm                  = 46924,
@@ -2928,6 +2934,7 @@ br.idList = {
                 juggernaut                  = 201009,
                 massacre                    = 206316,
                 meatCleaver                 = 85739,
+                senseDeath                  = 200979,
                 stoneHeart                  = 225947,
                 tasteForBlood               = 206333,
                 wreckingBall                = 215570,

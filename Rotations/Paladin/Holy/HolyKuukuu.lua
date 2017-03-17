@@ -450,7 +450,7 @@ local function runRotation()
                  for i = 1, #br.friend do
                     if br.friend[i].hp <= getValue("Light of Dawn") then
                         local lowHealthCandidates = getUnitsToHealAround(br.friend[i].unit,15,getValue("Light of Dawn"),#br.friend)
-                        if #lowHealthCandidates >= getValue("LoD Targets") then
+                        if #lowHealthCandidates >= getValue("LoD Targets") and getFacing("player",br.friend[i].unit) then
                             if GetSpellCooldown(85222) == 0 then
                                 if cast.ruleOfLaw() then end
                                 if cast.lightOfDawn(br.friend[i].unit) then return end
@@ -748,7 +748,7 @@ local function runRotation()
                  for i = 1, #br.friend do
                     if br.friend[i].hp <= getValue("Light of Dawn") then
                         local lowHealthCandidates = getUnitsToHealAround(br.friend[i].unit,15,getValue("Light of Dawn"),#br.friend)
-                        if #lowHealthCandidates >= getValue("LoD Targets") then
+                        if #lowHealthCandidates >= getValue("LoD Targets") and getFacing("player",br.friend[i].unit) then
                             if GetSpellCooldown(85222) == 0 then
                                 if isCastingSpell(spell.holyLight) then
                                     SpellStopCasting()

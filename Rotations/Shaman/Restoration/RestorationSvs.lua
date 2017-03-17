@@ -45,6 +45,15 @@ local function createToggles()
     CreateButton("DPS",6,0)
 end
 
+--------------
+--- COLORS ---
+--------------
+    local colorBlue     = "|cff00CCFF"
+    local colorGreen    = "|cff00FF00"
+    local colorRed      = "|cffFF0000"
+    local colorWhite    = "|cffFFFFFF"
+    local colorGold     = "|cffFFDD11"
+
 ---------------
 --- OPTIONS ---
 ---------------
@@ -116,6 +125,7 @@ local function createOptions()
         -- Healing Rain
             br.ui:createSpinner(section, "Healing Rain",  80,  0,  100,  5,  "Health Percent to Cast At") 
             br.ui:createSpinnerWithout(section, "Healing Rain Targets",  2,  0,  40,  1,  "Minimum Healing Rain Targets")
+            br.ui:createDropdown(section,"Healing Rain Key", br.dropOptions.Toggle, 6, colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.." Healing Rain manual usage.")
         -- Riptide
             br.ui:createSpinner(section, "Riptide",  90,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
         -- Healing Stream Totem
@@ -352,8 +362,15 @@ local function runRotation()
             end
         -- Chain Heal
             if isChecked("Chain Heal") and not moving and lastSpell ~= spell.chainHeal then
-                if getLowAllies(getValue("Chain Heal")) >= getValue("Chain Heal Targets") then    
-                    if cast.chainHeal() then return end    
+                if getLowAllies(getValue("Chain Heal")) >= getValue("Chain Heal Targets") then
+                    if hasEquiped(137051) and talent.unleashLife then
+                        if cast.unleashLife(lowest) then return end
+                        if buff.unleashLife.remain() > 2 then
+                            if cast.chainHeal(lowest) then return end
+                        end
+                    else
+                        if cast.chainHeal(lowest) then return end
+                    end
                 end
             end
         end  -- End Action List - Pre-Combat
@@ -405,6 +422,17 @@ local function runRotation()
                 if isChecked("Racial") and (br.player.race == "Orc" or br.player.race == "Troll" or br.player.race == "BloodElf") then
                     if castSpell("player",racial,false,false,false) then return end
                 end
+            -- Chain Heal with Focuser of Jonat, the Elder legenadary ring
+                if hasEquiped(137051) and buff.jonatsFocus.stack() == 5 and not moving and lastSpell ~= spell.chainHeal then
+                    if talent.unleashLife then
+                        if cast.unleashLife(lowest) then return end
+                        if buff.unleashLife.remain() > 2 then
+                            if cast.chainHeal(lowest) then return end
+                        end
+                    else
+                        if cast.chainHeal(lowest) then return end
+                    end
+                end
             end -- End useCooldowns check
         end -- End Action List - Cooldowns
         -- Cloudburst Totem
@@ -428,8 +456,11 @@ local function runRotation()
                 end
             end
         -- Healing Rain
-            if isChecked("Healing Rain") and not moving and not buff.healingRain.exists() then
-                if getLowAllies(getValue("Healing Rain")) >= getValue("Healing Rain Targets") then
+            if isChecked("Healing Rain") and not moving then
+                if (SpecificToggle("Healing Rain Key") and not GetCurrentKeyBoardFocus()) then
+                    if CastSpellByName(GetSpellInfo(spell.healingRain),"cursor") then return end 
+                end
+                if not buff.healingRain.exists() and getLowAllies(getValue("Healing Rain")) >= getValue("Healing Rain Targets") then    
                     if castGroundAtBestLocation(spell.healingRain, 20, 0, 40, 0, "heal") then return end    
                 end
             end
@@ -459,7 +490,7 @@ local function runRotation()
                 end
             end
         -- Unleash Life
-            if isChecked("Unleash Life") and talent.unleashLife then
+            if isChecked("Unleash Life") and talent.unleashLife and not hasEquiped(137051) then
                 for i = 1, #br.friend do                           
                     if br.friend[i].hp <= getValue("Unleash Life") then
                         if cast.unleashLife() then return end     
@@ -487,8 +518,15 @@ local function runRotation()
         function actionList_AOEHealing()
         -- Chain Heal
             if isChecked("Chain Heal") and not moving and lastSpell ~= spell.chainHeal then
-                if getLowAllies(getValue("Chain Heal")) >= getValue("Chain Heal Targets") then    
-                    if cast.chainHeal() then return end    
+                if getLowAllies(getValue("Chain Heal")) >= getValue("Chain Heal Targets") then
+                    if hasEquiped(137051) and talent.unleashLife then
+                        if cast.unleashLife(lowest) then return end
+                        if buff.unleashLife.remain() > 2 then
+                            if cast.chainHeal(lowest) then return end
+                        end
+                    else
+                        if cast.chainHeal(lowest) then return end
+                    end
                 end
             end
         -- Gift of the Queen
@@ -505,12 +543,6 @@ local function runRotation()
                     else
                         if cast.wellspring() then return end
                     end
-                end
-            end
-        -- Healing Rain
-            if isChecked("Healing Rain") and not moving and not buff.healingRain.exists() then
-                if getLowAllies(getValue("Healing Rain")) >= getValue("Healing Rain Targets") then    
-                    if castGroundAtBestLocation(spell.healingRain, 20, 0, 40, 0, "heal") then return end    
                 end
             end
         end -- End Action List - AOEHealing
@@ -548,12 +580,18 @@ local function runRotation()
             if isChecked("Healing Stream Totem") then
                 for i = 1, #br.friend do                           
                     if br.friend[i].hp <= getValue("Healing Stream Totem") then
-                        if cast.healingStreamTotem(br.friend[i].unit) then return end     
+                        if not talent.echoOfTheElements then
+                            if cast.healingStreamTotem(br.friend[i].unit) then return end
+                        elseif talent.echoOfTheElements and (not HSTime or GetTime() - HSTime > 15) then
+                            if cast.healingStreamTotem(br.friend[i].unit) then
+                            HSTime = GetTime()
+                            return true end
+                        end 
                     end
                 end
             end
         -- Unleash Life
-            if isChecked("Unleash Life") and talent.unleashLife then
+            if isChecked("Unleash Life") and talent.unleashLife and not hasEquiped(137051) then
                 for i = 1, #br.friend do                           
                     if br.friend[i].hp <= getValue("Unleash Life") then
                         if cast.unleashLife() then return end     
@@ -568,6 +606,15 @@ local function runRotation()
                     end
                 end
             end
+        -- Healing Rain
+            if isChecked("Healing Rain") and not moving then
+                if (SpecificToggle("Healing Rain Key") and not GetCurrentKeyBoardFocus()) then
+                    if CastSpellByName(GetSpellInfo(spell.healingRain),"cursor") then return end 
+                end
+                if not buff.healingRain.exists() and getLowAllies(getValue("Healing Rain")) >= getValue("Healing Rain Targets") then    
+                    if castGroundAtBestLocation(spell.healingRain, 20, 0, 40, 0, "heal") then return end    
+                end
+            end
         -- Healing Wave
             if isChecked("Healing Wave") then
                 for i = 1, #br.friend do                           
@@ -579,7 +626,7 @@ local function runRotation()
         -- Oh Shit! Healing Surge
             if isChecked("Healing Surge") then
                 for i = 1, #br.friend do                           
-                    if br.friend[i].hp <= 30 then
+                    if br.friend[i].hp <= 40 then
                         if cast.healingSurge(br.friend[i].unit) then return end     
                     end
                 end

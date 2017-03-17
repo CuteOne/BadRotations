@@ -105,6 +105,8 @@ local function createOptions()
             br.ui:createSpinner(section, "Leap of Faith",  20,  0,  100,  5,  "Health Percent to Cast At")
         -- Guardian Spirit
             br.ui:createSpinner(section, "Guardian Spirit",  30,  0,  100,  5,  "Health Percent to Cast At")
+        -- Guardian Spirit Tank Only
+            br.ui:createCheckbox(section,"Guardian Spirit Tank Only")
         -- Renew
             br.ui:createSpinner(section, "Renew",  90,  0,  100,  1,  "Health Percent to Cast At")
         -- Prayer of Mending
@@ -394,7 +396,9 @@ local function runRotation()
             if isChecked("Guardian Spirit") then
                 for i = 1, #br.friend do
                     if br.friend[i].hp <= getValue("Guardian Spirit") then
-                        if cast.guardianSpirit(br.friend[i].unit) then return end
+                        if br.friend[i].role == "TANK" or not isChecked("Guardian Spirit Tank Only") then
+                            if cast.guardianSpirit(br.friend[i].unit) then return end
+                        end
                     end
                 end                    
             end
@@ -410,6 +414,11 @@ local function runRotation()
                         end
                     end
                 end
+            end
+        -- Mass Dispel
+            if isChecked("Mass Dispel") and (SpecificToggle("Mass Dispel") and not GetCurrentKeyBoardFocus()) then
+                CastSpellByName(GetSpellInfo(spell.massDispel),"cursor")
+                return true
             end
         -- Holy Word: Serenity
             if isChecked("Holy Word: Serenity") then
@@ -491,9 +500,7 @@ local function runRotation()
         -- Holy Fire
             if cast.holyFire() then return end
         -- Divine Star
-            if getDistance("player","target") < 24 and getFacing("player","target",10) then
-                if cast.divineStar() then return end
-            end
+            if cast.divineStar(getBiggestUnitCluster(24,7)) then return end
         -- Smite
             if #enemies.yards8 < 3 then
                 if cast.smite() then return end

@@ -163,7 +163,7 @@ end
 --- ROTATION ---
 ----------------
 local function runRotation()
-    if br.timer:useTimer("debugFeral", math.random(0.15,0.3)) then
+    -- if br.timer:useTimer("debugFeral", math.random(0.15,0.3)) then
         --Print("Running: "..rotationName)
 
 ---------------
@@ -610,8 +610,8 @@ local function runRotation()
             end
 		-- Start Attack
             -- auto_attack
-            if isValidUnit("target") and getDistance("target") < 5 then
-            	if isChecked("Opener") and isBoss("target") and opener == false then
+            if isChecked("Opener") and isBoss("target") and opener == false then
+                if isValidUnit("target") and getDistance("target") < 5 then
 					if not RK1 and power >= 35 then
 						Print("Starting Opener")
             -- Rake
@@ -651,15 +651,15 @@ local function runRotation()
 						if castOpener("shred","SHR1",shredCount) then shredCount = shredCount + 1 return end
                     elseif SHR1 and not RIP1 and power >= 30 then
        		-- Rip
-       					if castOpener("rip","RIP1",shredCount) then return end
+     					if castOpener("rip","RIP1",shredCount) then return end
                     elseif RIP1 then
        					opener = true;
 						Print("Opener Complete")
        					return
        				end
-				else
-					opener = true
-				end
+                end
+			elseif UnitExists("target") and not isBoss("target") then
+				opener = true
 			end
         end -- End Action List - Opener
     -- Action List - SBTOpener
@@ -1017,7 +1017,7 @@ local function runRotation()
                     else
                        if cast.rake(units.dyn5) then return end
                     end
-                elseif not stealth and opener == true then
+                elseif not (buff.prowl.exists() or buff.shadowmeld.exists()) and opener == true then
                     -- auto_attack
                     if getDistance("target") < 5 then
                         StartAttack()
@@ -1163,7 +1163,7 @@ local function runRotation()
 			    end -- End No Stealth | Rotation Off Check
 			end --End In Combat
 		end --End Rotation Logic
-    end -- End Timer
+    -- end -- End Timer
 end -- End runRotation
 local id = 103
 if br.rotations[id] == nil then br.rotations[id] = {} end

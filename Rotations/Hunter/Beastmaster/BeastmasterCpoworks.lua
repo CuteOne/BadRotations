@@ -44,7 +44,7 @@ local function createOptions()
     -- General Options
         section = br.ui:createSection(br.ui.window.profile, "General")
         -- APL
-            br.ui:createDropdownWithout(section, "APL Mode", {"|cffFFFFFFSimC","|cffFFFFFFAMR","|cffFFFFFFKuu"}, 2, "|cffFFFFFFSet APL Mode to use.")
+            br.ui:createDropdownWithout(section, "APL Mode", {"|cffFFFFFFSimC","|cffFFFFFFAMR","|cffFFFFFFKuu"}, 3, "|cffFFFFFFSet APL Mode to use.")
         -- Dummy DPS Test
             br.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
         br.ui:checkSectionState(section)
@@ -471,6 +471,7 @@ local function runRotation()
             end
             return true
         else
+            if buff.aspectOfTheTurtle.exists() then return end
 -----------------------
 --- Extras Rotation ---
 -----------------------
@@ -596,7 +597,6 @@ local function runRotation()
                             if cast.direBeast(units.dyn40) then return end
                         end 
                     -- Dire Frenzy
-                    -- print(talent.direFrenzy and getSpellCD(217200) == 0 and ((cd.bestialWrath > 6 and (not hasEquiped(144326) or buff.direFrenzy.remain("pet") <= (gcd*1.2))) or ttd(units.dyn40) < 9) )
                         if talent.direFrenzy and getSpellCD(217200) == 0 and ((cd.bestialWrath > 6 and (not hasEquiped(144326) or buff.direFrenzy.remain("pet") <= (gcd*1.2))) or ttd(units.dyn40) < 9) then
                             if cast.direFrenzy(units.dyn40) then return end
                         end
@@ -613,7 +613,7 @@ local function runRotation()
                             if cast.titansThunder(units.dyn40) then return end
                         end
                     -- Bestial Wrath
-                        if isChecked("Bestial Wrath") and useCDs() and cd.aspectOfTheWild > 10 then
+                        if isChecked("Bestial Wrath") and useCDs() and (cd.aspectOfTheWild > 10 or cd.aspectOfTheWild == 0) then
                             if cast.bestialWrath() then return end
                         end
                     -- Multi Shot
