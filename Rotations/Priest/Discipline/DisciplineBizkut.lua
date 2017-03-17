@@ -570,9 +570,6 @@ local function runRotation()
         --Single Target Defence
         function actionList_SingleTargetDefence()
             for i = 1, #br.friend do
-                if UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
-                    tankUnit = br.friend[i].unit
-                end
                 --Leap Of Faith
                 if isChecked("Leap Of Faith") and (mode.healer == 1 or mode.healer == 2) then
                     if php > br.friend[i].hp and br.friend[i].hp <= getValue("Leap Of Faith") and UnitGroupRolesAssigned(br.friend[i].unit) ~= "TANK" then
@@ -627,7 +624,7 @@ local function runRotation()
                 --Power Word: Shield
                 if br.friend[i].hp <= getValue("Power Word: Shield") and not buff.powerWordShield.exists(br.friend[i].unit) and getSpellCD(spell.powerWordShield) <= 0 then
                     if mode.healer == 1 or mode.healer == 2 then
-                        if tankUnit == nil or br.friend[i].unit == tankUnit or buff.powerWordShield.remain(tankUnit) > select(2,GetSpellCooldown(spell.powerWordShield)) then
+                        if UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" or getBuffRemain(br.friend[i].unit, spell.buffs.atonement, "player") < 1 then
                             if cast.powerWordShield(br.friend[i].unit) then return end
                         end
                     end
