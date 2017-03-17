@@ -613,7 +613,7 @@ local function runRotation()
                             if cast.titansThunder(units.dyn40) then return end
                         end
                     -- Bestial Wrath
-                        if isChecked("Bestial Wrath") and useCDs() and cd.aspectOfTheWild > 10 then
+                        if isChecked("Bestial Wrath") and useCDs() and (cd.aspectOfTheWild > 10 or cd.aspectOfTheWild == 0) then
                             if cast.bestialWrath() then return end
                         end
                     -- Multi Shot
