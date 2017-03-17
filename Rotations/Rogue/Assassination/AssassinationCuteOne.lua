@@ -231,6 +231,7 @@ local function runRotation()
         enemies.yards5 = br.player.enemies(5)
         enemies.yards8 = br.player.enemies(8)
         enemies.yards10 = br.player.enemies(10)
+        enemies.yards20 = br.player.enemies(20)
         enemies.yards30 = br.player.enemies(30)
         dotHPLimit = getOptionValue("Multi-Dot HP Limit")
         maxrupture = getOptionValue("Max rupture count")
@@ -497,7 +498,7 @@ local function runRotation()
             --  if cast.envenom() then return end
             -- end
             --print("trying to envenom")
-            if (combo >= 4 and (buff.masterAssassinsInitiative.exists() or ttm <= 1)) or debuff.rupture.count() >= 4 or (mode.dos == 1 and (ttm <= 1 or cd.vanish == 0)) or (combo >= 4 and debuff.surgeOfToxins.remain(units.dyn5) <= 0.2 and (debuff.surgeOfToxins.exists(units.dyn5) or mode.pool == 2 or (useCDs() and (cd.kingsbane <= 1 or cd.vendetta <= 3))
+            if (combo >= 4 and (buff.masterAssassinsInitiative.exists() or ttm <= 1)) or (debuff.rupture.count() >= 4 and multidot) or (mode.dos == 1 and (ttm <= 1 or cd.vanish == 0)) or (combo >= 4 and debuff.surgeOfToxins.remain(units.dyn5) <= 0.2 and (debuff.surgeOfToxins.exists(units.dyn5) or mode.pool == 2 or (useCDs() and (cd.kingsbane <= 1 or cd.vendetta <= 3))
                 or debuff.garrote.remain(units.dyn5) <= 2 or not debuff.garrote.exists(units.dyn5) or debuff.kingsbane.exists(units.dyn5)
                 or debuff.vendetta.exists(units.dyn5))) or (talent.elaboratePlanning and combo >= 3 + noExsanguinate and buff.elaboratePlanning.remain() < 0.1)
             then
@@ -633,9 +634,18 @@ local function runRotation()
             end
         -- Stealth
             -- stealth
-            if isChecked("Stealth") and not inCombat and (not IsResting() or (isDummy("target") and lastSpell ~= spell.vanish)) then
+           if isChecked("Stealth") and not stealth and not inCombat and (not IsResting() or isDummy("target")) then
                 if getOptionValue("Stealth") == 1 then
                     if cast.stealth() then return end
+                end
+ 
+                if #enemies.yards20 > 0 and getOptionValue("Stealth") == 3 then
+                    for i = 1, #enemies.yards20 do
+                        local thisUnit = enemies.yards20[i]
+                        if UnitIsEnemy(thisUnit,"player") or isDummy("target") then
+                            if cast.stealth("player") then return end
+                        end
+                    end
                 end
             end
         -- Marked For Death
