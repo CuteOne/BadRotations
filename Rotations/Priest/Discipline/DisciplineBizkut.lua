@@ -624,7 +624,7 @@ local function runRotation()
                 --Power Word: Shield
                 if br.friend[i].hp <= getValue("Power Word: Shield") and not buff.powerWordShield.exists(br.friend[i].unit) and getSpellCD(spell.powerWordShield) <= 0 then
                     if mode.healer == 1 or mode.healer == 2 then
-                        if UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" or getBuffRemain(br.friend[i].unit, spell.buffs.atonement, "player") < 1 then
+                        if br.friend[i].unit == "player" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" or getBuffRemain(br.friend[i].unit, spell.buffs.atonement, "player") < 1 then
                             if cast.powerWordShield(br.friend[i].unit) then return end
                         end
                     end
