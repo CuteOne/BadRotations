@@ -375,7 +375,7 @@ function br.loader:new(spec,specName)
         -- Call baseUpdate()
         self.baseUpdate()
         self.cBuilder()
-        self.getPetInfo()
+        -- self.getPetInfo()
         self.getToggleModes()
         -- Start selected rotation
         self:startRotation()
@@ -491,45 +491,45 @@ function br.loader:new(spec,specName)
 ----------------
 --- PET INFO ---
 ----------------
-    function self.getPetInfo()
-        if select(2,UnitClass("player")) == "HUNTER" or select(2,UnitClass("player")) == "WARLOCK" then
-            if self.petInfo == nil then self.petInfo = {} end
-            self.petInfo = table.wipe(self.petInfo)
-            -- local objectCount = GetObjectCount() or 0
-            for i = 1, ObjectCount() do
-                -- define our unit
-                local thisUnit = GetObjectWithIndex(i)
-                -- check if it a unit first
-                if ObjectIsType(thisUnit, ObjectTypes.Unit)  then
-                    local unitName      = UnitName(thisUnit)
-                    local unitID        = GetObjectID(thisUnit)
-                    local unitGUID      = UnitGUID(thisUnit)
-                    local unitCreator   = UnitCreator(thisUnit)
-                    local player        = GetObjectWithGUID(UnitGUID("player"))
-                    if unitCreator == player
-                        and (unitID == 55659 -- Wild Imp
-                            or unitID == 98035 -- Dreadstalker
-                            or unitID == 103673 -- Darkglare
-                            or unitID == 78158 or unitID == 11859 -- Doomguard
-                            or unitID == 78217 or unitID == 89 -- Infernal
-                            or unitID == 416 -- Imp
-                            or unitID == 1860 -- Voidwalker
-                            or unitID == 417 -- Felhunter
-                            or unitID == 1863 -- Succubus
-                            or unitID == 17252) -- Felguard
-                    then
-                        if self.spell.buffs.demonicEmpowerment ~= nil then
-                            demoEmpBuff   = UnitBuffID(thisUnit,self.spell.buffs.demonicEmpowerment) ~= nil
-                        else
-                            demoEmpBuff   = false
-                        end
-                        local unitCount     = #getEnemies(tostring(thisUnit),10) or 0
-                        tinsert(self.petInfo,{name = unitName, guid = unitGUID, id = unitID, creator = unitCreator, deBuff = demoEmpBuff, numEnemies = unitCount})
-                    end
-                end
-            end
-        end
-    end
+    -- function self.getPetInfo()
+    --     if select(2,UnitClass("player")) == "HUNTER" or select(2,UnitClass("player")) == "WARLOCK" then
+    --         if self.petInfo == nil then self.petInfo = {} end
+    --         self.petInfo = table.wipe(self.petInfo)
+    --         -- local objectCount = GetObjectCount() or 0
+    --         for i = 1, ObjectCount() do
+    --             -- define our unit
+    --             local thisUnit = GetObjectWithIndex(i)
+    --             -- check if it a unit first
+    --             if ObjectIsType(thisUnit, ObjectTypes.Unit)  then
+    --                 local unitName      = UnitName(thisUnit)
+    --                 local unitID        = GetObjectID(thisUnit)
+    --                 local unitGUID      = UnitGUID(thisUnit)
+    --                 local unitCreator   = UnitCreator(thisUnit)
+    --                 local player        = GetObjectWithGUID(UnitGUID("player"))
+    --                 if unitCreator == player
+    --                     and (unitID == 55659 -- Wild Imp
+    --                         or unitID == 98035 -- Dreadstalker
+    --                         or unitID == 103673 -- Darkglare
+    --                         or unitID == 78158 or unitID == 11859 -- Doomguard
+    --                         or unitID == 78217 or unitID == 89 -- Infernal
+    --                         or unitID == 416 -- Imp
+    --                         or unitID == 1860 -- Voidwalker
+    --                         or unitID == 417 -- Felhunter
+    --                         or unitID == 1863 -- Succubus
+    --                         or unitID == 17252) -- Felguard
+    --                 then
+    --                     if self.spell.buffs.demonicEmpowerment ~= nil then
+    --                         demoEmpBuff   = UnitBuffID(thisUnit,self.spell.buffs.demonicEmpowerment) ~= nil
+    --                     else
+    --                         demoEmpBuff   = false
+    --                     end
+    --                     local unitCount     = #getEnemies(tostring(thisUnit),10) or 0
+    --                     tinsert(self.petInfo,{name = unitName, guid = unitGUID, id = unitID, creator = unitCreator, deBuff = demoEmpBuff, numEnemies = unitCount})
+    --                 end
+    --             end
+    --         end
+    --     end
+    -- end
 
 ---------------
 --- TOGGLES ---

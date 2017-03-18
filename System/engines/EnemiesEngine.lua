@@ -73,9 +73,39 @@ function FindEnemy()
 				-- Enemies
 				if UnitExists(thisUnit) and isValidUnit(thisUnit) and br.enemy[thisUnit] == nil then
                     br.debug.cpu.enemiesEngine.sanityTargets = br.debug.cpu.enemiesEngine.sanityTargets + 1
-                    -- Print("Adding Enemy")
 					AddEnemy(thisUnit)
 				end
+				-- Pet Info
+				if br.player ~= nil and (select(2,UnitClass("player")) == "HUNTER" or select(2,UnitClass("player")) == "WARLOCK") then
+		            if br.player.petInfo == nil then br.player.petInfo = {} end
+		            br.player.petInfo = table.wipe(br.player.petInfo)
+                    local unitName      = UnitName(thisUnit)
+                    local unitID        = GetObjectID(thisUnit)
+                    local unitGUID      = UnitGUID(thisUnit)
+                    local unitCreator   = UnitCreator(thisUnit)
+                    local player        = GetObjectWithGUID(UnitGUID("player"))
+                    if unitCreator == player
+                        and (unitID == 55659 -- Wild Imp
+                            or unitID == 98035 -- Dreadstalker
+                            or unitID == 103673 -- Darkglare
+                            or unitID == 78158 or unitID == 11859 -- Doomguard
+                            or unitID == 78217 or unitID == 89 -- Infernal
+                            or unitID == 416 -- Imp
+                            or unitID == 1860 -- Voidwalker
+                            or unitID == 417 -- Felhunter
+                            or unitID == 1863 -- Succubus
+                            or unitID == 17252 -- Felguard
+                            or unitID == 79909) -- Cat
+                    then
+                        if br.player.spell.buffs.demonicEmpowerment ~= nil then
+                            demoEmpBuff   = UnitBuffID(thisUnit,br.player.spell.buffs.demonicEmpowerment) ~= nil
+                        else
+                            demoEmpBuff   = false
+                        end
+                        local unitCount     = #getEnemies(tostring(thisUnit),10) or 0
+                        tinsert(br.player.petInfo,{name = unitName, guid = unitGUID, id = unitID, creator = unitCreator, deBuff = demoEmpBuff, numEnemies = unitCount})
+                    end
+		        end
 			end
 		end
 	end
@@ -374,12 +404,16 @@ function getUnitCoeficient(unit,distance,threat,burnValue,shieldValue)
 			end
 			-- if wise target checked, we look for best target by looking to the lowest or highest hp, otherwise we look for target
 			if getOptionCheck("Wise Target") == true then
-				if getOptionValue("Wise Target") == 1 then
+				if getOptionValue("Wise Target") == 1 then 	   -- Highest
 					-- if highest is selected
 					coef = unitHP
-				elseif getOptionValue("Wise Target") == 3 then
+				elseif getOptionValue("Wise Target") == 3 then -- abs Highest
 					coef = UnitHealth(unit)
-				else
+				elseif getOptionValue("Wise Target") == 4 then -- Furthest
+					coef = distance
+				elseif getOptionValue("Wise Target") == 5 then -- Nearest
+					coef = 100 - distance
+				else 										   -- Lowest
 					-- if lowest is selected
 					coef = 100 - unitHP
 				end

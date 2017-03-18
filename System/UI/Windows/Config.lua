@@ -30,7 +30,7 @@ function br.ui:createConfigWindow()
         -- Enemies Engine
         section = br.ui:createSection(br.ui.window.config, "Enemies Engine")
         br.ui:createCheckbox(section, "Dynamic Targetting", "Check this to allow dynamic targetting. If unchecked, profile will only attack current target.")
-        br.ui:createDropdown(section, "Wise Target", {"Highest", "Lowest", "abs Highest"}, 1, "|cffFFDD11Check if you want to use Wise Targetting, if unchecked there will be no priorisation from hp.")
+        br.ui:createDropdown(section, "Wise Target", {"Highest", "Lowest", "abs Highest", "Nearest", "Furthest"}, 1, "|cffFFDD11Check if you want to use Wise Targetting, if unchecked there will be no priorisation from hp/range.")
         br.ui:createCheckbox(section, "Forced Burn", "Check to allow forced Burn on specific whitelisted units.")
         br.ui:createCheckbox(section, "Avoid Shields", "Check to avoid attacking shielded units.")
         br.ui:createCheckbox(section, "Tank Threat", "Check add more priority to taregts you lost aggro on(tank only).")

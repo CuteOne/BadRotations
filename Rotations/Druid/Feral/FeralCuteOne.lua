@@ -658,7 +658,7 @@ local function runRotation()
        					return
        				end
                 end
-			elseif UnitExists("target") and not isBoss("target") then
+			elseif (UnitExists("target") and not isBoss("target")) or not isChecked("Opener") then
 				opener = true
 			end
         end -- End Action List - Opener
