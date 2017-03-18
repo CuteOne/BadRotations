@@ -222,7 +222,7 @@ local function runRotation()
         -- Pool for Piercing Shot
         -- pooling_for_piercing,value=talent.piercing_shot.enabled&cooldown.piercing_shot.remains<5&lowest_vuln_within.5>0&lowest_vuln_within.5>cooldown.piercing_shot.remains&(buff.trueshot.down|spell_targets=1)
         local poolForPiercing
-        if mode.piercing and talent.piercingShot and cd.piercingShot < 5 and lowestVuln > 0 and lowestVuln > cd.piercingShot and (not buff.trueshot.exists() or ((mode.rotation == 1 and #enemies.yards40r == getOptionVlaue("Piercing Shot Units")) or mode.rotation == 3)) then
+        if mode.piercing and talent.piercingShot and cd.piercingShot < 5 and lowestVuln > 0 and lowestVuln > cd.piercingShot and (not buff.trueshot.exists() or ((mode.rotation == 1 and enemies.yards40r >= getOptionValue("Piercing Shot Units")) or mode.rotation == 3)) then
             poolForPiercing = true
         else
             poolForPiercing = false
@@ -476,8 +476,8 @@ local function runRotation()
             end
         -- Piercing Shot
             -- piercing_shot,if=lowest_vuln_within.5>0&focus>100
-            if mode.piercing == 1 and lowestVuln > 0 and power > 100 and ((mode.rotation == 1 and #enemies.yards40r == getOptionVlaue("Piercing Shot Units")) or mode.rotation == 3) then
-                if cast.piercingShot() then return end
+            if mode.piercing == 1 and lowestVuln > 0 and power > 100 and ((mode.rotation == 1 and enemies.yards40r >= getOptionValue("Piercing Shot Units")) or mode.rotation == 3) then
+                if cast.piercingShot(units.dyn38) then return end
             end
         -- Aimed Shot
             -- aimed_shot,if=spell_targets>1&debuff.vulnerability.remains>cast_time&talent.trick_shot.enabled&buff.sentinels_sight.stack=20
@@ -565,14 +565,14 @@ local function runRotation()
             end
         -- Piercing Shot
             -- piercing_shot,if=cooldown.piercing_shot.up&spell_targets=1&lowest_vuln_within.5>0&lowest_vuln_within.5<1
-            if mode.piercing == 1 and cd.piercingShot == 0 and ((mode.rotation == 1 and #enemies.yards40r == getOptionVlaue("Piercing Shot Units")) or mode.rotation == 3) and lowestVuln > 0 and lowestVuln < 1 then
-                if cast.piercingShot() then return end
+            if mode.piercing == 1 and cd.piercingShot == 0 and ((mode.rotation == 1 and enemies.yards40r >= getOptionValue("Piercing Shot Units")) or mode.rotation == 3) and lowestVuln > 0 and lowestVuln < 1 then
+                if cast.piercingShot(units.dyn38) then return end
             end
             -- piercing_shot,if=cooldown.piercing_shot.up&spell_targets>1&lowest_vuln_within.5>0&((!buff.trueshot.up&focus>80&(lowest_vuln_within.5<1|debuff.hunters_mark.up))|(buff.trueshot.up&focus>105&lowest_vuln_within.5<6))
-            if mode.piercing == 1 and cd.piercingShot == 0 and ((mode.rotation == 1 and #enemies.yards40r == getOptionVlaue("Piercing Shot Units")) or mode.rotation == 3) and lowestVuln > 0 
+            if mode.piercing == 1 and cd.piercingShot == 0 and ((mode.rotation == 1 and enemies.yards40r >= getOptionValue("Piercing Shot Units")) or mode.rotation == 3) and lowestVuln > 0 
                 and ((not buff.trueshot.exists() and power > 80 and (lowestVuln < 1 or debuff.huntersMark.exists(units.dyn40))) or (buff.trueshot.exists() and power > 105 and lowestVuln < 6)) 
             then
-                if cast.piercingShot() then return end
+                if cast.piercingShot(units.dyn38) then return end
             end
         -- Aimed Shot
             -- aimed_shot,if=spell_targets>1&debuff.vulnerability.remains>cast_time&talent.trick_shot.enabled&buff.sentinels_sight.stack=20
@@ -681,8 +681,8 @@ local function runRotation()
         local function actionList_TargetDie()
         -- Piercing Shot
             -- piercing_shot,if=debuff.vulnerability.up
-            if mode.piercing == 1 and debuff.vulnerable.exists(units.dyn40) and ((mode.rotation == 1 and #enemies.yards40r == getOptionVlaue("Piercing Shot Units")) or mode.rotation == 3) then
-                if cast.piercingShot() then return end
+            if mode.piercing == 1 and debuff.vulnerable.exists(units.dyn40) and ((mode.rotation == 1 and enemies.yards40r >= getOptionValue("Piercing Shot Units")) or mode.rotation == 3) then
+                if cast.piercingShot(units.dyn38) then return end
             end
         -- Explosive Shot
             -- explosive_shot
@@ -726,7 +726,7 @@ local function runRotation()
             -- Piercing Shot
             -- if not HasTalent(PatientSniper) and Power > 50
             if talent.piercingShot and not talent.patientSniper and power > 50 then
-                if cast.piercingShot(units.dyn40) then return end
+                if cast.piercingShot(units.dyn38) then return end
             end
             -- Windburst
             if cast.windburst(units.dyn40) and not debuff.vulnerable.exists(units.dyn40) then return end
