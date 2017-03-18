@@ -749,7 +749,7 @@ local function runRotation()
                 end
                 --Shadow Mend Emergency
                 if isChecked("Shadow Mend Emergency") then
-                    if br.friend[i].hp <= getValue("Shadow Mend Emergency") then
+                    if (br.friend[i].hp <= getValue("Shadow Mend Emergency")) or (br.friend[i].hp <= 90 and UnitDebuffID(br.friend[i].unit,225484)) then
                         if mode.healer == 1 or mode.healer == 2 then
                             if talent.grace and not inRaid then
                                 actionList_SpreadAtonement(br.friend[i].unit)
