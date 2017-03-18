@@ -511,7 +511,7 @@ local function runRotation()
             if power >= 100 and (#enemies.yards8 == 1 or (#enemies.yards8 >= 2 and buff.meatCleaver.exists())) then
                 if cast.rampage() then return end
             end        
-            if power >= 100 and #enemies.yards8 >= 2 and not buff.meatCleaver.exists() then
+            if power >= 100 and ((mode.rotation == 1 and #enemies.yards8 >= getOptionValue("Whirlwind Units")) or mode.rotation == 2) and not buff.meatCleaver.exists() then
                 if cast.whirlwind("player") then return end
             end
         -- Odyn's Fury
@@ -635,7 +635,9 @@ local function runRotation()
             end
         -- Whirlwind
             -- whirlwind,if=buff.wrecking_ball.react&buff.enrage.up
-            if cast.whirlwind("player") then return end
+            if ((mode.rotation == 1 and #enemies.yards8 >= getOptionValue("Whirlwind Units")) or mode.rotation == 2) then
+                if cast.whirlwind("player") then return end
+            end
         end
         function actionList_EightTargets() 
         -- Rampage
@@ -645,7 +647,9 @@ local function runRotation()
             end
         -- Whirlwind
             -- whirlwind,if=buff.wrecking_ball.react&buff.enrage.up
-            if cast.whirlwind("player") then return end
+            if ((mode.rotation == 1 and #enemies.yards8 >= getOptionValue("Whirlwind Units")) or mode.rotation == 2) then
+                if cast.whirlwind("player") then return end
+            end
         end
         function actionList_ThreeTargets()
 -- Bloodthirst
@@ -665,7 +669,7 @@ local function runRotation()
             end         
         -- Whirlwind
             -- whirlwind,if=buff.wrecking_ball.react&buff.enrage.up
-            if not buff.meatCleaver.exists() then
+            if not buff.meatCleaver.exists() and ((mode.rotation == 1 and #enemies.yards8 >= getOptionValue("Whirlwind Units")) or mode.rotation == 2) then
                 if cast.whirlwind("player") then return end
             end   
         -- Raging Blow
@@ -684,7 +688,9 @@ local function runRotation()
                 if cast.bloodthirst() then return end
             end
             -- whirlwind,if=buff.wrecking_ball.react&buff.enrage.up
-            if cast.whirlwind("player") then return end
+            if ((mode.rotation == 1 and #enemies.yards8 >= getOptionValue("Whirlwind Units")) or mode.rotation == 2) then
+                if cast.whirlwind("player") then return end
+            end
         end -- End Action List - Three Targets
     -- Action List - MultiTarget
         function actionList_TwoTarget()
@@ -705,7 +711,7 @@ local function runRotation()
             end         
         -- Whirlwind
             -- whirlwind,if=buff.wrecking_ball.react&buff.enrage.up
-            if not buff.meatCleaver.exists() and power >= 90 then
+            if not buff.meatCleaver.exists() and power >= 90 and ((mode.rotation == 1 and #enemies.yards8 >= getOptionValue("Whirlwind Units")) or mode.rotation == 2) then
                 if cast.whirlwind("player") then return end
             end   
         -- Raging Blow
