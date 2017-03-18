@@ -31,6 +31,18 @@ local function createToggles()
         [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.counterShot }
     };
     CreateButton("Interrupt",4,0)
+-- Explosive Shot Button
+    ExplosiveModes = {
+        [1] = { mode = "On", value = 1 , overlay = "Explosive Shot Enabled", tip = "Will use Explosive Shot.", highlight = 1, icon = br.player.spell.explosiveShot },
+        [2] = { mode = "Off", value = 2 , overlay = "Explosive Shot Disabled", tip = "Explosive Shot will not be used.", highlight = 0, icon = br.player.spell.explosiveShot }
+    };
+    CreateButton("Explosive",5,0)
+-- Piercing Shot Button
+    PiercingModes = {
+        [1] = { mode = "On", value = 1 , overlay = "Piercing Shot Enabled", tip = "Will use Piercing Shot.", highlight = 1, icon = br.player.spell.piercingShot },
+        [2] = { mode = "Off", value = 2 , overlay = "Piercing Shot Disabled", tip = "Piercing Shot will not be used.", highlight = 0, icon = br.player.spell.piercingShot }
+    };
+    CreateButton("Piercing",6,0)
 end
 
 ---------------
@@ -47,6 +59,11 @@ local function createOptions()
             br.ui:createDropdownWithout(section, "APL Mode", {"|cffFFFFFFSimC","|cffFFFFFFAMR"}, 2, "|cffFFFFFFSet APL Mode to use.")
         -- Dummy DPS Test
             br.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
+        -- Explosive Shot
+            -- br.ui:createCheckbox(section, "Explosive Shot")
+        -- Piercing Shot
+            -- br.ui:createCheckbox(section, "Piercing Shot")
+            br.ui:createSpinnerWithout(section, "Piercing Shot Units", 3, 1, 5, 1, "|cffFFFFFFSet to desired units to cast Piercing Shot")
         br.ui:checkSectionState(section)
     -- Pet Options
         section = br.ui:createSection(br.ui.window.profile, "Pet")
@@ -54,8 +71,6 @@ local function createOptions()
             br.ui:createDropdown(section, "Auto Summon", {"Pet 1","Pet 2","Pet 3","Pet 4","Pet 5",}, 1, "Select the pet you want to use")
         -- Mend Pet
             br.ui:createSpinner(section, "Mend Pet",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
-        -- Explosive Shot
-            br.ui:createCheckbox(section, "Explosive Shot")
         br.ui:checkSectionState(section)
     -- Cooldown Options
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
@@ -100,6 +115,10 @@ local function createOptions()
             br.ui:createDropdown(section, "Defensive Mode", br.dropOptions.Toggle,  6)
         -- Interrupts Key Toggle
             br.ui:createDropdown(section, "Interrupt Mode", br.dropOptions.Toggle,  6)
+        -- Explosive Shot Key Toggle
+            br.ui:createDropdown(section, "Explosive Shot Mode", br.dropOptions.Toggle,  6)
+        -- Piercing Shot Key Toggle
+            br.ui:createDropdown(section, "Piercing Shot Mode", br.dropOptions.Toggle,  6)
         -- Pause Toggle
             br.ui:createDropdown(section, "Pause Mode", br.dropOptions.Toggle,  6)
         br.ui:checkSectionState(section)
@@ -125,6 +144,10 @@ local function runRotation()
         UpdateToggle("Cooldown",0.25)
         UpdateToggle("Defensive",0.25)
         UpdateToggle("Interrupt",0.25)
+        UpdateToggle("Explosive",0.25)
+        br.player.mode.explosive = br.data.settings[br.selectedSpec].toggles["Explosive"]
+        UpdateToggle("Piercing",0.25)
+        br.player.mode.piercing = br.data.settings[br.selectedSpec].toggles["Piercing"]
 
 --------------
 --- Locals ---
@@ -177,9 +200,11 @@ local function runRotation()
         local ttm                                           = br.player.power.ttm
         local units                                         = units or {}
 
+        units.dyn38 = br.player.units(38)
         units.dyn40 = br.player.units(40)
         enemies.yards8t = br.player.enemies(8,br.player.units(8,true))
         enemies.yards40 = br.player.enemies(40)
+        enemies.yards40r = getEnemiesInRect(10,38,false) or 0
 
         if leftCombat == nil then leftCombat = GetTime() end
         if profileStop == nil then profileStop = false end
@@ -197,7 +222,7 @@ local function runRotation()
         -- Pool for Piercing Shot
         -- pooling_for_piercing,value=talent.piercing_shot.enabled&cooldown.piercing_shot.remains<5&lowest_vuln_within.5>0&lowest_vuln_within.5>cooldown.piercing_shot.remains&(buff.trueshot.down|spell_targets=1)
         local poolForPiercing
-        if talent.piercingShot and cd.piercingShot < 5 and lowestVuln > 0 and lowestVuln > cd.piercingShot and (not buff.trueshot.exists() or ((mode.rotation == 1 and #enemies.yards40 == 1) or mode.rotation == 3)) then
+        if mode.piercing and talent.piercingShot and cd.piercingShot < 5 and lowestVuln > 0 and lowestVuln > cd.piercingShot and (not buff.trueshot.exists() or ((mode.rotation == 1 and #enemies.yards40r == getOptionVlaue("Piercing Shot Units")) or mode.rotation == 3)) then
             poolForPiercing = true
         else
             poolForPiercing = false
@@ -446,10 +471,12 @@ local function runRotation()
             end
         -- Explosive Shot
             -- explosive_shot
-            if cast.explosiveShot(units.dyn40) then explosiveTarget = units.dyn40; return end
+            if mode.explosive == 1 then
+                if cast.explosiveShot(units.dyn40) then explosiveTarget = units.dyn40; return end
+            end
         -- Piercing Shot
             -- piercing_shot,if=lowest_vuln_within.5>0&focus>100
-            if lowestVuln > 0 and power > 100 then
+            if mode.piercing == 1 and lowestVuln > 0 and power > 100 and ((mode.rotation == 1 and #enemies.yards40r == getOptionVlaue("Piercing Shot Units")) or mode.rotation == 3) then
                 if cast.piercingShot() then return end
             end
         -- Aimed Shot
@@ -538,11 +565,11 @@ local function runRotation()
             end
         -- Piercing Shot
             -- piercing_shot,if=cooldown.piercing_shot.up&spell_targets=1&lowest_vuln_within.5>0&lowest_vuln_within.5<1
-            if cd.piercingShot == 0 and ((mode.rotation == 1 and #enemies.yards40 == 1) or mode.rotation == 3) and lowestVuln > 0 and lowestVuln < 1 then
+            if mode.piercing == 1 and cd.piercingShot == 0 and ((mode.rotation == 1 and #enemies.yards40r == getOptionVlaue("Piercing Shot Units")) or mode.rotation == 3) and lowestVuln > 0 and lowestVuln < 1 then
                 if cast.piercingShot() then return end
             end
             -- piercing_shot,if=cooldown.piercing_shot.up&spell_targets>1&lowest_vuln_within.5>0&((!buff.trueshot.up&focus>80&(lowest_vuln_within.5<1|debuff.hunters_mark.up))|(buff.trueshot.up&focus>105&lowest_vuln_within.5<6))
-            if cd.piercingShot == 0 and ((mode.rotation == 1 and #enemies.yards40 == 1) or mode.rotation == 3) and lowestVuln > 0 
+            if mode.piercing == 1 and cd.piercingShot == 0 and ((mode.rotation == 1 and #enemies.yards40r == getOptionVlaue("Piercing Shot Units")) or mode.rotation == 3) and lowestVuln > 0 
                 and ((not buff.trueshot.exists() and power > 80 and (lowestVuln < 1 or debuff.huntersMark.exists(units.dyn40))) or (buff.trueshot.exists() and power > 105 and lowestVuln < 6)) 
             then
                 if cast.piercingShot() then return end
@@ -654,12 +681,14 @@ local function runRotation()
         local function actionList_TargetDie()
         -- Piercing Shot
             -- piercing_shot,if=debuff.vulnerability.up
-            if debuff.vulnerable.exists(units.dyn40) then
+            if mode.piercing == 1 and debuff.vulnerable.exists(units.dyn40) and ((mode.rotation == 1 and #enemies.yards40r == getOptionVlaue("Piercing Shot Units")) or mode.rotation == 3) then
                 if cast.piercingShot() then return end
             end
         -- Explosive Shot
             -- explosive_shot
-            if cast.explosiveShot() then explosiveTarget = units.dyn40; return end
+            if mode.explosive == 1 then
+                if cast.explosiveShot() then explosiveTarget = units.dyn40; return end
+            end
         -- Windburst
             -- windburst
             if cast.windburst() then return end
@@ -740,7 +769,7 @@ local function runRotation()
                 if cast.blackArrow(units.dyn40) then return end
             end
             -- Explosive Shot
-            if isChecked("Explosive Shot") and talent.explosiveShot then
+            if mode.explosive == 1 and talent.explosiveShot then
                 if cast.explosiveShot(units.dyn40) then explosiveTarget = units.dyn40; return end
             end
             -- Aimed Shot
@@ -774,7 +803,7 @@ local function runRotation()
             -- if HasItem(MagnetizedBlastingCapLauncher)
 
             -- Explosive Shot
-            if isChecked("Explosive Shot") and talent.explosiveShot then
+            if mode.explosive == 1 and talent.explosiveShot then
                 if cast.explosiveShot(units.dyn40) then explosiveTarget = units.dyn40; return end
             end
             -- Multi-Shot
