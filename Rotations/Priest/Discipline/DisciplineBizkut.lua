@@ -71,6 +71,8 @@ local function createOptions()
         section = br.ui:createSection(br.ui.window.profile, "Utility")
             --Purify
             br.ui:createCheckbox(section, "Purify")
+            -- Dispel Magic
+            br.ui:createCheckbox(section,"Dispel Magic","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFDispel Magic usage|cffFFBB00.")
             -- Mass Dispel
             br.ui:createDropdown(section, "Mass Dispel", br.dropOptions.Toggle, 1, colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.." Mass Dispel usage.")
             --Body and Soul
@@ -180,7 +182,7 @@ local function createOptions()
             --Drink
             br.ui:createSpinner(section, "Drink",   50,  0,  100,  5,   "|cffFFFFFFMinimum mana to drink Ley-Enriched Water. Default: 50")
             --Pre Pot
-            br.ui:createSpinner(section, "Pre-Pot Timer",  3,  1,  10,  1,  "|cffFFFFFFSet to desired time for Pre-Pot using Potion of Prolonged Power (DBM Required). Min: 1 / Max: 10 / Interval: 1. Default: 3")
+            br.ui:createSpinner(section, "Pre-Pot Timer",  3,  1,  10,  1,  "|cffFFFFFFSet to desired time for Pre-Pot using Potion of Prolonged Power (DBM Required). Second: 1 / Max: 10 / Interval: 1. Default: 3")
             --Int Pot
             br.ui:createCheckbox(section,"Prolonged Pot","|cffFFFFFFUse Potion of Prolonged Power")
             --Trinkets
@@ -369,7 +371,7 @@ local function runRotation()
                     if atonementCount < getOptionValue("Max Plea") and atonementCount < getOptionValue("Max Atonement") and lastSpell ~= spell.plea then
                         if cast.plea(friendUnit) then return end     
                     end
-                    if ((not inRaid and atonementCount < 5) or inRaid) and atonementCount >= getOptionValue("Max Plea") and atonementCount < getOptionValue("Max Atonement") and lastSpell ~= spell.powerWordRadiance then
+                    if inCombat and ((not inRaid and atonementCount < 5) or inRaid) and atonementCount >= getOptionValue("Max Plea") and atonementCount < getOptionValue("Max Atonement") and lastSpell ~= spell.powerWordRadiance then
                         if cast.powerWordRadiance(friendUnit) then return end
                     end
                 end
@@ -568,9 +570,6 @@ local function runRotation()
         --Single Target Defence
         function actionList_SingleTargetDefence()
             for i = 1, #br.friend do
-                if UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
-                    tankUnit = br.friend[i].unit
-                end
                 --Leap Of Faith
                 if isChecked("Leap Of Faith") and (mode.healer == 1 or mode.healer == 2) then
                     if php > br.friend[i].hp and br.friend[i].hp <= getValue("Leap Of Faith") and UnitGroupRolesAssigned(br.friend[i].unit) ~= "TANK" then
@@ -625,7 +624,7 @@ local function runRotation()
                 --Power Word: Shield
                 if br.friend[i].hp <= getValue("Power Word: Shield") and not buff.powerWordShield.exists(br.friend[i].unit) and getSpellCD(spell.powerWordShield) <= 0 then
                     if mode.healer == 1 or mode.healer == 2 then
-                        if tankUnit == nil or br.friend[i].unit == tankUnit or buff.powerWordShield.remain(tankUnit) > select(2,GetSpellCooldown(spell.powerWordShield)) then
+                        if br.friend[i].unit == "player" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" or getBuffRemain(br.friend[i].unit, spell.buffs.atonement, "player") < 1 then
                             if cast.powerWordShield(br.friend[i].unit) then return end
                         end
                     end
@@ -637,6 +636,10 @@ local function runRotation()
         end
         --Single Target Heal
         function actionList_SingleTargetHeal()
+            -- Dispel Magic
+            if isChecked("Dispel Magic") and canDispel("target",spell.dispelMagic) and not isBoss() and ObjectExists("target") then
+                if cast.dispelMagic() then return end
+            end
             -- Mass Dispel
             if not isMoving("player") and isChecked("Mass Dispel") and (SpecificToggle("Mass Dispel") and not GetCurrentKeyBoardFocus()) then
                 CastSpellByName(GetSpellInfo(spell.massDispel),"cursor")
@@ -688,6 +691,9 @@ local function runRotation()
                             end
                             if br.friend[i].hp <= getValue("Debuff Shadow Mend/Penance Heal") and isChecked("Debuff Shadow Mend/Penance Heal") and not UnitDebuffID(br.friend[i].unit,187464) and not UnitDebuffID(br.friend[i].unit,207011) and lastSpell ~= spell.shadowMend then
                                 if mode.healer == 1 or mode.healer == 2 then
+                                    if talent.grace and not inRaid then
+                                        actionList_SpreadAtonement(br.friend[i].unit)
+                                    end
                                     if isMoving("player") and talent.thePenitent then
                                         if cast.penance(br.friend[i].unit) then return end
                                     end
@@ -745,6 +751,9 @@ local function runRotation()
                 if isChecked("Shadow Mend Emergency") then
                     if br.friend[i].hp <= getValue("Shadow Mend Emergency") then
                         if mode.healer == 1 or mode.healer == 2 then
+                            if talent.grace and not inRaid then
+                                actionList_SpreadAtonement(br.friend[i].unit)
+                            end
                             if not isMoving("player") then
                                 if cast.shadowMend(br.friend[i].unit) then return end
                             elseif atonementCount <= getValue("Max Plea") then
@@ -764,6 +773,9 @@ local function runRotation()
                 if isChecked("Shadow Mend") then
                     if br.friend[i].hp <= getValue("Shadow Mend") and (not inCombat or getBuffRemain(br.friend[i].unit, spell.buffs.atonement, "player") < 1) then
                         if mode.healer == 1 or mode.healer == 2 then
+                            if talent.grace and not inRaid then
+                                actionList_SpreadAtonement(br.friend[i].unit)
+                            end
                             if inCombat and getSpellCD(spell.penance) <= 0 then
                                 actionList_SpreadAtonement(br.friend[i].unit)
                                 if schismBuff then

@@ -84,6 +84,8 @@ doNotTouchUnitCandidates = {
     { unitID = 95887, buff = 194323 }, -- Don't attack Glazer when he casts Focusing
     { unitID = 95888, buff = 205004 }, -- Don't attack Cordana Felsong when she casts Vengeance
     { unitID = 95888, buff = 197422 }, -- Don't attack Cordana Felsong when she casts Creeping Doom
+    { unitID = 112956, buff = 225840 }, -- Don't attack Shimmering Manaspine
+    { unitID = 104154, buff = 206516 }, -- Don't attack Gul'dan when he is in The Eye of Aman'Thul cage 
 }
 -- list of units to stun, either always or udner certain condition such as having a buff or wirldwinding etc
 crowdControlCandidates = {
