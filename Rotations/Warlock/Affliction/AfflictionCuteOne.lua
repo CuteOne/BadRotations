@@ -616,6 +616,7 @@ local function runRotation()
                     if (getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs())) and mode.multidot == 1
                         and (buff.tormentedSouls.stack() >= 8 or (hasEquiped(144364) and buff.tormentedSouls.stack() >= 6))
                         and debuff.unstableAffliction.stack() >= 3
+                        and not buff.deadwindHarvester.exists()
                     then
                         if cast.reapSouls() then return end
                     end
@@ -910,11 +911,12 @@ local function runRotation()
 					end
 		-- Reap Soul
                     if (getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs())) and mode.multidot == 1
-						and (buff.tormentedSouls.stack() >= 8 or (hasEquiped(144364) and buff.tormentedSouls.stack() >= 6)) 
+						and (buff.tormentedSouls.stack() >= 8 or (hasEquiped(144364) and buff.tormentedSouls.stack() >= 6))
+                        and not buff.deadwindHarvester.exists() 
                     then
 						if cast.reapSouls() then return end
 					end									
-			        -- Life Tap
+        -- Life Tap
                     -- life_tap,if=mana.pct<=10
                     if manaPercent <= 10 and php > getOptionValue("Life Tap HP Limit") then
                         if cast.lifeTap() then return end
@@ -930,7 +932,7 @@ local function runRotation()
                         if not ObjectExists("target") then TargetUnit("target") end
                         if cast.drainSoul("target") then return end
                     end
-					-- Life Tap
+		-- Life Tap
                     --life_tap
                     if manaPercent < 70 and php > getOptionValue("Life Tap HP Limit") then
                         if cast.lifeTap() then return end
