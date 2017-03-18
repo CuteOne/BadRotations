@@ -391,7 +391,9 @@ local function runRotation()
         -- Battle Cry
                 if isChecked("Battle Cry") then
                     -- battle_cry,if=gcd.remains=0&talent.reckless_abandon.enabled
-                    if cd.global == 0 and (talent.recklessAbandon or (level < 100 and (not talent.frothingBerserker or (talent.frothingBerserker and buff.frothingBerserker.exists())))) and ((thp <= 20 and mode.exec == 1 and ((canUse(140808) and cd.bloodthirst == 0) or not canUse(140808)) or mode.exec == 2)) then
+                    if cd.global == 0 and (talent.recklessAbandon or (level < 100 and (not talent.frothingBerserker or (talent.frothingBerserker and buff.frothingBerserker.exists())))) 
+                        and ((mode.exec == 1 and ((hasEquiped(140808) and canUse(140808) and cd.bloodthirst == 0) or not canUse(140808) or not hasEquiped(140808))) or mode.exec == 2) 
+                    then
                         if cast.battleCry() then return end
                     end
                     -- battle_cry,if=gcd.remains=0&talent.bladestorm.enabled&(raid_event.adds.in>90|!raid_event.adds.exists|spell_targets.bladestorm_mh>desired_targets)
@@ -787,7 +789,7 @@ local function runRotation()
                 if buff.battleCry.exists() and (mode.exec == 2 or (thp >= 20 and mode.exec == 1)) and tier19_4pc and canUse(140808) then
                     if actionList_BattleCryWindow4pcdos() then return end
                 end
-                if buff.battleCry.exists() and mode.exec == 2 then
+                if buff.battleCry.exists() and ((mode.exec == 2 and thp > 20) or mode.exec == 1) then
                     if actionList_BattleCryWindow() then return end
                 end
             -- Action List - 8+ Targets
