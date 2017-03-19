@@ -209,20 +209,22 @@ local function runRotation()
         if leftCombat == nil then leftCombat = GetTime() end
         if profileStop == nil then profileStop = false end
 
-        local lowestVuln = lowestVuln or 100
-        for i=1,#getEnemies("player", 40) do
-            local thisUnit = getEnemies("player", 40)[i]
-            if debuff.vulnerable.remain(thisUnit) < lowestVuln then
+        local lowestVuln
+        for i=1,#enemies.yards40 do
+            local thisUnit = enemies.yards40[i]
+            if lowestVuln == nil then lowestVuln = 100 end
+            if debuff.vulnerable.remain(thisUnit) < lowestVuln and debuff.vulnerable.remain(thisUnit) > 0 then
                 lowestVuln = debuff.vulnerable.remain(thisUnit)
             end
         end
+        if lowestVuln == nil or lowestVuln == 100 then lowestVuln = 0 end
 
         local attackHaste = 1 / (1 + (UnitSpellHaste("player")/100))
 
         -- Pool for Piercing Shot
         -- pooling_for_piercing,value=talent.piercing_shot.enabled&cooldown.piercing_shot.remains<5&lowest_vuln_within.5>0&lowest_vuln_within.5>cooldown.piercing_shot.remains&(buff.trueshot.down|spell_targets=1)
         local poolForPiercing
-        if mode.piercing and talent.piercingShot and cd.piercingShot < 5 and lowestVuln > 0 and lowestVuln > cd.piercingShot and (not buff.trueshot.exists() or ((mode.rotation == 1 and enemies.yards40r >= getOptionValue("Piercing Shot Units")) or mode.rotation == 3)) then
+        if mode.piercing == 1 and talent.piercingShot and cd.piercingShot < 5 and lowestVuln > 0 and lowestVuln > cd.piercingShot and (not buff.trueshot.exists() or enemies.yards40r >= getOptionValue("Piercing Shot Units")) then
             poolForPiercing = true
         else
             poolForPiercing = false
@@ -289,7 +291,6 @@ local function runRotation()
             for i = 1, ObjectCount() do
                 local thisUnit = GetObjectWithIndex(i)
                 if ObjectExists(otherUnit) and GetObjectID(thisUnit) == 11492 then --and UnitIsUnit("player",UnitCreator(thisUnit)) then
-
                     return GetDistanceBetweenObjects(thisUnit,otherUnit)
                 end
             end
@@ -299,6 +300,7 @@ local function runRotation()
         if ObjectExists(explosiveTarget) and getExplosiveDistance(explosiveTarget) < 5 then
             if castSpell(explosiveTarget,spell.explosiveShotDetonate,false,false,false,true,false,true,true,false) then return end
         end
+
 --------------------
 --- Action Lists ---
 --------------------
@@ -476,7 +478,7 @@ local function runRotation()
             end
         -- Piercing Shot
             -- piercing_shot,if=lowest_vuln_within.5>0&focus>100
-            if mode.piercing == 1 and lowestVuln > 0 and power > 100 and ((mode.rotation == 1 and enemies.yards40r >= getOptionValue("Piercing Shot Units")) or mode.rotation == 3) then
+            if mode.piercing == 1 and lowestVuln > 0 and power > 100 and enemies.yards40r >= getOptionValue("Piercing Shot Units") then
                 if cast.piercingShot(units.dyn38) then return end
             end
         -- Aimed Shot
@@ -487,11 +489,18 @@ local function runRotation()
         -- Marked Shot
             -- marked_shot,if=spell_targets>1
             if debuff.huntersMark.count() > 1 then
-                if cast.markedShot() then return end
+                for i = 1, #enemies.yards40 do
+                    local thisUnit = enemies.yards40[i]
+                    if debuff.huntersMark.exists(thisUnit) then
+                        if cast.markedShot(thisUnit) then return end
+                    end
+                end
             end
         -- Multi-Shot
             -- Multi-Shot,if=spell_targets>1&(buff.marking_targets.up|buff.trueshot.up)
-            if ((mode.rotation == 1 and #enemies.yards8t > 1) or mode.rotation == 2) and (buff.markingTargets.exists() or buff.trueshot.exists()) then
+            if ((mode.rotation == 1 and (#enemies.yards8t > 2 or (debuff.huntersMark.exists(units.dyn40) and #enemies.yards8t > 1))) or mode.rotation == 2) 
+                and (buff.markingTargets.exists() or buff.trueshot.exists()) 
+            then
                 if cast.multiShot() then return end
             end
         -- Sentinel
@@ -518,7 +527,12 @@ local function runRotation()
         -- Marked Shot
             -- marked_shot,if=buff.marking_targets.up|buff.trueshot.up
             if buff.markingTargets.exists() or buff.trueshot.exists() then
-                if cast.markedShot() then return end
+                for i = 1, #enemies.yards40 do
+                    local thisUnit = enemies.yards40[i]
+                    if debuff.huntersMark.exists(thisUnit) then
+                        if cast.markedShot(thisUnit) then return end
+                    end
+                end
             end
         -- Sidewinders
             -- !variable.waiting_for_sentinel&(debuff.hunters_mark.down|(buff.trueshot.down&buff.marking_targets.down))&((buff.marking_targets.up|buff.trueshot.up)|charges_fractional>1.8)&(focus.deficit>cast_regen)
@@ -540,21 +554,29 @@ local function runRotation()
             end
         -- Marked Shot
             -- marked_shot
-            if cast.markedShot() then return end
+            for i = 1, #enemies.yards40 do
+                local thisUnit = enemies.yards40[i]
+                if debuff.huntersMark.exists(thisUnit) then
+                    if cast.markedShot(thisUnit) then return end
+                end
+            end
         -- Aimed Shot
             -- aimed_shot,if=talent.sidewinders.enabled&spell_targets.multi_shot=1&focus>110
-            if talent.sidewinders and ((mode.rotation == 1 and #enemies.yards8t == 1) or mode.rotation == 3) and power > 110 then
+            -- if talent.sidewinders and ((mode.rotation == 1 and #enemies.yards8t == 1) or mode.rotation == 3) and power > 110 then
+            --     if cast.aimedShot() then return end
+            -- end
+            if power > 95 and ((talent.piercingShot and not poolForPiercing) or not talent.piercingShot) then
                 if cast.aimedShot() then return end
             end
         -- Multi-Shot
             -- Multi-Shot,if=spell_targets.multi_shot>1&!variable.waiting_for_sentinel
-            if ((mode.rotation == 1 and #enemies.yards8t > 1) or mode.rotation == 2) and not waitForSentinel then
+            if ((mode.rotation == 1 and (#enemies.yards8t > 2 or (debuff.huntersMark.exists(units.dyn40) and #enemies.yards8t > 1))) or mode.rotation == 2) and not waitForSentinel then
                 if cast.multiShot() then return end
             end
         -- Arcane Shot
             -- arcane_shot,if=spell_targets.multi_shot<2&!variable.waiting_for_sentinel
-            if ((mode.rotation == 1 and #enemies.yards8t < 2) or mode.rotation == 3) and not waitForSentinel then
-                if cast.multiShot() then return end
+            if ((mode.rotation == 1 and #enemies.yards8t < 3) or mode.rotation == 3) and not waitForSentinel then
+                if cast.arcaneShot() then return end
             end
         end -- End Action List - Non Patient Sniper
     -- Action List - Patient Sniper
@@ -565,11 +587,11 @@ local function runRotation()
             end
         -- Piercing Shot
             -- piercing_shot,if=cooldown.piercing_shot.up&spell_targets=1&lowest_vuln_within.5>0&lowest_vuln_within.5<1
-            if mode.piercing == 1 and cd.piercingShot == 0 and ((mode.rotation == 1 and enemies.yards40r >= getOptionValue("Piercing Shot Units")) or mode.rotation == 3) and lowestVuln > 0 and lowestVuln < 1 then
+            if mode.piercing == 1 and cd.piercingShot == 0 and enemies.yards40r >= getOptionValue("Piercing Shot Units") and lowestVuln > 0 and lowestVuln < 1 then
                 if cast.piercingShot(units.dyn38) then return end
             end
             -- piercing_shot,if=cooldown.piercing_shot.up&spell_targets>1&lowest_vuln_within.5>0&((!buff.trueshot.up&focus>80&(lowest_vuln_within.5<1|debuff.hunters_mark.up))|(buff.trueshot.up&focus>105&lowest_vuln_within.5<6))
-            if mode.piercing == 1 and cd.piercingShot == 0 and ((mode.rotation == 1 and enemies.yards40r >= getOptionValue("Piercing Shot Units")) or mode.rotation == 3) and lowestVuln > 0 
+            if mode.piercing == 1 and cd.piercingShot == 0 and enemies.yards40r >= getOptionValue("Piercing Shot Units") and lowestVuln > 0 
                 and ((not buff.trueshot.exists() and power > 80 and (lowestVuln < 1 or debuff.huntersMark.exists(units.dyn40))) or (buff.trueshot.exists() and power > 105 and lowestVuln < 6)) 
             then
                 if cast.piercingShot(units.dyn38) then return end
@@ -586,7 +608,7 @@ local function runRotation()
             end
         -- Multi-Shot
             -- Multi-Shot,if=spell_targets>1&(buff.marking_targets.up|buff.trueshot.up)
-            if ((mode.rotation == 1 and #enemies.yards8t > 1) or mode.rotation == 2) and (buff.markingTargets.exists() or buff.trueshot.exists()) then
+            if ((mode.rotation == 1 and (#enemies.yards8t > 2 or (debuff.huntersMark.exists(units.dyn40) and #enemies.yards8t > 1))) or mode.rotation == 2) and (buff.markingTargets.exists() or buff.trueshot.exists()) then
                 if cast.multiShot() then return end
             end
         -- Windburst
@@ -623,7 +645,7 @@ local function runRotation()
             end
         -- Multi-Shot
             -- Multi-Shot,if=spell_targets>1&variable.can_gcd&focus+cast_regen+20<focus.max&(!variable.pooling_for_piercing|lowest_vuln_within.5>gcd.max)
-            if ((mode.rotation == 1 and #enemies.yards8t > 1) or mode.rotation == 2) and canGCD and power + powerRegen + 20 < powerMax and (not poolForPiercing or lowestVuln > gcd) then
+            if ((mode.rotation == 1 and (#enemies.yards8t > 2 or (debuff.huntersMark.exists(units.dyn40) and #enemies.yards8t > 1))) or mode.rotation == 2) and canGCD and power + powerRegen + 20 < powerMax and (not poolForPiercing or lowestVuln > gcd) then
                 if cast.multiShot() then return end
             end
         -- Arcane Shot
@@ -673,7 +695,7 @@ local function runRotation()
             end
         -- Multi-Shot
             -- Multi-Shot,if=spell_targets>1&(!variable.pooling_for_piercing|lowest_vuln_within.5>gcd.max)
-            if ((mode.rotation == 1 and #enemies.yards8t > 1) or mode.rotation == 2) and (not poolForPiercing or lowestVuln > gcd) then
+            if ((mode.rotation == 1 and (#enemies.yards8t > 2 or (debuff.huntersMark.exists(units.dyn40) and #enemies.yards8t > 1))) or mode.rotation == 2) and (not poolForPiercing or lowestVuln > gcd) then
                 if cast.multiShot() then return end
             end            
         end -- End Action List - Patient Sniper
@@ -681,7 +703,7 @@ local function runRotation()
         local function actionList_TargetDie()
         -- Piercing Shot
             -- piercing_shot,if=debuff.vulnerability.up
-            if mode.piercing == 1 and debuff.vulnerable.exists(units.dyn40) and ((mode.rotation == 1 and enemies.yards40r >= getOptionValue("Piercing Shot Units")) or mode.rotation == 3) then
+            if mode.piercing == 1 and debuff.vulnerable.exists(units.dyn40) and enemies.yards40r >= getOptionValue("Piercing Shot Units") then
                 if cast.piercingShot(units.dyn38) then return end
             end
         -- Explosive Shot
