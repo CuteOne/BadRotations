@@ -533,7 +533,7 @@ local function runRotation()
                     if cast.effuse() then return end
                 end
         -- Healing Elixir
-                if isChecked("Healing Elixir") and artifact.healingWinds and php <= getOptionValue("Healing Elixir") then
+                if isChecked("Healing Elixir") and php <= getOptionValue("Healing Elixir") then
                     if cast.healingElixir() then return end
                 end
         -- Leg Sweep

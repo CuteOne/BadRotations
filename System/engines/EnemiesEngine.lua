@@ -301,7 +301,6 @@ function getEnemiesInRect(width,length,showLines)
 	-- Far Right
 	local frX, frY, frZ = GetPositionFromPosition(nrX, nrY, nrZ, length, facing + math.rad(0), 0)
 
-
 	if showLines then
 		-- Near Left
 		LibDraw.Line(nlX, nlY, nlZ, playerX, playerY, playerZ)
@@ -322,9 +321,9 @@ function getEnemiesInRect(width,length,showLines)
 	local maxY = math.max(nrY,nlY,frY,flY)
 	local minY = math.min(nrY,nlY,frY,flY)
 	local objectCount = GetObjectCount() or 0
-	for i = 1, objectCount do
-		local thisUnit = GetObjectWithIndex(i)
-		if ObjectIsType(thisUnit, ObjectTypes.Unit) and isValidTarget(thisUnit) and (UnitIsEnemy(thisUnit,"player") or isDummy(thisUnit)) then
+	for i = 1, #enemiesTable do --objectCount do
+		local thisUnit = enemiesTable[i] --GetObjectWithIndex(i)
+		-- if ObjectIsType(thisUnit, ObjectTypes.Unit) and isValidTarget(thisUnit) and (UnitIsEnemy(thisUnit,"player") or isDummy(thisUnit)) then
 			local tX, tY, tZ = GetObjectPosition(thisUnit)
 			if isInside(tX,tY,nlX,nlY,nrX,nrY,frX,frY) then
 				if showLines then
@@ -332,7 +331,7 @@ function getEnemiesInRect(width,length,showLines)
 				end
 				enemyCounter = enemyCounter + 1
 			end
-		end
+		-- end
 	end
 	return enemyCounter
 end
@@ -410,9 +409,9 @@ function getUnitCoeficient(unit,distance,threat,burnValue,shieldValue)
 				elseif getOptionValue("Wise Target") == 3 then -- abs Highest
 					coef = UnitHealth(unit)
 				elseif getOptionValue("Wise Target") == 4 then -- Furthest
-					coef = distance
-				elseif getOptionValue("Wise Target") == 5 then -- Nearest
 					coef = 100 - distance
+				elseif getOptionValue("Wise Target") == 5 then -- Nearest
+					coef = distance
 				else 										   -- Lowest
 					-- if lowest is selected
 					coef = 100 - unitHP
