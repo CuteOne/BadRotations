@@ -886,7 +886,7 @@ local function runRotation()
                 if talent.schism and isChecked("Schism") and getMana("player") > 20 and getSpellCD(spell.schism) <= 0 and (atonementCount >= getValue("Schism") or freeMana) and not isMoving("player") then
                     --Schism
                     if ttd("target") > debuff.schism.duration("target") and debuff.schism.refresh("target") then
-                        if cast.schism("target") and (atonementCount >= getValue("Penance") or freeMana solo) then
+                        if cast.schism("target") and (atonementCount >= getValue("Penance") or freeMana or solo) then
                             if cast.penance("target") then return end
                         end
                     end
