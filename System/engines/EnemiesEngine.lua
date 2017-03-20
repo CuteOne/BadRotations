@@ -56,6 +56,56 @@ local function DeleteEnemy(thisUnit)
 	end
 end
 
+-- Check Critter
+local function IsCritter(checkID)
+    local numPets = C_PetJournal.GetNumPets(false)
+    for i=1,numPets do
+        local _, _, _, _, _, _, _, name, _, _, petID = C_PetJournal.GetPetInfoByIndex(i, false)
+        if checkID == petID then return true end
+    end
+    return false
+end
+
+-- Add Pet
+local function AddPet(thisUnit)
+	if br.player ~= nil then 
+		if br.player.petInfo == nil then br.player.petInfo = {} end
+	end
+    local unitCreator = UnitCreator(thisUnit)
+    if unitCreator == GetObjectWithGUID(UnitGUID("player")) then
+    	if not IsCritter(GetObjectID(thisUnit)) then
+	    	br.player.petInfo[thisUnit] = {}
+			local pet 		= br.player.petInfo[thisUnit] 
+			pet.unit 		= thisUnit
+			pet.name 		= UnitName(thisUnit)
+			pet.guid 		= UnitGUID(thisUnit)
+			pet.id 			= GetObjectID(thisUnit)
+		end
+    end
+end
+
+-- Update Pet
+local function UpdatePet(thisUnit)
+	if br.player.spell.buffs.demonicEmpowerment ~= nil then
+        demoEmpBuff = UnitBuffID(thisUnit,br.player.spell.buffs.demonicEmpowerment) ~= nil
+    else
+        demoEmpBuff = false
+    end
+    local unitCount = #getEnemies(thisUnit,10) or 0
+    local pet 		= br.player.petInfo[thisUnit]
+    pet.deBuff = demoEmpBuff
+    pet.numEnemies = unitCount
+end
+
+-- Delete Pet
+local function DeletePet(thisUnit)
+	if not UnitExists(thisUnit) or not UnitIsVisible(thisUnit) then
+		br.player.petInfo[thisUnit] = nil
+	else
+		UpdatePet(thisUnit)
+	end
+end
+
 -- Find Enemies
 function FindEnemy()
 	-- DEBUG
@@ -76,36 +126,9 @@ function FindEnemy()
 					AddEnemy(thisUnit)
 				end
 				-- Pet Info
-				if br.player ~= nil and (select(2,UnitClass("player")) == "HUNTER" or select(2,UnitClass("player")) == "WARLOCK") then
-		            if br.player.petInfo == nil then br.player.petInfo = {} end
-		            br.player.petInfo = table.wipe(br.player.petInfo)
-                    local unitName      = UnitName(thisUnit)
-                    local unitID        = GetObjectID(thisUnit)
-                    local unitGUID      = UnitGUID(thisUnit)
-                    local unitCreator   = UnitCreator(thisUnit)
-                    local player        = GetObjectWithGUID(UnitGUID("player"))
-                    if unitCreator == player
-                        and (unitID == 55659 -- Wild Imp
-                            or unitID == 98035 -- Dreadstalker
-                            or unitID == 103673 -- Darkglare
-                            or unitID == 78158 or unitID == 11859 -- Doomguard
-                            or unitID == 78217 or unitID == 89 -- Infernal
-                            or unitID == 416 -- Imp
-                            or unitID == 1860 -- Voidwalker
-                            or unitID == 417 -- Felhunter
-                            or unitID == 1863 -- Succubus
-                            or unitID == 17252 -- Felguard
-                            or unitID == 79909) -- Cat
-                    then
-                        if br.player.spell.buffs.demonicEmpowerment ~= nil then
-                            demoEmpBuff   = UnitBuffID(thisUnit,br.player.spell.buffs.demonicEmpowerment) ~= nil
-                        else
-                            demoEmpBuff   = false
-                        end
-                        local unitCount     = #getEnemies(tostring(thisUnit),10) or 0
-                        tinsert(br.player.petInfo,{name = unitName, guid = unitGUID, id = unitID, creator = unitCreator, deBuff = demoEmpBuff, numEnemies = unitCount})
-                    end
-		        end
+				if UnitExists(thisUnit) then
+					AddPet(thisUnit)
+				end
 			end
 		end
 	end
@@ -121,6 +144,13 @@ function EnemiesEngine()
 	if br.enemy ~= nil then
 		for k, v in pairs(br.enemy) do
 			DeleteEnemy(k)
+		end
+	end
+	if br.player ~= nil then
+		if br.player.petInfo ~= nil then
+			for k, v in pairs(br.player.petInfo) do
+				DeletePet(k)
+			end
 		end
 	end
 	-- FindEnemy()
