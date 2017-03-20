@@ -263,6 +263,7 @@ local function runRotation()
         local infernal = false
         local infernalDE = false
         local felguard = false
+        local felguardEnemies = 0
         local petDE = UnitBuffID("pet",spell.buffs.demonicEmpowerment,"player") ~= nil --buff.pet.demonicEmpowerment
         local demonwrathPet = false
         local missingDE = 0
@@ -292,7 +293,7 @@ local function runRotation()
                 if thisUnit == 103673 then darkglare = true; darkglareDE = hasDEbuff end
                 if thisUnit == 11859 then doomguard = true; doomguardDE = hasDEbuff end
                 if thisUnit == 89 then infernal = true; infernalDE = hasDEbuff end
-                if thisUnit == 17252 then felguard = true; felgaurdID = k end
+                if thisUnit == 17252 then felguard = true; felguardEnemies = petInfo[k].numEnemies end
                 if not petInfo[k].deBuff then
                     missingDE = missingDE + 1
                 end
@@ -752,7 +753,7 @@ local function runRotation()
                     end
         -- Felstorm
                     -- felguard:felstorm
-                    if isChecked("Felstorm") and felguard and petInfo[felguardID].numEnemies >= getOptionValue("Felstorm") and cd.felstorm == 0 then
+                    if isChecked("Felstorm") and felguard and felguardEnemies >= getOptionValue("Felstorm") and cd.felstorm == 0 then
                         if cast.commandDemon() then return end
                     end
         -- Doom
