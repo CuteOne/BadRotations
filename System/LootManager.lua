@@ -92,28 +92,43 @@ function lootManager:getLoot()
 			-- if we have a unit to loot, check if its time to
 			if br.timer:useTimer("getLoot", getOptionValue("Auto Loot")) and lootFound then
 				if GetObjectExists(lM.canLootUnit) and looted == 0 then
-					-- make sure the user have the auto loot selected, if its not ,we will enable it when we need it
-					if GetCVar("autoLootDefault") == "0" then
-						SetCVar("autoLootDefault", "1")
-						InteractUnit(lM.canLootUnit)
-						lM:debug("Interact with "..lM.canLootUnit)
-						-- Print("Interact with "..lM.canLootUnit)
-						SetCVar("autoLootDefault", "0")
-						looted = 1
-						lootFound = false
-						CloseLoot()
-						ClearTarget()
-						return
-					else
-						InteractUnit(lM.canLootUnit)
-						lM:debug("Interact with "..lM.canLootUnit)
-						-- Print("Interact with "..lM.canLootUnit)
-						looted = 1
-						lootFound = false
-						CloseLoot()
-						ClearTarget()
-						return
+					InteractUnit(lM.canLootUnit)
+					lM:debug("Interact with "..lM.canLootUnit)
+					-- Print("Interact with "..lM.canLootUnit)
+					looted = 1
+					lootFound = false
+					if LootFrame:IsShown() then
+					    for l=1, GetNumLootItems() do
+					       	if LootSlotHasItem(l) then
+					        	LootSlot(l)
+					   		end
+					   	end
+					    CloseLoot()
 					end
+				    ClearTarget()
+					return
+					-- make sure the user have the auto loot selected, if its not ,we will enable it when we need it
+					-- if GetCVar("autoLootDefault") == "0" then
+					-- 	SetCVar("autoLootDefault", "1")
+					-- 	InteractUnit(lM.canLootUnit)
+					-- 	lM:debug("Interact with "..lM.canLootUnit)
+					-- 	-- Print("Interact with "..lM.canLootUnit)
+					-- 	SetCVar("autoLootDefault", "0")
+					-- 	looted = 1
+					-- 	lootFound = false
+					-- 	CloseLoot()
+					-- 	ClearTarget()
+					-- 	return
+					-- else
+					-- 	InteractUnit(lM.canLootUnit)
+					-- 	lM:debug("Interact with "..lM.canLootUnit)
+					-- 	-- Print("Interact with "..lM.canLootUnit)
+					-- 	looted = 1
+					-- 	lootFound = false
+					-- 	CloseLoot()
+					-- 	ClearTarget()
+					-- 	return
+					-- end
 				end
 			end
 		end

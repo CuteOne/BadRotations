@@ -263,12 +263,22 @@ local function runRotation()
         local infernal = false
         local infernalDE = false
         local felguard = false
+        local felguardEnemies = 0
         local petDE = UnitBuffID("pet",spell.buffs.demonicEmpowerment,"player") ~= nil --buff.pet.demonicEmpowerment
         local demonwrathPet = false
-        if br.player.petInfo ~= nil then
-            for i = 1, #br.player.petInfo do
-                local thisUnit = br.player.petInfo[i].id
-                local hasDEbuff = br.player.petInfo[i].deBuff
+        local missingDE = 0
+        if petInfo ~= nil then
+            for k, v in pairs(petInfo) do
+            -- for i = 1, #br.player.petInfo do
+                local thisUnit = petInfo[k].id or 0
+                local hasDEbuff = petInfo[k].deBuff or false
+                local enemyCount = petInfo[k].numEnemies or 0
+                if enemyCount >= 3 then
+                    demonwrathPet = true;
+                    break
+                else
+                    demonwrathPet = false
+                end
                 if thisUnit == 55659 then
                     wildImpCount = wildImpCount + 1
                     wildImpDE = hasDEbuff
@@ -283,15 +293,9 @@ local function runRotation()
                 if thisUnit == 103673 then darkglare = true; darkglareDE = hasDEbuff end
                 if thisUnit == 11859 then doomguard = true; doomguardDE = hasDEbuff end
                 if thisUnit == 89 then infernal = true; infernalDE = hasDEbuff end
-                if thisUnit == 17252 then felguard = true end
-            end
-            for i = 1, #br.player.petInfo do
-                local enemyCount = br.player.petInfo[i].numEnemies
-                if enemyCount >= 3 then
-                    demonwrathPet = true;
-                    break
-                else
-                    demonwrathPet = false
+                if thisUnit == 17252 then felguard = true; felguardEnemies = petInfo[k].numEnemies end
+                if not petInfo[k].deBuff then
+                    missingDE = missingDE + 1
                 end
             end
         end
@@ -749,7 +753,7 @@ local function runRotation()
                     end
         -- Felstorm
                     -- felguard:felstorm
-                    if isChecked("Felstorm") and felguard and petInfo[1].numEnemies >= getOptionValue("Felstorm") and cd.felstorm == 0 then
+                    if isChecked("Felstorm") and felguard and felguardEnemies >= getOptionValue("Felstorm") and cd.felstorm == 0 then
                         if cast.commandDemon() then return end
                     end
         -- Doom
@@ -777,12 +781,6 @@ local function runRotation()
                     -- thalkiels_consumption,if=(dreadstalker_remaining_duration>execute_time|talent.implosion.enabled&spell_targets.implosion>=3)&wild_imp_count>3&wild_imp_remaining_duration>execute_time
                     if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()) then
                         if (dreadStalkersRemain > getCastTime(spell.thalkielsConsumption) or (talent.implosion and #enemies.yards8t >= 3)) and wildImpCount > 3 and wildImpRemain > getCastTime(spell.thalkielsConsumption) then
-                            missingDE = 0
-                            for i = 1, #petInfo do
-                                if not petInfo[i].deBuff then
-                                    missingDE = missingDE + 1
-                                end
-                            end
                             if missingDE == 0 then
                                 if cast.thalkielsConsumption() then return end
                             end
