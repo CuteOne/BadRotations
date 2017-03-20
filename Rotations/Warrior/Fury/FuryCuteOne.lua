@@ -827,7 +827,7 @@ local function runRotation()
                 end
             -- Action List - Single Target
                 -- call_action_list,name=single_target,if=target.health.pct>20
-                if thp >= 20 or (thp < 20 and level < 8) or (((#enemies.yards8 > 3 and mode.rotation == 1) or mode.rotation == 2) and level < 28) or mode.exec == 2 then
+                if not buff.battleCry.exists() and (thp >= 20 or (thp < 20 and level < 8) or (((#enemies.yards8 > 3 and mode.rotation == 1) or mode.rotation == 2) and level < 28) or mode.exec == 2) then
                     if actionList_Single() then return end
                 end
             end -- End Combat Rotation
