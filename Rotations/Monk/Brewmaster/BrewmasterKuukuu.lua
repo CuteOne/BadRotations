@@ -643,7 +643,7 @@ local function runRotation()
     -- Profile Stop | Pause
         if not inCombat and not hastar and profileStop==true then
             profileStop = false
-        elseif (inCombat and profileStop==true) or pause() or (IsMounted() or IsFlying()) or mode.rotation==4 then
+        elseif (inCombat and profileStop==true) or pause() or (IsMounted() or IsFlying()) and getBuffRemain("player", 192002 ) < 10 or mode.rotation==4 then
             return true
         else
 -----------------------
