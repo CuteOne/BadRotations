@@ -70,18 +70,18 @@ end
 local function AddPet(thisUnit)
 	if br.player ~= nil then 
 		if br.player.petInfo == nil then br.player.petInfo = {} end
+	    local unitCreator = UnitCreator(thisUnit)
+	    if unitCreator == GetObjectWithGUID(UnitGUID("player")) then
+	    	if not IsCritter(GetObjectID(thisUnit)) then
+		    	br.player.petInfo[thisUnit] = {}
+				local pet 		= br.player.petInfo[thisUnit] 
+				pet.unit 		= thisUnit
+				pet.name 		= UnitName(thisUnit)
+				pet.guid 		= UnitGUID(thisUnit)
+				pet.id 			= GetObjectID(thisUnit)
+			end
+	    end
 	end
-    local unitCreator = UnitCreator(thisUnit)
-    if unitCreator == GetObjectWithGUID(UnitGUID("player")) then
-    	if not IsCritter(GetObjectID(thisUnit)) then
-	    	br.player.petInfo[thisUnit] = {}
-			local pet 		= br.player.petInfo[thisUnit] 
-			pet.unit 		= thisUnit
-			pet.name 		= UnitName(thisUnit)
-			pet.guid 		= UnitGUID(thisUnit)
-			pet.id 			= GetObjectID(thisUnit)
-		end
-    end
 end
 
 -- Update Pet
