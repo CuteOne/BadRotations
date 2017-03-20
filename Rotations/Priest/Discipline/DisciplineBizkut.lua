@@ -852,7 +852,7 @@ local function runRotation()
                     for i = 1, #enemies.dyn40 do
                         local thisUnit = enemies.dyn40[i]
                         if UnitIsUnit(thisUnit,"target") or hasThreat(thisUnit) or isDummy(thisUnit) then
-                            if ttd(thisUnit) > debuff.purgeTheWicked.duration(thisUnit) and debuff.purgeTheWicked.refresh(thisUnit) and (ptwBuffcount < getValue("Shadow Word: Pain/Purge The Wicked") or freeMana) then
+                            if ttd(thisUnit) > debuff.purgeTheWicked.duration(thisUnit) and debuff.purgeTheWicked.refresh(thisUnit) and (ptwBuffcount < getValue("Shadow Word: Pain/Purge The Wicked") or freeMana or solo) then
                                 if schismBuff == thisUnit or not talent.schism or not isChecked("Schism") or schismBuff == nil then
                                     if cast.purgeTheWicked(thisUnit) then
                                         ptwBuff = thisUnit
@@ -866,7 +866,7 @@ local function runRotation()
                     for i = 1, #enemies.dyn40 do
                         local thisUnit = enemies.dyn40[i]
                         if UnitIsUnit(thisUnit,"target") or hasThreat(thisUnit) or isDummy(thisUnit) then
-                            if ttd(thisUnit) > debuff.shadowWordPain.duration(thisUnit) and debuff.shadowWordPain.refresh(thisUnit) and (swpBuffcount < getValue("Shadow Word: Pain/Purge The Wicked") or freeMana) then
+                            if ttd(thisUnit) > debuff.shadowWordPain.duration(thisUnit) and debuff.shadowWordPain.refresh(thisUnit) and (swpBuffcount < getValue("Shadow Word: Pain/Purge The Wicked") or freeMana or solo) then
                                 if cast.shadowWordPain(thisUnit) then
                                     swpBuff = thisUnit
                                 end
@@ -877,20 +877,20 @@ local function runRotation()
             end
             --Penance
             if isChecked("Penance") or isChecked("Schism") then
-                if schismBuff and (atonementCount >= getValue("Penance") or freeMana) then
+                if schismBuff and (atonementCount >= getValue("Penance") or freeMana or solo) then
                     if cast.penance(schismBuff) then return end
                 end
-                if ptwBuff and (atonementCount >= getValue("Penance")  or freeMana) then
+                if ptwBuff and (atonementCount >= getValue("Penance")  or freeMana or solo) then
                     if cast.penance(ptwBuff) then return end
                 end
                 if talent.schism and isChecked("Schism") and getMana("player") > 20 and getSpellCD(spell.schism) <= 0 and (atonementCount >= getValue("Schism") or freeMana) and not isMoving("player") then
                     --Schism
                     if ttd("target") > debuff.schism.duration("target") and debuff.schism.refresh("target") then
-                        if cast.schism("target") and (atonementCount >= getValue("Penance") or freeMana) then
+                        if cast.schism("target") and (atonementCount >= getValue("Penance") or freeMana solo) then
                             if cast.penance("target") then return end
                         end
                     end
-                elseif atonementCount >= (getValue("Penance") or freeMana) then
+                elseif atonementCount >= (getValue("Penance") or freeMana solo) then
                     if cast.penance() then return end
                 end
             end
@@ -973,7 +973,7 @@ local function runRotation()
             end
             --Smite
             if isChecked("Smite") then
-                if (getMana("player") > 20 and ((not inInstance and not inRaid) or atonementCount >= getValue("Smite"))) or freeMana then
+                if (getMana("player") > 20 and ((not inInstance and not inRaid) or atonementCount >= getValue("Smite"))) or freeMana or solo then
                     if schismBuff then
                         if cast.smite(schismBuff) then return end
                     end
