@@ -242,7 +242,7 @@ local function runRotation()
 -----------------
 --- Rotations ---
 -----------------
-        if getOptionValue("Mode") == 1 and not IsMounted() then
+        if getOptionValue("Mode") == 1 and not IsMounted() and getBuffRemain("player", 192002 ) < 10 then
             if actionList_Defensive() then return end
              -- Redemption
             if isChecked("Redemption") then
@@ -527,7 +527,7 @@ local function runRotation()
             end
             
         end -- NOrmal Mode Check
-        if getOptionValue("Mode") == 2 and not IsMounted() then
+        if getOptionValue("Mode") == 2 and not IsMounted() and getBuffRemain("player", 192002 ) < 5 then
             if actionList_Defensive() then return end
             -- Redemption
             if isChecked("Redemption") then
