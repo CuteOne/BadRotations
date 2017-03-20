@@ -269,9 +269,9 @@ local function runRotation()
         if petInfo ~= nil then
             for k, v in pairs(petInfo) do
             -- for i = 1, #br.player.petInfo do
-                local thisUnit = petInfo[k].id
-                local hasDEbuff = petInfo[k].deBuff
-                local enemyCount = petInfo[k].numEnemies
+                local thisUnit = petInfo[k].id or 0
+                local hasDEbuff = petInfo[k].deBuff or false
+                local enemyCount = petInfo[k].numEnemies or 0
                 if enemyCount >= 3 then
                     demonwrathPet = true;
                     break
