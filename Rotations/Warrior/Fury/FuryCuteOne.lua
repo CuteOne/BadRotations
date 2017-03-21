@@ -39,8 +39,9 @@ local function createToggles()
     CreateButton("Mover",5,0)
 -- Execute Button
     ExecModes = {
-        [1] = { mode = "On", value = 1 , overlay = "Execute Enabled", tip = "Will use Execute.", highlight = 1, icon = br.player.spell.execute },
-        [2] = { mode = "Off", value = 2 , overlay = "Execute Disabled", tip = "Will NOT use Execute.", highlight = 0, icon = br.player.spell.execute }
+        [1] = { mode = "Auto", value = 1 , overlay = "Auto Execute Enabled", tip = "Will Auto use Execute Rotation.", highlight = 1, icon = br.player.spell.execute },
+        [2] = { mode = "On", value = 2 , overlay = "Force Execute Enabled", tip = "Will Only use Execute Rotation.", highlight = 0, icon = br.player.spell.execute },
+        [3] = { mode = "Off", value = 3 , overlay = "No Execute Enabled", tip = "Will NOT use Execute Rotation.", highlight = 0, icon = br.player.spell.furiousSlash }
     };
     CreateButton("Exec",6,0)
         -- refresh Button
@@ -244,7 +245,7 @@ local function runRotation()
         enemies.yards30 = br.player.enemies(30)        
         enemies.yards40 = br.player.enemies(40)
         if hasEquiped(140806) then convergingFate = 1 else convergingFate = 0 end
-        if canUse(140808) and cd.bloodthirst == 0 and thp < 20 and mode.exec == 1 then delaybc = true else delaybc = false end
+        if canUse(140808) and cd.bloodthirst == 0 and thp < 20 and (mode.exec == 1 or mode.exec == 2) then delaybc = true else delaybc = false end
 
 
         if leftCombat == nil then leftCombat = GetTime() end
@@ -790,44 +791,44 @@ local function runRotation()
                 if actionList_Cooldowns() then return end
             -- Action List - Battle Cry Window
                 -- call_action_list,name=cooldowns,if=buff.battle_cry.up
-                if buff.battleCry.exists() and thp < 20 and mode.exec == 1 and canUse(140808) then
+                if buff.battleCry.exists() and thp < 20 and (mode.exec == 1 or mode.exec == 2) and canUse(140808) then
                     if actionList_BCExecutedos() then return end
                 end
-                if buff.battleCry.exists() and thp < 20 and mode.exec == 1 and not canUse(140808) then
+                if buff.battleCry.exists() and thp < 20 and (mode.exec == 1 or mode.exec == 2) and not canUse(140808) then
                     if actionList_BCExecute() then return end
                 end
-                if buff.battleCry.exists() and (mode.exec == 2 or (thp >= 20 and mode.exec == 1)) and canUse(140808) then
+                if buff.battleCry.exists() and (mode.exec == 3 or (thp >= 20 and (mode.exec == 1 or mode.exec == 2))) and canUse(140808) then
                     if actionList_BattleCryWindow4pcdos() then return end
                 end
-                if buff.battleCry.exists() and (mode.exec == 2 or (thp >= 20 and mode.exec == 1)) then
+                if buff.battleCry.exists() and (mode.exec == 3 or (thp >= 20 and (mode.exec == 1 or mode.exec == 2))) then
                     if actionList_BattleCryWindow() then return end
                 end
             -- Action List - 8+ Targets
-                if #enemies.yards8 >= 8 and mode.exec == 2 then
+                if #enemies.yards8 >= 8 and ((mode.exec == 1 and thp >= 20) or mode.exec == 3) then
                     if actionList_EightTargets() then return end
                 end
             -- Action List - 4 Targets
-                if #enemies.yards8 >= 4 and mode.exec == 2 then
+                if #enemies.yards8 >= 4 and ((mode.exec == 1 and thp >= 20) or mode.exec == 3) then
                     if actionList_FourTargets() then return end
                 end            
             -- Action List - 3 Targets
                 -- call_action_list,name=three_targets,if=target.health.pct>20&(spell_targets.whirlwind=3|spell_targets.whirlwind=4)
-                if #enemies.yards8 == 3 and mode.exec == 2 then
+                if #enemies.yards8 == 3 and ((mode.exec == 1 and thp >= 20) or mode.exec == 3) then
                     if actionList_ThreeTargets() then return end
                 end
             -- Action List - 2 Target
                 -- call_action_list,name=aoe,if=spell_targets.whirlwind>4
-                if #enemies.yards8 == 2 and mode.exec == 2 then
+                if #enemies.yards8 == 2 and ((mode.exec == 1 and thp >= 20) or mode.exec == 3) then
                     if actionList_TwoTarget() then return end
                 end
             -- Action List - Execute
                 -- call_action_list,name=execute,if=target.health.pct<20
-                if thp < 20 and level >= 8 and mode.exec == 1 then
+                if thp < 20 and level >= 8 and (mode.exec == 1 or mode.exec == 2) then
                     if actionList_Execute() then return end
                 end
             -- Action List - Single Target
                 -- call_action_list,name=single_target,if=target.health.pct>20
-                if not buff.battleCry.exists() and (thp >= 20 or (thp < 20 and level < 8) or (((#enemies.yards8 > 3 and mode.rotation == 1) or mode.rotation == 2) and level < 28) or mode.exec == 2) then
+                if not buff.battleCry.exists() and (thp >= 20 or (thp < 20 and level < 8) or (((#enemies.yards8 > 3 and mode.rotation == 1) or mode.rotation == 2) and level < 28) or ((mode.exec == 1 and thp >= 20) or mode.exec == 3)) then
                     if actionList_Single() then return end
                 end
             end -- End Combat Rotation
