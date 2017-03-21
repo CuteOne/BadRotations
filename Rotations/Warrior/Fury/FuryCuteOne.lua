@@ -818,7 +818,7 @@ local function runRotation()
                 end
             -- Action List - 2 Target
                 -- call_action_list,name=aoe,if=spell_targets.whirlwind>4
-                if #enemies.yards8 == 2 and ((mode.exec == 1 and thp >= 20) or mode.exec == 3)) then
+                if #enemies.yards8 == 2 and ((mode.exec == 1 and thp >= 20) or mode.exec == 3) then
                     if actionList_TwoTarget() then return end
                 end
             -- Action List - Execute
