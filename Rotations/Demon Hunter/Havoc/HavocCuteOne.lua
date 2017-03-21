@@ -251,15 +251,25 @@ local function runRotation()
         if talent.demonic and buff.metamorphosis.duration() > 10 and lastSpell == spell.eyeBeam then metaEyeBeam = true end
         if metaEyeBeam == nil or (metaEyeBeam == true and not buff.metamorphosis.exists()) then metaEyeBeam = false end
 
+
     -- Custom Functions
         local function cancelRushAnimation()
-            if castable.felRush and GetUnitSpeed("player") == 0 then
-                MoveBackwardStart()
-                JumpOrAscendStart()
+            if castable.felRush then --and GetUnitSpeed("player") == 0 then
+                -- AddFrameCallback(function ()
+                --      RunSpeed = select(2, GetUnitSpeed("Player"));
+                --      if RunSpeed == 66 then 
+                --         SetMovementFlags("Player", bit.band(bit.bnot(0xF), UnitMovementFlags("Player")));
+                --         SendMovementUpdate();
+                --      end                         
+                -- end)
+                -- MoveBackwardStart()
+                -- JumpOrAscendStart()
+                -- cast.felRush()
+                -- MoveBackwardStop()
+                -- AscendStop()
                 cast.felRush()
-                MoveBackwardStop()
-                AscendStop()
             end
+            C_Timer.After(.001, function() SetCurrentSpeed(0) end)
             return
         end
         local function cancelRetreatAnimation()
@@ -620,7 +630,7 @@ local function runRotation()
                             or (not t19_4pc and not poolForMeta and not buff.metamorphosis.exists() 
                             and (artifact.anguishOfTheDeceiver or ((mode.rotation == 1 and enemies.yards8r >= getOptionValue("Eye Beam Targets") and getOptionValue("Eye Beam Usage") ~= 3) or mode.rotation == 2)) 
                             and not talent.chaosCleave and getOptionValue("Eye Beam Usage") == 1))
-                        -- and getDistance(units.dyn8) < 8 and getFacing("player",units.dyn5,45)
+                        and getDistance(units.dyn8) < 8 and getFacing("player",units.dyn5,45)
                     then
                         if cast.eyeBeam(units.dyn5) then return end
                     end
