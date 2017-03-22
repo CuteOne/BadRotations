@@ -740,6 +740,7 @@ br.idList = {
                 innervate                   = 29166,
                 renewal                     = 108238,
                 wildCharge                  = 102383,
+                removeCorruption            = 2782,
             },
             artifacts                       = {
             },
@@ -750,6 +751,7 @@ br.idList = {
                 celestialAlignment          = 194223,
                 furyOfElune                 = 202770,
                 onethsOverconfidence        = 209407,
+                onethsIntuition             = 209406,
                 solarEmpowerment            = 164545,
                 lunarEmpowerment            = 164547,
                 warriorOfElune              = 202425,
