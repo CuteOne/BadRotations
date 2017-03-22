@@ -267,19 +267,19 @@ local function runRotation()
                 if cast.volley() then return end
             end
             --Misdirection
-            if getSpellCD(34477) <= 0.1 then
-                if UnitThreatSituation("player", "target") ~= nil and UnitAffectingCombat("player") then
-                    if inInstance or inRaid then
-                        for i = 1, #br.friend do
-                            if (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and UnitAffectingCombat(br.friend[i].unit) then
-                                CastSpellByName(GetSpellInfo(34477),br.friend[i].unit)
-                            end
-                        end
-                    else
-                        CastSpellByName(GetSpellInfo(34477),"pet")
-                    end
-                end
-            end
+ --           if getSpellCD(34477) <= 0.1 then
+  --              if UnitThreatSituation("player", "target") ~= nil and UnitAffectingCombat("player") then
+  --                  if inInstance or inRaid then
+  --                      for i = 1, #br.friend do
+--                            if (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and UnitAffectingCombat(br.friend[i].unit) then
+ --                               CastSpellByName(GetSpellInfo(34477),br.friend[i].unit)
+--                            end
+--                        end
+--                    else
+--                        CastSpellByName(GetSpellInfo(34477),"pet")
+ --                   end
+--                end
+--            end
         end -- End Action List - Extras
     -- Action List - Defensive
         local function actionList_Defensive()
