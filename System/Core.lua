@@ -20,8 +20,8 @@ end
 local elapsedTime = 0
 function EnemyEngine(_, time)
 	elapsedTime = elapsedTime + time
-
-	if FireHack ~= nil and br.data.settings[br.selectedSpec].toggles["Power"] == 1 and elapsedTime >= getOptionValue("Update Rate") then --0.5 then
+	local updateRate = getOptionValue("Update Rate") or 0.5
+	if FireHack ~= nil and br.data.settings[br.selectedSpec].toggles["Power"] == 1 and elapsedTime >= updateRate then --0.5 then
 		elapsedTime = 0
 		-- Enemies Engine
 		-- EnemiesEngine();

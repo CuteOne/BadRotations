@@ -352,10 +352,11 @@ local function runRotation()
                 and cd.summonGargoyle <= 0 
                 and (not talent.darkArbiter or runicPowerDeficit <= 10)
             then
+                if cast.summonGargoyle() then return end
                 if hasEquiped(137075)  then 
                     if cast.darkTransformation() then return end
                 end
-                if cast.summonGargoyle() then return end
+               
             end
         end
     ---------------------------------------------------------------------------------------------------------------------------------    
@@ -499,7 +500,7 @@ local function runRotation()
                         and not (UnitBuff("focus","Blessing of Freedom") ~= nil)
                         and not immun
                         and not cloak
-                        and isMoving(thisUnit) 
+                        and isMoving("focus") 
                         and getDistance("focus") <= 30
                     then
                         if cast.chainsOfIce("focus","aoe") then waitforNextIoCFocus = GetTime() return end

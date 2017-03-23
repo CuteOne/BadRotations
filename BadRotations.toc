@@ -93,6 +93,7 @@ Rotations\idList.lua
 ## DeathKnight ---------------------------------------------------
 
 Rotations\Death Knight\Frost\FrostCuteOne.lua
+Rotations\Death Knight\Frost\THFrost.lua
 
 Rotations\Death Knight\Blood\BloodCuteOne.lua
 

@@ -573,7 +573,7 @@ local function runRotation()
                 for i = 1, #enemies.yards40 do
                     local thisUnit = enemies.yards40[i]
                     if ((isBoss() and bossHPLimit(thisUnit,10)) or solo) and (hasThreat(thisUnit) or isDummy(thisUnit)) then 
-                        if debuff.flameShock.refresh(thisUnit) and ttd(thisUnit) > 15 and (not debuff.flameShock.exists(thisUnit) or debuff.flameShock.remain(thisUnit) <= gcd) then
+                        if debuff.flameShock.refresh(thisUnit) and ttd(thisUnit) > 15 then --and (not debuff.flameShock.exists(thisUnit) or debuff.flameShock.remain(thisUnit) <= gcd) then
                             if cast.flameShock(thisUnit) then return end
                         end
                     end
@@ -683,7 +683,7 @@ local function runRotation()
                 for i = 1, #enemies.yards40 do
                     local thisUnit = enemies.yards40[i]
                     if ((isBoss() and bossHPLimit(thisUnit,10)) or solo) and (hasThreat(thisUnit) or isDummy(thisUnit)) then 
-                        if debuff.flameShock.refresh(thisUnit) and ttd(thisUnit) > 15 and (not debuff.flameShock.exists(thisUnit) or debuff.flameShock.remain(thisUnit) <= gcd) then
+                        if debuff.flameShock.refresh(thisUnit) and ttd(thisUnit) > 15 then --and (not debuff.flameShock.exists(thisUnit) or debuff.flameShock.remain(thisUnit) <= gcd) then
                             if cast.flameShock(thisUnit) then return end
                         end
                     end
@@ -801,7 +801,7 @@ local function runRotation()
                 for i = 1, #enemies.yards40 do
                     local thisUnit = enemies.yards40[i]
                     if ((isBoss() and bossHPLimit(thisUnit,10)) or solo) and (hasThreat(thisUnit) or isDummy(thisUnit)) then 
-                        if debuff.flameShock.refresh(thisUnit) and ttd(thisUnit) > 15 and (not debuff.flameShock.exists(thisUnit) or debuff.flameShock.remain(thisUnit) <= gcd) then
+                        if debuff.flameShock.refresh(thisUnit) and ttd(thisUnit) > 15 then --and (not debuff.flameShock.exists(thisUnit) or debuff.flameShock.remain(thisUnit) <= gcd) then
                             if cast.flameShock(thisUnit) then return end
                         end
                     end
