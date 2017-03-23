@@ -589,7 +589,7 @@ local function runRotation()
         local function actionList_GatheringStormTicking()
         -- Frost Strike
             -- frost_strike,if=buff.icy_talons.remains<1.5&talent.icy_talons.enabled
-            if buff.icyTalons.remin < 1.5 and talent.icyTalons then
+            if buff.icyTalons.remain() < 1.5 and talent.icyTalons then
                 if cast.frostStrike() then return end
             end
         -- Remorseless Winter
