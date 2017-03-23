@@ -31,6 +31,12 @@ local function createToggles()
         [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.counterShot }
     };
     CreateButton("Interrupt",4,0)
+    -- MD Button
+    MisdirectionModes = {
+        [1] = { mode = "On", value = 1 , overlay = "Misdirection Enabled", tip = "Misdirection Enabled", highlight = 1, icon = br.player.spell.misdirection },
+        [2] = { mode = "Off", value = 2 , overlay = "Misdirection Disabled", tip = "Misdirection Disabled", highlight = 0, icon = br.player.spell.misdirection }
+    };
+    CreateButton("Misdirection",1.5,1)
 end
 
 ---------------
@@ -131,6 +137,7 @@ local function runRotation()
         UpdateToggle("Cooldown",0.25)
         UpdateToggle("Defensive",0.25)
         UpdateToggle("Interrupt",0.25)
+        br.player.mode.misdirection = br.data.settings[br.selectedSpec].toggles["Misdirection"]
 
 --------------
 --- Locals ---
@@ -147,6 +154,7 @@ local function runRotation()
         local cd                                            = br.player.cd
         local charges                                       = br.player.charges
         local deadMouse                                     = UnitIsDeadOrGhost("mouseover")
+        local deadPet                                       = deadPet
         local deadtar, attacktar, hastar, playertar         = deadtar or UnitIsDeadOrGhost("target"), attacktar or UnitCanAttack("target", "player"), hastar or ObjectExists("target"), UnitIsPlayer("target")
         local debuff                                        = br.player.debuff
         local enemies                                       = enemies or {}
@@ -198,26 +206,30 @@ local function runRotation()
 	-- Action List - Pet Management
         local function actionList_PetManagement()
             if not IsMounted() then
-                if isChecked("Auto Summon") and not UnitExists("pet") and (UnitIsDead("pet") ~= nil or UnitIsDead("pet") == false) then
+                if isChecked("Auto Summon") and not UnitExists("pet") and (UnitIsDead("pet") ~= nil or IsPetActive() == false) then
                   if waitForPetToAppear ~= nil and waitForPetToAppear < GetTime() - 2 then
                     if lastFailedWhistle and lastFailedWhistle > GetTime() - 3 then
-                      if castSpell("player",RevivePet) then return; end
+          --            if deadPet == true then
+                        if castSpell("player",982) then return; end
+            --          end
                     else
-                      local Autocall = getValue("Auto Summon");
+              --        if deadPet == false then
+                        local Autocall = getValue("Auto Summon");
 
-                      if Autocall == 1 then
-                        if castSpell("player",883) then return; end
-                      elseif Autocall == 2 then
-                        if castSpell("player",83242) then return; end
-                      elseif Autocall == 3 then
-                        if castSpell("player",83243) then return; end
-                      elseif Autocall == 4 then
-                        if castSpell("player",83244) then return; end
-                      elseif Autocall == 5 then
-                        if castSpell("player",83245) then return; end
-                      else
-                        Print("Auto Call Pet Error")
-                      end
+                        if Autocall == 1 then
+                          if castSpell("player",883) then return; end
+                        elseif Autocall == 2 then
+                          if castSpell("player",83242) then return; end
+                        elseif Autocall == 3 then
+                          if castSpell("player",83243) then return; end
+                        elseif Autocall == 4 then
+                          if castSpell("player",83244) then return; end
+                        elseif Autocall == 5 then
+                          if castSpell("player",83245) then return; end
+                        else
+                          Print("Auto Call Pet Error")
+                        end
+                --      end
                     end
                   end
                   if waitForPetToAppear == nil then
@@ -267,19 +279,7 @@ local function runRotation()
                 if cast.volley() then return end
             end
             --Misdirection
- --           if getSpellCD(34477) <= 0.1 then
-  --              if UnitThreatSituation("player", "target") ~= nil and UnitAffectingCombat("player") then
-  --                  if inInstance or inRaid then
-  --                      for i = 1, #br.friend do
---                            if (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and UnitAffectingCombat(br.friend[i].unit) then
- --                               CastSpellByName(GetSpellInfo(34477),br.friend[i].unit)
---                            end
---                        end
---                    else
---                        CastSpellByName(GetSpellInfo(34477),"pet")
- --                   end
---                end
---            end
+
         end -- End Action List - Extras
     -- Action List - Defensive
         local function actionList_Defensive()
@@ -584,6 +584,22 @@ local function runRotation()
                         if talent.volley and not buff.volley.exists() then
                             if cast.volley() then return end
                         end
+
+                        if br.player.mode.misdirection == 1 then
+                          if getSpellCD(34477) <= 0.1 then
+                            if (UnitThreatSituation("player", "target") ~= nil or (UnitExists("target") and isDummy("target"))) and UnitAffectingCombat("player") then
+                                if inInstance or inRaid then
+                                    for i = 1, #br.friend do
+                                        if (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and UnitAffectingCombat(br.friend[i].unit) then
+                                          CastSpellByName(GetSpellInfo(34477),br.friend[i].unit)
+                                        end
+                                    end
+                                else
+                                    CastSpellByName(GetSpellInfo(34477),"pet")
+                                end
+                            end
+                          end
+                        end
                     -- Potion of Prolonged Power
                         --TODO
                     -- Murder of Crows
@@ -597,7 +613,7 @@ local function runRotation()
                     -- Dire Beast
                         if not talent.direFrenzy and cd.bestialWrath > 3 then
                             if cast.direBeast(units.dyn40) then return end
-                        end 
+                        end
                     -- Dire Frenzy
                         if talent.direFrenzy and getSpellCD(217200) == 0 and ((cd.bestialWrath > 6 and (not hasEquiped(144326) or buff.direFrenzy.remain("pet") <= (gcd*1.2))) or ttd(units.dyn40) < 9) then
                             if cast.direFrenzy(units.dyn40) then return end
