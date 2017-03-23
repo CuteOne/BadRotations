@@ -451,6 +451,10 @@ local function runRotation()
         if isChecked("Effuse") and lowest.hp <= getValue("Effuse") and ((botSpell ~= spell.lifeCocoon or botSpell ~= spell.vivify or botSpell ~= spell.effuse or botSpell ~= spell.envelopingMist) and currentTarget ~= UnitGUID(lowest.unit)) then
             if cast.effuse(lowest.unit) then return true end
         end
+        -- Ephemeral Paradox trinket
+        if hasEquiped(140805) and getBuffRemain("player", 225767) > 2 and botSpell ~= spell.effuse then
+            if cast.effuse(lowest.unit) then return true end
+        end
         return false
     end--OK
 
