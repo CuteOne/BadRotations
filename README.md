@@ -104,6 +104,7 @@ Vilt    | Limited |  7.1  |   100% | :white_check_mark:
 author  | support | patch | status |   raidable?
 :------ | :-----: | :---: | -----: | :-----------:
 CuteOne |  Full   | 7.1.5 |   100% | :interrobang:
+THFrost |  Full   | 7.1.5 |   100% | :interrobang:
 
 - Unholy
 

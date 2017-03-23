@@ -2,7 +2,7 @@
 ## Title: |cffa330c9BadRotations
 ## Notes: |cffa330c9By CuteOne.
 ## Author: CuteOne
-## Version: 1.3.2
+## Version: 1.3.3
 ## SavedVariablesPerCharacter: brdata
 
 BadRotations.lua
@@ -93,6 +93,7 @@ Rotations\idList.lua
 ## DeathKnight ---------------------------------------------------
 
 Rotations\Death Knight\Frost\FrostCuteOne.lua
+Rotations\Death Knight\Frost\THFrost.lua
 
 Rotations\Death Knight\Blood\BloodCuteOne.lua
 
