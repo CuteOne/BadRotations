@@ -580,7 +580,7 @@ local function runRotation()
             end
         -- Whirlwind
             -- whirlwind,if=buff.wrecking_ball.react&buff.enrage.up
-            if (mode.rotation == 1 and #enemies.yards8 > 0) or mode.rotation == 2) and buff.wreckingBall.exists() and buff.enrage.exists() then
+            if ((mode.rotation == 1 and #enemies.yards8 > 0) or mode.rotation == 2) and buff.wreckingBall.exists() and buff.enrage.exists() then
                 if cast.whirlwind() then return end
             end
         -- Bloodthirst
