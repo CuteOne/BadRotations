@@ -714,7 +714,9 @@ local function runRotation()
                     end
             -- Consecration
                     -- consecration
-                    if cast.consecration() then return end
+                    if #enemies.yards8 >= 1 then
+                        if cast.consecration() then return end
+                    end
             -- Divine Storm
                     -- divine_storm,if=debuff.judgment.up&spell_targets.divine_storm>=2&buff.divine_purpose.react
                     -- divine_storm,if=debuff.judgment.up&spell_targets.divine_storm>=2&buff.the_fires_of_justice.react&(!talent.crusade.enabled|cooldown.crusade.remain()s>gcd*3)
