@@ -126,6 +126,13 @@ local function createOptions()
         br.ui:createDropdown(section, "Summon Jade Serpent", {colorGreen.."Player",colorBlue.."Target",colorRed.."Tank"}, 3,colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.."Use of Summon Jade Serpent.", colorWhite.."Use Summon Jade Serpent at location of.")
         br.ui:checkSectionState(section)
 
+
+        --Offensive Options
+        section = br.ui:createSection(br.ui.window.profile, "Offensive")
+        br.ui:createCheckbox(section,"Crackling Jade Lightning",colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.."the use of Crackling Jade Lightning.")
+        br.ui:checkSectionState(section)
+
+
         -- Interrupt Options
         section = br.ui:createSection(br.ui.window.profile, "Interrupt")
         br.ui:createCheckbox(section,"Leg Sweep",colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.." use of Leg Sweep.")
@@ -451,6 +458,10 @@ local function runRotation()
         if isChecked("Effuse") and lowest.hp <= getValue("Effuse") and ((botSpell ~= spell.lifeCocoon or botSpell ~= spell.vivify or botSpell ~= spell.effuse or botSpell ~= spell.envelopingMist) and currentTarget ~= UnitGUID(lowest.unit)) then
             if cast.effuse(lowest.unit) then return true end
         end
+        -- Ephemeral Paradox trinket
+        if hasEquiped(140805) and getBuffRemain("player", 225767) > 2 and botSpell ~= spell.effuse then
+            if cast.effuse(lowest.unit) then return true end
+        end
         return false
     end--OK
 
@@ -506,7 +517,7 @@ local function runRotation()
                         if cast.blackoutKick(enemies.yards5[1].unit) then return true end
                     end
                     if cast.tigerPalm(enemies.yards5[1].unit) then return true end
-                elseif #enemies.yards40 > 0 and not isCastingSpell(spell.cracklingJadeLighting) then
+                elseif #enemies.yards40 > 0 and not isCastingSpell(spell.cracklingJadeLighting) and isChecked("Crackling Jade Lightning") then
                     if cast.cracklingJadeLighting(enemies.yards40[1].unit) then return true end
                 end
             end

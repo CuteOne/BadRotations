@@ -1,4 +1,6 @@
 local brMainThread = nil
+deadPet = false
+
 
 function br:Engine()
 	-- Hidden Frame
@@ -26,7 +28,7 @@ function EnemyEngine(_, time)
 		-- Enemies Engine
 		-- EnemiesEngine();
 		FindEnemy()
-		
+
 	end
 end
 
@@ -65,6 +67,7 @@ frame:RegisterEvent("PLAYER_LOGOUT")
 frame:RegisterUnitEvent("PLAYER_ENTERING_WORLD")
 frame:RegisterUnitEvent("PLAYER_EQUIPMENT_CHANGED")
 frame:RegisterUnitEvent("UNIT_SPELLCAST_SUCCEEDED")
+frame:RegisterUnitEvent("UI_ERROR_MESSAGE")
 function frame:OnEvent(event, arg1, arg2, arg3, arg4, arg5)
 	if event == "ADDON_LOADED" and arg1 == "BadRotations" then
 		-- Load Settings
@@ -112,6 +115,16 @@ function frame:OnEvent(event, arg1, arg2, arg3, arg4, arg5)
             end
         end
     end
+		if event == "UI_ERROR_MESSAGE" then
+			local arg1 = arg1
+			if arg1 == 276 then
+				if deadPet == false then
+					deadPet = true
+				elseif deadPet == true then
+					deadPet = false
+				end
+			end
+		end
 end
 frame:SetScript("OnEvent", frame.OnEvent)
 
@@ -130,7 +143,7 @@ function BadRotationsUpdate(self)
 			self.lastUpdateTime = tempTime
 		end
 		if getOptionValue("Update Rate") == nil then updateRate = 0.1 else updateRate = getOptionValue("Update Rate") end
-		if self.lastUpdateTime and (tempTime - self.lastUpdateTime) > updateRate then --0.1 then 
+		if self.lastUpdateTime and (tempTime - self.lastUpdateTime) > updateRate then --0.1 then
 			self.lastUpdateTime = tempTime
 			-- Check for Unlocker
 			if FireHack == nil then
@@ -199,7 +212,7 @@ function BadRotationsUpdate(self)
 					if isChecked("Healer Line of Sight Indicator") then
 						inLoSHealer()
 					end
-					
+
 			    -- get DBM Timer/Bars
 				    -- global -> br.DBM.Timer
 				    br.DBM:getBars()
@@ -211,8 +224,8 @@ function BadRotationsUpdate(self)
 					ProfessionHelper()
 
 			    -- Rotation Log
-			    	if not br.ui.window['debug']['parent'] then 
-			    		br.ui:createDebugWindow() 
+			    	if not br.ui.window['debug']['parent'] then
+			    		br.ui:createDebugWindow()
 			    		br.ui:closeWindow("debug")
 			    	end
 				    if getOptionCheck("Rotation Log") then
@@ -238,7 +251,7 @@ function BadRotationsUpdate(self)
 				self.updateInProgress = false
 			end -- End Update In Progress Check
 		end -- End Main Button Active Check
-	end	-- End FireHack Check			
+	end	-- End FireHack Check
 	br.debug.cpu.pulse.totalIterations = br.debug.cpu.pulse.totalIterations + 1
 	br.debug.cpu.pulse.currentTime = debugprofilestop()-startTime
 	br.debug.cpu.pulse.elapsedTime = br.debug.cpu.pulse.elapsedTime + debugprofilestop()-startTime

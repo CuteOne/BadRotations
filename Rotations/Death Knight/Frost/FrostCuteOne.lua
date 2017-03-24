@@ -589,7 +589,7 @@ local function runRotation()
         local function actionList_GatheringStormTicking()
         -- Frost Strike
             -- frost_strike,if=buff.icy_talons.remains<1.5&talent.icy_talons.enabled
-            if buff.icyTalons.remin < 1.5 and talent.icyTalons then
+            if buff.icyTalons.remain() < 1.5 and talent.icyTalons then
                 if cast.frostStrike() then return end
             end
         -- Remorseless Winter
@@ -715,7 +715,7 @@ local function runRotation()
                     end
         -- Generic
                     -- call_action_list,name=generic,if=!talent.breath_of_sindragosa.enabled&!(talent.gathering_storm.enabled&buff.remorseless_winter.remains)
-                    if not talent.breathOfSindragosa and not (talent.gatheringStorm and buff.remorselessWinder.exists()) then
+                    if not talent.breathOfSindragosa and not (talent.gatheringStorm and buff.remorselessWinter.exists()) then
                         if actionList_Generic() then return end
                     end
         -- Breath of Sindragosa

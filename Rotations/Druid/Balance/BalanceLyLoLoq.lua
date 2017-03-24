@@ -94,6 +94,8 @@ local function createOptions()
         br.ui:createCheckbox(section,"Astral Communion")
         -- Trinkets
         br.ui:createCheckbox(section,"Trinkets")
+        -- Auto Blessing of The Ancients
+        br.ui:createCheckbox(section,"Auto Blessing of The Ancients","Number of enemies <= 2 then Blessing of Elune else Blessing of Anshe")
         br.ui:checkSectionState(section)
         -- Defensive Options
         section = br.ui:createSection(br.ui.window.profile, "Defensive")
@@ -303,7 +305,7 @@ local function runRotation()
                 if cast.balanceForm() then return true end
             end
             --actions.precombat+=/blessing_of_elune
-            if talent.blessingOfTheAncients then
+            if talent.blessingOfTheAncients and isChecked("Auto Blessing of The Ancients") then
                 --actions+=/blessing_of_elune,if=active_enemies<=2&talent.blessing_of_the_ancients.enabled&buff.blessing_of_elune.down
                 if ((#enemies.yards40 <= 2 or not multidot) and not buff.blessingOfElune.exists())  then
                     if cast.blessingOfTheAncients() then return true end
@@ -385,7 +387,7 @@ local function runRotation()
             if buff.onethsOverconfidence.exists() then
                 if cast.starfall("best", nil, 1, starfallRadius) then return true end
             elseif buff.onethsIntuition.exists() then
-                if cast.starsurge() then  return true end
+                if cast.starsurge() then return true end
             end
             if multidot then
                 --actions.fury_of_elune+=/starfall,if=(active_enemies>=2&talent.stellar_flare.enabled|active_enemies>=3)&buff.fury_of_elune_up.down&cooldown.fury_of_elune.remains>10
@@ -402,12 +404,12 @@ local function runRotation()
                 --actions.fury_of_elune+=/starsurge,if=active_enemies<=2&buff.fury_of_elune_up.down&cooldown.fury_of_elune.remains>7
                 if (not buff.furyOfElune.exists() and cd.furyOfElune > 7)  then
                     if (#enemies.yards40 <= 2) or not multidot then
-                        if cast.starsurge() then  return true end
+                        if cast.starsurge() then return true end
                     end
                 end
                 --actions.fury_of_elune+=/starsurge,if=buff.fury_of_elune_up.down&((astral_power>=92&cooldown.fury_of_elune.remains>gcd*3)|(cooldown.warrior_of_elune.remains<=5&cooldown.fury_of_elune.remains>=35&buff.lunar_empowerment.stack<2))
                 if not buff.furyOfElune.exists() and ((astralPower >= 92 and cd.furyOfElune > gcd*3) or (cd.warriorOfElune <=5 and cd.furyOfElune>=35 and buff.lunarEmpowerment.stack() < 2 ))   then
-                    if cast.starsurge() then  return true end
+                    if cast.starsurge() then return true end
                 end
             end
         end
@@ -494,7 +496,7 @@ local function runRotation()
             if buff.onethsOverconfidence.exists() then
                 if cast.starfall("best", nil, 1, starfallRadius) then return true end
             elseif buff.onethsIntuition.exists() then
-                if cast.starsurge() then  return true end
+                if cast.starsurge() then return true end
             end
             if multidot then
                 --actions.ed+=/starsurge,if=(buff.celestial_alignment.up&buff.celestial_alignment.remains<(10))|(buff.incarnation.up&buff.incarnation.remains<(3*execute_time)&astral_power>78)|(buff.incarnation.up&buff.incarnation.remains<(2*execute_time)&astral_power>52)|(buff.incarnation.up&buff.incarnation.remains<execute_time&astral_power>26)
@@ -504,7 +506,7 @@ local function runRotation()
             else
                 --actions.ed+=/starsurge,if=(buff.celestial_alignment.up&buff.celestial_alignment.remains<(10))|(buff.incarnation.up&buff.incarnation.remains<(3*execute_time)&astral_power>78)|(buff.incarnation.up&buff.incarnation.remains<(2*execute_time)&astral_power>52)|(buff.incarnation.up&buff.incarnation.remains<execute_time&astral_power>26)
                 if (buff.celestialAlignment.exists() and buff.celestialAlignment.remain() < 10) or (buff.incarnationChoseOfElune.exists() and buff.incarnationChoseOfElune.remain() < (3*getCastTime(spell.starsurge)) and astralPower > 78) or (buff.incarnationChoseOfElune.exists() and buff.incarnationChoseOfElune.remain() < (2*getCastTime(spell.starsurge)) and astralPower > 52) or (buff.incarnationChoseOfElune.exists() and buff.incarnationChoseOfElune.remain() < (getCastTime(spell.starsurge)) and astralPower > 26)  then
-                    if cast.starsurge() then  return true end
+                    if cast.starsurge() then return true end
                 end
             end
         end
@@ -560,7 +562,7 @@ local function runRotation()
         if buff.onethsOverconfidence.exists() then
             if cast.starfall("best", nil, 1, starfallRadius) then return true end
         elseif buff.onethsIntuition.exists() then
-            if cast.starsurge() then  return true end
+            if cast.starsurge() then return true end
         end
         --actions.ed+=/half_moon,if=astral_power<=80&buff.the_emerald_dreamcatcher.remains>execute_time&astral_power>=6
         if astralPower <= 80 and buff.emeraldDreamcatcher.remain() > getCastTime(spell.newMoon) then
@@ -594,7 +596,7 @@ local function runRotation()
             if buff.onethsOverconfidence.exists() then
                 if cast.starfall("best", nil, 1, starfallRadius) then return true end
             elseif buff.onethsIntuition.exists() then
-                if cast.starsurge() then  return true end
+                if cast.starsurge() then return true end
             end
             if multidot then
                 --actions.ed+=/starsurge,if=(buff.the_emerald_dreamcatcher.up&buff.the_emerald_dreamcatcher.remains<gcd.max)|astral_power>90|((buff.celestial_alignment.up|buff.incarnation.up)&astral_power>=85)|(buff.the_emerald_dreamcatcher.up&astral_power>=77.5&(buff.celestial_alignment.up|buff.incarnation.up))
@@ -605,12 +607,12 @@ local function runRotation()
                 if buff.onethsOverconfidence.exists() then
                     if cast.starfall("best", nil, 1, starfallRadius) then return true end
                 elseif buff.onethsIntuition.exists() then
-                    if cast.starsurge() then  return true end
+                    if cast.starsurge() then return true end
                 end
             else
                 --actions.ed+=/starsurge,if=(buff.the_emerald_dreamcatcher.up&buff.the_emerald_dreamcatcher.remains<gcd.max)|astral_power>90|((buff.celestial_alignment.up|buff.incarnation.up)&astral_power>=85)|(buff.the_emerald_dreamcatcher.up&astral_power>=77.5&(buff.celestial_alignment.up|buff.incarnation.up))
                 if (buff.emeraldDreamcatcher.exists() and buff.emeraldDreamcatcher.remain() < gcd) or astralPower>90 or ((buff.celestialAlignment.exists() or buff.incarnationChoseOfElune.exists()) and astralPower>=85) or (buff.emeraldDreamcatcher.exists() and astralPower >=77.5 and (buff.celestialAlignment.exists() or buff.incarnationChoseOfElune.exists()))  then
-                    if cast.starsurge() then  return true end
+                    if cast.starsurge() then return true end
                 end
             end
         end
@@ -658,7 +660,7 @@ local function runRotation()
             if buff.onethsOverconfidence.exists() then
                 if cast.starfall("best", nil, 1, starfallRadius) then return true end
             elseif buff.onethsIntuition.exists() then
-                if cast.starsurge() then  return true end
+                if cast.starsurge() then return true end
             end
             if multidot then
                 --if=((active_enemies>=2&talent.stellar_drift.enabled)|active_enemies>=3)
@@ -668,7 +670,7 @@ local function runRotation()
             else
                 --actions.celestial_alignment_phase+=/starsurge,if=active_enemies<=2
                 if (#enemies.yards40 <= 2 or not multidot) and astralPower >= 40  then
-                    if cast.starsurge() then  return true end
+                    if cast.starsurge() then return true end
                 end
             end
         end
@@ -712,12 +714,12 @@ local function runRotation()
             if buff.onethsOverconfidence.exists() then
                 if cast.starfall("best", nil, 1, starfallRadius) then return true end
             elseif buff.onethsIntuition.exists() then
-                if cast.starsurge() then  return true end
+                if cast.starsurge() then return true end
             end
             if multidot then
-                if cast.starfall("best", nil, getValue("Starfall targets"), starfallRadius) then return true elseif cast.starsurge() then return true end
+                if cast.starfall("best", nil, getValue("Starfall targets"), starfallRadius) then return true end
             else
-                if cast.starsurge() then   return true end
+                if cast.starsurge() then return true end
             end
         end
         --actions.single_target=new_moon,if=astral_power<=90
@@ -807,7 +809,7 @@ local function runRotation()
         --        Print(".."..getTTD(units.dyn40)*2)
         if actionList_SomeCDS() then return true end
         --TODO:actions=potion,name=deadly_grace,if=buff.celestial_alignment.up|buff.incarnation.up
-        if talent.blessingOfTheAncients then
+        if talent.blessingOfTheAncients and isChecked("Auto Blessing of The Ancients") then
             --actions+=/blessing_of_elune,if=active_enemies<=2&talent.blessing_of_the_ancients.enabled&buff.blessing_of_elune.down
             if ((#enemies.yards40 <= 2 or not multidot) and not buff.blessingOfElune.exists())  then
                 if cast.blessingOfTheAncients() then return true end
@@ -838,7 +840,7 @@ local function runRotation()
             if buff.onethsOverconfidence.exists() then
                 if cast.starfall("best", nil, 1, starfallRadius) then return true end
             elseif buff.onethsIntuition.exists() then
-                if cast.starsurge() then  return true end
+                if cast.starsurge() then return true end
             end
             --if buff.onethsOverconfidence.exists() then
             if multidot then
@@ -846,7 +848,7 @@ local function runRotation()
                     if cast.starfall("best", nil, getValue("Starfall targets"), starfallRadius) then return true elseif cast.starsurge() then return true end
                 end
             elseif astralPower >= 40  then
-                if cast.starsurge() then  return true end
+                if cast.starsurge() then return true end
             end
             --end
         end
@@ -963,7 +965,7 @@ local function runRotation()
         if buff.onethsOverconfidence.exists() then
             if cast.starfall("best", nil, 1, starfallRadius) then return true end
         elseif buff.onethsIntuition.exists() then
-            if cast.starsurge() then  return true end
+            if cast.starsurge() then return true end
         end
         if multidot then
             if useAstralPower then
@@ -987,7 +989,7 @@ local function runRotation()
         else
             if useAstralPower then
                 if astralPower >= 40  then
-                    if cast.starsurge() then  return true end
+                    if cast.starsurge() then return true end
                 end
             end
             if debuff.moonfire.remain() < 6.6  and (debuff.moonfire.count() < getValue("Moonfire targets")) and ((UnitHealth("target") >= hpDotMin and (inInstance or inRaid)) or not inInstance and not inRaid) then
@@ -1170,7 +1172,6 @@ local function runRotation()
 
     local function actionList_OpenerDefault()
         if isValidUnit("target") and opener == false then
-            --            Print("pullTimer: "..pullTimer)
             if (isChecked("Pre-Pull Timer") and (pullTimer <= getValue("Pre-Pull Timer") or (pullTimer == 999 and SW))) or not isChecked("Pre-Pull Timer") or inCombat then
                 -- potion,name=Potion of Deadly Grace
                 if useCDs() and isChecked("Potion") and getDistance("target") <= 45 then

@@ -206,14 +206,11 @@ local function runRotation()
 	-- Action List - Pet Management
         local function actionList_PetManagement()
             if not IsMounted() then
-                if isChecked("Auto Summon") and not UnitExists("pet") and (UnitIsDead("pet") ~= nil or IsPetActive() == false) then
+                if isChecked("Auto Summon") and not UnitExists("pet") and (UnitIsDeadOrGhost("pet") ~= nil or IsPetActive() == false) then
                   if waitForPetToAppear ~= nil and waitForPetToAppear < GetTime() - 2 then
-                    if lastFailedWhistle and lastFailedWhistle > GetTime() - 3 then
-          --            if deadPet == true then
+                      if deadPet == true then
                         if castSpell("player",982) then return; end
-            --          end
-                    else
-              --        if deadPet == false then
+                      elseif deadPet == false then
                         local Autocall = getValue("Auto Summon");
 
                         if Autocall == 1 then
@@ -229,8 +226,8 @@ local function runRotation()
                         else
                           Print("Auto Call Pet Error")
                         end
-                --      end
-                    end
+                      end
+
                   end
                   if waitForPetToAppear == nil then
                     waitForPetToAppear = GetTime()
@@ -585,21 +582,7 @@ local function runRotation()
                             if cast.volley() then return end
                         end
 
-                        if br.player.mode.misdirection == 1 then
-                          if getSpellCD(34477) <= 0.1 then
-                            if (UnitThreatSituation("player", "target") ~= nil or (UnitExists("target") and isDummy("target"))) and UnitAffectingCombat("player") then
-                                if inInstance or inRaid then
-                                    for i = 1, #br.friend do
-                                        if (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and UnitAffectingCombat(br.friend[i].unit) then
-                                          CastSpellByName(GetSpellInfo(34477),br.friend[i].unit)
-                                        end
-                                    end
-                                else
-                                    CastSpellByName(GetSpellInfo(34477),"pet")
-                                end
-                            end
-                          end
-                        end
+
                     -- Potion of Prolonged Power
                         --TODO
                     -- Murder of Crows
@@ -619,7 +602,7 @@ local function runRotation()
                             if cast.direFrenzy(units.dyn40) then return end
                         end
                     -- Aspect of the Wild
-                        if isChecked("Aspect of the Wild") and useCDs() and buff.bestialWrath.exists() or ttd(units.dyn40) < 12 then
+                        if isChecked("Aspect of the Wild") and useCDs() and buff.bestialWrath.exists() or (ttd(units.dyn40) < 12 and isBoss(units.dyn40)) then
                             if cast.aspectOfTheWild() then return end
                         end
                     -- Barrage
@@ -643,6 +626,24 @@ local function runRotation()
                     -- Multi Shot
                         if #multishotTargets > 1 and (beastCleaveTimer < (gcd*2) or beastCleaveTimer == 0) then
                             if cast.multiShot(units.dyn40) then return end
+                        end
+                      -- Misdirection
+                        if br.player.mode.misdirection == 1 then
+                          if getSpellCD(34477) <= 0.1 then
+                            if (UnitThreatSituation("player", "target") ~= nil or (UnitExists("target") and isDummy("target"))) and UnitAffectingCombat("player") then
+                                if inInstance or inRaid then
+                                    for i = 1, #br.friend do
+                                        if (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and UnitAffectingCombat(br.friend[i].unit) then
+                                          CastSpellByName(GetSpellInfo(34477),br.friend[i].unit)
+                                        end
+                                    end
+                                else
+                                    if UnitExists("pet") then
+                                      CastSpellByName(GetSpellInfo(34477),"pet")
+                                    end
+                                end
+                            end
+                          end
                         end
                     -- Chimera Shot
                         if power < 90 and talent.chimeraShot then
