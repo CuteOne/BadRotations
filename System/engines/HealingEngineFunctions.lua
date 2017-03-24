@@ -273,20 +273,20 @@ function getUnitsInCone(length,angle,hp)
 
     for i = 1, #br.friend do
         local thisUnit = br.friend[i].unit
-        if not UnitIsUnit(thisUnit,"player") and ((isDummy(thisUnit) and UnitIsFriend(thisUnit,"player"))) then
-            local unitX, unitY, unitZ = GetObjectPosition(thisUnit)
-            if playerX and unitX then
-                local angleToUnit = getAngles(playerX,playerY,playerZ,unitX,unitY,unitZ)
-                local angleDifference = facing > angleToUnit and facing - angleToUnit or angleToUnit - facing
-                local shortestAngle = angleDifference < math.pi and angleDifference or math.pi*2 - angleDifference
-                local finalAngle = shortestAngle/math.pi*180
-                --print("Final")
-                --print(finalAngle)
-                if finalAngle < angle then
-                    table.insert(units, thisUnit)
-                end
-            end
-        end
+				if thisUnit.hp <= hp then
+	        if not UnitIsUnit(thisUnit,"player") and (isDummy(thisUnit) or UnitIsFriend(thisUnit,"player")) then
+	            local unitX, unitY, unitZ = GetObjectPosition(thisUnit)
+	            if playerX and unitX then
+	                local angleToUnit = getAngles(playerX,playerY,playerZ,unitX,unitY,unitZ)
+	                local angleDifference = facing > angleToUnit and facing - angleToUnit or angleToUnit - facing
+	                local shortestAngle = angleDifference < math.pi and angleDifference or math.pi*2 - angleDifference
+	                local finalAngle = shortestAngle/math.pi*180
+	                if finalAngle < angle then
+	                    table.insert(units, thisUnit)
+	                end
+	            end
+	        end
+				end
     end
     return units
 end
