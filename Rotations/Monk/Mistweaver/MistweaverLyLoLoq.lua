@@ -330,7 +330,7 @@ local function runRotation()
                 end
             end
             if isChecked("Mana Potion") and mana <= getValue("Mana Potion")then
-                if hasItem(127835) then
+                if hasItem(127835) and canUse(127835) then
                     useItem(127835)
                     return true
                 end
