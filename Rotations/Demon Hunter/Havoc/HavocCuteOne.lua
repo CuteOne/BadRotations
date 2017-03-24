@@ -254,32 +254,26 @@ local function runRotation()
 
     -- Custom Functions
         local function cancelRushAnimation()
-            if castable.felRush then --and GetUnitSpeed("player") == 0 then
-                -- AddFrameCallback(function ()
-                --      RunSpeed = select(2, GetUnitSpeed("Player"));
-                --      if RunSpeed == 66 then 
-                --         SetMovementFlags("Player", bit.band(bit.bnot(0xF), UnitMovementFlags("Player")));
-                --         SendMovementUpdate();
-                --      end                         
-                -- end)
-                -- MoveBackwardStart()
-                -- JumpOrAscendStart()
-                -- cast.felRush()
-                -- MoveBackwardStop()
-                -- AscendStop()
+            if castable.felRush and GetUnitSpeed("player") == 0 then
+                MoveBackwardStart()
+                JumpOrAscendStart()
                 cast.felRush()
+                MoveBackwardStop()
+                AscendStop()
             end
-            C_Timer.After(.001, function() SetCurrentSpeed(0) end)
             return
         end
         local function cancelRetreatAnimation()
             if castable.vengefulRetreat then
-                C_Timer.After(.001, function() SetHackEnabled("NoKnockback", true) end)
-                C_Timer.After(.35, function() cast.vengefulRetreat() end)
-                C_Timer.After(.55, function() SetHackEnabled("NoKnockback", false) end)
+                -- C_Timer.After(.001, function() SetHackEnabled("NoKnockback", true) end)
+                -- C_Timer.After(.35, function() cast.vengefulRetreat() end)
+                -- C_Timer.After(.55, function() SetHackEnabled("NoKnockback", false) end)
+                SetHackEnabled("NoKnockback", true)
+                cast.vengefulRetreat()
             end
             return
         end
+        if IsHackEnabled("NoKnockback") then SetHackEnabled("NoKnockback", false) end
 
 --------------------
 --- Action Lists ---
