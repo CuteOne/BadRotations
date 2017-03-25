@@ -490,7 +490,7 @@ local function runRotation()
         -- Gift of the Queen
             if isChecked("Gift of the Queen") then
                 if getLowAllies(getValue("Gift of the Queen")) >= getValue("Gift of the Queen Targets") then
-                    if castGroundAtBestLocation(spell.giftOfTheQueen, 20, 0, 40, 0, "heal") then return end
+                    if cast.giftOfTheQueen(lowest.unit) then return end
                 end
             end
         -- Healing Stream Totem
@@ -505,7 +505,7 @@ local function runRotation()
             if isChecked("Unleash Life") and talent.unleashLife and not hasEquiped(137051) then
                 for i = 1, #br.friend do                           
                     if br.friend[i].hp <= getValue("Unleash Life") then
-                        if cast.unleashLife() then return end     
+                        if cast.unleashLife() then return end
                     end
                 end
             end
@@ -544,7 +544,7 @@ local function runRotation()
         -- Gift of the Queen
             if isChecked("Gift of the Queen") and not talent.cloudburstTotem then
                 if getLowAllies(getValue("Gift of the Queen")) >= getValue("Gift of the Queen Targets") then
-                    if castGroundAtBestLocation(spell.giftOfTheQueen, 20, 0, 40, 0, "heal") then return end
+                    if cast.giftOfTheQueen(lowest.unit) then return end
                 end
             end
         -- Wellspring
@@ -642,6 +642,10 @@ local function runRotation()
                         if cast.healingSurge(br.friend[i].unit) then return end     
                     end
                 end
+            end
+            -- Ephemeral Paradox trinket
+            if hasEquiped(140805) and getBuffRemain("player", 225771) > 2 then
+                if cast.healingWave(lowest.unit) then return end
             end
         end -- End Action List Single Target
     -- Action List - DPS
