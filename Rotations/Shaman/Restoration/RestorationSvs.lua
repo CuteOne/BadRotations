@@ -220,9 +220,21 @@ local function runRotation()
         local ttm                                           = br.player.power.ttm
         local units                                         = units or {}
         local lowestTank                                    = {}    --Tank
-        local tHp                                           = 95
+        local enemies                                       = enemies or {}
+        local friends                                       = friends or {}
 
         if CloudburstTotemTime == nil or cd.cloudburstTotem == 0 or not talent.cloudburstTotem then CloudburstTotemTime = 0 end
+
+    -- Cloudburst Totem
+        if isChecked("Cloudburst Totem") and talent.cloudburstTotem and not buff.cloudburstTotem.exists() then
+            if getLowAllies(getValue("Cloudburst Totem")) >= getValue("Cloudburst Totem Targets") then
+                if cast.cloudburstTotem() then
+                    ChatOverlay(colorGreen.."Cloudburst Totem!")
+                    CloudburstTotemTime = GetTime()
+                    return
+                end
+            end
+        end
 
         if inCombat and not IsMounted() then
             if isChecked("Ancestral Guidance") and talent.ancestralGuidance and (not CloudburstTotemTime or GetTime() >= CloudburstTotemTime + 6) then
@@ -242,6 +254,9 @@ local function runRotation()
         enemies.yards20 = br.player.enemies(20)
         enemies.yards30 = br.player.enemies(30)
         enemies.yards40 = br.player.enemies(40)
+        friends.yards8 = getAllies("player",8)
+        friends.yards25 = getAllies("player",25)
+        friends.yards40 = getAllies("player",40)
 
 --------------------
 --- Action Lists ---
@@ -373,18 +388,15 @@ local function runRotation()
                     end
                 end
             end
+        -- Healing Rain
+            if isChecked("Healing Rain") and not moving then
+                if (SpecificToggle("Healing Rain Key") and not GetCurrentKeyBoardFocus()) then
+                    if CastSpellByName(GetSpellInfo(spell.healingRain),"cursor") then return end 
+                end
+            end
         end  -- End Action List - Pre-Combat
         function actionList_Cooldowns()
             if useCDs() then
-            -- Cloudburst Totem
-                if isChecked("Cloudburst Totem") and talent.cloudburstTotem and not buff.cloudburstTotem.exists() then
-                    if getLowAllies(getValue("Cloudburst Totem")) >= getValue("Cloudburst Totem Targets") then
-                        if cast.cloudburstTotem() then 
-                            CloudburstTotemTime = GetTime()
-                            return
-                        end
-                    end
-                end
             -- Ancestral Guidance
                 if isChecked("Ancestral Guidance") and talent.ancestralGuidance and not talent.cloudburstTotem then
                     if getLowAllies(getValue("Ancestral Guidance")) >= getValue("Ancestral Guidance Targets") then
@@ -393,7 +405,7 @@ local function runRotation()
                 end
             -- Ascendance
                 if isChecked("Ascendance") and talent.ascendance and not talent.cloudburstTotem then
-                    if getLowAllies(getValue("Ascendance")) >= getValue("Ascendance Targets") then    
+                    if getLowAllies(getValue("Ascendance")) >= getValue("Ascendance Targets") then
                         if cast.ascendance() then return end    
                     end
                 end
@@ -478,7 +490,7 @@ local function runRotation()
         -- Gift of the Queen
             if isChecked("Gift of the Queen") then
                 if getLowAllies(getValue("Gift of the Queen")) >= getValue("Gift of the Queen Targets") then
-                    if cast.giftOfTheQueen() then return end
+                    if castGroundAtBestLocation(spell.giftOfTheQueen, 20, 0, 40, 0, "heal") then return end
                 end
             end
         -- Healing Stream Totem
@@ -532,7 +544,7 @@ local function runRotation()
         -- Gift of the Queen
             if isChecked("Gift of the Queen") and not talent.cloudburstTotem then
                 if getLowAllies(getValue("Gift of the Queen")) >= getValue("Gift of the Queen Targets") then
-                    if cast.giftOfTheQueen() then return end
+                    if castGroundAtBestLocation(spell.giftOfTheQueen, 20, 0, 40, 0, "heal") then return end
                 end
             end
         -- Wellspring
