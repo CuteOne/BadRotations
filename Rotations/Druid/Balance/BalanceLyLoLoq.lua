@@ -465,7 +465,7 @@ local function runRotation()
             end
         end
         --actions.fury_of_elune+=/lunar_strike,if=buff.lunar_empowerment.stack=3|(buff.lunar_empowerment.remains<5&buff.lunar_empowerment.up)|active_enemies>=2
-        if buff.lunarEmpowerment.stack() == 3 or (buff.lunarEmpowerment.remain() < 5 and buff.lunarEmpowerment.exists()) or #getEnemies("target",5)>=2 then
+        if buff.lunarEmpowerment.stack() == 3 or (buff.lunarEmpowerment.remain() < 5 and buff.lunarEmpowerment.exists()) or #getEnemies(units.dyn40,5)>=2 then
             if cast.lunarStrike() then return true end
         end
         --actions.fury_of_elune+=/solar_wrath
@@ -647,7 +647,7 @@ local function runRotation()
             if cast.lunarStrike() then return true end
         end
         --actions.ed+=/solar_wrath
-        if buff.owlkinFrenzy.exists() then
+        if buff.owlkinFrenzy.exists() or #getEnemies(units.dyn40,5)>=2 then
             if cast.lunarStrike() then return true end
         else
             if cast.solarWrath() then return true end
@@ -701,7 +701,7 @@ local function runRotation()
             if cast.lunarStrike() then return true end
         end
         --actions.celestial_alignment_phase+=/solar_wrath
-        if buff.owlkinFrenzy.exists() then
+        if buff.owlkinFrenzy.exists() or #getEnemies(units.dyn40,5)>=2 then
             if cast.lunarStrike() then return true end
         else
             if cast.solarWrath() then return true end
@@ -775,7 +775,7 @@ local function runRotation()
             if cast.lunarStrike() then return true end
         end
         --actions.single_target+=/solar_wrath
-        if buff.owlkinFrenzy.exists() then
+        if buff.owlkinFrenzy.exists() or #getEnemies(units.dyn40,5)>=2 then
             if cast.lunarStrike() then return true end
         else
             if cast.solarWrath() then return true end
@@ -1030,9 +1030,11 @@ local function runRotation()
                 if canInterrupt(thisUnit,getValue("Interrupt at")) then
                     if isChecked("Solar Beam + Mass Entanglement") then
                         if talent.massEntanglement then
-                            if cast.massEntanglement(thisUnit) then return true end
+                            cast.massEntanglement(thisUnit)
                         end
-                        if cast.solarBeam(thisUnit) then return end
+                        if  br.timer:useTimer("gcd", 1.5) then
+                            if cast.solarBeam(thisUnit) then return end
+                        end
                     end
                 end
                 if talent.mightyBash then
@@ -1310,16 +1312,16 @@ local function runRotation()
                     -- sanity checks
                     if ObjectExists(thisUnit) and not UnitIsDeadOrGhost(thisUnit) and not UnitIsFriend(thisUnit, "player") and UnitCanAttack("player",thisUnit) and getDistance(thisUnit) < 40 and getLineOfSight("player", thisUnit)
                     then
-                        if debuff.moonfire.remain(thisUnit) == 0 then
-                            if isChecked("Deadly Chicken - DONT KILL BOSS") then
+                        if isChecked("Deadly Chicken - DONT KILL BOSS") then
+                            if debuff.moonfire.remain(thisUnit) == 0 then
                                 if not isBoss(thisUnit) then
                                     CastSpellByName(GetSpellInfo(spell.moonfire),thisUnit)
                                     return true
                                 end
-                            else
-                                CastSpellByName(GetSpellInfo(spell.sunfire),thisUnit)
-                                return true
                             end
+                        elseif debuff.sunfire.remain(thisUnit) == 0 then
+                            CastSpellByName(GetSpellInfo(spell.sunfire),thisUnit)
+                            return true
                         end
                     end
                 end
@@ -1329,14 +1331,15 @@ local function runRotation()
     end
 
     if br.timer:useTimer("debugBalance", 0.1)  then
-
+        if isChecked("Dynamic Targetting") then
+            TargetUnit(units.dyn40)
+        end
         -- Profile Stop | Pause
         if not inCombat and not hastar and profileStop==true then
             profileStop = false
         elseif (inCombat and profileStop==true) or pause() or (IsMounted() or IsFlying()) or br.player.mode.rotation==4 then
             return true
         end
-
         if (not isMoving("player") and buff.dash.exists()) or not buff.dash.exists() then
             if actionList_Extras() then return true end
             if actionList_PreCombat() then return true end

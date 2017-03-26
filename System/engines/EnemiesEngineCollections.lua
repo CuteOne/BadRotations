@@ -72,6 +72,7 @@ shieldedUnitCandidates = {
 	-- Proving Grounds
 	[71072] = { coef = -90, buff = 142427 }, -- Proving ground Sha shielded (will unshield later so better wait)
 	[71064] = { coef = -100, buff = 142174, frontal = true }, -- when shielded and we are in front of unit, dont attack
+	[71079] = { coef = -100, buff = 142174, frontal = true }, -- when shielded and we are in front of unit, dont attack
 }
 --  low prio
 -- doNotTouchUnitCandidates - List of units that we should not attack for any reason
