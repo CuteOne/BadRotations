@@ -366,7 +366,7 @@ function cCharacter:new(class)
 
 -- Casts the racial
 	function self.castRacial()
-		if self.cd.racial == 0 and self.options.useRacial then
+		if getSpellCD(self.racial) == 0 and self.options.useRacial then
 			if self.race == "Pandaren" or self.race == "Goblin" then
 				return castSpell("target",self.racial,true,false) == true
 			else
@@ -400,7 +400,7 @@ function cCharacter:new(class)
 		self.ignoreCombat             = isChecked("Ignore Combat")==true or false
 		self.options.useCrystal       = isChecked("Use Crystal")==true or false
 		self.options.useEmpoweredRune = isChecked("Use emp. Rune",true)==true or false
-		self.options.useRacial        = isSelected("Use Racial")==true or false
+		self.options.useRacial        = isChecked("Use Racial")
 		self.options.settings 		  = isChecked("Save/Load Settings")==true or false
 	end
 
