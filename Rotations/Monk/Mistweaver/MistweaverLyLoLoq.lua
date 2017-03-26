@@ -81,6 +81,7 @@ local function createOptions()
         br.ui:createSpinner(section, "Mana Tea",  50,  0,  100,  1,  colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.." use of Mana Tea.", colorWhite.."Mana Percent to Cast At")
         br.ui:createSpinnerWithout(section, "Mana Tea - Life",  50,  0,  100,  1,  colorWhite.."Health Percent to Cast At")
         br.ui:createSpinnerWithout(section, "Min Mana Tea Targets",  3,  1,  40,  1,  colorBlue.."Minimum Low Life Targets "..colorGold.."(This includes you)")
+        br.ui:createSpinner(section, "Arcane Torrent",  90,  0,  100,  1,  colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.." use of Arcane Torrent to mana recover.", colorWhite.."Mana Percent to Cast At")
         br.ui:createSpinner(section, "Mana Potion",  50,  0,  100,  1,  colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.." use of Ancient Mana Potion.", colorWhite.."Mana Percent to Cast At")
         br.ui:createSpinner(section, "Thunder Focus Tea + Vivify",  50,  0,  100,  1,  colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.." use of Thunder Focus Tea + Vivify.", colorWhite.."Health Percent to Cast At")
         br.ui:createSpinnerWithout(section, "Thunder Focus Tea + Vivify - Mana",  50,  0,  100,  1,  colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.." use of Thunder Focus Tea + Vivify.", colorWhite.."Mana Percent to Cast At")
@@ -329,11 +330,14 @@ local function runRotation()
                     return true
                 end
             end
-            if isChecked("Mana Potion") and mana <= getValue("Mana Potion")then
+            if isChecked("Mana Potion") and mana <= getValue("Mana Potion") then
                 if hasItem(127835) and canUse(127835) then
                     useItem(127835)
                     return true
                 end
+            end
+            if isChecked("Arcane Torrent") and mana <= getValue("Arcane Torrent") and br.player.race == "BloodElf" then
+                if br.player.castRacial() then return true end
             end
             if isChecked("Mana Tea") and mana <= getValue("Mana Tea") and getLowAllies(getValue("Mana Tea - Life")) >= getValue("Min Mana Tea Targets") and talent.manaTea  then
                 if cast.manaTea() then return true end
