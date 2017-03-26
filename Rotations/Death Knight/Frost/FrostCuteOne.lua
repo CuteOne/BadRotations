@@ -688,7 +688,7 @@ local function runRotation()
     -----------------------------
         -- Pillar of Frost
                 -- pillar_of_frost
-                if getOptionValue("Pillar of Frost") == 1 or (getOptionValue("Pillar of Frost") == 2 and useCDs()) then
+                if getOptionValue("Pillar of Frost") == 1 or (getOptionValue("Pillar of Frost") == 2 and useCDs()) and getDistance(units.dyn5) < 5 then
                     if cast.pillarOfFrost() then return end
                 end
                 if actionList_Cooldowns() then return end

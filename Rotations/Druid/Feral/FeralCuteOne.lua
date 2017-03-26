@@ -899,7 +899,7 @@ local function runRotation()
             end
         -- Shred
             -- shred,if=combo_points<5&(spell_targets.swipe_cat<3|talent.brutal_slash.enabled)
-            if combo < 5 and debuff.rake.exists(units.dyn5) and (((mode.rotation == 1 and #enemies.yards8 < 3) or mode.rotation == 3) or talent.brutalSlash or level < 32) then
+            if combo < 5 and (debuff.rake.exists(units.dyn5) or level < 12) and (((mode.rotation == 1 and #enemies.yards8 < 3) or mode.rotation == 3) or talent.brutalSlash or level < 32) then
                 if cast.shred(units.dyn5) then return end
             end
         end
@@ -961,7 +961,7 @@ local function runRotation()
         -- Rake/Shred
                 -- buff.prowl.up|buff.shadowmeld.up
                 if isValidUnit("target") and (not isBoss("target") or not isChecked("Opener")) then
-                    if level < 6 then
+                    if level < 12 then
                         if cast.shred() then return end
                     else
                        if cast.rake() then return end
@@ -1012,7 +1012,7 @@ local function runRotation()
         -- Rake/Shred from Stealth
                 -- rake,if=buff.prowl.up|buff.shadowmeld.up
                 if (buff.prowl.exists() or buff.shadowmeld.exists()) and opener == true then
-                    if debuff.rake.exists(units.dyn5) or level < 6 then
+                    if debuff.rake.exists(units.dyn5) or level < 12 then
                         if cast.shred(units.dyn5) then return end
                     else
                        if cast.rake(units.dyn5) then return end
