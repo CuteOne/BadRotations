@@ -229,7 +229,7 @@ local function runRotation()
 			end -- End Dummy Test
         -- Torment
             if isChecked("Torment") then
-                for i = 1, #enemies.yards40 do
+                for i = 1, #enemies.yards30 do
                     local thisUnit = enemies.yards30[i]
                     if not isAggroed(thisUnit) and hasThreat(thisUnit) then
                         if cast.torment(thisUnit) then return end
