@@ -230,9 +230,9 @@ local function runRotation()
         -- Torment
             if isChecked("Torment") then
                 for i = 1, #enemies.yards40 do
-                    local thisUnit = enemies.yards40[i]
+                    local thisUnit = enemies.yards30[i]
                     if not isAggroed(thisUnit) and hasThreat(thisUnit) then
-                        if cast.growl(thisUnit) then return end
+                        if cast.torment(thisUnit) then return end
                     end
                 end
             end
