@@ -98,6 +98,9 @@ local function createOptions()
             br.ui:createSpinner(section, "Vampiric Blood",  40,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.");
         -- Icebound Fortitude
             br.ui:createSpinner(section, "Icebound Fortitude",  50,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
+        -- Raise Ally
+            br.ui:createCheckbox(section,"Raise Ally")
+            br.ui:createDropdownWithout(section, "Raise Ally - Target", {"|cff00FF00Target","|cffFF0000Mouseover"}, 1, "|cffFFFFFFTarget to cast on")
         br.ui:checkSectionState(section)
     -- Interrupt Options
         section = br.ui:createSection(br.ui.window.profile, "Interrupts")
@@ -262,6 +265,19 @@ local function runRotation()
         -- Vampiric Blood
                 if isChecked("Vampiric Blood") and php <= getOptionValue("Vampiric Blood") then
                     if cast.vampiricBlood() then return end
+                end
+        -- Raise Ally
+                if isChecked("Raise Ally") then
+                    if getOptionValue("Raise Ally - Target")==1
+                        and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and UnitIsFriend("target","player")
+                    then
+                        if cast.raiseAlly("target","dead") then return end
+                    end
+                    if getOptionValue("Raise Ally - Target")==2
+                        and UnitIsPlayer("mouseover") and UnitIsDeadOrGhost("mouseover") and UnitIsFriend("mouseover","player")
+                    then
+                        if cast.raiseAlly("mouseover","dead") then return end
+                    end
                 end
             end
         end -- End Action List - Defensive
