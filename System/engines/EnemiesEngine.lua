@@ -6,12 +6,12 @@ local findEnemiesThread = nil
 local function AddEnemy(thisUnit)
 	local startTime = debugprofilestop()
 	-- if br.enemy[thisUnit] == nil then
-		br.enemy[thisUnit] 	= {}
-		local enemy 		= br.enemy[thisUnit] 
-		enemy.unit 			= thisUnit
-		enemy.name 			= UnitName(thisUnit)
-		enemy.guid 			= UnitGUID(thisUnit)
-		enemy.id 			= GetObjectID(thisUnit)
+	br.enemy[thisUnit] 	= {}
+	local enemy 		= br.enemy[thisUnit]
+	enemy.unit 			= thisUnit
+	enemy.name 			= UnitName(thisUnit)
+	enemy.guid 			= UnitGUID(thisUnit)
+	enemy.id 			= GetObjectID(thisUnit)
 	-- end
 	br.debug.cpu.enemiesEngine.addTime = debugprofilestop()-startTime or 0
 end
@@ -58,43 +58,43 @@ end
 
 -- Check Critter
 local function IsCritter(checkID)
-    local numPets = C_PetJournal.GetNumPets(false)
-    for i=1,numPets do
-        local _, _, _, _, _, _, _, name, _, _, petID = C_PetJournal.GetPetInfoByIndex(i, false)
-        if checkID == petID then return true end
-    end
-    return false
+	local numPets = C_PetJournal.GetNumPets(false)
+	for i=1,numPets do
+		local _, _, _, _, _, _, _, name, _, _, petID = C_PetJournal.GetPetInfoByIndex(i, false)
+		if checkID == petID then return true end
+	end
+	return false
 end
 
 -- Add Pet
 local function AddPet(thisUnit)
-	if br.player ~= nil then 
+	if br.player ~= nil then
 		if br.player.petInfo == nil then br.player.petInfo = {} end
-	    local unitCreator = UnitCreator(thisUnit)
-	    if unitCreator == GetObjectWithGUID(UnitGUID("player")) and br.player.petInfo[thisUnit] == nil then
-	    	if not IsCritter(GetObjectID(thisUnit)) then
-		    	br.player.petInfo[thisUnit] = {}
-				local pet 		= br.player.petInfo[thisUnit] 
+		local unitCreator = UnitCreator(thisUnit)
+		if unitCreator == GetObjectWithGUID(UnitGUID("player")) and br.player.petInfo[thisUnit] == nil then
+			if not IsCritter(GetObjectID(thisUnit)) then
+				br.player.petInfo[thisUnit] = {}
+				local pet 		= br.player.petInfo[thisUnit]
 				pet.unit 		= thisUnit
 				pet.name 		= UnitName(thisUnit)
 				pet.guid 		= UnitGUID(thisUnit)
 				pet.id 			= GetObjectID(thisUnit)
 			end
-	    end
+		end
 	end
 end
 
 -- Update Pet
 local function UpdatePet(thisUnit)
 	if br.player.spell.buffs.demonicEmpowerment ~= nil then
-        demoEmpBuff = UnitBuffID(thisUnit,br.player.spell.buffs.demonicEmpowerment) ~= nil
-    else
-        demoEmpBuff = false
-    end
-    local unitCount = #getEnemies(thisUnit,10) or 0
-    local pet 		= br.player.petInfo[thisUnit]
-    pet.deBuff = demoEmpBuff
-    pet.numEnemies = unitCount
+		demoEmpBuff = UnitBuffID(thisUnit,br.player.spell.buffs.demonicEmpowerment) ~= nil
+	else
+		demoEmpBuff = false
+	end
+	local unitCount = #getEnemies(thisUnit,10) or 0
+	local pet 		= br.player.petInfo[thisUnit]
+	pet.deBuff = demoEmpBuff
+	pet.numEnemies = unitCount
 end
 
 -- Delete Pet
@@ -109,20 +109,20 @@ end
 -- Find Enemies
 function FindEnemy()
 	-- DEBUG
-    local startTime = debugprofilestop()
-    br.debug.cpu.enemiesEngine.unitTargets = 0
-    br.debug.cpu.enemiesEngine.sanityTargets = 0
-    local objectCount = GetObjectCount() 
+	local startTime = debugprofilestop()
+	br.debug.cpu.enemiesEngine.unitTargets = 0
+	br.debug.cpu.enemiesEngine.sanityTargets = 0
+	local objectCount = GetObjectCount()
 	if FireHack ~= nil and objectCount > 0 then
-        for i = 1, objectCount do
+		for i = 1, objectCount do
 			-- define our unit
-            local thisUnit = GetObjectWithIndex(i)
+			local thisUnit = GetObjectWithIndex(i)
 			-- check if it a unit first
-            if ObjectIsType(thisUnit, ObjectTypes.Unit) then
-                br.debug.cpu.enemiesEngine.unitTargets = br.debug.cpu.enemiesEngine.unitTargets + 1
+			if ObjectIsType(thisUnit, ObjectTypes.Unit) then
+				br.debug.cpu.enemiesEngine.unitTargets = br.debug.cpu.enemiesEngine.unitTargets + 1
 				-- Enemies
 				if UnitExists(thisUnit) and isValidUnit(thisUnit) and br.enemy[thisUnit] == nil then
-                    br.debug.cpu.enemiesEngine.sanityTargets = br.debug.cpu.enemiesEngine.sanityTargets + 1
+					br.debug.cpu.enemiesEngine.sanityTargets = br.debug.cpu.enemiesEngine.sanityTargets + 1
 					AddEnemy(thisUnit)
 				end
 				-- Pet Info
@@ -167,7 +167,7 @@ function dynamicTarget(range,facing)
 			local thisDistance = getDistance("player",thisUnit.unit)
 			if UnitExists(thisUnit.unit) and ObjectID(thisUnit.unit) ~= 103679 and thisUnit.coeficient ~= nil then
 				if (not getOptionCheck("Safe Damage Check") or thisUnit.safe) and not thisUnit.isCC
-					and thisDistance < range and (not facing or thisUnit.facing)
+						and thisDistance < range and (not facing or thisUnit.facing)
 				then
 					if thisUnit.coeficient >= 0 and thisUnit.coeficient >= bestUnitCoef then
 						bestUnitCoef = thisUnit.coeficient
@@ -273,15 +273,15 @@ function getEnemies(unit,Radius,InCombat,precise)
 			local thisDistance = getDistance("player",thisUnit)
 			-- check if unit is valid
 			if GetObjectExists(thisUnit) and (not InCombat or br.enemy[k].inCombat) then
-                if unit == "player" and not precise then
-                    if thisDistance <= Radius then
-                        tinsert(getEnemiesTable,thisUnit)
-                    end
-                else
-                    if getDistance(unit,thisUnit) <= Radius then
-                        tinsert(getEnemiesTable,thisUnit)
-                    end
-                end
+				if unit == "player" and not precise then
+					if thisDistance <= Radius then
+						tinsert(getEnemiesTable,thisUnit)
+					end
+				else
+					if getDistance(unit,thisUnit) <= Radius then
+						tinsert(getEnemiesTable,thisUnit)
+					end
+				end
 			end
 		end
 		return getEnemiesTable
@@ -354,13 +354,13 @@ function getEnemiesInRect(width,length,showLines)
 	for i = 1, #enemiesTable do --objectCount do
 		local thisUnit = enemiesTable[i] --GetObjectWithIndex(i)
 		-- if ObjectIsType(thisUnit, ObjectTypes.Unit) and isValidTarget(thisUnit) and (UnitIsEnemy(thisUnit,"player") or isDummy(thisUnit)) then
-			local tX, tY, tZ = GetObjectPosition(thisUnit)
-			if isInside(tX,tY,nlX,nlY,nrX,nrY,frX,frY) then
-				if showLines then
-					LibDraw.Circle(tX, tY, playerZ, UnitBoundingRadius(thisUnit))
-				end
-				enemyCounter = enemyCounter + 1
+		local tX, tY, tZ = GetObjectPosition(thisUnit)
+		if isInside(tX,tY,nlX,nlY,nrX,nrY,frX,frY) then
+			if showLines then
+				LibDraw.Circle(tX, tY, playerZ, UnitBoundingRadius(thisUnit))
 			end
+			enemyCounter = enemyCounter + 1
+		end
 		-- end
 	end
 	return enemyCounter
@@ -410,8 +410,8 @@ end
 -- returns true if Unit is a valid enemy
 function getSanity(unit)
 	if  UnitIsVisible(unit) == true and getCreatureType(unit) == true
-		and ((UnitCanAttack(unit, "player") == true or not UnitIsFriend(unit,"player") or isDummy(unit)) and getLineOfSight(unit, "player"))
-		and UnitIsDeadOrGhost(unit) == false
+			and ((UnitCanAttack(unit, "player") == true or not UnitIsFriend(unit,"player") or isDummy(unit)) and getLineOfSight(unit, "player"))
+			and UnitIsDeadOrGhost(unit) == false
 	then
 		return true
 	else
@@ -488,16 +488,11 @@ function isBurnTarget(unit)
 	local coef = 0
 	-- check if unit is valid
 	if getOptionCheck("Forced Burn") then
-		if GetObjectExists(unit) then
-			local unitID = GetObjectID(unit)
-			local burnUnit = burnUnitCandidates[unitID]
-			-- check if unit is valid
-			if GetObjectExists(burnUnit) then
-				-- if unit have selected debuff
-				if burnUnit and burnUnit.buff and UnitBuffID(unit,burnUnit.buff) then
-					coef = burnUnit.coef
-				end
-			end
+		local unitID = GetObjectID(unit)
+		local burnUnit = burnUnitCandidates[unitID]
+		-- if unit have selected debuff
+		if burnUnit and burnUnit.buff and UnitBuffID(unit,burnUnit.buff) then
+			coef = burnUnit.coef
 		end
 	end
 	return coef
@@ -515,7 +510,7 @@ function isCrowdControlCandidates(Unit)
 		if GetObjectExists(crowdControlUnit.unit) then
 			-- is in the list of candidates
 			if (crowdControlUnit.buff == nil or UnitBuffID(Unit,crowdControlUnit.buff))
-				and (crowdControlUnit.spell == nil or getCastingInfo(Unit) == GetSpellInfo(crowdControlUnit.spell))
+					and (crowdControlUnit.spell == nil or getCastingInfo(Unit) == GetSpellInfo(crowdControlUnit.spell))
 			then -- doesnt have more requirements or requirements are met
 				return true
 			end
@@ -559,43 +554,38 @@ function isShieldedTarget(unit)
 	local coef = 0
 	if getOptionCheck("Avoid Shields") then
 		-- check if unit is valid
-		if GetObjectExists(unit) then
-			local unitID = GetObjectID(unit)
-			local shieldedUnit = shieldedUnitCandidates[unitID]
-			-- check if unit is valid
-			if GetObjectExists(shieldedUnit) then
-				-- if unit have selected debuff
-				if shieldedUnit and shieldedUnit.buff and UnitBuffID(unit,shieldedUnit.buff) then
-					-- if it's a frontal buff, see if we are in front of it
-					if shieldedUnit.frontal ~= true or getFacing(unit,"player") == true then
-						coef = shieldedUnit.coef
-					end
-				end
+		local unitID = GetObjectID(unit)
+		local shieldedUnit = shieldedUnitCandidates[unitID]
+		-- if unit have selected debuff
+		if shieldedUnit and shieldedUnit.buff and UnitBuffID(unit,shieldedUnit.buff) then
+			-- if it's a frontal buff, see if we are in front of it
+			if shieldedUnit.frontal ~= true or getFacing(unit,"player") then
+				coef = shieldedUnit.coef
 			end
 		end
 	end
 	return coef
 end
 
-	-- Todo: So i think the prioritisation should be large by determined by threat or burn prio and then hp.
-	-- So design should be,
-	-- Check if the unit is on doNotTouchUnitCandidates list which means we should not attack them at all
-	-- Check towards doNotTouchUnitCandidatesBuffs (buffs/debuff), ie target we are not allowed to attack due to them having
-	-- a (de)buff that hurts us or not. Example http://www.wowhead.com/spell=163689
-	-- Is the unit on burn list, set high prio, burn list is a list of mobs that we specify for burn, is highest dps and prio.
-	-- We should then look at the threat situation, for tanks the this is of high prio if we are below 3 but all below 3
-	-- should have the same prio coefficent. For dps its not that important
-	-- Then we should check HP of the targets and set highest prio on low targets, this is also something we need to think
-	-- about if the target have a dot so it will die regardless or not. Should have a timetodie?
-	-- Stack: Interface\AddOns\BadRotations\System\EnemiesEngine.lua:224: in function `castInterrupt'
-	-- isBurnTarget(unit) - Bool - True if we should burn that target according to burnUnitCandidates
-	-- isSafeToAttack(unit) - Bool - True if we can attack target according to doNotTouchUnitCandidates
-	-- getEnemies(unit,Radius) - Number - Returns number of valid units within radius of unit
-	-- castInterrupt(spell,percent) - Multi-Target Interupts - for facing/in movements spells of all ranges.
-	-- makeEnemiesTable(55) - Triggered in badboy.lua - generate the br.enemy
-	--[[------------------------------------------------------------------------------------------------------------------]]
-	--[[------------------------------------------------------------------------------------------------------------------]]
-	--[[------------------------------------------------------------------------------------------------------------------]]
-	--[[------------------------------------------------------------------------------------------------------------------]]
-	--local LibDraw = LibStub("LibDraw-1.0")
+-- Todo: So i think the prioritisation should be large by determined by threat or burn prio and then hp.
+-- So design should be,
+-- Check if the unit is on doNotTouchUnitCandidates list which means we should not attack them at all
+-- Check towards doNotTouchUnitCandidatesBuffs (buffs/debuff), ie target we are not allowed to attack due to them having
+-- a (de)buff that hurts us or not. Example http://www.wowhead.com/spell=163689
+-- Is the unit on burn list, set high prio, burn list is a list of mobs that we specify for burn, is highest dps and prio.
+-- We should then look at the threat situation, for tanks the this is of high prio if we are below 3 but all below 3
+-- should have the same prio coefficent. For dps its not that important
+-- Then we should check HP of the targets and set highest prio on low targets, this is also something we need to think
+-- about if the target have a dot so it will die regardless or not. Should have a timetodie?
+-- Stack: Interface\AddOns\BadRotations\System\EnemiesEngine.lua:224: in function `castInterrupt'
+-- isBurnTarget(unit) - Bool - True if we should burn that target according to burnUnitCandidates
+-- isSafeToAttack(unit) - Bool - True if we can attack target according to doNotTouchUnitCandidates
+-- getEnemies(unit,Radius) - Number - Returns number of valid units within radius of unit
+-- castInterrupt(spell,percent) - Multi-Target Interupts - for facing/in movements spells of all ranges.
+-- makeEnemiesTable(55) - Triggered in badboy.lua - generate the br.enemy
+--[[------------------------------------------------------------------------------------------------------------------]]
+--[[------------------------------------------------------------------------------------------------------------------]]
+--[[------------------------------------------------------------------------------------------------------------------]]
+--[[------------------------------------------------------------------------------------------------------------------]]
+--local LibDraw = LibStub("LibDraw-1.0")
 -- ToDo: We need to think about if the target have a dot so it will die regardless or not. Should have a timetodie.

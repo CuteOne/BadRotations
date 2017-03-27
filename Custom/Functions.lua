@@ -47,111 +47,203 @@ function isCCed(Unit)
 end
 
 function castGroundAtBestLocation(spellID, radius, minUnits, maxRange, minRange, spellType)
-	-- Print("Castiing "..GetSpellInfo(spellID))
-	-- description:
-		-- find best position for AoE spell and cast it there
+    -- check if unit is blacklisted
+    local function isNotBlacklisted(checkUnit)
+        local blacklistUnitID = {}
+        if checkUnit == nil then return false end
+        for i = 1, #blacklistUnitID do
+            if GetObjectID(checkUnit) == blacklistUnitID[i] then return false end
+        end
+        return true
+    end
 
-	-- return:
-		-- true/nil
+    -- return table with combination of every 2 units
+    local function getAllCombinationsOfASet(arr, r)
+        if(r > #arr) then
+            return {}
+        end
+        if(r == 0) then
+            return {}
+        end
+        if(r == 1) then
+            local return_table = {}
+            for i=1,#arr do
+                table.insert(return_table, {arr[i]})
+            end
+            return return_table
+        else
+            local return_table = {}
+            local arr_new = {}
+            for i=2,#arr do
+                table.insert(arr_new, arr[i])
+            end
+            for i, val in pairs(getAllCombinationsOfASet(arr_new, r-1)) do
+                local curr_result = {}
+                table.insert(curr_result, arr[1]);
+                for j,curr_val in pairs(val) do
+                    table.insert(curr_result, curr_val)
+                end
+                table.insert(return_table, curr_result)
+            end
+            for i, val in pairs(getAllCombinationsOfASet(arr_new, r)) do
+                table.insert(return_table, val)
+            end
+            return return_table
+        end
+    end
 
-	-- example:
-		-- castGroundAtBestLocation(121536,2,10,40)
+    --check if point (unit) is inside of a circle
+    local function pointInCircle(x, y, cx, cy, radius)
+        local distsq = (x - cx) * (x - cx) + (y - cy) * (y - cy);
+        return distsq <= radius * radius;
+    end
+
+    --get number of units around 1 unit
+    local function getUnits(thisUnit, allUnitsInRange, radius)
+        local unitsAroundThisUnit = {}
+        for j=1,#allUnitsInRange do
+            local checkUnit = allUnitsInRange[j]
+            if getDistance(thisUnit,checkUnit) < radius/2 then
+                table.insert(unitsAroundThisUnit,checkUnit)
+            end
+        end
+        return #unitsAroundThisUnit
+    end
+
+    --cast spell on position x,y,z
+    local function castOnPosition(x,y,z)
+        CastSpellByName(GetSpellInfo(spellID))
+        local i = 0
+        while IsAoEPending() and i <= 10 do
+--            Print("x: "..x.." y: "..y.." z: "..z)
+            ClickPosition(x,y,z)
+            z = z + 0.01
+            i = i + 1
+        end
+
+        if i >= 10 then Print("fail") return end
+        return true
+    end
+
+    if minRange == nil then minRange = 0 end
+    local allUnitsInRange = {}
+    if spellType == "heal" then	unitTable = br.friend else unitTable = br.enemy end
+
+    --get all units in range
+    for k, v in pairs(unitTable) do
+        if (type(k) == "number" or type(k) == "string") and k ~= "Update" then
+            local thisUnit = unitTable[k].unit
+            local thisDistance = getDistance(thisUnit)
+            local hasThreat = (spellType ~= "heal" and isValidUnit(thisUnit)) or UnitIsFriend(thisUnit,"player") --hasThreat(br.enemy[i].unit)
+            if isNotBlacklisted(thisUnit) then
+                if thisDistance < maxRange and thisDistance >= minRange and hasThreat then
+                    if not UnitIsDeadOrGhost(thisUnit) and (getFacing("player",thisUnit) or UnitIsUnit(thisUnit,"player")) and getLineOfSight(thisUnit) and not isMoving(thisUnit) then
+                        if UnitAffectingCombat(thisUnit) or (spellType == "heal" and getHP(thisUnit) < 90) or isDummy(thisUnit) then
+                            table.insert(allUnitsInRange,thisUnit)
+                        end
+                    end
+                end
+            end
+        end
+    end
 
 
-	local function isNotBlacklisted(checkUnit)
-		local blacklistUnitID = {
-		}
-		if checkUnit == nil then return false end
-		for i = 1, #blacklistUnitID do
-			if GetObjectID(checkUnit) == blacklistUnitID[i] then return false end
-		end
-		return true
-	end
+    local testCircles = {}
+    --for every combination of units make 2 circles, and put in testCircles
+    if #allUnitsInRange >= 2 then
+        local combs = getAllCombinationsOfASet(allUnitsInRange, 2)
+        for i, val in pairs(combs) do
+            local temp = {}
+            for j, combination in pairs(val) do
+                local tX, tY, tZ = GetObjectPosition(combination)
+                if(j==#val) then
+                    temp.xii = tX;
+                    temp.yii = tY;
+                    temp.zii = tZ;
+                    --distance
+                    temp.q = math.sqrt((temp.xii-temp.xi)^2 + (temp.yii-temp.yi)^2)
+                    --check to calculation. if result < 0 math.sqrt will give error
+                    local calc = ((radius^2)-((temp.q/2)^2))
+                    if calc <=0 then break end
+                    --x3
+                    temp.xiii = (temp.xi+temp.xii)/2
+                    --y3
+                    temp.yiii = (temp.yi+temp.yii)/2
+                    --first circle
+                    temp.xfc = temp.xiii + math.sqrt(calc)*((temp.yi-temp.yii)/temp.q)
+                    temp.yfc = temp.yiii + math.sqrt(calc)*((temp.xii-temp.xi)/temp.q)
+                    --second circle
+                    temp.xsc = temp.xiii - math.sqrt(calc)*((temp.yi-temp.yii)/temp.q)
+                    temp.ysc = temp.yiii - math.sqrt(calc)*((temp.xii-temp.xi)/temp.q)
+                    --
+                    temp.z = tZ
+                    tinsert(testCircles, temp)
+                else
+                    temp.xi = tX;
+                    temp.yi = tY;
+                    temp.zi = tZ;
+                end
+            end
+        end
+    end
 
-	-- begin
-	if minRange == nil then minRange = 0 end
-	local allUnitsInRange = {}
-	-- Make function usable between enemies and friendlies
-	if spellType == "heal" then	unitTable = br.friend else unitTable = br.enemy end
-	-- fill allUnitsInRange with data from enemiesEngine/healingEngine
-	--Print("______________________1")
-	-- for i=1,#unitTable do
+    local bestCircle = {}
+    bestCircle.x = 0
+    bestCircle.y = 0
+    bestCircle.z = 0
+    bestCircle.q = 0
+    bestCircle.nro = 0
+    --for every circle in testCircles, get units inside this circle, and return the circle with most units inside
+    for i=1, #testCircles do
+        local thisCircle = testCircles[i]
+        temp1 = 0
+        temp2 = 0
+        for j=1, #allUnitsInRange do
+            local tX, tY, tZ = GetObjectPosition(allUnitsInRange[j])
+            if pointInCircle(tX,tY,thisCircle.xfc,thisCircle.yfc, radius) then
+                temp1 = temp1 + 1
+            end
+            if pointInCircle(tX,tY,thisCircle.xsc,thisCircle.ysc, radius) then
+                temp2 = temp2 + 1
+            end
+        end
+        if temp1 > temp2 and temp1 > bestCircle.nro then
+            bestCircle.x = thisCircle.xfc
+            bestCircle.y = thisCircle.yfc
+            bestCircle.z = thisCircle.z
+            bestCircle.nro = temp1
+        elseif temp2 > temp1  and temp2 > bestCircle.nro then
+            bestCircle.x = thisCircle.xsc
+            bestCircle.y = thisCircle.ysc
+            bestCircle.z = thisCircle.z
+            bestCircle.nro = temp2
+        elseif temp2 == temp1 and temp2 > bestCircle.nro then
+            bestCircle.x = thisCircle.xsc
+            bestCircle.y = thisCircle.ysc
+            bestCircle.z = thisCircle.z
+            bestCircle.nro = temp2
+        end
 
-	for k, v in pairs(unitTable) do
-		if (type(k) == "number" or type(k) == "string") and k ~= "Update" then 
-			local thisUnit = unitTable[k].unit
-			local thisDistance = getDistance(thisUnit)
-			local hasThreat = (spellType ~= "heal" and isValidUnit(thisUnit)) or UnitIsFriend(thisUnit,"player") --hasThreat(br.enemy[i].unit)
-			if isNotBlacklisted(thisUnit) then
-				-- Print("blacklist passed")
-				if thisDistance < maxRange and thisDistance >= minRange and hasThreat then
-					-- Print("distance passed")
-					if not UnitIsDeadOrGhost(thisUnit) and (getFacing("player",thisUnit) or UnitIsUnit(thisUnit,"player")) and getLineOfSight(thisUnit) and not isMoving(thisUnit) then
-						-- Print("ghost passed")
-						if UnitAffectingCombat(thisUnit) or (spellType == "heal" and getHP(thisUnit) < 90) or isDummy(thisUnit) then
-							-- Print("combat and dummy passed")
-							table.insert(allUnitsInRange,thisUnit)
-							-- Print("insert end")
-						end
-					end
-				end
-			end
-		end
-	end
-	-- check units in allUnitsInRange against each them
-	--Print("______________________2")
-	local goodUnits = {}
-	for i=1,#allUnitsInRange do
-		local thisUnit = allUnitsInRange[i]
-		local unitsAroundThisUnit = {}
-		--Print("units around "..thisUnit..":")
-		for j=1,#allUnitsInRange do
-			local checkUnit = allUnitsInRange[j]
-			--Print(checkUnit.."?")
-			if getDistance(thisUnit,checkUnit) < radius then
-				--Print(checkUnit.." added")
-				table.insert(unitsAroundThisUnit,checkUnit)
-			end
-		end
-		if #goodUnits <= #unitsAroundThisUnit then
-			--Print("units around check: "..#unitsAroundThisUnit.." >= "..#goodUnits)
-			if tonumber(minUnits) <= #unitsAroundThisUnit then
-				--Print("enough units around: "..#unitsAroundThisUnit)
-				goodUnits = unitsAroundThisUnit
-			end
-		end
-	end
-	-- where to cast
-	--Print("______________________3")
-	if #goodUnits > 0 then
-		--Print("goodUnits: "..#goodUnits)
-		if #goodUnits > 1 then
-			--Print("goodUnits > 1")
-			local mX, mY,mZ = 0,0,0
-			for i=1,#goodUnits do
-				local thisUnit = goodUnits[i]
-				local thisX,thisY,thisZ = GetObjectPosition(thisUnit)
-				if mX == 0 or mY == 0 or mZ == 0 then
-					mX,mY,mZ = thisX,thisY,thisZ
-				else
-					mX = 0.5*(mX + thisX)
-					mY = 0.5*(mY + thisY)
-					mZ = 0.5*(mZ + thisZ)
-				end
-			end
-			--Print(mX.." "..mY.." "..mZ)
-			if mX ~= 0 and mY ~= 0 and mZ ~= 0 then
-				CastSpellByName(GetSpellInfo(spellID))
-				ClickPosition(mX,mY,mZ)
-				return true
-			end
-		else
-			local thisX,thisY,thisZ = GetObjectPosition(goodUnits[1])
-			CastSpellByName(GetSpellInfo(spellID))
-			ClickPosition(thisX,thisY,thisZ);
-			return true
-		end
-	end
+    end
+
+    -- check if units of the best circle is equal of circle of unit, if it is, then cast on this unit
+    for i=1,#allUnitsInRange do
+        local thisUnit = allUnitsInRange[i]
+        nmro = getUnits(thisUnit,allUnitsInRange, radius - 3)
+        if nmro >= bestCircle.nro then
+            bestCircle.x, bestCircle.y, bestCircle.z= GetObjectPosition(thisUnit)
+            bestCircle.x = bestCircle.x+math.random(0.001,0.02)
+            bestCircle.y = bestCircle.y+math.random(0.001,0.02)
+            bestCircle.nro = nmro
+            break;
+        end
+    end
+    --check with minUnits
+    if bestCircle.nro < minUnits then return false end
+
+    if bestCircle.x ~= 0 and bestCircle.y ~= 0 and bestCircle.z ~= 0 then
+        if castOnPosition(bestCircle.x,bestCircle.y,bestCircle.z) then return true else return false end
+    end
 end
 
 

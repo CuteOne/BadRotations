@@ -1409,9 +1409,12 @@ function getFacing(Unit1,Unit2,Degrees)
 			end
 			if Angle2-Angle1 > 180 then
 				Angle3 = math.abs(Angle2-Angle1-360)
+			elseif Angle1-Angle2 > 180 then
+				Angle3 = math.abs(Angle1-Angle2-360)
 			else
 				Angle3 = math.abs(Angle2-Angle1)
 			end
+			-- return Angle3
 			if Angle3 < Degrees then
 				return true
 			else
