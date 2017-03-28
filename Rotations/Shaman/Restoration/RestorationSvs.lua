@@ -126,6 +126,10 @@ local function createOptions()
             br.ui:createSpinner(section, "Healing Rain",  80,  0,  100,  5,  "Health Percent to Cast At") 
             br.ui:createSpinnerWithout(section, "Healing Rain Targets",  2,  0,  40,  1,  "Minimum Healing Rain Targets")
             br.ui:createDropdown(section,"Healing Rain Key", br.dropOptions.Toggle, 6, colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.." Healing Rain manual usage.")
+        -- Spirit Link Totem
+            br.ui:createSpinner(section, "Spirit Link Totem",  50,  0,  100,  5,  "Health Percent to Cast At") 
+            br.ui:createSpinnerWithout(section, "Spirit Link Totem Targets",  3,  0,  40,  1,  "Minimum Spirit Link Totem Targets")
+            br.ui:createDropdown(section,"Spirit Link Totem Key", br.dropOptions.Toggle, 6, colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.." Spirit Link Totem manual usage.")
         -- Riptide
             br.ui:createSpinner(section, "Riptide",  90,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
         -- Healing Stream Totem
@@ -573,6 +577,23 @@ local function runRotation()
                     end
                 end
             end
+        -- Tidal Waves Proc Handling
+            if buff.tidalWaves.stack() == 2 or level < 100 then
+                if isChecked("Healing Surge") then
+                    for i = 1, #br.friend do                           
+                        if br.friend[i].hp <= getValue("Healing Surge") then
+                            if cast.healingSurge(br.friend[i].unit) then return end     
+                        end
+                    end
+                end
+                if isChecked("Healing Wave") then
+                    for i = 1, #br.friend do                           
+                        if br.friend[i].hp <= getValue("Healing Wave") then
+                            if cast.healingWave(br.friend[i].unit) then return end     
+                        end
+                    end
+                end
+            end
         -- Riptide
             if isChecked("Riptide") then
                 if not buff.tidalWaves.exists() and level >= 34 then
@@ -624,7 +645,16 @@ local function runRotation()
                     if CastSpellByName(GetSpellInfo(spell.healingRain),"cursor") then return end 
                 end
                 if not buff.healingRain.exists() and getLowAllies(getValue("Healing Rain")) >= getValue("Healing Rain Targets") then    
-                    if castGroundAtBestLocation(spell.healingRain, 20, 0, 40, 0, "heal") then return end    
+                    if castGroundAtBestLocation(spell.healingRain, 20, 2, 40, 0, "heal") then return end    
+                end
+            end
+        -- Spirit Link Totem
+            if isChecked("Spirit Link Totem") and not moving then
+                if (SpecificToggle("Spirit Link Totem Key") and not GetCurrentKeyBoardFocus()) then
+                    if CastSpellByName(GetSpellInfo(spell.spiritLinkTotem),"cursor") then return end 
+                end
+                if not buff.healingRain.exists() and getLowAllies(getValue("Spirit Link Totem")) >= getValue("Spirit Link Totem Targets") then    
+                    if castGroundAtBestLocation(spell.spiritLinkTotem, 20, 3, 40, 0, "heal") then return end    
                 end
             end
         -- Healing Wave
