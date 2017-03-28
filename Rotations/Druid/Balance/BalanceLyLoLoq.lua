@@ -178,7 +178,7 @@ local function runRotation()
     local health                                        = br.player.health
     local travel, flight, chicken, noform, cat          = buff.travelForm.exists(), buff.flightForm.exists(), buff.balanceForm.exists(), GetShapeshiftForm()==0, buff.catForm.exists()
     local falling, swimming, flying                     = getFallTime(), IsSwimming(), IsFlying()
-    local deadtar, attacktar, hastar, playertar         = deadtar or UnitIsDeadOrGhost("target"), attacktar or UnitCanAttack("target", "player"), hastar or ObjectExists("target"), UnitIsPlayer("target")
+    local deadtar, attacktar, hastar, playertar         = deadtar or UnitIsDeadOrGhost("target"), attacktar or UnitCanAttack("target", "player"), hastar or GetObjectExists("target"), UnitIsPlayer("target")
     local astralPower                                   = br.player.power.amount.astralPower
     local multidot                                      = br.player.mode.rotation == 1 or br.player.mode.rotation == 2
     local nodps                                         = br.player.mode.rotation == 4
@@ -211,7 +211,7 @@ local function runRotation()
         activeMoon = 3
     end
 
-    if not inCombat and not ObjectExists("target") then
+    if not inCombat and not GetObjectExists("target") then
         SW = false
         MM1 = false
         MF = false
@@ -284,7 +284,7 @@ local function runRotation()
             end
         end
         if isChecked("DPS Testing") then
-            if ObjectExists("target") then
+            if GetObjectExists("target") then
                 if getCombatTime() >= (tonumber(getValue("DPS Testing"))*60) and isDummy() then
                     StopAttack()
                     ClearTarget()
@@ -492,11 +492,10 @@ local function runRotation()
 
     local function actionList_EmeralDreamcatcher()
         local function getExecuteTime(spellID)
-            local executeTime = 0
             if getCastTime(spellID) > gcd then
-                executeTime = getCastTime(spellID)
+                return getCastTime(spellID)
             else
-                executeTime = gcd
+                return gcd
             end
         end
         --astral_communion,if=astral_power.deficit>=75&buff.the_emerald_dreamcatcher.up
@@ -524,24 +523,24 @@ local function runRotation()
             if debuff.stellarFlare.count() <= 4 and ((UnitHealth(thisUnit) >= hpDotMin and (inInstance or inRaid)) or not inInstance and not inRaid) then
                 --stellar_flare,cycle_targets=1,max_cycle_targets=4,if=active_enemies<4&remains<7.2&astral_power>=15
                 if talent.stellarFlare  and astralPower >= 15 and debuff.stellarFlare.remain(thisUnit) < 7.2 then
-                    if cast.stellarFlare(thisUnit, "aoe") then return true end
+                    if cast.stellarFlare(thisUnit) then return true end
                 end
             end
+        end
 
-            if debuff.moonfire.count() <= 1 and ((UnitHealth(thisUnit) >= hpDotMin and (inInstance or inRaid)) or not inInstance and not inRaid) then
-                --moonfire,if=((talent.natures_balance.enabled&remains<3)|(remains<6.6&!talent.natures_balance.enabled))&(buff.the_emerald_dreamcatcher.remains>gcd.max|!buff.the_emerald_dreamcatcher.up)
-                if (talent.naturesBalance and debuff.moonfire.remain(thisUnit) < 3) or (debuff.moonfire.remain(thisUnit) < 6.6 and not talent.naturesBalance) and
-                        (buff.emeraldDreamcatcher.exists() and buff.emeraldDreamcatcher.remain() > gcd or not buff.emeraldDreamcatcher.exists()) then
-                    if cast.moonfire(thisUnit,"aoe") then return true end
-                end
+        if debuff.moonfire.count() <= 1 and ((UnitHealth(units.dyn40) >= hpDotMin and (inInstance or inRaid)) or not inInstance and not inRaid) then
+            --moonfire,if=((talent.natures_balance.enabled&remains<3)|(remains<6.6&!talent.natures_balance.enabled))&(buff.the_emerald_dreamcatcher.remains>gcd.max|!buff.the_emerald_dreamcatcher.up)
+            if (talent.naturesBalance and debuff.moonfire.remain(units.dyn40) < 3) or (debuff.moonfire.remain(units.dyn40) < 6.6 and not talent.naturesBalance) and
+                    (buff.emeraldDreamcatcher.exists() and buff.emeraldDreamcatcher.remain() > gcd or not buff.emeraldDreamcatcher.exists()) then
+                if cast.moonfire(units.dyn40) then return true end
             end
+        end
 
-            if debuff.sunfire.count() <= 1 and ((UnitHealth(thisUnit) >= hpDotMin and (inInstance or inRaid)) or not inInstance and not inRaid) then
-                --sunfire,if=((talent.natures_balance.enabled&remains<3)|(remains<5.4&!talent.natures_balance.enabled))&(buff.the_emerald_dreamcatcher.remains>gcd.max|!buff.the_emerald_dreamcatcher.up)
-                if (talent.naturesBalance and debuff.moonfire.remain(thisUnit) < 3) or (debuff.moonfire.remain(thisUnit) < 6.6 and not talent.naturesBalance) and
-                        (buff.emeraldDreamcatcher.exists() and buff.emeraldDreamcatcher.remain() > gcd or not buff.emeraldDreamcatcher.exists()) then
-                    if cast.moonfire(thisUnit,"aoe") then return true end
-                end
+        if debuff.sunfire.count() <= 1 and ((UnitHealth(units.dyn40) >= hpDotMin and (inInstance or inRaid)) or not inInstance and not inRaid) then
+            --sunfire,if=((talent.natures_balance.enabled&remains<3)|(remains<5.4&!talent.natures_balance.enabled))&(buff.the_emerald_dreamcatcher.remains>gcd.max|!buff.the_emerald_dreamcatcher.up)
+            if (talent.naturesBalance and debuff.moonfire.remain(units.dyn40) < 3) or (debuff.sunfire.remain(units.dyn40) < 5.4 and not talent.naturesBalance) and
+                    (buff.emeraldDreamcatcher.exists() and buff.emeraldDreamcatcher.remain() > gcd or not buff.emeraldDreamcatcher.exists()) then
+                if cast.sunfire(units.dyn40) then return true end
             end
         end
         --starfall,if=buff.oneths_overconfidence.up&buff.the_emerald_dreamcatcher.remains>execute_time&remains<2
@@ -574,7 +573,7 @@ local function runRotation()
             end
         end
         --lunar_strike,if=buff.lunar_empowerment.up&buff.the_emerald_dreamcatcher.remains>execute_time&astral_power>=11&(!(buff.celestial_alignment.up|buff.incarnation.up)&astral_power<=85|(buff.celestial_alignment.up|buff.incarnation.up)&astral_power<=77.5)
-        if buff.lunarEmpowerment.exists() and buff.emeraldDreamcatcher.remain() > getExecuteTime(spell.lunarStrike) and astralPower >=11 and
+        if buff.lunarEmpowerment.exists() and buff.emeraldDreamcatcher.remain() > getExecuteTime(spell.lunarStrike)*1.2 and astralPower >=11 and
                 (not(buff.celestialAlignment.exists() or buff.incarnationChoseOfElune.exists()) and astralPower <=85 or
                         (buff.celestialAlignment.exists() or buff.incarnationChoseOfElune.exists()) and astralPower<= 77.5) or buff.owlkinFrenzy.exists() then
             if cast.lunarStrike() then return true end
@@ -587,8 +586,8 @@ local function runRotation()
         end
         --starsurge,if=(buff.the_emerald_dreamcatcher.up&buff.the_emerald_dreamcatcher.remains<gcd.max)|astral_power>90|((buff.celestial_alignment.up|buff.incarnation.up)&astral_power>=85)|(buff.the_emerald_dreamcatcher.up&astral_power>=77.5&(buff.celestial_alignment.up|buff.incarnation.up))
         if useAstralPower then
-            if (buff.emeraldDreamcatcher.exists() and buff.emeraldDreamcatcher.remain() < gcd) or astralPower>90 or
-                    ((buff.celestialAlignment.exists() or buff.incarnationChoseOfElune.exists()) and astralPower>=85) or
+            if (buff.emeraldDreamcatcher.exists() and buff.emeraldDreamcatcher.remain() < getExecuteTime(spell.solarWrath)) or astralPower > 90 or
+                    ((buff.celestialAlignment.exists() or buff.incarnationChoseOfElune.exists()) and astralPower >= 85) or
                     (buff.emeraldDreamcatcher.exists() and astralPower >=77.5 and (buff.celestialAlignment.exists() or buff.incarnationChoseOfElune.exists())) then
                 if cast.starsurge() then return true end
             end
@@ -1411,7 +1410,7 @@ local function runRotation()
                 if ObjectIsType(thisUnit, ObjectTypes.Unit)  then
                     br.debug.cpu.enemiesEngine.unitTargets = br.debug.cpu.enemiesEngine.unitTargets + 1
                     -- sanity checks
-                    if ObjectExists(thisUnit) and not UnitIsDeadOrGhost(thisUnit) and not UnitIsFriend(thisUnit, "player") and UnitCanAttack("player",thisUnit) and getDistance(thisUnit) < 40 and getLineOfSight("player", thisUnit)
+                    if GetObjectExists(thisUnit) and not UnitIsDeadOrGhost(thisUnit) and not UnitIsFriend(thisUnit, "player") and UnitCanAttack("player",thisUnit) and getDistance(thisUnit) < 40 and getLineOfSight("player", thisUnit)
                     then
                         if isChecked("Deadly Chicken - DONT KILL BOSS") then
                             if debuff.moonfire.remain(thisUnit) == 0 then
