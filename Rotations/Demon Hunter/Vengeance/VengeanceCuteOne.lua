@@ -61,6 +61,8 @@ local function createOptions()
             br.ui:createCheckbox(section,"Immolation Aura")
         -- Sigil of Flames
             br.ui:createCheckbox(section,"Sigil of Flames")
+        -- Torment
+            br.ui:createCheckbox(section,"Torment")
         br.ui:checkSectionState(section)
     -- Cooldown Options
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
@@ -225,6 +227,15 @@ local function runRotation()
 					end
 				end
 			end -- End Dummy Test
+        -- Torment
+            if isChecked("Torment") then
+                for i = 1, #enemies.yards30 do
+                    local thisUnit = enemies.yards30[i]
+                    if not isAggroed(thisUnit) and hasThreat(thisUnit) then
+                        if cast.torment(thisUnit) then return end
+                    end
+                end
+            end
 		end -- End Action List - Extras
 	-- Action List - Defensive
 		local function actionList_Defensive()

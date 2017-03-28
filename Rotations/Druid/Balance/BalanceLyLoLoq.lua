@@ -223,6 +223,19 @@ local function runRotation()
         MM3 = false
         opener = false
         FON = false
+        STS = false
+        SW2 = false
+        SP = false
+        LS = false
+        STS2 = false
+        SW3 = false
+        SW4 = false
+        STS3 = false
+        STS4 = false
+        STS5 = false
+        SW5 = false
+        LS2 = false
+        LS3 = false
     end
     if talent.stellarDrift then starfallRadius = 19.5 else starfallRadius = 15 end
     if not inCombat and not hastar and profileStop==true then
@@ -478,181 +491,148 @@ local function runRotation()
     end
 
     local function actionList_EmeralDreamcatcher()
-        --actions.ed=astral_communion,if=astral_power.deficit>=75&buff.the_emerald_dreamcatcher.up
-        if talent.astralCommunion and astralPower <= 25 and buff.emeraldDreamcatcher.exists() and useCDs() and isChecked("Astral Communion")  then
+        local function getExecuteTime(spellID)
+            local executeTime = 0
+            if getCastTime(spellID) > gcd then
+                executeTime = getCastTime(spellID)
+            else
+                executeTime = gcd
+            end
+        end
+        --astral_communion,if=astral_power.deficit>=75&buff.the_emerald_dreamcatcher.up
+        if talent.astralCommunion and astralPower <= 25 and buff.emeraldDreamcatcher.exists() and useCDs() and isChecked("Astral Communion") then
             if cast.astralCommunion() then return true end
         end
-        if useCDs()  and isChecked("Incarnation: Chosen of Elune/Celestial Alignament") then
-            --actions.ed+=/incarnation,if=astral_power>=85&!buff.the_emerald_dreamcatcher.up|buff.bloodlust.up
-            if talent.incarnationChoseOfElune and astralPower >= 85 and cd.incarnationChoseOfElune == 0 and not buff.emeraldDreamcatcher.exists() or buff.bloodlust.exists() then
-                if cast.celestialAlignment() then return true end
-            end
-            --actions.ed+=/celestial_alignment,if=astral_power>=85&!buff.the_emerald_dreamcatcher.up
-            if not talent.incarnationChoseOfElune and astralPower >= 85 and cd.celestialAlignment == 0 and not buff.emeraldDreamcatcher.exists() then
+        if useCDs() and isChecked("Incarnation: Chosen of Elune/Celestial Alignament") then
+            --incarnation		  ,if=astral_power>=85&!buff.the_emerald_dreamcatcher.up|buff.bloodlust.up
+            --celestial_alignment,if=astral_power>=85&!buff.the_emerald_dreamcatcher.up
+            if astralPower >= 85 and not buff.emeraldDreamcatcher.exists() or buff.bloodlust.exists() then
                 if cast.celestialAlignment() then return true end
             end
         end
         if useAstralPower then
-            if buff.onethsOverconfidence.exists() then
-                if cast.starfall("best", nil, 1, starfallRadius) then return true end
-            elseif buff.onethsIntuition.exists() then
+            --starsurge,if=(buff.celestial_alignment.up&buff.celestial_alignment.remains<(10))|(buff.incarnation.up&buff.incarnation.remains<(3*execute_time)&astral_power>78)|(buff.incarnation.up&buff.incarnation.remains<(2*execute_time)&astral_power>52)|(buff.incarnation.up&buff.incarnation.remains<execute_time&astral_power>26)
+            if buff.celestialAlignment.exists() and ((buff.celestialAlignment.remain() < 10) or
+                    (buff.celestialAlignment.remain() < (3*getExecuteTime(spell.starsurge)) and astralPower>78) or
+                    (buff.celestialAlignment.remain() < (2*getExecuteTime(spell.starsurge)) and astralPower>52) or
+                    (buff.celestialAlignment.remain() < getExecuteTime(spell.starsurge) and astralPower>26)) then
                 if cast.starsurge() then return true end
             end
-            if multidot then
-                --actions.ed+=/starsurge,if=(buff.celestial_alignment.up&buff.celestial_alignment.remains<(10))|(buff.incarnation.up&buff.incarnation.remains<(3*execute_time)&astral_power>78)|(buff.incarnation.up&buff.incarnation.remains<(2*execute_time)&astral_power>52)|(buff.incarnation.up&buff.incarnation.remains<execute_time&astral_power>26)
-                if (buff.celestialAlignment.exists() and buff.celestialAlignment.remain() < 10) or (buff.incarnationChoseOfElune.exists() and buff.incarnationChoseOfElune.remain() < (3*getCastTime(spell.starsurge)) and astralPower > 78) or (buff.incarnationChoseOfElune.exists() and buff.incarnationChoseOfElune.remain() < (2*getCastTime(spell.starsurge)) and astralPower > 52) or (buff.incarnationChoseOfElune.exists() and buff.incarnationChoseOfElune.remain() < (getCastTime(spell.starsurge)) and astralPower > 26)  then
-                    if cast.starfall("best", nil, getValue("Starfall targets"), starfallRadius) then return true elseif cast.starsurge() then return true end
-                end
-            else
-                --actions.ed+=/starsurge,if=(buff.celestial_alignment.up&buff.celestial_alignment.remains<(10))|(buff.incarnation.up&buff.incarnation.remains<(3*execute_time)&astral_power>78)|(buff.incarnation.up&buff.incarnation.remains<(2*execute_time)&astral_power>52)|(buff.incarnation.up&buff.incarnation.remains<execute_time&astral_power>26)
-                if (buff.celestialAlignment.exists() and buff.celestialAlignment.remain() < 10) or (buff.incarnationChoseOfElune.exists() and buff.incarnationChoseOfElune.remain() < (3*getCastTime(spell.starsurge)) and astralPower > 78) or (buff.incarnationChoseOfElune.exists() and buff.incarnationChoseOfElune.remain() < (2*getCastTime(spell.starsurge)) and astralPower > 52) or (buff.incarnationChoseOfElune.exists() and buff.incarnationChoseOfElune.remain() < (getCastTime(spell.starsurge)) and astralPower > 26)  then
-                    if cast.starsurge() then return true end
-                end
-            end
         end
-        if multidot then
-            for i = 1, #enemies.yards40 do
-                local thisUnit = enemies.yards40[i]
-                --actions.ed+=/stellar_flare,cycle_targets=1,max_cycle_targets=4,if=active_enemies<4&remains<7.2&astral_power>=15
-                if debuff.stellarFlare.count() <= getValue("Stellar Flare targets") and ((UnitHealth(thisUnit) >= hpDotMin and (inInstance or inRaid)) or not inInstance and not inRaid) then
-                    if talent.stellarFlare  and astralPower >= 15 and debuff.stellarFlare.remain(thisUnit) < 7.2 and isValidUnit(thisUnit) then
-                        if cast.stellarFlare(thisUnit, "aoe") then return true end
-                    end
-                end
-                --actions.ed+=/moonfire,if=((talent.natures_balance.enabled&remains<3)|(remains<6.6&!talent.natures_balance.enabled))&(buff.the_emerald_dreamcatcher.remains>gcd.max|!buff.the_emerald_dreamcatcher.up)
-                if (talent.naturesBalance and debuff.moonfire.remain(thisUnit) < 3) or (debuff.moonfire.remain(thisUnit) < 6.6 and not talent.naturesBalance) and ((UnitHealth(thisUnit) >= hpDotMin and (inInstance or inRaid)) or not inInstance and not inRaid) then
-                    if debuff.moonfire.remain(thisUnit) < gcd  and (debuff.moonfire.count() < getValue("Moonfire targets")) and isValidUnit(thisUnit) then
-                        if cast.moonfire(thisUnit,"aoe") then return true end
-                    end
-                end
-                --actions.ed+=/sunfire,if=((talent.natures_balance.enabled&remains<3)|(remains<5.4&!talent.natures_balance.enabled))&(buff.the_emerald_dreamcatcher.remains>gcd.max|!buff.the_emerald_dreamcatcher.up)
-                if (talent.naturesBalance and debuff.sunfire.remain(thisUnit) < 3) or (debuff.sunfire.remain(thisUnit) < 5.4 and not talent.naturesBalance) and ((UnitHealth(thisUnit) >= hpDotMin and (inInstance or inRaid)) or not inInstance and not inRaid) then
-                    if debuff.sunfire.remain(thisUnit) < gcd and (debuff.sunfire.count() < getValue("Sunfire targets")) and isValidUnit(thisUnit)  then
-                        if cast.sunfire(thisUnit,"aoe") then return true end
-                    end
+        for i = 1, #enemies.yards40 do
+            local thisUnit = enemies.yards40[i]
+            if debuff.stellarFlare.count() <= 4 and ((UnitHealth(thisUnit) >= hpDotMin and (inInstance or inRaid)) or not inInstance and not inRaid) then
+                --stellar_flare,cycle_targets=1,max_cycle_targets=4,if=active_enemies<4&remains<7.2&astral_power>=15
+                if talent.stellarFlare  and astralPower >= 15 and debuff.stellarFlare.remain(thisUnit) < 7.2 then
+                    if cast.stellarFlare(thisUnit, "aoe") then return true end
                 end
             end
-        else
-            --actions.ed+=/stellar_flare,cycle_targets=1,max_cycle_targets=4,if=active_enemies<4&remains<7.2&astral_power>=15
-            if debuff.stellarFlare.count() <= getValue("Stellar Flare targets") and ((UnitHealth("target") >= hpDotMin and (inInstance or inRaid)) or not inInstance and not inRaid) then
-                if talent.stellarFlare and astralPower >= 15 and debuff.stellarFlare.remain() < 7.2 then
-                    if cast.stellarFlare() then return true end
-                end
-            end
-            --actions.ed+=/moonfire,if=((talent.natures_balance.enabled&remains<3)|(remains<6.6&!talent.natures_balance.enabled))&(buff.the_emerald_dreamcatcher.remains>gcd.max|!buff.the_emerald_dreamcatcher.up)
-            if (talent.naturesBalance and debuff.moonfire.remain() < 3) or (debuff.moonfire.remain() < 6.6 and not talent.naturesBalance) and ((UnitHealth("target") >= hpDotMin and (inInstance or inRaid)) or not inInstance and not inRaid) then
-                if debuff.moonfire.remain() < gcd  and (debuff.moonfire.count() < getValue("Moonfire targets")) then
-                    if cast.moonfire() then  return true end
-                end
-            end
-            --actions.ed+=/sunfire,if=((talent.natures_balance.enabled&remains<3)|(remains<5.4&!talent.natures_balance.enabled))&(buff.the_emerald_dreamcatcher.remains>gcd.max|!buff.the_emerald_dreamcatcher.up)
-            if (talent.naturesBalance and debuff.sunfire.remain() < 3) or (debuff.sunfire.remain() < 5.4 and not talent.naturesBalance) and ((UnitHealth("target") >= hpDotMin and (inInstance or inRaid)) or not inInstance and not inRaid) then
-                if debuff.sunfire.remain() < gcd and (debuff.sunfire.count() < getValue("Sunfire targets"))  then
-                    if cast.sunfire() then return true end
-                end
-            end
-        end
 
-        --force of natur
-        if useCDs() and isChecked("Force of Nature") then
-            if talent.forceOfNature then
-                if cast.forceOfNature("target", "best", nil, 1) then return true end
+            if debuff.moonfire.count() <= 1 and ((UnitHealth(thisUnit) >= hpDotMin and (inInstance or inRaid)) or not inInstance and not inRaid) then
+                --moonfire,if=((talent.natures_balance.enabled&remains<3)|(remains<6.6&!talent.natures_balance.enabled))&(buff.the_emerald_dreamcatcher.remains>gcd.max|!buff.the_emerald_dreamcatcher.up)
+                if (talent.naturesBalance and debuff.moonfire.remain(thisUnit) < 3) or (debuff.moonfire.remain(thisUnit) < 6.6 and not talent.naturesBalance) and
+                        (buff.emeraldDreamcatcher.exists() and buff.emeraldDreamcatcher.remain() > gcd or not buff.emeraldDreamcatcher.exists()) then
+                    if cast.moonfire(thisUnit,"aoe") then return true end
+                end
+            end
+
+            if debuff.sunfire.count() <= 1 and ((UnitHealth(thisUnit) >= hpDotMin and (inInstance or inRaid)) or not inInstance and not inRaid) then
+                --sunfire,if=((talent.natures_balance.enabled&remains<3)|(remains<5.4&!talent.natures_balance.enabled))&(buff.the_emerald_dreamcatcher.remains>gcd.max|!buff.the_emerald_dreamcatcher.up)
+                if (talent.naturesBalance and debuff.moonfire.remain(thisUnit) < 3) or (debuff.moonfire.remain(thisUnit) < 6.6 and not talent.naturesBalance) and
+                        (buff.emeraldDreamcatcher.exists() and buff.emeraldDreamcatcher.remain() > gcd or not buff.emeraldDreamcatcher.exists()) then
+                    if cast.moonfire(thisUnit,"aoe") then return true end
+                end
             end
         end
-        if buff.onethsOverconfidence.exists() then
-            if cast.starfall("best", nil, 1, starfallRadius) then return true end
-        elseif buff.onethsIntuition.exists() then
-            if cast.starsurge() then return true end
+        --starfall,if=buff.oneths_overconfidence.up&buff.the_emerald_dreamcatcher.remains>execute_time&remains<2
+        if useAstralPower then
+            if buff.onethsOverconfidence.exists() and buff.emeraldDreamcatcher.exists() and buff.emeraldDreamcatcher.remain() < getExecuteTime(spell.starfall) and buff.emeraldDreamcatcher.remain() < 2 then
+                if cast.starfall("best", nil, 1, starfallRadius) then return true end
+            end
         end
-        --actions.ed+=/half_moon,if=astral_power<=80&buff.the_emerald_dreamcatcher.remains>execute_time&astral_power>=6
-        if astralPower <= 80 and buff.emeraldDreamcatcher.remain() > getCastTime(spell.newMoon) then
-            if cast.newMoon() then return true end
+        --half_moon,if=astral_power<=80&buff.the_emerald_dreamcatcher.remains>execute_time&astral_power>=6
+        if activeMoon == 2 then
+            if astralPower <= 80 and buff.emeraldDreamcatcher.exists() and buff.emeraldDreamcatcher.remain() > getExecuteTime(spell.newMoon) and astralPower >= 6 then
+                if cast.newMoon() then return true end
+            end
         end
-        --actions.ed+=/full_moon,if=astral_power<=60&buff.the_emerald_dreamcatcher.remains>execute_time
-        if astralPower <= 60 and buff.emeraldDreamcatcher.remain() > getCastTime(spell.newMoon) then
-            if cast.newMoon() then return true end
+        --full_moon,if=astral_power<=60&buff.the_emerald_dreamcatcher.remains>execute_time
+        if activeMoon == 1 then
+            if astralPower <= 60 and buff.emeraldDreamcatcher.exists() and buff.emeraldDreamcatcher.remain() > getExecuteTime(spell.newMoon) then
+                if cast.newMoon() then return true end
+            end
         end
-        --actions.ed+=/solar_wrath,if=buff.solar_empowerment.stack>1&buff.the_emerald_dreamcatcher.remains>2*execute_time&astral_power>=6&(dot.moonfire.remains>5|(dot.sunfire.remains<5.4&dot.moonfire.remains>6.6))&(!(buff.celestial_alignment.up|buff.incarnation.up)&astral_power<=90|(buff.celestial_alignment.up|buff.incarnation.up)&astral_power<=85)
-        if buff.solarEmpowerment.exists() and buff.emeraldDreamcatcher.remain() > 2*getCastTime(spell.solarWrath) and astralPower >=6 and (debuff.moonfire.remain()>5 or debuff.sunfire.remain()<5.4 and debuff.moonfire.remain()>6.6) and (not(buff.celestialAlignment.exists() or buff.incarnationChoseOfElune.exists()) and astralPower <=90 or (buff.celestialAlignment.exists() or buff.incarnationChoseOfElune.exists()) and astralPower<=85) then
+        --solar_wrath,if=buff.solar_empowerment.stack>1&buff.the_emerald_dreamcatcher.remains>2*execute_time&astral_power>=6&(dot.moonfire.remains>5|(dot.sunfire.remains<5.4&dot.moonfire.remains>6.6))&(!(buff.celestial_alignment.up|buff.incarnation.up)&astral_power<=90|(buff.celestial_alignment.up|buff.incarnation.up)&astral_power<=85)
+        if buff.solarEmpowerment.stack() > 1 and buff.emeraldDreamcatcher.remain() > 2*getExecuteTime(spell.solarWrath) and astralPower >=6 and
+                (debuff.moonfire.remain()>5 or debuff.sunfire.remain()<5.4 and debuff.moonfire.remain()>6.6) and
+                (not(buff.celestialAlignment.exists() or buff.incarnationChoseOfElune.exists())
+                        and astralPower <=90 or (buff.celestialAlignment.exists() or buff.incarnationChoseOfElune.exists()) and astralPower<=85) then
             if buff.owlkinFrenzy.exists() then
                 if cast.lunarStrike() then return true end
             else
                 if cast.solarWrath() then return true end
             end
         end
-        --actions.ed+=/lunar_strike,if=buff.lunar_empowerment.up&buff.the_emerald_dreamcatcher.remains>execute_time&astral_power>=11&(!(buff.celestial_alignment.up|buff.incarnation.up)&astral_power<=85|(buff.celestial_alignment.up|buff.incarnation.up)&astral_power<=77.5)
-        if buff.lunarEmpowerment.exists() and buff.emeraldDreamcatcher.remain()> getCastTime(spell.lunarStrike) and astralPower >=11 and(not(buff.celestialAlignment.exists() or buff.incarnationChoseOfElune.exists()) and astralPower <=85 or (buff.celestialAlignment.exists() or buff.incarnationChoseOfElune.exists()) and astralPower<= 77.5) then
+        --lunar_strike,if=buff.lunar_empowerment.up&buff.the_emerald_dreamcatcher.remains>execute_time&astral_power>=11&(!(buff.celestial_alignment.up|buff.incarnation.up)&astral_power<=85|(buff.celestial_alignment.up|buff.incarnation.up)&astral_power<=77.5)
+        if buff.lunarEmpowerment.exists() and buff.emeraldDreamcatcher.remain() > getExecuteTime(spell.lunarStrike) and astralPower >=11 and
+                (not(buff.celestialAlignment.exists() or buff.incarnationChoseOfElune.exists()) and astralPower <=85 or
+                        (buff.celestialAlignment.exists() or buff.incarnationChoseOfElune.exists()) and astralPower<= 77.5) or buff.owlkinFrenzy.exists() then
             if cast.lunarStrike() then return true end
         end
-        --actions.ed+=/solar_wrath,if=buff.solar_empowerment.up&buff.the_emerald_dreamcatcher.remains>execute_time&astral_power>=16&(!(buff.celestial_alignment.up|buff.incarnation.up)&astral_power<=90|(buff.celestial_alignment.up|buff.incarnation.up)&astral_power<=85)
-        if buff.solarEmpowerment.exists() and buff.emeraldDreamcatcher.remain() > getCastTime(spell.solarWrath) and astralPower >=16 and (not(buff.celestialAlignment.exists() or buff.incarnationChoseOfElune.exists()) and astralPower<=90 or (buff.celestialAlignment.exists() or buff.incarnationChoseOfElune.exists()) and astralPower<= 85) then
-            if buff.owlkinFrenzy.exists() then
-                if cast.lunarStrike() then return true end
-            else
-                if cast.solarWrath() then return true end
-            end
+        --solar_wrath,if=buff.solar_empowerment.up&buff.the_emerald_dreamcatcher.remains>execute_time&astral_power>=16&(!(buff.celestial_alignment.up|buff.incarnation.up)&astral_power<=90|(buff.celestial_alignment.up|buff.incarnation.up)&astral_power<=85)
+        if buff.solarEmpowerment.exists() and buff.emeraldDreamcatcher.remain() > getExecuteTime(spell.solarWrath) and astralPower >=16 and
+                (not(buff.celestialAlignment.exists() or buff.incarnationChoseOfElune.exists()) and astralPower<=90 or
+                        (buff.celestialAlignment.exists() or buff.incarnationChoseOfElune.exists()) and astralPower<= 85) then
+            if cast.solarWrath() then return true end
         end
+        --starsurge,if=(buff.the_emerald_dreamcatcher.up&buff.the_emerald_dreamcatcher.remains<gcd.max)|astral_power>90|((buff.celestial_alignment.up|buff.incarnation.up)&astral_power>=85)|(buff.the_emerald_dreamcatcher.up&astral_power>=77.5&(buff.celestial_alignment.up|buff.incarnation.up))
         if useAstralPower then
-            if buff.onethsOverconfidence.exists() then
-                if cast.starfall("best", nil, 1, starfallRadius) then return true end
-            elseif buff.onethsIntuition.exists() then
+            if (buff.emeraldDreamcatcher.exists() and buff.emeraldDreamcatcher.remain() < gcd) or astralPower>90 or
+                    ((buff.celestialAlignment.exists() or buff.incarnationChoseOfElune.exists()) and astralPower>=85) or
+                    (buff.emeraldDreamcatcher.exists() and astralPower >=77.5 and (buff.celestialAlignment.exists() or buff.incarnationChoseOfElune.exists())) then
                 if cast.starsurge() then return true end
             end
-            if multidot then
-                --actions.ed+=/starsurge,if=(buff.the_emerald_dreamcatcher.up&buff.the_emerald_dreamcatcher.remains<gcd.max)|astral_power>90|((buff.celestial_alignment.up|buff.incarnation.up)&astral_power>=85)|(buff.the_emerald_dreamcatcher.up&astral_power>=77.5&(buff.celestial_alignment.up|buff.incarnation.up))
-                if (buff.emeraldDreamcatcher.exists() and buff.emeraldDreamcatcher.remain() < gcd) or astralPower>90 or ((buff.celestialAlignment.exists() or buff.incarnationChoseOfElune.exists()) and astralPower>=85) or (buff.emeraldDreamcatcher.exists() and astralPower >=77.5 and (buff.celestialAlignment.exists() or buff.incarnationChoseOfElune.exists())) then
-                    if cast.starfall("best", nil, getValue("Starfall targets"), starfallRadius) then return true elseif cast.starsurge() then return true end
-                end
-                --actions.ed+=/starfall,if=buff.oneths_overconfidence.up&remains<2
-                if buff.onethsOverconfidence.exists() then
-                    if cast.starfall("best", nil, 1, starfallRadius) then return true end
-                elseif buff.onethsIntuition.exists() then
-                    if cast.starsurge() then return true end
-                end
-            else
-                --actions.ed+=/starsurge,if=(buff.the_emerald_dreamcatcher.up&buff.the_emerald_dreamcatcher.remains<gcd.max)|astral_power>90|((buff.celestial_alignment.up|buff.incarnation.up)&astral_power>=85)|(buff.the_emerald_dreamcatcher.up&astral_power>=77.5&(buff.celestial_alignment.up|buff.incarnation.up))
-                if (buff.emeraldDreamcatcher.exists() and buff.emeraldDreamcatcher.remain() < gcd) or astralPower>90 or ((buff.celestialAlignment.exists() or buff.incarnationChoseOfElune.exists()) and astralPower>=85) or (buff.emeraldDreamcatcher.exists() and astralPower >=77.5 and (buff.celestialAlignment.exists() or buff.incarnationChoseOfElune.exists()))  then
-                    if cast.starsurge() then return true end
-                end
+        end
+        --starfall,if=buff.oneths_overconfidence.up&remains<2
+        if useAstralPower then
+            if buff.onethsOverconfidence.exists() and buff.onethsOverconfidence.remain() < 2 then
+                if cast.starfall("best", nil, 1, starfallRadius) then return true end
             end
         end
-        --actions.ed+=/new_moon,if=astral_power<=90
-        if activeMoon == 3 and getTTD(units.dyn40)*2 >= getCastTime(spell.newMoon) then
+        --new_moon,if=astral_power<=90
+        if activeMoon == 3 then
             if astralPower <= 90 then
                 if cast.newMoon() then return true end
             end
         end
-        if activeMoon == 2 and getTTD(units.dyn40)*2 >= getCastTime(spell.halfMoon) then
-            --actions.ed+=/half_moon,if=astral_power<=80
+        --half_moon,if=astral_power<=80
+        if activeMoon == 2 then
             if astralPower <= 80 then
                 if cast.newMoon() then return true end
             end
         end
-        if activeMoon == 1 and getTTD(units.dyn40)*2 >= getCastTime(spell.fullMoon) then
-            --actions.ed+=/full_moon,if=astral_power<=60&((cooldown.incarnation.remains>65&cooldown.full_moonfire.charges>0)|(cooldown.incarnation.remains>50&cooldown.full_moonfire.charges>1)|(cooldown.incarnation.remains>25&cooldown.full_moonfire.charges>2))
-            if astralPower <= 60 and ((cd.incarnationChoseOfElune > 65 and getCharges(spell.newMoon) > 0) or (cd.incarnationChoseOfElune > 50 and getCharges(spell.newMoon) > 1) or cd.incarnationChoseOfElune > 25 and getCharges(spell.newMoon) > 2) then
+        --full_moon,if=astral_power<=60&((cooldown.incarnation.remains>65&cooldown.full_moon.charges>0)|(cooldown.incarnation.remains>50&cooldown.full_moon.charges>1)|(cooldown.incarnation.remains>25&cooldown.full_moon.charges>2))
+        if activeMoon == 1 then
+            if astralPower <= 60 and ((cd.incarnationChoseOfElune > 65 and getCharges(spell.newMoon) > 0) or
+                    (cd.incarnationChoseOfElune > 50 and getCharges(spell.newMoon) > 1) or
+                    (cd.incarnationChoseOfElune > 25 and getCharges(spell.newMoon) > 2)) then
                 if cast.newMoon() then return true end
             end
         end
-        --actions.ed+=/solar_wrath,if=buff.solar_empowerment.up
-        if buff.solarEmpowerment.exists() then
-            if buff.owlkinFrenzy.exists() then
-                if cast.lunarStrike() then return true end
-            else
-                if cast.solarWrath() then return true end
-            end
+        --
+        if buff.owlkinFrenzy.exists() then
+            if cast.lunarStrike() then return true end
         end
-        --actions.ed+=/lunar_strike,if=buff.lunar_empowerment.up
+        --solar_wrath,if=buff.solar_empowerment.up
+        if buff.solarEmpowerment.exists() then
+            if cast.solarWrath() then return true end
+        end
+        --lunar_strike,if=buff.lunar_empowerment.up
         if buff.lunarEmpowerment.exists() then
             if cast.lunarStrike() then return true end
         end
-        --actions.ed+=/solar_wrath
-        if buff.owlkinFrenzy.exists() or #getEnemies(units.dyn40,5)>=2 then
-            if cast.lunarStrike() then return true end
-        else
-            if cast.solarWrath() then return true end
-        end
-        return true
+        --solar_wrath
+        if cast.solarWrath() then return true end
     end
 
     local function actionList_CelestialAlignmentPhase()
@@ -832,7 +812,7 @@ local function runRotation()
             end
         end
         --actions+=/call_action_list,name=ed,if=equipped.the_emerald_dreamcatcher&active_enemies<=2
-        if hasEquiped(137062) and #enemies.yards40 <= 2 then
+        if hasEquiped(137062) then
             if actionList_EmeralDreamcatcher() then return true end
         end
         if useAstralPower then
@@ -1285,17 +1265,138 @@ local function runRotation()
         return false
     end
 
+    local function actionList_OpenerEmealdDreamCatcher()
+        if isValidUnit("target") and opener == false then
+            if (isChecked("Pre-Pull Timer") and (pullTimer <= getValue("Pre-Pull Timer") or (pullTimer == 999 and SW))) or not isChecked("Pre-Pull Timer") or inCombat then
+                -- potion,name=Potion of Deadly Grace
+                if useCDs() and isChecked("Potion") and getDistance("target") <= 45 then
+                    if canUse(127843) then
+                        useItem(127843)
+                        Print("Potion Used!");
+                    end
+                    if canUse(142117) then
+                        useItem(142117)
+                        Print("Potion Used!");
+                    end
+                end
+                -- Solar Wrath
+                if not SW then
+                    if not isMoving("player") then
+                        castOpener("solarWrath","SW",1)
+                    else
+                        Print("1: Solar Wrath (Not Casted: Mooving)")
+                    end
+                    -- New Moon | Half Moon | Full Moon
+                elseif not MM1 then
+                    if getCharges(spell.newMoon) > 0 then
+                        if not isMoving("player") then
+                            castOpener("newMoon","MM1",2)
+                        else
+                            Print("2: Moon Spells (Not Casted: Mooving)")
+                        end
+                    else
+                        Print("2: Moon Spells (Not Casted: Cooldown)")
+                        MM1 = true
+                    end
+                    --Moonfire
+                elseif not MF then
+                    castOpener("moonfire","MF",3)
+                    --Sunfire
+                elseif not SF then
+                    castOpener("sunfire","SF",4)
+                    --Celestial Alignment | Incarnation
+                elseif not CA and useCDs() and isChecked("Incarnation: Chosen of Elune/Celestial Alignament") then
+                    if (talent.incarnationChoseOfElune and cd.incarnationChoseOfElune == 0) or (not talent.incarnationChoseOfElune and cd.celestialAlignment == 0) then
+                        castOpener("celestialAlignment","CA",5)
+                    else
+                        Print("5: Incarnation: Chosen of Elune/Celestial Alignament (Not Casted: Cooldown)")
+                        CA = true
+                    end
+                    --Racial
+                elseif not RA and  (race == "Orc" or race == "Troll") and useCDs()  and isChecked("Racial") then
+                    if getSpellCD(br.player.getRacial()) == 0 then
+                        if castSpell("player",br.player.getRacial(),false,false,false) then
+                            Print("5.5: Racial")
+                            RA = true
+                        end
+                    else
+                        RA = true
+                        Print("5.5: Racial (Not Casted: Cooldown)")
+                    end
+                    -- New Moon | Half Moon | Full Moon
+                elseif not MM2 then
+                    if getCharges(spell.newMoon) > 0 then
+                        if not isMoving("player") then
+                            castOpener("newMoon","MM2",6)
+                        else
+                            Print("6: Moon Spells (Not Casted: Mooving)")
+                        end
+                    else
+                        Print("6: Moon Spells (Not Casted: Cooldown)")
+                        MM2 = true
+                    end
+                    -- New Moon | Half Moon | Full Moon
+                elseif not MM3 then
+                    if getCharges(spell.newMoon) > 0 then
+                        if not isMoving("player") then
+                            castOpener("newMoon","MM3",7)
+                        else
+                            Print("7: Moon Spells (Not Casted: Mooving)")
+                        end
+                    else
+                        Print("7: Moon Spells (Not Casted: Cooldown)")
+                        MM3 = true
+                    end
+                elseif not STS then
+                    castOpener("starsurge","STS",8)
+                elseif not SW2 then
+                    castOpener("solarWrath","SW2",9)
+                elseif hasBloodLust() and SP then
+
+                elseif SP then
+                    if not LS and buff.emeraldDreamcatcher.remain() > getCastTime(spell.lunarStrike)*1.2 then
+                        castOpener("lunarStrike","LS",10)
+                    elseif not STS2 then
+                        castOpener("starsurge","STS2",11)
+                    elseif not SW3 and buff.emeraldDreamcatcher.remain() > getCastTime(spell.solarWrath)*2.2 then
+                        castOpener("solarWrath","SW3",12)
+                    elseif not SW4 then
+                        castOpener("solarWrath","SW4",13)
+                    elseif not STS3 then
+                        castOpener("starsurge","STS3",14)
+                    elseif not STS4 then
+                        castOpener("starsurge","STS4",15)
+                    elseif not STS5 then
+                        castOpener("starsurge","STS5",16)
+                    elseif not SW5 then
+                        castOpener("solarWrath","SW5",17)
+                    elseif not LS2 then
+                        castOpener("lunarStrike","LS2",18)
+                    elseif not LS3 then
+                        castOpener("lunarStrike","LS3",19)
+                    else
+                        SP = true
+                    end
+                else
+                    Print("--Opener Complete--")
+                    opener = true
+                end
+            end
+        end
+        return false
+    end
+
     local function actionList_Opener()
         if opener == false and isChecked("Opener") and isBoss("target") then
             if isChecked("Pre-Pull Timer") and inCombat and getCombatTime() > 10 then
                 opener = true
                 return true
             end
-            --            if hasEquiped(137062) then
-            --                actionList_OpenerEmealdDreamCatcher()
-            --            else
-            if actionList_OpenerDefault() then return true end
-            --            end
+            if hasEquiped(137062) then
+                if actionList_OpenerEmealdDreamCatcher() then return true end
+            else
+                if actionList_OpenerDefault() then return true end
+            end
         end
         return false
     end
