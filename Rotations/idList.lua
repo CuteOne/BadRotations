@@ -2538,6 +2538,7 @@ br.idList = {
                 earthenShieldTotem          = 198838,
                 echoOfTheElements           = 108283,
                 gustOfWind                  = 192063,
+                highTide                    = 157154,
                 unleashLife                 = 73685,
                 wellspring                  = 197995,
                 windRushTotem               = 192077,

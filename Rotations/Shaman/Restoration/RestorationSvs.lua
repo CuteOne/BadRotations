@@ -398,6 +398,12 @@ local function runRotation()
                     if CastSpellByName(GetSpellInfo(spell.healingRain),"cursor") then return end 
                 end
             end
+        -- Spirit Link Totem
+            if isChecked("Spirit Link Totem") and not moving then
+                if (SpecificToggle("Spirit Link Totem Key") and not GetCurrentKeyBoardFocus()) then
+                    if CastSpellByName(GetSpellInfo(spell.spiritLinkTotem),"cursor") then return end 
+                end
+            end
         end  -- End Action List - Pre-Combat
         function actionList_Cooldowns()
             if useCDs() then
@@ -535,7 +541,7 @@ local function runRotation()
         -- Chain Heal
             if isChecked("Chain Heal") and not moving and lastSpell ~= spell.chainHeal then
                 if getLowAllies(getValue("Chain Heal")) >= getValue("Chain Heal Targets") then
-                    if hasEquiped(137051) and talent.unleashLife then
+                    if talent.unleashLife and talent.highTide then
                         if cast.unleashLife(lowest) then return end
                         if buff.unleashLife.remain() > 2 then
                             if cast.chainHeal(lowest) then return end
