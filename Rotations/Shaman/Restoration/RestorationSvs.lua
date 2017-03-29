@@ -445,16 +445,16 @@ local function runRotation()
                     if castSpell("player",racial,false,false,false) then return end
                 end
             -- Chain Heal with Focuser of Jonat, the Elder legenadary ring
-                if hasEquiped(137051) and buff.jonatsFocus.stack() == 5 and not moving and lastSpell ~= spell.chainHeal then
-                    if talent.unleashLife then
-                        if cast.unleashLife(lowest) then return end
-                        if buff.unleashLife.remain() > 2 then
-                            if cast.chainHeal(lowest) then return end
-                        end
-                    else
-                        if cast.chainHeal(lowest) then return end
-                    end
-                end
+                -- if hasEquiped(137051) and buff.jonatsFocus.stack() == 5 and not moving and lastSpell ~= spell.chainHeal then
+                --     if talent.unleashLife then
+                --         if cast.unleashLife(lowest) then return end
+                --         if buff.unleashLife.remain() > 2 then
+                --             if cast.chainHeal(lowest) then return end
+                --         end
+                --     else
+                --         if cast.chainHeal(lowest) then return end
+                --     end
+                -- end
             end -- End useCooldowns check
         end -- End Action List - Cooldowns
         -- Cloudburst Totem
@@ -478,11 +478,11 @@ local function runRotation()
                 end
             end
         -- Healing Rain
-            if isChecked("Healing Rain") and not moving then
+            if not moving then
                 if (SpecificToggle("Healing Rain Key") and not GetCurrentKeyBoardFocus()) then
                     if CastSpellByName(GetSpellInfo(spell.healingRain),"cursor") then return end 
                 end
-                if not buff.healingRain.exists() and getLowAllies(getValue("Healing Rain")) >= getValue("Healing Rain Targets") then    
+                if isChecked("Healing Rain") and not buff.healingRain.exists() and getLowAllies(getValue("Healing Rain")) >= getValue("Healing Rain Targets") then    
                     if castGroundAtBestLocation(spell.healingRain, 20, 0, 40, 0, "heal") then return end    
                 end
             end
@@ -646,12 +646,12 @@ local function runRotation()
                 end
             end
         -- Healing Rain
-            if isChecked("Healing Rain") and not moving then
+            if not moving then
                 if (SpecificToggle("Healing Rain Key") and not GetCurrentKeyBoardFocus()) then
                     if CastSpellByName(GetSpellInfo(spell.healingRain),"cursor") then return end 
                 end
-                if not buff.healingRain.exists() and getLowAllies(getValue("Healing Rain")) >= getValue("Healing Rain Targets") then    
-                    if castGroundAtBestLocation(spell.healingRain, 20, 2, 40, 0, "heal") then return end    
+                if isChecked("Healing Rain") and not buff.healingRain.exists() and getLowAllies(getValue("Healing Rain")) >= getValue("Healing Rain Targets") then    
+                    if castGroundAtBestLocation(spell.healingRain, 20, 0, 40, 0, "heal") then return end    
                 end
             end
         -- Spirit Link Totem
