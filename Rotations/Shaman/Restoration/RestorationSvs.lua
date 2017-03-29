@@ -199,7 +199,7 @@ local function runRotation()
         local cd                                            = br.player.cd
         local charges                                       = br.player.charges
         local debuff                                        = br.player.debuff
-        local enemies                                       = enemies or {}
+        local drinking                                      = UnitBuff("player",192002) ~= nil or UnitBuff("player",167152) ~= nil
         local gcd                                           = br.player.gcd
         local healPot                                       = getHealthPot()
         local inCombat                                      = br.player.inCombat
@@ -445,16 +445,16 @@ local function runRotation()
                     if castSpell("player",racial,false,false,false) then return end
                 end
             -- Chain Heal with Focuser of Jonat, the Elder legenadary ring
-                if hasEquiped(137051) and buff.jonatsFocus.stack() == 5 and not moving and lastSpell ~= spell.chainHeal then
-                    if talent.unleashLife then
-                        if cast.unleashLife(lowest) then return end
-                        if buff.unleashLife.remain() > 2 then
-                            if cast.chainHeal(lowest) then return end
-                        end
-                    else
-                        if cast.chainHeal(lowest) then return end
-                    end
-                end
+                -- if hasEquiped(137051) and buff.jonatsFocus.stack() == 5 and not moving and lastSpell ~= spell.chainHeal then
+                --     if talent.unleashLife then
+                --         if cast.unleashLife(lowest) then return end
+                --         if buff.unleashLife.remain() > 2 then
+                --             if cast.chainHeal(lowest) then return end
+                --         end
+                --     else
+                --         if cast.chainHeal(lowest) then return end
+                --     end
+                -- end
             end -- End useCooldowns check
         end -- End Action List - Cooldowns
         -- Cloudburst Totem
@@ -478,11 +478,11 @@ local function runRotation()
                 end
             end
         -- Healing Rain
-            if isChecked("Healing Rain") and not moving then
+            if not moving then
                 if (SpecificToggle("Healing Rain Key") and not GetCurrentKeyBoardFocus()) then
                     if CastSpellByName(GetSpellInfo(spell.healingRain),"cursor") then return end 
                 end
-                if not buff.healingRain.exists() and getLowAllies(getValue("Healing Rain")) >= getValue("Healing Rain Targets") then    
+                if isChecked("Healing Rain") and not buff.healingRain.exists() and getLowAllies(getValue("Healing Rain")) >= getValue("Healing Rain Targets") then    
                     if castGroundAtBestLocation(spell.healingRain, 20, 0, 40, 0, "heal") then return end    
                 end
             end
@@ -646,12 +646,12 @@ local function runRotation()
                 end
             end
         -- Healing Rain
-            if isChecked("Healing Rain") and not moving then
+            if not moving then
                 if (SpecificToggle("Healing Rain Key") and not GetCurrentKeyBoardFocus()) then
                     if CastSpellByName(GetSpellInfo(spell.healingRain),"cursor") then return end 
                 end
-                if not buff.healingRain.exists() and getLowAllies(getValue("Healing Rain")) >= getValue("Healing Rain Targets") then    
-                    if castGroundAtBestLocation(spell.healingRain, 20, 2, 40, 0, "heal") then return end    
+                if isChecked("Healing Rain") and not buff.healingRain.exists() and getLowAllies(getValue("Healing Rain")) >= getValue("Healing Rain Targets") then    
+                    if castGroundAtBestLocation(spell.healingRain, 20, 0, 40, 0, "heal") then return end    
                 end
             end
         -- Spirit Link Totem
@@ -721,7 +721,7 @@ local function runRotation()
 ---------------------------------
 --- Out Of Combat - Rotations ---
 ---------------------------------
-            if not inCombat and not IsMounted() and getBuffRemain("player", 192002 ) < 10 then
+            if not inCombat and not IsMounted() and not drinking then
                 actionList_Extras()
                 if isChecked("OOC Healing") then
                     actionList_PreCombat()
@@ -730,7 +730,7 @@ local function runRotation()
 -----------------------------
 --- In Combat - Rotations --- 
 -----------------------------
-            if inCombat and not IsMounted() and getBuffRemain("player", 192002 ) < 10 then
+            if inCombat and not IsMounted() and not drinking then
                 actionList_Defensive()
                 actionList_Interrupts()
                 actionList_Cooldowns()
