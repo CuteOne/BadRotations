@@ -1,4 +1,4 @@
-local MAJOR, MINOR = "LibArtifactData-1.0", 11
+local MAJOR, MINOR = "LibArtifactData-1.0", 15
 
 assert(_G.LibStub, MAJOR .. " requires LibStub")
 local lib = _G.LibStub:NewLibrary(MAJOR, MINOR)
@@ -128,7 +128,7 @@ local function InformTraitsChanged(artifactID)
 	lib.callbacks:Fire("ARTIFACT_TRAITS_CHANGED", artifactID, CopyTable(artifacts[artifactID].traits))
 end
 
-local function StoreArtifact(artifactID, name, icon, unspentPower, numRanksPurchased, numRanksPurchasable, power, maxPower, traits, relics)
+local function StoreArtifact(artifactID, name, icon, unspentPower, numRanksPurchased, numRanksPurchasable, power, maxPower, traits, relics, tier)
 	if not artifacts[artifactID] then
 		artifacts[artifactID] = {
 			name = name,
@@ -141,6 +141,7 @@ local function StoreArtifact(artifactID, name, icon, unspentPower, numRanksPurch
 			powerForNextRank = maxPower - power,
 			traits = traits,
 			relics = relics,
+			tier = tier or 1,
 		}
 		Debug("ARTIFACT_ADDED", artifactID, name)
 		lib.callbacks:Fire("ARTIFACT_ADDED", artifactID)
@@ -154,6 +155,7 @@ local function StoreArtifact(artifactID, name, icon, unspentPower, numRanksPurch
 		current.powerForNextRank = maxPower - power
 		current.traits = traits
 		current.relics = relics
+		current.tier = tier or 1
 	end
 end
 
@@ -163,20 +165,24 @@ local function ScanTraits(artifactID)
 
 	for i = 1, #powers do
 		local traitID = powers[i]
-		local spellID, _, currentRank, maxRank, bonusRanks, _, _, _, isStart, isGold, isFinal = GetPowerInfo(traitID)
-		if currentRank > 0 then
+		local info, _, currentRank, maxRank, bonusRanks, _, _, _, isStart, isGold, isFinal = GetPowerInfo(traitID)
+		local isPatch72 = type(info) == "table" -- NOTE: patch 7.2 compat
+		local spellID = isPatch72 and info.spellID or info
+		if (currentRank or info.currentRank) > 0 then
 			local name, _, icon = GetSpellInfo(spellID)
 			traits[#traits + 1] = {
 				traitID = traitID,
 				spellID = spellID,
 				name = name,
 				icon = icon,
-				currentRank = currentRank,
-				maxRank = maxRank,
-				bonusRanks = bonusRanks,
-				isGold = isGold,
-				isStart = isStart,
-				isFinal = isFinal,
+				currentRank = currentRank or info.currentRank,
+				maxRank = maxRank or info.maxRank,
+				bonusRanks = bonusRanks or info.maxRank,
+				isGold = isGold or isPatch72 and info.isGold,
+				isStart = isStart or isPatch72 and info.isStart,
+				isFinal = isFinal or isPatch72 and info.isFinal,
+				maxRanksFromTier = isPatch72 and info.numMaxRankBonusFromTier or 0,
+				tier = isPatch72 and info.tier or 1,
 			}
 		end
 	end
@@ -222,17 +228,17 @@ end
 
 local function GetViewedArtifactData()
 	GetArtifactKnowledge()
-	local itemID, _, name, icon, unspentPower, numRanksPurchased = GetArtifactInfo() -- TODO: appearance stuff needed? altItemID ?
+	local itemID, _, name, icon, unspentPower, numRanksPurchased, _, _, _, _, _, _, tier = GetArtifactInfo() -- TODO: appearance stuff needed? altItemID ? NOTE: 7.2 compat
 	if not itemID then
 		Debug("|cffff0000ERROR:|r", "GetArtifactInfo() returned nil.")
 		return
 	end
 	viewedID = itemID
 	Debug("GetViewedArtifactData", name, itemID)
-	local numRanksPurchasable, power, maxPower = GetNumPurchasableTraits(numRanksPurchased, unspentPower)
+	local numRanksPurchasable, power, maxPower = GetNumPurchasableTraits(numRanksPurchased, unspentPower, tier)
 	local traits = ScanTraits()
 	local relics = ScanRelics()
-	StoreArtifact(itemID, name, icon, unspentPower, numRanksPurchased, numRanksPurchasable, power, maxPower, traits, relics)
+	StoreArtifact(itemID, name, icon, unspentPower, numRanksPurchased, numRanksPurchasable, power, maxPower, traits, relics, tier)
 
 	if IsViewedArtifactEquipped() then
 		InformEquippedArtifactChanged(itemID)
@@ -357,8 +363,8 @@ end
 function private.ARTIFACT_XP_UPDATE(event)
 	-- at the forge the player can purchase traits even for unequipped artifacts
 	local GetInfo = IsAtForge() and GetArtifactInfo or GetEquippedArtifactInfo
-	local itemID, _, _, _, unspentPower, numRanksPurchased = GetInfo()
-	local numRanksPurchasable, power, maxPower = GetNumPurchasableTraits(numRanksPurchased, unspentPower)
+	local itemID, _, _, _, unspentPower, numRanksPurchased, _, _, _, _, _, _, tier = GetInfo() -- NOTE: 7.2 compat
+	local numRanksPurchasable, power, maxPower = GetNumPurchasableTraits(numRanksPurchased, unspentPower, tier)
 
 	local artifact = artifacts[itemID]
 	if not artifact then
@@ -485,7 +491,7 @@ function lib.GetAcquiredArtifactPower(_, artifactID)
 		total = total + data.unspentPower
 		local rank = 1
 		while rank < data.numRanksPurchased do
-			total = total + GetCostForPointAtRank(rank)
+			total = total + GetCostForPointAtRank(rank, data.tier)
 			rank = rank + 1
 		end
 
@@ -497,7 +503,7 @@ function lib.GetAcquiredArtifactPower(_, artifactID)
 			total = total + data.unspentPower
 			local rank = 1
 			while rank < data.numRanksPurchased do
-				total = total + GetCostForPointAtRank(rank)
+				total = total + GetCostForPointAtRank(rank, data.tier)
 				rank = rank + 1
 			end
 		end
