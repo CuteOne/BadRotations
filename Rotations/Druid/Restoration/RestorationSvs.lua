@@ -182,6 +182,7 @@ local function runRotation()
         local cd                                            = br.player.cd
         local charges                                       = br.player.charges
         local debuff                                        = br.player.debuff
+        local drinking                                      = UnitBuff("player",192002) ~= nil or UnitBuff("player",167152) ~= nil
         local enemies                                       = enemies or {}
         local falling, swimming, flying, moving             = getFallTime(), IsSwimming(), IsFlying(), GetUnitSpeed("player")>0
         local gcd                                           = br.player.gcd
@@ -546,7 +547,7 @@ local function runRotation()
             -- Oh Shit! Regrowth
            if isChecked("Regrowth") and not isCastingSpell(spell.tranquility) then
                 for i = 1, #br.friend do                           
-                    if br.friend[i].hp <= 30 then 
+                    if br.friend[i].hp <= 40 then 
                         if talent.abundance and buff.abundance.stack() < 3 then
                             if cast.regrowth(br.friend[i].unit) then return end
                         elseif not talent.abundance then
@@ -665,7 +666,7 @@ local function runRotation()
 ---------------------------------
 --- Out Of Combat - Rotations ---
 ---------------------------------
-            if not inCombat and not IsMounted() and not stealthed and getBuffRemain("player", 192002 ) < 10 then
+            if not inCombat and not IsMounted() and not stealthed and not drinking then
                 actionList_Extras()
                 if isChecked("OOC Healing") then
                     actionList_PreCombat()
@@ -674,7 +675,7 @@ local function runRotation()
 -----------------------------
 --- In Combat - Rotations --- 
 -----------------------------
-            if inCombat and not IsMounted() and not stealthed and getBuffRemain("player", 192002 ) < 10 then
+            if inCombat and not IsMounted() and not stealthed and not drinking then
                 actionList_Extras()
                 actionList_Defensive()
                 actionList_Cooldowns()
