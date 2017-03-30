@@ -630,7 +630,7 @@ local function runRotation()
         -- Obliterate
             -- obliterate,if=!buff.rime.react&!(talent.gathering_storm.enabled&!(cooldown.remorseless_winter.remains>2|rune>4))&rune>3
             if not buff.rime.exists() 
-                and (cd.breathOfSindragosa > 1.5 or runicPower <= 70)
+                and (cd.breathOfSindragosa <= 1.5 or runicPower <= 70)
             	and (not (talent.gatheringStorm and not (cd.remorselessWinter > 2 or runes > 4)) or cd.breathOfSindragosa < 24 or (cd.breathOfSindragosa < 24 and hasEquiped(137223) and cd.hungeringRuneWeapon > 0) ) 
             	and runes > 3
             	and not immun
@@ -975,6 +975,7 @@ local function runRotation()
                 if getDistance(units.dyn5) < 5 then
                     StartAttack()
                 end
+    
     ------------------------------
     --- In Combat - Interrupts ---
     ------------------------------
