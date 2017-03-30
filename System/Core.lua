@@ -117,7 +117,7 @@ function frame:OnEvent(event, arg1, arg2, arg3, arg4, arg5)
     end
 		if event == "UI_ERROR_MESSAGE" then
 			local arg1 = arg1
-			if arg1 == 276 then
+			if arg1 == 275 then
 				if deadPet == false then
 					deadPet = true
 				elseif deadPet == true then
