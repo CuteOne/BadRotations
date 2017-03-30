@@ -493,7 +493,7 @@ local function runRotation()
     local function actionList_EmeralDreamcatcher()
         local function getExecuteTime(spellID)
             if getCastTime(spellID) > gcd then
-                return getCastTime(spellID)*1.2
+                return getCastTime(spellID)
             else
                 return gcd
             end
@@ -586,14 +586,14 @@ local function runRotation()
             end
         end
         --half_moon,if=astral_power<=80&buff.the_emerald_dreamcatcher.remains>execute_time&astral_power>=6
-        if activeMoon == 2 then
+        if activeMoon == 2 and getTTD(units.dyn40)*2 >= getCastTime(spell.halfMoon) then
             if astralPower <= 80 and buff.emeraldDreamcatcher.exists() and buff.emeraldDreamcatcher.remain() > getExecuteTime(spell.halfMoon) and astralPower >= 6 then
                 if cast.newMoon() then return true end
             end
         end
         --full_moon,if=astral_power<=60&buff.the_emerald_dreamcatcher.remains>execute_time
-        if activeMoon == 1 then
-            if astralPower <= 60 and buff.emeraldDreamcatcher.exists() and buff.emeraldDreamcatcher.remain() > getExecuteTime(spell.fullMoon)*1.1 then
+        if activeMoon == 1 and getTTD(units.dyn40)*2 >= getCastTime(spell.fullMoon) then
+            if astralPower <= 60 and buff.emeraldDreamcatcher.exists() and buff.emeraldDreamcatcher.remain() > getExecuteTime(spell.fullMoon) then
                 if cast.newMoon() then return true end
             end
         end
@@ -609,7 +609,7 @@ local function runRotation()
             end
         end
         --lunar_strike,if=buff.lunar_empowerment.up&buff.the_emerald_dreamcatcher.remains>execute_time&astral_power>=11&(!(buff.celestial_alignment.up|buff.incarnation.up)&astral_power<=85|(buff.celestial_alignment.up|buff.incarnation.up)&astral_power<=77.5)
-        if buff.lunarEmpowerment.exists() and buff.emeraldDreamcatcher.remain() > getExecuteTime(spell.lunarStrike)*1.2 and astralPower >=11 and
+        if buff.lunarEmpowerment.exists() and buff.emeraldDreamcatcher.remain() > getExecuteTime(spell.lunarStrike) and astralPower >=11 and
                 (not(buff.celestialAlignment.exists() or buff.incarnationChoseOfElune.exists()) and astralPower <=85 or
                         (buff.celestialAlignment.exists() or buff.incarnationChoseOfElune.exists()) and astralPower<= 77.5) or buff.owlkinFrenzy.exists() then
             if cast.lunarStrike() then return true end
@@ -635,20 +635,20 @@ local function runRotation()
             end
         end
         --new_moon,if=astral_power<=90
-        if activeMoon == 3 then
+        if activeMoon == 3 and getTTD(units.dyn40)*2 >= getCastTime(spell.newMoon) then
             if astralPower <= 90 then
                 if cast.newMoon() then return true end
             end
         end
         --half_moon,if=astral_power<=80
-        if activeMoon == 2 then
+        if activeMoon == 2 and getTTD(units.dyn40)*2 >= getCastTime(spell.halfMoon) then
             if astralPower <= 80 then
                 if cast.newMoon() then return true end
             end
         end
         --full_moon,if=astral_power<=60&((cooldown.incarnation.remains>65&cooldown.full_moon.charges>0)|(cooldown.incarnation.remains>50&cooldown.full_moon.charges>1)|(cooldown.incarnation.remains>25&cooldown.full_moon.charges>2))
-        if activeMoon == 1 then
-            if (buff.emeraldDreamcatcher.remain() > getExecuteTime(spell.fullMoon)*1.1) or not buff.emeraldDreamcatcher.exists() then
+        if activeMoon == 1 and getTTD(units.dyn40)*2 >= getCastTime(spell.fullMoon) then
+            if (buff.emeraldDreamcatcher.remain() > getExecuteTime(spell.fullMoon)) or not buff.emeraldDreamcatcher.exists() then
                 if astralPower <= 60 and ((cd.celestialAlignment > 65 and getCharges(spell.fullMoon) > 0) or
                         (cd.celestialAlignment > 50 and getCharges(spell.fullMoon) > 1) or
                         (cd.celestialAlignment > 25 and getCharges(spell.fullMoon) > 2)) then
@@ -877,13 +877,13 @@ local function runRotation()
         end
         if activeMoon == 2 and getTTD(units.dyn40)*2 >= getCastTime(spell.halfMoon) then
             --actions+=/half_moon,if=(charges=2&recharge_time<5)|charges=3|(target.time_to_die<15&charges=2)
-            if (getCharges(spell.newMoon) == 2 and recharge.newMoon < 5) or (getCharges(spell.newMoon) == 3) or (getTTD(units.dyn40)*2<15 and getCharges(spell.newMoon) == 2) then
+            if (getCharges(spell.newMoon) == 2 and recharge.newMoon < 5) or (getCharges(spell.newMoon) == 3) or (getTTD(units.dyn40)<15 and getCharges(spell.newMoon) == 2) then
                 if cast.newMoon() then return true end
             end
         end
         if activeMoon == 1 and getTTD(units.dyn40)*2 >= getCastTime(spell.fullMoon) then
             --actions+=/full_moon,if=(charges=2&recharge_time<5)|charges=3|target.time_to_die<15
-            if (getCharges(spell.newMoon) == 2 and recharge.newMoon < 5) or(getCharges(spell.newMoon) == 3) or (getTTD(units.dyn40)*2<15 and getCharges(spell.newMoon) == 2) then
+            if (getCharges(spell.newMoon) == 2 and recharge.newMoon < 5) or(getCharges(spell.newMoon) == 3) or (getTTD(units.dyn40)<15 and getCharges(spell.newMoon) == 2) then
                 if cast.newMoon() then return true end
             end
         end
@@ -1391,11 +1391,11 @@ local function runRotation()
                 elseif hasBloodLust() and SP then
 
                 elseif SP then
-                    if not LS and buff.emeraldDreamcatcher.remain() > getCastTime(spell.lunarStrike)*1.2 then
+                    if not LS and buff.emeraldDreamcatcher.remain() > getCastTime(spell.lunarStrike) then
                         castOpener("lunarStrike","LS",10)
                     elseif not STS2 then
                         castOpener("starsurge","STS2",11)
-                    elseif not SW3 and buff.emeraldDreamcatcher.remain() > getCastTime(spell.solarWrath)*2.2 then
+                    elseif not SW3 and buff.emeraldDreamcatcher.remain() > getCastTime(spell.solarWrath) then
                         castOpener("solarWrath","SW3",12)
                     elseif not SW4 then
                         castOpener("solarWrath","SW4",13)
