@@ -387,7 +387,7 @@ local function runRotation()
         -- Leap of Faith
             if isChecked("Leap of Faith") then
                 for i = 1, #br.friend do
-                    if br.friend[i].hp <= getValue("Leap of Faith") and not UnitIsUnit(br.friend[i].unit,player) then
+                    if br.friend[i].hp <= getValue("Leap of Faith") and not UnitIsUnit(br.friend[i].unit,"player") then
                         if cast.leapOfFaith(br.friend[i].unit) then return end
                     end
                 end                    
