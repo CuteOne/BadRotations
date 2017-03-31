@@ -496,7 +496,7 @@ local function runRotation()
             end
         -- Whirlwind
             -- whirlwind,if=spell_targets.whirlwind>1&buff.meat_cleaver.down
-            if ((mode.rotation == 1 and #enemies.yards8 > getOptionValue("Whirlwind Units")) or mode.rotation == 2) and not buff.meatCleaver.exists() then
+            if ((mode.rotation == 1 and #enemies.yards8 >= getOptionValue("Whirlwind Units")) or mode.rotation == 2) and not buff.meatCleaver.exists() then
                 if cast.whirlwind() then return end
             end
         -- Execute
@@ -539,7 +539,7 @@ local function runRotation()
             if cast.bloodthirst() then return end
         -- Whirlwind
             -- whirlwind,if=buff.wrecking_ball.react&buff.enrage.up
-            if ((mode.rotation == 1 and #enemies.yards8 > getOptionValue("Whirlwind Units")) or mode.rotation == 2) and buff.wreckingBall.exists() and buff.enrage.exists() then
+            if ((mode.rotation == 1 and #enemies.yards8 >= getOptionValue("Whirlwind Units")) or mode.rotation == 2) and buff.wreckingBall.exists() and buff.enrage.exists() then
                 if cast.whirlwind() then return end
             end
         -- Furious Slash
@@ -560,7 +560,7 @@ local function runRotation()
             end
         -- Whirlwind
             -- whirlwind,if=spell_targets.whirlwind=3&buff.wrecking_ball.react
-            if ((mode.rotation == 1 and #enemies.yards8 > getOptionValue("Whirlwind Units")) or mode.rotation == 2) and buff.wreckingBall.exists() then
+            if ((mode.rotation == 1 and #enemies.yards8 >= getOptionValue("Whirlwind Units")) or mode.rotation == 2) and buff.wreckingBall.exists() then
                 if cast.whirlwind() then return end
             end
         -- Raging Blow
@@ -648,7 +648,7 @@ local function runRotation()
             end
         -- Rampage
             -- rampage,if=buff.meat_cleaver.up&((buff.enrage.down&!talent.frothing_berserker.enabled)|(rage>=100&talent.frothing_berserker.enabled))|buff.massacre.react
-            if (buff.meatCleaver.exists() and ((not buff.enrage.exists() and not talent.frothingBerserker) or (buff.frothingBerserker.exists() and talent.frothingBerserker))) or buff.massacre.exists() then
+            if (buff.meatCleaver.exists() and ((not buff.enrage.exists() and not talent.frothingBerserker) or (buff.frothingBerserker.exists() and talent.frothingBerserker))) or buff.massacre.exists() or power >= 100 then
                 if cast.rampage() then return end
             end
         -- Raging Blow
@@ -661,7 +661,7 @@ local function runRotation()
             if cast.bloodthirst() then return end
         -- Whirlwind
             -- whirlwind
-            if ((mode.rotation == 1 and #enemies.yards8 > getOptionValue("Whirlwind Units")) or mode.rotation == 2) and getDistance(units.dyn8) < 8 then
+            if ((mode.rotation == 1 and #enemies.yards8 >= getOptionValue("Whirlwind Units")) or mode.rotation == 2) and getDistance(units.dyn8) < 8 then
                 if cast.whirlwind() then return end
             end
         end -- End Action List - Three Targets
@@ -687,7 +687,7 @@ local function runRotation()
             end
         -- Whirlwind
             -- whirlwind,if=buff.meat_cleaver.down
-            if ((mode.rotation == 1 and #enemies.yards8 > getOptionValue("Whirlwind Units")) or mode.rotation == 2) and not buff.meatCleaver.exists() and getDistance(units.dyn8) < 8 then
+            if ((mode.rotation == 1 and #enemies.yards8 >= getOptionValue("Whirlwind Units")) or mode.rotation == 2) and not buff.meatCleaver.exists() and getDistance(units.dyn8) < 8 then
                 if cast.whirlwind() then return end
             end
         -- Rampage
@@ -700,7 +700,7 @@ local function runRotation()
             if cast.bloodthirst() then return end
         -- Whirlwind
             -- whirlwind
-            if ((mode.rotation == 1 and #enemies.yards8 > getOptionValue("Whirlwind Units")) or mode.rotation == 2) and getDistance(units.dyn8) < 8 then
+            if ((mode.rotation == 1 and #enemies.yards8 >= getOptionValue("Whirlwind Units")) or mode.rotation == 2) and getDistance(units.dyn8) < 8 then
                 if cast.whirlwind() then return end
             end
         end -- End Action List - MultiTarget

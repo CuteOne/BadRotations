@@ -953,13 +953,18 @@ function castSpellMacro(Unit,SpellID,FacingCheck,MovementCheck,SpamAllowed,Known
 end
 -- Used in openers
 function castOpener(spellIndex,flag,index)
-    if (not br.player.cast.debug[spellIndex] and (br.player.cd[spellIndex] == 0 or br.player.cd[spellIndex] > br.player.gcd)) then
-        Print(index..": "..select(1,GetSpellInfo(br.player.spell[spellIndex])).." (Uncastable)");
-        _G[flag] = true;
-        return true
-    else
-        if br.player.cast[spellIndex]() then Print(index..": "..select(1,GetSpellInfo(br.player.spell[spellIndex]))); _G[flag] = true; return true end
-    end
+	local spellCast = br.player.spell[spellIndex]
+	local maxRange = select(6,GetSpellInfo(spellCast))
+	if not maxRange or maxRange == 0 then maxRange = 5 end
+	if getDistance("target") < maxRange then
+	    if (not br.player.cast.debug[spellIndex] and (br.player.cd[spellIndex] == 0 or br.player.cd[spellIndex] > br.player.gcd)) then
+	        Print(index..": "..select(1,GetSpellInfo(spellCast)).." (Uncastable)");
+	        _G[flag] = true;
+	        return true
+	    else
+	        if br.player.cast[spellIndex]() then Print(index..": "..select(1,GetSpellInfo(spellCast))); _G[flag] = true; return true end
+	    end
+	end
 end
 function canCast(spellID,unit)
 	if unit == nil then unit = "target" end
