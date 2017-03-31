@@ -163,7 +163,7 @@ local function runRotation()
         local cd                                            = br.player.cd
         local charges                                       = br.player.charges
         local deadMouse                                     = UnitIsDeadOrGhost("mouseover")
-        local deadtar, attacktar, hastar, playertar         = deadtar or UnitIsDeadOrGhost("target"), attacktar or UnitCanAttack("target", "player"), hastar or ObjectExists("target"), UnitIsPlayer("target")
+        local deadtar, attacktar, hastar, playertar         = deadtar or UnitIsDeadOrGhost("target"), attacktar or UnitCanAttack("target", "player"), hastar or GetObjectExists("target"), UnitIsPlayer("target")
         local debuff                                        = br.player.debuff
         local enemies                                       = enemies or {}
         local falling, swimming, flying, moving             = getFallTime(), IsSwimming(), IsFlying(), GetUnitSpeed("player")>0
@@ -171,7 +171,7 @@ local function runRotation()
         local friendly                                      = friendly or UnitIsFriend("target", "player")
         local gcd                                           = br.player.gcd
         local grimoirePet                                   = getOptionValue("Grimoire of Service - Pet")
-        local hasMouse                                      = ObjectExists("mouseover")
+        local hasMouse                                      = GetObjectExists("mouseover")
         local hasteAmount                                   = GetHaste()/100
         local hasPet                                        = IsPetActive()
         local healPot                                       = getHealthPot()
@@ -224,7 +224,7 @@ local function runRotation()
         if isBoss() then dotHPLimit = getOptionValue("Multi-Dot HP Limit")/10 else dotHPLimit = getOptionValue("Multi-Dot HP Limit") end
 
         -- Opener Variables
-        if not inCombat and not ObjectExists("target") then
+        if not inCombat and not GetObjectExists("target") then
             -- DE1 = false
             -- DSB1 = false
             -- DOOM = false
@@ -301,7 +301,7 @@ local function runRotation()
 		local function actionList_Extras()
 		-- Dummy Test
 			if isChecked("DPS Testing") then
-				if ObjectExists("target") then
+				if GetObjectExists("target") then
 					if getCombatTime() >= (tonumber(getOptionValue("DPS Testing"))*60) and isDummy() then
                         StopAttack()
                         ClearTarget()
@@ -349,7 +349,7 @@ local function runRotation()
                     if cast.drainLife() then return end
                 end
         -- Health Funnel
-                if isChecked("Health Funnel") and getHP("pet") <= getOptionValue("Health Funnel") and ObjectExists("pet") and not UnitIsDeadOrGhost("pet") then
+                if isChecked("Health Funnel") and getHP("pet") <= getOptionValue("Health Funnel") and GetObjectExists("pet") and not UnitIsDeadOrGhost("pet") then
                     if cast.healthFunnel() then return end
                 end
         -- Unending gResolve
@@ -454,7 +454,7 @@ local function runRotation()
                     -- TODO
                 -- Grimoire of Sacrifice
                     -- grimoire_of_sacrifice,if=talent.grimoire_of_sacrifice.enabled
-                    if talent.grimoireOfSacrifice and ObjectExists("pet") and not UnitIsDeadOrGhost("pet") then
+                    if talent.grimoireOfSacrifice and GetObjectExists("pet") and not UnitIsDeadOrGhost("pet") then
                         if cast.grimoireOfSacrifice() then return end
                     end
                     if isChecked("Pre-Pull Timer") and pullTimer <= getOptionValue("Pre-Pull Timer") then
@@ -470,7 +470,7 @@ local function runRotation()
                         -- potion,name=deadly_grace
                         -- TODO
                 -- Pet Attack/Follow
-                        if isChecked("Pet Management") and UnitExists("target") and not UnitAffectingCombat("pet") then
+                        if isChecked("Pet Management") and GetUnitExists("target") and not UnitAffectingCombat("pet") then
                             PetAssistMode()
                             PetAttack("target")
                         end
@@ -543,7 +543,7 @@ local function runRotation()
                         if ((mode.rotation == 1 and #enemies.yards40 > 1) or mode.rotation == 2) and #enemies.yards40 < 6 then
                             for i = 1, #enemies.yards40 do
                                 local thisUnit = enemies.yards40[i]
-                                if not UnitIsUnit(thisUnit,"target") and isValidUnit(thisUnit) and (not UnitExists("focus") or (UnitExists("focus") and UnitIsUnit(thisUnit,"focus"))) then
+                                if not UnitIsUnit(thisUnit,"target") and isValidUnit(thisUnit) and (not GetUnitExists("focus") or (UnitExists("focus") and UnitIsUnit(thisUnit,"focus"))) then
                                     if not debuff.havoc.exists(thisUnit) then
                                         if cast.havoc(thisUnit,"aoe") then return end
                                     end
@@ -635,7 +635,7 @@ local function runRotation()
                     end
         -- Service Pet
                     -- service_pet
-                    if isChecked("Pet Management") and ObjectExists(units.dyn40) and (getOptionValue("Grimoire of Service - Use") == 1 or (getOptionValue("Grimoire of Service - Use") == 2 and useCDs())) then
+                    if isChecked("Pet Management") and GetObjectExists(units.dyn40) and (getOptionValue("Grimoire of Service - Use") == 1 or (getOptionValue("Grimoire of Service - Use") == 2 and useCDs())) then
                         if br.timer:useTimer("castGrim", gcd) then
                             if grimoirePet == 1 then
                                 if cast.grimoireImp("target") then prevService = "Imp"; return end

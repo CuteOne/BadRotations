@@ -179,7 +179,7 @@ local function runRotation()
         local charges           = br.player.charges
         local combatTime        = getCombatTime()
         local debuff            = br.player.debuff
-        local deadtar, attacktar, hastar, playertar         = deadtar or UnitIsDeadOrGhost("target"), attacktar or UnitCanAttack("target", "player"), hastar or ObjectExists("target"), UnitIsPlayer("target")
+        local deadtar, attacktar, hastar, playertar         = deadtar or UnitIsDeadOrGhost("target"), attacktar or UnitCanAttack("target", "player"), hastar or GetObjectExists("target"), UnitIsPlayer("target")
         local enemies           = enemies or {}
         local flaskBuff         = getBuffRemain("player",br.player.flask.wod.buff.agilityBig) or 0
         local gcd               = br.player.gcd
@@ -223,7 +223,7 @@ local function runRotation()
 
         if opener == nil then opener = false end
 
-        if not inCombat and not ObjectExists("target") then
+        if not inCombat and not GetObjectExists("target") then
             iB1 = false
             KG = false
             iB2 = false
@@ -262,7 +262,7 @@ local function runRotation()
             end
         -- Dummy Test
             if isChecked("DPS Testing") then
-                if ObjectExists("target") then
+                if GetObjectExists("target") then
                     if combatTime >= (tonumber(getValue("DPS Testing"))*60) and isDummy() then
                         StopAttack()
                         ClearTarget()

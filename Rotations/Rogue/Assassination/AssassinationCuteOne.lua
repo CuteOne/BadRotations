@@ -202,7 +202,7 @@ local function runRotation()
         local flaskBuff, canFlask                           = getBuffRemain("player",br.player.flask.wod.buff.agilityBig), canUse(br.player.flask.wod.agilityBig)
         local gcd                                           = br.player.gcd
         local glyph                                         = br.player.glyph
-        local hastar                                        = ObjectExists("target")
+        local hastar                                        = GetObjectExists("target")
         local healPot                                       = getHealthPot()
         local hemorrhageCount                               = hemorrhageCount
         local inCombat                                      = br.player.inCombat
@@ -245,7 +245,7 @@ local function runRotation()
  
  
         if opener == nil then opener = false end
-        if not inCombat and not ObjectExists("target") and lastSpell ~= spell.vanish then
+        if not inCombat and not GetObjectExists("target") and lastSpell ~= spell.vanish then
             OPN1 = false
             GAR1 = false
             MUT1 = false

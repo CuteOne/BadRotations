@@ -46,7 +46,7 @@ end
 
 -- Remove Invalid Enemies
 local function DeleteEnemy(thisUnit)
-	if not UnitExists(thisUnit) or not UnitIsVisible(thisUnit) then
+	if not GetUnitExists(thisUnit) or not GetUnitIsVisible(thisUnit) then
 		br.enemy[thisUnit] = nil
 	elseif not isValidUnit(thisUnit) then
 		-- Print("Removing Enemy")
@@ -99,7 +99,7 @@ end
 
 -- Delete Pet
 local function DeletePet(thisUnit)
-	if not UnitExists(thisUnit) or not UnitIsVisible(thisUnit) then
+	if not GetUnitExists(thisUnit) or not GetUnitIsVisible(thisUnit) then
 		br.player.petInfo[thisUnit] = nil
 	else
 		UpdatePet(thisUnit)
@@ -121,12 +121,12 @@ function FindEnemy()
 			if ObjectIsType(thisUnit, ObjectTypes.Unit) then
 				br.debug.cpu.enemiesEngine.unitTargets = br.debug.cpu.enemiesEngine.unitTargets + 1
 				-- Enemies
-				if UnitExists(thisUnit) and isValidUnit(thisUnit) and br.enemy[thisUnit] == nil then
+				if GetUnitExists(thisUnit) and isValidUnit(thisUnit) and br.enemy[thisUnit] == nil then
 					br.debug.cpu.enemiesEngine.sanityTargets = br.debug.cpu.enemiesEngine.sanityTargets + 1
 					AddEnemy(thisUnit)
 				end
 				-- Pet Info
-				if UnitExists(thisUnit) then
+				if GetUnitExists(thisUnit) then
 					AddPet(thisUnit)
 				end
 			end
@@ -165,7 +165,7 @@ function dynamicTarget(range,facing)
 		for k, v in pairs(br.enemy) do
 			local thisUnit = v--br.enemy[k]
 			local thisDistance = getDistance("player",thisUnit.unit)
-			if UnitExists(thisUnit.unit) and ObjectID(thisUnit.unit) ~= 103679 and thisUnit.coeficient ~= nil then
+			if GetUnitExists(thisUnit.unit) and ObjectID(thisUnit.unit) ~= 103679 and thisUnit.coeficient ~= nil then
 				if (not getOptionCheck("Safe Damage Check") or thisUnit.safe) and not thisUnit.isCC
 						and thisDistance < range and (not facing or thisUnit.facing)
 				then
@@ -266,7 +266,7 @@ end
 -- /dump getEnemies("target",10)
 function getEnemies(unit,Radius,InCombat,precise)
 	local startTime = debugprofilestop()
-	if GetObjectExists(unit) and UnitIsVisible(unit) then
+	if GetObjectExists(unit) and GetUnitIsVisible(unit) then
 		local getEnemiesTable = { }
 		for k, v in pairs(br.enemy) do
 			local thisUnit = br.enemy[k].unit
@@ -409,7 +409,7 @@ function getOffensiveBuffs(unit,guid)
 end
 -- returns true if Unit is a valid enemy
 function getSanity(unit)
-	if  UnitIsVisible(unit) == true and getCreatureType(unit) == true
+	if  GetUnitIsVisible(unit) == true and getCreatureType(unit) == true
 			and ((UnitCanAttack(unit, "player") == true or not UnitIsFriend(unit,"player") or isDummy(unit)) and getLineOfSight(unit, "player"))
 			and UnitIsDeadOrGhost(unit) == false
 	then

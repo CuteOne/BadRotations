@@ -21,7 +21,7 @@ end
 
 function getAccDistance(Unit1,Unit2)
     -- If both units are visible
-    if GetObjectExists(Unit1) and UnitIsVisible(Unit1) == true and (Unit2 == nil or (GetObjectExists(Unit2) and UnitIsVisible(Unit2) == true)) then
+    if GetObjectExists(Unit1) and GetUnitIsVisible(Unit1) == true and (Unit2 == nil or (GetObjectExists(Unit2) and GetUnitIsVisible(Unit2) == true)) then
         -- If Unit2 is nil we compare player to Unit1
         if Unit2 == nil then
             Unit2 = Unit1
@@ -105,7 +105,7 @@ function getLoot2()
                 end
             end
         end
-        if UnitExists("target") and UnitIsDeadOrGhost("target") and looted==1 and not isLooting() then
+        if GetUnitExists("target") and UnitIsDeadOrGhost("target") and looted==1 and not isLooting() then
             ClearTarget()
             looted=0
         end

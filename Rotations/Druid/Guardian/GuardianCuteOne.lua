@@ -183,14 +183,14 @@ local function runRotation()
         local cd                                            = br.player.cd
         local charges                                       = br.player.charges
         local deadMouse                                     = UnitIsDeadOrGhost("mouseover")
-        local deadtar, attacktar, hastar, playertar         = deadtar or UnitIsDeadOrGhost("target"), attacktar or UnitCanAttack("target", "player"), hastar or ObjectExists("target"), UnitIsPlayer("target")
+        local deadtar, attacktar, hastar, playertar         = deadtar or UnitIsDeadOrGhost("target"), attacktar or UnitCanAttack("target", "player"), hastar or GetObjectExists("target"), UnitIsPlayer("target")
         local debuff                                        = br.player.debuff
         local enemies                                       = enemies or {}
         local falling, swimming, flying, moving             = getFallTime(), IsSwimming(), IsFlying(), GetUnitSpeed("player")>0
         local flaskBuff                                     = getBuffRemain("player",br.player.flask.wod.buff.agilityBig)
         local friendly                                      = UnitIsFriend("target", "player")
         local gcd                                           = br.player.gcd
-        local hasMouse                                      = ObjectExists("mouseover")
+        local hasMouse                                      = GetObjectExists("mouseover")
         local healPot                                       = getHealthPot()
         local inCombat                                      = br.player.inCombat
         local inInstance                                    = br.player.instance=="party"
@@ -275,7 +275,7 @@ local function runRotation()
 				  	if cast.travelForm() then return end
 				end
             -- Cat Form when not swimming or flying or stag and not in combat
-                if not cat and not inCombat and moving and not swimming and not flying and not travel and (#enemies.yards20 == 0 or not bear) and not ObjectExists("target") and not IsMounted() then
+                if not cat and not inCombat and moving and not swimming and not flying and not travel and (#enemies.yards20 == 0 or not bear) and not GetObjectExists("target") and not IsMounted() then
                     if cast.catForm() then return end
                 end
             -- Bear Form
@@ -292,7 +292,7 @@ local function runRotation()
             end -- End Shapeshift Form Management
         -- Dummy Test
             if isChecked("DPS Testing") then
-                if ObjectExists("target") then
+                if GetObjectExists("target") then
                     if getCombatTime() >= (tonumber(getOptionValue("DPS Testing"))*60) and isDummy() then
                         StopAttack()
                         ClearTarget()

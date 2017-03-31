@@ -26,9 +26,9 @@ function tracker.add(guid, name, spellId, time) --Check if exists and creates if
 		}
 	end
 	local unit = tracker.units[guid] -- unit shortcut
-	if ObjectExists(unit.guid) then
+	if GetObjectExists(unit.guid) then
         objectID = GetObjectWithGUID(unit.guid)
-    elseif ObjectExists("target") then 
+    elseif GetObjectExists("target") then
         objectID = GetObjectWithGUID(UnitGUID("target"))
     else
     	objectID = GetObjectWithGUID(UnitGUID("player"))
@@ -109,9 +109,9 @@ function tracker.onUpdate()
 			local unit = tracker.units[k]
 			local name = unit.name
 			local auras = unit.auras
-			if ObjectExists(unit.guid) then
+			if GetObjectExists(unit.guid) then
                 objectID = GetObjectWithGUID(unit.guid)
-            elseif ObjectExists("target") then 
+            elseif GetObjectExists("target") then
                 objectID = GetObjectWithGUID(UnitGUID("target"))
             else
             	objectID = GetObjectWithGUID(UnitGUID("player"))

@@ -1,7 +1,7 @@
 -- if shouldStopCasting(12345) then
 function shouldStopCasting(Spell)
 	-- if we are on a boss fight
-	if UnitExists("boss1") then
+	if GetUnitExists("boss1") then
 		-- Locally  casting informations
 		local Boss1Cast,Boss1CastEnd,PlayerCastEnd,StopCasting = Boss1Cast,Boss1CastEnd,PlayerCastEnd,false
 		local MySpellCastTime

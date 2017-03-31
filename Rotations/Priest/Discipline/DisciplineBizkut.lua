@@ -637,7 +637,7 @@ local function runRotation()
         --Single Target Heal
         function actionList_SingleTargetHeal()
             -- Dispel Magic
-            if isChecked("Dispel Magic") and canDispel("target",spell.dispelMagic) and not isBoss() and ObjectExists("target") then
+            if isChecked("Dispel Magic") and canDispel("target",spell.dispelMagic) and not isBoss() and GetObjectExists("target") then
                 if cast.dispelMagic() then return end
             end
             -- Mass Dispel

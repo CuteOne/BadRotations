@@ -198,7 +198,7 @@ local function runRotation()
         local debuff        = br.player.debuff
         local enemies       = enemies or {}
         local gcd           = br.player.gcd
-        local hastar        = ObjectExists("target")
+        local hastar        = GetObjectExists("target")
         local healPot       = getHealthPot()
         local inCombat      = br.player.inCombat
         local level         = br.player.level

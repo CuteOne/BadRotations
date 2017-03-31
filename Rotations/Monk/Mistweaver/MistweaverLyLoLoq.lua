@@ -408,7 +408,7 @@ local function runRotation()
             if getOptionValue("Summon Jade Serpent") == 1 then
                 param = "player"
                 --target
-            elseif getOptionValue("Summon Jade Serpent") == 2 and ObjectExists("target") then
+            elseif getOptionValue("Summon Jade Serpent") == 2 and GetObjectExists("target") then
                 param = "target"
                 --tank
             elseif getOptionValue("Summon Jade Serpent") == 3 and #getTanksTable() > 0 then

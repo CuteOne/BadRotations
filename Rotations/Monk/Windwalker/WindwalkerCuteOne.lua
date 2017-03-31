@@ -270,7 +270,7 @@ local function runRotation()
             HoldBoK = false
         end
 
-        if not inCombat and not ObjectExists("target") then
+        if not inCombat and not GetObjectExists("target") then
             iRchiWave = false
             CWIR = false
             EE = false
@@ -453,7 +453,7 @@ local function runRotation()
             end
         -- Dummy Test
             if isChecked("DPS Testing") then
-                if ObjectExists("target") then
+                if GetObjectExists("target") then
                     if combatTime >= (tonumber(getValue("DPS Testing"))*60) and isDummy() then
                         CancelUnitBuff("player", GetSpellInfo(br.player.spell.stormEarthAndFire))
                         StopAttack()

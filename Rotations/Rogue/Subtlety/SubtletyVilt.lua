@@ -196,7 +196,7 @@ local function runRotation()
     local flaskBuff, canFlask                           = getBuffRemain("player",br.player.flask.wod.buff.agilityBig), canUse(br.player.flask.wod.agilityBig)
     local gcd                                           = br.player.gcd
     local glyph                                         = br.player.glyph
-    local hastar                                        = ObjectExists("target")
+    local hastar                                        = GetObjectExists("target")
     local healPot                                       = getHealthPot()
     local inCombat                                      = br.player.inCombat
     local lastSpell                                     = lastSpellCast
@@ -595,7 +595,7 @@ local function runRotation()
                 --    for i=1, #enemies.yards20 do
                 --        local thisUnit = enemies.yards20
                 --        if getDistance(thisUnit) <= 20 then
-                --            if ObjectExists(thisUnit) and UnitCanAttack(thisUnit,"player") and GetTime()-leftCombat > lootDelay then
+                --            if GetObjectExists(thisUnit) and UnitCanAttack(thisUnit,"player") and GetTime()-leftCombat > lootDelay then
                 --                if cast.stealth() then return end
                 --            end
                 --        end

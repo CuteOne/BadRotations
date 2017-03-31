@@ -33,11 +33,11 @@ function PokeEngine()
       PetSwapper()
       if startWaiting == nil then startWaiting = GetTime() end
       if startWaiting ~= nil and startWaiting <= GetTime() - 2 then
-        if UnitExists("target") == false then
+        if GetUnitExists("target") == false then
 
           for i = 1, GetObjectCountBR() do
             local thisPet = GetObjectIndex(i)
-            if GetObjectExists(thisPet) and UnitIsVisible(thisPet) and
+            if GetObjectExists(thisPet) and GetUnitIsVisible(thisPet) and
               getDistance("player",thisPet) < getValue("Auto Clicker Range") then
 
               for j = 1, #MopList do

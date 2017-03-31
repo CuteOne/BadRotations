@@ -44,10 +44,10 @@ end
         end
     end
 -- ObjectCheck 
-    local function objectExists(objectID)
+    local function GetObjectExists(objectID)
         for i = 1, ObjectCount() do
             local thisUnit = GetObjectWithIndex(i)
-            if ObjectExists(thisUnit) and GetObjectID(thisUnit) == objectID then 
+            if GetObjectExists(thisUnit) and GetObjectID(thisUnit) == objectID then
                 return true
             end
         end
@@ -270,7 +270,7 @@ local function runRotation()
 -------------------
 --- Raise Pet   ---
 -------------------
-        if not inCombat and not IsMounted() and isChecked("Auto Summon") and not UnitExists("pet") and (UnitIsDead("pet") ~= nil or UnitIsDead("pet") == false) then
+        if not inCombat and not IsMounted() and isChecked("Auto Summon") and not GetUnitExists("pet") and (UnitIsDead("pet") ~= nil or UnitIsDead("pet") == false) then
             if waitForPetToAppear ~= nil and waitForPetToAppear < GetTime() - 2 and onlyOneTry ~= nil and not onlyOneTry then
                 onlyOneTry = true
                 if cast.raiseDead() then return end
@@ -494,7 +494,7 @@ local function runRotation()
         --Chains of Ice focus
             if isChecked("Chains of Ice Focus") then
                 if waitforNextIoCFocus < GetTime() -1.5 then
-                    if UnitExists("focus")
+                    if GetUnitExists("focus")
                         and (not debuff.chainsOfIce.exists("focus"))
                         and (not talent.soulReaper or not debuff.soulReaper.exists("target") or (buff.soulReaper.stack("player") == 3))
                         and not (UnitBuff("focus","Blessing of Freedom") ~= nil)
@@ -508,7 +508,7 @@ local function runRotation()
                 end
             end
         --Virulent Plague
-            if UnitExists("target") and ((objIDLastVirPlagueTarget ~= ObjectID("target")) or (waitfornextVirPlague < GetTime() - 6)) then
+            if GetUnitExists("target") and ((objIDLastVirPlagueTarget ~= ObjectID("target")) or (waitfornextVirPlague < GetTime() - 6)) then
                 if (not debuff.virulentPlague.exists("target")
                     or debuff.virulentPlague.remain("target") < 1.5) 
                     and not debuff.soulReaper.exists("target")
@@ -622,14 +622,14 @@ local function runRotation()
                 end
             --PetDismiss
                 if getHP("pet") < 20 
-                    and UnitExists("pet") 
+                    and GetUnitExists("pet")
                     and not buff.corpseShield.exists() 
                 then
                     print("Pet Dismiss - Low Health")
                     PetDismiss()
                 end
             --Auto Summon
-                if isChecked("Auto Summon") and not UnitExists("pet") and (UnitIsDead("pet") ~= nil or UnitIsDead("pet") == false) then
+                if isChecked("Auto Summon") and not GetUnitExists("pet") and (UnitIsDead("pet") ~= nil or UnitIsDead("pet") == false) then
                     if waitForPetToAppear < GetTime() - 2 then
                         if cast.raiseDead() then waitForPetToAppear = GetTime(); return end
                     end
@@ -1037,7 +1037,7 @@ local function runRotation()
 ---------------------------------
 --- Out Of Combat - Rotations ---
 ---------------------------------
-            if not inCombat and ObjectExists("target") and not UnitIsDeadOrGhost("target") and UnitCanAttack("target", "player") then
+            if not inCombat and GetObjectExists("target") and not UnitIsDeadOrGhost("target") and UnitCanAttack("target", "player") then
                 if isChecked("Debug Info") then Print("OOC") end
                 startDampeningTimer = false
             end -- End Out of Combat Rotation
@@ -1058,7 +1058,7 @@ local function runRotation()
                 end
 
                 if isChecked("Auto Target") 
-                    and not UnitExists("target") 
+                    and not GetUnitExists("target")
                     or (not UnitIsEnemy("target", "player") and not UnitIsDeadOrGhost("target")) 
                 then
                     if #enemies.yards8 > 0 and UnitAffectingCombat(enemies.yards8[1]) then
@@ -1103,7 +1103,7 @@ local function runRotation()
                 --- Dark Arbiter Exist  ---
                 ---------------------------
                     if talent.darkArbiter then
-                        if objectExists(100876) then
+                        if GetObjectExists(100876) then
                             if actionList_DarkArbiter() then return end
                         else
                             if actionList_PreDarkArbiter() then return end

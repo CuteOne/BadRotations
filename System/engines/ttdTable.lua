@@ -47,7 +47,7 @@ function TTDRefresh()
 		end
 	end
 	for object, _ in pairs(units) do
-		if not UnitExists(object) then
+		if not GetUnitExists(object) then
 			units[object] = nil
 			ttd[object] = nil
 			health[object] = nil
@@ -62,7 +62,7 @@ function getTTD(unit)
 	local thisUnit = unit
 	if thisUnit ~= nil then
 		if not string.find(thisUnit,"0x") then
-			if ObjectExists(thisUnit) and not UnitIsDeadOrGhost(thisUnit) and UnitIsVisible(thisUnit) then
+			if GetObjectExists(thisUnit) and not UnitIsDeadOrGhost(thisUnit) and GetUnitIsVisible(thisUnit) then
 				thisUnit = GetObjectWithGUID(UnitGUID(thisUnit))
 			else
 				return -2
