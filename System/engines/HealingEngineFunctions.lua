@@ -3,8 +3,8 @@
 function getFocusedTank()
 	local tanks = getTanksTable()
 	-- if we are targetting a mob and its targetting a tank we want to define which tank it is.
-	if #tanks > 0 and UnitExists("target") and UnitIsVisible("target") and UnitExists("targettarget")
-		and UnitIsVisible("targettarget") then
+	if #tanks > 0 and GetUnitExists("target") and GetUnitIsVisible("target") and GetUnitExists("targettarget")
+		and GetUnitIsVisible("targettarget") then
 		local targetTargetGUID = UnitGUID("targettarget")
 		for i = 1,#tanks do
 			if tanks[i].guid == targetTargetGUID then
@@ -43,7 +43,7 @@ function castWiseAoEHeal(unitTable,spell,radius,health,minCount,maxCount,facingC
 		-- find best candidate with list of units
 		for i = 1, #unitTable do
 			-- added a visible check as its not in healing engine.
-			if UnitIsVisible(unitTable[i].unit) and not (facingCheck ~= true and not getFacing("player",unitTable[i].unit)) then
+			if GetUnitIsVisible(unitTable[i].unit) and not (facingCheck ~= true and not getFacing("player",unitTable[i].unit)) then
 				local candidate = getUnitsToHealAround(unitTable[i].unit,radius,health,maxCount,facingCheck)
 				if bestCandidate == nil or bestCandidate[0].coef > candidate[0].coef then
 					bestCandidate = candidate

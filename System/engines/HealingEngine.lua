@@ -211,7 +211,7 @@ if not metaTable1 then
 		-- returns unit GUID
 		function o:nGUID()
 			local nShortHand = ""
-			if UnitExists(unit) then
+			if GetUnitExists(unit) then
 				targetGUID = UnitGUID(unit)
 				nShortHand = UnitGUID(unit):sub(-5)
 			end
@@ -243,7 +243,7 @@ if not metaTable1 then
 		end
 		-- sets actual position of unit in engine, shouldnt refresh more than once/sec
 		function o:GetPosition()
-			if UnitIsVisible(o.unit) then
+			if GetUnitIsVisible(o.unit) then
 				o.refresh = GetTime()
 				local x,y,z = GetObjectPosition(o.unit)
 				x = math.ceil(x*100)/100
@@ -416,7 +416,7 @@ if not metaTable1 then
 				end
 				for p=1, #SpecialTargets do
 					-- Checking if Unit Exists and it's possible to heal them
-					if UnitExists(SpecialTargets[p]) and HealCheck(SpecialTargets[p]) and not CheckSkipNPC(SpecialTargets[p]) then
+					if GetUnitExists(SpecialTargets[p]) and HealCheck(SpecialTargets[p]) and not CheckSkipNPC(SpecialTargets[p]) then
 						if not memberSetup.cache[select(2, getGUID(SpecialTargets[p]))] then
 							local SpecialCase = memberSetup:new(SpecialTargets[p])
 							if SpecialCase then
@@ -475,7 +475,7 @@ if not metaTable1 then
 					end)
 				end
 				if getOptionCheck("Special Priority") == true then
-					if UnitExists("focus") and memberSetup.cache[select(2, getGUID("focus"))] then
+					if GetUnitExists("focus") and memberSetup.cache[select(2, getGUID("focus"))] then
 						table.sort(br.friend, function(x)
 							if x.unit == "focus" then
 								return true
@@ -484,7 +484,7 @@ if not metaTable1 then
 							end
 						end)
 					end
-					if UnitExists("target") and memberSetup.cache[select(2, getGUID("target"))] then
+					if GetUnitExists("target") and memberSetup.cache[select(2, getGUID("target"))] then
 						table.sort(br.friend, function(x)
 							if x.unit == "target" then
 								return true
@@ -493,7 +493,7 @@ if not metaTable1 then
 							end
 						end)
 					end
-					if UnitExists("mouseover") and memberSetup.cache[select(2, getGUID("mouseover"))] then
+					if GetUnitExists("mouseover") and memberSetup.cache[select(2, getGUID("mouseover"))] then
 						table.sort(br.friend, function(x)
 							if x.unit == "mouseover" then
 								return true

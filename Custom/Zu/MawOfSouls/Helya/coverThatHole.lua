@@ -41,7 +41,7 @@ function coverThatHole()
     local name = ObjectName(ObjectWithIndex(i))
     local object = ObjectWithIndex(i)
     local x,y,z = ObjectPosition(object)
-    if name == "Swirling Pool" and ObjectExists(object) and not blackasfuck(x,y,z) then
+    if name == "Swirling Pool" and GetObjectExists(object) and not blackasfuck(x,y,z) then
       blacklistthatshit(x,y,z)
       placeMarker()
       Print(x,y,z)

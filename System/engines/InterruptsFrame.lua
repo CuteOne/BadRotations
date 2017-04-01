@@ -194,7 +194,7 @@ function im:manageCast(...)
 	-- Prepare GUID to be reused via UnitID
 	local br = im
 	local function GetObjectExists(Unit)
-	    if FireHack and ObjectExists(Unit) == true then
+	    if FireHack and GetObjectExists(Unit) == true then
 	        return true
 	    else
 	        return false
@@ -309,8 +309,8 @@ end
 -- function that return frange from thisCaster to thatCaster using their stored positions
 function getDistance(thatCaster,thisCaster)
 	local thatCaster,thisCaster = thatCaster,thisCaster
-	if GetObjectExists(thatCaster.unit) and UnitIsVisible(thatCaster.unit) == true
-		and GetObjectExists(thisCaster.unit) and UnitIsVisible(thisCaster.unit) == true then
+	if GetObjectExists(thatCaster.unit) and GetUnitIsVisible(thatCaster.unit) == true
+		and GetObjectExists(thisCaster.unit) and GetUnitIsVisible(thisCaster.unit) == true then
 		local X1,Y1,Z1 = thatCaster.pos
 		local X2,Y2,Z2 = thisCaster.pos
 		return math.sqrt(((X2-X1)^2) + ((Y2-Y1)^2) + ((Z2-Z1)^2))

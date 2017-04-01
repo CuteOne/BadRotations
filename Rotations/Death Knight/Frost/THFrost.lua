@@ -45,10 +45,10 @@ end
         end
     end
 -- ObjectCheck 
-    local function objectExists(objectID)
+    local function GetObjectExists(objectID)
         for i = 1, ObjectCount() do
             local thisUnit = GetObjectWithIndex(i)
-            if ObjectExists(thisUnit) and GetObjectID(thisUnit) == objectID then 
+            if GetObjectExists(thisUnit) and GetObjectID(thisUnit) == objectID then
                 return true
             end
         end
@@ -303,7 +303,7 @@ local function runRotation()
         --Chains of Ice focus
             if isChecked("Chains of Ice Focus") then
                 if waitforNextIoCFocus < GetTime() -1.5 then
-                    if UnitExists("focus")
+                    if GetUnitExists("focus")
                         and (not debuff.chainsOfIce.exists("focus"))
                         and (not talent.breathOfSindragosa or not buff.breathOfSindragosa.exists())
                         and (not talent.obliteration or not buff.obliteration.exists())
@@ -331,7 +331,7 @@ local function runRotation()
                 if cast.pillarOfFrost() then return end
             end  
         --Howling Blast
-            if inCombat and UnitExists("target") and not IsMounted() and ((waitfornextHowl < GetTime() - 4) or buff.rime.exists()) then
+            if inCombat and GetUnitExists("target") and not IsMounted() and ((waitfornextHowl < GetTime() - 4) or buff.rime.exists()) then
                 for i = 1, #enemies.yards30 do
                     local thisUnit = enemies.yards30[i]
                     if not debuff.frostFever.exists(thisUnit) 
@@ -962,7 +962,7 @@ local function runRotation()
                     return
                 end
                 if isChecked("Auto Target") 
-                    and not UnitExists("target") 
+                    and not GetUnitExists("target")
                     or (not UnitIsEnemy("target", "player") and not UnitIsDeadOrGhost("target")) 
                 then
                     if #enemies.yards8 > 0 and UnitAffectingCombat(enemies.yards8[1]) then

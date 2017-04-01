@@ -178,7 +178,7 @@ local function runRotation()
 ---------------------------------
 --- Out Of Combat - Rotations ---
 ---------------------------------
-        if not inCombat and ObjectExists("target") and not UnitIsDeadOrGhost("target") and UnitCanAttack("target", "player") then
+        if not inCombat and GetObjectExists("target") and not UnitIsDeadOrGhost("target") and UnitCanAttack("target", "player") then
 
         end -- End Out of Combat Rotation
 -----------------------------
@@ -249,7 +249,7 @@ local function runRotation()
             --Detox
             if isChecked("Detox") then
                 -- if getValue("Detox Mode") == 1 then -- Mouseover
-                --     if UnitExists("mouseover") and UnitCanAssist("player", "mouseover") then
+                --     if GetUnitExists("mouseover") and UnitCanAssist("player", "mouseover") then
                 --         for i = 1, #br.friend do
                 --             if br.friend[i].guid == UnitGUID("mouseover") and br.friend[i].dispel == true then
                 --                 if cast.detox("mouseover") then return end

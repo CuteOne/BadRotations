@@ -96,7 +96,7 @@ function handler(message, editbox)
 			br.data.blackList = { }
 			Print("|cffFF0000Blacklist Cleared")
 		elseif msg2 == "mouseover" then
-			if UnitExists("mouseover") then
+			if GetUnitExists("mouseover") then
 				local mouseoverName = UnitName("mouseover")
 				local mouseoverGUID = UnitGUID("mouseover")
 				-- Now we're trying to find that unit in the blackList table to remove
