@@ -1,9 +1,9 @@
 function GetObjectExists(Unit)
 	if Unit == nil then return false end
-	if FireHack then
+	if FireHack and GetUnitExists(Unit) then
 		return ObjectExists(Unit)
 	else
-		return UnitExists(Unit)
+		return false
 	end
 end
 function GetUnitExists(Unit)
