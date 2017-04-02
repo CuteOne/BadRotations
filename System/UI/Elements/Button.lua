@@ -6,7 +6,7 @@ function br.ui:createButton(parent, buttonName, x, y)
 
     parent:AddChild(newButton)
     newButton:SetParent(parent.content)
-    newButton:AddStyleSheet(buttonStyleSheet)
+    newButton:AddStyleSheet(br.ui.buttonStyleSheet)
     newButton:SetPoint("TOPLEFT", parent.content, "TOPLEFT", x, y)
     newButton:SetText(buttonName)
     newButton:SetWidth(100)
@@ -19,3 +19,4 @@ function br.ui:createButton(parent, buttonName, x, y)
 
     return newButton
 end
+

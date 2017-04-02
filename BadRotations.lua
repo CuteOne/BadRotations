@@ -2,6 +2,8 @@
 br = {}
 -- brdata = {}
 br.data = {}
+br.dungeon = {}
+br.raid = {}
 br.data.settings = {}
 br.selectedSpec = "None"
 br.selectedProfile = 1

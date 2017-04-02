@@ -72,15 +72,21 @@ function frame:OnEvent(event, arg1, arg2, arg3, arg4, arg5)
 	if event == "ADDON_LOADED" and arg1 == "BadRotations" then
 		-- Load Settings
 		br.data = brdata
+		br.dungeon = dungeondata
+		br.raid = raiddata
 	end
     if event == "PLAYER_LOGOUT" then
         br.ui:saveWindowPosition()
         if getOptionCheck("Reset Options") then
         	-- Reset Settings
         	brdata = {}
+        	dungeondata = {}
+        	raiddata = {}
         else
         	-- Save Settings
         	brdata = br.data
+        	dungeondata = br.dungeon
+        	raiddata = br.raid
         end
     end
     if event == "PLAYER_ENTERING_WORLD" then

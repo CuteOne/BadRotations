@@ -1,5 +1,6 @@
 --- Character Class
 -- All classes inherit from the base class /cCharacter.lua
+local DiesalGUI = LibStub("DiesalGUI-1.0")
 br.ui.window.settings = {}
 cCharacter = {}
 
@@ -391,7 +392,7 @@ function cCharacter:new(class)
         br.ui:createCheckbox(section_base, "Use Crystal")
         br.ui:createDropdown(section_base, "Use emp. Rune", {"|cff00FF00Normal","|cffFF0000Raid Only"}, 1, "Use rune anytime or only in raids")
         br.ui:createCheckbox(section_base, "Use Racial")
-    	br.ui:createCheckbox(section_base, "Save/Load Settings", "NOT IMPLEMENTED YET")
+    	slsettings = br.ui:createCheckbox(section_base, "Save/Load Settings", "NOT IMPLEMENTED YET")
         br.ui:checkSectionState(section_base)
     end
 
@@ -533,10 +534,111 @@ function cCharacter:new(class)
 		end
 	end
 	function self.createSettingsWindow()
-		if self.options.settings and br.ui.window.settings.parent == nil then
-			br.ui.window.settings = br.ui:createWindow("Save/Load Settings", 100, 100, "Configuration")
+		if not br.ui.window['settings']['parent'] then
+			br.ui.window.settings = br.ui:createWindow("Save/Load Settings", 200, 125, "Save/Load Settings")
+			local section
+			section = br.ui:createSection(br.ui.window.settings, "Save/Load")
+			br.ui:createCheckbox(section, "Dungeons", "Save/Load Dungeon Data")
+			br.ui:createCheckbox(section, "Raids", "Save/Load Raid Data")
+			br.ui:createSettingsButton(section, "Save", 0, -40)
+			br.ui:createSettingsButton(section, "Load", 100, -40)
+        	br.ui:checkSectionState(section)
+	        br.ui.window.settings.parent.closeButton:SetScript("OnClick", function()
+		    	if br.data.settings[br.selectedSpec][br.selectedProfile] ~= nil then
+					br.data.settings[br.selectedSpec][br.selectedProfile]["Save/Load SettingsCheck"] = false
+				end
+		    	if slsettings ~= nil then slsettings:SetChecked(false) end
+		        br.data.settings[br.selectedSpec].settings["active"] = false
+		        br.ui.window.settings.parent:Hide()
+	    	end)
+	    	br.ui:checkWindowStatus("settings")
+			br.ui:closeWindow("settings")
+		end
+		if self.options.settings then
+	    	if not br.ui.window['settings']['parent'] then 
+	    		br.ui.window.settings = br.ui:createWindow("Save/Load Settings", 200, 125, "Save/Load Settings")
+				local section
+				section = br.ui:createSection(br.ui.window.settings, "Save/Load")
+				br.ui:createCheckbox(section, "Dungeons", "Save/Load Dungeon Data")
+				br.ui:createCheckbox(section, "Raids", "Save/Load Raid Data")
+				br.ui:createSettingsButton(section, "Save", 0, -40)
+				br.ui:createSettingsButton(section, "Load", 100, -40)
+	        	br.ui:checkSectionState(section)
+	        	br.ui.window.settings.parent.closeButton:SetScript("OnClick", function()
+		    	if br.data.settings[br.selectedSpec][br.selectedProfile] ~= nil then
+					br.data.settings[br.selectedSpec][br.selectedProfile]["Save/Load SettingsCheck"] = false
+				end
+		    	if slsettings ~= nil then slsettings:SetChecked(false) end
+		        br.data.settings[br.selectedSpec].settings["active"] = false
+		        br.ui.window.settings.parent:Hide()
+	    	end)
+	    	br.ui:checkWindowStatus("settings")
+	        end
+			br.ui:showWindow("settings")
+	    elseif br.data.settings[br.selectedSpec]["settings"] == nil then
+    		br.data.settings[br.selectedSpec]["settings"] = {}
+    		br.data.settings[br.selectedSpec]["settings"].active = false
+    	elseif br.data.settings[br.selectedSpec]["settings"].active == true then
+	    	br.ui:closeWindow("settings")
 		end
 	end
+
+	function br.ui:createSettingsButton(parent, buttonName, x, y)
+    local newButton = DiesalGUI:Create('Button')
+    local parent = parent
+
+    parent:AddChild(newButton)
+    newButton:SetParent(parent.content)
+    newButton:AddStyleSheet(br.ui.buttonStyleSheet)
+    newButton:SetPoint("TOPLEFT", parent.content, "TOPLEFT", x, y)
+    newButton:SetText(buttonName)
+    newButton:SetWidth(100)
+    newButton:SetHeight(20)
+    newButton:SetEventListener("OnClick", function()
+        if buttonName == "Save" then
+        	if isChecked("Dungeons") and not isChecked("Raids") then
+        		--dungeondata = brdata
+        	--	br.dungeon = br.data
+        	--	print("Dungeon Data Saved")
+        	elseif isChecked("Raids") and not isChecked("Dungeons") then
+        		--raiddata = brdata
+        	--	br.raid = br.data
+        	--	print("Raid Data Saved")
+        	else 
+        		print("Save Error")
+        	end
+        elseif buttonName == "Load" then
+        	if isChecked("Dungeons") and not isChecked("Raids") then
+        	--	br.data = br.dungeon
+        	--	print("Dungeon Data Loaded")
+        	--	br.ui:closeWindow("all")
+		    --    br:loadSettings()
+        		if isChecked("Save/Load Settings") == true then
+        			slsettings:SetChecked(false)
+        		end
+        		
+        		if br.ui.window.config.parent == nil then br.ui:createConfigWindow() end
+        	elseif isChecked("Raids") and not isChecked("Dungeons") then
+        	--	br.data = br.raid
+        	--	print("Raid Data Loaded")
+        	--	br.ui:closeWindow("all")
+		     --   br:loadSettings()
+        		if isChecked("Save/Load Settings") == true then
+        			slsettings:SetChecked(false)
+        		end
+        		
+        	else
+        		print("Load Error")
+        	end
+        end
+
+    
+    end)
+
+    parent:AddChild(newButton)
+
+    return newButton
+end
 --[[ TODO:
 	- add Flask usage
 	- add Potion usage based on class and spec (both)
