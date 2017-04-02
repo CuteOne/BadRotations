@@ -780,7 +780,8 @@ function castSpell(Unit,SpellID,FacingCheck,MovementCheck,SpamAllowed,KnownSkip,
 								currentTarget = UnitGUID(Unit)
 								botCast = true
 								botSpell = SpellID
-								CastSpellByName(GetSpellInfo(SpellID),Unit)
+								-- CastSpellByName(GetSpellInfo(SpellID),Unit)
+								CastSpellByID(SpellID,Unit)
 								if IsAoEPending() then
 									local X,Y,Z = ObjectPosition(Unit)
 									ClickPosition(X,Y,Z)
@@ -803,7 +804,8 @@ function castSpell(Unit,SpellID,FacingCheck,MovementCheck,SpamAllowed,KnownSkip,
 						currentTarget = UnitGUID(Unit)
 						botCast = true
 						botSpell = SpellID
-						CastSpellByName(GetSpellInfo(SpellID),Unit)
+						-- CastSpellByName(GetSpellInfo(SpellID),Unit)
+						CastSpellByID(SpellID,Unit)
 						if IsAoEPending() then
 							local X,Y,Z = ObjectPosition(Unit)
 							ClickPosition(X,Y,Z)
@@ -1333,7 +1335,7 @@ function getDistance(Unit1,Unit2,option)
 		local dist = math.sqrt(((X2-X1)^2) + ((Y2-Y1)^2) + ((Z2-Z1)^2)) - (PlayerCombatReach + TargetCombatReach) - rangeMod
 		local dist2 = dist + 0.03 * ((13 - dist) / 0.13)
 		local dist3 = dist + 0.05 * ((8 - dist) / 0.15) + 1
-		local dist4 = dist + (PlayerCombatReach + TargetCombatReach)
+		local dist4 = dist + (PlayerCombatReach + TargetCombatReach) --math.sqrt(((X2-X1)^2) + ((Y2-Y1)^2) + ((Z2-Z1)^2)) - UnitBoundingRadius(Unit1) - UnitBoundingRadius(Unit2)
     	local meleeRange = max(5, PlayerCombatReach + TargetCombatReach + MeleeCombatReachConstant + IfSourceAndTargetAreRunning)
 		if option == "dist" then return dist end
 		if option == "dist2" then return dist2 end
