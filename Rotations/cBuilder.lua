@@ -690,6 +690,26 @@ function br.loader:new(spec,specName)
         end
     end
 
+    function ComboMaxSpend()
+        return br.player.talent.deeperStrategem and 6 or 5
+    end
+
+    function ComboSpend()
+        return math.min(br.player.power.amount.comboPoints, CPMaxSpend())
+    end
+
+    function mantleDuration()
+        if hasEquiped(144236) then
+            if buff.masterAssassinsInitiative.remain() < 0 then
+                mantleDuration = cd.global + 6
+            else
+                mantleDuration = buff.masterAssassinsInitiative.remain()
+            end
+        else
+            return 0
+        end
+    end
+
 -----------------------------
 --- CALL CREATE FUNCTIONS ---
 -----------------------------
