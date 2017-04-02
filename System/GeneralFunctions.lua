@@ -780,8 +780,8 @@ function castSpell(Unit,SpellID,FacingCheck,MovementCheck,SpamAllowed,KnownSkip,
 								currentTarget = UnitGUID(Unit)
 								botCast = true
 								botSpell = SpellID
-								-- CastSpellByName(GetSpellInfo(SpellID),Unit)
-								CastSpellByID(SpellID,Unit)
+								botUnit = Unit
+								CastSpellByName(GetSpellInfo(SpellID),Unit)
 								if IsAoEPending() then
 									local X,Y,Z = ObjectPosition(Unit)
 									ClickPosition(X,Y,Z)
@@ -804,8 +804,8 @@ function castSpell(Unit,SpellID,FacingCheck,MovementCheck,SpamAllowed,KnownSkip,
 						currentTarget = UnitGUID(Unit)
 						botCast = true
 						botSpell = SpellID
-						-- CastSpellByName(GetSpellInfo(SpellID),Unit)
-						CastSpellByID(SpellID,Unit)
+						botUnit = Unit
+						CastSpellByName(SpellID,Unit)
 						if IsAoEPending() then
 							local X,Y,Z = ObjectPosition(Unit)
 							ClickPosition(X,Y,Z)
