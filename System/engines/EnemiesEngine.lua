@@ -177,6 +177,9 @@ function dynamicTarget(range,facing)
 			end
 		end
 		br.debug.cpu.enemiesEngine.dynamicTarget = debugprofilestop()-startTime or 0
+		if isChecked("Target Dynamic Target") then
+			TargetUnit(bestUnit)
+		end
 		return bestUnit
 	end
 	br.debug.cpu.enemiesEngine.dynamicTarget = debugprofilestop()-startTime or 0

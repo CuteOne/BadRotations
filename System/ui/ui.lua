@@ -103,7 +103,7 @@ DiesalGUI:RegisterObjectConstructor("StatusBar", function()
 end, 1)
 
 -- Styles
-local buttonStyleSheet  = {
+br.ui.buttonStyleSheet  = {
     ['frame-color']     = {
         type			= 'texture',
         layer			= 'BACKGROUND',
