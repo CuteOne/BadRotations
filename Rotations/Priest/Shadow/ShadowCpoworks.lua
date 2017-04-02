@@ -226,11 +226,7 @@ local function runRotation()
         -- Void Bolt
         -- void_bolt
         if isValidUnit(units.dyn40) and inCombat and buff.voidForm.exists() and (cd.voidBolt == 0 or buff.void.exists()) and not isCastingSpell(spell.voidTorrent) then
-            if cast.voidBolt(units.dyn40) then return end
-        end
-
-        if buff.voidForm.exists() then
-            if cast.voidBolt("target") then return end
+            if cast.voidBolt(units.dyn40,"known") then return end
         end
 
         -- ChatOverlay(tostring(cd.voidBolt))
@@ -541,7 +537,7 @@ local function runRotation()
         --Void Bolt
             -- void_bolt,if=buff.insanity_drain_stacks.stack<6&set_bonus.tier19_4pc
             if insanityDrain < 6 and t19_4pc then
-                if cast.voidBolt(units.dyn40) then return end
+                if cast.voidBolt(units.dyn40,"known") then return end
             end
         --Shadow Crash
             --shadow_crash,if=talent.shadow_crash.enabled
@@ -588,7 +584,7 @@ local function runRotation()
             end
         --Void Bolt 
             --void_bolt
-            if cast.voidBolt(units.dyn40) then return end
+            if cast.voidBolt(units.dyn40,"known") then return end
         --Shadow Word Death 
             --shadow_word_death,if=(active_enemies<=4|(talent.reaper_of_souls.enabled&active_enemies<=2))&current_insanity_drain*gcd.max>insanity&(insanity-(current_insanity_drain*gcd.max)+(30+30*talent.reaper_of_souls.enabled))<100
             if (#enemies.yards40 <= 4 or (talent.reaperOfSouls and #enemies <= 2))
@@ -752,7 +748,7 @@ local function runRotation()
         -- Void Bolt
             -- void_bolt
             if cd.voidBolt == 0 or buff.void.exists() then
-                if cast.voidBolt(units.dyn40) then return end
+                if cast.voidBolt(units.dyn40,"known") then return end
             end
         -- Shadow Crash
             -- shadow_crash,if=talent.shadow_crash.enabled
@@ -795,7 +791,7 @@ local function runRotation()
         -- Void Bolt
             -- void_bolt
             if cd.voidBolt == 0 or buff.void.exists() then
-                if cast.voidBolt(units.dyn40) then return end
+                if cast.voidBolt(units.dyn40,"known") then return end
             end
         -- Shadow Word - Death
             -- shadow_word_death,if=(active_enemies<=4|(talent.reaper_of_souls.enabled&active_enemies<=2))&current_insanity_drain*gcd.max>insanity&(insanity-(current_insanity_drain*gcd.max)+(15+15*talent.reaper_of_souls.enabled))<100

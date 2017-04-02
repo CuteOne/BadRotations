@@ -1939,7 +1939,6 @@ br.idList = {
                 surrenderToMadness          = 193223,
                 vampiricEmbrace             = 15286,
                 vampiricTouch               = 34914,
-                voidBoltCast                = 228266, --231688,
                 voidBolt                    = 205448,
                 voidEruption                = 228260,
                 voidForm                    = 228264,
