@@ -408,7 +408,7 @@ local function runRotation()
                     for n = 1,40 do
                         local buff,_,_,count,bufftype,duration = UnitDebuff(br.friend[i].unit, n)
                         if buff then
-                            if bufftype == "Curse" or bufftype == "Magic" then
+                            if bufftype == "Disease" or bufftype == "Magic" then
                                 if cast.purify(br.friend[i].unit) then return end
                             end
                         end

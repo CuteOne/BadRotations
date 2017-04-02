@@ -2492,6 +2492,7 @@ br.idList = {
         [264] = {
             abilities                       = {
                 ancestralGuidance           = 108281,
+                ancestralProtectionTotem    = 207399,
                 ascendance                  = 114052,
                 chainHeal                   = 1064,
                 chainLightning              = 421,

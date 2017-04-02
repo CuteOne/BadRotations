@@ -43,6 +43,12 @@ local function createToggles()
       [2] = { mode = "Off", value = 2 , overlay = "Seed of Corruption Toggle Disabled", tip = "Will Not Use Soc", highlight = 0, icon = br.player.spell.seedOfCorruption}
     };
     CreateButton("SeedofCorruption",6,0)
+-- Soul Effy Button
+	EffigyModes = {
+      [1] = { mode = "On", value = 1 , overlay = "Effigy Toggle Enabled", tip = "Will Use Effigy ", highlight = 1, icon = br.player.spell.soulEffigy},
+      [2] = { mode = "Off", value = 2 , overlay = "Effigy Toggle Disabled", tip = "Will Not Use Effigy", highlight = 0, icon = br.player.spell.soulEffigy}
+    };
+    CreateButton("Effigy",7,0)
 
 end
 
@@ -161,6 +167,7 @@ local function runRotation()
         UpdateToggle("MultiDot",0.25)
         br.player.mode.multidot = br.data.settings[br.selectedSpec].toggles["MultiDot"]
         br.player.mode.soc = br.data.settings[br.selectedSpec].toggles["SeedofCorruption"]
+		br.player.mode.effigy = br.data.settings[br.selectedSpec].toggles["Effigy"]
 
 --------------
 --- Locals ---
@@ -622,10 +629,10 @@ local function runRotation()
                     -- reap_souls,if=!buff.deadwind_harvester.remains&(buff.soul_harvest.remains>5+equipped.144364*1.5&!talent.malefic_grasp.enabled&buff.active_uas.stack>1|buff.tormented_souls.react>=8|target.time_to_die<=buff.tormented_souls.react*5+equipped.144364*1.5|!talent.malefic_grasp.enabled&(trinket.proc.any.react|trinket.stacking_proc.any.react))
                     --if not buff.deadwindHarvester.exists() and (buff.soulHarvest.exists() or buff.tormentedSouls.stack() >= 8 or ttd(units.dyn40) <= buff.tormentedSouls.stack() * 5) then
                     if (getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs())) and mode.multidot == 1
-                        and (buff.tormentedSouls.stack() >= 8 or (hasEquiped(144364) and buff.tormentedSouls.stack() >= 6))
-                        and debuff.unstableAffliction.stack() >= 3
-                        and not buff.deadwindHarvester.exists()
-                    then
+                        and (buff.tormentedSouls.stack() >= 5 or (hasEquiped(144364) and buff.tormentedSouls.stack() >= 4))
+                        or debuff.unstableAffliction.stack() >= 3
+						and not buff.deadwindHarvester.exists() and buff.deadwindHarvester.remain() <= 5
+                     then
                         if cast.reapSouls() then return end
                     end
         -- Agony
@@ -635,7 +642,7 @@ local function runRotation()
                     end
         -- Soul Effigy
                     -- soul_effigy,if=!pet.soul_effigy.active
-                    if not effigied then
+                    if not effigied and br.player.mode.effigy == 1 then
                         if cast.soulEffigy("target") then return end
                     end
                     if effigied then
@@ -647,11 +654,11 @@ local function runRotation()
                                     if cast.agony(thisUnit,"aoe") then return end
                                 end
                                 -- Corruption
-                                if debuff.corruption.remain(thisUnit) < 2 + gcd then
+                                if (talent.writheInAgony and debuff.corruption.remain(thisUnit) < 2 + gcd) then
                                     if cast.corruption(thisUnit,"aoe") then return end
                                 end
                                 -- Siphon Life
-                                if debuff.siphonLife.remain(thisUnit) < 2 + gcd then
+                                if (talent.writheInAgony and debuff.siphonLife.remain(thisUnit) < 2 + gcd) then
                                     if cast.siphonLife(thisUnit,"aoe") then return end
                                 end
                             end
@@ -667,7 +674,7 @@ local function runRotation()
                             if cast.agony(thisUnit,"aoe") then return end
                         end
                     end
-       	-- Service Pet
+		-- Service Pet
                     -- service_pet,if=dot.corruption.remain()s&dot.agony.remain()s
                     if isChecked("Pet Management") and GetObjectExists("target") and (getOptionValue("Grimoire of Service - Use") == 1 or (getOptionValue("Grimoire of Service - Use") == 2 and useCDs())) then
                         if debuff.corruption.exists() and debuff.agony.exists() and br.timer:useTimer("summonPet", getCastTime(spell.summonVoidwalker)+gcd) then
@@ -869,7 +876,7 @@ local function runRotation()
                             if cast.unstableAffliction(units.dyn40,"aoe") then return end
                         end
           	            -- MG UA (without Reap)
-                        if talent.maleficGrasp and debuff.unstableAffliction.stack() < 2 or shards > 3
+                        if talent.maleficGrasp and debuff.unstableAffliction.stack() < 3 or shards > 2
                             and debuff.agony.remain(units.dyn40) > getCastTime(spell.unstableAffliction) * 2 + 4.5
                             and (not talent.soulEffigy or debuff.agony.remain("Soul Effigy") > getCastTime(spell.unstableAffliction) * 2 + 4.5)
                             -- and (debuff.corruption.remain(units.dyn40) > getCastTime(spell.unstableAffliction) + 3 or talent.absoluteCorruption)
@@ -900,8 +907,9 @@ local function runRotation()
                             end
     				        -- reap soul UA loadup
                             if (getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()))
-                                and (buff.tormentedSouls.stack() >= 8 or (hasEquiped(144364) and buff.tormentedSouls.stack() >= 6))
-                                and debuff.unstableAffliction.stack() < 1
+                                and (buff.tormentedSouls.stack() >= 5 or (hasEquiped(144364) and buff.tormentedSouls.stack() >= 4))
+                                and debuff.unstableAffliction.stack() > 2
+								and not buff.deadwindHarvester.exists() and buff.deadwindHarvester.remain() <= 5
                             then
                                 if cast.unstableAffliction(units.dyn40,"aoe") then return end
                             end
@@ -922,8 +930,7 @@ local function runRotation()
 					end
 		-- Reap Soul
                     if (getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs())) and mode.multidot == 1
-						and (buff.tormentedSouls.stack() >= 8 or (hasEquiped(144364) and buff.tormentedSouls.stack() >= 6))
-                        and not buff.deadwindHarvester.exists()
+						and (buff.tormentedSouls.stack() >= 5 or (hasEquiped(144364) and buff.tormentedSouls.stack() >= 4))
                     then
 						if cast.reapSouls() then return end
 					end
@@ -943,7 +950,24 @@ local function runRotation()
                         if not GetObjectExists("target") then TargetUnit("target") end
                         if cast.drainSoul("target") then return end
                     end
-        -- Life Tap
+        -- Cont + SE
+					if effigied then
+                        for i = 1, #enemies.yards40 do
+                            local thisUnit = enemies.yards40[i]
+                            if ObjectID(thisUnit) == 103679 then
+                                -- Corruption
+                                if debuff.corruption.remain(thisUnit) < 2 + gcd then
+                                    if cast.corruption(thisUnit,"aoe") then return end
+                                end
+                                -- Siphon Life
+                                if debuff.siphonLife.remain(thisUnit) < 2 + gcd then
+                                    if cast.siphonLife(thisUnit,"aoe") then return end
+                                end
+                            end
+                        end
+                    end
+		
+		-- Life Tap
                     --life_tap
                     if (manaPercent < 20 or (moving and manaPercent < 70)) and php > getOptionValue("Life Tap HP Limit") then
                         if cast.lifeTap() then return end
