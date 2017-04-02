@@ -251,6 +251,11 @@ function br.read.combatLog()
                     else
                         castCount = lastCount
                     end
+                    -- Blizz CastSpellByName bug bypass
+                    if GetSpellInfo(spell) == GetSpellInfo(botSpell) and spell ~= botSpell then
+                        -- Print("Spell Error Bypass: Correct ID = "..botSpell..", Incorrect ID = "..spell..", on "..botUnit)
+                        castID = true
+                    end
                 end
                 -- set destination
                 if destination == nil or destName == nil then

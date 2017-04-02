@@ -27,10 +27,10 @@ local function createToggles()
     CreateButton("Defensive",3,0)
     -- Void Form Button
     VoidFormModes = {
-        [1] = { mode = "On", value = 1 , overlay = "Void Form Enabled", tip = "Bot will shift to Void Form.", highlight = 1, icon = br.player.spell.voidForm },
-        [2] = { mode = "Off", value = 2 , overlay = "Void Form Disabled", tip = "Bot will NOT shift to Void Form.", highlight = 0, icon = br.player.spell.voidForm }
+        [1] = { mode = "On", value = 1 , overlay = "Void Form Enabled", tip = "Bot will shift to Void Form.", highlight = 1, icon = br.player.spell.voidEruption },
+        [2] = { mode = "Off", value = 2 , overlay = "Void Form Disabled", tip = "Bot will NOT shift to Void Form.", highlight = 0, icon = br.player.spell.voidEruption }
     };
-    CreateButton("VoidForm",3,0)
+    CreateButton("VoidForm",4,0)
 end
 
 ---------------
@@ -129,7 +129,7 @@ local function runRotation()
         UpdateToggle("Defensive",0.25)
         UpdateToggle("VoidEruption",0.25)
         UpdateToggle("VoidForm",0.25)
-        br.player.mode.voidForm = br.data.settings[br.selectedSpec].toggles["Void Form"]
+        br.player.mode.voidForm = br.data.settings[br.selectedSpec].toggles["VoidForm"]
 --------------
 --- Locals ---
 --------------
@@ -219,11 +219,17 @@ local function runRotation()
         insanityDrain = 6 + (2 / 3 * (drainStacks)) 
         -- insanityDrain = 9 + ((drainStacks - 1) / 2)
 
+        -- Variable: s2mBeltCheck
+        -- variable,op=set,name=s2mbeltcheck,value=cooldown.mind_blast.charges>=2
+        if charges.mindBlast >= 2 then s2mBeltCheck = 1 else s2mBeltCheck = 0 end
+
         -- Void Bolt
         -- void_bolt
-        if isValidUnit(units.dyn40) and inCombat and (cd.voidBolt == 0 or buff.void.exists()) and not isCastingSpell(spell.voidTorrent) then
-            if cast.voidBoltCast() then return end
+        if isValidUnit(units.dyn40) and inCombat and buff.voidForm.exists() and (cd.voidBolt == 0 or buff.void.exists()) and not isCastingSpell(spell.voidTorrent) then
+            if cast.voidBolt(units.dyn40,"known") then return end
         end
+
+        -- ChatOverlay(tostring(cd.voidBolt))
 
 --------------------
 --- Action Lists ---
@@ -318,12 +324,9 @@ local function runRotation()
             if not buff.shadowform.exists() then
                 cast.shadowform()
             end
-        -- Variable: s2mBeltCheck
-            -- variable,op=set,name=s2mbeltcheck,value=cooldown.mind_blast.charges>=2
-            if charges.mindBlast >= 2 then s2mBeltCheck = 1 else s2mBeltCheck = 0 end
         -- Mind Blast
             if isValidUnit("target") then
-                if not moving then
+                if not moving and br.timer:useTimer("mbRecast", gcd) then
                     if cast.mindBlast("target") then return end
                 else
                     if cast.shadowWordPain("target") then return end
@@ -459,7 +462,7 @@ local function runRotation()
             end
         -- Mind Blast
             -- mind_blast,if=active_enemies<=4&talent.legacy_of_the_void.enabled&(insanity<=81|(insanity<=75.2&talent.fortress_of_the_mind.enabled))
-            if ((mode.rotation == 1 and #enemies.yards40 <= 4) or mode.rotation == 3) and lastCast ~= spell.voidEruption and lastCast ~= spell.mindBlast
+            if ((mode.rotation == 1 and #enemies.yards40 <= 4) or mode.rotation == 3) and lastCast ~= spell.voidEruption and br.timer:useTimer("mbRecast", gcd)
                 and talent.legacyOfTheVoid and (power <= 81 or (power <= 75.2 and talent.fortressOfTheMind)) and not buff.void.exists() and not moving
             then
                 if cast.mindBlast() then return end
@@ -534,7 +537,7 @@ local function runRotation()
         --Void Bolt
             -- void_bolt,if=buff.insanity_drain_stacks.stack<6&set_bonus.tier19_4pc
             if insanityDrain < 6 and t19_4pc then
-                if cast.voidBolt then return end
+                if cast.voidBolt(units.dyn40,"known") then return end
             end
         --Shadow Crash
             --shadow_crash,if=talent.shadow_crash.enabled
@@ -581,7 +584,7 @@ local function runRotation()
             end
         --Void Bolt 
             --void_bolt
-            if cast.voidBolt() then return end
+            if cast.voidBolt(units.dyn40,"known") then return end
         --Shadow Word Death 
             --shadow_word_death,if=(active_enemies<=4|(talent.reaper_of_souls.enabled&active_enemies<=2))&current_insanity_drain*gcd.max>insanity&(insanity-(current_insanity_drain*gcd.max)+(30+30*talent.reaper_of_souls.enabled))<100
             if (#enemies.yards40 <= 4 or (talent.reaperOfSouls and #enemies <= 2))
@@ -596,8 +599,8 @@ local function runRotation()
                 end
             end
         --Wait for Void Bolt    
-            --wait,sec=action.void_bolt.usable_in,if=action.void_bolt.usable_in<gcd.max*0.28
-             if cd.voidBolt < gcd * 0.28 then
+            -- wait,sec=action.void_bolt.usable_in,if=action.void_bolt.usable_in<gcd.max*0.28
+            if cd.voidBolt < gcd * 0.28 then
                 return true
             end
         --Dispersion
@@ -611,7 +614,7 @@ local function runRotation()
                 if cast.mindBlast() then return end
             end
         --Wait for Mind Blast   
-            --wait,sec=action.mind_blast.usable_in,if=action.mind_blast.usable_in<gcd.max*0.28&active_enemies<=5
+            -- wait,sec=action.mind_blast.usable_in,if=action.mind_blast.usable_in<gcd.max*0.28&active_enemies<=5
             if ((mode.rotation == 1 and #enemies.yards40 <= 5) or mode.rotation == 3) and cd.mindBlast < gcd * 0.28 and not buff.void.exists() and not moving then
                 return true
             end
@@ -745,7 +748,7 @@ local function runRotation()
         -- Void Bolt
             -- void_bolt
             if cd.voidBolt == 0 or buff.void.exists() then
-                if cast.voidBoltCast() then return end
+                if cast.voidBolt(units.dyn40,"known") then return end
             end
         -- Shadow Crash
             -- shadow_crash,if=talent.shadow_crash.enabled
@@ -754,7 +757,7 @@ local function runRotation()
             end
         -- Void Torrent
             -- void_torrent,if=dot.shadow_word_pain.remains>5.5&dot.vampiric_touch.remains>5.5&(!talent.surrender_to_madness.enabled|(talent.surrender_to_madness.enabled&target.time_to_die>variable.s2mcheck-(buff.insanity_drain_stacks.stack)+60))
-            if isChecked("Void Torrent") and useCDs() then
+            if isChecked("Void Torrent") and useCDs() and artifact.voidTorrent then
                 if not buff.void.exists() and debuff.shadowWordPain.remain(units.dyn40) > 5.5 and debuff.vampiricTouch.remain(units.dyn40) > 5.5
                     and (not talent.surrenderToMadness or (talent.surrenderToMadness and ttd(units.dyn40) > s2mCheck - (drainStacks) + 60))
                 then
@@ -788,7 +791,7 @@ local function runRotation()
         -- Void Bolt
             -- void_bolt
             if cd.voidBolt == 0 or buff.void.exists() then
-                if cast.voidBoltCast() then return end
+                if cast.voidBolt(units.dyn40,"known") then return end
             end
         -- Shadow Word - Death
             -- shadow_word_death,if=(active_enemies<=4|(talent.reaper_of_souls.enabled&active_enemies<=2))&current_insanity_drain*gcd.max>insanity&(insanity-(current_insanity_drain*gcd.max)+(15+15*talent.reaper_of_souls.enabled))<100
@@ -880,7 +883,7 @@ local function runRotation()
             -- shadow_word_pain,if=!talent.misery.enabled&!ticking&target.time_to_die>10&(active_enemies<5&(talent.auspicious_spirits.enabled|talent.shadowy_insight.enabled)),cycle_targets=1
             if not talent.misery and (((mode.rotation == 1 and #enemies.yards40 < 5) or mode.rotation == 3)
                 and (talent.auspiciousSpirits or talent.shadowyInsight or artifact.sphereOfInsanity)) and debuff.shadowWordPain.count() < getOptionValue("SWP Max Targets")
-            and not buff.void.exists() 
+                and not buff.void.exists() 
             then
                 for i = 1, #enemies.yards40 do
                     local thisUnit = enemies.yards40[i]
@@ -965,7 +968,7 @@ local function runRotation()
                 end
             -- Action List - Main
                 -- run_action_list,name=main
-                if not buff.voidForm.exists() then
+                if not buff.voidForm.exists() or mode.voidForm == 2 then
                     if actionList_Main() then return end
                 end
             end -- End Combat Rotation

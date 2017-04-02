@@ -539,7 +539,7 @@ local function runRotation()
             -- Throw Glaive
                     -- throw_glaive,if=talent.bloodlet.enabled&(!talent.momentum.enabled|buff.momentum.up)&charges=2
                     if talent.bloodlet and (not talent.momentum or buff.momentum.exists()) and charges.throwGlaive == 2 then
-                        if cast.throwGlaive() then return end
+                        if cast.throwGlaive(units.dyn5) then return end
                     end
             -- Felblade
                     -- felblade,if=fury<15&(cooldown.death_sweep.remains<2*gcd|cooldown.blade_dance.remains<2*gcd)
@@ -615,7 +615,7 @@ local function runRotation()
             -- Throw Glaive
                     -- throw_glaive,if=talent.bloodlet.enabled&(!talent.master_of_the_glaive.enabled|!talent.momentum.enabled|buff.momentum.up)&raid_event.adds.in>recharge_time+cooldown
                     if talent.bloodlet and (not talent.masterOfTheGlaive or not talent.momentum or buff.momentum.exists()) and addsIn > recharge.throwGlaive + cd.throwGlaive then
-                        if cast.throwGlaive() then return end
+                        if cast.throwGlaive(units.dyn5) then return end
                     end
             -- Eye Beam
                     -- eye_beam,if=!talent.demonic.enabled&!talent.blind_fury.enabled&((spell_targets.eye_beam_tick>desired_targets&active_enemies>1)|(!set_bonus.tier19_4pc&raid_event.adds.in>45&!variable.pooling_for_meta&buff.metamorphosis.down&(artifact.anguish_of_the_deceiver.enabled|active_enemies>1)&!talent.chaos_cleave.enabled))
