@@ -695,7 +695,7 @@ function br.loader:new(spec,specName)
     end
 
     function ComboSpend()
-        return math.min(br.player.power.amount.comboPoints, CPMaxSpend())
+        return math.min(br.player.power.amount.comboPoints, ComboMaxSpend())
     end
 
     function mantleDuration()
@@ -708,6 +708,10 @@ function br.loader:new(spec,specName)
         else
             return 0
         end
+    end
+
+    function BleedTarget()
+        return (br.player.debuff.garrote.exists("target") and 1 or 0) + (br.player.debuff.rupture.exists("target") and 1 or 0)
     end
 
 -----------------------------
