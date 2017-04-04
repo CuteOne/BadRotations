@@ -263,11 +263,9 @@ local function runRotation()
                     return
                 end
                 if isChecked("Efflorescence") and (not LastEfflorescenceTime or GetTime() - LastEfflorescenceTime > getOptionValue("Efflorescence recast delay")) then
-                    if getLowAllies(getValue("Efflorescence")) >= getValue("Efflorescence Targets") then
-                        if castGroundAtBestLocation(spell.efflorescence, 20, 0, 40, 0, "heal") then
-                        LastEfflorescenceTime = GetTime()
-                        return true end
-                    end
+                    if castWiseAoEHeal(br.friend,spell.efflorescence,12,getValue("Efflorescence"),getValue("Efflorescence Targets"),6,false,true) then
+                    LastEfflorescenceTime = GetTime()
+                    return true end
                 end
             end
         end -- End Action List - Extras
