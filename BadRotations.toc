@@ -2,7 +2,7 @@
 ## Title: |cffa330c9BadRotations
 ## Notes: |cffa330c9By CuteOne.
 ## Author: CuteOne
-## Version: 1.5.3
+## Version: 1.6
 ## SavedVariablesPerCharacter: brdata, dungeondata, raiddata
 
 BadRotations.lua
@@ -79,6 +79,7 @@ System\UI\Windows\Debug.lua
 System\UI\Windows\Healing.lua
 System\UI\Windows\Help.lua
 System\UI\Windows\Profile.lua
+System\UI\Windows\Settings.lua
 
 ## Custom Functions
 
