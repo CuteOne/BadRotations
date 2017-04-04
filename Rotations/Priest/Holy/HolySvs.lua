@@ -346,10 +346,10 @@ local function runRotation()
         -- AOE Healing
         function actionList_AOEHealing()
         -- Holy Word: Serenity -> Holy Word: Sanctify -> Prayer of Healing Combo
-            if buff.blessingOfTuure.exists() then
+            if isChecked("Holy Word: Serenity") and buff.blessingOfTuure.exists() then
                 if cast.holyWordSerenity(lowest.unit) then return end
             end
-            if buff.divinity.exists() then
+            if isChecked("Holy Word: Sanctify") and buff.divinity.exists() then
                 if castGroundAtBestLocation(spell.holyWordSanctify, 20, 0, 40, 0, "heal") then return end
             end
             if isChecked("Prayer of Healing") and buff.echoOfLight.exists() then
