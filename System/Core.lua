@@ -257,6 +257,10 @@ function BadRotationsUpdate(self)
 				    	br.ui:closeWindow("debug")
 				    end
 
+				    if isChecked("Save/Load Settings") then
+				    	br.ui:createSettingsWindow()
+				    end
+
 	    -- FPS Intensive Functions
 				-- Healing Engine
 					if isChecked("HE Active") then
