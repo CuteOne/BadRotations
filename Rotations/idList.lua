@@ -678,6 +678,7 @@ br.idList = {
                 cenarionWard                = 102352,
                 clearcasting                = 16870,
                 incarnationTreeOfLife       = 33891,
+                innervate                   = 29166,
                 moonkinForm                 = 197625,
                 rejuvenationGermination     = 155777,
                 lifebloom                   = 33763,
