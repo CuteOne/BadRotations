@@ -410,7 +410,7 @@ local function runRotation()
             end
         -- Void Eruption
             -- void_eruption,if=insanity>=70|(talent.auspicious_spirits.enabled&insanity>=(65-shadowy_apparitions_in_flight*3))|set_bonus.tier19_4pc
-            if power >= 70 or (talent.auspiciousSpirits and power >= (65 - 3)) or t19_4pc then -- TODO: Track Auspicious Spirits In Flight
+            if mode.voidForm == 1 and (power >= 70 or (talent.auspiciousSpirits and power >= (65 - 3)) or t19_4pc) then -- TODO: Track Auspicious Spirits In Flight
                 if cast.voidEruption("player") then return end
             end
         -- Shadow Crash
