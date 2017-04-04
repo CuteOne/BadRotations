@@ -560,6 +560,16 @@ local function runRotation()
             if hasEquiped(140805) and getBuffRemain("player", 225766) > 2 then
                 if cast.healingTouch(lowestHP) then return end
             end
+			-- user free mana
+			if buff.innervate.remain() >= 1 then
+				for i=1, #br.friend do
+					if buff.rejuvenation.remain(br.friend[i].unit) < 1 then
+						if cast.rejuvenation(br.friend[i].unit) then 
+							return 
+						end
+					end
+				end
+			end
         end
     -- Action List - DPS
         local function actionList_DPS()
