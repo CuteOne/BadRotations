@@ -1469,9 +1469,6 @@ local function runRotation()
     end
 
     if br.timer:useTimer("debugBalance", 0.1)  then
-        if isChecked("Dynamic Targetting") then
-            TargetUnit(units.dyn40)
-        end
         -- Profile Stop | Pause
         if not inCombat and not hastar and profileStop==true then
             profileStop = false
