@@ -237,6 +237,7 @@ local function runRotation()
         if cd.deathFromAbove == 0 then dfaCooldown = 1 else dfaCooldown = 0 end
         if vanishTime == nil then vanishTime = GetTime() end
         if buff.hiddenBlade.exists() then hBss = 1 else hBss = 0 end
+        if IsUsableSpell(GetSpellInfo(202895)) == true then BlunderbussActive = true else BlunderbussActive = false end
 
         ------------------------------------------
         --------------Roll the Bones--------------
@@ -557,7 +558,7 @@ local function runRotation()
             end
         -- Pistol Shot
             -- pistol_shot,if=combo_points.deficit>=1+buff.broadsides.up&buff.opportunity.up&(energy.time_to_max>2-talent.quick_draw.enabled|(buff.blunderbuss.up&buff.greenskins_waterlogged_wristcuffs.up))
-            if comboDeficit >= (1 + broadUp) and buff.opportunity.exists() and ((ttm > 2 - qDraw) or (buff.adrenalineRush.exists() and ttm > 1.5) or (castable.blunderbuss and buff.greenskinsWaterloggedWristcuffs.exists())) and not stealthing then
+            if comboDeficit >= (1 + broadUp) and buff.opportunity.exists() and ((ttm > 2 - qDraw) or (buff.adrenalineRush.exists() and ttm > 1.5) or (BlunderbussActive and buff.greenskinsWaterloggedWristcuffs.exists())) and not stealthing then
                 if cast.pistolShot("target") then return end
             end
         -- Saber Slash
