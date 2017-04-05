@@ -838,7 +838,7 @@ local function runRotation()
                     -- thalkiels_consumption,if=(dreadstalker_remaining_duration>execute_time|talent.implosion.enabled&spell_targets.implosion>=3)&wild_imp_count>3&wild_imp_remaining_duration>execute_time
                     if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()) then
                         if (dreadStalkersRemain > getCastTime(spell.thalkielsConsumption) or (talent.implosion and #enemies.yards8t >= 3)) and wildImpCount > 3 and wildImpRemain > getCastTime(spell.thalkielsConsumption) then
-                            if cd.grimoireOfService > 15 and cd.summonDoomguard > 15 and cd.summonInfernal > 15 then 
+                            if cd.summonDoomguard > 15 and cd.summonInfernal > 15 and cd.grimoireFelguard > 15 then 
                                 if missingDE == 0 then
                                     if cast.thalkielsConsumption() then return end
                                 else
