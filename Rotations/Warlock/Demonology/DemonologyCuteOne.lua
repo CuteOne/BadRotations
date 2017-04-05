@@ -842,8 +842,10 @@ local function runRotation()
                                 if missingDE == 0 then
                                     if cast.thalkielsConsumption() then return end
                                 else
-                                    if cast.demonicEmpowerment() then
-                                        if cast.thalkielsConsumption() then return end
+                                    if lastSpell ~= spell.demonicEmpowerment then
+                                        if cast.demonicEmpowerment() then
+                                            if cast.thalkielsConsumption() then return end
+                                        end
                                     end
                                 end
                             end
