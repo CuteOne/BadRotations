@@ -482,14 +482,6 @@ local function runRotation()
                 end
             end
             -- Swiftmend
-           if isChecked("Swiftmend") and not isCastingSpell(spell.tranquility) then
-                for i = 1, #br.friend do                           
-                    if br.friend[i].hp <= getValue("Swiftmend") then
-                        if cast.swiftmend(br.friend[i].unit) then return end     
-                    end
-                end
-            end
-
 				if isChecked("Swiftmend") and not isCastingSpell(spell.tranquility) and not buff.soulOfTheForest.exists() then
 					for i = 1, #br.friend do
 						local hot_cnt = getFriendHotCnt(br.friend[i].unit)
