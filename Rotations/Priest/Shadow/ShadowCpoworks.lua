@@ -328,8 +328,8 @@ local function runRotation()
             if isValidUnit("target") then
                 if not moving and br.timer:useTimer("mbRecast", gcd) then
                     if cast.mindBlast("target") then return end
-                else
-                    if cast.shadowWordPain("target") then return end
+                -- else
+                --     if cast.shadowWordPain("target") then return end
                 end
             end
             -- Power Word: Shield Body and Soul
@@ -610,12 +610,12 @@ local function runRotation()
             end
         --Mind Blast    
             --mind_blast,if=active_enemies<=5
-            if ((mode.rotation == 1 and #enemies.yards40 <= 5) or mode.rotation == 3) and not buff.void.exists() and not moving then
+            if ((mode.rotation == 1 and #enemies.yards40 <= 5) or mode.rotation == 3) and not buff.void.exists() then
                 if cast.mindBlast() then return end
             end
         --Wait for Mind Blast   
             -- wait,sec=action.mind_blast.usable_in,if=action.mind_blast.usable_in<gcd.max*0.28&active_enemies<=5
-            if ((mode.rotation == 1 and #enemies.yards40 <= 5) or mode.rotation == 3) and cd.mindBlast < gcd * 0.28 and not buff.void.exists() and not moving then
+            if ((mode.rotation == 1 and #enemies.yards40 <= 5) or mode.rotation == 3) and cd.mindBlast < gcd * 0.28 and not buff.void.exists() then
                 return true
             end
         --Shadow Word Death 
@@ -652,7 +652,7 @@ local function runRotation()
             end
         --Vampiric Touch    
             --vampiric_touch,if=talent.misery.enabled&(dot.vampiric_touch.remains<3*gcd.max|dot.shadow_word_pain.remains<3*gcd.max),cycle_targets=1
-            if talent.misery and debuff.vampiricTouch.count() < getOptionValue("VT Max Targets") and lastCast ~= spell.vampiricTouch and not buff.void.exists() and br.timer:useTimer("vtRecast", gcd) and not moving then
+            if talent.misery and debuff.vampiricTouch.count() < getOptionValue("VT Max Targets") and lastCast ~= spell.vampiricTouch and not buff.void.exists() and br.timer:useTimer("vtRecast", gcd) then
                 for i = 1, #enemies.yards40 do
                     local thisUnit = enemies.yards40[i]
                     if (getHP(thisUnit) > vtHPLimit or IsInInstance()) and (debuff.vampiricTouch.remain(thisUnit) < 3 * gcd or debuff.shadowWordPain.remain(thisUnit) < 3 * gcd) then
@@ -673,7 +673,6 @@ local function runRotation()
             if not talent.misery and not debuff.vampiricTouch.exists() and lastCast ~= spell.vampiricTouch and br.timer:useTimer("vtRecast", gcd)
                 and (((mode.rotation == 1 and #enemies.yards40 < 4) or mode.rotation == 3) or talent.sanlayn or (talent.auspiciousSpirits and artifact.unleashTheShadows))
                 and not buff.void.exists()
-                and not moving 
             then
                 if cast.vampiricTouch() then return end
             end
@@ -695,7 +694,6 @@ local function runRotation()
             if not talent.misery and (((mode.rotation == 1 and #enemies.yards40 < 4) or mode.rotation == 3) or talent.sanlayn or (talent.auspiciousSpirits and artifact.unleashTheShadows))
                 and debuff.vampiricTouch.count() < getOptionValue("VT Max Targets") and lastCast ~= spell.vampiricTouch and br.timer:useTimer("vtRecast", gcd)
                 and not buff.void.exists()
-                and not moving 
             then
                 for i = 1, #enemies.yards40 do
                     local thisUnit = enemies.yards40[i]
@@ -720,11 +718,10 @@ local function runRotation()
         --Mind Flay 
             --mind_flay,chain=1,interrupt_immediate=1,interrupt_if=ticks>=2&(action.void_bolt.usable|(current_insanity_drain*gcd.max>insanity&(insanity-(current_insanity_drain*gcd.max)+60)<100&cooldown.shadow_word_death.charges>=1))
             if mfTick >= 2 and (cd.voidBolt == 0 or (insanityDrain * gcd > power and (power - (insanityDrain * gcd) + 60) < 100 and charges.shadowWordDeath >= 1)) 
-                and (lastCast ~= spell.mindFlay or (lastCast == spell.mindFlay and br.timer:useTimer("mindFlayRecast", mindFlayChannel + gcd))) and (lastCast ~= spell.voidEruption or not t19_4pc) 
-                and not moving
+                and (lastCast ~= spell.mindFlay or (lastCast == spell.mindFlay and br.timer:useTimer("mindFlayRecast", mindFlayChannel + gcd))) and (lastCast ~= spell.voidEruption or not t19_4pc)
             then
                 return true
-            elseif not buff.void.exists() and not moving then
+            elseif not buff.void.exists() then
                 if cast.mindFlay() then return end
             end
         end -- End Action List - Surrender To Madness
