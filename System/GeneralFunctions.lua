@@ -744,7 +744,7 @@ function castSpell(Unit,SpellID,FacingCheck,MovementCheck,SpamAllowed,KnownSkip,
 		-- Table used to prevent refiring too quick
 		if timersTable == nil then timersTable = {}	end
 		-- default noCast to false
-		if noCast == nil then nocast = false end
+		if noCast == nil then noCast = false end
 		-- make sure it is a known spell
 		if not (KnownSkip == true or isKnown(SpellID)) then return false end
 		-- gather our spell range information
@@ -900,7 +900,7 @@ function castSpellMacro(Unit,SpellID,FacingCheck,MovementCheck,SpamAllowed,Known
 		-- Table used to prevent refiring too quick
 		if timersTable == nil then timersTable = {}	end
 		-- default noCast to false
-		if noCast == nil then nocast = false end
+		if noCast == nil then noCast = false end
 		-- make sure it is a known spell
 		if not (KnownSkip == true or isKnown(SpellID)) then return false end
 		-- gather our spell range information
