@@ -277,7 +277,7 @@ function br.read.combatLog()
                 local textString = color..string.format("%-3d", castCount)
                     ..white.."| "..yellow..string.format("%-3.3f", getCombatTime())
                     ..white.."| "..color..string.format("%-6.6d", debugSpell)
-                    ..white.."| "..color..string.format("%-15.15s", spellName)
+                    ..white.."| "..color..string.format("%-25.25s", spellName)
                     ..white.."| "..red..string.format("%.15s", debugdest)
                     -- ..white.." | "..yellow..Power
                 -- pulse display
