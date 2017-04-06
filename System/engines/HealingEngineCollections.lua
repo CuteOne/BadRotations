@@ -15,6 +15,9 @@ novaEngineTables.DispelID = {
 	-- Ko'ragh
 	{ id = 142913, stacks = 0, range = 5}, -- http://www.wowhead.com/spell=162185/expel-magic-fire
 	{ id = 185066, stacks = 0}, -- Mark of Necromancer red level
+	-- Xavius
+	{ id = 206651, stacks = 3}, -- Xavius Darkening Soul
+	{ id = 209158, stacks = 3}, -- Xavius Blackening Soul 
 }
 -- This is where we house the Debuffs that are bad for our users, and should not be healed when they have it
 novaEngineTables.BadDebuffList= {
