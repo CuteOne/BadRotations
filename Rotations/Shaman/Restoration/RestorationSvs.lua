@@ -696,7 +696,12 @@ local function runRotation()
             end
         -- Lava Burst - Lava Surge
             if buff.lavaSurge.exists() then
-                if cast.lavaBurst() then return end
+                for i = 1, #enemies.yards40 do        
+                    local thisUnit = enemies.yards40[i]
+                    if debuff.flameShock.exists(thisUnit) and isValidUnit(thisUnit) then
+                        if cast.lavaBurst(thisUnit) then return end
+                    end
+                end
             end
         -- Flameshock
             for i = 1, #enemies.yards40 do
