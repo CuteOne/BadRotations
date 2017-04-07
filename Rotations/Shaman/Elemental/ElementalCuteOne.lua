@@ -524,7 +524,7 @@ local function runRotation()
             end
         -- Elemental Blast
             -- elemental_blast,if=!talent.lightning_rod.enabled&spell_targets.chain_lightning<5|talent.lightning_rod.enabled&spell_targets.chain_lightning<4
-            if not talent.lightningRod and ((mode.rotation == 1 and (#enemies.yards8t < 5 or (talent.lightningRod and #enemies.yards8t < 4)) or mode.rotation == 2) then
+            if not talent.lightningRod and ((mode.rotation == 1 and (#enemies.yards8t < 5 or (talent.lightningRod and #enemies.yards8t < 4))) or mode.rotation == 2) then
                 if cast.elementalBlast() then return end
             end
         -- Lava Beam
@@ -733,7 +733,7 @@ local function runRotation()
             end
         -- Frost Shock
             -- frost_shock,if=buff.icefury.up&((maelstrom>=20&raid_event.movement.in>buff.icefury.remains)|buff.icefury.remains<(1.5*spell_haste*buff.icefury.stack+1))
-            if buff.icefury.exists() and ((power >= 20 and moveIn > buff.icefury.remain()) or buff.icefury.remain() < (1.5 * UnitSpellHaste("player") * buff.icefury.stack() + 1)) then
+            if buff.icefury.exists() and power >= 20 and buff.icefury.remain() < (1.5 * UnitSpellHaste("player") * buff.icefury.stack() + 1) then
                 if cast.frostShock() then return end
             end
         -- Flame Shock
@@ -743,7 +743,7 @@ local function runRotation()
             end
         -- Frost Shock
             -- frost_shock,moving=1,if=buff.icefury.up
-            if moving and buff.icefury.exists() then
+            if moving and buff.icefury.exists() and power >= 20 then
                 if cast.frostShock() then return end
             end
         -- Earth Shock
