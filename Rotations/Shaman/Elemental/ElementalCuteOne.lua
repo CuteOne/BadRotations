@@ -508,11 +508,11 @@ local function runRotation()
             end
         -- Earthquake
             -- earthquake
-            if lastSpell ~= spell.earthquake and power >= 50 and (not hasEquiped(137034) or not buff.echoesOfTheGreatSundering.exists() or #enemies.yards8t > 3) then
+            if lastSpell ~= spell.earthquake and power >= 50 and (not hasEquiped(137074) or not buff.echoesOfTheGreatSundering.exists() or #enemies.yards8t > 3) then
                 if cast.earthquake() then return end
             end
         -- Earth Shock
-            if power >= 50 and #enemies.yards8t < 4 and buff.echoesOfTheGreatSundering.exists() and hasEquiped(137034) then
+            if power >= 50 and #enemies.yards8t < 4 and buff.echoesOfTheGreatSundering.exists() and hasEquiped(137074) then
                 if cast.earthShock() then return end
             end
         -- Lava Burst
