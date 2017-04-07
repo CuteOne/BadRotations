@@ -310,6 +310,7 @@ local function runRotation()
         if dreadStalkers and dreadStalkersDuration ~= 0 then dreadStalkersRemain = dreadStalkersDuration - GetTime() end
         if not dreadStalkers then dreadStalkersDuration = 0; dreadStalkersRemain = 0 end
 
+
 --------------------
 --- Action Lists ---
 --------------------
@@ -810,7 +811,7 @@ local function runRotation()
                     end
         -- Felstorm
                     -- felguard:felstorm
-                    if isChecked("Felstorm") and felguard and felguardEnemies >= getOptionValue("Felstorm") and cd.felstorm == 0 then
+                    if isChecked("Felstorm") and felguard and felguardEnemies ~= nil and felguardEnemies >= getOptionValue("Felstorm") and cd.felstorm == 0 then
                         if cast.commandDemon() then return end
                     end
         -- Doom
