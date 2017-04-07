@@ -615,7 +615,7 @@ local function runRotation()
                 end
             end
         -- Earthen Shield Totem
-            if talent.earthenShieldTotem then
+            if isChecked("Earthen Shield Totem") and talent.earthenShieldTotem then
                 if castWiseAoEHeal(br.friend,spell.earthenShieldTotem,20,getValue("Earthen Shield Totem"),getValue("Earthen Shield Totem Targets"),6,false,true) then return end
             end
         -- Healing Stream Totem
