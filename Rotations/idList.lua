@@ -1948,6 +1948,7 @@ br.idList = {
             artifacts                       = {
                 massHysteria                = 194378,
                 unleashTheShadows           = 194093,
+                voidTorrent                 = 205065,
             },
             buffs                           = {
                 dispersion                  = 47585,

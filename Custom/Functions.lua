@@ -138,7 +138,7 @@ function castGroundAtBestLocation(spellID, radius, minUnits, maxRange, minRange,
             if isNotBlacklisted(thisUnit) then
                 if thisDistance < maxRange and thisDistance >= minRange and hasThreat then
                     if not UnitIsDeadOrGhost(thisUnit) and (getFacing("player",thisUnit) or UnitIsUnit(thisUnit,"player")) and getLineOfSight(thisUnit) and not isMoving(thisUnit) then
-                        if UnitAffectingCombat(thisUnit) or (spellType == "heal" and getHP(thisUnit) < 90) or isDummy(thisUnit) then
+                        if UnitAffectingCombat(thisUnit) or spellType == "heal" or isDummy(thisUnit) then
                             table.insert(allUnitsInRange,thisUnit)
                         end
                     end
