@@ -700,7 +700,7 @@ local function runRotation()
             end
         -- Flameshock
             for i = 1, #enemies.yards40 do
-                local thisUnit = enemies.yards5[i]
+                local thisUnit = enemies.yards40[i]
                 if not debuff.flameShock.exists(thisUnit) then
                     if cast.flameShock(thisUnit) then return end
                 end
