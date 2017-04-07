@@ -165,7 +165,7 @@ function dynamicTarget(range,facing)
 		for k, v in pairs(br.enemy) do
 			local thisUnit = v--br.enemy[k]
 			local thisDistance = getDistance("player",thisUnit.unit)
-			if GetUnitExists(thisUnit.unit) and ObjectID(thisUnit.unit) ~= 103679 and thisUnit.coeficient ~= nil then
+			if GetUnitExists(thisUnit.unit) and ObjectID(thisUnit.unit) ~= 103679 and thisUnit.coeficient ~= nil and not UnitIsTrivial(thisUnit.unit) then
 				if (not getOptionCheck("Safe Damage Check") or thisUnit.safe) and not thisUnit.isCC
 						and thisDistance < range and (not facing or thisUnit.facing)
 				then
