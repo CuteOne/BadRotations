@@ -655,7 +655,7 @@ local function runRotation()
             end
         -- Lightning Bolt
             -- lightning_bolt
-            if #enemies.yards8t == 1 or mode.rotation == 3 then
+            if #enemies.yards8t <= 1 or mode.rotation == 3 then
                 if cast.lightningBolt() then return end
             end
         -- Flame Shock
@@ -773,7 +773,7 @@ local function runRotation()
             end
         -- Lightning Bolt
             -- lightning_bolt
-            if (#enemies.yards8t == 1 or mode.rotation == 3) then
+            if (#enemies.yards8t <= 1 or mode.rotation == 3) then
                 if cast.lightningBolt() then return end
             end
         -- Flame Shock
@@ -874,11 +874,11 @@ local function runRotation()
             end
         -- Lightning Bolt
             -- lightning_bolt,target_if=!debuff.lightning_rod.up
-            if (#enemies.yards8t == 1 or mode.rotation == 3) and not debuff.lightningRod.exists(units.dyn40) then
+            if (#enemies.yards8t <= 1 or mode.rotation == 3) and not debuff.lightningRod.exists(units.dyn40) then
                 if cast.lightningBolt() then return end
             end
             -- lightning_bolt
-            if (#enemies.yards8t == 1 or mode.rotation == 3) then
+            if (#enemies.yards8t <= 1 or mode.rotation == 3) then
                 if cast.lightningBolt() then return end
             end
         -- Flame Shock
