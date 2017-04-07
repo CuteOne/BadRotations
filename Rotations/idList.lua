@@ -2372,6 +2372,7 @@ br.idList = {
             },
             artifacts                       = {
                 stormkeeper                 = 205495,
+                swellingMaelstrom           = 238105,
             },
             buffs                           = {
                 ascendance                  = 114050,
