@@ -295,7 +295,7 @@ local function runRotation()
             RIP1 = false
             opener = false
         end
-        -- ChatOverlay(round2(getDistance("target","player","dist"),2)..", "..round2(getDistance("target","player","dist2"),2)..", "..round2(getDistance("target","player","dist3"),2)..", "..round2(getDistance("target","player","dist4"),2))
+        -- ChatOverlay(round2(getDistance("target","player","dist"),2)..", "..round2(getDistance("target","player","dist2"),2)..", "..round2(getDistance("target","player","dist3"),2)..", "..round2(getDistance("target","player","dist4"),2)..", "..round2(getDistance("target"),2))
 
 --------------------
 --- Action Lists ---
@@ -616,7 +616,7 @@ local function runRotation()
 						Print("Starting Opener")
             -- Rake
        					if castOpener("rake","RK1",1) then return end
-       				elseif RK1 and not SR1 and power >= 40 then
+       				elseif RK1 and not SR1 and power >= 40 and combo > 0 then
        		-- Savage Roar
        					if castOpener("savageRoar","SR1",2) then return end
        				elseif SR1 and not TF1 then
@@ -641,7 +641,7 @@ local function runRotation()
 			  		elseif AF1 and not MF1 then
             -- Moonfire
                         if talent.moonfire then
-			    			if castOpener("moonfire","VAN1",6) then return end
+			    			if castOpener("moonfire","MF1",6) then return end
 						else
 							Print("6: Moonfire (Uncastable)");
 							MF1 = true
@@ -649,7 +649,7 @@ local function runRotation()
 					elseif MF1 and (not SHR1 or combo < 5) and power >= 40 then
             -- Shred
 						if castOpener("shred","SHR1",shredCount) then shredCount = shredCount + 1 return end
-                    elseif SHR1 and not RIP1 and power >= 30 then
+                    elseif SHR1 and not RIP1 and power >= 30 and combo > 0 then
        		-- Rip
      					if castOpener("rip","RIP1",shredCount) then return end
                     elseif RIP1 then
