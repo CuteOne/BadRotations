@@ -612,11 +612,11 @@ local function runRotation()
             -- auto_attack
             if isChecked("Opener") and isBoss("target") and opener == false then
                 if isValidUnit("target") and getDistance("target") < 5 then
-					if not RK1 and power >= 35 then
+					if (not RK1 or not debuff.rake.exists("target")) and power >= 35 then
 						Print("Starting Opener")
             -- Rake
        					if castOpener("rake","RK1",1) then return end
-       				elseif RK1 and not SR1 and power >= 40 and combo > 0 then
+       				elseif RK1 and not SR1 and power >= 40 then
        		-- Savage Roar
        					if castOpener("savageRoar","SR1",2) then return end
        				elseif SR1 and not TF1 then
@@ -649,7 +649,7 @@ local function runRotation()
 					elseif MF1 and (not SHR1 or combo < 5) and power >= 40 then
             -- Shred
 						if castOpener("shred","SHR1",shredCount) then shredCount = shredCount + 1 return end
-                    elseif SHR1 and not RIP1 and power >= 30 and combo > 0 then
+                    elseif SHR1 and not RIP1 and power >= 30 then
        		-- Rip
      					if castOpener("rip","RIP1",shredCount) then return end
                     elseif RIP1 then
