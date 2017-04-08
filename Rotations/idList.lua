@@ -348,6 +348,7 @@ br.idList = {
                 metamorphosis               = 187827,
                 netherBond                  = 207810,
                 shear                       = 203782,
+                sever                       = 235964,
                 sigilOfChains               = 202138,
                 sigilOfFlame                = 204596,
                 sigilOfMisery               = 207684,
@@ -651,6 +652,9 @@ br.idList = {
                 ursolsVortex                = 102793,
                 wildGrowth                  = 48438,
                 yserasGift                  = 145108,
+                mangle                      = 33917,
+                thrash                      = 77758,
+                frenziedRegeneration        = 22842,				
             },
             artifacts                       = {
                 armorOfTheAncients          = 189754,
@@ -687,6 +691,8 @@ br.idList = {
                 regrowth                    = 8936,
                 solarEmpowerment            = 164545,
                 soulOfTheForest             = 114108,
+                frenziedRegeneration        = 22842,
+                wildGrowth                  = 48438,
             },
             debuffs                         = {
                 moonfire                    = 164812,
@@ -1565,6 +1571,7 @@ br.idList = {
             },
             debuffs                         = {
                 judgement                   = 214222,
+                zilv                        = 25771,
 
             },
             glyphs                          = {
