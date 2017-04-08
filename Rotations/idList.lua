@@ -882,6 +882,7 @@ br.idList = {
                 aspectOfTheTurtle           = 186265,
                 bestialWrath                = 19574,
                 direBeast                   = 120694,
+                direFrenzy                  = 217200,
                 volley                      = 194386
             },
             debuffs                         = {
