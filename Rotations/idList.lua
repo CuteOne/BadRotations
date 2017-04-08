@@ -2373,6 +2373,7 @@ br.idList = {
             },
             artifacts                       = {
                 stormkeeper                 = 205495,
+                swellingMaelstrom           = 238105,
             },
             buffs                           = {
                 ascendance                  = 114050,
@@ -2632,6 +2633,7 @@ br.idList = {
                 demonicPower                = 196099,
                 empoweredLifeTap            = 235156,
                 tormentedSouls              = 216695,
+                wrathOfConsumption          = 199646,
             },
             debuffs                         = {
                 agony                       = 980,
@@ -3106,12 +3108,12 @@ br.idList = {
                 netherwinds                     = 160452,
                 prolongedPower                  = 229206,
                 shadowmeld                      = 58984,
-                temptation                      = 234143,
                 timeWarp                        = 80353,
             },
             debuffs                             = {
                 dampening                       = 110310,
                 eyeOfLeotheras                  = 206649,
+                temptation                      = 234143,
             },
         },
     },

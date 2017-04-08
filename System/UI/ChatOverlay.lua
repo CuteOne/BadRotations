@@ -18,7 +18,7 @@ function ChatOverlay(Message, FadingTime)
 		chatOverlay:SetSize(ChatFrame1:GetWidth(),50)
 		chatOverlay.text:SetText(Message)
 		chatOverlay:SetAlpha(1)
-		if FadingTime == nil then
+		if FadingTime == nil or type(FadingTime) ~= "number" then
 			chatOverlay.time = GetTime()
 		else
 			chatOverlay.time = GetTime() - 2 + FadingTime

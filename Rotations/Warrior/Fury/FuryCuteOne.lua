@@ -349,7 +349,7 @@ local function runRotation()
                 end
         -- Ring of Collapsing Futures
                 -- use_item,name=ring_of_collapsing_futures,if=equipped.ring_of_collapsing_futures&buff.battle_cry.up&buff.enrage.up&!buff.temptation.up
-                if hasEquiped(142173) and buff.battleCry.exists() and buff.enrage.exists() and not buff.temptation.exists() then
+                if hasEquiped(142173) and buff.battleCry.exists() and buff.enrage.exists() and not debuff.temptation.exists("player") then
                     if canUse(142173) then
                         useItem(142173)
                     end
