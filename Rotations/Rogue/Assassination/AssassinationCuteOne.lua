@@ -87,6 +87,8 @@ local function createOptions()
             br.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
             -- Dummy DPS Test
             br.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
+            -- Artifact
+            br.ui:createDropdownWithout(section,"Artifact", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Artifact Ability.")
         br.ui:checkSectionState(section)
         ------------------------
         --- COOLDOWN OPTIONS ---
@@ -589,21 +591,23 @@ local function runRotation()
                 end
             end
         -- Kingsbane
-            -- kingsbane,if=artifact.sinister_circulation.enabled&combo_points.deficit>=1+(mantle_duration>gcd.remains+0.2)&(talent.subterfuge.enabled|!stealthed.rogue|(talent.nightstalker.enabled&(!equipped.mantle_of_the_master_assassin|!set_bonus.tier19_4pc)))
-            if artifact.sinisterCirculation and comboDeficit >= 1 + mantled 
-                and (talent.subterfuge or not stealthing or (talent.nightstalker and (not hasEquiped(144236) or not t19_4pc))) 
-            then
-                if cast.kingsbane() then return end
-            end
-            -- kingsbane,if=!talent.exsanguinate.enabled&combo_points.deficit>=1+(mantle_duration>gcd.remains+0.2)&buff.envenom.up&((debuff.vendetta.up&debuff.surge_of_toxins.up)|cooldown.vendetta.remains<=5.2|cooldown.vendetta.remains>=10)
-            if not talent.exsanguinate and comboDeficit >= 1 + mantled and buff.envenom.exists() 
-                and ((debuff.vendetta.exists(units.dyn5) and debuff.surgeOfToxins.exists(units.dyn5)) or cd.vendetta <= 5.2 or cd.vendetta >= 10) 
-            then
-                if cast.kingsbane() then return end
-            end
-            -- kingsbane,if=talent.exsanguinate.enabled&combo_points.deficit>=1+(mantle_duration>gcd.remains+0.2)&dot.rupture.exsanguinated
-            if talent.exsanguinate and comboDeficit >= 1 + mantled and exRupture then
-                if cast.kingsbane() then return end
+            if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()) then
+                -- kingsbane,if=artifact.sinister_circulation.enabled&combo_points.deficit>=1+(mantle_duration>gcd.remains+0.2)&(talent.subterfuge.enabled|!stealthed.rogue|(talent.nightstalker.enabled&(!equipped.mantle_of_the_master_assassin|!set_bonus.tier19_4pc)))
+                if artifact.sinisterCirculation and comboDeficit >= 1 + mantled 
+                    and (talent.subterfuge or not stealthing or (talent.nightstalker and (not hasEquiped(144236) or not t19_4pc))) 
+                then
+                    if cast.kingsbane() then return end
+                end
+                -- kingsbane,if=!talent.exsanguinate.enabled&combo_points.deficit>=1+(mantle_duration>gcd.remains+0.2)&buff.envenom.up&((debuff.vendetta.up&debuff.surge_of_toxins.up)|cooldown.vendetta.remains<=5.2|cooldown.vendetta.remains>=10)
+                if not talent.exsanguinate and comboDeficit >= 1 + mantled and buff.envenom.exists() 
+                    and ((debuff.vendetta.exists(units.dyn5) and debuff.surgeOfToxins.exists(units.dyn5)) or cd.vendetta <= 5.2 or cd.vendetta >= 10) 
+                then
+                    if cast.kingsbane() then return end
+                end
+                -- kingsbane,if=talent.exsanguinate.enabled&combo_points.deficit>=1+(mantle_duration>gcd.remains+0.2)&dot.rupture.exsanguinated
+                if talent.exsanguinate and comboDeficit >= 1 + mantled and exRupture then
+                    if cast.kingsbane() then return end
+                end
             end
         -- Garrote
             -- garrote,cycle_targets=1,if=combo_points.deficit>=1&refreshable&(!exsanguinated|remains<=1.5)&target.time_to_die-remains>4
