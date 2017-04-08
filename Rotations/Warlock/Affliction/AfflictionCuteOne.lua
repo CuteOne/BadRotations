@@ -87,6 +87,8 @@ local function createOptions()
             br.ui:createSpinnerWithout(section, "Agony Boss HP Limit", 10, 1, 20, 1, "|cffFFFFFFHP Limit that Agony will be cast/refreshed on in relation to Boss HP.")
         -- Seed of Corruption units
             br.ui:createSpinnerWithout(section, "Seed Units", 4, 3, 10, 1, "|cffFFFFFFNumber of Units Seed of Corruption will be cast on.")
+		-- Wrath of Consumption
+			br.ui:createCheckbox(section, "Wrath of Consumption", "|cffFFFFFF Select to enable/disable Wrath of Consumption Stacking")
         br.ui:checkSectionState(section)
     -- Cooldown Options
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
@@ -630,7 +632,7 @@ local function runRotation()
                     --if not buff.deadwindHarvester.exists() and (buff.soulHarvest.exists() or buff.tormentedSouls.stack() >= 8 or ttd(units.dyn40) <= buff.tormentedSouls.stack() * 5) then
                     if (getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs())) and mode.multidot == 1
                         and (buff.tormentedSouls.stack() >= 5 or (hasEquiped(144364) and buff.tormentedSouls.stack() >= 4))
-                        or debuff.unstableAffliction.stack() >= 3
+                        or debuff.unstableAffliction.stack() >= 3 and buff.tormentedSouls.exists()
 						and not buff.deadwindHarvester.exists() and buff.deadwindHarvester.remain() <= 5
                      then
                         if cast.reapSouls() then return end
@@ -846,6 +848,10 @@ local function runRotation()
                             end
                         end
                     end
+				-- Wrath of Consumption Stacking
+					if isChecked("Wrath of Consumption") and (ttd(units.dyn40) < 5 and buff.wrathOfConsumption.remain() < 5) then
+						if cast.corruption(units.dyn40,"aoe") then return end
+					end
         -- Siphon Life
                     if debuff.siphonLife.count() < getOptionValue("Multi-Dot Limit") + effigyCount and getHP(units.dyn40) > dotHPLimit then
                         -- siphon_life,if=!talent.malefic_grasp.enabled&remains<=duration*0.3&target.time_to_die>=remains

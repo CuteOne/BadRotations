@@ -385,7 +385,7 @@ local function runRotation()
         -- Ring of Collapsing Futures
                 -- use_item,slot=finger1,if=buff.temptation.down
                 if isChecked("Ring of Collapsing Futures") then
-                    if hasEquiped(142173) and canUse(142173) and not buff.temptation.exists() then
+                    if hasEquiped(142173) and canUse(142173) and not debuff.temptation.exists("player") then
                         useItem(142173)
                     end
                 end
