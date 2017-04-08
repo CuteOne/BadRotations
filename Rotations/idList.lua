@@ -687,6 +687,12 @@ br.idList = {
                 regrowth                    = 8936,
                 solarEmpowerment            = 164545,
                 soulOfTheForest             = 114108,
+                frenziedRegeneration        	= 22842,	
+				
+		wildGrowth                  	= 48438,
+		springBlossoms              	= 207386,
+				
+		cultivat			= 200389,
             },
             debuffs                         = {
                 moonfire                    = 164812,

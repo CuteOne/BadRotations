@@ -229,6 +229,40 @@ local function runRotation()
 
         --ChatOverlay("|cff00FF00Abundance stacks: "..buff.abundance.stack().."")
 
+		local function getFriendHotCnt(f)
+			f_hot_cnt=0
+			if buff.lifebloom.remain(f) > 1 then
+				f_hot_cnt=f_hot_cnt+1
+			end
+			
+			if buff.rejuvenation.remain(f) > 1 then
+				f_hot_cnt=f_hot_cnt+1
+			end
+			
+			if buff.regrowth.remain(f) > 1 then
+				f_hot_cnt=f_hot_cnt+1
+			end
+			
+			if buff.rejuvenationGermination.remain(f) > 1 then
+				f_hot_cnt=f_hot_cnt+1
+			end
+			
+			if buff.wildGrowth.remain(f) > 1 then
+				f_hot_cnt=f_hot_cnt+1
+			end		
+
+			if buff.cenarionWard.remain(f) > 1 then
+				f_hot_cnt=f_hot_cnt+1
+			end	
+			
+			if buff.cultivat.remain(f) > 1 then
+				f_hot_cnt=f_hot_cnt+1
+			end	
+			
+			return f_hot_cnt
+			
+			
+		end
 --------------------
 --- Action Lists ---
 --------------------
@@ -448,13 +482,18 @@ local function runRotation()
                 end
             end
             -- Swiftmend
-           if isChecked("Swiftmend") and not isCastingSpell(spell.tranquility) then
-                for i = 1, #br.friend do                           
-                    if br.friend[i].hp <= getValue("Swiftmend") then
-                        if cast.swiftmend(br.friend[i].unit) then return end     
-                    end
-                end
-            end
+				if isChecked("Swiftmend") and not isCastingSpell(spell.tranquility) and not buff.soulOfTheForest.exists() then
+					for i = 1, #br.friend do
+						local hot_cnt = getFriendHotCnt(br.friend[i].unit)
+						if br.friend[i].hp <= getValue("Swiftmend") and hot_cnt>=2 then
+							if cast.swiftmend(br.friend[i].unit) then 
+								Print("Swiftmend hot cnt="..hot_cnt)
+								return 
+							end
+						end
+					end
+				end
+
             -- Lifebloom
             if isChecked("Lifebloom") and not isCastingSpell(spell.tranquility) then
                 if inInstance then    
