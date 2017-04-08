@@ -366,19 +366,19 @@ local function runRotation()
 
         local function fistsOfFuryDmg()
             if (chi >= 3 or (hasEquiped(137029) and chi >= 2)) and cd.fistsOfFury < gcd then
-                return ((5.25 * 5) * UnitPower("player")
+                return ((5.25 * 5 ) * UnitAttackPower("player")
                     * (1 + (artifact.rank.fistsOfTheWind * 0.05)) * (1 + (artifact.rank.windborneBlows * 0.05)) -- + Traits
                     * baseStatMultiplier() -- + Stats
-                    * (1 + (buff.hitCombo.stack() * 0.02))) -- + Buffs
+                    * (1 + (buff.hitCombo.stack() * 0.02)) -- + Buffs
                     * #enemies.yards8 -- + Enemies
+                    * (buff.transferThePower.stack() * 0.03))
             else
                 return 0
             end
         end
 
         local function strikeOfTheWindlordDmg()
-            return
-                --(33.75 * (0.75 * UnitAttackPower("player"))) * 
+            return 0 --((7932.5 * (0.75 * UnitAttackPower("player"))) * 33.75
         end
 
         local function spinningCraneKickDmg()

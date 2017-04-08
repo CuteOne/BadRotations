@@ -1445,6 +1445,7 @@ br.idList = {
                 theEmperorsCapacitor        = 235054,
                 touchOfKarma                = 122470,
                 transcendence               = 101643,
+                transferThePower            = 195321,
             },
             debuffs                         = {
                 markOfTheCrane              = 228287,
