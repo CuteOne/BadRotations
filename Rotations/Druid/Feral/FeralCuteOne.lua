@@ -285,6 +285,7 @@ local function runRotation()
         end
         if not inCombat and not GetObjectExists("target") then
 			shredCount = 7
+            OPN1 = false
             RK1 = false
             SR1 = false
             BER1 = false
@@ -612,8 +613,10 @@ local function runRotation()
             -- auto_attack
             if isChecked("Opener") and isBoss("target") and opener == false then
                 if isValidUnit("target") and getDistance("target") < 5 then
-					if (not RK1 or not debuff.rake.exists("target")) and power >= 35 then
-						Print("Starting Opener")
+					if not OPN1 then 
+                        Print("Starting Opener")
+                        OPN1 = true
+                    elseif (not RK1 or not debuff.rake.exists("target")) and power >= 35 then
             -- Rake
        					if castOpener("rake","RK1",1) then return end
        				elseif RK1 and not SR1 and power >= 40 then

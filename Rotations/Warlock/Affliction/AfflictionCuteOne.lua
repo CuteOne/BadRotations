@@ -849,7 +849,8 @@ local function runRotation()
                         end
                     end
 				-- Wrath of Consumption Stacking
-					if isChecked("Wrath of Consumption") and (ttd(units.dyn40) < 5 and buff.wrathOfConsumption.remain() < 5) then
+					if isChecked("Wrath of Consumption") and not isBoss() and not debuff.corruption.exists() 
+					and (ttd(units.dyn40) < 5 and buff.wrathOfConsumption.remain() < 5) then
 						if cast.corruption(units.dyn40,"aoe") then return end
 					end
         -- Siphon Life
