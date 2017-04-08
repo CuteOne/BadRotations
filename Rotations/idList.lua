@@ -2070,6 +2070,7 @@ br.idList = {
                 serratedEdge                = 192315,
                 shadowSwiftness             = 192422,
                 shadowWalker                = 192345,
+                sinisterCirculation         = 238138,
                 slayersPrecision            = 214928,
                 surgeOfToxins               = 192424,
                 toxicBlades                 = 192310,
