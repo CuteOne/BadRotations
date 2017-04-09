@@ -1427,6 +1427,7 @@ br.idList = {
                 crosswinds                  = 195650,
                 darkSkies                   = 195265,
                 deathArt                    = 195266,
+                ferocityOfTheBrokenTemple   = 241136,
                 fistsOfTheWind              = 195291,
                 galeBurst                   = 195399,
                 goodKarma                   = 195295,

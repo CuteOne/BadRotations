@@ -327,7 +327,8 @@ local function runRotation()
         local function baseStatMultiplier()
             return ((1 + (GetMasteryEffect("player") / 100)) -- + Mastery
                 * (1 + ((GetCombatRatingBonus(CR_VERSATILITY_DAMAGE_DONE) + GetVersatilityBonus(CR_VERSATILITY_DAMAGE_DONE)) / 100)) -- + Versatility
-                * (1 + (GetCritChance() / 100))) -- + Crit 
+                * (1 + (GetCritChance() / 100))) -- + Crit
+                * 1.08 -- Spec Modifier 
         end
 
         local function blackoutKickDmg()
@@ -336,6 +337,8 @@ local function runRotation()
                     * (1.2 * (1 + (artifact.rank.windborneBlows * 0.05))) -- + Traits
                     * baseStatMultiplier() -- + Stats
                     * (1 + (buff.hitCombo.stack() * 0.02))) -- + Buffs
+                    * (1 + (artifact.rank.ferocityOfTheBrokenTemple * 0.1))
+                    * (1 + (artifact.rank.darkSkies * 0.2))
             else
                 return 0
             end
@@ -343,10 +346,12 @@ local function runRotation()
 
         local function risingSunKickDmg()
             if chi >= 2 and cd.risingSunKick < gcd then
-                return (((9.10 * 1.08) * UnitAttackPower("player")) -- Base Dmg
+                return ((((9.10 * 1.08) * UnitAttackPower("player")) -- Base Dmg
                     * (1 + (artifact.rank.risingWinds * 0.05)) * (artifact.rank.tornadoKicks * 1.25) * (1 + (artifact.rank.windborneBlows * 0.05)) -- + Traits
                     * baseStatMultiplier() -- + Stats
-                    * (1 + (buff.hitCombo.stack() * 0.02))) -- + Buffs
+                    * (1 + (buff.hitCombo.stack() * 0.02)) -- + Buffs
+                    * (1 + (artifact.rank.ferocityOfTheBrokenTemple * 0.1)))
+                    / 2) -- Chi Spent
             else
                 return 0
             end
@@ -359,19 +364,38 @@ local function runRotation()
                     * baseStatMultiplier() -- + Stats
                     * (1 + (buff.hitCombo.stack() * 0.02)) -- + Buffs
                     * #enemies.yards8) -- + Enemies
+                    * (1 + (artifact.rank.ferocityOfTheBrokenTemple * 0.1))
+            else
+                return 0
+            end
+        end
+
+        local function crosswindsDmg()
+            if artifact.crosswinds then
+                return ((8 * UnitAttackPower("player")
+                    * (1 + (artifact.rank.windborneBlows * 0.05)) -- + Traits
+                    * (1 + ((GetCombatRatingBonus(CR_VERSATILITY_DAMAGE_DONE) + GetVersatilityBonus(CR_VERSATILITY_DAMAGE_DONE)) / 100)) -- + Versatility
+                    * (1 + (GetCritChance() / 100))) -- + Crit
+                    * (1 + (buff.hitCombo.stack() * 0.02)) -- + Buffs 
+                    * (1 + (artifact.rank.ferocityOfTheBrokenTemple * 0.1)))
             else
                 return 0
             end
         end
 
         local function fistsOfFuryDmg()
-            if (chi >= 3 or (hasEquiped(137029) and chi >= 2)) and cd.fistsOfFury < gcd then
-                return ((5.25 * 5 ) * UnitAttackPower("player")
+            local chiCost = hasEquiped(137029) and 2 or 3
+            if chi >= chiCost and cd.fistsOfFury < gcd then
+                return (((5.25 * 5 ) * UnitAttackPower("player") -- Base Damage
                     * (1 + (artifact.rank.fistsOfTheWind * 0.05)) * (1 + (artifact.rank.windborneBlows * 0.05)) -- + Traits
                     * baseStatMultiplier() -- + Stats
                     * (1 + (buff.hitCombo.stack() * 0.02)) -- + Buffs
+                    * #getEnemiesInCone(5,45)
                     * #enemies.yards8 -- + Enemies
-                    * (buff.transferThePower.stack() * 0.03))
+                    * (buff.transferThePower.stack() * 0.03) -- + Transfer of Power
+                    * (1 + (artifact.rank.ferocityOfTheBrokenTemple * 0.1))
+                    + crosswindsDmg())
+                    / chiCost) -- Chi Spent
             else
                 return 0
             end
@@ -383,11 +407,13 @@ local function runRotation()
 
         local function spinningCraneKickDmg()
             if chi >= 3 then
-                return ((4 * UnitAttackPower("player")) -- Base Dmg
-                    * (1 + (artifact.rank.powerOfAThousandCranes * 0.1)) * (1 + (artifact.rank.windborneBlows * 0.05)) -- + Traits
+                return (((4 * UnitAttackPower("player")) -- Base Dmg
+                    * (1 + (artifact.rank.powerOfAThousandCranes * 0.03)) * (1 + (artifact.rank.windborneBlows * 0.05)) -- + Traits
                     * baseStatMultiplier() -- + Stats
                     * (1 + (buff.hitCombo.stack() * 0.02)) -- + Buffs
-                    * #enemies.yards8 * (1 + (debuff.markOfTheCrane.count() * 0.5))) --  + Mark of the Crane
+                    * #enemies.yards8 * (1 + (debuff.markOfTheCrane.count() * 0.5)) --  + Mark of the Crane
+                    * (1 + (artifact.rank.ferocityOfTheBrokenTemple * 0.1)))
+                    / 3) -- Chi Spent
             else
                 return 0
             end
@@ -1301,7 +1327,9 @@ local function runRotation()
 ------------------------------
 --- Pre-Combat Rotation ---
 ------------------------------
-            if actionList_PreCombat() then return end
+            if opener == true or not isChecked("Opener") or not isBoss("target") then
+                if actionList_PreCombat() then return end
+            end
 -----------------------
 --- Opener Rotation ---
 -----------------------
