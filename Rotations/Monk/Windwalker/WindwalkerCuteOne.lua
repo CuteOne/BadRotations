@@ -1012,8 +1012,8 @@ local function runRotation()
             -- call_action_list,name=cd
             if actionList_Cooldown() then return end
         -- Energizing Elixir
-            -- energizing_elixir,if=energy<energy.max&chi<=1
-            if power < powerMax and chi <= 1 and getDistance("target") < 5 and GetTime() >= TPEETimer + 0.4 then
+            -- energizing_elixir,if=chi<=1&(cooldown.rising_sun_kick.remains=0|(artifact.strike_of_the_windlord.enabled&cooldown.strike_of_the_windlord.remains=0)|energy<50)
+            if chi <= 1 and (cd.risingSunKick == 0 or (artifact.strikeOfTheWindlord and cd.strikeOfTheWindlord == 0) or power < 50) and getDistance("target") < 5 and GetTime() >= TPEETimer + 0.4 then
                 if cast.energizingElixir() then TPEETimer = GetTime(); return end
             end
         -- Racial - Arcane Torrent
@@ -1022,8 +1022,8 @@ local function runRotation()
                 if castSpell("player",racial,false,false,false) then return end
             end
         -- Tiger Palm
-            -- tiger_palm,cycle_targets=1,if=!prev_gcd.1.tiger_palm&energy=energy.max&chi<=3
-            if lastCombo ~= spell.tigerPalm and power == powerMax and chi <= 3 and GetTime() >= TPEETimer + 0.4 then
+            -- tiger_palm,cycle_targets=1,if=!prev_gcd.1.tiger_palm&energy.time_to_max<=0.5&chi.max-chi>=2
+            if lastCombo ~= spell.tigerPalm and ttm <= 0.5 and chi - chiMax >= 2 and GetTime() >= TPEETimer + 0.4 then
                 if cast.tigerPalm(spreadMark()) then TPEETimer = GetTime(); return end
             end
         -- -- SCK
@@ -1052,7 +1052,7 @@ local function runRotation()
         --     end
         -- Rising Sun Kick
             -- rising_sun_kick,cycle_targets=1,if=(chi>=3&energy>=40)|chi=5
-            if (chi >= 3 and power >= 40) or chi == 5 then
+            if (chi >= 3 and power >= 40) or chi >= 5 then
                 if BetterThanRSK == true and lastCombo ~= spell.spinningCraneKick then
                     if cast.spinningCraneKick() then return end
                 else
@@ -1127,8 +1127,8 @@ local function runRotation()
                 if cast.rushingJadeWind() then return end
             end
         -- Blackout Kick
-            -- blackout_kick,cycle_targets=1,if=(chi>1|buff.bok_proc.up)&!prev_gcd.blackout_kick
-            if (chi > 1 or buff.blackoutKick.exists()) and not HoldBoK() then
+            -- blackout_kick,cycle_targets=1,if=(chi>1|buff.bok_proc.up|(talent.energizing_elixir.enabled&cooldown.energizing_elixir.remains<=1))&!prev_gcd.1.blackout_kick
+            if (chi > 1 or buff.blackoutKick.exists() or (talent.energizingElixir and cd.energizingElixir <- 1)) and not HoldBoK() then
                 if BetterThanBOK == true and lastCombo ~= spell.spinningCraneKick then
                     if cast.spinningCraneKick() then return end
                 elseif lastCombo ~= spell.blackoutKick then
@@ -1159,9 +1159,9 @@ local function runRotation()
         function actionList_StormEarthAndFire()
             if (mode.sef == 2 or (mode.sef == 1 and useCDs())) then
         -- Tiger Palm
-                -- tiger_palm,if=energy=energy.max&chi<1
-                if power == powerMax and chi < 1 and GetTime() >= TPEETimer + 0.2 then
-                    if cast.tigerPalm() then TPEETimer = GetTime(); return end
+                -- tiger_palm,cycle_targets=1,if=!prev_gcd.1.tiger_palm&energy=energy.max&chi<1
+                if lastCombo ~= spell.tigerPalm and power == powerMax and chi < 1 and GetTime() >= TPEETimer + 0.2 then
+                    if cast.tigerPalm(spreadMark()) then TPEETimer = GetTime(); return end
                 end
         -- Racial - Arcane Torrent
                 -- arcane_torrent,if=chiMax-chi>=1&energy.time_to_max>=0.5
@@ -1362,12 +1362,12 @@ local function runRotation()
                     if (mode.sef == 2 or (mode.sef == 1 and useCDs())) and not talent.serenity and (buff.stormEarthAndFire.exists() or charges.stormEarthAndFire == 2) then
                         if actionList_StormEarthAndFire() then return end
                     end 
-                    -- call_action_list,name=sef,if=!talent.serenity.enabled&equipped.drinking_horn_cover&((cooldown.fists_of_fury.remains<=1&chi>=3)|target.time_to_die<=25|cooldown.touch_of_death.remains>=85)
-                    if (mode.sef == 2 or (mode.sef == 1 and useCDs())) and not talent.serenity and hasEquiped(137097) and ((cd.fistsOfFury <= 1 and chi >= 3) or ttd <= 25 or cd.touchOfDeath >= 85) then
+                    -- call_action_list,name=sef,if=!talent.serenity.enabled&equipped.drinking_horn_cover&(cooldown.strike_of_the_windlord.remains<=18&cooldown.fists_of_fury.remains<=12&chi>=3&cooldown.rising_sun_kick.remains<=1|target.time_to_die<=25|cooldown.touch_of_death.remains>112)&cooldown.storm_earth_and_fire.charges=1
+                    if (mode.sef == 2 or (mode.sef == 1 and useCDs())) and not talent.serenity and hasEquiped(137097) and (cd.strikeOfTheWindlord <= 18 and cd.fistsOfFury <= 12 and chi >= 3 and cd.risingSunKick <= 1 or ttd(units.dyn5) <= 25 or cd.touchOfDeath > 112) and charges.stormEarthAndFire == 1 then
                         if actionList_StormEarthAndFire() then return end
                     end
-                    -- call_action_list,name=sef,if=!talent.serenity.enabled&!equipped.drinking_horn_cover&((!artifact.strike_of_the_windlord.enabled|cooldown.strike_of_the_windlord.remains<=14)&cooldown.fists_of_fury.remains<=6&cooldown.rising_sun_kick.remains<=6)
-                    if (mode.sef == 2 or (mode.sef == 1 and useCDs())) and not talent.serenity and not hasEquiped(137097) and ((not artifact.strikeOfTheWindlord or cd.strikeOfTheWindlord <= 14) and cd.fistsOfFury <= 6 and cd.risingSunKick <= 6) then
+                    -- call_action_list,name=sef,if=!talent.serenity.enabled&!equipped.drinking_horn_cover&(cooldown.strike_of_the_windlord.remains<=14&cooldown.fists_of_fury.remains<=6&chi>=3&cooldown.rising_sun_kick.remains<=1|target.time_to_die<=15|cooldown.touch_of_death.remains>112)&cooldown.storm_earth_and_fire.charges=1
+                    if (mode.sef == 2 or (mode.sef == 1 and useCDs())) and not talent.serenity and not hasEquiped(137097) and (cd.strikeOfTheWindlord <= 14 and cd.fistsOfFury <= 6 and chi >= 3 and cd.risingSunKick <= 1 or ttd(units.dyn5) <= 15 or cd.touchOfDeath > 112) and charges.stormEarthAndFire == 1 then
                         if actionList_StormEarthAndFire() then return end
                     end
         -- Call Action List - Single Target
