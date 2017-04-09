@@ -528,7 +528,7 @@ local function runRotation()
                         if cast.bloodTap() then return end
                     end
                     if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()) and isChecked("Consumption VB") then
-                        if getFacing("player","target",105) == true and buff.vampiricBlood.exists() and php < getOptionValue("Consumption VB") and getDistance(thisUnit) <= 5 then
+                        if buff.vampiricBlood.exists() and php < getOptionValue("Consumption VB") and getEnemiesInCone(5,105) >= 1 then
                             if cast.consumption() then return end
                         end
                     end
@@ -543,7 +543,7 @@ local function runRotation()
                         if cast.heartStrike() then return end
                     end
                     if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()) then
-                        if getFacing("player","target",105) == true and getDistance(thisUnit) <= 5 then
+                        if getEnemiesInCone(5,105) >= 1 then
                             if cast.consumption() then return end
                         end
                     end
