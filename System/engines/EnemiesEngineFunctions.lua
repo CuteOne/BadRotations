@@ -139,10 +139,11 @@ end
 function getEnemiesInCone(length,angle)
     local playerX, playerY, playerZ = GetObjectPosition("player")
     local facing = ObjectFacing("player")
-    local units = {};
+    local units = 0
+    local enemiesTable = getEnemies("player",length)
 
-    for i = 1, #br.enemy do
-        local thisUnit = br.enemy[i].unit
+    for i = 1, #enemiesTable do
+        local thisUnit = enemiesTable[i]
         if not UnitIsUnit(thisUnit,"player") and (isDummy(thisUnit) or UnitIsEnemy(thisUnit,"player")) then
             local unitX, unitY, unitZ = GetObjectPosition(thisUnit)
             if playerX and unitX then
@@ -151,7 +152,7 @@ function getEnemiesInCone(length,angle)
                 local shortestAngle = angleDifference < math.pi and angleDifference or math.pi*2 - angleDifference
                 local finalAngle = shortestAngle/math.pi*180
                 if finalAngle < angle then
-                    table.insert(units, thisUnit)
+                    units = units + 1
                 end
             end
         end
