@@ -1363,11 +1363,11 @@ local function runRotation()
                         if actionList_StormEarthAndFire() then return end
                     end 
                     -- call_action_list,name=sef,if=!talent.serenity.enabled&equipped.drinking_horn_cover&(cooldown.strike_of_the_windlord.remains<=18&cooldown.fists_of_fury.remains<=12&chi>=3&cooldown.rising_sun_kick.remains<=1|target.time_to_die<=25|cooldown.touch_of_death.remains>112)&cooldown.storm_earth_and_fire.charges=1
-                    if (mode.sef == 2 or (mode.sef == 1 and useCDs())) and not talent.serenity and hasEquiped(137097) and (cd.strikeOfTheWindlord <= 18 and cd.fistsOfFury <= 12 and chi >= 3 and cd.risingSunKick <= 1 or ttd(units.dyn5) <= 25 or cd.touchOfDeath > 112) and charges.stormEarthAndFire == 1 then
+                    if (mode.sef == 2 or (mode.sef == 1 and useCDs())) and not talent.serenity and hasEquiped(137097) and (cd.strikeOfTheWindlord <= 18 and cd.fistsOfFury <= 12 and chi >= 3 and cd.risingSunKick <= 1 or ttd <= 25 or cd.touchOfDeath > 112) and charges.stormEarthAndFire == 1 then
                         if actionList_StormEarthAndFire() then return end
                     end
                     -- call_action_list,name=sef,if=!talent.serenity.enabled&!equipped.drinking_horn_cover&(cooldown.strike_of_the_windlord.remains<=14&cooldown.fists_of_fury.remains<=6&chi>=3&cooldown.rising_sun_kick.remains<=1|target.time_to_die<=15|cooldown.touch_of_death.remains>112)&cooldown.storm_earth_and_fire.charges=1
-                    if (mode.sef == 2 or (mode.sef == 1 and useCDs())) and not talent.serenity and not hasEquiped(137097) and (cd.strikeOfTheWindlord <= 14 and cd.fistsOfFury <= 6 and chi >= 3 and cd.risingSunKick <= 1 or ttd(units.dyn5) <= 15 or cd.touchOfDeath > 112) and charges.stormEarthAndFire == 1 then
+                    if (mode.sef == 2 or (mode.sef == 1 and useCDs())) and not talent.serenity and not hasEquiped(137097) and (cd.strikeOfTheWindlord <= 14 and cd.fistsOfFury <= 6 and chi >= 3 and cd.risingSunKick <= 1 or ttd <= 15 or cd.touchOfDeath > 112) and charges.stormEarthAndFire == 1 then
                         if actionList_StormEarthAndFire() then return end
                     end
         -- Call Action List - Single Target
