@@ -390,8 +390,7 @@ local function runRotation()
                     * (1 + (artifact.rank.fistsOfTheWind * 0.05)) * (1 + (artifact.rank.windborneBlows * 0.05)) -- + Traits
                     * baseStatMultiplier() -- + Stats
                     * (1 + (buff.hitCombo.stack() * 0.02)) -- + Buffs
-                    * #getEnemiesInCone(5,45)
-                    * #enemies.yards8 -- + Enemies
+                    * getEnemiesInCone(5,45)
                     * (buff.transferThePower.stack() * 0.03) -- + Transfer of Power
                     * (1 + (artifact.rank.ferocityOfTheBrokenTemple * 0.1))
                     + crosswindsDmg())
