@@ -175,7 +175,7 @@ local function runRotation()
         local inCombat                                      = br.player.inCombat
         local inInstance                                    = br.player.instance=="party"
         local inRaid                                        = br.player.instance=="raid"
-        local lastSpell                                     = lastSpellCast
+        local lastSpell                                     = lastSpellCastSuccess
         local level                                         = br.player.level
         local lootDelay                                     = getOptionValue("LootDelay")
         local lowestHP                                      = br.friend[1].unit
@@ -790,7 +790,7 @@ local function runRotation()
                     end
         -- Demonic Empowerment
                     -- demonic_empowerment,if=(((talent.power_trip.enabled&(!talent.implosion.enabled|spell_targets.demonwrath<=1))|!talent.implosion.enabled|(talent.implosion.enabled&!talent.soul_conduit.enabled&spell_targets.demonwrath<=3))&(wild_imp_no_de>3|prev_gcd.1.hand_of_guldan))|(prev_gcd.1.hand_of_guldan&wild_imp_no_de=0&wild_imp_remaining_duration<=0)|(prev_gcd.1.implosion&wild_imp_no_de>0)
-                    if lastSpell ~= spell.demonicEmpowerment then               
+                    if lastSpell ~= spell.demonicEmpowerment then              
                         if (((talent.powerTrip and (not talent.implosion or #enemies.yards8t <= 1)) or not talent.implosion
                                 or (talent.implosion and not talent.soulConduit and #enemies.yards8t <= 3))
                                 and ((wildImp and wildImpNoDEcount > 3) or lastSpell == spell.handOfGuldan))
@@ -835,19 +835,17 @@ local function runRotation()
                     if charges.shadowflame == 2 and #enemies.yards8t < 5 then
                         if cast.shadowflame() then return end
                     end
-        -- Thal'kiel's Consumption
-                    -- thalkiels_consumption,if=(dreadstalker_remaining_duration>execute_time|talent.implosion.enabled&spell_targets.implosion>=3)&wild_imp_count>3&wild_imp_remaining_duration>execute_time
+           -- Thal'kiel's Consumption
+                -- thalkiels_consumption,if=(dreadstalker_remaining_duration>execute_time|talent.implosion.enabled&spell_targets.implosion>=3)&wild_imp_count>3&wild_imp_remaining_duration>execute_time
                     if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()) then
-                        if (dreadStalkersRemain > getCastTime(spell.thalkielsConsumption) or (talent.implosion and #enemies.yards8t >= 3)) and wildImpCount > 3 and wildImpRemain > getCastTime(spell.thalkielsConsumption) then
-                            if cd.summonDoomguard > 15 and cd.summonInfernal > 15 and cd.grimoireFelguard > 15 then 
-                                if missingDE == 0 then
+                        if (dreadStalkersRemain > getCastTime(spell.thalkielsConsumption) or (talent.implosion and #enemies.yards8t >= 3)) and wildImpCount > 3 and (tonumber(wildImpRemain) > getCastTime(spell.thalkielsConsumption)) then
+                            -- print(isChecked("Summon Doomguard"))
+                            -- print(isChecked("Summon Infernal"))
+                            -- print(getOptionValue("Grimoire of Service - Use"))
+                            if ((cd.summonDoomguard > 15 or isChecked("Summon Doomguard") == false) and (cd.summonInfernal > 15 or isChecked("Summon Infernal") == false) and (cd.grimoireFelguard > 15 or getOptionValue("Grimoire of Service - Use") == 3)) or not isBoss(units.dyn40) then 
+                                if cd.thalkielsConsumption <= 2 then
+                             --   if missingDE == 0 then
                                     if cast.thalkielsConsumption() then return end
-                                else
-                                    if lastSpell ~= spell.demonicEmpowerment then
-                                        if cast.demonicEmpowerment() then
-                                            if cast.thalkielsConsumption() then return end
-                                        end
-                                    end
                                 end
                             end
                         end
