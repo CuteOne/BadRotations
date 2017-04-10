@@ -813,7 +813,7 @@ local function runRotation()
             end
         -- Earth Shock
             -- earth_shock,if=maelstrom>=117|!artifact.swelling_maelstrom.enabled&maelstrom>=92
-            if power >= 117 or (artifact.swellingMaelstrom and power >= 92) then
+            if power >= 117 or (not artifact.swellingMaelstrom and power >= 92) then
                 if cast.earthShock() then return end
             end
         -- Stormkeeper

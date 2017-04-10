@@ -301,7 +301,7 @@ br.idList = {
                 warglaivesOfChaos           = 214795,
             },
             buffs                           = {
-                chaosBlades                 = 211797,
+                chaosBlades                 = 211048,
                 metamorphosis               = 162264,
                 momentum                    = 208628,
                 prepared                    = 203650,
