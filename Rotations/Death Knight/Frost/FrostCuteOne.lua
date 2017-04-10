@@ -86,7 +86,7 @@ local function createOptions()
         -------------------------
         section = br.ui:createSection(br.ui.window.profile, "Defensive")
             -- Healthstone
-            br.ui:createSpinner(section, "Healthstone",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
+            br.ui:createSpinner(section, "Healing Potion/Healthstone",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
             -- Heirloom Neck
             br.ui:createSpinner(section, "Heirloom Neck",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
             -- Anti-Magic Shell
@@ -166,6 +166,7 @@ local function runRotation()
         local enemies           = enemies or {}
         local gcd               = br.player.gcd
         local glyph             = br.player.glyph
+        local healPot           = getHealthPot()
         local inCombat          = br.player.inCombat
         local level             = br.player.level
         local mode              = br.player.mode
@@ -240,6 +241,14 @@ local function runRotation()
     -- Action List - Defensive
         local function actionList_Defensive()
             if useDefensive() and not IsMounted() then
+        -- Healthstone
+                if isChecked("Healthstone") and php <= getOptionValue("Healing Potion/Healthstone") and inCombat and (hasHealthPot() or hasItem(5512)) then
+                    if canUse(5512) then
+                        useItem(5512)
+                    elseif canUse(healPot) then
+                        useItem(healPot)
+                    end
+                end
         -- Anti-Magic Shell
                 if isChecked("Anti-Magic Shell") and php < getOptionValue("Anti-Magic Shell") and inCombat then
                     if cast.antiMagicShell() then return end
