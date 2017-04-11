@@ -240,6 +240,7 @@ local function runRotation()
         local spell             = br.player.spell
         local t19_2pc           = TierScan("T19") >= 2
         local t19_4pc           = TierScan("T19") >= 4
+        local t20_2pc           = false -- TODO: Add T20
         local talent            = br.player.talent
         local thp               = getHP(br.player.units(5))
         local trinketProc       = false --br.player.hasTrinketProc()
@@ -332,42 +333,42 @@ local function runRotation()
         end
 
         local function blackoutKickDmg()
-            if chi >= 1 then
+            -- if chi >= 1 then
                 return (((3.85 * 1.08) * UnitAttackPower("player")) -- Base Dmg
                     * (1.2 * (1 + (artifact.rank.windborneBlows * 0.05))) -- + Traits
                     * baseStatMultiplier() -- + Stats
                     * (1 + (buff.hitCombo.stack() * 0.02))) -- + Buffs
                     * (1 + (artifact.rank.ferocityOfTheBrokenTemple * 0.1))
                     * (1 + (artifact.rank.darkSkies * 0.2))
-            else
-                return 0
-            end
+            -- else
+            --     return 0
+            -- end
         end
 
         local function risingSunKickDmg()
-            if chi >= 2 and cd.risingSunKick < gcd then
+            -- if chi >= 2 and cd.risingSunKick < gcd then
                 return ((((9.10 * 1.08) * UnitAttackPower("player")) -- Base Dmg
                     * (1 + (artifact.rank.risingWinds * 0.05)) * (artifact.rank.tornadoKicks * 1.25) * (1 + (artifact.rank.windborneBlows * 0.05)) -- + Traits
                     * baseStatMultiplier() -- + Stats
                     * (1 + (buff.hitCombo.stack() * 0.02)) -- + Buffs
                     * (1 + (artifact.rank.ferocityOfTheBrokenTemple * 0.1)))
                     / 2) -- Chi Spent
-            else
-                return 0
-            end
+            -- else
+            --     return 0
+            -- end
         end
 
         local function whirlingDragonPunchDmg()
-            if cd.fistsOfFury > gcd and cd.risingSunKick > gcd and cd.whirlingDragonPunch < gcd then
+            -- if cd.fistsOfFury > gcd and cd.risingSunKick > gcd and cd.whirlingDragonPunch < gcd then
                 return (((3 * 4.15) * UnitAttackPower("player")) -- Base Dmg
                     * (1 + (artifact.rank.windborneBlows * 0.05)) -- + Traits
                     * baseStatMultiplier() -- + Stats
                     * (1 + (buff.hitCombo.stack() * 0.02)) -- + Buffs
                     * #enemies.yards8) -- + Enemies
                     * (1 + (artifact.rank.ferocityOfTheBrokenTemple * 0.1))
-            else
-                return 0
-            end
+            -- else
+            --     return 0
+            -- end
         end
 
         local function crosswindsDmg()
@@ -385,7 +386,7 @@ local function runRotation()
 
         local function fistsOfFuryDmg()
             local chiCost = hasEquiped(137029) and 2 or 3
-            if chi >= chiCost and cd.fistsOfFury < gcd then
+            -- if chi >= chiCost and cd.fistsOfFury < gcd then
                 return (((5.25 * 5 ) * UnitAttackPower("player") -- Base Damage
                     * (1 + (artifact.rank.fistsOfTheWind * 0.05)) * (1 + (artifact.rank.windborneBlows * 0.05)) -- + Traits
                     * baseStatMultiplier() -- + Stats
@@ -395,9 +396,9 @@ local function runRotation()
                     * (1 + (artifact.rank.ferocityOfTheBrokenTemple * 0.1))
                     + crosswindsDmg())
                     / chiCost) -- Chi Spent
-            else
-                return 0
-            end
+            -- else
+            --     return 0
+            -- end
         end
 
         local function strikeOfTheWindlordDmg()
@@ -405,7 +406,7 @@ local function runRotation()
         end
 
         local function spinningCraneKickDmg()
-            if chi >= 3 then
+            -- if chi >= 3 then
                 return (((4 * UnitAttackPower("player")) -- Base Dmg
                     * (1 + (artifact.rank.powerOfAThousandCranes * 0.03)) * (1 + (artifact.rank.windborneBlows * 0.05)) -- + Traits
                     * baseStatMultiplier() -- + Stats
@@ -413,9 +414,9 @@ local function runRotation()
                     * #enemies.yards8 * (1 + (debuff.markOfTheCrane.count() * 0.5)) --  + Mark of the Crane
                     * (1 + (artifact.rank.ferocityOfTheBrokenTemple * 0.1)))
                     / 3) -- Chi Spent
-            else
-                return 0
-            end
+            -- else
+            --     return 0
+            -- end
         end
 
         -- Mark of the Crane Count
@@ -1056,18 +1057,13 @@ local function runRotation()
         --         if cast.spinningCraneKick() then return end
         --     end
         -- Strike of the Windlord
-            -- strike_of_the_windlord,if=equipped.convergence_of_fates&talent.serenity.enabled&cooldown.serenity.remains>=10
-            -- strike_of_the_windlord,if=!(equipped.convergence_of_fates&talent.serenity.enabled)
+            -- strike_of_the_windlord,if=!talent.serenity.enabled|cooldown.serenity.remains>=10
             if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()) then
-                if (((talent.serenity and cd.serenity >= 10) or not isChecked("Serenity") or not useCDs()) or (not talent.serenity and #enemies.yards5 < 6)) 
-                    and getDistance(units.dyn5) < 5 --and lastCombo ~= spell.strikeOfTheWindlord 
-                then
-                    if (not (hasEquiped(140806) and talent.serenity)) or (hasEquiped(140806) and talent.serenity and cd.serenity >= 10) then
-                        if BetterThanSOTW and lastCombo ~= spell.spinningCraneKick then
-                            if cast.spinningCraneKick() then return end
-                        elseif lastCombo ~= spell.strikeOfTheWindlord  then
-                            if cast.strikeOfTheWindlord() then return end
-                        end
+                if (not talent.serenity or cd.serenity >= 10 or not isChecked("Serenity") or not useCDs()) and getDistance(units.dyn5) < 5 then
+                    if BetterThanSOTW and lastCombo ~= spell.spinningCraneKick then
+                        if cast.spinningCraneKick() then return end
+                    elseif lastCombo ~= spell.strikeOfTheWindlord  then
+                        if cast.strikeOfTheWindlord() then return end
                     end
                 end
             end
@@ -1089,10 +1085,10 @@ local function runRotation()
         --         if cast.spinningCraneKick() then return end
         --     end
         -- Fists of Fury
-            -- fists_of_fury,if=equipped.convergence_of_fates&talent.serenity.enabled&!equipped.drinking_horn_cover&cooldown.serenity.remains>=5
-            -- fists_of_fury,if=!(equipped.convergence_of_fates&talent.serenity.enabled&!equipped.drinking_horn_cover)
-            if (hasEquiped(140806) and talent.serenity and not hasEquiped(137097) and cd.serenity >= 5) 
-                or not (hasEquiped(140806) and talent.serenity and not hasEquiped(137097)) 
+            -- fists_of_fury,if=talent.serenity.enabled&!equipped.drinking_horn_cover&cooldown.serenity.remains>=5&(debuff.rising_fist.remains>1|set_bonus.tier20_2pc=0)
+            -- fists_of_fury,if=!(talent.serenity.enabled&!equipped.drinking_horn_cover)&(debuff.rising_fist.remains>1|set_bonus.tier20_2pc=0)
+            if (talent.serenity and not hasEquiped(137097) and cd.serenity >= 5 and (debuff.risingFist.remain(units.dyn5) > 1 or not t20_2pc)) 
+                or not (talent.serenity and not hasEquiped(137097) and (debuff.risingFist.remain(units.dyn5) > 1 or not t20_2pc)) 
             then
                 if BetterThanFoF == true and lastCombo ~= spell.spinningCraneKick then
                     if cast.spinningCraneKick() then return end
@@ -1105,9 +1101,8 @@ local function runRotation()
         --         if cast.spinningCraneKick() then return end
         --     end
         -- Rising Sun Kick
-            -- rising_sun_kick,cycle_targets=1,if=equipped.convergence_of_fates&talent.serenity.enabled&cooldown.serenity.remains>=2
-            -- rising_sun_kick,cycle_targets=1,if=!(equipped.convergence_of_fates&talent.serenity.enabled)
-            if ((not (hasEquiped(140806) and talent.serenity)) or (hasEquiped(140806) and talent.serenity and cd.serenity >= 2)) then
+            -- rising_sun_kick,cycle_targets=1,if=!talent.serenity.enabled|cooldown.serenity.remains>=5
+            if not talent.serenity or cd.serenity >= 5 then
                 if BetterThanRSK == true and lastCombo ~= spell.spinningCraneKick then
                     if cast.spinningCraneKick() then return end
                 else
@@ -1211,6 +1206,11 @@ local function runRotation()
     -- Action List - Serenity
         function actionList_Serenity()
             if isChecked("Serenity") then
+        -- Tiger Palm
+                -- tiger_palm,cycle_targets=1,if=!prev_gcd.1.tiger_palm&energy=energy.max&chi<1&!buff.serenity.up
+                if lastCombo ~= spell.tigerPalm and power == powerMax and chi < 1 and not buff.serenity.exists() then
+                    if cast.tigerPalm(spreadMark()) then TPEETimer = GetTime(); return end
+                end
         -- Call Action List - Cooldowns
                 -- call_action_list,name=cd
                 if actionList_Cooldown() then return end
@@ -1231,8 +1231,8 @@ local function runRotation()
                         if cast.strikeOfTheWindlord() then return end
                     end
         -- Fists of Fury
-                    -- fists_of_fury,if=(!equipped.drinking_horn_cover&(cooldown.rising_sun_kick.remains>1|active_enemies>1))|buff.serenity.remains<1
-                    if ((not hasEquiped(137097) and (cd.risingSunKick > 1 or #enemies.yards8 > 1)) or buff.serenity.remain() < 1) and lastCombo ~= spell.fistsOfFury then
+                    -- fists_of_fury,if=((!equipped.drinking_horn_cover|buff.bloodlust.up|buff.serenity.remains<1)&(cooldown.rising_sun_kick.remains>1|active_enemies>1))
+                    if ((not hasEquiped(137097) or hasBloodLust() or buff.serenity.remain() < 1) and (cd.risingSunKick > 1 or #enemies.yards8 > 1)) and lastCombo ~= spell.fistsOfFury then
                         if cast.fistsOfFury() then return end
                     end
         -- -- Draught of Souls

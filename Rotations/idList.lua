@@ -1445,10 +1445,10 @@ br.idList = {
                 windborneBlows              = 214922,
             },
             buffs                           = {
-                serenity                    = 152173,
-                stormEarthAndFire           = 137639,
                 healingWinds                = 195381,
                 hitCombo                    = 196741,
+                serenity                    = 152173,
+                stormEarthAndFire           = 137639,
                 theEmperorsCapacitor        = 235054,
                 touchOfKarma                = 122470,
                 transcendence               = 101643,
@@ -1456,6 +1456,7 @@ br.idList = {
             },
             debuffs                         = {
                 markOfTheCrane              = 228287,
+                risingFist                  = 242259,
                 touchOfDeath                = 115080,
             },
             glyphs                          = {

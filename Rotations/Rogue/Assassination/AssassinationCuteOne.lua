@@ -735,7 +735,7 @@ local function runRotation()
                     if not OPN1 then 
                         Print("Starting Opener")
                         OPN1 = true
-                    elseif (not GAR1 or not debuff.garrote.exists("target")) and power >= 45 then
+                    elseif (not GAR1 or (not debuff.garrote.exists("target") and cd.garrote == 0)) and power >= 45 then
             -- Garrote
                         if castOpener("garrote","GAR1",1) then return end
                     elseif GAR1 and (not MUT1 or (combo == 0 and not debuff.rupture.exists("target"))) and power >= 55 then
