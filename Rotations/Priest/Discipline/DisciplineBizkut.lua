@@ -72,21 +72,6 @@ local function createOptions()
             br.ui:createCheckbox(section, "Always use on Boss")
         br.ui:checkSectionState(section)
         -------------------------
-        ---------- PvP ----------
-        -------------------------
-        section = br.ui:createSection(br.ui.window.profile, "PvP")
-            --Premonition
-            br.ui:createCheckbox(section, "Premonition", "|cffFFFFFFCast Premonition on CD")
-            --Power Word: Fortitude
-            br.ui:createCheckbox(section, "Power Word: Fortitude", "|cffFFFFFFPower Word: Fortitude of self and 1 lowest HP on CD") 
-            --Archangel
-            br.ui:createSpinner(section, "Archangel",  80,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At. Default: 80") 
-            br.ui:createSpinnerWithout(section, "Archangel's Atonement",  3,  0,  40,  1,  "|cffFFFFFFMinimum Archangel's Atonement. Default: 3")
-            --Dark Archangel
-            br.ui:createSpinner(section, "Dark Archangel",  80,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At. Default: 80") 
-            br.ui:createSpinnerWithout(section, "Dark Archangel's Atonement",  3,  0,  40,  1,  "|cffFFFFFFMinimum Dark Archangel's Atonement. Default: 3")
-        br.ui:checkSectionState(section)
-        -------------------------
         -------- UTILITY --------
         -------------------------
         section = br.ui:createSection(br.ui.window.profile, "Utility")
@@ -347,43 +332,6 @@ local function runRotation()
 --------------------
 --- Action Lists ---
 --------------------
-        --PvP
-        function actionList_PvP()
-            if isInPvP() then
-                --Premonition
-                if isChecked("Premonition") and talent.premonition then
-                    if #getAllies("player",20) > 1 then
-                        if cast.premonition() then return end
-                    end
-                end
-                --Power Word: Fortitude
-                if isChecked("Power Word: Fortitude") and talent.powerWordFortitude then
-                    if not buff.powerWordFortitude.exists("player") then
-                        if cast.powerWordFortitude("player") then return end
-                    end
-                    for i=1, #br.friend do
-                        if buff.powerWordFortitude.exists(br.friend[i].unit) then
-                            pwfCount = pwfCount + 1
-                        end
-                    end
-                    if pwfCount < 2 then
-                        if cast.powerWordFortitude(lowest.unit) then return end
-                    end
-                end
-                --Archangel 
-                if isChecked("Archangel") and talent.archangel then
-                    if getLowAllies(getValue("Archangel")) >= getValue("Archangel's Atonement") and atonementCount >= getValue("Archangel's Atonement") then
-                        if cast.archangel() then return end
-                    end
-                end
-                --Dark Archangel 
-                if isChecked("Dark Archangel") and talent.darkArchangel then
-                    if getLowAllies(getValue("Dark Archangel")) >= getValue("Dark Archangel's Atonement") and atonementCount >= getValue("Dark Archangel's Atonement") then
-                        if cast.darkArchangel() then return end
-                    end
-                end
-            end
-        end
         --Check Atonement
         function actionList_CheckAtonement()
             if buff.rapture.exists("player") then
