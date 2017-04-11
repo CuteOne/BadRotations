@@ -260,7 +260,7 @@ local function runRotation()
 			if bop then print("BOP") end
 			if cloak then print("Cloak") end
 		end
-	
+
     -- Profile Stop
         if profileStop == nil then profileStop = false end
      
@@ -330,8 +330,14 @@ local function runRotation()
             then
                 if cast.pillarOfFrost() then return end
             end  
-        --Howling Blast
-            if inCombat and GetUnitExists("target") and not IsMounted() and ((waitfornextHowl < GetTime() - 4) or buff.rime.exists()) then
+            --Howling Blast
+            if inCombat 
+                and GetUnitExists("target") 
+                and (normalMob or buff.rime.exists())
+                and not IsMounted() 
+                and ((waitfornextHowl < GetTime() - 4) or buff.rime.exists()) 
+                and not buff.breathOfSindragosa.exists()
+            then
                 for i = 1, #enemies.yards30 do
                     local thisUnit = enemies.yards30[i]
                     if not debuff.frostFever.exists(thisUnit) 
@@ -595,7 +601,7 @@ local function runRotation()
             end
         -- Howling Blast
             -- howling_blast,target_if=!dot.frost_fever.ticking
-            if (not debuff.frostFever.exists("target") or debuff.frostFever.remain("target") < 1.5 or (bop and runicPower < 25))
+            if normalMob and (not debuff.frostFever.exists("target") or debuff.frostFever.remain("target") < 1.5 or (bop and runicPower < 25))
             	and not immun
             	and not cloak
             then
@@ -612,7 +618,7 @@ local function runRotation()
             then
                 if runicPower >= 80 
                     and getDistance("target") < 8 
-                    and runes > 2 
+                    and runes > 4 
                 then
                     if cast.breathOfSindragosa() then return end
                 end
@@ -620,7 +626,7 @@ local function runRotation()
         -- Howling Blast
             -- howling_blast,if=buff.rime.react&(dot.remorseless_winter.ticking|cooldown.remorseless_winter.remain()s>1.5|!equipped.132459)
             if buff.rime.exists() 
-            	and runicPower < 90
+            	and ((t19_4pc and runicPower < 90) or not t19_4pc)
             	and (buff.remorselessWinter.exists() or (cd.remorselessWinter > 1.5) or cd.breathOfSindragosa < 24 or (cd.breathOfSindragosa < 24 and hasEquiped(137223) and cd.hungeringRuneWeapon > 0) ) 
             	and not immun
             	and not cloak
@@ -630,7 +636,8 @@ local function runRotation()
         -- Obliterate
             -- obliterate,if=!buff.rime.react&!(talent.gathering_storm.enabled&!(cooldown.remorseless_winter.remains>2|rune>4))&rune>3
             if not buff.rime.exists() 
-                and (cd.breathOfSindragosa <= 1.5 or runicPower <= 70)
+                and ((cd.breathOfSindragosa <= 1.5 and runicPower <= 80)
+                or (cd.breathOfSindragosa > 1.5 and runicPower <= 70))
             	and (not (talent.gatheringStorm and not (cd.remorselessWinter > 2 or runes > 4)) or cd.breathOfSindragosa < 24 or (cd.breathOfSindragosa < 24 and hasEquiped(137223) and cd.hungeringRuneWeapon > 0) ) 
             	and runes > 3
             	and not immun
@@ -699,11 +706,14 @@ local function runRotation()
             end
         -- Howling Blast
             -- howling_blast,if=((runic_power>=20&set_bonus.tier19_4pc)|runic_power>=30)&buff.rime.react
-            if  (
+            if  buff.rime.exists()
+                and
+                (
                  (runicPower > 40 and runes >= 2)
-                 or (runicPower > 50))
-            	and buff.rime.exists() 
-            	and not buff.hungeringRuneWeapon.exists()
+                 or (runicPower > 50) 
+                 or t19_4pc
+                )
+            	and (not buff.hungeringRuneWeapon.exists() or t19_4pc)
             	and not immun
             	and not cloak
             then
@@ -962,7 +972,7 @@ local function runRotation()
                     return
                 end
                 if isChecked("Auto Target") 
-                    and not GetUnitExists("target")
+                    and not GetObjectExists("target")
                     or (not UnitIsEnemy("target", "player") and not UnitIsDeadOrGhost("target")) 
                 then
                     if #enemies.yards8 > 0 and UnitAffectingCombat(enemies.yards8[1]) then
