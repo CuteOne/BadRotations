@@ -66,6 +66,8 @@ burnUnitCandidates = {
 	[71070] = { coef = 150, name = "Illusion Banshee" }, -- proving ground (will explode if not burned)
 	[71075] = { coef = 150, name = "Illusion Banshee" }, -- proving ground (will explode if not burned)
 	[71076] = { coef = 25 }, -- Proving ground healer
+	-- Legion
+	[120651] = { coef = 150, name = "Fel Explosives"}, -- M+ Affix
 }
 -- shielding and levels, we should add coef as shield %
 shieldedUnitCandidates = {

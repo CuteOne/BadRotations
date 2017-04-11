@@ -301,7 +301,7 @@ br.idList = {
                 warglaivesOfChaos           = 214795,
             },
             buffs                           = {
-                chaosBlades                 = 211797,
+                chaosBlades                 = 211048,
                 metamorphosis               = 162264,
                 momentum                    = 208628,
                 prepared                    = 203650,
@@ -348,6 +348,7 @@ br.idList = {
                 metamorphosis               = 187827,
                 netherBond                  = 207810,
                 shear                       = 203782,
+                sever                       = 235964,
                 sigilOfChains               = 202138,
                 sigilOfFlame                = 204596,
                 sigilOfMisery               = 207684,
@@ -651,6 +652,9 @@ br.idList = {
                 ursolsVortex                = 102793,
                 wildGrowth                  = 48438,
                 yserasGift                  = 145108,
+                mangle                      = 33917,
+                thrash                      = 77758,
+                frenziedRegeneration        = 22842,				
             },
             artifacts                       = {
                 armorOfTheAncients          = 189754,
@@ -687,6 +691,8 @@ br.idList = {
                 regrowth                    = 8936,
                 solarEmpowerment            = 164545,
                 soulOfTheForest             = 114108,
+                frenziedRegeneration        = 22842,
+                wildGrowth                  = 48438,
             },
             debuffs                         = {
                 moonfire                    = 164812,
@@ -882,6 +888,7 @@ br.idList = {
                 aspectOfTheTurtle           = 186265,
                 bestialWrath                = 19574,
                 direBeast                   = 120694,
+                direFrenzy                  = 217200,
                 volley                      = 194386
             },
             debuffs                         = {
@@ -1420,6 +1427,7 @@ br.idList = {
                 crosswinds                  = 195650,
                 darkSkies                   = 195265,
                 deathArt                    = 195266,
+                ferocityOfTheBrokenTemple   = 241136,
                 fistsOfTheWind              = 195291,
                 galeBurst                   = 195399,
                 goodKarma                   = 195295,
@@ -1437,16 +1445,18 @@ br.idList = {
                 windborneBlows              = 214922,
             },
             buffs                           = {
-                serenity                    = 152173,
-                stormEarthAndFire           = 137639,
                 healingWinds                = 195381,
                 hitCombo                    = 196741,
+                serenity                    = 152173,
+                stormEarthAndFire           = 137639,
                 theEmperorsCapacitor        = 235054,
                 touchOfKarma                = 122470,
                 transcendence               = 101643,
+                transferThePower            = 195321,
             },
             debuffs                         = {
                 markOfTheCrane              = 228287,
+                risingFist                  = 242259,
                 touchOfDeath                = 115080,
             },
             glyphs                          = {
@@ -1563,6 +1573,7 @@ br.idList = {
             },
             debuffs                         = {
                 judgement                   = 214222,
+                zilv                        = 25771,
 
             },
             glyphs                          = {
@@ -2069,6 +2080,7 @@ br.idList = {
                 serratedEdge                = 192315,
                 shadowSwiftness             = 192422,
                 shadowWalker                = 192345,
+                sinisterCirculation         = 238138,
                 slayersPrecision            = 214928,
                 surgeOfToxins               = 192424,
                 toxicBlades                 = 192310,
@@ -2372,6 +2384,7 @@ br.idList = {
             },
             artifacts                       = {
                 stormkeeper                 = 205495,
+                swellingMaelstrom           = 238105,
             },
             buffs                           = {
                 ascendance                  = 114050,
@@ -2631,6 +2644,7 @@ br.idList = {
                 demonicPower                = 196099,
                 empoweredLifeTap            = 235156,
                 tormentedSouls              = 216695,
+                wrathOfConsumption          = 199646,
             },
             debuffs                         = {
                 agony                       = 980,
@@ -3105,12 +3119,12 @@ br.idList = {
                 netherwinds                     = 160452,
                 prolongedPower                  = 229206,
                 shadowmeld                      = 58984,
-                temptation                      = 234143,
                 timeWarp                        = 80353,
             },
             debuffs                             = {
                 dampening                       = 110310,
                 eyeOfLeotheras                  = 206649,
+                temptation                      = 234143,
             },
         },
     },

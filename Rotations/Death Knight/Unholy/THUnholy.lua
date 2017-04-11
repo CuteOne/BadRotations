@@ -44,15 +44,15 @@ end
         end
     end
 -- ObjectCheck 
-    -- local function GetObjectExists(objectID)
-    --     for i = 1, ObjectCount() do
-    --         local thisUnit = GetObjectWithIndex(i)
-    --         if GetObjectExists(thisUnit) and GetObjectID(thisUnit) == objectID then
-    --             return true
-    --         end
-    --     end
-    --     return false
-    -- end
+     local function GetObjExists(objectID)
+         for i = 1, ObjectCount() do
+             local thisUnit = GetObjectWithIndex(i)
+             if GetObjectExists(thisUnit) and GetObjectID(thisUnit) == objectID then
+                 return true
+             end
+         end
+         return false
+     end
 ---------------
 --- OPTIONS ---
 ---------------
@@ -1103,7 +1103,7 @@ local function runRotation()
                 --- Dark Arbiter Exist  ---
                 ---------------------------
                     if talent.darkArbiter then
-                        if GetObjectExists(100876) then
+                        if GetObjExists(100876) then
                             if actionList_DarkArbiter() then return end
                         else
                             if actionList_PreDarkArbiter() then return end

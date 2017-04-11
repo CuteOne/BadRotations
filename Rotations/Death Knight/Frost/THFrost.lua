@@ -45,7 +45,7 @@ end
         end
     end
 -- ObjectCheck 
-    local function GetObjectExists(objectID)
+    local function GetObjExists(objectID)
         for i = 1, ObjectCount() do
             local thisUnit = GetObjectWithIndex(i)
             if GetObjectExists(thisUnit) and GetObjectID(thisUnit) == objectID then
@@ -274,7 +274,7 @@ local function runRotation()
         	if isChecked("Debug Info") then Print("actionList_Extras") end
         -- Dummy Test
             if isChecked("DPS Testing") then
-                if GetObjectExists("target") then
+                if GetObjExists("target") then
                     if getCombatTime() >= (tonumber(getValue("DPS Testing"))*60) and isDummy() then
                         profileStop = true
                         StopAttack()

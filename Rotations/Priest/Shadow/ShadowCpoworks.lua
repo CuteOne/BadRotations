@@ -47,6 +47,8 @@ local function createOptions()
             br.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
         -- Pre-Pull Timer
             br.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
+            -- Body and Soul
+            br.ui:createCheckbox(section,"PWS: Body and Soul")
             -- Mouseover Dotting
             br.ui:createCheckbox(section,"Mouseover Dotting")
             -- SWP Max Targets
@@ -333,7 +335,7 @@ local function runRotation()
                 end
             end
             -- Power Word: Shield Body and Soul
-            if talent.bodyAndSoul and isMoving("player") and not IsMounted() then
+            if isChecked("PWS: Body and Soul") and talent.bodyAndSoul and isMoving("player") and not IsMounted() then
                 if cast.powerWordShield("player") then return end
             end
         end  -- End Action List - Pre-Combat

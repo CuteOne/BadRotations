@@ -700,10 +700,10 @@ function br.loader:new(spec,specName)
 
     function mantleDuration()
         if hasEquiped(144236) then
-            if buff.masterAssassinsInitiative.remain() < 0 then
-                mantleDuration = cd.global + 6
+            if br.player.buff.masterAssassinsInitiative.remain() < 0 then
+                mantleDuration = br.player.cd.global + 6
             else
-                mantleDuration = buff.masterAssassinsInitiative.remain()
+                mantleDuration = br.player.buff.masterAssassinsInitiative.remain()
             end
         else
             return 0
