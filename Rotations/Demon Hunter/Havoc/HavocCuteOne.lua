@@ -500,7 +500,9 @@ local function runRotation()
             end
         -- Eye Beam
             -- eye_beam,if=spell_targets.eye_beam_tick>desired_targets|!buff.metamorphosis.extended_by_demonic
-            if ((mode.rotation == 1 and enemies.yards8r >= getOptionValue("Units To AoE")) or mode.rotation == 2) or not metaExtended then
+            if (getOptionValue("Eye Beam Usage") == 1 and ((mode.rotation == 1 and enemies.yards8r >= getOptionValue("Units To AoE")) or mode.rotation == 2) or not metaExtended)
+                or (getOptionValue("Eye Beam Usage") == 2 and (mode.rotation == 1 and enemies.yards8r >= getOptionValue("Units To AoE")) or mode.rotation == 2)
+            then
                 if cast.eyeBeam(units.dyn5) then return end
             end
         -- Annihilation
@@ -540,11 +542,11 @@ local function runRotation()
             if mode.mover ~= 3 and charges.felRush > getOptionValue("Hold Fel Rush Charge") and (getDistance("target") > 15 or (getDistance("target") > 8 and not talent.momentum)) then
                 if cast.felRush() then return end
             end
-        -- Vengeful Retreat
-            -- vengeful_retreat,if=movement.distance>15
-            if mode.mover ~= 3 and not getFacing("player","target",170) and getDistance("target") > 15 then
-                if cast.vengefulRetreat() then return end
-            end
+        -- -- Vengeful Retreat
+        --     -- vengeful_retreat,if=movement.distance>15
+        --     if mode.mover ~= 3 and not getFacing("player","target",170) and getDistance("target") > 15 then
+        --         if cast.vengefulRetreat() then return end
+        --     end
         end -- End Action List - Demonic
     -- Action List - Normal
         local function actionList_Normal()
@@ -632,7 +634,9 @@ local function runRotation()
             end
         -- Eye Beam
             -- eye_beam,if=talent.blind_fury.enabled&(spell_targets.eye_beam_tick>desired_targets|fury.deficit>=35)
-            if talent.blindFury and (((mode.rotation == 1 and enemies.yards8r >= getOptionValue("Units To AoE")) or mode.rotation == 2) or powerDeficit >= 35) then
+            if (getOptionValue("Eye Beam Usage") == 1 and talent.blindFury and (((mode.rotation == 1 and enemies.yards8r >= getOptionValue("Units To AoE")) or mode.rotation == 2) or powerDeficit >= 35)) 
+                or (getOptionValue("Eye Beam Usage") == 2 and (mode.rotation == 1 and enemies.yards8r >= getOptionValue("Units To AoE")) or mode.rotation == 2)
+            then
                 if cast.eyeBeam() then return end
             end
         -- Annihilation
@@ -646,10 +650,11 @@ local function runRotation()
                 if cast.throwGlaive() then return end
             end
         -- Eye Beam
-            -- eye_beam,if=!talent.blind_fury.enabled&(spell_targets.eye_beam_tick>desired_targets|(!set_bonus.tier19_4pc&raid_event.adds.in>45&!variable.pooling_for_meta&buff.metamorphosis.down&(artifact.anguish_of_the_deceiver.enabled|active_enemies>1)&!talent.chaos_cleave.enabled))
-            if not talent.blindFury and ((mode.rotation == 1 and (enemies.yards8r >= getOptionValue("Units To AoE")) or mode.rotation == 2)
+            -- eye_beam,if=!talent.blind_fury.enabled&(spell_targets.eye_beam_tick>desired_targets|(!set_bonus.tier19_4pc&raid_event.adds.in>45&!variable.pooling_for_meta&buff.metamorphosis.down&(artifact.anguish_of_the_deceiver.enabled|active_enemies>1)&!talent.chaos_cleave.enabled)) 
+            if (getOptionValue("Eye Beam Usage") == 1 and not talent.blindFury and ((mode.rotation == 1 and (enemies.yards8r >= getOptionValue("Units To AoE")) or mode.rotation == 2)
                 or (not tier19_4pc and not poolForMeta and not buff.metamorphosis.exists() and (artifact.anguishOfTheDeceiver or enemies.yards8r > 1) 
-                and not talent.chaosCleave))
+                    and not talent.chaosCleave)))
+                or (getOptionValue("Eye Beam Usage") == 2 and (mode.rotation == 1 and enemies.yards8r >= getOptionValue("Units To AoE")) or mode.rotation == 2)
             then 
                 if cast.eyeBeam() then return end
             end
@@ -699,11 +704,11 @@ local function runRotation()
             if mode.mover ~= 3 and charges.felRush > getOptionValue("Hold Fel Rush Charge") and (getDistance("target") > 15 or (getDistance("target") > 8 and not talent.momentum)) then
                 if cast.felRush() then return end
             end
-        -- Vengeful Retreat
-            -- vengeful_retreat,if=movement.distance>15
-            if mode.mover ~= 3 and not getFacing("player","target",170) and getDistance("target") > 15 then
-                if cast.vengefulRetreat() then return end
-            end
+        -- -- Vengeful Retreat
+        --     -- vengeful_retreat,if=movement.distance>15
+        --     if mode.mover ~= 3 and not getFacing("player","target",170) and getDistance("target") > 15 then
+        --         if cast.vengefulRetreat() then return end
+        --     end
         -- Throw Glaive
             -- throw_glaive,if=!talent.bloodlet.enabled
             if not talent.bloodlet then
