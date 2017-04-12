@@ -711,7 +711,7 @@ function br.loader:new(spec,specName)
     end
 
     function BleedTarget()
-        return (br.player.debuff.garrote.exists("target") and 1 or 0) + (br.player.debuff.rupture.exists("target") and 1 or 0)
+        return (br.player.debuff.garrote.exists("target") and 1 or 0) + (br.player.debuff.rupture.exists("target") and 1 or 0) + (br.player.debuff.internalBleeding.exists("target") and 1 or 0)
     end
 
 -----------------------------
