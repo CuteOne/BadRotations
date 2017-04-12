@@ -118,13 +118,13 @@ THUnholy | Full    | 7.1.5 |  100%  | :white_check_mark:
 
 author  | support | patch | status |     raidable?
 :------ | :-----: | :---: | -----: | :----------------:
-CuteOne |  Full   | 7.1.5 |   100% | :white_check_mark:
+CuteOne |  Full   | 7.2   |   100% | :white_check_mark:
 
 - Vengeance
 
 author  | support  | patch | status |     raidable?
 :------ | :------: | :---: | -----: | :----------------:
-CuteOne |   Full   |  7.1  |   100% | :white_check_mark:
+CuteOne |   Full   |  7.2  |   100% | :white_check_mark:
 Dubwub  | Inactive |  7.1  |   100% |   :interrobang:
 
 ### Druid
@@ -133,7 +133,7 @@ Dubwub  | Inactive |  7.1  |   100% |   :interrobang:
 
 author   | support  | patch | status |     raidable?
 :------- | :------: | :---: | -----: | :----------------:
-CuteOne  |   Full   | 7.1.5 |   100% | :white_check_mark:
+CuteOne  |   Full   | 7.2   |   100% | :white_check_mark:
 
 - Guardian
 
@@ -166,13 +166,13 @@ Kuukuu   | Full     |  7.2  |    90% | :white_check_mark:
 
 author   | support  | patch | status |     raidable?
 :------- | :------: | :---: | -----: | :----------------:
-Cpoworks | Sporadic |  7.1  |    70% | :heavy_check_mark:
+CuteOne  | Sporadic |  7.1  |    70% | :heavy_check_mark:
 
 - Survival
 
 author           |    support    | patch | status |   raidable?
 :--------------- | :-----------: | :---: | -----: | :-----------:
-CuteOne/Cpoworks | Full/Sporadic | 7.1.5 |    90% | :interrobang:
+CuteOne          | Full          | 7.1.5 |    90% | :interrobang:
 
 ### Mage
 
@@ -213,7 +213,7 @@ Lyloloq  |   Full   | 7.1.5 |   100% | :white_check_mark:
 
 author  | support | patch | status |     raidable?
 :------ | :-----: | :---: | -----: | :----------------:
-CuteOne |  Full   | 7.1.5 |   100% | :white_check_mark:
+CuteOne |  Full   | 7.2   |   100% | :white_check_mark:
 
 ### Paladin
 
@@ -254,7 +254,7 @@ Svs    |  Full   | 7.1.5 |    100% | :white_check_mark:
 
 author           |    support    | patch | status | raidable?
 :--------------- | :-----------: | :---: | -----: | :-------:
-Cpoworks/CuteOne | Sporadic/Full | 7.1.5 |    70% |    :x:
+CuteOne          | Full          | 7.2   |    90% |    :x:
 
 ### Rogue
 
@@ -262,7 +262,7 @@ Cpoworks/CuteOne | Sporadic/Full | 7.1.5 |    70% |    :x:
 
 author  | support | patch | status |     raidable?
 :------ | :-----: | :---: | -----: | :----------------:
-CuteOne |  Full   | 7.1.5 |   100% | :white_check_mark:
+CuteOne |  Full   | 7.2   |   90%  | :interrobang:
 
 - Outlaw
 
@@ -284,7 +284,7 @@ Vilt    | Limited | 7.1.5 |   100% | :white_check_mark:
 
 author  | support | patch | status |   raidable?
 :------ | :-----: | :---: | -----: | :-----------:
-CuteOne |  Full   | 7.1.5 |   100% | :interrobang:
+CuteOne |  Full   | 7.2   |   100% | :interrobang:
 
 - Enhancement
 
