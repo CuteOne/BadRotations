@@ -69,6 +69,8 @@ local function createOptions()
             br.ui:createCheckbox(section,"Flask / Crystal")
         -- Racial
             br.ui:createCheckbox(section,"Racial")
+        -- Ring of Collapsing Futures
+            br.ui:createCheckbox(section,"Ring of Collapsing Futures")
         -- Trinkets
             br.ui:createDropdownWithout(section, "Trinkets", {"|cff00FF001st Only","|cff00FF002nd Only","|cffFFFF00Both","|cffFF0000None"}, 1, "|cffFFFFFFSelect Trinket Usage.")
         -- Bestial Wrath
@@ -576,6 +578,13 @@ local function runRotation()
                     -- Orc Blood Fury | Troll Berserking
                         if isChecked("Racial") and (br.player.race == "Orc" or br.player.race == "Troll") then
                              if castSpell("player",racial,false,false,false) then return end
+                        end
+                    -- Ring of Collapsing Futures
+                        -- use_item,slot=finger1,if=buff.temptation.down
+                        if isChecked("Ring of Collapsing Futures") then
+                            if hasEquiped(142173) and canUse(142173) and not debuff.temptation.exists("player") then
+                                useItem(142173)
+                            end
                         end
                     -- Volley
                         if talent.volley and not buff.volley.exists() then
