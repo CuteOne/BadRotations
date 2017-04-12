@@ -500,6 +500,8 @@ local function runRotation()
             end
         -- Eye Beam
             -- eye_beam,if=spell_targets.eye_beam_tick>desired_targets|!buff.metamorphosis.extended_by_demonic
+            if (getOptionValue("Eye Beam Usage") == 1 and enemies.yards8r > 0 and (((mode.rotation == 1 and enemies.yards8r >= getOptionValue("Units To AoE")) or mode.rotation == 2) or not metaExtended))
+                or (getOptionValue("Eye Beam Usage") == 2 and ((mode.rotation == 1 and enemies.yards8r >= getOptionValue("Units To AoE")) or (mode.rotation == 2 and enemies.yards8r > 0)))
             then
                 if cast.eyeBeam(units.dyn5) then return end
             end
@@ -634,6 +636,7 @@ local function runRotation()
             -- eye_beam,if=talent.blind_fury.enabled&(spell_targets.eye_beam_tick>desired_targets|fury.deficit>=35)
             if (getOptionValue("Eye Beam Usage") == 1 and talent.blindFury and enemies.yards8r > 0 
                 and (((mode.rotation == 1 and enemies.yards8r >= getOptionValue("Units To AoE")) or mode.rotation == 2) or powerDeficit >= 35)) 
+                or (getOptionValue("Eye Beam Usage") == 2 and ((mode.rotation == 1 and enemies.yards8r >= getOptionValue("Units To AoE")) or (mode.rotation == 2 and enemies.yards8r > 0)))
             then
                 if cast.eyeBeam() then return end
             end
@@ -652,6 +655,7 @@ local function runRotation()
             if (getOptionValue("Eye Beam Usage") == 1 and not talent.blindFury and enemies.yards8r > 0 and ((mode.rotation == 1 and (enemies.yards8r >= getOptionValue("Units To AoE")) or mode.rotation == 2)
                 or (not tier19_4pc and not poolForMeta and not buff.metamorphosis.exists() and (artifact.anguishOfTheDeceiver or enemies.yards8r > 1) 
                     and not talent.chaosCleave)))
+                or (getOptionValue("Eye Beam Usage") == 2 and ((mode.rotation == 1 and enemies.yards8r >= getOptionValue("Units To AoE")) or (mode.rotation == 2 and enemies.yards8r > 0)))
             then 
                 if cast.eyeBeam() then return end
             end
