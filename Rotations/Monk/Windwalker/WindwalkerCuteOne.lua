@@ -396,7 +396,7 @@ local function runRotation()
         end
 
         local function spinningCraneKickDmg()
-            if chi >= 3 then
+            if chi >= 3 and cd.fistsOfFury ~= 0 then
                 return (((4 * UnitAttackPower("player")) -- Base Dmg
                     * (1 + (artifact.rank.powerOfAThousandCranes * 0.03)) * (1 + (artifact.rank.windborneBlows * 0.05)) -- + Traits
                     * baseStatMultiplier() -- + Stats
