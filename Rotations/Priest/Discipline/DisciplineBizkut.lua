@@ -702,16 +702,16 @@ local function runRotation()
                 end
             end
             --Power Word: Shield
-            if isChecked("Power Word: Shield") then
+            if isChecked("Power Word: Shield") and getSpellCD(spell.penance) > 0 then
                 for i = 1, #br.friend do
                     if (mode.healer == 1 or mode.healer == 2) and br.friend[i].hp <= getValue("Power Word: Shield") and not buff.powerWordShield.exists(br.friend[i].unit) and getSpellCD(spell.powerWordShield) <= 0 and not buff.rapture.exists("player") then
                         if UnitIsUnit(br.friend[i].unit,"player") or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" or isInPvP() then
                             if cast.powerWordShield(br.friend[i].unit) then return end
                         end
                     end
-                    if mode.healer == 3 and UnitIsUnit(br.friend[i].unit,"player") and php <= getValue("Power Word: Shield") then
-                        if cast.powerWordShield("player") then return end
-                    end
+                end
+                if mode.healer == 3 and php <= getValue("Power Word: Shield") then
+                    if cast.powerWordShield("player") then return end
                 end
             end
         end
@@ -857,42 +857,24 @@ local function runRotation()
         -- DAMAGE --
         ------------
         function actionList_Damage()
-            ptwBuffcount = 0
-            for i = 1, #enemies.dyn40 do
-                local thisUnit = enemies.dyn40[i]
-                if UnitIsUnit(thisUnit,"target") or hasThreat(thisUnit) or isDummy(thisUnit) then
-                    if debuff.schism.exists(thisUnit) then
-                        schismBuff = thisUnit
-                    end
-                    local ptwBuffRemain = debuff.purgeTheWicked.duration(thisUnit) or debuff.shadowWordPain.duration(thisUnit) or 0
-                    if ptwBuffRemain > 0 then
-                        ptwBuff = thisUnit
-                        ptwBuffcount = ptwBuffcount + 1
-                    end
-                end
-            end
             --Shadow Word: Pain/Purge The Wicked
-            if isChecked("Shadow Word: Pain/Purge The Wicked") and ptwBuffcount < getValue("Shadow Word: Pain/Purge The Wicked") and not buffDarkside then
-                if talent.purgeTheWicked then
+            if isChecked("Shadow Word: Pain/Purge The Wicked") and not buffDarkside and (getSpellCD(spell.penance) > 0 or (getSpellCD(spell.penance) <= 0 and (debuff.purgeTheWicked.count() == 0 or debuff.shadowWordPain.count() == 0))) then
+                if talent.purgeTheWicked and debuff.purgeTheWicked.count() < getValue("Shadow Word: Pain/Purge The Wicked") then
                     for i = 1, #enemies.dyn40 do
                         local thisUnit = enemies.dyn40[i]
                         if UnitIsUnit(thisUnit,"target") or hasThreat(thisUnit) or isDummy(thisUnit) then
-                            if ttd(thisUnit) > debuff.purgeTheWicked.duration(thisUnit) and debuff.purgeTheWicked.refresh(thisUnit) and lastSpell ~= spell.purgeTheWicked then
-                                if cast.purgeTheWicked(thisUnit) then
-                                    ptwBuff = thisUnit
-                                end
+                            if debuff.purgeTheWicked.remain(thisUnit) < gcd and not buffDarkside and lastSpell ~= spell.purgeTheWicked then
+                                if cast.purgeTheWicked(thisUnit,"aoe") then return end
                             end
                         end
                     end
                 end
-                if not talent.purgeTheWicked then
+                if not talent.purgeTheWicked and debuff.shadowWordPain.count() < getValue("Shadow Word: Pain/Purge The Wicked") then
                     for i = 1, #enemies.dyn40 do
                         local thisUnit = enemies.dyn40[i]
                         if UnitIsUnit(thisUnit,"target") or hasThreat(thisUnit) or isDummy(thisUnit) then
-                            if ttd(thisUnit) > debuff.shadowWordPain.duration(thisUnit) and debuff.shadowWordPain.refresh(thisUnit) and lastSpell ~= spell.shadowWordPain then
-                                if cast.shadowWordPain(thisUnit) then
-                                    ptwBuff = thisUnit
-                                end
+                            if debuff.shadowWordPain.remain(thisUnit) < gcd and not buffDarkside then
+                                if cast.shadowWordPain(thisUnit,"aoe") then return end
                             end
                         end
                     end
@@ -900,22 +882,34 @@ local function runRotation()
             end
             --Schism
             if talent.schism and isChecked("Schism") and getMana("player") > 20 and getSpellCD(spell.schism) <= 0 and (atonementCount >= getValue("Schism") or freeCast) and not isMoving("player") then
-                if ttd("target") > debuff.schism.duration("target") and debuff.schism.refresh("target") then
-                    if cast.schism("target") then
-                        if cast.penance("target") then return end
+                for i = 1, #enemies.dyn40 do
+                    local thisUnit = enemies.dyn40[i]
+                    if UnitIsUnit(thisUnit,"target") or hasThreat(thisUnit) or isDummy(thisUnit) then
+                        if debuff.schism.remain(thisUnit) < gcd then
+                            if cast.schism(thisUnit) then
+                                schismBuff = thisUnit
+                            end
+                        end
                     end
                 end
             end
             --Penance
             if isChecked("Penance") then
-                if atonementCount >= getValue("Penance") or freeCast then
-                    if schismBuff then
+                if buffDarkside and mode.healer == 2 and getSpellCD(spell.penance) > 0 then
+                    for i = 1, #br.friend do
+                        actionList_SpreadAtonement(br.friend[i].unit)
+                    end
+                elseif (atonementCount >= getValue("Penance") or freeCast) and getSpellCD(spell.penance) <= 0 then
+                    if schismBuff and isValidUnit(schismBuff) then
                         if cast.penance(schismBuff) then return end
-                    elseif isValidUnit(ptwBuff) then
-                        if cast.penance(ptwBuff) then return end
-                    elseif isChecked("Shadow Word: Pain/Purge The Wicked") and not isValidUnit(ptwBuff) and not debuff.shadowWordPain.exists("target") and not debuff.purgeTheWicked.exists("target") then
-                        if cast.shadowWordPain() then return end
-                    else
+                    elseif debuff.purgeTheWicked.count() > 0 then
+                        for i = 1, #enemies.dyn40 do
+                            local thisUnit = enemies.dyn40[i]
+                            if debuff.purgeTheWicked.exists(thisUnit) then
+                                if cast.penance(thisUnit) then return end
+                            end
+                        end
+                    elseif debuff.shadowWordPain.count() > 0 or not isChecked("Shadow Word: Pain/Purge The Wicked") or buffDarkside then
                         if cast.penance() then return end
                     end
                 end
@@ -977,7 +971,7 @@ local function runRotation()
                                 if talent.schism then
                                     if cast.lightsWrath(thisUnit) then return end
                                 end
-                                if not talent.schism or not isChecked("Schism Raid") then
+                                if not talent.schism or not isChecked("Schism") then
                                     if cast.lightsWrath() then return end
                                 end
                             end
