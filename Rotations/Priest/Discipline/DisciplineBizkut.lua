@@ -48,6 +48,12 @@ local function createToggles()
         [2] = { mode = "Off", value = 2 , overlay = "Decurse Disabled", tip = "Decurse Disabled", highlight = 0, icon = br.player.spell.purify }
     };
     CreateButton("Decurse",6,0)
+    -- Interrupt Button
+    InterruptModes = {
+        [1] = { mode = "On", value = 1 , overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spell.psychicScream },
+        [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.psychicScream }
+    };
+    CreateButton("Interrupt",7,0)
 end
 
 ---------------
@@ -267,6 +273,7 @@ local function runRotation()
         UpdateToggle("Halo",0.25)
         UpdateToggle("Burst",0.25)
         UpdateToggle("Decurse",0.25)
+        UpdateToggle("Interrupt",0.25)
         br.player.mode.healer = br.data.settings[br.selectedSpec].toggles["Healer"]
         br.player.mode.halo = br.data.settings[br.selectedSpec].toggles["Halo"]
         br.player.mode.burst = br.data.settings[br.selectedSpec].toggles["Burst"]
@@ -345,20 +352,22 @@ local function runRotation()
 --------------------
         -- Action List - Interrupts
         function actionList_Interrupts()
-            for i=1, #enemies.dyn40 do
-                thisUnit = enemies.dyn40[i]
-                if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
-            -- Shining Force - Int
-                    if isChecked("Shining Force - Int") and getDistance(thisUnit) < 40 then
-                        if cast.shiningForce() then return end
-                    end
-            -- Psychic Scream - Int
-                    if isChecked("Psychic Scream - Int") and getDistance(thisUnit) < 8 then
-                        if cast.psychicScream() then return end
-                    end
-            -- Quaking Palm
-                    if isChecked("Quaking Palm - Int") and getDistance(thisUnit) < 5 then
-                        if cast.quakingPalm(thisUnit) then return end
+            if useInterrupts() then
+                for i=1, #enemies.dyn40 do
+                    thisUnit = enemies.dyn40[i]
+                    if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
+                -- Shining Force - Int
+                        if isChecked("Shining Force - Int") and getDistance(thisUnit) < 40 then
+                            if cast.shiningForce() then return end
+                        end
+                -- Psychic Scream - Int
+                        if isChecked("Psychic Scream - Int") and getDistance(thisUnit) < 8 then
+                            if cast.psychicScream() then return end
+                        end
+                -- Quaking Palm
+                        if isChecked("Quaking Palm - Int") and getDistance(thisUnit) < 5 then
+                            if cast.quakingPalm(thisUnit) then return end
+                        end
                     end
                 end
             end -- End useInterrupts check
@@ -700,7 +709,7 @@ local function runRotation()
                             if cast.powerWordShield(br.friend[i].unit) then return end
                         end
                     end
-                    if mode.healer == 3 and UnitIsUnit(br.friend[i].unit,"player") then
+                    if mode.healer == 3 and UnitIsUnit(br.friend[i].unit,"player") and php <= getValue("Power Word: Shield") then
                         if cast.powerWordShield("player") then return end
                     end
                 end
@@ -848,8 +857,6 @@ local function runRotation()
         -- DAMAGE --
         ------------
         function actionList_Damage()
-            schismBuff = nil
-            ptwBuff = nil
             ptwBuffcount = 0
             for i = 1, #enemies.dyn40 do
                 local thisUnit = enemies.dyn40[i]
@@ -871,7 +878,9 @@ local function runRotation()
                         local thisUnit = enemies.dyn40[i]
                         if UnitIsUnit(thisUnit,"target") or hasThreat(thisUnit) or isDummy(thisUnit) then
                             if ttd(thisUnit) > debuff.purgeTheWicked.duration(thisUnit) and debuff.purgeTheWicked.refresh(thisUnit) and lastSpell ~= spell.purgeTheWicked then
-                                if cast.purgeTheWicked(thisUnit) then return end
+                                if cast.purgeTheWicked(thisUnit) then
+                                    ptwBuff = thisUnit
+                                end
                             end
                         end
                     end
@@ -881,7 +890,9 @@ local function runRotation()
                         local thisUnit = enemies.dyn40[i]
                         if UnitIsUnit(thisUnit,"target") or hasThreat(thisUnit) or isDummy(thisUnit) then
                             if ttd(thisUnit) > debuff.shadowWordPain.duration(thisUnit) and debuff.shadowWordPain.refresh(thisUnit) and lastSpell ~= spell.shadowWordPain then
-                                if cast.shadowWordPain(thisUnit) then return end
+                                if cast.shadowWordPain(thisUnit) then
+                                    ptwBuff = thisUnit
+                                end
                             end
                         end
                     end
@@ -900,9 +911,11 @@ local function runRotation()
                 if atonementCount >= getValue("Penance") or freeCast then
                     if schismBuff then
                         if cast.penance(schismBuff) then return end
-                    elseif ptwBuff then
+                    elseif isValidUnit(ptwBuff) then
                         if cast.penance(ptwBuff) then return end
-                    elseif not isChecked("Shadow Word: Pain/Purge The Wicked") then
+                    elseif isChecked("Shadow Word: Pain/Purge The Wicked") and not isValidUnit(ptwBuff) and not debuff.shadowWordPain.exists("target") and not debuff.purgeTheWicked.exists("target") then
+                        if cast.shadowWordPain() then return end
+                    else
                         if cast.penance() then return end
                     end
                 end
