@@ -514,6 +514,10 @@ local function runRotation()
                         if cd.bestialWrath > 6 then
                             if cast.direFrenzy(units.dyn40) then return end
                         end
+                -- Aspect of the Wild
+                        if isChecked("Aspect of the Wild") and useCDs() and buff.bestialWrath.exists() or (ttd(units.dyn40) < 12 and isBoss(units.dyn40)) then
+                            if cast.aspectOfTheWild() then return end
+                        end
                 -- Barrage
                         if isChecked("A Murder Of Crows / Barrage") and #multishotTargets > 1 then
                             if cast.barrage(units.dyn40) then return end
@@ -607,7 +611,7 @@ local function runRotation()
                             if cast.direBeast(units.dyn40) then return end
                         end
                     -- Dire Frenzy
-                        if talent.direFrenzy and getSpellCD(217200) == 0 and ((cd.bestialWrath > 6 and (not hasEquiped(144326) or buff.direFrenzy.remain("pet") <= (gcd*1.2))) or ttd(units.dyn40) < 9) and power < 75 then
+                        if talent.direFrenzy and getSpellCD(217200) == 0 and ((cd.bestialWrath > 6 and (not hasEquiped(144326) or buff.direFrenzy.remain("pet") <= (gcd*1.2))) or ttd(units.dyn40) < 9) then
                             if cast.direFrenzy(units.dyn40) then return end
                         end
                     -- Aspect of the Wild
@@ -659,7 +663,7 @@ local function runRotation()
                             if cast.chimaeraShot(units.dyn40) then return end
                         end
                     -- Cobra Shot
-                        if (cd.killCommand > ttm and cd.bestialWrath > ttm) or (buff.bestialWrath.exists() and powerRegen* cd.killCommand > 30) or (ttd(units.dyn40) < cd.killCommand) then
+                        if (cd.killCommand > ttm and cd.bestialWrath > ttm) or (buff.bestialWrath.exists() and powerRegen* cd.killCommand > 30) or (ttd(units.dyn40) < cd.killCommand) or power >= 70 then
                             if cast.cobraShot(units.dyn40) then return end
                         end
                     end
