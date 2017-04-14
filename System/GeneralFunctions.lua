@@ -964,11 +964,12 @@ function castSpellMacro(Unit,SpellID,FacingCheck,MovementCheck,SpamAllowed,Known
 	return false
 end
 -- Used in openers
-function castOpener(spellIndex,flag,index)
+function castOpener(spellIndex,flag,index,checkdistance)
 	local spellCast = br.player.spell[spellIndex]
 	local maxRange = select(6,GetSpellInfo(spellCast))
 	if not maxRange or maxRange == 0 then maxRange = 5 end
-	if getDistance("target") < maxRange then
+	if checkdistance == nil then checkdistance = true end
+	if getDistance("target") < maxRange or not checkdistance then
 	    if (not br.player.cast.debug[spellIndex] and (br.player.cd[spellIndex] == 0 or br.player.cd[spellIndex] > br.player.gcd)) then
 	        Print(index..": "..select(1,GetSpellInfo(spellCast)).." (Uncastable)");
 	        _G[flag] = true;

@@ -1274,7 +1274,7 @@ local function runRotation()
                     --Racial
                 elseif not RA and  (race == "Orc" or race == "Troll") and useCDs()  and isChecked("Racial") then
                     if getSpellCD(br.player.getRacial()) == 0 then
-                        if castSpell("player",br.player.getRacial(),false,false,false) then
+                        if br.player.castRacial() then
                             Print("5.5: Racial")
                             RA = true
                         end
