@@ -192,7 +192,9 @@ local function createOptions()
             --Drink
             br.ui:createSpinner(section, "Drink",   50,  0,  100,  5,   "|cffFFFFFFMinimum mana to drink Ley-Enriched Water. Default: 50")
             --Pre Pot
-            br.ui:createSpinner(section, "Pre-Pot Timer",  3,  1,  10,  1,  "|cffFFFFFFSet to desired time for Pre-Pot using Potion of Prolonged Power (DBM Required). Second: 1 / Max: 10 / Interval: 1. Default: 3")
+            br.ui:createSpinner(section, "Pre-Pot Timer",  3,  1,  10,  1,  "|cffFFFFFFSet to desired time for Pre-Pot using Potion of Prolonged Power (DBM Required). Second: Min: 1 / Max: 10 / Interval: 1. Default: 3")
+            --Pre-pull Opener
+            br.ui:createSpinner(section, "Pre-pull Opener",  12,  10,  15,  1,  "|cffFFFFFFSet to desired time for Pre-pull Atonement blanket (DBM Required). Second: Min: 10 / Max: 15 / Interval: 1. Default: 12")
             --Int Pot
             br.ui:createCheckbox(section,"Prolonged Pot","|cffFFFFFFUse Potion of Prolonged Power")
             --Trinkets
@@ -570,10 +572,21 @@ local function runRotation()
         end -- End Action List - Cooldowns
         -- Action List - Pre-Combat
         function actionList_PreCombat()
-            if isChecked("Pre-Pot Timer") and pullTimer <= getOptionValue("Pre-Pot Timer") and canUse(142117) and not solo then
+            prepullOpener = inRaid and isChecked("Pre-pull Opener") and pullTimer <= getOptionValue("Pre-pull Opener") and not buff.rapture.exists("player")
+            if isChecked("Pre-Pot Timer") and (pullTimer <= getOptionValue("Pre-Pot Timer") or prepullOpener) and canUse(142117) and not solo then
                 useItem(142117)
             end
-            if not isMoving("player") and isChecked("Drink") and getMana("player") <= getOptionValue("Drink") and canUse(138292) and not IsResting() and GetTime()-leftCombat > lootDelay+1 then
+             -- Pre-pull Opener
+            if prepullOpener then
+                if pullTimer > 5 then
+                    for i = 1, #br.friend do
+                        actionList_SpreadAtonement(i)
+                    end
+                elseif pullTimer <= 5 then
+                     useItem(138292)
+                end
+            end
+            if not isMoving("player") and isChecked("Drink") and getMana("player") <= getOptionValue("Drink") and canUse(138292) and not IsResting() then
                 useItem(138292)
             end
         end  -- End Action List - Pre-Combat
