@@ -438,7 +438,7 @@ local function runRotation()
                 end
             end
         -- Prayer of Healing
-            if isChecked("Prayer of Healing") and not and talent.piety then
+            if isChecked("Prayer of Healing") and not talent.piety then
                 if castWiseAoEHeal(br.friend,spell.prayerOfHealing,40,getValue("Prayer of Healing"),getValue("Prayer of Healing Targets"),5,false,true) then return end
             end
         end -- End Action List - AOE Healing
