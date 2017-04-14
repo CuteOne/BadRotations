@@ -188,13 +188,24 @@ local function runRotation()
     local pullTimer                                     = br.DBM:getPulltimer()
     local iconMoon                                      = select(3,GetSpellInfo(spell.newMoon))
     local useAstralPower                                = br.player.mode.astralPower == 1
+    local ttd                                           = getTTD
     local hpDotMin                                      = getValue("Minimum HP to dot (in Milions)")*1000000
 
     local enemies                                       = enemies or {}
     local units                                         = units or {}
 
     enemies.yards40 = br.player.enemies(40)
-    units.dyn40 = br.player.units(40)
+    enemies.yards40 = br.player.enemies(40)
+
+
+    if isChecked("Dynamic Targetting") then
+        units.dyn40 = br.player.units(40)
+        ttdUnit = ttd(units.dyn40)
+        target = units.dyn40
+    else
+        ttdUnit = ttd("target")
+        target = "target"
+    end
 
     if lastForm == nil then lastForm = 0 end
     if profileStop == nil then profileStop = false end
@@ -342,21 +353,21 @@ local function runRotation()
                 end
             end
             --actions.fury_of_elune+=/fury_of_elune,if=astral_power>=95
-            if cast.furyOfElune(units.dyn40, "best", nil, 3) then return true end
+            if cast.furyOfElune("best", nil, 3) then return true end
         end
         --actions.fury_of_elune+=/new_moon,if=((charges=2&recharge_time<5)|charges=3)&&(buff.fury_of_elune_up.up|(cooldown.fury_of_elune.remains>gcd*3&astral_power<=90))
-        if activeMoon == 3 and getTTD(units.dyn40)*2 >= getCastTime(spell.newMoon) then
+        if activeMoon == 3 and ttdUnit*2 >= getCastTime(spell.newMoon) then
             if ((getCharges(spell.newMoon) == 2 and recharge.newMoon < 5) or getCharges(spell.newMoon) == 3) and (buff.furyOfElune.exists() or (cd.furyOfElune > gcd*3 and astralPower <= 90)) then
                 if cast.newMoon() then return true end
             end
         end
-        if activeMoon == 2 and getTTD(units.dyn40)*2 >= getCastTime(spell.halfMoon) then
+        if activeMoon == 2 and ttdUnit*2 >= getCastTime(spell.halfMoon) then
             --actions.fury_of_elune+=/half_moon,if=((charges=2&recharge_time<5)|charges=3)&&(buff.fury_of_elune_up.up|(cooldown.fury_of_elune.remains>gcd*3&astral_power<=80))
             if (getCharges(spell.newMoon) == 2 and recharge.newMoon < 5) or (getCharges(spell.newMoon) == 3) and (buff.furyOfElune.exists() or (cd.furyOfElune > gcd*3 and astralPower <= 80)) then
                 if cast.newMoon() then return true end
             end
         end
-        if activeMoon == 1 and getTTD(units.dyn40)*2 >= getCastTime(spell.fullMoon) then
+        if activeMoon == 1 and ttdUnit*2 >= getCastTime(spell.fullMoon) then
             --actions.fury_of_elune+=/full_moon,if=((charges=2&recharge_time<5)|charges=3)&&(buff.fury_of_elune_up.up|(cooldown.fury_of_elune.remains>gcd*3&astral_power<=60))
             if (getCharges(spell.newMoon) == 2 and recharge.newMoon < 5) or(getCharges(spell.newMoon) == 3) and (buff.furyOfElune.exists() or (cd.furyOfElune > gcd*3 and astralPower <= 60)) then
                 if cast.newMoon() then return true end
@@ -379,18 +390,18 @@ local function runRotation()
             if cast.lunarStrike() then return true end
         end
         --actions.fury_of_elune+=/new_moon,if=astral_power<=90&buff.fury_of_elune_up.up
-        if activeMoon == 3 and getTTD(units.dyn40)*2 >= getCastTime(spell.newMoon) then
+        if activeMoon == 3 and ttdUnit*2 >= getCastTime(spell.newMoon) then
             if astralPower <= 90 and buff.furyOfElune.exists() then
                 if cast.newMoon() then return true end
             end
         end
-        if activeMoon == 2 and getTTD(units.dyn40)*2 >= getCastTime(spell.halfMoon) then
+        if activeMoon == 2 and ttdUnit*2 >= getCastTime(spell.halfMoon) then
             --actions.fury_of_elune+=/half_moon,if=astral_power<=80&buff.fury_of_elune_up.up&astral_power>cast_time*12
             if astralPower <= 80 and buff.furyOfElune.exists() and astralPower > getCastTime(spell.newMoon)*12 then
                 if cast.newMoon() then return true end
             end
         end
-        if activeMoon == 1 and getTTD(units.dyn40)*2 >= getCastTime(spell.fullMoon) then
+        if activeMoon == 1 and ttdUnit*2 >= getCastTime(spell.fullMoon) then
             --actions.fury_of_elune+=/full_moon,if=astral_power<=60&buff.fury_of_elune_up.up&astral_power>cast_time*12
             if astralPower <= 60 and buff.furyOfElune.exists() and astralPower > getCastTime(spell.newMoon)*12 then
                 if cast.newMoon() then return true end
@@ -443,15 +454,15 @@ local function runRotation()
                 end
             end
         else
-            if not buff.furyOfElune.exists() and debuff.moonfire.remain() <= 6.6 and ((UnitHealth(units.dyn40) >= hpDotMin and (inInstance or inRaid)) or not inInstance and not inRaid) then
+            if not buff.furyOfElune.exists() and debuff.moonfire.remain() <= 6.6 and ((UnitHealth(target) >= hpDotMin and (inInstance or inRaid)) or not inInstance and not inRaid) then
                 if debuff.moonfire.remain() < gcd and (debuff.moonfire.count() < getValue("Moonfire targets")) then
-                    if cast.moonfire("aoe") then return true end
+                    if cast.moonfire(target ,"aoe") then return true end
                 end
             end
             --actions.fury_of_elune+=/sunfire,if=buff.fury_of_elune_up.down&remains<5.4
-            if not buff.furyOfElune.exists() and debuff.sunfire.remain() <= 5.4 and ((UnitHealth(units.dyn40) >= hpDotMin and (inInstance or inRaid)) or not inInstance and not inRaid) then
+            if not buff.furyOfElune.exists() and debuff.sunfire.remain() <= 5.4 and ((UnitHealth(target) >= hpDotMin and (inInstance or inRaid)) or not inInstance and not inRaid) then
                 if debuff.sunfire.remain() < gcd and (debuff.sunfire.count() < getValue("Sunfire targets"))  then
-                    if cast.sunfire("aoe") then return true end
+                    if cast.sunfire(target ,"aoe") then return true end
                 end
             end
         end
@@ -459,14 +470,14 @@ local function runRotation()
         --force of natur
         if useCDs() and isChecked("Force of Nature") then
             if talent.forceOfNature then
-                if cast.forceOfNature(units.dyn40, "best", nil, 1) then return true end
+                if cast.forceOfNature(target,"best", 1, 8) then return true  end
             end
         end
 
         --actions.fury_of_elune+=/stellar_flare,if=remains<7.2&active_enemies=1
-        if talent.stellarFlare and astralPower >= 10 and debuff.stellarFlare.remain() < 7.2 and ((UnitHealth(units.dyn40) >= hpDotMin and (inInstance or inRaid)) or not inInstance and not inRaid) then
+        if talent.stellarFlare and astralPower >= 10 and debuff.stellarFlare.remain() < 7.2 and ((UnitHealth(target) >= hpDotMin and (inInstance or inRaid)) or not inInstance and not inRaid) then
             if debuff.stellarFlare.remain() < gcd and (debuff.stellarFlare.count() < getValue("Stellar Flare targets")) then
-                if cast.stellarFlare("aoe") then return true end
+                if cast.stellarFlare(target ,"aoe") then return true end
             end
         end
         --actions.fury_of_elune+=/solar_wrath,if=buff.solar_empowerment.up
@@ -478,7 +489,7 @@ local function runRotation()
             end
         end
         --actions.fury_of_elune+=/lunar_strike,if=buff.lunar_empowerment.stack=3|(buff.lunar_empowerment.remains<5&buff.lunar_empowerment.up)|active_enemies>=2
-        if buff.lunarEmpowerment.stack() == 3 or (buff.lunarEmpowerment.remain() < 5 and buff.lunarEmpowerment.exists()) or #getEnemies(units.dyn40,5)>=2 then
+        if buff.lunarEmpowerment.stack() == 3 or (buff.lunarEmpowerment.remain() < 5 and buff.lunarEmpowerment.exists()) or #getEnemies(target,5)>=2 then
             if cast.lunarStrike() then return true end
         end
         --actions.fury_of_elune+=/solar_wrath
@@ -558,24 +569,24 @@ local function runRotation()
                 end
             end
         else
-            if debuff.stellarFlare.count() <= 1 and ((UnitHealth(units.dyn40) >= hpDotMin and (inInstance or inRaid)) or not inInstance and not inRaid) then
+            if debuff.stellarFlare.count() <= 1 and ((UnitHealth(target) >= hpDotMin and (inInstance or inRaid)) or not inInstance and not inRaid) then
                 --stellar_flare,cycle_targets=1,max_cycle_targets=4,if=active_enemies<4&remains<7.2&astral_power>=15
-                if talent.stellarFlare  and astralPower >= 15 and debuff.stellarFlare.remain(units.dyn40) < 7.2 then
-                    if cast.stellarFlare(units.dyn40,"aoe") then return true end
+                if talent.stellarFlare  and astralPower >= 15 and debuff.stellarFlare.remain(target) < 7.2 then
+                    if cast.stellarFlare(target,"aoe") then return true end
                 end
             end
-            if debuff.moonfire.count() <= 1 and ((UnitHealth(units.dyn40) >= hpDotMin and (inInstance or inRaid)) or not inInstance and not inRaid) then
+            if debuff.moonfire.count() <= 1 and ((UnitHealth(target) >= hpDotMin and (inInstance or inRaid)) or not inInstance and not inRaid) then
                 --moonfire,if=((talent.natures_balance.enabled&remains<3)|(remains<6.6&!talent.natures_balance.enabled))&(buff.the_emerald_dreamcatcher.remains>gcd.max|!buff.the_emerald_dreamcatcher.up)
-                if (talent.naturesBalance and debuff.moonfire.remain(units.dyn40) < 3) or (debuff.moonfire.remain(units.dyn40) < 6.6 and not talent.naturesBalance) and
+                if (talent.naturesBalance and debuff.moonfire.remain(target) < 3) or (debuff.moonfire.remain(target) < 6.6 and not talent.naturesBalance) and
                         (buff.emeraldDreamcatcher.exists() and buff.emeraldDreamcatcher.remain() > gcd or not buff.emeraldDreamcatcher.exists()) then
-                    if cast.moonfire(units.dyn40,"aoe") then return true end
+                    if cast.moonfire(target,"aoe") then return true end
                 end
             end
-            if debuff.sunfire.count() <= 1 and ((UnitHealth(units.dyn40) >= hpDotMin and (inInstance or inRaid)) or not inInstance and not inRaid) then
+            if debuff.sunfire.count() <= 1 and ((UnitHealth(target) >= hpDotMin and (inInstance or inRaid)) or not inInstance and not inRaid) then
                 --sunfire,if=((talent.natures_balance.enabled&remains<3)|(remains<5.4&!talent.natures_balance.enabled))&(buff.the_emerald_dreamcatcher.remains>gcd.max|!buff.the_emerald_dreamcatcher.up)
-                if (talent.naturesBalance and debuff.sunfire.remain(units.dyn40) < 3) or (debuff.sunfire.remain(units.dyn40) < 5.4 and not talent.naturesBalance) and
+                if (talent.naturesBalance and debuff.sunfire.remain(target) < 3) or (debuff.sunfire.remain(target) < 5.4 and not talent.naturesBalance) and
                         (buff.emeraldDreamcatcher.exists() and buff.emeraldDreamcatcher.remain() > gcd or not buff.emeraldDreamcatcher.exists()) then
-                    if cast.sunfire(units.dyn40,"aoe") then return true end
+                    if cast.sunfire(target,"aoe") then return true end
                 end
             end
         end
@@ -586,13 +597,13 @@ local function runRotation()
             end
         end
         --half_moon,if=astral_power<=80&buff.the_emerald_dreamcatcher.remains>execute_time&astral_power>=6
-        if activeMoon == 2 and getTTD(units.dyn40)*2 >= getCastTime(spell.halfMoon) then
+        if activeMoon == 2 and ttdUnit*2 >= getCastTime(spell.halfMoon) then
             if astralPower <= 80 and buff.emeraldDreamcatcher.exists() and buff.emeraldDreamcatcher.remain() > getExecuteTime(spell.halfMoon) and astralPower >= 6 then
                 if cast.newMoon() then return true end
             end
         end
         --full_moon,if=astral_power<=60&buff.the_emerald_dreamcatcher.remains>execute_time
-        if activeMoon == 1 and getTTD(units.dyn40)*2 >= getCastTime(spell.fullMoon) then
+        if activeMoon == 1 and ttdUnit*2 >= getCastTime(spell.fullMoon) then
             if astralPower <= 60 and buff.emeraldDreamcatcher.exists() and buff.emeraldDreamcatcher.remain() > getExecuteTime(spell.fullMoon) then
                 if cast.newMoon() then return true end
             end
@@ -635,19 +646,19 @@ local function runRotation()
             end
         end
         --new_moon,if=astral_power<=90
-        if activeMoon == 3 and getTTD(units.dyn40)*2 >= getCastTime(spell.newMoon) then
+        if activeMoon == 3 and ttdUnit*2 >= getCastTime(spell.newMoon) then
             if astralPower <= 90 then
                 if cast.newMoon() then return true end
             end
         end
         --half_moon,if=astral_power<=80
-        if activeMoon == 2 and getTTD(units.dyn40)*2 >= getCastTime(spell.halfMoon) then
+        if activeMoon == 2 and ttdUnit*2 >= getCastTime(spell.halfMoon) then
             if astralPower <= 80 then
                 if cast.newMoon() then return true end
             end
         end
         --full_moon,if=astral_power<=60&((cooldown.incarnation.remains>65&cooldown.full_moon.charges>0)|(cooldown.incarnation.remains>50&cooldown.full_moon.charges>1)|(cooldown.incarnation.remains>25&cooldown.full_moon.charges>2))
-        if activeMoon == 1 and getTTD(units.dyn40)*2 >= getCastTime(spell.fullMoon) then
+        if activeMoon == 1 and ttdUnit*2 >= getCastTime(spell.fullMoon) then
             if (buff.emeraldDreamcatcher.remain() > getExecuteTime(spell.fullMoon)) or not buff.emeraldDreamcatcher.exists() then
                 if astralPower <= 60 and ((cd.celestialAlignment > 65 and getCharges(spell.fullMoon) > 0) or
                         (cd.celestialAlignment > 50 and getCharges(spell.fullMoon) > 1) or
@@ -715,11 +726,11 @@ local function runRotation()
             if cast.solarWrath() then return true end
         end
         --actions.celestial_alignment_phase+=/lunar_strike,if=(talent.natures_balance.enabled&dot.moonfire_dmg.remains<5&cast_time<dot.moonfire_dmg.remains)|active_enemies>=2
-        if (talent.naturesBalance and debuff.moonfire.remain() < 5 and getCastTime(spell.moonfire) < debuff.moonfire.remain()) or #getEnemies(units.dyn40,5) >= 2 then
+        if (talent.naturesBalance and debuff.moonfire.remain() < 5 and getCastTime(spell.moonfire) < debuff.moonfire.remain()) or #getEnemies(target,5) >= 2 then
             if cast.lunarStrike() then return true end
         end
         --actions.celestial_alignment_phase+=/solar_wrath
-        if buff.owlkinFrenzy.exists() or #getEnemies(units.dyn40,5)>=2 then
+        if buff.owlkinFrenzy.exists() or #getEnemies(target,5)>=2 then
             if cast.lunarStrike() then return true end
         else
             if cast.solarWrath() then return true end
@@ -741,18 +752,18 @@ local function runRotation()
             end
         end
         --actions.single_target=new_moon,if=astral_power<=90
-        if activeMoon == 3 and getTTD(units.dyn40)*2 >= getCastTime(spell.newMoon) then
+        if activeMoon == 3 and ttdUnit*2 >= getCastTime(spell.newMoon) then
             if astralPower <= 90 then
                 if cast.newMoon() then return true end
             end
         end
-        if activeMoon == 2 and getTTD(units.dyn40)*2 >= getCastTime(spell.halfMoon) then
+        if activeMoon == 2 and ttdUnit*2 >= getCastTime(spell.halfMoon) then
             --actions.single_target+=/half_moon,if=astral_power<=80
             if astralPower <= 80 then
                 if cast.newMoon() then return true end
             end
         end
-        if activeMoon == 1 and getTTD(units.dyn40)*2 >= getCastTime(spell.fullMoon) then
+        if activeMoon == 1 and ttdUnit*2 >= getCastTime(spell.fullMoon) then
             --actions.single_target+=/full_moon,if=astral_power<=60
             if astralPower <= 60 then
                 if cast.newMoon() then return true end
@@ -789,11 +800,11 @@ local function runRotation()
             end
         end
         --actions.single_target+=/lunar_strike,if=(talent.natures_balance.enabled&dot.moonfire_dmg.remains<5&cast_time<dot.moonfire_dmg.remains)|active_enemies>=2
-        if (talent.naturesBalance and debuff.moonfire.remain() < 5 and getCastTime(spell.moonfire) < debuff.moonfire.remain()) or #getEnemies(units.dyn40,5) >= 2 then
+        if (talent.naturesBalance and debuff.moonfire.remain() < 5 and getCastTime(spell.moonfire) < debuff.moonfire.remain()) or #getEnemies(target,5) >= 2 then
             if cast.lunarStrike() then return true end
         end
         --actions.single_target+=/solar_wrath
-        if buff.owlkinFrenzy.exists() or #getEnemies(units.dyn40,5)>=2 then
+        if buff.owlkinFrenzy.exists() or #getEnemies(target,5)>=2 then
             if cast.lunarStrike() then return true end
         else
             if cast.solarWrath() then return true end
@@ -802,6 +813,36 @@ local function runRotation()
     end
 
     local function actionList_SomeCDS()
+        --actions+=/blood_fury,if=buff.celestial_alignment.up|buff.incarnation.up
+        --actions+=/berserking,if=buff.celestial_alignment.up|buff.incarnation.up
+        if (race == "Orc" or race == "Troll") and getSpellCD(br.player.getRacial()) == 0 and useCDs()  and isChecked("Racial")  then
+            if buff.incarnationChoseOfElune.exists() or buff.celestialAlignment.exists() then
+                if br.player.castRacial() then return true end
+            end
+        end
+        --force of natur
+        if useCDs() and isChecked("Force of Nature") then
+            if talent.forceOfNature then
+                if cast.forceOfNature(target,"best", 1, 8) then return true  end
+            end
+        end
+
+        --actions+=/astral_communion,if=astral_power.deficit>=75
+        if useCDs()  and isChecked("Astral Communion") then
+            if talent.astralCommunion and astralPower <= 25 then
+                if cast.astralCommunion() then return true end
+            end
+        end
+        --actions+=/incarnation,if=astral_power>=40
+        if useCDs() and isChecked("Incarnation: Chosen of Elune/Celestial Alignament") then
+            if talent.incarnationChoseOfElune and astralPower >= 40 and cd.incarnationChoseOfElune == 0 then
+                if cast.celestialAlignment() then return true end
+            end
+            --actions+=/celestial_alignment,if=astral_power>=40
+            if not talent.incarnationChoseOfElune and astralPower >= 40 and cd.celestialAlignment == 0  then
+                if cast.celestialAlignment() then return true end
+            end
+        end
         if useCDs() and isChecked("Trinkets") then
             if buff.incarnationChoseOfElune.exists() or buff.celestialAlignment.exists() then
                 if canUse(13) then
@@ -820,11 +861,13 @@ local function runRotation()
                 return true
             end
         end
+
         return false
     end
 
     local function actionList_Combat()
         if actionList_SomeCDS() then return true end
+
         --TODO:actions=potion,name=deadly_grace,if=buff.celestial_alignment.up|buff.incarnation.up
         if talent.blessingOfTheAncients and isChecked("Auto Blessing of The Ancients") then
             --actions+=/blessing_of_elune,if=active_enemies<=2&talent.blessing_of_the_ancients.enabled&buff.blessing_of_elune.down
@@ -835,16 +878,10 @@ local function runRotation()
                 if cast.blessingOfTheAncients() then return true end
             end
         end
-        --actions+=/blood_fury,if=buff.celestial_alignment.up|buff.incarnation.up
-        --actions+=/berserking,if=buff.celestial_alignment.up|buff.incarnation.up
-        if (race == "Orc" or race == "Troll") and getSpellCD(br.player.getRacial()) == 0 and useCDs()  and isChecked("Racial")  then
-            if buff.incarnationChoseOfElune.exists() or buff.celestialAlignment.exists() then
-                if castSpell("player",br.player.getRacial(),false,false,false) then return true end
-            end
-        end
+
         --actions+=/call_action_list,name=fury_of_elune,if=talent.fury_of_elune.enabled&cooldown.fury_of_elue.remains<target.time_to_die
         if talent.furyOfElune then
-            if cd.furyOfElune < getTTD(units.dyn40)*2 then
+            if cd.furyOfElune < ttdUnit*2 then
                 if actionList_FuryOfElune() then return true end
             end
         end
@@ -870,20 +907,20 @@ local function runRotation()
             --end
         end
         --actions+=/new_moon,if=(charges=2&recharge_time<5)|charges=3
-        if activeMoon == 3 and getTTD(units.dyn40)*2 >= getCastTime(spell.newMoon) then
+        if activeMoon == 3 and ttdUnit*2 >= getCastTime(spell.newMoon) then
             if (getCharges(spell.newMoon) == 2 and recharge.newMoon < 5) or getCharges(spell.newMoon) == 3 then
                 if cast.newMoon() then return true end
             end
         end
-        if activeMoon == 2 and getTTD(units.dyn40)*2 >= getCastTime(spell.halfMoon) then
+        if activeMoon == 2 and ttdUnit*2 >= getCastTime(spell.halfMoon) then
             --actions+=/half_moon,if=(charges=2&recharge_time<5)|charges=3|(target.time_to_die<15&charges=2)
-            if (getCharges(spell.newMoon) == 2 and recharge.newMoon < 5) or (getCharges(spell.newMoon) == 3) or (getTTD(units.dyn40)<15 and getCharges(spell.newMoon) == 2) then
+            if (getCharges(spell.newMoon) == 2 and recharge.newMoon < 5) or (getCharges(spell.newMoon) == 3) or (ttdUnit<15 and getCharges(spell.newMoon) == 2) then
                 if cast.newMoon() then return true end
             end
         end
-        if activeMoon == 1 and getTTD(units.dyn40)*2 >= getCastTime(spell.fullMoon) then
+        if activeMoon == 1 and ttdUnit*2 >= getCastTime(spell.fullMoon) then
             --actions+=/full_moon,if=(charges=2&recharge_time<5)|charges=3|target.time_to_die<15
-            if (getCharges(spell.newMoon) == 2 and recharge.newMoon < 5) or(getCharges(spell.newMoon) == 3) or (getTTD(units.dyn40)<15 and getCharges(spell.newMoon) == 2) then
+            if (getCharges(spell.newMoon) == 2 and recharge.newMoon < 5) or(getCharges(spell.newMoon) == 3) or (ttdUnit<15 and getCharges(spell.newMoon) == 2) then
                 if cast.newMoon() then return true end
             end
         end
@@ -910,43 +947,20 @@ local function runRotation()
                 end
             end
         else
-            if talent.stellarFlare and astralPower >= 15 and debuff.stellarFlare.remain() < 7.2 and ((UnitHealth(units.dyn40) >= hpDotMin and (inInstance or inRaid)) or not inInstance and not inRaid) then
+            if talent.stellarFlare and astralPower >= 15 and debuff.stellarFlare.remain() < 7.2 and ((UnitHealth(target) >= hpDotMin and (inInstance or inRaid)) or not inInstance and not inRaid) then
                 if debuff.stellarFlare.remain() < gcd and (debuff.stellarFlare.count() < getValue("Stellar Flare targets")) then
-                    if cast.stellarFlare("aoe") then return true end
+                    if cast.stellarFlare(target ,"aoe") then return true end
                 end
             end
-            if (talent.naturesBalance and debuff.moonfire.remain() < 3) or (debuff.moonfire.remain() < 6.6 and not talent.naturesBalance) and ((UnitHealth(units.dyn40) >= hpDotMin and (inInstance or inRaid)) or not inInstance and not inRaid) then
+            if (talent.naturesBalance and debuff.moonfire.remain() < 3) or (debuff.moonfire.remain() < 6.6 and not talent.naturesBalance) and ((UnitHealth(target) >= hpDotMin and (inInstance or inRaid)) or not inInstance and not inRaid) then
                 if debuff.moonfire.remain() < gcd and (debuff.moonfire.count() < getValue("Moonfire targets")) then
-                    if cast.moonfire("aoe") then return true end
+                    if cast.moonfire(target ,"aoe") then return true end
                 end
             end
-            if (talent.naturesBalance and debuff.sunfire.remain() < 3) or (debuff.sunfire.remain() < 5.4 and not talent.naturesBalance) and ((UnitHealth(units.dyn40) >= hpDotMin and (inInstance or inRaid)) or not inInstance and not inRaid) then
+            if (talent.naturesBalance and debuff.sunfire.remain() < 3) or (debuff.sunfire.remain() < 5.4 and not talent.naturesBalance) and ((UnitHealth(target) >= hpDotMin and (inInstance or inRaid)) or not inInstance and not inRaid) then
                 if debuff.sunfire.remain() < gcd and (debuff.sunfire.count() < getValue("Sunfire targets"))  then
-                    if cast.sunfire("aoe") then return true end
+                    if cast.sunfire(target ,"aoe") then return true end
                 end
-            end
-        end
-        --force of natur
-        if useCDs() and isChecked("Force of Nature") then
-            if talent.forceOfNature then
-                if cast.forceOfNature(units.dyn40, "best", nil, 1) then return true end
-            end
-        end
-
-        --actions+=/astral_communion,if=astral_power.deficit>=75
-        if useCDs()  and isChecked("Astral Communion") then
-            if talent.astralCommunion and astralPower <= 25 then
-                if cast.astralCommunion() then return true end
-            end
-        end
-        --actions+=/incarnation,if=astral_power>=40
-        if useCDs() and isChecked("Incarnation: Chosen of Elune/Celestial Alignament") then
-            if talent.incarnationChoseOfElune and astralPower >= 40 and cd.incarnationChoseOfElune == 0 then
-                if cast.celestialAlignment() then return true end
-            end
-            --actions+=/celestial_alignment,if=astral_power>=40
-            if not talent.incarnationChoseOfElune and astralPower >= 40 and cd.celestialAlignment == 0  then
-                if cast.celestialAlignment() then return true end
             end
         end
         --actions+=/solar_wrath,if=buff.solar_empowerment.stack=3
@@ -973,7 +987,7 @@ local function runRotation()
     local function actionList_CombatMoving()
         if useCDs() and isChecked("Force of Nature") then
             if talent.forceOfNature then
-                if cast.forceOfNature(units.dyn40, "best", nil, 1) then return true end
+                if cast.forceOfNature(target,"best", 1, 8) then return true  end
             end
         end
         if buff.warriorOfElune.exists() or buff.owlkinFrenzy.exists() then
@@ -1009,14 +1023,14 @@ local function runRotation()
                     if cast.starsurge() then return true end
                 end
             end
-            if debuff.moonfire.remain() < 6.6  and (debuff.moonfire.count() < getValue("Moonfire targets")) and ((UnitHealth(units.dyn40) >= hpDotMin and (inInstance or inRaid)) or not inInstance and not inRaid) then
+            if debuff.moonfire.remain() < 6.6  and (debuff.moonfire.count() < getValue("Moonfire targets")) and ((UnitHealth(target) >= hpDotMin and (inInstance or inRaid)) or not inInstance and not inRaid) then
                 if debuff.moonfire.remain() < gcd then
-                    if cast.moonfire("aoe") then return true end
+                    if cast.moonfire(target ,"aoe") then return true end
                 end
             end
-            if debuff.sunfire.remain() < 5.4  and (debuff.sunfire.count() < getValue("Sunfire targets")) and ((UnitHealth(units.dyn40) >= hpDotMin and (inInstance or inRaid)) or not inInstance and not inRaid) then
+            if debuff.sunfire.remain() < 5.4  and (debuff.sunfire.count() < getValue("Sunfire targets")) and ((UnitHealth(target) >= hpDotMin and (inInstance or inRaid)) or not inInstance and not inRaid) then
                 if debuff.sunfire.remain() < gcd then
-                    if cast.sunfire("aoe") then return true end
+                    if cast.sunfire(target ,"aoe") then return true end
                 end
             end
         end
@@ -1031,10 +1045,10 @@ local function runRotation()
                 end
             end
         else
-            if debuff.moonfire.remain() <= debuff.sunfire.remain() and ((UnitHealth(units.dyn40) >= hpDotMin and (inInstance or inRaid)) or not inInstance and not inRaid) then
-                if cast.moonfire("aoe") then return true end
-            elseif ((UnitHealth(units.dyn40) >= hpDotMin and (inInstance or inRaid)) or not inInstance and not inRaid) then
-                if cast.sunfire("aoe") then return true end
+            if debuff.moonfire.remain() <= debuff.sunfire.remain() and ((UnitHealth(target) >= hpDotMin and (inInstance or inRaid)) or not inInstance and not inRaid) then
+                if cast.moonfire(target ,"aoe") then return true end
+            elseif ((UnitHealth(target) >= hpDotMin and (inInstance or inRaid)) or not inInstance and not inRaid) then
+                if cast.sunfire(target ,"aoe") then return true end
             end
         end
         return false
@@ -1210,8 +1224,10 @@ local function runRotation()
                     else
                         Print("1: Solar Wrath (Not Casted: Mooving)")
                     end
-                    -- New Moon | Half Moon | Full Moon
-                elseif not MM1 then
+
+                end
+                -- New Moon | Half Moon | Full Moon
+                if not MM1 then
                     if getCharges(spell.newMoon) > 0 then
                         if not isMoving("player") then
                             castOpener("newMoon","MM1",2)
@@ -1250,7 +1266,7 @@ local function runRotation()
                     --Celestial Alignment | Incarnation
                 elseif not CA and useCDs() and isChecked("Incarnation: Chosen of Elune/Celestial Alignament") then
                     if (talent.incarnationChoseOfElune and cd.incarnationChoseOfElune == 0) or (not talent.incarnationChoseOfElune and cd.celestialAlignment == 0) then
-                        castOpener("celestialAlignment","CA",5)
+                        castOpener("celestialAlignment","CA",5,false)
                     else
                         Print("5: Incarnation: Chosen of Elune/Celestial Alignament (Not Casted: Cooldown)")
                         CA = true
@@ -1344,7 +1360,7 @@ local function runRotation()
                     --Celestial Alignment | Incarnation
                 elseif not CA and useCDs() and isChecked("Incarnation: Chosen of Elune/Celestial Alignament") then
                     if (talent.incarnationChoseOfElune and cd.incarnationChoseOfElune == 0) or (not talent.incarnationChoseOfElune and cd.celestialAlignment == 0) then
-                        castOpener("celestialAlignment","CA",5)
+                        castOpener("celestialAlignment","CA",5,false)
                     else
                         Print("5: Incarnation: Chosen of Elune/Celestial Alignament (Not Casted: Cooldown)")
                         CA = true
@@ -1425,10 +1441,10 @@ local function runRotation()
 
     local function actionList_Opener()
         if opener == false and isChecked("Opener") and isBoss("target") then
-            if isChecked("Pre-Pull Timer") and inCombat and getCombatTime() > 10 then
-                opener = true
-                return true
-            end
+            --            if isChecked("Pre-Pull Timer") and inCombat and getCombatTime() > 10 then
+            --                opener = true
+            --                return true
+            --            end
             if hasEquiped(137062) then
                 if actionList_OpenerEmealdDreamCatcher() then return true end
             else
@@ -1468,7 +1484,8 @@ local function runRotation()
         end
     end
 
-    if br.timer:useTimer("debugBalance", 0.1)  then
+    --if br.timer:useTimer("debugBalance", getSpellCD(61304)+0.02)  then
+    function profile()
         -- Profile Stop | Pause
         if not inCombat and not hastar and profileStop==true then
             profileStop = false
@@ -1476,24 +1493,47 @@ local function runRotation()
             return true
         end
         if (not isMoving("player") and buff.dash.exists()) or not buff.dash.exists() then
-            if actionList_Extras() then return true end
-            if actionList_PreCombat() then return true end
-            if actionList_Opener() then return true end
-            if deadlyChicken() then return true end
+            if actionList_Extras() then  return true end
+            if actionList_PreCombat() then  return true end
+            if actionList_Opener() then  return true end
+            if deadlyChicken() then  return true end
             if inCombat and (opener == true or not isChecked("Opener") or not isBoss("target")) then
-                if actionList_Interrupts() then return true end
-                if actionList_Defensive() then return true end
+                if actionList_Interrupts() then  return true end
+                if actionList_Defensive() then  return true end
                 if (not isMoving("player") or buff.stellarDrift.exists()) then
-                    if actionList_Combat() then return true end
+                    if actionList_Combat() then  return true end
                 elseif isMoving("player") then
-                    if actionList_CombatMoving() then return true end
+                    if actionList_CombatMoving() then  return true end
                 end
             end
         elseif not chicken and IsMovingTime(2) and buff.dash.exists() and not cat then
             cast.catForm()
         end--End Pause
         return false
-    end -- End Timer
+    end
+
+    if executando == nil then executando = false end
+    if lastGCD == nil then lastGCD = false end
+    if lastSpellCast == spell.forceOfNature
+            or lastSpellCast == spell.incarnationChoseOfElune
+            or lastSpellCast == spell.warriorOfElune
+            or lastSpellCast == spell.solarBeam
+            or lastSpellCast == spell.celestialAlignment
+            or lastSpellCast == spell.barkskin
+            or lastSpellCast == spell.dash
+            or lastSpellCast == 26297 then
+        lastGCD = true
+    else
+        lastGCD = false
+    end
+
+    if not executando and (getSpellCD(61304) == 0 or lastGCD) then
+        executando = true
+        profile()
+        executando = false
+    end
+
+    -- end -- End Timer
 end-- End runRotation
 local id = 102
 
