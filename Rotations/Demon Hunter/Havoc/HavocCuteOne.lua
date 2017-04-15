@@ -490,7 +490,7 @@ local function runRotation()
             end
         -- Blade Dance
             -- blade_dance,if=variable.blade_dance&cooldown.eye_beam.remains>5&!cooldown.metamorphosis.ready
-            if not buff.metamorphosis.exists() and bladeDanceVar and cd.eyeBeam > 5 and cd.metamorphosis ~= 0 then
+            if not buff.metamorphosis.exists() and bladeDanceVar and cd.eyeBeam > 5 and (cd.metamorphosis ~= 0 or not isChecked("Metamorphosis") or not useCDs() or not isBoss()) then
                 if cast.bladeDance() then return end
             end
         -- Throw Glaive
@@ -619,7 +619,7 @@ local function runRotation()
             end
         -- Blade Dance
             -- blade_dance,if=variable.blade_dance&(!cooldown.metamorphosis.ready)
-            if not buff.metamorphosis.exists() and bladeDanceVar and cd.metamorphosis ~= 0 then
+            if not buff.metamorphosis.exists() and bladeDanceVar and (cd.metamorphosis ~= 0 or not isChecked("Metamorphosis") or not useCDs() or not isBoss()) then
                 if cast.bladeDance() then return end
             end
         -- Throw Glaive
