@@ -375,12 +375,8 @@ local function runRotation()
         function actionList_Emergency()
         -- Holy Word: Sanctify
             if isChecked("Holy Word: Sanctify") then
-                if castWiseAoEHeal(br.friend,spell.holyWordSanctify,40,40,3,6,false,false) then return end
+                if castWiseAoEHeal(br.friend,spell.holyWordSanctify,40,40,2,6,false,false) then return end
             end
-        -- Prayer of Healing
-            if isChecked("Prayer of Healing")  then
-                if castWiseAoEHeal(br.friend,spell.prayerOfHealing,40,40,3,5,false,true) then return end  
-            end             
         -- Holy Word: Serenity
             if isChecked("Holy Word: Serenity") then
                  for i = 1, #br.friend do
@@ -389,6 +385,10 @@ local function runRotation()
                     end
                 end
             end 
+        -- Prayer of Healing
+            if isChecked("Prayer of Healing")  then
+                if castWiseAoEHeal(br.friend,spell.prayerOfHealing,40,40,3,5,false,true) then return end  
+            end             
         -- Flash Heal
             if isChecked("Flash Heal") then
                 for i = 1, #br.friend do
