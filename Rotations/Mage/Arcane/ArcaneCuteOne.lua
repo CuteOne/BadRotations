@@ -310,7 +310,7 @@ local function runRotation()
             end
         -- Arcane Missles
             -- arcane_missiles,if=buff.arcane_missiles.react=3
-            if buff.arcaneMissles.stack() == 3 then
+            if buff.arcaneMissles.stack() >= 2 then
                 if cast.arcaneMissles() then return end
             end
         -- Arcane Orb
@@ -339,7 +339,7 @@ local function runRotation()
             end
         -- Arcane Missles
             -- arcane_missiles,if=buff.arcane_missiles.react=3
-            if buff.arcaneMissles.stack() == 3 then
+            if buff.arcaneMissles.stack() >= 2 then
                 if cast.arcaneMissles() then return end
             end
         -- Nether Tempest
@@ -374,12 +374,12 @@ local function runRotation()
             end 
         -- Supernova
             -- supernova,if=mana.pct<100
-            if manaPercent < 100 then
+            if manaPercent < 100 and useCDs() then
                 if cast.supernova("player") then return end
             end
         -- Arcane Missles
             -- arcane_missiles,if=mana.pct>10&(talent.overpowered.enabled|buff.arcane_power.down)
-            if manaPercent > 10 / overArcaned then
+            if manaPercent > 10 and (talent.overpowered or not buff.arcanePower.exists()) then
                 if cast.arcaneMissles() then return end
             end
         -- Arcane Explosion
@@ -402,7 +402,7 @@ local function runRotation()
         local function actionList_Conserve()
         -- Arcane Missles
             -- arcane_missiles,if=buff.arcane_missiles.react=3
-            if buff.arcaneMissles.stack() == 3 then
+            if buff.arcaneMissles.stack() >= 2 then
                 if cast.arcaneMissles() then return end
             end
         -- Arcane Blast
@@ -425,7 +425,7 @@ local function runRotation()
             if cast.arcaneMissles() then return end
         -- Supernova
             -- supernova,if=mana.pct<100
-            if manaPercent < 100 then
+            if manaPercent < 100 and useCDs() then
                 if cast.supernova("player") then return end
             end
         -- Arcane Explosion
@@ -450,7 +450,9 @@ local function runRotation()
             end
         -- Arcane Blast
             -- arcane_blast
-            if cast.arcaneBlast() then return end
+            if br.timer:useTimer("delayAB", getCastTime(spell.arcaneBlast)+0.5) then
+                if cast.arcaneBlast() then return end
+            end
         end
     -- Action List - Init Burn
         local function actionList_InitBurn()
@@ -471,15 +473,15 @@ local function runRotation()
             end
         -- Start Burn Phase
             -- start_burn_phase,if=((cooldown.evocation.remains-(2*burn_phase_duration))%2<burn_phase_duration)|cooldown.arcane_power.remains=0|target.time_to_die<55
-            if manaPercent > getOptionValue("Burn Phase Start") and (cd.arcanePower == 0 or (artifact.markOfAluneth and cd.markOfAluneth == 0) or cd.runeOfPower == 0 or ttd(units.dyn40) < 55) then
-                burnPhase = true
+            if (manaPercent > getOptionValue("Burn Phase Start") and ((cd.evocation - (2 * burnPhaseDuration)) / 2 < burnPhaseDuration) and cd.arcanePower == 0) or (ttd(units.dyn40) < 55 and isBoss(units.dyn40)) then
+                burnPhase = true 
             end
         end
     -- Action List - ROP Phase
         local function actionList_ROP()
         -- Arcane Missles
             -- arcane_missiles,if=buff.arcane_missiles.react=3
-            if buff.arcaneMissles.stack() == 3 then
+            if buff.arcaneMissles.stack() >= 2 then
                 if cast.arcaneMissles() then return end
             end
         -- Nether Tempest
