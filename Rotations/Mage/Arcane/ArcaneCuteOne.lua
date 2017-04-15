@@ -275,7 +275,7 @@ local function runRotation()
                 end
             -- Arcane Power
                 -- arcane_power
-                if isChecked("Arcane Power") then
+                if isChecked("Arcane Power") and useCDs() then
                     if cast.arcanePower("player") then return end
                 end
             -- Racial: Orc Blood Fury | Troll Berserking | Blood Elf Arcane Torrent
@@ -466,7 +466,7 @@ local function runRotation()
             end
         -- Rune of Power
             -- rune_of_power
-            if isChecked("Rune of Power") then
+            if isChecked("Rune of Power") and useCDs() then
                 if cast.runeOfPower("player") then return end
             end
         -- Start Burn Phase
@@ -533,7 +533,7 @@ local function runRotation()
                 if isValidUnit("target") and getDistance("target") < 40 then
             -- Mirror Image
                     -- mirror_image
-                    if isChecked("Mirror Image") then
+                    if isChecked("Mirror Image") and useCDs() then
                         if cast.mirrorImage() then return end
                     end
             -- Potion
@@ -597,7 +597,7 @@ local function runRotation()
                     end
             -- Mirror Image
                     -- mirror_image,if=buff.arcane_power.down
-                    if isChecked("Mirror Image") and not buff.arcanePower.exists() then
+                    if isChecked("Mirror Image") and useCDs() and not buff.arcanePower.exists() then
                         if cast.mirrorImage("player") then return end
                     end
             -- Stop Burn Phase
