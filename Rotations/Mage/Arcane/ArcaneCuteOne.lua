@@ -51,6 +51,14 @@ local function createOptions()
             br.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
         -- Artifact
             br.ui:createDropdownWithout(section,"Artifact", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Artifact Ability.")
+        -- Arcane Explosion
+            br.ui:createSpinnerWithout(section, "Arcane Explosion", 5, 1, 10, 1, "|cffFFFFFFSet to desired units to use Arcane Explosion.")
+        -- Burn Phase Start
+            br.ui:createSpinnerWithout(section, "Burn Phase Start", 70, 0, 100, 5, "|cffFFFFFFSet to desired mana percent to start burn phase.")
+        -- Burn Phase End
+            br.ui:createSpinnerWithout(section, "Burn Phase End", 35, 0, 100, 5, "|cffFFFFFFSet to desired mana percent to stop burn phase.")
+        -- Evocation
+            br.ui:createSpinnerWithout(section, "Evocation", 40, 0, 100, 5, "|cffFFFFFFSet to desired mana percent to use evocation at.")
         br.ui:checkSectionState(section)
     -- Cooldown Options
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
@@ -188,8 +196,10 @@ local function runRotation()
         if talent.overpowered or not buff.arcanePower.exists() then overArcaned = 1 else overArcaned = 0 end
         if burnPhase == nil or not inCombat then burnPhase = false end
         if not burnPhase then burnPhaseDuration = 0; burnPhaseStart = 0 end
-        if burnPhase and burnPhaseDuration == 0 then burnPhaseStart = GetTime(); end
+        if burnPhase and burnPhaseStart == 0 then burnPhaseStart = GetTime(); end
         if burnPhase and burnPhaseStart ~= 0 then burnPhaseDuration = GetTime() - burnPhaseStart end
+
+        ChatOverlay("Burn Phase: "..tostring(burnPhase)..", Burn Started: "..round2(burnPhaseStart,2)..", Burn Duration: "..round2(burnPhaseDuration,2))
 
 --------------------
 --- Action Lists ---
@@ -308,7 +318,7 @@ local function runRotation()
             if cast.arcaneOrb() then return end
         -- Arcane Explosion
             -- arcane_explosion,if=active_enemies>1
-            if ((mode.rotation == 1 and #enemies.yards10 > 1) or (mode.rotation == 2 and #enemies.yards10 > 0)) then
+            if ((mode.rotation == 1 and #enemies.yards10 >= getOptionValue("Arcane Explosion")) or (mode.rotation == 2 and #enemies.yards10 > 0)) then
                 if cast.arcaneExplosion("player") then return end
             end
         -- Arcane Blast
@@ -339,7 +349,7 @@ local function runRotation()
             end
         -- Arcane Explosion
             -- arcane_explosion,if=active_enemies>1&mana.pct%10*execute_time>target.time_to_die
-            if ((mode.rotation == 1 and #enemies.yards10 > 1) or (mode.rotation == 2 and #enemies.yards10 > 0)) and manaPercent / 10 * gcd > ttd(units.dyn40) then
+            if ((mode.rotation == 1 and #enemies.yards10 >= getOptionValue("Arcane Explosion")) or (mode.rotation == 2 and #enemies.yards10 > 0)) and manaPercent / 10 * gcd > ttd(units.dyn40) then
                 if cast.arcaneExplosion("player") then return end
             end
         -- Presence of Mind
@@ -354,7 +364,7 @@ local function runRotation()
             end
         -- Arcane Explosion
             -- arcane_explosion,if=active_enemies>1&buff.arcane_power.remains>cast_time
-            if ((mode.rotation == 1 and #enemies.yards10 > 1) or (mode.rotation == 2 and #enemies.yards10 > 0)) and buff.arcanePower.remain() > gcd then
+            if ((mode.rotation == 1 and #enemies.yards10 >= getOptionValue("Arcane Explosion")) or (mode.rotation == 2 and #enemies.yards10 > 0)) and buff.arcanePower.remain() > gcd then
                 if cast.arcaneExplosion("player") then return end
             end
         -- Arcane Blast
@@ -374,7 +384,7 @@ local function runRotation()
             end
         -- Arcane Explosion
             -- arcane_explosion,if=active_enemies>1
-            if ((mode.rotation == 1 and #enemies.yards10 > 1) or (mode.rotation == 2 and #enemies.yards10 > 0)) then
+            if ((mode.rotation == 1 and #enemies.yards10 >= getOptionValue("Arcane Explosion")) or (mode.rotation == 2 and #enemies.yards10 > 0)) then
                 if cast.arcaneExplosion("player") then return end
             end
         -- Arcane Barrage
@@ -387,11 +397,6 @@ local function runRotation()
             if br.timer:useTimer("delayAB", getCastTime(spell.arcaneBlast)+0.5) then
                 if cast.arcaneBlast() then return end
             end
-        -- Evocation
-            -- evocation,interrupt_if=mana.pct>99
-            if manaPercent <= 99 then
-                if cast.evocation() then return end
-            end 
         end
     -- Action List - Conserve
         local function actionList_Conserve()
@@ -425,7 +430,7 @@ local function runRotation()
             end
         -- Arcane Explosion
             -- arcane_explosion,if=mana.pct>=82&equipped.132451&active_enemies>1
-            if manaPercent >= 82 and hasEquiped(132451) and ((mode.rotation == 1 and #enemies.yards10 > 1) or (mode.rotation == 2 and #enemies.yards10 > 0)) then
+            if manaPercent >= 82 and hasEquiped(132451) and ((mode.rotation == 1 and #enemies.yards10 >= getOptionValue("Arcane Explosion")) or (mode.rotation == 2 and #enemies.yards10 > 0)) then
                 if cast.arcaneExplosion("player") then return end
             end
         -- Arcane Blast
@@ -440,7 +445,7 @@ local function runRotation()
             end
         -- Arcane Explosion
             -- arcane_explosion,if=active_enemies>1
-            if ((mode.rotation == 1 and #enemies.yards10 > 1) or (mode.rotation == 2 and #enemies.yards10 > 0)) then
+            if ((mode.rotation == 1 and #enemies.yards10 >= getOptionValue("Arcane Explosion")) or (mode.rotation == 2 and #enemies.yards10 > 0)) then
                 if arcaneExplosion("player") then return end
             end
         -- Arcane Blast
@@ -464,7 +469,7 @@ local function runRotation()
             if cast.runeOfPower("player") then return end
         -- Start Burn Phase
             -- start_burn_phase,if=((cooldown.evocation.remains-(2*burn_phase_duration))%2<burn_phase_duration)|cooldown.arcane_power.remains=0|target.time_to_die<55
-            if ((cd.evocation - (2 * burnPhaseDuration)) / 2 < burnPhaseDuration) or cd.arcanePower == 0 or ttd(units.dyn40) < 55 then
+            if manaPercent > getOptionValue("Burn Phase Start") and (cd.arcanePower == 0 or (artifact.markOfAluneth and cd.markOfAluneth == 0) or cd.runeOfPower == 0 or ttd(units.dyn40) < 55) then
                 burnPhase = true
             end
         end
@@ -487,7 +492,7 @@ local function runRotation()
             end
         -- Arcane Explosion
             -- arcane_explosion,if=active_enemies>1
-            if ((mode.rotation == 1 and #enemies.yards10 > 1) or (mode.rotation == 2 and #enemies.yards10 > 0)) then
+            if ((mode.rotation == 1 and #enemies.yards10 >= getOptionValue("Arcane Explosion")) or (mode.rotation == 2 and #enemies.yards10 > 0)) then
                 if arcaneExplosion("player") then return end
             end
         -- Arcane Blast
@@ -584,6 +589,10 @@ local function runRotation()
     --- SimulationCraft APL ---
     ---------------------------
                 if getOptionValue("APL Mode") == 1 then
+            -- Evocation
+                    if manaPercent < getOptionValue("Evocation") then
+                        if cast.evocation() then return end
+                    end
             -- Mirror Image
                     -- mirror_image,if=buff.arcane_power.down
                     if isChecked("Mirror Image") and not buff.arcanePower.exists() then
@@ -591,7 +600,7 @@ local function runRotation()
                     end
             -- Stop Burn Phase
                     -- stop_burn_phase,if=prev_gcd.1.evocation&burn_phase_duration>gcd.max
-                    if lastSpellCastSucces == spell.evocation and burnPhaseDuration > gcd then
+                    if manaPercent < getOptionValue("Burn Phase End") and burnPhaseDuration > gcd then
                         burnPhase = false
                     end
             -- Mark of Aluneth
