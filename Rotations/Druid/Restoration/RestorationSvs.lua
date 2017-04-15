@@ -73,10 +73,12 @@ local function createOptions()
             br.ui:createCheckbox(section,"Auto Shapeshifts","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFAuto Shapeshifting to best form for situation|cffFFBB00.")
 		-- DPS Save mana
             br.ui:createSpinnerWithout(section, "DPS Save mana",  40,  0,  100,  5,  "|cffFFFFFFMana Percent no Cast Sunfire and Moonfire")		
+		-- Affixes Helper
+            br.ui:createCheckbox(section,"Affixes Helper","|cff15FF00Please use abundance talent and All players Rejuvenaion Enabled")		
         br.ui:checkSectionState(section)
     -- Cooldown Options
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
-        -- 法力药水
+        --  Mana Potion
             br.ui:createSpinner(section, "Mana Potion",  50,  0,  100,  1,  "Mana Percent to Cast At") 
          -- Racial
             br.ui:createCheckbox(section,"Racial")
@@ -300,35 +302,8 @@ local function runRotation()
         end -- End Action List - Extras
         -- Action List - Pre-Combat
         function actionList_PreCombat()
-            -- Rejuvenation
-            if isChecked("Rejuvenation") then
-                rejuvCount = 0
-                for i=1, #br.friend do
-                    if buff.rejuvenation.remain(br.friend[i].unit) > 1 then
-                        rejuvCount = rejuvCount + 1
-                    end
-                end
-                for i = 1, #br.friend do
-                    if br.friend[i].hp <= getValue("Germination") and talent.germination and (rejuvCount < getValue("Max Rejuvenation Targets")) and not buff.rejuvenationGermination.exists(br.friend[i].unit) then
-                        if cast.rejuvenation(br.friend[i].unit) then return end
-                    elseif br.friend[i].hp <= getValue("Rejuvenation") and buff.rejuvenation.remain(br.friend[i].unit) <= 1 and (rejuvCount < getValue("Max Rejuvenation Targets")) then
-                        if cast.rejuvenation(br.friend[i].unit) then return end     
-                    end
-                end
-            end
-            -- Regrowth
-           if isChecked("Regrowth") and (not moving or buff.incarnationTreeOfLife.exists()) and lastSpell ~= spell.regrowth then
-                for i = 1, #br.friend do
-                    if br.friend[i].hp <= getValue("Regrowth Clearcasting") and buff.clearcasting.remain() > 1.5 then
-                        if cast.regrowth(br.friend[i].unit) then return end     
-                    elseif br.friend[i].hp <= getValue("Regrowth") and buff.regrowth.remain(br.friend[i].unit) <= 1 then
-                        if cast.regrowth(br.friend[i].unit) then return end     
-                    end
-                end
-            end
             -- Swiftmend
                 if isChecked("Swiftmend") and not isCastingSpell(spell.tranquility) and not buff.soulOfTheForest.exists() then
-                -- Player
                 -- Player
                 if getOptionValue("Swiftmend Target") == 1 then
                     if php <= getValue("Swiftmend") then
@@ -364,8 +339,52 @@ local function runRotation()
                     elseif  getOptionValue("Swiftmend Target") == 7 then
                         if cast.swiftmend(lowest.unit) then return true end
                     end
+                end
+            end		
+	        -- Affixes Helper
+           if isChecked("Affixes Helper") and talent.abundance and not isCastingSpell(spell.tranquility) then
+                for i = 1, #br.friend do  
+				    if br.friend[i].hp >= 80 and br.friend[i].hp <= 90 and buff.abundance.stack() >= 5 and not moving then
+					    if cast.healingTouch(br.friend[i].unit) then return end
+					end
+				end
+				for i = 1, #br.friend do  
+				    if br.friend[i].hp <= 80 and (not moving or buff.incarnationTreeOfLife.exists()) and buff.abundance.stack() >= 5 then
+					    if cast.regrowth(br.friend[i].unit) then return end
+					end
+				end
+				for i = 1, #br.friend do  
+				    if br.friend[i].hp <= 90 and talent.germination and not buff.rejuvenationGermination.exists(br.friend[i].unit) and moving then
+					    if cast.rejuvenation(br.friend[i].unit) then return end 
+					end
+				end	
+			end			
+            -- Rejuvenation
+            if isChecked("Rejuvenation") and not isCastingSpell(spell.tranquility) then
+                rejuvCount = 0
+                for i=1, #br.friend do
+                    if buff.rejuvenation.remain(br.friend[i].unit) > 1 then
+                        rejuvCount = rejuvCount + 1
                     end
                 end
+                for i = 1, #br.friend do
+                    if br.friend[i].hp <= getValue("Germination") and talent.germination and (rejuvCount < getValue("Max Rejuvenation Targets")) and not buff.rejuvenationGermination.exists(br.friend[i].unit) then
+                        if cast.rejuvenation(br.friend[i].unit) then return end
+                    elseif br.friend[i].hp <= getValue("Rejuvenation") and buff.rejuvenation.remain(br.friend[i].unit) <= 1 and (rejuvCount < getValue("Max Rejuvenation Targets")) then
+                        if cast.rejuvenation(br.friend[i].unit) then return end     
+                    end
+                end
+            end
+            -- Regrowth
+           if isChecked("Regrowth") and (not moving or buff.incarnationTreeOfLife.exists()) and lastSpell ~= spell.regrowth then
+                for i = 1, #br.friend do
+                    if br.friend[i].hp <= getValue("Regrowth Clearcasting") and buff.clearcasting.remain() > 1.5 then
+                        if cast.regrowth(br.friend[i].unit) then return end     
+                    elseif br.friend[i].hp <= getValue("Regrowth") and buff.regrowth.remain(br.friend[i].unit) <= 1 then
+                        if cast.regrowth(br.friend[i].unit) then return end     
+                    end
+                end
+            end
         end  -- End Action List - Pre-Combat
         local function actionList_Defensive()
             if useDefensive() then
@@ -390,9 +409,8 @@ local function runRotation()
                     end
                 end
             -- Healthstone
-                if isChecked("Healthstone") and php <= getOptionValue("Healthstone") 
-                    and inCombat and (hasHealthPot() or hasItem(5512)) 
-                then
+                if isChecked("Healthstone") and php <= getOptionValue("Healthstone") and not isCastingSpell(spell.tranquility) 
+                    and inCombat and (hasHealthPot() or hasItem(5512)) then
                     if canUse(5512) then
                         useItem(5512)
                     elseif canUse(healPot) then
@@ -400,13 +418,13 @@ local function runRotation()
                     end
                 end
             -- Barkskin
-                if isChecked("Barkskin") then
+                if isChecked("Barkskin") and not isCastingSpell(spell.tranquility) then
                     if php <= getOptionValue("Barkskin") and inCombat then
                         if cast.barkskin() then return end
                     end
                 end
             -- Renewal
-                if isChecked("Renewal") and talent.renewal then
+                if isChecked("Renewal") and talent.renewal and not isCastingSpell(spell.tranquility) then
                     if php <= getOptionValue("Renewal") and inCombat then
                         if cast.renewal() then return end
                     end
@@ -434,13 +452,13 @@ local function runRotation()
                     end
                 end
             -- Trinkets
-            if isChecked("Trinket 1") and getLowAllies(getValue("Trinket 1")) >= getValue("Min Trinket 1 Targets") then
+            if isChecked("Trinket 1") and getLowAllies(getValue("Trinket 1")) >= getValue("Min Trinket 1 Targets") and not isCastingSpell(spell.tranquility) then
                 if canUse(13) then
                     useItem(13)
                     return true
                 end
             end
-            if isChecked("Trinket 2") and getLowAllies(getValue("Trinket 2")) >= getValue("Min Trinket 2 Targets") then
+            if isChecked("Trinket 2") and getLowAllies(getValue("Trinket 2")) >= getValue("Min Trinket 2 Targets") and not isCastingSpell(spell.tranquility) then
                 if canUse(14) then
                     useItem(14)
                     return true
@@ -593,6 +611,32 @@ local function runRotation()
                     end	
                     end
                 end
+	        -- Lifebloom			
+			if isChecked("Lifebloom") and not isCastingSpell(spell.tranquility) then
+		        for i = 1, #br.friend do    
+                    if br.friend[i].hp <= 70 and buff.lifebloom.remain(br.friend[i].unit) < 5 and buff.lifebloom.remain(br.friend[i].unit) > 0 and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
+		                if cast.lifebloom(br.friend[i].unit) then return end
+		                end
+		            end
+		        end					
+	        -- Affixes Helper
+           if isChecked("Affixes Helper") and talent.abundance and not isCastingSpell(spell.tranquility) then
+                for i = 1, #br.friend do  
+				    if br.friend[i].hp >= 80 and br.friend[i].hp <= 90 and buff.abundance.stack() >= 5 and not moving then
+					    if cast.healingTouch(br.friend[i].unit) then return end
+					end
+				end
+				for i = 1, #br.friend do  
+				    if br.friend[i].hp <= 80 and (not moving or buff.incarnationTreeOfLife.exists()) and buff.abundance.stack() >= 5 then
+					    if cast.regrowth(br.friend[i].unit) then return end
+					end
+				end
+				for i = 1, #br.friend do  
+				    if br.friend[i].hp <= 90 and talent.germination and not buff.rejuvenationGermination.exists(br.friend[i].unit) and moving then
+					    if cast.rejuvenation(br.friend[i].unit) then return end 
+					end
+				end	
+			end		
             -- Oh Shit! Regrowth
            if isChecked("Regrowth") and (not moving or buff.incarnationTreeOfLife.exists()) and not isCastingSpell(spell.tranquility) then
                 for i = 1, #br.friend do                           
@@ -601,14 +645,7 @@ local function runRotation()
                     end
                 end
             end				
-            -- Lifebloom
-			if isChecked("Lifebloom") and not isCastingSpell(spell.tranquility) then
-		        for i = 1, #br.friend do    
-                    if br.friend[i].hp <= 70 and buff.lifebloom.remain(br.friend[i].unit) < 5 and buff.lifebloom.remain(br.friend[i].unit) > 0 and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
-		                if cast.lifebloom(br.friend[i].unit) then return end
-		                end
-		            end
-		        end				
+            -- Lifebloom			
             if isChecked("Lifebloom") and not isCastingSpell(spell.tranquility) then
                 if inInstance then    
                     for i = 1, #br.friend do
@@ -887,7 +924,7 @@ local function runRotation()
 ---------------------------------
 --- Out Of Combat - Rotations ---
 ---------------------------------
-            if not inCombat and not IsMounted() and not stealthed and not drinking then
+            if not inCombat and not IsMounted() and not stealthed and not drinking and not buff.shadowmeld.exists() then
                 actionList_Extras()
                 if isChecked("OOC Healing") then
                     actionList_PreCombat()
@@ -897,7 +934,7 @@ local function runRotation()
 -----------------------------
 --- In Combat - Rotations --- 
 -----------------------------
-            if inCombat and not IsMounted() and not stealthed and not drinking then
+            if inCombat and not IsMounted() and not stealthed and not drinking and not buff.shadowmeld.exists() then
 		        actionList_Rejuvenaion()
                 actionList_Extras()
                 actionList_Defensive()				
