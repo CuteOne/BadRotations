@@ -466,7 +466,9 @@ local function runRotation()
             end
         -- Rune of Power
             -- rune_of_power
-            if cast.runeOfPower("player") then return end
+            if isChecked("Rune of Power") then
+                if cast.runeOfPower("player") then return end
+            end
         -- Start Burn Phase
             -- start_burn_phase,if=((cooldown.evocation.remains-(2*burn_phase_duration))%2<burn_phase_duration)|cooldown.arcane_power.remains=0|target.time_to_die<55
             if manaPercent > getOptionValue("Burn Phase Start") and (cd.arcanePower == 0 or (artifact.markOfAluneth and cd.markOfAluneth == 0) or cd.runeOfPower == 0 or ttd(units.dyn40) < 55) then
