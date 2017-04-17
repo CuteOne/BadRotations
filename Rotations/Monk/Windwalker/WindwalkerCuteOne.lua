@@ -262,7 +262,7 @@ local function runRotation()
         if TPEETimer == nil then TPEETimer = GetTime() end
         if hasEquiped(137029) then FoFCost = 2 else FoFCost = 3 end
 
-        -- ChatOverlay(GetSpellInfo(lastCombo))
+        -- ChatOverlay(round2(getDistance("target","player","dist"),2)..", "..round2(getDistance("target","player","dist2"),2)..", "..round2(getDistance("target","player","dist3"),2)..", "..round2(getDistance("target","player","dist4"),2)..", "..round2(getDistance("target"),2))
 
         
         if isCastingSpell(spell.cracklingJadeLightning) 
@@ -385,7 +385,7 @@ local function runRotation()
                 * baseStatMultiplier() -- + Stats
                 * (1 + (buff.hitCombo.stack() * 0.02)) -- + Buffs
                 * getEnemiesInCone(5,90)
-                * (buff.transferThePower.stack() * 0.03) -- + Transfer of Power
+                * (1 + (buff.transferThePower.stack() * 0.03)) -- + Transfer of Power
                 * (1 + (artifact.rank.ferocityOfTheBrokenTemple * 0.1))
                 + crosswindsDmg())
                 / chiCost) -- Chi Spent
@@ -396,7 +396,7 @@ local function runRotation()
         end
 
         local function spinningCraneKickDmg()
-            if chi >= 3 and cd.fistsOfFury ~= 0 then
+            if chi >= 3 then --and cd.fistsOfFury ~= 0 then
                 return (((4 * UnitAttackPower("player")) -- Base Dmg
                     * (1 + (artifact.rank.powerOfAThousandCranes * 0.03)) * (1 + (artifact.rank.windborneBlows * 0.05)) -- + Traits
                     * baseStatMultiplier() -- + Stats

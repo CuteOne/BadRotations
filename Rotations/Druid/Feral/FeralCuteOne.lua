@@ -228,6 +228,7 @@ local function runRotation()
         local stealth                                       = br.player.stealth
         local t18_2pc                                       = TierScan("T18")>=2 --br.player.eq.t18_2pc
         local t18_4pc                                       = TierScan("T18")>=4 --br.player.eq.t18_4pc
+        local t19_4pc                                       = TierScan("T19")>=4
         local talent                                        = br.player.talent
         local travel, flight, cat, noform                   = br.player.buff.travelForm.exists(), br.player.buff.flightForm.exists(), br.player.buff.catForm.exists(), GetShapeshiftForm()==0
         local trinketProc                                   = false
@@ -745,7 +746,7 @@ local function runRotation()
         -- Savage Roar
             -- savage_roar,if=((buff.savage_roar.remains<=10.5&talent.jagged_wounds.enabled)|(buff.savage_roar.remains<=7.2))&combo_points=5&(energy.time_to_max<1|buff.berserk.up|buff.incarnation.up|buff.elunes_guidance.up|cooldown.tigers_fury.remains<3|set_bonus.tier18_4pc|(buff.clearcasting.react&energy>65)|talent.soul_of_the_forest.enabled|!dot.rip.ticking|(dot.rake.remains<1.5&spell_targets.swipe_cat<6))
             if ((buff.savageRoar.remain() <= 10.5 and talent.jaggedWounds) or buff.savageRoar.remain() <= 7.2)
-                and combo == 5 and (ttm < 1 or buff.berserk.exists() or buff.incarnationKingOfTheJungle.exists()
+                and (combo == 5 or not buff.savageRoar.exists()) and (ttm < 1 or buff.berserk.exists() or buff.incarnationKingOfTheJungle.exists()
                 or buff.elunesGuidance.exists() or cd.tigersFury < 3 or t18_4pc or (buff.clearcasting.exists() and power < 65)
                 or talent.soulOfTheForest or not debuff.rake.exists(units.dyn5) or (debuff.rake.remain(units.dyn5) < 1.5 and #enemies.yards8 < 6))
             then
@@ -873,8 +874,8 @@ local function runRotation()
             end
         -- Thrash
             -- pool_resource,for_next=1
-            -- thrash_cat,cycle_targets=1,if=remains<=duration*0.3&(spell_targets.swipe_cat>=2|(buff.clearcasting.up&buff.bloodtalons.down))
-            if ((mode.rotation == 1 and (#enemies.yards8 >= 2 or (buff.clearcasting.exists() and not buff.bloodtalons.exists()))) or mode.rotation == 2) then
+            -- thrash_cat,cycle_targets=1,if=remains<=duration*0.3&(spell_targets.swipe_cat>=2|(buff.clearcasting.up&buff.bloodtalons.down&set_bonus.tier19_4pc))
+            if ((mode.rotation == 1 and (#enemies.yards8 >= 2 or (buff.clearcasting.exists() and not buff.bloodtalons.exists() and t19_4pc))) or mode.rotation == 2) then
                 for i = 1, #enemies.yards8 do
                     local thisUnit = enemies.yards8[i]
                     if (multidot or (UnitIsUnit(thisUnit,units.dyn5) and not multidot)) and getDistance(thisUnit) < 5 then
