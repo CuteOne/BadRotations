@@ -133,6 +133,8 @@ Rotations\Mage\Fire\FireCuteOne.lua
 
 Rotations\Mage\Frost\FrostCuteOne.lua
 
+Rotations\Mage\Frost\FrostLyLoLoq.lua
+
 ## Monk ---------------------------------------------------
 
 Rotations\Monk\Mistweaver\MistweaverLyLoLoq.lua
