@@ -199,7 +199,7 @@ local function runRotation()
         if burnPhase and burnPhaseStart == 0 then burnPhaseStart = GetTime(); end
         if burnPhase and burnPhaseStart ~= 0 then burnPhaseDuration = GetTime() - burnPhaseStart end
 
-        ChatOverlay("Burn Phase: "..tostring(burnPhase)..", Burn Started: "..round2(burnPhaseStart,2)..", Burn Duration: "..round2(burnPhaseDuration,2))
+        -- ChatOverlay("Burn Phase: "..tostring(burnPhase)..", Burn Started: "..round2(burnPhaseStart,2)..", Burn Duration: "..round2(burnPhaseDuration,2))
 
 --------------------
 --- Action Lists ---
@@ -379,7 +379,7 @@ local function runRotation()
             end
         -- Arcane Missles
             -- arcane_missiles,if=mana.pct>10&(talent.overpowered.enabled|buff.arcane_power.down)
-            if manaPercent > 10 and (talent.overpowered or not buff.arcanePower.exists()) then
+            if manaPercent > 10 and (talent.overpowered or not buff.arcanePower.exists()) and buff.arcaneMissles.stack() > 1 then
                 if cast.arcaneMissles() then return end
             end
         -- Arcane Explosion
@@ -422,7 +422,9 @@ local function runRotation()
             end
         -- Arcane Missles
             -- arcane_missles
-            if cast.arcaneMissles() then return end
+            if buff.arcaneMissles.stack() > 1 then
+                if cast.arcaneMissles() then return end
+            end
         -- Supernova
             -- supernova,if=mana.pct<100
             if manaPercent < 100 and useCDs() then
@@ -458,7 +460,7 @@ local function runRotation()
         local function actionList_InitBurn()
         -- Mark of Aluneth
             -- mark_of_aluneth
-            if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()) then
+            if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()) and buff.arcaneCharge.stack() >= 4 then
                 if cast.markOfAluneth() then return end
             end
         -- Nether Tempest
@@ -609,7 +611,7 @@ local function runRotation()
                     end
             -- Mark of Aluneth
                     -- mark_of_aluneth,if=cooldown.arcane_power.remains>20
-                    if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()) and cd.arcanePower > 20 then
+                    if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()) and cd.arcanePower > 20 and buff.arcaneCharge.stack() >= 4 then
                         if cast.markOfAluneth() then return end
                     end
             -- Call Action List - Build
