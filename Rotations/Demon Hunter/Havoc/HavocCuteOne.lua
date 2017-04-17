@@ -230,21 +230,21 @@ local function runRotation()
         end
     -- Blade Dance Variable
         -- blade_dance,value=talent.first_blood.enabled|set_bonus.tier20_2pc|spell_targets.blade_dance1>=3+(talent.chaos_cleave.enabled*2)
-        if talent.firstBlood or t20_2pc or ((mode.rotation == 1 and #enemies.yards8 >= 3 + (chaleave * 2)) or mode.rotation == 2) then
+        if talent.firstBlood or t20_2pc or ((mode.rotation == 1 and #enemies.yards8 >= getOptionValue("Units To AoE")) or mode.rotation == 2) then
             bladeDanceVar = true
         else
             bladeDanceVar = false
         end
     -- Pool for Blade Dance Var
         -- pooling_for_blade_dance,value=variable.blade_dance&fury-40<35-talent.first_blood.enabled*20&(spell_targets.blade_dance1>=3+(talent.chaos_cleave.enabled*2))
-        if bladeDanceVar and power - 40 < 35 - flood * 20 and ((mode.rotation == 1 and #enemies.yards8 >= 3 + (chaleave * 2)) or mode.rotation == 2) then
+        if bladeDanceVar and power - 40 < 35 - flood * 20 and ((mode.rotation == 1 and #enemies.yards8 >= getOptionValue("Units To AoE")) or mode.rotation == 2) then
             poolForBladeDance = true
         else
             poolForBladeDance = false
         end
     -- Pool for Chaos Strike
         -- pooling_for_chaos_strike,value=talent.chaos_cleave.enabled&fury.deficit>40&!raid_event.adds.up&raid_event.adds.in<2*gcd
-        if talent.chaosCleave and powerDeficit > 40 and not addsExist and addsIn < 2 * gcd then
+        if talent.chaosCleave and powerDeficit > 40 then --and not addsExist and addsIn < 2 * gcd then
             poolForChaosStrike = true
         else
             poolForChaosStrike = false
@@ -507,7 +507,9 @@ local function runRotation()
             end
         -- Annihilation
             -- annihilation,if=(!talent.momentum.enabled|buff.momentum.up|fury.deficit<30+buff.prepared.up*8|buff.metamorphosis.remains<5)&!variable.pooling_for_blade_dance
-            if buff.metamorphosis.exists() and (not talent.momentum or buff.momentum.exists() or powerDeficit < 30 + prepared * 8 or buff.metamorphosis.remain() < 5) and not poolForBladeDance then
+            if buff.metamorphosis.exists() and (not talent.momentum or buff.momentum.exists() or (powerDeficit < 30 + (prepared * 8) + (artifact.rank.containedFury * 10)) or buff.metamorphosis.remain() < 5) 
+                and not poolForBladeDance 
+            then
                 if cast.chaosStrike() then return end
             end
         -- Throw Glaive
@@ -517,7 +519,9 @@ local function runRotation()
             end
         -- Chaos Strike
             -- chaos_strike,if=(!talent.momentum.enabled|buff.momentum.up|fury.deficit<30+buff.prepared.up*8)&!variable.pooling_for_chaos_strike&!variable.pooling_for_meta&!variable.pooling_for_blade_dance
-            if not buff.metamorphosis.exists() and (not talent.momentum or buff.momentum.exists() or powerDeficit < 30 + prepared * 8) and not poolForChaosStrike and not poolForMeta and not poolForBladeDance then
+            if not buff.metamorphosis.exists() and (not talent.momentum or buff.momentum.exists() or (powerDeficit < 30 + (prepared * 8) + (artifact.rank.containedFury * 10))) 
+                and not poolForChaosStrike and not poolForMeta and not poolForBladeDance 
+            then
                 if cast.chaosStrike() then return end
             end
         -- Fel Rush
@@ -712,7 +716,7 @@ local function runRotation()
         --     end
         -- Throw Glaive
             -- throw_glaive,if=!talent.bloodlet.enabled
-            if not talent.bloodlet then
+            if not talent.bloodlet and ((talent.demonBlades and swingTimer > 0) or power < 20) then
                 if cast.throwGlaive("target") then return end
             end
         end -- End Action List - Normal

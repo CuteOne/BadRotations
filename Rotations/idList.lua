@@ -296,6 +296,7 @@ br.idList = {
             },
             artifacts                       = {
                 anguishOfTheDeceiver        = 201473,
+                containedFury               = 201454,
                 demonSpeed                  = 201469,
                 furyOfTheIllidari           = 201467,
                 warglaivesOfChaos           = 214795,
