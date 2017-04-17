@@ -398,11 +398,10 @@ local function runRotation()
         local function spinningCraneKickDmg()
             if chi >= 3 then --and cd.fistsOfFury ~= 0 then
                 return (((4 * UnitAttackPower("player")) -- Base Dmg
-                    * (1 + (artifact.rank.powerOfAThousandCranes * 0.03)) * (1 + (artifact.rank.windborneBlows * 0.05)) -- + Traits
+                    * (1 + (artifact.rank.powerOfAThousandCranes * 0.03)) * ((1 + (artifact.rank.windborneBlows * 0.05)) * (1 + (artifact.rank.ferocityOfTheBrokenTemple * 0.1)))) -- + Traits
                     * baseStatMultiplier() -- + Stats
                     * (1 + (buff.hitCombo.stack() * 0.02)) -- + Buffs
                     * #enemies.yards8 * (1 + (debuff.markOfTheCrane.count() * 0.5)) --  + Mark of the Crane
-                    * (1 + (artifact.rank.ferocityOfTheBrokenTemple * 0.1)))
                     / 3) -- Chi Spent
             else
                 return 0
@@ -1057,7 +1056,7 @@ local function runRotation()
             end
         -- Rising Sun Kick
             -- rising_sun_kick,cycle_targets=1,if=((chi>=3&energy>=40)|chi>=5)&(!talent.serenity.enabled|cooldown.serenity.remains>=5)
-            if ((chi >= 3 and power >= 40) or chi >= 5) and (not talent.serenity or cd.serenity >= 5) then
+            if ((chi >= 3 and power >= 40) or chi >= 5) and (not talent.serenity or cd.serenity >= 5 or not isChecked("Serenity") or not useCDs()) then
                 if BetterThanRSK == true and lastCombo ~= spell.spinningCraneKick then
                     if cast.spinningCraneKick() then return end
                 else
@@ -1078,7 +1077,7 @@ local function runRotation()
             end
         -- Rising Sun Kick
             -- rising_sun_kick,cycle_targets=1,if=!talent.serenity.enabled|cooldown.serenity.remains>=5
-            if not talent.serenity or cd.serenity >= 5 then
+            if not talent.serenity or cd.serenity >= 5 or not isChecked("Serenity") or not useCDs() then
                 if BetterThanRSK == true and lastCombo ~= spell.spinningCraneKick then
                     if cast.spinningCraneKick() then return end
                 else
