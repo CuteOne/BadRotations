@@ -240,7 +240,7 @@ local function createOptions()
         -- Quaking Palm - Int
             br.ui:createCheckbox(section,"Quaking Palm - Int")
         -- Interrupt Percentage
-            br.ui:createSpinner(section, "Interrupt At",  30,  0,  95,  5,  "|cffFFFFFFCast Percent to Cast At. Default: 30")
+            br.ui:createSpinner(section, "Interrupt At",  0,  0,  95,  5,  "|cffFFFFFFCast Percent to Cast At. Default: 0")
         br.ui:checkSectionState(section)
         -- Toggle Key Options
         section = br.ui:createSection(br.ui.window.profile, "Toggle Keys")
@@ -438,7 +438,7 @@ local function runRotation()
         end
         --Spread Atonement
         function actionList_SpreadAtonement(u)
-            if getLineOfSight("player",br.friend[u].unit) and not buff.rapture.exists("player") and (inInstance or inRaid or inCombat) and mode.healer ~= 4 and not buff.powerWordShield.exists(br.friend[u].unit) and getBuffRemain(br.friend[u].unit, spell.buffs.atonement, "player") < 1 then
+            if getLineOfSight("player",br.friend[u].unit) and not buff.rapture.exists("player") and (inInstance or inRaid or inCombat or isInPvP() or not solo) and mode.healer ~= 4 and not buff.powerWordShield.exists(br.friend[u].unit) and getBuffRemain(br.friend[u].unit, spell.buffs.atonement, "player") < 1 then
                 -- Ephemeral Paradox trinket with Temporal Shift buff
                 if epTrinket and not freeMana and norganBuff then
                     if cast.shadowMend(br.friend[u].unit) then return end
@@ -544,7 +544,7 @@ local function runRotation()
                             end
                             targetBoss = units.dyn40
                             if norganBuff and isBoss(targetBoss) and getDistance("player",targetBoss) < 40 and ((inRaid and atonementCount >= getOptionValue("Max Atonement")) or (inInstance and atonementCount >= #br.friend)) or (not inInstance and not inRaid) then
-                                if (talent.schism and isChecked("Schism") and schismBuff and isValidUnit(schismBuff)) or not talent.schism or not isChecked("Schism") then
+                                if (talent.schism and isChecked("Schism") and debuff.schism.exists(schismBuff)) or not talent.schism or not isChecked("Schism") then
                                     if cast.lightsWrath(targetBoss) then return end
                                 end
                             end
@@ -758,20 +758,19 @@ local function runRotation()
             --Purify
             if mode.decurse == 1 then
                 for i = 1, #br.friend do
+                    --High Botanist Tel'arn Parasitic Fetter dispel helper
+                    if isChecked("Parasitic Fetter Dispel Helper Raid") and UnitDebuffID(br.friend[i].unit,218304) then
+                        if #getAllies(br.friend[i].unit,15) < 2 then
+                            if cast.purify(br.friend[i].unit) then return end
+                        end
+                    end
                     for n = 1,40 do
                         local buff,_,_,count,bufftype,duration = UnitDebuff(br.friend[i].unit, n)
                         if buff then
-                            if (bufftype == "Disease" or bufftype == "Magic") then
-                                --High Botanist Tel'arn Parasitic Fetter dispel helper
-                                if isChecked("Parasitic Fetter Dispel Helper") and UnitDebuffID(br.friend[i].unit,218304) then
-                                    if #getAllies(br.friend[i].unit,15) < 2 then
-                                        if cast.purify(br.friend[i].unit) then return end
-                                    end
-                                elseif mode.healer == 1 or mode.healer == 2 then
-                                    if cast.purify(br.friend[i].unit) then return end
-                                elseif mode.healer == 3 and UnitIsUnit(br.friend[i].unit,"player") then
-                                    if cast.purify("player") then return end
-                                end
+                            if (bufftype == "Disease" or bufftype == "Magic") and (mode.healer == 1 or mode.healer == 2 or (mode.healer == 3 and UnitIsUnit(br.friend[i].unit,"player"))) then
+                                if getSpellCD(spell.purify) > 1 and norganBuff then
+                                    if castGround(br.friend[i].unit, spell.massDispel, 30) then return end
+                                elseif cast.purify(br.friend[i].unit) then return end
                             end
                         end
                     end
@@ -868,7 +867,7 @@ local function runRotation()
             --Schism
             if talent.schism and isChecked("Schism") and getMana("player") > 20 and getSpellCD(spell.schism) <= 0 and (atonementCount >= getValue("Schism") or freeCast) and norganBuff then
                 if not debuff.schism.exists(schismBuff) then
-                    schismBuff = enemies.dyn40
+                    schismBuff = units.dyn40
                 end
                 if UnitIsUnit(schismBuff,"target") or hasThreat(schismBuff) or isDummy(schismBuff) then
                     if debuff.schism.remain(schismBuff) < gcd then
@@ -899,7 +898,7 @@ local function runRotation()
             end
             --Mindbender
             if isChecked("Mindbender") and getMana("player") <= getValue("Mindbender") then
-                if schismBuff then
+                if debuff.schism.exists(schismBuff) then
                     if cast.mindbender(schismBuff) then return end
                 end
                 if cast.mindbender() then return end
@@ -907,7 +906,7 @@ local function runRotation()
            --Shadowfiend
             if isChecked("Shadowfiend") then
                 if getLowAllies(getValue("Shadowfiend")) >= getValue("Shadowfiend Targets") then
-                    if schismBuff then
+                    if debuff.schism.exists(schismBuff) then
                         if cast.shadowfiend(schismBuff) then return end
                     end
                     if cast.shadowfiend() then return end    
@@ -915,7 +914,7 @@ local function runRotation()
             end
             --PowerWordSolace
             if isChecked("Power Word: Solace") then
-                if schismBuff then
+                if debuff.schism.exists(schismBuff) then
                     if cast.powerWordSolace(schismBuff) then return end
                 end
                 if cast.powerWordSolace() then return end
@@ -977,7 +976,7 @@ local function runRotation()
             --Smite
             if isChecked("Smite") and norganBuff and getSpellCD(spell.penance) > 1 then
                 if (getMana("player") > 20 and ((not inInstance and not inRaid) or atonementCount >= getValue("Smite"))) or freeCast then
-                    if schismBuff then
+                    if debuff.schism.exists(schismBuff) then
                         if cast.smite(schismBuff) then return end
                     end
                     if cast.smite() then return end
