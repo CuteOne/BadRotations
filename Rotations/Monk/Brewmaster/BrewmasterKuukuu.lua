@@ -662,7 +662,7 @@ local function runRotation()
 --- In Combat Rotation ---
 --------------------------
             if isChecked("Opener") then
-                if opener == false and hastar and isBoss("target") and getDistance("target") < 10 and (charges.purifyingBrew == 3 or openerStarted == true) then
+                if opener == false and hastar and not UnitIsFriend("target","player") and isBoss("target") and getDistance("target") < 10 and (charges.purifyingBrew == 3 or openerStarted == true) then
                     if actionList_Opener() then return end
                 elseif opener == false and openerStarted == false and hastar and charges.purifyingBrew < 3 then
                     opener = true
