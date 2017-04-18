@@ -55,12 +55,12 @@ local function createOptions()
             br.ui:createSpinnerWithout(section, "Arcane Explosion", 5, 1, 10, 1, "|cffFFFFFFSet to desired units to use Arcane Explosion.")
         -- Burn Phase Debug
             br.ui:createCheckbox(section, "Burn Phase Debug", "|cffFFFFFFShow burn phase status and duration, requires Chat Overlay option to be enabled.")
-        -- Burn Phase Start
-            br.ui:createSpinnerWithout(section, "Burn Phase Start", 70, 0, 100, 5, "|cffFFFFFFSet to desired mana percent to start burn phase.")
-        -- Burn Phase End
-            br.ui:createSpinnerWithout(section, "Burn Phase End", 35, 0, 100, 5, "|cffFFFFFFSet to desired mana percent to stop burn phase.")
-        -- Evocation
-            br.ui:createSpinnerWithout(section, "Evocation", 40, 0, 100, 5, "|cffFFFFFFSet to desired mana percent to use evocation at.")
+        -- -- Burn Phase Start
+        --     br.ui:createSpinnerWithout(section, "Burn Phase Start", 70, 0, 100, 5, "|cffFFFFFFSet to desired mana percent to start burn phase.")
+        -- -- Burn Phase End
+        --     br.ui:createSpinnerWithout(section, "Burn Phase End", 35, 0, 100, 5, "|cffFFFFFFSet to desired mana percent to stop burn phase.")
+        -- -- Evocation
+        --     br.ui:createSpinnerWithout(section, "Evocation", 40, 0, 100, 5, "|cffFFFFFFSet to desired mana percent to use evocation at.")
         br.ui:checkSectionState(section)
     -- Cooldown Options
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
@@ -196,13 +196,19 @@ local function runRotation()
         if leftCombat == nil then leftCombat = GetTime() end
         if profileStop == nil then profileStop = false end
         if talent.overpowered or not buff.arcanePower.exists() then overArcaned = 1 else overArcaned = 0 end
+        if burnPhaseDuration == nil then burnPhaseDuration = 0 end
         if burnPhase == nil or not inCombat then burnPhase = false end
-        if not burnPhase then burnPhaseDuration = 0; burnPhaseStart = 0 end
+        if not burnPhase then burnPhaseStart = 0; burnTimer = 0 end
         if burnPhase and burnPhaseStart == 0 then burnPhaseStart = GetTime(); end
-        if burnPhase and burnPhaseStart ~= 0 then burnPhaseDuration = GetTime() - burnPhaseStart end
+        if burnPhase and burnPhaseStart ~= 0 then burnTimer = GetTime() - burnPhaseStart end
 
         if isChecked("Burn Phase Debug") then
-            ChatOverlay("Burn Phase: "..tostring(burnPhase)..", Burn Started: "..round2(burnPhaseStart,2)..", Burn Duration: "..round2(burnPhaseDuration,2))
+            ChatOverlay("Burn: "..tostring(burnPhase)..", Timer: "..round2(burnTimer,2)..", Duration: "..round2(burnPhaseDuration,2))
+        end
+
+        if lastSpell == spell.evocation and burnPhaseDuration == 0 then
+            -- print("Evocated")
+            burnPhaseDuration = burnTimer
         end
 
 --------------------
@@ -403,6 +409,9 @@ local function runRotation()
             -- if arcaneCharges == 4 then
             --     if cast.arcaneBarrage() then return end
             -- end
+        -- Evocation
+            -- evocation,interrupt_if=mana.pct>99
+            if cast.evocation() then return end
         end
     -- Action List - Conserve
         local function actionList_Conserve()
@@ -485,8 +494,10 @@ local function runRotation()
             end
         -- Start Burn Phase
             -- start_burn_phase,if=((cooldown.evocation.remains-(2*burn_phase_duration))%2<burn_phase_duration)|cooldown.arcane_power.remains=0|target.time_to_die<55
-            if manaPercent >= getOptionValue("Burn Phase Start") and ((cd.evocation < 30 and cd.arcanePower == 0) or (ttd(units.dyn40) < 55 and isBoss(units.dyn40))) then
-                burnPhase = true 
+            -- if manaPercent >= getOptionValue("Burn Phase Start") and ((cd.evocation < 30 and cd.arcanePower == 0) or (ttd(units.dyn40) < 55 and isBoss(units.dyn40))) then
+            if useCDs() and not burnPhase and ((cd.evocation <= burnPhaseDuration and cd.arcanePower == 0)) then -- or (ttd(units.dyn40) < 55 and isBoss(units.dyn40))) then
+                burnPhase = true;
+                burnPhaseDuration = 0; 
             end
         end
     -- Action List - ROP Phase
@@ -607,10 +618,6 @@ local function runRotation()
     --- SimulationCraft APL ---
     ---------------------------
                 if getOptionValue("APL Mode") == 1 then
-            -- Evocation
-                    if manaPercent < getOptionValue("Evocation") then
-                        if cast.evocation() then return end
-                    end
             -- Mirror Image
                     -- mirror_image,if=buff.arcane_power.down
                     if isChecked("Mirror Image") and useCDs() and not buff.arcanePower.exists() then
@@ -618,7 +625,8 @@ local function runRotation()
                     end
             -- Stop Burn Phase
                     -- stop_burn_phase,if=prev_gcd.1.evocation&burn_phase_duration>gcd.max
-                    if manaPercent < getOptionValue("Burn Phase End") and burnPhaseDuration > gcd then
+                    -- if manaPercent < getOptionValue("Burn Phase End") and burnPhaseDuration > gcd then
+                    if lastSpell == spell.evocation and burnPhaseDuration > gcd then
                         burnPhase = false
                     end
             -- Mark of Aluneth
