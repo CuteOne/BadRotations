@@ -582,7 +582,7 @@ local function runRotation()
                      useItem(138292)
                 end
             end
-            if not isMoving("player") and isChecked("Drink") and getMana("player") <= getOptionValue("Drink") and canUse(138292) and not IsResting() then
+            if not isMoving("player") and isChecked("Drink") and getMana("player") <= getOptionValue("Drink") and canUse(138292) then
                 useItem(138292)
             end
             if isChecked("OOC Healing") then
@@ -994,13 +994,13 @@ local function runRotation()
 --- Rotations ---
 -----------------
         -- Pause
-        if pause() or mode.rotation == 4 then
+        if pause() or mode.rotation == 4 or (getBuffRemain("player", 192001) > 0 and getMana("player") < 100) or getBuffRemain("player", 192002) > 10 or (getBuffRemain("player", 192002) > 0 and getMana("player") < 100) or getBuffRemain("player", 188023) > 0 or getBuffRemain("player", 175833) > 0 then
             return true
         else
 ---------------------------------
 --- Out Of Combat - Rotations ---
 ---------------------------------
-            if not inCombat and not IsMounted() and (getBuffRemain("player", 192001) < 1 or (getBuffRemain("player", 192001) > 1 and getMana("player") == 100)) and getBuffRemain("player", 192002) < 10 and getBuffRemain("player", 188023) < 1 and getBuffRemain("player", 175833) < 1 then
+            if not inCombat and not IsMounted() then
                 actionList_PreCombat()
                 actionList_CheckAtonement()
                 actionList_SingleTargetHeal()
