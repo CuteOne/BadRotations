@@ -425,12 +425,12 @@ local function runRotation()
             --Shadow Mend Emergency Self
             if isChecked("Shadow Mend Emergency") or isChecked("Shadow Mend Emergency Self") then
                 for i = 1, #br.friend do
-                    if br.friend[i].hp <= getValue("Shadow Mend Emergency") then
+                    if br.friend[i].hp <= getValue("Shadow Mend Emergency") and isChecked("Shadow Mend Emergency") then
                         if mode.healer == 1 or mode.healer == 2 or (mode.healer == 3 and UnitIsUnit(br.friend[i].unit,"player")) then
                             actionList_MitigateDamage(i,getValue("Shadow Mend Emergency"))
                         end
                     end
-                    if br.friend[i].hp <= getValue("Shadow Mend Emergency Self") and UnitIsUnit(br.friend[i].unit,"player") then
+                    if br.friend[i].hp <= getValue("Shadow Mend Emergency Self") and isChecked("Shadow Mend Emergency Self") and UnitIsUnit(br.friend[i].unit,"player") then
                         actionList_MitigateDamage(i,getValue("Shadow Mend Emergency Self"))
                     end
                 end
