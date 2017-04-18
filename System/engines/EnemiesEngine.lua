@@ -165,7 +165,7 @@ function dynamicTarget(range,facing)
 		for k, v in pairs(br.enemy) do
 			local thisUnit = v--br.enemy[k]
 			local thisDistance = getDistance("player",thisUnit.unit)
-			if isChecked("Hostiles Only") == false or (getOptionCheck("Hostiles Only") and UnitReaction("player", thisUnit.unit)) == 2 then
+			if isChecked("Hostiles Only") == false or (getOptionCheck("Hostiles Only") and UnitReaction(thisUnit.unit,"player")) == 2 then
 				if GetUnitExists(thisUnit.unit) and ObjectID(thisUnit.unit) ~= 103679 and thisUnit.coeficient ~= nil and getLineOfSight("player", thisUnit.unit) and not UnitIsTrivial(thisUnit.unit) and UnitCreatureType(thisUnit.unit) ~= "Critter" then
 					if (not getOptionCheck("Safe Damage Check") or thisUnit.safe) and not thisUnit.isCC
 							and thisDistance < range and (not facing or thisUnit.facing)
