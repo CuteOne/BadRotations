@@ -1000,7 +1000,7 @@ local function runRotation()
 ---------------------------------
 --- Out Of Combat - Rotations ---
 ---------------------------------
-            if not inCombat and not IsMounted() and getBuffRemain("player", 192001) < 1 and getBuffRemain("player", 192002) < 10 and getBuffRemain("player", 188023) < 1 and getBuffRemain("player", 175833) < 1 then
+            if not inCombat and not IsMounted() and (getBuffRemain("player", 192001) < 1 or (getBuffRemain("player", 192001) > 1 and getMana("player") == 100)) and getBuffRemain("player", 192002) < 10 and getBuffRemain("player", 188023) < 1 and getBuffRemain("player", 175833) < 1 then
                 actionList_PreCombat()
                 actionList_CheckAtonement()
                 actionList_SingleTargetHeal()
