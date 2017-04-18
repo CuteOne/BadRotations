@@ -569,7 +569,7 @@ actions+=/hammer_of_the_righteous]]
                         if cast.avengersShield() then return end
                     end
             -- Consecration actions+=/consecration
-                    if isChecked("Consecration") and not isMoving("player") and (not buff.consecration.exists()) and getDistance(units.dyn5) < 5 then
+                    if isChecked("Consecration") and not isMoving("player") and getDistance(units.dyn5) < 5 then
                         if cast.consecration() then return end
                     end
             -- Judgment actions+=/judgment

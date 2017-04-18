@@ -130,7 +130,11 @@ function br.read.combatLog()
         end
 
         if swingTimer then
-            swingTimer = nextMH - GetTime()
+            if nextMH - GetTime() < 0 then
+                swingTimer = 0
+            else
+                swingTimer = nextMH - GetTime()
+            end
         end
         -----------------------------------
         --[[ Item Use Success Recorder ]]

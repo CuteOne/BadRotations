@@ -296,6 +296,7 @@ br.idList = {
             },
             artifacts                       = {
                 anguishOfTheDeceiver        = 201473,
+                containedFury               = 201454,
                 demonSpeed                  = 201469,
                 furyOfTheIllidari           = 201467,
                 warglaivesOfChaos           = 214795,
@@ -1127,7 +1128,7 @@ br.idList = {
             buffs                           = {
               arcaneFamiliar                = 210126,
               arcanePower                   = 12042,
-              arcaneCharge                  = 36032,
+              -- arcaneCharge                  = 36032,
               arcaneMissles                 = 79683,
               presenceOfMind                = 205025,
               rhoninsAssaultingArmwraps     = 208081,
@@ -1226,21 +1227,24 @@ br.idList = {
                 iceLance                    = 30455,
                 icyVeins                    = 12472,
                 summonWaterElemental        = 31687,
+                rayOfFrost                  = 205021,
+                iceBarrier                  = 11426,
             },
             artifacts                       = {
                 ebonbolt                    = 214634,
                 icyHand                     = 220817,
             },
             buffs                           = {
-                brainFreeze                 = 190447,
+                brainFreeze                 = 190446,
                 frostBomb                   = 112948,
-                fingersOfFrost              = 112965,
+                fingersOfFrost              = 44544,
                 icyVeins                    = 12472,
                 chainReaction               = 195418,
                 zannesuJourney              = 226852,
                 timeWarp                    = 80353,
                 iceFloes                    = 108839,
                 iceBarrier                  = 11426,
+                icicles                     = 205473,
             },
             debuffs                         = {
                 frostBomb                   = 112948,
