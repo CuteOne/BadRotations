@@ -587,6 +587,7 @@ actions+=/hammer_of_the_righteous]]
             -- Hammer of the Righteous actions+=/hammer_of_the_righteous
                     if isChecked("Hammer of the Righteous") and getDistance(units.dyn5) < 5 then
                         if cast.blessedHammer() then return end
+                        if cast.hammerOfTheRighteous() then return end
                     end
 
 
