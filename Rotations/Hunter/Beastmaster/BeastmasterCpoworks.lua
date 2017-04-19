@@ -631,13 +631,13 @@ local function runRotation()
                             if cast.bestialWrath() then return end
                         end
                     -- Multi Shot
-                        if #multishotTargets > 4 and (beastCleaveTimer < gcd or beastCleaveTimer == 0) then
+                        if #multishotTargets > 4 and (mode.rotation == 1 or mode.rotation == 2) and (beastCleaveTimer < gcd or beastCleaveTimer == 0) then
                             if cast.multiShot(units.dyn40) then return end
                         end
                     -- Kill Command
                         if cast.killCommand(units.dyn40) then return end
                     -- Multi Shot
-                        if #multishotTargets > 1 and (beastCleaveTimer < (gcd*2) or beastCleaveTimer == 0) then
+                        if #multishotTargets > 1 and (mode.rotation == 1 or mode.rotation == 2) and (beastCleaveTimer < (gcd*2) or beastCleaveTimer == 0) then
                             if cast.multiShot(units.dyn40) then return end
                         end
                       -- Misdirection
