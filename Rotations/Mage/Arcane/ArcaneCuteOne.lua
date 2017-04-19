@@ -411,7 +411,9 @@ local function runRotation()
             -- end
         -- Evocation
             -- evocation,interrupt_if=mana.pct>99
-            if cast.evocation() then return end
+            if manaPercent < 50 then
+                if cast.evocation() then return end
+            end
         end
     -- Action List - Conserve
         local function actionList_Conserve()

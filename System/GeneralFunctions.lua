@@ -1298,7 +1298,7 @@ function getDisease(range,aoe,mod)
         	end
       	end
     end
- end
+end
 function getDistance(Unit1,Unit2,option)
     local currentDist = 100
     -- If Unit2 is nil we compare player to Unit1
@@ -1341,7 +1341,13 @@ function getDistance(Unit1,Unit2,option)
         if option == "dist2" then return dist2 end
         if option == "dist3" then return dist3 end
         if option == "dist4" then return dist4 end
-        if dist > 13 then
+        if GetSpecializationInfo(GetSpecialization()) == 255 then
+        	if dist > meleeRange then
+        		currentDist = dist
+        	else
+        		currentDist = 0
+        	end
+        elseif dist > 13 then
             currentDist = dist
         elseif dist2 > 8 and dist3 > 8 then
             currentDist = dist2
