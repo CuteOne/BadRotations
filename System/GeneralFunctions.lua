@@ -1325,10 +1325,10 @@ function getDistance(Unit1,Unit2,option)
     	elseif select(2,UnitClass("player")) == "DRUID" then
     		testSpell = select(1,GetSpellInfo(106832))
     		meleeSpec = true
-		elseif select(2,UnitClass("player")) == "DEMON HUNTER" and select(1,GetSpecializationInfo(GetSpecialization())) == 577 then
+		elseif select(2,UnitClass("player")) == "DEMONHUNTER" and select(1,GetSpecializationInfo(GetSpecialization())) == 577 then
     		testSpell = select(1,GetSpellInfo(162794))   
     		meleeSpec = true
-    	elseif select(2,UnitClass("player")) == "DEMON HUNTER" and select(1,GetSpecializationInfo(GetSpecialization())) == 581 then
+    	elseif select(2,UnitClass("player")) == "DEMONHUNTER" and select(1,GetSpecializationInfo(GetSpecialization())) == 581 then
     		testSpell = select(1,GetSpellInfo(214743))   
     		meleeSpec = true
    		elseif select(2,UnitClass("player")) == "HUNTER" and select(1,GetSpecializationInfo(GetSpecialization())) == 255 then
