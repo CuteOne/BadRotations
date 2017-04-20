@@ -1301,6 +1301,41 @@ function getDisease(range,aoe,mod)
 end
 function getDistance(Unit1,Unit2,option)
     local currentDist = 100
+    local testSpell = nil
+    local meleeSpec = false
+    if testSpell == nil then
+    	if select(2,UnitClass("player")) == "WARRIOR" then
+    		testSpell = select(1,GetSpellInfo(6552))
+    		meleeSpec = true
+    	elseif select(2,UnitClass("player")) == "PALADIN" then
+    		testSpell = select(1,GetSpellInfo(35395))
+    		meleeSpec = true
+		elseif select(2,UnitClass("player")) == "ROGUE" then
+			testSpell = select(1,GetSpellInfo(1766))    		
+			meleeSpec = true
+    	elseif select(2,UnitClass("player")) == "DEATHKNIGHT" then
+    		testSpell = select(1,GetSpellInfo(49998))
+    		meleeSpec = true
+    	elseif select(2,UnitClass("player")) == "SHAMAN" and select(1,GetSpecializationInfo(GetSpecialization())) == 263 then
+    		testSpell = select(1,GetSpellInfo(17364))
+    		meleeSpec = true
+    	elseif select(2,UnitClass("player")) == "MONK" then
+    		testSpell = select(1,GetSpellInfo(100780))
+    		meleeSpec = true
+    	elseif select(2,UnitClass("player")) == "DRUID" then
+    		testSpell = select(1,GetSpellInfo(106832))
+    		meleeSpec = true
+		elseif select(2,UnitClass("player")) == "DEMON HUNTER" and select(1,GetSpecializationInfo(GetSpecialization())) == 577 then
+    		testSpell = select(1,GetSpellInfo(162794))   
+    		meleeSpec = true
+    	elseif select(2,UnitClass("player")) == "DEMON HUNTER" and select(1,GetSpecializationInfo(GetSpecialization())) == 581 then
+    		testSpell = select(1,GetSpellInfo(214743))   
+    		meleeSpec = true
+   		elseif select(2,UnitClass("player")) == "HUNTER" and select(1,GetSpecializationInfo(GetSpecialization())) == 255 then
+    		testSpell = select(1,GetSpellInfo(185855))   
+    		meleeSpec = true
+    	end 		
+    end
     -- If Unit2 is nil we compare player to Unit1
     if Unit2 == nil then
         Unit2 = Unit1
@@ -1357,6 +1392,11 @@ function getDistance(Unit1,Unit2,option)
             currentDist = dist4
         else
             currentDist = 0
+        end
+        if not EWT and currentDist <= 25 and meleeSpec then
+        	if IsSpellInRange(testSpell,Unit2) then
+        		currentDist = 4
+        	end
         end
     end
     return currentDist
