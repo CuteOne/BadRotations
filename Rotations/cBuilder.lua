@@ -336,9 +336,11 @@ function br.loader:new(spec,specName)
                 else
                     if thisUnit == "best" then
                         -- print("Casting "..spellName..", EffRng: "..effectRng..", minUnits "..minUnits..", maxRange "..maxRange..", minRange "..minRange)
-                        return castGroundAtBestLocation(spellCast,effectRng,minUnits,maxRange,minRange,debug)
+                        if not IsMouseButtonDown(2) then
+                            return castGroundAtBestLocation(spellCast,effectRng,minUnits,maxRange,minRange,debug)
+                        end
                     elseif debug == "ground" then
-                        if getLineOfSight(thisUnit) then
+                        if getLineOfSight(thisUnit) and not IsMouseButtonDown(2) then
                            return castGround(thisUnit,spellCast,maxRange,minRange)
                         end
                     elseif debug == "dead" then
