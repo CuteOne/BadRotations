@@ -759,6 +759,20 @@ local function runRotation()
                             if cast.handOfGuldan() then handTimer = GetTime() + 2; return end
                         end
                     end
+        -- Doom
+                    -- doom,cycle_targets=1,if=!talent.hand_of_doom.enabled&target.time_to_die>duration&(!ticking|remains<duration*0.3)
+                    if debuff.doom.count() < getOptionValue("Multi-Dot Limit") and getHP(thisUnit) > dotHPLimit and isValidUnit(thisUnit)
+                        and bossHPLimit(thisUnit,getOptionValue("Doom Boss HP Limit"))
+                    then
+                        for i = 1, #enemies.yards40 do
+                            local thisUnit = enemies.yards40[i]
+                            if UnitIsUnit(thisUnit,"target") or hasThreat(thisUnit) or isDummy(thisUnit) then
+                                if not talent.handOfDoom and ttd(thisUnit) > debuff.doom.duration(thisUnit) and debuff.doom.refresh(thisUnit) then
+                                    if cast.doom(thisUnit) then return end
+                                end
+                            end
+                        end
+                    end
         -- Summon Darkglare
                     -- summon_darkglare,if=prev_gcd.1.hand_of_guldan|prev_gcd.1.call_dreadstalkers|talent.power_trip.enabled
                     if lastSpell == spell.handOfGuldan or lastSpell == spell.callDreadstalkers or talent.powerTrip then
@@ -813,20 +827,6 @@ local function runRotation()
                     -- felguard:felstorm
                     if isChecked("Felstorm") and felguard and felguardEnemies ~= nil and felguardEnemies >= getOptionValue("Felstorm") and cd.felstorm == 0 then
                         if cast.commandDemon() then return end
-                    end
-        -- Doom
-                    -- doom,cycle_targets=1,if=!talent.hand_of_doom.enabled&target.time_to_die>duration&(!ticking|remains<duration*0.3)
-                    if debuff.doom.count() < getOptionValue("Multi-Dot Limit") and getHP(thisUnit) > dotHPLimit and isValidUnit(thisUnit)
-                        and bossHPLimit(thisUnit,getOptionValue("Doom Boss HP Limit"))
-                    then
-                        for i = 1, #enemies.yards40 do
-                            local thisUnit = enemies.yards40[i]
-                            if UnitIsUnit(thisUnit,"target") or hasThreat(thisUnit) or isDummy(thisUnit) then
-                                if not talent.handOfDoom and ttd(thisUnit) > debuff.doom.duration(thisUnit) and debuff.doom.refresh(thisUnit) then
-                                    if cast.doom(thisUnit) then return end
-                                end
-                            end
-                        end
                     end
         -- Cooldowns
                     if actionList_Cooldowns() then return end
