@@ -1323,7 +1323,7 @@ function getDistance(Unit1,Unit2,option)
     		testSpell = select(1,GetSpellInfo(100780))
     		meleeSpec = true
     	elseif select(2,UnitClass("player")) == "DRUID" then
-    		if (buff.bearForm.exists() or buff.catForm.exists()) then
+    		if (GetShapeshiftForm()==1 or GetShapeshiftForm()==3) then
     			testSpell = select(1,GetSpellInfo(106832))
     			meleeSpec = true
     		else
