@@ -1323,8 +1323,12 @@ function getDistance(Unit1,Unit2,option)
     		testSpell = select(1,GetSpellInfo(100780))
     		meleeSpec = true
     	elseif select(2,UnitClass("player")) == "DRUID" then
-    		testSpell = select(1,GetSpellInfo(106832))
-    		meleeSpec = true
+    		if (GetShapeshiftForm()==1 or GetShapeshiftForm()==3) then
+    			testSpell = select(1,GetSpellInfo(106832))
+    			meleeSpec = true
+    		else
+    			meleeSpec = false
+    		end
 		elseif select(2,UnitClass("player")) == "DEMONHUNTER" and select(1,GetSpecializationInfo(GetSpecialization())) == 577 then
     		testSpell = select(1,GetSpellInfo(162794))   
     		meleeSpec = true
