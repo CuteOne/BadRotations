@@ -842,12 +842,12 @@ local function runRotation()
                             -- print(isChecked("Summon Doomguard"))
                             -- print(isChecked("Summon Infernal"))
                             -- print(getOptionValue("Grimoire of Service - Use"))
-                            -- if ((cd.summonDoomguard > 15 or isChecked("Summon Doomguard") == false) and (cd.summonInfernal > 15 or isChecked("Summon Infernal") == false) and (cd.grimoireFelguard > 15 or getOptionValue("Grimoire of Service - Use") == 3)) or not isBoss(units.dyn40) then 
-                            --     if cd.thalkielsConsumption <= 2 then
+                            if ((cd.summonDoomguard > 15 or isChecked("Summon Doomguard") == false) and (cd.summonInfernal > 15 or isChecked("Summon Infernal") == false) and (cd.grimoireFelguard > 15 or getOptionValue("Grimoire of Service - Use") == 3)) or not isBoss(units.dyn40) then 
+                                if cd.thalkielsConsumption <= 2 then
                              --   if missingDE == 0 then
                                     if cast.thalkielsConsumption() then return end
-                            --     end
-                            -- end
+                                end
+                            end
                         end
                     end
         -- Life Tap
