@@ -61,6 +61,8 @@ local function createOptions()
         br.ui:createCheckbox(section, "Opener")
         br.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  colorWhite.."Set to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
         br.ui:createDropdownWithout(section, "Artifact", {colorWhite.."Everything",colorWhite.."Cooldowns",colorWhite.."Never"}, 1, colorWhite.."When to use Artifact Ability.")
+        br.ui:createSpinnerWithout(section, "AOE targets",  3,  1,  100,  1,  "Minimum AOE targets. Min: 1 / Max: 100")
+
 
         br.ui:checkSectionState(section)
         ------------------------
@@ -76,7 +78,6 @@ local function createOptions()
         br.ui:createCheckbox(section, "Ray of Frost")
         br.ui:createCheckbox(section, "Frozen Orb")
         br.ui:createCheckbox(section, "Comet Storm")
-
         br.ui:checkSectionState(section)
         -------------------------
         --- DEFENSIVE OPTIONS --- -- Define Defensive Options
@@ -571,8 +572,8 @@ local function runRotation()
                 --actions.cooldowns+=/use_item,slot=neck
                 --TODO
                 --actions.cooldowns+=/berserking|actions.cooldowns+=/blood_fury
-                if isChecked("Racial") then
-                    if (race == "Orc" or race == "Troll") and getSpellCD(br.player.getRacial()) == 0 then
+                if isChecked("Use Racial") then
+                    if getSpellCD(br.player.getRacial()) == 0 and (race == "Orc" or race == "Troll") then
                         if debug == true then Print("Casting Racial") end
                         if br.player.castRacial() then
                             if debug == true then Print("Casted Racial") end
@@ -602,9 +603,9 @@ local function runRotation()
                 end
             end
             --actions.aoe+=/blizzard
-            if mode.rotation == 1 or mode.rotation == 2 and #enemies.yards40 >= 4 then
+            if mode.rotation == 1 or mode.rotation == 2 and #enemies.yards40 >= getValue("AOE targets") then
                 if debug == true then Print("Casting Blizzard") end
-                if cast.blizzard("best", nil, 4, blizzardRadius) then
+                if cast.blizzard("best", nil, getValue("AOE targets"), blizzardRadius) then
                     if debug == true then Print("Casted Blizzard") end
                     return true
                 else
@@ -735,9 +736,9 @@ local function runRotation()
             end
             --actions.single+=/blizzard,if=cast_time=0&active_enemies>1&variable.fof_react<3
             if mode.rotation == 1 or mode.rotation == 2 then
-                if getCastTime(spell.blizzard) == 0 and #enemies.yards40 >= 4 and fof_react < 3 then
+                if getCastTime(spell.blizzard) == 0 and #enemies.yards40 >= getValue("AOE targets") and fof_react < 3 then
                     if debug == true then Print("Casting Blizzard") end
-                    if cast.blizzard("best", nil, 4, blizzardRadius) then
+                    if cast.blizzard("best", nil, getValue("AOE targets"), blizzardRadius) then
                         if debug == true then Print("Casted Blizzard") end
                         return true
                     else
@@ -789,9 +790,9 @@ local function runRotation()
             end
             --actions.single+=/blizzard,if=active_enemies>2|active_enemies>1&!(talent.glacial_spike.enabled&talent.splitting_ice.enabled)|(buff.zannesu_journey.stack=5&buff.zannesu_journey.remains>cast_time)
             if mode.rotation == 1 or mode.rotation == 2 then
-                if #enemies.yards40 > 2 or (#enemies.yards40 > 1 and not (talent.glacialSpike and talent.splittingIce) or (buff.zannesuJourney.stack() == 5 and buff.zannesuJourney.remain() < getCastTime(spell.blizzard))) then
+                if #enemies.yards40 > getValue("AOE targets") or (#enemies.yards40 > 1 and not (talent.glacialSpike and talent.splittingIce) or (buff.zannesuJourney.stack() == 5 and buff.zannesuJourney.remain() < getCastTime(spell.blizzard))) then
                     if debug == true then Print("Casting Blizzard") end
-                    if cast.blizzard("best", nil, 4, blizzardRadius) then
+                    if cast.blizzard("best", nil, getValue("AOE targets"), blizzardRadius) then
                         if debug == true then Print("Casted Blizzard") end
                         return true
                     else
@@ -854,7 +855,7 @@ local function runRotation()
             --actions+=/call_action_list,name=cooldowns
             if actionList_CD() then return true end
             --actions+=/call_action_list,name=aoe,if=active_enemies>=4
-            if #enemies.yards40 >= 4 then
+            if #enemies.yards40 >= getValue("AOE targets") then
                 if actionList_AOE() then return true end
             end
             --actions+=/call_action_list,name=single
@@ -869,6 +870,17 @@ local function runRotation()
     local function IcyVeinsAPLMode()
 
         local function actionList_COMBAT()
+
+
+            if isChecked("Use Racial") then
+                if getSpellCD(br.player.getRacial()) == 0 and (race == "Orc" or race == "Troll") then
+                    if debug == true then Print("Casting Racial") end
+                    if br.player.castRacial() then
+                        if debug == true then Print("Casted Racial") end
+                        return true
+                    end
+                end
+            end
 
             --Cast Rune of Power if talented, and it is at 2 charges.
             if useCDs() and isChecked("Rune of Power") and talent.runeOfPower then
@@ -1019,9 +1031,9 @@ local function runRotation()
                 end
             end
             --Cast Blizzard if more than 2 targets are present and within the AoE. Cast on cooldown if you are talented into Arctic Gale .
-            if mode.rotation == 1 or mode.rotation == 2 and #enemies.yards40 >= 4 then
+            if mode.rotation == 1 or mode.rotation == 2 and #enemies.yards40 >= getValue("AOE targets") then
                 if debug == true then Print("Casting Blizzard") end
-                if cast.blizzard("best", nil, 4, blizzardRadius) then
+                if cast.blizzard("best", nil, getValue("AOE targets"), blizzardRadius) then
                     if debug == true then Print("Casted Blizzard") end
                     return true
                 else
@@ -1136,7 +1148,7 @@ local function runRotation()
 
 --    if br.timer:useTimer("debugFrost", math.random(0.15,0.3)) then
     if not executando and (getSpellCD(spell.frostbolt) == 0 or lastGCD) and not isUnitCasting("player") then
---        executando = true
+        executando = true
         profile()
         executando = false
     end
