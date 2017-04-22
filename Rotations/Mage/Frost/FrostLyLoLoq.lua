@@ -1147,7 +1147,7 @@ local function runRotation()
 --    end
 
 --    if br.timer:useTimer("debugFrost", math.random(0.15,0.3)) then
-    if not executando and (getSpellCD(spell.frostbolt) == 0 or lastGCD) and not isUnitCasting("player") then
+    if not executando and getSpellCD(spell.frostbolt) == 0 and not isUnitCasting("player") then
         executando = true
         profile()
         executando = false

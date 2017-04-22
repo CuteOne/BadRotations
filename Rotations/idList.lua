@@ -1393,6 +1393,8 @@ br.idList = {
                 transcendenceTransfer       = 119996;
                 vivify                      = 116670;
                 soothingMist                = 193884;
+                chiWave                     = 115098;
+                fortifyingBrew              = 243435;
             },
             artifacts                       = {
             },
@@ -1422,7 +1424,8 @@ br.idList = {
             talents                         = {
                 chiBurst                    = 123986;
                 zenPulse                    = 124081;
-                mistwalk                    = 197945;
+                chiWave                     = 115098;
+--                mistwalk                    = 197945;
                 chiTorpedo                  = 115008;
                 tigersLust                  = 116841;
                 mistWrap                    = 197900;
