@@ -1397,8 +1397,8 @@ function getDistance(Unit1,Unit2,option)
         else
             currentDist = 0
         end
-        if not EWT and currentDist <= 25 and meleeSpec then
-        	if IsSpellInRange(testSpell,Unit2) then
+        if not EWT and meleeSpec then
+        	if IsSpellInRange(testSpell,Unit2) == 1 then
         		currentDist = 4
         	end
         end
