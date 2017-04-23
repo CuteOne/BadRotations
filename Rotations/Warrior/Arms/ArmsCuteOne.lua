@@ -637,7 +637,7 @@ local function runRotation()
                 end
             end
         -- Focused Rage
-            -- focused_rage,if=!buff.battle_cry_deadly_calm.up&buff.focused_rage.stack()<3&!cooldown.colossus_smash.up&(rage>=50|debuff.colossus_smash.down|cooldown.battle_cry.remain()s<=8)
+            -- focused_rage,if=!buff.battle_cry_deadly_calm.up&buff.focused_rage.stack<3&!cooldown.colossus_smash.up&(rage>=50|debuff.colossus_smash.down|cooldown.battle_cry.remains<=8)
             if ((buff.battleCry.remain() > cd.focusedRage or ignoreBattleCry) and (buff.focusedRage.stack() < 3 or cd.mortalStrike > 0))
                 or (not ((buff.battleCry.exists() or ignoreBattleCry) and talent.deadlyCalm) and buff.focusedRage.stack() < 3 and cd.colossusSmash > 0
                     and (rage >= 50 or not debuff.colossusSmash.exists(units.dyn5) or cd.battleCry <= 8))
@@ -675,7 +675,7 @@ local function runRotation()
                 end
             end
         -- Focused Rage
-            -- focused_rage,if=equipped.archavons_heavy_hand&buff.focused_rage.stack()<3
+            -- focused_rage,if=equipped.archavons_heavy_hand&buff.focused_rage.stack<3
             if hasEquiped(137060) and buff.focusedRage.stack() < 3 then
                 if cast.focusedRage() then return end
             end

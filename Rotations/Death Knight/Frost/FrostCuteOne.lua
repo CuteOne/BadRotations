@@ -259,7 +259,7 @@ local function runRotation()
                 end
         -- Death Strike
                 if isChecked("Death Strike") and inCombat and (buff.darkSuccor.exists() or php < getOptionValue("Death Strike"))
-                    and (not talent.breathOfSindragosa or (cd.breathOfSindragosa > 15 and not buff.breathOfSindragosa.exists()))
+                    and (not talent.breathOfSindragosa or (cd.breathOfSindragosa > 15 and not buff.breathOfSindragosa.exists()) or not useCDs() or not isChecked("Breath of Sindragosa"))
                 then
                     if cast.deathStrike() then return end
                 end

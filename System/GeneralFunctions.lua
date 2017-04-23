@@ -2961,6 +2961,7 @@ function getOptionValue(Value)
 end
 function hasHealthPot()
 	local potion = br.player.potion
+	if potion.health == nil then return false end
 	if potion.health[1]==nil and potion.rejuve[1]==nil then
 		return false
 	else
