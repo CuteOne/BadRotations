@@ -124,7 +124,7 @@ local function createOptions()
         br.ui:checkSectionState(section)
     -- Interrupt Options
         section = br.ui:createSection(br.ui.window.profile, "Interrupts")
-        -- Interrupt Percentage
+    -- Interrupt Percentage
             br.ui:createSpinner(section, "Interrupt At",  0,  0,  95,  5,  "|cffFFFFFFCast Percent to Cast At")
         br.ui:checkSectionState(section)
     -- Toggle Key Options
@@ -439,11 +439,11 @@ local function runRotation()
                 for i=1, #enemies.yards30 do
                     thisUnit = enemies.yards30[i]
                     if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
-                        if activePetId == 417 then
-                            if cast.spellLock(thisUnit) then return end
-                        elseif activePetId == 78158 then
-                            if cast.shadowLock(thisUnit) then return end
-                        end
+					  if activePetId == 417 then
+						if cast.spellLock(thisUnit) then return end
+						elseif activePetId == 78158 then
+						if cast.shadowLock(thisUnit) then return end
+                      end
                     end
                 end
             end -- End useInterrupts check
@@ -641,7 +641,7 @@ local function runRotation()
                     end
         -- Agony
                     -- agony,cycle_targets=1,if=remains<=tick_time+gcd
-                    if debuff.agony.exists(lowestAgony) and debuff.agony.remain(lowestAgony) <= 3 + gcd then
+                    if debuff.agony.exists(lowestAgony) and debuff.agony.remain(lowestAgony) <= 2 + gcd then
                         if cast.agony(lowestAgony,"aoe") then return end
                     end
         -- Soul Effigy
@@ -678,6 +678,29 @@ local function runRotation()
                             if cast.agony(thisUnit,"aoe") then return end
                         end
                     end
+		--Corruption (moving)
+					if (moving and debuff.corruption.remain(units.dyn40) <= 4 + gcd) then
+						if cast.corruption(units.dyn40,"aoe") then return end
+					end					
+		-- UA Priority
+			-- With Reap
+                    if not moving then
+    					if talent.maleficGrasp and buff.deadwindHarvester.exists() and debuff.unstableAffliction.stack() < 3
+                            and debuff.agony.remain("target") > 6.5
+                            and (not talent.soulEffigy or debuff.agony.remain("Soul Effigy") > 6.5)
+                            -- and (debuff.corruption.remain(units.dyn40) > getCastTime(spell.unstableAffliction) + 3 or talent.absoluteCorruption)
+                            -- and (debuff.siphonLife.remain(units.dyn40) > getCastTime(spell.unstableAffliction) + 3 or not talent.siphonLife)
+                        then
+                            if cast.unstableAffliction("target","aoe") then return end
+                        end
+		-- Drain life
+			-- With Reap
+				    if not moving then
+						if talent.maleficGrasp and buff.deadwindHarvester.exists() and debuff.unstableAffliction.stack() > 2
+						then
+						    if cast.drainSoul("target") then return end
+						end
+					end
 		-- Service Pet
                     -- service_pet,if=dot.corruption.remain()s&dot.agony.remain()s
                     if isChecked("Pet Management") and GetObjectExists("target") and (getOptionValue("Grimoire of Service - Use") == 1 or (getOptionValue("Grimoire of Service - Use") == 2 and useCDs())) then
@@ -756,7 +779,7 @@ local function runRotation()
         -- Corruption
                     -- corruption,if=remains<=tick_time+gcd&(spell_targets.seed_of_corruption<3&talent.sow_the_seeds.enabled|spell_targets.seed_of_corruption<4)
                     if debuff.corruption.count() < getOptionValue("Multi-Dot Limit") + effigyCount and getHP(units.dyn40) > dotHPLimit then
-                        if debuff.corruption.remain(units.dyn40) <= 2 + gcd and ((#enemies.yards10t < 10 and talent.sowTheSeeds) or #enemies.yards10t < 4) or moving then
+                        if debuff.corruption.remain(units.dyn40) <= 2 + gcd and ((#enemies.yards10t < 10 and talent.sowTheSeeds) or #enemies.yards10t < 4) then
                             if cast.corruption(units.dyn40,"aoe") then return end
                         end
                     end
@@ -773,30 +796,11 @@ local function runRotation()
                             end
                         end
                     end
-        -- UA Priority
-			-- With Reap
-                    if not moving then
-    					if talent.maleficGrasp and buff.deadwindHarvester.exists() and debuff.unstableAffliction.stack() < 3
-                            and debuff.agony.remain("target") > 6.5
-                            and (not talent.soulEffigy or debuff.agony.remain("Soul Effigy") > 6.5)
-                            -- and (debuff.corruption.remain(units.dyn40) > getCastTime(spell.unstableAffliction) + 3 or talent.absoluteCorruption)
-                            -- and (debuff.siphonLife.remain(units.dyn40) > getCastTime(spell.unstableAffliction) + 3 or not talent.siphonLife)
-                        then
-                            if cast.unstableAffliction("target","aoe") then return end
-                        end
-		-- Drain life
-			-- With Reap
-				    if not moving then
-						if talent.maleficGrasp and buff.deadwindHarvester.exists() and debuff.unstableAffliction.stack() > 2
-						then
-						    if cast.drainSoul("target") then return end
-						end
-					end
 		-- Siphon Life
                     -- siphon_life,if=remains<=tick_time+gcd
                     -- siphon_life,if=remains<=tick_time+gcd&(dot.unstable_affliction_1.ticking+dot.unstable_affliction_2.ticking+dot.unstable_affliction_3.ticking+dot.unstable_affliction_4.ticking+dot.unstable_affliction_5.ticking)<2
                     if debuff.siphonLife.count() < getOptionValue("Multi-Dot Limit") + effigyCount and getHP(units.dyn40) > dotHPLimit then
-                        if debuff.siphonLife.remain(units.dyn40) <= 2 + gcd and debuff.unstableAffliction.stack() < 1 or moving then --(UA1 + UA2 + UA3 + UA4 + UA5) < 2 then
+                        if debuff.siphonLife.remain(units.dyn40) <= 2 + gcd and debuff.unstableAffliction.stack() < 1 then
                             if cast.siphonLife(units.dyn40,"aoe") then return end
                         end
                     end
@@ -954,7 +958,7 @@ local function runRotation()
 					end
         -- Life Tap
                     --life_tap
-                    if (manaPercent < 20 or (moving and manaPercent < 70)) and php > getOptionValue("Life Tap HP Limit") then
+                    if (manaPercent < 40 or (moving and manaPercent < 70)) and php > getOptionValue("Life Tap HP Limit") then
                         if cast.lifeTap() then return end
                     end
         -- Drain Soul
@@ -987,7 +991,7 @@ local function runRotation()
 		
 		-- Life Tap
                     --life_tap
-                    if (manaPercent < 20 or (moving and manaPercent < 70)) and php > getOptionValue("Life Tap HP Limit") then
+                    if (manaPercent < 40 or (moving and manaPercent < 70)) and php > getOptionValue("Life Tap HP Limit") then
                         if cast.lifeTap() then return end
                     end
         -- Shadow Bolt
@@ -1138,9 +1142,11 @@ local function runRotation()
         -- Corruption
                     -- corruption,if=remains<=tick_time+gcd&(spell_targets.seed_of_corruption<3&talent.sow_the_seeds.enabled|spell_targets.seed_of_corruption<4)
                     if debuff.corruption.count() < getOptionValue("Multi-Dot Limit") + effigyCount and getHP(units.dyn40) > dotHPLimit then
-                        if debuff.corruption.remain(units.dyn40) <= 2 + gcd and ((#enemies.yards10t < 10 and talent.sowTheSeeds) or #enemies.yards10t < 4) or moving then
-                            if cast.corruption(units.dyn40,"aoe") then return end
-                        end
+                        if debuff.corruption.remain(units.dyn40) <= 2 + gcd and ((#enemies.yards10t < 10 and talent.sowTheSeeds) or #enemies.yards10t < 4) then
+							if (debuff.corruption.remain(units.dyn40) <= 4 + gcd and moving) then
+								if cast.corruption(units.dyn40,"aoe") then return end
+							end
+						end
                     end
                     -- corruption,cycle_targets=1,if=(talent.absolute_corruption.enabled|!talent.malefic_grasp.enabled|!talent.soul_effigy.enabled)&remains<=tick_time+gcd&(spell_targets.seed_of_corruption<3&talent.sow_the_seeds.enabled|spell_targets.seed_of_corruption<4)
                     if ((mode.rotation == 1 and #enemies.yards40 > 1) or mode.rotation == 2) then
@@ -1157,9 +1163,8 @@ local function runRotation()
                     end
         -- Siphon Life
                     -- siphon_life,if=remains<=tick_time+gcd
-                    -- siphon_life,if=remains<=tick_time+gcd&(dot.unstable_affliction_1.ticking+dot.unstable_affliction_2.ticking+dot.unstable_affliction_3.ticking+dot.unstable_affliction_4.ticking+dot.unstable_affliction_5.ticking)<2
-                    if debuff.siphonLife.count() < getOptionValue("Multi-Dot Limit") + effigyCount and getHP(units.dyn40) > dotHPLimit then
-                        if debuff.siphonLife.remain(units.dyn40) <= 2 + gcd and debuff.unstableAffliction.stack() < 1 or moving then --(UA1 + UA2 + UA3 + UA4 + UA5) < 2 then
+                        if debuff.siphonLife.count() < getOptionValue("Multi-Dot Limit") + effigyCount and getHP(units.dyn40) > dotHPLimit then
+                        if debuff.siphonLife.remain(units.dyn40) <= 2 + gcd and debuff.unstableAffliction.stack() < 1 then
                             if cast.siphonLife(units.dyn40,"aoe") then return end
                         end
                     end
@@ -1348,7 +1353,7 @@ local function runRotation()
 		
 		-- Life Tap
                     --life_tap
-                    if (manaPercent < 20 or (moving and manaPercent < 70)) and php > getOptionValue("Life Tap HP Limit") then
+                    if moving and (manaPercent < 20 or (moving and manaPercent < 70)) and php > getOptionValue("Life Tap HP Limit") then
                         if cast.lifeTap() then return end
                     end
         -- Shadow Bolt
