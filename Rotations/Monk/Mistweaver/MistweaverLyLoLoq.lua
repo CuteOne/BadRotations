@@ -63,6 +63,7 @@ local function createOptions()
         br.ui:createCheckbox(section, "Tiger's Lust", colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.." use of Tiger's Lust"..colorBlue.." (Auto use on snare and root).")
         br.ui:createDropdown(section, "Tiger's Lust Key", br.dropOptions.Toggle, 6, colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.." use of Tiger's Lust with Key.",colorWhite.."Set hotkey to use Tiger's Lust with key.")
         br.ui:createDropdown(section, "Ring Of Peace Key", br.dropOptions.Toggle, 6, colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.." use of Ring Of Peace with Key on "..colorRed.."Cursor",colorWhite.."Set hotkey to use Ring Of Peace with key.")
+
         br.ui:createSpinnerWithout(section, "DPS",  90,  0,  100,  1,  colorWhite.." Dps when lowest health >= ")
         br.ui:checkSectionState(section)
 
@@ -93,6 +94,7 @@ local function createOptions()
         section = br.ui:createSection(br.ui.window.profile, "Defensive")
         br.ui:createSpinner(section, "Healing Elixir/Diffuse Magic/Dampen Harm",  40,  0,  100,  1,  colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.." use of Healing Elixir/Diffuse Magic/Dampen Harm.", colorWhite.."Health Percent to Cast At")
         br.ui:createDropdown(section, "Healing Elixir/Diffuse Magic/Dampen Harm Key", br.dropOptions.Toggle, 6, colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.." use of Healing Elixir/Diffuse Magic/Dampen Harm with Key.",colorWhite.."Set hotkey to use Healing Elixir/Diffuse Magic/Dampen Harm with key.")
+        br.ui:createSpinner(section, "Fortifying Brew",  40,  0,  100,  1,  colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.." use of Fortifying Brew.", colorWhite.."Health Percent to Cast At")
         br.ui:createSpinner(section, "Healthstone",  30,  0,  100,  5,  colorWhite.."Health Percent to Cast At")
         br.ui:checkSectionState(section)
 
@@ -120,10 +122,13 @@ local function createOptions()
         br.ui:createSpinner(section, "Enveloping Mist with Lifecycles",  65,  0,  100,  1,  colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.."Use of Enveloping Mist.", colorWhite.."Health Percent to Cast At")
         br.ui:createSpinner(section, "Zen Pulse",  90,  0,  100,  1,  colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.."Use of Zen Pulse.", colorWhite.."Health Percent to Cast At")
         br.ui:createSpinnerWithout(section, "Zen Pulse Enemies",  3,  1,  100,  1,  colorBlue.."Minimum Zen Pulse Enemies")
-        br.ui:createSpinner(section, "Effuse",  90,  0,  100,  1,  colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.."Use of Effuse.", colorWhite.."Health Percent to Cast At")
+        br.ui:createCheckbox(section, "Effuse", colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.."Use of Effuse.")
+        br.ui:createSpinnerWithout(section, "Effuse Greater or equals",  90,  0,  100,  1,  colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.."Use of Effuse.", colorWhite.."Health Percent to Cast At. (Exemple: Effuse Greater or equals 80% and <= 100%)")
+        br.ui:createSpinnerWithout(section, "Effuse Less or equals",  90,  0,  100,  1,  colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.."Use of Effuse.", colorWhite.."Health Percent to Cast At. (Exemple: Effuse Greater or equals 80% and <= 100%)")
         br.ui:createSpinner(section, "Renewing Mist",  100,  0,  100,  1,  colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.."Use of Renewing Mist.", colorWhite.."Health Percent to Cast At")
         br.ui:createCheckbox(section,"Renewing Mist - On CD",colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.."Renewing Mist on CD regardless in combat.")
-        br.ui:createSpinner(section, "Mistwalk",  80,  0,  100,  1,  colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.."Use of Mistwalk.", colorWhite.."Health Percent to Cast At")
+        --        br.ui:createSpinner(section, "Mistwalk",  80,  0,  100,  1,  colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.."Use of Mistwalk.", colorWhite.."Health Percent to Cast At")
+        br.ui:createSpinner(section, "Chi Wave",  80,  0,  100,  1,  colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.."Use of Chi Wave.", colorWhite.."Health Percent to Cast At")
         br.ui:createDropdown(section, "Summon Jade Serpent", {colorGreen.."Player",colorBlue.."Target",colorRed.."Tank"}, 3,colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.."Use of Summon Jade Serpent.", colorWhite.."Use Summon Jade Serpent at location of.")
         br.ui:checkSectionState(section)
 
@@ -207,10 +212,14 @@ local function runRotation()
         TFRM = false
         TFEM = false
     end
-    if botSpell == nil or currentTarget == nil then
-        botSpell = spell.effuse
-        currentTarget = "player"
+    if botSpell == nil then
+        botSpell = 61304
     end
+    if currentTarget == nil then
+        currentTarget = UnitGUID("player")
+    end
+    --    Print("LastSpell:"..GetSpellInfo(botSpell))
+    --    Print("LastTarget:"..SetRaidTarget(currentTarget,8))
     --------------------
     --- Action Lists ---
     --------------------
@@ -254,11 +263,14 @@ local function runRotation()
 
     local function actionList_Defensive()
         if useDefensive() then
-            if (isChecked("Healing Elixir/Diffuse Magic/Dampen Harm") and php < getValue("Healing Elixir/Diffuse Magic/Dampen Harm"))
+            if (isChecked("Healing Elixir/Diffuse Magic/Dampen Harm") and php <= getValue("Healing Elixir/Diffuse Magic/Dampen Harm"))
                     or (isChecked("Healing Elixir/Diffuse Magic/Dampen Harm Key") and (SpecificToggle("Healing Elixir/Diffuse Magic/Dampen Harm Key") and not GetCurrentKeyBoardFocus())) then
                 if cast.healingElixir() then return true end
                 if cast.diffuseMagic() then return true end
                 if cast.dampenHarm() then return true end
+            end
+            if isChecked("Fortifying Brew") and php <=  getValue("Fortifying Brew") and cd.fortifyingBrew == 0 then
+                if cast.fortifyingBrew() then return true end
             end
             if isChecked("Healthstone") and php <= getValue("Healthstone") and inCombat and (hasHealthPot() or hasItem(5512)) then
                 if canUse(5512) then
@@ -425,45 +437,56 @@ local function runRotation()
                 if cast.summonJadeSerpentStatue(param) then return true end
             end
         end
-        if isChecked("Sheilun's Gift") and (not buff.envelopingMist.exists(lowest.unit) or (botSpell ~= spell.envelopingMist and currentTarget ~= UnitGUID(lowest.unit))) then
-            if lowest.hp <= getValue("Sheilun's Gift") and GetSpellCount(spell.sheilunsGift) >= getValue("Sheilun's Gift Charges") then
-                if cast.sheilunsGift(lowest.unit) then return true end
-            end
-        end
-        if isChecked("Zen Pulse") and talent.zenPulse then
-            if lowest.hp <= getValue("Zen Pulse") and getNumEnemies(lowest.unit, 8) >= getValue("Zen Pulse Enemies") then
-                if cast.zenPulse(lowest.unit) then return true end
-            end
-        end
-        if isChecked("Mistwalk") and talent.mistwalk and lowest.hp <= getValue("Mistwalk") and UnitIsPlayer(lowest.unit) and UnitGUID(lowest.unit) ~= UnitGUID("player") then
-            if cast.mistwalk(lowest.unit) then return true end
-        end
-        if isChecked("Enveloping Mist") and (not buff.envelopingMist.exists(lowest.unit) or (botSpell ~= spell.envelopingMist and currentTarget ~= UnitGUID(lowest.unit))) then
-            if (not buff.envelopingMist.exists(lowest.unit) or buff.envelopingMist.remain(lowest.unit) <= getCastTime(spell.envelopingMist)) and lowest.hp <= getValue("Enveloping Mist")then
-                if (isChecked("Enveloping Mist - Tank Only") and (lowest.role) == "TANK") or not isChecked("Enveloping Mist - Tank Only") then
-                    if cast.envelopingMist(lowest.unit) then return true end
+        if (botSpell ~= spell.envelopingMist and currentTarget ~= UnitGUID(lowest.unit)) or not buff.envelopingMist.exists(lowest.unit) or buff.envelopingMist.remain(lowest.unit) <= 2 then
+            if isChecked("Sheilun's Gift") and GetSpellCount(spell.sheilunsGift) >= getValue("Sheilun's Gift Charges") then
+                if lowest.hp <= getValue("Sheilun's Gift") then
+                    if cast.sheilunsGift(lowest.unit) then return true end
                 end
             end
-        end
-        if isChecked("Enveloping Mist with Lifecycles") and (not buff.envelopingMist.exists(lowest.unit) or (botSpell ~= spell.envelopingMist and currentTarget ~= UnitGUID(lowest.unit))) then
-            if buff.lifeCyclesEnvelopingMist.exists() and (not buff.envelopingMist.exists(lowest.unit) or buff.envelopingMist.remain(lowest.unit) <= getCastTime(spell.envelopingMist))
-                    and lowest.hp <= getValue("Enveloping Mist with Lifecycles") then
-                if cast.envelopingMist(lowest.unit) then return true end
-            end
-        end
-        if isChecked("Renewing Mist") and (botSpell ~= spell.lifeCocoon or botSpell ~= spell.envelopingMist) and currentTarget ~= UnitGUID(lowest.unit) and cd.renewingMist == 0 then
-            for i = 1, #friends.yards40 do
-                local thisUnit = friends.yards40[i]
-                if thisUnit.hp <= getValue("Renewing Mist") and buff.renewingMist.remain(thisUnit.unit) < gcd then
-                    if cast.renewingMist(thisUnit.unit) then return true end
+            if isChecked("Zen Pulse") and talent.zenPulse then
+                if lowest.hp <= getValue("Zen Pulse") and getNumEnemies(lowest.unit, 8) >= getValue("Zen Pulse Enemies") then
+                    if cast.zenPulse(lowest.unit) then return true end
                 end
             end
+            --        if isChecked("Mistwalk") and talent.mistwalk and lowest.hp <= getValue("Mistwalk") and UnitIsPlayer(lowest.unit) and UnitGUID(lowest.unit) ~= UnitGUID("player") then
+            --            if cast.mistwalk(lowest.unit) then return true end
+            --        end
+            if isChecked("Chi Wave") and talent.chiWave and lowest.hp <= getValue("Chi Wave") then
+                if cast.chiWave(lowest.unit) then return true end
+            end
+            if isChecked("Enveloping Mist") then
+                if (not buff.envelopingMist.exists(lowest.unit) or buff.envelopingMist.remain(lowest.unit) <= getCastTime(spell.envelopingMist)) and lowest.hp <= getValue("Enveloping Mist")then
+                    if (isChecked("Enveloping Mist - Tank Only") and (lowest.role) == "TANK") or not isChecked("Enveloping Mist - Tank Only") then
+                        if cast.envelopingMist(lowest.unit) then return true end
+                    end
+                end
+            end
+            if isChecked("Enveloping Mist with Lifecycles") then
+                if buff.lifeCyclesEnvelopingMist.exists() and (not buff.envelopingMist.exists(lowest.unit) or buff.envelopingMist.remain(lowest.unit) <= getCastTime(spell.envelopingMist))
+                        and lowest.hp <= getValue("Enveloping Mist with Lifecycles") then
+                    if (isChecked("Enveloping Mist - Tank Only") and (lowest.role) == "TANK") or not isChecked("Enveloping Mist - Tank Only") then
+                        if cast.envelopingMist(lowest.unit) then return true end
+                    end
+                end
+            end
+            if isChecked("Renewing Mist") and cd.renewingMist == 0 then
+                for i = 1, #friends.yards40 do
+                    local thisUnit = friends.yards40[i]
+                    if thisUnit.hp <= getValue("Renewing Mist") and buff.renewingMist.remain(thisUnit.unit) < gcd then
+                        if cast.renewingMist(thisUnit.unit) then return true end
+                    end
+                end
+            end
+            if isChecked("Effuse") and getValue("Effuse Greater or equals") <= lowest.hp and getValue("Effuse Less or equals") >= lowest.hp then
+                if botSpell == spell.effuse and currentTarget == UnitGUID(lowest.unit) then
+                    return false
+                end
+                if cast.effuse(lowest.unit) then return true end
+            end
         end
-        if isChecked("Effuse") and lowest.hp <= getValue("Effuse") and ((botSpell ~= spell.lifeCocoon or botSpell ~= spell.vivify or botSpell ~= spell.effuse or botSpell ~= spell.envelopingMist) and currentTarget ~= UnitGUID(lowest.unit)) then
-            if cast.effuse(lowest.unit) then return true end
-        end
+
         -- Ephemeral Paradox trinket
-        if hasEquiped(140805) and getBuffRemain("player", 225767) > 2 and botSpell ~= spell.effuse then
+        if hasEquiped(140805) and getBuffRemain("player", 225767) > 2 then
             if cast.effuse(lowest.unit) then return true end
         end
         return false
@@ -475,27 +498,29 @@ local function runRotation()
                 if cast.chiBurst("player") then return true end
             end
         end
-        if isChecked("Vivify with Lifecycles + Uplift") and (not buff.envelopingMist.exists(lowest.unit) or (botSpell ~= spell.envelopingMist and currentTarget ~= UnitGUID(lowest.unit))) and buff.upliftTrance.exists() and buff.lifeCyclesVivify.exists() then
-            if getLowAlliesInTable(getValue("Vivify with Lifecycles + Uplift"), friends.yards40) >= getValue("Min Vivify with Lifecycles + Uplift Targets") then
-                if cast.vivify(lowest.unit) then return true end
+        if (botSpell ~= spell.envelopingMist and currentTarget ~= UnitGUID(lowest.unit)) or not buff.envelopingMist.exists(lowest.unit) or buff.envelopingMist.remain(lowest.unit) <= 2 then
+            if isChecked("Vivify with Lifecycles + Uplift") and buff.upliftTrance.exists() and buff.lifeCyclesVivify.exists() then
+                if getLowAlliesInTable(getValue("Vivify with Lifecycles + Uplift"), friends.yards40) >= getValue("Min Vivify with Lifecycles + Uplift Targets") then
+                    if cast.vivify(lowest.unit) then return true end
+                end
+            end
+            if isChecked("Vivify with Uplift") and buff.upliftTrance.exists() then
+                if getLowAlliesInTable(getValue("Vivify with Uplift"), friends.yards40) >= getValue("Min Vivify with Uplift Targets") then
+                    if cast.vivify(lowest.unit) then return true end
+                end
+            end
+            if isChecked("Vivify with Lifecycles") and buff.lifeCyclesVivify.exists() then
+                if getLowAlliesInTable(getValue("Vivify with Lifecycles"), friends.yards40) >= getValue("Min Vivify with Lifecycles Targets") then
+                    if cast.vivify(lowest.unit) then return true end
+                end
+            end
+            if isChecked("Vivify")  then
+                if getLowAlliesInTable(getValue("Vivify"), friends.yards40) >= getValue("Min Vivify Targets") then
+                    if cast.vivify(lowest.unit) then return true end
+                end
             end
         end
 
-        if isChecked("Vivify with Uplift") and (not buff.envelopingMist.exists(lowest.unit) or (botSpell ~= spell.envelopingMist and currentTarget ~= UnitGUID(lowest.unit))) and buff.upliftTrance.exists() then
-            if getLowAlliesInTable(getValue("Vivify with Uplift"), friends.yards40) >= getValue("Min Vivify with Uplift Targets") then
-                if cast.vivify(lowest.unit) then return true end
-            end
-        end
-        if isChecked("Vivify with Lifecycles") and (not buff.envelopingMist.exists(lowest.unit) or (botSpell ~= spell.envelopingMist and currentTarget ~= UnitGUID(lowest.unit))) and buff.lifeCyclesVivify.exists() then
-            if getLowAlliesInTable(getValue("Vivify with Lifecycles"), friends.yards40) >= getValue("Min Vivify with Lifecycles Targets") then
-                if cast.vivify(lowest.unit) then return true end
-            end
-        end
-        if isChecked("Vivify") and (not buff.envelopingMist.exists(lowest.unit) or (botSpell ~= spell.envelopingMist and currentTarget ~= UnitGUID(lowest.unit)))  then
-            if getLowAlliesInTable(getValue("Vivify"), friends.yards40) >= getValue("Min Vivify Targets") then
-                if cast.vivify(lowest.unit) then return true end
-            end
-        end
         if isChecked("Refreshing Jade Wind") and talent.refreshingJadeWind and getLowAlliesInTable(getValue("Refreshing Jade Wind"), friends.yards8) >= getValue("Min Refreshing Jade Wind Targets")  then
             if cast.refreshingJadeWind() then return true end
         end
@@ -580,7 +605,7 @@ local function runRotation()
         return false
     end--OK
 
-    if br.timer:useTimer("debugMistweaver", 0.1)  then
+    function profile()
         -----------------
         --- Rotations ---
         -----------------
@@ -602,6 +627,13 @@ local function runRotation()
         -----------
         --- END ---
         -----------
+    end
+--    if not executando and getSpellCD(spell.effuse) == 0 then
+--    if botSpell == spell.envelopingMist or botSpell == spell.effuse or botSpell == spell.sheilunsGift or botSpell == spell.vivify or botSpell == spell.lifeCoccon or
+    if br.timer:useTimer("debugMistweaver", 0.45)  then
+--        executando = true
+        profile()
+--        executando = false
     end
     return true
 end

@@ -297,8 +297,8 @@ local function runRotation()
             RIP1 = false
             opener = false
         end
-        -- ChatOverlay(round2(getDistance("target","player","dist"),2)..", "..round2(getDistance("target","player","dist2"),2)..", "..round2(getDistance("target","player","dist3"),2)..", "..round2(getDistance("target","player","dist4"),2)..", "..round2(getDistance("target"),2))
 
+        -- ChatOverlay(round2(getDistance("target","player","dist"),2)..", "..round2(getDistance("target","player","dist2"),2)..", "..round2(getDistance("target","player","dist3"),2)..", "..round2(getDistance("target","player","dist4"),2)..", "..round2(getDistance("target"),2))
 --------------------
 --- Action Lists ---
 --------------------
@@ -966,9 +966,9 @@ local function runRotation()
                 -- buff.prowl.up|buff.shadowmeld.up
                 if isValidUnit("target") and (not isBoss("target") or not isChecked("Opener")) then
                     if level < 12 then
-                        if cast.shred() then return end
+                        if cast.shred("target") then return end
                     else
-                       if cast.rake() then return end
+                       if cast.rake("target") then return end
                     end
                 end
             end -- End No Combat

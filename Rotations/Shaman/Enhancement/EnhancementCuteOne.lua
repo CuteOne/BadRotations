@@ -55,8 +55,10 @@ local function createOptions()
             br.ui:createCheckbox(section,"Ghost Wolf")
         -- Feral Lunge
             br.ui:createCheckbox(section,"Feral Lunge")
+        -- Lightning Bolt OOC
+            br.ui:createCheckbox(section,"Lightning Bolt Out of Combat")
         -- Spirit Walk
-            br.ui:createCheckbox(section,"Spirit Walk")
+            br.ui:createCheckbox(section,"Spirit Walk")            
         -- Water Walking
             br.ui:createCheckbox(section,"Water Walking")
         br.ui:checkSectionState(section)
@@ -196,8 +198,9 @@ local function runRotation()
         local ttd                                           = getTTD
         local ttm                                           = br.player.power.ttm
         local units                                         = units or {}
-
+        
         units.dyn8 = br.player.units(8)
+        units.dyn10 = br.player.units(10)
         enemies.yards5 = br.player.enemies(5)
         enemies.yards8 = br.player.enemies(8)
         enemies.yards10 = br.player.enemies(10)
@@ -215,7 +218,7 @@ local function runRotation()
         if crashLightningCastTime > GetTime() then crashingStormTimer = crashLightningCastTime - GetTime() else crashLightningCastTime = 0; crashingStormTimer = 0 end
 
         -- Fury of Air
-        if buff.furyOfAir.exists() and (power < 22 or #enemies.yards8 == 0 or not inCombat) then
+        if buff.furyOfAir.exists() and (power < 12 or #enemies.yards8 == 0 or not inCombat) then
             if cast.furyOfAir() then return end
         end
 
@@ -379,7 +382,8 @@ local function runRotation()
                 end
         -- Crash Lightning
                 -- crash_lightning,if=artifact.alpha_wolf.rank&prev_gcd.feral_spirit
-                if artifact.alphaWolf and lastSpell == spell.feralSpirit and #enemies.yards8 > 0 and getFacing("player",units.dyn8,120) then
+                if artifact.alphaWolf and lastSpell == spell.feralSpirit and getEnemiesInCone(7,100) >= 1 then
+                --#enemies.yards8 > 0 and getFacing("player",units.dyn8,120)
                     if cast.crashLightning() then return end
                 end
         -- Ring of Collapsing Futures
@@ -445,7 +449,7 @@ local function runRotation()
                         if cast.feralLunge("target") then return end
                     end
             -- Lightning Bolt
-                    if getDistance("target") >= 10 and not talent.overcharge
+                    if getDistance("target") >= 10 and isChecked("Lightning Bolt Out of Combat") and not talent.overcharge
                         and (not isChecked("Feral Lunge") or not talent.feralLunge or cd.feralLunge > gcd or not castable.feralLunge)
                     then
                         if cast.lightningBolt("target") then return end
@@ -463,7 +467,7 @@ local function runRotation()
     -- Profile Stop | Pause
         if not inCombat and not hastar and profileStop==true then
             profileStop = false
-        elseif (inCombat and profileStop==true) or pause() or IsMounted() or mode.rotation==4 then
+        elseif (inCombat and profileStop==true) or pause() or IsMounted() or IsFlying() or mode.rotation==4 then
             if buff.furyOfAir.exists() then
                 cast.furyOfAir()
             end
@@ -484,7 +488,7 @@ local function runRotation()
 --------------------------
 --- In Combat Rotation ---
 --------------------------
-            if inCombat and profileStop==false then
+            if inCombat and isValidUnit(units.dyn10) and profileStop==false then
     ------------------------------
     --- In Combat - Interrupts ---
     ------------------------------
@@ -497,26 +501,26 @@ local function runRotation()
     --- SimulationCraft APL ---
     ---------------------------
                 if getOptionValue("APL Mode") == 1 then
-            -- Fury of Air - Off
+            --[[ Fury of Air - Off
                     -- if TargetsInRadius(FuryOfAir) = 1
-                    if buff.furyOfAir.exists() and (power <= 22 or #enemies.yards8 == 0) then
+                    if buff.furyOfAir.exists() and (power <= 12 or #enemies.yards8 == 0) then
                         if cast.furyOfAir() then return end
-                    end
+                    end]]
             -- Feral Lunge
                     if isChecked("Feral Lunge") and hasThreat("target") then
                         if cast.feralLunge("target") then return end
                     end
             -- Start Attack
-                    if getDistance("target") < 5 then
+                    if getDistance("target") <= 5 then
                         StartAttack()
                     end
             -- Boulderfist
                     -- boulderfist,if=buff.boulderfist.remain()s<gcd|(maelstrom<=50&active_enemies>=3)
-                    if buff.boulderfist.remain() < gcd or (power <= 50 and ((mode.rotation == 1 and #enemies.yards5 >= 3) or mode.rotation == 2)) then
+                    if buff.boulderfist.remain() < gcd or (power <= 50 and ((mode.rotation == 1 and #enemies.yards8 >= 3) or mode.rotation == 2)) then
                         if cast.boulderfist() then return end
                     end
                     -- boulderfist,if=buff.boulderfist.remain()s<gcd|(charges_fractional>1.75&maelstrom<=100&active_enemies<=2)
-                    if buff.boulderfist.remain() < gcd or (charges.frac.boulderfist > 1.75 and power <= 100 and #enemies.yards5 <= 2) then
+                    if buff.boulderfist.remain() < gcd or (charges.frac.boulderfist > 1.75 and power <= 100 and #enemies.yards8 <= 2) then
                         if cast.boulderfist() then return end
                     end
             -- Rockbiter
@@ -546,8 +550,8 @@ local function runRotation()
                     end
             -- Crash Lightning
                     -- crash_lightning,if=talent.crashing_storm.enabled&active_enemies>=3&(!talent.hailstorm.enabled|buff.frostbrand.remain()s>gcd)
-                    if ((mode.rotation == 1 and #enemies.yards8 >= 3) or mode.rotation == 2) and getFacing("player",units.dyn8,120) then
-                        if talent.crashingStorm and #enemies.yards8 > 0 and (not talent.hailstorm or buff.frostbrand.remain() > gcd) then
+                    if ((mode.rotation == 1 and getEnemiesInCone(7,100) >= 3) or mode.rotation == 2) then
+                        if talent.crashingStorm  and (not talent.hailstorm or buff.frostbrand.remain() > gcd) then
                             if cast.crashLightning() then return end
                         end
                     end
@@ -561,7 +565,7 @@ local function runRotation()
                     end
             -- Crash Lightning
                     -- crash_lightning,if=buff.crash_lightning.remain()s<gcd&active_enemies>=2
-                    if buff.crashLightning.remain() < gcd and ((mode.rotation == 1 and #enemies.yards8 >= 2) or mode.rotation == 2) then
+                    if buff.crashLightning.remain() < gcd and ((mode.rotation == 1 and getEnemiesInCone(7,100) >= 2) or mode.rotation == 2) then
                         if cast.crashLightning() then return end
                     end
             -- Windsong
@@ -590,7 +594,7 @@ local function runRotation()
                     end
             -- Crash Lightning
                     -- crash_lightning,if=active_enemies>=4
-                    if ((mode.rotation == 1 and #enemies.yards8 >= 4) or mode.rotation == 2) then
+                    if ((mode.rotation == 1 and getEnemiesInCone(7,100) >= 4) or mode.rotation == 2) then
                         if cast.crashLightning() then return end
                     end
             -- Windstrike
@@ -613,12 +617,12 @@ local function runRotation()
                     end
             -- Crash Lightning
                     -- crash_lightning,if=((active_enemies>1|talent.crashing_storm.enabled|talent.boulderfist.enabled)&!set_bonus.tier19_4pc)|feral_spirit.remain()s>5
-                    if (((mode.rotation == 1 and #enemies.yards8 > 1) or talent.crashingStorm or talent.boulderfist or mode.rotation == 2) and not t19pc4) or feralSpiritRemain > 5 then
+                    if (((mode.rotation == 1 and getEnemiesInCone(7,100) > 1) or --[[talent.crashingStorm or talent.boulderfist or]] mode.rotation == 2) and not t19pc4) or (feralSpiritRemain > 5 and artifact.alphaWolf) then
                         if cast.crashLightning() then return end
                     end
             -- Frostbrand
                     -- frostbrand,if=talent.hailstorm.enabled&buff.frostbrand.remain()s<4.8
-                    if talent.hailstorm and buff.frostbrand.remain() < 4.8 then
+                    if talent.hailstorm and buff.frostbrand.refresh then
                         if cast.frostbrand() then return end
                     end
             -- Lava Lash
@@ -631,12 +635,12 @@ local function runRotation()
                         if cast.lavaLash() then return end
                     end
                     -- lava_lash,if=(!set_bonus.tier19_4pc&maelstrom>=120)|(!talent.fury_of_air.enabled&set_bonus.tier19_4pc&maelstrom>=40)
-                    if (not t19pc4 and power >= 120) or (not talent.furyOfAir and t19pc4 and power >= 40) then
+                    if (not t19pc4 and power >= 115) or (not talent.furyOfAir and t19pc4 and power >= 65) then
                         if cast.lavaLash() then return end
                     end
             -- Flametongue
                     -- flametongue,if=buff.flametongue.remain()s<4.8
-                    if buff.flametongue.remain() < 4.8 then
+                    if buff.flametongue.refresh then
                         if cast.flametongue() then return end
                     end
             -- Sundering
@@ -701,7 +705,7 @@ local function runRotation()
                     if cast.stormstrike() then return end
             -- Crash Lightning
                     -- if (HasTalent(CrashingStorm) and TimerSecRemaining(CrashingStormTimer) = 0) or TargetsInRadius(CrashLightning) > 3 or (ArtifactTraitRank(GatheringStorms) > 0 and not HasBuff(GatheringStorms))
-                    if (talent.crashingStorm and crashingStormTimer == 0) or #enemies.yards8 > 8 or (artifact.gatheringStorms and not buff.gatheringStorms.exists()) and getFacing("player",units.dyn8,120) then
+                    if (talent.crashingStorm and crashingStormTimer == 0) or getEnemiesInCone(7,100) > 3 or (artifact.gatheringStorms and not buff.gatheringStorms.exists()) then
                         if cast.crashLightning() then return end
                     end
             -- Flame Tongue

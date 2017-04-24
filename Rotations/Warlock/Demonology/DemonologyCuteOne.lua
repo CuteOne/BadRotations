@@ -103,8 +103,6 @@ local function createOptions()
         br.ui:checkSectionState(section)
     -- Interrupt Options
         section = br.ui:createSection(br.ui.window.profile, "Interrupts")
-        -- Couterspell
-            br.ui:createCheckbox(section, "Counterspell")
         -- Interrupt Percentage
             br.ui:createSpinner(section, "Interrupt At",  0,  0,  95,  5,  "|cffFFFFFFCast Percent to Cast At")
         br.ui:checkSectionState(section)
@@ -375,11 +373,15 @@ local function runRotation()
 		end -- End Action List - Defensive
 	-- Action List - Interrupts
 		local function actionList_Interrupts()
-			if useInterrupts() then
+			if useInterrupts() and activePetId ~= nil and (activePetId == 417 or activePetId == 78158) then
                 for i=1, #enemies.yards30 do
                     thisUnit = enemies.yards30[i]
                     if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
-
+                        if activePetId == 417 then
+                            if cast.spellLock(thisUnit) then return end
+                        elseif activePetId == 78158 then
+                            if cast.shadowLock(thisUnit) then return end
+                        end
                     end
                 end
             end -- End useInterrupts check
@@ -842,12 +844,12 @@ local function runRotation()
                             -- print(isChecked("Summon Doomguard"))
                             -- print(isChecked("Summon Infernal"))
                             -- print(getOptionValue("Grimoire of Service - Use"))
-                            -- if ((cd.summonDoomguard > 15 or isChecked("Summon Doomguard") == false) and (cd.summonInfernal > 15 or isChecked("Summon Infernal") == false) and (cd.grimoireFelguard > 15 or getOptionValue("Grimoire of Service - Use") == 3)) or not isBoss(units.dyn40) then 
-                            --     if cd.thalkielsConsumption <= 2 then
+                            if ((cd.summonDoomguard > 15 or isChecked("Summon Doomguard") == false) and (cd.summonInfernal > 15 or isChecked("Summon Infernal") == false) and (cd.grimoireFelguard > 15 or getOptionValue("Grimoire of Service - Use") == 3)) or not isBoss(units.dyn40) then 
+                                if cd.thalkielsConsumption <= 2 then
                              --   if missingDE == 0 then
                                     if cast.thalkielsConsumption() then return end
-                            --     end
-                            -- end
+                                end
+                            end
                         end
                     end
         -- Life Tap

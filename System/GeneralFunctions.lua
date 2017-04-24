@@ -1397,8 +1397,8 @@ function getDistance(Unit1,Unit2,option)
         else
             currentDist = 0
         end
-        if not EWT and currentDist <= 25 and meleeSpec then
-        	if IsSpellInRange(testSpell,Unit2) then
+        if not EWT and meleeSpec then
+        	if IsSpellInRange(testSpell,Unit2) == 1 then
         		currentDist = 4
         	end
         end
@@ -2961,6 +2961,7 @@ function getOptionValue(Value)
 end
 function hasHealthPot()
 	local potion = br.player.potion
+	if potion.health == nil then return false end
 	if potion.health[1]==nil and potion.rejuve[1]==nil then
 		return false
 	else
@@ -3273,18 +3274,21 @@ function TierScan(thisTier)
 	return equippedItems;
 end
 
-function hasEquiped(itemID)
+function hasEquiped(ItemID, Slot)
 	--Scan Armor Slots to see if specified item was equiped
 	local foundItem = false
 	for i=1, 19 do
 		-- if there is an item in that slot
-		if GetInventoryItemID("player", i) ~= nil then
-			-- check if it matches
-			if GetInventoryItemID("player", i) == itemID then
-				foundItem = true
-			end
-		end
-	end
+        if GetInventoryItemID("player", i) ~= nil then
+        	-- check if it matches
+            if GetInventoryItemID("player", i) == ItemID then
+                if i == Slot or Slot == nil then
+                    foundItem = true
+                    break
+                end
+            end
+        end
+    end
 	return foundItem;
 end
 

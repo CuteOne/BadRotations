@@ -145,7 +145,7 @@ CuteOne |  Full   |  7.1  |   100% | :white_check_mark:
 
 author  | support | patch | status |     raidable?
 :------ | :-----: | :---: | -----: | :----------------:
-LyLoLoq |  Full   | 7.1.5 |   100% | :white_check_mark:
+LyLoLoq |  Full   | 7.2   |   100% | :white_check_mark:
 
 - Restoration
 
@@ -193,6 +193,7 @@ winston/cryteks |  Full   | 7.1.5 |   100% | :interrobang:
 author | support  | patch | status |   raidable?
 :----- | :------: | :---: | -----: | :-----------:
 dbtftw | Inactive | 7.1.5 |   100% | :interrobang:
+LyLoLoq  |   Full   | 7.2 |   100% | :interrobang:
 
 ### Monk
 
@@ -207,7 +208,7 @@ Kuukuu |  Full   | 7.2   |    90% | :white_check_mark:
 author   | support  | patch | status |     raidable?
 :------- | :------: | :---: | -----: | :----------------:
 Cpoworks | Sporadic | 7.1.5 |    70% | :heavy_check_mark:
-Lyloloq  |   Full   | 7.1.5 |   100% | :white_check_mark:
+LyLoLoq  |   Full   | 7.2   |   100% | :white_check_mark:
 
 - Windwalker
 

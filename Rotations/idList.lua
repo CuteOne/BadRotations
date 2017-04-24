@@ -1393,6 +1393,8 @@ br.idList = {
                 transcendenceTransfer       = 119996;
                 vivify                      = 116670;
                 soothingMist                = 193884;
+                chiWave                     = 115098;
+                fortifyingBrew              = 243435;
             },
             artifacts                       = {
             },
@@ -1422,7 +1424,8 @@ br.idList = {
             talents                         = {
                 chiBurst                    = 123986;
                 zenPulse                    = 124081;
-                mistwalk                    = 197945;
+                chiWave                     = 115098;
+--                mistwalk                    = 197945;
                 chiTorpedo                  = 115008;
                 tigersLust                  = 116841;
                 mistWrap                    = 197900;
@@ -2663,7 +2666,9 @@ br.idList = {
                 reapSouls                   = 216698,
                 seedOfCorruption            = 27243,
                 shadowBolt                  = 232670,
+                shadowLock                  = 171138,
                 siphonLife                  = 63106,
+                spellLock                   = 19647,
                 soulEffigy                  = 205178,
                 unstableAffliction          = 30108,
             },
@@ -2740,6 +2745,8 @@ br.idList = {
                 implosion                   = 196277,
                 shadowbolt                  = 686,
                 shadowflame                 = 205181,
+                shadowLock                  = 171138,
+                spellLock                   = 19647,
                 summonDarkglare             = 205180,
                 thalkielsConsumption        = 211714,
             },
@@ -2784,6 +2791,8 @@ br.idList = {
                 shadowBolt                  = 686,
                 shadowburn                  = 17877,
                 shadowfury                  = 30283,
+                shadowLock                  = 171138,
+                spellLock                   = 19647,
             },
             artifacts                       = {
                 artificialStamina           = 211309,
