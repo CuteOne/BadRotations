@@ -207,6 +207,7 @@ local function runRotation()
 		local immun				= immun or immunIB or immunAotT or immunDS or immunCyclone
         local attacktar         = UnitCanAttack("target", "player")
         local buff              = br.player.buff
+        local BL 				= buff.ancientHysteria.exists() or buff.bloodlust.exists() or buff.heroism.exists() or buff.timeWarp.exists() 
         local cast              = br.player.cast
         local cd                = br.player.cd
         local charges           = br.player.charges
@@ -330,7 +331,7 @@ local function runRotation()
             then
                 if cast.pillarOfFrost() then return end
             end  
-            --Howling Blast
+        --Howling Blast
             if inCombat 
                 and GetUnitExists("target") 
                 and (normalMob or buff.rime.exists())
@@ -353,12 +354,25 @@ local function runRotation()
                     end
                 end  
             end 
+        -- Raise Ally
+            if isChecked("Raise Ally") then
+                if getOptionValue("Raise Ally - Target")==1
+                    and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and UnitIsFriend("target","player")
+                then
+                    if cast.raiseAlly("target","dead") then return end
+                end
+                if getOptionValue("Raise Ally - Target")==2
+                    and UnitIsPlayer("mouseover") and UnitIsDeadOrGhost("mouseover") and UnitIsFriend("mouseover","player")
+                then
+                    if cast.raiseAlly("mouseover","dead") then return end
+                end
+            end
         end -- End Action List - Extras
     ---------------------------------------------------------------------------------------------------------------------------------    
     -- Action List - Defensive
     ---------------------------------------------------------------------------------------------------------------------------------
         local function actionList_Defensive()
-            if useDefensive() and not IsMounted() then
+            if useDefensive() and not IsMounted() and inCombat then
             	if isChecked("Debug Info") then Print("actionList_Defensive") end
             --Healthstone
              	if isChecked("Healthstone") 
@@ -441,25 +455,11 @@ local function runRotation()
         -- Icebound Fortitude
                 if isChecked("Icebound Fortitude") 
                 	and php < getOptionValue("Icebound Fortitude") 
-                	and inCombat 
                 then
                     if cast.iceboundFortitude() then return end
                 end
-        -- Raise Ally
-                if isChecked("Raise Ally") then
-                    if getOptionValue("Raise Ally - Target")==1
-                        and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and UnitIsFriend("target","player")
-                    then
-                        if cast.raiseAlly("target","dead") then return end
-                    end
-                    if getOptionValue("Raise Ally - Target")==2
-                        and UnitIsPlayer("mouseover") and UnitIsDeadOrGhost("mouseover") and UnitIsFriend("mouseover","player")
-                    then
-                        if cast.raiseAlly("mouseover","dead") then return end
-                    end
-                end
-                if isChecked("Debug Info") then Print("~actionList_Defensive") end
-            end -- End Use Defensive Check
+            end
+            if isChecked("Debug Info") then Print("~actionList_Defensive") end
         end -- End Action List - Defensive
     ---------------------------------------------------------------------------------------------------------------------------------
     -- Action List - Interrupts
@@ -616,9 +616,8 @@ local function runRotation()
             	and not immun
             	and not cloak
             then
-                if runicPower >= 80 
-                    and getDistance("target") < 8 
-                    and runes > 4 
+                if (BL and runicPower >= 70 and runes > 2 ) or (runicPower >= 80 and runes > 3)
+                    and getDistance("target") < 5
                 then
                     if cast.breathOfSindragosa() then return end
                 end
@@ -711,7 +710,7 @@ local function runRotation()
                 (
                  (runicPower > 40 and runes >= 2)
                  or (runicPower > 50) 
-                 or t19_4pc
+                 or (t19_4pc and runicPower > 40)
                 )
             	and (not buff.hungeringRuneWeapon.exists() or t19_4pc)
             	and not immun

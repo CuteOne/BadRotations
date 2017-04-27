@@ -1954,6 +1954,7 @@ br.idList = {
                 prayerOfMending             = 41635,
                 renew                       = 139,
                 surgeOfLight                = 109186,
+                spiritOfRedemption          = 20711,
             },
             debuffs                         = {
 

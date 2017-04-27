@@ -320,7 +320,13 @@ local function runRotation()
                         if isChecked("Holy Word: Serenity") and not buff.divinity.exists() then
                             if cast.holyWordSerenity(lowest.unit) then return end
                         end
-                        if cast.divineHymn() then return end    
+                        if cast.divineHymn() then return end
+                        if isChecked("Holy Word: Sanctify") then
+                            if castWiseAoEHeal(br.friend,spell.holyWordSanctify,10,getValue("Holy Word: Sanctify"),getValue("Holy Word: Sanctify Targets"),6,false,false) then return end    
+                        end
+                        if isChecked("Holy Word: Serenity") then
+                            if cast.holyWordSerenity(lowest.unit) then return end
+                        end
                     end
                 end
             -- Symbol of Hope
@@ -502,7 +508,9 @@ local function runRotation()
             if isChecked("Renew") then
                 for i = 1, #br.friend do
                     if br.friend[i].hp <= getValue("Renew") and not buff.renew.exists(br.friend[i].unit) then
-                        if cast.renew(br.friend[i].unit) then return end
+                        if inInstance or (inRaid and moving) then
+                            if cast.renew(br.friend[i].unit) then return end
+                        end
                     end
                 end                    
             end
@@ -556,17 +564,22 @@ local function runRotation()
 --- In Combat - Rotations --- 
 -----------------------------
             if inCombat and not IsMounted() then
-                actionList_Defensive()
-                actionList_Cooldowns()
-                actionList_Dispel()
-                actionList_Emergency()
-                if talent.divinity then
-                    actionList_Divinity()
+                if buff.spiritOfRedemption.exists() then
+                   actionList_Emergency() 
                 end
-                actionList_AOEHealing()
-                actionList_SingleTarget()
-                if br.player.mode.dps == 1 then
-                    actionList_DPS()
+                if not buff.spiritOfRedemption.exists() then
+                    actionList_Defensive()
+                    actionList_Cooldowns()
+                    actionList_Dispel()
+                    actionList_Emergency()
+                    if talent.divinity then
+                        actionList_Divinity()
+                    end
+                    actionList_AOEHealing()
+                    actionList_SingleTarget()
+                    if br.player.mode.dps == 1 then
+                        actionList_DPS()
+                    end
                 end
             end -- End In Combat Rotation
         end -- Pause
