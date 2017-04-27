@@ -66,7 +66,7 @@ function getNovaDistance(Unit1,Unit2)
 	if Unit1.guid == Unit2.guid then
 		return 0
 			-- elseif unit 2 is valid (we have unit one valid check up before entering here)
-	elseif Unit2 and Unit2.x ~= 0 then
+	elseif Unit2 and (Unit2.x ~= 0 or Unit2.x ~= nil) then
 		local X1,Y1,Z1 = Unit1.x,Unit1.y,Unit2.z
 		local X2,Y2,Z2 = Unit2.x,Unit2.y,Unit2.z
 		-- return distance between two users

@@ -516,11 +516,11 @@ local function runRotation()
                     end
             -- Boulderfist
                     -- boulderfist,if=buff.boulderfist.remain()s<gcd|(maelstrom<=50&active_enemies>=3)
-                    if buff.boulderfist.remain() < gcd or (power <= 50 and ((mode.rotation == 1 and #enemies.yards8 >= 3) or mode.rotation == 2)) then
+                    if buff.boulderfist.remain() < gcd or (power <= 50 and ((mode.rotation == 1 and #enemies.yards5 >= 3) or mode.rotation == 2)) then
                         if cast.boulderfist() then return end
                     end
                     -- boulderfist,if=buff.boulderfist.remain()s<gcd|(charges_fractional>1.75&maelstrom<=100&active_enemies<=2)
-                    if buff.boulderfist.remain() < gcd or (charges.frac.boulderfist > 1.75 and power <= 100 and #enemies.yards8 <= 2) then
+                    if buff.boulderfist.remain() < gcd or (charges.frac.boulderfist > 1.75 and power <= 100 and #enemies.yards5 <= 2) then
                         if cast.boulderfist() then return end
                     end
             -- Rockbiter
@@ -617,12 +617,12 @@ local function runRotation()
                     end
             -- Crash Lightning
                     -- crash_lightning,if=((active_enemies>1|talent.crashing_storm.enabled|talent.boulderfist.enabled)&!set_bonus.tier19_4pc)|feral_spirit.remain()s>5
-                    if (((mode.rotation == 1 and getEnemiesInCone(7,100) > 1) or --[[talent.crashingStorm or talent.boulderfist or]] mode.rotation == 2) and not t19pc4) or (feralSpiritRemain > 5 and artifact.alphaWolf) then
+                    if (((mode.rotation == 1 and getEnemiesInCone(7,100) > 1) or talent.crashingStorm or talent.boulderfist or mode.rotation == 2) and not t19pc4) or (feralSpiritRemain > 5 and artifact.alphaWolf) then
                         if cast.crashLightning() then return end
                     end
             -- Frostbrand
                     -- frostbrand,if=talent.hailstorm.enabled&buff.frostbrand.remain()s<4.8
-                    if talent.hailstorm and buff.frostbrand.refresh then
+                    if talent.hailstorm and buff.frostbrand.remain() < 4.8 then
                         if cast.frostbrand() then return end
                     end
             -- Lava Lash
@@ -635,12 +635,12 @@ local function runRotation()
                         if cast.lavaLash() then return end
                     end
                     -- lava_lash,if=(!set_bonus.tier19_4pc&maelstrom>=120)|(!talent.fury_of_air.enabled&set_bonus.tier19_4pc&maelstrom>=40)
-                    if (not t19pc4 and power >= 115) or (not talent.furyOfAir and t19pc4 and power >= 65) then
+                    if (not t19pc4 and power >= 120) or (not talent.furyOfAir and t19pc4 and power >= 40) then
                         if cast.lavaLash() then return end
                     end
             -- Flametongue
                     -- flametongue,if=buff.flametongue.remain()s<4.8
-                    if buff.flametongue.refresh then
+                    if buff.flametongue.remain() < 4.8 then
                         if cast.flametongue() then return end
                     end
             -- Sundering
