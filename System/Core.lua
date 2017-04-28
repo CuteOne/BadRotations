@@ -20,16 +20,20 @@ end
 --[[---------  -----  ----           ---  ------------  ---            -------------------------------------------------------------------------------------------------------------------]]
 --[[-------------------------------------------------------------------------------------------------------------------------------------------------------]]
 local elapsedTime = 0
+local updateRate = 0
 function EnemyEngine(_, time)
 	elapsedTime = elapsedTime + time
-	local updateRate = getOptionValue("Update Rate") or 0.5
+	if getOptionValue("Update Rate") * 2 > 0.5 then updateRate = getOptionValue("Update Rate") * 2
+		else updateRate = 0.5
+	end
+	--print(updateRate)
 	if FireHack ~= nil and br.data.settings[br.selectedSpec].toggles["Power"] == 1 and elapsedTime >= updateRate then --0.5 then
 		elapsedTime = 0
 		-- Enemies Engine
 		-- EnemiesEngine();
 		FindEnemy()
-
 	end
+	EnemiesEngine()
 end
 
 local frame = CreateFrame("FRAME")
@@ -268,7 +272,7 @@ function BadRotationsUpdate(self)
 					end
 
 				-- Enemies Engine
-					EnemiesEngine();
+					--EnemiesEngine();
 
 				end --End Update Check
 				self.updateInProgress = false
@@ -280,14 +284,6 @@ function BadRotationsUpdate(self)
 	br.debug.cpu.pulse.elapsedTime = br.debug.cpu.pulse.elapsedTime + debugprofilestop()-startTime
 	br.debug.cpu.pulse.averageTime = br.debug.cpu.pulse.elapsedTime / br.debug.cpu.pulse.totalIterations
 end -- End Bad Rotations Update Function
-function ThreadHelper()
-	if not brMainThread or coroutine.status(brMainThread) == "dead" then
-        brMainThread = coroutine.create(BadRotationsUpdate)
-    end
-    coroutine.resume(brMainThread)
-	-- BadRotationsUpdate()
-end
-
 -- Enemies Engine
 -- EnemiesEngine();
 
