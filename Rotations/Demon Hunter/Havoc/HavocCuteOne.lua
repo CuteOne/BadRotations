@@ -61,6 +61,8 @@ local function createOptions()
             br.ui:createSpinnerWithout(section, "Units To AoE", 3, 1, 10, 1, "|cffFFBB00Number of Targets to use AoE spells on.")
         -- Fel Rush Charge Hold
             br.ui:createSpinnerWithout(section, "Hold Fel Rush Charge", 1, 0, 2, 1, "|cffFFBB00Number of Fel Rush charges the bot will hold for manual use.");
+        -- Vengeful Retreat
+            br.ui:createCheckbox(section, "Vengeful Retreat")
         -- Glide Fall Time
             br.ui:createSpinner(section, "Glide", 2, 0, 10, 1, "|cffFFBB00Seconds until Glide will be used while falling.")
         -- Artifact
@@ -271,7 +273,7 @@ local function runRotation()
                 -- C_Timer.After(.35, function() cast.vengefulRetreat() end)
                 -- C_Timer.After(.55, function() SetHackEnabled("NoKnockback", false) end)
                 SetHackEnabled("NoKnockback", true)
-                cast.vengefulRetreat()
+                if cast.vengefulRetreat() then SetHackEnabled("NoKnockback", false) end
             end
             return
         end
@@ -294,7 +296,7 @@ local function runRotation()
 				end
 			end -- End Dummy Test
         -- Glide
-            if isChecked("Glide") then
+            if isChecked("Glide") and not buff.glide.exists() then
                 if falling >= getOptionValue("Glide") then
                     if cast.glide("player") then return end
                 end
@@ -448,7 +450,7 @@ local function runRotation()
             end
         -- Vengeful Retreat
             -- vengeful_retreat,if=(talent.prepared.enabled|talent.momentum.enabled)&buff.prepared.down&buff.momentum.down
-            if (talent.prepared or talent.momentum) and not buff.prepared.exists() and not buff.momentum.exists() then
+            if isChecked("Vengeful Retreat") and (talent.prepared or talent.momentum) and not buff.prepared.exists() and not buff.momentum.exists() and getDistance(units.dyn5) < 5 then
                 if mode.mover == 1 then
                     cancelRetreatAnimation()
                 elseif mode.mover == 2 then
@@ -502,8 +504,9 @@ local function runRotation()
             end
         -- Eye Beam
             -- eye_beam,if=spell_targets.eye_beam_tick>desired_targets|!buff.metamorphosis.extended_by_demonic
-            if (getOptionValue("Eye Beam Usage") == 1 and enemies.yards8r > 0 and (((mode.rotation == 1 and enemies.yards8r >= getOptionValue("Units To AoE")) or mode.rotation == 2) or not metaExtended))
-                or (getOptionValue("Eye Beam Usage") == 2 and ((mode.rotation == 1 and enemies.yards8r >= getOptionValue("Units To AoE")) or (mode.rotation == 2 and enemies.yards8r > 0)))
+            if ((getOptionValue("Eye Beam Usage") == 1 and enemies.yards8r > 0 and (((mode.rotation == 1 and enemies.yards8r >= getOptionValue("Units To AoE")) or mode.rotation == 2) or not metaExtended))
+                or (getOptionValue("Eye Beam Usage") == 2 and ((mode.rotation == 1 and enemies.yards8r >= getOptionValue("Units To AoE")) or (mode.rotation == 2 and enemies.yards8r > 0))))
+                and not moving
             then
                 if cast.eyeBeam(units.dyn5) then return end
             end
@@ -550,7 +553,7 @@ local function runRotation()
             end
         -- -- Vengeful Retreat
         --     -- vengeful_retreat,if=movement.distance>15
-        --     if mode.mover ~= 3 and not getFacing("player","target",170) and getDistance("target") > 15 then
+        --     if isChecked("Vengeful Retreat") and mode.mover ~= 3 and not getFacing("player","target",170) and getDistance("target") > 15 then
         --         if cast.vengefulRetreat() then return end
         --     end
         end -- End Action List - Demonic
@@ -563,7 +566,7 @@ local function runRotation()
             end
         -- Vengeful Retreat
             -- vengeful_retreat,if=(talent.prepared.enabled|talent.momentum.enabled)&buff.prepared.down&buff.momentum.down
-            if (talent.prepared or talent.momentum) and not buff.prepared.exists() and not buff.momentum.exists() then
+            if isChecked("Vengeful Retreat") and (talent.prepared or talent.momentum) and not buff.prepared.exists() and not buff.momentum.exists() and getDistance(units.dyn5) < 5 then
                 if mode.mover == 1 then
                     cancelRetreatAnimation()
                 elseif mode.mover == 2 then
@@ -640,9 +643,10 @@ local function runRotation()
             end
         -- Eye Beam
             -- eye_beam,if=talent.blind_fury.enabled&(spell_targets.eye_beam_tick>desired_targets|fury.deficit>=35)
-            if (getOptionValue("Eye Beam Usage") == 1 and talent.blindFury and enemies.yards8r > 0 
+            if ((getOptionValue("Eye Beam Usage") == 1 and talent.blindFury and enemies.yards8r > 0 
                 and (((mode.rotation == 1 and enemies.yards8r >= getOptionValue("Units To AoE")) or mode.rotation == 2) or powerDeficit >= 35)) 
-                or (getOptionValue("Eye Beam Usage") == 2 and ((mode.rotation == 1 and enemies.yards8r >= getOptionValue("Units To AoE")) or (mode.rotation == 2 and enemies.yards8r > 0)))
+                or (getOptionValue("Eye Beam Usage") == 2 and ((mode.rotation == 1 and enemies.yards8r >= getOptionValue("Units To AoE")) or (mode.rotation == 2 and enemies.yards8r > 0))))
+                and not moving
             then
                 if cast.eyeBeam() then return end
             end
@@ -658,10 +662,11 @@ local function runRotation()
             end
         -- Eye Beam
             -- eye_beam,if=!talent.blind_fury.enabled&(spell_targets.eye_beam_tick>desired_targets|(!set_bonus.tier19_4pc&raid_event.adds.in>45&!variable.pooling_for_meta&buff.metamorphosis.down&(artifact.anguish_of_the_deceiver.enabled|active_enemies>1)&!talent.chaos_cleave.enabled)) 
-            if (getOptionValue("Eye Beam Usage") == 1 and not talent.blindFury and enemies.yards8r > 0 and ((mode.rotation == 1 and (enemies.yards8r >= getOptionValue("Units To AoE")) or mode.rotation == 2)
+            if ((getOptionValue("Eye Beam Usage") == 1 and not talent.blindFury and enemies.yards8r > 0 and ((mode.rotation == 1 and (enemies.yards8r >= getOptionValue("Units To AoE")) or mode.rotation == 2)
                 or (not tier19_4pc and not poolForMeta and not buff.metamorphosis.exists() and (artifact.anguishOfTheDeceiver or enemies.yards8r > 1) 
                     and not talent.chaosCleave)))
-                or (getOptionValue("Eye Beam Usage") == 2 and ((mode.rotation == 1 and enemies.yards8r >= getOptionValue("Units To AoE")) or (mode.rotation == 2 and enemies.yards8r > 0)))
+                or (getOptionValue("Eye Beam Usage") == 2 and ((mode.rotation == 1 and enemies.yards8r >= getOptionValue("Units To AoE")) or (mode.rotation == 2 and enemies.yards8r > 0))))
+                and not moving
             then 
                 if cast.eyeBeam() then return end
             end
@@ -713,7 +718,7 @@ local function runRotation()
             end
         -- -- Vengeful Retreat
         --     -- vengeful_retreat,if=movement.distance>15
-        --     if mode.mover ~= 3 and not getFacing("player","target",170) and getDistance("target") > 15 then
+        --     if isChecked("Vengeful Retreat") and mode.mover ~= 3 and not getFacing("player","target",170) and getDistance("target") > 15 then
         --         if cast.vengefulRetreat() then return end
         --     end
         -- Throw Glaive
@@ -812,7 +817,7 @@ local function runRotation()
                 if getOptionValue("APL Mode") == 2 then
             -- Vengeful Retreat
                     -- if HasTalent(Prepared) or HasTalent(Momentum) and not HasBuff(Momentum)
-                    if castable.vengefulRetreat and (talent.prepared or talent.momentum) and not buff.momentum.exists() then
+                    if isChecked("Vengeful Retreat") and castable.vengefulRetreat and (talent.prepared or talent.momentum) and not buff.momentum.exists() and getDistance(units.dyn5) < 5 then
                         if mode.mover == 1 then
                             cancelRetreatAnimation()
                         elseif mode.mover == 2 and charges.felRush > 0 then
@@ -955,7 +960,7 @@ local function runRotation()
                         end
                     end
             -- Vengeful Retreat
-                    if talent.prepared or (talent.momentum and not buff.momentum.exists()) then
+                    if isChecked("Vengeful Retreat") and (talent.prepared or (talent.momentum and not buff.momentum.exists())) and getDistance(units.dyn5) < 5 then
                        if mode.mover == 1 then
                             cancelRetreatAnimation()
                         elseif mode.mover == 2 and charges.felRush > 0 then

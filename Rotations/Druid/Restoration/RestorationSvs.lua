@@ -499,7 +499,7 @@ local function runRotation()
             end	
             -- Essence of G'Hanir
             if isChecked("Essence of G'Hanir") and not isCastingSpell(spell.tranquility) then
-                if getLowAllies(getValue("Essence of G'Hanir")) >= getValue("Essence of G'Hanir Targets") then    
+                if getLowAllies(getValue("Essence of G'Hanir")) >= getValue("Essence of G'Hanir Targets") and lastSpell == spell.wildGrowth then    
                     if cast.essenceOfGhanir() then return end    
                 end
             end
@@ -513,7 +513,7 @@ local function runRotation()
                     end
                 end
                 for i=1, #br.friend do				
-                    if getLowAllies(getValue("Flourish")) >= getValue("Flourish Targets") and rejuvCount >= getValue("Flourish and Rejuvenation Targets") and buff.wildGrowth.exists(br.friend[i].unit) then	
+                    if getLowAllies(getValue("Flourish")) >= getValue("Flourish Targets") and rejuvCount >= getValue("Flourish and Rejuvenation Targets") and lastSpell == spell.wildGrowth then	
                         if cast.flourish() then return end    
                     end
                 end

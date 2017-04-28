@@ -68,12 +68,18 @@ local function createOptions()
             br.ui:createCheckbox(section, "Opener")
         -- Pre-Pull Timer
             br.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
+        -- CJL OOR
+            br.ui:createSpinner(section,"CJL OOR", 100,  5,  160,  5, "Cast CJL when 0 enemies in 8 yds when at X Energy")
+        -- Cancel CJL OOR
+            br.ui:createSpinner(section,"CJL OOR Cancel", 30,  5,  160,  5, "Cancel CJL OOR when under X Energy")
         -- Roll
             br.ui:createCheckbox(section, "Roll")
         -- Resuscitate
             br.ui:createDropdown(section, "Resuscitate", {"|cff00FF00Target","|cffFF0000Mouseover"}, 1, "|cffFFFFFFTarget to cast on")
         -- Tiger's Lust
             br.ui:createCheckbox(section, "Tiger's Lust")
+        -- Whirling Dragon Punch
+            br.ui:createCheckbox(section, "Whirling Dragon Punch")
         br.ui:checkSectionState(section)
         ------------------------
         --- COOLDOWN OPTIONS ---
@@ -97,10 +103,6 @@ local function createOptions()
             br.ui:createCheckbox(section,"Touch of Death")
         -- Xuen
             br.ui:createCheckbox(section,"Xuen")
-        -- CJL OOR
-            br.ui:createSpinner(section,"CJL OOR", 100,  5,  160,  5, "Cast CJL when 0 enemies in 8 yds when at X Energy")
-        -- Cancel CJL OOR
-            br.ui:createSpinner(section,"CJL OOR Cancel", 30,  5,  160,  5, "Cancel CJL OOR when under X Energy")
         -- Draught of Souls
             br.ui:createCheckbox(section,"Draught of Souls")
         -- Gnawed Thumb Ring
@@ -1089,7 +1091,7 @@ local function runRotation()
             if cd.fistsOfFury ~= 0 and cd.risingSunKick ~= 0 and getDistance(units.dyn5) < 5 then
                 if BetterThanWDP == true and lastCombo ~= spell.spinningCraneKick then
                     if cast.spinningCraneKick() then return end
-                else
+                elseif isChecked("Whirling Dragon Punch") then
                     if cast.whirlingDragonPunch() then return end
                 end
             end
@@ -1470,7 +1472,7 @@ local function runRotation()
                         if cast.fistsOfFury() then return end
                     end
         -- Whirling Dragon Punch
-                    if getDistance(units.dyn5) < 5 and lastCombo ~= spell.whirlingDragonPunch then
+                    if isChecked("Whirling Dragon Punch") and getDistance(units.dyn5) < 5 and lastCombo ~= spell.whirlingDragonPunch then
                         if cast.whirlingDragonPunch() then return end
                     end
         -- Strike of the Windlord
