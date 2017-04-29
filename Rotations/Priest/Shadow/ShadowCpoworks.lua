@@ -79,6 +79,7 @@ local function createOptions()
             br.ui:createSpinnerWithout(section, "Power Infusion Stacks", 10, 5, 100, 5, "|cffFFFFFFSet to desired Void Form stacks to use at.")
             -- Void Torrent
             br.ui:createCheckbox(section,"Void Torrent")
+            br.ui:createSpinnerWithout(section, "Void Torrent Stacks", 10, 5, 100, 5, "|cffFFFFFFSet to desired Void Form stacks to use at.")
         br.ui:checkSectionState(section)
         -- Defensive Options
         section = br.ui:createSection(br.ui.window.profile, "Defensive")
@@ -96,6 +97,8 @@ local function createOptions()
             br.ui:createCheckbox(section, "Fade")
             -- Power Word: Shield
             br.ui:createSpinner(section, "Power Word: Shield",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
+            -- Shadow Mend
+            br.ui:createSpinner(section, "Shadow Mend",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
         br.ui:checkSectionState(section)
         -- Toggle Key Options
         section = br.ui:createSection(br.ui.window.profile, "Toggle Keys")
@@ -277,6 +280,10 @@ local function runRotation()
                 -- Power Word: Shield
                 if isChecked("Power Word: Shield") and php <= getOptionValue("Power Word: Shield") and not buff.powerWordShield.exists() then
                     if cast.powerWordShield("player") then return end
+                end
+                -- Shadow Mend
+                if isChecked("Shadow Mend") and php <= getOptionValue("Shadow Mend") then
+                    if cast.shadowMend("player") then return end
                 end
             end -- End Defensive Check
         end -- End Action List - Defensive
@@ -464,14 +471,14 @@ local function runRotation()
             end
         -- Mind Blast
             -- mind_blast,if=active_enemies<=4&talent.legacy_of_the_void.enabled&(insanity<=81|(insanity<=75.2&talent.fortress_of_the_mind.enabled))
-            if ((mode.rotation == 1 and #enemies.yards40 <= 4) or mode.rotation == 3) and lastCast ~= spell.voidEruption and br.timer:useTimer("mbRecast", gcd)
+            if ((mode.rotation == 1 and #enemies.yards40 <= 4) or mode.rotation == 3) and lastCast ~= spell.voidEruption --and br.timer:useTimer("mbRecast", gcd)
                 and talent.legacyOfTheVoid and (power <= 81 or (power <= 75.2 and talent.fortressOfTheMind)) and not buff.void.exists() and not moving
             then
                 if cast.mindBlast() then return end
             end
         -- Mind Blast
             -- mind_blast,if=active_enemies<=4&!talent.legacy_of_the_void.enabled|(insanity<=96|(insanity<=95.2&talent.fortress_of_the_mind.enabled))
-            if ((mode.rotation == 1 and #enemies.yards40 <= 4) or mode.rotation == 3) and lastCast ~= spell.mindBlast and not moving
+            if ((mode.rotation == 1 and #enemies.yards40 <= 4) or mode.rotation == 3) --[[and lastCast ~= spell.mindBlast]] and not moving
                 and not talent.legacyOfTheVoid and (power <= 96 or (power <= 95.2 and talent.fortressOfTheMind)) and not buff.void.exists() 
             then
                 if cast.mindBlast() then return end
@@ -555,7 +562,7 @@ local function runRotation()
             end
         --Void Torrent
             --void_torrent,if=dot.shadow_word_pain.remains>5.5&dot.vampiric_touch.remains>5.5&!buff.power_infusion.up
-            if isChecked("Void Torrent") and useCDs() and not buff.void.exists() then
+            if isChecked("Void Torrent") and useCDs() and not buff.void.exists() and buff.voidForm.stack() >= getOptionValue("Void Torrent Stacks") then
                 if not buff.void.exists() and debuff.shadowWordPain.remain(units.dyn40) > 5.5 and debuff.vampiricTouch.remain(units.dyn40) > 5.5
                     and not buff.powerInfusion.exists()
                 then
@@ -756,7 +763,7 @@ local function runRotation()
             end
         -- Void Torrent
             -- void_torrent,if=dot.shadow_word_pain.remains>5.5&dot.vampiric_touch.remains>5.5&(!talent.surrender_to_madness.enabled|(talent.surrender_to_madness.enabled&target.time_to_die>variable.s2mcheck-(buff.insanity_drain_stacks.stack)+60))
-            if isChecked("Void Torrent") and useCDs() and artifact.voidTorrent then
+            if isChecked("Void Torrent") and useCDs() and artifact.voidTorrent and buff.voidForm.stack() >= getOptionValue("Void Torrent Stacks") then
                 if not buff.void.exists() and debuff.shadowWordPain.remain(units.dyn40) > 5.5 and debuff.vampiricTouch.remain(units.dyn40) > 5.5
                     and (not talent.surrenderToMadness or (talent.surrenderToMadness and ttd(units.dyn40) > s2mCheck - (drainStacks) + 60))
                 then

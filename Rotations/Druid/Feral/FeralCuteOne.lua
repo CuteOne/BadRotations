@@ -307,26 +307,32 @@ local function runRotation()
 		-- Shapeshift Form Management
 			if isChecked("Auto Shapeshifts") then
 			-- Flight Form
-				if IsFlyableArea() and ((not (isInDraenor() or isInLegion())) or isKnown(191633)) and not swimming and falling > 1 and level>=58 then
-	                if cast.travelForm() then return end
+				if IsFlyableArea() --[[and ((not (isInDraenor() or isInLegion())) or isKnown(191633))]] and not swimming and falling > 1 and level>=58 then
+                    if GetShapeshiftForm() ~= 0 then
+                        CancelShapeshiftForm()
+                        RunMacroText("/CancelForm")
+                        if cast.travelForm("player") then return end
+                    else
+	                   if cast.travelForm("player") then return end
+                    end
 		        end
 			-- Aquatic Form
 			    if swimming and not travel and not hastar and not deadtar and not buff.prowl.exists() then
-				  	if cast.travelForm() then return end
+				  	if cast.travelForm("player") then return end
 				end
 			-- Cat Form
 				if not cat and not IsMounted() then
 			    	-- Cat Form when not swimming or flying or stag and not in combat
 			    	if not inCombat and moving and not swimming and not flying and not travel and not isValidUnit("target") then
-		        		if cast.catForm() then return end
+		        		if cast.catForm("player") then return end
 		        	end
 		        	-- Cat Form when not in combat and target selected and within 20yrds
 		        	if not inCombat and isValidUnit("target") and getDistance("target") < 30 then
-		        		if cast.catForm() then return end
+		        		if cast.catForm("player") then return end
 		        	end
 		        	--Cat Form when in combat and not flying
 		        	if inCombat and not flying then
-		        		if cast.catForm() then return end
+		        		if cast.catForm("player") then return end
 		        	end
 		        end
 			end -- End Shapeshift Form Management
@@ -445,7 +451,7 @@ local function runRotation()
                         end
                     elseif hasNoControl() then
                         if GetShapeshiftForm() == 0 then
-                            cast.catForm()
+                            cast.catForm("player")
                         else
     				        for i=1, GetNumShapeshiftForms() do
     				            if i == GetShapeshiftForm() then
@@ -493,7 +499,12 @@ local function runRotation()
 	                if (getOptionValue("Auto Heal")==2 or not inCombat)
 	                    and (php <= getOptionValue("Regrowth") or (buff.predatorySwiftness.remain() < 1 and buff.predatorySwiftness.exists()))
 	                then
-	                    if cast.regrowth("player") then return end
+                        if GetShapeshiftForm() ~= 0 then
+                            CancelShapeshiftForm()
+                            RunMacroText("/CancelForm")
+                        else
+	                       if cast.regrowth("player") then return end
+                        end
 	                end
 	            end
 		-- Survival Instincts
@@ -1000,7 +1011,7 @@ local function runRotation()
 --------------------------
         -- Cat is 4 fyte!
             if inCombat and not cat and not (flight or travel or IsMounted() or IsFlying()) and isChecked("Auto Shapeshifts") then
-                if cast.catForm() then return end
+                if cast.catForm("player") then return end
             elseif inCombat and cat and profileStop==false and not isChecked("Death Cat Mode") and isValidUnit(units.dyn5) and getDistance(units.dyn5) < 5 then
         -- Wild Charge
                 -- wild_charge
