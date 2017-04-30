@@ -687,23 +687,26 @@ local function runRotation()
                     if buff.mokNathalTactics.stack() >= 2 or not talent.wayOfTheMokNathal then
                         if actionList_Cooldowns() then return end
                     end
-            -- Call Action List - Pre-Bite Phase
-                    -- call_action_list,name=preBitePhase,if=!buff.mongoose_fury.up
-                    if not buff.mongooseFury.exists() then
-                        if actionList_PreBitePhase() then return end
-                    end
             -- Call Action List - AOE
                     -- call_action_list,name=aoe,if=active_enemies>=3
-                    if ((mode.rotation == 1 and #enemies.yards5 >= getOptionValue("Units To AoE")) or (mode.rotation == 2 and #enemies.yards5 > 0)) then
+                    if ((mode.rotation == 1 and #enemies.yards5 >= getOptionValue("Units To AoE")) or (mode.rotation == 2 and #enemies.yards5 > 0)) 
+                        and (not talent.butchery or (talent.butchery and charges.butchery > 0)) 
+                    then
                         if actionList_AOE() then return end
-                    end
+                    else
+            -- Call Action List - Pre-Bite Phase
+                        -- call_action_list,name=preBitePhase,if=!buff.mongoose_fury.up
+                        if not buff.mongooseFury.exists() then
+                            if actionList_PreBitePhase() then return end
+                        end
             -- Call Action List - Bite Phase
-                    -- call_action_list,name=bitePhase
-                    if actionList_BitePhase() then return end
+                        -- call_action_list,name=bitePhase
+                        if actionList_BitePhase() then return end
             -- Call Action List - Bite Filler
-                    -- call_action_list,name=biteFill
-                    if actionList_BiteFill() then return end
-            -- Call ACtion List - Filler
+                        -- call_action_list,name=biteFill
+                        if actionList_BiteFill() then return end
+                    end
+            -- Call Action List - Filler
                     -- call_action_list,name=fillers
                     if actionList_Fillers() then return end
                 end -- End SimC APL

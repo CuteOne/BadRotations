@@ -149,6 +149,7 @@ Rotations\Monk\Windwalker\WindwalkerCuteOne.lua
 ## Paladin ---------------------------------------------------
 
 Rotations\Paladin\Holy\HolyKuukuu.lua
+Rotations\Paladin\Holy\HolyFengshen.lua
 
 Rotations\Paladin\Protection\protectionPrettyBoy.lua
 

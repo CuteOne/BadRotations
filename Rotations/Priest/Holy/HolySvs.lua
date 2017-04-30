@@ -404,11 +404,11 @@ local function runRotation()
                 end                    
             end
         end -- EndAction List Emergency (Healing below 40%)
-        -- Divinity
+       -- Divinity
         function actionList_Divinity()
         -- Holy Word: Sanctify
             if isChecked("Holy Word: Sanctify") and not buff.divinity.exists() then
-                if castWiseAoEHeal(br.friend,spell.holyWordSanctify,40,100,1,6,false,false) then return end
+                if castWiseAoEHeal(br.friend,spell.holyWordSanctify,40,getValue("Holy Word: Sanctify"),getValue("Holy Word: Sanctify Targets"),6,false,false) then return end
             end 
         -- Holy Word: Serenity
             if isChecked("Holy Word: Serenity") and not buff.divinity.exists() then
@@ -418,7 +418,7 @@ local function runRotation()
                     end
                 end
             end 
-        end -- End Action List - Divinity          
+        end -- End Action List - Divinity        
         -- AOE Healing
         function actionList_AOEHealing()
         -- Prayer of Mending

@@ -92,10 +92,11 @@ function castGroundAtBestLocation(spellID, radius, minUnits, maxRange, minRange,
         end
     end
 
-    --check if point (unit) is inside of a circle
-    local function pointInCircle(x, y, cx, cy, radius)
-        local distsq = (x - cx) * (x - cx) + (y - cy) * (y - cy);
-        return distsq <= radius * radius;
+    --check if unit is inside of a circle
+    local function unitInCircle(unit, cx, cy, radius)
+        local uX, uY = GetObjectPosition(unit)
+        local rUnit = UnitBoundingRadius(unit)
+        return math.abs((uX - cx) * (uX - cx) + (uY - cy) * (uY - cy)) <= (rUnit + radius) * (rUnit + radius);
     end
 
     --get number of units around 1 unit
@@ -103,7 +104,7 @@ function castGroundAtBestLocation(spellID, radius, minUnits, maxRange, minRange,
         local unitsAroundThisUnit = {}
         for j=1,#allUnitsInRange do
             local checkUnit = allUnitsInRange[j]
-            if getDistance(thisUnit,checkUnit) < radius/2 then
+            if getDistance(thisUnit,checkUnit) < radius then
                 table.insert(unitsAroundThisUnit,checkUnit)
             end
         end
@@ -199,11 +200,10 @@ function castGroundAtBestLocation(spellID, radius, minUnits, maxRange, minRange,
         temp1 = 0
         temp2 = 0
         for j=1, #allUnitsInRange do
-            local tX, tY, tZ = GetObjectPosition(allUnitsInRange[j])
-            if pointInCircle(tX,tY,thisCircle.xfc,thisCircle.yfc, radius) then
+            if unitInCircle(allUnitsInRange[j],thisCircle.xfc,thisCircle.yfc, radius) then
                 temp1 = temp1 + 1
             end
-            if pointInCircle(tX,tY,thisCircle.xsc,thisCircle.ysc, radius) then
+            if unitInCircle(allUnitsInRange[j],thisCircle.xsc,thisCircle.ysc, radius) then
                 temp2 = temp2 + 1
             end
         end
@@ -232,8 +232,8 @@ function castGroundAtBestLocation(spellID, radius, minUnits, maxRange, minRange,
         nmro = getUnits(thisUnit,allUnitsInRange, radius - 3)
         if nmro >= bestCircle.nro then
             bestCircle.x, bestCircle.y, bestCircle.z= GetObjectPosition(thisUnit)
-            bestCircle.x = bestCircle.x+math.random(0.001,0.02)
-            bestCircle.y = bestCircle.y+math.random(0.001,0.02)
+            bestCircle.x = bestCircle.x
+            bestCircle.y = bestCircle.y
             bestCircle.nro = nmro
             break;
         end

@@ -23,7 +23,7 @@ local elapsedTime = 0
 local updateRate = 0
 function EnemyEngine(_, time)
 	elapsedTime = elapsedTime + time
-	if getOptionValue("Update Rate") * 2 > 0.5 then updateRate = getOptionValue("Update Rate") * 2
+	if getOptionValue("Update Rate") ~= nil and getOptionValue("Update Rate") * 2 > 0.5 then updateRate = getOptionValue("Update Rate") * 2
 		else updateRate = 0.5
 	end
 	--print(updateRate)
