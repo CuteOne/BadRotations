@@ -1606,20 +1606,22 @@ br.idList = {
                 avengingWrath               = 31842;
                 beaconOfLight               = 53563;
                 beaconOfFaith               = 156910;
+                blessingOfSacrifice         = 6940;             
                 beaconOfVirtue              = 200025;
                 bestowFaith                 = 223306;
                 divineProtection            = 498;
+                divineSteed                 = 221883;
                 divinePurpose               = 216411;
                 ferventMartyr               = 223316;
                 infusionOfLight             = 54149;
                 ruleOfLaw                   = 214202;
-                theLightSaves               = 200421;
+                theLightSaves               = 200423;
                 vindicator                  = 200376;
 
             },
             debuffs                         = {
                 judgement                   = 214222,
-                zilv                        = 25771,
+                judgmentoflight             = 196941,               
 
             },
             glyphs                          = {
@@ -1659,6 +1661,7 @@ br.idList = {
                 ardentDefender              = 31850,
                 avengersShield              = 31935,
                 avengingWrath               = 31884,
+                blessingOfSacrifice         = 6940,
                 bastionOfLight              = 204035,
                 blessedHammer               = 204019,
                 blessingOfSpellwarding      = 204018,
@@ -1736,7 +1739,7 @@ br.idList = {
                 greaterBlessingOfWisdom     = 203539,
                 handOfHinderance            = 183218,
                 holyWrath                   = 210220,
-                judgmentOfLight             = 183788,
+                judgmentOfLight             = 183778,
                 justicarsVengeance          = 215661,
                 rebuke                      = 96231,
                 shieldOfVengeance           = 184662,
@@ -1823,10 +1826,11 @@ br.idList = {
 
             },
             buffs                           = {
-
+                divineShield                = 642,
             },
             debuffs                         = {
                 judgment                    = 197277,
+                forbearance                 = 25771,
             },
             glyphs                          = {
                 glyphOfFireFromHeavens      = 57954,
@@ -1837,7 +1841,7 @@ br.idList = {
             talents                         = {
                 blindingLight               = 115750,
                 cavalier                    = 230332,
-                judgmentOfLight             = 183788,
+                judgmentOfLight             = 183778,
                 repentance                  = 20066,
             },
         },
