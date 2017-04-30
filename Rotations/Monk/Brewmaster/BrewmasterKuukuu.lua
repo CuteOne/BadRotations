@@ -437,8 +437,12 @@ local function runRotation()
                     end
                 -- Black Ox Brew
                 elseif iB3 == true and not bOB then
-                    if cast.blackoxBrew() then 
-                        bOB = true
+                    if talent.blackoxBrew then
+                        if cast.blackoxBrew() then 
+                            bOB = true
+                        end
+                    else
+                        boB = true
                     end
                 --Iron Skin Brew
                 elseif bOB == true and not iB4 then
@@ -705,7 +709,7 @@ local function runRotation()
 		                end
 		            end
 		        -- Black Ox Brew
-		            if charges.purifyingBrew == 0 then
+		            if charges.purifyingBrew == 0 and talent.blackoxBrew then
 		                if cast.blackoxBrew() then return end
 		            end
 		        -- Ironskin Brew
