@@ -449,6 +449,7 @@ local function runRotation()
                     if cast.ironskinBrew() then
                         iB4 = true
                         opener = true
+                        openerStarted = false
                         print("Opener Complete")
                     end
                 end
