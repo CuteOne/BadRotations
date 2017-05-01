@@ -116,13 +116,21 @@ function castGroundAtBestLocation(spellID, radius, minUnits, maxRange, minRange,
 
         CastSpellByName(GetSpellInfo(spellID))
         local i = 0
+        if IsMouseButtonDown(2) then
+            mouselookup = true
+        else
+            mouselookup = false
+        end
+        MouselookStop()
         while IsAoEPending() and i <= 10 do
             --            Print("x: "..x.." y: "..y.." z: "..z)
             ClickPosition(x,y,z)
             z = z + 0.01
             i = i + 1
         end
-
+        if mouselookup then
+            MouselookStart()
+        end
         if i >= 10 then return false end
         return true
     end
