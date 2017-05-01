@@ -440,6 +440,7 @@ local function runRotation()
         if multidot then
             for i = 1, #enemies.yards40 do
                 local thisUnit = enemies.yards40[i]
+                if (isInPvP() and UnitIsPlayer(thisUnit)) or not isInPvP() then
                 --actions.fury_of_elune+=/moonfire,if=buff.fury_of_elune_up.down&remains<=6.6
                 if not buff.furyOfElune.exists() and debuff.moonfire.remain(thisUnit) <= 6.6 and ((UnitHealth(thisUnit) >= hpDotMin and (inInstance or inRaid)) or not inInstance and not inRaid) then
                     if debuff.moonfire.remain(thisUnit) < gcd and (debuff.moonfire.count() < getValue("Moonfire targets")) and isValidUnit(thisUnit) then
@@ -452,8 +453,10 @@ local function runRotation()
                         if cast.sunfire(thisUnit,"aoe") then return true end
                     end
                 end
-            end
+                end
+                end
         else
+            if (isInPvP() and UnitIsPlayer(target)) or not isInPvP() then
             if not buff.furyOfElune.exists() and debuff.moonfire.remain() <= 6.6 and ((UnitHealth(target) >= hpDotMin and (inInstance or inRaid)) or not inInstance and not inRaid) then
                 if debuff.moonfire.remain() < gcd and (debuff.moonfire.count() < getValue("Moonfire targets")) then
                     if cast.moonfire(target ,"aoe") then return true end
@@ -464,6 +467,7 @@ local function runRotation()
                 if debuff.sunfire.remain() < gcd and (debuff.sunfire.count() < getValue("Sunfire targets"))  then
                     if cast.sunfire(target ,"aoe") then return true end
                 end
+            end
             end
         end
 
@@ -547,6 +551,7 @@ local function runRotation()
         if multidot then
             for i = 1, #enemies.yards40 do
                 local thisUnit = enemies.yards40[i]
+                if (isInPvP() and UnitIsPlayer(thisUnit)) or not isInPvP() then
                 if debuff.stellarFlare.count() <= 4 and ((UnitHealth(thisUnit) >= hpDotMin and (inInstance or inRaid)) or not inInstance and not inRaid) then
                     --stellar_flare,cycle_targets=1,max_cycle_targets=4,if=active_enemies<4&remains<7.2&astral_power>=15
                     if talent.stellarFlare  and astralPower >= 15 and debuff.stellarFlare.remain(thisUnit) < 7.2 then
@@ -567,8 +572,10 @@ local function runRotation()
                         if cast.sunfire(thisUnit,"aoe") then return true end
                     end
                 end
+                end
             end
         else
+            if (isInPvP() and UnitIsPlayer(target)) or not isInPvP() then
             if debuff.stellarFlare.count() <= 1 and ((UnitHealth(target) >= hpDotMin and (inInstance or inRaid)) or not inInstance and not inRaid) then
                 --stellar_flare,cycle_targets=1,max_cycle_targets=4,if=active_enemies<4&remains<7.2&astral_power>=15
                 if talent.stellarFlare  and astralPower >= 15 and debuff.stellarFlare.remain(target) < 7.2 then
@@ -588,6 +595,7 @@ local function runRotation()
                         (buff.emeraldDreamcatcher.exists() and buff.emeraldDreamcatcher.remain() > gcd or not buff.emeraldDreamcatcher.exists()) then
                     if cast.sunfire(target,"aoe") then return true end
                 end
+            end
             end
         end
         --starfall,if=buff.oneths_overconfidence.up&buff.the_emerald_dreamcatcher.remains>execute_time&remains<2
@@ -927,6 +935,7 @@ local function runRotation()
         if multidot then
             for i = 1, #enemies.yards40 do
                 local thisUnit = enemies.yards40[i]
+                if (isInPvP() and UnitIsPlayer(thisUnit)) or not isInPvP() then
                 --actions+=/stellar_flare,cycle_targets=1,max_cycle_targets=4,if=active_enemies<4&remains<7.2&astral_power>=15
                 if debuff.stellarFlare.count() <= getValue("Stellar Flare targets") and ((UnitHealth(thisUnit) >= hpDotMin and (inInstance or inRaid)) or not inInstance and not inRaid) then
                     if talent.stellarFlare and astralPower >= 15 and debuff.stellarFlare.remain(thisUnit) < 7.2 and isValidUnit(thisUnit) then
@@ -945,8 +954,10 @@ local function runRotation()
                         if cast.sunfire(thisUnit,"aoe") then return true end
                     end
                 end
+                end
             end
         else
+            if (isInPvP() and UnitIsPlayer(target)) or not isInPvP() then
             if talent.stellarFlare and astralPower >= 15 and debuff.stellarFlare.remain() < 7.2 and ((UnitHealth(target) >= hpDotMin and (inInstance or inRaid)) or not inInstance and not inRaid) then
                 if debuff.stellarFlare.remain() < gcd and (debuff.stellarFlare.count() < getValue("Stellar Flare targets")) then
                     if cast.stellarFlare(target ,"aoe") then return true end
@@ -961,6 +972,7 @@ local function runRotation()
                 if debuff.sunfire.remain() < gcd and (debuff.sunfire.count() < getValue("Sunfire targets"))  then
                     if cast.sunfire(target ,"aoe") then return true end
                 end
+            end
             end
         end
         --actions+=/solar_wrath,if=buff.solar_empowerment.stack=3
@@ -1006,6 +1018,7 @@ local function runRotation()
             end
             for i = 1, #enemies.yards40 do
                 local thisUnit = enemies.yards40[i]
+                if (isInPvP() and UnitIsPlayer(thisUnit)) or not isInPvP() then
                 if (talent.naturesBalance and debuff.moonfire.remain(thisUnit) < 3) or (debuff.moonfire.remain(thisUnit) < 6.6 and not talent.naturesBalance) and ((UnitHealth(thisUnit) >= hpDotMin and (inInstance or inRaid)) or not inInstance and not inRaid) then
                     if debuff.moonfire.remain(thisUnit) < gcd  and (debuff.moonfire.count() < getValue("Moonfire targets")) and isValidUnit(thisUnit) then
                         if cast.moonfire(thisUnit,"aoe") then return true end
@@ -1016,6 +1029,7 @@ local function runRotation()
                         if cast.sunfire(thisUnit,"aoe") then return true end
                     end
                 end
+                end
             end
         else
             if useAstralPower then
@@ -1023,6 +1037,7 @@ local function runRotation()
                     if cast.starsurge() then return true end
                 end
             end
+            if (isInPvP() and UnitIsPlayer(target)) or not isInPvP() then
             if debuff.moonfire.remain() < 6.6  and (debuff.moonfire.count() < getValue("Moonfire targets")) and ((UnitHealth(target) >= hpDotMin and (inInstance or inRaid)) or not inInstance and not inRaid) then
                 if debuff.moonfire.remain() < gcd then
                     if cast.moonfire(target ,"aoe") then return true end
@@ -1033,22 +1048,27 @@ local function runRotation()
                     if cast.sunfire(target ,"aoe") then return true end
                 end
             end
+            end
         end
         --just to do something
         if multidot then
             for i = 1, #enemies.yards40 do
                 local thisUnit = enemies.yards40[i]
+                if (isInPvP() and UnitIsPlayer(thisUnit)) or not isInPvP() then
                 if debuff.moonfire.remain(thisUnit) <= debuff.sunfire.remain(thisUnit) and isValidUnit(thisUnit)  and ((UnitHealth(thisUnit) >= hpDotMin and (inInstance or inRaid)) or not inInstance and not inRaid)  then
                     if cast.moonfire(thisUnit,"aoe") then return true end
                 elseif isValidUnit(thisUnit)  and ((UnitHealth(thisUnit) >= hpDotMin and (inInstance or inRaid)) or not inInstance and not inRaid)  then
                     if cast.sunfire(thisUnit,"aoe") then return true end
                 end
+                end
             end
         else
+            if (isInPvP() and UnitIsPlayer(target)) or not isInPvP() then
             if debuff.moonfire.remain() <= debuff.sunfire.remain() and ((UnitHealth(target) >= hpDotMin and (inInstance or inRaid)) or not inInstance and not inRaid) then
                 if cast.moonfire(target ,"aoe") then return true end
             elseif ((UnitHealth(target) >= hpDotMin and (inInstance or inRaid)) or not inInstance and not inRaid) then
                 if cast.sunfire(target ,"aoe") then return true end
+            end
             end
         end
         return false
