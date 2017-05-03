@@ -966,6 +966,7 @@ end
 -- Used in openers
 function castOpener(spellIndex,flag,index,checkdistance)
 	local spellCast = br.player.spell[spellIndex]
+	local spellName = select(1,GetSpellInfo(spellCast))
 	local maxRange = select(6,GetSpellInfo(spellCast))
 	if not maxRange or maxRange == 0 then maxRange = 5 end
 	if checkdistance == nil then checkdistance = true end
@@ -975,7 +976,11 @@ function castOpener(spellIndex,flag,index,checkdistance)
 	        _G[flag] = true;
 	        return true
 	    else
-	        if br.player.cast[spellIndex]() then Print(index..": "..select(1,GetSpellInfo(spellCast))); _G[flag] = true; return true end
+	    	if IsHelpfulSpell(spellName) and not IsHarmfulSpell(spellName) then
+	    		if br.player.cast[spellIndex]("player") then Print(index..": "..select(1,GetSpellInfo(spellCast))); _G[flag] = true; return true end
+	    	else
+	        	if br.player.cast[spellIndex]() then Print(index..": "..select(1,GetSpellInfo(spellCast))); _G[flag] = true; return true end
+	        end
 	    end
 	end
 end
@@ -2315,12 +2320,12 @@ end
 -- if isCastingSpell(12345) == true then
 function isCastingSpell(spellID,unit)
 	if unit == nil then unit = "player" end
-	local spellName = GetSpellInfo(spellID)
-	local spellCasting = UnitCastingInfo(unit)
+	local spellName = select(1,GetSpellInfo(spellID))
+	local spellCasting = select(1,UnitCastingInfo(unit))
 	if spellCasting == nil then
-		spellCasting = UnitChannelInfo(unit)
+		spellCasting = select(1,UnitChannelInfo(unit))
 	end
-	if spellCasting == spellName then
+	if tostring(spellCasting) == tostring(spellName) then
 		return true
 	else
 		return false
