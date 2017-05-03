@@ -51,6 +51,8 @@ local function createOptions()
             br.ui:createCheckbox(section,"PWS: Body and Soul")
             -- Mouseover Dotting
             br.ui:createCheckbox(section,"Mouseover Dotting")
+            -- Shadow Crash
+            br.ui:createCheckbox(section,"Shadow Crash")
             -- SWP Max Targets
             br.ui:createSpinnerWithout(section, "SWP Max Targets",  3,  1,  10,  1, "|cffFFFFFFUnit Count Limit that SWP will be cast on.")
             -- VT Max Targets
@@ -424,7 +426,7 @@ local function runRotation()
             end
         -- Shadow Crash
             -- shadow_crash,if=talent.shadow_crash.enabled
-            if talent.shadowCrash and not buff.void.exists() then
+            if isChecked("Shadow Crash") and talent.shadowCrash and not buff.void.exists() then
                 if cast.shadowCrash("best",nil,1,8) then return end
             end
         -- Mindbender
@@ -550,7 +552,7 @@ local function runRotation()
             end
         --Shadow Crash
             --shadow_crash,if=talent.shadow_crash.enabled
-            if talent.shadowCrash and not buff.void.exists() then
+            if isChecked("Shadow Crash") and talent.shadowCrash and not buff.void.exists() then
                 if cast.shadowCrash("best",nil,1,8) then return end
             end
         --Mind Bender
@@ -758,7 +760,7 @@ local function runRotation()
             end
         -- Shadow Crash
             -- shadow_crash,if=talent.shadow_crash.enabled
-            if talent.shadowCrash and not buff.void.exists() then
+            if isChecked("Shadow Crash") and talent.shadowCrash and not buff.void.exists() then
                 if cast.shadowCrash("best",nil,1,8) then return end
             end
         -- Void Torrent
