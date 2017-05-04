@@ -51,6 +51,8 @@ local function createOptions()
             br.ui:createCheckbox(section,"PWS: Body and Soul")
             -- Mouseover Dotting
             br.ui:createCheckbox(section,"Mouseover Dotting")
+            -- Shadow Crash
+            br.ui:createCheckbox(section,"Shadow Crash")
             -- SWP Max Targets
             br.ui:createSpinnerWithout(section, "SWP Max Targets",  3,  1,  10,  1, "|cffFFFFFFUnit Count Limit that SWP will be cast on.")
             -- VT Max Targets
@@ -167,7 +169,7 @@ local function runRotation()
         local lowestHP                                      = br.friend[1].unit
         local mode                                          = br.player.mode
         local moveIn                                        = 999
-        local moving                                        = isMoving("player")
+        local moving                                        = (isMoving("player") and not br.player.buff.norgannonsForesight.exists())
         -- local multidot                                      = (useCleave() or br.player.mode.rotation ~= 3)
         local perk                                          = br.player.perk
         local php                                           = br.player.health
@@ -399,7 +401,7 @@ local function runRotation()
             end
         -- Vampiric Touch
             -- vampiric_touch,if=talent.misery.enabled&(dot.vampiric_touch.remains<3*gcd.max|dot.shadow_word_pain.remains<3*gcd.max),cycle_targets=1
-            if talent.misery and debuff.vampiricTouch.count() < getOptionValue("VT Max Targets") and lastCast ~= spell.vampiricTouch and not buff.void.exists() and br.timer:useTimer("vtRecast", gcd) and not moving then
+            if talent.misery and debuff.vampiricTouch.count() < getOptionValue("VT Max Targets") and not buff.void.exists() and not moving then --and lastCast ~= spell.vampiricTouch and br.timer:useTimer("vtRecast", gcd) then
                 for i = 1, #enemies.yards40 do
                     local thisUnit = enemies.yards40[i]
                     if (getHP(thisUnit) > vtHPLimit or IsInInstance()) and ((debuff.vampiricTouch.remain(thisUnit) < 3 * gcd or debuff.shadowWordPain.remain(thisUnit) < 3 * gcd)) then
@@ -414,7 +416,7 @@ local function runRotation()
             end
         -- Vampiric Touch
             -- vampiric_touch,if=!talent.misery.enabled&dot.vampiric_touch.remains<(4+(4%3))*gcd
-            if not talent.misery and debuff.vampiricTouch.remain(units.dyn40) < (3 + (4 / 3)) * gcd and lastCast ~= spell.vampiricTouch and not buff.void.exists() and br.timer:useTimer("vtRecast", gcd) and not moving then
+            if not talent.misery and debuff.vampiricTouch.remain(units.dyn40) < (3 + (4 / 3)) * gcd and lastCast ~= spell.vampiricTouch and not buff.void.exists() and not moving then --and br.timer:useTimer("vtRecast", gcd) then
                 if cast.vampiricTouch() then return end
             end
         -- Void Eruption
@@ -424,7 +426,7 @@ local function runRotation()
             end
         -- Shadow Crash
             -- shadow_crash,if=talent.shadow_crash.enabled
-            if talent.shadowCrash and not buff.void.exists() then
+            if isChecked("Shadow Crash") and talent.shadowCrash and not buff.void.exists() then
                 if cast.shadowCrash("best",nil,1,8) then return end
             end
         -- Mindbender
@@ -447,7 +449,7 @@ local function runRotation()
         -- Vampiric Touch
             -- vampiric_touch,if=!talent.misery.enabled&!ticking&talent.legacy_of_the_void.enabled&insanity>=70,cycle_targets=1
             if not talent.misery and talent.legacyOfTheVoid and power >= 70 and debuff.vampiricTouch.count() < getOptionValue("VT Max Targets") 
-                and lastCast ~= spell.vampiricTouch and not buff.void.exists() and br.timer:useTimer("vtRecast", gcd) and not moving 
+                and not buff.void.exists() and not moving --and lastCast ~= spell.vampiricTouch and br.timer:useTimer("vtRecast", gcd)
             then
                 for i = 1, #enemies.yards40 do
                     local thisUnit = enemies.yards40[i]
@@ -499,7 +501,7 @@ local function runRotation()
         -- Vampiric Touch
             -- vampiric_touch,if=!talent.misery.enabled&!ticking&target.time_to_die>10&(active_enemies<4|talent.sanlayn.enabled|(talent.auspicious_spirits.enabled&artifact.unleash_the_shadows.rank)),cycle_targets=1
             if not talent.misery and (((mode.rotation == 1 and #enemies.yards40 < 4) or mode.rotation == 3) or talent.sanlayn or (talent.auspiciousSpirits and artifact.unleashTheShadows))
-                and debuff.vampiricTouch.count() < getOptionValue("VT Max Targets") and lastCast ~= spell.vampiricTouch and br.timer:useTimer("vtRecast", gcd)
+                and debuff.vampiricTouch.count() < getOptionValue("VT Max Targets") --and lastCast ~= spell.vampiricTouch and br.timer:useTimer("vtRecast", gcd)
                 and not buff.void.exists()
                 and not moving 
             then
@@ -550,7 +552,7 @@ local function runRotation()
             end
         --Shadow Crash
             --shadow_crash,if=talent.shadow_crash.enabled
-            if talent.shadowCrash and not buff.void.exists() then
+            if isChecked("Shadow Crash") and talent.shadowCrash and not buff.void.exists() then
                 if cast.shadowCrash("best",nil,1,8) then return end
             end
         --Mind Bender
@@ -661,7 +663,7 @@ local function runRotation()
             end
         --Vampiric Touch    
             --vampiric_touch,if=talent.misery.enabled&(dot.vampiric_touch.remains<3*gcd.max|dot.shadow_word_pain.remains<3*gcd.max),cycle_targets=1
-            if talent.misery and debuff.vampiricTouch.count() < getOptionValue("VT Max Targets") and lastCast ~= spell.vampiricTouch and not buff.void.exists() and br.timer:useTimer("vtRecast", gcd) then
+            if talent.misery and debuff.vampiricTouch.count() < getOptionValue("VT Max Targets") and not buff.void.exists() then --and lastCast ~= spell.vampiricTouch and br.timer:useTimer("vtRecast", gcd) then
                 for i = 1, #enemies.yards40 do
                     local thisUnit = enemies.yards40[i]
                     if (getHP(thisUnit) > vtHPLimit or IsInInstance()) and (debuff.vampiricTouch.remain(thisUnit) < 3 * gcd or debuff.shadowWordPain.remain(thisUnit) < 3 * gcd) then
@@ -679,7 +681,7 @@ local function runRotation()
             end
         --Vampiric Touch    
             --vampiric_touch,if=!talent.misery.enabled&!ticking&(active_enemies<4|talent.sanlayn.enabled|(talent.auspicious_spirits.enabled&artifact.unleash_the_shadows.rank))
-            if not talent.misery and not debuff.vampiricTouch.exists() and lastCast ~= spell.vampiricTouch and br.timer:useTimer("vtRecast", gcd)
+            if not talent.misery and not debuff.vampiricTouch.exists() --and lastCast ~= spell.vampiricTouch and br.timer:useTimer("vtRecast", gcd)
                 and (((mode.rotation == 1 and #enemies.yards40 < 4) or mode.rotation == 3) or talent.sanlayn or (talent.auspiciousSpirits and artifact.unleashTheShadows))
                 and not buff.void.exists()
             then
@@ -701,7 +703,7 @@ local function runRotation()
         --Vampiric Touch    
             --vampiric_touch,if=!talent.misery.enabled&!ticking&target.time_to_die>10&(active_enemies<4|talent.sanlayn.enabled|(talent.auspicious_spirits.enabled&artifact.unleash_the_shadows.rank)),cycle_targets=1
             if not talent.misery and (((mode.rotation == 1 and #enemies.yards40 < 4) or mode.rotation == 3) or talent.sanlayn or (talent.auspiciousSpirits and artifact.unleashTheShadows))
-                and debuff.vampiricTouch.count() < getOptionValue("VT Max Targets") and lastCast ~= spell.vampiricTouch and br.timer:useTimer("vtRecast", gcd)
+                and debuff.vampiricTouch.count() < getOptionValue("VT Max Targets") --and lastCast ~= spell.vampiricTouch and br.timer:useTimer("vtRecast", gcd)
                 and not buff.void.exists()
             then
                 for i = 1, #enemies.yards40 do
@@ -758,7 +760,7 @@ local function runRotation()
             end
         -- Shadow Crash
             -- shadow_crash,if=talent.shadow_crash.enabled
-            if talent.shadowCrash and not buff.void.exists() then
+            if isChecked("Shadow Crash") and talent.shadowCrash and not buff.void.exists() then
                 if cast.shadowCrash("best",nil,1,8) then return end
             end
         -- Void Torrent
@@ -861,7 +863,7 @@ local function runRotation()
             end
         -- Vampiric Touch
             -- vampiric_touch,if=talent.misery.enabled&(dot.vampiric_touch.remains<3*gcd.max|dot.shadow_word_pain.remains<3*gcd.max),cycle_targets=1
-            if talent.misery and debuff.vampiricTouch.count() < getOptionValue("VT Max Targets") and lastCast ~= spell.vampiricTouch and not buff.void.exists() and br.timer:useTimer("vtRecast", gcd) and not moving then
+            if talent.misery and debuff.vampiricTouch.count() < getOptionValue("VT Max Targets") and not buff.void.exists() and not moving then -- and lastCast ~= spell.vampiricTouch and br.timer:useTimer("vtRecast", gcd) then
                 for i = 1, #enemies.yards40 do
                     local thisUnit = enemies.yards40[i]
                     if (getHP(thisUnit) > vtHPLimit or IsInInstance()) and (debuff.vampiricTouch.remain(thisUnit) < 3 * gcd or debuff.shadowWordPain.remain(thisUnit) < 3 * gcd) then
@@ -879,7 +881,7 @@ local function runRotation()
             end
         -- Vampiric Touch
             -- vampiric_touch,if=!talent.misery.enabled&!ticking&(active_enemies<4|talent.sanlayn.enabled|(talent.auspicious_spirits.enabled&artifact.unleash_the_shadows.rank))
-            if not talent.misery and not debuff.vampiricTouch.exists() and lastCast ~= spell.vampiricTouch and br.timer:useTimer("vtRecast", gcd)
+            if not talent.misery and not debuff.vampiricTouch.exists() --and lastCast ~= spell.vampiricTouch and br.timer:useTimer("vtRecast", gcd)
                 and (((mode.rotation == 1 and #enemies.yards40 < 4) or mode.rotation == 3) or talent.sanlayn or (talent.auspiciousSpirits and artifact.unleashTheShadows))
                 and not buff.void.exists() and not moving
             then
@@ -901,7 +903,7 @@ local function runRotation()
         -- Vampiric Touch
             -- vampiric_touch,if=!talent.misery.enabled&!ticking&target.time_to_die>10&(active_enemies<4|talent.sanlayn.enabled|(talent.auspicious_spirits.enabled&artifact.unleash_the_shadows.rank)),cycle_targets=1
             if not talent.misery and (((mode.rotation == 1 and #enemies.yards40 < 4) or mode.rotation == 3) or talent.sanlayn or (talent.auspiciousSpirits and artifact.unleashTheShadows))
-                and debuff.vampiricTouch.count() < getOptionValue("VT Max Targets") and lastCast ~= spell.vampiricTouch and br.timer:useTimer("vtRecast", gcd)
+                and debuff.vampiricTouch.count() < getOptionValue("VT Max Targets") --and lastCast ~= spell.vampiricTouch and br.timer:useTimer("vtRecast", gcd)
                 and not buff.void.exists() and not moving 
             then
                 for i = 1, #enemies.yards40 do
