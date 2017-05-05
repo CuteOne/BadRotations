@@ -437,12 +437,8 @@ local function runRotation()
                     end
                 -- Black Ox Brew
                 elseif iB3 == true and not bOB then
-                    if talent.blackoxBrew then
-                        if cast.blackoxBrew() then 
-                            bOB = true
-                        end
-                    else
-                        boB = true
+                    if cast.blackoxBrew() then 
+                        bOB = true
                     end
                 --Iron Skin Brew
                 elseif bOB == true and not iB4 then
@@ -667,9 +663,9 @@ local function runRotation()
 --- In Combat Rotation ---
 --------------------------
             if isChecked("Opener") then
-                if opener == false and hastar and UnitReaction("target","player") == 2 and isBoss("target") and getDistance("target") < 10 and (charges.purifyingBrew == 3 or openerStarted == true) then
+                if opener == false and hastar and ((UnitReaction("target","player") == 2 and isBoss("target")) or isDummy("target")) and getDistance("target") < 10 and ((talent.blackoxBrew and cd.blackoxBrew <= gcd and charges.purifyingBrew == 3) or openerStarted == true) then
                     if actionList_Opener() then return end
-                elseif opener == false and openerStarted == false and hastar and charges.purifyingBrew < 3 then
+                elseif opener == false and openerStarted == false and hastar and (charges.purifyingBrew < 3 or (talent.blackoxBrew and cd.blackoxBrew >= gcd)) or not talent.blackoxBrew then
                     opener = true
                 elseif opener == false and hastar and not isBoss("target") then
                     opener = true
