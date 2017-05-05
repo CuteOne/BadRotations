@@ -1349,6 +1349,7 @@ br.idList = {
             },
             talents                         = {
                 blackoutCombo               = 196736,
+                blackoxBrew                 = 115399,
 
             },
         },
