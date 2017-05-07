@@ -23,7 +23,7 @@ local function createToggles() -- Define custom toggles
         [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.hammerOfJustice}
     };
     CreateButton("Interrupt",3,0)
-    -- Cleanse Button
+-- Cleanse Button
     CleanseModes = {
         [1] = { mode = "On", value = 1 , overlay = "Cleanse Enabled", tip = "Cleanse Enabled", highlight = 1, icon = br.player.spell.cleanse },
         [2] = { mode = "Off", value = 2 , overlay = "Cleanse Disabled", tip = "Cleanse Disabled", highlight = 0, icon = br.player.spell.cleanse }
@@ -34,7 +34,19 @@ local function createToggles() -- Define custom toggles
         [1] = { mode = "On", value = 1 , overlay = "DPS Enabled", tip = "DPS Enabled", highlight = 1, icon = br.player.spell.judgment },
         [2] = { mode = "Off", value = 2 , overlay = "DPS Disabled", tip = "DPS Disabled", highlight = 0, icon = br.player.spell.judgment }
     };
-    CreateButton("DPS",5,0)	
+    CreateButton("DPS",5,0) 
+-- Aura Of Sacrifice
+    AuraOfSacrificeModes = {
+        [1] = { mode = "Off", value = 1 , overlay = "AuraOfSacrifice Enabled", tip = "|cffFF0000Disabled |cffFFDD11Explosive healing\nExplosive healing order:\n|cffFFFFFFBestow Faith>Holy Avenger>Tyr's Deliverance>Avenging Wrath>Aura Mastery>Holy Shock>Light of the Martyr>Flash of Light>Light of the Martyr>Flash of Light>Light of the Martyr>Flash of Light>Holy Shock\n|cffFFDD11Sanctified Wrath Talents order:\n|cffFFFFFFBestow Faith>Holy Avenger>Avenging Wrath>Aura Mastery>Holy Shock>Light of the Martyr>Light of the Martyr>Holy Shock>Light of the Martyr>Flash of Light>Holy Shock>Light of the Martyr", highlight = 0, icon = br.player.spell.auraMastery },
+        [2] = { mode = "On", value = 2 , overlay = "AuraOfSacrifice Disabled", tip = "|cff00FF00Enabled |cffFFDD11Explosive healing\n", highlight = 1, icon = br.player.spell.auraMastery }
+    };
+    CreateButton("AuraOfSacrifice",6,0) 
+-- Aura Of Sacrifice2
+    AuraOfSacrifice2Modes = {
+        [1] = { mode = "Off", value = 1 , overlay = "AuraOfSacrifice Enabled", tip = "|cffFF0000Disabled |cffFFDD11Explosive healing\nDo not use the Cooldown order:\n|cffFFFFFFBestow Faith>Aura Mastery>Holy Shock>Light of the Martyr>Flash of Light>Light of the Martyr>Flash of Light>Flash of Light>Light of the Martyr", highlight = 0, icon = br.player.spell.auraMastery },
+        [2] = { mode = "On", value = 2 , overlay = "AuraOfSacrifice Disabled", tip = "|cff00FF00Enabled |cffFFDD11Explosive healing\n", highlight = 1, icon = br.player.spell.auraMastery }
+    };
+    CreateButton("AuraOfSacrifice2",7,0)        
 end
 
 ---------------
@@ -50,20 +62,20 @@ local function createOptions()
         section = br.ui:createSection(br.ui.window.profile,  "General")
         --    br.ui:createCheckbox(section, "Boss Helper")
         -- Blessing of Freedom
-            br.ui:createCheckbox(section, "Blessing of Freedom")	
-	    -- Pre-Pull Timer	
-		    br.ui:createSpinner(section, "Pre-Pull Timer",  5,  0,  20,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
+            br.ui:createCheckbox(section, "Blessing of Freedom")    
+        -- Pre-Pull Timer   
+            br.ui:createSpinner(section, "Pre-Pull Timer",  5,  0,  20,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
         --Beacon of Light
             br.ui:createCheckbox(section, "Beacon of Light")
-		--Beacon of Faith
-			br.ui:createCheckbox(section, "Beacon of Faith")
+        --Beacon of Faith
+            br.ui:createCheckbox(section, "Beacon of Faith")
         -- Redemption
             br.ui:createDropdown(section, "Redemption", {"|cffFFFFFFTarget","|cffFFFFFFMouseover"}, 1, "","|cffFFFFFFSelect Redemption Mode.")
-		-- Critical
-            br.ui:createSpinner (section, "Critical HP", 30, 0, 100, 5, "","|cffFFFFFFHealth Percent to Critical Heals")			
-		-- Overhealing Cancel
-            br.ui:createSpinner (section, "Overhealing Cancel", 95, 0, 100, 5, "","|cffFFFFFFSet Desired Threshold at which you want to prevent your own casts")				
-        br.ui:checkSectionState(section)	
+        -- Critical
+            br.ui:createSpinner (section, "Critical HP", 30, 0, 100, 5, "","|cffFFFFFFHealth Percent to Critical Heals")            
+        -- Overhealing Cancel
+            br.ui:createSpinner (section, "Overhealing Cancel", 95, 0, 100, 5, "","|cffFFFFFFSet Desired Threshold at which you want to prevent your own casts")                
+        br.ui:checkSectionState(section)    
         -------------------------
         ------ DEFENSIVES -------
         -------------------------
@@ -71,7 +83,11 @@ local function createOptions()
             -- Pot/Stone
             br.ui:createSpinner (section, "Pot/Stoned", 30, 0, 100, 5, "","|cffFFFFFFHealth Percent to Cast At")
             br.ui:createSpinner (section, "Divine Protection", 60, 0, 100, 5, "","|cffFFFFFFHealth Percent to Cast At")
-			br.ui:createSpinner (section, "Divine Shield", 20, 0, 100, 5, "","|cffFFFFFFHealth Percent to Cast At")
+            br.ui:createSpinner (section, "Divine Shield", 20, 0, 100, 5, "","|cffFFFFFFHealth Percent to Cast At")
+            -- Gift of The Naaru
+            if br.player.race == "Draenei" then
+                br.ui:createSpinner(section, "Gift of The Naaru",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
+            end         
         br.ui:checkSectionState(section)
         -------------------------
         --- INTERRUPT OPTIONS ---
@@ -79,8 +95,8 @@ local function createOptions()
         section = br.ui:createSection(br.ui.window.profile, "Interrupts")
         --Hammer of Justice
             br.ui:createCheckbox(section, "Hammer of Justice")
-		-- Blinding Light
-            br.ui:createCheckbox(section, "Blinding Light")		
+        -- Blinding Light
+            br.ui:createCheckbox(section, "Blinding Light")     
         -- Interrupt Percentage
             br.ui:createSpinner(section,  "InterruptAt",  95,  0,  95,  5,  "","|cffFFBB00Cast Percentage to use at.")
         br.ui:checkSectionState(section)
@@ -102,32 +118,32 @@ local function createOptions()
             -- Light of the Martyr
             br.ui:createSpinner(section, "Light of the Martyr", 40, 0, 100, 5, "","|cffFFFFFFHealth Percent to Cast At")
             br.ui:createSpinner(section, "Moving LotM", 80, 0, 100, 5, "","|cffFFFFFFisMoving Health Percent to Cast At")
-			br.ui:createSpinner(section, "LotM player HP limit", 30, 0, 100, 5, "","|cffFFFFFFLight of the Martyr Self HP limit", true)
+            br.ui:createSpinner(section, "LotM player HP limit", 30, 0, 100, 5, "","|cffFFFFFFLight of the Martyr Self HP limit", true)
         br.ui:checkSectionState(section)
         -------------------------
         ------ AOE HEALING ------
         -------------------------
         section = br.ui:createSection(br.ui.window.profile, "AOE Healing")
-		    -- Rule of Law
+            -- Rule of Law
             br.ui:createSpinner(section, "Rule of Law",  70,  0,  100,  5,  "","|cffFFFFFFHealth Percent to Cast At")
-            br.ui:createSpinner(section, "RoL Targets",  3,  0,  40,  1,  "","|cffFFFFFFMinimum RoL Targets", true)			
+            br.ui:createSpinner(section, "RoL Targets",  3,  0,  40,  1,  "","|cffFFFFFFMinimum RoL Targets", true)         
             -- Light of Dawn
             br.ui:createSpinner(section, "Light of Dawn",  90,  0,  100,  5,  "","|cffFFFFFFHealth Percent to Cast At")
             br.ui:createSpinner(section, "LoD Targets",  3,  0,  40,  1,  "","|cffFFFFFFMinimum LoD Targets", true)
             -- Tyr's Deliverance
             br.ui:createSpinner(section, "Tyr's Deliverance", 70, 0, 100, 5, "","|cffFFFFFFHealth Percent to Cast At")
-			br.ui:createSpinner(section, "Tyr's Deliverance Targets",  3,  0,  40,  1,  "","|cffFFFFFFMinimum TD Targets", true)
+            br.ui:createSpinner(section, "Tyr's Deliverance Targets",  3,  0,  40,  1,  "","|cffFFFFFFMinimum TD Targets", true)
         -- Beacon of Virtue
             br.ui:createSpinner(section, "Beacon of Virtue", 80, 0, 100, 5, "","|cffFFFFFFHealth Percent to Cast At")
             br.ui:createSpinner(section, "BoV Targets",  3,  0,  40,  1,  "","|cffFFFFFFMinimum BoV Targets", true)
-		-- Holy Prism
+        -- Holy Prism
             br.ui:createSpinner(section, "Holy Prism", 80, 0, 100, 5, "","|cffFFFFFFHealth Percent to Cast At")
             br.ui:createSpinner(section, "Holy Prism Targets",  3,  0,  40,  1,  "","|cffFFFFFFMinimum Holy Prism Targets", true)
-		-- Light's Hammer
+        -- Light's Hammer
             br.ui:createSpinner(section, "Light's Hammer", 80, 0, 100, 5, "","|cffFFFFFFHealth Percent to Cast At")
             br.ui:createSpinner(section, "Light's Hammer Targets",  3,  0,  40,  1,  "","|cffFFFFFFMinimum Light's Hammer Targets", true)
             br.ui:createDropdown(section,"Light's Hammer Key", br.dropOptions.Toggle, 6, "","|cffFFFFFFLight's Hammer usage.", true)
-		-- Divine Shield and Light of the Martyr
+        -- Divine Shield and Light of the Martyr
             br.ui:createSpinner(section, "Divine Shield + LotM",  30, 0, 100, 5, "","|cffFFFFFFHealth Percent to Cast At")
             br.ui:createSpinner(section, "Divine Shield + LotM Targets",  3,  0,  40,  1,  "","|cffFFFFFFMinimum Divine Shield + LotM Targets", true)
         br.ui:checkSectionState(section)
@@ -138,8 +154,8 @@ local function createOptions()
             br.ui:createSpinner(section, "DPS", 70, 0, 100, 5, "","|cffFFFFFFMinimum Health to DPS")
             -- Consecration
             br.ui:createSpinner(section, "Consecration",  1,  0,  40,  1,  "","|cffFFFFFFMinimum Consecration Targets")
-			-- Blinding Light
-            br.ui:createSpinner(section, "Blinding Light Damage", 4, 0, 10, 1, "","|cffFFFFFFMinimum Blinding Light Targets")			
+            -- Blinding Light
+            br.ui:createSpinner(section, "Blinding Light Damage", 4, 0, 10, 1, "","|cffFFFFFFMinimum Blinding Light Targets")           
             -- Holy Prism
             br.ui:createSpinner(section, "Holy Prism Damage",  3,  0,  40,  1,  "","|cffFFFFFFMinimum Holy Prism Targets")
             -- Light's Hammer
@@ -147,7 +163,7 @@ local function createOptions()
             -- Judgement
             br.ui:createCheckbox(section, "Judgement")
             -- Holy Shock
-            br.ui:createCheckbox(section, "Judgement Damage")
+            br.ui:createCheckbox(section, "Holy Shock Damage")
             -- Crusader Strike
             br.ui:createCheckbox(section, "Crusader Strike")
         br.ui:checkSectionState(section)
@@ -159,19 +175,19 @@ local function createOptions()
             br.ui:createSpinner(section, "Trinket 1",  70,  0,  100,  5,  "Health Percent to Cast At") 
             br.ui:createSpinnerWithout(section, "Min Trinket 1 Targets",  3,  1,  40,  1,  "","Minimum Trinket 1 Targets(This includes you)", true)
             br.ui:createSpinner(section, "Trinket 2",  70,  0,  100,  5,  "Health Percent to Cast At") 
-            br.ui:createSpinnerWithout(section, "Min Trinket 2 Targets",  3,  1,  40,  1,  "","Minimum Trinket 2 Targets(This includes you)", true)		
+            br.ui:createSpinnerWithout(section, "Min Trinket 2 Targets",  3,  1,  40,  1,  "","Minimum Trinket 2 Targets(This includes you)", true)     
             -- Lay on Hands
             br.ui:createSpinner(section, "Lay on Hands", 20, 0, 100, 5, "","|cffFFFFFFHealth Percent to Cast At")
             br.ui:createDropdownWithout(section, "Lay on Hands Target", {"|cffFFFFFFAll","|cffFFFFFFTanks", "|cffFFFFFFSelf"}, 1, "|cffFFFFFFTarget for LoH")
             -- Blessing of Protection
             br.ui:createSpinner(section, "Blessing of Protection", 20, 0, 100, 5, "","|cffFFFFFFHealth Percent to Cast At")
-            br.ui:createDropdownWithout(section, "BoP Target", {"|cffFFFFFFAll","|cffFFFFFFTanks","|cffFFFFFFHealer/Damage", "|cffFFFFFFSelf"}, 3, "|cffFFFFFFTarget for BoP")	
+            br.ui:createDropdownWithout(section, "BoP Target", {"|cffFFFFFFAll","|cffFFFFFFTanks","|cffFFFFFFHealer/Damage", "|cffFFFFFFSelf"}, 3, "|cffFFFFFFTarget for BoP")  
             -- Blessing of Sacrifice
             br.ui:createSpinner(section, "Blessing of Sacrifice", 30, 0, 100, 5, "","|cffFFFFFFHealth Percent to Cast At")
-            br.ui:createDropdownWithout(section, "BoS Target", {"|cffFFFFFFAll","|cffFFFFFFTanks","|cffFFFFFFDamage"}, 3, "|cffFFFFFFTarget for BoS")			
+            br.ui:createDropdownWithout(section, "BoS Target", {"|cffFFFFFFAll","|cffFFFFFFTanks","|cffFFFFFFDamage"}, 3, "|cffFFFFFFTarget for BoS")           
             -- Avenging Wrath
             br.ui:createSpinner(section, "Avenging Wrath", 50, 0, 100, 5, "","|cffFFFFFFHealth Percent to Cast At")
-            br.ui:createSpinner(section, "Avenging Wrath Targets",  4,  0,  40,  1,  "","|cffFFFFFFMinimum Avenging Wrath Targets", true)			
+            br.ui:createSpinner(section, "Avenging Wrath Targets",  4,  0,  40,  1,  "","|cffFFFFFFMinimum Avenging Wrath Targets", true)           
             -- Holy Avenger
             br.ui:createSpinner(section, "Holy Avenger", 60, 0, 100, 5, "","|cffFFFFFFHealth Percent to Cast At")
             br.ui:createSpinner(section, "Holy Avenger Targets",  3,  0,  40,  1,  "","|cffFFFFFFMinimum Holy Avenger Targets", true)
@@ -204,7 +220,9 @@ local function runRotation()
         UpdateToggle("Defensive",0.25)
         UpdateToggle("Interrupt",0.25)
         br.player.mode.cleanse = br.data.settings[br.selectedSpec].toggles["Cleanse"]
-		br.player.mode.DPS = br.data.settings[br.selectedSpec].toggles["DPS"]
+        br.player.mode.DPS = br.data.settings[br.selectedSpec].toggles["DPS"]
+        br.player.mode.AuraOfSacrifice = br.data.settings[br.selectedSpec].toggles["AuraOfSacrifice"]
+        br.player.mode.AuraOfSacrifice2 = br.data.settings[br.selectedSpec].toggles["AuraOfSacrifice2"]
 --------------
 --- Locals ---
 --------------
@@ -224,7 +242,8 @@ local function runRotation()
         local inRaid                                        = br.player.instance=="raid"
         local level                                         = br.player.level
         local lowestHP                                      = br.friend[1].unit
-        local lowest                                        = br.friend[1]		
+        local lowest                                        = br.friend[1]
+        local lastSpell                                     = lastSpellCast     
         local mana                                          = br.player.powerPercentMana
         local mode                                          = br.player.mode
         local perk                                          = br.player.perk
@@ -237,12 +256,12 @@ local function runRotation()
         local spell                                         = br.player.spell
         local talent                                        = br.player.talent
         local ttm                                           = br.player.power.ttm
-        local units                                         = units or {}	
+        local units                                         = units or {}   
         local LightCount                                    = 0
-        local FaithCount                                    = 0		
-		
-		
-		
+        local FaithCount                                    = 0     
+        
+        
+        
         units.dyn5 = br.player.units(5)
         units.dyn15 = br.player.units(15)
         units.dyn30 = br.player.units(30)
@@ -267,18 +286,306 @@ local function runRotation()
         if leftCombat == nil then leftCombat = GetTime() end
         if profileStop == nil then profileStop = false end
 
+        if (mode.AuraOfSacrifice == 2 or mode.AuraOfSacrifice2 == 2) and GetSpellCooldown(31821) == 0 then
+            BF1 = false
+            HA1 = false
+            TD1 = false
+            AW1 = false
+            AM1 = false
+            RL1 = false
+            HS1 = false
+            LOTM1 = false
+            FOL1 = false
+            LOTM2 = false
+            FOL2 = false
+            LOTM3 = false
+            FOL3 = false
+            HS2 = false
+            HS3 = false 
+            LOTM4 = false
+        end     
 --------------------
 --- Action Lists ---
 --------------------
-		-- Pre-Pull Timer
-			if isChecked("Pre-Pull Timer") and pullTimer <= getOptionValue("Pre-Pull Timer") then
+        -- AuraOfSacrifice
+        if mode.AuraOfSacrifice2 == 2 then
+            if not BF1 and GetSpellCooldown(31821) == 0 then
+                if cast.bestowFaith("player") then BF1 = true return end
+            end
+            if not AM1 then
+                if cast.auraMastery() then AM1 = true return end
+            end
+            if not HS1 then
+                for i = 1, #br.friend do
+                    if isChecked("Critical HP") and br.friend[i].hp <= getValue("Critical HP") then
+                        if cast.holyShock(br.friend[i].unit) then HS1 = true return end
+                    elseif inRaid and php <= 80 and not buff.beaconOfLight.exists("player") and not buff.beaconOfFaith.exists("player") then
+                        if cast.holyShock("player") then HS1 = true return end
+                    elseif br.friend[i].hp <= 90 and not buff.beaconOfLight.exists(br.friend[i].unit) and not buff.beaconOfFaith.exists(br.friend[i].unit) then
+                        if cast.holyShock(br.friend[i].unit) then HS1 = true return end
+                    elseif br.friend[i].hp <= 90 then
+                        if cast.holyShock(br.friend[i].unit) then HS1 = true return end
+                    end
+                end
+            end
+            if not LOTM1 then
+                for i = 1, #br.friend do
+                    if br.friend[i].hp <= 90 and not UnitIsUnit(br.friend[i].unit,"player") then
+                        if cast.lightOfTheMartyr(br.friend[i].unit) then LOTM1 = true return end
+                    end
+                end
+            end
+            if not FOL1 then
+                for i = 1, #br.friend do
+                    if isChecked("Critical HP") and br.friend[i].hp <= getValue("Critical HP") then
+                        if cast.flashOfLight(br.friend[i].unit) then FOL1 = true return end             
+                    elseif br.friend[i].hp <= 90 and not buff.beaconOfLight.exists(br.friend[i].unit) and not buff.beaconOfFaith.exists(br.friend[i].unit) then
+                        if cast.flashOfLight(br.friend[i].unit) then FOL1 = true return end
+                    elseif br.friend[i].hp <= 90 then
+                        if cast.flashOfLight(br.friend[i].unit) then FOL1 = true return end
+                    end 
+                end 
+            end
+            if not LOTM2 then
+                for i = 1, #br.friend do
+                    if br.friend[i].hp <= 90 and not UnitIsUnit(br.friend[i].unit,"player") then
+                        if cast.lightOfTheMartyr(br.friend[i].unit) then LOTM2 = true return end
+                    end
+                end
+            end
+            if not FOL2 then
+                for i = 1, #br.friend do
+                    if isChecked("Critical HP") and br.friend[i].hp <= getValue("Critical HP") then
+                        if cast.flashOfLight(br.friend[i].unit) then FOL2 = true return end             
+                    elseif br.friend[i].hp <= 90 and not buff.beaconOfLight.exists(br.friend[i].unit) and not buff.beaconOfFaith.exists(br.friend[i].unit) then
+                        if cast.flashOfLight(br.friend[i].unit) then FOL2 = true return end
+                    elseif br.friend[i].hp <= 90 then
+                        if cast.flashOfLight(br.friend[i].unit) then FOL2 = true return end
+                    end 
+                end 
+            end
+            if not FOL3 then
+                for i = 1, #br.friend do
+                    if isChecked("Critical HP") and br.friend[i].hp <= getValue("Critical HP") then
+                        if cast.flashOfLight(br.friend[i].unit) then FOL3 = true return end             
+                    elseif br.friend[i].hp <= 90 and not buff.beaconOfLight.exists(br.friend[i].unit) and not buff.beaconOfFaith.exists(br.friend[i].unit) then
+                        if cast.flashOfLight(br.friend[i].unit) then FOL3 = true return end
+                    elseif br.friend[i].hp <= 90 then
+                        if cast.flashOfLight(br.friend[i].unit) then FOL3 = true return end
+                    end 
+                end 
+            end
+            if not LOTM3 then
+                for i = 1, #br.friend do
+                    if br.friend[i].hp <= 90 and not UnitIsUnit(br.friend[i].unit,"player") then
+                        if cast.lightOfTheMartyr(br.friend[i].unit) then LOTM3 = true return end
+                    end
+                end
+            end
+        end 
+        if mode.AuraOfSacrifice == 2 and talent.sanctifiedWrath then    
+            if not BF1 and GetSpellCooldown(31821) == 0 then
+                if cast.bestowFaith("player") then BF1 = true return end
+            end 
+            if not HA1 then
+                if cast.holyAvenger() then HA1 = true return end
+            end         
+            if not AW1 then
+                if cast.avengingWrath() then AW1 = true return end
+            end
+            if not AM1 and buff.avengingWrath.exists() then
+                if cast.auraMastery() then AM1 = true return end
+            end 
+            if not RL1 and buff.auraMastery.exists() then
+                if cast.ruleOfLaw() then RL1 = true return end
+            end     
+            if not HS1 then
+                for i = 1, #br.friend do
+                    if isChecked("Critical HP") and br.friend[i].hp <= getValue("Critical HP") then
+                        if cast.holyShock(br.friend[i].unit) then HS1 = true return end
+                    elseif inRaid and php <= 80 and not buff.beaconOfLight.exists("player") and not buff.beaconOfFaith.exists("player") then
+                        if cast.holyShock("player") then HS1 = true return end
+                    elseif br.friend[i].hp <= 90 and not buff.beaconOfLight.exists(br.friend[i].unit) and not buff.beaconOfFaith.exists(br.friend[i].unit) then
+                        if cast.holyShock(br.friend[i].unit) then HS1 = true return end
+                    elseif br.friend[i].hp <= 90 then
+                        if cast.holyShock(br.friend[i].unit) then HS1 = true return end
+                    end
+                end
+            end
+            if not LOTM1 then
+                for i = 1, #br.friend do
+                    if br.friend[i].hp <= 90 and not UnitIsUnit(br.friend[i].unit,"player") then
+                        if cast.lightOfTheMartyr(br.friend[i].unit) then LOTM1 = true return end
+                    end
+                end
+            end
+            if not LOTM2 then
+                for i = 1, #br.friend do
+                    if br.friend[i].hp <= 90 and not UnitIsUnit(br.friend[i].unit,"player") then
+                        if cast.lightOfTheMartyr(br.friend[i].unit) then LOTM2 = true return end
+                    end
+                end
+            end
+            if not HS2 then
+                for i = 1, #br.friend do
+                    if isChecked("Critical HP") and br.friend[i].hp <= getValue("Critical HP") then
+                        if cast.holyShock(br.friend[i].unit) then HS2 = true return end
+                    elseif inRaid and php <= 80 and not buff.beaconOfLight.exists("player") and not buff.beaconOfFaith.exists("player") then
+                        if cast.holyShock("player") then HS2 = true return end
+                    elseif br.friend[i].hp <= 90 and not buff.beaconOfLight.exists(br.friend[i].unit) and not buff.beaconOfFaith.exists(br.friend[i].unit) then
+                        if cast.holyShock(br.friend[i].unit) then HS2 = true return end
+                    elseif br.friend[i].hp <= 90 then
+                        if cast.holyShock(br.friend[i].unit) then HS2 = true return end
+                    end
+                end
+            end
+            if not LOTM3 then
+                for i = 1, #br.friend do
+                    if br.friend[i].hp <= 90 and not UnitIsUnit(br.friend[i].unit,"player") then
+                        if cast.lightOfTheMartyr(br.friend[i].unit) then LOTM3 = true return end
+                    end
+                end
+            end
+            if not FOL1 then
+                for i = 1, #br.friend do
+                    if isChecked("Critical HP") and br.friend[i].hp <= getValue("Critical HP") then
+                        if cast.flashOfLight(br.friend[i].unit) then FOL1 = true return end             
+                    elseif br.friend[i].hp <= 90 and not buff.beaconOfLight.exists(br.friend[i].unit) and not buff.beaconOfFaith.exists(br.friend[i].unit) then
+                        if cast.flashOfLight(br.friend[i].unit) then FOL1 = true return end
+                    elseif br.friend[i].hp <= 90 then
+                        if cast.flashOfLight(br.friend[i].unit) then FOL1 = true return end
+                    end 
+                end 
+            end
+            if not HS3 then
+                for i = 1, #br.friend do
+                    if isChecked("Critical HP") and br.friend[i].hp <= getValue("Critical HP") then
+                        if cast.holyShock(br.friend[i].unit) then HS3 = true return end
+                    elseif inRaid and php <= 80 and not buff.beaconOfLight.exists("player") and not buff.beaconOfFaith.exists("player") then
+                        if cast.holyShock("player") then HS3 = true return end
+                    elseif br.friend[i].hp <= 90 and not buff.beaconOfLight.exists(br.friend[i].unit) and not buff.beaconOfFaith.exists(br.friend[i].unit) then
+                        if cast.holyShock(br.friend[i].unit) then HS3 = true return end
+                    elseif br.friend[i].hp <= 90 then
+                        if cast.holyShock(br.friend[i].unit) then HS3 = true return end
+                    end
+                end
+            end
+            if not LOTM4 then
+                for i = 1, #br.friend do
+                    if br.friend[i].hp <= 90 and not UnitIsUnit(br.friend[i].unit,"player") then
+                        if cast.lightOfTheMartyr(br.friend[i].unit) then LOTM4 = true return end
+                    end
+                end
+            end
+        elseif mode.AuraOfSacrifice == 2 then       
+            if not BF1 and GetSpellCooldown(31821) == 0 then
+                if cast.bestowFaith("player") then BF1 = true return end
+            end 
+            if not HA1 then
+                if cast.holyAvenger() then HA1 = true return end
+            end
+            if not TD1 and buff.holyAvenger.exists() then
+                if cast.tyrsDeliverance() then TD1 = true return end
+            end             
+            if not AW1 and buff.tyrsDeliverance.exists() then
+                if cast.avengingWrath() then AW1 = true return end
+            end
+            if not AM1 and buff.avengingWrath.exists() then
+                if cast.auraMastery() then AM1 = true return end
+            end 
+            if not RL1 and buff.auraMastery.exists() then
+                if cast.ruleOfLaw() then RL1 = true return end
+            end
+            if not HS1 then
+                for i = 1, #br.friend do
+                    if isChecked("Critical HP") and br.friend[i].hp <= getValue("Critical HP") then
+                        if cast.holyShock(br.friend[i].unit) then HS1 = true return end
+                    elseif inRaid and php <= 80 and not buff.beaconOfLight.exists("player") and not buff.beaconOfFaith.exists("player") then
+                        if cast.holyShock("player") then HS1 = true return end
+                    elseif br.friend[i].hp <= 90 and not buff.beaconOfLight.exists(br.friend[i].unit) and not buff.beaconOfFaith.exists(br.friend[i].unit) then
+                        if cast.holyShock(br.friend[i].unit) then HS1 = true return end
+                    elseif br.friend[i].hp <= 90 then
+                        if cast.holyShock(br.friend[i].unit) then HS1 = true return end
+                    end
+                end
+            end
+            if not LOTM1 then
+                for i = 1, #br.friend do
+                    if br.friend[i].hp <= 90 and not UnitIsUnit(br.friend[i].unit,"player") then
+                        if cast.lightOfTheMartyr(br.friend[i].unit) then LOTM1 = true return end
+                    end
+                end
+            end
+            if not FOL1 then
+                for i = 1, #br.friend do
+                    if isChecked("Critical HP") and br.friend[i].hp <= getValue("Critical HP") then
+                        if cast.flashOfLight(br.friend[i].unit) then FOL1 = true return end             
+                    elseif br.friend[i].hp <= 90 and not buff.beaconOfLight.exists(br.friend[i].unit) and not buff.beaconOfFaith.exists(br.friend[i].unit) then
+                        if cast.flashOfLight(br.friend[i].unit) then FOL1 = true return end
+                    elseif br.friend[i].hp <= 90 then
+                        if cast.flashOfLight(br.friend[i].unit) then FOL1 = true return end
+                    end 
+                end 
+            end
+            if not LOTM2 then
+                for i = 1, #br.friend do
+                    if br.friend[i].hp <= 90 and not UnitIsUnit(br.friend[i].unit,"player") then
+                        if cast.lightOfTheMartyr(br.friend[i].unit) then LOTM2 = true return end
+                    end
+                end
+            end
+            if not FOL2 then
+                for i = 1, #br.friend do
+                    if isChecked("Critical HP") and br.friend[i].hp <= getValue("Critical HP") then
+                        if cast.flashOfLight(br.friend[i].unit) then FOL2 = true return end             
+                    elseif br.friend[i].hp <= 90 and not buff.beaconOfLight.exists(br.friend[i].unit) and not buff.beaconOfFaith.exists(br.friend[i].unit) then
+                        if cast.flashOfLight(br.friend[i].unit) then FOL2 = true return end
+                    elseif br.friend[i].hp <= 90 then
+                        if cast.flashOfLight(br.friend[i].unit) then FOL2 = true return end
+                    end 
+                end 
+            end
+            if not LOTM3 then
+                for i = 1, #br.friend do
+                    if br.friend[i].hp <= 90 and not UnitIsUnit(br.friend[i].unit,"player") then
+                        if cast.lightOfTheMartyr(br.friend[i].unit) then LOTM3 = true return end
+                    end
+                end
+            end
+            if not FOL3 then
+                for i = 1, #br.friend do
+                    if isChecked("Critical HP") and br.friend[i].hp <= getValue("Critical HP") then
+                        if cast.flashOfLight(br.friend[i].unit) then FOL3 = true return end             
+                    elseif br.friend[i].hp <= 90 and not buff.beaconOfLight.exists(br.friend[i].unit) and not buff.beaconOfFaith.exists(br.friend[i].unit) then
+                        if cast.flashOfLight(br.friend[i].unit) then FOL3 = true return end
+                    elseif br.friend[i].hp <= 90 then
+                        if cast.flashOfLight(br.friend[i].unit) then FOL3 = true return end
+                    end 
+                end 
+            end
+            if not HS2 then
+                for i = 1, #br.friend do
+                    if isChecked("Critical HP") and br.friend[i].hp <= getValue("Critical HP") then
+                        if cast.holyShock(br.friend[i].unit) then HS2 = true return end
+                    elseif inRaid and php <= 80 and not buff.beaconOfLight.exists("player") and not buff.beaconOfFaith.exists("player") then
+                        if cast.holyShock("player") then HS2 = true return end
+                    elseif br.friend[i].hp <= 90 and not buff.beaconOfLight.exists(br.friend[i].unit) and not buff.beaconOfFaith.exists(br.friend[i].unit) then
+                        if cast.holyShock(br.friend[i].unit) then HS2 = true return end
+                    elseif br.friend[i].hp <= 90 then
+                        if cast.holyShock(br.friend[i].unit) then HS2 = true return end
+                    end
+                end
+            end
+        end 
+        -- Pre-Pull Timer
+            if isChecked("Pre-Pull Timer") and pullTimer <= getOptionValue("Pre-Pull Timer") then
                 if pullTimer <= getOptionValue("Pre-Pull Timer") then
                     if canUse(142117) and not buff.prolongedPower.exists() then
                         useItem(142117);
                             return true
                             end
                         end
-		            end		
+                    end     
         local function actionList_Defensive()
             if useDefensive() then
                 if isChecked("Pot/Stoned") and php <= getValue("Pot/Stoned") and inCombat and (hasHealthPot() or hasItem(5512))
@@ -289,23 +596,30 @@ local function runRotation()
                         useItem(getHealthPot())
                     end
                 end
-                if isChecked("Divine Protection") then
-                    if php <= getOptionValue("Divine Protection") and inCombat then
-                        if cast.divineProtection() then return end
-					elseif buff.blessingOfSacrifice.exists("player") then
-					    if cast.divineProtection() then return end
-                    end
+        -- Gift of the Naaru
+                if isChecked("Gift of the Naaru") and php <= getOptionValue("Gift of the Naaru") and php > 0 and race == "Draenei" then
+                    if castSpell("player",racial,false,false,false) then return end
                 end
+        -- Divine Shield        
                 if isChecked("Divine Shield") then
                     if php <= getOptionValue("Divine Shield") and not debuff.forbearance.exists("player") and inCombat then
-                        if cast.divineShield() then return end				
+                        if cast.divineShield() then return end              
                     end
-				end
-                    if isChecked("Blessing of Freedom") and hasNoControl("player") then
+                end             
+        --  Divine Protection   
+                if isChecked("Divine Protection") and not buff.divineShield.exists("player") then
+                    if php <= getOptionValue("Divine Protection") and inCombat then
+                        if cast.divineProtection() then return end
+                    elseif buff.blessingOfSacrifice.exists("player") then
+                        if cast.divineProtection() then return end
+                    end
+                end
+        -- Blessing of Freedom
+                    if isChecked("Blessing of Freedom") and hasNoControl() then
                         if cast.blessingOfFreedom() then return end
-                    end				
-			    end
-		    end	
+                    end             
+                end
+            end 
 -----------------
 --- Rotations ---
 -----------------
@@ -347,69 +661,69 @@ local function runRotation()
                 end
         -- Blinding Light
             if isChecked("Blinding Light") and distance < 10 then
-                if cast.blindingLight() then return end							
+                if cast.blindingLight() then return end                         
                 end
             end
         end
-	end	
+    end 
 end -- End Interrupt Check
             -- Beacon of Light on Tank
             if isChecked("Beacon of Light") and not talent.beaconOfVirtue then
-			 if inRaid and (UnitThreatSituation("player", "target") ~= nil or (UnitExists("target") and isDummy("target"))) and UnitAffectingCombat("player") then
-				local bossUnit = nil
-				local bossTarget = nil				
-				for v=1, #enemies.yards40 do				
+             if inRaid and (UnitThreatSituation("player", "target") ~= nil or (UnitExists("target") and isDummy("target"))) and UnitAffectingCombat("player") then
+                local bossUnit = nil
+                local bossTarget = nil              
+                for v=1, #enemies.yards40 do                
                     if isBoss(enemies.yards40[v]) then
-						bossUnit = enemies.yards40[v]
-					end
-				end								
-				for i=1, #br.friend do
-					local threat  = nil
-					if  bossUnit ~= nil then
-						threat = UnitThreatSituation(br.friend[i].unit , bossUnit)
-						if threat ~= nil then
-						end
-					end				
-					if  bossUnit ~= nil and threat ~= nil and threat >= 3 then
-						if (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and UnitAffectingCombat(br.friend[i].unit) 
-						and not buff.beaconOfLight.exists(br.friend[i].unit) and not buff.beaconOfFaith.exists(br.friend[i].unit) then
-							CastSpellByName(GetSpellInfo(53563),br.friend[i].unit)
-						end
-					end
-				end
-			end
-			    LightCount = 0
+                        bossUnit = enemies.yards40[v]
+                    end
+                end                             
+                for i=1, #br.friend do
+                    local threat  = nil
+                    if  bossUnit ~= nil then
+                        threat = UnitThreatSituation(br.friend[i].unit , bossUnit)
+                        if threat ~= nil then
+                        end
+                    end             
+                    if  bossUnit ~= nil and threat ~= nil and threat >= 3 then
+                        if (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and UnitAffectingCombat(br.friend[i].unit) 
+                        and not buff.beaconOfLight.exists(br.friend[i].unit) and not buff.beaconOfFaith.exists(br.friend[i].unit) then
+                            CastSpellByName(GetSpellInfo(53563),br.friend[i].unit)
+                        end
+                    end
+                end
+            end
+                LightCount = 0
                 for i=1, #br.friend do
                     if buff.beaconOfLight.exists(br.friend[i].unit) then
                         LightCount = LightCount + 1
                     end
-                end				
+                end             
                 for i = 1, #br.friend do
-				    if LightCount < 1 and not buff.beaconOfLight.exists(br.friend[i].unit) and not buff.beaconOfFaith.exists(br.friend[i].unit) and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
-					    if cast.beaconOfLight(br.friend[i].unit) then return end
-					end
-				end			
-		    end	
+                    if LightCount < 1 and not buff.beaconOfLight.exists(br.friend[i].unit) and not buff.beaconOfFaith.exists(br.friend[i].unit) and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
+                        if cast.beaconOfLight(br.friend[i].unit) then return end
+                    end
+                end         
+            end 
             -- Beacon of Faith on Off Tank
             if isChecked("Beacon of Faith") and talent.beaconOfFaith then
-			    FaithCount = 0
+                FaithCount = 0
                 for i=1, #br.friend do
                     if buff.beaconOfFaith.exists(br.friend[i].unit) then
                         FaithCount = FaithCount + 1
                     end
                 end
-				for i = 1, #br.friend do
-				    if FaithCount < 1 and not buff.beaconOfLight.exists(br.friend[i].unit) and not buff.beaconOfFaith.exists(br.friend[i].unit) and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
-					    if cast.beaconOfFaith(br.friend[i].unit) then return end
-				    elseif FaithCount < 1 and not inRaid and not buff.beaconOfLight.exists(br.friend[i].unit) and not buff.beaconOfFaith.exists(br.friend[i].unit) then	
-				        if cast.beaconOfFaith(br.friend[i].unit) then return end
-					end
-				end
-			end	
+                for i = 1, #br.friend do
+                    if FaithCount < 1 and not buff.beaconOfLight.exists(br.friend[i].unit) and not buff.beaconOfFaith.exists(br.friend[i].unit) and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
+                        if cast.beaconOfFaith(br.friend[i].unit) then return end
+                    elseif FaithCount < 1 and not inRaid and not buff.beaconOfLight.exists(br.friend[i].unit) and not buff.beaconOfFaith.exists(br.friend[i].unit) then 
+                        if cast.beaconOfFaith(br.friend[i].unit) then return end
+                    end
+                end
+            end 
             ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
             -- DPS ----------- DPS ----------- DPS ----------- DPS ----------- DPS ----------- DPS ----------- DPS ----------- DPS ----------- DPS ----------- DPS ----------- DPS -----------
             ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-            if mode.DPS == 1 and isChecked("DPS") and lowest.hp >= getValue("DPS") and not UnitIsFriend("target", "player") then
+            if mode.DPS == 1 and isChecked("DPS") and lowest.hp >= getValue("DPS") and not UnitIsFriend("target", "player") and inCombat then
                 --Consecration
                 if isChecked( "Consecration") and #enemies.yards8 >= getValue( "Consecration") and not isMoving("player") then
                     if cast.consecration() then return end
@@ -431,13 +745,15 @@ end -- End Interrupt Check
                     if cast.judgment(units.dyn40) then return end
                 end
                 -- Holy Shock
-                if isChecked("Judgement Damage") then
+                if isChecked("Holy Shock Damage") then
                     if cast.holyShock(units.dyn40) then return end
-                end
+                end             
                 -- Crusader Strike
-                if isChecked("Crusader Strike") and (charges.crusaderStrike == 2 or debuff.judgement.exists(units.dyn5) or (charges.crusaderStrike >= 1 and recharge.crusaderStrike < 3)) then
+                if isChecked("Crusader Strike") and talent.crusadersMight and GetSpellCooldown(20473) > 1 then
+                    if cast.crusaderStrike(units.dyn5) then return end              
+                elseif isChecked("Crusader Strike") and not talent.crusadersMight and (charges.crusaderStrike == 2 or debuff.judgement.exists(units.dyn5) or (charges.crusaderStrike >= 1 and recharge.crusaderStrike < 3)) then
                     if cast.crusaderStrike(units.dyn5) then return end
-                end
+                end             
             end
             -- Cool downs
             if inCombat then
@@ -449,9 +765,6 @@ end -- End Interrupt Check
                     if getOptionValue("Lay on Hands Target") == 1 then
                         for i = 1, #br.friend do
                             if br.friend[i].hp <= getValue ("Lay on Hands") and not debuff.forbearance.exists(br.friend[i].unit) then
-                                if isCastingSpell(spell.holyLight) then
-                                    SpellStopCasting()
-                                end
                                 if cast.layOnHands(br.friend[i].unit) then return end
                             end
                         end
@@ -467,14 +780,11 @@ end -- End Interrupt Check
                         end
                     end
                 end
-                -- 保护祝福
+                -- Blessing of Protection
                 if isChecked("Blessing of Protection") and GetSpellCooldown(1022) == 0 then
                     if getOptionValue("BoP Target") == 1 then
                         for i = 1, #br.friend do
                             if br.friend[i].hp <= getValue ("Blessing of Protection") and not debuff.forbearance.exists(br.friend[i].unit) then
-                                if isCastingSpell(spell.holyLight) then
-                                    SpellStopCasting()
-                                end
                                 if cast.blessingOfProtection(br.friend[i].unit) then return end
                             end
                         end
@@ -484,12 +794,12 @@ end -- End Interrupt Check
                                 if cast.blessingOfProtection(br.friend[i].unit) then return end
                             end
                         end
-					elseif getOptionValue("BoP Target") == 3 then
+                    elseif getOptionValue("BoP Target") == 3 then
                         for i = 1, #br.friend do
                             if br.friend[i].hp <= getValue ("Blessing of Protection") and not debuff.forbearance.exists(br.friend[i].unit) and (UnitGroupRolesAssigned(br.friend[i].unit) == "HEALER" or UnitGroupRolesAssigned(br.friend[i].unit) == "DAMAGER") then
                                 if cast.blessingOfProtection(br.friend[i].unit) then return end
                             end
-                        end					
+                        end                 
                     elseif getOptionValue("BoP Target") == 4 then
                         if php <= getValue("Blessing of Protection") and not debuff.forbearance.exists("player") then
                             if cast.blessingOfProtection("player") then return end
@@ -500,10 +810,7 @@ end -- End Interrupt Check
                 if isChecked("Blessing of Sacrifice") and GetSpellCooldown(6940) == 0 then
                     if getOptionValue("BoS Target") == 1 then
                         for i = 1, #br.friend do
-                            if br.friend[i].hp <= getValue ("Blessing of Sacrifice") and not debuff.forbearance.exists(br.friend[i].unit) then
-                                if isCastingSpell(spell.holyLight) then
-                                    SpellStopCasting()
-                                end
+                            if br.friend[i].hp <= getValue ("Blessing of Sacrifice") and not debuff.forbearance.exists(br.friend[i].unit) and not UnitIsUnit(br.friend[i].unit,"player") then
                                 if cast.blessingOfSacrifice(br.friend[i].unit) then return end
                             end
                         end
@@ -518,9 +825,9 @@ end -- End Interrupt Check
                             if br.friend[i].hp <= getValue ("Blessing of Sacrifice") and not debuff.forbearance.exists(br.friend[i].unit) and UnitGroupRolesAssigned(br.friend[i].unit) == "DAMAGER" then
                                 if cast.blessingOfSacrifice(br.friend[i].unit) then return end
                             end
-                        end						
-					end
-				end
+                        end                     
+                    end
+                end
             -- Trinkets
             if isChecked("Trinket 1") and getLowAllies(getValue("Trinket 1")) >= getValue("Min Trinket 1 Targets") then
                 if canUse(13) then
@@ -533,45 +840,42 @@ end -- End Interrupt Check
                     useItem(14)
                     return true
                 end
-            end				
-				-- Flash of Light
-				for i = 1, #br.friend do
-				    if not isMoving("player") and br.friend[i].hp <= getValue("Overhealing Cancel") and buff.theLightSaves.exists("player") and (buff.beaconOfLight.exists(br.friend[i].unit) or buff.beaconOfFaith.exists(br.friend[i].unit)) then
+            end             
+                -- Flash of Light
+                for i = 1, #br.friend do
+                    if not isMoving("player") and br.friend[i].hp <= getValue("Overhealing Cancel") and buff.theLightSaves.exists("player") and (buff.beaconOfLight.exists(br.friend[i].unit) or buff.beaconOfFaith.exists(br.friend[i].unit)) then
                         if cast.flashOfLight(br.friend[i].unit) then
-							healing_obj = br.friend[i].unit
-							return
-						end
-					end
-				end	
-			    -- Divine Shield and Light of the Martyr
-				if isChecked("Divine Shield + LotM") and not debuff.forbearance.exists("player") and getLowAllies(getValue"Divine Shield + LotM") >= getValue("Divine Shield + LotM Targets") then
-				    if php <= 100 then
-					    if cast.divineShield() then return end
-					end
-				end	
-					for i = 1, #br.friend do
+                            healing_obj = br.friend[i].unit
+                            return
+                        end
+                    end
+                end 
+                -- Divine Shield and Light of the Martyr
+                if isChecked("Divine Shield + LotM") and not debuff.forbearance.exists("player") and getLowAllies(getValue"Divine Shield + LotM") >= getValue("Divine Shield + LotM Targets") then
+                    if php <= 100 then
+                        if cast.divineShield() then return end
+                    end
+                end 
+                    for i = 1, #br.friend do
                         if br.friend[i].hp <= 100 and buff.divineShield.exists("player") and not UnitIsUnit(br.friend[i].unit,"player") then
                             if cast.lightOfTheMartyr(br.friend[i].unit) then return end
-						end
-					end					
-				-- Rule of Law
-				if isChecked("Rule of Law") and talent.ruleOfLaw and not buff.ruleOfLaw.exists("player") then
-				    if getLowAllies(getValue"Rule of Law") >= getValue("RoL Targets") then
-					    if cast.ruleOfLaw() then return end
-					end
-				end	
+                        end
+                    end                 
+                -- Rule of Law
+                if isChecked("Rule of Law") and talent.ruleOfLaw and not buff.ruleOfLaw.exists("player") then
+                    if getLowAllies(getValue"Rule of Law") >= getValue("RoL Targets") then
+                        if cast.ruleOfLaw() then return end
+                    end
+                end 
                 -- Tyr's Deliverance
                 if isChecked("Tyr's Deliverance") and not isMoving("player") then
                     if getLowAllies(getValue"Tyr's Deliverance") >= getValue("Tyr's Deliverance Targets") then
                         if cast.tyrsDeliverance() then return end
                     end
-				end	
+                end 
                 -- Avenging Wrath
                 if isChecked("Avenging Wrath") and not buff.auraMastery.exists("player") and GetSpellCooldown(31842) == 0 then
                     if getLowAllies(getValue"Avenging Wrath") >= getValue("Avenging Wrath Targets") then
-                        if isCastingSpell(spell.holyLight) then
-                            SpellStopCasting()
-                        end    
                         if cast.avengingWrath() then return end
                     end
                 end
@@ -597,16 +901,14 @@ end -- End Interrupt Check
             -- Light of Dawn
             if isChecked("Light of Dawn") then
                  for i = 1, #br.friend do
-                    if br.friend[i].hp <= getValue("Light of Dawn") then
+                    if br.friend[i].hp <= getValue("Light of Dawn") and GetSpellCooldown(85222) == 0 then
                         local lowHealthCandidates = getUnitsToHealAround(br.friend[i].unit,15,getValue("Light of Dawn"),#br.friend)
                         if #lowHealthCandidates >= getValue("LoD Targets") and getFacing("player",br.friend[i].unit) then
-                            if GetSpellCooldown(85222) == 0 then
                             CastSpellByName(GetSpellInfo(85222),br.friend[i].unit)
                             end
                         end
                     end
                 end
-            end
             --Beacon of Virtue
             if talent.beaconOfVirtue and isChecked("Beacon of Virtue") then
                 for i= 1, #br.friend do
@@ -617,17 +919,17 @@ end -- End Interrupt Check
                         end
                     end
                 end
-            end			
-			-- Light's Hammer
+            end         
+            -- Light's Hammer
             if (SpecificToggle("Light's Hammer Key") and not GetCurrentKeyBoardFocus()) then
                     CastSpellByName(GetSpellInfo(spell.lightsHammer),"cursor")
                     return
-                end			
-			if isChecked("Light's Hammer") and talent.lightsHammer and not isMoving("player") then
-			    if getLowAllies(getValue("Light's Hammer")) >= getValue("Light's Hammer Targets") then
-				    if castGroundAtBestLocation(spell.lightsHammer, 20, 0, 40, 0, "heal") then return end
-				end
-			end	
+                end         
+            if isChecked("Light's Hammer") and talent.lightsHammer and not isMoving("player") then
+                if getLowAllies(getValue("Light's Hammer")) >= getValue("Light's Hammer Targets") then
+                    if castGroundAtBestLocation(spell.lightsHammer, 20, 0, 40, 0, "heal") then return end
+                end
+            end 
             -- Bestow Faith
             if isChecked("Bestow Faith") and talent.bestowFaith then
                 if getOptionValue("Bestow Faith Target") == 1 then
@@ -642,43 +944,43 @@ end -- End Interrupt Check
                             if cast.bestowFaith(br.friend[i].unit) then return end
                         end
                     end
-				elseif 	getOptionValue("Bestow Faith Target") == 3 then
-				    for i = 1, #br.friend do
-					    if br.friend[i].hp <= getValue ("Bestow Faith") then
-						    if cast.bestowFaith("player") then return end
-						end
-						if br.friend[i].hp <= getValue ("Bestow Faith") and php >= getOptionValue("LotM player HP limit") and not UnitIsUnit(br.friend[i].unit,"player") and buff.bestowFaith.exists("player") then
-						    if cast.lightOfTheMartyr(br.friend[i].unit) then return end
-						end	
-					end
-				end
-			end	
+                elseif  getOptionValue("Bestow Faith Target") == 3 then
+                    for i = 1, #br.friend do
+                        if br.friend[i].hp <= getValue ("Bestow Faith") then
+                            if cast.bestowFaith("player") then return end
+                        end
+                        if br.friend[i].hp <= getValue ("Bestow Faith") and php >= getOptionValue("LotM player HP limit") and not UnitIsUnit(br.friend[i].unit,"player") and buff.bestowFaith.exists("player") then
+                            if cast.lightOfTheMartyr(br.friend[i].unit) then return end
+                        end 
+                    end
+                end
+            end 
             -- Judgement
-			if not UnitIsFriend("target", "player") and inCombat then
-			    if talent.judgmentOfLight and not debuff.judgmentoflight.exists(units.dyn40) then
-				    if cast.judgment(units.dyn40) then return end
+            if not UnitIsFriend("target", "player") and inCombat then
+                if talent.judgmentOfLight and not debuff.judgmentoflight.exists(units.dyn40) then
+                    if cast.judgment(units.dyn40) then return end
                 elseif talent.fistOfJustice and GetSpellCooldown(853) > 0 then
                     if cast.judgment(units.dyn40) then return end
-				end
-			end	
-			-- Crusader Strike
+                end
+            end 
+            -- Crusader Strike
             if talent.crusadersMight and GetSpellCooldown(20473) > 1 and not UnitIsFriend("target", "player") and inCombat then
                 if cast.crusaderStrike(units.dyn5) then return end
-            end				
-            -- Holy Shock		
+            end             
+            -- Holy Shock       
             if isChecked("Holy Shock") then
                 for i = 1, #br.friend do
-				    if isChecked("Critical HP") and br.friend[i].hp <= getValue("Critical HP") then
+                    if isChecked("Critical HP") and br.friend[i].hp <= getValue("Critical HP") then
                         if cast.holyShock(br.friend[i].unit) then return end
-				    elseif inRaid and php <= 80 and not buff.beaconOfLight.exists("player") and not buff.beaconOfFaith.exists("player") then
-					    if cast.holyShock("player") then return end
-				    elseif br.friend[i].hp <= getValue("Holy Shock")  and not buff.beaconOfLight.exists(br.friend[i].unit) and not buff.beaconOfFaith.exists(br.friend[i].unit) then
+                    elseif inRaid and php <= 80 and not buff.beaconOfLight.exists("player") and not buff.beaconOfFaith.exists("player") then
+                        if cast.holyShock("player") then return end
+                    elseif br.friend[i].hp <= getValue("Holy Shock")  and not buff.beaconOfLight.exists(br.friend[i].unit) and not buff.beaconOfFaith.exists(br.friend[i].unit) then
                         if cast.holyShock(br.friend[i].unit) then return end
                     elseif br.friend[i].hp <= getValue("Holy Shock") then
                         if cast.holyShock(br.friend[i].unit) then return end
                     end
                 end
-            end			
+            end         
             -- Light of Martyr
             if isChecked("Light of the Martyr") and php >= getOptionValue("LotM player HP limit") then
                 for i = 1, #br.friend do
@@ -690,39 +992,38 @@ end -- End Interrupt Check
             -- Flash of Light
             if isChecked("Flash of Light") and not isMoving("player") and (getOptionValue("FoL Infuse") == 1 or (getOptionValue("FoL Infuse") == 2 and buff.infusionOfLight.exists("player"))) then
                 for i = 1, #br.friend do
-				    if isChecked("Critical HP") and br.friend[i].hp <= getValue("Critical HP") then
+                    if isChecked("Critical HP") and br.friend[i].hp <= getValue("Critical HP") then
                         if cast.flashOfLight(br.friend[i].unit) then
-							healing_obj = br.friend[i].unit
-							return
-						end					
+                            healing_obj = br.friend[i].unit
+                            return
+                        end                 
                     elseif br.friend[i].hp <= getValue("Flash of Light") and not buff.beaconOfLight.exists(br.friend[i].unit) and not buff.beaconOfFaith.exists(br.friend[i].unit) then
                         if cast.flashOfLight(br.friend[i].unit) then
-							healing_obj = br.friend[i].unit
-							return
-						end
-					elseif br.friend[i].hp <= getValue("Flash of Light") then
-					    if cast.flashOfLight(br.friend[i].unit) then 
-							healing_obj = br.friend[i].unit
-							return
-						end
-					end	
-                end
-				
+                            healing_obj = br.friend[i].unit
+                            return
+                        end
+                    elseif br.friend[i].hp <= getValue("Flash of Light") then
+                        if cast.flashOfLight(br.friend[i].unit) then 
+                            healing_obj = br.friend[i].unit
+                            return
+                        end
+                    end 
+                end             
             end
             -- Holy Light
             if isChecked("Holy Light") and not isMoving("player") and (getOptionValue("Holy Light Infuse") == 1 or (getOptionValue("Holy Light Infuse") == 2 and buff.infusionOfLight.exists("player") and GetSpellCooldown(20473) > 0 )) then                 
                 for i = 1, #br.friend do
                     if br.friend[i].hp <= getValue("Holy Light") and not buff.beaconOfLight.exists(br.friend[i].unit) and not buff.beaconOfFaith.exists(br.friend[i].unit) then
                         if cast.holyLight(br.friend[i].unit) then
-							healing_obj = br.friend[i].unit
-							return
-						end
-					elseif br.friend[i].hp <= getValue("Holy Light") then
-					    if cast.holyLight(br.friend[i].unit) then
-							healing_obj = br.friend[i].unit
-							return
-						end
-					end	
+                            healing_obj = br.friend[i].unit
+                            return
+                        end
+                    elseif br.friend[i].hp <= getValue("Holy Light") then
+                        if cast.holyLight(br.friend[i].unit) then
+                            healing_obj = br.friend[i].unit
+                            return
+                        end
+                    end 
                 end
             end
             -- Emergency Martyr Heals
@@ -733,14 +1034,14 @@ end -- End Interrupt Check
                     end
                 end
             end
-			-- Overhealing Cancel
-		    if isChecked("Overhealing Cancel") and healing_obj ~= nil then
-			    if getHP(healing_obj) >= getValue("Overhealing Cancel") and (isCastingSpell(spell.flashOfLight) or isCastingSpell(spell.holyLight)) then
-				    SpellStopCasting()
-				    healing_obj = nil
-				    Print("Cancel casting...")
-			    end
-		    end             
+            -- Overhealing Cancel
+            if isChecked("Overhealing Cancel") and healing_obj ~= nil then
+                if getHP(healing_obj) >= getValue("Overhealing Cancel") and (isCastingSpell(spell.flashOfLight) or isCastingSpell(spell.holyLight)) then
+                    SpellStopCasting()
+                    healing_obj = nil
+                    Print("Cancel casting...")
+                end
+            end             
         end -- Test Mode      
     end -- End Timer
 end -- End runRotation
