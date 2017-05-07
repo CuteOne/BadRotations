@@ -221,11 +221,13 @@ function br.read.combatLog()
             -- timeStamp, param, hideCaster, source, sourceName, sourceFlags, sourceRaidFlags, destination,
             -- destName, destFlags, destRaidFlags, spell, spellName, _, spellType
             -- Add spells we dont want to appear here.
-            if SpellID ~= 75              -- Auto Shot
-                and SpellID ~= 88263      -- 88263
+            if spell ~= 75              -- Auto Shot
+                and spell ~= 88263      -- 88263
                 -- and SpellID ~= 172        -- Corruption
-                and SpellID ~= 8690         -- Hearthstone
-                and SpellID ~= 194279     -- Caltrop DoT
+                and spell ~= 8690         -- Hearthstone
+                and spell ~= 194279     -- Caltrop DoT
+                and spell ~= 196771
+                and spell ~= 211793
             then
                 local color = "|cff12C8FF"
                 local white = "|cffFFFFFF"
@@ -306,6 +308,15 @@ function br.read.combatLog()
                     lastSpellStarted = spell
                 end
             end
+        end
+    end
+    function cl:Deathknight(...)
+        local timeStamp, param, hideCaster, source, sourceName, sourceFlags, sourceRaidFlags, destination,
+          destName, destFlags, destRaidFlags, spell, spellName, _, spellType = ...
+        -- Breath of Sindragosa Active Tracker
+        if spell == 152279 and sourceName == UnitName("player") then
+            if param == "SPELL_AURA_APPLIED" then breathOfSindragosaActive = true end
+            if param == "SPELL_AURA_REMOVED" then breathOfSindragosaActive = false end
         end
     end
     function cl:DemonHunter(...)
@@ -389,10 +400,6 @@ function br.read.combatLog()
                 end
             end
         end
-    end
-    function cl:Deathknight(...)
-        local timeStamp, param, hideCaster, source, sourceName, sourceFlags, sourceRaidFlags, destination,
-          destName, destFlags, destRaidFlags, spell, spellName, _, spellType = ...
     end
     function cl:Hunter(...)
         local timeStamp, param, hideCaster, source, sourceName, sourceFlags, sourceRaidFlags, destination,

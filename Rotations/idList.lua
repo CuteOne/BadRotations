@@ -116,8 +116,9 @@ br.idList = {
                 soulbiter                   = 214904,
             },
             buffs                           = {
-                breathOfSindragosa          = 152279,
+                breathOfSindragosa          = 155166,
                 darkSuccor                  = 101568,
+                gatheringStorm              = 211805,
                 hungeringRuneWeapon         = 207127,
                 iceboundFortitude           = 48792,
                 icyTalons                   = 194879,
@@ -128,8 +129,10 @@ br.idList = {
                 rime                        = 59052,
             },
             debuffs                         = {
+                breathOfSindragosa          = 155166,
                 chainsOfIce                 = 45524,
                 frostFever                  = 55095,
+                remorselessWinter           = 211793,
             },
             glyphs                          = {
 
