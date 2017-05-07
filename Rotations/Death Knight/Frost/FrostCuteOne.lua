@@ -327,7 +327,7 @@ local function runRotation()
                 -- berserking,if=buff.pillar_of_frost.up
                 if isChecked("Racial") and (((br.player.race == "Troll" or br.player.race == "Orc") and buff.pillarOfFrost.exists())
                     or (br.player.race == "BloodElf" and ((runicPowerDeficit > 20 and not talent.breathOfSindragosa) 
-                        or (talent.breathOfSindragosa and breathOfSindragosaActive and power < 30 and runes < 2)))) 
+                        or (talent.breathOfSindragosa and breathOfSindragosaActive and runicPower < 30 and runes < 2)))) 
                     and getSpellCD(racial) == 0
                 then
                     if castSpell("player",racial,false,false,false) then return end
@@ -483,7 +483,7 @@ local function runRotation()
         -- Hungering Rune Weapon
                 -- hungering_rune_weapon,if=equipped.140806&(runic_power<30|(runic_power<70&talent.gathering_storm.enabled))&!buff.hungering_rune_weapon.up&rune<2
                 -- hungering_rune_weapon,if=equipped.140806&(runic_power<30|(runic_power<70&talent.gathering_storm.enabled)|(talent.horn_of_winter.enabled&talent.gathering_storm.enabled&runic_power<55))&!buff.hungering_rune_weapon.up&rune<2
-                if hasEquiped(140806) and (runicPower < 30 or (runicPower < 70 and talent.gatheringStorm) or (talent.hornOfWinter and talent.gatheringStorm and power < 55)) and not buff.hungeringRuneWeapon.exists() and runes < 2 then -- and (not talent.hornOfWinter or cd.hornOfWinter ~= 0) then -- 
+                if hasEquiped(140806) and (runicPower < 30 or (runicPower < 70 and talent.gatheringStorm) or (talent.hornOfWinter and talent.gatheringStorm and runicPower < 55)) and not buff.hungeringRuneWeapon.exists() and runes < 2 then -- and (not talent.hornOfWinter or cd.hornOfWinter ~= 0) then -- 
                     if cast.hungeringRuneWeapon("player") then return end
                 end
                 -- hungering_rune_weapon,if=talent.runic_attenuation.enabled&runic_power<30&!buff.hungering_rune_weapon.up&rune<2
@@ -730,7 +730,7 @@ local function runRotation()
                         if cast.pillarOfFrost() then return end
                     end
                     -- pillar_of_frost,if=equipped.140806&talent.breath_of_sindragosa.enabled&((runic_power>=50&cooldown.hungering_rune_weapon.remains<10)|(cooldown.breath_of_sindragosa.remains>20))
-                    if hasEquiped(140806) and talent.breathOfSindragosa and ((power >= 50 and cd.hungeringRuneWeapon < 10) or (cd.breathOfSindragosa > 20 or not useCDs() or not isChecked("Breath of Sindragosa"))) then
+                    if hasEquiped(140806) and talent.breathOfSindragosa and ((runicPower >= 50 and cd.hungeringRuneWeapon < 10) or (cd.breathOfSindragosa > 20 or not useCDs() or not isChecked("Breath of Sindragosa"))) then
                         if cast.pillarOfFrost() then return end
                     end
                 end
