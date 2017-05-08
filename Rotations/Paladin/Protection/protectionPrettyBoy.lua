@@ -312,30 +312,30 @@ local function runRotation()
                     if getHP("mouseover") <= getValue("Lay On Hands") then
                         if cast.layOnHands("mouseover") then return true end
                     end
-                elseif lowest.hp <= getValue("Lay On Hands") then
+                elseif getHP(lowestUnit) <= getValue("Lay On Hands") then
                     -- Tank
                     if getOptionValue("Lay on Hands Target") == 4 then
-                        if (lowest.role) == "TANK" then
-                            if cast.layOnHands(lowest.unit) then return true end
+                        if UnitGroupRolesAssigned(lowestUnit) == "TANK" then
+                            if cast.layOnHands(lowestUnit) then return true end
                         end
                     -- Healer
                     elseif getOptionValue("Lay on Hands Target") == 5 then
-                        if (lowest.role) == "HEALER" then
-                            if cast.layOnHands(lowest.unit) then return true end
+                        if UnitGroupRolesAssigned(lowestUnit) == "HEALER" then
+                            if cast.layOnHands(lowestUnit) then return true end
                         end
                     -- Healer/Tank
                     elseif getOptionValue("Lay on Hands Target") == 6 then
-                        if (lowest.role) == "HEALER" or (lowest.role) == "TANK" then
-                            if cast.layOnHands(lowest.unit) then return true end
+                        if UnitGroupRolesAssigned(lowestUnit) == "HEALER" or UnitGroupRolesAssigned(lowestUnit) == "TANK" then
+                            if cast.layOnHands(lowestUnit) then return true end
                         end
                     -- Healer/Damager
                     elseif getOptionValue("Lay on Hands Target") == 7 then
-                        if (lowest.role) == "HEALER" or (lowest.role) == "DAMAGER" then
-                            if cast.layOnHands(lowest.unit) then return true end
+                        if UnitGroupRolesAssigned(lowestUnit) == "HEALER" or UnitGroupRolesAssigned(lowestUnit) == "DAMAGER" then
+                            if cast.layOnHands(lowestUnit) then return true end
                         end						
                     -- Any
                     elseif  getOptionValue("Lay on Hands Target") == 8 then
-                        if cast.layOnHands(lowest.unit) then return true end
+                        if cast.layOnHands(lowestUnit) then return true end
                     end
                 end
             end				
@@ -356,35 +356,35 @@ local function runRotation()
                     if getHP("mouseover") <= getValue("Blessing of Protection") then
                         if cast.blessingOfProtection("mouseover") then return true end
                     end
-                elseif lowest.hp <= getValue("Blessing of Protection") then
+                elseif getHP(lowestUnit) <= getValue("Blessing of Protection") then
                     -- Tank
                     if getOptionValue("Blessing of Protection Target") == 4 then
-                        if (lowest.role) == "TANK" then
-                            if cast.blessingOfProtection(lowest.unit) then return true end
+                        if UnitGroupRolesAssigned(lowestUnit) == "TANK" then
+                            if cast.blessingOfProtection(lowestUnit) then return true end
                         end
                     -- Healer
                     elseif getOptionValue("Blessing of Protection Target") == 5 then
-                        if (lowest.role) == "HEALER" then
-                            if cast.blessingOfProtection(lowest.unit) then return true end
+                        if UnitGroupRolesAssigned(lowestUnit) == "HEALER" then
+                            if cast.blessingOfProtection(lowestUnit) then return true end
                         end
                     -- Healer/Tank
                     elseif getOptionValue("Blessing of Protection Target") == 6 then
-                        if (lowest.role) == "HEALER" or (lowest.role) == "TANK" then
-                            if cast.blessingOfProtection(lowest.unit) then return true end
+                        if UnitGroupRolesAssigned(lowestUnit) == "HEALER" or UnitGroupRolesAssigned(lowestUnit) == "TANK" then
+                            if cast.blessingOfProtection(lowestUnit) then return true end
                         end
                     -- Healer/Damager
                     elseif getOptionValue("Blessing of Protection Target") == 7 then
-                        if (lowest.role) == "HEALER" or (lowest.role) == "DAMAGER" then
-                            if cast.blessingOfProtection(lowest.unit) then return true end
+                        if UnitGroupRolesAssigned(lowestUnit) == "HEALER" or UnitGroupRolesAssigned(lowestUnit) == "DAMAGER" then
+                            if cast.blessingOfProtection(lowestUnit) then return true end
                         end						
                     -- Any
                     elseif  getOptionValue("Blessing of Protection Target") == 8 then
-                        if cast.blessingOfProtection(lowest.unit) then return true end
+                        if cast.blessingOfProtection(lowestUnit) then return true end
                     end
                 end
             end
         -- Blessing Of Sacrifice		
-                if isChecked("Blessing Of Sacrifice") and php >= 50 and not UnitIsUnit(lowest.unit,"player") and inCombat then
+                if isChecked("Blessing Of Sacrifice") and php >= 50 and not UnitIsUnit(lowestUnit,"player") and inCombat then
                     -- Target
                 if getOptionValue("Blessing Of Sacrifice Target") == 1 then
                     if getHP("target") <= getValue("Blessing Of Sacrifice") then
@@ -395,30 +395,30 @@ local function runRotation()
                     if getHP("mouseover") <= getValue("Blessing Of Sacrifice") then
                         if cast.blessingOfSacrifice("mouseover") then return true end
                     end
-                elseif lowest.hp <= getValue("Blessing Of Sacrifice") then
+                elseif getHP(lowestUnit) <= getValue("Blessing Of Sacrifice") then
                     -- Tank
                     if getOptionValue("Blessing Of Sacrifice Target") == 3 then
-                        if (lowest.role) == "TANK" then
-                            if cast.blessingOfSacrifice(lowest.unit) then return true end
+                        if UnitGroupRolesAssigned(lowestUnit) == "TANK" then
+                            if cast.blessingOfSacrifice(lowestUnit) then return true end
                         end
                     -- Healer
                     elseif getOptionValue("Blessing Of Sacrifice Target") == 4 then
-                        if (lowest.role) == "HEALER" then
-                            if cast.blessingOfSacrifice(lowest.unit) then return true end
+                        if UnitGroupRolesAssigned(lowestUnit) == "HEALER" then
+                            if cast.blessingOfSacrifice(lowestUnit) then return true end
                         end
                     -- Healer/Tank
                     elseif getOptionValue("Blessing Of Sacrifice Target") == 5 then
-                        if (lowest.role) == "HEALER" or (lowest.role) == "TANK" then
-                            if cast.blessingOfSacrifice(lowest.unit) then return true end
+                        if UnitGroupRolesAssigned(lowestUnit) == "HEALER" or UnitGroupRolesAssigned(lowestUnit) == "TANK" then
+                            if cast.blessingOfSacrifice(lowestUnit) then return true end
                         end
                     -- Healer/Damager
                     elseif getOptionValue("Blessing Of Sacrifice Target") == 6 then
-                        if (lowest.role) == "HEALER" or (lowest.role) == "DAMAGER" then
-                            if cast.blessingOfSacrifice(lowest.unit) then return true end
+                        if UnitGroupRolesAssigned(lowestUnit) == "HEALER" or UnitGroupRolesAssigned(lowestUnit) == "DAMAGER" then
+                            if cast.blessingOfSacrifice(lowestUnit) then return true end
                         end						
                     -- Any
                     elseif  getOptionValue("Blessing Of Sacrifice Target") == 7 then
-                        if cast.blessingOfSacrifice(lowest.unit) then return true end
+                        if cast.blessingOfSacrifice(lowestUnit) then return true end
                     end
                 end
             end						
