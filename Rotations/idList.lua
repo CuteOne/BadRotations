@@ -1618,9 +1618,11 @@ br.idList = {
                 divinePurpose               = 216411;
                 ferventMartyr               = 223316;
                 infusionOfLight             = 54149;
+                holyAvenger                 = 105809;               
                 ruleOfLaw                   = 214202;
                 theLightSaves               = 200423;
                 vindicator                  = 200376;
+                tyrsDeliverance             = 200652;               
 
             },
             debuffs                         = {

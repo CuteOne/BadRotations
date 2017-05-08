@@ -74,6 +74,8 @@ local function createOptions()
         --- OFFENSIVE OPTIONS ---
         ------------------------
         section = br.ui:createSection(br.ui.window.profile,  "Offensive")
+            -- Trinkets
+            br.ui:createCheckbox(section, "Trinkets")
             -- Agi Pot
             br.ui:createCheckbox(section, "Agi-Pot")
             -- Sprint with Boots
