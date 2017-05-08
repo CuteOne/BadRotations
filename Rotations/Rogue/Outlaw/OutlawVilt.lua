@@ -452,7 +452,7 @@ local function runRotation()
             if useCDs() and getDistance("target") <= 6 and attacktar and inCombat then
         -- Trinkets
                 if isChecked("Trinkets") then
-                    if hasBloodlust() or ttd("target") <= 20 or comboDeficit <= 2 then
+                    if hasBloodLust() or ttd("target") <= 20 or comboDeficit <= 2 then
                         if canUse(13) then
                             useItem(13)
                         end
