@@ -83,6 +83,8 @@ local function createOptions()
             br.ui:createCheckbox(section,"Trinkets")
         -- Aspect of the Eagle
             br.ui:createCheckbox(section,"Aspect of the Eagle")
+        -- Snake Hunter
+            br.ui:createCheckbox(section,"Snake Hunter")
         br.ui:checkSectionState(section)
     -- Defensive Options
         section = br.ui:createSection(br.ui.window.profile, "Defensive")
@@ -364,7 +366,7 @@ local function runRotation()
                 -- snake_hunter,if=cooldown.mongoose_bite.charges=0&buff.mongoose_fury.remains>3*gcd
                 if isChecked("Snake Hunter") then
                     if charges.mongooseBite == 0 and buff.mongooseFury.remain() > 3 * gcd then
-                        if cast.snakeHunter("player") then return end
+                        if cast.snakeHunter() then return end
                     end
                 end
             -- Aspect of the Eagle
