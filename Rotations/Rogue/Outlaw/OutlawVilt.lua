@@ -6,37 +6,35 @@ local rotationName = "Vilt"
 local function createToggles()
 -- Rotation Button
     RotationModes = {
-        [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range.", highlight = 1, icon = br.player.spell.bladeFlurry },
-        [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = br.player.spell.bladeFlurry },
-        [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = br.player.spell.saberSlash },
-        [4] = { mode = "Off", value = 4 , overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spell.crimsonVial }
+        [1] = { mode = "On", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range.", highlight = 1, icon = br.player.spell.runThrough},
+        [2] = { mode = "Off", value = 2 , overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spell.crimsonVial}
     };
     CreateButton("Rotation",1,0)
 -- Cooldown Button
     CooldownModes = {
-        [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spell.adrenalineRush },
-        [2] = { mode = "On", value = 1 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spell.adrenalineRush },
-        [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.adrenalineRush }
+        [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spell.adrenalineRush},
+        [2] = { mode = "On", value = 2 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spell.adrenalineRush},
+        [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.adrenalineRush}
     };
     CreateButton("Cooldown",2,0)
+-- Blade Flurry Button
+    BladeFlurryModes = {
+        [1] = { mode = "On", value = 1 , overlay = "Blade Flurry Enabled", tip = "Rotation will use Blade Flurry.", highlight = 1, icon = br.player.spell.bladeFlurry},
+        [2] = { mode = "Off", value = 2 , overlay = "Blade Flurry Disabled", tip = "Rotation will not use Blade Flirry.", highlight = 0, icon = br.player.spell.bladeFlurry}
+    };
+    CreateButton("BladeFlurry",3,0)
 -- Defensive Button
     DefensiveModes = {
-        [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spell.riposte },
-        [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spell.riposte }
+        [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spell.riposte},
+        [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spell.riposte}
     };
-    CreateButton("Defensive",3,0)
+    CreateButton("Defensive",4,0)
 -- Interrupt Button
     InterruptModes = {
-        [1] = { mode = "On", value = 1 , overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spell.kick },
-        [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.kick }
+        [1] = { mode = "On", value = 1 , overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spell.kick},
+        [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.kick}
     };
-    CreateButton("Interrupt",4,0)
--- Cleave Button
-    CleaveModes = {
-        [1] = { mode = "On", value = 1 , overlay = "Cleaving Enabled", tip = "Rotation will cleave targets.", highlight = 1, icon = br.player.spell.bladeFlurry },
-        [2] = { mode = "Off", value = 2 , overlay = "Cleaving Disabled", tip = "Rotation will not cleave targets", highlight = 0, icon = br.player.spell.saberSlash }
-    };
-    CreateButton("Cleave",5,0)
+    CreateButton("Interrupt",5,0)
 -- Pick Pocket Button
     PickerModes = {
       [1] = { mode = "Auto", value = 2 , overlay = "Auto Pick Pocket Enabled", tip = "Profile will attempt to Pick Pocket prior to combat.", highlight = 1, icon = br.player.spell.pickPocket},
@@ -58,17 +56,15 @@ local function createOptions()
         -----------------------
         section = br.ui:createSection(br.ui.window.profile,  "General")
             -- Opening Attack
-            br.ui:createDropdown(section, "Opener", {"Ambush", "Cheap Shot", "Saber Slash"},  1, "|cffFFFFFFSelect Attack to Break Stealth with")
-            -- mfd prpull
+            br.ui:createCheckbox(section, "Opener")
+            -- mfd prepull
             br.ui:createCheckbox(section, "Marked For Death - Precombat")
             -- RTb Prepull
             br.ui:createCheckbox(section, "RTB Prepull")
-            -- Pre-Pull Timer
-            br.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
             -- Stealth
-            br.ui:createDropdown(section, "Stealth", {"|cff00FF00Always", "|cffFFDD00PrePot", "|cffFF000020Yards"},  1, "Stealth method.")
+            br.ui:createDropdown(section, "Stealth", {"|cff00FF00Always", "|cffFF000020Yards"},  1, "Stealthing method.")
             -- Artifact
-            br.ui:createDropdownWithout(section,"Artifact", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Artifact Ability.")
+            br.ui:createCheckbox(section, "Artifact")
         br.ui:checkSectionState(section)
         ------------------------
         --- OFFENSIVE OPTIONS ---
@@ -78,14 +74,16 @@ local function createOptions()
             br.ui:createCheckbox(section, "Trinkets")
             -- Agi Pot
             br.ui:createCheckbox(section, "Agi-Pot")
+            if hasEquiped(137031) then
             -- Sprint with Boots
-            br.ui:createCheckbox(section, "Sprint with Legendary Boots")
+                br.ui:createCheckbox(section, "Legendary Boots Logic")
+            end
             -- Marked For Death
             br.ui:createDropdown(section, "Marked For Death", {"|cff00FF00Target", "|cffFFDD00Lowest"}, 1)
             -- Vanish
-            br.ui:createCheckbox(section,  "Vanish")
+            br.ui:createCheckbox(section, "Vanish")
             -- Racial
-            br.ui:createCheckbox(section,  "Racial")
+            br.ui:createCheckbox(section, "Racial")
             -- Pistol Shot OOR
             br.ui:createSpinner(section, "Pistol Shot out of range", 85,  5,  100,  5,  "|cffFFFFFFCheck to use Pistol Shot out of range and energy to use at.")
             -- CB
@@ -93,9 +91,9 @@ local function createOptions()
             -- KS
             br.ui:createCheckbox(section, "Killing Spree")
             -- RTB
-            br.ui:createDropdown(section, "RTB", {"|cff00FF007.1.5 Logic (Default)", "|cffFFDD007.1 Logic", "|cffFF00001+"}, 1)
+            br.ui:createDropdown(section, "RTB", {"|cff00FF003+/TB (Default)", "|cffFFDD002+/TB/SiW CDs", "|cffFF00001+"}, 1)
             -- BF
-            br.ui:createSpinner(section,  "Blade Flurry", 3, 0, 5, 1)
+            br.ui:createSpinnerWithout(section, "Blade Flurry Timer", 3, 0, 5, 1)
         br.ui:checkSectionState(section)
         -------------------------
         --- DEFENSIVE OPTIONS ---
@@ -110,7 +108,7 @@ local function createOptions()
             -- Riposte
             br.ui:createSpinner(section, "Riposte",  50,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
             -- Cloak with KS
-             br.ui:createCheckbox(section, "Cloak Killing Spree")
+            br.ui:createCheckbox(section, "Cloak Killing Spree")
         br.ui:checkSectionState(section)
         -------------------------
         --- INTERRUPT OPTIONS ---
@@ -142,7 +140,7 @@ local function createOptions()
             -- Interrupts Key Toggle
             br.ui:createDropdown(section,  "Interrupt Mode", br.dropOptions.Toggle,  6)
             -- Cleave Toggle
-            br.ui:createDropdown(section,  "Cleave Mode", br.dropOptions.Toggle,  6)
+            br.ui:createDropdown(section,  "BladeFlurry Mode", br.dropOptions.Toggle,  6)
             -- Pick Pocket Toggle
             br.ui:createDropdown(section,  "Pick Pocket Mode", br.dropOptions.Toggle,  6)
             -- Pause Toggle
@@ -171,8 +169,8 @@ local function runRotation()
         UpdateToggle("Cooldown",0.25)
         UpdateToggle("Defensive",0.25)
         UpdateToggle("Interrupt",0.25)
-        UpdateToggle("Cleave",0.25)
-        br.player.mode.cleave = br.data.settings[br.selectedSpec].toggles["Cleave"]
+        UpdateToggle("BladeFlurry",0.25)
+        br.player.mode.cleave = br.data.settings[br.selectedSpec].toggles["BladeFlurry"]
         UpdateToggle("Picker",0.25)
         br.player.mode.pickPocket = br.data.settings[br.selectedSpec].toggles["Picker"]
 
@@ -180,45 +178,36 @@ local function runRotation()
 --- Locals ---
 --------------
         if profileStop == nil then profileStop = false end
-        local addsIn                                        = 999
-        local artifact                                      = br.player.artifact
         local attacktar                                     = UnitCanAttack("target","player")
         local buff                                          = br.player.buff
         local cast                                          = br.player.cast
-        local castable                                      = br.player.cast.debug
         local cd                                            = br.player.cd
-        local charge                                        = br.player.charges
         local combo, comboDeficit, comboMax                 = br.player.power.amount.comboPoints, br.player.power.comboPoints.deficit, br.player.power.comboPoints.max
         local cTime                                         = getCombatTime()
-        local deadtar                                       = UnitIsDeadOrGhost("target")
         local debuff                                        = br.player.debuff
         local enemies                                       = enemies or {}
-        local flaskBuff, canFlask                           = getBuffRemain("player",br.player.flask.wod.buff.agilityBig), canUse(br.player.flask.wod.agilityBig)
         local gcd                                           = br.player.gcd
-        local glyph                                         = br.player.glyph
         local hastar                                        = GetObjectExists("target")
         local healPot                                       = getHealthPot()
         local inCombat                                      = br.player.inCombat
         local lastSpell                                     = lastSpellCast
         local level                                         = br.player.level
         local mode                                          = br.player.mode
-        local multidot                                      = (br.player.mode.cleave == 1 or br.player.mode.rotation ~= 3)
-        local perk                                          = br.player.perk
         local php                                           = br.player.health
         local power, powerDeficit, powerRegen               = br.player.power.amount.energy, br.player.power.energy.deficit, br.player.power.regen
-        local pullTimer                                     = br.DBM:getPulltimer()
-        local rtbCount                                      = br.rtbCount
+        local race                                          = br.player.race
+        local racial                                        = br.player.getRacial()
         local solo                                          = #br.friend < 2
         local spell                                         = br.player.spell
         local stealth                                       = br.player.buff.stealth.exists()
-        local stealthing                                    = br.player.buff.stealth.exists() or br.player.buff.vanish.exists() or br.player.buff.shadowmeld.exists()
+        local stealthingAll                                 = br.player.buff.stealth.exists() or br.player.buff.vanish.exists() or br.player.buff.shadowmeld.exists()
+        local stealthingRogue                               = br.player.buff.stealth.exists() or br.player.buff.vanish.exists()
+        local stealthingMantle                              = br.player.buff.stealth.exists() or br.player.buff.vanish.exists()
         local talent                                        = br.player.talent
-        local time                                          = getCombatTime()
         local ttd                                           = getTTD
         local ttm                                           = br.player.power.ttm
         local units                                         = units or {}
         local lootDelay                                     = getOptionValue("LootDelay")
-        local rtbReroll                                     = true
 
         units.dyn5 = br.player.units(5)
         units.dyn30 = br.player.units(30)
@@ -229,21 +218,7 @@ local function runRotation()
 
         if talent.acrobaticStikes then rangeMod = 3 else rangeMod = 0 end
         if leftCombat == nil then leftCombat = GetTime() end
-        if talent.deeperStrategem then dStrat = 1 else dStrat = 0 end
-        if talent.quickDraw then qDraw = 1 else qDraw = 0 end
-        if talent.ghostlyStrike and not debuff.ghostlyStrike.exists(units.dyn5) then gsBuff = 1 else gsBuff = 0 end
-        if buff.broadsides.exists() then broadUp = 1 else broadUp = 0 end
-        if buff.broadsides.exists() or buff.jollyRoger.exists() then broadRoger = 1 else broadRoger = 0 end
-        if talent.alacrity and buff.alacrity.stack() <= 4 then lowAlacrity = 1 else lowAlacrity = 0 end
-        if talent.anticipation then antital = 1 else antital = 0 end
-        if cd.deathFromAbove == 0 then dfaCooldown = 1 else dfaCooldown = 0 end
         if vanishTime == nil then vanishTime = GetTime() end
-        if buff.hiddenBlade.exists() then hBss = 1 else hBss = 0 end
-        if IsUsableSpell(GetSpellInfo(202895)) == true then BlunderbussActive = true else BlunderbussActive = false end
-
-        ------------------------------------------
-        --------------Roll the Bones--------------
-        ------------------------------------------
 
         if buff.rollTheBones == nil then buff.rollTheBones = {} end
         buff.rollTheBones.count    = 0
@@ -257,59 +232,44 @@ local function runRotation()
             end
         end
 
-        if getOptionValue("RTB") == 1 then
-            if not talent.sliceAndDice and (buff.rollTheBones.count >= 3 or buff.trueBearing.exists()) then
-                rtbReroll = false
+        local function rtbReroll()
+            if getOptionValue("RTB") == 1 then
+                if not talent.sliceAndDice and (buff.rollTheBones.count >= 3 or buff.trueBearing.exists()) then
+                    return false
+                else
+                    return true
+                end
+
+            elseif getOptionValue("RTB") == 2 then
+                if not talent.sliceAndDice and (buff.rollTheBones.count >= 2  or buff.trueBearing.exists() or (buff.sharkInfestedWaters.exists() and (buff.adrenalineRush.exists() or debuff.curseOfTheDreadblades.exists("player")))) then
+                    return false
+                else
+                    return true
+                end
+
+            elseif getOptionValue("RTB") == 3 then
+                if not talent.sliceAndDice and buff.rollTheBones.count >= 1 then
+                    return false
+                 else
+                    return true
+                end
+            end
+        end
+
+        local function ssUsableNoReroll()
+            if combo < 5 + (talent.deeperStrategem and 1 or 0) - ((buff.broadsides.exists() or buff.jollyRoger.exists()) and 1 or 0) - ((talent.alacrity and buff.alacrity.stack() <= 4) and 1 or 0) then
+                return true
             else
-                rtbReroll = true
+                return false
             end
         end
 
-        if getOptionValue("RTB") == 2 then
-            if not talent.sliceAndDice and (buff.rollTheBones.count >= 2  or buff.trueBearing.exists() or (buff.sharkInfestedWaters.exists() and (buff.adrenalineRush.exists() or debuff.curseOfTheDreadblades.exists("player")))) then
-                rtbReroll = false
+        local function ssUsable()
+            if ((talent.anticipation and combo < 4) or (not talent.anticipation and ((rtbReroll() and combo < 4 + (talent.deeperStrategem and 1 or 0)) or (not rtbReroll() and ssUsableNoReroll())))) then
+                return true
             else
-                rtbReroll = true
+                return false
             end
-        end
-
-        if getOptionValue("RTB") == 3 then
-            if not talent.sliceAndDice and buff.rollTheBones.count >= 1 then
-                rtbReroll = false
-             else
-                rtbReroll = true
-            end
-        end
-
-        -----------------------------------------
-        -----------------RTB End-----------------
-        -----------------------------------------
-
-        -- ss_useable_noreroll,value=(combo_points<5+talent.deeper_stratagem.enabled-(buff.broadsides.up|buff.jolly_roger.up)-(talent.alacrity.enabled&buff.alacrity.stack<=4))
-        if combo < 5 + dStrat - broadRoger - lowAlacrity - hBss then
-            ssUsableNoreroll = true
-        else
-            ssUsableNoreroll = false
-        end
-        -- ss_useable,value=(talent.anticipation.enabled&combo_points<4)|(!talent.anticipation.enabled&((variable.rtb_reroll&combo_points<4+talent.deeper_stratagem.enabled)|(!variable.rtb_reroll&variable.ss_useable_noreroll)))
-        if (talent.anticipation and combo < 4) or (not talent.anticipation and ((rtbReroll and combo < 4 + dStrat) or (not rtbReroll and ssUsableNoreroll))) then
-            ssUsable = true
-        else
-            ssUsable = false
-        end
-
-        if buff.trueBearing.exists() and cd.markedForDeath > 1 and not cd.markedForDeath == 0 and cd.markedForDeath <= combo*2 and not debuff.curseOfTheDreadblades.exists("player") and lastSpell~=1856 then
-            clearMFD = true
-        else
-            clearMFD = false
-        end
-
-        -- stealth_condition,value=(combo_points.deficit>=2+2*(talent.ghostly_strike.enabled&!debuff.ghostly_strike.up)+buff.broadsides.up&energy>60&!buff.jolly_roger.up&!buff.hidden_blade.up&!buff.curse_of_the_dreadblades.up)
-        if (comboDeficit >= 2 + (2 * gsBuff) + broadUp) and power > 58 and not buff.jollyRoger.exists() and not buff.hiddenBlade.exists() and not debuff.curseOfTheDreadblades.exists("player") and not buff.stealth.exists() and not solo and isChecked("Vanish") and useCDs() and cd.vanish == 0 then
-        --if (not solo or isDummy("target")) and inCombat and cd.vanish == 0 and not rtbReroll and ((comboDeficit >= 2 + 2 * gsBuff + broadUp) and power > 58 and (not buff.jollyRoger.exists() or buff.trueBearing.exists()) and not buff.hiddenBlade.exists() and not debuff.curseOfTheDreadblades["player"].exists()) then
-            stealthable = true
-        else
-            stealthable = false
         end
 
         -- Custom Functions
@@ -355,11 +315,11 @@ local function runRotation()
                 end
             end
     -- Pistol Shot
-            if isChecked("Pistol Shot out of range") and isValidUnit("target") and power >= getOptionValue("Pistol Shot out of range") and (combo < comboMax or ttm <= 1.5) and (inCombat and getDistance("target") > 7) and not stealthing then
+            if isChecked("Pistol Shot out of range") and isValidUnit("target") and power >= getOptionValue("Pistol Shot out of range") and (combo < comboMax or ttm <= 1.5) and (inCombat and getDistance("target") > 7) and not stealth then
                 if cast.pistolShot("target") then return end
             end
         end -- End Action List - Extras
-    -- Action List - Defensives
+    -- Action List - DefensiveModes
         local function actionList_Defensive()
             if useDefensive() and not stealth then
             -- Health Pot/Healthstone
@@ -386,9 +346,6 @@ local function runRotation()
                 end
             end
         end -- End Action List - Defensive
-    -- Mythic Dungeon Logic
-        --[[local function actionList_MythicDungeon()
-        end]]
     -- Action List - Interrupts
         local function actionList_Interrupts()
             if useInterrupts() and not stealth then
@@ -431,16 +388,21 @@ local function runRotation()
     -- Action List - Blade Flurry
         local function actionList_BladeFlurry()
         -- Blade Flurry
-            if #getEnemies("player",7) < 2 and buff.bladeFlurry.exists() then
-                -- if cast.bladeFlurry() then return end
-                if not delayBladeFlurry or delayBladeFlurry == 0 then
-                    delayBladeFlurry = GetTime() + getOptionValue("Blade Flurry")
-                elseif delayBladeFlurry < GetTime() then
+            if buff.bladeFlurry.exists() then
+                if #getEnemies("player",7) < 2 and buff.bladeFlurry.exists() then
+                    -- if cast.bladeFlurry() then return end
+                    if not delayBladeFlurry or delayBladeFlurry == 0 then
+                        delayBladeFlurry = GetTime() + getOptionValue("Blade Flurry Timer")
+                    elseif delayBladeFlurry < GetTime() then
+                        CastSpellByName(GetSpellInfo(spell.bladeFlurry),"player");
+                    end
+                end
+                if ((#getEnemies("player",7) >= 2 and buff.bladeFlurry.exists()) or (#getEnemies("player",7) < 2 and not buff.bladeFlurry.exists())) and delayBladeFlurry then
+                    delayBladeFlurry = 0
+                end
+                if hasEquiped(141321) and cd.bladeFlurry == 0 and #getEnemies("player",7) >= 2 then
                     CastSpellByName(GetSpellInfo(spell.bladeFlurry),"player");
                 end
-            end
-            if ((#getEnemies("player",7) >=2 and buff.bladeFlurry.exists()) or (#getEnemies("player",7) < 2 and not buff.bladeFlurry.exists())) and delayBladeFlurry then
-                delayBladeFlurry = 0
             end
             -- blade_flurry,if=spell_targets.blade_flurry>=2&!buff.blade_flurry.up
             if #getEnemies("player",7) >= 2 and not buff.bladeFlurry.exists() then
@@ -449,74 +411,72 @@ local function runRotation()
         end
     -- Action List - Cooldowns
         local function actionList_Cooldowns()
-            if useCDs() and getDistance("target") <= 6 and attacktar and inCombat then
         -- Trinkets
-                if isChecked("Trinkets") then
-                    if hasBloodLust() or ttd("target") <= 20 or comboDeficit <= 2 then
-                        if canUse(13) then
-                            useItem(13)
-                        end
-                        if canUse(14) then
-                            useItem(14)
-                        end
+            if isChecked("Trinkets") then
+                if hasBloodLust() or ttd("target") <= 20 or comboDeficit <= 2 then
+                    if canUse(13) then
+                        useItem(13)
+                    end
+                    if canUse(14) then
+                        useItem(14)
                     end
                 end
-        -- Pots
-                if isChecked("Agi-Pot") then
-                    if ttd("target") <= 25 or buff.adrenalineRush.exists() or hasBloodLust() then
-                        if canUse(127844) and inRaid then
-                                useItem(127844)
-                        end
-                        else
-                        if canUse(142117) and inRaid then
-                               useItem(142117)
-                        end
+            end
+    -- Pots
+            if isChecked("Agi-Pot") then
+                if ttd("target") <= 25 or buff.adrenalineRush.exists() or hasBloodLust() then
+                    if canUse(127844) and inRaid then
+                        useItem(127844)
+                    end
+                    else
+                    if canUse(142117) and inRaid then
+                        useItem(142117)
                     end
                 end
-        -- Cannonball Barrage
-                -- cannonball_barrage,if=spell_targets.cannonball_barrage>=1
-                if #enemies.yards8 >= getOptionValue("Cannonball Barrage") and isChecked("Cannonball Barrage") then
-                    if cast.cannonballBarrage("best",false,#enemies.yards8,8) then return end
+            end
+    -- Non-NE Racial
+            --blood_fury
+            --berserking
+            --arcane_torrent,if=energy.deficit>40
+            if isChecked("Racial") and (race == "Orc" or race == "Troll" or (race == "BloodElf" and powerDeficit > 40)) then
+                if castSpell("player",racial,false,false,false) then return end
+            end
+    -- Cannonball Barrage
+            -- cannonball_barrage,if=spell_targets.cannonball_barrage>=1
+            if #enemies.yards8 >= getOptionValue("Cannonball Barrage") and isChecked("Cannonball Barrage") then
+                if cast.cannonballBarrage("best",false,#enemies.yards8,8) then return end
+            end
+    -- Adrenaline Rush
+            -- adrenaline_rush,if=!buff.adrenaline_rush.up&energy.deficit>0
+            if not buff.adrenalineRush.exists() and powerDeficit > 0 and ttm >= cd.global then
+                if cast.adrenalineRush() then return end
+            end
+    -- Sprint
+            -- sprint,if=equipped.thraxis_tricksy_treads&!variable.ss_useable
+            if isChecked("Legendary Boots Logic") and hasEquiped(137031) and not ssUsable() then
+                if cast.sprint() then return end
+                -- darkflight,if=equipped.thraxis_tricksy_treads&!variable.ss_useable&buff.sprint.down
+                if race == "Worgen" and not buff.sprint.exists() then
+                    if castSpell("player",racial,false,false,false) then return end
                 end
-        -- Adrenaline Rush
-                -- adrenaline_rush,if=!buff.adrenaline_rush.up&energy.deficit>0
-                if not buff.adrenalineRush.exists() and powerDeficit > 0 and cd.saberSlash == 0 then
-                    if cast.adrenalineRush() then return end
+            end
+    -- Curse of the Dreadblades
+            -- curse_of_the_dreadblades,if=combo_points.deficit>=4&(!talent.ghostly_strike.enabled|debuff.ghostly_strike.up)
+            if isChecked("Artifact") and (cd.saberSlash == 0 or cd.pistolShot == 0) then
+                if comboDeficit >= 4 and (power >= 48 or buff.opportunity.exists()) and (not talent.ghostlyStrike or debuff.ghostlyStrike.exists(units.dyn5)) then
+                    if cast.curseOfTheDreadblades() then return end
                 end
-        -- Sprint
-                -- sprint,if=equipped.thraxis_tricksy_treads&!variable.ss_useable
-                if isChecked("Sprint with Legendary Boots") and hasEquiped(137031) and not ssUsable then
-                    if cast.sprint() then return end
-                end
-        -- Curse of the Dreadblades
-                -- curse_of_the_dreadblades,if=combo_points.deficit>=4&(!talent.ghostly_strike.enabled|debuff.ghostly_strike.up)
-                if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()) and (cd.saberSlash == 0 or cd.pistolShot == 0) then
-                    if comboDeficit >= 4 and (power >= 48 or buff.opportunity.exists()) and (not talent.ghostlyStrike or debuff.ghostlyStrike.exists(units.dyn5)) then
-                        if cast.curseOfTheDreadblades() then return end
-                    end
-                end
-            end -- End Cooldown Usage Check
+            end
         end -- End Action List - Cooldowns
     -- Action List - PreCombat
         local function actionList_PreCombat()
         -- Stealth
-            -- stealth
-            --[[if isChecked("Stealth") and (not IsResting() or isDummy("target")) then
-                if getOptionValue("Stealth") == 1 then
-                    if cast.stealth() then return end
-                end
-                if getOptionValue("Stealth") == 2 then
-                    for i=1, #enemies.yards20 do
-                        local thisUnit = enemies.yards20
-                        if getDistance(thisUnit) < 20 then
-                            if GetObjectExists(thisUnit) and UnitCanAttack(thisUnit,"player") and GetTime()-leftCombat > lootDelay then
-                                if cast.stealth() then return end
-                            end
-                        end
+            if not inCombat and not stealth then
+                if isChecked("Stealth") and (not IsResting() or isDummy("target")) then
+                    if getOptionValue("Stealth") == 1 then
+                        if cast.stealth() then return end
                     end
-                end
-            end]]
-            if not stealth and #enemies.yards20 > 0 and getOptionValue("Stealth") == 3 and not IsResting() and GetTime()-leftCombat > lootDelay then
+                    if #enemies.yards20 > 0 and getOptionValue("Stealth") == 2 and not IsResting() and GetTime()-leftCombat > lootDelay then
                         for i = 1, #enemies.yards20 do
                             local thisUnit = enemies.yards20[i]
                             if UnitIsEnemy(thisUnit,"player") or isDummy("target") then
@@ -524,22 +484,24 @@ local function runRotation()
                             end
                         end
                     end
+                end
+            end
         -- Marked for Death
             -- marked_for_death
-            if isChecked("Marked For Death - Precombat") and getDistance("target") < 30 and isValidUnit("target") then
+            if isChecked("Marked For Death - Precombat") and getDistance("target") < 15 and isValidUnit("target") then
                 if cast.markedForDeath("target") then return end
             end
         -- Roll The Bones
             -- roll_the_bones,if=!talent.slice_and_dice.enabled
-            if isChecked("RTB Prepull") and not talent.sliceAndDice and not buff.rollTheBones.count == 0 and isValidUnit("target") and getDistance("target") <= 5 then
+            if isChecked("RTB Prepull") and not talent.sliceAndDice and buff.rollTheBones.count == 0 and isValidUnit("target") and getDistance("target") <= 10 then
                 if cast.rollTheBones() then return end
             end
         end -- End Action List - PreCombat
     -- Action List - Finishers
         local function actionList_Finishers()
         -- Between the Eyes
-            -- between_the_eyes,if=equipped.greenskins_waterlogged_wristcuffs&!buff.greenskins_waterlogged_wristcuffs.up
-            if hasEquiped(137099) and not buff.greenskinsWaterloggedWristcuffs.exists() then
+            -- between_the_eyes,if=(mantle_duration>=gcd.remains+0.2&!equipped.thraxis_tricksy_treads)|(equipped.greenskins_waterlogged_wristcuffs&!buff.greenskins_waterlogged_wristcuffs.up)
+            if (mantleDuration() >= cd.global + 0.2 and not hasEquiped(137031)) or (hasEquiped(137099) and not buff.greenskinsWaterloggedWristcuffs.exists()) then
                 if cast.betweenTheEyes() then return end
             end
         -- Run Through
@@ -551,70 +513,70 @@ local function runRotation()
     -- Action List - Build
         local function actionList_Build()
         -- Ghostly Strike
-            -- ghostly_strike,if=combo_points.deficit>=1+buff.broadsides.up&!buff.curse_of_the_dreadblades.up&
-            --(debuff.ghostly_strike.remain()s<debuff.ghostly_strike.duration*0.3|(cooldown.curse_of_the_dreadblades.remain()s<3&debuff.ghostly_strike.remain()s<14))&(combo_points>=3|(variable.rtb_reroll&time>=10))
-            if comboDeficit >= (1 + broadUp) and not debuff.curseOfTheDreadblades.exists("player") and ((not debuff.ghostlyStrike.exists() or debuff.ghostlyStrike.refresh())
-                or (cd.curseOfTheDreadblades < 3 and debuff.ghostlyStrike.remain() < 14 and useCDs())) and (combo >= 3 or (rtbReroll and (cTime >= 10 or solo)))
-            then
+            -- ghostly_strike,if=combo_points.deficit>=1+buff.broadsides.up&!buff.curse_of_the_dreadblades.up&(debuff.ghostly_strike.remains<debuff.ghostly_strike.duration*0.3|(cooldown.curse_of_the_dreadblades.remains<3&debuff.ghostly_strike.remains<14))&(combo_points>=3|(variable.rtb_reroll&time>=10))
+            if comboDeficit >= 1 + (buff.broadsides.exists() and 1 or 0) and not debuff.curseOfTheDreadblades.exists("player") and (debuff.ghostlyStrike.refresh("target") or (useCDs() and isChecked("Artifact") and cd.curseOfTheDreadblades < 3 and debuff.ghostlyStrike.remain("target") < 14)) and 
+              (combo >= 3 or (rtbReroll() and cTime >= 10)) then
                 if cast.ghostlyStrike("target") then return end
             end
         -- Pistol Shot
             -- pistol_shot,if=combo_points.deficit>=1+buff.broadsides.up&buff.opportunity.up&(energy.time_to_max>2-talent.quick_draw.enabled|(buff.blunderbuss.up&buff.greenskins_waterlogged_wristcuffs.up))
-            if comboDeficit >= (1 + broadUp) and buff.opportunity.exists() and ((ttm > 2 - qDraw) or (buff.adrenalineRush.exists() and ttm > 1.5) or (BlunderbussActive and buff.greenskinsWaterloggedWristcuffs.exists())) and not stealthing then
+            if comboDeficit >= 1 + (buff.broadsides.exists() and 1 or 0) and buff.opportunity.exists() and ((ttm > 2 - (talent.quickDraw and 1 or 0)) or (buff.adrenalineRush.exists() and ttm > 1.5) or (IsUsableSpell(GetSpellInfo(202895)) and buff.greenskinsWaterloggedWristcuffs.exists())) then
                 if cast.pistolShot("target") then return end
             end
         -- Saber Slash
             -- saber_slash
-            if ssUsable then
+            if ssUsable() then
                 if cast.saberSlash() then return end
             end
         end -- End Action List - Build
-    -- Action List - Stealth
-        local function actionList_Stealth()
-        -- Ambush/Cheap Shot
-            -- ambush
-            if isChecked("Opener") and isValidUnit("target") and getDistance("target") <= 5 and stealthing and (canPickpocket == false or inRaid or isDummy) then
-                if getOptionValue("Opener") == 1 then
-                    if power <= 60 then
-                        return true
-                    else
-                        if cast.ambush() then return end
-                    end
-                elseif getOptionValue("Opener") == 2 then
-                        if power <= 40 then
-                            return true
-                        else
-                            if cast.cheapShot() then return end
-                    end
-                else if getOptionValue("Opener") == 3 then
-                        if power <= 50 then
-                            return true
-                        else
-                            if cast.saberSlash() then return end
-                        end
-                    end
+    -- Action List - Opener
+        local function actionList_Opener()            
+        -- Opener
+            if not inCombat and getDistance("target") <= 5 then
+                if combo >= 5 then
+                    if cast.runThrough() then return end
+                elseif stealthingAll then
+                    if cast.ambush() then return end
+                else
+                    if cast.saberSlash() then return end
                 end
             end
-        -- Vanish
-            -- vanish,if=variable.stealth_condition
-            if isChecked("Vanish") and (stealthable or (hasEquiped(144236) and buff.trueBearing.exists())) and isValidUnit("target") and getDistance("target") <= 5 then
-                if cast.vanish() then vanishTime = GetTime(); return end
+        end
+    -- Action List - Stealth
+        local function actionList_Stealth()
+            --ambush_condition,value=combo_points.deficit>=2+2*(talent.ghostly_strike.enabled&!debuff.ghostly_strike.up)+buff.broadsides.up&energy>60&!buff.jolly_roger.up&!buff.hidden_blade.up&!buff.curse_of_the_dreadblades.up
+            local function ambushCondition()
+                if combo >= 2 + 2 * ((talent.ghostlyStrike and not debuff.ghostlyStrike.exists("target")) and 1 or 0) + (buff.broadsides.exists() and 1 or 0) and
+                    power > 60 and not buff.jollyRoger.exists() and not buff.hiddenBlade.exists() and not debuff.curseOfTheDreadblades.exists("player") then
+                    return true
+                else
+                    return false
+                end
             end
+        -- Ambush
+            --ambush,if=variable.ambush_condition
+            if stealthingAll and ambushCondition() then
+                if cast.ambush() then return end
+            else
+        -- Vanish
+                -- vanish,if=variable.ambush_condition|(equipped.mantle_of_the_master_assassin&mantle_duration=0&!variable.rtb_reroll&!variable.ss_useable)
+                if isChecked("Vanish") and (ambushCondition() or (hasEquiped(144236) and mantleDuration() == 0 and not rtbReroll() and not ssUsable())) and isValidUnit("target") and getDistance("target") <= 5 then
+                    if cast.vanish() then vanishTime = GetTime(); return end
+                end
         -- Shadowmeld
-            -- shadowmeld,if=variable.stealth_condition
-            if isChecked("Use Racial") and br.player.race == "NightElf" and stealthable and inCombat and isValidUnit(units.dyn5)
-                and getDistance(units.dyn5) < 5 and not buff.vanish.exists() and cd.vanish ~= 0 and not moving then
-                if cast.shadowmeld() then return end
+                -- shadowmeld,if=variable.ambush_condition
+                if isChecked("Racial") and race == "NightElf" and ambushCondition() and isValidUnit(units.dyn5) and getDistance("target") <= 5 and not moving then
+                    if cast.shadowmeld() then vanishTime = GetTime(); return end
+                end
             end
         end
 ---------------------
 --- Begin Profile ---
 ---------------------
     --Profile Stop | Pause
-        if not inCombat and not hastar and profileStop == true then
+        if not inCombat and not hastar and profileStop==true then
             profileStop = false
-        elseif (inCombat and profileStop == true) or pause() or (IsMounted() or IsFlying()) or mode.rotation == 4 then
-            if inCombat and mode.rotation == 4 then StopAttack() end
+        elseif (inCombat and profileStop == true) or pause() or (IsMounted() or IsFlying()) or mode.rotation == 2 then
             return true
         else
 -----------------------
@@ -628,114 +590,119 @@ local function runRotation()
 ------------------------------
 --- Out of Combat Rotation ---
 ------------------------------
-            if (not inCombat or buff.stealth.exists()) then
+            if not inCombat or stealth then
                 if actionList_PreCombat() then return end
             end
+----------------------------
+--- Out of Combat Opener ---
+----------------------------
+            if not inCombat and isChecked("Opener") and isValidUnit(units.dyn5) then
+                if actionList_Opener() then return end
+            else
 --------------------------
 --- In Combat Rotation ---
 --------------------------
-            if profileStop==false then
-               -- if UnitIsDeadOrGhost("target") then ClearTarget(); end
-                if not stealthing or level < 5 then
+                if profileStop==false then
+                    if not stealthingAll or level < 5 then
 ------------------------------
 --- In Combat - Interrupts ---
 ------------------------------
-                    --if actionList_MythicDungeon() then return end
-
-                    if actionList_Interrupts() then return end
+                        if actionList_Interrupts() then return end
 --------------------------------
 --- In Combat - Blade Flurry ---
 --------------------------------
-                    if actionList_BladeFlurry() then return end
+                        if actionList_BladeFlurry() then return end
 -----------------------------
 --- In Combat - Cooldowns ---
 -----------------------------
-                    if actionList_Cooldowns() then return end
-                end
+                        if useCDs() and getDistance("target") <= 6 and attacktar then
+                            if actionList_Cooldowns() then return end
+                        end
+                    end
 ---------------------------
 --- In Combat - Stealth ---
 ---------------------------
-                if --[[getDistance(units.dyn5) <= 5 and isValidUnit(units.dyn5) inCombat and]] isValidUnit(units.dyn5) then
-                    -- call_action_list,name=stealth,if=stealthed|cooldown.vanish.up|cooldown.shadowmeld.up
-                    if stealthing or cd.vanish == 0 or cd.shadowmeld == 0 then
-                        if actionList_Stealth() then return end
-                    end
+                    if isValidUnit(units.dyn5) then
+                        -- call_action_list,name=stealth,if=stealthed.rogue|cooldown.vanish.up|cooldown.shadowmeld.up
+                        if (stealthingAll or cd.vanish == 0 or cd.shadowmeld == 0) and not solo then
+                            if actionList_Stealth() then return end
+                        end
 ----------------------------------
 --- In Combat - Begin Rotation ---
 ----------------------------------
                     -- if not buff.stealth and not buff.vanish and not buff.shadowmeld and GetTime() > vanishTime + 2 and getDistance(units.dyn5) < 5 then
-                    if not stealthing and inCombat then
-                        StartAttack()
-        -- Marked for Death
-                        if isChecked("Marked For Death") then
-                            if getOptionValue("Marked For Death") == 2 then
-                                for i = 1, #enemies.yards30 do
-                                    local thisUnit = enemies.yards30[i]
-                                    if comboDeficit >= 6 then comboDeficit = (5 + dStrat) end
-                                    if ttd(thisUnit) > 0 and ttd(thisUnit) <= 100 then
-                                        if ttd(thisUnit) < comboDeficit*1.2 then
-                                            if cast.markedForDeath(thisUnit) then return end
+                        if not stealthingAll then
+                            StartAttack()
+                    -- Marked for Death
+                            if isChecked("Marked For Death") then
+                                if getOptionValue("Marked For Death") == 1 and getDistance("target") <= 5 then                                    
+                                    if comboDeficit >= ComboMaxSpend() - 1 then
+                                        if cast.markedForDeath("target") then return end
+                                    end
+                                elseif getOptionValue("Marked For Death") == 2 then
+                                    for i = 1, #enemies.yards30 do
+                                        local thisUnit = enemies.yards30[i]
+                                        if comboDeficit >= 6 then comboDeficit = ComboMaxSpend() end
+                                        if ttd(thisUnit) > 0 and ttd(thisUnit) <= 100 then
+                                            if ttd(thisUnit) < comboDeficit*1.2 then
+                                                if cast.markedForDeath(thisUnit) then return end
+                                            end
                                         end
                                     end
                                 end
                             end
-                        end
-
-                -- Marked For Death
-                        if isChecked("Marked For Death") then
-                            if getOptionValue("Marked For Death") == 1 and getDistance("target") <= 5 then
-                                -- marked_for_death,if=combo_points.deficit>=4+talent.deeper_strategem.enabled+talent.anticipation.enabled
-                                if comboDeficit >= 4 + dStrat + antital then
-                                    if cast.markedForDeath("target") then return end
+            -- Death from Above
+                            -- death_from_above,if=energy.time_to_max>2&!variable.ss_useable_noreroll
+                            if ttm > 2 and not ssUsableNoReroll() then
+                                if cast.deathFromAbove() then return end
+                            end
+                            if not ssUsable() then
+                                if talent.sliceAndDice then
+            -- Slice and Dice
+                                    -- slice_and_dice,if=!variable.ss_useable&buff.slice_and_dice.remains<target.time_to_die&buff.slice_and_dice.remains<(1+combo_points)*1.8
+                                    if (buff.sliceAndDice.remain() < ttd("target") or not buff.sliceAndDice.exists()) and buff.sliceAndDice.remain() < (1 + combo) * 1.8 then
+                                        if cast.sliceAndDice() then return end
+                                    end
+                                elseif isChecked("RTB") then
+            -- Roll the Bones
+                                    -- roll_the_bones,if=!variable.ss_useable&(target.time_to_die>20|buff.roll_the_bones.remains<target.time_to_die)&(buff.roll_the_bones.remains<=3|variable.rtb_reroll)
+                                    if (ttd("target") > 20 or buff.rollTheBones.remain < ttd("target") or buff.rollTheBones.remain == 0) and (buff.rollTheBones.remain <= 3 or rtbReroll()) then
+                                        if cast.rollTheBones() then return end
+                                    end
                                 end
                             end
-                        end
-        -- Death from Above
-                        -- death_from_above,if=energy.time_to_max>2&!variable.ss_useable_noreroll
-                        if ttm > 2 and not ssUsableNoreroll then
-                            if cast.deathFromAbove() then return end
-                        end
-        -- Slice and Dice
-                        -- slice_and_dice,if=!variable.ss_useable&buff.slice_and_dice.remain()s<target.time_to_die&buff.slice_and_dice.remain()s<(1+combo_points)*1.8
-                        if not ssUsable and buff.sliceAndDice.remain() < ttd(units.dyn5) and buff.sliceAndDice.remain() < (1 + combo) * 1.8 then
-                            if cast.sliceAndDice() then return end
-                        end
-        -- Roll the Bones
-                        -- roll_the_bones,if=!variable.ss_useable&buff.roll_the_bones.remain()s<target.time_to_die&(buff.roll_the_bones.remain()s<=3|variable.rtb_reroll)
-                        if isChecked("RTB") and not ssUsable and buff.rollTheBones.remain < ttd("target") and (buff.rollTheBones.remain <= 3 or rtbReroll) and not talent.sliceAndDice then
-                            if cast.rollTheBones() then return end
-                        end
-        -- Killing Spree
-                        -- killing_spree,if=energy.time_to_max>5|energy<15
-                        if useCDs() and isChecked("Killing Spree") and (ttm > 5 or power < 15) then
-                            if isChecked("Cloak Killing Spree") and cd.cloakOfShadows == 0 then
-                                if cast.cloakOfShadows then end
+            -- Killing Spree
+                            -- killing_spree,if=energy.time_to_max>5|energy<15
+                            if useCDs() and talent.killingSpree and isChecked("Killing Spree") and (ttm > 5 or power < 15) then
+                                if isChecked("Cloak Killing Spree") and cd.killingSpree == 0 then
+                                    if cast.cloakOfShadows() then cast.killingSpree(); return end
+                                end
+                                if cast.killingSpree() then return end
                             end
-                            if cast.killingSpree() then return end
-                        end
-        -- Build
-                        -- call_action_list,name=build
-                        if GetTime() > vanishTime + 1 then
-                            if actionList_Build() then return end
-                        end
-        -- Finishers
-                        -- call_action_list,name=finish,if=!variable.ss_useable
-                        if not ssUsable or clearMFD then
-                            if actionList_Finishers() then return end
-                        end
-        -- Gouge
-                        -- gouge,if=talent.dirty_tricks.enabled&combo_points.deficit>=1
-                        if talent.dirtyTricks and comboDeficit >= 1 and not debuff.curseOfTheDreadblades.exists("player") then
-                            for i = 1, #enemies.yards5 do
-                                local thisUnit = enemies.yards5[i]
-                                if not isBoss(thisUnit) and getFacing(thisUnit,"player") then
-                                    if cast.gouge(thisUnit) then return end
+            -- Build
+                            -- call_action_list,name=build
+                            if GetTime() >= vanishTime + 1 then
+                                if actionList_Build() then return end
+                            end
+            -- Finishers
+                            -- call_action_list,name=finish,if=!variable.ss_useable
+                            if not ssUsable() then
+                                if actionList_Finishers() then return end
+                            end
+            -- Gouge
+                            -- gouge,if=talent.dirty_tricks.enabled&combo_points.deficit>=1
+                            if talent.dirtyTricks and comboDeficit >= 1 and not debuff.curseOfTheDreadblades.exists("player") then
+                                for i = 1, #enemies.yards5 do
+                                    local thisUnit = enemies.yards5[i]
+                                    if not isBoss(thisUnit) and getFacing(thisUnit,"player") then
+                                        if cast.gouge(thisUnit) then return end
+                                    end
                                 end
                             end
                         end
                     end
-                end
-            end -- End In Combat
+                end -- End In Combat
+            end
         end -- End Profile
 end -- runRotation
 local id = 260
