@@ -6,7 +6,7 @@ local rotationName = "Vilt"
 local function createToggles()
 -- Rotation Button
     RotationModes = {
-        [1] = { mode = "On", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range.", highlight = 1, icon = br.player.spell.runThrough},
+        [1] = { mode = "On", value = 1 , overlay = "DPS Rotation Enabled", tip = "Enable DPS Rotation", highlight = 1, icon = br.player.spell.runThrough},
         [2] = { mode = "Off", value = 2 , overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spell.crimsonVial}
     };
     CreateButton("Rotation",1,0)
@@ -560,13 +560,13 @@ local function runRotation()
             else
         -- Vanish
                 -- vanish,if=variable.ambush_condition|(equipped.mantle_of_the_master_assassin&mantle_duration=0&!variable.rtb_reroll&!variable.ss_useable)
-                if isChecked("Vanish") and (ambushCondition() or (hasEquiped(144236) and mantleDuration() == 0 and not rtbReroll() and not ssUsable())) and isValidUnit("target") and getDistance("target") <= 5 then
+                if isChecked("Vanish") and GetTime() >= vanishTime + cd.global and (ambushCondition() or (hasEquiped(144236) and mantleDuration() == 0 and not rtbReroll() and not ssUsable())) and isValidUnit("target") and getDistance("target") <= 5  then
                     if cast.vanish() then vanishTime = GetTime(); return end
                 end
         -- Shadowmeld
                 -- shadowmeld,if=variable.ambush_condition
-                if isChecked("Racial") and race == "NightElf" and ambushCondition() and isValidUnit(units.dyn5) and getDistance("target") <= 5 and not moving then
-                    if cast.shadowmeld() then vanishTime = GetTime(); return end
+                if isChecked("Racial") and GetTime() >= vanishTime + cd.global and cd.global <= getLatency() and race == "NightElf" and ambushCondition() and isValidUnit("target") and getDistance("target") <= 5 and not isMoving("player") then
+                    if cast.shadowmeld() then vanishTime = GetTime(); cast.ambush(); return end
                 end
             end
         end
@@ -681,7 +681,7 @@ local function runRotation()
                             end
             -- Build
                             -- call_action_list,name=build
-                            if GetTime() >= vanishTime + 1 then
+                            if GetTime() >= vanishTime + cd.global then
                                 if actionList_Build() then return end
                             end
             -- Finishers
