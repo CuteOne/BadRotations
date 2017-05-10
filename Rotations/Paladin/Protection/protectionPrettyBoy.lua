@@ -95,7 +95,7 @@ local function createOptions()
             -- Light of the Protector
             br.ui:createSpinner(section, "Light of the Protector",  70,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
             -- Hand of the Protector - on others
-            br.ui:createSpinner(section, "Hand of the Protector - Party",  70,  0,  100,  5,  "|cffFFBB00队友Health Percentage to use at.")
+            br.ui:createSpinner(section, "Hand of the Protector - Party",  40,  0,  100,  5,  "|cffFFBB00队友Health Percentage to use at.")
             -- Lay On Hands
             br.ui:createSpinner(section, "Lay On Hands", 20, 0, 100, 5, "","Health Percentage to use at")
             br.ui:createDropdownWithout(section, "Lay on Hands Target", {"|cffFFFFFFPlayer","|cffFFFFFFTarget", "|cffFFFFFFMouseover", "|cffFFFFFFTank", "|cffFFFFFFHealer", "|cffFFFFFFHealer/Tank", "|cffFFFFFFHealer/Damage", "|cffFFFFFFAny"}, 8, "|cffFFFFFFTarget for Lay On Hands")	
@@ -286,13 +286,16 @@ local function runRotation()
                     if castSpell("player",racial,false,false,false) then return end
                 end				
         -- Light of the Protector
-                if isChecked("Light of the Protector") and php <= getOptionValue("Light of the Protector") and not talent.handOfTheProtector then
+                if isChecked("Light of the Protector") and php <= getOptionValue("Light of the Protector") and (not hasEquiped(144275) or (hasEquiped(144275) and (not lotpTime or GetTime() - lotpTime > 1 ))) then
                     if cast.lightOfTheProtector("player") then return end
+					if cast.handOfTheProtector("player") then return end
+					lotpTime = GetTime()
                 end
         -- Hand of the Protector - Others
-                if isChecked("Hand of the Protector - Party") and talent.handOfTheProtector then
+                if isChecked("Hand of the Protector - Party") and talent.handOfTheProtector and (not hasEquiped(144275) or (hasEquiped(144275) and (not hotpTime or GetTime() - hotpTime > 1 ))) then
                     if getHP(lowestUnit) < getOptionValue("Hand of the Protector - Party") then
                         if cast.handOfTheProtector(lowestUnit) then return end
+						hotpTime = GetTime()
                     end
                 end
         -- Lay On Hands
@@ -629,7 +632,7 @@ local function runRotation()
                         if cast.avengersShield(units.dyn30) then return end
                     end
             -- Consecration 
-                    if isChecked("Consecration") and not isMoving("player") and #enemies.yards10 >= 1 and getDistance(units.dyn5) < 5 then
+                    if isChecked("Consecration") and not isMoving("player") and #enemies.yards10 >= 1 and getDistance(units.dyn5) < 5 and not UnitIsDeadOrGhost("target") then
                         if cast.consecration() then return end
                     end
             -- Judgment 
@@ -637,7 +640,7 @@ local function runRotation()
                         if cast.judgment(units.dyn30) then return end
                     end
             -- Blessed Hammer 
-                    if isChecked("Blessed Hammer") and #enemies.yards5 >= 1 then
+                    if isChecked("Blessed Hammer") and #enemies.yards5 >= 1 and getDistance(units.dyn5) < 5 and not UnitIsDeadOrGhost("target") then
                         if cast.blessedHammer() then return end
                     end
             -- Hammer of the Righteous 
