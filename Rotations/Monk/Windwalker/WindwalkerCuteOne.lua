@@ -763,7 +763,7 @@ local function runRotation()
                 -- TODO: Agility Proc
                 if inRaid and isChecked("Potion") and useCDs() then
                     if isChecked("Pre-Pull Timer") and pullTimer <= getOptionValue("Pre-Pull Timer") then
-                        if canUse((127844)) and talent.serenity then
+                        if canUse(127844) and talent.serenity then
                             useItem(127844)
                         end
                         if canUse(142117) and talent.whirlingDragonPunch then

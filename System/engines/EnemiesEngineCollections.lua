@@ -68,6 +68,11 @@ burnUnitCandidates = {
 	[71076] = { coef = 25 }, -- Proving ground healer
 	-- Legion
 	[120651] = { coef = 150, name = "Fel Explosives"}, -- M+ Affix
+	[115642] = { coef = 150}, -- Umbral Imps - Challenge mode
+	[115638] = { coef = 125, buff = 243113},
+	[115640] = { coef = 100}, -- Fuming Imps
+	-- [115641] = { coef = 998}, -- Smoldering Imps
+	[115719] = { coef = 100}, -- Imp Servents
 }
 -- shielding and levels, we should add coef as shield %
 shieldedUnitCandidates = {
@@ -75,6 +80,8 @@ shieldedUnitCandidates = {
 	[71072] = { coef = -90, buff = 142427 }, -- Proving ground Sha shielded (will unshield later so better wait)
 	[71064] = { coef = -100, buff = 142174, frontal = true }, -- when shielded and we are in front of unit, dont attack
 	[71079] = { coef = -100, buff = 142174, frontal = true }, -- when shielded and we are in front of unit, dont attack
+	-- Agatha Challenge Skin
+	[115638] = { coef = -100, buff = 243027} -- Shadow Shield
 }
 --  low prio
 -- doNotTouchUnitCandidates - List of units that we should not attack for any reason

@@ -535,7 +535,7 @@ local function runRotation()
                         --     StartAttack(executeUnit)
                         -- end
         -- Focused Rage
-                        if (buff.focusedRage.stack() < 3 and (buff.battleCry.exists() or ignoreBattleCry)) or powerDeficit < 25 or (buff.focusedRage.remain() < 3 and buff.focusedRage.stack() > 0) then
+                        if buff.focusedRage.stack() < 3 and (((buff.battleCry.exists() or ignoreBattleCry)) or powerDeficit < 25 or (buff.focusedRage.remain() < 3 and buff.focusedRage.stack() > 0)) then
                             if cast.focusedRage(executeUnit) then return end
                         end
         -- Battle Cry
@@ -638,7 +638,7 @@ local function runRotation()
             end
         -- Focused Rage
             -- focused_rage,if=!buff.battle_cry_deadly_calm.up&buff.focused_rage.stack<3&!cooldown.colossus_smash.up&(rage>=50|debuff.colossus_smash.down|cooldown.battle_cry.remains<=8)
-            if ((buff.battleCry.remain() > cd.focusedRage or ignoreBattleCry) and (buff.focusedRage.stack() < 3 or cd.mortalStrike > 0))
+            if ((buff.battleCry.remain() > cd.focusedRage or ignoreBattleCry) and (buff.focusedRage.stack() < 3 and cd.mortalStrike > 0))
                 or (not ((buff.battleCry.exists() or ignoreBattleCry) and talent.deadlyCalm) and buff.focusedRage.stack() < 3 and cd.colossusSmash > 0
                     and (rage >= 50 or not debuff.colossusSmash.exists(units.dyn5) or cd.battleCry <= 8))
             then
