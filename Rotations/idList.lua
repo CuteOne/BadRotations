@@ -860,8 +860,6 @@ br.idList = {
         [253] = {
             abilities                       = {
                 aMurderOfCrows              = 131894,
-                aspectOfTheCheetah          = 186257,
-                aspectOfTheTurtle           = 186265,
                 aspectOfTheWild             = 193530,
                 barrage                     = 120360,
                 bestialWrath                = 19574,
@@ -873,10 +871,6 @@ br.idList = {
                 direBeast                   = 120679,
                 direFrenzy                  = 217200,
                 disengage                   = 781,
-                eagleEye                    = 6197,
-                exhilaration                = 109304,
-                feignDeath                  = 5384,
-                flare                       = 1543,
                 intimidation                = 19577,
                 killCommand                 = 34026,
                 misdirection                = 34477,
@@ -889,7 +883,6 @@ br.idList = {
 
             },
             buffs                           = {
-                aspectOfTheTurtle           = 186265,
                 bestialWrath                = 19574,
                 direBeast                   = 120694,
                 direFrenzy                  = 217200,
@@ -915,8 +908,6 @@ br.idList = {
                 aMurderOfCrows              = 131894,
                 aimedShot                   = 19434,
                 arcaneShot                  = 185358,
-                aspectOfTheCheetah          = 186257,
-                aspectOfTheTurtle           = 186265,
                 barrage                     = 120360,
                 bindingShot                 = 109248,
                 blackArrow                  = 194599,
@@ -924,12 +915,8 @@ br.idList = {
                 concussiveShot              = 5116,
                 counterShot                 = 147362,
                 disengage                   = 781,
-                eagleEye                    = 6197,
-                exhilaration                = 109304,
                 explosiveShot               = 212431,
                 explosiveShotDetonate       = 212679,
-                feignDeath                  = 5384,
-                flare                       = 1543,
                 intimidation                = 19577,
                 markedShot                  = 185901,
                 misdirection                = 34477,
@@ -991,21 +978,14 @@ br.idList = {
         [255] = {
             abilities                       = {
                 aMurderOfCrows              = 131894,
-                aspectOfTheCheetah          = 186257,
                 aspectOfTheEagle            = 186289,
-                aspectOfTheTurtle           = 186265,
                 butchery                    = 212436,
                 carve                       = 187708,
                 caltrops                    = 187698,
                 camouflague                 = 199483,
                 dragonsfireGrenade          = 194855,
-                eagleEye                    = 6197,
-                exhilaration                = 109304,
                 explosiveTrap               = 191433,
-                feignDeath                  = 5384,
                 flankingStrike              = 202800,
-                flare                       = 1543,
-                freezingTrap                = 187650,
                 furyOfTheEagle              = 203415,
                 harpoon                     = 190925,
                 hatchetToss                 = 193265,
@@ -1062,13 +1042,29 @@ br.idList = {
         -- All
         Shared = {
             abilities                       = {
-
+                aspectOfTheCheetah          = 186257,
+                aspectOfTheTurtle           = 186265,
+                callPet1                    = 883,
+                callPet2                    = 83242,
+                callPet3                    = 83243,
+                callPet4                    = 83244,
+                callPet5                    = 83245,
+                eagleEye                    = 6197,
+                exhilaration                = 109304,
+                feignDeath                  = 5384,
+                flare                       = 1543,
+                freezingTrap                = 187650,
+                mendPet                     = 136,
+                revivePet                   = 982,
+                tarTrap                     = 187698,
             },
             artifacts                       = {
 
             },
             buffs                           = {
-
+                aspectOfTheTurtle           = 186265,
+                feignDeath                  = 5384,
+                mendPet                     = 136,
             },
             debuffs                         = {
 
@@ -1077,7 +1073,8 @@ br.idList = {
 
             },
             talents                         = {
-
+                posthaste                   = 109215,
+                trailblazer                 = 199921,
             },
         },
     },
@@ -2446,6 +2443,7 @@ br.idList = {
                 totemMastery                = 210643,
             },
             artifacts                       = {
+                seismicStorm                = 238141,
                 stormkeeper                 = 205495,
                 swellingMaelstrom           = 238105,
             },

@@ -94,14 +94,18 @@ local function createOptions()
             br.ui:createSpinner(section, "Heirloom Neck",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.");
         -- Engineering: Shield-o-tronic
             br.ui:createSpinner(section, "Shield-o-tronic",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
-        -- Exhilaration
-            br.ui:createSpinner(section, "Exhilaration",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.");
         -- Aspect Of The Turtle
             br.ui:createSpinner(section, "Aspect Of The Turtle",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.");
+        -- Exhilaration
+            br.ui:createSpinner(section, "Exhilaration",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.");
+        -- Feign Death
+            br.ui:createSpinner(section, "Feign Death", 30, 0, 100, 5, "|cffFFBB00Health Percentage to use at.")
         br.ui:checkSectionState(section)
     -- Interrupt Options
         section = br.ui:createSection(br.ui.window.profile, "Interrupts")
-        -- Counter Shot
+        -- Freezing Trap
+            br.ui:createCheckbox(section,"Freezing Trap")
+        -- Muzzle
             br.ui:createCheckbox(section,"Muzzle")
         -- Interrupt Percentage
             br.ui:createSpinner(section, "Interrupts",  0,  0,  95,  5,  "|cffFFFFFFCast Percent to Cast At")
@@ -208,9 +212,6 @@ local function runRotation()
         enemies.yards8 = br.player.enemies(8)
         enemies.yards40 = br.player.enemies(40)
 
-        -- BeastCleave 118445
-        local beastCleaveTimer                              = getBuffDuration("pet", 118445)
-
         if leftCombat == nil then leftCombat = GetTime() end
         if profileStop == nil then profileStop = false end
 
@@ -226,20 +227,20 @@ local function runRotation()
                 if isChecked("Auto Summon") and not GetUnitExists("pet") and (UnitIsDeadOrGhost("pet") ~= nil or IsPetActive() == false) then
                   if waitForPetToAppear ~= nil and waitForPetToAppear < GetTime() - 2 then
                       if deadPet == true then
-                        if castSpell("player",982) then return; end
+                        if cast.revivePet() then return end
                       elseif deadPet == false then
                         local Autocall = getValue("Auto Summon");
 
                         if Autocall == 1 then
-                          if castSpell("player",883) then return; end
+                          if cast.callPet1() then return end
                         elseif Autocall == 2 then
-                          if castSpell("player",83242) then return; end
+                          if cast.callPet2() then return end
                         elseif Autocall == 3 then
-                          if castSpell("player",83243) then return; end
+                          if cast.callPet3() then return end
                         elseif Autocall == 4 then
-                          if castSpell("player",83244) then return; end
+                          if cast.callPet4() then return end
                         elseif Autocall == 5 then
-                          if castSpell("player",83245) then return; end
+                          if cast.callPet5() then return end
                         else
                           Print("Auto Call Pet Error")
                         end
@@ -253,14 +254,12 @@ local function runRotation()
             end
             --Revive
             if isChecked("Auto Summon") and UnitIsDeadOrGhost("pet") then
-              if castSpell("player",982) then return; end
+              if cast.revivePet() then return; end
             end
-
             -- Mend Pet
-            if isChecked("Mend Pet") and getHP("pet") < getValue("Mend Pet") and not UnitBuffID("pet",136) then
-              if castSpell("pet",136) then return; end
+            if isChecked("Mend Pet") and getHP("pet") < getValue("Mend Pet") and not buff.mendPet.exists("pet") then
+              if cast.mendPet() then return; end
             end
-
             -- Pet Attack / retreat
             if inCombat and isValidUnit(units.dyn40) and getDistance(units.dyn40) < 40 then
                 if not UnitIsUnit("target","pettarget") then
@@ -313,13 +312,17 @@ local function runRotation()
                 then
                     useItem(118006)
                 end
+        -- Aspect of the Turtle
+                if isChecked("Aspect Of The Turtle") and php <= getOptionValue("Aspect Of The Turtle") then
+                    if cast.aspectOfTheTurtle("player") then return end
+                end
         -- Exhilaration
                 if isChecked("Exhilaration") and php <= getOptionValue("Exhilaration") then
                     if cast.exhilaration("player") then return end
                 end
-        -- Aspect of the Turtle
-                if isChecked("Aspect Of The Turtle") and php <= getOptionValue("Aspect Of The Turtle") then
-                    if cast.aspectOfTheTurtle("player") then return end
+        -- Feign Death
+                if isChecked("Feign Death") and php <= getOptionValue("Feign Death") then
+                    if cast.feignDeath("player") then return end
                 end
             end -- End Defensive Toggle
         end -- End Action List - Defensive
@@ -332,6 +335,15 @@ local function runRotation()
                         thisUnit = enemies.yards5[i]
                         if canInterrupt(thisUnit,getOptionValue("InterruptAt")) then
                             if cast.muzzle(thisUnit) then return end
+                        end
+                    end
+                end
+        -- Freezing Trap
+                if isChecked("Freezing Trap") then
+                    for i = 1, #enemies.yards40 do
+                        thisUnit = enemies.yards40[i]
+                        if getDistance(thisUnit) > 8 and getCastTimeRemain(thisUnit) > 3 then
+                            if cast.freezingTrap(thisUnit,"ground") then return end
                         end
                     end
                 end
@@ -634,7 +646,7 @@ local function runRotation()
     -- Profile Stop | Pause
         if not inCombat and not hastar and profileStop==true then
             profileStop = false
-        elseif (inCombat and profileStop==true) or (IsMounted() or IsFlying()) or pause() or mode.rotation==4 then
+        elseif (inCombat and profileStop==true) or (IsMounted() or IsFlying()) or pause() or buff.feignDeath.exists() or mode.rotation==4 then
             if not pause() and IsPetAttackActive() then
                 PetStopAttack()
                 PetFollow()
