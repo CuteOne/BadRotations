@@ -854,7 +854,7 @@ local function runRotation()
         -- Ashamane's Frenzy
             -- ashamanes_frenzy,if=combo_points<=2&buff.elunes_guidance.down&(buff.bloodtalons.up|!talent.bloodtalons.enabled)&(buff.savage_roar.up|!talent.savage_roar.enabled)
             if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()) then
-                if combo <= 2 and not buff.elunesGuidance.exists() and (buff.bloodtalons.exists() or not talent.bloodtalons) and (buff.savageRoar.exists() or not talent.savageRoar) then
+                if combo <= 2 and not buff.elunesGuidance.exists() and (buff.bloodtalons.remain() > gcd or not talent.bloodtalons) and (buff.savageRoar.remain() > gcd or not talent.savageRoar) then
                     if cast.ashamanesFrenzy(units.dyn5) then return end
                 end
             end
