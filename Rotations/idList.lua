@@ -2348,7 +2348,8 @@ br.idList = {
 
             },
             talents                         = {
-                envelopingShadows           = 206237,
+                envelopingShadows           = 206237,                
+                --PTR envelopingShadows           = 238104,
                 gloomblade                  = 200758,
                 masterOfShadows             = 196976,
                 masterOfSubtlety            = 31223,
