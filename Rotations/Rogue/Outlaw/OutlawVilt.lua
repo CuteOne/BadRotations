@@ -20,7 +20,7 @@ local function createToggles()
 -- Blade Flurry Button
     BladeFlurryModes = {
         [1] = { mode = "On", value = 1 , overlay = "Blade Flurry Enabled", tip = "Rotation will use Blade Flurry.", highlight = 1, icon = br.player.spell.bladeFlurry},
-        [2] = { mode = "Off", value = 2 , overlay = "Blade Flurry Disabled", tip = "Rotation will not use Blade Flirry.", highlight = 0, icon = br.player.spell.bladeFlurry}
+        [2] = { mode = "Off", value = 2 , overlay = "Blade Flurry Disabled", tip = "Rotation will not use Blade Flurry.", highlight = 0, icon = br.player.spell.bladeFlurry}
     };
     CreateButton("BladeFlurry",3,0)
 -- Defensive Button
@@ -471,7 +471,7 @@ local function runRotation()
     -- Action List - PreCombat
         local function actionList_PreCombat()
         -- Stealth
-            if not inCombat and not stealth then
+            if not stealth then
                 if isChecked("Stealth") and (not IsResting() or isDummy("target")) then
                     if getOptionValue("Stealth") == 1 then
                         if cast.stealth() then return end
@@ -590,7 +590,7 @@ local function runRotation()
 ------------------------------
 --- Out of Combat Rotation ---
 ------------------------------
-            if not inCombat or stealth then
+            if not inCombat then
                 if actionList_PreCombat() then return end
             end
 ----------------------------
