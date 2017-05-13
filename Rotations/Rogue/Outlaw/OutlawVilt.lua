@@ -474,7 +474,7 @@ local function runRotation()
             if not stealth then
                 if isChecked("Stealth") and (not IsResting() or isDummy("target")) then
                     if getOptionValue("Stealth") == 1 then
-                        if cast.stealth() then return end
+                        if cast.stealth("player") then return end
                     end
                     if #enemies.yards20 > 0 and getOptionValue("Stealth") == 2 and not IsResting() and GetTime()-leftCombat > lootDelay then
                         for i = 1, #enemies.yards20 do
