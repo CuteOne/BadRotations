@@ -532,13 +532,13 @@ local function runRotation()
     -- Action List - Opener
         local function actionList_Opener()            
         -- Opener
-            if not inCombat and getDistance("target") <= 5 then
+            if not inCombat then
                 if combo >= 5 then
-                    if cast.runThrough() then return end
+                    if cast.runThrough("target") then return end
                 elseif stealthingAll then
-                    if cast.ambush() then return end
+                    if cast.ambush("target") then return end
                 else
-                    if cast.saberSlash() then return end
+                    if cast.saberSlash("target") then return end
                 end
             end
         end
