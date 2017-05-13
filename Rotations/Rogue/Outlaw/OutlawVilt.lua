@@ -532,14 +532,12 @@ local function runRotation()
     -- Action List - Opener
         local function actionList_Opener()            
         -- Opener
-            if not inCombat then
-                if combo >= 5 then
-                    if cast.runThrough("target") then return end
-                elseif stealthingAll then
-                    if cast.ambush("target") then return end
-                else
-                    if cast.saberSlash("target") then return end
-                end
+            if combo >= 5 then
+                if cast.runThrough("target") then return end
+            elseif stealthingAll then
+                if cast.ambush("target") then return end
+            else
+                if cast.saberSlash("target") then return end
             end
         end
     -- Action List - Stealth
@@ -596,7 +594,7 @@ local function runRotation()
 ----------------------------
 --- Out of Combat Opener ---
 ----------------------------
-            if not inCombat and isChecked("Opener") and isValidUnit(units.dyn5) then
+            if not inCombat and isChecked("Opener") and isValidUnit("target") then
                 if actionList_Opener() then return end
             else
 --------------------------
