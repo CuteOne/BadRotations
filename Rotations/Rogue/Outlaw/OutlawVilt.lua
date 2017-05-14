@@ -20,7 +20,7 @@ local function createToggles()
 -- Blade Flurry Button
     BladeFlurryModes = {
         [1] = { mode = "On", value = 1 , overlay = "Blade Flurry Enabled", tip = "Rotation will use Blade Flurry.", highlight = 1, icon = br.player.spell.bladeFlurry},
-        [2] = { mode = "Off", value = 2 , overlay = "Blade Flurry Disabled", tip = "Rotation will not use Blade Flirry.", highlight = 0, icon = br.player.spell.bladeFlurry}
+        [2] = { mode = "Off", value = 2 , overlay = "Blade Flurry Disabled", tip = "Rotation will not use Blade Flurry.", highlight = 0, icon = br.player.spell.bladeFlurry}
     };
     CreateButton("BladeFlurry",3,0)
 -- Defensive Button
@@ -471,10 +471,10 @@ local function runRotation()
     -- Action List - PreCombat
         local function actionList_PreCombat()
         -- Stealth
-            if not inCombat and not stealth then
+            if not stealth then
                 if isChecked("Stealth") and (not IsResting() or isDummy("target")) then
                     if getOptionValue("Stealth") == 1 then
-                        if cast.stealth() then return end
+                        if cast.stealth("player") then return end
                     end
                     if #enemies.yards20 > 0 and getOptionValue("Stealth") == 2 and not IsResting() and GetTime()-leftCombat > lootDelay then
                         for i = 1, #enemies.yards20 do
@@ -532,14 +532,12 @@ local function runRotation()
     -- Action List - Opener
         local function actionList_Opener()            
         -- Opener
-            if not inCombat and getDistance("target") <= 5 then
-                if combo >= 5 then
-                    if cast.runThrough() then return end
-                elseif stealthingAll then
-                    if cast.ambush() then return end
-                else
-                    if cast.saberSlash() then return end
-                end
+            if combo >= 5 then
+                if cast.runThrough("target") then return end
+            elseif stealthingAll then
+                if cast.ambush("target") then return end
+            else
+                if cast.saberSlash("target") then return end
             end
         end
     -- Action List - Stealth
@@ -590,13 +588,13 @@ local function runRotation()
 ------------------------------
 --- Out of Combat Rotation ---
 ------------------------------
-            if not inCombat or stealth then
+            if not inCombat then
                 if actionList_PreCombat() then return end
             end
 ----------------------------
 --- Out of Combat Opener ---
 ----------------------------
-            if not inCombat and isChecked("Opener") and isValidUnit(units.dyn5) then
+            if not inCombat and isChecked("Opener") and isValidUnit("target") then
                 if actionList_Opener() then return end
             else
 --------------------------
