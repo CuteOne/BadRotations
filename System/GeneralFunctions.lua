@@ -2004,6 +2004,23 @@ function hasBloodLust()
 		return false
 	end
 end
+function hasBloodLustRemain()
+	if UnitBuffID("player",90355) then
+		return getBuffRemain("player",90355)
+	elseif UnitBuffID("player",2825) then
+		return getBuffRemain("player",2825)
+	elseif UnitBuffID("player",146555) then
+		return getBuffRemain("player",146555)
+	elseif UnitBuffID("player",32182) then
+		return getBuffRemain("player",32182)
+	elseif UnitBuffID("player",90355) then
+		return getBuffRemain("player",90355)
+	elseif UnitBuffID("player",80353) then
+		return getBuffRemain("player",80353)
+	else
+		return 0
+	end
+end
 -- if hasEmptySlots() then
 function hasEmptySlots()
 	local openSlots = 0
