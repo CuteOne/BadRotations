@@ -633,7 +633,7 @@ local function runRotation()
         -- Earthquake
             -- earthquake,if=buff.echoes_of_the_great_sundering.up|artifact.seismic_storm.enabled&((active_enemies>1&spell_targets.chain_lightning>1)|spell_haste<=0.66&!(buff.bloodlust.up&buff.bloodlust.remains<5))
             if (buff.echoesOfTheGreatSundering.exists() or artifact.seismicStorm) 
-                and ((#enemies.yards8 > 1 and #enemies.yards8t > 1) or UnitSpellHaste("player")/100 <= 0.66 and (hasBloodLust() and hasBloodLustRemain() < 5) 
+                and ((#enemies.yards8 > 1 and #enemies.yards8t > 1) or UnitSpellHaste("player")/100 <= 0.66 and (hasBloodLust() and hasBloodLustRemain() < 5)) 
             then
                 if cast.earthquake() then return end
             end
@@ -758,7 +758,7 @@ local function runRotation()
         -- Earthquake
             -- earthquake,if=buff.echoes_of_the_great_sundering.up|artifact.seismic_storm.enabled&((active_enemies>1&spell_targets.chain_lightning>1)|spell_haste<=0.66&!(buff.bloodlust.up&buff.bloodlust.remains<5))
             if (buff.echoesOfTheGreatSundering.exists() or artifact.seismicStorm) 
-                and ((#enemies.yards8 > 1 and #enemies.yards8t > 1) or UnitSpellHaste("player")/100 <= 0.66 and (hasBloodLust() and hasBloodLustRemain() < 5) 
+                and ((#enemies.yards8 > 1 and #enemies.yards8t > 1) or UnitSpellHaste("player")/100 <= 0.66 and (hasBloodLust() and hasBloodLustRemain() < 5)) 
             then
                 if cast.earthquake() then return end
             end
@@ -853,7 +853,7 @@ local function runRotation()
         -- Earthquake
             -- earthquake,if=buff.echoes_of_the_great_sundering.up|artifact.seismic_storm.enabled&((active_enemies>1&spell_targets.chain_lightning>1)|spell_haste<=0.66&!(buff.bloodlust.up&buff.bloodlust.remains<5))
             if (buff.echoesOfTheGreatSundering.exists() or artifact.seismicStorm) 
-                and ((#enemies.yards8 > 1 and #enemies.yards8t > 1) or UnitSpellHaste("player")/100 <= 0.66 and (hasBloodLust() and hasBloodLustRemain() < 5) 
+                and ((#enemies.yards8 > 1 and #enemies.yards8t > 1) or UnitSpellHaste("player")/100 <= 0.66 and (hasBloodLust() and hasBloodLustRemain() < 5)) 
             then
                 if cast.earthquake() then return end
             end
