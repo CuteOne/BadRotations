@@ -35,8 +35,8 @@ function br.ui:createSpinner(parent, text, number, min, max, step, tooltip, tool
     spinner:SetSettings({
         height 			= 12,
         width 			= 29,
-        mouse			= false,
-        mouseWheel	    = false,
+        mouse			= true,
+        mouseWheel	    = true,
         buttons			= false,
         buttonsWidth    = 0,
         bar				= true,
@@ -66,8 +66,10 @@ function br.ui:createSpinner(parent, text, number, min, max, step, tooltip, tool
     if tooltip or tooltipSpin then
         local tooltip = tooltipSpin or tooltip
         spinner:SetEventListener("OnEnter", function()
-            GameTooltip:SetOwner(spinner.frame, "ANCHOR_TOPLEFT", 0 , 2)
-            GameTooltip:AddLine(tooltip)
+            -- GameTooltip:SetOwner(spinner.frame, "ANCHOR_TOPLEFT", 0 , 2)
+            -- GameTooltip:AddLine(tooltip)
+            GameTooltip:SetOwner(Minimap, "ANCHOR_CURSOR", 50 , 50)
+            GameTooltip:SetText(tooltip, 214/255, 25/255, 25/255)
             GameTooltip:Show()
         end)
         spinner:SetEventListener("OnLeave", function()
