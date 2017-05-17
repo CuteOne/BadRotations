@@ -24,23 +24,26 @@ System\Readers\combatlog.lua
 System\Readers\common.lua
 
 ## Libs
-
 #@no-lib-strip@
-System\Libs\LibStub-1.0\LibStub.lua
-System\Libs\!LibDraw\LibDraw.lua
-System\Libs\LibBossIDs-1.0\LibBossIDs-1.0.lua
-System\Libs\CallbackHandler-1.0\CallbackHandler-1.0.xml
-System\Libs\LibSpellRange-1.0\LibSpellRange-1.0.lua
-System\Libs\LibRangeCheck-2.0\LibRangeCheck-2.0.lua
-System\Libs\LibSharedMedia-3.0\LibSharedMedia-3.0.lua
-System\Libs\DiesalTools-1.0\DiesalTools-1.0.lua
-System\Libs\DiesalStyle-1.0\DiesalStyle-1.0.lua
-System\Libs\DiesalGUI-1.0\DiesalGUI-1.0.xml
-System\Libs\DiesalMenu-1.0\DiesalMenu-1.0.xml
-System\Libs\LibArtifactData-1.0\LibArtifactData-1.0.lua
-#@end-no-lib-strip@
+Libs\LibStub\LibStub.lua
+Libs\CallbackHandler-1.0\CallbackHandler-1.0.lua
+Libs\LibSharedMedia-3.0\LibSharedMedia-3.0.lua
 
-System\Drawer\drawer.lua
+Libs\DiesalComm-1.0\DiesalComm-1.0.xml
+Libs\DiesalTools-1.0\DiesalTools-1.0.lua
+Libs\DiesalStyle-1.0\DiesalStyle-1.0.lua
+Libs\DiesalGUI-1.0\DiesalGUI-1.0.xml
+Libs\DiesalMenu-1.0\DiesalMenu-1.0.xml
+
+Libs\DiesalLibs.lua
+
+Libs\!LibDraw\LibDraw.lua
+Libs\LibBossIDs-1.0\LibBossIDs-1.0.lua
+Libs\LibSpellRange-1.0\LibSpellRange-1.0.lua
+Libs\LibRangeCheck-2.0\LibRangeCheck-2.0.lua
+Libs\LibArtifactData-1.0\LibArtifactData-1.0.lua
+#@end-no-lib-strip@
+System\drawer\drawer.lua
 
 ## Engines
 
@@ -149,7 +152,6 @@ Rotations\Monk\Windwalker\WindwalkerCuteOne.lua
 ## Paladin ---------------------------------------------------
 
 Rotations\Paladin\Holy\HolyKuukuu.lua
-Rotations\Paladin\Holy\HolyFengshen.lua
 
 Rotations\Paladin\Protection\protectionPrettyBoy.lua
 
@@ -197,6 +199,7 @@ Rotations\Warrior\Arms\ArmsCuteOne.lua
 
 Rotations\Warrior\Fury\FuryCuteOne.lua
 Rotations\Warrior\Fury\FuryImmy.lua
+Rotations\Warrior\Fury\FuryNofay.lua
 
 Rotations\Warrior\Protection\ProtectionCuteOne.lua
 

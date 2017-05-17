@@ -1,7 +1,8 @@
 -- TODO: create new debug frame
 br.ui.window.debug = {}
 function br.ui:createDebugWindow()
-    br.ui.window.debug = br.ui:createMessageWindow("debug",300,250,"Rotation Log")
+    -- br.ui.window.debug = br.ui:createMessageWindow("debug",300,250,"Rotation Log")
+    br.ui.window.debug = br.ui:createWindow("debug",300,250,"Rotation Log",nil,true)
     br.ui.window.debug.parent.closeButton:SetScript("OnClick", function()
     	if br.data.settings[br.selectedSpec][br.selectedProfile] ~= nil then
 			br.data.settings[br.selectedSpec][br.selectedProfile]["Rotation LogCheck"] = false

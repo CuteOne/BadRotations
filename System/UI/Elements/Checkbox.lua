@@ -1,35 +1,39 @@
 local DiesalGUI = LibStub("DiesalGUI-1.0")
+local DiesalTools = LibStub("DiesalTools-1.0")
+local DiesalStyle = LibStub("DiesalStyle-1.0")
 
 function br.ui:createCheckbox(parent, text, tooltip, checked)
-    local newBox = DiesalGUI:Create('Toggle')
-    local parent = parent
-    local anchor = anchor or "TOPLEFT"
-
-    -- Set text
-    newBox:SetText(text)
-
-    -- Change size
-    --newBox.settings.height = 12
-    --newBox.settings.width = 12
-
-    -- Calculate Position
-    local howManyBoxes = 1
+    -------------------------------
+    ----Need to calculate Y Pos----
+    -------------------------------
+    local Y = -5
     for i=1, #parent.children do
-        if parent.children[i].type == "Toggle" then
-            howManyBoxes = howManyBoxes + 1
+        if parent.children[i].type == "CheckBox" then
+            Y = Y - parent.children[i].frame:GetHeight()*1.2
         end
     end
+    Y = DiesalTools.Round(Y)
 
-    local y = howManyBoxes
-    if y  ~= 1 then y = ((y-1) * -br.spacing) -5 end
-    if y == 1 then y = -5 end
+    ----------------------------
+    --------Create Label--------
+    ----------------------------
+    br.ui:createText(parent, text)
+    ----------------------------
 
-    -- Set parent
-    newBox:SetParent(parent.content)
+    -------------------------------
+    --------Create CheckBox--------
+    -------------------------------
+    local checkBox = DiesalGUI:Create('CheckBox')
 
-    -- Set anchor
-    newBox:SetPoint("TOPLEFT", parent.content, anchor, 10, y)
-
+    checkBox:SetParent(parent.content)
+    checkBox:SetPoint("TOPLEFT", parent.content, "TOPLEFT", 5, Y)
+    checkBox:SetSettings({
+        height 		= 12,
+        width 		= 12,
+    })
+    --------------
+    ---BR Stuff---
+    --------------
     -- Read check value from config, false if nothing found
     -- Set default
     if br.data.settings[br.selectedSpec][br.selectedProfile][text.."Check"] == nil and not checked then br.data.settings[br.selectedSpec][br.selectedProfile][text.."Check"] = false end
@@ -38,15 +42,17 @@ function br.ui:createCheckbox(parent, text, tooltip, checked)
     if check == 0 then check = false end
     if check == 1 then check = true end
 
-    if check == false then newBox:SetChecked(false) end
-    if check == true then  newBox:SetChecked(true) end
-
+    if check == false then checkBox:SetChecked(false) end
+    if check == true then  checkBox:SetChecked(true) end
+    ------------------
+    ------Events------
+    ------------------
     -- Event: OnValueChanged
-    newBox:SetEventListener('OnValueChanged', function(this, event, checked)
+    checkBox:SetEventListener('OnValueChanged', function(this, event, checked)
         br.data.settings[br.selectedSpec][br.selectedProfile][text.."Check"] = checked
-
         -- Create Chat Overlay
         if checked then
+            DiesalStyle:StyleTexture(checkBox.check,classColor)
             ChatOverlay("|cff15FF00"..text.." Enabled")
         else
             ChatOverlay("|cFFED0000"..text.." Disabled")
@@ -54,21 +60,25 @@ function br.ui:createCheckbox(parent, text, tooltip, checked)
     end)
     -- Event: Tooltip
     if tooltip then
-        newBox:SetEventListener("OnEnter", function(this, event)
-            GameTooltip:SetOwner(Minimap, "ANCHOR_CURSOR", 50 , 50)
-            GameTooltip:SetText(tooltip, 214/255, 25/255, 25/255)
+        checkBox:SetEventListener("OnEnter", function()
+            GameTooltip:SetOwner(checkBox.frame, "ANCHOR_TOPLEFT", 0 , 2)
+            GameTooltip:AddLine(tooltip)
             GameTooltip:Show()
         end)
-        newBox:SetEventListener("OnLeave", function(this, event)
+        checkBox:SetEventListener("OnLeave", function()
             GameTooltip:Hide()
         end)
     end
+    ----------------------
+    ------END Events------
+    ----------------------
 
-    -- Apply changed settings like size, position, etc
-    newBox:ApplySettings()
+    DiesalStyle:StyleTexture(checkBox.check,classColor)
+    checkBox:ApplySettings()
+    ----------------------------
+    --------END CheckBox--------
+    ----------------------------
+    parent:AddChild(checkBox)
 
-    -- Add as a child element to parent
-    parent:AddChild(newBox)
-
-    return newBox
+    return checkBox
 end

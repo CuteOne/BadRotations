@@ -38,20 +38,24 @@ function br:Run()
 	br.read.commonReaders()
 	-- Globals
 	classColors = {
-		[1]				= {class = "Warrior", 		B=0.43,	G=0.61,	R=0.78,	hex="|cffc79c6e"},
-		[2]				= {class = "Paladin", 		B=0.73,	G=0.55,	R=0.96,	hex="|cfff58cba"},
-		[3]				= {class = "Hunter",		B=0.45,	G=0.83,	R=0.67,	hex="|cffabd473"},
-		[4]				= {class = "Rogue",			B=0.41,	G=0.96,	R=1,	hex="|cfffff569"},
-		[5]				= {class = "Priest",		B=1,	G=1,	R=1,	hex="|cffffffff"},
-		[6]				= {class = "Deathknight",	B=0.23,	G=0.12,	R=0.77,	hex="|cffc41f3b"},
-		[7]				= {class = "Shaman",		B=0.87,	G=0.44,	R=0,	hex="|cff0070de"},
-		[8]				= {class = "Mage",			B=0.94,	G=0.8,	R=0.41,	hex="|cff69ccf0"},
-		[9]				= {class = "Warlock", 		B=0.79,	G=0.51,	R=0.58,	hex="|cff9482c9"},
-		[10]			= {class = "Monk",			B=0.59,	G=1,	R=0,	hex="|cff00ff96"},
-		[11]			= {class = "Druid", 		B=0.04,	G=0.49,	R=1,	hex="|cffff7d0a"},
-		[12] 			= {class = "Demonhunter", 	B=0.79, G=0.19, R=0.64, hex="|cffa330c9"},
+		[1]				= {class = "Warrior", 		B=0.43,	G=0.61,	R=0.78,	hex="c79c6e"},
+		[2]				= {class = "Paladin", 		B=0.73,	G=0.55,	R=0.96,	hex="f58cba"},
+		[3]				= {class = "Hunter",		B=0.45,	G=0.83,	R=0.67,	hex="abd473"},
+		[4]				= {class = "Rogue",			B=0.41,	G=0.96,	R=1,	hex="fff569"},
+		[5]				= {class = "Priest",		B=1,	G=1,	R=1,	hex="ffffff"},
+		[6]				= {class = "Deathknight",	B=0.23,	G=0.12,	R=0.77,	hex="c41f3b"},
+		[7]				= {class = "Shaman",		B=0.87,	G=0.44,	R=0,	hex="0070de"},
+		[8]				= {class = "Mage",			B=0.94,	G=0.8,	R=0.41,	hex="69ccf0"},
+		[9]				= {class = "Warlock", 		B=0.79,	G=0.51,	R=0.58,	hex="9482c9"},
+		[10]			= {class = "Monk",			B=0.59,	G=1,	R=0,	hex="00ff96"},
+		[11]			= {class = "Druid", 		B=0.04,	G=0.49,	R=1,	hex="ff7d0a"},
+		[12] 			= {class = "Demonhunter", 	B=0.79, G=0.19, R=0.64, hex="a330c9"},
 	}
-	br.classColor = classColors[select(3,UnitClass("player"))].hex
+	br.classColor = tostring("|cff"..classColors[select(3,UnitClass("player"))].hex)
+	-- Class Specific Color for UI Elements
+    classColor = {
+        color = classColors[select(3,UnitClass("player"))].hex,
+    }
 	qualityColors = {
 		blue = "0070dd",
 		green = "1eff00",

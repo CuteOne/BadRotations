@@ -1,36 +1,36 @@
 local DiesalGUI = LibStub("DiesalGUI-1.0")
+local DiesalTools = LibStub("DiesalTools-1.0")
 
-function createNewText(parent, text)
-    local newText = DiesalGUI:Create("FontString")
-    local offset = -2
-    local anchor = parent.content
-
-    -- Calculate Position
-    local howManyTexts = 1
+function br.ui:createText(parent, text)
+    -------------------------------
+    ----Need to calculate Y Pos----
+    -------------------------------
+    local Y = -5
     for i=1, #parent.children do
-        if parent.children[i].type == "FontString" then
-            anchor = parent.children[i]
+        if parent.children[i].type ~= "Spinner" and parent.children[i].type ~= "Dropdown" then
+            Y = Y - parent.children[i].frame:GetHeight()*1.2
         end
     end
+    Y = DiesalTools.Round(Y)
+    ----------------------------
+    --------Create Label--------
+    ----------------------------
+    local label = DiesalGUI:Create("FontString")
 
-    local y = howManyTexts
-    if y  ~= 1 then y = ((y-1) * -br.spacing) -5 end
-    if y == 1 then y = -5 end
+    label:SetParent(parent.content)
 
-    newText:SetParent(parent.content)
-    parent:AddChild(newText)
-    newText = newText.fontString
+    parent:AddChild(label)
 
+    label = label.fontString
 
-    newText:SetPoint("TOPLEFT", anchor.content, "TOPLEFT", 5, offset)
-    newText:SetPoint("TOPRIGHT", anchor.content, "TOPRIGHT", -5, offset)
+    label:SetPoint("TOPLEFT", parent.content, "TOPLEFT", 20, Y)
+    label:SetWidth(parent.content:GetWidth()-10)
+    label:SetJustifyH("LEFT")
+    label:SetJustifyV("TOP")
+    label:SetText(text)
+    label:SetWordWrap(false)
 
-    newText:SetText(text)
-    newText:SetJustifyH('LEFT')
-    newText:SetJustifyV('TOP')
-    newText:SetFont(SharedMedia:Fetch('font', 'Calibri Bold'), 10)
-    newText:SetWidth(parent.content:GetWidth()-10)
-    newText:SetWordWrap(true)
-
-    return newText
+    -------------------------
+    --------END Label--------
+    -------------------------
 end

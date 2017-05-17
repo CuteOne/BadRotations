@@ -1,16 +1,20 @@
 local DiesalGUI = LibStub("DiesalGUI-1.0")
+local DiesalStyle = LibStub("DiesalStyle-1.0")
+local DiesalTools = LibStub("DiesalTools-1.0")
+local SharedMedia = LibStub("LibSharedMedia-3.0")
 
 br.ui.window = {}
 
 -- Window creators
-function br.ui:createWindow(name, width, height, title, color)
-    if title == nil then titleName = name end
+function br.ui:createWindow(name, width, height, title, color, messageWindow)
+    if title == nil then title = name end
     if color == nil then color = br.classColor end
     local window = DiesalGUI:Create('Window')
     window:SetTitle(color..'BadRotations', title)
     window.settings.width = width or 250
     window.settings.height = height or 250
     window.settings.header = true
+    window.settings.footer = true
     window.frame:SetClampedToScreen(true)
     window:ApplySettings()
 
@@ -23,7 +27,12 @@ function br.ui:createWindow(name, width, height, title, color)
         window:Hide()
     end)
 
-    local scrollFrame = DiesalGUI:Create('ScrollFrame')
+    if messageWindow == nil or messageWindow == false then
+        scrollFrame = DiesalGUI:Create('ScrollFrame')
+    elseif messageWindow == true then
+        scrollFrame = DiesalGUI:Create('ScrollingMessageFrame')
+        scrollFrame:SetStylesheet(br.ui.messageStylesheet)
+    end
     window:AddChild(scrollFrame)
     scrollFrame:SetParent(window.content)
     scrollFrame:SetAllPoints(window.content)
@@ -50,58 +59,11 @@ function br.ui:createWindow(name, width, height, title, color)
         scrollFrame.parent:SetHeight(windows["height"])
     end
 
-    br.ui:createLeftArrow(scrollFrame)
-    br.ui:createRightArrow(scrollFrame)
+    if messageWindow == nil or messageWindow == false then
+        br.ui:createLeftArrow(scrollFrame)
+        br.ui:createRightArrow(scrollFrame)
+    end
     return scrollFrame
-end
-
-function br.ui:createMessageWindow(name, width, height, title, color)
-    if title == nil then title = name end
-    if color == nil then color = br.classColor end
-    local window = DiesalGUI:Create('Window')
-    window:SetTitle(color..'BadRotations', title)
-    window.settings.width = width or 300
-    window.settings.height = height or 250
-    window.frame:SetClampedToScreen(true)
-    window:ApplySettings()
-
-    window.closeButton:SetScript("OnClick", function(this, button)
-        br.ui:savePosition(name)
-        br.data.settings[br.selectedSpec][name]["active"] = false
-        DiesalGUI:OnMouse(this,button)
-        PlaySound("gsTitleOptionExit")
-        window:FireEvent("OnClose")
-        window:Hide()
-    end)
-
-    local newMessageFrame = DiesalGUI:Create('ScrollingMessageFrameBR')
-    window:AddChild(newMessageFrame)
-    newMessageFrame:SetParent(window.content)
-    newMessageFrame:SetAllPoints(window.content)
-    newMessageFrame.parent = window
-
-    if br.selectedSpec == nil then br.selectedSpec = select(2,GetSpecializationInfo(GetSpecialization())) end
-    if br.data.settings[br.selectedSpec] == nil then br.data.settings[br.selectedSpec] = {} end
-    if br.data.settings[br.selectedSpec][name] == nil then br.data.settings[br.selectedSpec][name] = {} end
-    local windows = br.data.settings[br.selectedSpec][name]
-    if windows["point"] ~= nil then
-        local point, relativeTo = windows["point"], windows["relativeTo"]
-        local relativePoint     = windows["relativePoint"]
-        local xOfs, yOfs        = windows["xOfs"], windows["yOfs"]
-        newMessageFrame.parent:SetPoint(point, relativeTo, relativePoint, xOfs, yOfs)
-    end
-    if windows["point2"] ~= nil then
-        local point, relativeTo = windows["point2"], windows["relativeTo2"]
-        local relativePoint     = windows["relativePoint2"]
-        local xOfs, yOfs        = windows["xOfs2"], windows["yOfs2"]
-        newMessageFrame.parent:SetPoint(point, relativeTo, relativePoint, xOfs, yOfs)
-    end
-    if windows["width"] and windows["height"] then
-        newMessageFrame.parent:SetWidth(windows["width"])
-        newMessageFrame.parent:SetHeight(windows["height"])
-    end
-
-    return newMessageFrame
 end
 
 -- Load saved position
