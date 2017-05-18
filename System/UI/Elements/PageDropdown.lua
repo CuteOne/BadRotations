@@ -4,7 +4,7 @@ local DiesalGUI = LibStub("DiesalGUI-1.0")
 -- todo: save last active page and restore
 function br.ui:createPagesDropdown(window, menuPages)
     window.pages = menuPages
-    window.pageDD = DiesalGUI:Create('DropdownBR')
+    window.pageDD = DiesalGUI:Create('Dropdown')
     local newDropdown = window.pageDD
     newDropdown:SetParent(window.parent.header)
     newDropdown.settings.width = 150

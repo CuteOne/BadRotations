@@ -470,17 +470,17 @@ local function runRotation()
                 end
     -- Fracture
                 -- actions+=/fracture,if=pain>=80&soul_fragments<4&incoming_damage_4s<=health.max*0.20
-                if pain >= 80 and buff.soulFragments.stack() < 4 then
+                if pain >= 60 and buff.soulFragments.stack() < 4 then
                     if cast.fracture() then return end
                 end
     -- Soul Cleave
                 -- actions+=/soul_cleave,if=pain>=80
-                if useDefensive() and isChecked("Soul Cleave") and pain >= 80 then
+                if useDefensive() and isChecked("Soul Cleave") and pain >= 60 then
                     if cast.soulCleave() then return end
                 end
     -- Shear
                 -- actions+=/shear
-                if pain < 80 or not useDefensive() or (useDefensive() and not isChecked("Soul Cleave")) then
+                if pain < 60 or not useDefensive() or (useDefensive() and not isChecked("Soul Cleave")) then
                     if cast.shear() then return end
                 end
     -- Throw Glaive

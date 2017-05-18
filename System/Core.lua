@@ -153,6 +153,9 @@ frame:SetScript("OnEvent", frame.OnEvent)
 --[[This function is refired everytime wow ticks. This frame is located at the top of Core.lua]]
 
 function BadRotationsUpdate(self)
+	if isChecked("Talent Anywhere") then
+		talentAnywhere()
+	end
 	local startTime = debugprofilestop()
 	if br.updateInProgress ~= true then
 		self.updateInProgress = true

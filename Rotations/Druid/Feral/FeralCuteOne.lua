@@ -706,7 +706,7 @@ local function runRotation()
 						end
                     elseif MF1 and not REG1 then
             -- Regrowth
-                        if combo == 5 and not buff.bloodtalons.exits() and buff.predatorySwiftness.exists() then
+                        if combo == 5 and not buff.bloodtalons.exists() and buff.predatorySwiftness.exists() then
                             if castOpener("regrowth","REG1",7) then return end
                         else
                             Print("7: Regrowth (Uncastable)");

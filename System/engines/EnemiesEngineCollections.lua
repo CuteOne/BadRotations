@@ -232,3 +232,102 @@ longTimeCC = {
 	5484,   -- Warlock - Howl of Terror
 	-- Warrior
 }
+interruptWhitelist = { -- List provided by Admire
+	191823, -- Furious Blast
+	191848, -- Rampage
+	192003, -- Blazing Nova
+	192005, -- Arcane Blast
+	192135, -- Bellowing Roar
+	192288, -- Searing Light
+	192563, -- Cleansing Flames
+	193069, -- Nightmares
+	193585, -- Bound
+	194266, -- Void Snap
+	194657, -- Soul Siphon
+	195046, -- Rejuvenating Waters
+	195129, -- Thundering Stomp
+	195293, -- Debilitating Shout
+	196027, -- Aqua Spout
+	196175, -- Armorshell
+	196392, -- Overcharge Mana
+	196870, -- Storm
+	196883, -- Spirit Blast
+	197105, -- Polymorph: Fish
+	197502, -- Restoration
+	198405, -- Bone Chilling Scream
+	198495, -- Torrent
+	198750, -- Surge
+	198931, -- Healing Light
+	198934, -- Rune of Healing
+	198962, -- Shattered Rune
+	199514, -- Torrent of Souls
+	199589, -- Whirlpool of Souls
+	199726, -- Unruly Yell
+	200248, -- Arcane Blitz
+	200642, -- Despair
+	200658, -- Star Shower
+	200905, -- Sap Soul
+	201400, -- Dread Inferno
+	201488, -- Frightening Shout
+	202181, -- Stone Gaze
+	202658, -- Drain
+	203176, -- Accelerating Blast
+	203957, -- Time Lock
+	204140, -- Shield of Eyes
+	204243, -- Tormenting Eye
+	204963, -- Shadow Bolt Volley
+	205070, -- Spread Infestation
+	205088, -- Blazing Hellfire
+	205112, -- Drain Essence
+	205121, -- Chaos Bolt
+	205298, -- Essence of Corruption
+	205300, -- Corruption
+	207980, -- Disintegration Beam
+	208165, -- Withering Soul
+	208697, -- Mind Flay
+	209404, -- Seal Magic
+	209410, -- Nightfall Orb
+	209413, -- Suppress
+	209485, -- Drain Magic
+	210261, -- Sound Alarm
+	210684, -- Siphon Essence
+	211007, -- Eye of the Vortex
+	211115, -- Phase Breach
+	211299, -- Searing Glare
+	211368, -- Twisted Touch of Life
+	211401, -- Drifting Embers
+	211464, -- Fel Detonation
+	211470, -- Bewitch
+	211632, -- Brand of the Legion
+	211757, -- Portal: Argus
+	215204, -- Hinder
+	216197, -- Surging Waters
+	218532, -- Arc Lightning
+	221059, -- Wave of Decay
+	222939, -- Shadow Volley
+	223038, -- Erupting Terror
+	223392, -- Dread Wrath Volley
+	223423, -- Nightmare Spores
+	223565, -- Screech
+	223590, -- Darkfall
+	224460, -- Venom Nova
+	225042, -- Corrupt
+	225073, -- Despoiling Roots
+	225079, -- Raining Filth
+	225100, -- Charging Station
+	225573, -- Dark Mending
+	226206, -- Arcane Reconstitution
+	226269, -- Torment
+	226285, -- Demonic Ascension
+	227592, -- Frostbite
+	227800, -- Holy Shock
+	227823, -- Holy Wrath
+	230084, -- Stabilize Rift
+	207228, -- Warp Nightwell
+	213281, -- Pyroblast
+	209017, -- Felblast
+	209971, -- Albative Pulse
+	209568, -- Exothermic Release
+	209617, -- Expedite
+	208672, -- Carrion wave
+}

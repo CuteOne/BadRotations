@@ -265,7 +265,7 @@ function br.read.combatLog()
                 end
                 -- set destination
                 if destination == nil or destName == nil then
-                    debugdest = "Target hidden"
+                    debugdest = "Target not required"
                 else
                     debugdest = destName --.." "..destination
                 end
@@ -284,7 +284,7 @@ function br.read.combatLog()
                     ..white.."| "..yellow..string.format("%-3.3f", getCombatTime())
                     ..white.."| "..color..string.format("%-6.6d", debugSpell)
                     ..white.."| "..color..string.format("%-25.25s", spellName)
-                    ..white.."| "..red..string.format("%.15s", debugdest)
+                    ..white.."| "..red..string.format("%.25s", debugdest)
                     -- ..white.." | "..yellow..Power
                 -- pulse display
                 br.ui.window.debug:AddMessage(textString:gsub("\n", " | "))

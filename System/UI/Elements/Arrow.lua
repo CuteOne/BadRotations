@@ -1,36 +1,19 @@
 local DiesalGUI = LibStub("DiesalGUI-1.0")
 
-local arrowRight = {
-    type            = 'texture',
-    offset     = {-2,nil,-2,nil},
-    height    = 16,
-    width        = 16,
-    alpha         = .7,
-    texFile    = 'DiesalGUIcons',
-    --texColor    = 'ffff00',
-    texCoord    = {7,5,16,256,128},
-}
-local arrowLeft =    {
-    type            = 'texture',
-    offset     = {-2,nil,-2,nil},
-    height    = 16,
-    width        = 16,
-    alpha         = .7,
-    texFile    = 'DiesalGUIcons',
-    --texColor    = 'ffff00',
-    texCoord    = {8,5,16,256,128},
-}
-
 -- Right Arrow
 function br.ui:createRightArrow(window)
     local rArr = DiesalGUI:Create('Button')
     rArr:SetParent(window.parent.header)
+    rArr:SetStyle('frame',br.ui.arrowRight)
+    rArr.settings.width = 20
+    rArr.settings.height = 20
+    rArr.settings.disabled = false
     rArr:SetPoint('TOPRIGHT',0,0)
-    rArr:SetSettings({
-        width            = 20,
-        height        = 20,
-    },true)
-    rArr:SetStyle('frame',arrowRight)
+    -- rArr:SetSettings({
+    --     width           = 20,
+    --     height          = 20,
+    --     disabled        = false,
+    -- },true)
     rArr:SetEventListener('OnEnter',     function()
         GameTooltip:SetOwner(rArr.frame, "ANCHOR_TOPLEFT",0,2)
         GameTooltip:AddLine('Next')
@@ -49,6 +32,7 @@ function br.ui:createRightArrow(window)
             end
         end
     end)
+    rArr:ApplySettings()
     window.parent:AddChild(rArr)
 end
 -- Left Arrow
@@ -57,10 +41,11 @@ function br.ui:createLeftArrow(window)
     lArr:SetParent(window.parent.header)
     lArr:SetPoint('TOPLEFT',0,0)
     lArr:SetSettings({
-        width            = 20,
-        height        = 20,
+        width           = 20,
+        height          = 20,
+        disabled        = false,
     },true)
-    lArr:SetStyle('frame',arrowLeft)
+    lArr:SetStyle('frame',br.ui.arrowLeft)
     lArr:SetEventListener('OnEnter',     function()
         GameTooltip:SetOwner(lArr.frame, "ANCHOR_TOPLEFT",0,2)
         GameTooltip:AddLine('Previous')

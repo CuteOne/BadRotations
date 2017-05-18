@@ -1,6 +1,6 @@
 br.ui.window.help = {}
 function br.ui:createHelpWindow()
-    br.ui.window.help   = br.ui:createMessageWindow("help",500,500,"Information")
+    br.ui.window.help   = br.ui:createWindow("help",500,500,"Information",nil,true)
     local colorBlue     = "|cff00CCFF"
     local colorGreen    = "|cff00FF00"
     local colorRed      = "|cffFF0011"

@@ -435,6 +435,7 @@ function canInterrupt(unit,percentint)
 	local channelDelay = 0.4 -- Delay to mimick human reaction time for channeled spells
 	local interruptable = false
 	local castType = "spellcast" -- Handle difference in logic if the spell is cast or being channeles
+	local interruptID = 0
 	if GetUnitExists(unit)
 		and UnitCanAttack("player",unit)
 		and not UnitIsDeadOrGhost(unit)
@@ -442,17 +443,20 @@ function canInterrupt(unit,percentint)
 		if select(6,UnitCastingInfo(unit)) and not select(9,UnitCastingInfo(unit)) then --Get spell cast time
 			castStartTime = select(5,UnitCastingInfo(unit))
 			castEndTime = select(6,UnitCastingInfo(unit))
+			interruptID = select(7,GetSpellInfo(UnitCastingInfo(unit)))
 			interruptable = true
 			castType = "spellcast"
 		elseif select(6,UnitChannelInfo(unit)) and not select(8,UnitChannelInfo(unit)) then -- Get spell channel time
 			castStartTime = select(5,UnitChannelInfo(unit))
 			castEndTime = select(6,UnitChannelInfo(unit))
+			interruptID = select(7,GetSpellInfo(UnitChannelInfo(unit)))
 			interruptable = true
 			castType = "spellchannel"
 		else
 			castStartTime = 0
 			castEndTime = 0
 			interruptable = false
+			interruptID = 0
 		end
 		if castEndTime > 0 and castStartTime > 0 then
 			castDuration = (castEndTime - castStartTime)/1000
@@ -484,15 +488,17 @@ function canInterrupt(unit,percentint)
 			castTimeRemain = 0
 			castPercent = 0
 		end
-		if castType == "spellcast" then
-			if math.ceil((castTimeRemain/castDuration)*100) <= castPercent and interruptable == true and getTimeToDie(unit)>castTimeRemain then
-				return true
+		if ((isChecked("Interrupt Only Whitelist") and interruptWhitelist[interruptID] ~= nil) or not isChecked("Interrupt Only Whitelist")) then
+			if castType == "spellcast" then
+				if math.ceil((castTimeRemain/castDuration)*100) <= castPercent and interruptable == true and getTimeToDie(unit)>castTimeRemain then
+					return true
+				end
 			end
-		end
-		if castType == "spellchannel" then
-			--if (GetTime() - castStartTime/1000) > channelDelay and interruptable == true then
-			if (GetTime() - castStartTime/1000) > channelDelay and math.ceil((castTimeRemain/castDuration)*100) <= castPercent and interruptable == true and getTimeToDie(unit)>castTimeRemain then
-				return true
+			if castType == "spellchannel" then
+				--if (GetTime() - castStartTime/1000) > channelDelay and interruptable == true then
+				if (GetTime() - castStartTime/1000) > channelDelay and math.ceil((castTimeRemain/castDuration)*100) <= castPercent and interruptable == true and getTimeToDie(unit)>castTimeRemain then
+					return true
+				end
 			end
 		end
 		return false
@@ -3344,4 +3350,52 @@ function bossHPLimit(unit,hp)
         end
     end
     return (not inBossFight or (inBossFight and UnitHealthMax(unit) > bossHPMax * (hp / 100)))
+end
+
+function talentAnywhere()
+    local removeTalent = RemoveTalent
+    local learnTalent = LearnTalent
+    -- Load Talent UI if not opened before
+    if not IsAddOnLoaded("Blizzard_TalentUI") then
+       LoadAddOn("Blizzard_TalentUI")
+    end
+
+    local function talentSelection(row)
+    	selectedTalent = nil
+    	for column = 1, 3 do
+    		if IsMouseButtonDown(1) and newTalent == nil and MouseIsOver(_G["PlayerTalentFrameTalentsTalentRow"..row.."Talent"..column]) 
+    			and not select(4, GetTalentInfoByID(GetTalentInfo(row, column, 1), 1)) 
+    		then
+    			selectedTalent = nil
+    			newTalent = select(1,GetTalentInfo(row, column, 1))
+    			newTalentRow = row
+    		end
+    		if newTalentRow ~= nil then
+	    		if select(4, GetTalentInfoByID(GetTalentInfo(newTalentRow, column, 1), 1)) then
+	    			selectedTalent = select(1,GetTalentInfo(newTalentRow, column, 1))
+	    		end
+	    	end
+    	end
+    	return selectedTalent, newTalent -- selectedNew
+    end
+
+	if PlayerTalentFrame:IsVisible() and not IsResting() then
+        for row = 1, 7 do
+        	selectedTalent, newTalent, selectedNew  = talentSelection(row)
+        end
+        ChatOverlay(tostring(selectedTalent).." | "..tostring(newTalent).." | "..tostring(selectedNew))
+        if newTalent ~= nil then
+	        if selectedTalent ~= nil and selectedTalent ~= newTalent and not selectedNew and br.timer:useTimer("RemoveTalent", 0.1) then
+	        	removeTalent(selectedTalent)
+	        end
+	        if selectedTalent == nil and selectedTalent ~= newTalent and not selectedNew then
+	        	learnTalent(newTalent)
+	        	selectedNew = true
+	        end
+	        if selectedTalent == newTalent then
+	        	selectedNew = false
+	        	newTalent = nil
+	        end
+	    end
+    end
 end
