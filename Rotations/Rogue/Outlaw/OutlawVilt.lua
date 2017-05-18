@@ -35,13 +35,6 @@ local function createToggles()
         [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.kick}
     };
     CreateButton("Interrupt",5,0)
--- Pick Pocket Button
-    PickerModes = {
-      [1] = { mode = "Auto", value = 2 , overlay = "Auto Pick Pocket Enabled", tip = "Profile will attempt to Pick Pocket prior to combat.", highlight = 1, icon = br.player.spell.pickPocket},
-      [2] = { mode = "Only", value = 1 , overlay = "Only Pick Pocket Enabled", tip = "Profile will attempt to Sap and only Pick Pocket, no combat.", highlight = 0, icon = br.player.spell.pickPocket},
-      [3] = { mode = "Off", value = 3, overlay = "Pick Pocket Disabled", tip = "Profile will not use Pick Pocket.", highlight = 0, icon = br.player.spell.pickPocket}
-    };
-    CreateButton("Picker",6,0)
 end
 
 ---------------
@@ -62,7 +55,7 @@ local function createOptions()
             -- RTb Prepull
             br.ui:createCheckbox(section, "RTB Prepull")
             -- Stealth
-            br.ui:createDropdown(section, "Stealth", {"|cff00FF00Always", "|cffFF000020Yards"},  1, "Stealthing method.")
+            br.ui:createDropdown(section, "Stealth", {"|cff00FF00Always", "|cffFF000020Yards"},  2, "Stealthing method.")
             -- Artifact
             br.ui:createCheckbox(section, "Artifact")
         br.ui:checkSectionState(section)
@@ -141,8 +134,6 @@ local function createOptions()
             br.ui:createDropdown(section,  "Interrupt Mode", br.dropOptions.Toggle,  6)
             -- Cleave Toggle
             br.ui:createDropdown(section,  "BladeFlurry Mode", br.dropOptions.Toggle,  6)
-            -- Pick Pocket Toggle
-            br.ui:createDropdown(section,  "Pick Pocket Mode", br.dropOptions.Toggle,  6)
             -- Pause Toggle
             br.ui:createDropdown(section,  "Pause Mode", br.dropOptions.Toggle,  6)
         br.ui:checkSectionState(section)
@@ -171,8 +162,6 @@ local function runRotation()
         UpdateToggle("Interrupt",0.25)
         UpdateToggle("BladeFlurry",0.25)
         br.player.mode.cleave = br.data.settings[br.selectedSpec].toggles["BladeFlurry"]
-        UpdateToggle("Picker",0.25)
-        br.player.mode.pickPocket = br.data.settings[br.selectedSpec].toggles["Picker"]
 
 --------------
 --- Locals ---
@@ -189,7 +178,7 @@ local function runRotation()
         local gcd                                           = br.player.gcd
         local hastar                                        = GetObjectExists("target")
         local healPot                                       = getHealthPot()
-        local inCombat                                      = br.player.inCombat
+        local inCombat                                      = isInCombat("player")
         local lastSpell                                     = lastSpellCast
         local level                                         = br.player.level
         local mode                                          = br.player.mode
@@ -272,53 +261,12 @@ local function runRotation()
             end
         end
 
-        -- Custom Functions
-        local function usePickPocket()
-            if mode.pickPocket == 1 or mode.pickPocket == 2 then
-                return true
-            else
-                return false
-            end
-        end
-
-        local function isPicked(thisUnit)   --  Pick Pocket Testing
-            if thisUnit == nil then thisUnit = "target" end
-            if GetObjectExists(thisUnit) then
-                if myTarget ~= UnitGUID(thisUnit) then
-                    canPickpocket = true
-                    myTarget = UnitGUID(thisUnit)
-                elseif not (UnitCreatureType(units.dyn30) == "Humanoid" or UnitCreatureType(units.dyn30) == "Demon" or UnitCreatureType(units.dyn30) == "Aberration") then
-                    canPickpocket = false
-                end
-            end
-            if (canPickpocket == false or mode.pickPocket == 3 or GetNumLootItems()>0) and not isDummy() then
-                return true
-            else
-                return false
-            end
-        end
-
 --------------------
 --- Action Lists ---
 --------------------
-    -- Action List - Extras
+    --[[ Action List - Extras
         local function actionList_Extras()
-    -- Pick Pocket
-            if usePickPocket() and stealth and not inCombat then
-                if UnitCanAttack(units.dyn5,"player") and (UnitExists("target") or mode.pickPocket == 2) and mode.pickPocket ~= 3 then
-                    if not isPicked(units.dyn5) and not isDummy(units.dyn5) and getDistance(units.dyn5) <= 6 then
-                        if debuff.sap.remain(units.dyn5) < 1 and mode.pickPocket ~= 1 then
-                            if cast.sap(units.dyn5) then return end
-                        end
-                        if cast.pickPocket() then return end
-                    end
-                end
-            end
-    -- Pistol Shot
-            if isChecked("Pistol Shot out of range") and isValidUnit("target") and power >= getOptionValue("Pistol Shot out of range") and (combo < comboMax or ttm <= 1.5) and (inCombat and getDistance("target") > 7) and not stealth then
-                if cast.pistolShot("target") then return end
-            end
-        end -- End Action List - Extras
+        end -- End Action List - Extras]]
     -- Action List - DefensiveModes
         local function actionList_Defensive()
             if useDefensive() and not stealth then
@@ -471,7 +419,7 @@ local function runRotation()
     -- Action List - PreCombat
         local function actionList_PreCombat()
         -- Stealth
-            if not stealth then
+            if not inCombat and not stealth then
                 if isChecked("Stealth") and (not IsResting() or isDummy("target")) then
                     if getOptionValue("Stealth") == 1 then
                         if cast.stealth("player") then return end
@@ -488,12 +436,12 @@ local function runRotation()
             end
         -- Marked for Death
             -- marked_for_death
-            if isChecked("Marked For Death - Precombat") and getDistance("target") < 15 and isValidUnit("target") then
+            if not inCombat and isChecked("Marked For Death - Precombat") and getDistance("target") < 15 and isValidUnit("target") then
                 if cast.markedForDeath("target") then return end
             end
         -- Roll The Bones
             -- roll_the_bones,if=!talent.slice_and_dice.enabled
-            if isChecked("RTB Prepull") and not talent.sliceAndDice and buff.rollTheBones.count == 0 and isValidUnit("target") and getDistance("target") <= 10 then
+            if not inCombat and isChecked("RTB Prepull") and not talent.sliceAndDice and buff.rollTheBones.count == 0 and isValidUnit("target") and getDistance("target") <= 10 then
                 if cast.rollTheBones() then return end
             end
         end -- End Action List - PreCombat
@@ -530,14 +478,22 @@ local function runRotation()
             end
         end -- End Action List - Build
     -- Action List - Opener
-        local function actionList_Opener()            
+        local function actionList_Opener()
+            if isValidUnit("target") then          
         -- Opener
-            if combo >= 5 then
-                if cast.runThrough("target") then return end
-            elseif stealthingAll then
-                if cast.ambush("target") then return end
-            else
-                if cast.saberSlash("target") then return end
+                if not inCombat then
+                    if combo >= 5 then
+                        if cast.runThrough("target") then return end
+                    elseif stealthingAll then
+                        if cast.ambush("target") then return end
+                    else
+                        if cast.saberSlash("target") then return end
+                    end
+                end
+        -- StartAttack
+                if getDistance("target") <= 5 and not stealthingAll and not StartAttack() then
+                    StartAttack()
+                end
             end
         end
     -- Action List - Stealth
@@ -580,7 +536,7 @@ local function runRotation()
 -----------------------
 --- Extras Rotation ---
 -----------------------
-            if actionList_Extras() then return end
+            --if actionList_Extras() then return end
 --------------------------
 --- Defensive Rotation ---
 --------------------------
@@ -588,119 +544,115 @@ local function runRotation()
 ------------------------------
 --- Out of Combat Rotation ---
 ------------------------------
-            if not inCombat then
-                if actionList_PreCombat() then return end
-            end
+            if actionList_PreCombat() then return end
 ----------------------------
 --- Out of Combat Opener ---
 ----------------------------
-            if not inCombat and isChecked("Opener") and isValidUnit("target") then
-                if actionList_Opener() then return end
-            else
---------------------------
---- In Combat Rotation ---
---------------------------
-                if profileStop==false then
-                    if not stealthingAll or level < 5 then
-------------------------------
---- In Combat - Interrupts ---
-------------------------------
-                        if actionList_Interrupts() then return end
+            if actionList_Opener() then return end
 --------------------------------
 --- In Combat - Blade Flurry ---
 --------------------------------
-                        if actionList_BladeFlurry() then return end
+            if actionList_BladeFlurry() then return end
+--------------------------
+--- In Combat Rotation ---
+--------------------------
+            if inCombat and (isValidUnit(units.dyn5) or isValidUnit("target")) then
+                if not stealthingAll or level < 5 then
+------------------------------
+--- In Combat - Interrupts ---
+------------------------------
+                    if actionList_Interrupts() then return end
 -----------------------------
 --- In Combat - Cooldowns ---
 -----------------------------
-                        if useCDs() and getDistance("target") <= 6 and attacktar then
-                            if actionList_Cooldowns() then return end
-                        end
+                    if useCDs() and getDistance("target") <= 6 and attacktar then
+                        if actionList_Cooldowns() then return end
                     end
+                end
 ---------------------------
 --- In Combat - Stealth ---
 ---------------------------
-                    if isValidUnit(units.dyn5) then
-                        -- call_action_list,name=stealth,if=stealthed.rogue|cooldown.vanish.up|cooldown.shadowmeld.up
-                        if (stealthingAll or cd.vanish == 0 or cd.shadowmeld == 0) and not solo then
-                            if actionList_Stealth() then return end
-                        end
+                    -- call_action_list,name=stealth,if=stealthed.rogue|cooldown.vanish.up|cooldown.shadowmeld.up
+                if (stealthingAll or cd.vanish == 0 or cd.shadowmeld == 0) and not solo then
+                    if actionList_Stealth() then return end
+                end
 ----------------------------------
 --- In Combat - Begin Rotation ---
 ----------------------------------
-                    -- if not buff.stealth and not buff.vanish and not buff.shadowmeld and GetTime() > vanishTime + 2 and getDistance(units.dyn5) < 5 then
-                        if not stealthingAll then
-                            StartAttack()
-                    -- Marked for Death
-                            if isChecked("Marked For Death") then
-                                if getOptionValue("Marked For Death") == 1 and getDistance("target") <= 5 then                                    
-                                    if comboDeficit >= ComboMaxSpend() - 1 then
-                                        if cast.markedForDeath("target") then return end
-                                    end
-                                elseif getOptionValue("Marked For Death") == 2 then
-                                    for i = 1, #enemies.yards30 do
-                                        local thisUnit = enemies.yards30[i]
-                                        if comboDeficit >= 6 then comboDeficit = ComboMaxSpend() end
-                                        if ttd(thisUnit) > 0 and ttd(thisUnit) <= 100 then
-                                            if ttd(thisUnit) < comboDeficit*1.2 then
-                                                if cast.markedForDeath(thisUnit) then return end
-                                            end
-                                        end
-                                    end
-                                end
+                -- if not buff.stealth and not buff.vanish and not buff.shadowmeld and GetTime() > vanishTime + 2 and getDistance(units.dyn5) < 5 then
+                if not stealthingAll then
+                -- Marked for Death
+                    if isChecked("Marked For Death") then
+                        if getOptionValue("Marked For Death") == 1 then
+                            if comboDeficit >= ComboMaxSpend() then
+                                if cast.markedForDeath("spell_targets   ") then return end
                             end
-            -- Death from Above
-                            -- death_from_above,if=energy.time_to_max>2&!variable.ss_useable_noreroll
-                            if ttm > 2 and not ssUsableNoReroll() then
-                                if cast.deathFromAbove() then return end
-                            end
-                            if not ssUsable() then
-                                if talent.sliceAndDice then
-            -- Slice and Dice
-                                    -- slice_and_dice,if=!variable.ss_useable&buff.slice_and_dice.remains<target.time_to_die&buff.slice_and_dice.remains<(1+combo_points)*1.8
-                                    if (buff.sliceAndDice.remain() < ttd("target") or not buff.sliceAndDice.exists()) and buff.sliceAndDice.remain() < (1 + combo) * 1.8 then
-                                        if cast.sliceAndDice() then return end
-                                    end
-                                elseif isChecked("RTB") then
-            -- Roll the Bones
-                                    -- roll_the_bones,if=!variable.ss_useable&(target.time_to_die>20|buff.roll_the_bones.remains<target.time_to_die)&(buff.roll_the_bones.remains<=3|variable.rtb_reroll)
-                                    if (ttd("target") > 20 or buff.rollTheBones.remain < ttd("target") or buff.rollTheBones.remain == 0) and (buff.rollTheBones.remain <= 3 or rtbReroll()) then
-                                        if cast.rollTheBones() then return end
-                                    end
-                                end
-                            end
-            -- Killing Spree
-                            -- killing_spree,if=energy.time_to_max>5|energy<15
-                            if useCDs() and talent.killingSpree and isChecked("Killing Spree") and (ttm > 5 or power < 15) then
-                                if isChecked("Cloak Killing Spree") and cd.killingSpree == 0 then
-                                    if cast.cloakOfShadows() then cast.killingSpree(); return end
-                                end
-                                if cast.killingSpree() then return end
-                            end
-            -- Build
-                            -- call_action_list,name=build
-                            if GetTime() >= vanishTime + cd.global then
-                                if actionList_Build() then return end
-                            end
-            -- Finishers
-                            -- call_action_list,name=finish,if=!variable.ss_useable
-                            if not ssUsable() then
-                                if actionList_Finishers() then return end
-                            end
-            -- Gouge
-                            -- gouge,if=talent.dirty_tricks.enabled&combo_points.deficit>=1
-                            if talent.dirtyTricks and comboDeficit >= 1 and not debuff.curseOfTheDreadblades.exists("player") then
-                                for i = 1, #enemies.yards5 do
-                                    local thisUnit = enemies.yards5[i]
-                                    if not isBoss(thisUnit) and getFacing(thisUnit,"player") then
-                                        if cast.gouge(thisUnit) then return end
+                        elseif getOptionValue("Marked For Death") == 2 then
+                            for i = 1, #enemies.yards30 do
+                                local thisUnit = enemies.yards30[i]
+                                if comboDeficit >= 6 then comboDeficit = ComboMaxSpend() end
+                                if ttd(thisUnit) > 0 and ttd(thisUnit) <= 100 then
+                                    if ttd(thisUnit) < comboDeficit*1.2 then
+                                        if cast.markedForDeath(thisUnit) then return end
                                     end
                                 end
                             end
                         end
                     end
-                end -- End In Combat
-            end
+        -- Death from Above
+                        -- death_from_above,if=energy.time_to_max>2&!variable.ss_useable_noreroll
+                    if ttm > 2 and not ssUsableNoReroll() then
+                        if cast.deathFromAbove() then return end
+                    end
+                    if not ssUsable() then
+                        if talent.sliceAndDice then
+    -- Slice and Dice
+                            -- slice_and_dice,if=!variable.ss_useable&buff.slice_and_dice.remains<target.time_to_die&buff.slice_and_dice.remains<(1+combo_points)*1.8
+                            if (buff.sliceAndDice.remain() < ttd("target") or not buff.sliceAndDice.exists()) and buff.sliceAndDice.remain() < (1 + combo) * 1.8 then
+                                if cast.sliceAndDice() then return end
+                            end
+                        elseif isChecked("RTB") then
+    -- Roll the Bones
+                            -- roll_the_bones,if=!variable.ss_useable&(target.time_to_die>20|buff.roll_the_bones.remains<target.time_to_die)&(buff.roll_the_bones.remains<=3|variable.rtb_reroll)
+                            if (ttd("target") > 20 or buff.rollTheBones.remain < ttd("target") or buff.rollTheBones.remain == 0) and (buff.rollTheBones.remain <= 3 or rtbReroll()) then
+                                if cast.rollTheBones() then return end
+                            end
+                        end
+                    end
+    -- Killing Spree
+                    -- killing_spree,if=energy.time_to_max>5|energy<15
+                    if useCDs() and talent.killingSpree and isChecked("Killing Spree") and (ttm > 5 or power < 15) then
+                        if isChecked("Cloak Killing Spree") and cd.killingSpree == 0 then
+                            if cast.cloakOfShadows() then cast.killingSpree(); return end
+                        end
+                        if cast.killingSpree() then return end
+                    end
+    -- Build
+                    -- call_action_list,name=build
+                    if GetTime() >= vanishTime + cd.global then
+                        if actionList_Build() then return end
+                    end
+    -- Finishers
+                    -- call_action_list,name=finish,if=!variable.ss_useable
+                    if not ssUsable() then
+                        if actionList_Finishers() then return end
+                    end
+    -- Gouge
+                    -- gouge,if=talent.dirty_tricks.enabled&combo_points.deficit>=1
+                    if talent.dirtyTricks and comboDeficit >= 1 and not debuff.curseOfTheDreadblades.exists("player") then
+                        for i = 1, #enemies.yards5 do
+                            local thisUnit = enemies.yards5[i]
+                            if not isBoss(thisUnit) and getFacing(thisUnit,"player") then
+                                if cast.gouge(thisUnit) then return end
+                            end
+                        end
+                    end
+    -- Pistol Shot OOR
+                    if isChecked("Pistol Shot out of range") and isValidUnit("target") and #enemies.yards8 == 0 and not stealthingAll and power >= getOptionValue("Pistol Shot out of range") and (comboDeficit >= 1 or ttm <= gcd) then
+                        if cast.pistolShot("target") then return end
+                    end
+                end
+            end -- End In Combat
         end -- End Profile
 end -- runRotation
 local id = 260
