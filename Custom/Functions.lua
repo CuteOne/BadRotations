@@ -137,7 +137,7 @@ function castGroundAtBestLocation(spellID, radius, minUnits, maxRange, minRange,
 
     if minRange == nil then minRange = 0 end
     local allUnitsInRange = {}
-    if spellType == "heal" then	unitTable = br.friend else unitTable = br.enemy end
+    if spellType == "heal" then unitTable = br.friend else unitTable = br.enemy end
 
     --get all units in range
     for k, v in pairs(unitTable) do
@@ -333,9 +333,9 @@ function RaidBuff(BuffSlot,myBuffSpellID)
     -- check for raidbuff and cast if missing
 
     -- returns:
-    -- true: 	someone was without buff and spell casted
-    -- false: 	"BuffSlot" or "myBuffSpellID" is missing
-    -- nil: 	all raidmembers in range are buffed
+    -- true:    someone was without buff and spell casted
+    -- false:   "BuffSlot" or "myBuffSpellID" is missing
+    -- nil:     all raidmembers in range are buffed
 
     -- example:
     -- Check for Stamina as Priest:
@@ -801,4 +801,64 @@ function br.DBM:getTimer(spellID, time)
         end
     end
     return 999 -- return number to avoid conflicts but to high so it should never trigger
+end
+
+local pullTimerTest
+local pullTimerEndTest
+AddEventCallback("CHAT_MSG_ADDON",function (prefix, message)
+    if prefix == "D4" and string.find(message, "PT") then
+        pullTimerTest = tonumber(string.sub(message, 4, 5));
+        pullTimerEndTest = GetTime() + pullTimerTest;
+        --pullTimerRemainTest = pullTimerEndTest - GetTime()
+    elseif prefix == "BigWigs" and string.find(message, "Pull") then
+        pullTimerTest = tonumber(string.sub(message, 8, 9));
+        pullTimerEndTest = GetTime() + pullTimerTest;
+        --pullTimerRemainTest = pullTimerEndTest - GetTime()
+    end   
+  end
+  )
+
+local pullTimerRemainTest
+--[[function PullTimerRemain(returnBool)
+    if returnBool == nil then returnBool = false end
+    if pullTimerEndTest ~= nil and pullTimerTest ~= nil then
+        if pullTimerEndTest - GetTime() ~= nil and pullTimerEndTest - GetTime() >= 0 then
+            pullTimerRemainTest = pullTimerEndTest - GetTime();
+            if returnBool == true then
+                return true
+            else
+                return math.abs(pullTimerRemainTest)
+            end
+        else
+            -- return 999 as debug
+            if returnBool == false then
+                return 999
+            elseif returnBool == true then
+                return false
+            end
+        end
+    elseif pullTimerEndTest == nil or pullTimerTest == nil or returnBool == false then
+        if returnBool == false then
+            return 999
+        else
+            return false
+        end
+    end
+end]]
+
+function PullTimerRemain(returnBool)
+    if returnBool == nil then returnBool = false end
+    if not pullTimerTest or pullTimerTest == 0 or pullTimerEndTest - GetTime() < 0 then
+        if returnBool == false then
+            return 999
+        else
+            return false
+        end
+    else
+        if returnBool == false then
+            return pullTimerEndTest - GetTime()
+        else
+            return true
+        end
+    end
 end
