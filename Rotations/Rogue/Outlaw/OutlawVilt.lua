@@ -585,7 +585,7 @@ local function runRotation()
                     if isChecked("Marked For Death") then
                         if getOptionValue("Marked For Death") == 1 then
                             if comboDeficit >= ComboMaxSpend() then
-                                if cast.markedForDeath("spell_targets   ") then return end
+                                if cast.markedForDeath("target") then return end
                             end
                         elseif getOptionValue("Marked For Death") == 2 then
                             for i = 1, #enemies.yards30 do
