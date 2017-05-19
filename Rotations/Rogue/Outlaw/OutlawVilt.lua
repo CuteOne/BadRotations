@@ -514,12 +514,12 @@ local function runRotation()
             else
         -- Vanish
                 -- vanish,if=variable.ambush_condition|(equipped.mantle_of_the_master_assassin&mantle_duration=0&!variable.rtb_reroll&!variable.ss_useable)
-                if isChecked("Vanish") and GetTime() >= vanishTime + cd.global and (ambushCondition() or (hasEquiped(144236) and mantleDuration() == 0 and not rtbReroll() and not ssUsable())) and isValidUnit("target") and getDistance("target") <= 5  then
+                if useCDs() and isChecked("Vanish") and GetTime() >= vanishTime + cd.global and (ambushCondition() or (hasEquiped(144236) and mantleDuration() == 0 and not rtbReroll() and not ssUsable())) and isValidUnit("target") and getDistance("target") <= 5  then
                     if cast.vanish() then vanishTime = GetTime(); return end
                 end
         -- Shadowmeld
                 -- shadowmeld,if=variable.ambush_condition
-                if isChecked("Racial") and GetTime() >= vanishTime + cd.global and cd.global <= getLatency() and race == "NightElf" and ambushCondition() and isValidUnit("target") and getDistance("target") <= 5 and not isMoving("player") then
+                if useCDs() and isChecked("Racial") and GetTime() >= vanishTime + cd.global and cd.global <= getLatency() and race == "NightElf" and ambushCondition() and isValidUnit("target") and getDistance("target") <= 5 and not isMoving("player") then
                     if cast.shadowmeld() then vanishTime = GetTime(); cast.ambush(); return end
                 end
             end
@@ -583,8 +583,8 @@ local function runRotation()
                 if not stealthingAll then
                 -- Marked for Death
                     if isChecked("Marked For Death") then
-                        if getOptionValue("Marked For Death") == 1 then
-                            if comboDeficit >= ComboMaxSpend() then
+                        if getOptionValue("Marked For Death") == 1 then                            
+                            if comboDeficit >= ComboMaxSpend() - 1 then
                                 if cast.markedForDeath("target") then return end
                             end
                         elseif getOptionValue("Marked For Death") == 2 then
