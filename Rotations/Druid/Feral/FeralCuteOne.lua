@@ -717,7 +717,7 @@ local function runRotation()
      					if castOpener("rip","RIP1",8) then return end
                     elseif RIP1 and not THR1 and power >= 50 then
                         if castOpener("thrash","THR1",9) then return end
-                    elseif THR1 and (not SHR1 or combo < 5) and power >= 40 and buff.savageRoar.exists() then
+                    elseif THR1 and (not SHR1 or combo < 5) and power >= 40 and (buff.savageRoar.exists() or not talent.savageRoar) then
             -- Shred
                         if castOpener("shred","SHR1",shredCount) then shredCount = shredCount + 1 return end
                     elseif SHR1 and (RIP1 and (not buff.savageRoar.exists() or combo == 5)) then

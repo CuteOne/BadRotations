@@ -700,10 +700,16 @@ function br.loader:new(spec,specName)
 
     function mantleDuration()
         if hasEquiped(144236) then
-            if br.player.buff.masterAssassinsInitiative.remain() > 100 or br.player.buff.masterAssassinsInitiative.remain() < 0 then
+            --if br.player.buff.masterAssassinsInitiative.remain("player") > 100 or br.player.buff.masterAssassinsInitiative.remain("player") < 0 then
+            if br.player.buff.masterAssassinsInitiative.exists("player") and (getBuffRemain("player",235027) > 100 or getBuffRemain("player",235027) < 100) then
                 return br.player.cd.global + 6
             else
-                return br.player.buff.masterAssassinsInitiative.remain()
+                --return br.player.buff.masterAssassinsInitiative.remain("player")
+                if getBuffRemain("player",235027) < 0.1 then
+                    return 0
+                else
+                    return getBuffRemain("player",235027)
+                end
             end
         else
             return 0
