@@ -504,6 +504,10 @@ local function runRotation()
                 end
             end
         end
+            -- Power of the Archdruid
+                if buff.powerOfTheArchdruid.exists() then
+                    if cast.rejuvenation(lowestHP) then return end
+                end
             -- Flourish          
                 if isChecked("Flourish") and talent.flourish and not isCastingSpell(spell.tranquility) then
                 rejuvCount = 0

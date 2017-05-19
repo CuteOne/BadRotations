@@ -691,6 +691,7 @@ br.idList = {
                 rejuvenationGermination     = 155777,
                 lifebloom                   = 33763,
                 lunarEmpowerment            = 164547,
+                powerOfTheArchdruid         = 189870,
                 rejuvenation                = 774,
                 regrowth                    = 8936,
                 solarEmpowerment            = 164545,
