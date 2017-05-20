@@ -705,7 +705,7 @@ function br.loader:new(spec,specName)
                 return br.player.cd.global + 6
             else
                 --return br.player.buff.masterAssassinsInitiative.remain("player")
-                if getBuffRemain("player",235027) < 0.1 then
+                if getBuffRemain("player",235027) >= 0 and getBuffRemain("player",235027) < 0.1 then
                     return 0
                 else
                     return getBuffRemain("player",235027)
