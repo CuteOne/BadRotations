@@ -24,6 +24,7 @@ System\Readers\combatlog.lua
 System\Readers\common.lua
 
 ## Libs
+
 #@no-lib-strip@
 Libs\LibStub\LibStub.lua
 Libs\CallbackHandler-1.0\CallbackHandler-1.0.lua
@@ -65,7 +66,6 @@ System\Engines\ttdTable.lua
 System\UI\ChatOverlay.lua
 System\UI\MinimapButton.lua
 System\UI\UI.lua
-## System\UI\Toggles.lua
 System\UI\Toggles\ToggleFunctions.lua
 System\UI\Toggles\Toggles.lua
 System\UI\Elements\Arrow.lua
@@ -137,13 +137,11 @@ Rotations\Mage\Arcane\ArcaneCuteOne.lua
 Rotations\Mage\Fire\FireCuteOne.lua
 
 Rotations\Mage\Frost\FrostCuteOne.lua
-
 Rotations\Mage\Frost\FrostLyLoLoq.lua
 
 ## Monk ---------------------------------------------------
 
 Rotations\Monk\Mistweaver\MistweaverLyLoLoq.lua
-
 Rotations\Monk\Mistweaver\MistweaverCpoworks.lua
 
 Rotations\Monk\Brewmaster\BrewmasterKuukuu.lua
