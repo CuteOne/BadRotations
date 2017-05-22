@@ -2,7 +2,7 @@
 ## Title: |cffa330c9BadRotations
 ## Notes: |cffa330c9By CuteOne.
 ## Author: CuteOne
-## Version: 1.9.0
+## Version: 1.9.1
 ## SavedVariablesPerCharacter: brdata, dungeondata, raiddata
 
 BadRotations.lua
@@ -24,6 +24,7 @@ System\Readers\combatlog.lua
 System\Readers\common.lua
 
 ## Libs
+
 #@no-lib-strip@
 Libs\LibStub\LibStub.lua
 Libs\CallbackHandler-1.0\CallbackHandler-1.0.lua
@@ -65,7 +66,6 @@ System\Engines\ttdTable.lua
 System\UI\ChatOverlay.lua
 System\UI\MinimapButton.lua
 System\UI\UI.lua
-## System\UI\Toggles.lua
 System\UI\Toggles\ToggleFunctions.lua
 System\UI\Toggles\Toggles.lua
 System\UI\Elements\Arrow.lua
@@ -129,6 +129,7 @@ Rotations\Hunter\Beastmaster\BeastmasterCpoworks.lua
 Rotations\Hunter\Marksmanship\MarksmanshipCpoworks.lua
 
 Rotations\Hunter\Survival\SurvivalCpoworks.lua
+
 ## Mage ---------------------------------------------------
 
 Rotations\Mage\Arcane\ArcaneCuteOne.lua
@@ -136,13 +137,11 @@ Rotations\Mage\Arcane\ArcaneCuteOne.lua
 Rotations\Mage\Fire\FireCuteOne.lua
 
 Rotations\Mage\Frost\FrostCuteOne.lua
-
 Rotations\Mage\Frost\FrostLyLoLoq.lua
 
 ## Monk ---------------------------------------------------
 
 Rotations\Monk\Mistweaver\MistweaverLyLoLoq.lua
-
 Rotations\Monk\Mistweaver\MistweaverCpoworks.lua
 
 Rotations\Monk\Brewmaster\BrewmasterKuukuu.lua
@@ -152,6 +151,7 @@ Rotations\Monk\Windwalker\WindwalkerCuteOne.lua
 ## Paladin ---------------------------------------------------
 
 Rotations\Paladin\Holy\HolyKuukuu.lua
+Rotations\Paladin\Holy\HolyFengshen.lua
 
 Rotations\Paladin\Protection\protectionPrettyBoy.lua
 
