@@ -270,7 +270,7 @@ CuteOne |  Full   | 7.2   |   90%  | :interrobang:
 author  | support | patch | status |     raidable?
 :------ | :-----: | :---: | -----: | :----------------:
 CuteOne |  Full   | 7.1.5 |   100% | :white_check_mark:
-Vilt    | Limited | 7.1.5 |   100% | :white_check_mark:
+Vilt    | Full (for now) | 7.2 |   100% | :white_check_mark:
 
 - Subtlety
 
