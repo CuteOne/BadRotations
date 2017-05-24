@@ -47,7 +47,7 @@ If you want to know what changes were made read the commit messages. Most of the
 
 ## Regarding Lua Errors
 
-Please submit any errors as issues here on GitHub.
+Please submit any errors as issues here on GitHub or join the BadRotations discord: https://discord.gg/e3MMj9M.
 
 ## Regarding Crashing
 
@@ -270,7 +270,7 @@ CuteOne |  Full   | 7.2   |   90%  | :interrobang:
 author  | support | patch | status |     raidable?
 :------ | :-----: | :---: | -----: | :----------------:
 CuteOne |  Full   | 7.1.5 |   100% | :white_check_mark:
-Vilt    | Limited | 7.1.5 |   100% | :white_check_mark:
+Vilt    | Full (for now) | 7.2 |   100% | :white_check_mark:
 
 - Subtlety
 
