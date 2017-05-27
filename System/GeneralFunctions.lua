@@ -2692,9 +2692,10 @@ function isStanding(Seconds)
 	return IsFalling() == false and DontMoveStartTime and getStandingTime() >= Seconds or false
 end
 -- if IsStandingTime(5) then
-function IsStandingTime(time)
+function IsStandingTime(time, unit)
 	if time == nil then time = 1 end
-	if not IsFalling() and GetUnitSpeed("player") == 0 then
+	if unit == nil then unit = "player" end
+	if not IsFalling() and GetUnitSpeed(unit) == 0 then
 		if IsStanding == nil then
 			IsStanding = GetTime()
 			IsRunning = nil

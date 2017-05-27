@@ -613,7 +613,7 @@ local function runRotation()
                 end
             end
             --actions.aoe+=/comet_storm
-            if useCDs() and isChecked("Comet Storm") and talent.cometStorm and cd.cometStorm == 0 then
+            if useCDs() and isChecked("Comet Storm") and talent.cometStorm and cd.cometStorm == 0 and IsStandingTime(2,target) then
                 if debug == true then Print("Casting Comet Storm") end
                 if cast.cometStorm(target) then
                     if debug == true then Print("Casted Comet Storm") end
@@ -775,7 +775,7 @@ local function runRotation()
                 end
             end
             --actions.single+=/comet_storm
-            if useCDs() and isChecked("Comet Storm") and talent.cometStorm and cd.cometStorm == 0 then
+            if useCDs() and isChecked("Comet Storm") and talent.cometStorm and cd.cometStorm == 0 and IsStandingTime(2,target) then
                 if debug == true then Print("Casting Comet Storm") end
                 if cast.cometStorm(target) then
                     if debug == true then Print("Casted Comet Storm") end
@@ -1017,7 +1017,7 @@ local function runRotation()
                 end
             end
             --Cast Comet Storm if talented.
-            if useCDs() and isChecked("Comet Storm") and talent.cometStorm and cd.cometStorm == 0 then
+            if useCDs() and isChecked("Comet Storm") and talent.cometStorm and cd.cometStorm == 0 and IsStandingTime(2,target) then
                 if debug == true then Print("Casting Comet Storm") end
                 if cast.cometStorm(target) then
                     if debug == true then Print("Casted Comet Storm") end
@@ -1130,6 +1130,7 @@ local function runRotation()
             end -- End In Combat Rotation
         end -- Pause
     end
+
 
     if getOptionValue("APL Mode") == 1 then --SimC
         if lastCast == spell.frostbolt and isCastingSpell(spell.frostbolt) and buff.fingersOfFrost.stack() < (2 + iceHand) and not buff.brainFreeze.exists() then
