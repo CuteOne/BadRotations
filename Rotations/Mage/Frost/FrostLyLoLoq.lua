@@ -244,7 +244,7 @@ local function runRotation()
             end
 
             --Ice Barrier
-            if isChecked("Ice Barrier") and health <= getValue("Ice Barrier") and inCombat and not buff.iceBarrier.exists() then
+            if isChecked("Ice Barrier") and health <= getValue("Ice Barrier") and inCombat and not buff.iceBarrier.exists() and lastSpell ~= spell.waterJet then
                 if cast.iceBarrier("player") then return true end
             end
 
@@ -750,7 +750,7 @@ local function runRotation()
                 end
             end
             --actions.single+=/ice_lance,if=variable.fof_react>0&cooldown.icy_veins.remains>10|variable.fof_react>2
-            if (fof_react > 0 and cd.icyVeins > 10) or fof_react > 2 then
+            if (fof_react > 0 and cd.icyVeins > 10) or (not useCDs() and fof_react > 0) or fof_react > 2 then
                 if debug == true then Print("Casting Ice Lance") end
                 if cast.iceLance(target) then
                     if debug == true then Print("Casted Ice Lance") end
@@ -1133,6 +1133,7 @@ local function runRotation()
     if getOptionValue("APL Mode") == 1 then --SimC
         if lastSpell == spell.frostbolt and isCastingSpell(spell.frostbolt) and buff.fingersOfFrost.stack() < (2 + iceHand) and not buff.brainFreeze.exists() then
             CastSpellByName(GetSpellInfo(spell.waterJet))
+            lastSpell = spell.waterJet
 --            if cast.waterJet(target) then return true end
         end
     end
