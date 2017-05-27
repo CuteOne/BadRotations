@@ -158,7 +158,7 @@ local function runRotation()
     local health                                        = br.player.health
     local mode                                          = br.player.mode
     local debug                                         = false
-    local lastSpell                                     = botSpell
+    local lastCast                                     = lastCast
     local ttd                                           = getTTD
     local enemies                                       = enemies or {}
     local units                                         = units or {}
@@ -174,7 +174,7 @@ local function runRotation()
         target = "target"
     end
 
-    if lastSpell == nil then lastSpell = 61304 end
+    if lastCast == nil then lastCast = 61304 end
     if talent.articGale then blizzardRadius = 9.6 else blizzardRadius = 8 end
 
     if artifact.icyHand then iceHand= 1 else iceHand = 0 end
@@ -197,6 +197,7 @@ local function runRotation()
         RF    = false
         opener= false
         seq = 0
+        lastCast = 61304
     end
     if seq == nil then seq = 0 end
     --------------------
@@ -244,7 +245,7 @@ local function runRotation()
             end
 
             --Ice Barrier
-            if isChecked("Ice Barrier") and health <= getValue("Ice Barrier") and inCombat and not buff.iceBarrier.exists() and lastSpell ~= spell.waterJet then
+            if isChecked("Ice Barrier") and health <= getValue("Ice Barrier") and inCombat and not buff.iceBarrier.exists() and lastCast ~= spell.waterJet then
                 if cast.iceBarrier("player") then return true end
             end
 
@@ -586,8 +587,8 @@ local function runRotation()
 
         local function actionList_AOE()
             --actions.aoe=frostbolt,if=prev_off_gcd.water_jet
-            if lastSpell == spell.waterJet then
-                if debug == true then Print("Lastspell was WaterJet, Casting Frostbolt") end
+            if lastCast == spell.waterJet then
+                if debug == true then Print("lastCast was WaterJet, Casting Frostbolt") end
                 if cast.frostbolt(target) then
                     if debug == true then Print("Casted Frostbolt") end
                     return true
@@ -628,12 +629,12 @@ local function runRotation()
                 end
             end
             --actions.aoe+=/water_jet,if=prev_gcd.1.frostbolt&buff.fingers_of_frost.stack<(2+artifact.icy_hand.enabled)&buff.brain_freeze.react=0
-            --            if lastSpell == spell.frostbolt and isCastingSpell(spell.frostbolt) and buff.fingersOfFrost.stack() < (2 + iceHand) and not buff.brainFreeze.exists() then
+            --            if lastCast == spell.frostbolt and isCastingSpell(spell.frostbolt) and buff.fingersOfFrost.stack() < (2 + iceHand) and not buff.brainFreeze.exists() then
             --                if debug == true then Print("Casting Water Jet") end
             --                CastSpellByName(GetSpellInfo(spell.waterJet))
             --            end
             --actions.aoe+=/flurry,if=prev_gcd.1.ebonbolt|prev_gcd.1.frostbolt&buff.brain_freeze.react
-            if lastSpell == spell.ebonbolt or (lastSpell == spell.frostbolt and buff.brainFreeze.exists()) then
+            if (lastCast == spell.ebonbolt or lastCast == spell.frostbolt) and buff.brainFreeze.exists() then
                 if debug == true then Print("Casting Flurry") end
                 if cast.flurry(target) then
                     if debug == true then Print("Casted Flurry") end
@@ -641,7 +642,7 @@ local function runRotation()
                 end
             end
             --actions.aoe+=/frost_bomb,if=debuff.frost_bomb.remains<action.ice_lance.travel_time&variable.fof_react>0
-            if talent.frostBomb and lastSpell ~= spell.frostBomb then
+            if talent.frostBomb and lastCast ~= spell.frostBomb then
                 if not debuff.frostBomb.exists() or debuff.frostBomb.remain() < 2 and fof_react > 0 and ttdUnit >= 12 + getCastTime(spell.frostBomb)+0.5 then
                     if debug == true then Print("Casting Frost Bomb1") end
                     if cast.frostBomb(target) then
@@ -697,7 +698,7 @@ local function runRotation()
                 end
             end
             --actions.single+=/frostbolt,if=prev_off_gcd.water_jet
-            if lastSpell == spell.waterJet then
+            if lastCast == spell.waterJet then
                 if debug == true then Print("Casting Frostbolt") end
                 if cast.frostbolt(target) then
                     if debug == true then Print("Casted Frostbolt") end
@@ -705,7 +706,7 @@ local function runRotation()
                 end
             end
             --actions.single+=/water_jet,if=prev_gcd.1.frostbolt&buff.fingers_of_frost.stack<(2+artifact.icy_hand.enabled)&buff.brain_freeze.react=0
-            --            if lastSpell == spell.frostbolt and isCastingSpell(spell.frostbolt) and buff.fingersOfFrost.stack() < (2 + iceHand) and not buff.brainFreeze.exists() then
+            --            if lastCast == spell.frostbolt and isCastingSpell(spell.frostbolt) and buff.fingersOfFrost.stack() < (2 + iceHand) and not buff.brainFreeze.exists() then
             --                if debug == true then Print("Casting Water Jet") end
             --                CastSpellByName(GetSpellInfo(spell.waterJet))
             --            end
@@ -720,7 +721,7 @@ local function runRotation()
                 end
             end
             --actions.single+=/flurry,if=prev_gcd.1.ebonbolt|prev_gcd.1.frostbolt&buff.brain_freeze.react
-            if lastSpell == spell.ebonbolt or (lastSpell == spell.frostbolt and buff.brainFreeze.exists()) then
+            if (lastCast == spell.ebonbolt or lastCast == spell.frostbolt) and buff.brainFreeze.exists() then
                 if debug == true then Print("Casting Flurry") end
                 if cast.flurry(target) then
                     if debug == true then Print("Casted Flurry") end
@@ -740,7 +741,7 @@ local function runRotation()
                 end
             end
             --actions.single+=/frost_bomb,if=debuff.frost_bomb.remains<action.ice_lance.travel_time&variable.fof_react>0
-            if talent.frostBomb and lastSpell ~= spell.frostBomb then
+            if talent.frostBomb and lastCast ~= spell.frostBomb then
                 if not debuff.frostBomb.exists() or debuff.frostBomb.remain() < 2 and fof_react > 0 and ttdUnit >= 12 + getCastTime(spell.frostBomb)+0.5 then
                     if debug == true then Print("Casting Frost Bomb2") end
                     if cast.frostBomb(target) then
@@ -833,12 +834,12 @@ local function runRotation()
                 if debug == true then Print("fof_react Changed: "..fof_react) end
             end
             --actions+=/variable,name=fof_react,value=buff.fingers_of_frost.stack,if=equipped.lady_vashjs_grasp&buff.icy_veins.up&variable.time_until_fof>9|prev_off_gcd.freeze
-            if hasEquiped(132411) and buff.icyVeins.exists() and time_until_fof > 9 or lastSpell == spell.freeze then
+            if hasEquiped(132411) and buff.icyVeins.exists() and time_until_fof > 9 or lastCast == spell.freeze then
                 fof_react = buff.fingersOfFrost.stack()
                 if debug == true then Print("fof_react Changed: "..fof_react) end
             end
             --actions+=/ice_lance,if=variable.fof_react=0&prev_gcd.1.flurry
-            if fof_react == 0 and lastSpell == spell.flurry then
+            if fof_react == 0 and lastCast == spell.flurry then
                 if debug == true then Print("Casting Ice Lance") end
                 if cast.iceLance(target) then
                     if debug == true then Print("Casted Ice Lance") end
@@ -943,7 +944,7 @@ local function runRotation()
             end
 
             --Cast Frost Bomb if talented, and you will trigger it with a minimum of 1 Fingers of Frost.
-            if talent.frostBomb and lastSpell ~= spell.frostBomb then
+            if talent.frostBomb and lastCast ~= spell.frostBomb then
                 if buff.fingersOfFrost.stack() >= 1 and not debuff.frostBomb.exists() and ttdUnit >= 12 + getCastTime(spell.frostBomb)+0.5 then--0.05 lag
                     if debug == true then Print("Casting Frost Bomb3") end
                     if cast.frostBomb(target) then
@@ -1131,9 +1132,9 @@ local function runRotation()
     end
 
     if getOptionValue("APL Mode") == 1 then --SimC
-        if lastSpell == spell.frostbolt and isCastingSpell(spell.frostbolt) and buff.fingersOfFrost.stack() < (2 + iceHand) and not buff.brainFreeze.exists() then
+        if lastCast == spell.frostbolt and isCastingSpell(spell.frostbolt) and buff.fingersOfFrost.stack() < (2 + iceHand) and not buff.brainFreeze.exists() then
             CastSpellByName(GetSpellInfo(spell.waterJet))
-            lastSpell = spell.waterJet
+            lastCast = spell.waterJet
 --            if cast.waterJet(target) then return true end
         end
     end
