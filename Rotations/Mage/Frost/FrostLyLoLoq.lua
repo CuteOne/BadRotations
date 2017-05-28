@@ -55,7 +55,6 @@ local function createOptions()
         --- GENERAL OPTIONS --- -- Define General Options
         -----------------------
         section = br.ui:createSection(br.ui.window.profile,  "General")
-        br.ui:createDropdownWithout(section, "APL Mode", {colorWhite.."SimC", colorWhite.."Icy-Veins"}, 1, colorWhite.."Set APL Mode to use.")
         br.ui:createDropdownWithout(section, "Opener Mode", {colorWhite.."SimC", colorWhite.."Icy-Veins", colorWhite.."Ray of Frost"}, 1, colorWhite.."Set APL Mode to use.")
         br.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  colorWhite.."Set to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
         br.ui:createCheckbox(section, "Opener")
@@ -587,7 +586,7 @@ local function runRotation()
 
         local function actionList_AOE()
             --actions.aoe=frostbolt,if=prev_off_gcd.water_jet
-            if lastCast == spell.waterJet then
+            if lastCast == spell.waterJet and getCastTime(spell.frostbolt)+0.2 < getCastTimeRemain("pet") then
                 if debug == true then Print("lastCast was WaterJet, Casting Frostbolt") end
                 if cast.frostbolt(target) then
                     if debug == true then Print("Casted Frostbolt") end
@@ -595,7 +594,7 @@ local function runRotation()
                 end
             end
             --actions.aoe+=/frozen_orb
-            if useCDs() and isChecked("Frozen Orb") and cd.frozenOrb == 0 and getEnemiesInRect(15,55,false) > 0 then
+            if useCDs() and isChecked("Frozen Orb") and cd.frozenOrb == 0 and getEnemiesInRect(15,55,false) > 0 and buff.fingersOfFrost.stack() < 2 then
                 if debug == true then Print("Casting Frozen Orb") end
                 if cast.frozenOrb() then
                     if debug == true then Print("Casted Frozen Orb") end
@@ -613,7 +612,7 @@ local function runRotation()
                 end
             end
             --actions.aoe+=/comet_storm
-            if useCDs() and isChecked("Comet Storm") and talent.cometStorm and cd.cometStorm == 0 and IsStandingTime(2,target) then
+            if useCDs() and isChecked("Comet Storm") and talent.cometStorm and cd.cometStorm == 0 and ( IsStandingTime(2,target) or GetUnitSpeed(target) <= 3) then
                 if debug == true then Print("Casting Comet Storm") end
                 if cast.cometStorm(target) then
                     if debug == true then Print("Casted Comet Storm") end
@@ -628,13 +627,16 @@ local function runRotation()
                     return true
                 end
             end
-            --actions.aoe+=/water_jet,if=prev_gcd.1.frostbolt&buff.fingers_of_frost.stack<(2+artifact.icy_hand.enabled)&buff.brain_freeze.react=0
-            --            if lastCast == spell.frostbolt and isCastingSpell(spell.frostbolt) and buff.fingersOfFrost.stack() < (2 + iceHand) and not buff.brainFreeze.exists() then
-            --                if debug == true then Print("Casting Water Jet") end
-            --                CastSpellByName(GetSpellInfo(spell.waterJet))
-            --            end
+            --actions.aoe+=/ice_lance,if=variable.fof_react>0
+            if fof_react > 0 then
+                if debug == true then Print("Casting Ice Lance") end
+                if cast.iceLance(target) then
+                    if debug == true then Print("Casted Ice Lance") end
+                    return true
+                end
+            end
             --actions.aoe+=/flurry,if=prev_gcd.1.ebonbolt|prev_gcd.1.frostbolt&buff.brain_freeze.react
-            if (lastCast == spell.ebonbolt or lastCast == spell.frostbolt) and buff.brainFreeze.exists() then
+            if buff.brainFreeze.exists() then
                 if debug == true then Print("Casting Flurry") end
                 if cast.flurry(target) then
                     if debug == true then Print("Casted Flurry") end
@@ -649,14 +651,6 @@ local function runRotation()
                         if debug == true then Print("Casted Frost Bomb1") end
                         return true
                     end
-                end
-            end
-            --actions.aoe+=/ice_lance,if=variable.fof_react>0
-            if fof_react > 0 then
-                if debug == true then Print("Casting Ice Lance") end
-                if cast.iceLance(target) then
-                    if debug == true then Print("Casted Ice Lance") end
-                    return true
                 end
             end
             --actions.aoe+=/ebonbolt,if=buff.brain_freeze.react=0
@@ -698,18 +692,13 @@ local function runRotation()
                 end
             end
             --actions.single+=/frostbolt,if=prev_off_gcd.water_jet
-            if lastCast == spell.waterJet then
+            if lastCast == spell.waterJet and getCastTime(spell.frostbolt)+0.2 < getCastTimeRemain("pet") then
                 if debug == true then Print("Casting Frostbolt") end
                 if cast.frostbolt(target) then
                     if debug == true then Print("Casted Frostbolt") end
                     return true
                 end
             end
-            --actions.single+=/water_jet,if=prev_gcd.1.frostbolt&buff.fingers_of_frost.stack<(2+artifact.icy_hand.enabled)&buff.brain_freeze.react=0
-            --            if lastCast == spell.frostbolt and isCastingSpell(spell.frostbolt) and buff.fingersOfFrost.stack() < (2 + iceHand) and not buff.brainFreeze.exists() then
-            --                if debug == true then Print("Casting Water Jet") end
-            --                CastSpellByName(GetSpellInfo(spell.waterJet))
-            --            end
             --actions.single+=/ray_of_frost,if=buff.icy_veins.up|(cooldown.icy_veins.remains>action.ray_of_frost.cooldown&buff.rune_of_power.down)
             if useCDs() and isChecked("Ray of Frost") then
                 if buff.icyVeins.exists() or (cd.icyVeins > getCastTime(spell.rayOfFrost) and not buff.runeOfPower) then
@@ -720,8 +709,16 @@ local function runRotation()
                     end
                 end
             end
+            --actions.single+=/ice_lance,if=variable.fof_react>0&cooldown.icy_veins.remains>10|variable.fof_react>2
+            if (fof_react > 0 and cd.icyVeins > 10) or (not useCDs() and fof_react > 0) or fof_react > 2 then
+                if debug == true then Print("Casting Ice Lance") end
+                if cast.iceLance(target) then
+                    if debug == true then Print("Casted Ice Lance") end
+                    return true
+                end
+            end
             --actions.single+=/flurry,if=prev_gcd.1.ebonbolt|prev_gcd.1.frostbolt&buff.brain_freeze.react
-            if (lastCast == spell.ebonbolt or lastCast == spell.frostbolt) and buff.brainFreeze.exists() then
+            if buff.brainFreeze.exists() then
                 if debug == true then Print("Casting Flurry") end
                 if cast.flurry(target) then
                     if debug == true then Print("Casted Flurry") end
@@ -750,16 +747,8 @@ local function runRotation()
                     end
                 end
             end
-            --actions.single+=/ice_lance,if=variable.fof_react>0&cooldown.icy_veins.remains>10|variable.fof_react>2
-            if (fof_react > 0 and cd.icyVeins > 10) or (not useCDs() and fof_react > 0) or fof_react > 2 then
-                if debug == true then Print("Casting Ice Lance") end
-                if cast.iceLance(target) then
-                    if debug == true then Print("Casted Ice Lance") end
-                    return true
-                end
-            end
             --actions.single+=/frozen_orb
-            if useCDs() and isChecked("Frozen Orb") and cd.frozenOrb == 0 and getEnemiesInRect(15,55,false) > 0 then
+            if useCDs() and isChecked("Frozen Orb") and cd.frozenOrb == 0 and getEnemiesInRect(15,55,false) > 0 and buff.fingersOfFrost.stack() < 2 then
                 if debug == true then Print("Casting Frozen Orb") end
                 if cast.frozenOrb() then
                     if debug == true then Print("Casted Frozen Orb") end
@@ -775,7 +764,7 @@ local function runRotation()
                 end
             end
             --actions.single+=/comet_storm
-            if useCDs() and isChecked("Comet Storm") and talent.cometStorm and cd.cometStorm == 0 and IsStandingTime(2,target) then
+            if useCDs() and isChecked("Comet Storm") and talent.cometStorm and cd.cometStorm == 0 and ( IsStandingTime(2,target) or GetUnitSpeed(target) <= 3) then
                 if debug == true then Print("Casting Comet Storm") end
                 if cast.cometStorm(target) then
                     if debug == true then Print("Casted Comet Storm") end
@@ -861,200 +850,6 @@ local function runRotation()
         return false
     end
 
-    local function IcyVeinsAPLMode()
-
-        local function actionList_COMBAT()
-
-
-            if isChecked("Use Racial") then
-                if getSpellCD(br.player.getRacial()) == 0 and (race == "Orc" or race == "Troll") then
-                    if debug == true then Print("Casting Racial") end
-                    if br.player.castRacial() then
-                        if debug == true then Print("Casted Racial") end
-                        return true
-                    end
-                end
-            end
-
-            --Cast Rune of Power if talented, and it is at 2 charges.
-            if useCDs() and isChecked("Rune of Power") and talent.runeOfPower then
-                if charges.runeOfPower == 2 and not not buff.runeOfPower.exists() then
-                    if debug == true then Print("Casting Rune Of Power") end
-                    if cast.runeOfPower("player") then
-                        if debug == true then Print("Casted Rune Of Power") end
-                        return true
-                    end
-                end
-            end
-
-            --Cast Icy Veins if it is off cooldown.
-            if useCDs() and isChecked("Icy Veins") and cd.icyVeins == 0 then
-                if not buff.icyVeins.exists() then
-                    if debug == true then Print("Casting Icy Veins") end
-                    if cast.icyVeins() then
-                        if debug == true then Print("Casted Icy Veins") end
-                        return true
-                    end
-                end
-            end
-
-            --Cast Ray of Frost if your Rune of Power  is down (if both talents are chosen).
-            if useCDs() and isChecked("Ray of Frost") then
-                if (not talent.runeOfPower or buff.runeOfPower.exists()) and cd.rayOfFrost == 0 then
-                    if isChecked("Use Pet Spells") then
-                        if debug == true then Print("Casting Water Jet") end
-                        if cast.waterJet() then
-                            if debug == true then Print("Casted Water Jet") end
-                            return true
-                        end
-                    end
-                    if debug == true then Print("Casting Ray of Frost") end
-                    if cast.rayOfFrost() then
-                        if debug == true then Print("Casted Ray of Frost") end
-                        return true
-                    end
-                end
-            end
-
-            --Cast Rune of Power if talented, before periods where you will deal high burst damage.
-            if useCDs() and isChecked("Rune of Power") and talent.runeOfPower then
-                if not buff.runeOfPower.exists() then
-                    if debug == true then Print("Casting Rune Of Power") end
-                    if cast.runeOfPower("player") then
-                        if debug == true then Print("Casted Rune Of Power") end
-                        return true
-                    end
-                end
-            end
-            if useCDs() and isChecked("Mirror Image") and cd.mirrorImage == 0 then
-                if debug == true then Print("Casting Mirror Image") end
-                if cast.mirrorImage("player") then
-                    if debug == true then Print("Casted Mirror Image") end
-                    return true
-                end
-            end
-
-            --Cast Ice Lance if you are at 3 charges of Fingers of Frost.
-            if buff.fingersOfFrost.stack() == 3 or (buff.fingersOfFrost.stack() == 2 and not artifact.icyHand) then
-                if debug == true then Print("Casting Ice Lance") end
-                if cast.iceLance(target) then
-                    if debug == true then Print("Casted Ice Lance") end
-                    return true
-                end
-            end
-
-            --Cast Frost Bomb if talented, and you will trigger it with a minimum of 1 Fingers of Frost.
-            if talent.frostBomb and lastCast ~= spell.frostBomb then
-                if buff.fingersOfFrost.stack() >= 1 and not debuff.frostBomb.exists() and ttdUnit >= 12 + getCastTime(spell.frostBomb)+0.5 then--0.05 lag
-                    if debug == true then Print("Casting Frost Bomb3") end
-                    if cast.frostBomb(target) then
-                        if debug == true then Print("Casted Frost Bomb3") end
-                        return true
-                    end
-                end
-            end
-
-            --Cast Frozen Orb if it is off cooldown.
-            if useCDs() and isChecked("Frozen Orb") and cd.frozenOrb == 0 and getEnemiesInRect(15,55,false) > 0 then
-                if debug == true then Print("Casting Frozen Orb") end
-                if cast.frozenOrb() then
-                    if debug == true then Print("Casted Frozen Orb") end
-                    return true
-                end
-            end
-            if isChecked("Use Pet Spells") then
-                --Cast Freeze from your Water Elemental if it will hit at least 2 adds that can be rooted (bosses are immune to Freeze).
-                if not isBoss(target) and (buff.fingersOfFrost.stack() <= 2 or (buff.fingersOfFrost.stack() <= 1 and not artifact.icyHand)) then
-                    if debug == true then Print("Casting Freeze") end
-                    if cast.freeze(target,"best", 1, 8) then
-                        if debug == true then Print("Casted Freeze") end
-                        return true
-                    end
-                end
-            end
-
-            --You should dump your Fingers of Frost procs before casting Flurry, as Ice Lance does not need Fingers of Frost to benefit from Winter's Chill.
-            if buff.fingersOfFrost.exists() then
-                if debug == true then Print("Casting Ice Lance") end
-                if cast.iceLance(target) then
-                    if debug == true then Print("Casted Ice Lance") end
-                    return true
-                end
-            end
-            -- Cast Ebonbolt if it is off cooldown. It is ideal to cast Ebonbolt with Brain Freeze;
-            -- you will need to immediately follow the Ebonbolt with Flurry and you will get both Brain Freeze procs as well as shattering the Ebonbolt cast.
-            -- You want to always Shatter the Ebonbolt with this proc.
-            if buff.brainFreeze.exists() then
-                if debug == true then Print("Casting Flurry") end
-                if cast.flurry(target) then
-                    if debug == true then Print("Casted Flurry") end
-                    return true
-                end
-            end
-            if (getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs())) then
-                if debug == true then Print("Casting Ebonbolt") end
-                if cast.ebonbolt(target) then
-                    if debug == true then Print("Casted Ebonbolt") end
-                    return true
-                end
-            end
-            --Cast Water Jet from your Water Elemental if you currently have no charges of Fingers of Frost.
-            if isChecked("Use Pet Spells") then
-                if not buff.fingersOfFrost.exists() then
-                    if debug == true then Print("Casting Water Jet") end
-                    if cast.waterJet() then
-                        if debug == true then Print("Casted Water Jet") end
-                        return true
-                    end
-                end
-            end
-            --Cast Ice Nova if talented.
-            if talent.iceNova and cd.iceNova == 0 then
-                if debug == true then Print("Casting Ice Nova") end
-                if cast.iceNova() then
-                    if debug == true then Print("Casted Ice Nova") end
-                    return true
-                end
-            end
-            --Cast Comet Storm if talented.
-            if useCDs() and isChecked("Comet Storm") and talent.cometStorm and cd.cometStorm == 0 and IsStandingTime(2,target) then
-                if debug == true then Print("Casting Comet Storm") end
-                if cast.cometStorm(target) then
-                    if debug == true then Print("Casted Comet Storm") end
-                    return true
-                end
-            end
-            --Cast Blizzard if more than 2 targets are present and within the AoE. Cast on cooldown if you are talented into Arctic Gale .
-            if mode.rotation == 1 or mode.rotation == 2 and #enemies.yards40 >= getValue("AOE targets") then
-                if debug == true then Print("Casting Blizzard") end
-                if cast.blizzard("best", nil, getValue("AOE targets"), blizzardRadius) then
-                    if debug == true then Print("Casted Blizzard") end
-                    return true
-                else
-                    if debug == true then Print("not Casted Blizzard") end
-                end
-            end
-            --Cast Glacial Spike if talented and available.
-            if buff.icicles.stack() == 5 then
-                if debug == true then Print("Casting Glacial Spike") end
-                if cast.glacialSpike(target) then
-                    if debug == true then Print("Casted Glacial Spike") end
-                    return true
-                end
-            end
-            --Your goal is to cast Frostbolt twice while Water Jet is being channeled to generate charges of Fingers of Frost (see our Water Jet section for more information).
-            --Cast Frostbolt as a filler spell.
-            if debug == true then Print("Casting Frostbolt") end
-            if cast.frostbolt(target) then
-                if debug == true then Print("Casted Frostbolt") end
-                return true
-            end
-        end
-
-        if actionList_COMBAT() then return true end
-        return false
-    end
-
     local function MovingMode()
         --flurry com buff
         if buff.brainFreeze.exists() then
@@ -1107,6 +902,7 @@ local function runRotation()
                 opener = false
                 if actionList_PRECOMBAT() then return true end
             end -- End Out of Combat Rotation
+
             -----------------------------
             --- In Combat - Rotations ---
             -----------------------------
@@ -1118,11 +914,7 @@ local function runRotation()
                 if actionList_INTERRUPT() then return true end
                 if actionList_DEFENSIVE() then return true end
                 if not isMoving("player") then
-                    if getOptionValue("APL Mode") == 1 then --SimC
-                        if SimCAPLMode() then return true end
-                    else-- Icy Veins
-                        if IcyVeinsAPLMode() then return true end
-                    end
+                    if SimCAPLMode() then return true end
                 else
                     if MovingMode() then return true end
                 end
@@ -1132,12 +924,13 @@ local function runRotation()
     end
 
 
-    if getOptionValue("APL Mode") == 1 then --SimC
-        if lastCast == spell.frostbolt and isCastingSpell(spell.frostbolt) and buff.fingersOfFrost.stack() < (2 + iceHand) and not buff.brainFreeze.exists() then
-            CastSpellByName(GetSpellInfo(spell.waterJet))
-            lastCast = spell.waterJet
---            if cast.waterJet(target) then return true end
-        end
+
+    if lastCast == spell.frostbolt and isCastingSpell(spell.frostbolt) and buff.fingersOfFrost.stack() < (2 + iceHand) and not buff.brainFreeze.exists() then
+        CastSpellByName(GetSpellInfo(spell.waterJet))
+        lastCast = spell.waterJet
+    end
+    if isCastingSpell(spell.waterJet,"pet") then
+        lastCast = spell.waterJet
     end
     if UnitCastingInfo("player") == nil and getSpellCD(61304) == 0 then
         return profile()
