@@ -1881,9 +1881,10 @@ br.idList = {
                 shadowMend                  = 186263,
                 shadowWordPain              = 589,
                 shiningForce                = 204263,
+                sinsOfTheMany               = 198076,
             },
             artifacts                       = {
-
+                sinsOfTheMany               = 198074,
             },
             buffs                           = {
                 angelicFeather              = 121557,
