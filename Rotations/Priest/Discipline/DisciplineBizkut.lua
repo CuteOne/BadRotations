@@ -297,6 +297,7 @@ local function runRotation()
         local level                                         = br.player.level
         local lootDelay                                     = getOptionValue("LootDelay")
         local lowestHP                                      = br.friend[1].unit
+        local mana                                          = getMana("player")
         local mode                                          = br.player.mode
         local perk                                          = br.player.perk        
         local php                                           = br.player.health
@@ -343,7 +344,7 @@ local function runRotation()
         end
 
         local freeMana                                      = buff.innervate.exists() or buff.symbolOfHope.exists()
-        local freeCast                                      = freeMana or mode.healer == 3 or getMana("player") > 90
+        local freeCast                                      = freeMana or mode.healer == 3 or mana > 90
         local epTrinket                                     = hasEquiped(140805) and getBuffRemain("player", 225766) > 1
         local norganBuff                                    = not isMoving("player") or UnitBuffID("player", 236373) -- Norgannon's Foresight buff
 
@@ -363,7 +364,7 @@ local function runRotation()
         end
         -- Mitigate heavy damage
         function actionList_MitigateDamage(u)
-            if lastMitigate ~= br.friend[u].guid or lastSpell ~= spell.shadowMend then
+            if (isChecked("Alternate Heal & Damage") and healCount < getValue("Alternate Heal & Damage")) or not isChecked("Alternate Heal & Damage") then
                 if cast.powerWordShield(br.friend[u].unit) then
                     if cast.shadowMend(br.friend[u].unit) then
                         healCount = healCount + 1
@@ -384,7 +385,6 @@ local function runRotation()
                         healCount = healCount + 1
                     end
                 end
-                lastMitigate = br.friend[u].guid
             end
         end
         -- Action List - Interrupts
@@ -411,14 +411,6 @@ local function runRotation()
         end -- End Action List - Interrupts
         --Check Atonement
         function actionList_CheckAtonement()
-            --Always keep Atonement on self
-            if getBuffRemain("player", spell.buffs.atonement, "player") < 1 and inCombat then    
-                if getSpellCD(spell.powerWordShield) <= 0 then
-                    if cast.powerWordShield("player") then return end
-                elseif atonementCount <= 6 then
-                    if cast.plea("player") then return end
-                end
-            end
             if buff.rapture.exists("player") then
                 if isChecked("Light's Wrath after Rapture") then
                     raptureLW = 1
@@ -463,7 +455,7 @@ local function runRotation()
                             if (hasEquiped(132861) and ((lastSpell == spell.powerWordRadiance and atonementCount <= getOptionValue("Max Plea") + 3) or buff.innervate.remain() < 2 or buff.symbolOfHope.remain() < 2)) or isMoving("player") then 
                                 if cast.plea(br.friend[i].unit) then return end
                             elseif norganBuff then
-                                if cast.powerWordRadiance(br.friend[i].unit) then return end
+                                if cast.powerWordRadiance(lowest.unit) then return end
                             end
                         end
                     end
@@ -472,7 +464,7 @@ local function runRotation()
             end
             if not buff.rapture.exists("player") and ((isChecked("Alternate Heal & Damage") and healCount < getValue("Alternate Heal & Damage")) or (mode.healer == 2 and (inCombat or #enemies.dyn40 > 0)) or not isChecked("Alternate Heal & Damage")) then
                 for i = 1, #br.friend do
-                    if mode.healer == 2 or epTrinket then
+                    if mode.healer == 2 or epTrinket or (getBuffRemain("player", spell.buffs.atonement, "player") < 1 and UnitIsUnit(br.friend[i].unit,"player")) then
                         actionList_SpreadAtonement(i)
                     elseif br.friend[i].hp <= getValue("Atonement HP") then
                         if mode.healer == 1 or (mode.healer == 3 and UnitIsUnit(br.friend[i].unit,"player")) then
@@ -503,12 +495,12 @@ local function runRotation()
                 if epTrinket and not freeMana and norganBuff then
                     if cast.shadowMend(br.friend[u].unit) then return end
                 end
-                if atonementCount < getOptionValue("Max Plea") and getLowAllies(getValue("Power Word: Radiance")) < getValue("PWR Targets") and (not norganBuff or mode.healer ~= 2 or (mode.healer == 2 and #br.friend - atonementCount < 3)) then
+                if atonementCount < getOptionValue("Max Plea") and (not norganBuff or mode.healer ~= 2 or (mode.healer == 2 and #br.friend - atonementCount < 3)) then
                     if cast.plea(br.friend[u].unit) then
                         healCount = healCount + 1
                     end
                 elseif mode.healer == 2 and #br.friend - atonementCount >= 3 and norganBuff then
-                    if cast.powerWordRadiance(br.friend[u].unit) then
+                    if cast.powerWordRadiance(lowest.unit) then
                         healCount = healCount + 1
                     end
                 end
@@ -570,7 +562,7 @@ local function runRotation()
                         end
                     end
                     -- Mana Potion
-                    if isChecked("Mana Potion") and getMana("player") <= getValue("Mana Potion")then
+                    if isChecked("Mana Potion") and mana <= getValue("Mana Potion")then
                         if hasItem(127835) then
                             useItem(127835)
                             return true
@@ -610,13 +602,8 @@ local function runRotation()
                     --Light's Wrath
                     if isChecked("Light's Wrath") and getSpellCD(spell.lightsWrath) == 0 then
                         if getLowAllies(getValue("Light's Wrath")) >= getValue("Light's Wrath Targets") then
-                            cast.powerWordRadiance(lowest.unit)                           
-                            for i = 1, #br.friend do
-                                if mode.healer == 1 or mode.healer == 2 or (mode.healer == 3 and UnitIsUnit(br.friend[i].unit,"player")) then
-                                    if br.friend[i].hp <= getValue("Light's Wrath") then
-                                        actionList_SpreadAtonement(i)
-                                    end
-                                end
+                            if lastSpell ~= spell.powerWordRadiance then
+                                cast.powerWordRadiance(lowest.unit)
                             end
                             actionList_CheckVelen()
                             if talent.schism then
@@ -651,11 +638,11 @@ local function runRotation()
                     for i = 1, #br.friend do
                         actionList_SpreadAtonement(i)
                     end
-                elseif pullTimer <= 5 and getMana("player") < 95 then
+                elseif pullTimer <= 5 and mana < 95 then
                      useItem(138292)
                 end
             end
-            if not isMoving("player") and isChecked("Drink") and getMana("player") <= getOptionValue("Drink") and canUse(138292) then
+            if not isMoving("player") and isChecked("Drink") and mana <= getOptionValue("Drink") and canUse(138292) then
                 useItem(138292)
             end
         end  -- End Action List - Pre-Combat
@@ -669,11 +656,11 @@ local function runRotation()
                     if norganBuff and (br.friend[i].hp < 90 or flagDebuff == br.friend[i].guid) and lastSpell ~= spell.shadowMend then
                         if talent.grace and atonementCount <= 6 and getBuffRemain(br.friend[i].unit, spell.buffs.atonement, "player") < 1 then
                             if cast.plea(br.friend[i].unit) then
-                                if cast.shadowMend(br.friend[i].unit) then return end
+                                if cast.shadowMend(br.friend[i].unit) then return true end
                             end
-                        elseif cast.shadowMend(br.friend[i].unit) then return end
+                        elseif cast.shadowMend(br.friend[i].unit) then return true end
                     elseif atonementCount <= 6 and (br.friend[i].hp < 95 or flagDebuff == br.friend[i].guid) then
-                        if cast.plea(br.friend[i].unit) then return end
+                        if cast.plea(br.friend[i].unit) then return true end
                     end
                     flagDebuff = nil
                 end
@@ -688,7 +675,7 @@ local function runRotation()
                 end
             end
             --Power Word: Radiance
-            if isChecked("Power Word: Radiance") and (mode.healer == 1 or mode.healer == 2) and norganBuff then
+            if isChecked("Power Word: Radiance") and (mode.healer == 1 or mode.healer == 2) and #br.friend - atonementCount >= 3 and norganBuff then
                 if getLowAllies(getValue("Power Word: Radiance")) >= getValue("PWR Targets") and lastSpell ~= spell.powerWordRadiance then
                     if cast.powerWordRadiance(lowest.unit) then
                         healCount = healCount + 1
@@ -887,11 +874,13 @@ local function runRotation()
                 end
             end
             --Debuff Shadow Mend/Penance Heal
-            if isChecked("Debuff Helper") then
+            if isChecked("Debuff Helper") and getSpellCD(spell.penance) > 0 then
                 for i = 1, #br.friend do
-                    if (br.friend[i].hp <= 90 and UnitDebuffID(br.friend[i].unit,225484)) or (br.friend[i].hp <= 90 and UnitDebuffID(br.friend[i].unit,240559)) or UnitDebuffID(br.friend[i].unit,200238) or UnitDebuffID(br.friend[i].unit,209858) then
-                        if mode.healer == 1 or mode.healer == 2 or (mode.healer == 3 and UnitIsUnit(br.friend[i].unit,"player")) then
-                            actionList_MitigateDamage(i)
+                    if getBuffRemain(br.friend[i].unit, spell.buffs.atonement, "player") > 1 then
+                        if (br.friend[i].hp <= 90 and UnitDebuffID(br.friend[i].unit,225484)) or (br.friend[i].hp <= 90 and UnitDebuffID(br.friend[i].unit,240559)) or UnitDebuffID(br.friend[i].unit,200238) or UnitDebuffID(br.friend[i].unit,209858) then
+                            if mode.healer == 1 or mode.healer == 2 or (mode.healer == 3 and UnitIsUnit(br.friend[i].unit,"player")) then
+                                actionList_MitigateDamage(i)
+                            end
                         end
                     end
                 end
@@ -958,7 +947,7 @@ local function runRotation()
                     end
                 end
                 --Schism
-                if talent.schism and isChecked("Schism") and getMana("player") > 20 and norganBuff then
+                if talent.schism and isChecked("Schism") and mana > 20 and norganBuff then
                     if not debuff.schism.exists(schismBuff) then
                         schismBuffnew = units.dyn40
                     end
@@ -996,7 +985,7 @@ local function runRotation()
                     end
                 end
                 --Mindbender
-                if isChecked("Mindbender") and getMana("player") <= getValue("Mindbender") then
+                if isChecked("Mindbender") and mana <= getValue("Mindbender") then
                     if debuff.schism.exists(schismBuff) then
                         if cast.mindbender(schismBuff) then
                              healCount = 0
@@ -1032,14 +1021,14 @@ local function runRotation()
                 end
                 --Divine Star
                 if isChecked("Divine Star") and talent.divineStar then
-                    if #enemies.dyn24 >= getOptionValue("Divine Star") and getFacing("player","target",30) and not buff.rapture.exists("player") then
+                    if getEnemiesInCone(24,90) >= getOptionValue("Divine Star") then
                         if cast.divineStar() then
                             healCount = 0
                         end
                     end
                 end
                 --Halo Damage
-                if isChecked("Halo Damage") and talent.halo and mode.halo == 1 and norganBuff and not buff.rapture.exists("player") then
+                if isChecked("Halo Damage") and talent.halo and mode.halo == 1 and norganBuff then
                     if #enemies.dyn30 >= getOptionValue("Halo Damage") then
                         if cast.halo() then
                             healCount = 0
@@ -1048,7 +1037,7 @@ local function runRotation()
                 end
                 --Smite
                 if isChecked("Smite") and norganBuff and getSpellCD(spell.penance) > 0 then
-                    if getMana("player") > 20 or freeCast then
+                    if mana > 20 or freeCast then
                         if debuff.schism.exists(schismBuff) then
                             if cast.smite(schismBuff) then
                                 healCount = 0
@@ -1071,7 +1060,7 @@ local function runRotation()
 --- Rotations ---
 -----------------
         -- Pause
-        if pause() or mode.rotation == 4 or UnitDebuffID("player",240447) or (getBuffRemain("player", 192001) > 0 and getMana("player") < 100) or getBuffRemain("player", 192002) > 10 or (getBuffRemain("player", 192002) > 0 and getMana("player") < 100) or getBuffRemain("player", 188023) > 0 or getBuffRemain("player", 175833) > 0 then
+        if pause() or mode.rotation == 4 or UnitDebuffID("player",240447) or (getBuffRemain("player", 192001) > 0 and mana < 100) or getBuffRemain("player", 192002) > 10 or (getBuffRemain("player", 192002) > 0 and mana < 100) or getBuffRemain("player", 188023) > 0 or getBuffRemain("player", 175833) > 0 then
             return true
         else
 ---------------------------------
