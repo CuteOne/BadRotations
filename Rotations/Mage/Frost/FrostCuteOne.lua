@@ -212,9 +212,9 @@ local function runRotation()
                         StopAttack()
                         ClearTarget()
                         Print(tonumber(getOptionValue("DPS Testing")) .." Minute Dummy Test Concluded - Profile Stopped")
-                        Print("FrostBolts:  " .. frostboltCount)
-                        Print("IceLances:  " .. icelanceCount)
-                        Print("Flurry:  " .. flurryCount)
+                        -- Print("FrostBolts:  " .. frostboltCount)
+                        -- Print("IceLances:  " .. icelanceCount)
+                        -- Print("Flurry:  " .. flurryCount)
                         profileStop = true
                     end
                 end
@@ -330,7 +330,7 @@ local function runRotation()
               end
           -- Blizzard AOE
               if ((#enemies.yards8t >= 4 and mode.rotation == 1) or mode.rotation == 2) then
-                  Print("AOE stance")
+                  -- Print("AOE stance")
                   cast.blizzard("target")
                   local X,Y,Z = ObjectPosition("target")
                   -- print("x /y/z  " .. X ..":".. Y ..":".. Z)
@@ -338,7 +338,7 @@ local function runRotation()
               end
           -- Pet Freeze #enemies > 2
               if ((#enemies.yards8t >= 2 and mode.rotation == 1) or mode.rotation == 2) and buff.fingersOfFrost.stack() <= (2+iceHand)-2 then
-                  Print("AOE stance")
+                  -- Print("AOE stance")
                   CastPetAction(4,"target")
                   local X,Y,Z = ObjectPosition("target")
                   -- print("x /y/z  " .. X ..":".. Y ..":".. Z)
@@ -349,7 +349,7 @@ local function runRotation()
               if cast.frozenOrb() then return end
           -- Frost Bomb  if Frost bomb is down
               if not debuff.frostBomb.exists(units.dyn40) and buff.fingersOfFrost.stack() >= 2 then
-                  Print("Frost Bomb is down")
+                  -- Print("Frost Bomb is down")
                   cast.frostBomb()
               end
           -- If Frost Bomb is up Dump Ice lances

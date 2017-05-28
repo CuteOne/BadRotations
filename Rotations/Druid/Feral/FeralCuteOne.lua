@@ -69,6 +69,8 @@ local function createOptions()
             br.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
         -- Travel Shapeshifts
             br.ui:createCheckbox(section,"Auto Shapeshifts","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFAuto Shapeshifting to best form for situation.|cffFFBB00.")
+        -- Fall Timer
+            br.ui:createSpinnerWithout(section,"Fall Timer", 2, 1, 5, 0.25, "|cffFFFFFFSet to desired time to wait until shifting to flight form when falling (in secs).")
         -- Break Crowd Control
             br.ui:createCheckbox(section,"Break Crowd Control","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFAuto Shapeshifting to break crowd control.|cffFFBB00.")
         -- Wild Charge
@@ -217,7 +219,7 @@ local function runRotation()
         local playerMouse                                   = UnitIsPlayer("mouseover")
         local potion                                        = br.player.potion
         local power, powmax, powgen, powerDeficit           = br.player.power.energy.amount, br.player.power.energy.max, br.player.power.regen, br.player.power.energy.deficit
-        local pullTimer                                     = br.DBM:getPulltimer()
+        local pullTimer                                     = PullTimerRemain() --br.DBM:getPulltimer()
         local racial                                        = br.player.getRacial()
         local recharge                                      = br.player.recharge
         local rkTick                                        = 3
@@ -347,9 +349,9 @@ local function runRotation()
 		-- Shapeshift Form Management
 			if isChecked("Auto Shapeshifts") then
 			-- Flight Form
-				if IsFlyableArea() --[[and ((not (isInDraenor() or isInLegion())) or isKnown(191633))]] and not swimming and falling > 1 and level>=58 then
+				if not inCombat and canFly() and not swimming and falling > getOptionValue("Fall Timer") and level>=58 and not buff.prowl.exists() then
                     if GetShapeshiftForm() ~= 0 then
-                        CancelShapeshiftForm()
+                        -- CancelShapeshiftForm()
                         RunMacroText("/CancelForm")
                         if cast.travelForm("player") then return end
                     else
@@ -357,7 +359,7 @@ local function runRotation()
                     end
 		        end
 			-- Aquatic Form
-			    if swimming and not travel and not hastar and not deadtar and not buff.prowl.exists() then
+			    if (not inCombat or getDistance("target") > 10) and swimming and not travel and not buff.prowl.exists() then
 				  	if cast.travelForm("player") then return end
 				end
 			-- Cat Form
@@ -374,6 +376,10 @@ local function runRotation()
 		        	if inCombat and not flying then
 		        		if cast.catForm("player") then return end
 		        	end
+                    -- Cat Form - Less Fall Damage
+                    if (not canFly() or inCombat or level < 58 or not IsOutdoors()) and not swimming and falling > getOptionValue("Fall Timer") then
+                        if cast.catForm("player") then return end
+                    end
 		        end
 			end -- End Shapeshift Form Management
 		-- Perma Fire Cat
@@ -1037,10 +1043,9 @@ local function runRotation()
                         if useCDs() and isChecked("Potion") and inRaid then
                             if canUse(127844) then
                                 useItem(127844)
+                            elseif canUse(142117) then
+                                useItem(142117)
                             end
-                            -- if canUse(142117) then
-                            --     useItem(142117)
-                            -- end
                         end
                     end -- End Prowl
                 end -- End Pre-Pull
@@ -1081,9 +1086,10 @@ local function runRotation()
 --- In Combat Rotation ---
 --------------------------
         -- Cat is 4 fyte!
-            if inCombat and not cat and not (flight or travel or IsMounted() or IsFlying() or falling) and isChecked("Auto Shapeshifts") then
-                if cast.catForm("player") then return end
-            elseif inCombat and cat and profileStop==false and not isChecked("Death Cat Mode") and isValidUnit(units.dyn5) and getDistance(units.dyn5) < 5 then
+            -- if inCombat and not cat and not (flight or travel or IsMounted() or IsFlying() or falling) and isChecked("Auto Shapeshifts") then
+            --     if cast.catForm("player") then return end
+            -- else
+            if inCombat and cat and profileStop==false and not isChecked("Death Cat Mode") and isValidUnit(units.dyn5) and getDistance(units.dyn5) < 5 then
 		-- Opener
 				if actionList_Opener() then return end
         -- Wild Charge

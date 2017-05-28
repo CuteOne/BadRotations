@@ -530,8 +530,10 @@ local function runRotation()
     -- Action List - Pre-Bite Phase
         local function actionList_PreBitePhase()
         -- Flanking Strike
-            -- flanking_strike
-            if cast.flankingStrike() then return end
+            -- flanking_strike,if=cooldown.mongoose_bite.charges<3
+            if charges.mongooseBite < 3 then
+                if cast.flankingStrike() then return end
+            end
         -- Spitting Cobra
             -- spitting_cobra
             if cast.spittingCobra() then return end
