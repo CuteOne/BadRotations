@@ -59,7 +59,7 @@ local function createOptions()
             -- Seraphim
             br.ui:createSpinner(section, "Seraphim",  0,  0,  20,  2,  "|cffFFFFFFEnemy TTD")
             -- Avenging Wrath
-            br.ui:createSpinner(section, "Avenging Wrath",  0,  0,  200,  5,  "|cffFFFFFFEnemy TTD")
+            br.ui:createSpinner(section, "Avenging Wrath",  30,  0,  200,  5,  "|cffFFFFFFEnemy TTD")
             -- Bastion of Light
             br.ui:createCheckbox(section,"Bastion of Light")
 
@@ -76,6 +76,8 @@ local function createOptions()
             end			
             -- Ardent Defender
             br.ui:createSpinner(section, "Ardent Defender",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at")
+			-- Engineering: Gunpowder Charge
+            br.ui:createSpinner(section, "Gunpowder Charge",  30,  0,  200,  5,  "|cffFFFFFFEnemy TTD")
             -- Blinding Light
             br.ui:createSpinner(section, "Blinding Light - HP", 50, 0, 100, 5, "|cffFFFFFFHealth Percentage to use at")
             br.ui:createSpinner(section, "Blinding Light - AoE", 3, 0, 10, 1, "|cffFFFFFFNumber of Units in 5 Yards to Cast At")
@@ -92,6 +94,7 @@ local function createOptions()
             br.ui:createSpinner(section, "Guardian of Ancient Kings",  30,  0,  100,  5,  "|cffFFBB00Health Percentage to use at")
             -- Hammer of Justice
             br.ui:createSpinner(section, "Hammer of Justice - HP",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at")
+			br.ui:createCheckbox(section, "Hammer of Justice - Legendary")
             -- Light of the Protector
             br.ui:createSpinner(section, "Light of the Protector",  70,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
             -- Hand of the Protector - on others
@@ -386,6 +389,10 @@ local function runRotation()
                     end
                 end
             end
+		-- Engineering: Gunpowder Charge
+				if isChecked("Gunpowder Charge") and (getOptionValue("Gunpowder Charge") <= ttd ) and inCombat and canUse(132510) then
+					useItem(132510)
+				end
         -- Blessing Of Sacrifice		
                 if isChecked("Blessing Of Sacrifice") and php >= 50 and not UnitIsUnit(lowestUnit,"player") and inCombat then
                     -- Target
@@ -476,7 +483,10 @@ local function runRotation()
         -- Hammer of Justice
                 if isChecked("Hammer of Justice - HP") and php <= getOptionValue("Hammer of Justice - HP") and inCombat then
                     if cast.hammerOfJustice(units.dyn10) then return end
-                end			
+                end
+				if isChecked("Hammer of Justice - Legendary") and getHP("target") >= 75 and inCombat then
+					if cast.hammerOfJustice() then return end
+				end
         -- Flash of Light
                 if isChecked("Flash of Light") then
                     if (forceHeal or (inCombat and php <= getOptionValue("Flash of Light") / 2) or (not inCombat and php <= getOptionValue("Flash of Light"))) and not isMoving("player") then

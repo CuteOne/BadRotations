@@ -49,7 +49,11 @@ local function createOptions()
             -- Opener
             br.ui:createCheckbox(section, "Opener")
             -- Greater Blessing of Might
-            -- br.ui:createCheckbox(section, "Greater Blessing of Might")
+            -- br.ui:createCheckbox(section, "Greater Blessing of Might
+			-- Greater Blessing of Kings
+			br.ui:createCheckbox(section, "Greater Blessing of Kings")
+			-- Greater Blessing of Wisdom
+			br.ui:createCheckbox(section, "Greater Blessing of Wisdom")
             -- Hand of Freedom
             br.ui:createCheckbox(section, "Hand of Freedom")
             -- Hand of Hindeance
@@ -71,8 +75,6 @@ local function createOptions()
             br.ui:createCheckbox(section,"Holy Wrath")
             -- Avenging Wrath
             br.ui:createCheckbox(section,"Avenging Wrath")
-            -- Shield of Vengeance
-            br.ui:createCheckbox(section,"Shield of Vengeance")
             -- Cruusade
             br.ui:createCheckbox(section,"Crusade")
         br.ui:checkSectionState(section)
@@ -82,6 +84,8 @@ local function createOptions()
         section = br.ui:createSection(br.ui.window.profile, "Defensive")
             -- Healthstone
             br.ui:createSpinner(section, "Pot/Stoned",  60,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
+			-- Engineering: Gunpowder Charge
+            br.ui:createSpinner(section, "Gunpowder Charge",  30,  0,  200,  5,  "|cffFFFFFFEnemy TTD")
             -- Heirloom Neck
             br.ui:createSpinner(section, "Heirloom Neck",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.");
             -- Gift of The Naaru
@@ -99,15 +103,18 @@ local function createOptions()
             br.ui:createSpinner(section, "Divine Shield",  50,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
             -- Eye for an Eye
             br.ui:createSpinner(section, "Eye for an Eye", 50, 0 , 100, 5, "|cffFFBB00Health Percentage to use at.")
+			-- Shield of Vengeance
+            br.ui:createSpinner(section,"Shield of Vengeance", 90, 0 , 100, 5, "|cffFFBB00Health Percentage to use at.")
             -- Flash of Light
             br.ui:createSpinner(section, "Flash of Light",  50,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
             -- Hammer of Justice
             br.ui:createSpinner(section, "Hammer of Justice - HP",  50,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
+			br.ui:createCheckbox(section, "Hammer of Justice - Legendary")
             -- Justicar's Vengeance
             br.ui:createSpinner(section, "Justicar's Vengeance",  50,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
             -- Lay On Hands
-            br.ui:createSpinner(section, "Lay On Hands",  50,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
-            br.ui:createDropdownWithout(section, "Lay on Hands Target", {"|cffFFFFFFAll","|cffFFFFFFTanks", "|cffFFFFFFSelf"}, 1, "|cffFFFFFFTarget for LoH")
+            br.ui:createSpinner(section, "Lay On Hands", 20, 0, 100, 5, "","Health Percentage to use at")
+            br.ui:createDropdownWithout(section, "Lay on Hands Target", {"|cffFFFFFFPlayer","|cffFFFFFFTarget", "|cffFFFFFFMouseover", "|cffFFFFFFTank", "|cffFFFFFFHealer", "|cffFFFFFFHealer/Tank", "|cffFFFFFFHealer/Damage", "|cffFFFFFFAny"}, 8, "|cffFFFFFFTarget for Lay On Hands")
             -- Redemption
             br.ui:createDropdown(section, "Redemption", {"|cffFFFF00Selected Target","|cffFF0000Mouseover Target"}, 1, "|cffFFFFFFTarget to Cast On")
         br.ui:checkSectionState(section)
@@ -258,111 +265,154 @@ local function runRotation()
             --         end
             --     end
             -- end
+		-- Greater Blessing of Kings
+			if isChecked("Greater Blessing of Kings") and getBuffRemain("player",203538) < 600 and not IsMounted() then
+				cast.greaterBlessingOfKings()
+			end
+		-- Greater Blessing of Wisdom
+			if isChecked("Greater Blessing of Wisdom") and getBuffRemain("player",203539) < 600 and not IsMounted() then
+				cast.greaterBlessingOfWisdom()
+			end
         end -- End Action List - Extras
     -- Action List - Defensives
         local function actionList_Defensive()
             if useDefensive() then
-        -- Pot/Stoned
-                if isChecked("Pot/Stoned") and php <= getOptionValue("Pot/Stoned")
-                    and inCombat and (hasHealthPot() or hasItem(5512))
-                then
-                    if canUse(5512) then
-                        useItem(5512)
-                    elseif canUse(healPot) then
-                        useItem(healPot)
-                    end
-                end
-        -- Heirloom Neck
-                if isChecked("Heirloom Neck") and php <= getOptionValue("Heirloom Neck") then
-                    if hasEquiped(122667) then
-                        if GetItemCooldown(122667)==0 then
-                            useItem(122667)
-                        end
-                    end
-                end
-        -- Gift of the Naaru
-                if isChecked("Gift of the Naaru") and php <= getOptionValue("Gift of the Naaru") and php > 0 and race == "Draenei" then
-                    if castSpell("player",racial,false,false,false) then return end
-                end
-        -- Blessing of Protection
-                if isChecked("Blessing of Protection") then
-                    if getHP(lowestUnit) < getOptionValue("Blessing of Protection") and inCombat then
-                        if cast.blessingOfProtection(lowestUnit) then return end
-                    end
-                end
-        -- Blinding Light
-                if isChecked("Blinding Light - HP") and php <= getOptionValue("Blinding Light - HP") and inCombat and #enemies.yards10 > 0 then
-                    if cast.blindingLight() then return end
-                end
-                if isChecked("Blinding Light - AoE") and #enemies.yards5 >= getOptionValue("Blinding Light - AoE") and inCombat then
-                    if cast.blindingLight() then return end
-                end
-        -- Cleanse Toxins
-                if isChecked("Cleanse Toxins") then
-                    if getOptionValue("Cleanse Toxins")==1 then
-                        if cast.cleanseToxins("player") then return end
-                    end
-                    if getOptionValue("Cleanse Toxins")==2 then
-                        if cast.cleanseToxins("target") then return end
-                    end
-                    if getOptionValue("Cleanse Toxins")==3 then
-                        if cast.cleanseToxins("mouseover") then return end
-                    end
-                end
-        -- Divine Shield
-                if isChecked("Divine Shield") then
-                    if php <= getOptionValue("Divine Shield") and inCombat then
-                        if cast.divineShield() then return end
-                    end
-                end
-        -- Eye for an Eye
-                if isChecked("Eye for an Eye") then
-                    if php <= getOptionValue("Eye for an Eye") and inCombat then
-                        if cast.eyeForAnEye() then return end
-                    end
-                end
-        -- Flash of Light
-                if isChecked("Flash of Light") then
-                    if (forceHeal or (inCombat and php <= getOptionValue("Flash of Light") / 2) or (not inCombat and php <= getOptionValue("Flash of Light"))) and not isMoving("player") then
-                        if cast.flashOfLight() then return end
-                    end
-                end
-        -- Hammer of Justice
-                if isChecked("Hammer of Justice - HP") and php <= getOptionValue("Hammer of Justice - HP") and inCombat then
-                    if cast.hammerOfJustice() then return end
-                end
-        -- Lay On Hands
-                if isChecked("Lay On Hands") then
-                    -- if getHP(lowestUnit) < getOptionValue("Lay On Hands") and inCombat then
-                    --     if cast.layOnHands(lowestUnit) then return end
-                    -- end
-                    if getOptionValue("Lay on Hands Target") == 1 then
-                        for i = 1, #br.friend do
-                            if br.friend[i].hp <= getValue ("Lay on Hands") then
-                                if cast.layOnHands(br.friend[i].unit) then return end
-                            end
-                        end
-                    elseif getOptionValue("Lay on Hands Target") == 2 then
-                        for i = 1, #br.friend do
-                            if br.friend[i].hp <= getValue ("Lay on Hands") and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
-                                if cast.layOnHands(br.friend[i].unit) then return end
-                            end
-                        end
-                    elseif getOptionValue("Lay on Hands Target") == 3 then
-                        if php <= getValue("Lay on Hands") then
-                            if cast.layOnHands("player") then return end
-                        end
-                    end
-                end
-        -- Redemption
-                if isChecked("Redemption") then
-                    if getOptionValue("Redemption")==1 and not isMoving("player") and resable then
-                        if cast.redemption("target","dead") then return end
-                    end
-                    if getOptionValue("Redemption")==2 and not isMoving("player") and resable then
-                        if cast.redemption("mouseover","dead") then return end
-                    end
-                end
+				-- Lay On Hands
+					if isChecked("Lay On Hands") and inCombat then
+					-- Player
+						if getOptionValue("Lay on Hands Target") == 1 then
+							if php <= getValue("Lay On Hands") then
+								if cast.layOnHands("player") then return true end
+							end
+					-- Target
+						elseif getOptionValue("Lay on Hands Target") == 2 then
+							if getHP("target") <= getValue("Lay On Hands") then
+								if cast.layOnHands("target") then return true end
+							end
+					-- Mouseover
+						elseif getOptionValue("Lay on Hands Target") == 3 then
+							if getHP("mouseover") <= getValue("Lay On Hands") then
+								if cast.layOnHands("mouseover") then return true end
+							end
+					-- LowestUnit
+						elseif getHP(lowestUnit) <= getValue("Lay On Hands") then
+							-- Tank
+								if getOptionValue("Lay on Hands Target") == 4 then
+									if UnitGroupRolesAssigned(lowestUnit) == "TANK" then
+										if cast.layOnHands(lowestUnit) then return true end
+									end
+							-- Healer
+								elseif getOptionValue("Lay on Hands Target") == 5 then
+									if UnitGroupRolesAssigned(lowestUnit) == "HEALER" then
+										if cast.layOnHands(lowestUnit) then return true end
+									end
+							-- Healer/Tank
+								elseif getOptionValue("Lay on Hands Target") == 6 then
+									if UnitGroupRolesAssigned(lowestUnit) == "HEALER" or UnitGroupRolesAssigned(lowestUnit) == "TANK" then
+										if cast.layOnHands(lowestUnit) then return true end
+									end
+							-- Healer/Damager
+								elseif getOptionValue("Lay on Hands Target") == 7 then
+									if UnitGroupRolesAssigned(lowestUnit) == "HEALER" or UnitGroupRolesAssigned(lowestUnit) == "DAMAGER" then
+										if cast.layOnHands(lowestUnit) then return true end
+									end						
+							-- Any
+								elseif  getOptionValue("Lay on Hands Target") == 8 then
+									if cast.layOnHands(lowestUnit) then return true end
+								end
+						end
+					end
+				-- Divine Shield
+					if isChecked("Divine Shield") then
+						if php <= getOptionValue("Divine Shield") and inCombat then
+							if cast.divineShield() then return end
+						end
+					end
+				-- Pot/Stoned
+					if isChecked("Pot/Stoned") and php <= getOptionValue("Pot/Stoned")
+						and inCombat and (hasHealthPot() or hasItem(5512))
+					then
+						if canUse(5512) then
+							useItem(5512)
+						elseif canUse(healPot) then
+							useItem(healPot)
+						end
+					end
+				-- Heirloom Neck
+					if isChecked("Heirloom Neck") and php <= getOptionValue("Heirloom Neck") then
+						if hasEquiped(122667) then
+							if GetItemCooldown(122667)==0 then
+								useItem(122667)
+							end
+						end
+					end
+				-- Gift of the Naaru
+					if isChecked("Gift of the Naaru") and php <= getOptionValue("Gift of the Naaru") and php > 0 and race == "Draenei" then
+						if castSpell("player",racial,false,false,false) then return end
+					end
+				-- Blessing of Protection
+					if isChecked("Blessing of Protection") then
+						if getHP(lowestUnit) < getOptionValue("Blessing of Protection") and inCombat then
+							if cast.blessingOfProtection(lowestUnit) then return end
+						end
+					end
+				-- Blinding Light
+					if isChecked("Blinding Light - HP") and php <= getOptionValue("Blinding Light - HP") and inCombat and #enemies.yards10 > 0 then
+						if cast.blindingLight() then return end
+					end
+					if isChecked("Blinding Light - AoE") and #enemies.yards5 >= getOptionValue("Blinding Light - AoE") and inCombat then
+						if cast.blindingLight() then return end
+					end
+				-- Cleanse Toxins
+					if isChecked("Cleanse Toxins") then
+						if getOptionValue("Cleanse Toxins")==1 then
+							if cast.cleanseToxins("player") then return end
+						end
+						if getOptionValue("Cleanse Toxins")==2 then
+							if cast.cleanseToxins("target") then return end
+						end
+						if getOptionValue("Cleanse Toxins")==3 then
+							if cast.cleanseToxins("mouseover") then return end
+						end
+					end
+				-- Eye for an Eye
+					if isChecked("Eye for an Eye") then
+						if php <= getOptionValue("Eye for an Eye") and inCombat then
+							if cast.eyeForAnEye() then return end
+						end
+					end
+				-- Shield of Vengeance
+					if isChecked("Shield of Vengeance") then
+						if php <= getOptionValue("Shield of Vengeance") and inCombat then
+							if cast.shieldOfVengeance() then return end
+						end
+					end
+				-- Hammer of Justice
+					if isChecked("Hammer of Justice - HP") and php <= getOptionValue("Hammer of Justice - HP") and inCombat then
+						if cast.hammerOfJustice() then return end
+					end
+					if isChecked("Hammer of Justice - Legendary") and getHP("target") >= 75 and inCombat then
+						if cast.hammerOfJustice() then return end
+					end
+				-- Redemption
+					if isChecked("Redemption") then
+						if getOptionValue("Redemption")==1 and not isMoving("player") and resable then
+							if cast.redemption("target","dead") then return end
+						end
+						if getOptionValue("Redemption")==2 and not isMoving("player") and resable then
+							if cast.redemption("mouseover","dead") then return end
+						end
+					end
+				-- Flash of Light
+					if isChecked("Flash of Light") then
+						if (forceHeal or (inCombat and php <= getOptionValue("Flash of Light") / 2) or (not inCombat and php <= getOptionValue("Flash of Light"))) and not isMoving("player") then
+							if cast.flashOfLight() then return end
+						end
+					end
+				-- Engineering: Gunpowder Charge
+					if isChecked("Gunpowder Charge") and (getOptionValue("Gunpowder Charge") <= ttd ) and inCombat and canUse(132510) then
+						useItem(132510)
+					end
             end
         end -- End Action List - Defensive
     -- Action List - Interrupts
@@ -528,22 +578,23 @@ local function runRotation()
             -- Opener
                     if actionList_Opener() then return end
             -- Start Attack
-                    if getDistance(units.dyn5) < 5 then
-                        if not IsCurrentSpell(6603) then
-                            StartAttack(units.dyn5)
-                        end
-                    end
+				if getDistance(units.dyn5) < 5 then
+					if not IsCurrentSpell(6603) then
+						StartAttack(units.dyn5)
+					end
+				end
             -- Racials
-                    -- blood_fury
-                    -- berserking
-                    -- arcane_torrent,if=holy_power<5
-                    if isChecked("Racial") and useCDs() then
-                        if race == "Orc" or race == "Troll" or (race == "BloodElf" and holyPower < 5 and (buff.crusade.exists() or buff.avengingWrath.exists() or combatTime < 2)) and getSpellCD(racial) == 0 then
-                            if castSpell("player",racial,false,false,false) then return end
-                        end
-                    end
+				-- blood_fury
+				-- berserking
+				-- arcane_torrent,if=holy_power<5
+				if isChecked("Racial") and useCDs() then
+					if race == "Orc" or race == "Troll" or (race == "BloodElf" and holyPower < 5 and (buff.crusade.exists() or buff.avengingWrath.exists() or combatTime < 2)) and getSpellCD(racial) == 0 then
+						if castSpell("player",racial,false,false,false) then return end
+					end
+				end
             -- Combat Time less than 2 secs
                     if combatTime < 2 then
+			 
             -- Judgement
                         -- judgment,if=time<2
                         if cast.judgment() then return end
@@ -575,11 +626,6 @@ local function runRotation()
                         -- avenging_wrath
                         if isChecked("Avenging Wrath") and not talent.crusade and getDistance(units.dyn5) < 5 then
                             if cast.avengingWrath() then return end
-                        end
-            -- Shield of Vengeance
-                        -- shield_of_vengeance
-                        if isChecked("Shield of Vengeance") then
-                            if cast.shieldOfVengeance() then return end
                         end
             -- Crusade
                         -- crusade,if=holy_power>=5&!equipped.137048|((equipped.137048|race.blood_elf)&time<2|time>2&holy_power>=4)
