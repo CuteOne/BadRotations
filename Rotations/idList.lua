@@ -3110,6 +3110,7 @@ br.idList = {
                 victorious                  = 32216,
                 vengeanceFocusedRage        = 202573,
                 vengeanceIgnorePain         = 202574,
+                vengeanceRevenge            = 202573,
             },
             debuffs                         = {
                 demoralizingShout           = 1160,

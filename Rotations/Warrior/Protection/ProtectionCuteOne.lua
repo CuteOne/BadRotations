@@ -62,6 +62,8 @@ local function createOptions()
             -- Artifact
             br.ui:createDropdownWithout(section,"Artifact", {"|cff00FF00Everything","|cffFFFF00Defensive","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Artifact Ability.")
             br.ui:createSpinner(section, "Artifact HP",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
+            -- High Rage Revenge
+            br.ui:createSpinner(section, "High Rage Revenge", 3, 1, 10, 1, "|cffFFFFFF Set to number of units to use Revenge at when above 90 Rage.")
         br.ui:checkSectionState(section)
         ------------------------
         --- COOLDOWN OPTIONS ---
@@ -470,39 +472,41 @@ local function runRotation()
                 end
             end
         -- Neltharion's Fury
-            -- neltharions_fury,if=!buff.shield_block.up&cooldown.shield_block.remain()s>3&cooldown.shield_slam.remain()s>3
-            if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useDefensive()) then
-                if php < getOptionValue("Artifact HP") and inCombat and not buff.shieldBlock.exists() and cd.shieldBlock > 3 and cd.shieldSlam > 3 then
+            -- neltharions_fury,if=!buff.shield_block.up&cooldown.shield_block.remains>3&((cooldown.shield_slam.remains>3&talent.heavy_repercussions.enabled)|(!talent.heavy_repercussions.enabled))
+            if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useDefensive()) and php < getOptionValue("Artifact HP") and inCombat then
+                if not buff.shieldBlock.exists() and cd.shieldBlock > 3 and ((cd.shieldSlam > 3 and talent.heavyRepercussions) or (not talent.heavyRepercussions)) then
                     if cast.neltharionsFury("player") then return end
                 end
             end
         -- Shield Block
-            -- shield_block,if=!buff.neltharions_fury.up&(cooldown.shield_slam.remain()s=0|action.shield_block.charges=2)
-            if not buff.neltharionsFury and (cd.shieldSlam == 0 or charges.shieldBlock == 2) then
+            -- shield_block,if=!buff.neltharions_fury.up&((cooldown.shield_slam.remains=0&talent.heavy_repercussions.enabled)|action.shield_block.charges=2|!talent.heavy_repercussions.enabled)
+            if not buff.neltharionsFury and ((cd.shieldSlam == 0 and talent.heavyRepercussions) or charges.shieldBlock == 2 or not talent.heavyRepercussions) then
                 if cast.shieldBlock() then return end
             end
-        -- Shield Slam
-            -- shield_slam,if=!(cooldown.shield_block.remain()s<=gcd.max*2&!buff.shield_block.up&talent.heavy_repercussions.enabled)
-            if not (cd.shieldBlock <= gcd * 2 and not buff.shieldBlock.exists() and talent.heavyRepercussions) then
-                if cast.shieldSlam() then return end
-            end
-        -- Revenge
-            -- revenge,if=cooldown.shield_slam.remain()s<=gcd.max*2
-            -- revenge,if=cooldown.shield_slam.remain()s<=gcd.max*1.5|spell_targets.revenge>=2
-            if cd.shieldSlam <= gcd * 1.5 or ((mode.rotation == 1 and #enemies.yards5 >= 1) or mode.rotation == 2) then
-                if cast.revenge() then return end
-            end
         -- Ignore Pain
-            -- ignore_pain,if=(rage>=60&!talent.vengeance.enabled)|(buff.vengeance_ignore_pain.up&rage>=39)|(talent.vengeance.enabled&!buff.ultimatum.up&!buff.vengeance_ignore_pain.up&!buff.vengeance_focused_rage.up&rage<30)
+            -- ignore_pain,if=(rage>=60&!talent.vengeance.enabled)|(buff.vengeance_ignore_pain.up&rage>=39)|(talent.vengeance.enabled&!buff.vengeance_ignore_pain.up&!buff.vengeance_revenge.up&rage<30&!buff.revenge.react)
             if (rage >= 60 and not talent.vengeance) or (buff.vengeanceIgnorePain.exists() and rage >= 39)
-                or (talent.vengeance and not buff.ultimatum.exists() and not buff.vengeanceIgnorePain.exists() and not buff.vengeanceFocusedRage.exists() and rage < 30)
+                or (talent.vengeance and not buff.vengeanceIgnorePain.exists() and not buff.vengeanceRevenge.exists() and rage < 30 and select(1, getSpellCost(spell.revenge)) ~= 0)
             then
                 if cast.ignorePain() then return end
             end
+        -- Shield Slam
+            -- shield_slam,if=(!(cooldown.shield_block.remains<=gcd.max*2&!buff.shield_block.up)&talent.heavy_repercussions.enabled)|!talent.heavy_repercussions.enabled
+            if (not (cd.shieldBlock <= gcd * 2 and not buff.shieldBlock.exists()) and talent.heavyRepercussions) or not talent.heavyRepercussions then
+                if cast.shieldSlam() then return end
+            end
         -- Thunder Clap
-            -- thunder_clap,if=spell_targets.thunder_clap>=4
-            if ((mode.rotation == 1 and #enemies.yards8 >= 1) or mode.rotation == 2) then
-                if cast.thunderClap() then return end
+            -- thunder_clap
+            if cast.thunderClap() then return end
+        -- Revenge
+            -- revenge,if=(talent.vengeance.enabled&buff.revenge.react&!buff.vengeance_ignore_pain.up)|(buff.vengeance_revenge.up&rage>=59)|(talent.vengeance.enabled&!buff.vengeance_ignore_pain.up&!buff.vengeance_revenge.up&rage>=69)|(!talent.vengeance.enabled&buff.revenge.react)
+            if (talent.vengeance and select(1, getSpellCost(spell.revenge)) == 0 and not buff.vengeanceIgnorePain.exists()) 
+                or (buff.vengeanceRevenge.exists() and power >= 59) 
+                or (talent.vengeance and not buff.vengeanceIgnorePain.exists() and not buff.vengeanceRevenge.exists() and power >= 69)
+                or (not talent.vengeance and select(1, getSpellCost(spell.revenge)) == 0)
+                or (isChecked("High Rage Revenge") and power > 90 and #enemies.yards8 >= getOptionValue("High Rage Revenge"))
+            then
+                if cast.revenge() then return end
             end
         -- Devastate
             -- devastate
