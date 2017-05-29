@@ -466,7 +466,7 @@ local function runRotation()
             end
         -- Remorseless Winter
             -- remorseless_winter,if=(buff.rime.react&equipped.132459)|(talent.gathering_storm.enabled&(dot.remorseless_winter.remains<=gcd|!dot.remorseless_winter.ticking))
-            if (buff.rime.exists and hasEquiped(132459)) or (talent.gatheringStorm and (debuff.remorselessWinter.remain(units.dyn) <= gcd or not debuff.remorselessWinter.exists(units.dyn5))) and getDistance(units.dyn5) < 5 then
+            if (buff.rime.exists() and hasEquiped(132459)) or (talent.gatheringStorm and (debuff.remorselessWinter.remain(units.dyn) <= gcd or not debuff.remorselessWinter.exists(units.dyn5))) and getDistance(units.dyn5) < 5 then
                 if cast.remorselessWinter() then return end
             end
         -- Howling Blast
@@ -535,11 +535,11 @@ local function runRotation()
             end
         -- Howling Blast
             -- howling_blast,if=buff.rime.react&!(buff.obliteration.up&spell_targets.howling_blast<2)&!(equipped.132459&talent.gathering_storm.enabled)
-            if buff.rime.exist and not (buff.obliteration.exists() and #enemies.yards10t < 2) and not (hasEquiped(132459) and talent.gatheringStorm) then
+            if buff.rime.exists() and not (buff.obliteration.exists() and #enemies.yards10t < 2) and not (hasEquiped(132459) and talent.gatheringStorm) then
                 if cast.howlingBlast() then return end
             end
             -- howling_blast,if=buff.rime.react&!(buff.obliteration.up&spell_targets.howling_blast<2)&equipped.132459&talent.gathering_storm.enabled&(debuff.perseverance_of_the_ebon_martyr.up|cooldown.remorseless_winter.remains>3)
-            if buff.rime.exist and not (buff.obliteration.exists() and #enemies.yards10t < 2) and hasEquiped(132459) and talent.gatheringStorm and (debuff.remorselessWinter.exists(units.dyn5) or cd.remorselessWinter > 3) then
+            if buff.rime.exists() and not (buff.obliteration.exists() and #enemies.yards10t < 2) and hasEquiped(132459) and talent.gatheringStorm and (debuff.remorselessWinter.exists(units.dyn5) or cd.remorselessWinter > 3) then
                 if cast.howlingBlast() then return end
             end
         -- Obliterate

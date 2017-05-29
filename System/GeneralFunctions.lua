@@ -417,6 +417,11 @@ function canDispel(Unit,spellID)
 	end
 	return HasValidDispel
 end
+function canFly()
+	local hasDraenorFly = select(4,GetAchievementInfo(10018)) 
+	local hasLegionFly = select(4,GetAchievementInfo(11446)) 
+	return IsOutdoors() and IsFlyableArea() and ((not isInDraenor() and not isInLegion()) or (hasDraenorFly and isInDraenor()) or (hasLegionFly and isInLegion()))
+end
 -- if canHeal("target") then
 function canHeal(Unit)
 	if GetUnitExists(Unit) and UnitInRange(Unit) == true and UnitCanCooperate("player",Unit)
@@ -2555,7 +2560,25 @@ function isInDraenor()
 	end
 end
 function isInLegion()
-	return false
+	local tContains = tContains
+	local currentMapID = GetCurrentMapAreaID()
+	local legionMapIDs =
+		{
+			1007, -- Broken Isles
+			1015, -- Aszuna
+			1021, -- Broken Shore
+			1014, -- Dalaran
+			1098, -- Eye of Azshara
+			1024, -- Highmountain
+			1017, -- Stormheim
+			1033, -- Suramar
+			1018, -- Val'sharah
+		}
+	if (tContains(legionMapIDs,currentMapID)) then
+		return true
+	else
+		return false
+	end
 end
 -- if isInMelee() then
 function isInMelee(Unit)
@@ -2692,9 +2715,10 @@ function isStanding(Seconds)
 	return IsFalling() == false and DontMoveStartTime and getStandingTime() >= Seconds or false
 end
 -- if IsStandingTime(5) then
-function IsStandingTime(time)
+function IsStandingTime(time, unit)
 	if time == nil then time = 1 end
-	if not IsFalling() and GetUnitSpeed("player") == 0 then
+	if unit == nil then unit = "player" end
+	if not IsFalling() and GetUnitSpeed(unit) == 0 then
 		if IsStanding == nil then
 			IsStanding = GetTime()
 			IsRunning = nil
