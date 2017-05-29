@@ -1029,7 +1029,13 @@ local function runRotation()
         -- Regrowth
                     -- regrowth,if=talent.bloodtalons.enabled
                     if talent.bloodtalons and not buff.bloodtalons.exists() and (htTimer == nil or htTimer < GetTime() - 1) then
-                        if cast.regrowth("player") then htTimer = GetTime(); return end
+                        if GetShapeshiftForm() ~= 0 then
+                            -- CancelShapeshiftForm()
+                            RunMacroText("/CancelForm")
+                            if cast.regrowth("player") then htTimer = GetTime(); return end
+                        else
+                            if cast.regrowth("player") then htTimer = GetTime(); return end
+                        end
                     end
 		-- Incarnation - King of the Jungle
 					if cast.incarnationKingOfTheJungle() then return end

@@ -81,7 +81,7 @@ end
 function br:loadSettings()
 	-- Base Settings
 	if br.data == nil then br.data = {} end
-	if br.data.settings == nil then
+	if br.data.settings.buttonSize == nil then
 		br.data.settings = {
 			mainButton = {
 				pos = {
