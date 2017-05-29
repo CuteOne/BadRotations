@@ -1,10 +1,8 @@
 -- define br global that will hold the bot global background features
 br = {}
--- brdata = {}
 br.data = {}
 br.dungeon = {}
 br.raid = {}
-br.data.settings = {}
 br.selectedSpec = "None"
 br.selectedProfile = 1
 br.dropOptions = {}
@@ -81,7 +79,7 @@ end
 function br:loadSettings()
 	-- Base Settings
 	if br.data == nil then br.data = {} end
-	if br.data.settings.buttonSize == nil then
+	if br.data.settings == nil then
 		br.data.settings = {
 			mainButton = {
 				pos = {

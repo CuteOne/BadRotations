@@ -1317,45 +1317,45 @@ function getDisease(range,aoe,mod)
 end
 function getDistance(Unit1,Unit2,option)
     local currentDist = 100
-    local testSpell = nil
-    local meleeSpec = false
-    if testSpell == nil then
-    	if select(2,UnitClass("player")) == "WARRIOR" then
-    		testSpell = select(1,GetSpellInfo(6552))
-    		meleeSpec = true
-    	elseif select(2,UnitClass("player")) == "PALADIN" then
-    		testSpell = select(1,GetSpellInfo(35395))
-    		meleeSpec = true
-		elseif select(2,UnitClass("player")) == "ROGUE" then
-			testSpell = select(1,GetSpellInfo(1766))    		
-			meleeSpec = true
-    	elseif select(2,UnitClass("player")) == "DEATHKNIGHT" then
-    		testSpell = select(1,GetSpellInfo(49998))
-    		meleeSpec = true
-    	elseif select(2,UnitClass("player")) == "SHAMAN" and select(1,GetSpecializationInfo(GetSpecialization())) == 263 then
-    		testSpell = select(1,GetSpellInfo(17364))
-    		meleeSpec = true
-    	elseif select(2,UnitClass("player")) == "MONK" then
-    		testSpell = select(1,GetSpellInfo(100780))
-    		meleeSpec = true
-    	elseif select(2,UnitClass("player")) == "DRUID" then
-    		if (GetShapeshiftForm()==1 or GetShapeshiftForm()==3) then
-    			testSpell = select(1,GetSpellInfo(106832))
-    			meleeSpec = true
-    		else
-    			meleeSpec = false
-    		end
-		elseif select(2,UnitClass("player")) == "DEMONHUNTER" and select(1,GetSpecializationInfo(GetSpecialization())) == 577 then
-    		testSpell = select(1,GetSpellInfo(162794))   
-    		meleeSpec = true
-    	elseif select(2,UnitClass("player")) == "DEMONHUNTER" and select(1,GetSpecializationInfo(GetSpecialization())) == 581 then
-    		testSpell = select(1,GetSpellInfo(214743))   
-    		meleeSpec = true
-   		elseif select(2,UnitClass("player")) == "HUNTER" and select(1,GetSpecializationInfo(GetSpecialization())) == 255 then
-    		testSpell = select(1,GetSpellInfo(185855))   
-    		meleeSpec = true
-    	end 		
-    end
+  --   local testSpell = nil
+  --   local meleeSpec = false
+  --   if testSpell == nil then
+  --   	if select(2,UnitClass("player")) == "WARRIOR" then
+  --   		testSpell = select(1,GetSpellInfo(6552))
+  --   		meleeSpec = true
+  --   	elseif select(2,UnitClass("player")) == "PALADIN" then
+  --   		testSpell = select(1,GetSpellInfo(35395))
+  --   		meleeSpec = true
+		-- elseif select(2,UnitClass("player")) == "ROGUE" then
+		-- 	testSpell = select(1,GetSpellInfo(1766))    		
+		-- 	meleeSpec = true
+  --   	elseif select(2,UnitClass("player")) == "DEATHKNIGHT" then
+  --   		testSpell = select(1,GetSpellInfo(49998))
+  --   		meleeSpec = true
+  --   	elseif select(2,UnitClass("player")) == "SHAMAN" and select(1,GetSpecializationInfo(GetSpecialization())) == 263 then
+  --   		testSpell = select(1,GetSpellInfo(17364))
+  --   		meleeSpec = true
+  --   	elseif select(2,UnitClass("player")) == "MONK" then
+  --   		testSpell = select(1,GetSpellInfo(100780))
+  --   		meleeSpec = true
+  --   	elseif select(2,UnitClass("player")) == "DRUID" then
+  --   		if (GetShapeshiftForm()==1 or GetShapeshiftForm()==3) then
+  --   			testSpell = select(1,GetSpellInfo(106832))
+  --   			meleeSpec = true
+  --   		else
+  --   			meleeSpec = false
+  --   		end
+		-- elseif select(2,UnitClass("player")) == "DEMONHUNTER" and select(1,GetSpecializationInfo(GetSpecialization())) == 577 then
+  --   		testSpell = select(1,GetSpellInfo(162794))   
+  --   		meleeSpec = true
+  --   	elseif select(2,UnitClass("player")) == "DEMONHUNTER" and select(1,GetSpecializationInfo(GetSpecialization())) == 581 then
+  --   		testSpell = select(1,GetSpellInfo(214743))   
+  --   		meleeSpec = true
+  --  		elseif select(2,UnitClass("player")) == "HUNTER" and select(1,GetSpecializationInfo(GetSpecialization())) == 255 then
+  --   		testSpell = select(1,GetSpellInfo(185855))   
+  --   		meleeSpec = true
+  --   	end 		
+  --   end
     -- If Unit2 is nil we compare player to Unit1
     if Unit2 == nil then
         Unit2 = Unit1
@@ -1413,11 +1413,11 @@ function getDistance(Unit1,Unit2,option)
         else
             currentDist = 0
         end
-        if not EWT and meleeSpec then
-        	if IsSpellInRange(testSpell,Unit2) == 1 then
-        		currentDist = 4
-        	end
-        end
+        -- if not EWT and meleeSpec then
+        -- 	if IsSpellInRange(testSpell,Unit2) == 1 then
+        -- 		currentDist = 4
+        -- 	end
+        -- end
     end
     return currentDist
 end
@@ -2953,7 +2953,7 @@ function spellDebug(Message)
 end
 -- if isChecked("Debug") then
 function isChecked(Value)
-	if br.data~=nil then
+	if br.data ~= nil and br.data.settings ~= nil then
 		--Print(br.data.settings[br.selectedSpec]["profile"..Value.."Check"])
 	    if br.data.settings[br.selectedSpec] == nil or br.data.settings[br.selectedSpec][br.selectedProfile] == nil then return false end
 
@@ -2967,10 +2967,12 @@ function isChecked(Value)
 end
 -- if isSelected("Stormlash Totem") then
 function isSelected(Value)
-	if br.data.settings[br.selectedSpec].toggles["Cooldowns"] == 3 or (isChecked(Value)
-		and (getValue(Value) == 3 or (getValue(Value) == 2 and br.data.settings[br.selectedSpec].toggles["Cooldowns"] == 2))) then
+	if br.data.settings ~= nil and (br.data.settings[br.selectedSpec].toggles["Cooldowns"] == 3 
+		or (isChecked(Value) and (getValue(Value) == 3 or (getValue(Value) == 2 and br.data.settings[br.selectedSpec].toggles["Cooldowns"] == 2)))) 
+	then
 		return true
 	end
+	return false
 end
 -- if getValue("player") <= getValue("Eternal Flame") then
 -- function getValue(Value)
