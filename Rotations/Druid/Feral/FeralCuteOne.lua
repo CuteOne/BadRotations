@@ -289,7 +289,7 @@ local function runRotation()
             fbMaxEnergy = false
         end
         if not inCombat and not GetObjectExists("target") then
-			shredCount = 7
+			shredCount = 10
             OPN1 = false
             RK1 = false
             SR1 = false

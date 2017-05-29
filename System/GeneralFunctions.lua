@@ -441,14 +441,16 @@ function canInterrupt(unit,percentint)
 	local interruptable = false
 	local castType = "spellcast" -- Handle difference in logic if the spell is cast or being channeles
 	local interruptID = 0
+	local onWhitelist = false
 	if GetUnitExists(unit)
 		and UnitCanAttack("player",unit)
 		and not UnitIsDeadOrGhost(unit)
 	then
+		-- Get Cast/Channel Info
 		if select(6,UnitCastingInfo(unit)) and not select(9,UnitCastingInfo(unit)) then --Get spell cast time
 			castStartTime = select(5,UnitCastingInfo(unit))
 			castEndTime = select(6,UnitCastingInfo(unit))
-			interruptID = select(7,GetSpellInfo(UnitCastingInfo(unit)))
+			interruptID = select(10,UnitCastingInfo(unit))
 			interruptable = true
 			castType = "spellcast"
 		elseif select(6,UnitChannelInfo(unit)) and not select(8,UnitChannelInfo(unit)) then -- Get spell channel time
@@ -463,6 +465,7 @@ function canInterrupt(unit,percentint)
 			interruptable = false
 			interruptID = 0
 		end
+		-- Assign interrupt time
 		if castEndTime > 0 and castStartTime > 0 then
 			castDuration = (castEndTime - castStartTime)/1000
 			castTimeRemain = ((castEndTime/1000) - GetTime())
@@ -493,7 +496,15 @@ function canInterrupt(unit,percentint)
 			castTimeRemain = 0
 			castPercent = 0
 		end
-		if ((isChecked("Interrupt Only Whitelist") and interruptWhitelist[interruptID] ~= nil) or not isChecked("Interrupt Only Whitelist")) then
+		-- Check if on whitelist (if selected)
+		if isChecked("Interrupt Only Whitelist") then
+			for i = 1, #interruptWhitelist do
+				whitelistID = interruptWhitelist[i]
+				if interruptID == whitelistID then onWhitelist = true; break else onWhitelist = false end
+			end
+		end
+		-- Return when interrupt time is met
+		if ((isChecked("Interrupt Only Whitelist") and onWhitelist) or not isChecked("Interrupt Only Whitelist")) then
 			if castType == "spellcast" then
 				if math.ceil((castTimeRemain/castDuration)*100) <= castPercent and interruptable == true and getTimeToDie(unit)>castTimeRemain then
 					return true
