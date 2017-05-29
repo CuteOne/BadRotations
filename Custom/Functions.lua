@@ -805,7 +805,8 @@ end
 
 local pullTimerTest
 local pullTimerEndTest
-AddEventCallback("CHAT_MSG_ADDON",function (prefix, message)
+if FH then
+    AddEventCallback("CHAT_MSG_ADDON",function (prefix, message)
     if prefix == "D4" and string.find(message, "PT") then
         pullTimerTest = tonumber(string.sub(message, 4, 5));
         pullTimerEndTest = GetTime() + pullTimerTest;
@@ -817,6 +818,7 @@ AddEventCallback("CHAT_MSG_ADDON",function (prefix, message)
     end   
   end
   )
+end
 
 local pullTimerRemainTest
 --[[function PullTimerRemain(returnBool)
