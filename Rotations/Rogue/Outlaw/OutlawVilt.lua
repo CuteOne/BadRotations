@@ -254,7 +254,7 @@ local function runRotation()
         end
 
         local function ssUsable()
-            if ((talent.anticipation and combo < 4) or (not talent.anticipation and ((rtbReroll() and combo < 4 + (talent.deeperStrategem and 1 or 0)) or (not rtbReroll() and ssUsableNoReroll())))) then
+            if ((talent.anticipation and combo < 5) or (not talent.anticipation and ((rtbReroll() and combo < 4 + (talent.deeperStrategem and 1 or 0)) or (not rtbReroll() and ssUsableNoReroll())))) then
                 return true
             else
                 return false
@@ -509,18 +509,32 @@ local function runRotation()
             end
         -- Ambush
             --ambush,if=variable.ambush_condition
-            if stealthingAll and ambushCondition() then
-                if cast.ambush() then return end
+            if stealthingAll then
+                if not ssUsable() and not ambushCondition() then
+                    if actionList_Finishers() then return end
+                elseif ambushCondition() then
+                    if cast.ambush() then return end
+                else
+                    if cast.saberSlash() then return end
+                end
             else
         -- Vanish
                 -- vanish,if=variable.ambush_condition|(equipped.mantle_of_the_master_assassin&mantle_duration=0&!variable.rtb_reroll&!variable.ss_useable)
-                if useCDs() and isChecked("Vanish") and GetTime() >= vanishTime + cd.global and (ambushCondition() or (hasEquiped(144236) and mantleDuration() == 0 and not rtbReroll() and not ssUsable())) and isValidUnit("target") and getDistance("target") <= 5  then
-                    if cast.vanish() then vanishTime = GetTime(); return end
+                if cd.vanish == 0 and useCDs() and isChecked("Vanish") and GetTime() >= vanishTime + cd.global and (ambushCondition() or (hasEquiped(144236) and mantleDuration() == 0 and not rtbReroll() and not ssUsable())) and isValidUnit("target") and getDistance("target") <= 5 then
+                    if power < 35 then
+                        return true
+                    else
+                        if cast.vanish() then vanishTime = GetTime(); return end
+                    end
                 end
         -- Shadowmeld
                 -- shadowmeld,if=variable.ambush_condition
-                if useCDs() and isChecked("Racial") and GetTime() >= vanishTime + cd.global and cd.global <= getLatency() and race == "NightElf" and ambushCondition() and isValidUnit("target") and getDistance("target") <= 5 and not isMoving("player") then
-                    if cast.shadowmeld() then vanishTime = GetTime(); cast.ambush(); return end
+                if cd.shadowmeld == 0 and useCDs() and isChecked("Racial") and GetTime() >= vanishTime + cd.global and cd.global <= getLatency() and race == "NightElf" and ambushCondition() and isValidUnit("target") and getDistance("target") <= 5 and not isMoving("player") then
+                    if power < 35 then
+                        return true
+                    else
+                        if cast.shadowmeld() then vanishTime = GetTime(); cast.ambush(); return end
+                    end
                 end
             end
         end
