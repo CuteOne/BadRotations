@@ -56,6 +56,8 @@ local function createOptions()
         --    br.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
         -- Purifying Brew
             br.ui:createDropdown(section, "Purifying Brew",  {"|cff00FF00Both","|cffFF0000Heavy Only"}, 1, "|cffFFFFFFStagger to cast on")
+        -- Stagger dmg % to purify
+            br.ui:createSpinner(section, "Stagger dmg % to purify",  1.5,  0,  3,  1,  "Stagger dmg % to purify")
         -- Resuscitate
             br.ui:createDropdown(section, "Resuscitate", {"|cff00FF00Target","|cffFF0000Mouseover"}, 1, "|cffFFFFFFTarget to cast on")
         br.ui:checkSectionState(section)
@@ -74,15 +76,15 @@ local function createOptions()
         -- Touch of the Void
             br.ui:createCheckbox(section,"Touch of the Void")
         -- Chi Burst
-        	br.ui:createSpinnerWithout(section, "Chi Burst Targets",  1,  1,  10,  1)
+            br.ui:createSpinnerWithout(section, "Chi Burst Targets",  1,  1,  10,  1)
         -- Artifact
             br.ui:createDropdownWithout(section,"Artifact", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Artifact Ability.")
         -- Exploding Keg Targets
-        	br.ui:createSpinnerWithout(section, "Exploding Keg Targets",  2,  1,  10,  1,  "|cffFFFFFFAmount of Targets to cast Exploding Keg when enabled above.")        
+            br.ui:createSpinnerWithout(section, "Exploding Keg Targets",  2,  1,  10,  1,  "|cffFFFFFFAmount of Targets to cast Exploding Keg when enabled above.")        
         -- Breath of Fire
-        	br.ui:createSpinnerWithout(section, "Breath of Fire Targets",  1,  1,  10,  1)
+            br.ui:createSpinnerWithout(section, "Breath of Fire Targets",  1,  1,  10,  1)
         -- Keg Smash
-        	br.ui:createSpinnerWithout(section, "Keg Smash Targets",  1,  1,  10,  1)
+            br.ui:createSpinnerWithout(section, "Keg Smash Targets",  1,  1,  10,  1)
         br.ui:checkSectionState(section)
         -------------------------
         --- DEFENSIVE OPTIONS ---
@@ -108,7 +110,7 @@ local function createOptions()
         -- Expel Harm
             br.ui:createSpinner(section, "Expel Harm",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
         -- Expel Harm Orbs
-        	br.ui:createSpinnerWithout(section, "Expel Harm Orbs",  3,  0,  15,  1,  "|cffFFFFFFMin amount of Gift of the Ox Orbs to cast.")
+            br.ui:createSpinnerWithout(section, "Expel Harm Orbs",  3,  0,  15,  1,  "|cffFFFFFFMin amount of Gift of the Ox Orbs to cast.")
         br.ui:checkSectionState(section)
         -------------------------
         --- INTERRUPT OPTIONS ---
@@ -192,7 +194,7 @@ local function runRotation()
         local mode              = br.player.mode
         local php               = br.player.health
         local power             = br.player.power.amount.energy
-        local powgen			= br.player.power.regen
+        local powgen            = br.player.power.regen
         local powerMax          = br.player.power.energy.max
         local pullTimer         = br.DBM:getPulltimer()
         local queue             = br.player.queue
@@ -284,7 +286,7 @@ local function runRotation()
     -- Action List - Defensive
         function actionList_Defensive()
             if useDefensive() then
-        -- Purifying Brew
+    -- Purifying Brew
                 if isChecked("Purifying Brew") then
                     if getOptionValue("Purifying Brew") == 1 then
                         if (debuff.moderateStagger.exists("player") or debuff.heavyStagger.exists("player")) then
@@ -292,7 +294,7 @@ local function runRotation()
                         end
                     end
                     if getOptionValue("Purifying Brew") == 2 then
-                        if debuff.heavyStagger.exists("player") then
+                        if debuff.heavyStagger.exists("player") and (not isChecked("Stagger dmg % to purify") or (isChecked("Stagger dmg % to purify") and UnitStagger("player") / UnitHealthMax("player") >= getValue("Stagger dmg % to purify"))) then
                             if cast.purifyingBrew() then return end
                         end
                     end
@@ -462,9 +464,9 @@ local function runRotation()
                 if cast.kegSmash() then return end
             end
         --[[ Breath of Fire
-        	if buff.blackoutCombo.exists() and #getEnemies("player",12) >= getOptionValue("Breath of Fire Targets") then
-        		if cast.breathOfFire() then return end
-        	end]]        
+            if buff.blackoutCombo.exists() and #getEnemies("player",12) >= getOptionValue("Breath of Fire Targets") then
+                if cast.breathOfFire() then return end
+            end]]        
         -- Breath of Fire
             if buff.blackoutCombo.exists() and not hasEquiped(137016) and #getEnemies("player",12) >= getOptionValue("Breath of Fire Targets") and debuff.kegSmash.exists(units.dyn5) then
                 if cast.breathOfFire() then return end
@@ -494,20 +496,20 @@ local function runRotation()
         --Chi Burst
             --Width/Range values from LyloLoq
             if talent.chiBurst and getEnemiesInRect(7,47) >= getOptionValue("Chi Burst Targets") then
-            	if cast.chiBurst() then return end
+                if cast.chiBurst() then return end
             end
         -- Chi Wave
-        	if talent.chiWave then
-            	if cast.chiWave() then return end
+            if talent.chiWave then
+                if cast.chiWave() then return end
             end
         -- Rushing Jade Wind ST
             if ((mode.rotation == 1 and #enemies.yards8 < 3) or mode.rotation == 3) and #enemies.yards8 >= 1 then
                 if cast.rushingJadeWind() then return end
             end
         -- Breath of Fire
-        	--[[if #getEnemies("player",12) >= getOptionValue("Breath of Fire Targets") and debuff.kegSmash.exists(units.dyn5) then
-        		if cast.breathOfFire() then return end
-        	end]]        
+            --[[if #getEnemies("player",12) >= getOptionValue("Breath of Fire Targets") and debuff.kegSmash.exists(units.dyn5) then
+                if cast.breathOfFire() then return end
+            end]]        
         -- Expel Harm
             --[[if isChecked("Expel Harm") and php <= getValue("Expel Harm") and inCombat and GetSpellCount(115072) >= getOptionValue("Expel Harm Orbs") then
                 if cast.expelHarm() then return end
@@ -531,7 +533,7 @@ local function runRotation()
         --Breath of Fire
             --actions.st+=/breath_of_fire
             if #getEnemies("player",12) >= getOptionValue("Breath of Fire Targets") and debuff.kegSmash.exists(units.dyn5) then
-            	if cast.breathOfFire() then return end
+                if cast.breathOfFire() then return end
             end
         -- Blackout Strike
             --actions.st+=/blackout_strike
@@ -555,12 +557,12 @@ local function runRotation()
         -- Chi Wave
             --actions.st+=/chi_wave
             if talent.chiWave then
-            	if cast.chiWave() then return end
+                if cast.chiWave() then return end
             end
         --  Rushing Jade Wind
             --actions.st+=/rushing_jade_wind
             if talent.rushingJadeWind and #enemies.yards8 >= 1 then
-            	if cast.rushingJadeWind() then return end
+                if cast.rushingJadeWind() then return end
             end
         -- Expel Harm
             --[[if isChecked("Expel Harm") and php <= getValue("Expel Harm") and inCombat and GetSpellCount(115072) >= getOptionValue("Expel Harm Orbs") then
@@ -593,22 +595,22 @@ local function runRotation()
         -- Chi Wave
             --actions.st+=/chi_wave
             if talent.chiWave then
-            	if cast.chiWave() then return end
+                if cast.chiWave() then return end
             end
         --Breath of Fire
             --actions.st+=/breath_of_fire
             if #getEnemies("player",12) >= getOptionValue("Breath of Fire Targets") and debuff.kegSmash.exists(units.dyn5) then
-            	if cast.breathOfFire() then return end
+                if cast.breathOfFire() then return end
             end
         --Rushing Jade Wind
             --actions.st+=/rushing_jade_wind
             if talent.rushingJadeWind and #enemies.yards8 >= 1 then
-            	if cast.rushingJadeWind() then return end
+                if cast.rushingJadeWind() then return end
             end        
         --Tiger Palm
             --actions.st+=/tiger_palm
             if cd.kegSmash >= gcd and (power+(powgen*cd.kegSmash)) >= 80 then
-            	if cast.tigerPalm() then return end
+                if cast.tigerPalm() then return end
             end
         -- Blackout Strike
             --actions.st+=/blackout_strike
@@ -695,24 +697,24 @@ local function runRotation()
                     -- potion,name=old_war,if=buff.serenity.up|buff.storm_earth_and_fire.up|(!talent.serenity.enabled&trinket.proc.agility.react)|buff.bloodlust.react|target.time_to_die<=60
                     -- TODO: Agility Proc
                     if isChecked("Provoke") and (inRaid or inInstance) then
-		                for i = 1, #enemies.yards30 do
-		                   local thisUnit = enemies.yards30[i]
-		                   local enemyTarget = UnitTarget(thisUnit)
-		                   
-		                   -- if not isAggroed(thisUnit) and hasThreat(thisUnit) then
-		                   if enemyTarget ~= nil and UnitGroupRolesAssigned(enemyTarget) ~= "TANK" and UnitIsFriend(enemyTarget,"player") then
-		                        if cast.provoke(thisUnit) then return end
-		                    end
-		                end
-		            end
-		        -- Black Ox Brew
-		            if charges.purifyingBrew == 0 and talent.blackoxBrew then
-		                if cast.blackoxBrew() then return end
-		            end
-		        -- Ironskin Brew
-		            if ((charges.purifyingBrew > 1 and not buff.ironskinBrew.exists()) or charges.purifyingBrew == 3) and not buff.blackoutCombo.exists() then
-		                if cast.ironskinBrew() then return end
-		            end
+                        for i = 1, #enemies.yards30 do
+                           local thisUnit = enemies.yards30[i]
+                           local enemyTarget = UnitTarget(thisUnit)
+                           
+                           -- if not isAggroed(thisUnit) and hasThreat(thisUnit) then
+                           if enemyTarget ~= nil and UnitGroupRolesAssigned(enemyTarget) ~= "TANK" and UnitIsFriend(enemyTarget,"player") then
+                                if cast.provoke(thisUnit) then return end
+                            end
+                        end
+                    end
+                -- Black Ox Brew
+                    if charges.purifyingBrew == 0 and talent.blackoxBrew then
+                        if cast.blackoxBrew() then return end
+                    end
+                -- Ironskin Brew
+                    if ((charges.purifyingBrew > 1 and not buff.ironskinBrew.exists()) or charges.purifyingBrew == 3) and not buff.blackoutCombo.exists() then
+                        if cast.ironskinBrew() then return end
+                    end
                 -- Potion
                     if canUse(127844) and inRaid and isChecked("Potion") and getDistance("target") < 5 then
                         useItem(127844)
