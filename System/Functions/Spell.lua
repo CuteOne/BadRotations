@@ -94,21 +94,33 @@ function canInterrupt(unit,percentint)
 					castPercent = math.random(25,75) --  I am not sure that this is working,we are doing this check every pulse so its different randoms each time
 				end
 				if castType == "spellchannel" then
-					castPercent = math.random(75, 95)
+					if castDuration > 60 then
+						castPercent = 100
+					else
+						castPercent = math.random(95, 99)
+					end
 				end
 			elseif percentint == 0 and castPercent == 0 then
 				if castType == "spellcast" then
 					castPercent = math.random(25,75)
 				end
 				if castType == "spellchannel" then
-					castPercent = math.random(75, 95)
+					if castDuration > 60 then
+						castPercent = 100
+					else
+						castPercent = math.random(95, 99)
+					end
 				end
 			elseif percentint > 0 then
 				if castType == "spellcast" then
 					castPercent = percentint
 				end
 				if castType == "spellchannel" then
-					castPercent = math.random(75, 95)
+					if castDuration > 60 then
+						castPercent = 100
+					else
+						castPercent = math.random(95, 99)
+					end
 				end
 			end
 		else
@@ -124,7 +136,7 @@ function canInterrupt(unit,percentint)
 			end
 		end
 		-- Return when interrupt time is met
-		if ((isChecked("Interrupt Only Whitelist") and onWhitelist) or not isChecked("Interrupt Only Whitelist")) then
+		if ((isChecked("Interrupt Only Whitelist") and (onWhitelist or not (br.player.instance=="party" or br.player.instance=="raid"))) or not isChecked("Interrupt Only Whitelist")) then
 			if castType == "spellcast" then
 				if math.ceil((castTimeRemain/castDuration)*100) <= castPercent and interruptable == true and getTimeToDie(unit)>castTimeRemain then
 					return true
@@ -132,7 +144,7 @@ function canInterrupt(unit,percentint)
 			end
 			if castType == "spellchannel" then
 				--if (GetTime() - castStartTime/1000) > channelDelay and interruptable == true then
-				if (GetTime() - castStartTime/1000) > channelDelay and math.ceil((castTimeRemain/castDuration)*100) <= castPercent and interruptable == true and getTimeToDie(unit)>castTimeRemain then
+				if (GetTime() - castStartTime/1000) > channelDelay and (math.ceil((castTimeRemain/castDuration)*100) <= castPercent or castPercent == 100) and interruptable == true and (getTimeToDie(unit)>castTimeRemain or castPercent == 100) then
 					return true
 				end
 			end

@@ -112,7 +112,12 @@ function FindEnemy()
 	local startTime = debugprofilestop()
 	br.debug.cpu.enemiesEngine.unitTargets = 0
 	br.debug.cpu.enemiesEngine.sanityTargets = 0
-	local objectCount = GetObjectCount()
+	if FireHack then
+		objectCount = GetObjectCount()
+	else
+		objectCount = 0
+	end
+	-- local objectCount = GetObjectCount() or 0
 	if FireHack ~= nil and objectCount > 0 then
 		for i = 1, objectCount do
 			-- define our unit
@@ -158,7 +163,7 @@ end
 
 -- returns prefered target for diferent spells
 function dynamicTarget(range,facing)
-	local startTime = debugprofilestop()
+	-- local startTime = debugprofilestop()
 	if getOptionCheck("Dynamic Targetting") then
 		local bestUnitCoef = 0
 		local bestUnit = "target"
@@ -166,7 +171,9 @@ function dynamicTarget(range,facing)
 			local thisUnit = v--br.enemy[k]
 			local thisDistance = getDistance("player",thisUnit.unit)
 			if isChecked("Hostiles Only") == false or (getOptionCheck("Hostiles Only") and UnitReaction(thisUnit.unit,"player")) == 2 then
-				if GetUnitExists(thisUnit.unit) and ObjectID(thisUnit.unit) ~= 103679 and thisUnit.coeficient ~= nil and getLineOfSight("player", thisUnit.unit) and not UnitIsTrivial(thisUnit.unit) and UnitCreatureType(thisUnit.unit) ~= "Critter" then
+				if GetUnitExists(thisUnit.unit) and ObjectID(thisUnit.unit) ~= 103679 and thisUnit.coeficient ~= nil --and getLineOfSight("player", thisUnit.unit) 
+					and not UnitIsTrivial(thisUnit.unit) and UnitCreatureType(thisUnit.unit) ~= "Critter" 
+				then
 					if (not getOptionCheck("Safe Damage Check") or thisUnit.safe) and not thisUnit.isCC
 							and thisDistance < range and (not facing or thisUnit.facing)
 					then
@@ -178,13 +185,13 @@ function dynamicTarget(range,facing)
 				end
 			end
 		end
-		br.debug.cpu.enemiesEngine.dynamicTarget = debugprofilestop()-startTime or 0
+		-- br.debug.cpu.enemiesEngine.dynamicTarget = debugprofilestop()-startTime or 0
 		if isChecked("Target Dynamic Target") then
 			TargetUnit(bestUnit)
 		end
 		return bestUnit
 	end
-	br.debug.cpu.enemiesEngine.dynamicTarget = debugprofilestop()-startTime or 0
+	-- br.debug.cpu.enemiesEngine.dynamicTarget = debugprofilestop()-startTime or 0
 	return "target"
 end
 -- function dynamicTarget(range,facing)

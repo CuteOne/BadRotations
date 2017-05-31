@@ -477,7 +477,7 @@ local function runRotation()
         -- Charge
                 -- charge
                 if isChecked("Charge") then
-                    if (cd.heroicLeap > 0 and cd.heroicLeap < 29) or not isChecked("Heroic Leap") or level < 26 then
+                    if (cd.heroicLeap > 0 and cd.heroicLeap < 43) or not isChecked("Heroic Leap") or level < 26 then
                         if cast.charge("target") then return end
                     end
                 end
@@ -552,7 +552,7 @@ local function runRotation()
                         end
         -- Heroic Charge
                         -- heroic_charge,if=rage.deficit>=40&(!cooldown.heroic_leap.remain()s|swing.mh.remain()s>1.2)
-                        if mode.heroic == 1 and powerDeficit >= 40 and (cd.heroicLeap == 0 or swingTimer > 1.2) and getDistance(units.dyn5) < 5 then
+                        if isChecked("Heroic Charge") and mode.heroic == 1 and powerDeficit >= 40 and (cd.heroicLeap == 0 or swingTimer > 1.2) and getDistance(units.dyn5) < 5 then
                             heroicLeapCharge()
                         end
         -- Execute
@@ -626,7 +626,7 @@ local function runRotation()
             end
         -- Heroic Charge
             -- heroic_charge,if=rage.deficit>=40&(!cooldown.heroic_leap.remain()s|swing.mh.remain()s>1.2)
-            if mode.heroic == 1 and powerDeficit >= 40 and (cd.heroicLeap == 0 or swingTimer > 1.2) and getDistance(units.dyn5) < 5 then
+            if isChecked("Heroic Charge") and mode.heroic == 1 and powerDeficit >= 40 and (cd.heroicLeap == 0 or swingTimer > 1.2) and getDistance(units.dyn5) < 5 then
                 heroicLeapCharge()
             end
         -- Avatar

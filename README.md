@@ -263,7 +263,7 @@ CuteOne          | Full          | 7.2   |    90% |    :x:
 
 author  | support | patch | status |     raidable?
 :------ | :-----: | :---: | -----: | :----------------:
-CuteOne |  Full   | 7.2   |   90%  | :interrobang:
+CuteOne |  Full   | 7.2   |   90%  | :white_check_mark:
 
 - Outlaw
 
