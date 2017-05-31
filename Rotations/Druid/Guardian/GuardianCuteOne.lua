@@ -96,7 +96,7 @@ local function createOptions()
         -- Frenzied Regeneration
             br.ui:createSpinner(section, "Frenzied Regeneration", 50, 0, 100, 5, "|cffFFBB00Health Loss Percentage to use at.")
         -- Ironfur
-            br.ui:createSpinner(section, "Ironfur", 50, 0, 100, 5, "|cffFFBB00Health Percentage to use at.")
+            br.ui:createCheckbox(section, "Ironfur")
         -- Mark of Ursol
             br.ui:createSpinner(section, "Mark of Ursol", 50, 0, 100, 5, "|cffFFBB00Health Percentage to use at.")
         -- Rage of the Sleeper
@@ -558,56 +558,68 @@ local function runRotation()
     --- SimulationCraft APL ---
     ---------------------------
                 if getOptionValue("APL Mode") == 1 then
+        -- Lunar Beam
+                    -- lunar_beam
+                    if cast.lunarBeam() then return end
         -- Bristling Fur
-                    if buff.ironfur.remain() < 2 and power < 40 then
+                    -- bristling_fur,if=buff.ironfur.stack=1|buff.ironfur.down
+                    if buff.ironfur.stack() == 1 or not buff.ironfur.exists() then
                         if cast.bristlingFur() then return end
                     end
         -- Ironfur
-                    if isChecked("Ironfur") and php >= getOptionValue("Ironfur") and not buff.ironfur.exists() or powerDeficit < 25 or buff.ironfur.remain() < 2 then
+                    -- ironfur,if=(buff.ironfur.up=0)|(buff.gory_fur.up=1)|(rage>=80)
+                    if isChecked("Ironfur") and (not buff.ironfur.exists() or buff.goryFur.exists() or power >= 80) then
                         if cast.ironfur() then return end
                     end
         -- Moonfire
+                    -- moonfire,if=buff.incarnation.up=1&dot.moonfire.remains<=4.8
                     if #enemies.yards40 < 4 then
                         for i = 1, #enemies.yards40 do
                             local thisUnit = enemies.yards40[i]
-                            if debuff.moonfire.refresh(thisUnit) and buff.galacticGuardian.exists() and isValidUnit(thisUnit) then
+                            if buff.incarnationGuardianOfUrsoc.exists() and debuff.moonfire.refresh(thisUnit) and isValidUnit(thisUnit) then
                                 if cast.moonfire(thisUnit) then return end
                             end
                         end
                     end
-                    if buff.galacticGuardian.exists() and isValidUnit("target") then
-                        if cast.moonfire("target") then return end
+        -- Thrash
+                    -- thrash_bear,if=buff.incarnation.up=1&dot.thrash.remains<=4.5
+                    if getDistance("target") < 8 and buff.incarnationGuardianOfUrsoc.exists() and debuff.thrash.refresh(units.dyn8) then
+                        if cast.thrast() then return end
                     end
         -- Mangle
-                    if ((mode.rotation == 1 and #enemies.yards8 == 1) or mode.rotation == 3) then
-                        if cast.mangle() then return end
-                    end
+                    -- mangle
+                    if cast.mangle() then return end
         -- Thrash
+                    -- thrash_bear
                     if getDistance("target") < 8 then
                         if cast.thrash() then return end
                     end
-        -- Mangle
-                    if ((mode.rotation == 1 and #enemies.yards8 > 1) or mode.rotation == 2) then
-                        if cast.mangle() then return end
-                    end
         -- Pulverize
+                    -- pulverize,if=buff.pulverize.up=0|buff.pulverize.remains<=6
                     if talent.pulverize then
                         for i = 1, #enemies.yards5 do
                             local thisUnit = enemies.yards5[i]
-                            if debuff.thrash.stack(thisUnit) >= 2 then
+                            if not buff.pulverize.exists() or buff.pulverize.remain() <= 6 then
                                 if cast.pulverize(thisUnit) then return end
                             end
                         end
                     end
-        -- Lunar Beam
-                    if cast.lunarBeam() then return end
         -- Moonfire
                     if ((mode.rotation == 1 and #enemies.yards8 > 1) or mode.rotation == 2) then
                         if #enemies.yards40 < 4 then
                             for i = 1, #enemies.yards40 do
                                 local thisUnit = enemies.yards40[i]
                                 if isValidUnit(thisUnit) and (multidot or (UnitIsUnit(thisUnit,units.dyn5) and not multidot)) then
-                                    if (debuff.moonfire.remain(thisUnit) == 0 or debuff.moonfire.remain(thisUnit) < 3.6 or debuff.moonfire.remain(thisUnit) < 7.2) then
+                                    -- moonfire,if=buff.galactic_guardian.up=1&(!ticking|dot.moonfire.remains<=4.8)
+                                    if buff.galacticGuardian.exists() and (not debuff.moonfire.exists(thisUnit) or debuff.moonfire.refresh(thisUnit)) then
+                                        if cast.moonfire(thisUnit) then return end
+                                    end
+                                    -- moonfire,if=buff.galactic_guardian.up=1
+                                    if buff.galacticGuardian.exists() then
+                                        if cast.moonfire(thisUnit) then return end
+                                    end
+                                    -- moonfire,if=dot.moonfire.remains<=4.8
+                                    if debuff.moonfire.refresh(thisUnit) then
                                         if cast.moonfire(thisUnit) then return end
                                     end
                                 end
@@ -615,13 +627,13 @@ local function runRotation()
                         end
                     end
         -- Swipe
-                    if #enemies.yards8 > 0 then
+                    if getDistance("target") < 8 then
                         if cast.swipe() then return end
                     end
-        -- Maul
-                    if power > 90 then
-                        if cast.maul() then return end
-                    end
+        -- -- Maul
+        --             if power > 90 then
+        --                 if cast.maul() then return end
+        --             end
                 end -- End SimC APL
     ------------------------
     --- Ask Mr Robot APL ---

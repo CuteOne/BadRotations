@@ -206,12 +206,10 @@ end
 function getHPLossPercent(unit,sec)
 	local unit = unit
 	local sec = sec
-	local spellID = spellID
 	local currentHP = getHP(unit)
 	if unit == nil then unit = "player" end
 	if sec == nil then sec = 1 end
 	if snapHP == nil then snapHP = 0 end
-	if spellID == nil then spellID = 0 end
 	if br.timer:useTimer("Loss Percent", sec) then
 		snapHP = currentHP
 	end

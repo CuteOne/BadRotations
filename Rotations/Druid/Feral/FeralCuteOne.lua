@@ -347,10 +347,10 @@ local function runRotation()
 	-- Action List - Extras
 		local function actionList_Extras()
 		-- Shapeshift Form Management
-			if isChecked("Auto Shapeshifts") then
+			if isChecked("Auto Shapeshifts") then --and br.timer:useTimer("debugShapeshift", 0.25) then
 			-- Flight Form
 				if not inCombat and canFly() and not swimming and falling > getOptionValue("Fall Timer") and level>=58 and not buff.prowl.exists() then
-                    if GetShapeshiftForm() ~= 0 then
+                    if GetShapeshiftForm() ~= 0 and lastCast ~= spell.travelForm then
                         -- CancelShapeshiftForm()
                         RunMacroText("/CancelForm")
                         if cast.travelForm("player") then return end
@@ -363,7 +363,7 @@ local function runRotation()
 				  	if cast.travelForm("player") then return end
 				end
 			-- Cat Form
-				if not cat and not IsMounted() then
+				if not cat and not IsMounted() and not flying then
 			    	-- Cat Form when not swimming or flying or stag and not in combat
 			    	if not inCombat and moving and not swimming and not flying and not travel and not isValidUnit("target") then
 		        		if cast.catForm("player") then return end
@@ -636,7 +636,7 @@ local function runRotation()
         -- Ring of Collapsing Futures
                 -- use_item,slot=finger1
                 if isChecked("Ring of Collapsing Futures") then
-                    if hasEquiped(142173) and canUse(142173) and getDebuffStacks("player",234143) < getOptionValue("Ring of Collapsing Futures") and select(2,IsInInstance()) ~= "pvp"  then
+                    if hasEquiped(142173) and canUse(142173) and getDebuffStacks("player",234143) < getOptionValue("Ring of Collapsing Futures") and select(2,IsInInstance()) ~= "pvp" then
                         useItem(142173)
                         return true
                     end
