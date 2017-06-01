@@ -7,14 +7,21 @@ function ProfessionHelper()
       local function processThatTable(thisTable,spell)
           for i = 1,#thisTable do
             local thisItem = thisTable[i]
-            if GetItemCount(thisItem,false,false) >= 5 then
+            if GetItemCount(thisItem,false,false) >= 5 and not LootFrame:IsShown() then
               if lootTimer == nil or lootTimer <= GetTime() - lootDelay then
-                if castSpell("player", spell, true) then
+                if CastSpellByName(GetSpellInfo(spell), "player") then
                   UseItemByName(thisTable[i])
                   lootTimer = GetTime()
                   return
                 end
               end
+            elseif LootFrame:IsShown() then
+              for l=1, GetNumLootItems() do
+                if LootSlotHasItem(l) then
+                  LootSlot(l)
+                end
+              end
+              CloseLoot()
             end
           end 
       end
@@ -55,13 +62,14 @@ function ProfessionHelper()
           }
           processThatTable(tableMillMoP,51005)
         end
-        if millMode == 5 and millMode == 4 then
-          local tableMillCata = {
+        if millMode == 5 or millMode == 4 then
+          tableMillCata = {
             52986, -- Heartblossom
             52984, -- Stormvine
             52983, -- Cinderbloom
             52985, -- Azshara's Veil
-            52987 -- Twilight Jasmine
+            52987, -- Twilight Jasmine
+          --  22785  -- Felweed
           }
           processThatTable(tableMillCata,51005)
         end
