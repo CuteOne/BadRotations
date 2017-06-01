@@ -109,14 +109,6 @@ function handleObjects()
 				else
 					br.enemy[object] = nil
 				end
-			-- elseif br.player.petInfo ~= nil then
-			-- 	if br.player.petInfo[thisUnit] ~= nil then
-			-- 		if GetUnitExists(object) then
-			-- 			UpdatePet(object)
-			-- 		else
-			-- 			br.player.petInfo[thisUnit] = nil
-			-- 		end
-			-- 	end
 	    	else
 	 -- Add New Entries
 	      		local newObject = {}
