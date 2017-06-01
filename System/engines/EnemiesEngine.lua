@@ -132,7 +132,7 @@ function handleObjects()
 	    	local mainObj = br.enemy[object]
 	    	-- Collect the data that could have changed
 	    	if mainObj ~= nil then
-	    		mainObj.x, mainObj.y, mainObj.z = ObjectPosition()
+	    		mainObj.x, mainObj.y, mainObj.z = ObjectPosition(object)
 	    	end
 	  	end
   	end
