@@ -121,6 +121,7 @@ Rotations\Demon Hunter\Havoc\HavocCuteOne.lua
 
 Rotations\Demon Hunter\Vengeance\VengeanceCuteOne.lua
 Rotations\Demon Hunter\Vengeance\VengeanceDub.lua
+Rotations\Demon Hunter\Vengeance\VengeanceSaintly.lua
 
 ## Druid ---------------------------------------------------
 

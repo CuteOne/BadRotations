@@ -741,12 +741,17 @@ local function runRotation()
 -----------------
 --- Rotations ---
 -----------------
-        if actionList_Extra() then return end
-        if actionList_Defensive() then return end
-        -- Pause
-        if pause() or (UnitExists("target") and (UnitIsDeadOrGhost("target") or not UnitCanAttack("target", "player"))) or mode.rotation == 4 then
+---------------------
+--- Begin Profile ---
+---------------------
+    -- Profile Stop | Pause
+        if not inCombat and not hastar and profileStop==true then
+            profileStop = false
+        elseif (inCombat and profileStop==true) or pause() or mode.rotation==4 then
             return true
         else
+            if actionList_Extra() then return end
+            if actionList_Defensive() then return end
 ---------------------------------
 --- Out Of Combat - Rotations ---
 ---------------------------------

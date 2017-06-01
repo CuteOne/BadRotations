@@ -19,25 +19,25 @@ end
 --[[---------  ----  -----  -------------  ----------  ----  --------  -------------------------------------------------------------------------------------------------]]
 --[[---------  -----  ----           ---  ------------  ---            -------------------------------------------------------------------------------------------------------------------]]
 --[[-------------------------------------------------------------------------------------------------------------------------------------------------------]]
-local elapsedTime = 0
-local updateRate = 0
-function EnemyEngine(_, time)
-	elapsedTime = elapsedTime + time
-	if getOptionValue("Update Rate") ~= nil and getOptionValue("Update Rate") * 2 > 0.5 then updateRate = getOptionValue("Update Rate") * 2
-		else updateRate = 0.5
-	end
-	--print(updateRate)
-	-- if FireHack ~= nil and br.data.settings[br.selectedSpec].toggles["Power"] == 1 and elapsedTime >= updateRate then --0.5 then
-		-- elapsedTime = 0
-		-- Enemies Engine
-		-- EnemiesEngine();
-		FindEnemy()
-	-- end
-	EnemiesEngine()
-end
+-- local elapsedTime = 0
+-- local updateRate = 0
+-- function EnemyEngine(_, time)
+-- 	elapsedTime = elapsedTime + time
+-- 	if getOptionValue("Update Rate") ~= nil and getOptionValue("Update Rate") * 2 > 0.5 then updateRate = getOptionValue("Update Rate") * 2
+-- 		else updateRate = 0.5
+-- 	end
+-- 	--print(updateRate)
+-- 	if FireHack ~= nil and br.data.settings[br.selectedSpec].toggles["Power"] == 1 then --and elapsedTime >= updateRate then --0.5 then
+-- 		elapsedTime = 0
+-- 		-- Enemies Engine
+-- 		-- EnemiesEngine();
+-- 		FindEnemy()
+-- 	end
+-- 	EnemiesEngine()
+-- end
 
 local frame = CreateFrame("FRAME")
-frame:SetScript("OnUpdate", EnemyEngine)
+-- frame:SetScript("OnUpdate", EnemyEngine)
 
 -- local elapsedTime2 = 0
 -- function PlayerUpdate(_, time)
@@ -166,7 +166,7 @@ function BadRotationsUpdate(self)
 	-- 	if getOptionValue("Update Rate") == nil then updateRate = 0.1 else updateRate = getOptionValue("Update Rate") end
 	-- 	if self.lastUpdateTime and (tempTime - self.lastUpdateTime) > updateRate then --0.1 then
 	-- 		self.lastUpdateTime = tempTime
-	-- 		-- Check for Unlocker
+			-- Check for Unlocker
 			if FireHack == nil then
 			 	br.ui:closeWindow("all")
 				if getOptionCheck("Start/Stop BadRotations") then
@@ -202,7 +202,9 @@ function BadRotationsUpdate(self)
 					if br.player ~= nil then
 						br.player:update()
 					end
-
+				-- Enemies Engine
+					-- FindEnemy()
+					-- EnemiesEngine()
 				-- Close windows and swap br.selectedSpec on Spec Change
 					if select(2,GetSpecializationInfo(GetSpecialization())) ~= br.selectedSpec then
 				    	-- Closing the windows will save the position
@@ -275,7 +277,7 @@ function BadRotationsUpdate(self)
 					end
 
 				-- Enemies Engine
-					--EnemiesEngine();
+					-- EnemiesEngine()
 
 				end --End Update Check
 				self.updateInProgress = false

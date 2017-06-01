@@ -1,4 +1,4 @@
-local rotationName = "CuteOne"
+local rotationName = "SaintlySinner"
 
 ---------------
 --- Toggles ---
@@ -13,30 +13,30 @@ local function createToggles()
     };
     CreateButton("Rotation",1,0)
 -- Cooldown Button
-    CooldownModes = {
-        [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spell.metamorphosis},
-        [2] = { mode = "On", value = 1 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spell.metamorphosis},
-        [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.metamorphosis}
-    };
-   	CreateButton("Cooldown",2,0)
+   -- CooldownModes = {
+       -- [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spell.metamorphosis},
+       -- [2] = { mode = "On", value = 1 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spell.metamorphosis},
+      --  [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.metamorphosis}
+   -- };
+  -- 	CreateButton("Cooldown",2,0)
 -- Defensive Button
     DefensiveModes = {
         [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spell.demonSpikes},
         [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spell.demonSpikes}
     };
-    CreateButton("Defensive",3,0)
+    CreateButton("Defensive",2,0)
 -- Interrupt Button
     InterruptModes = {
         [1] = { mode = "On", value = 1 , overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spell.consumeMagic},
         [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.consumeMagic}
     };
-    CreateButton("Interrupt",4,0)
+    CreateButton("Interrupt",3,0)
 -- Mover
     MoverModes = {
         [1] = { mode = "On", value = 2 , overlay = "Auto Movement Enabled", tip = "Will Cast Movement Abilities.", highlight = 1, icon = br.player.spell.infernalStrike},
         [2] = { mode = "Off", value = 1 , overlay = "Auto Movement Disabled", tip = "Will NOT Cast Movement Abilities", highlight = 0, icon = br.player.spell.infernalStrike}
     };
-    CreateButton("Mover",5,0)
+    CreateButton("Mover",4,0)
 end
 
 ---------------
@@ -50,55 +50,24 @@ local function createOptions()
     -- General Options
         section = br.ui:createSection(br.ui.window.profile, "General")
         -- APL
-            br.ui:createDropdownWithout(section, "APL Mode", {"|cffFFFFFFSimC"}, 1, "|cffFFFFFFSet APL Mode to use.")
-        -- Dummy DPS Test
-            br.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
-        -- Pre-Pull Timer
-            br.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
-        -- Fiery Brand
-            br.ui:createCheckbox(section,"Fiery Brand")
-        -- Immolation Aura
-            br.ui:createCheckbox(section,"Immolation Aura")
-        -- Sigil of Flames
-            br.ui:createCheckbox(section,"Sigil of Flames")
+            br.ui:createDropdownWithout(section, "APL Mode", {"|cffFFFFFFSaintlySinner"}, 1, "|cffFFFFFFSet APL Mode to use.")
         -- Torment
             br.ui:createCheckbox(section,"Torment")
-        br.ui:checkSectionState(section)
-    -- Cooldown Options
-        section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
-        -- Agi Pot
-            br.ui:createCheckbox(section,"Agi-Pot")
-        -- Flask / Crystal
-            br.ui:createCheckbox(section,"Flask / Crystal")
-        -- Legendary Ring
-            br.ui:createCheckbox(section,"Legendary Ring")
-        -- Racial
-            br.ui:createCheckbox(section,"Racial")
-        -- Trinkets
-            br.ui:createCheckbox(section,"Trinkets")
+        -- Imprison
+            br.ui:createCheckbox(section,"Imprison")
         br.ui:checkSectionState(section)
     -- Defensive Options
         section = br.ui:createSection(br.ui.window.profile, "Defensive")
         -- Healthstone
             br.ui:createSpinner(section, "Pot/Stoned",  60,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
-        -- Heirloom Neck
-            br.ui:createSpinner(section, "Heirloom Neck",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.");
-        -- Demon Spikes
-            br.ui:createSpinner(section, "Demon Spikes",  50,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.");
-            br.ui:createSpinnerWithout(section, "Hold Demon Spikes", 1, 0, 2, 1, "|cffFFBB00Number of Demon Spikes the bot will hold for manual use.");
         -- Empower Wards
-            br.ui:createCheckbox(section, "Empower Wards")
-        -- Fel Devastation
-            br.ui:createSpinner(section, "Fel Devastation",  50,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.");
+			br.ui:createCheckbox(section, "Empower Wards")
+        -- Arcane Torrent
+            br.ui:createCheckbox(section, "Arcane Torrent")
         -- Metamorphosis
-            br.ui:createSpinner(section, "Metamorphosis",  50,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.");
-        -- Sigil of Misery
-            br.ui:createSpinner(section, "Sigil of Misery - HP",  50,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.");
-            br.ui:createSpinner(section, "Sigil of Misery - AoE", 3, 0, 10, 1, "|cffFFFFFFNumber of Units in 8 Yards to Cast At")
+            br.ui:createCheckbox(section, "Metamorphosis")
         -- Soul Barrier
             br.ui:createSpinner(section, "Soul Barrier",  50,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.");
-        -- Soul Cleave
-            br.ui:createSpinner(section, "Soul Cleave",  50,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.");
         br.ui:checkSectionState(section)
     -- Interrupt Options
         section = br.ui:createSection(br.ui.window.profile, "Interrupts")
@@ -174,7 +143,6 @@ local function runRotation()
         local gcd                                           = br.player.gcd
         local hasMouse                                      = GetObjectExists("mouseover")
         local healPot                                       = getHealthPot()
-        local healthMax                                     = UnitHealthMax("player")
         local inCombat                                      = br.player.inCombat
         local inInstance                                    = br.player.instance=="party"
         local inRaid                                        = br.player.instance=="raid"
@@ -209,27 +177,11 @@ local function runRotation()
 
    		if leftCombat == nil then leftCombat = GetTime() end
 		if profileStop == nil then profileStop = false end
-        if talent.chaosCleave then chaleave = 1 else chaleave = 0 end
-        if talent.prepared then prepared = 1 else prepared = 0 end
-        if lastSpell == spell.vengefulRetreat then vaulted = true else vaulted = false end
-
-        ChatOverlay(addedEnemies)
 --------------------
 --- Action Lists ---
 --------------------
 	-- Action List - Extras
 		local function actionList_Extras()
-		-- Dummy Test
-			if isChecked("DPS Testing") then
-				if GetObjectExists("target") then
-					if getCombatTime() >= (tonumber(getOptionValue("DPS Testing"))*60) and isDummy() then
-						StopAttack()
-						ClearTarget()
-						Print(tonumber(getOptionValue("DPS Testing")) .." Minute Dummy Test Concluded - Profile Stopped")
-						profileStop = true
-					end
-				end
-			end -- End Dummy Test
         -- Torment
             if isChecked("Torment") then
                 for i = 1, #enemies.yards30 do
@@ -238,6 +190,17 @@ local function runRotation()
                         if cast.torment(thisUnit) then return end
                     end
                 end
+            end
+		-- Imprison
+            if isChecked("Imprison") then
+				for i = 1, #enemies.yards30 do
+					local thisUnit = enemies.yards30[i]
+					if UnitCreatureType(thisUnit) == "Humanoid" or UnitCreatureType(thisUnit) == "Demon" or UnitCreatureType(thisUnit) == "Beast" then
+						if getDistance(thisUnit) > 10 and isAggroed(thisUnit) and cd.sigilOfMisery > 0 and cd.sigilOfMisery < 45 then
+							if cast.imprison(thisUnit) then return end
+						end
+					end
+				end
             end
 		end -- End Action List - Extras
 	-- Action List - Defensive
@@ -255,25 +218,6 @@ local function runRotation()
                         useItem(healPot)
                     end
 	            end
-	    -- Heirloom Neck
-	    		if isChecked("Heirloom Neck") and php <= getOptionValue("Heirloom Neck") then
-	    			if hasEquiped(122668) then
-	    				if GetItemCooldown(122668)==0 then
-	    					useItem(122668)
-	    				end
-	    			end
-	    		end
-        -- Demon Spikes
-                if isChecked("Demon Spikes") and php <= getOptionValue("Demon Spikes") and charges.demonSpikes > getOptionValue("Hold Demon Spikes") and inCombat then
-                    if cast.demonSpikes() then return end
-                end
-        -- Sigil of Misery
-                if isChecked("Sigil of Misery - HP") and php <= getOptionValue("Sigil of Misery - HP") and inCombat and #enemies.yards8 > 0 then
-                    if cast.sigilOfMisery("player","ground") then return end
-                end
-                if isChecked("Sigil of Misery - AoE") and #enemies.yards8 >= getOptionValue("Sigil of Misery - AoE") and inCombat then
-                    if cast.sigilOfMisery("best",false,getOptionValue("Sigil of Misery - AoE"),8) then return end
-                end
     		end -- End Defensive Toggle
 		end -- End Action List - Defensive
 	-- Action List - Interrupts
@@ -298,44 +242,9 @@ local function runRotation()
                 end
 		 	end -- End useInterrupts check
 		end -- End Action List - Interrupts
-	-- Action List - Cooldowns
-		local function actionList_Cooldowns()
-			if useCDs() and getDistance(units.dyn5) < 5 then
-            -- Trinkets
-                if isChecked("Trinkets") and getDistance("target") < 5 then
-                    if canUse(13) then
-                        useItem(13)
-                    end
-                    if canUse(14) and getNumEnemies("player",12) >= 1 then
-                        useItem(14)
-                    end
-                end
-            end -- End useCDs check
-        end -- End Action List - Cooldowns
     -- Action List - PreCombat
         local function actionList_PreCombat()
             if not inCombat and not (IsFlying() or IsMounted()) then
-            -- Flask / Crystal
-                -- flask,type=flask_of_the_seventh_demon
-                if isChecked("Flask / Crystal") then
-                    if inRaid and canFlask and flaskBuff==0 and not UnitBuffID("player",188033) then
-                        useItem(br.player.flask.wod.agilityBig)
-                        return true
-                    end
-                    if flaskBuff==0 then
-                        if not UnitBuffID("player",188033) and canUse(118922) then --Draenor Insanity Crystal
-                            useItem(118922)
-                            return true
-                        end
-                        if not UnitBuffID("player",193456) and not UnitBuffID("player",188033) and canUse(129192) then -- Gaze of the Legion
-                            useItem(129192)
-                            return true
-                        end
-                    end
-                end
-                if isChecked("Pre-Pull Timer") and pullTimer <= getOptionValue("Pre-Pull Timer") then
-
-                end -- End Pre-Pull
                 if GetObjectExists("target") and not UnitIsDeadOrGhost("target") and UnitCanAttack("target", "player") and getDistance("target") < 5 then
             -- Start Attack
                     StartAttack()
@@ -375,37 +284,121 @@ local function runRotation()
     --- SimulationCraft APL ---
     ---------------------------
     -- Start Attack
-                -- auto_attack
+                -- actions=auto_attack
                 if getDistance(units.dyn5) < 5 then
                     StartAttack()
                 end
-    -- Fiery Brand
-                -- fiery_brand,if=buff.demon_spikes.down&buff.metamorphosis.down
-                if isChecked("Fiery Brand") then
-                    if not buff.demonSpikes.exists() and not buff.metamorphosis.exists() then
-                        if cast.fieryBrand() then return end
-                    end
-                end
-    -- Demon Spikes
-                -- demon_spikes,if=charges=2|buff.demon_spikes.down&!dot.fiery_brand.ticking&buff.metamorphosis.down
-                if isChecked("Demon Spikes") and charges.demonSpikes > getOptionValue("Hold Demon Spikes") then
-                    if (charges.demonSpikes == 2 or not buff.demonSpikes.exists()) and not debuff.fieryBrand.exists(units.dyn5) and not buff.metamorphosis.exists() then
-                        if cast.demonSpikes() then return end
-                    end
-                end
-    -- Empower Wards
-                -- empower_wards,if=debuff.casting.up
-                if useDefensive() and isChecked("Empower Wards") then
-                    for i=1, #enemies.yards30 do
-                        thisUnit = enemies.yards30[i]
-                        if cd.consumeMagic > 0 and castingUnit(thisUnit) then
-                            if cast.empowerWards() then return end
+      -- Arcane Torrent
+                if useDefensive() and isChecked("Arcane Torrent") then
+					for i=1, #enemies.yards8 do
+                        thisUnit = enemies.yards8[i]
+                        if getDistance(thisUnit) < 8 then
+                            if cast.arcaneTorrent() then return end
                         end
                     end
                 end
+    -- Fiery Brand
+                -- actions+=/fiery_brand,if=buff.demon_spikes.down&buff.metamorphosis.down
+                        if cast.fieryBrand() then return end
+    -- Empower Wards
+                -- actions+=/empower_wards,if=debuff.casting.up
+                if isChecked("Empower Wards") then
+                    for i=1, #enemies.yards30 do
+                        thisUnit = enemies.yards30[i]
+							if cd.consumeMagic > 0 and castingUnit(thisUnit) then
+								if cast.empowerWards() then return end
+							end
+						end
+					end
+	-- Metamorphosis
+                    -- actions+=/metamorphosis,if=buff.demon_spikes.down&!dot.fiery_brand.ticking&buff.metamorphosis.down&incoming_damage_5s>health.max*0.70
+                    if isChecked("Metamorphosis") and not debuff.fieryBrand.exists(units.dyn5)
+                        and not buff.metamorphosis.exists() and not buff.empowerWards.exists() and php < 70 then
+                        if cast.metamorphosis() then return end
+                    end
+	-- Demonic Infusion
+				-- actions+=/demonicInfusion, if charges = 0
+				if talent.demonicInfusion then
+					if charges.demonSpikes == 0 then
+						if cast.demonicInfusion() then return end
+					end
+				end
+    -- Demon Spikes
+                -- actions+=/demon_spikes,if=charges=2|buff.demon_spikes.down&!dot.fiery_brand.ticking&buff.metamorphosis.down
+                if talent.demonicInfusion then
+					if cast.demonSpikes() then return end
+				end
+    -- Demon Spikes
+                -- actions+=/demon_spikes,if=charges=2|buff.demon_spikes.down&!dot.fiery_brand.ticking&buff.metamorphosis.down
+                if not talent.demonicInfusion then
+					if charges.demonSpikes > 1 and not buff.demonSpikes.exists() and not buff.metamorphosis.exists() then
+						if cast.demonSpikes() then return end
+					end
+				end
+    -- Soul Barrier
+                    -- actions+=/soul_barrier
+                if isChecked("Soul Barrier") and php < getOptionValue("Soul Barrier") and not buff.demonSpikes.exists() and not buff.metamorphosis.exists() then
+                    if cast.soulBarrier() then return end
+                end
+    -- Soul Carver
+				if cast.soulCarver() then return end
+    -- Spirit Bomb
+                -- actions+=/spirit_bomb,if=debuff.frailty.down
+                if not debuff.frailty.exists(units.dyn5) then
+                    if cast.spiritBomb() then return end
+                end
+    -- Fel Devastation
+                    -- actions+=/fel_devastation,if=incoming_damage_5s>health.max*0.70
+                if getDistance(units.dyn5) < 5 then
+                    if cast.felDevastation() then return end
+                end
+	-- Fel Eruption
+				if getDistance(units.dyn5) < 5 then
+					if cast.felEruption() then return end
+				end
+    -- Felblade
+                -- actions+=/felblade,if=pain<=70
+                if pain <= 70 then
+                    if cast.felblade() then return end
+                end
+    -- Shear
+                -- actions+=/shear
+				if pain <= 70 and buff.bladeTurning.exists() then
+						if cast.shear() then return end
+				end
+    -- Sigil of Flame
+                -- actions+=/sigil_of_flame,if=remains-delay<=0.3*duration
+                if getDistance(units.dyn5) < 5 and not isMoving(units.dyn5) then
+                    if cast.sigilOfFlame("best",false,1,8) then return end
+                end
+    -- Fracture
+                -- actions+=/fracture,if=pain>=80&soul_fragments<4&incoming_damage_4s<=health.max*0.20
+                if pain >= 60 and buff.soulFragments.stack() <= 4 then
+					if cast.fracture() then return end
+                end
+    -- Soul Cleave
+                    -- actions+=/soul_cleave,if=soul_fragments=5
+                if talent.fracture and pain >= 60 and buff.soulFragments.stack() >= 5 then
+                    if cast.soulCleave() then return end
+                end
+    -- Soul Cleave
+                    -- actions+=/soul_cleave,if=soul_fragments=5
+                if not talent.fracture and pain >= 80 or (buff.soulFragments.stack() >= 5 and pain >= 60) then
+                    if cast.soulCleave() then return end
+                end
+    -- Soul Cleave
+                -- actions+=/soul_cleave,if=pain>=80
+                if php < 65 and buff.soulFragments.stack() >= 5 then
+					if cast.soulCleave() then return end
+                end
+    -- Immolation Aura
+                -- actions+=/immolation_aura,if=pain<=80
+                if pain <= 80 and getDistance(units.dyn5) < 5 then
+					if cast.immolationAura() then return end
+				end
     -- Infernal Strike
-                -- infernal_strike,if=!sigil_placed&!in_flight&remains-travel_time-delay<0.3*duration&artifact.fiery_demise.enabled&dot.fiery_brand.ticking
-                -- infernal_strike,if=!sigil_placed&!in_flight&remains-travel_time-delay<0.3*duration&(!artifact.fiery_demise.enabled|(max_charges-charges_fractional)*recharge_time<cooldown.fiery_brand.remains+5)&(cooldown.sigil_of_flame.remains>7|charges=2)
+                -- actions+=/infernal_strike,if=!sigil_placed&!in_flight&remains-travel_time-delay<0.3*duration&artifact.fiery_demise.enabled&dot.fiery_brand.ticking
+                -- actions+=/infernal_strike,if=!sigil_placed&!in_flight&remains-travel_time-delay<0.3*duration&(!artifact.fiery_demise.enabled|(max_charges-charges_fractional)*recharge_time<cooldown.fiery_brand.remain()s+5)&(cooldown.sigil_of_flame.remain()s>7|charges=2)
                 if mode.mover == 1 and getDistance(units.dyn5) < 5 and charges.infernalStrike > 1 then
                     if (artifact.fieryDemise and debuff.fieryBrand.exists(units.dyn5))
                         or (not artifact.fieryDemise or (charges.max.infernalStrike - charges.frac.infernalStrike) * recharge.infernalStrike < cd.fieryBrand + 5)
@@ -415,80 +408,11 @@ local function runRotation()
                         if cast.infernalStrike("player","ground") then return end
                     end
                 end
-    -- Spirit Bomb
-                -- spirit_bomb,if=debuff.frailty.down
-                if not debuff.frailty.exists(units.dyn5) then
-                    if cast.spiritBomb() then return end
-                end
-    -- Soul Carver 
-                -- soul_carver,if=dot.fiery_brand.ticking
-                if debuff.fieryBrand.exists(units.dyn5) then
-                    if cast.soulCarver() then return end
-                end
-    -- Immolation Aura
-                -- immolation_aura,if=pain<=80
-                if isChecked("Immolation Aura") then
-                    if pain <= 80 and getDistance(units.dyn8AoE) < 8 then
-                        if cast.immolationAura() then return end
-                    end
-                end
-    -- Felblade
-                -- felblade,if=pain<=70
-                if pain <= 70 then
-                    if cast.felblade() then return end
-                end
-                if useDefensive() then
-    -- Soul Barrier
-                    -- soul_barrier
-                    if isChecked("Soul Barrier") and php < getOptionValue("Soul Barrier") then
-                        if cast.soulBarrier() then return end
-                    end
-    -- Soul Cleave
-                    -- soul_cleave,if=soul_fragments=5
-                    if isChecked("Soul Cleave") and buff.soulFragments.stack() == 5 then
-                        if cast.soulCleave() then return end
-                    end
-    -- Metamorphosis
-                    -- metamorphosis,if=buff.demon_spikes.down&!dot.fiery_brand.ticking&buff.metamorphosis.down&incoming_damage_5s>health.max*0.70
-                    if isChecked("Metamorphosis") and not buff.demonSpikes.exists() and not debuff.fieryBrand.exists(units.dyn5)
-                        and not buff.metamorphosis.exists() and getHPLossPercent("player",5) >= 70
-                    then
-                        if cast.metamorphosis() then return end
-                    end
-    -- Fel Devastation
-                    -- fel_devastation,if=incoming_damage_5s>health.max*0.70
-                    if isChecked("Fel Devastation") and getHPLossPercent("player",5) >= 70 and getDistance(units.dyn20) < 20 then
-                        if cast.felDevastation() then return end
-                    end
-    -- Soul Cleave
-                    -- soul_cleave,if=incoming_damage_5s>=health.max*0.70
-                    if isChecked("Soul Cleave") and getHPLossPercent("player",5) >= 70 then
-                        if cast.soulCleave() then return end
-                    end
-                end
-    -- Fel Eruption
-                -- fel_eruption
-                if cast.felEruption() then return end
-    -- Sigil of Flame
-                -- sigil_of_flame,if=remains-delay<=0.3*duration
-                if isChecked("Sigil of Flames") and not isMoving(units.dyn5) and getDistance(units.dyn5) < 5 and debuff.sigilOfFlame.refresh(units.dyn5) then
-                    if cast.sigilOfFlame("best",false,1,8) then return end
-                end
-    -- Fracture
-                -- fracture,if=pain>=80&soul_fragments<4&incoming_damage_4s<=health.max*0.20
-                if pain >= 80 and buff.soulFragments.stack() < 4 and getHPLossPercent("player",4) <= healthMax * 0.20 then
-                    if cast.fracture() then return end
-                end
-    -- Soul Cleave
-                -- soul_cleave,if=pain>=80
-                if useDefensive() and isChecked("Soul Cleave") and pain >= 80 then
-                    if cast.soulCleave() then return end
-                end
     -- Shear
-                -- shear
-                if pain < 60 or not useDefensive() or (useDefensive() and not isChecked("Soul Cleave")) then
-                    if cast.shear() then return end
-                end
+                -- actions+=/shear
+				if pain <= 80 then
+						if cast.shear() then return end
+				end
     -- Throw Glaive
                 if getDistance(units.dyn5) > 5 then
                     if cast.throwGlaive() then return end

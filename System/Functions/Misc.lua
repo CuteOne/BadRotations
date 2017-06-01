@@ -381,22 +381,23 @@ function isValidTarget(Unit)
 	end
 end
 function isValidUnit(Unit)
-	local threat = hasThreat(Unit)
-	local inAggroRange = getDistance(Unit) <= 20
-	local myTarget = UnitIsUnit(Unit,"target")
-    local inCombat = UnitAffectingCombat("player")
-    local inInstance =  IsInInstance()
-	if GetObjectExists(Unit) and not UnitIsDeadOrGhost(Unit) and (not UnitIsFriend(Unit, "player") or UnitIsEnemy(Unit, "player")) 
+	if GetUnitExists(Unit) and not UnitIsDeadOrGhost(Unit) and (not UnitIsFriend(Unit, "player") or UnitIsEnemy(Unit, "player")) 
 		and UnitCanAttack("player",Unit) and isSafeToAttack(Unit) and getLineOfSight("player", Unit)
 	then
-		-- Only consider Units that are in 20yrs or I have targeted when not in Combat and not in an Instance.
-		if not inCombat and not inInstance and (inAggroRange or myTarget) then return true end
-		-- Only consider Units that I have threat with or I am alone and have targeted when not in Combat and in an Instance.
-		if not inCombat and inInstance and (threat or (#br.friend == 1 and myTarget)) then return true end
-		-- Only consider Units that I have threat with or I can attack and have targeted or are dummies within 20yrds when in Combat.
-		if inCombat and (threat or isDummy(Unit) or (myTarget and inAggroRange)) then return true end
 		-- Unit is Soul Effigy
-        if ObjectID(Unit) == 103679 then return true end
+        if GetObjectID(Unit) == 103679 then return true end
+        if UnitAffectingCombat("player") then
+        	-- Only consider Units that I have threat with or I can attack and have targeted or are dummies within 20yrds when in Combat.
+			if hasThreat(Unit) or isDummy(Unit) or (UnitIsUnit(Unit,"target") and getDistance(Unit) <= 20) then return true end
+		else
+			if IsInInstance() then
+				-- Only consider Units that I have threat with or I am alone and have targeted when not in Combat and in an Instance.
+				if hasThreat(Unit) or (#br.friend == 1 and UnitIsUnit(Unit,"target")) then return true end
+			else
+				-- Only consider Units that are in 20yrs or I have targeted when not in Combat and not in an Instance.
+				if getDistance(Unit) <= 20 or UnitIsUnit(Unit,"target") then return true end
+			end
+		end
 	end
 	return false
 end
