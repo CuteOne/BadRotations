@@ -19,25 +19,28 @@ end
 --[[---------  ----  -----  -------------  ----------  ----  --------  -------------------------------------------------------------------------------------------------]]
 --[[---------  -----  ----           ---  ------------  ---            -------------------------------------------------------------------------------------------------------------------]]
 --[[-------------------------------------------------------------------------------------------------------------------------------------------------------]]
--- local elapsedTime = 0
--- local updateRate = 0
--- function EnemyEngine(_, time)
--- 	elapsedTime = elapsedTime + time
--- 	if getOptionValue("Update Rate") ~= nil and getOptionValue("Update Rate") * 2 > 0.5 then updateRate = getOptionValue("Update Rate") * 2
--- 		else updateRate = 0.5
--- 	end
--- 	--print(updateRate)
--- 	if FireHack ~= nil and br.data.settings[br.selectedSpec].toggles["Power"] == 1 then --and elapsedTime >= updateRate then --0.5 then
--- 		elapsedTime = 0
--- 		-- Enemies Engine
--- 		-- EnemiesEngine();
--- 		FindEnemy()
--- 	end
--- 	EnemiesEngine()
--- end
+local elapsedTime = 0
+local updateRate = 0
+function EnemyEngine(_, time)
+	elapsedTime = elapsedTime + time
+	if getOptionValue("Update Rate") ~= nil and getOptionValue("Update Rate") * 2 > 0.5 then updateRate = getOptionValue("Update Rate") * 2
+		else updateRate = 0.5
+	end
+	--print(updateRate)
+	if FireHack ~= nil and br.data.settings[br.selectedSpec].toggles["Power"] == 1 and elapsedTime >= updateRate then --0.5 then
+		elapsedTime = 0
+		-- Enemies Engine
+		br.handleObjects()
+		br.EnemiesEngine()
+		-- EnemiesEngine();
+		-- FindEnemy()
+	end
+
+	-- EnemiesEngine()
+end
 
 local frame = CreateFrame("FRAME")
--- frame:SetScript("OnUpdate", EnemyEngine)
+frame:SetScript("OnUpdate", EnemyEngine)
 
 -- local elapsedTime2 = 0
 -- function PlayerUpdate(_, time)

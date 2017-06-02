@@ -385,18 +385,16 @@ function isValidUnit(Unit)
 		and UnitCanAttack("player",Unit) and isSafeToAttack(Unit) and getLineOfSight("player", Unit)
 	then
 		-- Unit is Soul Effigy
-        if GetObjectID(Unit) == 103679 then return true end
+        -- if GetObjectID(Unit) == 103679 then return true end
         if UnitAffectingCombat("player") then
-        	-- Only consider Units that I have threat with or I can attack and have targeted or are dummies within 20yrds when in Combat.
-			if hasThreat(Unit) or isDummy(Unit) or (UnitIsUnit(Unit,"target") and getDistance(Unit) <= 20) then return true end
+        	-- Only consider Units that I have threat with or have targeted or are dummies within 20yrds when in Combat.
+			if hasThreat(Unit) or UnitIsUnit(Unit,"target") or (isDummy(Unit) and getDistance(Unit) <= 20) then return true end
+		elseif IsInInstance() then
+			-- Only consider Units that I have threat with or I am alone and have targeted when not in Combat and in an Instance.
+			if hasThreat(Unit) or (#br.friend == 1 and UnitIsUnit(Unit,"target")) then return true end
 		else
-			if IsInInstance() then
-				-- Only consider Units that I have threat with or I am alone and have targeted when not in Combat and in an Instance.
-				if hasThreat(Unit) or (#br.friend == 1 and UnitIsUnit(Unit,"target")) then return true end
-			else
-				-- Only consider Units that are in 20yrs or I have targeted when not in Combat and not in an Instance.
-				if getDistance(Unit) <= 20 or UnitIsUnit(Unit,"target") then return true end
-			end
+			-- Only consider Units that are in 20yrs or I have targeted when not in Combat and not in an Instance.
+			if getDistance(Unit) <= 20 or UnitIsUnit(Unit,"target") then return true end
 		end
 	end
 	return false
@@ -573,8 +571,8 @@ end
 -- 	end
 -- end
 function getValue(Value)
-    if br.data ~=nil then
-    local selectedProfile = br.data.settings[br.selectedSpec][br.selectedProfile]
+    if br.data ~=nil and br.data.settings ~= nil then
+    	local selectedProfile = br.data.settings[br.selectedSpec][br.selectedProfile]
         if selectedProfile ~=nil then
             if selectedProfile[Value.."Status"] ~= nil then
                 return selectedProfile[Value.."Status"]

@@ -1,137 +1,156 @@
 -- Function to create and populate table of enemies within a distance from player.
 br.enemy = {}
-local Frame = CreateFrame("Frame");
-
 -- It will be run every frame
-function handleObjects()
-	-- Add Enemy
-	local function AddEnemy(object,newObject)
-		if isValidUnit(object) then 
-			newObject.unit = object
-			newObject.guid = UnitGUID(object)
-			newObject.id = GetObjectID(object)
-			if br.enemy[object] == nil then 
-				br.enemy[object] = newObject 
-			end
-		end
+br.object = {}
+local function GetObjectManagerStatus()
+	if wToolkit64 ~= nil then
+	  	return HasObjectManagerUpdated()
+	else
+		return true; -- support the other unlocks
 	end
-
-	-- Update Enemy
-	local function UpdateEnemy(object)
-		local thisUnit = object
-		local unitGUID = thisUnit.guid
-		local longTimeCC
-		if getOptionCheck("Don't break CCs") then
-			longTimeCC 		= isLongTimeCCed(thisUnit)
-		else
-			longTimeCC 		= false
-		end
-		local burnValue 	= isBurnTarget(thisUnit) or 0
-		local ccUnit 		= isCrowdControlCandidates(thisUnit)
-		local offBuff 		= getOffensiveBuffs(thisUnit,unitGUID)
-		local safeAttack 	= isSafeToAttack(thisUnit)
-		local shieldValue 	= isShieldedTarget(thisUnit) or 0
-		local unitCombat 	= UnitAffectingCombat(thisUnit) 
-		local unitDistance 	= getDistance("player",thisUnit)
-		local unitFacing 	= getFacing("player",thisUnit)
-		local unitHealth 	= UnitHealth(thisUnit)
-		local unitHP 		= getHP(thisUnit)
-		local unitThreat 	= UnitThreatSituation("player",thisUnit) or -1
-		local unitCoef 		= getUnitCoeficient(thisUnit,unitDistance,unitThreat,burnValue,shieldValue) or 0
-		local enemy 		= br.enemy[thisUnit]
-		if unitCombat ~= enemy.inCombat then enemy.inCombat	= unitCombat end
-		if unitCoef ~= enemy.unitCoeficient then enemy.unitCoeficient = unitCoef end
-		if ccUnit ~= enemy.cc then enemy.cc	= ccUnit end
-		if longTimeCC ~= enemy.isCC then enemy.isCC = longTimeCC end
-		if unitFacing ~= enemy.facing then enemy.facing = unitFacing end
-		if unitThreat ~= enemy.threat then enemy.threat	= unitThreat end
-		if unitHP ~= enemy.hp then enemy.hp = unitHP end
-		if unitHealth ~= enemy.hpabs then enemy.hpabs = unitHealth end
-		if safeAttack ~= enemy.safe then enemy.safe	= safeAttack end
-		if burnValue ~= enemy.burn then	enemy.burn = burnValue end
-		if offBuff ~= enemy.offensiveBuff then enemy.offensiveBuff = offBuff end
-	end
-
-	-- Check Critter
-	local function IsCritter(checkID)
-		local numPets = C_PetJournal.GetNumPets(false)
-		for i=1,numPets do
-			local _, _, _, _, _, _, _, name, _, _, petID = C_PetJournal.GetPetInfoByIndex(i, false)
-			if checkID == petID then return true end
-		end
-		return false
-	end
-
-	-- Add Pet
-	local function AddPet(thisUnit)
-		local unitCreator = UnitCreator(thisUnit)
-		if unitCreator == GetObjectWithGUID(UnitGUID("player")) then
-			if not IsCritter(GetObjectID(thisUnit)) then
-				if br.player ~= nil and br.player.petInfo == nil then br.player.petInfo = {} end
-				br.player.petInfo[thisUnit] = {}
-				local pet 		= br.player.petInfo[thisUnit]
-				pet.unit 		= thisUnit
-				pet.name 		= UnitName(thisUnit)
-				pet.guid 		= UnitGUID(thisUnit)
-				pet.id 			= GetObjectID(thisUnit)
-			end
-		end
-	end
-
-	-- Update Pet
-	local function UpdatePet(thisUnit)
-		if br.player.petInfo[thisUnit] ~= nil then
-			if br.player.spell.buffs.demonicEmpowerment ~= nil then
-				demoEmpBuff = UnitBuffID(thisUnit,br.player.spell.buffs.demonicEmpowerment) ~= nil
-			else
-				demoEmpBuff = false
-			end
-			local unitCount = #getEnemies(thisUnit,10) or 0
-			local pet 		= br.player.petInfo[thisUnit]
-			pet.deBuff = demoEmpBuff
-			pet.numEnemies = unitCount
-		end
-	end
--- Build Enemies
-	if FireHack and br.data.settings[br.selectedSpec].toggles["Power"] == 1 then
-		for i = 1, ObjectCount() do
-	    	local object = GetObjectWithIndex(i)
-	-- Update/Delete Entries
-			if br.player ~= nil and br.player.petInfo ~= nil and br.player.petInfo[object] ~= nil then
-				if GetUnitExists(object) then
-					UpdatePet(object)
-				else
-					br.player.petInfo[object] = nil
-				end
-			elseif br.enemy[object] ~= nil then
-	    		if isValidUnit(object) then
-					UpdateEnemy(object)
-				else
-					br.enemy[object] = nil
-				end
-	    	else
-	 -- Add New Entries
-	      		local newObject = {}
-	      		if ObjectIsType(object, ObjectTypes.Unit) then 
-		      		newObject.name 		= ObjectName(object)
-		      		newObject.typeFlags = ObjectTypeFlags(object)
-		      		if newObject.typeFlags == 9 then
-						AddEnemy(object,newObject)
-						AddPet(object)
-					end
-	      		end
-	    	end
-	    	local mainObj = br.enemy[object]
-	    	-- Collect the data that could have changed
-	    	if mainObj ~= nil then
-	    		mainObj.x, mainObj.y, mainObj.z = ObjectPosition(object)
-	    	end
-	  	end
-  	end
 end
 
-Frame:SetScript("OnUpdate", handleObjects);
+local playerGUID = GetObjectWithGUID(UnitGUID("player"))
 
+local function isValidObject(unit)
+	local thisObject = unit
+	local distance = getDistance(thisObject)
+	local inCombat = UnitAffectingCombat("player")
+	local aggrod = hasThreat(thisObject)
+	local targetted = UnitIsUnit(thisObject,"target")
+	local creator = UnitCreator(thisObject)
+	return (not inCombat and (distance < 20 or targetted)) or (inCombat and (aggrod or targetted)) or creator == playerGUID
+end
+
+function br.handleObjects()
+-- Index Objects
+	if FireHack and br.data ~= nil then
+		if br.data.settings ~= nil then
+			if br.data.settings[br.selectedSpec].toggles["Power"] == 1 then
+				for _, object in ipairs(br.object) do
+				    if ObjectExists(object) == false then
+				        br.object[object] = nil
+				    end
+				end
+				if GetObjectManagerStatus() then
+					for i = 1, ObjectCount() do
+				    	local object = GetObjectWithIndex(i)
+			    		if ObjectIsType(object, ObjectTypes.Unit) then
+							if isValidObject(object) then
+				    			if br.object[object] == nil then
+					    			br.object[object] = {}
+					    			local newObject 	= br.object[object]
+						      		newObject.creator 	= UnitCreator(object) or "None"
+						      		newObject.guid 		= UnitGUID(object)
+						      		newObject.id 		= GetObjectID(object)
+						      		newObject.name 		= ObjectName(object)
+						      		newObject.unit 		= object
+						      	end
+					    	elseif br.object[object] ~= nil then
+			    				br.object[object] = nil 
+			    			end
+			    		end
+				  	end
+				end
+		  	end
+		end
+	end
+end
+-- AddFrameCallback(br.handleObjects)
+-- AddTimerCallback(0.1, handleObjects);
+
+-- Update Enemy
+local function UpdateEnemy(object)
+	local thisUnit = object
+	local unitGUID = thisUnit.guid
+	local longTimeCC
+	if getOptionCheck("Don't break CCs") then
+		longTimeCC 		= isLongTimeCCed(thisUnit)
+	else
+		longTimeCC 		= false
+	end
+	local burnValue 	= isBurnTarget(thisUnit) or 0
+	local ccUnit 		= isCrowdControlCandidates(thisUnit)
+	local offBuff 		= getOffensiveBuffs(thisUnit,unitGUID)
+	local safeAttack 	= isSafeToAttack(thisUnit)
+	local shieldValue 	= isShieldedTarget(thisUnit) or 0
+	local unitCombat 	= UnitAffectingCombat(thisUnit) 
+	local unitDistance 	= getDistance("player",thisUnit)
+	local unitFacing 	= getFacing("player",thisUnit)
+	local unitHealth 	= UnitHealth(thisUnit)
+	local unitHP 		= getHP(thisUnit)
+	local unitThreat 	= UnitThreatSituation("player",thisUnit) or -1
+	local unitCoef 		= getUnitCoeficient(thisUnit,unitDistance,unitThreat,burnValue,shieldValue) or 0
+	local enemy 		= br.enemy[thisUnit]
+	if unitCombat ~= enemy.inCombat then enemy.inCombat	= unitCombat end
+	if unitCoef ~= enemy.unitCoeficient then enemy.unitCoeficient = unitCoef end
+	if ccUnit ~= enemy.cc then enemy.cc	= ccUnit end
+	if longTimeCC ~= enemy.isCC then enemy.isCC = longTimeCC end
+	if unitFacing ~= enemy.facing then enemy.facing = unitFacing end
+	if unitThreat ~= enemy.threat then enemy.threat	= unitThreat end
+	if unitHP ~= enemy.hp then enemy.hp = unitHP end
+	if unitHealth ~= enemy.hpabs then enemy.hpabs = unitHealth end
+	if safeAttack ~= enemy.safe then enemy.safe	= safeAttack end
+	if burnValue ~= enemy.burn then	enemy.burn = burnValue end
+	if offBuff ~= enemy.offensiveBuff then enemy.offensiveBuff = offBuff end
+end
+
+-- Check Critter
+local function IsCritter(checkID)
+	local numPets = C_PetJournal.GetNumPets(false)
+	for i=1,numPets do
+		local _, _, _, _, _, _, _, name, _, _, petID = C_PetJournal.GetPetInfoByIndex(i, false)
+		if checkID == petID then return true end
+	end
+	return false
+end
+
+function br.EnemiesEngine()
+	for k,v in pairs(br.object) do
+		local thisUnit = br.object[k].unit
+	-- Enemies
+		if isValidUnit(thisUnit) then
+			if br.enemy[thisUnit] == nil then
+				br.enemy[thisUnit] = br.object[thisUnit]
+				break			
+			else
+				UpdateEnemy(thisUnit)
+			end
+		else
+			if br.enemy[thisUnit] ~= nil then br.enemy[thisUnit] = nil end
+		end
+	-- Pets
+		if br.object[k].creator == playerGUID then
+			if not IsCritter(br.object[k].id) then
+				if br.player.petInfo == nil then br.player.petInfo = {} end
+				if br.player.petInfo[thisUnit] == nil then
+					br.player.petInfo[thisUnit] = {}
+					local pet 		= br.player.petInfo[thisUnit]
+					pet.unit 		= thisUnit
+					pet.name 		= UnitName(thisUnit)
+					pet.guid 		= UnitGUID(thisUnit)
+					pet.id 			= GetObjectID(thisUnit)
+				else
+					if br.player.spell.buffs.demonicEmpowerment ~= nil then
+						demoEmpBuff = UnitBuffID(thisUnit,br.player.spell.buffs.demonicEmpowerment) ~= nil
+					else
+						demoEmpBuff = false
+					end
+					local unitCount = #getEnemies(thisUnit,10) or 0
+					local pet 		= br.player.petInfo[thisUnit]
+					pet.deBuff = demoEmpBuff
+					pet.numEnemies = unitCount
+				end
+			end
+		else
+			if br.player.petInfo ~= nil then
+				if br.player.petInfo[thisUnit] ~= nil then br.player.petInfo[thisUnit] = nil end
+			end
+		end
+	end
+end
+-- AddTimerCallback(0.1, br.EnemiesEngine);
+-- Function to create and populate table of enemies within a distance from player.
 
 -- returns prefered target for diferent spells
 function dynamicTarget(range,facing)
