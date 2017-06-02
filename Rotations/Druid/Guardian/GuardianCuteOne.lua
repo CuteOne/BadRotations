@@ -584,7 +584,7 @@ local function runRotation()
         -- Thrash
                     -- thrash_bear,if=buff.incarnation.up=1&dot.thrash.remains<=4.5
                     if getDistance("target") < 8 and buff.incarnationGuardianOfUrsoc.exists() and debuff.thrash.refresh(units.dyn8) then
-                        if cast.thrast() then return end
+                        if cast.thrash() then return end
                     end
         -- Mangle
                     -- mangle
