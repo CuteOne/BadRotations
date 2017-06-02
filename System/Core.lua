@@ -30,13 +30,13 @@ function EnemyEngine(_, time)
 	if FireHack ~= nil and br.data.settings[br.selectedSpec].toggles["Power"] == 1 and elapsedTime >= updateRate then --0.5 then
 		elapsedTime = 0
 		-- Enemies Engine
-		br.handleObjects()
-		br.EnemiesEngine()
+		-- br.handleObjects()
+		-- br.EnemiesEngine()
 		-- EnemiesEngine();
-		-- FindEnemy()
+		FindEnemy()
 	end
 
-	-- EnemiesEngine()
+	EnemiesEngine()
 end
 
 local frame = CreateFrame("FRAME")
