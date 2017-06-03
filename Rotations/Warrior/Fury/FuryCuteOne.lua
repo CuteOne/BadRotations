@@ -92,6 +92,8 @@ local function createOptions()
             br.ui:createCheckbox(section,"Bloodbath")
             -- Dragon Roar
             br.ui:createCheckbox(section,"Dragon Roar")
+            -- Draught of Souls
+            br.ui:createCheckbox(section, "Draught of Souls")
             -- Shockwave
             br.ui:createCheckbox(section,"Shockwave")
         br.ui:checkSectionState(section)
@@ -486,7 +488,7 @@ local function runRotation()
             end
         -- Draught of Souls
             -- use_item,name=draught_of_souls,if=equipped.draught_of_souls&buff.battle_cry.remains>2&buff.enrage.remains>2&((talent.dragon_roar.enabled&buff.dragon_roar.remains>=3)|!talent.dragon_roar.enabled)
-            if hasEquiped(140808) and buff.battleCry.remain() > 2 and buff.enrage.remain() > 2 and ((talent.dragonRoar and buff.dragonRoar.remain() >= 3) or not talent.dragonRoar) then
+            if isChecked("Draught of Souls") and hasEquiped(140808) and buff.battleCry.remain() > 2 and buff.enrage.remain() > 2 and ((talent.dragonRoar and buff.dragonRoar.remain() >= 3) or not talent.dragonRoar) then
                 if canUse(140808) then
                     useItem(140808)
                 end
