@@ -1,4 +1,14 @@
 local rotationName = "LyLoLoq" -- Change to name of profile listed in options drop down
+--------------
+--- COLORS ---
+--------------
+local colorPurple   = "|cffC942FD"
+local colorBlue     = "|cff00CCFF"
+local colorGreen    = "|cff00FF00"
+local colorRed      = "|cffFF0000"
+local colorWhite    = "|cffFFFFFF"
+local colorGold     = "|cffFFDD11"
+local colorLegendary= "|cffff8000"
 
 ---------------
 --- Toggles ---
@@ -41,15 +51,6 @@ local function createOptions()
     local optionTable
 
     local function rotationOptions()
-        --------------
-        --- COLORS ---
-        --------------
-        local colorPurple   = "|cffC942FD"
-        local colorBlue     = "|cff00CCFF"
-        local colorGreen    = "|cff00FF00"
-        local colorRed      = "|cffFF0000"
-        local colorWhite    = "|cffFFFFFF"
-        local colorGold     = "|cffFFDD11"
 
         -----------------------
         --- GENERAL OPTIONS --- -- Define General Options
@@ -101,19 +102,11 @@ local function createOptions()
 
         br.ui:checkSectionState(section)
         ----------------------
-        --- TOGGLE OPTIONS --- -- Degine Toggle Options
+        --- LEGENDARY OPTIONS ---
         ----------------------
-        section = br.ui:createSection(br.ui.window.profile,  "Toggle Keys")
-        -- Single/Multi Toggle
-        br.ui:createDropdown(section,  "Rotation Mode", br.dropOptions.Toggle,  4)
-        --Cooldown Key Toggle
-        br.ui:createDropdown(section,  "Cooldown Mode", br.dropOptions.Toggle,  3)
-        --Defensive Key Toggle
-        br.ui:createDropdown(section,  "Defensive Mode", br.dropOptions.Toggle,  6)
-        -- Interrupts Key Toggle
-        br.ui:createDropdown(section,  "Interrupt Mode", br.dropOptions.Toggle,  6)
-        -- Pause Toggle
-        br.ui:createDropdown(section,  "Pause Mode", br.dropOptions.Toggle,  6)
+        section = br.ui:createSection(br.ui.window.profile, colorGold.."Legendary")
+        br.ui:createSpinner(section, colorLegendary.."Zann'esu Journey", 1, 1, 100, 1, colorWhite.."Check to enable usage of Zann'esu Journey, and set the number of units to Blizzard to be cast on.")
+        --br.ui:createCheckbox(section, colorLegendary.."Norgannon's Foresight")
         br.ui:checkSectionState(section)
     end
     optionTable = {{
@@ -151,7 +144,7 @@ local function runRotation()
     local race                                          = br.player.race
     local gcd                                           = br.player.gcd
     local inCombat                                      = br.player.inCombat
-    local pullTimer                                     = br.DBM:getPulltimer()
+    local pullTimer                                     = PullTimerRemain() --br.DBM:getPulltimer()
     local inInstance                                    = br.player.instance=="party"
     local inRaid                                        = br.player.instance=="raid"
     local health                                        = br.player.health
@@ -587,226 +580,148 @@ local function runRotation()
         local function actionList_AOE()
             --actions.aoe=frostbolt,if=prev_off_gcd.water_jet
             if lastCast == spell.waterJet and getCastTime(spell.frostbolt)+0.2 < getCastTimeRemain("pet") then
-                if debug == true then Print("lastCast was WaterJet, Casting Frostbolt") end
-                if cast.frostbolt(target) then
-                    if debug == true then Print("Casted Frostbolt") end
-                    return true
-                end
+                if cast.frostbolt(target) then return true end
             end
             --actions.aoe+=/frozen_orb
-            if useCDs() and isChecked("Frozen Orb") and cd.frozenOrb == 0 and getEnemiesInRect(15,55,false) > 0 and buff.fingersOfFrost.stack() < 2 then
-                if debug == true then Print("Casting Frozen Orb") end
-                if cast.frozenOrb() then
-                    if debug == true then Print("Casted Frozen Orb") end
-                    return true
+            if cd.frozenOrb == 0 then
+                if isChecked("Frozen Orb") and getEnemiesInRect(15,55,false) > 0 and buff.fingersOfFrost.stack() < 2 then
+                    if cast.frozenOrb() then return true end
                 end
             end
             --actions.aoe+=/blizzard
-            if mode.rotation == 1 or mode.rotation == 2 and #enemies.yards40 >= getValue("AOE targets") then
-                if debug == true then Print("Casting Blizzard") end
-                if cast.blizzard("best", nil, getValue("AOE targets"), blizzardRadius) then
-                    if debug == true then Print("Casted Blizzard") end
-                    return true
-                else
-                    if debug == true then Print("not Casted Blizzard") end
+            if  cd.blizzard == 0 then
+                if isChecked(colorLegendary.."Zann'esu Journey") then
+                    if buff.zannesuJourney.stack() == 5 then
+                        if cast.blizzard("best", nil, getValue(colorLegendary.."Zann'esu Journey"), blizzardRadius) then return true end
+                    end
+                end
+                if lastCast == spell.frozenOrb or cd.frozenOrb > 5 then
+                    if cast.blizzard("best", nil, getValue("AOE targets"), blizzardRadius) then return true end
                 end
             end
             --actions.aoe+=/comet_storm
-            if useCDs() and isChecked("Comet Storm") and talent.cometStorm and cd.cometStorm == 0 and ( IsStandingTime(2,target) or GetUnitSpeed(target) <= 3) then
-                if debug == true then Print("Casting Comet Storm") end
-                if cast.cometStorm(target) then
-                    if debug == true then Print("Casted Comet Storm") end
-                    return true
+            if talent.cometStorm then
+                if cd.cometStorm == 0 then
+                    if isChecked("Comet Storm")  and (IsStandingTime(2,target) or GetUnitSpeed(target) <= 3) then
+                        if cast.cometStorm(target) then return true end
+                    end
                 end
             end
             --actions.aoe+=/ice_nova
-            if talent.iceNova and cd.iceNova == 0 then
-                if debug == true then Print("Casting Ice Nova") end
-                if cast.iceNova() then
-                    if debug == true then Print("Casted Ice Nova") end
-                    return true
+            if talent.iceNova then
+                if cd.iceNova == 0 then
+                    if cast.iceNova() then return true end
                 end
             end
             --actions.aoe+=/ice_lance,if=variable.fof_react>0
             if fof_react > 0 then
-                if debug == true then Print("Casting Ice Lance") end
-                if cast.iceLance(target) then
-                    if debug == true then Print("Casted Ice Lance") end
-                    return true
-                end
+                if cast.iceLance(target) then return true end
             end
             --actions.aoe+=/flurry,if=prev_gcd.1.ebonbolt|prev_gcd.1.frostbolt&buff.brain_freeze.react
-            if buff.brainFreeze.exists() then
-                if debug == true then Print("Casting Flurry") end
-                if cast.flurry(target) then
-                    if debug == true then Print("Casted Flurry") end
-                    return true
-                end
+            if buff.brainFreeze.exists() and fof_react == 0 then
+                if cast.flurry(target) then return true end
             end
             --actions.aoe+=/frost_bomb,if=debuff.frost_bomb.remains<action.ice_lance.travel_time&variable.fof_react>0
-            if talent.frostBomb and lastCast ~= spell.frostBomb then
-                if not debuff.frostBomb.exists() or debuff.frostBomb.remain() < 2 and fof_react > 0 and ttdUnit >= 12 + getCastTime(spell.frostBomb)+0.5 then
-                    if debug == true then Print("Casting Frost Bomb1") end
-                    if cast.frostBomb(target) then
-                        if debug == true then Print("Casted Frost Bomb1") end
-                        return true
+            if talent.frostBomb then
+                if lastCast ~= spell.frostBomb then
+                    if not debuff.frostBomb.exists() or debuff.frostBomb.remain() < 2 and fof_react > 0 and ttdUnit >= 12 + getCastTime(spell.frostBomb)+0.5 then
+                        if cast.frostBomb(target) then return true end
                     end
                 end
             end
             --actions.aoe+=/ebonbolt,if=buff.brain_freeze.react=0
             if (getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs())) then
                 if not buff.brainFreeze.exists() then
-                    if debug == true then Print("Casting Ebonbolt") end
-                    if cast.ebonbolt(target) then
-                        if debug == true then Print("Casted Ebonbolt") end
-                        return true
-                    end
+                    if cast.ebonbolt(target) then return true end
                 end
             end
             --actions.aoe+=/glacial_spike
-            if buff.icicles.stack() == 5 then
-                if debug == true then Print("Casting Glacial Spike") end
-                if cast.glacialSpike(target) then
-                    if debug == true then Print("Casted Glacial Spike") end
-                    return true
+            if talent.glacialSpike then
+                if buff.icicles.stack() == 5 then
+                    if cast.glacialSpike(target) then return true end
                 end
             end
             --actions.aoe+=/frostbolt
-            if debug == true then Print("Casting Frostbolt") end
-            if cast.frostbolt(target) then
-                if debug == true then Print("Casted Frostbolt") end
-                return true
-            end
+            if cast.frostbolt(target) then return true end
             return false
         end
 
         local function actionList_SINGLE()
-            --actions.single=ice_nova,if=debuff.winters_chill.up
-            if talent.iceNova and cd.iceNova == 0 then
-                if debuff.wintersChill.exists() then
-                    if debug == true then Print("Casting Ice Nova") end
-                    if cast.iceNova() then
-                        if debug == true then Print("Casted Ice Nova") end
-                        return true
-                    end
-                end
-            end
             --actions.single+=/frostbolt,if=prev_off_gcd.water_jet
             if lastCast == spell.waterJet and getCastTime(spell.frostbolt)+0.2 < getCastTimeRemain("pet") then
-                if debug == true then Print("Casting Frostbolt") end
-                if cast.frostbolt(target) then
-                    if debug == true then Print("Casted Frostbolt") end
-                    return true
+                if cast.frostbolt(target) then return true end
+            end
+            --actions.single=ice_nova,if=debuff.winters_chill.up--why?
+            if talent.iceNova then
+                if  cd.iceNova == 0 then
+                    if cast.iceNova() then return true end
                 end
             end
             --actions.single+=/ray_of_frost,if=buff.icy_veins.up|(cooldown.icy_veins.remains>action.ray_of_frost.cooldown&buff.rune_of_power.down)
-            if useCDs() and isChecked("Ray of Frost") then
-                if buff.icyVeins.exists() or (cd.icyVeins > getCastTime(spell.rayOfFrost) and not buff.runeOfPower) then
-                    if debug == true then Print("Casting Ray of Frost") end
-                    if cast.rayOfFrost() then
-                        if debug == true then Print("Casted Ray of Frost") end
-                        return true
+            if talent.rayOfFrost then
+                if  cd.rayOfFrost == 0 then
+                    if useCDs() and isChecked("Ray of Frost") then
+                        if buff.icyVeins.exists() or (cd.icyVeins > cd.rayOfFrost and not buff.runeOfPower) then
+                            if cast.rayOfFrost() then return true end
+                        end
                     end
                 end
             end
             --actions.single+=/ice_lance,if=variable.fof_react>0&cooldown.icy_veins.remains>10|variable.fof_react>2
             if (fof_react > 0 and cd.icyVeins > 10) or (not useCDs() and fof_react > 0) or fof_react > 2 then
-                if debug == true then Print("Casting Ice Lance") end
-                if cast.iceLance(target) then
-                    if debug == true then Print("Casted Ice Lance") end
-                    return true
-                end
+                if cast.iceLance(target) then return true end
             end
             --actions.single+=/flurry,if=prev_gcd.1.ebonbolt|prev_gcd.1.frostbolt&buff.brain_freeze.react
-            if buff.brainFreeze.exists() then
-                if debug == true then Print("Casting Flurry") end
-                if cast.flurry(target) then
-                    if debug == true then Print("Casted Flurry") end
-                    return true
-                end
-            end
-            --actions.single+=/blizzard,if=cast_time=0&active_enemies>1&variable.fof_react<3
-            if mode.rotation == 1 or mode.rotation == 2 then
-                if getCastTime(spell.blizzard) == 0 and #enemies.yards40 >= getValue("AOE targets") and fof_react < 3 then
-                    if debug == true then Print("Casting Blizzard") end
-                    if cast.blizzard("best", nil, getValue("AOE targets"), blizzardRadius) then
-                        if debug == true then Print("Casted Blizzard") end
-                        return true
-                    else
-                        if debug == true then Print("not Casted Blizzard") end
-                    end
-                end
+            if buff.brainFreeze.exists() and fof_react == 0 then
+                if cast.flurry(target) then return true end
             end
             --actions.single+=/frost_bomb,if=debuff.frost_bomb.remains<action.ice_lance.travel_time&variable.fof_react>0
-            if talent.frostBomb and lastCast ~= spell.frostBomb then
-                if not debuff.frostBomb.exists() or debuff.frostBomb.remain() < 2 and fof_react > 0 and ttdUnit >= 12 + getCastTime(spell.frostBomb)+0.5 then
-                    if debug == true then Print("Casting Frost Bomb2") end
-                    if cast.frostBomb(target) then
-                        if debug == true then Print("Casted Frost Bomb2") end
-                        return true
+            if talent.frostBomb then
+                if lastCast ~= spell.frostBomb then
+                    if not debuff.frostBomb.exists() or debuff.frostBomb.remain() < 2 and fof_react > 0 and ttdUnit >= 12 + getCastTime(spell.frostBomb)+0.5 then
+                        if cast.frostBomb(target) then return true end
                     end
                 end
             end
             --actions.single+=/frozen_orb
-            if useCDs() and isChecked("Frozen Orb") and cd.frozenOrb == 0 and getEnemiesInRect(15,55,false) > 0 and buff.fingersOfFrost.stack() < 2 then
-                if debug == true then Print("Casting Frozen Orb") end
-                if cast.frozenOrb() then
-                    if debug == true then Print("Casted Frozen Orb") end
-                    return true
+            if cd.frozenOrb == 0 then
+                if isChecked("Frozen Orb") and getEnemiesInRect(15,55,false) > 0 and buff.fingersOfFrost.stack() < 2 then
+                    if cast.frozenOrb() then return true end
                 end
             end
-            --actions.single+=/ice_nova
-            if talent.iceNova and cd.iceNova == 0 then
-                if debug == true then Print("Casting Ice Nova") end
-                if cast.iceNova() then
-                    if debug == true then Print("Casted Ice Nova") end
-                    return true
+            --actions.single+=/blizzard,if=cast_time=0&active_enemies>1&variable.fof_react<3
+            if  cd.blizzard == 0 then
+                if isChecked(colorLegendary.."Zann'esu Journey") then
+                    if buff.zannesuJourney.stack() == 5 then
+                        if cast.blizzard("best", nil, getValue(colorLegendary.."Zann'esu Journey"), blizzardRadius) then return true end
+                    end
+                end
+                if getCastTime(spell.blizzard) == 0 and fof_react < 3 and (lastCast == spell.frozenOrb or cd.frozenOrb > 5) then
+                    if cast.blizzard("best", nil, 1, blizzardRadius) then return true end
                 end
             end
             --actions.single+=/comet_storm
-            if useCDs() and isChecked("Comet Storm") and talent.cometStorm and cd.cometStorm == 0 and ( IsStandingTime(2,target) or GetUnitSpeed(target) <= 3) then
-                if debug == true then Print("Casting Comet Storm") end
-                if cast.cometStorm(target) then
-                    if debug == true then Print("Casted Comet Storm") end
-                    return true
-                end
-            end
-            --actions.single+=/blizzard,if=active_enemies>2|active_enemies>1&!(talent.glacial_spike.enabled&talent.splitting_ice.enabled)|(buff.zannesu_journey.stack=5&buff.zannesu_journey.remains>cast_time)
-            if mode.rotation == 1 or mode.rotation == 2 then
-                if #enemies.yards40 > getValue("AOE targets") or (#enemies.yards40 > 1 and not (talent.glacialSpike and talent.splittingIce) or (buff.zannesuJourney.stack() == 5 and buff.zannesuJourney.remain() < getCastTime(spell.blizzard))) then
-                    if debug == true then Print("Casting Blizzard") end
-                    if cast.blizzard("best", nil, getValue("AOE targets"), blizzardRadius) then
-                        if debug == true then Print("Casted Blizzard") end
-                        return true
-                    else
-                        if debug == true then Print("not Casted Blizzard") end
+            if talent.cometStorm then
+                if cd.cometStorm == 0 then
+                    if isChecked("Comet Storm") and ( IsStandingTime(2,target) or GetUnitSpeed(target) <= 3) then
+                        if cast.cometStorm(target) then return true end
                     end
                 end
             end
             --actions.single+=/ebonbolt,if=buff.brain_freeze.react=0
             if (getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs())) then
                 if not buff.brainFreeze.exists() then
-                    if debug == true then Print("Casting Ebonbolt") end
-                    if cast.ebonbolt(target) then
-                        if debug == true then Print("Casted Ebonbolt") end
-                        return true
-                    end
+                    if cast.ebonbolt(target) then return true end
                 end
             end
             --actions.single+=/glacial_spike
-            if buff.icicles.stack() == 5 then
-                if debug == true then Print("Casting Glacial Spike") end
-                if cast.glacialSpike(target) then
-                    if debug == true then Print("Casted Glacial Spike") end
-                    return true
+            if talent.glacialSpike then
+                if buff.icicles.stack() == 5 then
+                    if cast.glacialSpike(target) then return true end
                 end
             end
             --actions.single+=/frostbolt
-            if debug == true then Print("Casting Frostbolt") end
-            if cast.frostbolt(target) then
-                if debug == true then Print("Casted Frostbolt") end
-                return true
-            end
+            if cast.frostbolt(target) then return true end
             return false
         end
 
@@ -838,7 +753,7 @@ local function runRotation()
             --actions+=/call_action_list,name=cooldowns
             if actionList_CD() then return true end
             --actions+=/call_action_list,name=aoe,if=active_enemies>=4
-            if #enemies.yards40 >= getValue("AOE targets") then
+            if #enemies.yards40 >= getValue("AOE targets") and (mode.rotation == 1 or mode.rotation == 2) then
                 if actionList_AOE() then return true end
             end
             --actions+=/call_action_list,name=single

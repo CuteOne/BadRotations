@@ -185,7 +185,7 @@ local function runRotation()
     local inInstance                                    = br.player.instance=="party"
     local inRaid                                        = br.player.instance=="raid"
     local flaskBuff                                     = getBuffRemain("player",br.player.flask.wod.buff.intellectBig)
-    local pullTimer                                     = br.DBM:getPulltimer()
+    local pullTimer                                     = PullTimerRemain() --br.DBM:getPulltimer()
     local iconMoon                                      = select(3,GetSpellInfo(spell.newMoon))
     local useAstralPower                                = br.player.mode.astralPower == 1
     local ttd                                           = getTTD

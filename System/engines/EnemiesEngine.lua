@@ -425,31 +425,31 @@ end
 
 -- /dump UnitGUID("target")
 -- /dump getEnemies("target",10)
-function getEnemies(unit,Radius,InCombat,precise)
-	local startTime = debugprofilestop()
-	if GetObjectExists(unit) and GetUnitIsVisible(unit) then
-		local getEnemiesTable = { }
+function getEnemies(unit,radius,checkInCombat)
+    local startTime = debugprofilestop()
+    ---
+    if checkInCombat == nil then checkInCombat = false end
+	local enemiesTable = { }
+
+    if GetObjectExists(unit) and GetUnitIsVisible(unit) then
 		for k, v in pairs(br.enemy) do
-			local thisUnit = br.enemy[k].unit
-			local thisDistance = getDistance("player",thisUnit)
-			-- check if unit is valid
-			if GetObjectExists(thisUnit) and (not InCombat or br.enemy[k].inCombat) then
-				if unit == "player" and not precise then
-					if thisDistance <= Radius then
-						tinsert(getEnemiesTable,thisUnit)
-					end
-				else
-					if getDistance(unit,thisUnit) <= Radius then
-						tinsert(getEnemiesTable,thisUnit)
-					end
-				end
+			local thisEnemy = br.enemy[k].unit
+			local distance =  getDistance(unit,thisEnemy)
+			local inCombat = false
+			if checkInCombat then
+				inCombat = br.enemy[k].inCombat
+			else
+				inCombat = true
 			end
-		end
-		return getEnemiesTable
-	else
-		return { }
-	end
-	br.debug.cpu.enemiesEngine.getEnemies = debugprofilestop()-startTime or 0
+			if inCombat and distance < radius then
+				tinsert(enemiesTable,thisEnemy)
+			end
+        end
+    end
+    ---
+    br.debug.cpu.enemiesEngine.getEnemies = debugprofilestop()-startTime or 0
+    ---
+    return enemiesTable
 end
 
 function getTableEnemies(unit,Range,table)
