@@ -7,13 +7,12 @@ function ProfessionHelper()
       local function processThatTable(thisTable,spell)
           for i = 1,#thisTable do
             local thisItem = thisTable[i]
-            if GetItemCount(thisItem,false,false) >= 5 and not LootFrame:IsShown() then
-              if lootTimer == nil or lootTimer <= GetTime() - lootDelay then
-                if CastSpellByName(GetSpellInfo(spell), "player") then
-                  UseItemByName(thisTable[i])
-                  lootTimer = GetTime()
-                  return
-                end
+            if GetItemCount(thisItem,false,false) >= 5  then
+              if lootTimer == nil or lootTimer <= GetTime() - lootDelay and not LootFrame:IsShown() then
+                CastSpellByName(GetSpellInfo(spell), "player") 
+                UseItemByName(tostring(select(1, GetItemInfo(thisTable[i]))))
+                lootTimer = GetTime()
+                return
               end
             elseif LootFrame:IsShown() then
               for l=1, GetNumLootItems() do
@@ -139,6 +138,9 @@ function ProfessionHelper()
         }
         processThatTable(tableDisenchant,13262)
       end
+      ------------------------------------------------------------------------------------------------------
+      -- Leather Scraps-------------------------------------------------------------------------------------
+      ------------------------------------------------------------------------------------------------------
       if isChecked("Leather Scraps") then
         -- Raw Beast Hide Scraps
         if GetItemCount(110610,false,false) >= 10 then
@@ -149,6 +151,33 @@ function ProfessionHelper()
             end
           end
         end
+      end
+      ------------------------------------------------------------------------------------------------------
+      -- Lockboxes -----------------------------------------------------------------------------------------
+      ------------------------------------------------------------------------------------------------------
+      if isChecked("Lockboxes") then
+        local tableLockBox = {
+          121331, -- Leystone Lockbox
+        }
+        for i = 1,#tableLockBox do
+          local thisItem = tableLockBox[i]
+          if GetItemCount(thisItem,false,false) >= 1  then
+            if lootTimer == nil or lootTimer <= GetTime() - lootDelay and not LootFrame:IsShown() then
+              CastSpellByName(GetSpellInfo(1804), "player") 
+              UseItemByName(tostring(select(1, GetItemInfo(thisItem))))
+              C_Timer.After(1.5, function() UseItemByName(tostring(select(1, GetItemInfo(thisItem)))) end)
+              lootTimer = GetTime()
+              return
+            end
+          elseif LootFrame:IsShown() then
+            for l=1, GetNumLootItems() do
+              if LootSlotHasItem(l) then
+                LootSlot(l)
+              end
+            end
+              CloseLoot()
+          end
+        end     
       end
     end
   end

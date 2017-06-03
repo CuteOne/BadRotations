@@ -75,6 +75,7 @@ function br.ui:createConfigWindow()
         br.ui:createDropdown(section, "Mill Herbs", {"Legion","WoD", "MoP", "Cata", "All"}, 1, "Mill Desired Herbs.")
         br.ui:createCheckbox(section, "Disenchant", "Disenchant Cata blues/greens.")
         br.ui:createCheckbox(section, "Leather Scraps", "Combine leather scraps.")
+        br.ui:createCheckbox(section, "Lockboxes", "Unlock Lockboxes.")
         br.ui:checkSectionState(section)
     end
 
