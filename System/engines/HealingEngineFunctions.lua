@@ -36,6 +36,45 @@ function getTanksTable()
 	end
 	return tanksTable
 end
+function healConeAround(numUnitsp, healthp, anglep, rangeInfrontp, rangeAroundp)
+    local total         = 0
+    local numUnits        = tonumber(numUnitsp)
+    local health        = tonumber(healthp)
+    local angle         = tonumber(anglep)
+    local rinfront         = tonumber(rangeInfrontp)
+    local raround       = tonumber(rangeAroundp)
+    local X1, Y1, Z1     = ObjectPosition('player')
+    local MyAngle         = ObjectFacing('player')
+    
+    for i=1,#br.friend do
+        if br.friend[i].hp < health then 
+            -- First check around us, light of dawn do heal 5 yards around
+            if br.friend[i].distance < raround then
+                total = total +1
+            else --dont doubledipp so an else
+                if br.friend[i].distance < rinfront then --only if they are in range
+                    local X3,Y3,Z3 = ObjectPosition(br.friend[i].unit)
+                    if X1 and X3 then
+                        local MyAngleToOtherUnit = GetAnglesBetweenPositions(X1, Y1, Z1, X3, Y3, Z3)
+                        -- Compare both, trick the calc for NW cadran
+                        local AnglesDifference = MyAngle > MyAngleToOtherUnit and MyAngle - MyAngleToOtherUnit or MyAngleToOtherUnit - MyAngle
+                        -- Find shortest path in rad
+                        local AnglesBetweenUnits = AnglesDifference < math.pi and AnglesDifference or math.pi*2 - AnglesDifference
+                        -- We want to define the maxvalue on /360 to make it viable for every quarters directly from 360 degrees values
+                        local FinalAngle = AnglesBetweenUnits/math.pi*360
+                        if FinalAngle < angle then
+                            total = total +1
+                        end
+                    end
+                end
+            end
+        end
+    end
+   if total >= numUnits then
+        return true
+    end
+    return false
+end
 -- we want to define an iteration that will compare allies to heal in range of enemies or allies
 function castWiseAoEHeal(unitTable,spell,radius,health,minCount,maxCount,facingCheck,movementCheck)
 	if movementCheck ~= true or not isMoving("player") then

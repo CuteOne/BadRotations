@@ -839,7 +839,7 @@ local function runRotation()
 		end
 		-- Holy Prism
 		if isChecked("Holy Prism") and talent.holyPrism then
-			if getLowAllies(getValue"Holy Prism") >= getValue("神圣棱镜 目标") then
+			if getLowAllies(getValue"Holy Prism") >= getValue("Holy Prism Targets") then
 				if cast.holyPrism(units.dyn15) then return end
 			end
 		end
@@ -848,13 +848,13 @@ local function runRotation()
 			if inRaid then
 				for i= 1, #br.friend do
 					local lowHealthCandidates = getUnitsToHealAround(br.friend[i].unit,30,getValue("Beacon of Virtue"),#br.friend)
-					if #lowHealthCandidates >= getValue("美德道标 目标") then
+					if #lowHealthCandidates >= getValue("BoV Targets") then
 						if cast.beaconOfVirtue(br.friend[i].unit) then return end
 					end
 				end
 			elseif not inRaid then
 				for i= 1, #br.friend do
-					if getLowAllies(getValue("Beacon of Virtue")) >= getValue("美德道标 目标") then
+					if getLowAllies(getValue("Beacon of Virtue")) >= getValue("BoV Targets") then
 						if talent.bestowFaith and br.friend[i].hp <= getValue("Beacon of Virtue") then
 							if cast.bestowFaith(br.friend[i].unit) then return end
 						end
@@ -880,32 +880,23 @@ local function runRotation()
 		end
 		-- Light of Dawn
 		if isChecked("Light of Dawn") and GetSpellCooldown(85222) == 0 then
-			for i = 1, #br.friend do
-				if br.friend[i].hp <= getValue("Light of Dawn") then
-					local lowHealthCandidates = getUnitsToHealAround(br.friend[i].unit,15 * lightOfDawn_distance_coff,getValue("Light of Dawn"),#br.friend)
-					local lowHealthCandidates2 = getUnitsToHealAround(br.friend[i].unit,5 * lightOfDawn_distance_coff,getValue("Light of Dawn"),#br.friend)
-					if (#lowHealthCandidates >= getValue("LoD Targets") and getFacing("player",br.friend[i].unit)) or #lowHealthCandidates2 >= getValue("LoD Targets") then
-						if isChecked("Rule of Law") and talent.ruleOfLaw then
-							if cast.ruleOfLaw() then return end
-						end
-						if cast.lightOfDawn(br.friend[i].unit) then return end
-					end
-				end
+			if healConeAround(getValue("LoD Targets"),getValue("Light of Dawn"),90,15 * lightOfDawn_distance_coff,5 * lightOfDawn_distance_coff) then
+				if cast.lightOfDawn() then return end
 			end
 		end
 		-- Bestow Faith
-		if isChecked("赋予信仰") and talent.bestowFaith then
+		if isChecked("Bestow Faith") and talent.bestowFaith then
 			for i = 1, #br.friend do
 				if getOptionValue("Bestow Faith Target") == 1 then
-					if br.friend[i].hp <= getValue ("赋予信仰") then
+					if br.friend[i].hp <= getValue ("Bestow Faith") then
 						if cast.bestowFaith(br.friend[i].unit) then return end
 					end
 				elseif getOptionValue("Bestow Faith Target") == 2 then
-					if br.friend[i].hp <= getValue ("赋予信仰") and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
+					if br.friend[i].hp <= getValue ("Bestow Faith") and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
 						if cast.bestowFaith(br.friend[i].unit) then return end
 					end
 				elseif 	getOptionValue("Bestow Faith Target") == 3 then
-					if br.friend[i].hp <= getValue ("赋予信仰") and getBuffRemain("player",207472) < 1 then
+					if br.friend[i].hp <= getValue ("Bestow Faith") and getBuffRemain("player",207472) < 1 then
 						if cast.bestowFaith("player") then return end
 					end
 				end
@@ -1054,23 +1045,23 @@ local function runRotation()
 		if isChecked("Light of the Martyr") and php >= getOptionValue("LotM player HP limit") and buff.bestowFaith.exists("player") then
 			if inRaid then
 				for i = 1, #br.friend do
-					if br.friend[i].hp <= getValue("赋予信仰") and not UnitIsUnit(br.friend[i].unit,"player") and getDistance(br.friend[i].unit) <= (10*master_coff) then
+					if br.friend[i].hp <= getValue("Bestow Faith") and not UnitIsUnit(br.friend[i].unit,"player") and getDistance(br.friend[i].unit) <= (10*master_coff) then
 						if cast.lightOfTheMartyr(br.friend[i].unit) then return end
 					end
 				end
 				for i = 1, #br.friend do
-					if br.friend[i].hp <= getValue("赋予信仰") and not UnitIsUnit(br.friend[i].unit,"player") and getDistance(br.friend[i].unit) <= (20*master_coff) then
+					if br.friend[i].hp <= getValue("Bestow Faith") and not UnitIsUnit(br.friend[i].unit,"player") and getDistance(br.friend[i].unit) <= (20*master_coff) then
 						if cast.lightOfTheMartyr(br.friend[i].unit) then return end
 					end
 				end
 				for i = 1, #br.friend do
-					if br.friend[i].hp <= getValue("赋予信仰") and not UnitIsUnit(br.friend[i].unit,"player") and getDistance(br.friend[i].unit) <= (30*master_coff) then
+					if br.friend[i].hp <= getValue("Bestow Faith") and not UnitIsUnit(br.friend[i].unit,"player") and getDistance(br.friend[i].unit) <= (30*master_coff) then
 						if cast.lightOfTheMartyr(br.friend[i].unit) then return end
 					end
 				end
 			end
 			for i = 1, #br.friend do
-				if br.friend[i].hp <= getValue ("赋予信仰") and not UnitIsUnit(br.friend[i].unit,"player") and getDebuffStacks(br.friend[i].unit,209858) < 25 then
+				if br.friend[i].hp <= getValue ("Bestow Faith") and not UnitIsUnit(br.friend[i].unit,"player") and getDebuffStacks(br.friend[i].unit,209858) < 25 then
 					if cast.lightOfTheMartyr(br.friend[i].unit) then return end
 				end
 			end

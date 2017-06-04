@@ -490,7 +490,7 @@ local function runRotation()
         if not inCombat and not hastar and profileStop==true then
             profileStop = false
         elseif (inCombat and profileStop==true) or IsMounted() or pause() or mode.rotation==4 then
-            if buff.heatingUp.exists() then
+            if isValidUnit("target") and buff.heatingUp.exists() then
                 if cast.fireBlast() then return end
             end
             return true
