@@ -23,7 +23,7 @@ local elapsedTime = 0
 local updateRate = 0
 function EnemyEngine(_, time)
 	elapsedTime = elapsedTime + time
-	if getOptionValue("Update Rate") ~= nil and getOptionValue("Update Rate") * 2 > 0.5 then updateRate = getOptionValue("Update Rate") * 2
+	if getOptionValue("Enemy Update Rate") ~= nil and getOptionValue("Enemy Update Rate") > 0.5 then updateRate = getOptionValue("Enemy Update Rate")
 		else updateRate = 0.5
 	end
 	--print(updateRate)
@@ -159,16 +159,16 @@ function BadRotationsUpdate(self)
 	if isChecked("Talent Anywhere") then
 		talentAnywhere()
 	end
-	-- local startTime = debugprofilestop()
-	-- if br.updateInProgress ~= true then
-	-- 	self.updateInProgress = true
-	-- 	local tempTime = GetTime();
-	-- 	if not self.lastUpdateTime then
-	-- 		self.lastUpdateTime = tempTime
-	-- 	end
-	-- 	if getOptionValue("Update Rate") == nil then updateRate = 0.1 else updateRate = getOptionValue("Update Rate") end
-	-- 	if self.lastUpdateTime and (tempTime - self.lastUpdateTime) > updateRate then --0.1 then
-	-- 		self.lastUpdateTime = tempTime
+	 local startTime = debugprofilestop()
+	 if br.updateInProgress ~= true then
+	 	self.updateInProgress = true
+	 	local tempTime = GetTime();
+	 	if not self.lastUpdateTime then
+	 		self.lastUpdateTime = tempTime
+	 	end
+	 	if getOptionValue("Bot Update Rate") == nil then updateRate = 0.1 else updateRate = getOptionValue("Bot Update Rate") end
+	 	if self.lastUpdateTime and (tempTime - self.lastUpdateTime) > updateRate then --0.1 then
+	 		self.lastUpdateTime = tempTime
 			-- Check for Unlocker
 			if FireHack == nil then
 			 	br.ui:closeWindow("all")
@@ -285,12 +285,12 @@ function BadRotationsUpdate(self)
 				end --End Update Check
 				self.updateInProgress = false
 			end -- End Update In Progress Check
-	-- 	end -- End Main Button Active Check
-	-- end	-- End FireHack Check
-	-- br.debug.cpu.pulse.totalIterations = br.debug.cpu.pulse.totalIterations + 1
-	-- br.debug.cpu.pulse.currentTime = debugprofilestop()-startTime
-	-- br.debug.cpu.pulse.elapsedTime = br.debug.cpu.pulse.elapsedTime + debugprofilestop()-startTime
-	-- br.debug.cpu.pulse.averageTime = br.debug.cpu.pulse.elapsedTime / br.debug.cpu.pulse.totalIterations
+	 	end -- End Main Button Active Check
+	end	-- End FireHack Check
+	br.debug.cpu.pulse.totalIterations = br.debug.cpu.pulse.totalIterations + 1
+	br.debug.cpu.pulse.currentTime = debugprofilestop()-startTime
+	br.debug.cpu.pulse.elapsedTime = br.debug.cpu.pulse.elapsedTime + debugprofilestop()-startTime
+	br.debug.cpu.pulse.averageTime = br.debug.cpu.pulse.elapsedTime / br.debug.cpu.pulse.totalIterations
 end -- End Bad Rotations Update Function
 -- Enemies Engine
 -- EnemiesEngine();
