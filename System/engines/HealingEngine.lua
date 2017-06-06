@@ -141,28 +141,32 @@ if not metaTable1 then
 			end
 			-- absorbs
 			local nAbsorbs
-			if getOptionCheck("No Absorbs") ~= true then
+			if getOptionCheck("Ignore Absorbs") ~= true then
 				nAbsorbs = (UnitGetTotalAbsorbs(o.unit)*0.25)
 			else
 				nAbsorbs = 0
 			end
 			-- calc base + absorbs + incomings
 			local PercentWithIncoming = 100 * ( UnitHealth(o.unit) + incomingheals + nAbsorbs ) / UnitHealthMax(o.unit)
-			-- Using the group role assigned to the Unit
-			if o.role == "TANK" then
-				PercentWithIncoming = PercentWithIncoming - 5
+			if getOptionCheck("Prioritize Tank") then
+				-- Using the group role assigned to the Unit
+				if o.role == "TANK" then
+					PercentWithIncoming = PercentWithIncoming - getOptionValue("Prioritize Tank")
+				end
+				-- Tank in Proving Grounds
+				if o.guidsh == 72218  then
+					PercentWithIncoming = PercentWithIncoming - getOptionValue("Prioritize Tank")
+				end
+				-- Using threat to remove %hp from all tanking units
+				if o.threat == 3 then
+					PercentWithIncoming = PercentWithIncoming - getOptionValue("Prioritize Tank")
+				end
 			end
-			-- Using Dispel Check to see if we should give bonus weight
-			if o.dispel then
-				PercentWithIncoming = PercentWithIncoming - 2
-			end
-			-- Using threat to remove 3% to all tanking units
-			if o.threat == 3 then
-				PercentWithIncoming = PercentWithIncoming - 3
-			end
-			-- Tank in Proving Grounds
-			if o.guidsh == 72218  then
-				PercentWithIncoming = PercentWithIncoming - 5
+			if getOptionCheck("Prioritize Debuff") then
+				-- Using Dispel Check to see if we should give bonus weight
+				if o.dispel then
+					PercentWithIncoming = PercentWithIncoming - getOptionValue("Prioritize Debuff")
+				end
 			end
 			local ActualWithIncoming = ( UnitHealthMax(o.unit) - ( UnitHealth(o.unit) + incomingheals ) )
 			-- Malkorok shields logic
