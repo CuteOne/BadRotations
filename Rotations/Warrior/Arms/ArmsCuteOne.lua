@@ -255,6 +255,7 @@ local function runRotation()
         if getOptionValue("Battle Cry") == 3 or (getOptionValue("Battle Cry") == 2 and not useCDs()) then ignoreBattleCry = true else ignoreBattleCry = false end
 
         -- ChatOverlay(tostring(isInstanceBoss("target")))
+        -- ChatOverlay(#enemies.yards5)
 
         -- Heroic Leap for Charge (Credit: TitoBR)
         local function heroicLeapCharge()
@@ -631,7 +632,7 @@ local function runRotation()
             end
         -- Warbreaker
             -- warbreaker,if=buff.shattered_defenses.down
-            if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()) and getDistance(units.dyn5) < 5 and not moving and not buff.shatteredDefenses.exists() then
+            if (getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs())) and #enemies.yards5 > 0 and not buff.shatteredDefenses.exists() then
                 if cast.warbreaker("player") then usedWarbreaker = true; return end
             end
         -- Whirlwind
@@ -693,7 +694,7 @@ local function runRotation()
             end
         -- Warbreaker
             -- warbreaker,if=buff.shattered_defenses.down
-            if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()) and getDistance(units.dyn5) < 5 and not moving and not buff.shatteredDefenses.exists() then
+            if (getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs())) and #enemies.yards5 > 0 and not buff.shatteredDefenses.exists() then
                 if cast.warbreaker("player") then usedWarbreaker = true; return end
             end
         -- Focused Rage
@@ -825,7 +826,7 @@ local function runRotation()
                 end
             -- Warbreaker
                 -- warbreaker,if=debuff.colossus_smash.remains<gcd
-                if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()) and getDistance(units.dyn5) < 5 and not moving and debuff.colossusSmash.remain(units.dyn5) < gcd then
+                if (getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs())) and #enemies.yards5 > 0 and debuff.colossusSmash.remain(units.dyn5) < gcd then
                     if cast.warbreaker("player") then usedWarbreaker = true; return end
                 end
             -- Ravager

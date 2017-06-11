@@ -53,8 +53,6 @@ local function createOptions()
             br.ui:createDropdownWithout(section, "APL Mode", {"|cffFFFFFFSaintlySinner"}, 1, "|cffFFFFFFSet APL Mode to use.")
         -- Torment
             br.ui:createCheckbox(section,"Torment")
-        -- Imprison
-            br.ui:createCheckbox(section,"Imprison")
         br.ui:checkSectionState(section)
     -- Defensive Options
         section = br.ui:createSection(br.ui.window.profile, "Defensive")
@@ -62,8 +60,6 @@ local function createOptions()
             br.ui:createSpinner(section, "Pot/Stoned",  60,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
         -- Empower Wards
 			br.ui:createCheckbox(section, "Empower Wards")
-        -- Arcane Torrent
-            br.ui:createCheckbox(section, "Arcane Torrent")
         -- Metamorphosis
             br.ui:createCheckbox(section, "Metamorphosis")
         -- Soul Barrier
@@ -191,17 +187,6 @@ local function runRotation()
                     end
                 end
             end
-		-- Imprison
-            if isChecked("Imprison") then
-				for i = 1, #enemies.yards30 do
-					local thisUnit = enemies.yards30[i]
-					if UnitCreatureType(thisUnit) == "Humanoid" or UnitCreatureType(thisUnit) == "Demon" or UnitCreatureType(thisUnit) == "Beast" then
-						if getDistance(thisUnit) > 10 and isAggroed(thisUnit) and cd.sigilOfMisery > 0 and cd.sigilOfMisery < 45 then
-							if cast.imprison(thisUnit) then return end
-						end
-					end
-				end
-            end
 		end -- End Action List - Extras
 	-- Action List - Defensive
 		local function actionList_Defensive()
@@ -287,15 +272,6 @@ local function runRotation()
                 -- actions=auto_attack
                 if getDistance(units.dyn5) < 5 then
                     StartAttack()
-                end
-      -- Arcane Torrent
-                if useDefensive() and isChecked("Arcane Torrent") then
-					for i=1, #enemies.yards8 do
-                        thisUnit = enemies.yards8[i]
-                        if getDistance(thisUnit) < 8 then
-                            if cast.arcaneTorrent() then return end
-                        end
-                    end
                 end
     -- Fiery Brand
                 -- actions+=/fiery_brand,if=buff.demon_spikes.down&buff.metamorphosis.down

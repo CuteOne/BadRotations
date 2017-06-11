@@ -660,7 +660,7 @@ function talentAnywhere()
         for row = 1, 7 do
         	selectedTalent, newTalent, selectedNew  = talentSelection(row)
         end
-        ChatOverlay(tostring(selectedTalent).." | "..tostring(newTalent).." | "..tostring(selectedNew))
+        --ChatOverlay(tostring(selectedTalent).." | "..tostring(newTalent).." | "..tostring(selectedNew))
         if newTalent ~= nil then
 	        if selectedTalent ~= nil and selectedTalent ~= newTalent and not selectedNew and br.timer:useTimer("RemoveTalent", 0.1) then
 	        	removeTalent(selectedTalent)

@@ -184,3 +184,14 @@ function isInMelee(Unit)
     return false
   end
 end
+
+function inRange(spellID,unit)
+    local spellName = GetSpellInfo(spellID)
+    if unit == nil then unit = "target" end
+    local inRange = IsSpellInRange(spellName,unit)
+    if inRange ~= nil then
+        return IsSpellInRange(spellName,unit) == 1
+    else
+        return false
+    end
+end
