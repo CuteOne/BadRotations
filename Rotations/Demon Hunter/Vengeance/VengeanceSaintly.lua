@@ -320,7 +320,7 @@ local function runRotation()
 				if cast.soulCarver() then return end
     -- Spirit Bomb
                 -- actions+=/spirit_bomb,if=debuff.frailty.down
-                if not debuff.frailty.exists(units.dyn5) then
+                if not debuff.frailty.exists(units.dyn5) or buff.soulFragments.stack() == 5 then
                     if cast.spiritBomb() then return end
                 end
     -- Fel Devastation
@@ -344,7 +344,12 @@ local function runRotation()
 				end
     -- Sigil of Flame
                 -- actions+=/sigil_of_flame,if=remains-delay<=0.3*duration
-                if getDistance(units.dyn5) < 5 and not isMoving(units.dyn5) then
+                if talent.concentratedSigils and getDistance(units.dyn5) < 5 then
+                    if cast.sigilOfFlame() then return end
+                end
+    -- Sigil of Flame
+                -- actions+=/sigil_of_flame,if=remains-delay<=0.3*duration
+                if talent.quickenedSigils and getDistance(units.dyn5) < 5 and not isMoving(units.dyn5) then
                     if cast.sigilOfFlame("best",false,1,8) then return end
                 end
     -- Fracture
@@ -354,12 +359,12 @@ local function runRotation()
                 end
     -- Soul Cleave
                     -- actions+=/soul_cleave,if=soul_fragments=5
-                if talent.fracture and pain >= 60 and buff.soulFragments.stack() >= 5 then
+                if talent.fracture and not talent.spiritBomb and pain >= 60 and buff.soulFragments.stack() >= 5 then
                     if cast.soulCleave() then return end
                 end
     -- Soul Cleave
                     -- actions+=/soul_cleave,if=soul_fragments=5
-                if not talent.fracture and pain >= 80 or (buff.soulFragments.stack() >= 5 and pain >= 60) then
+                if not talent.fracture and talent.spiritBomb and pain >= 80 or (buff.soulFragments.stack() >= 5 and pain >= 60) then
                     if cast.soulCleave() then return end
                 end
     -- Soul Cleave
