@@ -360,7 +360,7 @@ br.idList = {
                 soulBarrier                 = 227225,
                 soulCleave                  = 228477,
                 soulCarver                  = 207407,
-                spiritBomb                  = 218679,
+                spiritBomb                  = 247454,
                 throwGlaive                 = 204157,
                 torment                     = 185245,
             },
@@ -385,7 +385,7 @@ br.idList = {
             },
             buffs                           = {
                 demonSpikes                 = 203819,
-                bladeTurning                = 203753,
+                bladeTurning                = 247254,
                 empowerWards                = 218256,
                 soulFragments               = 203981,
                 metamorphosis               = 187827,
@@ -393,7 +393,7 @@ br.idList = {
             },
             debuffs                         = {
                 fieryBrand                  = 207744,
-                frailty                     = 224509,
+                frailty                     = 247456,
                 sigilOfFlame                = 204598,
             },
             glyphs                          = {
@@ -402,9 +402,9 @@ br.idList = {
             talents                         = {
                 abyssalStrike               = 207550,
                 agonizingFlames             = 207548,
-                bladeTurning                = 203753,
+                bladeTurning                = 247254,
                 burningAlive                = 207739,
-                consentratedSigils          = 207666,
+                concentratedSigils          = 207666,
                 demonicInfusion             = 236189,
                 fallout                     = 227174,
                 feastofSouls                = 207697,
@@ -417,7 +417,7 @@ br.idList = {
                 sigilOfChains               = 202138,
                 soulBarrier                 = 227225,
                 soulRending                 = 217996,
-                spiritBomb                  = 218679,
+                spiritBomb                  = 247454,
             },
         },
         -- All
