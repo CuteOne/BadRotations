@@ -1914,7 +1914,6 @@ br.idList = {
                 bodyAndSoul                 = 64129,
                 castigation                 = 193134,
                 clarityOfWill               = 152118,
-                contrition                  = 197419,
                 divineStar                  = 110744,
                 dominantMind                = 205367,
                 grace                       = 200309,
