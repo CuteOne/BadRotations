@@ -515,13 +515,14 @@ local function runRotation()
                     end
             -- Boulderfist
                     -- boulderfist,if=buff.boulderfist.remains<gcd|(maelstrom<=50&active_enemies>=3)
-                    if buff.boulderfist.remain() < gcd or (power <= 50 and ((mode.rotation == 1 and #enemies.yards5 >= 3) or mode.rotation == 2)) then
+              --[[      if buff.boulderfist.remain() < gcd or (power <= 50 and ((mode.rotation == 1 and #enemies.yards5 >= 3) or mode.rotation == 2)) then
                         if cast.boulderfist() then return end
                     end
                     -- boulderfist,if=buff.boulderfist.remains<gcd|(charges_fractional>1.75&maelstrom<=100&active_enemies<=2)
                     if buff.boulderfist.remain() < gcd or (charges.frac.boulderfist > 1.75 and power <= 100 and #enemies.yards5 <= 2) then
                         if cast.boulderfist() then return end
                     end
+                    --]]
             -- Rockbiter
                     -- rockbiter,if=talent.landslide.enabled&buff.landslide.remains<gcd
                     if talent.landslide and buff.landslide.remain() < gcd then
