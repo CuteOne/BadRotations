@@ -97,8 +97,6 @@ local function createOptions()
             br.ui:createSpinner(section, "Frenzied Regeneration", 50, 0, 100, 5, "|cffFFBB00Health Loss Percentage to use at.")
         -- Ironfur
             br.ui:createCheckbox(section, "Ironfur")
-        -- Mark of Ursol
-            br.ui:createSpinner(section, "Mark of Ursol", 50, 0, 100, 5, "|cffFFBB00Health Percentage to use at.")
         -- Rage of the Sleeper
             br.ui:createSpinner(section, "Rage of the Sleeper", 50, 0, 100, 5, "|cffFFBB00Health Percentage to use at.")
         -- Rebirth
@@ -333,12 +331,6 @@ local function runRotation()
                 if isChecked("Frenzied Regeneration") then
                     if (snapLossHP >= getOptionValue("Frenzied Regeneration") or (snapLossHP > php and snapLossHP > 5)) and not buff.frenziedRegeneration.exists() then
                         if cast.frenziedRegeneration() then snapLossHP = 0; return end
-                    end
-                end
-        -- Mark of Ursol
-                if isChecked("Mark of Ursol") then
-                    if php <= getOptionValue("Mark of Ursol") and inCombat then
-                        if cast.markOfUrsol() then return end
                     end
                 end
         -- Rage of the Sleeper

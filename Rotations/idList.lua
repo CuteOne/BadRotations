@@ -576,7 +576,7 @@ br.idList = {
                 ironfur                     = 192081,
                 lunarBeam                   = 204066,
                 mangle                      = 33917,
-                markOfUrsol                 = 192083,
+                -- markOfUrsol                 = 192083, -- Removed in 7.2.5
                 maul                        = 6807,
                 pulverize                   = 80313,
                 rageOfTheSleeper            = 200851,
@@ -596,7 +596,7 @@ br.idList = {
                 goryFur                     = 201671,
                 incarnationGuardianOfUrsoc  = 102558,
                 ironfur                     = 192081,
-                markOfUrsol                 = 192083,
+                -- markOfUrsol                 = 192083, -- Removed in 7.2.5
                 pulverize                   = 158792,
                 survivalInstincts           = 61336,
             },
