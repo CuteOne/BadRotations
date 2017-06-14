@@ -239,6 +239,7 @@ local function runRotation()
         if castSummonId == nil then castSummonId = 0 end
         if summonTime == nil then summonTime = 0 end
         if effigied == nil then effigied = false; effigyCount = 0 end
+        if effigyCount == nil then effigyCount = 0 end
         if hasEquiped(144364) then reapAndSow = 1 else reapAndSow = 0 end
         if isBoss() then dotHPLimit = getOptionValue("Multi-Dot HP Limit")/10 else dotHPLimit = getOptionValue("Multi-Dot HP Limit") end
 
