@@ -433,11 +433,11 @@ local function runRotation()
     -- Action List - Finishers
         local function actionList_Finishers()
             -- Print("Finishers")
-        -- Enveloping Shadows
-            -- enveloping_shadows,if=buff.enveloping_shadows.remain()s<target.time_to_die&buff.enveloping_shadows.remain()s<=combo_points*1.8
-            if buff.envelopingShadows.remain() < ttd(units.dyn5) and buff.envelopingShadows.remain() <= combo * 1.8 then
-                if cast.envelopingShadows() then return end
-            end
+        -- -- Enveloping Shadows
+        --     -- enveloping_shadows,if=buff.enveloping_shadows.remain()s<target.time_to_die&buff.enveloping_shadows.remain()s<=combo_points*1.8
+        --     if buff.envelopingShadows.remain() < ttd(units.dyn5) and buff.envelopingShadows.remain() <= combo * 1.8 then
+        --         if cast.envelopingShadows() then return end
+        --     end
         -- Death from Above
             -- death_from_above,if=spell_targets.death_from_above>=6
             if #enemies.yards8 >= 6 then
