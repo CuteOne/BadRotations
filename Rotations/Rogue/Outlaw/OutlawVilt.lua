@@ -84,7 +84,7 @@ local function createOptions()
             -- KS
             br.ui:createCheckbox(section, "Killing Spree")
             -- RTB
-            br.ui:createDropdown(section, "RTB", {"|cff00FF003+/TB (Default)", "|cffFFDD002+/TB/SiW CDs", "|cffFF00001+"}, 1)
+            br.ui:createCheckbox(section, "RTB", "Roll for 2 with Loaded Dice")
             -- BF
             br.ui:createSpinnerWithout(section, "Blade Flurry Timer", 3, 0, 5, 1)
         br.ui:checkSectionState(section)
@@ -222,7 +222,10 @@ local function runRotation()
         end
 
         local function rtbReroll()
-            if getOptionValue("RTB") == 1 then
+            --rtb_reroll,value=!talent.slice_and_dice.enabled&rtb_buffs<2&buff.loaded_dice.up
+            return (not talent.sliceAndDice and buff.rollTheBones.count < 2 and buff.loadedDice.exists()) and true or false
+
+            --[[if getOptionValue("RTB") == 1 then
                 if not talent.sliceAndDice and (buff.rollTheBones.count >= 3 or buff.trueBearing.exists()) then
                     return false
                 else
@@ -242,23 +245,19 @@ local function runRotation()
                  else
                     return true
                 end
-            end
+            end]]
         end
 
         local function ssUsableNoReroll()
-            if combo < 5 + (talent.deeperStrategem and 1 or 0) - ((buff.broadsides.exists() or buff.jollyRoger.exists()) and 1 or 0) - ((talent.alacrity and buff.alacrity.stack() <= 4) and 1 or 0) then
-                return true
-            else
-                return false
-            end
+            return (combo < 5 + (talent.deeperStrategem and 1 or 0) - ((buff.broadsides.exists() or buff.jollyRoger.exists()) and 1 or 0) - ((talent.alacrity and buff.alacrity.stack() <= 4) and 1 or 0)) and true or false
         end
 
         local function ssUsable()
-            if ((talent.anticipation and combo < 5) or (not talent.anticipation and ((rtbReroll() and combo < 4 + (talent.deeperStrategem and 1 or 0)) or (not rtbReroll() and ssUsableNoReroll())))) then
-                return true
-            else
-                return false
-            end
+            return (((talent.anticipation and combo < 5) or (not talent.anticipation and ((rtbReroll() and combo < 4 + (talent.deeperStrategem and 1 or 0)) or (not rtbReroll() and ssUsableNoReroll()))))) and true or false
+        end
+
+        local function ambushCondition()
+            return (comboDeficit >= 2 + 2 * ((talent.ghostlyStrike and not debuff.ghostlyStrike.exists("target")) and 1 or 0) + (buff.broadsides.exists() and 1 or 0) and power >= 60 and not buff.jollyRoger.exists() and not buff.hiddenBlade.exists()) and true or false
         end
 
 --------------------
@@ -411,7 +410,7 @@ local function runRotation()
     -- Curse of the Dreadblades
             -- curse_of_the_dreadblades,if=combo_points.deficit>=4&(!talent.ghostly_strike.enabled|debuff.ghostly_strike.up)
             if isChecked("Artifact") and (cd.saberSlash == 0 or cd.pistolShot == 0) then
-                if comboDeficit >= 4 and (power >= 48 or buff.opportunity.exists()) and (not talent.ghostlyStrike or debuff.ghostlyStrike.exists(units.dyn5)) then
+                if comboDeficit >= 4 and (power >= 48 or buff.opportunity.exists() or buff.swordplay.exists()) and (not talent.ghostlyStrike or debuff.ghostlyStrike.exists(units.dyn5)) then
                     if cast.curseOfTheDreadblades() then return end
                 end
             end
@@ -460,6 +459,10 @@ local function runRotation()
         end -- End Action List - Finishers
     -- Action List - Build
         local function actionList_Build()
+        -- Ambush
+            if stealthingAll and ambushCondition() then
+                if cast.ambush() then return end
+            end
         -- Ghostly Strike
             -- ghostly_strike,if=combo_points.deficit>=1+buff.broadsides.up&!buff.curse_of_the_dreadblades.up&(debuff.ghostly_strike.remains<debuff.ghostly_strike.duration*0.3|(cooldown.curse_of_the_dreadblades.remains<3&debuff.ghostly_strike.remains<14))&(combo_points>=3|(variable.rtb_reroll&time>=10))
             if comboDeficit >= 1 + (buff.broadsides.exists() and 1 or 0) and not debuff.curseOfTheDreadblades.exists("player") and (debuff.ghostlyStrike.refresh("target") or (useCDs() and isChecked("Artifact") and cd.curseOfTheDreadblades < 3 and debuff.ghostlyStrike.remain("target") < 14)) and 
@@ -497,16 +500,7 @@ local function runRotation()
             end
         end
     -- Action List - Stealth
-        local function actionList_Stealth()
-            --ambush_condition,value=combo_points.deficit>=2+2*(talent.ghostly_strike.enabled&!debuff.ghostly_strike.up)+buff.broadsides.up&energy>60&!buff.jolly_roger.up&!buff.hidden_blade.up&!buff.curse_of_the_dreadblades.up
-            local function ambushCondition()
-                if combo >= 2 + 2 * ((talent.ghostlyStrike and not debuff.ghostlyStrike.exists("target")) and 1 or 0) + (buff.broadsides.exists() and 1 or 0) and
-                    power > 60 and not buff.jollyRoger.exists() and not buff.hiddenBlade.exists() and not debuff.curseOfTheDreadblades.exists("player") then
-                    return true
-                else
-                    return false
-                end
-            end
+        local function actionList_Stealth()            
         -- Ambush
             --ambush,if=variable.ambush_condition
             if stealthingAll then
@@ -514,26 +508,33 @@ local function runRotation()
                     if actionList_Finishers() then return end
                 elseif ambushCondition() then
                     if cast.ambush() then return end
-                else
+                elseif ssUsable() and not ambushCondition() then
                     if cast.saberSlash() then return end
                 end
             else
         -- Vanish
-                -- vanish,if=variable.ambush_condition|(equipped.mantle_of_the_master_assassin&mantle_duration=0&!variable.rtb_reroll&!variable.ss_useable)
-                if cd.vanish == 0 and useCDs() and isChecked("Vanish") and GetTime() >= vanishTime + cd.global and (ambushCondition() or (hasEquiped(144236) and mantleDuration() == 0 and not rtbReroll() and not ssUsable())) and isValidUnit("target") and getDistance("target") <= 5 then
-                    if power < 35 then
-                        return true
-                    else
-                        if cast.vanish() then vanishTime = GetTime(); return end
+                if cd.global <= getLatency() then
+                    -- vanish,if=variable.ambush_condition|(equipped.mantle_of_the_master_assassin&mantle_duration=0&!variable.rtb_reroll&!variable.ss_useable)
+                    if cd.vanish == 0 and useCDs() and isChecked("Vanish") and GetTime() >= vanishTime + cd.global and (ambushCondition() or (hasEquiped(144236) and mantleDuration() == 0 and not rtbReroll() and not ssUsable())) and isValidUnit("target") and getDistance("target") <= 5 then
+                        if power < 35 then
+                            return true
+                        else
+                            if cast.vanish() then 
+                            vanishTime = GetTime()
+                            if ambushCondition() then
+                                cast.ambush()
+                            end
+                            return end
+                        end
                     end
-                end
         -- Shadowmeld
-                -- shadowmeld,if=variable.ambush_condition
-                if cd.shadowmeld == 0 and useCDs() and isChecked("Racial") and GetTime() >= vanishTime + cd.global and cd.global <= getLatency() and race == "NightElf" and ambushCondition() and isValidUnit("target") and getDistance("target") <= 5 and not isMoving("player") then
-                    if power < 35 then
-                        return true
-                    else
-                        if cast.shadowmeld() then vanishTime = GetTime(); cast.ambush(); return end
+                    -- shadowmeld,if=variable.ambush_condition
+                    if cd.shadowmeld == 0 and useCDs() and isChecked("Racial") and GetTime() >= vanishTime + cd.global and race == "NightElf" and ambushCondition() and isValidUnit("target") and getDistance("target") <= 5 and not isMoving("player") then
+                        if power < 35 then
+                            return true
+                        else
+                            if cast.shadowmeld() then vanishTime = GetTime(); cast.ambush(); return end
+                        end
                     end
                 end
             end
@@ -576,18 +577,18 @@ local function runRotation()
 --- In Combat - Interrupts ---
 ------------------------------
                     if actionList_Interrupts() then return end
+                end
 -----------------------------
 --- In Combat - Cooldowns ---
 -----------------------------
-                    if useCDs() and getDistance("target") <= 6 and attacktar then
-                        if actionList_Cooldowns() then return end
-                    end
+                if useCDs() and getDistance("target") <= 6 and attacktar then
+                    if actionList_Cooldowns() then return end
                 end
 ---------------------------
 --- In Combat - Stealth ---
 ---------------------------
                     -- call_action_list,name=stealth,if=stealthed.rogue|cooldown.vanish.up|cooldown.shadowmeld.up
-                if (stealthingAll or cd.vanish == 0 or cd.shadowmeld == 0) and not solo then
+                if (stealthingAll or cd.vanish == 0 or cd.shadowmeld == 0) then
                     if actionList_Stealth() then return end
                 end
 ----------------------------------
