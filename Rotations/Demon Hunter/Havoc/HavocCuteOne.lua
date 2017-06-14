@@ -587,7 +587,7 @@ local function runRotation()
             end
         -- Fel Barrage
             -- fel_barrage,if=charges>=5&(buff.momentum.up|!talent.momentum.enabled)&(active_enemies>desired_targets|raid_event.adds.in>30)
-            if charges.felBarrage >= 5 and (buff.momentum.exists() or not talent.momentum) and (((mode.rotation == 1 and #enemies.yards8 >= getOptionValue("Units To AoE")) or mode.rotation == 2)) then
+            if (buff.momentum.exists() or not talent.momentum) and (((mode.rotation == 1 and #enemies.yards8 >= getOptionValue("Units To AoE")) or mode.rotation == 2)) then
                 if cast.felBarrage() then return end
             end
         -- Throw Glaive
