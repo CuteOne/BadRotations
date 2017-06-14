@@ -460,22 +460,69 @@ br.idList = {
         -- Balance
         [102] = {
             abilities                       = {
-
+                forceOfNature               = 205636,
+                blessingOfTheAncients       = 202360,
+                furyOfElune                 = 202770,
+                newMoon                     = 202767,
+                halfMoon                    = 202768,
+                fullMoon                    = 202771,
+                stellarFlare                = 202347,
+                sunfire                     = 93402,
+                incarnationChoseOfElune     = 102560,
+                starfall                    = 191034,
+                solarWrath                  = 190984,
+                lunarStrike                 = 194153,
+                starsurge                   = 78674,
+                warriorOfElune              = 202425,
+                solarBeam                   = 78675,
+                celestialAlignment          = 194223,
+                barkskin                    = 22812,
+                rejuvenation                = 774,
+                swiftmend                   = 18562,
+                innervate                   = 29166,
+                renewal                     = 108238,
+                wildCharge                  = 102383,
+                removeCorruption            = 2782,
             },
             artifacts                       = {
-
             },
             buffs                           = {
-
+                blessingOfElune             = 202737,
+                blessingOfAnshe             = 202739,
+                incarnationChoseOfElune     = 102560,
+                celestialAlignment          = 194223,
+                furyOfElune                 = 202770,
+                onethsOverconfidence        = 209407,
+                onethsIntuition             = 209406,
+                solarEmpowerment            = 164545,
+                lunarEmpowerment            = 164547,
+                warriorOfElune              = 202425,
+                balanceForm                 = 24858,
+                stellarDrift                = 202461,
+                emeraldDreamcatcher         = 208190,
+                rejuvenation                = 774,
+                barkskin                    = 22812,
+                owlkinFrenzy                = 157228,
             },
             debuffs                         = {
-
+                stellarFlare                = 202347,
+                moonfire                    = 164812,
+                sunfire                     = 164815,
             },
             glyphs                          = {
 
             },
             talents                         = {
-
+                forceOfNature               = 205636,
+                blessingOfTheAncients       = 202360,
+                incarnationChoseOfElune     = 102560,
+                furyOfElune                 = 202770,
+                stellarFlare                = 202347,
+                naturesBalance              = 202430,
+                astralCommunion             = 202359,
+                stellarDrift                = 202354,
+                warriorOfElune              = 202425,
+                soulOfTheForest             = 114107,
             },
         },
         -- Feral
@@ -729,74 +776,6 @@ br.idList = {
                 soulOfTheForest             = 158478,
                 springBlossoms              = 207385,
                 stonebark                   = 197061,
-            },
-        },
-        -- Balance
-        [102] = {
-            abilities                       = {
-                forceOfNature               = 205636,
-                blessingOfTheAncients       = 202360,
-                furyOfElune                 = 202770,
-                newMoon                     = 202767,
-                halfMoon                    = 202768,
-                fullMoon                    = 202771,
-                stellarFlare                = 202347,
-                sunfire                     = 93402,
-                incarnationChoseOfElune     = 102560,
-                starfall                    = 191034,
-                solarWrath                  = 190984,
-                lunarStrike                 = 194153,
-                starsurge                   = 78674,
-                warriorOfElune              = 202425,
-                solarBeam                   = 78675,
-                celestialAlignment          = 194223,
-                barkskin                    = 22812,
-                rejuvenation                = 774,
-                swiftmend                   = 18562,
-                innervate                   = 29166,
-                renewal                     = 108238,
-                wildCharge                  = 102383,
-                removeCorruption            = 2782,
-            },
-            artifacts                       = {
-            },
-            buffs                           = {
-                blessingOfElune             = 202737,
-                blessingOfAnshe             = 202739,
-                incarnationChoseOfElune     = 102560,
-                celestialAlignment          = 194223,
-                furyOfElune                 = 202770,
-                onethsOverconfidence        = 209407,
-                onethsIntuition             = 209406,
-                solarEmpowerment            = 164545,
-                lunarEmpowerment            = 164547,
-                warriorOfElune              = 202425,
-                balanceForm                 = 24858,
-                stellarDrift                = 202461,
-                emeraldDreamcatcher         = 208190,
-                rejuvenation                = 774,
-                barkskin                    = 22812,
-                owlkinFrenzy                = 157228,
-            },
-            debuffs                         = {
-                stellarFlare                = 202347,
-                moonfire                    = 164812,
-                sunfire                     = 164815,
-            },
-            glyphs                          = {
-
-            },
-            talents                         = {
-                forceOfNature               = 205636,
-                blessingOfTheAncients       = 202360,
-                incarnationChoseOfElune     = 102560,
-                furyOfElune                 = 202770,
-                stellarFlare                = 202347,
-                naturesBalance              = 202430,
-                astralCommunion             = 202359,
-                stellarDrift                = 202354,
-                warriorOfElune              = 202425,
-                soulOfTheForest             = 114107,
             },
         },
         -- All
@@ -2503,7 +2482,7 @@ br.idList = {
         [263] = {
             abilities                       = {
                 ascendance                  = 114051,
-                boulderfist                 = 246035,
+                -- boulderfist                 = 201897, -- Changed to Passive in Patch 7.2.5
                 cleanseSpirit               = 51886,
                 crashLightning              = 187874,
                 doomWinds                   = 204945,
@@ -2533,6 +2512,7 @@ br.idList = {
             },
             buffs                           = {
                 ascendance                  = 114051,
+                -- boulderfist                 = 218825, -- Changed to Passive in Patch 7.2.5
                 crashLightning              = 187874,
                 doomWinds                   = 204945,
                 flametongue                 = 194084,
@@ -2542,12 +2522,14 @@ br.idList = {
                 hailstorm                   = 210853,
                 hotHand                     = 215785,
                 landslide                   = 202004,
+                lightningCrash              = 242284, -- T20 - 2 piece buff
                 lightningShield             = 192106,
                 oldWar                      = 188028,
                 prolongedPower              = 229206,
                 stormbringer                = 201846,
             },
             debuffs                         = {
+                earthenSpike                = 188089,
                 frostbrand                  = 147732,
                 stormTempest                = 214265,
             },
@@ -2557,7 +2539,7 @@ br.idList = {
             talents                         = {
                 ancestralSwiftness          = 192087,
                 ascendance                  = 114051,
-                boulderfist                 = 246035,
+                boulderfist                 = 246035, -- 201897, Changed to Passive in Patch 7.2.5
                 crashingStorm               = 192246,
                 earthenSpike                = 188089,
                 empoweredStormLash          = 210731,
