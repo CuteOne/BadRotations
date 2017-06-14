@@ -485,6 +485,7 @@ br.idList = {
                 removeCorruption            = 2782,
             },
             artifacts                       = {
+
             },
             buffs                           = {
                 blessingOfElune             = 202737,
@@ -1801,8 +1802,8 @@ br.idList = {
                 crusaderStrike              = 35395,
                 divineShield                = 642,
                 flashOfLight                = 19750,
-				greaterBlessingOfKings		= 203538,
-				greaterBlessingOfWisdom		= 203539,
+                greaterBlessingOfKings      = 203538,
+                greaterBlessingOfWisdom     = 203539,
                 hammerOfJustice             = 853,
                 handOfReckoning             = 62124,
                 judgment                    = 20271,
@@ -2223,6 +2224,7 @@ br.idList = {
                 gunslinger                  = 202522,
                 hiddenBlade                 = 202573,
                 killingSpree                = 51690,
+                loadedDice                  = 238139,
                 sliceAndDice                = 5171,
             },
             buffs                           = {
@@ -2235,6 +2237,7 @@ br.idList = {
                 greenskinsWaterloggedWristcuffs = 209420,
                 hiddenBlade                 = 202754,
                 jollyRoger                  = 199603,
+                loadedDice                  = 240837,
                 opportunity                 = 195627,
                 rollTheBones                = {
                     broadsides              = 193356,
@@ -2277,7 +2280,7 @@ br.idList = {
             abilities                       = {
                 backstab                    = 53,
                 blind                       = 2094,
-                envelopingShadows           = 206237,
+                --envelopingShadows           = 206237,
                 evasion                     = 5277,
                 eviscerate                  = 196819,
                 gloomblade                  = 200758,
@@ -2316,7 +2319,7 @@ br.idList = {
                 theQuietKnife               = 197231,
             },
             buffs                           = {
-                envelopingShadows           = 206237,
+                --envelopingShadows           = 206237,
                 finalityEviscerate          = 197498,
                 finalityNightblade          = 197498,
                 masterOfSubtlety            = 31665,
@@ -2334,8 +2337,8 @@ br.idList = {
 
             },
             talents                         = {
-                envelopingShadows           = 206237,                
-                --PTR envelopingShadows           = 238104,
+                --envelopingShadows           = 206237,                
+                envelopingShadows           = 238104,
                 gloomblade                  = 200758,
                 masterOfShadows             = 196976,
                 masterOfSubtlety            = 31223,
