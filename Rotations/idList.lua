@@ -2250,6 +2250,7 @@ br.idList = {
                 sharkInfestedWaters         = 193357,
                 sliceAndDice                = 5171,
                 stealth                     = 1784,
+                swordplay                   = 211669,
                 trueBearing                 = 193359,
             },
             debuffs                         = {
