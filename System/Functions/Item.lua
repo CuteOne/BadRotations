@@ -371,6 +371,104 @@ function TierScan(thisTier)
 				138374, -- back
 			},
 		},
+		["T20"] = {
+			["DEATHKNIGHT"] = {
+				147124, -- head
+				147121, -- chest
+				147126, -- shoulder
+				147123, -- hands
+				147125, -- legs
+				147122, -- back
+			},
+			["DEMONHUNTER"] = {
+				147130, -- head
+				147127, -- chest
+				147132, -- shoulder
+				147129, -- hands
+				147131, -- legs
+				147128, -- back
+			},
+			["DRUID"] = {
+				147136, -- head
+				147133, -- chest
+				147138, -- shoulder
+				147135, -- hands
+				147137, -- legs
+				147134, -- back
+			},
+			["HUNTER"] = {
+				147142, -- head
+				147139, -- chest
+				147144, -- shoulder
+				147141, -- hands
+				147143, -- legs
+				147140, -- back
+			},
+			["MAGE"] = {
+				147147, -- head
+				147149, -- chest
+				147150, -- shoulder
+				147146, -- hands
+				147148, -- legs
+				147145, -- back
+			},
+			["MONK"] = {
+				147154, -- head
+				147151, -- chest
+				147156, -- shoulder
+				147153, -- hands
+				147155, -- legs
+				147152, -- back
+			},
+			["PALADIN"] = {
+				147160, -- head
+				147157, -- chest
+				147162, -- shoulder
+				147159, -- hands
+				147161, -- legs
+				147158, -- back
+			},
+			["PRIEST"] = {
+				147165, -- head
+				147167, -- chest
+				147168, -- shoulder
+				147164, -- hands
+				147166, -- legs
+				147163, -- back
+			},
+			["ROGUE"] = {
+				147172, -- head
+				147169, -- chest
+				147174, -- shoulder
+				147171, -- hands
+				147173, -- legs
+				147170, -- back
+			},
+			["SHAMAN"] = {
+				147178, -- head
+				147175, -- chest
+				147180, -- shoulder
+				147177, -- hands
+				147179, -- legs
+				147176, -- back
+			},
+			["WARLOCK"] = {
+				147183, -- head
+				147185, -- chest
+				147186, -- shoulder
+				147182, -- hands
+				147184, -- legs
+				147181, -- back
+			},
+			["WARRIOR"] = {
+				147190, -- head
+				147187, -- chest
+				147192, -- shoulder
+				147189, -- hands
+				147191, -- legs
+				147188, -- back
+			},
+		},
 	}
 	-- scan every items
 	for i=1, 19 do
