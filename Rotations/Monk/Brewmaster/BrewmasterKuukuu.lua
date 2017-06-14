@@ -51,7 +51,7 @@ local function createOptions()
         -- Provoke
             br.ui:createCheckbox(section, "Provoke","|cffFFFFFFAuto Provoke usage.")
         -- Opener
-            br.ui:createCheckbox(section, "Opener","|cffFFFFFFBest Ironskin Uptime at Start.")            
+         --   br.ui:createCheckbox(section, "Opener","|cffFFFFFFBest Ironskin Uptime at Start.")            
         -- Pre-Pull Timer
         --    br.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
         -- Purifying Brew
@@ -664,7 +664,7 @@ local function runRotation()
 --------------------------
 --- In Combat Rotation ---
 --------------------------
-            if isChecked("Opener") then
+         --[[   if isChecked("Opener") then
                 if opener == false and hastar and ((UnitReaction("target","player") == 2 and isBoss("target")) or isDummy("target")) and getDistance("target") < 10 and ((talent.blackoxBrew and cd.blackoxBrew <= gcd and charges.purifyingBrew == 3) or openerStarted == true) then
                     if actionList_Opener() then return end
                 elseif opener == false and openerStarted == false and hastar and (charges.purifyingBrew < 3 or (talent.blackoxBrew and cd.blackoxBrew >= gcd)) or not talent.blackoxBrew then
@@ -674,9 +674,9 @@ local function runRotation()
                 end
             else
                 opener = true
-            end
+            end--]]
         -- FIGHT!
-            if inCombat and not IsMounted() and profileStop==false and isValidUnit(units.dyn5) and opener == true then
+            if inCombat and not IsMounted() and profileStop==false and isValidUnit(units.dyn5)  then
     ------------------
     --- Interrupts ---
     ------------------
@@ -712,7 +712,9 @@ local function runRotation()
                         if cast.blackoxBrew() then return end
                     end
                 -- Ironskin Brew
-                    if ((charges.purifyingBrew > 1 and not buff.ironskinBrew.exists()) or charges.purifyingBrew == 3) and not buff.blackoutCombo.exists() then
+                    if ((charges.purifyingBrew > 1 and buff.ironskinBrew.remain() < 3) or charges.purifyingBrew == 3)  and not buff.blackoutCombo.exists() 
+                        and buff.ironskinBrew.remain() <= 21 
+                        then
                         if cast.ironskinBrew() then return end
                     end
                 -- Potion
