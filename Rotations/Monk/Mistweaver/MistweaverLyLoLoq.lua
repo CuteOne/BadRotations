@@ -310,8 +310,10 @@ local function runRotation()
             if isChecked("Refreshing Jade Wind") and talent.refreshingJadeWind and #friends.yards8 > 1 then
                 if cast.refreshingJadeWind() then return true end
             end
-            if isChecked("Essence Font") and #friends.yards25 > 5  then
-                if cast.essenceFont() then return true end
+            if cd.essenceFont == 0 then
+                if isChecked("Essence Font") and getLowAlliesInTable(getValue("Essence Font"), friends.yards25) >= getValue("Min Essence Font Targets")  then
+                    if cast.essenceFont() then return true end
+                end
             end
             if isChecked("Vivify") then
                 if cast.vivify(lowest.unit) then return true end
@@ -524,8 +526,10 @@ local function runRotation()
         if isChecked("Refreshing Jade Wind") and talent.refreshingJadeWind and getLowAlliesInTable(getValue("Refreshing Jade Wind"), friends.yards8) >= getValue("Min Refreshing Jade Wind Targets")  then
             if cast.refreshingJadeWind() then return true end
         end
-        if isChecked("Essence Font") and getLowAlliesInTable(getValue("Essence Font"), friends.yards25) >= getValue("Min Essence Font Targets")  then
-            if cast.essenceFont() then return true end
+        if cd.essenceFont == 0 then
+            if isChecked("Essence Font") and getLowAlliesInTable(getValue("Essence Font"), friends.yards25) >= getValue("Min Essence Font Targets")  then
+                if cast.essenceFont() then return true end
+            end
         end
         return false
     end--OK
@@ -624,16 +628,17 @@ local function runRotation()
             if actionList_Interrupt() then return true end
             if actionList_DPS() then return true end
         end
+        return false
         -----------
         --- END ---
         -----------
     end
---    if not executando and getSpellCD(spell.effuse) == 0 then
---    if botSpell == spell.envelopingMist or botSpell == spell.effuse or botSpell == spell.sheilunsGift or botSpell == spell.vivify or botSpell == spell.lifeCoccon or
+    --    if not executando and getSpellCD(spell.effuse) == 0 then
+    --    if botSpell == spell.envelopingMist or botSpell == spell.effuse or botSpell == spell.sheilunsGift or botSpell == spell.vivify or botSpell == spell.lifeCoccon or
     if br.timer:useTimer("debugMistweaver", 0.45)  then
---        executando = true
-        profile()
---        executando = false
+        --        executando = true
+        return profile()
+        --        executando = false
     end
     return true
 end
