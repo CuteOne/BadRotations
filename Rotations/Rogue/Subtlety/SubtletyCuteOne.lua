@@ -571,7 +571,7 @@ local function runRotation()
             -- Print("PreCombat")
         -- Stealth
             -- stealth
-            if isChecked("Stealth") and (not IsResting() or isDummy("target")) and not inCombat then
+            if isChecked("Stealth") and (not IsResting() or isDummy("target")) and not inCombat and not stealth then
                 if getOptionValue("Stealth") == 1 then
                     if cast.stealth() then return end
                 end
