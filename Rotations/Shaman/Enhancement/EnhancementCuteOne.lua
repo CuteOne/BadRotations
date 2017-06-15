@@ -589,7 +589,7 @@ local function runRotation()
         -- Crash Lightning
             -- crash_lightning,if=(talent.crashing_storm.enabled|active_enemies>=2)&debuff.earthen_spike.up&maelstrom>=40&variable.OCPool60
             if (talent.crashingStorm or ((mode.rotation == 1 and crashedEnemies >= 2) or mode.rotation == 2)) and debuff.earthenSpike.exists(units.dyn5) and power >= 40 and ocPool60 then
-                if cast.crashingLightning() then return end
+                if cast.crashLightning() then return end
             end
         -- Frostbrand
             -- frostbrand,if=talent.hailstorm.enabled&buff.frostbrand.remains<4.8&maelstrom>40
