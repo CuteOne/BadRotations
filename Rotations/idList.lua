@@ -2329,6 +2329,7 @@ br.idList = {
                 stealth                     = 115191,
                 symbolsOfDeath              = 212283,
                 theDreadlordsDeceit         = 228224,
+                theFirstOfTheDead           = 248210,
                 subterfuge                  = 115192,
             },
             debuffs                         = {
@@ -2337,8 +2338,8 @@ br.idList = {
             glyphs                          = {
 
             },
-            talents                         = {
-                --envelopingShadows           = 206237,                
+            talents                         = { 
+                darkShadow                  = 245687,               
                 envelopingShadows           = 238104,
                 gloomblade                  = 200758,
                 masterOfShadows             = 196976,
