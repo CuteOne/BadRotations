@@ -84,6 +84,8 @@ local function createOptions()
             br.ui:createCheckbox(section,"Racial")
             -- Trinkets
             br.ui:createCheckbox(section,"Trinkets")
+            -- Death From Above
+            br.ui:createCheckbox(section, "Death From Above")
             -- Marked For Death
             br.ui:createDropdown(section, "Marked For Death", {"|cff00FF00Target", "|cffFFDD00Lowest"}, 1, "|cffFFBB00Health Percentage to use at.")
             -- Shadow Blades
@@ -471,7 +473,7 @@ local function runRotation()
             -- Print("Finishers")
         -- Death from Above
             -- death_from_above,if=spell_targets.death_from_above>=5
-            if #enemies.yards8 >= 5 then
+            if isChecked("Death From Above") and #enemies.yards8 >= 5 then
                 if cast.deathFromAbove() then return end
             end
         -- Night Blade
@@ -496,7 +498,9 @@ local function runRotation()
             end
         -- Death from Above
             -- death_from_above
-            if cast.deathFromAbove() then return end
+            if isChecked("Death From Above") then
+                if cast.deathFromAbove() then return end
+            end
         -- Eviscerate
             -- eviscerate
             if cast.eviscerate() then return end
