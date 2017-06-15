@@ -86,6 +86,8 @@ local function createOptions()
             br.ui:createCheckbox(section,"Trinkets")
             -- Marked For Death
             br.ui:createDropdown(section, "Marked For Death", {"|cff00FF00Target", "|cffFFDD00Lowest"}, 1, "|cffFFBB00Health Percentage to use at.")
+            -- Shadow Blades
+            br.ui:createCheckbox(section, "Shadow Blades")
             -- Shadow Dance
             br.ui:createCheckbox(section, "Shadow Dance")
             -- Vanish
@@ -398,7 +400,7 @@ local function runRotation()
                 end
         -- Shadow Blades
                 -- shadow_blades,if=combo_points.deficit>=2+stealthed.all-equipped.mantle_of_the_master_assassin
-                if combo >= 2 + stealthedAll - mantleMaster then
+                if isChecked("Shadow Blades") and combo >= 2 + stealthedAll - mantleMaster then
                     if cast.shadowBlades() then return end
                 end
         -- Goremaws Bite
