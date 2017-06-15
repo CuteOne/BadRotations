@@ -195,7 +195,6 @@ local function runRotation()
     local units                                         = units or {}
 
     enemies.yards40 = br.player.enemies(40)
-    enemies.yards40 = br.player.enemies(40)
 
 
     if isChecked("Dynamic Targetting") then
@@ -222,7 +221,7 @@ local function runRotation()
         activeMoon = 3
     end
 
-    if not inCombat and not GetObjectExists("target") then
+    if not inCombat and not GetObjectExists(target) then
         SW = false
         MM1 = false
         MF = false
@@ -248,7 +247,7 @@ local function runRotation()
         LS2 = false
         LS3 = false
     end
-    if talent.stellarDrift then starfallRadius = 19.5 else starfallRadius = 15 end
+    if talent.stellarDrift then starfallRadius = 15*1.5 else starfallRadius = 15 end
     if not inCombat and not hastar and profileStop==true then
         profileStop = false
     end
