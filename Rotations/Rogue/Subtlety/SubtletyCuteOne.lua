@@ -38,12 +38,12 @@ local function createToggles()
     };
     CreateButton("Cleave",5,0)
 -- Pick Pocket Button
-    PickerModes = {
-      [1] = { mode = "Auto", value = 2 , overlay = "Auto Pick Pocket Enabled", tip = "Profile will attempt to Pick Pocket prior to combat.", highlight = 1, icon = br.player.spell.pickPocket},
-      [2] = { mode = "Only", value = 1 , overlay = "Only Pick Pocket Enabled", tip = "Profile will attempt to Sap and only Pick Pocket, no combat.", highlight = 0, icon = br.player.spell.pickPocket},
+    PickPocketModes = {
+      [1] = { mode = "Auto", value = 1 , overlay = "Auto Pick Pocket Enabled", tip = "Profile will attempt to Pick Pocket prior to combat.", highlight = 1, icon = br.player.spell.pickPocket},
+      [2] = { mode = "Only", value = 2 , overlay = "Only Pick Pocket Enabled", tip = "Profile will attempt to Sap and only Pick Pocket, no combat.", highlight = 0, icon = br.player.spell.pickPocket},
       [3] = { mode = "Off", value = 3, overlay = "Pick Pocket Disabled", tip = "Profile will not use Pick Pocket.", highlight = 0, icon = br.player.spell.pickPocket}
     };
-    CreateButton("Picker",6,0)
+    CreateButton("PickPocket",6,0)
 end
 
 ---------------
@@ -144,7 +144,7 @@ local function createOptions()
             -- Cleave Toggle
             br.ui:createDropdown(section,  "Cleave Mode", br.dropOptions.Toggle,  6)
             -- Pick Pocket Toggle
-            br.ui:createDropdown(section,  "Pick Pocket Mode", br.dropOptions.Toggle,  6)
+            br.ui:createDropdown(section,  "PickPocket Mode", br.dropOptions.Toggle,  6)
             -- Pause Toggle
             br.ui:createDropdown(section,  "Pause Mode", br.dropOptions.Toggle,  6)
         br.ui:checkSectionState(section)
@@ -172,8 +172,8 @@ local function runRotation()
         UpdateToggle("Interrupt",0.25)
         UpdateToggle("Cleave",0.25)
         br.player.mode.cleave = br.data.settings[br.selectedSpec].toggles["Cleave"]
-        UpdateToggle("Picker",0.25)
-        br.player.mode.pickPocket = br.data.settings[br.selectedSpec].toggles["Picker"]
+        UpdateToggle("PickPocket",0.25)
+        br.player.mode.pickPocket = br.data.settings[br.selectedSpec].toggles["PickPocket"]
 
 --------------
 --- Locals ---
