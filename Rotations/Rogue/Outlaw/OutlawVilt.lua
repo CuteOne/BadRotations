@@ -35,6 +35,12 @@ local function createToggles()
         [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.kick}
     };
     CreateButton("Interrupt",5,0)
+    MFDModes = {
+        [1] = { mode = "Tgt", value = 1 , overlay = "Target", tip = "Will MFD Target", highlight = 1, icon = br.player.spell.markedForDeath},
+        [2] = { mode = "Adds", value = 2 , overlay = "Adds", tip = "Will MFD Adds", highlight = 1, icon = br.player.spell.markedForDeath},
+        [3] = { mode = "Off", value = 2 , overlay = "Off", tip = "Will not MFD", highlight = 0, icon = br.player.spell.markedForDeath}
+    };
+    CreateButton("MFD",6,0)
 end
 
 ---------------
@@ -72,7 +78,7 @@ local function createOptions()
                 br.ui:createCheckbox(section, "Legendary Boots Logic")
             end
             -- Marked For Death
-            br.ui:createDropdown(section, "Marked For Death", {"|cff00FF00Target", "|cffFFDD00Lowest"}, 1)
+            --br.ui:createDropdown(section, "Marked For Death", {"|cff00FF00Target", "|cffFFDD00Lowest"}, 1)
             -- Vanish
             br.ui:createCheckbox(section, "Vanish")
             -- Racial
@@ -134,6 +140,7 @@ local function createOptions()
             br.ui:createDropdown(section,  "Interrupt Mode", br.dropOptions.Toggle,  6)
             -- Cleave Toggle
             br.ui:createDropdown(section,  "BladeFlurry Mode", br.dropOptions.Toggle,  6)
+            br.ui:createDropdown(section,  "MFD Mode", br.dropOptions.Toggle,  6)
             -- Pause Toggle
             br.ui:createDropdown(section,  "Pause Mode", br.dropOptions.Toggle,  6)
         br.ui:checkSectionState(section)
@@ -161,7 +168,9 @@ local function runRotation()
         UpdateToggle("Defensive",0.25)
         UpdateToggle("Interrupt",0.25)
         UpdateToggle("BladeFlurry",0.25)
-        br.player.mode.cleave = br.data.settings[br.selectedSpec].toggles["BladeFlurry"]
+        br.player.mode.bladeflurry = br.data.settings[br.selectedSpec].toggles["BladeFlurry"]
+        UpdateToggle("MFD",0.25)
+        br.player.mode.mfd = br.data.settings[br.selectedSpec].toggles["MFD"]
 
 --------------
 --- Locals ---
@@ -351,9 +360,11 @@ local function runRotation()
                     CastSpellByName(GetSpellInfo(spell.bladeFlurry),"player");
                 end
             end
-            -- blade_flurry,if=spell_targets.blade_flurry>=2&!buff.blade_flurry.up
-            if #getEnemies("player",7) >= 2 and not buff.bladeFlurry.exists() then
-                CastSpellByName(GetSpellInfo(spell.bladeFlurry),"player");
+            if mode.bladeflurry == 1 then 
+                -- blade_flurry,if=spell_targets.blade_flurry>=2&!buff.blade_flurry.up
+                if #getEnemies("player",7) >= 2 and not buff.bladeFlurry.exists() then
+                    CastSpellByName(GetSpellInfo(spell.bladeFlurry),"player");
+                end
             end
         end
     -- Action List - Cooldowns
@@ -513,7 +524,7 @@ local function runRotation()
                 end
             else
         -- Vanish
-                if cd.global <= getLatency() then
+                if cd.global <= getLatency() and not solo then
                     -- vanish,if=variable.ambush_condition|(equipped.mantle_of_the_master_assassin&mantle_duration=0&!variable.rtb_reroll&!variable.ss_useable)
                     if cd.vanish == 0 and useCDs() and isChecked("Vanish") and GetTime() >= vanishTime + cd.global and (ambushCondition() or (hasEquiped(144236) and mantleDuration() == 0 and not rtbReroll() and not ssUsable())) and isValidUnit("target") and getDistance("target") <= 5 then
                         if power < 35 then
@@ -526,10 +537,9 @@ local function runRotation()
                             end
                             return end
                         end
-                    end
         -- Shadowmeld
                     -- shadowmeld,if=variable.ambush_condition
-                    if cd.shadowmeld == 0 and useCDs() and isChecked("Racial") and GetTime() >= vanishTime + cd.global and race == "NightElf" and ambushCondition() and isValidUnit("target") and getDistance("target") <= 5 and not isMoving("player") then
+                    elseif cd.shadowmeld == 0 and useCDs() and isChecked("Racial") and GetTime() >= vanishTime + cd.global and race == "NightElf" and ambushCondition() and isValidUnit("target") and getDistance("target") <= 5 and not isMoving("player") then
                         if power < 35 then
                             return true
                         else
@@ -571,7 +581,7 @@ local function runRotation()
 --------------------------
 --- In Combat Rotation ---
 --------------------------
-            if inCombat and (isValidUnit(units.dyn5) or isValidUnit("target")) then
+            if inCombat and isValidUnit(units.dyn5) then
                 if not stealthingAll or level < 5 then
 ------------------------------
 --- In Combat - Interrupts ---
@@ -597,12 +607,12 @@ local function runRotation()
                 -- if not buff.stealth and not buff.vanish and not buff.shadowmeld and GetTime() > vanishTime + 2 and getDistance(units.dyn5) < 5 then
                 if not stealthingAll then
                 -- Marked for Death
-                    if isChecked("Marked For Death") then
-                        if getOptionValue("Marked For Death") == 1 then                            
+                    --if isChecked("Marked For Death") then
+                        if mode.mfd == 1 then                            
                             if comboDeficit >= ComboMaxSpend() - 1 then
                                 if cast.markedForDeath("target") then return end
                             end
-                        elseif getOptionValue("Marked For Death") == 2 then
+                        elseif mode.mfd == 2 then
                             for i = 1, #enemies.yards30 do
                                 local thisUnit = enemies.yards30[i]
                                 if comboDeficit >= 6 then comboDeficit = ComboMaxSpend() end
@@ -613,7 +623,7 @@ local function runRotation()
                                 end
                             end
                         end
-                    end
+                    --end
         -- Death from Above
                         -- death_from_above,if=energy.time_to_max>2&!variable.ss_useable_noreroll
                     if ttm > 2 and not ssUsableNoReroll() then
