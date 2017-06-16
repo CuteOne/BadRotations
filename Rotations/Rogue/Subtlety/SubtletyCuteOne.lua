@@ -76,7 +76,7 @@ local function createOptions()
             --br.ui:createCheckbox(section, "Legendary Ring")
             br.ui:createCheckbox(section, "Marked For Death - Precombat")
             br.ui:createCheckbox(section, "Symbols of Death - Precombat")
-            -- Crimson Vial
+            -- Shadow Strike
             br.ui:createSpinnerWithout(section, "SS Range",  5,  5,  15,  1,  "|cffFFBB00Shadow Strike range, 5 = Melee")
             --Shuriken Toss OOR
             br.ui:createSpinner(section, "Shuriken Toss OOR",  85,  5,  100,  5,  "|cffFFBB00Check to use Shuriken Toss out of range and energy to use at.")
@@ -84,6 +84,8 @@ local function createOptions()
             br.ui:createCheckbox(section,"Racial")
             -- Trinkets
             br.ui:createCheckbox(section,"Trinkets")
+            -- Artifact
+            br.ui:createDropdownWithout(section,"Artifact", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Artifact Ability.")
             -- Death From Above
             br.ui:createCheckbox(section, "Death From Above")
             -- Marked For Death
@@ -371,20 +373,32 @@ local function runRotation()
     -- Action List - Cooldowns
         local function actionList_Cooldowns()
             -- Print("Cooldowns")
-            if useCDs() and getDistance(units.dyn5) < 5 then
+            if getDistance(units.dyn5) < 5 then
         -- Potion
                 -- potion,if=buff.bloodlust.react|target.time_to_die<=25|buff.shadow_blades.up
-                if isChecked("Agi-Pot") and canUse(127844) and inRaid then
+                if useCDs() and isChecked("Agi-Pot") and canUse(127844) and inRaid then
                     if ttd(units.dyn5) <= 25 or buff.shadowBlades.exists() or hasBloodLust() then
                         useItem(127844)
                     end
                 end
+        -- Draught of Souls
+                -- use_item,name=draught_of_souls,if=!stealthed.rogue&energy.deficit>30+talent.vigor.enabled*10
+                if useCDs() and isChecked("Trinkets") and hasEquiped(140808) and canUse(140808) then
+                    if not stealthingRogue and powerDeficit > 30 + vigorous * 10 then
+                        useItem(140808)
+                    end
+                end
+        -- Specter of Betrayal
+                -- use_item,name=specter_of_betrayal
+                if useCDs() and isChecked("Trinkets") and hasEquiped(151190) and canUse(151190) then
+                    useItem(151190)
+                end
         -- Trinkets
-                if isChecked("Trinkets") then
-                    if canUse(13) then
+                if useCDs() and isChecked("Trinkets") then
+                    if canUse(13) and not (hasEquiped(140808, 13) or hasEquiped(151190, 13)) then
                         useItem(13)
                     end
-                    if canUse(14) then
+                    if canUse(14) and not (hasEquiped(140808, 14) or hasEquiped(151190, 14)) then
                         useItem(14)
                     end
                 end
@@ -392,7 +406,7 @@ local function runRotation()
                 -- blood_fury,if=stealthed.rogue
                 -- berserking,if=stealthed.rogue
                 -- arcane_torrent,if=stealthed.rogue&energy.deficit>70
-                if isChecked("Racial") and stealthingRogue and (race == "Orc" or race == "Troll" or (race == "BloodElf" and powerDeficit > 70)) then
+                if useCDs() and isChecked("Racial") and stealthingRogue and (race == "Orc" or race == "Troll" or (race == "BloodElf" and powerDeficit > 70)) then
                     if castSpell("player",racial,false,false,false) then return end
                 end
         -- Symbols of Death
@@ -402,15 +416,17 @@ local function runRotation()
                 end
         -- Shadow Blades
                 -- shadow_blades,if=combo_points.deficit>=2+stealthed.all-equipped.mantle_of_the_master_assassin
-                if isChecked("Shadow Blades") and combo >= 2 + stealthedAll - mantleMaster then
+                if useCDs() and isChecked("Shadow Blades") and combo >= 2 + stealthedAll - mantleMaster then
                     if cast.shadowBlades() then return end
                 end
         -- Goremaws Bite
                 -- goremaws_bite,if=!stealthed.all&cooldown.shadow_dance.charges_fractional<=variable.shd_fractionnal&((combo_points.deficit>=4-(time<10)*2&energy.deficit>50+talent.vigor.enabled*25-(time>=10)*15)|(combo_points.deficit>=1&target.time_to_die<8))
-                if not stealthingAll and charges.frac.shadowDance <= shdFrac and ((comboDeficit >= 4 - justStarted * 2 and powerDeficit > 50 + vigorous * 25 - justStarted * 15) 
-                    or (comboDeficit >= 1 and ttd(units.dyn5) < 8)) 
-                then
-                    if cast.goremawsBite() then return end
+                if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()) and cd.goremawsBite == 0 then 
+                    if not stealthingAll and charges.frac.shadowDance <= shdFrac 
+                        and ((comboDeficit >= 4 - justStarted * 2 and powerDeficit > 50 + vigorous * 25 - justStarted * 15) or (comboDeficit >= 1 and ttd(units.dyn5) < 8)) 
+                    then
+                        if cast.goremawsBite() then return end
+                    end
                 end
         -- Marked For Death
                 -- marked_for_death,target_if=min:target.time_to_die,if=target.time_to_die<combo_points.deficit|(raid_event.adds.in>40&combo_points.deficit>=cp_max_spend)
@@ -584,7 +600,7 @@ local function runRotation()
                     end
                 end
             end
-            if isValidUnit("target") then
+            if isValidUnit("target") and mode.pickPocket ~= 2 then
         -- Potion
                 -- potion
                 if stealth then
@@ -658,10 +674,6 @@ local function runRotation()
 --- In Combat - Interrupts ---
 ------------------------------
                 if actionList_Interrupts() then return end
------------------------------
---- In Combat - Cooldowns ---
------------------------------
-                -- if actionList_Cooldowns() then return end
 ----------------------------------
 --- In Combat - Begin Rotation ---
 ----------------------------------
@@ -681,28 +693,27 @@ local function runRotation()
                     -- run_action_list,name=stealthed,if=stealthed|buff.shadowmeld.up
                     if stealthingAll then
                         if actionList_Stealthed() then return end
-                    else
+                    end
         -- Nightblade
-                        -- nightblade,if=target.time_to_die>8&remains<gcd.max&combo_points>=4
-                        if ttd(units.dyn5) > 8 and debuff.nightblade.remain(units.dyn5) < gcd and combo >= 4 then
-                            if cast.nightblade() then return end
-                        end
+                    -- nightblade,if=target.time_to_die>8&remains<gcd.max&combo_points>=4
+                    if ttd(units.dyn5) > 8 and debuff.nightblade.remain(units.dyn5) < gcd and combo >= 4 then
+                        if cast.nightblade() then return end
+                    end
         -- Starter
-                        -- call_action_list,name=stealth_als,if=(combo_points.deficit>=3|cooldown.shadow_dance.charges_fractional>=2.9)&(!talent.dark_shadow.enabled|cooldown.shadow_dance.charges_fractional>=1.9|dot.nightblade.remains>4+talent.subterfuge.enabled)
-                        if (comboDeficit >= 3 or charges.frac.shadowDance >= 2.9) and (not talent.darkShadow or charges.frac.shadowDance >= 1.9 or debuff.nightblade.remain(units.dyn5) > 4 + subty) then
-                            if actionList_Starter() then return end
-                        end
+                    -- call_action_list,name=stealth_als,if=(combo_points.deficit>=3&(!talent.dark_shadow.enabled|dot.nightblade.remains>4+talent.subterfuge.enabled|cooldown.shadow_dance.charges_fractional>=1.9))|cooldown.shadow_dance.charges_fractional>=2.9
+                    if (comboDeficit >= 3 and (not talent.darkShadow or debuff.nightblade.remain(units.dyn5) > 4 + subty or charges.frac.shadowDance >= 1.9)) or charges.frac.shadowDance >= 2.9 then
+                        if actionList_Starter() then return end
+                    end
         -- Finishers
-                        -- call_action_list,name=finish,if=combo_points>=5|(combo_points>=4&combo_points.deficit<=2&spell_targets.shuriken_storm>=3&spell_targets.shuriken_storm<=4)
-                        if combo >= 5 or (combo >= 4 and comboDeficit <= 2 and #enemies.yards10 >= 3 and #enemies.yards10 <= 4) then
-                            if actionList_Finishers() then return end
-                        end
+                    -- call_action_list,name=finish,if=combo_points>=5|(combo_points>=4&combo_points.deficit<=2&spell_targets.shuriken_storm>=3&spell_targets.shuriken_storm<=4)
+                    if combo >= 5 or (combo >= 4 and comboDeficit <= 2 and #enemies.yards10 >= 3 and #enemies.yards10 <= 4) then
+                        if actionList_Finishers() then return end
+                    end
         -- Generators
-                        -- call_action_list,name=build,if=energy.deficit<=variable.stealth_threshold
-                        -- if GetTime() > vanishTime + 1 and GetTime() > ShDCdTime + 1 and GetTime() > ShdMTime + 1 and edThreshVar then
-                        if powerDeficit <= stealthThreshold then
-                            if actionList_Generators() then return end
-                        end
+                    -- call_action_list,name=build,if=energy.deficit<=variable.stealth_threshold
+                    -- if GetTime() > vanishTime + 1 and GetTime() > ShDCdTime + 1 and GetTime() > ShdMTime + 1 and edThreshVar then
+                    if powerDeficit <= stealthThreshold then
+                        if actionList_Generators() then return end
                     end
                 end
             end -- End In Combat
