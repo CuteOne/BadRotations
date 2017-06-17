@@ -9,6 +9,7 @@ local colorRed      = "|cffFF0000"
 local colorWhite    = "|cffFFFFFF"
 local colorGold     = "|cffFFDD11"
 local colorLegendary= "|cffff8000"
+local colorBlueMage = "|cff68ccef"
 
 ---------------
 --- Toggles ---
@@ -62,8 +63,6 @@ local function createOptions()
         br.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  colorWhite.."Set to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
         br.ui:createDropdownWithout(section, "Artifact", {colorWhite.."Everything",colorWhite.."Cooldowns",colorWhite.."Never"}, 1, colorWhite.."When to use Artifact Ability.")
         br.ui:createSpinnerWithout(section, "AOE targets",  3,  1,  100,  1,  "Minimum AOE targets. Min: 1 / Max: 100")
-
-
         br.ui:checkSectionState(section)
         ------------------------
         --- COOLDOWN OPTIONS --- -- Define Cooldown Options
@@ -71,13 +70,14 @@ local function createOptions()
         section = br.ui:createSection(br.ui.window.profile,  "Cooldowns")
         br.ui:createCheckbox(section, "Potion")
         br.ui:createCheckbox(section,"Flask / Crystal")
-        br.ui:createCheckbox(section, "Rune of Power")
-        br.ui:createCheckbox(section, "Mirror Image")
         br.ui:createCheckbox(section, "Use Pet Spells")
-        br.ui:createCheckbox(section, "Icy Veins")
-        br.ui:createCheckbox(section, "Ray of Frost")
-        br.ui:createCheckbox(section, "Frozen Orb")
-        br.ui:createCheckbox(section, "Comet Storm")
+        br.ui:createCheckbox(section, colorBlueMage.."Rune of Power")
+        br.ui:createCheckbox(section, colorBlueMage.."Mirror Image")
+        br.ui:createCheckbox(section, colorBlueMage.."Icy Veins")
+        br.ui:createCheckbox(section, colorBlueMage.."Ray of Frost")
+        br.ui:createCheckbox(section, colorBlueMage.."Frozen Orb")
+        br.ui:createCheckbox(section, colorBlueMage.."Comet Storm")
+        br.ui:createCheckbox(section, colorBlueMage.."Cone of Cold")
         br.ui:checkSectionState(section)
         -------------------------
         --- DEFENSIVE OPTIONS --- -- Define Defensive Options
@@ -86,9 +86,9 @@ local function createOptions()
         br.ui:createSpinner(section, "Pot/Stoned",  50,  0,  100,  5,  colorRed.."Health Percent to Cast At")
         br.ui:createSpinner(section, "Heirloom Neck",  60,  0,  100,  5,  colorRed.."Health Percentage to use at.")
         br.ui:createSpinner(section, "Shield-o-tronic",  50,  0,  100,  5,  colorRed.."Health Percent to Cast At")
-        br.ui:createSpinner(section, "Ice Barrier",  100,  0,  100,  5,  colorRed.."Health Percent to Cast At")
-        br.ui:createSpinner(section, "Ice Block",  100,  0,  100,  5,  colorRed.."Health Percent to Cast At")
-        br.ui:createCheckbox(section, "Cold Snap", colorWhite.."Use Cold Snap to reset Ice Block")
+        br.ui:createSpinner(section, colorBlueMage.."Ice Barrier",  80,  0,  100,  5,  colorRed.."Health Percent to Cast At")
+        br.ui:createSpinner(section, colorBlueMage.."Ice Block",  20,  0,  100,  5,  colorRed.."Health Percent to Cast At")
+        br.ui:createCheckbox(section, colorBlueMage.."Cold Snap", colorWhite.."Use Cold Snap to reset Ice Block")
         br.ui:checkSectionState(section)
         -------------------------
         --- INTERRUPT OPTIONS --- -- Define Interrupt Options
@@ -237,13 +237,13 @@ local function runRotation()
             end
 
             --Ice Barrier
-            if isChecked("Ice Barrier") and health <= getValue("Ice Barrier") and inCombat and not buff.iceBarrier.exists() and lastCast ~= spell.waterJet then
+            if isChecked(colorBlueMage.."Ice Barrier") and health <= getValue(colorBlueMage.."Ice Barrier") and inCombat and not buff.iceBarrier.exists() and lastCast ~= spell.waterJet then
                 if cast.iceBarrier("player") then return true end
             end
 
             --Ice Barrier
-            if isChecked("Ice Block") and health <= getValue("Ice Block") and inCombat then
-                if isChecked("Cold Snap") and cd.iceBlock > 0 then
+            if isChecked(colorBlueMage.."Ice Block") and health <= getValue(colorBlueMage.."Ice Block") and inCombat then
+                if isChecked(colorBlueMage.."Cold Snap") and cd.iceBlock > 0 then
                     if cast.coldSnap("player") then return true end
                 end
                 if cast.iceBlock("player") then return true end
@@ -258,7 +258,7 @@ local function runRotation()
             if isChecked("Pre-Pull Timer") and pullTimer <= getOptionValue("Pre-Pull Timer") or inCombat then
                 --actions.precombat+=/mirror_image
                 if not MI then
-                    if talent.mirrorImage and cd.mirrorImage and useCDs() and isChecked("Mirror Image") then
+                    if talent.mirrorImage and cd.mirrorImage and useCDs() and isChecked(colorBlueMage.."Mirror Image") then
                         seq = seq + 1
                         if castOpener("mirrorImage","MI",seq, false) then return true end
                     else
@@ -321,7 +321,7 @@ local function runRotation()
 
                 --mirror image
                 if not MI then
-                    if talent.mirrorImage and cd.mirrorImage and useCDs() and isChecked("Mirror Image") then
+                    if talent.mirrorImage and cd.mirrorImage and useCDs() and isChecked(colorBlueMage.."Mirror Image") then
                         seq = seq + 1
                         if castOpener("mirrorImage","MI",seq, false) then return true end
                     else
@@ -336,7 +336,7 @@ local function runRotation()
             if inCombat then
                 --rune of power
                 if not ROP then
-                    if talent.runeOfPower and charges.runeOfPower > 0 and useCDs() and isChecked("Rune of Power") and not buff.runeOfPower.exists() then
+                    if talent.runeOfPower and charges.runeOfPower > 0 and useCDs() and isChecked(colorBlueMage.."Rune of Power") and not buff.runeOfPower.exists() then
                         seq = seq + 1
                         if castOpener("runeOfPower","ROP",seq) then return true end
                     else
@@ -344,7 +344,7 @@ local function runRotation()
                     end
                     --icy veins
                 elseif not IV then
-                    if cd.icyVeins == 0 and useCDs() and isChecked("Icy Veins") then
+                    if cd.icyVeins == 0 and useCDs() and isChecked(colorBlueMage.."Icy Veins") then
                         seq = seq + 1
                         if castOpener("icyVeins","IV",seq,false) then return true end
                     else
@@ -364,7 +364,7 @@ local function runRotation()
                     if castOpener("iceLance","IL",seq) then return true end
                     --frozen orb
                 elseif not FRO then
-                    if cd.frozenOrb == 0 and useCDs() and isChecked("Frozen Orb") then
+                    if cd.frozenOrb == 0 and useCDs() and isChecked(colorBlueMage.."Frozen Orb") then
                         seq = seq + 1
                         if castOpener("frozenOrb","FRO",seq) then return true end
                     else
@@ -428,7 +428,7 @@ local function runRotation()
                 end
                 --mirror image
                 if not MI then
-                    if talent.mirrorImage and cd.mirrorImage and useCDs() and isChecked("Mirror Image") then
+                    if talent.mirrorImage and cd.mirrorImage and useCDs() and isChecked(colorBlueMage.."Mirror Image") then
                         seq = seq + 1
                         if castOpener("mirrorImage","MI",seq, false) then return true end
                     else
@@ -443,7 +443,7 @@ local function runRotation()
             if inCombat then
                 --rune of power
                 if not ROP then
-                    if talent.runeOfPower and charges.runeOfPower > 0 and useCDs() and isChecked("Rune of Power") and not buff.runeOfPower.exists() then
+                    if talent.runeOfPower and charges.runeOfPower > 0 and useCDs() and isChecked(colorBlueMage.."Rune of Power") and not buff.runeOfPower.exists() then
                         seq = seq + 1
                         if castOpener("runeOfPower","ROP",seq) then return true end
                     else
@@ -451,7 +451,7 @@ local function runRotation()
                     end
                     --icy veins
                 elseif not IV then
-                    if cd.icyVeins == 0 and useCDs() and isChecked("Icy Veins") then
+                    if cd.icyVeins == 0 and useCDs() and isChecked(colorBlueMage.."Icy Veins") then
                         seq = seq + 1
                         if castOpener("icyVeins","IV",seq,false) then return true end
                     else
@@ -465,7 +465,7 @@ local function runRotation()
                         WJ = true
                     end
                 elseif not RF then
-                    if (not talent.runeOfPower or buff.runeOfPower.exists()) and cd.rayOfFrost == 0 and isChecked("Ray of Frost") then
+                    if (not talent.runeOfPower or buff.runeOfPower.exists()) and cd.rayOfFrost == 0 and isChecked(colorBlueMage.."Ray of Frost") then
                         seq = seq + 1
                         if castOpener("rayOfFrost","RF",seq,false) then return true end
                     else
@@ -518,7 +518,7 @@ local function runRotation()
 
         local function actionList_CD()
             if useCDs() then
-                if isChecked("Rune of Power") and talent.runeOfPower then
+                if isChecked(colorBlueMage.."Rune of Power") and talent.runeOfPower then
                     --actions.cooldowns=rune_of_power,if=cooldown.icy_veins.remains<cast_time|charges_fractional>1.9&cooldown.icy_veins.remains>10|buff.icy_veins.up|target.time_to_die.remains+5<charges_fractional*10
                     if cd.icyVeins <= getCastTime(spell.runeOfPower) or charges.frac.runeOfPower > 1.9 and cd.icyVeins > 10 or buff.icyVeins.exists() or ttdUnit+5 < charges.frac.runeOfPower*10 then
                         if debug == true then Print("Casting Rune Of Power") end
@@ -544,7 +544,7 @@ local function runRotation()
                     iv_start = getCombatTime()
                 end
                 --actions.cooldowns+=/icy_veins,if=buff.icy_veins.down
-                if useCDs() and isChecked("Icy Veins") and cd.icyVeins == 0 then
+                if useCDs() and isChecked(colorBlueMage.."Icy Veins") and cd.icyVeins == 0 then
                     if not buff.icyVeins.exists() then
                         if debug == true then Print("Casting Icy Veins") end
                         if cast.icyVeins() then
@@ -553,7 +553,7 @@ local function runRotation()
                         end
                     end
                 end
-                if useCDs() and isChecked("Mirror Image") and cd.mirrorImage == 0 then
+                if useCDs() and isChecked(colorBlueMage.."Mirror Image") and cd.mirrorImage == 0 then
                     --actions.cooldowns+=/mirror_image
                     if debug == true then Print("Casting Mirror Image") end
                     if cast.mirrorImage() then
@@ -584,7 +584,7 @@ local function runRotation()
             end
             --actions.aoe+=/frozen_orb
             if cd.frozenOrb == 0 then
-                if isChecked("Frozen Orb") and getEnemiesInRect(15,55,false) > 0 and buff.fingersOfFrost.stack() < 2 then
+                if isChecked(colorBlueMage.."Frozen Orb") and getEnemiesInRect(15,55,false) > 0 and buff.fingersOfFrost.stack() < 2 then
                     if cast.frozenOrb() then return true end
                 end
             end
@@ -602,7 +602,7 @@ local function runRotation()
             --actions.aoe+=/comet_storm
             if talent.cometStorm then
                 if cd.cometStorm == 0 then
-                    if isChecked("Comet Storm")  and (IsStandingTime(2,target) or GetUnitSpeed(target) <= 3) then
+                    if isChecked(colorBlueMage.."Comet Storm")  and (IsStandingTime(2,target) or GetUnitSpeed(target) <= 3) then
                         if cast.cometStorm(target) then return true end
                     end
                 end
@@ -660,7 +660,7 @@ local function runRotation()
             --actions.single+=/ray_of_frost,if=buff.icy_veins.up|(cooldown.icy_veins.remains>action.ray_of_frost.cooldown&buff.rune_of_power.down)
             if talent.rayOfFrost then
                 if  cd.rayOfFrost == 0 then
-                    if useCDs() and isChecked("Ray of Frost") then
+                    if useCDs() and isChecked(colorBlueMage.."Ray of Frost") then
                         if buff.icyVeins.exists() or (cd.icyVeins > cd.rayOfFrost and not buff.runeOfPower) then
                             if cast.rayOfFrost() then return true end
                         end
@@ -685,12 +685,12 @@ local function runRotation()
             end
             --actions.single+=/frozen_orb
             if cd.frozenOrb == 0 then
-                if isChecked("Frozen Orb") and getEnemiesInRect(15,55,false) > 0 and buff.fingersOfFrost.stack() < 2 then
+                if isChecked(colorBlueMage.."Frozen Orb") and getEnemiesInRect(15,55,false) > 0 and buff.fingersOfFrost.stack() < 2 then
                     if cast.frozenOrb() then return true end
                 end
             end
             --actions.single+=/blizzard,if=cast_time=0&active_enemies>1&variable.fof_react<3
-            if  cd.blizzard == 0 then
+            if cd.blizzard == 0 then
                 if isChecked(colorLegendary.."Zann'esu Journey") then
                     if buff.zannesuJourney.stack() == 5 then
                         if cast.blizzard("best", nil, getValue(colorLegendary.."Zann'esu Journey"), blizzardRadius) then return true end
@@ -703,7 +703,7 @@ local function runRotation()
             --actions.single+=/comet_storm
             if talent.cometStorm then
                 if cd.cometStorm == 0 then
-                    if isChecked("Comet Storm") and ( IsStandingTime(2,target) or GetUnitSpeed(target) <= 3) then
+                    if isChecked(colorBlueMage.."Comet Storm") and ( IsStandingTime(2,target) or GetUnitSpeed(target) <= 3) then
                         if cast.cometStorm(target) then return true end
                     end
                 end
@@ -772,23 +772,34 @@ local function runRotation()
         end
         --fingers of frost
         if buff.fingersOfFrost.exists() then
-            if debug == true then Print("Casting Ice Lance") end
             if cast.iceLance(target) then
-                if debug == true then Print("Casted Ice Lance") end
                 return true
             end
         end
         --frozen orb
-        if useCDs() and isChecked("Frozen Orb") and cd.frozenOrb == 0 and getEnemiesInRect(15,55,false) > 0 then
-            if debug == true then Print("Casting Frozen Orb") end
+        if useCDs() and isChecked(colorBlueMage.."Frozen Orb") and cd.frozenOrb == 0 and getEnemiesInRect(15,55,false) > 0 then
             if cast.frozenOrb() then
-                if debug == true then Print("Casted Frozen Orb") end
                 return true
             end
         end
+        --blizzard
+        if cd.blizzard == 0 then
+            if isChecked(colorLegendary.."Zann'esu Journey") then
+                if buff.zannesuJourney.stack() == 5 then
+                    if cast.blizzard("best", nil, getValue(colorLegendary.."Zann'esu Journey"), blizzardRadius) then return true end
+                end
+            end
+            if getCastTime(spell.blizzard) == 0 and fof_react < 3 and (lastCast == spell.frozenOrb or cd.frozenOrb > 5) then
+                if cast.blizzard("best", nil, 1, blizzardRadius) then return true end
+            end
+        end
         --cone of cold
-        if getFacing("player",target,50) and getDistance(target) < 12 then
-            if cast.coneOfCold("player") then return true end
+        if cd.coneOfCold == 0 then
+            if isChecked(colorBlueMage.."Cone of Cold") then
+                if getFacing("player",target,50) and getDistance(target) < 12 then
+                    if cast.coneOfCold("player") then return true end
+                end
+            end
         end
         --ice nova
         if talent.iceNova and cd.iceNova == 0 then
