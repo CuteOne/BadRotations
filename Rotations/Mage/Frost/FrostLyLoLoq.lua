@@ -237,11 +237,13 @@ local function runRotation()
             end
 
             --Ice Barrier
-            if isChecked(colorBlueMage.."Ice Barrier") and health <= getValue(colorBlueMage.."Ice Barrier") and inCombat and not buff.iceBarrier.exists() and lastCast ~= spell.waterJet then
-                if cast.iceBarrier("player") then return true end
+            if lastCast ~= spell.waterJet and (lastCast ~= spell.flurry and not buff.brainFreeze.exists()) then
+                if isChecked(colorBlueMage.."Ice Barrier") and health <= getValue(colorBlueMage.."Ice Barrier") and inCombat and not buff.iceBarrier.exists() and lastCast ~= spell.waterJet then
+                    if cast.iceBarrier("player") then return true end
+                end
             end
 
-            --Ice Barrier
+            --Ice Block
             if isChecked(colorBlueMage.."Ice Block") and health <= getValue(colorBlueMage.."Ice Block") and inCombat then
                 if isChecked(colorBlueMage.."Cold Snap") and cd.iceBlock > 0 then
                     if cast.coldSnap("player") then return true end
