@@ -2083,7 +2083,7 @@ br.idList = {
         -- Assassination
         [259] = {
             abilities                       = {
-                agonizingPoison             = 200802,
+                --agonizingPoison             = 200802, -- Removed in 7.2.5
                 assassinsResolve            = 84601,
                 cripplingPoison             = 3408,
                 cutToTheChase               = 51667,
@@ -2105,6 +2105,7 @@ br.idList = {
                 sealFate                    = 14190,
                 shadowstep                  = 36554,
                 stealth                     = 1784,
+                toxicBlade                  = 245388,
                 vendetta                    = 79140,
                 venomousWounds              = 79134,
                 woundPoison                 = 8679,
@@ -2134,7 +2135,7 @@ br.idList = {
                 urgeToKill                  = 192384,
             },
             buffs                           = {
-                agonizingPoison             = 200802,
+                --agonizingPoison             = 200802, --Removed in 7.2.5
                 cripplingPoison             = 3408,
                 deadlyPoison                = 2823,
                 elaboratePlanning           = 193641,
@@ -2146,7 +2147,7 @@ br.idList = {
                 woundPoison                 = 8679,
             },
             debuffs                         = {
-                agonizingPoison             = 200803,
+                --agonizingPoison             = 200803, -- Removed in 7.2.5
                 cripplingPoison             = 3409,
                 deadlyPoison                = 2818,
                 garrote                     = 703,
@@ -2156,6 +2157,7 @@ br.idList = {
                 mutilatedFlesh              = 211672,
                 rupture                     = 1943,
                 surgeOfToxins               = 192425,
+                toxicBlade                  = 245389,
                 vendetta                    = 79140,
                 woundPoison                 = 8680,
             },
@@ -2163,7 +2165,7 @@ br.idList = {
 
             },
             talents                         = {
-                agonizingPoison             = 200802,
+                --agonizingPoison             = 200802, -- Removed in 7.2.5
                 elaboratePlanning           = 193640,
                 exsanguinate                = 200806,
                 hemorrhage                  = 16511,
@@ -2174,6 +2176,7 @@ br.idList = {
                 shadowFocus                 = 108209,
                 subterfuge                  = 108208,
                 thuggee                     = 196861,
+                toxicBlade                  = 245388,
                 venomRush                   = 152152,
             },
         },
