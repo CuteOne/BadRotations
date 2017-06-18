@@ -2947,6 +2947,7 @@ br.idList = {
             },
             buffs                           = {
                 cleave                      = 188923,
+                corruptedBloodOfZakajz      = 209567,
                 defensiveStance             = 197690,
                 focusedRage                 = 207982,
                 overpower                   = 60503,

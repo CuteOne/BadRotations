@@ -582,7 +582,7 @@ local function runRotation()
                 for i=1, #enemies.yards5 do
                     local thisUnit = enemies.yards5[i]
                     if (multidot or (UnitIsUnit(thisUnit,units.dyn5) and not multidot)) then
-                        if ((debuff.garotte.remain(thisUnit) <= 13 and deubff.toxicBlade.exists(thisUnit))) then
+                        if ((debuff.garotte.remain(thisUnit) <= 13 and debuff.toxicBlade.exists(thisUnit))) then
                             if cast.garrote(thisUnit) then return end
                         end
                     end
