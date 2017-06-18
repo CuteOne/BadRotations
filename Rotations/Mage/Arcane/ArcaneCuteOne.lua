@@ -54,7 +54,7 @@ local function createOptions()
         -- Arcane Explosion
             br.ui:createSpinnerWithout(section, "Arcane Explosion", 5, 1, 10, 1, "|cffFFFFFFSet to desired units to use Arcane Explosion.")
         -- Burn Phase Debug
-            br.ui:createCheckbox(section, "Burn Phase Debug", "|cffFFFFFFShow burn phase status and duration, requires Chat Overlay option to be enabled.")
+            br.ui:createCheckbox(section, "Burn Phase Overlay", "|cffFFFFFFShow burn phase status and duration, requires Chat Overlay option to be enabled.")
         -- -- Burn Phase Start
         --     br.ui:createSpinnerWithout(section, "Burn Phase Start", 70, 0, 100, 5, "|cffFFFFFFSet to desired mana percent to start burn phase.")
         -- -- Burn Phase End
@@ -342,7 +342,7 @@ local function runRotation()
             if actionList_Cooldowns() then return end
         -- Charged Up
             -- charged_up,if=(equipped.132451&buff.arcane_charge.stack<=1)
-            if (hasEquiped(132451) and arcaneCharges <= 1) then
+            if hasEquiped(132451) and arcaneCharges == 0 then
                 if cast.chargedUp("player") then return end
             end
         -- Arcane Missles
@@ -362,12 +362,17 @@ local function runRotation()
             end
         -- Presence of Mind
             -- presence_of_mind,if=buff.rune_of_power.remains<=2*action.arcane_blast.execute_time
-            if buff.runeOfPower.remain() <= 2 * getCastTime(spell.arcaneBlast) then
+            if arcaneCharges <= 2 and buff.runeOfPower.remain() <= 2 * getCastTime(spell.arcaneBlast) then
                 if cast.presenceOfMind("player") then return end
             end
         -- Arcane Missles
             -- arcane_missiles,if=buff.arcane_missiles.react>1
-            if buff.arcaneMissles.stack() > 1 then
+            if buff.arcaneMissles.stack() > 1 and arcaneCharges <= 4 then
+                if cast.arcaneMissles() then return end
+            end
+
+        -- Arcane Missles Arcane Power
+            if buff.arcanePower.exists() and arcaneCharges == 4 and buff.arcaneMissles.stack() >= 1 then
                 if cast.arcaneMissles() then return end
             end
         -- Arcane Explosion
@@ -377,9 +382,9 @@ local function runRotation()
             end
         -- Arcane Blast
             -- arcane_blast,if=buff.presence_of_mind.up|buff.arcane_power.remains>cast_time
-            if (buff.presenceOfMind.exists() or buff.arcanePower.remain() > getCastTime(spell.arcaneBlast)) and arcaneCharges < 4 then 
+            if (buff.presenceOfMind.exists() or buff.arcanePower.remain() > getCastTime(spell.arcaneBlast)) and arcaneCharges < 4 then
                 if cast.arcaneBlast() then return end
-            end 
+            end
         -- Supernova
             -- supernova,if=mana.pct<100
             if manaPercent < 100 and useCDs() then
@@ -397,9 +402,9 @@ local function runRotation()
             end
         -- Arcane Barrage
             -- arcane_barrage,if=talent.charged_up.enabled&(equipped.132451&cooldown.charged_up.remains=0&mana.pct<(100-(buff.arcane_charge.stack*0.03)))
-            if talent.chargedUp and (hasEquiped(132451) and cd.chargedUp and manaPercent < (100 - (arcaneCharges * 0.03))) then
-                if cast.arcaneBarrage() then return end
-            end
+          --  if talent.chargedUp and (hasEquiped(132451) and cd.chargedUp and manaPercent < (100 - (arcaneCharges * 0.03))) then
+            --    if cast.arcaneBarrage() then return end
+          --  end
         -- Arcane Blast
             -- arcane_blast
             -- if arcaneCharges < 4 then
@@ -439,7 +444,7 @@ local function runRotation()
             end
         -- Arcane Missles
             -- arcane_missles
-            if buff.arcaneMissles.stack() > 1 then
+            if buff.arcaneMissles.stack() > 1 and arcaneCharges == 4 then
                 if cast.arcaneMissles() then return end
             end
         -- Supernova
@@ -497,9 +502,9 @@ local function runRotation()
         -- Start Burn Phase
             -- start_burn_phase,if=((cooldown.evocation.remains-(2*burn_phase_duration))%2<burn_phase_duration)|cooldown.arcane_power.remains=0|target.time_to_die<55
             -- if manaPercent >= getOptionValue("Burn Phase Start") and ((cd.evocation < 30 and cd.arcanePower == 0) or (ttd(units.dyn40) < 55 and isBoss(units.dyn40))) then
-            if useCDs() and not burnPhase and ((cd.evocation <= burnPhaseDuration and cd.arcanePower == 0)) then -- or (ttd(units.dyn40) < 55 and isBoss(units.dyn40))) then
+            if useCDs() and not burnPhase and (cd.evocation <= burnPhaseDuration and cd.arcanePower == 0) or (ttd(units.dyn40) < 55 and isBoss(units.dyn40)) then
                 burnPhase = true;
-                burnPhaseDuration = 0; 
+                burnPhaseDuration = 0;
             end
         end
     -- Action List - ROP Phase
@@ -535,6 +540,7 @@ local function runRotation()
                 if cast.arcaneBarrage() then return end
             end
         end
+
     -- Action List - PreCombat
         local function actionList_PreCombat()
             if not inCombat and not (IsFlying() or IsMounted()) then
@@ -643,8 +649,8 @@ local function runRotation()
                     end
             -- Call Action List - Init Burn
                     -- call_action_list,name=init_burn,if=buff.arcane_power.down&buff.arcane_charge.stack=4&(cooldown.mark_of_aluneth.remains=0|cooldown.mark_of_aluneth.remains>20)&(!talent.rune_of_power.enabled|(cooldown.arcane_power.remains<=action.rune_of_power.cast_time|action.rune_of_power.recharge_time<cooldown.arcane_power.remains))|target.time_to_die<45
-                    if not buff.arcanePower.exists() and arcaneCharges == 4 and (cd.markOfAluneth == 0 or cd.markOfAluneth > 20) 
-                        and (not talent.runeOfPower or (cd.arcanePower <= getCastTime(spell.runeOfPower) or recharge.runeOfPower < cd.arcanePower)) or ttd(units.dyn40) < 45 
+                    if not buff.arcanePower.exists() and arcaneCharges == 4 and (cd.markOfAluneth == 0 or cd.markOfAluneth > 20)
+                        and (not talent.runeOfPower or (cd.arcanePower <= getCastTime(spell.runeOfPower) or recharge.runeOfPower < cd.arcanePower)) or ttd(units.dyn40) < 45
                     then
                         if actionList_InitBurn() then return end
                     end
@@ -660,7 +666,7 @@ local function runRotation()
                     end
             -- Call Action List - Conserve
                     -- call_action_list,name=conserve
-                    if actionList_Conserve() then return end 
+                    if actionList_Conserve() then return end
                 end -- End SimC APL
          	end --End In Combat
         end --End Rotation Logic

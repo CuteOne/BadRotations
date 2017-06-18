@@ -230,6 +230,7 @@ longTimeCC = {
 	196942, -- Shaman - Voodoo Totem: Hex
 	5782,   -- Warlock - Fear
 	5484,   -- Warlock - Howl of Terror
+	710,    -- Warlock - Banish
 	-- Warrior
 }
 interruptWhitelist = { -- List provided by Admire
