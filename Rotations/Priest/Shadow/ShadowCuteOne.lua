@@ -207,7 +207,9 @@ local function runRotation()
         local mindFlayChannel                               = 3 / (1 + GetHaste()/100)
 
         units.dyn5 = br.player.units(5)
+        units.dyn8 = br.player.units(8)
         units.dyn40 = br.player.units(40)
+        enemies.yards8 = br.player.enemies(8)
         enemies.yards40 = br.player.enemies(40)
 
         if useMindBlast == nil then useMindBlast = false end
