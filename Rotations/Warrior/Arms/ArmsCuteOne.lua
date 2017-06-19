@@ -426,9 +426,11 @@ local function runRotation()
                     end
                 end
             -- Battle Cry
-                -- battle_cry,,if=(!talent.ravager.enabled|prev_gcd.1.ravager)&!gcd.remains&target.debuff.colossus_smash.remains>=5&(!cooldown.bladestorm.remains|!set_bonus.tier20_4pc)
+                -- battle_cry,if=target.time_to_die<=6|(!talent.ravager.enabled|prev_gcd.1.ravager)&!gcd.remains&target.debuff.colossus_smash.remains>=5&(!cooldown.bladestorm.remains|!set_bonus.tier20_4pc)&(!talent.rend.enabled|dot.rend.remains>4)
                 if (getOptionValue("Battle Cry") == 1 or (getOptionValue("Battle Cry") == 2 and useCDs())) then 
-                    if (not talent.ravager or lastSpell == spell.ravager) and cd.global == 0 and debuff.colossusSmash.remain(units.dyn5) >= 5 and (cd.bladestorm > 0 or not t20_4pc) then
+                    if ttd(units.dyn5) or (not talent.ravager or lastSpell == spell.ravager) and cd.global == 0 and debuff.colossusSmash.remain(units.dyn5) >= 5 
+                        and (cd.bladestorm > 0 or not t20_4pc) and (not talent.rend or debuff.rend.remain(units.dyn4) > 4) 
+                    then
                         if cast.battleCry() then return end
                     end
                 end
@@ -545,8 +547,8 @@ local function runRotation()
                 end
             end      
         -- Colossus Smash
-            -- colossus_smash,if=buff.shattered_defenses.down
-            if not buff.shatteredDefenses.exists() then
+            -- colossus_smash,if=buff.shattered_defenses.down&(buff.battle_cry.down|buff.battle_cry.remains>gcd.max)
+            if not buff.shatteredDefenses.exists() and (not buff.battleCry.exists() or buff.battleCry.remain() > gcd) then
                 if cast.colossusSmash() then return end
             end
         -- Warbreaker
@@ -557,8 +559,8 @@ local function runRotation()
                 end
             end
         -- Heroic Charge
-            -- heroic_charge,if=rage.deficit>=40&(!cooldown.heroic_leap.remains|swing.mh.remains>1.2)&buff.battle_cry.down
-            if isChecked("Heroic Charge") and mode.heroic == 1 and powerDeficit >= 40 and (cd.heroicLeap == 0 or swingTimer > 1.2) and not buff.battleCry.exists() and getDistance(units.dyn5) < 5 then
+            -- heroic_charge,if=rage.deficit>=55&(!cooldown.heroic_leap.remains|swing.mh.remains>1.2)&buff.battle_cry.down
+            if isChecked("Heroic Charge") and mode.heroic == 1 and powerDeficit >= 55 and (cd.heroicLeap == 0 or swingTimer > 1.2) and not buff.battleCry.exists() and getDistance(units.dyn5) < 5 then
                 heroicLeapCharge()
             end
         -- Focused Rage
@@ -567,14 +569,19 @@ local function runRotation()
                 if cast.focusedRage() then return end
             end
         -- Rend
-            -- rend,,if=remains<5&(set_bonus.tier20_4pc&cooldown.bladestorm.remains<2&cooldown.battle_cry.remains)|cooldown.battle_cry.remains<2
-            if debuff.rend.remain(units.dyn5) < 5 and (t20_4pc and cd.bladestorm < 2 and cd.battleCry > 0) or cd.battleCry < 2 then
+            -- rend,if=remains<5&cooldown.battle_cry.remains<2&(cooldown.bladestorm.remains<2|!set_bonus.tier20_4pc)
+            if debuff.rend.remain(units.dyn5) < 5 and cd.battleCry < 2 and (cd.bladestorm < 2 or not t20_4pc) then
                 if cast.rend() then return end
             end
         -- Mortal Strike
             -- mortal_strike,if=buff.executioners_precision.stack=2&buff.shattered_defenses.up
             if buff.executionersPrecision.stack() == 2 and buff.shatteredDefenses.exists() then
                 if cast.mortalStrike() then return end
+            end
+        -- Overpower
+            -- overpower,if=rage<40
+            if power < 40 then
+                if cast.overpower() then return end
             end
         -- Execute
             -- execute
@@ -624,8 +631,8 @@ local function runRotation()
                 end
             end
         -- Heroic Charge
-            -- heroic_charge,if=rage.deficit>=40&(!cooldown.heroic_leap.remains|swing.mh.remains>1.2)&buff.battle_cry.down
-            if isChecked("Heroic Charge") and mode.heroic == 1 and powerDeficit >= 40 and (cd.heroicLeap == 0 or swingTimer > 1.2) and not buff.battleCry.exists() and getDistance(units.dyn5) < 5 then
+            -- heroic_charge,if=rage.deficit>=55&(!cooldown.heroic_leap.remains|swing.mh.remains>1.2)&buff.battle_cry.down
+            if isChecked("Heroic Charge") and mode.heroic == 1 and powerDeficit >= 55 and (cd.heroicLeap == 0 or swingTimer > 1.2) and not buff.battleCry.exists() and getDistance(units.dyn5) < 5 then
                 heroicLeapCharge()
             end
         -- Focused Rage
@@ -636,8 +643,8 @@ local function runRotation()
                 if cast.focusedRage() then return end
             end
         -- Rend
-            -- rend,,if=remains<=0|remains<5&(set_bonus.tier20_4pc&cooldown.bladestorm.remains<2&cooldown.battle_cry.remains)|cooldown.battle_cry.remains<2
-            if debuff.rend.remain(units.dyn5) <= 0 or debuff.rend.remain(units.dyn5) < 5 and (t20_4pc and cd.bladestorm < 2 and cd.battleCry > 0) or cd.battleCry < 2 then
+            -- rend,if=remains<=0|remains<5&cooldown.battle_cry.remains<2&(cooldown.bladestorm.remains<2|!set_bonus.tier20_4pc)
+            if debuff.rend.remain(units.dyn5) <= 0 or debuff.rend.remain(units.dyn5) < 5 and cd.battleCry < 2 and (cd.bladestorm < 2 or not t20_4pc) then
                 if cast.rend() then return end
             end
         -- Execute

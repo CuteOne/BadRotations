@@ -602,7 +602,7 @@ local function runRotation()
             end
         -- Liquid Magma Totem
             -- liquid_magma_totem,if=raid_event.adds.count<3|raid_event.adds.in>50
-            if (#enemies.yards8 < 3) and getDistance(units.dyn8) < 8 and lastSpell ~= spell.liquidMagmaTotem then
+            if #enemies.yards8 < 3 and getDistance(units.dyn8) < 8 and lastSpell ~= spell.liquidMagmaTotem then
                 if cast.liquidMagmaTotem("target") then return end
             end
         -- Lightning Bolt
@@ -621,8 +621,8 @@ local function runRotation()
                 if cast.flameShock() then return end
             end
         -- Earth Shock
-            -- earth_shock,if=maelstrom>=111|!artifact.swelling_maelstrom.enabled&maelstrom>=86
-            if power >= 111 or (not artifact.swellingMaelstrom and power >= 86) then
+            -- earth_shock,if=maelstrom>=111|!artifact.swelling_maelstrom.enabled&maelstrom>=86|equipped.smoldering_heart&equipped.the_deceivers_blood_pact&maelstrom>70&talent.aftershock.enable
+            if power >= 111 or (not artifact.swellingMaelstrom and power >= 86) or (hasEquiped(151819) and hasEquiped(137035) and power > 70 and talent.aftershock) then
                 if cast.earthShock() then return end
             end
         -- Totem Mastery
@@ -631,12 +631,12 @@ local function runRotation()
                 if cast.totemMastery() then resonanceTotemCastTime = GetTime() + 120; return end
             end
         -- Earthquake
-            -- earthquake,if=buff.echoes_of_the_great_sundering.up|artifact.seismic_storm.enabled&((active_enemies>1&spell_targets.chain_lightning>1)|spell_haste<=0.66&!(buff.bloodlust.up&buff.bloodlust.remains<5))
-            if (buff.echoesOfTheGreatSundering.exists() or artifact.seismicStorm) 
-                and ((#enemies.yards8 > 1 and #enemies.yards8t > 1) or UnitSpellHaste("player")/100 <= 0.66 and (hasBloodLust() and hasBloodLustRemain() < 5)) 
-            then
-                if cast.earthquake() then return end
-            end
+            -- -- earthquake,if=buff.echoes_of_the_great_sundering.up|artifact.seismic_storm.enabled&((active_enemies>1&spell_targets.chain_lightning>1)|spell_haste<=0.66&!(buff.bloodlust.up&buff.bloodlust.remains<5))
+            -- if (buff.echoesOfTheGreatSundering.exists() or artifact.seismicStorm) 
+            --     and ((#enemies.yards8 > 1 and #enemies.yards8t > 1) or UnitSpellHaste("player")/100 <= 0.66 and (hasBloodLust() and hasBloodLustRemain() < 5)) 
+            -- then
+            --     if cast.earthquake() then return end
+            -- end
         -- Lava Beam
             -- lava_beam,if=active_enemies>1&spell_targets.lava_beam>1
             if #enemies.yards40 > 1 and not mode.rotation == 3 then
@@ -693,8 +693,8 @@ local function runRotation()
                 if cast.earthquake() then return end
             end
         -- Frost Shock
-            -- frost_shock,if=buff.icefury.up&maelstrom>=111
-            if buff.icefury.exists() and power >= 111 then
+            -- frost_shock,if=buff.icefury.up&maelstrom>=111&!buff.ascendance.up
+            if buff.icefury.exists() and power >= 111 and not buff.ascendance.exists() then
                 if cast.frostShock() then return end
             end
         -- Elemental Blast
@@ -711,8 +711,8 @@ local function runRotation()
                 if cast.stormkeeper() then return end
             end
         -- Ice Fury
-            -- icefury,if=raid_event.movement.in<5|maelstrom<=101
-            if power <= 101 then
+            -- icefury,if=(raid_event.movement.in<5|maelstrom<=101&artifact.swelling_maelstrom.enabled|!artifact.swelling_maelstrom.enabled&maelstrom<=76)&!buff.ascendance.up
+            if ((power <= 101 and artifact.swellingMaelstrom) or (not artifact.swellingMaelstrom and power <= 76)) and not buff.ascendance.exists() then
                 if cast.icefury() then return end
             end
         -- Liquid Magma Totem
@@ -732,7 +732,7 @@ local function runRotation()
             end
         -- Frost Shock
             -- frost_shock,if=buff.icefury.up&((maelstrom>=20&raid_event.movement.in>buff.icefury.remains)|buff.icefury.remains<(1.5*spell_haste*buff.icefury.stack+1))
-            if buff.icefury.exists() and power >= 20 and buff.icefury.remain() < (1.5 * (UnitSpellHaste("player")/100) * buff.icefury.stack() + 1) then
+            if buff.icefury.exists() and (power >= 20 or buff.icefury.remain() < (1.5 * (UnitSpellHaste("player")/100) * buff.icefury.stack() + 1)) then
                 if cast.frostShock() then return end
             end
         -- Flame Shock
@@ -746,8 +746,8 @@ local function runRotation()
                 if cast.frostShock() then return end
             end
         -- Earth Shock
-            -- earth_shock,if=maelstrom>=111|!artifact.swelling_maelstrom.enabled&maelstrom>=86
-            if power >= 111 or (not artifact.swellingMaelstrom and power >= 86) then
+            -- earth_shock,if=maelstrom>=111|!artifact.swelling_maelstrom.enabled&maelstrom>=86|equipped.smoldering_heart&equipped.the_deceivers_blood_pact&maelstrom>70&talent.aftershock.enabled
+            if power >= 111 or (not artifact.swellingMaelstrom and power >= 86) or (hasEquiped(151819) and hasEquiped(137035) and power > 70 and talent.aftershock) then
                 if cast.earthShock() then return end
             end
         -- Totem Mastery
@@ -756,10 +756,8 @@ local function runRotation()
                 if cast.totemMastery() then resonanceTotemCastTime = GetTime() + 120; return end
             end
         -- Earthquake
-            -- earthquake,if=buff.echoes_of_the_great_sundering.up|artifact.seismic_storm.enabled&((active_enemies>1&spell_targets.chain_lightning>1)|spell_haste<=0.66&!(buff.bloodlust.up&buff.bloodlust.remains<5))
-            if (buff.echoesOfTheGreatSundering.exists() or artifact.seismicStorm) 
-                and ((#enemies.yards8 > 1 and #enemies.yards8t > 1) or UnitSpellHaste("player")/100 <= 0.66 and (hasBloodLust() and hasBloodLustRemain() < 5)) 
-            then
+            -- earthquake,if=buff.echoes_of_the_great_sundering.up
+            if buff.echoesOfTheGreatSundering.exists() then
                 if cast.earthquake() then return end
             end
         -- Lightning Bolt
@@ -807,14 +805,14 @@ local function runRotation()
                     end
                 end
             end
-        -- Earthquake
-            -- earthquake,if=buff.echoes_of_the_great_sundering.up&maelstrom>=86
-            if buff.echoesOfTheGreatSundering.exists() and power >= 86 then
-                if cast.earthquake() then return end
-            end
         -- Elemental Blast
             -- elemental_blast
             if cast.elementalBlast() then return end
+        -- Earthquake
+            -- earthquake,if=buff.echoes_of_the_great_sundering.up
+            if buff.echoesOfTheGreatSundering.exists() then
+                if cast.earthquake() then return end
+            end
         -- Earth Shock
             -- earth_shock,if=maelstrom>=117|!artifact.swelling_maelstrom.enabled&maelstrom>=92
             if power >= 117 or (not artifact.swellingMaelstrom and power >= 92) then
@@ -841,22 +839,22 @@ local function runRotation()
                 if cast.flameShock() then return end
             end
         -- Earth Shock
-            -- earth_shock,if=maelstrom>=111|!artifact.swelling_maelstrom.enabled&maelstrom>=86
-            if power >= 111 or (not artifact.swellingMaelstrom and power >= 86) then
+            -- earth_shock,if=maelstrom>=111|!artifact.swelling_maelstrom.enabled&maelstrom>=86|equipped.smoldering_heart&equipped.the_deceivers_blood_pact&maelstrom>70&talent.aftershock.enabled
+            if power >= 111 or (not artifact.swellingMaelstrom and power >= 86) or (hasEquiped(151819) and hasEquiped(137035) and power > 70 and talent.aftershock) then
                 if cast.earthShock() then return end
             end
         -- Totem Mastery
-            -- totem_mastery,if=buff.resonance_totem.remains<10|(buff.resonance_totem.remains<(buff.ascendance.duration+cooldown.ascendance.remains)&cooldown.ascendance.remain()s<15)
+            -- totem_mastery,if=buff.resonance_totem.remains<10|(buff.resonance_totem.remains<(buff.ascendance.duration+cooldown.ascendance.remains)&cooldown.ascendance.remains<15)
             if (resonanceTotemTimer < 10 or (resonanceTotemTimer < (buff.ascendance.duration() + cd.ascendance) and cd.ascendance < 15)) and lastSpell ~= spell.totemMastery then
                 if cast.totemMastery() then resonanceTotemCastTime = GetTime() + 120; return end
             end
         -- Earthquake
             -- earthquake,if=buff.echoes_of_the_great_sundering.up|artifact.seismic_storm.enabled&((active_enemies>1&spell_targets.chain_lightning>1)|spell_haste<=0.66&!(buff.bloodlust.up&buff.bloodlust.remains<5))
-            if (buff.echoesOfTheGreatSundering.exists() or artifact.seismicStorm) 
-                and ((#enemies.yards8 > 1 and #enemies.yards8t > 1) or UnitSpellHaste("player")/100 <= 0.66 and (hasBloodLust() and hasBloodLustRemain() < 5)) 
-            then
-                if cast.earthquake() then return end
-            end
+            -- if (buff.echoesOfTheGreatSundering.exists() or artifact.seismicStorm) 
+            --     and ((#enemies.yards8 > 1 and #enemies.yards8t > 1) or UnitSpellHaste("player")/100 <= 0.66 and (hasBloodLust() and hasBloodLustRemain() < 5)) 
+            -- then
+            --     if cast.earthquake() then return end
+            -- end
         -- Lightning Bolt
             -- lightning_bolt,if=buff.power_of_the_maelstrom.up&spell_targets.chain_lightning<3,target_if=debuff.lightning_rod.down
             if buff.powerOfTheMaelstrom.exists() and #enemies.yards8t < 3 and not debuff.lightningRod.exists(units.dyn40) then
@@ -934,7 +932,7 @@ local function runRotation()
     ---------------------------
                 if getOptionValue("APL Mode") == 1 then
             -- Potion - Deadly Grace
-                    -- if=buff.ascendance.up|target.time_to_die<=30
+                    -- potion,if=cooldown.fire_elemental.remains>280|target.time_to_die<=60
                     -- TODO
             -- Totem Mastery
                     -- totem_mastery,if=buff.resonance_totem.remains<2

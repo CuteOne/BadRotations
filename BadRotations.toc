@@ -139,7 +139,7 @@ Rotations\Hunter\Beastmaster\BeastmasterCpoworks.lua
 
 Rotations\Hunter\Marksmanship\MarksmanshipCpoworks.lua
 
-Rotations\Hunter\Survival\SurvivalCpoworks.lua
+Rotations\Hunter\Survival\SurvivalCuteOne.lua
 
 ## Mage ---------------------------------------------------
 
@@ -176,7 +176,7 @@ Rotations\Priest\Discipline\DisciplineSvs.lua
 
 Rotations\Priest\Holy\HolySvs.lua
 
-Rotations\Priest\Shadow\ShadowCpoworks.lua
+Rotations\Priest\Shadow\ShadowCuteOne.lua
 
 ## Rogue ---------------------------------------------------
 

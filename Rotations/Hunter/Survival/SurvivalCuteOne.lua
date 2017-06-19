@@ -1,4 +1,4 @@
-local rotationName = "Cpoworks" -- Change to name of profile listed in options drop down
+local rotationName = "CuteOne" -- Change to name of profile listed in options drop down
 
 ---------------
 --- Toggles ---

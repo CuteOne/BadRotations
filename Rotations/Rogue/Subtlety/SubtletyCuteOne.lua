@@ -247,6 +247,7 @@ local function runRotation()
         if hasEquiped(137032) then shadowWalker = 1 else shadowWalker = 0 end
         if hasEquiped(144236) then mantleMaster = 1 else mantleMaster = 0 end
         if mantleMaster == 1 and combatTime < 30 then mantleMasterRecent = 1 else mantleMasterRecent = 0 end
+        if hasEquiped(144236) and hasEquiped(137100) then halfMantled = 1 else halfMantled = 0 end
         if stealthingAll then stealthedAll = 1 else stealthedAll = 0 end
 
         -- variable,name=ssw_refund,value=equipped.shadow_satyrs_walk*(6+ssw_refund_offset)
@@ -414,22 +415,9 @@ local function runRotation()
                 if powerDeficit >= 40 - stealthedAll * 30 then
                     if cast.symbolsOfDeath() then return end
                 end
-        -- Shadow Blades
-                -- shadow_blades,if=combo_points.deficit>=2+stealthed.all-equipped.mantle_of_the_master_assassin
-                if useCDs() and isChecked("Shadow Blades") and combo >= 2 + stealthedAll - mantleMaster then
-                    if cast.shadowBlades() then return end
-                end
-        -- Goremaws Bite
-                -- goremaws_bite,if=!stealthed.all&cooldown.shadow_dance.charges_fractional<=variable.shd_fractionnal&((combo_points.deficit>=4-(time<10)*2&energy.deficit>50+talent.vigor.enabled*25-(time>=10)*15)|(combo_points.deficit>=1&target.time_to_die<8))
-                if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()) and cd.goremawsBite == 0 then 
-                    if not stealthingAll and charges.frac.shadowDance <= shdFrac 
-                        and ((comboDeficit >= 4 - justStarted * 2 and powerDeficit > 50 + vigorous * 25 - justStarted * 15) or (comboDeficit >= 1 and ttd(units.dyn5) < 8)) 
-                    then
-                        if cast.goremawsBite() then return end
-                    end
-                end
         -- Marked For Death
-                -- marked_for_death,target_if=min:target.time_to_die,if=target.time_to_die<combo_points.deficit|(raid_event.adds.in>40&combo_points.deficit>=cp_max_spend)
+                -- marked_for_death,target_if=min:target.time_to_die,if=target.time_to_die<combo_points.deficit
+                -- marked_for_death,if=raid_event.adds.in>40&combo_points.deficit>=cp_max_spend
                 if isChecked("Marked For Death") then
                     if getOptionValue("Marked For Death") == 1 then
                         if ttd("target") < comboDeficit or comboDeficit >= comboMax then
@@ -445,6 +433,20 @@ local function runRotation()
                                 end
                             end
                         end
+                    end
+                end
+        -- Shadow Blades
+                -- shadow_blades,if=combo_points.deficit>=2+stealthed.all-equipped.mantle_of_the_master_assassin
+                if useCDs() and isChecked("Shadow Blades") and combo >= 2 + stealthedAll - mantleMaster then
+                    if cast.shadowBlades() then return end
+                end
+        -- Goremaws Bite
+                -- goremaws_bite,if=!stealthed.all&cooldown.shadow_dance.charges_fractional<=variable.shd_fractional&((combo_points.deficit>=4-(time<10)*2&energy.deficit>50+talent.vigor.enabled*25-(time>=10)*15)|(combo_points.deficit>=1&target.time_to_die<8))
+                if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()) and cd.goremawsBite == 0 then 
+                    if not stealthingAll and charges.frac.shadowDance <= shdFrac 
+                        and ((comboDeficit >= 4 - justStarted * 2 and powerDeficit > 50 + vigorous * 25 - justStarted * 15) or (comboDeficit >= 1 and ttd(units.dyn5) < 8)) 
+                    then
+                        if cast.goremawsBite() then return end
                     end
                 end
             end -- End Cooldown Usage Check
@@ -518,8 +520,10 @@ local function runRotation()
                 if cast.deathFromAbove() then return end
             end
         -- Eviscerate
-            -- eviscerate
-            if cast.eviscerate() then return end
+            -- eviscerate,if=!talent.death_from_above.enabled|cooldown.death_from_above.remains>=(energy.max-energy-combo_points*6)%energy.regen-(2+(equipped.mantle_of_the_master_assassin&equipped.denial_of_the_halfgiants))
+            if not talent.deathFromAbove or cd.deathFromAbove >= (powerMax - power - combo * 6) / powerRegen - (2 + halfMantled) then
+                if cast.eviscerate() then return end
+            end
         end -- End Action List - Finishers
     -- Action List - Stealthed
         local function actionList_Stealthed()
@@ -700,8 +704,12 @@ local function runRotation()
                         if cast.nightblade() then return end
                     end
         -- Starter
-                    -- call_action_list,name=stealth_als,if=(combo_points.deficit>=3&(!talent.dark_shadow.enabled|dot.nightblade.remains>4+talent.subterfuge.enabled|cooldown.shadow_dance.charges_fractional>=1.9))|cooldown.shadow_dance.charges_fractional>=2.9
-                    if (comboDeficit >= 3 and (not talent.darkShadow or debuff.nightblade.remain(units.dyn5) > 4 + subty or charges.frac.shadowDance >= 1.9)) or charges.frac.shadowDance >= 2.9 then
+                    -- call_action_list,name=stealth_als,if=talent.dark_shadow.enabled&combo_points.deficit>=3&(dot.nightblade.remains>4+talent.subterfuge.enabled|cooldown.shadow_dance.charges_fractional>=1.9&(!equipped.denial_of_the_halfgiants|time>10))
+                    if talent.darkShadow and comboDeficit >= 3 and (debuff.nightblade.remain(units.dyn5) > 4 + subty or charges.frac.shadowDance >= 1.9 and (not hasEquiped(137100) or combatTime > 10)) then
+                        if actionList_Starter() then return end
+                    end
+                    -- call_action_list,name=stealth_als,if=talent.enveloping_shadows.enabled&(combo_points.deficit>=3|cooldown.shadow_dance.charges_fractional>=2.9)
+                    if talent.envelopingShadows and (comboDeficit >= 3 or charges.frac.shadowDance >= 2.9) then
                         if actionList_Starter() then return end
                     end
         -- Finishers

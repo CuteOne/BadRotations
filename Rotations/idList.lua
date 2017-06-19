@@ -2002,6 +2002,7 @@ br.idList = {
                 voidTorrent                 = 205065,
             },
             artifacts                       = {
+                lashOfInsanity              = 238137,
                 massHysteria                = 194378,
                 unleashTheShadows           = 194093,
                 voidTorrent                 = 205065,
