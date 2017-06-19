@@ -708,8 +708,8 @@ local function runRotation()
                     if talent.darkShadow and comboDeficit >= 3 and (debuff.nightblade.remain(units.dyn5) > 4 + subty or charges.frac.shadowDance >= 1.9 and (not hasEquiped(137100) or combatTime > 10)) then
                         if actionList_Starter() then return end
                     end
-                    -- call_action_list,name=stealth_als,if=talent.enveloping_shadows.enabled&(combo_points.deficit>=3|cooldown.shadow_dance.charges_fractional>=2.9)
-                    if talent.envelopingShadows and (comboDeficit >= 3 or charges.frac.shadowDance >= 2.9) then
+                    -- call_action_list,name=stealth_als,if=!talent.dark_shadow.enabled&(combo_points.deficit>=3|cooldown.shadow_dance.charges_fractional>=1.9+talent.enveloping_shadows.enabled)
+                    if not talent.darkShadow and (comboDeficit >= 3 or charges.frac.shadowDance >= 1.9 + enveloped) then
                         if actionList_Starter() then return end
                     end
         -- Finishers

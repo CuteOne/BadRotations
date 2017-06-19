@@ -199,6 +199,7 @@ local function runRotation()
         local solo                                          = #br.friend < 2
         local friendsInRange                                = friendsInRange
         local spell                                         = br.player.spell
+        local t20_4pc                                       = TierScan("T20")
         local talent                                        = br.player.talent
         local trinketProc                                   = false
         local ttd                                           = getTTD
@@ -470,6 +471,11 @@ local function runRotation()
                 if (not talent.wayOfTheMokNathal or buff.mokNathalTactics.remain() > (gcd * (8 / 3))) and buff.mongooseFury.stack() == 6 then
                     if cast.furyOfTheEagle("player") then return end
                 end
+            end
+        -- Lacerate
+            -- lacerate,if=!dot.lacerate.ticking&set_bonus.tier20_4pc&buff.mongoose_fury.duration>cooldown.mongoose_bite.charges*gcd
+            if not debuff.lacerate.exists(units.dyn5) and t20_4pc and buff.mongooseFury.duration() > charges.mongooseBite * gcd then
+                if cast.lacerate() then return end
             end
         -- Mongoose Bite
             -- mongoose_bite,if=charges>=2&cooldown.mongoose_bite.remains<gcd*2
