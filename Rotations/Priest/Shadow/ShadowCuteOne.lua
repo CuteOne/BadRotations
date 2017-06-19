@@ -446,7 +446,7 @@ local function runRotation()
             end
         -- Vampiric Touch
             -- vampiric_touch,if=talent.misery.enabled&(dot.vampiric_touch.remains<3*gcd.max|dot.shadow_word_pain.remains<3*gcd.max),cycle_targets=1
-            if talent.misery and debuff.vampiricTouch.count() < getOptionValue("VT Max Targets") and not buff.void.exists() and not moving and br.timer:useTimer("vtRecast", gcd) then --and lastCast ~= spell.vampiricTouch and br.timer:useTimer("vtRecast", gcd) then
+            if talent.misery and debuff.vampiricTouch.count() < getOptionValue("VT Max Targets") and not buff.void.exists() and not moving and not isCastingSpell(spell.vampiricTouch) then --and lastCast ~= spell.vampiricTouch and not isCastingSpell(spell.vampiricTouch) then
                 for i = 1, #enemies.yards40 do
                     local thisUnit = enemies.yards40[i]
                     if (getHP(thisUnit) > vtHPLimit or IsInInstance()) and ((debuff.vampiricTouch.remain(thisUnit) < 3 * gcd or debuff.shadowWordPain.remain(thisUnit) < 3 * gcd)) then
@@ -461,7 +461,7 @@ local function runRotation()
             end
         -- Vampiric Touch
             -- vampiric_touch,if=!talent.misery.enabled&dot.vampiric_touch.remains<(4+(4%3))*gcd
-            if not talent.misery and debuff.vampiricTouch.remain(units.dyn40) < (3 + (4 / 3)) * gcd and lastCast ~= spell.vampiricTouch and not buff.void.exists() and not moving then --and br.timer:useTimer("vtRecast", gcd) then
+            if not talent.misery and debuff.vampiricTouch.remain(units.dyn40) < (3 + (4 / 3)) * gcd and not isCastingSpell(spell.vampiricTouch) and not buff.void.exists() and not moving then --and not isCastingSpell(spell.vampiricTouch) then
                 if cast.vampiricTouch() then return end
             end
         -- Void Eruption
@@ -494,7 +494,7 @@ local function runRotation()
         -- Vampiric Touch
             -- -- vampiric_touch,if=!talent.misery.enabled&!ticking&talent.legacy_of_the_void.enabled&insanity>=70,cycle_targets=1
             -- if not talent.misery and talent.legacyOfTheVoid and power >= 70 and debuff.vampiricTouch.count() < getOptionValue("VT Max Targets") 
-            --     and not buff.void.exists() and not moving --and lastCast ~= spell.vampiricTouch and br.timer:useTimer("vtRecast", gcd)
+            --     and not buff.void.exists() and not moving --and lastCast ~= spell.vampiricTouch and not isCastingSpell(spell.vampiricTouch)
             -- then
             --     for i = 1, #enemies.yards40 do
             --         local thisUnit = enemies.yards40[i]
@@ -545,7 +545,7 @@ local function runRotation()
             end
         -- Vampiric Touch
             -- vampiric_touch,if=active_enemies>1&!talent.misery.enabled&!ticking&(85.2*(1+0.2+stat.mastery_rating%16000)*(1+0.2*talent.sanlayn.enabled)*0.5*target.time_to_die%(gcd.max*(138+80*(active_enemies-1))))>1,cycle_targets=1
-            if #enemies.yards40 > 1 and not talent.misery and debuff.vampiricTouch.count() < getOptionValue("VT Max Targets") and not buff.void.exists() and not moving then
+            if #enemies.yards40 > 1 and not talent.misery and debuff.vampiricTouch.count() < getOptionValue("VT Max Targets") and not buff.void.exists() and not moving and not isCastingSpell(spell.vampiricTouch) then
                 for i = 1, #enemies.yards40 do
                     local thisUnit = enemies.yards40[i]
                     if (getHP(thisUnit) > vtHPLimit or IsInInstance()) and not debuff.vampiricTouch.exists(thisUnit) 
@@ -710,7 +710,7 @@ local function runRotation()
             end
         --Vampiric Touch    
             -- vampiric_touch,if=talent.misery.enabled&(dot.vampiric_touch.remains<3*gcd.max|dot.shadow_word_pain.remains<3*gcd.max),cycle_targets=1
-            if talent.misery and debuff.vampiricTouch.count() < getOptionValue("VT Max Targets") and not buff.void.exists() and br.timer:useTimer("vtRecast", gcd) then
+            if talent.misery and debuff.vampiricTouch.count() < getOptionValue("VT Max Targets") and not buff.void.exists() and not isCastingSpell(spell.vampiricTouch) then
                 for i = 1, #enemies.yards40 do
                     local thisUnit = enemies.yards40[i]
                     if (getHP(thisUnit) > vtHPLimit or IsInInstance()) and (debuff.vampiricTouch.remain(thisUnit) < 3 * gcd or debuff.shadowWordPain.remain(thisUnit) < 3 * gcd) then
@@ -728,7 +728,7 @@ local function runRotation()
             end
         --Vampiric Touch    
             -- vampiric_touch,if=!talent.misery.enabled&!ticking&(active_enemies<4|talent.sanlayn.enabled|(talent.auspicious_spirits.enabled&artifact.unleash_the_shadows.rank))
-            if not talent.misery and not debuff.vampiricTouch.exists() and br.timer:useTimer("vtRecast", gcd)
+            if not talent.misery and not debuff.vampiricTouch.exists() and not isCastingSpell(spell.vampiricTouch)
                 and (((mode.rotation == 1 and #enemies.yards40 < 4) or mode.rotation == 3) or talent.sanlayn or (talent.auspiciousSpirits and artifact.unleashTheShadows))
                 and not buff.void.exists()
             then
@@ -750,7 +750,7 @@ local function runRotation()
         --Vampiric Touch    
             -- vampiric_touch,if=!talent.misery.enabled&!ticking&target.time_to_die>10&(active_enemies<4|talent.sanlayn.enabled|(talent.auspicious_spirits.enabled&artifact.unleash_the_shadows.rank)),cycle_targets=1
             if not talent.misery and (((mode.rotation == 1 and #enemies.yards40 < 4) or mode.rotation == 3) or talent.sanlayn or (talent.auspiciousSpirits and artifact.unleashTheShadows))
-                and debuff.vampiricTouch.count() < getOptionValue("VT Max Targets") and br.timer:useTimer("vtRecast", gcd)
+                and debuff.vampiricTouch.count() < getOptionValue("VT Max Targets") and not isCastingSpell(spell.vampiricTouch)
                 and not buff.void.exists()
             then
                 for i = 1, #enemies.yards40 do
@@ -920,7 +920,7 @@ local function runRotation()
             end
         -- Vampiric Touch
             -- vampiric_touch,if=talent.misery.enabled&(dot.vampiric_touch.remains<3*gcd.max|dot.shadow_word_pain.remains<3*gcd.max)&target.time_to_die>5*gcd.max,cycle_targets=1
-            if talent.misery and debuff.vampiricTouch.count() < getOptionValue("VT Max Targets") and not buff.void.exists() and not moving and br.timer:useTimer("vtRecast", gcd) then
+            if talent.misery and debuff.vampiricTouch.count() < getOptionValue("VT Max Targets") and not buff.void.exists() and not moving and not isCastingSpell(spell.vampiricTouch) then
                 for i = 1, #enemies.yards40 do
                     local thisUnit = enemies.yards40[i]
                     if (getHP(thisUnit) > vtHPLimit or IsInInstance()) and (debuff.vampiricTouch.remain(thisUnit) < 3 * gcd or debuff.shadowWordPain.remain(thisUnit) < 3 * gcd) and ttd(thisUnit) > 5 * gcd then
@@ -938,13 +938,13 @@ local function runRotation()
             end
         -- Vampiric Touch
             -- vampiric_touch,if=!talent.misery.enabled&!ticking&(active_enemies<4|talent.sanlayn.enabled|(talent.auspicious_spirits.enabled&artifact.unleash_the_shadows.rank))
-            if not talent.misery and not debuff.vampiricTouch.exists() and br.timer:useTimer("vtRecast", gcd) and not buff.void.exists() and not moving
+            if not talent.misery and not debuff.vampiricTouch.exists() and not isCastingSpell(spell.vampiricTouch) and not buff.void.exists() and not moving
                 and (((mode.rotation == 1 and #enemies.yards40 < 4) or mode.rotation == 3) or talent.sanlayn or (talent.auspiciousSpirits and artifact.unleashTheShadows))   
             then
                 if cast.vampiricTouch() then return end
             end
             -- vampiric_touch,if=active_enemies>1&!talent.misery.enabled&!ticking&(85.2*(1+0.02*buff.voidform.stack)*(1+0.2+stat.mastery_rating%16000)*(1+0.2*talent.sanlayn.enabled)*0.5*target.time_to_die%(gcd.max*(138+80*(active_enemies-1))))>1,cycle_targets=1
-            if #enemies.yards40 > 1 and not talent.misery and debuff.vampiricTouch.count() < getOptionValue("VT Max Targets") and not buff.void.exists() and not moving then
+            if #enemies.yards40 > 1 and not talent.misery and debuff.vampiricTouch.count() < getOptionValue("VT Max Targets") and not buff.void.exists() and not moving and not isCastingSpell(spell.vampiricTouch) then
                 for i = 1, #enemies.yards40 do
                     local thisUnit = enemies.yards40[i]
                     if (getHP(thisUnit) > vtHPLimit or IsInInstance()) and not debuff.vampiricTouch.exists(thisUnit) 

@@ -2012,6 +2012,7 @@ br.idList = {
                 shadowyInsight              = 124430,
                 shadowform                  = 232698,
                 surrenderedSoul             = 212570,
+                surrenderToMadness          = 193223,
                 void                        = 211657,
                 voidForm                    = 194249,
                 voidTorrent                 = 205065,
