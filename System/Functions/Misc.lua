@@ -60,6 +60,7 @@ function getLineOfSight(Unit1,Unit2)
 		114900, -- Grasping Tentacle (Trials of Valor)
 		114901, -- Gripping Tentacle (Trials of Valor)
 		116195, -- Bilewater Slime (Trials of Valor)
+		120436, -- Fallen Avatar (Tomb of Sargeras)
 		--86644, -- Ore Crate from Oregorger boss
 	}
 	for i = 1,#skipLoSTable do

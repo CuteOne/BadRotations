@@ -1148,8 +1148,9 @@ local function runRotation()
                         end
         -- Regrowth
                         -- regrowth,if=talent.bloodtalons.enabled&buff.predatory_swiftness.up&buff.bloodtalons.down&(combo_points>=5|buff.predatory_swiftness.remains<1.5|(talent.bloodtalons.enabled&combo_points=2&cooldown.ashamanes_frenzy.remains<gcd)|(talent.elunes_guidance.enabled&((cooldown.elunes_guidance.remains<gcd&combo_points=0)|(buff.elunes_guidance.up&combo_points>=4))))
+                        -- regrowth,if=talent.bloodtalons.enabled&buff.predatory_swiftness.up&buff.bloodtalons.down&combo_points=4&dot.rake.remains<4
                         if talent.bloodtalons and buff.predatorySwiftness.exists() and not buff.bloodtalons.exists()
-                            and (combo >= 5 or buff.predatorySwiftness.remain() < 1.5
+                            and (combo >= 5 or buff.predatorySwiftness.remain() < 1.5 or (combo == 4 and debuff.rake.remain(units.dyn5) < 4)
                                 or (talent.bloodtalons and combo == 2 and cd.ashamanesFrenzy < gcd)
                                 or (talent.elunesGuidance and ((cd.elunesGuidance < gcd and combo == 0) or (buff.elunesGuidance.exists() and combo >= 4))))
                         then

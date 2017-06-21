@@ -441,16 +441,16 @@ local function runRotation()
                     if cast.feralSpirit() then return end
                 end
         -- Doom Winds
-                -- doom_winds,if=debuff.earthen_spike.up&talent.earthen_spike.enabled|!talent.earthen_spike.enabled
+                -- doom_winds,if=cooldown.ascendance.remains>6|talent.boulderfist.enabled|debuff.earthen_spike.up
                 if (getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs())) and getDistance("target") < 5 then
-                    if (debuff.earthenSpike.exists(units.dyn5) and talent.earthenSpike) or not talent.earthenSpike then
+                    if cd.ascendance > 6 or talent.boulderfist or debuff.earthenSpike.exists(units.dyn5) then
                         if cast.doomWinds() then return end
                     end
                 end
         -- Ascendance
-                -- ascendance,if=buff.doom_winds.up
+                -- ascendance,if=(cooldown.strike.remains>0)&buff.ascendance.down
                 if isChecked("Ascendance") then
-                    if buff.doomWinds.exists() then
+                    if cd.stormstrike > 0 and not buff.ascendance.exists() then
                         if cast.ascendance() then return end
                     end
                 end
@@ -463,6 +463,22 @@ local function runRotation()
                 end
             end -- End useCDs check
         end -- End Action List - Cooldowns
+    -- Action List - Ascendance
+        local function actionList_Ascendance()
+        -- Earthen Spike
+            -- earthen_spike
+            if cast.earthenSpike() then return end
+        -- Doom Winds
+            -- doom_winds,if=cooldown.windstrike.up
+            if (getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs())) and getDistance("target") < 5 then
+                if cd.windstrike == 0 then
+                    if cast.doomWinds() then return end
+                end
+            end
+        -- Windstrike
+            -- windstrike
+            if cast.windstrike() then return end
+        end -- End Action List - Ascendance
     -- Action List - Buffs
         local function actionList_Buffs()
         -- Rockbiter
@@ -471,11 +487,9 @@ local function runRotation()
                 if cast.rockbiter() then return end
             end
         -- Fury of Air
-            -- fury_of_air,if=buff.ascendance.up|(feral_spirit.remains>5)|level<100
-            if buff.ascendance.exists() or (feralSpiritRemain > 5) or level < 100 then
-                if not buff.furyOfAir.exists() then
-                    if cast.furyOfAir() then return end
-                end
+            -- fury_of_air,if=!ticking&maelstrom>22
+            if not buff.furyOfAir.exists() and power > 22 then
+                if cast.furyOfAir() then return end
             end
         -- Crash Lightning
             -- crash_lightning,if=artifact.alpha_wolf.rank&prev_gcd.1.feral_spirit
@@ -580,11 +594,6 @@ local function runRotation()
             -- flametongue,if=buff.flametongue.remains<4.8
             if buff.flametongue.remain() < 4.8 then
                 if cast.flametongue() then return end
-            end
-        -- Rockbiter
-            -- rockbiter,if=maelstrom<=40
-            if power <= 40 then
-                if cast.rockbiter() then return end
             end
         -- Crash Lightning
             -- crash_lightning,if=(talent.crashing_storm.enabled|active_enemies>=2)&debuff.earthen_spike.up&maelstrom>=40&variable.OCPool60

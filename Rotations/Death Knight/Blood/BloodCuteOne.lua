@@ -398,10 +398,12 @@ local function runRotation()
                         if cast.marrowrend() then return end
                     end
         -- Blood Boil
-                    for i = 1, #enemies.yards8 do
-                        local thisUnit = enemies.yards8[i]
-                        if not debuff.bloodPlague.exists(thisUnit) then
-                            if cast.bloodBoil("player") then return end
+                    if #enemies.yards8 > 0 then
+                        for i = 1, #enemies.yards8 do
+                            local thisUnit = enemies.yards8[i]
+                            if not debuff.bloodPlague.exists(thisUnit) then
+                                if cast.bloodBoil("player") then return end
+                            end
                         end
                     end
         -- Death and Decay
@@ -427,7 +429,9 @@ local function runRotation()
         -- Consumption
                     if cast.consumption() then return end
         -- Blood Boil
-                    if cast.bloodBoil("player") then return end
+                    if #enemies.yards8 > 0 then
+                        if cast.bloodBoil("player") then return end
+                    end
                 end -- End SimC APL
     ------------------------
     --- Ask Mr Robot APL ---
@@ -470,7 +474,9 @@ local function runRotation()
                         if cast.blooddrinker() then return end
                     end
         -- Blood Boil
-                    if cast.bloodBoil("player") then return end
+                    if #enemies.yards8 > 0 then
+                        if cast.bloodBoil("player") then return end
+                    end
         -- Death and Decay
                      --if HasBuff(CrimsonScourge) or HasTalent(RapidDecomposition)
                     if buff.crimsonScourge.exists() or talent.rapidDecomposition then
@@ -513,7 +519,7 @@ local function runRotation()
                     --Not gonna bother with this because worthless talent anyway, might add later.
                     --actions+=/blood_boil,if=!talent.soulgorge.enabled&(debuff.blood_plague.refresh()able|!debuff.blood_plague.up)
                     --borrowing your blood boil code
-                    if not talent.soulgorge then
+                    if not talent.soulgorge and #enemies.yards8 > 0 then
                         for i = 1, #enemies.yards8 do
                             local thisUnit = enemies.yards8[i]
                             if not debuff.bloodPlague.exists(thisUnit) then
@@ -521,7 +527,7 @@ local function runRotation()
                             end
                         end
                     end
-                    if isChecked("Blood Boil High Prio") and (charges.frac.bloodBoil >= 1.75 and getDistance("target") <= 8) then
+                    if isChecked("Blood Boil High Prio") and (charges.frac.bloodBoil >= 1.75 and getDistance("target") <= 8) and #enemies.yards8 > 0 then
                         if cast.bloodBoil("player") then return end
                     end
                     if talent.bloodTap and runes < 3 then
@@ -547,7 +553,7 @@ local function runRotation()
                             if cast.consumption() then return end
                         end
                     end
-                    if getDistance("target") <= 8 then
+                    if getDistance("target") <= 8 and #enemies.yards8 > 0 then
                         if cast.bloodBoil("player") then return end
                     end
                 end -- End Vilt APL

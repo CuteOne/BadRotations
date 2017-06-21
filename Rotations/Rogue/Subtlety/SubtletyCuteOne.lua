@@ -479,7 +479,7 @@ local function runRotation()
                 end
         -- Shadow Dance
                 -- shadow_dance,if=combo_points.deficit>=2+(talent.subterfuge.enabled|buff.the_first_of_the_dead.up)*2&(cooldown.symbols_of_death.remains>2|!talent.dark_shadow.enabled)
-                if useCDs() and isChecked("Shadow Dance") then
+                if useCDs() and isChecked("Shadow Dance") and not buff.shadowDance.exists() then
                     if comboDeficit >= 2 + subtyDead * 2 and (cd.symbolsOfDeath > 2 or not talent.darkShadow) then
                         if cast.shadowDance() then ShDCdTime = GetTime(); return end
                     end
@@ -720,7 +720,7 @@ local function runRotation()
         -- Generators
                     -- call_action_list,name=build,if=energy.deficit<=variable.stealth_threshold
                     -- if GetTime() > vanishTime + 1 and GetTime() > ShDCdTime + 1 and GetTime() > ShdMTime + 1 and edThreshVar then
-                    if powerDeficit <= stealthThreshold then
+                    if powerDeficit <= stealthThreshold and combo < 5 then
                         if actionList_Generators() then return end
                     end
                 end
