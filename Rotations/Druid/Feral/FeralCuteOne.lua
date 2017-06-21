@@ -289,7 +289,7 @@ local function runRotation()
             fbMaxEnergy = false
         end
         if not inCombat and not GetObjectExists("target") then
-			shredCount = 10
+			shredCount = 9
             OPN1 = false
             RK1 = false
             SR1 = false
@@ -685,7 +685,7 @@ local function runRotation()
        					if castOpener("savageRoar","SR1",2) then return end
        				elseif SR1 and not BER1 then
           	-- Berserk
-						if isChecked("Berserk") and useCDs() then
+						if isChecked("Berserk") and useCDs() and not hasEquiped(140808) then
 							if castOpener("berserk","BER1",3) then return end
 						else
 							Print("3: Berserk (Uncastable)")
@@ -693,37 +693,37 @@ local function runRotation()
 						end
                     elseif BER1 and not TF1 then
             -- Tiger's Fury
-                        if castOpener("tigersFury","TF1",4) then return end
+                        if not hasEquiped(140808) then
+                            if castOpener("tigersFury","TF1",4) then return end
+                        else
+                            Print("4: Tiger's Fury (Uncastable)")
+                            TF1 = true
+                        end
 					elseif TF1 and not AF1 then
           	-- Ashamane's Frenzy
-						if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()) then
+						if (getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs())) and not hasEquiped(140808) then
                 			if castOpener("ashamanesFrenzy","AF1",5) then return end
 						else
 							Print("5: Ashamane's Frenzy (Uncastable)")
 							AF1 = true
 						end
-			  		elseif AF1 and not MF1 then
-            -- Moonfire
-                        if talent.moonfire then
-			    			if castOpener("moonfire","MF1",6) then return end
-						else
-							Print("6: Moonfire (Uncastable)");
-							MF1 = true
-						end
-                    elseif MF1 and not REG1 then
+			  		elseif AF1 and not REG1 then
             -- Regrowth
-                        if combo == 5 and not buff.bloodtalons.exists() and buff.predatorySwiftness.exists() then
+                        if combo == 5 and not buff.bloodtalons.exists() and buff.predatorySwiftness.exists() and not hasEquiped(140808) then
                             if castOpener("regrowth","REG1",7) then return end
                         else
-                            Print("7: Regrowth (Uncastable)");
+                            Print("7: Regrowth (Uncastable)")
                             REG1 = true
                         end
 					elseif REG1 and not RIP1 then
        		-- Rip
-     					if castOpener("rip","RIP1",8) then return end
-                    elseif RIP1 and not THR1 and power >= 50 then
-                        if castOpener("thrash","THR1",9) then return end
-                    elseif THR1 and (not SHR1 or combo < 5) and power >= 40 and (buff.savageRoar.exists() or not talent.savageRoar) then
+                        if combo == 5 and (buff.bloodtalons.exists() or not talent.bloodtalons) and not hasEquiped(140808) then
+					        if castOpener("rip","RIP1",8) then return end
+                        else
+                            Print("8: Rip (Uncastable)")
+                            RIP1 = true
+                        end
+                    elseif RIP1 and (not SHR1 or combo < 5) and power >= 40 and (buff.savageRoar.exists() or not talent.savageRoar) and not hasEquiped(140808) then
             -- Shred
                         if castOpener("shred","SHR1",shredCount) then shredCount = shredCount + 1 return end
                     elseif SHR1 and (RIP1 and (not buff.savageRoar.exists() or combo == 5)) then

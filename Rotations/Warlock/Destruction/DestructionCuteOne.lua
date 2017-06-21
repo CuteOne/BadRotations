@@ -465,7 +465,7 @@ local function runRotation()
                     if isValidUnit("target") and getDistance("target") < 40 and (not isChecked("Opener") or opener == true) then
                 -- Life Tap
                         -- life_tap,if=talent.empowered_life_tap.enabled&!buff.empowered_life_tap.remain()s
-                        if isChecked("Life Tap") and php > getOptionValue("Life Tap") and talent.empoweredLifeTap and not buff.empoweredLifeTap.exists() then
+                        if isChecked("Life Tap") and php > getOptionValue("Life Tap") and talent.empoweredLifeTap and not buff.empoweredLifeTap.exists() and not moving then
                             if cast.lifeTap() then return end
                         end
                 -- Potion
@@ -625,7 +625,7 @@ local function runRotation()
                     end
         -- Life Tap
                     -- life_tap,if=talent.empowered_life_tap.enabled&buff.empowered_life_tap.remain()s<=gcd
-                    if isChecked("Life Tap") and php > getOptionValue("Life Tap") and talent.empoweredLifeTap and buff.empoweredLifeTap.remain() <= gcd then
+                    if isChecked("Life Tap") and php > getOptionValue("Life Tap") and talent.empoweredLifeTap and buff.empoweredLifeTap.remain() <= gcd and not moving then
                         if cast.lifeTap() then return end
                     end
         -- Dimensional Rift
@@ -735,7 +735,7 @@ local function runRotation()
                     end
         -- Life Tap
                     -- life_tap,if=talent.empowered_life_tap.enabled&buff.empowered_life_tap.remain()s<duration*0.3
-                    if isChecked("Life Tap") and php > getOptionValue("Life Tap") and talent.empoweredLifeTap and buff.empoweredLifeTap.refresh() then
+                    if isChecked("Life Tap") and php > getOptionValue("Life Tap") and talent.empoweredLifeTap and buff.empoweredLifeTap.refresh() and not moving then
                         if cast.lifeTap() then return end
                     end
         -- Cataclysm
@@ -771,7 +771,7 @@ local function runRotation()
                     if cast.incinerate() then return end
         -- Life Tap
                     -- life_tap
-                    if isChecked("Life Tap") and php > getOptionValue("Life Tap") then
+                    if isChecked("Life Tap") and php > getOptionValue("Life Tap") and not moving then
                         if cast.lifeTap() then return end
                     end
                 end -- End SimC APL
