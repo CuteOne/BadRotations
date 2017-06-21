@@ -192,7 +192,8 @@ local function runRotation()
         local spell                                         = br.player.spell
         local talent                                        = br.player.talent
         local t19_4pc                                       = TierScan("T19") >= 4
-        local t20_2pc                                       = false -- TODO: Add T20
+        local t20_2pc                                       = TierScan("T20") >= 2
+        local t20_4pc                                       = TierScan("T20") >= 4
         local ttd                                           = getTTD
         local ttm                                           = br.player.power.ttm
         local units                                         = units or {}
@@ -231,22 +232,22 @@ local function runRotation()
             poolForMeta = false
         end
     -- Blade Dance Variable
-        -- blade_dance,value=talent.first_blood.enabled|set_bonus.tier20_2pc|spell_targets.blade_dance1>=3+(talent.chaos_cleave.enabled*2)
-        if talent.firstBlood or t20_2pc or ((mode.rotation == 1 and #enemies.yards8 >= getOptionValue("Units To AoE")) or mode.rotation == 2) then
+        -- blade_dance,value=talent.first_blood.enabled|set_bonus.tier20_4pc|spell_targets.blade_dance1>=3+(talent.chaos_cleave.enabled*3)
+        if talent.firstBlood or t20_4pc or ((mode.rotation == 1 and #enemies.yards8 >= getOptionValue("Units To AoE")) or mode.rotation == 2) then
             bladeDanceVar = true
         else
             bladeDanceVar = false
         end
-    -- Pool for Blade Dance Var
-        -- pooling_for_blade_dance,value=variable.blade_dance&fury-40<35-talent.first_blood.enabled*20&(spell_targets.blade_dance1>=3+(talent.chaos_cleave.enabled*2))
-        -- if bladeDanceVar and power - 40 < 35 - flood * 20 and ((mode.rotation == 1 and #enemies.yards8 >= getOptionValue("Units To AoE")) or mode.rotation == 2) then --power - 40 < 35 - flood * 20
-        --     poolForBladeDance = true
-        -- else
+    -- Pool for Blade Dance Variable
+        -- pooling_for_blade_dance,value=variable.blade_dance&(fury<75-talent.first_blood.enabled*20)
+        if bladeDanceVar and power < 75 - flood * 20 then
+            poolForBladeDance = true
+        else
             poolForBladeDance = false
-        -- end
-    -- Pool for Chaos Strike
+        end
+    -- Pool for Chaos Strike Variable
         -- pooling_for_chaos_strike,value=talent.chaos_cleave.enabled&fury.deficit>40&!raid_event.adds.up&raid_event.adds.in<2*gcd
-        if talent.chaosCleave and power < 40 then --and not addsExist and addsIn < 2 * gcd then
+        if talent.chaosCleave and power < 40 then
             poolForChaosStrike = true
         else
             poolForChaosStrike = false
@@ -444,8 +445,8 @@ local function runRotation()
     -- Action List - Demonic
         local function actionList_Demonic()
         -- Pick Up Fragments
-            -- pick_up_fragment,if=fury.deficit>=35&cooldown.eye_beam.remains>5
-            if talent.demonicAppetite and powerDeficit >= 35 and cd.eyeBeam > 5 then
+            -- pick_up_fragment,if=fury.deficit>=35&(cooldown.eye_beam.remains>5|buff.metamorphosis.up)
+            if talent.demonicAppetite and powerDeficit >= 35 and (cd.eyeBeam > 5 or buff.metamorphosis.exists()) then
                 ChatOverlay("Low Fury - Collect Fragments!")
             end
         -- Vengeful Retreat
@@ -459,9 +460,9 @@ local function runRotation()
             end
         -- Fel Rush
             -- fel_rush,if=(talent.momentum.enabled|talent.fel_mastery.enabled)&(!talent.momentum.enabled|(charges=2|cooldown.vengeful_retreat.remains>4)&buff.momentum.down)&(charges=2|(raid_event.movement.in>10&raid_event.adds.in>10))
-            if getFacing("player","target",10)
-                and (talent.momentum or talent.felMastery) and (not talent.momentum or ((charges.felRush > getOptionValue("Hold Fel Rush Charge") or cd.vengefulRetreat > 4) 
-                and not buff.momentum.exists()) and (charges.felRush > getOptionValue("Hold Fel Rush Charge")))
+            if getFacing("player","target",10) and charges.felRush > getOptionValue("Hold Fel Rush Charge")
+                and (talent.momentum or talent.felMastery) and (not talent.momentum or ((charges.felRush == 2 or cd.vengefulRetreat > 4) 
+                and not buff.momentum.exists()) and (charges.felRush == 2))
             then
                 if mode.mover == 1 and getDistance("target") < 8 then
                     cancelRushAnimation()
@@ -480,12 +481,13 @@ local function runRotation()
                 if cast.bladeDance() then return end
             end
         -- Fel Eruption
+            -- fel_eruption
             if cast.felEruption() then return end
         -- Fury of the Illidari
             -- fury_of_the_illidari,if=(active_enemies>desired_targets|raid_event.adds.in>55)&(!talent.momentum.enabled|buff.momentum.up)
             if (getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs())) and getDistance("target") < 5 then
-                if ((mode.rotation == 1 and #enemies.yards8 >= getOptionValue("Units To AoE")) or mode.rotation == 2) --[[or addsIn > 55]] and (not talent.momentum or buff.momentum.exists()) 
-                    and (not talent.chaosBlades or buff.chaosBlades or cd.chaosBlades > 30 or ttd(units.dyn5) < cd.chaosBlades)
+                if ((mode.rotation == 1 and #enemies.yards8 >= getOptionValue("Units To AoE")) or mode.rotation == 2) or (not talent.momentum or buff.momentum.exists()) 
+                    --and (not talent.chaosBlades or buff.chaosBlades or cd.chaosBlades > 30 or ttd(units.dyn5) < cd.chaosBlades)
                 then
                     if cast.furyOfTheIllidari() then return end
                 end
@@ -499,8 +501,13 @@ local function runRotation()
             end
         -- Throw Glaive
             -- throw_glaive,if=talent.bloodlet.enabled&spell_targets>=2&(!talent.master_of_the_glaive.enabled|!talent.momentum.enabled|buff.momentum.up)&(spell_targets>=3|raid_event.adds.in>recharge_time+cooldown)
-            if --[[talent.bloodlet and ]]((mode.rotation == 1 and #enemies.yards10t >= 2) or mode.rotation == 2) and (not talent.masterOfTheGlaive or not talent.momentum or buff.momentum.exists()) then
+            if talent.bloodlet and ((mode.rotation == 1 and #enemies.yards10t >= 2) or mode.rotation == 2) and (not talent.masterOfTheGlaive or not talent.momentum or buff.momentum.exists()) then
                 if cast.throwGlaive(units.dyn10t) then return end
+            end
+        -- Felblade
+            -- felblade,if=fury.deficit>=30
+            if powerDeficit >= 30 then
+                if cast.felblade() then return end
             end
         -- Eye Beam
             -- eye_beam,if=spell_targets.eye_beam_tick>desired_targets|!buff.metamorphosis.extended_by_demonic
@@ -512,9 +519,7 @@ local function runRotation()
             end
         -- Annihilation
             -- annihilation,if=(!talent.momentum.enabled|buff.momentum.up|fury.deficit<30+buff.prepared.up*8|buff.metamorphosis.remains<5)&!variable.pooling_for_blade_dance
-            if buff.metamorphosis.exists() and (not talent.momentum or buff.momentum.exists() or buff.metamorphosis.remain() < 5 or power > 40) --(powerDeficit < 30 + (prepared * 8) + (artifact.rank.containedFury * 10))) 
-                and not poolForBladeDance 
-            then
+            if buff.metamorphosis.exists() and (not talent.momentum or buff.momentum.exists() or powerDeficit < 30 + (prepared * 8) or buff.metamorphosis.remain() < 5) and not poolForBladeDance then
                 if cast.chaosStrike() then return end
             end
         -- Throw Glaive
@@ -524,14 +529,14 @@ local function runRotation()
             end
         -- Chaos Strike
             -- chaos_strike,if=(!talent.momentum.enabled|buff.momentum.up|fury.deficit<30+buff.prepared.up*8)&!variable.pooling_for_chaos_strike&!variable.pooling_for_meta&!variable.pooling_for_blade_dance
-            if not buff.metamorphosis.exists() and (not talent.momentum or buff.momentum.exists() or power > 40) --(powerDeficit < 30 + (prepared * 8) + (artifact.rank.containedFury * 10))) 
+            if not buff.metamorphosis.exists() and (not talent.momentum or buff.momentum.exists() or powerDeficit < 30 + (prepared * 8))
                 and not poolForChaosStrike and not poolForMeta and not poolForBladeDance 
             then
                 if cast.chaosStrike() then return end
             end
         -- Fel Rush
-            -- fel_rush,if=!talent.momentum.enabled&buff.metamorphosis.down&(charges=2|(raid_event.movement.in>10&raid_event.adds.in>10))
-            if getFacing("player","target",10) and not talent.momentum and not buff.metamorphosis.exists() and charges.felRush == 2 and getOptionValue("Hold Fel Rush Charge") ~= 2 then
+            -- fel_rush,if=!talent.momentum.enabled&(buff.metamorphosis.down|talent.demon_blades.enabled)&(charges=2|(raid_event.movement.in>10&raid_event.adds.in>10))
+            if getFacing("player","target",10) and not talent.momentum and (not buff.metamorphosis.exists() or talent.demonBlades) and charges.felRush == 2 and charges.felRush > getOptionValue("Hold Fel Rush Charge") then
                if mode.mover == 1 and getDistance("target") < 8 then
                     cancelRushAnimation()
                 elseif mode.mover == 2 or (getDistance("target") >= 8 and mode.mover ~= 3) then
@@ -540,7 +545,9 @@ local function runRotation()
             end
         -- Demon's Bite
             -- demons_bite
-            if cast.demonsBite() then return end
+            if not talent.demonBlades then
+                if cast.demonsBite() then return end
+            end
         -- Throw Glaive
             -- throw_glaive,if=buff.out_of_range.up
             if getDistance(units.dyn5) > 8 then
@@ -575,9 +582,9 @@ local function runRotation()
             end
         -- Fel Rush
             -- fel_rush,if=(talent.momentum.enabled|talent.fel_mastery.enabled)&(!talent.momentum.enabled|(charges=2|cooldown.vengeful_retreat.remains>4)&buff.momentum.down)&(!talent.fel_mastery.enabled|fury.deficit>=25)&(charges=2|(raid_event.movement.in>10&raid_event.adds.in>10))
-            if getFacing("player","target",10)
-                and (talent.momentum or talent.felMastery) and (not talent.momentum or ((charges.felRush > getOptionValue("Hold Fel Rush Charge") or cd.vengefulRetreat > 4) 
-                and not buff.momentum.exists()) and (not talent.felMastery or powerDeficit >= 25) and (charges.felRush > getOptionValue("Hold Fel Rush Charge")))
+            if getFacing("player","target",10) and charges.felRush > getOptionValue("Hold Fel Rush Charge")
+                and (talent.momentum or talent.felMastery) and (not talent.momentum or ((charges.felRush == 2 or cd.vengefulRetreat > 4) 
+                and not buff.momentum.exists()) and (not talent.felMastery or powerDeficit >= 25) and (charges.felRush == 2))
             then
                 if mode.mover == 1 and getDistance("target") < 8 then
                     cancelRushAnimation()
@@ -586,7 +593,7 @@ local function runRotation()
                 end
             end
         -- Fel Barrage
-            -- fel_barrage,if=charges>=5&(buff.momentum.up|!talent.momentum.enabled)&(active_enemies>desired_targets|raid_event.adds.in>30)
+            -- fel_barrage,if=(buff.momentum.up|!talent.momentum.enabled)&(active_enemies>desired_targets|raid_event.adds.in>30)
             if (buff.momentum.exists() or not talent.momentum) and (((mode.rotation == 1 and #enemies.yards8 >= getOptionValue("Units To AoE")) or mode.rotation == 2)) then
                 if cast.felBarrage() then return end
             end
@@ -607,7 +614,7 @@ local function runRotation()
             end
         -- Fel Rush
             -- fel_rush,if=charges=2&!talent.momentum.enabled&!talent.fel_mastery.enabled
-            if getFacing("player","target",10) and getOptionValue("Hold Fel Rush Charge") ~= 2 and charges == 2 and not talent.momentum and not talent.felMastery then
+            if getFacing("player","target",10) and charges.felRush > getOptionValue("Hold Fel Rush Charge") and charges.felRush == 2 and not talent.momentum and not talent.felMastery then
                 if mode.mover == 1 and getDistance("target") < 8 then
                     cancelRushAnimation()
                 elseif mode.mover == 2 or (getDistance("target") >= 8 and mode.mover ~= 3) then
@@ -642,17 +649,17 @@ local function runRotation()
                 if cast.felblade() then return end
             end
         -- Eye Beam
-            -- eye_beam,if=talent.blind_fury.enabled&(spell_targets.eye_beam_tick>desired_targets|fury.deficit>=35)
-            if ((getOptionValue("Eye Beam Usage") == 1 and talent.blindFury and enemies.yards8r > 0 
-                and (((mode.rotation == 1 and enemies.yards8r >= getOptionValue("Units To AoE")) or mode.rotation == 2) or powerDeficit >= 35)) 
-                or (getOptionValue("Eye Beam Usage") == 2 and ((mode.rotation == 1 and enemies.yards8r >= getOptionValue("Units To AoE")) or (mode.rotation == 2 and enemies.yards8r > 0))))
-                and not moving
+            -- eye_beam,if=spell_targets.eye_beam_tick>desired_targets|(spell_targets.eye_beam_tick>=3&raid_event.adds.in>cooldown)|(talent.blind_fury.enabled&fury.deficit>=35)
+            if enemies.yards8r > 0 and not moving and 
+                ((getOptionValue("Eye Beam Usage") == 1 and (((mode.rotation == 1 and enemies.yards8r >= getOptionValue("Units To AoE")) or mode.rotation == 2))) 
+                or (getOptionValue("Eye Beam Usage") == 2 and ((mode.rotation == 1 and enemies.yards8r >= getOptionValue("Units To AoE")) or mode.rotation == 2))
+                or (talent.blindFury and powerDeficit >= 35))
             then
                 if cast.eyeBeam() then return end
             end
         -- Annihilation
             -- annihilation,if=(talent.demon_blades.enabled|!talent.momentum.enabled|buff.momentum.up|fury.deficit<30+buff.prepared.up*8|buff.metamorphosis.remains<5)&!variable.pooling_for_blade_dance
-            if buff.metamorphosis.exists() and (talent.demonBlades or not talent.momentum or buff.momentum.exists or (powerDeficit < 30 + perpared * 8) or buff.metamorphosis.remain() < 5) and not poolForBladeDance then
+            if buff.metamorphosis.exists() and (talent.demonBlades or not talent.momentum or buff.momentum.exists() or (powerDeficit < 30 + perpared * 8) or buff.metamorphosis.remain() < 5) and not poolForBladeDance then
                 if cast.chaosStrike() then return end
             end
         -- Throw Glaive
@@ -660,19 +667,8 @@ local function runRotation()
             if talent.bloodlet and (not talent.masterOfTheGlaive or not talent.momentum or buff.momentum.exists()) then
                 if cast.throwGlaive() then return end
             end
-        -- Eye Beam
-            -- eye_beam,if=!talent.blind_fury.enabled&(spell_targets.eye_beam_tick>desired_targets|(!set_bonus.tier19_4pc&raid_event.adds.in>45&!variable.pooling_for_meta&buff.metamorphosis.down&(artifact.anguish_of_the_deceiver.enabled|active_enemies>1)&!talent.chaos_cleave.enabled)) 
-            if ((getOptionValue("Eye Beam Usage") == 1 and not talent.blindFury and enemies.yards8r > 0 and ((mode.rotation == 1 and (enemies.yards8r >= getOptionValue("Units To AoE")) or mode.rotation == 2)
-                or (not tier19_4pc and not poolForMeta and not buff.metamorphosis.exists() and (artifact.anguishOfTheDeceiver or enemies.yards8r > 1) 
-                    and not talent.chaosCleave)))
-                or (getOptionValue("Eye Beam Usage") == 2 and ((mode.rotation == 1 and enemies.yards8r >= getOptionValue("Units To AoE")) or (mode.rotation == 2 and enemies.yards8r > 0))))
-                and not moving
-            then 
-                if cast.eyeBeam() then return end
-            end
-        -- Throw Glaive
-            -- throw_glaive,if=buff.metamorphosis.down&spell_targets>=2
-            if not buff.metamorphosis.exists() and ((mode.rotation == 1 and #enemies.yards10t >= 2) or mode.rotation == 2) then
+            -- throw_glaive,if=!talent.bloodlet.enabled&buff.metamorphosis.down&spell_targets>=3
+            if not talent.bloodlet and not buff.metamorphosis.exists() and ((mode.rotation == 1 and #enemies.yards10t >= 3) or mode.rotation == 2) then
                 if cast.throwGlaive(units.dyn10t) then return end
             end
         -- Chaos Strike
@@ -682,16 +678,9 @@ local function runRotation()
             then
                 if cast.chaosStrike() then return end
             end
-        -- Fel Barrage
-            -- fel_barrage,if=charges=4&buff.metamorphosis.down&(buff.momentum.up|!talent.momentum.enabled)&(active_enemies>desired_targets|raid_event.adds.in>30)
-            if charges.felBarrage == 4 and not buff.metamorphosis.exists() and (buff.momentum.exists() or not talent.momentum) 
-                and ((mode.rotation == 1 and #enemies.yards8 >= getOptionValue("Units To AoE")) or mode.rotation ==2)
-            then
-                if cast.felBarrage() then return end
-            end
         -- Fel Rush
             -- fel_rush,if=!talent.momentum.enabled&raid_event.movement.in>charges*10&(talent.demon_blades.enabled|buff.metamorphosis.down)
-            if getFacing("player","target",10) and not talent.momentum and (talent.demonBlades or not buff.metamorphosis.exists()) then
+            if getFacing("player","target",10) and not talent.momentum and (talent.demonBlades or not buff.metamorphosis.exists()) and charges.felRush > getOptionValue("Hold Fel Rush Charge") then
                 if mode.mover == 1 and getDistance("target") < 8 then
                     cancelRushAnimation()
                 elseif mode.mover == 2 or (getDistance("target") >= 8 and mode.mover ~= 3) then
@@ -700,7 +689,9 @@ local function runRotation()
             end
         -- Demon's Bite
             -- demons_bite
-            if cast.demonsBite() then return end
+            if not talent.demonBlades then
+                if cast.demonsBite() then return end
+            end
         -- Throw Glaive
             -- throw_glaive,if=buff.out_of_range.up
             if getDistance(units.dyn5) > 8 then
@@ -802,8 +793,8 @@ local function runRotation()
                         if actionList_Cooldowns() then return end
                     end
             -- Call Action List - Demonic
-                    -- run_action_list,name=demonic,if=talent.demonic.enabled&talent.demonic_appetite.enabled&talent.blind_fury.enabled
-                    if talent.demonic and talent.blindFury then
+                    -- run_action_list,name=demonic,if=talent.demonic.enabled
+                    if talent.demonic then
                         if actionList_Demonic() then return end
                     else
             -- Call Action List - Normal
@@ -937,7 +928,7 @@ local function runRotation()
                         end
                     end
             -- Demon's Bite
-                    if castable.demonsBite then
+                    if castable.demonsBite and not talent.demonBlades then
                         cast.demonsBite()
                     end
             -- Throw Glaive
@@ -1034,7 +1025,7 @@ local function runRotation()
                         if cast.felBarrage() then return end
                     end
             -- Demon's Bite
-                    if powerDeficit >= 40 then
+                    if powerDeficit >= 40 and not talent.demonBlades then
                         if cast.demonsBite() then return end
                     end
             -- Throw Glaive
