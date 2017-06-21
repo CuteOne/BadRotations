@@ -186,7 +186,6 @@ Rotations\Rogue\Outlaw\OutlawCuteOne.lua
 Rotations\Rogue\Outlaw\OutlawVilt.lua
 
 Rotations\Rogue\Subtlety\SubtletyCuteOne.lua
-Rotations\Rogue\Subtlety\SubtletyVilt.lua
 
 ## Shaman  ---------------------------------------------------
 
