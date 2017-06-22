@@ -37,6 +37,12 @@ local function createToggles()
         [2] = { mode = "Off", value = 2 , overlay = "Misdirection Disabled", tip = "Misdirection Disabled", highlight = 0, icon = br.player.spell.misdirection }
     };
     CreateButton("Misdirection",1.5,1)
+    -- TT Button
+    TitanThunderModes = {
+        [1] = { mode = "On", value = 1 , overlay = "Auto Titan Thunder", tip = "Will Use Titan Thunder At All Times", highlight = 1, icon = br.player.spell.titansThunder },
+        [2] = { mode = "Off", value = 2 , overlay = "CD Only Titan Thunder", tip = "Will Use Titan Thunder Only with BW", highlight = 0, icon = br.player.spell.titansThunder }
+    };
+    CreateButton("TitanThunder",1.5,1)
 end
 
 ---------------
@@ -140,6 +146,7 @@ local function runRotation()
         UpdateToggle("Defensive",0.25)
         UpdateToggle("Interrupt",0.25)
         br.player.mode.misdirection = br.data.settings[br.selectedSpec].toggles["Misdirection"]
+        br.player.mode.titanthunder = br.data.settings[br.selectedSpec].toggles["TitanThunder"]
 
 --------------
 --- Locals ---
@@ -611,7 +618,7 @@ local function runRotation()
                             if cast.direBeast(units.dyn40) then return end
                         end
                     -- Dire Frenzy
-                        if talent.direFrenzy and getSpellCD(217200) == 0 and (((cd.bestialWrath > 6 or cd.bestialWrath <= gcd) and (not hasEquiped(144326) or buff.direFrenzy.remain("pet") <= (gcd*1.2))) or ttd(units.dyn40) < 9) then
+                        if talent.direFrenzy and getSpellCD(217200) == 0 and ((cd.bestialWrath > 6 or cd.bestialWrath <= gcd) and buff.direFrenzy.remain("pet") <= (gcd*1.2)) then
                             if cast.direFrenzy(units.dyn40) then return end
                         end
                     -- Aspect of the Wild
@@ -623,7 +630,7 @@ local function runRotation()
                             if cast.barrage(units.dyn40) then return end
                         end
                     -- Titan's Thunder
-                        if talent.direFrenzy or cd.direBeast >= 3 or ((buff.bestialWrath.exists() and buff.direBeast.exists("pet"))) then
+                        if (talent.direFrenzy or cd.direBeast >= 3 and br.player.mode.titanthunder == 1) or ((buff.bestialWrath.exists() and buff.direBeast.exists("pet"))) and  then
                             if cast.titansThunder(units.dyn40) then return end
                         end
                     -- Bestial Wrath
