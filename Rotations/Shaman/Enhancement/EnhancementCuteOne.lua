@@ -731,10 +731,10 @@ local function runRotation()
             -- Call Action List - Opener
                     -- call_action_list,name=opener
                     if actionList_Opener() then return end
-            -- Windstrike
-                    -- windstrike,if=(variable.heartEquipped|set_bonus.tier19_2pc)&(!talent.earthen_spike.enabled|(cooldown.earthen_spike.remains>1&cooldown.doom_winds.remains>1)|debuff.earthen_spike.up)
-                    if buff.ascendance.exists() and (heartEquiped or t19pc2) and (not talent.earthenSpike or (cd.earthenSpike > 1 and cd.doomWinds > 1) or debuff.earthenSpike.exists(units.dyn5)) then
-                        if cast.windstrike() then return end
+            -- Call Action List - Ascendance
+                    -- call_action_list,name=asc,if=buff.ascendance.up
+                    if buff.ascendance.exists() then
+                        if actionList_Ascendance() then return end
                     end
             -- Call Action List - Buffs
                     -- call_action_list,name=buffs
