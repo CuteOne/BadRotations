@@ -282,11 +282,10 @@ local function runRotation()
         if talent.masterPoisoner then masterPoison = 1 else masterPoison = 0 end
         if talent.exsanguinate then exsang = 1 else exsang = 0 end
         if talent.vigor then vigor = 1 else vigor = 0 end
-        if talent.agonizingPoison then agonize = 1 else agonize = 0 end
         if not talent.exsanguinate then noExsanguinate = 1 else noExsanguinate = 0 end
         if not talent.venomRush then noVenom = 1 else noVenom = 0 end
         if artifact.urgeToKill then urges = 1 else urges = 0 end
-        if talent.agonizingPoison and hasEquiped(137049) then insigniad = 1 else insigniad = 0 end
+        if hasEquiped(137049) then insigniad = 1 else insigniad = 0 end
         if hasEquiped(140806) then convergingFate = 1 else convergingFate = 0 end
         if hasEquiped(144236) then legshoulders = true else legshoulders = false end
         if buff.masterAssassinsInitiative.duration() > cd.global + 0.2 then mantled = 1 else mantled = 0 end
@@ -364,7 +363,7 @@ local function runRotation()
                 for i = 1, #enemies.yards30 do
                     local thisUnit = enemies.yards30[i]
                     local distance = getDistance(thisUnit)
-                    if not (debuff.deadlyPoison.exists(thisUnit) or debuff.agonizingPoison.exists(thisUnit) or debuff.woundPoison.exists(thisUnit)) and distance > 5 and isValidUnit(thisUnit) then
+                    if not (debuff.deadlyPoison.exists(thisUnit) or debuff.woundPoison.exists(thisUnit)) and distance > 5 and isValidUnit(thisUnit) then
                         if cast.poisonedKnife(thisUnit) then return end
                     end
                 end
@@ -694,7 +693,7 @@ local function runRotation()
             end
         end -- End Action List - Generators 
         local function actionList_DOS() 
-            if debuff.surgeOfToxins.remain() >= 3 and cd.global == 0 and (canUse(13) or canUse(14)) and debuff.kingsbane.remain() < 9 and debuff.agonizingPoison.stack() == 5 then
+            if debuff.surgeOfToxins.remain() >= 3 and cd.global == 0 and (canUse(13) or canUse(14)) and debuff.kingsbane.remain() < 9 then
                 if cast.vanish() then
                     useItem(13)
                     useItem(14)
