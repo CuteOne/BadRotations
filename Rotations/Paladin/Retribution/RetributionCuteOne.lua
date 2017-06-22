@@ -235,7 +235,7 @@ local function runRotation()
         end
         judgmentExists = debuff.judgment.exists(units.dyn5)
         judgmentRemain = debuff.judgment.remain(units.dyn5)
-        if debuff.judgment.exists(units.dyn5) or level < 42 or (cd.judgment > 2 and not debuff.judgment.exists(units.dyn5)) then
+        if debuff.judgment.exists(units.dyn5) or level < 42 or (cd.judgment > gcd and not debuff.judgment.exists(units.dyn5)) then
             judgmentVar = true
         else
             judgmentVar = false
@@ -381,13 +381,13 @@ local function runRotation()
 					end
 				-- Cleanse Toxins
 					if isChecked("Cleanse Toxins") then
-						if getOptionValue("Cleanse Toxins")==1 then
+						if getOptionValue("Cleanse Toxins")==1 and canDispel("player",spell.cleanseToxins) then
 							if cast.cleanseToxins("player") then return end
 						end
-						if getOptionValue("Cleanse Toxins")==2 then
+						if getOptionValue("Cleanse Toxins")==2 and canDispel("target",spell.cleanseToxins) then
 							if cast.cleanseToxins("target") then return end
 						end
-						if getOptionValue("Cleanse Toxins")==3 then
+						if getOptionValue("Cleanse Toxins")==3 and canDispel("mouseover",spell.cleanseToxins) then
 							if cast.cleanseToxins("mouseover") then return end
 						end
 					end
