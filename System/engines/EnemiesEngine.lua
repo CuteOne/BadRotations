@@ -1,7 +1,5 @@
 -- Function to create and populate table of enemies within a distance from player.
 br.enemy = {}
--- Function to create and populate table of enemies within a distance from player.
-br.enemy = {}
 local findEnemiesThread = nil
 
 -- Adds Enemies to the enemy table
@@ -31,18 +29,20 @@ local function UpdateEnemy(thisUnit)
 	local shieldValue 	= isShieldedTarget(thisUnit) or 0
 	local unitDistance 	= getDistance("player",thisUnit)
 	local unitThreat 	= UnitThreatSituation("player",thisUnit) or -1
-	local enemy 		= br.enemy[thisUnit]
-	enemy.inCombat 		= UnitAffectingCombat(thisUnit)
-	enemy.coeficient 	= getUnitCoeficient(thisUnit,unitDistance,unitThreat,burnValue,shieldValue) or 0
-	enemy.cc 			= isCrowdControlCandidates(thisUnit)
-	enemy.isCC 			= isLongTimeCCed(thisUnit)
-	enemy.facing 		= getFacing("player",thisUnit)
-	enemy.threat 		= UnitThreatSituation("player",thisUnit) or -1
-	enemy.hp 			= getHP(thisUnit)
-	enemy.hpabs 		= UnitHealth(thisUnit)
-	enemy.safe 			= isSafeToAttack(thisUnit)
-	enemy.burn 			= isBurnTarget(thisUnit) or 0
-	enemy.offensiveBuff = getOffensiveBuffs(thisUnit,unitGUID)
+	if br.enemy[thisUnit] ~= nil then
+		local enemy 		= br.enemy[thisUnit]
+		enemy.inCombat 		= UnitAffectingCombat(thisUnit)
+		enemy.coeficient 	= getUnitCoeficient(thisUnit,unitDistance,unitThreat,burnValue,shieldValue) or 0
+		enemy.cc 			= isCrowdControlCandidates(thisUnit)
+		enemy.isCC 			= isLongTimeCCed(thisUnit)
+		enemy.facing 		= getFacing("player",thisUnit)
+		enemy.threat 		= UnitThreatSituation("player",thisUnit) or -1
+		enemy.hp 			= getHP(thisUnit)
+		enemy.hpabs 		= UnitHealth(thisUnit)
+		enemy.safe 			= isSafeToAttack(thisUnit)
+		enemy.burn 			= isBurnTarget(thisUnit) or 0
+		enemy.offensiveBuff = getOffensiveBuffs(thisUnit,unitGUID)
+	end
 	br.debug.cpu.enemiesEngine.updateTime = debugprofilestop()-startTime or 0
 end
 
@@ -53,8 +53,8 @@ local function DeleteEnemy(thisUnit)
 	elseif not isValidUnit(thisUnit) then
 		-- Print("Removing Enemy")
 		br.enemy[thisUnit] = nil
-	else
-		UpdateEnemy(thisUnit)
+	-- else
+		-- UpdateEnemy(thisUnit)
 	end
 end
 
@@ -158,157 +158,34 @@ function EnemiesEngine()
 	-- FindEnemy()
 end
 
--- -- It will be run every frame
--- br.object = {}
--- local function GetObjectManagerStatus()
--- 	if wToolkit64 ~= nil then
--- 	  	return HasObjectManagerUpdated()
--- 	else
--- 		return true; -- support the other unlocks
--- 	end
--- end
+-- /dump UnitGUID("target")
+-- /dump getEnemies("target",10)
+function getEnemies(unit,radius,checkInCombat)
+    local startTime = debugprofilestop()
+	local enemiesTable = { }
 
--- local playerGUID = GetObjectWithGUID(UnitGUID("player"))
+    if checkInCombat == nil then checkInCombat = false end
 
--- local function isValidObject(unit)
--- 	local thisObject = unit
--- 	local distance = getDistance(thisObject)
--- 	local inCombat = UnitAffectingCombat("player")
--- 	local aggrod = hasThreat(thisObject)
--- 	local targetted = UnitIsUnit(thisObject,"target")
--- 	local creator = UnitCreator(thisObject)
--- 	return (not inCombat and (distance < 20 or targetted)) or (inCombat and (aggrod or targetted)) or creator == playerGUID
--- end
-
--- function br.handleObjects()
--- -- Index Objects
--- 	if FireHack and br.data ~= nil then
--- 		if br.data.settings ~= nil then
--- 			if br.data.settings[br.selectedSpec].toggles["Power"] == 1 then
--- 				for _, object in ipairs(br.object) do
--- 				    if ObjectExists(object) == false then
--- 				        br.object[object] = nil
--- 				    end
--- 				end
--- 				if GetObjectManagerStatus() then
--- 					for i = 1, ObjectCount() do
--- 				    	local object = GetObjectWithIndex(i)
--- 			    		if ObjectIsType(object, ObjectTypes.Unit) then
--- 							if isValidObject(object) then
--- 				    			if br.object[object] == nil then
--- 					    			br.object[object] = {}
--- 					    			local newObject 	= br.object[object]
--- 						      		newObject.creator 	= UnitCreator(object) or "None"
--- 						      		newObject.guid 		= UnitGUID(object)
--- 						      		newObject.id 		= GetObjectID(object)
--- 						      		newObject.name 		= ObjectName(object)
--- 						      		newObject.unit 		= object
--- 						      	end
--- 					    	elseif br.object[object] ~= nil then
--- 			    				br.object[object] = nil 
--- 			    			end
--- 			    		end
--- 				  	end
--- 				end
--- 		  	end
--- 		end
--- 	end
--- end
--- -- AddFrameCallback(br.handleObjects)
--- -- AddTimerCallback(0.1, handleObjects);
-
--- -- Update Enemy
--- local function UpdateEnemy(object)
--- 	local thisUnit = object
--- 	local unitGUID = thisUnit.guid
--- 	local longTimeCC
--- 	if getOptionCheck("Don't break CCs") then
--- 		longTimeCC 		= isLongTimeCCed(thisUnit)
--- 	else
--- 		longTimeCC 		= false
--- 	end
--- 	local burnValue 	= isBurnTarget(thisUnit) or 0
--- 	local ccUnit 		= isCrowdControlCandidates(thisUnit)
--- 	local offBuff 		= getOffensiveBuffs(thisUnit,unitGUID)
--- 	local safeAttack 	= isSafeToAttack(thisUnit)
--- 	local shieldValue 	= isShieldedTarget(thisUnit) or 0
--- 	local unitCombat 	= UnitAffectingCombat(thisUnit) 
--- 	local unitDistance 	= getDistance("player",thisUnit)
--- 	local unitFacing 	= getFacing("player",thisUnit)
--- 	local unitHealth 	= UnitHealth(thisUnit)
--- 	local unitHP 		= getHP(thisUnit)
--- 	local unitThreat 	= UnitThreatSituation("player",thisUnit) or -1
--- 	local unitCoef 		= getUnitCoeficient(thisUnit,unitDistance,unitThreat,burnValue,shieldValue) or 0
--- 	local enemy 		= br.enemy[thisUnit]
--- 	if unitCombat ~= enemy.inCombat then enemy.inCombat	= unitCombat end
--- 	if unitCoef ~= enemy.unitCoeficient then enemy.unitCoeficient = unitCoef end
--- 	if ccUnit ~= enemy.cc then enemy.cc	= ccUnit end
--- 	if longTimeCC ~= enemy.isCC then enemy.isCC = longTimeCC end
--- 	if unitFacing ~= enemy.facing then enemy.facing = unitFacing end
--- 	if unitThreat ~= enemy.threat then enemy.threat	= unitThreat end
--- 	if unitHP ~= enemy.hp then enemy.hp = unitHP end
--- 	if unitHealth ~= enemy.hpabs then enemy.hpabs = unitHealth end
--- 	if safeAttack ~= enemy.safe then enemy.safe	= safeAttack end
--- 	if burnValue ~= enemy.burn then	enemy.burn = burnValue end
--- 	if offBuff ~= enemy.offensiveBuff then enemy.offensiveBuff = offBuff end
--- end
-
--- -- Check Critter
--- local function IsCritter(checkID)
--- 	local numPets = C_PetJournal.GetNumPets(false)
--- 	for i=1,numPets do
--- 		local _, _, _, _, _, _, _, name, _, _, petID = C_PetJournal.GetPetInfoByIndex(i, false)
--- 		if checkID == petID then return true end
--- 	end
--- 	return false
--- end
-
--- function br.EnemiesEngine()
--- 	for k,v in pairs(br.object) do
--- 		local thisUnit = br.object[k].unit
--- 	-- Enemies
--- 		if isValidUnit(thisUnit) then
--- 			if br.enemy[thisUnit] == nil then
--- 				br.enemy[thisUnit] = br.object[thisUnit]
--- 				break			
--- 			else
--- 				UpdateEnemy(thisUnit)
--- 			end
--- 		else
--- 			if br.enemy[thisUnit] ~= nil then br.enemy[thisUnit] = nil end
--- 		end
--- 	-- Pets
--- 		if br.object[k].creator == playerGUID then
--- 			if not IsCritter(br.object[k].id) then
--- 				if br.player.petInfo == nil then br.player.petInfo = {} end
--- 				if br.player.petInfo[thisUnit] == nil then
--- 					br.player.petInfo[thisUnit] = {}
--- 					local pet 		= br.player.petInfo[thisUnit]
--- 					pet.unit 		= thisUnit
--- 					pet.name 		= UnitName(thisUnit)
--- 					pet.guid 		= UnitGUID(thisUnit)
--- 					pet.id 			= GetObjectID(thisUnit)
--- 				else
--- 					if br.player.spell.buffs.demonicEmpowerment ~= nil then
--- 						demoEmpBuff = UnitBuffID(thisUnit,br.player.spell.buffs.demonicEmpowerment) ~= nil
--- 					else
--- 						demoEmpBuff = false
--- 					end
--- 					local unitCount = #getEnemies(thisUnit,10) or 0
--- 					local pet 		= br.player.petInfo[thisUnit]
--- 					pet.deBuff = demoEmpBuff
--- 					pet.numEnemies = unitCount
--- 				end
--- 			end
--- 		else
--- 			if br.player.petInfo ~= nil then
--- 				if br.player.petInfo[thisUnit] ~= nil then br.player.petInfo[thisUnit] = nil end
--- 			end
--- 		end
--- 	end
--- end
--- -- AddTimerCallback(0.1, br.EnemiesEngine);
--- -- Function to create and populate table of enemies within a distance from player.
+    if GetObjectExists(unit) and GetUnitIsVisible(unit) then
+		for k, v in pairs(br.enemy) do
+			local thisEnemy = br.enemy[k].unit
+			local distance =  getDistance(unit,thisEnemy)
+			local inCombat = false
+			if checkInCombat then
+				inCombat = UnitAffectingCombat(thisEnemy) --enemy[k].inCombat
+			else
+				inCombat = true
+			end
+			if inCombat and distance < radius then
+				tinsert(enemiesTable,thisEnemy)
+			end
+        end
+    end
+    ---
+    br.debug.cpu.enemiesEngine.getEnemies = debugprofilestop()-startTime or 0
+    ---
+    return enemiesTable
+end
 
 -- returns prefered target for diferent spells
 function dynamicTarget(range,facing)
@@ -316,8 +193,10 @@ function dynamicTarget(range,facing)
 	if getOptionCheck("Dynamic Targetting") then
 		local bestUnitCoef = 0
 		local bestUnit = "target"
-		for k, v in pairs(br.enemy) do
-			local thisUnit = v--br.enemy[k]
+		local enemyTable = getEnemies("player",range)
+		for k, v in pairs(enemyTable) do
+			UpdateEnemy(v)
+			local thisUnit = br.enemy[v]
 			local thisDistance = getDistance("player",thisUnit.unit)
 			if not isChecked("Hostiles Only") or (getOptionCheck("Hostiles Only") and UnitReaction(thisUnit.unit,"player")) == 2 then
 				if GetUnitExists(thisUnit.unit) and ObjectID(thisUnit.unit) ~= 103679 and thisUnit.coeficient ~= nil and getLineOfSight("player", thisUnit.unit) 
@@ -343,37 +222,6 @@ function dynamicTarget(range,facing)
 	-- br.debug.cpu.enemiesEngine.dynamicTarget = debugprofilestop()-startTime or 0
 	return "target"
 end
--- function dynamicTarget(range,facing)
--- 	if getOptionCheck("Dynamic Targetting") then
--- 		local bestUnitCoef = 0
--- 		local bestUnit = "target"
--- 		for i = 1, ObjectCount() do
--- 			-- define our unit
---             local thisUnit = GetObjectWithIndex(i)
--- 			-- check if it a unit first
---             if ObjectIsType(thisUnit, ObjectTypes.Unit) then
---             	local unitDistance 		= getDistance("player",thisUnit)
---             	local unitThreat 		= UnitThreatSituation("player",thisUnit) or -1
---             	local burnValue 		= isBurnTarget(thisUnit) or 0
--- 				local shieldValue 		= isShieldedTarget(thisUnit) or 0
---             	local unitCoeficient 	= getUnitCoeficient(thisUnit,unitDistance,unitThreat,burnValue,shieldValue) or 0
---             	-- sanity checks
--- 				if isValidUnit(thisUnit) and ObjectID(thisUnit) ~= 103679 then
--- 					if (not getOptionCheck("Safe Damage Check") or isSafeToAttack(thisUnit)) and not isLongTimeCCed(thisUnit)
--- 						and unitDistance < range and (not facing or getFacing("player",thisUnit))
--- 					then
--- 						if unitCoeficient >= 0 and unitCoeficient >= bestUnitCoef then
--- 							bestUnitCoef = unitCoeficient
--- 							bestUnit = thisUnit
--- 						end
--- 					end
--- 				end
--- 			end
--- 		end
--- 		return bestUnit
--- 	end
--- 	return "target"
--- end
 
 -- get the best aoe interupt unit for a given range
 function getBestAoEInterupt(Range)
@@ -421,35 +269,6 @@ function getDistanceXYZ(unit1,unit2)
 		local x2, y2, z2 = GetObjectPosition(unit2)
 		return math.sqrt(((x2-x1)^2)+((y2-y1)^2)+((z2-z1)^2));
 	end
-end
-
--- /dump UnitGUID("target")
--- /dump getEnemies("target",10)
-function getEnemies(unit,radius,checkInCombat)
-    local startTime = debugprofilestop()
-    ---
-    if checkInCombat == nil then checkInCombat = false end
-	local enemiesTable = { }
-
-    if GetObjectExists(unit) and GetUnitIsVisible(unit) then
-		for k, v in pairs(br.enemy) do
-			local thisEnemy = br.enemy[k].unit
-			local distance =  getDistance(unit,thisEnemy)
-			local inCombat = false
-			if checkInCombat then
-				inCombat = br.enemy[k].inCombat
-			else
-				inCombat = true
-			end
-			if inCombat and distance < radius then
-				tinsert(enemiesTable,thisEnemy)
-			end
-        end
-    end
-    ---
-    br.debug.cpu.enemiesEngine.getEnemies = debugprofilestop()-startTime or 0
-    ---
-    return enemiesTable
 end
 
 function getTableEnemies(unit,Range,table)
