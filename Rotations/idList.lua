@@ -1764,11 +1764,13 @@ br.idList = {
                 divineSteed                 = 221886,
                 greaterBlessingOfKings      = 203538,
                 greaterBlessingOfWisdom     = 203539,
+                liadrinsFuryUnleashed       = 208410,
+                scarletInquisitorsExpurgation = 248289,
                 theFiresOfJustice           = 209785,
                 whisperOfTheNathrezim       = 207635,
             },
             debuffs                         = {
-
+                executionSentence           = 213757,
             },
             glyphs                          = {
                 glyphOfWingedVengeance      = 57979,

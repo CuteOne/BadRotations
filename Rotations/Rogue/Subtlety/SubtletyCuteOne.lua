@@ -407,7 +407,7 @@ local function runRotation()
                 -- blood_fury,if=stealthed.rogue
                 -- berserking,if=stealthed.rogue
                 -- arcane_torrent,if=stealthed.rogue&energy.deficit>70
-                if useCDs() and isChecked("Racial") and stealthingRogue and (race == "Orc" or race == "Troll" or (race == "BloodElf" and powerDeficit > 70)) then
+                if useCDs() and isChecked("Racial") and stealthingRogue and (race == "Orc" or race == "Troll" or (race == "BloodElf" and powerDeficit > 70)) and getSpellCD(racial) == 0 then
                     if castSpell("player",racial,false,false,false) then return end
                 end
         -- Symbols of Death
