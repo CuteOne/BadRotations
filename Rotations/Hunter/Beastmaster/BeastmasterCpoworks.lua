@@ -42,7 +42,7 @@ local function createToggles()
         [1] = { mode = "On", value = 1 , overlay = "Auto Titan Thunder", tip = "Will Use Titan Thunder At All Times", highlight = 1, icon = br.player.spell.titansThunder },
         [2] = { mode = "Off", value = 2 , overlay = "CD Only Titan Thunder", tip = "Will Use Titan Thunder Only with BW", highlight = 0, icon = br.player.spell.titansThunder }
     };
-    CreateButton("TitanThunder",1.5,1)
+    CreateButton("TitanThunder",2.5,1)
 end
 
 ---------------
