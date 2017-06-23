@@ -2306,6 +2306,7 @@ br.idList = {
                 demonsKiss                  = 197233,
                 embraceOfDarkness           = 197604,
                 energeticStabbing           = 197239,
+                feedingFrenzy               = 242705,
                 finality                    = 197406,
                 flickeringShadows           = 197256,
                 fortunesBite                = 197369,
@@ -2322,6 +2323,7 @@ br.idList = {
                 weakPoint                   = 238068
             },
             buffs                           = {
+                feedingFrenzy               = 242705,
                 finalityEviscerate          = 197498,
                 finalityNightblade          = 197498,
                 masterOfShadows             = 196980,
