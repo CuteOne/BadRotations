@@ -30,6 +30,12 @@ local function createToggles()
         [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.hammerOfJustice }
     };
     CreateButton("Interrupt",4,0)
+	-- Boss Encounter Case
+	BossCaseModes = {
+	[1] = { mode = "On", value = 1 , overlay = "BossCase Enabled", tip = "Boss Encounter Case Enabled.", highlight = 1, icon = br.player.spell.shieldOfTheRighteous },
+	[2] = { mode = "Off", value = 2 , overlay = "BossCase Disabled", tip = "Boss Encounter Case Disabled.", highlight = 0, icon = br.player.spell.shieldOfTheRighteous }
+	};
+	CreateButton("BossCase",5,0)	
 end
 ---------------
 --- OPTIONS ---
@@ -183,7 +189,8 @@ local function runRotation()
         UpdateToggle("Cooldown",0.25)
         UpdateToggle("Defensive",0.25)
         UpdateToggle("Interrupt",0.25)
-
+		UpdateToggle("BossCase",0.25)	
+		br.player.mode.BossCase = br.data.settings[br.selectedSpec].toggles["BossCase"]
 --- FELL FREE TO EDIT ANYTHING BELOW THIS AREA THIS IS JUST HOW I LIKE TO SETUP MY ROTATIONS ---
 
 --------------
@@ -258,13 +265,72 @@ local function runRotation()
             if isChecked("Taunt") and inInstance then
                 for i = 1, #enemies.yards30 do
                     local thisUnit = enemies.yards30[i]
-                    if not isAggroed(thisUnit) and hasThreat(thisUnit) then
+                    if UnitThreatSituation("player", thisUnit) ~= nil and UnitThreatSituation("player", thisUnit) <= 2 and UnitAffectingCombat(thisUnit) then
                         if cast.handOfReckoning(thisUnit) then return end
                     end
                 end
             end
-
         end -- End Action List - Extras
+		local function BossEncounterCase()		
+			-- Contemplation
+		    if getDebuffRemain("player",200904) > 1 then
+			    if cast.contemplation() then return end
+		    end	
+			-- Blessing of Protection
+			if getDebuffRemain(lowestUnit,237726) > 1 then
+				if cast.blessingOfProtection(lowestUnit) then return end
+			end
+			if getDebuffRemain(lowestUnit,200238) > 1 and talent.blessingOfSpellwarding and not UnitIsUnit(lowestUnit,"player") then
+				if cast.blessingOfSpellwarding(lowestUnit) then return end
+			end	
+			if GetObjectID("target") == 98965 then
+			    if getHP("target") < 20  then
+				    if cast.blessingOfProtection() then return end
+				end	
+			end				
+			-- Shield of the Righteous
+			if getDebuffRemain("player",204611) > 1 and not buff.shieldOfTheRighteous.exists() then
+				if cast.shieldOfTheRighteous() then return end
+			end	
+			if getDebuffRemain("player",200238) > 1 and not buff.shieldOfTheRighteous.exists() then
+				if cast.shieldOfTheRighteous() then return end
+			end	
+			if UnitCastingInfo("target") == GetSpellInfo(202019) and not UnitBuff("player",199368) ~= nil then
+				if cast.shieldOfTheRighteous() then return end
+			end				
+			if GetObjectID("target") == 99192 then
+			    if getHP("target") < 50 and getHP("target") > 50 and not buff.shieldOfTheRighteous.exists() then
+				    if cast.shieldOfTheRighteous() then return end
+				end	
+			end				
+			-- Shield of the Righteous
+		    local Casting={
+			--spell_id	, spell_name	
+			{197418 	, 'Vengeful Shear'}, --Black Rook Hold
+			{198245 	, 'Brutal Haymaker'}, --Black Rook Hold
+			{198379 	, 'Primal Rampage'}, --Darkheart Thicket
+			{204667 	, 'Nightmare Breath'}, --Darkheart Thicket
+			{193092 	, 'Bloodletting Sweep'}, --Halls of Valor
+			{192018 	, 'Shield of Light'}, --Halls of Valor
+			{193668 	, 'Savage Blade'}, --Halls of Valor
+			{198496 	, 'Sunder'}, --Neltharion's Lair
+			{200732 	, 'Molten Crash'}, --Neltharion's Lair
+			{193211 	, 'Dark Slash'}, --Maw of Souls
+			{204151 	, 'Darkstrikes'}, --Vault of the Wardens
+			{227493 	, 'Mortal Strike'}, --Karazhan 
+			{227832 	, 'Coat Check'}, --Karazhan 
+			{227628 	, 'Piercing Missiles'}, --Karazhan 
+			{235751 	, 'Timber Smash'}, --Cathedral of Eternal Night 
+			{233155 	, 'Carrion Swarm'}, --Cathedral of Eternal Night 
+			}
+			for i=1 , #Casting do
+			local spell_id = Casting[i][1]
+			local spell_name = Casting[i][2]	
+			    if UnitCastingInfo("target") == GetSpellInfo(spell_id) and not buff.shieldOfTheRighteous.exists() then
+				    if cast.shieldOfTheRighteous() then Print("damage reduction in advance..."..spell_name) return end
+				end
+			end			
+		end			
     -- Action List - Defensives
         local function actionList_Defensive()
             if useDefensive() then
@@ -580,6 +646,12 @@ local function runRotation()
 --- Extras Rotation ---
 -----------------------
             if actionList_Extras() then return end
+---------------------------
+--- Boss Encounter Case ---
+---------------------------
+			if br.player.mode.BossCase == 1 then
+			    if BossEncounterCase() then return end
+			end				
 --------------------------
 --- Defensive Rotation ---
 --------------------------
@@ -650,11 +722,11 @@ local function runRotation()
                         if cast.judgment(units.dyn30) then return end
                     end
             -- Blessed Hammer 
-                    if isChecked("Blessed Hammer") and #enemies.yards5 >= 1 and getDistance(units.dyn5) < 5 and not UnitIsDeadOrGhost("target") then
+                    if isChecked("Blessed Hammer") and talent.blessedHammer and #enemies.yards10 >= 1 then
                         if cast.blessedHammer() then return end
                     end
             -- Hammer of the Righteous 
-                    if isChecked("Hammer of the Righteous") then
+                    if isChecked("Hammer of the Righteous") and not talent.blessedHammer then
                         if cast.hammerOfTheRighteous(units.dyn5) then return end
 						end
                     end
