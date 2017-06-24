@@ -26,6 +26,10 @@ function EnemyEngine(_, time)
 	if getOptionValue("Enemy Update Rate") ~= nil and getOptionValue("Enemy Update Rate") > 0.5 then updateRate = getOptionValue("Enemy Update Rate")
 		else updateRate = 0.5
 	end
+	if updateRate < #getEnemies("player",50) then
+		updateRate = #getEnemies("player",50)
+	end
+	-- ChatOverlay(updateRate)
 	--print(updateRate)
 	if FireHack ~= nil and br.data.settings[br.selectedSpec].toggles["Power"] == 1 and elapsedTime >= updateRate then --0.5 then
 		elapsedTime = 0
@@ -35,8 +39,6 @@ function EnemyEngine(_, time)
 		-- EnemiesEngine();
 		FindEnemy()
 	end
-
-	EnemiesEngine()
 end
 
 local frame = CreateFrame("FRAME")
@@ -184,6 +186,7 @@ function BadRotationsUpdate(self)
 					br.ui:closeWindow("all")
 					return false
 				else
+					EnemiesEngine()
 				-- Blizz CastSpellByName bug bypass
 					if castID then
 						-- Print("Casting by ID")

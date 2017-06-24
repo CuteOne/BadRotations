@@ -161,11 +161,10 @@ end
 -- /dump UnitGUID("target")
 -- /dump getEnemies("target",10)
 function getEnemies(unit,radius,checkInCombat)
-    local startTime = debugprofilestop()
+    -- local startTime = debugprofilestop()
 	local enemiesTable = { }
 
     if checkInCombat == nil then checkInCombat = false end
-
     if GetObjectExists(unit) and GetUnitIsVisible(unit) then
 		for k, v in pairs(br.enemy) do
 			local thisEnemy = br.enemy[k].unit
@@ -182,7 +181,7 @@ function getEnemies(unit,radius,checkInCombat)
         end
     end
     ---
-    br.debug.cpu.enemiesEngine.getEnemies = debugprofilestop()-startTime or 0
+    -- br.debug.cpu.enemiesEngine.getEnemies = debugprofilestop()-startTime or 0
     ---
     return enemiesTable
 end
