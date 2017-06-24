@@ -543,8 +543,8 @@ local function runRotation()
                     elseif not RAC1 then
         -- Racial
                         if isChecked("Racial") and (race == "Orc" or race == "Troll" or (race == "BloodElf" and holyPower <= 4)) and getSpellCD(racial) == 0 then
-                            -- if castSpell("player",racial,false,false,false) then return end
-                            if castOpener("racial","RAC1",1) then return end
+                            if castSpell("player",racial,false,false,false) then Print("1: Racial - Orc/Troll/BloodElf"); RAC1 = true; return end
+                            -- if castOpener("racial","RAC1",1) then return end
                         else
                             Print("1: Racial - Orc/Troll/BloodElf (Uncastable)")
                             RAC1 = true
