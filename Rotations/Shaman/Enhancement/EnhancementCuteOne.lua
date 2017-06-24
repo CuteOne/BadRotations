@@ -425,7 +425,7 @@ local function runRotation()
         -- Potion
                 -- potion,if=buff.ascendance.up|!talent.ascendance.enabled&feral_spirit.remains>5|target.time_to_die<=60
                 if isChecked("Potion") and canUse(142117) and inRaid then
-                    if (hasLust() or (not talent.ascendance and feralSpiritRemain > 5) or ttd(units.dyn5) <= 60) and not buff.prolongedPower.exists() then
+                    if (hasBloodLust() or (not talent.ascendance and feralSpiritRemain > 5) or ttd(units.dyn5) <= 60) and not buff.prolongedPower.exists() then
                         useItem(142117)
                     end
                 end
