@@ -328,7 +328,7 @@ local function runRotation()
         -- Earthquake
                 if isChecked("Earthquake") then
                     if inCombat and php <= getOptionValue("Earthquake") and lastSpell ~= spell.earthquake then
-                        if cast.earthquake() then return end
+                        if cast.earthquake("target","ground") then return end
                     end
                 end
         -- Healing Surge
@@ -381,7 +381,7 @@ local function runRotation()
         -- Earthquake
                         if isChecked("Earthquake - Interrupt") and cd.windShear > gcd and cd.lightningSurgeTotem > gcd and lastSpell ~= spell.earthquake then
                             if getDistance(thisUnit) < 8 then
-                                if cast.earthquake() then return end
+                                if cast.earthquake("target","ground") then return end
                             end
                         end
                     end
@@ -506,7 +506,7 @@ local function runRotation()
         -- Earthquake
             -- earthquake
             if lastSpell ~= spell.earthquake and power >= 50 and (not hasEquiped(137074) or not buff.echoesOfTheGreatSundering.exists() or #enemies.yards8t > 3) then
-                if cast.earthquake() then return end
+                if cast.earthquake("target","ground") then return end
             end
         -- Earth Shock
             if power >= 50 and #enemies.yards8t < 4 and buff.echoesOfTheGreatSundering.exists() and hasEquiped(137074) then
@@ -588,7 +588,7 @@ local function runRotation()
         -- Earthquake
             -- earthquake,if=buff.echoes_of_the_great_sundering.up&!buff.ascendance.up&maelstrom>=86
             if buff.echoesOfTheGreatSundering.exists() and not buff.ascendance.exists() and power >= 86 then
-                if cast.earthquake() then return end
+                if cast.earthquake("target","ground") then return end
             end
         -- Earth Shock
             -- earth_shock,if=maelstrom>=117|!artifact.swelling_maelstrom.enabled&maelstrom>=92
@@ -635,7 +635,7 @@ local function runRotation()
             -- if (buff.echoesOfTheGreatSundering.exists() or artifact.seismicStorm) 
             --     and ((#enemies.yards8 > 1 and #enemies.yards8t > 1) or UnitSpellHaste("player")/100 <= 0.66 and (hasBloodLust() and hasBloodLustRemain() < 5)) 
             -- then
-            --     if cast.earthquake() then return end
+            --     if cast.earthquake("target","ground") then return end
             -- end
         -- Lava Beam
             -- lava_beam,if=active_enemies>1&spell_targets.lava_beam>1
@@ -690,7 +690,7 @@ local function runRotation()
         -- Earthquake
             -- earthquake,if=buff.echoes_of_the_great_sundering.up&maelstrom>=86
             if buff.echoesOfTheGreatSundering.exists() and power >= 86 then
-                if cast.earthquake() then return end
+                if cast.earthquake("target","ground") then return end
             end
         -- Frost Shock
             -- frost_shock,if=buff.icefury.up&maelstrom>=111&!buff.ascendance.up
@@ -758,7 +758,7 @@ local function runRotation()
         -- Earthquake
             -- earthquake,if=buff.echoes_of_the_great_sundering.up
             if buff.echoesOfTheGreatSundering.exists() then
-                if cast.earthquake() then return end
+                if cast.earthquake("target","ground") then return end
             end
         -- Lightning Bolt
             -- lightning_bolt,if=buff.power_of_the_maelstrom.up&spell_targets.chain_lightning<3
@@ -811,7 +811,7 @@ local function runRotation()
         -- Earthquake
             -- earthquake,if=buff.echoes_of_the_great_sundering.up
             if buff.echoesOfTheGreatSundering.exists() then
-                if cast.earthquake() then return end
+                if cast.earthquake("target","ground") then return end
             end
         -- Earth Shock
             -- earth_shock,if=maelstrom>=117|!artifact.swelling_maelstrom.enabled&maelstrom>=92
@@ -853,7 +853,7 @@ local function runRotation()
             -- if (buff.echoesOfTheGreatSundering.exists() or artifact.seismicStorm) 
             --     and ((#enemies.yards8 > 1 and #enemies.yards8t > 1) or UnitSpellHaste("player")/100 <= 0.66 and (hasBloodLust() and hasBloodLustRemain() < 5)) 
             -- then
-            --     if cast.earthquake() then return end
+            --     if cast.earthquake("target","ground") then return end
             -- end
         -- Lightning Bolt
             -- lightning_bolt,if=buff.power_of_the_maelstrom.up&spell_targets.chain_lightning<3,target_if=debuff.lightning_rod.down

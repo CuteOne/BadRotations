@@ -61,8 +61,9 @@ function getLineOfSight(Unit1,Unit2)
 		114901, -- Gripping Tentacle (Trials of Valor)
 		116195, -- Bilewater Slime (Trials of Valor)
 		120436, -- Fallen Avatar (Tomb of Sargeras)
-		116939. -- Fallen Avatar (Tomb of Sargeras)
+		116939, -- Fallen Avatar (Tomb of Sargeras)
 		--86644, -- Ore Crate from Oregorger boss
+
 	}
 	for i = 1,#skipLoSTable do
 		if GetObjectID(Unit1) == skipLoSTable[i] or GetObjectID(Unit2) == skipLoSTable[i] then
