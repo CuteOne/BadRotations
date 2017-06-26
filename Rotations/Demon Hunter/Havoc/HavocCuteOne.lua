@@ -659,7 +659,7 @@ local function runRotation()
             end
         -- Annihilation
             -- annihilation,if=(talent.demon_blades.enabled|!talent.momentum.enabled|buff.momentum.up|fury.deficit<30+buff.prepared.up*8|buff.metamorphosis.remains<5)&!variable.pooling_for_blade_dance
-            if buff.metamorphosis.exists() and (talent.demonBlades or not talent.momentum or buff.momentum.exists() or (powerDeficit < 30 + perpared * 8) or buff.metamorphosis.remain() < 5) and not poolForBladeDance then
+            if buff.metamorphosis.exists() and (talent.demonBlades or not talent.momentum or buff.momentum.exists() or (powerDeficit < 30 + prepared * 8) or buff.metamorphosis.remain() < 5) and not poolForBladeDance then
                 if cast.chaosStrike() then return end
             end
         -- Throw Glaive
