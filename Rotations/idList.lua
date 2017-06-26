@@ -684,6 +684,7 @@ br.idList = {
                 essenceOfGhanir             = 208253,
                 ferociousBite               = 22568,
                 flourish                    = 197721,
+                ironfur                     = 192081,				
                 healingTouch                = 5185,
                 incarnationTreeOfLife       = 33891,
                 innervate                   = 29166,

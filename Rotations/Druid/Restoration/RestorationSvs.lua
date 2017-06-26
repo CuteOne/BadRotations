@@ -71,6 +71,8 @@ local function createOptions()
 		    br.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
         -- Travel Shapeshifts
             br.ui:createCheckbox(section,"Auto Shapeshifts","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFAuto Shapeshifting to best form for situation|cffFFBB00.")
+		-- DPS
+		    br.ui:createSpinnerWithout(section, "DPS", 70, 0, 100, 5, "","|cffFFFFFFMinimum Health to DPS")				
 		-- DPS Save mana
             br.ui:createSpinnerWithout(section, "DPS Save mana",  40,  0,  100,  5,  "|cffFFFFFFMana Percent no Cast Sunfire and Moonfire")		
 		-- Affixes Helper
@@ -245,9 +247,6 @@ local function runRotation()
         enemies.yards40 = br.player.enemies(40)
 		
         if lossPercent > snapLossHP or php > snapLossHP then snapLossHP = lossPercent end
-        if isCastingSpell(spell.healingTouch) and buff.clearcasting.exists() then
-            SpellStopCasting()
-        end
 
         --ChatOverlay("|cff00FF00Abundance stacks: "..buff.abundance.stack().."")
 
@@ -266,23 +265,30 @@ local function runRotation()
                         end
 					end	
         -- Shapeshift Form Management
+			if ((br.friend[1].hp < getValue("DPS") and not bear) or (talent.balanceAffinity and cat and inCombat)) and not buff.incarnationTreeOfLife.exists() then
+				RunMacroText("/CancelForm")
+			end			
             if isChecked("Auto Shapeshifts") then
             -- Flight Form
                 if IsFlyableArea() and ((not (isInDraenor() or isInLegion())) or isKnown(191633)) and not swimming and falling > 1 and level>=58 then
-                    if cast.travelForm() then return end
+				    RunMacroText("/CancelForm")
+                    if cast.travelForm("player") then return end
                 end
             -- Travel Form
                 if not inCombat and swimming and not travel and not hastar and not deadtar and not buff.prowl.exists() then
-                    if cast.travelForm() then return end
+				    RunMacroText("/CancelForm")
+                    if cast.travelForm("player") then return end
                 end
                 if not inCombat and moving and not travel and not IsMounted() and not IsIndoors() then
-                    if cast.travelForm() then return end
+				    RunMacroText("/CancelForm")
+                    if cast.travelForm("player") then return end
                 end
             -- Cat Form
                 if not cat and not IsMounted() then
                     -- Cat Form when not swimming or flying or stag and not in combat
                     if not inCombat and moving and not swimming and not flying and not travel and not isValidUnit("target") then
-                        if cast.catForm() then return end
+					    RunMacroText("/CancelForm")
+                        if cast.catForm("player") then return end
                     end
                 end
             end -- End Shapeshift Form Management
@@ -378,9 +384,9 @@ local function runRotation()
             -- Regrowth
            if isChecked("Regrowth") and (not moving or buff.incarnationTreeOfLife.exists()) and lastSpell ~= spell.regrowth then
                 for i = 1, #br.friend do
-                    if br.friend[i].hp <= getValue("Regrowth Clearcasting") and buff.clearcasting.remain() > 1.5 then
+                    if br.friend[i].hp <= getValue("Regrowth Clearcasting") and buff.clearcasting.remain() > 1.5 and getDebuffStacks(br.friend[i].unit,209858) < 30 then
                         if cast.regrowth(br.friend[i].unit) then return end     
-                    elseif br.friend[i].hp <= getValue("Regrowth") and buff.regrowth.remain(br.friend[i].unit) <= 1 then
+                    elseif br.friend[i].hp <= getValue("Regrowth") and buff.regrowth.remain(br.friend[i].unit) <= 1 and getDebuffStacks(br.friend[i].unit,209858) < 30 then
                         if cast.regrowth(br.friend[i].unit) then return end     
                     end
                 end
@@ -472,25 +478,13 @@ local function runRotation()
                 end
             end			
         -- Racial: Orc Blood Fury | Troll Berserking | Blood Elf Arcane Torrent
-                if isChecked("Racial") and (br.player.race == "Orc" or br.player.race == "Troll" or br.player.race == "BloodElf") then
+                if isChecked("Racial") and (br.player.race == "Orc" or br.player.race == "Troll" or br.player.race == "BloodElf") and not isCastingSpell(spell.tranquility) then
                     if castSpell("player",racial,false,false,false) then return end
                 end
             end -- End useCooldowns check
         end -- End Action List - Cooldowns
         -- AOE Healing
-        function actionList_AOEHealing()
-		    -- Bear
-			if talent.guardianAffinity then
-			if bear then
-			    if cast.mangle(units.dyn5) then return end
-			end
-			if bear then
-			    if cast.thrash(units.dyn8) then return end
-			end	
-			if bear and (snapLossHP >= 20 or (snapLossHP > php and snapLossHP > 5)) and not buff.frenziedRegeneration.exists() then
-			    if cast.frenziedRegeneration() then snapLossHP = 0; return end
-			end
-		end	
+        function actionList_AOEHealing()	
             -- Wild Growth
             if isChecked("Wild Growth") and not moving and not isCastingSpell(spell.tranquility) then
                 if getLowAllies(getValue("Wild Growth")) >= getValue("Wild Growth Targets") then    
@@ -503,7 +497,6 @@ local function runRotation()
                     if cast.essenceOfGhanir() then return end    
                 end
             end
-        end
             -- Power of the Archdruid
                 if buff.powerOfTheArchdruid.exists() then
                     if cast.rejuvenation(lowestHP) then return end
@@ -521,7 +514,8 @@ local function runRotation()
                         if cast.flourish() then return end    
                     end
                 end
-	        end	
+	        end
+		end	
         -- Single Target
         function actionList_SingleTarget()
             -- Nature's Cure
@@ -530,7 +524,7 @@ local function runRotation()
                     for n = 1,40 do
                         local buff,_,_,count,bufftype,duration = UnitDebuff(br.friend[i].unit, n)
                         if buff then
-                            if (bufftype == "Curse" or bufftype == "Magic" or bufftype == "Poison") and br.friend[i].dispel then 
+                            if (bufftype == "Curse" or bufftype == "Magic" or bufftype == "Poison") and UnitInRange(br.friend[i].unit) and br.friend[i].dispel then
                                 if cast.naturesCure(br.friend[i].unit) then return end
                             end
                         end
@@ -644,7 +638,7 @@ local function runRotation()
             -- Oh Shit! Regrowth
            if isChecked("Regrowth") and (not moving or buff.incarnationTreeOfLife.exists()) and not isCastingSpell(spell.tranquility) then
                 for i = 1, #br.friend do                           
-                    if br.friend[i].hp <= getValue("Oh Shit! Regrowth") then
+                    if br.friend[i].hp <= getValue("Oh Shit! Regrowth") and getDebuffStacks(br.friend[i].unit,209858) < 30 then
                         if cast.regrowth(br.friend[i].unit) then return end
                     end
                 end
@@ -666,7 +660,7 @@ local function runRotation()
                             end
                         end
                         for i = 1, #br.friend do
-                            if bloomCount < 1 and not buff.lifebloom.exists(br.friend[i].unit) and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
+                            if bloomCount < 1 and not buff.lifebloom.exists(br.friend[i].unit) and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" and UnitInRange(br.friend[i].unit) then
                                 if cast.lifebloom(br.friend[i].unit) then return end
                             end
                         end
@@ -684,11 +678,11 @@ local function runRotation()
             -- Regrowth
            if isChecked("Regrowth") and (not moving or buff.incarnationTreeOfLife.exists()) and not isCastingSpell(spell.tranquility) and lastSpell ~= spell.regrowth then
                 for i = 1, #br.friend do
-                    if br.friend[i].hp <= getValue("Regrowth Clearcasting") and buff.clearcasting.remain() > 1.5 then
+                    if br.friend[i].hp <= getValue("Regrowth Clearcasting") and buff.clearcasting.remain() > 1.5 and getDebuffStacks(br.friend[i].unit,209858) < 30 then
                         if cast.regrowth(br.friend[i].unit) then return end
-                    elseif isChecked("Keep Regrowth on tank") and buff.lifebloom.exists(br.friend[i].unit) and buff.regrowth.remain(br.friend[i].unit) <= 1 and br.friend[i].hp <= getValue("Regrowth") then
+                    elseif isChecked("Keep Regrowth on tank") and buff.lifebloom.exists(br.friend[i].unit) and buff.regrowth.remain(br.friend[i].unit) <= 1 and br.friend[i].hp <= getValue("Regrowth") and getDebuffStacks(br.friend[i].unit,209858) < 30 then
                         if cast.regrowth(br.friend[i].unit) then return end
-                    elseif br.friend[i].hp <= getValue("Regrowth") and buff.regrowth.remain(br.friend[i].unit) <= 1 then
+                    elseif br.friend[i].hp <= getValue("Regrowth") and buff.regrowth.remain(br.friend[i].unit) <= 1 and getDebuffStacks(br.friend[i].unit,209858) < 30 then
                             if cast.regrowth(br.friend[i].unit) then return end
                     end
                 end
@@ -696,7 +690,7 @@ local function runRotation()
             -- Healing Touch with abundance stacks >= 5
            if isChecked("Healing Touch") and not moving and not isCastingSpell(spell.tranquility) then
                 for i = 1, #br.friend do                           
-                    if br.friend[i].hp <= getValue("Healing Touch") and talent.abundance and buff.abundance.stack() >= 5 then
+                    if br.friend[i].hp <= getValue("Healing Touch") and talent.abundance and buff.abundance.stack() >= 5 and getDebuffStacks(br.friend[i].unit,209858) < 30 then
                         if cast.healingTouch(br.friend[i].unit) then return end
                     end
                 end
@@ -724,7 +718,7 @@ local function runRotation()
             -- Healing Touch
            if isChecked("Healing Touch") and not moving and not isCastingSpell(spell.tranquility) then
                 for i = 1, #br.friend do                           
-                    if br.friend[i].hp <= getValue("Healing Touch") then
+                    if br.friend[i].hp <= getValue("Healing Touch") and getDebuffStacks(br.friend[i].unit,209858) < 25 then
                         if cast.healingTouch(br.friend[i].unit) then return end
                     end
 				end	
@@ -752,28 +746,53 @@ local function runRotation()
 				206222, --  Gul'dan
 				206221, --  Gul'dan
 				212568, --  Gul'dan
+				233062, --  Goroth
+				230345, --  Goroth
+				231363, --  Goroth
+				233983, --  Demonic Inquisition
+				231998, --  Harjatan
+				231770, --  Harjatan
+				232913, --  Mistress Sassz'ine
+				236519, --  Sisters of the Moon
+				239264, --  Sisters of the Moon
+				236449, --  The Desolate Host
+				236515, --  The Desolate Host
+				235117, --  Maiden of Vigilance
+				242017, --  Fallen Avatar
+				239739, --  Fallen Avatar
+				240908, --  Kil'jaeden
+				241822, --  Kil'jaeden
+				239155, --  Kil'jaeden
 			}
 			for i=1, #br.friend do
 				for k,v in pairs(debuff_list) do
-					if getDebuffRemain(br.friend[i].unit,v) > 5.0 and not buff.rejuvenation.exists(br.friend[i].unit) and not isCastingSpell(spell.tranquility) then
+					if getDebuffRemain(br.friend[i].unit,v) > 5.0 and not buff.rejuvenation.exists(br.friend[i].unit) and not isCastingSpell(spell.tranquility) and UnitInRange(br.friend[i].unit) then
 						if cast.rejuvenation(br.friend[i].unit) then return end
 					end
 				end
 			end
-        end
 		    --DBM cast Rejuvenaion
 			local precast_spell_list={
 				--spell_id	, precast_time	,	spell_name
-				{214652 	, 5				,	'Skorpyron'},
-				{205862 	, 5				,	'Krosus'},
-				{218774 	, 5				,	'High Botanist Tel arn'},
-				{206949 	, 5				,	'Star Augur Etraeus'},
-				{206517 	, 5				,	'Star Augur Etraeus'},
-				{207720 	, 5				,	'Star Augur Etraeus'},
-				{206219 	, 5				,	'Gul dan'},
-				{211439 	, 5				,	'Gul dan'},
-				{209270 	, 5				,	'Gul dan'},
-				{227071 	, 5				,	'Gul dan'},
+				{214652 	, 5				,	'Acidic Fragments'},
+				{205862 	, 5				,	'Slam'},
+				{218774 	, 5				,	'Summon Plasma Spheres'},
+				{206949 	, 5				,	'Frigid Nova'},
+				{206517 	, 5				,	'Fel Nova'},
+				{207720 	, 5				,	'Witness the Void'},
+				{206219 	, 5				,	'Liquid Hellfire'},
+				{211439 	, 5				,	'Will of the Demon Within'},
+				{209270 	, 5				,	'Eye of Guldan'},
+				{227071 	, 5				,	'Flame Crash'},
+			    {233441 	, 5				,	'Bone Saw'},
+			    {235230 	, 5				,	'Fel Squall'},
+			    {231854 	, 5				,	'Unchecked Rage'},
+			    {230139 	, 5				,	'Hydra Shot'},
+			    {233264 	, 5				,	'Embrace of the Eclipse'},
+			    {236542 	, 5				,	'Sundering Doom'},
+			    {236544 	, 5				,	'Doomed Sundering'},
+			    {239132 	, 5				,	'Rupture Realities'},
+			    {235059 	, 5				,	'Rupturing Singularity'},				
 			}			
 			for i=1 , #precast_spell_list do
 				local boss_spell_id = precast_spell_list[i][1]
@@ -783,7 +802,7 @@ local function runRotation()
 				if time_remain < precast_time then
 				if isChecked("DBM cast Rejuvenaion") then
 					for j = 1, #br.friend do
-						if not buff.rejuvenation.exists(br.friend[j].unit) and not isCastingSpell(spell.tranquility) then
+						if not buff.rejuvenation.exists(br.friend[j].unit) and not isCastingSpell(spell.tranquility) and UnitInRange(br.friend[i].unit) then
 							if cast.rejuvenation(br.friend[j].unit) then 
 								Print("DBM cast Rejuvenaion--"..spell_name)
 								return 
@@ -794,19 +813,9 @@ local function runRotation()
 			end
 		end	
     -- Ephemeral Paradox trinket
-            if hasEquiped(140805) and getBuffRemain("player", 225766) > 2 then
+            if hasEquiped(140805) and getBuffRemain("player", 225766) > 2 and getDebuffStacks(lowestHP,209858) < 30 then
                 if cast.healingTouch(lowestHP) then return end
             end					
-    -- All players Rejuvenaion
-	    local function actionList_Rejuvenaion()
-		if br.player.mode.rejuvenaion == 2 then
-		  for i = 1, #br.friend do
-			   if not buff.rejuvenation.exists(br.friend[i].unit) and not isCastingSpell(spell.tranquility) then
-				    if cast.rejuvenation(br.friend[i].unit) then return end
-					end
-                end
-            end	
-        end
 	-- Not wasted Innervate
 			if buff.innervate.remain() >= 1 and not isCastingSpell(spell.tranquility) then
 				for i=1, #br.friend do
@@ -820,11 +829,34 @@ local function runRotation()
 			    if not travel and inCombat and mana >= 99 and not buff.rejuvenation.exists(br.friend[i].unit) and inRaid and not isCastingSpell(spell.tranquility) then
 				    if cast.rejuvenation(br.friend[i].unit) then return end	
 				end
-			end	
+			end
+		end	
+    -- All players Rejuvenaion
+	local function actionList_Rejuvenaion()
+		if br.player.mode.rejuvenaion == 2 then
+		  for i = 1, #br.friend do
+			   if not buff.rejuvenation.exists(br.friend[i].unit) and not isCastingSpell(spell.tranquility) then
+				    if cast.rejuvenation(br.friend[i].unit) then return end
+					end
+                end
+            end	
+        end	
     -- Action List - DPS
         local function actionList_DPS()
         -- Guardian Affinity/Level < 45
             if talent.guardianAffinity or level < 45 then
+				if bear then
+					if br.player.power.amount.rage >= 60 then 
+						if cast.ironfur() then return end
+					end	
+					if cast.mangle(units.dyn5) then return end
+						if #enemies.yards8 >= 1 then
+						    if cast.thrash(units.dyn8) then return end
+						end	
+					if (snapLossHP >= 20 or (snapLossHP > php and snapLossHP > 5)) and not buff.frenziedRegeneration.exists() then
+						if cast.frenziedRegeneration() then snapLossHP = 0; return end
+					end
+				end				
             -- Sunfire
                 if not bear and not debuff.sunfire.exists(units.dyn40) and mana >= getOptionValue("DPS Save mana") then
                     if cast.sunfire(units.dyn40) then return end
@@ -834,7 +866,7 @@ local function runRotation()
                     if cast.moonfire(units.dyn40) then return end
                 end
             -- Solar Wrath
-                if not moving then
+                if not moving and not bear then
                     if cast.solarWrath(units.dyn40) then return end
 				end	
             end 
@@ -939,15 +971,17 @@ local function runRotation()
 --- In Combat - Rotations --- 
 -----------------------------
             if inCombat and not IsMounted() and not stealthed and not drinking and not buff.shadowmeld.exists() then
-		        actionList_Rejuvenaion()
                 actionList_Extras()
                 actionList_Defensive()				
                 actionList_Cooldowns()
-                actionList_AOEHealing()
-                actionList_SingleTarget()
-                if br.player.mode.dps == 2 then
+                if br.player.mode.dps == 2 and (br.friend[1].hp > getValue("DPS") or bear) then
                     actionList_DPS()
-                end
+                end	
+				if not cat and not moonkin and not bear then
+                    actionList_AOEHealing()
+                    actionList_SingleTarget()
+		            actionList_Rejuvenaion()
+				end	
             end -- End In Combat Rotation
         end -- Pause
     end -- End Timer
