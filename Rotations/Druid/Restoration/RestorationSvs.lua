@@ -759,8 +759,8 @@ local function runRotation()
 				236515, --  The Desolate Host
 				235117, --  Maiden of Vigilance
 				242017, --  Fallen Avatar
-				239739, --  Fallen Avatar
-				240908, --  Kil'jaeden
+				240908, --  Kil'jaeden				
+				234310, --  Kil'jaeden
 				241822, --  Kil'jaeden
 				239155, --  Kil'jaeden
 			}
