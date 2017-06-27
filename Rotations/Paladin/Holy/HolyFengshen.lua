@@ -137,6 +137,7 @@ local function createOptions()
 		section = br.ui:createSection(br.ui.window.profile, "Single Target Healing")
 		--Flash of Light
 		br.ui:createSpinner(section, "Flash of Light",  70,  0,  100,  5,  "","|cffFFFFFFHealth Percent to Cast At")
+		br.ui:createSpinner(section, "FoL Tanks",  70,  0,  100,  5,  "","|cffFFFFFFHealth Percent to Cast At", true)		
 		br.ui:createDropdownWithout(section, "FoL Infuse", {"|cffFFFFFFNormal","|cffFFFFFFOnly Infuse"}, 1, "|cffFFFFFFOnly Use Infusion Procs.")
 		--Holy Light
 		br.ui:createSpinner(section, "Holy Light",  85,  0,  100,  5,  "","|cffFFFFFFHealth Percent to Cast At")
@@ -1054,6 +1055,11 @@ local function runRotation()
 				if php <= getValue("Critical HP") then
 					if cast.flashOfLight("player") then return end
 				end
+				for i = 1, #br.friend do
+				    if br.friend[i].hp <= getValue("FoL Tanks") and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
+					    if cast.flashOfLight(br.friend[i].unit) then healing_obj = br.friend[i].unit return end
+				    end
+			    end	
 				if inRaid then
 					if php <= getValue("Flash of Light") and hasEquiped(137076) then
 						if cast.flashOfLight("player") then return end
@@ -1123,7 +1129,7 @@ local function runRotation()
 				end
 			end
 			-- Holy Light
-			if isChecked("Holy Light") and not isMoving("player") and (getOptionValue("Holy Light Infuse") == 1 or (getOptionValue("Holy Light Infuse") == 2 and buff.infusionOfLight.exists("player") and GetSpellCooldown(20473) > 0)) then
+			if isChecked("Holy Light") and not isMoving("player") and (getOptionValue("Holy Light Infuse") == 1 or (getOptionValue("Holy Light Infuse") == 2 and buff.infusionOfLight.exists("player") and GetSpellCooldown(20473) > 0 and lastSpell ~= spell.flashOfLight)) then
 				if inRaid then
 					if php <= getValue("Holy Light") and hasEquiped(137076) then
 						if cast.holyLight("player") then return end
@@ -1194,7 +1200,8 @@ local function runRotation()
 		---------------------------------
 		--- Out Of Combat - Rotations ---
 		---------------------------------
-		if not inCombat and (not IsMounted() or buff.divineSteed.exists()) and (not isCastingSpell(spell.redemption) or not isCastingSpell(spell.absolution)) and not drinking then
+		if not inCombat and (not IsMounted() or buff.divineSteed.exists()) and (not isCastingSpell(spell.redemption) or not isCastingSpell(spell.absolution)) and not drinking 
+		and not isCastingSpell(spell.redemption) and not isCastingSpell(spell.absolution) then
 			PrePull()
 			CanIRess()
 			Cleanse()
@@ -1207,7 +1214,8 @@ local function runRotation()
 		-----------------------------
 		--- In Combat - Rotations ---
 		-----------------------------
-		if inCombat and (not IsMounted() or buff.divineSteed.exists()) and (not isCastingSpell(spell.redemption) or not isCastingSpell(spell.absolution)) and not drinking then
+		if inCombat and (not IsMounted() or buff.divineSteed.exists()) and (not isCastingSpell(spell.redemption) or not isCastingSpell(spell.absolution)) and not drinking 
+		and not isCastingSpell(spell.redemption) and not isCastingSpell(spell.absolution) then
 			BossEncounterCase()
 			AuraOfSacrificeLogic()
 			overhealingcancel()
