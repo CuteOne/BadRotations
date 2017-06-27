@@ -6,23 +6,16 @@ local rotationName = "SaintlySinner"
 local function createToggles()
 -- Rotation Button
     RotationModes = {
-        [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range.", highlight = 1, icon = br.player.spell.soulCleave},
-        [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = br.player.spell.soulCleave},
+        [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range.", highlight = 1, icon = br.player.spell.fracture},
+        [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = br.player.spell.fracture},
         [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = br.player.spell.shear},
         [4] = { mode = "Off", value = 4 , overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spell.spectralSight}
     };
     CreateButton("Rotation",1,0)
--- Cooldown Button
-   -- CooldownModes = {
-       -- [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spell.metamorphosis},
-       -- [2] = { mode = "On", value = 1 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spell.metamorphosis},
-      --  [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.metamorphosis}
-   -- };
-  -- 	CreateButton("Cooldown",2,0)
 -- Defensive Button
     DefensiveModes = {
-        [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spell.demonSpikes},
-        [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spell.demonSpikes}
+        [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spell.metamorphosis},
+        [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spell.metamorphosis}
     };
     CreateButton("Defensive",2,0)
 -- Interrupt Button
@@ -31,12 +24,6 @@ local function createToggles()
         [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.consumeMagic}
     };
     CreateButton("Interrupt",3,0)
--- Mover
-    MoverModes = {
-        [1] = { mode = "On", value = 2 , overlay = "Auto Movement Enabled", tip = "Will Cast Movement Abilities.", highlight = 1, icon = br.player.spell.infernalStrike},
-        [2] = { mode = "Off", value = 1 , overlay = "Auto Movement Disabled", tip = "Will NOT Cast Movement Abilities", highlight = 0, icon = br.player.spell.infernalStrike}
-    };
-    CreateButton("Mover",4,0)
 end
 
 ---------------
@@ -62,8 +49,10 @@ local function createOptions()
 			br.ui:createCheckbox(section, "Empower Wards")
         -- Metamorphosis
             br.ui:createCheckbox(section, "Metamorphosis")
+        -- Demon Spikes - HP
+            br.ui:createSpinner(section, "Demon Spikes - HP", 80, 0 , 100, 5, "|cffFFBB00Health Percentage to use at")
         -- Soul Barrier
-            br.ui:createSpinner(section, "Soul Barrier",  50,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.");
+            br.ui:createSpinner(section, "Soul Barrier",  90,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.");
         br.ui:checkSectionState(section)
     -- Interrupt Options
         section = br.ui:createSection(br.ui.window.profile, "Interrupts")
@@ -74,20 +63,16 @@ local function createOptions()
         -- Sigil of Misery
             br.ui:createCheckbox(section, "Sigil of Misery")
         -- Interrupt Percentage
-            br.ui:createSpinner(section, "Interrupt At",  0,  0,  95,  5,  "|cffFFFFFFCast Percent to Cast At")
+            br.ui:createSpinner(section, "Interrupt At",  30,  0,  95,  5,  "|cffFFFFFFCast Percent to Cast At")
         br.ui:checkSectionState(section)
     -- Toggle Key Options
         section = br.ui:createSection(br.ui.window.profile, "Toggle Keys")
         -- Single/Multi Toggle
             br.ui:createDropdown(section, "Rotation Mode", br.dropOptions.Toggle,  4)
-        -- Cooldown Key Toggle
-            br.ui:createDropdown(section, "Cooldown Mode", br.dropOptions.Toggle,  3)
         -- Defensive Key Toggle
             br.ui:createDropdown(section, "Defensive Mode", br.dropOptions.Toggle,  6)
         -- Interrupts Key Toggle
             br.ui:createDropdown(section, "Interrupt Mode", br.dropOptions.Toggle,  6)
-        -- Mover Key Toggle
-            br.ui:createDropdown(section, "Mover Mode", br.dropOptions.Toggle,  6)
         -- Pause Toggle
             br.ui:createDropdown(section, "Pause Mode", br.dropOptions.Toggle,  6)
         br.ui:checkSectionState(section)
@@ -110,11 +95,8 @@ local function runRotation()
 --- Toggles ---
 ---------------
         UpdateToggle("Rotation",0.25)
-        UpdateToggle("Cooldown",0.25)
         UpdateToggle("Defensive",0.25)
         UpdateToggle("Interrupt",0.25)
-        UpdateToggle("Mover",0.25)
-        br.player.mode.mover = br.data.settings[br.selectedSpec].toggles["Mover"]
 
 --------------
 --- Locals ---
@@ -179,10 +161,10 @@ local function runRotation()
 	-- Action List - Extras
 		local function actionList_Extras()
         -- Torment
-            if isChecked("Torment") then
+            if isChecked("Torment") and inInstance then
                 for i = 1, #enemies.yards30 do
                     local thisUnit = enemies.yards30[i]
-                    if not isAggroed(thisUnit) and hasThreat(thisUnit) then
+                    if UnitThreatSituation("player", thisUnit) ~= nil and UnitThreatSituation("player", thisUnit) <= 2 and UnitAffectingCombat(thisUnit) then
                         if cast.torment(thisUnit) then return end
                     end
                 end
@@ -270,8 +252,8 @@ local function runRotation()
     ---------------------------
     -- Start Attack
                 -- actions=auto_attack
-                if getDistance(units.dyn5) < 5 then
-                    StartAttack()
+                if getDistance("target") < 5 and isValidUnit("target") then
+                    StartAttack(units.dyn5)
                 end
     -- Fiery Brand
                 -- actions+=/fiery_brand,if=buff.demon_spikes.down&buff.metamorphosis.down
@@ -294,33 +276,31 @@ local function runRotation()
                     end
 	-- Demonic Infusion
 				-- actions+=/demonicInfusion, if charges = 0
-				if talent.demonicInfusion then
-					if charges.demonSpikes == 0 then
+					if charges.frac.demonSpikes < 0.2 and buff.demonSpikes.remain() < 12 then
 						if cast.demonicInfusion() then return end
 					end
-				end
     -- Demon Spikes
                 -- actions+=/demon_spikes,if=charges=2|buff.demon_spikes.down&!dot.fiery_brand.ticking&buff.metamorphosis.down
-                if talent.demonicInfusion then
-					if cast.demonSpikes() then return end
-				end
-    -- Demon Spikes
-                -- actions+=/demon_spikes,if=charges=2|buff.demon_spikes.down&!dot.fiery_brand.ticking&buff.metamorphosis.down
-                if not talent.demonicInfusion then
-					if charges.demonSpikes > 1 and not buff.demonSpikes.exists() and not buff.metamorphosis.exists() then
+				if isChecked("Demon Spikes - HP") then
+					if php <= getOptionValue("Demon Spikes - HP") and inCombat and not buff.demonSpikes.exists() then
 						if cast.demonSpikes() then return end
 					end
 				end
+    -- Demon Spikes
+                -- actions+=/demon_spikes,if=charges=2|buff.demon_spikes.down&!dot.fiery_brand.ticking&buff.metamorphosis.down
+				if charges.frac.demonSpikes > 1.99 then
+					if cast.demonSpikes() then return end
+				end
     -- Soul Barrier
                     -- actions+=/soul_barrier
-                if isChecked("Soul Barrier") and php < getOptionValue("Soul Barrier") and not buff.demonSpikes.exists() and not buff.metamorphosis.exists() then
+                if isChecked("Soul Barrier") and php <= getOptionValue("Soul Barrier") and not buff.metamorphosis.exists() then
                     if cast.soulBarrier() then return end
                 end
     -- Soul Carver
 				if cast.soulCarver() then return end
     -- Spirit Bomb
                 -- actions+=/spirit_bomb,if=debuff.frailty.down
-                if not debuff.frailty.exists(units.dyn5) or buff.soulFragments.stack() == 5 then
+                if not debuff.frailty.exists(units.dyn5) or buff.soulFragments.stack() >= 4 then
                     if cast.spiritBomb() then return end
                 end
     -- Fel Devastation
@@ -350,11 +330,11 @@ local function runRotation()
     -- Sigil of Flame
                 -- actions+=/sigil_of_flame,if=remains-delay<=0.3*duration
                 if talent.quickenedSigils and getDistance(units.dyn5) < 5 and not isMoving(units.dyn5) then
-                    if cast.sigilOfFlame("best",false,1,8) then return end
+                    if cast.sigilOfFlame("best",false,1,6) then return end
                 end
     -- Fracture
                 -- actions+=/fracture,if=pain>=80&soul_fragments<4&incoming_damage_4s<=health.max*0.20
-                if pain >= 60 and buff.soulFragments.stack() <= 4 then
+                if pain >= 60 or buff.soulFragments.stack() <= 4 then
 					if cast.fracture() then return end
                 end
     -- Soul Cleave
@@ -380,7 +360,7 @@ local function runRotation()
     -- Infernal Strike
                 -- actions+=/infernal_strike,if=!sigil_placed&!in_flight&remains-travel_time-delay<0.3*duration&artifact.fiery_demise.enabled&dot.fiery_brand.ticking
                 -- actions+=/infernal_strike,if=!sigil_placed&!in_flight&remains-travel_time-delay<0.3*duration&(!artifact.fiery_demise.enabled|(max_charges-charges_fractional)*recharge_time<cooldown.fiery_brand.remain()s+5)&(cooldown.sigil_of_flame.remain()s>7|charges=2)
-                if mode.mover == 1 and getDistance(units.dyn5) < 5 and charges.infernalStrike > 1 then
+                if getDistance(units.dyn5) < 5 and charges.infernalStrike > 1 then
                     if (artifact.fieryDemise and debuff.fieryBrand.exists(units.dyn5))
                         or (not artifact.fieryDemise or (charges.max.infernalStrike - charges.frac.infernalStrike) * recharge.infernalStrike < cd.fieryBrand + 5)
                         and (cd.sigilOfFlame > 7 or charges.infernalStrike == 2)
@@ -391,7 +371,7 @@ local function runRotation()
                 end
     -- Shear
                 -- actions+=/shear
-				if pain <= 80 then
+				if pain < 80 then
 						if cast.shear() then return end
 				end
     -- Throw Glaive
