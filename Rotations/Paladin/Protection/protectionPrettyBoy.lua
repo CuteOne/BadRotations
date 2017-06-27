@@ -295,7 +295,7 @@ local function runRotation()
 			if getDebuffRemain("player",200238) > 1 and not buff.shieldOfTheRighteous.exists() then
 				if cast.shieldOfTheRighteous() then return end
 			end	
-			if UnitCastingInfo("target") == GetSpellInfo(202019) and not UnitBuff("player",199368) ~= nil then
+			if UnitCastingInfo("target") == GetSpellInfo(202019) and not UnitBuff("player",199368) ~= nil and not buff.shieldOfTheRighteous.exists() then
 				if cast.shieldOfTheRighteous() then return end
 			end				
 			if GetObjectID("target") == 99192 then
