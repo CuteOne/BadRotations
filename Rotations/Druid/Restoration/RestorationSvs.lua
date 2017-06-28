@@ -524,7 +524,7 @@ local function runRotation()
                     for n = 1,40 do
                         local buff,_,_,count,bufftype,duration = UnitDebuff(br.friend[i].unit, n)
                         if buff then
-                            if (bufftype == "Curse" or bufftype == "Magic" or bufftype == "Poison") and UnitInRange(br.friend[i].unit) then
+                            if (bufftype == "Curse" or bufftype == "Magic" or bufftype == "Poison") and UnitInRange(br.friend[i].unit) and br.friend[i].dispel then
                                 if cast.naturesCure(br.friend[i].unit) then return end
                             end
                         end
@@ -695,6 +695,76 @@ local function runRotation()
                     end
                 end
             end
+			-- DOT damage to teammates cast Rejuvenation
+			if inRaid then
+    			local debuff_list={
+    				228253, --  Guarm
+    				204531, --  Skorpyron
+    				206607, --  Chronomatic Anomaly
+    				219966, --  Chronomatic Anomaly
+    				219965, --  Chronomatic Anomaly
+    				206798, --  Trilliax
+    				213166, --  Spellblade Aluriel
+    				212587, --  Spellblade Aluriel
+    				206936, --  Star Augur Etraeus
+    				205649, --  Star Augur Etraeus
+    				206464, --  Star Augur Etraeus
+    				214486,--   Star Augur Etraeus
+    				206480, --  Tichondrius
+    				219235, --  High Botanist Tel'arn
+    				218809, --  High Botanist Tel'arn
+    				206677, --  Krosus
+    				209615, --  Elisande
+    				211258, --  Elisande
+    				206222, --  Gul'dan
+    				206221, --  Gul'dan
+    				212568, --  Gul'dan
+    				233062, --  Goroth
+    				230345, --  Goroth
+    				231363, --  Goroth
+    				233983, --  Demonic Inquisition
+    				231998, --  Harjatan
+    				231770, --  Harjatan
+    				232913, --  Mistress Sassz'ine
+    				236519, --  Sisters of the Moon
+    				239264, --  Sisters of the Moon
+    				236449, --  The Desolate Host
+    				236515, --  The Desolate Host
+    				235117, --  Maiden of Vigilance
+    				242017, --  Fallen Avatar
+    				240908, --  Kil'jaeden				
+    				234310, --  Kil'jaeden
+    				241822, --  Kil'jaeden
+    				239155, --  Kil'jaeden
+    			}
+    			for i=1, #br.friend do
+    				for k,v in pairs(debuff_list) do
+    					if getDebuffRemain(br.friend[i].unit,v) > 5.0 and not buff.rejuvenation.exists(br.friend[i].unit) and not isCastingSpell(spell.tranquility) and UnitInRange(br.friend[i].unit) then
+    						if cast.rejuvenation(br.friend[i].unit) then return end
+    					end
+    				end
+    			end	
+    			if talent.germination then
+    			    local debuff2_list={
+    				234310, --  Kil'jaeden
+    				}
+    				for i=1, #br.friend do				
+    				    for k,v in pairs(debuff2_list) do
+    			            if getDebuffRemain(br.friend[i].unit,v) > 5.0 and not buff.rejuvenationGermination.exists(br.friend[i].unit) then  
+    			                if cast.rejuvenation(br.friend[i].unit) then return end
+    						end
+    					end
+    				end	
+    			end
+    		end					
+			-- Cultivation
+			if talent.cultivation then
+				for i=1, #br.friend do
+					if br.friend[i].hp < 60 and not buff.rejuvenation.exists(br.friend[i].unit) then
+						if cast.rejuvenation(br.friend[i].unit) then return end
+					end
+				end
+			end		
             -- Rejuvenation
             if isChecked("Rejuvenation") and not isCastingSpell(spell.tranquility) then
                 rejuvCount = 0
@@ -723,94 +793,49 @@ local function runRotation()
                     end
 				end	
             end				
-			-- DOT damage to teammates cast Rejuvenation
-			local debuff_list={
-				228253, --  Guarm
-				204531, --  Skorpyron
-				206607, --  Chronomatic Anomaly
-				219966, --  Chronomatic Anomaly
-				219965, --  Chronomatic Anomaly
-				206798, --  Trilliax
-				213166, --  Spellblade Aluriel
-				212587, --  Spellblade Aluriel
-				206936, --  Star Augur Etraeus
-				205649, --  Star Augur Etraeus
-				206464, --  Star Augur Etraeus
-				214486,--   Star Augur Etraeus
-				206480, --  Tichondrius
-				219235, --  High Botanist Tel'arn
-				218809, --  High Botanist Tel'arn
-				206677, --  Krosus
-				209615, --  Elisande
-				211258, --  Elisande
-				206222, --  Gul'dan
-				206221, --  Gul'dan
-				212568, --  Gul'dan
-				233062, --  Goroth
-				230345, --  Goroth
-				231363, --  Goroth
-				233983, --  Demonic Inquisition
-				231998, --  Harjatan
-				231770, --  Harjatan
-				232913, --  Mistress Sassz'ine
-				236519, --  Sisters of the Moon
-				239264, --  Sisters of the Moon
-				236449, --  The Desolate Host
-				236515, --  The Desolate Host
-				235117, --  Maiden of Vigilance
-				242017, --  Fallen Avatar
-				240908, --  Kil'jaeden				
-				234310, --  Kil'jaeden
-				241822, --  Kil'jaeden
-				239155, --  Kil'jaeden
-			}
-			for i=1, #br.friend do
-				for k,v in pairs(debuff_list) do
-					if getDebuffRemain(br.friend[i].unit,v) > 5.0 and not buff.rejuvenation.exists(br.friend[i].unit) and not isCastingSpell(spell.tranquility) and UnitInRange(br.friend[i].unit) then
-						if cast.rejuvenation(br.friend[i].unit) then return end
-					end
-				end
-			end
+
 		    --DBM cast Rejuvenaion
-			local precast_spell_list={
-				--spell_id	, precast_time	,	spell_name
-				{214652 	, 5				,	'Acidic Fragments'},
-				{205862 	, 5				,	'Slam'},
-				{218774 	, 5				,	'Summon Plasma Spheres'},
-				{206949 	, 5				,	'Frigid Nova'},
-				{206517 	, 5				,	'Fel Nova'},
-				{207720 	, 5				,	'Witness the Void'},
-				{206219 	, 5				,	'Liquid Hellfire'},
-				{211439 	, 5				,	'Will of the Demon Within'},
-				{209270 	, 5				,	'Eye of Guldan'},
-				{227071 	, 5				,	'Flame Crash'},
-			    {233441 	, 5				,	'Bone Saw'},
-			    {235230 	, 5				,	'Fel Squall'},
-			    {231854 	, 5				,	'Unchecked Rage'},
-			    {230139 	, 5				,	'Hydra Shot'},
-			    {233264 	, 5				,	'Embrace of the Eclipse'},
-			    {236542 	, 5				,	'Sundering Doom'},
-			    {236544 	, 5				,	'Doomed Sundering'},
-			    {239132 	, 5				,	'Rupture Realities'},
-			    {235059 	, 5				,	'Rupturing Singularity'},				
-			}			
-			for i=1 , #precast_spell_list do
-				local boss_spell_id = precast_spell_list[i][1]
-				local precast_time = precast_spell_list[i][2]
-				local spell_name = precast_spell_list[i][3]
-				local time_remain = br.DBM:getPulltimer_fix(nil,boss_spell_id)		
-				if time_remain < precast_time then
-				if isChecked("DBM cast Rejuvenaion") then
-					for j = 1, #br.friend do
-						if not buff.rejuvenation.exists(br.friend[j].unit) and not isCastingSpell(spell.tranquility) and UnitInRange(br.friend[i].unit) then
-							if cast.rejuvenation(br.friend[j].unit) then 
-								Print("DBM cast Rejuvenaion--"..spell_name)
-								return 
-							end
-						end
-					end
-				end
-			end
+			if inRaid then
+    			local precast_spell_list={
+    				--spell_id	, precast_time	,	spell_name
+    				{214652 	, 5				,	'Acidic Fragments'},
+    				{205862 	, 5				,	'Slam'},
+    				{218774 	, 5				,	'Summon Plasma Spheres'},
+    				{206949 	, 5				,	'Frigid Nova'},
+    				{206517 	, 5				,	'Fel Nova'},
+    				{207720 	, 5				,	'Witness the Void'},
+    				{206219 	, 5				,	'Liquid Hellfire'},
+    				{211439 	, 5				,	'Will of the Demon Within'},
+    				{209270 	, 5				,	'Eye of Guldan'},
+    				{227071 	, 5				,	'Flame Crash'},
+    			    {233441 	, 5				,	'Bone Saw'},
+    			    {235230 	, 5				,	'Fel Squall'},
+    			    {231854 	, 5				,	'Unchecked Rage'},
+    			    {230139 	, 5				,	'Hydra Shot'},
+    			    {233264 	, 5				,	'Embrace of the Eclipse'},
+    			    {236542 	, 5				,	'Sundering Doom'},
+    			    {236544 	, 5				,	'Doomed Sundering'},
+    			    {239132 	, 5				,	'Rupture Realities'},
+    			    {235059 	, 5				,	'Rupturing Singularity'},				
+    			}			
+    			for i=1 , #precast_spell_list do
+    				local boss_spell_id = precast_spell_list[i][1]
+    				local precast_time = precast_spell_list[i][2]
+    				local spell_name = precast_spell_list[i][3]
+    				local time_remain = br.DBM:getPulltimer_fix(nil,boss_spell_id)		
+    				if time_remain < precast_time then
+    				if isChecked("DBM cast Rejuvenaion") then
+    					for j = 1, #br.friend do
+    						if not buff.rejuvenation.exists(br.friend[j].unit) and not isCastingSpell(spell.tranquility) and UnitInRange(br.friend[i].unit) then
+    							if cast.rejuvenation(br.friend[j].unit) then 
+    								Print("DBM cast Rejuvenaion--"..spell_name)
+    								return 
+    							end
+    						end
+    					end
+    				end
+    			end
+    		end	
 		end	
     -- Ephemeral Paradox trinket
             if hasEquiped(140805) and getBuffRemain("player", 225766) > 2 and getDebuffStacks(lowestHP,209858) < 30 then
