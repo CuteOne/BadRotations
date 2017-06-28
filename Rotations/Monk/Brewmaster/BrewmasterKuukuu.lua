@@ -72,7 +72,8 @@ local function createOptions()
         -- Racial
             br.ui:createCheckbox(section,"Racial")
         -- Trinkets
-            br.ui:createCheckbox(section,"Trinkets")
+            br.ui:createCheckbox(section,"Trinket 1")
+            br.ui:createCheckbox(section,"Trinket 2")
         -- Touch of the Void
             br.ui:createCheckbox(section,"Touch of the Void")
         -- Chi Burst
@@ -396,10 +397,11 @@ local function runRotation()
         function actionList_Cooldown()
             if useCDs() and getDistance(units.dyn5) < 5 then
         -- Trinkets
-                if isChecked("Trinkets") and getDistance(units.dyn5) < 5 then
+                if isChecked("Trinket 1") then
                     if canUse(13) then
                         useItem(13)
                     end
+                elseif isChecked("Trinket 2") then
                     if canUse(14) then
                         useItem(14)
                     end
@@ -688,6 +690,7 @@ local function runRotation()
         -- Auto Attack
                 -- auto_attack
                 if getDistance(units.dyn5) < 5 then
+                    if actionList_Cooldown() then return end
                     StartAttack()
                 end
     ---------------------------------
