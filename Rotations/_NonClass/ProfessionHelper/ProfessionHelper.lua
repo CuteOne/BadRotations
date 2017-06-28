@@ -76,8 +76,8 @@ function ProfessionHelper()
       ------------------------------------------------------------------------------------------------------
       -- Prospecting ---------------------------------------------------------------------------------------
       ------------------------------------------------------------------------------------------------------
-      if isChecked("Prospect Ore") and IsSpellKnown(31252) then
-        local prospectMode = getValue("Prospect Ore")
+      if isChecked("Prospect Ores") and IsSpellKnown(31252) then
+        local prospectMode = getValue("Prospect Ores")
         if prospectMode == 5 or prospectMode == 1 then
           local tableProspectLegion = {
             123918, -- Leystone Ore
