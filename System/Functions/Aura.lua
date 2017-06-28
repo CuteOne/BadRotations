@@ -89,55 +89,57 @@ end
 function canDispel(Unit,spellID)
 	local HasValidDispel = false
 	local ClassNum = select(3,UnitClass("player"))
-	if ClassNum == 1 then --Warrior
-		typesList = { }
+	if Unit.dispell then
+		if ClassNum == 1 then --Warrior
+			typesList = { }
+		end
+		if ClassNum == 2 then --Paladin
+			-- Cleanse Toxin
+			if spellID == 213644 then typesList = { "Poison","Disease" } end
+		end
+		if ClassNum == 3 then --Hunter
+			typesList = { }
+		end
+		if ClassNum == 4 then --Rogue
+			-- Cloak of Shadows
+			if spellID == 31224 then typesList = { "Poison","Curse","Disease","Magic" } end
+		end
+		if ClassNum == 5 then --Priest
+			typesList = { }
+		end
+		if ClassNum == 6 then --Death Knight
+			typesList = { }
+		end
+		if ClassNum == 7 then --Shaman
+			-- Cleanse Spirit
+			if spellID == 51886 then typesList = { "Curse" } end
+			-- Purge
+			if spellID == 370 then typesList = { "Magic" } end
+		end
+		if ClassNum == 8 then --Mage
+			typesList = { }
+		end
+		if ClassNum == 9 then --Warlock
+			typesList = { }
+		end
+		if ClassNum == 10 then --Monk
+			-- Detox
+			if spellID == 218164 then typesList = { "Poison","Disease" } end
+			-- Diffuse Magic
+			-- if spellID == 122783 then typesList = { "Magic" } end
+		end
+		if ClassNum == 11 then --Druid
+			-- Remove Corruption
+			if spellID == 2782 then typesList = { "Poison","Curse" } end
+			-- Nature's Cure
+			if spellID == 88423 then typesList = { "Poison","Curse","Magic" } end
+			-- Symbiosis: Cleanse
+			if spellID == 122288 then typesList = { "Poison","Disease" } end
+			-- -- Soothe
+			-- if sellID == 2908 then typeList = { "Enrage" } end
+		end
 	end
-	if ClassNum == 2 then --Paladin
-		-- Cleanse Toxin
-		if spellID == 213644 then typesList = { "Poison","Disease" } end
-	end
-	if ClassNum == 3 then --Hunter
-		typesList = { }
-	end
-	if ClassNum == 4 then --Rogue
-		-- Cloak of Shadows
-		if spellID == 31224 then typesList = { "Poison","Curse","Disease","Magic" } end
-	end
-	if ClassNum == 5 then --Priest
-		typesList = { }
-	end
-	if ClassNum == 6 then --Death Knight
-		typesList = { }
-	end
-	if ClassNum == 7 then --Shaman
-		-- Cleanse Spirit
-		if spellID == 51886 then typesList = { "Curse" } end
-		-- Purge
-		if spellID == 370 then typesList = { "Magic" } end
-	end
-	if ClassNum == 8 then --Mage
-		typesList = { }
-	end
-	if ClassNum == 9 then --Warlock
-		typesList = { }
-	end
-	if ClassNum == 10 then --Monk
-		-- Detox
-		if spellID == 218164 then typesList = { "Poison","Disease" } end
-		-- Diffuse Magic
-		-- if spellID == 122783 then typesList = { "Magic" } end
-	end
-	if ClassNum == 11 then --Druid
-		-- Remove Corruption
-		if spellID == 2782 then typesList = { "Poison","Curse" } end
-		-- Nature's Cure
-		if spellID == 88423 then typesList = { "Poison","Curse","Magic" } end
-		-- Symbiosis: Cleanse
-		if spellID == 122288 then typesList = { "Poison","Disease" } end
-		-- -- Soothe
-		-- if sellID == 2908 then typeList = { "Enrage" } end
-	end
-	-- local function Enraged()
+		-- local function Enraged()
 	-- 	local enrageBuff = select(5,UnitAura(Unit))=="" or false
 	-- 	if typesList == nil then
 	-- 		return false
