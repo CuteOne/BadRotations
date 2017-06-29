@@ -644,17 +644,17 @@ local function runRotation()
             end
         -- Lightning Bolt
             -- lightning_bolt,if=buff.power_of_the_maelstrom.up&spell_targets.chain_lightning<3
-            if buff.powerOfTheMaelstrom.exists() and #enemies.yards8t < 3 then
+            if buff.powerOfTheMaelstrom.exists() and ((mode.rotation == 1 and #enemies.yards8t < 3) or mode.rotation == 3) then
                 if cast.lightningBolt() then return end
             end
         -- Chain Lightning
             -- chain_lightning,if=active_enemies>1&spell_targets.chain_lightning>1
-            if #enemies.yards8t > 1 or mode.rotation == 2 then
+            if (mode.rotation == 1 and #enemies.yards8t > 1) or mode.rotation == 2 then
                 if cast.chainLightning() then return end
             end
         -- Lightning Bolt
             -- lightning_bolt
-            if #enemies.yards8t <= 1 or mode.rotation == 3 then
+            if (mode.rotation == 1 and #enemies.yards8t <= 1) or mode.rotation == 3 then
                 if cast.lightningBolt() then return end
             end
         -- Flame Shock
@@ -762,17 +762,17 @@ local function runRotation()
             end
         -- Lightning Bolt
             -- lightning_bolt,if=buff.power_of_the_maelstrom.up&spell_targets.chain_lightning<3
-            if buff.powerOfTheMaelstrom.exists() and #enemies.yards8t < 3 then
+            if buff.powerOfTheMaelstrom.exists() and ((mode.rotation == 1 and #enemies.yards8t < 3) or mode.rotation == 3) then
                 if cast.lightningBolt() then return end
             end
         -- Chain Lightning
             -- chain_lightning,if=active_enemies>1&spell_targets.chain_lightning>1
-            if (#enemies.yards8t > 1 or mode.rotation == 2) then
+            if ((mode.rotation == 1 and #enemies.yards8t > 1) or mode.rotation == 2) then
                 if cast.chainLightning() then return end
             end
         -- Lightning Bolt
             -- lightning_bolt
-            if (#enemies.yards8t <= 1 or mode.rotation == 3) then
+            if ((mode.rotation == 1 and #enemies.yards8t <= 1) or mode.rotation == 3) then
                 if cast.lightningBolt() then return end
             end
         -- Flame Shock
@@ -857,29 +857,29 @@ local function runRotation()
             -- end
         -- Lightning Bolt
             -- lightning_bolt,if=buff.power_of_the_maelstrom.up&spell_targets.chain_lightning<3,target_if=debuff.lightning_rod.down
-            if buff.powerOfTheMaelstrom.exists() and #enemies.yards8t < 3 and not debuff.lightningRod.exists(units.dyn40) then
+            if buff.powerOfTheMaelstrom.exists() and ((mode.rotation == 1 and #enemies.yards8t < 3) or mode.rotation == 3) and not debuff.lightningRod.exists(units.dyn40) then
                 if cast.lightningBolt() then return end
             end
             -- lightning_bolt,if=buff.power_of_the_maelstrom.up&spell_targets.chain_lightning<3
-            if buff.powerOfTheMaelstrom.exists() and #enemies.yards8t < 3 then
+            if buff.powerOfTheMaelstrom.exists() and ((mode.rotation == 1 and #enemies.yards8t < 3) or mode.rotation == 3) then
                 if cast.lightningBolt() then return end
             end
         -- Chain Lightning
             -- chain_lightning,if=active_enemies>1&spell_targets.chain_lightning>1,target_if=debuff.lightning_rod.down
-            if (#enemies.yards8t > 1 or mode.rotation == 2) and not debuff.lightningRod.exists(units.dyn40) then
+            if ((mode.rotation == 1 and #enemies.yards8t > 1) or mode.rotation == 2) and not debuff.lightningRod.exists(units.dyn40) then
                 if cast.chainLightning() then return end
             end
             -- chain_lightning,if=active_enemies>1&spell_targets.chain_lightning>1
-            if (#enemies.yards8t > 1 or mode.rotation == 2) then
+            if ((mode.rotation == 1 and #enemies.yards8t > 1) or mode.rotation == 2) then
                 if cast.chainLightning() then return end
             end
         -- Lightning Bolt
             -- lightning_bolt,target_if=!debuff.lightning_rod.up
-            if (#enemies.yards8t <= 1 or mode.rotation == 3) and not debuff.lightningRod.exists(units.dyn40) then
+            if ((mode.rotation == 1 and #enemies.yards8t <= 1) or mode.rotation == 3) and not debuff.lightningRod.exists(units.dyn40) then
                 if cast.lightningBolt() then return end
             end
             -- lightning_bolt
-            if (#enemies.yards8t <= 1 or mode.rotation == 3) then
+            if ((mode.rotation == 1 and #enemies.yards8t <= 1) or mode.rotation == 3) then
                 if cast.lightningBolt() then return end
             end
         -- Flame Shock
