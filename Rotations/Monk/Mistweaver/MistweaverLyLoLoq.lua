@@ -333,7 +333,7 @@ local function runRotation()
             if isChecked("Refreshing Jade Wind") and talent.refreshingJadeWind and #friends.yards8 > 1 then
                 if cast.refreshingJadeWind() then return true end
             end
-            if isChecked("Essence Font") and #friends.yards25 > 5 and cd.essenceFont == 0  then
+            if isChecked("Essence Font") and cd.essenceFont == 0 and #friends.yards25 > 5 then
                 if cast.essenceFont() then return true end
             end
             if isChecked("Vivify") then
@@ -556,7 +556,7 @@ local function runRotation()
         if isChecked("Refreshing Jade Wind") and talent.refreshingJadeWind and getLowAlliesInTable(getValue("Refreshing Jade Wind"), friends.yards8) >= getValue("Min Refreshing Jade Wind Targets")  then
             if cast.refreshingJadeWind() then return true end
         end
-        if isChecked("Essence Font") and getLowAlliesInTable(getValue("Essence Font"), friends.yards25) >= getValue("Min Essence Font Targets") and cd.essenceFont == 0  then
+        if isChecked("Essence Font") and cd.essenceFont == 0 and getLowAlliesInTable(getValue("Essence Font"), friends.yards25) >= getValue("Min Essence Font Targets") then
             if cast.essenceFont() then return true end
         end
         return false
@@ -588,7 +588,7 @@ local function runRotation()
 
     local function actionList_ThunderFocus()
 		
-		if isChecked("Thunder Focus Tea + Essence Font") and getLowAlliesInTable(getValue("Thunder Focus Tea + Essence Font"), friends.yards25) >= getValue("Min Thunder Focus Tea + Essence Font Targets") and cd.essenceFont == 0  then
+		if isChecked("Thunder Focus Tea + Essence Font") and cd.essenceFont == 0  and getLowAlliesInTable(getValue("Thunder Focus Tea + Essence Font"), friends.yards25) >= getValue("Min Thunder Focus Tea + Essence Font Targets") then
 			if cd.thunderFocusTea == 0 then
                 if cast.thunderFocusTea() then
                     TFEF = true
@@ -620,7 +620,7 @@ local function runRotation()
                 end
             end
         end
-		if isChecked("Thunder Focus Tea + Essence Font") and getLowAlliesInTable(getValue("Thunder Focus Tea + Essence Font"), friends.yards25) >= getValue("Min Thunder Focus Tea + Essence Font Targets") and cd.essenceFont == 0  then
+		if isChecked("Thunder Focus Tea + Essence Font") and cd.essenceFont == 0 and getLowAlliesInTable(getValue("Thunder Focus Tea + Essence Font"), friends.yards25) >= getValue("Min Thunder Focus Tea + Essence Font Targets") then
 			if cast.essenceFont() then
                 TFEF = false
                 return true
