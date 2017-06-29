@@ -401,7 +401,8 @@ local function runRotation()
                     if canUse(13) then
                         useItem(13)
                     end
-                elseif isChecked("Trinket 2") then
+                end
+                if isChecked("Trinket 2") then
                     if canUse(14) then
                         useItem(14)
                     end
@@ -684,13 +685,13 @@ local function runRotation()
     ------------------
         -- Run Action List - Interrupts
                 if actionList_Interrupts() then return end
+
     ----------------------
     --- Start Rotation ---
     ----------------------
         -- Auto Attack
                 -- auto_attack
                 if getDistance(units.dyn5) < 5 then
-                    if actionList_Cooldown() then return end
                     StartAttack()
                 end
     ---------------------------------
@@ -699,6 +700,7 @@ local function runRotation()
         -- Potion
                     -- potion,name=old_war,if=buff.serenity.up|buff.storm_earth_and_fire.up|(!talent.serenity.enabled&trinket.proc.agility.react)|buff.bloodlust.react|target.time_to_die<=60
                     -- TODO: Agility Proc
+                    if actionList_Cooldown() then return end
                     if isChecked("Provoke") and (inRaid or inInstance) then
                         for i = 1, #enemies.yards30 do
                            local thisUnit = enemies.yards30[i]
