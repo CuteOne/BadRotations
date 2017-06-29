@@ -813,16 +813,15 @@ local function runRotation()
     				{211439 	, 5				,	'Will of the Demon Within'},
     				{209270 	, 5				,	'Eye of Guldan'},
     				{227071 	, 5				,	'Flame Crash'},
-    			    {233441 	, 5				,	'Bone Saw'},
-    			    {235230 	, 5				,	'Fel Squall'},
-    			    {231854 	, 5				,	'Unchecked Rage'},
-    			    {230139 	, 5				,	'Hydra Shot'},
-    			    {233264 	, 5				,	'Embrace of the Eclipse'},
-    			    {236542 	, 5				,	'Sundering Doom'},
-    			    {236544 	, 5				,	'Doomed Sundering'},
-    			    {239132 	, 5				,	'Rupture Realities'},
-    			    {235059 	, 5				,	'Rupturing Singularity'},				
-    			}			
+    			        {233441 	, 5				,	'Bone Saw'},
+    			        {235230 	, 5				,	'Fel Squall'},
+    			        {231854 	, 5				,	'Unchecked Rage'},
+    			        {230139 	, 5				,	'Hydra Shot'},
+    			        {233264 	, 5				,	'Embrace of the Eclipse'},
+    			        {236542 	, 5				,	'Sundering Doom'},
+    			        {236544 	, 5				,	'Doomed Sundering'},
+    			        {235059 	, 5				,	'Rupturing Singularity'},				
+    			    }			
     			for i=1 , #precast_spell_list do
     				local boss_spell_id = precast_spell_list[i][1]
     				local precast_time = precast_spell_list[i][2]
