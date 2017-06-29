@@ -98,6 +98,10 @@ novaEngineTables.SpecificHPDebuffs = {
 	{ debuff = 180116 , value = 30}, --http://www.wowhead.com/spell=180166/touch-of-harm
 	-- Chronomatic Anomaly (M)
 	{ debuff = 206609 , value = 30}, --http://www.wowhead.com/spell=206609/time-release
+	-- Gul'dan 
+	{ debuff = 221891 , value = 30}, --http://www.wowhead.com/spell=221891/soul-siphon
+	-- Sisters of the Moon (ToS)
+	{debuff = 233263 , value = 30}, --http://www.wowhead.com/spell=233263/embrace-of-the-eclipse
 }
 -- this table will assign role to any unit wearing the unit name
 novaEngineTables.roleTable = {
