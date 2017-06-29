@@ -1,5 +1,4 @@
 local rotationName = "LyLoLoq"
-
 ---------------
 --- Toggles ---
 ---------------
@@ -58,6 +57,7 @@ local function createOptions()
 
         -- General Options
         section = br.ui:createSection(br.ui.window.profile, "General")
+		br.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  colorWhite.."Set to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
         br.ui:createDropdown(section, "Roll/Chi Torpedo Key", br.dropOptions.Toggle, 6, colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.." use of Roll/Chi Torpedo with Key.",colorWhite.."Set hotkey to use Roll/Chi Torpedo with key.")
         br.ui:createDropdown(section, "Transcendence/Transcendence:Transfer Key", br.dropOptions.Toggle, 6, colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.." use of Transcendence/Transcendence:Transfer with Key.",colorWhite.."Set hotkey to use Transcendence/Transcendence:Transfer with key.")
         br.ui:createCheckbox(section, "Tiger's Lust", colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.." use of Tiger's Lust"..colorBlue.." (Auto use on snare and root).")
@@ -88,6 +88,10 @@ local function createOptions()
         br.ui:createSpinnerWithout(section, "Thunder Focus Tea + Vivify - Mana",  50,  0,  100,  1,  colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.." use of Thunder Focus Tea + Vivify.", colorWhite.."Mana Percent to Cast At")
         br.ui:createSpinner(section, "Thunder Focus Tea + Renewing Mist",  50,  0,  100,  1,  colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.." use of Thunder Focus Tea + Renewing Mist.", colorWhite.."Health Percent to Cast At")
         br.ui:createSpinner(section, "Thunder Focus Tea + Enveloping Mist",  50,  0,  100,  1,  colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.." use of Thunder Focus Tea + Enveloping Mist.", colorWhite.."Health Percent to Cast At")
+		br.ui:createSpinner(section, "Thunder Focus Tea + Essence Font",  50,  0,  100,  1,  colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.." use of Thunder Focus Tea + Essence Font.", colorWhite.."Health Percent to Cast At")
+		br.ui:createSpinnerWithout(section, "Min Thunder Focus Tea + Essence Font Targets",  5,  1,  40,  1,  colorBlue.."Minimum Thunder Focus Tea + Essence Font Targets "..colorGold.."(This includes you)")     
+		br.ui:createSpinner(section, "Gnawed Thumb Ring",  30,  0,  100,  1,  colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.." use of Gnawed Thumb Ring.", colorWhite.."Health Percent to Cast At")
+        br.ui:createSpinnerWithout(section, "Min Gnawed Thumb Ring Targets",  3,  1,  40,  1,  colorBlue.."Minimum Gnawed Thumb Ring Targets "..colorGold.."(This includes you)")
         br.ui:checkSectionState(section)
 
         -- Defensive Options
@@ -194,6 +198,8 @@ local function runRotation()
     local debuff                                        = br.player.debuff
     local gcd                                           = br.player.gcd
 
+	local pullTimer                                     = br.DBM:getPulltimer()
+
     local lowest                                        = br.friend[1]
     local lossPercent                                   = getHPLossPercent(lowest.unit,5)
     local enemies                                       = enemies or {}
@@ -211,6 +217,7 @@ local function runRotation()
         TFV = false
         TFRM = false
         TFEM = false
+		TFEF = false
     end
     if botSpell == nil then
         botSpell = 61304
@@ -227,11 +234,18 @@ local function runRotation()
         if useDispell then
             for i = 1, #friends.yards40 do
                 for n = 1,40 do
-                    local buff,_,_,_,bufftype,_ = UnitDebuff(br.friend[i].unit, n)
+                    local buff,_,_,_,bufftype,_,_,_,_,_,buffSpellId = UnitDebuff(br.friend[i].unit, n)
                     if buff then
-                        if bufftype == "Disease" or bufftype == "Magic" or bufftype == "Poison" then
-                            if cast.detox(br.friend[i].unit) then return true end
-                        end
+						-- print(buff .."-" ..buffSpellId)
+						if (bufftype == "Disease" or bufftype == "Magic" or bufftype == "Poison") and UnitInRange(br.friend[i].unit) then
+							if buffSpellId == 233983 then
+								if (#getAllies(br.friend[i].unit,8) <= 1) then
+									if cast.detox(br.friend[i].unit) then return true end
+								end
+							else
+								if cast.detox(br.friend[i].unit) then return true end
+							end
+						end
                     end
                 end
             end
@@ -286,6 +300,15 @@ local function runRotation()
     end--OK
 
     local function actionList_Extra()
+		-- Pre-Pull Timer
+			if isChecked("Pre-Pull Timer") and pullTimer <= getOptionValue("Pre-Pull Timer") then
+                if pullTimer <= getOptionValue("Pre-Pull Timer") then
+                    if canUse(142117) and not buff.prolongedPower.exists() then
+                        useItem(142117);
+                            return true
+                     end
+				end
+			end
         if isChecked("Roll/Chi Torpedo Key") and (SpecificToggle("Roll/Chi Torpedo Key") and not GetCurrentKeyBoardFocus()) then
             if cast.roll() then return true end
             if cast.chiTorpedo() then return true end
@@ -310,10 +333,8 @@ local function runRotation()
             if isChecked("Refreshing Jade Wind") and talent.refreshingJadeWind and #friends.yards8 > 1 then
                 if cast.refreshingJadeWind() then return true end
             end
-            if cd.essenceFont == 0 then
-                if isChecked("Essence Font") and getLowAlliesInTable(getValue("Essence Font"), friends.yards25) >= getValue("Min Essence Font Targets")  then
-                    if cast.essenceFont() then return true end
-                end
+            if isChecked("Essence Font") and #friends.yards25 > 5 and cd.essenceFont == 0  then
+                if cast.essenceFont() then return true end
             end
             if isChecked("Vivify") then
                 if cast.vivify(lowest.unit) then return true end
@@ -344,6 +365,12 @@ local function runRotation()
                     return true
                 end
             end
+            if isChecked("Gnawed Thumb Ring") and getLowAllies(getValue("Gnawed Thumb Ring")) >= getValue("Min Gnawed Thumb Ring Targets") then
+                if hasEquiped(134526) and canUse(134526) and select(2,IsInInstance()) ~= "pvp" then
+                    useItem(134526)
+                    return true
+                end
+            end
             if isChecked("Mana Potion") and mana <= getValue("Mana Potion") then
                 if hasItem(127835) and canUse(127835) then
                     useItem(127835)
@@ -358,6 +385,9 @@ local function runRotation()
             end
             if isChecked("Revival") and getLowAllies(getValue("Revival")) >= getValue("Min Revival Targets") and cd.revival == 0 then
                 SpellStopCasting()
+                if hasEquiped(134526) and canUse(134526) and select(2,IsInInstance()) ~= "pvp" then
+                    useItem(134526)
+                end
                 if cast.revival() then return true end
             end
             if isChecked("Invoke Chi-Ji, the Red Crane") and talent.invokeChiJiTheRedCrane and cd.invokeChiJiTheRedCrane == 0 then
@@ -526,10 +556,8 @@ local function runRotation()
         if isChecked("Refreshing Jade Wind") and talent.refreshingJadeWind and getLowAlliesInTable(getValue("Refreshing Jade Wind"), friends.yards8) >= getValue("Min Refreshing Jade Wind Targets")  then
             if cast.refreshingJadeWind() then return true end
         end
-        if cd.essenceFont == 0 then
-            if isChecked("Essence Font") and getLowAlliesInTable(getValue("Essence Font"), friends.yards25) >= getValue("Min Essence Font Targets")  then
-                if cast.essenceFont() then return true end
-            end
+        if isChecked("Essence Font") and getLowAlliesInTable(getValue("Essence Font"), friends.yards25) >= getValue("Min Essence Font Targets") and cd.essenceFont == 0  then
+            if cast.essenceFont() then return true end
         end
         return false
     end--OK
@@ -559,6 +587,15 @@ local function runRotation()
     end
 
     local function actionList_ThunderFocus()
+		
+		if isChecked("Thunder Focus Tea + Essence Font") and getLowAlliesInTable(getValue("Thunder Focus Tea + Essence Font"), friends.yards25) >= getValue("Min Thunder Focus Tea + Essence Font Targets") and cd.essenceFont == 0  then
+			if cd.thunderFocusTea == 0 then
+                if cast.thunderFocusTea() then
+                    TFEF = true
+                    return true
+                end
+            end
+        end
         if isChecked("Thunder Focus Tea + Vivify") and lowest.hp <= getValue("Thunder Focus Tea + Vivify") and mana <= getValue("Thunder Focus Tea + Vivify - Mana") then
             if cd.thunderFocusTea == 0 then
                 if cast.thunderFocusTea() then
@@ -581,6 +618,12 @@ local function runRotation()
                     TFRM = true
                     return true
                 end
+            end
+        end
+		if isChecked("Thunder Focus Tea + Essence Font") and getLowAlliesInTable(getValue("Thunder Focus Tea + Essence Font"), friends.yards25) >= getValue("Min Thunder Focus Tea + Essence Font Targets") and cd.essenceFont == 0  then
+			if cast.essenceFont() then
+                TFEF = false
+                return true
             end
         end
         if isChecked("Thunder Focus Tea + Vivify") and lowest.hp <= getValue("Thunder Focus Tea + Vivify") and TFV and mana <= getValue("Thunder Focus Tea + Vivify - Mana") then
@@ -628,17 +671,16 @@ local function runRotation()
             if actionList_Interrupt() then return true end
             if actionList_DPS() then return true end
         end
-        return false
         -----------
         --- END ---
         -----------
     end
-    --    if not executando and getSpellCD(spell.effuse) == 0 then
-    --    if botSpell == spell.envelopingMist or botSpell == spell.effuse or botSpell == spell.sheilunsGift or botSpell == spell.vivify or botSpell == spell.lifeCoccon or
+--    if not executando and getSpellCD(spell.effuse) == 0 then
+--    if botSpell == spell.envelopingMist or botSpell == spell.effuse or botSpell == spell.sheilunsGift or botSpell == spell.vivify or botSpell == spell.lifeCoccon or
     if br.timer:useTimer("debugMistweaver", 0.45)  then
-        --        executando = true
-        return profile()
-        --        executando = false
+--        executando = true
+        profile()
+--        executando = false
     end
     return true
 end
