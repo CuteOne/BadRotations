@@ -685,9 +685,9 @@ local function runRotation()
                 for i = 1, #br.friend do
                     if br.friend[i].hp <= getValue("Regrowth Clearcasting") and buff.clearcasting.remain() > 1.5 and getDebuffStacks(br.friend[i].unit,209858) < 30 then
                         if cast.regrowth(br.friend[i].unit) then return end
-                    elseif isChecked("Keep Regrowth on tank") and buff.lifebloom.exists(br.friend[i].unit) and buff.regrowth.remain(br.friend[i].unit) <= 1 and br.friend[i].hp <= getValue("Regrowth") and getDebuffStacks(br.friend[i].unit,209858) < 30 then
-                        if cast.regrowth(br.friend[i].unit) then return end
                     elseif br.friend[i].hp <= getValue("Regrowth") and buff.regrowth.remain(br.friend[i].unit) <= 1 and getDebuffStacks(br.friend[i].unit,209858) < 30 then
+                        if cast.regrowth(br.friend[i].unit) then return end
+                    elseif isChecked("Keep Regrowth on tank") and buff.lifebloom.exists(br.friend[i].unit) and buff.regrowth.remain(br.friend[i].unit) <= 1 and getDebuffStacks(br.friend[i].unit,209858) < 30 then
                             if cast.regrowth(br.friend[i].unit) then return end
                     end
                 end
