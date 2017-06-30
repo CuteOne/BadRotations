@@ -717,15 +717,7 @@ local function runRotation()
 						if cast.beaconOfFaith(br.friend[i].unit) then return end
 					end
 				end
-			end
-		-- The Deceiver's Grand Design
-		if isChecked("The Deceiver's Grand Design") then
-        	for i = 1, #br.friend do
-        		if hasEquiped(147007) and canUse(147007) and getBuffRemain(br.friend[i].unit,242622) == 0 and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
-        		    UseItemByName(147007,br.friend[i].unit)
-        		end	
-    		end
-		end				
+			end				
 		end
 		----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 		-- DPS ----------- DPS ----------- DPS ----------- DPS ----------- DPS ----------- DPS ----------- DPS ----------- DPS ----------- DPS ----------- DPS ----------- DPS -----------
@@ -834,6 +826,14 @@ local function runRotation()
 					end
 				end
 			end
+		        -- The Deceiver's Grand Design
+		        if isChecked("The Deceiver's Grand Design") then
+        	           for i = 1, #br.friend do
+        		       if hasEquiped(147007) and canUse(147007) and getBuffRemain(br.friend[i].unit,242622) == 0 and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
+        		          UseItemByName(147007,br.friend[i].unit)
+        		      end	
+    		        end
+		   end			
 			-- Trinkets
 			if isChecked("Trinket 1") and ((getLowAllies(getValue("Trinket 1")) >= getValue("Min Trinket 1 Targets") and not hasEquiped(144258))
 				or hasEquiped(144258) and buff.avengingWrath.exists())then
