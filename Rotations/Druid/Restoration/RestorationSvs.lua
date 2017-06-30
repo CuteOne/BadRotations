@@ -84,7 +84,9 @@ local function createOptions()
             br.ui:createSpinner(section, "Mana Potion",  50,  0,  100,  1,  "Mana Percent to Cast At") 
          -- Racial
             br.ui:createCheckbox(section,"Racial")
-        -- Trinkets
+	--The Deceiver's Grand Design
+	    br.ui:createCheckbox(section, "The Deceiver's Grand Design")		
+        -- Trinkets		
             br.ui:createSpinner(section, "Trinket 1",  70,  0,  100,  5,  "Health Percent to Cast At") 
             br.ui:createSpinnerWithout(section, "Min Trinket 1 Targets",  4,  1,  40,  1,  "","Minimum Trinket 1 Targets(This includes you)", true)
             br.ui:createSpinner(section, "Trinket 2",  70,  0,  100,  5,  "Health Percent to Cast At") 
@@ -214,7 +216,7 @@ local function runRotation()
         local lossPercent                                   = getHPLossPercent("player",5)		
         local lastSpell                                     = lastSpellCast
         local level                                         = br.player.level
-		local lowest                                        = br.friend[1]
+	local lowest                                        = br.friend[1]
         local lowestHP                                      = br.friend[1].unit
         local mana                                          = br.player.power.mana.percent
         local mode                                          = br.player.mode
@@ -457,6 +459,14 @@ local function runRotation()
                         if cast.innervate("player") then return end    
                     end
                 end
+	        -- The Deceiver's Grand Design
+	        if isChecked("The Deceiver's Grand Design") then
+	           for i = 1, #br.friend do
+		       if hasEquiped(147007) and canUse(147007) and getBuffRemain(br.friend[i].unit,242622) == 0 and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" and UnitInRange(br.friend[i].unit) then
+		          UseItemByName(147007,br.friend[i].unit)
+		      end	
+	        end
+	   end				
             -- Trinkets
             if isChecked("Trinket 1") and getLowAllies(getValue("Trinket 1")) >= getValue("Min Trinket 1 Targets") and not isCastingSpell(spell.tranquility) then
                 if canUse(13) then
