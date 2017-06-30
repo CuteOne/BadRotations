@@ -829,7 +829,7 @@ local function runRotation()
 		        -- The Deceiver's Grand Design
 		        if isChecked("The Deceiver's Grand Design") then
         	           for i = 1, #br.friend do
-        		       if hasEquiped(147007) and canUse(147007) and getBuffRemain(br.friend[i].unit,242622) == 0 and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
+        		       if hasEquiped(147007) and canUse(147007) and getBuffRemain(br.friend[i].unit,242622) == 0 and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" and UnitInRange(br.friend[i].unit) then
         		          UseItemByName(147007,br.friend[i].unit)
         		      end	
     		        end
