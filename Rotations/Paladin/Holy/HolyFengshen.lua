@@ -70,6 +70,8 @@ local function createOptions()
 		br.ui:createCheckbox(section, "Beacon of Light")
 		--Beacon of Faith
 		br.ui:createCheckbox(section, "Beacon of Faith")
+		--The Deceiver's Grand Design
+		br.ui:createCheckbox(section, "The Deceiver's Grand Design")		
 		-- Redemption
 		br.ui:createDropdown(section, "Redemption", {"|cffFFFFFFTarget","|cffFFFFFFMouseover"}, 1, "","|cffFFFFFFSelect Redemption Mode.")
 		-- Critical
@@ -716,6 +718,14 @@ local function runRotation()
 					end
 				end
 			end
+		-- The Deceiver's Grand Design
+		if isChecked("The Deceiver's Grand Design") then
+        	for i = 1, #br.friend do
+        		if hasEquiped(147007) and canUse(147007) and getBuffRemain(br.friend[i].unit,242622) == 0 and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
+        		    UseItemByName(147007,br.friend[i].unit)
+        		end	
+    		end
+		end				
 		end
 		----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 		-- DPS ----------- DPS ----------- DPS ----------- DPS ----------- DPS ----------- DPS ----------- DPS ----------- DPS ----------- DPS ----------- DPS ----------- DPS -----------
