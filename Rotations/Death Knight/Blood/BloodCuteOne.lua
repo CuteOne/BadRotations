@@ -69,7 +69,7 @@ local function createOptions()
         br.ui:checkSectionState(section)
     -- Vilt Rotation Options
     section = br.ui:createSection(br.ui.window.profile, "Vilt Rotation Options")
-            br.ui.createCheckbox(section, "Blooddrinker")
+            br.ui:createCheckbox(section,"Blooddrinker")
         -- Death and Decay Target Amount
             br.ui:createSpinner(section, "Death and Decay", 3, 0, 10, 1, "|cffFFBB00Check to use Death and Decay, Amount of Targets for DnD.")
         -- Use Bonestorm
