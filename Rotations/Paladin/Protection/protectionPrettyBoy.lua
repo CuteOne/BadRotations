@@ -299,7 +299,7 @@ local function runRotation()
 				if cast.shieldOfTheRighteous() then return end
 			end				
 			if GetObjectID("target") == 99192 then
-			    if getHP("target") < 50 and getHP("target") > 50 and not buff.shieldOfTheRighteous.exists() then
+			    if getHP("target") < 50 and getHP("target") > 30 and not buff.shieldOfTheRighteous.exists() then
 				    if cast.shieldOfTheRighteous() then return end
 				end	
 			end				
