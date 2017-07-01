@@ -326,45 +326,47 @@ local function runRotation()
         end -- End Action List - Extras
         -- Action List - Pre-Combat
         function actionList_PreCombat()
-            -- Swiftmend
-                if isChecked("Swiftmend") and not isCastingSpell(spell.tranquility) and not buff.soulOfTheForest.exists() then
-                -- Player
-                if getOptionValue("Swiftmend Target") == 1 then
-                    if php <= getValue("Swiftmend") then
-                        if cast.swiftmend("player") then return true end
-                    end
-                    -- Target
-                elseif getOptionValue("Swiftmend Target") == 2 then
-                    if getHP("target") <= getValue("Swiftmend") then
-                        if cast.swiftmend("target") then return true end
-                    end
-                    -- Mouseover
-                elseif getOptionValue("Swiftmend Target") == 3 then
-                    if getHP("mouseover") <= getValue("Swiftmend") then
-                        if cast.swiftmend("mouseover") then return true end
-                    end
-                elseif lowest.hp <= getValue("Swiftmend") then
-                    -- Tank
-                    if getOptionValue("Swiftmend Target") == 4 then
-                        if (lowest.role) == "TANK" then
-                            if cast.swiftmend(lowest.unit) then return true end
-                        end
-                    -- Healer
-                    elseif getOptionValue("Swiftmend Target") == 5 then
-                        if (lowest.role) == "HEALER" then
-                            if cast.swiftmend(lowest.unit) then return true end
-                        end
-                    -- Healer/Tank
-                    elseif getOptionValue("Swiftmend Target") == 6 then
-                        if (lowest.role) == "HEALER" or (lowest.role) == "TANK" then
-                            if cast.swiftmend(lowest.unit) then return true end
-                        end
-                    -- Any
-                    elseif  getOptionValue("Swiftmend Target") == 7 then
-                        if cast.swiftmend(lowest.unit) then return true end
-                    end
-                end
-            end		
+			-- Swiftmend
+			if isChecked("Swiftmend") and not isCastingSpell(spell.tranquility) and not buff.soulOfTheForest.exists() then
+			    for i = 1, #br.friend do
+			    	-- Player
+			    	if getOptionValue("Swiftmend Target") == 1 then
+			    		if php <= getValue("Swiftmend") then
+			    			if cast.swiftmend("player") then return true end
+			    		end
+			    		-- Target
+			    	elseif getOptionValue("Swiftmend Target") == 2 then
+			    		if getHP("target") <= getValue("Swiftmend") then
+			    			if cast.swiftmend("target") then return true end
+			    		end
+			    		-- Mouseover
+			    	elseif getOptionValue("Swiftmend Target") == 3 then
+			    		if getHP("mouseover") <= getValue("Swiftmend") then
+			    			if cast.swiftmend("mouseover") then return true end
+			    		end
+			    	elseif getOptionValue("Swiftmend Target") == 4 then
+			    		-- Tank
+			    		if br.friend[i].hp <= getValue("Swiftmend") and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
+			    			if cast.swiftmend(br.friend[i].unit) then return true end
+			    		end
+			    		-- Healer
+			    	elseif getOptionValue("Swiftmend Target") == 5 then
+			    			if br.friend[i].hp <= getValue("Swiftmend") and UnitGroupRolesAssigned(br.friend[i].unit) == "HEALER" then
+			    				if cast.swiftmend(br.friend[i].unit) then return true end
+			    			end
+			    		-- Healer/Tank
+			    	elseif getOptionValue("Swiftmend Target") == 6 then
+			    			if br.friend[i].hp <= getValue("Swiftmend") and (UnitGroupRolesAssigned(br.friend[i].unit) == "HEALER" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") then 
+			    				if cast.swiftmend(br.friend[i].unit) then return true end
+			    			end
+			    			-- Any
+			    	elseif getOptionValue("Swiftmend Target") == 7 then
+			    	        if br.friend[i].hp <= getValue("Swiftmend") then
+			    			    if cast.swiftmend(br.friend[i].unit) then return true end
+		        			end
+		        		end
+		        	end
+		        end	
 	        -- Affixes Helper
            if isChecked("Affixes Helper") and talent.abundance and not isCastingSpell(spell.tranquility) then
                 for i = 1, #br.friend do  
@@ -610,45 +612,47 @@ local function runRotation()
                     end	
                     end
                 end
-            -- Swiftmend
-                 if isChecked("Swiftmend") and not isCastingSpell(spell.tranquility) and not buff.soulOfTheForest.exists() then
-                -- Player
-                if getOptionValue("Swiftmend Target") == 1 then
-                    if php <= getValue("Swiftmend") then
-                        if cast.swiftmend("player") then return true end
-                    end
-                    -- Target
-                elseif getOptionValue("Swiftmend Target") == 2 then
-                    if getHP("target") <= getValue("Swiftmend") then
-                        if cast.swiftmend("target") then return true end
-                    end
-                    -- Mouseover
-                elseif getOptionValue("Swiftmend Target") == 3 then
-                    if getHP("mouseover") <= getValue("Swiftmend") then
-                        if cast.swiftmend("mouseover") then return true end
-                    end
-                elseif lowest.hp <= getValue("Swiftmend") then
-                    -- Tank
-                    if getOptionValue("Swiftmend Target") == 4 then
-                        if (lowest.role) == "TANK" then
-                            if cast.swiftmend(lowest.unit) then return true end
-                        end
-                    -- Healer
-                    elseif getOptionValue("Swiftmend Target") == 5 then
-                        if (lowest.role) == "HEALER" then
-                            if cast.swiftmend(lowest.unit) then return true end
-                        end
-                    -- Healer/Tank
-                    elseif getOptionValue("Swiftmend Target") == 6 then
-                        if (lowest.role) == "HEALER" or (lowest.role) == "TANK" then
-                            if cast.swiftmend(lowest.unit) then return true end
-                        end
-                    -- Any
-                    elseif  getOptionValue("Swiftmend Target") == 7 then
-                        if cast.swiftmend(lowest.unit) then return true end
-                    end	
-                    end
-                end
+			-- Swiftmend
+			if isChecked("Swiftmend") and not isCastingSpell(spell.tranquility) and not buff.soulOfTheForest.exists() then
+			    for i = 1, #br.friend do
+			    	-- Player
+			    	if getOptionValue("Swiftmend Target") == 1 then
+			    		if php <= getValue("Swiftmend") then
+			    			if cast.swiftmend("player") then return true end
+			    		end
+			    		-- Target
+			    	elseif getOptionValue("Swiftmend Target") == 2 then
+			    		if getHP("target") <= getValue("Swiftmend") then
+			    			if cast.swiftmend("target") then return true end
+			    		end
+			    		-- Mouseover
+			    	elseif getOptionValue("Swiftmend Target") == 3 then
+			    		if getHP("mouseover") <= getValue("Swiftmend") then
+			    			if cast.swiftmend("mouseover") then return true end
+			    		end
+			    	elseif getOptionValue("Swiftmend Target") == 4 then
+			    		-- Tank
+			    		if br.friend[i].hp <= getValue("Swiftmend") and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
+			    			if cast.swiftmend(br.friend[i].unit) then return true end
+			    		end
+			    		-- Healer
+			    	elseif getOptionValue("Swiftmend Target") == 5 then
+			    			if br.friend[i].hp <= getValue("Swiftmend") and UnitGroupRolesAssigned(br.friend[i].unit) == "HEALER" then
+			    				if cast.swiftmend(br.friend[i].unit) then return true end
+			    			end
+			    		-- Healer/Tank
+			    	elseif getOptionValue("Swiftmend Target") == 6 then
+			    			if br.friend[i].hp <= getValue("Swiftmend") and (UnitGroupRolesAssigned(br.friend[i].unit) == "HEALER" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") then 
+			    				if cast.swiftmend(br.friend[i].unit) then return true end
+			    			end
+			    			-- Any
+			    	elseif getOptionValue("Swiftmend Target") == 7 then
+			    	        if br.friend[i].hp <= getValue("Swiftmend") then
+			    			    if cast.swiftmend(br.friend[i].unit) then return true end
+		        			end
+		        		end
+		        	end
+		        end
 	        -- Lifebloom			
 			if isChecked("Lifebloom") and not isCastingSpell(spell.tranquility) then
 		        for i = 1, #br.friend do    
