@@ -1,4 +1,4 @@
-local rotationName = "LyLoLoq" -- Change to name of profile listed in options drop down
+local rotationName = "LoLoq" -- Change to name of profile listed in options drop down
 --------------
 --- COLORS ---
 --------------
@@ -656,7 +656,7 @@ local function runRotation()
 			
             --actions.single=ice_nova,if=debuff.winters_chill.up--why?
             if talent.iceNova then
-                if  cd.iceNova == 0 and then
+                if  cd.iceNova == 0 then
                     if cast.iceNova() then return true end
                 end
             end
@@ -701,8 +701,7 @@ local function runRotation()
                 end
             end
 			
-			
-			
+
             --actions.single+=/frost_bomb,if=debuff.frost_bomb.remains<action.ice_lance.travel_time&variable.fof_react>0
             if talent.frostBomb then
                 if lastCast ~= spell.frostBomb then
