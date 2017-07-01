@@ -327,7 +327,7 @@ local function runRotation()
         -- Action List - Pre-Combat
         function actionList_PreCombat()
 			-- Swiftmend
-			if isChecked("Swiftmend") and not isCastingSpell(spell.tranquility) and not buff.soulOfTheForest.exists() then
+			if isChecked("Swiftmend") and not isCastingSpell(spell.tranquility) then
 			    for i = 1, #br.friend do
 			    	-- Player
 			    	if getOptionValue("Swiftmend Target") == 1 then
