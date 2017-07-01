@@ -206,6 +206,7 @@ local function runRotation()
         local debuff                                        = br.player.debuff
         local drinking                                      = UnitBuff("player",192002) ~= nil or UnitBuff("player",167152) ~= nil or UnitBuff("player",192001) ~= nil
         local enemies                                       = enemies or {}
+	local friends                                       = friends or {}	
         local falling, swimming, flying, moving             = getFallTime(), IsSwimming(), IsFlying(), GetUnitSpeed("player")>0
         local gcd                                           = br.player.gcd
         local healPot                                       = getHealthPot()
@@ -247,6 +248,7 @@ local function runRotation()
         enemies.yards5  = br.player.enemies(5)
         enemies.yards8  = br.player.enemies(8)
         enemies.yards40 = br.player.enemies(40)
+	friends.yards40 = getAllies("player",40)	
 		
         if lossPercent > snapLossHP or php > snapLossHP then snapLossHP = lossPercent end
 
@@ -535,17 +537,12 @@ local function runRotation()
         function actionList_SingleTarget()
             -- Nature's Cure
             if br.player.mode.decurse == 1 then
-                for i = 1, #br.friend do
-                    for n = 1,40 do
-                        local buff,_,_,count,bufftype,duration = UnitDebuff(br.friend[i].unit, n)
-                        if buff then
-                            if (bufftype == "Curse" or bufftype == "Magic" or bufftype == "Poison") and UnitInRange(br.friend[i].unit) and br.friend[i].dispel then
-                                if cast.naturesCure(br.friend[i].unit) then return end
-                            end
-                        end
-                    end
-                end
-            end
+                for i = 1, #friends.yards40 do
+                    if canDispel(br.friend[i].unit,spell.naturesCure) then
+                        if cast.naturesCure(br.friend[i].unit) then return end
+		    end
+		end
+	     end			
             -- Ironbark
                 if isChecked("Ironbark") and not isCastingSpell(spell.tranquility) then
                 -- Player
