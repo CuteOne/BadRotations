@@ -93,8 +93,10 @@ function canDispel(Unit,spellID)
 		typesList = { }
 	end
 	if ClassNum == 2 then --Paladin
-		-- Cleanse Toxin
+		-- Cleanse (Holy)
 		if spellID == 4987 then typesList = { "Poison","Disease", "Magic" } end
+		-- Cleanse Toxins (Ret, Prot)
+		if spellID == 213644 then typesList = {"Poison", "Disease"} end
 	end
 	if ClassNum == 3 then --Hunter
 		typesList = { }
