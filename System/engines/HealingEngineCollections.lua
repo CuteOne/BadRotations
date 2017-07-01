@@ -17,7 +17,9 @@ novaEngineTables.DispelID = {
 	{ id = 185066, stacks = 0}, -- Mark of Necromancer red level
 	-- Xavius
 	{ id = 206651, stacks = 3}, -- Xavius Darkening Soul
-	{ id = 209158, stacks = 3}, -- Xavius Blackening Soul 
+	{ id = 209158, stacks = 3}, -- Xavius Blackening Soul
+	-- Belac
+	{ id = 233983, stacks = 0, range = 8}  -- Echoing Anguish http://www.wowhead.com/spell=233983/echoing-anguish
 }
 -- This is where we house the Debuffs that are bad for our users, and should not be healed when they have it
 novaEngineTables.BadDebuffList= {
