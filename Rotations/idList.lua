@@ -2513,7 +2513,8 @@ br.idList = {
                 sundering                   = 197214,
                 windRushTotem               = 192077,
                 windsong                    = 201898,
-                windstrike                  = 115356,
+                --windstrike                  = 115356, Not working with this id
+                windstrike                 = 17364,
             },
             artifacts                       = {
                 alphaWolf                   = 198434,

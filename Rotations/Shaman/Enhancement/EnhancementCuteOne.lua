@@ -569,7 +569,7 @@ local function runRotation()
             end
         -- Lava Lash
             -- lava_lash,if=buff.hot_hand.react&((variable.akainuEquipped&buff.frostbrand.up)|!variable.akainuEquipped)
-            if buff.hotHand and ((akainuEquiped and buff.frostbrand.exists()) or not akainuEquiped) then
+            if buff.hotHand.exists() and ((akainuEquiped and buff.frostbrand.exists()) or not akainuEquiped) then
                 if cast.lavaLash() then return end
             end
         -- Sundering
