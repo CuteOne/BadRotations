@@ -238,6 +238,7 @@ local function runRotation()
 		local debuff                                        = br.player.debuff
 		local drinking                                      = UnitBuff("player",192002) ~= nil or UnitBuff("player",167152) ~= nil or UnitBuff("player",192001) ~= nil
 		local enemies                                       = enemies or {}
+		local friends                                       = friends or {}
 		local falling, swimming, flying, moving             = getFallTime(), IsSwimming(), IsFlying(), GetUnitSpeed("player")>0
 		local gcd                                           = br.player.gcd
 		local healPot                                       = getHealthPot()
@@ -277,6 +278,7 @@ local function runRotation()
 		enemies.yards15 = br.player.enemies(15)
 		enemies.yards30 = br.player.enemies(30)
 		enemies.yards40 = br.player.enemies(40)
+		friends.yards40 = getAllies("player",40)
 		
 		local lowest                                        = {}    --Lowest Unit
 		lowest.hp                                           = br.friend[1].hp
@@ -629,20 +631,13 @@ local function runRotation()
 		local function Cleanse()
 			-- Cleanse
 			if br.player.mode.cleanse == 1 then
-				for i = 1, #br.friend do
-					if UnitIsPlayer(br.friend[i].unit) then
-						for n = 1,40 do
-							local buff,_,_,count,bufftype,duration = UnitDebuff(br.friend[i].unit, n)
-							if buff then
-								if bufftype == "Disease" or bufftype == "Magic" or bufftype == "Poison" then
-									if cast.cleanse(br.friend[i].unit) then return end
-								end
-							end
-						end
-					end
+			    for i = 1, #friends.yards40 do
+			        if canDispel(br.friend[i].unit,spell.cleanse) then
+				    if cast.cleanse(br.friend[i].unit) then return end
 				end
-			end
-		end
+			    end	
+		        end
+		    end	
 		-- Interrupt
 		local function Interrupt()
 			if useInterrupts() then
