@@ -1,4 +1,4 @@
-local rotationName = "LyLoLoq" -- Change to name of profile listed in options drop down
+local rotationName = "Lyloloq" -- Change to name of profile listed in options drop down
 --------------
 --- COLORS ---
 --------------
@@ -621,14 +621,18 @@ local function runRotation()
                     if cast.iceNova() then return true end
                 end
             end
-            --actions.aoe+=/ice_lance,if=variable.fof_react>0
-            if fof_react > 0 then
-                if cast.iceLance(target) then return true end
+            
+            --water_jet,if=prev_gcd.1.frostbolt&buff.fingers_of_frost.stack<(2+artifact.icy_hand.enabled)&buff.brain_freeze.react=0
+            if lastCast == spell.frostbolt and isCastingSpell(spell.frostbolt) and buff.fingersOfFrost.stack() < (2 + iceHand) and not buff.brainFreeze.exists() then
+                CastSpellByName(GetSpellInfo(spell.waterJet))
+                lastCast = spell.waterJet
             end
+            
             --actions.aoe+=/flurry,if=prev_gcd.1.ebonbolt|prev_gcd.1.frostbolt&buff.brain_freeze.react
             if buff.brainFreeze.exists() and fof_react == 0 then
                 if cast.flurry(target) then return true end
             end
+            
             --actions.aoe+=/frost_bomb,if=debuff.frost_bomb.remains<action.ice_lance.travel_time&variable.fof_react>0
             if talent.frostBomb then
                 if lastCast ~= spell.frostBomb then
@@ -637,6 +641,12 @@ local function runRotation()
                     end
                 end
             end
+            
+            --actions.aoe+=/ice_lance,if=variable.fof_react>0
+            if fof_react > 0 then
+                if cast.iceLance(target) then return true end
+            end
+            
             --actions.aoe+=/ebonbolt,if=buff.brain_freeze.react=0
             if (getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs())) then
                 if not buff.brainFreeze.exists() then
@@ -651,6 +661,8 @@ local function runRotation()
             end
             --actions.aoe+=/frostbolt
             if cast.frostbolt(target) then return true end
+            
+            if cast.iceLance(target) then return true end
             return false
         end
 
@@ -750,13 +762,13 @@ local function runRotation()
             
             -- blizzard,if=active_enemies>2|active_enemies>1&!(talent.glacial_spike.enabled&talent.splitting_ice.enabled)|(buff.zannesu_journey.stack=5&buff.zannesu_journey.remains>cast_time)
             if cd.blizzard == 0 then
+                if (#enemies.yards8t > 2) or (#enemies.yards8t > 1 and talent.glacialSpike and talent.splittingIce) then
+                    if cast.blizzard("best", nil, 1, blizzardRadius) then return true end
+                end
                 if isChecked(colorLegendary.."Zann'esu Journey") then
                     if buff.zannesuJourney.stack() == 5 and buff.zannesuJourney.remain() > getCastTime(spell.blizzard) then
                         if cast.blizzard("best", nil, getValue(colorLegendary.."Zann'esu Journey"), blizzardRadius) then return true end
                     end
-                end
-                if (#enemies.yards8t > 2 or #enemies.yards8t > 1) and (talent.glacialSpike and talent.splittingIce) then
-                    if cast.blizzard("best", nil, 1, blizzardRadius) then return true end
                 end
             end
             
@@ -776,7 +788,7 @@ local function runRotation()
             end
             
             if cast.frostbolt(target) then return true end
-            
+            if cast.iceLance(target) then return true end
             return false
             
         end
