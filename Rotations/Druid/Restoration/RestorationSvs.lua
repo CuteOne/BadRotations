@@ -31,18 +31,24 @@ local function createToggles()
         [2] = { mode = "Off", value = 2 , overlay = "Decurse Disabled", tip = "Decurse Disabled", highlight = 0, icon = br.player.spell.naturesCure }
     };
     CreateButton("Decurse",4,0)
+-- Interrupt Button
+	InterruptModes = {
+	[1] = { mode = "On", value = 1 , overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spell.mightyBash },
+	[2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.mightyBash }
+    };
+    CreateButton("Interrupt",5,0)	
 -- DPS Button
     DPSModes = {
         [2] = { mode = "On", value = 1 , overlay = "DPS Enabled", tip = "DPS Enabled", highlight = 1, icon = br.player.spell.rake },
         [1] = { mode = "Off", value = 2 , overlay = "DPS Disabled", tip = "DPS Disabled", highlight = 0, icon = br.player.spell.regrowth }
     };
-    CreateButton("DPS",5,0)
+    CreateButton("DPS",6,0)
 -- Rejuvenaion Button
     RejuvenaionModes = {
         [2] = { mode = "On", value = 1 , overlay = "Rejuvenaion Enabled", tip = "All players Rejuvenaion Enabled", highlight = 1, icon = br.player.spell.rejuvenation },
         [1] = { mode = "Off", value = 2 , overlay = "Rejuvenaion Disabled", tip = "All players Rejuvenaion Disabled", highlight = 0, icon = br.player.spell.rejuvenation }
     };
-    CreateButton("Rejuvenaion",6,0)	
+    CreateButton("Rejuvenaion",7,0)	
 end
 
 --------------
@@ -113,6 +119,13 @@ local function createOptions()
 	        -- Renewal
             br.ui:createSpinner(section, "Renewal",  30,  0,  100,  5,  "|cffFFBB00Health Percentage to use at");			
         br.ui:checkSectionState(section)
+    -- Interrupts Options	
+	section = br.ui:createSection(br.ui.window.profile, "Interrupts")
+	    --Mighty Bash
+	    br.ui:createCheckbox(section, "Mighty Bash")
+	-- Interrupt Percentage
+	    br.ui:createSpinner(section,  "InterruptAt",  95,  0,  95,  5,  "","|cffFFBB00Cast Percentage to use at.")
+	    br.ui:checkSectionState(section)		
     -- Healing Options
         section = br.ui:createSection(br.ui.window.profile, "Healing")
         -- Efflorescence
@@ -187,11 +200,12 @@ local function runRotation()
         UpdateToggle("Cooldown",0.25)
         UpdateToggle("Defensive",0.25)
         UpdateToggle("Decurse",0.25)
+	UpdateToggle("Interrupt",0.25)	
         UpdateToggle("DPS",0.25)
-		UpdateToggle("Rejuvenaion",0.25)
+	UpdateToggle("Rejuvenaion",0.25)
         br.player.mode.decurse = br.data.settings[br.selectedSpec].toggles["Decurse"]
         br.player.mode.dps = br.data.settings[br.selectedSpec].toggles["DPS"]
-		br.player.mode.rejuvenaion = br.data.settings[br.selectedSpec].toggles["Rejuvenaion"]
+	br.player.mode.rejuvenaion = br.data.settings[br.selectedSpec].toggles["Rejuvenaion"]
 --------------
 --- Locals ---
 --------------
@@ -440,7 +454,21 @@ local function runRotation()
                     end
                 end				
             end -- End Defensive Toggle
-        end -- End Action List - Defensive	
+        end -- End Action List - Defensive
+    	-- Interrupt
+    	local function actionList_Interrupts()
+    		if useInterrupts() then
+		   for i = 1, #enemies.yards5 do
+	           local thisUnit = enemies.yards5[i]
+	           local distance = getDistance(thisUnit)
+			if canInterrupt(thisUnit,getOptionValue("InterruptAt")) then
+			   if isChecked("Mighty Bash") and talent.mightyBash and distance < 5 then
+				if cast.mightyBash(thisUnit) then return end
+			     end
+			 end
+		     end
+		 end
+	      end		
         function actionList_Cooldowns()
             if useCDs() then
             -- Incarnation: Tree of Life
@@ -1000,7 +1028,7 @@ local function runRotation()
                 actionList_Extras()
                 if isChecked("OOC Healing") then
                     actionList_PreCombat()
-					actionList_Rejuvenaion()
+		    actionList_Rejuvenaion()
                 end
             end -- End Out of Combat Rotation
 -----------------------------
@@ -1008,16 +1036,17 @@ local function runRotation()
 -----------------------------
             if inCombat and not IsMounted() and not stealthed and not drinking and not buff.shadowmeld.exists() then
                 actionList_Extras()
-                actionList_Defensive()				
+                actionList_Defensive()
+		actionList_Interrupts()
                 actionList_Cooldowns()
                 if br.player.mode.dps == 2 and (br.friend[1].hp > getValue("DPS") or bear) then
                     actionList_DPS()
                 end	
-				if not cat and not moonkin and not bear then
+		if not cat and not moonkin and not bear then
                     actionList_AOEHealing()
                     actionList_SingleTarget()
-		            actionList_Rejuvenaion()
-				end	
+		    actionList_Rejuvenaion()
+		end	
             end -- End In Combat Rotation
         end -- Pause
     end -- End Timer
