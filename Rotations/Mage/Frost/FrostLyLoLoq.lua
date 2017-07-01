@@ -629,7 +629,7 @@ local function runRotation()
             end
             
             --actions.aoe+=/flurry,if=prev_gcd.1.ebonbolt|prev_gcd.1.frostbolt&buff.brain_freeze.react
-            if buff.brainFreeze.exists() and fof_react == 0 then
+            if (lastCast == spell.ebonbolt) or (lastCast == spell.frostbolt and buff.brainFreeze.exists()) then
                 if cast.flurry(target) then return true end
             end
             
@@ -704,7 +704,7 @@ local function runRotation()
             end
             
             -- flurry,if= prev_gcd.1.ebonbolt | buff.brain_freeze.react&(!talent.glacial_spike.enabled&prev_gcd.1.frostbolt | talent.glacial_spike.enabled&(prev_gcd.1.glacial_spike | prev_gcd.1.frostbolt&(buff.icicles.stack<=3 | cooldown.frozen_orb.remains<=10&set_bonus.tier20_2pc)))
-            if (lastCast == spell.ebonbolt) or (buff.brainFreeze.exists() and not talent.glacialSpike and lastCast == spell.frostbolt) or (talent.glacialSpike and lastCast == glacialSpike) or (lastCast == spell.frostbolt and buff.icicles.stack() <= 3 ) or (cd.frozenOrb <= 10 and t20pc2) then
+            if lastCast == spell.ebonbolt or buff.brainFreeze.exists() and (not talent.glacialSpike and lastCast == spell.frostbolt or talent.glacialSpike and (lastCast == spell.glacialSpike or lastCast == spell.frostbolt and (buff.icicles.stack() <= 3 or cd.frozenOrb <= 10 and t202pc))) then
                 if cast.flurry(target) then return true end
             end
     
