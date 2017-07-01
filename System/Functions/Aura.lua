@@ -167,7 +167,7 @@ function canDispel(Unit,spellID)
 	end
 	local ValidDebuffType = false
 	local i = 1
-	if Unit.dispell == true or Unit.dispell == nil then
+	if Unit.dispel == true or Unit.dispel == nil then
 		if UnitIsFriend("player",Unit) then
 			while UnitDebuff(Unit,i) do
 				local _,_,_,_,debuffType,_,_,_,_,_,debuffid = UnitDebuff(Unit,i) 
