@@ -1232,6 +1232,7 @@ br.idList = {
                 iceFloes                    = 108839,
                 iceBarrier                  = 11426,
                 icicles                     = 205473,
+                frozenMass                  = 242253,
             },
             debuffs                         = {
                 frostBomb                   = 112948,
