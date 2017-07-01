@@ -1,4 +1,4 @@
-local rotationName = "LyLoLoq" -- Change to name of profile listed in options drop down
+local rotationName = "LoLoq" -- Change to name of profile listed in options drop down
 --------------
 --- COLORS ---
 --------------
@@ -154,6 +154,7 @@ local function runRotation()
     local ttd                                           = getTTD
     local enemies                                       = enemies or {}
     local units                                         = units or {}
+	local t20_2pc       								= TierScan("T20") >= 2
 
     enemies.yards40 = br.player.enemies(40)
 
@@ -172,6 +173,7 @@ local function runRotation()
     if artifact.icyHand then iceHand= 1 else iceHand = 0 end
     if iv_start == nil then iv_start = 0 end
     if fof_react == nil then fof_react = 0 end
+	if t20_2pc then t20pc2 = 1 else t20pc2 = 0 end
     if time_until_fof == nil then time_until_fof = 0 end
     if not inCombat and not GetObjectExists(target) then
         POT   = false
@@ -540,11 +542,13 @@ local function runRotation()
                         end
                     end
                 end
+
                 --actions.cooldowns+=/variable,name=iv_start,value=time,if=cooldown.icy_veins.ready&buff.icy_veins.down
                 if cd.icyVeins == 0 and not buff.icyVeins.exists() then
                     if debug == true then Print("iv_start Changed: "..iv_start) end
                     iv_start = getCombatTime()
                 end
+				
                 --actions.cooldowns+=/icy_veins,if=buff.icy_veins.down
                 if useCDs() and isChecked(colorBlueMage.."Icy Veins") and cd.icyVeins == 0 then
                     if not buff.icyVeins.exists() then
@@ -649,16 +653,31 @@ local function runRotation()
         end
 
         local function actionList_SINGLE()
-            --actions.single+=/frostbolt,if=prev_off_gcd.water_jet
-            if lastCast == spell.waterJet and getCastTime(spell.frostbolt)+0.2 < getCastTimeRemain("pet") then
-                if cast.frostbolt(target) then return true end
-            end
+			
             --actions.single=ice_nova,if=debuff.winters_chill.up--why?
             if talent.iceNova then
                 if  cd.iceNova == 0 then
                     if cast.iceNova() then return true end
                 end
             end
+			-- 	frozen_orb,if=set_bonus.tier20_2pc
+			if cd.frozenOrb == 0 and t20pc2 then
+                if isChecked(colorBlueMage.."Frozen Orb") and getEnemiesInRect(15,55,false) > 0 then
+                    if cast.frozenOrb() then return true end
+                end
+            end
+			
+			--actions.single+=/frostbolt,if=prev_off_gcd.water_jet
+            if lastCast == spell.waterJet and getCastTime(spell.frostbolt)+0.2 < getCastTimeRemain("pet") then
+                if cast.frostbolt(target) then return true end
+            end
+			
+			--water_jet,if=prev_gcd.1.frostbolt&buff.fingers_of_frost.stack<(2+artifact.icy_hand.enabled)&buff.brain_freeze.react=0
+			if lastCast == spell.frostbolt and isCastingSpell(spell.frostbolt) and buff.fingersOfFrost.stack() < (2 + iceHand) and not buff.brainFreeze.exists() then
+				CastSpellByName(GetSpellInfo(spell.waterJet))
+				lastCast = spell.waterJet
+			end
+			
             --actions.single+=/ray_of_frost,if=buff.icy_veins.up|(cooldown.icy_veins.remains>action.ray_of_frost.cooldown&buff.rune_of_power.down)
             if talent.rayOfFrost then
                 if  cd.rayOfFrost == 0 then
@@ -669,14 +688,20 @@ local function runRotation()
                     end
                 end
             end
-            --actions.single+=/ice_lance,if=variable.fof_react>0&cooldown.icy_veins.remains>10|variable.fof_react>2
-            if (fof_react > 0 and cd.icyVeins > 10) or (not useCDs() and fof_react > 0) or fof_react > 2 then
-                if cast.iceLance(target) then return true end
-            end
-            --actions.single+=/flurry,if=prev_gcd.1.ebonbolt|prev_gcd.1.frostbolt&buff.brain_freeze.react
-            if buff.brainFreeze.exists() and fof_react == 0 then
+			
+			-- flurry,if= prev_gcd.1.ebonbolt | buff.brain_freeze.react&(!talent.glacial_spike.enabled&prev_gcd.1.frostbolt | talent.glacial_spike.enabled&(prev_gcd.1.glacial_spike | prev_gcd.1.frostbolt&(buff.icicles.stack<=3 | cooldown.frozen_orb.remains<=10&set_bonus.tier20_2pc)))
+			if (lastCast == spell.ebonbolt) or (buff.brainFreeze.exists() and not talent.glacialSpike and lastCast == spell.frostbolt) or (talent.glacialSpike and lastCast == glacialSpike) or (lastCast == spell.frostbolt and buff.icicles.stack() <= 3 ) or (cd.frozenOrb.remains() <= 10 and t20pc2)
                 if cast.flurry(target) then return true end
             end
+	
+			--blizzard,if=cast_time=0&active_enemies>1&variable.fof_react<3
+			if cd.blizzard == 0 then
+                if getCastTime(spell.blizzard) == 0 and fof_react < 3  then
+                    if cast.blizzard("best", nil, 1, blizzardRadius) then return true end
+                end
+            end
+			
+
             --actions.single+=/frost_bomb,if=debuff.frost_bomb.remains<action.ice_lance.travel_time&variable.fof_react>0
             if talent.frostBomb then
                 if lastCast ~= spell.frostBomb then
@@ -685,13 +710,43 @@ local function runRotation()
                     end
                 end
             end
+			
+			--actions.single+=/ice_lance,if=variable.fof_react>0&cooldown.icy_veins.remains>10|variable.fof_react>2
+            if (fof_react > 0 and cd.icyVeins > 10) or (not useCDs() and fof_react > 0) or fof_react > 2 then
+                if cast.iceLance(target) then return true end
+            end
+			
+			--actions.single+=/ebonbolt,if=buff.brain_freeze.react=0
+            if (getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs())) then
+                if not buff.brainFreeze.exists() then
+                    if cast.ebonbolt(target) then return true end
+                end
+            end
+			
             --actions.single+=/frozen_orb
             if cd.frozenOrb == 0 then
-                if isChecked(colorBlueMage.."Frozen Orb") and getEnemiesInRect(15,55,false) > 0 and buff.fingersOfFrost.stack() < 2 then
+                if isChecked(colorBlueMage.."Frozen Orb") and getEnemiesInRect(15,55,false) > 0 then
                     if cast.frozenOrb() then return true end
                 end
             end
-            --actions.single+=/blizzard,if=cast_time=0&active_enemies>1&variable.fof_react<3
+			
+			--actions.single=ice_nova,if=debuff.winters_chill.up--why?
+            if talent.iceNova then
+                if  cd.iceNova == 0 then
+                    if cast.iceNova() then return true end
+                end
+            end
+			
+			-- 	comet_storm
+            if talent.cometStorm then
+                if cd.cometStorm == 0 then
+                    if isChecked(colorBlueMage.."Comet Storm") and ( IsStandingTime(2,target) or GetUnitSpeed(target) <= 3) then
+                        if cast.cometStorm(target) then return true end
+                    end
+                end
+            end
+			
+            -- NEEDS WORK	blizzard,if=active_enemies>2|active_enemies>1&!(talent.glacial_spike.enabled&talent.splitting_ice.enabled)|(buff.zannesu_journey.stack=5&buff.zannesu_journey.remains>cast_time)
             if cd.blizzard == 0 then
                 if isChecked(colorLegendary.."Zann'esu Journey") then
                     if buff.zannesuJourney.stack() == 5 then
@@ -702,29 +757,25 @@ local function runRotation()
                     if cast.blizzard("best", nil, 1, blizzardRadius) then return true end
                 end
             end
-            --actions.single+=/comet_storm
-            if talent.cometStorm then
-                if cd.cometStorm == 0 then
-                    if isChecked(colorBlueMage.."Comet Storm") and ( IsStandingTime(2,target) or GetUnitSpeed(target) <= 3) then
-                        if cast.cometStorm(target) then return true end
-                    end
-                end
-            end
-            --actions.single+=/ebonbolt,if=buff.brain_freeze.react=0
-            if (getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs())) then
-                if not buff.brainFreeze.exists() then
-                    if cast.ebonbolt(target) then return true end
-                end
-            end
-            --actions.single+=/glacial_spike
+			
+			--frostbolt,if=buff.frozen_mass.remains>execute_time+action.glacial_spike.execute_time+action.glacial_spike.travel_time&buff.brain_freeze.react=0&talent.glacial_spike.enabled
+			if (buff.frozen_mass.remains() > ( getCastTime(spell.frostbolt) + getCastTime(spell.glacialSpike) + 1 ) and not buff.brainFreeze.exists() and talent.glacialSpike then
+				if cast.frostbolt(target) then return true end
+			end
+			
+            --	glacial_spike,if=cooldown.frozen_orb.remains>10|!set_bonus.tier20_2pc
+			
             if talent.glacialSpike then
-                if buff.icicles.stack() == 5 then
-                    if cast.glacialSpike(target) then return true end
+                if cd.frozenOrb.remains() > 10 or not t20pc2 then
+					if buff.icicles.stack() == 5 then 
+						if cast.glacialSpike(target) then return true end
+					end
                 end
             end
-            --actions.single+=/frostbolt
-            if cast.frostbolt(target) then return true end
+			
+			if cast.frostbolt(target) then return true end
             return false
+            
         end
 
         local function actionList_COMBAT()
