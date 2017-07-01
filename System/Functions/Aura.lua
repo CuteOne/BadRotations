@@ -89,55 +89,53 @@ end
 function canDispel(Unit,spellID)
 	local HasValidDispel = false
 	local ClassNum = select(3,UnitClass("player"))
-	if Unit.dispell then
-		if ClassNum == 1 then --Warrior
-			typesList = { }
-		end
-		if ClassNum == 2 then --Paladin
-			-- Cleanse Toxin
-			if spellID == 213644 then typesList = { "Poison","Disease" } end
-		end
-		if ClassNum == 3 then --Hunter
-			typesList = { }
-		end
-		if ClassNum == 4 then --Rogue
-			-- Cloak of Shadows
-			if spellID == 31224 then typesList = { "Poison","Curse","Disease","Magic" } end
-		end
-		if ClassNum == 5 then --Priest
-			typesList = { }
-		end
-		if ClassNum == 6 then --Death Knight
-			typesList = { }
-		end
-		if ClassNum == 7 then --Shaman
-			-- Cleanse Spirit
-			if spellID == 51886 then typesList = { "Curse" } end
-			-- Purge
-			if spellID == 370 then typesList = { "Magic" } end
-		end
-		if ClassNum == 8 then --Mage
-			typesList = { }
-		end
-		if ClassNum == 9 then --Warlock
-			typesList = { }
-		end
-		if ClassNum == 10 then --Monk
-			-- Detox
-			if spellID == 218164 then typesList = { "Poison","Disease" } end
-			-- Diffuse Magic
-			-- if spellID == 122783 then typesList = { "Magic" } end
-		end
-		if ClassNum == 11 then --Druid
-			-- Remove Corruption
-			if spellID == 2782 then typesList = { "Poison","Curse" } end
-			-- Nature's Cure
-			if spellID == 88423 then typesList = { "Poison","Curse","Magic" } end
-			-- Symbiosis: Cleanse
-			if spellID == 122288 then typesList = { "Poison","Disease" } end
-			-- -- Soothe
-			-- if sellID == 2908 then typeList = { "Enrage" } end
-		end
+	if ClassNum == 1 then --Warrior
+		typesList = { }
+	end
+	if ClassNum == 2 then --Paladin
+		-- Cleanse Toxin
+		if spellID == 4987 then typesList = { "Poison","Disease", "Magic" } end
+	end
+	if ClassNum == 3 then --Hunter
+		typesList = { }
+	end
+	if ClassNum == 4 then --Rogue
+		-- Cloak of Shadows
+		if spellID == 31224 then typesList = { "Poison","Curse","Disease","Magic" } end
+	end
+	if ClassNum == 5 then --Priest
+		typesList = { }
+	end
+	if ClassNum == 6 then --Death Knight
+		typesList = { }
+	end
+	if ClassNum == 7 then --Shaman
+		-- Cleanse Spirit
+		if spellID == 51886 then typesList = { "Curse" } end
+		-- Purge
+		if spellID == 370 then typesList = { "Magic" } end
+	end
+	if ClassNum == 8 then --Mage
+		typesList = { }
+	end
+	if ClassNum == 9 then --Warlock
+		typesList = { }
+	end
+	if ClassNum == 10 then --Monk
+		-- Detox
+		if spellID == 115450 then typesList = { "Poison","Disease", "Magic" } end
+		-- Diffuse Magic
+		-- if spellID == 122783 then typesList = { "Magic" } end
+	end
+	if ClassNum == 11 then --Druid
+		-- Remove Corruption
+		if spellID == 2782 then typesList = { "Poison","Curse" } end
+		-- Nature's Cure
+		if spellID == 88423 then typesList = { "Poison","Curse","Magic" } end
+		-- Symbiosis: Cleanse
+		if spellID == 122288 then typesList = { "Poison","Disease" } end
+		-- -- Soothe
+		-- if sellID == 2908 then typeList = { "Enrage" } end
 	end
 		-- local function Enraged()
 	-- 	local enrageBuff = select(5,UnitAura(Unit))=="" or false
@@ -154,45 +152,48 @@ function canDispel(Unit,spellID)
 	-- 	end
 	-- end
 	local function ValidType(debuffType)
+		local typeCheck = false
 		if typesList == nil then
-			return false
+			typeCheck = false
 		else
 			for i = 1,#typesList do
 				if typesList[i] == debuffType then
-					return true
-				else
-					return false
+					typeCheck = true
+					break
 				end
 			end
 		end
+		return typeCheck
 	end
 	local ValidDebuffType = false
 	local i = 1
-	if UnitIsFriend("player",Unit) then
-		while UnitDebuff(Unit,i) do
-			local _,_,_,_,debuffType,_,_,_,_,_,debuffid = UnitDebuff(Unit,i)
-			-- Blackout Debuffs
-			if ((debuffType and ValidType(debuffType))) --or Enraged())
-				and debuffid ~= 138732 --Ionization from Jin'rokh the Breaker - ptr
-				and debuffid ~= 138733 --Ionization from Jin'rokh the Breaker - live
-			then
-				HasValidDispel = true
-				break
+	if Unit.dispell == true or Unit.dispell == nil then
+		if UnitIsFriend("player",Unit) then
+			while UnitDebuff(Unit,i) do
+				local _,_,_,_,debuffType,_,_,_,_,_,debuffid = UnitDebuff(Unit,i) 
+				-- Blackout Debuffs
+				if ((debuffType and ValidType(debuffType))) and ((isChecked("Dispel delay") and (getDebuffDuration(Unit, debuffid) - getDebuffRemain(Unit, debuffid)) > (getDebuffDuration(Unit, debuffid) * (math.random(getValue("Dispel delay")-2, getValue("Dispel delay")+2)/100))) or not isChecked("Dispel delay")) 
+					and debuffid ~= 138732 --Ionization from Jin'rokh the Breaker - ptr
+					and debuffid ~= 138733 --Ionization from Jin'rokh the Breaker - live
+				then
+					HasValidDispel = true
+					break
+				end
+				i = i + 1
 			end
-			i = i + 1
-		end
-	else
-		while UnitBuff(Unit,i) do
-			local _,_,_,_,buffType,_,_,_,_,_,buffid = UnitBuff(Unit,i)
-			-- Blackout Debuffs
-			if ((buffType and ValidType(buffType))) --or Enraged())
-				and buffid ~= 138732 --Ionization from Jin'rokh the Breaker - ptr
-				and buffid ~= 138733 --Ionization from Jin'rokh the Breaker - live
-			then
-				HasValidDispel = true
-				break
+		else
+			while UnitBuff(Unit,i) do
+				local _,_,_,_,buffType,_,_,_,_,_,buffid = UnitBuff(Unit,i)
+				-- Blackout Debuffs
+				if ((buffType and ValidType(buffType))) and ((isChecked("Dispel delay") and (getDebuffDuration(Unit, buffid) - getDebuffRemain(Unit, buffid)) > (getDebuffDuration(Unit, buffid) * (math.random(getValue("Dispel delay")-2, getValue("Dispel delay")+2)/100) )) or not isChecked("Dispel delay")) -- Dispel Delay then--or Enraged()) --or Enraged())
+					and buffid ~= 138732 --Ionization from Jin'rokh the Breaker - ptr
+					and buffid ~= 138733 --Ionization from Jin'rokh the Breaker - live
+				then
+					HasValidDispel = true
+					break
+				end
+				i = i + 1
 			end
-			i = i + 1
 		end
 	end
 	return HasValidDispel

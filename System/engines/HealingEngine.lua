@@ -120,7 +120,7 @@ if not metaTable1 then
 					end
 				end
 			end
-			return false
+			return nil
 		end
 		-- We are checking the HP of the person through their own function.
 		function o:CalcHP()
