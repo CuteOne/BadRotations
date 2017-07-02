@@ -1,4 +1,4 @@
-local rotationName = "LyLoLoq" -- Change to name of profile listed in options drop down
+local rotationName = "Lemon" -- Change to name of profile listed in options drop down
 --------------
 --- COLORS ---
 --------------
