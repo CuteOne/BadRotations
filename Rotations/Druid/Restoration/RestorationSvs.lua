@@ -526,7 +526,15 @@ local function runRotation()
             end -- End useCooldowns check
         end -- End Action List - Cooldowns
         -- AOE Healing
-        function actionList_AOEHealing()	
+        function actionList_AOEHealing()
+		    -- Cultivation
+			if inRaid and talent.germination and talent.cultivation then
+			    for i=1, #br.friend do
+				    if getLowAllies(60) < 5 and br.friend[i].hp < 60 and not buff.rejuvenationGermination.exists(br.friend[i].unit) then
+					    if cast.rejuvenation(br.friend[i].unit) then return end
+					end	
+				end
+			end				
 			-- Wild Growth
 			for i=1, #br.friend do
 				if isChecked("Wild Growth") and not moving and not buff.wildGrowth.exists(br.friend[i].unit) and not isCastingSpell(spell.tranquility) then
