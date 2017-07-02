@@ -419,6 +419,23 @@ local function runRotation()
                 then
                     if castSpell("player",racial,false,false,false) then return end
                 end
+				
+			-- Battle Cry
+				-- battle_cry,if=gcd.remains<0.25&(prev_gcd.1.colossus_smash|prev_gcd.1.warbreaker)&cooldown.bladestorm.remains=0|target.time_to_die<=5&target.health.pct>20
+				if (getOptionValue("Battle Cry") == 1 or (getOptionValue("Battle Cry") == 2 and useCDs())) then 
+					if cd.global < 0.25 and (lastCast == spell.colossusSmash or lastCast == spell.warbreaker) and cd.bladestorm == 0 or getTimeToDie(units.dyn5) <= 5 and gethp(units.dyn5) > 20 then
+                        if cast.battleCry() then return end
+                    end
+                end
+				
+			-- Battle Cry
+				--battle_cry,if=gcd.remains<0.25&((!talent.avatar.enabled|cooldown.avatar.remains>=10)&(buff.shattered_defenses.up|cooldown.warbreaker.remains>7&cooldown.colossus_smash.remains>7|cooldown.colossus_smash.remains&debuff.colossus_smash.remains>gcd))&target.health.pct<=20|target.time_to_die<=5
+				if (getOptionValue("Battle Cry") == 1 or (getOptionValue("Battle Cry") == 2 and useCDs())) then 
+					if cd.global < 0.25 and ((not talent.avatar or cd.avatar >= 10) and (buff.shatteredDefenses.exists() or cd.warbreaker > 7 and cd.colossusSmash > 7 or cd.colossusSmash and debuff.colossusSmash.remain() > gcd)) and getHP(units.dyn5) <= 20 or getTimeToDie(units.dyn5) <= 5 then
+                        if cast.battleCry() then return end
+                    end
+                end
+				
             -- Avatar
                 -- avatar,if=gcd.remains<0.25&(buff.battle_cry.up|cooldown.battle_cry.remains<15)|target.time_to_die<=20
                 if (getOptionValue("Avatar") == 1 or (getOptionValue("Avatar") == 2 and useCDs())) then 
@@ -426,15 +443,8 @@ local function runRotation()
                         if cast.avatar() then return end
                     end
                 end
-            -- Battle Cry
-                -- battle_cry,if=target.time_to_die<=6|(!talent.ravager.enabled|prev_gcd.1.ravager)&!gcd.remains&target.debuff.colossus_smash.remains>=5&(!cooldown.bladestorm.remains|!set_bonus.tier20_4pc)&(!talent.rend.enabled|dot.rend.remains>4)
-                if (getOptionValue("Battle Cry") == 1 or (getOptionValue("Battle Cry") == 2 and useCDs())) then 
-                    if ttd(units.dyn5) or (not talent.ravager or lastSpell == spell.ravager) and cd.global == 0 and debuff.colossusSmash.remain(units.dyn5) >= 5 
-                        and (cd.bladestorm > 0 or not t20_4pc) and (not talent.rend or debuff.rend.remain(units.dyn4) > 4) 
-                    then
-                        if cast.battleCry() then return end
-                    end
-                end
+				
+				
             -- Ring of Collapsing Futures
                 -- ring_of_collapsing_futures,if=buff.battle_cry.up&debuff.colossus_smash.up&!buff.temptation.up
                 if isChecked("Ring of Collapsing Futures") and hasEquiped(142173) and canUse(142173) and select(2,IsInInstance()) ~= "pvp"  then
