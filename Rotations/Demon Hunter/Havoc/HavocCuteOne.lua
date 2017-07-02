@@ -212,7 +212,7 @@ local function runRotation()
         if profileStop == nil then profileStop = false end
         if talent.chaosCleave then chaleave = 1 else chaleave = 0 end
         if buff.prepared.exists() then prepared = 1 else prepared = 0 end
-        if talent.firstBlood then flood = 1 else flood = 0 end
+        if (hasEquiped(151639) or talent.firstBlood) then flood = 1 else flood = 0 end
         if lastSpell == spell.vengefulRetreat then vaulted = true else vaulted = false end
         if lastSpell == spell.eyeBeam and buff.metamorphosis.exists() then metaExtended = true elseif not buff.metamorphosis.exists() then metaExtended = false end
 
@@ -233,7 +233,7 @@ local function runRotation()
         end
     -- Blade Dance Variable
         -- blade_dance,value=talent.first_blood.enabled|set_bonus.tier20_4pc|spell_targets.blade_dance1>=3+(talent.chaos_cleave.enabled*3)
-        if hasEquiped(151639) or talent.firstBlood or t20_4pc or ((mode.rotation == 1 and #enemies.yards8 >= getOptionValue("Units To AoE")) or mode.rotation == 2) then
+        if (hasEquiped(151639) or talent.firstBlood) or t20_4pc or ((mode.rotation == 1 and #enemies.yards8 >= getOptionValue("Units To AoE")) or mode.rotation == 2) then
             bladeDanceVar = true
         else
             bladeDanceVar = false
@@ -878,7 +878,7 @@ local function runRotation()
                     end
             -- Death Sweep
                     -- if HasTalent(FirstBlood) 
-                    if castable.deathSweep and talent.firstBlood and buff.metamorphosis.exists() then
+                    if castable.deathSweep and (hasEquiped(151639) or talent.firstBlood) and buff.metamorphosis.exists() then
                         cast.bladeDance()
                     end
             -- Annihilation
@@ -905,7 +905,7 @@ local function runRotation()
                     end
             -- Blade Dance
                     -- if CooldownSecRemaining(EyeBeam) > 0 and HasTalent(FirstBlood)
-                    if castable.bladeDance and cd.eyeBeam > 0 and talent.firstBlood then
+                    if castable.bladeDance and cd.eyeBeam > 0 and (hasEquiped(151639) or talent.firstBlood) then
                         cast.bladeDance()
                     end
             -- Chaos Strike
@@ -980,7 +980,7 @@ local function runRotation()
                         if cast.eyeBeam() then return end
                     end
             -- Blade Dance / Death Sweep
-                    if talent.firstBlood or (mode.rotation == 1 and #enemies.yards8 >= 3 + chaleave) or mode.rotation == 2 then
+                    if (hasEquiped(151639) or talent.firstBlood) or (mode.rotation == 1 and #enemies.yards8 >= 3 + chaleave) or mode.rotation == 2 then
                         if buff.metamorphosis.exists() then
                             if cast.bladeDance() then return end
                         else
