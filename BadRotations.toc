@@ -206,6 +206,7 @@ Rotations\Warlock\Destruction\DestructionCuteOne.lua
 ## Warrior ---------------------------------------------------
 
 Rotations\Warrior\Arms\ArmsCuteOne.lua
+Rotations\Warrior\Arms\ArmsLemon.lua
 
 Rotations\Warrior\Fury\FuryCuteOne.lua
 Rotations\Warrior\Fury\FuryImmy.lua
