@@ -65,11 +65,21 @@ local function createOptions()
         br.ui:createSpinnerWithout(section, "AOE targets",  3,  1,  100,  1,  "Minimum AOE targets. Min: 1 / Max: 100")
         br.ui:checkSectionState(section)
         ------------------------
+        --- ITEM OPTIONS --- -- Define Item Options
+        ------------------------
+        section = br.ui:createSection(br.ui.window.profile,  "Items")
+        br.ui:createCheckbox(section, "Potion")
+        br.ui:createCheckbox(section,"Flask / Crystal")
+        br.ui:createDropdownWithout(section, "Trinket 1 Condition", {colorWhite.."On Cooldown",colorWhite.."On Boss Health",colorWhite.."On Self Health"}, 1, colorWhite.."On Cooldown = Use Trinket whenever available, value doesn't matter; On Boss Health = Use Trinket when boss health is below value; On Self Health = Use Trinket when your health is below value;")
+        br.ui:createSpinner(section, "Trinket 1",  80,  0,  100,  5,  colorRed.."When to use Trinket 1")
+        br.ui:createDropdownWithout(section, "Trinket 2 Condition", {colorWhite.."On Cooldown",colorWhite.."On Boss Health",colorWhite.."On Self Health"}, 1, colorWhite.."On Cooldown = Use Trinket whenever available, value doesn't matter; On Boss Health = Use Trinket when boss health is below value; On Self Health = Use Trinket when your health is below value;")
+        br.ui:createSpinner(section, "Trinket 2",  60,  0,  100,  5,  colorRed.."When to use Trinket 2")
+        br.ui:checkSectionState(section)
+        ------------------------
         --- COOLDOWN OPTIONS --- -- Define Cooldown Options
         ------------------------
         section = br.ui:createSection(br.ui.window.profile,  "Cooldowns")
-        br.ui:createCheckbox(section, "Potion")
-        br.ui:createCheckbox(section,"Flask / Crystal")
+        br.ui:createCheckbox(section, "Use Racial")
         br.ui:createCheckbox(section, "Use Pet Spells")
         br.ui:createCheckbox(section, colorBlueMage.."Rune of Power")
         br.ui:createCheckbox(section, colorBlueMage.."Mirror Image")
@@ -155,6 +165,7 @@ local function runRotation()
     local enemies                                       = enemies or {}
     local units                                         = units or {}
     local t20_2pc                                       = TierScan("T20") >= 2
+    local thp                                           = getHP(br.player.units(5))
 
     enemies.yards40 = br.player.enemies(40)
     enemies.yards8t = br.player.enemies(8,br.player.units(8,true))
@@ -238,6 +249,7 @@ local function runRotation()
             if isChecked("Shield-o-tronic") and health <= getValue("Shield-o-tronic") and inCombat and canUse(118006) then
                 useItem(118006)
             end
+            
 
             --Ice Barrier
             if lastCast ~= spell.waterJet and (lastCast ~= spell.flurry and not buff.brainFreeze.exists()) then
@@ -568,8 +580,39 @@ local function runRotation()
                         return true
                     end
                 end
-                --actions.cooldowns+=/use_item,slot=neck
-                --TODO
+                
+
+                --actions.cooldowns+=/use_item
+                
+                if getOptionValue("Trinket 1 Condition") == 1 then 
+                    if isChecked("Trinket 1") and inCombat and canUse(13) then
+                        useItem(13)
+                    end
+                elseif getOptionValue("Trinket 1 Condition") == 2 then
+                    if isChecked("Trinket 1") and inCombat and getHP("target") <= getValue("Trinket 1") and canUse(13) and isBoss("target") then
+                        useItem(13)
+                    end
+                elseif getOptionValue("Trinket 1 Condition") == 3 then
+                    if isChecked("Trinket 1") and inCombat and health <= getValue("Trinket 1") and canUse(13) then
+                        useItem(13)
+                    end
+                end
+                
+                if getOptionValue("Trinket 2 Condition") == 1 then 
+                    if isChecked("Trinket 2") and inCombat and canUse(14) then
+                        useItem(14)
+                    end
+                elseif getOptionValue("Trinket 2 Condition") == 2 then
+                    if isChecked("Trinket 2") and inCombat and getHP("target") <= getValue("Trinket 2") and canUse(14) and isBoss("target") then
+                        useItem(14)
+                    end
+                elseif getOptionValue("Trinket 2 Condition") == 3 then
+                    if isChecked("Trinket 2") and inCombat and health <= getValue("Trinket 2") and canUse(14) then
+                        useItem(14)
+                    end
+                end
+
+                
                 --actions.cooldowns+=/berserking|actions.cooldowns+=/blood_fury
                 if isChecked("Use Racial") then
                     if getSpellCD(br.player.getRacial()) == 0 and (race == "Orc" or race == "Troll") then
@@ -607,6 +650,7 @@ local function runRotation()
                     if cast.blizzard("best", nil, getValue("AOE targets"), blizzardRadius) then return true end
                 end
             end
+            
             --actions.aoe+=/comet_storm
             if talent.cometStorm then
                 if cd.cometStorm == 0 then
@@ -762,7 +806,7 @@ local function runRotation()
             
             -- blizzard,if=active_enemies>2|active_enemies>1&!(talent.glacial_spike.enabled&talent.splitting_ice.enabled)|(buff.zannesu_journey.stack=5&buff.zannesu_journey.remains>cast_time)
             if cd.blizzard == 0 then
-                if (#enemies.yards8t > 2) or (#enemies.yards8t > 1 and talent.glacialSpike and talent.splittingIce) then
+                if (#enemies.yards8t > 2) or (#enemies.yards8t > 1 and not (talent.glacialSpike and talent.splittingIce)) then
                     if cast.blizzard("best", nil, 1, blizzardRadius) then return true end
                 end
                 if isChecked(colorLegendary.."Zann'esu Journey") then
@@ -773,7 +817,7 @@ local function runRotation()
             end
             
             --frostbolt,if=buff.frozen_mass.remains>execute_time+action.glacial_spike.execute_time+action.glacial_spike.travel_time&buff.brain_freeze.react=0&talent.glacial_spike.enabled
-            if (buff.frozenMass.remain() > ( getCastTime(spell.frostbolt) + getCastTime(spell.glacialSpike) + 1 ) and not buff.brainFreeze.exists() and talent.glacialSpike) then
+            if buff.frozenMass.remain() > ( getCastTime(spell.frostbolt) + getCastTime(spell.glacialSpike) + 1 ) and not buff.brainFreeze.exists() and talent.glacialSpike then
                 if cast.frostbolt(target) then return true end
             end
             
@@ -794,6 +838,8 @@ local function runRotation()
         end
 
         local function actionList_COMBAT()
+        
+            
             --actions+=/variable,name=time_until_fof,value=10-(time-variable.iv_start-floor((time-variable.iv_start)%10)*10)
             time_until_fof = 10-(getCombatTime() - iv_start - math.floor(math.fmod((getCombatTime() - iv_start),10))*10)
             if debug == true then Print("time_until_fof Changed: "..time_until_fof) end
