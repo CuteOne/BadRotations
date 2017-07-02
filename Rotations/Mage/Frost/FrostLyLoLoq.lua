@@ -166,6 +166,7 @@ local function runRotation()
     local units                                         = units or {}
     local t20_2pc                                       = TierScan("T20") >= 2
     local thp                                           = getHP(br.player.units(5))
+    local execute_time                                  = br.player.gcd
 
     enemies.yards40 = br.player.enemies(40)
     enemies.yards8t = br.player.enemies(8,br.player.units(8,true))
@@ -209,6 +210,8 @@ local function runRotation()
     --------------------
     --- Action Lists ---
     --------------------
+    
+
     local function actionList_INTERRUPT()
         if useInterrupts() then
             --actions=counterspell,if=target.debuff.casting.react
@@ -718,7 +721,9 @@ local function runRotation()
                     if cast.iceNova() then return true end
                 end
             end
-            --  frozen_orb,if=set_bonus.tier20_2pc
+            --  Frozen_orb,if=set_bonus.tier20_2pc
+            
+            --  With T20 2pc, Frozen Orb should be used as soon as it comes off CD.
             if cd.frozenOrb == 0 and t20pc2 then
                 if isChecked(colorBlueMage.."Frozen Orb") and getEnemiesInRect(15,55,false) > 0 then
                     if cast.frozenOrb() then return true end
@@ -731,6 +736,11 @@ local function runRotation()
             end
             
             --water_jet,if=prev_gcd.1.frostbolt&buff.fingers_of_frost.stack<(2+artifact.icy_hand.enabled)&buff.brain_freeze.react=0
+            --Basic Water Jet combo. Since Water Jet can only be used if the actor is not casting, we use it right after Frostbolt is executed. 
+            --At the default distance, Frostbolt travels slightly over 1 s, giving Water Jet enough time to apply the DoT (Water Jet's cast time is 1 s, with haste scaling). 
+            --The APL then forces another Frostbolt to guarantee getting both FoFs from the Water Jet. This works for most haste values (roughly from 0% to 160%). 
+            --When changing the default distance, great care must be taken otherwise this action won't produce two FoFs.
+            
             if lastCast == spell.frostbolt and isCastingSpell(spell.frostbolt) and buff.fingersOfFrost.stack() < (2 + iceHand) and not buff.brainFreeze.exists() then
                 CastSpellByName(GetSpellInfo(spell.waterJet))
                 lastCast = spell.waterJet
@@ -747,14 +757,21 @@ local function runRotation()
                 end
             end
             
-            -- flurry,if= prev_gcd.1.ebonbolt | buff.brain_freeze.react&(!talent.glacial_spike.enabled&prev_gcd.1.frostbolt | talent.glacial_spike.enabled&(prev_gcd.1.glacial_spike | prev_gcd.1.frostbolt&(buff.icicles.stack<=3 | cooldown.frozen_orb.remains<=10&set_bonus.tier20_2pc)))
+            --Flurry,if= prev_gcd.1.ebonbolt | buff.brain_freeze.react&(!talent.glacial_spike.enabled&prev_gcd.1.frostbolt | talent.glacial_spike.enabled&(prev_gcd.1.glacial_spike | prev_gcd.1.frostbolt&(buff.icicles.stack<=3 | cooldown.frozen_orb.remains<=10&set_bonus.tier20_2pc)))
+            --Winter's Chill from Flurry can apply to the spell cast right before (provided the travel time is long enough). 
+            --This can be exploited to a great effect with Ebonbolt, Glacial Spike (which deal a lot of damage by themselves) and Frostbolt (as a guaranteed way to proc Frozen Veins and Chain Reaction). 
+            --When using Glacial Spike, it is worth saving a Brain Freeze proc when Glacial Spike is right around the corner (i.e. with 4 or more Icicles). 
+            --However, when the actor also has T20 2pc, Glacial Spike is delayed to fit into Frozen Mass, so we do not want to sit on a Brain Freeze proc for too long in that case.
             if lastCast == spell.ebonbolt or buff.brainFreeze.exists() and (not talent.glacialSpike and lastCast == spell.frostbolt or talent.glacialSpike and (lastCast == spell.glacialSpike or lastCast == spell.frostbolt and (buff.icicles.stack() <= 3 or cd.frozenOrb <= 10 and t202pc))) then
                 if cast.flurry(target) then return true end
             end
     
             --blizzard,if=cast_time=0&active_enemies>1&variable.fof_react<3
+            --Freezing Rain Blizzard. 
+            --While the normal Blizzard action is usually enough, right after Frozen Orb the actor will be getting a lot of FoFs, which might delay Blizzard to the point where we miss out on Freezing Rain. 
+            --Therefore, if we are not at a risk of overcapping on FoF, use Blizzard before using Ice Lance.
             if cd.blizzard == 0 then
-                if getCastTime(spell.blizzard) == 0 and fof_react < 3  then
+                if getCastTime(spell.blizzard) == 0 and #enemies.yards8t > 1 and fof_react < 3  then
                     if cast.blizzard("best", nil, 1, blizzardRadius) then return true end
                 end
             end
@@ -804,7 +821,9 @@ local function runRotation()
                 end
             end
             
-            -- blizzard,if=active_enemies>2|active_enemies>1&!(talent.glacial_spike.enabled&talent.splitting_ice.enabled)|(buff.zannesu_journey.stack=5&buff.zannesu_journey.remains>cast_time)
+            --Blizzard,if=active_enemies>2|active_enemies>1&!(talent.glacial_spike.enabled&talent.splitting_ice.enabled)|(buff.zannesu_journey.stack=5&buff.zannesu_journey.remains>cast_time)
+            --Against low number of targets, Blizzard is used as a filler. Use it only against 2 or more targets, 3 or more when using Glacial Spike and Splitting Ice. 
+            --Zann'esu buffed Blizzard is used only at 5 stacks.
             if cd.blizzard == 0 then
                 if (#enemies.yards8t > 2) or (#enemies.yards8t > 1 and not (talent.glacialSpike and talent.splittingIce)) then
                     if cast.blizzard("best", nil, 1, blizzardRadius) then return true end
@@ -817,12 +836,21 @@ local function runRotation()
             end
             
             --frostbolt,if=buff.frozen_mass.remains>execute_time+action.glacial_spike.execute_time+action.glacial_spike.travel_time&buff.brain_freeze.react=0&talent.glacial_spike.enabled
-            if buff.frozenMass.remain() > ( getCastTime(spell.frostbolt) + getCastTime(spell.glacialSpike) + 1 ) and not buff.brainFreeze.exists() and talent.glacialSpike then
+            --While Frozen Mass is active, we want to generate as many buffed Icicles as possible. 
+            --However, we do not want to do this at the expense of the final Glacial Spike, which should be also used while Frozen Mass is active.
+            if getCastTime(spell.frostbolt) >= gcd then
+                execute_time = getCastTime(spell.frostbolt)
+            elseif getCastTime(spell.frostbolt) < gcd then
+                execute_time = gcd
+            end
+            
+            if buff.frozenMass.remain() > ( execute_time + getCastTime(spell.glacialSpike) + 1 ) and not buff.brainFreeze.exists() and talent.glacialSpike then
                 if cast.frostbolt(target) then return true end
             end
             
             --  glacial_spike,if=cooldown.frozen_orb.remains>10|!set_bonus.tier20_2pc
-            
+            --Glacial Spike is generally used as it is available, unless we have T20 2pc. 
+            --In that case, Glacial Spike is delayed when Frozen Mass is happening soon (in less than 10 s).
             if talent.glacialSpike then
                 if cd.frozenOrb > 10 or not t20pc2 then
                     if buff.icicles.stack() == 5 then 
@@ -832,6 +860,13 @@ local function runRotation()
             end
             
             if cast.frostbolt(target) then return true end
+            
+            if cd.blizzard == 0 then
+                if getCastTime(spell.blizzard) == 0 then
+                    if cast.blizzard("best", nil, 1, blizzardRadius) then return true end
+                end
+            end
+            
             if cast.iceLance(target) then return true end
             return false
             
