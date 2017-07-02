@@ -148,7 +148,7 @@ Rotations\Mage\Arcane\ArcaneCuteOne.lua
 Rotations\Mage\Fire\FireCuteOne.lua
 
 Rotations\Mage\Frost\FrostCuteOne.lua
-Rotations\Mage\Frost\FrostLyLoLoq.lua
+Rotations\Mage\Frost\FrostLemon.lua
 
 ## Monk ---------------------------------------------------
 
