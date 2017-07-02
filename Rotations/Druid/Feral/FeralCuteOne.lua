@@ -307,7 +307,7 @@ local function runRotation()
         -- Variables
         -- actions.precombat+=/variable,name=rake_refresh,op=set,value=7
         -- actions.precombat+=/variable,name=rake_refresh,op=set,value=3,if=equipped.ailuro_pouncers|talent.soul_of_the_forest.enabled
-        if hasEquiped(137024) or talent.soulOfTheForest then
+        if hasEquiped(137024) or (talent.soulOfTheForest or hasEquiped(151636)) then
             rakeRefreshVar = 3
         else
             rakeRefreshVar = 7
@@ -805,7 +805,7 @@ local function runRotation()
                             if (not debuff.rip.exists(thisUnit) or (debuff.rip.remain(thisUnit) < 8 and getHP(thisUnit) > 25 and not talent.sabertooth) or debuff.rip.calc() > debuff.rip.applied(thisUnit))
                                 and (ttd(thisUnit) - debuff.rip.remain(thisUnit) > rpTick * 4 or isDummy())
                                 and (ttm < poolVar or buff.berserk.exists() or buff.incarnationKingOfTheJungle.exists() or buff.elunesGuidance.exists() or cd.tigersFury < 3 or t18_4pc
-                                or (buff.clearcasting.exists() and power > 65) or talent.soulOfTheForest or not debuff.rip.exists(thisUnit) or (debuff.rake.remain(thisUnit) < 1.5 and (#enemies.yards8 < 6 or mode.rotation == 3)))
+                                or (buff.clearcasting.exists() and power > 65) or (talent.soulOfTheForest or hasEquiped(151636)) or not debuff.rip.exists(thisUnit) or (debuff.rake.remain(thisUnit) < 1.5 and (#enemies.yards8 < 6 or mode.rotation == 3)))
                             then
                                if cast.rip(thisUnit) then return end
                             end
@@ -818,7 +818,7 @@ local function runRotation()
             if ((buff.savageRoar.remain() <= 10.5 and talent.jaggedWounds) or buff.savageRoar.remain() <= 7.2)
                 and combo == 5 and (ttm < poolVar or buff.berserk.exists() or buff.incarnationKingOfTheJungle.exists()
                 or buff.elunesGuidance.exists() or cd.tigersFury < 3 or t18_4pc or (buff.clearcasting.exists() and power > 65)
-                or talent.soulOfTheForest or not debuff.rip.exists(units.dyn5) or (debuff.rake.remain(units.dyn5) < 1.5 and (#enemies.yards8 < 6 or mode.rotation == 3)))
+                or (talent.soulOfTheForest or hasEquiped(151636)) or not debuff.rip.exists(units.dyn5) or (debuff.rake.remain(units.dyn5) < 1.5 and (#enemies.yards8 < 6 or mode.rotation == 3)))
             then
                 if cast.savageRoar("player") then return end
             end
