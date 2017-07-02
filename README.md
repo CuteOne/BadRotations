@@ -193,7 +193,7 @@ winston/cryteks |  Full   | 7.1.5 |   100% | :interrobang:
 author | support  | patch | status |   raidable?
 :----- | :------: | :---: | -----: | :-----------:
 dbtftw | Inactive | 7.1.5 |   100% | :interrobang:
-LyLoLoq  |   Full   | 7.2 |   100% | :interrobang:
+Lemon  |   Full   | 7.2.5 |   100% | :heavy_check_mark:
 
 ### Monk
 
