@@ -233,7 +233,7 @@ local function runRotation()
         end
     -- Blade Dance Variable
         -- blade_dance,value=talent.first_blood.enabled|set_bonus.tier20_4pc|spell_targets.blade_dance1>=3+(talent.chaos_cleave.enabled*3)
-        if talent.firstBlood or t20_4pc or ((mode.rotation == 1 and #enemies.yards8 >= getOptionValue("Units To AoE")) or mode.rotation == 2) then
+        if hasEquiped(151639) or talent.firstBlood or t20_4pc or ((mode.rotation == 1 and #enemies.yards8 >= getOptionValue("Units To AoE")) or mode.rotation == 2) then
             bladeDanceVar = true
         else
             bladeDanceVar = false
@@ -255,7 +255,6 @@ local function runRotation()
     -- Check for Eye Beam During Metamorphosis
         if talent.demonic and buff.metamorphosis.duration() > 10 and lastSpell == spell.eyeBeam then metaEyeBeam = true end
         if metaEyeBeam == nil or (metaEyeBeam == true and not buff.metamorphosis.exists()) then metaEyeBeam = false end
-
 
     -- Custom Functions
         local function cancelRushAnimation()
