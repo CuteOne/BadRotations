@@ -146,10 +146,11 @@ local function createOptions()
 		br.ui:createDropdownWithout(section, "Swiftmend Target", {"|cffFFFFFFPlayer","|cffFFFFFFTarget", "|cffFFFFFFMouseover", "|cffFFFFFFTank", "|cffFFFFFFHealer", "|cffFFFFFFHealer/Tank", "|cffFFFFFFAny"}, 7, "|cffFFFFFFcast Swiftmend Target")
 		-- Rejuvenaion
 		br.ui:createSpinner(section, "Rejuvenation",  90,  0,  100,  5,  "","|cffFFFFFFHealth Percent to Cast At")
+		br.ui:createSpinner(section, "Rejuvenation Tank",  90,  0,  100,  5,  "","|cffFFFFFFHealth Percent to Cast At", true)
 		br.ui:createSpinnerWithout(section, "Max Rejuvenation Targets",  10,  0,  20,  1,  "","|cffFFFFFFMaximum Rejuvenation Targets")
 		-- Germination
 		br.ui:createSpinner(section, "Germination",  70,  0,  100,  5,  "","|cffFFFFFFHealth Percent to Cast At", true)
-		br.ui:createCheckbox(section,"Germination on tank only","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFGermination on tank usage|cffFFBB00.")
+		br.ui:createSpinner(section, "Germination Tank",  80,  0,  100,  5,  "","|cffFFFFFFHealth Percent to Cast At", true)
 		-- Regrowth
 		br.ui:createSpinner(section, "Regrowth",  80,  0,  100,  5,  "","|cffFFFFFFHealth Percent to Cast At")
 		br.ui:createSpinner(section, "Oh Shit! Regrowth",  35,  0,  100,  5,  "","|cffFFFFFFHealth Percent priority Cast At", true)
@@ -395,9 +396,13 @@ local function runRotation()
 					end
 				end
 				for i = 1, #br.friend do
-					if br.friend[i].hp <= getValue("Germination") and talent.germination and (rejuvCount < getValue("Max Rejuvenation Targets")) and not buff.rejuvenationGermination.exists(br.friend[i].unit) then
+				    if br.friend[i].hp <= getValue("Germination Tank") and talent.germination and (rejuvCount < getValue("Max Rejuvenation Targets")) and not buff.rejuvenationGermination.exists(br.friend[i].unit) and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
+					    if cast.rejuvenation(br.friend[i].unit) then return end
+					elseif br.friend[i].hp <= getValue("Germination") and talent.germination and (rejuvCount < getValue("Max Rejuvenation Targets")) and not buff.rejuvenationGermination.exists(br.friend[i].unit) and not UnitIsUnit(br.friend[i].unit,"TANK") then
 						if cast.rejuvenation(br.friend[i].unit) then return end
-					elseif br.friend[i].hp <= getValue("Rejuvenation") and buff.rejuvenation.remain(br.friend[i].unit) <= 1 and (rejuvCount < getValue("Max Rejuvenation Targets")) then
+					elseif br.friend[i].hp <= getValue("Rejuvenation Tank") and buff.rejuvenation.remain(br.friend[i].unit) <= 1 and (rejuvCount < getValue("Max Rejuvenation Targets")) and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then	
+					    if cast.rejuvenation(br.friend[i].unit) then return end
+					elseif br.friend[i].hp <= getValue("Rejuvenation") and buff.rejuvenation.remain(br.friend[i].unit) <= 1 and (rejuvCount < getValue("Max Rejuvenation Targets")) and not UnitIsUnit(br.friend[i].unit,"TANK") then
 						if cast.rejuvenation(br.friend[i].unit) then return end
 					end
 				end
@@ -827,13 +832,13 @@ local function runRotation()
 					end
 				end
 				for i = 1, #br.friend do
-					if br.friend[i].hp <= getValue("Germination") and talent.germination and (rejuvCount < getValue("Max Rejuvenation Targets")) and not buff.rejuvenationGermination.exists(br.friend[i].unit) then
-						if isChecked("Germination on tank only") and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
-							if cast.rejuvenation(br.friend[i].unit) then return end
-						elseif not isChecked("Germination on tank only") then
-							if cast.rejuvenation(br.friend[i].unit) then return end
-						end
-					elseif br.friend[i].hp <= getValue("Rejuvenation") and buff.rejuvenation.remain(br.friend[i].unit) <= 1 and (rejuvCount < getValue("Max Rejuvenation Targets")) then
+				    if br.friend[i].hp <= getValue("Germination Tank") and talent.germination and (rejuvCount < getValue("Max Rejuvenation Targets")) and not buff.rejuvenationGermination.exists(br.friend[i].unit) and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
+					    if cast.rejuvenation(br.friend[i].unit) then return end
+					elseif br.friend[i].hp <= getValue("Germination") and talent.germination and (rejuvCount < getValue("Max Rejuvenation Targets")) and not buff.rejuvenationGermination.exists(br.friend[i].unit) and not UnitIsUnit(br.friend[i].unit,"TANK") then
+						if cast.rejuvenation(br.friend[i].unit) then return end
+					elseif br.friend[i].hp <= getValue("Rejuvenation Tank") and buff.rejuvenation.remain(br.friend[i].unit) <= 1 and (rejuvCount < getValue("Max Rejuvenation Targets")) and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then	
+					    if cast.rejuvenation(br.friend[i].unit) then return end
+					elseif br.friend[i].hp <= getValue("Rejuvenation") and buff.rejuvenation.remain(br.friend[i].unit) <= 1 and (rejuvCount < getValue("Max Rejuvenation Targets")) and not UnitIsUnit(br.friend[i].unit,"TANK") then
 						if cast.rejuvenation(br.friend[i].unit) then return end
 					end
 				end
