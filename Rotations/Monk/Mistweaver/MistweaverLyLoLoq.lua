@@ -63,7 +63,7 @@ local function createOptions()
         br.ui:createCheckbox(section, "Tiger's Lust", colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.." use of Tiger's Lust"..colorBlue.." (Auto use on snare and root).")
         br.ui:createDropdown(section, "Tiger's Lust Key", br.dropOptions.Toggle, 6, colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.." use of Tiger's Lust with Key.",colorWhite.."Set hotkey to use Tiger's Lust with key.")
         br.ui:createDropdown(section, "Ring Of Peace Key", br.dropOptions.Toggle, 6, colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.." use of Ring Of Peace with Key on "..colorRed.."Cursor",colorWhite.."Set hotkey to use Ring Of Peace with key.")
-
+        br.ui:createCheckbox(section, "Rising Sun Kick", colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.." use of Rising Sun Kick on DPS rotation")
         br.ui:createSpinnerWithout(section, "DPS",  90,  0,  100,  1,  colorWhite.." Dps when lowest health >= ")
         br.ui:checkSectionState(section)
 
@@ -230,28 +230,17 @@ local function runRotation()
     --------------------
     --- Action Lists ---
     --------------------
+    -- Detox
     local function actionList_Detox()
         if useDispell then
             for i = 1, #friends.yards40 do
-                for n = 1,40 do
-                    local buff,_,_,_,bufftype,_,_,_,_,_,buffSpellId = UnitDebuff(br.friend[i].unit, n)
-                    if buff then
-						-- print(buff .."-" ..buffSpellId)
-						if (bufftype == "Disease" or bufftype == "Magic" or bufftype == "Poison") and UnitInRange(br.friend[i].unit) then
-							if buffSpellId == 233983 then
-								if (#getAllies(br.friend[i].unit,8) <= 1) then
-									if cast.detox(br.friend[i].unit) then return true end
-								end
-							else
-								if cast.detox(br.friend[i].unit) then return true end
-							end
-						end
-                    end
-                end
+                if canDispel(br.friend[i].unit,spell.detox) then
+					if cast.detox(br.friend[i].unit) then return true end
+				end				
             end
         end
         return false
-    end--OK--TODO
+    end
 
     local function actionList_Interrupt()
         if useInterrupts() then
@@ -571,7 +560,7 @@ local function runRotation()
                 if #enemies.yards8 >= 3 and not isCastingSpell(spell.spinningCraneKick) then
                     if cast.spinningCraneKick() then return true end
                 elseif #enemies.yards5 >= 1 then
-                    if cd.risingSunKick == 0 then
+                    if isChecked("Rising Sun Kick") and cd.risingSunKick  == 0 then
                         if cast.risingSunKick(enemies.yards5[1].unit) then return true end
                     end
                     if buff.teachingsOfTheMonastery.stack() == 3 then
@@ -605,10 +594,12 @@ local function runRotation()
             end
         end
         if isChecked("Thunder Focus Tea + Enveloping Mist") and lowest.hp <= getValue("Thunder Focus Tea + Enveloping Mist") then
-            if cd.thunderFocusTea == 0 then
-                if cast.thunderFocusTea() then
-                    TFEM = true
-                    return true
+             if not buff.envelopingMist.exists(lowest.unit) or buff.envelopingMist.remain(lowest.unit) <= getCastTime(spell.envelopingMist) then
+                if cd.thunderFocusTea == 0 then
+                    if cast.thunderFocusTea() then
+                        TFEM = true
+                        return true
+                    end
                 end
             end
         end

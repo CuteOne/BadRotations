@@ -208,7 +208,7 @@ Kuukuu |  Full   | 7.2   |    90% | :white_check_mark:
 author   | support  | patch | status |     raidable?
 :------- | :------: | :---: | -----: | :----------------:
 Cpoworks | Sporadic | 7.1.5 |    70% | :heavy_check_mark:
-LyLoLoq  |   Full   | 7.2   |   100% | :white_check_mark:
+Javaxio  |   Full   | 7.2   |   100% | :white_check_mark:
 
 - Windwalker
 
