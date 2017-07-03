@@ -46,6 +46,74 @@ function isCCed(Unit)
     return false
 end
 
+--cast spell on position x,y,z
+function castOnPosition(x,y,z, spellID)
+
+    CastSpellByName(GetSpellInfo(spellID))
+    local i = 0
+    if IsMouseButtonDown(2) then
+        mouselookup = true
+    else
+        mouselookup = false
+    end
+    MouselookStop()
+    while IsAoEPending() and i <= 10 do
+        --            Print("x: "..x.." y: "..y.." z: "..z)
+        ClickPosition(x,y,z)
+        z = z + 0.01
+        i = i + 1
+    end
+    if mouselookup then
+        MouselookStart()
+    end
+    if i >= 10 then return false end
+    return true
+end
+
+--get number of units around 1 unit
+function getUnits(thisUnit, allUnitsInRange, radius)
+    local unitsAroundThisUnit = {}
+    for j=1,#allUnitsInRange do
+        local checkUnit = allUnitsInRange[j]
+        if getDistance(thisUnit,checkUnit) < radius then
+            table.insert(unitsAroundThisUnit,checkUnit)
+        end
+    end
+    return #unitsAroundThisUnit
+end
+
+function castGroundAtUnit(spellID, radius, minUnits, maxRange, minRange, spellType, unit)
+
+    if minRange == nil then minRange = 0 end
+    local allUnitsInRange = {}
+    if spellType == "heal" then unitTable = br.friend else unitTable = br.enemy end
+
+    --get all units in range
+    for k, v in pairs(unitTable) do
+        if (type(k) == "number" or type(k) == "string") and k ~= "Update" then
+            local thisUnit = unitTable[k].unit
+            local thisDistance = getDistance(thisUnit)
+            local hasThreat = (spellType ~= "heal" and isValidUnit(thisUnit)) or UnitIsFriend(thisUnit,"player") --hasThreat(br.enemy[i].unit)
+            if isNotBlacklisted(thisUnit) then
+                if thisDistance < maxRange and thisDistance >= minRange and hasThreat then
+                    if not UnitIsDeadOrGhost(thisUnit) and (getFacing("player",thisUnit) or UnitIsUnit(thisUnit,"player")) and getLineOfSight(thisUnit) and not isMoving(thisUnit) then
+                        if UnitAffectingCombat(thisUnit) or spellType == "heal" or isDummy(thisUnit) then
+                            table.insert(allUnitsInRange,thisUnit)
+                        end
+                    end
+                end
+            end
+        end
+    end
+
+    if getUnits(unit,allUnitsInRange, radius - 3) >= minUnits then
+        local X1,Y1,Z1 = GetObjectPosition(unit)
+        if castOnPosition(X1,Y1,Z1, spellID) then return true else return false end
+    end
+
+
+end
+
 function castGroundAtBestLocation(spellID, radius, minUnits, maxRange, minRange, spellType)
     -- check if unit is blacklisted
     local function isNotBlacklisted(checkUnit)
@@ -97,42 +165,6 @@ function castGroundAtBestLocation(spellID, radius, minUnits, maxRange, minRange,
         local uX, uY = GetObjectPosition(unit)
         local rUnit = UnitBoundingRadius(unit)
         return math.abs((uX - cx) * (uX - cx) + (uY - cy) * (uY - cy)) <= (rUnit + radius) * (rUnit + radius);
-    end
-
-    --get number of units around 1 unit
-    local function getUnits(thisUnit, allUnitsInRange, radius)
-        local unitsAroundThisUnit = {}
-        for j=1,#allUnitsInRange do
-            local checkUnit = allUnitsInRange[j]
-            if getDistance(thisUnit,checkUnit) < radius then
-                table.insert(unitsAroundThisUnit,checkUnit)
-            end
-        end
-        return #unitsAroundThisUnit
-    end
-
-    --cast spell on position x,y,z
-    local function castOnPosition(x,y,z)
-
-        CastSpellByName(GetSpellInfo(spellID))
-        local i = 0
-        if IsMouseButtonDown(2) then
-            mouselookup = true
-        else
-            mouselookup = false
-        end
-        MouselookStop()
-        while IsAoEPending() and i <= 10 do
-            --            Print("x: "..x.." y: "..y.." z: "..z)
-            ClickPosition(x,y,z)
-            z = z + 0.01
-            i = i + 1
-        end
-        if mouselookup then
-            MouselookStart()
-        end
-        if i >= 10 then return false end
-        return true
     end
 
     if minRange == nil then minRange = 0 end
@@ -249,12 +281,12 @@ function castGroundAtBestLocation(spellID, radius, minUnits, maxRange, minRange,
     --check with minUnits
     if minUnits == 1 and bestCircle.nro == 0 and GetUnitExists("target") then
         local X1,Y1,Z1 = GetObjectPosition("target")
-        if castOnPosition(X1,Y1,Z1) then return true else return false end
+        if castOnPosition(X1,Y1,Z1, spellID) then return true else return false end
     end
     if bestCircle.nro < minUnits then return false end
 
     if bestCircle.x ~= 0 and bestCircle.y ~= 0 and bestCircle.z ~= 0 then
-        if castOnPosition(bestCircle.x,bestCircle.y,bestCircle.z) then return true else return false end
+        if castOnPosition(bestCircle.x,bestCircle.y,bestCircle.z, spellID) then return true else return false end
     end
 end
 
