@@ -198,6 +198,7 @@ local function runRotation()
 --------------
 --- Locals ---
 --------------
+        local debug                                         = 1
         local addsExist                                     = false
         local addsIn                                        = 999
         local artifact                                      = br.player.artifact
@@ -419,23 +420,23 @@ local function runRotation()
                 then
                     if castSpell("player",racial,false,false,false) then return end
                 end
-				
-			-- Battle Cry
-				-- battle_cry,if=gcd.remains<0.25&(prev_gcd.1.colossus_smash|prev_gcd.1.warbreaker)&cooldown.bladestorm.remains=0|target.time_to_die<=5&target.health.pct>20
-				if (getOptionValue("Battle Cry") == 1 or (getOptionValue("Battle Cry") == 2 and useCDs())) then 
-					if cd.global < 0.25 and (lastCast == spell.colossusSmash or lastCast == spell.warbreaker) and cd.bladestorm == 0 or getTimeToDie(units.dyn5) <= 5 and gethp(units.dyn5) > 20 then
+                
+            -- Battle Cry
+                -- battle_cry,if=gcd.remains<0.25&(prev_gcd.1.colossus_smash|prev_gcd.1.warbreaker)&cooldown.bladestorm.remains=0|target.time_to_die<=5&target.health.pct>20
+                if (getOptionValue("Battle Cry") == 1 or (getOptionValue("Battle Cry") == 2 and useCDs())) then 
+                    if cd.global < 0.25 and (lastCast == spell.colossusSmash or lastCast == spell.warbreaker) and cd.bladestorm == 0 or getTimeToDie(units.dyn5) <= 5 and thp > 20 then
                         if cast.battleCry() then return end
                     end
                 end
-				
-			-- Battle Cry
-				--battle_cry,if=gcd.remains<0.25&((!talent.avatar.enabled|cooldown.avatar.remains>=10)&(buff.shattered_defenses.up|cooldown.warbreaker.remains>7&cooldown.colossus_smash.remains>7|cooldown.colossus_smash.remains&debuff.colossus_smash.remains>gcd))&target.health.pct<=20|target.time_to_die<=5
-				if (getOptionValue("Battle Cry") == 1 or (getOptionValue("Battle Cry") == 2 and useCDs())) then 
-					if cd.global < 0.25 and ((not talent.avatar or cd.avatar >= 10) and (buff.shatteredDefenses.exists() or cd.warbreaker > 7 and cd.colossusSmash > 7 or cd.colossusSmash and debuff.colossusSmash.remain() > gcd)) and getHP(units.dyn5) <= 20 or getTimeToDie(units.dyn5) <= 5 then
+                
+            -- Battle Cry
+                --battle_cry,if=gcd.remains<0.25&((!talent.avatar.enabled|cooldown.avatar.remains>=10)&(buff.shattered_defenses.up|cooldown.warbreaker.remains>7&cooldown.colossus_smash.remains>7|cooldown.colossus_smash.remains&debuff.colossus_smash.remains>gcd))&target.health.pct<=20|target.time_to_die<=5
+                if (getOptionValue("Battle Cry") == 1 or (getOptionValue("Battle Cry") == 2 and useCDs())) then 
+                    if cd.global < 0.25 and ((not talent.avatar or cd.avatar >= 10) and (buff.shatteredDefenses.exists() or cd.warbreaker > 7 and cd.colossusSmash > 7 or cd.colossusSmash and debuff.colossusSmash.remain() > gcd)) and thp <= 20 or getTimeToDie(units.dyn5) <= 5 then
                         if cast.battleCry() then return end
                     end
                 end
-				
+                
             -- Avatar
                 -- avatar,if=gcd.remains<0.25&(buff.battle_cry.up|cooldown.battle_cry.remains<15)|target.time_to_die<=20
                 if (getOptionValue("Avatar") == 1 or (getOptionValue("Avatar") == 2 and useCDs())) then 
@@ -443,8 +444,8 @@ local function runRotation()
                         if cast.avatar() then return end
                     end
                 end
-				
-				
+                
+                
             -- Ring of Collapsing Futures
                 -- ring_of_collapsing_futures,if=buff.battle_cry.up&debuff.colossus_smash.up&!buff.temptation.up
                 if isChecked("Ring of Collapsing Futures") and hasEquiped(142173) and canUse(142173) and select(2,IsInInstance()) ~= "pvp"  then
@@ -563,7 +564,7 @@ local function runRotation()
             
         -- Execute
             --execute,if=buff.battle_cry_deadly_calm.up
-            if buff.battle_cry_deadly_calm.exists() then
+            if buff.battleCry.exists() and talent.deadlyCalm then
                 if cast.execute() then return end
             end
             
@@ -619,7 +620,7 @@ local function runRotation()
         -- Colossus Smash
             --colossus_smash,if=cooldown_react&buff.shattered_defenses.down&(buff.battle_cry.down|buff.battle_cry.up&buff.battle_cry.remains>=gcd|buff.corrupted_blood_of_zakajz.remains>=gcd)
             if cd.colossusSmash == 0 then
-                if not buff.shatteredDefenses.exists() and (not buff.battleCry.exists() or buff.battleCry.exists and buff.battleCry.remain() >= gcd or buff.corrupted_blood_of_zakajz.remain() >= gcd) then
+                if not buff.shatteredDefenses.exists() and (not buff.battleCry.exists() or buff.battleCry.exists and buff.battleCry.remain() >= gcd or buff.corruptedBloodOfZakajz.remain() >= gcd) then
                     if cast.colossusSmash() then return end
                 end
             end
@@ -640,7 +641,7 @@ local function runRotation()
             
         -- Mortal Strike
             -- mortal_strike,if=buff.shattered_defenses.up
-            if buff.shatteredDefenses.exists()then
+            if buff.shatteredDefenses.exists() or not buff.executionersPrecision.exists() then
                 if cast.mortalStrike() then return end
             end
             
@@ -673,6 +674,9 @@ local function runRotation()
                 if cast.slam() then return end
             end
             
+        
+            if cast.slam() then return end
+			
         end -- End Action List - Single
     -- Action List - MultiTarget
         function actionList_MultiTarget()
@@ -846,13 +850,6 @@ local function runRotation()
                     StartAttack(units.dyn5)
                 end
                 
-                if buff.overpower.exists() then
-                    overpower_react = 1
-                    if debug == true then Print("overpower_react Changed: "..overpower_react) end
-                else
-                    overpower_react = 0
-                    if debug == true then Print("overpower_react Changed: "..overpower_react) end
-                end
             
             -- Action List - Movement
                 -- run_action_list,name=movement,if=movement.getDistance(units.dyn5)>5
@@ -863,6 +860,27 @@ local function runRotation()
                 if actionList_Interrupts() then return end
             -- Action List - Cooldowns
                 if actionList_Cooldowns() then return end
+                
+                if buff.overpower.exists() then
+                    overpower_react = 1
+                    if debug == true then Print("overpower_react Changed: "..overpower_react) end
+                else
+                    overpower_react = 0
+                    if debug == true then Print("overpower_react Changed: "..overpower_react) end
+                end
+                
+                if useCDs() and isChecked("Ravager") then
+                    if cd.battleCry <= gcd and debuff.colossusSmash.remain(units.dyn5) > 6 then
+                        -- Best Location
+                        if getOptionValue("Ravager") == 1 then
+                            if cast.ravager("best",nil,1,8) then return end
+                        end
+                        -- Target
+                        if getOptionValue("Ravager") == 2 then
+                            if cast.ravager("target","ground") then return end
+                        end
+                    end
+                end      
                 
             -- Action List - Cleave
                 -- run_action_list,name=cleave,if=spell_targets.whirlwind>=2&talent.sweeping_strikes.enabled
@@ -876,12 +894,12 @@ local function runRotation()
                 end
             -- Action List - Execute
                 -- run_action_list,name=execute,target_if=target.health.pct<=20&spell_targets.whirlwind<5
-                if getHP(units.dyn5) <= 20 and level >= 8 and ((mode.rotation == 1 and #enemies.yards8 < getOptionValue("AoE Threshold")) or mode.rotation == 3) then
+                if thp <= 20 and level >= 8 and ((mode.rotation == 1 and #enemies.yards8 < getOptionValue("AoE Threshold")) or mode.rotation == 3) then
                     if actionList_Execute() then return end
                 end
             -- Action List - Single
                 -- run_action_list,name=single,if=target.health.pct>20
-                if getHP(units.dyn5) > 20 or level < 8 then
+                if thp > 20 or level < 8 then
                     if actionList_Single() then return end
                 end
             end -- End Combat Rotation
