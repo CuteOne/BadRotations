@@ -86,13 +86,11 @@ if not metaTable1 then
 			and UnitReaction("player",tar) > 4
 			and not UnitIsDeadOrGhost(tar)
 			and UnitIsConnected(tar)
-			and not UnitDebuffID(tar,235621)
 			and UnitInPhase(tar))
 			or novaEngineTables.SpecialHealUnitList[tonumber(select(2,getGUID(tar)))] ~= nil	or (getOptionCheck("Heal Pets") == true and UnitIsOtherPlayersPet(tar) or UnitGUID(tar) == UnitGUID("pet")))
 			and CheckBadDebuff(tar)
 			and CheckCreatureType(tar)
 			and getLineOfSight("player", tar)
-			and not UnitDebuffID(tar,235621)
 			and UnitInPhase(tar)
 		then return true
 		else return false end
@@ -108,6 +106,9 @@ if not metaTable1 then
 		end
 		-- This is the function for Dispel checking built into the player itself.
 		function o:Dispel()
+			if UnitDebuffID(o.unit,235621) or not UnitInPhase(o.unit) then
+				return false
+			end
 			for i = 1, #novaEngineTables.DispelID do
 				if UnitDebuff(o.unit,GetSpellInfo(novaEngineTables.DispelID[i].id)) ~= nil and novaEngineTables.DispelID[i].id ~= nil then
 					if select(4,UnitDebuff(o.unit,GetSpellInfo(novaEngineTables.DispelID[i].id))) >= novaEngineTables.DispelID[i].stacks
