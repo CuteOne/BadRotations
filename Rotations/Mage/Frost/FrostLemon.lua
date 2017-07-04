@@ -638,14 +638,15 @@ local function runRotation()
             end
             
             --actions.aoe+=/blizzard
-			if isChecked(colorLegendary.."Zann'esu Journey") then
-				if buff.zannesuJourney.stack() == 5 then
-					if cast.blizzard("best", nil, getValue(colorLegendary.."Zann'esu Journey"), blizzardRadius) then return true end
-				end
-			elseif lastCast == spell.frozenOrb or cd.frozenOrb > 5 then
-				if cast.blizzard("best", nil, getValue("AOE targets"), blizzardRadius) then return true end
-            end
-            
+			if cd.blizzard == 0 then
+				if isChecked(colorLegendary.."Zann'esu Journey") then
+					if buff.zannesuJourney.stack() == 5 then
+						if cast.blizzard("best", nil, getValue(colorLegendary.."Zann'esu Journey"), blizzardRadius) then return true end
+					end
+				elseif cast.blizzard("best", nil, 1, blizzardRadius) then return true end
+			end
+			
+			
             --actions.aoe+=/comet_storm
             if talent.cometStorm then
                 if cd.cometStorm == 0 then
@@ -951,6 +952,7 @@ local function runRotation()
                 if cast.blizzard("best", nil, 1, blizzardRadius) then return true end
             end
         end
+		
         --cone of cold
         if cd.coneOfCold == 0 then
             if isChecked(colorBlueMage.."Cone of Cold") then
