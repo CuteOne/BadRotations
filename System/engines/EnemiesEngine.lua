@@ -188,8 +188,34 @@ end
 
 -- returns prefered target for diferent spells
 function dynamicTarget(range,facing)
+	local tempTime = GetTime();
+	if not lastUpdateTime then
+		lastUpdateTime = tempTime
+	end
+	if not ntlastUpdateTime then
+		ntlastUpdateTime = tempTime
+	end
+	if not attempts then attempts = 0 end
+	if getOptionValue("Enemy Update Rate") ~= nil and getOptionValue("Enemy Update Rate") > 0.5 then updateRate = getOptionValue("Enemy Update Rate")
+		else updateRate = 0.5
+	end
+	if updateRate < #getEnemies("player",50)/2 then
+		updateRate = #getEnemies("player",50)/2
+	end
 	-- local startTime = debugprofilestop()
-	if getOptionCheck("Dynamic Targetting") then
+	if getOptionCheck("Dynamic Targetting") and (UnitIsDeadOrGhost("target") or not GetUnitExists("target") or getDistance("player","target")< range) and (tempTime - ntlastUpdateTime) < 0.3 then
+		if not UnitAffectingCombat("player") and attempts < 3 then
+			ntlastUpdateTime = tempTime
+			TargetNearestEnemy()
+			attempts = attempts +1
+		elseif UnitAffectingCombat("player") then
+			attempts = 0
+			ntlastUpdateTime = tempTime
+			TargetNearestEnemy()
+		end
+	end
+	if getOptionCheck("Dynamic Targetting") and (tempTime - lastUpdateTime) > updateRate then
+		lastUpdateTime = tempTime
 		local bestUnitCoef = 0
 		local bestUnit = "target"
 		local enemyTable = getEnemies("player",range)
