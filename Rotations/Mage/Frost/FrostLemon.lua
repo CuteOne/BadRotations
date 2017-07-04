@@ -56,9 +56,13 @@ local function createOptions()
         -----------------------
         --- GENERAL OPTIONS --- -- Define General Options
         -----------------------
+		section = br.ui:createSection(br.ui.window.profile,  "Dynamic Target")
+		br.ui:createCheckbox(section, "Dynamic Targetting")
+		--br.ui:createCheckbox(section, "Target Dynamic Target")
+		--br.ui:createCheckbox(section, "Hostiles Only")
+		br.ui:checkSectionState(section)
+		
         section = br.ui:createSection(br.ui.window.profile,  "General")
-		br.ui:createSpinner(section, "Dynamic Targetting",  40,  1,  40,  5,  colorWhite.."Set the range for dynamic targetting")
-		br.ui:createCheckbox(section, "Target Dynamic Target")
         br.ui:createDropdownWithout(section, "Opener Mode", {colorWhite.."SimC", colorWhite.."Icy-Veins", colorWhite.."Ray of Frost"}, 1, colorWhite.."Set APL Mode to use.")
         br.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  colorWhite.."Set to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
         br.ui:createCheckbox(section, "Opener")
@@ -174,11 +178,9 @@ local function runRotation()
     enemies.yards8t = br.player.enemies(8,br.player.units(8,true))
 
     if isChecked("Dynamic Targetting") then
-		if inCombat
-			dyno = br.player.units(getOptionValue("Dynamic Targetting"))
-			ttdUnit = ttd(dyno)
-			target = dyno
-		end
+        units.dyn40 = br.player.units(40)
+        ttdUnit = ttd(units.dyn40)
+        target = units.dyn40
     else
         ttdUnit = ttd("target")
         target = "target"
