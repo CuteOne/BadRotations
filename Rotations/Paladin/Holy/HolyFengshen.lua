@@ -231,44 +231,58 @@ local function runRotation()
 		--------------
 		--- Locals ---
 		--------------
-		local artifact                                      = br.player.artifact
+		-- local artifact                                      = br.player.artifact
 		local buff                                          = br.player.buff
 		local cast                                          = br.player.cast
-		local combatTime                                    = getCombatTime()
-		local cd                                            = br.player.cd
+		-- local combatTime                                    = getCombatTime()
+		-- local cd                                            = br.player.cd
 		local charges                                       = br.player.charges
 		local debuff                                        = br.player.debuff
 		local drinking                                      = UnitBuff("player",192002) ~= nil or UnitBuff("player",167152) ~= nil or UnitBuff("player",192001) ~= nil
 		local enemies                                       = enemies or {}
 		local friends                                       = friends or {}
-		local falling, swimming, flying, moving             = getFallTime(), IsSwimming(), IsFlying(), GetUnitSpeed("player")>0
-		local gcd                                           = br.player.gcd
-		local healPot                                       = getHealthPot()
+		-- local falling, swimming, flying, moving             = getFallTime(), IsSwimming(), IsFlying(), GetUnitSpeed("player")>0
+		-- local gcd                                           = br.player.gcd
+		-- local healPot                                       = getHealthPot()
 		local inCombat                                      = br.player.inCombat
 		local inInstance                                    = br.player.instance=="party"
 		local inRaid                                        = br.player.instance=="raid"
-		local level                                         = br.player.level
-		local lowestHP                                      = br.friend[1].unit
-		local lowest                                        = br.friend[1]
+		-- local level                                         = br.player.level
+		-- local lowestHP                                      = br.friend[1].unit
+		-- local lowest                                        = br.friend[1]
 		local lastSpell                                     = lastSpellCast
-		local mana                                          = br.player.powerPercentMana
+		-- local mana                                          = br.player.powerPercentMana
 		local resable                                       = UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and UnitIsFriend("target","player")
 		local mode                                          = br.player.mode
-		local perk                                          = br.player.perk
+		-- local perk                                          = br.player.perk
 		local php                                           = br.player.health
-		local power, powmax, powgen                         = br.player.power.amount.mana, br.player.power.mana.max, br.player.power.regen
+		-- local power, powmax, powgen                         = br.player.power.amount.mana, br.player.power.mana.max, br.player.power.regen
 		local pullTimer                                     = br.DBM:getPulltimer()
 		local race                                          = br.player.race
 		local racial                                        = br.player.getRacial()
 		local recharge                                      = br.player.recharge
 		local spell                                         = br.player.spell
 		local talent                                        = br.player.talent
-		local ttm                                           = br.player.power.ttm
+		-- local ttm                                           = br.player.power.ttm
 		local units                                         = units or {}
 		local LightCount                                    = 0
 		local FaithCount                                    = 0
+		local tanks                                         = getTanksTable()
 		
-		
+		if buff.ruleOfLaw.exists("player") and talent.beaconOfTheLightBringer then
+			lightOfDawn_distance_coff =(1.5*1.3)
+		elseif buff.ruleOfLaw.exists("player") and not talent.beaconOfTheLightBringer then
+			lightOfDawn_distance_coff =1.5
+		elseif not buff.ruleOfLaw.exists("player") and talent.beaconOfTheLightBringer then
+			lightOfDawn_distance_coff =1.3
+		else
+			lightOfDawn_distance_coff =1.0
+		end
+		if buff.ruleOfLaw.exists("player") then
+			master_coff =1.5
+		else
+			master_coff =1.0
+		end
 		
 		units.dyn5 = br.player.units(5)
 		units.dyn15 = br.player.units(15)
@@ -280,17 +294,17 @@ local function runRotation()
 		enemies.yards15 = br.player.enemies(15)
 		enemies.yards30 = br.player.enemies(30)
 		enemies.yards40 = br.player.enemies(40)
-		friends.yards40 = getAllies("player",40)
+		friends.yards40 = getAllies("player",40*master_coff)
 		
-		local lowest                                        = {}    --Lowest Unit
-		lowest.hp                                           = br.friend[1].hp
-		lowest.role                                         = br.friend[1].role
-		lowest.unit                                         = br.friend[1].unit
-		lowest.range                                        = br.friend[1].range
-		lowest.guid                                         = br.friend[1].guid
-		local lowestTank                                    = {}    --Tank
-		local tHp                                           = 95
-		local averageHealth                                 = 100
+		-- local lowest                                        = {}    --Lowest Unit
+		-- lowest.hp                                           = br.friend[1].hp
+		-- lowest.role                                         = br.friend[1].role
+		-- lowest.unit                                         = br.friend[1].unit
+		-- lowest.range                                        = br.friend[1].range
+		-- lowest.guid                                         = br.friend[1].guid
+		-- local lowestTank                                    = {}    --Tank
+		-- local tHp                                           = 95
+		-- local averageHealth                                 = 100
 		
 		if leftCombat == nil then leftCombat = GetTime() end
 		if profileStop == nil then profileStop = false end
@@ -313,20 +327,7 @@ local function runRotation()
 			HS3 = false
 			LOTM4 = false
 		end
-		if buff.ruleOfLaw.exists("player") and talent.beaconOfTheLightBringer then
-			lightOfDawn_distance_coff =(1.5*1.3)
-		elseif buff.ruleOfLaw.exists("player") and not talent.beaconOfTheLightBringer then
-			lightOfDawn_distance_coff =1.5
-		elseif not buff.ruleOfLaw.exists("player") and talent.beaconOfTheLightBringer then
-			lightOfDawn_distance_coff =1.3
-		else
-			lightOfDawn_distance_coff =1.0
-		end
-		if buff.ruleOfLaw.exists("player") then
-			master_coff =1.5
-		else
-			master_coff =1.0
-		end
+		
 		--------------------
 		--- Action Lists ---
 		--------------------
@@ -350,52 +351,38 @@ local function runRotation()
 					if cast.auraMastery() then AM1 = true return end
 				end
 				if not HS1 then
-					for i = 1, #br.friend do
-						if br.friend[i].hp <= 90 then
-							if cast.holyShock(br.friend[i].unit) then HS1 = true return end
-						end
+					if br.friend[1].hp <= 90 then
+						if cast.holyShock(br.friend[i].unit) then HS1 = true return end
 					end
 				end
 				if not LOTM1 then
-					for i = 1, #br.friend do
-						if br.friend[i].hp <= 90 and not UnitIsUnit(br.friend[i].unit,"player") then
-							if cast.lightOfTheMartyr(br.friend[i].unit) then LOTM1 = true return end
-						end
+					if br.friend[1].hp <= 90 and not UnitIsUnit(br.friend[i].unit,"player") then
+						if cast.lightOfTheMartyr(br.friend[i].unit) then LOTM1 = true return end
 					end
 				end
 				if not FOL1 then
-					for i = 1, #br.friend do
-						if br.friend[i].hp <= 90 then
-							if cast.flashOfLight(br.friend[i].unit) then FOL1 = true return end
-						end
+					if br.friend[1].hp <= 90 then
+						if cast.flashOfLight(br.friend[i].unit) then FOL1 = true return end
 					end
 				end
 				if not LOTM2 then
-					for i = 1, #br.friend do
-						if br.friend[i].hp <= 90 and not UnitIsUnit(br.friend[i].unit,"player") then
-							if cast.lightOfTheMartyr(br.friend[i].unit) then LOTM2 = true return end
-						end
+					if br.friend[1].hp <= 90 and not UnitIsUnit(br.friend[i].unit,"player") then
+						if cast.lightOfTheMartyr(br.friend[i].unit) then LOTM2 = true return end
 					end
 				end
 				if not FOL2 then
-					for i = 1, #br.friend do
-						if br.friend[i].hp <= 90 then
-							if cast.flashOfLight(br.friend[i].unit) then FOL2 = true return end
-						end
+					if br.friend[1].hp <= 90 then
+						if cast.flashOfLight(br.friend[i].unit) then FOL2 = true return end
 					end
 				end
 				if not FOL3 then
-					for i = 1, #br.friend do
-						if br.friend[i].hp <= 90 then
-							if cast.flashOfLight(br.friend[i].unit) then FOL3 = true return end
-						end
+					if br.friend[1].hp <= 90 then
+						if cast.flashOfLight(br.friend[i].unit) then FOL3 = true return end
 					end
 				end
 				if not LOTM3 then
-					for i = 1, #br.friend do
-						if br.friend[i].hp <= 90 and not UnitIsUnit(br.friend[i].unit,"player") then
-							if cast.lightOfTheMartyr(br.friend[i].unit) then LOTM3 = true return end
-						end
+					if br.friend[1].hp <= 90 and not UnitIsUnit(br.friend[i].unit,"player") then
+						if cast.lightOfTheMartyr(br.friend[i].unit) then LOTM3 = true return end
 					end
 				end
 				if LOTM3 then
@@ -419,59 +406,43 @@ local function runRotation()
 					if cast.ruleOfLaw() then RL1 = true return end
 				end
 				if not HS1 then
-					for i = 1, #br.friend do
-						if br.friend[i].hp <= 90 then
-							if cast.holyShock(br.friend[i].unit) then HS1 = true return end
-						end
+					if br.friend[1].hp <= 90 then
+						if cast.holyShock(br.friend[i].unit) then HS1 = true return end
 					end
 				end
 				if not LOTM1 then
-					for i = 1, #br.friend do
-						if br.friend[i].hp <= 90 and not UnitIsUnit(br.friend[i].unit,"player") then
-							if cast.lightOfTheMartyr(br.friend[i].unit) then LOTM1 = true return end
-						end
+					if br.friend[1].hp <= 90 and not UnitIsUnit(br.friend[i].unit,"player") then
+						if cast.lightOfTheMartyr(br.friend[i].unit) then LOTM1 = true return end
 					end
 				end
 				if not LOTM2 then
-					for i = 1, #br.friend do
-						if br.friend[i].hp <= 90 and not UnitIsUnit(br.friend[i].unit,"player") then
-							if cast.lightOfTheMartyr(br.friend[i].unit) then LOTM2 = true return end
-						end
+					if br.friend[1].hp <= 90 and not UnitIsUnit(br.friend[i].unit,"player") then
+						if cast.lightOfTheMartyr(br.friend[i].unit) then LOTM2 = true return end
 					end
 				end
 				if not HS2 then
-					for i = 1, #br.friend do
-						if br.friend[i].hp <= 90 then
-							if cast.holyShock(br.friend[i].unit) then HS2 = true return end
-						end
+					if br.friend[1].hp <= 90 then
+						if cast.holyShock(br.friend[i].unit) then HS2 = true return end
 					end
 				end
 				if not LOTM3 then
-					for i = 1, #br.friend do
-						if br.friend[i].hp <= 90 and not UnitIsUnit(br.friend[i].unit,"player") then
-							if cast.lightOfTheMartyr(br.friend[i].unit) then LOTM3 = true return end
-						end
+					if br.friend[1].hp <= 90 and not UnitIsUnit(br.friend[i].unit,"player") then
+						if cast.lightOfTheMartyr(br.friend[i].unit) then LOTM3 = true return end
 					end
 				end
 				if not FOL1 then
-					for i = 1, #br.friend do
-						if br.friend[i].hp <= 90 then
-							if cast.flashOfLight(br.friend[i].unit) then FOL1 = true return end
-						end
+					if br.friend[1].hp <= 90 then
+						if cast.flashOfLight(br.friend[i].unit) then FOL1 = true return end
 					end
 				end
 				if not HS3 then
-					for i = 1, #br.friend do
-						if br.friend[i].hp <= 90 then
-							if cast.holyShock(br.friend[i].unit) then HS3 = true return end
-						end
+					if br.friend[1].hp <= 90 then
+						if cast.holyShock(br.friend[i].unit) then HS3 = true return end
 					end
 				end
 				if not LOTM4 then
-					for i = 1, #br.friend do
-						if br.friend[i].hp <= 90 and not UnitIsUnit(br.friend[i].unit,"player") then
-							if cast.lightOfTheMartyr(br.friend[i].unit) then LOTM4 = true return end
-						end
+					if br.friend[1].hp <= 90 and not UnitIsUnit(br.friend[i].unit,"player") then
+						if cast.lightOfTheMartyr(br.friend[i].unit) then LOTM4 = true return end
 					end
 				end
 				if LOTM4 then
@@ -498,59 +469,43 @@ local function runRotation()
 					if cast.ruleOfLaw() then RL1 = true return end
 				end
 				if not HS1 then
-					for i = 1, #br.friend do
-						if br.friend[i].hp <= 90 then
-							if cast.holyShock(br.friend[i].unit) then HS1 = true return end
-						end
+					if br.friend[1].hp <= 90 then
+						if cast.holyShock(br.friend[i].unit) then HS1 = true return end
 					end
 				end
 				if not LOTM1 then
-					for i = 1, #br.friend do
-						if br.friend[i].hp <= 90 and not UnitIsUnit(br.friend[i].unit,"player") then
-							if cast.lightOfTheMartyr(br.friend[i].unit) then LOTM1 = true return end
-						end
+					if br.friend[1].hp <= 90 and not UnitIsUnit(br.friend[i].unit,"player") then
+						if cast.lightOfTheMartyr(br.friend[i].unit) then LOTM1 = true return end
 					end
 				end
 				if not FOL1 then
-					for i = 1, #br.friend do
-						if br.friend[i].hp <= 90 then
-							if cast.flashOfLight(br.friend[i].unit) then FOL1 = true return end
-						end
+					if br.friend[1].hp <= 90 then
+						if cast.flashOfLight(br.friend[i].unit) then FOL1 = true return end
 					end
 				end
 				if not LOTM2 then
-					for i = 1, #br.friend do
-						if br.friend[i].hp <= 90 and not UnitIsUnit(br.friend[i].unit,"player") then
-							if cast.lightOfTheMartyr(br.friend[i].unit) then LOTM2 = true return end
-						end
+					if br.friend[1].hp <= 90 and not UnitIsUnit(br.friend[i].unit,"player") then
+						if cast.lightOfTheMartyr(br.friend[i].unit) then LOTM2 = true return end
 					end
 				end
 				if not FOL2 then
-					for i = 1, #br.friend do
-						if br.friend[i].hp <= 90 then
-							if cast.flashOfLight(br.friend[i].unit) then FOL2 = true return end
-						end
+					if br.friend[1].hp <= 90 then
+						if cast.flashOfLight(br.friend[i].unit) then FOL2 = true return end
 					end
 				end
 				if not LOTM3 then
-					for i = 1, #br.friend do
-						if br.friend[i].hp <= 90 and not UnitIsUnit(br.friend[i].unit,"player") then
-							if cast.lightOfTheMartyr(br.friend[i].unit) then LOTM3 = true return end
-						end
+					if br.friend[1].hp <= 90 and not UnitIsUnit(br.friend[i].unit,"player") then
+						if cast.lightOfTheMartyr(br.friend[i].unit) then LOTM3 = true return end
 					end
 				end
 				if not FOL3 then
-					for i = 1, #br.friend do
-						if br.friend[i].hp <= 90 then
-							if cast.flashOfLight(br.friend[i].unit) then FOL3 = true return end
-						end
+					if br.friend[1].hp <= 90 then
+						if cast.flashOfLight(br.friend[i].unit) then FOL3 = true return end
 					end
 				end
 				if not HS2 then
-					for i = 1, #br.friend do
-						if br.friend[i].hp <= 90 then
-							if cast.holyShock(br.friend[i].unit) then HS2 = true return end
-						end
+					if br.friend[1].hp <= 90 then
+						if cast.holyShock(br.friend[i].unit) then HS2 = true return end
 					end
 				end
 				if HS2 then
@@ -728,7 +683,7 @@ local function runRotation()
 				end
 				-- Holy Prism
 				if isChecked("Holy Prism Damage") and talent.holyPrism and #enemies.yards15 >= getValue("Holy Prism Damage") and php < 90 then
-					if cast.holyPrism(units.dyn15) then return end
+					if cast.holyPrism("player") then return end
 				end
 				-- Light's Hammer
 				if isChecked("Light's Hammer Damage") and talent.lightsHammer and not isMoving("player") and #enemies.yards10 >= getValue("Light's Hammer Damage") then
@@ -736,7 +691,7 @@ local function runRotation()
 				end
 				-- Judgement
 				if isChecked("Judgement") then
-					if cast.judgment(units.dyn40) then return end
+					if cast.judgment(units.dyn30) then return end
 				end
 				-- Holy Shock
 				if isChecked("Holy Shock Damage") and GetSpellCooldown(20473) == 0 then
@@ -924,12 +879,12 @@ local function runRotation()
 			end
 			-- Judgement
 			if not UnitIsFriend("target", "player") and inCombat then
-				if talent.judgmentOfLight and not debuff.judgmentoflight.exists(units.dyn40) then
-					if cast.judgment(units.dyn40) then return end
+				if talent.judgmentOfLight and not debuff.judgmentoflight.exists(units.dyn30) then
+					if cast.judgment(units.dyn30) then return end
 				elseif talent.fistOfJustice and GetSpellCooldown(853) > 0 then
-					if cast.judgment(units.dyn40) then return end
+					if cast.judgment(units.dyn30) then return end
 				elseif hasEquiped(137046) then
-					if cast.judgment(units.dyn40) then return end
+					if cast.judgment(units.dyn30) then return end
 				end
 			end
 			-- Light of Dawn
@@ -955,7 +910,7 @@ local function runRotation()
 							if cast.bestowFaith(br.friend[i].unit) then return end
 						end
 					elseif 	getOptionValue("Bestow Faith Target") == 3 then
-						if br.friend[i].hp <= getValue ("Bestow Faith") and getBuffRemain("player",207472) < 1 then
+						if php <= getValue ("Bestow Faith") then
 							if cast.bestowFaith("player") then return end
 						end
 					end
@@ -966,41 +921,32 @@ local function runRotation()
 				if php <= getValue("Critical HP") then
 					if cast.holyShock("player") then return end
 				end
+				if #tanks > 0 then
+					if tanks[1].hp <= getValue("Critical HP") and getDebuffStacks(tank[1].unit,209858) < 25 then
+						if cast.holyShock(tank[1].unit) then return end
+					end
+				end
+				if br.friend[1].hp <= getValue("Critical HP") and getDebuffStacks(br.friend[1].unit,209858) < 25 then
+					if cast.holyShock(br.friend[1].unit) then return end
+				end
 				if inRaid and isChecked("Mastery bonus") then
 					if php <= getValue("Holy Shock") and hasEquiped(137076) then
 						if cast.holyShock("player") then return end
 					end
 					for i = 1, #br.friend do
-						if isChecked("Critical HP") and br.friend[i].hp <= getValue("Critical HP") then
-							if cast.holyShock(br.friend[i].unit) then return end
-						elseif br.friend[i].hp <= getValue("Holy Shock") and not buff.beaconOfFaith.exists(br.friend[i].unit)
-							and not buff.beaconOfVirtue.exists(br.friend[i].unit) and getDistance(br.friend[i].unit) <= (10*master_coff) then
+						if br.friend[i].hp <= getValue("Holy Shock") and not buff.beaconOfFaith.exists(br.friend[i].unit) and not buff.beaconOfVirtue.exists(br.friend[i].unit) and getDistance(br.friend[i].unit) <= (10*master_coff) then
 							if cast.holyShock(br.friend[i].unit) then return end
 						end
 					end
 					for i = 1, #br.friend do
-						if isChecked("Critical HP") and br.friend[i].hp <= getValue("Critical HP") then
-							if cast.holyShock(br.friend[i].unit) then return end
-						elseif br.friend[i].hp <= getValue("Holy Shock") and not buff.beaconOfFaith.exists(br.friend[i].unit)
-							and not buff.beaconOfVirtue.exists(br.friend[i].unit) and getDistance(br.friend[i].unit) <= (20*master_coff) then
+						if br.friend[i].hp <= getValue("Holy Shock") and not buff.beaconOfFaith.exists(br.friend[i].unit) and not buff.beaconOfVirtue.exists(br.friend[i].unit) and getDistance(br.friend[i].unit) <= (20*master_coff) then
 							if cast.holyShock(br.friend[i].unit) then return end
 						end
 					end
 					for i = 1, #br.friend do
-						if isChecked("Critical HP") and br.friend[i].hp <= getValue("Critical HP") then
-							if cast.holyShock(br.friend[i].unit) then return end
-						elseif br.friend[i].hp <= getValue("Holy Shock") and not buff.beaconOfFaith.exists(br.friend[i].unit)
-							and not buff.beaconOfVirtue.exists(br.friend[i].unit) and getDistance(br.friend[i].unit) <= (30*master_coff) then
+						if br.friend[i].hp <= getValue("Holy Shock") and not buff.beaconOfFaith.exists(br.friend[i].unit) and not buff.beaconOfVirtue.exists(br.friend[i].unit) and getDistance(br.friend[i].unit) <= (30*master_coff) then
 							if cast.holyShock(br.friend[i].unit) then return end
 						end
-					end
-				end
-				for i = 1, #br.friend do
-					if isChecked("Critical HP") and br.friend[i].hp <= getValue("Critical HP") and getDebuffStacks(br.friend[i].unit,209858) < 25 then
-						if cast.holyShock(br.friend[i].unit) then return end
-					elseif br.friend[i].hp <= getValue("Holy Shock") and not buff.beaconOfFaith.exists(br.friend[i].unit)
-						and not buff.beaconOfVirtue.exists(br.friend[i].unit) and getDebuffStacks(br.friend[i].unit,209858) < 25 then
-						if cast.holyShock(br.friend[i].unit) then return end
 					end
 				end
 				for i = 1, #br.friend do
@@ -1058,46 +1004,39 @@ local function runRotation()
 				if php <= getValue("Critical HP") then
 					if cast.flashOfLight("player") then return end
 				end
+				if #tanks > 0 then
+					if tanks[1].hp <= getValue("Critical HP") and getDebuffStacks(tank[1].unit,209858) < 25 then
+						if cast.flashOfLight(tank[1].unit) then healing_obj = tank[1].unit return end
+					end
+				end
+				if br.friend[1].hp <= getValue("Critical HP") and getDebuffStacks(br.friend[1].unit,209858) < 25 then
+					if cast.flashOfLight(br.friend[1].unit) then healing_obj = br.friend[1].unit return end
+				end
 				for i = 1, #br.friend do
 					if br.friend[i].hp <= getValue("FoL Tanks") and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
 						if cast.flashOfLight(br.friend[i].unit) then healing_obj = br.friend[i].unit return end
 					end
 				end
 				if inRaid and isChecked("Mastery bonus") then
-					if php <= getValue("Flash of Light") and hasEquiped(137076) then
-						if cast.flashOfLight("player") then return end
-					end
 					for i = 1, #br.friend do
-						if isChecked("Critical HP") and br.friend[i].hp <= getValue("Critical HP") then
-							if cast.flashOfLight(br.friend[i].unit) then healing_obj = br.friend[i].unit return end
-						elseif br.friend[i].hp <= getValue("Flash of Light") and not buff.beaconOfFaith.exists(br.friend[i].unit)
-							and not buff.beaconOfVirtue.exists(br.friend[i].unit) and getDistance(br.friend[i].unit) <= (10*master_coff) then
+						if br.friend[i].hp <= getValue("Flash of Light") and getBuffRemain(br.friend[i].unit,200654) > 1.5 then
 							if cast.flashOfLight(br.friend[i].unit) then healing_obj = br.friend[i].unit return end
 						end
 					end
 					for i = 1, #br.friend do
-						if isChecked("Critical HP") and br.friend[i].hp <= getValue("Critical HP") then
-							if cast.flashOfLight(br.friend[i].unit) then healing_obj = br.friend[i].unit return end
-						elseif br.friend[i].hp <= getValue("Flash of Light") and not buff.beaconOfFaith.exists(br.friend[i].unit)
-							and not buff.beaconOfVirtue.exists(br.friend[i].unit) and getDistance(br.friend[i].unit) <= (20*master_coff) then
+						if br.friend[i].hp <= getValue("Flash of Light") and getDistance(br.friend[i].unit) <= (10*master_coff) then
 							if cast.flashOfLight(br.friend[i].unit) then healing_obj = br.friend[i].unit return end
 						end
 					end
 					for i = 1, #br.friend do
-						if isChecked("Critical HP") and br.friend[i].hp <= getValue("Critical HP") then
-							if cast.flashOfLight(br.friend[i].unit) then healing_obj = br.friend[i].unit return end
-						elseif br.friend[i].hp <= getValue("Flash of Light") and not buff.beaconOfFaith.exists(br.friend[i].unit)
-							and not buff.beaconOfVirtue.exists(br.friend[i].unit) and getDistance(br.friend[i].unit) <= (30*master_coff) then
+						if br.friend[i].hp <= getValue("Flash of Light") and getDistance(br.friend[i].unit) <= (20*master_coff) then
 							if cast.flashOfLight(br.friend[i].unit) then healing_obj = br.friend[i].unit return end
 						end
 					end
-				end
-				for i = 1, #br.friend do
-					if isChecked("Critical HP") and br.friend[i].hp <= getValue("Critical HP") and getDebuffStacks(br.friend[i].unit,209858) < 25 then
-						if cast.flashOfLight(br.friend[i].unit) then healing_obj = br.friend[i].unit return end
-					elseif br.friend[i].hp <= getValue("Flash of Light") and not buff.beaconOfFaith.exists(br.friend[i].unit)
-						and not buff.beaconOfVirtue.exists(br.friend[i].unit) and getDebuffStacks(br.friend[i].unit,209858) < 25 then
-						if cast.flashOfLight(br.friend[i].unit) then healing_obj = br.friend[i].unit return end
+					for i = 1, #br.friend do
+						if br.friend[i].hp <= getValue("Flash of Light") and getDistance(br.friend[i].unit) <= (30*master_coff) then
+							if cast.flashOfLight(br.friend[i].unit) then healing_obj = br.friend[i].unit return end
+						end
 					end
 				end
 				for i = 1, #br.friend do
@@ -1134,32 +1073,25 @@ local function runRotation()
 			-- Holy Light
 			if isChecked("Holy Light") and not isMoving("player") and (getOptionValue("Holy Light Infuse") == 1 or (getOptionValue("Holy Light Infuse") == 2 and buff.infusionOfLight.remain() > 1 and GetSpellCooldown(20473) > 0 and lastSpell ~= spell.flashOfLight)) then
 				if inRaid and isChecked("Mastery bonus") then
-					if php <= getValue("Holy Light") and hasEquiped(137076) then
-						if cast.holyLight("player") then return end
-					end
 					for i = 1, #br.friend do
-						if br.friend[i].hp <= getValue("Holy Light") and not buff.beaconOfFaith.exists(br.friend[i].unit)
-							and not buff.beaconOfVirtue.exists(br.friend[i].unit) and getDistance(br.friend[i].unit) <= (10*master_coff) then
+						if br.friend[i].hp <= getValue("Holy Light") and getBuffRemain(br.friend[i].unit,200654) > 1 then
 							if cast.holyLight(br.friend[i].unit) then healing_obj = br.friend[i].unit return end
 						end
 					end
 					for i = 1, #br.friend do
-						if br.friend[i].hp <= getValue("Holy Light") and not buff.beaconOfFaith.exists(br.friend[i].unit)
-							and not buff.beaconOfVirtue.exists(br.friend[i].unit) and getDistance(br.friend[i].unit) <= (20*master_coff) then
+						if br.friend[i].hp <= getValue("Holy Light") and getDistance(br.friend[i].unit) <= (10*master_coff) then
 							if cast.holyLight(br.friend[i].unit) then healing_obj = br.friend[i].unit return end
 						end
 					end
 					for i = 1, #br.friend do
-						if br.friend[i].hp <= getValue("Holy Light") and not buff.beaconOfFaith.exists(br.friend[i].unit)
-							and not buff.beaconOfVirtue.exists(br.friend[i].unit) and getDistance(br.friend[i].unit) <= (30*master_coff) then
+						if br.friend[i].hp <= getValue("Holy Light") and getDistance(br.friend[i].unit) <= (20*master_coff) then
 							if cast.holyLight(br.friend[i].unit) then healing_obj = br.friend[i].unit return end
 						end
 					end
-				end
-				for i = 1, #br.friend do
-					if br.friend[i].hp <= getValue("Holy Light") and br.friend[i].hp >= getValue("Critical HP") and not buff.beaconOfFaith.exists(br.friend[i].unit)
-						and not buff.beaconOfVirtue.exists(br.friend[i].unit) and getDebuffStacks(br.friend[i].unit,209858) < 25 then
-						if cast.holyLight(br.friend[i].unit) then healing_obj = br.friend[i].unit return end
+					for i = 1, #br.friend do
+						if br.friend[i].hp <= getValue("Holy Light") and getDistance(br.friend[i].unit) <= (30*master_coff) then
+							if cast.holyLight(br.friend[i].unit) then healing_obj = br.friend[i].unit return end
+						end
 					end
 				end
 				for i = 1, #br.friend do
@@ -1178,25 +1110,27 @@ local function runRotation()
 			end
 			-- Emergency Martyr Heals
 			if isChecked("Moving LotM") and isMoving("player") and php >= getOptionValue("LotM player HP limit") then
+				if #tanks > 0 then
+					if tanks[1].hp <= getValue("Critical HP") and getDebuffStacks(tank[1].unit,209858) < 25 then
+						if cast.lightOfTheMartyr(tank[1].unit) then return end
+					end
+				end
+				if br.friend[1].hp <= getValue("Critical HP") and not UnitIsUnit(br.friend[1].unit,"player") and getDebuffStacks(br.friend[1].unit,209858) < 25 then
+					if cast.lightOfTheMartyr(br.friend[1].unit) then return end
+				end
 				if inRaid and isChecked("Mastery bonus") then
 					for i = 1, #br.friend do
-						if isChecked("Critical HP") and br.friend[i].hp <= getValue("Critical HP") and not UnitIsUnit(br.friend[i].unit,"player") then
-							if cast.lightOfTheMartyr(br.friend[i].unit) then return end
-						elseif br.friend[i].hp <= getValue("Moving LotM") and not UnitIsUnit(br.friend[i].unit,"player") and getDistance(br.friend[i].unit) <= (10*master_coff) then
+						if br.friend[i].hp <= getValue("Moving LotM") and not UnitIsUnit(br.friend[i].unit,"player") and getDistance(br.friend[i].unit) <= (10*master_coff) then
 							if cast.lightOfTheMartyr(br.friend[i].unit) then return end
 						end
 					end
 					for i = 1, #br.friend do
-						if isChecked("Critical HP") and br.friend[i].hp <= getValue("Critical HP") and not UnitIsUnit(br.friend[i].unit,"player") then
-							if cast.lightOfTheMartyr(br.friend[i].unit) then return end
-						elseif br.friend[i].hp <= getValue("Moving LotM") and not UnitIsUnit(br.friend[i].unit,"player") and getDistance(br.friend[i].unit) <= (20*master_coff) then
+						if br.friend[i].hp <= getValue("Moving LotM") and not UnitIsUnit(br.friend[i].unit,"player") and getDistance(br.friend[i].unit) <= (20*master_coff) then
 							if cast.lightOfTheMartyr(br.friend[i].unit) then return end
 						end
 					end
 					for i = 1, #br.friend do
-						if isChecked("Critical HP") and br.friend[i].hp <= getValue("Critical HP") and not UnitIsUnit(br.friend[i].unit,"player") then
-							if cast.lightOfTheMartyr(br.friend[i].unit) then return end
-						elseif br.friend[i].hp <= getValue("Moving LotM") and not UnitIsUnit(br.friend[i].unit,"player") and getDistance(br.friend[i].unit) <= (30*master_coff) then
+						if br.friend[i].hp <= getValue("Moving LotM") and not UnitIsUnit(br.friend[i].unit,"player") and getDistance(br.friend[i].unit) <= (30*master_coff) then
 							if cast.lightOfTheMartyr(br.friend[i].unit) then return end
 						end
 					end
