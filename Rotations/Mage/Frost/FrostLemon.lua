@@ -56,6 +56,12 @@ local function createOptions()
         -----------------------
         --- GENERAL OPTIONS --- -- Define General Options
         -----------------------
+		section = br.ui:createSection(br.ui.window.profile,  "Dynamic Target")
+		br.ui:createCheckbox(section, "Dynamic Targetting")
+		--br.ui:createCheckbox(section, "Target Dynamic Target")
+		--br.ui:createCheckbox(section, "Hostiles Only")
+		br.ui:checkSectionState(section)
+		
         section = br.ui:createSection(br.ui.window.profile,  "General")
         br.ui:createDropdownWithout(section, "Opener Mode", {colorWhite.."SimC", colorWhite.."Icy-Veins", colorWhite.."Ray of Frost"}, 1, colorWhite.."Set APL Mode to use.")
         br.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  colorWhite.."Set to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
@@ -499,7 +505,7 @@ local function runRotation()
             return true
         end
 
-        if not opener and isChecked("Opener") and isBoss("target") then
+        if not opener and isChecked("Opener") and isBoss(target) then
             if getOptionValue("Opener Mode") == 1 then--SimC
                 if actionList_OPENER_SIMC() then return true end
             elseif getOptionValue("Opener Mode") == 2 then -- Icy Veins
@@ -587,7 +593,7 @@ local function runRotation()
                         useItem(13)
                     end
                 elseif getOptionValue("Trinket 1 Condition") == 2 then
-                    if isChecked("Trinket 1") and inCombat and getHP("target") <= getValue("Trinket 1") and canUse(13) and isBoss("target") then
+                    if isChecked("Trinket 1") and inCombat and getHP(target) <= getValue("Trinket 1") and canUse(13) and isBoss(target) then
                         useItem(13)
                     end
                 elseif getOptionValue("Trinket 1 Condition") == 3 then
@@ -601,7 +607,7 @@ local function runRotation()
                         useItem(14)
                     end
                 elseif getOptionValue("Trinket 2 Condition") == 2 then
-                    if isChecked("Trinket 2") and inCombat and getHP("target") <= getValue("Trinket 2") and canUse(14) and isBoss("target") then
+                    if isChecked("Trinket 2") and inCombat and getHP(target) <= getValue("Trinket 2") and canUse(14) and isBoss(target) then
                         useItem(14)
                     end
                 elseif getOptionValue("Trinket 2 Condition") == 3 then
@@ -643,8 +649,8 @@ local function runRotation()
 				if isChecked(colorLegendary.."Zann'esu Journey") then
 					if buff.zannesuJourney.stack() == 5 then
 						if cast.blizzard("best", nil, getValue(colorLegendary.."Zann'esu Journey"), blizzardRadius) then return true end
-					elseif cast.blizzard("best", nil, 1, blizzardRadius) then return true end
-				elseif cast.blizzard("best", nil, 1, blizzardRadius) then return true end
+					elseif cast.blizzard("best", nil, getValue("AOE targets"), blizzardRadius) then return true end
+				elseif cast.blizzard("best", nil, getValue("AOE targets"), blizzardRadius) then return true end
 			end
 			
 			
@@ -874,6 +880,8 @@ local function runRotation()
         end
 
         local function actionList_COMBAT()
+			
+		
 			if cd.icyVeins == 0 and not buff.icyVeins.exists() then
 				if debug == true then Print("iv_start Changed: "..iv_start) end
 					iv_start = getCombatTime()
