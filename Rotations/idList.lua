@@ -1398,6 +1398,7 @@ br.idList = {
                 thunderFocusTea             = 116680,
                 lifeCyclesEnvelopingMist    = 197919,
                 lifeCyclesVivify            = 197916,
+                surgeOfMist                 = 246328,
                 upliftTrance                = 197206,
                 refreshingJadeWind          = 196725,
                 lifeCocoon                  = 116849,
