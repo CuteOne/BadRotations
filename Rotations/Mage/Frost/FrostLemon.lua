@@ -630,6 +630,7 @@ local function runRotation()
             if lastCast == spell.waterJet and getCastTime(spell.frostbolt)+0.2 < getCastTimeRemain("pet") then
                 if cast.frostbolt(target) then return true end
             end
+			
             --actions.aoe+=/frozen_orb
             if cd.frozenOrb == 0 then
                 if isChecked(colorBlueMage.."Frozen Orb") and getEnemiesInRect(15,55,false) > 0 and buff.fingersOfFrost.stack() < 2 then
@@ -642,7 +643,7 @@ local function runRotation()
 				if isChecked(colorLegendary.."Zann'esu Journey") then
 					if buff.zannesuJourney.stack() == 5 then
 						if cast.blizzard("best", nil, getValue(colorLegendary.."Zann'esu Journey"), blizzardRadius) then return true end
-					end
+					elseif cast.blizzard("best", nil, 1, blizzardRadius) then return true end
 				elseif cast.blizzard("best", nil, 1, blizzardRadius) then return true end
 			end
 			
