@@ -82,6 +82,8 @@ local function createOptions()
 		br.ui:createSpinnerWithout(section, "DPS", 70, 0, 100, 5, "","|cffFFFFFFMinimum Health to DPS")
 		-- DPS Save mana
 		br.ui:createSpinnerWithout(section, "DPS Save mana",  40,  0,  100,  5,  "|cffFFFFFFMana Percent no Cast Sunfire and Moonfire")
+		-- Overhealing Cancel
+		br.ui:createSpinner (section, "Overhealing Cancel", 95, 0, 100, 5, "","|cffFFFFFFSet Desired Threshold at which you want to prevent your own casts")			
 		-- Affixes Helper
 		br.ui:createCheckbox(section,"Affixes Helper","|cff15FF00Please use abundance talent and All players Rejuvenaion Enabled")
 		br.ui:checkSectionState(section)
@@ -190,6 +192,10 @@ end
 ----------------
 --- ROTATION ---
 ----------------
+local regrowth_target = nil 
+local cancel_regrowth = 0
+local cancel_wild = 0
+
 
 local function runRotation()
 	if br.timer:useTimer("debugRestoration", 0.1) then
@@ -212,19 +218,19 @@ local function runRotation()
 		--- Locals ---
 		--------------
 		local clearcast                                     = br.player.buff.clearcasting.exists
-		local artifact                                      = br.player.artifact
+		-- local artifact                                      = br.player.artifact
 		local buff                                          = br.player.buff
 		local cast                                          = br.player.cast
-		local combatTime                                    = getCombatTime()
+		-- local combatTime                                    = getCombatTime()
 		local combo                                         = br.player.power.amount.comboPoints
-		local cd                                            = br.player.cd
-		local charges                                       = br.player.charges
+		-- local cd                                            = br.player.cd
+		-- local charges                                       = br.player.charges
 		local debuff                                        = br.player.debuff
 		local drinking                                      = UnitBuff("player",192002) ~= nil or UnitBuff("player",167152) ~= nil or UnitBuff("player",192001) ~= nil
 		local enemies                                       = enemies or {}
 		local friends                                       = friends or {}
 		local falling, swimming, flying, moving             = getFallTime(), IsSwimming(), IsFlying(), GetUnitSpeed("player")>0
-		local gcd                                           = br.player.gcd
+		-- local gcd                                           = br.player.gcd
 		local healPot                                       = getHealthPot()
 		local inCombat                                      = br.player.inCombat
 		local inInstance                                    = br.player.instance=="party"
@@ -237,25 +243,25 @@ local function runRotation()
 		local lowestHP                                      = br.friend[1].unit
 		local mana                                          = br.player.power.mana.percent
 		local mode                                          = br.player.mode
-		local perk                                          = br.player.perk
+		-- local perk                                          = br.player.perk
 		local php                                           = br.player.health
 		local power, powmax, powgen                         = br.player.power.amount.mana, br.player.power.mana.max, br.player.power.regen
 		local pullTimer                                     = br.DBM:getPulltimer()
 		local race                                          = br.player.race
 		local racial                                        = br.player.getRacial()
-		local recharge                                      = br.player.recharge
+		-- local recharge                                      = br.player.recharge
 		local rejuvCount                                    = 0
-		local rkTick                                        = 3
-		local rpTick                                        = 2
+		-- local rkTick                                        = 3
+		-- local rpTick                                        = 2
 		local snapLossHP                                    = 0
 		local spell                                         = br.player.spell
 		local talent                                        = br.player.talent
 		local travel, flight, cat, moonkin, bear, noform    = br.player.buff.travelForm.exists(), br.player.buff.flightForm.exists(), br.player.buff.catForm.exists(), br.player.buff.moonkinForm.exists(), br.player.buff.bearForm.exists(), GetShapeshiftForm()==0
-		local ttm                                           = br.player.power.ttm
+		-- local ttm                                           = br.player.power.ttm
 		local units                                         = units or {}
-		local lowestTank                                    = {}    --Tank
+		-- local lowestTank                                    = {}    --Tank
 		local bloomCount                                    = 0
-		local tHp                                           = 95
+		-- local tHp                                           = 95
 		
 		units.dyn5 = br.player.units(5)
 		units.dyn8    = br.player.units(8)
@@ -273,6 +279,24 @@ local function runRotation()
 		--------------------
 		--- Action Lists ---
 		--------------------
+		local function overhealingcancel()
+			-- StopCasting Wild Growth
+			if inRaid and isCastingSpell(spell.wildGrowth) then
+				if getLowAllies(86) < 4 then
+					SpellStopCasting()
+					cancel_wild = cancel_wild + 1
+					Print("StopCasting Wild Growth "..cancel_wild)
+				end
+			end			
+			-- StopCasting Regrowth
+			if isCastingSpell(spell.regrowth) then
+				if regrowth_target ~= nil and regrowth_target.hp > getValue("Overhealing Cancel") then
+					SpellStopCasting()
+					cancel_regrowth = cancel_regrowth + 1
+					Print("StopCasting Regrowth "..cancel_regrowth)
+				end
+			end
+		end			
 		-- Action List - Extras
 		local function actionList_Extras()
 			-- Pre-Pull Timer
@@ -411,9 +435,15 @@ local function runRotation()
 			if isChecked("Regrowth") and (not moving or buff.incarnationTreeOfLife.exists()) and lastSpell ~= spell.regrowth then
 				for i = 1, #br.friend do
 					if br.friend[i].hp <= getValue("Regrowth Clearcasting") and buff.clearcasting.remain() > 1.5 and getDebuffStacks(br.friend[i].unit,209858) < 30 then
-						if cast.regrowth(br.friend[i].unit) then return end
+						if cast.regrowth(br.friend[i].unit) then
+							regrowth_target = br.friend[i]
+							return
+						end
 					elseif br.friend[i].hp <= getValue("Regrowth") and buff.regrowth.remain(br.friend[i].unit) <= 1 and getDebuffStacks(br.friend[i].unit,209858) < 30 then
-						if cast.regrowth(br.friend[i].unit) then return end
+						if cast.regrowth(br.friend[i].unit) then
+							regrowth_target = br.friend[i]
+							return
+						end
 					end
 				end
 			end
@@ -670,7 +700,7 @@ local function runRotation()
 			-- Lifebloom
 			if isChecked("Lifebloom") and not isCastingSpell(spell.tranquility) then
 				for i = 1, #br.friend do
-					if br.friend[i].hp <= 70 and buff.lifebloom.remain(br.friend[i].unit) < 5 and buff.lifebloom.remain(br.friend[i].unit) > 0 and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
+					if br.friend[i].hp <= 70 and buff.lifebloom.remain(br.friend[i].unit) < 5 and buff.lifebloom.remain(br.friend[i].unit) > 0 and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" and UnitInRange(br.friend[i].unit) then
 						if cast.lifebloom(br.friend[i].unit) then return end
 					end
 				end
@@ -697,7 +727,10 @@ local function runRotation()
 			if isChecked("Regrowth") and (not moving or buff.incarnationTreeOfLife.exists()) and not isCastingSpell(spell.tranquility) then
 				for i = 1, #br.friend do
 					if br.friend[i].hp <= getValue("Oh Shit! Regrowth") and getDebuffStacks(br.friend[i].unit,209858) < 30 then
-						if cast.regrowth(br.friend[i].unit) then return end
+						if cast.regrowth(br.friend[i].unit) then 
+							regrowth_target = br.friend[i]
+							return
+						end
 					end
 				end
 			end
@@ -737,9 +770,15 @@ local function runRotation()
 			if isChecked("Regrowth") and (not moving or buff.incarnationTreeOfLife.exists()) and not isCastingSpell(spell.tranquility) and lastSpell ~= spell.regrowth then
 				for i = 1, #br.friend do
 					if br.friend[i].hp <= getValue("Regrowth Clearcasting") and buff.clearcasting.remain() > 1.5 and getDebuffStacks(br.friend[i].unit,209858) < 30 then
-						if cast.regrowth(br.friend[i].unit) then return end
+						if cast.regrowth(br.friend[i].unit) then
+							regrowth_target = br.friend[i]
+							return
+						end
 					elseif br.friend[i].hp <= getValue("Regrowth") and buff.regrowth.remain(br.friend[i].unit) <= 1 and getDebuffStacks(br.friend[i].unit,209858) < 30 then
-						if cast.regrowth(br.friend[i].unit) then return end
+						if cast.regrowth(br.friend[i].unit) then
+							regrowth_target = br.friend[i]
+							return
+						end
 					elseif isChecked("Keep Regrowth on tank") and buff.lifebloom.exists(br.friend[i].unit) and buff.regrowth.remain(br.friend[i].unit) <= 1 and getDebuffStacks(br.friend[i].unit,209858) < 30 then
 						if cast.regrowth(br.friend[i].unit) then return end
 					end
@@ -1038,6 +1077,7 @@ local function runRotation()
 				if cast.lunarStrike() then return end
 			end -- End -- Balance Affinity
 		end -- End Action List - DPS
+		overhealingcancel()
 		-----------------
 		--- Rotations ---
 		-----------------
@@ -1061,8 +1101,8 @@ local function runRotation()
 			if inCombat and not IsMounted() and not stealthed and not drinking and not buff.shadowmeld.exists() and not isCastingSpell(spell.tranquility) then
 				actionList_Extras()
 				actionList_Defensive()
-				actionList_Interrupts()
 				actionList_Cooldowns()
+				actionList_Interrupts()
 				if br.player.mode.dps == 2 and (br.friend[1].hp > getValue("DPS") or bear) then
 					actionList_DPS()
 				end
