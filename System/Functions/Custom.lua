@@ -82,6 +82,17 @@ function getUnits(thisUnit, allUnitsInRange, radius)
     return #unitsAroundThisUnit
 end
 
+-- check if unit is blacklisted
+function isNotBlacklisted(checkUnit)
+    local blacklistUnitID = {}
+    if checkUnit == nil then return false end
+    for i = 1, #blacklistUnitID do
+        if GetObjectID(checkUnit) == blacklistUnitID[i] then return false end
+    end
+    return true
+end
+
+
 function castGroundAtUnit(spellID, radius, minUnits, maxRange, minRange, spellType, unit)
 
     if minRange == nil then minRange = 0 end
@@ -115,15 +126,6 @@ function castGroundAtUnit(spellID, radius, minUnits, maxRange, minRange, spellTy
 end
 
 function castGroundAtBestLocation(spellID, radius, minUnits, maxRange, minRange, spellType)
-    -- check if unit is blacklisted
-    local function isNotBlacklisted(checkUnit)
-        local blacklistUnitID = {}
-        if checkUnit == nil then return false end
-        for i = 1, #blacklistUnitID do
-            if GetObjectID(checkUnit) == blacklistUnitID[i] then return false end
-        end
-        return true
-    end
 
     -- return table with combination of every 2 units
     local function getAllCombinationsOfASet(arr, r)
