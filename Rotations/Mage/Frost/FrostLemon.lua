@@ -57,8 +57,8 @@ local function createOptions()
         --- GENERAL OPTIONS --- -- Define General Options
         -----------------------
         section = br.ui:createSection(br.ui.window.profile,  "General")
-        br.ui:createSpinner(section, "Dynamic Targetting",  40,  1,  40,  5,  colorWhite.."Set the range for dynamic targetting")
-        br.ui:createCheckbox(section, "Target Dynamic Target")
+		br.ui:createSpinner(section, "Dynamic Targetting",  40,  1,  40,  5,  colorWhite.."Set the range for dynamic targetting")
+		br.ui:createCheckbox(section, "Target Dynamic Target")
         br.ui:createDropdownWithout(section, "Opener Mode", {colorWhite.."SimC", colorWhite.."Icy-Veins", colorWhite.."Ray of Frost"}, 1, colorWhite.."Set APL Mode to use.")
         br.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  colorWhite.."Set to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
         br.ui:createCheckbox(section, "Opener")
@@ -174,8 +174,11 @@ local function runRotation()
     enemies.yards8t = br.player.enemies(8,br.player.units(8,true))
 
     if isChecked("Dynamic Targetting") then
-        ttdUnit = dynamicTarget(getOptionValue("Dynamic Targetting"))
-        target = dynamicTarget(getOptionValue("Dynamic Targetting"))
+		if inCombat
+			dyno = br.player.units(getOptionValue("Dynamic Targetting"))
+			ttdUnit = ttd(dyno)
+			target = dyno
+		end
     else
         ttdUnit = ttd("target")
         target = "target"
@@ -631,7 +634,7 @@ local function runRotation()
             if lastCast == spell.waterJet and getCastTime(spell.frostbolt)+0.2 < getCastTimeRemain("pet") then
                 if cast.frostbolt(target) then return true end
             end
-            
+			
             --actions.aoe+=/frozen_orb
             if cd.frozenOrb == 0 then
                 if isChecked(colorBlueMage.."Frozen Orb") and getEnemiesInRect(15,55,false) > 0 and buff.fingersOfFrost.stack() < 2 then
@@ -640,15 +643,15 @@ local function runRotation()
             end
             
             --actions.aoe+=/blizzard
-            if cd.blizzard == 0 then
-                if isChecked(colorLegendary.."Zann'esu Journey") then
-                    if buff.zannesuJourney.stack() == 5 then
-                        if cast.blizzard("best", nil, getValue(colorLegendary.."Zann'esu Journey"), blizzardRadius) then return true end
-                    elseif cast.blizzard("best", nil, getValue("AOE targets"), blizzardRadius) then return true end
-                elseif cast.blizzard("best", nil, getValue("AOE targets"), blizzardRadius) then return true end
-            end
-            
-            
+			if cd.blizzard == 0 then
+				if isChecked(colorLegendary.."Zann'esu Journey") then
+					if buff.zannesuJourney.stack() == 5 then
+						if cast.blizzard("best", nil, getValue(colorLegendary.."Zann'esu Journey"), blizzardRadius) then return true end
+					elseif cast.blizzard("best", nil, getValue("AOE targets"), blizzardRadius) then return true end
+				elseif cast.blizzard("best", nil, getValue("AOE targets"), blizzardRadius) then return true end
+			end
+			
+			
             --actions.aoe+=/comet_storm
             if talent.cometStorm then
                 if cd.cometStorm == 0 then
@@ -676,7 +679,7 @@ local function runRotation()
             end
             
             --actions.aoe+=/frost_bomb,if=debuff.frost_bomb.remains<action.ice_lance.travel_time&variable.fof_react>0
-            --[[
+			--[[
             if talent.frostBomb then
                 if lastCast ~= spell.frostBomb then
                     if not debuff.frostBomb.exists() or debuff.frostBomb.remain() < 2 and fof_react > 0 and ttdUnit >= 12 + getCastTime(spell.frostBomb)+0.5 then
@@ -684,11 +687,11 @@ local function runRotation()
                     end
                 end
             end
-            ]]
-            if debuff.frostBomb.remain() < 2 and fof_react > 0 then
-                if cast.frostBomb(target) then return true end
-            end
-            
+			]]
+			if debuff.frostBomb.remain() < 2 and fof_react > 0 then
+				if cast.frostBomb(target) then return true end
+			end
+			
             
             --actions.aoe+=/ice_lance,if=variable.fof_react>0
             if fof_react > 0 then
@@ -722,7 +725,7 @@ local function runRotation()
                     if cast.iceNova() then return true end
                 end
             end
-            
+			
             --  Frozen_orb,if=set_bonus.tier20_2pc
             
             --  With T20 2pc, Frozen Orb should be used as soon as it comes off CD.
@@ -875,12 +878,12 @@ local function runRotation()
         end
 
         local function actionList_COMBAT()
-            
-        
-            if cd.icyVeins == 0 and not buff.icyVeins.exists() then
-                if debug == true then Print("iv_start Changed: "..iv_start) end
-                    iv_start = getCombatTime()
-            end
+			
+		
+			if cd.icyVeins == 0 and not buff.icyVeins.exists() then
+				if debug == true then Print("iv_start Changed: "..iv_start) end
+					iv_start = getCombatTime()
+			end
             
             --actions+=/variable,name=time_until_fof,value=10-(time-variable.iv_start-floor((time-variable.iv_start)%10)*10)
             time_until_fof = 10-(getCombatTime() - iv_start - math.floor(math.fmod((getCombatTime() - iv_start),10))*10)
@@ -924,15 +927,15 @@ local function runRotation()
     local function MovingMode()
         --flurry com buff
         if lastCast == spell.ebonbolt or buff.brainFreeze.exists() and (not talent.glacialSpike and lastCast == spell.frostbolt or talent.glacialSpike and (lastCast == spell.glacialSpike or lastCast == spell.frostbolt and (buff.icicles.stack() <= 3 or cd.frozenOrb <= 10 and t202pc))) then
-            if cast.flurry(target) then return true end
-        end
-        
-        if cd.frozenOrb == 0 and t20pc2 then
-            if isChecked(colorBlueMage.."Frozen Orb") and getEnemiesInRect(15,55,false) > 0 then
-                if cast.frozenOrb() then return true end
-            end
-        end
-        
+			if cast.flurry(target) then return true end
+		end
+		
+		if cd.frozenOrb == 0 and t20pc2 then
+			if isChecked(colorBlueMage.."Frozen Orb") and getEnemiesInRect(15,55,false) > 0 then
+				if cast.frozenOrb() then return true end
+			end
+		end
+		
         --fingers of frost
         if buff.fingersOfFrost.exists() then
             if cast.iceLance(target) then
@@ -945,7 +948,7 @@ local function runRotation()
                 return true
             end
         end
-        
+		
         --blizzard
         if cd.blizzard == 0 then
             if isChecked(colorLegendary.."Zann'esu Journey") then
@@ -956,7 +959,7 @@ local function runRotation()
                 if cast.blizzard("best", nil, 1, blizzardRadius) then return true end
             end
         end
-        
+		
         --cone of cold
         if cd.coneOfCold == 0 then
             if isChecked(colorBlueMage.."Cone of Cold") then
