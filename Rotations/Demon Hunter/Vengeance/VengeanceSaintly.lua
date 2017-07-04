@@ -46,7 +46,7 @@ local function createOptions()
         -- Healthstone
             br.ui:createSpinner(section, "Pot/Stoned",  60,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
         -- Empower Wards
-			br.ui:createCheckbox(section, "Empower Wards")
+            br.ui:createCheckbox(section, "Empower Wards")
         -- Metamorphosis
             br.ui:createCheckbox(section, "Metamorphosis")
         -- Demon Spikes - HP
@@ -153,13 +153,13 @@ local function runRotation()
         enemies.yards30 = br.player.enemies(30)
 
 
-   		if leftCombat == nil then leftCombat = GetTime() end
-		if profileStop == nil then profileStop = false end
+        if leftCombat == nil then leftCombat = GetTime() end
+        if profileStop == nil then profileStop = false end
 --------------------
 --- Action Lists ---
 --------------------
-	-- Action List - Extras
-		local function actionList_Extras()
+    -- Action List - Extras
+        local function actionList_Extras()
         -- Torment
             if isChecked("Torment") and inInstance then
                 for i = 1, #enemies.yards30 do
@@ -169,14 +169,14 @@ local function runRotation()
                     end
                 end
             end
-		end -- End Action List - Extras
-	-- Action List - Defensive
-		local function actionList_Defensive()
-			if useDefensive() then
-		-- Pot/Stoned
-	            if isChecked("Pot/Stoned") and php <= getOptionValue("Pot/Stoned")
-	            	and inCombat and (hasHealthPot() or hasItem(5512))
-	            then
+        end -- End Action List - Extras
+    -- Action List - Defensive
+        local function actionList_Defensive()
+            if useDefensive() then
+        -- Pot/Stoned
+                if isChecked("Pot/Stoned") and php <= getOptionValue("Pot/Stoned")
+                    and inCombat and (hasHealthPot() or hasItem(5512))
+                then
                     if canUse(5512) then
                         useItem(5512)
                     elseif canUse(129196) then --Legion Healthstone
@@ -184,12 +184,12 @@ local function runRotation()
                     elseif canUse(healPot) then
                         useItem(healPot)
                     end
-	            end
-    		end -- End Defensive Toggle
-		end -- End Action List - Defensive
-	-- Action List - Interrupts
-		local function actionList_Interrupts()
-			if useInterrupts() then
+                end
+            end -- End Defensive Toggle
+        end -- End Action List - Defensive
+    -- Action List - Interrupts
+        local function actionList_Interrupts()
+            if useInterrupts() then
                 for i=1, #enemies.yards30 do
                     thisUnit = enemies.yards30[i]
                     if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
@@ -207,8 +207,8 @@ local function runRotation()
                         end
                     end
                 end
-		 	end -- End useInterrupts check
-		end -- End Action List - Interrupts
+            end -- End useInterrupts check
+        end -- End Action List - Interrupts
     -- Action List - PreCombat
         local function actionList_PreCombat()
             if not inCombat and not (IsFlying() or IsMounted()) then
@@ -263,44 +263,44 @@ local function runRotation()
                 if isChecked("Empower Wards") then
                     for i=1, #enemies.yards30 do
                         thisUnit = enemies.yards30[i]
-							if cd.consumeMagic > 0 and castingUnit(thisUnit) then
-								if cast.empowerWards() then return end
-							end
-						end
-					end
-	-- Metamorphosis
+                            if cd.consumeMagic > 0 and castingUnit(thisUnit) then
+                                if cast.empowerWards() then return end
+                            end
+                        end
+                    end
+    -- Metamorphosis
                     -- actions+=/metamorphosis,if=buff.demon_spikes.down&!dot.fiery_brand.ticking&buff.metamorphosis.down&incoming_damage_5s>health.max*0.70
                     if isChecked("Metamorphosis") and not debuff.fieryBrand.exists(units.dyn5)
                         and not buff.metamorphosis.exists() and not buff.empowerWards.exists() and php < 70 then
                         if cast.metamorphosis() then return end
                     end
-	-- Demonic Infusion
-				-- actions+=/demonicInfusion, if charges = 0
-					if charges.frac.demonSpikes < 0.2 and buff.demonSpikes.remain() < 12 then
-						if cast.demonicInfusion() then return end
-					end
+    -- Demonic Infusion
+                -- actions+=/demonicInfusion, if charges = 0
+                    if charges.frac.demonSpikes < 0.2 and buff.demonSpikes.remain() < 12 then
+                        if cast.demonicInfusion() then return end
+                    end
     -- Demon Spikes
                 -- actions+=/demon_spikes,if=charges=2|buff.demon_spikes.down&!dot.fiery_brand.ticking&buff.metamorphosis.down
-				if isChecked("Demon Spikes - HP") then
-					if php <= getOptionValue("Demon Spikes - HP") and inCombat and not buff.demonSpikes.exists() then
-						if cast.demonSpikes() then return end
-					end
-				end
+                if isChecked("Demon Spikes - HP") then
+                    if php <= getOptionValue("Demon Spikes - HP") and inCombat and not buff.demonSpikes.exists() then
+                        if cast.demonSpikes() then return end
+                    end
+                end
     -- Demon Spikes
                 -- actions+=/demon_spikes,if=charges=2|buff.demon_spikes.down&!dot.fiery_brand.ticking&buff.metamorphosis.down
-				if charges.frac.demonSpikes > 1.99 then
-					if cast.demonSpikes() then return end
-				end
+                if charges.frac.demonSpikes > 1.99 then
+                    if cast.demonSpikes() then return end
+                end
     -- Soul Barrier
                     -- actions+=/soul_barrier
                 if isChecked("Soul Barrier") and php <= getOptionValue("Soul Barrier") and not buff.metamorphosis.exists() then
                     if cast.soulBarrier() then return end
                 end
     -- Soul Carver
-				if cast.soulCarver() then return end
+                if cast.soulCarver() then return end
     -- Spirit Bomb
                 -- actions+=/spirit_bomb,if=debuff.frailty.down
-                if not debuff.frailty.exists(units.dyn5) or buff.soulFragments.stack() >= 4 then
+                if (not debuff.frailty.exists(units.dyn5) and buff.soulFragments.stack() > 0) or buff.soulFragments.stack() >= 4 then
                     if cast.spiritBomb() then return end
                 end
     -- Fel Devastation
@@ -308,10 +308,10 @@ local function runRotation()
                 if getDistance(units.dyn5) < 5 then
                     if cast.felDevastation() then return end
                 end
-	-- Fel Eruption
-				if getDistance(units.dyn5) < 5 then
-					if cast.felEruption() then return end
-				end
+    -- Fel Eruption
+                if getDistance(units.dyn5) < 5 then
+                    if cast.felEruption() then return end
+                end
     -- Felblade
                 -- actions+=/felblade,if=pain<=70
                 if pain <= 70 then
@@ -319,9 +319,9 @@ local function runRotation()
                 end
     -- Shear
                 -- actions+=/shear
-				if pain <= 70 and buff.bladeTurning.exists() then
-						if cast.shear() then return end
-				end
+                if pain <= 70 and buff.bladeTurning.exists() then
+                        if cast.shear() then return end
+                end
     -- Sigil of Flame
                 -- actions+=/sigil_of_flame,if=remains-delay<=0.3*duration
                 if talent.concentratedSigils and getDistance(units.dyn5) < 5 then
@@ -335,7 +335,7 @@ local function runRotation()
     -- Fracture
                 -- actions+=/fracture,if=pain>=80&soul_fragments<4&incoming_damage_4s<=health.max*0.20
                 if pain >= 60 or buff.soulFragments.stack() <= 4 then
-					if cast.fracture() then return end
+                    if cast.fracture() then return end
                 end
     -- Soul Cleave
                     -- actions+=/soul_cleave,if=soul_fragments=5
@@ -350,13 +350,13 @@ local function runRotation()
     -- Soul Cleave
                 -- actions+=/soul_cleave,if=pain>=80
                 if php < 65 and buff.soulFragments.stack() >= 5 then
-					if cast.soulCleave() then return end
+                    if cast.soulCleave() then return end
                 end
     -- Immolation Aura
                 -- actions+=/immolation_aura,if=pain<=80
                 if pain <= 80 and getDistance(units.dyn5) < 5 then
-					if cast.immolationAura() then return end
-				end
+                    if cast.immolationAura() then return end
+                end
     -- Infernal Strike
                 -- actions+=/infernal_strike,if=!sigil_placed&!in_flight&remains-travel_time-delay<0.3*duration&artifact.fiery_demise.enabled&dot.fiery_brand.ticking
                 -- actions+=/infernal_strike,if=!sigil_placed&!in_flight&remains-travel_time-delay<0.3*duration&(!artifact.fiery_demise.enabled|(max_charges-charges_fractional)*recharge_time<cooldown.fiery_brand.remain()s+5)&(cooldown.sigil_of_flame.remain()s>7|charges=2)
@@ -371,15 +371,15 @@ local function runRotation()
                 end
     -- Shear
                 -- actions+=/shear
-				if pain < 80 then
-						if cast.shear() then return end
-				end
+                if pain < 80 then
+                        if cast.shear() then return end
+                end
     -- Throw Glaive
                 if getDistance(units.dyn5) > 5 then
                     if cast.throwGlaive() then return end
                 end
-			end --End In Combat
-		end --End Rotation Logic
+            end --End In Combat
+        end --End Rotation Logic
     end -- End Timer
 end -- End runRotation
 local id = 581
