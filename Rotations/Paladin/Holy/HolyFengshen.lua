@@ -922,8 +922,8 @@ local function runRotation()
 					if cast.holyShock("player") then return end
 				end
 				if #tanks > 0 then
-					if tanks[1].hp <= getValue("Critical HP") and getDebuffStacks(tank[1].unit,209858) < 25 then
-						if cast.holyShock(tank[1].unit) then return end
+					if tanks[1].hp <= getValue("Critical HP") and getDebuffStacks(tanks[1].unit,209858) < 25 then
+						if cast.holyShock(tanks[1].unit) then return end
 					end
 				end
 				if br.friend[1].hp <= getValue("Critical HP") and getDebuffStacks(br.friend[1].unit,209858) < 25 then
@@ -1005,8 +1005,8 @@ local function runRotation()
 					if cast.flashOfLight("player") then return end
 				end
 				if #tanks > 0 then
-					if tanks[1].hp <= getValue("Critical HP") and getDebuffStacks(tank[1].unit,209858) < 25 then
-						if cast.flashOfLight(tank[1].unit) then healing_obj = tank[1].unit return end
+					if tanks[1].hp <= getValue("Critical HP") and getDebuffStacks(tanks[1].unit,209858) < 25 then
+						if cast.flashOfLight(tanks[1].unit) then healing_obj = tanks[1].unit return end
 					end
 				end
 				if br.friend[1].hp <= getValue("Critical HP") and getDebuffStacks(br.friend[1].unit,209858) < 25 then
@@ -1111,8 +1111,8 @@ local function runRotation()
 			-- Emergency Martyr Heals
 			if isChecked("Moving LotM") and isMoving("player") and php >= getOptionValue("LotM player HP limit") then
 				if #tanks > 0 then
-					if tanks[1].hp <= getValue("Critical HP") and getDebuffStacks(tank[1].unit,209858) < 25 then
-						if cast.lightOfTheMartyr(tank[1].unit) then return end
+					if tanks[1].hp <= getValue("Critical HP") and getDebuffStacks(tanks[1].unit,209858) < 25 then
+						if cast.lightOfTheMartyr(tanks[1].unit) then return end
 					end
 				end
 				if br.friend[1].hp <= getValue("Critical HP") and not UnitIsUnit(br.friend[1].unit,"player") and getDebuffStacks(br.friend[1].unit,209858) < 25 then
