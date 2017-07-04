@@ -947,8 +947,7 @@ local function runRotation()
                 if buff.zannesuJourney.stack() == 5 then
                     if cast.blizzard("best", nil, getValue(colorLegendary.."Zann'esu Journey"), blizzardRadius) then return true end
                 end
-            end
-            if getCastTime(spell.blizzard) == 0 and fof_react < 3 and (lastCast == spell.frozenOrb or cd.frozenOrb > 5) then
+            elseif getCastTime(spell.blizzard) == 0 and fof_react < 3 and (lastCast == spell.frozenOrb or cd.frozenOrb > 5) then
                 if cast.blizzard("best", nil, 1, blizzardRadius) then return true end
             end
         end
