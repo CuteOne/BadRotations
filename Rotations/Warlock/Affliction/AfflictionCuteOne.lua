@@ -638,7 +638,7 @@ local function runRotation()
 		--Corruption (moving)
 					if (moving and debuff.corruption.remain(units.dyn40) <= 4 + gcd) then
 						if cast.corruption(units.dyn40,"aoe") then return end
-					end					
+					end		  
 		-- Service Pet
                     -- service_pet,if=dot.corruption.remain()s&dot.agony.remain()s
                     if isChecked("Pet Management") and GetObjectExists("target") and (getOptionValue("Grimoire of Service - Use") == 1 or (getOptionValue("Grimoire of Service - Use") == 2 and useCDs())) then
@@ -760,7 +760,27 @@ local function runRotation()
                             end
                         end
                     end
-        -- Life Tap
+             -- UA Priority
+			-- With Reap
+                    if not moving then
+    					if talent.maleficGrasp and buff.deadwindHarvester.exists() and debuff.unstableAffliction.stack() < 3
+                            and debuff.agony.remain("target") > 6.5
+                            -- and (not talent.soulEffigy or debuff.agony.remain("Soul Effigy") > 6.5)
+                            -- and (debuff.corruption.remain(units.dyn40) > getCastTime(spell.unstableAffliction) + 3 or talent.absoluteCorruption)
+                            -- and (debuff.siphonLife.remain(units.dyn40) > getCastTime(spell.unstableAffliction) + 3 or not talent.siphonLife)
+                        then
+                            if cast.unstableAffliction("target","aoe") then return end
+                        end
+					end	
+		-- Drain life
+			-- With Reap
+				    if not moving then
+						if talent.maleficGrasp and buff.deadwindHarvester.exists() and debuff.unstableAffliction.stack() > 2
+						then
+						    if cast.drainSoul("target") then return end
+						end
+					end				
+	   -- Life Tap
                     -- life_tap,if=talent.empowered_life_tap.enabled&buff.empowered_life_tap.remain()s<=gcd
                     if talent.empoweredLifeTap and buff.empoweredLifeTap.remain() <= gcd then
                         if cast.lifeTap() then return end
@@ -830,7 +850,7 @@ local function runRotation()
 						if cast.corruption(units.dyn40,"aoe") then return end
 					end
         -- Siphon Life
-                    if debuff.siphonLife.count() < getOptionValue("Multi-Dot Limit") + effigyCount and getHP(units.dyn40) > dotHPLimit then
+                    if debuff.siphonLife.count() < getOptionValue("Multi-Dot Limit") and getHP(units.dyn40) > dotHPLimit then
                         -- siphon_life,if=!talent.malefic_grasp.enabled&remains<=duration*0.3&target.time_to_die>=remains
                         if not talent.maleficGrasp and debuff.siphonLife.refresh(units.dyn40) and ttd(units.dyn40) >= debuff.siphonLife.remain(units.dyn40) then
                             if cast.siphonLife(units.dyn40,"aoe") then return end
