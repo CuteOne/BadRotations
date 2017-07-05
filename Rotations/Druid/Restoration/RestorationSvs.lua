@@ -281,7 +281,7 @@ local function runRotation()
 		--------------------
 		local function overhealingcancel()
 			-- StopCasting Wild Growth
-			if inRaid and isCastingSpell(spell.wildGrowth) then
+			if inRaid and isCastingSpell(spell.wildGrowth) and isChecked("Overhealing Cancel") then
 				if getLowAllies(86) < 4 then
 					SpellStopCasting()
 					cancel_wild = cancel_wild + 1
@@ -289,7 +289,7 @@ local function runRotation()
 				end
 			end			
 			-- StopCasting Regrowth
-			if isCastingSpell(spell.regrowth) then
+			if isCastingSpell(spell.regrowth) and isChecked("Overhealing Cancel") then
 				if regrowth_target ~= nil and regrowth_target.hp > getValue("Overhealing Cancel") then
 					SpellStopCasting()
 					cancel_regrowth = cancel_regrowth + 1
