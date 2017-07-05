@@ -198,7 +198,7 @@ local function runRotation()
                             if cast.consumeMagic(thisUnit) then return end
                         end
         -- Sigil of Silence
-                        if isChecked("Sigil of Silence") and cd.consumeMagic > 0 then
+                        if isChecked("Sigil of Silence") and not UnitDebuff("target", "Solar Beam") and cd.consumeMagic > 0 then
                             if cast.sigilOfSilence(thisUnit,"ground") then return end
                         end
         -- Sigil of Misery
@@ -297,10 +297,17 @@ local function runRotation()
                     if cast.soulBarrier() then return end
                 end
     -- Soul Carver
-                if cast.soulCarver() then return end
+                if (buff.soulFragments.stack() <= 3 or (debuff.fieryBrand.exists(units.dyn5) and artifact.flamingSoul)) and (cd.fieryBrand > 5 or not artifact.flamingSoul) then
+                    if cast.soulCarver() then return end
+                end
+    -- Immolation Aura
+                -- actions+=/immolation_aura,if=pain<=80
+                if getDistance(units.dyn5) < 8 and (debuff.fieryBrand.exists(units.dyn5) and artifact.flamingSoul) then
+                    if cast.immolationAura() then return end
+                end
     -- Spirit Bomb
                 -- actions+=/spirit_bomb,if=debuff.frailty.down
-                if (not debuff.frailty.exists(units.dyn5) and buff.soulFragments.stack() > 0) or buff.soulFragments.stack() >= 4 then
+                if getDistance(units.dyn5) < 8 and (not debuff.frailty.exists(units.dyn5) and buff.soulFragments.stack() > 0) or buff.soulFragments.stack() >= 4 then
                     if cast.spiritBomb() then return end
                 end
     -- Fel Devastation
@@ -354,13 +361,13 @@ local function runRotation()
                 end
     -- Immolation Aura
                 -- actions+=/immolation_aura,if=pain<=80
-                if pain <= 80 and getDistance(units.dyn5) < 5 then
+                if getDistance(units.dyn5) < 8 and (not artifact.flamingSoul or cd.fieryBrand > cd.immolationAura) then
                     if cast.immolationAura() then return end
                 end
     -- Infernal Strike
                 -- actions+=/infernal_strike,if=!sigil_placed&!in_flight&remains-travel_time-delay<0.3*duration&artifact.fiery_demise.enabled&dot.fiery_brand.ticking
                 -- actions+=/infernal_strike,if=!sigil_placed&!in_flight&remains-travel_time-delay<0.3*duration&(!artifact.fiery_demise.enabled|(max_charges-charges_fractional)*recharge_time<cooldown.fiery_brand.remain()s+5)&(cooldown.sigil_of_flame.remain()s>7|charges=2)
-                if getDistance(units.dyn5) < 5 and charges.infernalStrike > 1 then
+                if getDistance(units.dyn5) < 6 and charges.infernalStrike > 1 then
                     if (artifact.fieryDemise and debuff.fieryBrand.exists(units.dyn5))
                         or (not artifact.fieryDemise or (charges.max.infernalStrike - charges.frac.infernalStrike) * recharge.infernalStrike < cd.fieryBrand + 5)
                         and (cd.sigilOfFlame > 7 or charges.infernalStrike == 2)

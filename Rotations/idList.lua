@@ -301,6 +301,7 @@ br.idList = {
                 anguishOfTheDeceiver        = 201473,
                 containedFury               = 201454,
                 demonSpeed                  = 201469,
+                flamingSoul                 = 238118,
                 furyOfTheIllidari           = 201467,
                 warglaivesOfChaos           = 214795,
             },
