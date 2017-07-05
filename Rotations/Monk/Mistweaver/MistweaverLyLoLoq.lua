@@ -113,7 +113,7 @@ local function createOptions()
         br.ui:createSpinner(section, "Vivify",  80,  0,  100,  1,  colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.."Use of Vivify.", colorWhite.."Health Percent to Cast At")
         br.ui:createSpinnerWithout(section, "Min Vivify Targets",  2,  1,  3,  1,  colorBlue.."Minimum Vivify Targets "..colorGold.."(This includes you)")
         br.ui:createSpinner(section, "Vivify with Lifecycles",  85,  0,  100,  1,  colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.."Use of Vivify with Lifecycles.", colorWhite.."Health Percent to Cast At")
-        br.ui:createSpinnerWithout(section, "Min Vivify with Lifecycles Targets",  2,  1,  3,  1,  colorBlue.."Minimum ivify with Lifecycles Targets "..colorGold.."(This includes you)")
+        br.ui:createSpinnerWithout(section, "Min Vivify with Lifecycles Targets",  2,  1,  3,  1,  colorBlue.."Minimum Vivify with Lifecycles Targets "..colorGold.."(This includes you)")
         br.ui:createSpinner(section, "Vivify with Uplift",  90,  0,  100,  1,  colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.."Use of Vivify with Uplift.", colorWhite.."Health Percent to Cast At")
         br.ui:createSpinnerWithout(section, "Min Vivify with Uplift Targets",  2,  1,  3,  1,  colorBlue.."Minimum Vivify with Uplift Targets "..colorGold.."(This includes you)")
         br.ui:createSpinner(section, "Vivify with Lifecycles + Uplift",  95,  0,  100,  1,  colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.."Use of Vivify with Lifecycles + Uplift.", colorWhite.."Health Percent to Cast At")
@@ -124,6 +124,7 @@ local function createOptions()
         br.ui:createCheckbox(section, "Enveloping Mist - Tank Only", colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.."Use of Enveloping Mist on tank only.")
         br.ui:createSpinner(section, "Enveloping Mist with Lifecycles",  65,  0,  100,  1,  colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.."Use of Enveloping Mist.", colorWhite.."Health Percent to Cast At")
         br.ui:createSpinner(section, "Enveloping Mist with Surge of Mist",  65,  0,  100,  1,  colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.."Use of Enveloping Mist.", colorWhite.."Health Percent to Cast At")
+        br.ui:createSpinnerWithout(section, "Min Enveloping Mist with Surge of Mist Targets",  2,  1,  3,  1,  colorBlue.."Minimum Enveloping Mist with Surge of Mist Targets "..colorGold.."(This includes you)")
 		br.ui:createSpinner(section, "Zen Pulse",  90,  0,  100,  1,  colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.."Use of Zen Pulse.", colorWhite.."Health Percent to Cast At")
         br.ui:createSpinnerWithout(section, "Zen Pulse Enemies",  3,  1,  100,  1,  colorBlue.."Minimum Zen Pulse Enemies")
         br.ui:createCheckbox(section, "Effuse", colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.."Use of Effuse.")
@@ -388,6 +389,12 @@ local function runRotation()
             if isChecked("Arcane Torrent") and mana <= getValue("Arcane Torrent") and br.player.race == "BloodElf" then
                 if br.player.castRacial() then return true end
             end
+        --Enveloping Mist + Surge of Mist as CD
+			if isChecked("Enveloping Mist with Surge of Mist") and buff.surgeOfMist.exists() then
+                if getLowAllies(getValue("Enveloping Mist with Surge of Mist")) >= getValue("Min Enveloping Mist with Surge of Mist Targets") then
+                        if cast.envelopingMist(lowest.unit) then return true end
+                end
+            end
         --Mana Tea
             if isChecked("Mana Tea") and mana <= getValue("Mana Tea") and getLowAllies(getValue("Mana Tea - Life")) >= getValue("Min Mana Tea Targets") and talent.manaTea  then
                 if cast.manaTea() then return true end
@@ -503,13 +510,12 @@ local function runRotation()
                 if cast.chiWave(lowest.unit) then return true end
             end
         --Enveloping Mist + Surge of Mist
-			if isChecked("Enveloping Mist with Surge of Mist") then
-                if buff.surgeOfMist.exists() and (not buff.envelopingMist.exists(lowest.unit) or buff.envelopingMist.remain(lowest.unit) <= getCastTime(spell.envelopingMist))
-                        and lowest.hp <= getValue("Enveloping Mist with Surge of Mist") then
-                    if (isChecked("Enveloping Mist - Tank Only") and (lowest.role) == "TANK") or not isChecked("Enveloping Mist - Tank Only") then
-                        if cast.envelopingMist(lowest.unit) then return true end
-                    end
-                end
+			if isChecked("Enveloping Mist with Surge of Mist") and buff.surgeOfMist.exist and buff.surgeOfMist.remain(br.player.unit) < 4) then
+                for i = 1, #br.friend do
+					if br.friend[i].hp <= getValue("Enveloping Mist with Surge of Mist") and (not buff.envelopingMist.exists(lowest.unit) or buff.envelopingMist.remain(lowest.unit) <= getCastTime(spell.envelopingMist)) then
+						if cast.envelopingMist(br.friend[i].unit) then return end
+					end
+				end
             end
         --Enveloping Mist
             if isChecked("Enveloping Mist") then
