@@ -206,6 +206,7 @@ local function runRotation()
     local lossPercent                                   = getHPLossPercent(lowest.unit,5)
     local enemies                                       = enemies or {}
     local friends                                       = friends or {}
+    local tanks                                         = getTanksTable()
 
     enemies.yards5 = br.player.enemies(5)
     enemies.yards8 = br.player.enemies(8)
@@ -299,6 +300,17 @@ local function runRotation()
                             return true
                      end
 				end
+                if pullTimer <= 6 then
+                    if #tanks > 0 then
+					    if UnitInRange(tanks[1].unit) then
+						    if cast.renewingMist(tanks[1].unit) then return end
+					    else
+                            if cast.renewingMist(tanks[2].unit) then return end
+                        end
+				    else
+                        if cast.renewingMist(tanks[1].unit) then return end
+                    end
+                end
 			end
         if isChecked("Roll/Chi Torpedo Key") and (SpecificToggle("Roll/Chi Torpedo Key") and not GetCurrentKeyBoardFocus()) then
             if cast.roll() then return true end
@@ -340,40 +352,47 @@ local function runRotation()
             end
         end
         return false
-    end--OK
+    end
 
     local function actionList_Cooldown()
         if useCDs() then
+        --Trinket 1
             if isChecked("Trinket 1") and getLowAllies(getValue("Trinket 1")) >= getValue("Min Trinket 1 Targets") then
                 if canUse(13) then
                     useItem(13)
                     return true
                 end
             end
+        --Trinket 2
             if isChecked("Trinket 2") and getLowAllies(getValue("Trinket 2")) >= getValue("Min Trinket 2 Targets") then
                 if canUse(14) then
                     useItem(14)
                     return true
                 end
             end
+        --Gnawed Thumb Ring
             if isChecked("Gnawed Thumb Ring") and getLowAllies(getValue("Gnawed Thumb Ring")) >= getValue("Min Gnawed Thumb Ring Targets") then
                 if hasEquiped(134526) and canUse(134526) and select(2,IsInInstance()) ~= "pvp" then
                     useItem(134526)
                     return true
                 end
             end
+        --Mana potion
             if isChecked("Mana Potion") and mana <= getValue("Mana Potion") then
                 if hasItem(127835) and canUse(127835) then
                     useItem(127835)
                     return true
                 end
             end
+        --Arcane Torrent
             if isChecked("Arcane Torrent") and mana <= getValue("Arcane Torrent") and br.player.race == "BloodElf" then
                 if br.player.castRacial() then return true end
             end
+        --Mana Tea
             if isChecked("Mana Tea") and mana <= getValue("Mana Tea") and getLowAllies(getValue("Mana Tea - Life")) >= getValue("Min Mana Tea Targets") and talent.manaTea  then
                 if cast.manaTea() then return true end
             end
+        --Revival
             if isChecked("Revival") and getLowAllies(getValue("Revival")) >= getValue("Min Revival Targets") and cd.revival == 0 then
                 SpellStopCasting()
                 if hasEquiped(134526) and canUse(134526) and select(2,IsInInstance()) ~= "pvp" then
@@ -381,12 +400,14 @@ local function runRotation()
                 end
                 if cast.revival() then return true end
             end
+        --Chi-ji
             if isChecked("Invoke Chi-Ji, the Red Crane") and talent.invokeChiJiTheRedCrane and cd.invokeChiJiTheRedCrane == 0 then
                 if getLowAllies(getValue("Invoke Chi-Ji, the Red Crane")) >= getValue("Min Invoke Chi-Ji, the Red Crane Targets") then
                     SpellStopCasting()
                     if cast.invokeChiJiTheRedCrane("player") then return true end
                 end
             end
+        --Life Cocoon
             if isChecked("Life Cocoon") and cd.lifeCocoon == 0  then
                 -- Player
                 if getOptionValue("Life Cocoon Target") == 1 then
@@ -435,9 +456,10 @@ local function runRotation()
             end
         end
         return false
-    end--OK
+    end
 
     local function actionList_SingleTargetHealing()
+    --Jade Serpent
         if isChecked("Summon Jade Serpent") and lowest.hp >= 55 and talent.summonJadeSerpentStatue then
             --player
             if getOptionValue("Summon Jade Serpent") == 1 then
@@ -461,11 +483,13 @@ local function runRotation()
             end
         end
         if (botSpell ~= spell.envelopingMist and currentTarget ~= UnitGUID(lowest.unit)) or not buff.envelopingMist.exists(lowest.unit) or buff.envelopingMist.remain(lowest.unit) <= 2 then
+        --Sheilun's Gift
             if isChecked("Sheilun's Gift") and GetSpellCount(spell.sheilunsGift) >= getValue("Sheilun's Gift Charges") then
                 if lowest.hp <= getValue("Sheilun's Gift") then
                     if cast.sheilunsGift(lowest.unit) then return true end
                 end
             end
+        --Zen Pulse
             if isChecked("Zen Pulse") and talent.zenPulse then
                 if lowest.hp <= getValue("Zen Pulse") and getNumEnemies(lowest.unit, 8) >= getValue("Zen Pulse Enemies") then
                     if cast.zenPulse(lowest.unit) then return true end
@@ -474,9 +498,11 @@ local function runRotation()
             --        if isChecked("Mistwalk") and talent.mistwalk and lowest.hp <= getValue("Mistwalk") and UnitIsPlayer(lowest.unit) and UnitGUID(lowest.unit) ~= UnitGUID("player") then
             --            if cast.mistwalk(lowest.unit) then return true end
             --        end
+        --Chi Wave
             if isChecked("Chi Wave") and talent.chiWave and lowest.hp <= getValue("Chi Wave") then
                 if cast.chiWave(lowest.unit) then return true end
             end
+        --Enveloping Mist + Surge of Mist
 			if isChecked("Enveloping Mist with Surge of Mist") then
                 if buff.surgeOfMist.exists() and (not buff.envelopingMist.exists(lowest.unit) or buff.envelopingMist.remain(lowest.unit) <= getCastTime(spell.envelopingMist))
                         and lowest.hp <= getValue("Enveloping Mist with Surge of Mist") then
@@ -485,6 +511,7 @@ local function runRotation()
                     end
                 end
             end
+        --Enveloping Mist
             if isChecked("Enveloping Mist") then
                 if (not buff.envelopingMist.exists(lowest.unit) or buff.envelopingMist.remain(lowest.unit) <= getCastTime(spell.envelopingMist)) and lowest.hp <= getValue("Enveloping Mist")then
                     if (isChecked("Enveloping Mist - Tank Only") and (lowest.role) == "TANK") or not isChecked("Enveloping Mist - Tank Only") then
@@ -492,6 +519,7 @@ local function runRotation()
                     end
                 end
             end
+        --Enveloping Mist + LifeCycle
             if isChecked("Enveloping Mist with Lifecycles") then
                 if buff.lifeCyclesEnvelopingMist.exists() and (not buff.envelopingMist.exists(lowest.unit) or buff.envelopingMist.remain(lowest.unit) <= getCastTime(spell.envelopingMist))
                         and lowest.hp <= getValue("Enveloping Mist with Lifecycles") then
@@ -500,6 +528,7 @@ local function runRotation()
                     end
                 end
             end
+        --Renewing Mist
             if isChecked("Renewing Mist") and cd.renewingMist == 0 then
                 for i = 1, #friends.yards40 do
                     local thisUnit = friends.yards40[i]
@@ -508,6 +537,7 @@ local function runRotation()
                     end
                 end
             end
+        --Effuse
             if isChecked("Effuse") and getValue("Effuse Greater or equals") <= lowest.hp and getValue("Effuse Less or equals") >= lowest.hp then
                 if botSpell == spell.effuse and currentTarget == UnitGUID(lowest.unit) then
                     return false
@@ -524,17 +554,20 @@ local function runRotation()
     end--OK
 
     local function actionList_AOEHealing()
+    --Chi Burst
         if isChecked("Chi Burst") and talent.chiBurst then
             if getUnitsInRect(7,47,isChecked("Show Lines"),getValue("Chi Burst")) >= getValue("Min Chi Burst Targets") then
                 if cast.chiBurst("player") then return true end
             end
         end
+    --Vivify + lifeCycle + uplift
         if (botSpell ~= spell.envelopingMist and currentTarget ~= UnitGUID(lowest.unit)) or not buff.envelopingMist.exists(lowest.unit) or buff.envelopingMist.remain(lowest.unit) <= 2 then
             if isChecked("Vivify with Lifecycles + Uplift") and buff.upliftTrance.exists() and buff.lifeCyclesVivify.exists() then
                 if getLowAlliesInTable(getValue("Vivify with Lifecycles + Uplift"), friends.yards40) >= getValue("Min Vivify with Lifecycles + Uplift Targets") then
                     if cast.vivify(lowest.unit) then return true end
                 end
             end
+    --Vivify + uplift
             if isChecked("Vivify with Uplift") and buff.upliftTrance.exists() then
                 if getLowAlliesInTable(getValue("Vivify with Uplift"), friends.yards40) >= getValue("Min Vivify with Uplift Targets") then
                     if cast.vivify(lowest.unit) then return true end
@@ -545,16 +578,18 @@ local function runRotation()
                     if cast.vivify(lowest.unit) then return true end
                 end
             end
+    --Vivify
             if isChecked("Vivify")  then
                 if getLowAlliesInTable(getValue("Vivify"), friends.yards40) >= getValue("Min Vivify Targets") then
                     if cast.vivify(lowest.unit) then return true end
                 end
             end
         end
-
+    --Jade Wind
         if isChecked("Refreshing Jade Wind") and talent.refreshingJadeWind and getLowAlliesInTable(getValue("Refreshing Jade Wind"), friends.yards8) >= getValue("Min Refreshing Jade Wind Targets")  then
             if cast.refreshingJadeWind() then return true end
         end
+    --Essence Font
         if isChecked("Essence Font") and cd.essenceFont == 0 and getLowAlliesInTable(getValue("Essence Font"), friends.yards25) >= getValue("Min Essence Font Targets") then
             if cast.essenceFont() then return true end
         end
@@ -678,7 +713,7 @@ local function runRotation()
     end
 --    if not executando and getSpellCD(spell.effuse) == 0 then
 --    if botSpell == spell.envelopingMist or botSpell == spell.effuse or botSpell == spell.sheilunsGift or botSpell == spell.vivify or botSpell == spell.lifeCoccon or
-    if br.timer:useTimer("debugMistweaver", 0.45)  then
+    if br.timer:useTimer("debugMistweaver", 0.1)  then
 --        executando = true
         profile()
 --        executando = false
