@@ -893,7 +893,7 @@ local function runRotation()
         if isChecked(colorLegendary.."Sephuz's Secret") and GetTime() - SEPSEC >= 30.000 then
             --dispell
             if cd.removeCorruption == 0 and canDispel("player",spell.removeCorruption) then
-                if cast.removeCorruption("player") then return true end
+                if cast.removeCorruption("player") then SEPSEC=0 return true end
             end
             for i = 1, #enemies.yards40 do
                 local thisUnit = enemies.yards40[i]
@@ -1553,37 +1553,17 @@ local function runRotation()
                 if (not isMoving("player") or buff.stellarDrift.exists()) then
                     if actionList_Combat() then  return true end
                 elseif isMoving("player") then
-                    if actionList_CombatMoving() then  return true end
+                    if actionList_CombatMoving() then return true end
                 end
             end
         elseif not chicken and IsMovingTime(2) and buff.dash.exists() and not cat then
-            cast.catForm()
+            if cast.catForm() then return true end
         end--End Pause
         return false
     end
 
-    if executando == nil then executando = false end
-    if lastGCD == nil then lastGCD = false end
-    if lastSpellCast == spell.forceOfNature
-            or lastSpellCast == spell.incarnationChoseOfElune
-            or lastSpellCast == spell.warriorOfElune
-            or lastSpellCast == spell.solarBeam
-            or lastSpellCast == spell.celestialAlignment
-            or lastSpellCast == spell.barkskin
-            or lastSpellCast == spell.dash
-            or lastSpellCast == 26297 then
-        lastGCD = true
-    else
-        lastGCD = false
-    end
 
-    --    if not executando and (getSpellCD(61304) == 0 or lastGCD) then
-    --        executando = true
     return profile()
-    --        executando = false
-    --    end
-
-    -- end -- End Timer
 end-- End runRotation
 local id = 102
 
