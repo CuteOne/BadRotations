@@ -1,4 +1,15 @@
 local rotationName = "LyLoLoq"
+--------------
+--- COLORS ---
+--------------
+local colorPurple   = "|cffC942FD"
+local colorBlue     = "|cff00CCFF"
+local colorGreen    = "|cff00FF00"
+local colorRed      = "|cffFF0000"
+local colorWhite    = "|cffFFFFFF"
+local colorGold     = "|cffFFDD11"
+local colorLegendary= "|cffff8000"
+local colorBlueMage = "|cff68ccef"
 
 ---------------
 --- Toggles ---
@@ -54,7 +65,9 @@ local function createOptions()
     local optionTable
 
     local function rotationOptions()
-        -- General Options
+        ----------------------
+        --- General OPTIONS ---
+        ----------------------
         section = br.ui:createSection(br.ui.window.profile, "General")
         -- Dummy DPS Test
         br.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
@@ -83,7 +96,9 @@ local function createOptions()
         -- Displacer Beast
         br.ui:createDropdown(section, "Displacer Beast/Wild Charge", br.dropOptions.Toggle, 3, "Set hotkey to use Displacer Beast/Wild Charge-Will use only if on balance form.")
         br.ui:checkSectionState(section)
-        -- Cooldown Options
+        ----------------------
+        --- Cooldowns OPTIONS ---
+        ----------------------
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
         -- Int Pot
         br.ui:createCheckbox(section,"Potion")
@@ -104,7 +119,9 @@ local function createOptions()
         -- Auto Blessing of The Ancients
         br.ui:createCheckbox(section,"Auto Blessing of The Ancients","Number of enemies <= 2 then Blessing of Elune else Blessing of Anshe")
         br.ui:checkSectionState(section)
-        -- Defensive Options
+        ----------------------
+        --- Defensive OPTIONS ---
+        ----------------------
         section = br.ui:createSection(br.ui.window.profile, "Defensive")
         -- Rebirth
         br.ui:createCheckbox(section,"Rebirth")
@@ -137,7 +154,9 @@ local function createOptions()
         -- Dream of Cenarius Auto-Heal
         br.ui:createDropdown(section, "Auto Heal", { "|cffFFDD11LowestHP", "|cffFFDD11Player"},  2,  "|cffFFFFFFSelect Target to Auto-Heal")
         br.ui:checkSectionState(section)
-        -- Interrupt Options
+        ----------------------
+        --- Interrupts OPTIONS ---
+        ----------------------
         section = br.ui:createSection(br.ui.window.profile, "Interrupts")
         -- Mighty Bash
         br.ui:createDropdown(section,"Mighty Bash", br.dropOptions.Toggle, 6, "Set auto usage (No Hotkey) or desired hotkey to use Mighty Bash.")
@@ -145,6 +164,14 @@ local function createOptions()
         br.ui:createCheckbox(section,"Solar Beam + Mass Entanglement", "Mass Entanglement with Solar Beam?")
         -- Interrupt Percentage
         br.ui:createSpinnerWithout(section, "Interrupt at",  50,  0,  95,  5,  "|cffFFFFFFCast Percent to Cast At")
+        br.ui:checkSectionState(section)
+        ----------------------
+        --- LEGENDARY OPTIONS ---
+        ----------------------
+        section = br.ui:createSection(br.ui.window.profile, colorGold.."Legendary")
+        br.ui:createCheckbox(section, colorLegendary.."Emerald Dreamcatcher", colorWhite.."Check to enable Emerald Dreamcatcher rotation")
+        br.ui:createSpinner(section, colorLegendary.."Promisse Of Elune, The Moon Goddness", 1, 1, 100, 1, colorWhite.."Check to enable usage of Promisse Of Elune, The Moon Goddness, and set the number of HP to self heal.")
+        br.ui:createCheckbox(section, colorLegendary.."Sephuz's Secret", colorWhite.."Check to enable Sephuz's Secret usage ( will try to silence, root or remove corruption to gain buff )")
         br.ui:checkSectionState(section)
     end
     optionTable = {{
@@ -234,6 +261,7 @@ local function runRotation()
         activeMoon = 3
     end
 
+
     if not inCombat and not GetObjectExists(target) then
         SW = false
         MM1 = false
@@ -260,7 +288,9 @@ local function runRotation()
         LS2 = false
         LS3 = false
     end
+
     if talent.stellarDrift then starfallRadius = 15*1.5 else starfallRadius = 15 end
+
     if starfallPlacement == 1 then
         starfallPlacement = "best"
     elseif starfallPlacement == 2 then
@@ -269,6 +299,10 @@ local function runRotation()
         starfallPlacement = "playerGround"
     end
 
+    if SEPSEC == nil then SEPSEC = 0 end
+    if buff.sephuzSecret.exists() and SEPSEC == 0 then
+        SEPSEC = GetTime()
+    end
 
     if not inCombat and not hastar and profileStop==true then
         profileStop = false
@@ -855,7 +889,28 @@ local function runRotation()
                 if cast.blessingOfTheAncients() then return true end
             end
         end
-
+        --extra
+        if isChecked(colorLegendary.."Sephuz's Secret") and GetTime() - SEPSEC >= 30.000 then
+            --dispell
+            if cd.removeCorruption == 0 and canDispel("player",spell.removeCorruption) then
+                if cast.removeCorruption("player") then return true end
+            end
+            for i = 1, #enemies.yards40 do
+                local thisUnit = enemies.yards40[i]
+                --root (instant cast)
+                if talent.massEntanglement and cd.massEntanglement == 0 and (not isBoss(thisUnit) or isDummy(thisUnit)) and getDistance(thisUnit) <= 35 then
+                    if cast.massEntanglement(thisUnit) then SEPSEC=0 return true end
+                end
+                --silence
+                if cd.solarBeam == 0 and (not isBoss(thisUnit) or isDummy(thisUnit)) and getDistance(thisUnit) <= 45 and canInterrupt(thisUnit,getValue("Interrupt at"))  then
+                    if cast.solarBeam(thisUnit) then SEPSEC=0 return true end
+                end
+                --stun
+                if talent.mightyBash and cd.mightyBash == 0 and getDistance(thisUnit) <= 10 then
+                    if cast.mightyBash(thisUnit) then SEPSEC=0 return true end
+                end
+            end
+        end
         --actions+=/call_action_list,name=fury_of_elune,if=talent.fury_of_elune.enabled&cooldown.fury_of_elue.remains<target.time_to_die
         if talent.furyOfElune then
             if cd.furyOfElune < ttdUnit*2 then
@@ -863,7 +918,7 @@ local function runRotation()
             end
         end
         --actions+=/call_action_list,name=ed,if=equipped.the_emerald_dreamcatcher&active_enemies<=2
-        if hasEquiped(137062) then
+        if isChecked(colorLegendary.."Emerald Dreamcatcher") then
             if actionList_EmeralDreamcatcher() then return true end
         else
             if actionList_SomeCDS() then return true end
@@ -1106,6 +1161,11 @@ local function runRotation()
                 end
                 if getOptionValue("Remove Corruption - Target")==3 and canDispel("mouseover",spell.removeCorruption) then
                     if cast.removeCorruption("mouseover") then return true end
+                end
+            end
+            if isChecked(colorLegendary.."Promisse Of Elune, The Moon Goddness") then
+                if buff.powerOfEluneTheMoonGoddness.stack() == 20 and health <= getValue(colorLegendary.."Promisse Of Elune, The Moon Goddness") and inCombat then
+                    if cast.regrowth("player") then return true end
                 end
             end
             -- Renewal
