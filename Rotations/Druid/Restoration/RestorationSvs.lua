@@ -987,11 +987,11 @@ local function runRotation()
 					end
 				end
 				-- Sunfire
-				if not bear and not debuff.sunfire.exists(units.dyn40) and mana >= getOptionValue("输出省蓝") then
+				if not bear and not debuff.sunfire.exists(units.dyn40) and mana >= getOptionValue("DPS Save mana") then
 					if cast.sunfire(units.dyn40) then return end
 				end
 				-- Moonfire
-				if not debuff.moonfire.exists(units.dyn40) and mana >= getOptionValue("输出省蓝") then
+				if not debuff.moonfire.exists(units.dyn40) and mana >= getOptionValue("DPS Save mana") then
 					if cast.moonfire(units.dyn40) then return end
 				end
 				-- Solar Wrath
@@ -1002,12 +1002,12 @@ local function runRotation()
 			-- Feral Affinity
 			if talent.feralAffinity then
 				-- Moonfire
-				if #enemies.yards8 < 4 and not debuff.moonfire.exists(units.dyn40) and mana >= getOptionValue("输出省蓝") then
+				if #enemies.yards8 < 4 and not debuff.moonfire.exists(units.dyn40) and mana >= getOptionValue("DPS Save mana") then
 					RunMacroText("/CancelForm")
 					if cast.moonfire(units.dyn40) then return end
 				end
 				-- Sunfire
-				if not debuff.sunfire.exists(units.dyn40) and mana >= getOptionValue("输出省蓝") then
+				if not debuff.sunfire.exists(units.dyn40) and mana >= getOptionValue("DPS Save mana") then
 					RunMacroText("/CancelForm")
 					if cast.sunfire(units.dyn40) then return end
 				end
