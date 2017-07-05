@@ -74,6 +74,8 @@ local function createOptions()
 		br.ui:createCheckbox(section,"OOC Healing","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFout of combat healing|cffFFBB00.",1)
 		-- DBM cast Rejuvenaion
 		br.ui:createCheckbox(section,"DBM cast Rejuvenaion","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFAccording to BOSS AOE Spells, 5 seconds ahead of schedule cast Rejuvenation|cffFFBB00.")
+		-- DOT cast Rejuvenaion
+		br.ui:createCheckbox(section,"DOT cast Rejuvenaion","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFDOT damage to teammates cast Rejuvenation|cffFFBB00.")		
 		-- Pre-Pull Timer
 		br.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
 		-- Travel Shapeshifts
@@ -162,6 +164,8 @@ local function createOptions()
 		br.ui:createCheckbox(section,"Keep Regrowth on tank","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFRegrowth usage|cffFFBB00.")
 		-- Healing Touch
 		br.ui:createSpinner(section, "Healing Touch",  60,  0,  100,  5,  "","|cffFFFFFFHealth Percent to Cast At")
+		-- Cultivation
+		br.ui:createCheckbox(section,"Cultivation","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFrejuvenation priority when less than 5 targets are below 60% hp|cffFFBB00.")
 		-- Wild Growth
 		br.ui:createSpinner(section, "Wild Growth",  80,  0,  100,  5,  "","Health Percent to Cast At")
 		br.ui:createSpinner(section, "Wild Growth Targets",  3,  0,  40,  1,  "","Minimum Wild Growth Targets", true)
@@ -563,6 +567,14 @@ local function runRotation()
 		end -- End Action List - Cooldowns
 		-- AOE Healing
 		function actionList_AOEHealing()
+			-- Cultivation
+			if isChecked("Cultivation") and inRaid and talent.germination and talent.cultivation then
+				for i=1, #br.friend do
+					if getLowAllies(60) < 5 and br.friend[i].hp < 60 and not buff.rejuvenationGermination.exists(br.friend[i].unit) then
+						if cast.rejuvenation(br.friend[i].unit) then return end
+					end
+				end
+			end				
 			-- Wild Growth
 			for i=1, #br.friend do
 				if isChecked("Wild Growth") and not moving and not buff.wildGrowth.exists(br.friend[i].unit) and not isCastingSpell(spell.tranquility) then
@@ -573,15 +585,7 @@ local function runRotation()
 						if cast.wildGrowth() then return end
 					end
 				end
-			end
-			-- Cultivation
-			if inRaid and talent.germination and talent.cultivation then
-				for i=1, #br.friend do
-					if getLowAllies(60) < 5 and br.friend[i].hp < 60 and not buff.rejuvenationGermination.exists(br.friend[i].unit) then
-						if cast.rejuvenation(br.friend[i].unit) then return end
-					end
-				end
-			end			
+			end	
 			-- Essence of G'Hanir
 			if isChecked("Essence of G'Hanir") and not isCastingSpell(spell.tranquility) then
 				if getLowAllies(getValue("Essence of G'Hanir")) >= getValue("Essence of G'Hanir Targets") and (lastSpell == spell.wildGrowth or lastSpell == spell.flourish) then
@@ -793,7 +797,7 @@ local function runRotation()
 				end
 			end
 			-- DOT damage to teammates cast Rejuvenation
-			if inRaid then
+			if inRaid and isChecked("DOT cast Rejuvenaion") then
 				local debuff_list={
 				228253, --  Guarm
 				204531, --  Skorpyron
@@ -854,14 +858,6 @@ local function runRotation()
 					end
 				end
 			end
-			-- Cultivation
-			if talent.cultivation then
-				for i=1, #br.friend do
-					if br.friend[i].hp < 60 and not buff.rejuvenation.exists(br.friend[i].unit) then
-						if cast.rejuvenation(br.friend[i].unit) then return end
-					end
-				end
-			end
 			-- Rejuvenation
 			if isChecked("Rejuvenation") and not isCastingSpell(spell.tranquility) then
 				rejuvCount = 0
@@ -870,6 +866,14 @@ local function runRotation()
 						rejuvCount = rejuvCount + 1
 					end
 				end
+    			-- Cultivation
+    			if talent.cultivation and inRaid then
+    				for i=1, #br.friend do
+    					if br.friend[i].hp < 60 and not buff.rejuvenation.exists(br.friend[i].unit) and (rejuvCount < getValue("Max Rejuvenation Targets")) then
+    						if cast.rejuvenation(br.friend[i].unit) then return end
+    					end
+    				end
+    			end				
 				for i = 1, #br.friend do
 				    if br.friend[i].hp <= getValue("Germination Tank") and talent.germination and (rejuvCount < getValue("Max Rejuvenation Targets")) and not buff.rejuvenationGermination.exists(br.friend[i].unit) and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
 					    if cast.rejuvenation(br.friend[i].unit) then return end
@@ -892,7 +896,7 @@ local function runRotation()
 			end
 			
 			--DBM cast Rejuvenaion
-			if inRaid then
+			if inRaid and isChecked("DBM cast Rejuvenaion") then
 				local precast_spell_list={
 				--spell_id	, precast_time	,	spell_name
 				{214652 	, 5				,	'Acidic Fragments'},
@@ -920,13 +924,11 @@ local function runRotation()
 					local spell_name = precast_spell_list[i][3]
 					local time_remain = br.DBM:getPulltimer_fix(nil,boss_spell_id)
 					if time_remain < precast_time then
-						if isChecked("DBM cast Rejuvenaion") then
-							for j = 1, #br.friend do
-								if not buff.rejuvenation.exists(br.friend[j].unit) and not isCastingSpell(spell.tranquility) and UnitInRange(br.friend[i].unit) then
-									if cast.rejuvenation(br.friend[j].unit) then
-										Print("DBM cast Rejuvenaion--"..spell_name)
-										return
-									end
+						for j = 1, #br.friend do
+							if not buff.rejuvenation.exists(br.friend[j].unit) and not isCastingSpell(spell.tranquility) and UnitInRange(br.friend[i].unit) then
+								if cast.rejuvenation(br.friend[j].unit) then
+									Print("DBM cast Rejuvenaion--"..spell_name)
+									return
 								end
 							end
 						end
