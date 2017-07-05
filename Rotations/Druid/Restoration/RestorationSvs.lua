@@ -46,7 +46,7 @@ local function createToggles()
 	-- Rejuvenaion Button
 	RejuvenaionModes = {
 	[2] = { mode = "On", value = 1 , overlay = "Rejuvenaion Enabled", tip = "All players Rejuvenaion Enabled", highlight = 1, icon = br.player.spell.rejuvenation },
-	[3] = { mode = "two", value = 2 , overlay = "Double rejuvenaion Enabled", tip = "All players Double rejuvenaion Enabled", highlight = 1, icon = br.player.spell.rejuvenation },	
+	[3] = { mode = "two", value = 2 , overlay = "Double rejuvenaion Enabled", tip = "All players Double rejuvenaion Enabled", highlight = 1, icon = br.player.spell.rejuvenation },
 	[1] = { mode = "Off", value = 3 , overlay = "Rejuvenaion Disabled", tip = "All players Rejuvenaion Disabled", highlight = 0, icon = br.player.spell.rejuvenation }
 	};
 	CreateButton("Rejuvenaion",7,0)
@@ -75,7 +75,7 @@ local function createOptions()
 		-- DBM cast Rejuvenaion
 		br.ui:createCheckbox(section,"DBM cast Rejuvenaion","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFAccording to BOSS AOE Spells, 5 seconds ahead of schedule cast Rejuvenation|cffFFBB00.")
 		-- DOT cast Rejuvenaion
-		br.ui:createCheckbox(section,"DOT cast Rejuvenaion","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFDOT damage to teammates cast Rejuvenation|cffFFBB00.")		
+		br.ui:createCheckbox(section,"DOT cast Rejuvenaion","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFDOT damage to teammates cast Rejuvenation|cffFFBB00.")
 		-- Pre-Pull Timer
 		br.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
 		-- Travel Shapeshifts
@@ -85,7 +85,7 @@ local function createOptions()
 		-- DPS Save mana
 		br.ui:createSpinnerWithout(section, "DPS Save mana",  40,  0,  100,  5,  "|cffFFFFFFMana Percent no Cast Sunfire and Moonfire")
 		-- Overhealing Cancel
-		br.ui:createSpinner (section, "Overhealing Cancel", 95, 0, 100, 5, "","|cffFFFFFFSet Desired Threshold at which you want to prevent your own casts")			
+		br.ui:createSpinner (section, "Overhealing Cancel", 95, 0, 100, 5, "","|cffFFFFFFSet Desired Threshold at which you want to prevent your own casts")
 		-- Affixes Helper
 		br.ui:createCheckbox(section,"Affixes Helper","|cff15FF00Please use abundance talent and All players Rejuvenaion Enabled")
 		br.ui:checkSectionState(section)
@@ -196,7 +196,7 @@ end
 ----------------
 --- ROTATION ---
 ----------------
-local regrowth_target = nil 
+local regrowth_target = nil
 local cancel_regrowth = 0
 local cancel_wild = 0
 
@@ -291,7 +291,7 @@ local function runRotation()
 					cancel_wild = cancel_wild + 1
 					Print("StopCasting Wild Growth "..cancel_wild)
 				end
-			end			
+			end
 			-- StopCasting Regrowth
 			if isCastingSpell(spell.regrowth) and isChecked("Overhealing Cancel") then
 				if regrowth_target ~= nil and regrowth_target.hp > getValue("Overhealing Cancel") then
@@ -300,7 +300,7 @@ local function runRotation()
 					Print("StopCasting Regrowth "..cancel_regrowth)
 				end
 			end
-		end			
+		end
 		-- Action List - Extras
 		local function actionList_Extras()
 			-- Pre-Pull Timer
@@ -424,12 +424,12 @@ local function runRotation()
 					end
 				end
 				for i = 1, #br.friend do
-				    if br.friend[i].hp <= getValue("Germination Tank") and talent.germination and (rejuvCount < getValue("Max Rejuvenation Targets")) and not buff.rejuvenationGermination.exists(br.friend[i].unit) and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
-					    if cast.rejuvenation(br.friend[i].unit) then return end
+					if br.friend[i].hp <= getValue("Germination Tank") and talent.germination and (rejuvCount < getValue("Max Rejuvenation Targets")) and not buff.rejuvenationGermination.exists(br.friend[i].unit) and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
+						if cast.rejuvenation(br.friend[i].unit) then return end
 					elseif br.friend[i].hp <= getValue("Germination") and talent.germination and (rejuvCount < getValue("Max Rejuvenation Targets")) and not buff.rejuvenationGermination.exists(br.friend[i].unit) and not UnitIsUnit(br.friend[i].unit,"TANK") then
 						if cast.rejuvenation(br.friend[i].unit) then return end
-					elseif br.friend[i].hp <= getValue("Rejuvenation Tank") and buff.rejuvenation.remain(br.friend[i].unit) <= 1 and (rejuvCount < getValue("Max Rejuvenation Targets")) and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then	
-					    if cast.rejuvenation(br.friend[i].unit) then return end
+					elseif br.friend[i].hp <= getValue("Rejuvenation Tank") and buff.rejuvenation.remain(br.friend[i].unit) <= 1 and (rejuvCount < getValue("Max Rejuvenation Targets")) and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
+						if cast.rejuvenation(br.friend[i].unit) then return end
 					elseif br.friend[i].hp <= getValue("Rejuvenation") and buff.rejuvenation.remain(br.friend[i].unit) <= 1 and (rejuvCount < getValue("Max Rejuvenation Targets")) and not UnitIsUnit(br.friend[i].unit,"TANK") then
 						if cast.rejuvenation(br.friend[i].unit) then return end
 					end
@@ -574,7 +574,7 @@ local function runRotation()
 						if cast.rejuvenation(br.friend[i].unit) then return end
 					end
 				end
-			end				
+			end
 			-- Wild Growth
 			for i=1, #br.friend do
 				if isChecked("Wild Growth") and not moving and not buff.wildGrowth.exists(br.friend[i].unit) and not isCastingSpell(spell.tranquility) then
@@ -585,7 +585,7 @@ local function runRotation()
 						if cast.wildGrowth() then return end
 					end
 				end
-			end	
+			end
 			-- Essence of G'Hanir
 			if isChecked("Essence of G'Hanir") and not isCastingSpell(spell.tranquility) then
 				if getLowAllies(getValue("Essence of G'Hanir")) >= getValue("Essence of G'Hanir Targets") and (lastSpell == spell.wildGrowth or lastSpell == spell.flourish) then
@@ -731,7 +731,7 @@ local function runRotation()
 			if isChecked("Regrowth") and (not moving or buff.incarnationTreeOfLife.exists()) and not isCastingSpell(spell.tranquility) then
 				for i = 1, #br.friend do
 					if br.friend[i].hp <= getValue("Oh Shit! Regrowth") and getDebuffStacks(br.friend[i].unit,209858) < 30 then
-						if cast.regrowth(br.friend[i].unit) then 
+						if cast.regrowth(br.friend[i].unit) then
 							regrowth_target = br.friend[i]
 							return
 						end
@@ -796,6 +796,14 @@ local function runRotation()
 					end
 				end
 			end
+			-- Cultivation
+			if talent.cultivation and inRaid then
+				for i=1, #br.friend do
+					if br.friend[i].hp < 60 and not buff.rejuvenation.exists(br.friend[i].unit) then
+						if cast.rejuvenation(br.friend[i].unit) then return end
+					end
+				end
+			end			
 			-- DOT damage to teammates cast Rejuvenation
 			if inRaid and isChecked("DOT cast Rejuvenaion") then
 				local debuff_list={
@@ -866,21 +874,13 @@ local function runRotation()
 						rejuvCount = rejuvCount + 1
 					end
 				end
-    			-- Cultivation
-    			if talent.cultivation and inRaid then
-    				for i=1, #br.friend do
-    					if br.friend[i].hp < 60 and not buff.rejuvenation.exists(br.friend[i].unit) and (rejuvCount < getValue("Max Rejuvenation Targets")) then
-    						if cast.rejuvenation(br.friend[i].unit) then return end
-    					end
-    				end
-    			end				
 				for i = 1, #br.friend do
-				    if br.friend[i].hp <= getValue("Germination Tank") and talent.germination and (rejuvCount < getValue("Max Rejuvenation Targets")) and not buff.rejuvenationGermination.exists(br.friend[i].unit) and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
-					    if cast.rejuvenation(br.friend[i].unit) then return end
+					if br.friend[i].hp <= getValue("Germination Tank") and talent.germination and (rejuvCount < getValue("Max Rejuvenation Targets")) and not buff.rejuvenationGermination.exists(br.friend[i].unit) and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
+						if cast.rejuvenation(br.friend[i].unit) then return end
 					elseif br.friend[i].hp <= getValue("Germination") and talent.germination and (rejuvCount < getValue("Max Rejuvenation Targets")) and not buff.rejuvenationGermination.exists(br.friend[i].unit) and not UnitIsUnit(br.friend[i].unit,"TANK") then
 						if cast.rejuvenation(br.friend[i].unit) then return end
-					elseif br.friend[i].hp <= getValue("Rejuvenation Tank") and buff.rejuvenation.remain(br.friend[i].unit) <= 1 and (rejuvCount < getValue("Max Rejuvenation Targets")) and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then	
-					    if cast.rejuvenation(br.friend[i].unit) then return end
+					elseif br.friend[i].hp <= getValue("Rejuvenation Tank") and buff.rejuvenation.remain(br.friend[i].unit) <= 1 and (rejuvCount < getValue("Max Rejuvenation Targets")) and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
+						if cast.rejuvenation(br.friend[i].unit) then return end
 					elseif br.friend[i].hp <= getValue("Rejuvenation") and buff.rejuvenation.remain(br.friend[i].unit) <= 1 and (rejuvCount < getValue("Max Rejuvenation Targets")) and not UnitIsUnit(br.friend[i].unit,"TANK") then
 						if cast.rejuvenation(br.friend[i].unit) then return end
 					end
@@ -962,12 +962,12 @@ local function runRotation()
 						if cast.rejuvenation(br.friend[i].unit) then return end
 					end
 				end
-			elseif mode.rejuvenaion == 3 then	
-			    for i = 1, #br.friend do
-				    if talent.germination and not isCastingSpell(spell.tranquility) and not buff.rejuvenationGermination.exists(br.friend[i].unit) then
-					    if cast.rejuvenation(br.friend[i].unit) then return end
+			elseif mode.rejuvenaion == 3 then
+				for i = 1, #br.friend do
+					if talent.germination and not isCastingSpell(spell.tranquility) and not buff.rejuvenationGermination.exists(br.friend[i].unit) then
+						if cast.rejuvenation(br.friend[i].unit) then return end
 					end
-				end	
+				end
 			end
 		end
 		-- Action List - DPS
@@ -987,11 +987,11 @@ local function runRotation()
 					end
 				end
 				-- Sunfire
-				if not bear and not debuff.sunfire.exists(units.dyn40) and mana >= getOptionValue("DPS Save mana") then
+				if not bear and not debuff.sunfire.exists(units.dyn40) and mana >= getOptionValue("输出省蓝") then
 					if cast.sunfire(units.dyn40) then return end
 				end
 				-- Moonfire
-				if not debuff.moonfire.exists(units.dyn40) and mana >= getOptionValue("DPS Save mana") then
+				if not debuff.moonfire.exists(units.dyn40) and mana >= getOptionValue("输出省蓝") then
 					if cast.moonfire(units.dyn40) then return end
 				end
 				-- Solar Wrath
@@ -1001,23 +1001,26 @@ local function runRotation()
 			end
 			-- Feral Affinity
 			if talent.feralAffinity then
-				-- Cat form
-				if not cat and getDistance(units.dyn5) < 5 then
-					if cast.catForm() then return end
+				-- Moonfire
+				if #enemies.yards8 < 4 and not debuff.moonfire.exists(units.dyn40) and mana >= getOptionValue("输出省蓝") then
+					RunMacroText("/CancelForm")
+					if cast.moonfire(units.dyn40) then return end
 				end
-				-- Rake
-				if combo < 5 then
-					for i = 1, #enemies.yards5 do
-						local thisUnit = enemies.yards5[i]
-						if getDistance(thisUnit) < 5 then
-							if not debuff.rake.exists(thisUnit) then
-								if cast.rake(thisUnit) then return end
-							end
-						end
-					end
+				-- Sunfire
+				if not debuff.sunfire.exists(units.dyn40) and mana >= getOptionValue("输出省蓝") then
+					RunMacroText("/CancelForm")
+					if cast.sunfire(units.dyn40) then return end
+				end
+				-- Cat form
+				if not cat and getDistance(units.dyn8) < 8 then
+					if cast.catForm("player") then return end
+				end
+				-- Swipe
+				if (#enemies.yards8 > 1 and #enemies.yards8 < 4 and debuff.rake.exists(units.dyn8)) or #enemies.yards8 >= 4 then
+					if cast.swipe() then return end
 				end
 				-- Rip
-				if combo == 5 then
+				if combo == 5 and #enemies.yards8 < 4 then
 					for i = 1, #enemies.yards5 do
 						local thisUnit = enemies.yards5[i]
 						if getDistance(thisUnit) < 5 then
@@ -1027,8 +1030,19 @@ local function runRotation()
 						end
 					end
 				end
+				-- Rake
+				if combo < 5 and #enemies.yards8 < 4 then
+					for i = 1, #enemies.yards5 do
+						local thisUnit = enemies.yards5[i]
+						if getDistance(thisUnit) < 5 then
+							if not debuff.rake.exists(thisUnit) then
+								if cast.rake(thisUnit) then return end
+							end
+						end
+					end
+				end
 				-- Ferocious Bite
-				if combo == 5 then
+				if combo == 5 and #enemies.yards8 < 4 then
 					for i = 1, #enemies.yards5 do
 						local thisUnit = enemies.yards5[i]
 						if getDistance(thisUnit) < 5 and debuff.rip.exists(thisUnit) then
@@ -1036,12 +1050,8 @@ local function runRotation()
 						end
 					end
 				end
-				-- Swipe
-				if ((mode.rotation == 1 and #enemies.yards8 >= 6) or mode.rotation == 2) then
-					if cast.swipe("player") then return end
-				end
 				-- Shred
-				if combo < 5 and debuff.rake.exists(units.dyn5) and (((mode.rotation == 1 and #enemies.yards8 < 3) or mode.rotation == 3) or level < 32) then
+				if combo < 5 and debuff.rake.exists(units.dyn5) and #enemies.yards8 < 2 then
 					if cast.shred(units.dyn5) then return end
 				end
 			end -- End - Feral Affinity
