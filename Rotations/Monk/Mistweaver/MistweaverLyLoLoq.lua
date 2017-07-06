@@ -72,6 +72,8 @@ local function createOptions()
         br.ui:createSpinnerWithout(section, "Min Revival Targets",  3,  1,  40,  1,  colorBlue.."Minimum Revival Targets "..colorGold.."(This includes you)")
         br.ui:createSpinner(section, "Invoke Chi-Ji, the Red Crane",  30,  0,  100,  1,  colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.." use of Invoke Chi-Ji, the Red Crane.", colorWhite.."Health Percent to Cast At")
         br.ui:createSpinnerWithout(section, "Min Invoke Chi-Ji, the Red Crane Targets",  3,  1,  40,  1,  colorBlue.."Minimum Invoke Chi-Ji, the Red Crane Targets "..colorGold.."(This includes you)")
+        br.ui:createSpinner(section, "Enveloping Mist with Surge of Mist",  65,  0,  100,  1,  colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.."Trigger t20 4piece bonus", colorWhite.."Health Percent to Cast At")
+        br.ui:createSpinnerWithout(section, "Min Enveloping Mist with Surge of Mist Targets",  2,  1,  3,  1,  colorBlue.."Minimum Trigger t20 4piece bonus Targets "..colorGold.."(This includes you)")
         br.ui:createSpinner(section, "Life Cocoon",  20,  0,  100,  1,  colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.." use of Life Cocoon.", colorWhite.."Health Percent to Cast At")
         br.ui:createDropdownWithout(section, "Life Cocoon Target", {colorGreen.."Player",colorBlue.."Target",colorWhite.."Mouseover",colorRed.."Tank",colorGreen.."Healer",colorGreen.."Healer/Tank",colorBlue.."Any"}, 6, colorWhite.."Target to cast on")
         br.ui:createSpinner(section, "Trinket 1",  50,  0,  100,  1,  colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.." use of Trinket 1.", colorWhite.."Health Percent to Cast At")
@@ -123,8 +125,6 @@ local function createOptions()
         br.ui:createSpinner(section, "Enveloping Mist",  75,  0,  100,  1,  colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.."Use of Enveloping Mist.", colorWhite.."Health Percent to Cast At")
         br.ui:createCheckbox(section, "Enveloping Mist - Tank Only", colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.."Use of Enveloping Mist on tank only.")
         br.ui:createSpinner(section, "Enveloping Mist with Lifecycles",  65,  0,  100,  1,  colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.."Use of Enveloping Mist.", colorWhite.."Health Percent to Cast At")
-        br.ui:createSpinner(section, "Enveloping Mist with Surge of Mist",  65,  0,  100,  1,  colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.."Use of Enveloping Mist.", colorWhite.."Health Percent to Cast At")
-        br.ui:createSpinnerWithout(section, "Min Enveloping Mist with Surge of Mist Targets",  2,  1,  3,  1,  colorBlue.."Minimum Enveloping Mist with Surge of Mist Targets "..colorGold.."(This includes you)")
 		br.ui:createSpinner(section, "Zen Pulse",  90,  0,  100,  1,  colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.."Use of Zen Pulse.", colorWhite.."Health Percent to Cast At")
         br.ui:createSpinnerWithout(section, "Zen Pulse Enemies",  3,  1,  100,  1,  colorBlue.."Minimum Zen Pulse Enemies")
         br.ui:createCheckbox(section, "Effuse", colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.."Use of Effuse.")
@@ -627,71 +627,71 @@ local function runRotation()
     end
 
     local function actionList_ThunderFocus()
-		
-		if isChecked("Thunder Focus Tea + Essence Font") and cd.essenceFont == 0  and getLowAlliesInTable(getValue("Thunder Focus Tea + Essence Font"), friends.yards25) >= getValue("Min Thunder Focus Tea + Essence Font Targets") then
-			if cd.thunderFocusTea == 0 then
-                if cast.thunderFocusTea() then
-                    TFEF = true
-                    return true
-                end
-            end
-        end
-        if isChecked("Thunder Focus Tea + Vivify") and lowest.hp <= getValue("Thunder Focus Tea + Vivify") and mana <= getValue("Thunder Focus Tea + Vivify - Mana") then
-            if cd.thunderFocusTea == 0 then
-                if cast.thunderFocusTea() then
-                    TFV = true
-                    return true
-                end
-            end
-        end
-        if isChecked("Thunder Focus Tea + Enveloping Mist") and lowest.hp <= getValue("Thunder Focus Tea + Enveloping Mist") then
-             if not buff.envelopingMist.exists(lowest.unit) or buff.envelopingMist.remain(lowest.unit) <= 2 then
+		if inCombat then
+            if isChecked("Thunder Focus Tea + Essence Font") and cd.essenceFont == 0  and getLowAlliesInTable(getValue("Thunder Focus Tea + Essence Font"), friends.yards25) >= getValue("Min Thunder Focus Tea + Essence Font Targets") then
                 if cd.thunderFocusTea == 0 then
                     if cast.thunderFocusTea() then
-                        TFEM = true
+                        TFEF = true
                         return true
                     end
                 end
             end
-        end
-        if isChecked("Thunder Focus Tea + Renewing Mist") and cd.renewingMist == 0 and lowest.hp <= getValue("Thunder Focus Tea + Renewing Mist") then
-            if cd.thunderFocusTea == 0 then
-                if cast.thunderFocusTea() then
-                    TFRM = true
+            if isChecked("Thunder Focus Tea + Vivify") and lowest.hp <= getValue("Thunder Focus Tea + Vivify") and mana <= getValue("Thunder Focus Tea + Vivify - Mana") then
+                if cd.thunderFocusTea == 0 then
+                    if cast.thunderFocusTea() then
+                        TFV = true
+                        return true
+                    end
+                end
+            end
+            if isChecked("Thunder Focus Tea + Enveloping Mist") and lowest.hp <= getValue("Thunder Focus Tea + Enveloping Mist") then
+                if not buff.envelopingMist.exists(lowest.unit) or buff.envelopingMist.remain(lowest.unit) <= 2 then
+                    if cd.thunderFocusTea == 0 then
+                        if cast.thunderFocusTea() then
+                            TFEM = true
+                            return true
+                        end
+                    end
+                end
+            end
+            if isChecked("Thunder Focus Tea + Renewing Mist") and cd.renewingMist == 0 and lowest.hp <= getValue("Thunder Focus Tea + Renewing Mist") then
+                if cd.thunderFocusTea == 0 then
+                    if cast.thunderFocusTea() then
+                        TFRM = true
+                        return true
+                    end
+                end
+            end
+            if isChecked("Thunder Focus Tea + Essence Font") and cd.essenceFont == 0 and getLowAlliesInTable(getValue("Thunder Focus Tea + Essence Font"), friends.yards25) >= getValue("Min Thunder Focus Tea + Essence Font Targets") then
+                if cast.essenceFont() then
+                    TFEF = false
                     return true
                 end
             end
-        end
-		if isChecked("Thunder Focus Tea + Essence Font") and cd.essenceFont == 0 and getLowAlliesInTable(getValue("Thunder Focus Tea + Essence Font"), friends.yards25) >= getValue("Min Thunder Focus Tea + Essence Font Targets") then
-			if cast.essenceFont() then
-                TFEF = false
-                return true
+            if isChecked("Thunder Focus Tea + Vivify") and lowest.hp <= getValue("Thunder Focus Tea + Vivify") and TFV and mana <= getValue("Thunder Focus Tea + Vivify - Mana") then
+                if cast.vivify(lowest.unit) then
+                    TFV = false
+                    return true
+                end
             end
-        end
-        if isChecked("Thunder Focus Tea + Vivify") and lowest.hp <= getValue("Thunder Focus Tea + Vivify") and TFV and mana <= getValue("Thunder Focus Tea + Vivify - Mana") then
-            if cast.vivify(lowest.unit) then
-                TFV = false
-                return true
+            if isChecked("Thunder Focus Tea + Enveloping Mist") and lowest.hp <= getValue("Thunder Focus Tea + Enveloping Mist") and TFEM then
+                if cast.envelopingMist(lowest.unit) then
+                    TFEM = false
+                    return true
+                end
             end
-        end
-        if isChecked("Thunder Focus Tea + Enveloping Mist") and lowest.hp <= getValue("Thunder Focus Tea + Enveloping Mist") and TFEM then
-            if cast.envelopingMist(lowest.unit) then
-                TFEM = false
-                return true
-            end
-        end
-        if isChecked("Thunder Focus Tea + Renewing Mist") and cd.renewingMist == 0 and lowest.hp <= getValue("Thunder Focus Tea + Renewing Mist") and TFRM then
-            for i = 1, #friends.yards40 do
-                local thisUnit = friends.yards40[i]
-                if thisUnit.hp <= getValue("Thunder Focus Tea + Renewing Mist") and buff.renewingMist.remain(thisUnit.unit) < gcd then
-                    if cast.renewingMist(thisUnit.unit) then
-                        TFRM = false
-                        return true
+            if isChecked("Thunder Focus Tea + Renewing Mist") and cd.renewingMist == 0 and lowest.hp <= getValue("Thunder Focus Tea + Renewing Mist") and TFRM then
+                for i = 1, #friends.yards40 do
+                    local thisUnit = friends.yards40[i]
+                    if thisUnit.hp <= getValue("Thunder Focus Tea + Renewing Mist") and buff.renewingMist.remain(thisUnit.unit) < gcd then
+                        if cast.renewingMist(thisUnit.unit) then
+                            TFRM = false
+                            return true
+                        end
                     end
                 end
             end
         end
-        return false
     end--OK
 
     function profile()
@@ -719,7 +719,7 @@ local function runRotation()
     end
 --    if not executando and getSpellCD(spell.effuse) == 0 then
 --    if botSpell == spell.envelopingMist or botSpell == spell.effuse or botSpell == spell.sheilunsGift or botSpell == spell.vivify or botSpell == spell.lifeCoccon or
-    if br.timer:useTimer("debugMistweaver", 0.1)  then
+    if br.timer:useTimer("debugMistweaver", 0.2)  then
 --        executando = true
         profile()
 --        executando = false
