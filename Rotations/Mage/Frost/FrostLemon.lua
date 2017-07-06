@@ -779,7 +779,7 @@ local function runRotation()
             --Freezing Rain Blizzard. 
             --While the normal Blizzard action is usually enough, right after Frozen Orb the actor will be getting a lot of FoFs, which might delay Blizzard to the point where we miss out on Freezing Rain. 
             --Therefore, if we are not at a risk of overcapping on FoF, use Blizzard before using Ice Lance.
-            if cd.blizzard == 0 and getDistance(target) < 35 then
+            if cd.blizzard == 0 then
                 if getCastTime(spell.blizzard) == 0 and #enemies.yards8t > 1 and fof_react < 3  then
                     cast.blizzard(target)
 					local X,Y,Z = ObjectPosition(target)
@@ -836,7 +836,7 @@ local function runRotation()
             --Against low number of targets, Blizzard is used as a filler. Use it only against 2 or more targets, 3 or more when using Glacial Spike and Splitting Ice. 
             --Zann'esu buffed Blizzard is used only at 5 stacks.
 			
-			if  cd.blizzard == 0 and getDistance(target) < 35 then
+			if  cd.blizzard == 0 then
 				if hasEquiped(133970) then
 					if buff.zannesuJourney.stack() == 5 and buff.zannesuJourney.remain() > getCastTime(spell.blizzard) then
 						cast.blizzard(target)
@@ -946,7 +946,7 @@ local function runRotation()
 	-- Instant cast blizzard
 		-- While the normal Blizzard action is usually enough, right after Frozen Orb the actor will be getting a lot of FoFs, which might delay Blizzard to the point where we miss out on Freezing Rain. 
 		-- Therefore, if we are not at a risk of overcapping on FoF, use Blizzard before using Ice Lance.
-		if cd.blizzard == 0 and isMoving("player") and getDistance(target) < 35 then
+		if cd.blizzard == 0 and isMoving("player") then
             if getCastTime(spell.blizzard) == 0 and fof_react < 3 and (lastCast == spell.frozenOrb or cd.frozenOrb > 5) then
                 cast.blizzard(target)
 				local X,Y,Z = ObjectPosition(target)
@@ -976,7 +976,7 @@ local function runRotation()
 		
         --blizzard
 		-- actions.single+=/blizzard,if=active_enemies>2|active_enemies>1&!(talent.glacial_spike.enabled&talent.splitting_ice.enabled)|(buff.zannesu_journey.stack=5&buff.zannesu_journey.remains>cast_time)
-		if  cd.blizzard == 0 and getCastTime(spell.blizzard) == 0 and isMoving("player") and getDistance(target) < 35 then
+		if  cd.blizzard == 0 and getCastTime(spell.blizzard) == 0 and isMoving("player") then
 			if hasEquiped(133970) then
 				if buff.zannesuJourney.stack() == 5 and buff.zannesuJourney.remain() > getCastTime(spell.blizzard) then
 					cast.blizzard(target)
