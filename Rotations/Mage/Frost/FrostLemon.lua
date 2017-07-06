@@ -111,13 +111,7 @@ local function createOptions()
         br.ui:createSpinner(section,  "Interrupt at",  0,  0,  100,  1,  colorWhite.."Cast Percentage to use at.")
 
         br.ui:checkSectionState(section)
-        ----------------------
-        --- LEGENDARY OPTIONS ---
-        ----------------------
-        section = br.ui:createSection(br.ui.window.profile, colorGold.."Legendary")
-        --br.ui:createSpinner(section, colorLegendary.."Zann'esu Journey", 1, 1, 100, 1, colorWhite.."Check to enable usage of Zann'esu Journey, and set the number of units to Blizzard to be cast on.")
-        --br.ui:createCheckbox(section, colorLegendary.."Norgannon's Foresight")
-        br.ui:checkSectionState(section)
+
     end
     optionTable = {{
         [1] = "Rotation Options",
@@ -643,15 +637,11 @@ local function runRotation()
 			if  cd.blizzard == 0 then
 				if hasEquiped(133970) then
 					if buff.zannesuJourney.stack() == 5 and buff.zannesuJourney.remain() > getCastTime(spell.blizzard) then
-						cast.blizzard(target)
-						local X,Y,Z = ObjectPosition(target)
-						ClickPosition(X,Y,Z)
+						if castGroundAtBestLocation(spell.blizzard,blizzardRadius,1,35,1) then return true end
 					end
 				end
 				if #enemies.yards8t > 2 or (#enemies.yards8t > 1 and not(talent.glacialSpike and talent.splittingIce)) then
-					cast.blizzard(target)
-					local X,Y,Z = ObjectPosition(target)
-					ClickPosition(X,Y,Z)
+					if castGroundAtBestLocation(spell.blizzard,blizzardRadius,1,35,1) then return true end
 				end
 			end
 			
@@ -781,9 +771,7 @@ local function runRotation()
             --Therefore, if we are not at a risk of overcapping on FoF, use Blizzard before using Ice Lance.
             if cd.blizzard == 0 then
                 if getCastTime(spell.blizzard) == 0 and #enemies.yards8t > 1 and fof_react < 3  then
-                    cast.blizzard(target)
-					local X,Y,Z = ObjectPosition(target)
-					ClickPosition(X,Y,Z)
+                    if castGroundAtBestLocation(spell.blizzard,blizzardRadius,1,35,1) then return true end
                 end
             end
             
@@ -839,15 +827,11 @@ local function runRotation()
 			if  cd.blizzard == 0 then
 				if hasEquiped(133970) then
 					if buff.zannesuJourney.stack() == 5 and buff.zannesuJourney.remain() > getCastTime(spell.blizzard) then
-						cast.blizzard(target)
-						local X,Y,Z = ObjectPosition(target)
-						ClickPosition(X,Y,Z)
+						if castGroundAtBestLocation(spell.blizzard,blizzardRadius,1,35,1) then return true end
 					end
 				end
 				if #enemies.yards8t > 2 or (#enemies.yards8t > 1 and not(talent.glacialSpike and talent.splittingIce)) then
-					cast.blizzard(target)
-					local X,Y,Z = ObjectPosition(target)
-					ClickPosition(X,Y,Z)
+					if castGroundAtBestLocation(spell.blizzard,blizzardRadius,1,35,1) then return true end
 				end
 			end
 			
@@ -882,8 +866,6 @@ local function runRotation()
         end
 
         local function actionList_COMBAT()
-			
-		
 			if cd.icyVeins == 0 and not buff.icyVeins.exists() then
 				if debug == true then Print("iv_start Changed: "..iv_start) end
 					iv_start = getCombatTime()
@@ -923,6 +905,7 @@ local function runRotation()
             if actionList_SINGLE() then return true end
             return false
         end
+		
 
         if actionList_COMBAT() then return true end
         return false
@@ -948,9 +931,7 @@ local function runRotation()
 		-- Therefore, if we are not at a risk of overcapping on FoF, use Blizzard before using Ice Lance.
 		if cd.blizzard == 0 and isMoving("player") then
             if getCastTime(spell.blizzard) == 0 and fof_react < 3 and (lastCast == spell.frozenOrb or cd.frozenOrb > 5) then
-                cast.blizzard(target)
-				local X,Y,Z = ObjectPosition(target)
-				ClickPosition(X,Y,Z)
+                if castGroundAtBestLocation(spell.blizzard,blizzardRadius,1,35,1) then return true end
             end
         end
 		
@@ -979,15 +960,11 @@ local function runRotation()
 		if  cd.blizzard == 0 and getCastTime(spell.blizzard) == 0 and isMoving("player") then
 			if hasEquiped(133970) then
 				if buff.zannesuJourney.stack() == 5 and buff.zannesuJourney.remain() > getCastTime(spell.blizzard) then
-					cast.blizzard(target)
-					local X,Y,Z = ObjectPosition(target)
-					ClickPosition(X,Y,Z)
+					if castGroundAtBestLocation(spell.blizzard,blizzardRadius,1,35,1) then return true end
 				end
 			end
 			if #enemies.yards8t > 2 or (#enemies.yards8t and not(talent.glacialSpike and talent.splittingIce)) then
-				cast.blizzard(target)
-				local X,Y,Z = ObjectPosition(target)
-				ClickPosition(X,Y,Z)
+				if castGroundAtBestLocation(spell.blizzard,blizzardRadius,1,35,1) then return true end
 			end
 		end
 		
@@ -1044,7 +1021,7 @@ local function runRotation()
                 else
                     if MovingMode() then return true end
                 end
-
+				
             end -- End In Combat Rotation
         end -- Pause
     end
