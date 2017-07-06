@@ -618,7 +618,7 @@ local function runRotation()
                             if cast.direBeast(units.dyn40) then return end
                         end
                     -- Dire Frenzy
-                        if talent.direFrenzy and getSpellCD(217200) == 0 and ((cd.bestialWrath > 6 or cd.bestialWrath <= gcd) and buff.direFrenzy.remain("pet") <= (gcd*1.2)) then
+                        if talent.direFrenzy and getSpellCD(217200) == 0 and (((cd.bestialWrath > 6 or cd.bestialWrath <= gcd) and (buff.direFrenzy.remain("pet") <= (gcd*1.2) or not buff.direFrenzy.exists("pet"))) or charges.direFrenzy == 2) then
                             if cast.direFrenzy(units.dyn40) then return end
                         end
                     -- Aspect of the Wild
