@@ -115,7 +115,7 @@ local function createOptions()
         --- LEGENDARY OPTIONS ---
         ----------------------
         section = br.ui:createSection(br.ui.window.profile, colorGold.."Legendary")
-        br.ui:createSpinner(section, colorLegendary.."Zann'esu Journey", 1, 1, 100, 1, colorWhite.."Check to enable usage of Zann'esu Journey, and set the number of units to Blizzard to be cast on.")
+        --br.ui:createSpinner(section, colorLegendary.."Zann'esu Journey", 1, 1, 100, 1, colorWhite.."Check to enable usage of Zann'esu Journey, and set the number of units to Blizzard to be cast on.")
         --br.ui:createCheckbox(section, colorLegendary.."Norgannon's Foresight")
         br.ui:checkSectionState(section)
     end
@@ -640,11 +640,14 @@ local function runRotation()
             end
             
             --actions.aoe+=/blizzard
-			if #enemies.yards8t > 2 or ((isChecked(colorLegendary.."Zann'esu Journey") and (buff.zannesuJourney.stack() > 4 or buff.zannesuJourney.remain() < getCastTime(spell.blizzard) + 1)) and hasEquiped(133970)) then
-				if buff.zannesuJourney.stack() > 4 then
-					if cast.blizzard("best", nil, getValue(colorLegendary.."Zann'esu Journey"), blizzardRadius) then return true end
-				else
-					if cast.blizzard("best", nil, 1, blizzardRadius) then return true end
+			if  cd.blizzard == 0 then
+				if hasEquiped(133970) then
+					if buff.zannesuJourney.stack() == 5 and buff.zannesuJourney.remain() > getCastTime(spell.blizzard) then
+						if cast.blizzard("best", nil, getValue(colorLegendary.."Zann'esu Journey"), blizzardRadius) then return true end
+					end
+				end
+				if #enemies.yards8t > 2 or (#enemies.yards8t and not(talent.glacialSpike and talent.splittingIce)) then
+					if cast.blizzard("best", nil, getValue("AOE targets"), blizzardRadius) then return true end
 				end
 			end
 			
@@ -827,10 +830,13 @@ local function runRotation()
             --Against low number of targets, Blizzard is used as a filler. Use it only against 2 or more targets, 3 or more when using Glacial Spike and Splitting Ice. 
             --Zann'esu buffed Blizzard is used only at 5 stacks.
 			
-			if #enemies.yards8t > 2 or (#enemies.yards8t > 1 and not (talent.glacialSpike and talent.splittingIce)) or ((isChecked(colorLegendary.."Zann'esu Journey") and (buff.zannesuJourney.stack() > 4 or buff.zannesuJourney.remain() < getCastTime(spell.blizzard) + 1)) and hasEquiped(133970)) then
-				if buff.zannesuJourney.stack() > 4 then
-					if cast.blizzard("best", nil, getValue(colorLegendary.."Zann'esu Journey"), blizzardRadius) then return true end
-				else
+			if  cd.blizzard == 0 then
+				if hasEquiped(133970) then
+					if buff.zannesuJourney.stack() == 5 and buff.zannesuJourney.remain() > getCastTime(spell.blizzard) then
+						if cast.blizzard("best", nil, getValue(colorLegendary.."Zann'esu Journey"), blizzardRadius) then return true end
+					end
+				end
+				if #enemies.yards8t > 2 or (#enemies.yards8t and not(talent.glacialSpike and talent.splittingIce)) then
 					if cast.blizzard("best", nil, 1, blizzardRadius) then return true end
 				end
 			end
@@ -958,10 +964,13 @@ local function runRotation()
 		
         --blizzard
 		-- actions.single+=/blizzard,if=active_enemies>2|active_enemies>1&!(talent.glacial_spike.enabled&talent.splitting_ice.enabled)|(buff.zannesu_journey.stack=5&buff.zannesu_journey.remains>cast_time)
-		if #enemies.yards8t > 2 or (#enemies.yards8t > 1 and not (talent.glacialSpike and talent.splittingIce)) or ((isChecked(colorLegendary.."Zann'esu Journey") and (buff.zannesuJourney.stack() > 4 or buff.zannesuJourney.remain() < getCastTime(spell.blizzard) + 1)) and hasEquiped(133970)) then
-			if buff.zannesuJourney.stack() > 4 then
-				if cast.blizzard("best", nil, getValue(colorLegendary.."Zann'esu Journey"), blizzardRadius) then return true end
-			else
+		if  cd.blizzard == 0 and getCastTime(spell.blizzard) == 0 and isMoving("player") then
+			if hasEquiped(133970) then
+				if buff.zannesuJourney.stack() == 5 and buff.zannesuJourney.remain() > getCastTime(spell.blizzard) then
+					if cast.blizzard("best", nil, getValue(colorLegendary.."Zann'esu Journey"), blizzardRadius) then return true end
+				end
+			end
+			if #enemies.yards8t > 2 or (#enemies.yards8t and not(talent.glacialSpike and talent.splittingIce)) then
 				if cast.blizzard("best", nil, 1, blizzardRadius) then return true end
 			end
 		end
