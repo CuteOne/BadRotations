@@ -646,7 +646,7 @@ local function runRotation()
 						if cast.blizzard("best", nil, getValue(colorLegendary.."Zann'esu Journey"), blizzardRadius) then return true end
 					end
 				end
-				if #enemies.yards8t > 2 or (#enemies.yards8t and not(talent.glacialSpike and talent.splittingIce)) then
+				if #enemies.yards8t > 2 or (#enemies.yards8t > 1 and not(talent.glacialSpike and talent.splittingIce)) then
 					if cast.blizzard("best", nil, 1, blizzardRadius) then return true end
 				end
 			end
@@ -836,7 +836,7 @@ local function runRotation()
 						if cast.blizzard("best", nil, getValue(colorLegendary.."Zann'esu Journey"), blizzardRadius) then return true end
 					end
 				end
-				if #enemies.yards8t > 2 or (#enemies.yards8t and not(talent.glacialSpike and talent.splittingIce)) then
+				if #enemies.yards8t > 2 or (#enemies.yards8t > 1 and not(talent.glacialSpike and talent.splittingIce)) then
 					if cast.blizzard("best", nil, 1, blizzardRadius) then return true end
 				end
 			end
