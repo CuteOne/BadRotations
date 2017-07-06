@@ -647,7 +647,7 @@ local function runRotation()
 					end
 				end
 				if #enemies.yards8t > 2 or (#enemies.yards8t and not(talent.glacialSpike and talent.splittingIce)) then
-					if cast.blizzard("best", nil, getValue("AOE targets"), blizzardRadius) then return true end
+					if cast.blizzard("best", nil, 1, blizzardRadius) then return true end
 				end
 			end
 			
