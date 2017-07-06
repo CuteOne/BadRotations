@@ -505,6 +505,8 @@ br.idList = {
                 rejuvenation                = 774,
                 barkskin                    = 22812,
                 owlkinFrenzy                = 157228,
+                powerOfEluneTheMoonGoddness = 208284,
+                sephuzSecret                = 208052,
             },
             debuffs                         = {
                 stellarFlare                = 202347,
