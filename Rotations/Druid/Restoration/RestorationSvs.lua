@@ -586,15 +586,15 @@ local function runRotation()
 					end
 				end
 			end
+			-- Power of the Archdruid
+			if buff.powerOfTheArchdruid.exists() then
+				if cast.rejuvenation(lowestHP) then return end
+			end
 			-- Essence of G'Hanir
 			if isChecked("Essence of G'Hanir") and not isCastingSpell(spell.tranquility) then
 				if getLowAllies(getValue("Essence of G'Hanir")) >= getValue("Essence of G'Hanir Targets") and (lastSpell == spell.wildGrowth or lastSpell == spell.flourish) then
 					if cast.essenceOfGhanir() then return end
 				end
-			end
-			-- Power of the Archdruid
-			if buff.powerOfTheArchdruid.exists() then
-				if cast.rejuvenation(lowestHP) then return end
 			end
 			-- Flourish
 			if isChecked("Flourish") and talent.flourish and not isCastingSpell(spell.tranquility) then
@@ -807,6 +807,19 @@ local function runRotation()
 			-- DOT damage to teammates cast Rejuvenation
 			if inRaid and isChecked("DOT cast Rejuvenaion") then
 				local debuff_list={
+				200620, --  Darkheart Thicket
+				196376, --  Archdruid Glaidalis
+				199345, --  Dresaron
+				197546, --  Illysanna Ravencrest
+				211464, --  Court of Stars
+				192131, --  Warlord Parjesh
+				196111, --  Eye of Azshara
+				227325, --  Opera Hall
+				227848, --  Maiden of Virtue
+				227742, --  Moroes
+				227502, --  Mana Devourer
+				229159, --  Viz'aduum
+				185539, --  Helya
 				228253, --  Guarm
 				204531, --  Skorpyron
 				206607, --  Chronomatic Anomaly
@@ -855,7 +868,16 @@ local function runRotation()
 				end
 				if talent.germination then
 					local debuff2_list={
-					234310, --  Kil'jaeden
+					200620, --  Darkheart Thicket
+					196376, --  Archdruid Glaidalis
+					199345, --  Dresaron
+					197546, --  Illysanna Ravencrest
+					211464, --  Court of Stars
+					192131, --  Warlord Parjesh
+					227848, --  Maiden of Virtue
+					227502, --  Mana Devourer
+					229159, --  Viz'aduum
+					185539, --  Helya
 					}
 					for i=1, #br.friend do
 						for k,v in pairs(debuff2_list) do
@@ -893,10 +915,9 @@ local function runRotation()
 						if cast.healingTouch(br.friend[i].unit) then return end
 					end
 				end
-			end
-			
+			end			
 			--DBM cast Rejuvenaion
-			if inRaid and isChecked("DBM cast Rejuvenaion") then
+			if isChecked("DBM cast Rejuvenaion") then
 				local precast_spell_list={
 				--spell_id	, precast_time	,	spell_name
 				{214652 	, 5				,	'Acidic Fragments'},
@@ -909,9 +930,11 @@ local function runRotation()
 				{211439 	, 5				,	'Will of the Demon Within'},
 				{209270 	, 5				,	'Eye of Guldan'},
 				{227071 	, 5				,	'Flame Crash'},
+				{233279 	, 5				,	'Shattering Star'},
 				{233441 	, 5				,	'Bone Saw'},
 				{235230 	, 5				,	'Fel Squall'},
 				{231854 	, 5				,	'Unchecked Rage'},
+				{232174 	, 5				,	'Frosty Discharge'},
 				{230139 	, 5				,	'Hydra Shot'},
 				{233264 	, 5				,	'Embrace of the Eclipse'},
 				{236542 	, 5				,	'Sundering Doom'},
@@ -925,7 +948,7 @@ local function runRotation()
 					local time_remain = br.DBM:getPulltimer_fix(nil,boss_spell_id)
 					if time_remain < precast_time then
 						for j = 1, #br.friend do
-							if not buff.rejuvenation.exists(br.friend[j].unit) and not isCastingSpell(spell.tranquility) and UnitInRange(br.friend[i].unit) then
+							if not buff.rejuvenation.exists(br.friend[j].unit) and not isCastingSpell(spell.tranquility) and UnitInRange(br.friend[j].unit) then
 								if cast.rejuvenation(br.friend[j].unit) then
 									Print("DBM cast Rejuvenaion--"..spell_name)
 									return
@@ -934,7 +957,27 @@ local function runRotation()
 						end
 					end
 				end
-			end
+			end	
+			if isChecked("DBM cast Rejuvenaion") then
+    		    local Casting={
+    			--spell_id	, spell_name	
+    			{196587 	, 'Soul Burst'}, --Amalgam of Souls
+    			{211464 	, 'Fel Detonation'}, --Advisor Melandrus
+    			{237276 	, 'Pulverizing Cudgel'}, --Thrashbite the Scornful
+    			{193611 	, 'Focused Lightning'}, --Lady Hatecoil
+    			{192305 	, 'Eye of the Storm'}, --Hyrja
+    			{239132 	, 'Rupture Realities'}, --Fallen Avatar
+    			}
+    			for i=1 , #Casting do
+    			local spell_id = Casting[i][1]
+    			local spell_name = Casting[i][2]
+				    for j = 1, #br.friend do
+        			    if UnitCastingInfo("boss1") == GetSpellInfo(spell_id) and not buff.rejuvenation.exists(br.friend[j].unit) and not isCastingSpell(spell.tranquility) and UnitInRange(br.friend[j].unit) then
+        				    if cast.rejuvenation(br.friend[j].unit) then Print("DBM cast Rejuvenaion--"..spell_name) return end
+        				end
+        			end	
+        		end	
+			end	
 			-- Ephemeral Paradox trinket
 			if hasEquiped(140805) and getBuffRemain("player", 225766) > 2 and getDebuffStacks(lowestHP,209858) < 30 then
 				if cast.healingTouch(lowestHP) then return end
