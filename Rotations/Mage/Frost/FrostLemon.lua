@@ -830,7 +830,7 @@ local function runRotation()
             --Against low number of targets, Blizzard is used as a filler. Use it only against 2 or more targets, 3 or more when using Glacial Spike and Splitting Ice. 
             --Zann'esu buffed Blizzard is used only at 5 stacks.
 			
-			if  cd.blizzard == 0 then
+			if  cd.blizzard == 0 and getDistance(target) < 35 then
 				if hasEquiped(133970) then
 					if buff.zannesuJourney.stack() == 5 and buff.zannesuJourney.remain() > getCastTime(spell.blizzard) then
 						if cast.blizzard("best", nil, getValue(colorLegendary.."Zann'esu Journey"), blizzardRadius) then return true end
@@ -964,7 +964,7 @@ local function runRotation()
 		
         --blizzard
 		-- actions.single+=/blizzard,if=active_enemies>2|active_enemies>1&!(talent.glacial_spike.enabled&talent.splitting_ice.enabled)|(buff.zannesu_journey.stack=5&buff.zannesu_journey.remains>cast_time)
-		if  cd.blizzard == 0 and getCastTime(spell.blizzard) == 0 and isMoving("player") then
+		if  cd.blizzard == 0 and getCastTime(spell.blizzard) == 0 and isMoving("player") and getDistance(target) < 35 then
 			if hasEquiped(133970) then
 				if buff.zannesuJourney.stack() == 5 and buff.zannesuJourney.remain() > getCastTime(spell.blizzard) then
 					if cast.blizzard("best", nil, getValue(colorLegendary.."Zann'esu Journey"), blizzardRadius) then return true end
