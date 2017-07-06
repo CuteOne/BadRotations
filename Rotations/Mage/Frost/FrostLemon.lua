@@ -967,7 +967,7 @@ local function runRotation()
 		end
 		
 
-        if cd.coneOfCold == 0 then
+        if cd.coneOfCold == 0 and isMoving("player") then
             if isChecked(colorBlueMage.."Cone of Cold") then
                 if getFacing("player",target,50) and getDistance(target) < 12 then
                     if cast.coneOfCold("player") then return true end
@@ -975,11 +975,11 @@ local function runRotation()
             end
         end
 		
-		if #br.player.enemies(12) > 0 then
+		if #br.player.enemies(12) > 0 and isMoving("player") then
             if cast.frostNova() then return true end
         end
 		
-		if talent.iceNova and cd.iceNova == 0 then
+		if talent.iceNova and cd.iceNova == 0 and isMoving("player") then
             if cast.iceNova() then return true end
         end
 		
