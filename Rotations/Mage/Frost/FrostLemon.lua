@@ -640,12 +640,12 @@ local function runRotation()
             end
             
             --actions.aoe+=/blizzard
-			if cd.blizzard == 0 then
-				if isChecked(colorLegendary.."Zann'esu Journey") then
-					if buff.zannesuJourney.stack() == 5 then
-						if cast.blizzard("best", nil, getValue(colorLegendary.."Zann'esu Journey"), blizzardRadius) then return true end
-					elseif cast.blizzard("best", nil, getValue("AOE targets"), blizzardRadius) then return true end
-				elseif cast.blizzard("best", nil, getValue("AOE targets"), blizzardRadius) then return true end
+			if #enemies.yards8t > 2 or ((isChecked(colorLegendary.."Zann'esu Journey") and (buff.zannesuJourney.stack() > 4 or buff.zannesuJourney.remain() < getCastTime(spell.blizzard) + 1)) and hasEquiped(133970)) then
+				if buff.zannesuJourney.stack() > 4 then
+					if cast.blizzard("best", nil, getValue(colorLegendary.."Zann'esu Journey"), blizzardRadius) then return true end
+				else
+					if cast.blizzard("best", nil, 1, blizzardRadius) then return true end
+				end
 			end
 			
 			
@@ -772,7 +772,7 @@ local function runRotation()
             --Freezing Rain Blizzard. 
             --While the normal Blizzard action is usually enough, right after Frozen Orb the actor will be getting a lot of FoFs, which might delay Blizzard to the point where we miss out on Freezing Rain. 
             --Therefore, if we are not at a risk of overcapping on FoF, use Blizzard before using Ice Lance.
-            if cd.blizzard == 0 then
+            if cd.blizzard == 0 and getDistance(target) < 35 then
                 if getCastTime(spell.blizzard) == 0 and #enemies.yards8t > 1 and fof_react < 3  then
                     if cast.blizzard("best", nil, 1, blizzardRadius) then return true end
                 end
@@ -826,14 +826,15 @@ local function runRotation()
             --Blizzard,if=active_enemies>2|active_enemies>1&!(talent.glacial_spike.enabled&talent.splitting_ice.enabled)|(buff.zannesu_journey.stack=5&buff.zannesu_journey.remains>cast_time)
             --Against low number of targets, Blizzard is used as a filler. Use it only against 2 or more targets, 3 or more when using Glacial Spike and Splitting Ice. 
             --Zann'esu buffed Blizzard is used only at 5 stacks.
-			if cd.blizzard == 0 and not isMoving("player") and (#enemies.yards8t > 2 or (#enemies.yards8t > 1 and not (talent.glacialSpike and talent.splittingIce)) or buff.zannesuJourney.stack() == 5 and buff.zannesuJourney.remain() > getCastTime(spell.blizzard)) then
-				if isChecked(colorLegendary.."Zann'esu Journey") and hasEquiped(133970) then 
+			
+			if #enemies.yards8t > 2 or (#enemies.yards8t > 1 and not (talent.glacialSpike and talent.splittingIce)) or ((isChecked(colorLegendary.."Zann'esu Journey") and (buff.zannesuJourney.stack() > 4 or buff.zannesuJourney.remain() < getCastTime(spell.blizzard) + 1)) and hasEquiped(133970)) then
+				if buff.zannesuJourney.stack() > 4 then
 					if cast.blizzard("best", nil, getValue(colorLegendary.."Zann'esu Journey"), blizzardRadius) then return true end
 				else
 					if cast.blizzard("best", nil, 1, blizzardRadius) then return true end
 				end
 			end
-            
+			
             --frostbolt,if=buff.frozen_mass.remains>execute_time+action.glacial_spike.execute_time+action.glacial_spike.travel_time&buff.brain_freeze.react=0&talent.glacial_spike.enabled
             --While Frozen Mass is active, we want to generate as many buffed Icicles as possible. 
             --However, we do not want to do this at the expense of the final Glacial Spike, which should be also used while Frozen Mass is active.
@@ -929,7 +930,7 @@ local function runRotation()
 	-- Instant cast blizzard
 		-- While the normal Blizzard action is usually enough, right after Frozen Orb the actor will be getting a lot of FoFs, which might delay Blizzard to the point where we miss out on Freezing Rain. 
 		-- Therefore, if we are not at a risk of overcapping on FoF, use Blizzard before using Ice Lance.
-		if cd.blizzard == 0 and isMoving("player") then
+		if cd.blizzard == 0 and isMoving("player") and getDistance(target) < 35 then
             if getCastTime(spell.blizzard) == 0 and fof_react < 3 and (lastCast == spell.frozenOrb or cd.frozenOrb > 5) then
                 if cast.blizzard("best", nil, 1, blizzardRadius) then return true end
             end
@@ -957,8 +958,8 @@ local function runRotation()
 		
         --blizzard
 		-- actions.single+=/blizzard,if=active_enemies>2|active_enemies>1&!(talent.glacial_spike.enabled&talent.splitting_ice.enabled)|(buff.zannesu_journey.stack=5&buff.zannesu_journey.remains>cast_time)
-		if cd.blizzard == 0 and isMoving("player") and getCastTime(spell.blizzard) == 0 and (#enemies.yards8t > 2 or (#enemies.yards8t > 1 and not (talent.glacialSpike and talent.splittingIce)) or buff.zannesuJourney.stack() == 5 and buff.zannesuJourney.remain() > getCastTime(spell.blizzard)) then
-			if isChecked(colorLegendary.."Zann'esu Journey") and hasEquiped(133970) then 
+		if #enemies.yards8t > 2 or (#enemies.yards8t > 1 and not (talent.glacialSpike and talent.splittingIce)) or ((isChecked(colorLegendary.."Zann'esu Journey") and (buff.zannesuJourney.stack() > 4 or buff.zannesuJourney.remain() < getCastTime(spell.blizzard) + 1)) and hasEquiped(133970)) then
+			if buff.zannesuJourney.stack() > 4 then
 				if cast.blizzard("best", nil, getValue(colorLegendary.."Zann'esu Journey"), blizzardRadius) then return true end
 			else
 				if cast.blizzard("best", nil, 1, blizzardRadius) then return true end
