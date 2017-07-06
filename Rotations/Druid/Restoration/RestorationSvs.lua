@@ -805,7 +805,7 @@ local function runRotation()
 				end
 			end			
 			-- DOT damage to teammates cast Rejuvenation
-			if inRaid and isChecked("DOT cast Rejuvenaion") then
+			if isChecked("DOT cast Rejuvenaion") then
 				local debuff_list={
 				200620, --  Darkheart Thicket
 				196376, --  Archdruid Glaidalis
@@ -958,8 +958,8 @@ local function runRotation()
 					end
 				end
 			end	
-			if isChecked("DBM cast Rejuvenaion") then
-    		    local Casting={
+		if isChecked("DBM cast Rejuvenaion") then
+    		        local Casting={
     			--spell_id	, spell_name	
     			{196587 	, 'Soul Burst'}, --Amalgam of Souls
     			{211464 	, 'Fel Detonation'}, --Advisor Melandrus
@@ -977,7 +977,7 @@ local function runRotation()
         				end
         			end	
         		end	
-			end	
+		end	
 			-- Ephemeral Paradox trinket
 			if hasEquiped(140805) and getBuffRemain("player", 225766) > 2 and getDebuffStacks(lowestHP,209858) < 30 then
 				if cast.healingTouch(lowestHP) then return end
