@@ -820,7 +820,7 @@ local function runRotation()
 		-- Aimed Shot
 		    -- aimed_shot,if=spell_targets.multi_shot=1&focus>110
 		    if power + (getCastTime(spell.aimedShot)*powerRegen) > 100  then
-		        if cast.aimedShot() then  return end
+		        if cast.aimedShot() then return end
 		    end
 		-- Sidewinders
 		    -- sidewinders,if=(!debuff.hunters_mark.up|(!buff.marking_targets.up&!buff.trueshot.up))&((buff.marking_targets.up&variable.vuln_aim_casts<1)|buff.trueshot.up|charges_fractional>1.9)
@@ -832,7 +832,7 @@ local function runRotation()
 		-- Arcane Shot
 		    -- arcane_shot,if=spell_targets.multi_shot=1&(!variable.pooling_for_piercing|lowest_vuln_within.5>gcd.max)
 		    if ((mode.rotation == 1 and #enemies.yards8t == 1) or mode.rotation == 3) and (not poolForPiercing or lowestVuln > gcd) and power < 95 then
-		        if cast.arcaneShot() then return end
+		        if cast.arcaneShot() then  return end
 		    end
 		-- Multi-Shot
 		    -- Multi-Shot,if=spell_targets>1&(!variable.pooling_for_piercing|lowest_vuln_within.5>gcd.max)
@@ -883,7 +883,7 @@ local function runRotation()
                 PetFollow()
             end
             return true
-        else
+        else 
             br.player.getDebuffsCount()
 -----------------------
 --- Extras Rotation ---
@@ -907,9 +907,6 @@ local function runRotation()
 --- In Combat Rotation ---
 --------------------------
             if inCombat and isValidUnit(units.dyn40) and getDistance(units.dyn40) < 40 and isCastingSpell(spell.barrage) == false then
-            	if power == powerMax then
-				end
-
     ------------------------------
     --- In Combat - Interrupts ---
     ------------------------------
