@@ -219,20 +219,24 @@ function dynamicTarget(range,facing)
 		local bestUnitCoef = 0
 		local bestUnit = "target"
 		local enemyTable = getEnemies("player",range)
+		local playerRealm = UnitDebuffID("player",235621)
 		for k, v in pairs(enemyTable) do
 			UpdateEnemy(v)
 			local thisUnit = br.enemy[v]
+			local unitRealm = UnitDebuffID(thisUnit,235621)
 			local thisDistance = getDistance("player",thisUnit.unit)
 			if not isChecked("Hostiles Only") or (getOptionCheck("Hostiles Only") and UnitReaction(thisUnit.unit,"player")) == 2 then
-				if GetUnitExists(thisUnit.unit) and ObjectID(thisUnit.unit) ~= 103679 and thisUnit.coeficient ~= nil and getLineOfSight("player", thisUnit.unit) 
-					and not UnitIsTrivial(thisUnit.unit) and UnitCreatureType(thisUnit.unit) ~= "Critter" 
-				then
-					if (not getOptionCheck("Safe Damage Check") or thisUnit.safe) and not thisUnit.isCC
-							and thisDistance < range and (not facing or thisUnit.facing)
+				if playerRealm == unitRealm then
+					if GetUnitExists(thisUnit.unit) and ObjectID(thisUnit.unit) ~= 103679 and thisUnit.coeficient ~= nil and getLineOfSight("player", thisUnit.unit) 
+						and not UnitIsTrivial(thisUnit.unit) and UnitCreatureType(thisUnit.unit) ~= "Critter" 
 					then
-						if thisUnit.coeficient >= 0 and thisUnit.coeficient >= bestUnitCoef then
-							bestUnitCoef = thisUnit.coeficient
-							bestUnit = thisUnit.unit
+						if (not getOptionCheck("Safe Damage Check") or thisUnit.safe) and not thisUnit.isCC
+								and thisDistance < range and (not facing or thisUnit.facing)
+						then
+							if thisUnit.coeficient >= 0 and thisUnit.coeficient >= bestUnitCoef then
+								bestUnitCoef = thisUnit.coeficient
+								bestUnit = thisUnit.unit
+							end
 						end
 					end
 				end
