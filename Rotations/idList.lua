@@ -929,7 +929,8 @@ br.idList = {
                 sentinelsSight              = 208912,
                 trickShot                   = 227272,
                 trueshot                    = 193526,
-                volley                      = 194386
+                volley                      = 194386,
+                precision                   = 242242,
             },
             debuffs                         = {
                 aMurderOfCrows              = 131894,
@@ -1722,6 +1723,7 @@ br.idList = {
             abilities                       = {
                 avengingWrath               = 31884,
                 bladeOfJustice              = 184575,
+                bladeOfWrath                = 231832,
                 cleanseToxins               = 213644,
                 consecration                = 205228,
                 crusade                     = 231895,

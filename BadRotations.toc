@@ -138,6 +138,7 @@ Rotations\Druid\Balance\BalanceLyLoLoq.lua
 Rotations\Hunter\Beastmaster\BeastmasterCpoworks.lua
 
 Rotations\Hunter\Marksmanship\MarksmanshipCpoworks.lua
+Rotations\Hunter\Marksmanship\MarksmanshipAura.lua
 
 Rotations\Hunter\Survival\SurvivalCuteOne.lua
 
