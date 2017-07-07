@@ -188,6 +188,8 @@ end
 
 -- returns prefered target for diferent spells
 function dynamicTarget(range,facing)
+	local playerRealm = UnitDebuffID("player",235621) ~= nil
+	local targetRealm = UnitDebuffID("target",235621) ~= nil
 	local tempTime = GetTime();
 	if not lastUpdateTime then
 		lastUpdateTime = tempTime
@@ -203,7 +205,10 @@ function dynamicTarget(range,facing)
 		updateRate = #getEnemies("player",50)/2
 	end
 	-- local startTime = debugprofilestop()
-	if getOptionCheck("Dynamic Targetting") and (UnitIsDeadOrGhost("target") or not GetUnitExists("target") or getDistance("player","target")< range) and (UnitDebuffID("player",235621) == UnitDebuffID("target",235621)) and (tempTime - ntlastUpdateTime) < 0.3 then
+	if getOptionCheck("Dynamic Targetting") and (UnitIsDeadOrGhost("target") or not GetUnitExists("target") or getDistance("player","target")< range) 
+		and ((playerRealm and targetRealm) or (not playerRealm and not targetRealm))
+		and (tempTime - ntlastUpdateTime) < 0.3 
+	then
 		if not UnitAffectingCombat("player") and attempts < 3 then
 			ntlastUpdateTime = tempTime
 			TargetNearestEnemy()
@@ -219,14 +224,13 @@ function dynamicTarget(range,facing)
 		local bestUnitCoef = 0
 		local bestUnit = "target"
 		local enemyTable = getEnemies("player",range)
-		local playerRealm = UnitDebuffID("player",235621)
 		for k, v in pairs(enemyTable) do
 			UpdateEnemy(v)
 			local thisUnit = br.enemy[v]
-			local unitRealm = UnitDebuffID(thisUnit,235621)
+			local unitRealm = UnitDebuffID(thisUnit,235621) ~= nil
 			local thisDistance = getDistance("player",thisUnit.unit)
 			if not isChecked("Hostiles Only") or (getOptionCheck("Hostiles Only") and UnitReaction(thisUnit.unit,"player")) == 2 then
-				if playerRealm == unitRealm then
+				if (playerRealm and unitRealm) or (not playerRealm and not unitRealm) then
 					if GetUnitExists(thisUnit.unit) and ObjectID(thisUnit.unit) ~= 103679 and thisUnit.coeficient ~= nil and getLineOfSight("player", thisUnit.unit) 
 						and not UnitIsTrivial(thisUnit.unit) and UnitCreatureType(thisUnit.unit) ~= "Critter" 
 					then
