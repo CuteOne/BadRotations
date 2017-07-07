@@ -776,7 +776,7 @@ local function runRotation()
 			end
 		-- Arcane Shot
 			-- arcane_shot,if=spell_targets.multishot=1&(!set_bonus.tier20_2pc|!action.aimed_shot.in_flight|buff.t20_2p_critical_aimed_damage.remains>action.aimed_shot.execute_time+gcd.max)&variable.vuln_aim_casts>0&variable.can_gcd&focus+cast_regen+action.aimed_shot.cast_regen<focus.max&(!variable.pooling_for_piercing|lowest_vuln_within.5>gcd.max)
-			if #enemies.yards8t == 1 and (not t20_2pc or buff.precision.remain() > getCastTime(spell.aimShot) + gcd) and vulnAimCast > 0 and canGCD and power + (powerRegen*getCastTime(spell.arcaneShot)) + (powerRegen*getCastTime(spell.aimedShot)) + 20 < powerMax and (not poolForPiercing or lowestVuln > gcd) then
+			if #enemies.yards8t == 1 and (not t20_2pc or buff.precision.remain() > getCastTime(spell.aimedShot) + gcd) and vulnAimCast > 0 and canGCD and power + (powerRegen*getCastTime(spell.arcaneShot)) + (powerRegen*getCastTime(spell.aimedShot)) + 20 < powerMax and (not poolForPiercing or lowestVuln > gcd) then
 				if cast.arcaneShot() then return end
 			end
 		-- Aimed Shot
@@ -790,7 +790,7 @@ local function runRotation()
 			end
 		-- Marked Shot
 		    -- marked_shot,if=!talent.sidewinders.enabled&!variable.pooling_for_piercing
-		    if not talent.sidewinders and not poolForPiercing and power > 80 and cd.windburst > 2 then
+		    if not talent.sidewinders and not poolForPiercing and power > 70 and cd.windburst > 2 then
 		    	if debuff.huntersMark.count() >= 1 then
 			        for i = 1, #enemies.yards40 do
 			            local thisUnit = enemies.yards40[i]
@@ -813,7 +813,7 @@ local function runRotation()
 		    end
 		-- Aimed Shot
 		    -- aimed_shot,if=spell_targets.multi_shot=1&focus>110
-		    if power + (getCastTime(spell.aimedShot)*powerRegen) > 95  then
+		    if power + (getCastTime(spell.aimedShot)*powerRegen) >= 95  then
 		        if cast.aimedShot() then return end
 		    end
 		-- Sidewinders
