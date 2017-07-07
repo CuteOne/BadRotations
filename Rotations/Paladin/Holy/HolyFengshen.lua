@@ -334,7 +334,7 @@ local function runRotation()
 		local function overhealingcancel()
 			-- Overhealing Cancel
 			if isChecked("Overhealing Cancel") and healing_obj ~= nil then
-				if (getHP(healing_obj) >= getValue("Overhealing Cancel") and (isCastingSpell(spell.flashOfLight) or isCastingSpell(spell.holyLight))) or (getHP(healing_obj) <= getValue("Critical HP") and isCastingSpell(spell.holyLight)) then
+				if ((getHP(healing_obj) >= getValue("Overhealing Cancel") and (isCastingSpell(spell.flashOfLight) or isCastingSpell(spell.holyLight))) or (getHP(healing_obj) <= getValue("Critical HP") and isCastingSpell(spell.holyLight))) and (talent.auraOfSacrifice and not buff.auraMastery.exists()) then
 					SpellStopCasting()
 					healing_obj = nil
 					Print("Cancel casting...")
@@ -616,29 +616,37 @@ local function runRotation()
 		local function Beacon()
 			-- Beacon of Light on Tank
 			if isChecked("Beacon of Light") and not talent.beaconOfVirtue then
-				if inRaid then
-					local bossUnit = nil
-					local bossTarget = nil
-					for v=1, #enemies.yards40 do
-						if isBoss(enemies.yards40[v]) then
-							bossUnit = enemies.yards40[v]
+			    if inRaid then
+				    for i=1, #br.friend do
+					    if UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" and UnitIsUnit(br.friend[i].unit,"boss1target")
+						and not buff.beaconOfLight.exists(br.friend[i].unit) and not buff.beaconOfFaith.exists(br.friend[i].unit) and UnitInRange(br.friend[i].unit) then 
+						    if cast.beaconOfLight(br.friend[i].unit) then return end
 						end
 					end
-					for i=1, #br.friend do
-						local threat  = nil
-						if  bossUnit ~= nil then
-							threat = UnitThreatSituation(br.friend[i].unit , bossUnit)
-							if threat ~= nil then
-							end
-						end
-						if  bossUnit ~= nil and threat ~= nil and threat >= 3 then
-							if (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and UnitAffectingCombat(br.friend[i].unit)
-								and not buff.beaconOfLight.exists(br.friend[i].unit) and not buff.beaconOfFaith.exists(br.friend[i].unit) and UnitInRange(br.friend[i].unit) then
-								if cast.beaconOfLight(br.friend[i].unit) then return end
-							end
-						end
-					end
-				end
+				end	
+				-- if inRaid then
+					-- local bossUnit = nil
+					-- local bossTarget = nil
+					-- for v=1, #enemies.yards40 do
+						-- if isBoss(enemies.yards40[v]) then
+							-- bossUnit = enemies.yards40[v]
+						-- end
+					-- end
+					-- for i=1, #br.friend do
+						-- local threat  = nil
+						-- if  bossUnit ~= nil then
+							-- threat = UnitThreatSituation(br.friend[i].unit , bossUnit)
+							-- if threat ~= nil then
+							-- end
+						-- end
+						-- if  bossUnit ~= nil and threat ~= nil and threat >= 3 then
+							-- if (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and UnitAffectingCombat(br.friend[i].unit)
+								-- and not buff.beaconOfLight.exists(br.friend[i].unit) and not buff.beaconOfFaith.exists(br.friend[i].unit) and UnitInRange(br.friend[i].unit) then
+								-- if cast.beaconOfLight(br.friend[i].unit) then return end
+							-- end
+						-- end
+					-- end
+				-- end
 				LightCount = 0
 				for i=1, #br.friend do
 					if buff.beaconOfLight.exists(br.friend[i].unit) then
