@@ -1,4 +1,4 @@
--- here we want to define functions to use with the healing profiles
+﻿-- here we want to define functions to use with the healing profiles
 -- find best tank to put our lb/beacon/earth shield on
 function getFocusedTank()
 	local tanks = getTanksTable()
@@ -34,6 +34,10 @@ function getTanksTable()
 			tinsert(tanksTable, br.friend[i])
 		end
 	end
+	-- We are sorting by Health first
+	table.sort(tanksTable, function(x,y)
+		return x.hp < y.hp
+	end)
 	return tanksTable
 end
 -- we want to define an iteration that will compare allies to heal in range of enemies or allies
