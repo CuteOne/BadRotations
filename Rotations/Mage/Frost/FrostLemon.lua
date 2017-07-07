@@ -57,6 +57,7 @@ local function createOptions()
         --- GENERAL OPTIONS --- -- Define General Options
         -----------------------
         section = br.ui:createSection(br.ui.window.profile,  "General")
+        br.ui:createCheckbox(section, "Dynamic Targetting")
         br.ui:createDropdownWithout(section, "Opener Mode", {colorWhite.."SimC", colorWhite.."Icy-Veins", colorWhite.."Ray of Frost"}, 1, colorWhite.."Set APL Mode to use.")
         br.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  colorWhite.."Set to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
         br.ui:createCheckbox(section, "Opener")
@@ -197,7 +198,7 @@ local function runRotation()
         WJ    = false
         RF    = false
         opener= false
-		
+        
         seq = 0
         lastCast = 61304
     end
@@ -494,7 +495,7 @@ local function runRotation()
             return true
         end
 
-        if not opener and isChecked("Opener") and isBoss("target") then
+        if not opener and isChecked("Opener") and isBoss(target) then
             if getOptionValue("Opener Mode") == 1 then--SimC
                 if actionList_OPENER_SIMC() then return true end
             elseif getOptionValue("Opener Mode") == 2 then -- Icy Veins
@@ -506,7 +507,7 @@ local function runRotation()
 
         return false
     end
-	
+    
     local function actionList_PRECOMBAT()
         --actions.precombat=flask
         if isChecked("Flask / Crystal") then
@@ -625,7 +626,7 @@ local function runRotation()
             if lastCast == spell.waterJet and getCastTime(spell.frostbolt)+0.2 < getCastTimeRemain("pet") then
                 if cast.frostbolt(target) then return true end
             end
-			
+            
             --actions.aoe+=/frozen_orb
             if cd.frozenOrb == 0 then
                 if useCDs() and isChecked(colorBlueMage.."Frozen Orb") and getEnemiesInRect(15,55,false) > 0 and buff.fingersOfFrost.stack() < 2 then
@@ -634,18 +635,18 @@ local function runRotation()
             end
             
             --actions.aoe+=/blizzard
-			if  cd.blizzard == 0 then
-				if hasEquiped(133970) then
-					if buff.zannesuJourney.stack() == 5 and buff.zannesuJourney.remain() > getCastTime(spell.blizzard) then
-						if castGroundAtBestLocation(spell.blizzard,blizzardRadius,1,35,1) then return true end
-					end
-				end
-				if #enemies.yards8t > 2 or (#enemies.yards8t > 1 and not(talent.glacialSpike and talent.splittingIce)) then
-					if castGroundAtBestLocation(spell.blizzard,blizzardRadius,1,35,1) then return true end
-				end
-			end
-			
-			
+            if  cd.blizzard == 0 then
+                if hasEquiped(133970) then
+                    if buff.zannesuJourney.stack() == 5 and buff.zannesuJourney.remain() > getCastTime(spell.blizzard) then
+                        if cast.blizzard(target,"ground") then return true end
+                    end
+                end
+                if #enemies.yards8t > 2 or (#enemies.yards8t > 1 and not(talent.glacialSpike and talent.splittingIce)) then
+                    if cast.blizzard(target,"ground") then return true end
+                end
+            end
+            
+            
             --actions.aoe+=/comet_storm
             if talent.cometStorm then
                 if cd.cometStorm == 0 then
@@ -672,8 +673,9 @@ local function runRotation()
                 if cast.flurry(target) then return true end
             end
             
+            
             --actions.aoe+=/frost_bomb,if=debuff.frost_bomb.remains<action.ice_lance.travel_time&variable.fof_react>0
-			--[[
+            --
             if talent.frostBomb then
                 if lastCast ~= spell.frostBomb then
                     if not debuff.frostBomb.exists() or debuff.frostBomb.remain() < 2 and fof_react > 0 and ttdUnit >= 12 + getCastTime(spell.frostBomb)+0.5 then
@@ -681,11 +683,7 @@ local function runRotation()
                     end
                 end
             end
-			]]
-			if debuff.frostBomb.remain() < 2 and fof_react > 0 then
-				if cast.frostBomb(target) then return true end
-			end
-			
+            
             
             --actions.aoe+=/ice_lance,if=variable.fof_react>0
             if fof_react > 0 then
@@ -714,12 +712,12 @@ local function runRotation()
         local function actionList_SINGLE()
             
             --actions.single=ice_nova,if=debuff.winters_chill.up--why?
-            if talent.iceNova and debuff.wintersChillthen.exists() then 
+            if talent.iceNova and debuff.wintersChill.exists() then 
                 if  cd.iceNova == 0 then
                     if cast.iceNova() then return true end
                 end
             end
-			
+            
             --  Frozen_orb,if=set_bonus.tier20_2pc
             
             --  With T20 2pc, Frozen Orb should be used as soon as it comes off CD.
@@ -740,7 +738,7 @@ local function runRotation()
             --The APL then forces another Frostbolt to guarantee getting both FoFs from the Water Jet. This works for most haste values (roughly from 0% to 160%). 
             --When changing the default distance, great care must be taken otherwise this action won't produce two FoFs.
             
-            if lastCast == spell.frostbolt and isCastingSpell(spell.frostbolt) and buff.fingersOfFrost.stack() < (2 + iceHand) and not buff.brainFreeze.exists() then
+            if lastCast == spell.frostbolt and buff.fingersOfFrost.stack() < (2 + iceHand) and not buff.brainFreeze.exists() then
                 CastSpellByName(GetSpellInfo(spell.waterJet))
                 lastCast = spell.waterJet
             end
@@ -769,24 +767,22 @@ local function runRotation()
             --Freezing Rain Blizzard. 
             --While the normal Blizzard action is usually enough, right after Frozen Orb the actor will be getting a lot of FoFs, which might delay Blizzard to the point where we miss out on Freezing Rain. 
             --Therefore, if we are not at a risk of overcapping on FoF, use Blizzard before using Ice Lance.
-            if cd.blizzard == 0 then
-                if getCastTime(spell.blizzard) == 0 and #enemies.yards8t > 1 and fof_react < 3  then
-                    if castGroundAtBestLocation(spell.blizzard,blizzardRadius,1,35,1) then return true end
+            if cd.blizzard == 0 and getCastTime(spell.blizzard) == 0 then
+                if #enemies.yards8t > 1 and fof_react < 3  then
+                    if cast.blizzard(target,"ground") then return true end
                 end
             end
             
 
             --actions.single+=/frost_bomb,if=debuff.frost_bomb.remains<action.ice_lance.travel_time&variable.fof_react>0
             if talent.frostBomb then
-                if lastCast ~= spell.frostBomb then
-                    if not debuff.frostBomb.exists() or debuff.frostBomb.remain() < 2 and fof_react > 0 and ttdUnit >= 12 + getCastTime(spell.frostBomb)+0.5 then
-                        if cast.frostBomb(target) then return true end
-                    end
+                if debuff.frostBomb.remain() < 1 and fof_react > 0 then
+                    if cast.frostBomb(target) then return true end
                 end
             end
             
             --actions.single+=/ice_lance,if=variable.fof_react>0&cooldown.icy_veins.remains>10|variable.fof_react>2
-            if (fof_react > 0 and cd.icyVeins > 10) or (not useCDs() and fof_react > 0) or fof_react > 2 then
+            if fof_react > 0 and cd.icyVeins > 10 or fof_react > 2 then
                 if cast.iceLance(target) then return true end
             end
             
@@ -823,28 +819,22 @@ local function runRotation()
             --Blizzard,if=active_enemies>2|active_enemies>1&!(talent.glacial_spike.enabled&talent.splitting_ice.enabled)|(buff.zannesu_journey.stack=5&buff.zannesu_journey.remains>cast_time)
             --Against low number of targets, Blizzard is used as a filler. Use it only against 2 or more targets, 3 or more when using Glacial Spike and Splitting Ice. 
             --Zann'esu buffed Blizzard is used only at 5 stacks.
-			
-			if  cd.blizzard == 0 then
-				if hasEquiped(133970) then
-					if buff.zannesuJourney.stack() == 5 and buff.zannesuJourney.remain() > getCastTime(spell.blizzard) then
-						if castGroundAtBestLocation(spell.blizzard,blizzardRadius,1,35,1) then return true end
-					end
-				end
-				if #enemies.yards8t > 2 or (#enemies.yards8t > 1 and not(talent.glacialSpike and talent.splittingIce)) then
-					if castGroundAtBestLocation(spell.blizzard,blizzardRadius,1,35,1) then return true end
-				end
-			end
-			
+            
+            if  cd.blizzard == 0 then
+                if hasEquiped(133970) then
+                    if buff.zannesuJourney.stack() == 5 and buff.zannesuJourney.remain() > getCastTime(spell.blizzard) then
+                        if cast.blizzard(target,"ground") then return true end
+                    end
+                end
+                if #enemies.yards8t > 2 or #enemies.yards8t > 1 and not(talent.glacialSpike and talent.splittingIce) then
+                    if cast.blizzard(target,"ground") then return true end
+                end
+            end
+            
             --frostbolt,if=buff.frozen_mass.remains>execute_time+action.glacial_spike.execute_time+action.glacial_spike.travel_time&buff.brain_freeze.react=0&talent.glacial_spike.enabled
             --While Frozen Mass is active, we want to generate as many buffed Icicles as possible. 
             --However, we do not want to do this at the expense of the final Glacial Spike, which should be also used while Frozen Mass is active.
-            if getCastTime(spell.frostbolt) >= gcd then
-                execute_time = getCastTime(spell.frostbolt)
-            elseif getCastTime(spell.frostbolt) < gcd then
-                execute_time = gcd
-            end
-            
-            if buff.frozenMass.remain() > ( execute_time + getCastTime(spell.glacialSpike) + 1 ) and not buff.brainFreeze.exists() and talent.glacialSpike then
+            if buff.frozenMass.remain() >  getSpellCD(spell.frostbolt) + getCastTime(spell.glacialSpike) + 1 and not buff.brainFreeze.exists() and talent.glacialSpike then
                 if cast.frostbolt(target) then return true end
             end
             
@@ -861,15 +851,23 @@ local function runRotation()
             
             if cast.frostbolt(target) then return true end
             
+            if cd.blizzard == 0 then
+                if getCastTime(spell.blizzard) == 0 then
+                    if cast.blizzard(target,"ground") then return true end
+                end
+            end
+            
+            if cast.iceLance(target) then return true end
+            
             return false
             
         end
 
         local function actionList_COMBAT()
-			if cd.icyVeins == 0 and not buff.icyVeins.exists() then
-				if debug == true then Print("iv_start Changed: "..iv_start) end
-					iv_start = getCombatTime()
-			end
+            if cd.icyVeins == 0 and not buff.icyVeins.exists() then
+                if debug == true then Print("iv_start Changed: "..iv_start) end
+                    iv_start = getCombatTime()
+            end
             
             --actions+=/variable,name=time_until_fof,value=10-(time-variable.iv_start-floor((time-variable.iv_start)%10)*10)
             time_until_fof = 10-(getCombatTime() - iv_start - math.floor(math.fmod((getCombatTime() - iv_start),10))*10)
@@ -905,70 +903,32 @@ local function runRotation()
             if actionList_SINGLE() then return true end
             return false
         end
-		
+        
 
         if actionList_COMBAT() then return true end
         return false
     end
 
     local function MovingMode()
-		
-	-- Frozen Orb
-		-- If we are moving and we have the Tier 20 2 piece bonus we should always frozen orb first.
-		if isMoving("player") and cd.frozenOrb == 0 and t20pc2 then
-			if useCDs() and isChecked(colorBlueMage.."Frozen Orb") and getEnemiesInRect(15,55,false) > 0 then
-				if cast.frozenOrb() then return true end
-			end
-		end	
-	
-    -- Flurry
-        if isMoving("player") and lastCast == spell.ebonbolt or buff.brainFreeze.exists() and (not talent.glacialSpike and lastCast == spell.frostbolt or talent.glacialSpike and (lastCast == spell.glacialSpike or lastCast == spell.frostbolt and (buff.icicles.stack() <= 3 or cd.frozenOrb <= 10 and t202pc))) then
-			if cast.flurry(target) then return true end
-		end
-	
-	-- Instant cast blizzard
-		-- While the normal Blizzard action is usually enough, right after Frozen Orb the actor will be getting a lot of FoFs, which might delay Blizzard to the point where we miss out on Freezing Rain. 
-		-- Therefore, if we are not at a risk of overcapping on FoF, use Blizzard before using Ice Lance.
-		if cd.blizzard == 0 and isMoving("player") then
-            if getCastTime(spell.blizzard) == 0 and fof_react < 3 and (lastCast == spell.frozenOrb or cd.frozenOrb > 5) then
-                if castGroundAtBestLocation(spell.blizzard,blizzardRadius,1,35,1) then return true end
-            end
+    
+        if lastCast == spell.ebonbolt or buff.brainFreeze.exists() and (not talent.glacialSpike and lastCast == spell.frostbolt or talent.glacialSpike and (lastCast == spell.glacialSpike or lastCast == spell.frostbolt and (buff.icicles.stack() <= 3 or cd.frozenOrb <= 10 and t202pc))) then
+            if cast.flurry(target) then return true end
         end
-		
+        
         --actions.single+=/ice_lance,if=variable.fof_react>0&cooldown.icy_veins.remains>10|variable.fof_react>2
-		if isMoving("player") and ((fof_react > 0 and cd.icyVeins > 10) or (not useCDs() and fof_react > 0) or fof_react > 2) then
-			if cast.iceLance(target) then return true end
-		end
-		
-        --frozen orb
-        if useCDs() and isMoving("player") and useCDs() and isChecked(colorBlueMage.."Frozen Orb") and cd.frozenOrb == 0 and getEnemiesInRect(15,55,false) > 0 then
-            if cast.frozenOrb() then
-                return true
+        if fof_react > 0 and cd.icyVeins > 10 or fof_react > 2 then
+            if cast.iceLance(target) then return true end
+        end
+        
+    -- Instant cast blizzard
+        -- While the normal Blizzard action is usually enough, right after Frozen Orb the actor will be getting a lot of FoFs, which might delay Blizzard to the point where we miss out on Freezing Rain. 
+        -- Therefore, if we are not at a risk of overcapping on FoF, use Blizzard before using Ice Lance.
+        if cd.blizzard == 0 then
+            if getCastTime(spell.blizzard) == 0 and fof_react < 3 and (lastCast == spell.frozenOrb or cd.frozenOrb > 5) then
+                if cast.blizzard(target,"ground") then return true end
             end
         end
-		
-		if talent.cometStorm and isMoving("player")then
-			if cd.cometStorm == 0 then
-				if isChecked(colorBlueMage.."Comet Storm") and ( IsStandingTime(2,target) or GetUnitSpeed(target) <= 3) then
-					if cast.cometStorm(target) then return true end
-				end
-			end
-		end
-		
-        --blizzard
-		-- actions.single+=/blizzard,if=active_enemies>2|active_enemies>1&!(talent.glacial_spike.enabled&talent.splitting_ice.enabled)|(buff.zannesu_journey.stack=5&buff.zannesu_journey.remains>cast_time)
-		if  cd.blizzard == 0 and getCastTime(spell.blizzard) == 0 and isMoving("player") then
-			if hasEquiped(133970) then
-				if buff.zannesuJourney.stack() == 5 and buff.zannesuJourney.remain() > getCastTime(spell.blizzard) then
-					if castGroundAtBestLocation(spell.blizzard,blizzardRadius,1,35,1) then return true end
-				end
-			end
-			if #enemies.yards8t > 2 or (#enemies.yards8t and not(talent.glacialSpike and talent.splittingIce)) then
-				if castGroundAtBestLocation(spell.blizzard,blizzardRadius,1,35,1) then return true end
-			end
-		end
-		
-
+        
         if cd.coneOfCold == 0 and isMoving("player") then
             if isChecked(colorBlueMage.."Cone of Cold") then
                 if getFacing("player",target,50) and getDistance(target) < 12 then
@@ -976,16 +936,15 @@ local function runRotation()
                 end
             end
         end
-		
-		if #br.player.enemies(12) > 0 and isMoving("player") then
+        
+        if #br.player.enemies(12) > 0 and isMoving("player") then
             if cast.frostNova() then return true end
         end
-		
-		if talent.iceNova and cd.iceNova == 0 and isMoving("player") then
+        
+        if talent.iceNova and cd.iceNova == 0 and isMoving("player") then
             if cast.iceNova() then return true end
         end
-		
-		
+
         --ice lance if all else fails
         if cast.iceLance(target) and isMoving("player") then return true end
     end
@@ -1021,7 +980,7 @@ local function runRotation()
                 else
                     if MovingMode() then return true end
                 end
-				
+                
             end -- End In Combat Rotation
         end -- Pause
     end
@@ -1032,9 +991,11 @@ local function runRotation()
         CastSpellByName(GetSpellInfo(spell.waterJet))
         lastCast = spell.waterJet
     end
+    
     if isCastingSpell(spell.waterJet,"pet") then
         lastCast = spell.waterJet
     end
+    
     if UnitCastingInfo("player") == nil and getSpellCD(61304) == 0 then
         return profile()
     end
