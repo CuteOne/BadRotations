@@ -227,7 +227,7 @@ function dynamicTarget(range,facing)
 		for k, v in pairs(enemyTable) do
 			UpdateEnemy(v)
 			local thisUnit = br.enemy[v]
-			local unitRealm = UnitDebuffID(thisUnit,235621) ~= nil
+			local unitRealm = UnitDebuffID(thisUnit.unit,235621) ~= nil
 			local thisDistance = getDistance("player",thisUnit.unit)
 			if not isChecked("Hostiles Only") or (getOptionCheck("Hostiles Only") and UnitReaction(thisUnit.unit,"player")) == 2 then
 				if (playerRealm and unitRealm) or (not playerRealm and not unitRealm) then
