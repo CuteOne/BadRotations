@@ -277,12 +277,16 @@ local function runRotation()
 			    if cast.contemplation() then return end
 		    end	
 			-- Blessing of Protection
-			if getDebuffRemain(lowestUnit,237726) > 1 then
-				if cast.blessingOfProtection(lowestUnit) then return end
-			end
-			if getDebuffRemain(lowestUnit,200238) > 1 and talent.blessingOfSpellwarding and not UnitIsUnit(lowestUnit,"player") then
-				if cast.blessingOfSpellwarding(lowestUnit) then return end
-			end	
+			for i = 1, #br.friend do
+    			if getDebuffRemain(br.friend[i].unit,237726) > 1 then
+    				if cast.blessingOfProtection(br.friend[i].unit) then return end
+    			end
+    		end	
+    		for i = 1, #br.friend do
+    			if getDebuffRemain(br.friend[i].unit,200238) > 1 and talent.blessingOfSpellwarding and not UnitIsUnit(br.friend[i].unit,"player") then
+    				if cast.blessingOfSpellwarding(br.friend[i].unit) then return end
+    			end
+    		end	
 			if GetObjectID("target") == 98965 then
 			    if getHP("target") < 20  then
 				    if cast.blessingOfProtection() then return end
@@ -295,7 +299,7 @@ local function runRotation()
 			if getDebuffRemain("player",200238) > 1 and not buff.shieldOfTheRighteous.exists() then
 				if cast.shieldOfTheRighteous() then return end
 			end	
-			if UnitCastingInfo("target") == GetSpellInfo(202019) and not UnitBuff("player",199368) ~= nil and not buff.shieldOfTheRighteous.exists() then
+			if UnitCastingInfo("target") == GetSpellInfo(202019) and getBuffRemain("player",199368) < 1 and not buff.shieldOfTheRighteous.exists() then
 				if cast.shieldOfTheRighteous() then return end
 			end				
 			if GetObjectID("target") == 99192 then
