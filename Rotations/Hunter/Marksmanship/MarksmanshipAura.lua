@@ -260,17 +260,11 @@ local function runRotation()
 			vulnWindow = debuff.vulnerable.remain(units.dyn40)
 		end
         
-		local asExecuteTime = asExecuteTime or 0
-		if gcd < getCastTime(spell.aimedShot) then
-			asExecuteTime = gcd
-		else
-			asExecuteTime = getCastTime(spell.aimedShot)
-		end
 
 		-- Vulnerable Aim Casts
 	    local vulnAimCast = vulnAimCast or 0
 	    --actions.patient_sniper+=/variable,name=vuln_aim_casts,op=set,value=floor(variable.vuln_window%action.aimed_shot.execute_time)
-	    vulnAimCast = math.floor(vulnWindow /asExecuteTime)
+	    vulnAimCast = math.floor(vulnWindow /getCastTime(spell.aimedShot))
 	    -- vuln_aim_casts,op=set,value=floor((focus+action.aimed_shot.cast_regen*(variable.vuln_aim_casts-1))%action.aimed_shot.cost),if=variable.vuln_aim_casts>0&variable.vuln_aim_casts>floor((focus+action.aimed_shot.cast_regen*(variable.vuln_aim_casts-1))%action.aimed_shot.cost)
 	    if vulnAimCast > 0 and vulnAimCast > math.floor((power + (getCastTime(spell.aimedShot)*powerRegen)*(vulnAimCast-1))/50) then
 	    	vulnAimCast = math.floor((power + (getCastTime(spell.aimedShot)*powerRegen)*(vulnAimCast-1))/50)
@@ -278,7 +272,7 @@ local function runRotation()
 
         -- Can GCD
         --can_gcd,value=variable.vuln_window<action.aimed_shot.cast_time|variable.vuln_window>variable.vuln_aim_casts*action.aimed_shot.execute_time+gcd.max+0.1
-        local canGCD = vulnWindow < getCastTime(spell.aimedShot) or (vulnWindow > vulnAimCast* asExecuteTime + gcd + 0.1)        
+        local canGCD = vulnWindow < getCastTime(spell.aimedShot) or (vulnWindow > vulnAimCast* getCastTime(spell.aimedShot) + gcd + 0.1)        
 
         function br.player.getDebuffsCount()
             local UnitDebuffID = UnitDebuffID
@@ -742,7 +736,7 @@ local function runRotation()
 		    end
 		    -- aimed_shot,if=spell_targets.multishot>1&debuff.vulnerability.remains>execute_time&(!variable.pooling_for_piercing|(focus>100&lowest_vuln_within.5>(execute_time+gcd.max)))&(spell_targets.multishot<4|buff.sentinels_sight.stack=20|talent.trick_shot.enabled)
 		    if ((mode.rotation == 1 and #enemies.yards8t >= 1) or mode.rotation == 2) and debuff.vulnerable.remain(units.dyn40) > getCastTime(spell.aimedShot) 
-		        and (not poolForPiercing or (power > 100 and lowestVuln > (asExecuteTime + gcd))) 
+		        and (not poolForPiercing or (power > 100 and lowestVuln > (getCastTime(spell.aimedShot) + gcd))) 
 		        and (((mode.rotation == 1 and #enemies.yards8t < 4) or mode.rotation == 3) or buff.sentinelsSight.stack() == 20 or talent.trickShot) 
 		    then
 		        if cast.aimedShot() then return end
@@ -782,12 +776,12 @@ local function runRotation()
 			end
 		-- Arcane Shot
 			-- arcane_shot,if=spell_targets.multishot=1&(!set_bonus.tier20_2pc|!action.aimed_shot.in_flight|buff.t20_2p_critical_aimed_damage.remains>action.aimed_shot.execute_time+gcd.max)&variable.vuln_aim_casts>0&variable.can_gcd&focus+cast_regen+action.aimed_shot.cast_regen<focus.max&(!variable.pooling_for_piercing|lowest_vuln_within.5>gcd.max)
-			if #enemies.yards8t == 1 and (not t20_2pc or buff.precision.remain() > asExecuteTime + gcd) and vulnAimCast > 0 and canGCD and power + (powerRegen*getCastTime(spell.arcaneShot)) + (powerRegen*getCastTime(spell.aimedShot)) + 20 < powerMax and (not poolForPiercing or lowestVuln > gcd) then
+			if #enemies.yards8t == 1 and (not t20_2pc or buff.precision.remain() > getCastTime(spell.aimShot) + gcd) and vulnAimCast > 0 and canGCD and power + (powerRegen*getCastTime(spell.arcaneShot)) + (powerRegen*getCastTime(spell.aimedShot)) + 20 < powerMax and (not poolForPiercing or lowestVuln > gcd) then
 				if cast.arcaneShot() then return end
 			end
 		-- Aimed Shot
 			-- aimed_shot,if=talent.sidewinders.enabled&(debuff.vulnerability.remains>cast_time|(buff.lock_and_load.down&action.windburst.in_flight))&(variable.vuln_window-(execute_time*variable.vuln_aim_casts)<1|focus.deficit<25|buff.trueshot.up)&(spell_targets.multishot=1|focus>100)
-			if talent.sidewinders and (debuff.vulnerable.remain(units.dyn40) > getCastTime(spell.aimedShot) or not buff.lockAndLoad.exists()) and (vulnWindow - (asExecuteTime * vulnAimCast) < 1 or powerDeficit < 25 or buff.trueshot.exists()) and (#enemies.yards8t == 1 or power > 100) then
+			if talent.sidewinders and (debuff.vulnerable.remain(units.dyn40) > getCastTime(spell.aimedShot) or not buff.lockAndLoad.exists()) and (vulnWindow - (getCastTime(spell.aimShot) * vulnAimCast) < 1 or powerDeficit < 25 or buff.trueshot.exists()) and (#enemies.yards8t == 1 or power > 100) then
 				if cast.aimedShot() then return end
 			end
 			-- aimed_shot,if=!talent.sidewinders.enabled&debuff.vulnerability.remains>cast_time&(!variable.pooling_for_piercing|(focus>100&lowest_vuln_within.5>(execute_time+gcd.max)))
@@ -796,7 +790,7 @@ local function runRotation()
 			end
 		-- Marked Shot
 		    -- marked_shot,if=!talent.sidewinders.enabled&!variable.pooling_for_piercing
-		    if not talent.sidewinders and not poolForPiercing and power > 80 then
+		    if not talent.sidewinders and not poolForPiercing and power > 80 and cd.windburst > 2 then
 		    	if debuff.huntersMark.count() >= 1 then
 			        for i = 1, #enemies.yards40 do
 			            local thisUnit = enemies.yards40[i]
@@ -807,7 +801,7 @@ local function runRotation()
 			    end
 		    end
 		    -- marked_shot,if=talent.sidewinders.enabled&(variable.vuln_aim_casts<1|buff.trueshot.up|variable.vuln_window<action.aimed_shot.cast_time)
-		    if talent.sidewinders and (vulnAimCast < 1 or buff.trueshot.exists() or vulnWindow < getCastTime(spell.aimedShot)) then
+		    if talent.sidewinders and (vulnAimCast < 1 or buff.trueshot.exists() or vulnWindow < getCastTime(spell.aimedShot)) and cd.windburst > 2 then
 		    	if debuff.huntersMark.count() > 1 then
 			        for i = 1, #enemies.yards40 do
 			            local thisUnit = enemies.yards40[i]
@@ -819,7 +813,7 @@ local function runRotation()
 		    end
 		-- Aimed Shot
 		    -- aimed_shot,if=spell_targets.multi_shot=1&focus>110
-		    if power + (getCastTime(spell.aimedShot)*powerRegen) > 100  then
+		    if power + (getCastTime(spell.aimedShot)*powerRegen) > 95  then
 		        if cast.aimedShot() then return end
 		    end
 		-- Sidewinders
@@ -831,8 +825,8 @@ local function runRotation()
 		    end
 		-- Arcane Shot
 		    -- arcane_shot,if=spell_targets.multi_shot=1&(!variable.pooling_for_piercing|lowest_vuln_within.5>gcd.max)
-		    if ((mode.rotation == 1 and #enemies.yards8t == 1) or mode.rotation == 3) and (not poolForPiercing or lowestVuln > gcd) and power < 95 then
-		        if cast.arcaneShot() then  return end
+		    if ((mode.rotation == 1 and #enemies.yards8t == 1) or mode.rotation == 3) and (not poolForPiercing or lowestVuln > gcd) and power < 85 then
+		        if cast.arcaneShot() then return end
 		    end
 		-- Multi-Shot
 		    -- Multi-Shot,if=spell_targets>1&(!variable.pooling_for_piercing|lowest_vuln_within.5>gcd.max)
