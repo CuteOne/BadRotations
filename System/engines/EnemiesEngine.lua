@@ -203,7 +203,7 @@ function dynamicTarget(range,facing)
 		updateRate = #getEnemies("player",50)/2
 	end
 	-- local startTime = debugprofilestop()
-	if getOptionCheck("Dynamic Targetting") and (UnitIsDeadOrGhost("target") or not GetUnitExists("target") or getDistance("player","target")< range) and (tempTime - ntlastUpdateTime) < 0.3 then
+	if getOptionCheck("Dynamic Targetting") and (UnitIsDeadOrGhost("target") or not GetUnitExists("target") or getDistance("player","target")< range) and (UnitDebuffID("player",235621) == UnitDebuffID("target",235621)) and (tempTime - ntlastUpdateTime) < 0.3 then
 		if not UnitAffectingCombat("player") and attempts < 3 then
 			ntlastUpdateTime = tempTime
 			TargetNearestEnemy()
