@@ -489,7 +489,7 @@ local function runRotation()
                     if cast.explodingKeg() then return end
                 end
             -- RJW AoE
-                if ((mode.rotation == 1 and #enemies.yards8 >= 3) or mode.rotation == 2) then
+                if ((mode.rotation == 1 and #enemies.yards8 >= 3) or mode.rotation == 2) and not buff.rushingJadeWind.exists() or buff.rushingJadeWind.remain() < 3 then
                     if cast.rushingJadeWind() then return end
                 end
             -- TP AoE
@@ -510,7 +510,7 @@ local function runRotation()
                     if cast.chiWave() then return end
                 end
             -- Rushing Jade Wind ST
-                if ((mode.rotation == 1 and #enemies.yards8 < 3) or mode.rotation == 3) then
+                if ((mode.rotation == 1 and #enemies.yards8 < 3) or mode.rotation == 3) and not buff.rushingJadeWind.exists() or buff.rushingJadeWind.remain() < 3 then
                     if cast.rushingJadeWind() then return end
                 end
             -- Breath of Fire
@@ -583,7 +583,7 @@ local function runRotation()
             end
         --  Rushing Jade Wind
             --actions.st+=/rushing_jade_wind
-            if talent.rushingJadeWind and buff.rushingJadeWind.exists() then
+            if talent.rushingJadeWind and not buff.rushingJadeWind.exists() or buff.rushingJadeWind.remain() < 3 then
                 if cast.rushingJadeWind() then return end
             end
         --Tiger Palm
@@ -647,7 +647,7 @@ local function runRotation()
             end
         --Rushing Jade Wind
             --actions.st+=/rushing_jade_wind
-            if talent.rushingJadeWind and #enemies.yards8 >= 1 then
+            if talent.rushingJadeWind and #enemies.yards8 >= 1 and not buff.rushingJadeWind.exists() or buff.rushingJadeWind.remain() < 3 then
                 if cast.rushingJadeWind() then return end
             end        
         --Tiger Palm
