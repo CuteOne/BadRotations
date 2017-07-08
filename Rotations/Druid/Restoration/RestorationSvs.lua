@@ -578,11 +578,12 @@ local function runRotation()
 			-- Wild Growth
 			for i=1, #br.friend do
 				if isChecked("Wild Growth") and not moving and not buff.wildGrowth.exists(br.friend[i].unit) and not isCastingSpell(spell.tranquility) then
-					if getLowAllies(getValue("Wild Growth")) >= getValue("Wild Growth Targets") then
-						if talent.soulOfTheForest and not buff.soulOfTheForest.exists() and getBuffRemain(br.friend[i].unit,242313) == 0 then
-							if cast.swiftmend(lowestHP) then return true end
-						end
-						if cast.wildGrowth() then return end
+					local lowHealthCandidates = getUnitsToHealAround(br.friend[i].unit,30,getValue("Wild Growth"),#br.friend)
+					if #lowHealthCandidates >= getValue("Wild Growth Targets") then
+					    if talent.soulOfTheForest and not buff.soulOfTheForest.exists() and getBuffRemain("player",242313) == 0 then
+						    if cast.swiftmend(lowestHP) then return true end
+						end	
+						if cast.wildGrowth(br.friend[i].unit) then return end
 					end
 				end
 			end
@@ -755,7 +756,7 @@ local function runRotation()
 							end
 						end
 						for i = 1, #br.friend do
-							if bloomCount < 1 and not buff.lifebloom.exists(br.friend[i].unit) and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" and UnitInRange(br.friend[i].unit) then
+							if bloomCount < 1 and not buff.lifebloom.exists(br.friend[i].unit) and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" and UnitIsUnit(br.friend[i].unit,"boss1target") and UnitInRange(br.friend[i].unit) then
 								if cast.lifebloom(br.friend[i].unit) then return end
 							end
 						end

@@ -186,8 +186,23 @@ function getEnemies(unit,radius,checkInCombat)
     return enemiesTable
 end
 
+local function targetNearestEnemy(range)
+	for k,v in pairs(getEnemies("player",range)) do
+		local thisUnit = br.enemy[v]
+		if not UnitIsDeadOrGhost(thisUnit.unit) and getDistance("player",thisUnit.unit) <= range and (playerRealm == targetRealm) and ObjectIsFacing("player",thisUnit.unit) then
+			if not isChecked("Hostiles Only") or (getOptionCheck("Hostiles Only") and UnitReaction(thisUnit.unit,"player") <= 2 or (GetUnitExists("pet") and UnitReaction(thisUnit.unit,"pet") <= 2)) then
+				TargetUnit(thisUnit.unit)
+			end
+		end
+	end
+end
+
 -- returns prefered target for diferent spells
 function dynamicTarget(range,facing)
+	local playerRealm = UnitDebuffID("player",235621)
+	if GetUnitExists("target") then
+		local targetRealm = UnitDebuffID("target",235621)
+	end
 	local tempTime = GetTime();
 	if not lastUpdateTime then
 		lastUpdateTime = tempTime
@@ -203,15 +218,17 @@ function dynamicTarget(range,facing)
 		updateRate = #getEnemies("player",50)/2
 	end
 	-- local startTime = debugprofilestop()
-	if getOptionCheck("Dynamic Targetting") and (UnitIsDeadOrGhost("target") or not GetUnitExists("target") or getDistance("player","target")< range) and (UnitDebuffID("player",235621) == UnitDebuffID("target",235621)) and (tempTime - ntlastUpdateTime) < 0.3 then
-		if not UnitAffectingCombat("player") and attempts < 3 then
-			ntlastUpdateTime = tempTime
-			TargetNearestEnemy()
-			attempts = attempts +1
-		elseif UnitAffectingCombat("player") then
-			attempts = 0
-			ntlastUpdateTime = tempTime
-			TargetNearestEnemy()
+	if getOptionCheck("Dynamic Targetting") and (tempTime - ntlastUpdateTime) > 0.5  then
+		if (UnitIsDeadOrGhost("target") or not GetUnitExists("target") or getDistance("player","target") > range or (targetRealm and (playerRealm ~= targetRealm))) then
+			if not UnitAffectingCombat("player") and attempts < 3 and getOptionValue("Dynamic Targetting") == 2 then
+				ntlastUpdateTime = tempTime
+				targetNearestEnemy(range)
+				attempts = attempts +1
+			elseif UnitAffectingCombat("player") then
+				ntlastUpdateTime = tempTime
+				attempts = 0
+				targetNearestEnemy(range)
+			end
 		end
 	end
 	if getOptionCheck("Dynamic Targetting") and (tempTime - lastUpdateTime) > updateRate then
@@ -219,14 +236,16 @@ function dynamicTarget(range,facing)
 		local bestUnitCoef = 0
 		local bestUnit = "target"
 		local enemyTable = getEnemies("player",range)
-		local playerRealm = UnitDebuffID("player",235621)
 		for k, v in pairs(enemyTable) do
 			UpdateEnemy(v)
 			local thisUnit = br.enemy[v]
-			local unitRealm = UnitDebuffID(thisUnit,235621)
+			local unitRealm = UnitDebuffID(thisUnit.unit,235621) 
 			local thisDistance = getDistance("player",thisUnit.unit)
+			if #br.friend < 2 and GetUnitExists("pet") and UnitTarget(thisUnit.unit) == "player" then
+				TargetUnit(thisUnit.unit)
+			end
 			if not isChecked("Hostiles Only") or (getOptionCheck("Hostiles Only") and UnitReaction(thisUnit.unit,"player")) == 2 then
-				if playerRealm == unitRealm then
+				if (playerRealm == unitRealm) then
 					if GetUnitExists(thisUnit.unit) and ObjectID(thisUnit.unit) ~= 103679 and thisUnit.coeficient ~= nil and getLineOfSight("player", thisUnit.unit) 
 						and not UnitIsTrivial(thisUnit.unit) and UnitCreatureType(thisUnit.unit) ~= "Critter" 
 					then
@@ -248,7 +267,7 @@ function dynamicTarget(range,facing)
 		end
 		return bestUnit
 	end
-	-- br.debug.cpu.enemiesEngine.dynamicTarget = debugprofilestop()-startTime or 0
+	--br.debug.cpu.enemiesEngine.dynamicTarget = debugprofilestop()-startTime or 0
 	return "target"
 end
 
