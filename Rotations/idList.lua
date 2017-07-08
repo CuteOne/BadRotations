@@ -1328,6 +1328,7 @@ br.idList = {
             buffs                           = {
                 ironskinBrew                = 215479,
                 blackoutCombo               = 228563,
+                rushingJadeWind             = 116847,
 
             },
             debuffs                         = {
