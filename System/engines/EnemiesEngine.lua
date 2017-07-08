@@ -189,7 +189,7 @@ end
 local function targetNearestEnemy(range)
 	for k,v in pairs(getEnemies("player",range)) do
 		local thisUnit = br.enemy[v]
-		if not UnitIsDeadOrGhost(thisUnit.unit) and getDistance("player",thisUnit.unit) <= range and (playerRealm == targetRealm) and UnitIsFacing("player",thisUnit.unit) then
+		if not UnitIsDeadOrGhost(thisUnit.unit) and getDistance("player",thisUnit.unit) <= range and (playerRealm == targetRealm) and ObjectIsFacing("player",thisUnit.unit) then
 			if not isChecked("Hostiles Only") or (getOptionCheck("Hostiles Only") and UnitReaction(thisUnit.unit,"player") <= 2 or (GetUnitExists("pet") and UnitReaction(thisUnit.unit,"pet") <= 2)) then
 				TargetUnit(thisUnit.unit)
 			end
