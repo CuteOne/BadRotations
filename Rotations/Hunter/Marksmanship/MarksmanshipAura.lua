@@ -493,8 +493,10 @@ local function runRotation()
                     end
                 end
         -- Agi-Pot
-                if canUse(142117) and (buff.trueshot.exists() and buff.bloodlust.exists()) or buff.bullseye.stack() >= 23 or ttd(units.dyn40) < 31 then
-                	useItem(142117)
+                if isChecked("Agi-Pot") then
+                    if canUse(142117) and (buff.trueshot.exists() and buff.bloodlust.exists()) or buff.bullseye.stack() >= 23 or ttd(units.dyn40) < 31 then
+                    	useItem(142117)
+                    end
                 end
         -- Racial: Orc Blood Fury | Troll Berserking | Blood Elf Arcane Torrent
                 -- arcane_torrent,if=focus.deficit>=30&(!talent.sidewinders.enabled|cooldown.sidewinders.charges<2)
