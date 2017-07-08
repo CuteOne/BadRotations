@@ -641,7 +641,7 @@ local function runRotation()
             
             --actions.aoe+=/frozen_orb
             if cd.frozenOrb == 0 and ((mode.frozenorb == 2 and isBoss(target)) or mode.frozenorb == 1) then
-                if isChecked(colorBlueMage.."Frozen Orb") and getEnemiesInRect(15,55,false) > 0 and buff.fingersOfFrost.stack() < 2 then
+                if isChecked(colorBlueMage.."Frozen Orb") and getEnemiesInRect(15,55,false) > 0 then
                     if cast.frozenOrb() then return true end
                 end
             end
