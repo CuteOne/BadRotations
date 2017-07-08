@@ -1332,6 +1332,7 @@ br.idList = {
 
             },
             debuffs                         = {
+                breathOfFire                = 146222,
                 moderateStagger             = 124274,
                 heavyStagger                = 124273,
                 kegSmash                    = 121253,
