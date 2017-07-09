@@ -113,6 +113,7 @@ Rotations\Death Knight\Frost\THFrost.lua
 Rotations\Death Knight\Blood\BloodCuteOne.lua
 
 Rotations\Death Knight\Unholy\THUnholy.lua
+Rotations\Death Knight\Unholy\UnholyLemon.lua
 
 
 ## DemonHunter ---------------------------------------------------
