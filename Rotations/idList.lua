@@ -168,7 +168,7 @@ br.idList = {
                 asphyxiate                  = 108194,
                 chainsOfIce                 = 45524,                
                 corpseShield                = 207319,
-		darkArbiter                 = 207349,
+        darkArbiter                 = 207349,
                 darkTransformation          = 63560,
                 deathAndDecay               = 43265,
                 deathCoil                   = 47541,
@@ -183,7 +183,7 @@ br.idList = {
                 raiseDead                   = 46584,
                 scourgeStrike               = 55090,
                 summonGargoyle              = 49206,
-				
+                
             },
             artifacts                       = {
                 apocalypse                  = 220143,
@@ -692,7 +692,7 @@ br.idList = {
                 essenceOfGhanir             = 208253,
                 ferociousBite               = 22568,
                 flourish                    = 197721,
-                ironfur                     = 192081,				
+                ironfur                     = 192081,               
                 healingTouch                = 5185,
                 incarnationTreeOfLife       = 33891,
                 innervate                   = 29166,
