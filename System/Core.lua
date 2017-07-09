@@ -156,12 +156,14 @@ frame:SetScript("OnEvent", frame.OnEvent)
 --[[-------------------------------------------------------------------------------------------------------------------------------------------------------]]
 --[[-------------------------------------------------------------------------------------------------------------------------------------------------------]]
 --[[This function is refired everytime wow ticks. This frame is located at the top of Core.lua]]
-
+local updateRate = updateRate or 0.1
 function BadRotationsUpdate(self)
+	if updateRate < 0.1 then
+		updateRate = 0.1
+	end
 	if isChecked("Talent Anywhere") then
 		talentAnywhere()
 	end
-	local updateRate = updateRate or 0.1
 	 local startTime = debugprofilestop()
 	 if br.updateInProgress ~= true then
 	 	self.updateInProgress = true
@@ -171,10 +173,10 @@ function BadRotationsUpdate(self)
 	 	end
 	 	
 	 	local FrameRate = GetFramerate() or 0
-	 	if isChecked("Auto Delay") then
-		 	if FrameRate ~= 0 and FrameRate < 20 and updateRate > 1  then
+	 	if isChecked("Auto Delay") then	 		
+		 	if FrameRate ~= 0 and FrameRate < 30 and updateRate < 0.5  then
 		 		updateRate = updateRate + 0.1
-		 	elseif FrameRate > 50 and updateRate ~= 0.1 then
+		 	elseif FrameRate > 80 and updateRate ~= 0.1 then
 		 		updateRate = updateRate - 0.1
 		 	end
 		elseif getOptionValue("Bot Update Rate") == nil then 
