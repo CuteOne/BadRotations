@@ -428,9 +428,9 @@ local function runRotation()
 						if cast.rejuvenation(br.friend[i].unit) then return end
 					elseif br.friend[i].hp <= getValue("Germination") and talent.germination and (rejuvCount < getValue("Max Rejuvenation Targets")) and not buff.rejuvenationGermination.exists(br.friend[i].unit) and not UnitIsUnit(br.friend[i].unit,"TANK") then
 						if cast.rejuvenation(br.friend[i].unit) then return end
-					elseif br.friend[i].hp <= getValue("Rejuvenation Tank") and buff.rejuvenation.remain(br.friend[i].unit) <= 1 and (rejuvCount < getValue("Max Rejuvenation Targets")) and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
+					elseif br.friend[i].hp <= getValue("Rejuvenation Tank") and not buff.rejuvenation.exists(br.friend[i].unit) and (rejuvCount < getValue("Max Rejuvenation Targets")) and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
 						if cast.rejuvenation(br.friend[i].unit) then return end
-					elseif br.friend[i].hp <= getValue("Rejuvenation") and buff.rejuvenation.remain(br.friend[i].unit) <= 1 and (rejuvCount < getValue("Max Rejuvenation Targets")) and not UnitIsUnit(br.friend[i].unit,"TANK") then
+					elseif br.friend[i].hp <= getValue("Rejuvenation") and not buff.rejuvenation.exists(br.friend[i].unit) and (rejuvCount < getValue("Max Rejuvenation Targets")) and not UnitIsUnit(br.friend[i].unit,"TANK") then
 						if cast.rejuvenation(br.friend[i].unit) then return end
 					end
 				end
@@ -902,9 +902,9 @@ local function runRotation()
 						if cast.rejuvenation(br.friend[i].unit) then return end
 					elseif br.friend[i].hp <= getValue("Germination") and talent.germination and (rejuvCount < getValue("Max Rejuvenation Targets")) and not buff.rejuvenationGermination.exists(br.friend[i].unit) and not UnitIsUnit(br.friend[i].unit,"TANK") then
 						if cast.rejuvenation(br.friend[i].unit) then return end
-					elseif br.friend[i].hp <= getValue("Rejuvenation Tank") and buff.rejuvenation.remain(br.friend[i].unit) <= 1 and (rejuvCount < getValue("Max Rejuvenation Targets")) and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
+					elseif br.friend[i].hp <= getValue("Rejuvenation Tank") and not buff.rejuvenation.exists(br.friend[i].unit) and (rejuvCount < getValue("Max Rejuvenation Targets")) and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
 						if cast.rejuvenation(br.friend[i].unit) then return end
-					elseif br.friend[i].hp <= getValue("Rejuvenation") and buff.rejuvenation.remain(br.friend[i].unit) <= 1 and (rejuvCount < getValue("Max Rejuvenation Targets")) and not UnitIsUnit(br.friend[i].unit,"TANK") then
+					elseif br.friend[i].hp <= getValue("Rejuvenation") and not buff.rejuvenation.exists(br.friend[i].unit) and (rejuvCount < getValue("Max Rejuvenation Targets")) and not UnitIsUnit(br.friend[i].unit,"TANK") then
 						if cast.rejuvenation(br.friend[i].unit) then return end
 					end
 				end
@@ -986,7 +986,7 @@ local function runRotation()
 			-- Not wasted Innervate
 			if buff.innervate.remain() >= 1 and not isCastingSpell(spell.tranquility) then
 				for i=1, #br.friend do
-					if buff.rejuvenation.remain(br.friend[i].unit) < 1 then
+					if not buff.rejuvenation.exists(br.friend[i].unit) then
 						if cast.rejuvenation(br.friend[i].unit) then return end
 					end
 				end
