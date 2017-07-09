@@ -175,7 +175,7 @@ local function createOptions()
 		-- Flourish
 		br.ui:createSpinner(section, "Flourish",  60,  0,  100,  5,  "","Health Percent to Cast At")
 		br.ui:createSpinner(section, "Flourish Targets",  3,  0,  40,  1,  "","Minimum Flourish Targets", true)
-		br.ui:createSpinner(section, "Flourish and Rejuvenation Targets",  3,  0,  40,  1,  "","Minimum Rejuvenation Targets cast Flourish", true)
+		br.ui:createSpinner(section, "Flourish HOT Targets",  3,  0,  40,  1,  "","Minimum HOT Targets cast Flourish", true)
 		br.ui:checkSectionState(section)
 		-- Toggle Key Options
 		section = br.ui:createSection(br.ui.window.profile, "Toggle Keys")
@@ -199,6 +199,41 @@ end
 local regrowth_target = nil
 local cancel_regrowth = 0
 local cancel_wild = 0
+
+local function getAllHotCnt(time_remain)
+	hotCnt = 0
+	for i = 1, #br.friend do
+		if buff.lifebloom.remain(br.friend[i].unit) >= 1 and buff.lifebloom.remain(br.friend[i].unit) <= time_remain then
+			hotCnt=hotCnt+1
+		end
+			
+		if buff.rejuvenation.remain(br.friend[i].unit) >= 1 and buff.rejuvenation.remain(br.friend[i].unit) <= time_remain then
+			hotCnt=hotCnt+1
+		end
+		
+		if buff.regrowth.remain(br.friend[i].unit) >= 1 and buff.regrowth.remain(br.friend[i].unit) <= time_remain then
+			hotCnt=hotCnt+1
+		end
+		
+		if buff.rejuvenationGermination.remain(br.friend[i].unit) >= 1 and buff.rejuvenationGermination.remain(br.friend[i].unit) <= time_remain then
+			hotCnt=hotCnt+1
+		end
+		
+		if buff.wildGrowth.remain(br.friend[i].unit) >= 1 and buff.wildGrowth.remain(br.friend[i].unit) <= time_remain then
+			hotCnt=hotCnt+1
+		end	
+		
+		if buff.cenarionWard.remain(br.friend[i].unit) >= 1 and buff.cenarionWard.remain(br.friend[i].unit) <= time_remain then
+			hotCnt=hotCnt+2
+		end	
+		
+		if buff.cultivat.remain(br.friend[i].unit) >= 1 and buff.cultivat.remain(br.friend[i].unit) <= time_remain then
+			hotCnt=hotCnt+1
+		end	
+	end
+	
+	return hotCnt
+end
 
 
 local function runRotation()
@@ -285,13 +320,13 @@ local function runRotation()
 		--------------------
 		local function overhealingcancel()
 			-- StopCasting Wild Growth
-			if inRaid and isCastingSpell(spell.wildGrowth) and isChecked("Overhealing Cancel") then
-				if getLowAllies(86) < 4 then
-					SpellStopCasting()
-					cancel_wild = cancel_wild + 1
-					Print("StopCasting Wild Growth "..cancel_wild)
-				end
-			end
+			-- if inRaid and isCastingSpell(spell.wildGrowth) and isChecked("Overhealing Cancel") then
+				-- if getLowAllies(86) < 4 then
+					-- SpellStopCasting()
+					-- cancel_wild = cancel_wild + 1
+					-- Print("StopCasting Wild Growth "..cancel_wild)
+				-- end
+			-- end
 			-- StopCasting Regrowth
 			if isCastingSpell(spell.regrowth) and isChecked("Overhealing Cancel") then
 				if regrowth_target ~= nil and regrowth_target.hp > getValue("Overhealing Cancel") then
@@ -599,19 +634,16 @@ local function runRotation()
 			end
 			-- Flourish
 			if isChecked("Flourish") and talent.flourish and not isCastingSpell(spell.tranquility) then
-				rejuvCount = 0
-				for i=1, #br.friend do
-					if buff.rejuvenation.exists(br.friend[i].unit) then
-						rejuvCount = rejuvCount + 1
-					end
-				end
-				for i=1, #br.friend do
-					if getLowAllies(getValue("Flourish")) >= getValue("Flourish Targets") and rejuvCount >= getValue("Flourish and Rejuvenation Targets") and (lastSpell == spell.wildGrowth or lastSpell == spell.essenceOfGhanir) then
-						if cast.flourish() then return end
+				if getLowAllies(getValue("Flourish")) >= getValue("Flourish Targets") then
+					local c = getAllHotCnt(8)
+					if c>= getValue("Flourish HOT Targets") then
+						if cast.flourish() then
+							Print("Flourish HOT cnt="..c)
+							return 
+						end
 					end
 				end
 			end
-		end
 		-- Single Target
 		function actionList_SingleTarget()
 			-- Nature's Cure
