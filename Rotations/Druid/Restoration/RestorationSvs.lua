@@ -644,6 +644,7 @@ local function runRotation()
 					end
 				end
 			end
+		end	
 		-- Single Target
 		function actionList_SingleTarget()
 			-- Nature's Cure
