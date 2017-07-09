@@ -69,7 +69,6 @@ local function createOptions()
         br.ui:checkSectionState(section)
     -- Vilt Rotation Options
     section = br.ui:createSection(br.ui.window.profile, "Vilt Rotation Options")
-            br.ui:createCheckbox(section,"Blooddrinker")
         -- Death and Decay Target Amount
             br.ui:createSpinner(section, "Death and Decay", 3, 0, 10, 1, "|cffFFBB00Check to use Death and Decay, Amount of Targets for DnD.")
         -- Use Bonestorm
@@ -183,7 +182,7 @@ local function runRotation()
         local php                                           = br.player.health
         local playerMouse                                   = UnitIsPlayer("mouseover")
         local potion                                        = br.player.potion
-        local power, powmax, powgen, powerDeficit           = br.player.power.amount.runicPower , br.player.power.runicPower.max, br.player.power.regen, br.player.power.runicPower.deficit
+        local power, powmax, powgen                         = br.player.power.amount.runicPower , br.player.power.runicPower.max, br.player.power.regen
         local pullTimer                                     = br.DBM:getPulltimer()
         local racial                                        = br.player.getRacial()
         local recharge                                      = br.player.recharge
@@ -318,7 +317,7 @@ local function runRotation()
                 end
         -- Racial: Orc Blood Fury | Troll Berserking | Blood Elf Arcane Torrent
                 -- blood_fury,buff.tigers_fury | berserking,buff.tigers_fury | arcane_torrent,buff.tigers_fury
-                if isChecked("Racial") and (br.player.race == "Orc" or br.player.race == "Troll" or (br.player.race == "BloodElf" and powerDeficit > 20)) then
+                if isChecked("Racial") and (br.player.race == "Orc" or br.player.race == "Troll" or br.player.race == "BloodElf") then
                     if castSpell("player",racial,false,false,false) then return end
                 end
         -- Dancing Rune Weapon
@@ -408,8 +407,8 @@ local function runRotation()
                         end
                     end
         -- Death and Decay
-                    if (buff.crimsonScourge.exists() or level < 63) and (#enemies.yards8 > 1 or (#enemies.yards8 == 1 and talent.rapidDecomposition)) then
-                        if cast.deathAndDecay("best",false,#enemies.yards8,8) then return end
+                    if not moving and (buff.crimsonScourge.exists() or level < 63) and (#enemies.yards8 > 1 or (#enemies.yards8 == 1 and talent.rapidDecomposition)) then
+                        if cast.deathAndDecay("player",false,#enemies.yards8,8) then return end
                     end
         -- Death Strike
                     if ttm <= 20 or php < 75 then
@@ -420,8 +419,8 @@ local function runRotation()
                         if cast.marrowrend() then return end
                     end
         -- Death and Decay
-                    if (#enemies.yards8 == 1 and runes >= 3) or #enemies.yards8 >= 3 then
-                        if cast.deathAndDecay("best",false,#enemies.yards8,8) then return end
+                    if not moving and (#enemies.yards8 == 1 and runes >= 3) or #enemies.yards8 >= 3 then
+                        if cast.deathAndDecay("player",false,#enemies.yards8,8) then return end
                     end
         -- Heart Strike
                     if runes >= 3 or ((not talent.ossuary or buff.boneShield.stack() < 5) and power < 45) or (talent.ossuary and buff.boneShield.stack() >= 5 and power < 40) then
@@ -480,8 +479,8 @@ local function runRotation()
                     end
         -- Death and Decay
                      --if HasBuff(CrimsonScourge) or HasTalent(RapidDecomposition)
-                    if buff.crimsonScourge.exists() or talent.rapidDecomposition then
-                        if cast.deathAndDecay("best",false,#enemies.yards8,8) then return end
+                    if not moving and buff.crimsonScourge.exists() or talent.rapidDecomposition then
+                        if cast.deathAndDecay("player",false,#enemies.yards8,8) then return end
                     end
         -- Heart Strike
                     if cast.heartStrike() then return end
@@ -496,29 +495,31 @@ local function runRotation()
     --- Vilt APL ---
     ---------------------------
                 if getOptionValue("APL Mode") == 3 then
-                    if --[[((buff.crimsonScourge.exists() and talent.rapidDecomposition) or]] #enemies.yards8 >= getOptionValue("Death and Decay") and isChecked("Death and Decay") then
-                        if cast.deathAndDecay("best",false,#enemies.yards8,8) then return end
+                    if --[[((buff.crimsonScourge.exists() and talent.rapidDecomposition) or]] not moving and #enemies.yards8 >= getOptionValue("Death and Decay") and isChecked("Death and Decay") then
+                        if cast.deathAndDecay("player",false,#enemies.yards8,8) then return end
                     end
                     --dump rp with deathstrike
                     if ((talent.bonestorm and cd.bonestorm > 3) or (talent.bonestorm and #enemies.yards8 < getOptionValue("Bonestorm Targets")) or (not talent.bonestorm or not isChecked("Use Bonestorm"))) and br.player.power.runicPower.deficit <= 30 then
                         if cast.deathStrike() then return end
                     end
-                    if (talent.ossuary and buff.boneShield.stack() < 5) or (not talent.ossuary and buff.boneShield.stack() <= 2) or buff.boneShield.remain() < gcd*3 or not buff.boneShield.exists() then
+                    if (talent.ossuary and buff.boneShield.stack() <=4) or (not talent.ossuary and buff.boneShield.stack() <=2) or buff.boneShield.remain() < 4 or not buff.boneShield.exists() then
                         if cast.marrowrend() then return end
-                    end
-                    if talent.blooddrinker and isChecked("Blooddrinker") then
-                        if cast.blooddrinker() then return end
                     end
                     --#high prio heal
                     --I'll just use flat hp numbers defined by the user for simplicity and tends to work a little bit better anyway
                     if php < getOptionValue("Death Strike High Prio") then
                         if cast.deathStrike() then return end
                     end
-                    if talent.bonestorm and isChecked("Use Bonestorm") and #enemies.yards8 >= getOptionValue("Bonestorm Targets") and (runicPower >= getOptionValue("Bonestorm RP") or powerDeficit < 10) then
+                    if talent.bonestorm and isChecked("Use Bonestorm") and #enemies.yards8 >= getOptionValue("Bonestorm Targets") and runicPower >= getOptionValue("Bonestorm RP") then
                         if cast.bonestorm("Player") then return end
                     end
+                    --#soulgorge/deathcaressmultidot NEEDS TO BE FIXED, SOON™
+                    --#actions+=/soulgorge,if=talent.soulgorge.enabled&target_if=min:target.debuff.blood_plague,if=target.debuff.blood_plague.remain()ing<=2&spell_targets.soulgorge>=3
+                    --#actions+=/deaths_caress,cycle_targets=1,if=talent.soulgorge.enabled&spell_targets.soulgorge<3&(debuff.blood_plague.refresh()able|!debuff.blood_plague.up)
+                    --Not gonna bother with this because worthless talent anyway, might add later.
+                    --actions+=/blood_boil,if=!talent.soulgorge.enabled&(debuff.blood_plague.refresh()able|!debuff.blood_plague.up)
                     --borrowing your blood boil code
-                    if #enemies.yards8 > 0 then
+                    if not talent.soulgorge and #enemies.yards8 > 0 then
                         for i = 1, #enemies.yards8 do
                             local thisUnit = enemies.yards8[i]
                             if not debuff.bloodPlague.exists(thisUnit) then
@@ -541,7 +542,7 @@ local function runRotation()
                     if php < getOptionValue("Death Strike Low Prio") then
                         if cast.deathStrike() then return end
                     end
-                    if runes >= 2.5 and talent.ossuary and buff.boneShield.stack() <= 6 and #enemies.yards8 < 3 then
+                    if runes >= 2.5 and talent.ossuary and buff.boneShield.stack() <=6 then
                         if cast.marrowrend() then return end
                     end
                     if runes >= 2.5 then

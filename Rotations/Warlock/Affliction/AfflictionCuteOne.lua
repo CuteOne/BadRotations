@@ -82,7 +82,7 @@ local function createOptions()
         -- Seed of Corruption units
             br.ui:createSpinnerWithout(section, "Seed Units", 4, 3, 10, 1, "|cffFFFFFFNumber of Units Seed of Corruption will be cast on.")
 		-- Phantom Singularity
-			br.ui:createSpinnerWithout(section, "PS Units", 4, 3, 10, 1, "|cffFFFFFFNumber of Units Phantom Singularity will be cast on.")
+			br.ui:createSpinnerWithout(section, "PS Units", 4, 1, 10, 1, "|cffFFFFFFNumber of Units Phantom Singularity will be cast on.")
 		-- Wrath of Consumption
 			br.ui:createCheckbox(section, "Wrath of Consumption", "|cffFFFFFF Select to enable/disable Wrath of Consumption Stacking")
         br.ui:checkSectionState(section)
@@ -765,12 +765,16 @@ local function runRotation()
                     if not moving then
     					if talent.maleficGrasp and buff.deadwindHarvester.exists() and debuff.unstableAffliction.stack() < 3
                             and debuff.agony.remain("target") > 6.5
-                            -- and (not talent.soulEffigy or debuff.agony.remain("Soul Effigy") > 6.5)
+						    -- and (not talent.soulEffigy or debuff.agony.remain("Soul Effigy") > 6.5)
                             -- and (debuff.corruption.remain(units.dyn40) > getCastTime(spell.unstableAffliction) + 3 or talent.absoluteCorruption)
                             -- and (debuff.siphonLife.remain(units.dyn40) > getCastTime(spell.unstableAffliction) + 3 or not talent.siphonLife)
                         then
                             if cast.unstableAffliction("target","aoe") then return end
                         end
+					if talent.maleficGrasp and debuff.unstableAffliction.stack() < 3 or shards > 3
+                        then
+                            if cast.unstableAffliction("target","aoe") then return end
+						end
 					end	
 		-- Drain life
 			-- With Reap

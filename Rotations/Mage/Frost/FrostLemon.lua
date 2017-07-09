@@ -36,12 +36,21 @@ local function createToggles()
         [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spell.iceBarrier}
     };
     CreateButton("Defensive",3,0)
+    
+    FrozenOrbModes = {
+        [1] = { mode = "On", value = 1 , overlay = "Frozen Orb Everything", tip = "Frozen Orb Everything", highlight = 1, icon = br.player.spell.frozenOrb},
+        [2] = { mode = "Boss", value = 2 , overlay = "Frozen Orb On Boss Only", tip = "Frozen Orb On Boss Only", highlight = 0, icon = br.player.spell.frozenOrb}
+    };
+    CreateButton("FrozenOrb",4,0)
+    
     -- Interrupt Button
     InterruptModes = {
         [1] = { mode = "On", value = 1 , overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spell.counterspell},
         [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.counterspell}
     };
-    CreateButton("Interrupt",4,0)
+    CreateButton("Interrupt",5,0)
+    
+    
 end
 
 
@@ -132,6 +141,8 @@ local function runRotation()
     UpdateToggle("Rotation",0.25)
     UpdateToggle("Cooldown",0.25)
     UpdateToggle("Defensive",0.25)
+    UpdateToggle("Frozen Orb",0.25)
+    br.player.mode.frozenorb = br.data.settings[br.selectedSpec].toggles["FrozenOrb"]
     UpdateToggle("Interrupt",0.25)
 
     --------------
@@ -162,6 +173,7 @@ local function runRotation()
     local t20_2pc                                       = TierScan("T20") >= 2
     local thp                                           = getHP(br.player.units(5))
     local execute_time                                  = br.player.gcd
+    
 
     enemies.yards40 = br.player.enemies(40)
     enemies.yards8t = br.player.enemies(8,br.player.units(8,true))
@@ -628,8 +640,8 @@ local function runRotation()
             end
             
             --actions.aoe+=/frozen_orb
-            if cd.frozenOrb == 0 then
-                if useCDs() and isChecked(colorBlueMage.."Frozen Orb") and getEnemiesInRect(15,55,false) > 0 and buff.fingersOfFrost.stack() < 2 then
+            if cd.frozenOrb == 0 and ((mode.frozenorb == 2 and isBoss(target)) or mode.frozenorb == 1) then
+                if isChecked(colorBlueMage.."Frozen Orb") and getEnemiesInRect(15,55,false) > 0 then
                     if cast.frozenOrb() then return true end
                 end
             end
@@ -721,8 +733,8 @@ local function runRotation()
             --  Frozen_orb,if=set_bonus.tier20_2pc
             
             --  With T20 2pc, Frozen Orb should be used as soon as it comes off CD.
-            if cd.frozenOrb == 0 and t20pc2 then
-                if useCDs() and isChecked(colorBlueMage.."Frozen Orb") and getEnemiesInRect(15,55,false) > 0 then
+            if cd.frozenOrb == 0 and t20pc2 and ((mode.frozenorb == 2 and isBoss(target)) or mode.frozenorb == 1) then
+                if isChecked(colorBlueMage.."Frozen Orb") and getEnemiesInRect(15,55,false) > 0 then
                     if cast.frozenOrb() then return true end
                 end
             end
@@ -794,8 +806,8 @@ local function runRotation()
             end
             
             --actions.single+=/frozen_orb
-            if cd.frozenOrb == 0 then
-                if useCDs() and isChecked(colorBlueMage.."Frozen Orb") and getEnemiesInRect(15,55,false) > 0 then
+            if cd.frozenOrb == 0 and ((mode.frozenorb == 2 and isBoss(target)) or mode.frozenorb == 1) then
+                if isChecked(colorBlueMage.."Frozen Orb") and getEnemiesInRect(15,55,false) > 0 then
                     if cast.frozenOrb() then return true end
                 end
             end

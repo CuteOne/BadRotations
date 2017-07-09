@@ -431,11 +431,11 @@ local function SingleTarget()
 		end
 	end
 	-- Crusader Strike
-	if not UnitIsFriend("target", "player") and inCombat then
+	if not UnitIsFriend("target", "player") then
 		if talent.crusadersMight and GetSpellCooldown(20473) > 1 then
-			if cast.crusaderStrike(units.dyn5) then return end
+			if cast.crusaderStrike("target") then return end
 		elseif talent.crusadersMight and GetSpellCooldown(85222) > 1 then
-			if cast.crusaderStrike(units.dyn5) then return end
+			if cast.crusaderStrike("target") then return end
 		end
 	end
 	-- Emergency Martyr Heals
