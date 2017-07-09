@@ -70,9 +70,9 @@ local function createOptions()
         ------------------------
         section = br.ui:createSection(br.ui.window.profile,  "Cooldowns")
         br.ui:createCheckbox(section, "Use Racial")
-		br.ui:createCheckbox(section, "Gargoyle / Dark Arbiter")
-		br.ui:createDropdownWithout(section, colorGreen.."Dark Transformation", {"|cff00FF00Units or Boss","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Dark Transformation ability.")
-		br.ui:createSpinnerWithout(section, colorGreen.."Dark Transformation Units",  1,  1,  10,  1,  "|cffFFFFFFSet to desired targets to use Dark Transformation on. Min: 1 / Max: 10 / Interval: 1")
+        br.ui:createCheckbox(section, "Gargoyle / Dark Arbiter")
+        br.ui:createDropdownWithout(section, colorGreen.."Dark Transformation", {"|cff00FF00Units or Boss","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Dark Transformation ability.")
+        br.ui:createSpinnerWithout(section, colorGreen.."Dark Transformation Units",  1,  1,  10,  1,  "|cffFFFFFFSet to desired targets to use Dark Transformation on. Min: 1 / Max: 10 / Interval: 1")
         br.ui:checkSectionState(section)
         -------------------------
         --- DEFENSIVE OPTIONS --- -- Define Defensive Options
@@ -172,7 +172,7 @@ local function runRotation()
     local perk                                          = br.player.perk        
     local php                                           = br.player.health
     local power, powmax, powgen                         = br.player.power, br.player.powerMax, br.player.powerRegen
-	local runicPower        							= br.player.power.amount.runicPower
+    local runicPower                                    = br.player.power.amount.runicPower
     local rune                                          = br.player.power.runes.frac
     local pullTimer                                     = br.DBM:getPulltimer()
     local race                                          = br.player.race
@@ -187,22 +187,22 @@ local function runRotation()
     units.dyn5 = br.player.units(5)
     units.dyn8 = br.player.units(8)
     units.dyn30 = br.player.units(30)
-	enemies.yards5 = br.player.enemies(5)
+    enemies.yards5 = br.player.enemies(5)
     enemies.yards8 = br.player.enemies(8)
     enemies.yards10 = br.player.enemies(10)
     enemies.yards10t = br.player.enemies(10,br.player.units(10,true))
     enemies.yards15 = br.player.enemies(15)
     enemies.yards30 = br.player.enemies(30)
     enemies.yards40 = br.player.enemies(40)
-	
-	if lastSpell == nil or not inCombat then lastSpell = 0 end
-	if profileStop == nil then profileStop = false end
-	
-	if waitfornextVirPlague == nil or objIDLastVirPlagueTarget == nil then
-		waitfornextVirPlague = GetTime() - 10
-		objIDLastVirPlagueTarget = 0
-	end
-	
+    
+    if lastSpell == nil or not inCombat then lastSpell = 0 end
+    if profileStop == nil then profileStop = false end
+    
+    if waitfornextVirPlague == nil or objIDLastVirPlagueTarget == nil then
+        waitfornextVirPlague = GetTime() - 10
+        objIDLastVirPlagueTarget = 0
+    end
+    
 
 --------------------
 --- Action Lists ---
@@ -212,78 +212,78 @@ local function runRotation()
 --- Rotations ---
 -----------------
     -- Pause
-	local function actionList_Defensive()
-		if isChecked("Debug Info") then Print("actionList_Defensive") end
-		if useDefensive() and not IsMounted() and inCombat then
-		--- AMS Counter
-			if isChecked("AMS Counter") 
-				and UnitDebuff("player","Soul Reaper") ~= nil
-			then                    
-				if cast.antiMagicShell() then print("AMS Counter - Soul Reaper") return end
-			end
-		--Healthstone
-			if isChecked("Healthstone") 
-				and php <= getOptionValue("Healthstone")     
-				and hasItem(5512)
-			then
-				if canUse(5512) then
-					useItem(5512)
-				end
-			end
-		-- Death Strike
-			if isChecked("Death Strike")  
-				and (buff.darkSuccor.exists() and (php < getOptionValue("Death Strike") or buff.darkSuccor.remain() < 2))
-				or  runicPower >= 45  
-				and php < getOptionValue("Death Strike") 
-				and (not talent.darkArbiter or (cd.darkArbiter <= 3 and not (useCDs() or playertar)))
-			then
-				 -- Death strike everything in reach
-				if getDistance("target") > 5 or immun or bop then
-					for i=1, #getEnemies("player",20) do
-						thisUnit = getEnemies("player",20)[i]
-						distance = getDistance(thisUnit)
-						if distance < 5 and getFacing("player",thisUnit) then
-							if cast.deathStrike(thisUnit) then print("Random Hit Deathstrike") return end
-						end
-					end
-				else
-					if cast.deathStrike("target") then return end
-				end
-			end
-		-- Icebound Fortitude
-			if isChecked("Icebound Fortitude") 
-				and php < getOptionValue("Icebound Fortitude") 
-			then
-				if cast.iceboundFortitude() then return end
-			end
-		-- Corpse Shield
-			if isChecked("Corpse Shield") 
-				and php < getOptionValue("Corpse Shield") 
-			then
-				if cast.corpseShield() then return end
-			end
-		-- Anti-Magic Shell
-			if isChecked("Anti-Magic Shell") and php <= getOptionValue("Anti-Magic Shell") then
-				if cast.antiMagicShell() then return end
-			end
-		-- Raise Ally
-			if isChecked("Raise Ally") then
-				if getOptionValue("Raise Ally - Target")==1
-					and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and UnitIsFriend("target","player")
-				then
-					if cast.raiseAlly("target","dead") then return end
-				end
-				if getOptionValue("Raise Ally - Target")==2
-					and UnitIsPlayer("mouseover") and UnitIsDeadOrGhost("mouseover") and UnitIsFriend("mouseover","player")
-				then
-					if cast.raiseAlly("mouseover","dead") then return end
-				end
-			end
-		end
-		return false
-	end
-	
-	local function actionList_Castigator()
+    local function actionList_Defensive()
+        if isChecked("Debug Info") then Print("actionList_Defensive") end
+        if useDefensive() and not IsMounted() and inCombat then
+        --- AMS Counter
+            if isChecked("AMS Counter") 
+                and UnitDebuff("player","Soul Reaper") ~= nil
+            then                    
+                if cast.antiMagicShell() then print("AMS Counter - Soul Reaper") return end
+            end
+        --Healthstone
+            if isChecked("Healthstone") 
+                and php <= getOptionValue("Healthstone")     
+                and hasItem(5512)
+            then
+                if canUse(5512) then
+                    useItem(5512)
+                end
+            end
+        -- Death Strike
+            if isChecked("Death Strike")  
+                and (buff.darkSuccor.exists() and (php < getOptionValue("Death Strike") or buff.darkSuccor.remain() < 2))
+                or  runicPower >= 45  
+                and php < getOptionValue("Death Strike") 
+                and (not talent.darkArbiter or (cd.darkArbiter <= 3 and not (useCDs() or playertar)))
+            then
+                 -- Death strike everything in reach
+                if getDistance("target") > 5 or immun or bop then
+                    for i=1, #getEnemies("player",20) do
+                        thisUnit = getEnemies("player",20)[i]
+                        distance = getDistance(thisUnit)
+                        if distance < 5 and getFacing("player",thisUnit) then
+                            if cast.deathStrike(thisUnit) then print("Random Hit Deathstrike") return end
+                        end
+                    end
+                else
+                    if cast.deathStrike("target") then return end
+                end
+            end
+        -- Icebound Fortitude
+            if isChecked("Icebound Fortitude") 
+                and php < getOptionValue("Icebound Fortitude") 
+            then
+                if cast.iceboundFortitude() then return end
+            end
+        -- Corpse Shield
+            if isChecked("Corpse Shield") 
+                and php < getOptionValue("Corpse Shield") 
+            then
+                if cast.corpseShield() then return end
+            end
+        -- Anti-Magic Shell
+            if isChecked("Anti-Magic Shell") and php <= getOptionValue("Anti-Magic Shell") then
+                if cast.antiMagicShell() then return end
+            end
+        -- Raise Ally
+            if isChecked("Raise Ally") then
+                if getOptionValue("Raise Ally - Target")==1
+                    and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and UnitIsFriend("target","player")
+                then
+                    if cast.raiseAlly("target","dead") then return end
+                end
+                if getOptionValue("Raise Ally - Target")==2
+                    and UnitIsPlayer("mouseover") and UnitIsDeadOrGhost("mouseover") and UnitIsFriend("mouseover","player")
+                then
+                    if cast.raiseAlly("mouseover","dead") then return end
+                end
+            end
+        end
+        return false
+    end
+    
+    local function actionList_Castigator()
         --actions.castigator=festering_strike,if=debuff.festering_wound.stack<=4&runic_power.deficit>23
         if debuff.festeringWound.stack("target") <= 4 and runicPowerDeficit > 23 then
             if cast.festeringStrike("target") then return end
@@ -320,10 +320,10 @@ local function runRotation()
         if not talent.shadowInfusion and not talent.darkArbiter then
             if cast.deathCoil("target") then return end
         end
-		return false
+        return false
     end
-	
-	local function actionList_AOE()
+    
+    local function actionList_AOE()
         if #enemies.yards10 >= 2 and not isMoving("player") then
             if cast.deathAndDecay("player") then return end
         end
@@ -343,10 +343,10 @@ local function runRotation()
         if #enemies.yards30 > 2 then
             if cast.epidemic() then return end
         end
-		return false
+        return false
         
     end
-	
+    
     local function actionList_Valkyr()
     
         --actions.valkyr=death_coil
@@ -379,7 +379,7 @@ local function runRotation()
         if debuff.festeringWound.exists("target") then
             if cast.clawingShadows("target") then return end
         end
-		return false
+        return false
     end
     
     local function actionList_Generic()
@@ -465,7 +465,7 @@ local function runRotation()
         if talent.castigator and not hasEquiped(132448) then
             if actionList_Castigator() then return end
         end
-		return false
+        return false
     
     end
 
@@ -519,7 +519,7 @@ local function runRotation()
         if not talent.shadowInfusion and not talent.darkArbiter then
             if cast.deathCoil("target") then return end
         end
-		return false
+        return false
     
     end
     local function actionList_Standard()
@@ -571,7 +571,7 @@ local function runRotation()
         if not talent.shadowInfusion and not talent.darkArbiter then
             if cast.deathCoil("target") then return end
         end
-		return false
+        return false
     
     end
     local function actionList_INTERRUPT()
@@ -718,71 +718,71 @@ local function runRotation()
                 end
                 --actions+=/outbreak,target_if=!dot.virulent_plague.ticking
                 if GetUnitExists("target") and ((objIDLastVirPlagueTarget ~= ObjectID("target")) or (waitfornextVirPlague < GetTime() - 6)) then
-					if (not debuff.virulentPlague.exists("target")
-						or debuff.virulentPlague.remain("target") < 1.5) 
-						and not debuff.soulReaper.exists("target")
-						and not immun
-						and not cloak
-						and UnitIsDeadOrGhost("target") ~= nil
-					then
-						if cast.outbreak("target","aoe") then 
-							waitfornextVirPlague = GetTime() 
-							objIDLastVirPlagueTarget = ObjectID("target")
-							return 
-						end
-					end
-					for i = 1, #enemies.yards30 do
-						local thisUnit = enemies.yards30[i]
-						if not debuff.virulentPlague.exists(thisUnit) 
-							and UnitAffectingCombat(thisUnit) 
-							and not cloak
-							and not immun
-						then
-							if cast.outbreak(thisUnit,"aoe") then 
-								waitfornextVirPlague = GetTime() 
-								return 
-							end
-							break
-						end
-					end
-				end
+                    if (not debuff.virulentPlague.exists("target")
+                        or debuff.virulentPlague.remain("target") < 1.5) 
+                        and not debuff.soulReaper.exists("target")
+                        and not immun
+                        and not cloak
+                        and UnitIsDeadOrGhost("target") ~= nil
+                    then
+                        if cast.outbreak("target","aoe") then 
+                            waitfornextVirPlague = GetTime() 
+                            objIDLastVirPlagueTarget = ObjectID("target")
+                            return 
+                        end
+                    end
+                    for i = 1, #enemies.yards30 do
+                        local thisUnit = enemies.yards30[i]
+                        if not debuff.virulentPlague.exists(thisUnit) 
+                            and UnitAffectingCombat(thisUnit) 
+                            and not cloak
+                            and not immun
+                        then
+                            if cast.outbreak(thisUnit,"aoe") then 
+                                waitfornextVirPlague = GetTime() 
+                                return 
+                            end
+                            break
+                        end
+                    end
+                end
                 --actions+=/army_of_the_dead
-				if actionList_Defensive() then return end
+                if actionList_Defensive() then return end
                 --actions+=/dark_transformation,if=equipped.137075&cooldown.dark_arbiter.remains>165
-				if  (    
-						(   getOptionValue("Dark Transformation") == 1 --Units or Boss
-							and #enemies.yards10 >= getOptionValue("Dark Transformation Units") 
-							or useCDs() 
-							or playertar
-						)   
-						or 
-						(   getOptionValue("Dark Transformation") == 2 --Cooldown only
-							and (
-									useCDs() or playertar
-								)
-						)
-					)
-					and not immun
-					and not bop
-					and (((hasEquiped(137075) and not (cd.apocalypse < 10)) or playertar) or not hasEquiped(137075))
-					and getDistance("target") < 5
-					and (not talent.darkArbiter or (talent.darkArbiter and cd.summonGargoyle > 60))
-					and (not talent.soulReaper or (not debuff.soulReaper.exists("target") or buff.soulReaper.stack("player") == 3))
-					and not (buff.soulReaper.stack("player") == 3 and cd.summonGargoyle <= 0)
-				then
-					if cast.darkTransformation() then return end
-				end
-				--actions+=/blighted_rune_weapon,if=rune<=3
-				if talent.blightedRuneWeapon and rune <= 3 then
-					if cast.blightedRuneWeapon() then return end
-				end
-				--actions+=/run_action_list,name=valkyr,if=talent.dark_arbiter.enabled&pet.valkyr_battlemaiden.active
-				if talent.darkArbiter and GetObjectExists(100876) then
-					if actionList_Valkyr() then return end
-				end
-				--actions+=/call_action_list,name=generic
-				if actionList_Generic() then return end
-				
+                if  (    
+                        (   getOptionValue("Dark Transformation") == 1 --Units or Boss
+                            and #enemies.yards10 >= getOptionValue("Dark Transformation Units") 
+                            or useCDs() 
+                            or playertar
+                        )   
+                        or 
+                        (   getOptionValue("Dark Transformation") == 2 --Cooldown only
+                            and (
+                                    useCDs() or playertar
+                                )
+                        )
+                    )
+                    and not immun
+                    and not bop
+                    and (((hasEquiped(137075) and not (cd.apocalypse < 10)) or playertar) or not hasEquiped(137075))
+                    and getDistance("target") < 5
+                    and (not talent.darkArbiter or (talent.darkArbiter and cd.summonGargoyle > 60))
+                    and (not talent.soulReaper or (not debuff.soulReaper.exists("target") or buff.soulReaper.stack("player") == 3))
+                    and not (buff.soulReaper.stack("player") == 3 and cd.summonGargoyle <= 0)
+                then
+                    if cast.darkTransformation() then return end
+                end
+                --actions+=/blighted_rune_weapon,if=rune<=3
+                if talent.blightedRuneWeapon and rune <= 3 then
+                    if cast.blightedRuneWeapon() then return end
+                end
+                --actions+=/run_action_list,name=valkyr,if=talent.dark_arbiter.enabled&pet.valkyr_battlemaiden.active
+                if talent.darkArbiter and GetObjectExists(100876) then
+                    if actionList_Valkyr() then return end
+                end
+                --actions+=/call_action_list,name=generic
+                if actionList_Generic() then return end
+                
             end
         end -- Pause
     end -- End Timer
