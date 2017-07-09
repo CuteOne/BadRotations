@@ -19,30 +19,30 @@ end
 --[[---------  ----  -----  -------------  ----------  ----  --------  -------------------------------------------------------------------------------------------------]]
 --[[---------  -----  ----           ---  ------------  ---            -------------------------------------------------------------------------------------------------------------------]]
 --[[-------------------------------------------------------------------------------------------------------------------------------------------------------]]
-local elapsedTime = 0
-local updateRate = 0
-function EnemyEngine(_, time)
-	elapsedTime = elapsedTime + time
-	if getOptionValue("Enemy Update Rate") ~= nil and getOptionValue("Enemy Update Rate") > 0.5 then updateRate = getOptionValue("Enemy Update Rate")
-		else updateRate = 0.5
-	end
-	if updateRate < #getEnemies("player",50) then
-		updateRate = #getEnemies("player",50)
-	end
-	-- ChatOverlay(updateRate)
-	--print(updateRate)
-	if FireHack ~= nil and br.data.settings[br.selectedSpec].toggles["Power"] == 1 and elapsedTime >= updateRate then --0.5 then
-		elapsedTime = 0
-		-- Enemies Engine
-		-- br.handleObjects()
-		-- br.EnemiesEngine()
-		-- EnemiesEngine();
-		FindEnemy()
-	end
-end
+-- local elapsedTime = 0
+-- local updateRate = 0
+-- function EnemyEngine(_, time)
+-- 	elapsedTime = elapsedTime + time
+-- 	if getOptionValue("Enemy Update Rate") ~= nil and getOptionValue("Enemy Update Rate") > 0.5 then updateRate = getOptionValue("Enemy Update Rate")
+-- 		else updateRate = 0.5
+-- 	end
+-- 	if updateRate < #getEnemies("player",50) then
+-- 		updateRate = #getEnemies("player",50)
+-- 	end
+-- 	-- ChatOverlay(updateRate)
+-- 	--print(updateRate)
+-- 	if FireHack ~= nil and br.data.settings[br.selectedSpec].toggles["Power"] == 1 and elapsedTime >= updateRate then --0.5 then
+-- 		elapsedTime = 0
+-- 		-- Enemies Engine
+-- 		-- br.handleObjects()
+-- 		-- br.EnemiesEngine()
+-- 		-- EnemiesEngine();
+-- 		FindEnemy()
+-- 	end
+-- end
 
-local frame = CreateFrame("FRAME")
-frame:SetScript("OnUpdate", EnemyEngine)
+ local frame = CreateFrame("FRAME")
+-- frame:SetScript("OnUpdate", EnemyEngine)
 
 -- local elapsedTime2 = 0
 -- function PlayerUpdate(_, time)
@@ -161,6 +161,7 @@ function BadRotationsUpdate(self)
 	if isChecked("Talent Anywhere") then
 		talentAnywhere()
 	end
+	local updateRate = updateRate or 0.1
 	 local startTime = debugprofilestop()
 	 if br.updateInProgress ~= true then
 	 	self.updateInProgress = true
@@ -168,7 +169,18 @@ function BadRotationsUpdate(self)
 	 	if not self.lastUpdateTime then
 	 		self.lastUpdateTime = tempTime
 	 	end
-	 	if getOptionValue("Bot Update Rate") == nil then updateRate = 0.1 else updateRate = getOptionValue("Bot Update Rate") end
+	 	
+	 	local FrameRate = GetFramerate() or 0
+	 	if isChecked("Auto Delay") then
+		 	if FrameRate ~= 0 and FrameRate < 20 and updateRate > 1  then
+		 		updateRate = updateRate + 0.1
+		 	elseif FrameRate > 50 and updateRate ~= 0.1 then
+		 		updateRate = updateRate - 0.1
+		 	end
+		elseif getOptionValue("Bot Update Rate") == nil then 
+		 	updateRate = 0.1 else updateRate = getOptionValue("Bot Update Rate") 
+		end
+
 	 	if self.lastUpdateTime and (tempTime - self.lastUpdateTime) > updateRate then --0.1 then
 	 		self.lastUpdateTime = tempTime
 			-- Check for Unlocker
@@ -186,7 +198,6 @@ function BadRotationsUpdate(self)
 					br.ui:closeWindow("all")
 					return false
 				else
-					EnemiesEngine()
 				-- Blizz CastSpellByName bug bypass
 					if castID then
 						-- Print("Casting by ID")
@@ -205,9 +216,10 @@ function BadRotationsUpdate(self)
 				        br.player:update()
 				    end
 				    -- Update Player
-					if br.player ~= nil then
+				    if br.player ~= nil then
 						br.player:update()
 					end
+					FindEnemy()
 				-- Enemies Engine
 					-- FindEnemy()
 					-- EnemiesEngine()
