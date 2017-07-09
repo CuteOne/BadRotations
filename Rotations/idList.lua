@@ -168,9 +168,11 @@ br.idList = {
                 asphyxiate                  = 108194,
                 chainsOfIce                 = 45524,                
                 corpseShield                = 207319,
+				darkArbiter					= 207349,
                 darkTransformation          = 63560,
                 deathAndDecay               = 43265,
                 deathCoil                   = 47541,
+				defile						= 152280,
                 festeringStrike             = 85948,
                 huddle                      = 47484,
                 hook                        = 212468,
@@ -181,6 +183,7 @@ br.idList = {
                 raiseDead                   = 46584,
                 scourgeStrike               = 55090,
                 summonGargoyle              = 49206,
+				
             },
             artifacts                       = {
                 apocalypse                  = 220143,
@@ -193,7 +196,9 @@ br.idList = {
                 deathAndDecay               = 188290,
                 necrosis                    = 207346,
                 soulReaper                  = 215711,
-                suddenDoom                  = 49530,                
+                suddenDoom                  = 49530,
+				coldHeart					= 235592,
+				unholyStrength				= 53365,
             },
             debuffs                         = {
                 chainsOfIce                 = 45524,                
