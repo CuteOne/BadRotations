@@ -381,6 +381,59 @@ local function runRotation()
         end
         return false
     end
+
+    local function actionList_Standard()
+        --actions.standard=festering_strike,if=debuff.festering_wound.stack<=3&runic_power.deficit>13
+        if debuff.festeringWound.stack("target") <= 3 and runicPowerDeficit > 13 then
+            if cast.festeringStrike("target") then return end
+        end
+        --actions.standard+=/death_coil,if=!buff.necrosis.up&talent.necrosis.enabled&rune<=3
+        if not buff.necrosis.exists() and talent.necrosis and rune <= 3 then
+            if cast.deathCoil("target") then return end
+        end
+        --actions.standard+=/scourge_strike,if=buff.necrosis.react&debuff.festering_wound.stack>=1&runic_power.deficit>15
+        if buff.necrosis.exists() and debuff.festeringWound.stack("target") >= 1 and runicPowerDeficit > 15 then
+            if cast.scourgeStrike("target") then return end
+        end
+        --actions.standard+=/clawing_shadows,if=buff.necrosis.react&debuff.festering_wound.stack>=1&runic_power.deficit>11
+        if buff.necrosis.exists() and debuff.festeringWound.stack("target") >= 1 and runicPowerDeficit > 11 then
+            if cast.clawingShadows("target") then return end
+        end
+        --actions.standard+=/scourge_strike,if=buff.unholy_strength.react&debuff.festering_wound.stack>=1&runic_power.deficit>15
+        if buff.unholyStrength.exists() and debuff.festeringWound.stack("target") >= 1 and runicPowerDeficit > 15 then
+            if cast.scourgeStrike("target") then return end
+        end
+        --actions.standard+=/clawing_shadows,if=buff.unholy_strength.react&debuff.festering_wound.stack>=1&runic_power.deficit>11
+        if buff.unholyStrength.exists() and debuff.festeringWound.stack("target") >= 1 and runicPowerDeficit > 11 then
+            if cast.clawingShadows("target") then return end
+        end
+        --actions.standard+=/scourge_strike,if=rune>=2&debuff.festering_wound.stack>=1&runic_power.deficit>15
+        if rune >= 2 and debuff.festeringWound.stack("target") >= 1 and runicPowerDeficit > 15 then
+            if cast.scourgeStrike("target") then return end
+        end
+        --actions.standard+=/clawing_shadows,if=rune>=2&debuff.festering_wound.stack>=1&runic_power.deficit>11
+        if rune >= 2 and debuff.festeringWound.stack("target") >= 1 and runicPowerDeficit > 11 then
+            if cast.clawingShadows("target") then return end
+        end
+        --actions.standard+=/death_coil,if=talent.shadow_infusion.enabled&talent.dark_arbiter.enabled&!buff.dark_transformation.up&cooldown.dark_arbiter.remains>15
+        if talent.shadowInfusion and talent.darkArbiter and not buff.darkTransformation.exists("pet") and cd.darkArbiter > 15 then
+            if cast.deathCoil("target") then return end
+        end
+        --actions.standard+=/death_coil,if=talent.shadow_infusion.enabled&!talent.dark_arbiter.enabled&!buff.dark_transformation.up
+        if talent.shadowInfusion and not talent.darkArbiter and not buff.darkTransformation.exists("pet") then
+            if cast.deathCoil("target") then return end
+        end
+        --actions.standard+=/death_coil,if=talent.dark_arbiter.enabled&cooldown.dark_arbiter.remains>15
+        if talent.darkArbiter and cd.darkArbiter > 15 then
+            if cast.deathCoil("target") then return end
+        end
+        --actions.standard+=/death_coil,if=!talent.shadow_infusion.enabled&!talent.dark_arbiter.enabled
+        if not talent.shadowInfusion and not talent.darkArbiter then
+            if cast.deathCoil("target") then return end
+        end
+        return false
+    
+    end
     
     local function actionList_Generic()
         --actions.generic=dark_arbiter,if=!equipped.137075&runic_power.deficit<30
@@ -469,7 +522,6 @@ local function runRotation()
     
     end
 
-    
     local function actionList_Instructors()
         --actions.instructors=festering_strike,if=debuff.festering_wound.stack<=3&runic_power.deficit>13
         if debuff.festeringWound.stack("target") <= 3 and runicPowerDeficit > 13 then
@@ -522,58 +574,7 @@ local function runRotation()
         return false
     
     end
-    local function actionList_Standard()
-        --actions.standard=festering_strike,if=debuff.festering_wound.stack<=3&runic_power.deficit>13
-        if debuff.festeringWound.stack("target") <= 3 and runicPowerDeficit > 13 then
-            if cast.festeringStrike("target") then return end
-        end
-        --actions.standard+=/death_coil,if=!buff.necrosis.up&talent.necrosis.enabled&rune<=3
-        if not buff.necrosis.exists() and talent.necrosis and rune <= 3 then
-            if cast.deathCoil("target") then return end
-        end
-        --actions.standard+=/scourge_strike,if=buff.necrosis.react&debuff.festering_wound.stack>=1&runic_power.deficit>15
-        if buff.necrosis.exists() and debuff.festeringWound.stack("target") >= 1 and runicPowerDeficit > 15 then
-            if cast.scourgeStrike("target") then return end
-        end
-        --actions.standard+=/clawing_shadows,if=buff.necrosis.react&debuff.festering_wound.stack>=1&runic_power.deficit>11
-        if buff.necrosis.exists() and debuff.festeringWound.stack("target") >= 1 and runicPowerDeficit > 11 then
-            if cast.clawingShadows("target") then return end
-        end
-        --actions.standard+=/scourge_strike,if=buff.unholy_strength.react&debuff.festering_wound.stack>=1&runic_power.deficit>15
-        if buff.unholyStrength.exists() and debuff.festeringWound.stack("target") >= 1 and runicPowerDeficit > 15 then
-            if cast.scourgeStrike("target") then return end
-        end
-        --actions.standard+=/clawing_shadows,if=buff.unholy_strength.react&debuff.festering_wound.stack>=1&runic_power.deficit>11
-        if buff.unholyStrength.exists() and debuff.festeringWound.stack("target") >= 1 and runicPowerDeficit > 11 then
-            if cast.clawingShadows("target") then return end
-        end
-        --actions.standard+=/scourge_strike,if=rune>=2&debuff.festering_wound.stack>=1&runic_power.deficit>15
-        if rune >= 2 and debuff.festeringWound.stack("target") >= 1 and runicPowerDeficit > 15 then
-            if cast.scourgeStrike("target") then return end
-        end
-        --actions.standard+=/clawing_shadows,if=rune>=2&debuff.festering_wound.stack>=1&runic_power.deficit>11
-        if rune >= 2 and debuff.festeringWound.stack("target") >= 1 and runicPowerDeficit > 11 then
-            if cast.clawingShadows("target") then return end
-        end
-        --actions.standard+=/death_coil,if=talent.shadow_infusion.enabled&talent.dark_arbiter.enabled&!buff.dark_transformation.up&cooldown.dark_arbiter.remains>15
-        if talent.shadowInfusion and talent.darkArbiter and not buff.darkTransformation.exists("pet") and cd.darkArbiter > 15 then
-            if cast.deathCoil("target") then return end
-        end
-        --actions.standard+=/death_coil,if=talent.shadow_infusion.enabled&!talent.dark_arbiter.enabled&!buff.dark_transformation.up
-        if talent.shadowInfusion and not talent.darkArbiter and not buff.darkTransformation.exists("pet") then
-            if cast.deathCoil("target") then return end
-        end
-        --actions.standard+=/death_coil,if=talent.dark_arbiter.enabled&cooldown.dark_arbiter.remains>15
-        if talent.darkArbiter and cd.darkArbiter > 15 then
-            if cast.deathCoil("target") then return end
-        end
-        --actions.standard+=/death_coil,if=!talent.shadow_infusion.enabled&!talent.dark_arbiter.enabled
-        if not talent.shadowInfusion and not talent.darkArbiter then
-            if cast.deathCoil("target") then return end
-        end
-        return false
     
-    end
     local function actionList_INTERRUPT()
         if useInterrupts() then
             for i = 1, #enemies.yards30 do
