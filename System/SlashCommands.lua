@@ -57,6 +57,11 @@ local function getStringIndex(string,index)
 	return nil
 end
 
+local function updateRate()
+	print("Current Update Rate: "..getUpdateRate())
+	print("Current Dynamic Target Rate: "..getEnemyUpdateRate())
+end
+
 function slashHelpList()
 	SLASH_BR1, SLASH_BR2 = '/br', '/badrotations'
 	SlashCommandHelp("br","Toggles BadRotations On/Off")
@@ -69,6 +74,7 @@ function slashHelpList()
 	SlashCommandHelp("br queue clear","Clears the Spell Queue of all queued spells.")
 	SlashCommandHelp("br queue add spellId","Adds the Spell to the Queue by Spell Id.")
 	SlashCommandHelp("br queue remove spellId","Removes the Spell from the Queue by Spell Id.")
+	SlashCommandHelp("br updaterate", "Displays Current Update Rate")
 end
 
 slashHelpList()
@@ -210,6 +216,8 @@ function handler(message, editbox)
 		else
 			Print("Queue Casting Disabled: |cffFFDD11 Check Bot Options to enable.")
 		end
+	elseif msg == "updaterate" then
+		updateRate()
 	else
 	    Print("Invalid Command: |cFFFF0000" .. msg .. "|r try |cffFFDD11 /br help")
 	end

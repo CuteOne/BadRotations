@@ -157,6 +157,10 @@ frame:SetScript("OnEvent", frame.OnEvent)
 --[[-------------------------------------------------------------------------------------------------------------------------------------------------------]]
 --[[This function is refired everytime wow ticks. This frame is located at the top of Core.lua]]
 local updateRate = updateRate or 0.1
+
+function getUpdateRate()
+	return updateRate
+end
 function BadRotationsUpdate(self)
 	if updateRate < 0.1 then
 		updateRate = 0.1

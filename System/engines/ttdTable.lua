@@ -47,13 +47,11 @@ function TTDRefresh()
 		end
 	end
 	for object, _ in pairs(units) do
-		if not GetUnitExists(object) then
 			units[object] = nil
 			ttd[object] = nil
 			health[object] = nil
 			dps[object] = nil
 			enemyTable.totalUnits = enemyTable.totalUnits -1
-		end
 	end
 end
 
