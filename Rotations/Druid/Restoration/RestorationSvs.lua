@@ -615,7 +615,7 @@ local function runRotation()
 				if isChecked("Wild Growth") and not moving and not buff.wildGrowth.exists(br.friend[i].unit) and not isCastingSpell(spell.tranquility) then
 					local lowHealthCandidates = getUnitsToHealAround(br.friend[i].unit,30,getValue("Wild Growth"),#br.friend)
 					if #lowHealthCandidates >= getValue("Wild Growth Targets") then
-					    if talent.soulOfTheForest and not buff.soulOfTheForest.exists() and getBuffRemain("player",242313) == 0 then
+					    if talent.soulOfTheForest and not buff.soulOfTheForest.exists() and getBuffRemain("player",242315) == 0 then
 						    if cast.swiftmend(lowestHP) then return true end
 						end	
 						if cast.wildGrowth(br.friend[i].unit) then return end
