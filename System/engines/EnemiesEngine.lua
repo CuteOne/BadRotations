@@ -55,7 +55,6 @@ local function AddEnemy(thisUnit)
 	enemy.name 			= UnitName(thisUnit)
 	enemy.guid 			= UnitGUID(thisUnit)
 	enemy.id 			= GetObjectID(thisUnit)
-	UpdateEnemy(thisUnit)
 	-- end
 	br.debug.cpu.enemiesEngine.addTime = debugprofilestop()-startTime or 0
 end
@@ -130,7 +129,7 @@ function FindEnemy()
 			if ObjectIsType(thisUnit, ObjectTypes.Unit) then
 				-- br.debug.cpu.enemiesEngine.unitTargets = br.debug.cpu.enemiesEngine.unitTargets + 1
 				-- Enemies
-				if isValidUnit(thisUnit) and br.enemy[thisUnit] == nil then
+				if isValidUnit(thisUnit) then
 				-- 	br.debug.cpu.enemiesEngine.sanityTargets = br.debug.cpu.enemiesEngine.sanityTargets + 1
 				 	AddEnemy(thisUnit)
 				end
@@ -198,10 +197,13 @@ local function targetNearestEnemy(range)
 		end
 	end
 end
+local enemyUpdateRate = enemyUpdateRate or 0
 
+function getEnemyUpdateRate()
+	return enemyUpdateRate
+end
 -- returns prefered target for diferent spells
 function dynamicTarget(range,facing)
-	local enemyUpdateRate = enemyUpdateRate or 0
 	local playerRealm = UnitDebuffID("player",235621)
 	if UnitExists("target") then
 		local targetRealm = UnitDebuffID("target",235621)

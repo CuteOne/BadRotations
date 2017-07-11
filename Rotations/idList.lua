@@ -168,9 +168,11 @@ br.idList = {
                 asphyxiate                  = 108194,
                 chainsOfIce                 = 45524,                
                 corpseShield                = 207319,
+                darkArbiter                 = 207349,
                 darkTransformation          = 63560,
                 deathAndDecay               = 43265,
                 deathCoil                   = 47541,
+                defile                      = 152280,
                 festeringStrike             = 85948,
                 huddle                      = 47484,
                 hook                        = 212468,
@@ -181,6 +183,7 @@ br.idList = {
                 raiseDead                   = 46584,
                 scourgeStrike               = 55090,
                 summonGargoyle              = 49206,
+                
             },
             artifacts                       = {
                 apocalypse                  = 220143,
@@ -193,7 +196,7 @@ br.idList = {
                 deathAndDecay               = 188290,
                 necrosis                    = 207346,
                 soulReaper                  = 215711,
-                suddenDoom                  = 49530,                
+                suddenDoom                  = 49530,
             },
             debuffs                         = {
                 chainsOfIce                 = 45524,                
@@ -256,6 +259,7 @@ br.idList = {
                 pathOfFrost                 = 3714,
                 unholyStrength              = 53365,
                 wraithWalk                  = 212552,
+                coldHeart                   = 235599,
             },
             debuffs                         = {
                 bloodPlague                 = 55078,
@@ -687,7 +691,7 @@ br.idList = {
                 essenceOfGhanir             = 208253,
                 ferociousBite               = 22568,
                 flourish                    = 197721,
-                ironfur                     = 192081,				
+                ironfur                     = 192081,
                 healingTouch                = 5185,
                 incarnationTreeOfLife       = 33891,
                 innervate                   = 29166,
@@ -754,6 +758,7 @@ br.idList = {
                 soulOfTheForest             = 114108,
                 frenziedRegeneration        = 22842,
                 wildGrowth                  = 48438,
+                cultivat                    = 200389,
             },
             debuffs                         = {
                 moonfire                    = 164812,

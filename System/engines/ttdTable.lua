@@ -47,7 +47,7 @@ function TTDRefresh()
 		end
 	end
 	for object, _ in pairs(units) do
-		if not GetUnitExists(object) then
+		if UnitHealth(object) <= 0 then
 			units[object] = nil
 			ttd[object] = nil
 			health[object] = nil
