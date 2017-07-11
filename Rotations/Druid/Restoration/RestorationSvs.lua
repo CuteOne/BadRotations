@@ -139,7 +139,7 @@ local function createOptions()
 		br.ui:createSpinnerWithout(section, "Efflorescence recast delay", 20, 8, 30, 1, colorWhite.."Delay to recast Efflo in seconds.")
 		br.ui:createDropdown(section,"Efflorescence Key", br.dropOptions.Toggle, 6, "","|cffFFFFFFEfflorescence usage.", true)
 		-- Lifebloom
-		br.ui:createCheckbox(section,"Lifebloom","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFLifebloom usage|cffFFBB00.",1)
+		br.ui:createDropdown(section,"Lifebloom",{"|cffFFFFFFNormal","|cffFFFFFFBoss1 Target"}, 1, "|cffFFFFFFTarget for Lifebloom")
 		-- Cenarion Ward
 		br.ui:createSpinner(section, "Cenarion Ward",  70,  0,  100,  5,  "","|cffFFFFFFHealth Percent to Cast At")
 		-- Ironbark
@@ -472,7 +472,7 @@ local function runRotation()
 				end
 			end
 			-- Regrowth
-			if isChecked("Regrowth") and (not moving or buff.incarnationTreeOfLife.exists()) and lastSpell ~= spell.regrowth then
+			if isChecked("Regrowth") and (not moving or buff.incarnationTreeOfLife.exists()) then
 				for i = 1, #br.friend do
 					if br.friend[i].hp <= getValue("Regrowth Clearcasting") and buff.clearcasting.remain() > 1.5 and getDebuffStacks(br.friend[i].unit,209858) < 30 then
 						if cast.regrowth(br.friend[i].unit) then
@@ -790,7 +790,7 @@ local function runRotation()
 							end
 						end
 						for i = 1, #br.friend do
-							if bloomCount < 1 and not buff.lifebloom.exists(br.friend[i].unit) and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" and UnitIsUnit(br.friend[i].unit,"boss1target") and UnitInRange(br.friend[i].unit) then
+							if bloomCount < 1 and not buff.lifebloom.exists(br.friend[i].unit) and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" and UnitInRange(br.friend[i].unit) and (getOptionValue("Lifebloom") == 2 and UnitIsUnit(br.friend[i].unit,"boss1target")) then
 								if cast.lifebloom(br.friend[i].unit) then return end
 							end
 						end
@@ -806,7 +806,7 @@ local function runRotation()
 				end
 			end
 			-- Regrowth
-			if isChecked("Regrowth") and (not moving or buff.incarnationTreeOfLife.exists()) and not isCastingSpell(spell.tranquility) and lastSpell ~= spell.regrowth then
+			if isChecked("Regrowth") and (not moving or buff.incarnationTreeOfLife.exists()) and not isCastingSpell(spell.tranquility) then
 				for i = 1, #br.friend do
 					if br.friend[i].hp <= getValue("Regrowth Clearcasting") and buff.clearcasting.remain() > 1.5 and getDebuffStacks(br.friend[i].unit,209858) < 30 then
 						if cast.regrowth(br.friend[i].unit) then
