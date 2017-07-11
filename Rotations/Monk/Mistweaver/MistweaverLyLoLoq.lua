@@ -63,6 +63,7 @@ local function createOptions()
         br.ui:createCheckbox(section, "Tiger's Lust", colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.." use of Tiger's Lust"..colorBlue.." (Auto use on snare and root).")
         br.ui:createDropdown(section, "Tiger's Lust Key", br.dropOptions.Toggle, 6, colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.." use of Tiger's Lust with Key.",colorWhite.."Set hotkey to use Tiger's Lust with key.")
         br.ui:createDropdown(section, "Ring Of Peace Key", br.dropOptions.Toggle, 6, colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.." use of Ring Of Peace with Key on "..colorRed.."Cursor",colorWhite.."Set hotkey to use Ring Of Peace with key.")
+        br.ui:createSpinnerWithout(section, "Critical Health",  40,  0,  100,  5,  colorWhite.."Health percent to heal the player ")
         br.ui:createSpinnerWithout(section, "DPS",  90,  0,  100,  1,  colorWhite.." Dps when lowest health >= ")
         br.ui:checkSectionState(section)
 
@@ -557,6 +558,13 @@ local function runRotation()
                 end
                 if cast.effuse(lowest.unit) then return true end
             end
+            -- Heal ourself if critic life.
+            if php < getValue("Critical Health") then
+                if botSpell == spell.effuse and currentTarget == UnitGUID("player") then
+                    return false
+                end
+                if cast.effuse("player") then return true end
+
         end
 
         -- Ephemeral Paradox trinket
@@ -618,14 +626,14 @@ local function runRotation()
                     if cast.spinningCraneKick() then return true end
                 elseif #enemies.yards5 >= 1 then
                     if isChecked("Rising Sun Kick") and cd.risingSunKick  == 0 then
-                        if cast.risingSunKick(enemies.yards5[1].unit) then return true end
+                        if cast.risingSunKick() then return true end
                     end
                     if buff.teachingsOfTheMonastery.stack() == 3 then
-                        if cast.blackoutKick(enemies.yards5[1].unit) then return true end
+                        if cast.blackoutKick() then return true end
                     end
                     if cast.tigerPalm(enemies.yards5[1].unit) then return true end
                 elseif #enemies.yards40 > 0 and not isCastingSpell(spell.cracklingJadeLighting) and isChecked("Crackling Jade Lightning") then
-                    if cast.cracklingJadeLighting(enemies.yards40[1].unit) then return true end
+                    if cast.cracklingJadeLighting() then return true end
                 end
             end
         end
