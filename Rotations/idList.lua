@@ -197,7 +197,6 @@ br.idList = {
                 necrosis                    = 207346,
                 soulReaper                  = 215711,
                 suddenDoom                  = 49530,
-                unholyStrength              = 53365,
             },
             debuffs                         = {
                 chainsOfIce                 = 45524,                

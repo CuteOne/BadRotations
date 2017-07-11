@@ -217,7 +217,6 @@ local function runRotation()
 -----------------
     -- Pause
     local function actionList_Defensive()
-        if isChecked("Debug Info") then Print("actionList_Defensive") end
         if useDefensive() and not IsMounted() and inCombat then
         --- AMS Counter
             if isChecked("AMS Counter") 
@@ -252,6 +251,7 @@ local function runRotation()
                     end
                 else
                     if cast.deathStrike("target") then return true end
+                    
                 end
             end
         -- Icebound Fortitude
@@ -858,6 +858,7 @@ local function runRotation()
                 
                 --actions+=/army_of_the_dead
                 if actionList_Defensive() then return true end
+                
                 --actions+=/blighted_rune_weapon,if=rune<=3
                 if talent.blightedRuneWeapon and rune <= 3 then
                     if cast.blightedRuneWeapon() then return true end
@@ -868,12 +869,11 @@ local function runRotation()
                     if GetObjExists(100876) then
                         if actionList_Valkyr() then return true end
                         if isChecked("Debug Info") then Print("Profile(): Calling actionList_Valkyr") end
-                    else
-                        --actions+=/call_action_list,name=generic
-                        if actionList_Generic() then return true end
-                        if isChecked("Debug Info") then Print("Profile(): Calling actionList_Generic") end
                     end
                 end
+                
+                if actionList_Generic() then return true end
+                if isChecked("Debug Info") then Print("Profile(): Calling actionList_Generic") end
             end
         end -- Pause
     end -- End Timer
