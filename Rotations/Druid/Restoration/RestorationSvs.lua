@@ -176,6 +176,7 @@ local function createOptions()
 		br.ui:createSpinner(section, "Flourish",  60,  0,  100,  5,  "","Health Percent to Cast At")
 		br.ui:createSpinner(section, "Flourish Targets",  3,  0,  40,  1,  "","Minimum Flourish Targets", true)
 		br.ui:createSpinner(section, "Flourish HOT Targets",  3,  0,  40,  1,  "","Minimum HOT Targets cast Flourish", true)
+		br.ui:createSpinner(section, "HOT Time count",  8,  0,  25,  1,  "","HOT Less than how many seconds to count", true)
 		br.ui:checkSectionState(section)
 		-- Toggle Key Options
 		section = br.ui:createSection(br.ui.window.profile, "Toggle Keys")
@@ -635,7 +636,7 @@ local function runRotation()
 			-- Flourish
 			if isChecked("Flourish") and talent.flourish and not isCastingSpell(spell.tranquility) then
 				if getLowAllies(getValue("Flourish")) >= getValue("Flourish Targets") then
-					local c = getAllHotCnt(8)
+					local c = getAllHotCnt(getValue("HOT Time count"))
 					if c>= getValue("Flourish HOT Targets") then
 						if cast.flourish() then
 							Print("Flourish HOT cnt="..c)
