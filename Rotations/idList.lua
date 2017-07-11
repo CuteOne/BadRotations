@@ -197,7 +197,6 @@ br.idList = {
                 necrosis                    = 207346,
                 soulReaper                  = 215711,
                 suddenDoom                  = 49530,
-                coldHeart                   = 235592,
                 unholyStrength              = 53365,
             },
             debuffs                         = {
@@ -261,6 +260,7 @@ br.idList = {
                 pathOfFrost                 = 3714,
                 unholyStrength              = 53365,
                 wraithWalk                  = 212552,
+                coldHeart                   = 235599,
             },
             debuffs                         = {
                 bloodPlague                 = 55078,
