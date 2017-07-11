@@ -650,11 +650,14 @@ local function runRotation()
             if  cd.blizzard == 0 then
                 if hasEquiped(133970) then
                     if buff.zannesuJourney.stack() == 5 and buff.zannesuJourney.remain() > getCastTime(spell.blizzard) then
-                        if cast.blizzard(target,"ground") then return true end
+                        local sX, sY, sZ = GetObjectPosition(target)
+                        if castOnPosition(sX, sY, sZ, spell.blizzard) then return true end
+                        --if cast.blizzard(target,"ground") then return true end
                     end
                 end
                 if #enemies.yards8t > 2 or (#enemies.yards8t > 1 and not(talent.glacialSpike and talent.splittingIce)) then
-                    if cast.blizzard(target,"ground") then return true end
+                    local sX, sY, sZ = GetObjectPosition(target)
+                    if castOnPosition(sX, sY, sZ, spell.blizzard) then return true end
                 end
             end
             
@@ -781,7 +784,8 @@ local function runRotation()
             --Therefore, if we are not at a risk of overcapping on FoF, use Blizzard before using Ice Lance.
             if cd.blizzard == 0 and getCastTime(spell.blizzard) == 0 then
                 if #enemies.yards8t > 1 and fof_react < 3  then
-                    if cast.blizzard(target,"ground") then return true end
+                    local sX, sY, sZ = GetObjectPosition(target)
+                    if castOnPosition(sX, sY, sZ, spell.blizzard) then return true end
                 end
             end
             
@@ -835,11 +839,13 @@ local function runRotation()
             if  cd.blizzard == 0 then
                 if hasEquiped(133970) then
                     if buff.zannesuJourney.stack() == 5 and buff.zannesuJourney.remain() > getCastTime(spell.blizzard) then
-                        if cast.blizzard(target,"ground") then return true end
+                    local sX, sY, sZ = GetObjectPosition(target)
+                    if castOnPosition(sX, sY, sZ, spell.blizzard) then return true end
                     end
                 end
                 if #enemies.yards8t > 2 or #enemies.yards8t > 1 and not(talent.glacialSpike and talent.splittingIce) then
-                    if cast.blizzard(target,"ground") then return true end
+                    local sX, sY, sZ = GetObjectPosition(target)
+                    if castOnPosition(sX, sY, sZ, spell.blizzard) then return true end
                 end
             end
             
@@ -865,7 +871,8 @@ local function runRotation()
             
             if cd.blizzard == 0 then
                 if getCastTime(spell.blizzard) == 0 then
-                    if cast.blizzard(target,"ground") then return true end
+                    local sX, sY, sZ = GetObjectPosition(target)
+                    if castOnPosition(sX, sY, sZ, spell.blizzard) then return true end
                 end
             end
             
@@ -937,7 +944,8 @@ local function runRotation()
         -- Therefore, if we are not at a risk of overcapping on FoF, use Blizzard before using Ice Lance.
         if cd.blizzard == 0 then
             if getCastTime(spell.blizzard) == 0 and fof_react < 3 and (lastCast == spell.frozenOrb or cd.frozenOrb > 5) then
-                if cast.blizzard(target,"ground") then return true end
+                local sX, sY, sZ = GetObjectPosition(target)
+                if castOnPosition(sX, sY, sZ, spell.blizzard) then return true end
             end
         end
         
@@ -959,6 +967,7 @@ local function runRotation()
 
         --ice lance if all else fails
         if cast.iceLance(target) and isMoving("player") then return true end
+        return false
     end
     -----------------
     --- Rotations ---
@@ -1011,6 +1020,8 @@ local function runRotation()
     if UnitCastingInfo("player") == nil and getSpellCD(61304) == 0 then
         return profile()
     end
+    
+    
 end -- End Timer
 
 local id = 64
