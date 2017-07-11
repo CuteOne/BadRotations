@@ -201,41 +201,6 @@ local regrowth_target = nil
 local cancel_regrowth = 0
 local cancel_wild = 0
 
-local function getAllHotCnt(time_remain)
-	hotCnt = 0
-	for i = 1, #br.friend do
-		if buff.lifebloom.remain(br.friend[i].unit) >= 1 and buff.lifebloom.remain(br.friend[i].unit) <= time_remain then
-			hotCnt=hotCnt+1
-		end
-			
-		if buff.rejuvenation.remain(br.friend[i].unit) >= 1 and buff.rejuvenation.remain(br.friend[i].unit) <= time_remain then
-			hotCnt=hotCnt+1
-		end
-		
-		if buff.regrowth.remain(br.friend[i].unit) >= 1 and buff.regrowth.remain(br.friend[i].unit) <= time_remain then
-			hotCnt=hotCnt+1
-		end
-		
-		if buff.rejuvenationGermination.remain(br.friend[i].unit) >= 1 and buff.rejuvenationGermination.remain(br.friend[i].unit) <= time_remain then
-			hotCnt=hotCnt+1
-		end
-		
-		if buff.wildGrowth.remain(br.friend[i].unit) >= 1 and buff.wildGrowth.remain(br.friend[i].unit) <= time_remain then
-			hotCnt=hotCnt+1
-		end	
-		
-		if buff.cenarionWard.remain(br.friend[i].unit) >= 1 and buff.cenarionWard.remain(br.friend[i].unit) <= time_remain then
-			hotCnt=hotCnt+2
-		end	
-		
-		if buff.cultivat.remain(br.friend[i].unit) >= 1 and buff.cultivat.remain(br.friend[i].unit) <= time_remain then
-			hotCnt=hotCnt+1
-		end	
-	end
-	
-	return hotCnt
-end
-
 
 local function runRotation()
 	if br.timer:useTimer("debugRestoration", 0.1) then
@@ -315,7 +280,40 @@ local function runRotation()
 		if lossPercent > snapLossHP or php > snapLossHP then snapLossHP = lossPercent end
 		
 		--ChatOverlay("|cff00FF00Abundance stacks: "..buff.abundance.stack().."")
-		
+        local function getAllHotCnt(time_remain)
+        	hotCnt = 0
+        	for i = 1, #br.friend do
+        		if buff.lifebloom.remain(br.friend[i].unit) >= 1 and buff.lifebloom.remain(br.friend[i].unit) <= time_remain then
+        			hotCnt=hotCnt+1
+        		end
+        			
+        		if buff.rejuvenation.remain(br.friend[i].unit) >= 1 and buff.rejuvenation.remain(br.friend[i].unit) <= time_remain then
+        			hotCnt=hotCnt+1
+        		end
+        		
+        		if buff.regrowth.remain(br.friend[i].unit) >= 1 and buff.regrowth.remain(br.friend[i].unit) <= time_remain then
+        			hotCnt=hotCnt+1
+        		end
+        		
+        		if buff.rejuvenationGermination.remain(br.friend[i].unit) >= 1 and buff.rejuvenationGermination.remain(br.friend[i].unit) <= time_remain then
+        			hotCnt=hotCnt+1
+        		end
+        		
+        		if buff.wildGrowth.remain(br.friend[i].unit) >= 1 and buff.wildGrowth.remain(br.friend[i].unit) <= time_remain then
+        			hotCnt=hotCnt+1
+        		end	
+        		
+        		if buff.cenarionWard.remain(br.friend[i].unit) >= 1 and buff.cenarionWard.remain(br.friend[i].unit) <= time_remain then
+        			hotCnt=hotCnt+2
+        		end	
+        		
+        		if buff.cultivat.remain(br.friend[i].unit) >= 1 and buff.cultivat.remain(br.friend[i].unit) <= time_remain then
+        			hotCnt=hotCnt+1
+        		end	
+        	end
+        	
+        	return hotCnt
+        end		
 		--------------------
 		--- Action Lists ---
 		--------------------
