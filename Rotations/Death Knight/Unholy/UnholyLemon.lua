@@ -53,6 +53,7 @@ local function createOptions()
         -----------------------
         section = br.ui:createSection(br.ui.window.profile,  "General")
         br.ui:createDropdownWithout(section, "Artifact", {colorWhite.."Everything",colorWhite.."Cooldowns",colorWhite.."Never"}, 1, colorWhite.."When to use Artifact Ability.")
+        br.ui:createCheckbox(section,"Debug Info")
         br.ui:checkSectionState(section)
          ------------------------
         --- ITEM OPTIONS --- -- Define Item Options
@@ -71,8 +72,7 @@ local function createOptions()
         section = br.ui:createSection(br.ui.window.profile,  "Cooldowns")
         br.ui:createCheckbox(section, "Use Racial")
         br.ui:createCheckbox(section, "Gargoyle / Dark Arbiter")
-        br.ui:createDropdownWithout(section, colorGreen.."Dark Transformation", {"|cff00FF00Units or Boss","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Dark Transformation ability.")
-        br.ui:createSpinnerWithout(section, colorGreen.."Dark Transformation Units",  1,  1,  10,  1,  "|cffFFFFFFSet to desired targets to use Dark Transformation on. Min: 1 / Max: 10 / Interval: 1")
+        br.ui:createCheckbox(section, colorGreen.."Dark Transformation")
         br.ui:checkSectionState(section)
         -------------------------
         --- DEFENSIVE OPTIONS --- -- Define Defensive Options
@@ -203,11 +203,15 @@ local function runRotation()
         objIDLastVirPlagueTarget = 0
     end
     
-
---------------------
---- Action Lists ---
---------------------
-
+    local function GetObjExists(objectID)
+        for i = 1, ObjectCount() do
+            local thisUnit = GetObjectWithIndex(i)
+            if GetObjectExists(thisUnit) and GetObjectID(thisUnit) == objectID then
+                return true
+            end
+        end
+        return false
+    end
 -----------------
 --- Rotations ---
 -----------------
@@ -243,40 +247,40 @@ local function runRotation()
                         thisUnit = getEnemies("player",20)[i]
                         distance = getDistance(thisUnit)
                         if distance < 5 and getFacing("player",thisUnit) then
-                            if cast.deathStrike(thisUnit) then print("Random Hit Deathstrike") return end
+                            if cast.deathStrike(thisUnit) then print("Random Hit Deathstrike") return true end
                         end
                     end
                 else
-                    if cast.deathStrike("target") then return end
+                    if cast.deathStrike("target") then return true end
                 end
             end
         -- Icebound Fortitude
             if isChecked("Icebound Fortitude") 
                 and php < getOptionValue("Icebound Fortitude") 
             then
-                if cast.iceboundFortitude() then return end
+                if cast.iceboundFortitude() then return true end
             end
         -- Corpse Shield
             if isChecked("Corpse Shield") 
                 and php < getOptionValue("Corpse Shield") 
             then
-                if cast.corpseShield() then return end
+                if cast.corpseShield() then return true end
             end
         -- Anti-Magic Shell
             if isChecked("Anti-Magic Shell") and php <= getOptionValue("Anti-Magic Shell") then
-                if cast.antiMagicShell() then return end
+                if cast.antiMagicShell() then return true end
             end
         -- Raise Ally
             if isChecked("Raise Ally") then
                 if getOptionValue("Raise Ally - Target")==1
                     and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and UnitIsFriend("target","player")
                 then
-                    if cast.raiseAlly("target","dead") then return end
+                    if cast.raiseAlly("target","dead") then return true end
                 end
                 if getOptionValue("Raise Ally - Target")==2
                     and UnitIsPlayer("mouseover") and UnitIsDeadOrGhost("mouseover") and UnitIsFriend("mouseover","player")
                 then
-                    if cast.raiseAlly("mouseover","dead") then return end
+                    if cast.raiseAlly("mouseover","dead") then return true end
                 end
             end
         end
@@ -286,98 +290,122 @@ local function runRotation()
     local function actionList_Castigator()
         --actions.castigator=festering_strike,if=debuff.festering_wound.stack<=4&runic_power.deficit>23
         if debuff.festeringWound.stack("target") <= 4 and runicPowerDeficit > 23 then
-            if cast.festeringStrike("target") then return end
+            if cast.festeringStrike("target") then return true end
+            if isChecked("Debug Info") then Print("actionList_Castigator [1]: Festering Strike") end
         end
         --actions.castigator+=/death_coil,if=!buff.necrosis.up&talent.necrosis.enabled&rune<=3
         if not buff.necrosis.exists() and talent.necrosis and rune <= 3 then
-            if cast.deathCoil("target") then return end
+            if cast.deathCoil("target") then return true end
+            if isChecked("Debug Info") then Print("actionList_Castigator [2]: Death Coil") end
         end
+        
         --actions.castigator+=/scourge_strike,if=buff.necrosis.react&debuff.festering_wound.stack>=3&runic_power.deficit>23
         if buff.necrosis.exists() and debuff.festeringWound.stack("target") >= 3 and runicPowerDeficit > 23 then
-            if cast.scourgeStrike("target") then return end
+            if cast.scourgeStrike("target") then return true end
+            if isChecked("Debug Info") then Print("actionList_Castigator [3]: Scourge Strike") end
         end
         --actions.castigator+=/scourge_strike,if=buff.unholy_strength.react&debuff.festering_wound.stack>=3&runic_power.deficit>23
         if buff.unholyStrength.exists() and debuff.festeringWound.stack("target") >= 3 and runicPowerDeficit > 23 then
-            if cast.scourgeStrike("target") then return end
+            if cast.scourgeStrike("target") then return true end
+            if isChecked("Debug Info") then Print("actionList_Castigator [4]: Scourge Strike") end
         end
         --actions.castigator+=/scourge_strike,if=rune>=2&debuff.festering_wound.stack>=3&runic_power.deficit>23
         if rune >= 2 and debuff.festeringWound.stack("target") >= 3 and runicPowerDeficit > 23 then
-            if cast.scourgeStrike("target") then return end
+            if cast.scourgeStrike("target") then return true end
+            if isChecked("Debug Info") then Print("actionList_Castigator [5]: Scourge Strike") end
         end
         --actions.castigator+=/death_coil,if=talent.shadow_infusion.enabled&talent.dark_arbiter.enabled&!buff.dark_transformation.up&cooldown.dark_arbiter.remains>15
         if talent.shadowInfusion and talent.darkArbiter and not buff.darkTransformation.exists("pet") and cd.darkArbiter > 15 then
-            if cast.deathCoil("target") then return end
+            if cast.deathCoil("target") then return true end
+            if isChecked("Debug Info") then Print("actionList_Castigator [6]: Death Coil") end
         end
         --actions.castigator+=/death_coil,if=talent.shadow_infusion.enabled&!talent.dark_arbiter.enabled&!buff.dark_transformation.up
         if talent.shadowInfusion and not talent.darkArbiter and not buff.darkTransformation.exists("pet") then
-            if cast.deathCoil("target") then return end
+            if cast.deathCoil("target") then return true end
+            if isChecked("Debug Info") then Print("actionList_Castigator [7]: Death Coil") end
         end
         --actions.castigator+=/death_coil,if=talent.dark_arbiter.enabled&cooldown.dark_arbiter.remains>15
         if talent.darkArbiter and cd.darkArbiter > 15 then
-            if cast.deathCoil("target") then return end
+            if cast.deathCoil("target") then return true end
+            if isChecked("Debug Info") then Print("actionList_Castigator [8]: Death Coil") end
         end
         --actions.castigator+=/death_coil,if=!talent.shadow_infusion.enabled&!talent.dark_arbiter.enabled
         if not talent.shadowInfusion and not talent.darkArbiter then
-            if cast.deathCoil("target") then return end
+            if cast.deathCoil("target") then return true end
+            if isChecked("Debug Info") then Print("actionList_Castigator [9]: Death Coil") end
         end
         return false
     end
     
     local function actionList_AOE()
         if #enemies.yards10 >= 2 and not isMoving("player") then
-            if cast.deathAndDecay("player") then return end
+            if cast.deathAndDecay("player") then return true end
+            if isChecked("Debug Info") then Print("actionList_AOE [1]: Death and Decay") end
         end
         --actions.aoe+=/epidemic,if=spell_targets.epidemic>4
         if #enemies.yards30 > 4 then
-            if cast.epidemic() then return end
+            if cast.epidemic() then return true end
+            if isChecked("Debug Info") then Print("actionList_AOE [2]: Epidemic") end
         end
         --actions.aoe+=/scourge_strike,if=spell_targets.scourge_strike>=2&(dot.death_and_decay.ticking|dot.defile.ticking)
         if #enemies.yards5 >= 2 and cd.deathAndDecay > 20 then
-            if cast.scourgeStrike("target") then return end
+            if cast.scourgeStrike("target") then return true end
+            if isChecked("Debug Info") then Print("actionList_AOE [3]: Scourge Strike") end
         end
         --actions.aoe+=/clawing_shadows,if=spell_targets.clawing_shadows>=2&(dot.death_and_decay.ticking|dot.defile.ticking)
         if #enemies.yards5 >= 2 and cd.deathAndDecay > 20 and talent.clawingShadows then
-            if cast.clawingShadows("target") then return end
+            if cast.clawingShadows("target") then return true end
+            if isChecked("Debug Info") then Print("actionList_AOE [4]: Clawing Shadows") end
         end
         --actions.aoe+=/epidemic,if=spell_targets.epidemic>2
         if #enemies.yards30 > 2 then
-            if cast.epidemic() then return end
+            if cast.epidemic() then return true end
+            if isChecked("Debug Info") then Print("actionList_AOE [5]: Epidemic") end
         end
         return false
         
     end
     
     local function actionList_Valkyr()
-    
         --actions.valkyr=death_coil
         if cd.deathCoil == 0 then
-            if cast.deathCoil("target") then return end
+            if cast.deathCoil("target") then return true end
+            if isChecked("Debug Info") then Print("actionList_Valkyr [1]: Death Coil") end
         end
+        
         --actions.valkyr+=/apocalypse,if=debuff.festering_wound.stack=8
-        if (getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs())) then
-            if debuff.festeringWound.stack("target") == 8 then
-                if cast.apocalypse("target") then return end
+        if cd.apocalypse == 0 then 
+            if (getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs())) then
+                if debuff.festeringWound.stack("target") == 8 then
+                    if cast.apocalypse("target") then return true end
+                    if isChecked("Debug Info") then Print("actionList_Valkyr [2]: Apocalypse") end
+                end
             end
         end
         --actions.valkyr+=/festering_strike,if=debuff.festering_wound.stack<8&cooldown.apocalypse.remains<5
         if debuff.festeringWound.stack("target") < 8 and cd.apocalypse < 5 then
-            if cast.festeringStrike("target") then return end
+            if cast.festeringStrike("target") then return true end
+            if isChecked("Debug Info") then Print("actionList_Valkyr [3]: Festering Strike") end
         end
         --actions.valkyr+=/call_action_list,name=aoe,if=active_enemies>=2
         if #enemies.yards10 >= 2 then
-            if actionList_AOE() then return end
+            if actionList_AOE() then return true end
+            if isChecked("Debug Info") then Print("actionList_Valkyr [4]: Calling actionList_AOE") end
         end
         --actions.valkyr+=/festering_strike,if=debuff.festering_wound.stack<=3
         if debuff.festeringWound.stack("target") <= 3 then
-            if cast.festeringStrike("target") then return end
+            if cast.festeringStrike("target") then return true end
+            if isChecked("Debug Info") then Print("actionList_Valkyr [5]: Festering Strike") end
         end
         --actions.valkyr+=/scourge_strike,if=debuff.festering_wound.up
         if debuff.festeringWound.exists("target") then
-            if cast.scourgeStrike("target") then return end
+            if cast.scourgeStrike("target") then return true end
+            if isChecked("Debug Info") then Print("actionList_Valkyr [6]: Scourge Strike") end
         end
         --actions.valkyr+=/clawing_shadows,if=debuff.festering_wound.up
         if debuff.festeringWound.exists("target") then
-            if cast.clawingShadows("target") then return end
+            if cast.clawingShadows("target") then return true end
+            if isChecked("Debug Info") then Print("actionList_Valkyr [7]: Clawing Shadows") end
         end
         return false
     end
@@ -385,51 +413,63 @@ local function runRotation()
     local function actionList_Standard()
         --actions.standard=festering_strike,if=debuff.festering_wound.stack<=3&runic_power.deficit>13
         if debuff.festeringWound.stack("target") <= 3 and runicPowerDeficit > 13 then
-            if cast.festeringStrike("target") then return end
+            if cast.festeringStrike("target") then return true end
+            if isChecked("Debug Info") then Print("actionList_Standard [1]: Festering Strike") end
         end
         --actions.standard+=/death_coil,if=!buff.necrosis.up&talent.necrosis.enabled&rune<=3
         if not buff.necrosis.exists() and talent.necrosis and rune <= 3 then
-            if cast.deathCoil("target") then return end
+            if cast.deathCoil("target") then return true end
+            if isChecked("Debug Info") then Print("actionList_Standard [2]: Death Coil") end
         end
         --actions.standard+=/scourge_strike,if=buff.necrosis.react&debuff.festering_wound.stack>=1&runic_power.deficit>15
         if buff.necrosis.exists() and debuff.festeringWound.stack("target") >= 1 and runicPowerDeficit > 15 then
-            if cast.scourgeStrike("target") then return end
+            if cast.scourgeStrike("target") then return true end
+            if isChecked("Debug Info") then Print("actionList_Standard [3]: Scourge Strike") end
         end
         --actions.standard+=/clawing_shadows,if=buff.necrosis.react&debuff.festering_wound.stack>=1&runic_power.deficit>11
         if buff.necrosis.exists() and debuff.festeringWound.stack("target") >= 1 and runicPowerDeficit > 11 then
-            if cast.clawingShadows("target") then return end
+            if cast.clawingShadows("target") then return true end
+            if isChecked("Debug Info") then Print("actionList_Standard [4]: Clawing Shadows") end
         end
         --actions.standard+=/scourge_strike,if=buff.unholy_strength.react&debuff.festering_wound.stack>=1&runic_power.deficit>15
         if buff.unholyStrength.exists() and debuff.festeringWound.stack("target") >= 1 and runicPowerDeficit > 15 then
-            if cast.scourgeStrike("target") then return end
+            if cast.scourgeStrike("target") then return true end
+            if isChecked("Debug Info") then Print("actionList_Standard [5]: Scourge Strike") end
         end
         --actions.standard+=/clawing_shadows,if=buff.unholy_strength.react&debuff.festering_wound.stack>=1&runic_power.deficit>11
         if buff.unholyStrength.exists() and debuff.festeringWound.stack("target") >= 1 and runicPowerDeficit > 11 then
-            if cast.clawingShadows("target") then return end
+            if cast.clawingShadows("target") then return true end
+            if isChecked("Debug Info") then Print("actionList_Standard [6]: Clawing Shadows") end
         end
         --actions.standard+=/scourge_strike,if=rune>=2&debuff.festering_wound.stack>=1&runic_power.deficit>15
         if rune >= 2 and debuff.festeringWound.stack("target") >= 1 and runicPowerDeficit > 15 then
-            if cast.scourgeStrike("target") then return end
+            if cast.scourgeStrike("target") then return true end
+            if isChecked("Debug Info") then Print("actionList_Standard [7]: Scourge Strike") end
         end
         --actions.standard+=/clawing_shadows,if=rune>=2&debuff.festering_wound.stack>=1&runic_power.deficit>11
         if rune >= 2 and debuff.festeringWound.stack("target") >= 1 and runicPowerDeficit > 11 then
-            if cast.clawingShadows("target") then return end
+            if cast.clawingShadows("target") then return true end
+            if isChecked("Debug Info") then Print("actionList_Standard [8]: Clawing Shadows") end
         end
         --actions.standard+=/death_coil,if=talent.shadow_infusion.enabled&talent.dark_arbiter.enabled&!buff.dark_transformation.up&cooldown.dark_arbiter.remains>15
         if talent.shadowInfusion and talent.darkArbiter and not buff.darkTransformation.exists("pet") and cd.darkArbiter > 15 then
-            if cast.deathCoil("target") then return end
+            if cast.deathCoil("target") then return true end
+            if isChecked("Debug Info") then Print("actionList_Standard [9]: Death Coil") end
         end
         --actions.standard+=/death_coil,if=talent.shadow_infusion.enabled&!talent.dark_arbiter.enabled&!buff.dark_transformation.up
         if talent.shadowInfusion and not talent.darkArbiter and not buff.darkTransformation.exists("pet") then
-            if cast.deathCoil("target") then return end
+            if cast.deathCoil("target") then return true end
+            if isChecked("Debug Info") then Print("actionList_Standard [10]: Death Coil") end
         end
         --actions.standard+=/death_coil,if=talent.dark_arbiter.enabled&cooldown.dark_arbiter.remains>15
         if talent.darkArbiter and cd.darkArbiter > 15 then
-            if cast.deathCoil("target") then return end
+            if cast.deathCoil("target") then return true end
+            if isChecked("Debug Info") then Print("actionList_Standard [11]: Death Coil") end
         end
         --actions.standard+=/death_coil,if=!talent.shadow_infusion.enabled&!talent.dark_arbiter.enabled
         if not talent.shadowInfusion and not talent.darkArbiter then
-            if cast.deathCoil("target") then return end
+            if cast.deathCoil("target") then return true end
+            if isChecked("Debug Info") then Print("actionList_Standard [12]: Death Coil") end
         end
         return false
     
@@ -437,86 +477,110 @@ local function runRotation()
     
     local function actionList_Generic()
         --actions.generic=dark_arbiter,if=!equipped.137075&runic_power.deficit<30
-        if not hasEquiped(137075) and runicPowerDeficit < 30 and talent.darkArbiter and isChecked("Gargoyle / Dark Arbiter") and useCDs() then
-            if cast.darkArbiter() then return end
+        if not hasEquiped(137075) and runicPowerDeficit < 30 and talent.darkArbiter and isChecked("Gargoyle / Dark Arbiter") and useCDs() and cd.darkArbiter == 0 then
+            if cast.darkArbiter() then return true end
+            if isChecked("Debug Info") then Print("actionList_Generic [1]: Dark Arbiter") end
         end
         --actions.generic+=/dark_arbiter,if=equipped.137075&runic_power.deficit<30&cooldown.dark_transformation.remains<2
-        if hasEquiped(137075) and runicPowerDeficit < 30 and cd.darkTransformation < 2 and isChecked("Gargoyle / Dark Arbiter") and useCDs() then
-            if cast.darkArbiter() then return end
+        if hasEquiped(137075) and runicPowerDeficit < 30 and cd.darkTransformation < 2 and isChecked("Gargoyle / Dark Arbiter") and useCDs() and cd.darkArbiter == 0 then
+            if cast.darkArbiter() then return true end
+            if isChecked("Debug Info") then Print("actionList_Generic [2]: Dark Arbiter") end
         end
         --actions.generic+=/summon_gargoyle,if=!equipped.137075,if=rune<=3
         if not talent.darkArbiter and not hasEquiped(137075) and rune<= 3 and isChecked("Gargoyle / Dark Arbiter") and useCDs() then
-            if cast.summonGargoyle() then return end
+            if cast.summonGargoyle() then return true end
+            if isChecked("Debug Info") then Print("actionList_Generic [3]: Summon Gargoyle") end
         end
         --actions.generic+=/chains_of_ice,if=buff.unholy_strength.up&buff.cold_heart.stack>19
         if buff.unholyStrength.exists() and buff.coldHeart.stack("player") > 19 then
-            if cast.chainsOfIce("target") then return end
+            if cast.chainsOfIce("target") then return true end
+            if isChecked("Debug Info") then Print("actionList_Generic [4]: Chains Of Ice") end
         end
+        
         --actions.generic+=/summon_gargoyle,if=equipped.137075&cooldown.dark_transformation.remains<10&rune<=3
         if hasEquiped(137075) and cd.darkTransformation < 10 and rune <= 3 and isChecked("Gargoyle / Dark Arbiter") and useCDs() then
-            if cast.summonGargoyle() then return end
+            if cast.summonGargoyle() then return true end
+            if isChecked("Debug Info") then Print("actionList_Generic [5]: Summon Gargoyle") end
         end
         --actions.generic+=/soul_reaper,if=debuff.festering_wound.stack>=6&cooldown.apocalypse.remains<4
         if debuff.festeringWound.stack("target") >= 6 and cd.apocalypse < 4 then
-            if cast.soulReaper("target") then return end
+            if cast.soulReaper("target") then return true end
+            if isChecked("Debug Info") then Print("actionList_Generic [6]: Soul Reaper") end
         end
         --actions.generic+=/apocalypse,if=debuff.festering_wound.stack>=6
-        if (getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs())) then
-            if debuff.festeringWound.stack("target") >= 6 then
-                if cast.apocalypse("target") then return end
+        if cd.apocalypse == 0 then
+            if (getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs())) then
+                if debuff.festeringWound.stack("target") >= 6 then
+                    if cast.apocalypse("target") then return true end
+                    if isChecked("Debug Info") then Print("actionList_Generic [7]: Apocalypse") end
+                end
             end
         end
+        
         --actions.generic+=/death_coil,if=runic_power.deficit<10
         if runicPowerDeficit < 10 then
-            if cast.deathCoil("target") then return end
+            if cast.deathCoil("target") then return true end
+            if isChecked("Debug Info") then Print("actionList_Generic [8]: Death Coil") end
         end
         --actions.generic+=/death_coil,if=!talent.dark_arbiter.enabled&buff.sudden_doom.up&!buff.necrosis.up&rune<=3
         if not talent.darkArbiter and buff.suddenDoom.exists() and not buff.necrosis.exists() and rune <= 3 then
-            if cast.deathCoil("target") then return end
+            if cast.deathCoil("target") then return true end
+            if isChecked("Debug Info") then Print("actionList_Generic [9]: Death Coil") end
         end
         --actions.generic+=/death_coil,if=talent.dark_arbiter.enabled&buff.sudden_doom.up&cooldown.dark_arbiter.remains>5&rune<=3
         if talent.darkArbiter and buff.suddenDoom.exists() and cd.darkArbiter > 5 and rune <= 3 then
-            if cast.deathCoil("target") then return end
+            if cast.deathCoil("target") then return true end
+            if isChecked("Debug Info") then Print("actionList_Generic [10]: Death Coil") end
         end
         --actions.generic+=/festering_strike,if=debuff.festering_wound.stack<6&cooldown.apocalypse.remains<=6
         if debuff.festeringWound.stack("target") < 6 and cd.apocalypse <= 6 then
-            if cast.festeringStrike("target") then return end
+            if cast.festeringStrike("target") then return true end
+            if isChecked("Debug Info") then Print("actionList_Generic [11]: Festering Strike") end
         end
         --actions.generic+=/soul_reaper,if=debuff.festering_wound.stack>=3
         if debuff.festeringWound.stack("target") >= 3 then
-            if cast.soulReaper("target") then return end
+            if cast.soulReaper("target") then return true end
+            if isChecked("Debug Info") then Print("actionList_Generic [12]: Soul Reaper") end
         end
         --actions.generic+=/festering_strike,if=debuff.soul_reaper.up&!debuff.festering_wound.up
         if debuff.soulReaper.exists("target") and not debuff.festeringWound.exists("target") then
-            if cast.festeringStrike("target") then return end
+            if cast.festeringStrike("target") then return true end
+            if isChecked("Debug Info") then Print("actionList_Generic [13]: Festering Strike") end
         end
         --actions.generic+=/scourge_strike,if=debuff.soul_reaper.up&debuff.festering_wound.stack>=1
         if debuff.soulReaper.exists("target") and debuff.festeringWound.stack("target") >= 1 then
-            if cast.scourgeStrike("target") then return end
+            if cast.scourgeStrike("target") then return true end
+            if isChecked("Debug Info") then Print("actionList_Generic [14]: Scourge Strike") end
         end
         --actions.generic+=/clawing_shadows,if=debuff.soul_reaper.up&debuff.festering_wound.stack>=1
         if debuff.soulReaper.exists("target") and debuff.festeringWound.stack("target") >= 1 then
-            if cast.clawingShadows("target") then return end
+            if cast.clawingShadows("target") then return true end
+            if isChecked("Debug Info") then Print("actionList_Generic [15]: Clawing Shadows") end
         end
         --actions.generic+=/defile
         if talent.defile then
-            if cast.defile("player") then return end
+            if cast.defile("player") then return true end
+            if isChecked("Debug Info") then Print("actionList_Generic [16]: Defile") end
         end
         --actions.generic+=/call_action_list,name=aoe,if=active_enemies>=2
         if #enemies.yards30 >= 2 then
-            if actionList_AOE() then return end
+            if actionList_AOE() then return true end
+            if isChecked("Debug Info") then Print("actionList_Generic [17]: Calling actionList_AOE") end
         end
         --actions.generic+=/call_action_list,name=instructors,if=equipped.132448
         if hasEquiped(132448) then
-            if actionList_Instructors() then return end
+            if actionList_Instructors() then return true end
+            if isChecked("Debug Info") then Print("actionList_Generic [18]: Calling actionList_Instructors") end
         end
         --actions.generic+=/call_action_list,name=standard,if=!talent.castigator.enabled&!equipped.132448
         if not talent.castigator and not hasEquiped(132448) then
-            if actionList_Standard() then return end
+            if actionList_Standard() then return true end
+            if isChecked("Debug Info") then Print("actionList_Generic [19]: Calling actionList_Generic") end
         end
         --actions.generic+=/call_action_list,name=castigator,if=talent.castigator.enabled&!equipped.132448
         if talent.castigator and not hasEquiped(132448) then
-            if actionList_Castigator() then return end
+            if actionList_Castigator() then return true end
+            if isChecked("Debug Info") then Print("actionList_Generic [20]: Calling actionList_Castigator") end
         end
         return false
     
@@ -525,51 +589,63 @@ local function runRotation()
     local function actionList_Instructors()
         --actions.instructors=festering_strike,if=debuff.festering_wound.stack<=3&runic_power.deficit>13
         if debuff.festeringWound.stack("target") <= 3 and runicPowerDeficit > 13 then
-            if cast.festeringStrike("target") then return end
+            if cast.festeringStrike("target") then return true end
+            if isChecked("Debug Info") then Print("actionList_Instructors [1]: Festering Strike") end
         end
         --actions.instructors+=/death_coil,if=!buff.necrosis.up&talent.necrosis.enabled&rune<=3
         if not buff.necrosis.exists() and talent.necrosis and rune <= 3 then
-            if cast.deathCoil("target") then return end
+            if cast.deathCoil("target") then return true end
+            if isChecked("Debug Info") then Print("actionList_Instructors [2]: Death Coil") end
         end
         --actions.instructors+=/scourge_strike,if=buff.necrosis.react&debuff.festering_wound.stack>=4&runic_power.deficit>29
         if buff.necrosis.exists() and debuff.festeringWound.stack("target") >= 4 and runicPowerDeficit > 29 then
-            if cast.scourgeStrike("target") then return end
+            if cast.scourgeStrike("target") then return true end
+            if isChecked("Debug Info") then Print("actionList_Instructors [3]: Scourge Strike") end
         end
         --actions.instructors+=/clawing_shadows,if=buff.necrosis.react&debuff.festering_wound.stack>=3&runic_power.deficit>11
         if buff.necrosis.exists() and debuff.festeringWound.stack("target") >= 3 and runicPowerDeficit > 11 then
-            if cast.clawingShadows("target") then return end
+            if cast.clawingShadows("target") then return true end
+            if isChecked("Debug Info") then Print("actionList_Instructors [4]: Clawing Shadows") end
         end
         --actions.instructors+=/scourge_strike,if=buff.unholy_strength.react&debuff.festering_wound.stack>=4&runic_power.deficit>29
         if buff.unholyStrength.exists() and debuff.festeringWound.stack("target") >= 4 and runicPowerDeficit > 29 then
-            if cast.scourgeStrike("target") then return end
+            if cast.scourgeStrike("target") then return true end
+            if isChecked("Debug Info") then Print("actionList_Instructors [5]: Scourge Strike") end
         end
         --actions.instructors+=/clawing_shadows,if=buff.unholy_strength.react&debuff.festering_wound.stack>=3&runic_power.deficit>11
         if buff.unholyStrength.exists() and debuff.festeringWound.stack("target") >= 3 and runicPowerDeficit > 11 then
-            if cast.clawingShadows("target") then return end
+            if cast.clawingShadows("target") then return true end
+            if isChecked("Debug Info") then Print("actionList_Instructors [6]: Clawing Shadows") end
         end
         --actions.instructors+=/scourge_strike,if=rune>=2&debuff.festering_wound.stack>=4&runic_power.deficit>29
         if rune >= 2 and debuff.festeringWound.stack("target") >= 4 and runicPowerDeficit > 29 then
-            if cast.scourgeStrike("target") then return end
+            if cast.scourgeStrike("target") then return true end
+            if isChecked("Debug Info") then Print("actionList_Instructors [7]: Scourge Strike") end
         end
         --actions.instructors+=/clawing_shadows,if=rune>=2&debuff.festering_wound.stack>=3&runic_power.deficit>11
         if rune >= 2 and debuff.festeringWound.stack("target") >= 3 and runicPowerDeficit > 11 then
-            if cast.clawingShadows("target") then return end
+            if cast.clawingShadows("target") then return true end
+            if isChecked("Debug Info") then Print("actionList_Instructors [8]: Clawing Shadows") end
         end
         --actions.instructors+=/death_coil,if=talent.shadow_infusion.enabled&talent.dark_arbiter.enabled&!buff.dark_transformation.up&cooldown.dark_arbiter.remains>15
         if talent.shadowInfusion and talent.darkArbiter and not buff.darkTransformation.exists("pet") and cd.darkArbiter > 15 then
-            if cast.deathCoil("target") then return end
+            if cast.deathCoil("target") then return true end
+            if isChecked("Debug Info") then Print("actionList_Instructors [9]: Death Coil") end
         end
         --actions.instructors+=/death_coil,if=talent.shadow_infusion.enabled&!talent.dark_arbiter.enabled&!buff.dark_transformation.up
         if talent.shadowInfusion and not talent.darkArbiter and not buff.darkTransformation.exists("pet") then
-            if cast.deathCoil("target") then return end
+            if cast.deathCoil("target") then return true end
+            if isChecked("Debug Info") then Print("actionList_Instructors [10]: Death Coil") end
         end
         --actions.instructors+=/death_coil,if=talent.dark_arbiter.enabled&cooldown.dark_arbiter.remains>15
         if talent.darkArbiter and cd.darkArbiter > 15 then
-            if cast.deathCoil("target") then return end
+            if cast.deathCoil("target") then return true end
+            if isChecked("Debug Info") then Print("actionList_Instructors [11]: Death Coil") end
         end
         --actions.instructors+=/death_coil,if=!talent.shadow_infusion.enabled&!talent.dark_arbiter.enabled
         if not talent.shadowInfusion and not talent.darkArbiter then
-            if cast.deathCoil("target") then return end
+            if cast.deathCoil("target") then return true end
+            if isChecked("Debug Info") then Print("actionList_Instructors [12]: Death Coil") end
         end
         return false
     
@@ -660,7 +736,7 @@ local function runRotation()
     --- In Combat - Rotations --- 
     -----------------------------
             if inCombat then
-                if actionList_INTERRUPT() then return end
+                if actionList_INTERRUPT() then return true end
                 --actions+=/mind_freeze
                 --actions+=/arcane_torrent,if=runic_power.deficit>20
                 
@@ -709,6 +785,7 @@ local function runRotation()
                 if isChecked("Ring of Collapsing Futures") and hasEquiped(142173) and canUse(142173) and not debuff.temptation.exists("player") then
                     useItem(142173)
                 end
+                
                 --actions+=/potion,if=buff.unholy_strength.react
                 if isChecked("Potion") then
                     if buff.unholyStrength.exists() then
@@ -747,43 +824,56 @@ local function runRotation()
                         end
                     end
                 end
-                --actions+=/army_of_the_dead
-                if actionList_Defensive() then return end
+                
                 --actions+=/dark_transformation,if=equipped.137075&cooldown.dark_arbiter.remains>165
-                if  (    
-                        (   getOptionValue("Dark Transformation") == 1 --Units or Boss
-                            and #enemies.yards10 >= getOptionValue("Dark Transformation Units") 
-                            or useCDs() 
-                            or playertar
-                        )   
-                        or 
-                        (   getOptionValue("Dark Transformation") == 2 --Cooldown only
-                            and (
-                                    useCDs() or playertar
-                                )
-                        )
-                    )
-                    and not immun
-                    and not bop
-                    and (((hasEquiped(137075) and not (cd.apocalypse < 10)) or playertar) or not hasEquiped(137075))
-                    and getDistance("target") < 5
-                    and (not talent.darkArbiter or (talent.darkArbiter and cd.summonGargoyle > 60))
-                    and (not talent.soulReaper or (not debuff.soulReaper.exists("target") or buff.soulReaper.stack("player") == 3))
-                    and not (buff.soulReaper.stack("player") == 3 and cd.summonGargoyle <= 0)
-                then
-                    if cast.darkTransformation() then return end
+                if isChecked(colorGreen.."Dark Transformation") and hasEquiped(137075) and cd.darkArbiter > 165 then
+                    if cast.darkTransformation() then return true end
                 end
+                --actions+=/dark_transformation,if=equipped.137075&!talent.shadow_infusion.enabled&cooldown.dark_arbiter.remains>55
+                if isChecked(colorGreen.."Dark Transformation") and hasEquiped(137075) and not talent.shadowInfusion and cd.darkArbiter > 55 then
+                    if cast.darkTransformation() then return true end
+                end
+                --actions+=/dark_transformation,if=equipped.137075&talent.shadow_infusion.enabled&cooldown.dark_arbiter.remains>35
+                if isChecked(colorGreen.."Dark Transformation") and hasEquiped(137075) and talent.shadowInfusion and cd.darkArbiter > 35 then
+                    if cast.darkTransformation() then return true end
+                end
+                --actions+=/dark_transformation,if=equipped.137075&target.time_to_die<cooldown.dark_arbiter.remains-8
+                --actions+=/dark_transformation,if=equipped.137075&cooldown.summon_gargoyle.remains>160
+                if isChecked(colorGreen.."Dark Transformation") and hasEquiped(137075) and cd.summonGargoyle > 160 then
+                    if cast.darkTransformation() then return true end
+                end
+                --actions+=/dark_transformation,if=equipped.137075&!talent.shadow_infusion.enabled&cooldown.summon_gargoyle.remains>55
+                if isChecked(colorGreen.."Dark Transformation") and hasEquiped(137075) and not talent.shadowInfusion and cd.summonGargoyle > 55 then
+                    if cast.darkTransformation() then return true end
+                end
+                --actions+=/dark_transformation,if=equipped.137075&talent.shadow_infusion.enabled&cooldown.summon_gargoyle.remains>35
+                if isChecked(colorGreen.."Dark Transformation") and hasEquiped(137075) and talent.shadowInfusion and cd.summonGargoyle > 35 then
+                    if cast.darkTransformation() then return true end
+                end
+                --actions+=/dark_transformation,if=equipped.137075&target.time_to_die<cooldown.summon_gargoyle.remains-8
+                --actions+=/dark_transformation,if=!equipped.137075&rune<=3
+                if isChecked(colorGreen.."Dark Transformation") and not hasEquiped(137075) and rune <= 3 then
+                    if cast.darkTransformation() then return true end
+                end
+                
+                --actions+=/army_of_the_dead
+                if actionList_Defensive() then return true end
                 --actions+=/blighted_rune_weapon,if=rune<=3
                 if talent.blightedRuneWeapon and rune <= 3 then
-                    if cast.blightedRuneWeapon() then return end
+                    if cast.blightedRuneWeapon() then return true end
+                    if isChecked("Debug Info") then Print("Profile(): Blighted Rune Weapon") end
                 end
                 --actions+=/run_action_list,name=valkyr,if=talent.dark_arbiter.enabled&pet.valkyr_battlemaiden.active
-                if talent.darkArbiter and GetObjectExists(100876) then
-                    if actionList_Valkyr() then return end
+                if talent.darkArbiter then 
+                    if GetObjExists(100876) then
+                        if actionList_Valkyr() then return true end
+                        if isChecked("Debug Info") then Print("Profile(): Calling actionList_Valkyr") end
+                    else
+                        --actions+=/call_action_list,name=generic
+                        if actionList_Generic() then return true end
+                        if isChecked("Debug Info") then Print("Profile(): Calling actionList_Generic") end
+                    end
                 end
-                --actions+=/call_action_list,name=generic
-                if actionList_Generic() then return end
-                
             end
         end -- Pause
     end -- End Timer
