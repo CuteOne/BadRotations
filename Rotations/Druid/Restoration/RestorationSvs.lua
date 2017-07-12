@@ -788,7 +788,7 @@ local function runRotation()
 							end
 						end
 						for i = 1, #br.friend do
-							if bloomCount < 1 and not buff.lifebloom.exists(br.friend[i].unit) and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" and UnitInRange(br.friend[i].unit) and (getOptionValue("Lifebloom") == 2 and UnitIsUnit(br.friend[i].unit,"boss1target")) then
+							if bloomCount < 1 and not buff.lifebloom.exists(br.friend[i].unit) and UnitInRange(br.friend[i].unit) and ((getOptionValue("Lifebloom") == 1 and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") or (getOptionValue("Lifebloom") == 2 and UnitIsUnit(br.friend[i].unit,"boss1target"))) then
 								if cast.lifebloom(br.friend[i].unit) then return end
 							end
 						end
