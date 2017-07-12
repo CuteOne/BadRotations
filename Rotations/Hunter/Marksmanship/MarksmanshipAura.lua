@@ -783,7 +783,7 @@ local function runRotation()
 			end
 		-- Aimed Shot
 			-- aimed_shot,if=talent.sidewinders.enabled&(debuff.vulnerability.remains>cast_time|(buff.lock_and_load.down&action.windburst.in_flight))&(variable.vuln_window-(execute_time*variable.vuln_aim_casts)<1|focus.deficit<25|buff.trueshot.up)&(spell_targets.multishot=1|focus>100)
-			if talent.sidewinders and (debuff.vulnerable.remain(units.dyn40) > getCastTime(spell.aimedShot) or not buff.lockAndLoad.exists()) and (vulnWindow - (getCastTime(spell.aimShot) * vulnAimCast) < 1 or powerDeficit < 25 or buff.trueshot.exists()) and (#enemies.yards8t == 1 or power > 100) then
+			if talent.sidewinders and (debuff.vulnerable.remain(units.dyn40) > getCastTime(spell.aimedShot) or not buff.lockAndLoad.exists()) and (vulnWindow - (getCastTime(spell.aimedShot) * vulnAimCast) < 1 or powerDeficit < 25 or buff.trueshot.exists()) and (#enemies.yards8t == 1 or power > 100) then
 				if cast.aimedShot() then return end
 			end
 			-- aimed_shot,if=!talent.sidewinders.enabled&debuff.vulnerability.remains>cast_time&(!variable.pooling_for_piercing|(focus>100&lowest_vuln_within.5>(execute_time+gcd.max)))
