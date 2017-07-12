@@ -734,7 +734,6 @@ local function runRotation()
             end
             
             --  Frozen_orb,if=set_bonus.tier20_2pc
-            
             --  With T20 2pc, Frozen Orb should be used as soon as it comes off CD.
             if cd.frozenOrb == 0 and t20pc2 and ((mode.frozenorb == 2 and isBoss(target)) or mode.frozenorb == 1) then
                 if isChecked(colorBlueMage.."Frozen Orb") and getEnemiesInRect(15,55,false) > 0 then
@@ -852,7 +851,7 @@ local function runRotation()
             --frostbolt,if=buff.frozen_mass.remains>execute_time+action.glacial_spike.execute_time+action.glacial_spike.travel_time&buff.brain_freeze.react=0&talent.glacial_spike.enabled
             --While Frozen Mass is active, we want to generate as many buffed Icicles as possible. 
             --However, we do not want to do this at the expense of the final Glacial Spike, which should be also used while Frozen Mass is active.
-            if buff.frozenMass.remain() >  getSpellCD(spell.frostbolt) + getCastTime(spell.glacialSpike) + 1 and not buff.brainFreeze.exists() and talent.glacialSpike then
+            if buff.frozenMass.remain() >  getCastTime(spell.frostbolt) + getCastTime(spell.glacialSpike) + 1 and not buff.brainFreeze.exists() and talent.glacialSpike then
                 if cast.frostbolt(target) then return true end
             end
             
