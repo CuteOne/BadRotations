@@ -227,13 +227,14 @@ function dynamicTarget(range,facing)
 	if enemyUpdateRate < #getEnemies("player",50)/2 then
 		enemyUpdateRate = #getEnemies("player",50)/2
 	end
+	if not getOptionCheck("Dynamic Targetting") then bestUnit = "target" end
 --	local startTime = debugprofilestop()
 	if getOptionCheck("Dynamic Targetting") and (tempTime - lastUpdateTime) > enemyUpdateRate then
 		lastUpdateTime = tempTime
 		if bestUnit == nil then bestUnit = "target" end
 		local bestUnitCoef = 0
-		 benemyTable = getEnemies("player",range)
-		for k, v in pairs(benemyTable) do
+		local enemyTable = getEnemies("player",range)
+		for k, v in pairs(enemyTable) do
 			UpdateEnemy(v)
 			local thisUnit = br.enemy[v]
 			local unitRealm = UnitDebuffID(thisUnit.unit,235621) 
