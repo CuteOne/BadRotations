@@ -283,31 +283,31 @@ local function runRotation()
         local function getAllHotCnt(time_remain)
         	hotCnt = 0
         	for i = 1, #br.friend do
-        		if buff.lifebloom.remain(br.friend[i].unit) >= 1 and buff.lifebloom.remain(br.friend[i].unit) <= time_remain then
+        		if buff.lifebloom.exists(br.friend[i].unit) and buff.lifebloom.remain(br.friend[i].unit) <= time_remain then
         			hotCnt=hotCnt+1
         		end
         			
-        		if buff.rejuvenation.remain(br.friend[i].unit) >= 1 and buff.rejuvenation.remain(br.friend[i].unit) <= time_remain then
+        		if buff.rejuvenation.exists(br.friend[i].unit) and buff.rejuvenation.remain(br.friend[i].unit) <= time_remain then
         			hotCnt=hotCnt+1
         		end
         		
-        		if buff.regrowth.remain(br.friend[i].unit) >= 1 and buff.regrowth.remain(br.friend[i].unit) <= time_remain then
+        		if buff.regrowth.exists(br.friend[i].unit) and buff.regrowth.remain(br.friend[i].unit) <= time_remain then
         			hotCnt=hotCnt+1
         		end
         		
-        		if buff.rejuvenationGermination.remain(br.friend[i].unit) >= 1 and buff.rejuvenationGermination.remain(br.friend[i].unit) <= time_remain then
+        		if buff.rejuvenationGermination.exists(br.friend[i].unit) and buff.rejuvenationGermination.remain(br.friend[i].unit) <= time_remain then
         			hotCnt=hotCnt+1
         		end
         		
-        		if buff.wildGrowth.remain(br.friend[i].unit) >= 1 and buff.wildGrowth.remain(br.friend[i].unit) <= time_remain then
+        		if buff.wildGrowth.exists(br.friend[i].unit) and buff.wildGrowth.remain(br.friend[i].unit) <= time_remain then
         			hotCnt=hotCnt+1
         		end	
         		
-        		if buff.cenarionWard.remain(br.friend[i].unit) >= 1 and buff.cenarionWard.remain(br.friend[i].unit) <= time_remain then
+        		if buff.cenarionWard.exists(br.friend[i].unit) and buff.cenarionWard.remain(br.friend[i].unit) <= time_remain then
         			hotCnt=hotCnt+2
         		end	
         		
-        		if buff.cultivat.remain(br.friend[i].unit) >= 1 and buff.cultivat.remain(br.friend[i].unit) <= time_remain then
+        		if buff.cultivat.exists(br.friend[i].unit) and buff.cultivat.remain(br.friend[i].unit) <= time_remain then
         			hotCnt=hotCnt+1
         		end	
         	end
