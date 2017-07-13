@@ -175,6 +175,7 @@ function getEnemies(unit,radius,checkInCombat)
 			local inCombat = false
 			if checkInCombat then
 				inCombat = UnitAffectingCombat(thisEnemy) --enemy[k].inCombat
+				if not inCombat and isDummy() then inCombat = true end
 			else
 				inCombat = true
 			end

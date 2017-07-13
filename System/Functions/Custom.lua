@@ -47,26 +47,24 @@ function isCCed(Unit)
 end
 
 --cast spell on position x,y,z
-function castOnPosition(x,y,z, spellID)
-
-    CastSpellByName(GetSpellInfo(spellID))
-    local i = 0
+function castAtPosition(X,Y,Z, SpellID)
+    X, Y, Z = TraceLine(X, Y, Z + 2, X, Y, Z - 100, 0x111)
+    if not X then
+        return false
+    end
     if IsMouseButtonDown(2) then
         mouselookup = true
     else
         mouselookup = false
     end
-    MouselookStop()
-    while IsAoEPending() and i <= 10 do
-        --            Print("x: "..x.." y: "..y.." z: "..z)
-        ClickPosition(x,y,z)
-        z = z + 0.01
-        i = i + 1
+    CastSpellByID(SpellID)
+    if IsAoEPending() then
+        ClickPosition(X, Y, Z)
     end
+    CancelPendingSpell()
     if mouselookup then
         MouselookStart()
     end
-    if i >= 10 then return false end
     return true
 end
 
@@ -97,29 +95,11 @@ function castGroundAtUnit(spellID, radius, minUnits, maxRange, minRange, spellTy
 
     if minRange == nil then minRange = 0 end
     local allUnitsInRange = {}
-    if spellType == "heal" then unitTable = br.friend else unitTable = br.enemy end
-
-    --get all units in range
-    for k, v in pairs(unitTable) do
-        if (type(k) == "number" or type(k) == "string") and k ~= "Update" then
-            local thisUnit = unitTable[k].unit
-            local thisDistance = getDistance(thisUnit)
-            local hasThreat = (spellType ~= "heal" and isValidUnit(thisUnit)) or UnitIsFriend(thisUnit,"player") --hasThreat(br.enemy[i].unit)
-            if isNotBlacklisted(thisUnit) then
-                if thisDistance < maxRange and thisDistance >= minRange and hasThreat then
-                    if not UnitIsDeadOrGhost(thisUnit) and (getFacing("player",thisUnit) or UnitIsUnit(thisUnit,"player")) and getLineOfSight(thisUnit) and not isMoving(thisUnit) then
-                        if UnitAffectingCombat(thisUnit) or spellType == "heal" or isDummy(thisUnit) then
-                            table.insert(allUnitsInRange,thisUnit)
-                        end
-                    end
-                end
-            end
-        end
-    end
+    if spellType == "heal" then allUnitsInRange = getAllies("player",40) else allUnitsInRange = br.player.enemies(maxRange,"player",true) end
 
     if getUnits(unit,allUnitsInRange, radius - 3) >= minUnits then
         local X1,Y1,Z1 = GetObjectPosition(unit)
-        if castOnPosition(X1,Y1,Z1, spellID) then return true else return false end
+        if castAtPosition(X1,Y1,Z1, spellID) then return true else return false end
     end
 
 
@@ -171,25 +151,7 @@ function castGroundAtBestLocation(spellID, radius, minUnits, maxRange, minRange,
 
     if minRange == nil then minRange = 0 end
     local allUnitsInRange = {}
-    if spellType == "heal" then unitTable = br.friend else unitTable = br.enemy end
-
-    --get all units in range
-    for k, v in pairs(unitTable) do
-        if (type(k) == "number" or type(k) == "string") and k ~= "Update" then
-            local thisUnit = unitTable[k].unit
-            local thisDistance = getDistance(thisUnit)
-            local hasThreat = (spellType ~= "heal" and isValidUnit(thisUnit)) or UnitIsFriend(thisUnit,"player") --hasThreat(br.enemy[i].unit)
-            if isNotBlacklisted(thisUnit) then
-                if thisDistance < maxRange and thisDistance >= minRange and hasThreat then
-                    if not UnitIsDeadOrGhost(thisUnit) and (getFacing("player",thisUnit) or UnitIsUnit(thisUnit,"player")) and getLineOfSight(thisUnit) and not isMoving(thisUnit) then
-                        if UnitAffectingCombat(thisUnit) or spellType == "heal" or isDummy(thisUnit) then
-                            table.insert(allUnitsInRange,thisUnit)
-                        end
-                    end
-                end
-            end
-        end
-    end
+    if spellType == "heal" then allUnitsInRange = getAllies("player",maxRange) else allUnitsInRange = br.player.enemies(maxRange,"player",true) end
 
     local testCircles = {}
     --for every combination of units make 2 circles, and put in testCircles
@@ -274,21 +236,20 @@ function castGroundAtBestLocation(spellID, radius, minUnits, maxRange, minRange,
         nmro = getUnits(thisUnit,allUnitsInRange, radius - 3)
         if nmro >= bestCircle.nro then
             bestCircle.x, bestCircle.y, bestCircle.z= GetObjectPosition(thisUnit)
-            bestCircle.x = bestCircle.x
-            bestCircle.y = bestCircle.y
             bestCircle.nro = nmro
             break;
         end
     end
+
     --check with minUnits
     if minUnits == 1 and bestCircle.nro == 0 and GetUnitExists("target") then
-        local X1,Y1,Z1 = GetObjectPosition("target")
-        if castOnPosition(X1,Y1,Z1, spellID) then return true else return false end
+        bestCircle.x,bestCircle.y,bestCircle.z = GetObjectPosition("target")
+        if castAtPosition(bestCircle.x,bestCircle.y,bestCircle.z, spellID) then return true else return false end
     end
     if bestCircle.nro < minUnits then return false end
 
     if bestCircle.x ~= 0 and bestCircle.y ~= 0 and bestCircle.z ~= 0 then
-        if castOnPosition(bestCircle.x,bestCircle.y,bestCircle.z, spellID) then return true else return false end
+        if castAtPosition(bestCircle.x,bestCircle.y,bestCircle.z, spellID) then return true else return false end
     end
 end
 
@@ -841,17 +802,17 @@ local pullTimerTest
 local pullTimerEndTest
 if FH then
     AddEventCallback("CHAT_MSG_ADDON",function (prefix, message)
-    if prefix == "D4" and string.find(message, "PT") then
-        pullTimerTest = tonumber(string.sub(message, 4, 5));
-        pullTimerEndTest = GetTime() + pullTimerTest;
-        --pullTimerRemainTest = pullTimerEndTest - GetTime()
-    elseif prefix == "BigWigs" and string.find(message, "Pull") then
-        pullTimerTest = tonumber(string.sub(message, 8, 9));
-        pullTimerEndTest = GetTime() + pullTimerTest;
-        --pullTimerRemainTest = pullTimerEndTest - GetTime()
-    end   
-  end
-  )
+        if prefix == "D4" and string.find(message, "PT") then
+            pullTimerTest = tonumber(string.sub(message, 4, 5));
+            pullTimerEndTest = GetTime() + pullTimerTest;
+            --pullTimerRemainTest = pullTimerEndTest - GetTime()
+        elseif prefix == "BigWigs" and string.find(message, "Pull") then
+            pullTimerTest = tonumber(string.sub(message, 8, 9));
+            pullTimerEndTest = GetTime() + pullTimerTest;
+            --pullTimerRemainTest = pullTimerEndTest - GetTime()
+        end
+    end
+    )
 end
 
 local pullTimerRemainTest

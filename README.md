@@ -146,7 +146,7 @@ CuteOne |  Full   |  7.1  |   100% | :white_check_mark:
 
 author  | support | patch | status |     raidable?
 :------ | :-----: | :---: | -----: | :----------------:
-LyLoLoq |  Full   | 7.2   |   100% | :white_check_mark:
+LyLoLoq |  Full   | 7.2.5   |   100% | :white_check_mark:
 
 - Restoration
 
