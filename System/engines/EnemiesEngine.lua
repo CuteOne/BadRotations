@@ -237,8 +237,8 @@ function dynamicTarget(range,facing)
 		local bestUnitCoef = 0
 		local enemyTable = getEnemies("player",range)
 		for k, v in pairs(enemyTable) do
-			local thisUnit = br.enemy[v]
-			if UnitAffectingCombat("player") and (hasThreat(thisUnit.unit) or (UnitIsUnit(thisUnit.unit,"target") and UnitExists("target")) or isDummy(thisUnit.unit)) then
+			local thisUnit = br.enemy[v] 
+			if enemyListCheck(thisUnit.unit) then
 				UpdateEnemy(v)				
 				local unitRealm = UnitDebuffID(thisUnit.unit,235621) 
 				local thisDistance = getDistance("player",thisUnit.unit)
@@ -264,7 +264,7 @@ function dynamicTarget(range,facing)
 			end
 		end
 		-- br.debug.cpu.enemiesEngine.dynamicTarget = debugprofilestop()-startTime or 0
-		if isChecked("Target Dynamic Target") and bestUnit ~= nil and not UnitIsDeadOrGhost(bestUnit)  then
+		if (isChecked("Target Dynamic Target") or (UnitAffectingCombat("player") and not UnitExists("target"))) and bestUnit ~= nil and not UnitIsDeadOrGhost(bestUnit)  then
 			TargetUnit(bestUnit)
 		end
 	elseif getOptionCheck("Dynamic Targetting") and (tempTime - ntlastUpdateTime) > 0.5  then
