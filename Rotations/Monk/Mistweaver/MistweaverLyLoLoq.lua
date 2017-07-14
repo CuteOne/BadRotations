@@ -1,4 +1,8 @@
-local rotationName = "LyLoLoq"
+--TODO:
+-- can we priorotise  blackout kick whne we use spirit of the crane
+
+
+local rotationName = "Javaxio"
 ---------------
 --- Toggles ---
 ---------------
@@ -63,8 +67,15 @@ local function createOptions()
         br.ui:createCheckbox(section, "Tiger's Lust", colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.." use of Tiger's Lust"..colorBlue.." (Auto use on snare and root).")
         br.ui:createDropdown(section, "Tiger's Lust Key", br.dropOptions.Toggle, 6, colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.." use of Tiger's Lust with Key.",colorWhite.."Set hotkey to use Tiger's Lust with key.")
         br.ui:createDropdown(section, "Ring Of Peace Key", br.dropOptions.Toggle, 6, colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.." use of Ring Of Peace with Key on "..colorRed.."Cursor",colorWhite.."Set hotkey to use Ring Of Peace with key.")
-        br.ui:createSpinnerWithout(section, "Critical Health",  40,  0,  100,  5,  colorWhite.."Health percent to heal the player ")
+        br.ui:createSpinnerWithout(section, "Critical Health",  40,  0,  100,  5,  colorWhite.."Health percent to focus yourself before others")
         br.ui:createSpinnerWithout(section, "DPS",  90,  0,  100,  1,  colorWhite.." Dps when lowest health >= ")
+        br.ui:checkSectionState(section)
+
+        -- Tier Section
+        section = br.ui:createSection(br.ui.window.profile, "Tier Settings")
+        br.ui:createSpinner(section, "Enveloping Mist with Surge of Mist",  65,  0,  100,  1,  colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.."Trigger t20 4piece bonus", colorWhite.."Health Percent to Cast At")
+        br.ui:createSpinnerWithout(section, "Min Enveloping Mist with Surge of Mist Targets",  2,  1,  3,  1,  colorBlue.."Minimum Trigger t20 4p bonus Targets "..colorGold.."(This includes you)")
+		br.ui:createSpinner(section, "Emergency Enveloping Mist with Surge of Mist",  65,  0,  100,  1,  colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.."Emergency cast when Surge of Mist duration < 5 sec to don't lose the Surge of Mist proc", colorWhite.."Health Percent to Cast At")
         br.ui:checkSectionState(section)
 
         -- Cooldown Options
@@ -73,9 +84,6 @@ local function createOptions()
         br.ui:createSpinnerWithout(section, "Min Revival Targets",  3,  1,  40,  1,  colorBlue.."Minimum Revival Targets "..colorGold.."(This includes you)")
         br.ui:createSpinner(section, "Invoke Chi-Ji, the Red Crane",  30,  0,  100,  1,  colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.." use of Invoke Chi-Ji, the Red Crane.", colorWhite.."Health Percent to Cast At")
         br.ui:createSpinnerWithout(section, "Min Invoke Chi-Ji, the Red Crane Targets",  3,  1,  40,  1,  colorBlue.."Minimum Invoke Chi-Ji, the Red Crane Targets "..colorGold.."(This includes you)")
-        br.ui:createSpinner(section, "Enveloping Mist with Surge of Mist",  65,  0,  100,  1,  colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.."Trigger t20 4piece bonus", colorWhite.."Health Percent to Cast At")
-        br.ui:createSpinnerWithout(section, "Min Enveloping Mist with Surge of Mist Targets",  2,  1,  3,  1,  colorBlue.."Minimum Trigger t20 4p bonus Targets "..colorGold.."(This includes you)")
-		br.ui:createSpinner(section, "Emergency Enveloping Mist with Surge of Mist",  65,  0,  100,  1,  colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.."Emergency cast when Surge of Mist duration < 5 sec to don't lose the Surge of Mist proc", colorWhite.."Health Percent to Cast At")
 		br.ui:createSpinner(section, "Life Cocoon",  20,  0,  100,  1,  colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.." use of Life Cocoon.", colorWhite.."Health Percent to Cast At")
         br.ui:createDropdownWithout(section, "Life Cocoon Target", {colorGreen.."Player",colorBlue.."Target",colorWhite.."Mouseover",colorRed.."Tank",colorGreen.."Healer",colorGreen.."Healer/Tank",colorBlue.."Any"}, 6, colorWhite.."Target to cast on")
         br.ui:createSpinner(section, "Trinket 1",  50,  0,  100,  1,  colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.." use of Trinket 1.", colorWhite.."Health Percent to Cast At")
@@ -95,6 +103,9 @@ local function createOptions()
 		br.ui:createSpinnerWithout(section, "Min Thunder Focus Tea + Essence Font Targets",  5,  1,  40,  1,  colorBlue.."Minimum Thunder Focus Tea + Essence Font Targets "..colorGold.."(This includes you)")     
 		br.ui:createSpinner(section, "Gnawed Thumb Ring",  30,  0,  100,  1,  colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.." use of Gnawed Thumb Ring.", colorWhite.."Health Percent to Cast At")
         br.ui:createSpinnerWithout(section, "Min Gnawed Thumb Ring Targets",  3,  1,  40,  1,  colorBlue.."Minimum Gnawed Thumb Ring Targets "..colorGold.."(This includes you)")
+        br.ui:createSpinner(section, "Velen's Future Sight",  30,  0,  100,  1,  colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.." use of Velen's Future Sight.", colorWhite.."Health Percent to Cast At")
+        br.ui:createSpinnerWithout(section, "Min Velen's Future Sight Targets",  3,  1,  40,  1,  colorBlue.."Minimum Velen's Future Sight Targets "..colorGold.."(This includes you)")
+        br.ui:createDropdownWithout(section, "Velen's Future Sight logic", {colorGreen.."Full Automatic",colorBlue.."Use Settings"}, 6, colorWhite.."Cast it automatic with other CD's or following settings above")
         br.ui:checkSectionState(section)
 
         -- Defensive Options
@@ -245,9 +256,8 @@ local function runRotation()
 				end				
             end
         end
-        return false
     end
-
+    -- Interrupt
     local function actionList_Interrupt()
         if useInterrupts() then
             if isChecked("Leg Sweep") and talent.legSweep and cd.legSweep == 0 then
@@ -266,10 +276,25 @@ local function runRotation()
                     end
                 end
             end
-            return false
         end
-    end--OK
-
+    end
+    -- Velen's Future Sight
+    function actionList_CheckVelen()
+        if isChecked("Velen's Future Sight") then
+            if hasEquiped(144258) and canUse(144258) then
+            -- Automatic
+                if getOptionValue("Velen's Future Sight logic") == 1 then
+                    useItem(144258)
+            -- Following Settings
+                elseif getOptionValue("Velen's Future Sight logic") == 2 then
+                    if getLowAllies(getValue("Velen's Future Sight")) >= getValue("Min Velen's Future Sight Targets") then
+                        useItem(144258)
+                        return true
+                    end
+                end
+            end
+        end
+    end
     local function actionList_Defensive()
         if useDefensive() then
             if (isChecked("Healing Elixir/Diffuse Magic/Dampen Harm") and php <= getValue("Healing Elixir/Diffuse Magic/Dampen Harm"))
@@ -291,8 +316,7 @@ local function runRotation()
                 end
             end
         end
-        return false
-    end--OK
+    end
 
     local function actionList_Extra()
 	-- Pre-Pull Timer
@@ -304,14 +328,13 @@ local function runRotation()
                     end
 			end
 			if pullTimer <= 6 then
-                if #tanks > 1 then
-					if UnitInRange(tanks[1].unit) then
-						if cast.renewingMist(tanks[1].unit) then return end
-					else
-                        if cast.renewingMist(tanks[2].unit) then return end
+                if cd.renewingMist ~= 0 then
+                    for i=1, #tanks do
+                        tank = tanks[i].unit
+                        if UnitInRange(tank) and not buff.renewingMist.exist(tank) then
+                            if cast.renewingMist(tanks[i].unit) then return end
+                        end
                     end
-				elseif #tanks == 1 then
-                    if cast.renewingMist(tanks[1].unit) then return end
                 end
             end
 		end
@@ -379,6 +402,8 @@ local function runRotation()
                     return true
                 end
             end
+        -- Velen's Future Sight
+            actionList_CheckVelen()
 		-- Gnawed Thumb Ring
             if isChecked("Gnawed Thumb Ring") and getLowAllies(getValue("Gnawed Thumb Ring")) >= getValue("Min Gnawed Thumb Ring Targets") then
                 if hasEquiped(134526) and canUse(134526) and select(2,IsInInstance()) ~= "pvp" then
@@ -397,6 +422,14 @@ local function runRotation()
             if isChecked("Arcane Torrent") and mana <= getValue("Arcane Torrent") and br.player.race == "BloodElf" then
                 if br.player.castRacial() then return true end
             end
+		-- Enveloping Mist + Surge of Mist. Avoid wasting proc 
+            if isChecked("Emergency Enveloping Mist with Surge of Mist") and buff.surgeOfMist.exist and buff.surgeOfMist.remain(br.player.unit) < 6 then 
+                for i = 1, #br.friend do 
+                    if br.friend[i].hp <= getValue("Emergency Enveloping Mist with Surge of Mist") and (not buff.envelopingMist.exists(br.friend[i].unit) or buff.envelopingMist.remain(br.friend[i].unit) <= getCastTime(spell.envelopingMist)) then 
+                        if cast.envelopingMist(br.friend[i].unit) then return end 
+                    end 
+                end 
+            end 
 		-- Tier 20 4p Trigger
 			if isChecked("Enveloping Mist with Surge of Mist") and buff.surgeOfMist.exists() then
                 if getLowAllies(getValue("Enveloping Mist with Surge of Mist")) >= getValue("Min Enveloping Mist with Surge of Mist Targets") then
@@ -410,9 +443,7 @@ local function runRotation()
 		-- Revival
             if isChecked("Revival") and getLowAllies(getValue("Revival")) >= getValue("Min Revival Targets") and cd.revival == 0 then
                 SpellStopCasting()
-                if hasEquiped(134526) and canUse(134526) and select(2,IsInInstance()) ~= "pvp" then
-                    useItem(134526)
-                end
+                actionList_CheckVelen()
                 if cast.revival() then return true end
             end
 		-- ChiJi
@@ -504,6 +535,14 @@ local function runRotation()
                     if cast.sheilunsGift(lowest.unit) then return true end
                 end
             end
+        -- Heal ourself if critical HP.
+            if php < getValue("Critical Health") then
+                if cd.renewingMist == 0 then
+                    if cast.renewingMist("player") then return true end
+                else
+                    if cast.envelopingMist("player") then return true end
+                end
+            end
 		-- Zen Pulse	
             if isChecked("Zen Pulse") and talent.zenPulse then
                 if lowest.hp <= getValue("Zen Pulse") and getNumEnemies(lowest.unit, 8) >= getValue("Zen Pulse Enemies") then
@@ -516,14 +555,6 @@ local function runRotation()
         -- Chi Wave
 			if isChecked("Chi Wave") and talent.chiWave and lowest.hp <= getValue("Chi Wave") then
                 if cast.chiWave(lowest.unit) then return true end
-            end
-		-- Enveloping Mist + Surge of Mist. Avoid wasting proc
-			if isChecked("Emergency Enveloping Mist with Surge of Mist") and buff.surgeOfMist.exist and buff.surgeOfMist.remain(br.player.unit) < 6 then
-                for i = 1, #br.friend do
-					if br.friend[i].hp <= getValue("Emergency Enveloping Mist with Surge of Mist") and (not buff.envelopingMist.exists(br.friend[i].unit) or buff.envelopingMist.remain(br.friend[i].unit) <= getCastTime(spell.envelopingMist)) then
-						if cast.envelopingMist(br.friend[i].unit) then return end
-					end
-				end
             end
 		-- Enveloping Mist
             if isChecked("Enveloping Mist") then
@@ -558,14 +589,6 @@ local function runRotation()
                 end
                 if cast.effuse(lowest.unit) then return true end
             end
-            -- Heal ourself if critic life.
-            if php < getValue("Critical Health") then
-                if botSpell == spell.effuse and currentTarget == UnitGUID("player") then
-                    return false
-                end
-                if cast.effuse("player") then return true end
-
-        end
 
         -- Ephemeral Paradox trinket
         if hasEquiped(140805) and getBuffRemain("player", 225767) > 2 then
@@ -578,11 +601,16 @@ local function runRotation()
 	-- Chi Burst
         if isChecked("Chi Burst") and talent.chiBurst then
             if getUnitsInRect(7,47,isChecked("Show Lines"),getValue("Chi Burst")) >= getValue("Min Chi Burst Targets") then
+                actionList_CheckVelen()
                 if cast.chiBurst("player") then return true end
             end
         end
+    -- Essence Font
+			if isChecked("Essence Font") and cd.essenceFont == 0 and getLowAlliesInTable(getValue("Essence Font"), friends.yards25) >= getValue("Min Essence Font Targets") then
+				if cast.essenceFont() then return true end
+			end
         if (botSpell ~= spell.envelopingMist and currentTarget ~= UnitGUID(lowest.unit)) or not buff.envelopingMist.exists(lowest.unit) or buff.envelopingMist.remain(lowest.unit) <= 2 then
-		-- Vivify Logic
+	-- Vivify Logic
             if isChecked("Vivify with Lifecycles + Uplift") and buff.upliftTrance.exists() and buff.lifeCyclesVivify.exists() then
                 if getLowAlliesInTable(getValue("Vivify with Lifecycles + Uplift"), friends.yards40) >= getValue("Min Vivify with Lifecycles + Uplift Targets") then
                     if cast.vivify(lowest.unit) then return true end
@@ -598,11 +626,6 @@ local function runRotation()
                     if cast.vivify(lowest.unit) then return true end
                 end
             end
-		-- Essence Font
-			if isChecked("Essence Font") and cd.essenceFont == 0 and getLowAlliesInTable(getValue("Essence Font"), friends.yards25) >= getValue("Min Essence Font Targets") then
-				if cast.essenceFont() then return true end
-			end
-		-- Vivify
             if isChecked("Vivify")  then
                 if getLowAlliesInTable(getValue("Vivify"), friends.yards40) >= getValue("Min Vivify Targets") then
                     if cast.vivify(lowest.unit) then return true end
@@ -622,7 +645,7 @@ local function runRotation()
                 if talent.risingThunder then
                     if cast.risingSunKick() then return true end
                 end
-                if  isChecked("Spinning Crane Kick") and #enemies.yards8 >= 3 and not isCastingSpell(spell.spinningCraneKick) then
+                if  isChecked("Spinning Crane Kick") and #enemies.yards8 >= 3 and not isCastingSpell(spell.spinningCraneKick) and not talent.spiritOfTheCrane then
                     if cast.spinningCraneKick() then return true end
                 elseif #enemies.yards5 >= 1 then
                     if isChecked("Rising Sun Kick") and cd.risingSunKick  == 0 then
@@ -631,7 +654,7 @@ local function runRotation()
                     if buff.teachingsOfTheMonastery.stack() == 3 then
                         if cast.blackoutKick() then return true end
                     end
-                    if cast.tigerPalm(enemies.yards5[1].unit) then return true end
+                    if cast.tigerPalm() then return true end
                 elseif #enemies.yards40 > 0 and not isCastingSpell(spell.cracklingJadeLighting) and isChecked("Crackling Jade Lightning") then
                     if cast.cracklingJadeLighting() then return true end
                 end
@@ -705,8 +728,7 @@ local function runRotation()
                 end
             end
         end
-        return false
-    end--OK
+    end
 
     function profile()
         -----------------
@@ -714,7 +736,9 @@ local function runRotation()
         -----------------
         -- Pause
         if pause(true) or isCastingSpell(spell.essenceFont) then return true end
-        if actionList_ThunderFocus() then return true end
+        if inCombat then
+            if actionList_ThunderFocus() then return true end
+        end
         if not IsMounted() and getBuffRemain("player", 192002 ) < 10 then
             if actionList_Extra() then return true end
         end
