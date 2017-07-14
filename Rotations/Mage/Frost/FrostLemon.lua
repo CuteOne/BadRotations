@@ -651,13 +651,13 @@ local function runRotation()
                 if hasEquiped(133970) then
                     if buff.zannesuJourney.stack() == 5 and buff.zannesuJourney.remain() > getCastTime(spell.blizzard) then
                         local sX, sY, sZ = GetObjectPosition(target)
-                        if castOnPosition(sX, sY, sZ, spell.blizzard) then return true end
+                        if castAtPosition(sX, sY, sZ, spell.blizzard) then return true end
                         --if cast.blizzard(target,"ground") then return true end
                     end
                 end
                 if #enemies.yards8t > 2 or (#enemies.yards8t > 1 and not(talent.glacialSpike and talent.splittingIce)) then
                     local sX, sY, sZ = GetObjectPosition(target)
-                    if castOnPosition(sX, sY, sZ, spell.blizzard) then return true end
+                    if castAtPosition(sX, sY, sZ, spell.blizzard) then return true end
                 end
             end
             
@@ -734,7 +734,6 @@ local function runRotation()
             end
             
             --  Frozen_orb,if=set_bonus.tier20_2pc
-            
             --  With T20 2pc, Frozen Orb should be used as soon as it comes off CD.
             if cd.frozenOrb == 0 and t20pc2 and ((mode.frozenorb == 2 and isBoss(target)) or mode.frozenorb == 1) then
                 if isChecked(colorBlueMage.."Frozen Orb") and getEnemiesInRect(15,55,false) > 0 then
@@ -785,7 +784,7 @@ local function runRotation()
             if cd.blizzard == 0 and getCastTime(spell.blizzard) == 0 then
                 if #enemies.yards8t > 1 and fof_react < 3  then
                     local sX, sY, sZ = GetObjectPosition(target)
-                    if castOnPosition(sX, sY, sZ, spell.blizzard) then return true end
+                    if castAtPosition(sX, sY, sZ, spell.blizzard) then return true end
                 end
             end
             
@@ -840,19 +839,19 @@ local function runRotation()
                 if hasEquiped(133970) then
                     if buff.zannesuJourney.stack() == 5 and buff.zannesuJourney.remain() > getCastTime(spell.blizzard) then
                     local sX, sY, sZ = GetObjectPosition(target)
-                    if castOnPosition(sX, sY, sZ, spell.blizzard) then return true end
+                    if castAtPosition(sX, sY, sZ, spell.blizzard) then return true end
                     end
                 end
                 if #enemies.yards8t > 2 or #enemies.yards8t > 1 and not(talent.glacialSpike and talent.splittingIce) then
                     local sX, sY, sZ = GetObjectPosition(target)
-                    if castOnPosition(sX, sY, sZ, spell.blizzard) then return true end
+                    if castAtPosition(sX, sY, sZ, spell.blizzard) then return true end
                 end
             end
             
             --frostbolt,if=buff.frozen_mass.remains>execute_time+action.glacial_spike.execute_time+action.glacial_spike.travel_time&buff.brain_freeze.react=0&talent.glacial_spike.enabled
             --While Frozen Mass is active, we want to generate as many buffed Icicles as possible. 
             --However, we do not want to do this at the expense of the final Glacial Spike, which should be also used while Frozen Mass is active.
-            if buff.frozenMass.remain() >  getSpellCD(spell.frostbolt) + getCastTime(spell.glacialSpike) + 1 and not buff.brainFreeze.exists() and talent.glacialSpike then
+            if buff.frozenMass.remain() >  getCastTime(spell.frostbolt) + getCastTime(spell.glacialSpike) + 1 and not buff.brainFreeze.exists() and talent.glacialSpike then
                 if cast.frostbolt(target) then return true end
             end
             
@@ -872,7 +871,7 @@ local function runRotation()
             if cd.blizzard == 0 then
                 if getCastTime(spell.blizzard) == 0 then
                     local sX, sY, sZ = GetObjectPosition(target)
-                    if castOnPosition(sX, sY, sZ, spell.blizzard) then return true end
+                    if castAtPosition(sX, sY, sZ, spell.blizzard) then return true end
                 end
             end
             
@@ -945,7 +944,7 @@ local function runRotation()
         if cd.blizzard == 0 then
             if getCastTime(spell.blizzard) == 0 and fof_react < 3 and (lastCast == spell.frozenOrb or cd.frozenOrb > 5) then
                 local sX, sY, sZ = GetObjectPosition(target)
-                if castOnPosition(sX, sY, sZ, spell.blizzard) then return true end
+                if castAtPosition(sX, sY, sZ, spell.blizzard) then return true end
             end
         end
         

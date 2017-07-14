@@ -390,7 +390,26 @@ function isValidTarget(Unit)
 end
 function isValidUnit(Unit)
 	if GetUnitExists(Unit) and not UnitIsDeadOrGhost(Unit) and (not UnitIsFriend(Unit, "player") or UnitIsEnemy(Unit, "player")) 
-		and UnitCanAttack("player",Unit) and isSafeToAttack(Unit) and getLineOfSight("player", Unit)
+		and UnitCanAttack("player",Unit) and isSafeToAttack(Unit) and getLineOfSight("player", Unit) and UnitInPhase(Unit)
+	then
+		-- Unit is Soul Effigy
+        -- if GetObjectID(Unit) == 103679 then return true end
+        if UnitAffectingCombat("player") then
+        	-- Only consider Units that I have threat with or have targeted or are dummies within 20yrds when in Combat.
+			if hasThreat(Unit) or UnitIsUnit(Unit,"target") or (isDummy(Unit) and getDistance(Unit) <= 20) then return true end
+		elseif IsInInstance() then
+			-- Only consider Units that I have threat with or I am alone and have targeted when not in Combat and in an Instance.
+			if hasThreat(Unit) or (#br.friend == 1 and UnitIsUnit(Unit,"target")) then return true end
+		else
+			-- Only consider Units that are in 20yrs or I have targeted when not in Combat and not in an Instance.
+			if getDistance(Unit) <= 20 or UnitIsUnit(Unit,"target") then return true end
+		end
+	end
+	return false
+end
+function enemyListCheck(Unit)
+	if GetUnitExists(Unit) and not UnitIsDeadOrGhost(Unit) and (not UnitIsFriend(Unit, "player") or UnitIsEnemy(Unit, "player")) 
+		and UnitCanAttack("player",Unit) and isSafeToAttack(Unit) and UnitInPhase(Unit)
 	then
 		-- Unit is Soul Effigy
         -- if GetObjectID(Unit) == 103679 then return true end

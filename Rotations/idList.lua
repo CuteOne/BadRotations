@@ -511,11 +511,13 @@ br.idList = {
                 owlkinFrenzy                = 157228,
                 powerOfEluneTheMoonGoddness = 208284,
                 sephuzSecret                = 208052,
+                astralAcceleration          = 242232,
             },
             debuffs                         = {
                 stellarFlare                = 202347,
                 moonfire                    = 164812,
                 sunfire                     = 164815,
+                stellarEmpowerment          = 197637,
             },
             glyphs                          = {
 

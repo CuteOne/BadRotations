@@ -139,7 +139,7 @@ local function createOptions()
 		br.ui:createSpinnerWithout(section, "Efflorescence recast delay", 20, 8, 30, 1, colorWhite.."Delay to recast Efflo in seconds.")
 		br.ui:createDropdown(section,"Efflorescence Key", br.dropOptions.Toggle, 6, "","|cffFFFFFFEfflorescence usage.", true)
 		-- Lifebloom
-		br.ui:createCheckbox(section,"Lifebloom","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFLifebloom usage|cffFFBB00.",1)
+		br.ui:createDropdown(section,"Lifebloom",{"|cffFFFFFFNormal","|cffFFFFFFBoss1 Target"}, 1, "|cffFFFFFFTarget for Lifebloom")
 		-- Cenarion Ward
 		br.ui:createSpinner(section, "Cenarion Ward",  70,  0,  100,  5,  "","|cffFFFFFFHealth Percent to Cast At")
 		-- Ironbark
@@ -176,6 +176,7 @@ local function createOptions()
 		br.ui:createSpinner(section, "Flourish",  60,  0,  100,  5,  "","Health Percent to Cast At")
 		br.ui:createSpinner(section, "Flourish Targets",  3,  0,  40,  1,  "","Minimum Flourish Targets", true)
 		br.ui:createSpinner(section, "Flourish HOT Targets",  3,  0,  40,  1,  "","Minimum HOT Targets cast Flourish", true)
+		br.ui:createSpinner(section, "HOT Time count",  8,  0,  25,  1,  "","HOT Less than how many seconds to count", true)
 		br.ui:checkSectionState(section)
 		-- Toggle Key Options
 		section = br.ui:createSection(br.ui.window.profile, "Toggle Keys")
@@ -199,41 +200,6 @@ end
 local regrowth_target = nil
 local cancel_regrowth = 0
 local cancel_wild = 0
-
-local function getAllHotCnt(time_remain)
-	hotCnt = 0
-	for i = 1, #br.friend do
-		if buff.lifebloom.remain(br.friend[i].unit) >= 1 and buff.lifebloom.remain(br.friend[i].unit) <= time_remain then
-			hotCnt=hotCnt+1
-		end
-			
-		if buff.rejuvenation.remain(br.friend[i].unit) >= 1 and buff.rejuvenation.remain(br.friend[i].unit) <= time_remain then
-			hotCnt=hotCnt+1
-		end
-		
-		if buff.regrowth.remain(br.friend[i].unit) >= 1 and buff.regrowth.remain(br.friend[i].unit) <= time_remain then
-			hotCnt=hotCnt+1
-		end
-		
-		if buff.rejuvenationGermination.remain(br.friend[i].unit) >= 1 and buff.rejuvenationGermination.remain(br.friend[i].unit) <= time_remain then
-			hotCnt=hotCnt+1
-		end
-		
-		if buff.wildGrowth.remain(br.friend[i].unit) >= 1 and buff.wildGrowth.remain(br.friend[i].unit) <= time_remain then
-			hotCnt=hotCnt+1
-		end	
-		
-		if buff.cenarionWard.remain(br.friend[i].unit) >= 1 and buff.cenarionWard.remain(br.friend[i].unit) <= time_remain then
-			hotCnt=hotCnt+2
-		end	
-		
-		if buff.cultivat.remain(br.friend[i].unit) >= 1 and buff.cultivat.remain(br.friend[i].unit) <= time_remain then
-			hotCnt=hotCnt+1
-		end	
-	end
-	
-	return hotCnt
-end
 
 
 local function runRotation()
@@ -314,7 +280,40 @@ local function runRotation()
 		if lossPercent > snapLossHP or php > snapLossHP then snapLossHP = lossPercent end
 		
 		--ChatOverlay("|cff00FF00Abundance stacks: "..buff.abundance.stack().."")
-		
+        local function getAllHotCnt(time_remain)
+        	hotCnt = 0
+        	for i = 1, #br.friend do
+        		if buff.lifebloom.exists(br.friend[i].unit) and buff.lifebloom.remain(br.friend[i].unit) <= time_remain then
+        			hotCnt=hotCnt+1
+        		end
+        			
+        		if buff.rejuvenation.exists(br.friend[i].unit) and buff.rejuvenation.remain(br.friend[i].unit) <= time_remain then
+        			hotCnt=hotCnt+1
+        		end
+        		
+        		if buff.regrowth.exists(br.friend[i].unit) and buff.regrowth.remain(br.friend[i].unit) <= time_remain then
+        			hotCnt=hotCnt+1
+        		end
+        		
+        		if buff.rejuvenationGermination.exists(br.friend[i].unit) and buff.rejuvenationGermination.remain(br.friend[i].unit) <= time_remain then
+        			hotCnt=hotCnt+1
+        		end
+        		
+        		if buff.wildGrowth.exists(br.friend[i].unit) and buff.wildGrowth.remain(br.friend[i].unit) <= time_remain then
+        			hotCnt=hotCnt+1
+        		end	
+        		
+        		if buff.cenarionWard.exists(br.friend[i].unit) and buff.cenarionWard.remain(br.friend[i].unit) <= time_remain then
+        			hotCnt=hotCnt+2
+        		end	
+        		
+        		if buff.cultivat.exists(br.friend[i].unit) and buff.cultivat.remain(br.friend[i].unit) <= time_remain then
+        			hotCnt=hotCnt+1
+        		end	
+        	end
+        	
+        	return hotCnt
+        end		
 		--------------------
 		--- Action Lists ---
 		--------------------
@@ -471,7 +470,7 @@ local function runRotation()
 				end
 			end
 			-- Regrowth
-			if isChecked("Regrowth") and (not moving or buff.incarnationTreeOfLife.exists()) and lastSpell ~= spell.regrowth then
+			if isChecked("Regrowth") and (not moving or buff.incarnationTreeOfLife.exists()) then
 				for i = 1, #br.friend do
 					if br.friend[i].hp <= getValue("Regrowth Clearcasting") and buff.clearcasting.remain() > 1.5 and getDebuffStacks(br.friend[i].unit,209858) < 30 then
 						if cast.regrowth(br.friend[i].unit) then
@@ -635,7 +634,7 @@ local function runRotation()
 			-- Flourish
 			if isChecked("Flourish") and talent.flourish and not isCastingSpell(spell.tranquility) then
 				if getLowAllies(getValue("Flourish")) >= getValue("Flourish Targets") then
-					local c = getAllHotCnt(8)
+					local c = getAllHotCnt(getValue("HOT Time count"))
 					if c>= getValue("Flourish HOT Targets") then
 						if cast.flourish() then
 							Print("Flourish HOT cnt="..c)
@@ -789,7 +788,7 @@ local function runRotation()
 							end
 						end
 						for i = 1, #br.friend do
-							if bloomCount < 1 and not buff.lifebloom.exists(br.friend[i].unit) and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" and UnitIsUnit(br.friend[i].unit,"boss1target") and UnitInRange(br.friend[i].unit) then
+							if bloomCount < 1 and not buff.lifebloom.exists(br.friend[i].unit) and UnitInRange(br.friend[i].unit) and ((getOptionValue("Lifebloom") == 1 and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") or (getOptionValue("Lifebloom") == 2 and UnitIsUnit(br.friend[i].unit,"boss1target"))) then
 								if cast.lifebloom(br.friend[i].unit) then return end
 							end
 						end
@@ -805,7 +804,7 @@ local function runRotation()
 				end
 			end
 			-- Regrowth
-			if isChecked("Regrowth") and (not moving or buff.incarnationTreeOfLife.exists()) and not isCastingSpell(spell.tranquility) and lastSpell ~= spell.regrowth then
+			if isChecked("Regrowth") and (not moving or buff.incarnationTreeOfLife.exists()) and not isCastingSpell(spell.tranquility) then
 				for i = 1, #br.friend do
 					if br.friend[i].hp <= getValue("Regrowth Clearcasting") and buff.clearcasting.remain() > 1.5 and getDebuffStacks(br.friend[i].unit,209858) < 30 then
 						if cast.regrowth(br.friend[i].unit) then

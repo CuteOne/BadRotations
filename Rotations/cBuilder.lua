@@ -277,9 +277,10 @@ function br.loader:new(spec,specName)
         end
     end
 
-    self.enemies = function(range,unit)
+    self.enemies = function(range,unit,checkInCombat)
         if unit == nil then unit = "player" end
-        return getEnemies(unit,range)
+        if checkInCombat == nil then checkInCombat = false end
+        return getEnemies(unit,range,checkInCombat)
     end
 
     -- Cycle through Abilities List
@@ -335,7 +336,7 @@ function br.loader:new(spec,specName)
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
                     if thisUnit == "best" then
-                        -- print("Casting "..spellName..", EffRng: "..effectRng..", minUnits "..minUnits..", maxRange "..maxRange..", minRange "..minRange)
+--                         Print("Casting "..spellName..", EffRng: "..effectRng..", minUnits "..minUnits..", maxRange "..maxRange..", minRange "..minRange)
                         return castGroundAtBestLocation(spellCast,effectRng,minUnits,maxRange,minRange,debug)
                     elseif thisUnit == "playerGround" then
                         return castGroundAtUnit(spellCast,effectRng,minUnits,maxRange,minRange,debug,"player")

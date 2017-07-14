@@ -135,6 +135,8 @@ function ProfessionHelper()
           136711, -- Queen's Opal Loop (ilvl 715)
           136712, -- Queen's Opal Pendant (ilvl 765)
           136713, -- Shadowruby Band (ilvl 835)
+          128899, -- Battlebound Armbands
+          128883, -- Warhide Bindings
         }
         processThatTable(tableDisenchant,13262)
       end

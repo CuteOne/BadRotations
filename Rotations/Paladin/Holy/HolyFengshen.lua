@@ -633,37 +633,37 @@ local function runRotation()
 				end
 				if not HS1 then
 					if br.friend[1].hp <= 90 then
-						if cast.holyShock(br.friend[i].unit) then HS1 = true return end
+						if cast.holyShock(br.friend[1].unit) then HS1 = true return end
 					end
 				end
 				if not LOTM1 then
-					if br.friend[1].hp <= 90 and not UnitIsUnit(br.friend[i].unit,"player") then
-						if cast.lightOfTheMartyr(br.friend[i].unit) then LOTM1 = true return end
+					if br.friend[1].hp <= 90 and not UnitIsUnit(br.friend[1].unit,"player") then
+						if cast.lightOfTheMartyr(br.friend[1].unit) then LOTM1 = true return end
 					end
 				end
 				if not FOL1 then
 					if br.friend[1].hp <= 90 then
-						if cast.flashOfLight(br.friend[i].unit) then FOL1 = true return end
+						if cast.flashOfLight(br.friend[1].unit) then FOL1 = true return end
 					end
 				end
 				if not LOTM2 then
-					if br.friend[1].hp <= 90 and not UnitIsUnit(br.friend[i].unit,"player") then
-						if cast.lightOfTheMartyr(br.friend[i].unit) then LOTM2 = true return end
+					if br.friend[1].hp <= 90 and not UnitIsUnit(br.friend[1].unit,"player") then
+						if cast.lightOfTheMartyr(br.friend[1].unit) then LOTM2 = true return end
 					end
 				end
 				if not FOL2 then
 					if br.friend[1].hp <= 90 then
-						if cast.flashOfLight(br.friend[i].unit) then FOL2 = true return end
+						if cast.flashOfLight(br.friend[1].unit) then FOL2 = true return end
 					end
 				end
 				if not FOL3 then
 					if br.friend[1].hp <= 90 then
-						if cast.flashOfLight(br.friend[i].unit) then FOL3 = true return end
+						if cast.flashOfLight(br.friend[1].unit) then FOL3 = true return end
 					end
 				end
 				if not LOTM3 then
-					if br.friend[1].hp <= 90 and not UnitIsUnit(br.friend[i].unit,"player") then
-						if cast.lightOfTheMartyr(br.friend[i].unit) then LOTM3 = true return end
+					if br.friend[1].hp <= 90 and not UnitIsUnit(br.friend[1].unit,"player") then
+						if cast.lightOfTheMartyr(br.friend[1].unit) then LOTM3 = true return end
 					end
 				end
 				if LOTM3 then
@@ -688,42 +688,42 @@ local function runRotation()
 				end
 				if not HS1 then
 					if br.friend[1].hp <= 90 then
-						if cast.holyShock(br.friend[i].unit) then HS1 = true return end
+						if cast.holyShock(br.friend[1].unit) then HS1 = true return end
 					end
 				end
 				if not LOTM1 then
-					if br.friend[1].hp <= 90 and not UnitIsUnit(br.friend[i].unit,"player") then
-						if cast.lightOfTheMartyr(br.friend[i].unit) then LOTM1 = true return end
+					if br.friend[1].hp <= 90 and not UnitIsUnit(br.friend[1].unit,"player") then
+						if cast.lightOfTheMartyr(br.friend[1].unit) then LOTM1 = true return end
 					end
 				end
 				if not LOTM2 then
-					if br.friend[1].hp <= 90 and not UnitIsUnit(br.friend[i].unit,"player") then
-						if cast.lightOfTheMartyr(br.friend[i].unit) then LOTM2 = true return end
+					if br.friend[1].hp <= 90 and not UnitIsUnit(br.friend[1].unit,"player") then
+						if cast.lightOfTheMartyr(br.friend[1].unit) then LOTM2 = true return end
 					end
 				end
 				if not HS2 then
 					if br.friend[1].hp <= 90 then
-						if cast.holyShock(br.friend[i].unit) then HS2 = true return end
+						if cast.holyShock(br.friend[1].unit) then HS2 = true return end
 					end
 				end
 				if not LOTM3 then
-					if br.friend[1].hp <= 90 and not UnitIsUnit(br.friend[i].unit,"player") then
-						if cast.lightOfTheMartyr(br.friend[i].unit) then LOTM3 = true return end
+					if br.friend[1].hp <= 90 and not UnitIsUnit(br.friend[1].unit,"player") then
+						if cast.lightOfTheMartyr(br.friend[1].unit) then LOTM3 = true return end
 					end
 				end
 				if not FOL1 then
 					if br.friend[1].hp <= 90 then
-						if cast.flashOfLight(br.friend[i].unit) then FOL1 = true return end
+						if cast.flashOfLight(br.friend[1].unit) then FOL1 = true return end
 					end
 				end
 				if not HS3 then
 					if br.friend[1].hp <= 90 then
-						if cast.holyShock(br.friend[i].unit) then HS3 = true return end
+						if cast.holyShock(br.friend[1].unit) then HS3 = true return end
 					end
 				end
 				if not LOTM4 then
-					if br.friend[1].hp <= 90 and not UnitIsUnit(br.friend[i].unit,"player") then
-						if cast.lightOfTheMartyr(br.friend[i].unit) then LOTM4 = true return end
+					if br.friend[1].hp <= 90 and not UnitIsUnit(br.friend[1].unit,"player") then
+						if cast.lightOfTheMartyr(br.friend[1].unit) then LOTM4 = true return end
 					end
 				end
 				if LOTM4 then
@@ -751,42 +751,42 @@ local function runRotation()
 				end
 				if not HS1 then
 					if br.friend[1].hp <= 90 then
-						if cast.holyShock(br.friend[i].unit) then HS1 = true return end
+						if cast.holyShock(br.friend[1].unit) then HS1 = true return end
 					end
 				end
 				if not LOTM1 then
-					if br.friend[1].hp <= 90 and not UnitIsUnit(br.friend[i].unit,"player") then
-						if cast.lightOfTheMartyr(br.friend[i].unit) then LOTM1 = true return end
+					if br.friend[1].hp <= 90 and not UnitIsUnit(br.friend[1].unit,"player") then
+						if cast.lightOfTheMartyr(br.friend[1].unit) then LOTM1 = true return end
 					end
 				end
 				if not FOL1 then
 					if br.friend[1].hp <= 90 then
-						if cast.flashOfLight(br.friend[i].unit) then FOL1 = true return end
+						if cast.flashOfLight(br.friend[1].unit) then FOL1 = true return end
 					end
 				end
 				if not LOTM2 then
-					if br.friend[1].hp <= 90 and not UnitIsUnit(br.friend[i].unit,"player") then
-						if cast.lightOfTheMartyr(br.friend[i].unit) then LOTM2 = true return end
+					if br.friend[1].hp <= 90 and not UnitIsUnit(br.friend[1].unit,"player") then
+						if cast.lightOfTheMartyr(br.friend[1].unit) then LOTM2 = true return end
 					end
 				end
 				if not FOL2 then
 					if br.friend[1].hp <= 90 then
-						if cast.flashOfLight(br.friend[i].unit) then FOL2 = true return end
+						if cast.flashOfLight(br.friend[1].unit) then FOL2 = true return end
 					end
 				end
 				if not LOTM3 then
-					if br.friend[1].hp <= 90 and not UnitIsUnit(br.friend[i].unit,"player") then
-						if cast.lightOfTheMartyr(br.friend[i].unit) then LOTM3 = true return end
+					if br.friend[1].hp <= 90 and not UnitIsUnit(br.friend[1].unit,"player") then
+						if cast.lightOfTheMartyr(br.friend[1].unit) then LOTM3 = true return end
 					end
 				end
 				if not FOL3 then
 					if br.friend[1].hp <= 90 then
-						if cast.flashOfLight(br.friend[i].unit) then FOL3 = true return end
+						if cast.flashOfLight(br.friend[1].unit) then FOL3 = true return end
 					end
 				end
 				if not HS2 then
 					if br.friend[1].hp <= 90 then
-						if cast.holyShock(br.friend[i].unit) then HS2 = true return end
+						if cast.holyShock(br.friend[1].unit) then HS2 = true return end
 					end
 				end
 				if HS2 then
