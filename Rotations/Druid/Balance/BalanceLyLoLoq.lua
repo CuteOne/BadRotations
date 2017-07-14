@@ -439,11 +439,11 @@ local function runRotation()
                 if castMoon("fullMoon") then return true end
             end
             ----EXTRA: FORCE OF NATURE
-            if talent.forceOfNature and cd.forceOfNature == 0 and isChecked(colorBlue.."Force of Nature") then
+            if talent.forceOfNature and cd.forceOfNature == 0 and isChecked(colorBlue.."Force of Nature") and useCDs() then
                 if cast.forceOfNature() then return true end
             end
             --actions.AoE+=/warrior_of_elune
-            if talent.warriorOfElune and cd.warriorOfElune == 0 and isChecked(colorBlue.."Warrior of Elune") then
+            if talent.warriorOfElune and cd.warriorOfElune == 0 and isChecked(colorBlue.."Warrior of Elune") and useCDs() then
                 if cast.warriorOfElune() then return true end
             end
             --actions.AoE+=/lunar_strike,if=buff.warrior_of_elune.up
@@ -485,11 +485,11 @@ local function runRotation()
                 if castMoon("fullMoon") then return true end
             end
             ----EXTRA: FORCE OF NATURE
-            if talent.forceOfNature and cd.forceOfNature == 0 and isChecked(colorBlue.."Force of Nature") then
+            if talent.forceOfNature and cd.forceOfNature == 0 and isChecked(colorBlue.."Force of Nature") and useCDs() then
                 if cast.forceOfNature() then return true end
             end
             --actions.single_target+=/warrior_of_elune
-            if talent.warriorOfElune and cd.warriorOfElune == 0 and isChecked(colorBlue.."Warrior of Elune") then
+            if talent.warriorOfElune and cd.warriorOfElune == 0 and isChecked(colorBlue.."Warrior of Elune") and useCDs() then
                 if cast.warriorOfElune() then return true end
             end
             --actions.single_target+=/lunar_strike,if=buff.warrior_of_elune.up
