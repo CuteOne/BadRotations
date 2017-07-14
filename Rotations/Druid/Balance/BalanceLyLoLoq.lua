@@ -545,8 +545,8 @@ local function runRotation()
                 end
 
             elseif mode.rotation == 1 or mode.rotation == 2 then
-            ----EXTRA:starfall
-                if (astralPower >= 60) or (astralPower >= 40 and talent.soulOfTheForest)  then
+                ----EXTRA:starfall
+                if (astralPower >= 60) or (astralPower >= 40 and talent.soulOfTheForest) then
                     if cast.starfall(starfallPlacement, nil, starfallTargetsMin, starfallRadius) then return true end
                 end
             end
