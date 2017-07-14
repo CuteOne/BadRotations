@@ -419,11 +419,8 @@ local function runRotation()
         end
 
         local function actionsAoE()
-            ----actions.AoE=starfall,if=debuff.stellar_empowerment.remains<gcd.max*2|astral_power.deficit<22.5|(buff.celestial_alignment.remains>8|buff.incarnation.remains>8)|target.time_to_die<8
-            ----if debuff.stellarEmpowerment.remain() < (latency+gcd)*2 or astralPowerDeficit < 22.5 or ((buff.incarnationChoseOfElune.exists() and buff.incarnationChoseOfElune.remain() > 8) or (buff.celestialAlignment.exists() and buff.celestialAlignment.remain() > 8)) or ttd("target") < 8 then
-            ----    if cast.starfall(starfallPlacement, nil, getValue(colorGold.."Starfall targets"), starfallRadius) then return true end
-            ---- end
-            if (astralPower >= 60) or (astralPower >= 40 and talent.soulOfTheForest)  then
+            --actions.AoE=starfall,if=debuff.stellar_empowerment.remains<gcd.max*2|astral_power.deficit<22.5|(buff.celestial_alignment.remains>8|buff.incarnation.remains>8)|target.time_to_die<8
+            if debuff.stellarEmpowerment.remain() < (latency+gcd)*2 or astralPowerDeficit < 22.5 or ((buff.incarnationChoseOfElune.exists() and buff.incarnationChoseOfElune.remain() > 8) or (buff.celestialAlignment.exists() and buff.celestialAlignment.remain() > 8)) or ttd("target") < 8 then
                 if cast.starfall(starfallPlacement, nil, starfallTargetsMin, starfallRadius) then return true end
             end
             --actions.AoE+=/new_moon,if=astral_power.deficit>14
@@ -447,7 +444,7 @@ local function runRotation()
                 if cast.warriorOfElune() then return true end
             end
             --actions.AoE+=/lunar_strike,if=buff.warrior_of_elune.up
-            if buff.warriorOfElune.exists() then
+            if buff.warriorOfElune.exists() or buff.owlkinFrenzy.exists() then
                 if cast.lunarStrike() then return true end
             end
             --actions.AoE+=/solar_wrath,if=buff.solar_empowerment.up
@@ -493,7 +490,7 @@ local function runRotation()
                 if cast.warriorOfElune() then return true end
             end
             --actions.single_target+=/lunar_strike,if=buff.warrior_of_elune.up
-            if buff.warriorOfElune.exists() then
+            if buff.warriorOfElune.exists() or buff.owlkinFrenzy.exists() then
                 if cast.lunarStrike() then return true end
             end
             --actions.single_target+=/solar_wrath,if=buff.solar_empowerment.up
@@ -541,6 +538,20 @@ local function runRotation()
             end
             ----actions+=/call_action_list,name=fury_of_elune,if=talent.fury_of_elune.enabled&cooldown.fury_of_elue.remains<target.time_to_die
 
+            if mode.rotation == 3 then
+                if (astralPower >= 60) or (astralPower >= 40 and talent.soulOfTheForest)  then
+                    if cast.starfall(starfallPlacement, nil, starfallTargetsMin, starfallRadius) then return true end
+                end
+            elseif mode.rotation == 1 or mode.rotation == 2 then
+                ----EXTRA:starsurge
+                if astralPower >= 40  then
+                    if cast.starsurge() then return true end
+                end
+            end
+            ----EXTRA:starfall
+            if (astralPower >= 60) or (astralPower >= 40 and talent.soulOfTheForest)  then
+                if cast.starfall(starfallPlacement, nil, starfallTargetsMin, starfallRadius) then return true end
+            end
             --actions+=/call_action_list,name=ed,if=equipped.the_emerald_dreamcatcher&active_enemies<=1
             if isChecked(colorLegendary.."Emerald Dreamcatcher") then
                 if actionsEmeraldDreamcatcher() then return true end
@@ -620,6 +631,23 @@ local function runRotation()
             --actions+=/call_action_list,name=single_target
             if mode.rotation == 1 or mode.rotation == 3 then
                 if actionsSingleTarget() then return true end
+            end
+            ----EXTRA:
+            if mode.rotation == 3 then
+                if debuff.moonfire.remain("target") <= debuff.sunfire.remain("target") and isValidUnit("target") and UnitHealth("target") >= hpDotMin then
+                    if cast.moonfire("target","aoe") then return true end
+                elseif isValidUnit("target") and UnitHealth("target") >= hpDotMin then
+                    if cast.sunfire("target","aoe") then return true end
+                end
+            elseif mode.rotation == 1 or mode.rotation == 2 then
+                for i = 1, #enemies.yards40 do
+                    local thisUnit = enemies.activeYards40[i]
+                    if debuff.moonfire.remain(thisUnit) <= debuff.sunfire.remain(thisUnit) and isValidUnit(thisUnit) and UnitHealth(thisUnit) >= hpDotMin then
+                        if cast.moonfire(thisUnit,"aoe") then return true end
+                    elseif isValidUnit(thisUnit) and UnitHealth(thisUnit) >= hpDotMin then
+                        if cast.sunfire(thisUnit,"aoe") then return true end
+                    end
+                end
             end
             return false
         end
@@ -787,7 +815,7 @@ local function runRotation()
                     if cast.balanceForm("player") then return true end
                 end
                 --balanceForm when in combat and not flying
-                if inCombat and not flying then
+                if inCombat and (not flying or not flight) then
                     if GetShapeshiftForm() ~= 0 then RunMacroText("/CancelForm") end
                     if cast.balanceForm("player") then return true end
                 end
