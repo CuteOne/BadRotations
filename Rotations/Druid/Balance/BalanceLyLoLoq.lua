@@ -539,16 +539,17 @@ local function runRotation()
             ----actions+=/call_action_list,name=fury_of_elune,if=talent.fury_of_elune.enabled&cooldown.fury_of_elue.remains<target.time_to_die
 
             if mode.rotation == 3 then
+                ----EXTRA:starsurge
+                if astralPower >= 40 then
+                    if cast.starsurge() then return true end
+                end
+
+            elseif mode.rotation == 1 or mode.rotation == 2 then
+            ----EXTRA:starfall
                 if (astralPower >= 60) or (astralPower >= 40 and talent.soulOfTheForest)  then
                     if cast.starfall(starfallPlacement, nil, starfallTargetsMin, starfallRadius) then return true end
                 end
-            elseif mode.rotation == 1 or mode.rotation == 2 then
-                ----EXTRA:starsurge
-                if astralPower >= 40  then
-                    if cast.starsurge() then return true end
-                end
             end
-            ----EXTRA:starfall
             if (astralPower >= 60) or (astralPower >= 40 and talent.soulOfTheForest)  then
                 if cast.starfall(starfallPlacement, nil, starfallTargetsMin, starfallRadius) then return true end
             end
