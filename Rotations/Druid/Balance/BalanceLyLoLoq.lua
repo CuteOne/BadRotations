@@ -640,7 +640,7 @@ local function runRotation()
                     if cast.sunfire("target","aoe") then return true end
                 end
             elseif mode.rotation == 1 or mode.rotation == 2 then
-                for i = 1, #enemies.yards40 do
+                for i = 1, #enemies.activeYards40 do
                     local thisUnit = enemies.activeYards40[i]
                     if debuff.moonfire.remain(thisUnit) <= debuff.sunfire.remain(thisUnit) and isValidUnit(thisUnit) and UnitHealth(thisUnit) >= hpDotMin then
                         if cast.moonfire(thisUnit,"aoe") then return true end
