@@ -1408,6 +1408,7 @@ br.idList = {
                 lifeCyclesEnvelopingMist    = 197919,
                 lifeCyclesVivify            = 197916,
                 surgeOfMist                 = 246328,
+                danceOfMist                 = 247891,
                 upliftTrance                = 197206,
                 refreshingJadeWind          = 196725,
                 lifeCocoon                  = 116849,

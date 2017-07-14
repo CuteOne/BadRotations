@@ -1,6 +1,5 @@
 --TODO:
--- can we priorotise  blackout kick whne we use spirit of the crane
-
+-- Preheal in some habilities
 
 local rotationName = "Javaxio"
 ---------------
@@ -128,11 +127,13 @@ local function createOptions()
         br.ui:createSpinner(section, "Vivify",  80,  0,  100,  1,  colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.."Use of Vivify.", colorWhite.."Health Percent to Cast At")
         br.ui:createSpinnerWithout(section, "Min Vivify Targets",  2,  1,  3,  1,  colorBlue.."Minimum Vivify Targets "..colorGold.."(This includes you)")
         br.ui:createSpinner(section, "Vivify with Lifecycles",  85,  0,  100,  1,  colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.."Use of Vivify with Lifecycles.", colorWhite.."Health Percent to Cast At")
-        br.ui:createSpinnerWithout(section, "Min Vivify with Lifecycles Targets",  2,  1,  3,  1,  colorBlue.."Minimum ivify with Lifecycles Targets "..colorGold.."(This includes you)")
+        br.ui:createSpinnerWithout(section, "Min Vivify with Lifecycles Targets",  2,  1,  3,  1,  colorBlue.."Minimum Vivify with Lifecycles Targets "..colorGold.."(This includes you)")
         br.ui:createSpinner(section, "Vivify with Uplift",  90,  0,  100,  1,  colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.."Use of Vivify with Uplift.", colorWhite.."Health Percent to Cast At")
         br.ui:createSpinnerWithout(section, "Min Vivify with Uplift Targets",  2,  1,  3,  1,  colorBlue.."Minimum Vivify with Uplift Targets "..colorGold.."(This includes you)")
         br.ui:createSpinner(section, "Vivify with Lifecycles + Uplift",  95,  0,  100,  1,  colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.."Use of Vivify with Lifecycles + Uplift.", colorWhite.."Health Percent to Cast At")
         br.ui:createSpinnerWithout(section, "Min Vivify with Lifecycles + Uplift Targets",  2,  1,  3,  1,  colorBlue.."Minimum Vivify with Lifecycles + Uplift Targets "..colorGold.."(This includes you)")
+        br.ui:createSpinner(section, "Vivify with Dance Of Mist",  85,  0,  100,  1,  colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.."Use of Vivify with Dance of mist.", colorWhite.."Health Percent to Cast At")
+        br.ui:createSpinnerWithout(section, "Min Vivify with Dance Of Mist Targets",  2,  1,  3,  1,  colorBlue.."Minimum Vivify with Dance of Mist Targets "..colorGold.."(This includes you)")
         br.ui:createSpinner(section, "Sheilun's Gift",  70,  0,  100,  1,  colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.."Use of Sheilun's Gift.", colorWhite.."Health Percent to Cast At")
         br.ui:createSpinnerWithout(section, "Sheilun's Gift Charges",  5,  1,  12,  1,  colorBlue.."Minimum Sheilun's Gift charges")
         br.ui:createSpinner(section, "Enveloping Mist",  75,  0,  100,  1,  colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.."Use of Enveloping Mist.", colorWhite.."Health Percent to Cast At")
@@ -611,6 +612,11 @@ local function runRotation()
 			end
         if (botSpell ~= spell.envelopingMist and currentTarget ~= UnitGUID(lowest.unit)) or not buff.envelopingMist.exists(lowest.unit) or buff.envelopingMist.remain(lowest.unit) <= 2 then
 	-- Vivify Logic
+            if isChecked("Vivify with Dance Of Mist") and buff.danceOfMist.exists() then
+                if getLowAlliesInTable(getValue("Vivify with Dance Of Mist"), friends.yards40) >= getValue("Min Vivify with Dance Of Mist Targets") then
+                    if cast.vivify(lowest.unit) then return true end
+                end
+            end
             if isChecked("Vivify with Lifecycles + Uplift") and buff.upliftTrance.exists() and buff.lifeCyclesVivify.exists() then
                 if getLowAlliesInTable(getValue("Vivify with Lifecycles + Uplift"), friends.yards40) >= getValue("Min Vivify with Lifecycles + Uplift Targets") then
                     if cast.vivify(lowest.unit) then return true end
