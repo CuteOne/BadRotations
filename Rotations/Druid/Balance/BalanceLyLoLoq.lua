@@ -538,20 +538,16 @@ local function runRotation()
             end
             ----actions+=/call_action_list,name=fury_of_elune,if=talent.fury_of_elune.enabled&cooldown.fury_of_elue.remains<target.time_to_die
 
-            if mode.rotation == 3 then
+            if mode.rotation == 1 or mode.rotation == 3 then
                 ----EXTRA:starsurge
-                if astralPower >= 40 then
+                if astralPower >= 40 and #enemies.activeYards40 < starfallTargetsMin then
                     if cast.starsurge() then return true end
                 end
-
             elseif mode.rotation == 1 or mode.rotation == 2 then
                 ----EXTRA:starfall
                 if (astralPower >= 60) or (astralPower >= 40 and talent.soulOfTheForest) then
                     if cast.starfall(starfallPlacement, nil, starfallTargetsMin, starfallRadius) then return true end
                 end
-            end
-            if (astralPower >= 60) or (astralPower >= 40 and talent.soulOfTheForest)  then
-                if cast.starfall(starfallPlacement, nil, starfallTargetsMin, starfallRadius) then return true end
             end
             --actions+=/call_action_list,name=ed,if=equipped.the_emerald_dreamcatcher&active_enemies<=1
             if isChecked(colorLegendary.."Emerald Dreamcatcher") then
@@ -626,7 +622,7 @@ local function runRotation()
                 if cast.starsurge() then return true end
             end
             --actions+=/call_action_list,name=AoE,if=(active_enemies>=2&talent.stellar_drift.enabled)|active_enemies>=3
-            if mode.rotation == 1 and ((#enemies.activeYards40 >= 2 and talent.stellarDrift) or #enemies.activeYards40 >= 3) or mode.rotation == 2 or isChecked("Memekin Rotation") then
+            if mode.rotation == 1 and #enemies.activeYards40 >= starfallTargetsMin or mode.rotation == 2 or isChecked("Memekin Rotation") then
                 if actionsAoE() then return true end
             end
             --actions+=/call_action_list,name=single_target
@@ -804,7 +800,7 @@ local function runRotation()
                 if cast.travelForm("player") then return true end
             end
             -- balanceForm
-            if not chicken and not IsMounted() and (not buff.dash.exists() or IsStandingTime(2,"player")) then
+            if not chicken and not IsMounted() and (not buff.dash.exists() or IsStandingTime(2,"player")) and not flying and not flight then
                 -- balanceForm when not swimming or flying or stag and not in combat
                 if not inCombat and isMoving("player") and not swimming and not flying and not travel and not isValidUnit("target") then
                     if GetShapeshiftForm() ~= 0 then RunMacroText("/CancelForm") end
@@ -816,7 +812,7 @@ local function runRotation()
                     if cast.balanceForm("player") then return true end
                 end
                 --balanceForm when in combat and not flying
-                if inCombat and (not flying or not flight) then
+                if inCombat then
                     if GetShapeshiftForm() ~= 0 then RunMacroText("/CancelForm") end
                     if cast.balanceForm("player") then return true end
                 end
