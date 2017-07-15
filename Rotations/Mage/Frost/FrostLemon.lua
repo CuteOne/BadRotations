@@ -99,6 +99,17 @@ local function createOptions()
         br.ui:createCheckbox(section, colorBlueMage.."Comet Storm")
         br.ui:createCheckbox(section, colorBlueMage.."Cone of Cold")
         br.ui:checkSectionState(section)
+        
+        ------------------------
+        --- Pet OPTIONS --- -- 
+        ------------------------
+        section = br.ui:createSection(br.ui.window.profile, "Pet")
+            -- Auto Summon
+            br.ui:createCheckbox(section,"Auto Summon")
+            --Auto Attack
+            br.ui:createCheckbox(section,"Pet Attack")
+        br.ui:checkSectionState(section)
+
         -------------------------
         --- DEFENSIVE OPTIONS --- -- Define Defensive Options
         -------------------------
@@ -177,6 +188,8 @@ local function runRotation()
 
     enemies.yards40 = br.player.enemies(40)
     enemies.yards8t = br.player.enemies(8,br.player.units(8,true))
+    
+    if waitForPetToAppear == nil then waitForPetToAppear = 0 end
 
     if isChecked("Dynamic Targetting") then
         units.dyn40 = br.player.units(40)
@@ -185,6 +198,19 @@ local function runRotation()
     else
         ttdUnit = ttd("target")
         target = "target"
+    end
+    
+    if not inCombat and not IsMounted() and isChecked("Auto Summon") and not GetUnitExists("pet") and (UnitIsDead("pet") ~= nil or UnitIsDead("pet") == false) then
+        if waitForPetToAppear ~= nil and waitForPetToAppear < GetTime() - 2 and onlyOneTry ~= nil and not onlyOneTry then
+            onlyOneTry = true
+            if cast.summonWaterElemental("player") then return end
+        end
+
+        if waitForPetToAppear == nil then
+            waitForPetToAppear = GetTime()
+        end
+    else
+        onlyOneTry = false
     end
 
     if lastCast == nil then lastCast = 61304 end
@@ -235,6 +261,36 @@ local function runRotation()
         end
         return false
     end
+    
+    local function actionList_Pet()
+        if getHP("pet") < 20 
+            and GetUnitExists("pet")
+        then
+            print("Pet Dismiss - Low Health")
+            PetDismiss()
+        end
+        
+        if isChecked("Auto Summon") and not GetUnitExists("pet") and (UnitIsDead("pet") ~= nil or UnitIsDead("pet") == false) then
+            if waitForPetToAppear < GetTime() - 2 then
+                if cast.summonWaterElemental("player") then waitForPetToAppear = GetTime(); return end
+            end
+        end
+        
+        if  isChecked("Pet Attack") then
+            if inCombat and isValidUnit(units.dyn30) and getDistance(units.dyn30) < 30 then
+                if not UnitIsUnit("target","pettarget") and attacktar and not IsPetAttackActive() then
+                    PetAttack()
+                    PetAssistMode()
+                end
+            else
+                if IsPetAttackActive() then
+                    PetStopAttack()
+                    PetPassiveMode()
+                end
+            end
+        end
+        return false
+    end     
 
     local function actionList_DEFENSIVE()
         if useDefensive() then
@@ -651,13 +707,13 @@ local function runRotation()
                 if hasEquiped(133970) then
                     if buff.zannesuJourney.stack() == 5 and buff.zannesuJourney.remain() > getCastTime(spell.blizzard) then
                         local sX, sY, sZ = GetObjectPosition(target)
-                        if castAtPosition(sX, sY, sZ, spell.blizzard) then return true end
+                        if castOnPosition(sX, sY, sZ, spell.blizzard) then return true end
                         --if cast.blizzard(target,"ground") then return true end
                     end
                 end
                 if #enemies.yards8t > 2 or (#enemies.yards8t > 1 and not(talent.glacialSpike and talent.splittingIce)) then
                     local sX, sY, sZ = GetObjectPosition(target)
-                    if castAtPosition(sX, sY, sZ, spell.blizzard) then return true end
+                    if castOnPosition(sX, sY, sZ, spell.blizzard) then return true end
                 end
             end
             
@@ -784,7 +840,7 @@ local function runRotation()
             if cd.blizzard == 0 and getCastTime(spell.blizzard) == 0 then
                 if #enemies.yards8t > 1 and fof_react < 3  then
                     local sX, sY, sZ = GetObjectPosition(target)
-                    if castAtPosition(sX, sY, sZ, spell.blizzard) then return true end
+                    if castOnPosition(sX, sY, sZ, spell.blizzard) then return true end
                 end
             end
             
@@ -839,12 +895,12 @@ local function runRotation()
                 if hasEquiped(133970) then
                     if buff.zannesuJourney.stack() == 5 and buff.zannesuJourney.remain() > getCastTime(spell.blizzard) then
                     local sX, sY, sZ = GetObjectPosition(target)
-                    if castAtPosition(sX, sY, sZ, spell.blizzard) then return true end
+                    if castOnPosition(sX, sY, sZ, spell.blizzard) then return true end
                     end
                 end
                 if #enemies.yards8t > 2 or #enemies.yards8t > 1 and not(talent.glacialSpike and talent.splittingIce) then
                     local sX, sY, sZ = GetObjectPosition(target)
-                    if castAtPosition(sX, sY, sZ, spell.blizzard) then return true end
+                    if castOnPosition(sX, sY, sZ, spell.blizzard) then return true end
                 end
             end
             
@@ -871,7 +927,7 @@ local function runRotation()
             if cd.blizzard == 0 then
                 if getCastTime(spell.blizzard) == 0 then
                     local sX, sY, sZ = GetObjectPosition(target)
-                    if castAtPosition(sX, sY, sZ, spell.blizzard) then return true end
+                    if castOnPosition(sX, sY, sZ, spell.blizzard) then return true end
                 end
             end
             
@@ -944,7 +1000,7 @@ local function runRotation()
         if cd.blizzard == 0 then
             if getCastTime(spell.blizzard) == 0 and fof_react < 3 and (lastCast == spell.frozenOrb or cd.frozenOrb > 5) then
                 local sX, sY, sZ = GetObjectPosition(target)
-                if castAtPosition(sX, sY, sZ, spell.blizzard) then return true end
+                if castOnPosition(sX, sY, sZ, spell.blizzard) then return true end
             end
         end
         
@@ -993,6 +1049,7 @@ local function runRotation()
                 if not UnitIsUnit("pettarget",target) then
                     PetAttack()
                 end
+                if actionList_Pet() then return true end
                 if actionList_INTERRUPT() then return true end
                 if actionList_DEFENSIVE() then return true end
                 if not isMoving("player") then
