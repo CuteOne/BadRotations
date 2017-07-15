@@ -333,7 +333,7 @@ local function runRotation()
                     for i=1, #tanks do
                         tank = tanks[i].unit
                         if UnitInRange(tank) and not buff.renewingMist.exist(tank) then
-                            if cast.renewingMist(tanks[i].unit) then return end
+                            if cast.renewingMist(tanks[i].unit) then return true end
                         end
                     end
                 end
@@ -427,7 +427,7 @@ local function runRotation()
             if isChecked("Emergency Enveloping Mist with Surge of Mist") and buff.surgeOfMist.exist and buff.surgeOfMist.remain(br.player.unit) < 6 then 
                 for i = 1, #br.friend do 
                     if br.friend[i].hp <= getValue("Emergency Enveloping Mist with Surge of Mist") and (not buff.envelopingMist.exists(br.friend[i].unit) or buff.envelopingMist.remain(br.friend[i].unit) <= getCastTime(spell.envelopingMist)) then 
-                        if cast.envelopingMist(br.friend[i].unit) then return end 
+                        if cast.envelopingMist(br.friend[i].unit) then return true end 
                     end 
                 end 
             end 
@@ -502,7 +502,6 @@ local function runRotation()
                 end
             end
         end
-        return false
     end
 
     local function actionList_SingleTargetHealing()
@@ -550,9 +549,6 @@ local function runRotation()
                     if cast.zenPulse(lowest.unit) then return true end
                 end
             end
-            --        if isChecked("Mistwalk") and talent.mistwalk and lowest.hp <= getValue("Mistwalk") and UnitIsPlayer(lowest.unit) and UnitGUID(lowest.unit) ~= UnitGUID("player") then
-            --            if cast.mistwalk(lowest.unit) then return true end
-            --        end
         -- Chi Wave
 			if isChecked("Chi Wave") and talent.chiWave and lowest.hp <= getValue("Chi Wave") then
                 if cast.chiWave(lowest.unit) then return true end
@@ -590,13 +586,13 @@ local function runRotation()
                 end
                 if cast.effuse(lowest.unit) then return true end
             end
-
+        end
         -- Ephemeral Paradox trinket
         if hasEquiped(140805) and getBuffRemain("player", 225767) > 2 then
             if cast.effuse(lowest.unit) then return true end
         end
         return false
-    end--OK
+    end
 
     local function actionList_AOEHealing()
 	-- Chi Burst
@@ -607,9 +603,13 @@ local function runRotation()
             end
         end
     -- Essence Font
-			if isChecked("Essence Font") and cd.essenceFont == 0 and getLowAlliesInTable(getValue("Essence Font"), friends.yards25) >= getValue("Min Essence Font Targets") then
-				if cast.essenceFont() then return true end
-			end
+        if isChecked("Essence Font") and cd.essenceFont == 0 and getLowAlliesInTable(getValue("Essence Font"), friends.yards25) >= getValue("Min Essence Font Targets") then
+            if cast.essenceFont() then return true end
+        end
+     -- Refreshing Jade Wind
+        if isChecked("Refreshing Jade Wind") and talent.refreshingJadeWind and getLowAlliesInTable(getValue("Refreshing Jade Wind"), friends.yards8) >= getValue("Min Refreshing Jade Wind Targets")  then
+            if cast.refreshingJadeWind() then return true end
+        end
         if (botSpell ~= spell.envelopingMist and currentTarget ~= UnitGUID(lowest.unit)) or not buff.envelopingMist.exists(lowest.unit) or buff.envelopingMist.remain(lowest.unit) <= 2 then
 	-- Vivify Logic
             if isChecked("Vivify with Dance Of Mist") and buff.danceOfMist.exists() then
@@ -638,13 +638,8 @@ local function runRotation()
                 end
             end
         end
-	-- Refreshing Jade Wind
-        if isChecked("Refreshing Jade Wind") and talent.refreshingJadeWind and getLowAlliesInTable(getValue("Refreshing Jade Wind"), friends.yards8) >= getValue("Min Refreshing Jade Wind Targets")  then
-            if cast.refreshingJadeWind() then return true end
-        end
         return false
-    end--OK
-
+    end
     local function actionList_DPS()
         if useDPS then
             if lowest.hp >= getValue("DPS") then
@@ -768,7 +763,7 @@ local function runRotation()
         profile()
 --        executando = false
     end
-    return true
+    return
 end
 
 local id = 270
