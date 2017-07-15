@@ -128,8 +128,9 @@ local function createOptions()
         br.ui:createDropdown(section, colorMarin.."Remove Corruption",           {colorWhite.."Target",colorWhite.."Mouseover",colorWhite.."Player"}, 1, colorWhite.."Target to cast on")
         br.ui:createDropdown(section, colorMarin.."Innervate",                   br.dropOptions.Toggle,                                               1, colorWhite.."Set hotkey to use Innervate on "..colorRed.."Mouseover")
         br.ui:createDropdown(section, colorMarin.."Displacer Beast/Wild Charge", br.dropOptions.Toggle,                                               2, colorWhite.."Set hotkey to use Displacer Beast/Wild Charge")
-        br.ui:createCheckbox(section, colorMarin.."Auto Shapeshifts",                                                                            colorWhite.."Auto Shapeshifting to best form for situation")
-        br.ui:createCheckbox(section, colorMarin.."Break Crowd Control",                                                                         colorWhite.."Auto Shapeshifting to break crowd control")
+        br.ui:createCheckbox(section, colorMarin.."Auto Shapeshifts",                                                                                    colorWhite.."Auto Shapeshifting to best form for situation")
+        br.ui:createCheckbox(section, colorMarin.."Auto Blessing of The Ancients",                                                                       colorWhite.."Number of enemies <= 2 then Blessing of Elune else Blessing of Anshe")
+        br.ui:createCheckbox(section, colorMarin.."Break Crowd Control",                                                                                 colorWhite.."Auto Shapeshifting to break crowd control")
         br.ui:checkSectionState(section)
         --------------------------
         --- Interrupts OPTIONS ---
@@ -192,7 +193,7 @@ local function runRotation()
     local falling               = getFallTime()
     local swimming              = IsSwimming()
     local flying                = IsFlying()
-    local moving                = GetUnitSpeed("player")>0
+    local moving                = isMoving("player")
     local level                 = br.player.level
     local starfallRadius        = 15
     local starfallPlacement     = "playerGround"
@@ -292,22 +293,7 @@ local function runRotation()
                 if useItem(augumentation) then return true end
             end
             ----actions.precombat+=/moonkin_form
-            ----if not buff.balanceForm.exists() and not isChecked(colorMarin.."Auto Shapeshifts") then
-            ----if cast.balanceForm() then return true end
-            ----end
             ----actions.precombat+=/blessing_of_elune
-            ----if talent.blessingOfTheAncients and cd.blessingOfTheAncients and not buff.blessingOfElune.exists() then
-            ----if cast.blessingOfTheAncients() then return true end
-            ---- end
-            if talent.blessingOfTheAncients and cd.blessingOfTheAncients == 0 then
-                --actions+=/blessing_of_elune,if=active_enemies<=2&talent.blessing_of_the_ancients.enabled&buff.blessing_of_elune.down
-                if (mode.rotation == 3 or (mode.rotation == 1 and #enemies.activeYards40 <= 2)) and not buff.blessingOfElune.exists() then
-                    if cast.blessingOfTheAncients() then return true end
-                    --actions+=/blessing_of_elune,if=active_enemies>=3&talent.blessing_of_the_ancients.enabled&buff.blessing_of_anshe.down
-                elseif (mode.rotation == 2 or (mode.rotation == 1 and #enemies.activeYards40 >= 3)) and not buff.blessingOfAnshe.exists() then
-                    if cast.blessingOfTheAncients() then return true end
-                end
-            end
             --# Snapshot raid buffed stats before combat begins and pre-potting is done.
             if isChecked("Pre-Pull Timer") and pullTimer <= castTimeMoon() and not inCombat then
                 --actions.precombat+=/potion
@@ -424,15 +410,15 @@ local function runRotation()
                 if cast.starfall(starfallPlacement, nil, starfallTargetsMin, starfallRadius) then return true end
             end
             --actions.AoE+=/new_moon,if=astral_power.deficit>14
-            if astralPowerDeficit > 14 then
+            if astralPowerDeficit > 14 and not moving then
                 if castMoon("newMoon") then return true end
             end
             --actions.AoE+=/half_moon,if=astral_power.deficit>24
-            if astralPowerDeficit > 24 then
+            if astralPowerDeficit > 24 and not moving then
                 if castMoon("halfMoon") then return true end
             end
             --actions.AoE+=/full_moon,if=astral_power.deficit>44
-            if astralPowerDeficit > 44 then
+            if astralPowerDeficit > 44 and not moving then
                 if castMoon("fullMoon") then return true end
             end
             ----EXTRA: FORCE OF NATURE
@@ -448,19 +434,21 @@ local function runRotation()
                 if cast.lunarStrike() then return true end
             end
             --actions.AoE+=/solar_wrath,if=buff.solar_empowerment.up
-            if buff.solarEmpowerment.exists() then
+            if buff.solarEmpowerment.exists() and not moving then
                 if cast.solarWrath() then return true end
             end
             --actions.AoE+=/lunar_strike,if=buff.lunar_empowerment.up
-            if buff.lunarEmpowerment.exists() then
+            if buff.lunarEmpowerment.exists() and not moving then
                 if cast.lunarStrike() then return true end
             end
             --actions.AoE+=/lunar_strike,if=active_enemies>=4|spell_haste<0.45
-            if #enemies.activeYards40 >= 4 or hasteAmount < 0.45 then
+            if #enemies.activeYards40 >= 4 or hasteAmount < 0.45 and not moving then
                 if cast.lunarStrike() then return true end
             end
             --actions.AoE+=/solar_wrath
-            if cast.solarWrath() then return true end
+            if not moving then
+                if cast.solarWrath() then return true end
+            end
             return false
         end
 
@@ -470,15 +458,15 @@ local function runRotation()
                 if cast.starsurge() then return true end
             end
             --actions.single_target+=/new_moon,if=astral_power.deficit>14&!(buff.celestial_alignment.up|buff.incarnation.up)
-            if astralPowerDeficit > 14 and not(buff.incarnationChoseOfElune.exists() or buff.celestialAlignment.exists()) then
+            if astralPowerDeficit > 14 and not(buff.incarnationChoseOfElune.exists() or buff.celestialAlignment.exists()) and not moving then
                 if castMoon("newMoon") then return true end
             end
             --actions.single_target+=/half_moon,if=astral_power.deficit>24&!(buff.celestial_alignment.up|buff.incarnation.up)
-            if astralPowerDeficit > 24 and not(buff.incarnationChoseOfElune.exists() or buff.celestialAlignment.exists()) then
+            if astralPowerDeficit > 24 and not(buff.incarnationChoseOfElune.exists() or buff.celestialAlignment.exists()) and not moving then
                 if castMoon("halfMoon") then return true end
             end
             --actions.single_target+=/full_moon,if=astral_power.deficit>44
-            if astralPowerDeficit > 44  then
+            if astralPowerDeficit > 44  and not moving then
                 if castMoon("fullMoon") then return true end
             end
             ----EXTRA: FORCE OF NATURE
@@ -494,15 +482,17 @@ local function runRotation()
                 if cast.lunarStrike() then return true end
             end
             --actions.single_target+=/solar_wrath,if=buff.solar_empowerment.up
-            if buff.solarEmpowerment.exists() then
+            if buff.solarEmpowerment.exists() and not moving then
                 if cast.solarWrath() then return true end
             end
             --actions.single_target+=/lunar_strike,if=buff.lunar_empowerment.up
-            if buff.lunarEmpowerment.exists() then
+            if buff.lunarEmpowerment.exists() and not moving then
                 if cast.lunarStrike() then return true end
             end
             --actions.single_target+=/solar_wrath
-            if cast.solarWrath() then return true end
+            if not moving then
+                if cast.solarWrath() then return true end
+            end
             return false
         end
 
@@ -514,7 +504,7 @@ local function runRotation()
                     if useItem(potion) then return true end
                 end
             end
-            if talent.blessingOfTheAncients and cd.blessingOfTheAncients == 0 then
+            if talent.blessingOfTheAncients and cd.blessingOfTheAncients == 0 and isChecked(colorMarin.."Auto Blessing of The Ancients") then
                 --actions+=/blessing_of_elune,if=active_enemies<=2&talent.blessing_of_the_ancients.enabled&buff.blessing_of_elune.down
                 if (mode.rotation == 3 or (mode.rotation == 1 and #enemies.activeYards40 <= 2)) and not buff.blessingOfElune.exists() then
                     if cast.blessingOfTheAncients() then return true end
@@ -554,20 +544,20 @@ local function runRotation()
                 if actionsEmeraldDreamcatcher() then return true end
             end
             --actions+=/new_moon,if=((charges=2&recharge_time<5)|charges=3)&astral_power.deficit>14
-            if ((charges.newMoon == 2 and recharge.newMoon < 5) or  charges.newMoon == 3) and astralPowerDeficit > 14 then
+            if ((charges.newMoon == 2 and recharge.newMoon < 5) or  charges.newMoon == 3) and astralPowerDeficit > 14 and not moving then
                 if castMoon("newMoon") then return true end
             end
             --actions+=/half_moon,if=((charges=2&recharge_time<5)|charges=3|(target.time_to_die<15&charges=2))&astral_power.deficit>24
-            if ((charges.newMoon == 2 and recharge.halfMoon < 5) or  charges.newMoon == 3 or (ttd("target") < 15 and charges.newMoon == 2)) and astralPowerDeficit > 24  then
+            if ((charges.newMoon == 2 and recharge.halfMoon < 5) or  charges.newMoon == 3 or (ttd("target") < 15 and charges.newMoon == 2)) and astralPowerDeficit > 24  and not moving then
                 if castMoon("halfMoon") then return true end
             end
             --actions+=/full_moon,if=((charges=2&recharge_time<5)|charges=3|target.time_to_die<15)&astral_power.deficit>44
-            if ((charges.newMoon == 2 and recharge.fullMoon < 5) or  charges.newMoon == 3 or ttd("target") < 15) and astralPowerDeficit > 24  then
+            if ((charges.newMoon == 2 and recharge.fullMoon < 5) or  charges.newMoon == 3 or ttd("target") < 15) and astralPowerDeficit > 24 and not moving then
                 if castMoon("fullMoon") then return true end
             end
             if mode.rotation == 3 then
                 --actions+=/stellar_flare,cycle_targets=1,max_cycle_targets=4,if=active_enemies<4&remains<7.2
-                if talent.stellarFlare and UnitHealth("target") >= hpDotMin and astralPower>= 10 and debuff.stellarFlare.count() <= 4 and debuff.stellarFlare.remain("target") < 7.2 then
+                if talent.stellarFlare and UnitHealth("target") >= hpDotMin and astralPower>= 10 and debuff.stellarFlare.count() <= 4 and debuff.stellarFlare.remain("target") < 7.2 and not moving then
                     if cast.stellarFlare("target", "aoe") then return true end
                 end
                 --actions+=/moonfire,cycle_targets=1,if=((talent.natures_balance.enabled&remains<3)|(remains<6.6&!talent.natures_balance.enabled))&astral_power.deficit>7
@@ -582,7 +572,7 @@ local function runRotation()
                 for i = 1, #enemies.activeYards40 do
                     local thisUnit = enemies.activeYards40[i]
                     --actions+=/stellar_flare,cycle_targets=1,max_cycle_targets=4,if=active_enemies<4&remains<7.2
-                    if talent.stellarFlare and UnitHealth(thisUnit) >= hpDotMin and astralPower>= 10 and debuff.stellarFlare.count() <= getValue(colorGold.."Stellar Flare targets") and debuff.stellarFlare.remain(thisUnit) < 7.2 then
+                    if talent.stellarFlare and UnitHealth(thisUnit) >= hpDotMin and astralPower>= 10 and debuff.stellarFlare.count() <= getValue(colorGold.."Stellar Flare targets") and debuff.stellarFlare.remain(thisUnit) < 7.2 and not moving then
                         if cast.stellarFlare(thisUnit, "aoe") then return true end
                     end
                     --actions+=/moonfire,cycle_targets=1,if=((talent.natures_balance.enabled&remains<3)|(remains<6.6&!talent.natures_balance.enabled))&astral_power.deficit>7
@@ -610,11 +600,11 @@ local function runRotation()
                 if cast.starfall(starfallPlacement, nil, 1, starfallRadius) then return true end
             end
             --actions+=/solar_wrath,if=buff.solar_empowerment.stack=3
-            if buff.solarEmpowerment.stack() == 3 then
+            if buff.solarEmpowerment.stack() == 3 and not moving then
                 if cast.solarWrath() then return true end
             end
             --actions+=/lunar_strike,if=buff.lunar_empowerment.stack=3
-            if buff.lunarEmpowerment.stack() == 3 then
+            if buff.lunarEmpowerment.stack() == 3 and not moving then
                 if cast.lunarStrike() then return true end
             end
             --actions+=/starsurge,if=buff.oneths_intuition.up
@@ -631,17 +621,17 @@ local function runRotation()
             end
             ----EXTRA:
             if mode.rotation == 3 then
-                if debuff.moonfire.remain("target") <= debuff.sunfire.remain("target") and isValidUnit("target") and UnitHealth("target") >= hpDotMin then
+                if debuff.moonfire.remain("target") <= debuff.sunfire.remain("target") and isValidUnit("target") then
                     if cast.moonfire("target","aoe") then return true end
-                elseif isValidUnit("target") and UnitHealth("target") >= hpDotMin then
+                elseif isValidUnit("target") then
                     if cast.sunfire("target","aoe") then return true end
                 end
             elseif mode.rotation == 1 or mode.rotation == 2 then
                 for i = 1, #enemies.activeYards40 do
                     local thisUnit = enemies.activeYards40[i]
-                    if debuff.moonfire.remain(thisUnit) <= debuff.sunfire.remain(thisUnit) and isValidUnit(thisUnit) and UnitHealth(thisUnit) >= hpDotMin then
+                    if debuff.moonfire.remain(thisUnit) <= debuff.sunfire.remain(thisUnit) and isValidUnit(thisUnit) then
                         if cast.moonfire(thisUnit,"aoe") then return true end
-                    elseif isValidUnit(thisUnit) and UnitHealth(thisUnit) >= hpDotMin then
+                    elseif isValidUnit(thisUnit) then
                         if cast.sunfire(thisUnit,"aoe") then return true end
                     end
                 end
@@ -802,7 +792,7 @@ local function runRotation()
             -- balanceForm
             if not chicken and not IsMounted() and (not buff.dash.exists() or IsStandingTime(2,"player")) and not flying and not flight then
                 -- balanceForm when not swimming or flying or stag and not in combat
-                if not inCombat and isMoving("player") and not swimming and not flying and not travel and not isValidUnit("target") then
+                if not inCombat and moving and not swimming and not flying and not travel and not isValidUnit("target") then
                     if GetShapeshiftForm() ~= 0 then RunMacroText("/CancelForm") end
                     if cast.balanceForm("player") then return true end
                 end
@@ -843,7 +833,7 @@ local function runRotation()
     end
 
     local function balanceRotation()
-        if pause(false) or (GetUnitExists("target") and (UnitIsDeadOrGhost("target") or not UnitCanAttack("target", "player"))) or mode.rotation == 4 then
+        if pause() or (GetUnitExists("target") and (UnitIsDeadOrGhost("target") or not UnitCanAttack("target", "player"))) or mode.rotation == 4 then
             return false
         else
             if mode.defensive == 1 then if actionListDefensive() then return true end end
