@@ -599,7 +599,6 @@ local function runRotation()
     end
 
     local function SimCAPLMode()
-
         local function actionList_CD()
             if useCDs() then
                 if isChecked(colorBlueMage.."Rune of Power") and talent.runeOfPower then
@@ -707,13 +706,13 @@ local function runRotation()
                 if hasEquiped(133970) then
                     if buff.zannesuJourney.stack() == 5 and buff.zannesuJourney.remain() > getCastTime(spell.blizzard) then
                         local sX, sY, sZ = GetObjectPosition(target)
-                        if castOnPosition(sX, sY, sZ, spell.blizzard) then return true end
+                        if castAtPosition(sX, sY, sZ, spell.blizzard) then return true end
                         --if cast.blizzard(target,"ground") then return true end
                     end
                 end
                 if #enemies.yards8t > 2 or (#enemies.yards8t > 1 and not(talent.glacialSpike and talent.splittingIce)) then
                     local sX, sY, sZ = GetObjectPosition(target)
-                    if castOnPosition(sX, sY, sZ, spell.blizzard) then return true end
+                    if castAtPosition(sX, sY, sZ, spell.blizzard) then return true end
                 end
             end
             
@@ -840,7 +839,7 @@ local function runRotation()
             if cd.blizzard == 0 and getCastTime(spell.blizzard) == 0 then
                 if #enemies.yards8t > 1 and fof_react < 3  then
                     local sX, sY, sZ = GetObjectPosition(target)
-                    if castOnPosition(sX, sY, sZ, spell.blizzard) then return true end
+                    if castAtPosition(sX, sY, sZ, spell.blizzard) then return true end
                 end
             end
             
@@ -895,12 +894,12 @@ local function runRotation()
                 if hasEquiped(133970) then
                     if buff.zannesuJourney.stack() == 5 and buff.zannesuJourney.remain() > getCastTime(spell.blizzard) then
                     local sX, sY, sZ = GetObjectPosition(target)
-                    if castOnPosition(sX, sY, sZ, spell.blizzard) then return true end
+                    if castAtPosition(sX, sY, sZ, spell.blizzard) then return true end
                     end
                 end
                 if #enemies.yards8t > 2 or #enemies.yards8t > 1 and not(talent.glacialSpike and talent.splittingIce) then
                     local sX, sY, sZ = GetObjectPosition(target)
-                    if castOnPosition(sX, sY, sZ, spell.blizzard) then return true end
+                    if castAtPosition(sX, sY, sZ, spell.blizzard) then return true end
                 end
             end
             
@@ -927,7 +926,7 @@ local function runRotation()
             if cd.blizzard == 0 then
                 if getCastTime(spell.blizzard) == 0 then
                     local sX, sY, sZ = GetObjectPosition(target)
-                    if castOnPosition(sX, sY, sZ, spell.blizzard) then return true end
+                    if castAtPosition(sX, sY, sZ, spell.blizzard) then return true end
                 end
             end
             
@@ -1000,7 +999,7 @@ local function runRotation()
         if cd.blizzard == 0 then
             if getCastTime(spell.blizzard) == 0 and fof_react < 3 and (lastCast == spell.frozenOrb or cd.frozenOrb > 5) then
                 local sX, sY, sZ = GetObjectPosition(target)
-                if castOnPosition(sX, sY, sZ, spell.blizzard) then return true end
+                if castAtPosition(sX, sY, sZ, spell.blizzard) then return true end
             end
         end
         
@@ -1046,9 +1045,6 @@ local function runRotation()
             -----------------------------
             if actionList_OPENER() then return true end
             if inCombat then
-                if not UnitIsUnit("pettarget",target) then
-                    PetAttack()
-                end
                 if actionList_Pet() then return true end
                 if actionList_INTERRUPT() then return true end
                 if actionList_DEFENSIVE() then return true end
@@ -1061,9 +1057,6 @@ local function runRotation()
             end -- End In Combat Rotation
         end -- Pause
     end
-
-
-
     if lastCast == spell.frostbolt and isCastingSpell(spell.frostbolt) and buff.fingersOfFrost.stack() < (2 + iceHand) and not buff.brainFreeze.exists() then
         CastSpellByName(GetSpellInfo(spell.waterJet))
         lastCast = spell.waterJet
@@ -1076,8 +1069,6 @@ local function runRotation()
     if UnitCastingInfo("player") == nil and getSpellCD(61304) == 0 then
         return profile()
     end
-    
-    
 end -- End Timer
 
 local id = 64
