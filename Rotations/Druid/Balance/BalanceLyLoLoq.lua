@@ -118,6 +118,7 @@ local function createOptions()
         br.ui:createSpinner(section, colorGreen.."Swiftmend",           30,  1,  100,  1,  colorWhite.."Health Percent to cast at")
         br.ui:createSpinner(section, colorGreen.."Potion/Healthstone",  20,  1,  100,  1,  colorWhite.."Health Percent to cast at")
         br.ui:createSpinner(section, colorGreen.."Regrowth",            30,  1,  100,  1,  colorWhite.."Health Percent to cast at")
+        br.ui:createSpinner(section, colorGreen.."Rejuvenation",        45,  1,  100,  1,  colorWhite.."Health Percent to cast at")
         br.ui:createSpinner(section, colorGreen.."Barkskin",            60,  1,  100,  1,  colorWhite.."Health Percent to cast at")
         br.ui:checkSectionState(section)
         -------------------------
@@ -654,6 +655,7 @@ local function runRotation()
             end
             -- Swiftmend
             if cd.swiftmend == 0 and isChecked(colorGreen.."Swiftmend") and health <= getValue(colorGreen.."Swiftmend") then
+                if GetShapeshiftForm() ~= 0 then RunMacroText("/CancelForm") end
                 if cast.swiftmend("player") then return true end
             end
             --Potion or Stone
@@ -667,6 +669,11 @@ local function runRotation()
             -- Regrowth
             if isChecked(colorGreen.."Regrowth") and health <= getValue(colorGreen.."Regrowth") then
                 if cast.regrowth("player") then return true end
+            end
+            -- Rejuvenation
+            if isChecked(colorGreen.."Rejuvenation") and health <= getValue(colorGreen.."Rejuvenation") and (not buff.rejuvenation.exists() or buff.rejuvenation.remain() <= 3) then
+                if GetShapeshiftForm() ~= 0 then RunMacroText("/CancelForm") end
+                if cast.rejuvenation("player") then return true end
             end
             -- Barkskin
             if cd.barkskin == 0 and isChecked(colorGreen.."Barkskin") and health <= getValue(colorGreen.."Barkskin") then
