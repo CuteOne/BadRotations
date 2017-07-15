@@ -183,6 +183,7 @@ Rotations\Priest\Shadow\ShadowCuteOne.lua
 ## Rogue ---------------------------------------------------
 
 Rotations\Rogue\Assassination\AssassinationCuteOne.lua
+Rotations\Rogue\Assassination\AssLemon.lua
 
 Rotations\Rogue\Outlaw\OutlawCuteOne.lua
 Rotations\Rogue\Outlaw\OutlawVilt.lua
