@@ -204,11 +204,20 @@ function castGroundAtBestLocation(spellID, radius, minUnits, maxRange, minRange,
         temp1 = 0
         temp2 = 0
         for j=1, #allUnitsInRange do
-            if unitInCircle(allUnitsInRange[j],thisCircle.xfc,thisCircle.yfc, radius) then
-                temp1 = temp1 + 1
-            end
-            if unitInCircle(allUnitsInRange[j],thisCircle.xsc,thisCircle.ysc, radius) then
-                temp2 = temp2 + 1
+            if spellType == "heal" then
+                if unitInCircle(allUnitsInRange[j].unit,thisCircle.xfc,thisCircle.yfc, radius) then
+                    temp1 = temp1 + 1
+                end
+                if unitInCircle(allUnitsInRange[j].unit,thisCircle.xsc,thisCircle.ysc, radius) then
+                    temp2 = temp2 + 1
+                end
+            else
+                if unitInCircle(allUnitsInRange[j],thisCircle.xfc,thisCircle.yfc, radius) then
+                    temp1 = temp1 + 1
+                end
+                if unitInCircle(allUnitsInRange[j],thisCircle.xsc,thisCircle.ysc, radius) then
+                    temp2 = temp2 + 1
+                end
             end
         end
         if temp1 > temp2 and temp1 > bestCircle.nro then
