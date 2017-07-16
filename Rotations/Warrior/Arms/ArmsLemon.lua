@@ -256,6 +256,9 @@ local function runRotation()
         if useAvatar == nil then useAvatar = false end
         if cd.warbreaker <= 3 then usedWarbreaker = false end
         if getOptionValue("Battle Cry") == 3 or (getOptionValue("Battle Cry") == 2 and not useCDs()) then ignoreBattleCry = true else ignoreBattleCry = false end
+		
+		if lastCast == spell.colossusSmash then PS = true end
+		if lastCast == spell.execute or lastCast == spell.mortalStrike then PS = false end
 
         -- ChatOverlay(tostring(isInstanceBoss("target")))
         -- ChatOverlay(#enemies.yards5)
@@ -678,7 +681,7 @@ local function runRotation()
             
         -- Colossus Smash
             -- colossus_smash,if=cooldown_react&buff.shattered_defenses.down&buff.precise_strikes.down
-            if cd.colossusSmash == 0 and not buff.shatteredDefenses.exists() and not buff.preciseStrikes.exists() then
+            if cd.colossusSmash == 0 and not buff.shatteredDefenses.exists() and not PS then
                 if cast.colossusSmash() then return end
             end
             
@@ -747,7 +750,7 @@ local function runRotation()
             end
         -- Colossus Smash
             -- colossus_smash,if=buff.shattered_defenses.down&buff.precise_strikes.down
-            if not buff.shatteredDefenses.exists() and not buff.preciseStrikes() then
+            if not buff.shatteredDefenses.exists() and not PS then
                 if cast.colossusSmash() then return end
             end
         -- Warbreaker
