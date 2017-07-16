@@ -2969,7 +2969,6 @@ br.idList = {
                 cleave                      = 188923,
                 corruptedBloodOfZakajz      = 209567,
                 defensiveStance             = 197690,
-                executionersPrecision       = 242188,
                 focusedRage                 = 207982,
                 overpower                   = 60503,
                 preciseStrikes              = 209493,
@@ -2981,6 +2980,7 @@ br.idList = {
             debuffs                         = {
                 colossusSmash               = 208086,
                 rend                        = 772,
+                executionersPrecision       = 242188,
             },
             glyphs                          = {
                 glyphOfThunderStrike        = 68164,
