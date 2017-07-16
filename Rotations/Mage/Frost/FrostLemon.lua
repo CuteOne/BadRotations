@@ -599,6 +599,7 @@ local function runRotation()
     end
 
     local function SimCAPLMode()
+
         local function actionList_CD()
             if useCDs() then
                 if isChecked(colorBlueMage.."Rune of Power") and talent.runeOfPower then
@@ -762,10 +763,9 @@ local function runRotation()
             
             --actions.aoe+=/ebonbolt,if=buff.brain_freeze.react=0
             if (getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs())) then
-                if not buff.brainFreeze.exists() then
-                    if cast.ebonbolt(target) then return true end
-                end
+                if cast.ebonbolt(target) then return true end
             end
+            
             --actions.aoe+=/glacial_spike
             if talent.glacialSpike then
                 if buff.icicles.stack() == 5 then
@@ -858,9 +858,7 @@ local function runRotation()
             
             --actions.single+=/ebonbolt,if=buff.brain_freeze.react=0
             if (getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs())) then
-                if not buff.brainFreeze.exists() then
-                    if cast.ebonbolt(target) then return true end
-                end
+                if cast.ebonbolt(target) then return true end
             end
             
             --actions.single+=/frozen_orb
@@ -953,8 +951,8 @@ local function runRotation()
                 fof_react = 0
                 if debug == true then Print("fof_react Changed: "..fof_react) end
             end
-            --actions+=/variable,name=fof_react,value=buff.fingers_of_frost.stack,if=equipped.lady_vashjs_grasp&buff.icy_veins.up&variable.time_until_fof>9|prev_off_gcd.freeze
-            if hasEquiped(132411) and buff.icyVeins.exists() and time_until_fof > 9 or lastCast == spell.freeze then
+            --actions+=/variable,name=fof_react,value=buff.fingers_of_frost.stack,if=equipped.lady_vashjs_grasp&buff.icy_veins.up&variable.time_until_fof>9|prev_off_gcd.freeze|ground_aoe.frozen_orb.remains>9
+            if hasEquiped(132411) and buff.icyVeins.exists() and time_until_fof > 9 or lastCast == spell.freeze or cd.frozenOrb > 54 then
                 fof_react = buff.fingersOfFrost.stack()
                 if debug == true then Print("fof_react Changed: "..fof_react) end
             end
@@ -1057,6 +1055,9 @@ local function runRotation()
             end -- End In Combat Rotation
         end -- Pause
     end
+
+
+
     if lastCast == spell.frostbolt and isCastingSpell(spell.frostbolt) and buff.fingersOfFrost.stack() < (2 + iceHand) and not buff.brainFreeze.exists() then
         CastSpellByName(GetSpellInfo(spell.waterJet))
         lastCast = spell.waterJet
@@ -1069,6 +1070,8 @@ local function runRotation()
     if UnitCastingInfo("player") == nil and getSpellCD(61304) == 0 then
         return profile()
     end
+    
+    
 end -- End Timer
 
 local id = 64
