@@ -704,14 +704,7 @@ local function runRotation()
             
             --actions.aoe+=/blizzard
             if  cd.blizzard == 0 then
-                if hasEquiped(133970) then
-                    if buff.zannesuJourney.stack() == 5 and buff.zannesuJourney.remain() > getCastTime(spell.blizzard) then
-                        local sX, sY, sZ = GetObjectPosition(target)
-                        if castAtPosition(sX, sY, sZ, spell.blizzard) then return true end
-                        --if cast.blizzard(target,"ground") then return true end
-                    end
-                end
-                if #enemies.yards8t > 2 or (#enemies.yards8t > 1 and not(talent.glacialSpike and talent.splittingIce)) then
+                if #enemies.yards8t > 2 or #enemies.yards8t > 1 and not(talent.glacialSpike and talent.splittingIce) or (hasEquiped(133970) and buff.zannesuJourney.stack() == 5 and buff.zannesuJourney.remain() > getCastTime(spell.blizzard)) then
                     local sX, sY, sZ = GetObjectPosition(target)
                     if castAtPosition(sX, sY, sZ, spell.blizzard) then return true end
                 end
@@ -889,13 +882,7 @@ local function runRotation()
             --Zann'esu buffed Blizzard is used only at 5 stacks.
             
             if  cd.blizzard == 0 then
-                if hasEquiped(133970) then
-                    if buff.zannesuJourney.stack() == 5 and buff.zannesuJourney.remain() > getCastTime(spell.blizzard) then
-                    local sX, sY, sZ = GetObjectPosition(target)
-                    if castAtPosition(sX, sY, sZ, spell.blizzard) then return true end
-                    end
-                end
-                if #enemies.yards8t > 2 or #enemies.yards8t > 1 and not(talent.glacialSpike and talent.splittingIce) then
+                if #enemies.yards8t > 2 or #enemies.yards8t > 1 and not(talent.glacialSpike and talent.splittingIce) or (hasEquiped(133970) and buff.zannesuJourney.stack() == 5 and buff.zannesuJourney.remain() > getCastTime(spell.blizzard)) then
                     local sX, sY, sZ = GetObjectPosition(target)
                     if castAtPosition(sX, sY, sZ, spell.blizzard) then return true end
                 end
