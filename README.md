@@ -202,7 +202,7 @@ Lemon  |   Full   | 7.2.5 |   100% | :heavy_check_mark:
 
 author | support | patch | status |     raidable?
 :----- | :-----: | :---: | -----: | :----------------:
-Kuukuu |  Full   | 7.2   |    90% | :white_check_mark:
+Kuukuu |  Full   | 7.2.5 |    90% | :white_check_mark:
 
 - Mistweaver
 
@@ -221,9 +221,9 @@ CuteOne |  Full   | 7.2   |   100% | :white_check_mark:
 
 - Holy
 
-author | support | patch | status | raidable?
-:----- | :-----: | :---: | -----: | :-------:
-Kuukuu |  Full   | 7.2   |    80% |    :heavy_check_mark:
+author   | support | patch | status | raidable?
+:-----   | :-----: | :---: | -----: | :-------:
+Fengshen |  Full   | 7.2.5 |   100% | :white_check_mark:
 
 - Protection
 
