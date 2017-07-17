@@ -83,6 +83,15 @@ function br.ui:createConfigWindow()
         br.ui:checkSectionState(section)
     end
 
+    local function callSettingsEngine()
+        section = br.ui:createSection(br.ui.window.config, "Save/Load Settings")
+        br.ui:createDropdownWithout(section, "Settings to Load", {"Dungeons", "Mythic Dungeons", "Raids", "Mythic Raids"}, 1, "Select Profile to Load.")
+        br.ui:createSaveButton(section, "Save", 40, -40)
+        br.ui:createLoadButton(section, "Load", 140, -40)
+        br.ui:checkSectionState(section)
+    end
+
+
     -- Add Page Dropdown
     br.ui:createPagesDropdown(br.ui.window.config, {
         {
@@ -101,6 +110,10 @@ function br.ui:createConfigWindow()
             [1] = "Other Features",
             [2] = callOtherFeaturesEngine,
         },
+         {
+             [1] = "Save/Load Settings",
+             [2] = callSettingsEngine,
+         },
     })
 
     br.ui:checkWindowStatus("config")

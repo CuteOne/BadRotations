@@ -2,7 +2,9 @@
 br = {}
 br.data = {}
 br.dungeon = {}
+br.mdungeon = {}
 br.raid = {}
+br.mraid = {}
 br.selectedSpec = "None"
 br.selectedProfile = 1
 br.dropOptions = {}
