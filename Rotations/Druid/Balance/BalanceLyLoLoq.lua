@@ -494,7 +494,7 @@ local function runRotation()
         local function actions()
             --# Executed every time the actor is available.
             --actions=potion,name=potion_of_prolonged_power,if=buff.celestial_alignment.up|buff.incarnation.up
-            if buff.celestialAlignment.exists() or buff.incarnationChoseOfElune.exists() and useCDs() and isChecked(colorBlue.."Potion") then
+            if (buff.celestialAlignment.exists() or buff.incarnationChoseOfElune.exists()) and useCDs() and isChecked(colorBlue.."Potion") then
                 if not UnitBuffID("player",potionBuff) and canUse(potion) then
                     if useItem(potion) then return true end
                 end
