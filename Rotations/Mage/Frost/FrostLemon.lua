@@ -1,6 +1,4 @@
 local rotationName = "Lemon" -- Change to name of profile listed in options drop down
-local windowX = 255
-local windowY = 400
 --------------
 --- COLORS ---
 --------------
