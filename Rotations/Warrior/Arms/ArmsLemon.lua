@@ -639,7 +639,7 @@ local function runRotation()
             end
             
         --actions.single+=/mortal_strike,if=buff.shattered_defenses.up|buff.executioners_precision.down
-            if buff.shatteredDefenses.exists() or not debuff.executionersPrecision.exists(unit.dyn5) then
+            if buff.shatteredDefenses.exists() or not debuff.executionersPrecision.exists(units.dyn5) then
                 if cast.mortalStrike() then return end
             end
             

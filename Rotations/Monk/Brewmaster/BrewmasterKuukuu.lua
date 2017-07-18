@@ -470,7 +470,7 @@ local function runRotation()
                     if castSpell("player",racial,false,false,false) then return end
                 end
              -- Keg Smash
-                if #enemies.yards8t >= getOptionValue("Keg Smash Targets") and (not talent.rushingJadeWind or (talent.rushingJadeWind and not buff.blackoutCombo.exists())) then
+                if #enemies.yards8t >= getOptionValue("Keg Smash Targets") and (not debuff.kegSmash.exists(units.dyn5)  or hasEquiped(137016)) and not buff.blackoutCombo.exists() then
                     if cast.kegSmash() then return end
                 end
             -- Blackout Strike
@@ -480,7 +480,7 @@ local function runRotation()
                     if cast.tigerPalm() then return end
                 end
                 -- Breath of Fire
-                if not buff.blackoutCombo.exists() and #getEnemies("player",12) >= getOptionValue("Breath of Fire Targets") and debuff.kegSmash.exists(units.dyn5) and not debuff.breathOfFire.exists(units.dyn5) then
+                if not buff.blackoutCombo.exists() and #getEnemies("player",12) >= getOptionValue("Breath of Fire Targets") and debuff.kegSmash.exists(units.dyn5) and (not debuff.breathOfFire.exists(units.dyn5) or hasEquiped(137016)) then
                     if cast.breathOfFire() then return end
                 end
             -- Rushing Jade Wind
