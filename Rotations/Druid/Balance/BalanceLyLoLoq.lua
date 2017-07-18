@@ -74,7 +74,6 @@ local function createOptions()
         --- General OPTIONS ---
         -----------------------
         section = br.ui:createSection(br.ui.window.profile, "General")
-        -- Dummy DPS Test
         br.ui:createSpinner(section,    "DPS Testing",          5,  1,  60,  5,                                         colorWhite.."Set to desired time for test in minuts")
         br.ui:createDropdown(section,   "Deadly Chicken",    {colorWhite.."All",colorWhite.."Don't kill boss"}, 1,      colorWhite.."Enable this mode to 1 hit mobs, select the desired mode")
         br.ui:createSpinner(section,    "Pre-Pull Timer",       5,  1,  10,  0.1,                                       colorWhite.."Set to desired time to start Pre-Pull")
@@ -261,11 +260,6 @@ local function runRotation()
     ------------------
     --- Locals END ---
     ------------------
-    local function actionListMemekinRotation()
-
-        return false
-    end
-
     local function actionListSimcraftDruidBalanceT20M()
         --# Default consumables
         --potion=potion_of_prolonged_power
@@ -514,18 +508,24 @@ local function runRotation()
                     if cast.blessingOfTheAncients() then return true end
                 end
             end
+            --actions+=/celestial_alignment,if=astral_power>=40|incarnation,if=astral_power>=40
+            if (not talent.incarnationChoseOfElune and cd.celestialAlignment == 0 or talent.incarnationChoseOfElune and cd.incarnationChoseOfElune == 0) and astralPower >= 40 and useCDs() and isChecked(colorBlue.."Incarnation/Celestial Alignament") then
+                if cast.celestialAlignment() then return true end
+            end
             --actions+=/berserking|blood_fury,if=buff.celestial_alignment.up|buff.incarnation.up
             if (race == "Orc" or race == "Troll") and getSpellCD(racial) == 0 and useCDs() and isChecked(colorBlue.."Racial") then
                 if buff.incarnationChoseOfElune.exists() or buff.celestialAlignment.exists() then
                     if br.player.castRacial() then return true end
                 end
             end
-            --actions+=/use_item,slot=trinket1&trinket2
-            if canUse(13) and useCDs() and isChecked(colorBlue.."Trinket 1") then
-                if useItem(13) then return true end
-            end
-            if canUse(14) and useCDs() and isChecked(colorBlue.."Trinket 2") then
-                if useItem(14) then return true end
+            if buff.incarnationChoseOfElune.exists() or buff.celestialAlignment.exists() then
+                --actions+=/use_item,slot=trinket1&trinket2
+                if canUse(13) and useCDs() and isChecked(colorBlue.."Trinket 1") then
+                    if useItem(13) then return true end
+                end
+                if canUse(14) and useCDs() and isChecked(colorBlue.."Trinket 2") then
+                    if useItem(14) then return true end
+                end
             end
             ----actions+=/call_action_list,name=fury_of_elune,if=talent.fury_of_elune.enabled&cooldown.fury_of_elue.remains<target.time_to_die
 
@@ -589,10 +589,6 @@ local function runRotation()
             --actions+=/astral_communion,if=astral_power.deficit>=71
             if talent.astralCommunion and cd.astralCommunion == 0 and astralPowerDeficit >= 71 and useCDs() and isChecked(colorBlue.."Astral Communion") then
                 if cast.astralCommunion() then return true end
-            end
-            --actions+=/celestial_alignment,if=astral_power>=40|incarnation,if=astral_power>=40
-            if (not talent.incarnationChoseOfElune and cd.celestialAlignment == 0 or talent.incarnationChoseOfElune and cd.incarnationChoseOfElune == 0) and astralPower >= 40 and useCDs() and isChecked(colorBlue.."Incarnation/Celestial Alignament") then
-                if cast.celestialAlignment() then return true end
             end
             ---actions+=/use_item,name=tarnished_sentinel_medallion,if=cooldown.incarnation.remains>60|cooldown.celestial_alignment.remains>60
 
@@ -839,11 +835,6 @@ local function runRotation()
         return false
     end
 
-    local function actionListLyLoLoq()
-
-
-    end
-
     local function balanceRotation()
         if pause() or (GetUnitExists("target") and (UnitIsDeadOrGhost("target") or not UnitCanAttack("target", "player"))) or mode.rotation == 4 then
             return false
@@ -854,7 +845,6 @@ local function runRotation()
             if actionListGeneral() then return true end
             if actionListHelp() then return true end
             if actionListSimcraftDruidBalanceT20M() then return true end
---            if actionListLyLoLoq() then return true end
         end
         return false
     end
