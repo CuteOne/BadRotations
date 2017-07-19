@@ -180,10 +180,10 @@ function canDispel(Unit,spellID)
 						HasValidDispel = true
 						break
 					end
-				else 
-					HasValidDispel = true
-					break
-				end
+				-- else 
+				-- 	HasValidDispel = true
+				-- 	break
+				 end
 				i = i + 1
 			end
 		else
@@ -196,9 +196,9 @@ function canDispel(Unit,spellID)
 						HasValidDispel = true
 						break
 					end
-				else 
-					HasValidDispel = true
-					break
+				-- else 
+				-- 	HasValidDispel = true
+				-- 	break
 				end
 				i = i + 1
 			end
