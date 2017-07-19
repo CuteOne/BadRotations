@@ -393,26 +393,27 @@ function br.loader:new(spec,specName)
         -- local timeStart = debugprofilestop()
         -- Update Power
         powerList     = {
-            mana            = 0,
-            rage            = 1,
-            focus           = 2,
-            energy          = 3,
-            comboPoints     = 4,
-            runes           = 5,
-            runicPower      = 6,
-            soulShards      = 7,
-            astralPower     = 8,
-            holyPower       = 9,
-            altPower        = 10,
-            maelstrom       = 11,
-            chi             = 12,
-            insanity        = 13,
+            mana            = SPELL_POWER_MANA, --0,
+            rage            = SPELL_POWER_RAGE, --1,
+            focus           = SPELL_POWER_FOCUS, --2,
+            energy          = SPELL_POWER_ENERGY, --3,
+            comboPoints     = SPELL_POWER_COMBO_POINTS, --4,
+            runes           = SPELL_POWER_RUNES, --5,
+            runicPower      = SPELL_POWER_RUNIC_POWER, --6,
+            soulShards      = SPELL_POWER_SOUL_SHARDS, --7,
+            astralPower     = SPELL_POWER_LUNAR_POWER, --8,
+            holyPower       = SPELL_POWER_HOLY_POWER, --9,
+            altPower        = SPELL_POWER_ALTERNATE_POWER, --10,
+            maelstrom       = SPELL_POWER_MAELSTROM, --11,
+            chi             = SPELL_POWER_CHI, --12,
+            insanity        = SPELL_POWER_INSANITY, --13,
             obsolete        = 14,
             obsolete2       = 15,
-            arcaneCharges   = 16,
-            fury            = 17,
-            pain            = 18,
+            arcaneCharges   = SPELL_POWER_ARCANE_CHARGES, --16,
+            fury            = SPELL_POWER_FURY, --17,
+            pain            = SPELL_POWER_PAIN, --18,
         }
+
         local function runeCDPercent(runeIndex)
             if GetRuneCount(runeIndex) == 0 then
                 return (GetTime() - select(1,GetRuneCooldown(runeIndex))) / select(2,GetRuneCooldown(runeIndex))
