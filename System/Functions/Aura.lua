@@ -169,15 +169,18 @@ function canDispel(Unit,spellID)
 	end
 	local ValidDebuffType = false
 	local i = 1
-	if Unit.dispel == true or Unit.dispel == nil then
-		if UnitIsFriend("player",Unit) then
+	if UnitInPhase(Unit) then
+		if UnitIsFriend("player",Unit)then
 			while UnitDebuff(Unit,i) do
 				local _,_,_,_,debuffType,_,_,_,_,_,debuffid = UnitDebuff(Unit,i) 
 				-- Blackout Debuffs
-				if ((debuffType and ValidType(debuffType))) and ((isChecked("Dispel delay") and (getDebuffDuration(Unit, debuffid) - getDebuffRemain(Unit, debuffid)) > (getDebuffDuration(Unit, debuffid) * (math.random(getValue("Dispel delay")-2, getValue("Dispel delay")+2)/100))) or not isChecked("Dispel delay")) 
-					and debuffid ~= 138732 --Ionization from Jin'rokh the Breaker - ptr
-					and debuffid ~= 138733 --Ionization from Jin'rokh the Breaker - live
-				then
+				if ((debuffType and ValidType(debuffType))) and debuffid ~= 138733 then --Ionization from Jin'rokh the Breaker  
+					if ((isChecked("Dispel delay") and (getDebuffDuration(Unit, debuffid) - getDebuffRemain(Unit, debuffid)) > (getDebuffDuration(Unit, debuffid) * (math.random(getValue("Dispel delay")-2, getValue("Dispel delay")+2)/100))) or not isChecked("Dispel delay")) 						
+					then
+						HasValidDispel = true
+						break
+					end
+				else 
 					HasValidDispel = true
 					break
 				end
@@ -187,10 +190,13 @@ function canDispel(Unit,spellID)
 			while UnitBuff(Unit,i) do
 				local _,_,_,_,buffType,_,_,_,_,_,buffid = UnitBuff(Unit,i)
 				-- Blackout Debuffs
-				if ((buffType and ValidType(buffType))) and ((isChecked("Dispel delay") and (getDebuffDuration(Unit, buffid) - getDebuffRemain(Unit, buffid)) > (getDebuffDuration(Unit, buffid) * (math.random(getValue("Dispel delay")-2, getValue("Dispel delay")+2)/100) )) or not isChecked("Dispel delay")) -- Dispel Delay then--or Enraged()) --or Enraged())
-					and buffid ~= 138732 --Ionization from Jin'rokh the Breaker - ptr
-					and buffid ~= 138733 --Ionization from Jin'rokh the Breaker - live
-				then
+				if ((buffType and ValidType(buffType))) and buffid ~= 138733 then --Ionization from Jin'rokh the Breaker  
+					if ((isChecked("Dispel delay") and (getBuffDuration(Unit, buffid) - getBuffRemain(Unit, buffid)) > (getBuffDuration(Unit, buffid) * (math.random(getValue("Dispel delay")-2, getValue("Dispel delay")+2)/100))) or not isChecked("Dispel delay")) 						
+					then
+						HasValidDispel = true
+						break
+					end
+				else 
 					HasValidDispel = true
 					break
 				end

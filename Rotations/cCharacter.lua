@@ -392,7 +392,7 @@ function cCharacter:new(class)
         br.ui:createCheckbox(section_base, "Use Crystal")
 		br.ui:createCheckbox(section_base, "Use Fel Focuser")
         br.ui:createDropdown(section_base, "Use emp. Rune", {"|cff00FF00Normal","|cffFF0000Raid Only"}, 1, "Use rune anytime or only in raids")
-        br.ui:createCheckbox(section_base, "Use Racial")
+--        br.ui:createCheckbox(section_base, "Use Racial")
         br.ui:checkSectionState(section_base)
     end
 
@@ -402,7 +402,7 @@ function cCharacter:new(class)
 		self.options.useCrystal       = isChecked("Use Crystal")==true or false
 		self.options.useFelFocuser    = isChecked("Use Fel Focuser")==true or false
 		self.options.useEmpoweredRune = isChecked("Use emp. Rune",true)==true or false
-		self.options.useRacial        = isChecked("Use Racial")
+--		self.options.useRacial        = isChecked("Use Racial")
 	end
 
 -- Use Oralius Crystal +100 to all Stat - ID: 118922, Buff: 176151 (Whispers of Insanity)
