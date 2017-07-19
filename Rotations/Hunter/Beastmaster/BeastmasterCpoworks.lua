@@ -507,81 +507,81 @@ local function runRotation()
     ---------------------------
     --- SimulationCraft APL ---
     ---------------------------
-                    if getOptionValue("APL Mode") == 1 then
-                -- Start Attack
-                        if getDistance(units.dyn40) < 40 then
-                            StartAttack()
-                        end
-                -- A Murder of Crows
-                -- Should always be used
-                        if isChecked("A Murder Of Crows / Barrage") then
-                            if cast.aMurderOfCrows(units.dyn40) then return end
-                        end
-                -- DireBeast
-                        if cd.bestialWrath > 3 then
-                            if cast.direBeast(units.dyn40) then return end
-                        end
-                -- DireFrenzy
-                        if cd.bestialWrath > 6 then
-                            if cast.direFrenzy(units.dyn40) then return end
-                        end
-                -- Aspect of the Wild
-                        if isChecked("Aspect of the Wild") and useCDs() and buff.bestialWrath.exists() or (ttd(units.dyn40) < 12 and isBoss(units.dyn40)) then
-                            if cast.aspectOfTheWild() then return end
-                        end
-                -- Barrage
-                        if isChecked("A Murder Of Crows / Barrage") and #multishotTargets > 1 then
-                            if cast.barrage(units.dyn40) then return end
-                        end
-                -- Titans Thunder
-                        if talent.direFrenzy or cd.direBeast >= 3 or (buff.bestialWrath.exists() and buff.direBeast.exists()) then
-                            if cast.titansThunder(units.dyn40) then return end
-                        end
-                -- Bestial Wrath
-                -- Should always be used
-                        if isChecked("Bestial Wrath") then
-                            if cast.bestialWrath() then return end
-                        end
-                -- Multi Shot
-                        if #multishotTargets > 4 and (beastCleaveTimer <= gcd * 2 ) then
-                            if cast.multiShot(units.dyn40) then return end
-                        end
-                -- Kill Command
-                        if cast.killCommand(units.dyn40) then return end
-                -- Multi Shot
-                        if #multishotTargets > 1 and (beastCleaveTimer <= gcd) then
-                            if cast.multiShot(units.dyn40) then return end
-                        end
-                -- Chimaera Shot
-                        if power < 90 then
-                            if cast.chimaeraShot(units.dyn40) then return end
-                        end
-                -- Cobra Shot
-                        if power > 70 - powerRegen * cd.killCommand and power > 70 - powerRegen * cd.bestialWrath or (buff.bestialWrath.exists() and powerRegen * cd.killCommand > 30) then
-                            if cast.cobraShot(units.dyn40) then return end
-                        end
-                    end -- End SimC APL
-    ------------------------
-    --- Ask Mr Robot APL ---
-    ------------------------
-                    if getOptionValue("APL Mode") == 2 then
-                        -- Cooldowns
-                        -- if HasBuff(BestialWrath)
-                        -- Bestial Wrath
-                        -- Aspect of the Wild
-                        -- if PowerToMax >= 30
-                        if actionList_Cooldowns() then return end
-                        -- MultiTarget
-                        -- if TargetsInRadius(MultiShot) > 2
-                        if (#multishotTargets > 2 and mode.rotation == 1) or mode.rotation == 2 then
-                            if actionList_MultiTarget() then return end
-                        end
-                        -- SingleTarget
-                        -- if TargetsInRadius(MultiShot) <= 2
-                        if actionList_SingleTarget() then return end
-                    end
+    --                 if getOptionValue("APL Mode") == 1 then
+    --             -- Start Attack
+    --                     if getDistance(units.dyn40) < 40 then
+    --                         StartAttack()
+    --                     end
+    --             -- A Murder of Crows
+    --             -- Should always be used
+    --                     if isChecked("A Murder Of Crows / Barrage") then
+    --                         if cast.aMurderOfCrows(units.dyn40) then return end
+    --                     end
+    --             -- DireBeast
+    --                     if cd.bestialWrath > 3 then
+    --                         if cast.direBeast(units.dyn40) then return end
+    --                     end
+    --             -- DireFrenzy
+    --                     if cd.bestialWrath > 6 then
+    --                         if cast.direFrenzy(units.dyn40) then return end
+    --                     end
+    --             -- Aspect of the Wild
+    --                     if isChecked("Aspect of the Wild") and useCDs() and buff.bestialWrath.exists() or (ttd(units.dyn40) < 12 and isBoss(units.dyn40)) then
+    --                         if cast.aspectOfTheWild() then return end
+    --                     end
+    --             -- Barrage
+    --                     if isChecked("A Murder Of Crows / Barrage") and #multishotTargets > 1 then
+    --                         if cast.barrage(units.dyn40) then return end
+    --                     end
+    --             -- Titans Thunder
+    --                     if talent.direFrenzy or cd.direBeast >= 3 or (buff.bestialWrath.exists() and buff.direBeast.exists()) then
+    --                         if cast.titansThunder(units.dyn40) then return end
+    --                     end
+    --             -- Bestial Wrath
+    --             -- Should always be used
+    --                     if isChecked("Bestial Wrath") then
+    --                         if cast.bestialWrath() then return end
+    --                     end
+    --             -- Multi Shot
+    --                     if #multishotTargets > 4 and (beastCleaveTimer <= gcd * 2 ) then
+    --                         if cast.multiShot(units.dyn40) then return end
+    --                     end
+    --             -- Kill Command
+    --                     if cast.killCommand(units.dyn40) then return end
+    --             -- Multi Shot
+    --                     if #multishotTargets > 1 and (beastCleaveTimer <= gcd) then
+    --                         if cast.multiShot(units.dyn40) then return end
+    --                     end
+    --             -- Chimaera Shot
+    --                     if power < 90 then
+    --                         if cast.chimaeraShot(units.dyn40) then return end
+    --                     end
+    --             -- Cobra Shot
+    --                     if power > 70 - powerRegen * cd.killCommand and power > 70 - powerRegen * cd.bestialWrath or (buff.bestialWrath.exists() and powerRegen * cd.killCommand > 30) then
+    --                         if cast.cobraShot(units.dyn40) then return end
+    --                     end
+    --                 end -- End SimC APL
+    -- ------------------------
+    -- --- Ask Mr Robot APL ---
+    -- ------------------------
+    --                 if getOptionValue("APL Mode") == 2 then
+    --                     -- Cooldowns
+    --                     -- if HasBuff(BestialWrath)
+    --                     -- Bestial Wrath
+    --                     -- Aspect of the Wild
+    --                     -- if PowerToMax >= 30
+    --                     if actionList_Cooldowns() then return end
+    --                     -- MultiTarget
+    --                     -- if TargetsInRadius(MultiShot) > 2
+    --                     if (#multishotTargets > 2 and mode.rotation == 1) or mode.rotation == 2 then
+    --                         if actionList_MultiTarget() then return end
+    --                     end
+    --                     -- SingleTarget
+    --                     -- if TargetsInRadius(MultiShot) <= 2
+    --                     if actionList_SingleTarget() then return end
+    --                 end
     --Kuu Rewrite
-                    if getOptionValue("APL Mode") == 3 then
+                    if getOptionValue("APL Mode") == 1 then
                     -- Start Attack
                         if getDistance(units.dyn40) < 40 then
                             StartAttack()
@@ -622,11 +622,11 @@ local function runRotation()
                             if cast.direBeast(units.dyn40) then return end
                         end
                     -- Dire Frenzy
-                        if talent.direFrenzy and getSpellCD(217200) == 0 and (((cd.bestialWrath > 6 or cd.bestialWrath <= gcd) and (buff.direFrenzy.remain("pet") <= (gcd*1.2) or not buff.direFrenzy.exists("pet"))) or charges.direFrenzy == 2) then
+                        if talent.direFrenzy and getSpellCD(217200) == 0 and (((cd.bestialWrath > 6 or cd.bestialWrath <= gcd) and (buff.direFrenzy.remain("pet") <= (gcd*1.2) or not buff.direFrenzy.exists("pet"))) or (charges.direFrenzy == 2 and lastCast ~= spell.direFrenzy))then
                             if cast.direFrenzy(units.dyn40) then return end
                         end
                     -- Aspect of the Wild
-                        if isChecked("Aspect of the Wild") and useCDs() and buff.bestialWrath.exists() or (ttd(units.dyn40) ~= nil and ttd(units.dyn40) < 12 and isBoss(units.dyn40)) then
+                        if isChecked("Aspect of the Wild") and useCDs() and ((buff.bestialWrath.exists() and buff.bestialWrath.remain() >= 13) or cd.bestialWrath == 0) or (ttd(units.dyn40) ~= nil and ttd(units.dyn40) < 12 and isBoss(units.dyn40)) then
                             if cast.aspectOfTheWild() then return end
                         end
                     -- Barrage
