@@ -36,13 +36,18 @@ local function createToggles()
         [1] = { mode = "On", value = 1 , overlay = "Misdirection Enabled", tip = "Misdirection Enabled", highlight = 1, icon = br.player.spell.misdirection },
         [2] = { mode = "Off", value = 2 , overlay = "Misdirection Disabled", tip = "Misdirection Disabled", highlight = 0, icon = br.player.spell.misdirection }
     };
-    CreateButton("Misdirection",1.5,1)
+    CreateButton("Misdirection",5,0)
     -- TT Button
     TitanThunderModes = {
         [1] = { mode = "On", value = 1 , overlay = "Auto Titan Thunder", tip = "Will Use Titan Thunder At All Times", highlight = 1, icon = br.player.spell.titansThunder },
-        [2] = { mode = "Off", value = 2 , overlay = "CD Only Titan Thunder", tip = "Will Use Titan Thunder Only with BW", highlight = 0, icon = br.player.spell.titansThunder }
+        [2] = { mode = "CD", value = 2 , overlay = "CD Only Titan Thunder", tip = "Will Use Titan Thunder Only with BW", highlight = 0, icon = br.player.spell.titansThunder }
     };
-    CreateButton("TitanThunder",2.5,1)
+    CreateButton("TitanThunder",6,0)
+    MurderofCrowsModes = {
+        [1] = { mode = "On", value = 1 , overlay = "Always use MoC", tip = "Will Use Murder of Crows At All Times", highlight = 1, icon = br.player.spell.aMurderOfCrows },
+        [2] = { mode = "CD", value = 2 , overlay = "Use MoC only on Cooldowns", tip = "Will Use Murder of Crows Only on Cooldowns", highlight = 0, icon = br.player.spell.aMurderOfCrows }
+    };
+    CreateButton("MurderofCrows",7,0)
 end
 
 ---------------
@@ -146,7 +151,12 @@ local function runRotation()
         UpdateToggle("Defensive",0.25)
         UpdateToggle("Interrupt",0.25)
         br.player.mode.misdirection = br.data.settings[br.selectedSpec].toggles["Misdirection"]
+        UpdateToggle("Misdirection", 0.25)
         br.player.mode.titanthunder = br.data.settings[br.selectedSpec].toggles["TitanThunder"]
+        UpdateToggle("TitanThunder", 0.25)
+        br.player.mode.murderofcrows = br.data.settings[br.selectedSpec].toggles["MurderofCrows"]
+        UpdateToggle("MurderofCrows",0.25)
+
 
 --------------
 --- Locals ---
@@ -610,7 +620,7 @@ local function runRotation()
                     -- Potion of Prolonged Power
                         --TODO
                     -- Murder of Crows
-                        if talent.aMurderOfCrows and isChecked("A Murder Of Crows / Barrage") and useCDs() then
+                        if talent.aMurderOfCrows and isChecked("A Murder Of Crows / Barrage") and (br.player.mode.murderofcrows == 1 or (br.player.mode.murderofcrows == 2 and useCDs())) then
                             if cast.aMurderOfCrows(units.dyn40) then return end
                         end
                     -- Stampede
