@@ -314,6 +314,15 @@ local function runRotation()
         	
         	return hotCnt
         end		
+		--wildGrowth Exist
+		local function wildGrowthExist()
+			for i = 1, #br.friend do
+				if buff.wildGrowth.exists(br.friend[i].unit) then
+					return true
+				end
+			end
+			return false
+		end		
 		--------------------
 		--- Action Lists ---
 		--------------------
@@ -627,12 +636,12 @@ local function runRotation()
 			end
 			-- Essence of G'Hanir
 			if isChecked("Essence of G'Hanir") and not isCastingSpell(spell.tranquility) then
-				if getLowAllies(getValue("Essence of G'Hanir")) >= getValue("Essence of G'Hanir Targets") and (lastSpell == spell.wildGrowth or lastSpell == spell.flourish) then
+				if getLowAllies(getValue("Essence of G'Hanir")) >= getValue("Essence of G'Hanir Targets") and wildGrowthExist() then
 					if cast.essenceOfGhanir() then return end
 				end
 			end
 			-- Flourish
-			if isChecked("Flourish") and talent.flourish and not isCastingSpell(spell.tranquility) then
+			if isChecked("Flourish") and talent.flourish and not isCastingSpell(spell.tranquility) and wildGrowthExist() then
 				if getLowAllies(getValue("Flourish")) >= getValue("Flourish Targets") then
 					local c = getAllHotCnt(getValue("HOT Time count"))
 					if c>= getValue("Flourish HOT Targets") then
@@ -648,12 +657,17 @@ local function runRotation()
 		function actionList_SingleTarget()
 			-- Nature's Cure
 			if br.player.mode.decurse == 1 then
-				for i = 1, #friends.yards40 do
-					if canDispel(br.friend[i].unit,spell.naturesCure) then
-						if cast.naturesCure(br.friend[i].unit) then return end
-					end
-				end
-			end
+    			for i = 1, #friends.yards40 do
+    				if getDebuffRemain(br.friend[i].unit,233983) > 1 and #getAllies(br.friend[i].unit,8) <= 1 then 
+    					if cast.naturesCure(br.friend[i].unit) then Print("8 Yard Dispel") return end
+    				end		
+    			    if getDebuffRemain(br.friend[i].unit,233983) == 0 then 
+    				    if canDispel(br.friend[i].unit,spell.naturesCure) then
+    						if cast.naturesCure(br.friend[i].unit) then return end
+    					end
+    				end
+    			end
+    		end	
 			-- Ironbark
 			if isChecked("Ironbark") and not isCastingSpell(spell.tranquility) then
 				-- Player
