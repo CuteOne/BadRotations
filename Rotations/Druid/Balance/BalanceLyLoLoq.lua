@@ -307,14 +307,9 @@ local function runRotation()
                 if cast.astralCommunion() then return true end
             end
             --actions.ed+=/incarnation,if=astral_power>=60|buff.bloodlust.up
-            if talent.incarnationChoseOfElune and cd.incarnationChoseOfElune == 0 and useCDs() and isChecked(colorBlue.."Incarnation/Celestial Alignament") then
-                if astralPower >= 60 or hasBloodLust() then
-                    if cast.celestialAlignment() then return true end
-                end
-            end
             --actions.ed+=/celestial_alignment,if=astral_power>=60&!buff.the_emerald_dreamcatcher.up
-            if not talent.incarnationChoseOfElune and cd.celestialAlignment == 0 and useCDs() and isChecked(colorBlue.."Incarnation/Celestial Alignament") then
-                if astralPower >= 60 and not buff.emeraldDreamcatcher.exists() then
+            if (not talent.incarnationChoseOfElune and cd.celestialAlignment == 0 or talent.incarnationChoseOfElune and cd.incarnationChoseOfElune == 0) and astralPower >= 40 and useCDs() and isChecked(colorBlue.."Incarnation/Celestial Alignament") then
+                if debuff.moonfire.exists() and debuff.sunfire.exists() then
                     if cast.celestialAlignment() then return true end
                 end
             end
@@ -510,20 +505,24 @@ local function runRotation()
             end
             --actions+=/celestial_alignment,if=astral_power>=40|incarnation,if=astral_power>=40
             if (not talent.incarnationChoseOfElune and cd.celestialAlignment == 0 or talent.incarnationChoseOfElune and cd.incarnationChoseOfElune == 0) and astralPower >= 40 and useCDs() and isChecked(colorBlue.."Incarnation/Celestial Alignament") then
-                if cast.celestialAlignment() then return true end
+                if debuff.moonfire.exists() and debuff.sunfire.exists() then
+                    if cast.celestialAlignment() then return true end
+                end
             end
             --actions+=/berserking|blood_fury,if=buff.celestial_alignment.up|buff.incarnation.up
             if (race == "Orc" or race == "Troll") and getSpellCD(racial) == 0 and useCDs() and isChecked(colorBlue.."Racial") then
                 if buff.incarnationChoseOfElune.exists() or buff.celestialAlignment.exists() then
-                    if br.player.castRacial() then return true end
+                    if castSpell("player",racial,true,false) == true then return true end
                 end
             end
             --actions+=/use_item,slot=trinket1&trinket2
-            if canUse(13) and useCDs() and isChecked(colorBlue.."Trinket 1") then
-                if useItem(13) then return true end
-            end
-            if canUse(14) and useCDs() and isChecked(colorBlue.."Trinket 2") then
-                if useItem(14) then return true end
+            if buff.incarnationChoseOfElune.exists() or buff.celestialAlignment.exists() then
+                if canUse(13) and useCDs() and isChecked(colorBlue.."Trinket 1") then
+                    if useItem(13) then return true end
+                end
+                if canUse(14) and useCDs() and isChecked(colorBlue.."Trinket 2") then
+                    if useItem(14) then return true end
+                end
             end
             ----actions+=/call_action_list,name=fury_of_elune,if=talent.fury_of_elune.enabled&cooldown.fury_of_elue.remains<target.time_to_die
             if mode.rotation == 1 or mode.rotation == 3 and not isChecked("Memekin Rotation") then
@@ -588,8 +587,10 @@ local function runRotation()
             if talent.astralCommunion and cd.astralCommunion == 0 and astralPowerDeficit >= 71 and useCDs() and isChecked(colorBlue.."Astral Communion") then
                 if cast.astralCommunion() then return true end
             end
-            ---actions+=/use_item,name=tarnished_sentinel_medallion,if=cooldown.incarnation.remains>60|cooldown.celestial_alignment.remains>60
-
+            --actions+=/use_item,name=tarnished_sentinel_medallion,if=cooldown.incarnation.remains>60|cooldown.celestial_alignment.remains>60
+            if hasItem(147017) and (not talent.incarnationChoseOfElune and cd.celestialAlignment > 60 or talent.incarnationChoseOfElune and cd.incarnationChoseOfElune == 60) then
+                if useItem(147017) then return true end
+            end
             --actions+=/starfall,if=buff.oneths_overconfidence.up
             if isChecked(colorLegendary.."Oneth's Intuition") and buff.onethsOverconfidence.exists() then
                 if cast.starfall(starfallPlacement, nil, 1, starfallRadius) then return true end
