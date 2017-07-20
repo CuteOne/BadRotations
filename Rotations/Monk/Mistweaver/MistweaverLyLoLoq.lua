@@ -120,7 +120,7 @@ local function createOptions()
         br.ui:createSpinnerWithout(section, "Min Refreshing Jade Wind Targets",  3,  1,  40,  1,  colorBlue.."Minimum Refreshing Jade Wind "..colorGold.."(This includes you)")
         br.ui:createSpinner(section, "Chi Burst",  70,  0,  100,  1,  colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.."Use of Chi Burst.", colorWhite.."Health Percent to Cast At")
         br.ui:createSpinnerWithout(section, "Min Chi Burst Targets",  3,  1,  40,  1,  colorBlue.."Minimum Chi Burst Targets "..colorGold.."(This includes you)")
-        br.ui:createCheckbox(section,"Show Lines",colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.."Lines of Chi Burst.")
+        --br.ui:createCheckbox(section,"Show Lines",colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.."Lines of Chi Burst.")
         br.ui:createSpinner(section, "Vivify",  80,  0,  100,  1,  colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.."Use of Vivify.", colorWhite.."Health Percent to Cast At")
         br.ui:createSpinnerWithout(section, "Min Vivify Targets",  2,  1,  3,  1,  colorBlue.."Minimum Vivify Targets "..colorGold.."(This includes you)")
         br.ui:createSpinner(section, "Vivify with Lifecycles",  85,  0,  100,  1,  colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.."Use of Vivify with Lifecycles.", colorWhite.."Health Percent to Cast At")
@@ -247,6 +247,11 @@ local function runRotation()
     --------------------
     -- Detox
     local function actionList_Detox()
+        --Mouseover dispell
+        if canDispel("mouseover",spell.detox) then
+            SpellStopCasting()
+            if cast.detox("mouseover") then return true end
+		end	
         if useDispell then
             for i = 1, #friends.yards40 do
                 if canDispel(br.friend[i].unit,spell.detox) then
@@ -324,7 +329,7 @@ local function runRotation()
 	-- Pre-Pull Timer
 		if isChecked("Pre-Pull Timer") then
             if pullTimer <= getOptionValue("Pre-Pull Timer") then
-                if canUse(142117) and not buff.prolongedPower.exists() then
+                if canUse(142117) and not buff.prolongedPower.exists() and inRaid then
                     useItem(142117);
                         return true
                     end
@@ -366,11 +371,11 @@ local function runRotation()
         end
 	-- Invervate Logic
         if buff.innervate.exists() or buff.symbolOfHope.exists() or buff.manaTea.exists() then
-            if isChecked("Refreshing Jade Wind") and talent.refreshingJadeWind and #friends.yards8 > 1 then
-                if cast.refreshingJadeWind() then return true end
-            end
             if isChecked("Essence Font") and cd.essenceFont == 0 and #friends.yards25 > 5 then
                 if cast.essenceFont() then return true end
+            end
+            if isChecked("Refreshing Jade Wind") and talent.refreshingJadeWind and #friends.yards8 > 1 then
+                if cast.refreshingJadeWind() then return true end
             end
             if isChecked("Vivify") then
                 if cast.vivify(lowest.unit) then return true end
@@ -551,9 +556,6 @@ local function runRotation()
                     if cast.zenPulse(lowest.unit) then return true end
                 end
             end
-            --        if isChecked("Mistwalk") and talent.mistwalk and lowest.hp <= getValue("Mistwalk") and UnitIsPlayer(lowest.unit) and UnitGUID(lowest.unit) ~= UnitGUID("player") then
-            --            if cast.mistwalk(lowest.unit) then return true end
-            --        end
         -- Chi Wave
 			if isChecked("Chi Wave") and talent.chiWave and lowest.hp <= getValue("Chi Wave") then
                 if cast.chiWave(lowest.unit) then return true end
@@ -611,8 +613,8 @@ local function runRotation()
     local function actionList_AOEHealing()
 	-- Chi Burst
         if isChecked("Chi Burst") and talent.chiBurst then
-            if getUnitsInRect(7,47,isChecked("Show Lines"),getValue("Chi Burst")) >= getValue("Min Chi Burst Targets") then
-                actionList_CheckVelen()
+            if getUnitsInRect(7,47,false,getValue("Chi Burst")) >= getValue("Min Chi Burst Targets") then
+                --actionList_CheckVelen()
                 if cast.chiBurst("player") then return true end
             end
         end
@@ -620,6 +622,10 @@ local function runRotation()
 			if isChecked("Essence Font") and cd.essenceFont == 0 and getLowAlliesInTable(getValue("Essence Font"), friends.yards25) >= getValue("Min Essence Font Targets") then
 				if cast.essenceFont() then return true end
 			end
+    -- Refreshing Jade Wind
+        if isChecked("Refreshing Jade Wind") and talent.refreshingJadeWind and getLowAlliesInTable(getValue("Refreshing Jade Wind"), friends.yards8) >= getValue("Min Refreshing Jade Wind Targets")  then
+            if cast.refreshingJadeWind() then return true end
+        end
         if (botSpell ~= spell.envelopingMist and currentTarget ~= UnitGUID(lowest.unit)) or not buff.envelopingMist.exists(lowest.unit) or buff.envelopingMist.remain(lowest.unit) <= 2 then
 	-- Vivify with Dance of Mist
             if isChecked("Vivify with Dance Of Mist") and buff.danceOfMist.exists() then
@@ -627,28 +633,25 @@ local function runRotation()
                     if cast.vivify(lowest.unit) then return true end
                 end
             end
-		end
-	-- Refreshing Jade Wind
-        if isChecked("Refreshing Jade Wind") and talent.refreshingJadeWind and getLowAlliesInTable(getValue("Refreshing Jade Wind"), friends.yards8) >= getValue("Min Refreshing Jade Wind Targets")  then
-            if cast.refreshingJadeWind() then return true end
-        end
-	-- Vivify Logic
-		if (botSpell ~= spell.envelopingMist and currentTarget ~= UnitGUID(lowest.unit)) or not buff.envelopingMist.exists(lowest.unit) or buff.envelopingMist.remain(lowest.unit) <= 2 then
+	-- Vivify Lifecycles + uplift
             if isChecked("Vivify with Lifecycles + Uplift") and buff.upliftTrance.exists() and buff.lifeCyclesVivify.exists() then
                 if getLowAlliesInTable(getValue("Vivify with Lifecycles + Uplift"), friends.yards40) >= getValue("Min Vivify with Lifecycles + Uplift Targets") then
                     if cast.vivify(lowest.unit) then return true end
                 end
             end
+    -- Vivify Uplift
             if isChecked("Vivify with Uplift") and buff.upliftTrance.exists() then
                 if getLowAlliesInTable(getValue("Vivify with Uplift"), friends.yards40) >= getValue("Min Vivify with Uplift Targets") then
                     if cast.vivify(lowest.unit) then return true end
                 end
             end
+    -- Vivify lifecycles
             if isChecked("Vivify with Lifecycles") and buff.lifeCyclesVivify.exists() then
                 if getLowAlliesInTable(getValue("Vivify with Lifecycles"), friends.yards40) >= getValue("Min Vivify with Lifecycles Targets") then
                     if cast.vivify(lowest.unit) then return true end
                 end
             end
+    -- Vivify normal
             if isChecked("Vivify")  then
                 if getLowAlliesInTable(getValue("Vivify"), friends.yards40) >= getValue("Min Vivify Targets") then
                     if cast.vivify(lowest.unit) then return true end
