@@ -175,15 +175,26 @@ function canDispel(Unit,spellID)
 				local _,_,_,_,debuffType,_,_,_,_,_,debuffid = UnitDebuff(Unit,i) 
 				-- Blackout Debuffs
 				if ((debuffType and ValidType(debuffType))) and debuffid ~= 138733 then --Ionization from Jin'rokh the Breaker  
-					if ((isChecked("Dispel delay") and (getDebuffDuration(Unit, debuffid) - getDebuffRemain(Unit, debuffid)) > (getDebuffDuration(Unit, debuffid) * (math.random(getValue("Dispel delay")-2, getValue("Dispel delay")+2)/100))) or not isChecked("Dispel delay")) 						
-					then
+					for i=1, #br.friend do
+						local thisUnit = br.friend[i].unit
+						if Unit == thisUnit then
+							if br.friend[i].dispel ~= nil then
+								dispelUnitObj = br.friend[i].dispel
+							end
+						end
+					end
+					if (dispelUnitObj == nil ) then
+						if ((isChecked("Dispel delay") and (getDebuffDuration(Unit, debuffid) - getDebuffRemain(Unit, debuffid)) > (getDebuffDuration(Unit, debuffid) * (math.random(getValue("Dispel delay")-2, getValue("Dispel delay")+2)/100))) or not isChecked("Dispel delay")) 						
+						then
+							HasValidDispel = true
+							break
+						end
+					elseif dispelUnitObj == true then 
 						HasValidDispel = true
+						dispelUnitObj = nil
 						break
 					end
-				-- else 
-				-- 	HasValidDispel = true
-				-- 	break
-				 end
+				end
 				i = i + 1
 			end
 		else
@@ -196,9 +207,6 @@ function canDispel(Unit,spellID)
 						HasValidDispel = true
 						break
 					end
-				-- else 
-				-- 	HasValidDispel = true
-				-- 	break
 				end
 				i = i + 1
 			end
