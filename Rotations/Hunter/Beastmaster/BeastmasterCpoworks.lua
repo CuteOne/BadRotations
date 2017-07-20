@@ -634,7 +634,7 @@ local function runRotation()
                             if cast.barrage(units.dyn40) then return end
                         end
                     -- Titan's Thunder
-                        if (talent.direFrenzy or (buff.direBeast.exists("pet") and buff.direBeast.remain("pet") > 7) and br.player.mode.titanthunder == 1) or ((buff.bestialWrath.exists() and buff.direBeast.exists("pet"))) then
+                        if (talent.direFrenzy or (buff.direBeast.exists() and buff.direBeast.remain() > 7) and br.player.mode.titanthunder == 1) or (buff.bestialWrath.exists() and (talent.direFrenzy or buff.direBeast.exists()) and br.player.mode.titanthunder == 2) then
                             if cast.titansThunder(units.dyn40) then return end
                         end
                     -- Bestial Wrath

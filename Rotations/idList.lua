@@ -872,7 +872,7 @@ br.idList = {
                 misdirection                = 34477,
                 multiShot                   = 2643,
                 stampede                    = 201430,
-                titansThunder               = 207097,
+                titansThunder               = 207068,
                 volley                      = 194386
             },
             artifacts                       = {
