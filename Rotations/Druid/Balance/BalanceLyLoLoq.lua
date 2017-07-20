@@ -525,16 +525,18 @@ local function runRotation()
                 end
             end
             ----actions+=/call_action_list,name=fury_of_elune,if=talent.fury_of_elune.enabled&cooldown.fury_of_elue.remains<target.time_to_die
-            if mode.rotation == 1 or mode.rotation == 3 and not isChecked("Memekin Rotation") then
-                ----EXTRA:starsurge
-                if astralPower >= 40 and #enemies.activeYards40 < starfallTargetsMin then
-                    if cast.starsurge() then return true end
+            if (not talent.incarnationChoseOfElune and cd.celestialAlignment > 0 or talent.incarnationChoseOfElune and cd.incarnationChoseOfElune > 0) then
+                if (mode.rotation == 1 or mode.rotation == 3) and not isChecked("Memekin Rotation") then
+                    ----EXTRA:starsurge
+                    if astralPower >= 40 and #enemies.activeYards40 < starfallTargetsMin then
+                        if cast.starsurge() then return true end
+                    end
                 end
-            end
-            if mode.rotation == 1 or mode.rotation == 2 then
-                ----EXTRA:starfall
-                if (astralPower >= 60) or (astralPower >= 40 and talent.soulOfTheForest) then
-                    if cast.starfall(starfallPlacement, nil, starfallTargetsMin, starfallRadius) then return true end
+                if mode.rotation == 1 or mode.rotation == 2 then
+                    ----EXTRA:starfall
+                    if (astralPower >= 60) or (astralPower >= 40 and talent.soulOfTheForest) then
+                        if cast.starfall(starfallPlacement, nil, starfallTargetsMin, starfallRadius) then return true end
+                    end
                 end
             end
             --actions+=/call_action_list,name=ed,if=equipped.the_emerald_dreamcatcher&active_enemies<=1
@@ -612,7 +614,7 @@ local function runRotation()
                 if actionsAoE() then return true end
             end
             --actions+=/call_action_list,name=single_target
-            if mode.rotation == 1 or mode.rotation == 3 then
+            if (mode.rotation == 1 or mode.rotation == 3) and not isChecked("Memekin Rotation") then
                 if actionsSingleTarget() then return true end
             end
             ----EXTRA:
