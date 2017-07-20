@@ -518,23 +518,21 @@ local function runRotation()
                     if br.player.castRacial() then return true end
                 end
             end
-            if buff.incarnationChoseOfElune.exists() or buff.celestialAlignment.exists() then
-                --actions+=/use_item,slot=trinket1&trinket2
-                if canUse(13) and useCDs() and isChecked(colorBlue.."Trinket 1") then
-                    if useItem(13) then return true end
-                end
-                if canUse(14) and useCDs() and isChecked(colorBlue.."Trinket 2") then
-                    if useItem(14) then return true end
-                end
+            --actions+=/use_item,slot=trinket1&trinket2
+            if canUse(13) and useCDs() and isChecked(colorBlue.."Trinket 1") then
+                if useItem(13) then return true end
+            end
+            if canUse(14) and useCDs() and isChecked(colorBlue.."Trinket 2") then
+                if useItem(14) then return true end
             end
             ----actions+=/call_action_list,name=fury_of_elune,if=talent.fury_of_elune.enabled&cooldown.fury_of_elue.remains<target.time_to_die
-
-            if mode.rotation == 1 or mode.rotation == 3 then
+            if mode.rotation == 1 or mode.rotation == 3 and not isChecked("Memekin Rotation") then
                 ----EXTRA:starsurge
                 if astralPower >= 40 and #enemies.activeYards40 < starfallTargetsMin then
                     if cast.starsurge() then return true end
                 end
-            elseif mode.rotation == 1 or mode.rotation == 2 then
+            end
+            if mode.rotation == 1 or mode.rotation == 2 then
                 ----EXTRA:starfall
                 if (astralPower >= 60) or (astralPower >= 40 and talent.soulOfTheForest) then
                     if cast.starfall(starfallPlacement, nil, starfallTargetsMin, starfallRadius) then return true end
@@ -556,7 +554,7 @@ local function runRotation()
             if ((charges.newMoon == 2 and recharge.fullMoon < 5) or  charges.newMoon == 3 or ttd("target") < 15) and astralPowerDeficit > 24 and (not moving or buff.stellarDrift.exists()) then
                 if castMoon("fullMoon") then return true end
             end
-            if mode.rotation == 3 then
+            if mode.rotation == 3 or (mode.rotation == 1 and #enemies.activeYards40 == 1) then
                 --actions+=/stellar_flare,cycle_targets=1,max_cycle_targets=4,if=active_enemies<4&remains<7.2
                 if talent.stellarFlare and UnitHealth("target") >= hpDotMin and astralPower>= 10 and debuff.stellarFlare.count() <= 4 and debuff.stellarFlare.remain("target") < 7.2 and (not moving or buff.stellarDrift.exists()) then
                     if cast.stellarFlare("target", "aoe") then return true end
@@ -617,7 +615,7 @@ local function runRotation()
                 if actionsSingleTarget() then return true end
             end
             ----EXTRA:
-            if mode.rotation == 3 then
+            if mode.rotation == 3 or (mode.rotation == 1 and #enemies.activeYards40 == 1) then
                 if debuff.moonfire.remain("target") <= debuff.sunfire.remain("target") and isValidUnit("target") then
                     if cast.moonfire("target","aoe") then return true end
                 elseif isValidUnit("target") then
