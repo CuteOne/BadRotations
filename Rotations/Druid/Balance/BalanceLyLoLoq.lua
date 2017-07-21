@@ -321,13 +321,13 @@ local function runRotation()
             if talent.stellarFlare and UnitHealth("target") >= hpDotMin and astralPower >= 10 and debuff.stellarFlare.count() <= 4 and #enemies.activeYards40 <4 and debuff.stellarFlare.remain("target") < 7.2 then
                 if cast.stellarFlare("target", "aoe") then return true end
             end
-            --actions.ed+=/moonfire,if=((talent.natures_balance.enabled&remains<3)|(remains<6.6&!talent.natures_balance.enabled))&(buff.the_emerald_dreamcatcher.remains>gcd.max|!buff.the_emerald_dreamcatcher.up)
-            if UnitHealth("target") >= hpDotMin and (talent.naturesBalance and debuff.moonfire.remain("target") < 3) or (debuff.moonfire.remain("target") < 6.6 and not talent.naturesBalance) and (buff.emeraldDreamcatcher.exists() and buff.emeraldDreamcatcher.remain() > latency+gcd or not buff.emeraldDreamcatcher.exists()) then
-                if cast.moonfire("target","aoe") then return true end
-            end
             --actions.ed+=/sunfire,if=((talent.natures_balance.enabled&remains<3)|(remains<5.4&!talent.natures_balance.enabled))&(buff.the_emerald_dreamcatcher.remains>gcd.max|!buff.the_emerald_dreamcatcher.up)
             if UnitHealth("target") >= hpDotMin and (talent.naturesBalance and debuff.sunfire.remain("target") < 3) or (debuff.sunfire.remain("target") < 5.4 and not talent.naturesBalance) and (buff.emeraldDreamcatcher.exists() and buff.emeraldDreamcatcher.remain() > latency+gcd or not buff.emeraldDreamcatcher.exists()) then
                 if cast.sunfire("target","aoe") then return true end
+            end
+            --actions.ed+=/moonfire,if=((talent.natures_balance.enabled&remains<3)|(remains<6.6&!talent.natures_balance.enabled))&(buff.the_emerald_dreamcatcher.remains>gcd.max|!buff.the_emerald_dreamcatcher.up)
+            if UnitHealth("target") >= hpDotMin and (talent.naturesBalance and debuff.moonfire.remain("target") < 3) or (debuff.moonfire.remain("target") < 6.6 and not talent.naturesBalance) and (buff.emeraldDreamcatcher.exists() and buff.emeraldDreamcatcher.remain() > latency+gcd or not buff.emeraldDreamcatcher.exists()) then
+                if cast.moonfire("target","aoe") then return true end
             end
             --actions.ed+=/starfall,if=buff.oneths_overconfidence.up&buff.the_emerald_dreamcatcher.remains>execute_time
             if isChecked(colorLegendary.."Oneth's Intuition") and buff.onethsOverconfidence.exists() and buff.emeraldDreamcatcher.exists() and buff.emeraldDreamcatcher.remain() > latency+gcd+getCastTime(spell.starfall) then
@@ -411,10 +411,6 @@ local function runRotation()
             if astralPowerDeficit > 44 and (not moving or buff.stellarDrift.exists()) then
                 if castMoon("fullMoon") then return true end
             end
-            ----EXTRA: FORCE OF NATURE
-            if talent.forceOfNature and cd.forceOfNature == 0 and isChecked(colorBlue.."Force of Nature") and useCDs() then
-                if cast.forceOfNature() then return true end
-            end
             --actions.AoE+=/warrior_of_elune
             if talent.warriorOfElune and cd.warriorOfElune == 0 and isChecked(colorBlue.."Warrior of Elune") and useCDs() then
                 if cast.warriorOfElune() then return true end
@@ -458,10 +454,6 @@ local function runRotation()
             --actions.single_target+=/full_moon,if=astral_power.deficit>44
             if astralPowerDeficit > 44  and (not moving or buff.stellarDrift.exists()) then
                 if castMoon("fullMoon") then return true end
-            end
-            ----EXTRA: FORCE OF NATURE
-            if talent.forceOfNature and cd.forceOfNature == 0 and isChecked(colorBlue.."Force of Nature") and useCDs() then
-                if cast.forceOfNature() then return true end
             end
             --actions.single_target+=/warrior_of_elune
             if talent.warriorOfElune and cd.warriorOfElune == 0 and isChecked(colorBlue.."Warrior of Elune") and useCDs() then
@@ -525,7 +517,7 @@ local function runRotation()
                 end
             end
             ----actions+=/call_action_list,name=fury_of_elune,if=talent.fury_of_elune.enabled&cooldown.fury_of_elue.remains<target.time_to_die
-            if (not talent.incarnationChoseOfElune and cd.celestialAlignment > 0 or talent.incarnationChoseOfElune and cd.incarnationChoseOfElune > 0) then
+            if (not talent.incarnationChoseOfElune and cd.celestialAlignment > 0 or talent.incarnationChoseOfElune and cd.incarnationChoseOfElune > 0) or not isBoss("target") then
                 if (mode.rotation == 1 or mode.rotation == 3) and not isChecked("Memekin Rotation") then
                     ----EXTRA:starsurge
                     if astralPower >= 40 and #enemies.activeYards40 < starfallTargetsMin then
@@ -560,13 +552,13 @@ local function runRotation()
                 if talent.stellarFlare and UnitHealth("target") >= hpDotMin and astralPower>= 10 and debuff.stellarFlare.count() <= 4 and debuff.stellarFlare.remain("target") < 7.2 and (not moving or buff.stellarDrift.exists()) then
                     if cast.stellarFlare("target", "aoe") then return true end
                 end
-                --actions+=/moonfire,cycle_targets=1,if=((talent.natures_balance.enabled&remains<3)|(remains<6.6&!talent.natures_balance.enabled))&astral_power.deficit>7
-                if UnitHealth("target") >= hpDotMin and ((talent.naturesBalance and debuff.moonfire.remain("target") < 3) or (debuff.moonfire.remain("target") < 6.6 and not talent.naturesBalance)) and astralPowerDeficit > 7 then
-                    if cast.moonfire("target","aoe") then return true end
-                end
                 --actions+=/sunfire,if=((talent.natures_balance.enabled&remains<3)|(remains<5.4&!talent.natures_balance.enabled))&astral_power.deficit>7
                 if UnitHealth("target") >= hpDotMin and ((talent.naturesBalance and debuff.sunfire.remain("target") < 3) or (debuff.sunfire.remain("target") < 5.4 and not talent.naturesBalance)) and astralPowerDeficit > 7 then
                     if cast.sunfire("target","aoe") then return true end
+                end
+                --actions+=/moonfire,cycle_targets=1,if=((talent.natures_balance.enabled&remains<3)|(remains<6.6&!talent.natures_balance.enabled))&astral_power.deficit>7
+                if UnitHealth("target") >= hpDotMin and ((talent.naturesBalance and debuff.moonfire.remain("target") < 3) or (debuff.moonfire.remain("target") < 6.6 and not talent.naturesBalance)) and astralPowerDeficit > 7 then
+                    if cast.moonfire("target","aoe") then return true end
                 end
             elseif mode.rotation == 1 or mode.rotation == 2 then
                 for i = 1, #enemies.activeYards40 do
@@ -575,19 +567,23 @@ local function runRotation()
                     if talent.stellarFlare and UnitHealth(thisUnit) >= hpDotMin and astralPower>= 10 and debuff.stellarFlare.count() <= getValue(colorGold.."Stellar Flare targets") and debuff.stellarFlare.remain(thisUnit) < 7.2 and (not moving or buff.stellarDrift.exists()) then
                         if cast.stellarFlare(thisUnit, "aoe") then return true end
                     end
-                    --actions+=/moonfire,cycle_targets=1,if=((talent.natures_balance.enabled&remains<3)|(remains<6.6&!talent.natures_balance.enabled))&astral_power.deficit>7
-                    if UnitHealth(thisUnit) >= hpDotMin and ((talent.naturesBalance and debuff.moonfire.remain(thisUnit) < 3) or (debuff.moonfire.remain(thisUnit) < 6.6 and not talent.naturesBalance)) and astralPowerDeficit > 7 and debuff.moonfire.count() < getValue(colorGold.."Moonfire targets") then
-                        if cast.moonfire(thisUnit,"aoe") then return true end
-                    end
                     --actions+=/sunfire,if=((talent.natures_balance.enabled&remains<3)|(remains<5.4&!talent.natures_balance.enabled))&astral_power.deficit>7
                     if UnitHealth(thisUnit) >= hpDotMin and ((talent.naturesBalance and debuff.sunfire.remain(thisUnit) < 3) or (debuff.sunfire.remain(thisUnit) < 5.4 and not talent.naturesBalance)) and astralPowerDeficit > 7 and debuff.sunfire.count() < getValue(colorGold.."Sunfire targets") then
                         if cast.sunfire(thisUnit,"aoe") then return true end
+                    end
+                    --actions+=/moonfire,cycle_targets=1,if=((talent.natures_balance.enabled&remains<3)|(remains<6.6&!talent.natures_balance.enabled))&astral_power.deficit>7
+                    if UnitHealth(thisUnit) >= hpDotMin and ((talent.naturesBalance and debuff.moonfire.remain(thisUnit) < 3) or (debuff.moonfire.remain(thisUnit) < 6.6 and not talent.naturesBalance)) and astralPowerDeficit > 7 and debuff.moonfire.count() < getValue(colorGold.."Moonfire targets") then
+                        if cast.moonfire(thisUnit,"aoe") then return true end
                     end
                 end
             end
             --actions+=/astral_communion,if=astral_power.deficit>=71
             if talent.astralCommunion and cd.astralCommunion == 0 and astralPowerDeficit >= 71 and useCDs() and isChecked(colorBlue.."Astral Communion") then
                 if cast.astralCommunion() then return true end
+            end
+            ----EXTRA: FORCE OF NATURE
+            if talent.forceOfNature and cd.forceOfNature == 0 and isChecked(colorBlue.."Force of Nature") and useCDs() then
+                if cast.forceOfNature() then return true end
             end
             --actions+=/use_item,name=tarnished_sentinel_medallion,if=cooldown.incarnation.remains>60|cooldown.celestial_alignment.remains>60
             if hasItem(147017) and (not talent.incarnationChoseOfElune and cd.celestialAlignment > 60 or talent.incarnationChoseOfElune and cd.incarnationChoseOfElune == 60) then
