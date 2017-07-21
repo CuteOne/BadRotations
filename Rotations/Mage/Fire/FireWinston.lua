@@ -1,4 +1,4 @@
-local rotationName = "CuteOne"
+local rotationName = "Winston"
 
 ---------------
 --- Toggles ---
@@ -310,14 +310,14 @@ local function runRotation()
         -- Dragon's Breath
             -- dragons_breath,if=equipped.132863
             if talent.alexstraszasFury and hasEquiped(132863) then
-                if cast.dragonsBreath() then print("DBreath 1"); return end
+                if cast.dragonsBreath() then return end
             elseif talent.alexstraszasFury or hasEquiped(132863) then
-                if cast.dragonsBreath() then print("DBreath 2"); return end
+                if cast.dragonsBreath() then return end
             end
         -- Living Bomb
             -- living_bomb,if=active_enemies>1&buff.combustion.down
 --            if ((#enemies.yards10t >= 1 and mode.rotation == 1) or mode.rotation == 2) and not buff.combustion.exists() then
-            if ((#enemies.yards10t >= 1 and mode.rotation == 1) or mode.rotation == 2) then
+            if ((#enemies.yards6t >= 1 and mode.rotation == 1) or mode.rotation == 2) then
                 if cast.livingBomb("target") then return end
             end
         end -- End Active Talents Action List
@@ -347,14 +347,14 @@ local function runRotation()
         -- Fire Blast
             -- fire_blast,if=buff.heating_up.up
             if (charges.frac.fireBlast > 1.5 and cd.combustion == 0) then
-                if cast.fireBlast() then print("FireBlast 1"); return end
+                if cast.fireBlast() then return end
             elseif buff.heatingUp.exists() and buff.combustion.exists() then
-                if cast.fireBlast() then print("FireBlast 2"); return end
+                if cast.fireBlast() then return end
             end
         -- Phoenix's Flames
             -- phoenixs_flames
             if buff.combustion.exists() and not buff.hotStreak.exists() and charges.phoenixsFlames > 1 then
-               if cast.phoenixsFlames() then print("PFlames 1"); return end
+               if cast.phoenixsFlames() then return end
            end
         -- Scorch
             -- scorch,if=buff.combustion.remains>cast_time
@@ -363,10 +363,10 @@ local function runRotation()
             end
         -- Dragon's Breath
             -- dragons_breath,if=buff.hot_streak.down&action.fire_blast.charges<1&action.phoenixs_flames.charges<1
-            if not buff.hotStreak and charges.fireBlast < 1 and charges.phoenixsFlames < 1 then
-                if cast.dragonsBreath() then print("DBreath 3"); return end
-            elseif not buff.hotStreak and talent.alexstraszasFury or hasEquiped(132863) then
-                if cast.dragonsBreath() then print("DBreath 4"); return end
+            if not buff.hotStreak.exists and charges.fireBlast < 1 and charges.phoenixsFlames < 1 then
+                if cast.dragonsBreath() then return end
+            elseif not buff.hotStreak.exists and (talent.alexstraszasFury or hasEquiped(132863)) then
+                if cast.dragonsBreath() then return end
             end
         -- Scorch
             -- scorch,if=target.health.pct<=25&equipped.132454
@@ -397,12 +397,12 @@ local function runRotation()
         -- Fire Blast
             -- fire_blast,if=!prev_off_gcd.fire_blast
             if lastSpell ~= spell.fireBlast then
-                if cast.fireBlast() then print("FireBlast 3"); return end
+                if cast.fireBlast() then return end
             end
         -- Phoenix's Flames
             -- phoenixs_flames,if=!prev_gcd.phoenixs_flames
             if lastSpell ~= spell.phoenixsFlames then
-                if cast.phoenixsFlames() then print("PFlames 2"); return end
+                if cast.phoenixsFlames() then return end
             end
         -- Scorch
             -- scorch,if=target.health.pct<=25&equipped.132454
@@ -424,27 +424,27 @@ local function runRotation()
             -- /phoenixs_flames,if=charges_fractional>1.7
             if charges.frac.phoenixsFlames > 1.7 then
                 if ((mode.cooldown == 1 and isBoss()) or mode.cooldown == 2) then
-                    if cast.phoenixsFlames() then print("PFlames 3"); return end
+                    if cast.phoenixsFlames() then return end
                 end
             end
             -- /phoenixs_flames,if=charges_fractional>2&active_enemies>2    
             if (charges.frac.phoenixsFlames >= 2 and charges.frac.phoenixsFlames <= 2.7) then
                 if ((#enemies.yards8t >= 2 and mode.rotation == 1) or mode.rotation == 2) then
-                    if cast.phoenixsFlames() then print("PFlames 4"); return end
+                    if cast.phoenixsFlames() then return end
                 end
             end
         -- Flamestrike
             -- flamestrike,if=talent.flame_patch.enabled&active_enemies>2&buff.hot_streak.react
             if ((#enemies.yards8t >= 4 and mode.rotation == 1) or mode.rotation == 2) and buff.hotStreak.exists() then
-                if cast.flamestrike("best",nil,2,6) then print("FStrike 1"); return end
+                if cast.flamestrike("best",nil,2,6) then return end
             elseif ((#enemies.yards8t >= 4 and mode.rotation == 1) or mode.rotation == 2) and buff.hotStreak.exists() and not talent.pyromaniac then
-                if cast.flamestrike("best",nil,2,6) then print("FStrike 2"); return end
+                if cast.flamestrike("best",nil,2,6) then return end
             end
         -- Dragon's Breath
             if ((#enemies.yards12 > 3 and mode.rotation == 1) or mode.rotation == 2) then
-                if cast.dragonsBreath() then print("DBreath 5"); return end
-            elseif talent.alexstraszasFury and hasEquiped(132863) and (#enemies.yards12 >= 1 and mode.rotation == 1) then
-                if cast.dragonsBreath() then print("DBreath 6"); return end
+                if cast.dragonsBreath() then return end
+            elseif ((talent.alexstraszasFury and hasEquiped(132863)) or talent.alexstraszasFury or hasEquiped(132863)) and (#enemies.yards12 >= 1 and mode.rotation == 1) then
+                if cast.dragonsBreath() then return end
             end
         -- Pyroblast
             -- pyroblast,if=buff.hot_streak.up&!prev_gcd.pyroblast
@@ -465,7 +465,7 @@ local function runRotation()
             if (not talent.kindling and buff.heatingUp.exists() and (not talent.runeOfPower or charges.frac.fireBlast > 1.4 or cd.combustion < 40) and (3 - charges.frac.fireBlast) * (12 * hasteAmount) < cd.combustion + 3 or ttd("target") < 4)
                 or (talent.kindling and buff.heatingUp.exists() and (not talent.runeOfPower or charges.frac.fireBlast > 1.5 or cd.combustion < 40) and (3 - charges.frac.fireBlast) * (18 * hasteAmount) < cd.combustion + 3 or ttd("target") < 4)
             then
-                if cast.fireBlast() then print("FireBlast 4"); return end
+                if cast.fireBlast() then return end
             end
         -- Phoenix's Flames
             -- phoenixs_flames,if=(buff.combustion.up|buff.rune_of_power.up|buff.incanters_flow.stack>3|talent.mirror_image.enabled)&artifact.phoenix_reborn.enabled&(4-charges_fractional)*13<cooldown.combustion.remains+5|target.time_to_die.remains<10
@@ -473,7 +473,7 @@ local function runRotation()
             if isBoss() and (charges.phoenixsFlames >= 1 or useCDs()) and (((buff.combustion.exists() or buff.runeOfPower.exists() or buff.incantersFlow.stack() > 3 or talent.mirrorImage) and artifact.phoenixReborn and (4 - charges.frac.phoenixsFlames) * 13 < cd.combustion + 5 or ttd("target") < 10) 
                 or ((buff.combustion.exists() or buff.runeOfPower.exists()) and (4 - charges.frac.phoenixsFlames) * 30 < cd.combustion + 5))
             then
-                if cast.phoenixsFlames() then print("PFlames 5"); return end
+                if cast.phoenixsFlames() then return end
             end
         -- Scorch
             -- scorch,if=target.health.pct<=25&equipped.132454
@@ -527,9 +527,9 @@ local function runRotation()
         -- Flamestrike
                     -- flamestrike,if=talent.flame_patch.enabled&active_enemies>2&buff.hot_streak.react
                     if ((#enemies.yards8t >= 4 and mode.rotation == 1) or mode.rotation == 2) and buff.hotStreak.exists() then
-                        if cast.flamestrike("best",nil,2,6) then print("FStrike 3"); return end
+                        if cast.flamestrike("best",nil,2,6) then return end
                     elseif ((#enemies.yards8t >= 4 and mode.rotation == 1) or mode.rotation == 2) and buff.hotStreak.exists() and not talent.pyromaniac then
-                        if cast.flamestrike("best",nil,2,6) then print("FStrike 4"); return end
+                        if cast.flamestrike("best",nil,2,6) then return end
                     end
         -- Mirror Image
                     -- mirror_image,if=buff.combustion.down

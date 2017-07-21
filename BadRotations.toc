@@ -147,7 +147,7 @@ Rotations\Hunter\Survival\SurvivalCuteOne.lua
 
 Rotations\Mage\Arcane\ArcaneCuteOne.lua
 
-Rotations\Mage\Fire\FireCuteOne.lua
+Rotations\Mage\Fire\FireWinston.lua
 
 Rotations\Mage\Frost\FrostCuteOne.lua
 Rotations\Mage\Frost\FrostLemon.lua
