@@ -658,16 +658,11 @@ local function runRotation()
 			-- Nature's Cure
 			if br.player.mode.decurse == 1 then
     			for i = 1, #friends.yards40 do
-    				if getDebuffRemain(br.friend[i].unit,233983) > 1 and #getAllies(br.friend[i].unit,8) <= 1 then 
-    					if cast.naturesCure(br.friend[i].unit) then Print("8 Yard Dispel") return end
-    				end		
-    			    if getDebuffRemain(br.friend[i].unit,233983) == 0 then 
-    				    if canDispel(br.friend[i].unit,spell.naturesCure) then
-    						if cast.naturesCure(br.friend[i].unit) then return end
-    					end
+    			    if canDispel(br.friend[i].unit,spell.naturesCure) then
+    					if cast.naturesCure(br.friend[i].unit) then return end
     				end
     			end
-    		end	
+    		end
 			-- Ironbark
 			if isChecked("Ironbark") and not isCastingSpell(spell.tranquility) then
 				-- Player
@@ -779,8 +774,6 @@ local function runRotation()
 				for i = 1, #br.friend do
 					if br.friend[i].hp <= getValue("Oh Shit! Regrowth") and getDebuffStacks(br.friend[i].unit,209858) < 30 then
 						if cast.regrowth(br.friend[i].unit) then regrowth_target = br.friend[i] return end
-					elseif br.friend[i].hp <= getValue("Regrowth Tank") and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" and getDebuffStacks(br.friend[i].unit,209858) < 25 then
-					    if cast.regrowth(br.friend[i].unit) then regrowth_target = br.friend[i] return end
 					end
 				end
 			end
@@ -818,17 +811,13 @@ local function runRotation()
 			end
 			-- Regrowth
 			if isChecked("Regrowth") and (not moving or buff.incarnationTreeOfLife.exists()) and not isCastingSpell(spell.tranquility) then
-				for i = 1, #br.friend do
+				for i = 1, #br.friend do		
 					if br.friend[i].hp <= getValue("Regrowth Clearcasting") and buff.clearcasting.remain() > 1.5 and getDebuffStacks(br.friend[i].unit,209858) < 30 then
-						if cast.regrowth(br.friend[i].unit) then
-							regrowth_target = br.friend[i]
-							return
-						end
+						if cast.regrowth(br.friend[i].unit) then regrowth_target = br.friend[i] return end
+					elseif br.friend[i].hp <= getValue("Regrowth Tank") and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" and buff.regrowth.remain(br.friend[i].unit) <= 1 and getDebuffStacks(br.friend[i].unit,209858) < 25 then
+					    if cast.regrowth(br.friend[i].unit) then regrowth_target = br.friend[i] return end								
 					elseif br.friend[i].hp <= getValue("Regrowth") and buff.regrowth.remain(br.friend[i].unit) <= 1 and getDebuffStacks(br.friend[i].unit,209858) < 30 then
-						if cast.regrowth(br.friend[i].unit) then
-							regrowth_target = br.friend[i]
-							return
-						end
+						if cast.regrowth(br.friend[i].unit) then regrowth_target = br.friend[i] return end
 					elseif isChecked("Keep Regrowth on tank") and buff.lifebloom.exists(br.friend[i].unit) and buff.regrowth.remain(br.friend[i].unit) <= 1 and getDebuffStacks(br.friend[i].unit,209858) < 30 then
 						if cast.regrowth(br.friend[i].unit) then return end
 					end
