@@ -43,13 +43,13 @@ local function createToggles()
 	[1] = { mode = "Off", value = 2 , overlay = "DPS Disabled", tip = "DPS Disabled", highlight = 0, icon = br.player.spell.regrowth }
 	};
 	CreateButton("DPS",6,0)
-	-- Rejuvenaion Button
-	RejuvenaionModes = {
-	[2] = { mode = "On", value = 1 , overlay = "Rejuvenaion Enabled", tip = "All players Rejuvenaion Enabled", highlight = 1, icon = br.player.spell.rejuvenation },
-	[3] = { mode = "two", value = 2 , overlay = "Double rejuvenaion Enabled", tip = "All players Double rejuvenaion Enabled", highlight = 1, icon = br.player.spell.rejuvenation },
-	[1] = { mode = "Off", value = 3 , overlay = "Rejuvenaion Disabled", tip = "All players Rejuvenaion Disabled", highlight = 0, icon = br.player.spell.rejuvenation }
+	-- Rejuvenation Button
+	RejuvenationModes = {
+	[2] = { mode = "On", value = 1 , overlay = "Rejuvenation Enabled", tip = "All players Rejuvenation Enabled", highlight = 1, icon = br.player.spell.rejuvenation },
+	[3] = { mode = "two", value = 2 , overlay = "Double Rejuvenation Enabled", tip = "All players Double Rejuvenation Enabled", highlight = 1, icon = br.player.spell.rejuvenation },
+	[1] = { mode = "Off", value = 3 , overlay = "Rejuvenation Disabled", tip = "All players Rejuvenation Disabled", highlight = 0, icon = br.player.spell.rejuvenation }
 	};
-	CreateButton("Rejuvenaion",7,0)
+	CreateButton("Rejuvenation",7,0)
 end
 
 --------------
@@ -72,10 +72,10 @@ local function createOptions()
 		-- General Options
 		section = br.ui:createSection(br.ui.window.profile, "General")
 		br.ui:createCheckbox(section,"OOC Healing","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFout of combat healing|cffFFBB00.",1)
-		-- DBM cast Rejuvenaion
-		br.ui:createCheckbox(section,"DBM cast Rejuvenaion","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFAccording to BOSS AOE Spells, 5 seconds ahead of schedule cast Rejuvenation|cffFFBB00.")
-		-- DOT cast Rejuvenaion
-		br.ui:createCheckbox(section,"DOT cast Rejuvenaion","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFDOT damage to teammates cast Rejuvenation|cffFFBB00.")
+		-- DBM cast Rejuvenation
+		br.ui:createCheckbox(section,"DBM cast Rejuvenation","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFAccording to BOSS AOE Spells, 5 seconds ahead of schedule cast Rejuvenation|cffFFBB00.")
+		-- DOT cast Rejuvenation
+		br.ui:createCheckbox(section,"DOT cast Rejuvenation","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFDOT damage to teammates cast Rejuvenation|cffFFBB00.")
 		-- Pre-Pull Timer
 		br.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
 		-- Travel Shapeshifts
@@ -87,7 +87,7 @@ local function createOptions()
 		-- Overhealing Cancel
 		br.ui:createSpinner (section, "Overhealing Cancel", 95, 0, 100, 5, "","|cffFFFFFFSet Desired Threshold at which you want to prevent your own casts")
 		-- Affixes Helper
-		br.ui:createCheckbox(section,"Affixes Helper","|cff15FF00Please use abundance talent and All players Rejuvenaion Enabled")
+		br.ui:createCheckbox(section,"Affixes Helper","|cff15FF00Please use abundance talent and All players Rejuvenation Enabled")
 		br.ui:checkSectionState(section)
 		-- Cooldown Options
 		section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
@@ -148,7 +148,7 @@ local function createOptions()
 		-- Swiftmend
 		br.ui:createSpinner(section, "Swiftmend", 30, 0, 100, 5, "","Health Percent to Cast At")
 		br.ui:createDropdownWithout(section, "Swiftmend Target", {"|cffFFFFFFPlayer","|cffFFFFFFTarget", "|cffFFFFFFMouseover", "|cffFFFFFFTank", "|cffFFFFFFHealer", "|cffFFFFFFHealer/Tank", "|cffFFFFFFAny"}, 7, "|cffFFFFFFcast Swiftmend Target")
-		-- Rejuvenaion
+		-- Rejuvenation
 		br.ui:createSpinner(section, "Rejuvenation",  90,  0,  100,  5,  "","|cffFFFFFFHealth Percent to Cast At")
 		br.ui:createSpinner(section, "Rejuvenation Tank",  90,  0,  100,  5,  "","|cffFFFFFFHealth Percent to Cast At", true)
 		br.ui:createSpinnerWithout(section, "Max Rejuvenation Targets",  10,  0,  20,  1,  "","|cffFFFFFFMaximum Rejuvenation Targets")
@@ -157,6 +157,7 @@ local function createOptions()
 		br.ui:createSpinner(section, "Germination Tank",  80,  0,  100,  5,  "","|cffFFFFFFHealth Percent to Cast At", true)
 		-- Regrowth
 		br.ui:createSpinner(section, "Regrowth",  80,  0,  100,  5,  "","|cffFFFFFFHealth Percent to Cast At")
+		br.ui:createSpinner(section, "Regrowth Tank",  50,  0,  100,  5,  "","|cffFFFFFFTank Health Percent priority Cast At", true)				
 		br.ui:createSpinner(section, "Oh Shit! Regrowth",  35,  0,  100,  5,  "","|cffFFFFFFHealth Percent priority Cast At", true)
 		-- Regrowth Clearcasting
 		br.ui:createSpinner(section, "Regrowth Clearcasting",  80,  0,  100,  5,  "","|cffFFFFFFHealth Percent to Cast At", true)
@@ -181,7 +182,7 @@ local function createOptions()
 		-- Toggle Key Options
 		section = br.ui:createSection(br.ui.window.profile, "Toggle Keys")
 		-- Pause Toggle
-		br.ui:createDropdown(section, "Rejuvenaion Mode", br.dropOptions.Toggle,  6)
+		br.ui:createDropdown(section, "Rejuvenation Mode", br.dropOptions.Toggle,  6)
 		br.ui:createDropdown(section, "DPS Mode", br.dropOptions.Toggle,  6)
 		br.ui:createDropdown(section, "Decurse Mode", br.dropOptions.Toggle,  6)
 		br.ui:createDropdown(section, "Pause Mode", br.dropOptions.Toggle,  6)
@@ -215,10 +216,10 @@ local function runRotation()
 		UpdateToggle("Decurse",0.25)
 		UpdateToggle("Interrupt",0.25)
 		UpdateToggle("DPS",0.25)
-		UpdateToggle("Rejuvenaion",0.25)
+		UpdateToggle("Rejuvenation",0.25)
 		br.player.mode.decurse = br.data.settings[br.selectedSpec].toggles["Decurse"]
 		br.player.mode.dps = br.data.settings[br.selectedSpec].toggles["DPS"]
-		br.player.mode.rejuvenaion = br.data.settings[br.selectedSpec].toggles["Rejuvenaion"]
+		br.player.mode.rejuvenation = br.data.settings[br.selectedSpec].toggles["Rejuvenation"]
 		--------------
 		--- Locals ---
 		--------------
@@ -777,10 +778,9 @@ local function runRotation()
 			if isChecked("Regrowth") and (not moving or buff.incarnationTreeOfLife.exists()) and not isCastingSpell(spell.tranquility) then
 				for i = 1, #br.friend do
 					if br.friend[i].hp <= getValue("Oh Shit! Regrowth") and getDebuffStacks(br.friend[i].unit,209858) < 30 then
-						if cast.regrowth(br.friend[i].unit) then
-							regrowth_target = br.friend[i]
-							return
-						end
+						if cast.regrowth(br.friend[i].unit) then regrowth_target = br.friend[i] return end
+					elseif br.friend[i].hp <= getValue("Regrowth Tank") and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" and getDebuffStacks(br.friend[i].unit,209858) < 25 then
+					    if cast.regrowth(br.friend[i].unit) then regrowth_target = br.friend[i] return end
 					end
 				end
 			end
@@ -851,7 +851,7 @@ local function runRotation()
 				end
 			end			
 			-- DOT damage to teammates cast Rejuvenation
-			if isChecked("DOT cast Rejuvenaion") then
+			if isChecked("DOT cast Rejuvenation") then
 				local debuff_list={
 				200620, --  Darkheart Thicket
 				196376, --  Archdruid Glaidalis
@@ -962,8 +962,8 @@ local function runRotation()
 					end
 				end
 			end			
-			--DBM cast Rejuvenaion
-			if isChecked("DBM cast Rejuvenaion") then
+			--DBM cast Rejuvenation
+			if isChecked("DBM cast Rejuvenation") then
 				local precast_spell_list={
 				--spell_id	, precast_time	,	spell_name
 				{214652 	, 5				,	'Acidic Fragments'},
@@ -996,7 +996,7 @@ local function runRotation()
 						for j = 1, #br.friend do
 							if not buff.rejuvenation.exists(br.friend[j].unit) and not isCastingSpell(spell.tranquility) and UnitInRange(br.friend[j].unit) then
 								if cast.rejuvenation(br.friend[j].unit) then
-									Print("DBM cast Rejuvenaion--"..spell_name)
+									Print("DBM cast Rejuvenation--"..spell_name)
 									return
 								end
 							end
@@ -1004,7 +1004,7 @@ local function runRotation()
 					end
 				end
 			end	
-		if isChecked("DBM cast Rejuvenaion") then
+		if isChecked("DBM cast Rejuvenation") then
     		        local Casting={
     			--spell_id	, spell_name	
     			{196587 	, 'Soul Burst'}, --Amalgam of Souls
@@ -1019,7 +1019,7 @@ local function runRotation()
     			local spell_name = Casting[i][2]
 				    for j = 1, #br.friend do
         			    if UnitCastingInfo("boss1") == GetSpellInfo(spell_id) and not buff.rejuvenation.exists(br.friend[j].unit) and not isCastingSpell(spell.tranquility) and UnitInRange(br.friend[j].unit) then
-        				    if cast.rejuvenation(br.friend[j].unit) then Print("DBM cast Rejuvenaion--"..spell_name) return end
+        				    if cast.rejuvenation(br.friend[j].unit) then Print("DBM cast Rejuvenation--"..spell_name) return end
         				end
         			end	
         		end	
@@ -1043,15 +1043,15 @@ local function runRotation()
 				end
 			end
 		end
-		-- All players Rejuvenaion
-		local function actionList_Rejuvenaion()
-			if mode.rejuvenaion == 2 then
+		-- All players Rejuvenation
+		local function actionList_Rejuvenation()
+			if mode.rejuvenation == 2 then
 				for i = 1, #br.friend do
 					if not buff.rejuvenation.exists(br.friend[i].unit) and not isCastingSpell(spell.tranquility) then
 						if cast.rejuvenation(br.friend[i].unit) then return end
 					end
 				end
-			elseif mode.rejuvenaion == 3 then
+			elseif mode.rejuvenation == 3 then
 				for i = 1, #br.friend do
 					if talent.germination and not isCastingSpell(spell.tranquility) and not buff.rejuvenationGermination.exists(br.friend[i].unit) then
 						if cast.rejuvenation(br.friend[i].unit) then return end
@@ -1193,7 +1193,7 @@ local function runRotation()
 				actionList_Extras()
 				if isChecked("OOC Healing") then
 					actionList_PreCombat()
-					actionList_Rejuvenaion()
+					actionList_Rejuvenation()
 				end
 			end -- End Out of Combat Rotation
 			-----------------------------
@@ -1210,7 +1210,7 @@ local function runRotation()
 				if not cat and not moonkin and not bear then
 					actionList_AOEHealing()
 					actionList_SingleTarget()
-					actionList_Rejuvenaion()
+					actionList_Rejuvenation()
 				end
 			end -- End In Combat Rotation
 		end -- Pause
