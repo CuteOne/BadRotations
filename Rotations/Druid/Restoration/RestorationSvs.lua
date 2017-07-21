@@ -390,11 +390,10 @@ local function runRotation()
 				return
 			end
 			if isChecked("Efflorescence") and not moving and (not LastEfflorescenceTime or GetTime() - LastEfflorescenceTime > getOptionValue("Efflorescence recast delay")) then
-				if getLowAllies(getValue("Efflorescence")) >= getValue("Efflorescence Targets") then
-					if castGroundAtBestLocation(spell.efflorescence, 10, 0, 40, 0, "heal") then
-						LastEfflorescenceTime = GetTime()
-					return true end
-				end
+				--if castGroundAtBestLocation(spell.efflorescence, 10, 0, 40, 0, "heal") then
+				if castWiseAoEHeal(br.friend,spell.efflorescence,20,getValue("Efflorescence"),getValue("Efflorescence Targets"),3,false,true) then
+					LastEfflorescenceTime = GetTime()
+				return true end
 			end
 		end -- End Action List - Extras
 		-- Action List - Pre-Combat
@@ -620,7 +619,7 @@ local function runRotation()
 			end
 			-- Wild Growth
 			for i=1, #br.friend do
-				if isChecked("Wild Growth") and not moving and not buff.wildGrowth.exists(br.friend[i].unit) and not isCastingSpell(spell.tranquility) then
+				if isChecked("Wild Growth") and not moving and not buff.wildGrowth.exists(br.friend[i].unit) and not isCastingSpell(spell.tranquility) and GetSpellCooldown(48438) == 0 then
 					local lowHealthCandidates = getUnitsToHealAround(br.friend[i].unit,30,getValue("Wild Growth"),#br.friend)
 					if #lowHealthCandidates >= getValue("Wild Growth Targets") then
 					    if talent.soulOfTheForest and not buff.soulOfTheForest.exists() and getBuffRemain("player",242315) == 0 then
