@@ -195,7 +195,7 @@ local bestUnit = bestUnit
 local function targetNearestEnemy(range)
 	for k,v in pairs(getEnemies("player",range)) do
 		local thisUnit = br.enemy[v]
-		if not UnitIsDeadOrGhost(thisUnit.unit) and getDistance("player",thisUnit.unit) <= range and (playerRealm == targetRealm) and ObjectIsFacing("player",thisUnit.unit) and getFacing("player", thisUnit.unit) and UnitInPhase(thisUnit.unit) then
+		if not UnitIsDeadOrGhost(thisUnit.unit) and getDistance("player",thisUnit.unit) <= range and ObjectIsFacing("player",thisUnit.unit) and getFacing("player", thisUnit.unit) and UnitInPhase(thisUnit.unit) then
 			if not isChecked("Hostiles Only") or (getOptionCheck("Hostiles Only") and UnitReaction(thisUnit.unit,"player") <= 2 or (UnitExists("pet") and UnitReaction(thisUnit.unit,"pet") <= 2)) then
 				bestUnit = thisUnit.unit
 				if isChecked("Target Dynamic Target") and bestUnit ~= nil then
@@ -212,11 +212,8 @@ function getEnemyUpdateRate()
 end
 -- returns prefered target for diferent spells
 function dynamicTarget(range,facing)
-	local playerRealm = UnitDebuffID("player",235621)
-	if UnitExists("target") then
-		local targetRealm = UnitDebuffID("target",235621)
-	end
 	local tempTime = GetTime();
+	local inCombat = br.player.inCombat
 	if not lastUpdateTime then
 		lastUpdateTime = tempTime
 	end
@@ -241,7 +238,6 @@ function dynamicTarget(range,facing)
 			local thisUnit = br.enemy[v] 
 			if enemyListCheck(thisUnit.unit) then
 				UpdateEnemy(v)				
-				local unitRealm = UnitDebuffID(thisUnit.unit,235621) 
 				local thisDistance = getDistance("player",thisUnit.unit)
 				if #br.friend < 2 and UnitExists("pet") and UnitTarget(thisUnit.unit) == "player" then
 					if getOptionCheck("Target Dynamic Target") and not UnitIsDeadOrGhost(thisUnit.unit) then
@@ -249,15 +245,13 @@ function dynamicTarget(range,facing)
 				 	end
 				end
 				if not isChecked("Hostiles Only") or (getOptionCheck("Hostiles Only") and UnitReaction(thisUnit.unit,"player")) <= 2 then
-					if (playerRealm == unitRealm) then
-						if ObjectID(thisUnit.unit) ~= 103679 and thisUnit.coeficient ~= nil and getLineOfSight("player", thisUnit.unit) and UnitCreatureType(thisUnit.unit) ~= "Critter" then
-							if (not getOptionCheck("Safe Damage Check") or thisUnit.safe) and not thisUnit.isCC
-									and thisDistance < range and (not facing or thisUnit.facing)
-							then
-								if thisUnit.coeficient >= 0 and thisUnit.coeficient >= bestUnitCoef then
-									bestUnitCoef = thisUnit.coeficient
-									bestUnit = thisUnit.unit
-								end
+					if ObjectID(thisUnit.unit) ~= 103679 and thisUnit.coeficient ~= nil and getLineOfSight("player", thisUnit.unit) and UnitCreatureType(thisUnit.unit) ~= "Critter" then
+						if (not getOptionCheck("Safe Damage Check") or thisUnit.safe) and not thisUnit.isCC
+								and thisDistance < range and (not facing or thisUnit.facing)
+						then
+							if thisUnit.coeficient >= 0 and thisUnit.coeficient >= bestUnitCoef then
+								bestUnitCoef = thisUnit.coeficient
+								bestUnit = thisUnit.unit
 							end
 						end
 					end
@@ -269,12 +263,12 @@ function dynamicTarget(range,facing)
 			TargetUnit(bestUnit)
 		end
 	elseif getOptionCheck("Dynamic Targetting") and (tempTime - ntlastUpdateTime) > 0.5  then
-		if (UnitIsDeadOrGhost("target") or not UnitExists("target") or getDistance("player","target") > range or (targetRealm and (playerRealm ~= targetRealm))) or (UnitExists("target") and not getFacing("player","target")) then
+		if (UnitIsDeadOrGhost("target") or not UnitExists("target") or getDistance("player","target") > range) or (UnitExists("target") and not getFacing("player","target")) then
 			if not UnitAffectingCombat("player") and attempts < 3 and getOptionValue("Dynamic Targetting") == 2 then
 				ntlastUpdateTime = tempTime
 				targetNearestEnemy(range)
 				attempts = attempts +1
-			elseif UnitAffectingCombat("player") then
+			elseif inCombat then
 				ntlastUpdateTime = tempTime
 				attempts = 0
 				targetNearestEnemy(range)
