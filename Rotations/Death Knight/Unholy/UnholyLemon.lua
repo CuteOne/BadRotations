@@ -993,29 +993,48 @@ local function runRotation()
                 
                 if getOptionValue("Trinket 1 Condition") == 1 then 
                     if isChecked("Trinket 1") and inCombat and canUse(13) then
-                        useItem(13)
+                        if useItem(13) then return true end
                     end
-                elseif getOptionValue("Trinket 1 Condition") == 2 then
-                    if isChecked("Trinket 1") and inCombat and getHP("target") <= getValue("Trinket 1") and canUse(13) and isBoss("target") then
-                        useItem(13)
+                end
+
+
+                if getOptionValue("Trinket 1 Condition") == 2 then
+                    if isChecked("Trinket 1") and inCombat then 
+                        for i = 1, #enemies.yards40 do
+                            local thisUnit = enemies.yards40[i]
+                            if isBoss(thisUnit) and getHP(thisUnit) <= getValue("Trinket 1") and canUse(13) then
+                                if useItem(13) then return true end
+                            end
+                        end
                     end
-                elseif getOptionValue("Trinket 1 Condition") == 3 then
+                end
+
+                if getOptionValue("Trinket 1 Condition") == 3 then
                     if isChecked("Trinket 1") and inCombat and health <= getValue("Trinket 1") and canUse(13) then
-                        useItem(13)
+                        if useItem(13) then return true end
                     end
                 end
                 
                 if getOptionValue("Trinket 2 Condition") == 1 then 
                     if isChecked("Trinket 2") and inCombat and canUse(14) then
-                        useItem(14)
+                        if useItem(14) then return true end
                     end
-                elseif getOptionValue("Trinket 2 Condition") == 2 then
-                    if isChecked("Trinket 2") and inCombat and getHP("target") <= getValue("Trinket 2") and canUse(14) and isBoss("target") then
-                        useItem(14)
+                end
+
+                if getOptionValue("Trinket 1 Condition") == 2 then
+                    if isChecked("Trinket 1") and inCombat then 
+                        for i = 1, #enemies.yards40 do
+                            local thisUnit = enemies.yards40[i]
+                            if isBoss(thisUnit) and getHP(thisUnit) <= getValue("Trinket 1") and canUse(14) then
+                                if useItem(14) then return true end
+                            end
+                        end
                     end
-                elseif getOptionValue("Trinket 2 Condition") == 3 then
+                end
+
+                if getOptionValue("Trinket 2 Condition") == 3 then
                     if isChecked("Trinket 2") and inCombat and health <= getValue("Trinket 2") and canUse(14) then
-                        useItem(14)
+                        if useItem(14) then return true end
                     end
                 end
                 
@@ -1025,7 +1044,7 @@ local function runRotation()
                 end
                 
                 --actions+=/potion,if=buff.unholy_strength.react
-                if isChecked("Potion") then
+                if useCDs() and isChecked("Potion") and inRaid then
                     if buff.unholyStrength.exists() then
                         if canUse(142117) then
                             if useItem(142117) then return true end
