@@ -6,24 +6,28 @@ local rotationName = "SaintlySinner"
 local function createToggles()
 -- Rotation Button
     RotationModes = {
-        [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range.", highlight = 1, icon = br.player.spell.fracture},
-        [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = br.player.spell.fracture},
-        [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = br.player.spell.shear},
-        [4] = { mode = "Off", value = 4 , overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spell.spectralSight}
+        [1] = { mode = "On", value = 1 , overlay = "Rotation Enabled", tip = "Enables DPS Rotation", highlight = 1, icon = br.player.spell.fracture},
+        [2] = { mode = "Off", value = 2 , overlay = "Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spell.soulCleave}
     };
     CreateButton("Rotation",1,0)
+-- Cooldown Button
+    CooldownModes = {
+        [1] = { mode = "On", value = 1 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 1, icon = br.player.spell.fieryBrand },
+        [2] = { mode = "Off", value = 2 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.spiritBomb }
+    };
+    CreateButton("Cooldown",2,0)
 -- Defensive Button
     DefensiveModes = {
         [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spell.metamorphosis},
         [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spell.metamorphosis}
     };
-    CreateButton("Defensive",2,0)
+    CreateButton("Defensive",3,0)
 -- Interrupt Button
     InterruptModes = {
         [1] = { mode = "On", value = 1 , overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spell.consumeMagic},
         [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.consumeMagic}
     };
-    CreateButton("Interrupt",3,0)
+    CreateButton("Interrupt",4,0)
 end
 
 ---------------
@@ -39,7 +43,17 @@ local function createOptions()
         -- APL
             br.ui:createDropdownWithout(section, "APL Mode", {"|cffFFFFFFSaintlySinner"}, 1, "|cffFFFFFFSet APL Mode to use.")
         -- Torment
-            br.ui:createCheckbox(section,"Torment")
+            br.ui:createCheckbox(section,"Torment","|cffFFFFFFWill taunt in dungeons.")
+        -- Throw Glaive
+            br.ui:createCheckbox(section, "Throw Glaive","|cffFFFFFFEnable/Disable Throw Glaive.")
+        br.ui:checkSectionState(section)
+    -- Cooldown Options
+        section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
+        -- Racial
+            br.ui:createCheckbox(section,"Racial: Blood Elf Only")
+        -- Trinkets
+            br.ui:createCheckbox(section,"Trinket 1")
+            br.ui:createCheckbox(section,"Trinket 2")
         br.ui:checkSectionState(section)
     -- Defensive Options
         section = br.ui:createSection(br.ui.window.profile, "Defensive")
@@ -47,6 +61,8 @@ local function createOptions()
             br.ui:createSpinner(section, "Pot/Stoned",  60,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
         -- Empower Wards
             br.ui:createCheckbox(section, "Empower Wards")
+        -- Fiery Brand
+            br.ui:createCheckbox(section, "Fiery Brand","|cffFFFFFFEnable/Disable FB.")
         -- Metamorphosis
             br.ui:createCheckbox(section, "Metamorphosis")
         -- Demon Spikes - HP
@@ -69,6 +85,8 @@ local function createOptions()
         section = br.ui:createSection(br.ui.window.profile, "Toggle Keys")
         -- Single/Multi Toggle
             br.ui:createDropdown(section, "Rotation Mode", br.dropOptions.Toggle,  4)
+        -- Cooldown Key Toggle
+            br.ui:createDropdown(section, "Cooldown Mode", br.dropOptions.Toggle,  3)
         -- Defensive Key Toggle
             br.ui:createDropdown(section, "Defensive Mode", br.dropOptions.Toggle,  6)
         -- Interrupts Key Toggle
@@ -95,6 +113,7 @@ local function runRotation()
 --- Toggles ---
 ---------------
         UpdateToggle("Rotation",0.25)
+        UpdateToggle("Cooldown",0.25)
         UpdateToggle("Defensive",0.25)
         UpdateToggle("Interrupt",0.25)
 
@@ -142,7 +161,7 @@ local function runRotation()
         local solo                                          = br.player.instance=="none"
         local spell                                         = br.player.spell
         local talent                                        = br.player.talent
-        local ttd                                           = getTTD
+        local ttd                                           = getTTD(br.player.units(5))
         local ttm                                           = br.player.power.ttm
         local units                                         = units or {}
 
@@ -170,6 +189,22 @@ local function runRotation()
                 end
             end
         end -- End Action List - Extras
+    -- Action List - Cooldowns
+        local function actionList_Cooldowns()
+            if useCDs() and getDistance(units.dyn5) < 5 then
+        -- Trinkets
+                if isChecked("Trinket 1") then
+                    if canUse(13) then
+                        useItem(13)
+                    end
+                end
+                if isChecked("Trinket 2") then
+                    if canUse(14) then
+                        useItem(14)
+                    end
+                end
+            end -- End useCDs check
+        end -- End Action List - Cooldowns
     -- Action List - Defensive
         local function actionList_Defensive()
             if useDefensive() then
@@ -190,11 +225,12 @@ local function runRotation()
     -- Action List - Interrupts
         local function actionList_Interrupts()
             if useInterrupts() then
-                for i=1, #enemies.yards30 do
-                    thisUnit = enemies.yards30[i]
+                for i=1, #getEnemies("player",20) do
+                    thisUnit = getEnemies("player",20)[i]
+                    distance = getDistance(thisUnit)
                     if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
         -- Consume Magic
-                        if isChecked("Consume Magic") and getDistance(thisUnit) < 20 then
+                        if isChecked("Consume Magic") and distance < 20 then
                             if cast.consumeMagic(thisUnit) then return end
                         end
         -- Sigil of Silence
@@ -202,7 +238,7 @@ local function runRotation()
                             if cast.sigilOfSilence(thisUnit,"ground") then return end
                         end
         -- Sigil of Misery
-                        if isChecked("Sigil of Misery") and cd.consumeMagic > 0 and cd.sigilOfSilence > 0 and cd.sigilOfSilence < 45 then
+                        if isChecked("Sigil of Misery") and cd.consumeMagic > 0 and cd.sigilOfSilence > 0 and cd.sigilOfSilence < 45 and distance < 10 then
                             if cast.sigilOfMisery(thisUnit,"ground") then return end
                         end
                     end
@@ -211,9 +247,8 @@ local function runRotation()
         end -- End Action List - Interrupts
     -- Action List - PreCombat
         local function actionList_PreCombat()
-            if not inCombat and not (IsFlying() or IsMounted()) then
-                if GetObjectExists("target") and not UnitIsDeadOrGhost("target") and UnitCanAttack("target", "player") and getDistance("target") < 5 then
-            -- Start Attack
+            if not inCombat then
+                if isValidUnit("target") and getDistance("target") < 5 then --less qq moar pew pew
                     StartAttack()
                 end
             end -- End No Combat
@@ -222,9 +257,9 @@ local function runRotation()
 --- Begin Profile ---
 ---------------------
     -- Profile Stop | Pause
-        if not inCombat and not hastar and profileStop==true then
+        if not inCombat and not hastar and profileStop == true then
             profileStop = false
-        elseif (inCombat and profileStop==true) or pause() or mode.rotation==4 then
+        elseif (inCombat and profileStop == true) or IsFlying() or pause() or mode.rotation == 4 then
             return true
         else
 -----------------------
@@ -252,18 +287,25 @@ local function runRotation()
     ---------------------------
     -- Start Attack
                 -- actions=auto_attack
-                if getDistance("target") < 5 and isValidUnit("target") then
-                    StartAttack(units.dyn5)
+                if getDistance(units.dyn5) < 5 then
+                    StartAttack()
+                end
+    -- Racial - Arcane Torrent
+                if isChecked("Racial: Blood Elf Only") and getDistance("target") < 5 then
+                    if CastSpellByName(GetSpellInfo(202719),"player") then return end
                 end
     -- Fiery Brand
                 -- actions+=/fiery_brand,if=buff.demon_spikes.down&buff.metamorphosis.down
-                        if cast.fieryBrand() then return end
+                if isChecked("Fiery Brand") then
+                    if cast.fieryBrand() then return end
+                end
     -- Empower Wards
                 -- actions+=/empower_wards,if=debuff.casting.up
                 if isChecked("Empower Wards") then
-                    for i=1, #enemies.yards30 do
-                        thisUnit = enemies.yards30[i]
-                            if cd.consumeMagic > 0 and castingUnit(thisUnit) then
+                    for i=1, #getEnemies("player",20) do
+                        thisUnit = getEnemies("player",20)[i]
+                        distance = getDistance(thisUnit)
+                            if cd.consumeMagic > 0 and castingUnit(thisUnit) and distance < 20 then
                                 if cast.empowerWards() then return end
                             end
                         end
@@ -282,7 +324,7 @@ local function runRotation()
     -- Demon Spikes
                 -- actions+=/demon_spikes,if=charges=2|buff.demon_spikes.down&!dot.fiery_brand.ticking&buff.metamorphosis.down
                 if isChecked("Demon Spikes - HP") then
-                    if php <= getOptionValue("Demon Spikes - HP") and inCombat and not buff.demonSpikes.exists() then
+                    if php <= getOptionValue("Demon Spikes - HP") and not buff.demonSpikes.exists() then
                         if cast.demonSpikes() then return end
                     end
                 end
@@ -356,7 +398,7 @@ local function runRotation()
                 end
     -- Soul Cleave
                 -- actions+=/soul_cleave,if=pain>=80
-                if php < 65 and buff.soulFragments.stack() >= 5 then
+                if php < 40 and pain < 30 and buff.soulFragments.stack() < 1 then
                     if cast.soulCleave() then return end
                 end
     -- Immolation Aura
@@ -381,9 +423,13 @@ local function runRotation()
                 if pain < 80 then
                         if cast.shear() then return end
                 end
+    -- Throw Glaive (Mo'Arg Leggo Support)
+                if isChecked("Throw Glaive") and hasEquiped(137090) and #getEnemies("player",10) >= 3 then
+                    if cast.throwGlaive("target") then return end
+                end
     -- Throw Glaive
-                if getDistance(units.dyn5) > 5 then
-                    if cast.throwGlaive() then return end
+                if isChecked("Throw Glaive") and not hasEquiped(137090) and getDistance(units.dyn5) > 5 then
+                    if cast.throwGlaive("target") then return end
                 end
             end --End In Combat
         end --End Rotation Logic
