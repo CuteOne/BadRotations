@@ -256,9 +256,9 @@ local function runRotation()
         if useAvatar == nil then useAvatar = false end
         if cd.warbreaker <= 3 then usedWarbreaker = false end
         if getOptionValue("Battle Cry") == 3 or (getOptionValue("Battle Cry") == 2 and not useCDs()) then ignoreBattleCry = true else ignoreBattleCry = false end
-		
-		if lastCast == spell.colossusSmash then PS = true end
-		if lastCast == spell.execute or lastCast == spell.mortalStrike then PS = false end
+        
+        if lastCast == spell.colossusSmash then PS = true end
+        if lastCast == spell.execute or lastCast == spell.mortalStrike then PS = false end
 
         -- ChatOverlay(tostring(isInstanceBoss("target")))
         -- ChatOverlay(#enemies.yards5)
@@ -427,8 +427,10 @@ local function runRotation()
                 
                 
                 --actions+=/battle_cry,if=target.time_to_die<=6|(gcd.remains<=0.5&prev_gcd.1.ravager)|!talent.ravager.enabled&!gcd.remains&target.debuff.colossus_smash.remains>=5&(!cooldown.bladestorm.remains|!set_bonus.tier20_4pc)&(!talent.rend.enabled|dot.rend.remains>4)
-                if ttd(units.dyn5) <= 6 or (cd.global <= 0.5 and lastCast == spell.ravager) or not talent.ravager and not cd.global and debuff.colossusSmash.remain(units.dyn5) >= 5 and (not cd.bladestorm or not t20_4pc) and (not talent.rend or debuff.rend.remain(units.dyn5) > 4) then
-                    if cast.battleCry() then return end
+                if (getOptionValue("Battle Cry") == 1 or (getOptionValue("Battle Cry") == 2 and useCDs())) then
+                    if ttd(units.dyn5) <= 6 or (cd.global <= 0.5 and lastCast == spell.ravager) or not talent.ravager and not cd.global and debuff.colossusSmash.remain(units.dyn5) >= 5 and (not cd.bladestorm or not t20_4pc) and (not talent.rend or debuff.rend.remain(units.dyn5) > 4) then
+                        if cast.battleCry() then return end
+                    end
                 end
                 
                 
@@ -639,7 +641,7 @@ local function runRotation()
             end
             
         --actions.single+=/mortal_strike,if=buff.shattered_defenses.up|buff.executioners_precision.down
-            if buff.shatteredDefenses.exists() or not debuff.executionersPrecision.exists(units.dyn5) then
+            if buff.shatteredDefenses.exists() or not debuff.executionersPrecision.exists(unit.dyn5) then
                 if cast.mortalStrike() then return end
             end
             
