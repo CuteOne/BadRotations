@@ -1,4 +1,4 @@
-local rotationName = "Cpoworks"
+local rotationName = "Kuukuu"
 
 ---------------
 --- Toggles ---
@@ -253,12 +253,13 @@ local function runRotation()
 --------------------
     -- Action List - Pet Management
         local function actionList_PetManagement()
-            if not IsMounted() then
-                if isChecked("Auto Summon") and not GetUnitExists("pet") and (UnitIsDeadOrGhost("pet") ~= nil or IsPetActive() == false) then
-                  if waitForPetToAppear ~= nil and waitForPetToAppear < GetTime() - 2 then
-                      if deadPet == true then
+            if IsMounted() or IsFlying() or UnitOnTaxi("player") or UnitInVehicle("player") then
+                waitForPetToAppear = GetTime()
+            elseif isChecked("Auto Summon") and not GetUnitExists("pet") and (UnitIsDeadOrGhost("pet") ~= nil or IsPetActive() == false) then
+                if waitForPetToAppear ~= nil and GetTime() - waitForPetToAppear > 2 then
+                    if deadPet == true then
                         if castSpell("player",982) then return; end
-                      elseif deadPet == false then
+                    elseif deadPet == false then
                         local Autocall = getValue("Auto Summon");
 
                         if Autocall == 1 then
@@ -274,12 +275,10 @@ local function runRotation()
                         else
                           Print("Auto Call Pet Error")
                         end
-                      end
-
-                  end
-                  if waitForPetToAppear == nil then
+                    end
+                end
+                if waitForPetToAppear == nil then
                     waitForPetToAppear = GetTime()
-                  end
                 end
             end
             --Revive
@@ -483,7 +482,7 @@ local function runRotation()
     -- Profile Stop | Pause
         if not inCombat and not hastar and profileStop==true then
             profileStop = false
-        elseif (inCombat and profileStop==true) or (IsMounted() or IsFlying()) or pause() or mode.rotation==4 then
+        elseif (inCombat and profileStop==true) or (IsMounted() or IsFlying() or UnitOnTaxi("player") or UnitInVehicle("player")) or pause() or mode.rotation==4 then
             if not pause() and IsPetAttackActive() then
                 PetStopAttack()
                 PetFollow()
@@ -532,8 +531,17 @@ local function runRotation()
                         if isChecked("Racial") and (br.player.race == "BloodElf") and powerDeficit >= 30 then
                             if castSpell("player",racial,false,false,false) then return end
                         end
+                    -- Trinkets
+                         if useCDs() and getOptionValue("Trinkets") ~= 4 then
+                            if (getOptionValue("Trinkets") == 1 or getOptionValue("Trinkets") == 3) and canUse(13) then
+                                useItem(13)
+                            end
+                            if (getOptionValue("Trinkets") == 2 or getOptionValue("Trinkets") == 3) and canUse(14) then
+                                useItem(14)
+                            end
+                        end
                     -- Orc Blood Fury | Troll Berserking
-                        if isChecked("Racial") and (br.player.race == "Orc" or br.player.race == "Troll") then
+                        if useCDs() and isChecked("Racial") and (br.player.race == "Orc" or br.player.race == "Troll") then
                              if castSpell("player",racial,false,false,false) then return end
                         end
                     -- Ring of Collapsing Futures
