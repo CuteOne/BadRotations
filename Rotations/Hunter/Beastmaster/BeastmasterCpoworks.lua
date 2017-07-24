@@ -365,10 +365,6 @@ local function runRotation()
     -- Action List - Cooldowns
         local function actionList_Cooldowns()
             if useCDs() then
-                -- Blood Elf Arcane Torrent on focus deficit (SimC)
-                if isChecked("Racial") and (br.player.race == "BloodElf") and powerDeficit >= 30 then
-                     if castSpell("player",racial,false,false,false) then return end
-                end
                 if buff.bestialWrath.exists() then
                     -- Trinkets
                     if useCDs() and getOptionValue("Trinkets") ~= 4 then
@@ -384,26 +380,6 @@ local function runRotation()
                         useItem(agiPot);
                         return true
                     end
-                    -- Racial: Orc Blood Fury | Troll Berserking
-                    if isChecked("Racial") and (br.player.race == "Orc" or br.player.race == "Troll") then
-                         if castSpell("player",racial,false,false,false) then return end
-                    end
-                    -- Aspect of the Wild
-                    if isChecked("Aspect of the Wild") then
-                        if cast.aspectOfTheWild() then return end
-                    end
-                    -- Stampede
-                    if isChecked("Stampede") then
-                        if cast.stampede(units.dyn40) then return end
-                    end
-                end
-                -- A Murder of Crows
-                if isChecked("A Murder Of Crows / Barrage") then
-                    if cast.aMurderOfCrows(units.dyn40) then return end
-                end
-                -- Bestial Wrath
-                if isChecked("Bestial Wrath") then
-                    if cast.bestialWrath() then return end
                 end
             end -- End useCooldowns check
         end -- End Action List - Cooldowns
@@ -506,6 +482,8 @@ local function runRotation()
 --- Pet Logic ---
 -----------------
             if actionList_PetManagement() then return end
+
+            if actionList_Cooldowns() then return end
 --------------------------
 --- In Combat Rotation ---
 --------------------------
