@@ -74,6 +74,8 @@ local function createOptions()
         section = br.ui:createSection(br.ui.window.profile, "Interrupts")
         -- Consume Magic
             br.ui:createCheckbox(section, "Consume Magic")
+        -- Sigil of Chains
+            br.ui:createCheckbox(section, "Sigil of Chains")
         -- Sigil of Silence
             br.ui:createCheckbox(section, "Sigil of Silence")
         -- Sigil of Misery
@@ -237,9 +239,21 @@ local function runRotation()
                         if isChecked("Sigil of Silence") and not UnitDebuff("target", "Solar Beam") and cd.consumeMagic > 0 then
                             if cast.sigilOfSilence(thisUnit,"ground") then return end
                         end
+        -- Sigil of Chains
+                        if isChecked("Sigil of Chains") and not UnitDebuff("target", "Solar Beam") and cd.consumeMagic > 0 and cd.sigilOfMisery > 0 and distance < 10 then
+                            if cast.sigilOfChains(thisUnit,"ground") then return end
+                        end
+        -- Sigil of Silence - Concentrated Sigils
+                        if isChecked("Sigil of Silence") and not UnitDebuff("target", "Solar Beam") and cd.consumeMagic > 0 and talent.concentratedSigils and distance < 5 then
+                            if cast.sigilOfSilence() then return end
+                        end
         -- Sigil of Misery
                         if isChecked("Sigil of Misery") and cd.consumeMagic > 0 and cd.sigilOfSilence > 0 and cd.sigilOfSilence < 45 and distance < 10 then
                             if cast.sigilOfMisery(thisUnit,"ground") then return end
+                        end
+        -- Sigil of Misery - Concentrated Sigils
+                        if isChecked("Sigil of Misery") and cd.consumeMagic > 0 and cd.sigilOfSilence > 0 and cd.sigilOfSilence < 45 and talent.concentratedSigils and distance < 5 then
+                            if cast.sigilOfMisery() then return end
                         end
                     end
                 end
@@ -277,7 +291,7 @@ local function runRotation()
 --------------------------
 --- In Combat Rotation ---
 --------------------------
-            if inCombat and profileStop==false and isValidUnit(units.dyn5) and not (IsMounted() or IsFlying()) then
+            if inCombat and profileStop == false and isValidUnit(units.dyn5) and not (IsMounted() or IsFlying()) then
     ------------------------------
     --- In Combat - Interrupts ---
     ------------------------------
@@ -406,6 +420,10 @@ local function runRotation()
                 if getDistance(units.dyn5) < 8 and (not artifact.flamingSoul or cd.fieryBrand > cd.immolationAura) then
                     if cast.immolationAura() then return end
                 end
+    -- Throw Glaive (Mo'Arg Leggo Support)
+                if isChecked("Throw Glaive") and hasEquiped(137090) and #getEnemies("player",10) >= 3 then
+                    if cast.throwGlaive() then return end
+                end
     -- Infernal Strike
                 -- actions+=/infernal_strike,if=!sigil_placed&!in_flight&remains-travel_time-delay<0.3*duration&artifact.fiery_demise.enabled&dot.fiery_brand.ticking
                 -- actions+=/infernal_strike,if=!sigil_placed&!in_flight&remains-travel_time-delay<0.3*duration&(!artifact.fiery_demise.enabled|(max_charges-charges_fractional)*recharge_time<cooldown.fiery_brand.remain()s+5)&(cooldown.sigil_of_flame.remain()s>7|charges=2)
@@ -423,13 +441,9 @@ local function runRotation()
                 if pain < 80 then
                         if cast.shear() then return end
                 end
-    -- Throw Glaive (Mo'Arg Leggo Support)
-                if isChecked("Throw Glaive") and hasEquiped(137090) and #getEnemies("player",10) >= 3 then
-                    if cast.throwGlaive("target") then return end
-                end
     -- Throw Glaive
                 if isChecked("Throw Glaive") and not hasEquiped(137090) and getDistance(units.dyn5) > 5 then
-                    if cast.throwGlaive("target") then return end
+                    if cast.throwGlaive() then return end
                 end
             end --End In Combat
         end --End Rotation Logic
