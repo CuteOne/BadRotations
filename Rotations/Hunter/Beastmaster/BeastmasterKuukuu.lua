@@ -511,6 +511,12 @@ local function runRotation()
     ------------------------------
                     if actionList_Interrupts() then return end
 
+                    if isChecked("Agi-Pot") and useCDs() then
+                        if canUse(142117) then
+                            useItem(142117)
+                        end
+                    end
+
                     if isChecked("Opener") and opener == false and isBoss(units.dyn40) then
                         if (cd.bestialWrath <= gcd and cd.aMurderOfCrows <= gcd and cd.aspectOfTheWild <= gcd and cd.titansThunder <= gcd and charges.frac.direBeast >= 1.5) or openerStarted == true then
                             if actionList_Opener() then return end
