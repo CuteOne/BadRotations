@@ -345,7 +345,7 @@ local function runRotation()
 		local function overhealingcancel()
 			-- Overhealing Cancel
 			if isChecked("Overhealing Cancel") and healing_obj ~= nil then
-				if ((getHP(healing_obj) >= getValue("Overhealing Cancel") and (isCastingSpell(spell.flashOfLight) or isCastingSpell(spell.holyLight))) or (getHP(healing_obj) <= getValue("Critical HP") and isCastingSpell(spell.holyLight))) and (talent.auraOfSacrifice and not buff.auraMastery.exists()) then
+				if getHP(healing_obj) >= getValue("Overhealing Cancel") and (isCastingSpell(spell.flashOfLight) or isCastingSpell(spell.holyLight)) then
 					SpellStopCasting()
 					healing_obj = nil
 					Print("Cancel casting...")
@@ -551,7 +551,7 @@ local function runRotation()
 				end
 				-- Divine Shield
 				if isChecked("Divine Shield") then
-					if php <= getOptionValue("Divine Shield") and getDebuffRemain("player",25771) < 1 then
+					if php <= getOptionValue("Divine Shield") then
 						if cast.divineShield() then return end
 					end
 				end
@@ -587,6 +587,13 @@ local function runRotation()
 			if getDebuffRemain("player",200904) > 1 then
 				if cast.contemplation() then return end
 			end
+    		-- Blessing of Freedom
+    		for i = 1, #br.friend do
+    		    if getDebuffRemain(br.friend[i].unit,202615) > 1 or getDebuffRemain(br.friend[i].unit,211543) > 1 then
+    			    if cast.blessingOfFreedom(br.friend[i].unit) then return end
+    			end
+    		end 
+			-- Blessing of Protection
 			for i = 1, #br.friend do
 				if getDebuffRemain(br.friend[i].unit,237726) > 1 or getDebuffRemain(br.friend[i].unit,196838) > 1 then
 					if cast.blessingOfProtection(br.friend[i].unit) then return end
@@ -732,15 +739,15 @@ local function runRotation()
 			if isChecked("Lay on Hands") and GetSpellCooldown(633) == 0 then
 				for i = 1, #br.friend do
 					if getOptionValue("Lay on Hands Target") == 1 then
-						if br.friend[i].hp <= getValue ("Lay on Hands") and getDebuffRemain(br.friend[i].unit,25771) < 1 and getDebuffStacks(br.friend[i].unit,209858) < 25 then
+						if br.friend[i].hp <= getValue ("Lay on Hands") and getDebuffStacks(br.friend[i].unit,209858) < 25 then
 							if cast.layOnHands(br.friend[i].unit) then return end
 						end
 					elseif getOptionValue("Lay on Hands Target") == 2 then
-						if br.friend[i].hp <= getValue ("Lay on Hands") and getDebuffRemain(br.friend[i].unit,25771) < 1 and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" and getDebuffStacks(br.friend[i].unit,209858) < 25 then
+						if br.friend[i].hp <= getValue ("Lay on Hands") and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" and getDebuffStacks(br.friend[i].unit,209858) < 25 then
 							if cast.layOnHands(br.friend[i].unit) then return end
 						end
 					elseif getOptionValue("Lay on Hands Target") == 3 then
-						if php <= getValue("Lay on Hands") and getDebuffRemain("player",25771) < 1 then
+						if php <= getValue("Lay on Hands") then
 							if cast.layOnHands("player") then return end
 						end
 					end
@@ -750,19 +757,19 @@ local function runRotation()
 			if isChecked("Blessing of Protection") and GetSpellCooldown(1022) == 0 then
 				for i = 1, #br.friend do
 					if getOptionValue("BoP Target") == 1 then
-						if br.friend[i].hp <= getValue ("Blessing of Protection") and getDebuffRemain(br.friend[i].unit,25771) < 1 then
+						if br.friend[i].hp <= getValue ("Blessing of Protection") then
 							if cast.blessingOfProtection(br.friend[i].unit) then return end
 						end
 					elseif getOptionValue("BoP Target") == 2 then
-						if br.friend[i].hp <= getValue ("Blessing of Protection") and getDebuffRemain(br.friend[i].unit,25771) < 1 and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
+						if br.friend[i].hp <= getValue ("Blessing of Protection") and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
 							if cast.blessingOfProtection(br.friend[i].unit) then return end
 						end
 					elseif getOptionValue("BoP Target") == 3 then
-						if br.friend[i].hp <= getValue ("Blessing of Protection") and getDebuffRemain(br.friend[i].unit,25771) < 1 and (UnitGroupRolesAssigned(br.friend[i].unit) == "HEALER" or UnitGroupRolesAssigned(br.friend[i].unit) == "DAMAGER") then
+						if br.friend[i].hp <= getValue ("Blessing of Protection") and (UnitGroupRolesAssigned(br.friend[i].unit) == "HEALER" or UnitGroupRolesAssigned(br.friend[i].unit) == "DAMAGER") then
 							if cast.blessingOfProtection(br.friend[i].unit) then return end
 						end
 					elseif getOptionValue("BoP Target") == 4 then
-						if php <= getValue("Blessing of Protection") and getDebuffRemain("player",25771) < 1 then
+						if php <= getValue("Blessing of Protection") then
 							if cast.blessingOfProtection("player") then return end
 						end
 					end
@@ -832,7 +839,7 @@ local function runRotation()
 				end
 			end
 			-- Tyr's Deliverance
-			if isChecked("Tyr's Deliverance") and not isMoving("player") and not buff.auraMastery.exists() then
+			if isChecked("Tyr's Deliverance") and not isMoving("player") and getDebuffRemain("player",240447) == 0 and not buff.auraMastery.exists() then
 				if getLowAllies(getValue"Tyr's Deliverance") >= getValue("Tyr's Deliverance Targets") then
 					if cast.tyrsDeliverance() then return end
 				end
@@ -1008,7 +1015,7 @@ local function runRotation()
 				end
 			end
 			-- Flash of Light
-			if isChecked("Flash of Light") and not isMoving("player") and (getOptionValue("FoL Infuse") == 1 or (getOptionValue("FoL Infuse") == 2 and buff.infusionOfLight.remain() > 1.5)) then
+			if isChecked("Flash of Light") and not isMoving("player") and getDebuffRemain("player",240447) == 0 and (getOptionValue("FoL Infuse") == 1 or (getOptionValue("FoL Infuse") == 2 and buff.infusionOfLight.remain() > 1.5)) then
 				if php <= getValue("Critical HP") then
 					if cast.flashOfLight("player") then return end
 				end
@@ -1079,7 +1086,7 @@ local function runRotation()
 				end
 			end
 			-- Holy Light
-			if isChecked("Holy Light") and not isMoving("player") and (getOptionValue("Holy Light Infuse") == 1 or (getOptionValue("Holy Light Infuse") == 2 and buff.infusionOfLight.remain() > 1 and GetSpellCooldown(20473) > 0 and lastSpell ~= spell.flashOfLight)) then
+			if isChecked("Holy Light") and not isMoving("player") and and getDebuffRemain("player",240447) == 0 (getOptionValue("Holy Light Infuse") == 1 or (getOptionValue("Holy Light Infuse") == 2 and buff.infusionOfLight.remain() > 1 and GetSpellCooldown(20473) > 0 and lastSpell ~= spell.flashOfLight)) then
 				if inRaid and isChecked("Mastery bonus") then
 					for i = 1, #br.friend do
 						if br.friend[i].hp <= getValue("Holy Light") and getBuffRemain(br.friend[i].unit,200654) > 1 then
