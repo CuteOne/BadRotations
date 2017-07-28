@@ -595,7 +595,7 @@ local function runRotation()
     		end 
 			-- Blessing of Protection
 			for i = 1, #br.friend do
-				if getDebuffRemain(br.friend[i].unit,237726) > 1 or getDebuffRemain(br.friend[i].unit,196838) > 1 then
+				if getDebuffRemain(br.friend[i].unit,196838) > 1 then
 					if cast.blessingOfProtection(br.friend[i].unit) then return end
 				end
 			end
@@ -839,7 +839,7 @@ local function runRotation()
 				end
 			end
 			-- Tyr's Deliverance
-			if isChecked("Tyr's Deliverance") and not isMoving("player") and getDebuffRemain("player",240447) == 0 and not buff.auraMastery.exists() then
+			if isChecked("Tyr's Deliverance") and not isMoving("player") and not buff.auraMastery.exists() then
 				if getLowAllies(getValue"Tyr's Deliverance") >= getValue("Tyr's Deliverance Targets") then
 					if cast.tyrsDeliverance() then return end
 				end
@@ -1015,7 +1015,7 @@ local function runRotation()
 				end
 			end
 			-- Flash of Light
-			if isChecked("Flash of Light") and not isMoving("player") and getDebuffRemain("player",240447) == 0 and (getOptionValue("FoL Infuse") == 1 or (getOptionValue("FoL Infuse") == 2 and buff.infusionOfLight.remain() > 1.5)) then
+			if isChecked("Flash of Light") and not isMoving("player") and (getOptionValue("FoL Infuse") == 1 or (getOptionValue("FoL Infuse") == 2 and buff.infusionOfLight.remain() > 1.5)) then
 				if php <= getValue("Critical HP") then
 					if cast.flashOfLight("player") then return end
 				end
@@ -1086,7 +1086,7 @@ local function runRotation()
 				end
 			end
 			-- Holy Light
-			if isChecked("Holy Light") and not isMoving("player") and getDebuffRemain("player",240447) == 0 and (getOptionValue("Holy Light Infuse") == 1 or (getOptionValue("Holy Light Infuse") == 2 and buff.infusionOfLight.remain() > 1 and GetSpellCooldown(20473) > 0 and lastSpell ~= spell.flashOfLight)) then
+			if isChecked("Holy Light") and not isMoving("player") and (getOptionValue("Holy Light Infuse") == 1 or (getOptionValue("Holy Light Infuse") == 2 and buff.infusionOfLight.remain() > 1 and GetSpellCooldown(20473) > 0 and lastSpell ~= spell.flashOfLight)) then
 				if inRaid and isChecked("Mastery bonus") then
 					for i = 1, #br.friend do
 						if br.friend[i].hp <= getValue("Holy Light") and getBuffRemain(br.friend[i].unit,200654) > 1 then
