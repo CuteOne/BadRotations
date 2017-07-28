@@ -12,8 +12,9 @@ local function createToggles()
     CreateButton("Rotation",1,0)
 -- Cooldown Button
     CooldownModes = {
-        [1] = { mode = "On", value = 1 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 1, icon = br.player.spell.fieryBrand },
-        [2] = { mode = "Off", value = 2 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.spiritBomb }
+        [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spell.fieryBrand},
+        [2] = { mode = "On", value = 1 , overlay = "Cooldowns Enabled", tip = "Always use CDs.", highlight = 0, icon = br.player.spell.sigilOfChains},
+        [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.sigilOfMisery}
     };
     CreateButton("Cooldown",2,0)
 -- Defensive Button
@@ -51,9 +52,10 @@ local function createOptions()
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
         -- Racial
             br.ui:createCheckbox(section,"Racial: Blood Elf Only")
-        -- Trinkets
-            br.ui:createCheckbox(section,"Trinket 1")
-            br.ui:createCheckbox(section,"Trinket 2")
+        -- Archimonde's Hatred Reborn
+            br.ui:createCheckbox(section, "Archimonde's Hatred Reborn")
+        -- Kil'jaeden's Burning Wish
+            br.ui:createCheckbox(section, "Kil'jaeden's Burning Wish")
         br.ui:checkSectionState(section)
     -- Defensive Options
         section = br.ui:createSection(br.ui.window.profile, "Defensive")
@@ -86,15 +88,13 @@ local function createOptions()
     -- Toggle Key Options
         section = br.ui:createSection(br.ui.window.profile, "Toggle Keys")
         -- Single/Multi Toggle
-            br.ui:createDropdown(section, "Rotation Mode", br.dropOptions.Toggle,  4)
+            br.ui:createDropdown(section, "Rotation Mode", br.dropOptions.Toggle,  2)
         -- Cooldown Key Toggle
             br.ui:createDropdown(section, "Cooldown Mode", br.dropOptions.Toggle,  3)
         -- Defensive Key Toggle
             br.ui:createDropdown(section, "Defensive Mode", br.dropOptions.Toggle,  6)
         -- Interrupts Key Toggle
             br.ui:createDropdown(section, "Interrupt Mode", br.dropOptions.Toggle,  6)
-        -- Pause Toggle
-            br.ui:createDropdown(section, "Pause Mode", br.dropOptions.Toggle,  6)
         br.ui:checkSectionState(section)
     end
     optionTable = {{
@@ -191,22 +191,6 @@ local function runRotation()
                 end
             end
         end -- End Action List - Extras
-    -- Action List - Cooldowns
-        local function actionList_Cooldowns()
-            if useCDs() and getDistance(units.dyn5) < 5 then
-        -- Trinkets
-                if isChecked("Trinket 1") then
-                    if canUse(13) then
-                        useItem(13)
-                    end
-                end
-                if isChecked("Trinket 2") then
-                    if canUse(14) then
-                        useItem(14)
-                    end
-                end
-            end -- End useCDs check
-        end -- End Action List - Cooldowns
     -- Action List - Defensive
         local function actionList_Defensive()
             if useDefensive() then
@@ -232,16 +216,16 @@ local function runRotation()
                     distance = getDistance(thisUnit)
                     if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
         -- Consume Magic
-                        if isChecked("Consume Magic") and distance < 20 then
+                        if isChecked("Consume Magic") and distance < 15 and cd.sigilOfChains > 0 then
                             if cast.consumeMagic(thisUnit) then return end
+                        end
+        -- Sigil of Chains
+                        if isChecked("Sigil of Chains") and distance > 8 then
+                            if cast.sigilOfChains(thisUnit,"ground") then return end
                         end
         -- Sigil of Silence
                         if isChecked("Sigil of Silence") and not UnitDebuff("target", "Solar Beam") and cd.consumeMagic > 0 then
                             if cast.sigilOfSilence(thisUnit,"ground") then return end
-                        end
-        -- Sigil of Chains
-                        if isChecked("Sigil of Chains") and not UnitDebuff("target", "Solar Beam") and cd.consumeMagic > 0 and cd.sigilOfMisery > 0 and distance < 10 then
-                            if cast.sigilOfChains(thisUnit,"ground") then return end
                         end
         -- Sigil of Silence - Concentrated Sigils
                         if isChecked("Sigil of Silence") and not UnitDebuff("target", "Solar Beam") and cd.consumeMagic > 0 and talent.concentratedSigils and distance < 5 then
@@ -259,10 +243,23 @@ local function runRotation()
                 end
             end -- End useInterrupts check
         end -- End Action List - Interrupts
+    -- Action List - Cooldowns
+        local function actionList_Cooldowns()
+			if getDistance(units.dyn5) < 5 then
+		-- Archimonde's Hatred Reborn
+                if isChecked("Archimonde's Hatred Reborn") and useCDs() and hasEquiped(144249) and canUse(144249) and buff.metamorphosis.exists() or getSpellCD(187827) > GetItemCooldown(144249) then
+                    useItem(144249)
+                end
+		-- Kil'jaeden's Burning Wish
+                if isChecked("Kil'jaeden's Burning Wish") and useCDs() and hasEquiped(144259) and canUse(144259) and #getEnemies("player",8) >= 3 then
+                    useItem(144259)
+                end
+            end -- End useCooldowns check
+        end -- End Action List - Cooldowns
     -- Action List - PreCombat
         local function actionList_PreCombat()
-            if not inCombat then
-                if isValidUnit("target") and getDistance("target") < 5 then --less qq moar pew pew
+            if not inCombat and not (IsFlying() or IsMounted()) then
+                if isValidUnit("target") and not UnitIsDeadOrGhost("target") and getDistance("target") <= 5 then
                     StartAttack()
                 end
             end -- End No Combat
@@ -273,7 +270,7 @@ local function runRotation()
     -- Profile Stop | Pause
         if not inCombat and not hastar and profileStop == true then
             profileStop = false
-        elseif (inCombat and profileStop == true) or IsFlying() or pause() or mode.rotation == 4 then
+        elseif (inCombat and profileStop == true) or pause() or mode.rotation == 4 then
             return true
         else
 -----------------------
@@ -291,21 +288,25 @@ local function runRotation()
 --------------------------
 --- In Combat Rotation ---
 --------------------------
-            if inCombat and profileStop == false and isValidUnit(units.dyn5) and not (IsMounted() or IsFlying()) then
+            if inCombat and profileStop == false and isValidUnit(units.dyn5) then
+                -- auto_attack
+                if getDistance("target") < 5 then
+                    StartAttack()
+                end
     ------------------------------
     --- In Combat - Interrupts ---
     ------------------------------
                 if actionList_Interrupts() then return end
+    --- In Combat - Cooldowns ---
+    -----------------------------
+                if actionList_Cooldowns() then return end
+    ---------------------------
     ---------------------------
     --- SimulationCraft APL ---
     ---------------------------
-    -- Start Attack
-                -- actions=auto_attack
-                if getDistance(units.dyn5) < 5 then
-                    StartAttack()
-                end
+			if getOptionValue("APL Mode") == 1 then
     -- Racial - Arcane Torrent
-                if isChecked("Racial: Blood Elf Only") and getDistance("target") < 5 then
+                if isChecked("Racial: Blood Elf Only") and useCDs() and getDistance("target") < 5 then
                     if CastSpellByName(GetSpellInfo(202719),"player") then return end
                 end
     -- Fiery Brand
@@ -353,7 +354,7 @@ local function runRotation()
                     if cast.soulBarrier() then return end
                 end
     -- Soul Carver
-                if (buff.soulFragments.stack() <= 3 or (debuff.fieryBrand.exists(units.dyn5) and artifact.flamingSoul)) and (cd.fieryBrand > 5 or not artifact.flamingSoul) then
+                if (buff.soulFragments.stack() <= 3 or (debuff.fieryBrand.exists(units.dyn5) and artifact.flamingSoul)) and (getSpellCD(204021) > 5 or not artifact.flamingSoul) then
                     if cast.soulCarver() then return end
                 end
     -- Immolation Aura
@@ -361,9 +362,14 @@ local function runRotation()
                 if getDistance(units.dyn5) < 8 and (debuff.fieryBrand.exists(units.dyn5) and artifact.flamingSoul) then
                     if cast.immolationAura() then return end
                 end
+    -- Immolation Aura
+                -- actions+=/immolation_aura,if=pain<=80
+                if not isChecked("Fiery Brand") and getDistance(units.dyn5) < 8 then
+                    if cast.immolationAura() then return end
+                end
     -- Spirit Bomb
                 -- actions+=/spirit_bomb,if=debuff.frailty.down
-                if getDistance(units.dyn5) < 8 and (not debuff.frailty.exists(units.dyn5) and buff.soulFragments.stack() > 0) or buff.soulFragments.stack() >= 4 then
+                if getDistance(units.dyn5) < 8 and (not debuff.frailty.exists(units.dyn8) and buff.soulFragments.stack() > 0) or buff.soulFragments.stack() >= 4 then
                     if cast.spiritBomb() then return end
                 end
     -- Fel Devastation
@@ -392,7 +398,7 @@ local function runRotation()
                 end
     -- Sigil of Flame
                 -- actions+=/sigil_of_flame,if=remains-delay<=0.3*duration
-                if talent.quickenedSigils and getDistance(units.dyn5) < 5 and not isMoving(units.dyn5) then
+                if talent.quickenedSigils and getDistance(units.dyn5) < 8 and not isMoving(units.dyn5) then
                     if cast.sigilOfFlame("best",false,1,6) then return end
                 end
     -- Fracture
@@ -416,8 +422,8 @@ local function runRotation()
                     if cast.soulCleave() then return end
                 end
     -- Immolation Aura
-                -- actions+=/immolation_aura,if=pain<=80
-                if getDistance(units.dyn5) < 8 and (not artifact.flamingSoul or cd.fieryBrand > cd.immolationAura) then
+                -- getSpellCD(spell.fieryBrand) > (GetSpellBaseCooldown(spell.immolationAura)/1000)
+                if getDistance(units.dyn5) < 8 and (not artifact.flamingSoul or getSpellCD(204021) > (GetSpellBaseCooldown(178740)/1000)) then
                     if cast.immolationAura() then return end
                 end
     -- Throw Glaive (Mo'Arg Leggo Support)
@@ -427,7 +433,7 @@ local function runRotation()
     -- Infernal Strike
                 -- actions+=/infernal_strike,if=!sigil_placed&!in_flight&remains-travel_time-delay<0.3*duration&artifact.fiery_demise.enabled&dot.fiery_brand.ticking
                 -- actions+=/infernal_strike,if=!sigil_placed&!in_flight&remains-travel_time-delay<0.3*duration&(!artifact.fiery_demise.enabled|(max_charges-charges_fractional)*recharge_time<cooldown.fiery_brand.remain()s+5)&(cooldown.sigil_of_flame.remain()s>7|charges=2)
-                if getDistance(units.dyn5) < 6 and charges.infernalStrike > 1 then
+                if getDistance(units.dyn5) < 5 and charges.infernalStrike > 1 then
                     if (artifact.fieryDemise and debuff.fieryBrand.exists(units.dyn5))
                         or (not artifact.fieryDemise or (charges.max.infernalStrike - charges.frac.infernalStrike) * recharge.infernalStrike < cd.fieryBrand + 5)
                         and (cd.sigilOfFlame > 7 or charges.infernalStrike == 2)
@@ -442,9 +448,10 @@ local function runRotation()
                         if cast.shear() then return end
                 end
     -- Throw Glaive
-                if isChecked("Throw Glaive") and not hasEquiped(137090) and getDistance(units.dyn5) > 5 then
+                if isChecked("Throw Glaive") and not hasEquiped(137090) and getDistance(units.dyn5) > 8 then
                     if cast.throwGlaive() then return end
                 end
+			end --End SaintlySinner APL
             end --End In Combat
         end --End Rotation Logic
     end -- End Timer
