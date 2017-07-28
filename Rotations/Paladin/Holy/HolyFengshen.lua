@@ -137,8 +137,8 @@ local function createOptions()
 		section = br.ui:createSection(br.ui.window.profile, "Single Target Healing")
 		--Flash of Light
 		br.ui:createSpinner(section, "Flash of Light",  70,  0,  100,  5,  "","|cffFFFFFFHealth Percent to Cast At")
-		br.ui:createSpinner(section, "FoL Tanks",  70,  0,  100,  5,  "","|cffFFFFFFHealth Percent to Cast At", true)
-		br.ui:createDropdownWithout(section, "FoL Infuse", {"|cffFFFFFFNormal","|cffFFFFFFOnly Infuse"}, 1, "|cffFFFFFFOnly Use Infusion Procs.")
+		br.ui:createSpinner(section, "FoL Tanks",  70,  0,  100,  5,  "","|cffFFFFFFTanks Health Percent to Cast At", true)
+		br.ui:createSpinner(section, "FoL Infuse",  70,  0,  100,  5,  "","|cffFFFFFFIn Infuse buff Health Percent to Cast At", true)
 		--Holy Light
 		br.ui:createSpinner(section, "Holy Light",  85,  0,  100,  5,  "","|cffFFFFFFHealth Percent to Cast At")
 		br.ui:createDropdownWithout(section, "Holy Light Infuse", {"|cffFFFFFFNormal","|cffFFFFFFOnly Infuse"}, 2, "|cffFFFFFFOnly Use Infusion Procs.")
@@ -845,7 +845,7 @@ local function runRotation()
 				end
 			end
 			-- Flash of Light
-			if isChecked("Flash of Light") and not isMoving("player") and getDebuffRemain("player",240447) == 0 and (getOptionValue("FoL Infuse") == 1 or (getOptionValue("FoL Infuse") == 2 and buff.infusionOfLight.remain() > 1.5)) then
+			if isChecked("Flash of Light") and not isMoving("player") and getDebuffRemain("player",240447) == 0 then
 				if php <= getValue("Critical HP") then
 					if cast.flashOfLight("player") then return end
 				end
@@ -858,35 +858,43 @@ local function runRotation()
 					if cast.flashOfLight(br.friend[1].unit) then healing_obj = br.friend[1].unit return end
 				end
 				for i = 1, #br.friend do
-					if br.friend[i].hp <= getValue("FoL Tanks") and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
+					if br.friend[i].hp <= getValue("FoL Tanks") and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" and getDebuffStacks(br.friend[i].unit,209858) < 25 then
 						if cast.flashOfLight(br.friend[i].unit) then healing_obj = br.friend[i].unit return end
 					end
 				end
+				for i = 1, #br.friend do
+					if br.friend[i].hp <= getValue("Flash of Light") and getBuffRemain(br.friend[i].unit,200654) > 1.5 and getDebuffStacks(br.friend[i].unit,209858) < 25 then
+						if cast.flashOfLight(br.friend[i].unit) then healing_obj = br.friend[i].unit return end
+					end
+				end				
 				if inRaid and isChecked("Mastery bonus") then
 					for i = 1, #br.friend do
-						if br.friend[i].hp <= getValue("Flash of Light") and getBuffRemain(br.friend[i].unit,200654) > 1.5 then
+						if br.friend[i].hp <= getValue("FoL Infuse") and getDistance(br.friend[i].unit) <= (10*master_coff) and buff.infusionOfLight.remain("player") > 1.5 then
+							if cast.flashOfLight(br.friend[i].unit) then healing_obj = br.friend[i].unit return end					
+						elseif br.friend[i].hp <= getValue("Flash of Light") and getDistance(br.friend[i].unit) <= (10*master_coff) then
 							if cast.flashOfLight(br.friend[i].unit) then healing_obj = br.friend[i].unit return end
 						end
 					end
 					for i = 1, #br.friend do
-						if br.friend[i].hp <= getValue("Flash of Light") and getDistance(br.friend[i].unit) <= (10*master_coff) then
+						if br.friend[i].hp <= getValue("FoL Infuse") and getDistance(br.friend[i].unit) <= (20*master_coff) and buff.infusionOfLight.remain("player") > 1.5 then
 							if cast.flashOfLight(br.friend[i].unit) then healing_obj = br.friend[i].unit return end
+						elseif br.friend[i].hp <= getValue("Flash of Light") and getDistance(br.friend[i].unit) <= (20*master_coff) then
+							if cast.flashOfLight(br.friend[i].unit) then healing_obj = br.friend[i].unit return end							
 						end
 					end
 					for i = 1, #br.friend do
-						if br.friend[i].hp <= getValue("Flash of Light") and getDistance(br.friend[i].unit) <= (20*master_coff) then
+						if br.friend[i].hp <= getValue("FoL Infuse") and getDistance(br.friend[i].unit) <= (30*master_coff) and buff.infusionOfLight.remain("player") > 1.5 then
 							if cast.flashOfLight(br.friend[i].unit) then healing_obj = br.friend[i].unit return end
-						end
-					end
-					for i = 1, #br.friend do
-						if br.friend[i].hp <= getValue("Flash of Light") and getDistance(br.friend[i].unit) <= (30*master_coff) then
-							if cast.flashOfLight(br.friend[i].unit) then healing_obj = br.friend[i].unit return end
+						elseif br.friend[i].hp <= getValue("Flash of Light") and getDistance(br.friend[i].unit) <= (30*master_coff) then
+							if cast.flashOfLight(br.friend[i].unit) then healing_obj = br.friend[i].unit return end							
 						end
 					end
 				end
 				for i = 1, #br.friend do
-					if br.friend[i].hp <= getValue("Flash of Light") and getDebuffStacks(br.friend[i].unit,209858) < 25 then
+					if br.friend[i].hp <= getValue("FoL Infuse") and getDebuffStacks(br.friend[i].unit,209858) < 25 and buff.infusionOfLight.remain("player") > 1.5 then
 						if cast.flashOfLight(br.friend[i].unit) then healing_obj = br.friend[i].unit return end
+					elseif br.friend[i].hp <= getValue("Flash of Light") and getDebuffStacks(br.friend[i].unit,209858) < 25 then
+						if cast.flashOfLight(br.friend[i].unit) then healing_obj = br.friend[i].unit return end						
 					end
 				end
 			end
