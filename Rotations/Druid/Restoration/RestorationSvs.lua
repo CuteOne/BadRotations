@@ -479,7 +479,7 @@ local function runRotation()
 				end
 			end
 			-- Regrowth
-			if isChecked("Regrowth") and (not moving or buff.incarnationTreeOfLife.exists()) and getDebuffRemain("player",240447) == 0 then
+			if isChecked("Regrowth") and (not moving or buff.incarnationTreeOfLife.exists()) then
 				for i = 1, #br.friend do
 					if br.friend[i].hp <= getValue("Regrowth Clearcasting") and buff.clearcasting.remain() > 1.5 and getDebuffStacks(br.friend[i].unit,209858) < 30 then
 						if cast.regrowth(br.friend[i].unit) then
@@ -620,7 +620,7 @@ local function runRotation()
 			end
 			-- Wild Growth
 			for i=1, #br.friend do
-				if isChecked("Wild Growth") and not moving and not buff.wildGrowth.exists(br.friend[i].unit) and getDebuffRemain("player",240447) == 0 and not isCastingSpell(spell.tranquility) then
+				if isChecked("Wild Growth") and not moving and not buff.wildGrowth.exists(br.friend[i].unit) and not isCastingSpell(spell.tranquility) then
 					local lowHealthCandidates = getUnitsToHealAround(br.friend[i].unit,30,getValue("Wild Growth"),#br.friend)
 					if #lowHealthCandidates >= getValue("Wild Growth Targets") then
 					    if (talent.soulOfTheForest or hasEquiped(151636)) and not buff.soulOfTheForest.exists() and getBuffRemain("player",242315) == 0 and GetSpellCooldown(48438) <= 1 then
@@ -770,7 +770,7 @@ local function runRotation()
 				end
 			end
 			-- Oh Shit! Regrowth
-			if isChecked("Regrowth") and (not moving or buff.incarnationTreeOfLife.exists()) and getDebuffRemain("player",240447) == 0 and not isCastingSpell(spell.tranquility) then
+			if isChecked("Regrowth") and (not moving or buff.incarnationTreeOfLife.exists()) and not isCastingSpell(spell.tranquility) then
 				for i = 1, #br.friend do
 					if br.friend[i].hp <= getValue("Oh Shit! Regrowth") and getDebuffStacks(br.friend[i].unit,209858) < 30 then
 						if cast.regrowth(br.friend[i].unit) then regrowth_target = br.friend[i] return end
@@ -810,7 +810,7 @@ local function runRotation()
 				end
 			end
 			-- Regrowth
-			if isChecked("Regrowth") and (not moving or buff.incarnationTreeOfLife.exists()) and getDebuffRemain("player",240447) == 0 and not isCastingSpell(spell.tranquility) then
+			if isChecked("Regrowth") and (not moving or buff.incarnationTreeOfLife.exists()) and not isCastingSpell(spell.tranquility) then
 				for i = 1, #br.friend do		
 					if br.friend[i].hp <= getValue("Regrowth Clearcasting") and buff.clearcasting.remain() > 1.5 and getDebuffStacks(br.friend[i].unit,209858) < 30 then
 						if cast.regrowth(br.friend[i].unit) then regrowth_target = br.friend[i] return end
@@ -824,7 +824,7 @@ local function runRotation()
 				end
 			end
 			-- Healing Touch with abundance stacks >= 5
-			if isChecked("Healing Touch") and not moving and getDebuffRemain("player",240447) == 0 and not isCastingSpell(spell.tranquility) then
+			if isChecked("Healing Touch") and not moving and not isCastingSpell(spell.tranquility) then
 				for i = 1, #br.friend do
 					if br.friend[i].hp <= getValue("Healing Touch") and talent.abundance and buff.abundance.stack() >= 5 and getDebuffStacks(br.friend[i].unit,209858) < 30 then
 						if cast.healingTouch(br.friend[i].unit) then return end
@@ -944,7 +944,7 @@ local function runRotation()
 				end
 			end
 			-- Healing Touch
-			if isChecked("Healing Touch") and not moving and getDebuffRemain("player",240447) == 0 and not isCastingSpell(spell.tranquility) then
+			if isChecked("Healing Touch") and not moving and not isCastingSpell(spell.tranquility) then
 				for i = 1, #br.friend do
 					if br.friend[i].hp <= getValue("Healing Touch") and getDebuffStacks(br.friend[i].unit,209858) < 25 then
 						if cast.healingTouch(br.friend[i].unit) then return end
@@ -1014,7 +1014,7 @@ local function runRotation()
         		end	
 		end	
 			-- Ephemeral Paradox trinket
-			if hasEquiped(140805) and getBuffRemain("player", 225766) > 2 and getDebuffRemain("player",240447) == 0 and getDebuffStacks(lowestHP,209858) < 30 then
+			if hasEquiped(140805) and getBuffRemain("player", 225766) > 2 and getDebuffStacks(lowestHP,209858) < 30 then
 				if cast.healingTouch(lowestHP) then return end
 			end
 			-- Not wasted Innervate
