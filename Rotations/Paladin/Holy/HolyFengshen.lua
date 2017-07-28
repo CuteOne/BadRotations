@@ -37,16 +37,10 @@ local function createToggles() -- Define custom toggles
 	CreateButton("DPS",5,0)
 	-- Aura Of Sacrifice
 	AuraOfSacrificeModes = {
-	[1] = { mode = "Off", value = 1 , overlay = "AuraOfSacrifice Enabled", tip = "|cffFF0000Disabled |cffFFDD11Explosive healing\nExplosive healing order:\n|cffFFFFFFBestow Faith>Holy Avenger>Tyr's Deliverance>Avenging Wrath>Aura Mastery>Holy Shock>Light of the Martyr>Flash of Light>Light of the Martyr>Flash of Light>Light of the Martyr>Flash of Light>Holy Shock\n|cffFFDD11Sanctified Wrath Talents order:\n|cffFFFFFFBestow Faith>Holy Avenger>Avenging Wrath>Aura Mastery>Holy Shock>Light of the Martyr>Light of the Martyr>Holy Shock>Light of the Martyr>Flash of Light>Holy Shock>Light of the Martyr", highlight = 0, icon = br.player.spell.auraMastery },
-	[2] = { mode = "On", value = 2 , overlay = "AuraOfSacrifice Disabled", tip = "|cff00FF00Enabled |cffFFDD11Explosive healing\n", highlight = 1, icon = br.player.spell.auraMastery }
+	[1] = { mode = "On", value = 1 , overlay = "AuraOfSacrifice logic Enabled", tip = "AuraOfSacrifice logic Enabled", highlight = 1, icon = br.player.spell.auraMastery },
+	[2] = { mode = "Off", value = 2 , overlay = "AuraOfSacrifice logic Disabled", tip = "AuraOfSacrifice logic Disabled", highlight = 0, icon = br.player.spell.auraMastery }
 	};
 	CreateButton("AuraOfSacrifice",6,0)
-	-- Aura Of Sacrifice2
-	AuraOfSacrifice2Modes = {
-	[1] = { mode = "Off", value = 1 , overlay = "AuraOfSacrifice Enabled", tip = "|cffFF0000Disabled |cffFFDD11Explosive healing\nDo not use the Cooldown order:\n|cffFFFFFFBestow Faith>Aura Mastery>Holy Shock>Light of the Martyr>Flash of Light>Light of the Martyr>Flash of Light>Flash of Light>Light of the Martyr", highlight = 0, icon = br.player.spell.auraMastery },
-	[2] = { mode = "On", value = 2 , overlay = "AuraOfSacrifice Disabled", tip = "|cff00FF00Enabled |cffFFDD11Explosive healing\n", highlight = 1, icon = br.player.spell.auraMastery }
-	};
-	CreateButton("AuraOfSacrifice2",7,0)
 end
 
 ---------------
@@ -107,8 +101,10 @@ local function createOptions()
 		------ COOL  DOWNS ------
 		-------------------------
 		section = br.ui:createSection(br.ui.window.profile, "Cool Downs")
-		--The Deceiver's Grand Design
+		-- The Deceiver's Grand Design
 		br.ui:createCheckbox(section, "The Deceiver's Grand Design")
+		-- Archive of Faith
+		br.ui:createSpinner(section, "Archive of Faith", 50, 0, 100, 5, "","|cffFFFFFFTanks Health Percent to Cast At")		
 		-- Trinkets
 		br.ui:createSpinner(section, "Trinket 1",  70,  0,  100,  5,  "Health Percent to Cast At")
 		br.ui:createSpinnerWithout(section, "Min Trinket 1 Targets",  3,  1,  40,  1,  "","Minimum Trinket 1 Targets(This includes you)", true)
@@ -228,7 +224,6 @@ local function runRotation()
 		br.player.mode.cleanse = br.data.settings[br.selectedSpec].toggles["Cleanse"]
 		br.player.mode.DPS = br.data.settings[br.selectedSpec].toggles["DPS"]
 		br.player.mode.AuraOfSacrifice = br.data.settings[br.selectedSpec].toggles["AuraOfSacrifice"]
-		br.player.mode.AuraOfSacrifice2 = br.data.settings[br.selectedSpec].toggles["AuraOfSacrifice2"]
 		--------------
 		--- Locals ---
 		--------------
@@ -318,26 +313,7 @@ local function runRotation()
 		-- local averageHealth                                 = 100
 		
 		if leftCombat == nil then leftCombat = GetTime() end
-		if profileStop == nil then profileStop = false end
-		
-		if (mode.AuraOfSacrifice == 2 or mode.AuraOfSacrifice2 == 2) and GetSpellCooldown(31821) == 0 then
-			BF1 = false
-			HA1 = false
-			TD1 = false
-			AW1 = false
-			AM1 = false
-			RL1 = false
-			HS1 = false
-			LOTM1 = false
-			FOL1 = false
-			LOTM2 = false
-			FOL2 = false
-			LOTM3 = false
-			FOL3 = false
-			HS2 = false
-			HS3 = false
-			LOTM4 = false
-		end
+		if profileStop == nil then profileStop = false end	
 		
 		--------------------
 		--- Action Lists ---
@@ -354,176 +330,22 @@ local function runRotation()
 		end
 		-- AuraOfSacrifice
 		local function AuraOfSacrificeLogic()
-			if mode.AuraOfSacrifice2 == 2 then
-				if not BF1 and GetSpellCooldown(31821) == 0 then
-					if cast.bestowFaith("player") then BF1 = true return end
-				end
-				if not AM1 then
-					if cast.auraMastery() then AM1 = true return end
-				end
-				if not HS1 then
-					if br.friend[1].hp <= 90 then
-						if cast.holyShock(br.friend[1].unit) then HS1 = true return end
-					end
-				end
-				if not LOTM1 then
-					if br.friend[1].hp <= 90 and not UnitIsUnit(br.friend[1].unit,"player") then
-						if cast.lightOfTheMartyr(br.friend[1].unit) then LOTM1 = true return end
-					end
-				end
-				if not FOL1 then
-					if br.friend[1].hp <= 90 then
-						if cast.flashOfLight(br.friend[1].unit) then FOL1 = true return end
-					end
-				end
-				if not LOTM2 then
-					if br.friend[1].hp <= 90 and not UnitIsUnit(br.friend[1].unit,"player") then
-						if cast.lightOfTheMartyr(br.friend[1].unit) then LOTM2 = true return end
-					end
-				end
-				if not FOL2 then
-					if br.friend[1].hp <= 90 then
-						if cast.flashOfLight(br.friend[1].unit) then FOL2 = true return end
-					end
-				end
-				if not FOL3 then
-					if br.friend[1].hp <= 90 then
-						if cast.flashOfLight(br.friend[1].unit) then FOL3 = true return end
-					end
-				end
-				if not LOTM3 then
-					if br.friend[1].hp <= 90 and not UnitIsUnit(br.friend[1].unit,"player") then
-						if cast.lightOfTheMartyr(br.friend[1].unit) then LOTM3 = true return end
-					end
-				end
-				if LOTM3 then
-					RunMacroText("/br toggle AuraOfSacrifice2 1")
-				end
-			end
-			if mode.AuraOfSacrifice == 2 and talent.sanctifiedWrath then
-				if not BF1 and GetSpellCooldown(31821) == 0 then
-					if cast.bestowFaith("player") then BF1 = true return end
-				end
-				if not HA1 then
-					if cast.holyAvenger() then HA1 = true return end
-				end
-				if not AW1 then
-					if cast.avengingWrath() then AW1 = true return end
-				end
-				if not AM1 and buff.avengingWrath.exists() then
-					if cast.auraMastery() then AM1 = true return end
-				end
-				if not RL1 and buff.auraMastery.exists() then
-					if cast.ruleOfLaw() then RL1 = true return end
-				end
-				if not HS1 then
-					if br.friend[1].hp <= 90 then
-						if cast.holyShock(br.friend[1].unit) then HS1 = true return end
-					end
-				end
-				if not LOTM1 then
-					if br.friend[1].hp <= 90 and not UnitIsUnit(br.friend[1].unit,"player") then
-						if cast.lightOfTheMartyr(br.friend[1].unit) then LOTM1 = true return end
-					end
-				end
-				if not LOTM2 then
-					if br.friend[1].hp <= 90 and not UnitIsUnit(br.friend[1].unit,"player") then
-						if cast.lightOfTheMartyr(br.friend[1].unit) then LOTM2 = true return end
-					end
-				end
-				if not HS2 then
-					if br.friend[1].hp <= 90 then
-						if cast.holyShock(br.friend[1].unit) then HS2 = true return end
-					end
-				end
-				if not LOTM3 then
-					if br.friend[1].hp <= 90 and not UnitIsUnit(br.friend[1].unit,"player") then
-						if cast.lightOfTheMartyr(br.friend[1].unit) then LOTM3 = true return end
-					end
-				end
-				if not FOL1 then
-					if br.friend[1].hp <= 90 then
-						if cast.flashOfLight(br.friend[1].unit) then FOL1 = true return end
-					end
-				end
-				if not HS3 then
-					if br.friend[1].hp <= 90 then
-						if cast.holyShock(br.friend[1].unit) then HS3 = true return end
-					end
-				end
-				if not LOTM4 then
-					if br.friend[1].hp <= 90 and not UnitIsUnit(br.friend[1].unit,"player") then
-						if cast.lightOfTheMartyr(br.friend[1].unit) then LOTM4 = true return end
-					end
-				end
-				if LOTM4 then
-					RunMacroText("/br toggle AuraOfSacrifice 1")
-				end
-			end
-			if mode.AuraOfSacrifice == 2 and not talent.sanctifiedWrath then
-				if not BF1 and GetSpellCooldown(31821) == 0 then
-					if cast.bestowFaith("player") then BF1 = true return end
-				end
-				if not HA1 then
-					if cast.holyAvenger() then HA1 = true return end
-				end
-				if not TD1 and buff.holyAvenger.exists() then
-					if cast.tyrsDeliverance() then TD1 = true return end
-				end
-				if not AW1 and buff.tyrsDeliverance.exists() then
-					if cast.avengingWrath() then AW1 = true return end
-				end
-				if not AM1 and buff.avengingWrath.exists() then
-					if cast.auraMastery() then AM1 = true return end
-				end
-				if not RL1 and buff.auraMastery.exists() then
-					if cast.ruleOfLaw() then RL1 = true return end
-				end
-				if not HS1 then
-					if br.friend[1].hp <= 90 then
-						if cast.holyShock(br.friend[1].unit) then HS1 = true return end
-					end
-				end
-				if not LOTM1 then
-					if br.friend[1].hp <= 90 and not UnitIsUnit(br.friend[1].unit,"player") then
-						if cast.lightOfTheMartyr(br.friend[1].unit) then LOTM1 = true return end
-					end
-				end
-				if not FOL1 then
-					if br.friend[1].hp <= 90 then
-						if cast.flashOfLight(br.friend[1].unit) then FOL1 = true return end
-					end
-				end
-				if not LOTM2 then
-					if br.friend[1].hp <= 90 and not UnitIsUnit(br.friend[1].unit,"player") then
-						if cast.lightOfTheMartyr(br.friend[1].unit) then LOTM2 = true return end
-					end
-				end
-				if not FOL2 then
-					if br.friend[1].hp <= 90 then
-						if cast.flashOfLight(br.friend[1].unit) then FOL2 = true return end
-					end
-				end
-				if not LOTM3 then
-					if br.friend[1].hp <= 90 and not UnitIsUnit(br.friend[1].unit,"player") then
-						if cast.lightOfTheMartyr(br.friend[1].unit) then LOTM3 = true return end
-					end
-				end
-				if not FOL3 then
-					if br.friend[1].hp <= 90 then
-						if cast.flashOfLight(br.friend[1].unit) then FOL3 = true return end
-					end
-				end
-				if not HS2 then
-					if br.friend[1].hp <= 90 then
-						if cast.holyShock(br.friend[1].unit) then HS2 = true return end
-					end
-				end
-				if HS2 then
-					RunMacroText("/br toggle AuraOfSacrifice 1")
-				end
-			end
-		end
+    		if mode.AuraOfSacrifice == 1 and talent.auraOfSacrifice and buff.auraMastery.exists() then
+    			if not buff.ruleOfLaw.exists() then 
+    			    if cast.ruleOfLaw() then return end
+    			end	
+    			if cast.lightOfDawn() then return end
+    			if lowest.hp <= 90 then
+    			    if cast.holyShock(lowest.unit) then return end
+    			end	
+    			if lowest.hp <= 90 and getBuffRemain("player",234862) > 0.1 then 
+    			    if cast.lightOfTheMartyr(lowest.unit) then return end
+    			end	
+    			if lowest.hp <= 90 then 
+    			    if cast.flashOfLight(lowest.unit) then return end
+    			end	
+    		end
+    	end
 		local function PrePull()
 			-- Pre-Pull Timer
 			if isChecked("Pre-Pull Timer") then
@@ -809,6 +631,14 @@ local function runRotation()
 					end
 				end
 			end
+    		-- Archive of Faith
+    		if isChecked("Archive of Faith") then
+    			for i = 1, #br.friend do
+    				if hasEquiped(147006) and canUse(147006) and br.friend[i].hp <= getValue ("Archive of Faith") and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" and UnitInRange(br.friend[i].unit) and not UnitIsDeadOrGhost(br.friend[i].unit) then
+    					UseItemByName(147006,br.friend[i].unit)
+    				end
+    			end
+    		end
 			-- Trinkets
 			if isChecked("Trinket 1") and ((getLowAllies(getValue("Trinket 1")) >= getValue("Min Trinket 1 Targets") and not hasEquiped(144258))
 				or hasEquiped(144258) and buff.avengingWrath.exists())then
