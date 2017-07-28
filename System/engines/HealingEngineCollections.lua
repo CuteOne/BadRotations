@@ -18,8 +18,8 @@ novaEngineTables.DispelID = {
 	-- Xavius
 	{ id = 206651, stacks = 3}, -- Xavius Darkening Soul
 	{ id = 209158, stacks = 3}, -- Xavius Blackening Soul
-	-- Belac
-	{ id = 233983, stacks = 0, range = 8}  -- Echoing Anguish http://www.wowhead.com/spell=233983/echoing-anguish
+	-- Belac ##7.2
+	--{ id = 233983, stacks = 0, range = 8}  -- Echoing Anguish http://www.wowhead.com/spell=233983/echoing-anguish
 }
 -- This is where we house the Debuffs that are bad for our users, and should not be healed when they have it
 novaEngineTables.BadDebuffList= {
@@ -39,7 +39,7 @@ novaEngineTables.BadDebuffList= {
 	--Brackenspore
 	159220, -- http://www.wowhead.com/spell=159220  A debuff that removes 99% of healing so no point healing them
 	184587, -- Touch of Mortality  Prevents all healing for 9 seconds
-	236550, -- Discorporate Decreases all Healing by 75%
+	--236550, -- Discorporate Decreases all Healing by 75% ##7.2
 }
 -- list of special units we want to heal, these npc will go directly into healing engine(Special Heal must be checked)
 novaEngineTables.SpecialHealUnitList = {
@@ -103,8 +103,8 @@ novaEngineTables.SpecificHPDebuffs = {
 	{ debuff = 206609 , value = 30}, --http://www.wowhead.com/spell=206609/time-release
 	-- Gul'dan 
 	{ debuff = 221891 , value = 30}, --http://www.wowhead.com/spell=221891/soul-siphon
-	-- Sisters of the Moon (ToS)
-	{debuff = 233263 , value = 30}, --http://www.wowhead.com/spell=233263/embrace-of-the-eclipse
+	-- Sisters of the Moon (ToS) ##7.2
+	--{debuff = 233263 , value = 30}, --http://www.wowhead.com/spell=233263/embrace-of-the-eclipse
 }
 -- this table will assign role to any unit wearing the unit name
 novaEngineTables.roleTable = {
