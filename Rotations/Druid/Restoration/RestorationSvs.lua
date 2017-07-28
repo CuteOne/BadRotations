@@ -97,6 +97,8 @@ local function createOptions()
 		br.ui:createCheckbox(section,"Racial")
 		--The Deceiver's Grand Design
 		br.ui:createCheckbox(section, "The Deceiver's Grand Design")
+		-- Archive of Faith
+		br.ui:createSpinner(section, "Archive of Faith", 50, 0, 100, 5, "","|cffFFFFFFTanks Health Percent to Cast At")				
 		-- Trinkets
 		br.ui:createSpinner(section, "Trinket 1",  70,  0,  100,  5,  "Health Percent to Cast At")
 		br.ui:createSpinnerWithout(section, "Min Trinket 1 Targets",  4,  1,  40,  1,  "","Minimum Trinket 1 Targets(This includes you)", true)
@@ -577,11 +579,19 @@ local function runRotation()
 				-- The Deceiver's Grand Design
 				if isChecked("The Deceiver's Grand Design") then
 					for i = 1, #br.friend do
-						if hasEquiped(147007) and canUse(147007) and getBuffRemain(br.friend[i].unit,242622) == 0 and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" and UnitInRange(br.friend[i].unit) then
+						if hasEquiped(147007) and canUse(147007) and getBuffRemain(br.friend[i].unit,242622) == 0 and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" and UnitInRange(br.friend[i].unit) and not UnitIsDeadOrGhost(br.friend[i].unit) then
 							UseItemByName(147007,br.friend[i].unit)
 						end
 					end
 				end
+        		-- Archive of Faith
+        		if isChecked("Archive of Faith") then
+        			for i = 1, #br.friend do
+        				if hasEquiped(147006) and canUse(147006) and br.friend[i].hp <= getValue ("Archive of Faith") and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" and UnitInRange(br.friend[i].unit) and not UnitIsDeadOrGhost(br.friend[i].unit) then
+        					UseItemByName(147006,br.friend[i].unit)
+        				end
+        			end
+        		end				
 				-- Trinkets
 				if isChecked("Trinket 1") and getLowAllies(getValue("Trinket 1")) >= getValue("Min Trinket 1 Targets") and not isCastingSpell(spell.tranquility) then
 					if canUse(13) then
