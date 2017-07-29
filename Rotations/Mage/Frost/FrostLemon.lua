@@ -73,6 +73,7 @@ local function createOptions()
         br.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  colorWhite.."Set to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
         br.ui:createDropdownWithout(section, "Artifact", {colorWhite.."Everything",colorWhite.."Cooldowns",colorWhite.."Never"}, 1, colorWhite.."When to use Artifact Ability.")
         br.ui:createSpinnerWithout(section, "AOE targets",  3,  1,  100,  1,  "Minimum AOE targets. Min: 1 / Max: 100")
+        br.ui:createCheckbox(section, "No Blizzard on STR")
         br.ui:checkSectionState(section)
         ------------------------
         --- ITEM OPTIONS --- -- Define Item Options
@@ -848,7 +849,7 @@ local function runRotation()
             --Freezing Rain Blizzard. 
             --While the normal Blizzard action is usually enough, right after Frozen Orb the actor will be getting a lot of FoFs, which might delay Blizzard to the point where we miss out on Freezing Rain. 
             --Therefore, if we are not at a risk of overcapping on FoF, use Blizzard before using Ice Lance.
-            if cd.blizzard == 0 and getCastTime(spell.blizzard) == 0 then
+            if cd.blizzard == 0 and getCastTime(spell.blizzard) == 0 and not isChecked("No Blizzard on STR") then
                 if #enemies.yards8t > 1 and fof_react < 3  then
                     if cast.blizzard("targetGround", "ground", 1, blizzardRadius) then return true end
                 end
@@ -899,7 +900,7 @@ local function runRotation()
             --Against low number of targets, Blizzard is used as a filler. Use it only against 2 or more targets, 3 or more when using Glacial Spike and Splitting Ice. 
             --Zann'esu buffed Blizzard is used only at 5 stacks.
             
-            if  cd.blizzard == 0 then
+            if cd.blizzard == 0 and not isChecked("No Blizzard on STR") then
                 if #enemies.yards8t > 2 or #enemies.yards8t > 1 and not(talent.glacialSpike and talent.splittingIce) or (hasEquiped(133970) and buff.zannesuJourney.stack() == 5 and buff.zannesuJourney.remain() > getCastTime(spell.blizzard)) then
                     if cast.blizzard("targetGround", "ground", 1, blizzardRadius) then return true end
                 end
@@ -925,7 +926,7 @@ local function runRotation()
             
             if cast.frostbolt(target) then return true end
             
-            if cd.blizzard == 0 then
+            if cd.blizzard == 0 and not isChecked("No Blizzard on STR") then
                 if getCastTime(spell.blizzard) == 0 then
                     if cast.blizzard("targetGround", "ground", 1, blizzardRadius) then return true end
                 end
