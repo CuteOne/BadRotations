@@ -150,7 +150,7 @@ local function createOptions()
 		-- Light of the Martyr
 		br.ui:createSpinner(section, "Light of the Martyr", 40, 0, 100, 5, "","|cffFFFFFFHealth Percent to Cast At")
 		br.ui:createSpinner(section, "Moving LotM", 80, 0, 100, 5, "","|cffFFFFFFisMoving Health Percent to Cast At")
-		br.ui:createSpinner(section, "Cloak LotM", 70, 0, 100, 5, "","|cffFFFFFFIn cloak buff Health Percent to Cast At", true)
+		br.ui:createSpinner(section, "Cloak LotM", 70, 0, 100, 5, "","|cffFFFFFFIn cloak buff Health Percent to Cast At")
 		br.ui:createSpinner(section, "LotM player HP limit", 40, 0, 100, 5, "","|cffFFFFFFLight of the Martyr Self HP limit", true)
 		br.ui:checkSectionState(section)
 		-------------------------
@@ -728,18 +728,38 @@ local function runRotation()
 			if not UnitIsFriend("target", "player") and inCombat then
 				if talent.judgmentOfLight and not debuff.judgmentoflight.exists(units.dyn30) then
 					if cast.judgment(units.dyn30) then return end
-				elseif talent.fistOfJustice and GetSpellCooldown(853) > 0 then
-					if cast.judgment(units.dyn30) then return end
 				elseif hasEquiped(137046) then
 					if cast.judgment(units.dyn30) then return end
 				end
 			end
+			-- Legendary cloak and Light of the Martyr
+			if isChecked("Cloak LotM") and hasEquiped(144273) and php >= getOptionValue("LotM player HP limit") then
+				if inRaid and isChecked("Mastery bonus") then
+					for i = 1, #br.friend do
+						if br.friend[i].hp <= getValue("Cloak LotM") and getBuffRemain("player",234862) ~= 0 and not UnitIsUnit(br.friend[i].unit,"player") and getDistance(br.friend[i].unit) <= (10*master_coff) then
+							if cast.lightOfTheMartyr(br.friend[i].unit) then return end
+						end
+					end
+					for i = 1, #br.friend do
+						if br.friend[i].hp <= getValue("Cloak LotM") and getBuffRemain("player",234862) ~= 0 and not UnitIsUnit(br.friend[i].unit,"player") and getDistance(br.friend[i].unit) <= (20*master_coff) then
+							if cast.lightOfTheMartyr(br.friend[i].unit) then return end
+						end
+					end
+					for i = 1, #br.friend do
+						if br.friend[i].hp <= getValue("Cloak LotM") and getBuffRemain("player",234862) ~= 0 and not UnitIsUnit(br.friend[i].unit,"player") and getDistance(br.friend[i].unit) <= (30*master_coff) then
+							if cast.lightOfTheMartyr(br.friend[i].unit) then return end
+						end
+					end
+				end
+				for i = 1, #br.friend do
+					if br.friend[i].hp <= getValue("Cloak LotM") and getBuffRemain("player",234862) ~= 0 and not UnitIsUnit(br.friend[i].unit,"player") and getDebuffStacks(br.friend[i].unit,209858) < 25 then
+						if cast.lightOfTheMartyr(br.friend[i].unit) then return end
+					end
+				end
+			end	
 			-- Light of Dawn
 			if isChecked("Light of Dawn") and GetSpellCooldown(85222) == 0 then
 				if healConeAround(getValue("LoD Targets"),getValue("Light of Dawn"),90,15 * lightOfDawn_distance_coff,5 * lightOfDawn_distance_coff) then
-					if isChecked("Rule of Law") and talent.ruleOfLaw and not buff.ruleOfLaw.exists("player") then
-						if cast.ruleOfLaw() then return end
-					end
 					if cast.lightOfDawn() then return end
 				end
 			end
@@ -808,28 +828,6 @@ local function runRotation()
 			end
 			-- Light of Martyr
 			if isChecked("Light of the Martyr") and php >= getOptionValue("LotM player HP limit") then
-				if inRaid and isChecked("Mastery bonus") then
-					for i = 1, #br.friend do
-						if br.friend[i].hp <= getValue("Cloak LotM") and getBuffRemain("player",234862) > 0.1 and not UnitIsUnit(br.friend[i].unit,"player") and getDistance(br.friend[i].unit) <= (10*master_coff) then
-							if cast.lightOfTheMartyr(br.friend[i].unit) then return end
-						end
-					end
-					for i = 1, #br.friend do
-						if br.friend[i].hp <= getValue("Cloak LotM") and getBuffRemain("player",234862) > 0.1 and not UnitIsUnit(br.friend[i].unit,"player") and getDistance(br.friend[i].unit) <= (20*master_coff) then
-							if cast.lightOfTheMartyr(br.friend[i].unit) then return end
-						end
-					end
-					for i = 1, #br.friend do
-						if br.friend[i].hp <= getValue("Cloak LotM") and getBuffRemain("player",234862) > 0.1 and not UnitIsUnit(br.friend[i].unit,"player") and getDistance(br.friend[i].unit) <= (30*master_coff) then
-							if cast.lightOfTheMartyr(br.friend[i].unit) then return end
-						end
-					end
-				end
-				for i = 1, #br.friend do
-					if br.friend[i].hp <= getValue("Cloak LotM") and getBuffRemain("player",234862) > 0.1 and not UnitIsUnit(br.friend[i].unit,"player") and getDebuffStacks(br.friend[i].unit,209858) < 25 then
-						if cast.lightOfTheMartyr(br.friend[i].unit) then return end
-					end
-				end
 				for i = 1, #br.friend do
 					if br.friend[i].hp <= getValue ("Light of the Martyr") and not UnitIsUnit(br.friend[i].unit,"player") and getDebuffStacks(br.friend[i].unit,209858) < 25 then
 						if cast.lightOfTheMartyr(br.friend[i].unit) then return end
@@ -953,15 +951,7 @@ local function runRotation()
 					end
 				end
 			end
-			-- Crusader Strike
-			if not UnitIsFriend("target", "player") then
-				if talent.crusadersMight and GetSpellCooldown(20473) > 1 then
-					if cast.crusaderStrike("target") then return end
-				elseif talent.crusadersMight and GetSpellCooldown(85222) > 1 then
-					if cast.crusaderStrike("target") then return end
-				end
-			end
-			-- Emergency Martyr Heals
+			-- Moving Martyr
 			if isChecked("Moving LotM") and isMoving("player") and php >= getOptionValue("LotM player HP limit") then
 				if #tanks > 0 then
 					if tanks[1].hp <= getValue("Critical HP") and getDebuffStacks(tanks[1].unit,209858) < 25 then
@@ -994,6 +984,18 @@ local function runRotation()
 					end
 				end
 			end
+			-- Crusader Strike
+			if not UnitIsFriend("target", "player") then
+				if talent.crusadersMight and GetSpellCooldown(20473) > 1 then
+					if cast.crusaderStrike("target") then return end
+				elseif talent.crusadersMight and GetSpellCooldown(85222) > 1 then
+					if cast.crusaderStrike("target") then return end
+				end
+			-- Judgement				
+				if talent.fistOfJustice and GetSpellCooldown(853) > 0 then
+					if cast.judgment(units.dyn30) then return end
+				end	
+			end			
 		end
 		---------------------------------
 		--- Out Of Combat - Rotations ---
