@@ -305,6 +305,7 @@ function br.loader:new(spec,specName)
             local spellName = GetSpellInfo(v)
             local minRange = select(5,GetSpellInfo(spellName))
             local maxRange = select(6,GetSpellInfo(spellName))
+            if UnitDebuffID("player", 240447) ~= nil and (getCastTime(v) + 0.15) > getDebuffRemain("player",240447) then end
             if spellName == nil then print("Invalid Spell ID: "..v.." for key: "..k) end
             if IsHelpfulSpell(spellName) and thisUnit == nil then
                 -- if thisUnit == nil or (UnitIsFriend(thisUnit,"player") and thisUnit ~= "best") then
