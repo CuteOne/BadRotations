@@ -565,15 +565,10 @@ local function runRotation()
         -- Single Target
         function actionList_SingleTarget()
         -- Purify Spirit
-            if br.player.mode.decurse == 1 then
-                for i = 1, #br.friend do
-                    for n = 1,40 do
-                        local buff,_,_,count,bufftype,duration = UnitDebuff(br.friend[i].unit, n)
-                        if buff then
-                            if bufftype == "Curse" or bufftype == "Magic" then
-                                if cast.purifySpirit(br.friend[i].unit) then return end
-                            end
-                        end
+           if br.player.mode.decurse == 1 then
+                for i = 1, #friends.yards40 do
+                    if canDispel(br.friend[i].unit,spell.purifySpirit) then
+                        if cast.purifySpirit(br.friend[i].unit) then return end
                     end
                 end
             end
