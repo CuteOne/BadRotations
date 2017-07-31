@@ -47,7 +47,7 @@ function castWiseAoEHeal(unitTable,spell,radius,health,minCount,maxCount,facingC
 		-- find best candidate with list of units
 		for i = 1, #unitTable do
 			-- added a visible check as its not in healing engine.
-			if GetUnitIsVisible(unitTable[i].unit) and not (facingCheck ~= true and not getFacing("player",unitTable[i].unit)) then
+			if GetUnitIsVisible(unitTable[i].unit) and (facingCheck ~= true or getFacing("player",unitTable[i].unit)) then
 				local candidate = getUnitsToHealAround(unitTable[i].unit,radius,health,maxCount,facingCheck)
 				if bestCandidate == nil or bestCandidate[0].coef > candidate[0].coef then
 					bestCandidate = candidate
@@ -70,11 +70,15 @@ function getNovaDistance(Unit1,Unit2)
 	if Unit1.guid == Unit2.guid then
 		return 0
 			-- elseif unit 2 is valid (we have unit one valid check up before entering here)
-	elseif Unit2 and (Unit2.x ~= 0 or Unit2.x ~= nil) then
+	elseif Unit2 then
 		local X1,Y1,Z1 = Unit1.x,Unit1.y,Unit2.z
 		local X2,Y2,Z2 = Unit2.x,Unit2.y,Unit2.z
 		-- return distance between two users
-		return math.sqrt(((X2-X1)^2)+((Y2-Y1)^2)+((Z2-Z1)^2))
+		if X1 ~= nil and X2 ~= nil and Y1 ~= nil and Y2 ~= nil and Z1 ~= nil and Z2 ~= nil then
+			return math.sqrt(((X2-X1)^2)+((Y2-Y1)^2)+((Z2-Z1)^2))
+		else
+			return 1000
+		end
 	else
 		return 1000
 	end
@@ -93,7 +97,7 @@ function getUnitsToHealAround(UnitID,radius,health,count)
 	end
 	local unit = {x = X1,y = Y1,z = Z1,guid = UnitGUID(UnitID),name = UnitName(UnitID)}
 	-- once we get our unit location we call our getdistance
-	local lowHealthCandidates = {}
+	lowHealthCandidates = {}
 	for i = 1, #br.friend do
 		local thisUnit = br.friend[i]
 		-- if in given radius
