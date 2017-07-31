@@ -937,7 +937,7 @@ br.idList = {
                 trickShot                   = 227272,
                 trueshot                    = 193526,
                 volley                      = 194386,
-                precision                   = 242242,
+                t20_2pc_critical_aimed      = 242242,
             },
             debuffs                         = {
                 aMurderOfCrows              = 131894,
