@@ -489,9 +489,9 @@ end
 -- if getCastTime("Healing Touch")<3 then
 function getCastTime(spellID)
 	if spellID == 202767 then
-		 if getDruidArtifactState() == 1 then spellID = 202767
-        elseif getDruidArtifactState() == 2 then spellID = 202768
-        elseif getDruidArtifactState() == 3 then spellID = 202771
+		if select(3,GetSpellInfo(202767)) == 1392545 then spellID = 202767
+       	elseif select(3,GetSpellInfo(202767)) == 1392543 then spellID = 202768
+        elseif select(3,GetSpellInfo(202767)) == 1392542 then spellID = 202771
         end
     end
 	local castTime = select(4,GetSpellInfo(spellID))/1000
