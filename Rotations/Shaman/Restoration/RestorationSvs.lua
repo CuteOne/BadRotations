@@ -387,8 +387,8 @@ local function runRotation()
                 end
             end
         -- Chain Heal
-            if isChecked("Chain Heal") and lastSpell ~= spell.chainHeal then
-                if castWiseAoEHeal(br.friend,spell.chainHeal,20,getValue("Chain Heal"),getValue("Chain Heal Targets"),5,false,true) then return end
+            if isChecked("Chain Heal") then
+                if castWiseAoEHeal(br.friend,spell.chainHeal,40,getValue("Chain Heal"),getValue("Chain Heal Targets"),5,false,true) then return end
             end
         -- Healing Rain
             if not moving then
@@ -526,16 +526,16 @@ local function runRotation()
                 end
             end
         -- Chain Heal
-            if isChecked("Chain Heal") and lastSpell ~= spell.chainHeal then
+            if isChecked("Chain Heal") then
                 if talent.unleashLife and talent.highTide then
                     if cast.unleashLife(lowest) then return end
                     if buff.unleashLife.remain() > 2 then
-                        if castWiseAoEHeal(br.friend,spell.chainHeal,20,getValue("Chain Heal"),(getValue("Chain Heal Targets") + 1),5,false,true) then return end
+                        if castWiseAoEHeal(br.friend,spell.chainHeal,40,getValue("Chain Heal"),(getValue("Chain Heal Targets") + 1),5,false,true) then return end
                     end
                 elseif talent.highTide then
-                    if castWiseAoEHeal(br.friend,spell.chainHeal,20,getValue("Chain Heal"),(getValue("Chain Heal Targets") + 1),5,false,true) then return end
+                    if castWiseAoEHeal(br.friend,spell.chainHeal,40,getValue("Chain Heal"),(getValue("Chain Heal Targets") + 1),5,false,true) then return end
                 else
-                    if castWiseAoEHeal(br.friend,spell.chainHeal,20,getValue("Chain Heal"),getValue("Chain Heal Targets"),5,false,true) then return end
+                    if castWiseAoEHeal(br.friend,spell.chainHeal,40,getValue("Chain Heal"),getValue("Chain Heal Targets"),5,false,true) then return end
                 end
             end
         -- Gift of the Queen
