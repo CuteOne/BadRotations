@@ -618,14 +618,15 @@ local function runRotation()
                             end
                         end
                     end
+        -- Maul
+                    if power > 90 then
+                        if cast.maul() then return end
+                    end
         -- Swipe
+                    -- swipe_bear
                     if getDistance("target") < 8 then
                         if cast.swipe() then return end
                     end
-        -- -- Maul
-        --             if power > 90 then
-        --                 if cast.maul() then return end
-        --             end
                 end -- End SimC APL
     ------------------------
     --- Ask Mr Robot APL ---
