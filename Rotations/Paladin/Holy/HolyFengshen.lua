@@ -184,8 +184,6 @@ local function createOptions()
 		br.ui:createSpinner(section, "DPS", 70, 0, 100, 5, "","|cffFFFFFFMinimum Health to DPS")
 		-- Consecration
 		br.ui:createSpinner(section, "Consecration",  1,  0,  40,  1,  "","|cffFFFFFFMinimum Consecration Targets")
-		-- Blinding Light
-		br.ui:createSpinner(section, "Blinding Light Damage", 4, 0, 10, 1, "","|cffFFFFFFMinimum Blinding Light Targets")
 		-- Holy Prism
 		br.ui:createSpinner(section, "Holy Prism Damage",  3,  0,  40,  1,  "","|cffFFFFFFMinimum Holy Prism Targets")
 		-- Light's Hammer
@@ -314,7 +312,9 @@ local function runRotation()
 		
 		if leftCombat == nil then leftCombat = GetTime() end
 		if profileStop == nil then profileStop = false end	
-		
+    	if isChecked("Beacon of Virtue") and not IsMounted() and talent.beaconOfVirtue and getLowAllies(getValue("Beacon of Virtue")) >= getValue("BoV Targets") and (isCastingSpell(spell.flashOfLight) or (isMoving("player") and GetSpellCooldown(20473) == 0)) then
+    		CastSpellByName(GetSpellInfo(200025),lowest.unit)
+    	end			
 		--------------------
 		--- Action Lists ---
 		--------------------
@@ -525,10 +525,6 @@ local function runRotation()
 				if isChecked( "Consecration") and #enemies.yards8 >= getValue( "Consecration") and not isMoving("player") then
 					if cast.consecration() then return end
 				end
-				-- Blinding Light
-				if isChecked("Blinding Light Damage") and #enemies.yards10 >= getOptionValue("Blinding Light Damage") then
-					if cast.blindingLight() then return end
-				end
 				-- Holy Prism
 				if isChecked("Holy Prism Damage") and talent.holyPrism and #enemies.yards15 >= getValue("Holy Prism Damage") and php < 90 then
 					if cast.holyPrism("player") then return end
@@ -710,17 +706,9 @@ local function runRotation()
 			end
 			--Beacon of Virtue
 			if talent.beaconOfVirtue and isChecked("Beacon of Virtue") then
-				for i= 1, #br.friend do
-					if getLowAllies(getValue("Beacon of Virtue")) >= getValue("BoV Targets") then
-						if talent.bestowFaith and br.friend[i].hp <= getValue("Beacon of Virtue") then
-							if cast.bestowFaith(br.friend[i].unit) then return end
-						end
-						if br.friend[i].hp <= getValue("Beacon of Virtue") and GetSpellCooldown(200025) == 0 then
-							if cast.flashOfLight(br.friend[i].unit) then return end
-						end
-						if br.friend[i].hp <= getValue("Beacon of Virtue") and (isCastingSpell(spell.flashOfLight) or (isMoving("player") and GetSpellCooldown(20473) == 0)) then
-							CastSpellByName(GetSpellInfo(200025),br.friend[i].unit)
-						end
+				if getLowAllies(getValue("Beacon of Virtue")) >= getValue("BoV Targets") then
+					if lowest.hp <= getValue("Beacon of Virtue") and GetSpellCooldown(200025) == 0 then
+						if cast.flashOfLight(lowest.unit) then return end
 					end
 				end
 			end
@@ -821,24 +809,18 @@ local function runRotation()
 				end
 			end
 			-- Divine Shield and Light of the Martyr
-			for i = 1, #br.friend do
-				if br.friend[i].hp <= 90 and buff.divineShield.exists("player") and not UnitIsUnit(br.friend[i].unit,"player") then
-					if cast.lightOfTheMartyr(br.friend[i].unit) then return end
-				end
-			end
+    		if php <= getValue ("Critical HP") then
+    			for i = 1, #br.friend do
+    				if br.friend[i].hp <= 90 and buff.divineShield.exists("player") and not UnitIsUnit(br.friend[i].unit,"player") then
+    					if cast.lightOfTheMartyr(br.friend[i].unit) then return end
+    				end
+    			end
+    		end	
 			-- Light of Martyr
 			if isChecked("Light of the Martyr") and php >= getOptionValue("LotM player HP limit") then
 				for i = 1, #br.friend do
 					if br.friend[i].hp <= getValue ("Light of the Martyr") and not UnitIsUnit(br.friend[i].unit,"player") and getDebuffStacks(br.friend[i].unit,209858) < 25 then
 						if cast.lightOfTheMartyr(br.friend[i].unit) then return end
-					end
-				end
-				-- Prydaz, Xavaric's Magnum Opus
-				if not inRaid and hasEquiped(132444) then
-					for i = 1, #br.friend do
-						if br.friend[i].hp <= getValue("Moving LotM") and not UnitIsUnit(br.friend[i].unit,"player") and getBuffRemain("player",207472) > 0.1 then
-							if cast.lightOfTheMartyr(br.friend[i].unit) then return end
-						end
 					end
 				end
 			end
