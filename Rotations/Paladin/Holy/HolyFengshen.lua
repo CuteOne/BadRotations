@@ -312,7 +312,7 @@ local function runRotation()
 		
 		if leftCombat == nil then leftCombat = GetTime() end
 		if profileStop == nil then profileStop = false end	
-    	if isChecked("Beacon of Virtue") and not IsMounted() and talent.beaconOfVirtue and getLowAllies(getValue("Beacon of Virtue")) >= getValue("BoV Targets") and (isCastingSpell(spell.flashOfLight) or (isMoving("player") and GetSpellCooldown(20473) == 0)) then
+    	if isChecked("Beacon of Virtue") and talent.beaconOfVirtue and not IsMounted() and ((getHP(BOV) ~= 0 and isCastingSpell(spell.flashOfLight)) or (getLowAllies(getValue("Beacon of Virtue")) >= getValue("BoV Targets") and isMoving("player") and GetSpellCooldown(20473) == 0)) then
     		CastSpellByName(GetSpellInfo(200025),lowest.unit)
     	end			
 		--------------------
@@ -708,7 +708,7 @@ local function runRotation()
 			if talent.beaconOfVirtue and isChecked("Beacon of Virtue") then
 				if getLowAllies(getValue("Beacon of Virtue")) >= getValue("BoV Targets") then
 					if lowest.hp <= getValue("Beacon of Virtue") and GetSpellCooldown(200025) == 0 then
-						if cast.flashOfLight(lowest.unit) then return end
+						if cast.flashOfLight(lowest.unit) then BOV = lowest.unit return end
 					end
 				end
 			end
