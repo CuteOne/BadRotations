@@ -33,7 +33,7 @@ function br.ui:createConfigWindow()
     local function callEnemiesEngine()
         -- Enemies Engine
         section = br.ui:createSection(br.ui.window.config, "Enemies Engine")
-        br.ui:createDropdown(section, "Dynamic Targetting", {"Only In Combat", "Default"}, 2, "Check this to allow dynamic targetting. If unchecked, profile will only attack current target.", "Default will try 3 times when OOC to find target.")
+        br.ui:createDropdown(section, "Dynamic Targetting", {"Only In Combat", "Default"}, 2, "Check this to allow dynamic targetting. If unchecked, profile will only attack current target.")
         br.ui:createCheckbox(section, "Target Dynamic Target", "Check this will target the current dynamic target.")
         br.ui:createCheckbox(section, "Hostiles Only", "Checking this will target only units hostile to you.")
         br.ui:createDropdown(section, "Wise Target", {"Highest", "Lowest", "abs Highest", "Nearest", "Furthest"}, 1, "|cffFFDD11Check if you want to use Wise Targetting, if unchecked there will be no priorisation from hp/range.")

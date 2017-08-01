@@ -198,7 +198,7 @@ local function targetNearestEnemy(range)
 		if not UnitIsDeadOrGhost(thisUnit.unit) and getDistance("player",thisUnit.unit) <= range and ObjectIsFacing("player",thisUnit.unit) and getFacing("player", thisUnit.unit) and UnitInPhase(thisUnit.unit) then
 			if not isChecked("Hostiles Only") or (getOptionCheck("Hostiles Only") and UnitReaction(thisUnit.unit,"player") <= 2 or (UnitExists("pet") and UnitReaction(thisUnit.unit,"pet") <= 2)) then
 				bestUnit = thisUnit.unit
-				if isChecked("Target Dynamic Target") and bestUnit ~= nil then
+				if isChecked("Target Dynamic Target") and bestUnit ~= nil and (getOptionValue("Dynamic Targetting") == 2 or (getOptionValue("Dynamic Targetting") == 1 and inCombat)) then
 					TargetUnit(bestUnit)
 				end
 			end
@@ -227,7 +227,7 @@ function dynamicTarget(range,facing)
 	if enemyUpdateRate < #getEnemies("player",50, true)/2 then
 		enemyUpdateRate = #getEnemies("player",50, true)/2
 	end
-	if not getOptionCheck("Dynamic Targetting") then bestUnit = "target" end
+	if not getOptionCheck("Dynamic Targetting") and (UnitExists("target") and UnitReaction("target","player") <= 4) then bestUnit = "target" end
 --	local startTime = debugprofilestop()
 	if getOptionCheck("Dynamic Targetting") and (tempTime - lastUpdateTime) > enemyUpdateRate then
 		lastUpdateTime = tempTime
@@ -240,7 +240,7 @@ function dynamicTarget(range,facing)
 				UpdateEnemy(v)				
 				local thisDistance = getDistance("player",thisUnit.unit)
 				if #br.friend < 2 and UnitExists("pet") and UnitTarget(thisUnit.unit) == "player" then
-					if getOptionCheck("Target Dynamic Target") and not UnitIsDeadOrGhost(thisUnit.unit) then
+					if getOptionCheck("Target Dynamic Target") and not UnitIsDeadOrGhost(thisUnit.unit) and (getOptionValue("Dynamic Targetting") == 2 or (getOptionValue("Dynamic Targetting") == 1 and inCombat)) then
 				 		TargetUnit(thisUnit.unit)
 				 	end
 				end
@@ -259,7 +259,7 @@ function dynamicTarget(range,facing)
 			end
 		end
 		-- br.debug.cpu.enemiesEngine.dynamicTarget = debugprofilestop()-startTime or 0
-		if (isChecked("Target Dynamic Target") or (UnitAffectingCombat("player") and not UnitExists("target"))) and bestUnit ~= nil and not UnitIsDeadOrGhost(bestUnit)  then
+		if (isChecked("Target Dynamic Target") or (UnitAffectingCombat("player") and not UnitExists("target"))) and bestUnit ~= nil and not UnitIsDeadOrGhost(bestUnit) and (getOptionValue("Dynamic Targetting") == 2 or (getOptionValue("Dynamic Targetting") == 1 and inCombat)) then
 			TargetUnit(bestUnit)
 		end
 	elseif getOptionCheck("Dynamic Targetting") and (tempTime - ntlastUpdateTime) > 0.5  then
