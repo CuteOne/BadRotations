@@ -177,6 +177,8 @@ Rotations\Priest\Discipline\DisciplineCpoworks.lua
 Rotations\Priest\Discipline\DisciplineSvs.lua
 
 Rotations\Priest\Holy\HolySvs.lua
+Rotations\Priest\Holy\HolyOdan.lua
+
 
 Rotations\Priest\Shadow\ShadowCuteOne.lua
 
