@@ -136,7 +136,6 @@ local function createOptions()
             br.ui:createSpinnerWithout(section, "Prayer of Healing Targets",  3,  0,  40,  1,  "Minimum Prayer of Healing Targets")
 		-- Binding Heal(not implemented yet)
             br.ui:createSpinner(section, "Binding Heal",  70,  0,  100,  5,  "Health Percent to Cast At") 
-            br.ui:createSpinnerWithout(section, "Binding Heal Targets",  2,  0,  5,  1,  "Minimum Binding Heal Targets")
 		-- Divine Star
             br.ui:createSpinner(section, "Divine Star",  80,  0,  100,  5,  colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.."Divine Star usage.", colorWhite.."Health Percent to Cast At")
             br.ui:createSpinnerWithout(section, "Min Divine Star Targets",  3,  1,  40,  1,  colorBlue.."Minimum Divine Star Targets "..colorGold.."(This includes you)")
@@ -282,20 +281,12 @@ local function runRotation()
                         if cast.renew(br.friend[i].unit) then return end
                     end
                 end                    
-            end				
+            end	
         -- Heal
             if isChecked("Heal") then
                 for i = 1, #br.friend do
                     if br.friend[i].hp <= getValue("Heal") then
                         if cast.heal(br.friend[i].unit) then return end
-                    end
-                end                    
-            end
-		-- Binding Heal
-		    if isChecked("Binding Heal") and getDebuffRemain("player",240447) == 0 then
-                for i = 1, #br.friend do
-                    if br.friend[i].hp <= getValue("Binding Heal") and getValue("Binding Heal Targets") <= #getUnitsToHealAround(br.friend[i].unit,30,getValue("Binding Heal"), 3, false) then
-                        if cast.bindingHeal(br.friend[i].unit) then return end
                     end
                 end                    
             end
@@ -499,6 +490,10 @@ local function runRotation()
             if isChecked("Prayer of Healing") and not talent.piety and getDebuffRemain("player",240447) == 0 then
                 if castWiseAoEHeal(br.friend,spell.prayerOfHealing,40,getValue("Prayer of Healing"),getValue("Prayer of Healing Targets"),5,false,true) then return end
             end
+		-- Binding Heal
+            if isChecked("Binding Heal") and talent.bindingHeal and getDebuffRemain("player",240447) == 0 then
+                if castWiseAoEHeal(br.friend,spell.bindingHeal,40,getValue("Binding Heal"),1,3,false,true) then return end
+            end
         end -- End Action List - AOE Healing
         -- Single Target
         function actionList_SingleTarget()
@@ -544,7 +539,7 @@ local function runRotation()
                     end
                 end                    
             end
-        -- Heal
+		-- Heal
             if isChecked("Heal") and getDebuffRemain("player",240447) == 0 then
                 for i = 1, #br.friend do
                     if br.friend[i].hp <= getValue("Heal") then
