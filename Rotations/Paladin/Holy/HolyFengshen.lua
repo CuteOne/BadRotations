@@ -146,7 +146,7 @@ local function createOptions()
 		br.ui:createSpinner(section, "Holy Shock", 80, 0, 100, 5, "","|cffFFFFFFHealth Percent to Cast At")
 		--Bestow Faith
 		br.ui:createSpinner(section, "Bestow Faith", 80, 0, 100, 5, "","|cffFFFFFFHealth Percent to Cast At")
-		br.ui:createDropdownWithout(section, "Bestow Faith Target", {"|cffFFFFFFAll","|cffFFFFFFTanks","|cffFFFFFFSelf+LotM"}, 3, "|cffFFFFFFTarget for BF")
+		br.ui:createDropdownWithout(section, "Bestow Faith Target", {"|cffFFFFFFAll","|cffFFFFFFTanks","|cffFFFFFFSelf","|cffFFFFFFSelf+LotM"}, 4, "|cffFFFFFFTarget for BF")
 		-- Light of the Martyr
 		br.ui:createSpinner(section, "Light of the Martyr", 40, 0, 100, 5, "","|cffFFFFFFHealth Percent to Cast At")
 		br.ui:createSpinner(section, "Moving LotM", 80, 0, 100, 5, "","|cffFFFFFFisMoving Health Percent to Cast At")
@@ -705,9 +705,9 @@ local function runRotation()
 				end
 			end
 			--Beacon of Virtue
-			if talent.beaconOfVirtue and isChecked("Beacon of Virtue") then
+			if talent.beaconOfVirtue and isChecked("Beacon of Virtue") and not isMoving("player") and GetSpellCooldown(200025) == 0 and getDebuffRemain("player",240447) == 0 then
 				if getLowAllies(getValue("Beacon of Virtue")) >= getValue("BoV Targets") then
-					if lowest.hp <= getValue("Beacon of Virtue") and GetSpellCooldown(200025) == 0 then
+					if lowest.hp <= getValue("Beacon of Virtue") then
 						if cast.flashOfLight(lowest.unit) then BOV = lowest.unit return end
 					end
 				end
@@ -767,6 +767,10 @@ local function runRotation()
 					if php <= getValue ("Bestow Faith") then
 						if cast.bestowFaith("player") then return end
 					end
+				elseif 	getOptionValue("Bestow Faith Target") == 4 then
+					if lowest.hp <= getValue ("Bestow Faith") then
+						if cast.bestowFaith("player") then return end
+					end					
 				end
 			end
 			-- Holy Shock
@@ -879,7 +883,7 @@ local function runRotation()
 				end
 			end
 			-- Light of Martyr and Bestow Faith
-			if isChecked("Light of the Martyr") and php >= getOptionValue("LotM player HP limit") and buff.bestowFaith.exists("player") then
+			if isChecked("Light of the Martyr") and php >= 75 and buff.bestowFaith.exists("player") and getOptionValue("Bestow Faith Target") == 4 then
 				if inRaid and isChecked("Mastery bonus") then
 					for i = 1, #br.friend do
 						if br.friend[i].hp <= getValue("Bestow Faith") and not UnitIsUnit(br.friend[i].unit,"player") and getDistance(br.friend[i].unit) <= (10*master_coff) then
