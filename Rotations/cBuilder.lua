@@ -185,88 +185,6 @@ function br.loader:new(spec,specName)
             return debuff.bleed[thisUnit] or 0
         end
     end
-
-    -- -- Update Power
-    -- powerList     = {
-    --     mana            = 0,
-    --     rage            = 1,
-    --     focus           = 2,
-    --     energy          = 3,
-    --     comboPoints     = 4,
-    --     runes           = 5,
-    --     runicPower      = 6,
-    --     soulShards      = 7,
-    --     astralPower     = 8,
-    --     holyPower       = 9,
-    --     altPower        = 10,
-    --     maelstrom       = 11,
-    --     chi             = 12,
-    --     insanity        = 13,
-    --     obsolete        = 14,
-    --     obsolete2       = 15,
-    --     arcaneCharges   = 16,
-    --     fury            = 17,
-    --     pain            = 18,
-    -- }
-    -- if self.power == nil then self.power = {} end
-    -- -- for i = 0, #powerList do
-    -- for k, v in pairs(powerList) do
-    --     if UnitPower("player",v) ~= nil then
-    --         if self.power[k] == nil then self.power[k] = {} end
-    --         if self.power.amount == nil then self.power.amount = {} end
-    --         local powerV = UnitPower("player",v)
-    --         local powerMaxV = UnitPowerMax("player",v)
-    --         local power = self.power[k]
-    --         power.amount    = function()
-    --             if select(2,UnitClass("player")) == "DEATHKNIGHT" and v == 5 then
-    --                 local runeCount = 0
-    --                 for i = 1, 6 do
-    --                     runeCount = runeCount + GetRuneCount(i)
-    --                 end
-    --                 return runeCount
-    --             else
-    --                 return powerV
-    --             end
-    --         end
-    --         power.frac      = function()
-    --             if select(2,UnitClass("player")) == "DEATHKNIGHT" and v == 5 then
-    --                 local function runeCDPercent(runeIndex)
-    --                     if GetRuneCount(runeIndex) == 0 then
-    --                         return (GetTime() - select(1,GetRuneCooldown(runeIndex))) / select(2,GetRuneCooldown(runeIndex))
-    --                     else
-    --                         return 0
-    --                     end
-    --                 end
-    --                 local runeCount = 0
-    --                 for i = 1, 6 do
-    --                     runeCount = runeCount + GetRuneCount(i)
-    --                 end
-    --                 return runeCount + math.max(runeCDPercent(1),runeCDPercent(2),runeCDPercent(3),runeCDPercent(4),runeCDPercent(5),runeCDPercent(6))
-    --             else
-    --                 return 0
-    --             end
-    --         end
-    --         power.max       = function()
-    --             return powerMaxV
-    --         end
-    --         power.deficit   = function()
-    --             return powerMaxV - powerV
-    --         end
-    --         power.percent   = function()
-    --             if powerMaxV == 0 then 
-    --                 return 0 
-    --             else 
-    --                 return ((powerV / powerMaxV) * 100) 
-    --             end
-    --         end
-    --         power.regen     = function()
-    --             return getRegen("player")
-    --         end
-    --         power.ttm       = function()
-    --             return getTimeToMax("player")
-    --         end
-    --     end
-    -- end
     
     self.units = function(range,aoe)
         if aoe == nil then aoe = false end
@@ -282,6 +200,8 @@ function br.loader:new(spec,specName)
         if checkInCombat == nil then checkInCombat = false end
         return getEnemies(unit,range,checkInCombat)
     end
+
+
 
     -- Cycle through Abilities List
     for k,v in pairs(self.spell.abilities) do
@@ -422,6 +342,30 @@ function br.loader:new(spec,specName)
                 return 0
             end
         end
+        local function runeRecharge(runeIndex)
+            if not select(3,GetRuneCooldown(runeIndex)) then
+                return select(2,GetRuneCooldown(runeIndex)) - (GetTime() - select(1,GetRuneCooldown(runeIndex)))
+            else
+                return 0
+            end
+        end
+        function runeTimeTill(runeIndex)
+            local runeCDs = {}
+            local runeCount = 0
+            local timeTill = 0
+            for i = 1, 6 do
+                runeCount = runeCount + GetRuneCount(i)
+                if runeCDs[runeIndex] == nil then
+                    runeCDs[i] = runeRecharge(i)
+                end
+            end
+            if runeCount < runeIndex then
+                for k, v in pairs(runeCDs) do
+                    timeTill = timeTill + v
+                end
+            end
+            return timeTill
+        end  
         if self.power == nil then self.power = {} end
         -- for i = 0, #powerList do
         for k, v in pairs(powerList) do

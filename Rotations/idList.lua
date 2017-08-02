@@ -117,6 +117,7 @@ br.idList = {
             },
             buffs                           = {
                 breathOfSindragosa          = 155166,
+                coldHeart                   = 235599,
                 darkSuccor                  = 101568,
                 gatheringStorm              = 211805,
                 hungeringRuneWeapon         = 207127,
