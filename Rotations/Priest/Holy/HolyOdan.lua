@@ -97,7 +97,9 @@ local function createOptions()
             br.ui:createSpinner(section, "Healthstone",  30,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
         -- Heirloom Neck
             br.ui:createSpinner(section, "Heirloom Neck",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at");
-        -- Gift of The Naaru
+        --Fade
+            br.ui:createSpinner(section, "Fade",  95,  0,  100,  1,  "|cffFFFFFFHealth Percent to Cast At. Default: 95")
+		-- Gift of The Naaru
             if br.player.race == "Draenei" then
                 br.ui:createSpinner(section, "Gift of the Naaru",  50,  0,  100,  5,  "|cffFFFFFFHealth Percentage to use at")
             end
@@ -333,6 +335,13 @@ local function runRotation()
                         end
                     end
                 end
+			--Fade
+            if isChecked("Fade") then                         
+                if php <= getValue("Fade") then
+                    if cast.fade() then return end
+                end
+            end
+        end	
             -- Gift of the Naaru
                 if isChecked("Gift of the Naaru") and php <= getOptionValue("Gift of the Naaru") and php > 0 and br.player.race == "Draenei" then
                     if castSpell("player",racial,false,false,false) then return end
