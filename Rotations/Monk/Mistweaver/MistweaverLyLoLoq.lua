@@ -776,8 +776,8 @@ local function runRotation()
         if pause(true) or isCastingSpell(spell.essenceFont) then return true end
         if not IsMounted and not inCombat and not drinking then
             if isChecked("OOC Healing") then
-                actionList_SingleTargetHealing()
-                actionList_AOEHealing()
+                if actionList_SingleTargetHealing() then return true end
+                if actionList_AOEHealing() then return true end
 			end
         end
         if not IsMounted() and inCombat then
