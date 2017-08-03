@@ -604,7 +604,7 @@ local function runRotation()
 	            	end
 	            end
 		-- Incarnation - King of the Jungle
-                -- if=cooldown.tigers_fury.remain()s<gcd
+                -- if=cooldown.tigers_fury.remains<gcd
 	            if useCDs() and isChecked("Incarnation") then
 	            	if cd.tigersFury < gcd and cd.incarnationKingOfTheJungle == 0 then
 	            		if cast.incarnationKingOfTheJungle() then return end
