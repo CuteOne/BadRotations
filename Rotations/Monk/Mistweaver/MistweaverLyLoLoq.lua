@@ -396,14 +396,14 @@ local function runRotation()
     local function actionList_Cooldown()
         if useCDs() then
 		-- Trinket 1
-            if isChecked("Trinket 1") and getLowAllies(getValue("Trinket 1")) >= getValue("Min Trinket 1 Targets") then
+            if isChecked("Trinket 1") and getLowAllies(getValue("Trinket 1")) >= getValue("Min Trinket 1 Targets") and mana > 2 then
                 if canUse(13) then
                     useItem(13)
                     return true
                 end
             end
 		-- Trinket 2
-            if isChecked("Trinket 2") and getLowAllies(getValue("Trinket 2")) >= getValue("Min Trinket 2 Targets") then
+            if isChecked("Trinket 2") and getLowAllies(getValue("Trinket 2")) >= getValue("Min Trinket 2 Targets") and mana > 2 then
                 if canUse(14) then
                     useItem(14)
                     return true
@@ -412,7 +412,7 @@ local function runRotation()
 		-- Velen's Future Sight
             if actionList_CheckVelen() then return true end
 		-- Gnawed Thumb Ring
-            if isChecked("Gnawed Thumb Ring") and getLowAllies(getValue("Gnawed Thumb Ring")) >= getValue("Min Gnawed Thumb Ring Targets") then
+            if isChecked("Gnawed Thumb Ring") and getLowAllies(getValue("Gnawed Thumb Ring")) >= getValue("Min Gnawed Thumb Ring Targets") and mana > 2 then
                 if hasEquiped(134526) and canUse(134526) and select(2,IsInInstance()) ~= "pvp" then
                     useItem(134526)
                     return true
