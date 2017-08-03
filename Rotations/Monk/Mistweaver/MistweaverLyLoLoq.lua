@@ -46,17 +46,31 @@ local function createOptions()
         --------------
         --- COLORS ---
         --------------
-        local colorBlue     = "|cff00CCFF"
-        local colorGreen    = "|cff00FF00"
-        local colorRed      = "|cffFF0000"
-        local colorWhite    = "|cffFFFFFF"
-        local colorGold     = "|cffFFDD11"
+        local colorBlue         = "|cff00CCFF"  
+        local colorGreen        = "|cff00FF00"  
+        local colorRed          = "|cffFF0000"  
+        local colorWhite        = "|cffFFFFFF"  
+        local colorGold         = "|cffFFDD11"  
+        local colordk           = "|cffC41F3B"  
+        local colordh           = "|cffA330C9"  
+        local colordrood        = "|cffFF7D0A"  
+        local colorhunter       = "|cffABD473"  
+        local colormage         = "|cff69CCF0"  
+        local colormonk         = "|cff00FF96"  
+        local colorpala         = "|cffF58CBA"  
+        local colorpriest       = "|cffFFFFFF"  
+        local colorrogue        = "|cffFFF569"  
+        local colorshaman       = "|cff0070DE"  
+        local colorwarlock      = "|cff9482C9"  
+        local colorwarrior      = "|cffC79C6E"  
+        local colorLegendary    = "|cffff8000"
         --------------
         --- OPTIONS ---
         --------------
 
        -- General Options
-        section = br.ui:createSection(br.ui.window.profile, "General")
+        section = br.ui:createSection(br.ui.window.profile, colormonk.."General")
+        br.ui:createCheckbox(section,"OOC Healing",colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables".. colorWhite.."out of combat healing.",1)
 		br.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  colorWhite.."Set to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
         br.ui:createDropdown(section, "Roll/Chi Torpedo Key", br.dropOptions.Toggle, 6, colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.." use of Roll/Chi Torpedo with Key.",colorWhite.."Set hotkey to use Roll/Chi Torpedo with key.")
         br.ui:createDropdown(section, "Transcendence/Transcendence:Transfer Key", br.dropOptions.Toggle, 6, colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.." use of Transcendence/Transcendence:Transfer with Key.",colorWhite.."Set hotkey to use Transcendence/Transcendence:Transfer with key.")
@@ -211,6 +225,7 @@ local function runRotation()
     local mana                                          = br.player.power.mana.percent
     local debuff                                        = br.player.debuff
     local gcd                                           = br.player.gcd
+    local drinking                                      = UnitBuff("player",192002) ~= nil or UnitBuff("player",167152) ~= nil or UnitBuff("player",192001) ~= nil
 
 	local pullTimer                                     = br.DBM:getPulltimer()
 
@@ -759,6 +774,12 @@ local function runRotation()
         -----------------
         -- Pause
         if pause(true) or isCastingSpell(spell.essenceFont) then return true end
+        if not IsMounted and not inCombat and not drinking then
+            if isChecked("OOC Healing") then
+                actionList_SingleTargetHealing()
+                actionList_AOEHealing()
+			end
+        end
         if not IsMounted() and inCombat then
             if actionList_ThunderFocus() then return true end
         end
