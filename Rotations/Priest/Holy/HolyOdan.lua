@@ -198,6 +198,7 @@ local function runRotation()
         local lastSpell                                     = lastSpellCast
         local level                                         = br.player.level
         local lowestHP                                      = br.friend[1].unit
+        local mana                                          = br.player.power.mana.percent
         local mode                                          = br.player.mode
         local perk                                          = br.player.perk        
         local php                                           = br.player.health
@@ -228,6 +229,8 @@ local function runRotation()
         enemies.yards8  = br.player.enemies(8)
         enemies.yards8t = br.player.enemies(8,br.player.units(8,true))
         enemies.yards40 = br.player.enemies(40)
+        friends.yards40 = getAllies("player",40)
+
 
 --------------------
 --- Action Lists ---
