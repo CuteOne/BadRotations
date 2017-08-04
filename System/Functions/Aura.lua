@@ -106,7 +106,7 @@ function canDispel(Unit,spellID)
 		if spellID == 31224 then typesList = { "Poison","Curse","Disease","Magic" } end
 	end
 	if ClassNum == 5 then --Priest
-		typesList = { }
+		if spellID == 527 then typesList = { "Disease", "Magic" } end
 	end
 	if ClassNum == 6 then --Death Knight
 		typesList = { }

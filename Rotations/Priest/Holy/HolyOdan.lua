@@ -342,18 +342,18 @@ local function runRotation()
                     end
                 end
       			--Fade
-               if isChecked("Fade") then                         
+                if isChecked("Fade") then                         
                   if php <= getValue("Fade") then
                     if cast.fade() then return end
                   end
-               end	
+                end	
 		  	    -- Mana Potion
-    				  if isChecked("Mana Potion") and mana <= getValue("Mana Potion")then
-    					  if hasItem(127835) then
-    						  useItem(127835)
-    						  return true
-		    			  end
-    				  end
+		        if isChecked("Mana Potion") and mana <= getValue("Mana Potion")then
+				  if hasItem(127835) then
+					  useItem(127835)
+					  return true
+    			  end
+			    end
             -- Gift of the Naaru
                 if isChecked("Gift of the Naaru") and php <= getOptionValue("Gift of the Naaru") and php > 0 and br.player.race == "Draenei" then
                     if castSpell("player",racial,false,false,false) then return end
@@ -424,14 +424,9 @@ local function runRotation()
         function actionList_Dispel()
         -- Purify
             if br.player.mode.decurse == 1 then
-                for i = 1, #br.friend do
-                    for n = 1,40 do
-                        local buff,_,_,count,bufftype,duration = UnitDebuff(br.friend[i].unit, n)
-                        if buff then
-                        if bufftype == "Disease" or bufftype == "Magic" then
-                                if cast.purify(br.friend[i].unit) then return end
-                            end
-                        end
+                for i = 1, #friends.yards40 do
+                    if canDispel(br.friend[i].unit,spell.purify) then
+                        if cast.purify(br.friend[i].unit) then return end
                     end
                 end
             end
