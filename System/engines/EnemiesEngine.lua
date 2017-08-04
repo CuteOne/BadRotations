@@ -227,7 +227,11 @@ function dynamicTarget(range,facing)
 	if enemyUpdateRate < #getEnemies("player",50, true)/2 then
 		enemyUpdateRate = #getEnemies("player",50, true)/2
 	end
-	if not getOptionCheck("Dynamic Targetting") and (UnitExists("target") and UnitReaction("target","player") <= 4) then bestUnit = "target" end
+	if not getOptionCheck("Dynamic Targetting") and UnitExists("target") then
+		if UnitReaction("target","player") <= 4 then 
+			bestUnit = "target" 
+		end
+	end
 --	local startTime = debugprofilestop()
 	if getOptionCheck("Dynamic Targetting") and (tempTime - lastUpdateTime) > enemyUpdateRate then
 		lastUpdateTime = tempTime
