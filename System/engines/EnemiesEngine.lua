@@ -228,7 +228,7 @@ function dynamicTarget(range,facing)
 		enemyUpdateRate = #getEnemies("player",50, true)/2
 	end
 	if not getOptionCheck("Dynamic Targetting") and UnitExists("target") then
-		if UnitReaction("target","player") <= 4 then 
+		if UnitReaction("target","player") ~= nil and UnitReaction("target","player") <= 4 then 
 			bestUnit = "target" 
 		end
 	end

@@ -159,6 +159,21 @@ function getTimeToMax(Unit)
 	end
 	return (max - curr2) * (1.0 / regen)
 end
+-- /dump getCastRegen(185358)
+function getCastRegen(spellId)
+    local spellId = spellId
+    local regenRate = GetPowerRegen("player")
+    local power = 0
+
+    -- Get the "execute time" of the spell (larger of GCD or the cast time).
+    local castTime = getCastTime(spellId) or 0
+    local gcd = getSpellCD(61304)
+    if gcd == 0 then gcd = max( 1, 1.5 / ( 1 + ( GetHaste() / 100 ) ) ) end
+    local castSeconds = (castTime > gcd) and castTime or gcd
+    power = power + regenRate * castSeconds
+
+    return power
+end
 -- if getRegen("player") > 15 then
 function getRegen(Unit)
 	local regen = select(2,GetPowerRegen(Unit))
