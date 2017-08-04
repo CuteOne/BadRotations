@@ -517,7 +517,7 @@ local function runRotation()
             end	
         -- Divine Star
             if isChecked("Divine Star") and talent.divineStar then
-                if castWiseAoEHeal(br.friend,spell.divineStar,10,getValue("Divine Star"),getValue("Divine Star Targets"),10,false,false) then return end
+                if castWiseAoEHeal(br.friend,spell.divineStar,10,getValue("Divine Star"),getValue("Min Divine Star Targets"),10,false,false) then return end
             end
         --Halo
             if isChecked("Halo") and talent.halo then
