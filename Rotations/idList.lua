@@ -117,6 +117,7 @@ br.idList = {
             },
             buffs                           = {
                 breathOfSindragosa          = 155166,
+                coldHeart                   = 235599,
                 darkSuccor                  = 101568,
                 gatheringStorm              = 211805,
                 hungeringRuneWeapon         = 207127,
@@ -1497,6 +1498,8 @@ br.idList = {
             buffs                           = {
                 healingWinds                = 195381,
                 hitCombo                    = 196741,
+                pressurePoint               = 247255,
+                rushingJadeWind             = 116847,
                 serenity                    = 152173,
                 stormEarthAndFire           = 137639,
                 theEmperorsCapacitor        = 235054,

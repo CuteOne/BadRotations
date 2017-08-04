@@ -244,7 +244,7 @@ function dynamicTarget(range,facing)
 				 		TargetUnit(thisUnit.unit)
 				 	end
 				end
-				if not isChecked("Hostiles Only") or (getOptionCheck("Hostiles Only") and UnitReaction(thisUnit.unit,"player")) <= 2 or (isChecked("Hostiles Only") and hasThreat(thisUnit.unit)) then
+				if not isChecked("Hostiles Only") or (getOptionCheck("Hostiles Only") and UnitReaction(thisUnit.unit,"player")) <= 2 or (isChecked("Hostiles Only") and hasThreat(thisUnit.unit)) or isDummy(thisUnit.unit) then
 					if ObjectID(thisUnit.unit) ~= 103679 and thisUnit.coeficient ~= nil and getLineOfSight("player", thisUnit.unit) and UnitCreatureType(thisUnit.unit) ~= "Critter" then
 						if (not getOptionCheck("Safe Damage Check") or thisUnit.safe) and not thisUnit.isCC
 								and thisDistance < range and (not facing or thisUnit.facing)
