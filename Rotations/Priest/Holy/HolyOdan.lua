@@ -99,8 +99,6 @@ local function createOptions()
             br.ui:createSpinner(section, "Healthstone",  30,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
         -- Heirloom Neck
             br.ui:createSpinner(section, "Heirloom Neck",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at");
-        --Fade
-            br.ui:createSpinner(section, "Fade",  95,  0,  100,  1,  "|cffFFFFFFHealth Percent to Cast At. Default: 95")
 		-- Gift of The Naaru
             if br.player.race == "Draenei" then
                 br.ui:createSpinner(section, "Gift of the Naaru",  50,  0,  100,  5,  "|cffFFFFFFHealth Percentage to use at")
@@ -217,7 +215,8 @@ local function runRotation()
         lowest.role                                         = br.friend[1].role
         lowest.unit                                         = br.friend[1].unit
         lowest.range                                        = br.friend[1].range
-        lowest.guid                                         = br.friend[1].guid                      
+        lowest.guid                                         = br.friend[1].guid    
+        local friends                                       = friends or {}                  
         local tank                                          = {}    --Tank
         local averageHealth                                 = 0
 
