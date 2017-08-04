@@ -168,7 +168,7 @@ function getCastRegen(spellId)
     -- Get the "execute time" of the spell (larger of GCD or the cast time).
     local castTime = getCastTime(spellId) or 0
     local gcd = getSpellCD(61304)
-    if gcd == 0 then gcd = max( 1, 1.5 / ( 1 + ( GetHaste() / 100 ) ) ) end
+    if gcd == 0 then gcd = max(1,1.5 / (1 + UnitSpellHaste("player") / 100)) end
     local castSeconds = (castTime > gcd) and castTime or gcd
     power = power + regenRate * castSeconds
 

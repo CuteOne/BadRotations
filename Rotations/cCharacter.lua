@@ -164,7 +164,7 @@ function cCharacter:new(class)
 	function self.getCharacterInfo()
 
 		self.gcd 				= self.getGlobalCooldown()
-		self.gcdMax 			= max(1,1.5 / (1 + (GetHaste() / 100)))
+		self.gcdMax 			= max(1, 1.5 / (1 + UnitSpellHaste("player") / 100))
 		self.health 			= getHP("player")
 		self.instance 			= select(2,IsInInstance())
 		self.level 				= UnitLevel("player") -- TODO: EVENT - UNIT_LEVEL
@@ -253,9 +253,7 @@ function cCharacter:new(class)
 -- Returns the Global Cooldown time
 	function self.getGlobalCooldown()
 		local gcd = getSpellCD(61304) --(1.5 / ((UnitSpellHaste("player")/100)+1))
-		if gcd == 0 then
-			return max(1,1.5 / (1 + (GetHaste() / 100)))
-		else
+		if gcd < 0 then return 0 else
 			return gcd
 		end
 	end
