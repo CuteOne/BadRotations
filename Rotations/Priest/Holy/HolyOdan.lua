@@ -82,9 +82,11 @@ local function createOptions()
 		--The Deceiver's Grand Design
 			br.ui:createCheckbox(section, "The Deceiver's Grand Design")
 		--The Deceiver's Grand Design
-		-- Pre-Pull Timer
-			br.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  15,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 15 / Interval: 1")
-        -- Divine Hymn
+		-- Pre-Pot Timer
+			br.ui:createSpinner(section, "Pre-Pot Timer",  5,  1,  15,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 15 / Interval: 1")
+        --  Mana Potion
+		br.ui:createSpinner(section, "Mana Potion",  50,  0,  100,  1,  "Mana Percent to Cast At")
+		-- Divine Hymn
             br.ui:createSpinner(section, "Divine Hymn",  50,  0,  100,  5,  "Health Percent to Cast At") 
             br.ui:createSpinnerWithout(section, "Divine Hymn Targets",  3,  0,  40,  1,  "Minimum Divine Hymn Targets")
         -- Symbol of Hope
@@ -97,15 +99,15 @@ local function createOptions()
             br.ui:createSpinner(section, "Healthstone",  30,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
         -- Heirloom Neck
             br.ui:createSpinner(section, "Heirloom Neck",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at");
-        --Fade
-            br.ui:createSpinner(section, "Fade",  95,  0,  100,  1,  "|cffFFFFFFHealth Percent to Cast At. Default: 95")
-		-- Gift of The Naaru
+        -- Gift of The Naaru
             if br.player.race == "Draenei" then
                 br.ui:createSpinner(section, "Gift of the Naaru",  50,  0,  100,  5,  "|cffFFFFFFHealth Percentage to use at")
             end
         -- Desperate Prayer
             br.ui:createSpinner(section, "Desperate Prayer",  80,  0,  100,  5,  "|cffFFBB00Health Percentage to use at");
-        br.ui:checkSectionState(section)
+		--Fade
+            br.ui:createSpinner(section, "Fade",  95,  0,  100,  1,  "|cffFFFFFFHealth Percent to Cast At. Default: 95")
+			br.ui:checkSectionState(section)
         -- Healing Options
         section = br.ui:createSection(br.ui.window.profile, "Healing Options")
         -- Leap of Faith
@@ -133,6 +135,8 @@ local function createOptions()
             -- Holy Word: Sanctify
             br.ui:createSpinner(section, "Holy Word: Sanctify",  80,  0,  100,  5,  "Health Percent to Cast At") 
             br.ui:createSpinnerWithout(section, "Holy Word: Sanctify Targets",  3,  0,  40,  1,  "Minimum Holy Word: Sanctify Targets")
+		-- Holy Word: Sanctify Hot Key	
+			br.ui:createDropdown(section, "Holy Word: Sanctify HK", br.dropOptions.Toggle, 10, colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.." Holy Word: Sanctify Usage.")
         -- Prayer of Healing
             br.ui:createSpinner(section, "Prayer of Healing",  70,  0,  100,  5,  "Health Percent to Cast At") 
             br.ui:createSpinnerWithout(section, "Prayer of Healing Targets",  3,  0,  40,  1,  "Minimum Prayer of Healing Targets")
@@ -251,9 +255,9 @@ local function runRotation()
                     if cast.bodyAndMind("player") then return end
                 end
             end
-		-- Pre-Pull Timer
-			if isChecked("Pre-Pull Timer") and pullTimer <= getOptionValue("Pre-Pull Timer") then
-				if pullTimer <= getOptionValue("Pre-Pull Timer") then
+		-- Pre-Pot Timer
+			if isChecked("Pre-Pot Timer") and pullTimer <= getOptionValue("Pre-Pot Timer") then
+				if pullTimer <= getOptionValue("Pre-Pot Timer") then
 					if canUse(142117) and not buff.prolongedPower.exists() then
 						useItem(142117);
 						return true
@@ -340,8 +344,14 @@ local function runRotation()
                 if php <= getValue("Fade") then
                     if cast.fade() then return end
                 end
-            end
-        end	
+            end	
+			-- Mana Potion
+				if isChecked("Mana Potion") and mana <= getValue("Mana Potion")then
+					if hasItem(127835) then
+						useItem(127835)
+						return true
+					end
+				end
             -- Gift of the Naaru
                 if isChecked("Gift of the Naaru") and php <= getOptionValue("Gift of the Naaru") and php > 0 and br.player.race == "Draenei" then
                     if castSpell("player",racial,false,false,false) then return end
@@ -460,7 +470,9 @@ local function runRotation()
         function actionList_Divinity()
         -- Holy Word: Sanctify
             if isChecked("Holy Word: Sanctify") and not buff.divinity.exists() then
-                if castWiseAoEHeal(br.friend,spell.holyWordSanctify,40,getValue("Holy Word: Sanctify"),getValue("Holy Word: Sanctify Targets"),6,false,false) then return end
+                if castWiseAoEHeal(br.friend,spell.holyWordSanctify,40,getValue("Holy Word: Sanctify"),getValue("Holy Word: Sanctify Targets"),6,false,false) then
+					RunMacroText("/stopspelltarget") 
+				end
             end 
         -- Holy Word: Serenity
             if isChecked("Holy Word: Serenity") and not buff.divinity.exists() then
@@ -481,10 +493,29 @@ local function runRotation()
                     end
                 end                    
             end
+		-- Holy Word: Sanctify Hot Key
+            if isChecked("Holy Word: Sanctify HK") and (SpecificToggle("Holy Word: Sanctify HK") and not GetCurrentKeyBoardFocus()) then
+                CastSpellByName(GetSpellInfo(spell.holyWordSanctify),"cursor")
+                return true
+            end
+		-- Binding Heal
+            if isChecked("Binding Heal") and talent.bindingHeal and getDebuffRemain("player",240447) == 0 then
+                for i = 1, #br.friend do
+                    if br.friend[i].hp <= getValue("Binding Heal") then
+                        if cast.bindingHeal(br.friend[i].unit) then 
+							RunMacroText("/stopspelltarget")
+						end
+					end
+                end                    
+            end
         -- Prayer of Healing (with Power Of The Naaru Buff)
-            if isChecked("Prayer of Healing") and talent.piety and buff.powerOfTheNaaru.exists() and getDebuffRemain("player",240447) == 0 then
+            if isChecked("Prayer of Healing") and talent.piety and buff.powerOfTheNaaru.exists() and cd.holyWordSanctify >= 1 and getDebuffRemain("player",240447) == 0 then
                 if castWiseAoEHeal(br.friend,spell.prayerOfHealing,40,getValue("Prayer of Healing"),getValue("Prayer of Healing Targets"),5,false,true) then return end
             end
+		-- Prayer of Healing
+            if isChecked("Prayer of Healing") and not talent.piety and cd.holyWordSanctify >= 1 and getDebuffRemain("player",240447) == 0 then
+                if castWiseAoEHeal(br.friend,spell.prayerOfHealing,40,getValue("Prayer of Healing"),getValue("Prayer of Healing Targets"),5,false,true)  then return end
+            end	
         -- Divine Star
             if isChecked("Divine Star") and talent.divineStar then
                 if castWiseAoEHeal(br.friend,spell.divineStar,10,getValue("Divine Star"),getValue("Divine Star Targets"),10,false,false) then return end
@@ -494,14 +525,6 @@ local function runRotation()
                 if getLowAllies(getValue("Halo")) >= getValue("Halo Targets") then    
                     if cast.halo() then return end    
                 end
-            end
-        -- Prayer of Healing
-            if isChecked("Prayer of Healing") and not talent.piety and getDebuffRemain("player",240447) == 0 then
-                if castWiseAoEHeal(br.friend,spell.prayerOfHealing,40,getValue("Prayer of Healing"),getValue("Prayer of Healing Targets"),5,false,true) then return end
-            end
-		-- Binding Heal
-            if isChecked("Binding Heal") and talent.bindingHeal and getDebuffRemain("player",240447) == 0 then
-                if castWiseAoEHeal(br.friend,spell.bindingHeal,40,getValue("Binding Heal"),1,3,false,true) then return end
             end
         end -- End Action List - AOE Healing
         -- Single Target
