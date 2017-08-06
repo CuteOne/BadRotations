@@ -159,9 +159,6 @@ function frame:OnEvent(event, arg1, arg2, arg3, arg4, arg5)
 			end
 		end
 	end
-	if event == "PLAYER_TALENT_UPDATE" then
-		getTalentInfo()
-	end
 end
 frame:SetScript("OnEvent", frame.OnEvent)
 

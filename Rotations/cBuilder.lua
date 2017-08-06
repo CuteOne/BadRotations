@@ -72,9 +72,18 @@ function br.loader:new(spec,specName)
             end
         end
     end
-
+    
     -- Update Talent Info on Init and Talent Change
     getTalentInfo()
+    local cframe = CreateFrame("FRAME")
+    cframe:RegisterUnitEvent("PLAYER_TALENT_UPDATE")
+    -- Update Talent Info
+    function cframe:OnEvent(event, arg1, arg2, arg3, arg4, arg5)
+        if event == "PLAYER_TALENT_UPDATE" then
+            getTalentInfo() 
+        end
+    end
+    cframe:SetScript("OnEvent", cframe.OnEvent)
 
     -- Build Buff Info
     for k,v in pairs(self.spell.buffs) do
