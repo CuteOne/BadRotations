@@ -75,9 +75,6 @@ function br.loader:new(spec,specName)
 
     -- Update Talent Info on Init and Talent Change
     getTalentInfo()
-    AddEventCallback("PLAYER_TALENT_UPDATE",function()
-        getTalentInfo()
-    end)
 
     -- Build Buff Info
     for k,v in pairs(self.spell.buffs) do
