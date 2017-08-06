@@ -121,7 +121,7 @@ Rotations\Death Knight\Unholy\UnholyLemon.lua
 Rotations\Demon Hunter\Havoc\HavocCuteOne.lua
 
 Rotations\Demon Hunter\Vengeance\VengeanceCuteOne.lua
-Rotations\Demon Hunter\Vengeance\VengeanceDub.lua
+## Rotations\Demon Hunter\Vengeance\VengeanceDub.lua
 Rotations\Demon Hunter\Vengeance\VengeanceSaintly.lua
 
 ## Druid ---------------------------------------------------
@@ -136,10 +136,10 @@ Rotations\Druid\Balance\BalanceLyLoLoq.lua
 
 ## Hunter ---------------------------------------------------
 
-Rotations\Hunter\Beastmaster\BeastmasterCpoworks.lua
+## Rotations\Hunter\Beastmaster\BeastmasterCpoworks.lua
 Rotations\Hunter\Beastmaster\BeastmasterKuukuu.lua
 
-Rotations\Hunter\Marksmanship\MarksmanshipCpoworks.lua
+## Rotations\Hunter\Marksmanship\MarksmanshipCpoworks.lua
 Rotations\Hunter\Marksmanship\MarksmanshipAura.lua
 
 Rotations\Hunter\Survival\SurvivalCuteOne.lua
@@ -150,13 +150,13 @@ Rotations\Mage\Arcane\ArcaneCuteOne.lua
 
 Rotations\Mage\Fire\FireWinston.lua
 
-Rotations\Mage\Frost\FrostCuteOne.lua
+## Rotations\Mage\Frost\FrostCuteOne.lua
 Rotations\Mage\Frost\FrostLemon.lua
 
 ## Monk ---------------------------------------------------
 
 Rotations\Monk\Mistweaver\MistweaverLyLoLoq.lua
-Rotations\Monk\Mistweaver\MistweaverCpoworks.lua
+## Rotations\Monk\Mistweaver\MistweaverCpoworks.lua
 
 Rotations\Monk\Brewmaster\BrewmasterKuukuu.lua
 
@@ -173,10 +173,10 @@ Rotations\Paladin\Retribution\RetributionCuteOne.lua
 ## Priest ---------------------------------------------------
 
 Rotations\Priest\Discipline\DisciplineBizkut.lua
-Rotations\Priest\Discipline\DisciplineCpoworks.lua
-Rotations\Priest\Discipline\DisciplineSvs.lua
+## Rotations\Priest\Discipline\DisciplineCpoworks.lua
+## Rotations\Priest\Discipline\DisciplineSvs.lua
 
-Rotations\Priest\Holy\HolySvs.lua
+## Rotations\Priest\Holy\HolySvs.lua
 Rotations\Priest\Holy\HolyOdan.lua
 
 
@@ -187,7 +187,7 @@ Rotations\Priest\Shadow\ShadowCuteOne.lua
 Rotations\Rogue\Assassination\AssassinationCuteOne.lua
 Rotations\Rogue\Assassination\AssLemon.lua
 
-Rotations\Rogue\Outlaw\OutlawCuteOne.lua
+## Rotations\Rogue\Outlaw\OutlawCuteOne.lua
 Rotations\Rogue\Outlaw\OutlawVilt.lua
 
 Rotations\Rogue\Subtlety\SubtletyCuteOne.lua
@@ -215,7 +215,6 @@ Rotations\Warrior\Arms\ArmsLemon.lua
 
 Rotations\Warrior\Fury\FuryCuteOne.lua
 Rotations\Warrior\Fury\FuryImmy.lua
-Rotations\Warrior\Fury\FuryNofay.lua
 
 Rotations\Warrior\Protection\ProtectionCuteOne.lua
 
