@@ -77,7 +77,7 @@ local function createOptions()
         br.ui:createCheckbox(section, "Tiger's Lust", colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.." use of Tiger's Lust"..colorBlue.." (Auto use on snare and root).")
         br.ui:createDropdown(section, "Tiger's Lust Key", br.dropOptions.Toggle, 6, colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.." use of Tiger's Lust with Key.",colorWhite.."Set hotkey to use Tiger's Lust with key.")
         br.ui:createDropdown(section, "Ring Of Peace Key", br.dropOptions.Toggle, 6, colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.." use of Ring Of Peace with Key on "..colorRed.."Cursor",colorWhite.."Set hotkey to use Ring Of Peace with key.")
-        br.ui.createCheckbox(section, "DOT cast EM", colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables"..colorWhite.."Cast EM on important debuffs")
+		br.ui:createCheckbox(section, "DOT cast EM", colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables"..colorWhite.."Cast EM on important debuffs.")
         br.ui:createSpinnerWithout(section, "DPS",  90,  0,  100,  1,  colorWhite.." Dps when lowest health >= ")
         br.ui:checkSectionState(section)
 
@@ -225,6 +225,7 @@ local function runRotation()
     local mana                                          = br.player.power.mana.percent
     local debuff                                        = br.player.debuff
     local gcd                                           = br.player.gcd
+	local gcdMax										= br.player.gcdMax
     local drinking                                      = UnitBuff("player",192002) ~= nil or UnitBuff("player",167152) ~= nil or UnitBuff("player",192001) ~= nil
 
 	local pullTimer                                     = br.DBM:getPulltimer()
@@ -400,7 +401,7 @@ local function runRotation()
         if isChecked("Renewing Mist - On CD") then
             for i = 1, #friends.yards40 do
                 local thisUnit = friends.yards40[i]
-                if thisUnit.hp <= getValue("Renewing Mist") and buff.renewingMist.remain(thisUnit.unit) < gcd then
+                if thisUnit.hp <= getValue("Renewing Mist") and buff.renewingMist.remain(thisUnit.unit) < gcdMax then
                     if cast.renewingMist(thisUnit.unit) then return true end
                 end
             end
@@ -604,7 +605,7 @@ local function runRotation()
             if isChecked("Renewing Mist") and cd.renewingMist == 0 then
                 for i = 1, #friends.yards40 do
                     local thisUnit = friends.yards40[i]
-                    if thisUnit.hp <= getValue("Renewing Mist") and buff.renewingMist.remain(thisUnit.unit) < gcd then
+                    if thisUnit.hp <= getValue("Renewing Mist") and buff.renewingMist.remain(thisUnit.unit) < gcdMax then
                         if cast.renewingMist(thisUnit.unit) then return true end
                     end
                 end
@@ -776,7 +777,7 @@ local function runRotation()
         if isChecked("Thunder Focus Tea + Renewing Mist") and cd.renewingMist == 0 and lowest.hp <= getValue("Thunder Focus Tea + Renewing Mist") and TFRM then
             for i = 1, #friends.yards40 do
                 local thisUnit = friends.yards40[i]
-                if thisUnit.hp <= getValue("Thunder Focus Tea + Renewing Mist") and buff.renewingMist.remain(thisUnit.unit) < gcd then
+                if thisUnit.hp <= getValue("Thunder Focus Tea + Renewing Mist") and buff.renewingMist.remain(thisUnit.unit) < gcdMax then
                     if cast.renewingMist(thisUnit.unit) then
                         TFRM = false
                         return true
@@ -792,7 +793,7 @@ local function runRotation()
         --- Rotations ---
         -----------------
         -- Pause
-        if pause(true) or isCastingSpell(spell.essenceFont) then return true end
+        if pause(true) or isCastingSpell(spell.essenceFont) or UnitDebuffID("player",188030) then return true end
         if not IsMounted and not inCombat and not drinking then
             if isChecked("OOC Healing") then
                 if actionList_SingleTargetHealing() then return true end
