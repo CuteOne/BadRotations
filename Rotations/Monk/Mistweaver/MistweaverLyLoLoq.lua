@@ -82,14 +82,14 @@ local function createOptions()
         br.ui:checkSectionState(section)
 
         -- Tier Section
-        section = br.ui:createSection(br.ui.window.profile, "Tier Settings")
+        section = br.ui:createSection(br.ui.window.profile, colorwarrior.."Tier Settings")
         br.ui:createSpinner(section, "Enveloping Mist with Surge of Mist",  65,  0,  100,  1,  colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.."Trigger t20 4piece bonus", colorWhite.."Health Percent to Cast At")
         br.ui:createSpinnerWithout(section, "Min Enveloping Mist with Surge of Mist Targets",  2,  1,  3,  1,  colorBlue.."Minimum Trigger t20 4p bonus Targets "..colorGold.."(This includes you)")
 		br.ui:createSpinner(section, "Emergency Enveloping Mist with Surge of Mist",  65,  0,  100,  1,  colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.."Emergency cast when Surge of Mist duration < 5 sec to don't lose the Surge of Mist proc", colorWhite.."Health Percent to Cast At")
         br.ui:checkSectionState(section)
 
         -- Cooldown Options
-        section = br.ui:createSection(br.ui.window.profile, "Cooldown")
+        section = br.ui:createSection(br.ui.window.profile, colormonk.."Cooldown")
         br.ui:createSpinner(section, "Revival",  30,  0,  100,  1,  colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.." use of Revival.", colorWhite.."Health Percent to Cast At")
         br.ui:createSpinnerWithout(section, "Min Revival Targets",  3,  1,  40,  1,  colorBlue.."Minimum Revival Targets "..colorGold.."(This includes you)")
         br.ui:createSpinner(section, "Invoke Chi-Ji, the Red Crane",  30,  0,  100,  1,  colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.." use of Invoke Chi-Ji, the Red Crane.", colorWhite.."Health Percent to Cast At")
@@ -119,7 +119,7 @@ local function createOptions()
         br.ui:checkSectionState(section)
 
         -- Defensive Options
-        section = br.ui:createSection(br.ui.window.profile, "Defensive")
+        section = br.ui:createSection(br.ui.window.profile, colorwarrior.."Defensive")
         br.ui:createSpinner(section, "Healing Elixir/Diffuse Magic/Dampen Harm",  40,  0,  100,  1,  colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.." use of Healing Elixir/Diffuse Magic/Dampen Harm.", colorWhite.."Health Percent to Cast At")
         br.ui:createDropdown(section, "Healing Elixir/Diffuse Magic/Dampen Harm Key", br.dropOptions.Toggle, 6, colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.." use of Healing Elixir/Diffuse Magic/Dampen Harm with Key.",colorWhite.."Set hotkey to use Healing Elixir/Diffuse Magic/Dampen Harm with key.")
         br.ui:createSpinner(section, "Fortifying Brew",  40,  0,  100,  1,  colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.." use of Fortifying Brew.", colorWhite.."Health Percent to Cast At")
@@ -127,7 +127,7 @@ local function createOptions()
         br.ui:checkSectionState(section)
 
         -- Healing Options
-        section = br.ui:createSection(br.ui.window.profile, "Healing")
+        section = br.ui:createSection(br.ui.window.profile, colorshaman.."Healing")
         br.ui:createSpinner(section, "Essence Font",  60,  0,  100,  1,  colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.." use of Essence Font.", colorWhite.."Health Percent to Cast At")
         br.ui:createSpinnerWithout(section, "Min Essence Font Targets",  5,  1,  40,  1,  colorBlue.."Minimum Essence Font Targets "..colorGold.."(This includes you)")
         br.ui:createSpinner(section, "Refreshing Jade Wind",  60,  0,  100,  1,  colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.." use of Refreshing Jade Wind.", colorWhite.."Health Percent to Cast At")
@@ -164,7 +164,7 @@ local function createOptions()
 
 
         --Offensive Options
-        section = br.ui:createSection(br.ui.window.profile, "Offensive")
+        section = br.ui:createSection(br.ui.window.profile, colormonk.."Offensive")
         br.ui:createCheckbox(section,"Crackling Jade Lightning",colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.."the use of Crackling Jade Lightning.")
 		br.ui:createCheckbox(section, "Rising Sun Kick", colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.." use of Rising Sun Kick on DPS rotation")
 		br.ui:createCheckbox(section, "Spinning Crane Kick", colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.." use of Spinning Crane Kick on DPS rotation")
@@ -172,7 +172,7 @@ local function createOptions()
 
 
         -- Interrupt Options
-        section = br.ui:createSection(br.ui.window.profile, "Interrupt")
+        section = br.ui:createSection(br.ui.window.profile, colormonk.."Interrupt")
         br.ui:createCheckbox(section,"Leg Sweep",colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.." use of Leg Sweep.")
         br.ui:createCheckbox(section,"Paralysis",colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.." use of Paralysis.")
         br.ui:checkSectionState(section)
