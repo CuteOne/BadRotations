@@ -613,7 +613,7 @@ local function runRotation()
 		-- Trinkets
                 -- if=buff.tigers_fury.up&energy.time_to_max>3&(!talent.savage_roar.enabled|buff.savage_roar.up)
 				if useCDs() and isChecked("Trinkets") and getDistance(units.dyn5) < 5 then
-                    if buff.tigersFury.exists() and ttm > 3 and (not talent.savageRoar or buff.savageRoar.exists()) then
+                    if buff.tigersFury.exists() and (not talent.savageRoar or buff.savageRoar.exists()) then
 						if canUse(13) then
 							useItem(13)
 						end

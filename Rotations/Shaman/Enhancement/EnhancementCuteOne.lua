@@ -299,7 +299,7 @@ local function runRotation()
             if falling > 1.5 and buff.waterWalking.exists() then
                 CancelUnitBuffID("player", spell.waterWalking)
             end
-            if isChecked("Water Walking") and not inCombat and IsSwimming() then
+            if isChecked("Water Walking") and not inCombat and IsSwimming() and not buff.waterWalking.exists() then
                 if cast.waterWalking() then return end
             end
         end -- End Action List - Extras
@@ -635,6 +635,8 @@ local function runRotation()
             -- rockbiter,if=maelstrom<15&time<2
             if power < 15 and combatTime < 2 then
                 if cast.rockbiter() then return end
+            else
+                StartAttack()
             end
         end -- End Action List - Opener
     -- Action List - PreCombat

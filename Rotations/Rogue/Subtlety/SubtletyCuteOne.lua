@@ -702,7 +702,7 @@ local function runRotation()
                     end
         -- Nightblade
                     -- nightblade,if=target.time_to_die>8&remains<gcd.max&combo_points>=4
-                    if ttd(units.dyn5) > 8 and debuff.nightblade.remain(units.dyn5) < gcd and combo >= 4 then
+                    if ttd(units.dyn5) > 8 and debuff.nightblade.remain(units.dyn5) < gcdMax and combo >= 4 then
                         if cast.nightblade() then return end
                     end
         -- Starter

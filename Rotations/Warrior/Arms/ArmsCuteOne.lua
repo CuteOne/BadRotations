@@ -548,7 +548,7 @@ local function runRotation()
             end      
         -- Colossus Smash
             -- colossus_smash,if=buff.shattered_defenses.down&(buff.battle_cry.down|buff.battle_cry.remains>gcd.max)
-            if not buff.shatteredDefenses.exists() and (not buff.battleCry.exists() or buff.battleCry.remain() > gcd) then
+            if not buff.shatteredDefenses.exists() and (not buff.battleCry.exists() or buff.battleCry.remain() > gcdMax) then
                 if cast.colossusSmash() then return end
             end
         -- Warbreaker
