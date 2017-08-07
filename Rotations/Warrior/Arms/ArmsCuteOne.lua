@@ -548,13 +548,13 @@ local function runRotation()
             end      
         -- Colossus Smash
             -- colossus_smash,if=buff.shattered_defenses.down&(buff.battle_cry.down|buff.battle_cry.remains>gcd.max)
-            if not buff.shatteredDefenses.exists() and (not buff.battleCry.exists() or buff.battleCry.remain() > gcd) then
+            if not buff.shatteredDefenses.exists() and (not buff.battleCry.exists() or buff.battleCry.remain() > gcdMax) then
                 if cast.colossusSmash() then return end
             end
         -- Warbreaker
             -- warbreaker,if=(raid_event.adds.in>90|!raid_event.adds.exists)&cooldown.mortal_strike.remains<=gcd.remains&buff.shattered_defenses.down&buff.executioners_precision.stack=2
             if (getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs())) and #enemies.yards5 > 0 then
-                if cd.mortalStrike <= cd.global and not buff.shatteredDefenses.exists() and buff.executionersPrecision.stack() == 2 then
+                if cd.mortalStrike <= cd.global and not buff.shatteredDefenses.exists() and debuff.executionersPrecision.stack() == 2 then
                     if cast.warbreaker("player") then usedWarbreaker = true; return end
                 end
             end
@@ -575,7 +575,7 @@ local function runRotation()
             end
         -- Mortal Strike
             -- mortal_strike,if=buff.executioners_precision.stack=2&buff.shattered_defenses.up
-            if buff.executionersPrecision.stack() == 2 and buff.shatteredDefenses.exists() then
+            if debuff.executionersPrecision.stack() == 2 and buff.shatteredDefenses.exists() then
                 if cast.mortalStrike() then return end
             end
         -- Overpower
@@ -654,7 +654,7 @@ local function runRotation()
             end
         -- Mortal Strike
             -- mortal_strike,if=buff.shattered_defenses.up|buff.executioners_precision.down
-            if buff.shatteredDefenses.exists() or not buff.executionersPrecision.exists() then
+            if buff.shatteredDefenses.exists() or not debuff.executionersPrecision.exists() then
                 if cast.mortalStrike() then return end
             end
         -- Overpower

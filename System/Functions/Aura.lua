@@ -106,7 +106,7 @@ function canDispel(Unit,spellID)
 		if spellID == 31224 then typesList = { "Poison","Curse","Disease","Magic" } end
 	end
 	if ClassNum == 5 then --Priest
-		typesList = { }
+		if spellID == 527 then typesList = { "Disease", "Magic" } end
 	end
 	if ClassNum == 6 then --Death Knight
 		typesList = { }
@@ -114,6 +114,8 @@ function canDispel(Unit,spellID)
 	if ClassNum == 7 then --Shaman
 		-- Cleanse Spirit
 		if spellID == 51886 then typesList = { "Curse" } end
+		-- Purify Spirit
+		if spellID == 77130 then typesList = {"Curse", "Magic"} end
 		-- Purge
 		if spellID == 370 then typesList = { "Magic" } end
 	end
@@ -124,8 +126,13 @@ function canDispel(Unit,spellID)
 		typesList = { }
 	end
 	if ClassNum == 10 then --Monk
-		-- Detox
-		if spellID == 115450 then typesList = { "Poison","Disease", "Magic" } end
+		-- Detox (MW)
+		--if GetSpecialization() == 2 then
+			if spellID == 115450 then typesList = { "Poison","Disease", "Magic" } end
+		-- Detox (WW or BM)
+		--else
+			if spellID == 218164 then typesList = { "Poison", "Disease"} end
+		--end
 		-- Diffuse Magic
 		-- if spellID == 122783 then typesList = { "Magic" } end
 	end
@@ -169,17 +176,31 @@ function canDispel(Unit,spellID)
 	end
 	local ValidDebuffType = false
 	local i = 1
-	if Unit.dispel == true or Unit.dispel == nil then
-		if UnitIsFriend("player",Unit) then
+	if UnitInPhase(Unit) then
+		if UnitIsFriend("player",Unit)then
 			while UnitDebuff(Unit,i) do
 				local _,_,_,_,debuffType,_,_,_,_,_,debuffid = UnitDebuff(Unit,i) 
 				-- Blackout Debuffs
-				if ((debuffType and ValidType(debuffType))) and ((isChecked("Dispel delay") and (getDebuffDuration(Unit, debuffid) - getDebuffRemain(Unit, debuffid)) > (getDebuffDuration(Unit, debuffid) * (math.random(getValue("Dispel delay")-2, getValue("Dispel delay")+2)/100))) or not isChecked("Dispel delay")) 
-					and debuffid ~= 138732 --Ionization from Jin'rokh the Breaker - ptr
-					and debuffid ~= 138733 --Ionization from Jin'rokh the Breaker - live
-				then
-					HasValidDispel = true
-					break
+				if ((debuffType and ValidType(debuffType))) and debuffid ~= 138733 then --Ionization from Jin'rokh the Breaker  
+					for i=1, #br.friend do
+						local thisUnit = br.friend[i].unit
+						if Unit == thisUnit then
+							if br.friend[i].dispel ~= nil then
+								dispelUnitObj = br.friend[i].dispel
+							end
+						end
+					end
+					if (dispelUnitObj == nil ) then
+						if ((isChecked("Dispel delay") and (getDebuffDuration(Unit, debuffid) - getDebuffRemain(Unit, debuffid)) > (getDebuffDuration(Unit, debuffid) * (math.random(getValue("Dispel delay")-2, getValue("Dispel delay")+2)/100))) or not isChecked("Dispel delay")) 						
+						then
+							HasValidDispel = true
+							break
+						end
+					elseif dispelUnitObj == true then 
+						HasValidDispel = true
+						dispelUnitObj = nil
+						break
+					end
 				end
 				i = i + 1
 			end
@@ -187,12 +208,12 @@ function canDispel(Unit,spellID)
 			while UnitBuff(Unit,i) do
 				local _,_,_,_,buffType,_,_,_,_,_,buffid = UnitBuff(Unit,i)
 				-- Blackout Debuffs
-				if ((buffType and ValidType(buffType))) and ((isChecked("Dispel delay") and (getDebuffDuration(Unit, buffid) - getDebuffRemain(Unit, buffid)) > (getDebuffDuration(Unit, buffid) * (math.random(getValue("Dispel delay")-2, getValue("Dispel delay")+2)/100) )) or not isChecked("Dispel delay")) -- Dispel Delay then--or Enraged()) --or Enraged())
-					and buffid ~= 138732 --Ionization from Jin'rokh the Breaker - ptr
-					and buffid ~= 138733 --Ionization from Jin'rokh the Breaker - live
-				then
-					HasValidDispel = true
-					break
+				if ((buffType and ValidType(buffType))) and buffid ~= 138733 then --Ionization from Jin'rokh the Breaker  
+					if ((isChecked("Dispel delay") and (getBuffDuration(Unit, buffid) - getBuffRemain(Unit, buffid)) > (getBuffDuration(Unit, buffid) * (math.random(getValue("Dispel delay")-2, getValue("Dispel delay")+2)/100))) or not isChecked("Dispel delay")) 						
+					then
+						HasValidDispel = true
+						break
+					end
 				end
 				i = i + 1
 			end

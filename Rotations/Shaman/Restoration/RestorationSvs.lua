@@ -387,8 +387,8 @@ local function runRotation()
                 end
             end
         -- Chain Heal
-            if isChecked("Chain Heal") and lastSpell ~= spell.chainHeal then
-                if castWiseAoEHeal(br.friend,spell.chainHeal,20,getValue("Chain Heal"),getValue("Chain Heal Targets"),5,false,true) then return end
+            if isChecked("Chain Heal") then
+                if castWiseAoEHeal(br.friend,spell.chainHeal,40,getValue("Chain Heal"),getValue("Chain Heal Targets"),5,false,true) then return end
             end
         -- Healing Rain
             if not moving then
@@ -526,16 +526,16 @@ local function runRotation()
                 end
             end
         -- Chain Heal
-            if isChecked("Chain Heal") and lastSpell ~= spell.chainHeal then
+            if isChecked("Chain Heal") then
                 if talent.unleashLife and talent.highTide then
                     if cast.unleashLife(lowest) then return end
                     if buff.unleashLife.remain() > 2 then
-                        if castWiseAoEHeal(br.friend,spell.chainHeal,20,getValue("Chain Heal"),(getValue("Chain Heal Targets") + 1),5,false,true) then return end
+                        if castWiseAoEHeal(br.friend,spell.chainHeal,40,getValue("Chain Heal"),(getValue("Chain Heal Targets") + 1),5,false,true) then return end
                     end
                 elseif talent.highTide then
-                    if castWiseAoEHeal(br.friend,spell.chainHeal,20,getValue("Chain Heal"),(getValue("Chain Heal Targets") + 1),5,false,true) then return end
+                    if castWiseAoEHeal(br.friend,spell.chainHeal,40,getValue("Chain Heal"),(getValue("Chain Heal Targets") + 1),5,false,true) then return end
                 else
-                    if castWiseAoEHeal(br.friend,spell.chainHeal,20,getValue("Chain Heal"),getValue("Chain Heal Targets"),5,false,true) then return end
+                    if castWiseAoEHeal(br.friend,spell.chainHeal,40,getValue("Chain Heal"),getValue("Chain Heal Targets"),5,false,true) then return end
                 end
             end
         -- Gift of the Queen
@@ -565,15 +565,10 @@ local function runRotation()
         -- Single Target
         function actionList_SingleTarget()
         -- Purify Spirit
-            if br.player.mode.decurse == 1 then
-                for i = 1, #br.friend do
-                    for n = 1,40 do
-                        local buff,_,_,count,bufftype,duration = UnitDebuff(br.friend[i].unit, n)
-                        if buff then
-                            if bufftype == "Curse" or bufftype == "Magic" then
-                                if cast.purifySpirit(br.friend[i].unit) then return end
-                            end
-                        end
+           if br.player.mode.decurse == 1 then
+                for i = 1, #friends.yards40 do
+                    if canDispel(br.friend[i].unit,spell.purifySpirit) then
+                        if cast.purifySpirit(br.friend[i].unit) then return end
                     end
                 end
             end

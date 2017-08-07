@@ -92,6 +92,11 @@ function frame:OnEvent(event, arg1, arg2, arg3, arg4, arg5)
         if getOptionCheck("Reset Options") then
         	-- Reset Settings
         	brdata = {}
+		elseif getOptionCheck("Reset Saved Profiles") then
+			dungeondata = {}
+        	raiddata = {}
+        	mdungeondata = {}
+        	mraiddata = {}
         	br.dungeon = {}
 			br.mdungeon = {}
 			br.raid = {}

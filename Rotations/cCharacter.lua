@@ -32,6 +32,7 @@ function cCharacter:new(class)
 		t18_classTrinket = false,
 	}
 	self.gcd            = 1.5       -- Global Cooldown
+	self.gcdMax 		= 1.5 		-- GLobal Max Cooldown
 	self.glyph          = {}        -- Glyphs
 	self.faction  		= select(1,UnitFactionGroup("player")) -- Faction non-localised name
     self.flask 			= {}
@@ -163,6 +164,7 @@ function cCharacter:new(class)
 	function self.getCharacterInfo()
 
 		self.gcd 				= self.getGlobalCooldown()
+		self.gcdMax 			= max(1, 1.5 / (1 + UnitSpellHaste("player") / 100))
 		self.health 			= getHP("player")
 		self.instance 			= select(2,IsInInstance())
 		self.level 				= UnitLevel("player") -- TODO: EVENT - UNIT_LEVEL
@@ -251,9 +253,7 @@ function cCharacter:new(class)
 -- Returns the Global Cooldown time
 	function self.getGlobalCooldown()
 		local gcd = getSpellCD(61304) --(1.5 / ((UnitSpellHaste("player")/100)+1))
-		if gcd < 1 then
-			return  1
-		else
+		if gcd < 0 then return 0 else
 			return gcd
 		end
 	end
@@ -392,7 +392,7 @@ function cCharacter:new(class)
         br.ui:createCheckbox(section_base, "Use Crystal")
 		br.ui:createCheckbox(section_base, "Use Fel Focuser")
         br.ui:createDropdown(section_base, "Use emp. Rune", {"|cff00FF00Normal","|cffFF0000Raid Only"}, 1, "Use rune anytime or only in raids")
-        br.ui:createCheckbox(section_base, "Use Racial")
+--        br.ui:createCheckbox(section_base, "Use Racial")
         br.ui:checkSectionState(section_base)
     end
 
@@ -402,7 +402,7 @@ function cCharacter:new(class)
 		self.options.useCrystal       = isChecked("Use Crystal")==true or false
 		self.options.useFelFocuser    = isChecked("Use Fel Focuser")==true or false
 		self.options.useEmpoweredRune = isChecked("Use emp. Rune",true)==true or false
-		self.options.useRacial        = isChecked("Use Racial")
+--		self.options.useRacial        = isChecked("Use Racial")
 	end
 
 -- Use Oralius Crystal +100 to all Stat - ID: 118922, Buff: 176151 (Whispers of Insanity)

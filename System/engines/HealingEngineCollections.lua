@@ -39,6 +39,7 @@ novaEngineTables.BadDebuffList= {
 	--Brackenspore
 	159220, -- http://www.wowhead.com/spell=159220  A debuff that removes 99% of healing so no point healing them
 	184587, -- Touch of Mortality  Prevents all healing for 9 seconds
+	236550, -- Discorporate Decreases all Healing by 75%
 }
 -- list of special units we want to heal, these npc will go directly into healing engine(Special Heal must be checked)
 novaEngineTables.SpecialHealUnitList = {

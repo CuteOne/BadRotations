@@ -298,12 +298,14 @@ local function runRotation()
             end
         -- Pick Pocket
             if usePickPocket() then
-                if UnitCanAttack(units.dyn5,"player") and (UnitExists(units.dyn5) or mode.pickPocket == 2) and mode.pickPocket ~= 3 then
-                    if not isPicked(units.dyn5) and not isDummy() then
+                if (isValidUnit(units.dyn5) or mode.pickPocket == 2) and mode.pickPocket ~= 3 then
+                    if not isPicked(units.dyn5) and not isDummy(units.dyn5) then
                         if debuff.sap.remain(units.dyn5) < 1 and mode.pickPocket ~= 1 then
                             if cast.sap(units.dyn5) then return end
                         end
-                        if cast.pickPocket() then return end
+                        if lastSpell ~= spell.vanish then
+                            if cast.pickPocket() then return end
+                        end
                     end
                 end
             end
@@ -700,7 +702,7 @@ local function runRotation()
                     end
         -- Nightblade
                     -- nightblade,if=target.time_to_die>8&remains<gcd.max&combo_points>=4
-                    if ttd(units.dyn5) > 8 and debuff.nightblade.remain(units.dyn5) < gcd and combo >= 4 then
+                    if ttd(units.dyn5) > 8 and debuff.nightblade.remain(units.dyn5) < gcdMax and combo >= 4 then
                         if cast.nightblade() then return end
                     end
         -- Starter

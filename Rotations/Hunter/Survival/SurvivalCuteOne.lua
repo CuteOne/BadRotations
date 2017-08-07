@@ -412,11 +412,8 @@ local function runRotation()
             if cast.explosiveTrap("best",nil,1,5) then return end
         -- Carve
             -- carve,if=talent.serpent_sting.enabled&!dot.serpent_sting.ticking
-            if talent.serpentSting and not debuff.serpentSting.exists(units.dyn5) and not talent.butchery then
-                if cast.carve("player") then return end
-            end
-            -- carve,if=active_enemies>5
-            if not talent.butchery and #enemies.yards5 > 5 then
+            -- carve,if=(talent.serpent_sting.enabled&dot.serpent_sting.refreshable)|(active_enemies>5)
+            if ((talent.serpentSting and not debuff.serpentSting.exists(units.dyn5)) or #enemies.yards5 > 5) and not talent.butchery then
                 if cast.carve("player") then return end
             end
         end
@@ -512,24 +509,16 @@ local function runRotation()
                 if cast.carve("player") then return end
             end
         -- Raptor Strike
-            -- raptor_strike,if=(talent.way_of_the_moknathal.enabled&buff.moknathal_tactics.remains<gcd*4)
-            if (talent.wayOfTheMokNathal and buff.mokNathalTactics.remain() < gcd * 4) then
-                if cast.raptorStrike() then return end
-            end
-            -- raptor_strike,if=focus>((25-focus.regen*gcd)+55)
-            if power > ((25 - powerRegen * gcd) + 55) then
+            -- raptor_strike,if=(talent.way_of_the_moknathal.enabled&buff.moknathal_tactics.remains<gcd*4)|(focus>((25-focus.regen*gcd)+55))
+            if (talent.wayOfTheMokNathal and buff.mokNathalTactics.remain() < gcd * 4) or (power > ((25 - powerRegen * gcd) + 55)) then
                 if cast.raptorStrike() then return end
             end
         end
     -- Action List - Mok'Maintain
         local function actionList_MokMaintain()
         -- Raptor Strike
-            -- raptor_strike,if=buff.moknathal_tactics.remains<gcd
-            if buff.mokNathalTactics.remain() < gcd then
-                if cast.raptorStrike() then return end
-            end
-            -- raptor_strike,if=buff.moknathal_tactics.stack<2
-            if buff.mokNathalTactics.stack() < 2 then
+            -- raptor_strike,if=(buff.moknathal_tactics.remains<gcd)|(buff.moknathal_tactics.stack<2)
+            if (buff.mokNathalTactics.remain() < gcd) or (buff.mokNathalTactics.stack() < 2) then
                 if cast.raptorStrike() then return end
             end
         end

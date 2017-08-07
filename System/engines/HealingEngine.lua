@@ -106,7 +106,7 @@ if not metaTable1 then
 		end
 		-- This is the function for Dispel checking built into the player itself.
 		function o:Dispel()
-			if (UnitDebuffID(o.unit,235621) and not UnitDebuffID("player",235621)) or not UnitInPhase(o.unit) then
+			if not UnitInPhase(o.unit) then
 				return false
 			end
 			for i = 1, #novaEngineTables.DispelID do

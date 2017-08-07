@@ -160,6 +160,7 @@ local function runRotation()
     local immunAotT                                     = UnitBuff("target","Aspect of the Turtle") ~= nil
     local immunCyclone                                  = UnitBuff("target","Cyclone") ~= nil
     local immun                                         = immun or immunIB or immunAotT or immunDS or immunCyclone
+    local deadtar, attacktar, hastar, playertar         = deadtar or UnitIsDeadOrGhost("target"), attacktar or UnitCanAttack("target", "player"), hastar or GetObjectExists("target"), UnitIsPlayer("target")
     local attacktar                                     = UnitCanAttack("target", "player")
     local artifact                                      = br.player.artifact
     local buff                                          = br.player.buff
@@ -941,187 +942,204 @@ local function runRotation()
             end
         end
         
-        if  isChecked("Pet Attack") then
-            if inCombat and isValidUnit(units.dyn30) and getDistance(units.dyn30) < 30 then
-                if not UnitIsUnit("target","pettarget") and attacktar and not IsPetAttackActive() then
-                    PetAttack()
-                    PetAssistMode()
-                end
-            else
-                if IsPetAttackActive() then
-                    PetStopAttack()
-                    PetPassiveMode()
-                end
+        if inCombat and isValidUnit(units.dyn40) and getDistance(units.dyn40) < 40 and isChecked("Pet Attack") then
+            if not UnitIsUnit("target","pettarget") then
+                PetAttack()
+            end
+        else
+            if IsPetAttackActive() then
+                PetStopAttack()
             end
         end
+        
         return false
-    end     
+    end  
+
+---------------------
+--- Begin Profile ---
+--------------------- 
     
-    function profile()
-    
-        if pause() or (UnitExists("target") and (UnitIsDeadOrGhost("target") or not UnitCanAttack("target", "player"))) or mode.rotation == 4 then
-            return true
-        else
-    ---------------------------------
-    --- Out Of Combat - Rotations ---
-    ---------------------------------
-            if not inCombat and GetObjectExists("target") and not UnitIsDeadOrGhost("target") and UnitCanAttack("target", "player") then
-                StopAttack()
-                if actionList_PRECOMBAT() then return true end
-                
-            end -- End Out of Combat Rotation
-    -----------------------------
-    --- In Combat - Rotations --- 
-    -----------------------------
-            if inCombat then
-                if actionList_INTERRUPT() then return true end
-                --actions+=/mind_freeze
-                --actions+=/arcane_torrent,if=runic_power.deficit>20
-                
-                if isChecked("Use Racial") then
-                    if getSpellCD(br.player.getRacial()) == 0 and (race == "Orc" or race == "Troll") then
-                        if debug == true then Print("Casting Racial") end
-                        if br.player.castRacial() then
-                            if debug == true then Print("Casted Racial") end
-                            return true
+    if not inCombat and not hastar and profileStop==true then
+        profileStop = false
+    elseif (inCombat and profileStop==true) or IsMounted() or IsFlying() or pause() or mode.rotation==4 then
+        if not pause() and IsPetAttackActive() then
+            PetStopAttack()
+            PetFollow()
+        end
+        return true
+
+    else
+---------------------------------
+--- Out Of Combat - Rotations ---
+---------------------------------
+        if not inCombat and GetObjectExists("target") and not UnitIsDeadOrGhost("target") and UnitCanAttack("target", "player") then
+            StopAttack()
+            if actionList_PRECOMBAT() then return end
+        end
+-----------------------------
+--- In Combat - Rotations --- 
+-----------------------------
+        if inCombat then
+            if actionList_INTERRUPT() then return end
+            --actions+=/mind_freeze
+            --actions+=/arcane_torrent,if=runic_power.deficit>20
+            
+            if isChecked("Use Racial") then
+                if getSpellCD(br.player.getRacial()) == 0 and (race == "Orc" or race == "Troll") then
+                    if debug == true then Print("Casting Racial") end
+                    if br.player.castRacial() then
+                        if debug == true then Print("Casted Racial") end
+                    end
+                end
+            end
+            --actions+=/blood_fury
+            --actions+=/berserking
+            --actions+=/use_items
+            
+            if getOptionValue("Trinket 1 Condition") == 1 then 
+                if isChecked("Trinket 1") and inCombat and canUse(13) then
+                    if useItem(13) then return end
+                end
+            end
+
+
+            if getOptionValue("Trinket 1 Condition") == 2 then
+                if isChecked("Trinket 1") and inCombat then 
+                    for i = 1, #enemies.yards40 do
+                        local thisUnit = enemies.yards40[i]
+                        if isBoss(thisUnit) and getHP(thisUnit) <= getValue("Trinket 1") and canUse(13) then
+                            if useItem(13) then return end
                         end
                     end
                 end
-                --actions+=/blood_fury
-                --actions+=/berserking
-                --actions+=/use_items
-                
-                if getOptionValue("Trinket 1 Condition") == 1 then 
-                    if isChecked("Trinket 1") and inCombat and canUse(13) then
-                        useItem(13)
-                    end
-                elseif getOptionValue("Trinket 1 Condition") == 2 then
-                    if isChecked("Trinket 1") and inCombat and getHP("target") <= getValue("Trinket 1") and canUse(13) and isBoss("target") then
-                        useItem(13)
-                    end
-                elseif getOptionValue("Trinket 1 Condition") == 3 then
-                    if isChecked("Trinket 1") and inCombat and health <= getValue("Trinket 1") and canUse(13) then
-                        useItem(13)
-                    end
+            end
+
+            if getOptionValue("Trinket 1 Condition") == 3 then
+                if isChecked("Trinket 1") and inCombat and health <= getValue("Trinket 1") and canUse(13) then
+                    if useItem(13) then return end
                 end
-                
-                if getOptionValue("Trinket 2 Condition") == 1 then 
-                    if isChecked("Trinket 2") and inCombat and canUse(14) then
-                        useItem(14)
-                    end
-                elseif getOptionValue("Trinket 2 Condition") == 2 then
-                    if isChecked("Trinket 2") and inCombat and getHP("target") <= getValue("Trinket 2") and canUse(14) and isBoss("target") then
-                        useItem(14)
-                    end
-                elseif getOptionValue("Trinket 2 Condition") == 3 then
-                    if isChecked("Trinket 2") and inCombat and health <= getValue("Trinket 2") and canUse(14) then
-                        useItem(14)
-                    end
+            end
+            
+            if getOptionValue("Trinket 2 Condition") == 1 then 
+                if isChecked("Trinket 2") and inCombat and canUse(14) then
+                    if useItem(14) then return end
                 end
-                
-                --actions+=/use_item,name=ring_of_collapsing_futures,if=(buff.temptation.stack=0&target.time_to_die>60)|target.time_to_die<60
-                if isChecked("Ring of Collapsing Futures") and hasEquiped(142173) and canUse(142173) and not debuff.temptation.exists("player") then
-                    useItem(142173)
-                end
-                
-                --actions+=/potion,if=buff.unholy_strength.react
-                if isChecked("Potion") then
-                    if buff.unholyStrength.exists() then
-                        if canUse(142117) then
-                            if useItem(142117) then return true end
+            end
+
+            if getOptionValue("Trinket 1 Condition") == 2 then
+                if isChecked("Trinket 1") and inCombat then 
+                    for i = 1, #enemies.yards40 do
+                        local thisUnit = enemies.yards40[i]
+                        if isBoss(thisUnit) and getHP(thisUnit) <= getValue("Trinket 1") and canUse(14) then
+                            if useItem(14) then return end
                         end
                     end
                 end
-                --actions+=/outbreak,target_if=!dot.virulent_plague.ticking
-                if GetUnitExists("target") and ((objIDLastVirPlagueTarget ~= ObjectID("target")) or (waitfornextVirPlague < GetTime() - 6)) then
-                    if (not debuff.virulentPlague.exists("target")
-                        or debuff.virulentPlague.remain("target") < 1.5) 
-                        and not debuff.soulReaper.exists("target")
-                        and not immun
+            end
+
+            if getOptionValue("Trinket 2 Condition") == 3 then
+                if isChecked("Trinket 2") and inCombat and health <= getValue("Trinket 2") and canUse(14) then
+                    if useItem(14) then return end
+                end
+            end
+            
+            --actions+=/use_item,name=ring_of_collapsing_futures,if=(buff.temptation.stack=0&target.time_to_die>60)|target.time_to_die<60
+            if isChecked("Ring of Collapsing Futures") and hasEquiped(142173) and canUse(142173) and not debuff.temptation.exists("player") then
+                useItem(142173)
+            end
+            
+            --actions+=/potion,if=buff.unholy_strength.react
+            if useCDs() and isChecked("Potion") and inRaid then
+                if buff.unholyStrength.exists() then
+                    if canUse(142117) then
+                        if useItem(142117) then return end
+                    end
+                end
+            end
+            --actions+=/outbreak,target_if=!dot.virulent_plague.ticking
+            if GetUnitExists("target") and ((objIDLastVirPlagueTarget ~= ObjectID("target")) or (waitfornextVirPlague < GetTime() - 6)) then
+                if (not debuff.virulentPlague.exists("target")
+                    or debuff.virulentPlague.remain("target") < 1.5) 
+                    and not debuff.soulReaper.exists("target")
+                    and not immun
+                    and not cloak
+                    and UnitIsDeadOrGhost("target") ~= nil
+                then
+                    if cast.outbreak("target","aoe") then 
+                        waitfornextVirPlague = GetTime() 
+                        objIDLastVirPlagueTarget = ObjectID("target")
+                        return 
+                    end
+                end
+                for i = 1, #enemies.yards30 do
+                    local thisUnit = enemies.yards30[i]
+                    if not debuff.virulentPlague.exists(thisUnit) 
+                        and UnitAffectingCombat(thisUnit) 
                         and not cloak
-                        and UnitIsDeadOrGhost("target") ~= nil
+                        and not immun
                     then
-                        if cast.outbreak("target","aoe") then 
+                        if cast.outbreak(thisUnit,"aoe") then 
                             waitfornextVirPlague = GetTime() 
-                            objIDLastVirPlagueTarget = ObjectID("target")
                             return 
                         end
-                    end
-                    for i = 1, #enemies.yards30 do
-                        local thisUnit = enemies.yards30[i]
-                        if not debuff.virulentPlague.exists(thisUnit) 
-                            and UnitAffectingCombat(thisUnit) 
-                            and not cloak
-                            and not immun
-                        then
-                            if cast.outbreak(thisUnit,"aoe") then 
-                                waitfornextVirPlague = GetTime() 
-                                return 
-                            end
-                            break
-                        end
+                        break
                     end
                 end
-                
-                --actions+=/dark_transformation,if=equipped.137075&cooldown.dark_arbiter.remains>165
-                if isChecked(colorGreen.."Dark Transformation") and hasEquiped(137075) and cd.darkArbiter > 165 then
-                    if cast.darkTransformation() then return true end
-                end
-                --actions+=/dark_transformation,if=equipped.137075&!talent.shadow_infusion.enabled&cooldown.dark_arbiter.remains>55
-                if isChecked(colorGreen.."Dark Transformation") and hasEquiped(137075) and not talent.shadowInfusion and cd.darkArbiter > 55 then
-                    if cast.darkTransformation() then return true end
-                end
-                --actions+=/dark_transformation,if=equipped.137075&talent.shadow_infusion.enabled&cooldown.dark_arbiter.remains>35
-                if isChecked(colorGreen.."Dark Transformation") and hasEquiped(137075) and talent.shadowInfusion and cd.darkArbiter > 35 then
-                    if cast.darkTransformation() then return true end
-                end
-                --actions+=/dark_transformation,if=equipped.137075&target.time_to_die<cooldown.dark_arbiter.remains-8
-                --actions+=/dark_transformation,if=equipped.137075&cooldown.summon_gargoyle.remains>160
-                if isChecked(colorGreen.."Dark Transformation") and hasEquiped(137075) and cd.summonGargoyle > 160 then
-                    if cast.darkTransformation() then return true end
-                end
-                --actions+=/dark_transformation,if=equipped.137075&!talent.shadow_infusion.enabled&cooldown.summon_gargoyle.remains>55
-                if isChecked(colorGreen.."Dark Transformation") and hasEquiped(137075) and not talent.shadowInfusion and cd.summonGargoyle > 55 then
-                    if cast.darkTransformation() then return true end
-                end
-                --actions+=/dark_transformation,if=equipped.137075&talent.shadow_infusion.enabled&cooldown.summon_gargoyle.remains>35
-                if isChecked(colorGreen.."Dark Transformation") and hasEquiped(137075) and talent.shadowInfusion and cd.summonGargoyle > 35 then
-                    if cast.darkTransformation() then return true end
-                end
-                --actions+=/dark_transformation,if=equipped.137075&target.time_to_die<cooldown.summon_gargoyle.remains-8
-                --actions+=/dark_transformation,if=!equipped.137075&rune<=3
-                if isChecked(colorGreen.."Dark Transformation") and not hasEquiped(137075) and rune <= 3 then
-                    if cast.darkTransformation() then return true end
-                end
-                
-                if actionList_Pet() then return true end
-                
-                --actions+=/army_of_the_dead
-                if actionList_Defensive() then return true end
-                
-                --actions+=/blighted_rune_weapon,if=rune<=3
-                if talent.blightedRuneWeapon and rune <= 3 then
-                    if cast.blightedRuneWeapon() then return true end
-                    if isChecked("Debug Info") then Print("Profile(): Blighted Rune Weapon") end
-                end
-                --actions+=/run_action_list,name=valkyr,if=talent.dark_arbiter.enabled&pet.valkyr_battlemaiden.active
-                if talent.darkArbiter then 
-                    if GetObjExists(100876) then
-                        if actionList_Valkyr() then return true end
-                        if isChecked("Debug Info") then Print("Profile(): Calling actionList_Valkyr") end
-                    end
-                end
-                
-                if actionList_Generic() then return true end
-                if isChecked("Debug Info") then Print("Profile(): Calling actionList_Generic") end
             end
-        end -- Pause
-    end -- End Timer
-    
-    if UnitCastingInfo("player") == nil and getSpellCD(61304) == 0 then
-        return profile()
-    end
-    
+            
+            --actions+=/dark_transformation,if=equipped.137075&cooldown.dark_arbiter.remains>165
+            if isChecked(colorGreen.."Dark Transformation") and hasEquiped(137075) and cd.darkArbiter > 165 then
+                if cast.darkTransformation() then return end
+            end
+            --actions+=/dark_transformation,if=equipped.137075&!talent.shadow_infusion.enabled&cooldown.dark_arbiter.remains>55
+            if isChecked(colorGreen.."Dark Transformation") and hasEquiped(137075) and not talent.shadowInfusion and cd.darkArbiter > 55 then
+                if cast.darkTransformation() then return end
+            end
+            --actions+=/dark_transformation,if=equipped.137075&talent.shadow_infusion.enabled&cooldown.dark_arbiter.remains>35
+            if isChecked(colorGreen.."Dark Transformation") and hasEquiped(137075) and talent.shadowInfusion and cd.darkArbiter > 35 then
+                if cast.darkTransformation() then return end
+            end
+            --actions+=/dark_transformation,if=equipped.137075&target.time_to_die<cooldown.dark_arbiter.remains-8
+            --actions+=/dark_transformation,if=equipped.137075&cooldown.summon_gargoyle.remains>160
+            if isChecked(colorGreen.."Dark Transformation") and hasEquiped(137075) and cd.summonGargoyle > 160 then
+                if cast.darkTransformation() then return end
+            end
+            --actions+=/dark_transformation,if=equipped.137075&!talent.shadow_infusion.enabled&cooldown.summon_gargoyle.remains>55
+            if isChecked(colorGreen.."Dark Transformation") and hasEquiped(137075) and not talent.shadowInfusion and cd.summonGargoyle > 55 then
+                if cast.darkTransformation() then return end
+            end
+            --actions+=/dark_transformation,if=equipped.137075&talent.shadow_infusion.enabled&cooldown.summon_gargoyle.remains>35
+            if isChecked(colorGreen.."Dark Transformation") and hasEquiped(137075) and talent.shadowInfusion and cd.summonGargoyle > 35 then
+                if cast.darkTransformation() then return end
+            end
+            --actions+=/dark_transformation,if=equipped.137075&target.time_to_die<cooldown.summon_gargoyle.remains-8
+            --actions+=/dark_transformation,if=!equipped.137075&rune<=3
+            if isChecked(colorGreen.."Dark Transformation") and not hasEquiped(137075) and rune <= 3 then
+                if cast.darkTransformation() then return end
+            end
+            
+            if actionList_Pet() then return end
+            
+            --actions+=/army_of_the_dead
+            if actionList_Defensive() then return end
+            
+            --actions+=/blighted_rune_weapon,if=rune<=3
+            if talent.blightedRuneWeapon and rune <= 3 then
+                if cast.blightedRuneWeapon() then return end
+                if isChecked("Debug Info") then Print("Profile(): Blighted Rune Weapon") end
+            end
+            --actions+=/run_action_list,name=valkyr,if=talent.dark_arbiter.enabled&pet.valkyr_battlemaiden.active
+            if talent.darkArbiter then 
+                if GetObjExists(100876) then
+                    if actionList_Valkyr() then return end
+                    if isChecked("Debug Info") then Print("Profile(): Calling actionList_Valkyr") end
+                end
+            end
+            
+            if actionList_Generic() then return end
+            if isChecked("Debug Info") then Print("Profile(): Calling actionList_Generic") end
+        end
+    end -- Pause
 end -- End runRotation 
 local id = 252 -- Change to the spec id profile is for.
 if br.rotations[id] == nil then br.rotations[id] = {} end

@@ -604,7 +604,7 @@ local function runRotation()
 	            	end
 	            end
 		-- Incarnation - King of the Jungle
-                -- if=cooldown.tigers_fury.remain()s<gcd
+                -- if=cooldown.tigers_fury.remains<gcd
 	            if useCDs() and isChecked("Incarnation") then
 	            	if cd.tigersFury < gcd and cd.incarnationKingOfTheJungle == 0 then
 	            		if cast.incarnationKingOfTheJungle() then return end
@@ -613,7 +613,7 @@ local function runRotation()
 		-- Trinkets
                 -- if=buff.tigers_fury.up&energy.time_to_max>3&(!talent.savage_roar.enabled|buff.savage_roar.up)
 				if useCDs() and isChecked("Trinkets") and getDistance(units.dyn5) < 5 then
-                    if buff.tigersFury.exists() and ttm > 3 and (not talent.savageRoar or buff.savageRoar.exists()) then
+                    if buff.tigersFury.exists() and (not talent.savageRoar or buff.savageRoar.exists()) then
 						if canUse(13) then
 							useItem(13)
 						end
@@ -769,10 +769,10 @@ local function runRotation()
         -- Thrash
             -- pool_resource,for_next=1
             -- cycle_targets=1,if=remains<=duration*0.3&spell_targets.thrash_cat>=5
-            if ((mode.rotation == 1 and #enemies.yards8 >= 5) or mode.rotation == 2) then
+            if multidot and ((mode.rotation == 1 and #enemies.yards8 >= 5) or mode.rotation == 2) then
                 for i = 1, #enemies.yards8 do
                     local thisUnit = enemies.yards8[i]
-                    if (multidot or (UnitIsUnit(thisUnit,units.dyn8AoE) and not multidot)) then
+                    -- if (multidot or (UnitIsUnit(thisUnit,units.dyn8AoE) and not multidot)) then
                         if getDistance(thisUnit) < 8 then
                             if debuff.thrash.refresh(thisUnit) then
                                 if power <= select(1, getSpellCost(spell.thrash)) then
@@ -782,13 +782,13 @@ local function runRotation()
                                 end
                             end
                         end
-                    end
+                    -- end
                 end
             end
         -- Swipe
             -- pool_resource,for_next=1
             -- swipe_cat,if=spell_targets.swipe_cat>=8
-            if ((mode.rotation == 1 and #enemies.yards8 >= 8) or mode.rotation == 2) then
+            if multidot and ((mode.rotation == 1 and #enemies.yards8 >= 8) or mode.rotation == 2) then
                 if power <= select(1, getSpellCost(spell.swipe)) then
                     return true
                 elseif power > select(1, getSpellCost(spell.swipe)) then
@@ -877,7 +877,7 @@ local function runRotation()
         -- Thrash
             -- pool_resource,for_next=1
             -- if=talent.brutal_slash.enabled&spell_targets.thrash_cat>=9
-            if (multidot or (UnitIsUnit("target",units.dyn5) and not multidot)) then
+            if multidot then
                 if talent.brutalSlash and ((mode.rotation == 1 and #enemies.yards8 >= 9) or mode.rotation == 2) then
                    if power <= select(1, getSpellCost(spell.thrash)) then
                         return true
@@ -889,7 +889,7 @@ local function runRotation()
         -- Swipe
             -- pool_resource,for_next=1
             -- swipe_cat,if=spell_targets.swipe_cat>=6
-            if ((mode.rotation == 1 and #enemies.yards8 >= 6) or mode.rotation == 2) then
+            if multidot and ((mode.rotation == 1 and #enemies.yards8 >= 6) or mode.rotation == 2) then
                 if power <= select(1, getSpellCost(spell.swipe)) then
                     return true
                 elseif power > select(1, getSpellCost(spell.swipe)) then
@@ -943,10 +943,10 @@ local function runRotation()
         -- Thrash
             -- pool_resource,for_next=1
             -- thrash_cat,cycle_targets=1,if=set_bonus.tier19_4pc&remains<=duration*0.3&combo_points<5&(spell_targets.swipe_cat>=2|((equipped.luffa_wrappings|buff.clearcasting.up)&(equipped.ailuro_pouncers|buff.bloodtalons.down)))
-            if t19_4pc and combo < 5 and (#enemies.yards8 >= 2 or ((hasEquiped(137056) or buff.clearcasting.exists()) and (hasEquiped(137024) or not buff.bloodtalons.exists()))) then
+            if multidot and t19_4pc and combo < 5 and (#enemies.yards8 >= 2 or ((hasEquiped(137056) or buff.clearcasting.exists()) and (hasEquiped(137024) or not buff.bloodtalons.exists()))) then
                 for i = 1, #enemies.yards8 do
                     local thisUnit = enemies.yards8[i]
-                    if (multidot or (UnitIsUnit(thisUnit,units.dyn5) and not multidot)) and getDistance(thisUnit) < 5 then
+                    if getDistance(thisUnit) < 5 then
                         if debuff.thrash.refresh(thisUnit) then
                             if power <= select(1, getSpellCost(spell.thrash)) and not buff.clearcasting.exists() then
                                 return true
@@ -958,10 +958,10 @@ local function runRotation()
                 end
             end
             -- thrash_cat,cycle_targets=1,if=!set_bonus.tier19_4pc&remains<=duration*0.3&(spell_targets.swipe_cat>=2|(buff.clearcasting.up&equipped.luffa_wrappings&(equipped.ailuro_pouncers|buff.bloodtalons.down)))
-            if not t19_4pc and (#enemies.yards8 >= 2 or (buff.clearcasting.exists() and hasEquiped(137056) and (hasEquiped(137024) or not buff.bloodtalons.exists()))) then
+            if multidot and not t19_4pc and (#enemies.yards8 >= 2 or (buff.clearcasting.exists() and hasEquiped(137056) and (hasEquiped(137024) or not buff.bloodtalons.exists()))) then
                 for i = 1, #enemies.yards8 do
                     local thisUnit = enemies.yards8[i]
-                    if (multidot or (UnitIsUnit(thisUnit,units.dyn5) and not multidot)) and getDistance(thisUnit) < 5 then
+                    if getDistance(thisUnit) < 5 then
                         if debuff.thrash.refresh(thisUnit) then
                             if power <= select(1, getSpellCost(spell.thrash)) and not buff.clearcasting.exists() then
                                 return true
@@ -982,7 +982,7 @@ local function runRotation()
             end
         -- Swipe
             -- swipe_cat,if=combo_points<5&spell_targets.swipe_cat>=3
-            if combo < 5 and ((mode.rotation == 1 and #enemies.yards8 >= 3) or mode.rotation == 2) then
+            if multidot and combo < 5 and ((mode.rotation == 1 and #enemies.yards8 >= 3) or mode.rotation == 2) then
                 if cast.swipe("player") then return end
             end
         -- Shred

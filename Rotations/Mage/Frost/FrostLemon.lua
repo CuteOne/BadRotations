@@ -73,6 +73,7 @@ local function createOptions()
         br.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  colorWhite.."Set to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
         br.ui:createDropdownWithout(section, "Artifact", {colorWhite.."Everything",colorWhite.."Cooldowns",colorWhite.."Never"}, 1, colorWhite.."When to use Artifact Ability.")
         br.ui:createSpinnerWithout(section, "AOE targets",  3,  1,  100,  1,  "Minimum AOE targets. Min: 1 / Max: 100")
+        br.ui:createCheckbox(section, "No Blizzard on STR")
         br.ui:checkSectionState(section)
         ------------------------
         --- ITEM OPTIONS --- -- Define Item Options
@@ -184,8 +185,9 @@ local function runRotation()
     local t20_2pc                                       = TierScan("T20") >= 2
     local thp                                           = getHP(br.player.units(5))
     local execute_time                                  = br.player.gcd
+    local attacktar                                     = UnitCanAttack("target", "player")
     
-
+    units.dyn40 = br.player.units(40)
     enemies.yards40 = br.player.enemies(40)
     enemies.yards8t = br.player.enemies(8,br.player.units(8,true))
     
@@ -277,8 +279,8 @@ local function runRotation()
         end
         
         if  isChecked("Pet Attack") then
-            if inCombat and isValidUnit(units.dyn30) and getDistance(units.dyn30) < 30 then
-                if not UnitIsUnit("target","pettarget") and attacktar and not IsPetAttackActive() then
+            if inCombat and isValidUnit(units.dyn40) and getDistance(units.dyn40) < 40 then
+                if not UnitIsUnit(target,"pettarget") and attacktar and not IsPetAttackActive() then
                     PetAttack()
                     PetAssistMode()
                 end
@@ -648,29 +650,48 @@ local function runRotation()
                 
                 if getOptionValue("Trinket 1 Condition") == 1 then 
                     if isChecked("Trinket 1") and inCombat and canUse(13) then
-                        useItem(13)
+                        if useItem(13) then return true end
                     end
-                elseif getOptionValue("Trinket 1 Condition") == 2 then
-                    if isChecked("Trinket 1") and inCombat and getHP(target) <= getValue("Trinket 1") and canUse(13) and isBoss(target) then
-                        useItem(13)
+                end
+
+
+                if getOptionValue("Trinket 1 Condition") == 2 then
+                    if isChecked("Trinket 1") and inCombat then 
+                        for i = 1, #enemies.yards40 do
+                            local thisUnit = enemies.yards40[i]
+                            if isBoss(thisUnit) and getHP(thisUnit) <= getValue("Trinket 1") and canUse(13) then
+                                if useItem(13) then return true end
+                            end
+                        end
                     end
-                elseif getOptionValue("Trinket 1 Condition") == 3 then
+                end
+
+                if getOptionValue("Trinket 1 Condition") == 3 then
                     if isChecked("Trinket 1") and inCombat and health <= getValue("Trinket 1") and canUse(13) then
-                        useItem(13)
+                        if useItem(13) then return true end
                     end
                 end
                 
                 if getOptionValue("Trinket 2 Condition") == 1 then 
                     if isChecked("Trinket 2") and inCombat and canUse(14) then
-                        useItem(14)
+                        if useItem(14) then return true end
                     end
-                elseif getOptionValue("Trinket 2 Condition") == 2 then
-                    if isChecked("Trinket 2") and inCombat and getHP(target) <= getValue("Trinket 2") and canUse(14) and isBoss(target) then
-                        useItem(14)
+                end
+
+                if getOptionValue("Trinket 1 Condition") == 2 then
+                    if isChecked("Trinket 1") and inCombat then 
+                        for i = 1, #enemies.yards40 do
+                            local thisUnit = enemies.yards40[i]
+                            if isBoss(thisUnit) and getHP(thisUnit) <= getValue("Trinket 1") and canUse(14) then
+                                if useItem(14) then return true end
+                            end
+                        end
                     end
-                elseif getOptionValue("Trinket 2 Condition") == 3 then
+                end
+
+                if getOptionValue("Trinket 2 Condition") == 3 then
                     if isChecked("Trinket 2") and inCombat and health <= getValue("Trinket 2") and canUse(14) then
-                        useItem(14)
+                        if useItem(14) then return true end
                     end
                 end
 
@@ -705,8 +726,7 @@ local function runRotation()
             --actions.aoe+=/blizzard
             if  cd.blizzard == 0 then
                 if #enemies.yards8t > 2 or #enemies.yards8t > 1 and not(talent.glacialSpike and talent.splittingIce) or (hasEquiped(133970) and buff.zannesuJourney.stack() == 5 and buff.zannesuJourney.remain() > getCastTime(spell.blizzard)) then
-                    local sX, sY, sZ = GetObjectPosition(target)
-                    if castAtPosition(sX, sY, sZ, spell.blizzard) then return true end
+                    if cast.blizzard("targetGround", "ground", 1, blizzardRadius) then return true end
                 end
             end
             
@@ -829,10 +849,9 @@ local function runRotation()
             --Freezing Rain Blizzard. 
             --While the normal Blizzard action is usually enough, right after Frozen Orb the actor will be getting a lot of FoFs, which might delay Blizzard to the point where we miss out on Freezing Rain. 
             --Therefore, if we are not at a risk of overcapping on FoF, use Blizzard before using Ice Lance.
-            if cd.blizzard == 0 and getCastTime(spell.blizzard) == 0 then
+            if cd.blizzard == 0 and getCastTime(spell.blizzard) == 0 and not isChecked("No Blizzard on STR") then
                 if #enemies.yards8t > 1 and fof_react < 3  then
-                    local sX, sY, sZ = GetObjectPosition(target)
-                    if castAtPosition(sX, sY, sZ, spell.blizzard) then return true end
+                    if cast.blizzard("targetGround", "ground", 1, blizzardRadius) then return true end
                 end
             end
             
@@ -881,10 +900,9 @@ local function runRotation()
             --Against low number of targets, Blizzard is used as a filler. Use it only against 2 or more targets, 3 or more when using Glacial Spike and Splitting Ice. 
             --Zann'esu buffed Blizzard is used only at 5 stacks.
             
-            if  cd.blizzard == 0 then
+            if cd.blizzard == 0 and not isChecked("No Blizzard on STR") then
                 if #enemies.yards8t > 2 or #enemies.yards8t > 1 and not(talent.glacialSpike and talent.splittingIce) or (hasEquiped(133970) and buff.zannesuJourney.stack() == 5 and buff.zannesuJourney.remain() > getCastTime(spell.blizzard)) then
-                    local sX, sY, sZ = GetObjectPosition(target)
-                    if castAtPosition(sX, sY, sZ, spell.blizzard) then return true end
+                    if cast.blizzard("targetGround", "ground", 1, blizzardRadius) then return true end
                 end
             end
             
@@ -908,10 +926,9 @@ local function runRotation()
             
             if cast.frostbolt(target) then return true end
             
-            if cd.blizzard == 0 then
+            if cd.blizzard == 0 and not isChecked("No Blizzard on STR") then
                 if getCastTime(spell.blizzard) == 0 then
-                    local sX, sY, sZ = GetObjectPosition(target)
-                    if castAtPosition(sX, sY, sZ, spell.blizzard) then return true end
+                    if cast.blizzard("targetGround", "ground", 1, blizzardRadius) then return true end
                 end
             end
             
@@ -939,7 +956,7 @@ local function runRotation()
                 if debug == true then Print("fof_react Changed: "..fof_react) end
             end
             --actions+=/variable,name=fof_react,value=buff.fingers_of_frost.stack,if=equipped.lady_vashjs_grasp&buff.icy_veins.up&variable.time_until_fof>9|prev_off_gcd.freeze|ground_aoe.frozen_orb.remains>9
-            if hasEquiped(132411) and buff.icyVeins.exists() and time_until_fof > 9 or lastCast == spell.freeze or cd.frozenOrb > 54 then
+            if hasEquiped(132411) and buff.icyVeins.exists() and time_until_fof > 9 or lastCast == spell.freeze then
                 fof_react = buff.fingersOfFrost.stack()
                 if debug == true then Print("fof_react Changed: "..fof_react) end
             end
@@ -983,8 +1000,7 @@ local function runRotation()
         -- Therefore, if we are not at a risk of overcapping on FoF, use Blizzard before using Ice Lance.
         if cd.blizzard == 0 then
             if getCastTime(spell.blizzard) == 0 and fof_react < 3 and (lastCast == spell.frozenOrb or cd.frozenOrb > 5) then
-                local sX, sY, sZ = GetObjectPosition(target)
-                if castAtPosition(sX, sY, sZ, spell.blizzard) then return true end
+                if cast.blizzard("targetGround", "ground", 1, blizzardRadius) then return true end
             end
         end
         

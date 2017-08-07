@@ -48,23 +48,23 @@ end
 
 --cast spell on position x,y,z
 function castAtPosition(X,Y,Z, SpellID)
-    X, Y, Z = TraceLine(X, Y, Z + 2, X, Y, Z - 100, 0x111)
-    if not X then
-        return false
-    end
+    CastSpellByName(GetSpellInfo(SpellID))
+    local i = -100
     if IsMouseButtonDown(2) then
         mouselookup = true
     else
         mouselookup = false
     end
-    CastSpellByID(SpellID)
-    if IsAoEPending() then
-        ClickPosition(X, Y, Z)
+    MouselookStop()
+    while IsAoEPending() and i <= 100 do
+        ClickPosition(X,Y,Z)
+        Z = i
+        i = i + 1
     end
-    CancelPendingSpell()
     if mouselookup then
         MouselookStart()
     end
+    if i >= 100 and IsAoEPending() then return false end
     return true
 end
 

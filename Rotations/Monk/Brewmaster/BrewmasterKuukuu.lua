@@ -470,7 +470,7 @@ local function runRotation()
                     if castSpell("player",racial,false,false,false) then return end
                 end
              -- Keg Smash
-                if #enemies.yards8t >= getOptionValue("Keg Smash Targets") and (not talent.rushingJadeWind or (talent.rushingJadeWind and not buff.blackoutCombo.exists())) then
+                if #enemies.yards8t >= getOptionValue("Keg Smash Targets") and (not debuff.kegSmash.exists(units.dyn5)  or hasEquiped(137016)) and not buff.blackoutCombo.exists() then
                     if cast.kegSmash() then return end
                 end
             -- Blackout Strike
@@ -480,7 +480,7 @@ local function runRotation()
                     if cast.tigerPalm() then return end
                 end
                 -- Breath of Fire
-                if not buff.blackoutCombo.exists() and #getEnemies("player",12) >= getOptionValue("Breath of Fire Targets") and debuff.kegSmash.exists(units.dyn5) and not debuff.breathOfFire.exists(units.dyn5) then
+                if not buff.blackoutCombo.exists() and #getEnemies("player",12) >= getOptionValue("Breath of Fire Targets") and debuff.kegSmash.exists(units.dyn5) and (not debuff.breathOfFire.exists(units.dyn5) or hasEquiped(137016)) then
                     if cast.breathOfFire() then return end
                 end
             -- Rushing Jade Wind
@@ -680,7 +680,7 @@ local function runRotation()
     -- Profile Stop | Pause
         if not inCombat and not hastar and profileStop==true then
             profileStop = false
-        elseif (inCombat and profileStop==true) or pause() or (IsMounted() or IsFlying()) and getBuffRemain("player", 192002 ) < 10 or mode.rotation==4 then
+        elseif (inCombat and profileStop==true) or pause() or (IsMounted() or IsFlying() or UnitOnTaxi("player") or UnitInVehicle("player")) and getBuffRemain("player", 192002 ) < 10 or mode.rotation==4 then
             return true
         else
 -----------------------

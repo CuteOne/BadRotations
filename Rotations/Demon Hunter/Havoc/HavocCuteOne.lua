@@ -240,7 +240,7 @@ local function runRotation()
         end
     -- Pool for Blade Dance Variable
         -- pooling_for_blade_dance,value=variable.blade_dance&(fury<75-talent.first_blood.enabled*20)
-        if bladeDanceVar and power < 75 - flood * 20 then
+        if bladeDanceVar and power < 60 - flood * 20 then
             poolForBladeDance = true
         else
             poolForBladeDance = false
@@ -278,6 +278,8 @@ local function runRotation()
             return
         end
         if IsHackEnabled("NoKnockback") then SetHackEnabled("NoKnockback", false) end
+
+        -- ChatOverlay("Pools - Meta: "..tostring(poolForMeta)..", BD: "..tostring(poolForBladeDance)..", CS: "..tostring(poolForChaosStrike))
 
 --------------------
 --- Action Lists ---
@@ -418,7 +420,7 @@ local function runRotation()
                         end
                     end
                     -- use_item,slot=trinket2,if=!buff.metamorphosis.up&(!talent.first_blood.enabled|!cooldown.blade_dance.ready)&(!talent.nemesis.enabled|cooldown.nemesis.remains>30|target.time_to_die<cooldown.nemesis.remains+3)
-                    if isChecked("Trinkets") then
+                 --   if isChecked("Trinkets") then
                         if not buff.metamorphosis.exists() and (not talent.firstBlood or cd.bladeDance ~= 0) and (not talent.nemesis or cd.nemesis > 30 or ttd(units.dyn5) < cd.nemesis + 3) then
                             if (getOptionValue("Trinkets") == 1 or getOptionValue("Trinkets") == 3) and canUse(13) then
                                 useItem(13)
@@ -427,7 +429,7 @@ local function runRotation()
                                 useItem(14)
                             end
                         end
-                    end
+                  --  end
         -- Potion
                     -- potion,name=old_war,if=buff.metamorphosis.remains>25|target.time_to_die<30
                     if isChecked("Potion") and canUse(127844) and inRaid then
@@ -660,7 +662,7 @@ local function runRotation()
             end
         -- Annihilation
             -- annihilation,if=(talent.demon_blades.enabled|!talent.momentum.enabled|buff.momentum.up|fury.deficit<30+buff.prepared.up*8|buff.metamorphosis.remains<5)&!variable.pooling_for_blade_dance
-            if buff.metamorphosis.exists() and (talent.demonBlades or not talent.momentum or buff.momentum.exists() or (powerDeficit < 30 + prepared * 8) or buff.metamorphosis.remain() < 5) and not poolForBladeDance then
+            if buff.metamorphosis.exists() and (talent.demonBlades or not talent.momentum or buff.momentum.exists() or power >= 40 --[[(powerDeficit < 30 + prepared * 8)]] or buff.metamorphosis.remain() < 5) and not poolForBladeDance then
                 if cast.chaosStrike() then return end
             end
         -- Throw Glaive
@@ -674,7 +676,7 @@ local function runRotation()
             end
         -- Chaos Strike
             -- chaos_strike,if=(talent.demon_blades.enabled|!talent.momentum.enabled|buff.momentum.up|fury.deficit<30+buff.prepared.up*8)&!variable.pooling_for_chaos_strike&!variable.pooling_for_meta&!variable.pooling_for_blade_dance
-            if not buff.metamorphosis.exists() and (talent.demonBlades or not talent.momentum or buff.momentum.exists() or powerDeficit < 30 + prepared * 8) 
+            if not buff.metamorphosis.exists() and (talent.demonBlades or not talent.momentum or buff.momentum.exists() or power >= 40) --powerDeficit < 30 + prepared * 8) 
                 and not poolForChaosStrike and not poolForMeta and not poolForBladeDance 
             then
                 if cast.chaosStrike() then return end

@@ -6,24 +6,29 @@ local rotationName = "SaintlySinner"
 local function createToggles()
 -- Rotation Button
     RotationModes = {
-        [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range.", highlight = 1, icon = br.player.spell.fracture},
-        [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = br.player.spell.fracture},
-        [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = br.player.spell.shear},
-        [4] = { mode = "Off", value = 4 , overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spell.spectralSight}
+        [1] = { mode = "On", value = 1 , overlay = "Rotation Enabled", tip = "Enables DPS Rotation", highlight = 1, icon = br.player.spell.fracture},
+        [2] = { mode = "Off", value = 2 , overlay = "Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spell.soulCleave}
     };
     CreateButton("Rotation",1,0)
+-- Cooldown Button
+    CooldownModes = {
+        [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spell.fieryBrand},
+        [2] = { mode = "On", value = 1 , overlay = "Cooldowns Enabled", tip = "Always use CDs.", highlight = 0, icon = br.player.spell.sigilOfChains},
+        [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.sigilOfMisery}
+    };
+    CreateButton("Cooldown",2,0)
 -- Defensive Button
     DefensiveModes = {
         [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spell.metamorphosis},
         [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spell.metamorphosis}
     };
-    CreateButton("Defensive",2,0)
+    CreateButton("Defensive",3,0)
 -- Interrupt Button
     InterruptModes = {
         [1] = { mode = "On", value = 1 , overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spell.consumeMagic},
         [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.consumeMagic}
     };
-    CreateButton("Interrupt",3,0)
+    CreateButton("Interrupt",4,0)
 end
 
 ---------------
@@ -39,7 +44,18 @@ local function createOptions()
         -- APL
             br.ui:createDropdownWithout(section, "APL Mode", {"|cffFFFFFFSaintlySinner"}, 1, "|cffFFFFFFSet APL Mode to use.")
         -- Torment
-            br.ui:createCheckbox(section,"Torment")
+            br.ui:createCheckbox(section,"Torment","|cffFFFFFFWill taunt in dungeons.")
+        -- Throw Glaive
+            br.ui:createCheckbox(section, "Throw Glaive","|cffFFFFFFEnable/Disable Throw Glaive.")
+        br.ui:checkSectionState(section)
+    -- Cooldown Options
+        section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
+        -- Racial
+            br.ui:createCheckbox(section,"Racial: Blood Elf Only")
+        -- Archimonde's Hatred Reborn
+            br.ui:createCheckbox(section, "Archimonde's Hatred Reborn")
+        -- Kil'jaeden's Burning Wish
+            br.ui:createCheckbox(section, "Kil'jaeden's Burning Wish")
         br.ui:checkSectionState(section)
     -- Defensive Options
         section = br.ui:createSection(br.ui.window.profile, "Defensive")
@@ -47,6 +63,8 @@ local function createOptions()
             br.ui:createSpinner(section, "Pot/Stoned",  60,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
         -- Empower Wards
             br.ui:createCheckbox(section, "Empower Wards")
+        -- Fiery Brand
+            br.ui:createCheckbox(section, "Fiery Brand","|cffFFFFFFEnable/Disable FB.")
         -- Metamorphosis
             br.ui:createCheckbox(section, "Metamorphosis")
         -- Demon Spikes - HP
@@ -58,6 +76,8 @@ local function createOptions()
         section = br.ui:createSection(br.ui.window.profile, "Interrupts")
         -- Consume Magic
             br.ui:createCheckbox(section, "Consume Magic")
+        -- Sigil of Chains
+            br.ui:createCheckbox(section, "Sigil of Chains")
         -- Sigil of Silence
             br.ui:createCheckbox(section, "Sigil of Silence")
         -- Sigil of Misery
@@ -68,13 +88,13 @@ local function createOptions()
     -- Toggle Key Options
         section = br.ui:createSection(br.ui.window.profile, "Toggle Keys")
         -- Single/Multi Toggle
-            br.ui:createDropdown(section, "Rotation Mode", br.dropOptions.Toggle,  4)
+            br.ui:createDropdown(section, "Rotation Mode", br.dropOptions.Toggle,  2)
+        -- Cooldown Key Toggle
+            br.ui:createDropdown(section, "Cooldown Mode", br.dropOptions.Toggle,  3)
         -- Defensive Key Toggle
             br.ui:createDropdown(section, "Defensive Mode", br.dropOptions.Toggle,  6)
         -- Interrupts Key Toggle
             br.ui:createDropdown(section, "Interrupt Mode", br.dropOptions.Toggle,  6)
-        -- Pause Toggle
-            br.ui:createDropdown(section, "Pause Mode", br.dropOptions.Toggle,  6)
         br.ui:checkSectionState(section)
     end
     optionTable = {{
@@ -95,6 +115,7 @@ local function runRotation()
 --- Toggles ---
 ---------------
         UpdateToggle("Rotation",0.25)
+        UpdateToggle("Cooldown",0.25)
         UpdateToggle("Defensive",0.25)
         UpdateToggle("Interrupt",0.25)
 
@@ -142,7 +163,7 @@ local function runRotation()
         local solo                                          = br.player.instance=="none"
         local spell                                         = br.player.spell
         local talent                                        = br.player.talent
-        local ttd                                           = getTTD
+        local ttd                                           = getTTD(br.player.units(5))
         local ttm                                           = br.player.power.ttm
         local units                                         = units or {}
 
@@ -190,30 +211,55 @@ local function runRotation()
     -- Action List - Interrupts
         local function actionList_Interrupts()
             if useInterrupts() then
-                for i=1, #enemies.yards30 do
-                    thisUnit = enemies.yards30[i]
+                for i=1, #getEnemies("player",20) do
+                    thisUnit = getEnemies("player",20)[i]
+                    distance = getDistance(thisUnit)
                     if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
         -- Consume Magic
-                        if isChecked("Consume Magic") and getDistance(thisUnit) < 20 then
+                        if isChecked("Consume Magic") and distance < 15 and cd.sigilOfChains > 0 then
                             if cast.consumeMagic(thisUnit) then return end
+                        end
+        -- Sigil of Chains
+                        if isChecked("Sigil of Chains") and distance > 8 then
+                            if cast.sigilOfChains(thisUnit,"ground") then return end
                         end
         -- Sigil of Silence
                         if isChecked("Sigil of Silence") and not UnitDebuff("target", "Solar Beam") and cd.consumeMagic > 0 then
                             if cast.sigilOfSilence(thisUnit,"ground") then return end
                         end
+        -- Sigil of Silence - Concentrated Sigils
+                        if isChecked("Sigil of Silence") and not UnitDebuff("target", "Solar Beam") and cd.consumeMagic > 0 and talent.concentratedSigils and distance < 5 then
+                            if cast.sigilOfSilence() then return end
+                        end
         -- Sigil of Misery
-                        if isChecked("Sigil of Misery") and cd.consumeMagic > 0 and cd.sigilOfSilence > 0 and cd.sigilOfSilence < 45 then
+                        if isChecked("Sigil of Misery") and cd.consumeMagic > 0 and cd.sigilOfSilence > 0 and cd.sigilOfSilence < 45 and distance < 10 then
                             if cast.sigilOfMisery(thisUnit,"ground") then return end
+                        end
+        -- Sigil of Misery - Concentrated Sigils
+                        if isChecked("Sigil of Misery") and cd.consumeMagic > 0 and cd.sigilOfSilence > 0 and cd.sigilOfSilence < 45 and talent.concentratedSigils and distance < 5 then
+                            if cast.sigilOfMisery() then return end
                         end
                     end
                 end
             end -- End useInterrupts check
         end -- End Action List - Interrupts
+    -- Action List - Cooldowns
+        local function actionList_Cooldowns()
+			if getDistance(units.dyn5) < 5 then
+		-- Archimonde's Hatred Reborn
+                if isChecked("Archimonde's Hatred Reborn") and useCDs() and hasEquiped(144249) and canUse(144249) and buff.metamorphosis.exists() or getSpellCD(187827) > GetItemCooldown(144249) then
+                    useItem(144249)
+                end
+		-- Kil'jaeden's Burning Wish
+                if isChecked("Kil'jaeden's Burning Wish") and useCDs() and hasEquiped(144259) and canUse(144259) and #getEnemies("player",8) >= 3 then
+                    useItem(144259)
+                end
+            end -- End useCooldowns check
+        end -- End Action List - Cooldowns
     -- Action List - PreCombat
         local function actionList_PreCombat()
             if not inCombat and not (IsFlying() or IsMounted()) then
-                if GetObjectExists("target") and not UnitIsDeadOrGhost("target") and UnitCanAttack("target", "player") and getDistance("target") < 5 then
-            -- Start Attack
+                if isValidUnit("target") and not UnitIsDeadOrGhost("target") and getDistance("target") <= 5 then
                     StartAttack()
                 end
             end -- End No Combat
@@ -222,9 +268,9 @@ local function runRotation()
 --- Begin Profile ---
 ---------------------
     -- Profile Stop | Pause
-        if not inCombat and not hastar and profileStop==true then
+        if not inCombat and not hastar and profileStop == true then
             profileStop = false
-        elseif (inCombat and profileStop==true) or pause() or mode.rotation==4 then
+        elseif (inCombat and profileStop == true) or pause() or mode.rotation == 4 then
             return true
         else
 -----------------------
@@ -242,28 +288,39 @@ local function runRotation()
 --------------------------
 --- In Combat Rotation ---
 --------------------------
-            if inCombat and profileStop==false and isValidUnit(units.dyn5) and not (IsMounted() or IsFlying()) then
+            if inCombat and profileStop == false and isValidUnit(units.dyn5) then
+                -- auto_attack
+                if getDistance("target") < 5 then
+                    StartAttack()
+                end
     ------------------------------
     --- In Combat - Interrupts ---
     ------------------------------
                 if actionList_Interrupts() then return end
+    --- In Combat - Cooldowns ---
+    -----------------------------
+                if actionList_Cooldowns() then return end
+    ---------------------------
     ---------------------------
     --- SimulationCraft APL ---
     ---------------------------
-    -- Start Attack
-                -- actions=auto_attack
-                if getDistance("target") < 5 and isValidUnit("target") then
-                    StartAttack(units.dyn5)
+			if getOptionValue("APL Mode") == 1 then
+    -- Racial - Arcane Torrent
+                if isChecked("Racial: Blood Elf Only") and useCDs() and getDistance("target") < 5 then
+                    if CastSpellByName(GetSpellInfo(202719),"player") then return end
                 end
     -- Fiery Brand
                 -- actions+=/fiery_brand,if=buff.demon_spikes.down&buff.metamorphosis.down
-                        if cast.fieryBrand() then return end
+                if isChecked("Fiery Brand") then
+                    if cast.fieryBrand() then return end
+                end
     -- Empower Wards
                 -- actions+=/empower_wards,if=debuff.casting.up
                 if isChecked("Empower Wards") then
-                    for i=1, #enemies.yards30 do
-                        thisUnit = enemies.yards30[i]
-                            if cd.consumeMagic > 0 and castingUnit(thisUnit) then
+                    for i=1, #getEnemies("player",20) do
+                        thisUnit = getEnemies("player",20)[i]
+                        distance = getDistance(thisUnit)
+                            if cd.consumeMagic > 0 and castingUnit(thisUnit) and distance < 20 then
                                 if cast.empowerWards() then return end
                             end
                         end
@@ -282,7 +339,7 @@ local function runRotation()
     -- Demon Spikes
                 -- actions+=/demon_spikes,if=charges=2|buff.demon_spikes.down&!dot.fiery_brand.ticking&buff.metamorphosis.down
                 if isChecked("Demon Spikes - HP") then
-                    if php <= getOptionValue("Demon Spikes - HP") and inCombat and not buff.demonSpikes.exists() then
+                    if php <= getOptionValue("Demon Spikes - HP") and not buff.demonSpikes.exists() then
                         if cast.demonSpikes() then return end
                     end
                 end
@@ -297,7 +354,7 @@ local function runRotation()
                     if cast.soulBarrier() then return end
                 end
     -- Soul Carver
-                if (buff.soulFragments.stack() <= 3 or (debuff.fieryBrand.exists(units.dyn5) and artifact.flamingSoul)) and (cd.fieryBrand > 5 or not artifact.flamingSoul) then
+                if (buff.soulFragments.stack() <= 3 or (debuff.fieryBrand.exists(units.dyn5) and artifact.flamingSoul)) and (getSpellCD(204021) > 5 or not artifact.flamingSoul) then
                     if cast.soulCarver() then return end
                 end
     -- Immolation Aura
@@ -305,9 +362,14 @@ local function runRotation()
                 if getDistance(units.dyn5) < 8 and (debuff.fieryBrand.exists(units.dyn5) and artifact.flamingSoul) then
                     if cast.immolationAura() then return end
                 end
+    -- Immolation Aura
+                -- actions+=/immolation_aura,if=pain<=80
+                if not isChecked("Fiery Brand") and getDistance(units.dyn5) < 8 then
+                    if cast.immolationAura() then return end
+                end
     -- Spirit Bomb
                 -- actions+=/spirit_bomb,if=debuff.frailty.down
-                if getDistance(units.dyn5) < 8 and (not debuff.frailty.exists(units.dyn5) and buff.soulFragments.stack() > 0) or buff.soulFragments.stack() >= 4 then
+                if getDistance(units.dyn5) < 8 and (not debuff.frailty.exists(units.dyn8) and buff.soulFragments.stack() > 0) or buff.soulFragments.stack() >= 4 then
                     if cast.spiritBomb() then return end
                 end
     -- Fel Devastation
@@ -336,7 +398,7 @@ local function runRotation()
                 end
     -- Sigil of Flame
                 -- actions+=/sigil_of_flame,if=remains-delay<=0.3*duration
-                if talent.quickenedSigils and getDistance(units.dyn5) < 5 and not isMoving(units.dyn5) then
+                if talent.quickenedSigils and getDistance(units.dyn5) < 8 and not isMoving(units.dyn5) then
                     if cast.sigilOfFlame("best",false,1,6) then return end
                 end
     -- Fracture
@@ -356,18 +418,22 @@ local function runRotation()
                 end
     -- Soul Cleave
                 -- actions+=/soul_cleave,if=pain>=80
-                if php < 65 and buff.soulFragments.stack() >= 5 then
+                if php < 40 and pain < 30 and buff.soulFragments.stack() < 1 then
                     if cast.soulCleave() then return end
                 end
     -- Immolation Aura
-                -- actions+=/immolation_aura,if=pain<=80
-                if getDistance(units.dyn5) < 8 and (not artifact.flamingSoul or cd.fieryBrand > cd.immolationAura) then
+                -- getSpellCD(spell.fieryBrand) > (GetSpellBaseCooldown(spell.immolationAura)/1000)
+                if getDistance(units.dyn5) < 8 and (not artifact.flamingSoul or getSpellCD(204021) > (GetSpellBaseCooldown(178740)/1000)) then
                     if cast.immolationAura() then return end
+                end
+    -- Throw Glaive (Mo'Arg Leggo Support)
+                if isChecked("Throw Glaive") and hasEquiped(137090) and #getEnemies("player",10) >= 3 then
+                    if cast.throwGlaive() then return end
                 end
     -- Infernal Strike
                 -- actions+=/infernal_strike,if=!sigil_placed&!in_flight&remains-travel_time-delay<0.3*duration&artifact.fiery_demise.enabled&dot.fiery_brand.ticking
                 -- actions+=/infernal_strike,if=!sigil_placed&!in_flight&remains-travel_time-delay<0.3*duration&(!artifact.fiery_demise.enabled|(max_charges-charges_fractional)*recharge_time<cooldown.fiery_brand.remain()s+5)&(cooldown.sigil_of_flame.remain()s>7|charges=2)
-                if getDistance(units.dyn5) < 6 and charges.infernalStrike > 1 then
+                if getDistance(units.dyn5) < 5 and charges.infernalStrike > 1 then
                     if (artifact.fieryDemise and debuff.fieryBrand.exists(units.dyn5))
                         or (not artifact.fieryDemise or (charges.max.infernalStrike - charges.frac.infernalStrike) * recharge.infernalStrike < cd.fieryBrand + 5)
                         and (cd.sigilOfFlame > 7 or charges.infernalStrike == 2)
@@ -382,9 +448,10 @@ local function runRotation()
                         if cast.shear() then return end
                 end
     -- Throw Glaive
-                if getDistance(units.dyn5) > 5 then
+                if isChecked("Throw Glaive") and not hasEquiped(137090) and getDistance(units.dyn5) > 8 then
                     if cast.throwGlaive() then return end
                 end
+			end --End SaintlySinner APL
             end --End In Combat
         end --End Rotation Logic
     end -- End Timer

@@ -117,6 +117,7 @@ br.idList = {
             },
             buffs                           = {
                 breathOfSindragosa          = 155166,
+                coldHeart                   = 235599,
                 darkSuccor                  = 101568,
                 gatheringStorm              = 211805,
                 hungeringRuneWeapon         = 207127,
@@ -872,7 +873,7 @@ br.idList = {
                 misdirection                = 34477,
                 multiShot                   = 2643,
                 stampede                    = 201430,
-                titansThunder               = 207097,
+                titansThunder               = 207068,
                 volley                      = 194386
             },
             artifacts                       = {
@@ -937,7 +938,7 @@ br.idList = {
                 trickShot                   = 227272,
                 trueshot                    = 193526,
                 volley                      = 194386,
-                precision                   = 242242,
+                t20_2pc_critical_aimed      = 242242,
             },
             debuffs                         = {
                 aMurderOfCrows              = 131894,
@@ -1497,6 +1498,8 @@ br.idList = {
             buffs                           = {
                 healingWinds                = 195381,
                 hitCombo                    = 196741,
+                pressurePoint               = 247255,
+                rushingJadeWind             = 116847,
                 serenity                    = 152173,
                 stormEarthAndFire           = 137639,
                 theEmperorsCapacitor        = 235054,

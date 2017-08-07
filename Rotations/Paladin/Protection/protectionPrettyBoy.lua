@@ -276,9 +276,15 @@ local function runRotation()
 		    if getDebuffRemain("player",200904) > 1 then
 			    if cast.contemplation() then return end
 		    end	
+			-- Blessing of Freedom
+			for i = 1, #br.friend do
+			    if getDebuffRemain(br.friend[i].unit,202615) > 1 or getDebuffRemain(br.friend[i].unit,211543) > 1 then
+				    if cast.blessingOfFreedom(br.friend[i].unit) then return end
+				end
+			end				
 			-- Blessing of Protection
 			for i = 1, #br.friend do
-    			if getDebuffRemain(br.friend[i].unit,237726) > 1 then
+    			if getDebuffRemain(br.friend[i].unit,237726) > 1 or getDebuffRemain(br.friend[i].unit,196838) > 1 then
     				if cast.blessingOfProtection(br.friend[i].unit) then return end
     			end
     		end	
@@ -366,8 +372,8 @@ local function runRotation()
                 end
         -- Hand of the Protector - Others
                 if isChecked("Hand of the Protector - Party") and talent.handOfTheProtector and (not hasEquiped(144275) or (hasEquiped(144275) and (not hotpTime or GetTime() - hotpTime > 1 ))) then
-                    if getHP(lowestUnit) < getOptionValue("Hand of the Protector - Party") then
-                        if cast.handOfTheProtector(lowestUnit) then return end
+                    if lowest.hp < getOptionValue("Hand of the Protector - Party") then
+                        if cast.handOfTheProtector(lowest.unit) then return end
 						hotpTime = GetTime()
                     end
                 end
