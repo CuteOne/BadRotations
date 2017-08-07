@@ -645,10 +645,12 @@ local function runRotation()
     local function actionList_AOEHealing()
 	-- Chi Burst
         if isChecked("Chi Burst") and talent.chiBurst then
-            if getUnitsInRect(7,47,false,getValue("Chi Burst")) >= getValue("Min Chi Burst Targets") then
+            if castWiseAoEHeal(br.friend,spell.chiBurst,7,getValue("Chi Burst"),getValue("Min Chi Burst Targets"),10,true,true) then return end
+        
+            --if getUnitsInRect(7,47,false,getValue("Chi Burst")) >= getValue("Min Chi Burst Targets") then
                 --actionList_CheckVelen()
-                if cast.chiBurst("player") then return true end
-            end
+                --if cast.chiBurst("player") then return true end
+            --end
         end
     -- Essence Font
 			if isChecked("Essence Font") and cd.essenceFont == 0 and getLowAlliesInTable(getValue("Essence Font"), friends.yards25) >= getValue("Min Essence Font Targets") then
