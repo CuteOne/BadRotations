@@ -622,10 +622,10 @@ local function runRotation()
         -- DOT damage to teammates cast Enveloping Mist
 			if isChecked("DOT cast EM") then
 				local debuff_list={
-                    spellID = 230345    , stacks = 0   ,   --Crashing Comet
-                    spellID = 236603    , stacks = 0   ,   --Rapid Shot
-                    spellID = 236712    , stacks = 0   ,   --Lunar Beacon
-                    spellID = 242017    , stacks = 2   ,   --Black Winds
+                    {spellID = 230345    , stacks = 0}   ,   --Crashing Comet
+                    {spellID = 236603    , stacks = 0}   ,   --Rapid Shot
+                    {spellID = 236712    , stacks = 0}   ,   --Lunar Beacon
+                    {spellID = 242017    , stacks = 2}   ,   --Black Winds
 				}
 				for i=1, #br.friend do
 					for k,v in pairs(debuff_list) do
