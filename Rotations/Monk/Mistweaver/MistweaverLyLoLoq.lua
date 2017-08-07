@@ -77,7 +77,7 @@ local function createOptions()
         br.ui:createCheckbox(section, "Tiger's Lust", colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.." use of Tiger's Lust"..colorBlue.." (Auto use on snare and root).")
         br.ui:createDropdown(section, "Tiger's Lust Key", br.dropOptions.Toggle, 6, colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.." use of Tiger's Lust with Key.",colorWhite.."Set hotkey to use Tiger's Lust with key.")
         br.ui:createDropdown(section, "Ring Of Peace Key", br.dropOptions.Toggle, 6, colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.." use of Ring Of Peace with Key on "..colorRed.."Cursor",colorWhite.."Set hotkey to use Ring Of Peace with key.")
-        --br.ui:createSpinnerWithout(section, "Critical Health",  40,  0,  100,  5,  colorWhite.."Health percent to focus yourself before others")
+        br.ui.createCheckbox(section, "DOT cast EM", colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables"..colorWhite.."Cast EM on important debuffs")
         br.ui:createSpinnerWithout(section, "DPS",  90,  0,  100,  1,  colorWhite.." Dps when lowest health >= ")
         br.ui:checkSectionState(section)
 
@@ -617,6 +617,23 @@ local function runRotation()
                 if cast.effuse(lowest.unit) then return true end
             end
         end
+
+        -- DOT damage to teammates cast Enveloping Mist
+			if isChecked("DOT cast EM") then
+				local debuff_list={
+                    spellID = 230345    , stacks = 0   ,   --Crashing Comet
+                    spellID = 236603    , stacks = 0   ,   --Rapid Shot
+                    spellID = 236712    , stacks = 0   ,   --Lunar Beacon
+                    spellID = 242017    , stacks = 2   ,   --Black Winds
+				}
+				for i=1, #br.friend do
+					for k,v in pairs(debuff_list) do
+						if getDebuffRemain(br.friend[i].unit,v.spellID) > 4 and getDebuffStacks(br.friend[i].unit,v.spellID) >= v.stacks and not buff.envelopingMist.exists(br.friend[i].unit) and not isCastingSpell(spell.essenceFont) and UnitInRange(br.friend[i].unit) then
+							if cast.envelopingMist(br.friend[i].unit) then return end
+						end
+					end
+				end
+			end
 
         -- Ephemeral Paradox trinket
         if hasEquiped(140805) and getBuffRemain("player", 225767) > 2 then
