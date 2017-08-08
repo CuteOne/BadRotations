@@ -659,7 +659,7 @@ function br.loader:new(spec,specName)
         if hasEquiped(144236) then
             --if br.player.buff.masterAssassinsInitiative.remain("player") > 100 or br.player.buff.masterAssassinsInitiative.remain("player") < 0 then
             if br.player.buff.masterAssassinsInitiative.exists("player") and (getBuffRemain("player",235027) > 100 or getBuffRemain("player",235027) < 100) then
-                return br.player.cd.global + 6
+                return br.player.cd.global + 5
             else
                 --return br.player.buff.masterAssassinsInitiative.remain("player")
                 if getBuffRemain("player",235027) >= 0 and getBuffRemain("player",235027) < 0.1 then
