@@ -412,14 +412,14 @@ local function runRotation()
     local function actionList_Cooldown()
         if useCDs() then
 		-- Trinket 1
-            if isChecked("Trinket 1") and getLowAllies(getValue("Trinket 1")) >= getValue("Min Trinket 1 Targets") and mana > 2 then
+            if isChecked("Trinket 1") and getLowAllies(getValue("Trinket 1")) >= getValue("Min Trinket 1 Targets") and mana > 1 then
                 if canUse(13) then
                     useItem(13)
                     return true
                 end
             end
 		-- Trinket 2
-            if isChecked("Trinket 2") and getLowAllies(getValue("Trinket 2")) >= getValue("Min Trinket 2 Targets") and mana > 2 then
+            if isChecked("Trinket 2") and getLowAllies(getValue("Trinket 2")) >= getValue("Min Trinket 2 Targets") and mana > 1 then
                 if canUse(14) then
                     useItem(14)
                     return true
@@ -558,14 +558,6 @@ local function runRotation()
                     if cast.sheilunsGift(lowest.unit) then return true end
                 end
             end
-			-- Heal ourself if critical HP.
-            --if php < getValue("Critical Health") then
-            --    if cd.renewingMist == 0 then
-            --       if cast.renewingMist("player") then return true end
-            --    else
-            --        if cast.envelopingMist("player") then return true end
-            --    end
-            --end
 		-- Zen Pulse	
             if isChecked("Zen Pulse") and talent.zenPulse then
                 if lowest.hp <= getValue("Zen Pulse") and getNumEnemies(lowest.unit, 8) >= getValue("Zen Pulse Enemies") then
@@ -646,12 +638,10 @@ local function runRotation()
     local function actionList_AOEHealing()
 	-- Chi Burst
         if isChecked("Chi Burst") and talent.chiBurst then
-            if castWiseAoEHeal(br.friend,spell.chiBurst,7,getValue("Chi Burst"),getValue("Min Chi Burst Targets"),10,true,true) then return end
-        
-            --if getUnitsInRect(7,47,false,getValue("Chi Burst")) >= getValue("Min Chi Burst Targets") then
+            if getUnitsInRect(7,47,false,getValue("Chi Burst")) >= getValue("Min Chi Burst Targets") then
                 --actionList_CheckVelen()
-                --if cast.chiBurst("player") then return true end
-            --end
+                if cast.chiBurst("player") then return true end
+            end
         end
     -- Essence Font
 			if isChecked("Essence Font") and cd.essenceFont == 0 and getLowAlliesInTable(getValue("Essence Font"), friends.yards25) >= getValue("Min Essence Font Targets") then
