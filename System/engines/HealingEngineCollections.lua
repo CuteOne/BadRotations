@@ -112,6 +112,9 @@ novaEngineTables.roleTable = {
 	["Sooli the Survivalist"] = { role = "DPS", class = "Hunter" }, -- proving grounds dps
 	["Ki the Assassin"] = { role = "DPS", class = "Rogue" }, -- proving grounds dps
 	["Kavan the Arcanist"] = { role = "DPS", class = "Mage" }, -- proving grounds dps
+	["Commander Jarod Shadowsong"] = { role = "TANK", class = "Warrior"},
+	["Granny Marl"] = {role = "DPS", class = "Hunter"},
+	["Callie Carrington"] = {role = "DPS", class = "Rogue"},
 }
 -- special targets to include when we want to heal npcs
 novaEngineTables.SavedSpecialTargets = {
