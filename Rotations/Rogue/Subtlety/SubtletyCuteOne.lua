@@ -87,7 +87,7 @@ local function createOptions()
             -- Artifact
             br.ui:createDropdownWithout(section,"Artifact", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Artifact Ability.")
             -- Death From Above
-            br.ui:createCheckbox(section, "Death From Above")
+            br.ui:createSpinner(section, "Death From Above", 4, 1, 5, 1, "|cffFFBB00Check to use DFA and minimal units to use on.")
             -- Marked For Death
             br.ui:createDropdown(section, "Marked For Death", {"|cff00FF00Target", "|cffFFDD00Lowest"}, 1, "|cffFFBB00Health Percentage to use at.")
             -- Shadow Blades
@@ -453,7 +453,7 @@ local function runRotation()
                 if isChecked("Marked For Death") then
                     if getOptionValue("Marked For Death") == 1 then
                         if ttd("target") < comboDeficit or (not stealthingAll and comboDeficit >= comboMax) then
-                            if cast.markedForDeath() then return end
+                            if cast.markedForDeath("target") then return end
                         end
                     end
                     if getOptionValue("Marked For Death") == 2 then
@@ -573,7 +573,7 @@ local function runRotation()
         -- Death from Above
             -- death_from_above,if=!talent.dark_shadow.enabled|spell_targets>=4&buff.shadow_dance.up|spell_targets<4&!buff.shadow_dance.up&(buff.symbols_of_death.up|cooldown.symbols_of_death.remains>=10+set_bonus.tier20_4pc*5)&!cooldown.vanish.up&buff.the_first_of_the_dead.remains<1
             if isChecked("Death From Above") then
-                if not talent.darkShadow or #enemies.yards8t >= 4 and buff.shadowDance.exists() or #enemies.yards8t >= 4 and not buff.shadowDance.exists() 
+                if not talent.darkShadow or #enemies.yards8t >= getOptionValue("Death From Above") and buff.shadowDance.exists() or #enemies.yards8t >= 4 and not buff.shadowDance.exists() 
                     and (buff.symbolsOfDeath.exists() or cd.symbolsOfDeath >= 10 + t20pc4 * 5) and cd.vanish > 0 and buff.theFirstOfTheDead.remain() < 1 
                 then
                     if cast.deathFromAbove() then return end
