@@ -2406,7 +2406,7 @@ br.idList = {
                 cloakOfShadows              = 31224,
                 deathFromAbove              = 152150,
                 feint                       = 1966,
-                masterAssassinsInitiative   = 235027,
+                masterAssassinsInitiative   = 235022, --235027
                 sprint                      = 2983,
                 vanish                      = 11327,
             },

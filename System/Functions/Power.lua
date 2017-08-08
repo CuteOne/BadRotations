@@ -176,8 +176,7 @@ function getCastRegen(spellId)
 end
 -- if getRegen("player") > 15 then
 function getRegen(Unit)
-	local regen = select(2,GetPowerRegen(Unit))
-	return 1.0 / regen
+    return select(2,GetPowerRegen(Unit))
 end
 function getSpellCost(spell)
 	local t = GetSpellPowerCost(GetSpellInfo(spell))
