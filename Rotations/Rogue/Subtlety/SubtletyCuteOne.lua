@@ -197,6 +197,7 @@ local function runRotation()
         local enemies                                                   = enemies or {}
         local flaskBuff, canFlask                                       = getBuffRemain("player",br.player.flask.wod.buff.agilityBig), canUse(br.player.flask.wod.agilityBig)
         local gcd                                                       = br.player.gcd
+        local gcdMax                                                    = br.player.gcdMax
         local glyph                                                     = br.player.glyph
         local hastar                                                    = GetObjectExists("target")
         local healPot                                                   = getHealthPot()
