@@ -207,6 +207,7 @@ end
 --- ROTATION ---
 ----------------
 local healing_obj = nil
+local BOV = nil
 
 local function runRotation()
 	if br.timer:useTimer("debugHoly", 0.1) then --change "debugFury" to "debugSpec" (IE: debugFire)
@@ -248,7 +249,7 @@ local function runRotation()
 		local talent                                        = br.player.talent
 		local charges                                       = br.player.charges
 		local debuff                                        = br.player.debuff
-		local drinking                                      = UnitBuff("player",192002) ~= nil or UnitBuff("player",167152) ~= nil or UnitBuff("player",192001) ~= nil
+		local drinking                                      = getBuffRemain("player",192002) == 0 or getBuffRemain("player",167152) == 0 or getBuffRemain("player",192001) == 0
 		local inCombat                                      = br.player.inCombat
 		local inInstance                                    = br.player.instance=="party"
 		local inRaid                                        = br.player.instance=="raid"
@@ -310,11 +311,11 @@ local function runRotation()
 		-- local tHp                                           = 95
 		-- local averageHealth                                 = 100
 		
-		if leftCombat == nil then leftCombat = GetTime() end
-		if profileStop == nil then profileStop = false end	
-    	if isChecked("Beacon of Virtue") and talent.beaconOfVirtue and not IsMounted() and ((getHP(BOV) ~= 0 and isCastingSpell(spell.flashOfLight)) or (getLowAllies(getValue("Beacon of Virtue")) >= getValue("BoV Targets") and isMoving("player") and GetSpellCooldown(20473) == 0)) then
-    		CastSpellByName(GetSpellInfo(200025),lowest.unit)
-    	end			
+    	if isChecked("Beacon of Virtue") and talent.beaconOfVirtue and not IsMounted() then
+    	    if (BOV ~= nil and isCastingSpell(spell.flashOfLight)) or (getLowAllies(getValue("Beacon of Virtue")) >= getValue("BoV Targets") and isMoving("player") and GetSpellCooldown(200025) == 0 and GetSpellCooldown(20473) == 0) then
+    		    if CastSpellByName(GetSpellInfo(200025),lowest.unit) then BOV = nil return end
+    		end	
+    	end		
 		--------------------
 		--- Action Lists ---
 		--------------------
@@ -338,7 +339,7 @@ local function runRotation()
     			if lowest.hp <= 90 then
     			    if cast.holyShock(lowest.unit) then return end
     			end	
-    			if lowest.hp <= 90 and getBuffRemain("player",234862) > 0.1 then 
+    			if lowest.hp <= 90 and getBuffRemain("player",234862) ~= 0 then 
     			    if cast.lightOfTheMartyr(lowest.unit) then return end
     			end	
     			if lowest.hp <= 90 then 
@@ -978,7 +979,7 @@ local function runRotation()
 					if cast.crusaderStrike("target") then return end
 				end
 			-- Judgement				
-				if talent.fistOfJustice and GetSpellCooldown(853) > 0 then
+				if talent.fistOfJustice and GetSpellCooldown(853) > 1 then
 					if cast.judgment(units.dyn30) then return end
 				end	
 			end			
@@ -986,8 +987,7 @@ local function runRotation()
 		---------------------------------
 		--- Out Of Combat - Rotations ---
 		---------------------------------
-		if not inCombat and (not IsMounted() or buff.divineSteed.exists()) and (not isCastingSpell(spell.redemption) or not isCastingSpell(spell.absolution)) and not drinking
-			and not isCastingSpell(spell.redemption) and not isCastingSpell(spell.absolution) then
+		if not inCombat and (not IsMounted() or buff.divineSteed.exists()) and not isCastingSpell(spell.redemption) and not isCastingSpell(spell.absolution) and drinking and getBuffRemain("player",188030) == 0 then
 			PrePull()
 			CanIRess()
 			Cleanse()
@@ -1000,8 +1000,7 @@ local function runRotation()
 		-----------------------------
 		--- In Combat - Rotations ---
 		-----------------------------
-		if inCombat and (not IsMounted() or buff.divineSteed.exists()) and (not isCastingSpell(spell.redemption) or not isCastingSpell(spell.absolution)) and not drinking
-			and not isCastingSpell(spell.redemption) and not isCastingSpell(spell.absolution) then
+		if inCombat and (not IsMounted() or buff.divineSteed.exists()) and not isCastingSpell(spell.redemption) and not isCastingSpell(spell.absolution) and drinking and getBuffRemain("player",188030) == 0 then
 			BossEncounterCase()
 			AuraOfSacrificeLogic()
 			overhealingcancel()
