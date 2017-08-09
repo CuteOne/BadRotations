@@ -987,7 +987,7 @@ local function runRotation()
 		---------------------------------
 		--- Out Of Combat - Rotations ---
 		---------------------------------
-		if not inCombat and (not IsMounted() or buff.divineSteed.exists()) and not isCastingSpell(spell.redemption) and not isCastingSpell(spell.absolution) and drinking and getBuffRemain("player",188030) == 0 then
+		if not inCombat and (not IsMounted() or buff.divineSteed.exists()) and not isCastingSpell(spell.redemption) and not isCastingSpell(spell.absolution) and drinking and getDebuffRemain("player",188030) == 0 then
 			PrePull()
 			CanIRess()
 			Cleanse()
@@ -1000,7 +1000,7 @@ local function runRotation()
 		-----------------------------
 		--- In Combat - Rotations ---
 		-----------------------------
-		if inCombat and (not IsMounted() or buff.divineSteed.exists()) and not isCastingSpell(spell.redemption) and not isCastingSpell(spell.absolution) and drinking and getBuffRemain("player",188030) == 0 then
+		if inCombat and (not IsMounted() or buff.divineSteed.exists()) and not isCastingSpell(spell.redemption) and not isCastingSpell(spell.absolution) and drinking and getDebuffRemain("player",188030) == 0 then
 			BossEncounterCase()
 			AuraOfSacrificeLogic()
 			overhealingcancel()
