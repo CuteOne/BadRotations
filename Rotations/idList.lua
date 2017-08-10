@@ -910,6 +910,7 @@ br.idList = {
                 bindingShot                 = 109248,
                 blackArrow                  = 194599,
                 burstingShot                = 186387,
+                cobraShot                   = 193455,
                 concussiveShot              = 5116,
                 counterShot                 = 147362,
                 disengage                   = 781,

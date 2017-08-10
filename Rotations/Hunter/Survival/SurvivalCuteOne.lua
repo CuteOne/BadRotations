@@ -177,6 +177,7 @@ local function runRotation()
         local flaskBuff                                     = getBuffRemain("player",br.player.flask.wod.buff.agilityBig)
         local friendly                                      = friendly or UnitIsFriend("target", "player")
         local gcd                                           = br.player.gcd
+        local gcdMax                                        = br.player.gcdMax
         local hasMouse                                      = GetObjectExists("mouseover")
         local healPot                                       = getHealthPot()
         local inCombat                                      = br.player.inCombat
@@ -518,7 +519,7 @@ local function runRotation()
         local function actionList_MokMaintain()
         -- Raptor Strike
             -- raptor_strike,if=(buff.moknathal_tactics.remains<gcd)|(buff.moknathal_tactics.stack<2)
-            if (buff.mokNathalTactics.remain() < gcd) or (buff.mokNathalTactics.stack() < 2) then
+            if (buff.mokNathalTactics.remain() < gcdMax) or (buff.mokNathalTactics.stack() < 2) then
                 if cast.raptorStrike() then return end
             end
         end
