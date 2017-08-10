@@ -436,6 +436,7 @@ function br.loader:new(spec,specName)
             self.charges.frac[k]= getChargesFrac(v)
             self.charges.max[k] = getChargesFrac(v,true)
             self.recharge[k]    = getRecharge(v)
+            self.rechargeFull[k]= getFullRechargeTime(v)
 
             -- Build Spell Cooldown
             self.cd[k] = getSpellCD(v)

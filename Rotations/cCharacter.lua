@@ -85,6 +85,7 @@ function cCharacter:new(class)
 	self.race     		= select(2,UnitRace("player")) -- Race as non-localised name (undead = Scourge) !
 	self.racial   		= nil       -- Contains racial spell id
 	self.recharge       = {}        -- Time for current recharge (for spells with charges)
+	self.rechargeFull 	= {}
 	self.rotation       = 1         -- Default: First avaiable rotation
     self.rotations 		= {} 		-- List of Rotations
 	self.spell			= {}        -- Spells all classes may have (e.g. Racials, Mass Ressurection)
