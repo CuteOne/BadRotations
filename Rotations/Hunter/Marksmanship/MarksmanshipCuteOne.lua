@@ -502,6 +502,38 @@ local function runRotation()
                 end
             end -- End useCooldowns check
         end -- End Action List - Cooldowns
+    -- Action List - Target Die 
+        local function actionList_TargetDie()
+            rotationDebug = "Target Die"
+        -- Piercing Shot
+            -- piercing_shot,if=debuff.vulnerability.up
+            if mode.piercing == 1 and debuff.vulnerable.exists(units.dyn40) and enemies.yards40r >= getOptionValue("Piercing Shot Units") then
+                if cast.piercingShot(units.dyn38) then return end
+            end
+        -- Windburst
+            -- windburst
+            if (getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs())) then
+                if cast.windburst() then return end
+            end
+        -- Aimed Shot
+            -- aimed_shot,if=debuff.vulnerability.remains>cast_time&target.time_to_die>cast_time
+            if debuff.vulnerable.remain(units.dyn40) > getCastTime(spell.aimedShot) and ttd(units.dyn40) > getCastTime(spell.aimedShot) then
+                if cast.aimedShot() then return end
+            end
+        -- Marked Shot
+            -- marked_shot
+            if cast.markedShot() then return end
+        -- Cobra Shot
+            if level < 12 and power > 90 then
+                if cast.cobraShot() then return end
+            end
+        -- Arcane Shot
+            -- arcane_shot
+            if cast.arcaneShot() then return end
+        -- Sidewinders
+            -- sidewinders
+            if cast.sidewinders() then return end
+        end -- End Action List - Target Die
     -- Action List - Non Patient Sniper
         local function actionList_NonPatientSniper()
             rotationDebug = "Non-Patient Sniper"
@@ -764,38 +796,6 @@ local function runRotation()
                 if cast.multiShot() then return end
             end            
         end -- End Action List - Patient Sniper
-    -- Action List - Target Die 
-        local function actionList_TargetDie()
-            rotationDebug = "Target Die"
-        -- Piercing Shot
-            -- piercing_shot,if=debuff.vulnerability.up
-            if mode.piercing == 1 and debuff.vulnerable.exists(units.dyn40) and enemies.yards40r >= getOptionValue("Piercing Shot Units") then
-                if cast.piercingShot(units.dyn38) then return end
-            end
-        -- Windburst
-            -- windburst
-            if (getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs())) then
-                if cast.windburst() then return end
-            end
-        -- Aimed Shot
-            -- aimed_shot,if=debuff.vulnerability.remains>cast_time&target.time_to_die>cast_time
-            if debuff.vulnerable.remain(units.dyn40) > getCastTime(spell.aimedShot) and ttd(units.dyn40) > getCastTime(spell.aimedShot) then
-                if cast.aimedShot() then return end
-            end
-        -- Marked Shot
-            -- marked_shot
-            if cast.markedShot() then return end
-        -- Cobra Shot
-            if level < 12 and power > 90 then
-                if cast.cobraShot() then return end
-            end
-        -- Arcane Shot
-            -- arcane_shot
-            if cast.arcaneShot() then return end
-        -- Sidewinders
-            -- sidewinders
-            if cast.sidewinders() then return end
-        end -- End Action List - Target Die
     -- Action List - Pre-Combat
         local function actionList_PreCombat()
             rotationDebug = "Pre-Combat"
