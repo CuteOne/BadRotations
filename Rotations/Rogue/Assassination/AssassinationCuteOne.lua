@@ -522,11 +522,19 @@ local function runRotation()
             if combo >= 4 + dStratNo4T19 and (debuff.vendetta.exists(units.dyn5) or buff.masterAssassinsInitiative.remain() >= cd.global + 0.2 
                 or debuff.surgeOfToxins.remain(units.dyn5) < cd.global + 0.2 or powerDeficit <= 25 + energyRegenCombined) 
             then
-                if cast.envenom(units.dyn5) then return end
+                if level >= 36 then
+                    if cast.envenom(units.dyn5) then return end
+                else
+                    if cast.eviscerate(units.dyn5) then return end
+                end
             end
             -- envenom,if=talent.elaborate_planning.enabled&combo_points>=3+!talent.exsanguinate.enabled&buff.elaborate_planning.remains<gcd.remains+0.2
             if talent.elaboratePlanning and combo >= 3 + noExsanguinate and buff.elaboratePlanning.remain() < cd.global + 0.2 then
-               if cast.envenom(units.dyn5) then return end
+               if level >= 36 then
+                    if cast.envenom(units.dyn5) then return end
+                else
+                    if cast.eviscerate(units.dyn5) then return end
+                end
             end
         end -- End Action List - Finishers
     -- Action List - Kingsbane
@@ -661,12 +669,20 @@ local function runRotation()
                     local thisUnit = enemies.yards5[i]
                     if (multidot or (UnitIsUnit(thisUnit,units.dyn5) and not multidot)) then
                         if debuff.deadlyPoison.refresh(thisUnit) then
-                            if cast.mutilate(thisUnit) then return end
+                            if level >= 40 then
+                                if cast.mutilate(thisUnit) then return end
+                            else
+                                if cast.sinisterStrike(thisUnit) then return end
+                            end
                         end
                     end
                 end
                 -- mutilate
-                if cast.mutilate() then return end
+                if level >= 40 then
+                    if cast.mutilate() then return end
+                else
+                    if cast.sinisterStrike() then return end
+                end
             end
         end -- End Action List - Generators 
     -- Action List - PreCombat
@@ -771,12 +787,14 @@ local function runRotation()
                     if cast.rupture("target") then opener = true; return end
                 elseif combo >= 4 and not debuff.rupture.exists(units.dyn5) and getOptionValue("Stealth Breaker") == 1 then
                     if cast.rupture("target") then opener = true; return end
-                elseif level >= 48 and not debuff.garrote.exists(units.dyn5) and cd.garrote <= 1 and getOptionValue("Stealth Breaker") == 1 then
+                elseif level >= 12 and not debuff.garrote.exists(units.dyn5) and cd.garrote <= 1 and getOptionValue("Stealth Breaker") == 1 then
                     if cast.garrote("target") then opener = true; return end
-                elseif level >= 29 and getOptionValue("Stealth Breaker") == 2 then
+                elseif level >= 8 and getOptionValue("Stealth Breaker") == 2 then
                     if cast.cheapShot("target") then opener = true; return end
-                else
+                elseif level >= 40 then
                     if cast.mutilate("target") then opener = true; return end
+                else
+                    if cast.sinisterStrike("target") then opener = true; end
                 end
             end
         end -- End Action List - Opener
