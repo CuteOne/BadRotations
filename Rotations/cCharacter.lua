@@ -252,12 +252,22 @@ function cCharacter:new(class)
 	end
 
 -- Returns the Global Cooldown time
+	-- function self.getGlobalCooldown()
+	-- 	local gcd = getSpellCD(61304) --(1.5 / ((UnitSpellHaste("player")/100)+1))
+	-- 	if gcd < 0 then return 0 else
+	-- 		return gcd
+	-- 	end
+	-- end
 	function self.getGlobalCooldown()
-		local gcd = getSpellCD(61304) --(1.5 / ((UnitSpellHaste("player")/100)+1))
-		if gcd < 0 then return 0 else
-			return gcd
-		end
-	end
+    	local currentSpecName = select(2,GetSpecializationInfo(GetSpecialization())) 
+        local gcd = getSpellCD(61304)
+        local gcdMIN = 0.75
+        if currentSpecName=="Feral" or currentSpecName=="Brewmaster" or currentSpecName=="Windwalker" or UnitClass("player") == "Rogue" then 
+        	return 1
+        else 
+        	return gcd > gcdMIN and gcd or gcdMIN 
+        end
+    end
 
 -- Starts auto attack when in melee range and facing enemy
 	function self.startMeleeAttack()
