@@ -522,19 +522,15 @@ local function runRotation()
             if combo >= 4 + dStratNo4T19 and (debuff.vendetta.exists(units.dyn5) or buff.masterAssassinsInitiative.remain() >= cd.global + 0.2 
                 or debuff.surgeOfToxins.remain(units.dyn5) < cd.global + 0.2 or powerDeficit <= 25 + energyRegenCombined) 
             then
-                if level >= 36 then
-                    if cast.envenom(units.dyn5) then return end
-                else
-                    if cast.eviscerate(units.dyn5) then return end
-                end
+                if cast.eviscerate(units.dyn5) then return end
             end
             -- envenom,if=talent.elaborate_planning.enabled&combo_points>=3+!talent.exsanguinate.enabled&buff.elaborate_planning.remains<gcd.remains+0.2
             if talent.elaboratePlanning and combo >= 3 + noExsanguinate and buff.elaboratePlanning.remain() < cd.global + 0.2 then
-               if level >= 36 then
-                    if cast.envenom(units.dyn5) then return end
-                else
-                    if cast.eviscerate(units.dyn5) then return end
-                end
+                if cast.envenom(units.dyn5) then return end
+            end
+        -- Eviscerate
+            if level < 36 and combo >= 5 then
+                if cast.eviscerate(units.dyn5) then return end
             end
         end -- End Action List - Finishers
     -- Action List - Kingsbane
