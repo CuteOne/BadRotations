@@ -853,7 +853,7 @@ local function runRotation()
         -- Call Action List - Finisher
                     -- call_action_list,name=finish,if=(!talent.exsanguinate.enabled|cooldown.exsanguinate.remains>2)&(!dot.rupture.refreshable|(dot.rupture.exsanguinated&dot.rupture.remains>=3.5)|target.time_to_die-dot.rupture.remains<=6)&active_dot.rupture>=spell_targets.rupture
                     if (not talent.exsanguinate or cd.exsanguinate > 2) and (not debuff.rupture.refresh(units.dyn5) or (exRupture and debuff.rupture.remain(units.dyn5) >= 3.5) 
-                        or ttd(units.dyn5) - debuff.rupture.remain(units.dyn5) <= 6) and debuff.rupture.count() >= #enemies.yards5 
+                        or ttd(units.dyn5) - debuff.rupture.remain(units.dyn5) <= 6 or level < 20 ) and (debuff.rupture.count() >= #enemies.yards5 or level < 20) 
                     then
                         if actionList_Finishers() then return end
                     end
