@@ -447,7 +447,7 @@ local function runRotation()
                     if cast.burstingShot("player") then return end
                 end
         -- Concussive Shot
-                if isChecked("Concussive Shot") and getDistance("target") < getOptionValue("Concussive Shot") then
+                if isChecked("Concussive Shot") and getDistance("target") < getOptionValue("Concussive Shot") and isValidUnit("target") then
                     if cast.concussiveShot("target") then return end
                 end
         -- Disengage
@@ -721,7 +721,12 @@ local function runRotation()
         -- Marked Shot
             -- marked_shot,if=spell_targets>1
             if ((mode.rotation == 1 and debuff.huntersMark.count() > 1) or mode.rotation == 2) then
-                if cast.markedShot() then return end
+                for i = 1, #enemies.yards40 do
+                    local thisUnit = enemies.yards40[i]
+                    if debuff.huntersMark.exists(thisUnit) then
+                        if cast.markedShot(thisUnit) then return end
+                    end
+                end
             end
         -- Multi-Shot
             -- Multi-Shot,if=spell_targets>1&(buff.marking_targets.up|buff.trueshot.up)
@@ -792,11 +797,21 @@ local function runRotation()
         -- Marked Shot
             -- marked_shot,if=!talent.sidewinders.enabled&!variable.pooling_for_piercing&!action.windburst.in_flight&(focus>65|buff.trueshot.up|(1%attack_haste)>1.171)
             if not talent.sidewinders and not poolForPiercing and lastSpell ~= spell.windBurst and (power > 65 or buff.trueshot.exists() or (1 / attackHaste) > 1.171) then
-                if cast.markedShot() then return end
+                for i = 1, #enemies.yards40 do
+                    local thisUnit = enemies.yards40[i]
+                    if debuff.huntersMark.exists(thisUnit) then
+                        if cast.markedShot(thisUnit) then return end
+                    end
+                end
             end
             -- marked_shot,if=talent.sidewinders.enabled&(variable.vuln_aim_casts<1|buff.trueshot.up|variable.vuln_window<action.aimed_shot.cast_time)
             if talent.sidewinders and (vulnAimCast < 1 or buff.trueshot.exists() or vulnWindow < getCastTime(spell.aimedShot)) then
-                if cast.markedShot() then return end
+                for i = 1, #enemies.yards40 do
+                    local thisUnit = enemies.yards40[i]
+                    if debuff.huntersMark.exists(thisUnit) then
+                        if cast.markedShot(thisUnit) then return end
+                    end
+                end
             end
         -- Aimed Shot
             -- aimed_shot,if=focus+cast_regen>focus.max&!buff.sentinels_sight.up
