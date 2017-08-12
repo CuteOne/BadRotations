@@ -95,10 +95,18 @@ local function createOptions()
             br.ui:createSpinner(section, "Heirloom Neck",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.");
         -- Engineering: Shield-o-tronic
             br.ui:createSpinner(section, "Shield-o-tronic",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
-        -- Heirloom Neck
-            br.ui:createSpinner(section, "Exhilaration",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.");
-        -- Heirloom Neck
+        -- Aspect of the Turtle
             br.ui:createSpinner(section, "Aspect Of The Turtle",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.");
+        -- Bursting Shot
+            br.ui:createSpinner(section, "Bursting Shot", 1, 1, 10, 1, "|cffFFBB00Number of Enemies within 8yrds to use at.")
+        -- Concussive Shot
+            br.ui:createSpinner(section, "Concussive Shot", 10, 5, 40, 5, "|cffFFBB00Minmal range to use at.")
+        -- Disengage
+            br.ui:createSpinner(section, "Disengage", 5, 5, 40, 5, "|cffFFBB00Minmal range to use at.")
+        -- Exhilaration
+            br.ui:createSpinner(section, "Exhilaration",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.");
+        -- Feign Death
+            br.ui:createSpinner(section, "Feign Death", 30, 0, 100, 5, "|cffFFBB00Health Percentage to use at.")
         br.ui:checkSectionState(section)
     -- Interrupt Options
         section = br.ui:createSection(br.ui.window.profile, "Interrupts")
@@ -207,6 +215,7 @@ local function runRotation()
         units.dyn5 = br.player.units(5)
         units.dyn38 = br.player.units(38)
         units.dyn40 = br.player.units(40)
+        enemies.yards8 = br.player.enemies(8)
         enemies.yards8t = br.player.enemies(8,br.player.units(8,true))
         enemies.yards40 = br.player.enemies(40)
         enemies.yards40r = getEnemiesInRect(10,38,false) or 0
@@ -429,13 +438,29 @@ local function runRotation()
                 then
                     useItem(118006)
                 end
+        -- Aspect of the Turtle
+                if isChecked("Aspect Of The Turtle") and php <= getOptionValue("Aspect Of The Turtle") then
+                    if cast.aspectOfTheTurtle("player") then return end
+                end
+        -- Bursting Shot
+                if isChecked("Bursting Shot") and #enemies.yards8 >= getOptionValue("Bursting Shot") and inCombat then
+                    if cast.burstingShot("player") then return end
+                end
+        -- Concussive Shot
+                if isChecked("Concussive Shot") and getDistance("target") < getOptionValue("Concussive Shot") then
+                    if cast.concussiveShot("target") then return end
+                end
+        -- Disengage
+                if isChecked("Disengage") and getDistance("target") < getOptionValue("Disengage") then
+                    if cast.disengage("player") then return end
+                end
         -- Exhilaration
                 if isChecked("Exhilaration") and php <= getOptionValue("Exhilaration") then
                     if cast.exhilaration("player") then return end
                 end
-        -- Exhilaration
-                if isChecked("Aspect Of The Turtle") and php <= getOptionValue("Aspect Of The Turtle") then
-                    if cast.aspectOfTheTurtle("player") then return end
+        -- Feign Death
+                if isChecked("Feign Death") and php <= getOptionValue("Feign Death") then
+                    if cast.feignDeath("player") then return end
                 end
             end -- End Defensive Toggle
         end -- End Action List - Defensive
@@ -799,7 +824,7 @@ local function runRotation()
     -- Action List - Pre-Combat
         local function actionList_PreCombat()
             rotationDebug = "Pre-Combat"
-            if not inCombat then
+            if not inCombat and not buff.feignDeath.exists() then
             -- Flask / Crystal
                 -- flask,type=flask_of_the_seventh_demon
                 if isChecked("Flask / Crystal") then
@@ -846,11 +871,12 @@ local function runRotation()
         -- Profile Stop | Pause
         if not inCombat and not hastar and profileStop==true then
             profileStop = false
-        elseif (inCombat and profileStop==true) or pause() or mode.rotation==4 then
+        elseif (inCombat and profileStop==true) or pause() or mode.rotation==4 or buff.feignDeath.exists() then
             if not pause() and IsPetAttackActive() then
                 PetStopAttack()
                 PetFollow()
             end
+            StopAttack()
             return true
         else
             br.player.getDebuffsCount()
