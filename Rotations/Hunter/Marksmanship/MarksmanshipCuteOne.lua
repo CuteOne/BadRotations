@@ -451,7 +451,7 @@ local function runRotation()
                     if cast.concussiveShot("target") then return end
                 end
         -- Disengage
-                if isChecked("Disengage") and getDistance("target") < getOptionValue("Disengage") then
+                if isChecked("Disengage") and getDistance("target") < getOptionValue("Disengage") and isValidUnit("target") then
                     if cast.disengage("player") then return end
                 end
         -- Exhilaration
