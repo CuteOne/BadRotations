@@ -280,6 +280,7 @@ function dynamicTarget(range,facing)
 		end
 	end
 	--br.debug.cpu.enemiesEngine.dynamicTarget = debugprofilestop()-startTime or 0
+	if bestUnit == nil and isValidUnit("target") then bestUnit = target end
 	return bestUnit
 end
 

@@ -266,6 +266,7 @@ local function runRotation()
         if hasEquiped(140806) then convergingFate = 1 else convergingFate = 0 end
         if hasEquiped(144236) then legshoulders = true else legshoulders = false end
         if buff.masterAssassinsInitiative.remain() >= cd.global + 0.2 then mantled = 1 else mantled = 0 end
+        if rotationDebug == nil or not inCombat then rotationDebug = "Waiting" end
 
 
         -- Energy Regen Combined
@@ -280,7 +281,7 @@ local function runRotation()
 
         -- Custom Functions
         local function usePickPocket()
-            if (mode.pickPocket == 1 or mode.pickPocket == 2) and buff.stealth.exists() then
+            if (mode.pickPocket == 1 or mode.pickPocket == 2) and buff.stealth.exists() and level > 13 then
                 return true
             else
                 return false
@@ -301,6 +302,8 @@ local function runRotation()
                 return false
             end
         end
+
+        -- ChatOverlay(tostring(rotationDebug))
  
 --------------------
 --- Action Lists ---
@@ -333,11 +336,11 @@ local function runRotation()
                 end
             end
         -- Poisoned Knife
-            if isChecked("Poisoned Knife") and not buff.stealth.exists() then
+            if isChecked("Poisoned Knife") and not buff.stealth.exists() and not (IsMounted() or IsFlying()) then
                 for i = 1, #enemies.yards30 do
                     local thisUnit = enemies.yards30[i]
                     local distance = getDistance(thisUnit)
-                    if not (debuff.deadlyPoison.exists(thisUnit) or debuff.woundPoison.exists(thisUnit)) and distance > 5 and isValidUnit(thisUnit) then
+                    if not (debuff.deadlyPoison.exists(thisUnit) or debuff.woundPoison.exists(thisUnit)) and distance > 5 and ((inCombat and isValidUnit(thisUnit)) or UnitIsUnit(thisUnit,"target")) then
                         if cast.poisonedKnife(thisUnit) then return end
                     end
                 end
@@ -399,6 +402,7 @@ local function runRotation()
         end -- End Action List - Interrupts
     -- Action List - Cooldowns
         local function actionList_Cooldowns()
+            rotationDebug = "Cooldowns"
             if (useCDs() or burst) and getDistance(units.dyn5) < 5 then
         -- Potion
                 -- potion,if=buff.bloodlust.react|target.time_to_die<=60|debuff.vendetta.up&cooldown.vanish.remains<5
@@ -503,7 +507,7 @@ local function runRotation()
         -- Toxic Blade
                     -- toxic_blade,if=combo_points.deficit>=1+(mantle_duration>=gcd.remains+0.2)&dot.rupture.remains>8
                     if isChecked("Toxic Blade") then
-                        if comboDeficit >= 1 + (buff.masterAssassinsInitiative.remain() >= cd.global + 0.2) and debuff.rupture.remain(units.dyn5) > 8 then
+                        if comboDeficit >= 1 + mantled and debuff.rupture.remain(units.dyn5) > 8 then
                             if cast.toxicBlade() then return end
                         end
                     end
@@ -512,6 +516,7 @@ local function runRotation()
         end -- End Action List - Cooldowns
     -- Action List - Finishers
         local function actionList_Finishers()
+            rotationDebug = "Finishers"
         -- Death From Above
             -- death_from_above,if=combo_points>=5
             if combo >= 5 then
@@ -535,6 +540,7 @@ local function runRotation()
         end -- End Action List - Finishers
     -- Action List - Kingsbane
         local function actionList_Kingsbane()
+            rotationDebug = "Kingsbane"
         -- Kingsbane
             if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()) then
                 -- kingsbane,if=artifact.sinister_circulation.enabled&!(equipped.duskwalkers_footpads&equipped.convergence_of_fates&artifact.master_assassin.rank>=6)&(time>25|!equipped.mantle_of_the_master_assassin|(debuff.vendetta.up&debuff.surge_of_toxins.up))&(talent.subterfuge.enabled|!stealthed.rogue|(talent.nightstalker.enabled&(!equipped.mantle_of_the_master_assassin|!set_bonus.tier19_4pc)))
@@ -552,6 +558,7 @@ local function runRotation()
         end
     -- Action List - Maintain
         local function actionList_Maintain()
+            rotationDebug = "Maintain"
         -- Rupture
             -- rupture,if=talent.nightstalker.enabled&stealthed.rogue&(!equipped.mantle_of_the_master_assassin|!set_bonus.tier19_4pc)&(talent.exsanguinate.enabled|target.time_to_die-remains>4)
             if talent.nightstalker and stealthing and (not hasEquiped(144236) or not t19_4pc) and (talent.exsanguinate or ttd(units.dyn5) > 4) then
@@ -639,6 +646,7 @@ local function runRotation()
         end -- End Action List - Maintain
     -- Action List - Generators
         local function actionList_Generators()
+            rotationDebug = "Generator"
         -- Hemorrhage
             -- hemorrhage,if=refreshable
             if debuff.hemorrhage.refresh(units.dyn5) then
@@ -660,7 +668,7 @@ local function runRotation()
             end
         -- Mutilate
             -- mutilate,cycle_targets=1,if=dot.deadly_poison_dot.refreshable
-            if ((mode.rotation == 1 and #enemies.yards8 < getOptionValue("Fan of Knives")) or mode.rotation == 3) then
+            if ((mode.rotation == 1 and #enemies.yards8 < getOptionValue("Fan of Knives")) or mode.rotation == 3 or level < 63) then
                 for i=1, #enemies.yards5 do
                     local thisUnit = enemies.yards5[i]
                     if (multidot or (UnitIsUnit(thisUnit,units.dyn5) and not multidot)) then
@@ -683,51 +691,78 @@ local function runRotation()
         end -- End Action List - Generators 
     -- Action List - PreCombat
         local function actionList_PreCombat()
+            rotationDebug = "Pre-Combat"
+            if not inCombat and not (IsFlying() or IsMounted()) then
         -- Apply Poison
-            -- apply_poison
-            if isChecked("Lethal Poison") then
-                if br.timer:useTimer("Lethal Poison", 3.5) then
-                    if getOptionValue("Lethal Poison") == 1 and not buff.deadlyPoison.exists() then
-                        if cast.deadlyPoison("player") then return end
-                    end
-                    if getOptionValue("Lethal Poison") == 2 and not buff.woundPoison.exists() then
-                        if cast.woundPoison("player") then return end
-                    end
-                end
-            end
-            if isChecked("Non-Lethal Poison") then
-                if br.timer:useTimer("Non-Lethal Poison", 3.5) then
-                    if (getOptionValue("Non-Lethal Poison") == 1 or not talent.leechingPoison) and not buff.cripplingPoison.exists() then
-                        if cast.cripplingPoison() then return end
-                    end
-                    if getOptionValue("Non-Lethal Poison") == 2 and not buff.leechingPoison.exists() then
-                        if cast.leechingPoison() then return end
-                    end
-                end
-            end
-        -- Stealth
-            -- stealth
-            if isChecked("Stealth") and not stealth and not inCombat and (not IsResting() or isDummy("target")) then
-                if getOptionValue("Stealth") == 1 then
-                    if cast.stealth() then return end
-                end 
-                if #enemies.yards20 > 0 and getOptionValue("Stealth") == 3 then
-                    for i = 1, #enemies.yards20 do
-                        local thisUnit = enemies.yards20[i]
-                        if UnitIsEnemy(thisUnit,"player") or isDummy("target") then
-                            if cast.stealth("player") then return end
+                -- apply_poison
+                if isChecked("Lethal Poison") then
+                    if br.timer:useTimer("Lethal Poison", 3.5) then
+                        if getOptionValue("Lethal Poison") == 1 and not buff.deadlyPoison.exists() then
+                            if cast.deadlyPoison("player") then return end
+                        end
+                        if getOptionValue("Lethal Poison") == 2 and not buff.woundPoison.exists() then
+                            if cast.woundPoison("player") then return end
                         end
                     end
                 end
-            end
+                if isChecked("Non-Lethal Poison") then
+                    if br.timer:useTimer("Non-Lethal Poison", 3.5) then
+                        if (getOptionValue("Non-Lethal Poison") == 1 or not talent.leechingPoison) and not buff.cripplingPoison.exists() then
+                            if cast.cripplingPoison() then return end
+                        end
+                        if getOptionValue("Non-Lethal Poison") == 2 and not buff.leechingPoison.exists() then
+                            if cast.leechingPoison() then return end
+                        end
+                    end
+                end
+        -- Stealth
+                -- stealth
+                if isChecked("Stealth") and not stealth and not inCombat and (not IsResting() or isDummy("target")) then
+                    if getOptionValue("Stealth") == 1 then
+                        if cast.stealth() then return end
+                    end 
+                    if #enemies.yards20 > 0 and getOptionValue("Stealth") == 3 then
+                        for i = 1, #enemies.yards20 do
+                            local thisUnit = enemies.yards20[i]
+                            if UnitIsEnemy(thisUnit,"player") or isDummy("target") then
+                                if cast.stealth("player") then return end
+                            end
+                        end
+                    end
+                end
         -- Marked For Death
-            -- marked_for_death,if=raid_event.adds.in>40
-            if isValidUnit("target") then
-                if cast.markedForDeath() then return end
+                -- marked_for_death,if=raid_event.adds.in>40
+                if isValidUnit("target") then
+                    if cast.markedForDeath() then return end
+                end
             end
         end -- End Action List - PreCombat
+    -- Action List - Stealth Breaker
+        local function actionList_StealthBreaker()
+            if stealthing and isValidUnit("target") and (not isBoss("target") or not isChecked("Opener")) then
+        -- Rupture
+                if level >= 20 and combo >= 2 and not debuff.rupture.exists(units.dyn5) and cTime < 10 and not artifact.urgeToKill and getOptionValue("Stealth Breaker") == 1 then
+                    if cast.rupture("target") then opener = true; return end
+                elseif level >= 20 and combo >= 4 and not debuff.rupture.exists(units.dyn5) and getOptionValue("Stealth Breaker") == 1 then
+                    if cast.rupture("target") then opener = true; return end
+        -- Garrote
+                elseif level >= 12 and not debuff.garrote.exists(units.dyn5) and cd.garrote <= 1 and getOptionValue("Stealth Breaker") == 1 then
+                    if cast.garrote("target") then opener = true; return end
+        -- Cheap Shot
+                elseif level >= 8 and getOptionValue("Stealth Breaker") == 2 then
+                    if cast.cheapShot("target") then opener = true; return end
+        -- Mutilate
+                elseif level >= 40 then
+                    if cast.mutilate("target") then opener = true; return end
+        -- Sinister Strike
+                else
+                    if cast.sinisterStrike("target") then opener = true; end
+                end
+            end
+        end
     -- Action List - Opener
         local function actionList_Opener()
+            rotationDebug = "Opener"
         -- Shadowstep
             if isChecked("Shadowstep") and isValidUnit("target") and getDistance("target") > 8 and getDistance("target") < 25 then
                 if cast.shadowstep("target") then return end
@@ -778,20 +813,8 @@ local function runRotation()
                         return
                     end
                 end
-            elseif (UnitExists("target") and not isBoss("target")) or not isChecked("Opener") then
-                if combo >= 2 and not debuff.rupture.exists(units.dyn5) and cTime < 10 and not artifact.urgeToKill and getOptionValue("Stealth Breaker") == 1 then
-                    if cast.rupture("target") then opener = true; return end
-                elseif combo >= 4 and not debuff.rupture.exists(units.dyn5) and getOptionValue("Stealth Breaker") == 1 then
-                    if cast.rupture("target") then opener = true; return end
-                elseif level >= 12 and not debuff.garrote.exists(units.dyn5) and cd.garrote <= 1 and getOptionValue("Stealth Breaker") == 1 then
-                    if cast.garrote("target") then opener = true; return end
-                elseif level >= 8 and getOptionValue("Stealth Breaker") == 2 then
-                    if cast.cheapShot("target") then opener = true; return end
-                elseif level >= 40 then
-                    if cast.mutilate("target") then opener = true; return end
-                else
-                    if cast.sinisterStrike("target") then opener = true; end
-                end
+            else
+                if actionList_StealthBreaker() then return end
             end
         end -- End Action List - Opener
 ---------------------
@@ -800,9 +823,10 @@ local function runRotation()
     --Profile Stop | Pause
         if not inCombat and not hastar and profileStop==true then
             profileStop = false
-        elseif (inCombat and profileStop == true) or pause() or (IsMounted() or IsFlying()) or mode.rotation==4 then
+        elseif (inCombat and profileStop==true) or pause() or mode.rotation==4 then
             return true
         else
+            rotationDebug = "Rotating"
 -----------------------
 --- Extras Rotation ---
 -----------------------
@@ -821,12 +845,15 @@ local function runRotation()
             if actionList_PreCombat() then return end
             if opener == false then
                 if actionList_Opener() then return end
+            else
+                if actionList_StealthBreaker() then return end
             end
 --------------------------
 --- In Combat Rotation ---
 --------------------------
         -- Assassination is 4 shank!
             if inCombat and mode.pickPocket ~= 2 and isValidUnit(units.dyn5) then
+                rotationDebug = "In-Combat Rotation"
 -----------------------------
 --- In Combat - Cooldowns ---
 -----------------------------
@@ -842,6 +869,8 @@ local function runRotation()
                 end
                 if opener == false then
                     if actionList_Opener() then return end
+                else
+                    if actionList_StealthBreaker() then return end
                 end
                 if (not stealthing or (ObjectExists(units.dyn5) and br.player.buff.vanish.exists())) then
                     if getDistance(units.dyn5) < 5 then
@@ -859,7 +888,7 @@ local function runRotation()
                     end
         -- Call Action List - Builders
                     -- call_action_list,name=build,if=combo_points.deficit>1|energy.deficit<=25+variable.energy_regen_combined
-                    if (comboDeficit > 1 or powerDeficit <= 25 + energyRegenCombined) then
+                    if (comboDeficit > 1 or powerDeficit <= 25 + energyRegenCombined or level < 3) then
                         if actionList_Generators() then return end
                     end
                 end
