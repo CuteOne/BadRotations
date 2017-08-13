@@ -511,11 +511,11 @@ local function runRotation()
                 end                    
             end
         -- Prayer of Healing (with Power Of The Naaru Buff)
-            if isChecked("Prayer of Healing") and talent.piety and buff.powerOfTheNaaru.exists() and cd.holyWordSanctify >= 1 and getDebuffRemain("player",240447) == 0 then
+            if isChecked("Prayer of Healing") and talent.piety and buff.powerOfTheNaaru.exists() and getDebuffRemain("player",240447) == 0 then
                 if castWiseAoEHeal(br.friend,spell.prayerOfHealing,40,getValue("Prayer of Healing"),getValue("Prayer of Healing Targets"),5,false,true) then return end
             end
 		-- Prayer of Healing
-            if isChecked("Prayer of Healing") and not talent.piety and cd.holyWordSanctify >= 1 and getDebuffRemain("player",240447) == 0 then
+            if isChecked("Prayer of Healing") and not talent.piety and getDebuffRemain("player",240447) == 0 then
                 if castWiseAoEHeal(br.friend,spell.prayerOfHealing,40,getValue("Prayer of Healing"),getValue("Prayer of Healing Targets"),5,false,true)  then return end
             end	
         -- Divine Star
