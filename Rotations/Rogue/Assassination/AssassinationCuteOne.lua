@@ -504,12 +504,12 @@ local function runRotation()
                     if talent.shadowFocus and energyTTMCombined >= 2 and comboDeficit >= 4 then
                         if cast.vanish() then return end
                     end
+                end
         -- Toxic Blade
-                    -- toxic_blade,if=combo_points.deficit>=1+(mantle_duration>=gcd.remains+0.2)&dot.rupture.remains>8
-                    if isChecked("Toxic Blade") then
-                        if comboDeficit >= 1 + mantled and debuff.rupture.remain(units.dyn5) > 8 then
-                            if cast.toxicBlade() then return end
-                        end
+                -- toxic_blade,if=combo_points.deficit>=1+(mantle_duration>=gcd.remains+0.2)&dot.rupture.remains>8
+                if isChecked("Toxic Blade") then
+                    if comboDeficit >= 1 + mantled and debuff.rupture.remain(units.dyn5) > 8 then
+                        if cast.toxicBlade(units.dyn5) then return end
                     end
                 end
             end -- End Cooldown Usage Check
