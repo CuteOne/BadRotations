@@ -571,10 +571,10 @@ local function runRotation()
                  if cast.nightblade(units.dyn5) then return end
             end
         -- Death from Above
-            -- death_from_above,if=!talent.dark_shadow.enabled|spell_targets>=4&buff.shadow_dance.up|spell_targets<4&!buff.shadow_dance.up&(buff.symbols_of_death.up|cooldown.symbols_of_death.remains>=10+set_bonus.tier20_4pc*5)&!cooldown.vanish.up&buff.the_first_of_the_dead.remains<1
+            -- death_from_above,if=!talent.dark_shadow.enabled|(!cooldown.vanish.up&(!buff.shadow_dance.up|spell_targets>=4)&(buff.symbols_of_death.up|cooldown.symbols_of_death.remains>=10+set_bonus.tier20_4pc*5)&buff.the_first_of_the_dead.remains<1)
             if isChecked("Death From Above") then
-                if not talent.darkShadow or #enemies.yards8t >= getOptionValue("Death From Above") and buff.shadowDance.exists() or #enemies.yards8t >= 4 and not buff.shadowDance.exists() 
-                    and (buff.symbolsOfDeath.exists() or cd.symbolsOfDeath >= 10 + t20pc4 * 5) and cd.vanish > 0 and buff.theFirstOfTheDead.remain() < 1 
+                if not talent.darkShadow or (cd.vanish ~= 0 and (not buff.shadowDance.exists() or #enemies.yards8t >= getOptionValue("Death From Above")) 
+                    and (buff.symbolsOfDeath.exists() or cd.symbolsOfDeath >= 10 + t20pc4 * 5) and buff.theFirstOfTheDead.remain() < 1) 
                 then
                     if cast.deathFromAbove() then return end
                 end

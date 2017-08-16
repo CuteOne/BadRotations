@@ -22,7 +22,6 @@ function br.ui:createDropdown(parent, text, itemlist, default, tooltip, tooltipD
         checkBox:Disable()
         checkBox:ReleaseTextures()
     end
-    -------------------------------
 
     -------------------------------
     --------Create Dropdown--------
@@ -42,7 +41,13 @@ function br.ui:createDropdown(parent, text, itemlist, default, tooltip, tooltipD
     -- Read from config or set default
     if br.data.settings[br.selectedSpec][br.selectedProfile][text.."Drop"] == nil then br.data.settings[br.selectedSpec][br.selectedProfile][text.."Drop"] = default end
     local value = br.data.settings[br.selectedSpec][br.selectedProfile][text.."Drop"]
+    br.data.settings[br.selectedSpec][br.selectedProfile][text.."Data"] = itemlist
     newDropdown:SetValue(value)
+    -- for i=1, #parent.children do
+    --     if parent.children[i].type == "Dropdown" then
+    --         print(parent.children[i].name)
+    --     end
+    -- end
 
     ------------------
     ------Events------
@@ -67,6 +72,7 @@ function br.ui:createDropdown(parent, text, itemlist, default, tooltip, tooltipD
     ----------------------
     ------END Events------
     ----------------------
+    br.data.settings[br.selectedSpec][br.selectedProfile][text.."Dropdown"] = newDropdown
     newDropdown:ApplySettings()
     ----------------------------
     --------END Dropdown--------
@@ -77,4 +83,22 @@ end
 
 function br.ui:createDropdownWithout(parent, text, itemlist, default, tooltip, tooltipDrop)
     return br.ui:createDropdown(parent, text, itemlist, default, tooltip, tooltipDrop, true)
+end
+
+function br.ui:updateDropdown(optionName, newList)
+    local dropdown = br.data.settings[br.selectedSpec][br.selectedProfile][optionName.."Dropdown"]
+    local value = br.data.settings[br.selectedSpec][br.selectedProfile][optionName.."Drop"]
+    if dropdown ~= nil then
+        br.data.settings[br.selectedSpec][br.selectedProfile][optionName.."Data"] = newList
+        dropdown:SetList(newList)
+        dropdown:SetValue(value)
+        ------------------
+        ------Events------
+        ------------------
+        -- Event: OnValueChange
+        dropdown:SetEventListener('OnValueChanged', function(this, event, key, value, selection)
+           br.data.settings[br.selectedSpec][br.selectedProfile][optionName.."Drop"]  = key
+        end)
+        dropdown:ApplySettings()
+    end
 end

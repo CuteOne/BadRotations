@@ -620,6 +620,16 @@ end
 function getOptionValue(Value)
     return getValue(Value)
 end
+function getOptionText(Value)
+	if br.data ~=nil and br.data.settings ~= nil then
+    	local selectedProfile = br.data.settings[br.selectedSpec][br.selectedProfile]
+        if selectedProfile ~= nil then
+            return br.data.settings[br.selectedSpec][br.selectedProfile][Value.."Data"][selectedProfile[Value.."Drop"]]
+        end
+    else
+        return nil
+    end
+end 
 
 
 
@@ -660,7 +670,7 @@ function talentAnywhere()
     local removeTalent = RemoveTalent
     local learnTalent = LearnTalent
     -- Load Talent UI if not opened before
-    if not IsAddOnLoaded("Blizzard_TalentUI") then
+    if not IsAddOnLoaded("Blizzard_TalentUI") and not UnitAffectingCombat("player") then
        LoadAddOn("Blizzard_TalentUI")
     end
 
