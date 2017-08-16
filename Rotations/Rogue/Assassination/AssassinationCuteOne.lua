@@ -629,7 +629,7 @@ local function runRotation()
                 for i = 1, #enemies.yards5 do
                     local thisUnit = enemies.yards5[i]
                     if (multidot or (UnitIsUnit(thisUnit,units.dyn5) and not multidot)) then
-                        if debuff.garrote.refresh(thisUnit) and debuff.garrote.remain(thisUnit) <= 2 and (not exsanguinated or debuff.garrote.remain(thisUnit) <= 2 * 2) and ttd(thisUnit) - debuff.rupture.remain(thisUnit) > 4 then
+                        if debuff.garrote.refresh(thisUnit) and debuff.garrote.remain(thisUnit) <= 2 and (not exsanguinated or debuff.garrote.remain(thisUnit) <= 2 * 2) and ttd(thisUnit) - debuff.garrote.remain(thisUnit) > 4 then
                             if power < 45 then 
                                 return true
                             else
