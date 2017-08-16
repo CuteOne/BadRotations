@@ -566,8 +566,8 @@ local function runRotation()
                     end
                 end
             end
-            -- nightblade,if=remains<cooldown.symbols_of_death.remains+10&cooldown.symbols_of_death.remains<=3
-            if debuff.nightblade.remain(units.dyn5) < cd.symbolsOfDeath + 10 and cd.symbolsOfDeath <= 3 then
+            -- nightblade,if=remains<cooldown.symbols_of_death.remains+10&cooldown.symbols_of_death.remains<=5+(combo_points=6*2)
+            if debuff.nightblade.remain(units.dyn5) < cd.symbolsOfDeath + 10 and cd.symbolsOfDeath <= 5 then
                  if cast.nightblade(units.dyn5) then return end
             end
         -- Death from Above
@@ -754,9 +754,9 @@ local function runRotation()
                 end
                 if getDistance(units.dyn5) < 5 then
         -- Shadow Dance 
-                    -- shadow_dance,if=talent.dark_shadow.enabled&!stealthed.all&buff.death_from_above.up&buff.death_from_above.remains<=0.15
+                    -- shadow_dance,if=talent.dark_shadow.enabled&(!stealthed.all|buff.subterfuge.up)&buff.death_from_above.up&buff.death_from_above.remains<=0.15
                     if useCDs() and isChecked("Shadow Dance") and not buff.shadowDance.exists() then
-                        if talent.darkShadow and not stealthingAll and buff.deathFromAbove.exists() and buff.deathFromAbove.remain() <= 0.15 then
+                        if talent.darkShadow and (not stealthingAll or buff.subterfuge.exists())and buff.deathFromAbove.exists() and buff.deathFromAbove.remain() <= 0.15 then
                             if cast.shadowDance() then ShDCdTime = GetTime(); return end
                         end
                     end

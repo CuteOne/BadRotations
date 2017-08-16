@@ -228,6 +228,7 @@ function br.read.combatLog()
                 and spell ~= 194279     -- Caltrop DoT
                 and spell ~= 196771
                 and spell ~= 211793
+                and spell ~= 139546     -- Combo Point
             then
                 local color = "|cff12C8FF"
                 local white = "|cffFFFFFF"

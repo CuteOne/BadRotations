@@ -378,7 +378,7 @@ function cCharacter:new(class)
 
 -- Casts the racial
 	function self.castRacial()
-		if getSpellCD(self.racial) == 0 and self.options.useRacial then
+		if getSpellCD(self.racial) == 0 and getOptionValue("Racial") then
 			if self.race == "Pandaren" or self.race == "Goblin" then
 				return castSpell("target",self.racial,true,false) == true
 			else

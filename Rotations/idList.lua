@@ -2259,6 +2259,7 @@ br.idList = {
                 adrenalineRush              = 13750,
                 alacrity                    = 193538,
                 bladeFlurry                 = 13877,
+                blunderbuss                 = 202895,
                 broadsides                  = 193356,
                 buriedTreasure              = 199600,
                 grandMelee                  = 193358,
