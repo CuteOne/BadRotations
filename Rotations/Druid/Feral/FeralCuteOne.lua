@@ -63,8 +63,8 @@ local function createOptions()
             br.ui:createCheckbox(section,"Perma Fire Cat","|cff15FF00Enable|cffFFFFFF/|cffD60000Disable |cffFFFFFFautomatic use of Fandrel's Seed Pouch or Burning Seeds.")
         -- Dummy DPS Test
             br.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
-		-- Opener
-			br.ui:createCheckbox(section, "Opener")
+	-- Opener
+	    br.ui:createCheckbox(section, "Opener")
         -- Pre-Pull Timer
             br.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
         -- Travel Shapeshifts
@@ -98,8 +98,8 @@ local function createOptions()
             br.ui:createCheckbox(section,"Incarnation")
         -- Trinkets
             br.ui:createCheckbox(section,"Trinkets")
-		-- Vial of Ceaseless Toxins
-			br.ui:createCheckbox(section,"Vial of Ceaseless Toxins")
+	-- Vial of Ceaseless Toxins
+	    br.ui:createCheckbox(section,"Vial of Ceaseless Toxins")
         br.ui:checkSectionState(section)
     -- Defensive Options
         section = br.ui:createSection(br.ui.window.profile, "Defensive")
@@ -625,9 +625,9 @@ local function runRotation()
                     end
 				end
 		-- Vial of Ceaseless Toxins
-                if isChecked("Vial of Ceaseless Toxins") and hasEquiped(147011) and canUse(147011) then
-					if buff.tigersFury.exists() or ttd(thisUnit) <= cd.tigersFury then
-						useItem(147011)
+                    if isChecked("Vial of Ceaseless Toxins") and hasEquiped(147011) and canUse(147011) then
+				if buff.tigersFury.exists() or ttd(thisUnit) <= cd.tigersFury then
+					useItem(147011)
                     end
                 end		
 		
