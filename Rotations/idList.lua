@@ -626,6 +626,7 @@ br.idList = {
         -- Guardian
         [104] = {
             abilities                       = {
+				rake                        = 1822,
                 barkskin                    = 22812,
                 bristlingFur                = 155835,
                 frenziedRegeneration        = 22842,
@@ -642,8 +643,11 @@ br.idList = {
                 skullBash                   = 106839,
                 stampedingRoar              = 106898,
                 survivalInstincts           = 61336,
-                swipe                       = 213771, --106785,
-                thrash                      = 77758, -- 106830,
+                swipe                       = 213771, 106785,
+                thrash                      = 77758, --106830,
+				shred                       = 5221,
+				rip                         = 1079,
+				ferociousBite               = 22568,
             },
             artifacts                       = {
                 rageOfTheSleeper            = 200851,
@@ -661,6 +665,8 @@ br.idList = {
             debuffs                         = {
                 moonfireGuardian            = 164812,
                 thrash                      = 192090,
+				rake                        = 155722,
+				rip                         = 1079,
             },
             glyphs                          = {
 
