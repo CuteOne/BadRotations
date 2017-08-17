@@ -1188,7 +1188,7 @@ local function runRotation()
 			---------------------------------
 			--- Out Of Combat - Rotations ---
 			---------------------------------
-			if not inCombat and not IsMounted() and not flight and not stealthed and not drinking and not buff.shadowmeld.exists() and not isCastingSpell(spell.tranquility) then
+			if not inCombat and not IsMounted() and not flight and not stealthed and not drinking and not buff.shadowmeld.exists() and not isCastingSpell(spell.tranquility) and not UnitDebuffID("player",188030) then
 				actionList_Extras()
 				if isChecked("OOC Healing") then
 					actionList_PreCombat()
@@ -1198,7 +1198,7 @@ local function runRotation()
 			-----------------------------
 			--- In Combat - Rotations ---
 			-----------------------------
-			if inCombat and not IsMounted() and not flight and not stealthed and not drinking and not buff.shadowmeld.exists() and not isCastingSpell(spell.tranquility) then
+			if inCombat and not IsMounted() and not flight and not stealthed and not drinking and not buff.shadowmeld.exists() and not isCastingSpell(spell.tranquility) and not UnitDebuffID("player",188030) then
 				actionList_Extras()
 				actionList_Defensive()
 				actionList_Cooldowns()
