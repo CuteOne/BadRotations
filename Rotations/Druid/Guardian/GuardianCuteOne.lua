@@ -216,11 +216,11 @@ local function runRotation()
         local ttd                                           = getTTD
         local ttm                                           = br.player.power.ttm
         local units                                         = units or {}
-		local combo                                         = br.player.power.amount.comboPoints
+	local combo                                         = br.player.power.amount.comboPoints
 
         units.dyn5 = br.player.units(5)
-		units.dyn8 = br.player.units(8)
-		units.dyn40 = br.player.units(40)
+	units.dyn8 = br.player.units(8)
+	units.dyn40 = br.player.units(40)
         enemies.yards5 = br.player.enemies(5)
         enemies.yards8 = br.player.enemies(8)
         enemies.yards10 = br.player.enemies(10)
