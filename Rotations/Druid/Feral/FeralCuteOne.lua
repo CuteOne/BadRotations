@@ -98,6 +98,8 @@ local function createOptions()
             br.ui:createCheckbox(section,"Incarnation")
         -- Trinkets
             br.ui:createCheckbox(section,"Trinkets")
+		-- Vial of Ceaseless Toxins
+			br.ui:createCheckbox(section,"Vial of Ceaseless Toxins")
         br.ui:checkSectionState(section)
     -- Defensive Options
         section = br.ui:createSection(br.ui.window.profile, "Defensive")
@@ -614,14 +616,21 @@ local function runRotation()
                 -- if=buff.tigers_fury.up&energy.time_to_max>3&(!talent.savage_roar.enabled|buff.savage_roar.up)
 				if useCDs() and isChecked("Trinkets") and getDistance(units.dyn5) < 5 then
                     if buff.tigersFury.exists() and (not talent.savageRoar or buff.savageRoar.exists()) then
-						if canUse(13) then
+						if canUse(13) and not hasEquiped(147011,13) then
 							useItem(13)
 						end
-						if canUse(14) then
+						if canUse(14) and not hasEquiped(147011,14) then
 							useItem(14)
 						end
                     end
 				end
+		-- Vial of Ceaseless Toxins
+                if isChecked("Vial of Ceaseless Toxins") and hasEquiped(147011) and canUse(147011) then
+					if buff.tigersFury.exists() or ttd(thisUnit) <= cd.tigersFury then
+						useItem(147011)
+                    end
+                end		
+		
         -- Potion
                 -- if=((buff.berserk.remains>10|buff.incarnation.remains>20)&(target.time_to_die<180|(trinket.proc.all.react&target.health.pct<25)))|target.time_to_die<=40
                 if useCDs() and isChecked("Potion") and inRaid then
