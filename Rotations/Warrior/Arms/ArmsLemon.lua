@@ -656,13 +656,13 @@ local function runRotation()
                 if cast.whirlwind() then return end
             end
         -- Slam
-		
+        
             -- actions.single+=/slam,if=spell_targets.whirlwind=1&!talent.fervor_of_battle.enabled&(rage>=52|!talent.rend.enabled|!talent.ravager.enabled)
-			if power >= 52 and not talent.rend and not talent.ravager then
-				if ((mode.rotation == 1 and #enemies.yards8 == 1) or mode.rotation == 3) then
-					if cast.slam() then return end
-				end
-			end
+            if power >= 52 or not talent.rend or not talent.ravager then
+                if ((mode.rotation == 1 and #enemies.yards8 == 1) or mode.rotation == 3) then
+                    if cast.slam() then return end
+                end
+            end
             
             if cast.overpower() then return end
             
