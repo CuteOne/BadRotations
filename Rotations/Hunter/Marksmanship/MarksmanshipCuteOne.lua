@@ -193,7 +193,6 @@ local function runRotation()
         local lowestHP                                      = br.friend[1].unit
         local mode                                          = br.player.mode
         local multidot                                      = (br.player.mode.cleave == 1 or br.player.mode.rotation == 2) and br.player.mode.rotation ~= 3
-        local multishotTargets                              = getEnemies(br.player.units(40),8)
         local perk                                          = br.player.perk
         local php                                           = br.player.health
         local playerMouse                                   = UnitIsPlayer("mouseover")
@@ -289,8 +288,8 @@ local function runRotation()
             if huntersMarkCount>0 and not inCombat then huntersMarkCount = 0 end
             if vulnerableCount>0 and not inCombat then vulnerableCount = 0 end
 
-            for i=1,#getEnemies("player", 40) do
-                local thisUnit = getEnemies("player", 40)[i]
+            for i=1,#enemies.yards40 do
+                local thisUnit = enemies.yards40[i]
                 if UnitDebuffID(thisUnit,185365,"player") then
                     huntersMarkCount = huntersMarkCount+1
                 end
@@ -345,53 +344,51 @@ local function runRotation()
 --------------------
     -- Action List - Pet Management
         local function actionList_PetManagement()
-            if not IsMounted() and not talent.loneWolf then
-                if isChecked("Auto Summon") and not GetUnitExists("pet") and (UnitIsDeadOrGhost("pet") ~= nil or IsPetActive() == false) then
-                  if waitForPetToAppear ~= nil and waitForPetToAppear < GetTime() - 2 then
-                      if deadPet == true then
-                        if castSpell("player",982) then return; end
-                      elseif deadPet == false then
-                        local Autocall = getValue("Auto Summon");
-
-                        if Autocall == 1 then
-                          if castSpell("player",883) then return; end
-                        elseif Autocall == 2 then
-                          if castSpell("player",83242) then return; end
-                        elseif Autocall == 3 then
-                          if castSpell("player",83243) then return; end
-                        elseif Autocall == 4 then
-                          if castSpell("player",83244) then return; end
-                        elseif Autocall == 5 then
-                          if castSpell("player",83245) then return; end
-                        else
-                          Print("Auto Call Pet Error")
-                        end
-                      end
-
-                  end
-                  if waitForPetToAppear == nil then
+            if not talent.loneWolf then
+                if IsMounted() or IsFlying() or UnitOnTaxi("player") or UnitInVehicle("player") then
                     waitForPetToAppear = GetTime()
-                  end
+                elseif isChecked("Auto Summon") and not GetUnitExists("pet") and (UnitIsDeadOrGhost("pet") ~= nil or IsPetActive() == false) then
+                    if waitForPetToAppear ~= nil and GetTime() - waitForPetToAppear > 2 then
+                        if deadPet == true then
+                            if cast.revivePet() then return end
+                        elseif deadPet == false then
+                            local Autocall = getValue("Auto Summon");
+                            if Autocall == 1 then
+                                if cast.callPet1() then return end
+                            elseif Autocall == 2 then
+                                if cast.callPet2() then return end
+                            elseif Autocall == 3 then
+                                if cast.callPet3() then return end
+                            elseif Autocall == 4 then
+                                if cast.callPet4() then return end
+                            elseif Autocall == 5 then
+                                if cast.callPet5() then return end
+                            else
+                                Print("Auto Call Pet Error")
+                            end
+                        end
+                    end
+                    if waitForPetToAppear == nil then
+                        waitForPetToAppear = GetTime()
+                    end
                 end
-            end
-            --Revive
-            if isChecked("Auto Summon") and UnitIsDeadOrGhost("pet") then
-              if castSpell("player",982) then return; end
-            end
-
-            -- Mend Pet
-            if isChecked("Mend Pet") and getHP("pet") < getValue("Mend Pet") and not UnitBuffID("pet",136) then
-              if castSpell("pet",136) then return; end
-            end
-
-            -- Pet Attack / retreat
-            if inCombat and isValidUnit(units.dyn40) and getDistance(units.dyn40) < 40 then
-                if not UnitIsUnit("target","pettarget") then
-                    PetAttack()
+                --Revive
+                if isChecked("Auto Summon") and UnitIsDeadOrGhost("pet") then
+                    if cast.revivePet() then return; end
                 end
-            else
-                if IsPetAttackActive() then
-                    PetStopAttack()
+                -- Mend Pet
+                if isChecked("Mend Pet") and getHP("pet") < getValue("Mend Pet") and not UnitBuffID("pet",136) then
+                    if cast.mendPet() then return; end
+                end
+                -- Pet Attack / retreat
+                if inCombat and isValidUnit(units.dyn40) and getDistance(units.dyn40) < 40 then
+                    if not UnitIsUnit("target","pettarget") then
+                        PetAttack()
+                    end
+                else
+                    if IsPetAttackActive() then
+                        PetStopAttack()
+                    end
                 end
             end
         end
@@ -467,8 +464,8 @@ local function runRotation()
     -- Action List - Interrupts
         local function actionList_Interrupts()
             if useInterrupts() then
-                for i=1, #getEnemies("player",50) do
-                    thisUnit = getEnemies("player",50)[i]
+                for i=1, #enemies.yards40 do
+                    thisUnit = enemies.yards40[i]
                     distance = getDistance(thisUnit)
                     if canInterrupt(thisUnit,getOptionValue("Interrupts")) then
                         if distance < 50 then

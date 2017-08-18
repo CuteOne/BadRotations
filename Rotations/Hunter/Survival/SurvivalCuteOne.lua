@@ -188,7 +188,6 @@ local function runRotation()
         local lowestHP                                      = br.friend[1].unit
         local mode                                          = br.player.mode
         local multidot                                      = (br.player.mode.cleave == 1 or br.player.mode.rotation == 2) and br.player.mode.rotation ~= 3
-        local multishotTargets                              = getEnemies("pet",8)
         local perk                                          = br.player.perk
         local php                                           = br.player.health
         local playerMouse                                   = UnitIsPlayer("mouseover")
@@ -227,42 +226,40 @@ local function runRotation()
 --------------------
     -- Action List - Pet Management
         local function actionList_PetManagement()
-            if not IsMounted() then
-                if isChecked("Auto Summon") and not GetUnitExists("pet") and (UnitIsDeadOrGhost("pet") ~= nil or IsPetActive() == false) then
-                  if waitForPetToAppear ~= nil and waitForPetToAppear < GetTime() - 2 then
-                      if deadPet == true then
+            if IsMounted() or IsFlying() or UnitOnTaxi("player") or UnitInVehicle("player") then
+                waitForPetToAppear = GetTime()
+            elseif isChecked("Auto Summon") and not GetUnitExists("pet") and (UnitIsDeadOrGhost("pet") ~= nil or IsPetActive() == false) then
+                if waitForPetToAppear ~= nil and GetTime() - waitForPetToAppear > 2 then
+                    if deadPet == true then
                         if cast.revivePet() then return end
-                      elseif deadPet == false then
+                    elseif deadPet == false then
                         local Autocall = getValue("Auto Summon");
-
                         if Autocall == 1 then
-                          if cast.callPet1() then return end
+                            if cast.callPet1() then return end
                         elseif Autocall == 2 then
-                          if cast.callPet2() then return end
+                            if cast.callPet2() then return end
                         elseif Autocall == 3 then
-                          if cast.callPet3() then return end
+                            if cast.callPet3() then return end
                         elseif Autocall == 4 then
-                          if cast.callPet4() then return end
+                            if cast.callPet4() then return end
                         elseif Autocall == 5 then
-                          if cast.callPet5() then return end
+                            if cast.callPet5() then return end
                         else
-                          Print("Auto Call Pet Error")
+                            Print("Auto Call Pet Error")
                         end
-                      end
-
-                  end
-                  if waitForPetToAppear == nil then
+                    end
+                end
+                if waitForPetToAppear == nil then
                     waitForPetToAppear = GetTime()
-                  end
                 end
             end
             --Revive
             if isChecked("Auto Summon") and UnitIsDeadOrGhost("pet") then
-              if cast.revivePet() then return; end
+                if cast.revivePet() then return; end
             end
             -- Mend Pet
-            if isChecked("Mend Pet") and getHP("pet") < getValue("Mend Pet") and not buff.mendPet.exists("pet") then
-              if cast.mendPet() then return; end
+            if isChecked("Mend Pet") and getHP("pet") < getValue("Mend Pet") and not UnitBuffID("pet",136) then
+                if cast.mendPet() then return; end
             end
             -- Pet Attack / retreat
             if inCombat and isValidUnit(units.dyn40) and getDistance(units.dyn40) < 40 then

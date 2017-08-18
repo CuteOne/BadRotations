@@ -286,6 +286,20 @@ function isBoss(unit)
 		return false
 	end
 end
+function isCritter(Unit) -- From LibBabble
+	if Unit == nil then Unit = "target" end
+	local unitType = UnitCreatureType(Unit)
+	return unitType == "Critter"
+		or unitType == "Kleintier"
+		or unitType == "Bestiole"
+		or unitType == "동물"
+		or unitType == "Alma"
+		or unitType == "Bicho"
+		or unitType == "Animale"
+		or unitType == "Существо"
+		or unitType == "小动物"
+		or unitType == "小動物"
+end
 -- Dummy Check
 function isDummy(Unit)
 	if Unit == nil then

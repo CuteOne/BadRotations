@@ -887,6 +887,7 @@ br.idList = {
 
             },
             buffs                           = {
+                beastCleave                 = 118455,
                 bestialWrath                = 19574,
                 direBeast                   = 120694,
                 direFrenzy                  = 217200,

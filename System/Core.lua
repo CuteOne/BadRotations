@@ -19,58 +19,7 @@ end
 --[[---------  ----  -----  -------------  ----------  ----  --------  -------------------------------------------------------------------------------------------------]]
 --[[---------  -----  ----           ---  ------------  ---            -------------------------------------------------------------------------------------------------------------------]]
 --[[-------------------------------------------------------------------------------------------------------------------------------------------------------]]
--- local elapsedTime = 0
--- local updateRate = 0
--- function EnemyEngine(_, time)
--- 	elapsedTime = elapsedTime + time
--- 	if getOptionValue("Enemy Update Rate") ~= nil and getOptionValue("Enemy Update Rate") > 0.5 then updateRate = getOptionValue("Enemy Update Rate")
--- 		else updateRate = 0.5
--- 	end
--- 	if updateRate < #getEnemies("player",50) then
--- 		updateRate = #getEnemies("player",50)
--- 	end
--- 	-- ChatOverlay(updateRate)
--- 	--print(updateRate)
--- 	if FireHack ~= nil and br.data.settings[br.selectedSpec].toggles["Power"] == 1 and elapsedTime >= updateRate then --0.5 then
--- 		elapsedTime = 0
--- 		-- Enemies Engine
--- 		-- br.handleObjects()
--- 		-- br.EnemiesEngine()
--- 		-- EnemiesEngine();
--- 		FindEnemy()
--- 	end
--- end
-
- local frame = CreateFrame("FRAME")
--- frame:SetScript("OnUpdate", EnemyEngine)
-
--- local elapsedTime2 = 0
--- function PlayerUpdate(_, time)
--- 	elapsedTime2 = elapsedTime + time
--- 	if FireHack ~= nil and br.data.settings[br.selectedSpec].toggles["Power"] == 1 and elapsedTime2 >= getOptionValue("Player Update Rate") then
--- 		elapsedTime2 = 0
--- 	-- Load Spec Profiles
--- 	    br.selectedProfile = br.data.settings[br.selectedSpec]["Rotation".."Drop"] or 1
--- 		local playerSpec = GetSpecializationInfo(GetSpecialization())
-
--- 		if br.player == nil or br.player.profile ~= br.selectedSpec then
--- 	        br.player = br.loader:new(playerSpec,br.selectedSpec)
--- 	        setmetatable(br.player, {__index = br.loader})
--- 	        br.player:createOptions()
--- 	        br.player:createToggles()
--- 	        br.player:update()
--- 	    end
--- 	    -- Update Player
--- 		if br.player ~= nil then
--- 			br.player:update()
--- 		end
--- 	end
--- end
-
--- local playerUpdate = CreateFrame("Frame")
--- playerUpdate:SetScript("OnUpdate", PlayerUpdate)
-
-
+local frame = CreateFrame("FRAME")
 frame:RegisterEvent("ADDON_LOADED");
 frame:RegisterEvent("PLAYER_LOGOUT")
 frame:RegisterUnitEvent("PLAYER_ENTERING_WORLD")
@@ -238,9 +187,6 @@ function BadRotationsUpdate(self)
 							br.player:update()
 						end
 						FindEnemy()
-					-- Enemies Engine
-						-- FindEnemy()
-						-- EnemiesEngine()
 					-- Close windows and swap br.selectedSpec on Spec Change
 						if select(2,GetSpecializationInfo(GetSpecialization())) ~= br.selectedSpec then
 					    	-- Closing the windows will save the position
@@ -306,10 +252,6 @@ function BadRotationsUpdate(self)
 						if isChecked("HE Active") then
 							br.friend:Update()
 						end
-
-					-- Enemies Engine
-						-- EnemiesEngine()
-
 					end --End Update Check
 					self.updateInProgress = false
 				end -- End Update In Progress Check
@@ -321,13 +263,6 @@ function BadRotationsUpdate(self)
 	br.debug.cpu.pulse.elapsedTime = br.debug.cpu.pulse.elapsedTime + debugprofilestop()-startTime
 	br.debug.cpu.pulse.averageTime = br.debug.cpu.pulse.elapsedTime / br.debug.cpu.pulse.totalIterations
 end -- End Bad Rotations Update Function
--- Enemies Engine
--- EnemiesEngine();
-
--- -- Update Player
--- if br.player ~= nil then
--- 	br.player:update()
--- end
 --[[-------------------------------------------------------------------------------------------------------------------------------------------------------]]
 
 --[[-------------------------------------------------------------------------------------------------------------------------------------------------------]]

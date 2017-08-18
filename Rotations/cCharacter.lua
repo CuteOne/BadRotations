@@ -76,9 +76,6 @@ function cCharacter:new(class)
 	self.pet 			= "None" 	-- Current Pet
 	self.petId 			= 0 		-- Current Pet Id
 	self.potion 		= {}		-- Potion Table
-	-- self.power          = 0     	-- Primary Resource (e.g. Mana for Retribution, Holy Power must be specified)
-	-- self.powerAlt 		= 0 		-- Alternate Resource (e.g. Combo Points for Feral and Rogues, Soul Shards for Warlocks)
-	-- self.powerTTM 		= 0
 	self.primaryStat 	= nil       -- Contains the primary Stat: Strength, Agility or Intellect
 	self.profile        = "None"    -- Spec
 	self.queue 			= {} 		-- Table for Queued Spells
@@ -91,14 +88,7 @@ function cCharacter:new(class)
 	self.spell			= {}        -- Spells all classes may have (e.g. Racials, Mass Ressurection)
 	self.talent         = {}        -- Talents
 	self.timeToMax		= 0			-- Time To Max Power
-	self.units          = {         -- Dynamic Units (used for dynamic targeting, if false then target)
-		dyn5,
-		dyn30,
-		dyn40,
-		dyn5AoE,
-		dyn30AoE,
-		dyn40AoE,
-	}
+	self.units          = {}         -- Dynamic Units (used for dynamic targeting, if false then target)
 	
 
 -- Things which get updated for every class in combat
@@ -149,9 +139,6 @@ function cCharacter:new(class)
 		-- Get toggle modes
 		self.getToggleModes()
 
-		-- Update common Dynamic Units
-		self.baseGetDynamicUnits()
-
 		-- Combat state update
 		self.getInCombat()
 
@@ -169,15 +156,6 @@ function cCharacter:new(class)
 		self.health 			= getHP("player")
 		self.instance 			= select(2,IsInInstance())
 		self.level 				= UnitLevel("player") -- TODO: EVENT - UNIT_LEVEL
-		-- self.power  			= getPower("player")
-		-- self.powerAlt 			= getPowerAlt("player")
-		-- self.powerDeficit 		= UnitPowerMax("player")-getPower("player")
-		-- self.powerMax 			= UnitPowerMax("player")
-		-- self.powerPercent 		= ((UnitPower("player")/UnitPowerMax("player"))*100)
-		-- self.powerPercentMana 	= ((UnitPower("player",0)/UnitPowerMax("player",0))*100)
-		-- self.powerRegen 		= getRegen("player")
-		-- self.powerTTM 			= getTimeToMax("player")
-		-- self.timeToMax 			= getTimeToMax("player")
 		self.spec 				= select(2, GetSpecializationInfo(GetSpecialization())) or "None"
 		self.pet 				= UnitCreatureFamily("pet") or "None"
 		if self.pet ~= "None" then
@@ -209,55 +187,7 @@ function cCharacter:new(class)
 		self.mode.interrupt = br.data.settings[br.selectedSpec].toggles["Interrupt"]
 	end
 
--- Dynamic unit update
-	function self.baseGetDynamicUnits()
-		-- local dynamicTarget = dynamicTarget
-
-  --       -- Throttle dynamic target updating
-  --       if br.timer:useTimer("dynTarUpdate", self.dynTargetTimer) then
-  --       	if self.talent.balanceAffinity ~= nil then
-  --       		if self.talent.balanceAffinity then
-	 --            	-- Normal
-		--             self.units.dyn5  = dynamicTarget(10,true) -- Melee
-		--             self.units.dyn30 = dynamicTarget(35,true) -- used for most range attacks
-		--             self.units.dyn40 = dynamicTarget(45,true) -- used for most heals
-
-		--             -- AoE
-		--             self.units.dyn5AoE  = dynamicTarget(10,false) -- Melee
-		--             self.units.dyn30AoE = dynamicTarget(35,false) -- used for most range attacks
-		--             self.units.dyn40AoE = dynamicTarget(45,false) -- used for most heal
-  --       		else
-  --       			-- Normal
-		--             self.units.dyn5  = dynamicTarget(5,true) -- Melee
-		--             self.units.dyn30 = dynamicTarget(30,true) -- used for most range attacks
-		--             self.units.dyn40 = dynamicTarget(40,true) -- used for most heals
-
-		--             -- AoE
-		--             self.units.dyn5AoE  = dynamicTarget(5,false) -- Melee
-		--             self.units.dyn30AoE = dynamicTarget(30,false) -- used for most range attacks
-		--             self.units.dyn40AoE = dynamicTarget(40,false) -- used for most heals
-		--         end
-  --       	else
-	 --            -- Normal
-	 --            self.units.dyn5  = dynamicTarget(5,true) -- Melee
-	 --            self.units.dyn30 = dynamicTarget(30,true) -- used for most range attacks
-	 --            self.units.dyn40 = dynamicTarget(40,true) -- used for most heals
-
-	 --            -- AoE
-	 --            self.units.dyn5AoE  = dynamicTarget(5,false) -- Melee
-	 --            self.units.dyn30AoE = dynamicTarget(30,false) -- used for most range attacks
-	 --            self.units.dyn40AoE = dynamicTarget(40,false) -- used for most heals
-	 --        end
-  --       end
-	end
-
 -- Returns the Global Cooldown time
-	-- function self.getGlobalCooldown()
-	-- 	local gcd = getSpellCD(61304) --(1.5 / ((UnitSpellHaste("player")/100)+1))
-	-- 	if gcd < 0 then return 0 else
-	-- 		return gcd
-	-- 	end
-	-- end
 	function self.getGlobalCooldown()
     	local currentSpecName = select(2,GetSpecializationInfo(GetSpecialization())) 
         local gcd = getSpellCD(61304)
@@ -403,7 +333,6 @@ function cCharacter:new(class)
         br.ui:createCheckbox(section_base, "Use Crystal")
 		br.ui:createCheckbox(section_base, "Use Fel Focuser")
         br.ui:createDropdown(section_base, "Use emp. Rune", {"|cff00FF00Normal","|cffFF0000Raid Only"}, 1, "Use rune anytime or only in raids")
---        br.ui:createCheckbox(section_base, "Use Racial")
         br.ui:checkSectionState(section_base)
     end
 
@@ -413,7 +342,6 @@ function cCharacter:new(class)
 		self.options.useCrystal       = isChecked("Use Crystal")==true or false
 		self.options.useFelFocuser    = isChecked("Use Fel Focuser")==true or false
 		self.options.useEmpoweredRune = isChecked("Use emp. Rune",true)==true or false
---		self.options.useRacial        = isChecked("Use Racial")
 	end
 
 -- Use Oralius Crystal +100 to all Stat - ID: 118922, Buff: 176151 (Whispers of Insanity)

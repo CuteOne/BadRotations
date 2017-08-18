@@ -207,6 +207,13 @@ function getSpellCD(SpellID)
 		return MyCD
 	end
 end
+function getSpellType(spellName)
+	if IsHelpfulSpell(spellName) then spellType = "Helpful" end
+    if IsHarmfulSpell(spellName) then spellType = "Harmful" end
+    if IsHelpfulSpell(spellName) and IsHarmfulSpell(spellName) then spellType = "Both" end
+    if not (IsHelpfulSpell(spellName) and IsHarmfulSpell(spellName)) then spellType = "Unknown" end
+    return spellType
+end
 function getCastingRegen(spellID)
 	local regenRate = getRegen("player")
 	local power = 0

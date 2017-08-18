@@ -399,22 +399,21 @@ local function runRotation()
                 elseif isChecked("Auto Summon") and not GetUnitExists("pet") and (UnitIsDeadOrGhost("pet") ~= nil or IsPetActive() == false) then
                     if waitForPetToAppear ~= nil and GetTime() - waitForPetToAppear > 2 then
                         if deadPet == true then
-                            if castSpell("player",982) then return; end
+                            if cast.revivePet() then return end
                         elseif deadPet == false then
                             local Autocall = getValue("Auto Summon");
-
                             if Autocall == 1 then
-                              if castSpell("player",883) then return; end
+                                if cast.callPet1() then return end
                             elseif Autocall == 2 then
-                              if castSpell("player",83242) then return; end
+                                if cast.callPet2() then return end
                             elseif Autocall == 3 then
-                              if castSpell("player",83243) then return; end
+                                if cast.callPet3() then return end
                             elseif Autocall == 4 then
-                              if castSpell("player",83244) then return; end
+                                if cast.callPet4() then return end
                             elseif Autocall == 5 then
-                              if castSpell("player",83245) then return; end
+                                if cast.callPet5() then return end
                             else
-                              Print("Auto Call Pet Error")
+                                Print("Auto Call Pet Error")
                             end
                         end
                     end
@@ -424,14 +423,12 @@ local function runRotation()
                 end
                 --Revive
                 if isChecked("Auto Summon") and UnitIsDeadOrGhost("pet") then
-                  if castSpell("player",982) then return; end
+                    if cast.revivePet() then return; end
                 end
-
                 -- Mend Pet
                 if isChecked("Mend Pet") and getHP("pet") < getValue("Mend Pet") and not UnitBuffID("pet",136) then
-                  if castSpell("pet",136) then return; end
+                    if cast.mendPet() then return; end
                 end
-
                 -- Pet Attack / retreat
                 if inCombat and isValidUnit(units.dyn40) and getDistance(units.dyn40) < 40 then
                     if not UnitIsUnit("target","pettarget") then
