@@ -632,11 +632,16 @@ function getOptionText(Value)
 	if br.data ~=nil and br.data.settings ~= nil then
     	local selectedProfile = br.data.settings[br.selectedSpec][br.selectedProfile]
         if selectedProfile ~= nil then
-            return br.data.settings[br.selectedSpec][br.selectedProfile][Value.."Data"][selectedProfile[Value.."Drop"]]
+        	if selectedProfile[Value.."Data"] ~= nil then
+        		if selectedProfile[Value.."Drop"] ~= nil then
+        			if selectedProfile[Value.."Data"][selectedProfile[Value.."Drop"]] ~= nil then 
+            			return selectedProfile[Value.."Data"][selectedProfile[Value.."Drop"]]
+					end
+            	end
+            end
         end
-    else
-        return nil
     end
+    return ""
 end 
 
 

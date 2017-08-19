@@ -91,7 +91,9 @@ function br.ui:updateDropdown(optionName, newList)
     if dropdown ~= nil then
         br.data.settings[br.selectedSpec][br.selectedProfile][optionName.."Data"] = newList
         dropdown:SetList(newList)
-        dropdown:SetValue(value)
+        if value ~= nil then
+            dropdown:SetValue(value)
+        end
         ------------------
         ------Events------
         ------------------
