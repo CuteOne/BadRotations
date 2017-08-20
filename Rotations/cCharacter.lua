@@ -69,6 +69,7 @@ function cCharacter:new(class)
 	self.ignoreCombat   = false     -- Ignores combat status if set to true
 	self.inCombat       = false     -- if is in combat
 	self.instance 		= select(2,IsInInstance()) 	-- Get type of group we are in (none, party, instance, raid, etc)
+	self.item 			= {} 		-- Use Items all classes may have
 	self.level			= 0 		-- Player Level
 	self.mode           = {}        -- Toggles
 	self.options 		= {}        -- Contains options
@@ -88,7 +89,7 @@ function cCharacter:new(class)
 	self.spell			= {}        -- Spells all classes may have (e.g. Racials, Mass Ressurection)
 	self.talent         = {}        -- Talents
 	self.timeToMax		= 0			-- Time To Max Power
-	self.units          = {}         -- Dynamic Units (used for dynamic targeting, if false then target)
+	self.units          = {}        -- Dynamic Units (used for dynamic targeting, if false then target)
 	
 
 -- Things which get updated for every class in combat
@@ -327,6 +328,7 @@ function cCharacter:new(class)
     function self.createBaseOptions()
         -- Base Wrap
         local section_base = br.ui:createSection(br.ui.window.profile, "Base Options")
+        br.ui:createCheckbox(section_base, "Cast Debug", "Shows information about how the bot is casting.")
         br.ui:createCheckbox(section_base, "Ignore Combat")
         br.ui:createCheckbox(section_base, "Mute Queue")
         br.ui:createDropdown(section_base, "Pause Mode", br.dropOptions.Toggle, 2, "Define a key which pauses the rotation.")

@@ -201,6 +201,7 @@ local function runRotation()
         local deadtar, attacktar, hastar, playertar         = deadtar or UnitIsDeadOrGhost("target"), attacktar or UnitCanAttack("target", "player"), hastar or GetObjectExists("target"), UnitIsPlayer("target")
         local debuff                                        = br.player.debuff
         local enemies                                       = enemies or {}
+        local equiped                                       = br.player.equiped
         local falling, swimming, flying, moving             = getFallTime(), IsSwimming(), IsFlying(), GetUnitSpeed("player")>0
         local flaskBuff                                     = getBuffRemain("player",br.player.flask.wod.buff.agilityBig)
         local friendly                                      = friendly or UnitIsFriend("target", "player")
@@ -239,6 +240,7 @@ local function runRotation()
         local ttd                                           = getTTD
         local ttm                                           = br.player.power.ttm
         local units                                         = units or {}
+        local use                                           = br.player.use
 
         -- Get Best Unit for Range
         units.dyn40   = br.player.units(40)
@@ -385,25 +387,16 @@ local function runRotation()
 		        end
 			end -- End Shapeshift Form Management
 		-- Perma Fire Cat
-			-- check if its check and player out of combat an not stealthed
 			if isChecked("Perma Fire Cat") and not inCombat and not buff.prowl.exists() and cat then
-				-- check if Burning Essence buff expired
-				if getBuffRemain("player",138927)==0 then
-					-- check if player has the Fandral's Seed Pouch
-					if PlayerHasToy(122304) then
-						-- check if item is off cooldown
-						if GetItemCooldown(122304)==0 then
-							-- Let's only use it once and not spam it
-							if not spamToyDelay or GetTime() > spamToyDelay then
-								useItem(122304)
-								spamToyDelay = GetTime() + 1
-							end
-						end
-					-- check if Burning Seeds exist and are useable if Fandral's Seed Pouch doesn't exist
-					elseif GetItemCooldown(94604)==0 and GetItemCount(94604,false,false) > 0 then
-						useItem(94604)
+				if not buff.burningEssence.exists() then
+					-- Fandral's Seed Pouch
+                    if equiped.fandralsSeedPouch then
+                        if use.fandralsSeedPouch() then return end
+					-- Burning Seeds
+					else
+						if use.burningSeeds() then return end
 					end
-				end -- End Burning Essence Check
+				end
 			end -- End Perma Fire Cat
 		-- Death Cat mode
 			if isChecked("Death Cat Mode") and cat then
@@ -515,8 +508,8 @@ local function runRotation()
 	            if isChecked("Pot/Stoned") and php <= getOptionValue("Pot/Stoned")
 	            	and inCombat and (hasHealthPot() or hasItem(5512))
 	            then
-                    if canUse(5512) then
-                        useItem(5512)
+                    if equiped.healthstone then
+                        if use.healthstone() then return end
                     elseif canUse(healPot) then
                         useItem(healPot)
                     end

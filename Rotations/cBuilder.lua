@@ -24,13 +24,16 @@ function br.loader:new(spec,specName)
                     for spellType, spellTypeTable in pairs(specTable) do
                         if self.spell[spellType] == nil then self.spell[spellType] = {} end
                         for spellRef, spellID in pairs(spellTypeTable) do
-                            self.spell[spellType][spellRef] = spellID
-                            if not IsPassiveSpell(spellID) 
-                                and (spellType == 'abilities' or spellType == 'artifacts' or spellType == 'talents') 
-                            then
-                                if self.spell.abilities == nil then self.spell.abilities = {} end
-                                self.spell.abilities[spellRef] = spellID
-                                self.spell[spellRef] = spellID
+                            if spellType == 'items' then self.item[spellRef] = spellID end
+                            if spellType ~= 'items' then 
+                                self.spell[spellType][spellRef] = spellID
+                                if not IsPassiveSpell(spellID) 
+                                    and (spellType == 'abilities' or spellType == 'artifacts' or spellType == 'talents') 
+                                then
+                                    if self.spell.abilities == nil then self.spell.abilities = {} end
+                                    self.spell.abilities[spellRef] = spellID
+                                    self.spell[spellRef] = spellID
+                                end
                             end
                         end
                     end
@@ -207,7 +210,18 @@ function br.loader:new(spec,specName)
         return getEnemies(unit,range,checkInCombat)
     end
 
+    -- Cycle through Items List
+    for k,v in pairs(self.item) do
+        if self.use == nil then self.use = {} end -- Use Item Functions
+        if self.equiped == nil then self.equiped = {} end -- Use Item Debugging
 
+        self.use[k] = function()
+            if canUse(v) then
+                return useItem(v)
+            end
+        end
+        self.equiped[k] = canUse(v)
+    end
 
     -- Cycle through Abilities List
     for k,v in pairs(self.spell.abilities) do
@@ -225,7 +239,7 @@ function br.loader:new(spec,specName)
             if UnitDebuffID("player", 240447) ~= nil and (getCastTime(v) + 0.15) > getDebuffRemain("player",240447) then end
             if spellName == nil then Print("Invalid Spell ID: "..v.." for key: "..k) end
             if minUnits == nil then minUnits = 1 end
-            if effectRng == nil then effectRng = 8 end
+            if effectRng == nil then effectRng = 5 end
             if --[[isChecked("Use: "..spellName) and ]]not select(2,IsUsableSpell(v)) and getSpellCD(v) == 0 and (isKnown(v) or debug == "known") then -- and amIinRange then
                 if thisUnit == nil then
                     if spellType == "Helpful" then
@@ -248,8 +262,13 @@ function br.loader:new(spec,specName)
                     amIinRange = IsSpellInRange(spellName,thisUnit) == 1
                 end
                 if amIinRange then
+                    if isChecked("Cast Debug") and debug ~= "debug" then
+                        Print("Casting "..spellName.." ("..v..") on "..UnitName(thisUnit).." - Spell Type: "..spellType..", Cast Type: "..tostring(debug)..", Ranges - Min: "..minRange..", Max: "..maxRange..", Eff: "..effectRng..", Min Units: "..minUnits)
+                    end
                     if debug == "debug" then
                         return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                    elseif (debug == "item" or (debug == "toy" and PlayerHasToy(v))) and canUse(spellCast) then
+                        return useItem(spellCast)
                     elseif thisUnit == "best" then
 --                         Print("Casting "..spellName..", EffRng: "..effectRng..", minUnits "..minUnits..", maxRange "..maxRange..", minRange "..minRange)
                         return castGroundAtBestLocation(spellCast,effectRng,minUnits,maxRange,minRange,debug)
@@ -273,6 +292,7 @@ function br.loader:new(spec,specName)
                         return castSpell(thisUnit,spellCast,false,false,false,true,false,true,true,false)
                     else
                         Print("|cffFF0000Error: |r Failed to cast. - ".."Name: "..spellName..", ID: "..v..", Type: "..spellType..", Min Range: "..minRange..", Max Range: "..maxRange)
+                        return false
                     end
                 end
             elseif debug == "debug" then

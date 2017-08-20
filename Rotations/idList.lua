@@ -828,6 +828,7 @@ br.idList = {
             },
             buffs                           = {
                 bearForm                    = 5487,
+                burningEssence              = 138927,
                 catForm                     = 768,
                 dash                        = 1850,
                 displacerBeast              = 137452,
@@ -849,6 +850,10 @@ br.idList = {
                 glyphOfTheOrca              = 114333,
                 glyphOfTheSentinel          = 219062,
                 glyphOfTheUrsolChameleon    = 107059,
+            },
+            items                           = {
+                burningSeeds                = 94604,
+                fandralsSeedPouch           = 122304,
             },
             talents                         = {
                 displacerBeast              = 102280,
@@ -3229,6 +3234,9 @@ br.idList = {
                 dampening                       = 110310,
                 eyeOfLeotheras                  = 206649,
                 temptation                      = 234143,
+            },
+            items                               = {
+                healthstone                     = 5512,
             },
         },
     },
