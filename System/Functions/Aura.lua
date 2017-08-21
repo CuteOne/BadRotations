@@ -106,7 +106,7 @@ function canDispel(Unit,spellID)
 		if spellID == 31224 then typesList = { "Poison","Curse","Disease","Magic" } end
 	end
 	if ClassNum == 5 then --Priest
-		typesList = { }
+		if spellID == 527 then typesList = { "Disease", "Magic" } end
 	end
 	if ClassNum == 6 then --Death Knight
 		typesList = { }
@@ -126,8 +126,13 @@ function canDispel(Unit,spellID)
 		typesList = { }
 	end
 	if ClassNum == 10 then --Monk
-		-- Detox
-		if spellID == 115450 then typesList = { "Poison","Disease", "Magic" } end
+		-- Detox (MW)
+		--if GetSpecialization() == 2 then
+			if spellID == 115450 then typesList = { "Poison","Disease", "Magic" } end
+		-- Detox (WW or BM)
+		--else
+			if spellID == 218164 then typesList = { "Poison", "Disease"} end
+		--end
 		-- Diffuse Magic
 		-- if spellID == 122783 then typesList = { "Magic" } end
 	end

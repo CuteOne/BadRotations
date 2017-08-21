@@ -626,6 +626,7 @@ br.idList = {
         -- Guardian
         [104] = {
             abilities                       = {
+				
                 barkskin                    = 22812,
                 bristlingFur                = 155835,
                 frenziedRegeneration        = 22842,
@@ -642,8 +643,12 @@ br.idList = {
                 skullBash                   = 106839,
                 stampedingRoar              = 106898,
                 survivalInstincts           = 61336,
-                swipe                       = 213771, --106785,
-                thrash                      = 77758, -- 106830,
+                swipe                       = 213771, 106785,
+                thrash                      = 77758, --106830,
+		rake                        = 1822,
+		shred                       = 5221,
+		rip                         = 1079,
+		ferociousBite               = 22568,
             },
             artifacts                       = {
                 rageOfTheSleeper            = 200851,
@@ -661,6 +666,8 @@ br.idList = {
             debuffs                         = {
                 moonfireGuardian            = 164812,
                 thrash                      = 192090,
+		rake                        = 155722,
+		rip                         = 1079,
             },
             glyphs                          = {
 
@@ -821,6 +828,7 @@ br.idList = {
             },
             buffs                           = {
                 bearForm                    = 5487,
+                burningEssence              = 138927,
                 catForm                     = 768,
                 dash                        = 1850,
                 displacerBeast              = 137452,
@@ -842,6 +850,10 @@ br.idList = {
                 glyphOfTheOrca              = 114333,
                 glyphOfTheSentinel          = 219062,
                 glyphOfTheUrsolChameleon    = 107059,
+            },
+            items                           = {
+                burningSeeds                = 94604,
+                fandralsSeedPouch           = 122304,
             },
             talents                         = {
                 displacerBeast              = 102280,
@@ -880,6 +892,7 @@ br.idList = {
 
             },
             buffs                           = {
+                beastCleave                 = 118455,
                 bestialWrath                = 19574,
                 direBeast                   = 120694,
                 direFrenzy                  = 217200,
@@ -910,6 +923,7 @@ br.idList = {
                 bindingShot                 = 109248,
                 blackArrow                  = 194599,
                 burstingShot                = 186387,
+                cobraShot                   = 193455,
                 concussiveShot              = 5116,
                 counterShot                 = 147362,
                 disengage                   = 781,
@@ -2115,6 +2129,7 @@ br.idList = {
                 deadlyPoison                = 2823,
                 envenom                     = 32645,
                 evasion                     = 5277,
+                eviscerate                  = 196819,
                 exsanguinate                = 200806,
                 fanOfKnives                 = 51723,
                 garrote                     = 703,
@@ -2129,6 +2144,7 @@ br.idList = {
                 rupture                     = 1943,
                 sealFate                    = 14190,
                 shadowstep                  = 36554,
+                sinisterStrike              = 1752,
                 stealth                     = 1784,
                 toxicBlade                  = 245388,
                 vendetta                    = 79140,
@@ -2256,6 +2272,7 @@ br.idList = {
                 adrenalineRush              = 13750,
                 alacrity                    = 193538,
                 bladeFlurry                 = 13877,
+                blunderbuss                 = 202895,
                 broadsides                  = 193356,
                 buriedTreasure              = 199600,
                 grandMelee                  = 193358,
@@ -2406,7 +2423,7 @@ br.idList = {
                 cloakOfShadows              = 31224,
                 deathFromAbove              = 152150,
                 feint                       = 1966,
-                masterAssassinsInitiative   = 235027,
+                masterAssassinsInitiative   = 235027, --235022
                 sprint                      = 2983,
                 vanish                      = 11327,
             },
@@ -3217,6 +3234,9 @@ br.idList = {
                 dampening                       = 110310,
                 eyeOfLeotheras                  = 206649,
                 temptation                      = 234143,
+            },
+            items                               = {
+                healthstone                     = 5512,
             },
         },
     },

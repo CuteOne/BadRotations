@@ -177,6 +177,7 @@ local function runRotation()
         local flaskBuff                                     = getBuffRemain("player",br.player.flask.wod.buff.agilityBig)
         local friendly                                      = friendly or UnitIsFriend("target", "player")
         local gcd                                           = br.player.gcd
+        local gcdMax                                        = br.player.gcdMax
         local hasMouse                                      = GetObjectExists("mouseover")
         local healPot                                       = getHealthPot()
         local inCombat                                      = br.player.inCombat
@@ -187,7 +188,6 @@ local function runRotation()
         local lowestHP                                      = br.friend[1].unit
         local mode                                          = br.player.mode
         local multidot                                      = (br.player.mode.cleave == 1 or br.player.mode.rotation == 2) and br.player.mode.rotation ~= 3
-        local multishotTargets                              = getEnemies("pet",8)
         local perk                                          = br.player.perk
         local php                                           = br.player.health
         local playerMouse                                   = UnitIsPlayer("mouseover")
@@ -199,7 +199,9 @@ local function runRotation()
         local solo                                          = #br.friend < 2
         local friendsInRange                                = friendsInRange
         local spell                                         = br.player.spell
-        local t20_4pc                                       = TierScan("T20")
+        local t19_4pc                                       = TierScan("T19") >= 4
+        local t20_2pc                                       = TierScan("T20") >= 2
+        local t20_4pc                                       = TierScan("T20") >= 4
         local talent                                        = br.player.talent
         local trinketProc                                   = false
         local ttd                                           = getTTD
@@ -224,42 +226,40 @@ local function runRotation()
 --------------------
     -- Action List - Pet Management
         local function actionList_PetManagement()
-            if not IsMounted() then
-                if isChecked("Auto Summon") and not GetUnitExists("pet") and (UnitIsDeadOrGhost("pet") ~= nil or IsPetActive() == false) then
-                  if waitForPetToAppear ~= nil and waitForPetToAppear < GetTime() - 2 then
-                      if deadPet == true then
+            if IsMounted() or IsFlying() or UnitOnTaxi("player") or UnitInVehicle("player") then
+                waitForPetToAppear = GetTime()
+            elseif isChecked("Auto Summon") and not GetUnitExists("pet") and (UnitIsDeadOrGhost("pet") ~= nil or IsPetActive() == false) then
+                if waitForPetToAppear ~= nil and GetTime() - waitForPetToAppear > 2 then
+                    if deadPet == true then
                         if cast.revivePet() then return end
-                      elseif deadPet == false then
+                    elseif deadPet == false then
                         local Autocall = getValue("Auto Summon");
-
                         if Autocall == 1 then
-                          if cast.callPet1() then return end
+                            if cast.callPet1() then return end
                         elseif Autocall == 2 then
-                          if cast.callPet2() then return end
+                            if cast.callPet2() then return end
                         elseif Autocall == 3 then
-                          if cast.callPet3() then return end
+                            if cast.callPet3() then return end
                         elseif Autocall == 4 then
-                          if cast.callPet4() then return end
+                            if cast.callPet4() then return end
                         elseif Autocall == 5 then
-                          if cast.callPet5() then return end
+                            if cast.callPet5() then return end
                         else
-                          Print("Auto Call Pet Error")
+                            Print("Auto Call Pet Error")
                         end
-                      end
-
-                  end
-                  if waitForPetToAppear == nil then
+                    end
+                end
+                if waitForPetToAppear == nil then
                     waitForPetToAppear = GetTime()
-                  end
                 end
             end
             --Revive
             if isChecked("Auto Summon") and UnitIsDeadOrGhost("pet") then
-              if cast.revivePet() then return; end
+                if cast.revivePet() then return; end
             end
             -- Mend Pet
-            if isChecked("Mend Pet") and getHP("pet") < getValue("Mend Pet") and not buff.mendPet.exists("pet") then
-              if cast.mendPet() then return; end
+            if isChecked("Mend Pet") and getHP("pet") < getValue("Mend Pet") and not UnitBuffID("pet",136) then
+                if cast.mendPet() then return; end
             end
             -- Pet Attack / retreat
             if inCombat and isValidUnit(units.dyn40) and getDistance(units.dyn40) < 40 then
@@ -363,6 +363,9 @@ local function runRotation()
                     end
                 end
             -- Racial: Orc Blood Fury | Troll Berserking | Blood Elf Arcane Torrent
+                -- arcane_torrent,if=focus<=30
+                -- berserking,if=buff.aspect_of_the_eagle.up
+                -- blood_fury,if=buff.aspect_of_the_eagle.up
                 if isChecked("Racial") and getSpellCD(racial) == 0 then
                     if (((br.player.race == "Orc" or br.player.race == "Troll") and buff.aspectOfTheEagle.exists())
                         or (br.player.race == "BloodElf" and power <= 30))
@@ -376,20 +379,16 @@ local function runRotation()
                     useItem(142117)
                 end
             -- Snake Hunter
-                -- snake_hunter,if=cooldown.mongoose_bite.charges=0&buff.mongoose_fury.remains>3*gcd
+                -- snake_hunter,if=cooldown.mongoose_bite.charges=0&buff.mongoose_fury.remains>3*gcd&buff.aspect_of_the_eagle.down
                 if isChecked("Snake Hunter") then
-                    if charges.mongooseBite == 0 and buff.mongooseFury.remain() > 3 * gcd then
+                    if charges.mongooseBite == 0 and buff.mongooseFury.remain() > 3 * gcd and not buff.aspectOfTheEagle.exists() then
                         if cast.snakeHunter() then return end
                     end
                 end
             -- Aspect of the Eagle
                 if isChecked("Aspect of the Eagle") then
-                    -- aspect_of_the_eagle,if=(buff.mongoose_fury.remains<=11&buff.mongoose_fury.up)&(cooldown.fury_of_the_eagle.remains>buff.mongoose_fury.remains)
-                    if (buff.mongooseFury.remain() <= 11 and buff.mongooseFury.exists()) and (cd.furyOfTheEagle > buff.mongooseFury.remain()) then
-                        if cast.aspectOfTheEagle("player") then return end
-                    end
-                    -- aspect_of_the_eagle,if=(buff.mongoose_fury.remains<=7&buff.mongoose_fury.up)
-                    if (buff.mongooseFury.remain() <= 7 and buff.mongooseFury.exists()) then
+                    -- aspect_of_the_eagle,if=buff.mongoose_fury.stack>=2&buff.mongoose_fury.remains>3*gcd
+                    if buff.mongooseFury.stack() >= 2 and buff.mongooseFury.remain() > 3 * gcd then
                         if cast.aspectOfTheEagle("player") then return end
                     end
                 end
@@ -411,7 +410,6 @@ local function runRotation()
             -- explosive_trap
             if cast.explosiveTrap("best",nil,1,5) then return end
         -- Carve
-            -- carve,if=talent.serpent_sting.enabled&!dot.serpent_sting.ticking
             -- carve,if=(talent.serpent_sting.enabled&dot.serpent_sting.refreshable)|(active_enemies>5)
             if ((talent.serpentSting and not debuff.serpentSting.exists(units.dyn5)) or #enemies.yards5 > 5) and not talent.butchery then
                 if cast.carve("player") then return end
@@ -423,23 +421,23 @@ local function runRotation()
             -- spitting_cobra
             if cast.spittingCobra() then return end
         -- Butchery
-            -- butchery,if=equipped.frizzos_fingertrap&dot.lacerate.remains<3.6
-            if talent.butchery and hasEquiped(137043) and debuff.lacerate.remain(units.dyn5) < 3.6 then
+            -- butchery,if=equipped.frizzos_fingertrap&dot.lacerate.refreshable
+            if talent.butchery and hasEquiped(137043) and debuff.lacerate.refresh(units.dyn5) then
                 if cast.butchery("player") then return end
             end
         -- Carve
-            -- carve,if=equipped.frizzos_fingertrap&dot.lacerate.remains<3.6
-            if not talent.butchery and hasEquiped(137043) and debuff.lacerate.remain(units.dyn5) < 3.6 then
+            -- carve,if=equipped.frizzos_fingertrap&dot.lacerate.refreshable
+            if not talent.butchery and hasEquiped(137043) and debuff.lacerate.refresh(units.dyn5) then
                 if cast.carve("player") then return end
             end
         -- Lacerate
-            -- lacerate,if=dot.lacerate.remains<3.6
-            if debuff.lacerate.remain(units.dyn5) < 3.6 then
+            -- lacerate,if=refreshable
+            if debuff.lacerate.refresh(units.dyn5) then
                 if cast.lacerate(units.dyn5) then return end
             end
         -- Raptor Strike
-            -- raptor_strike,if=active_enemies=1&talent.serpent_sting.enabled&!dot.serpent_sting.ticking
-            if ((mode.rotation == 1 and #enemies.yards5 == 1) or mode.rotation == 3) and talent.serpentSting and not debuff.serpentSting.exists(units.dyn5) then
+            -- raptor_strike,if=active_enemies=1&talent.serpent_sting.enabled&dot.serpent_sting.refreshable
+            if ((mode.rotation == 1 and #enemies.yards5 == 1) or mode.rotation == 3) and talent.serpentSting and debuff.serpentSting.refresh(units.dyn5) then
                 if cast.raptorStrike() then return end
             end
         -- Steel Trap
@@ -456,16 +454,16 @@ local function runRotation()
             if cast.explosiveTrap("best",nil,1,5) then return end
         -- Caltrops
             -- caltrops,if=!dot.caltrops.ticking
-            if not debuff.caltrops.exists() then
+            if not debuff.caltrops.exists(units.dyn5) then
                 if cast.caltrops("best",nil,1,5) then return end
             end
         end
     -- Action List - Bite Phase
         local function actionList_BitePhase()
         -- Fury of the Eagle
-            -- fury_of_the_eagle,if=(!talent.way_of_the_moknathal.enabled|buff.moknathal_tactics.remains>(gcd*(8%3)))&buff.mongoose_fury.stack=6,interrupt_if=(talent.way_of_the_moknathal.enabled&buff.moknathal_tactics.remains<=tick_time)
+            -- fury_of_the_eagle,if=(!talent.way_of_the_moknathal.enabled|buff.moknathal_tactics.remains>(gcd*(8%3)))&buff.mongoose_fury.stack>3&cooldown.mongoose_bite.charges<1&!buff.aspect_of_the_eagle.up,interrupt_if=(talent.way_of_the_moknathal.enabled&buff.moknathal_tactics.remains<=tick_time)|(cooldown.mongoose_bite.charges=3)
             if mode.artifact == 1 and (getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs())) then
-                if (not talent.wayOfTheMokNathal or buff.mokNathalTactics.remain() > (gcd * (8 / 3))) and buff.mongooseFury.stack() == 6 then
+                if (not talent.wayOfTheMokNathal or buff.mokNathalTactics.remain() > (gcd * (8 / 3))) and buff.mongooseFury.stack() > 3 and charges.mongooseBite < 1 and not buff.aspectOfTheEagle.exists() then
                     if cast.furyOfTheEagle("player") then return end
                 end
             end
@@ -480,8 +478,8 @@ local function runRotation()
                 if cast.mongooseBite() then return end
             end
         -- Flanking Strike
-            -- flanking_strike,if=((buff.mongoose_fury.remains>(gcd*(cooldown.mongoose_bite.charges+2)))&cooldown.mongoose_bite.charges<=1)&!buff.aspect_of_the_eagle.up
-            if ((buff.mongooseFury.remain() > (gcd * (charges.mongooseBite + 2))) and charges.mongooseBite <= 1) and not buff.aspectOfTheEagle.exists() then
+            -- flanking_strike,if=((buff.mongoose_fury.remains>(gcd*(cooldown.mongoose_bite.charges+2)))&cooldown.mongoose_bite.charges<=1)&(!set_bonus.tier19_4pc|(set_bonus.tier19_4pc&!buff.aspect_of_the_eagle.up))
+            if ((buff.mongooseFury.remain() > (gcd * (charges.mongooseBite + 2))) and charges.mongooseBite <= 1) and (not t19_4pc or (t19_4pc and not buff.aspectOfTheEagle.exists())) then
                 if cast.flankingStrike() then return end
             end
         -- Mongoose Bite
@@ -496,8 +494,8 @@ local function runRotation()
     -- Action List - Fillers
         local function actionList_Fillers()
         -- Carve
-            -- carve,if=active_enemies>1&talent.serpent_sting.enabled&!dot.serpent_sting.ticking
-            if not talent.butchery and ((mode.rotation == 1 and #enemies.yards5 > 1) or (mode.rotation == 2 and #enemies.yards5 > 0)) and talent.serpentSting and not debuff.serpentSting.exists(units.dyn5) then
+            -- carve,if=active_enemies>1&talent.serpent_sting.enabled&dot.serpent_sting.refreshable
+            if not talent.butchery and ((mode.rotation == 1 and #enemies.yards5 > 1) or (mode.rotation == 2 and #enemies.yards5 > 0)) and talent.serpentSting and debuff.serpentSting.refresh(units.dyn5) then
                 if cast.carve("player") then return end
             end
         -- Throwing Axes
@@ -518,7 +516,7 @@ local function runRotation()
         local function actionList_MokMaintain()
         -- Raptor Strike
             -- raptor_strike,if=(buff.moknathal_tactics.remains<gcd)|(buff.moknathal_tactics.stack<2)
-            if (buff.mokNathalTactics.remain() < gcd) or (buff.mokNathalTactics.stack() < 2) then
+            if (buff.mokNathalTactics.remain() < gcdMax) or (buff.mokNathalTactics.stack() < 2) then
                 if cast.raptorStrike() then return end
             end
         end
@@ -532,14 +530,12 @@ local function runRotation()
         -- Spitting Cobra
             -- spitting_cobra
             if cast.spittingCobra() then return end
-        -- Lacerate
-            -- lacerate,if=!dot.lacerate.ticking
-            if not debuff.lacerate.exists(units.dyn5) then
-                if cast.lacerate() then return end
-            end
+        -- Dragonsfire Grenade
+            -- dragonsfire_grenade
+            if cast.dragonsfireGrenade() then return end
         -- Raptor Strike
-            -- raptor_strike,if=active_enemies=1&talent.serpent_sting.enabled&!dot.serpent_sting.ticking
-            if ((mode.rotation == 1 and #enemies.yards5 == 1) or mode.rotation == 3) and talent.serpentSting and not debuff.serpentSting.exists(units.dyn5) then
+            -- raptor_strike,if=active_enemies=1&talent.serpent_sting.enabled&dot.serpent_sting.refreshable
+            if ((mode.rotation == 1 and #enemies.yards5 == 1) or mode.rotation == 3) and talent.serpentSting and debuff.serpentSting.refresh(units.dyn5) then
                 if cast.raptorStrike() then return end
             end
         -- Steel Trap
@@ -548,30 +544,40 @@ local function runRotation()
         -- A Murder of Crows
             -- a_murder_of_crows
             if cast.aMurderOfCrows() then return end
-        -- Dragonsfire Grenade
-            -- dragonsfire_grenade
-            if cast.dragonsfireGrenade() then return end
         -- Explosive Trap
             -- explosive_trap
             if cast.explosiveTrap("best",nil,1,5) then return end
-        -- Caltrops
-            -- caltrops,if=!dot.caltrops.ticking
-            if not debuff.caltrops.exists() then
-                if cast.caltrops("best",nil,1,5) then return end
+        -- Lacerate
+            -- lacerate,if=refreshable
+            if debuff.lacerate.refresh(units.dyn5) then
+                if cast.lacerate() then return end
             end
         -- Butchery
-            -- butchery,if=equipped.frizzos_fingertrap&dot.lacerate.remains<3.6
-            if talent.butchery and hasEquiped(137043) and debuff.lacerate.remain(units.dyn5) < 3.6 then
+            -- butchery,if=equipped.frizzos_fingertrap&dot.lacerate.refreshable
+            if talent.butchery and hasEquiped(137043) and debuff.lacerate.refresh(units.dyn5) then
                 if cast.butchery("player") then return end
             end
         -- Carve
-            -- carve,if=equipped.frizzos_fingertrap&dot.lacerate.remains<3.6
-            if not talent.butchery and hasEquiped(137043) and debuff.lacerate.remain(units.dyn5) < 3.6 then
+            -- carve,if=equipped.frizzos_fingertrap&dot.lacerate.refreshable
+            if not talent.butchery and hasEquiped(137043) and debuff.lacerate.refresh(units.dyn5) then
                 if cast.carve("player") then return end
             end
+        -- Mongoose Bite
+            -- mongoose_bite,if=charges=3&cooldown.flanking_strike.remains>=gcd
+            if charges.mongooseBite == 3 and cd.flankingStrike >= gcd then
+                if cast.mongooseBite() then return end
+            end
+        -- Caltrops
+            -- caltrops,if=!dot.caltrops.ticking
+            if not debuff.caltrops.exists(units.dyn5) then
+                if cast.caltrops("best",nil,1,5) then return end
+            end
+        -- Flanking Strike
+            -- flanking_strike
+            if cast.flankingStrike() then return end
         -- Lacerate
-            -- lacerate,if=dot.lacerate.remains<3.6
-            if debuff.lacerate.remain(units.dyn5) < 3.6 then
+            -- lacerate,if=remains<14&set_bonus.tier20_2pc
+            if debuff.lacerate.remain(units.dyn5) < 14 and t20_2pc then
                 if cast.lacerate(units.dyn5) then return end
             end 
         end
@@ -694,9 +700,12 @@ local function runRotation()
                         if actionList_MokMaintain() then return end
                     end
             -- Cooldowns
-                    -- call_action_list,name=CDs,if=buff.moknathal_tactics.stack>=2|!talent.way_of_the_moknathal.enabled
-                    if buff.mokNathalTactics.stack() >= 2 or not talent.wayOfTheMokNathal then
-                        if actionList_Cooldowns() then return end
+                    -- call_action_list,name=CDs
+                    if actionList_Cooldowns() then return end
+            -- Call Action List - Pre-Bite Phase
+                    -- call_action_list,name=preBitePhase,if=!buff.mongoose_fury.up
+                    if not buff.mongooseFury.exists() then
+                        if actionList_PreBitePhase() then return end
                     end
             -- Call Action List - AOE
                     -- call_action_list,name=aoe,if=active_enemies>=3
@@ -704,12 +713,8 @@ local function runRotation()
                         and (not talent.butchery or (talent.butchery and charges.butchery > 0)) 
                     then
                         if actionList_AOE() then return end
-                    else
-            -- Call Action List - Pre-Bite Phase
-                        -- call_action_list,name=preBitePhase,if=!buff.mongoose_fury.up
-                        if not buff.mongooseFury.exists() then
-                            if actionList_PreBitePhase() then return end
-                        end
+                    end
+                    if ((mode.rotation == 1 and #enemies.yards5 < getOptionValue("Units To AoE")) or (mode.rotation == 3 and #enemies.yards5 > 0)) then
             -- Call Action List - Bite Phase
                         -- call_action_list,name=bitePhase
                         if actionList_BitePhase() then return end

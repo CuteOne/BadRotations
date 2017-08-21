@@ -407,7 +407,7 @@ function castOpener(spellIndex,flag,index,checkdistance)
 	if not maxRange or maxRange == 0 then maxRange = 5 end
 	if checkdistance == nil then checkdistance = true end
 	if getDistance("target") < maxRange or not checkdistance then
-	    if (not br.player.cast.debug[spellIndex] and (br.player.cd[spellIndex] == 0 or br.player.cd[spellIndex] > br.player.gcd)) then
+	    if (not br.player.cast.debug[spellIndex] and (br.player.cd[spellIndex] == 0 or br.player.cd[spellIndex] > br.player.gcdMax)) then
 	        Print(index..": "..select(1,GetSpellInfo(spellCast)).." (Uncastable)");
 	        _G[flag] = true;
 	        return true

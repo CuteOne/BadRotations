@@ -63,8 +63,8 @@ local function createOptions()
             br.ui:createCheckbox(section,"Perma Fire Cat","|cff15FF00Enable|cffFFFFFF/|cffD60000Disable |cffFFFFFFautomatic use of Fandrel's Seed Pouch or Burning Seeds.")
         -- Dummy DPS Test
             br.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
-		-- Opener
-			br.ui:createCheckbox(section, "Opener")
+	-- Opener
+	    br.ui:createCheckbox(section, "Opener")
         -- Pre-Pull Timer
             br.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
         -- Travel Shapeshifts
@@ -98,6 +98,8 @@ local function createOptions()
             br.ui:createCheckbox(section,"Incarnation")
         -- Trinkets
             br.ui:createCheckbox(section,"Trinkets")
+	-- Vial of Ceaseless Toxins
+	    br.ui:createCheckbox(section,"Vial of Ceaseless Toxins")
         br.ui:checkSectionState(section)
     -- Defensive Options
         section = br.ui:createSection(br.ui.window.profile, "Defensive")
@@ -199,6 +201,7 @@ local function runRotation()
         local deadtar, attacktar, hastar, playertar         = deadtar or UnitIsDeadOrGhost("target"), attacktar or UnitCanAttack("target", "player"), hastar or GetObjectExists("target"), UnitIsPlayer("target")
         local debuff                                        = br.player.debuff
         local enemies                                       = enemies or {}
+        local equiped                                       = br.player.equiped
         local falling, swimming, flying, moving             = getFallTime(), IsSwimming(), IsFlying(), GetUnitSpeed("player")>0
         local flaskBuff                                     = getBuffRemain("player",br.player.flask.wod.buff.agilityBig)
         local friendly                                      = friendly or UnitIsFriend("target", "player")
@@ -237,6 +240,7 @@ local function runRotation()
         local ttd                                           = getTTD
         local ttm                                           = br.player.power.ttm
         local units                                         = units or {}
+        local use                                           = br.player.use
 
         -- Get Best Unit for Range
         units.dyn40   = br.player.units(40)
@@ -383,25 +387,16 @@ local function runRotation()
 		        end
 			end -- End Shapeshift Form Management
 		-- Perma Fire Cat
-			-- check if its check and player out of combat an not stealthed
 			if isChecked("Perma Fire Cat") and not inCombat and not buff.prowl.exists() and cat then
-				-- check if Burning Essence buff expired
-				if getBuffRemain("player",138927)==0 then
-					-- check if player has the Fandral's Seed Pouch
-					if PlayerHasToy(122304) then
-						-- check if item is off cooldown
-						if GetItemCooldown(122304)==0 then
-							-- Let's only use it once and not spam it
-							if not spamToyDelay or GetTime() > spamToyDelay then
-								useItem(122304)
-								spamToyDelay = GetTime() + 1
-							end
-						end
-					-- check if Burning Seeds exist and are useable if Fandral's Seed Pouch doesn't exist
-					elseif GetItemCooldown(94604)==0 and GetItemCount(94604,false,false) > 0 then
-						useItem(94604)
+				if not buff.burningEssence.exists() then
+					-- Fandral's Seed Pouch
+                    if equiped.fandralsSeedPouch then
+                        if use.fandralsSeedPouch() then return end
+					-- Burning Seeds
+					else
+						if use.burningSeeds() then return end
 					end
-				end -- End Burning Essence Check
+				end
 			end -- End Perma Fire Cat
 		-- Death Cat mode
 			if isChecked("Death Cat Mode") and cat then
@@ -513,8 +508,8 @@ local function runRotation()
 	            if isChecked("Pot/Stoned") and php <= getOptionValue("Pot/Stoned")
 	            	and inCombat and (hasHealthPot() or hasItem(5512))
 	            then
-                    if canUse(5512) then
-                        useItem(5512)
+                    if equiped.healthstone then
+                        if use.healthstone() then return end
                     elseif canUse(healPot) then
                         useItem(healPot)
                     end
@@ -613,15 +608,22 @@ local function runRotation()
 		-- Trinkets
                 -- if=buff.tigers_fury.up&energy.time_to_max>3&(!talent.savage_roar.enabled|buff.savage_roar.up)
 				if useCDs() and isChecked("Trinkets") and getDistance(units.dyn5) < 5 then
-                    if buff.tigersFury.exists() and ttm > 3 and (not talent.savageRoar or buff.savageRoar.exists()) then
-						if canUse(13) then
+                    if buff.tigersFury.exists() and (not talent.savageRoar or buff.savageRoar.exists()) then
+						if canUse(13) and not hasEquiped(147011,13) then
 							useItem(13)
 						end
-						if canUse(14) then
+						if canUse(14) and not hasEquiped(147011,14) then
 							useItem(14)
 						end
                     end
 				end
+		-- Vial of Ceaseless Toxins
+                    if isChecked("Vial of Ceaseless Toxins") and hasEquiped(147011) and canUse(147011) then
+				if buff.tigersFury.exists() or ttd(thisUnit) <= cd.tigersFury then
+					useItem(147011)
+                    end
+                end		
+		
         -- Potion
                 -- if=((buff.berserk.remains>10|buff.incarnation.remains>20)&(target.time_to_die<180|(trinket.proc.all.react&target.health.pct<25)))|target.time_to_die<=40
                 if useCDs() and isChecked("Potion") and inRaid then
@@ -769,10 +771,10 @@ local function runRotation()
         -- Thrash
             -- pool_resource,for_next=1
             -- cycle_targets=1,if=remains<=duration*0.3&spell_targets.thrash_cat>=5
-            if ((mode.rotation == 1 and #enemies.yards8 >= 5) or mode.rotation == 2) then
+            if multidot and ((mode.rotation == 1 and #enemies.yards8 >= 5) or mode.rotation == 2) then
                 for i = 1, #enemies.yards8 do
                     local thisUnit = enemies.yards8[i]
-                    if (multidot or (UnitIsUnit(thisUnit,units.dyn8AoE) and not multidot)) then
+                    -- if (multidot or (UnitIsUnit(thisUnit,units.dyn8AoE) and not multidot)) then
                         if getDistance(thisUnit) < 8 then
                             if debuff.thrash.refresh(thisUnit) then
                                 if power <= select(1, getSpellCost(spell.thrash)) then
@@ -782,13 +784,13 @@ local function runRotation()
                                 end
                             end
                         end
-                    end
+                    -- end
                 end
             end
         -- Swipe
             -- pool_resource,for_next=1
             -- swipe_cat,if=spell_targets.swipe_cat>=8
-            if ((mode.rotation == 1 and #enemies.yards8 >= 8) or mode.rotation == 2) then
+            if multidot and ((mode.rotation == 1 and #enemies.yards8 >= 8) or mode.rotation == 2) then
                 if power <= select(1, getSpellCost(spell.swipe)) then
                     return true
                 elseif power > select(1, getSpellCost(spell.swipe)) then
@@ -877,7 +879,7 @@ local function runRotation()
         -- Thrash
             -- pool_resource,for_next=1
             -- if=talent.brutal_slash.enabled&spell_targets.thrash_cat>=9
-            if (multidot or (UnitIsUnit("target",units.dyn5) and not multidot)) then
+            if multidot then
                 if talent.brutalSlash and ((mode.rotation == 1 and #enemies.yards8 >= 9) or mode.rotation == 2) then
                    if power <= select(1, getSpellCost(spell.thrash)) then
                         return true
@@ -889,7 +891,7 @@ local function runRotation()
         -- Swipe
             -- pool_resource,for_next=1
             -- swipe_cat,if=spell_targets.swipe_cat>=6
-            if ((mode.rotation == 1 and #enemies.yards8 >= 6) or mode.rotation == 2) then
+            if multidot and ((mode.rotation == 1 and #enemies.yards8 >= 6) or mode.rotation == 2) then
                 if power <= select(1, getSpellCost(spell.swipe)) then
                     return true
                 elseif power > select(1, getSpellCost(spell.swipe)) then
@@ -943,10 +945,10 @@ local function runRotation()
         -- Thrash
             -- pool_resource,for_next=1
             -- thrash_cat,cycle_targets=1,if=set_bonus.tier19_4pc&remains<=duration*0.3&combo_points<5&(spell_targets.swipe_cat>=2|((equipped.luffa_wrappings|buff.clearcasting.up)&(equipped.ailuro_pouncers|buff.bloodtalons.down)))
-            if t19_4pc and combo < 5 and (#enemies.yards8 >= 2 or ((hasEquiped(137056) or buff.clearcasting.exists()) and (hasEquiped(137024) or not buff.bloodtalons.exists()))) then
+            if multidot and t19_4pc and combo < 5 and (#enemies.yards8 >= 2 or ((hasEquiped(137056) or buff.clearcasting.exists()) and (hasEquiped(137024) or not buff.bloodtalons.exists()))) then
                 for i = 1, #enemies.yards8 do
                     local thisUnit = enemies.yards8[i]
-                    if (multidot or (UnitIsUnit(thisUnit,units.dyn5) and not multidot)) and getDistance(thisUnit) < 5 then
+                    if getDistance(thisUnit) < 5 then
                         if debuff.thrash.refresh(thisUnit) then
                             if power <= select(1, getSpellCost(spell.thrash)) and not buff.clearcasting.exists() then
                                 return true
@@ -958,10 +960,10 @@ local function runRotation()
                 end
             end
             -- thrash_cat,cycle_targets=1,if=!set_bonus.tier19_4pc&remains<=duration*0.3&(spell_targets.swipe_cat>=2|(buff.clearcasting.up&equipped.luffa_wrappings&(equipped.ailuro_pouncers|buff.bloodtalons.down)))
-            if not t19_4pc and (#enemies.yards8 >= 2 or (buff.clearcasting.exists() and hasEquiped(137056) and (hasEquiped(137024) or not buff.bloodtalons.exists()))) then
+            if multidot and not t19_4pc and (#enemies.yards8 >= 2 or (buff.clearcasting.exists() and hasEquiped(137056) and (hasEquiped(137024) or not buff.bloodtalons.exists()))) then
                 for i = 1, #enemies.yards8 do
                     local thisUnit = enemies.yards8[i]
-                    if (multidot or (UnitIsUnit(thisUnit,units.dyn5) and not multidot)) and getDistance(thisUnit) < 5 then
+                    if getDistance(thisUnit) < 5 then
                         if debuff.thrash.refresh(thisUnit) then
                             if power <= select(1, getSpellCost(spell.thrash)) and not buff.clearcasting.exists() then
                                 return true
@@ -982,7 +984,7 @@ local function runRotation()
             end
         -- Swipe
             -- swipe_cat,if=combo_points<5&spell_targets.swipe_cat>=3
-            if combo < 5 and ((mode.rotation == 1 and #enemies.yards8 >= 3) or mode.rotation == 2) then
+            if multidot and combo < 5 and ((mode.rotation == 1 and #enemies.yards8 >= 3) or mode.rotation == 2) then
                 if cast.swipe("player") then return end
             end
         -- Shred

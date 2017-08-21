@@ -99,8 +99,6 @@ local function createOptions()
             br.ui:createSpinner(section, "Healthstone",  30,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
         -- Heirloom Neck
             br.ui:createSpinner(section, "Heirloom Neck",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at");
-        --Fade
-            br.ui:createSpinner(section, "Fade",  95,  0,  100,  1,  "|cffFFFFFFHealth Percent to Cast At. Default: 95")
 		-- Gift of The Naaru
             if br.player.race == "Draenei" then
                 br.ui:createSpinner(section, "Gift of the Naaru",  50,  0,  100,  5,  "|cffFFFFFFHealth Percentage to use at")
@@ -198,6 +196,7 @@ local function runRotation()
         local lastSpell                                     = lastSpellCast
         local level                                         = br.player.level
         local lowestHP                                      = br.friend[1].unit
+        local mana                                          = br.player.power.mana.percent
         local mode                                          = br.player.mode
         local perk                                          = br.player.perk        
         local php                                           = br.player.health
@@ -216,7 +215,8 @@ local function runRotation()
         lowest.role                                         = br.friend[1].role
         lowest.unit                                         = br.friend[1].unit
         lowest.range                                        = br.friend[1].range
-        lowest.guid                                         = br.friend[1].guid                      
+        lowest.guid                                         = br.friend[1].guid    
+        local friends                                       = friends or {}                  
         local tank                                          = {}    --Tank
         local averageHealth                                 = 0
 
@@ -228,6 +228,8 @@ local function runRotation()
         enemies.yards8  = br.player.enemies(8)
         enemies.yards8t = br.player.enemies(8,br.player.units(8,true))
         enemies.yards40 = br.player.enemies(40)
+        friends.yards40 = getAllies("player",40)
+
 
 --------------------
 --- Action Lists ---
@@ -424,14 +426,9 @@ local function runRotation()
         function actionList_Dispel()
         -- Purify
             if br.player.mode.decurse == 1 then
-                for i = 1, #br.friend do
-                    for n = 1,40 do
-                        local buff,_,_,count,bufftype,duration = UnitDebuff(br.friend[i].unit, n)
-                        if buff then
-                        if bufftype == "Disease" or bufftype == "Magic" then
-                                if cast.purify(br.friend[i].unit) then return end
-                            end
-                        end
+                for i = 1, #friends.yards40 do
+                    if canDispel(br.friend[i].unit,spell.purify) then
+                        if cast.purify(br.friend[i].unit) then return end
                     end
                 end
             end
@@ -511,7 +508,7 @@ local function runRotation()
                 end                    
             end
         -- Prayer of Healing (with Power Of The Naaru Buff)
-            if isChecked("Prayer of Healing") and talent.piety and buff.powerOfTheNaaru.exists() and getDebuffRemain("player",240447) == 0 then
+            if isChecked("Prayer of Healing") and talent.piety and buff.powerOfTheNaaru.exists() and cd.holyWordSanctify >= 1 and getDebuffRemain("player",240447) == 0 then
                 if castWiseAoEHeal(br.friend,spell.prayerOfHealing,40,getValue("Prayer of Healing"),getValue("Prayer of Healing Targets"),5,false,true) then return end
             end
 		-- Prayer of Healing
@@ -520,7 +517,7 @@ local function runRotation()
             end	
         -- Divine Star
             if isChecked("Divine Star") and talent.divineStar then
-                if castWiseAoEHeal(br.friend,spell.divineStar,10,getValue("Divine Star"),getValue("Divine Star Targets"),10,false,false) then return end
+                if castWiseAoEHeal(br.friend,spell.divineStar,10,getValue("Divine Star"),getValue("Min Divine Star Targets"),10,false,false) then return end
             end
         --Halo
             if isChecked("Halo") and talent.halo then

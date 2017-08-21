@@ -44,16 +44,6 @@ local function createToggles()
       [3] = { mode = "Off", value = 3, overlay = "Pick Pocket Disabled", tip = "Profile will not use Pick Pocket.", highlight = 0, icon = br.player.spell.pickPocket}
     };
     CreateButton("Picker",6,0)
-        PoolModes = {
-      [1] = { mode = "On", value = 1 , overlay = "Will pool energy for envenoms", tip = "Will pool energy for envenoms.", highlight = 1, icon = br.player.spell.envenom},
-      [2] = { mode = "Off", value = 2 , overlay = "Wont pool energy for envenoms", tip = "Will not  pool energy for envenoms.", highlight = 0, icon = br.player.spell.envenom},
-    };
-    CreateButton("Pool",7,0)
-    DosModes = {
-      [1] = { mode = "On", value = 1 , overlay = "Will use dos vanish next chance", tip = "Will use dos vanish.", highlight = 1, icon = br.player.spell.envenom},
-      [2] = { mode = "Off", value = 2 , overlay = "Will not  use dos vanish", tip = "Noob", highlight = 0, icon = br.player.spell.envenom},
-    };
-    CreateButton("Dos",8,0)
 end
  
 ---------------
@@ -69,11 +59,10 @@ local function createOptions()
         section = br.ui:createSection(br.ui.window.profile,  "General")
             -- Opening Attack
             br.ui:createDropdown(section, "Stealth Breaker", {"Garrote", "Cheap Shot"},  1, "|cffFFFFFFSelect Attack to Break Stealth with")
-            br.ui:createSpinnerWithout(section, "Multi-Dot HP Limit", 15, 0, 105, 1, "|cffFFFFFFHP *1kk hp for Ruptures to be AOE casted/refreshed on.")
-            br.ui:createSpinnerWithout(section, "Max rupture count", 3, 1, 105, 1, "|cffFFFFFFHP Max rupture count.")
-            br.ui:createSpinnerWithout(section, "#enemies to switch fok/muti", 4, 0, 105, 1, "|cffFFFFFF#enemies When to switch fok/muti")
+            -- Fna of Knives
+            br.ui:createSpinnerWithout(section, "Fan of Knives", 2, 1, 10, 1, "|cffFFFFFFMinimal Enemies to use Fan of Knives on")
             -- Poison
-            br.ui:createDropdown(section, "Lethal Poison", {"Deadly","Wound","Agonizing"}, 1, "Lethal Poison to Apply")
+            br.ui:createDropdown(section, "Lethal Poison", {"Deadly","Wound"}, 1, "Lethal Poison to Apply")
             br.ui:createDropdown(section, "Non-Lethal Poison", {"Crippling","Leeching"}, 1, "Non-Lethal Poison to Apply")
             -- Poisoned Knife
             br.ui:createCheckbox(section, "Poisoned Knife")
@@ -104,6 +93,8 @@ local function createOptions()
             br.ui:createCheckbox(section, "Legendary Ring")
             -- Marked For Death
             br.ui:createDropdown(section, "Marked For Death", {"|cff00FF00Target", "|cffFFDD00Lowest"}, 1, "|cffFFBB00Health Percentage to use at.")
+            -- Toxic Blade
+            br.ui:createCheckbox(section, "Toxic Blade")
             -- Vanish
             br.ui:createCheckbox(section, "Vanish")
         br.ui:checkSectionState(section)
@@ -177,11 +168,7 @@ local function runRotation()
         UpdateToggle("Cleave",0.25)
         br.player.mode.cleave = br.data.settings[br.selectedSpec].toggles["Cleave"]
         UpdateToggle("Picker",0.25)
-        br.player.mode.pickPocket = br.data.settings[br.selectedSpec].toggles["Picker"]
-        UpdateToggle("Pool",0.25)
-        br.player.mode.pool = br.data.settings[br.selectedSpec].toggles["Pool"]
-        UpdateToggle("Dos",0.25)
-        br.player.mode.dos = br.data.settings[br.selectedSpec].toggles["Dos"]          
+        br.player.mode.pickPocket = br.data.settings[br.selectedSpec].toggles["Picker"]         
  
 --------------
 --- Locals ---
@@ -236,17 +223,7 @@ local function runRotation()
         enemies.yards8 = br.player.enemies(8)
         enemies.yards10 = br.player.enemies(10)
         enemies.yards20 = br.player.enemies(20)
-        enemies.yards30 = br.player.enemies(30)
-        dotHPLimit = getOptionValue("Multi-Dot HP Limit")
-        maxrupture = getOptionValue("Max rupture count")
-        aoecount = getOptionValue("#enemies to switch fok/muti")
- 
- 
- 
- 
-        -- Pooling
-        if cd.kingsbane <= ttm then pooling = true end
- 
+        enemies.yards30 = br.player.enemies(30) 
  
         if opener == nil then opener = false end
         if not inCombat and not GetObjectExists("target") and lastSpell ~= spell.vanish then
@@ -264,7 +241,6 @@ local function runRotation()
             ENV1 = false
             opener = false
         end
-        -- if not inCombat and lastSpell ~= spell.vanish then opener = false end
  
         -- Exsanguinated Bleeds
         if not debuff.rupture.exists(units.dyn5) then exRupture = false end
@@ -278,6 +254,7 @@ local function runRotation()
  
         -- Numeric Returns
         if talent.deeperStrategem then dStrat = 1 else dStrat = 0 end
+        if talent.deeperStratagem and not t19_4pc then dStratNo4T19 = 1 else dStratNo4T19 = 0 end
         if talent.anticipation then antital = 1 else antital = 0 end
         if talent.masterPoisoner then masterPoison = 1 else masterPoison = 0 end
         if talent.exsanguinate then exsang = 1 else exsang = 0 end
@@ -288,7 +265,8 @@ local function runRotation()
         if hasEquiped(137049) then insigniad = 1 else insigniad = 0 end
         if hasEquiped(140806) then convergingFate = 1 else convergingFate = 0 end
         if hasEquiped(144236) then legshoulders = true else legshoulders = false end
-        if buff.masterAssassinsInitiative.duration() > cd.global + 0.2 then mantled = 1 else mantled = 0 end
+        if buff.masterAssassinsInitiative.remain() >= cd.global + 0.2 then mantled = 1 else mantled = 0 end
+        if rotationDebug == nil or not inCombat then rotationDebug = "Waiting" end
 
 
         -- Energy Regen Combined
@@ -301,12 +279,9 @@ local function runRotation()
         -- variable,name=energy_time_to_max_combined,value=energy.deficit%variable.energy_regen_combined
         local energyTTMCombined = powerDeficit / energyRegenCombined
 
---          if debuff.vendetta then vendy = 1 else vendy = 0 end
---          if artifact.bagOfTricks then trickyBag = 1 else trickyBag = 0 end
---          if talent.elaboratePlanning then ePlan = 1 else ePlan = 0 end
         -- Custom Functions
         local function usePickPocket()
-            if (mode.pickPocket == 1 or mode.pickPocket == 2) and buff.stealth.exists() then
+            if (mode.pickPocket == 1 or mode.pickPocket == 2) and buff.stealth.exists() and level > 13 then
                 return true
             else
                 return false
@@ -327,6 +302,8 @@ local function runRotation()
                 return false
             end
         end
+
+        -- ChatOverlay(tostring(rotationDebug))
  
 --------------------
 --- Action Lists ---
@@ -359,11 +336,11 @@ local function runRotation()
                 end
             end
         -- Poisoned Knife
-            if isChecked("Poisoned Knife") and not buff.stealth.exists() then
+            if isChecked("Poisoned Knife") and not buff.stealth.exists() and not (IsMounted() or IsFlying()) then
                 for i = 1, #enemies.yards30 do
                     local thisUnit = enemies.yards30[i]
                     local distance = getDistance(thisUnit)
-                    if not (debuff.deadlyPoison.exists(thisUnit) or debuff.woundPoison.exists(thisUnit)) and distance > 5 and isValidUnit(thisUnit) then
+                    if not (debuff.deadlyPoison.exists(thisUnit) or debuff.woundPoison.exists(thisUnit)) and distance > 5 and ((inCombat and isValidUnit(thisUnit)) or UnitIsUnit(thisUnit,"target")) then
                         if cast.poisonedKnife(thisUnit) then return end
                     end
                 end
@@ -371,7 +348,6 @@ local function runRotation()
         end -- End Action List - Extras
     -- Action List - Defensives
         local function actionList_Defensive()
-            -- -- TODO: Add Defensive Abilities
             if useDefensive() and not stealth then
             -- Heirloom Neck
                 if isChecked("Heirloom Neck") and php <= getOptionValue("Heirloom Neck") and not inCombat then
@@ -426,11 +402,12 @@ local function runRotation()
         end -- End Action List - Interrupts
     -- Action List - Cooldowns
         local function actionList_Cooldowns()
+            rotationDebug = "Cooldowns"
             if (useCDs() or burst) and getDistance(units.dyn5) < 5 then
         -- Potion
-                -- potion,if=buff.bloodlust.react|target.time_to_die<=25|debuff.vendetta.up&cooldown.vanish.remains<5
+                -- potion,if=buff.bloodlust.react|target.time_to_die<=60|debuff.vendetta.up&cooldown.vanish.remains<5
                 if isChecked("Potion") and canUse(142117) then
-                    if hasBloodLust() or ttd("target") <= 25 or debuff.vendetta.exists("target") and cd.vanish < 5 then
+                    if hasBloodLust() or ttd("target") <= 60 or debuff.vendetta.exists("target") and cd.vanish < 5 then
                         useItem(142117)
                     end
                 end
@@ -446,18 +423,16 @@ local function runRotation()
                     end
                 end
         -- Specter of Betrayal
-                -- use_item,name=specter_of_betrayal,if=buff.bloodlust.react|target.time_to_die<=20|debuff.vendetta.up
+                -- use_item,name=specter_of_betrayal
                 if hasEquiped(151190) and canUse(151190) then
-                    if hasBloodLust() or ttd("target") <= 20 or debuff.vendetta.exists("target") then
-                        useItem(151190)
-                    end
+                    useItem(151190)
                 end
         -- Racial
                 -- blood_fury,if=debuff.vendetta.up
                 -- berserking,if=debuff.vendetta.up
                 -- arcane_torrent,if=dot.kingsbane.ticking&!buff.envenom.up&energy.deficit>=15+variable.energy_regen_combined*gcd.remains*1.1
                 if isChecked("Racial") and ((debuff.vendetta.exists(units.dyn5) and (race == "Orc" or race == "Troll")) 
-                    or (race == "BloodElf" and debuff.kingsbane.exists(units.dyn5) and not buff.envenom.exists() and powerDeficit >= 16 + energyRegenCombined * cd.global * 1.1)) 
+                    or (race == "BloodElf" and debuff.kingsbane.exists(units.dyn5) and not buff.envenom.exists() and powerDeficit >= 15 + energyRegenCombined * cd.global * 1.1)) 
                 then
                     if castSpell("player",racial,false,false,false) then return end
                 end
@@ -494,6 +469,15 @@ local function runRotation()
                 if not artifact.urgeToKill or powerDeficit >= 60 + energyRegenCombined then
                     if cast.vendetta() then return end
                 end
+        -- Exsanguinate
+                -- exsanguinate,if=!set_bonus.tier20_4pc&(prev_gcd.1.rupture&dot.rupture.remains>4+4*cp_max_spend&!stealthed.rogue|dot.garrote.pmultiplier>1&!cooldown.vanish.up&buff.subterfuge.up)
+                if not t20_4pc and (lastSpell == spell.rupture and debuff.rupture.remain(units.dyn5) > 4 + 4 * comboMax and (not stealthing or (cd.vanish > 0 and buff.subterfuge.exists()))) then
+                    if cast.exsanguinate() then return end
+                end
+                -- exsanguinate,if=set_bonus.tier20_4pc&dot.garrote.remains>20&dot.rupture.remains>4+4*cp_max_spend
+                if t20_4pc and debuff.garrote.remain(units.dyn5) > 20 and debuff.rupture.remain(units.dyn5) > 4 + 4 * comboMax then
+                    if cast.exsanguinate() then return end
+                end
         -- Vanish
                 if isChecked("Vanish") and not solo then
                     -- vanish,if=talent.nightstalker.enabled&combo_points>=cp_max_spend&!talent.exsanguinate.enabled&mantle_duration=0&((equipped.mantle_of_the_master_assassin&set_bonus.tier19_4pc)|((!equipped.mantle_of_the_master_assassin|!set_bonus.tier19_4pc)&(dot.rupture.refreshable|debuff.vendetta.up)))
@@ -521,34 +505,42 @@ local function runRotation()
                         if cast.vanish() then return end
                     end
                 end
-        -- Exsanguinate
-                -- exsanguinate,if=prev_gcd.1.rupture&dot.rupture.remains>4+4*cp_max_spend&!stealthed.rogue|!dot.garrote.pmultiplier<=1&!cooldown.vanish.up&buff.subterfuge.up
-                if lastSpell == spell.rupture and debuff.rupture.remain(units.dyn5) > 4 + 4 * comboMax and (not stealthing or (cd.vanish > 0 and buff.subterfuge.exists())) then
-                    if cast.exsanguinate() then return end
+        -- Toxic Blade
+                -- toxic_blade,if=combo_points.deficit>=1+(mantle_duration>=gcd.remains+0.2)&dot.rupture.remains>8
+                if isChecked("Toxic Blade") then
+                    if comboDeficit >= 1 + mantled and debuff.rupture.remain(units.dyn5) > 8 then
+                        if cast.toxicBlade(units.dyn5) then return end
+                    end
                 end
             end -- End Cooldown Usage Check
         end -- End Action List - Cooldowns
     -- Action List - Finishers
         local function actionList_Finishers()
+            rotationDebug = "Finishers"
         -- Death From Above
             -- death_from_above,if=combo_points>=5
             if combo >= 5 then
                 if cast.deathFromAbove() then return end
             end
         -- Envenom
-            -- envenom,if=combo_points>=4&(debuff.vendetta.up|mantle_duration>=gcd.remains+0.2|debuff.surge_of_toxins.remains<gcd.remains+0.2|energy.deficit<=25+variable.energy_regen_combined)
-            if combo >= 4 and (debuff.vendetta.exists(units.dyn5) or buff.masterAssassinsInitiative.remain() >= cd.global + 0.2 
+            -- envenom,if=combo_points>=4+(talent.deeper_stratagem.enabled&!set_bonus.tier19_4pc)&(debuff.vendetta.up|mantle_duration>=gcd.remains+0.2|debuff.surge_of_toxins.remains<gcd.remains+0.2|energy.deficit<=25+variable.energy_regen_combined)
+            if combo >= 4 + dStratNo4T19 and (debuff.vendetta.exists(units.dyn5) or buff.masterAssassinsInitiative.remain() >= cd.global + 0.2 
                 or debuff.surgeOfToxins.remain(units.dyn5) < cd.global + 0.2 or powerDeficit <= 25 + energyRegenCombined) 
             then
-                if cast.envenom(units.dyn5) then return end
+                if cast.eviscerate(units.dyn5) then return end
             end
             -- envenom,if=talent.elaborate_planning.enabled&combo_points>=3+!talent.exsanguinate.enabled&buff.elaborate_planning.remains<gcd.remains+0.2
             if talent.elaboratePlanning and combo >= 3 + noExsanguinate and buff.elaboratePlanning.remain() < cd.global + 0.2 then
-               if cast.envenom(units.dyn5) then return end
+                if cast.envenom(units.dyn5) then return end
+            end
+        -- Eviscerate
+            if level < 36 and combo >= 5 then
+                if cast.eviscerate(units.dyn5) then return end
             end
         end -- End Action List - Finishers
     -- Action List - Kingsbane
         local function actionList_Kingsbane()
+            rotationDebug = "Kingsbane"
         -- Kingsbane
             if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()) then
                 -- kingsbane,if=artifact.sinister_circulation.enabled&!(equipped.duskwalkers_footpads&equipped.convergence_of_fates&artifact.master_assassin.rank>=6)&(time>25|!equipped.mantle_of_the_master_assassin|(debuff.vendetta.up&debuff.surge_of_toxins.up))&(talent.subterfuge.enabled|!stealthed.rogue|(talent.nightstalker.enabled&(!equipped.mantle_of_the_master_assassin|!set_bonus.tier19_4pc)))
@@ -558,18 +550,15 @@ local function runRotation()
                 then
                     if cast.kingsbane() then return end
                 end
-                -- kingsbane,if=!talent.exsanguinate.enabled&buff.envenom.up&((debuff.vendetta.up&debuff.surge_of_toxins.up)|cooldown.vendetta.remains<=5.8|cooldown.vendetta.remains>=10)
-                if not talent.exsanguinate and buff.envenom.exists() and ((debuff.vendetta.exists(units.dyn5) and debuff.surgeOfToxins.exists(units.dyn5)) or cd.vendetta <= 5.8 or cd.vendetta >= 10) then
+                -- kingsbane,if=buff.envenom.up&((debuff.vendetta.up&debuff.surge_of_toxins.up)|cooldown.vendetta.remains<=5.8|cooldown.vendetta.remains>=10)
+                if buff.envenom.exists() and ((debuff.vendetta.exists(units.dyn5) and debuff.surgeOfToxins.exists(units.dyn5)) or cd.vendetta <= 5.8 or cd.vendetta >= 10) then
                     if cast.kingsbane() then return end
                 end
-                -- kingsbane,if=talent.exsanguinate.enabled&dot.rupture.exsanguinated
-                if talent.exsanguinate and exRupture then
-                    if cast.kingsbane() then return end
-                end 
             end
         end
     -- Action List - Maintain
         local function actionList_Maintain()
+            rotationDebug = "Maintain"
         -- Rupture
             -- rupture,if=talent.nightstalker.enabled&stealthed.rogue&(!equipped.mantle_of_the_master_assassin|!set_bonus.tier19_4pc)&(talent.exsanguinate.enabled|target.time_to_die-remains>4)
             if talent.nightstalker and stealthing and (not hasEquiped(144236) or not t19_4pc) and (talent.exsanguinate or ttd(units.dyn5) > 4) then
@@ -623,7 +612,7 @@ local function runRotation()
                 for i = 1, #enemies.yards5 do
                     local thisUnit = enemies.yards5[i]
                     if (multidot or (UnitIsUnit(thisUnit,units.dyn5) and not multidot)) then
-                        if debuff.rupture.refresh(thisUnit) and (not exsanguinated or debuff.rupture.remain(thisUnit) <= 1.5) and ttd(thisUnit) - debuff.rupture.remain(thisUnit) > 6 then
+                        if debuff.rupture.refresh(thisUnit) and debuff.rupture.remain(thisUnit) <= 2 and (not exsanguinated or debuff.rupture.remain(thisUnit) <= 2 * 2) and ttd(thisUnit) - debuff.rupture.remain(thisUnit) > 6 then
                             if cast.rupture(thisUnit) then return end
                         end
                     end
@@ -640,7 +629,7 @@ local function runRotation()
                 for i = 1, #enemies.yards5 do
                     local thisUnit = enemies.yards5[i]
                     if (multidot or (UnitIsUnit(thisUnit,units.dyn5) and not multidot)) then
-                        if debuff.garrote.refresh(thisUnit) and (not exsanguinated or debuff.garrote.remain(thisUnit) <= 1.5) and ttd(thisUnit) - debuff.rupture.remain(thisUnit) > 4 then
+                        if debuff.garrote.refresh(thisUnit) and debuff.garrote.remain(thisUnit) <= 2 and (not exsanguinated or debuff.garrote.remain(thisUnit) <= 2 * 2) and ttd(thisUnit) - debuff.garrote.remain(thisUnit) > 4 then
                             if power < 45 then 
                                 return true
                             else
@@ -649,15 +638,15 @@ local function runRotation()
                         end
                     end
                 end
-            end 
-        -- Toxic Blade
-            -- toxic_blade,if=combo_points.deficit>=1+(mantle_duration>=gcd.remains+0.2)&dot.rupture.remains>8
-            if comboDeficit >= 1 + mantled and debuff.rupture.remain(units.dyn5) > 8 then
-                if cast.toxicBlade() then return end
+            end
+            -- garrote,if=set_bonus.tier20_4pc&talent.exsanguinate.enabled&prev_gcd.1.rupture&cooldown.exsanguinate.remains<1 
+            if t20_4pc and talent.exsanguinate and lastSpell == spell.rupture and cd.exsanguinate < 1 then
+                if cast.garrote() then return end
             end
         end -- End Action List - Maintain
     -- Action List - Generators
         local function actionList_Generators()
+            rotationDebug = "Generator"
         -- Hemorrhage
             -- hemorrhage,if=refreshable
             if debuff.hemorrhage.refresh(units.dyn5) then
@@ -674,80 +663,106 @@ local function runRotation()
             end
         -- Fan of Knives
             -- fan_of_knives,if=spell_targets>=2+equipped.insignia_of_ravenholdt|buff.the_dreadlords_deceit.stack>=29
-            if ((mode.rotation == 1 and #enemies.yards8 >= (aoecount + insigniad) or mode.rotation == 2) or buff.theDreadlordsDeceit.stack() >= 29) then
+            if ((mode.rotation == 1 and #enemies.yards8 >= (getOptionValue("Fan of Knives") + insigniad) or mode.rotation == 2) or buff.theDreadlordsDeceit.stack() >= 29) then
                 if cast.fanOfKnives("player") then return end
             end
         -- Mutilate
             -- mutilate,cycle_targets=1,if=dot.deadly_poison_dot.refreshable
-            if ((mode.rotation == 1 and #enemies.yards8 < aoecount) or mode.rotation == 3) then
+            if ((mode.rotation == 1 and #enemies.yards8 < getOptionValue("Fan of Knives")) or mode.rotation == 3 or level < 63) then
                 for i=1, #enemies.yards5 do
                     local thisUnit = enemies.yards5[i]
                     if (multidot or (UnitIsUnit(thisUnit,units.dyn5) and not multidot)) then
                         if debuff.deadlyPoison.refresh(thisUnit) then
-                            if cast.mutilate(thisUnit) then return end
+                            if level >= 40 then
+                                if cast.mutilate(thisUnit) then return end
+                            else
+                                if cast.sinisterStrike(thisUnit) then return end
+                            end
                         end
                     end
                 end
                 -- mutilate
-                if cast.mutilate() then return end
+                if level >= 40 then
+                    if cast.mutilate() then return end
+                else
+                    if cast.sinisterStrike() then return end
+                end
             end
         end -- End Action List - Generators 
-        local function actionList_DOS() 
-            if debuff.surgeOfToxins.remain() >= 3 and cd.global == 0 and (canUse(13) or canUse(14)) and debuff.kingsbane.remain() < 9 then
-                if cast.vanish() then
-                    useItem(13)
-                    useItem(14)
-                    toggle("Dos",2)
-                end
-            end 
-        end 
     -- Action List - PreCombat
         local function actionList_PreCombat()
+            rotationDebug = "Pre-Combat"
+            if not inCombat and not (IsFlying() or IsMounted()) then
         -- Apply Poison
-            -- apply_poison
-            if isChecked("Lethal Poison") then
-                if br.timer:useTimer("Lethal Poison", 3.5) then
-                    if getOptionValue("Lethal Poison") == 1 and not buff.deadlyPoison.exists() then
-                        if cast.deadlyPoison() then return end
-                    end
-                    if getOptionValue("Lethal Poison") == 2 and not buff.woundPoison.exists() then
-                        if cast.woundPoison() then return end
-                    end
-                end
-            end
-            if isChecked("Non-Lethal Poison") then
-                if br.timer:useTimer("Non-Lethal Poison", 3.5) then
-                    if (getOptionValue("Non-Lethal Poison") == 1 or not talent.leechingPoison) and not buff.cripplingPoison.exists() then
-                        if cast.cripplingPoison() then return end
-                    end
-                    if getOptionValue("Non-Lethal Poison") == 2 and not buff.leechingPoison.exists() then
-                        if cast.leechingPoison() then return end
-                    end
-                end
-            end
-        -- Stealth
-            -- stealth
-            if isChecked("Stealth") and not stealth and not inCombat and (not IsResting() or isDummy("target")) then
-                if getOptionValue("Stealth") == 1 then
-                    if cast.stealth() then return end
-                end 
-                if #enemies.yards20 > 0 and getOptionValue("Stealth") == 3 then
-                    for i = 1, #enemies.yards20 do
-                        local thisUnit = enemies.yards20[i]
-                        if UnitIsEnemy(thisUnit,"player") or isDummy("target") then
-                            if cast.stealth("player") then return end
+                -- apply_poison
+                if isChecked("Lethal Poison") then
+                    if br.timer:useTimer("Lethal Poison", 3.5) then
+                        if getOptionValue("Lethal Poison") == 1 and not buff.deadlyPoison.exists() then
+                            if cast.deadlyPoison("player") then return end
+                        end
+                        if getOptionValue("Lethal Poison") == 2 and not buff.woundPoison.exists() then
+                            if cast.woundPoison("player") then return end
                         end
                     end
                 end
-            end
+                if isChecked("Non-Lethal Poison") then
+                    if br.timer:useTimer("Non-Lethal Poison", 3.5) then
+                        if (getOptionValue("Non-Lethal Poison") == 1 or not talent.leechingPoison) and not buff.cripplingPoison.exists() then
+                            if cast.cripplingPoison() then return end
+                        end
+                        if getOptionValue("Non-Lethal Poison") == 2 and not buff.leechingPoison.exists() then
+                            if cast.leechingPoison() then return end
+                        end
+                    end
+                end
+        -- Stealth
+                -- stealth
+                if isChecked("Stealth") and not stealth and not inCombat and (not IsResting() or isDummy("target")) then
+                    if getOptionValue("Stealth") == 1 then
+                        if cast.stealth() then return end
+                    end 
+                    if #enemies.yards20 > 0 and getOptionValue("Stealth") == 3 then
+                        for i = 1, #enemies.yards20 do
+                            local thisUnit = enemies.yards20[i]
+                            if UnitIsEnemy(thisUnit,"player") or isDummy("target") then
+                                if cast.stealth("player") then return end
+                            end
+                        end
+                    end
+                end
         -- Marked For Death
-            -- marked_for_death,if=raid_event.adds.in>40
-            if isValidUnit("target") then
-                if cast.markedForDeath() then return end
+                -- marked_for_death,if=raid_event.adds.in>40
+                if isValidUnit("target") then
+                    if cast.markedForDeath() then return end
+                end
             end
         end -- End Action List - PreCombat
+    -- Action List - Stealth Breaker
+        local function actionList_StealthBreaker()
+            if stealthing and isValidUnit("target") and (not isBoss("target") or not isChecked("Opener")) then
+        -- Rupture
+                if level >= 20 and combo >= 2 and not debuff.rupture.exists(units.dyn5) and cTime < 10 and not artifact.urgeToKill and getOptionValue("Stealth Breaker") == 1 then
+                    if cast.rupture("target") then opener = true; return end
+                elseif level >= 20 and combo >= 4 and not debuff.rupture.exists(units.dyn5) and getOptionValue("Stealth Breaker") == 1 then
+                    if cast.rupture("target") then opener = true; return end
+        -- Garrote
+                elseif level >= 12 and not debuff.garrote.exists(units.dyn5) and cd.garrote <= 1 and getOptionValue("Stealth Breaker") == 1 then
+                    if cast.garrote("target") then opener = true; return end
+        -- Cheap Shot
+                elseif level >= 8 and getOptionValue("Stealth Breaker") == 2 then
+                    if cast.cheapShot("target") then opener = true; return end
+        -- Mutilate
+                elseif level >= 40 then
+                    if cast.mutilate("target") then opener = true; return end
+        -- Sinister Strike
+                else
+                    if cast.sinisterStrike("target") then opener = true; end
+                end
+            end
+        end
     -- Action List - Opener
         local function actionList_Opener()
+            rotationDebug = "Opener"
         -- Shadowstep
             if isChecked("Shadowstep") and isValidUnit("target") and getDistance("target") > 8 and getDistance("target") < 25 then
                 if cast.shadowstep("target") then return end
@@ -798,18 +813,8 @@ local function runRotation()
                         return
                     end
                 end
-            elseif (UnitExists("target") and not isBoss("target")) or not isChecked("Opener") then
-                if combo >= 2 and not debuff.rupture.exists(units.dyn5) and cTime < 10 and not artifact.urgeToKill and getOptionValue("Stealth Breaker") == 1 then
-                    if cast.rupture("target") then opener = true; return end
-                elseif combo >= 4 and not debuff.rupture.exists(units.dyn5) and getOptionValue("Stealth Breaker") == 1 then
-                    if cast.rupture("target") then opener = true; return end
-                elseif level >= 48 and not debuff.garrote.exists(units.dyn5) and cd.garrote <= 1 and getOptionValue("Stealth Breaker") == 1 then
-                    if cast.garrote("target") then opener = true; return end
-                elseif level >= 29 and getOptionValue("Stealth Breaker") == 2 then
-                    if cast.cheapShot("target") then opener = true; return end
-                else
-                    if cast.mutilate("target") then opener = true; return end
-                end
+            else
+                if actionList_StealthBreaker() then return end
             end
         end -- End Action List - Opener
 ---------------------
@@ -818,9 +823,10 @@ local function runRotation()
     --Profile Stop | Pause
         if not inCombat and not hastar and profileStop==true then
             profileStop = false
-        elseif (inCombat and profileStop == true) or pause() or (IsMounted() or IsFlying()) or mode.rotation==4 then
+        elseif (inCombat and profileStop==true) or pause() or mode.rotation==4 then
             return true
         else
+            rotationDebug = "Rotating"
 -----------------------
 --- Extras Rotation ---
 -----------------------
@@ -839,12 +845,15 @@ local function runRotation()
             if actionList_PreCombat() then return end
             if opener == false then
                 if actionList_Opener() then return end
+            else
+                if actionList_StealthBreaker() then return end
             end
 --------------------------
 --- In Combat Rotation ---
 --------------------------
         -- Assassination is 4 shank!
             if inCombat and mode.pickPocket ~= 2 and isValidUnit(units.dyn5) then
+                rotationDebug = "In-Combat Rotation"
 -----------------------------
 --- In Combat - Cooldowns ---
 -----------------------------
@@ -860,6 +869,8 @@ local function runRotation()
                 end
                 if opener == false then
                     if actionList_Opener() then return end
+                else
+                    if actionList_StealthBreaker() then return end
                 end
                 if (not stealthing or (ObjectExists(units.dyn5) and br.player.buff.vanish.exists())) then
                     if getDistance(units.dyn5) < 5 then
@@ -867,20 +878,17 @@ local function runRotation()
                     end
         -- Call Action List - Maintain
                     -- call_action_list,name=maintain
-                    -- if mode.dos == 1 and not debuff.garrote.refresh(units.dyn5) and debuff.rupture.remain(units.dyn5) >= 7 and cd.vanish <= 5 and power <= 100 then
-                    --     if actionList_DOS() then return end
-                    -- end 
                     if actionList_Maintain() then return end
         -- Call Action List - Finisher
                     -- call_action_list,name=finish,if=(!talent.exsanguinate.enabled|cooldown.exsanguinate.remains>2)&(!dot.rupture.refreshable|(dot.rupture.exsanguinated&dot.rupture.remains>=3.5)|target.time_to_die-dot.rupture.remains<=6)&active_dot.rupture>=spell_targets.rupture
                     if (not talent.exsanguinate or cd.exsanguinate > 2) and (not debuff.rupture.refresh(units.dyn5) or (exRupture and debuff.rupture.remain(units.dyn5) >= 3.5) 
-                        or ttd(units.dyn5) - debuff.rupture.remain(units.dyn5) <= 6) and debuff.rupture.count() >= #enemies.yards5 
+                        or ttd(units.dyn5) - debuff.rupture.remain(units.dyn5) <= 6 or level < 20 ) and (debuff.rupture.count() >= #enemies.yards5 or level < 20) 
                     then
                         if actionList_Finishers() then return end
                     end
         -- Call Action List - Builders
                     -- call_action_list,name=build,if=combo_points.deficit>1|energy.deficit<=25+variable.energy_regen_combined
-                    if (comboDeficit > 1 or ttm < 1 or powerDeficit <= 25 + energyRegenCombined) then
+                    if (comboDeficit > 1 or powerDeficit <= 25 + energyRegenCombined or level < 3) then
                         if actionList_Generators() then return end
                     end
                 end

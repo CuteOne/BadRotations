@@ -997,15 +997,17 @@ local function runRotation()
                 --Penance
                 if isChecked("Penance") then
                     penanceTarget = units.dyn40
-                    if debuff.schism.exists(schismBuff) then
-                        penanceTarget = schismBuff
-                    end
-                    if ptwDebuff and isValidUnit(ptwDebuff) then
-                        penanceTarget = ptwDebuff
-                    end
-                    if not UnitIsFriend(penanceTarget,"player") then
-                        if cast.penance(penanceTarget) then
-                            healCount = 0
+                    if penanceTarget ~= nil then
+                        if debuff.schism.exists(schismBuff) then
+                            penanceTarget = schismBuff
+                        end
+                        if ptwDebuff and isValidUnit(ptwDebuff) then
+                            penanceTarget = ptwDebuff
+                        end
+                        if not UnitIsFriend(penanceTarget,"player") then
+                            if cast.penance(penanceTarget) then
+                                healCount = 0
+                            end
                         end
                     end
                 end

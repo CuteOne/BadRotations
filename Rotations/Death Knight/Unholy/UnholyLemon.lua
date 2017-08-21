@@ -421,11 +421,11 @@ local function runRotation()
             if isChecked("Debug Info") then Print("actionList_Valkyr [1]: Death Coil") end
         end
         
-        --actions.valkyr+=/apocalypse,if=debuff.festering_wound.stack=8
+        --actions.valkyr+=/apocalypse,if=debuff.festering_wound.stack>=6
         if cd.apocalypse == 0 then
             for i = 1, #enemies.yards5 do
                 local thisUnit = enemies.yards5[i]      
-                if debuff.festeringWound.stack(thisUnit) == 8 then
+                if debuff.festeringWound.stack(thisUnit) >= 6 then
                     if (getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs())) then
                         if cast.apocalypse(thisUnit) then return true end
                         if isChecked("Debug Info") then Print("actionList_Valkyr [2]: Apocalypse") end
@@ -434,11 +434,11 @@ local function runRotation()
             end
         end
         
-        --actions.valkyr+=/festering_strike,if=debuff.festering_wound.stack<8&cooldown.apocalypse.remains<5
+        --actions.valkyr+=/festering_strike,if=debuff.festering_wound.stack<6&cooldown.apocalypse.remains<3
         if cd.festeringStrike == 0 then
             for i = 1, #enemies.yards5 do
                 local thisUnit = enemies.yards5[i]      
-                if debuff.festeringWound.stack(thisUnit) < 8 and cd.apocalypse < 5 then
+                if debuff.festeringWound.stack(thisUnit) < 6 and cd.apocalypse < 3 then
                     if cast.festeringStrike(thisUnit) then return true end
                     if isChecked("Debug Info") then Print("actionList_Valkyr [3]: Festering Strike") end
                 end
@@ -451,11 +451,11 @@ local function runRotation()
             if isChecked("Debug Info") then Print("actionList_Valkyr [4]: Calling actionList_AOE") end
         end
         
-        --actions.valkyr+=/festering_strike,if=debuff.festering_wound.stack<=3
+        --actions.valkyr+=/festering_strike,if=debuff.festering_wound.stack<=4
         if cd.festeringStrike == 0 then
             for i = 1, #enemies.yards5 do
                 local thisUnit = enemies.yards5[i]      
-                if debuff.festeringWound.stack(thisUnit) <= 3 then
+                if debuff.festeringWound.stack(thisUnit) <= 4 then
                     if cast.festeringStrike(thisUnit) then return true end
                     if isChecked("Debug Info") then Print("actionList_Valkyr [5]: Festering Strike") end
                 end
@@ -601,6 +601,19 @@ local function runRotation()
             if cast.darkArbiter() then return true end
             if isChecked("Debug Info") then Print("actionList_Generic [1]: Dark Arbiter") end
         end
+		
+		if cd.apocalypse == 0 then
+            for i = 1, #enemies.yards5 do
+                local thisUnit = enemies.yards5[i]      
+                if hasEquiped(137075) and debuff.festeringWound.stack(thisUnit) >= 6 and talent.darkArbiter then
+                    if (getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs())) then
+                        if cast.apocalypse(thisUnit) then return true end
+                        if isChecked("Debug Info") then Print("actionList_Generic [2]: Apocalypse") end
+                    end
+                end
+            end
+        end
+		
         --actions.generic+=/dark_arbiter,if=equipped.137075&runic_power.deficit<30&cooldown.dark_transformation.remains<2
         if hasEquiped(137075) and runicPowerDeficit < 30 and cd.darkTransformation < 2 and isChecked("Gargoyle / Dark Arbiter") and useCDs() and cd.darkArbiter == 0 then
             if cast.darkArbiter() then return true end

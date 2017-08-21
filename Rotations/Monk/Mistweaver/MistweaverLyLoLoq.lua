@@ -46,36 +46,50 @@ local function createOptions()
         --------------
         --- COLORS ---
         --------------
-        local colorBlue     = "|cff00CCFF"
-        local colorGreen    = "|cff00FF00"
-        local colorRed      = "|cffFF0000"
-        local colorWhite    = "|cffFFFFFF"
-        local colorGold     = "|cffFFDD11"
+        local colorBlue         = "|cff00CCFF"  
+        local colorGreen        = "|cff00FF00"  
+        local colorRed          = "|cffFF0000"  
+        local colorWhite        = "|cffFFFFFF"  
+        local colorGold         = "|cffFFDD11"  
+        local colordk           = "|cffC41F3B"  
+        local colordh           = "|cffA330C9"  
+        local colordrood        = "|cffFF7D0A"  
+        local colorhunter       = "|cffABD473"  
+        local colormage         = "|cff69CCF0"  
+        local colormonk         = "|cff00FF96"  
+        local colorpala         = "|cffF58CBA"  
+        local colorpriest       = "|cffFFFFFF"  
+        local colorrogue        = "|cffFFF569"  
+        local colorshaman       = "|cff0070DE"  
+        local colorwarlock      = "|cff9482C9"  
+        local colorwarrior      = "|cffC79C6E"  
+        local colorLegendary    = "|cffff8000"
         --------------
         --- OPTIONS ---
         --------------
 
        -- General Options
-        section = br.ui:createSection(br.ui.window.profile, "General")
+        section = br.ui:createSection(br.ui.window.profile, colormonk.."General")
+        br.ui:createCheckbox(section,"OOC Healing",colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables".. colorWhite.."out of combat healing.",1)
 		br.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  colorWhite.."Set to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
         br.ui:createDropdown(section, "Roll/Chi Torpedo Key", br.dropOptions.Toggle, 6, colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.." use of Roll/Chi Torpedo with Key.",colorWhite.."Set hotkey to use Roll/Chi Torpedo with key.")
         br.ui:createDropdown(section, "Transcendence/Transcendence:Transfer Key", br.dropOptions.Toggle, 6, colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.." use of Transcendence/Transcendence:Transfer with Key.",colorWhite.."Set hotkey to use Transcendence/Transcendence:Transfer with key.")
         br.ui:createCheckbox(section, "Tiger's Lust", colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.." use of Tiger's Lust"..colorBlue.." (Auto use on snare and root).")
         br.ui:createDropdown(section, "Tiger's Lust Key", br.dropOptions.Toggle, 6, colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.." use of Tiger's Lust with Key.",colorWhite.."Set hotkey to use Tiger's Lust with key.")
         br.ui:createDropdown(section, "Ring Of Peace Key", br.dropOptions.Toggle, 6, colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.." use of Ring Of Peace with Key on "..colorRed.."Cursor",colorWhite.."Set hotkey to use Ring Of Peace with key.")
-        --br.ui:createSpinnerWithout(section, "Critical Health",  40,  0,  100,  5,  colorWhite.."Health percent to focus yourself before others")
+		br.ui:createCheckbox(section, "DOT cast EM", colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables"..colorWhite.."Cast EM on important debuffs.")
         br.ui:createSpinnerWithout(section, "DPS",  90,  0,  100,  1,  colorWhite.." Dps when lowest health >= ")
         br.ui:checkSectionState(section)
 
         -- Tier Section
-        section = br.ui:createSection(br.ui.window.profile, "Tier Settings")
+        section = br.ui:createSection(br.ui.window.profile, colorwarrior.."Tier Settings")
         br.ui:createSpinner(section, "Enveloping Mist with Surge of Mist",  65,  0,  100,  1,  colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.."Trigger t20 4piece bonus", colorWhite.."Health Percent to Cast At")
         br.ui:createSpinnerWithout(section, "Min Enveloping Mist with Surge of Mist Targets",  2,  1,  3,  1,  colorBlue.."Minimum Trigger t20 4p bonus Targets "..colorGold.."(This includes you)")
 		br.ui:createSpinner(section, "Emergency Enveloping Mist with Surge of Mist",  65,  0,  100,  1,  colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.."Emergency cast when Surge of Mist duration < 5 sec to don't lose the Surge of Mist proc", colorWhite.."Health Percent to Cast At")
         br.ui:checkSectionState(section)
 
         -- Cooldown Options
-        section = br.ui:createSection(br.ui.window.profile, "Cooldown")
+        section = br.ui:createSection(br.ui.window.profile, colormonk.."Cooldown")
         br.ui:createSpinner(section, "Revival",  30,  0,  100,  1,  colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.." use of Revival.", colorWhite.."Health Percent to Cast At")
         br.ui:createSpinnerWithout(section, "Min Revival Targets",  3,  1,  40,  1,  colorBlue.."Minimum Revival Targets "..colorGold.."(This includes you)")
         br.ui:createSpinner(section, "Invoke Chi-Ji, the Red Crane",  30,  0,  100,  1,  colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.." use of Invoke Chi-Ji, the Red Crane.", colorWhite.."Health Percent to Cast At")
@@ -105,7 +119,7 @@ local function createOptions()
         br.ui:checkSectionState(section)
 
         -- Defensive Options
-        section = br.ui:createSection(br.ui.window.profile, "Defensive")
+        section = br.ui:createSection(br.ui.window.profile, colorwarrior.."Defensive")
         br.ui:createSpinner(section, "Healing Elixir/Diffuse Magic/Dampen Harm",  40,  0,  100,  1,  colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.." use of Healing Elixir/Diffuse Magic/Dampen Harm.", colorWhite.."Health Percent to Cast At")
         br.ui:createDropdown(section, "Healing Elixir/Diffuse Magic/Dampen Harm Key", br.dropOptions.Toggle, 6, colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.." use of Healing Elixir/Diffuse Magic/Dampen Harm with Key.",colorWhite.."Set hotkey to use Healing Elixir/Diffuse Magic/Dampen Harm with key.")
         br.ui:createSpinner(section, "Fortifying Brew",  40,  0,  100,  1,  colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.." use of Fortifying Brew.", colorWhite.."Health Percent to Cast At")
@@ -113,14 +127,14 @@ local function createOptions()
         br.ui:checkSectionState(section)
 
         -- Healing Options
-        section = br.ui:createSection(br.ui.window.profile, "Healing")
+        section = br.ui:createSection(br.ui.window.profile, colorshaman.."Healing")
         br.ui:createSpinner(section, "Essence Font",  60,  0,  100,  1,  colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.." use of Essence Font.", colorWhite.."Health Percent to Cast At")
         br.ui:createSpinnerWithout(section, "Min Essence Font Targets",  5,  1,  40,  1,  colorBlue.."Minimum Essence Font Targets "..colorGold.."(This includes you)")
         br.ui:createSpinner(section, "Refreshing Jade Wind",  60,  0,  100,  1,  colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.." use of Refreshing Jade Wind.", colorWhite.."Health Percent to Cast At")
         br.ui:createSpinnerWithout(section, "Min Refreshing Jade Wind Targets",  3,  1,  40,  1,  colorBlue.."Minimum Refreshing Jade Wind "..colorGold.."(This includes you)")
         br.ui:createSpinner(section, "Chi Burst",  70,  0,  100,  1,  colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.."Use of Chi Burst.", colorWhite.."Health Percent to Cast At")
         br.ui:createSpinnerWithout(section, "Min Chi Burst Targets",  3,  1,  40,  1,  colorBlue.."Minimum Chi Burst Targets "..colorGold.."(This includes you)")
-        br.ui:createCheckbox(section,"Show Lines",colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.."Lines of Chi Burst.")
+        --br.ui:createCheckbox(section,"Show Lines",colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.."Lines of Chi Burst.")
         br.ui:createSpinner(section, "Vivify",  80,  0,  100,  1,  colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.."Use of Vivify.", colorWhite.."Health Percent to Cast At")
         br.ui:createSpinnerWithout(section, "Min Vivify Targets",  2,  1,  3,  1,  colorBlue.."Minimum Vivify Targets "..colorGold.."(This includes you)")
         br.ui:createSpinner(section, "Vivify with Lifecycles",  85,  0,  100,  1,  colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.."Use of Vivify with Lifecycles.", colorWhite.."Health Percent to Cast At")
@@ -150,7 +164,7 @@ local function createOptions()
 
 
         --Offensive Options
-        section = br.ui:createSection(br.ui.window.profile, "Offensive")
+        section = br.ui:createSection(br.ui.window.profile, colormonk.."Offensive")
         br.ui:createCheckbox(section,"Crackling Jade Lightning",colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.."the use of Crackling Jade Lightning.")
 		br.ui:createCheckbox(section, "Rising Sun Kick", colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.." use of Rising Sun Kick on DPS rotation")
 		br.ui:createCheckbox(section, "Spinning Crane Kick", colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.." use of Spinning Crane Kick on DPS rotation")
@@ -158,7 +172,7 @@ local function createOptions()
 
 
         -- Interrupt Options
-        section = br.ui:createSection(br.ui.window.profile, "Interrupt")
+        section = br.ui:createSection(br.ui.window.profile, colormonk.."Interrupt")
         br.ui:createCheckbox(section,"Leg Sweep",colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.." use of Leg Sweep.")
         br.ui:createCheckbox(section,"Paralysis",colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.." use of Paralysis.")
         br.ui:checkSectionState(section)
@@ -211,6 +225,8 @@ local function runRotation()
     local mana                                          = br.player.power.mana.percent
     local debuff                                        = br.player.debuff
     local gcd                                           = br.player.gcd
+	local gcdMax										= br.player.gcdMax
+    local drinking                                      = UnitBuff("player",192002) ~= nil or UnitBuff("player",167152) ~= nil or UnitBuff("player",192001) ~= nil
 
 	local pullTimer                                     = br.DBM:getPulltimer()
 
@@ -247,6 +263,11 @@ local function runRotation()
     --------------------
     -- Detox
     local function actionList_Detox()
+        --Mouseover dispell
+        if canDispel("mouseover",spell.detox) then
+            SpellStopCasting()
+            if cast.detox("mouseover") then return true end
+		end	
         if useDispell then
             for i = 1, #friends.yards40 do
                 if canDispel(br.friend[i].unit,spell.detox) then
@@ -324,7 +345,7 @@ local function runRotation()
 	-- Pre-Pull Timer
 		if isChecked("Pre-Pull Timer") then
             if pullTimer <= getOptionValue("Pre-Pull Timer") then
-                if canUse(142117) and not buff.prolongedPower.exists() then
+                if canUse(142117) and not buff.prolongedPower.exists() and inRaid then
                     useItem(142117);
                         return true
                     end
@@ -366,11 +387,11 @@ local function runRotation()
         end
 	-- Invervate Logic
         if buff.innervate.exists() or buff.symbolOfHope.exists() or buff.manaTea.exists() then
-            if isChecked("Refreshing Jade Wind") and talent.refreshingJadeWind and #friends.yards8 > 1 then
-                if cast.refreshingJadeWind() then return true end
-            end
             if isChecked("Essence Font") and cd.essenceFont == 0 and #friends.yards25 > 5 then
                 if cast.essenceFont() then return true end
+            end
+            if isChecked("Refreshing Jade Wind") and talent.refreshingJadeWind and #friends.yards8 > 1 then
+                if cast.refreshingJadeWind() then return true end
             end
             if isChecked("Vivify") then
                 if cast.vivify(lowest.unit) then return true end
@@ -380,7 +401,7 @@ local function runRotation()
         if isChecked("Renewing Mist - On CD") then
             for i = 1, #friends.yards40 do
                 local thisUnit = friends.yards40[i]
-                if thisUnit.hp <= getValue("Renewing Mist") and buff.renewingMist.remain(thisUnit.unit) < gcd then
+                if thisUnit.hp <= getValue("Renewing Mist") and buff.renewingMist.remain(thisUnit.unit) < gcdMax then
                     if cast.renewingMist(thisUnit.unit) then return true end
                 end
             end
@@ -391,14 +412,14 @@ local function runRotation()
     local function actionList_Cooldown()
         if useCDs() then
 		-- Trinket 1
-            if isChecked("Trinket 1") and getLowAllies(getValue("Trinket 1")) >= getValue("Min Trinket 1 Targets") then
+            if isChecked("Trinket 1") and getLowAllies(getValue("Trinket 1")) >= getValue("Min Trinket 1 Targets") and mana > 1 then
                 if canUse(13) then
                     useItem(13)
                     return true
                 end
             end
 		-- Trinket 2
-            if isChecked("Trinket 2") and getLowAllies(getValue("Trinket 2")) >= getValue("Min Trinket 2 Targets") then
+            if isChecked("Trinket 2") and getLowAllies(getValue("Trinket 2")) >= getValue("Min Trinket 2 Targets") and mana > 1 then
                 if canUse(14) then
                     useItem(14)
                     return true
@@ -407,7 +428,7 @@ local function runRotation()
 		-- Velen's Future Sight
             if actionList_CheckVelen() then return true end
 		-- Gnawed Thumb Ring
-            if isChecked("Gnawed Thumb Ring") and getLowAllies(getValue("Gnawed Thumb Ring")) >= getValue("Min Gnawed Thumb Ring Targets") then
+            if isChecked("Gnawed Thumb Ring") and getLowAllies(getValue("Gnawed Thumb Ring")) >= getValue("Min Gnawed Thumb Ring Targets") and mana > 2 then
                 if hasEquiped(134526) and canUse(134526) and select(2,IsInInstance()) ~= "pvp" then
                     useItem(134526)
                     return true
@@ -537,23 +558,12 @@ local function runRotation()
                     if cast.sheilunsGift(lowest.unit) then return true end
                 end
             end
-			-- Heal ourself if critical HP.
-            --if php < getValue("Critical Health") then
-            --    if cd.renewingMist == 0 then
-            --       if cast.renewingMist("player") then return true end
-            --    else
-            --        if cast.envelopingMist("player") then return true end
-            --    end
-            --end
 		-- Zen Pulse	
             if isChecked("Zen Pulse") and talent.zenPulse then
                 if lowest.hp <= getValue("Zen Pulse") and getNumEnemies(lowest.unit, 8) >= getValue("Zen Pulse Enemies") then
                     if cast.zenPulse(lowest.unit) then return true end
                 end
             end
-            --        if isChecked("Mistwalk") and talent.mistwalk and lowest.hp <= getValue("Mistwalk") and UnitIsPlayer(lowest.unit) and UnitGUID(lowest.unit) ~= UnitGUID("player") then
-            --            if cast.mistwalk(lowest.unit) then return true end
-            --        end
         -- Chi Wave
 			if isChecked("Chi Wave") and talent.chiWave and lowest.hp <= getValue("Chi Wave") then
                 if cast.chiWave(lowest.unit) then return true end
@@ -587,7 +597,7 @@ local function runRotation()
             if isChecked("Renewing Mist") and cd.renewingMist == 0 then
                 for i = 1, #friends.yards40 do
                     local thisUnit = friends.yards40[i]
-                    if thisUnit.hp <= getValue("Renewing Mist") and buff.renewingMist.remain(thisUnit.unit) < gcd then
+                    if thisUnit.hp <= getValue("Renewing Mist") and buff.renewingMist.remain(thisUnit.unit) < gcdMax then
                         if cast.renewingMist(thisUnit.unit) then return true end
                     end
                 end
@@ -601,6 +611,23 @@ local function runRotation()
             end
         end
 
+        -- DOT damage to teammates cast Enveloping Mist
+			if isChecked("DOT cast EM") then
+				local debuff_list={
+                    {spellID = 230345    , stacks = 0}   ,   --Crashing Comet
+                    {spellID = 236603    , stacks = 0}   ,   --Rapid Shot
+                    {spellID = 236712    , stacks = 0}   ,   --Lunar Beacon
+                    {spellID = 242017    , stacks = 2}   ,   --Black Winds
+				}
+				for i=1, #br.friend do
+					for k,v in pairs(debuff_list) do
+						if getDebuffRemain(br.friend[i].unit,v.spellID) > 4 and getDebuffStacks(br.friend[i].unit,v.spellID) >= v.stacks and not buff.envelopingMist.exists(br.friend[i].unit) and not isCastingSpell(spell.essenceFont) and UnitInRange(br.friend[i].unit) then
+							if cast.envelopingMist(br.friend[i].unit) then return end
+						end
+					end
+				end
+			end
+
         -- Ephemeral Paradox trinket
         if hasEquiped(140805) and getBuffRemain("player", 225767) > 2 then
             if cast.effuse(lowest.unit) then return true end
@@ -611,8 +638,8 @@ local function runRotation()
     local function actionList_AOEHealing()
 	-- Chi Burst
         if isChecked("Chi Burst") and talent.chiBurst then
-            if getUnitsInRect(7,47,isChecked("Show Lines"),getValue("Chi Burst")) >= getValue("Min Chi Burst Targets") then
-                actionList_CheckVelen()
+            if getUnitsInRect(7,47,false,getValue("Chi Burst")) >= getValue("Min Chi Burst Targets") then
+                --actionList_CheckVelen()
                 if cast.chiBurst("player") then return true end
             end
         end
@@ -620,6 +647,10 @@ local function runRotation()
 			if isChecked("Essence Font") and cd.essenceFont == 0 and getLowAlliesInTable(getValue("Essence Font"), friends.yards25) >= getValue("Min Essence Font Targets") then
 				if cast.essenceFont() then return true end
 			end
+    -- Refreshing Jade Wind
+        if isChecked("Refreshing Jade Wind") and talent.refreshingJadeWind and getLowAlliesInTable(getValue("Refreshing Jade Wind"), friends.yards8) >= getValue("Min Refreshing Jade Wind Targets")  then
+            if cast.refreshingJadeWind() then return true end
+        end
         if (botSpell ~= spell.envelopingMist and currentTarget ~= UnitGUID(lowest.unit)) or not buff.envelopingMist.exists(lowest.unit) or buff.envelopingMist.remain(lowest.unit) <= 2 then
 	-- Vivify with Dance of Mist
             if isChecked("Vivify with Dance Of Mist") and buff.danceOfMist.exists() then
@@ -627,28 +658,25 @@ local function runRotation()
                     if cast.vivify(lowest.unit) then return true end
                 end
             end
-		end
-	-- Refreshing Jade Wind
-        if isChecked("Refreshing Jade Wind") and talent.refreshingJadeWind and getLowAlliesInTable(getValue("Refreshing Jade Wind"), friends.yards8) >= getValue("Min Refreshing Jade Wind Targets")  then
-            if cast.refreshingJadeWind() then return true end
-        end
-	-- Vivify Logic
-		if (botSpell ~= spell.envelopingMist and currentTarget ~= UnitGUID(lowest.unit)) or not buff.envelopingMist.exists(lowest.unit) or buff.envelopingMist.remain(lowest.unit) <= 2 then
+	-- Vivify Lifecycles + uplift
             if isChecked("Vivify with Lifecycles + Uplift") and buff.upliftTrance.exists() and buff.lifeCyclesVivify.exists() then
                 if getLowAlliesInTable(getValue("Vivify with Lifecycles + Uplift"), friends.yards40) >= getValue("Min Vivify with Lifecycles + Uplift Targets") then
                     if cast.vivify(lowest.unit) then return true end
                 end
             end
+    -- Vivify Uplift
             if isChecked("Vivify with Uplift") and buff.upliftTrance.exists() then
                 if getLowAlliesInTable(getValue("Vivify with Uplift"), friends.yards40) >= getValue("Min Vivify with Uplift Targets") then
                     if cast.vivify(lowest.unit) then return true end
                 end
             end
+    -- Vivify lifecycles
             if isChecked("Vivify with Lifecycles") and buff.lifeCyclesVivify.exists() then
                 if getLowAlliesInTable(getValue("Vivify with Lifecycles"), friends.yards40) >= getValue("Min Vivify with Lifecycles Targets") then
                     if cast.vivify(lowest.unit) then return true end
                 end
             end
+    -- Vivify normal
             if isChecked("Vivify")  then
                 if getLowAlliesInTable(getValue("Vivify"), friends.yards40) >= getValue("Min Vivify Targets") then
                     if cast.vivify(lowest.unit) then return true end
@@ -739,7 +767,7 @@ local function runRotation()
         if isChecked("Thunder Focus Tea + Renewing Mist") and cd.renewingMist == 0 and lowest.hp <= getValue("Thunder Focus Tea + Renewing Mist") and TFRM then
             for i = 1, #friends.yards40 do
                 local thisUnit = friends.yards40[i]
-                if thisUnit.hp <= getValue("Thunder Focus Tea + Renewing Mist") and buff.renewingMist.remain(thisUnit.unit) < gcd then
+                if thisUnit.hp <= getValue("Thunder Focus Tea + Renewing Mist") and buff.renewingMist.remain(thisUnit.unit) < gcdMax then
                     if cast.renewingMist(thisUnit.unit) then
                         TFRM = false
                         return true
@@ -755,7 +783,13 @@ local function runRotation()
         --- Rotations ---
         -----------------
         -- Pause
-        if pause(true) or isCastingSpell(spell.essenceFont) then return true end
+        if pause(true) or isCastingSpell(spell.essenceFont) or UnitDebuffID("player",188030) then return true end
+        if not IsMounted and not inCombat and not drinking then
+            if isChecked("OOC Healing") then
+                if actionList_SingleTargetHealing() then return true end
+                if actionList_AOEHealing() then return true end
+			end
+        end
         if not IsMounted() and inCombat then
             if actionList_ThunderFocus() then return true end
         end

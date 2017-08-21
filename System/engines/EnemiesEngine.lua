@@ -39,7 +39,7 @@ local function UpdatePet(thisUnit)
 	else
 		demoEmpBuff = false
 	end
-	local unitCount = #getEnemies(thisUnit,10) or 0
+	local unitCount = br.player.enemies(10,thisUnit) or 0 --#getEnemies(thisUnit,10) or 0
 	local pet 		= br.player.petInfo[thisUnit]
 	pet.deBuff = demoEmpBuff
 	pet.numEnemies = unitCount
@@ -88,14 +88,14 @@ local function AddPet(thisUnit)
 		if br.player.petInfo == nil then br.player.petInfo = {} end
 		local unitCreator = UnitCreator(thisUnit)
 		if unitCreator == GetObjectWithGUID(UnitGUID("player")) and br.player.petInfo[thisUnit] == nil then
-			if not IsCritter(GetObjectID(thisUnit)) then
+			if not isCritter(GetObjectID(thisUnit)) then
 				br.player.petInfo[thisUnit] = {}
 				local pet 		= br.player.petInfo[thisUnit]
 				pet.unit 		= thisUnit
 				pet.name 		= UnitName(thisUnit)
 				pet.guid 		= UnitGUID(thisUnit)
 				pet.id 			= GetObjectID(thisUnit)
-				UpdatePet(thisUnit)
+				if UnitAffectingCombat("pet") or UnitAffectingCombat("player") then UpdatePet(thisUnit) end
 			end
 		end
 	end
@@ -163,19 +163,19 @@ end
 
 -- /dump UnitGUID("target")
 -- /dump getEnemies("target",10)
-function getEnemies(unit,radius,checkInCombat)
+function getEnemies(thisUnit,radius,checkInCombat)
     -- local startTime = debugprofilestop()
 	local enemiesTable = { }
 
     if checkInCombat == nil then checkInCombat = false end
-    if GetObjectExists(unit) and GetUnitIsVisible(unit) then
+    if GetObjectExists(thisUnit) and GetUnitIsVisible(thisUnit) then
 		for k, v in pairs(br.enemy) do
 			local thisEnemy = br.enemy[k].unit
-			local distance =  getDistance(unit,thisEnemy)
+			local distance =  getDistance(thisUnit,thisEnemy)
 			local inCombat = false
 			if checkInCombat then
 				inCombat = UnitAffectingCombat(thisEnemy) --enemy[k].inCombat
-				if not inCombat and isDummy() then inCombat = true end
+				if (not inCombat and isDummy()) or inCombat then inCombat = true end
 			else
 				inCombat = true
 			end
@@ -227,7 +227,11 @@ function dynamicTarget(range,facing)
 	if enemyUpdateRate < #getEnemies("player",50, true)/2 then
 		enemyUpdateRate = #getEnemies("player",50, true)/2
 	end
-	if not getOptionCheck("Dynamic Targetting") and (UnitExists("target") and UnitReaction("target","player") <= 4) then bestUnit = "target" end
+	if not getOptionCheck("Dynamic Targetting") and GetObjectExists("target") then
+		if UnitReaction("target","player") ~= nil and UnitReaction("target","player") <= 4 then 
+			bestUnit = "target" 
+		end
+	end
 --	local startTime = debugprofilestop()
 	if getOptionCheck("Dynamic Targetting") and (tempTime - lastUpdateTime) > enemyUpdateRate then
 		lastUpdateTime = tempTime
@@ -235,17 +239,17 @@ function dynamicTarget(range,facing)
 		local bestUnitCoef = 0
 		local enemyTable = getEnemies("player",range)
 		for k, v in pairs(enemyTable) do
-			local thisUnit = br.enemy[v] 
+			local thisUnit = br.enemy[v]
 			if enemyListCheck(thisUnit.unit) then
 				UpdateEnemy(v)				
 				local thisDistance = getDistance("player",thisUnit.unit)
-				if #br.friend < 2 and UnitExists("pet") and UnitTarget(thisUnit.unit) == "player" then
+				if #br.friend < 2 and UnitExists("pet") and (UnitTarget(thisUnit.unit) == "player" or UnitTarget(thisUnit.unit) == "pet") then
 					if getOptionCheck("Target Dynamic Target") and not UnitIsDeadOrGhost(thisUnit.unit) and (getOptionValue("Dynamic Targetting") == 2 or (getOptionValue("Dynamic Targetting") == 1 and inCombat)) then
 				 		TargetUnit(thisUnit.unit)
 				 	end
 				end
 				if not isChecked("Hostiles Only") or (getOptionCheck("Hostiles Only") and UnitReaction(thisUnit.unit,"player")) <= 2 or (isChecked("Hostiles Only") and hasThreat(thisUnit.unit)) or isDummy(thisUnit.unit) then
-					if ObjectID(thisUnit.unit) ~= 103679 and thisUnit.coeficient ~= nil and getLineOfSight("player", thisUnit.unit) and UnitCreatureType(thisUnit.unit) ~= "Critter" then
+					if ObjectID(thisUnit.unit) ~= 103679 and thisUnit.coeficient ~= nil and getLineOfSight("player", thisUnit.unit) then
 						if (not getOptionCheck("Safe Damage Check") or thisUnit.safe) and not thisUnit.isCC
 								and thisDistance < range and (not facing or thisUnit.facing)
 						then
@@ -276,6 +280,7 @@ function dynamicTarget(range,facing)
 		end
 	end
 	--br.debug.cpu.enemiesEngine.dynamicTarget = debugprofilestop()-startTime or 0
+	if bestUnit == nil and isValidUnit("target") then bestUnit = target end
 	return bestUnit
 end
 

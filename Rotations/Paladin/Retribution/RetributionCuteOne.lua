@@ -115,7 +115,7 @@ local function createOptions()
             br.ui:createSpinner(section, "Hammer of Justice - HP",  50,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
 			br.ui:createCheckbox(section, "Hammer of Justice - Legendary")
             -- Justicar's Vengeance
-            br.ui:createSpinner(section, "Justicar's Vengeance",  50,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
+            br.ui:createSpinner(section, "Justicar's Vengeance",  50,  0,  100,  5,  "|cffFFBB00Health Percentage to use at over Templar's Verdict.")
             -- Lay On Hands
             br.ui:createSpinner(section, "Lay On Hands", 20, 0, 100, 5, "","Health Percentage to use at")
             br.ui:createDropdownWithout(section, "Lay on Hands Target", {"|cffFFFFFFPlayer","|cffFFFFFFTarget", "|cffFFFFFFMouseover", "|cffFFFFFFTank", "|cffFFFFFFHealer", "|cffFFFFFFHealer/Tank", "|cffFFFFFFHealer/Damage", "|cffFFFFFFAny"}, 8, "|cffFFFFFFTarget for Lay On Hands")
@@ -620,19 +620,35 @@ local function runRotation()
         -- Templar's Verdict
             -- templars_verdict,if=debuff.judgment.up&buff.divine_purpose.up&buff.divine_purpose.remains<gcd*2
             if judgmentVar and buff.divinePurpose.exists() and buff.divinePurpose.remain() < gcd * 2 then
-                if cast.templarsVerdict() then return end
+                if isChecked("Justicar's Vengeance") and php < getOptionValue("Justicar's Vengeance") and talent.justicarsVengeance then
+                    if cast.justicarsVengeance() then return end
+                else
+                    if cast.templarsVerdict() then return end
+                end
             end
             -- templars_verdict,if=debuff.judgment.up&holy_power>=5&buff.divine_purpose.react
             if judgmentVar and holyPower >= 5 and buff.divinePurpose.exists() then
-                if cast.templarsVerdict() then return end
+                if isChecked("Justicar's Vengeance") and php < getOptionValue("Justicar's Vengeance") and talent.justicarsVengeance then
+                    if cast.justicarsVengeance() then return end
+                else
+                    if cast.templarsVerdict() then return end
+                end
             end
             -- templars_verdict,if=debuff.judgment.up&holy_power>=3&(buff.crusade.up&buff.crusade.stack<15|buff.liadrins_fury_unleashed.up)
             if judgmentVar and holyPower >= 5 and (buff.crusade.exists() and buff.crusade.stack() < 15 or buff.liadrinsFuryUnleashed.exists()) then
-                if cast.templarsVerdict() then return end
+                if isChecked("Justicar's Vengeance") and php < getOptionValue("Justicar's Vengeance") and talent.justicarsVengeance then
+                    if cast.justicarsVengeance() then return end
+                else
+                    if cast.templarsVerdict() then return end
+                end
             end
             -- templars_verdict,if=debuff.judgment.up&holy_power>=5
             if judgmentVar and holyPower >= 5 then
-                if cast.templarsVerdict() then return end
+                if isChecked("Justicar's Vengeance") and php < getOptionValue("Justicar's Vengeance") and talent.justicarsVengeance then
+                    if cast.justicarsVengeance() then return end
+                else
+                    if cast.templarsVerdict() then return end
+                end
             end
         -- Divine Storm
             -- divine_storm,if=debuff.judgment.up&variable.ds_castable&artifact.wake_of_ashes.enabled&cooldown.wake_of_ashes.remains<gcd*2
@@ -646,7 +662,11 @@ local function runRotation()
         -- Templar's Verdict
             -- templars_verdict,if=(equipped.137020|debuff.judgment.up)&artifact.wake_of_ashes.enabled&cooldown.wake_of_ashes.remains<gcd*2
             if (hasEquiped(137020) or judgmentVar) and artifact.wakeOfAshes and cd.wakeOfAshes < gcd * 2 then
-                if cast.templarsVerdict() then return end
+                if isChecked("Justicar's Vengeance") and php < getOptionValue("Justicar's Vengeance") and talent.justicarsVengeance then
+                    if cast.justicarsVengeance() then return end
+                else
+                    if cast.templarsVerdict() then return end
+                end
             end
             -- templars_verdict,if=debuff.judgment.up&buff.whisper_of_the_nathrezim.up&buff.whisper_of_the_nathrezim.remains<gcd*1.5
             if judgmentVar and buff.whisperOfTheNathrezim.exists() and buff.whisperOfTheNathrezim.remain() < gcd * 1.5 then
@@ -716,15 +736,27 @@ local function runRotation()
         -- Templar's Verdict
             -- templars_verdict,if=debuff.judgment.up&buff.divine_purpose.react
             if judgmentVar and buff.divinePurpose.exists() then
-                if cast.templarsVerdict() then return end
+                if isChecked("Justicar's Vengeance") and php < getOptionValue("Justicar's Vengeance") and talent.justicarsVengeance then
+                    if cast.justicarsVengeance() then return end
+                else
+                    if cast.templarsVerdict() then return end
+                end
             end
             -- templars_verdict,if=debuff.judgment.up&buff.the_fires_of_justice.react
             if judgmentVar and buff.theFiresOfJustice.exists() then
-                if cast.templarsVerdict() then return end
+                if isChecked("Justicar's Vengeance") and php < getOptionValue("Justicar's Vengeance") and talent.justicarsVengeance then
+                    if cast.justicarsVengeance() then return end
+                else
+                    if cast.templarsVerdict() then return end
+                end
             end
             -- templars_verdict,if=debuff.judgment.up&(!talent.execution_sentence.enabled|cooldown.execution_sentence.remains>gcd*2)
             if judgmentVar and (not talent.executionSentence or cd.executionSentence > gcd * 2) then
-                if cast.templarsVerdict() then return end
+                if isChecked("Justicar's Vengeance") and php < getOptionValue("Justicar's Vengeance") and talent.justicarsVengeance then
+                    if cast.justicarsVengeance() then return end
+                else
+                    if cast.templarsVerdict() then return end
+                end
             end
         -- Hammer of Justice
             -- hammer_of_justice,if=equipped.137065&target.health.pct>=75&holy_power<=4

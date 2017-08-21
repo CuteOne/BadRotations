@@ -62,6 +62,31 @@ local function updateRate()
 	print("Current Dynamic Target Rate: "..getEnemyUpdateRate())
 end
 
+local function forewardDisengage() -- from Stinky Twitch 
+	local s, d, e = GetSpellCooldown(781) 
+	if s == 0 then
+		MoveForwardStart() 
+		C_Timer.After(.10, function() 
+			MoveForwardStop() 
+			MoveBackwardStop() 
+			MoveAndSteerStop() 
+			JumpOrAscendStart() 
+			FaceDirection(mod(ObjectFacing("player") + math.pi, math.pi * 2))
+		end) 
+		C_Timer.After(.25, function() 
+			CastSpellByID(781) 
+		end)
+		MoveForwardStart() 
+		C_Timer.After(.30, function() 
+			MoveForwardStop() 
+			MoveBackwardStop() 
+			MoveAndSteerStop() 
+			JumpOrAscendStart() 
+			FaceDirection(mod(ObjectFacing("player") + math.pi, math.pi * 2))
+		end)  
+	end
+end
+
 function slashHelpList()
 	SLASH_BR1, SLASH_BR2 = '/br', '/badrotations'
 	SlashCommandHelp("br","Toggles BadRotations On/Off")
@@ -75,6 +100,9 @@ function slashHelpList()
 	SlashCommandHelp("br queue add spellId","Adds the Spell to the Queue by Spell Id.")
 	SlashCommandHelp("br queue remove spellId","Removes the Spell from the Queue by Spell Id.")
 	SlashCommandHelp("br updaterate", "Displays Current Update Rate")
+	if select(2, UnitClass("player")) == "HUNTER" then
+		SlashCommandHelp("br disengage", "Assign to macro to Forward Disengage.")
+	end
 end
 
 slashHelpList()
@@ -218,6 +246,8 @@ function handler(message, editbox)
 		end
 	elseif msg == "updaterate" then
 		updateRate()
+	elseif msg == "disengage" then
+		forewardDisengage()
 	else
 	    Print("Invalid Command: |cFFFF0000" .. msg .. "|r try |cffFFDD11 /br help")
 	end

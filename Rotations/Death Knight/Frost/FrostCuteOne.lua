@@ -563,7 +563,7 @@ local function runRotation()
             end
         -- Frost Strike
             -- frost_strike,if=set_bonus.tier20_2pc&runic_power>85&rune<=3&buff.pillar_of_frost.up
-            if t20_2pc and runicPower > 85 and rune <= 3 and buff.pillarOfFrost.exists() then
+            if t20_2pc and runicPower > 85 and runes <= 3 and buff.pillarOfFrost.exists() then
                 if cast.frostStrike() then return end
             end
         -- Obliterate

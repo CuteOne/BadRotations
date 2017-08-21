@@ -87,7 +87,7 @@ local function createOptions()
             -- Artifact
             br.ui:createDropdownWithout(section,"Artifact", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Artifact Ability.")
             -- Death From Above
-            br.ui:createCheckbox(section, "Death From Above")
+            br.ui:createSpinner(section, "Death From Above", 4, 1, 5, 1, "|cffFFBB00Check to use DFA and minimal units to use on.")
             -- Marked For Death
             br.ui:createDropdown(section, "Marked For Death", {"|cff00FF00Target", "|cffFFDD00Lowest"}, 1, "|cffFFBB00Health Percentage to use at.")
             -- Shadow Blades
@@ -197,6 +197,7 @@ local function runRotation()
         local enemies                                                   = enemies or {}
         local flaskBuff, canFlask                                       = getBuffRemain("player",br.player.flask.wod.buff.agilityBig), canUse(br.player.flask.wod.agilityBig)
         local gcd                                                       = br.player.gcd
+        local gcdMax                                                    = br.player.gcdMax
         local glyph                                                     = br.player.glyph
         local hastar                                                    = GetObjectExists("target")
         local healPot                                                   = getHealthPot()
@@ -217,6 +218,10 @@ local function runRotation()
         local stealthingAll                                             = br.player.buff.stealth.exists() or br.player.buff.vanish.exists() or br.player.buff.shadowmeld.exists() or br.player.buff.shadowDance.exists() or br.player.buff.subterfuge.exists()
         local stealthingRogue                                           = br.player.buff.stealth.exists() or br.player.buff.vanish.exists() or br.player.buff.shadowDance.exists() or br.player.buff.subterfuge.exists()
         local t18_4pc                                                   = br.player.eq.t18_4pc
+        local t19_2pc                                                   = TierScan("T19") >= 2
+        local t19_4pc                                                   = TierScan("T19") >= 4
+        local t20_2pc                                                   = TierScan("T20") >= 2
+        local t20_4pc                                                   = TierScan("T20") >= 4
         local talent                                                    = br.player.talent
         local time                                                      = getCombatTime()
         local ttd                                                       = getTTD
@@ -227,15 +232,21 @@ local function runRotation()
         units.dyn30 = br.player.units(30)
         enemies.yards5 = br.player.enemies(5)
         enemies.yards8 = br.player.enemies(8)
+        enemies.yards8t = br.player.enemies(8,br.player.units(8,true))
         enemies.yards10 = br.player.enemies(10)
         enemies.yards20 = br.player.enemies(20)
         enemies.yards30 = br.player.enemies(30)
 
         if talent.anticipation then antital = 1 else antital = 0 end
+        if talent.darkShadow and t20_4pc then dark20 = 1 else dark20 = 0 end
+        if not talent.darkShadow and t20_4pc then notDark20 = 1 else notDark20 = 0 end
         if talent.deeperStrategem then dStrat = 1 else dStrat = 0 end
+        if talent.deeperStrategem and buff.vanish.exists() then deepVanish = 1 else deepVanish = 0 end
+        if talent.deeperStrategem and not buff.shadowBlades.exists() and (buff.masterAssassinsInitiative.remain() == 0 or t20_4pc) and (not buff.theFirstOfTheDead.exists() or dshDFA) then dStratNoBlades = 1 else dStratNoBlades = 0 end
         if talent.envelopingShadows then enveloped = 1 else enveloped = 0 end
         if talent.masterOfShadows then mosTalent = 1 else mosTalent = 0 end
         if talent.premeditation then premed = 1 else premed = 0 end
+        if talent.shadowFocus then shadFoc = 1 else shadFoc = 0 end
         if talent.subterfuge then subty = 1 else subty = 2 end
         if talent.subterfuge or buff.theFirstOfTheDead.exists() then subtyDead = 1 else subtyDead = 0 end
         if talent.vigor then vigorous = 1 else vigorous = 0 end
@@ -244,18 +255,24 @@ local function runRotation()
         if ShDCdTime == nil then ShDCdTime = GetTime() end
         if ShdMTime == nil then ShdMTime = GetTime() end
         if buff.shadowBlades.exists() then shadowedBlade = 1 else shadowedBlade = 0 end
+        if buff.theFirstOfTheDead.exists() then firstDead = 1 else firstDead = 0 end
         if hasEquiped(137032) then shadowWalker = 1 else shadowWalker = 0 end
         if hasEquiped(144236) then mantleMaster = 1 else mantleMaster = 0 end
         if mantleMaster == 1 and combatTime < 30 then mantleMasterRecent = 1 else mantleMasterRecent = 0 end
         if hasEquiped(144236) and hasEquiped(137100) then halfMantled = 1 else halfMantled = 0 end
+        if hasEquiped(137049) then insignia = 1 else insignia = 0 end
         if stealthingAll then stealthedAll = 1 else stealthedAll = 0 end
+        if t20_4pc then t20pc4 = 1 else t20pc4 = 0 end
+        if cd.goremawsBite > 0 and not buff.feedingFrenzy.exists() then noGoreFrenzy = 1 else noGoreFrenzy = 0 end
 
         -- variable,name=ssw_refund,value=equipped.shadow_satyrs_walk*(6+ssw_refund_offset)
         local sswRefund = shadowWalker * (6 + getOptionValue("SSW Offset"))
         -- variable,name=stealth_threshold,value=(65+talent.vigor.enabled*35+talent.master_of_shadows.enabled*10+variable.ssw_refund)
         local stealthThreshold = (65 + vigorous * 35 + mosTalent * 10 + sswRefund)
-        -- variable,name=shd_fractionnal,value=1.725+0.725*talent.enveloping_shadows.enabled
+        -- variable,name=shd_fractional,value=1.725+0.725*talent.enveloping_shadows.enabled
         local shdFrac = 1.725 + 0.725 * enveloped
+        -- variable,name=dsh_dfa,value=talent.death_from_above.enabled&talent.dark_shadow.enabled&spell_targets.death_from_above<4
+        local dshDFA = talent.deathFromAbove and talent.darkShadow and #enemies.yards8t < 4
 
         -- Custom Functions
         local function usePickPocket()
@@ -378,9 +395,9 @@ local function runRotation()
             -- Print("Cooldowns")
             if getDistance(units.dyn5) < 5 then
         -- Potion
-                -- potion,if=buff.bloodlust.react|target.time_to_die<=25|buff.shadow_blades.up
+                -- potion,if=buff.bloodlust.react|target.time_to_die<=60|(buff.vanish.up&(buff.shadow_blades.up|cooldown.shadow_blades.remains<=30))
                 if useCDs() and isChecked("Agi-Pot") and canUse(127844) and inRaid then
-                    if ttd(units.dyn5) <= 25 or buff.shadowBlades.exists() or hasBloodLust() then
+                    if hasBloodLust() or ttd(units.dyn5) <= 25 or (buff.vanish.exists() and (buff.shadowBlades.exists() or cd.shadowBlades <= 30)) then
                         useItem(127844)
                     end
                 end
@@ -392,9 +409,17 @@ local function runRotation()
                     end
                 end
         -- Specter of Betrayal
-                -- use_item,name=specter_of_betrayal
                 if useCDs() and isChecked("Trinkets") and hasEquiped(151190) and canUse(151190) then
-                    useItem(151190)
+                    -- use_item,name=specter_of_betrayal,if=talent.dark_shadow.enabled&buff.shadow_dance.up&(!set_bonus.tier20_4pc|buff.symbols_of_death.up|(!talent.death_from_above.enabled&((mantle_duration>=3|!equipped.mantle_of_the_master_assassin)|cooldown.vanish.remains>=43)))
+                    if talent.darkShadow and buff.shadowDance.exists() 
+                        and (not t20_4pc or buff.symbolsOfDeath or (not talent.deathFromAbove and ((buff.masterAssassinsInitiative.remain() >= 3 or not hasEquiped(144236)) or cd.vanish >= 43))) 
+                    then
+                        useItem(151190)
+                    end
+                    -- use_item,name=specter_of_betrayal,if=!talent.dark_shadow.enabled&!buff.stealth.up&!buff.vanish.up&(mantle_duration>=3|!equipped.mantle_of_the_master_assassin)
+                    if not talent.darkShadow and not buff.stealth.exists() and not buff.vanish.exists() and (buff.masterAssassinsInitiative.remain() >= 3 or not hasEquiped(144236)) then
+                        useItem(151190)
+                    end
                 end
         -- Trinkets
                 if useCDs() and isChecked("Trinkets") then
@@ -413,24 +438,30 @@ local function runRotation()
                     if castSpell("player",racial,false,false,false) then return end
                 end
         -- Symbols of Death
-                -- symbols_of_death,if=energy.deficit>=40-stealthed.all*30
-                if powerDeficit >= 40 - stealthedAll * 30 then
+                -- symbols_of_death,if=!talent.death_from_above.enabled&((time>10&energy.deficit>=40-stealthed.all*30)|(time<10&dot.nightblade.ticking))
+                if not talent.deathFromAbove and ((combatTime > 10 and powerDeficit >= 40 - stealthedAll * 30) or (combatTime < 10 and debuff.nightblade.exists(units.dyn5))) then
+                    if cast.symbolsOfDeath() then return end
+                end
+                -- symbols_of_death,if=(talent.death_from_above.enabled&cooldown.death_from_above.remains<=3&(dot.nightblade.remains>=cooldown.death_from_above.remains+3|target.time_to_die-dot.nightblade.remains<=6)&(time>=3|set_bonus.tier20_4pc|equipped.the_first_of_the_dead))|target.time_to_die-remains<=10
+                if (talent.deathFromAbove and cd.deathFromAbove <= 3 and (debuff.nightblade.remain(units.dyn5) >= cd.deathFromAbove + 3 or ttd(units.dyn5) - debuff.nightblade.remain(units.dyn5) <= 6) 
+                    and (combatTime >= 3 or t20_4pc or hasEquiped(151818))) or ttd(units.dyn5) <= 10 
+                then
                     if cast.symbolsOfDeath() then return end
                 end
         -- Marked For Death
                 -- marked_for_death,target_if=min:target.time_to_die,if=target.time_to_die<combo_points.deficit
-                -- marked_for_death,if=raid_event.adds.in>40&combo_points.deficit>=cp_max_spend
+                -- marked_for_death,if=raid_event.adds.in>40&!stealthed.all&combo_points.deficit>=cp_max_spend
                 if isChecked("Marked For Death") then
                     if getOptionValue("Marked For Death") == 1 then
-                        if ttd("target") < comboDeficit or comboDeficit >= comboMax then
-                            if cast.markedForDeath() then return end
+                        if ttd("target") < comboDeficit or (not stealthingAll and comboDeficit >= comboMax) then
+                            if cast.markedForDeath("target") then return end
                         end
                     end
                     if getOptionValue("Marked For Death") == 2 then
                         for i = 1, #enemies.yards30 do
                             local thisUnit = enemies.yards30[i]
                             if (multidot or (UnitIsUnit(thisUnit,units.dyn5) and not multidot)) then
-                                if ttd(thisUnit) < comboDeficit or comboDeficit >= comboMax then
+                                if ttd(thisUnit) < comboDeficit or (not stealthingAll and comboDeficit >= comboMax) then
                                     if cast.markedForDeath(thisUnit) then return end
                                 end
                             end
@@ -438,9 +469,11 @@ local function runRotation()
                     end
                 end
         -- Shadow Blades
-                -- shadow_blades,if=combo_points.deficit>=2+stealthed.all-equipped.mantle_of_the_master_assassin
-                if useCDs() and isChecked("Shadow Blades") and combo >= 2 + stealthedAll - mantleMaster then
-                    if cast.shadowBlades() then return end
+                -- shadow_blades,if=(time>10&combo_points.deficit>=2+stealthed.all-equipped.mantle_of_the_master_assassin)|(time<10&(!talent.marked_for_death.enabled|combo_points.deficit>=3|dot.nightblade.ticking))
+                if useCDs() and isChecked("Shadow Blades") then
+                    if (combatTime > 10 and comboDeficit >= 2 + stealthedAll - mantleMaster) or (combatTime < 10 and (not talent.markedForDeath or comboDeficit >= 3 or debuff.nightblade.exists(units.dyn5))) then
+                        if cast.shadowBlades() then return end
+                    end
                 end
         -- Goremaws Bite
                 -- goremaws_bite,if=!stealthed.all&cooldown.shadow_dance.charges_fractional<=variable.shd_fractional&((combo_points.deficit>=4-(time<10)*2&energy.deficit>50+talent.vigor.enabled*25-(time>=10)*15)|(combo_points.deficit>=1&target.time_to_die<8))
@@ -451,6 +484,19 @@ local function runRotation()
                         if cast.goremawsBite() then return end
                     end
                 end
+        -- Vanish
+                -- pool_resource,for_next=1,extra_amount=55-talent.shadow_focus.enabled*10
+                -- vanish,if=energy>=55-talent.shadow_focus.enabled*10&variable.dsh_dfa&(!equipped.mantle_of_the_master_assassin|buff.symbols_of_death.up)&cooldown.shadow_dance.charges_fractional<=variable.shd_fractional&!buff.shadow_dance.up&!buff.stealth.up&mantle_duration=0&(dot.nightblade.remains>=cooldown.death_from_above.remains+6|target.time_to_die-dot.nightblade.remains<=6)&cooldown.death_from_above.remains<=1|target.time_to_die<=7
+                if useCDs() and isChecked("Vanish") and not solo then
+                    if power < 55 - (shadFoc * 10) then
+                        return true
+                    elseif power > 55 - (shadFoc * 10) and dshDFA and (not hasEquiped(144236) or buff.symbolsOfDeath.exists()) 
+                        and charges.frac.shadowDance <= shdFrac and not buff.shadowDance.exists() and not buff.stealth.exists() and buff.masterAssassinsInitiative.remain() == 0 
+                        and (debuff.nightblade.remain(units.dyn5) >= cd.deathFromAbove + 6 or ttd(units.dyn5) - debuff.nightblade.remain(units.dyn5) <= 6) and cd.deathFromAbove <= 1 or ttd(units.dyn5) <= 7 
+                    then
+                        if cast.vanish() then vanishTime = GetTime(); return end
+                    end
+                end
             end -- End Cooldown Usage Check
         end -- End Action List - Cooldowns
     -- Action List - Stealth Cooldowns
@@ -458,16 +504,20 @@ local function runRotation()
             if getDistance(units.dyn5) < 5 then
             -- Print("Stealth Cooldowns")
         -- Vanish
-                -- vanish,if=mantle_duration=0&cooldown.shadow_dance.charges_fractional<variable.shd_fractionnal+(equipped.mantle_of_the_master_assassin&time<30)*0.3
+                -- vanish,if=!variable.dsh_dfa&mantle_duration=0&cooldown.shadow_dance.charges_fractional<variable.shd_fractional+(equipped.mantle_of_the_master_assassin&time<30)*0.3&(!equipped.mantle_of_the_master_assassin|buff.symbols_of_death.up)
                 if useCDs() and isChecked("Vanish") and not solo then
-                    if buff.masterAssassinsInitiative.remain() == 0 and charges.frac.shadowDance < shdFrac + mantleMasterRecent * 0.3 then
+                    if not dshDFA and buff.masterAssassinsInitiative.remain() == 0 and charges.frac.shadowDance < shdFrac + mantleMasterRecent * 0.3 
+                        and (not hasEquiped(144236) or buff.symbolsOfDeath.exists()) 
+                    then
                         if cast.vanish() then vanishTime = GetTime(); return end
                     end
                 end
         -- Shadow Dance
-                -- shadow_dance,if=charges_fractional>=variable.shd_fractionnal
-                if useCDs() and isChecked("Shadow Dance") and charges.frac.shadowDance >= shdFrac then
-                    if cast.shadowDance() then ShDCdTime = GetTime(); return end
+                -- shadow_dance,if=charges_fractional>=variable.shd_fractional|target.time_to_die<cooldown.symbols_of_death.remains
+                if useCDs() and isChecked("Shadow Dance") and not buff.shadowDance.exists() then
+                    if charges.frac.shadowDance >= shdFrac or ttd(units.dyn5) < cd.symbolsOfDeath then
+                        if cast.shadowDance() then ShDCdTime = GetTime(); return end
+                    end
                 end
         -- Shadowmeld
                 -- pool_resource,for_next=1,extra_amount=40
@@ -480,9 +530,12 @@ local function runRotation()
                     end
                 end
         -- Shadow Dance
-                -- shadow_dance,if=combo_points.deficit>=2+(talent.subterfuge.enabled|buff.the_first_of_the_dead.up)*2&(cooldown.symbols_of_death.remains>2|!talent.dark_shadow.enabled)
+                -- shadow_dance,if=!variable.dsh_dfa&combo_points.deficit>=2+talent.subterfuge.enabled*2&(buff.symbols_of_death.remains>=1.2+gcd.remains|cooldown.symbols_of_death.remains>=12+(talent.dark_shadow.enabled&set_bonus.tier20_4pc)*3-(!talent.dark_shadow.enabled&set_bonus.tier20_4pc)*4|mantle_duration>0)&(spell_targets.shuriken_storm>=4|!buff.the_first_of_the_dead.up)
                 if useCDs() and isChecked("Shadow Dance") and not buff.shadowDance.exists() then
-                    if comboDeficit >= 2 + subtyDead * 2 and (cd.symbolsOfDeath > 2 or not talent.darkShadow) then
+                    if not dshDFA and comboDeficit >= 2 + subty * 2 
+                        and (buff.symbolsOfDeath.remain() >= 1.2 + gcd or cd.symbolsOfDeath >= 12 + (dark20 * 3) - (notDark20 * 4) or buff.masterAssassinsInitiative.remain() > 0)
+                        and (#enemies.yards10 >= 4 or not buff.theFirstOfTheDead.exists()) 
+                    then
                         if cast.shadowDance() then ShDCdTime = GetTime(); return end
                     end
                 end
@@ -491,58 +544,69 @@ local function runRotation()
     -- Action List - Finishers
         local function actionList_Finishers()
             -- Print("Finishers")
-        -- Death from Above
-            -- death_from_above,if=spell_targets.death_from_above>=5
-            if isChecked("Death From Above") and #enemies.yards8 >= 5 then
-                if cast.deathFromAbove() then return end
-            end
-        -- Night Blade
-            -- nightblade,if=target.time_to_die-remains>8&(mantle_duration=0|remains<=mantle_duration)&((refreshable&(!finality|buff.finality_nightblade.up))|remains<tick_time*2)
-            if ttd("target") - debuff.nightblade.remain("target") > 8 and (buff.masterAssassinsInitiative.remain() == 0 or debuff.nightblade.remain("target") <= buff.masterAssassinsInitiative.remain()) 
-                and ((debuff.nightblade.refresh("target") and (not artifact.finality or buff.finalityNightblade.exists())) or debuff.nightblade.remain("target") < 2) 
+        -- Nightblade
+            -- nightblade,if=(!talent.dark_shadow.enabled|!buff.shadow_dance.up)&target.time_to_die-remains>6&(mantle_duration=0|remains<=mantle_duration)&((refreshable&(!finality|buff.finality_nightblade.up|variable.dsh_dfa))|remains<tick_time*2)&(spell_targets.shuriken_storm<4&!variable.dsh_dfa|!buff.symbols_of_death.up)
+            if (not talent.darkShadow or not buff.shadowDance.exists()) and ttd(units.dyn5) - debuff.nightblade.remain(units.dyn5) > 6 
+                and (buff.masterAssassinsInitiative.remain() == 0 or debuff.nightblade.remain(units.dyn5) <= buff.masterAssassinsInitiative.remain()) 
+                and ((debuff.nightblade.refresh(units.dyn5) and (not artifact.finality or buff.finalityNightblade.exists() or dshDFA)) or debuff.nightblade.remain(units.dyn5) < 2 * 2) 
+                and (#enemies.yards10 < 4 and not dshDFA or not buff.symbolsOfDeath.exists()) 
             then
-                if cast.nightblade("target") then return end
+                if cast.nightblade(units.dyn5) then return end
             end
-            -- nightblade,cycle_targets=1,if=target.time_to_die-remains>8&mantle_duration=0&((refreshable&(!finality|buff.finality_nightblade.up))|remains<tick_time*2)
+            -- nightblade,cycle_targets=1,if=(!talent.death_from_above.enabled|set_bonus.tier19_2pc)&(!talent.dark_shadow.enabled|!buff.shadow_dance.up)&target.time_to_die-remains>12&mantle_duration=0&((refreshable&(!finality|buff.finality_nightblade.up|variable.dsh_dfa))|remains<tick_time*2)&(spell_targets.shuriken_storm<4&!variable.dsh_dfa|!buff.symbols_of_death.up)
             if isChecked("Nightblade Multidot") then
                 for i=1, #enemies.yards5 do
                     local thisUnit = enemies.yards5[i]
                     if getDistance(thisUnit) <= 5 then
-                        if ttd(thisUnit) - debuff.nightblade.remain(thisUnit) >= getOptionValue("Nightblade Multidot") and buff.masterAssassinsInitiative.remain() == 0 
-                            and ((debuff.nightblade.refresh(thisUnit) and (not artifact.finality or buff.finalityNightblade.exists())) or debuff.nightblade.remain(thisUnit) < 2) 
+                        if (not talent.deathFromAbove or t19_2pc) and (not talent.darkShadow or not buff.shadowDance.exists()) 
+                            and ttd(thisUnit) - debuff.nightblade.remain(thisUnit) > 12 and buff.masterAssassinsInitiative.remain() == 0 
+                            and ((debuff.nightblade.refresh(thisUnit) and (not artifact.finality or buff.finalityNightblade.exists() or dshDFA)) or debuff.nightblade.remain(thisUnit) < 2 * 2) 
+                            and (#enemies.yards10 < 4 and not dshDFA or not buff.symbolsOfDeath.exists()) 
                         then
                             if cast.nightblade(thisUnit) then return end
-                        end
+                        end 
                     end
                 end
             end
+            -- nightblade,if=remains<cooldown.symbols_of_death.remains+10&cooldown.symbols_of_death.remains<=5+(combo_points=6*2)
+            if debuff.nightblade.remain(units.dyn5) < cd.symbolsOfDeath + 10 and cd.symbolsOfDeath <= 5 then
+                 if cast.nightblade(units.dyn5) then return end
+            end
         -- Death from Above
-            -- death_from_above
+            -- death_from_above,if=!talent.dark_shadow.enabled|!cooldown.vanish.up&(!buff.shadow_dance.up|spell_targets>=4)&(buff.symbols_of_death.up|cooldown.symbols_of_death.remains>=10+set_bonus.tier20_4pc*5)&buff.the_first_of_the_dead.remains<1&(buff.finality_eviscerate.up|spell_targets.shuriken_storm<4)
             if isChecked("Death From Above") then
-                if cast.deathFromAbove() then return end
+                if not talent.darkShadow or cd.vanish ~= 0 and (not buff.shadowDance.exists() or #enemies.yards8t >= getOptionValue("Death From Above")) 
+                    and (buff.symbolsOfDeath.exists() or cd.symbolsOfDeath >= 10 + t20pc4 * 5) and buff.theFirstOfTheDead.remain() < 1
+                    and (buff.finalityEviscerate.exists() or #enemies.yards10 < 4) 
+                then
+                    if cast.deathFromAbove() then return end
+                end
             end
         -- Eviscerate
-            -- eviscerate,if=!talent.death_from_above.enabled|cooldown.death_from_above.remains>=(energy.max-energy-combo_points*6)%energy.regen-(2+(equipped.mantle_of_the_master_assassin&equipped.denial_of_the_halfgiants))
-            if not talent.deathFromAbove or cd.deathFromAbove >= (powerMax - power - combo * 6) / powerRegen - (2 + halfMantled) then
-                if cast.eviscerate() then return end
-            end
+            -- eviscerate
+            if cast.eviscerate() then return end
         end -- End Action List - Finishers
     -- Action List - Stealthed
         local function actionList_Stealthed()
             -- Print("Stealth")
+        -- Shadowstrike
+            -- shadowstrike,if=buff.stealth.up
+            if buff.stealth.exists() and getDistance("target") <= getOptionValue ("SS Range") then
+                if cast.shadowstrike() then return end
+            end
         -- Finisher
-            -- call_action_list,name=finish,if=combo_points>=5&(spell_targets.shuriken_storm>=3+equipped.shadow_satyrs_walk|(mantle_duration<=1.3&mantle_duration-gcd.remains>=0.3))
-            if combo >= 5 and (#enemies.yards10 >= 3 + shadowWalker or (buff.masterAssassinsInitiative.remain() <= 1.3 and buff.masterAssassinsInitiative.remain() - cd.global >= 0.3)) then
+            -- call_action_list,name=finish,if=combo_points>=5+(talent.deeper_stratagem.enabled&buff.vanish.up)&(spell_targets.shuriken_storm>=3+equipped.shadow_satyrs_walk|(mantle_duration<=1.3&mantle_duration-gcd.remains>=0.3))
+            if combo >= 5 + deepVanish and (#enemies.yards10 >= 3 + shadowWalker or (buff.masterAssassinsInitiative.remain() <= 1.3 and buff.masterAssassinsInitiative.remain() - gcd >= 0.3)) then
                 if actionList_Finishers() then return end
             end
         -- Shuriken Storm
-            -- shuriken_storm,if=buff.shadowmeld.down&((combo_points.deficit>=3&spell_targets.shuriken_storm>=3+equipped.shadow_satyrs_walk)|(combo_points.deficit>=1&buff.the_dreadlords_deceit.stack>=29))
-            if not buff.shadowmeld.exists() and ((comboDeficit >= 3 and #enemies.yards10 >= 3 + shadowWalker) or (comboDeficit >= 1 and buff.theDreadlordsDeceit.stack() >= 29)) then
+            -- shuriken_storm,if=buff.shadowmeld.down&((combo_points.deficit>=2+equipped.insignia_of_ravenholdt&spell_targets.shuriken_storm>=3+equipped.shadow_satyrs_walk)|(combo_points.deficit>=1&buff.the_dreadlords_deceit.stack>=29))
+            if not buff.shadowmeld.exists() and ((comboDeficit >= 2 + insignia and #enemies.yards10 >= 3 + shadowWalker) or (comboDeficit >= 1 and buff.theDreadlordsDeceit.stack() >= 29)) then
                 if cast.shurikenStorm() then return end
             end
         -- Finisher
-            -- call_action_list,name=finish,if=combo_points>=5&combo_points.deficit<3+buff.shadow_blades.up-equipped.mantle_of_the_master_assassin
-            if combo >= 5 and comboDeficit < 3 + shadowedBlade - mantleMaster then
+            -- call_action_list,name=finish,if=combo_points>=5+(talent.deeper_stratagem.enabled&buff.vanish.up)&combo_points.deficit<3+buff.shadow_blades.up-equipped.mantle_of_the_master_assassin
+            if combo >= 5 + deepVanish and comboDeficit < 3 + shadowedBlade - mantleMaster then
                 if actionList_Finishers() then return end
             end
         -- Shadowstrike
@@ -556,7 +620,7 @@ local function runRotation()
             -- Print("Generator")
         -- Shuriken Storm
             -- shuriken_storm,if=spell_targets.shuriken_storm>=2
-            if #enemies.yards10 >= 2 then
+            if #enemies.yards10 >= 2 + firstDead then
                 if cast.shurikenStorm() then return end
             end
         -- Backstab / Gloomblade
@@ -567,16 +631,16 @@ local function runRotation()
     -- Action List - Starter
         local function actionList_Starter()
         -- Stealth Cooldowns
-            -- call_action_list,name=stealth_cds,if=energy.deficit<=variable.stealth_threshold&(!equipped.shadow_satyrs_walk|cooldown.shadow_dance.charges_fractional>=variable.shd_fractionnal|energy.deficit>=10)
-            if powerDeficit <= stealthThreshold and (not hasEquiped(137032) or charges.frac.shadowDance >= shdFrac or powerDeficit >= 10) then
+            -- call_action_list,name=stealth_cds,if=energy.deficit<=variable.stealth_threshold-25*(!cooldown.goremaws_bite.up&!buff.feeding_frenzy.up)&(!equipped.shadow_satyrs_walk|cooldown.shadow_dance.charges_fractional>=variable.shd_fractional|energy.deficit>=10)
+            if powerDeficit <= stealthThreshold - 25 * noGoreFrenzy and (not hasEquiped(137032) or charges.frac.shadowDance >= shdFrac or powerDeficit >= 10) then
                 if actionList_StealthCooldowns() then return end
             end
             -- call_action_list,name=stealth_cds,if=mantle_duration>2.3
             if buff.masterAssassinsInitiative.remain() > 2.3 then
                 if actionList_StealthCooldowns() then return end
             end
-            -- call_action_list,name=stealth_cds,if=spell_targets.shuriken_storm>=5
-            if #enemies.yards10 >= 5 then
+            -- call_action_list,name=stealth_cds,if=spell_targets.shuriken_storm>=4
+            if #enemies.yards10 >= 4 then
                 if actionList_StealthCooldowns() then return end
             end
             -- call_action_list,name=stealth_cds,if=(cooldown.shadowmeld.up&!cooldown.vanish.up&cooldown.shadow_dance.charges<=1)
@@ -692,31 +756,47 @@ local function runRotation()
                     if cast.shurikenToss() then return end
                 end
                 if getDistance(units.dyn5) < 5 then
+        -- Shadow Dance 
+                    -- shadow_dance,if=talent.dark_shadow.enabled&(!stealthed.all|buff.subterfuge.up)&buff.death_from_above.up&buff.death_from_above.remains<=0.15
+                    if useCDs() and isChecked("Shadow Dance") and not buff.shadowDance.exists() then
+                        if talent.darkShadow and (not stealthingAll or buff.subterfuge.exists())and buff.deathFromAbove.exists() and buff.deathFromAbove.remain() <= 0.15 then
+                            if cast.shadowDance() then ShDCdTime = GetTime(); return end
+                        end
+                    end
         -- Cooldowns
                     -- call_action_list,name=cds
                     if actionList_Cooldowns() then return end
         -- Stealthed
-                    -- run_action_list,name=stealthed,if=stealthed|buff.shadowmeld.up
+                    -- run_action_list,name=stealthed,if=stealthed.all
                     if stealthingAll then
                         if actionList_Stealthed() then return end
                     end
         -- Nightblade
-                    -- nightblade,if=target.time_to_die>8&remains<gcd.max&combo_points>=4
-                    if ttd(units.dyn5) > 8 and debuff.nightblade.remain(units.dyn5) < gcd and combo >= 4 then
+                    -- nightblade,if=target.time_to_die>6&remains<gcd.max&combo_points>=4-(time<10)*2
+                    if ttd(units.dyn5) > 6 and debuff.nightblade.remain(units.dyn5) < gcdMax and combo >= 4 - (justStarted * 2) then
                         if cast.nightblade() then return end
                     end
         -- Starter
-                    -- call_action_list,name=stealth_als,if=talent.dark_shadow.enabled&combo_points.deficit>=3&(dot.nightblade.remains>4+talent.subterfuge.enabled|cooldown.shadow_dance.charges_fractional>=1.9&(!equipped.denial_of_the_halfgiants|time>10))
-                    if talent.darkShadow and comboDeficit >= 3 and (debuff.nightblade.remain(units.dyn5) > 4 + subty or charges.frac.shadowDance >= 1.9 and (not hasEquiped(137100) or combatTime > 10)) then
+                    -- call_action_list,name=stealth_als,if=talent.dark_shadow.enabled&combo_points.deficit>=2+buff.shadow_blades.up&(dot.nightblade.remains>4+talent.subterfuge.enabled|cooldown.shadow_dance.charges_fractional>=1.9&(!equipped.denial_of_the_halfgiants|time>10))
+                    if talent.darkShadow and comboDeficit >= 2 + shadowedBlade 
+                        and (debuff.nightblade.remain(units.dyn5) > 4 + subty or charges.frac.shadowDance >= 1.9 and (not hasEquiped(137100) or combatTime > 10)) 
+                    then
                         if actionList_Starter() then return end
                     end
-                    -- call_action_list,name=stealth_als,if=!talent.dark_shadow.enabled&(combo_points.deficit>=3|cooldown.shadow_dance.charges_fractional>=1.9+talent.enveloping_shadows.enabled)
-                    if not talent.darkShadow and (comboDeficit >= 3 or charges.frac.shadowDance >= 1.9 + enveloped) then
+                    -- call_action_list,name=stealth_als,if=!talent.dark_shadow.enabled&(combo_points.deficit>=2+buff.shadow_blades.up|cooldown.shadow_dance.charges_fractional>=1.9+talent.enveloping_shadows.enabled)
+                    if not talent.darkShadow and (comboDeficit >= 2 + shadowedBlade or charges.frac.shadowDance >= 1.9 + enveloped) then
                         if actionList_Starter() then return end
                     end
         -- Finishers
-                    -- call_action_list,name=finish,if=combo_points>=5|(combo_points>=4&combo_points.deficit<=2&spell_targets.shuriken_storm>=3&spell_targets.shuriken_storm<=4)
-                    if combo >= 5 or (combo >= 4 and comboDeficit <= 2 and #enemies.yards10 >= 3 and #enemies.yards10 <= 4) then
+                    -- call_action_list,name=finish,if=combo_points>=5+(talent.deeper_stratagem.enabled&!buff.shadow_blades.up&(mantle_duration=0|set_bonus.tier20_4pc)&(!buff.the_first_of_the_dead.up|variable.dsh_dfa))|(combo_points>=4&combo_points.deficit<=2&spell_targets.shuriken_storm>=3&spell_targets.shuriken_storm<=4)|(target.time_to_die<=1&combo_points>=3)
+                    if combo >= 5 + dStratNoBlades
+                        or (combo >= 4 and comboDeficit <= 2 and #enemies.yards10 >= 3 and #enemies.yards10 <= 4)
+                        or (ttd(units.dyn5) <= 1 and combo >= 3) 
+                    then
+                        if actionList_Finishers() then return end
+                    end
+                    -- call_action_list,name=finish,if=variable.dsh_dfa&cooldown.symbols_of_death.remains<=1&combo_points>=2&equipped.the_first_of_the_dead&spell_targets.shuriken_storm<2
+                    if dshDFA and cd.symbolsOfDeath <= 1 and combo >= 2 and hasEquiped(151818) and #enemies.yards10 < 2 then
                         if actionList_Finishers() then return end
                     end
         -- Generators
