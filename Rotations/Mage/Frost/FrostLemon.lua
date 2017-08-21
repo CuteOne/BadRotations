@@ -1020,6 +1020,10 @@ local function runRotation()
             if cast.iceNova() then return true end
         end
 
+        if buff.iceFloes.exists() then
+            if cast.frostbolt(target) then return true end
+        end
+
         --ice lance if all else fails
         if cast.iceLance(target) and isMoving("player") then return true end
         return false
