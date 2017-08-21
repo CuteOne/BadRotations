@@ -280,7 +280,8 @@ function dynamicTarget(range,facing)
 		end
 	end
 	--br.debug.cpu.enemiesEngine.dynamicTarget = debugprofilestop()-startTime or 0
-	if bestUnit ~= "target" or isValidUnit("target") then return bestUnit end
+	if bestUnit == nil and isValidUnit("target") then bestUnit = target end
+	return bestUnit
 end
 
 -- get the best aoe interupt unit for a given range

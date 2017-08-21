@@ -30,7 +30,7 @@ frame:RegisterUnitEvent("UI_ERROR_MESSAGE")
 function frame:OnEvent(event, arg1, arg2, arg3, arg4, arg5)
 	if event == "ADDON_LOADED" and arg1 == "BadRotations" then
 		-- Load Settings
-		br.data = brdata
+		br.data = deepcopy(brdata)
 		br.dungeon = deepcopy(dungeondata)
 		br.mdungeon = deepcopy(mdungeondata)
 		br.raid = deepcopy(raiddata)
@@ -52,7 +52,7 @@ function frame:OnEvent(event, arg1, arg2, arg3, arg4, arg5)
 			br.mraid = {}
         else
         	-- Save Settings
-        	brdata = br.data
+        	brdata = deepcopy(br.data)
         	dungeondata = deepcopy(br.dungeon)
         	mdungeondata = deepcopy(br.mdungeon)
         	raiddata = deepcopy(br.raid)

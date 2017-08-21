@@ -37,7 +37,7 @@ end
 local function createOptions()
     local optionTable
 
-    local function rotationOptions() 
+    local function rotationOptions()
         -----------------------
         --- GENERAL OPTIONS ---
         -----------------------
@@ -51,11 +51,9 @@ local function createOptions()
             -- Greater Blessing of Might
             -- br.ui:createCheckbox(section, "Greater Blessing of Might
 			-- Greater Blessing of Kings
-            if tankList == nil then tankList = {} end
-			br.ui:createDropdown(section, "Greater Blessing of Kings", tankList, 1, "|cffFFFFFFSet player to cast kings on.")
+			br.ui:createCheckbox(section, "Greater Blessing of Kings")
 			-- Greater Blessing of Wisdom
-            if healList == nil then healList = {} end
-			br.ui:createDropdown(section, "Greater Blessing of Wisdom", healList, 1, "|cffFFFFFFSet player to cast wisdom on.")
+			br.ui:createCheckbox(section, "Greater Blessing of Wisdom")
             -- Hand of Freedom
             br.ui:createCheckbox(section, "Hand of Freedom")
             -- Hand of Hindeance
@@ -244,8 +242,8 @@ local function runRotation()
         end
         -- variable,name=ds_castable,value=spell_targets.divine_storm>=2|(buff.scarlet_inquisitors_expurgation.stack>=29&(buff.avenging_wrath.up|(buff.crusade.up&buff.crusade.stack>=15)|(cooldown.crusade.remains>15&!buff.crusade.up)|cooldown.avenging_wrath.remains>15))
         local dsCastable = (mode.rotation == 1 and (#enemies.yards8 >= getOptionValue("Divine Storm Units") or (buff.scarletInquisitorsExpurgation.stack() >= 29 and (buff.avengingWrath.exists() or (buff.crusade.exists() and buff.crusade.stack >= 15) or (cd.crusade > 15 and not buff.crusade.exists()) or cd.avengingWrath > 15)))) or mode.rotation == 2
-    
-    -- Find Lowest Unit
+        local greaterBuff
+        greaterBuff = 0
         local lowestUnit
         lowestUnit = "player"
         for i = 1, #br.friend do
@@ -255,20 +253,10 @@ local function runRotation()
             if thisHP < lowestHP then
                 lowestUnit = thisUnit
             end
+            -- if UnitBuffID(thisUnit,spell.buffs.greaterBlessingOfMight) ~= nil then
+            --     greaterBuff = greaterBuff + 1
+            -- end
         end
-
-    -- Build Tank and Healer Lists
-        tankList = {UnitName("player")}
-        healList = {UnitName("player")}
-        for i = 1, #br.friend do
-            local thisUnit = br.friend[i].unit
-            local thisName = select(1,UnitName(thisUnit))
-            local unitRole = UnitGroupRolesAssigned(thisUnit)
-            if unitRole == "TANK" then table.insert(tankList, thisName) end
-            if unitRole == "HEALER" then table.insert(healList, thisName) end
-        end
-        br.ui:updateDropdown("Greater Blessing of Kings",tankList)
-        br.ui:updateDropdown("Greater Blessing of Wisdom",healList)
 
 --------------------
 --- Action Lists ---
@@ -283,160 +271,164 @@ local function runRotation()
             if isChecked("Hand of Hinderance") and isMoving("target") and not getFacing("target","player") and getDistance("target") > 8 then
                 if cast.handOfHinderance("target") then return end
             end
+        -- Greater Blessing of Might
+            -- if isChecked("Greater Blessing of Might") and greaterBuff < 3 then
+            --     for i = 1, #br.friend do
+            --         local thisUnit = br.friend[i].unit
+            --         local unitRole = UnitGroupRolesAssigned(thisUnit)
+            --         if UnitBuffID(thisUnit,spell.buffs.greaterBlessingOfMight) == nil and (unitRole == "DAMAGER" or solo) then
+            --             if cast.greaterBlessingOfMight(thisUnit) then return end
+            --         end
+            --     end
+            -- end
 		-- Greater Blessing of Kings
-            local kingsUnit = tostring(getOptionText("Greater Blessing of Kings"))
-			if isChecked("Greater Blessing of Kings") and not IsMounted() then
-                if buff.greaterBlessingOfKings.remain(kingsUnit) < 600 then
-				    cast.greaterBlessingOfKings(kingsUnit)
-                end
+			if isChecked("Greater Blessing of Kings") and getBuffRemain("player",203538) < 600 and not IsMounted() then
+				cast.greaterBlessingOfKings()
 			end
 		-- Greater Blessing of Wisdom
-            local wisdomUnit = tostring(getOptionText("Greater Blessing of Wisdom"))
-			if isChecked("Greater Blessing of Wisdom") and not IsMounted() then
-				if buff.greaterBlessingOfWisdom.remain(wisdomUnit) < 600 then
-                    cast.greaterBlessingOfWisdom(wisdomUnit)
-                end
+			if isChecked("Greater Blessing of Wisdom") and getBuffRemain("player",203539) < 600 and not IsMounted() then
+				cast.greaterBlessingOfWisdom()
 			end
         end -- End Action List - Extras
     -- Action List - Defensives
         local function actionList_Defensive()
             if useDefensive() then
-			-- Lay On Hands
-				if isChecked("Lay On Hands") and inCombat then
-				-- Player
-					if getOptionValue("Lay on Hands Target") == 1 then
-						if php <= getValue("Lay On Hands") then
-							if cast.layOnHands("player") then return true end
-						end
-				-- Target
-					elseif getOptionValue("Lay on Hands Target") == 2 then
-						if getHP("target") <= getValue("Lay On Hands") then
-							if cast.layOnHands("target") then return true end
-						end
-				-- Mouseover
-					elseif getOptionValue("Lay on Hands Target") == 3 then
-						if getHP("mouseover") <= getValue("Lay On Hands") then
-							if cast.layOnHands("mouseover") then return true end
-						end
-				-- LowestUnit
-					elseif getHP(lowestUnit) <= getValue("Lay On Hands") then
-					-- Tank
-						if getOptionValue("Lay on Hands Target") == 4 then
-							if UnitGroupRolesAssigned(lowestUnit) == "TANK" then
-								if cast.layOnHands(lowestUnit) then return true end
+				-- Lay On Hands
+					if isChecked("Lay On Hands") and inCombat then
+					-- Player
+						if getOptionValue("Lay on Hands Target") == 1 then
+							if php <= getValue("Lay On Hands") then
+								if cast.layOnHands("player") then return true end
 							end
-					-- Healer
-						elseif getOptionValue("Lay on Hands Target") == 5 then
-							if UnitGroupRolesAssigned(lowestUnit) == "HEALER" then
-								if cast.layOnHands(lowestUnit) then return true end
+					-- Target
+						elseif getOptionValue("Lay on Hands Target") == 2 then
+							if getHP("target") <= getValue("Lay On Hands") then
+								if cast.layOnHands("target") then return true end
 							end
-					-- Healer/Tank
-						elseif getOptionValue("Lay on Hands Target") == 6 then
-							if UnitGroupRolesAssigned(lowestUnit) == "HEALER" or UnitGroupRolesAssigned(lowestUnit) == "TANK" then
-								if cast.layOnHands(lowestUnit) then return true end
+					-- Mouseover
+						elseif getOptionValue("Lay on Hands Target") == 3 then
+							if getHP("mouseover") <= getValue("Lay On Hands") then
+								if cast.layOnHands("mouseover") then return true end
 							end
-					-- Healer/Damager
-						elseif getOptionValue("Lay on Hands Target") == 7 then
-							if UnitGroupRolesAssigned(lowestUnit) == "HEALER" or UnitGroupRolesAssigned(lowestUnit) == "DAMAGER" then
-								if cast.layOnHands(lowestUnit) then return true end
-							end						
-					-- Any
-						elseif  getOptionValue("Lay on Hands Target") == 8 then
-							if cast.layOnHands(lowestUnit) then return true end
+					-- LowestUnit
+						elseif getHP(lowestUnit) <= getValue("Lay On Hands") then
+							-- Tank
+								if getOptionValue("Lay on Hands Target") == 4 then
+									if UnitGroupRolesAssigned(lowestUnit) == "TANK" then
+										if cast.layOnHands(lowestUnit) then return true end
+									end
+							-- Healer
+								elseif getOptionValue("Lay on Hands Target") == 5 then
+									if UnitGroupRolesAssigned(lowestUnit) == "HEALER" then
+										if cast.layOnHands(lowestUnit) then return true end
+									end
+							-- Healer/Tank
+								elseif getOptionValue("Lay on Hands Target") == 6 then
+									if UnitGroupRolesAssigned(lowestUnit) == "HEALER" or UnitGroupRolesAssigned(lowestUnit) == "TANK" then
+										if cast.layOnHands(lowestUnit) then return true end
+									end
+							-- Healer/Damager
+								elseif getOptionValue("Lay on Hands Target") == 7 then
+									if UnitGroupRolesAssigned(lowestUnit) == "HEALER" or UnitGroupRolesAssigned(lowestUnit) == "DAMAGER" then
+										if cast.layOnHands(lowestUnit) then return true end
+									end						
+							-- Any
+								elseif  getOptionValue("Lay on Hands Target") == 8 then
+									if cast.layOnHands(lowestUnit) then return true end
+								end
 						end
 					end
-				end
-			-- Divine Shield
-				if isChecked("Divine Shield") then
-					if php <= getOptionValue("Divine Shield") and inCombat then
-						if cast.divineShield() then return end
-					end
-				end
-			-- Pot/Stoned
-				if isChecked("Pot/Stoned") and php <= getOptionValue("Pot/Stoned")
-					and inCombat and (hasHealthPot() or hasItem(5512))
-				then
-					if canUse(5512) then
-						useItem(5512)
-					elseif canUse(healPot) then
-						useItem(healPot)
-					end
-				end
-			-- Heirloom Neck
-				if isChecked("Heirloom Neck") and php <= getOptionValue("Heirloom Neck") then
-					if hasEquiped(122667) then
-						if GetItemCooldown(122667)==0 then
-							useItem(122667)
+				-- Divine Shield
+					if isChecked("Divine Shield") then
+						if php <= getOptionValue("Divine Shield") and inCombat then
+							if cast.divineShield() then return end
 						end
 					end
-				end
-			-- Gift of the Naaru
-				if isChecked("Gift of the Naaru") and php <= getOptionValue("Gift of the Naaru") and php > 0 and race == "Draenei" then
-					if castSpell("player",racial,false,false,false) then return end
-				end
-			-- Blessing of Protection
-				if isChecked("Blessing of Protection") then
-					if getHP(lowestUnit) < getOptionValue("Blessing of Protection") and inCombat then
-						if cast.blessingOfProtection(lowestUnit) then return end
+				-- Pot/Stoned
+					if isChecked("Pot/Stoned") and php <= getOptionValue("Pot/Stoned")
+						and inCombat and (hasHealthPot() or hasItem(5512))
+					then
+						if canUse(5512) then
+							useItem(5512)
+						elseif canUse(healPot) then
+							useItem(healPot)
+						end
 					end
-				end
-			-- Blinding Light
-				if isChecked("Blinding Light - HP") and php <= getOptionValue("Blinding Light - HP") and inCombat and #enemies.yards10 > 0 then
-					if cast.blindingLight() then return end
-				end
-				if isChecked("Blinding Light - AoE") and #enemies.yards5 >= getOptionValue("Blinding Light - AoE") and inCombat then
-					if cast.blindingLight() then return end
-				end
-			-- Cleanse Toxins
-				if isChecked("Cleanse Toxins") then
-					if getOptionValue("Cleanse Toxins")==1 and canDispel("player",spell.cleanseToxins) then
-						if cast.cleanseToxins("player") then return end
+				-- Heirloom Neck
+					if isChecked("Heirloom Neck") and php <= getOptionValue("Heirloom Neck") then
+						if hasEquiped(122667) then
+							if GetItemCooldown(122667)==0 then
+								useItem(122667)
+							end
+						end
 					end
-					if getOptionValue("Cleanse Toxins")==2 and canDispel("target",spell.cleanseToxins) then
-						if cast.cleanseToxins("target") then return end
+				-- Gift of the Naaru
+					if isChecked("Gift of the Naaru") and php <= getOptionValue("Gift of the Naaru") and php > 0 and race == "Draenei" then
+						if castSpell("player",racial,false,false,false) then return end
 					end
-					if getOptionValue("Cleanse Toxins")==3 and canDispel("mouseover",spell.cleanseToxins) then
-						if cast.cleanseToxins("mouseover") then return end
+				-- Blessing of Protection
+					if isChecked("Blessing of Protection") then
+						if getHP(lowestUnit) < getOptionValue("Blessing of Protection") and inCombat then
+							if cast.blessingOfProtection(lowestUnit) then return end
+						end
 					end
-				end
-			-- Eye for an Eye
-				if isChecked("Eye for an Eye") then
-					if php <= getOptionValue("Eye for an Eye") and inCombat then
-						if cast.eyeForAnEye() then return end
+				-- Blinding Light
+					if isChecked("Blinding Light - HP") and php <= getOptionValue("Blinding Light - HP") and inCombat and #enemies.yards10 > 0 then
+						if cast.blindingLight() then return end
 					end
-				end
-			-- Shield of Vengeance
-				if isChecked("Shield of Vengeance") then
-					if php <= getOptionValue("Shield of Vengeance") and inCombat then
-						if cast.shieldOfVengeance() then return end
+					if isChecked("Blinding Light - AoE") and #enemies.yards5 >= getOptionValue("Blinding Light - AoE") and inCombat then
+						if cast.blindingLight() then return end
 					end
-				end
-			-- Hammer of Justice
-				if isChecked("Hammer of Justice - HP") and php <= getOptionValue("Hammer of Justice - HP") and inCombat then
-					if cast.hammerOfJustice() then return end
-				end
-				if isChecked("Hammer of Justice - Legendary") and getHP("target") >= 75 and inCombat then
-					if cast.hammerOfJustice() then return end
-				end
-			-- Redemption
-				if isChecked("Redemption") then
-					if getOptionValue("Redemption")==1 and not isMoving("player") and resable then
-						if cast.redemption("target","dead") then return end
+				-- Cleanse Toxins
+					if isChecked("Cleanse Toxins") then
+						if getOptionValue("Cleanse Toxins")==1 and canDispel("player",spell.cleanseToxins) then
+							if cast.cleanseToxins("player") then return end
+						end
+						if getOptionValue("Cleanse Toxins")==2 and canDispel("target",spell.cleanseToxins) then
+							if cast.cleanseToxins("target") then return end
+						end
+						if getOptionValue("Cleanse Toxins")==3 and canDispel("mouseover",spell.cleanseToxins) then
+							if cast.cleanseToxins("mouseover") then return end
+						end
 					end
-					if getOptionValue("Redemption")==2 and not isMoving("player") and resable then
-						if cast.redemption("mouseover","dead") then return end
+				-- Eye for an Eye
+					if isChecked("Eye for an Eye") then
+						if php <= getOptionValue("Eye for an Eye") and inCombat then
+							if cast.eyeForAnEye() then return end
+						end
 					end
-				end
-			-- Flash of Light
-				if isChecked("Flash of Light") then
-					if (forceHeal or (inCombat and php <= getOptionValue("Flash of Light") / 2) or (not inCombat and php <= getOptionValue("Flash of Light"))) and not isMoving("player") then
-						if cast.flashOfLight() then return end
+				-- Shield of Vengeance
+					if isChecked("Shield of Vengeance") then
+						if php <= getOptionValue("Shield of Vengeance") and inCombat then
+							if cast.shieldOfVengeance() then return end
+						end
 					end
-				end
-			-- Engineering: Gunpowder Charge
-				if isChecked("Gunpowder Charge") and (getOptionValue("Gunpowder Charge") <= ttd ) and inCombat and canUse(132510) then
-					useItem(132510)
-				end
+				-- Hammer of Justice
+					if isChecked("Hammer of Justice - HP") and php <= getOptionValue("Hammer of Justice - HP") and inCombat then
+						if cast.hammerOfJustice() then return end
+					end
+					if isChecked("Hammer of Justice - Legendary") and getHP("target") >= 75 and inCombat then
+						if cast.hammerOfJustice() then return end
+					end
+				-- Redemption
+					if isChecked("Redemption") then
+						if getOptionValue("Redemption")==1 and not isMoving("player") and resable then
+							if cast.redemption("target","dead") then return end
+						end
+						if getOptionValue("Redemption")==2 and not isMoving("player") and resable then
+							if cast.redemption("mouseover","dead") then return end
+						end
+					end
+				-- Flash of Light
+					if isChecked("Flash of Light") then
+						if (forceHeal or (inCombat and php <= getOptionValue("Flash of Light") / 2) or (not inCombat and php <= getOptionValue("Flash of Light"))) and not isMoving("player") then
+							if cast.flashOfLight() then return end
+						end
+					end
+				-- Engineering: Gunpowder Charge
+					if isChecked("Gunpowder Charge") and (getOptionValue("Gunpowder Charge") <= ttd ) and inCombat and canUse(132510) then
+						useItem(132510)
+					end
             end
         end -- End Action List - Defensive
     -- Action List - Interrupts
