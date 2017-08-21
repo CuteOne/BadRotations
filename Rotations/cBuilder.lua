@@ -240,6 +240,7 @@ function br.loader:new(spec,specName)
             if spellName == nil then Print("Invalid Spell ID: "..v.." for key: "..k) end
             if minUnits == nil then minUnits = 1 end
             if effectRng == nil then effectRng = 5 end
+            if debug == nil then debug = "Norm" end
             if --[[isChecked("Use: "..spellName) and ]]not select(2,IsUsableSpell(v)) and getSpellCD(v) == 0 and (isKnown(v) or debug == "known") then -- and amIinRange then
                 if thisUnit == nil then
                     if spellType == "Helpful" then
@@ -270,7 +271,6 @@ function br.loader:new(spec,specName)
                     elseif (debug == "item" or (debug == "toy" and PlayerHasToy(v))) and canUse(spellCast) then
                         return useItem(spellCast)
                     elseif thisUnit == "best" then
---                         Print("Casting "..spellName..", EffRng: "..effectRng..", minUnits "..minUnits..", maxRange "..maxRange..", minRange "..minRange)
                         return castGroundAtBestLocation(spellCast,effectRng,minUnits,maxRange,minRange,debug)
                     elseif thisUnit == "playerGround" then
                         return castGroundAtUnit(spellCast,effectRng,minUnits,maxRange,minRange,debug,"player")

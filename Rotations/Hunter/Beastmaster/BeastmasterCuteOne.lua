@@ -65,7 +65,7 @@ local function createOptions()
         -- Dummy DPS Test
             br.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
         -- AoE Units
-            br.ui:createSpinner(section, "Units To AoE", 2, 1, 10, 1, "|cffFFFFFFSet to desired units to start AoE at.")
+            br.ui:createSpinnerWithout(section, "Units To AoE", 2, 1, 10, 1, "|cffFFFFFFSet to desired units to start AoE at.")
         -- Artifact
             br.ui:createDropdownWithout(section,"Artifact", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Artifact Ability.")
         br.ui:checkSectionState(section)
@@ -381,53 +381,51 @@ local function runRotation()
     -- Action List - Cooldowns
         local function actionList_Cooldowns()
             if useCDs() then
-                if buff.bestialWrath.exists() then
-                -- Trinkets
-                    -- use_items
-                    if useCDs() and getOptionValue("Trinkets") ~= 4 then
-                        if (getOptionValue("Trinkets") == 1 or getOptionValue("Trinkets") == 3) and canUse(13) then
-                            useItem(13)
-                        end
-                        if (getOptionValue("Trinkets") == 2 or getOptionValue("Trinkets") == 3) and canUse(14) then
-                            useItem(14)
-                        end
+            -- Trinkets
+                -- use_items
+                if useCDs() and getOptionValue("Trinkets") ~= 4 then
+                    if (getOptionValue("Trinkets") == 1 or getOptionValue("Trinkets") == 3) and canUse(13) then
+                        useItem(13)
                     end
-                -- Racial
-                    -- arcane_torrent,if=focus.deficit>=30
-                    -- berserking,if=buff.bestial_wrath.remains>7
-                    -- blood_fury,if=buff.bestial_wrath.remains>7
-                    if isChecked("Racial") and cd.racial == 0
-                        and ((buff.bestialWrath.remain() > 7 and (br.player.race == "Orc" or br.player.race == "Troll")) 
-                            or (powerDeficit >= 30 and br.player.race == "BloodElf")) 
-                    then
-                         if castSpell("player",racial,false,false,false) then return end
+                    if (getOptionValue("Trinkets") == 2 or getOptionValue("Trinkets") == 3) and canUse(14) then
+                        useItem(14)
                     end
-                -- Potion
-                    -- potion,if=buff.bestial_wrath.up&buff.aspect_of_the_wild.up
-                    if isChecked("Potion") and canUse(142117) and inRaid and buff.bestialWrath.exists() and buff.aspectOfTheWild.exists() then
-                        useItem(142117);
-                        return true
-                    end
-                -- A Murder of Crows
-                    -- a_murder_of_crows,if=cooldown.bestial_wrath.remains<3|cooldown.bestial_wrath.remains>30|target.time_to_die<16
-                    if isChecked("A Murder of Crows / Barrage") and cd.bestialWrath < 3 or cd.bestialWrath > 30 or ttd(units.dyn40) < 16 then
-                        if cast.aMurderOfCrows() then return end
-                    end
-                -- Beastial Wrath
-                    -- bestial_wrath,if=!buff.bestial_wrath.up
-                    if isChecked("Beastial Wrath") and not buff.bestialWrath.exists() then
-                        if cast.bestialWrath() then return end
-                    end
-                -- Stampede
-                    -- stampede,if=buff.bloodlust.up|buff.bestial_wrath.up|cooldown.bestial_wrath.remains<=2|target.time_to_die<=14
-                    if isChecked("Stampede") and (hasBloodLust() or buff.bestialWrath.exists() or cd.bestialWrath <= 2 or ttd(units.dyn40) <= 14) then
-                        if cast.stampede() then return end
-                    end
-                -- Aspect of the Wild
-                    -- aspect_of_the_wild,if=(equipped.call_of_the_wild&equipped.convergence_of_fates&talent.one_with_the_pack.enabled)|buff.bestial_wrath.remains>7|target.time_to_die<12
-                    if isChecked("Aspect of the Wild") and (hasEquiped(137101) and hasEquiped(140806) and talent.oneWithThePack) or buff.bestialWrath.remain() > 7 or ttd(units.dyn40) < 12 then
-                        if cast.aspectOfTheWild() then return end
-                    end
+                end
+            -- Racial
+                -- arcane_torrent,if=focus.deficit>=30
+                -- berserking,if=buff.bestial_wrath.remains>7
+                -- blood_fury,if=buff.bestial_wrath.remains>7
+                if isChecked("Racial") and cd.racial == 0
+                    and ((buff.bestialWrath.remain() > 7 and (br.player.race == "Orc" or br.player.race == "Troll")) 
+                        or (powerDeficit >= 30 and br.player.race == "BloodElf")) 
+                then
+                     if castSpell("player",racial,false,false,false) then return end
+                end
+            -- Potion
+                -- potion,if=buff.bestial_wrath.up&buff.aspect_of_the_wild.up
+                if isChecked("Potion") and canUse(142117) and inRaid and buff.bestialWrath.exists() and buff.aspectOfTheWild.exists() then
+                    useItem(142117);
+                    return true
+                end
+            -- A Murder of Crows
+                -- a_murder_of_crows,if=cooldown.bestial_wrath.remains<3|cooldown.bestial_wrath.remains>30|target.time_to_die<16
+                if isChecked("A Murder of Crows / Barrage") and cd.bestialWrath < 3 or cd.bestialWrath > 30 or ttd(units.dyn40) < 16 then
+                    if cast.aMurderOfCrows() then return end
+                end
+            -- Beastial Wrath
+                -- bestial_wrath,if=!buff.bestial_wrath.up
+                if isChecked("Bestial Wrath") and not buff.bestialWrath.exists() then
+                    if cast.bestialWrath() then return end
+                end
+            -- Stampede
+                -- stampede,if=buff.bloodlust.up|buff.bestial_wrath.up|cooldown.bestial_wrath.remains<=2|target.time_to_die<=14
+                if isChecked("Stampede") and (hasBloodLust() or buff.bestialWrath.exists() or cd.bestialWrath <= 2 or ttd(units.dyn40) <= 14) then
+                    if cast.stampede() then return end
+                end
+            -- Aspect of the Wild
+                -- aspect_of_the_wild,if=(equipped.call_of_the_wild&equipped.convergence_of_fates&talent.one_with_the_pack.enabled)|buff.bestial_wrath.remains>7|target.time_to_die<12
+                if isChecked("Aspect of the Wild") and (hasEquiped(137101) and hasEquiped(140806) and talent.oneWithThePack) or buff.bestialWrath.remain() > 7 or ttd(units.dyn40) < 12 then
+                    if cast.aspectOfTheWild() then return end
                 end
             end -- End useCooldowns check
         end -- End Action List - Cooldowns
@@ -522,12 +520,12 @@ local function runRotation()
                     end
             -- Dire Beast
                     -- dire_beast,if=((!equipped.qapla_eredun_war_order|cooldown.kill_command.remains>=1)&(set_bonus.tier19_2pc|!buff.bestial_wrath.up))|full_recharge_time<gcd.max|cooldown.titans_thunder.up|spell_targets>1
-                    if ((not hasEquiped(137227) or cd.killCommand >= 1) and (t19_2pc or not buff.bestialWrath.exists())) or rechargeFull.direBeast < gcdMax or cd.titanthunder == 0 or #enemies.yards8pet >= getOptionValue("Units To AoE") then
+                    if not talent.direFrenzy and (((not hasEquiped(137227) or cd.killCommand >= 1) and (t19_2pc or not buff.bestialWrath.exists())) or rechargeFull.direBeast < gcdMax or cd.titanthunder == 0 or #enemies.yards8pet >= getOptionValue("Units To AoE")) then
                         if cast.direBeast() then return end
                     end
             -- Dire Frenzy
                     -- dire_frenzy,if=(pet.cat.buff.dire_frenzy.remains<=gcd.max*1.2)|full_recharge_time<gcd.max|target.time_to_die<9
-                    if talent.direFrenzy and ((buff.direFrenzy.remain("pet") <= gcdMax * 1.2) or rechargeFull.direFrenzy < gcdMax or ttd(units.dyn40) < 9) then
+                    if talent.direFrenzy and charges.direFrenzy > 0 and ((buff.direFrenzy.remain("pet") <= gcdMax * 1.2) or rechargeFull.direFrenzy < gcdMax or ttd(units.dyn40) < 9) then
                         if cast.direFrenzy() then return end
                     end
             -- Barrage
@@ -538,7 +536,7 @@ local function runRotation()
             -- Titan's Thunder
                     -- titans_thunder,if=(talent.dire_frenzy.enabled&(buff.bestial_wrath.up|cooldown.bestial_wrath.remains>35))|buff.bestial_wrath.up
                     if (getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs())) then
-                        if (talent.direFrenzy and (buff.bestialWrath.exists() or cd.bestialWrath > 35)) or buff.bestialWrath.exists() then
+                        if (talent.direFrenzy and (buff.bestialWrath.exists() or cd.bestialWrath > 35)) or buff.bestialWrath.exists() or (getOptionValue("Artifact") == 1 and not useCDs()) then
                             if cast.titansThunder() then return end
                         end
                     end
@@ -565,13 +563,13 @@ local function runRotation()
             -- Cobra Shot
                     -- cobra_shot,if=(cooldown.kill_command.remains>focus.time_to_max&cooldown.bestial_wrath.remains>focus.time_to_max)|(buff.bestial_wrath.up&(spell_targets.multishot=1|focus.regen*cooldown.kill_command.remains>action.kill_command.cost))|target.time_to_die<cooldown.kill_command.remains|(equipped.parsels_tongue&buff.parsels_tongue.remains<=gcd.max*2)
                     if (cd.killCommand > ttm and cd.bestialWrath > ttm) or (buff.bestialWrath.exists() and (#enemies.yards8pet < getOptionValue("Units To AoE") 
-                        or regen * cd.killCommand > select(1, getSpellCost(spell.killCommand)))) or ttd(units.dyn40) < cd.killCommand or (hasEquiped(151805) and buff.parselsTongue.remain() <= gcdMax * 2) or level < 10
+                        or powerRegen * cd.killCommand > select(1, getSpellCost(spell.killCommand)))) or ttd(units.dyn40) < cd.killCommand or (hasEquiped(151805) and buff.parselsTongue.remain() <= gcdMax * 2) or level < 10
                     then
                         if cast.cobraShot() then return end
                     end
             -- Dire Beast
                     -- dire_beast,if=buff.bestial_wrath.up
-                    if buff.bestialWrath.exists() then
+                    if not talent.direFrenzy and buff.bestialWrath.exists() then
                         if cast.direBeast() then return end
                     end
                 end -- End SimC APL
