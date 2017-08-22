@@ -752,7 +752,7 @@ local function runRotation()
             end
         -- Aimed Shot
             -- aimed_shot,if=spell_targets>1&talent.trick_shot.enabled&debuff.vulnerability.remains>cast_time&(buff.sentinels_sight.stack>=spell_targets.multishot*5|buff.sentinels_sight.stack+(spell_targets.multishot%2)>20|buff.lock_and_load.up|(set_bonus.tier20_2pc&!buff.t20_2p_critical_aimed_damage.up&action.aimed_shot.in_flight))
-            if ((mode.rotation == 1 and #enemies.yards40 >= 1) or mode.rotation == 2) and talent.trickShot and debuff.vulnerable.remain(units.dyn40) > getCastTime(spell.aimedShot)  and (buff.sentinelsSight.stack() >= #enemies.yards8t * 5 or (buff.sentinelsSight.stack() + ((#enemies.yards8t % 2)) > 20) or buff.lockAndLoad.exists() or (t20_2pc and not buff.t20_2pc_critical_aimed.exists() and lastSpellCast == spell.aimedShot ))  then
+            if ((mode.rotation == 1 and #enemies.yards40 > 1) or mode.rotation == 2) and talent.trickShot and debuff.vulnerable.remain(units.dyn40) > getCastTime(spell.aimedShot)  and (buff.sentinelsSight.stack() >= #enemies.yards8t * 5 or (buff.sentinelsSight.stack() + ((#enemies.yards8t % 2)) > 20) or buff.lockAndLoad.exists() or (t20_2pc and not buff.t20_2pc_critical_aimed.exists() and lastSpellCast == spell.aimedShot ))  then
                 if cast.aimedShot(units.dyn40) then return end
             end
         -- Marked Shot
