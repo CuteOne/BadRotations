@@ -2991,6 +2991,7 @@ br.idList = {
                 corruptedBloodOfZakajz      = 209567,
                 defensiveStance             = 197690,
                 focusedRage                 = 207982,
+                inForTheKill                = 215550,
                 overpower                   = 60503,
                 preciseStrikes              = 209493,
                 shatteredDefenses           = 209706,
