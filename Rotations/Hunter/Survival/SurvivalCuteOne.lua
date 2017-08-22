@@ -508,7 +508,7 @@ local function runRotation()
             end
         -- Raptor Strike
             -- raptor_strike,if=(talent.way_of_the_moknathal.enabled&buff.moknathal_tactics.remains<gcd*4)|(focus>((25-focus.regen*gcd)+55))
-            if (talent.wayOfTheMokNathal and buff.mokNathalTactics.remain() < gcd * 4) or (power > ((25 - powerRegen * gcd) + 55)) then
+            if (talent.wayOfTheMokNathal and buff.mokNathalTactics.remain() < gcd * 4) or (power > ((25 - powerRegen * gcd) + 55)) or ((level < 20 and cd.flankingStrike > 0) or level < 12) then
                 if cast.raptorStrike() then return end
             end
         end
@@ -710,11 +710,11 @@ local function runRotation()
             -- Call Action List - AOE
                     -- call_action_list,name=aoe,if=active_enemies>=3
                     if ((mode.rotation == 1 and #enemies.yards5 >= getOptionValue("Units To AoE")) or (mode.rotation == 2 and #enemies.yards5 > 0)) 
-                        and (not talent.butchery or (talent.butchery and charges.butchery > 0)) 
+                        and (not talent.butchery or (talent.butchery and charges.butchery > 0)) and level >= 42
                     then
                         if actionList_AOE() then return end
                     end
-                    if ((mode.rotation == 1 and #enemies.yards5 < getOptionValue("Units To AoE")) or (mode.rotation == 3 and #enemies.yards5 > 0)) then
+                    if ((mode.rotation == 1 and #enemies.yards5 < getOptionValue("Units To AoE")) or (mode.rotation == 3 and #enemies.yards5 > 0)) and level >= 20 then
             -- Call Action List - Bite Phase
                         -- call_action_list,name=bitePhase
                         if actionList_BitePhase() then return end

@@ -403,7 +403,7 @@ local function runRotation()
                 end
             -- Potion
                 -- potion,if=buff.bestial_wrath.up&buff.aspect_of_the_wild.up
-                if isChecked("Potion") and canUse(142117) and inRaid and buff.bestialWrath.exists() and buff.aspectOfTheWild.exists() then
+                if isChecked("Potion") and canUse(142117) and inRaid and (buff.bestialWrath.exists() or level < 40) and (buff.aspectOfTheWild.exists() or level < 26) then
                     useItem(142117);
                     return true
                 end
@@ -562,14 +562,14 @@ local function runRotation()
                     end
             -- Cobra Shot
                     -- cobra_shot,if=(cooldown.kill_command.remains>focus.time_to_max&cooldown.bestial_wrath.remains>focus.time_to_max)|(buff.bestial_wrath.up&(spell_targets.multishot=1|focus.regen*cooldown.kill_command.remains>action.kill_command.cost))|target.time_to_die<cooldown.kill_command.remains|(equipped.parsels_tongue&buff.parsels_tongue.remains<=gcd.max*2)
-                    if (cd.killCommand > ttm and cd.bestialWrath > ttm) or (buff.bestialWrath.exists() and (#enemies.yards8pet < getOptionValue("Units To AoE") 
+                    if (cd.killCommand > ttm and cd.bestialWrath > ttm) or ((buff.bestialWrath.exists() or level < 40) and (#enemies.yards8pet < getOptionValue("Units To AoE") 
                         or powerRegen * cd.killCommand > select(1, getSpellCost(spell.killCommand)))) or ttd(units.dyn40) < cd.killCommand or (hasEquiped(151805) and buff.parselsTongue.remain() <= gcdMax * 2) or level < 10
                     then
                         if cast.cobraShot() then return end
                     end
             -- Dire Beast
                     -- dire_beast,if=buff.bestial_wrath.up
-                    if not talent.direFrenzy and buff.bestialWrath.exists() then
+                    if not talent.direFrenzy and (buff.bestialWrath.exists() or level < 40) then
                         if cast.direBeast() then return end
                     end
                 end -- End SimC APL

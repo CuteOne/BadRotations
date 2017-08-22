@@ -615,8 +615,8 @@ local function runRotation()
                 if cast.bladeDance() then return end
             end
         -- Fel Rush
-            -- fel_rush,if=charges=2&!talent.momentum.enabled&!talent.fel_mastery.enabled
-            if getFacing("player","target",10) and charges.felRush > getOptionValue("Hold Fel Rush Charge") and charges.felRush == 2 and not talent.momentum and not talent.felMastery then
+            -- fel_rush,if=charges=2&!talent.momentum.enabled&!talent.fel_mastery.enabled&!buff.metamorphosis.up
+            if getFacing("player","target",10) and charges.felRush > getOptionValue("Hold Fel Rush Charge") and charges.felRush == 2 and not talent.momentum and not talent.felMastery and not buff.metamorphosis.exists() then
                 if mode.mover == 1 and getDistance("target") < 8 then
                     cancelRushAnimation()
                 elseif mode.mover == 2 or (getDistance("target") >= 8 and mode.mover ~= 3) then
@@ -637,8 +637,8 @@ local function runRotation()
                 end
             end
         -- Blade Dance
-            -- blade_dance,if=variable.blade_dance&(!cooldown.metamorphosis.ready)
-            if not buff.metamorphosis.exists() and bladeDanceVar and (cd.metamorphosis ~= 0 or not isChecked("Metamorphosis") or not useCDs() or not isBoss()) then
+            -- blade_dance,if=variable.blade_dance
+            if not buff.metamorphosis.exists() and bladeDanceVar then
                 if cast.bladeDance() then return end
             end
         -- Throw Glaive

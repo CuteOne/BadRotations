@@ -393,7 +393,7 @@ function isValidUnit(Unit)
 		and UnitCanAttack("player",Unit) and isSafeToAttack(Unit) and getLineOfSight("player", Unit) and UnitInPhase(Unit) and not isCritter(thisUnit)
 	then
 		local inCombat = UnitAffectingCombat("player") or (GetObjectExists("pet") and UnitAffectingCombat("pet"))
-		local hasThreat = hasThreat(Unit) or (GetObjectExists("pet") and hasThreat(Unit,"pet"))
+		local hasThreat = hasThreat(Unit) or UnitTarget(Unit) == "player" or (GetObjectExists("pet") and (hasThreat(Unit,"pet") or UnitTarget(Unit) == "pet"))
 		-- print("Base Check Passed")
 		-- Unit is Soul Effigy
         -- if GetObjectID(Unit) == 103679 then return true end
@@ -416,7 +416,7 @@ function enemyListCheck(Unit)
 		and UnitCanAttack("player",Unit) and isSafeToAttack(Unit) and UnitInPhase(Unit) and not isCritter(Unit)
 	then
 		local inCombat = UnitAffectingCombat("player") or (GetObjectExists("pet") and UnitAffectingCombat("pet"))
-		local hasThreat = hasThreat(Unit) or (GetObjectExists("pet") and hasThreat(Unit,"pet"))
+		local hasThreat = hasThreat(Unit) or UnitTarget(Unit) == "player" or (GetObjectExists("pet") and (hasThreat(Unit,"pet") or UnitTarget(Unit) == "pet"))
 		-- print("Base Check Passed")
 		-- Unit is Soul Effigy
         -- if GetObjectID(Unit) == 103679 then return true end

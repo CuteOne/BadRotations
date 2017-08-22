@@ -256,6 +256,7 @@ local function runRotation()
         if ShdMTime == nil then ShdMTime = GetTime() end
         if buff.shadowBlades.exists() then shadowedBlade = 1 else shadowedBlade = 0 end
         if buff.theFirstOfTheDead.exists() then firstDead = 1 else firstDead = 0 end
+        if buff.theFirstOfTheDead.exists() and talent.anticipation then firstAnti = 1 else firstAnti = 0 end
         if hasEquiped(137032) then shadowWalker = 1 else shadowWalker = 0 end
         if hasEquiped(144236) then mantleMaster = 1 else mantleMaster = 0 end
         if mantleMaster == 1 and combatTime < 30 then mantleMasterRecent = 1 else mantleMasterRecent = 0 end
@@ -497,6 +498,11 @@ local function runRotation()
                         if cast.vanish() then vanishTime = GetTime(); return end
                     end
                 end
+        -- Shadow Dance
+                -- shadow_dance,if=!buff.shadow_dance.up&target.time_to_die<=4+talent.subterfuge.enabled
+                if useCDs() and isChecked("Shadow Dance") and not buff.shadowDance().exists() and ttd(units.dyn5) <= 4 + subty then
+                    if cast.shadowDance() then ShDCdTime = GetTime(); return end
+                end
             end -- End Cooldown Usage Check
         end -- End Action List - Cooldowns
     -- Action List - Stealth Cooldowns
@@ -568,8 +574,8 @@ local function runRotation()
                     end
                 end
             end
-            -- nightblade,if=remains<cooldown.symbols_of_death.remains+10&cooldown.symbols_of_death.remains<=5+(combo_points=6*2)
-            if debuff.nightblade.remain(units.dyn5) < cd.symbolsOfDeath + 10 and cd.symbolsOfDeath <= 5 then
+            -- nightblade,if=remains<cooldown.symbols_of_death.remains+10&cooldown.symbols_of_death.remains<=5+(combo_points=6*2)&target.time_to_die-remains>cooldown.symbols_of_death.remains+5
+            if debuff.nightblade.remain(units.dyn5) < cd.symbolsOfDeath + 10 and cd.symbolsOfDeath <= 5 and ttd(units.dyn5) - debuff.nightblade.remain(units.dyn5) > cd.symbolsOfDeath + 5 then
                  if cast.nightblade(units.dyn5) then return end
             end
         -- Death from Above
@@ -788,8 +794,8 @@ local function runRotation()
                         if actionList_Starter() then return end
                     end
         -- Finishers
-                    -- call_action_list,name=finish,if=combo_points>=5+(talent.deeper_stratagem.enabled&!buff.shadow_blades.up&(mantle_duration=0|set_bonus.tier20_4pc)&(!buff.the_first_of_the_dead.up|variable.dsh_dfa))|(combo_points>=4&combo_points.deficit<=2&spell_targets.shuriken_storm>=3&spell_targets.shuriken_storm<=4)|(target.time_to_die<=1&combo_points>=3)
-                    if combo >= 5 + dStratNoBlades
+                    -- call_action_list,name=finish,if=combo_points>=5+3*(buff.the_first_of_the_dead.up&talent.anticipation.enabled)+(talent.deeper_stratagem.enabled&!buff.shadow_blades.up&(mantle_duration=0|set_bonus.tier20_4pc)&(!buff.the_first_of_the_dead.up|variable.dsh_dfa))|(combo_points>=4&combo_points.deficit<=2&spell_targets.shuriken_storm>=3&spell_targets.shuriken_storm<=4)|(target.time_to_die<=1&combo_points>=3)
+                    if combo >= 5 + 3 * firstAnti + dStratNoBlades
                         or (combo >= 4 and comboDeficit <= 2 and #enemies.yards10 >= 3 and #enemies.yards10 <= 4)
                         or (ttd(units.dyn5) <= 1 and combo >= 3) 
                     then
