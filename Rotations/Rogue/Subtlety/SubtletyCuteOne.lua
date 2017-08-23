@@ -500,7 +500,7 @@ local function runRotation()
                 end
         -- Shadow Dance
                 -- shadow_dance,if=!buff.shadow_dance.up&target.time_to_die<=4+talent.subterfuge.enabled
-                if useCDs() and isChecked("Shadow Dance") and not buff.shadowDance().exists() and ttd(units.dyn5) <= 4 + subty then
+                if useCDs() and isChecked("Shadow Dance") and not buff.shadowDance.exists() and ttd(units.dyn5) <= 4 + subty then
                     if cast.shadowDance() then ShDCdTime = GetTime(); return end
                 end
             end -- End Cooldown Usage Check
