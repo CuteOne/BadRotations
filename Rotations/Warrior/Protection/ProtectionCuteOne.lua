@@ -444,7 +444,9 @@ local function runRotation()
             end
         -- Shield Block
             -- shield_block,if=!buff.neltharions_fury.up&((cooldown.shield_slam.remain()s<6&!buff.shield_block.up)|(cooldown.shield_slam.remain()s<6+buff.shield_block.remain()s&buff.shield_block.up))
-            if not buff.neltharionsFury.exists() and ((cd.shieldSlam < 6 and not buff.shieldBlock.exists()) or (cd.shieldSlam < 6 + buff.shieldBlock.remain() and buff.shieldBlock.exists())) then
+            if not buff.neltharionsFury.exists() and ((cd.shieldSlam < 6 and not buff.shieldBlock.exists()) or (cd.shieldSlam < 6 + buff.shieldBlock.remain() and buff.shieldBlock.exists())) 
+                and lastSpell ~= spell.shieldBlock 
+            then
                 if cast.shieldBlock() then return end
             end
         -- Potion
