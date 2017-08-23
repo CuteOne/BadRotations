@@ -734,7 +734,7 @@ local function runRotation()
         -- Vial of Ceaseless Toxins
                 -- use_item,name=vial_of_ceaseless_toxins,if=(buff.serenity.up&!equipped.specter_of_betrayal)|(equipped.specter_of_betrayal&(time<5|cooldown.serenity.remains<=8))|!talent.serenity.enabled|target.time_to_die<=cooldown.serenity.remains
                 if isChecked("Vial of Ceaseless Toxins") and hasEquiped(147011) and canUse(147011) then
-                    if (buff.serenity.exists() and not hasEquiped(151190)) or (hasEquiped(151190) and (combatTime < 5 or cd.serenity <= 8)) or not talent.serenity or ttd("target") <= cd.serenity then
+                    if (buff.serenity.exists() and not hasEquiped(151190)) or (hasEquiped(151190) and (combatTime < 5 or cd.serenity <= 8)) or not talent.serenity or ttd <= cd.serenity then
                         useItem(147011)
                     end
                 end
