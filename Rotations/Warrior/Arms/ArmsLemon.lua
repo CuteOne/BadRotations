@@ -1,3 +1,22 @@
+Skip to content
+This repository
+Search
+Pull requests
+Issues
+Marketplace
+Explore
+ @lemonlust
+ Sign out
+ Unwatch 24
+  Star 42
+  Fork 54 CuteOne/BadRotations
+ Code  Issues 12  Pull requests 0  Projects 0  Wiki Insights 
+Branch: master Find file Copy pathBadRotations/Rotations/Warrior/Arms/ArmsLemon.lua
+547920c  6 days ago
+@lemonlust lemonlust Arms Warrior OR not AND
+2 contributors @lemonlust @kuukuukuatchu
+RawBlameHistory     
+900 lines (840 sloc)  46.8 KB
 local rotationName = "Lemon"
 
 ---------------
@@ -613,7 +632,7 @@ local function runRotation()
             end
             
         --actions.single+=/rend,if=remains<=gcd.max|remains<5&cooldown.battle_cry.remains<2&(cooldown.bladestorm.remains<2|!set_bonus.tier20_4pc)
-            if debuff.rend.remain(units.dyn5) <= (latency+gcd) or debuff.rend.remain(units.dyn5) < 5 or cd.battleCry < 2 and (cd.bladestorm < 2 or not t20_4pc) then
+            if debuff.rend.remain(units.dyn5) <= (latency+gcd) or debuff.rend.remain(units.dyn5) < 5 and cd.battleCry < 2 and (cd.bladestorm < 2 or not t20_4pc) then
                 if cast.rend() then return end
             end
             
@@ -897,3 +916,15 @@ tinsert(br.rotations[id],{
     options = createOptions,
     run = runRotation,
 })
+© 2017 GitHub, Inc.
+Terms
+Privacy
+Security
+Status
+Help
+Contact GitHub
+API
+Training
+Shop
+Blog
+About
