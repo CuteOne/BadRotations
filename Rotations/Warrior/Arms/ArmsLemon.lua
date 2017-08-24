@@ -1,22 +1,3 @@
-Skip to content
-This repository
-Search
-Pull requests
-Issues
-Marketplace
-Explore
- @lemonlust
- Sign out
- Unwatch 24
-  Star 42
-  Fork 54 CuteOne/BadRotations
- Code  Issues 12  Pull requests 0  Projects 0  Wiki Insights 
-Branch: master Find file Copy pathBadRotations/Rotations/Warrior/Arms/ArmsLemon.lua
-547920c  6 days ago
-@lemonlust lemonlust Arms Warrior OR not AND
-2 contributors @lemonlust @kuukuukuatchu
-RawBlameHistory     
-900 lines (840 sloc)  46.8 KB
 local rotationName = "Lemon"
 
 ---------------
