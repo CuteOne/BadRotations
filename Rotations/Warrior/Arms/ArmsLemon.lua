@@ -613,7 +613,7 @@ local function runRotation()
             end
             
         --actions.single+=/rend,if=remains<=gcd.max|remains<5&cooldown.battle_cry.remains<2&(cooldown.bladestorm.remains<2|!set_bonus.tier20_4pc)
-            if debuff.rend.remain(units.dyn5) <= (latency+gcd) or debuff.rend.remain(units.dyn5) < 5 or cd.battleCry < 2 and (cd.bladestorm < 2 or not t20_4pc) then
+            if debuff.rend.remain(units.dyn5) <= (latency+gcd) or debuff.rend.remain(units.dyn5) < 5 and cd.battleCry < 2 and (cd.bladestorm < 2 or not t20_4pc) then
                 if cast.rend() then return end
             end
             
