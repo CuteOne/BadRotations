@@ -39,7 +39,7 @@ local function UpdatePet(thisUnit)
 	else
 		demoEmpBuff = false
 	end
-	local unitCount = br.player.enemies(10,thisUnit) or 0 --#getEnemies(thisUnit,10) or 0
+	local unitCount = #br.player.enemies(10,thisUnit) or 0 --#getEnemies(thisUnit,10) or 0
 	local pet 		= br.player.petInfo[thisUnit]
 	pet.deBuff = demoEmpBuff
 	pet.numEnemies = unitCount
