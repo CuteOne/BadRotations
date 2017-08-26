@@ -361,7 +361,7 @@ end
 function getEnemiesInRect(width,length,showLines)
 	local LibDraw = LibStub("LibDraw-1.0")
 	local playerX, playerY, playerZ = GetObjectPosition("player")
-	local facing = ObjectFacing("player")
+	local facing = ObjectFacing("player") or 0
 
 	-- Near Left
 	local nlX, nlY, nlZ = GetPositionFromPosition(playerX, playerY, playerZ, width/2, facing + math.rad(90), 0)

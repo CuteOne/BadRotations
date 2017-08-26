@@ -304,6 +304,24 @@ local function runRotation()
                     end
                 end
             end -- End Dummy Test
+        -- Misdirection
+            if mode.misdirection == 1 then
+                if cd.misdirection <= 0.1 then
+                    if isValidUnit("target") then
+                        if inInstance or inRaid then
+                            for i = 1, #br.friend do
+                                if (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and UnitAffectingCombat(br.friend[i].unit) then
+                                    if cast.misdirection(br.friend[i].unit) then return end
+                                end
+                            end
+                        else
+                            if GetUnitExists("pet") then
+                                if cast.misdirection("pet") then return end
+                            end
+                        end
+                    end
+                end
+            end
         end -- End Action List - Extras
     -- Action List - Defensive
         local function actionList_Defensive()

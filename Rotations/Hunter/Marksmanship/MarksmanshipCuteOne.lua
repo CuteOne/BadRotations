@@ -43,6 +43,12 @@ local function createToggles()
         [2] = { mode = "Off", value = 2 , overlay = "Piercing Shot Disabled", tip = "Piercing Shot will not be used.", highlight = 0, icon = br.player.spell.piercingShot }
     };
     CreateButton("Piercing",6,0)
+-- MD Button
+    MisdirectionModes = {
+        [1] = { mode = "On", value = 1 , overlay = "Misdirection Enabled", tip = "Misdirection Enabled", highlight = 1, icon = br.player.spell.misdirection },
+        [2] = { mode = "Off", value = 2 , overlay = "Misdirection Disabled", tip = "Misdirection Disabled", highlight = 0, icon = br.player.spell.misdirection }
+    };
+    CreateButton("Misdirection",7,0)
 end
 
 ---------------
@@ -158,6 +164,8 @@ local function runRotation()
         br.player.mode.explosive = br.data.settings[br.selectedSpec].toggles["Explosive"]
         UpdateToggle("Piercing",0.25)
         br.player.mode.piercing = br.data.settings[br.selectedSpec].toggles["Piercing"]
+        UpdateToggle("Misdirection",0.25)
+        br.player.mode.misdirection = br.data.settings[br.selectedSpec].toggles["Misdirection"]
 
 --------------
 --- Locals ---
@@ -407,6 +415,24 @@ local function runRotation()
                     end
                 end
             end -- End Dummy Test
+        -- Misdirection
+            if mode.misdirection == 1 then
+                if cd.misdirection <= 0.1 then
+                    if isValidUnit("target") then
+                        if inInstance or inRaid then
+                            for i = 1, #br.friend do
+                                if (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and UnitAffectingCombat(br.friend[i].unit) then
+                                    if cast.misdirection(br.friend[i].unit) then return end
+                                end
+                            end
+                        else
+                            if GetUnitExists("pet") then
+                                if cast.misdirection("pet") then return end
+                            end
+                        end
+                    end
+                end
+            end
         end -- End Action List - Extras
     -- Action List - Defensive
         local function actionList_Defensive()
