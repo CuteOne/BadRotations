@@ -706,7 +706,7 @@ function talentAnywhere()
     	return selectedTalent, newTalent -- selectedNew
     end
 
-	if PlayerTalentFrame:IsVisible() and not IsResting() then
+	if PlayerTalentFrame and PlayerTalentFrame:IsVisible() and not IsResting() then
         for row = 1, 7 do
         	selectedTalent, newTalent, selectedNew  = talentSelection(row)
         end
