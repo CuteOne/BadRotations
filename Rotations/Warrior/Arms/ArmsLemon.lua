@@ -214,6 +214,7 @@ local function runRotation()
         local falling, swimming, flying, moving             = getFallTime(), IsSwimming(), IsFlying(), GetUnitSpeed("player")>0
         local friendly                                      = friendly or UnitIsFriend("target", "player")
         local gcd                                           = br.player.gcd
+        local gcdMax                                        = br.player.gcdMax
         local hasMouse                                      = GetObjectExists("mouseover")
         local healPot                                       = getHealthPot()
         local heirloomNeck                                  = 122667 or 122668
@@ -534,10 +535,8 @@ local function runRotation()
             end
             
         --actions.execute+=/colossus_smash,if=buff.shattered_defenses.down&(buff.battle_cry.down|buff.battle_cry.remains>gcd.max)
-            if cd.colossusSmash == 0 then
-                if not buff.shatteredDefenses.exists() and (not buff.battleCry.exists() or buff.battleCry.remain() >= (latency+gcd)) then
-                    if cast.colossusSmash() then return end
-                end
+            if not buff.shatteredDefenses.exists() and (not buff.battleCry.exists() or buff.battleCry.remain() > gcdMax then
+                if cast.colossusSmash() then return end
             end
             
         --actions.single+=/warbreaker,if=((talent.fervor_of_battle.enabled&debuff.colossus_smash.remains<gcd)|!talent.fervor_of_battle.enabled&((buff.stone_heart.up|cooldown.mortal_strike.remains<=gcd.remains)&buff.shattered_defenses.down))
@@ -575,6 +574,7 @@ local function runRotation()
             if debuff.executionersPrecision.stack(units.dyn5) == 2 and buff.shatteredDefenses.exists() then
                 if cast.mortalStrike() then return end
             end
+
         --actions.execute+=/overpower,if=rage<40    
             if rage < 40 then 
                 if cast.overpower() then return end
@@ -589,6 +589,7 @@ local function runRotation()
             if isChecked("Bladestorm") and getDistance(units.dyn8) < 8 and #enemies.yards8 >= getOptionValue("Bladestorm") and not t20_4pc then
                 if cast.bladestorm() then return end
             end
+            
         end -- End Action List - Execute
         
     -- Action List - Single
@@ -613,7 +614,7 @@ local function runRotation()
             end
             
         --actions.single+=/rend,if=remains<=gcd.max|remains<5&cooldown.battle_cry.remains<2&(cooldown.bladestorm.remains<2|!set_bonus.tier20_4pc)
-            if debuff.rend.remain(units.dyn5) <= (latency+gcd) or debuff.rend.remain(units.dyn5) < 5 and cd.battleCry < 2 and (cd.bladestorm < 2 or not t20_4pc) then
+            if debuff.rend.remain(units.dyn5) <= (latency+gcd) or debuff.rend.remain(units.dyn5) < 5 or cd.battleCry < 2 and (cd.bladestorm < 2 or not t20_4pc) then
                 if cast.rend() then return end
             end
             
