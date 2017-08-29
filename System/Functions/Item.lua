@@ -51,7 +51,7 @@ function hasItem(itemID)
 end
 -- useItem(12345)
 function useItem(itemID)
-	--br.itemSpamDelay = br.itemSpamDelay or 0
+	br.itemSpamDelay = br.itemSpamDelay or 0
 	if itemID<=19 then
 		if GetItemSpell(GetInventoryItemID("player",itemID))~=nil then
 			local slotItemID = GetInventoryItemID("player",itemID)

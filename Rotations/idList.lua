@@ -906,11 +906,12 @@ br.idList = {
 
             },
             talents                         = {
-                direFrenzy                  = 217200,
                 aMurderOfCrows              = 131894,
                 barrage                     = 120360,
-                volley                      = 194386,
+                chimaeraShot                = 53209,
+                direFrenzy                  = 217200,
                 intimidation                = 19577,
+                volley                      = 194386,
             },
         },
         -- Marksmanship

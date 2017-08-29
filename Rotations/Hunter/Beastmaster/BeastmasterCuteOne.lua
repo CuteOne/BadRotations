@@ -573,10 +573,10 @@ local function runRotation()
                     if #enemies.yards8pet >= getOptionValue("Units To AoE") and (buff.beastCleave.remain("pet") < gcdMax or not buff.beastCleave.exists("pet")) then
                         if cast.multiShot() then return end
                     end
-            -- Chimera Shot
+            -- Chimaera Shot
                     -- chimaera_shot,if=focus<90
-                    if talent.chimeraShot and power < 90 then
-                        if cast.chimeraShot() then return end
+                    if talent.chimaeraShot and power < 90 then
+                        if cast.chimaeraShot() then return end
                     end
             -- Cobra Shot
                     -- cobra_shot,if=(cooldown.kill_command.remains>focus.time_to_max&cooldown.bestial_wrath.remains>focus.time_to_max)|(buff.bestial_wrath.up&(spell_targets.multishot=1|focus.regen*cooldown.kill_command.remains>action.kill_command.cost))|target.time_to_die<cooldown.kill_command.remains|(equipped.parsels_tongue&buff.parsels_tongue.remains<=gcd.max*2)
