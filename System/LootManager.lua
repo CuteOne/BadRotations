@@ -140,9 +140,9 @@ function lootManager:findLoot()
 	if br.timer:useTimer("findLoot", getOptionValue("Auto Loot")) then
 		lM:debug("Find Unit")
 		-- local objectCount = GetObjectCount() or 0
-		for i = 1, ObjectCount() do
-			if bit.band(GetObjectIndex(i), ObjectTypes.Unit) == 8 then
-				local thisUnit = GetObjectIndex(i)
+		for i = 1,GetObjectCount() do
+			local thisUnit = GetObjectIndex(i)
+			if ObjectIsType(thisUnit, ObjectType.Unit) then
 				local inRange = getDistance("player",thisUnit) < 2
 				local hasLoot,canLoot = CanLootUnit(UnitGUID(thisUnit))
 				if inRange then

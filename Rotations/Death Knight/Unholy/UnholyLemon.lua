@@ -228,7 +228,7 @@ local function runRotation()
     end
     
     local function GetObjExists(objectID)
-        for i = 1, ObjectCount() do
+        for i = 1,GetObjectCount() do
             local thisUnit = GetObjectWithIndex(i)
             if GetObjectExists(thisUnit) and GetObjectID(thisUnit) == objectID then
                 return true

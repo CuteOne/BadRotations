@@ -71,7 +71,7 @@ local function forewardDisengage() -- from Stinky Twitch
 			MoveBackwardStop() 
 			MoveAndSteerStop() 
 			JumpOrAscendStart() 
-			FaceDirection(mod(ObjectFacing("player") + math.pi, math.pi * 2))
+			UnitSetFacing(mod(ObjectFacing("player") + math.pi, math.pi * 2))
 		end) 
 		C_Timer.After(.25, function() 
 			CastSpellByID(781) 
@@ -82,7 +82,7 @@ local function forewardDisengage() -- from Stinky Twitch
 			MoveBackwardStop() 
 			MoveAndSteerStop() 
 			JumpOrAscendStart() 
-			FaceDirection(mod(ObjectFacing("player") + math.pi, math.pi * 2))
+			UnitSetFacing(mod(ObjectFacing("player") + math.pi, math.pi * 2))
 		end)  
 	end
 end

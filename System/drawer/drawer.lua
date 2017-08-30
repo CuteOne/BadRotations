@@ -33,10 +33,10 @@ LibDraw.Sync(function()
     if FireHack and isChecked("Use Drawer") == true then
         local drawTable = {}
         -- local objectCount = GetObjectCount() or 0
-        for i=1, ObjectCount() do
+        for i=1,GetObjectCount() do
             -- Locals
             local thisObject = GetObjectWithIndex(i)
-            if ObjectIsType(thisObject, ObjectTypes.GameObject) then
+            if ObjectIsType(thisObject, ObjectType.GameObject) then
                 -- Locals
                 local guid = UnitGUID(thisObject)
                 local objectName = ObjectName(thisObject)

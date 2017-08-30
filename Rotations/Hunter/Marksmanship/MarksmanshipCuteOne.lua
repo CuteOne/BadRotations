@@ -312,9 +312,9 @@ local function runRotation()
         local function getExplosiveDistance(otherUnit)
             -- Find Explosive Shot Object
             local explosiveObject = nil
-            if ObjectExists("target") and otherUnit == nil then otherUnit = "target" end
-            if not ObjectExists(otherUnit) then otherUnit = nil end
-            for i = 1, ObjectCount() do
+            if ObjectIsVisible("target") and otherUnit == nil then otherUnit = "target" end
+            if not ObjectIsVisible(otherUnit) then otherUnit = nil end
+            for i = 1,GetObjectCount() do
                 local thisUnit = GetObjectWithIndex(i)
                 if GetObjectID(thisUnit) == 11492 then
                     explosiveObject = thisUnit
@@ -326,9 +326,9 @@ local function runRotation()
                 end
             end
             -- Return Distances
-            if ObjectExists(explosiveObject) and ObjectExists(otherUnit) then
+            if ObjectIsVisible(explosiveObject) and ObjectIsVisible(otherUnit) then
                 return GetDistanceBetweenObjects(explosiveObject,otherUnit)
-            -- elseif ObjectExists("target") then
+            -- elseif ObjectIsVisible("target") then
             --     return GetDistanceBetweenObjects("target","player")
             else 
                 return 99

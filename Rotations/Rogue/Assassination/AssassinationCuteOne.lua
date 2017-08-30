@@ -872,7 +872,7 @@ local function runRotation()
                 else
                     if actionList_StealthBreaker() then return end
                 end
-                if (not stealthing or (ObjectExists(units.dyn5) and br.player.buff.vanish.exists())) then
+                if (not stealthing or (GetObjectExists(units.dyn5) and br.player.buff.vanish.exists())) then
                     if getDistance(units.dyn5) < 5 then
                         StartAttack()
                     end

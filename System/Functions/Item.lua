@@ -67,11 +67,11 @@ function useItem(itemID)
 		end
 	elseif itemID>19 and (GetItemCount(itemID) > 0 or PlayerHasToy(itemID)) then
 		if GetItemCooldown(itemID)==0 then
-			if not br.itemSpamDelay or GetTime() > br.itemSpamDelay then
+			-- if not br.itemSpamDelay or GetTime() > br.itemSpamDelay then
 				UseItemByName((select(1,GetItemInfo(itemID))));
 				br.itemSpamDelay = GetTime() + 1;
 				return true
-			end
+			-- end
 		end
 	end
 	return false

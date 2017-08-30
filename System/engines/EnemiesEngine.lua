@@ -117,7 +117,7 @@ function FindEnemy()
 	br.debug.cpu.enemiesEngine.unitTargets = 0
 	br.debug.cpu.enemiesEngine.sanityTargets = 0
 	local objectCount = GetObjectCount()
-		for k, v in pairs(br.enemy) do br.enemy[k]= nil end
+	for k, v in pairs(br.enemy) do br.enemy[k]= nil end
 	if br.player.petInfo ~= nil then
 		for k,v in pairs(br.player.petInfo) do br.player.petInfo[k] = nil end
 	end
@@ -126,7 +126,7 @@ function FindEnemy()
 			-- define our unit
 			local thisUnit = GetObjectWithIndex(i)
 			-- check if it a unit first
-			if ObjectIsType(thisUnit, ObjectTypes.Unit) then
+			if ObjectIsType(thisUnit, ObjectType.Unit) then
 				-- br.debug.cpu.enemiesEngine.unitTargets = br.debug.cpu.enemiesEngine.unitTargets + 1
 				-- Enemies
 				if enemyListCheck(thisUnit) then
@@ -393,7 +393,7 @@ function getEnemiesInRect(width,length,showLines)
 	local minY = math.min(nrY,nlY,frY,flY)
 	for i = 1, #enemiesTable do 
 		local thisUnit = enemiesTable[i] --GetObjectWithIndex(i)
-		-- if ObjectIsType(thisUnit, ObjectTypes.Unit) and isValidTarget(thisUnit) and (UnitIsEnemy(thisUnit,"player") or isDummy(thisUnit)) then
+		-- if ObjectIsType(thisUnit, ObjectType.Unit) and isValidTarget(thisUnit) and (UnitIsEnemy(thisUnit,"player") or isDummy(thisUnit)) then
 		local tX, tY, tZ = GetObjectPosition(thisUnit)
 		if isInside(tX,tY,nlX,nlY,nrX,nrY,frX,frY) then
 			if showLines then

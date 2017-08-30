@@ -215,7 +215,7 @@ local function runRotation()
         if useMindBlast == nil then useMindBlast = false end
         if leftCombat == nil then leftCombat = GetTime() end
         if profileStop == nil then profileStop = false end
-        if IsHackEnabled("NoKnockback") ~= nil then SetHackEnabled("NoKnockback", false) end
+        if HackEnabled("NoKnockback") ~= nil then HackEnabled("NoKnockback", false) end
         if t19_2pc then t19pc2 = 1 else t19pc2 = 0 end
         if t20_4pc then t20pc4 = 1 else t20pc4 = 0 end
         if hasBloodLust() then lusting = 1 else lusting = 0 end

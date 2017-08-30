@@ -705,7 +705,7 @@ local function runRotation()
 --- In Combat - Begin Rotation ---
 ----------------------------------
                     -- if not buff.stealth and not buff.vanish and not buff.shadowmeld and GetTime() > vanishTime + 2 and getDistance(units.dyn5) < 5 then
-                    if (not stealthing or (ObjectExists(units.dyn5) and buff.vanish.exists())) then
+                    if (not stealthing or (GetObjectExists(units.dyn5) and buff.vanish.exists())) then
                         rotationDebug = "In-Combat - Rotating"
                         StartAttack()
         -- Death from Above

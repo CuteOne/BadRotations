@@ -22,7 +22,7 @@ function br.ui:createWindow(name, width, height, title, color, messageWindow)
         br.ui:savePosition(name)
         br.data.settings[br.selectedSpec][name]["active"] = false
         DiesalGUI:OnMouse(this,button)
-        PlaySound("gsTitleOptionExit")
+        PlaySound(799)
         window:FireEvent("OnClose")
         window:Hide()
     end)

@@ -269,15 +269,15 @@ local function runRotation()
         end
         local function cancelRetreatAnimation()
             if castable.vengefulRetreat then
-                -- C_Timer.After(.001, function() SetHackEnabled("NoKnockback", true) end)
+                -- C_Timer.After(.001, function() HackEnabled("NoKnockback", true) end)
                 -- C_Timer.After(.35, function() cast.vengefulRetreat() end)
-                -- C_Timer.After(.55, function() SetHackEnabled("NoKnockback", false) end)
-                SetHackEnabled("NoKnockback", true)
-                if cast.vengefulRetreat() then SetHackEnabled("NoKnockback", false) end
+                -- C_Timer.After(.55, function() HackEnabled("NoKnockback", false) end)
+                HackEnabled("NoKnockback", true)
+                if cast.vengefulRetreat() then HackEnabled("NoKnockback", false) end
             end
             return
         end
-        if IsHackEnabled("NoKnockback") then SetHackEnabled("NoKnockback", false) end
+        if HackEnabled("NoKnockback") then HackEnabled("NoKnockback", false) end
 
         -- ChatOverlay("Pools - Meta: "..tostring(poolForMeta)..", BD: "..tostring(poolForBladeDance)..", CS: "..tostring(poolForChaosStrike))
 

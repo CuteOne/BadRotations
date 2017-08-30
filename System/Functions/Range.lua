@@ -41,11 +41,11 @@ function getDistance(Unit1,Unit2,option)
         if option == "dist3" then return dist3 end
         if option == "dist4" then return dist4 end
         if GetSpecializationInfo(GetSpecialization()) == 255 then
-        	if dist > meleeRange then
-        		currentDist = dist
-        	else
-        		currentDist = 0
-        	end
+            if dist > meleeRange then
+                currentDist = dist
+            else
+                currentDist = 0
+            end
         elseif dist > 13 then
             currentDist = dist
         elseif dist2 > 8 and dist3 > 8 then
@@ -116,7 +116,7 @@ function getTotemDistance(Unit1)
 
   if GetUnitIsVisible(Unit1) then
     -- local objectCount = GetObjectCount() or 0
-    for i = 1, ObjectCount() do
+    for i = 1,GetObjectCount() do
       if UnitIsUnit(UnitCreator(ObjectWithIndex(i)), "Player") and (UnitName(ObjectWithIndex(i)) == "Searing Totem" or UnitName(ObjectWithIndex(i)) == "Magma Totem") then
         X2,Y2,Z2 = GetObjectPosition(GetObjectIndex(i))
       end

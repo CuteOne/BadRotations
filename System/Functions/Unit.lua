@@ -4,7 +4,7 @@ function GetObjectExists(Unit)
         if Unit == "target" or Unit == "targettarget" then
             if not GetUnitExists(Unit) then return false end
         end
-		return ObjectExists(Unit)
+		return ObjectIsVisible(Unit)
 	else
 		return false
 	end
@@ -61,7 +61,7 @@ function GetObjectID(Unit)
 end
 --[[ OLD pcall functions
 function GetObjectExists(Unit)
-	if select(2,pcall(ObjectExists,Unit)) == true then
+	if select(2,pcall(GetObjectExists,Unit)) == true then
 		return true
 	else
 		return false
