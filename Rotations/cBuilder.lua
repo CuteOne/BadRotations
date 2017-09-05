@@ -93,6 +93,13 @@ function br.loader:new(spec,specName)
         if k ~= "rollTheBones" then
             if self.buff[k] == nil then self.buff[k] = {} end
             local buff = self.buff[k]
+            buff.cancel = function(thisUnit,sourceUnit)
+                if thisUnit == nil then thisUnit = 'player' end
+                if sourceUnit == nil then sourceUnit = 'player' end
+                if UnitBuffID(thisUnit,v,sourceUnit) ~= nil then
+                    CancelUnitBuff(thisUnit,v,sourceUnit)
+                end
+            end
             buff.exists = function(thisUnit,sourceUnit)
                 if thisUnit == nil then thisUnit = 'player' end
                 if sourceUnit == nil then sourceUnit = 'player' end
@@ -127,13 +134,13 @@ function br.loader:new(spec,specName)
         if GetSpecializationInfo(GetSpecialization()) == 103 then
             local multiplier        = 1.00
             local Bloodtalons       = 1.30
-            local SavageRoar        = 1.40
+            -- local SavageRoar        = 1.40
             local TigersFury        = 1.15
             local RakeMultiplier    = 1
             -- Bloodtalons
             if self.buff.bloodtalons.exists() then multiplier = multiplier*Bloodtalons end
             -- Savage Roar
-            if self.buff.savageRoar.exists() then multiplier = multiplier*SavageRoar end
+            -- if self.buff.savageRoar.exists() then multiplier = multiplier*SavageRoar end
             -- Tigers Fury
             if self.buff.tigersFury.exists() then multiplier = multiplier*TigersFury end
             -- rip
@@ -223,6 +230,7 @@ function br.loader:new(spec,specName)
         self.equiped[k] = canUse(v)
     end
 
+    -- if UnitDebuffID("player", 240447) ~= nil and (getCastTime(v) + 0.15) > getDebuffRemain("player",240447) then end
     -- Cycle through Abilities List
     for k,v in pairs(self.spell.abilities) do
         if self.cast            == nil then self.cast               = {} end        -- Cast Spell Functions
@@ -230,70 +238,85 @@ function br.loader:new(spec,specName)
 
         -- Build Cast Funcitons
         self.cast[k] = function(thisUnit,debug,minUnits,effectRng)
+            -- Invalid Spell ID Check
+            if GetSpellInfo(v) == nil then Print("Invalid Spell ID: "..v.." for key: "..k) end
+            -- Locals
             local spellCast = v
             local spellName = GetSpellInfo(v)
             local spellType = getSpellType(spellName)
             local minRange = select(5,GetSpellInfo(spellName)) or 0
             local maxRange = select(6,GetSpellInfo(spellName))
-            if not maxRange or maxRange == 0 then maxRange = 5 end
-            if UnitDebuffID("player", 240447) ~= nil and (getCastTime(v) + 0.15) > getDebuffRemain("player",240447) then end
-            if spellName == nil then Print("Invalid Spell ID: "..v.." for key: "..k) end
+            -- Nil Catches
+            if maxRange == nil or maxRange == 0 then maxRange = 5 end
             if minUnits == nil then minUnits = 1 end
             if effectRng == nil then effectRng = 5 end
             if debug == nil then debug = "Norm" end
-            if --[[isChecked("Use: "..spellName) and ]]not select(2,IsUsableSpell(v)) and getSpellCD(v) == 0 and (isKnown(v) or debug == "known") then -- and amIinRange then
+            local function castDebug()
+                if isChecked("Cast Debug") and debug ~= "debug" then
+                    local unitName = UnitName(thisUnit) or thisUnit
+                    Print("Casting |cffFFFF00"..spellName.." ("..v..") |r on |cffFFFF00"..tostring(unitName).." |r - Spell Type: |cffFFFF00"..spellType..
+                        " |r, Cast Type: |cffFFFF00"..tostring(debug).." |r, Ranges - Min: |cffFFFF00"..minRange.." |r, Max: |cffFFFF00"..maxRange..
+                        " |r, Eff: |cffFFFF00"..effectRng.." |r, Min Units: |cffFFFF00"..minUnits)
+                end
+            end
+            -- Base Spell Availablility Check
+            if --[[isChecked("Use: "..spellName) and ]]not select(2,IsUsableSpell(v)) and getSpellCD(v) == 0 and (isKnown(v) or debug == "known") then
+                -- Attempt to determine best unit for spell's range
                 if thisUnit == nil then
                     if spellType == "Helpful" then
                         thisUnit = "player"
                     elseif spellType == "Harmful" or spellType == "Both" then  
                         thisUnit = self.units(maxRange) 
-                    elseif spellType == "Unknown" then
+                    elseif spellType == "Unknown" and getDistance(self.units(maxRange)) < maxRange then
                         if castSpell(self.units(maxRange),spellCast,false,false,false,false,false,false,false,true) then 
                             thisUnit = self.units(maxRange)
                         elseif castSpell("player",spellCast,false,false,false,false,false,false,false,true) then
                             thisUnit = "player"
                         end 
                     end
-                    amIinRange = getDistance(thisUnit) < maxRange
-                elseif thisUnit == "best" then
-                    amIinRange = true
-                elseif IsSpellInRange(spellName,thisUnit) == nil then
-                    amIinRange = true
-                else
-                    amIinRange = IsSpellInRange(spellName,thisUnit) == 1
                 end
-                if amIinRange then
-                    if isChecked("Cast Debug") and debug ~= "debug" then
-                        Print("Casting "..spellName.." ("..v..") on "..UnitName(thisUnit).." - Spell Type: "..spellType..", Cast Type: "..tostring(debug)..", Ranges - Min: "..minRange..", Max: "..maxRange..", Eff: "..effectRng..", Min Units: "..minUnits)
-                    end
-                    if debug == "debug" then
-                        return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
-                    elseif (debug == "item" or (debug == "toy" and PlayerHasToy(v))) and canUse(spellCast) then
-                        return useItem(spellCast)
-                    elseif thisUnit == "best" then
-                        return castGroundAtBestLocation(spellCast,effectRng,minUnits,maxRange,minRange,debug)
-                    elseif thisUnit == "playerGround" then
-                        return castGroundAtUnit(spellCast,effectRng,minUnits,maxRange,minRange,debug,"player")
-                    elseif thisUnit == "targetGround" then
-                        return castGroundAtUnit(spellCast,effectRng,minUnits,maxRange,minRange,debug,"target")
+                -- Return specified/best cast method
+                if debug == "debug" then
+                    castDebug()
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                elseif thisUnit == "best" then
+                    castDebug()
+                    return castGroundAtBestLocation(spellCast,effectRng,minUnits,maxRange,minRange,debug)
+                elseif thisUnit == "playerGround" and (getDistance("player") < maxRange or IsSpellInRange(spellName,"player") == 1) then
+                    castDebug()
+                    return castGroundAtUnit(spellCast,effectRng,minUnits,maxRange,minRange,debug,"player")
+                elseif thisUnit == "targetGround" and (getDistance("target") < maxRange or IsSpellInRange(spellName,"target") == 1) then
+                    castDebug()
+                    return castGroundAtUnit(spellCast,effectRng,minUnits,maxRange,minRange,debug,"target")
+                elseif thisUnit ~= nil and (getDistance(thisUnit) < maxRange or IsSpellInRange(spellName,thisUnit) == 1) then
+                    if debug == "rect" and getEnemiesInRect(effectRng,maxRange,false) >= minUnits then
+                        castDebug()
+                        return castSpell(thisUnit,spellCast,false,false,false,true,false,true,true,false)
                     elseif debug == "ground" then
                         if getLineOfSight(thisUnit) then
                             if IsMouseButtonDown(2) then 
                                 return false 
                             else
+                                castDebug()
                                 return castGround(thisUnit,spellCast,maxRange,minRange)
                             end
                         end
                     elseif debug == "dead" then
+                        castDebug()
                         return castSpell(thisUnit,spellCast,false,false,false,true,true,true,true,false)
                     elseif debug == "aoe" then
+                        castDebug()
                         return castSpell(thisUnit,spellCast,true,false,false,true,false,true,true,false)
                     elseif thisUnit ~= nil then
+                        castDebug()
                         return castSpell(thisUnit,spellCast,false,false,false,true,false,true,true,false)
                     else
                         Print("|cffFF0000Error: |r Failed to cast. - ".."Name: "..spellName..", ID: "..v..", Type: "..spellType..", Min Range: "..minRange..", Max Range: "..maxRange)
                         return false
                     end
+                elseif (thisUnit == nil or thisUnit == "best" or thisUnit == "playerGround" or thisUnit == "targetGround") and getDistance(self.units(maxRange)) < maxRange then
+                    Print("|cffFF0000Error: |r Failed to cast. - ".."Name: "..spellName..", ID: "..v..", Type: "..spellType..", Min Range: "..minRange..", Max Range: "..maxRange)
+                    return false
                 end
             elseif debug == "debug" then
                 return false

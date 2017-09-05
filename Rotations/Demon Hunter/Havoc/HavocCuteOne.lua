@@ -517,7 +517,8 @@ local function runRotation()
                 or (getOptionValue("Eye Beam Usage") == 2 and ((mode.rotation == 1 and enemies.yards8r >= getOptionValue("Units To AoE")) or (mode.rotation == 2 and enemies.yards8r > 0))))
                 and not moving
             then
-                if cast.eyeBeam(units.dyn5) then return end
+                -- if cast.eyeBeam(units.dyn5) then return end
+                if cast.eyeBeam(nil,"rect",getOptionValue("Units To AoE"),8) then return end
             end
         -- Annihilation
             -- annihilation,if=(!talent.momentum.enabled|buff.momentum.up|fury.deficit<30+buff.prepared.up*8|buff.metamorphosis.remains<5)&!variable.pooling_for_blade_dance
@@ -658,7 +659,8 @@ local function runRotation()
                 or (getOptionValue("Eye Beam Usage") == 2 and ((mode.rotation == 1 and enemies.yards8r >= getOptionValue("Units To AoE")) or mode.rotation == 2))
                 or (talent.blindFury and powerDeficit >= 35))
             then
-                if cast.eyeBeam() then return end
+                -- if cast.eyeBeam(units.dyn5) then return end
+                if cast.eyeBeam(nil,"rect",getOptionValue("Units To AoE"),8) then return end
             end
         -- Annihilation
             -- annihilation,if=(talent.demon_blades.enabled|!talent.momentum.enabled|buff.momentum.up|fury.deficit<30+buff.prepared.up*8|buff.metamorphosis.remains<5)&!variable.pooling_for_blade_dance

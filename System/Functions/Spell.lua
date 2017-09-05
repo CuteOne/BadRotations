@@ -241,14 +241,15 @@ end
 -- if isKnown(106832) then
 function isKnown(spellID)
 	local spellName = GetSpellInfo(spellID)
-	if GetSpellBookItemInfo(tostring(spellName)) ~= nil then
-		return true
-	elseif IsPlayerSpell(tonumber(spellID)) == true then
-		return true
-	elseif IsSpellKnown(spellID) == true then
-		return true
-	elseif hasPerk(spellID) == true then
-        return true
-    end
-	return false
+	-- if GetSpellBookItemInfo(tostring(spellName)) ~= nil then
+	-- 	return true
+	-- elseif IsPlayerSpell(tonumber(spellID)) == true then
+	-- 	return true
+	-- elseif IsSpellKnown(spellID) == true then
+	-- 	return true
+	-- elseif hasPerk(spellID) == true then
+ --        return true
+ --    end
+	-- return false
+	return GetSpellBookItemInfo(tostring(spellName)) ~= nil or IsPlayerSpell(tonumber(spellID)) or IsSpellKnown(spellID) or hasPerk(spellID)
 end

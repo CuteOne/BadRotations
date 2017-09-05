@@ -413,15 +413,13 @@ function isValidUnit(Unit)
 end
 function enemyListCheck(Unit)
 	if GetUnitExists(Unit) and not UnitIsDeadOrGhost(Unit) and (not UnitIsFriend(Unit, "player") or UnitIsEnemy(Unit, "player")) 
-		and UnitCanAttack("player",Unit) and isSafeToAttack(Unit) and UnitInPhase(Unit) and not isCritter(Unit)
+		and UnitCanAttack("player",Unit) and isSafeToAttack(Unit) and UnitInPhase(Unit) and not isCritter(Unit) and getDistance(Unit) < 50
 	then
+		local unitID = GetObjectID(unit)
+		local burnUnit = burnUnitCandidates[unitID]
 		local inCombat = UnitAffectingCombat("player") or (GetObjectExists("pet") and UnitAffectingCombat("pet"))
-		local hasThreat = hasThreat(Unit) or UnitTarget(Unit) == "player" or (GetObjectExists("pet") and (hasThreat(Unit,"pet") or UnitTarget(Unit) == "pet"))
-		-- print("Base Check Passed")
-		-- Unit is Soul Effigy
-        -- if GetObjectID(Unit) == 103679 then return true end
+		local hasThreat = hasThreat(Unit) or UnitTarget(Unit) == "player" or (GetObjectExists("pet") and (hasThreat(Unit,"pet") or UnitTarget(Unit) == "pet")) or burnUnit
         if inCombat then
-        	-- print("Player In Combat")
         	-- Only consider Units that I have threat with or have targeted or are dummies within 20yrds when in Combat.
 			if hasThreat or UnitIsUnit(Unit,"target") or (isDummy(Unit) and getDistance(Unit) <= 20) then return true end
 		elseif IsInInstance() then

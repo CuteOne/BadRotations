@@ -529,7 +529,7 @@ local function runRotation()
         function actionList_Execute()
         -- Bladestorm
             -- bladestorm,if=buff.battle_cry.up&(set_bonus.tier20_4pc|equipped.the_great_storms_eye)
-            if isChecked("Bladestorm") and getDistance(units.dyn8) < 8 then
+            if isChecked("Bladestorm") and getDistance(units.dyn8) < 8 and not talent.ravager then
                 if buff.battleCry.exists() and (t20_4pc or hasEquiped(151823)) then
                     if cast.bladestorm() then return end
                 end
@@ -563,7 +563,7 @@ local function runRotation()
             end
         -- Ravager
             -- ravager,if=cooldown.battle_cry.remains<=gcd&debuff.colossus_smash.remains>6
-            if useCDs() and isChecked("Ravager") then
+            if useCDs() and isChecked("Ravager") and talent.ravager then
                 if cd.battleCry <= gcd and debuff.colossusSmash.remain(units.dyn5) > 6 then
                     -- Best Location
                     if getOptionValue("Ravager") == 1 then
@@ -592,7 +592,7 @@ local function runRotation()
             end
         -- Bladestorm
             -- bladestorm,interrupt=1,if=(raid_event.adds.in>90|!raid_event.adds.exists|spell_targets.bladestorm_mh>desired_targets)&!set_bonus.tier20_4pc
-            if isChecked("Bladestorm") and getDistance(units.dyn8) < 8 and #enemies.yards8 >= getOptionValue("Bladestorm") and not t20_4pc then
+            if isChecked("Bladestorm") and getDistance(units.dyn8) < 8 and not talent.ravager and #enemies.yards8 >= getOptionValue("Bladestorm") and not t20_4pc then
                 if cast.bladestorm() then return end
             end
         end -- End Action List - Execute
@@ -600,7 +600,7 @@ local function runRotation()
         function actionList_Single()
         -- Bladestorm
             -- bladestorm,if=buff.battle_cry.up&set_bonus.tier20_4pc
-            if isChecked("Bladestorm") and getDistance(units.dyn8) < 8 and buff.battleCry.exists() and t20_4pc then
+            if isChecked("Bladestorm") and getDistance(units.dyn8) < 8 and not talent.ravager and buff.battleCry.exists() and t20_4pc then
                 if cast.bladestorm() then return end
             end
         -- Colossus Smash
@@ -631,12 +631,12 @@ local function runRotation()
             end
         -- Rend
             -- rend,if=remains<=gcd.max|remains<5&cooldown.battle_cry.remains<2&(cooldown.bladestorm.remains<2|!set_bonus.tier20_4pc)
-            if debuff.rend.remain(units.dyn5) <= gcdMax or debuff.rend.remain(units.dyn5) < 5 and cd.battleCry < 2 and (cd.bladestorm < 2 or not t20_4pc) then
+            if debuff.rend.remain(units.dyn5) <= gcdMax or (debuff.rend.remain(units.dyn5) < 5 and cd.battleCry < 2 and (cd.bladestorm < 2 or not t20_4pc)) then
                 if cast.rend() then return end
             end
         -- Ravager
             -- ravager,if=cooldown.battle_cry.remains<=gcd&debuff.colossus_smash.remains>6
-            if useCDs() and isChecked("Ravager") then
+            if useCDs() and isChecked("Ravager") and talent.ravager then
                 if cd.battleCry <= gcd and debuff.colossusSmash.remain(units.dyn5) > 6 then
                     -- Best Location
                     if getOptionValue("Ravager") == 1 then
@@ -680,7 +680,7 @@ local function runRotation()
             if cast.overpower() then return end
         -- Bladestorm
             -- bladestorm,if=(raid_event.adds.in>90|!raid_event.adds.exists)&!set_bonus.tier20_4pc
-            if isChecked("Bladestorm") and getDistance(units.dyn8) < 8 and #enemies.yards8 >= getOptionValue("Bladestorm") and not t20_4pc then
+            if isChecked("Bladestorm") and getDistance(units.dyn8) < 8 and not talent.ravager and #enemies.yards8 >= getOptionValue("Bladestorm") and not t20_4pc then
                 if cast.bladestorm() then return end
             end 
         end -- End Action List - Single
@@ -695,7 +695,7 @@ local function runRotation()
             end
         -- Bladestorm
             -- bladestorm,if=buff.battle_cry.up&(set_bonus.tier20_4pc|equipped.the_great_storms_eye)
-            if isChecked("Bladestorm") and getDistance(units.dyn8) < 8 then
+            if isChecked("Bladestorm") and getDistance(units.dyn8) < 8 and not talent.ravager then
                 if buff.battleCry.exists() and (t20_4pc or hasEquiped(151823)) then
                     if cast.bladestorm() then return end
                 end
@@ -800,7 +800,7 @@ local function runRotation()
             end
         -- Bladestorm
             -- bladestorm
-            if isChecked("Bladestorm") and getDistance(units.dyn8) < 8 then
+            if isChecked("Bladestorm") and getDistance(units.dyn8) < 8 and not talent.ravager then
                 if cast.bladestorm() then return end
             end
         -- Cleave

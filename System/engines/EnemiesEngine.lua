@@ -48,14 +48,14 @@ end
 -- Adds Enemies to the enemy table
 local function AddEnemy(thisUnit)
 	local startTime = debugprofilestop()
-	 if br.enemy[thisUnit] == nil then
-	br.enemy[thisUnit] 	= {}
-	 local enemy 		= br.enemy[thisUnit]
-	 enemy.unit 			= thisUnit
-	 enemy.name 			= UnitName(thisUnit)
-	 enemy.guid 			= UnitGUID(thisUnit)
-	 enemy.id 			= GetObjectID(thisUnit)
-	 end
+	if br.enemy[thisUnit] == nil then
+		br.enemy[thisUnit] 	= {}
+		local enemy 		= br.enemy[thisUnit]
+		enemy.unit 			= thisUnit
+		enemy.name 			= UnitName(thisUnit)
+		enemy.guid 			= UnitGUID(thisUnit)
+		enemy.id 			= GetObjectID(thisUnit)
+	end
 	br.debug.cpu.enemiesEngine.addTime = debugprofilestop()-startTime or 0
 end
 
@@ -117,7 +117,7 @@ function FindEnemy()
 	br.debug.cpu.enemiesEngine.unitTargets = 0
 	br.debug.cpu.enemiesEngine.sanityTargets = 0
 	local objectCount = GetObjectCount()
-	for k, v in pairs(br.enemy) do br.enemy[k]= nil end
+	for k, v in pairs(br.enemy) do if not enemyListCheck(k) then br.enemy[k] = nil end end
 	if br.player.petInfo ~= nil then
 		for k,v in pairs(br.player.petInfo) do br.player.petInfo[k] = nil end
 	end
@@ -127,11 +127,10 @@ function FindEnemy()
 			local thisUnit = GetObjectWithIndex(i)
 			-- check if it a unit first
 			if ObjectIsType(thisUnit, ObjectType.Unit) then
-				-- br.debug.cpu.enemiesEngine.unitTargets = br.debug.cpu.enemiesEngine.unitTargets + 1
+				br.debug.cpu.enemiesEngine.unitTargets = br.debug.cpu.enemiesEngine.unitTargets + 1
 				-- Enemies
 				if enemyListCheck(thisUnit) then
-				-- 	br.debug.cpu.enemiesEngine.sanityTargets = br.debug.cpu.enemiesEngine.sanityTargets + 1
-				--if getDistance("player", thisUnit) < 40 then
+					br.debug.cpu.enemiesEngine.sanityTargets = br.debug.cpu.enemiesEngine.sanityTargets + 1
 					AddEnemy(thisUnit)
 				end
 				--end
@@ -164,7 +163,7 @@ end
 -- /dump UnitGUID("target")
 -- /dump getEnemies("target",10)
 function getEnemies(thisUnit,radius,checkInCombat)
-    -- local startTime = debugprofilestop()
+    local startTime = debugprofilestop()
 	local enemiesTable = { }
 
     if checkInCombat == nil then checkInCombat = false end
@@ -185,7 +184,7 @@ function getEnemies(thisUnit,radius,checkInCombat)
         end
     end
     ---
-    -- br.debug.cpu.enemiesEngine.getEnemies = debugprofilestop()-startTime or 0
+    br.debug.cpu.enemiesEngine.getEnemies = debugprofilestop()-startTime or 0
     ---
     return enemiesTable
 end
@@ -228,7 +227,7 @@ function dynamicTarget(range,facing)
 		enemyUpdateRate = #getEnemies("player",50, true)/2
 	end
 	if not getOptionCheck("Dynamic Targetting") and GetObjectExists("target") then
-		if UnitReaction("target","player") ~= nil and UnitReaction("target","player") <= 4 then 
+		if UnitReaction("target","player") ~= nil and UnitReaction("target","player") <= 4 and getDistance("target") < range then 
 			bestUnit = "target" 
 		end
 	end
@@ -280,7 +279,7 @@ function dynamicTarget(range,facing)
 		end
 	end
 	--br.debug.cpu.enemiesEngine.dynamicTarget = debugprofilestop()-startTime or 0
-	if bestUnit == nil and isValidUnit("target") then bestUnit = "target" end
+	if bestUnit == nil and isValidUnit("target") and getDistance("taget") < range then bestUnit = "target" end
 	return bestUnit
 end
 
@@ -531,8 +530,14 @@ function isBurnTarget(unit)
 		local unitID = GetObjectID(unit)
 		local burnUnit = burnUnitCandidates[unitID]
 		-- if unit have selected debuff
-		if burnUnit and burnUnit.buff and UnitBuffID(unit,burnUnit.buff) then
-			coef = burnUnit.coef
+		if burnUnit then
+			if burnUnit.buff and UnitBuffID(unit,burnUnit.buff) then
+				coef = burnUnit.coef
+			end
+			if not burnUnit.buff and (UnitName(unit) == burnUnit.name or burnUnit) then
+				TargetUnit(unit)
+				coef = burnUnit.coef
+			end
 		end
 	end
 	return coef

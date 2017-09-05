@@ -69,6 +69,8 @@ local function createOptions()
         section = br.ui:createSection(br.ui.window.profile,  "Cooldowns")
             -- Potion
             br.ui:createCheckbox(section,"Potion")
+            -- Elixir
+            br.ui:createDropdownWithout(section,"Elixir", {"Flask of Seventh Demon","Repurposed Fel Focuser","Oralius' Whispering Crystal","None"}, 1, "|cffFFFFFFSet Elixir to use.")
             -- Racial
             br.ui:createCheckbox(section,"Racial")
             -- Trinkets
@@ -203,6 +205,7 @@ local function runRotation()
         local thp           = getHP(br.player.units(5))
         local ttd           = getTTD(br.player.units(5))
         local units         = units or {}
+        local use           = br.player.use
 
         units.dyn5 = br.player.units(5)
         enemies.yards5 = br.player.enemies(5)
@@ -257,10 +260,10 @@ local function runRotation()
                 lowestUnit = thisUnit
             end
             if getDistance(thisUnit) < 30 and not UnitIsDeadOrGhost(thisUnit) then
-                if thisRole == "TANK" then
+                if (buff.greaterBlessingOfKings.remain(kingsUnit) < 600 and buff.greaterBlessingOfKings.exists()) or (thisRole == "TANK" and not buff.greaterBlessingOfKings.exists()) then
                     kingsUnit = thisUnit
                 end
-                if thisRole == "HEALER" then
+                if (buff.greaterBlessingOfWisdom.remain(wisdomUnit) < 600 and buff.greaterBlessingOfWisdom.exists()) or (thisRole == "HEALER" and not buff.greaterBlessingOfWisdom.exists()) then
                     wisdomUnit = thisUnit
                 end
             end
@@ -525,6 +528,21 @@ local function runRotation()
             if isValidUnit("target") and (opener == true or not isChecked("Opener")) then
         -- Flask
                 -- flask,type=flask_of_the_countless_armies
+                if getOptionValue("Elixir") == 1 and inRaid and not buff.flaskOfTheCountlessArmies.exists() then
+                    if buff.whispersOfInsanity.exists() then buff.whispersOfInsanity.cancel() end
+                    if buff.felFocus.exists() then buff.felFocus.cancel() end
+                    if use.flaskOfTheCountlessArmies() then return end
+                end
+                if getOptionValue("Elixir") == 2 and not buff.felFocus.exists() then
+                    if buff.flaskOfTheCountlessArmies.exists() then buff.flaskOfTheCountlessArmies.cancel() end
+                    if buff.whispersOfInsanity.exists() then buff.whispersOfInsanity.cancel() end
+                    if use.repurposedFelFocuser() then return end
+                end
+                if getOptionValue("Elixir") == 3 and not buff.whispersOfInsanity.exists() then
+                    if buff.flaskOfTheCountlessArmies.exists() then buff.flaskOfTheCountlessArmies.cancel() end
+                    if buff.felFocus.exists() then buff.felFocus.cancel() end
+                    if use.oraliusWhisperingCrystal() then return end
+                end
         -- Food
                 -- food,type=azshari_salad
         -- Augmenation
@@ -695,7 +713,7 @@ local function runRotation()
             end
         -- Wake of Ashes
             -- wake_of_ashes,if=(!raid_event.adds.exists|raid_event.adds.in>15)&(holy_power<=0|holy_power=1&(cooldown.blade_of_justice.remains>gcd|cooldown.divine_hammer.remains>gcd)|holy_power=2&((cooldown.zeal.charges_fractional<=0.65|cooldown.crusader_strike.charges_fractional<=0.65)))
-            if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()) and getDistance(units.dyn5) < 5 and #enemies.yards8 > 0 then
+            if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()) and getDistance(units.dyn5) < 5 and getDistance(units.dyn8) < 8 then
                 if (holyPower <= 0 or (holyPower == 1 and (cd.bladeOfJustice > gcd or cd.divineHammer > gcd)) or (holyPower == 2 and ((charges.frac.zeal <= 0.65 or charges.frac.crusaderStrike <= 0.65)))) then
                     if cast.wakeOfAshes() then return end
                 end

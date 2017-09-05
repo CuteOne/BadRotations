@@ -3225,12 +3225,16 @@ br.idList = {
             buffs                               = {
                 ancientHysteria                 = 90355,
                 bloodlust                       = 2825,
+                felFocus                        = 242551,
+                flaskOfTheCountlessArmies       = 188034,
+                flaskOfTheSeventhDemon          = 188033,
                 heroism                         = 32182,
                 netherwinds                     = 160452,
                 norgannonsForesight             = 236373,
                 prolongedPower                  = 229206,
                 shadowmeld                      = 58984,
                 timeWarp                        = 80353,
+                whispersOfInsanity              = 176151,
             },
             debuffs                             = {
                 dampening                       = 110310,
@@ -3238,7 +3242,11 @@ br.idList = {
                 temptation                      = 234143,
             },
             items                               = {
+                flaskOfTheSeventhDemon          = 127848,
+                flaskOfTheCountlessArmies       = 127849,
                 healthstone                     = 5512,
+                oraliusWhisperingCrystal        = 118922,
+                repurposedFelFocuser            = 147707,
             },
         },
     },
