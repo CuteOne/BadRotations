@@ -440,13 +440,15 @@ local function runRotation()
                 if isChecked("Feral Spirit") then
                     if cast.feralSpirit() then return end
                 end
+            end
         -- Doom Winds
-                -- doom_winds,if=cooldown.ascendance.remains>6|talent.boulderfist.enabled|debuff.earthen_spike.up
-                if (getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs())) and getDistance("target") < 5 then
-                    if cd.ascendance > 6 or talent.boulderfist or debuff.earthenSpike.exists(units.dyn5) then
-                        if cast.doomWinds() then return end
-                    end
+            -- doom_winds,if=cooldown.ascendance.remains>6|talent.boulderfist.enabled|debuff.earthen_spike.up
+            if (getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs())) and getDistance("target") < 5 then
+                if ((getOptionValue("Artifact") == 1 and not isBoss()) or not isChecked("Ascencance") or cd.ascendance > 6) or talent.boulderfist or debuff.earthenSpike.exists(units.dyn5) then
+                    if cast.doomWinds() then return end
                 end
+            end
+            if useCDs() and getDistance("target") < 5 then
         -- Ascendance
                 -- ascendance,if=(cooldown.strike.remains>0)&buff.ascendance.down
                 if isChecked("Ascendance") then

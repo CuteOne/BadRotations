@@ -39,7 +39,7 @@ local function UpdatePet(thisUnit)
 	else
 		demoEmpBuff = false
 	end
-	local unitCount = #br.player.enemies(10,thisUnit) or 0 --#getEnemies(thisUnit,10) or 0
+	local unitCount = #br.player.enemies(10,thisUnit) or 0
 	local pet 		= br.player.petInfo[thisUnit]
 	pet.deBuff = demoEmpBuff
 	pet.numEnemies = unitCount
@@ -59,18 +59,6 @@ local function AddEnemy(thisUnit)
 	br.debug.cpu.enemiesEngine.addTime = debugprofilestop()-startTime or 0
 end
 
--- Remove Invalid Enemies
--- local function DeleteEnemy(thisUnit)
--- 	if not GetUnitExists(thisUnit) or not GetUnitIsVisible(thisUnit) then
--- 		br.enemy[thisUnit] = nil
--- 	elseif not isValidUnit(thisUnit) then
--- 		-- Print("Removing Enemy")
--- 		br.enemy[thisUnit] = nil
--- 	-- else
--- 		-- UpdateEnemy(thisUnit)
--- 	end
--- end
-
 -- Check Critter
 local function IsCritter(checkID)
 	local numPets = C_PetJournal.GetNumPets(false)
@@ -80,7 +68,6 @@ local function IsCritter(checkID)
 	end
 	return false
 end
-
 
 -- Add Pet
 local function AddPet(thisUnit)
@@ -101,15 +88,6 @@ local function AddPet(thisUnit)
 	end
 end
 
--- Delete Pet
--- local function DeletePet(thisUnit)
--- 	if not GetUnitExists(thisUnit) or not GetUnitIsVisible(thisUnit) then
--- 		br.player.petInfo[thisUnit] = nil
--- 	else
--- 		UpdatePet(thisUnit)
--- 	end
--- end
-
 -- Find Enemies
 function FindEnemy()
 	-- DEBUG
@@ -117,14 +95,17 @@ function FindEnemy()
 	br.debug.cpu.enemiesEngine.unitTargets = 0
 	br.debug.cpu.enemiesEngine.sanityTargets = 0
 	local objectCount = GetObjectCount()
+	-- Clean Up
 	for k, v in pairs(br.enemy) do if not enemyListCheck(k) then br.enemy[k] = nil end end
 	if br.player.petInfo ~= nil then
 		for k,v in pairs(br.player.petInfo) do br.player.petInfo[k] = nil end
 	end
+	-- Cycle the Object Manager
 	if FireHack ~= nil and objectCount > 0 then
 		for i = 1, objectCount do
 			-- define our unit
 			local thisUnit = GetObjectWithIndex(i)
+			local enemyListCheck = enemyListCheck
 			-- check if it a unit first
 			if ObjectIsType(thisUnit, ObjectType.Unit) then
 				br.debug.cpu.enemiesEngine.unitTargets = br.debug.cpu.enemiesEngine.unitTargets + 1
@@ -133,11 +114,10 @@ function FindEnemy()
 					br.debug.cpu.enemiesEngine.sanityTargets = br.debug.cpu.enemiesEngine.sanityTargets + 1
 					AddEnemy(thisUnit)
 				end
-				--end
 				-- Pet Info
-				 if UnitIsUnit(thisUnit,"pet") then
-				 	AddPet(thisUnit)
-				 end
+				if UnitIsUnit(thisUnit,"pet") then
+					AddPet(thisUnit)
+				end
 			end
 		end
 	end
@@ -148,18 +128,6 @@ function FindEnemy()
 	br.debug.cpu.enemiesEngine.averageTime = br.debug.cpu.enemiesEngine.elapsedTime / br.debug.cpu.enemiesEngine.totalIterations
 end
 
--- function EnemiesEngine()
--- 	-- Run Update/Delete
--- 	--if br.player ~= nil then
--- 	--	if br.player.petInfo ~= nil then
--- 	--		for k, v in pairs(br.player.petInfo) do
--- 	--			br.player.petInfo[k] = nil
--- 	--		end
--- 	--	end
--- 	--end
--- 	 FindEnemy()
--- end
-
 -- /dump UnitGUID("target")
 -- /dump getEnemies("target",10)
 function getEnemies(thisUnit,radius,checkInCombat)
@@ -167,7 +135,7 @@ function getEnemies(thisUnit,radius,checkInCombat)
 	local enemiesTable = { }
 
     if checkInCombat == nil then checkInCombat = false end
-    if GetObjectExists(thisUnit) and GetUnitIsVisible(thisUnit) then
+    if GetObjectExists(thisUnit) then --and GetUnitIsVisible(thisUnit) then
 		for k, v in pairs(br.enemy) do
 			local thisEnemy = br.enemy[k].unit
 			local distance =  getDistance(thisUnit,thisEnemy)
@@ -231,10 +199,9 @@ function dynamicTarget(range,facing)
 			bestUnit = "target" 
 		end
 	end
---	local startTime = debugprofilestop()
+	local startTime = debugprofilestop()
 	if getOptionCheck("Dynamic Targetting") and (tempTime - lastUpdateTime) > enemyUpdateRate then
 		lastUpdateTime = tempTime
-	--	if bestUnit == nil then bestUnit = "target" end
 		local bestUnitCoef = 0
 		local enemyTable = getEnemies("player",range)
 		for k, v in pairs(enemyTable) do
@@ -261,7 +228,6 @@ function dynamicTarget(range,facing)
 				end
 			end
 		end
-		-- br.debug.cpu.enemiesEngine.dynamicTarget = debugprofilestop()-startTime or 0
 		if (isChecked("Target Dynamic Target") or (UnitAffectingCombat("player") and not UnitExists("target"))) and bestUnit ~= nil and not UnitIsDeadOrGhost(bestUnit) and (getOptionValue("Dynamic Targetting") == 2 or (getOptionValue("Dynamic Targetting") == 1 and inCombat)) then
 			TargetUnit(bestUnit)
 		end
@@ -278,7 +244,7 @@ function dynamicTarget(range,facing)
 			end
 		end
 	end
-	--br.debug.cpu.enemiesEngine.dynamicTarget = debugprofilestop()-startTime or 0
+	br.debug.cpu.enemiesEngine.dynamicTarget = debugprofilestop()-startTime or 0
 	if bestUnit == nil and isValidUnit("target") and getDistance("taget") < range then bestUnit = "target" end
 	return bestUnit
 end

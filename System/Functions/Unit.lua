@@ -417,7 +417,7 @@ function isDummy(Unit)
 			[70245]  = "Training Dummy",              -- Lvl ?? (Throne of Thunder)
 			[113964] = "Raider's Training Dummy",     -- Lvl ?? (The Dreamgrove) - Tanking
 		}
-		if dummies[tonumber(string.match(UnitGUID(Unit),"-(%d+)-%x+$"))] ~= nil then
+		if dummies[tonumber(string.match(UnitGUID(Unit),"-(%d+)-%x+$"))] then
 			return true
 		end
 	end

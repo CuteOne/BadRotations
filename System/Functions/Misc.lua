@@ -421,14 +421,15 @@ function enemyListCheck(Unit)
 		local hasThreat = hasThreat(Unit) or UnitTarget(Unit) == "player" or (GetObjectExists("pet") and (hasThreat(Unit,"pet") or UnitTarget(Unit) == "pet")) or burnUnit
         if inCombat then
         	-- Only consider Units that I have threat with or have targeted or are dummies within 20yrds when in Combat.
-			if hasThreat or UnitIsUnit(Unit,"target") or (isDummy(Unit) and getDistance(Unit) <= 20) then return true end
+			if UnitIsUnit(Unit,"target") or hasThreat or (isDummy(Unit) and getDistance(Unit) <= 20) then return true end
 		elseif IsInInstance() then
 			-- Only consider Units that I have threat with or I am alone and have targeted when not in Combat and in an Instance.
-			if hasThreat or (#br.friend == 1 and UnitIsUnit(Unit,"target")) then return true end
+			if (#br.friend == 1 and UnitIsUnit(Unit,"target")) or hasThreat then return true end
 		else
 			-- Only consider Units that are in 20yrs or I have targeted when not in Combat and not in an Instance.
-			if getDistance(Unit) <= 20 or UnitIsUnit(Unit,"target") then return true end
+			if UnitIsUnit(Unit,"target") or getDistance(Unit) <= 20 then return true end
 		end
+		-- return true
 	end
 	return false
 end

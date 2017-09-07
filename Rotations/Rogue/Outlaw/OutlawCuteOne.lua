@@ -76,6 +76,8 @@ local function createOptions()
             br.ui:createDropdown(section, "Stealth", {"|cff00FF00Always", "|cffFFDD00PrePot", "|cffFF000020Yards"},  1, "Stealth method.")
             -- Artifact
             br.ui:createDropdownWithout(section,"Artifact", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Artifact Ability.")
+            -- Blade Flurry
+            br.ui:createSpinnerWithout(section, "Blade Flurry", 2, 1, 10, 1, "|cffFFFFFFSet Minmal Units to use Blade Flurry on.")
         br.ui:checkSectionState(section)
         ------------------------
         --- COOLDOWN OPTIONS ---
@@ -507,11 +509,11 @@ local function runRotation()
             rotationDebug = "Blade Flurry"
         -- Blade Flurry
             -- cancel_buff,name=blade_flurry,if=spell_targets.blade_flurry<2&buff.blade_flurry.up
-            if ((mode.rotation == 1 and #enemies.yards5 < getOptionValue("Blade Flurry")) or mode.rotation == 2) and buff.bladeFlurry.exists() then
+            if ((mode.rotation == 1 and #enemies.yards5 < getOptionValue("Blade Flurry")) or mode.rotation == 3) and buff.bladeFlurry.exists() then
                 if cast.bladeFlurry("player") then return end
             end
             -- cancel_buff,name=blade_flurry,if=equipped.shivarran_symmetry&cooldown.blade_flurry.up&buff.blade_flurry.up&spell_targets.blade_flurry>=2
-            if hasEquiped(141321) and cd.bladeFlurry == 0 and buff.bladeFlurry.exists() and ((mode.rotation == 1 and #enemies.yards5 >= getOptionValue("Blade Flurry")) or mode.rotation == 2) then
+            if hasEquiped(141321) and cd.bladeFlurry == 0 and buff.bladeFlurry.exists() and ((mode.rotation == 1 and #enemies.yards5 >= getOptionValue("Blade Flurry")) or mode.rotation == 3) then
                 if cast.bladeFlurry("player") then return end
             end
             -- if not useAoE() and buff.bladeFlurry.exists() then
@@ -674,11 +676,11 @@ local function runRotation()
 --- In Combat Rotation ---
 --------------------------
         -- Outlaw say, "Avast! Ye' Maties!"
+        -- Call Action List - Blade Flurry
+            -- call_action_list,name=bf
+            if actionList_BladeFlurry() then return end
             if inCombat and mode.pickPocket ~= 2 and isValidUnit(units.dyn5) then
                 rotationDebug = "In-Combat"
-        -- Call Action List - Blade Flurry
-                -- call_action_list,name=bf
-                if actionList_BladeFlurry() then return end
 -----------------------------
 --- In Combat - Cooldowns ---
 -----------------------------

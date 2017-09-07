@@ -6,12 +6,15 @@ function br.ui:createHelpWindow()
     local colorRed      = "|cffFF0011"
     local colorWhite    = "|cffFFFFFF"
     local colorGold     = "|cffFFDD11"
+
+    br.ui.window.help:AddMessage(colorGold.. "--- [[ SUPER AWESOME SPECIAL PEOPLE ]] ---")
+    br.ui.window.help:AddMessage(colorGreen.. "Decadimento")
     br.ui.window.help:AddMessage(colorGold.. "--- [[ AUTHORS ]] ---")
-    br.ui.window.help:AddMessage(colorRed.. "CuteOne, Cpoworks, Gabbz, Svs")
+    br.ui.window.help:AddMessage(colorRed.. "CuteOne, Kuukuu")
     br.ui.window.help:AddMessage(colorGold.. "--- [[ CONTRIBUTORS ]] ---")
-    br.ui.window.help:AddMessage(colorGreen.. "Vilt")
+    -- br.ui.window.help:AddMessage(colorGreen.. "Vilt")
     br.ui.window.help:AddMessage(colorGold.. "--- [[ PATRONS ]] ---")
-    br.ui.window.help:AddMessage(colorBlue.. "Blyaat, dbtftw")
+    -- br.ui.window.help:AddMessage(colorBlue.. "Blyaat, dbtftw")
     br.ui.window.help:AddMessage("----------------------------------------")
     --
     br.ui.window.help:AddMessage(colorGold.. "--- [[ TODO ]] ---")

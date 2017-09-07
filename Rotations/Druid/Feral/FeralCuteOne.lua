@@ -661,7 +661,7 @@ local function runRotation()
                 end
         -- Vial of Ceaseless Toxins
                 if isChecked("Vial of Ceaseless Toxins") and hasEquiped(147011) and canUse(147011) then
-                    if buff.tigersFury.exists() or ttd(thisUnit) <= cd.tigersFury then
+                    if buff.tigersFury.exists() or ttd(units.dyn5) <= cd.tigersFury then
                         useItem(147011)
                     end
                 end     
