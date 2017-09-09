@@ -320,7 +320,18 @@ local function runRotation()
                     for i=1, #getEnemies("player",20) do
                         thisUnit = getEnemies("player",20)[i]
                         distance = getDistance(thisUnit)
-                            if cd.consumeMagic > 0 and castingUnit(thisUnit) and distance < 20 then
+                            if cd.consumeMagic > 0 and castingUnit(thisUnit) and distance < 20 and hasEquiped(151799) and not buff.empowerWards.exists() then
+                                if cast.empowerWards() then return end
+                            end
+                        end
+                    end
+    -- Empower Wards
+                -- actions+=/empower_wards,if=debuff.casting.up
+                if isChecked("Empower Wards") then
+                    for i=1, #getEnemies("player",20) do
+                        thisUnit = getEnemies("player",20)[i]
+                        distance = getDistance(thisUnit)
+                            if cd.consumeMagic > 0 and castingUnit(thisUnit) and distance < 20 and not hasEquiped(151799) then
                                 if cast.empowerWards() then return end
                             end
                         end
@@ -345,7 +356,12 @@ local function runRotation()
                 end
     -- Demon Spikes
                 -- actions+=/demon_spikes,if=charges=2|buff.demon_spikes.down&!dot.fiery_brand.ticking&buff.metamorphosis.down
-                if charges.frac.demonSpikes > 1.99 then
+                if charges.frac.demonSpikes > 2.99 and hasEquiped(151799) then
+                    if cast.demonSpikes() then return end
+                end
+    -- Demon Spikes
+                -- actions+=/demon_spikes,if=charges=2|buff.demon_spikes.down&!dot.fiery_brand.ticking&buff.metamorphosis.down
+                if charges.frac.demonSpikes > 1.99 and not hasEquiped(151799) then
                     if cast.demonSpikes() then return end
                 end
     -- Soul Barrier
