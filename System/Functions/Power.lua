@@ -19,20 +19,31 @@ function getMana(Unit)
 	return 100 * UnitPower(Unit,0) / UnitPowerMax(Unit,0)
 end
 -- if getPower("target") <= 15 then
-function getPower(Unit)
+function getPower(Unit,index)
 	local value = value
 	if select(3,UnitClass("player")) == 11 or select(3,UnitClass("player")) == 4 then
-		if UnitBuffID("player",135700) then
-			value = 999
-		elseif UnitBuffID("player",106951) then
-			value = UnitPower(Unit)*2
+		if UnitBuffID("player",106951) or UnitBuffID("player",102543) then
+			value = UnitPower(Unit,index)*2
 		else
-			value = UnitPower(Unit)
+			value = UnitPower(Unit,index)
 		end
 	else
-		value = UnitPower(Unit) -- 100 * UnitPower(Unit) / UnitPowerMax(Unit)
+		value = UnitPower(Unit,index) -- 100 * UnitPower(Unit) / UnitPowerMax(Unit)
 	end
-	return UnitPower(Unit)
+	return UnitPower(Unit,index)
+end
+function getPowerMax(Unit,index)
+  local value = value
+  if select(3,UnitClass("player")) == 11 or select(3,UnitClass("player")) == 4 then
+    if UnitBuffID("player",106951) or UnitBuffID("player",102543) then
+      value = UnitPowerMax(Unit,index)*2
+    else
+      value = UnitPowerMax(Unit,index)
+    end
+  else
+    value = UnitPowerMax(Unit,index) -- 100 * UnitPower(Unit) / UnitPowerMax(Unit)
+  end
+  return UnitPowerMax(Unit,index)
 end
 function getPowerAlt(Unit)
 	local value = value

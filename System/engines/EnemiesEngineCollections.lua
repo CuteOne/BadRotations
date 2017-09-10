@@ -68,11 +68,11 @@ burnUnitCandidates = {
 	[71076] = { coef = 25 }, -- Proving ground healer
 	-- Legion
 	[120651] = { coef = 150, name = "Fel Explosives"}, -- M+ Affix
-	[115642] = { coef = 200}, -- Umbral Imps - Challenge mode
-	[115638] = { coef = 175, buff = 243113},
-	[115641] = { coef = 150}, -- Smoldering Imps
-	[115640] = { coef = 125}, -- Fuming Imps
-	[115719] = { coef = 100}, -- Imp Servents
+	-- [115642] = { coef = 100}, -- Umbral Imps - Challenge mode
+	-- [115638] = { coef = 175, buff = 243113},
+	-- [115641] = { coef = 150}, -- Smoldering Imps
+	-- [115640] = { coef = 125}, -- Fuming Imps
+	-- [115719] = { coef = 200}, -- Imp Servents
 }
 -- shielding and levels, we should add coef as shield %
 shieldedUnitCandidates = {

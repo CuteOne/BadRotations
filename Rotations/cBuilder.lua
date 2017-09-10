@@ -184,7 +184,11 @@ function br.loader:new(spec,specName)
         debuff.stack = function(thisUnit,sourceUnit)
             if thisUnit == nil then thisUnit = 'target' end
             if sourceUnit == nil then sourceUnit = 'player' end
-            return getDebuffStacks(thisUnit,v,sourceUnit)
+            if getDebuffStacks(thisUnit,v,sourceUnit) == 0 and UnitDebuffID(thisUnit,v,sourceUnit) ~= nil then
+                return 1
+            else
+                return getDebuffStacks(thisUnit,v,sourceUnit)
+            end
         end
         debuff.refresh = function(thisUnit,sourceUnit)
             if thisUnit == nil then thisUnit = 'target' end
@@ -260,7 +264,7 @@ function br.loader:new(spec,specName)
                 end
             end
             -- Base Spell Availablility Check
-            if --[[isChecked("Use: "..spellName) and ]]not select(2,IsUsableSpell(v)) and getSpellCD(v) == 0 and (isKnown(v) or debug == "known") then
+            if --[[isChecked("Use: "..spellName) and ]]not select(2,IsUsableSpell(v)) and getSpellCD(v) == 0 and (isKnown(v) or debug == "known") and not isIncapacitated(v) then
                 -- Attempt to determine best unit for spell's range
                 if thisUnit == nil then
                     if spellType == "Helpful" then
@@ -412,8 +416,8 @@ function br.loader:new(spec,specName)
             if UnitPower("player",v) ~= nil then
                 if self.power[k] == nil then self.power[k] = {} end
                 if self.power.amount == nil then self.power.amount = {} end
-                local powerV = UnitPower("player",v)
-                local powerMaxV = UnitPowerMax("player",v)
+                local powerV = getPower("player",v)
+                local powerMaxV = getPowerMax("player",v)
                 self.power[k].amount    = powerV
                 self.power[k].max       = powerMaxV
                 self.power[k].deficit   = powerMaxV - powerV

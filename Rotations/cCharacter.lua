@@ -76,6 +76,7 @@ function cCharacter:new(class)
 	self.perk 			= {}		-- Perk Table
 	self.pet 			= "None" 	-- Current Pet
 	self.petId 			= 0 		-- Current Pet Id
+	self.petInfo 		= {} 		-- Pet Information Table
 	self.potion 		= {}		-- Potion Table
 	self.primaryStat 	= nil       -- Contains the primary Stat: Strength, Agility or Intellect
 	self.profile        = "None"    -- Spec

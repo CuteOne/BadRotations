@@ -607,7 +607,10 @@ local function runRotation()
             end
         -- Shuriken Storm
             -- shuriken_storm,if=buff.shadowmeld.down&((combo_points.deficit>=2+equipped.insignia_of_ravenholdt&spell_targets.shuriken_storm>=3+equipped.shadow_satyrs_walk)|(combo_points.deficit>=1&buff.the_dreadlords_deceit.stack>=29))
-            if not buff.shadowmeld.exists() and ((comboDeficit >= 2 + insignia and #enemies.yards10 >= 3 + shadowWalker) or (comboDeficit >= 1 and buff.theDreadlordsDeceit.stack() >= 29)) then
+            if (mode.cleave == 1 or mode.rotation == 2) and not buff.shadowmeld.exists() 
+                and ((comboDeficit >= 2 + insignia and ((mode.rotation == 1 and #enemies.yards10 >= 3 + shadowWalker) or (mode.rotation == 2 and #enemies.yards10 > 0))) 
+                or (comboDeficit >= 1 and buff.theDreadlordsDeceit.stack() >= 29)) 
+            then
                 if cast.shurikenStorm() then return end
             end
         -- Finisher
@@ -626,7 +629,7 @@ local function runRotation()
             -- Print("Generator")
         -- Shuriken Storm
             -- shuriken_storm,if=spell_targets.shuriken_storm>=2
-            if #enemies.yards10 >= 2 + firstDead then
+            if (mode.cleave == 1 or mode.rotation == 2) and ((mode.rotation == 1 and #enemies.yards10 >= 2 + firstDead) or (mode.rotation == 2 and #enemies.yards10 >= 0)) then
                 if cast.shurikenStorm() then return end
             end
         -- Backstab / Gloomblade

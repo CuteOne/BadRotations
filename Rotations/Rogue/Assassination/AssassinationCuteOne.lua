@@ -340,7 +340,7 @@ local function runRotation()
                 for i = 1, #enemies.yards30 do
                     local thisUnit = enemies.yards30[i]
                     local distance = getDistance(thisUnit)
-                    if not (debuff.deadlyPoison.exists(thisUnit) or debuff.woundPoison.exists(thisUnit)) and distance > 5 and ((inCombat and isValidUnit(thisUnit)) or UnitIsUnit(thisUnit,"target")) then
+                    if not (debuff.deadlyPoison.exists(thisUnit) or debuff.woundPoison.exists(thisUnit)) and distance > 8 and ((inCombat and isValidUnit(thisUnit)) or UnitIsUnit(thisUnit,"target")) then
                         if cast.poisonedKnife(thisUnit) then return end
                     end
                 end

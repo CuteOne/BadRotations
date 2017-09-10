@@ -181,6 +181,25 @@ function getTimeTo(unit,percent)
 		return timeToPercent
 	end
 end
+function isIncapacitated(spellID)
+	local eventIndex = C_LossOfControl.GetNumEvents()
+	while (eventIndex > 0) do
+		local _,_,text = C_LossOfControl.GetEventInfo(eventIndex)
+		if (text == LOSS_OF_CONTROL_DISPLAY_FEAR
+			or text == LOSS_OF_CONTROL_DISPLAY_HORROR
+			or text == LOSS_OF_CONTROL_DISPLAY_STUN 
+			or text == LOSS_OF_CONTROL_DISPLAY_CHARM
+			or text == LOSS_OF_CONTROL_DISPLAY_SLEEP
+			or text == LOSS_OF_CONTROL_DISPLAY_DISORIENT
+			or text == LOSS_OF_CONTROL_DISPLAY_INCAPACITATE
+			or text == LOSS_OF_CONTROL_DISPLAY_GRIP)
+			and not hasNoControl(spellID)
+		then
+			return true
+		end
+	end
+	return false
+end
 -- if hasNoControl(12345) == true then
 function hasNoControl(spellID,unit)
 	if unit==nil then unit="player" end
