@@ -57,8 +57,8 @@ function useItem(itemID)
 			local slotItemID = GetInventoryItemID("player",itemID)
 			if GetItemCooldown(slotItemID)==0 then
 				if not br.itemSpamDelay or GetTime() > br.itemSpamDelay then
-					-- SecureCall(UseItemByName, (select(1,GetItemInfo(itemID))))
-					UseItemByName((select(1,GetItemInfo(slotItemID))));
+					RunMacroText("/use "..select(1,GetItemInfo(slotItemID)))
+					-- UseItemByName((select(1,GetItemInfo(slotItemID))));
 					br.itemSpamDelay = GetTime() + 1;
 					return true
 				end
@@ -68,12 +68,12 @@ function useItem(itemID)
 		end
 	elseif itemID>19 and (GetItemCount(itemID) > 0 or PlayerHasToy(itemID)) then
 		if GetItemCooldown(itemID)==0 then
-			-- if not br.itemSpamDelay or GetTime() > br.itemSpamDelay then
-				-- SecureCall(UseItemByName, (select(1,GetItemInfo(itemID))))
-				UseItemByName((select(1,GetItemInfo(itemID))));
+			if not br.itemSpamDelay or GetTime() > br.itemSpamDelay then
+				RunMacroText("/use "..select(1,GetItemInfo(itemID)))
+				-- UseItemByName((select(1,GetItemInfo(itemID))));
 				br.itemSpamDelay = GetTime() + 1;
 				return true
-			-- end
+			end
 		end
 	end
 	return false

@@ -208,6 +208,7 @@ function getSpellCD(SpellID)
 	end
 end
 function getSpellType(spellName)
+	if spellName == nil then return "Invalid" end
 	local helpful = IsHelpfulSpell(spellName) or false
 	local harmful = IsHarmfulSpell(spellName) or false
 	if helpful and not harmful then return "Helpful" end
