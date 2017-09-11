@@ -264,7 +264,7 @@ function br.loader:new(spec,specName)
                 end
             end
             -- Base Spell Availablility Check
-            if --[[isChecked("Use: "..spellName) and ]]not select(2,IsUsableSpell(v)) and getSpellCD(v) == 0 and (isKnown(v) or debug == "known") and not isIncapacitated(v) then
+            if --[[isChecked("Use: "..spellName) and ]]not select(2,IsUsableSpell(v)) and getSpellCD(v) == 0 and (isKnown(v) or debug == "known") then --and not isIncapacitated(v) then
                 -- Attempt to determine best unit for spell's range
                 if thisUnit == nil then
                     if spellType == "Helpful" then
