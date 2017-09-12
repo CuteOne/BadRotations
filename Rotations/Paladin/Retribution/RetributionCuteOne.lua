@@ -59,7 +59,9 @@ local function createOptions()
             -- Hand of Hindeance
             br.ui:createCheckbox(section, "Hand of Hinderance")
             -- Divine Storm Units
-            br.ui:createSpinner(section, "Divine Storm Units",  2,  2,  3,  1,  "|cffFFBB00Units to use Divine Storm. Leave at 2 if you have Divine Tempest and Righteous Blade Artifact Traits. Set to 3 if you don't have these traits.")
+            br.ui:createSpinnerWithout(section, "Divine Storm Units",  2,  2,  3,  1,  "|cffFFBB00Units to use Divine Storm. Leave at 2 if you have Divine Tempest and Righteous Blade Artifact Traits. Set to 3 if you don't have these traits.")
+            -- Judgment
+            br.ui:createSpinnerWithout(section, "Hold For Judgment", 1.5, 0, 3, 0.5, "|cffFFBB00Time In Second Left on Judgment to wait for.")
             -- Artifact
             br.ui:createDropdownWithout(section,"Artifact", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Artifact Ability.")
         br.ui:checkSectionState(section)
@@ -238,7 +240,7 @@ local function runRotation()
         end
         judgmentExists = debuff.judgment.exists(units.dyn5)
         judgmentRemain = debuff.judgment.remain(units.dyn5)
-        if debuff.judgment.exists(units.dyn5) or level < 42 or (cd.judgment > gcd and not debuff.judgment.exists(units.dyn5)) then
+        if debuff.judgment.exists(units.dyn5) or level < 42 or (cd.judgment > getOptionValue("Hold For Judgment") and not debuff.judgment.exists(units.dyn5)) then
             judgmentVar = true
         else
             judgmentVar = false
