@@ -104,7 +104,7 @@ local function createOptions()
 		-------------------------
 		section = br.ui:createSection(br.ui.window.profile, "Cool Downs")
 		-- The Deceiver's Grand Design
-		br.ui:createCheckbox(section, "The Deceiver's Grand Design")
+		br.ui:createDropdown(section, "The Deceiver's Grand Design" , {"|cffFFFFFFTanks","|cffFFFFFFTanks/Healer"}, 1, "|cffFFFFFFTarget for The Deceiver's Grand Design")
 		-- Archive of Faith
 		br.ui:createSpinner(section, "Archive of Faith", 50, 0, 100, 5, "","|cffFFFFFFTanks Health Percent to Cast At")		
 		-- Trinkets
@@ -627,10 +627,16 @@ local function runRotation()
 				end
 			end
 			-- The Deceiver's Grand Design
-			if isChecked("The Deceiver's Grand Design") then
+			if isChecked("The Deceiver's Grand Design") and hasEquiped(147007) and canUse(147007) then
 				for i = 1, #br.friend do
-					if hasEquiped(147007) and canUse(147007) and getBuffRemain(br.friend[i].unit,242622) == 0 and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" and UnitInRange(br.friend[i].unit) and not UnitIsDeadOrGhost(br.friend[i].unit) then
-						UseItemByName(147007,br.friend[i].unit)
+					if getOptionValue("The Deceiver's Grand Design") == 1 then
+						if getBuffRemain(br.friend[i].unit,242622) == 0 and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" and UnitInRange(br.friend[i].unit) and not UnitIsDeadOrGhost(br.friend[i].unit) then
+						    UseItemByName(147007,br.friend[i].unit)
+						end	
+					elseif getOptionValue("The Deceiver's Grand Design") == 2 then
+					        if getBuffRemain(br.friend[i].unit,242622) == 0 and (UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "HEALER") and UnitInRange(br.friend[i].unit) and not UnitIsDeadOrGhost(br.friend[i].unit) then
+							UseItemByName(147007,br.friend[i].unit)
+						end	
 					end
 				end
 			end
