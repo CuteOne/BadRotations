@@ -579,6 +579,7 @@ br.idList = {
                 sharpenedClaws              = 210637,
                 shredderFangs               = 214736,
                 tearTheFlesh                = 210593,
+                thrashingClaws              = 238048,
             },
             buffs                           = {
                 berserk                     = 106951,
