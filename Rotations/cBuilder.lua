@@ -234,6 +234,16 @@ function br.loader:new(spec,specName)
         self.equiped[k] = canUse(v)
     end
 
+    self.use.slot = function(slotID)
+        if canUse(slotID) then
+            return useItem(slotID)
+        end
+    end 
+
+    self.equiped.slot = function(itemID,slotID)
+        return hasEquiped(itemID,slotID)
+    end
+
     -- if UnitDebuffID("player", 240447) ~= nil and (getCastTime(v) + 0.15) > getDebuffRemain("player",240447) then end
     -- Cycle through Abilities List
     for k,v in pairs(self.spell.abilities) do

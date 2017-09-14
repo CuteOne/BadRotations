@@ -138,6 +138,11 @@ br.idList = {
             glyphs                          = {
 
             },
+            items                           = {
+                consortsColdCore            = 144293,
+                koltirasNewfoundWill        = 132366,
+                perseveranceOfTheEbonMartyr = 132459,
+            },
             talents                         = {
                 abominationsMight           = 207161,
                 avalanche                   = 207142,
@@ -272,6 +277,9 @@ br.idList = {
             },
             glyphs                          = {
 
+            },
+            items                           = {
+                coldHeart                   = 151796,
             },
             talents                         = {
 
@@ -3243,11 +3251,17 @@ br.idList = {
                 temptation                      = 234143,
             },
             items                               = {
+                convergenceOfFates              = 140806,
+                draughtOfSouls                  = 140808,
+                feloiledInfernalMachine         = 144482,
                 flaskOfTheSeventhDemon          = 127848,
                 flaskOfTheCountlessArmies       = 127849,
                 healthstone                     = 5512,
+                hornOfValor                     = 133642,
                 oraliusWhisperingCrystal        = 118922,
+                potionOfProlongedPower          = 142117,
                 repurposedFelFocuser            = 147707,
+                ringOfCollapsingFutures         = 142173,
             },
         },
     },

@@ -13,7 +13,6 @@ misc.xml
 
 System\Core.lua
 System\Debugging.lua
-System\GeneralFunctions.lua
 System\LootManager.lua
 System\UsefulFeatures.lua
 System\SlashCommands.lua
@@ -44,7 +43,6 @@ Libs\LibStub\LibStub.lua
 Libs\CallbackHandler-1.0\CallbackHandler-1.0.lua
 Libs\LibSharedMedia-3.0\LibSharedMedia-3.0.lua
 
-Libs\DiesalComm-1.0\DiesalComm-1.0.xml
 Libs\DiesalTools-1.0\DiesalTools-1.0.lua
 Libs\DiesalStyle-1.0\DiesalStyle-1.0.lua
 Libs\DiesalGUI-1.0\DiesalGUI-1.0.xml
@@ -97,7 +95,6 @@ System\UI\Windows\Debug.lua
 System\UI\Windows\Healing.lua
 System\UI\Windows\Help.lua
 System\UI\Windows\Profile.lua
-System\UI\Windows\Settings.lua
 
 ## Rotation
 

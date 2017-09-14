@@ -309,40 +309,16 @@ local function runRotation()
             br.player.debuffcount.vulnerable        = vulnerableCount or 0
         end
 
-        local function getExplosiveDistance(otherUnit)
-            -- Find Explosive Shot Object
-            local explosiveObject = nil
-            if ObjectIsVisible("target") and otherUnit == nil then otherUnit = "target" end
-            if not ObjectIsVisible(otherUnit) then otherUnit = nil end
-            for i = 1,GetObjectCount() do
-                local thisUnit = GetObjectWithIndex(i)
-                if GetObjectID(thisUnit) == 11492 then
-                    explosiveObject = thisUnit
-                    -- Print("Used Explosive!")
-                    local x1, y1 = ObjectPosition(thisUnit)
-                    -- Print("Explosive at X: "..x1..", Y: "..y1)
-                    -- print(tostring(ObjectName(thisUnit)))
-                    break
+        -- Explosions Gotta Have More Explosions!
+        if br.player.petInfo ~= nil then
+            for k,v in pairs(br.player.petInfo) do
+                local thisPet = br.player.petInfo[k]
+                if thisPet.id == 11492 and #getObjectEnemies(thisPet.unit,5) > 0 then
+                    -- Print("Explosions!!!!") 
+                    CastSpellByName(GetSpellInfo(spell.explosiveShotDetonate))
+                    break 
                 end
             end
-            -- Return Distances
-            if ObjectIsVisible(explosiveObject) and ObjectIsVisible(otherUnit) then
-                return GetDistanceBetweenObjects(explosiveObject,otherUnit)
-            -- elseif ObjectIsVisible("target") then
-            --     return GetDistanceBetweenObjects("target","player")
-            else 
-                return 99
-            end
-        end
-
-        -- Explosions Gotta Have More Explosions!
-        if getExplosiveDistance(explosiveTarget) < 5 then
-            -- Print("Explode NOW!")
-            -- if castSpell(explosiveTarget,spell.explosiveShotDetonate,true,false,false,true,false,true,true,false) then Print("EXPLOSIONS!") return end
-            CastSpellByName(GetSpellInfo(spell.explosiveShotDetonate))
-        end
-        if getExplosiveDistance(explosiveTarget) < 99 then
-            -- Print("Explosive Distance: "..getExplosiveDistance(explosiveTarget))
         end
 
         -- ChatOverlay(tostring(rotationDebug))
@@ -592,7 +568,8 @@ local function runRotation()
         -- Explosive Shot
             -- explosive_shot
             if mode.explosive == 1 then
-                if cast.explosiveShot(units.dyn40) then explosiveTarget = units.dyn40; return end
+                -- if cast.explosiveShot(units.dyn40) then explosiveTarget = units.dyn40; return end
+                if cast.explosiveShot(nil,"rect",1,5) then return end
             end
         -- Piercing Shot
             -- piercing_shot,if=lowest_vuln_within.5>0&focus>100

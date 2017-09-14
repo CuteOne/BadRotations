@@ -124,6 +124,8 @@ local function createOptions()
             br.ui:createSpinner(section, "Survival Instincts",  40,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
         -- Regrowth
             br.ui:createSpinner(section, "Regrowth",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
+            br.ui:createDropdownWithout(section, "Regrowth - OoC", {"|cff00FF00Break Form","|cffFF0000Keep Form"}, 1, "|cffFFFFFFSelect if Regrowth is allowed to break shapeshift to heal out of combat.")
+            br.ui:createDropdownWithout(section, "Regrowth - InC", {"|cff00FF00Immediately","|cffFF0000Save For BT"}, 1, "|cffFFFFFFSelect if Predatory Swiftness is used when available or saved for Bloodtalons.")
         -- Dream of Cenarius Auto-Heal
             br.ui:createDropdown(section, "Auto Heal", { "|cffFFDD11LowestHP", "|cffFFDD11Player"},  1,  "|cffFFFFFFSelect Target to Auto-Heal")
         br.ui:checkSectionState(section)
@@ -535,24 +537,67 @@ local function runRotation()
 					useItem(118006)
 				end
 		-- Regrowth
-        		if isChecked("Regrowth") and (buff.predatorySwiftness.exists() or not inCombat) and not (IsMounted() or IsFlying()) then
-	            	if inCombat and getOptionValue("Auto Heal")==1 and getDistance(br.friend[1].unit) < 40
-	                    and ((getHP(br.friend[1].unit) <= getOptionValue("Regrowth")/2 and inCombat)
-	                        or (getHP(br.friend[1].unit) <= getOptionValue("Regrowth") and not inCombat)
-	                        or (((talent.bloodtalons and buff.predatorySwiftness.remain() < 1) or not talent.bloodtalons) and buff.predatorySwiftness.exists()))
-	                then
-	                    if cast.regrowth(br.friend[1].unit) then return end
-	                end
-	                if (getOptionValue("Auto Heal")==2 or not inCombat)
-	                    and (php <= getOptionValue("Regrowth") or (((talent.bloodtalons and buff.predatorySwiftness.remain() < 1) or not talent.bloodtalons) and buff.predatorySwiftness.exists()))
-	                then
-                        if GetShapeshiftForm() ~= 0 and not buff.predatorySwiftness.exists() and not moving then
-                            CancelShapeshiftForm()
-                            RunMacroText("/CancelForm")
-                        else
-	                       if cast.regrowth("player") then return end
+        		if isChecked("Regrowth") and not (IsMounted() or IsFlying()) and getDistance(br.friend[1].unit) < 40 then
+                    if not inCombat then
+                        -- Don't Break Form
+                        if getOptionValue("Regrowth - OoC") == 2 then
+                            -- Lowest Party/Raid
+                            if getOptionValue("Auto Heal") == 1 and ((getHP(br.friend[1].unit) <= getOptionValue("Regrowth") and GetShapeshiftForm() == 0) or buff.predatorySwiftness.exists()) then 
+                                if cast.regrowth(br.friend[1].unit) then return end
+                            -- Player
+                            elseif (getHP("player") <= getOptionValue("Regrowth") and GetShapeshiftForm() == 0) or buff.predatorySwiftness.exists() then
+                                if cast.regrowth("player") then return end
+                            end
                         end
-	                end
+                        -- Break Form
+                        if getOptionValue("Regrowth - OoC") == 1 and getHP("player") <= getOptionValue("Regrowth") then
+                            if GetShapeshiftForm() ~= 0 and not buff.predatorySwiftness.exists() and not moving then
+                                -- CancelShapeshiftForm()
+                                RunMacroText("/CancelForm")
+                            else
+                               if cast.regrowth("player") then return end
+                            end
+                        end
+                    elseif inCombat and buff.predatorySwiftness.exists() then
+                        -- Always Use Predatory Swiftness when available
+                        if getOptionValue("Regrowth - InC") == 1 or not talent.bloodtalons then
+                            -- Lowest Party/Raid
+                            if getOptionValue("Auto Heal")==1 and getHP(br.friend[1].unit) <= getOptionValue("Regrowth") then 
+                                if cast.regrowth(br.friend[1].unit) then return end
+                            -- Player
+                            elseif getHP("player") <= getOptionValue("Regrowth") then
+                                if cast.regrowth("player") then return end
+                            end
+                        end
+                        -- Hold Predatory Swiftness for Bloodtalons unless Health is Below Half of Threshold or Predatory Swiftness is about to Expire.
+                        if getOptionValue("Regrowth - InC") == 2 and talent.bloodtalons then
+                            -- Lowest Party/Raid
+                            if getOptionValue("Auto Heal")==1 and ((getHP(br.friend[1].unit) <= getOptionValue("Regrowth") / 2) or buff.predatorySwiftness.remain() < 1) then 
+                                if cast.regrowth(br.friend[1].unit) then return end
+                            -- Player
+                            elseif (getHP("player") <= getOptionValue("Regrowth") / 2) or buff.predatorySwiftness.remain() < 1 then
+                                if cast.regrowth("player") then return end
+                            end
+                        end
+                    end
+
+	            	-- if inCombat and getOptionValue("Auto Heal")==1 and getDistance(br.friend[1].unit) < 40
+	             --        and ((getHP(br.friend[1].unit) <= getOptionValue("Regrowth")/2 and inCombat)
+	             --            or (getHP(br.friend[1].unit) <= getOptionValue("Regrowth") and not inCombat)
+	             --            or (((talent.bloodtalons and buff.predatorySwiftness.remain() < 1) or not talent.bloodtalons) and buff.predatorySwiftness.exists()))
+	             --    then
+	             --        if cast.regrowth(br.friend[1].unit) then return end
+	             --    end
+	             --    if (getOptionValue("Auto Heal")==2 or not inCombat)
+	             --        and (php <= getOptionValue("Regrowth") or (((talent.bloodtalons and buff.predatorySwiftness.remain() < 1) or not talent.bloodtalons) and buff.predatorySwiftness.exists()))
+	             --    then
+              --           if GetShapeshiftForm() ~= 0 and not buff.predatorySwiftness.exists() and not moving then
+              --               -- CancelShapeshiftForm()
+              --               RunMacroText("/CancelForm")
+              --           else
+	             --           if cast.regrowth("player") then return end
+              --           end
+	             --    end
 	            end
 		-- Survival Instincts
 	            if isChecked("Survival Instincts") and php <= getOptionValue("Survival Instincts")
