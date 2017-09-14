@@ -135,6 +135,7 @@ Rotations\Druid\Balance\BalanceLyLoLoq.lua
 
 Rotations\Hunter\Beastmaster\BeastmasterCuteOne.lua
 Rotations\Hunter\Beastmaster\BeastmasterKuukuu.lua
+Rotations\Hunter\Beastmaster\BeastmasterArh.lua
 
 Rotations\Hunter\Marksmanship\MarksmanshipCuteOne.lua
 Rotations\Hunter\Marksmanship\MarksmanshipAura.lua

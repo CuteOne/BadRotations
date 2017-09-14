@@ -921,6 +921,7 @@ br.idList = {
                 direFrenzy                  = 217200,
                 intimidation                = 19577,
                 volley                      = 194386,
+				aspectOfTheBeast            = 191384,
             },
         },
         -- Marksmanship
