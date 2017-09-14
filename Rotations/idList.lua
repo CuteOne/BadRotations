@@ -579,7 +579,6 @@ br.idList = {
                 sharpenedClaws              = 210637,
                 shredderFangs               = 214736,
                 tearTheFlesh                = 210593,
-                thrashingClaws              = 238048,
             },
             buffs                           = {
                 berserk                     = 106951,
@@ -913,6 +912,7 @@ br.idList = {
                 direFrenzy                  = 217200,
                 intimidation                = 19577,
                 volley                      = 194386,
+				aspectOfTheBeast            = 191384,
             },
         },
         -- Marksmanship
