@@ -31,6 +31,12 @@ local function createToggles()
         [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.counterspell}
     };
     CreateButton("Interrupt",4,0)
+-- Legendary Dragonbreath Button
+    DragonsBreathModes = {
+        [1] = { mode = "On", value = 1 , overlay = "Legendary Dragonbreath Enabled", tip = "Always use Legendary Dragonbreath.", highlight = 1, icon = br.player.spell.dragonsBreath},
+        [2] = { mode = "Off", value = 2 , overlay = "Legendary Dragonbreath Disabled", tip = "Let BR decide when to use Legedary Dragonbreath.", highlight = 0, icon = br.player.spell.dragonsBreath}
+    };
+    CreateButton("DragonsBreath",5,0)
 end
 
 ---------------
@@ -118,7 +124,8 @@ local function runRotation()
         UpdateToggle("Cooldown",0.25)
         UpdateToggle("Defensive",0.25)
         UpdateToggle("Interrupt",0.25)
-
+        UpdateToggle("DragonsBreath",0.25)
+        br.player.mode.dragonsBreath = br.data.settings[br.selectedSpec].toggles["DragonsBreath"]
 --------------
 --- Locals ---
 --------------
@@ -167,11 +174,14 @@ local function runRotation()
         local ttm                                           = br.player.power.ttm
         local units                                         = units or {}
 
+        units.dyn12 = br.player.units(12)
+        units.dyn25 = br.player.units(25)
         units.dyn40 = br.player.units(40)
         enemies.yards6t = br.player.enemies(6,br.player.units(6,true))
         enemies.yards8t = br.player.enemies(8,br.player.units(8,true))
         enemies.yards10t = br.player.enemies(10,br.player.units(10,true))
         enemies.yards12 = br.player.enemies(12)
+        enemies.yards25 = br.player.enemies(25)
         enemies.yards30 = br.player.enemies(30)
         
         if leftCombat == nil then leftCombat = GetTime() end
@@ -309,10 +319,13 @@ local function runRotation()
             end
         -- Dragon's Breath
             -- dragons_breath,if=equipped.132863
-            if talent.alexstraszasFury and hasEquiped(132863) then
-                if cast.dragonsBreath() then return end
-            elseif talent.alexstraszasFury or hasEquiped(132863) then
-                if cast.dragonsBreath() then return end
+            --(getFacing("player",units.dyn12,10) and hasEquiped(132863) and getDistance(units.dyn12) < 12)
+            --(getFacing("player",units.dyn37,10) and talent.alexstraszasFury and not buff.hotStreak.exists() and getDistance(units.dyn37) < 37)
+            if (getFacing("player",units.dyn25,10) and talent.alexstraszasFury and hasEquiped(132863) and getDistance(units.dyn25) < 25) and getEnemiesInCone(25,10) > 2 then
+                if cast.dragonsBreath(units.dyn25) then return end
+            elseif (getFacing("player",units.dyn12,10) and talent.alexstraszasFury and getDistance(units.dyn12) < 12) 
+                or (getFacing("player",units.dyn25,10) and hasEquiped(132863) and getDistance(units.dyn25) < 25) then
+                if cast.dragonsBreath(units.dyn12) then return end
             end
         -- Living Bomb
             -- living_bomb,if=active_enemies>1&buff.combustion.down
@@ -363,10 +376,16 @@ local function runRotation()
             end
         -- Dragon's Breath
             -- dragons_breath,if=buff.hot_streak.down&action.fire_blast.charges<1&action.phoenixs_flames.charges<1
-            if not buff.hotStreak.exists and charges.fireBlast < 1 and charges.phoenixsFlames < 1 then
-                if cast.dragonsBreath() then return end
-            elseif not buff.hotStreak.exists and (talent.alexstraszasFury or hasEquiped(132863)) then
-                if cast.dragonsBreath() then return end
+            --(getFacing("player",units.dyn12,10) and hasEquiped(132863) and getDistance(units.dyn12) < 12)
+            --(getFacing("player",units.dyn25,10) and talent.alexstraszasFury and not buff.hotStreak.exists() and getDistance(units.dyn25) < 25)
+            if (getFacing("player",units.dyn12,10) and not buff.hotStreak.exists and charges.fireBlast < 1 and charges.phoenixsFlames < 1 and getDistance(units.dyn12) < 12) then
+                if cast.dragonsBreath(units.dyn12) then return end
+            elseif not buff.hotStreak.exists then
+                if (getDistance(units.dyn12) < 12) and talent.alexstraszasFury then
+                    if cast.dragonsBreath(units.dyn12) then return end
+                elseif ((getDistance(units.dyn25) < 25) and hasEquiped(132863)) then
+                    if cast.dragonsBreath(units.dyn25) then return end
+                end
             end
         -- Scorch
             -- scorch,if=target.health.pct<=25&equipped.132454
@@ -441,10 +460,16 @@ local function runRotation()
                 if cast.flamestrike("best",nil,2,6) then return end
             end
         -- Dragon's Breath
-            if ((#enemies.yards12 > 3 and mode.rotation == 1) or mode.rotation == 2) then
-                if cast.dragonsBreath() then return end
-            elseif ((talent.alexstraszasFury and hasEquiped(132863)) or talent.alexstraszasFury or hasEquiped(132863)) and (#enemies.yards12 >= 1 and mode.rotation == 1) then
-                if cast.dragonsBreath() then return end
+            --(getFacing("player",units.dyn12,10) and hasEquiped(132863) and getDistance(units.dyn12) < 12)
+            --(getFacing("player",units.dyn25,10) and talent.alexstraszasFury and not buff.hotStreak.exists() and getDistance(units.dyn25) < 25)
+            if ((getFacing("player",units.dyn12,10) and mode.rotation == 1) or mode.rotation == 2) and getDistance(units.dyn12) < 12 then
+                if cast.dragonsBreath(units.dyn12) then return end
+            elseif ((talent.alexstraszasFury and hasEquiped(132863)) or talent.alexstraszasFury or hasEquiped(132863)) then
+                if hasEquiped(132863) and ((getDistance(units.dyn25) < 24) and mode.rotation == 1) then
+                    if cast.dragonsBreath(units.dyn25) then return end
+                elseif ((getDistance(units.dyn12) < 12) and mode.rotation == 1) then
+                    if cast.dragonsBreath(units.dyn12) then return end
+                end
             end
         -- Pyroblast
             -- pyroblast,if=buff.hot_streak.up&!prev_gcd.pyroblast
@@ -523,6 +548,10 @@ local function runRotation()
         -- Blazing Barrier
                     if isChecked("Blazing Barrier") and not buff.blazingBarrier.exists() then
                         if cast.blazingBarrier() then return end
+                    end
+        -- Dragon's Breath
+                    if (getFacing("player",units.dyn25,10) and hasEquiped(132863) and getDistance(units.dyn25) < 25) and mode.dragonsBreath == 1 then
+                        if cast.dragonsBreath(units.dyn25) then return end
                     end
         -- Flamestrike
                     -- flamestrike,if=talent.flame_patch.enabled&active_enemies>2&buff.hot_streak.react
