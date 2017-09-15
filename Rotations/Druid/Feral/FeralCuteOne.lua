@@ -86,20 +86,24 @@ local function createOptions()
             br.ui:createCheckbox(section,"Potion")
         -- Elixir
             br.ui:createDropdownWithout(section,"Elixir", {"Flask of Seventh Demon","Repurposed Fel Focuser","Oralius' Whispering Crystal","None"}, 1, "|cffFFFFFFSet Elixir to use.")
-        -- Berserk
-            br.ui:createCheckbox(section,"Berserk")
-        -- Legendary Ring
-            br.ui:createSpinner(section, "Ring of Collapsing Futures",  1,  1,  5,  1,  "|cffFFFFFFSet to desired number of Temptation stacks before letting fall off. Min: 1 / Max: 5 / Interval: 1")
         -- Racial
             br.ui:createCheckbox(section,"Racial")
         -- Tiger's Fury
             br.ui:createCheckbox(section,"Tiger's Fury")
-        -- Incarnation: King of the Jungle
-            br.ui:createCheckbox(section,"Incarnation")
+        -- Berserk / Incarnation: King of the Jungle
+            br.ui:createCheckbox(section,"Berserk/Incarnation")
         -- Trinkets
             br.ui:createCheckbox(section,"Trinkets")
-	-- Vial of Ceaseless Toxins
-	    br.ui:createCheckbox(section,"Vial of Ceaseless Toxins")
+        -- Draught of Souls
+            br.ui:createCheckbox(section,"Draught of Souls")
+        -- Ring of Collapsing Futures
+            br.ui:createSpinner(section, "Ring of Collapsing Futures",  1,  1,  5,  1,  "|cffFFFFFFSet to desired number of Temptation stacks before letting fall off. Min: 1 / Max: 5 / Interval: 1")
+        -- Specter of Betrayal
+            br.ui:createDropdownWithout(section,"Specter of Betrayal", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Specter of Betrayal.")
+        -- Vial of Ceaseless Toxins
+            br.ui:createCheckbox(section,"Vial of Ceaseless Toxins")
+        -- Umbral Moonglaives
+            br.ui:createCheckbox(section,"Umbral Moonglaives")
         br.ui:checkSectionState(section)
     -- Defensive Options
         section = br.ui:createSection(br.ui.window.profile, "Defensive")
@@ -644,7 +648,7 @@ local function runRotation()
 			if getDistance("target") < 5 then
 		-- Berserk
 				-- berserk,if=energy>=30&(cooldown.tigers_fury.remains>5|buff.tigers_fury.up)
-	            if useCDs() and isChecked("Berserk") then
+	            if useCDs() and isChecked("Berserk/Incarnation") then
 	            	if power >= 30 and (cd.tigersFury > 5 or buff.tigersFury.exists()) and not talent.incarnationKingOfTheJungle then
 	            		if cast.berserk() then return end
 	            	end
@@ -663,7 +667,7 @@ local function runRotation()
                 end
         -- Incarnation - King of the Jungle
                 -- incarnation,if=energy>=30&(cooldown.tigers_fury.remains>15|buff.tigers_fury.up)
-                if useCDs() and isChecked("Incarnation") then
+                if useCDs() and isChecked("Berserk/Incarnation") then
                     if power >= 30 and (cd.tigersFury > 15 or buff.tigersFury.exists()) and talent.incarnationKingOfTheJungle then
                         if cast.incarnationKingOfTheJungle() then return end
                     end
@@ -685,7 +689,7 @@ local function runRotation()
                 end
         -- Ashamane's Frenzy
                 -- ashamanes_frenzy,if=combo_points>=2&(!talent.bloodtalons.enabled|buff.bloodtalons.up)
-                if getOptionValue("Artifact") ~= 3 then
+                if (getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs())) then
                     if combo >= 2 and (not talent.bloodtalons or buff.bloodtalons.exists()) then
                         if cast.ashamanesFrenzy(units.dyn5) then return end
                     end
@@ -704,27 +708,44 @@ local function runRotation()
                 -- if=buff.tigers_fury.up&energy.time_to_max>3&(!talent.savage_roar.enabled|buff.savage_roar.up)
                 if useCDs() and isChecked("Trinkets") and getDistance(units.dyn5) < 5 then
                     if buff.tigersFury.exists() and (not talent.savageRoar or buff.savageRoar.exists()) then
-                        if canUse(13) and not hasEquiped(147011,13) then
+                        if canUse(13) and not (hasEquiped(147011,13) or hasEquiped(147012,13) or hasEquiped(140808,13) or hasEquiped(151190,13)) then
                             useItem(13)
                         end
-                        if canUse(14) and not hasEquiped(147011,14) then
+                        if canUse(14) and not (hasEquiped(147011,14) or hasEquiped(147012,14) or hasEquiped(140808,14) or hasEquiped(151190,14)) then
                             useItem(14)
                         end
                     end
                 end
-        -- Vial of Ceaseless Toxins
-                if isChecked("Vial of Ceaseless Toxins") and hasEquiped(147011) and canUse(147011) then
-                    if buff.tigersFury.exists() or ttd(units.dyn5) <= cd.tigersFury then
-                        useItem(147011)
+        -- Draught of Souls
+                if isChecked("Draught of Souls") and hasEquiped(140808) and canUse(140808) and useCDs() then
+                    if (buff.savageRaor.exists() or not talent.savageRoar) and ttm > 3 and comboDeficit >= 1 then
+                        useItem(140808)
                     end
-                end     
-        
+                end
         -- Ring of Collapsing Futures
                 -- use_item,slot=finger1
                 if isChecked("Ring of Collapsing Futures") then
                     if hasEquiped(142173) and canUse(142173) and getDebuffStacks("player",234143) < getOptionValue("Ring of Collapsing Futures") and select(2,IsInInstance()) ~= "pvp" then
                         useItem(142173)
                         return true
+                    end
+                end
+        -- Specter of Betrayal
+                if (getOptionValue("Specter of Betrayal") == 1 or (getOptionValue("Specter of Betrayal") == 2 and useCDs())) then
+                    if hasEquiped(151190) and canUse(151190) then
+                        useItem(151190)
+                    end
+                end
+        -- Umbral Moonglaives
+                if isChecked("Umbral Moonglaives") and hasEquiped(147012) and canUse(147012) and useCDs() then
+                    if (mode.rotation == 1 and #enemies.yards8 >= 2) or mode.rotation == 2 then
+                        useItem(147012)
+                    end
+                end
+        -- Vial of Ceaseless Toxins
+                if isChecked("Vial of Ceaseless Toxins") and hasEquiped(147011) and canUse(147011) then
+                    if buff.tigersFury.exists() or ttd(units.dyn5) <= cd.tigersFury then
+                        useItem(147011)
                     end
                 end
         -- Racial: Orc Blood Fury | Troll Berserking | Blood Elf Arcane Torrent
@@ -747,14 +768,14 @@ local function runRotation()
                 end
         -- Incarnation - King of the Jungle
                 -- if HasBuff(TigersFury)
-                if useCDs() and isChecked("Incarnation") then
+                if useCDs() and isChecked("Berserk/Incarnation") then
                     if buff.tigersFury.exists() and talent.incarnationKingOfTheJungle then
                         if cast.incarnationKingOfTheJungle() then return end
                     end
                 end
         -- Berserk
                 -- if HasBuff(TigersFury)
-                if useCDs() and isChecked("Berserk") then
+                if useCDs() and isChecked("Berserk/Incarnation") then
                     if buff.tigersFury.exists() and not talent.incarnationKingOfTheJungle then
                         if cast.berserk() then return end
                     end
@@ -781,10 +802,10 @@ local function runRotation()
                     end
         -- Trinkets
                     if useCDs() and isChecked("Trinkets") and getDistance(units.dyn5) < 5 then
-                        if canUse(13) and not (hasEquiped(147011,13) and hasEquiped(147012,13) and hasEquiped(140808,13)) then
+                        if canUse(13) and not (hasEquiped(147011,13) or hasEquiped(147012,13) or hasEquiped(140808,13) or hasEquiped(151190,13)) then
                             useItem(13)
                         end
-                        if canUse(14) and not (hasEquiped(147011,14) and hasEquiped(147012,14) and hasEquiped(140808,14)) then
+                        if canUse(14) and not (hasEquiped(147011,14) or hasEquiped(147012,14) or hasEquiped(140808,14) or hasEquiped(151190,14)) then
                             useItem(14)
                         end
                     end
@@ -815,6 +836,12 @@ local function runRotation()
                         if hasEquiped(142173) and canUse(142173) and getDebuffStacks("player",234143) < getOptionValue("Ring of Collapsing Futures") and select(2,IsInInstance()) ~= "pvp" then
                             useItem(142173)
                             return true
+                        end
+                    end
+        -- Specter of Betrayal
+                    if (getOptionValue("Specter of Betrayal") == 1 or (getOptionValue("Specter of Betrayal") == 2 and useCDs())) then
+                        if hasEquiped(151190) and canUse(151190) then
+                            useItem(151190)
                         end
                     end
                 end     
