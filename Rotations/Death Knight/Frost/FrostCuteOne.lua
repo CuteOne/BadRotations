@@ -170,10 +170,12 @@ local function runRotation()
         local deadtar           = UnitIsDeadOrGhost("target") or isDummy()
         local debuff            = br.player.debuff
         local enemies           = enemies or {}
+        local equiped           = br.player.equiped
         local gcd               = br.player.gcd
         local glyph             = br.player.glyph
         local healPot           = getHealthPot()
         local inCombat          = br.player.inCombat
+        local item              = br.player.item
         local level             = br.player.level
         local mode              = br.player.mode
         local moving            = GetUnitSpeed("player")>0
@@ -193,6 +195,8 @@ local function runRotation()
         local t20_4pc           = TierScan("T20") >= 4
         local ttd               = getTTD
         local units             = units or {}
+        local use               = br.player.use
+
     -- Enemies
         units.dyn5        = br.player.units(5)
         units.dyn8        = br.player.units(8)
@@ -203,16 +207,6 @@ local function runRotation()
         enemies.yards15   = br.player.enemies(15)
         enemies.yards30   = br.player.enemies(30)
         enemies.yards40   = br.player.enemies(40)
-    -- Items
-        local coldHeart                       = 151796
-        local consortsColdCore                = 144293
-        local convergenceOfFates              = 140806
-        local draughtOfSouls                  = 140808
-        local hornOfValor                     = 133642
-        local koltirasNewfoundWill            = 132366
-        local perseveranceOfTheEbonMartyr     = 132459
-        local potionOfProlongedPower          = 142117
-        local ringOfCollapsingFutures         = 142173
 
         if breathOfSindragosaActive == nil then breathOfSindragosaActive = false end
         if breathOfSindragosaActive and not breathTimerSet then currentBreathTime = GetTime(); breathTimerSet = true end
@@ -331,18 +325,39 @@ local function runRotation()
                 end
             end -- End Use Interrupts Check
         end -- End Action List - Interrupts
+    -- Action List - Cold Heart
+        local function actionList_ColdHeart()
+            profileDebug = "Cold Heart"
+        -- Chains of Ice
+            -- chains_of_ice,if=buff.cold_heart.stack=20&buff.unholy_strength.up&cooldown.pillar_of_frost.remains>6
+            if buff.coldHeart.stack() == 20 and buff.unholyStrength.exists() and cd.pillarOfFrost > 6 then
+                if cast.chainsOfIce() then return end
+            end
+            -- chains_of_ice,if=buff.pillar_of_frost.up&buff.pillar_of_frost.remains<gcd&(buff.cold_heart.stack>=11|(buff.cold_heart.stack>=10&set_bonus.tier20_4pc))
+            if buff.pillarOfFrost.exists() and buff.pillarOfFrost.remain() < gcd and (buff.coldHeart.stack() >= 11 or (buff.coldHeart.stack() >= 10 and tier20_4pc)) then
+                if cast.chainsOfIce() then return end
+            end
+            -- chains_of_ice,if=buff.unholy_strength.up&buff.unholy_strength.remains<gcd&buff.cold_heart.stack>16&cooldown.pillar_of_frost.remains>6
+            if buff.unholyStrength.exists() and buff.unholyStrength.remain() < gcd and buff.coldHeart.stack() > 16 and cd.pillarOfFrost > 6 then
+                if cast.chainsOfIce() then return end
+            end
+            -- chains_of_ice,if=buff.cold_heart.stack>=4&target.time_to_die<=gcd
+            if buff.coldHeart.stack() >= 4 and ttd(units.dyn5) <= gcd then
+                if cast.chainsOfIce() then return end
+            end
+        end -- End Action List - Cold Heart
     -- Action List - Cooldowns
         local function actionList_Cooldowns()
             profileDebug = "Cooldowns"
             if getDistance(units.dyn5) < 5 then
         -- Racial: Orc Blood Fury | Troll Berserking | Blood Elf Arcane Torrent
-                -- arcane_torrent,if=runic_power.deficit>20&!talent.breath_of_sindragosa.enabled
-                -- arcane_torrent,if=talent.breath_of_sindragosa.enabled&dot.breath_of_sindragosa.ticking&runic_power<30&rune<2
+                -- arcane_torrent,if=runic_power<80&!talent.breath_of_sindragosa.enabled
+                -- arcane_torrent,if=dot.breath_of_sindragosa.ticking&runic_power<50&rune<2
                 -- blood_fury,if=buff.pillar_of_frost.up
                 -- berserking,if=buff.pillar_of_frost.up
                 if isChecked("Racial") and useCDs() and (((br.player.race == "Troll" or br.player.race == "Orc") and buff.pillarOfFrost.exists())
-                    or (br.player.race == "BloodElf" and ((runicPowerDeficit > 20 and not talent.breathOfSindragosa) 
-                        or (talent.breathOfSindragosa and breathOfSindragosaActive and runicPower < 30 and runes < 2)))) 
+                    or (br.player.race == "BloodElf" and ((runicPower < 80 and not talent.breathOfSindragosa) 
+                        or (breathOfSindragosaActive and runicPower < 50 and runes < 2)))) 
                     and getSpellCD(racial) == 0
                 then
                     if castSpell("player",racial,false,false,false) then return end
@@ -350,65 +365,66 @@ local function runRotation()
         -- Trinkets
                 -- use_items
                 if isChecked("Trinkets") and useCDs() then
-                    if canUse(13) and not (hasEquiped(hornOfValor,13) or hasEquiped(draughtOfSouls,13)) then
-                        useItem(13)
+                    if not (equiped.hornOfValor(13) or equiped.draughtOfSouls(13) or equiped.feloiledInfernalMachine(13)) then
+                        use.slot(13)
                     end
-                    if canUse(14) and not (hasEquiped(hornOfValor,14) or hasEquiped(draughtOfSouls,14)) then
-                        useItem(14)
+                    if not (equiped.hornOfValor(14) or equiped.draughtOfSouls(14) or equiped.feloiledInfernalMachine(14)) then
+                        use.slot(14)
                     end
                 end
         -- Ring of Collapsing Futures
                 -- use_item,name=ring_of_collapsing_futures,if=(buff.temptation.stack=0&target.time_to_die>60)|target.time_to_die<60
                 if isChecked("Ring of Collapsing Futures") and useCDs() then
                     if (debuff.temptation.stack("player") < getOptionValue("Ring of Collapsing Futures") and ttd("target") > 60) or ttd("target") < 60 and select(2,IsInInstance()) ~= "pvp" then
-                        if canUse(ringOfCollapsingFutures) then
-                            useItem(ringOfCollapsingFutures)
-                        end
+                        use.ringOfCollapsingFutures()
                     end
                 end
         -- Horn of Valor
                 -- use_item,name=horn_of_valor,if=buff.pillar_of_frost.up&(!talent.breath_of_sindragosa.enabled|!cooldown.breath_of_sindragosa.remains)
                 if isChecked("Horn of Valor") and useCDs() then
                     if buff.pillarOfFrost.exists() and (not talent.breathOfSindragosa or cd.breathOfSindragosa == 0 or not isChecked("Breath of Sindragosa")) then
-                        if canUse(hornOfValor) then
-                            useItem(hornOfValor)
-                        end
+                        use.hornOfValor()
                     end
                 end
         -- Draught of Souls
                 -- use_item,name=draught_of_souls,if=rune.time_to_5<3&(!dot.breath_of_sindragosa.ticking|runic_power>60)
                 if isChecked("Draught of Souls") and useCDs() then
                     if runeTimeTill(5) < 3 and (not breathOfSindragosaActive or runicPower > 60) then
-                        if canUse(draughtOfSouls) then
-                            useItem(draughtOfSouls)
-                        end
+                        use.draughtOfSouls()
+                    end
+                end
+        -- Feloiled Infernal Machine
+                -- use_item,name=feloiled_infernal_machine,if=!talent.obliteration.enabled|buff.obliteration.up
+                if isChecked("Feloiled Infernal Machine") and useCDs() then
+                    if not talent.obliteration or buff.obliteration.exists() then
+                        use.feloiledInfernalMachine()
                     end
                 end
         -- Potion
-                -- potion,if=buff.pillar_of_frost.up&(!talent.breath_of_sindragosa.enabled|!cooldown.breath_of_sindragosa.remains)
+                -- potion,if=buff.pillar_of_frost.up&(dot.breath_of_sindragosa.ticking|buff.obliteration.up|talent.hungering_rune_weapon.enabled)
                 if isChecked("Potion") and useCDs() and raid then 
-                    if buff.pillarOfFrost.exists() and (not talent.breathOfSindragosa or cd.breathOfSindragosa == 0 or not isChecked("Breath of Sindragosa")) then
-                        if canUse(potionOfProlongedPower) then
-                            useItem(potionOfProlongedPower)
-                        end
+                    if buff.pillarOfFrost.exists() and (debuff.breathOfSindragosa.exists(units.dyn5) or (talent.breathOfSindragosa and not isChecked("Breath of Sindragosa")) 
+                        or buff.obliteration.exists() or talent.hungeringRuneWeapon) 
+                    then
+                        use.potionOfProlongedPower()
                     end
                 end
         -- Pillar of Frost
                 if getOptionValue("Pillar of Frost") == 1 or (getOptionValue("Pillar of Frost") == 2 and useCDs()) and getDistance(units.dyn5) < 5 then
-                    -- pillar_of_frost,if=!talent.breath_of_sindragosa.enabled
-                    if not talent.breathOfSindragosa then
+                    -- pillar_of_frost,if=talent.obliteration.enabled&(cooldown.obliteration.remains>20|cooldown.obliteration.remains<10|!talent.icecap.enabled)
+                    if talent.obliteration and (cd.obliteration > 20 or cd.obliteration < 10 or not talent.icecap) then
+                        if cast.pillarOfFrost() then return end
+                    end
+                    -- pillar_of_frost,if=talent.breath_of_sindragosa.enabled&cooldown.breath_of_sindragosa.ready&runic_power>50
+                    if talent.breathOfSindragosa and cd.breathOfSindragosa == 0 and isChecked("Break of Sindragosa") and runicPower > 50 then
                         if cast.pillarOfFrost() then return end
                     end
                     -- pillar_of_frost,if=talent.breath_of_sindragosa.enabled&cooldown.breath_of_sindragosa.remains>40
                     if talent.breathOfSindragosa and cd.breathOfSindragosa > 40 then
                         if cast.pillarOfFrost() then return end
                     end
-                    -- pillar_of_frost,if=talent.breath_of_sindragosa.enabled&!cooldown.breath_of_sindragosa.remains&runic_power>=50&equipped.convergence_of_fates&cooldown.hungering_rune_weapon.remains<10
-                    if talent.breathOfSindragosa and cd.breathOfSindragosa == 0 and runicPower >= 50 and hasEquiped(convergenceOfFates) and cd.hungeringRuneWeapon < 10 then
-                        if cast.pillarOfFrost() then return end
-                    end
-                    -- pillar_of_frost,if=talent.breath_of_sindragosa.enabled&!cooldown.breath_of_sindragosa.remains&runic_power>=50&!equipped.convergence_of_fates&(cooldown.hungering_rune_weapon.remains<15|target.time_to_die>135)
-                    if talent.breathOfSindragosa and cd.breathOfSindragosa == 0 and runicPower >= 50 and not hasEquiped(convergenceOfFates) and (cd.hungeringRuneWeapon < 15 or ttd("target") > 135) then
+                    -- pillar_of_frost,if=talent.hungering_rune_weapon.enabled
+                    if talent.hungeringRuneWeapon then
                         if cast.pillarOfFrost() then return end
                     end
                 end
@@ -416,11 +432,27 @@ local function runRotation()
                 -- breath_of_sindragosa,if=buff.pillar_of_frost.up
                 if isChecked("Breath of Sindragosa") and useCDs() then
                     if buff.pillarOfFrost.exists() or (getOptionValue("Pillar of Frost") == 3 and runicPower >= 50 
-                        and ((hasEquiped(convergenceOfFates) and cd.hungeringRuneWeapon < 10) or (not hasEquiped(convergenceOfFates) and (cd.hungeringRuneWeapon < 15 or ttd("target") > 135))))
+                        and ((equiped.convergenceOfFates() and cd.hungeringRuneWeapon < 10) or (not equiped.convergenceOfFates() and (cd.hungeringRuneWeapon < 15 or ttd("target") > 135))))
                     then
                         if cast.breathOfSindragosa() then return end
                     end
                 end
+        -- Call Action List - Cold Heart
+                -- call_action_list,name=cold_heart,if=equipped.cold_heart&((buff.cold_heart.stack>=10&!buff.obliteration.up)|target.time_to_die<=gcd)
+                if useCDs() and equiped.coldHeart() and ((buff.coldHeart.stack() >= 10 and not buff.obliteration.exists()) or ttd(units.dyn5) <= gcd) then
+                    if actionList_ColdHeart() then return end
+                end
+        -- Obliteration
+                -- obliteration,if=rune>=1&runic_power>=20&(!talent.frozen_pulse.enabled|rune<2|buff.pillar_of_frost.remains<=12)&(!talent.gathering_storm.enabled|!cooldown.remorseless_winter.ready)&(buff.pillar_of_frost.up|!talent.icecap.enabled)
+                if isChecked("Obliteration") and useCDs() then
+                    if runes >= 1 and runicPower >= 20 
+                        and (not talent.frozenPulse or runes < 2 or buff.pillarOfFrost.remain() <= 12) 
+                        and (not talent.gatheringStorm or cd.remorselessWinter > 0) 
+                        and (buff.pillarOfFrost.exists() or not talent.icecap)
+                    then
+                        if cast.obliteration() then return end
+                    end
+                end 
             end -- End Use Cooldowns Check
         end -- End Action List - Cooldowns
     -- Action List - Pre-Combat
@@ -453,14 +485,9 @@ local function runRotation()
                 StartAttack()
             end
         end -- End Action List - PreCombat
-    -- Action List - Breath of Sindragosa
-        local function actionList_BreathOfSindragosa()
-            profileDebug = "Breath Of Sindragosa - Inactive"
-        -- Frost Strike
-            -- frost_strike,if=talent.icy_talons.enabled&buff.icy_talons.remains<gcd&cooldown.breath_of_sindragosa.remains>rune.time_to_4
-            if talent.icyTalons and buff.icyTalons.remain() < gcd and (cd.breathOfSindragosa > runeTimeTill(4) or not useCDs() or not isChecked("Breath of Sindragosa")) then
-                if cast.frostStrike() then return end
-            end
+    -- Action List - Breath of Sindragosa Pooling
+        local function actionList_BoS_Pooling()
+            profileDebug = "Breath Of Sindragosa - Pooling"
         -- Remorseless Winter
             -- remorseless_winter,if=talent.gathering_storm.enable
             if talent.gatheringStorm and getDistance(units.dyn5) < 5 then
@@ -476,23 +503,23 @@ local function runRotation()
             if runeTimeTill(6) < gcd and not talent.gatheringStorm then
                 if cast.obliterate() then return end
             end
-            -- obliterate,if=rune.time_to_4<gcd&(cooldown.breath_of_sindragosa.remains|runic_power<70)
-            if runeTimeTill(4) < gcd and (cd.breathOfSindragosa > 0 or runicPower < 70) then
+            -- obliterate,if=rune.time_to_4<gcd&(cooldown.breath_of_sindragosa.remains|runic_power_deficit>=30)
+            if runeTimeTill(4) < gcd and (cd.breathOfSindragosa > 0 or runicPowerDeficit >= 30) then
                 if cast.obliterate() then return end
             end
         -- Frost Strike
-            -- frost_strike,if=runic_power>=95&set_bonus.tier19_4pc&cooldown.breath_of_sindragosa.remains
-            if runicPower >= 95 and t19_4pc and (cd.breathOfSindragosa > 0 or not useCDs() or not isChecked("Breath of Sindragosa")) then
+            -- frost_strike,if=runic_power.deficit<5&set_bonus.tier19_4pc&cooldown.breath_of_sindragosa.remains&(!talent.shattering_strikes.enabled|debuff.razorice.stack<5|cooldown.breath_of_sindragosa.remains>6)
+            if runicPowerDeficit < 5 and t19_4pc and cd.breathOfSindragosa > 0 and (not talent.shatteringStrikes or debuff.razorice.stack(units.dyn5) < 5 or cd.breathOfSindragosa > 6) then
                 if cast.frostStrike() then return end
             end
         -- Remorseless Winter
             -- remorseless_winter,if=buff.rime.react&equipped.perseverance_of_the_ebon_martyr
-            if buff.rime.exists() and hasEquiped(perseveranceOfTheEbonMartyr) and getDistance(units.dyn5) < 5 then
+            if buff.rime.exists() and equiped.perseveranceOfTheEbonMartyr() and getDistance(units.dyn5) < 5 then
                 if cast.remorselessWinter() then return end
             end
         -- Howling Blast
             -- howling_blast,if=buff.rime.react&(buff.remorseless_winter.up|cooldown.remorseless_winter.remains>gcd|(!equipped.perseverance_of_the_ebon_martyr&!talent.gathering_storm.enabled))
-            if buff.rime.exists() and (debuff.remorselessWinter.exists(units.dyn5) or cd.remorselessWinter > gcd or (not ebonMartyr and not talent.gatheringStorm)) then
+            if buff.rime.exists() and (debuff.remorselessWinter.exists(units.dyn5) or cd.remorselessWinter > gcd or (not equiped.perseveranceOfTheEbonMatyr() and not talent.gatheringStorm)) then
                 if cast.howlingBlast() then return end
             end
         -- Obliterate
@@ -501,222 +528,219 @@ local function runRotation()
                 if cast.obliterate() then return end
             end
         -- Sindragosa's Fury
-            -- sindragosas_fury,if=(equipped.consorts_cold_core|buff.pillar_of_frost.up)&buff.unholy_strength.up&debuff.razorice.stack=5&!buff.obliteration.up
+            -- sindragosas_fury,if=(equipped.consorts_cold_core|buff.pillar_of_frost.up)&buff.unholy_strength.up&debuff.razorice.stack=5
             if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()) and #enemies.yards40 >= getOptionValue("Artifact Units") and getFacing("player",units.dyn8) then
-                if (hasEquiped(consortsColdCore) or buff.pillarOfFrost.exists()) and buff.unholyStrength.exists() and debuff.razorice.stack(units.dyn5) == 5 and not buff.obliteration.exists() then
+                if (equiped.consortsColdCore() or buff.pillarOfFrost.exists()) and buff.unholyStrength.exists() and debuff.razorice.stack(units.dyn5) == 5 then
                     if cast.sindragosasFury() then return end
                 end
+            end
+        -- Frost Strike
+            -- frost_strike,if=runic_power.deficit<30&(!talent.shattering_strikes.enabled|debuff.razorice.stack<5|cooldown.breath_of_sindragosa.remains>rune.time_to_4)
+            if runicPowerDeficit < 30 and (not talent.shatteringStrikes or debuff.razorice.stack(units.dyn5) < 5 or cd.breathOfSindragosa > runeTimeTill(4)) then
+                if cast.frostStrike() then return end
             end 
         -- Frostscythe
             -- frostscythe,if=buff.killing_machine.up&(!equipped.koltiras_newfound_will|spell_targets.frostscythe>=2)
-            if buff.killingMachine.exists() and (not hasEquiped(koltirasNewfoundWill) or ((mode.rotation == 1 and #enemies.yards8 >= 2) or mode.rotation == 2)) then
+            if buff.killingMachine.exists() and (not equiped.koltirasNewfoundWill() or ((mode.rotation == 1 and #enemies.yards8 >= 2) or (mode.rotation == 2 and #enemies.yards8 > 0))) then
                 if cast.frostscythe() then return end
             end
-        -- Frost Strike
-            -- frost_strike,if=runic_power>=70
-            if runicPower >= 70 then
-                if cast.frostStrike() then return end
+        -- Glacial Advance
+            -- glacial_advance,if=spell_targets.glacial_advance>=2
+            if ((mode.rotation == 1 and #enemies.yards10 >= getOptionValue("Glacial Advance")) or (mode.rotation == 2 and #enemies.yards8 > 0)) then
+                if cast.glacialAdvance("player") then return end
             end
         -- Remorseless Winter
             -- remorseless_winter,if=spell_targets.remorseless_winter>=2
-            if ((mode.rotation == 1 and #enemies.yards8 >= 2) or mode.rotation == 2) and getDistance(units.dyn5) < 5 then
+            if ((mode.rotation == 1 and #enemies.yards8 >= 2) or (mode.rotation == 2 and #enemies.yards8 > 0)) and getDistance(units.dyn5) < 5 then
                 if cast.remorselessWinter() then return end
             end
+        -- Frostscythe
+            -- frostscythe,if=spell_targets.frostscythe>=3
+            if ((mode.rotation == 1 and #enemies.yards8 >= 2) or (mode.rotation == 2 and #enemies.yards8 > 0)) then
+                if cast.frostscythe() then return end
+            end
         -- Frost Strike
-            -- frost_strike,if=(cooldown.remorseless_winter.remains<(gcd*2)|buff.gathering_storm.stack=10)&cooldown.breath_of_sindragosa.remains>rune.time_to_4&talent.gathering_storm.enabled
+            -- frost_strike,if=(cooldown.remorseless_winter.remains<(gcd*2)|buff.gathering_storm.stack=10)&cooldown.breath_of_sindragosa.remains>rune.time_to_4&talent.gathering_storm.enabled&(!talent.shattering_strikes.enabled|debuff.razorice.stack<5|cooldown.breath_of_sindragosa.remains>6)
             if (cd.remorselessWinter < (gcd * 2) or buff.gatheringStorm.stack() == 10) 
-                and (cd.breathOfSindragosa > runeTimeTill(4) or not useCDs() or not isChecked("Breath of Sindragosa")) and talent.gatheringStorm 
+                and (cd.breathOfSindragosa > runeTimeTill(4) or not useCDs() or not isChecked("Breath of Sindragosa")) 
+                and talent.gatheringStorm and (not talent.shatteringStrikes or debuff.razorice.stack(units.dyn5) < 5 or cd.breathOfSindragosa > 6) 
             then
                 if cast.frostStrike() then return end
             end
         -- Obliterate
-            -- obliterate,if=!buff.rime.react&(!talent.gathering_storm.enabled|cooldown.remorseless_winter.remains>(gcd))
-            if not buff.rime.exists() and (not talent.gatheringStorm or (cd.remorselessWinter > gcd)) then
+            -- obliterate,if=!buff.rime.react&(!talent.gathering_storm.enabled|cooldown.remorseless_winter.remains>gcd)
+            if not buff.rime.exists() and (not talent.gatheringStorm or cd.remorselessWinter > gcd) then
                 if cast.obliterate() then return end
             end
-        -- Horn of Winter
-            -- horn_of_winter,if=cooldown.breath_of_sindragosa.remains>15&runic_power<=70&rune.time_to_3>gcd
-            if (cd.breathOfSindragosa > 15 or not useCDs() or not isChecked("Breath of Sindragosa")) and runicPower <= 70 and runeTimeTill(3) > gcd then
-                if cast.hornOfWinter() then return end
-            end
         -- Frost Strike
-            -- frost_strike,if=cooldown.breath_of_sindragosa.remains>rune.time_to_4
-            if cd.breathOfSindragosa > runeTimeTill(4) or not useCDs() or not isChecked("Breath of Sindragosa") then
+            -- frost_strike,if=cooldown.breath_of_sindragosa.remains>rune.time_to_4&(!talent.shattering_strikes.enabled|debuff.razorice.stack<5|cooldown.breath_of_sindragosa.remains>6)
+            if cd.breathOfSindragosa > runeTimeTill(4) and (not talent.shatteringStrikes or debuff.razorice.stack(units.dyn5) < 5 or cd.breathOfSindragosa > 6) then
                 if cast.frostStrike() then return end
             end
         end
     -- Action List - Breath of Sindragosa Ticking
-        local function actionList_BreathOfSindragosaTicking()
-            profileDebug = "Breath Of Sindragosa - Active"
+        local function actionList_BoS_Ticking()
+            profileDebug = "Breath Of Sindragosa - Ticking"
+        -- Frost Strike
+            -- frost_strike,if=talent.shattering_strikes.enabled&runic_power<40&rune.time_to_2>2&cooldown.empower_rune_weapon.remains&debuff.razorice.stack=5&(cooldown.horn_of_winter.remains|!talent.horn_of_winter.enabled)
+            if talent.shatteringStrikes and runicPower < 40 and runeTimeTill(2) > 2 and cd.empowerRuneWeapon > 0 and debuff.razorice.stack(units.dyn5) == 5 and (cd.hornOfWinter > 0 or not talent.hornOfWinter) then
+                if cast.frostStrike() then return end
+            end
         -- Remorseless Winter
-            -- remorseless_winter,if=(runic_power>=30|buff.hungering_rune_weapon.up)&((buff.rime.react&equipped.perseverance_of_the_ebon_martyr)|(talent.gathering_storm.enabled&(buff.remorseless_winter.remains<=gcd|!buff.remorseless_winter.remains)))
-            if (runicPower >= 30 or buff.hungeringRuneWeapon.exists()) and ((buff.rime.exists() and hasEquiped(perseveranceOfTheEbonMartyr)) 
+            -- remorseless_winter,if=runic_power>=30&((buff.rime.react&equipped.perseverance_of_the_ebon_martyr)|(talent.gathering_storm.enabled&(buff.remorseless_winter.remains<=gcd|!buff.remorseless_winter.remains)))
+            if runicPower >= 30 and ((buff.rime.exists() and equiped.perseveranceOfTheEbonMartyr()) 
                     or (talent.gatheringStorm and (debuff.remorselessWinter.remain(units.dyn5) <= gcd or not debuff.remorselessWinter.exists(units.dyn5)))) 
                 and getDistance(units.dyn5) < 5 
             then
                 if cast.remorselessWinter() then return end
             end
         -- Howling Blast
-            -- howling_blast,if=((runic_power>=20&set_bonus.tier19_4pc)|runic_power>=30|buff.hungering_rune_weapon.up)&buff.rime.react
-            if ((runicPower >= 20 and t19_4pc) or runicPower >= 30 or buff.hungeringRuneWeapon.exists()) and buff.rime.exists() then
+            -- howling_blast,if=((runic_power>=20&set_bonus.tier19_4pc)|runic_power>=30)&buff.rime.react
+            if ((runicPower >= 20 and t19_4pc) or runicPower >= 30) and buff.rime.exists() then
                 if cast.howlingBlast() then return end
             end
         -- Frost Strike
-            -- frost_strike,if=set_bonus.tier20_2pc&runic_power>85&rune<=3&buff.pillar_of_frost.up
-            if t20_2pc and runicPower > 85 and runes <= 3 and buff.pillarOfFrost.exists() then
+            -- frost_strike,if=set_bonus.tier20_2pc&runic_power.deficit<=15&rune<=3&buff.pillar_of_frost.up&!talent.shattering_strikes.enabled
+            if t20_2pc and runicPowerDeficit <= 15 and runes <= 3 and buff.pillarOfFrost.exists() and not talent.shatteringStrikes then
                 if cast.frostStrike() then return end
             end
         -- Obliterate
-            -- obliterate,if=runic_power<=45|rune.time_to_5<gcd|buff.hungering_rune_weapon.remains>=2
-            if runicPower <= 45 or runeTimeTill(5) < gcd or buff.hungeringRuneWeapon.remain() >= 2 then
+            -- obliterate,if=runic_power<=45|rune.time_to_5<gcd
+            if runicPower <= 45 or runeTimeTill(5) < gcd then
                 if cast.obliterate() then return end
             end
-        -- Hungering Rune Weapon
-            if isChecked("Empower/Hungering Rune Weapon") and useCDs() then
-                -- hungering_rune_weapon,if=runic_power<70&!buff.hungering_rune_weapon.up&rune<2&cooldown.breath_of_sindragosa.remains>35&equipped.convergence_of_fates
-                if runicPower < 70 and not buff.hungeringRuneWeapon.exists() and runes < 2 and cd.breathOfSindragosa > 35 and hasEquiped(convergenceOfFates) then
-                    if cast.hungeringRuneWeapon("player") then return end
-                end
-                -- hungering_rune_weapon,if=runic_power<50&!buff.hungering_rune_weapon.up&rune.time_to_2>=3&cooldown.breath_of_sindragosa.remains>30
-                if runicPower < 50 and not buff.hungeringRuneWeapon.exists() and runeTimeTill(2) >= 3 and cd.breathOfSindragosa > 30 then
-                    if cast.hungeringRuneWeapon("player") then return end
-                end
-                -- hungering_rune_weapon,if=runic_power<35&!buff.hungering_rune_weapon.up&rune.time_to_2>=2&cooldown.breath_of_sindragosa.remains>30
-                if runicPower < 35 and not buff.hungeringRuneWeapon.exists() and runeTimeTill(2) >= 2 and cd.breathOfSindragosa > 30 then 
-                    if cast.hungeringRuneWeapon("player") then return end
-                end
-                -- hungering_rune_weapon,if=runic_power<20&!buff.hungering_rune_weapon.up&rune.time_to_2>=1&cooldown.breath_of_sindragosa.remains>30
-                if runicPower < 20 and not buff.hungeringRuneWeapon.exists() and runeTimeTill(2) >= 1 and cd.breathOfSindragosa > 30 then
-                    if cast.hungeringRuneWeapon("player") then return end
-                end
-            end
         -- Sindragosa's Fury
-            -- sindragosas_fury,if=(equipped.consorts_cold_core|buff.pillar_of_frost.up)&buff.unholy_strength.up&debuff.razorice.stack=5&!buff.obliteration.up
+            -- sindragosas_fury,if=(equipped.consorts_cold_core|buff.pillar_of_frost.up)&buff.unholy_strength.up&debuff.razorice.stack=5
             if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()) and #enemies.yards40 >= getOptionValue("Artifact Units") and getFacing("player",units.dyn8) then
-                if (hasEquiped(consortsColdCore) or buff.pillarOfFrost.exists()) and buff.unholyStrength.exists() and debuff.razorice.stack(units.dyn5) == 5 and not buff.obliteration.exists() then
+                if (equiped.consortsColdCore() or buff.pillarOfFrost.exists()) and buff.unholyStrength.exists() and debuff.razorice.stack(units.dyn5) == 5 then
                     if cast.sindragosasFury() then return end
                 end
             end 
-        -- Frostscythe
-            -- frostscythe,if=buff.killing_machine.up&(!equipped.koltiras_newfound_will|talent.gathering_storm.enabled|spell_targets.frostscythe>=2)
-            if buff.killingMachine.exists() and (not hasEquiped(koltirasNewfoundWill) or talent.gatheringStorm or ((mode.rotation == 1 and #enemies.yards8 >= 2) or mode.rotation == 2)) then
-                if cast.frostscythe() then return end
-            end
-        -- Remorseless Winter
-            -- remorseless_winter,if=spell_targets.remorseless_winter>=2
-            if ((mode.rotation == 1 and #enemies.yards8 >= 2) or mode.rotation == 2) and getDistance(units.dyn5) < 5 then
-                if cast.remorselessWinter() then return end
-            end
-        -- Obliterate
-            -- obliterate,if=runic_power<=75|rune>3
-            if runicPower <= 75 or runes > 3 then
-                if cast.obliterate() then return end
-            end
         -- Horn of Winter
-            -- horn_of_winter,if=runic_power<70&!buff.hungering_rune_weapon.up&rune.time_to_3>gcd
-            if runicPower < 70 and not buff.hungeringRuneWeapon.exists() and runeTimeTill(3) > gcd then
+            -- horn_of_winter,if=runic_power.deficit>=30&rune.time_to_3>gcd
+            if runicPowerDeficit >= 30 and runeTimeTill(3) > gcd then
                 if cast.hornOfWinter() then return end
             end
-            if isChecked("Empower/Hungering Rune Weapon") and useCDs() then
-        -- Empower Rune Weapon
-                -- empower_rune_weapon,if=runic_power<20
-                if runicPower < 20 then
-                    if cast.empowerRuneWeapon("player") then return end
-                end
-            end
-        end
-    -- Action List - Cold Heart
-        local function actionList_ColdHeart()
-            profileDebug = "Cold Heart"
-        -- Chains of Ice
-            -- chains_of_ice,if=buff.cold_heart.stack=20&buff.unholy_strength.up&cooldown.pillar_of_frost.remains>6
-            if buff.coldHeart.stack() == 20 and buff.unholyStrength.exists() and cd.pillarOfFrost > 6 then
-                if cast.chainsOfIce() then return end
-            end
-            -- chains_of_ice,if=buff.pillar_of_frost.up&buff.pillar_of_frost.remains<gcd&(buff.cold_heart.stack>=11|(buff.cold_heart.stack>=10&set_bonus.tier20_4pc))
-            if buff.pillarOfFrost.exists() and buff.pillarOfFrost.remain() < gcd and (buff.coldHeart.stack() >= 11 or (buff.coldHeart.stack() >= 10 and tier20_4pc)) then
-                if cast.chainsOfIce() then return end
-            end
-            -- chains_of_ice,if=buff.unholy_strength.up&buff.unholy_strength.remains<gcd&buff.cold_heart.stack>16&cooldown.pillar_of_frost.remains>6
-            if buff.unholyStrength.exists() and buff.unholyStrength.remain() < gcd and buff.coldHeart.stack() > 16 and cd.pillarOfFrost > 6 then
-                if cast.chainsOfIce() then return end
-            end
-        end -- End Action List - Cold Heart
-    -- Action List - Machinegun
-        local function actionList_Machinegun()
-            profileDebug = "Machine Gun"
-        -- Obliteration
-            -- obliteration,if=(!talent.frozen_pulse.enabled|(rune<2&runic_power<28))&!talent.gathering_storm.enabled
-            if isChecked("Obliteration") and (not talent.frozenPulse or (runes < 2 and runicPower < 28)) and not talent.gatheringStorm then
-                if cast.obliteration() then return end
-            end
-        -- Frost Strike
-            -- frost_strike,if=buff.icy_talons.remains<1.5&talent.icy_talons.enabled
-            if buff.icyTalons.remain() < 1.5 and talent.icyTalons then
-                if cast.frostStrike() then return end
-            end
-            -- frost_strike,if=talent.shattering_strikes.enabled&debuff.razorice.stack=5
-            if talent.shatteringStrikes and debuff.razorice.stack(units.dyn5) == 5 then
-                if cast.frostStrike() then return end
-            end
-        -- Remorseless Winter
-            -- remorseless_winter,if=((buff.rime.react&equipped.perseverance_of_the_ebon_martyr)|talent.gathering_storm.enabled)&!(buff.obliteration.up&spell_targets.howling_blast<2)
-            if ((buff.rime.exists() and hasEquiped(perseveranceOfTheEbonMartyr)) or talent.gatheringStorm) 
-                and not (buff.obliteration.exists() and #enemies.yards10t < 2) and getDistance(units.dyn8) < 8
-            then
-                if cast.remorselessWinter() then return end
-            end
-        -- Howling Blast
-            -- howling_blast,if=buff.rime.react&!(buff.obliteration.up&spell_targets.howling_blast<2)&!(equipped.perseverance_of_the_ebon_martyr&talent.gathering_storm.enabled)
-            if buff.rime.exists() and not (buff.obliteration.exists() and #enemies.yards10t < 2) and not (hasEquiped(perseveranceOfTheEbonMartry) and talent.gatheringStorm) then
-                if cast.howlingBlast() then return end
-            end
-            -- howling_blast,if=buff.rime.react&!(buff.obliteration.up&spell_targets.howling_blast<2)&equipped.perseverance_of_the_ebon_martyr&talent.gathering_storm.enabled&(debuff.perseverance_of_the_ebon_martyr.up|cooldown.remorseless_winter.remains>3)
-            if buff.rime.exists() and not (buff.obliteration.exists() and #enemies.yards10t < 2) and hasEquiped(perseveranceOfTheEbonMartyr) 
-                and talent.gatheringStorm and (debuff.remorselessWinter.exists(units.dyn5) or cd.remorselessWinter > 3) 
-            then
-                if cast.howlingBlast() then return end
-            end
-        -- Obliterate
-            -- obliterate,if=!buff.obliteration.up&(equipped.koltiras_newfound_will&talent.frozen_pulse.enabled&(set_bonus.tier19_2pc=1|set_bonus.tier19_4pc=1))|rune.time_to_5<gcd
-            if not buff.obliteration and (hasEquiped(koltirasNewfoundWill) and talent.frozenPulse and (t19_2pc or t19_4pc)) or runeTimeTill(5) < gcd then
-                if cast.obliterate() then return end
-            end
-        -- Obliteration
-            -- obliteration,if=(!talent.frozen_pulse.enabled|(rune<2&runic_power<28))&talent.gathering_storm.enabled&buff.remorseless_winter.up
-            if isChecked("Obliteration") and (not talent.frozenPulse or (runes < 2 and runicPower < 28)) and talent.gatheringStorm and debuff.remorselessWinter.exists(units.dyn5) then
-                if cast.obliteration() then return end
-            end
-        -- Sindragosa's Fury
-            -- sindragosas_fury,if=(equipped.consorts_cold_core|buff.pillar_of_frost.up)&buff.unholy_strength.up&debuff.razorice.stack=5&!buff.obliteration.up
-            if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()) and #enemies.yards40 >= getOptionValue("Artifact Units") and getFacing("player",units.dyn8) then
-                if (hasEquiped(consortsColdCore) or buff.pillarOfFrost.exists()) and buff.unholyStrength.exists() and debuff.razorice.stack(units.dyn5) == 5 and not buff.obliteration.exists() then
-                    if cast.sindragosasFury() then return end
-                end
-            end
-        -- Frost Strike
-            -- frost_strike,if=(!buff.obliteration.up&runic_power.deficit<=10)|(buff.obliteration.up&!buff.killing_machine.react)
-            if (not buff.obliteration.exists() and runicPowerDeficit <= 10) or (buff.obliteration.exists() and not buff.killingMachine.exists()) then
-                if cast.frostStrike() then return end
-            end
-        -- Remorseless Winter
-            -- remorseless_winter,if=spell_targets.remorseless_winter>=2&!(talent.frostscythe.enabled&buff.killing_machine.react&spell_targets.frostscythe>=2)
-            if #enemies.yards8 >= 2 and getDistance(units.dyn5) < 5 and not (talent.frostscythe and buff.killingMachine.exists() and ((mode.rotation == 1 and #enemies.yards8 >= 2) or mode.rotation == 2)) then
-                if cast.remorselessWinter() then return end
-            end
         -- Frostscythe
-            -- frostscythe,if=buff.killing_machine.up&(!equipped.koltiras_newfound_will|spell_targets.frostscythe>=2)
-            if buff.killingMachine.exists() and (not hasEquiped(koltirasNewfoundWill) or ((mode.rotation == 1 and #enemies.yards8 >= 2) or mode.rotation == 2)) then
+            -- frostscythe,if=buff.killing_machine.up&(!equipped.koltiras_newfound_will|talent.gathering_storm.enabled|spell_targets.frostscythe>=2)
+            if buff.killingMachine.exists() and (not equiped.koltirasNewfoundWill() or talent.gatheringStorm or ((mode.rotation == 1 and #enemies.yards8 >= 2) or (mode.rotation == 2 and #enemies.yards8 > 0))) then
                 if cast.frostscythe() then return end
             end
         -- Glacial Advance
             -- glacial_advance,if=spell_targets.glacial_advance>=2
-            if ((mode.rotation == 1 and #enemies.yards10 >= getOptionValue("Glacial Advance")) or mode.rotation == 2) then
+            if ((mode.rotation == 1 and #enemies.yards10 >= getOptionValue("Glacial Advance")) or (mode.rotation == 2 and #enemies.yards8 > 0)) then
                 if cast.glacialAdvance("player") then return end
             end
+        -- Remorseless Winter
+            -- remorseless_winter,if=spell_targets.remorseless_winter>=2
+            if ((mode.rotation == 1 and #enemies.yards8 >= 2) or (mode.rotation == 2 and #enemies.yards8 > 0)) and getDistance(units.dyn5) < 5 then
+                if cast.remorselessWinter() then return end
+            end
+        -- Obliterate
+            -- obliterate,if=runic_power.deficit>25|rune>3
+            if runicPowerDeficit > 25 or runes > 3 then
+                if cast.obliterate() then return end
+            end
+            if isChecked("Empower/Hungering Rune Weapon") and useCDs() then
+        -- Empower Rune Weapon
+                -- empower_rune_weapon,if=runic_power<30&rune.time_to_2>gcd
+                if runicPower < 30 and runeTimeTill(2) > gcd then
+                    if cast.empowerRuneWeapon("player") then return end
+                end
+            end
+        end
+    -- Action List - Obliteration
+        local function actionList_Obliteration()
+            profileDebug = "Obliteration"
+        -- Remorseless Winter
+            -- remorseless_winter,if=talent.gathering_storm.enabled
+            if talent.gatheringStorm and getDistance(units.dyn5) < 5 then
+                if cast.remorselessWinter() then return end
+            end
         -- Frostscythe
-            -- frostscythe,if=spell_targets.frostscythe>=3
-            if ((mode.rotation == 1 and #enemies.yards8 >= 3) or mode.rotation == 2) then
+            -- frostscythe,if=buff.killing_machine.up&spell_targets.frostscythe>1
+            if buff.killingMachine.exists() and ((mode.rotation == 1 and #enemies.yards8 >= 2) or (mode.rotation == 2 and #enemies.yards8 > 0)) then
+                if cast.frostscythe() then return end
+            end
+        -- Obliterate
+            -- obliterate,if=buff.killing_machine.up|(spell_targets.howling_blast>=3&!buff.rime.up)
+            if buff.killingMachine.exists() or (((mode.rotation == 1 and #enemies.yards10t >= 3) or (mode.rotation == 2 and #enemies.yards8 > 0)) and not buff.rime.exists()) then
+                if cast.obliterate() then return end
+            end
+        -- Howling Blast
+            -- howling_blast,if=buff.rime.up&spell_targets.howling_blast>1
+            if buff.rime.exists() and ((mode.rotation == 1 and #enemies.yards10t > 1) or (mode.rotation == 2 and #enemies.yards10t > 0)) then
+                if cast.howlingBlast() then return end
+            end
+            -- howling_blast,if=!buff.rime.up&spell_targets.howling_blast>2&rune>3&talent.freezing_fog.enabled&talent.gathering_storm.enabled
+            if not buff.rime.exists() and ((mode.rotation == 1 and #enemies.yards10t >= 3) or (mode.rotation == 2 and #enemies.yards10t > 0)) and runes > 3 and talent.freezingFog and talent.gatheringStorm then
+                if cast.howlingBlast() then return end
+            end
+        -- Frost Strike
+            -- frost_strike,if=!buff.rime.up|rune.time_to_1>=gcd|runic_power.deficit<20
+            if not buff.rime.exists() or runeTimeTill(1) >= gcd or runicPowerDeficit < 20 then
+                if cast.frostStrike() then return end
+            end
+        -- Howling BLast
+            -- howling_blast,if=buff.rime.up
+            if buff.rime.exists() then
+                if cast.howlingBlast() then return end
+            end
+        -- Obliterate
+            if cast.obliterate() then return end
+        end -- End Action List - Obliteration
+    -- Action List - Standard
+        local function actionList_Standard()
+            profileDebug = "Standard"
+        -- Frost Strike
+            -- frost_strike,if=talent.icy_talons.enabled&buff.icy_talons.remains<=gcd
+            if talent.icyTalons and buff.icyTalons.remain() <= gcd then
+                if cast.frostStrike() then return end
+            end
+            -- frost_strike,if=talent.shattering_strikes.enabled&debuff.razorice.stack=5&buff.gathering_storm.stack<2&!buff.rime.up
+            if talent.shatteringStrikes and debuff.razorice.stack(units.dyn5) == 5 and buff.gatheringStorm.stack() < 2 and not buff.rime.exists() then
+                if cast.frostStrike() then return end
+            end
+        -- Remorseless Winter
+            -- remorseless_winter,if=(buff.rime.react&equipped.perseverance_of_the_ebon_martyr)|talent.gathering_storm.enabled
+            if (buff.rime.exists() and equiped.perseveranceOfTheEbonMartyr()) or talent.gatheringStorm then
+                if cast.remorselessWinter() then return end
+            end
+        -- Obliterate
+            -- obliterate,if=(equipped.koltiras_newfound_will&talent.frozen_pulse.enabled&set_bonus.tier19_2pc=1)|rune.time_to_4<gcd&buff.hungering_rune_weapon.up
+            if (equiped.koltirasNewfoundWill() and talent.frozenPulse and t19_2pc) or runeTimeTill(4) < gcd and buff.hungeringRuneWeapon.exists() then
+                if cast.obliterate() then return end
+            end
+        -- Frost Strike
+            -- frost_strike,if=(!talent.shattering_strikes.enabled|debuff.razorice.stack<5)&runic_power.deficit<10
+            if (not talent.shatteringStrikes or debuff.razorice.stack(units.dyn5) < 5) and runicPowerDeficit < 10 then
+                if cast.frostStrike() then return end
+            end
+        -- Howling Blast
+            -- howling_blast,if=buff.rime.react
+            if buff.rime.exists() then
+                if cast.howlingBlast() then return end
+            end
+        -- Obliterate
+            -- obliterate,if=(equipped.koltiras_newfound_will&talent.frozen_pulse.enabled&set_bonus.tier19_2pc=1)|rune.time_to_5<gcd
+            if (equiped.koltirasNewfoundWill() and talent.frozenPulse and t19_2pc) or runeTimeTill(5) < gcd then
+                if cast.obliterate() then return end
+            end
+        -- Sindragosa's Fury
+            -- sindragosas_fury,if=(equipped.consorts_cold_core|buff.pillar_of_frost.up)&buff.unholy_strength.up&debuff.razorice.stack=5
+            if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()) and #enemies.yards40 >= getOptionValue("Artifact Units") and getFacing("player",units.dyn8) then
+                if (equiped.consortsColdCore() or buff.pillarOfFrost.exists()) and buff.unholyStrength.exists() and debuff.razorice.stack(units.dyn5) == 5 then
+                    if cast.sindragosasFury() then return end
+                end
+            end
+        -- Frost Strike
+            -- frost_strike,if=runic_power.deficit<10&!buff.hungering_rune_weapon.up
+            if runicPowerDeficit < 10 and not buff.hungeringRuneWeapon.exists() then
+                if cast.frostStrike() then return end
+            end
+        -- Frostscythe
+            -- frostscythe,if=buff.killing_machine.up&(!equipped.koltiras_newfound_will|spell_targets.frostscythe>=2)
+            if buff.killingMachine.exists() and (not equiped.koltirasNewfoundWill() or ((mode.rotation == 1 and #enemies.yards8 >= 2) or (mode.rotation == 2 and #enemies.yards8 > 0))) then
                 if cast.frostscythe() then return end
             end
         -- Obliterate
@@ -725,41 +749,44 @@ local function runRotation()
                 if cast.obliterate() then return end
             end
         -- Frost Strike
-            -- frost_strike,if=talent.gathering_storm.enabled&talent.murderous_efficiency.enabled&(set_bonus.tier19_2pc=1|set_bonus.tier19_4pc=1)
-            if talent.gatheringStorm and talent.murderousEfficiency and (t19_2pc or t19_4pc) then
+            -- frost_strike,if=runic_power.deficit<20
+            if runicPowerDeficit < 20 then
                 if cast.frostStrike() then return end
             end
-            -- frost_strike,if=(talent.horn_of_winter.enabled|talent.hungering_rune_weapon.enabled)&(set_bonus.tier19_2pc=1|set_bonus.tier19_4pc=1)
-            if (talent.hornOfWinter or talent.hungeringRuneWeapon) and (t19_2pc or t19_4pc) then
-                if cast.frostStrike() then return end
+        -- Remorseless Winter
+            -- remorseless_winter,if=spell_targets.remorseless_winter>=2
+            if ((mode.rotation == 1 and #enemies.yards8 >= 2) or (mode.rotation == 2 and #enemies.yards8 > 0)) and getDistance(units.dyn5) < 5 then
+                if cast.remorselessWinter() then return end
             end
-        -- Hungering Rune Weapon
-            if isChecked("Empower/Hungering Rune Weapon") and useCDs() then
-                -- hungering_rune_weapon,if=!buff.hungering_rune_weapon.up&rune.time_to_3>gcd*2&runic_power<25
-                if not buff.hungeringRuneWeapon.exists() and runeTimeTill(3) > gcd * 2 and runicPower < 25 then
-                    if cast.hungeringRuneWeapon() then return end
-                end
+        -- Glacial Advance
+            -- glacial_advance,if=spell_targets.glacial_advance>=2
+            if ((mode.rotation == 1 and #enemies.yards10 >= getOptionValue("Glacial Advance")) or (mode.rotation == 2 and #enemies.yards8 > 0)) then
+                if cast.glacialAdvance("player") then return end
+            end
+        -- Frostscythe
+            -- frostscythe,if=spell_targets.frostscythe>=3
+            if ((mode.rotation == 1 and #enemies.yards8 >= 3) or (mode.rotation == 2 and #enemies.yards8 > 0)) then
+                if cast.frostscythe() then return end
             end
         -- Obliterate
             -- obliterate
             if cast.obliterate() then return end
-        -- Glacial Advance
-            -- glacial_advance
-            if #enemies.yards10 >= getOptionValue("Glacial Advance") then
-                if cast.glacialAdvance("player") then return end
-            end
         -- Horn of Winter
-            -- horn_of_winter,if=!dot.hungering_rune_weapon.ticking
-            if not buff.hungeringRuneWeapon.exists() then
+            -- horn_of_winter,if=!buff.hungering_rune_weapon.up&(rune.time_to_2>gcd|!talent.frozen_pulse.enabled)
+            if not buff.hungeringRuneWeapon.exists() and (runeTimeTill(2) > gcd or not talent.frozenPulse) then
                 if cast.hornOfWinter() then return end
             end
         -- Frost Strike
-            -- frost_strike
-            if cast.frostStrike() then return end
+            -- frost_strike,if=!(runic_power<50&talent.obliteration.enabled&cooldown.obliteration.remains<=gcd)
+            if not (runicPower < 50 and talent.obliteration and cd.obliteration <= gcd) then
+                if cast.frostStrike() then return end
+            end
         -- Empower Rune Weapon
+            -- empower_rune_weapon,if=!talent.breath_of_sindragosa.enabled|target.time_to_die<cooldown.breath_of_sindragosa.remains
             if isChecked("Empower/Hungering Rune Weapon") and useCDs() then
-                -- empower_rune_weapon
-                if cast.empowerRuneWeapon() then return end
+                if not talent.breathOfSindragosa or ttd(units.dyn5) < cd.breathOfSindragosa or not isChecked("Breath of Sindragosa") then
+                    if cast.empowerRuneWeapon() then return end
+                end
             end
         end -- End Action List - Machine Gun
 ---------------------
@@ -805,27 +832,24 @@ local function runRotation()
     --- SimulationCraft APL ---
     ---------------------------
                 if getOptionValue("APL Mode") == 1 then
-        -- Cold Heart
-                    -- call_action_list,name=cold_heart,if=equipped.cold_heart&buff.cold_heart.stack>=10
-                    if hasEquiped(coldHeart) and buff.coldHeart.stack() >= 10 then
-                        if actionList_ColdHeart() then return end
+        -- BoS_Pooling
+                    -- run_action_list,name=bos_pooling,if=talent.breath_of_sindragosa.enabled&cooldown.breath_of_sindragosa.remains<15
+                    if isChecked("Breath of Sindragosa") and useCDs() and talent.breathOfSindragosa and cd.breathOfSindragosa < 15 then
+                        if actionList_BoS_Pooling() then return end
                     end
-        -- Machinegun
-                    -- call_action_list,name=machinegun,if=!talent.breath_of_sindragosa.enabled
-                    if not talent.breathOfSindragosa or not isChecked("Breath of Sindragosa") or not useCDs() then
-                        if actionList_Machinegun() then return end
+        -- BoS_Ticking
+                    -- run_action_list,name=bos_ticking,if=dot.breath_of_sindragosa.ticking
+                    if debuff.breathOfSindragosa.exists() then
+                        if actionList_BoS_Ticking() then return end
                     end
-        -- Breath of Sindragosa
-                    if isChecked("Breath of Sindragosa") and useCDs() then
-                        -- call_action_list,name=bos,if=talent.breath_of_sindragosa.enabled&!dot.breath_of_sindragosa.ticking
-                        if talent.breathOfSindragosa and not breathOfSindragosaActive then
-                            if actionList_BreathOfSindragosa() then return end
-                        end
-                        -- call_action_list,name=bos_ticking,if=talent.breath_of_sindragosa.enabled&dot.breath_of_sindragosa.ticking
-                        if talent.breathOfSindragosa and breathOfSindragosaActive then
-                            if actionList_BreathOfSindragosaTicking() then return end
-                        end
+        -- Obliteration
+                    -- run_action_list,name=obliteration,if=buff.obliteration.up
+                    if buff.obliteration.exists() then
+                        if actionList_Obliteration() then return end
                     end
+        -- Standard
+                    -- call_action_list,name=standard
+                    if actionList_Standard() then return end
                 end -- End Simc APL
             end -- End Combat Check
         end -- End Rotation Pause

@@ -190,7 +190,7 @@ function dynamicTarget(range,facing)
 				UpdateEnemy(v)				
 				local thisDistance = getDistance("player",thisUnit.unit)
 				local hostileOnly = isChecked("Hostiles Only") 
-				if thisUnit.safe and not thisUnit.isCC and (not facing or thisUnit.facing) then
+				if thisUnit.safe and not thisUnit.isCC and (not facing or thisUnit.facing) and thisDistance < range then
 					if (thisUnit.coeficient ~= nil and thisUnit.coeficient >= 0 and thisUnit.coeficient >= bestUnitCoef) then
 						if not hostileOnly or (hostileOnly and (UnitIsEnemy(thisUnit.unit, "player") or hasThreat(thisUnit.unit) or isDummy(thisUnit.unit))) then
 							if thisUnit.id ~= 103679 and getLineOfSight("player", thisUnit.unit) then
@@ -216,7 +216,7 @@ function dynamicTarget(range,facing)
 	then 
 		bestUnit = "target" 
 	end
-	if isChecked("Target Dynamic Target") and (hasThreat(bestUnit) or isBurnTarget(bestUnit)) and not UnitIsUnit(bestUnit,"target") then
+	if isChecked("Target Dynamic Target") and (hasThreat(bestUnit) or isBurnTarget(bestUnit)) and bestUnit ~= nil and (UnitExists("target") and not UnitIsUnit(bestUnit,"target")) then
 		TargetUnit(bestUnit)
 	elseif UnitAffectingCombat("player") and (not UnitExists("target") or UnitIsDeadOrGhost("target")) and (hasThreat(bestUnit) or isBurnTarget(bestUnit)) then
 		TargetUnit(bestUnit)

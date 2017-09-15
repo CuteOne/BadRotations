@@ -24,16 +24,13 @@ function br.loader:new(spec,specName)
                     for spellType, spellTypeTable in pairs(specTable) do
                         if self.spell[spellType] == nil then self.spell[spellType] = {} end
                         for spellRef, spellID in pairs(spellTypeTable) do
-                            if spellType == 'items' then self.item[spellRef] = spellID end
-                            if spellType ~= 'items' then 
-                                self.spell[spellType][spellRef] = spellID
-                                if not IsPassiveSpell(spellID) 
-                                    and (spellType == 'abilities' or spellType == 'artifacts' or spellType == 'talents') 
-                                then
-                                    if self.spell.abilities == nil then self.spell.abilities = {} end
-                                    self.spell.abilities[spellRef] = spellID
-                                    self.spell[spellRef] = spellID
-                                end
+                            self.spell[spellType][spellRef] = spellID
+                            if not IsPassiveSpell(spellID) 
+                                and (spellType == 'abilities' or spellType == 'artifacts' or spellType == 'talents') 
+                            then
+                                if self.spell.abilities == nil then self.spell.abilities = {} end
+                                self.spell.abilities[spellRef] = spellID
+                                self.spell[spellRef] = spellID
                             end
                         end
                     end
@@ -222,26 +219,27 @@ function br.loader:new(spec,specName)
     end
 
     -- Cycle through Items List
-    for k,v in pairs(self.item) do
+    for k,v in pairs(self.spell.items) do
         if self.use == nil then self.use = {} end -- Use Item Functions
         if self.equiped == nil then self.equiped = {} end -- Use Item Debugging
 
-        self.use[k] = function()
-            if canUse(v) then
-                return useItem(v)
+        self.use[k] = function(slotID)
+            if slotID == nil then
+                if canUse(v) then return useItem(v) end
+            else
+                if canUse(slotID) then return useItem(slotID) end
             end
         end
-        self.equiped[k] = canUse(v)
-    end
-
-    self.use.slot = function(slotID)
-        if canUse(slotID) then
-            return useItem(slotID)
+        self.equiped[k] = function(slotID)
+            if slotID == nil then 
+                return canUse(v) 
+            else
+                return hasEquiped(v,slotID)
+            end
         end
-    end 
-
-    self.equiped.slot = function(itemID,slotID)
-        return hasEquiped(itemID,slotID)
+    end
+    self.use.slot = function(slotID)
+        if canUse(slotID) then return useItem(slotID) end
     end
 
     -- if UnitDebuffID("player", 240447) ~= nil and (getCastTime(v) + 0.15) > getDebuffRemain("player",240447) then end

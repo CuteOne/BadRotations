@@ -69,7 +69,6 @@ function cCharacter:new(class)
 	self.ignoreCombat   = false     -- Ignores combat status if set to true
 	self.inCombat       = false     -- if is in combat
 	self.instance 		= select(2,IsInInstance()) 	-- Get type of group we are in (none, party, instance, raid, etc)
-	self.item 			= {} 		-- Use Items all classes may have
 	self.level			= 0 		-- Player Level
 	self.mode           = {}        -- Toggles
 	self.options 		= {}        -- Contains options
