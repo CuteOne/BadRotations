@@ -270,7 +270,7 @@ local function runRotation()
     -- Profile Stop | Pause
         if not inCombat and not hastar and profileStop == true then
             profileStop = false
-        elseif (inCombat and profileStop == true) or pause() or mode.rotation == 4 then
+        elseif (inCombat and profileStop == true) or (IsMounted() or IsFlying() or UnitOnTaxi("player") or UnitInVehicle("player")) or pause() or mode.rotation == 4 then
             return true
         else
 -----------------------
@@ -385,7 +385,7 @@ local function runRotation()
                 end
     -- Spirit Bomb
                 -- actions+=/spirit_bomb,if=debuff.frailty.down
-                if getDistance(units.dyn5) < 8 and (not debuff.frailty.exists(units.dyn8) and buff.soulFragments.stack() > 0) or buff.soulFragments.stack() >= 4 then
+                if getDistance(units.dyn5) < 5 and (not debuff.frailty.exists(units.dyn5) and buff.soulFragments.stack() > 0) or buff.soulFragments.stack() >= 4 then
                     if cast.spiritBomb() then return end
                 end
     -- Fel Devastation
