@@ -1172,7 +1172,8 @@ local function runRotation()
             end
         -- Shred
             -- shred
-            if (debuff.rake.exists(units.dyn5) or level < 12) and (((mode.rotation == 1 and #enemies.yards8 < 2) or mode.rotation == 3) or level < 32) then
+            if (debuff.rake.exists(units.dyn5) or level < 12) and (((mode.rotation == 1 and #enemies.yards8 < 2 ) or mode.rotation == 3) 
+                or level < 32 or ttm < 1 or (talent.brutalSlash and charges.brutalSlash == 0)) then
                 if cast.shred(units.dyn5) then return end
             end
         end
@@ -1270,7 +1271,9 @@ local function runRotation()
             end
         -- Shred
             -- if TargetsInRadius(Swipe) < 3 and (DotRemainingSec(RakeBleed) > DotIntervalSec(RakeBleed) or PowerToMax < 1)
-            if (((mode.rotation == 1 and #enemies.yards8 < 3) or mode.rotation == 3) or level < 32) and (debuff.rake.remain(units.dyn5) > 2 or ttm < 1 or level < 12) then
+            if (((mode.rotation == 1 and #enemies.yards8 < 3) or mode.rotation == 3) or level < 32 or ttm < 1 or (talent.brutalSlash and charges.brutalSlash == 0))
+                and (debuff.rake.remain(units.dyn5) > 2 or ttm < 1 or level < 12) 
+            then
                 if cast.shred() then return end
             end
         end
