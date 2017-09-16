@@ -273,7 +273,6 @@ local function runRotation()
             --     greaterBuff = greaterBuff + 1
             -- end
         end
-
 --------------------
 --- Action Lists ---
 --------------------
@@ -426,6 +425,9 @@ local function runRotation()
 					if isChecked("Hammer of Justice - Legendary") and getHP("target") >= 75 and inCombat then
 						if cast.hammerOfJustice() then return end
 					end
+                    if isChecked("Hammer of Justice - HP") and isChecked("Justicar's Vengeance") and php <= getOptionValue("Justicar's Vengeance") and inCombat then
+                        if cast.hammerOfJustice() then return end
+                    end
 				-- Redemption
 					if isChecked("Redemption") then
 						if getOptionValue("Redemption")==1 and not isMoving("player") and resable then

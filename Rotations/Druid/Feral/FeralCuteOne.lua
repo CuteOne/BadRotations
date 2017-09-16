@@ -356,6 +356,7 @@ local function runRotation()
                 end
             end
         end
+        -- ChatOverlay("5yrds: "..tostring(units.dyn5).." | 40yrds: "..tostring(units.dyn40))
         -- ChatOverlay(round2(getDistance("target","player","dist"),2)..", "..round2(getDistance("target","player","dist2"),2)..", "..round2(getDistance("target","player","dist3"),2)..", "..round2(getDistance("target","player","dist4"),2)..", "..round2(getDistance("target"),2))
 --------------------
 --- Action Lists ---
@@ -952,6 +953,7 @@ local function runRotation()
                         end
                     elseif THR1 and (not SHR1 or combo < 5) and (power >= 40 or buff.clearcasting.exists()) and (buff.savageRoar.exists() or not talent.savageRoar) and not hasEquiped(140808) then
             -- Shred
+                        if shredCount == nil then shredCount = 10 end
                         if castOpener("shred","SHR1",shredCount) then shredCount = shredCount + 1 return end
                     elseif SHR1 and (RIP1 and (not buff.savageRoar.exists() or combo == 5)) then
        					opener = true;
