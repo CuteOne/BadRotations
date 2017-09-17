@@ -276,6 +276,20 @@ function getDebuffCount(spellID)
   end
   return tonumber(counter)
 end
+function getDebuffRemainCount(spellID,remain)
+  local counter = 0
+  for k, v in pairs(br.enemy) do
+    local thisUnit = br.enemy[k].unit
+    -- check if unit is valid
+    if GetObjectExists(thisUnit) then
+      -- increase counter for each occurences
+      if UnitDebuffID(thisUnit,spellID,"player") and getDebuffRemain(thisUnit,spellID,"player") >= remain then
+        counter = counter + 1
+      end
+    end
+  end
+  return tonumber(counter)
+end
 -- if getBuffDuration("target",12345) < 3 then
 function getBuffDuration(Unit,BuffID,Source)
 	if UnitBuffID(Unit,BuffID,Source) ~= nil then

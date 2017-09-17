@@ -179,6 +179,7 @@ Rotations\Priest\Holy\HolyOdan.lua
 
 
 Rotations\Priest\Shadow\ShadowCuteOne.lua
+Rotations\Priest\Shadow\ShadowJR.lua
 
 ## Rogue ---------------------------------------------------
 

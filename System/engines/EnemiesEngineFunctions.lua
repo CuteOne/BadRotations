@@ -159,3 +159,25 @@ function getEnemiesInCone(length,angle)
     end
     return units
 end
+-- Percentage of enemies that are not in execute HP range
+function getNonExecuteEnemiesPercent(executeHP)
+	local executeCount = 0
+	local nonexecuteCount = 0
+	local nonexecutePercent = 0
+
+    for k, v in pairs(br.enemy) do
+    	local thisUnit = br.enemy[k]
+		if GetObjectExists(thisUnit.unit) then
+			if thisUnit.hp < executeHP then
+	     		executeCount = executeCount + 1
+		   	else
+				nonexecuteCount = nonexecuteCount + 1
+   			end
+   		end
+    end
+    local divisor = executeCount + nonExecuteCount
+    if divisor > 0 then
+	    nonexecutePercent = nonexecuteCount / divisor
+    end
+    return nonexecutePercent
+end

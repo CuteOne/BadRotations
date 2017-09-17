@@ -198,6 +198,9 @@ function br.loader:new(spec,specName)
         debuff.count = function()
             return tonumber(getDebuffCount(v))
         end
+        debuff.remainCount = function(remain)
+            return tonumber(getDebuffRemainCount(v,remain))
+        end
         debuff.applied = function(thisUnit)
             return debuff.bleed[thisUnit] or 0
         end
