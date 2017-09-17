@@ -563,7 +563,7 @@ local function runRotation()
             end
             return markUnit
         end
-
+        
 --------------------
 --- Action Lists ---
 --------------------
@@ -1384,7 +1384,7 @@ local function runRotation()
         -- Start Attack
                 -- auto_attack
                     if power > 50 then
-                        if cast.tigerPalm("target") then return end
+                        if cast.tigerPalm("target") then StartAttack(); return end
                     else
                         StartAttack()
                     end
@@ -1422,6 +1422,7 @@ local function runRotation()
                 --     opener = true;
                 --     return
                 -- end
+                StartAttack()
                 if actionList_Opener() then return end
             end
 --------------------------

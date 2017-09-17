@@ -218,6 +218,8 @@ local function runRotation()
         if leftCombat == nil then leftCombat = GetTime() end
         if profileStop == nil then profileStop = false end
 
+        -- ChatOverlay(tostring(units.dyn5).." | "..tostring(units.dyn40))
+
         -- if UnitExists("target") then
         --     ChatOverlay(round2(getDistance("target","player","dist"),2)..", "..round2(getDistance("target","player","dist2"),2)..", "..round2(getDistance("target","player","dist3"),2)..", "..round2(getDistance("target","player","dist4"),2)..", "..round2(getDistance("target"),2))
         -- end
@@ -714,7 +716,7 @@ local function runRotation()
                     then
                         if actionList_AOE() then return end
                     end
-                    if ((mode.rotation == 1 and #enemies.yards5 < getOptionValue("Units To AoE")) or (mode.rotation == 3 and #enemies.yards5 > 0)) and level >= 20 then
+                    if ((mode.rotation == 1 and (#enemies.yards5 < getOptionValue("Units To AoE") or (talent.butchery and charges.butchery == 0))) or (mode.rotation == 3 and #enemies.yards5 > 0)) and level >= 20 then
             -- Call Action List - Bite Phase
                         -- call_action_list,name=bitePhase
                         if actionList_BitePhase() then return end

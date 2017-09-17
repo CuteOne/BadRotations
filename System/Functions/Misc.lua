@@ -390,18 +390,18 @@ function isValidTarget(Unit)
 end
 function isValidUnit(Unit)
 	local hostileOnly = isChecked("Hostiles Only")
-	if GetUnitExists(Unit) and (not UnitIsDeadOrGhost(Unit) or UnitHealth(Unit) > 0) and (not UnitIsFriend(Unit, "player") and (not hostileOnly or (hostileOnly and UnitIsEnemy(Unit, "player")))) 
+	if GetUnitExists(Unit) and (not UnitIsDeadOrGhost(Unit) or UnitHealth(Unit) > 0) and (not UnitIsFriend(Unit, "player") and (not hostileOnly or (hostileOnly and UnitIsEnemy(Unit, "player")) or isDummy(Unit))) 
 		and UnitCanAttack("player",Unit) and isSafeToAttack(Unit) and getLineOfSight("player", Unit) and UnitInPhase(Unit) and not isCritter(thisUnit)
 	then
 		local inCombat = UnitAffectingCombat("player") or (GetObjectExists("pet") and UnitAffectingCombat("pet"))
-		local hasThreat = hasThreat(Unit) or UnitTarget(Unit) == "player" or (GetObjectExists("pet") and (hasThreat(Unit,"pet") or UnitTarget(Unit) == "pet"))
+		local hasThreat = hasThreat(Unit) or UnitTarget(Unit) == "player" or (GetObjectExists("pet") and (hasThreat(Unit,"pet") or UnitTarget(Unit) == "pet")) or isBurnTarget(Unit) > 0
 		-- print("Base Check Passed")
 		-- Unit is Soul Effigy
         -- if GetObjectID(Unit) == 103679 then return true end
         if inCombat then
         	-- print("Player In Combat")
-        	-- Only consider Units that I have threat with or have targeted or are dummies within 20yrds when in Combat.
-			if hasThreat or UnitIsUnit(Unit,"target") or (isDummy(Unit) and getDistance(Unit) <= 20) then return true end
+        	-- Only consider Units that I have threat with or have targeted or are dummies within 8yrds when in Combat.
+			if hasThreat or UnitIsUnit(Unit,"target") or (isDummy(Unit) and (getDistance(Unit) <= 8 or UnitIsUnit(Unit,"target"))) then return true end
 		elseif not inCombat and IsInInstance() then
 			-- Only consider Units that I have threat with or I am alone and have targeted when not in Combat and in an Instance.
 			if hasThreat or (#br.friend == 1 and UnitIsUnit(Unit,"target")) then return true end
@@ -414,16 +414,14 @@ function isValidUnit(Unit)
 end
 function enemyListCheck(Unit)
 	local hostileOnly = isChecked("Hostiles Only")
-	if GetUnitExists(Unit) and not UnitIsDeadOrGhost(Unit) and (not UnitIsFriend(Unit, "player") and (not hostileOnly or (hostileOnly and UnitIsEnemy(Unit, "player")))) 
+	if GetUnitExists(Unit) and not UnitIsDeadOrGhost(Unit) and (not UnitIsFriend(Unit, "player") and (not hostileOnly or (hostileOnly and UnitIsEnemy(Unit, "player")) or isDummy(Unit))) 
 		and UnitCanAttack("player",Unit) and isSafeToAttack(Unit) and UnitInPhase(Unit) and not isCritter(Unit) and getDistance(Unit) < 50
 	then
-		local unitID = GetObjectID(unit)
-		local burnUnit = burnUnitCandidates[unitID]
 		local inCombat = UnitAffectingCombat("player") or (GetObjectExists("pet") and UnitAffectingCombat("pet"))
-		local hasThreat = hasThreat(Unit) or UnitTarget(Unit) == "player" or (GetObjectExists("pet") and (hasThreat(Unit,"pet") or UnitTarget(Unit) == "pet")) or burnUnit
+		local hasThreat = hasThreat(Unit) or UnitTarget(Unit) == "player" or (GetObjectExists("pet") and (hasThreat(Unit,"pet") or UnitTarget(Unit) == "pet")) or isBurnTarget(Unit) > 0
         if inCombat then
-        	-- Only consider Units that I have threat with or have targeted or are dummies within 20yrds when in Combat.
-			if UnitIsUnit(Unit,"target") or hasThreat or (isDummy(Unit) and getDistance(Unit) <= 20) then return true end
+        	-- Only consider Units that I have threat with or have targeted or are dummies within 8yrds when in Combat.
+			if UnitIsUnit(Unit,"target") or hasThreat or (isDummy(Unit) and (getDistance(Unit) <= 8 or UnitIsUnit(Unit,"target"))) then return true end
 		elseif not inCombat and IsInInstance() then
 			-- Only consider Units that I have threat with or I am alone and have targeted when not in Combat and in an Instance.
 			if (#br.friend == 1 and UnitIsUnit(Unit,"target")) or hasThreat then return true end

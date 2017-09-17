@@ -356,7 +356,7 @@ local function runRotation()
                 end
             end
         end
-        -- ChatOverlay("5yrds: "..tostring(units.dyn5).." | 40yrds: "..tostring(units.dyn40))
+        ChatOverlay("5yrds: "..tostring(units.dyn5).." | 40yrds: "..tostring(units.dyn40))
         -- ChatOverlay(round2(getDistance("target","player","dist"),2)..", "..round2(getDistance("target","player","dist2"),2)..", "..round2(getDistance("target","player","dist3"),2)..", "..round2(getDistance("target","player","dist4"),2)..", "..round2(getDistance("target"),2))
 --------------------
 --- Action Lists ---
@@ -1201,10 +1201,10 @@ local function runRotation()
             end
         -- Shred
             -- shred
-            if (debuff.rake.exists(units.dyn5) or level < 12) and (((mode.rotation == 1 and #enemies.yards8 < 2 ) or mode.rotation == 3) 
-                or level < 32 or ttm < 1 or (talent.brutalSlash and charges.brutalSlash == 0)) then
+            -- if (debuff.rake.exists(units.dyn5) or level < 12) and (((mode.rotation == 1 and #enemies.yards8 < 2 ) or mode.rotation == 3) 
+            --     or level < 32 or ttm < 1 or (talent.brutalSlash and charges.brutalSlash == 0)) then
                 if cast.shred(units.dyn5) then return end
-            end
+            -- end
         end
     -- Action List - Generator
         local function actionList_AMR_Generator()
@@ -1300,7 +1300,7 @@ local function runRotation()
             end
         -- Shred
             -- if TargetsInRadius(Swipe) < 3 and (DotRemainingSec(RakeBleed) > DotIntervalSec(RakeBleed) or PowerToMax < 1)
-            if (((mode.rotation == 1 and #enemies.yards8 < 3) or mode.rotation == 3) or level < 32 or ttm < 1 or (talent.brutalSlash and charges.brutalSlash == 0))
+            if (((mode.rotation == 1 and (#enemies.yards8 < 3 or (talent.brutalSlash and charges.brutalSlash == 0))) or mode.rotation == 3) or level < 32 or ttm < 1)
                 and (debuff.rake.remain(units.dyn5) > 2 or ttm < 1 or level < 12) 
             then
                 if cast.shred() then return end
