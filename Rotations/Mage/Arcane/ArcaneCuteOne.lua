@@ -541,7 +541,7 @@ local function runRotation()
         -- Arcane Explosion
             -- arcane_explosion,if=active_enemies>1&(mana.pct>=70-(10*equipped.mystic_kilt_of_the_rune_master))
             if ((mode.rotation == 1 and #enemies.yards10 >= getOptionValue("Arcane Explosion")) or (mode.rotation == 2 and #enemies.yards10 > 0)) and (manaPercent >= 70 - (10 * runeMaster)) then
-                if arcaneExplosion("player") then return end
+                if cast.arcaneExplosion("player") then return end
             end            
         -- Arcane Blast
             -- arcane_blast,if=mana.pct>=90|buff.rhonins_assaulting_armwraps.up
