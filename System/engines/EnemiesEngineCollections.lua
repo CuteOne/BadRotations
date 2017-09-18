@@ -98,6 +98,9 @@ doNotTouchUnitCandidates = {
     { unitID = 104154, buff = 206516 }, -- Don't attack Gul'dan when he is in The Eye of Aman'Thul cage
     -- Nighthold: Mythic Spellblade - Fel Soul
     { unitID = 115905}, 
+    -- Tomb of Sargeras
+    { unitID = 116689, buff = 233441 }, -- Don't attack Atrigan while Bonesaw
+    { unitID = 116691, buff = 235230 }, -- Don't attack Belac while Fel Squall
 }
 -- list of units to stun, either always or udner certain condition such as having a buff or wirldwinding etc
 crowdControlCandidates = {
