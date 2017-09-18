@@ -142,7 +142,7 @@ function lootManager:findLoot()
 		-- local objectCount = GetObjectCount() or 0
 		for i = 1,GetObjectCount() do
 			local thisUnit = GetObjectIndex(i)
-			if ObjectIsType(thisUnit, ObjectType.Unit) then
+			if (not EWT and ObjectIsType(thisUnit, ObjectType.Unit)) or (EWT and ObjectIsType(thisUnit, ObjectTypes.Unit) ) then
 				local inRange = getDistance("player",thisUnit) < 2
 				local hasLoot,canLoot = CanLootUnit(UnitGUID(thisUnit))
 				if inRange then

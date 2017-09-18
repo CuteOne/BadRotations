@@ -1,10 +1,15 @@
 function GetObjectExists(Unit)
 	if Unit == nil then return false end
-	if FireHack then
+	if FireHack and not EWT then
         if Unit == "target" or Unit == "targettarget" then
             if not GetUnitExists(Unit) then return false end
         end
 		return ObjectIsVisible(Unit)
+	elseif EWT then
+		if Unit == "target" or Unit == "targettarget" then
+            if not GetUnitExists(Unit) then return false end
+        end
+		return ObjectExists(Unit)
 	else
 		return false
 	end
@@ -417,7 +422,7 @@ function isDummy(Unit)
 			[70245]  = "Training Dummy",              -- Lvl ?? (Throne of Thunder)
 			[113964] = "Raider's Training Dummy",     -- Lvl ?? (The Dreamgrove) - Tanking
 		}
-		if dummies[tonumber(string.match(UnitGUID(Unit),"-(%d+)-%x+$"))] then
+		if dummies[tonumber(string.match(UnitGUID(Unit),"-(%d+)-%x+$"))] then --~= nil 
 			return true
 		end
 	end
