@@ -108,7 +108,7 @@ function FindEnemy()
 			local thisUnit = GetObjectWithIndex(i)
 			local enemyListCheck = enemyListCheck
 			-- check if it a unit first
-			if ObjectIsType(thisUnit, ObjectType.Unit) or GetObjectID(thisUnit) == 11492 then
+			if (not EWT and (ObjectIsType(thisUnit, ObjectType.Unit) or GetObjectID(thisUnit) == 11492)) or (EWT and (ObjectIsType(thisUnit, ObjectTypes.Unit) or GetObjectID(thisUnit) == 11492)) then
 				br.debug.cpu.enemiesEngine.unitTargets = br.debug.cpu.enemiesEngine.unitTargets + 1
 				-- Enemies
 				if enemyListCheck(thisUnit) then
