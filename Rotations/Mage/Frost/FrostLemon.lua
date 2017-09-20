@@ -1053,7 +1053,7 @@ local function runRotation()
                 if actionList_Pet() then return true end
                 if actionList_INTERRUPT() then return true end
                 if actionList_DEFENSIVE() then return true end
-                if not isMoving("player") or (HackEnabled("MovingCast") and isMoving("player")) then
+                if not isMoving("player") or (((not EWT and HackEnabled("MovingCast")) or (EWT and IsHackEnabled("MovingCast"))) and isMoving("player")) then
                     if SimCAPLMode() then return true end
                 else
                     if MovingMode() then return true end

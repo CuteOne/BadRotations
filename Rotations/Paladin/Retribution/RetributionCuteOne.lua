@@ -246,7 +246,7 @@ local function runRotation()
             judgmentVar = false
         end
         -- variable,name=ds_castable,value=spell_targets.divine_storm>=2|(buff.scarlet_inquisitors_expurgation.stack>=29&(buff.avenging_wrath.up|(buff.crusade.up&buff.crusade.stack>=15)|(cooldown.crusade.remains>15&!buff.crusade.up)|cooldown.avenging_wrath.remains>15))
-        local dsCastable = (mode.rotation == 1 and (#enemies.yards8 >= getOptionValue("Divine Storm Units") or (buff.scarletInquisitorsExpurgation.stack() >= 29 and (buff.avengingWrath.exists() or (buff.crusade.exists() and buff.crusade.stack >= 15) or (cd.crusade > 15 and not buff.crusade.exists()) or cd.avengingWrath > 15)))) or mode.rotation == 2
+        local dsCastable = (mode.rotation == 1 and (#enemies.yards8 >= getOptionValue("Divine Storm Units") or (buff.scarletInquisitorsExpurgation.stack() >= 29 and (buff.avengingWrath.exists() or (buff.crusade.exists() and buff.crusade.stack() >= 15) or (cd.crusade > 15 and not buff.crusade.exists()) or cd.avengingWrath > 15)))) or mode.rotation == 2
         local greaterBuff
         greaterBuff = 0
         local lowestUnit
