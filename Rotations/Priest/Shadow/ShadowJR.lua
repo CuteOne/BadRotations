@@ -204,6 +204,7 @@ local function runRotation()
         local canFlask                                      = canUse(br.player.flask.wod.agilityBig)
         local cast                                          = br.player.cast
         local castable                                      = br.player.cast.debug
+        local castTable                                     = castTable or {}
         local combatTime                                    = getCombatTime()
         local cd                                            = br.player.cd
         local charges                                       = br.player.charges
@@ -211,11 +212,12 @@ local function runRotation()
         local deadtar, attacktar, hastar, playertar         = deadtar or UnitIsDeadOrGhost("target"), attacktar or UnitCanAttack("target", "player"), hastar or GetObjectExists("target"), UnitIsPlayer("target")
         local debuff                                        = br.player.debuff
         local enemies                                       = enemies or {}
+        local enemiesWithDots                               = enemiesWithDots or {}
         local falling, swimming, flying, moving             = getFallTime(), IsSwimming(), IsFlying(), GetUnitSpeed("player")>0
         local flaskBuff                                     = getBuffRemain("player",br.player.flask.wod.buff.agilityBig)
         local friendly                                      = friendly or UnitIsFriend("target", "player")
         local gcd                                           = br.player.gcd
-        local gcdMax                                        = br.player.gcdMax
+        local gcdMax                                        = max(0.75, 1.5 / (1 + UnitSpellHaste("player") / 100))
         local hasMouse                                      = GetObjectExists("mouseover")
         local healPot                                       = getHealthPot()
         local inCombat                                      = br.player.inCombat
@@ -242,7 +244,6 @@ local function runRotation()
         local t19_2pc                                       = TierScan("T19")>=2
         local t19_4pc                                       = TierScan("T19")>=4
         local t20_4pc                                       = TierScan("T20")>=4
-        local t21_4pc                                       = TierScan("T21")>=4
         local talent                                        = br.player.talent
         local thp                                           = getHP(br.player.units(40))
         local ttd                                           = getTTD
@@ -271,17 +272,20 @@ local function runRotation()
         if t20_4pc then t20pc4 = 1 else t20pc4 = 0 end
         if t21_4pc then t21pc4 = 1 else t21pc4 = 0 end
         if hasBloodLust() then lusting = 1 else lusting = 0 end
-        if talent.sanlayn then sanlayn = 1 else sanlayn = 0 end
+        if talent.auspiciousSpirits then auspiciousSpirits = 1 else auspiciousSpirits = 0 end
+        if talent.fortressOfTheMind then fortressOfTheMind = 1 else fortressOfTheMind = 0 end
+        if talent.legacyOfTheVoid then legacyOfTheVoid = 1 else legacyOfTheVoid = 0 end
+        if talent.lingeringInsanity then lingeringInsanity = 1 else lingeringInsanity = 0 end
+        if talent.mindbender then mindbender = 1 else mindbender = 0 end
         if talent.reaperOfSouls then reaperOfSouls = 1 else reaperOfSouls = 0 end
-        if talent.legacyOfTheVoid then legacy = 1 else legacy = 0 end
-        if talent.fortressOfTheMind then fortress = 1 else fortress = 0 end
+        if talent.sanlayn then sanlayn = 1 else sanlayn = 0 end
         if artifact.lashOfInsanity then lash = 1 else lash = 0 end
         if artifact.toThePain then toThePain = 1 else toThePain = 0 end
         if artifact.massHysteria then massHysteria = 1 else massHysteria = 0 end
         if isBoss() then vtHPLimit = getOptionValue("VT Dot HP Limit")/10 else vtHPLimit = getOptionValue("VT Dot HP Limit") end
         if hasEquiped(132864) then mangaMad = 1 else mangaMad = 0 end
         if #enemies.yards40 == 1 then singleEnemy = 1 else singleEnemy = 0 end
-        raidMovementWithin15 = 1   -- trying to come up with a clever way to manage this, maybe a toggle or something. For now, just assume we always have to move soon
+        local raidMovementWithin15 = 0   -- trying to come up with a clever way to manage this, maybe a toggle or something. For now, just assume we always have to move soon
 
         local activeEnemies = #enemies.yards40
         if mode.rotation == 3 then
@@ -308,6 +312,18 @@ local function runRotation()
         -- Insanity Drain
         insanityDrain = 6 + (2 / 3 * (drainStacks)) 
         -- insanityDrain = 9 + ((drainStacks - 1) / 2)
+
+        -- variable,name=cd_time,op=set,value=(10+(2-2*talent.mindbender.enabled*set_bonus.tier20_4pc)*set_bonus.tier19_2pc+(3-3*talent.mindbender.enabled*set_bonus.tier20_4pc)*equipped.mangazas_madness+(6+5*talent.mindbender.enabled)*set_bonus.tier20_4pc+2*artifact.lash_of_insanity.rank)
+        local cd_time = (10 + (2 - 2 * mindbender * t20pc4) * t19pc2 + (3 - 3 * mindbender * t20pc4) * mangaMad + (6 + 5 * mindbender) * t20pc4 + 2 * lash)
+        -- variable,name=dot_swp_dpgcd,op=set,value=38*1.2*(1+0.06*artifact.to_the_pain.rank)*(1+0.2+stat.mastery_rating%16000)*0.75
+        local dot_swp_dpgcd = 38 * 1.2 * (1 + 0.06 * artifact.rank.toThePain) * (1 + 0.2 + GetMastery() % 16000) * 0.75
+        -- variable,name=dot_vt_dpgcd,op=set,value=71*1.2*(1+0.2*talent.sanlayn.enabled)*(1+0.05*artifact.touch_of_darkness.rank)*(1+0.2+stat.mastery_rating%16000)*0.5
+        local dot_vt_dpgcd = 71 * 1.2 * (1 + 0.2 * sanlayn) * (1 + 0.05 * artifact.rank.touchOfDarkness) * (1 + 0.2 + GetMastery() / 16000) * 0.5
+        -- variable,name=sear_dpgcd,op=set,value=80*(1+0.05*artifact.void_corruption.rank)
+        local sear_dpgcd = 80 * (1 + 0.05 * artifact.rank.voidCorruption)
+        -- variable,name=s2msetup_time,op=set,value=(0.8*(83+(20+20*talent.fortress_of_the_mind.enabled)*set_bonus.tier20_4pc-(5*talent.sanlayn.enabled)+(30+42*(desired_targets>1)+10*talent.lingering_insanity.enabled)*set_bonus.tier21_4pc*talent.auspicious_spirits.enabled+((33-13*set_bonus.tier20_4pc)*talent.reaper_of_souls.enabled)+set_bonus.tier19_2pc*4+8*equipped.mangazas_madness+(raw_haste_pct*10*(1+0.7*set_bonus.tier20_4pc))*(2+(0.8*set_bonus.tier19_2pc)+(1*talent.reaper_of_souls.enabled)+(2*artifact.mass_hysteria.rank)-(1*talent.sanlayn.enabled)))),if=talent.surrender_to_madness.enabled
+        if activeEnemies > 1 then multipleEnemies = 1 else multipleEnemies = 0 end
+        local s2msetup_time = (0.8 * (83 + (20 + 20 * fortressOfTheMind) * t20pc4 - (5 * sanlayn) + (30 + 42 * multipleEnemies + 10 * lingeringInsanity) * t21pc4 * auspiciousSpirits + ((33 - 13 * t20pc4) * reaperOfSouls) + t19pc2 * 4 + 8 * mangaMad + (UnitSpellHaste("player") * 10 * (1 + 0.7 * t20pc4)) * (2 + (0.8 * t19pc2) + (1 * reaperOfSouls) + (2 * massHysteria) - (1 * sanlayn))))
 
 
         -- Void Bolt
@@ -544,17 +560,6 @@ local function runRotation()
             if not buff.shadowform.exists() then
                 cast.shadowform()
             end
-            -- variable,name=cd_time,op=set,value=(10+(2-2*talent.mindbender.enabled*set_bonus.tier20_4pc)*set_bonus.tier19_2pc+(3-3*talent.mindbender.enabled*set_bonus.tier20_4pc)*equipped.mangazas_madness+(6+5*talent.mindbender.enabled)*set_bonus.tier20_4pc+2*artifact.lash_of_insanity.rank)
-            cd_time = (10 + (2 - 2 * talent.mindbender * t20pc4) * t19pc2 + (3 - 3 * talent.mindbender * t20pc4) * mangaMad + (6 + 5 * talent.mindbender) * t20pc4 + 2 * lash)
-            -- variable,name=dot_swp_dpgcd,op=set,value=38*1.2*(1+0.06*artifact.to_the_pain.rank)*(1+0.2+stat.mastery_rating%16000)*0.75
-            dot_swp_dpgcd = 38 * 1.2 * (1 + 0.06 * artifact.rank.toThePain) * (1 + 0.2 + GetMastery % 16000) * 0.75
-            -- variable,name=dot_vt_dpgcd,op=set,value=71*1.2*(1+0.2*talent.sanlayn.enabled)*(1+0.05*artifact.touch_of_darkness.rank)*(1+0.2+stat.mastery_rating%16000)*0.5
-            dot_vt_dpgcd = 71 * 1.2 * (1 + 0.2 * sanlayn) * (1 + 0.05 * artifact.rank.touchOfDarnkess) * (1 + 0.2 + GetMastery / 16000) * 0.5
-            -- variable,name=sear_dpgcd,op=set,value=80*(1+0.05*artifact.void_corruption.rank)
-            sear_dpgcd = 80 * (1 + 0.05 * artifact.rank.voidCorruption)
-            -- variable,name=s2msetup_time,op=set,value=(0.8*(83+(20+20*talent.fortress_of_the_mind.enabled)*set_bonus.tier20_4pc-(5*talent.sanlayn.enabled)+(30+42*(desired_targets>1)+10*talent.lingering_insanity.enabled)*set_bonus.tier21_4pc*talent.auspicious_spirits.enabled+((33-13*set_bonus.tier20_4pc)*talent.reaper_of_souls.enabled)+set_bonus.tier19_2pc*4+8*equipped.mangazas_madness+(raw_haste_pct*10*(1+0.7*set_bonus.tier20_4pc))*(2+(0.8*set_bonus.tier19_2pc)+(1*talent.reaper_of_souls.enabled)+(2*artifact.mass_hysteria.rank)-(1*talent.sanlayn.enabled)))),if=talent.surrender_to_madness.enabled
-            if (mode.rotation == 1 or mode.rotation == 2) then desired_targets = 2 else desired_targets = 1 end
-            s2msetup_time = (0.8 * (83 + (20 + 20 * talent.fortressOfTheMind) * t20pc4 - (5 * sanlayn) + (30 + 42 * (desired_targets > 1) + 10 * talent.lingeringInsanty) * t21pc4 * talent.auspiciousSpirits + ((33 - 13 * t20pc4) * talent.reaperOfSouls) + t19pc2 * 4 + 8 * mangaMad + (UnitSpellHaste("player") * 10 * (1 + 0.7 * t20pc4)) * (2 + (0.8 * t19pc2) + (1 * talent.reaperOfSouls) + (2 * massHysteria) - (1 * sanlayn))))
             -- Mind Blast
             if isValidUnit("target") then
                 if not moving and br.timer:useTimer("mbRecast", gcd) then
@@ -586,6 +591,17 @@ local function runRotation()
             -- variable,op=min,name=s2mcheck,value=180
             if s2mCheck < 180 then s2mCheck = 180 end
         end
+
+        function recentlyCast(u,s,t)
+            local result = false
+            if lastCastTrackerUnit == null or lastCastTrackerSpell == null then
+                return false
+            end
+            if lastCastTrackerUnit == u and lastCastTrackerSpell == s and GetTime() - lastCastTrackerTime < t then
+                return true                
+            end
+            return false
+        end
         -- Action List - Main
         function actionList_Main()
         --Mouseover Dotting
@@ -605,14 +621,25 @@ local function runRotation()
         -- Shadow Word: Pain -- if moving and talent.misery, SW:P on dyn40 + cleaves. refresh if expiring soon
             -- shadow_word_pain,if=talent.misery.enabled&dot.shadow_word_pain.remains<gcd.max,moving=1,cycle_targets=1
             if moving and talent.misery then
-                if debuff.shadowWordPain.remain(units.dyn40) < gcdMax then
-                    if cast.shadowWordPain(units.dyn40,"aoe") then return end
+                if debuff.shadowWordPain.remain(units.dyn40) < gcdMax and not recentlyCast(units.dyn40, spell.shadowWordPain, 1.5*gcdMax) then
+                    if cast.shadowWordPain(units.dyn40,"aoe") then 
+                        lastCastTrackerSpell = spell.shadowWordPain
+                        lastCastTrackerUnit = units.dyn40
+                        lastCastTrackerTime = GetTime()
+                        return 
+                    end
                 end
                 if not mode.rotation == 3 and debuff.shadowWordPain.remainCount(gcdMax) < SWPmaxTargets then
                     for i = 1, #enemies.yards40 do
                         local thisUnit = enemies.yards40[i]
-                        if not UnitIsUnit(thisUnit, units.dyn40) and debuff.shadowWordPain.remain(thisUnit) < gcdMax then
-                            if cast.shadowWordPain(thisUnit,"aoe") then return end
+                        if not UnitIsUnit(thisUnit, units.dyn40) and debuff.shadowWordPain.remain(thisUnit) < gcdMax and not recentlyCast(thisUnit, spell.shadowWordPain, 1.5*gcdMax)
+                        then
+                            if cast.shadowWordPain(thisUnit,"aoe") then 
+                                lastCastTrackerSpell = spell.shadowWordPain
+                                lastCastTrackerUnit = thisUnit
+                                lastCastTrackerTime = GetTime()
+                                return 
+                            end
                         end
                     end
                 end
@@ -620,31 +647,53 @@ local function runRotation()
         -- Vampiric Touch -- if talent.misery, dot dyn40 + cleave targers with VT+SW:P. refresh if expiring soon
             -- vampiric_touch,if=talent.misery.enabled&(dot.vampiric_touch.remains<3*gcd.max|dot.shadow_word_pain.remains<3*gcd.max),cycle_targets=1
             if talent.misery and not moving and not isCastingSpell(spell.vampiricTouch) then
-                if debuff.vampiricTouch.remain(units.dyn40) < 3*gcdMax or debuff.shadowWordPain.remain(units.dyn40) < 3*gcdMax then
-                    if cast.vampiricTouch(units.dyn40,"aoe") then return end
+                if debuff.vampiricTouch.remain(units.dyn40) < 3*gcdMax or debuff.shadowWordPain.remain(units.dyn40) < 3*gcdMax and not recentlyCast(units.dyn40, spell.vampiricTouch, 1.5*gcdMax) 
+                then
+                    if cast.vampiricTouch(units.dyn40,"aoe") then 
+                        lastCastTrackerSpell = spell.vampiricTouch
+                        lastCastTrackerUnit = units.dyn40
+                        lastCastTrackerTime = GetTime()
+                        return 
+                    end
                 end
-                if not mode.rotation == 3 and debuff.vampiricTouch.remainCount(3*gcdMax) < VTmaxTargets or debuff.shadowWordpain.remainCount(3*gcdMax) < SWPmaxTargets then
+                if not mode.rotation == 3 and debuff.vampiricTouch.remainCount(3*gcdMax) < VTmaxTargets or debuff.shadowWordPain.remainCount(3*gcdMax) < SWPmaxTargets then
                     for i = 1, #enemies.yards40 do
                         local thisUnit = enemies.yards40[i]
-                        if ((debuff.vampiricTouch.remain(thisUnit) < 3 * gcdMax or debuff.shadowWordPain.remain(thisUnit) < 3 * gcdMax)) then
-                            if cast.vampiricTouch(thisUnit,"aoe") then return end
+                        if ((debuff.vampiricTouch.remain(thisUnit) < 3 * gcdMax or debuff.shadowWordPain.remain(thisUnit) < 3 * gcdMax)) and not recentlyCast(thisUnit, spell.vampiricTouch, 1.5*gcdMax) 
+                        then
+                            if cast.vampiricTouch(thisUnit,"aoe") then 
+                                lastCastTrackerSpell = spell.vampiricTouch
+                                lastCastTrackerUnit = thisUnit
+                                lastCastTrackerTime = GetTime()
+                                return 
+                            end
                         end
                     end
                 end
             end
         -- Shadow Word: Pain -- cast on dyn40 target. refresh if expiring soon
             -- shadow_word_pain,if=!talent.misery.enabled&dot.shadow_word_pain.remains<(3+(4%3))*gcd
-            if not talent.misery and debuff.shadowWordPain.remain(units.dyn40) < (3 + (4 / 3)) * gcdMax then
-                if cast.shadowWordPain() then return end
+            if not talent.misery and debuff.shadowWordPain.remain(units.dyn40) < (3 + (4 / 3)) * gcdMax and not recentlyCast(units.dyn40, spell.shadowWordPain, 1.5*gcdMax) then
+                if cast.shadowWordPain(units.dyn40) then 
+                    lastCastTrackerSpell = spell.shadowWordPain
+                    lastCastTrackerUnit = units.dyn40
+                    lastCastTrackerTime = GetTime()
+                    return 
+                end
             end
         -- Vampiric Touch -- cast on dyn40 target. refresh if expiring soon
             -- vampiric_touch,if=!talent.misery.enabled&dot.vampiric_touch.remains<(4+(4%3))*gcd
-            if not talent.misery and debuff.vampiricTouch.remain(units.dyn40) < (4 + (4 / 3)) * gcdMax and not isCastingSpell(spell.vampiricTouch) and not moving then
-                if cast.vampiricTouch() then return end
+            if not talent.misery and debuff.vampiricTouch.remain(units.dyn40) < (4 + (4 / 3)) * gcdMax and not isCastingSpell(spell.vampiricTouch) and not moving and not recentlyCast(units.dyn40, spell.vampiricTouch, 1.5*gcdMax) then
+                if cast.vampiricTouch(units.dyn40) then 
+                    lastCastTrackerSpell = spell.vampiricTouch
+                    lastCastTrackerUnit = units.dyn40
+                    lastCastTrackerTime = GetTime()
+                    return 
+                end
             end
         -- Void Eruption
             -- void_eruption
-            if mode.voidForm == 1 then
+            if mode.voidForm == 1 and not moving then
                 if cast.voidEruption("player") then return end
             end
         -- Shadow Crash
@@ -673,17 +722,27 @@ local function runRotation()
             end
         -- Mind Blast
             -- mind_blast,if=active_enemies<=4&talent.legacy_of_the_void.enabled&(insanity<=81|(insanity<=75.2&talent.fortress_of_the_mind.enabled))
-            if activeEnemies <= 4 and not moving --  and lastCast ~= spell.voidEruption
-                and talent.legacyOfTheVoid and (power <= 81 or (power <= 75.2 and talent.fortressOfTheMind)) 
+            if activeEnemies <= 4 and not moving and lastCast ~= spell.mindBlast
+                and talent.legacyOfTheVoid and (power <= 81 or (power <= 75.2 and talent.fortressOfTheMind)) and not recentlyCast(units.dyn40, spell.mindBlast, 1.5*gcdMax) 
             then
-                if cast.mindBlast(units.dyn40) then return end
+                if cast.mindBlast(units.dyn40) then 
+                    lastCastTrackerSpell = spell.mindBlast
+                    lastCastTrackerUnit = units.dyn40
+                    lastCastTrackerTime = GetTime()
+                    return 
+                end
             end
         -- Mind Blast
             -- mind_blast,if=active_enemies<=4&!talent.legacy_of_the_void.enabled|(insanity<=96|(insanity<=95.2&talent.fortress_of_the_mind.enabled))
-            if activeEnemies <= 4 and not moving  --and lastCast ~= spell.mindBlast
-                and not talent.legacyOfTheVoid and (power <= 96 or (power <= 95.2 and talent.fortressOfTheMind)) 
+            if activeEnemies <= 4 and not moving  and lastCast ~= spell.mindBlast
+                and not talent.legacyOfTheVoid and (power <= 96 or (power <= 95.2 and talent.fortressOfTheMind)) and not recentlyCast(units.dyn40, spell.mindBlast, 1.5*gcdMax) 
             then
-                if cast.mindBlast(units.dyn40) then return end
+                if cast.mindBlast(units.dyn40) then 
+                    lastCastTrackerSpell = spell.mindBlast
+                    lastCastTrackerUnit = units.dyn40
+                    lastCastTrackerTime = GetTime()
+                    return 
+                end
             end
         -- Shadow Word: Pain - on extra dot targets (main target is handled above)
             -- shadow_word_pain,if=!talent.misery.enabled&!ticking&target.time_to_die>10&(active_enemies<5&(talent.auspicious_spirits.enabled|talent.shadowy_insight.enabled)),cycle_targets=1
@@ -693,18 +752,28 @@ local function runRotation()
                 for i = 1, #enemies.yards40 do
                     local thisUnit = enemies.yards40[i]
                     -- !ticking&target.time_to_die>10
-                    if not debuff.shadowWordPain.exists(thisUnit) and ttd(thisUnit) > 10 then
-                        if cast.shadowWordPain(thisUnit,"aoe") then return end
+                    if not debuff.shadowWordPain.exists(thisUnit) and ttd(thisUnit) > 10 and not recentlyCast(thisUnit, spell.shadowWordPain, 1.5*gcdMax) then
+                        if cast.shadowWordPain(thisUnit,"aoe") then 
+                            lastCastTrackerSpell = spell.shadowWordPain
+                            lastCastTrackerUnit = thisUnit
+                            lastCastTrackerTime = GetTime()
+                            return 
+                        end
                     end
                 end
             end
         -- Vampiric Touch - on extra dot targets (main target is handled above)
             -- vampiric_touch,if=active_enemies>1&!talent.misery.enabled&!ticking&(variable.dot_vt_dpgcd*target.time_to_die%(gcd.max*(156+variable.sear_dpgcd*(active_enemies-1))))>1,cycle_targets=1
-            if activeEnemies > 1 and not talent.misery and not mode.rotation == 3 and debuff.vampiricTouch.Count() < VTmaxTargets then
+            if activeEnemies > 1 and not talent.misery and not mode.rotation == 3 and debuff.vampiricTouch.Count() < VTmaxTargets and not moving then
                 for i = 1, #enemies.yards40 do
                     local thisUnit = enemies.yards40[i]
-                    if not debuff.vampiricTouch.exists(thisUnit) and (dot_vt_dpgcd * ttd(thisUnit) / (gcdMax * (156 + sear_dpgcd * (activeEnemies - 1)))) > 1 then
-                        if cast.vampiricTouch(thisUnit,"aoe") then return end
+                    if not debuff.vampiricTouch.exists(thisUnit) and (dot_vt_dpgcd * ttd(thisUnit) / (gcdMax * (156 + sear_dpgcd * (activeEnemies - 1)))) > 1 and not recentlyCast(thisUnit, spell.vampiricTouch, 1.5*gcdMax) then
+                        if cast.vampiricTouch(thisUnit,"aoe") then 
+                            lastCastTrackerSpell = spell.vampiricTouch
+                            lastCastTrackerUnit = thisUnit
+                            lastCastTrackerTime = GetTime()
+                            return 
+                        end
                     end
                 end
             end
@@ -713,14 +782,19 @@ local function runRotation()
             if activeEnemies > 1 and not talent.misery and not mode.rotation == 3 and debuff.shadowWordPain.Count() < SWPmaxTargets then
                 for i = 1, #enemies.yards40 do
                     local thisUnit = enemies.yards40[i]
-                    if not debuff.shadowWordPain.exists(thisUnit) and (dot_swp_dpgcd * ttd(thisUnit) / (gcdMax * (118 + sear_dpgcd * (activeEnemies - 1)))) > 1 then
-                        if cast.shadowWordPain(thisUnit,"aoe") then return end
+                    if not debuff.shadowWordPain.exists(thisUnit) and (dot_swp_dpgcd * ttd(thisUnit) / (gcdMax * (118 + sear_dpgcd * (activeEnemies - 1)))) > 1 and not recentlyCast(thisUnit, spell.shadowWordPain, 1.5*gcdMax) then
+                        if cast.shadowWordPain(thisUnit,"aoe") then 
+                            lastCastTrackerSpell = spell.shadowWordPain
+                            lastCastTrackerUnit = thisUnit
+                            lastCastTrackerTime = GetTime()
+                            return 
+                        end
                     end
                 end
             end
         -- Shadow Word: Void
             -- shadow_word_void,if=talent.shadow_word_void.enabled&(insanity<=75-10*talent.legacy_of_the_void.enabled)
-            if talent.shadowWordVoid and (power <= 75 - 10 * legacy) then
+            if talent.shadowWordVoid and (power <= 75 - 10 * legacyOfTheVoid) then
                 if cast.shadowWordVoid(units.dyn40) then return end
             end
         -- Mind Flay
@@ -732,14 +806,48 @@ local function runRotation()
             end
         -- Shadow Word: Pain
             -- shadow_word_pain
-            cast.shadowWordPain(units.dyn40)
+            if cast.shadowWordPain(units.dyn40) and not recentlyCast(units.dyn40, spell.shadowWordPain, 1.5*gcdMax) then
+                lastCastTrackerSpell = spell.shadowWordPain
+                lastCastTrackerUnit = units.dyn40
+                lastCastTrackerTime = GetTime()
+            end
         end
         -- Action List - Surrender To Madness
         function actionList_SurrenderToMadness() -- Provided by Cyberking07
+        --Silence - to proc Sephuzs
+            -- silence,if=equipped.sephuzs_secret&(target.is_add|target.debuff.casting.react)&cooldown.buff_sephuzs_secret.remains<1&!buff.sephuzs_secret.up,cycle_targets=1
+            if buff.sephuz1.exists() and not buff.sephuzCooldown.exists() and not buff.sephuz2.exists() then
+                if canInterrupt(units.dyn40,100) then
+                    if cast.silence(units.dyn40) then return end
+                end
+                if not mode.rotation == 3 then
+                    for i = 1, #enemies.yards40 do
+                        local thisUnit = enemies.yards40[i]
+                        if canInterrupt(thisUnit,100) then
+                            if cast.silence(thisUnit) then return end
+                        end
+                    end
+                end
+            end
         --Void Bolt
             -- void_bolt,if=buff.insanity_drain_stacks.stack<6&set_bonus.tier19_4pc
-            if insanityDrain < 6 and t19_4pc then
+            if drainStacks < 6 and t19_4pc then
                 if cast.voidBolt(units.dyn40,"known") then return end
+            end
+        -- Mind Bomb - to proc Sephuzs
+            -- mind_bomb,if=equipped.sephuzs_secret&target.is_add&cooldown.buff_sephuzs_secret.remains<1&!buff.sephuzs_secret.up,cycle_targets=1
+            if buff.sephuz1.exists() and buff.sephuzCooldown.remain() < 1 and not buff.sephuz2.exists() then
+                if canInterrupt(units.dyn40,100) then
+                    if cast.mindBomb(units.dyn40) then return end
+                end
+                if not mode.rotation == 3 then
+                    for i = 1, #enemies.yards40 do
+                        local thisUnit = enemies.yards40[i]
+                        if not isInstanceBoss(thisUnit) and UnitLevel(thisUnit) < UnitLevel("player") + 3 then
+                            if cast.mindBomb(thisUnit) then return end
+                        end
+                    end
+                end
             end
         --Shadow Crash
             -- shadow_crash,if=talent.shadow_crash.enabled
@@ -754,7 +862,6 @@ local function runRotation()
                 end
             end
         --Void Torrent
-            -- void_torrent,if=dot.shadow_word_pain.remains>5.5&dot.vampiric_touch.remains>5.5&!buff.power_infusion.up
             -- void_torrent,if=dot.shadow_word_pain.remains>5.5&dot.vampiric_touch.remains>5.5&!buff.power_infusion.up|buff.voidform.stack<5
             if isChecked("Void Torrent") and useCDs() then
                 if debuff.shadowWordPain.remain(units.dyn40) > 5.5 and debuff.vampiricTouch.remain(units.dyn40) > 5.5
@@ -941,7 +1048,7 @@ local function runRotation()
             end
         -- Silence - to proc Sephuzs
             -- silence,if=equipped.sephuzs_secret&(target.is_add|target.debuff.casting.react)&cooldown.buff_sephuzs_secret.remains<1&!buff.sephuzs_secret.up&buff.insanity_drain_stacks.value>10,cycle_targets=1
-            if buff.sephuz1.exists() and buff.sephuzCooldown.remain() == 0 and not buff.sephuz2.exists() and drainStacks > 10 then
+            if buff.sephuz1.exists() and not buff.sephuzCooldown.exists() and not buff.sephuz2.exists() and drainStacks > 10 then
                 if canInterrupt(units.dyn40,100) then
                     if cast.silence(units.dyn40) then return end
                 end
@@ -961,14 +1068,14 @@ local function runRotation()
             end 
         -- Mind Bomb - to proc Sephuzs
             -- mind_bomb,if=equipped.sephuzs_secret&target.is_add&cooldown.buff_sephuzs_secret.remains<1&!buff.sephuzs_secret.up&buff.insanity_drain_stacks.value>10,cycle_targets=1
-            if buff.sephuz1.exists() and buff.sephuzCooldown.remain() == 0 and not buff.sephuz2.exists() and drainStacks > 10 then
+            if buff.sephuz1.exists() and buff.sephuzCooldown.remain() < 1 and not buff.sephuz2.exists() and drainStacks > 10 then
                 if canInterrupt(units.dyn40,100) then
                     if cast.mindBomb(units.dyn40) then return end
                 end
                 if not mode.rotation == 3 then
                     for i = 1, #enemies.yards40 do
                         local thisUnit = enemies.yards40[i]
-                        if not isInstanceBoss(thisUnit) and UnitLevel(thisUnit) >= UnitLevel("player") + 3 then
+                        if not isInstanceBoss(thisUnit) and UnitLevel(thisUnit) < UnitLevel("player") + 3 then
                             if cast.mindBomb(thisUnit) then return end
                         end
                     end
@@ -1002,7 +1109,7 @@ local function runRotation()
                     end
                 else
                 -- mindbender,if=buff.insanity_drain_stacks.value>=(variable.cd_time-(3*set_bonus.tier20_4pc*(raid_event.movement.in<15)*((active_enemies-(raid_event.adds.count*(raid_event.adds.remains>0)))=1))+(5-3*set_bonus.tier20_4pc)*buff.bloodlust.up+2*talent.fortress_of_the_mind.enabled*set_bonus.tier20_4pc)&(!talent.surrender_to_madness.enabled|(talent.surrender_to_madness.enabled&target.time_to_die>variable.s2mcheck-buff.insanity_drain_stacks.value))
-                    if drainStacks >= (cd_time -  (3 * t20pc4 * raidMovementWithin15 * singleEnemy) + (5 - 3*t20pc4)*lusting + 2*fortress*t20pc4)
+                    if drainStacks >= (cd_time -  (3 * t20pc4 * raidMovementWithin15 * singleEnemy) + (5 - 3*t20pc4)*lusting + 2*fortressOfTheMind*t20pc4)
                         and (not talent.surrenderTomadness or (talent.surrenderToMadness and ttd(units.dyn40) > s2mcheck - drainStacks)) 
                     then
                         if cast.mindbender() then return end
@@ -1012,7 +1119,7 @@ local function runRotation()
         -- Power Infusion
             -- power_infusion,if=buff.insanity_drain_stacks.value>=(variable.cd_time+5*buff.bloodlust.up*(1+1*set_bonus.tier20_4pc))&(!talent.surrender_to_madness.enabled|(talent.surrender_to_madness.enabled&target.time_to_die>variable.s2mcheck-(buff.insanity_drain_stacks.value)+61))
             if isChecked("Power Infusion") and talent.powerInfusion and useCDs() then
-                if GetOptionValue("  Power Infusion Stacks") > 0 then
+                if getOptionValue("  Power Infusion Stacks") > 0 then
                     if buff.voidForm.stack() >= getOptionValue("  Power Infusion Stacks") then
                         if cast.powerInfusion() then return end
                     end
@@ -1034,7 +1141,7 @@ local function runRotation()
         -- Shadow Word - Death
             -- shadow_word_death,if=(active_enemies<=4|(talent.reaper_of_souls.enabled&active_enemies<=2))&current_insanity_drain*gcd.max>insanity&(insanity-(current_insanity_drain*gcd.max)+(15+15*talent.reaper_of_souls.enabled))<100
             if (activeEnemies <= 4 or (talent.reaperOfSouls and activeEnemies <= 2))
-                and insanityDrain * gcd > power and (power - (insanityDrain * gcd) + (15 + 15 * reaperOfSouls)) < 100
+                and insanityDrain * gcdMax > power and (power - (insanityDrain * gcdMax) + (15 + 15 * reaperOfSouls)) < 100
             then
                 -- If Zeks Exterminatus (legendary cloak) has procced, SW:D is castable on any target, regardless of HP
                 if getHP(units.dyn40) < executeHP then
@@ -1097,7 +1204,7 @@ local function runRotation()
             end
         -- Shadow Word - Void
             -- shadow_word_void,if=talent.shadow_word_void.enabled&(insanity-(current_insanity_drain*gcd.max)+25)<100
-            if talent.shadowWordVoid and (power - (insanityDrain * gcd) + 25) < 100 then
+            if talent.shadowWordVoid and (power - (insanityDrain * gcdMax) + 25) < 100 then
                 if cast.shadowWordVoid() then return end
             end
         -- Shadow Word - Pain
@@ -1153,7 +1260,6 @@ local function runRotation()
                     for i = 1, #enemies.yards40 do
                         local thisUnit = enemies.yards40[i]
                         if not debuff.vampiricTouch.exists(thisUnit) and ((1 + 0.02 * buff.voidForm.stack()) * dot_vt_dpgcd * ttd(thisUnit) / (gcdMax * (156 + sear_dpgcd * (activeEnemies - 1)))) > 1 then
-                        then
                             if cast.vampiricTouch(thisUnit,"aoe") then return end
                         end
                     end
@@ -1169,7 +1275,6 @@ local function runRotation()
                     for i = 1, #enemies.yards40 do
                         local thisUnit = enemies.yards40[i]
                         if not debuff.shadowWordPain.exists(thisUnit) and ((1 + 0.02 * buff.voidForm.stack()) * dot_swp_dpgcd * ttd(thisUnit) / (gcdMax * (118 + sear_dpgcd * (activeEnemies - 1)))) > 1 then
-                        then
                             if cast.shadowWordPain(thisUnit,"aoe") then return end
                         end
                     end
@@ -1179,7 +1284,7 @@ local function runRotation()
             -- mind_flay,chain=1,interrupt_immediate=1,interrupt_if=ticks>=2&(action.void_bolt.usable|(current_insanity_drain*gcd.max>insanity&(insanity-(current_insanity_drain*gcd.max)+30)<100&cooldown.shadow_word_death.charges>=1))
             if isCastingSpell(spell.mindFlay) and mfTick >= 2 and (cd.voidBold == 0 or (insanityDrain * gcdMax > power and (power - (insanityDrain * gcdMax) + 30) < 100 and charges.shadowWordDeath >= 1)) then
                 if cast.mindFlay(units.dyn40) then return end                
-            elseif not isCastingSpell(spellMindflay) and not moving then
+            elseif not moving then
                 if cast.mindFlay(units.dyn40) then return end
             end
         -- Shadow Word - Pain
