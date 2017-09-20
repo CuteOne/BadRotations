@@ -2056,10 +2056,12 @@ br.idList = {
                 toThePain                   = 193644,
                 touchOfDarkness             = 194007,
                 unleashTheShadows           = 194093,
+                voidCorruption              = 194016,
                 voidTorrent                 = 205065,
             },
             buffs                           = {
                 dispersion                  = 47585,
+                powerWordShield             = 17,
                 shadowyInsight              = 124430,
                 shadowform                  = 232698,
                 surrenderedSoul             = 212570,
