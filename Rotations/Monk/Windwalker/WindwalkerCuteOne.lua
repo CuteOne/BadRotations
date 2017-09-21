@@ -80,6 +80,8 @@ local function createOptions()
             br.ui:createCheckbox(section, "Tiger's Lust")
         -- Whirling Dragon Punch
             br.ui:createCheckbox(section, "Whirling Dragon Punch")
+        -- Provoke
+            br.ui:createCheckbox(section, "Provoke", "Will aid in grabbing mobs when solo.")
         br.ui:checkSectionState(section)
         ------------------------
         --- COOLDOWN OPTIONS ---
@@ -593,7 +595,7 @@ local function runRotation()
                 end
             end
         -- Provoke
-            if not inCombat and select(3,GetSpellInfo(101545)) ~= "INTERFACE\\ICONS\\priest_icon_chakra_green"
+            if isChecked("Provoke") and not inCombat and select(3,GetSpellInfo(101545)) ~= "INTERFACE\\ICONS\\priest_icon_chakra_green"
                 and cd.flyingSerpentKick > 1 and getDistance("target") > 10 and isValidUnit("target") and not isBoss("target")
             then
                 if solo or #br.friend == 1 then

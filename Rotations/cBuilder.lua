@@ -334,7 +334,9 @@ function br.loader:new(spec,specName)
                         end
                     end
                 elseif (thisUnit == nil or thisUnit == "best" or thisUnit == "playerGround" or thisUnit == "targetGround") and getDistance(self.units(maxRange)) < maxRange then
-                    Print("|cffFF0000Error: |r Failed to cast. - ".."Name: "..spellName..", ID: "..v..", Type: "..spellType..", Min Range: "..minRange..", Max Range: "..maxRange)
+                    if (isChecked("Display Failcasts") or isChecked("Cast Debug")) and debug ~= "debug" then
+                        Print("|cffFF0000Error: |r Failed to cast. - ".."Name: "..spellName..", ID: "..v..", Type: "..spellType..", Min Range: "..minRange..", Max Range: "..maxRange)
+                    end
                     return false
                 end
             elseif debug == "debug" then
