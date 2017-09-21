@@ -1906,6 +1906,7 @@ br.idList = {
                 powerWordRadiance           = 194509,
                 powerWordShield             = 17,
                 powerWordSolace             = 129250,
+                psychicScream               = 8122,
                 purgeTheWicked              = 204197,
                 purify                      = 527,
                 rapture                     = 47536,
@@ -2052,11 +2053,15 @@ br.idList = {
             artifacts                       = {
                 lashOfInsanity              = 238137,
                 massHysteria                = 194378,
+                toThePain                   = 193644,
+                touchOfDarkness             = 194007,
                 unleashTheShadows           = 194093,
+                voidCorruption              = 194016,
                 voidTorrent                 = 205065,
             },
             buffs                           = {
                 dispersion                  = 47585,
+                powerWordShield             = 17,
                 shadowyInsight              = 124430,
                 shadowform                  = 232698,
                 surrenderedSoul             = 212570,
@@ -2064,6 +2069,7 @@ br.idList = {
                 void                        = 211657,
                 voidForm                    = 194249,
                 voidTorrent                 = 205065,
+                zeksExterminatus            = 236546, -- Legendary Cloak proc
             },
             debuffs                         = {
                 shadowWordPain              = 589,
@@ -2101,23 +2107,17 @@ br.idList = {
             abilities                       = {
                 dispelMagic                 = 528,
                 fade                        = 586,
-                flashHeal                   = 2061,
                 levitate                    = 1706,
                 massDispel                  = 32375,
                 massResurrection            = 212036,
                 mindControl                 = 605,
-                powerWordBarrier            = 81782,
-                psychicScream               = 8122,
                 resurrection                = 2006,
                 shackleUndead               = 9484,
-                shadowfiend                 = 34433,
-                smite                       = 585,
             },
             artifacts                       = {
 
             },
             buffs                           = {
-                powerWordShield             = 17,
             },
             debuffs                         = {
 
@@ -3242,6 +3242,9 @@ br.idList = {
                 netherwinds                     = 160452,
                 norgannonsForesight             = 236373,
                 prolongedPower                  = 229206,
+                sephuz1                         = 208051, -- the fulltime 10% movement, 2% haste buff
+                sephuz2                         = 208052, -- the proc, 70% movement, 25% haste buff
+                sephuzCooldown                  = 226262, -- CD (30 seconds) for the proc
                 shadowmeld                      = 58984,
                 timeWarp                        = 80353,
                 whispersOfInsanity              = 176151,

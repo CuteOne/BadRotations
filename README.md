@@ -257,6 +257,7 @@ Svs    |  Full   | 7.1.5 |    100% | :white_check_mark:
 author           |    support    | patch | status | raidable?
 :--------------- | :-----------: | :---: | -----: | :-------:
 CuteOne          | Full          | 7.2   |    90% |    :x:
+JR               | Full          | 7.3   |  Test  |    :interrobang:
 
 ### Rogue
 
