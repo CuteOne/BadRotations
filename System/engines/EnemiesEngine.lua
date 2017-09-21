@@ -214,8 +214,6 @@ local dynamicCount = 0
 local avgTime = 0
 function findBestUnit(range,facing)
 	local startTime = debugprofilestop()
-	local bestUnit = nil
-	local updateRate = nil
 	local bestUnitCoef = 0
 	if dynTargets == nil then dynTargets = {} end
 	if getUpdateRate() > br.player.gcd then updateRate = getUpdateRate() else updateRate = br.player.gcd end 
@@ -257,7 +255,6 @@ function dynamicTarget(range,facing)
 	if range == nil or range > 100 then return nil end
 	local startTime = debugprofilestop()
 	local facing = facing or false
-	local bestUnit = nil
 	if isChecked("Dynamic Targetting") then
 		if getOptionValue("Dynamic Targetting") == 2 or (UnitAffectingCombat("player") and getOptionValue("Dynamic Targetting") == 1) then
 			bestUnit = findBestUnit(range,facing)
@@ -293,6 +290,12 @@ end
 local enemyUpdateRate = enemyUpdateRate or 0
 
 function getEnemyUpdateRate()
+	if getOptionValue("Dynamic Target Rate") ~= nil and getOptionValue("Dynamic Target Rate") > 0.5 then enemyUpdateRate = getOptionValue("Dynamic Target Rate")
+		else enemyUpdateRate = 0.5
+	end
+	if enemyUpdateRate < #getEnemies("player",50, true)/2 then
+		enemyUpdateRate = #getEnemies("player",50, true)/2
+	end
 	return enemyUpdateRate
 end
 

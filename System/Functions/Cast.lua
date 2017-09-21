@@ -171,7 +171,7 @@ Tenth 		noCast			True to return True/False instead of casting spell.
 -- castSpell("target",12345,true)
 --                ( 1  ,    2  ,     3     ,     4       ,      5    ,   6     ,   7     ,    8       ,   9      ,  10  )
 function castSpell(Unit,SpellID,FacingCheck,MovementCheck,SpamAllowed,KnownSkip,DeadCheck,DistanceSkip,usableSkip,noCast)
-	if GetObjectExists(Unit) and betterStopCasting(SpellID) ~= true
+	if GetObjectExists(Unit) --and betterStopCasting(SpellID) ~= true
 		and (not UnitIsDeadOrGhost(Unit) or DeadCheck) then
 		-- we create an usableSkip for some specific spells like hammer of wrath aoe mode
 		if usableSkip == nil then usableSkip = false end
@@ -527,6 +527,7 @@ function isCastingSpell(spellID,unit)
 		spellCasting = select(1,UnitChannelInfo(unit))
 	end
 	if tostring(spellCasting) == tostring(spellName) then
+		Print(spellName.." | "..spellCasting)
 		return true
 	else
 		return false
