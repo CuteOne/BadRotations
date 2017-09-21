@@ -183,7 +183,7 @@ function handler(message, editbox)
 		end
 	-- Queue
 	elseif msg1 == "queue" then
-		if isChecked("Queue Casting") then
+		-- if isChecked("Queue Casting") then
 			if msg2 == "clear" then
 				if br.player.queue == nil then Print("Queue Already Cleared") end
 				if #br.player.queue == 0 then Print("Queue Already Cleared") end
@@ -241,9 +241,9 @@ function handler(message, editbox)
 			elseif msg2 == nil then
 				Print("Invalid Option for: |cFFFF0000" .. msg1 .. "|r try |cffFFDD11 /br queue clear |r - Clears the Queue list or |cffFFDD11 /br queue add (spell)|r - Adds specified spell to Queue list or |cffFFDD11 /br queue remove (spell) |r - Removes specifid from Queue list.")
 			end
-		else
-			Print("Queue Casting Disabled: |cffFFDD11 Check Bot Options to enable.")
-		end
+		-- else
+		-- 	Print("Queue Casting Disabled: |cffFFDD11 Check Bot Options to enable.")
+		-- end
 	elseif msg == "updaterate" then
 		updateRate()
 	elseif msg == "disengage" then

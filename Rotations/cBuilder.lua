@@ -259,9 +259,10 @@ function br.loader:new(spec,specName)
             local spellCast = v
             local spellName = GetSpellInfo(v)
             local spellType = getSpellType(spellName)
-            local minRange = select(5,GetSpellInfo(spellName)) or 0
+            local minRange = select(5,GetSpellInfo(spellName))
             local maxRange = select(6,GetSpellInfo(spellName))
             -- Nil Catches
+            if minRange == nil then minRange = 0 end
             if maxRange == nil or maxRange == 0 then maxRange = 5 end
             if minUnits == nil then minUnits = 1 end
             if effectRng == nil then effectRng = 5 end
@@ -303,31 +304,34 @@ function br.loader:new(spec,specName)
                 elseif thisUnit == "targetGround" and (getDistance("target") < maxRange or IsSpellInRange(spellName,"target") == 1) then
                     castDebug()
                     return castGroundAtUnit(spellCast,effectRng,minUnits,maxRange,minRange,debug,"target")
-                elseif thisUnit ~= nil and (getDistance(thisUnit) < maxRange or IsSpellInRange(spellName,thisUnit) == 1) then
-                    if debug == "rect" and getEnemiesInRect(effectRng,maxRange,false) >= minUnits then
-                        castDebug()
-                        return castSpell(thisUnit,spellCast,false,false,false,true,false,true,true,false)
-                    elseif debug == "ground" then
-                        if getLineOfSight(thisUnit) then
-                            if IsMouseButtonDown(2) then 
-                                return false 
-                            else
-                                castDebug()
-                                return castGround(thisUnit,spellCast,maxRange,minRange)
+                elseif thisUnit ~= nil then
+                    local distance = getDistance(thisUnit) 
+                    if ((distance >= minRange and distance < maxRange) or IsSpellInRange(spellName,thisUnit) == 1) then
+                        if debug == "rect" and getEnemiesInRect(effectRng,maxRange,false) >= minUnits then
+                            castDebug()
+                            return castSpell(thisUnit,spellCast,false,false,false,true,false,true,true,false)
+                        elseif debug == "ground" then
+                            if getLineOfSight(thisUnit) then
+                                if IsMouseButtonDown(2) then 
+                                    return false 
+                                else
+                                    castDebug()
+                                    return castGround(thisUnit,spellCast,maxRange,minRange)
+                                end
                             end
+                        elseif debug == "dead" then
+                            castDebug()
+                            return castSpell(thisUnit,spellCast,false,false,false,true,true,true,true,false)
+                        elseif debug == "aoe" then
+                            castDebug()
+                            return castSpell(thisUnit,spellCast,true,false,false,true,false,true,true,false)
+                        elseif thisUnit ~= nil then
+                            castDebug()
+                            return castSpell(thisUnit,spellCast,false,false,false,true,false,true,true,false)
+                        else
+                            Print("|cffFF0000Error: |r Failed to cast. - ".."Name: "..spellName..", ID: "..v..", Type: "..spellType..", Min Range: "..minRange..", Max Range: "..maxRange)
+                            return false
                         end
-                    elseif debug == "dead" then
-                        castDebug()
-                        return castSpell(thisUnit,spellCast,false,false,false,true,true,true,true,false)
-                    elseif debug == "aoe" then
-                        castDebug()
-                        return castSpell(thisUnit,spellCast,true,false,false,true,false,true,true,false)
-                    elseif thisUnit ~= nil then
-                        castDebug()
-                        return castSpell(thisUnit,spellCast,false,false,false,true,false,true,true,false)
-                    else
-                        Print("|cffFF0000Error: |r Failed to cast. - ".."Name: "..spellName..", ID: "..v..", Type: "..spellType..", Min Range: "..minRange..", Max Range: "..maxRange)
-                        return false
                     end
                 elseif (thisUnit == nil or thisUnit == "best" or thisUnit == "playerGround" or thisUnit == "targetGround") and getDistance(self.units(maxRange)) < maxRange then
                     Print("|cffFF0000Error: |r Failed to cast. - ".."Name: "..spellName..", ID: "..v..", Type: "..spellType..", Min Range: "..minRange..", Max Range: "..maxRange)

@@ -68,6 +68,7 @@ function getLineOfSight(Unit1,Unit2)
 		119072, -- Desolate Host
 		118460, -- Engine of Souls
 		--86644, -- Ore Crate from Oregorger boss
+		56754, -- Azure Serpent (Shado'pan Monestary)
 
 	}
 	for i = 1,#skipLoSTable do
@@ -388,50 +389,38 @@ function isValidTarget(Unit)
 		end
 	end
 end
-function isValidUnit(Unit)
-	local hostileOnly = isChecked("Hostiles Only")
-	if GetUnitExists(Unit) and (not UnitIsDeadOrGhost(Unit) or UnitHealth(Unit) > 0) and (not UnitIsFriend(Unit, "player") and (not hostileOnly or (hostileOnly and UnitIsEnemy(Unit, "player")) or isDummy(Unit))) 
-		and UnitCanAttack("player",Unit) and isSafeToAttack(Unit) and getLineOfSight("player", Unit) and UnitInPhase(Unit) and not isCritter(thisUnit)
-	then
-		local inCombat = UnitAffectingCombat("player") or (GetObjectExists("pet") and UnitAffectingCombat("pet"))
-		local hasThreat = hasThreat(Unit) or UnitTarget(Unit) == "player" or (GetObjectExists("pet") and (hasThreat(Unit,"pet") or UnitTarget(Unit) == "pet")) or isBurnTarget(Unit) > 0
-		-- print("Base Check Passed")
-		-- Unit is Soul Effigy
-        -- if GetObjectID(Unit) == 103679 then return true end
-        if inCombat then
-        	-- print("Player In Combat")
-        	-- Only consider Units that I have threat with or have targeted or are dummies within 8yrds when in Combat.
-			if hasThreat or UnitIsUnit(Unit,"target") or (isDummy(Unit) and (getDistance(Unit) <= 8 or UnitIsUnit(Unit,"target"))) then return true end
-		elseif not inCombat and IsInInstance() then
-			-- Only consider Units that I have threat with or I am alone and have targeted when not in Combat and in an Instance.
-			if hasThreat or (#br.friend == 1 and UnitIsUnit(Unit,"target")) then return true end
-		elseif not inCombat and not IsInInstance() then
-			-- Only consider Units that are in 20yrs or I have targeted when not in Combat and not in an Instance.
-			if getDistance(Unit) <= 20 or UnitIsUnit(Unit,"target") then return true end
-		end
-	end
-	return false
+function isTargetting(Unit,MatchUnit)
+	local unitTarget = UnitTarget(Unit)
+	if not Unit then Unit = "target" end
+	if not MatchUnit then matchName = UnitName("player") else matchName = UnitName(MatchUnit) end
+	if unitTarget ~= nil then targetName = UnitName(unitTarget) else targetName = "None" end
+	return targetName == matchName
 end
 function enemyListCheck(Unit)
 	local hostileOnly = isChecked("Hostiles Only")
-	if GetUnitExists(Unit) and not UnitIsDeadOrGhost(Unit) and (not UnitIsFriend(Unit, "player") and (not hostileOnly or (hostileOnly and UnitIsEnemy(Unit, "player")) or isDummy(Unit))) 
-		and UnitCanAttack("player",Unit) and isSafeToAttack(Unit) and UnitInPhase(Unit) and not isCritter(Unit) and getDistance(Unit) < 50
+	local distance = getDistance(Unit)
+	if not pause() and GetUnitExists(Unit) and not UnitIsDeadOrGhost(Unit) and (not UnitIsFriend(Unit, "player") 
+		and (not hostileOnly or (hostileOnly and (UnitIsEnemy(Unit, "player") or isTargetting(Unit) or isDummy(Unit))))) 
+		and UnitCanAttack("player",Unit) and isSafeToAttack(Unit) and UnitInPhase(Unit) and not isCritter(Unit) and distance < 50
 	then
 		local inCombat = UnitAffectingCombat("player") or (GetObjectExists("pet") and UnitAffectingCombat("pet"))
-		local hasThreat = hasThreat(Unit) or UnitTarget(Unit) == "player" or (GetObjectExists("pet") and (hasThreat(Unit,"pet") or UnitTarget(Unit) == "pet")) or isBurnTarget(Unit) > 0
+		local hasThreat = hasThreat(Unit) or isTargetting(Unit) or (GetObjectExists("pet") and (hasThreat(Unit,"pet") or isTargetting(Unit,"pet"))) or isBurnTarget(Unit) > 0
         if inCombat then
         	-- Only consider Units that I have threat with or have targeted or are dummies within 8yrds when in Combat.
-			if UnitIsUnit(Unit,"target") or hasThreat or (isDummy(Unit) and (getDistance(Unit) <= 8 or UnitIsUnit(Unit,"target"))) then return true end
+			if (UnitIsUnit(Unit,"target") and not hasThreat and distance < 20) or hasThreat or (isDummy(Unit) and (distance <= 8 or UnitIsUnit(Unit,"target"))) then return true end
 		elseif not inCombat and IsInInstance() then
 			-- Only consider Units that I have threat with or I am alone and have targeted when not in Combat and in an Instance.
 			if (#br.friend == 1 and UnitIsUnit(Unit,"target")) or hasThreat then return true end
 		elseif not inCombat and not IsInInstance() then
 			-- Only consider Units that are in 20yrs or I have targeted when not in Combat and not in an Instance.
-			if UnitIsUnit(Unit,"target") or getDistance(Unit) <= 20 then return true end
+			if UnitIsUnit(Unit,"target") or (distance < 20 and #br.enemy == 0) then return true end
 		end
 		-- return true
 	end
 	return false
+end
+function isValidUnit(Unit)
+	return enemyListCheck(Unit) and getLineOfSight("player", Unit)
 end
 function SpecificToggle(toggle)
 	if customToggle then

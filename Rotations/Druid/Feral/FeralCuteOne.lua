@@ -356,7 +356,7 @@ local function runRotation()
                 end
             end
         end
-        ChatOverlay("5yrds: "..tostring(units.dyn5).." | 40yrds: "..tostring(units.dyn40))
+        -- ChatOverlay("5yrds: "..tostring(units.dyn5).." | 40yrds: "..tostring(units.dyn40))
         -- ChatOverlay(round2(getDistance("target","player","dist"),2)..", "..round2(getDistance("target","player","dist2"),2)..", "..round2(getDistance("target","player","dist3"),2)..", "..round2(getDistance("target","player","dist4"),2)..", "..round2(getDistance("target"),2))
 --------------------
 --- Action Lists ---
@@ -377,7 +377,13 @@ local function runRotation()
 		        end
 			-- Aquatic Form
 			    if (not inCombat or getDistance("target") > 10) and swimming and not travel and not buff.prowl.exists() then
-				  	if cast.travelForm("player") then return end
+				  	if GetShapeshiftForm() ~= 0 and lastCast ~= spell.travelForm then
+                        -- CancelShapeshiftForm()
+                        RunMacroText("/CancelForm")
+                        if cast.travelForm("player") then return end
+                    else
+                       if cast.travelForm("player") then return end
+                    end
 				end
 			-- Cat Form
 				if not cat and not IsMounted() and not flying then
@@ -454,7 +460,7 @@ local function runRotation()
 		local function actionList_Defensive()
 			if useDefensive() and not IsMounted() and not stealth and not flight and not buff.prowl.exists() then
 		--Revive/Rebirth
-				if isChecked("Rebirth") then
+				if isChecked("Rebirth") and inCombat then
 					-- if buff.predatorySwiftness.exists() then
 						if getOptionValue("Rebirth - Target")==1
                             and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and UnitIsFriend("target","player")
@@ -468,7 +474,7 @@ local function runRotation()
 						end
 					-- end
 				end
-				if isChecked("Revive") then
+				if isChecked("Revive") and not inCombat then
 					if getOptionValue("Revive - Target")==1
                         and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and UnitIsFriend("target","player")
                     then

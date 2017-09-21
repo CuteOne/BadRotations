@@ -124,12 +124,17 @@ function getUpdateRate()
 	end
 
 	local FrameRate = GetFramerate() or 0
- 	if isChecked("Auto Delay") then	 		
-	 	if FrameRate ~= 0 and FrameRate < 30 and updateRate < 0.5  then
+ 	if isChecked("Auto Delay") then
+ 		if FrameRate ~= 0 and FrameRate < 100 then
+ 			updateRate = (100 - FrameRate)/100
+ 		else
+ 			updateRate = 0.1
+ 		end	 		
+--[[	 	if FrameRate ~= 0 and FrameRate < 30 and updateRate < 0.5  then
 	 		updateRate = updateRate + 0.1
 	 	elseif FrameRate > 80 and updateRate ~= 0.1 then
 	 		updateRate = updateRate - 0.1
-	 	end
+	 	end--]]
 	elseif getOptionValue("Bot Update Rate") == nil then 
 	 	updateRate = 0.1 else updateRate = getOptionValue("Bot Update Rate") 
 	end
@@ -143,8 +148,8 @@ function BadRotationsUpdate(self)
 	if isChecked("Talent Anywhere") then
 		talentAnywhere()
 	end
-	 local startTime = debugprofilestop()
-	 if br.updateInProgress ~= true then
+	local startTime = debugprofilestop()
+	if br.updateInProgress ~= true then
 	 	self.updateInProgress = true
 	 	local tempTime = GetTime();
 	 	if not self.lastUpdateTime then
@@ -228,7 +233,7 @@ function BadRotationsUpdate(self)
 						autoLoot()
 
 					-- Queue Casting
-						if isChecked("Queue Casting") and not UnitChannelInfo("player") then
+						if (isChecked("Queue Casting") or (br.player ~= nil and br.player.queue ~= 0)) and not UnitChannelInfo("player") then
 							-- Catch for spells not registering on Combat log
 						    if castQueue() then return end
 						end

@@ -758,6 +758,10 @@ local function runRotation()
                 if cast.barrage() then return end
             end
         -- Aimed Shot
+            -- aimed_shot,if=action.windburst.in_flight&focus+action.arcane_shot.cast_regen+cast_regen>focus.max
+            if lastSpell == spell.windburst and power + getCastingRegen(spell.arcaneShot) + getCastingRegen(spell.aimedShot) > powerMax then
+                if cast.aimedShot() then return end
+            end
             -- aimed_shot,if=debuff.vulnerability.up&buff.lock_and_load.up&(!variable.pooling_for_piercing|lowest_vuln_within.5>gcd.max)
             if debuff.vulnerable.exists(units.dyn40) and buff.lockAndLoad.exists() and (not poolForPiercing or lowestVuln > gcdMax) then
                 if cast.aimedShot() then return end

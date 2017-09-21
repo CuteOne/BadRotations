@@ -455,36 +455,6 @@ local function runRotation()
                 end 
             end -- End Use Cooldowns Check
         end -- End Action List - Cooldowns
-    -- Action List - Pre-Combat
-        local function actionList_PreCombat()
-            profileDebug = "Pre-Combat"
-        -- Flask / Crystal
-            -- flask,name=countless_armies
-            if isChecked("Flask / Crystal") and not (IsFlying() or IsMounted()) then
-                if (raid or solo) and not (buff.strenthFlaskLow or buff.strengthFlaskBig) then--Draenor Str Flasks
-                    if not UnitBuffID("player",176151) and canUse(118922) then --Draenor Insanity Crystal
-                        if br.player.useCrystal() then return end
-                    end
-                end
-            end
-        -- Food
-            -- food,type=food,name=fishbrul_special
-            -- TODO
-        -- Augmentation
-            -- augmentation,name=defiled
-            -- TODO
-        -- Potion
-            -- potion,name=old_war
-            -- TODO
-        -- Pre-pull
-            if isChecked("Pre-Pull Timer") and pullTimer <= getOptionValue("Pre-Pull Timer") then
-
-            end -- Pre-Pull
-        -- Start Attack
-            if isValidUnit("target") and not inCombat then
-                StartAttack()
-            end
-        end -- End Action List - PreCombat
     -- Action List - Breath of Sindragosa Pooling
         local function actionList_BoS_Pooling()
             profileDebug = "Breath Of Sindragosa - Pooling"
@@ -769,8 +739,10 @@ local function runRotation()
                 if cast.frostscythe() then return end
             end
         -- Obliterate
-            -- obliterate
-            if cast.obliterate() then return end
+            -- obliterate,if=!talent.gathering_storm.enabled|cooldown.remorseless_winter.remains>(gcd*2)
+            if not talent.gatheringStorm or cd.remorselessWinter > (gcd * 2) then
+                if cast.obliterate() then return end
+            end
         -- Horn of Winter
             -- horn_of_winter,if=!buff.hungering_rune_weapon.up&(rune.time_to_2>gcd|!talent.frozen_pulse.enabled)
             if not buff.hungeringRuneWeapon.exists() and (runeTimeTill(2) > gcd or not talent.frozenPulse) then
@@ -781,6 +753,11 @@ local function runRotation()
             if not (runicPower < 50 and talent.obliteration and cd.obliteration <= gcd) then
                 if cast.frostStrike() then return end
             end
+        -- Obliterate
+            -- obliterate,if=!talent.gathering_storm.enabled|talent.icy_talons.enabled
+            if not talent.gatheringStorm or talent.icyTalons then
+                if cast.obliterate() then return end
+            end
         -- Empower Rune Weapon
             -- empower_rune_weapon,if=!talent.breath_of_sindragosa.enabled|target.time_to_die<cooldown.breath_of_sindragosa.remains
             if isChecked("Empower/Hungering Rune Weapon") and useCDs() then
@@ -788,7 +765,37 @@ local function runRotation()
                     if cast.empowerRuneWeapon() then return end
                 end
             end
-        end -- End Action List - Machine Gun
+        end -- End Action List - Standard
+    -- Action List - Pre-Combat
+        local function actionList_PreCombat()
+            profileDebug = "Pre-Combat"
+        -- Flask / Crystal
+            -- flask,name=countless_armies
+            if isChecked("Flask / Crystal") and not (IsFlying() or IsMounted()) then
+                if (raid or solo) and not (buff.strenthFlaskLow or buff.strengthFlaskBig) then--Draenor Str Flasks
+                    if not UnitBuffID("player",176151) and canUse(118922) then --Draenor Insanity Crystal
+                        if br.player.useCrystal() then return end
+                    end
+                end
+            end
+        -- Food
+            -- food,type=food,name=fishbrul_special
+            -- TODO
+        -- Augmentation
+            -- augmentation,name=defiled
+            -- TODO
+        -- Potion
+            -- potion,name=old_war
+            -- TODO
+        -- Pre-pull
+            if isChecked("Pre-Pull Timer") and pullTimer <= getOptionValue("Pre-Pull Timer") then
+
+            end -- Pre-Pull
+        -- Start Attack
+            if isValidUnit("target") and not inCombat then
+                StartAttack()
+            end
+        end -- End Action List - PreCombat
 ---------------------
 --- Begin Profile ---
 ---------------------
