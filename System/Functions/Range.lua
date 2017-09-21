@@ -17,9 +17,8 @@ function getDistance(Unit1,Unit2,option)
         end
     end
     -- Check if objects exists and are visible
-    if GetObjectExists(Unit1) and GetUnitIsVisible(Unit1) == true and (Unit1 == "player" or UnitIsUnit(Unit1,"target") or br.enemy[Unit1] ~= nil)
-        and GetObjectExists(Unit2) and GetUnitIsVisible(Unit2) == true and (Unit2 == "player" or UnitIsUnit(Unit2,"target") or br.enemy[Unit2] ~= nil)
-        and Unit1 ~= Unit2
+    if GetObjectExists(Unit1) and GetUnitIsVisible(Unit1) == true 
+        and GetObjectExists(Unit2) and GetUnitIsVisible(Unit2) == true 
     then
     -- Get the distance
         local X1,Y1,Z1 = GetObjectPosition(Unit1)

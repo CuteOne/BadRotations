@@ -301,8 +301,8 @@ end
 function hasThreat(unit,playerUnit)
 	if unit == nil then unit = "target" end
 	if playerUnit == nil then playerUnit = "player" end
-	if UnitTarget(unit) == nil then targetOfTarget = false; targetFriend = false else targetOfTarget = UnitTarget(unit) end
-	-- local targetOfTarget = UnitTarget(unit)
+	local targetUnit = UnitTarget(GetUnit(unit))
+	if targetUnit == nil then targetOfTarget = false; targetFriend = false else targetOfTarget = targetUnit end
 	if targetOfTarget then targetFriend = (UnitInParty(targetOfTarget) or UnitInRaid(targetOfTarget) or UnitName(targetOfTarget) == UnitName("player")) else targetFriend = false end
 	if #br.friend > 1 then
 		for i = 1, #br.friend do
@@ -314,8 +314,7 @@ function hasThreat(unit,playerUnit)
 				end
 			end
 		end
-	end
-	if UnitDetailedThreatSituation(playerUnit, unit)~=nil and targetFriend then
+	elseif UnitDetailedThreatSituation(playerUnit, unit)~=nil then
 		if select(3,UnitDetailedThreatSituation(playerUnit, unit)) > 0 then 
 			if isChecked("Cast Debug") and not UnitExists("target") then Print(UnitName(unit).." is threatening you."); end 
 			return true 

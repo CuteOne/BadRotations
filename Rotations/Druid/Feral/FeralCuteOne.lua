@@ -237,7 +237,7 @@ local function runRotation()
         local solo                                          = #br.friend < 2
         local friendsInRange                                = friendsInRange
         local spell                                         = br.player.spell
-        local stealth                                       = br.player.stealth
+        local stealth                                       = br.player.buff.prowl.exists() or br.player.buff.shadowmeld.exists()
         local t18_2pc                                       = TierScan("T18")>=2 --br.player.eq.t18_2pc
         local t18_4pc                                       = TierScan("T18")>=4 --br.player.eq.t18_4pc
         local t19_2pc                                       = TierScan("T19")>=2
@@ -680,7 +680,7 @@ local function runRotation()
                     end
                 end
         -- Prowl
-                if useCDs() and talent.incarnationKingOfTheJungle and buff.incarnationKingOfTheJungle.exists() and freeProwl and not solo and friendsInRange > 0 then
+                if useCDs() and talent.incarnationKingOfTheJungle and buff.incarnationKingOfTheJungle.exists() and freeProwl and not buff.prowl.exists() and not solo and friendsInRange > 0 then
                     if cast.prowl() then freeProwl = false; return end
                 end
         -- Potion
@@ -853,7 +853,7 @@ local function runRotation()
                     end
                 end     
         -- Prowl
-                if useCDs() and talent.incarnationKingOfTheJungle and buff.incarnationKingOfTheJungle.exists() and freeProwl and not solo and friendsInRange > 0 then
+                if useCDs() and talent.incarnationKingOfTheJungle and buff.incarnationKingOfTheJungle.exists() and freeProwl and not buff.prowl.exists() and not solo and friendsInRange > 0 then
                     if cast.prowl() then freeProwl = false; return end
                 end      
             end -- End useCooldowns check
@@ -1348,7 +1348,7 @@ local function runRotation()
         -- TODO: food,type=nightborne_delicacy_platte
         -- TOOD: augmentation,type=defiled
         -- Prowl - Non-PrePull
-                    if cat and #enemies.yards20 > 0 and mode.prowl == 1  and not IsResting() and GetTime()-leftCombat > lootDelay then
+                    if cat and #enemies.yards20 > 0 and mode.prowl == 1 and not buff.prowl.exists() and not IsResting() and GetTime()-leftCombat > lootDelay then
                         for i = 1, #enemies.yards20 do
                             local thisUnit = enemies.yards20[i]
                             if UnitIsEnemy(thisUnit,"player") or isDummy("target") then
@@ -1376,7 +1376,7 @@ local function runRotation()
 		-- Incarnation - King of the Jungle
 					if cast.incarnationKingOfTheJungle() then return end
         -- Prowl
-                    if buff.bloodtalons.exists() and mode.prowl == 1 then
+                    if buff.bloodtalons.exists() and mode.prowl == 1 and not buff.prowl.exists() then
                         if cast.prowl("player") then return end
                     end
                     if buff.prowl.exists() then

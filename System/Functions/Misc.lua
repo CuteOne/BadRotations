@@ -375,7 +375,7 @@ end
 
 -- if isValidTarget("target") then
 function isValidTarget(Unit)
-	if UnitIsEnemy("player",Unit) then
+	if UnitIsEnemy("player",Unit) or isDummy(Unit) then
 		if GetUnitExists(Unit) and not UnitIsDeadOrGhost(Unit) then
 			return true
 		else
@@ -390,8 +390,7 @@ function isValidTarget(Unit)
 	end
 end
 function isTargetting(Unit,MatchUnit)
-	local unitTarget = UnitTarget(Unit)
-	if not Unit then Unit = "target" end
+	local unitTarget = UnitTarget(GetUnit(Unit))
 	if not MatchUnit then matchName = UnitName("player") else matchName = UnitName(MatchUnit) end
 	if unitTarget ~= nil then targetName = UnitName(unitTarget) else targetName = "None" end
 	return targetName == matchName
@@ -403,8 +402,8 @@ function enemyListCheck(Unit)
 		and (not hostileOnly or (hostileOnly and (UnitIsEnemy(Unit, "player") or isTargetting(Unit) or isDummy(Unit))))) 
 		and UnitCanAttack("player",Unit) and isSafeToAttack(Unit) and UnitInPhase(Unit) and not isCritter(Unit) and distance < 50
 	then
-		local inCombat = UnitAffectingCombat("player") or (GetObjectExists("pet") and UnitAffectingCombat("pet"))
-		local hasThreat = hasThreat(Unit) or isTargetting(Unit) or (GetObjectExists("pet") and (hasThreat(Unit,"pet") or isTargetting(Unit,"pet"))) or isBurnTarget(Unit) > 0
+		local inCombat = UnitAffectingCombat("player") or (GetUnitExists("pet") and UnitAffectingCombat("pet"))
+		local hasThreat = hasThreat(Unit) or isTargetting(Unit) or (GetUnitExists("pet") and (hasThreat(Unit,"pet") or isTargetting(Unit,"pet"))) or isBurnTarget(Unit) > 0
         if inCombat then
         	-- Only consider Units that I have threat with or have targeted or are dummies within 8yrds when in Combat.
 			if (UnitIsUnit(Unit,"target") and not hasThreat and (#br.friend == 1 or distance < 20)) or hasThreat or (isDummy(Unit) and (distance <= 8 or UnitIsUnit(Unit,"target"))) then return true end
