@@ -1928,6 +1928,7 @@ br.idList = {
                 innervate                   = 29166;
                 overloadedWithLight         = 223166,
                 powerInfusion               = 10060,
+                powerWordShield             = 17,
                 rapture                     = 47536,
                 symbolOfHope                = 64901;
             },
