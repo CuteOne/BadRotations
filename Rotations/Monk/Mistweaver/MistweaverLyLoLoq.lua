@@ -743,7 +743,8 @@ local function runRotation()
                     {spellID = 236603   ,   stacks = 0   ,   secs = 4},   --Rapid Shot
                     {spellID = 236712   ,   stacks = 0   ,   secs = 2},   --Lunar Beacon
                     {spellID = 242017   ,   stacks = 2   ,   secs = 6},   --Black Winds
-                    {spellID = 240915   ,   stacks = 0   ,   secs = 6}    --Armageddon hail
+                    {spellID = 240915   ,   stacks = 0   ,   secs = 6},   --Armageddon hail
+                    {spellID = 235117   ,   stacks = 0   ,   secs = 7}    --unstable-soul
 				}
 				for i=1, #br.friend do
 					for k,v in pairs(debuff_list) do
