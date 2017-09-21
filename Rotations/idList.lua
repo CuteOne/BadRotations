@@ -1916,6 +1916,7 @@ br.idList = {
                 shadowWordPain              = 589,
                 shiningForce                = 204263,
                 sinsOfTheMany               = 198076,
+                smite                       = 585,
             },
             artifacts                       = {
                 sinsOfTheMany               = 198074,
