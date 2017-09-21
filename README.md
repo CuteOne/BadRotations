@@ -14,7 +14,7 @@ BadRotations Maintained By: CuteOne
 
 -- Intro --
 
-BadRotations is maintained by CuteOne with additional contributions from other developers who worked on combat rotation bots such as PQR, ProbablyEngine, and others. While it is more of a developer playground as compared to the more "for profit" bots this is free to use and we feel it is just as good, if not better, than the bots you pay money for. Don't agree? Feel free to post any issues you have and we will do our best to resolve them. **Please note that FireHack/Easy WoW Toolbox is required to use this.**
+BadRotations is maintained by CuteOne with additional contributions from other developers who worked on combat rotation bots such as PQR, ProbablyEngine, and others. While it is more of a developer playground as compared to the more "for profit" bots this is free to use and we feel it is just as good, if not better, than the bots you pay money for. Don't agree? Feel free to post any issues you have and we will do our best to resolve them. **Please note that FireHack/Easy WoW Toolbox/wToolkit is required to use this.**
 
 -- Features --
 
