@@ -303,7 +303,7 @@ local function runRotation()
         end
 
         -- Mind Flay Ticks
-        local mfTick
+        --local mfTick
         if mfTick == nil or not inCombat or not isCastingSpell(spell.mindFlay) then mfTick = 0 end
         if br.timer:useTimer("Mind Flay Ticks", 0.75) and isCastingSpell(spell.mindFlay) then
             mfTick = mfTick + 1
@@ -827,7 +827,6 @@ local function runRotation()
                         end
                     end
                 end
-                Print("cast SWP last resort")
                 lastCastTrackerSpell = spell.shadowWordPain
                 lastCastTrackerUnit = units.dyn40
                 lastCastTrackerTime = GetTime()
@@ -1304,7 +1303,7 @@ local function runRotation()
         -- Mind Flay
             -- mind_flay,chain=1,interrupt_immediate=1,interrupt_if=ticks>=2&(action.void_bolt.usable|(current_insanity_drain*gcd.max>insanity&(insanity-(current_insanity_drain*gcd.max)+30)<100&cooldown.shadow_word_death.charges>=1))
             if isCastingSpell(spell.mindFlay) and mfTick >= 2 and (cd.voidBold == 0 or (insanityDrain * gcdMax > power and (power - (insanityDrain * gcdMax) + 30) < 100 and charges.shadowWordDeath >= 1)) then
-                if cast.mindFlay(units.dyn40) then return end                
+                return true               
             elseif not moving then
                 if cast.mindFlay(units.dyn40) then return end
             end
@@ -1318,7 +1317,7 @@ local function runRotation()
     -- Profile Stop | Pause
         if not inCombat and not hastar and profileStop==true then
             profileStop = false
-        elseif (inCombat and profileStop==true) or IsMounted() or IsFlying() or pause(true) or mode.rotation==4 or buff.void.exists() then
+        elseif (inCombat and profileStop==true) or IsMounted() or IsFlying() or (pause(true) and not isCastingSpell(spell.mindFlay)) or mode.rotation==4 or buff.void.exists() then
             return true
         else
 -----------------
