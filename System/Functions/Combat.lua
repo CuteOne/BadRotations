@@ -299,12 +299,11 @@ function hasNoControl(spellID,unit)
 end
 -- if hasThreat("target") then
 function hasThreat(unit,playerUnit)
-	local unit = unit or "target"
-	local playerUnit = playerUnit or "player"
-	local targetOfTarget = UnitTarget(unit)
+	if unit == nil then unit = "target" end
+	if playerUnit == nil then playerUnit = "player" end
+	if UnitTarget(unit) == nil then targetOfTarget = false; targetFriend = false else targetOfTarget = UnitTarget(unit) end
+	-- local targetOfTarget = UnitTarget(unit)
 	if targetOfTarget then targetFriend = (UnitInParty(targetOfTarget) or UnitInRaid(targetOfTarget) or UnitName(targetOfTarget) == UnitName("player")) else targetFriend = false end
-	-- if GetObjectExists("targettarget") and GetObjectExists(unit) then targetOfTarget = UnitTarget(unit) else targetOfTarget = "player" end
-	-- if GetObjectExists(targetOfTarget) then targetFriend = (UnitInParty(targetOfTarget) or UnitInRaid(targetOfTarget)) else targetFriend = false end
 	if #br.friend > 1 then
 		for i = 1, #br.friend do
 			local thisUnit = br.friend[i].unit
