@@ -527,7 +527,6 @@ function isCastingSpell(spellID,unit)
 		spellCasting = select(1,UnitChannelInfo(unit))
 	end
 	if tostring(spellCasting) == tostring(spellName) then
-		Print(spellName.." | "..spellCasting)
 		return true
 	else
 		return false

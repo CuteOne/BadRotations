@@ -398,9 +398,9 @@ end
 function enemyListCheck(Unit)
 	local hostileOnly = isChecked("Hostiles Only")
 	local distance = getDistance(Unit)
-	if not pause() and GetUnitExists(Unit) and not UnitIsDeadOrGhost(Unit) and (not UnitIsFriend(Unit, "player") 
-		and (not hostileOnly or (hostileOnly and (UnitIsEnemy(Unit, "player") or isTargetting(Unit) or isDummy(Unit))))) 
-		and UnitCanAttack("player",Unit) and isSafeToAttack(Unit) and UnitInPhase(Unit) and not isCritter(Unit) and distance < 50
+	if not pause(true) and GetUnitExists(Unit) and not UnitIsDeadOrGhost(Unit) and UnitInPhase(Unit) and distance < 50
+		and (not UnitIsFriend(Unit, "player") and (not hostileOnly or (hostileOnly and (UnitIsEnemy(Unit, "player") or isTargetting(Unit) or isDummy(Unit))))) 
+		and UnitCanAttack("player",Unit) and isSafeToAttack(Unit) and not isCritter(Unit)
 	then
 		local inCombat = UnitAffectingCombat("player") or (GetUnitExists("pet") and UnitAffectingCombat("pet"))
 		local hasThreat = hasThreat(Unit) or isTargetting(Unit) or (GetUnitExists("pet") and (hasThreat(Unit,"pet") or isTargetting(Unit,"pet"))) or isBurnTarget(Unit) > 0
@@ -414,7 +414,6 @@ function enemyListCheck(Unit)
 			-- Only consider Units that are in 20yrs or I have targeted when not in Combat and not in an Instance.
 			if UnitIsUnit(Unit,"target") or (distance < 20 and #br.enemy == 0) then return true end
 		end
-		-- return true
 	end
 	return false
 end
