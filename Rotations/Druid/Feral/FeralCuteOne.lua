@@ -892,7 +892,7 @@ local function runRotation()
                     elseif MF1 and not SR1 and (power >= 40 or buff.clearcasting.exists()) then
        		-- Savage Roar
                         -- savage_roar,if=!buff.savage_roar.up
-                        if not buff.savageRoar.exists() then
+                        if buff.savageRoar.refresh() then
        					    if castOpener("savageRoar","SR1",3) then return end
                         else
                             Print("3: Savage Roar (Uncastable)")
@@ -957,7 +957,7 @@ local function runRotation()
                             Print("9: Thrash (Uncastable)")
                             THR1 = true
                         end
-                    elseif THR1 and (not SHR1 or combo < 5) and (power >= 40 or buff.clearcasting.exists()) and (buff.savageRoar.exists() or not talent.savageRoar) and not hasEquiped(140808) then
+                    elseif THR1 and (not SHR1 or (combo < 5 and (buff.savageRoar.exists() or not talent.savageRoar))) and (power >= 40 or buff.clearcasting.exists()) and not hasEquiped(140808) then
             -- Shred
                         if shredCount == nil then shredCount = 10 end
                         if castOpener("shred","SHR1",shredCount) then shredCount = shredCount + 1 return end
