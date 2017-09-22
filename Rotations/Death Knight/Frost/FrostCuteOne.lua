@@ -66,8 +66,8 @@ local function createOptions()
         --- COOLDOWN OPTIONS ---
         ------------------------
         section = br.ui:createSection(br.ui.window.profile,  "Cooldowns")
-            -- Flask / Crystal
-            br.ui:createCheckbox(section,"Flask / Crystal")
+            -- Elixir
+            br.ui:createDropdownWithout(section,"Elixir", {"Flask of Countless Armies","Repurposed Fel Focuser","Oralius' Whispering Crystal","None"}, 1, "|cffFFFFFFSet Elixir to use.")
             -- Potion
             br.ui:createCheckbox(section,"Potion")
             -- Racial
@@ -770,6 +770,23 @@ local function runRotation()
         local function actionList_PreCombat()
             profileDebug = "Pre-Combat"
         -- Flask / Crystal
+            -- flask,type=flask_of_the_countless_armies
+            if getOptionValue("Elixir") == 1 and inRaid and not buff.flaskOfTheCountlessArmies.exists() then
+                if buff.whispersOfInsanity.exists() then buff.whispersOfInsanity.cancel() end
+                if buff.felFocus.exists() then buff.felFocus.cancel() end
+                if use.flaskOfTheCountlessArmies() then return end
+            end
+            if getOptionValue("Elixir") == 2 and not buff.felFocus.exists() then
+                if buff.flaskOfTheCountlessArmies.exists() then buff.flaskOfTheCountlessArmies.cancel() end
+                if buff.whispersOfInsanity.exists() then buff.whispersOfInsanity.cancel() end
+                if use.repurposedFelFocuser() then return end
+            end
+            if getOptionValue("Elixir") == 3 and not buff.whispersOfInsanity.exists() then
+                if buff.flaskOfTheCountlessArmies.exists() then buff.flaskOfTheCountlessArmies.cancel() end
+                if buff.felFocus.exists() then buff.felFocus.cancel() end
+                if use.oraliusWhisperingCrystal() then return end
+            end
+        -- Flask / Crystal
             -- flask,name=countless_armies
             if isChecked("Flask / Crystal") and not (IsFlying() or IsMounted()) then
                 if (raid or solo) and not (buff.strenthFlaskLow or buff.strengthFlaskBig) then--Draenor Str Flasks
@@ -802,7 +819,7 @@ local function runRotation()
     -- Profile Stop | Pause
         if not inCombat and not hastar and profileStop==true then
             profileStop = false
-        elseif (inCombat and profileStop==true) or pause() or mode.rotation==4 then
+        elseif (inCombat and profileStop==true) or IsFlying() or IsMounted() or pause() or mode.rotation==4 then
             return true
         else
 -----------------------
