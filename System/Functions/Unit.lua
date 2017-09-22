@@ -1,11 +1,11 @@
 function GetObjectExists(Unit)
 	if Unit == nil then return false end
-	if FireHack and not EWT then
+	if FireHack and not (EWT or Toolkit_GetVersion) then
         if Unit == "target" or Unit == "targettarget" then
             if not GetUnitExists(Unit) then return false end
         end
 		return ObjectIsVisible(Unit)
-	elseif EWT then
+	elseif EWT or Toolkit_GetVersion then
 		if Unit == "target" or Unit == "targettarget" then
             if not GetUnitExists(Unit) then return false end
         end
@@ -15,10 +15,12 @@ function GetObjectExists(Unit)
 	end
 end
 function GetUnit(Unit)
-	if (EWT or Toolkit_GetVersion) and not FireHack then
-		return Unit
-	elseif Unit ~= nil --[[and Unit ~= "*" and (Unit ~= "target" or GetUnitExists("target"))--]] and ObjectIsVisible(Unit) then
-		return ObjectIdentifier(Unit)
+	if Unit ~= nil and GetObjectExists(Unit) then
+		if (EWT or Toolkit_GetVersion) and not FireHack then
+			return Unit
+		elseif FireHack and not (EWT or Toolkit_GetVersion) then
+			return ObjectIdentifier(Unit)
+		end
 	else
 		return nil
 	end

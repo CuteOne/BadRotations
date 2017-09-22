@@ -48,6 +48,8 @@ function getLineOfSight(Unit1,Unit2)
 		end
 	end
 	local skipLoSTable = {
+		56754, -- Azure Serpent (Shado'pan Monestary)
+		56895, -- Weak Spot - Raigon (Gate of the Setting Sun)
 		76585, 	-- Ragewing
 		77692, 	-- Kromog
 		77182, 	-- Oregorger
@@ -68,7 +70,6 @@ function getLineOfSight(Unit1,Unit2)
 		119072, -- Desolate Host
 		118460, -- Engine of Souls
 		--86644, -- Ore Crate from Oregorger boss
-		56754, -- Azure Serpent (Shado'pan Monestary)
 
 	}
 	for i = 1,#skipLoSTable do

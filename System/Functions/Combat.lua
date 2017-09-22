@@ -303,7 +303,7 @@ function hasThreat(unit,playerUnit)
 	if playerUnit == nil then playerUnit = "player" end
 	if targetUnit == nil then targetOfTarget = false; targetFriend = false else targetOfTarget = targetUnit end
 	if targetOfTarget then targetFriend = (UnitInParty(targetOfTarget) or UnitInRaid(targetOfTarget) or UnitName(targetOfTarget) == UnitName("player")) else targetFriend = false end
-	if unit ~= nil and ObjectIsVisible(unit) then
+	if unit ~= nil and GetObjectExists(unit) then
 		if #br.friend > 1 then
 			for i = 1, #br.friend do
 				local thisUnit = br.friend[i].unit
