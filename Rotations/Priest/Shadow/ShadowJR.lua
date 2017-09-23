@@ -320,8 +320,6 @@ local function runRotation()
 
         drainStacks = buff.voidForm.stack() - nonDrainTicks
 
-        print("Stacks: VF="..buff.voidForm.stack().." Drain="..drainStacks)
-
         -- Mind Flay Ticks
         --local mfTick
         if mfTick == nil or not inCombat or not isCastingSpell(spell.mindFlay) then mfTick = 0 end
