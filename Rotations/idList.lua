@@ -404,6 +404,7 @@ br.idList = {
                 soulFragments               = 203981,
                 metamorphosis               = 187827,
                 feastofSouls                = 207693,
+				siphonedPower               = 218561,
             },
             debuffs                         = {
                 fieryBrand                  = 207744,
