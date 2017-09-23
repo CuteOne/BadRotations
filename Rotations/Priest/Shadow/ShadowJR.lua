@@ -311,12 +311,16 @@ local function runRotation()
         end
 
         -- Insanity Stacks
-        if buff.voidForm.stack() == 0 then drainStacks = 0 end
-        if inCombat and buff.voidForm.stack() > 0 and not (buff.dispersion.exists() or buff.voidTorrent.exists()) then
+        if buff.voidForm.stack() == 0 then nonDrainTicks = 0 end
+        if inCombat and (buff.dispersion.exists() or buff.voidTorrent.exists()) then
             if br.timer:useTimer("drainStacker", 1) then
-                drainStacks = drainStacks + 1
+                nonDrainTicks = nonDrainTicks + 1
             end
         end
+
+        drainStacks = buff.voidForm.stack() - nonDrainTicks
+
+        print("Stacks: VF="..buff.voidForm.stack().." Drain="..drainStacks)
 
         -- Mind Flay Ticks
         --local mfTick
@@ -791,7 +795,7 @@ local function runRotation()
         -- Shadow Word: Death
             -- shadow_word_death,if=(active_enemies<=4|(talent.reaper_of_souls.enabled&active_enemies<=2))&cooldown.shadow_word_death.charges=2&insanity<=(85-15*talent.reaper_of_souls.enabled)
             if (activeEnemies <= 4 or (talent.reaperOfSouls and (activeEnemies <= 2 or mode.rotation == 3)))
-                and charges.shadowWordDeath == 2 and power <= (85 - 15 * reaperOfSouls)
+                and charges.shadowWordDeath == 2 and (power <= (85 - 15 * reaperOfSouls) or mode.voidForm == 2)
             then
                 -- If Zeks Exterminatus (legendary cloak) has procced, SW:D is castable on any target, regardless of HP
                 if getHP(units.dyn40) < executeHP  or buff.zeksExterminatus.exists() then
@@ -809,7 +813,7 @@ local function runRotation()
             end
         -- Mind Blast
             -- mind_blast,if=active_enemies<=4&talent.legacy_of_the_void.enabled&(insanity<=81|(insanity<=75.2&talent.fortress_of_the_mind.enabled))
-            if activeEnemies <= 4 and not moving and talent.legacyOfTheVoid and ((power <= 81 or (power <= 75.2 and talent.fortressOfTheMind)) or vode.voidForm == 2)
+            if activeEnemies <= 4 and not moving and talent.legacyOfTheVoid and ((power <= 81 or (power <= 75.2 and talent.fortressOfTheMind)) or mode.voidForm == 2)
                 and not recentlyCast(units.dyn40, spell.mindBlast, 0.9*gcdMax) 
             then
                 if cast.mindBlast(units.dyn40) then 
@@ -821,7 +825,7 @@ local function runRotation()
             end
         -- Mind Blast
             -- mind_blast,if=active_enemies<=4&!talent.legacy_of_the_void.enabled|(insanity<=96|(insanity<=95.2&talent.fortress_of_the_mind.enabled))
-            if activeEnemies <= 4 and not moving and not talent.legacyOfTheVoid and (power <= 96 or ((power <= 95.2 and talent.fortressOfTheMind)) or vode.voidForm == 2)
+            if activeEnemies <= 4 and not moving and not talent.legacyOfTheVoid and (power <= 96 or ((power <= 95.2 and talent.fortressOfTheMind)) or mode.voidForm == 2)
                 and not recentlyCast(units.dyn40, spell.mindBlast, 0.9*gcdMax) 
             then
                 if cast.mindBlast(units.dyn40) then 
@@ -885,7 +889,7 @@ local function runRotation()
             end
         -- Shadow Word: Void
             -- shadow_word_void,if=talent.shadow_word_void.enabled&(insanity<=75-10*talent.legacy_of_the_void.enabled)
-            if talent.shadowWordVoid and ((power <= 75 - 10 * legacyOfTheVoid) or vode.voidForm == 2) then
+            if talent.shadowWordVoid and ((power <= 75 - 10 * legacyOfTheVoid) or mode.voidForm == 2) then
                 if cast.shadowWordVoid(units.dyn40) then return end
             end
         -- Mind Flay
