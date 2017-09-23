@@ -1,6 +1,6 @@
 -- if canUse(1710) then
 function canUse(itemID)
-	if itemID==0 then return false end
+	if itemID==0 or getHP("player") == 0 then return false end
 	if (GetItemCount(itemID,false,false) > 0 or PlayerHasToy(itemID) or itemID<19) then
 		if itemID<=19 then
 			if GetItemSpell(GetInventoryItemID("player",itemID))~=nil then
