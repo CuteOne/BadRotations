@@ -80,6 +80,7 @@ function frame:OnEvent(event, arg1, arg2, arg3, arg4, arg5)
 	                    for i = 1, #br.player.queue do
 	                        if GetSpellInfo(spell) == GetSpellInfo(br.player.queue[i].id) then
 	                            tremove(br.player.queue,i)
+	                            if IsAoEPending() then SpellSpotTargeting() end
 	                            if not isChecked("Mute Queue") then
 	                            	Print("Cast Success! - Removed |cFFFF0000"..spellName.."|r from the queue.")
 	                            end

@@ -437,36 +437,40 @@ br.idList = {
         -- All
         Shared = {
             abilities                       = {
-                consumeMagic                    = 183752,
-                felblade                        = 232893,
-                felEruption                     = 211881,
-                glide                           = 131347,
-                imprison                        = 217832,
-                spectralSight                   = 188501,
+                consumeMagic                = 183752,
+                felblade                    = 232893,
+                felEruption                 = 211881,
+                glide                       = 131347,
+                imprison                    = 217832,
+                spectralSight               = 188501,
             },
             artifacts                       = {
 
             },
             buffs                           = {
-                glide                           = 131347,
+                gazeOfTheLegion             = 193456,
+                glide                       = 131347,
             },
             debuffs                         = {
 
             },
             glyphs                          = {
-                glyphOfCracklingFlames          = 219831,
-                glyphOfFallowWings              = 220083,
-                glyphOfFearsomeMetamorphosis    = 220831,
-                glyphOfFelTouchedSouls          = 219713,
-                glyphOfFelWings                 = 220228,
-                glyphOfFelEnemies               = 220240,
-                glyphOfManaTouchedSouls         = 219744,
-                glyphOfShadowEnemies            = 220244,
-                glyphOfTatteredWings            = 220226,
+                glyphOfCracklingFlames      = 219831,
+                glyphOfFallowWings          = 220083,
+                glyphOfFearsomeMetamorphosis= 220831,
+                glyphOfFelTouchedSouls      = 219713,
+                glyphOfFelWings             = 220228,
+                glyphOfFelEnemies           = 220240,
+                glyphOfManaTouchedSouls     = 219744,
+                glyphOfShadowEnemies        = 220244,
+                glyphOfTatteredWings        = 220226,
+            },
+            items                           = {
+                gazeOfTheLegion             = 129192,
             },
             talents                         = {
-                felblade                        = 232893,
-                felEruption                     = 211881,
+                felblade                    = 232893,
+                felEruption                 = 211881,
             },
         },
     },
