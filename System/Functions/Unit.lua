@@ -130,6 +130,23 @@ function UnitIsTappedByPlayer(mob)
 		return false
 	end
 end
+function getSpellUnit(spellCast)
+	local spellName,_,_,_,_,maxRange = GetSpellInfo(spellCast)
+	local spellType = getSpellType(spellName)
+	if maxRange == nil or maxRange == 0 then maxRange = 5 end
+    if spellType == "Helpful" then
+        thisUnit = "player"
+    elseif spellType == "Harmful" or spellType == "Both" then  
+        thisUnit = br.player.units(maxRange) 
+    elseif spellType == "Unknown" and getDistance(br.player.units(maxRange)) < maxRange then
+        if castSpell(br.player.units(maxRange),spellCast,false,false,false,false,false,false,false,true) then 
+            thisUnit = br.player.units(maxRange)
+        elseif castSpell("player",spellCast,false,false,false,false,false,false,false,true) then
+            thisUnit = "player"
+        end 
+    end
+    return thisUnit
+end
 -- if getCreatureType(Unit) == true then
 function getCreatureType(Unit)
 	local CreatureTypeList = {"Critter","Totem","Non-combat Pet","Wild Pet"}

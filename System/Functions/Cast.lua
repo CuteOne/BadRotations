@@ -262,55 +262,19 @@ end
 function castQueue()
 	-- Catch for spells not registering on Combat log
 	if br.player ~= nil then
-		if br.player.queue ~= nil and #br.player.queue > 0 then
-			for i = 1, #br.player.queue do
-				local queueIndex = br.player.queue[i]
-				local spellCast = queueIndex.id
-			    local spellName = GetSpellInfo(queueIndex.id)
-			    local minRange 	= select(5,GetSpellInfo(spellName))
-			    local maxRange 	= select(6,GetSpellInfo(spellName))
-			    local thisUnit 	= queueIndex.target
-				if spellCast ~= lastSpellCast then
-				    -- Can the spell be cast
-				    if not select(2,IsUsableSpell(spellCast)) and getSpellCD(spellCast) == 0 and isKnown(spellCast) then
-					    -- Find Best Target for Range 
-					    if IsHelpfulSpell(spellName) then
-					    	if thisUnit == nil or not UnitIsFriend(thisUnit,"player") then
-					        	thisUnit = "player"
-					        end
-					        amIinRange = true
-					    elseif thisUnit == nil then
-					        if IsUsableSpell(spellCast) and isKnown(spellCast) then
-					            if maxRange ~= nil and maxRange > 0 then
-					                thisUnit = "target" --dynamicTarget(maxRange, true)
-					                amIinRange = getDistance(thisUnit) < maxRange
-					            else
-					                thisUnit = "target" --dynamicTarget(5, true)
-					                amIinRange = getDistance(thisUnit) < 5
-					            end
-					        end
-					    elseif IsSpellInRange(spellName,thisUnit) == nil then
-					        amIinRange = true
-					    else
-					        amIinRange = IsSpellInRange(spellName,thisUnit) == 1
-					    end
-					    -- Cast if able
-					    if amIinRange then
-				            if thisUnit == nil then thisUnit = "player" end
-					        if UnitIsDeadOrGhost(thisUnit) then
-					            castSpell(thisUnit,spellCast,false,false,false,false,true)
-					            return true
-					        else
-					            Print("Casting Spell: "..spellName)
-					            castSpell(thisUnit,spellCast,false,false,false)
-					            return true
-					        end
-					    end
-					end
-				end
+		if br.player.queue ~= nil and #br.player.queue > 0 and not IsAoEPending() then
+			local spellID = br.player.queue[1].id
+			local spellName,_,texture = GetSpellInfo(spellID)
+			local thisUnit = br.player.queue[1].target
+			CastSpellByName(spellName,thisUnit)
+			if getOptionCheck("Start/Stop BadRotations") then
+				mainButton:SetNormalTexture(texture)
+				lastSpellCast = spellID
+				lastSpellTarget = UnitGUID(thisUnit)
 			end
 		end
 	end
+	return
 end
 --[[castSpellMacro(Unit,SpellID,FacingCheck,MovementCheck,SpamAllowed,KnownSkip)
 Parameter 	Value

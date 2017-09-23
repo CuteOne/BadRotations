@@ -230,11 +230,11 @@ local function runRotation()
         local function actionList_PetManagement()
             if IsMounted() or IsFlying() or UnitOnTaxi("player") or UnitInVehicle("player") then
                 waitForPetToAppear = GetTime()
-            elseif isChecked("Auto Summon") and not GetUnitExists("pet") and (UnitIsDeadOrGhost("pet") ~= nil or IsPetActive() == false) then
+            elseif isChecked("Auto Summon") and not GetUnitExists("pet") and (not UnitIsDeadOrGhost("pet") or IsPetActive() == false) then
                 if waitForPetToAppear ~= nil and GetTime() - waitForPetToAppear > 2 then
-                    if deadPet == true then
+                    if deadPet then
                         if cast.revivePet() then return end
-                    elseif deadPet == false then
+                    elseif not deadPet then
                         local Autocall = getValue("Auto Summon");
                         if Autocall == 1 then
                             if cast.callPet1() then return end
@@ -260,7 +260,7 @@ local function runRotation()
                 if cast.revivePet() then return; end
             end
             -- Mend Pet
-            if isChecked("Mend Pet") and getHP("pet") < getValue("Mend Pet") and not UnitBuffID("pet",136) then
+            if isChecked("Mend Pet") and GetUnitExists("pet") and not UnitIsDeadOrGhost("pet") and getHP("pet") < getValue("Mend Pet") and not UnitBuffID("pet",136) then
                 if cast.mendPet() then return; end
             end
             -- Pet Attack / retreat

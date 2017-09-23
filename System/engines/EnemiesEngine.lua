@@ -105,6 +105,7 @@ function FindEnemy()
 		-- Cycle the Object Manager
 		if FireHack ~= nil and objectCount > 0 then
 			for i = 1, objectCount do
+				-- if i == 1 then Print("Cycling OM") end
 				-- define our unit
 				local thisUnit = GetObjectWithIndex(i)
 				local enemyListCheck = enemyListCheck
@@ -112,11 +113,16 @@ function FindEnemy()
 				-- local t=UnitTarget(o) 
 				-- if t then print(UnitName(o), UnitName(t)) end
 				-- check if it a unit first
-				if (not EWT and (ObjectIsType(thisUnit, ObjectType.Unit) or GetObjectID(thisUnit) == 11492)) or (EWT and (ObjectIsType(thisUnit, ObjectTypes.Unit) or GetObjectID(thisUnit) == 11492)) then
+				-- if ObjectIsType(thisUnit, ObjectType.Unit) and UnitName(thisUnit) == "Raider's Training Dummy" then Print("Checking: "..UnitName(thisUnit)) end
+				if (not EWT and (ObjectIsType(thisUnit, ObjectType.Unit) or GetObjectID(thisUnit) == 11492)) 
+					or (EWT and (ObjectIsType(thisUnit, ObjectTypes.Unit) or GetObjectID(thisUnit) == 11492))
+				then
 					br.debug.cpu.enemiesEngine.unitTargets = br.debug.cpu.enemiesEngine.unitTargets + 1
 					-- Enemies
+					-- if UnitName(thisUnit) == "Raider's Training Dummy" then Print("Validating: "..UnitName(thisUnit)) end
 					if enemyListCheck(thisUnit) then
 						br.debug.cpu.enemiesEngine.sanityTargets = br.debug.cpu.enemiesEngine.sanityTargets + 1
+						-- if UnitName(thisUnit) == "Raider's Training Dummy" then Print("Adding: "..UnitName(thisUnit)) end
 						AddEnemy(thisUnit)
 					end
 					-- Pet Info
@@ -198,6 +204,7 @@ end
 --     return enemiesTable
 -- end
 function getObjectEnemies(thisObject,radius)
+	local thisObject = GetUnit(thisObject)
 	local objectsTable = { }
 	if thisObject ~= nil then
 		for k, v in pairs(br.enemy) do

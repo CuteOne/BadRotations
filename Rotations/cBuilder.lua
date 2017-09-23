@@ -278,19 +278,7 @@ function br.loader:new(spec,specName)
             -- Base Spell Availablility Check
             if --[[isChecked("Use: "..spellName) and ]]not select(2,IsUsableSpell(v)) and getSpellCD(v) == 0 and (isKnown(v) or debug == "known") then --and not isIncapacitated(v) then
                 -- Attempt to determine best unit for spell's range
-                if thisUnit == nil then
-                    if spellType == "Helpful" then
-                        thisUnit = "player"
-                    elseif spellType == "Harmful" or spellType == "Both" then  
-                        thisUnit = self.units(maxRange) 
-                    elseif spellType == "Unknown" and getDistance(self.units(maxRange)) < maxRange then
-                        if castSpell(self.units(maxRange),spellCast,false,false,false,false,false,false,false,true) then 
-                            thisUnit = self.units(maxRange)
-                        elseif castSpell("player",spellCast,false,false,false,false,false,false,false,true) then
-                            thisUnit = "player"
-                        end 
-                    end
-                end
+                if thisUnit == nil then thisUnit = getSpellUnit(spellCast) end
                 -- Return specified/best cast method
                 if debug == "debug" then
                     castDebug()

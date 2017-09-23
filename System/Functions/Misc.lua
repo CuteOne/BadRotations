@@ -399,7 +399,7 @@ end
 function enemyListCheck(Unit)
 	local hostileOnly = isChecked("Hostiles Only")
 	local distance = getDistance(Unit)
-	if not pause(true) and GetUnitExists(Unit) and not UnitIsDeadOrGhost(Unit) and UnitInPhase(Unit) and distance < 50
+	if not pause(true) and GetObjectExists(Unit) and not UnitIsDeadOrGhost(Unit) and UnitInPhase(Unit) and distance < 50
 		and (not UnitIsFriend(Unit, "player") and (not hostileOnly or (hostileOnly and (UnitIsEnemy(Unit, "player") or isTargetting(Unit) or isDummy(Unit))))) 
 		and UnitCanAttack("player",Unit) and isSafeToAttack(Unit) and not isCritter(Unit)
 	then
@@ -413,6 +413,7 @@ function enemyListCheck(Unit)
 			if (#br.friend == 1 and UnitIsUnit(Unit,"target")) or hasThreat then return true end
 		elseif not inCombat and not IsInInstance() then
 			-- Only consider Units that are in 20yrs or I have targeted when not in Combat and not in an Instance.
+			-- if UnitName(Unit) == "Raider's Training Dummy" then Print("OoC Validation Checking: "..UnitName(Unit)..", Is Unit: "..tostring(UnitIsUnit(Unit,"target"))) end;
 			if UnitIsUnit(Unit,"target") or (distance < 20 and #br.enemy == 0) then return true end
 		end
 	end

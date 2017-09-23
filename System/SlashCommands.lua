@@ -111,6 +111,7 @@ function handler(message, editbox)
     local msg1 = getStringIndex(message,1)
     local msg2 = getStringIndex(message,2)
 	local msg3 = getStringIndex(message,3)
+	local msg4 = getStringIndex(message,4)
 	if msg == "" or msg == nil then
 	    toggleUI()
 	-- Help
@@ -193,12 +194,16 @@ function handler(message, editbox)
 					Print("No Spell Provided to add to Queue.")
 				else
 					local spellName,_,_,_,_,_,spellId = GetSpellInfo(msg3)
-					local target = msg4
+					if msg4 == nil then
+						targetUnit = getSpellUnit(spellId)
+					else
+						targetUnit = tostring(msg4)
+					end
 					if spellName == nil then
 	            		Print("Invalid Spell ID: |cffFFDD11 Unable to add.")
 	            	else
 						if #br.player.queue == 0 then
-		                    tinsert(br.player.queue,{id = spellId, name = spellName, target = queueDest})
+		                    tinsert(br.player.queue,{id = spellId, name = spellName, target = targetUnit}) --queueDest})
 		                    Print("Added |cFFFF0000"..spellName.."|r to the queue.")
 		                elseif #br.player.queue ~= 0 then
 		                    for i = 1, #br.player.queue do
@@ -206,7 +211,7 @@ function handler(message, editbox)
 		                            Print("|cFFFF0000"..spellName.."|r is already queued.")
 		                            break
 		                        else
-		                            tinsert(br.player.queue,{id = spellId, name = spellName, target = queueDest})
+		                            tinsert(br.player.queue,{id = spellId, name = spellName, target = targetUnit}) --queueDest})
 		                            Print("Added |cFFFF0000"..spellName.."|r to the queue.")
 		                            break
 		                        end
