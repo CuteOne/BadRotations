@@ -327,7 +327,7 @@ local function runRotation()
 				if getHP(healing_obj) >= getValue("Overhealing Cancel") and (isCastingSpell(spell.flashOfLight) or isCastingSpell(spell.holyLight)) then
 					SpellStopCasting()
 					healing_obj = nil
-					Print("Cancel casting...")
+					-- Print("Cancel casting...")
 				end
 			end
 		end
