@@ -218,6 +218,7 @@ local function runRotation()
         local inCombat                                      = br.player.inCombat
         local inInstance                                    = br.player.instance=="party"
         local inRaid                                        = br.player.instance=="raid"
+        local item                                          = br.player.spell.items
         local level                                         = br.player.level
         local lootDelay                                     = getOptionValue("LootDelay")
         local lowestHP                                      = br.friend[1].unit
@@ -1317,34 +1318,22 @@ local function runRotation()
             if not inCombat and not (IsFlying() or IsMounted()) then
                 if not stealth then
         -- Flask / Crystal
-                    -- flask,type=flask_of_the_seventh_demon
-                    if getOptionValue("Elixir") == 1 and inRaid and not buff.flaskOfTheSeventhDemon.exists() then
-                        if buff.whispersOfInsanity.exists() then buff.whispersOfInsanity.cancel() end
-                        if buff.felFocus.exists() then buff.felFocus.cancel() end
-                        if use.flaskOfTheSeventhDemon() then return end
-                    end
-                    if getOptionValue("Elixir") == 2 and not buff.felFocus.exists() then
-                        if buff.flaskOfTheSeventhDemon.exists() then buff.flaskOfTheSeventhDemon.cancel() end
-                        if buff.whispersOfInsanity.exists() then buff.whispersOfInsanity.cancel() end
-                        if use.repurposedFelFocuser() then return end
-                    end
-                    if getOptionValue("Elixir") == 3 and not buff.whispersOfInsanity.exists() then
-                        if buff.flaskOfTheSeventhDemon.exists() then buff.flaskOfTheSeventhDemon.cancel() end
-                        if buff.felFocus.exists() then buff.felFocus.cancel() end
-                        if use.oraliusWhisperingCrystal() then return end
-                    end
-                    -- if isChecked("Elixir") and not stealth then
-                    --     if inRaid and canFlask and flaskBuff==0 and not UnitBuffID("player",188033) then
-                    --         useItem(br.player.flask.wod.agilityBig)
-                    --         return true
-                    --     end
-                    --     if flaskBuff==0 then
-                    --         if not UnitBuffID("player",188033) and canUse(147707) then -- Repurposed Fel Focuser
-                    --             useItem(118922)
-                    --             return true
-                    --         end
-                    --     end
-                    -- end
+                -- flask,type=flask_of_the_seventh_demon
+                if getOptionValue("Elixir") == 1 and inRaid and not buff.flaskOfTheSeventhDemon.exists() and canUse(item.flaskOfTheSeventhDemon) then
+                    if buff.whispersOfInsanity.exists() then buff.whispersOfInsanity.cancel() end
+                    if buff.felFocus.exists() then buff.felFocus.cancel() end
+                    if use.flaskOfTheSeventhDemon() then return end
+                end
+                if getOptionValue("Elixir") == 2 and not buff.felFocus.exists() and canUse(item.repurposedFelFocuser) then
+                    if buff.flaskOfTheSeventhDemon.exists() then buff.flaskOfTheSeventhDemon.cancel() end
+                    if buff.whispersOfInsanity.exists() then buff.whispersOfInsanity.cancel() end
+                    if use.repurposedFelFocuser() then return end
+                end
+                if getOptionValue("Elixir") == 3 and not buff.whispersOfInsanity.exists() and canUse(item.oraliusWhisperingCrystal) then
+                    if buff.flaskOfTheSeventhDemon.exists() then buff.flaskOfTheSeventhDemon.cancel() end
+                    if buff.felFocus.exists() then buff.felFocus.cancel() end
+                    if use.oraliusWhisperingCrystal() then return end
+                end
         -- TODO: food,type=nightborne_delicacy_platte
         -- TOOD: augmentation,type=defiled
         -- Prowl - Non-PrePull

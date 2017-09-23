@@ -754,13 +754,13 @@ local function runRotation()
                     if buff.gazeOfTheLegion.exists() then buff.gazeOfTheLegion.cancel() end
                     if use.flaskOfTheSeventhDemon() then return end
                 end
-                if getOptionValue("Elixir") == 2 and not buff.felFocus.exists() and canUse(item.felFocus) then
+                if getOptionValue("Elixir") == 2 and not buff.felFocus.exists() and canUse(item.repurposedFelFocuser) then
                     if buff.flaskOfTheSeventhDemon.exists() then buff.flaskOfTheSeventhDemon.cancel() end
                     if buff.whispersOfInsanity.exists() then buff.whispersOfInsanity.cancel() end
                     if buff.gazeOfTheLegion.exists() then buff.gazeOfTheLegion.cancel() end
                     if use.repurposedFelFocuser() then return end
                 end
-                if getOptionValue("Elixir") == 3 and not buff.whispersOfInsanity.exists() and canUse(item.whispersOfInsanity) then
+                if getOptionValue("Elixir") == 3 and not buff.whispersOfInsanity.exists() and canUse(item.oraliusWhisperingCrystal) then
                     if buff.flaskOfTheSeventhDemon.exists() then buff.flaskOfTheSeventhDemon.cancel() end
                     if buff.felFocus.exists() then buff.felFocus.cancel() end
                     if buff.gazeOfTheLegion.exists() then buff.gazeOfTheLegion.cancel() end

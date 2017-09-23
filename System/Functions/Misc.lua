@@ -405,16 +405,17 @@ function enemyListCheck(Unit)
 	then
 		local inCombat = UnitAffectingCombat("player") or (GetUnitExists("pet") and UnitAffectingCombat("pet"))
 		local hasThreat = hasThreat(Unit) or isTargetting(Unit) or (GetUnitExists("pet") and (hasThreat(Unit,"pet") or isTargetting(Unit,"pet"))) or isBurnTarget(Unit) > 0
+		local playerTarget = isPlayerTarget()
         if inCombat then
         	-- Only consider Units that I have threat with or have targeted or are dummies within 8yrds when in Combat.
-			if (UnitIsUnit(Unit,"target") and not hasThreat and (#br.friend == 1 or distance < 20)) or hasThreat or (isDummy(Unit) and (distance <= 8 or UnitIsUnit(Unit,"target"))) then return true end
+			if (playerTarget and not hasThreat and (#br.friend == 1 or distance < 20)) or hasThreat or (isDummy(Unit) and (distance <= 8 or playerTarget)) then return true end
 		elseif not inCombat and IsInInstance() then
 			-- Only consider Units that I have threat with or I am alone and have targeted when not in Combat and in an Instance.
-			if (#br.friend == 1 and UnitIsUnit(Unit,"target")) or hasThreat then return true end
+			if (#br.friend == 1 and isPlayerTarget() and playerTarget) or hasThreat then return true end
 		elseif not inCombat and not IsInInstance() then
 			-- Only consider Units that are in 20yrs or I have targeted when not in Combat and not in an Instance.
 			-- if UnitName(Unit) == "Raider's Training Dummy" then Print("OoC Validation Checking: "..UnitName(Unit)..", Is Unit: "..tostring(UnitIsUnit(Unit,"target"))) end;
-			if UnitIsUnit(Unit,"target") or (distance < 20 and #br.enemy == 0) then return true end
+			if playerTarget or not next(br.enemy) then return true end
 		end
 	end
 	return false

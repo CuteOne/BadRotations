@@ -105,7 +105,7 @@ function FindEnemy()
 		-- Cycle the Object Manager
 		if FireHack ~= nil and objectCount > 0 then
 			for i = 1, objectCount do
-				-- if i == 1 then Print("Cycling OM") end
+				if i == 1 then cycleTime = debugprofilestop() end
 				-- define our unit
 				local thisUnit = GetObjectWithIndex(i)
 				local enemyListCheck = enemyListCheck
@@ -129,6 +129,9 @@ function FindEnemy()
 					if UnitIsUnit(thisUnit,"pet") or GetObjectID(thisUnit) == 11492 then
 						AddPet(thisUnit)
 					end
+				end
+				if i == objectCount then
+					br.debug.cpu.enemiesEngine.cycleTime = debugprofilestop()-cycleTime
 				end
 			end
 		end
