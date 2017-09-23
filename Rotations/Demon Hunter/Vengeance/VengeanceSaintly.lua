@@ -320,7 +320,7 @@ local function runRotation()
                     for i=1, #getEnemies("player",20) do
                         thisUnit = getEnemies("player",20)[i]
                         distance = getDistance(thisUnit)
-                            if cd.consumeMagic > 0 and castingUnit(thisUnit) and distance < 20 and hasEquiped(151799) and not buff.empowerWards.exists() then
+                            if cd.consumeMagic > 0 and castingUnit(thisUnit) and distance < 20 and hasEquiped(151799) and (not buff.empowerWards.exists() or not buff.siphonedPower.exists()) then
                                 if cast.empowerWards() then return end
                             end
                         end
@@ -356,14 +356,18 @@ local function runRotation()
                 end
     -- Demon Spikes
                 -- actions+=/demon_spikes,if=charges=2|buff.demon_spikes.down&!dot.fiery_brand.ticking&buff.metamorphosis.down
-                if charges.frac.demonSpikes > 2.99 and hasEquiped(151799) then
-                    if cast.demonSpikes() then return end
-                end
+                if hasEquiped(151799) and charges.frac.demonSpikes > 1.99 then
+					if not buff.demonSpikes.exists() and not buff.metamorphosis.exists()  then
+						if cast.demonSpikes() then return end
+					end
+				end
     -- Demon Spikes
                 -- actions+=/demon_spikes,if=charges=2|buff.demon_spikes.down&!dot.fiery_brand.ticking&buff.metamorphosis.down
-                if charges.frac.demonSpikes > 1.99 and not hasEquiped(151799) then
-                    if cast.demonSpikes() then return end
-                end
+                if not hasEquiped(151799) then
+					if charges.frac.demonSpikes > 1.99 then
+						if cast.demonSpikes() then return end
+					end
+				end
     -- Soul Barrier
                     -- actions+=/soul_barrier
                 if isChecked("Soul Barrier") and php <= getOptionValue("Soul Barrier") and not buff.metamorphosis.exists() then
@@ -375,12 +379,7 @@ local function runRotation()
                 end
     -- Immolation Aura
                 -- actions+=/immolation_aura,if=pain<=80
-                if getDistance(units.dyn5) < 8 and (debuff.fieryBrand.exists(units.dyn5) and artifact.flamingSoul) then
-                    if cast.immolationAura() then return end
-                end
-    -- Immolation Aura
-                -- actions+=/immolation_aura,if=pain<=80
-                if not isChecked("Fiery Brand") and getDistance(units.dyn5) < 8 then
+                if getDistance(units.dyn5) < 5 and pain < 80 then
                     if cast.immolationAura() then return end
                 end
     -- Spirit Bomb
@@ -409,7 +408,7 @@ local function runRotation()
                 end
     -- Sigil of Flame
                 -- actions+=/sigil_of_flame,if=remains-delay<=0.3*duration
-                if talent.concentratedSigils and getDistance(units.dyn5) < 5 then
+                if talent.concentratedSigils and getDistance(units.dyn5) < 5 and not debuff.sigilOfFlame.exists(units.dyn5)then
                     if cast.sigilOfFlame() then return end
                 end
     -- Sigil of Flame
@@ -437,11 +436,6 @@ local function runRotation()
                 if php < 40 and pain < 30 and buff.soulFragments.stack() < 1 then
                     if cast.soulCleave() then return end
                 end
-    -- Immolation Aura
-                -- getSpellCD(spell.fieryBrand) > (GetSpellBaseCooldown(spell.immolationAura)/1000)
-                if getDistance(units.dyn5) < 8 and (not artifact.flamingSoul or getSpellCD(204021) > (GetSpellBaseCooldown(178740)/1000)) then
-                    if cast.immolationAura() then return end
-                end
     -- Throw Glaive (Mo'Arg Leggo Support)
                 if isChecked("Throw Glaive") and hasEquiped(137090) and #getEnemies("player",10) >= 3 then
                     if cast.throwGlaive() then return end
@@ -460,11 +454,11 @@ local function runRotation()
                 end
     -- Shear
                 -- actions+=/shear
-                if pain < 80 then
-                        if cast.shear() then return end
-                end
+				if pain < 80 then
+					if cast.shear() then return end
+				end
     -- Throw Glaive
-                if isChecked("Throw Glaive") and not hasEquiped(137090) and getDistance(units.dyn5) > 8 then
+                if isChecked("Throw Glaive") and not hasEquiped(137090) and getDistance(units.dyn5) > 5 then
                     if cast.throwGlaive() then return end
                 end
 			end --End SaintlySinner APL
