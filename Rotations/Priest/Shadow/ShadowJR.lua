@@ -31,6 +31,12 @@ local function createToggles()
         [2] = { mode = "Off", value = 2 , overlay = "Void Form Disabled", tip = "Bot will NOT shift to Void Form.", highlight = 0, icon = br.player.spell.voidEruption }
     };
     CreateButton("VoidForm",4,0)
+    -- Interrupt button
+    InterruptModes = {
+        [1] = { mode = "On", value = 1 , overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spell.consumeMagic},
+        [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.consumeMagic}
+    };
+    CreateButton("Interrupt",5,0)
 end
 
 ---------------
@@ -63,8 +69,8 @@ local function createOptions()
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
             -- Int Pot
             br.ui:createCheckbox(section,"Int Pot")
-            -- Flask / Crystal
-            br.ui:createCheckbox(section,"Flask / Crystal")
+            -- Elixir
+            br.ui:createDropdownWithout(section,"Elixir", {"Flask of the Whispered Pact","Repurposed Fel Focuser","Oralius' Whispering Crystal","None"}, 1, "|cffFFFFFFSet Elixir to use.")
             -- Trinkets
             br.ui:createCheckbox(section,"Trinkets", "|cffFFFFFFUse trinkets on Cooldown. Overrides individual trinket usage below.")
             if hasEquiped(128318) then
@@ -156,8 +162,14 @@ local function createOptions()
         section = br.ui:createSection(br.ui.window.profile, "Interrupts")
             -- Silence
             br.ui:createCheckbox(section, "Silence")
-            -- Psychic Scream / Mind Bomb
-            br.ui:createCheckbox(section, "Psychic Scream / Mind Bomb - Int")
+            -- Psychic Scream
+            br.ui:createCheckbox(section, "Psychic Scream")
+            -- Mind Bomb
+            -- br.ui:createCheckbox(section, "Mind Bomb")
+            -- Interrupt Mode
+            br.ui:createDropdownWithout(section,"Interrupt Mode", {"Focus","Target","All in Range"}, 1, "|cffFFFFFFInterrupt your focus, your target, or all enemies in range.")
+            -- Interrupt Percentage
+            br.ui:createSpinner(section, "Interrupt At",  10,  0,  95,  5,  "|cffFFFFFFCast Percent to Cast At")
         br.ui:checkSectionState(section)
         -- Toggle Key Options
         section = br.ui:createSection(br.ui.window.profile, "Toggle Keys")
@@ -193,6 +205,7 @@ local function runRotation()
         UpdateToggle("Defensive",0.25)
         UpdateToggle("VoidEruption",0.25)
         UpdateToggle("VoidForm",0.25)
+        UpdateToggle("Interrupt",0.25)
         br.player.mode.voidForm = br.data.settings[br.selectedSpec].toggles["VoidForm"]
 --------------
 --- Locals ---
@@ -223,6 +236,7 @@ local function runRotation()
         local inCombat                                      = br.player.inCombat
         local inInstance                                    = br.player.instance=="party"
         local inRaid                                        = br.player.instance=="raid"
+        local item                                          = br.player.spell.items
         local lastCast                                      = lastCast
         local level                                         = br.player.level
         local lootDelay                                     = getOptionValue("LootDelay")
@@ -249,12 +263,11 @@ local function runRotation()
         local ttd                                           = getTTD
         local ttm                                           = br.player.power.ttm
         local units                                         = units or {}
+        local use                                           = br.player.use
 
         local SWPmaxTargets                                 = getOptionValue("SWP Max Targets")
         local VTmaxTargets                                  = getOptionValue("VT Max Targets")
         local mindFlayChannel                               = 3 / (1 + GetHaste()/100)
-
-        local ZeksExterminatis  = 236546
 
         local executeHP = 20
         if talent.reaperOfSouls then executeHP = 35 end
@@ -263,6 +276,7 @@ local function runRotation()
         units.dyn8 = br.player.units(8)
         units.dyn40 = br.player.units(40)
         enemies.yards8 = br.player.enemies(8)
+        enemies.yards30 = br.player.enemies(30)
         enemies.yards40 = br.player.enemies(40)
 
         if leftCombat == nil then leftCombat = GetTime() end
@@ -399,25 +413,59 @@ local function runRotation()
         end -- End Action List - Defensive
         -- Action List - Interrupts
         function actionList_Interrupts()
-            if useInterrupts() then
-                for i=1, #enemies.yards30 do
-                    thisUnit = enemies.yards30[i]
-                    if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
-            -- Silence
-                        if isChecked("Silence") then
+        -- Silence
+            if isChecked("Silence") then
+                if getOptionValue("Interrupt Mode") == 1 and UnitIsEnemy("player","focus") and canInterrupt("focus",getOptionValue("Interrupt At")) then
+                    if cast.silence("focus") then return end
+                end
+                if getOptionValue("Interrupt Mode") == 2 and UnitIsEnemy("player","target") and canInterrupt("target",getOptionValue("Interrupt At")) then
+                    if cast.silence("target") then return end
+                end
+                if getOptionValue("Interrupt Mode") == 3 then
+                    for i=1, #enemies.yards30 do
+                        thisUnit = enemies.yards30[i]
+                        if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
                             if cast.silence(thisUnit) then return end
-                        end
-            -- Psychic Scream / Mind Bomb
-                        if isChecked("Psychic Scream / Mind Bomb - Int") and not talent.mindBomb then
-                            if not talent.mindBomb and #enemies.yards8 > 0 then
-                                if cast.psychicScream("player") then return end
-                            else
-                                if cast.mindBomb(thisUnit) then return end
-                            end
                         end
                     end
                 end
             end
+            if isChecked("Psychic Scream") then
+        -- Psychic Scream
+                if getOptionValue("Interrupt Mode") == 1 and UnitIsEnemy("player","focus") and canInterrupt("focus",getOptionValue("Interrupt At")) then
+                    if cast.psychicScream("focus") then return end
+                end
+                if getOptionValue("Interrupt Mode") == 2 and UnitIsEnemy("player","target") and canInterrupt("target",getOptionValue("Interrupt At")) then
+                    if cast.psychicScream("target") then return end
+                end
+                if getOptionValue("Interrupt Mode") == 3 then
+                    for i=1, #enemies.yards8 do
+                        thisUnit = enemies.yards8[i]
+                        if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
+                            if cast.psychicScream("player") then return end
+                        end
+                    end
+                end
+            end
+        -- Mind Bomb
+            -- mind bomb has a 2 second delay before the interrupt happens. not using as an interrupt source for now ...
+            -- TODO figure out a useful way to use mind bomb as an interrupt
+                -- if getOptionValue("Interrupt Mode") == 1 and UnitIsEnemy("player","focus") and canInterrupt("focus",getOptionValue("Interrupt At")) then
+                --     if cast.mindBomb("focus") then return end
+                -- end
+                -- if getOptionValue("Interrupt Mode") == 2 and UnitIsEnemy("player","target") and canInterrupt("target",getOptionValue("Interrupt At")) then
+                --     if cast.mindBomb("target") then return end
+                -- end
+                -- if getOptionValue("Interrupt Mode") == 3 then
+                --     if talent.mindBomb then
+                --         for i=1, #enemies.yards30 do
+                --             thisUnit = enemies.yards30[i]
+                --             if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
+                --                 if cast.mindBomb(thisUnit) then return end
+                --             end
+                --         end
+                --     end
+                -- end
         end -- End Action List - Interrupts
         -- Action List - Cooldowns
         function actionList_Cooldowns()
@@ -560,7 +608,27 @@ local function runRotation()
             if not buff.shadowform.exists() then
                 cast.shadowform()
             end
-            -- Mind Blast
+        -- Flask/Elixir
+            -- flask,type=flask_of_the_whispered_pact
+            if getOptionValue("Elixir") == 1 and inRaid and not buff.flaskOfTheWhisperedPact.exists() then
+                if buff.whispersOfInsanity.exists() then buff.whispersOfInsanity.cancel() end
+                if buff.felFocus.exists() then buff.felFocus.cancel() end
+                if buff.gazeOfTheLegion.exists() then buff.gazeOfTheLegion.cancel() end
+                if use.flaskOfTheWhisperedPact() then return end
+            end
+            if getOptionValue("Elixir") == 2 and not buff.felFocus.exists() then
+                if buff.flaskOfTheWhisperedPact.exists() then buff.flaskOfTheWhisperedPact.cancel() end
+                if buff.whispersOfInsanity.exists() then buff.whispersOfInsanity.cancel() end
+                if buff.gazeOfTheLegion.exists() then buff.gazeOfTheLegion.cancel() end
+                if use.repurposedFelFocuser() then return end
+            end
+            if getOptionValue("Elixir") == 3 and not buff.whispersOfInsanity.exists() then
+                if buff.flaskOfTheWhisperedPact.exists() then buff.flaskOfTheWhisperedPact.cancel() end
+                if buff.felFocus.exists() then buff.felFocus.cancel() end
+                if buff.gazeOfTheLegion.exists() then buff.gazeOfTheLegion.cancel() end
+                if use.oraliusWhisperingCrystal() then return end
+            end
+        -- Mind Blast
             if isValidUnit("target") then
                 if not moving and br.timer:useTimer("mbRecast", gcd) then
                     if cast.mindBlast("target") then return end
@@ -568,7 +636,7 @@ local function runRotation()
                 --     if cast.shadowWordPain("target") then return end
                 end
             end
-            -- Power Word: Shield Body and Soul
+        -- Power Word: Shield Body and Soul
             if isChecked("PWS: Body and Soul") and talent.bodyAndSoul and isMoving("player") and not IsMounted() then
                 if cast.powerWordShield("player") then return end
             end
@@ -605,10 +673,24 @@ local function runRotation()
         -- Action List - Main
         function actionList_Main()
         --Mouseover Dotting
-            -- TODO: add VT mouseover dotting. Change checkbox in options to a dropdown = SW:P, Vamiric Touch, Both, or None
-            if isChecked("Mouseover Dotting") and hasMouse and isValidTarget("mouseover") then
-                if getDebuffRemain("mouseover",spell.shadowWordPain,"player") <= 1 then
-                    if cast.shadowWordPain("mouseover") then return end
+            if isChecked("Mouseover Dotting") and hasMouse and isValidTarget("mouseover") and not moving and not recentlyCast("mouseover", spell.vampiricTouch, 1.5*gcdMax) then
+                if getDebuffRemain("mouseover",spell.vampiricTouch,"player") <= 3*gcdMax then
+                    if cast.vampiricTouch("mouseover") then 
+                        lastCastTrackerSpell = spell.vampiricTouch
+                        lastCastTrackerUnit = "mouseover"
+                        lastCastTrackerTime = GetTime()
+                        return 
+                    end
+                end
+            end
+            if isChecked("Mouseover Dotting") and hasMouse and isValidTarget("mouseover") and not recentlyCast("mouseover", spell.shadowWordPain, 1.5*gcdMax) then
+                if getDebuffRemain("mouseover",spell.shadowWordPain,"player") <= 3*gcdMax then
+                    if cast.shadowWordPain("mouseover") then
+                        lastCastTrackerSpell = spell.shadowWordPain
+                        lastCastTrackerUnit = "mouseover"
+                        lastCastTrackerTime = GetTime()
+                        return 
+                    end
                 end
             end
         -- Surrender To Madness
@@ -1101,12 +1183,6 @@ local function runRotation()
                     end
                 end
             end
-        -- Mouseover Dotting
-            if isChecked("Mouseover Dotting") and hasMouse and isValidTarget("mouseover") then
-                if getDebuffRemain("mouseover",spell.shadowWordPain,"player") <= 1 then
-                    if cast.shadowWordPain("mouseover") then return end
-                end
-            end
         -- Shadow Crash
             -- shadow_crash,if=talent.shadow_crash.enabled
             if isChecked("Shadow Crash") and talent.shadowCrash then
@@ -1164,7 +1240,7 @@ local function runRotation()
                 and insanityDrain * gcdMax > power and (power - (insanityDrain * gcdMax) + (15 + 15 * reaperOfSouls)) < 100
             then
                 -- If Zeks Exterminatus (legendary cloak) has procced, SW:D is castable on any target, regardless of HP
-                if getHP(units.dyn40) < executeHP then
+                if getHP(units.dyn40) < executeHP  or buff.zeksExterminatus.exists() then
                     if cast.shadowWordDeath(units.dyn40) then return end
                 end
                 if not mode.rotation == 3 then
@@ -1196,7 +1272,7 @@ local function runRotation()
             -- shadow_word_death,if=(active_enemies<=4|(talent.reaper_of_souls.enabled&active_enemies<=2))&cooldown.shadow_word_death.charges=2
             if (activeEnemies <= 4 or (talent.reaperOfSouls and activeEnemies <= 2)) and charges.shadowWordDeath == 2 then
                 -- If Zeks Exterminatus (legendary cloak) has procced, SW:D is castable on any target, regardless of HP
-                if getHP(units.dyn40) < executeHP then
+                if getHP(units.dyn40) < executeHP  or buff.zeksExterminatus.exists() then
                     if cast.shadowWordDeath(units.dyn40) then return end
                 end
                 if not mode.rotation == 3 then
@@ -1226,6 +1302,27 @@ local function runRotation()
             -- shadow_word_void,if=talent.shadow_word_void.enabled&(insanity-(current_insanity_drain*gcd.max)+25)<100
             if talent.shadowWordVoid and (power - (insanityDrain * gcdMax) + 25) < 100 then
                 if cast.shadowWordVoid() then return end
+            end
+        -- Mouseover Dotting
+            if isChecked("Mouseover Dotting") and hasMouse and isValidTarget("mouseover") and not moving and not recentlyCast("mouseover", spell.vampiricTouch, 1.5*gcdMax) then
+                if getDebuffRemain("mouseover",spell.vampiricTouch,"player") <= 3*gcdMax then
+                    if cast.vampiricTouch("mouseover") then 
+                        lastCastTrackerSpell = spell.vampiricTouch
+                        lastCastTrackerUnit = "mouseover"
+                        lastCastTrackerTime = GetTime()
+                        return 
+                    end
+                end
+            end
+            if isChecked("Mouseover Dotting") and hasMouse and isValidTarget("mouseover") and not recentlyCast("mouseover", spell.shadowWordPain, 1.5*gcdMax) then
+                if getDebuffRemain("mouseover",spell.shadowWordPain,"player") <= 3*gcdMax then
+                    if cast.shadowWordPain("mouseover") then
+                        lastCastTrackerSpell = spell.shadowWordPain
+                        lastCastTrackerUnit = "mouseover"
+                        lastCastTrackerTime = GetTime()
+                        return 
+                    end
+                end
             end
         -- Vampiric Touch
             -- vampiric_touch,if=talent.misery.enabled&(dot.vampiric_touch.remains<3*gcd.max|dot.shadow_word_pain.remains<3*gcd.max)&target.time_to_die>5*gcd.max,cycle_targets=1
@@ -1303,6 +1400,7 @@ local function runRotation()
         -- Mind Flay
             -- mind_flay,chain=1,interrupt_immediate=1,interrupt_if=ticks>=2&(action.void_bolt.usable|(current_insanity_drain*gcd.max>insanity&(insanity-(current_insanity_drain*gcd.max)+30)<100&cooldown.shadow_word_death.charges>=1))
             if isCastingSpell(spell.mindFlay) and mfTick >= 2 and (cd.voidBold == 0 or (insanityDrain * gcdMax > power and (power - (insanityDrain * gcdMax) + 30) < 100 and charges.shadowWordDeath >= 1)) then
+                SpellStopCasting()
                 return true               
             elseif not moving then
                 if cast.mindFlay(units.dyn40) then return end
@@ -1341,6 +1439,10 @@ local function runRotation()
                 -- call_action_list,name=check,if=talent.surrender_to_madness.enabled&!buff.surrender_to_madness.up
                 if talent.surrenderToMadness and not buff.surrenderToMadness then
                     if actionList_Check() then return end
+                end
+            -- Action List - Interrupts
+                if useInterrupts() then
+                    if actionList_Interrupts() then return end
                 end
             -- Action List - Surrender To Madness
                 -- s2m,if=buff.voidform.up&buff.surrender_to_madness.up
