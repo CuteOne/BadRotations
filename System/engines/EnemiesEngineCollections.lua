@@ -334,4 +334,10 @@ interruptWhitelist = { -- List provided by Admire
 	209568, -- Exothermic Release
 	209617, -- Expedite
 	208672, -- Carrion wave
+	239401, -- Pangs of Guild (Belac)
+	233371, -- Watery Splash (Harjatan fight)
+	241509, -- Water Blast (Mistress fight)
+	200631, -- Unnerving Screech
+	225562, -- Blood Metamorphosis
+	211875, -- Bladestorm
 }
