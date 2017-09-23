@@ -94,7 +94,8 @@ function br.loader:new(spec,specName)
                 if thisUnit == nil then thisUnit = 'player' end
                 if sourceUnit == nil then sourceUnit = 'player' end
                 if UnitBuffID(thisUnit,v,sourceUnit) ~= nil then
-                    CancelUnitBuff(thisUnit,v,sourceUnit)
+                    RunMacroText("/cancelaura "..GetSpellInfo(v))
+                    -- CancelUnitBuff(thisUnit,v,sourceUnit)
                 end
             end
             buff.exists = function(thisUnit,sourceUnit)
@@ -235,7 +236,7 @@ function br.loader:new(spec,specName)
         end
         self.equiped[k] = function(slotID)
             if slotID == nil then 
-                return canUse(v) 
+                return hasEquiped(v)
             else
                 return hasEquiped(v,slotID)
             end

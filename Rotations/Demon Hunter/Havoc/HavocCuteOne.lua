@@ -174,6 +174,7 @@ local function runRotation()
         local inCombat                                      = br.player.inCombat
         local inInstance                                    = br.player.instance=="party"
         local inRaid                                        = br.player.instance=="raid"
+        local item                                          = br.player.spell.items
         local lastSpell                                     = lastSpellCast
         local level                                         = br.player.level
         local lootDelay                                     = getOptionValue("LootDelay")
@@ -197,6 +198,7 @@ local function runRotation()
         local ttd                                           = getTTD
         local ttm                                           = br.player.power.ttm
         local units                                         = units or {}
+        local use                                           = br.player.use
 
         units.dyn5 = br.player.units(5)
         units.dyn8 = br.player.units(8)
@@ -746,29 +748,29 @@ local function runRotation()
             if not inCombat and not (IsFlying() or IsMounted()) then
             -- Flask / Crystal
                 -- flask,type=flask_of_the_seventh_demon
-                if getOptionValue("Elixir") == 1 and inRaid and not buff.flaskOfTheSeventhDemon.exists() then
+                if getOptionValue("Elixir") == 1 and inRaid and not buff.flaskOfTheSeventhDemon.exists() and canUse(item.flaskOfTheSeventhDemon) then
                     if buff.whispersOfInsanity.exists() then buff.whispersOfInsanity.cancel() end
                     if buff.felFocus.exists() then buff.felFocus.cancel() end
                     if buff.gazeOfTheLegion.exists() then buff.gazeOfTheLegion.cancel() end
                     if use.flaskOfTheSeventhDemon() then return end
                 end
-                if getOptionValue("Elixir") == 2 and not buff.felFocus.exists() then
+                if getOptionValue("Elixir") == 2 and not buff.felFocus.exists() and canUse(item.felFocus) then
                     if buff.flaskOfTheSeventhDemon.exists() then buff.flaskOfTheSeventhDemon.cancel() end
                     if buff.whispersOfInsanity.exists() then buff.whispersOfInsanity.cancel() end
                     if buff.gazeOfTheLegion.exists() then buff.gazeOfTheLegion.cancel() end
                     if use.repurposedFelFocuser() then return end
                 end
-                if getOptionValue("Elixir") == 3 and not buff.whispersOfInsanity.exists() then
+                if getOptionValue("Elixir") == 3 and not buff.whispersOfInsanity.exists() and canUse(item.whispersOfInsanity) then
                     if buff.flaskOfTheSeventhDemon.exists() then buff.flaskOfTheSeventhDemon.cancel() end
                     if buff.felFocus.exists() then buff.felFocus.cancel() end
                     if buff.gazeOfTheLegion.exists() then buff.gazeOfTheLegion.cancel() end
                     if use.oraliusWhisperingCrystal() then return end
                 end
-                if getOptionValue("Elixer") == 4 and not buff.gazeOfTheLegion.exists() then
+                if getOptionValue("Elixir") == 4 and not buff.gazeOfTheLegion.exists() and canUse(item.inquisitorsMenacingEye) then
                     if buff.flaskOfTheSeventhDemon.exists() then buff.flaskOfTheSeventhDemon.cancel() end
                     if buff.whispersOfInsanity.exists() then buff.whispersOfInsanity.cancel() end
                     if buff.felFocus.exists() then buff.felFocus.cancel() end
-                    if use.gazeOfTheLegion() then return end
+                    if use.inquisitorsMenacingEye() then return end
                 end
                 if isChecked("Pre-Pull Timer") and pullTimer <= getOptionValue("Pre-Pull Timer") then
 

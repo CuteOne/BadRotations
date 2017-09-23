@@ -466,7 +466,7 @@ br.idList = {
                 glyphOfTatteredWings        = 220226,
             },
             items                           = {
-                gazeOfTheLegion             = 129192,
+                inquisitorsMenacingEye      = 129192,
             },
             talents                         = {
                 felblade                    = 232893,
