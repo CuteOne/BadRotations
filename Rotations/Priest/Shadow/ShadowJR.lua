@@ -610,22 +610,19 @@ local function runRotation()
             end
         -- Flask/Elixir
             -- flask,type=flask_of_the_whispered_pact
-            if getOptionValue("Elixir") == 1 and inRaid and not buff.flaskOfTheWhisperedPact.exists() then
+            if getOptionValue("Elixir") == 1 and inRaid and not buff.flaskOfTheWhisperedPact.exists() and canUse(item.flaskOfTheWhisperedPact) then
                 if buff.whispersOfInsanity.exists() then buff.whispersOfInsanity.cancel() end
                 if buff.felFocus.exists() then buff.felFocus.cancel() end
-                if buff.gazeOfTheLegion.exists() then buff.gazeOfTheLegion.cancel() end
                 if use.flaskOfTheWhisperedPact() then return end
             end
-            if getOptionValue("Elixir") == 2 and not buff.felFocus.exists() then
+            if getOptionValue("Elixir") == 2 and not buff.felFocus.exists() and canUse(item.repurposedFelFocuser) then
                 if buff.flaskOfTheWhisperedPact.exists() then buff.flaskOfTheWhisperedPact.cancel() end
                 if buff.whispersOfInsanity.exists() then buff.whispersOfInsanity.cancel() end
-                if buff.gazeOfTheLegion.exists() then buff.gazeOfTheLegion.cancel() end
                 if use.repurposedFelFocuser() then return end
             end
-            if getOptionValue("Elixir") == 3 and not buff.whispersOfInsanity.exists() then
+            if getOptionValue("Elixir") == 3 and not buff.whispersOfInsanity.exists() and canUse(item.oraliusWhisperingCrystal) then
                 if buff.flaskOfTheWhisperedPact.exists() then buff.flaskOfTheWhisperedPact.cancel() end
                 if buff.felFocus.exists() then buff.felFocus.cancel() end
-                if buff.gazeOfTheLegion.exists() then buff.gazeOfTheLegion.cancel() end
                 if use.oraliusWhisperingCrystal() then return end
             end
         -- Mind Blast
