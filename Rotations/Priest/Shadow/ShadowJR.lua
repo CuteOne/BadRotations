@@ -212,30 +212,23 @@ local function runRotation()
     local addsIn                                        = 999
     local artifact                                      = br.player.artifact
     local buff                                          = br.player.buff
-    local canFlask                                      = canUse(br.player.flask.wod.agilityBig)
     local cast                                          = br.player.cast
     local castable                                      = br.player.cast.debug
-    local castTable                                     = castTable or {}
     local combatTime                                    = getCombatTime()
     local cd                                            = br.player.cd
     local charges                                       = br.player.charges
-    local deadMouse                                     = UnitIsDeadOrGhost("mouseover")
     local deadtar, attacktar, hastar, playertar         = deadtar or UnitIsDeadOrGhost("target"), attacktar or UnitCanAttack("target", "player"), hastar or GetObjectExists("target"), UnitIsPlayer("target")
     local debuff                                        = br.player.debuff
     local enemies                                       = enemies or {}
-    local enemiesWithDots                               = enemiesWithDots or {}
     local falling, swimming, flying, moving             = getFallTime(), IsSwimming(), IsFlying(), GetUnitSpeed("player")>0
-    local flaskBuff                                     = getBuffRemain("player",br.player.flask.wod.buff.agilityBig)
     local friendly                                      = friendly or UnitIsFriend("target", "player")
     local gcd                                           = br.player.gcd
     local gcdMax                                        = max(0.75, 1.5 / (1 + UnitSpellHaste("player") / 100))
     local hasMouse                                      = GetObjectExists("mouseover")
-    local healPot                                       = getHealthPot()
     local inCombat                                      = br.player.inCombat
     local inInstance                                    = br.player.instance=="party"
     local inRaid                                        = br.player.instance=="raid"
     local item                                          = br.player.spell.items
-    local lastCast                                      = lastCast
     local level                                         = br.player.level
     local lootDelay                                     = getOptionValue("LootDelay")
     local lowestHP                                      = br.friend[1].unit
@@ -891,7 +884,7 @@ local function runRotation()
     -- Mind Flay
         -- mind_flay,interrupt=1,chain=1
         if not moving then
-            if not isCastingSpell(spell.mindFlay) and (lastCast ~= spell.mindFlay or (lastCast == spell.mindFlay and br.timer:useTimer("mindFlayRecast", mindFlayChannel + gcd))) then
+            if not isCastingSpell(spell.mindFlay) then
                 if cast.mindFlay(units.dyn40) then return end
             end
         end
@@ -910,9 +903,6 @@ local function runRotation()
                     end
                 end
             end
-            lastCastTrackerSpell = spell.shadowWordPain
-            lastCastTrackerUnit = units.dyn40
-            lastCastTrackerTime = GetTime()
         end
     end
     -- Action List - Surrender To Madness
@@ -1143,12 +1133,11 @@ local function runRotation()
         end
     --Mind Flay 
         -- mind_flay,chain=1,interrupt_immediate=1,interrupt_if=ticks>=2&(action.void_bolt.usable|(current_insanity_drain*gcd.max>insanity&(insanity-(current_insanity_drain*gcd.max)+60)<100&cooldown.shadow_word_death.charges>=1))
-        if mfTick >= 2 and (cd.voidBolt == 0 or (insanityDrain * gcd > power and (power - (insanityDrain * gcd) + 60) < 100 and charges.shadowWordDeath >= 1)) 
-            and (lastCast ~= spell.mindFlay or (lastCast == spell.mindFlay and br.timer:useTimer("mindFlayRecast", mindFlayChannel + gcd))) and (lastCast ~= spell.voidEruption or not t19_4pc)
-        then
-            return true
-        elseif not buff.void.exists() then
-            if cast.mindFlay() then return end
+        if isCastingSpell(spell.mindFlay) and mfTick >= 2 and (cd.voidBold == 0 or (insanityDrain * gcdMax > power and (power - (insanityDrain * gcdMax) + 60) < 100 and charges.shadowWordDeath >= 1)) then
+            SpellStopCasting()
+            return true               
+        elseif not moving then
+            if cast.mindFlay(units.dyn40) then return end
         end
     end -- End Action List - Surrender To Madness
 -- Action List - VoidForm
