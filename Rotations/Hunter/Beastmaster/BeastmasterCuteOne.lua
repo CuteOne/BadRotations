@@ -225,7 +225,7 @@ local function runRotation()
         enemies.yards40 = br.player.units(40)
 
         if GetObjectExists("pet") then
-            enemies.yards8pet = br.player.enemies(8,ObjectIdentifier("pet"))
+            enemies.yards8pet = br.player.enemies(8,GetUnit("pet"))
         else
             enemies.yards8pet = {}
         end
