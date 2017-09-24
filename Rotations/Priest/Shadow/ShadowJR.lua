@@ -310,15 +310,22 @@ local function runRotation()
             VTmaxTargets = 1
         end
 
-        -- Insanity Stacks
-        if buff.voidForm.stack() == 0 then nonDrainTicks = 0 end
-        if inCombat and (buff.dispersion.exists() or buff.voidTorrent.exists()) then
-            if br.timer:useTimer("drainStacker", 1) then
-                nonDrainTicks = nonDrainTicks + 1
+        -- Keep track of Drain Stacks
+        -- Drain stacks will be equal to Voidform stacks, minus any time spent in diepersion and minus any time spent channeling void torrent
+        if buff.voidForm.stack() == 0 then 
+            nonDrainTicks = 0 
+            drainStacks = 0
+        else
+            if inCombat and (buff.dispersion.exists() or buff.voidTorrent.exists()) then
+                if br.timer:useTimer("drainStacker", 1) then
+                    nonDrainTicks = nonDrainTicks + 1
+                end
             end
+            drainStacks = buff.voidForm.stack() - nonDrainTicks
         end
 
-        drainStacks = buff.voidForm.stack() - nonDrainTicks
+        -- Insanity Drain
+        insanityDrain = 6 + (2 / 3 * (drainStacks)) 
 
         -- Mind Flay Ticks
         --local mfTick
@@ -326,10 +333,6 @@ local function runRotation()
         if br.timer:useTimer("Mind Flay Ticks", 0.75) and isCastingSpell(spell.mindFlay) then
             mfTick = mfTick + 1
         end
-
-        -- Insanity Drain
-        insanityDrain = 6 + (2 / 3 * (drainStacks)) 
-        -- insanityDrain = 9 + ((drainStacks - 1) / 2)
 
         -- variable,name=cd_time,op=set,value=(10+(2-2*talent.mindbender.enabled*set_bonus.tier20_4pc)*set_bonus.tier19_2pc+(3-3*talent.mindbender.enabled*set_bonus.tier20_4pc)*equipped.mangazas_madness+(6+5*talent.mindbender.enabled)*set_bonus.tier20_4pc+2*artifact.lash_of_insanity.rank)
         local cd_time = (10 + (2 - 2 * mindbender * t20pc4) * t19pc2 + (3 - 3 * mindbender * t20pc4) * mangaMad + (6 + 5 * mindbender) * t20pc4 + 2 * lash)
