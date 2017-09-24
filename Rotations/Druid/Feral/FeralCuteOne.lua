@@ -1208,10 +1208,11 @@ local function runRotation()
             end
         -- Shred
             -- shred
-            -- if (debuff.rake.exists(units.dyn5) or level < 12) and (((mode.rotation == 1 and #enemies.yards8 < 2 ) or mode.rotation == 3) 
-            --     or level < 32 or ttm < 1 or (talent.brutalSlash and charges.brutalSlash == 0)) then
+            if (debuff.rake.exists(units.dyn5) or level < 12 or ttm < 1) 
+                and ((mode.rotation == 1 and (#enemies.yards8 < 2 or level < 32 or (talent.brutalSlash and charges.brutalSlash == 0))) or mode.rotation == 3) 
+            then
                 if cast.shred(units.dyn5) then return end
-            -- end
+            end
         end
     -- Action List - Generator
         local function actionList_AMR_Generator()

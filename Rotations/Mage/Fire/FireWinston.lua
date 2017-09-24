@@ -378,13 +378,16 @@ local function runRotation()
             -- dragons_breath,if=buff.hot_streak.down&action.fire_blast.charges<1&action.phoenixs_flames.charges<1
             --(getFacing("player",units.dyn12,10) and hasEquiped(132863) and getDistance(units.dyn12) < 12)
             --(getFacing("player",units.dyn25,10) and talent.alexstraszasFury and not buff.hotStreak.exists() and getDistance(units.dyn25) < 25)
-            if (getFacing("player",units.dyn12,10) and not buff.hotStreak.exists and charges.fireBlast < 1 and charges.phoenixsFlames < 1 and getDistance(units.dyn12) < 12) then
-                if cast.dragonsBreath(units.dyn12) then return end
-            elseif not buff.hotStreak.exists then
+            if (getFacing("player",units.dyn12,10) and not buff.hotStreak.exists() and charges.fireBlast < 1 and charges.phoenixsFlames < 1 and getDistance(units.dyn12) < 12) then
+                -- if cast.dragonsBreath(units.dyn12) then return end
+                if cast.dragonsBreath("player") then return end
+            elseif not buff.hotStreak.exists() then
                 if (getDistance(units.dyn12) < 12) and talent.alexstraszasFury then
-                    if cast.dragonsBreath(units.dyn12) then return end
+                    -- if cast.dragonsBreath(units.dyn12) then return end
+                    if cast.dragonsBreath("player") then return end
                 elseif ((getDistance(units.dyn25) < 25) and hasEquiped(132863)) then
-                    if cast.dragonsBreath(units.dyn25) then return end
+                    -- if cast.dragonsBreath(units.dyn25) then return end
+                    if cast.dragonsBreath("player") then return end
                 end
             end
         -- Scorch
@@ -466,9 +469,11 @@ local function runRotation()
                 if cast.dragonsBreath(units.dyn12) then return end
             elseif ((talent.alexstraszasFury and hasEquiped(132863)) or talent.alexstraszasFury or hasEquiped(132863)) then
                 if hasEquiped(132863) and ((getDistance(units.dyn25) < 24) and mode.rotation == 1) then
-                    if cast.dragonsBreath(units.dyn25) then return end
+                    -- if cast.dragonsBreath(units.dyn25) then return end
+                    if cast.dragonsBreath("player") then return end
                 elseif ((getDistance(units.dyn12) < 12) and mode.rotation == 1) then
-                    if cast.dragonsBreath(units.dyn12) then return end
+                    -- if cast.dragonsBreath(units.dyn12) then return end
+                    if cast.dragonsBreath("player") then return end
                 end
             end
         -- Pyroblast
