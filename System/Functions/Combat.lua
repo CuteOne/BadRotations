@@ -299,12 +299,25 @@ function hasNoControl(spellID,unit)
 end
 -- if hasThreat("target") then
 function hasThreat(unit,playerUnit)
-	if GetUnit(unit) == nil then targetUnit = nil else targetUnit = UnitTarget(GetUnit(unit)) end
 	if playerUnit == nil then playerUnit = "player" end
-	if targetUnit == nil then targetOfTarget = false; targetFriend = false else targetOfTarget = targetUnit end
-	if targetOfTarget then targetFriend = (UnitInParty(targetOfTarget) or UnitInRaid(targetOfTarget) or UnitName(targetOfTarget) == UnitName("player")) else targetFriend = false end
+	if GetUnit(unit) == nil then 
+		targetUnit = nil 
+	elseif UnitTarget(GetUnit(unit)) ~= nil then
+		targetUnit = UnitTarget(GetUnit(unit)) 
+	elseif GetObjectExists("target") and isPlayerTarget() then
+		targetUnit = UnitTarget("targettarget")
+	end
+	if targetUnit ~= nil then targetFriend = (UnitInParty(targetUnit) or UnitInRaid(targetUnit) or UnitName(targetUnit) == UnitName("player")) else targetFriend = false end
 	if unit ~= nil and GetObjectExists(unit) then
-		if #br.friend > 1 then
+		if targetFriend then
+			if isChecked("Cast Debug") and not GetObjectExists("target") then Print(UnitName(unit).." is targetting "..UnitName(targetOfTarget)) end
+			return targetFriend
+		elseif UnitDetailedThreatSituation(playerUnit, unit)~=nil then
+			if select(3,UnitDetailedThreatSituation(playerUnit, unit)) > 0 then
+				if isChecked("Cast Debug") and not UnitExists("target") then Print(UnitName(unit).." is threatening you."); end 
+				return true 
+			end
+		elseif #br.friend > 1 then
 			for i = 1, #br.friend do
 				local thisUnit = br.friend[i].unit
 				if UnitDetailedThreatSituation(thisUnit,unit) ~= nil then
@@ -314,18 +327,14 @@ function hasThreat(unit,playerUnit)
 					end
 				end
 			end
-		elseif UnitDetailedThreatSituation(playerUnit, unit)~=nil then
-			if select(3,UnitDetailedThreatSituation(playerUnit, unit)) > 0 then 
-				if isChecked("Cast Debug") and not UnitExists("target") then Print(UnitName(unit).." is threatening you."); end 
-				return true 
-			end
-		elseif targetFriend then
-			if isChecked("Cast Debug") and not UnitExists("target") then Print(UnitName(unit).." if targetting "..UnitName(targetOfTarget)) end
-			return targetFriend
+		else
+			return false
 		end
 	elseif targetFriend then
-		if isChecked("Cast Debug") and not UnitExists("target") then Print(UnitName(unit).." if targetting "..UnitName(targetOfTarget)) end
+		if isChecked("Cast Debug") and not GetObjectExists("target") then Print(UnitName(unit).." is targetting "..UnitName(targetOfTarget)) end
 		return targetFriend
+	else
+		return false
 	end
 end
 -- if isAggroed("target") then
