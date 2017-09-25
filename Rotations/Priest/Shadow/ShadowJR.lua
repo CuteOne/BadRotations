@@ -1,4 +1,6 @@
 local rotationName = "JR"
+-- TODO
+    -- add sephuz proc abilities - dispell magic, quaking palm, war stomp, arcane torrent
 
 ---------------
 --- Toggles ---
@@ -74,6 +76,11 @@ local function createOptions()
             br.ui:createDropdownWithout(section,"Elixir", {"Flask of the Whispered Pact","Repurposed Fel Focuser","Oralius' Whispering Crystal","None"}, 1, "|cffFFFFFFSet Elixir to use.")
             -- Trinkets
             br.ui:createCheckbox(section,"Trinkets", "|cffFFFFFFUse trinkets on Cooldown. Overrides individual trinket usage below.")
+            -- Arcane Torrent
+            if (br.player.race == "Troll" or br.player.race == "BloodElf") then
+                br.ui:createCheckbox(section,"Arcane Torrent")
+                br.ui:createSpinnerWithout(section, "  Arcane Torrent Stacks", 35, 0, 100, 1, "|cffFFFFFFSet to desired Void Form stacks to use at.")
+            end
             if hasEquiped(128318) then
                 br.ui:createCheckbox(section,"Touch of the Void")
             end
@@ -334,7 +341,6 @@ local function runRotation()
     if activeEnemies > 1 then multipleEnemies = 1 else multipleEnemies = 0 end
     local s2msetup_time = (0.8 * (83 + (20 + 20 * fortressOfTheMind) * t20pc4 - (5 * sanlayn) + (30 + 42 * multipleEnemies + 10 * lingeringInsanity) * t21pc4 * auspiciousSpirits + ((33 - 13 * t20pc4) * reaperOfSouls) + t19pc2 * 4 + 8 * mangaMad + (UnitSpellHaste("player") * 10 * (1 + 0.7 * t20pc4)) * (2 + (0.8 * t19pc2) + (1 * reaperOfSouls) + (2 * massHysteria) - (1 * sanlayn))))
 
-
     -- Void Bolt
     -- void_bolt
     if isValidUnit(units.dyn40) and inCombat and buff.voidForm.exists() and (cd.voidBolt == 0 or buff.void.exists()) and not isCastingSpell(spell.voidTorrent) then
@@ -465,13 +471,6 @@ local function runRotation()
     -- Action List - Cooldowns
     function actionList_Cooldowns()
         if useCDs() then
-            -- Racials
-            -- blood_fury
-            -- arcane_torrent
-            -- berserking
-            if (br.player.race == "Troll" or br.player.race == "BloodElf") then
-                if br.player.castRacial() then return end
-            end
             -- Touch of the Void   
             if isChecked("Touch of the Void") and getDistance("target") <= 40 then
                 if hasEquiped(128318) then
@@ -647,7 +646,7 @@ local function runRotation()
         end
         -- TODO - need to consider whether single-target rotation has an effect on s2mcheck time
         -- variable,op=set,name=s2mcheck,value=variable.s2msetup_time-(variable.actors_fight_time_mod*nonexecute_actors_pct)
-        s2mcheck = s2msetup_time - (actors_fight_time_mod * getNonExecuteEnemiesPercent(executeHP))
+        s2mCheck = s2msetup_time - (actors_fight_time_mod * getNonExecuteEnemiesPercent(executeHP))
         -- variable,op=min,name=s2mcheck,value=180
         if s2mCheck < 180 then s2mCheck = 180 end
     end
@@ -907,16 +906,37 @@ local function runRotation()
     end
     -- Action List - Surrender To Madness
     function actionList_SurrenderToMadness() -- Provided by Cyberking07
-    --Silence - to proc Sephuzs
+    --Try to proc Sephuzs
         -- silence,if=equipped.sephuzs_secret&(target.is_add|target.debuff.casting.react)&cooldown.buff_sephuzs_secret.remains<1&!buff.sephuzs_secret.up,cycle_targets=1
         if buff.sephuz1.exists() and not buff.sephuzCooldown.exists() and not buff.sephuz2.exists() then
-            if canInterrupt(units.dyn40,100) then
+            -- Arcane Torrent (blood elf racial)
+            if br.player.race == "blood elf" and getSpellCD(racial) == 0 and #enemies.yards8 > 0 then
+                for i = 1, #enemies.yards8 do
+                    local thisUnit = enemies.yards5[i]
+                    if not isBoss(thisUnit) and UnitLevel(thisUnit) < UnitLevel("player") + 3 then
+                        if castSpell("player",racial,false,false,false) then return end
+                    end
+                end
+            end
+            -- Quaking Palm (panda racial)  getDistance(thisUnit,thisEnemy)
+            if br.player.race == "pandaren" and getSpellCD(racial) == 0 and #enemies.yards5 > 0 then
+                if not mode.rotation == 3 then
+                    for i = 1, #enemies.yards5 do
+                        local thisUnit = enemies.yards5[i]
+                        if not isBoss(thisUnit) and UnitLevel(thisUnit) < UnitLevel("player") + 3 then
+                            if castSpell("player",racial,false,false,false) then return end
+                        end
+                    end
+                end
+            end
+            -- Silence
+            if not isBoss(units.dyn40) then
                 if cast.silence(units.dyn40) then return end
             end
             if not mode.rotation == 3 then
                 for i = 1, #enemies.yards40 do
                     local thisUnit = enemies.yards40[i]
-                    if canInterrupt(thisUnit,100) then
+                    if not isBoss(thisUnit) and UnitLevel(thisUnit) < UnitLevel("player") + 3 then
                         if cast.silence(thisUnit) then return end
                     end
                 end
@@ -930,13 +950,13 @@ local function runRotation()
     -- Mind Bomb - to proc Sephuzs
         -- mind_bomb,if=equipped.sephuzs_secret&target.is_add&cooldown.buff_sephuzs_secret.remains<1&!buff.sephuzs_secret.up,cycle_targets=1
         if buff.sephuz1.exists() and buff.sephuzCooldown.remain() < 1 and not buff.sephuz2.exists() then
-            if canInterrupt(units.dyn40,100) then
+            if not isBoss(units.dyn40) and UnitLevel(units.dyn40) < UnitLevel("player") + 3 then
                 if cast.mindBomb(units.dyn40) then return end
             end
             if not mode.rotation == 3 then
                 for i = 1, #enemies.yards40 do
                     local thisUnit = enemies.yards40[i]
-                    if not isInstanceBoss(thisUnit) and UnitLevel(thisUnit) < UnitLevel("player") + 3 then
+                    if not isBoss(thisUnit) and UnitLevel(thisUnit) < UnitLevel("player") + 3 then
                         if cast.mindBomb(thisUnit) then return end
                     end
                 end
@@ -995,7 +1015,7 @@ local function runRotation()
     --Power Infusion
         -- power_infusion,if=cooldown.shadow_word_death.charges=0&buff.voidform.stack>(45+25*set_bonus.tier20_4pc)|target.time_to_die<=30
         if isChecked("Power Infusion") and useCDs() then
-            if charges.shadowWordDeath == 0 and (buff.voidForm.stack() >= getOptionValue("Power Infusion Stacks") or ttd(units.dyn40) <= 30) then
+            if charges.shadowWordDeath == 0 and (buff.voidForm.stack() >= getOptionValue("  Power Infusion Stacks") or ttd(units.dyn40) <= 30) then
                 if cast.powerInfusion() then return end
             end
         end
@@ -1023,7 +1043,7 @@ local function runRotation()
         -- dispersion,if=current_insanity_drain*gcd.max>insanity&!buff.power_infusion.up|(buff.voidform.stack>76&cooldown.shadow_word_death.charges=0&current_insanity_drain*gcd.max>insanity)
         if isChecked("Dispersion S2M") and useCDs() then
             if insanityDrain * gcd > power and (not buff.powerInfusion.exists() 
-                or (buff.voidForm.stack() >= getOptionValue("Dispersion Stacks") and charges.shadowWordDeath == 0 and insanityDrain * gcd > power)) 
+                or (buff.voidForm.stack() >= getOptionValue("  Dispersion Stacks") and charges.shadowWordDeath == 0 and insanityDrain * gcd > power)) 
             then
                 if cast.dispersion("player") then return end
             end
@@ -1051,7 +1071,7 @@ local function runRotation()
     --Shadow Fiend  
         -- shadowfiend,if=!talent.mindbender.enabled,if=buff.voidform.stack>15
         if isChecked("Shadowfiend / Mindbender") and useCDs() then
-            if not talent.mindbender and buff.voidForm.stack() >= getOptionValue("Shadowfiend Stacks") then
+            if not talent.mindbender and buff.voidForm.stack() >= getOptionValue("  Shadowfiend Stacks") then
                 if cast.shadowfiend() then return end
             end
         end
@@ -1151,16 +1171,37 @@ local function runRotation()
                 if cast.surrenderToMadness() then return end
             end
         end
-    -- Silence - to proc Sephuzs
+    -- Try to proc Sephuzs
         -- silence,if=equipped.sephuzs_secret&(target.is_add|target.debuff.casting.react)&cooldown.buff_sephuzs_secret.remains<1&!buff.sephuzs_secret.up&buff.insanity_drain_stacks.value>10,cycle_targets=1
         if buff.sephuz1.exists() and not buff.sephuzCooldown.exists() and not buff.sephuz2.exists() and drainStacks > 10 then
-            if canInterrupt(units.dyn40,100) then
+            -- Arcane Torrent (blood elf racial)
+            if br.player.race == "blood elf" and getSpellCD(racial) == 0 and #enemies.yards8 > 0 then
+                for i = 1, #enemies.yards8 do
+                    local thisUnit = enemies.yards5[i]
+                    if not isBoss(thisUnit) and UnitLevel(thisUnit) < UnitLevel("player") + 3 then
+                        if castSpell("player",racial,false,false,false) then return end
+                    end
+                end
+            end
+            -- Quaking Palm (panda racial)  getDistance(thisUnit,thisEnemy)
+            if br.player.race == "pandaren" and getSpellCD(racial) == 0 and #enemies.yards5 > 0 then
+                if not mode.rotation == 3 then
+                    for i = 1, #enemies.yards5 do
+                        local thisUnit = enemies.yards5[i]
+                        if not isBoss(thisUnit) and UnitLevel(thisUnit) < UnitLevel("player") + 3 then
+                            if castSpell("player",racial,false,false,false) then return end
+                        end
+                    end
+                end
+            end
+            -- Silence
+            if not isBoss(units.dyn40) then
                 if cast.silence(units.dyn40) then return end
             end
             if not mode.rotation == 3 then
                 for i = 1, #enemies.yards40 do
                     local thisUnit = enemies.yards40[i]
-                    if canInterrupt(thisUnit,100) then
+                    if not isBoss(thisUnit) and UnitLevel(thisUnit) < UnitLevel("player") + 3 then
                         if cast.silence(thisUnit) then return end
                     end
                 end
@@ -1209,7 +1250,7 @@ local function runRotation()
             else
             -- mindbender,if=buff.insanity_drain_stacks.value>=(variable.cd_time-(3*set_bonus.tier20_4pc*(raid_event.movement.in<15)*((active_enemies-(raid_event.adds.count*(raid_event.adds.remains>0)))=1))+(5-3*set_bonus.tier20_4pc)*buff.bloodlust.up+2*talent.fortress_of_the_mind.enabled*set_bonus.tier20_4pc)&(!talent.surrender_to_madness.enabled|(talent.surrender_to_madness.enabled&target.time_to_die>variable.s2mcheck-buff.insanity_drain_stacks.value))
                 if drainStacks >= (cd_time -  (3 * t20pc4 * raidMovementWithin15 * singleEnemy) + (5 - 3*t20pc4)*lusting + 2*fortressOfTheMind*t20pc4)
-                    and (not talent.surrenderTomadness or (talent.surrenderToMadness and ttd(units.dyn40) > s2mcheck - drainStacks)) 
+                    and (not talent.surrenderTomadness or (talent.surrenderToMadness and ttd(units.dyn40) > s2mCheck - drainStacks)) 
                 then
                     if cast.mindbender() then return end
                 end
@@ -1224,7 +1265,7 @@ local function runRotation()
                 end
             else
                 if drainStacks >= (cd_time + 5 * lusting * (1 + 1 * t20pc4)) 
-                    and (not talent.surrenderToMadness or (talent.surrenderToMadness and ttd(units.dyn40) > s2mcheck + 61 - drainStacks)) 
+                    and (not talent.surrenderToMadness or (talent.surrenderToMadness and ttd(units.dyn40) > s2mCheck + 61 - drainStacks)) 
                 then
                     if cast.powerInfusion() then return end
                 end
