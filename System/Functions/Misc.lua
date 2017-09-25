@@ -416,10 +416,10 @@ function enemyListCheck(Unit)
 			if (playerTarget and not hasThreat and (#br.friend == 1 or distance < 20)) or hasThreat or (isDummy(Unit) and (distance <= 8 or playerTarget)) then return true end
 		elseif not inCombat and IsInInstance() then
 			-- Only consider Units that I have threat with or I am alone and have targeted when not in Combat and in an Instance.
-			if (#br.friend == 1 and isPlayerTarget() and playerTarget) or hasThreat then return true end
+			if (#br.friend == 1 and playerTarget) or hasThreat then return true end
 		elseif not inCombat and not IsInInstance() then
 			-- Only consider Units that are in 20yrs or I have targeted when not in Combat and not in an Instance.
-			if playerTarget or (distance < 20 and not next(br.enemy)) then return true end
+			if (playerTarget or distance < 20) and not next(br.enemy) then return true end
 		end
 	end
 	return false
