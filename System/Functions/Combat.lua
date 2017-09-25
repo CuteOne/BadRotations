@@ -301,38 +301,33 @@ end
 function hasThreat(unit,playerUnit)
 	if playerUnit == nil then playerUnit = "player" end
 	if GetUnit(unit) == nil then 
-		targetUnit = nil 
+		targetUnit = "None" 
 	elseif UnitTarget(GetUnit(unit)) ~= nil then
 		targetUnit = UnitTarget(GetUnit(unit))
+	else
+		targetUnit = "None"
 	end
-	if targetUnit ~= nil then targetFriend = (UnitInParty(targetUnit) or UnitInRaid(targetUnit) or UnitName(targetUnit) == UnitName("player")) else targetFriend = false end
-	if unit ~= nil and GetObjectExists(unit) then
-		if targetFriend then
-			if isChecked("Cast Debug") and not GetObjectExists("target") then Print(UnitName(unit).." is targetting "..UnitName(targetOfTarget)) end
-			return targetFriend
-		elseif UnitDetailedThreatSituation(playerUnit, unit)~=nil then
-			if select(3,UnitDetailedThreatSituation(playerUnit, unit)) > 0 then
-				if isChecked("Cast Debug") and not UnitExists("target") then Print(UnitName(unit).." is threatening you."); end 
-				return true 
-			end
-		elseif #br.friend > 1 then
-			for i = 1, #br.friend do
-				local thisUnit = br.friend[i].unit
-				if UnitDetailedThreatSituation(thisUnit,unit) ~= nil then
-					if select(3,UnitDetailedThreatSituation(thisUnit,unit)) > 0 then 
-						if isChecked("Cast Debug") and not UnitExists("target") then Print(UnitName(unit).." is threatening "..UnitName(thisUnit).."."); end
-						return true 
-					end
-				end
-			end
-		else
-			return false
-		end
-	elseif targetFriend then
+	if targetUnit == "None" then targetFriend = false else targetFriend = (UnitName(targetUnit) == UnitName("player") or UnitInParty(targetUnit) or UnitInRaid(targetUnit)) end
+	-- Print(tostring(unit).." | "..tostring(GetUnit(unit)).." | "..tostring(targetUnit).." | "..tostring(targetFriend))
+	if unit == nil or not GetObjectExists(targetUnit) then return false end
+	if targetFriend then
 		if isChecked("Cast Debug") and not GetObjectExists("target") then Print(UnitName(unit).." is targetting "..UnitName(targetOfTarget)) end
 		return targetFriend
-	else
-		return false
+	elseif UnitDetailedThreatSituation(playerUnit, unit)~=nil then
+		if select(3,UnitDetailedThreatSituation(playerUnit, unit)) > 0 then
+			if isChecked("Cast Debug") and not UnitExists("target") then Print(UnitName(unit).." is threatening you."); end 
+			return true 
+		end
+	elseif #br.friend > 1 then
+		for i = 1, #br.friend do
+			local thisUnit = br.friend[i].unit
+			if UnitDetailedThreatSituation(thisUnit,unit) ~= nil then
+				if select(3,UnitDetailedThreatSituation(thisUnit,unit)) > 0 then 
+					if isChecked("Cast Debug") and not UnitExists("target") then Print(UnitName(unit).." is threatening "..UnitName(thisUnit).."."); end
+					return true 
+				end
+			end
+		end
 	end
 end
 -- if isAggroed("target") then

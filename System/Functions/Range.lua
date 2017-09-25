@@ -9,7 +9,7 @@ function getDistance(Unit1,Unit2,option)
     if rangeMod == nil then rangeMod = 0 end
     if br.player ~= nil then
         if br.player.talent.balanceAffinity ~= nil then
-            if br.player.talent.balanceAffinity then
+            if br.player.talent.balanceAffinity and option ~= "noMod" then
                 rangeMod = 5
             else
                 rangeMod = 0
