@@ -194,6 +194,7 @@ local function runRotation()
         local holyPower     = br.player.power.amount.holyPower
         local holyPowerMax  = br.player.power.holyPower.max
         local inCombat      = br.player.inCombat
+        local item          = br.player.items
         local level         = br.player.level
         local mode          = br.player.mode
         local php           = br.player.health
@@ -532,17 +533,17 @@ local function runRotation()
             if isValidUnit("target") and (opener == true or not isChecked("Opener")) then
         -- Flask
                 -- flask,type=flask_of_the_countless_armies
-                if getOptionValue("Elixir") == 1 and inRaid and not buff.flaskOfTheCountlessArmies.exists() then
+                if getOptionValue("Elixir") == 1 and inRaid and not buff.flaskOfTheCountlessArmies.exists() and canUse(item.flaskOfTheCountlessArmies) then
                     if buff.whispersOfInsanity.exists() then buff.whispersOfInsanity.cancel() end
                     if buff.felFocus.exists() then buff.felFocus.cancel() end
                     if use.flaskOfTheCountlessArmies() then return end
                 end
-                if getOptionValue("Elixir") == 2 and not buff.felFocus.exists() then
+                if getOptionValue("Elixir") == 2 and not buff.felFocus.exists() and canUse(item.repurposedFelFocuser) then
                     if buff.flaskOfTheCountlessArmies.exists() then buff.flaskOfTheCountlessArmies.cancel() end
                     if buff.whispersOfInsanity.exists() then buff.whispersOfInsanity.cancel() end
                     if use.repurposedFelFocuser() then return end
                 end
-                if getOptionValue("Elixir") == 3 and not buff.whispersOfInsanity.exists() then
+                if getOptionValue("Elixir") == 3 and not buff.whispersOfInsanity.exists() and canUse(item.oraliusWhisperingCrystal) then
                     if buff.flaskOfTheCountlessArmies.exists() then buff.flaskOfTheCountlessArmies.cancel() end
                     if buff.felFocus.exists() then buff.felFocus.cancel() end
                     if use.oraliusWhisperingCrystal() then return end

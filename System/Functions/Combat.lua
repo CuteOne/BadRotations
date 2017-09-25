@@ -303,9 +303,7 @@ function hasThreat(unit,playerUnit)
 	if GetUnit(unit) == nil then 
 		targetUnit = nil 
 	elseif UnitTarget(GetUnit(unit)) ~= nil then
-		targetUnit = UnitTarget(GetUnit(unit)) 
-	elseif GetObjectExists("target") and isPlayerTarget() then
-		targetUnit = UnitTarget("targettarget")
+		targetUnit = UnitTarget(GetUnit(unit))
 	end
 	if targetUnit ~= nil then targetFriend = (UnitInParty(targetUnit) or UnitInRaid(targetUnit) or UnitName(targetUnit) == UnitName("player")) else targetFriend = false end
 	if unit ~= nil and GetObjectExists(unit) then

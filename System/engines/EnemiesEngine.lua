@@ -54,7 +54,7 @@ local function AddEnemy(thisUnit)
 		enemy.unit 			= thisUnit
 		enemy.name 			= UnitName(thisUnit)
 		enemy.guid 			= UnitGUID(thisUnit)
-		enemy.id 			= GetObjectID(thisUnit)
+		enemy.id 			= GetObjectID(thisUnit) 
 	end
 	br.debug.cpu.enemiesEngine.addTime = debugprofilestop()-startTime or 0
 end

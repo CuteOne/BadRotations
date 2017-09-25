@@ -129,15 +129,6 @@ function UnitIsTappedByPlayer(mob)
 		return false
 	end
 end
-function isPlayerTarget()
-	local playerUnit = UnitTarget("player")
-	if playerUnit ~= nil then playerUnitGUID = UnitGUID(playerUnit) else playerUnitGUID = 0 end
-	if GetObjectExists("target") then
-		return UnitGUID("target") == playerUnitGUID
-	else
-		return false
-	end
-end
 function getSpellUnit(spellCast)
 	local spellName,_,_,_,_,maxRange = GetSpellInfo(spellCast)
 	local spellType = getSpellType(spellName)
