@@ -2127,6 +2127,7 @@ br.idList = {
 
             },
             buffs                           = {
+                classHallSpeed              = 224098,
             },
             debuffs                         = {
 

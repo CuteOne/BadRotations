@@ -628,7 +628,7 @@ local function runRotation()
             end
         end
     -- Power Word: Shield Body and Soul
-        if isChecked("PWS: Body and Soul") and talent.bodyAndSoul and isMoving("player") and not IsMounted() then
+        if isChecked("PWS: Body and Soul") and talent.bodyAndSoul and isMoving("player") and not IsMounted() and not buff.classHallSpeed.exists() then
             if cast.powerWordShield("player") then return end
         end
     end  -- End Action List - Pre-Combat
