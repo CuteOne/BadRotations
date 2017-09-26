@@ -158,14 +158,14 @@ function getRunePercent(Type)
     		return runePercent
   	end
 end
-local function runeCDPercent(runeIndex)
+function runeCDPercent(runeIndex)
     if GetRuneCount(runeIndex) == 0 then
         return (GetTime() - select(1,GetRuneCooldown(runeIndex))) / select(2,GetRuneCooldown(runeIndex))
     else
         return 0
     end
 end
-local function runeRecharge(runeIndex)
+function runeRecharge(runeIndex)
     if not select(3,GetRuneCooldown(runeIndex)) then
         return select(2,GetRuneCooldown(runeIndex)) - (GetTime() - select(1,GetRuneCooldown(runeIndex)))
     else
