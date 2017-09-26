@@ -1152,7 +1152,7 @@ local function runRotation()
         end
     --Mind Flay 
         -- mind_flay,chain=1,interrupt_immediate=1,interrupt_if=ticks>=2&(action.void_bolt.usable|(current_insanity_drain*gcd.max>insanity&(insanity-(current_insanity_drain*gcd.max)+60)<100&cooldown.shadow_word_death.charges>=1))
-        if isCastingSpell(spell.mindFlay) and mfTick >= 2 and (cd.voidBold.remain() == 0 or (insanityDrain * gcdMax > power and (power - (insanityDrain * gcdMax) + 60) < 100 and charges.shadowWordDeath.count() >= 1)) then
+        if isCastingSpell(spell.mindFlay) and mfTick >= 2 and (cd.voidBolt.remain() == 0 or (insanityDrain * gcdMax > power and (power - (insanityDrain * gcdMax) + 60) < 100 and charges.shadowWordDeath.count() >= 1)) then
             SpellStopCasting()
             return true               
         elseif not moving then
@@ -1442,7 +1442,7 @@ local function runRotation()
         end
     -- Mind Flay
         -- mind_flay,chain=1,interrupt_immediate=1,interrupt_if=ticks>=2&(action.void_bolt.usable|(current_insanity_drain*gcd.max>insanity&(insanity-(current_insanity_drain*gcd.max)+30)<100&cooldown.shadow_word_death.charges>=1))
-        if isCastingSpell(spell.mindFlay) and mfTick >= 2 and (cd.voidBold.remain() == 0 or (insanityDrain * gcdMax > power and (power - (insanityDrain * gcdMax) + 30) < 100 and charges.shadowWordDeath.count() >= 1)) then
+        if isCastingSpell(spell.mindFlay) and mfTick >= 2 and (cd.voidBolt.remain() == 0 or (insanityDrain * gcdMax > power and (power - (insanityDrain * gcdMax) + 30) < 100 and charges.shadowWordDeath.count() >= 1)) then
             SpellStopCasting()
             return true               
         elseif not moving then
