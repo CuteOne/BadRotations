@@ -411,7 +411,7 @@ local function runRotation()
                 -- arcane_torrent,if=focus.deficit>=30
                 -- berserking,if=buff.bestial_wrath.remains>7
                 -- blood_fury,if=buff.bestial_wrath.remains>7
-                if isChecked("Racial") and cd.racial.remain() == 0
+                if isChecked("Racial") and getSpellCD(racial) == 0
                     and ((buff.bestialWrath.remain() > 7 and (br.player.race == "Orc" or br.player.race == "Troll")) 
                         or (powerDeficit >= 30 and br.player.race == "BloodElf")) 
                 then

@@ -191,8 +191,7 @@ function castSpell(Unit,SpellID,FacingCheck,MovementCheck,SpamAllowed,KnownSkip,
 		-- Check unit,if it's player then we can skip facing
 		if (Unit == nil or UnitIsUnit("player",Unit)) -- Player
 			or (Unit ~= nil and UnitIsFriend("player",Unit))  -- Ally
-			or (not EWT and HackEnabled("AlwaysFacing")) 
-			or (EWT and IsHackEnabled("AlwaysFacing"))
+			or IsHackEnabled("AlwaysFacing")
 		then 
 			FacingCheck = true
 		elseif isSafeToAttack(Unit) ~= true then -- enemy

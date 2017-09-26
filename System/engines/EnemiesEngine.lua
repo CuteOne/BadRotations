@@ -108,8 +108,7 @@ function getOMUnits()
 			-- define our unit
 			local thisUnit = GetObjectWithIndex(i)
 			local enemyListCheck = enemyListCheck
-			if (not EWT and (ObjectIsType(thisUnit, ObjectType.Unit) or GetObjectID(thisUnit) == 11492)) 
-				or (EWT and (ObjectIsType(thisUnit, ObjectTypes.Unit) or GetObjectID(thisUnit) == 11492))
+			if (ObjectIsType(thisUnit, ObjectTypes.Unit) or GetObjectID(thisUnit) == 11492)
 			then
 				if enemyListCheck(thisUnit)	then 
 					br.debug.cpu.enemiesEngine.units.targets = br.debug.cpu.enemiesEngine.units.targets + 1
@@ -220,7 +219,7 @@ end
 -- 				-- define our unit
 -- 				local enemyUnit = GetObjectWithIndex(i)
 -- 				-- check if it a unit first
--- 				if ObjectIsType(enemyUnit, ObjectType.Unit) or GetObjectID(enemyUnit) == 11492 then
+-- 				if ObjectIsType(enemyUnit, ObjectTypes.Unit) or GetObjectID(enemyUnit) == 11492 then
 -- 					local distance =  getDistance(thisUnit,enemyUnit)
 -- 					-- local inCombat = false
 -- 					-- if checkInCombat then
@@ -536,7 +535,7 @@ function getEnemiesInRect(width,length,showLines)
 	local minY = math.min(nrY,nlY,frY,flY)
 	for i = 1, #enemiesTable do 
 		local thisUnit = enemiesTable[i] --GetObjectWithIndex(i)
-		-- if ObjectIsType(thisUnit, ObjectType.Unit) and isValidTarget(thisUnit) and (UnitIsEnemy(thisUnit,"player") or isDummy(thisUnit)) then
+		-- if ObjectIsType(thisUnit, ObjectTypes.Unit) and isValidTarget(thisUnit) and (UnitIsEnemy(thisUnit,"player") or isDummy(thisUnit)) then
 		local tX, tY, tZ = GetObjectPosition(thisUnit)
 		if isInside(tX,tY,nlX,nlY,nrX,nrY,frX,frY) then
 			if showLines then

@@ -527,7 +527,7 @@ function SalvageHelper()
                 for i=1,GetObjectCount() do
                     -- Locals
                     local thisObject = GetObjectWithIndex(i)
-                    if ObjectIsType(thisObject, ObjectType.Unit) then
+                    if ObjectIsType(thisObject, ObjectTypes.Unit) then
                         -- Locals
                         local guid = UnitGUID(thisObject)
                         local objectName = ObjectName(thisObject)

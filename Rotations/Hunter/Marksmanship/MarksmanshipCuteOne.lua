@@ -499,7 +499,7 @@ local function runRotation()
                 -- arcane_torrent,if=focus.deficit>=30&(!talent.sidewinders.enabled|cooldown.sidewinders.charges<2)
                 -- berserking,if=buff.trueshot.up
                 -- blood_fury,if=buff.trueshot.up
-                if isChecked("Racial") and cd.racial.remain() == 0
+                if isChecked("Racial") and getSpellCD(racial) == 0
                     and ((buff.trueshot.exists() and (br.player.race == "Orc" or br.player.race == "Troll")) 
                         or (powerDeficit >= 30 and (not talent.sidewinders or charges.sidewinders.count() < 2) and br.player.race == "BloodElf")) 
                 then

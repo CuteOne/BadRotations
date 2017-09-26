@@ -1,12 +1,7 @@
 function GetObjectExists(Unit)
 	if Unit == nil then return false end
-	if FireHack and not (EWT or Toolkit_GetVersion ~= nil) then
+	if FireHack then
         if Unit == "target" or Unit == "targettarget" then
-            if not GetUnitExists(Unit) then return false end
-        end
-		return ObjectIsVisible(Unit)
-	elseif EWT or Toolkit_GetVersion ~= nil then
-		if Unit == "target" or Unit == "targettarget" then
             if not GetUnitExists(Unit) then return false end
         end
 		return ObjectExists(Unit)
@@ -48,7 +43,7 @@ function GetObjectPosition(Unit)
 end
 function GetObjectType(Unit)
     if FireHack and GetObjectExists(Unit) then
-        return ObjectType(Unit)
+        return ObjectTypes(Unit)
     else
         return 65561
     end
@@ -98,7 +93,7 @@ function GetObjectPosition(Unit)
 end
 function GetObjectType(Unit)
 	if GetObjectExists(Unit) then
-		return select(2,pcall(ObjectType,Unit))
+		return select(2,pcall(ObjectTypes,Unit))
 	else
 		return false
 	end

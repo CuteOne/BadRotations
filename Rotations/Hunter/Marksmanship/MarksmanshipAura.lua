@@ -332,8 +332,8 @@ local function runRotation()
         local function getExplosiveDistance(otherUnit)
             -- Find Explosive Shot Object
             local explosiveObject = nil
-            if ObjectIsVisible("target") and otherUnit == nil then otherUnit = "target" end
-            if not ObjectIsVisible(otherUnit) then otherUnit = nil end
+            if ObjectExists("target") and otherUnit == nil then otherUnit = "target" end
+            if not ObjectExists(otherUnit) then otherUnit = nil end
             for i = 1,GetObjectCount() do
                 local thisUnit = GetObjectWithIndex(i)
                 if GetObjectID(thisUnit) == 11492 then
@@ -345,9 +345,9 @@ local function runRotation()
                 end
             end
             -- Return Distances
-            if ObjectIsVisible(explosiveObject) and ObjectIsVisible(otherUnit) then
+            if ObjectExists(explosiveObject) and ObjectExists(otherUnit) then
                 return GetDistanceBetweenObjects(explosiveObject,otherUnit)
-            -- elseif ObjectIsVisible("target") then
+            -- elseif ObjectExists("target") then
             --     return GetDistanceBetweenObjects("target","player")
             else 
                 return 99
@@ -553,9 +553,8 @@ local function runRotation()
                 -- arcane_torrent,if=focus.deficit>=30&(!talent.sidewinders.enabled|cooldown.sidewinders.charges<2)
                 -- berserking,if=buff.trueshot.up
                 -- blood_fury,if=buff.trueshot.up
-                if isChecked("Racial") and cd.racial.remain() == 0
-                    and ((buff.trueshot.exists() and (br.player.race == "Orc" or br.player.race == "Troll")) 
-                        or (powerDeficit >= 30 and (not talent.sidewinders or charges.sidewinders.count() < 2) and br.player.race == "BloodElf")) 
+                if isChecked("Racial") and ((buff.trueshot.exists() and (br.player.race == "Orc" or br.player.race == "Troll")) 
+                        or (powerDeficit >= 30 and (not talent.sidewinders or charges.sidewinders.count() < 2) and br.player.race == "BloodElf")) and getSpellCD(racial) == 0 
                 then
                      if castSpell("player",racial,false,false,false) then return end
                 end

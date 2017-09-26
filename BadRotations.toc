@@ -11,6 +11,7 @@ misc.xml
 
 ## System
 
+System\Unlockers.lua
 System\Core.lua
 System\Debugging.lua
 System\LootManager.lua
