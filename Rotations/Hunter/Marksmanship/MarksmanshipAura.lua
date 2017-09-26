@@ -196,17 +196,16 @@ local function runRotation()
         local php                                           = br.player.health
         local playerMouse                                   = UnitIsPlayer("mouseover")
         local potion                                        = br.player.potion
-        local power, powerMax, powerRegen, powerDeficit     = br.player.power.amount.focus, br.player.power.focus.max, br.player.power.regen, br.player.power.focus.deficit
+        local power, powerMax, powerRegen, powerDeficit     = br.player.power.focus.amount(), br.player.power.focus.max(), br.player.power.focus.regen(), br.player.power.focus.deficit()
         local pullTimer                                     = br.DBM:getPulltimer()
         local racial                                        = br.player.getRacial()
-        local recharge                                      = br.player.recharge
         local solo                                          = #br.friend < 2
         local friendsInRange                                = friendsInRange
         local spell                                         = br.player.spell
         local talent                                        = br.player.talent
         local trinketProc                                   = false
         local ttd                                           = getTTD
-        local ttm                                           = br.player.power.ttm
+        local ttm                                           = br.player.power.focus.ttm()
         local units                                         = units or {}
         local t20_2pc                                       = TierScan("T20") >= 2
 
@@ -248,7 +247,7 @@ local function runRotation()
         -- Pool for Piercing Shot
         -- pooling_for_piercing,value=talent.piercing_shot.enabled&cooldown.piercing_shot.remains<5&lowest_vuln_within.5>0&lowest_vuln_within.5>cooldown.piercing_shot.remains&(buff.trueshot.down|spell_targets=1)
         local poolForPiercing
-        if mode.piercing == 1 and talent.piercingShot and cd.piercingShot < 5 and lowestVuln > 0 and lowestVuln > cd.piercingShot and (not buff.trueshot.exists() or enemies.yards40r >= getOptionValue("Piercing Shot Units")) then
+        if mode.piercing == 1 and talent.piercingShot and cd.piercingShot.remain() < 5 and lowestVuln > 0 and lowestVuln > cd.piercingShot.remain() and (not buff.trueshot.exists() or enemies.yards40r >= getOptionValue("Piercing Shot Units")) then
             poolForPiercing = true
         else
             poolForPiercing = false
@@ -257,8 +256,8 @@ local function runRotation()
         -- Wait for Sentinel
         -- waiting_for_sentinel,value=talent.sentinel.enabled&(buff.marking_targets.up|buff.trueshot.up)&!cooldown.sentinel.up&((cooldown.sentinel.remains>54&cooldown.sentinel.remains<(54+gcd.max))|(cooldown.sentinel.remains>48&cooldown.sentinel.remains<(48+gcd.max))|(cooldown.sentinel.remains>42&cooldown.sentinel.remains<(42+gcd.max)))
         local waitForSentinel
-        if talent.sentinel and (buff.markingTargets.exists() or buff.trueshot.exists()) and cd.sentinel > 0 
-            and ((cd.sentinel > 54 and cd.sentinel < (54 + gcd)) or (cd.sentinel > 48 and cd.sentinel < (48 + gcd)) or (cd.sentinel > 42 and cd.sentinel < (42 + gcd))) 
+        if talent.sentinel and (buff.markingTargets.exists() or buff.trueshot.exists()) and cd.sentinel.remain() > 0 
+            and ((cd.sentinel.remain() > 54 and cd.sentinel.remain() < (54 + gcd)) or (cd.sentinel.remain() > 48 and cd.sentinel.remain() < (48 + gcd)) or (cd.sentinel.remain() > 42 and cd.sentinel.remain() < (42 + gcd))) 
         then
             waitForSentinel = true
         else
@@ -534,7 +533,7 @@ local function runRotation()
             if useCDs() then
         -- Trinkets
                 if isChecked("Trinkets") then
-                    if hasEquiped(147017) and (((cd.trueshot < 6 or cd.trueshot > 30) and (ttd(units.dyn40) > 120+ 20)) or (ttd(units.dyn40) < 25 or buff.bullseye.stack() == 30)) then
+                    if hasEquiped(147017) and (((cd.trueshot.remain() < 6 or cd.trueshot.remain() > 30) and (ttd(units.dyn40) > 120+ 20)) or (ttd(units.dyn40) < 25 or buff.bullseye.stack() == 30)) then
                         useItem(147017)
                     end
                     if canUse(13) then
@@ -554,9 +553,9 @@ local function runRotation()
                 -- arcane_torrent,if=focus.deficit>=30&(!talent.sidewinders.enabled|cooldown.sidewinders.charges<2)
                 -- berserking,if=buff.trueshot.up
                 -- blood_fury,if=buff.trueshot.up
-                if isChecked("Racial") and cd.racial == 0
+                if isChecked("Racial") and cd.racial.remain() == 0
                     and ((buff.trueshot.exists() and (br.player.race == "Orc" or br.player.race == "Troll")) 
-                        or (powerDeficit >= 30 and (not talent.sidewinders or charges.sidewinders < 2) and br.player.race == "BloodElf")) 
+                        or (powerDeficit >= 30 and (not talent.sidewinders or charges.sidewinders.count() < 2) and br.player.race == "BloodElf")) 
                 then
                      if castSpell("player",racial,false,false,false) then return end
                 end
@@ -565,7 +564,7 @@ local function runRotation()
                 -- trueshot,if=variable.trueshot_cooldown=0|buff.bloodlust.up|(variable.trueshot_cooldown>0&target.time_to_die>(variable.trueshot_cooldown+duration))|buff.bullseye.react>25|target.time_to_die<16
                 if isChecked("Trueshot") then
                     local trueshotCD = trueshotCD or 0
-                    if combatTime > 15 and cd.trueshot == 0 and trueshotCD == 0 then trueshotCD = combatTime * 1.1 else trueshotCD = 0 end
+                    if combatTime > 15 and cd.trueshot.remain() == 0 and trueshotCD == 0 then trueshotCD = combatTime * 1.1 else trueshotCD = 0 end
                     if trueshotCD == 0 or hasBloodLust() or (trueshotCD > 0 and ttd(units.dyn40) > (trueshotCD + buff.trueshot.duration())) or buff.bullseye.exists() or ttd(units.dyn40) < 16 then
                         if (lastSpell == spell.markedShot or lastSpell == spell.windburst) then
                             if cast.trueshot("player") then return end
@@ -607,7 +606,7 @@ local function runRotation()
         -- Sidewinders
             -- sidewinders
 
-            if charges.sidewinders >= 1 and getSpellCD(spell.sidewinders) < gcd and getSpellCD(214579) < gcd then
+            if charges.sidewinders.count() >= 1 and getSpellCD(spell.sidewinders) < gcd and getSpellCD(214579) < gcd then
                 if cast.sidewinders() then return end
             end
         end -- End Action List - Target Die
@@ -616,7 +615,7 @@ local function runRotation()
         local function actionList_NonPatientSniper()
         -- Explosive Shot
             -- explosive_shot
-            if mode.explosive == 1 and talent.explosiveShot and cd.explosiveShot == 0 then
+            if mode.explosive == 1 and talent.explosiveShot and cd.explosiveShot.remain() == 0 then
                 if getAngle("player",units.dyn40) < 3 then
                     if cast.explosiveShot(units.dyn40) then explosiveTarget = units.dyn40; return end
                 end
@@ -642,7 +641,7 @@ local function runRotation()
             end
         -- Marked Shot
             -- marked_shot,if=spell_targets>1
-            if debuff.huntersMark.count() > 1 and power > 70 and cd.windburst > 2 and cd.windburst < 18 then
+            if debuff.huntersMark.count() > 1 and power > 70 and cd.windburst.remain() > 2 and cd.windburst.remain() < 18 then
                 for i = 1, #enemies.yards40 do
                     local thisUnit = enemies.yards40[i]
                   if debuff.huntersMark.exists(thisUnit) and (not debuff.vulnerable.exists(thisUnit) or (debuff.vulnerable.exists(thisUnit) and debuff.vulnerable.remain(thisUnit) < getCastTime(spell.aimedShot))) then
@@ -683,7 +682,7 @@ local function runRotation()
             end
         -- Marked Shot
             -- marked_shot,if=buff.marking_targets.up|buff.trueshot.up
-            if power > 70 and cd.windburst > 2 and cd.windburst < 18 then
+            if power > 70 and cd.windburst.remain() > 2 and cd.windburst.remain() < 18 then
                 for i = 1, #enemies.yards40 do
                     local thisUnit = enemies.yards40[i]
                     if debuff.huntersMark.exists(thisUnit) and (not debuff.vulnerable.exists(thisUnit) or (debuff.vulnerable.exists(thisUnit) and debuff.vulnerable.remain(thisUnit) < getCastTime(spell.aimedShot))) then
@@ -694,7 +693,7 @@ local function runRotation()
         -- Sidewinders
             -- !variable.waiting_for_sentinel&(debuff.hunters_mark.down|(buff.trueshot.down&buff.marking_targets.down))&((buff.marking_targets.up|buff.trueshot.up)|charges_fractional>1.8)&(focus.deficit>cast_regen)
             if talent.sidewinders and not waitForSentinel and (not debuff.huntersMark.exists(units.dyn40) or (not buff.trueshot.exists() and not buff.markingTargets.exists())) 
-                and ((buff.markingTargets.exists() or buff.trueshot.exists()) or charges.frac.sidewinders > 1.8) and (powerDeficit > getCastRegen(spell.sidewinders)) and charges.sidewinders >= 1 and lastSpell ~= spell.sidewinders
+                and ((buff.markingTargets.exists() or buff.trueshot.exists()) or charges.sidewinders.frac() > 1.8) and (powerDeficit > getCastRegen(spell.sidewinders)) and charges.sidewinders.count() >= 1 and lastSpell ~= spell.sidewinders
             then
                 if cast.sidewinders() then return end
             end
@@ -711,7 +710,7 @@ local function runRotation()
             end
         -- Marked Shot
             -- marked_shot
-            if power > 70 and cd.windburst > 2 and cd.windburst < 18 then
+            if power > 70 and cd.windburst.remain() > 2 and cd.windburst.remain() < 18 then
                 for i = 1, #enemies.yards40 do
                     local thisUnit = enemies.yards40[i]
                     if debuff.huntersMark.exists(thisUnit) and (not debuff.vulnerable.exists(thisUnit) or (debuff.vulnerable.exists(thisUnit) and debuff.vulnerable.remain(thisUnit) < getCastTime(spell.aimedShot))) then
@@ -741,11 +740,11 @@ local function runRotation()
             
         -- Piercing Shot
             -- piercing_shot,if=cooldown.piercing_shot.up&spell_targets=1&lowest_vuln_within.5>0&lowest_vuln_within.5<1
-            if mode.piercing == 1 and cd.piercingShot == 0 and enemies.yards40r >= getOptionValue("Piercing Shot Units") and lowestVuln > 0 and lowestVuln < 1 then
+            if mode.piercing == 1 and cd.piercingShot.remain() == 0 and enemies.yards40r >= getOptionValue("Piercing Shot Units") and lowestVuln > 0 and lowestVuln < 1 then
                 if cast.piercingShot(units.dyn40) then return end
             end
             -- piercing_shot,if=cooldown.piercing_shot.up&spell_targets>1&lowest_vuln_within.5>0&((!buff.trueshot.up&focus>80&(lowest_vuln_within.5<1|debuff.hunters_mark.up))|(buff.trueshot.up&focus>105&lowest_vuln_within.5<6))
-            if mode.piercing == 1 and cd.piercingShot == 0 and enemies.yards40r >= getOptionValue("Piercing Shot Units") and lowestVuln > 0 
+            if mode.piercing == 1 and cd.piercingShot.remain() == 0 and enemies.yards40r >= getOptionValue("Piercing Shot Units") and lowestVuln > 0 
                 and ((not buff.trueshot.exists() and power > 80 and (lowestVuln < 1 or debuff.huntersMark.exists(units.dyn40))) or (buff.trueshot.exists() and power > 105 and lowestVuln < 6)) 
             then
                 if cast.piercingShot(units.dyn38) then return end
@@ -792,7 +791,7 @@ local function runRotation()
             end
         -- A Murder of Crows
             -- a_murder_of_crows,if=(!variable.pooling_for_piercing|lowest_vuln_within.5>gcd.max)&(target.time_to_die>=cooldown+duration|target.health.pct<20|target.time_to_die<16)&variable.vuln_aim_casts=0
-            if (not poolForPiercing or lowestVuln > gcdMax) and (ttd(units.dyn40) >= cd.aMurderOfCrows + 15 or getHP(units.dyn40) < 20 or ttd(units.dyn40) < 16) and vulnAimCast == 0 then
+            if (not poolForPiercing or lowestVuln > gcdMax) and (ttd(units.dyn40) >= cd.aMurderOfCrows.remain() + 15 or getHP(units.dyn40) < 20 or ttd(units.dyn40) < 16) and vulnAimCast == 0 then
                 if cast.aMurderOfCrows(units.dyn40) then return end
             end
         -- Barrage
@@ -837,7 +836,7 @@ local function runRotation()
             end
         -- Marked Shot
             -- marked_shot,if=!talent.sidewinders.enabled&!variable.pooling_for_piercing&!action.windburst.in_flight&(focus>65|buff.trueshot.up|(1%attack_haste)>1.171)
-            if not talent.sidewinders and not poolForPiercing and cd.windburst > 2 and cd.windburst < 18 and power > 70 then
+            if not talent.sidewinders and not poolForPiercing and cd.windburst.remain() > 2 and cd.windburst.remain() < 18 and power > 70 then
                 if debuff.huntersMark.count() >= 1 then
                     for i = 1, #enemies.yards40 do
                         local thisUnit = enemies.yards40[i]
@@ -851,7 +850,7 @@ local function runRotation()
             end
         -- Marked Shot
             -- marked_shot,if=talent.sidewinders.enabled&(variable.vuln_aim_casts<1|buff.trueshot.up|variable.vuln_window<action.aimed_shot.cast_time)
-            if talent.sidewinders and (vulnAimCast < 1 or buff.trueshot.exists() or vulnWindow < getCastTime(spell.aimedShot)) and power > 70 and cd.windburst > 2 and cd.windburst < 18 then
+            if talent.sidewinders and (vulnAimCast < 1 or buff.trueshot.exists() or vulnWindow < getCastTime(spell.aimedShot)) and power > 70 and cd.windburst.remain() > 2 and cd.windburst.remain() < 18 then
                 if debuff.huntersMark.count() >= 1 then
                     for i = 1, #enemies.yards40 do
                         local thisUnit = enemies.yards40[i]
@@ -870,7 +869,7 @@ local function runRotation()
             end
         -- Sidewinders
             -- sidewinders,if=(!debuff.hunters_mark.up|(!buff.marking_targets.up&!buff.trueshot.up))&((buff.marking_targets.up&variable.vuln_aim_casts<1)|buff.trueshot.up|charges_fractional>1.9)
-            if (not debuff.huntersMark.exists(units.dyn40) or (not buff.markingTargets.exists() and not buff.trueshot.exists())) and ((buff.markingTargets.exists() and vulnAimCast < 1) or buff.trueshot.exists() or charges.frac.sidewinders > 1.9) and charges.sidewinders >= 1 and lastSpell ~= spell.sidewinders then
+            if (not debuff.huntersMark.exists(units.dyn40) or (not buff.markingTargets.exists() and not buff.trueshot.exists())) and ((buff.markingTargets.exists() and vulnAimCast < 1) or buff.trueshot.exists() or charges.sidewinders.frac() > 1.9) and charges.sidewinders.count() >= 1 and lastSpell ~= spell.sidewinders then
                 if cast.sidewinders() then return end
             end
         -- Arcane Shot
@@ -1008,7 +1007,7 @@ local function runRotation()
                         if (vulnAimCast < 1 or (not debuff.vulnerable.exists(thisUnit) or (debuff.vulnerable.exists(thisUnit) and debuff.vulnerable.remain(thisUnit) < getCastTime(spell.aimedShot)))) and power >= 50 then
                             if cast.windburst(units.dyn40) then return end
                         end
-                        if vulnAimCast < 1 and cd.windburst >= 2 and power >= 70 then
+                        if vulnAimCast < 1 and cd.windburst.remain() >= 2 and power >= 70 then
                             for i = 1, #enemies.yards40 do
                                 local thisUnit = enemies.yards40[i]
                                 if debuff.huntersMark.exists(thisUnit) and (not debuff.vulnerable.exists(thisUnit) or (debuff.vulnerable.exists(thisUnit) and debuff.vulnerable.remain(thisUnit) < getCastTime(spell.aimedShot))) then

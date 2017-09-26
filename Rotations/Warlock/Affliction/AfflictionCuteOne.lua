@@ -199,7 +199,7 @@ local function runRotation()
         local level                                         = br.player.level
         local lootDelay                                     = getOptionValue("LootDelay")
         local lowestHP                                      = br.friend[1].unit
-        local manaPercent                                   = br.player.power.mana.percent
+        local manaPercent                                   = br.player.power.mana.percent()
         local mode                                          = br.player.mode
         local moveIn                                        = 999
         local moving                                        = isMoving("player")
@@ -207,11 +207,10 @@ local function runRotation()
         local petInfo                                       = br.player.petInfo
         local php                                           = br.player.health
         local playerMouse                                   = UnitIsPlayer("mouseover")
-        local power, powmax, powgen, powerDeficit           = br.player.power.amount.mana, br.player.power.mana.max, br.player.power.regen, br.player.power.mana.deficit
+        local power, powmax, powgen, powerDeficit           = br.player.power.mana.amount(), br.player.power.mana.max(), br.player.power.mana.regen(), br.player.power.mana.deficit()
         local pullTimer                                     = br.DBM:getPulltimer()
         local racial                                        = br.player.getRacial()
-        local recharge                                      = br.player.recharge
-        local shards                                        = br.player.power.amount.soulShards
+        local shards                                        = br.player.power.soulShards.amount()
         local summonPet                                     = getOptionValue("Summon Pet")
         local solo                                          = br.player.instance=="none"
         local spell                                         = br.player.spell
@@ -219,7 +218,7 @@ local function runRotation()
         local t19_4pc                                       = TierScan("T19") >= 4
         local travelTime                                    = getDistance("target")/16
         local ttd                                           = getTTD
-        local ttm                                           = br.player.power.ttm
+        local ttm                                           = br.player.power.mana.ttm()
         local units                                         = units or {}
 
         units.dyn40 = br.player.units(40)
@@ -298,7 +297,7 @@ local function runRotation()
         if summonPet == 5 then summonId = 17252 end
         if summonPet == 6 then summonId = 78158 end
         if summonPet == 7 then summonId = 78217 end
-        if cd.grimoireOfService == 0 or prevService == nil then prevService = "None" end
+        if cd.grimoireOfService.remain() == 0 or prevService == nil then prevService = "None" end
 
         local doomguard = false
         local infernal = false

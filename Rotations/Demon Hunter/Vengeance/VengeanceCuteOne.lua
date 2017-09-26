@@ -185,19 +185,18 @@ local function runRotation()
         local mode                                          = br.player.mode
         local moveIn                                        = 999
         -- local multidot                                      = (useCleave() or br.player.mode.rotation ~= 3)
-        local pain                                          = br.player.power.amount.pain
+        local pain                                          = br.player.power.pain.amount()
         local perk                                          = br.player.perk
         local php                                           = br.player.health
         local playerMouse                                   = UnitIsPlayer("mouseover")
-        local power, powmax, powgen, powerDeficit           = br.player.power.amount.pain, br.player.power.pain.max, br.player.power.regen, br.player.power.pain.deficit
+        local power, powmax, powgen, powerDeficit           = br.player.power.pain.amount(), br.player.power.pain.max(), br.player.power.pain.regen(), br.player.power.pain.deficit()
         local pullTimer                                     = br.DBM:getPulltimer()
         local racial                                        = br.player.getRacial()
-        local recharge                                      = br.player.recharge
         local solo                                          = br.player.instance=="none"
         local spell                                         = br.player.spell
         local talent                                        = br.player.talent
         local ttd                                           = getTTD
-        local ttm                                           = br.player.power.ttm
+        local ttm                                           = br.player.power.pain.ttm()
         local units                                         = units or {}
 
         units.dyn5 = br.player.units(5)
@@ -264,7 +263,7 @@ local function runRotation()
 	    			end
 	    		end
         -- Demon Spikes
-                if isChecked("Demon Spikes") and php <= getOptionValue("Demon Spikes") and charges.demonSpikes > getOptionValue("Hold Demon Spikes") and inCombat then
+                if isChecked("Demon Spikes") and php <= getOptionValue("Demon Spikes") and charges.demonSpikes.count() > getOptionValue("Hold Demon Spikes") and inCombat then
                     if cast.demonSpikes() then return end
                 end
         -- Sigil of Misery
@@ -287,11 +286,11 @@ local function runRotation()
                             if cast.consumeMagic(thisUnit) then return end
                         end
         -- Sigil of Silence
-                        if isChecked("Sigil of Silence") and cd.consumeMagic > 0 then
+                        if isChecked("Sigil of Silence") and cd.consumeMagic.remain() > 0 then
                             if cast.sigilOfSilence(thisUnit,"ground") then return end
                         end
         -- Sigil of Misery
-                        if isChecked("Sigil of Misery") and cd.consumeMagic > 0 and cd.sigilOfSilence > 0 and cd.sigilOfSilence < 45 then
+                        if isChecked("Sigil of Misery") and cd.consumeMagic.remain() > 0 and cd.sigilOfSilence.remain() > 0 and cd.sigilOfSilence.remain() < 45 then
                             if cast.sigilOfMisery(thisUnit,"ground") then return end
                         end
                     end
@@ -388,8 +387,8 @@ local function runRotation()
                 end
     -- Demon Spikes
                 -- demon_spikes,if=charges=2|buff.demon_spikes.down&!dot.fiery_brand.ticking&buff.metamorphosis.down
-                if isChecked("Demon Spikes") and charges.demonSpikes > getOptionValue("Hold Demon Spikes") then
-                    if (charges.demonSpikes == 2 or not buff.demonSpikes.exists()) and not debuff.fieryBrand.exists(units.dyn5) and not buff.metamorphosis.exists() then
+                if isChecked("Demon Spikes") and charges.demonSpikes.count() > getOptionValue("Hold Demon Spikes") then
+                    if (charges.demonSpikes.count() == 2 or not buff.demonSpikes.exists()) and not debuff.fieryBrand.exists(units.dyn5) and not buff.metamorphosis.exists() then
                         if cast.demonSpikes() then return end
                     end
                 end
@@ -398,18 +397,18 @@ local function runRotation()
                 if useDefensive() and isChecked("Empower Wards") then
                     for i=1, #enemies.yards30 do
                         thisUnit = enemies.yards30[i]
-                        if cd.consumeMagic > 0 and castingUnit(thisUnit) then
+                        if cd.consumeMagic.remain() > 0 and castingUnit(thisUnit) then
                             if cast.empowerWards() then return end
                         end
                     end
                 end
     -- Infernal Strike
-                -- infernal_strike,if=!sigil_placed&!in_flight&remains-travel_time-delay<0.3*duration&artifact.fiery_demise.enabled&dot.fiery_brand.ticking
-                -- infernal_strike,if=!sigil_placed&!in_flight&remains-travel_time-delay<0.3*duration&(!artifact.fiery_demise.enabled|(max_charges-charges_fractional)*recharge_time<cooldown.fiery_brand.remains+5)&(cooldown.sigil_of_flame.remains>7|charges=2)
-                if mode.mover == 1 and getDistance(units.dyn5) < 5 and charges.infernalStrike > 1 then
-                    if (artifact.fieryDemise and debuff.fieryBrand.exists(units.dyn5))
-                        or (not artifact.fieryDemise or (charges.max.infernalStrike - charges.frac.infernalStrike) * recharge.infernalStrike < cd.fieryBrand + 5)
-                        and (cd.sigilOfFlame > 7 or charges.infernalStrike == 2)
+                -- infernal_strike,if=!sigil_placed&!in_flight&remains-travel_time-delay<0.3*duration&artifact.fiery_demise.enabled().enabled&dot.fiery_brand.ticking
+                -- infernal_strike,if=!sigil_placed&!in_flight&remains-travel_time-delay<0.3*duration&(!artifact.fiery_demise.enabled().enabled|(max_charges-charges_fractional)*recharge_time<cooldown.fiery_brand.remains+5)&(cooldown.sigil_of_flame.remains>7|charges=2)
+                if mode.mover == 1 and getDistance(units.dyn5) < 5 and charges.infernalStrike.count() > 1 then
+                    if (artifact.fieryDemise.enabled() and debuff.fieryBrand.exists(units.dyn5))
+                        or (not artifact.fieryDemise.enabled() or (charges.infernalStrike.max() - charges.infernalStrike.frac()) * charges.infernalStrike.recharge() < cd.fieryBrand.remain() + 5)
+                        and (cd.sigilOfFlame.remain() > 7 or charges.infernalStrike.count() == 2)
                     then
                         -- if cast.infernalStrike("best",false,1,6) then return end
                         if cast.infernalStrike("player","ground") then return end

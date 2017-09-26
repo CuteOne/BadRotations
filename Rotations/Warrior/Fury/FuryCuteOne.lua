@@ -209,18 +209,17 @@ local function runRotation()
         local perk                                          = br.player.perk
         local php                                           = br.player.health
         local playerMouse                                   = UnitIsPlayer("mouseover")
-        local power, powerMax, powerGen                     = br.player.power.amount.rage, br.player.power.rage.max, br.player.power.regen
+        local power, powerMax, powerGen                     = br.player.power.rage.amount(), br.player.power.rage.max(), br.player.power.rage.regen()
         local pullTimer                                     = br.DBM:getPulltimer()
         local race                                          = br.player.race
         local racial                                        = br.player.getRacial()
-        local recharge                                      = br.player.recharge
         local solo                                          = br.player.instance=="none"
         local spell                                         = br.player.spell
         local talent                                        = br.player.talent
         local thp                                           = getHP(br.player.units(5))
         local tier19_2pc                                    = TierScan("T19") >= 2
         local ttd                                           = getTTD
-        local ttm                                           = br.player.power.ttm
+        local ttm                                           = br.player.power.rage.ttm()
         local units                                         = units or {}
 
         units.dyn5 = br.player.units(5)
@@ -286,7 +285,7 @@ local function runRotation()
                     end
                 end
             -- Gift of the Naaru
-                if isChecked("Gift of the Naaru") and php <= getOptionValue("Gift of the Naaru") and php > 0 and cd.giftOfTheNaaru==0 then
+                if isChecked("Gift of the Naaru") and php <= getOptionValue("Gift of the Naaru") and php > 0 and cd.giftOfTheNaaru.remain()==0 then
                     if cast.giftOfTheNaaru() then return end
                 end
             -- Commanding Shout
@@ -369,33 +368,33 @@ local function runRotation()
         -- Dragon Roar
                 -- dragon_roar,if=(equipped.convergence_of_fates&cooldown.battle_cry.remains<2)|!equipped.convergence_of_fates&(!cooldown.battle_cry.remains<=10|cooldown.battle_cry.remains<2)
                 if isChecked("Dragon Roar") then
-                    if (hasEquiped(140806) and cd.battleCry < 2) or not hasEquiped(140806) and (cd.battleCry > 10 or cd.battleCry < 2) then
+                    if (hasEquiped(140806) and cd.battleCry.remain() < 2) or not hasEquiped(140806) and (cd.battleCry.remain() > 10 or cd.battleCry.remain() < 2) then
                         if cast.dragonRoar() then return end
                     end
                 end
         -- Battle Cry
                 if isChecked("Battle Cry") then
                     -- battle_cry,if=gcd.remains=0&!talent.dragon_roar.enabled&(!equipped.convergence_of_fates|!talent.bloodbath.enabled|!cooldown.bloodbath.remains|cooldown.bloodbath.remains>=10)
-                    if cd.global == 0 and not talent.dragonRoar and (not hasEquiped(140806) or not talent.bloodbath or cd.bloodbath == 0 or cd.bloodbath >= 10) then
+                    if cd.global.remain() == 0 and not talent.dragonRoar and (not hasEquiped(140806) or not talent.bloodbath or cd.bloodbath.remain() == 0 or cd.bloodbath.remain() >= 10) then
                         if cast.battleCry() then return end
                     end
                     -- battle_cry,if=gcd.remains=0&buff.dragon_roar.up&(cooldown.bloodthirst.remains=0|buff.enrage.remains>cooldown.bloodthirst.remains)
-                    if cd.global == 0 and buff.dragonRoar.exists() and (cd.bloodthirst == 0 or buff.enrage.remain() > cd.bloodthirst) then
+                    if cd.global.remain() == 0 and buff.dragonRoar.exists() and (cd.bloodthirst.remain() == 0 or buff.enrage.remain() > cd.bloodthirst.remain()) then
                         if cast.battleCry() then return end
                     end
                     -- -- battle_cry,if=gcd.remains=0&talent.reckless_abandon.enabled
-                    -- if cd.global == 0 and (talent.recklessAbandon or (level < 100 and (not talent.frothingBerserker or (talent.frothingBerserker and buff.frothingBerserker.exists())))) then
+                    -- if cd.global.remain() == 0 and (talent.recklessAbandon or (level < 100 and (not talent.frothingBerserker or (talent.frothingBerserker and buff.frothingBerserker.exists())))) then
                     --     if cast.battleCry() then return end
                     -- end
                     -- -- battle_cry,if=gcd.remains=0&talent.bladestorm.enabled&(raid_event.adds.in>90|!raid_event.adds.exists|spell_targets.bladestorm_mh>desired_targets)
-                    -- if cd.global == 0 and talent.bladestorm and ((mode.rotation == 1 and #enemies.yards8 > getOptionValue("Bladestorm Units")) or mode.rotation == 2) then
+                    -- if cd.global.remain() == 0 and talent.bladestorm and ((mode.rotation == 1 and #enemies.yards8 > getOptionValue("Bladestorm Units")) or mode.rotation == 2) then
                     --     if cast.battleCry() then return end
                     -- end
                 end
         -- Avatar
                 -- avatar,if=buff.battle_cry.up|(target.time_to_die<(cooldown.battle_cry.remains+10))
                 if isChecked("Avatar") then
-                    if buff.battleCry.exists() or (ttd(units.dyn5) < (cd.battleCry + 10)) then
+                    if buff.battleCry.exists() or (ttd(units.dyn5) < (cd.battleCry.remain() + 10)) then
                         if cast.avatar() then return end
                     end
                 end
@@ -456,7 +455,7 @@ local function runRotation()
                 end
         -- Charge
                 -- charge
-                if (cd.heroicLeap > 0 and cd.heroicLeap < 43) or level < 26 then
+                if (cd.heroicLeap.remain() > 0 and cd.heroicLeap.remain() < 43) or level < 26 then
                     if cast.charge("target") then return end
                 end
         -- Storm Bolt
@@ -464,7 +463,7 @@ local function runRotation()
                 if cast.stormBolt("target") then return end
         -- Heroic Throw
                 -- heroic_throw
-                if lastSpell == spell.charge or charges.charge == 0 then
+                if lastSpell == spell.charge or charges.charge.count() == 0 then
                     if cast.heroicThrow("target") then return end
                 end
             end
@@ -629,8 +628,8 @@ local function runRotation()
                 if cast.bloodthirst() then return end
             end
         -- Execute
-            -- execute,if=artifact.juggernaut.enabled&(!buff.juggernaut.up|buff.juggernaut.remains<2)|buff.stone_heart.react
-            if (artifact.juggernaut and (not buff.juggernaut.exists() or buff.juggernaut.remain() < 2)) or buff.stoneHeart.exists() then
+            -- execute,if=artifact.juggernaut.enabled().enabled&(!buff.juggernaut.up|buff.juggernaut.remains<2)|buff.stone_heart.react
+            if (artifact.juggernaut.enabled() and (not buff.juggernaut.exists() or buff.juggernaut.remain() < 2)) or buff.stoneHeart.exists() then
                 if cast.execute() then return end
             end
         -- Furious Slash

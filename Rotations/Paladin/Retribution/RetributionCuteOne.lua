@@ -191,8 +191,8 @@ local function runRotation()
         local gcd           = br.player.gcd
         local hastar        = GetObjectExists("target")
         local healPot       = getHealthPot()
-        local holyPower     = br.player.power.amount.holyPower
-        local holyPowerMax  = br.player.power.holyPower.max
+        local holyPower     = br.player.power.holyPower.amount()
+        local holyPowerMax  = br.player.power.holyPower.max()
         local inCombat      = br.player.inCombat
         local item          = br.player.items
         local level         = br.player.level
@@ -241,13 +241,13 @@ local function runRotation()
         end
         judgmentExists = debuff.judgment.exists(units.dyn5)
         judgmentRemain = debuff.judgment.remain(units.dyn5)
-        if debuff.judgment.exists(units.dyn5) or level < 42 or (cd.judgment > getOptionValue("Hold For Judgment") and not debuff.judgment.exists(units.dyn5)) then
+        if debuff.judgment.exists(units.dyn5) or level < 42 or (cd.judgment.remain() > getOptionValue("Hold For Judgment") and not debuff.judgment.exists(units.dyn5)) then
             judgmentVar = true
         else
             judgmentVar = false
         end
         -- variable,name=ds_castable,value=spell_targets.divine_storm>=2|(buff.scarlet_inquisitors_expurgation.stack>=29&(buff.avenging_wrath.up|(buff.crusade.up&buff.crusade.stack>=15)|(cooldown.crusade.remains>15&!buff.crusade.up)|cooldown.avenging_wrath.remains>15))
-        local dsCastable = (mode.rotation == 1 and (#enemies.yards8 >= getOptionValue("Divine Storm Units") or (buff.scarletInquisitorsExpurgation.stack() >= 29 and (buff.avengingWrath.exists() or (buff.crusade.exists() and buff.crusade.stack() >= 15) or (cd.crusade > 15 and not buff.crusade.exists()) or cd.avengingWrath > 15)))) or mode.rotation == 2
+        local dsCastable = (mode.rotation == 1 and (#enemies.yards8 >= getOptionValue("Divine Storm Units") or (buff.scarletInquisitorsExpurgation.stack() >= 29 and (buff.avengingWrath.exists() or (buff.crusade.exists() and buff.crusade.stack() >= 15) or (cd.crusade.remain() > 15 and not buff.crusade.exists()) or cd.avengingWrath.remain() > 15)))) or mode.rotation == 2
         local greaterBuff
         greaterBuff = 0
         local lowestUnit
@@ -488,7 +488,7 @@ local function runRotation()
             -- Specter of Betrayal
                 -- use_item,name=specter_of_betrayal,if=(buff.crusade.up&buff.crusade.stack>=15|cooldown.crusade.remains>gcd*2)|(buff.avenging_wrath.up|cooldown.avenging_wrath.remains>gcd*2)
                 if isChecked("Trinkets") and hasEquiped(151190) and canUse(151190) then
-                    if ((buff.crusade.exists() and buff.crusade.stack() >= 15) or cd.crusade > gcd * 2) or (buff.avengingWrath.exists() or cd.avengingWrath > gcd * 2) then
+                    if ((buff.crusade.exists() and buff.crusade.stack() >= 15) or cd.crusade.remain() > gcd * 2) or (buff.avengingWrath.exists() or cd.avengingWrath.remain() > gcd * 2) then
                         useItem(151190)
                     end
                 end
@@ -589,7 +589,7 @@ local function runRotation()
                     elseif JUD1 and not BOJ1 then
         -- Blade of Justice/Divine Hammer
                         -- if=equipped.137048|race.blood_elf|!cooldown.wake_of_ashes.up
-                        if hasEquiped(137048) or race == "BloodEld" or (cd.wakeOfAshes ~= 0 or not artifact.wakeOfAshes) then
+                        if hasEquiped(137048) or race == "BloodEld" or (cd.wakeOfAshes.remain() ~= 0 or not artifact.wakeOfAshes.enabled()) then
                             if talent.bladeOfWrath then
                                 if castOpener("bladeOfJustice","BOJ1",3) then return end
                             else
@@ -620,7 +620,7 @@ local function runRotation()
         local function actionList_Priority()
         -- Execution Sentence
             -- execution_sentence,if=spell_targets.divine_storm<=3&(cooldown.judgment.remains<gcd*4.5|debuff.judgment.remains>gcd*4.5)
-            if ((mode.rotation == 1 and #enemies.yards8 <= getOptionValue("Divine Storm Units")) or mode.rotation == 3) and (cd.judgment < gcd * 4.5 or debuff.judgment.remain(units.dyn5) > gcd * 4.5) then
+            if ((mode.rotation == 1 and #enemies.yards8 <= getOptionValue("Divine Storm Units")) or mode.rotation == 3) and (cd.judgment.remain() < gcd * 4.5 or debuff.judgment.remain(units.dyn5) > gcd * 4.5) then
                 if cast.executionSentence() then return end
             end
         -- Divine Storm
@@ -685,8 +685,8 @@ local function runRotation()
                 end
             end
         -- Divine Storm
-            -- divine_storm,if=debuff.judgment.up&variable.ds_castable&artifact.wake_of_ashes.enabled&cooldown.wake_of_ashes.remains<gcd*2
-            if judgmentVar and dsCastable and artifact.wakeOfAshes and cd.wakeOfAshes < gcd * 2 then
+            -- divine_storm,if=debuff.judgment.up&variable.ds_castable&artifact.wake_of_ashes.enabled().enabled&cooldown.wake_of_ashes.remains<gcd*2
+            if judgmentVar and dsCastable and artifact.wakeOfAshes.enabled() and cd.wakeOfAshes.remain() < gcd * 2 then
                 if cast.divineStorm() then return end
             end
             -- divine_storm,if=debuff.judgment.up&variable.ds_castable&buff.whisper_of_the_nathrezim.up&buff.whisper_of_the_nathrezim.remains<gcd*1.5
@@ -694,8 +694,8 @@ local function runRotation()
                 if cast.divineStorm() then return end
             end
         -- Templar's Verdict
-            -- templars_verdict,if=(equipped.137020|debuff.judgment.up)&artifact.wake_of_ashes.enabled&cooldown.wake_of_ashes.remains<gcd*2
-            if (hasEquiped(137020) or judgmentVar) and artifact.wakeOfAshes and cd.wakeOfAshes < gcd * 2 then
+            -- templars_verdict,if=(equipped.137020|debuff.judgment.up)&artifact.wake_of_ashes.enabled().enabled&cooldown.wake_of_ashes.remains<gcd*2
+            if (hasEquiped(137020) or judgmentVar) and artifact.wakeOfAshes.enabled() and cd.wakeOfAshes.remain() < gcd * 2 then
                 if isChecked("Justicar's Vengeance") and php < getOptionValue("Justicar's Vengeance") and talent.justicarsVengeance then
                     if cast.justicarsVengeance() then return end
                 else
@@ -713,13 +713,13 @@ local function runRotation()
             end
         -- Consecration
             -- consecration,if=(cooldown.blade_of_justice.remains>gcd*2|cooldown.divine_hammer.remains>gcd*2)
-            if (cd.bladeOfJustice > gcd * 2 or cd.divineHammer > gcd * 2) then
+            if (cd.bladeOfJustice.remain() > gcd * 2 or cd.divineHammer.remain() > gcd * 2) then
                 if cast.consecration() then return end
             end
         -- Wake of Ashes
             -- wake_of_ashes,if=(!raid_event.adds.exists|raid_event.adds.in>15)&(holy_power<=0|holy_power=1&(cooldown.blade_of_justice.remains>gcd|cooldown.divine_hammer.remains>gcd)|holy_power=2&((cooldown.zeal.charges_fractional<=0.65|cooldown.crusader_strike.charges_fractional<=0.65)))
             if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()) and getDistance(units.dyn5) < 5 and getDistance(units.dyn8) < 8 then
-                if (holyPower <= 0 or (holyPower == 1 and (cd.bladeOfJustice > gcd or cd.divineHammer > gcd)) or (holyPower == 2 and ((charges.frac.zeal <= 0.65 or charges.frac.crusaderStrike <= 0.65)))) then
+                if (holyPower <= 0 or (holyPower == 1 and (cd.bladeOfJustice.remain() > gcd or cd.divineHammer.remain() > gcd)) or (holyPower == 2 and ((charges.zeal.frac() <= 0.65 or charges.crusaderStrike.frac() <= 0.65)))) then
                     if cast.wakeOfAshes() then return end
                 end
             end
@@ -738,12 +738,12 @@ local function runRotation()
             if cast.judgment() then return end
         -- Zeal
             -- zeal,if=cooldown.zeal.charges_fractional>=1.65&holy_power<=4&(cooldown.blade_of_justice.remains>gcd*2|cooldown.divine_hammer.remains>gcd*2)&debuff.judgment.remains>gcd
-            if charges.frac.zeal >= 1.65 and holyPower <= 4 and (cd.bladeOfJustice > gcd * 2 or cd.divineHammer > gcd * 2) and debuff.judgment.remain(units.dyn5) > gcd then
+            if charges.zeal.frac() >= 1.65 and holyPower <= 4 and (cd.bladeOfJustice.remain() > gcd * 2 or cd.divineHammer.remain() > gcd * 2) and debuff.judgment.remain(units.dyn5) > gcd then
                 if cast.zeal() then return end
             end
         -- Crusader Strike
             -- crusader_strike,if=cooldown.crusader_strike.charges_fractional>=1.65-talent.the_fires_of_justice.enabled*0.25&holy_power<=4&(cooldown.blade_of_justice.remains>gcd*2|cooldown.divine_hammer.remains>gcd*2)&debuff.judgment.remains>gcd
-            if charges.frac.crusaderStrike >= 1.65 - firesOfJustice * 0.25 and holyPower <= 4 and (cd.bladeOfJustice > gcd * 2 or cd.divineHammer > gcd * 2) and debuff.judgment.remain(units.dyn5) > gcd then
+            if charges.crusaderStrike.frac() >= 1.65 - firesOfJustice * 0.25 and holyPower <= 4 and (cd.bladeOfJustice.remain() > gcd * 2 or cd.divineHammer.remain() > gcd * 2) and debuff.judgment.remain(units.dyn5) > gcd then
                 if cast.crusaderStrike() then return end
             end
         -- Consecration
@@ -785,7 +785,7 @@ local function runRotation()
                 end
             end
             -- templars_verdict,if=debuff.judgment.up&(!talent.execution_sentence.enabled|cooldown.execution_sentence.remains>gcd*2)
-            if judgmentVar and (not talent.executionSentence or cd.executionSentence > gcd * 2) then
+            if judgmentVar and (not talent.executionSentence or cd.executionSentence.remain() > gcd * 2) then
                 if isChecked("Justicar's Vengeance") and php < getOptionValue("Justicar's Vengeance") and talent.justicarsVengeance then
                     if cast.justicarsVengeance() then return end
                 else
@@ -874,7 +874,7 @@ local function runRotation()
                 if getOptionValue("APL Mode") == 2 then
         -- Execution Sentence
                     -- if CooldownSecRemaining(Judgment) <= GlobalCooldownSec * 3
-                    if cd.judgment <= gcd * 3 then
+                    if cd.judgment.remain() <= gcd * 3 then
                         if cast.executionSentence(units.dyn5) then return end
                     end
         -- Judgment

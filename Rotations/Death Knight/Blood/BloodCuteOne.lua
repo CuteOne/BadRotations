@@ -182,12 +182,11 @@ local function runRotation()
         local php                                           = br.player.health
         local playerMouse                                   = UnitIsPlayer("mouseover")
         local potion                                        = br.player.potion
-        local power, powmax, powgen                         = br.player.power.amount.runicPower , br.player.power.runicPower.max, br.player.power.regen
+        local power, powmax, powgen                         = br.player.power.runicPower.amount(), br.player.power.runicPower.max(), br.player.power.runicPower.regen()
         local pullTimer                                     = br.DBM:getPulltimer()
         local racial                                        = br.player.getRacial()
-        local recharge                                      = br.player.recharge
-        local runes                                         = br.player.power.runes.frac
-        local runicPower                                    = br.player.power.amount.runicPower
+        local runes                                         = br.player.power.runes.frac()
+        local runicPower                                    = br.player.power.runicPower.amount()
         local solo                                          = #br.friend < 2
         local friendsInRange                                = friendsInRange
         local spell                                         = br.player.spell
@@ -195,7 +194,7 @@ local function runRotation()
         local talent                                        = br.player.talent
         local trinketProc                                   = false
         local ttd                                           = getTTD
-        local ttm                                           = br.player.power.ttm
+        local ttm                                           = br.player.power.runicPower.ttm()
         local units                                         = units or {}
 
         units.dyn5 = br.player.units(5)
@@ -465,7 +464,7 @@ local function runRotation()
         -- Marrowrend
                      --if (BuffStack(BoneShield) <= BuffMaxStack(BoneShield) - 3 and (ArtifactTraitRank(MouthOfHell) = 0 or not HasBuff(DancingRuneWeapon))) or
                      --(BuffStack(BoneShield) <= BuffMaxStack(BoneShield) - 4 and ArtifactTraitRank(MouthOfHell) > 0 and HasBuff(DancingRuneWeapon))
-                    if (buff.boneShield.stack() <= 7 and (artifact.mouthOfHell or not buff.dancingRuneWeapon.exists())) or (buff.boneShield.stack() <= 6 and artifact.mouthOfHell and buff.dancingRuneWeapon.exists()) then
+                    if (buff.boneShield.stack() <= 7 and (artifact.mouthOfHell.enabled() or not buff.dancingRuneWeapon.exists())) or (buff.boneShield.stack() <= 6 and artifact.mouthOfHell.enabled() and buff.dancingRuneWeapon.exists()) then
                         if cast.marrowrend() then return end
                     end
         -- Blooddrinker
@@ -499,7 +498,7 @@ local function runRotation()
                         if cast.deathAndDecay("player",false,#enemies.yards8,8) then return end
                     end
                     --dump rp with deathstrike
-                    if ((talent.bonestorm and cd.bonestorm > 3) or (talent.bonestorm and #enemies.yards8 < getOptionValue("Bonestorm Targets")) or (not talent.bonestorm or not isChecked("Use Bonestorm"))) and br.player.power.runicPower.deficit <= 30 then
+                    if ((talent.bonestorm and cd.bonestorm.remain() > 3) or (talent.bonestorm and #enemies.yards8 < getOptionValue("Bonestorm Targets")) or (not talent.bonestorm or not isChecked("Use Bonestorm"))) and br.player.power.runicPower.deficit() <= 30 then
                         if cast.deathStrike() then return end
                     end
                     if (talent.ossuary and buff.boneShield.stack() <=4) or (not talent.ossuary and buff.boneShield.stack() <=2) or buff.boneShield.remain() < 4 or not buff.boneShield.exists() then
@@ -527,7 +526,7 @@ local function runRotation()
                             end
                         end
                     end
-                    if isChecked("Blood Boil High Prio") and (charges.frac.bloodBoil >= 1.75 and getDistance("target") <= 8) and #enemies.yards8 > 0 then
+                    if isChecked("Blood Boil High Prio") and (charges.bloodBoil.frac() >= 1.75 and getDistance("target") <= 8) and #enemies.yards8 > 0 then
                         if cast.bloodBoil("player") then return end
                     end
                     if talent.bloodTap and runes < 3 then

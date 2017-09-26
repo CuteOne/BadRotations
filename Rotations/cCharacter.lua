@@ -13,7 +13,6 @@ function cCharacter:new(class)
 		Legion	  = 224001, 
     }
     self.artifact       = {} 		-- Artifact Perk IDs
-    self.artifact.rank 	= {} 		-- Artifact Perk ID Ranks
 	self.buff           = {}        -- Buffs
     self.debuff         = {}        -- Debuffs on target
 	self.class          = select(2, UnitClass("player")) -- Class
@@ -95,6 +94,7 @@ function cCharacter:new(class)
 -- Things which get updated for every class in combat
 -- All classes call the baseUpdate()
 	function self.baseUpdate()
+		local startTime = debugprofilestop()
 		-- Pause
 		-- TODO
 
@@ -147,6 +147,7 @@ function cCharacter:new(class)
 		if canRun() ~= true then
 			return false
 		end
+		br.debug.cpu.cBuilder.baseUpdate = debugprofilestop()-startTime or 0
 	end
 
 -- Update Character Stats
@@ -232,13 +233,16 @@ function cCharacter:new(class)
 
 -- Start the rotation or return if pause
     function self.startRotation()
+    	local startTime = debugprofilestop()
         -- dont check if player is casting to allow off-cd usage and cast while other spell is casting
         if pause(true) then return end
+
         if self.rotations[br.selectedProfile] ~= nil then
         	self.rotations[br.selectedProfile].run()
         else
         	return
         end
+        br.debug.cpu.cBuilder.startRotation = debugprofilestop()-startTime or 0
     end
 
 -- Updates special Equipslots

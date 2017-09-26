@@ -219,22 +219,21 @@ local function runRotation()
         local mode                                          = br.player.mode
         local perk                                          = br.player.perk        
         local php                                           = br.player.health
-        local power, powmax, powgen                         = br.player.power.amount.mana, br.player.power.mana.max, br.player.power.regen
+        local power, powmax, powgen                         = br.player.power.mana.amount(), br.player.power.mana.max(), br.player.power.mana.regen()
         local pullTimer                                     = br.DBM:getPulltimer()
         local race                                          = br.player.race
         local racial                                        = br.player.getRacial()
-        local recharge                                      = br.player.recharge
         local spell                                         = br.player.spell
         local talent                                        = br.player.talent
         local wolf                                          = br.player.buff.ghostWolf.exists()
         local ttd                                           = getTTD
-        local ttm                                           = br.player.power.ttm
+        local ttm                                           = br.player.power.mana.ttm()
         local units                                         = units or {}
         local lowestTank                                    = {}    --Tank
         local enemies                                       = enemies or {}
         local friends                                       = friends or {}
 
-        if CloudburstTotemTime == nil or cd.cloudburstTotem == 0 or not talent.cloudburstTotem then CloudburstTotemTime = 0 end
+        if CloudburstTotemTime == nil or cd.cloudburstTotem.remain() == 0 or not talent.cloudburstTotem then CloudburstTotemTime = 0 end
 
     -- Cloudburst Totem
         if isChecked("Cloudburst Totem") and talent.cloudburstTotem and not buff.cloudburstTotem.exists() then
@@ -343,7 +342,7 @@ local function runRotation()
                             if cast.windShear(thisUnit) then return end
                         end
         -- Lightning Surge Totem
-                        if isChecked("Lightning Surge Totem") and cd.windShear > gcd then
+                        if isChecked("Lightning Surge Totem") and cd.windShear.remain() > gcd then
                             if hasThreat(thisUnit) and not isMoving(thisUnit) and ttd(thisUnit) > 7 and lastSpell ~= spell.lightningSurgeTotem then
                                 if cast.lightningSurgeTotem(thisUnit,"ground") then return end
                             end

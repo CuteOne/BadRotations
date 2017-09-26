@@ -128,7 +128,6 @@ local function runRotation()
         local pullTimer                                     = br.DBM:getPulltimer()
         local race                                          = br.player.race
         local racial                                        = br.player.getRacial()
-        local recharge                                      = br.player.recharge
         local spell                                         = br.player.spell
         local talent                                        = br.player.talent
         local ttm                                           = br.player.timeToMax

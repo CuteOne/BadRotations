@@ -180,7 +180,7 @@ local function runRotation()
         local buff                                          = br.player.buff
         local cast                                          = br.player.cast
         local cd                                            = br.player.cd
-        local combo, comboDeficit, comboMax                 = br.player.power.amount.comboPoints, br.player.power.comboPoints.deficit, br.player.power.comboPoints.max
+        local combo, comboDeficit, comboMax                 = br.player.power.comboPoints.amount(), br.player.power.comboPoints.deficit(), br.player.power.comboPoints.max()
         local cTime                                         = getCombatTime()
         local debuff                                        = br.player.debuff
         local enemies                                       = enemies or {}
@@ -192,7 +192,7 @@ local function runRotation()
         local level                                         = br.player.level
         local mode                                          = br.player.mode
         local php                                           = br.player.health
-        local power, powerDeficit, powerRegen               = br.player.power.amount.energy, br.player.power.energy.deficit, br.player.power.regen
+        local power, powerDeficit, powerRegen               = br.player.power.energy.amount(), br.player.power.energy.deficit(), br.player.power.energy.regen()
         local race                                          = br.player.race
         local racial                                        = br.player.getRacial()
         local solo                                          = #br.friend < 2
@@ -203,7 +203,7 @@ local function runRotation()
         local stealthingMantle                              = br.player.buff.stealth.exists() or br.player.buff.vanish.exists()
         local talent                                        = br.player.talent
         local ttd                                           = getTTD
-        local ttm                                           = br.player.power.ttm
+        local ttm                                           = br.player.power.energy.ttm()
         local units                                         = units or {}
         local lootDelay                                     = getOptionValue("LootDelay")
 
@@ -315,14 +315,14 @@ local function runRotation()
                             if isChecked("Kick") then
                                 if cast.kick(thisUnit) then return end
                             end
-                            if cd.kick ~= 0 then
+                            if cd.kick.remain() ~= 0 then
         -- Gouge
                                 if isChecked("Gouge") and getFacing(thisUnit,"player") then
                                     if cast.gouge(thisUnit) then return end
                                 end
                             end
                         end
-                        if (cd.kick ~= 0 and cd.gouge ~= 0) or (distance >= 5 and distance < 15) then
+                        if (cd.kick.remain() ~= 0 and cd.gouge.remain() ~= 0) or (distance >= 5 and distance < 15) then
         -- Blind
                             if isChecked("Blind") then
                                 if cast.blind(thisUnit) then return end
@@ -332,7 +332,7 @@ local function runRotation()
                             end
                         end
         -- Between the Eyes
-                        if ((cd.kick ~= 0 and cd.gouge ~= 0) or distance >= 5) and (cd.blind ~= 0 or level < 38 or distance >= 15) then
+                        if ((cd.kick.remain() ~= 0 and cd.gouge.remain() ~= 0) or distance >= 5) and (cd.blind.remain() ~= 0 or level < 38 or distance >= 15) then
                             if isChecked("Between the Eyes") then
                                 if cast.betweenTheEyes(thisUnit) then return end
                             end
@@ -356,7 +356,7 @@ local function runRotation()
                 if ((#getEnemies("player",7) >= 2 and buff.bladeFlurry.exists()) or (#getEnemies("player",7) < 2 and not buff.bladeFlurry.exists())) and delayBladeFlurry then
                     delayBladeFlurry = 0
                 end
-                if hasEquiped(141321) and cd.bladeFlurry == 0 and #getEnemies("player",7) >= 2 then
+                if hasEquiped(141321) and cd.bladeFlurry.remain() == 0 and #getEnemies("player",7) >= 2 then
                     CastSpellByName(GetSpellInfo(spell.bladeFlurry),"player");
                 end
             end
@@ -406,7 +406,7 @@ local function runRotation()
             end
     -- Adrenaline Rush
             -- adrenaline_rush,if=!buff.adrenaline_rush.up&energy.deficit>0
-            if not buff.adrenalineRush.exists() and powerDeficit > 0 and ttm >= cd.global then
+            if not buff.adrenalineRush.exists() and powerDeficit > 0 and ttm >= cd.global.remain() then
                 if cast.adrenalineRush() then return end
             end
     -- Sprint
@@ -420,7 +420,7 @@ local function runRotation()
             end
     -- Curse of the Dreadblades
             -- curse_of_the_dreadblades,if=combo_points.deficit>=4&(!talent.ghostly_strike.enabled|debuff.ghostly_strike.up)
-            if isChecked("Artifact") and (cd.saberSlash == 0 or cd.pistolShot == 0) then
+            if isChecked("Artifact") and (cd.saberSlash.remain() == 0 or cd.pistolShot.remain() == 0) then
                 if comboDeficit >= 4 and (power >= 48 or buff.opportunity.exists() or buff.swordplay.exists()) and (not talent.ghostlyStrike or debuff.ghostlyStrike.exists(units.dyn5)) then
                     if cast.curseOfTheDreadblades() then return end
                 end
@@ -459,12 +459,12 @@ local function runRotation()
         local function actionList_Finishers()
         -- Between the Eyes
             -- between_the_eyes,if=(mantle_duration>=gcd.remains+0.2&!equipped.thraxis_tricksy_treads)|(equipped.greenskins_waterlogged_wristcuffs&!buff.greenskins_waterlogged_wristcuffs.up)
-            if (mantleDuration() >= cd.global + 0.2 and not hasEquiped(137031)) or (hasEquiped(137099) and not buff.greenskinsWaterloggedWristcuffs.exists()) then
+            if (mantleDuration() >= cd.global.remain() + 0.2 and not hasEquiped(137031)) or (hasEquiped(137099) and not buff.greenskinsWaterloggedWristcuffs.exists()) then
                 if cast.betweenTheEyes() then return end
             end
         -- Run Through
             -- run_through,if=!talent.death_from_above.enabled|energy.time_to_max<cooldown.death_from_above.remain()s+3.5
-            if not talent.deathFromAbove or ttm < cd.deathFromAbove + 3.5 then
+            if not talent.deathFromAbove or ttm < cd.deathFromAbove.remain() + 3.5 then
                 if cast.runThrough() then return end
             end
         end -- End Action List - Finishers
@@ -476,7 +476,7 @@ local function runRotation()
             end
         -- Ghostly Strike
             -- ghostly_strike,if=combo_points.deficit>=1+buff.broadsides.up&!buff.curse_of_the_dreadblades.up&(debuff.ghostly_strike.remains<debuff.ghostly_strike.duration*0.3|(cooldown.curse_of_the_dreadblades.remains<3&debuff.ghostly_strike.remains<14))&(combo_points>=3|(variable.rtb_reroll&time>=10))
-            if comboDeficit >= 1 + (buff.broadsides.exists() and 1 or 0) and not debuff.curseOfTheDreadblades.exists("player") and (debuff.ghostlyStrike.refresh("target") or (useCDs() and isChecked("Artifact") and cd.curseOfTheDreadblades < 3 and debuff.ghostlyStrike.remain("target") < 14)) and 
+            if comboDeficit >= 1 + (buff.broadsides.exists() and 1 or 0) and not debuff.curseOfTheDreadblades.exists("player") and (debuff.ghostlyStrike.refresh("target") or (useCDs() and isChecked("Artifact") and cd.curseOfTheDreadblades.remain() < 3 and debuff.ghostlyStrike.remain("target") < 14)) and 
               (combo >= 3 or (rtbReroll() and cTime >= 10)) then
                 if cast.ghostlyStrike("target") then return end
             end
@@ -524,9 +524,9 @@ local function runRotation()
                 end
             else
         -- Vanish
-                if cd.global <= getLatency() and not solo then
+                if cd.global.remain() <= getLatency() and not solo then
                     -- vanish,if=variable.ambush_condition|(equipped.mantle_of_the_master_assassin&mantle_duration=0&!variable.rtb_reroll&!variable.ss_useable)
-                    if cd.vanish == 0 and useCDs() and isChecked("Vanish") and GetTime() >= vanishTime + cd.global and (ambushCondition() or (hasEquiped(144236) and mantleDuration() == 0 and not rtbReroll() and not ssUsable())) and isValidUnit("target") and getDistance("target") <= 5 then
+                    if cd.vanish.remain() == 0 and useCDs() and isChecked("Vanish") and GetTime() >= vanishTime + cd.global.remain() and (ambushCondition() or (hasEquiped(144236) and mantleDuration() == 0 and not rtbReroll() and not ssUsable())) and isValidUnit("target") and getDistance("target") <= 5 then
                         if power < 35 then
                             return true
                         else
@@ -539,7 +539,7 @@ local function runRotation()
                         end
         -- Shadowmeld
                     -- shadowmeld,if=variable.ambush_condition
-                    elseif cd.shadowmeld == 0 and useCDs() and isChecked("Racial") and GetTime() >= vanishTime + cd.global and race == "NightElf" and ambushCondition() and isValidUnit("target") and getDistance("target") <= 5 and not isMoving("player") then
+                    elseif cd.shadowmeld.remain() == 0 and useCDs() and isChecked("Racial") and GetTime() >= vanishTime + cd.global.remain() and race == "NightElf" and ambushCondition() and isValidUnit("target") and getDistance("target") <= 5 and not isMoving("player") then
                         if power < 35 then
                             return true
                         else
@@ -598,7 +598,7 @@ local function runRotation()
 --- In Combat - Stealth ---
 ---------------------------
                     -- call_action_list,name=stealth,if=stealthed.rogue|cooldown.vanish.up|cooldown.shadowmeld.up
-                if (stealthingAll or cd.vanish == 0 or cd.shadowmeld == 0) then
+                if (stealthingAll or cd.vanish.remain() == 0 or cd.shadowmeld.remain() == 0) then
                     if actionList_Stealth() then return end
                 end
 ----------------------------------
@@ -647,14 +647,14 @@ local function runRotation()
     -- Killing Spree
                     -- killing_spree,if=energy.time_to_max>5|energy<15
                     if useCDs() and talent.killingSpree and isChecked("Killing Spree") and (ttm > 5 or power < 15) then
-                        if isChecked("Cloak Killing Spree") and cd.killingSpree == 0 then
+                        if isChecked("Cloak Killing Spree") and cd.killingSpree.remain() == 0 then
                             if cast.cloakOfShadows() then cast.killingSpree(); return end
                         end
                         if cast.killingSpree() then return end
                     end
     -- Build
                     -- call_action_list,name=build
-                    if GetTime() >= vanishTime + cd.global then
+                    if GetTime() >= vanishTime + cd.global.remain() then
                         if actionList_Build() then return end
                     end
     -- Finishers

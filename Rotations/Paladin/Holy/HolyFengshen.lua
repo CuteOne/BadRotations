@@ -239,8 +239,8 @@ local function runRotation()
 		-- local lowest                                        = br.friend[1]
 		-- local mana                                          = br.player.powerPercentMana
 		-- local perk                                          = br.player.perk
-		-- local power, powmax, powgen                         = br.player.power.amount.mana, br.player.power.mana.max, br.player.power.regen
-		-- local ttm                                           = br.player.power.ttm
+		-- local power, powmax, powgen                         = br.player.power.mana.amount(), br.player.power.mana.max(), br.player.power.mana.regen()
+		-- local ttm                                           = br.player.power.mana.ttm()
 		--------------
 		-- Player
 		--------------
@@ -257,7 +257,6 @@ local function runRotation()
 		local inRaid                                        = br.player.instance=="raid"
 		local race                                          = br.player.race
 		local racial                                        = br.player.getRacial()
-		local recharge                                      = br.player.recharge
 		-------------
 		-- Raid
 		-------------
@@ -551,7 +550,7 @@ local function runRotation()
 				-- Crusader Strike
 				if isChecked("Crusader Strike") and talent.crusadersMight and GetSpellCooldown(20473) > 1 then
 					if cast.crusaderStrike(units.dyn5) then return end
-				elseif isChecked("Crusader Strike") and not talent.crusadersMight and (charges.crusaderStrike == 2 or debuff.judgement.exists(units.dyn5) or (charges.crusaderStrike >= 1 and recharge.crusaderStrike < 3)) then
+				elseif isChecked("Crusader Strike") and not talent.crusadersMight and (charges.crusaderStrike.count() == 2 or debuff.judgement.exists(units.dyn5) or (charges.crusaderStrike.count() >= 1 and charge.crusaderStrike.recharge() < 3)) then
 					if cast.crusaderStrike(units.dyn5) then return end
 				end
 			end

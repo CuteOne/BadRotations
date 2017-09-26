@@ -197,15 +197,14 @@ local function runRotation()
         local level             = br.player.level
         local mode              = br.player.mode
         local php               = br.player.health
-        local power             = br.player.power.amount.energy
-        local powgen            = br.player.power.regen
-        local powerMax          = br.player.power.energy.max
+        local power             = br.player.power.energy.amount()
+        local powgen            = br.player.power.energy.regen()
+        local powerMax          = br.player.power.energy.max()
         local pullTimer         = br.DBM:getPulltimer()
         local queue             = br.player.queue
         local race              = br.player.race
         local racial            = br.player.getRacial()
-        local recharge          = br.player.recharge
-        local regen             = br.player.power.regen
+        local regen             = br.player.power.energy.regen()
         local solo              = select(2,IsInInstance())=="none"
         local spell             = br.player.spell
         local t17_2pc           = br.player.eq.t17_2pc
@@ -215,7 +214,7 @@ local function runRotation()
         local thp               = getHP(br.player.units(5))
         local trinketProc       = false --br.player.hasTrinketProc()
         local ttd               = getTTD(br.player.units(5))
-        local ttm               = br.player.power.ttm
+        local ttm               = br.player.power.energy.ttm()
         local units             = units or {}
         if leftCombat == nil then leftCombat = GetTime() end
         if profileStop == nil then profileStop = false end
@@ -350,7 +349,7 @@ local function runRotation()
                     if cast.effuse() then return end
                 end
         -- Healing Elixir
-                if isChecked("Healing Elixir") and php <= getValue("Healing Elixir") and charges.healingElixir > 1 then
+                if isChecked("Healing Elixir") and php <= getValue("Healing Elixir") and charges.healingElixir.count() > 1 then
                     if cast.healingElixir() then return end
                 end
         -- Leg Sweep
@@ -528,11 +527,11 @@ local function runRotation()
                     if cast.rushingJadeWind() then return end
                 end
             -- TP AoE
-                if ((mode.rotation == 1 and #enemies.yards8 >= 3) or mode.rotation == 2) and cd.kegSmash >= gcd and (power+(powgen*cd.kegSmash)) >= 80 then
+                if ((mode.rotation == 1 and #enemies.yards8 >= 3) or mode.rotation == 2) and cd.kegSmash.remain() >= gcd and (power+(powgen*cd.kegSmash.remain())) >= 80 then
                     if cast.tigerPalm() then return end
                 end
             -- Tiger Palm ST
-                if ((mode.rotation == 1 and #enemies.yards8 < 3) or mode.rotation == 3) and (power + (powgen*cd.kegSmash)) >= 40 then
+                if ((mode.rotation == 1 and #enemies.yards8 < 3) or mode.rotation == 3) and (power + (powgen*cd.kegSmash.remain())) >= 40 then
                     if cast.tigerPalm() then return end
                 end
             --Chi Burst
@@ -579,7 +578,7 @@ local function runRotation()
             end
         --Tiger Palm
             --actions.st+=/tiger_palm
-            if (power + (powgen*cd.kegSmash)) >= 40 then
+            if (power + (powgen*cd.kegSmash.remain())) >= 40 then
                 if cast.tigerPalm() then return end
             end
         --Exploding Keg
@@ -643,7 +642,7 @@ local function runRotation()
             end        
         --Tiger Palm
             --actions.st+=/tiger_palm
-            if cd.kegSmash >= gcd and (power+(powgen*cd.kegSmash)) >= 80 then
+            if cd.kegSmash.remain() >= gcd and (power+(powgen*cd.kegSmash.remain())) >= 80 then
                 if cast.tigerPalm() then return end
             end
         -- Blackout Strike
@@ -699,9 +698,9 @@ local function runRotation()
 --- In Combat Rotation ---
 --------------------------
          --[[   if isChecked("Opener") then
-                if opener == false and hastar and ((UnitReaction("target","player") == 2 and isBoss("target")) or isDummy("target")) and getDistance("target") < 10 and ((talent.blackoxBrew and cd.blackoxBrew <= gcd and charges.purifyingBrew == 3) or openerStarted == true) then
+                if opener == false and hastar and ((UnitReaction("target","player") == 2 and isBoss("target")) or isDummy("target")) and getDistance("target") < 10 and ((talent.blackoxBrew and cd.blackoxBrew.remain() <= gcd and charges.purifyingBrew.count() == 3) or openerStarted == true) then
                     if actionList_Opener() then return end
-                elseif opener == false and openerStarted == false and hastar and (charges.purifyingBrew < 3 or (talent.blackoxBrew and cd.blackoxBrew >= gcd)) or not talent.blackoxBrew then
+                elseif opener == false and openerStarted == false and hastar and (charges.purifyingBrew.count() < 3 or (talent.blackoxBrew and cd.blackoxBrew.remain() >= gcd)) or not talent.blackoxBrew then
                     opener = true
                 elseif opener == false and hastar and not isBoss("target") then
                     opener = true
@@ -744,11 +743,11 @@ local function runRotation()
                         end
                     end
                 -- Black Ox Brew
-                    if charges.purifyingBrew == 0 and talent.blackoxBrew then
+                    if charges.purifyingBrew.count() == 0 and talent.blackoxBrew then
                         if cast.blackoxBrew() then return end
                     end
                 -- Ironskin Brew
-                    if ((charges.purifyingBrew > 1 and buff.ironskinBrew.remain() < 3) or charges.purifyingBrew == 3)  and not buff.blackoutCombo.exists() 
+                    if ((charges.purifyingBrew.count() > 1 and buff.ironskinBrew.remain() < 3) or charges.purifyingBrew.count() == 3)  and not buff.blackoutCombo.exists() 
                         and buff.ironskinBrew.remain() <= 21 
                         then
                         if cast.ironskinBrew() then return end

@@ -183,13 +183,12 @@ local function runRotation()
     local gcd                   = br.player.gcd
     local debuff                = br.player.debuff
     local spell                 = br.player.spell
-    local recharge              = br.player.recharge
     local charges               = br.player.charges
     local mode                  = br.player.mode
     local race                  = br.player.race
     local health                = br.player.health
-    local astralPower           = br.player.power.amount.astralPower
-    local astralPowerDeficit    = br.player.power.astralPower.deficit
+    local astralPower           = br.player.power.astralPower.amount()
+    local astralPowerDeficit    = br.player.power.astralPower.deficit()
     local falling               = getFallTime()
     local swimming              = IsSwimming()
     local flying                = IsFlying()
@@ -229,7 +228,7 @@ local function runRotation()
     --------------------
 
     local function castMoon(name)
-        if cd.newMoon == 0 then
+        if cd.newMoon.remain() == 0 then
             local moonActive = select(3,GetSpellInfo(spell.newMoon))
             if name == "newMoon" and moonActive == 1392545 then
                 if cast.newMoon() then return true end
@@ -303,12 +302,12 @@ local function runRotation()
 
         local function actionsEmeraldDreamcatcher()
             --actions.ed=astral_communion,if=astral_power.deficit>=75&buff.the_emerald_dreamcatcher.up
-            if cd.astralCommunion == 0 and astralPowerDeficit >= 75 and buff.emeraldDreamcatcher.exists() and useCDs() and isChecked(colorBlue.."Astral Communion") then
+            if cd.astralCommunion.remain() == 0 and astralPowerDeficit >= 75 and buff.emeraldDreamcatcher.exists() and useCDs() and isChecked(colorBlue.."Astral Communion") then
                 if cast.astralCommunion() then return true end
             end
             --actions.ed+=/incarnation,if=astral_power>=60|buff.bloodlust.up
             --actions.ed+=/celestial_alignment,if=astral_power>=60&!buff.the_emerald_dreamcatcher.up
-            if (not talent.incarnationChoseOfElune and cd.celestialAlignment == 0 or talent.incarnationChoseOfElune and cd.incarnationChoseOfElune == 0) and astralPower >= 40 and useCDs() and isChecked(colorBlue.."Incarnation/Celestial Alignament") then
+            if (not talent.incarnationChoseOfElune and cd.celestialAlignment.remain() == 0 or talent.incarnationChoseOfElune and cd.incarnationChoseOfElune.remain() == 0) and astralPower >= 40 and useCDs() and isChecked(colorBlue.."Incarnation/Celestial Alignament") then
                 if debuff.moonfire.exists() and debuff.sunfire.exists() then
                     if cast.celestialAlignment() then return true end
                 end
@@ -412,7 +411,7 @@ local function runRotation()
                 if castMoon("fullMoon") then return true end
             end
             --actions.AoE+=/warrior_of_elune
-            if talent.warriorOfElune and cd.warriorOfElune == 0 and isChecked(colorBlue.."Warrior of Elune") and useCDs() then
+            if talent.warriorOfElune and cd.warriorOfElune.remain() == 0 and isChecked(colorBlue.."Warrior of Elune") and useCDs() then
                 if cast.warriorOfElune() then return true end
             end
             --actions.AoE+=/lunar_strike,if=buff.warrior_of_elune.up
@@ -456,7 +455,7 @@ local function runRotation()
                 if castMoon("fullMoon") then return true end
             end
             --actions.single_target+=/warrior_of_elune
-            if talent.warriorOfElune and cd.warriorOfElune == 0 and isChecked(colorBlue.."Warrior of Elune") and useCDs() then
+            if talent.warriorOfElune and cd.warriorOfElune.remain() == 0 and isChecked(colorBlue.."Warrior of Elune") and useCDs() then
                 if cast.warriorOfElune() then return true end
             end
             --actions.single_target+=/lunar_strike,if=buff.warrior_of_elune.up
@@ -486,7 +485,7 @@ local function runRotation()
                     if useItem(potion) then return true end
                 end
             end
-            if talent.blessingOfTheAncients and cd.blessingOfTheAncients == 0 and isChecked(colorMarin.."Auto Blessing of The Ancients") then
+            if talent.blessingOfTheAncients and cd.blessingOfTheAncients.remain() == 0 and isChecked(colorMarin.."Auto Blessing of The Ancients") then
                 --actions+=/blessing_of_elune,if=active_enemies<=2&talent.blessing_of_the_ancients.enabled&buff.blessing_of_elune.down
                 if (mode.rotation == 3 or (mode.rotation == 1 and #enemies.activeYards40 <= 2)) and not buff.blessingOfElune.exists() then
                     if cast.blessingOfTheAncients() then return true end
@@ -496,7 +495,7 @@ local function runRotation()
                 end
             end
             --actions+=/celestial_alignment,if=astral_power>=40|incarnation,if=astral_power>=40
-            if (not talent.incarnationChoseOfElune and cd.celestialAlignment == 0 or talent.incarnationChoseOfElune and cd.incarnationChoseOfElune == 0) and astralPower >= 40 and useCDs() and isChecked(colorBlue.."Incarnation/Celestial Alignament") then
+            if (not talent.incarnationChoseOfElune and cd.celestialAlignment.remain() == 0 or talent.incarnationChoseOfElune and cd.incarnationChoseOfElune.remain() == 0) and astralPower >= 40 and useCDs() and isChecked(colorBlue.."Incarnation/Celestial Alignament") then
                 if debuff.moonfire.exists() and debuff.sunfire.exists() then
                     if cast.celestialAlignment() then return true end
                 end
@@ -517,7 +516,7 @@ local function runRotation()
                 end
             end
             ----actions+=/call_action_list,name=fury_of_elune,if=talent.fury_of_elune.enabled&cooldown.fury_of_elue.remains<target.time_to_die
-            if (not talent.incarnationChoseOfElune and cd.celestialAlignment > 0 or talent.incarnationChoseOfElune and cd.incarnationChoseOfElune > 0) or not isBoss("target") then
+            if (not talent.incarnationChoseOfElune and cd.celestialAlignment.remain() > 0 or talent.incarnationChoseOfElune and cd.incarnationChoseOfElune.remain() > 0) or not isBoss("target") then
                 if (mode.rotation == 1 or mode.rotation == 3) and not isChecked("Memekin Rotation") then
                     ----EXTRA:starsurge
                     if astralPower >= 40 and #enemies.activeYards40 < starfallTargetsMin then
@@ -536,15 +535,15 @@ local function runRotation()
                 if actionsEmeraldDreamcatcher() then return true end
             end
             --actions+=/new_moon,if=((charges=2&recharge_time<5)|charges=3)&astral_power.deficit>14
-            if ((charges.newMoon == 2 and recharge.newMoon < 5) or  charges.newMoon == 3) and astralPowerDeficit > 14 and (not moving or buff.stellarDrift.exists()) then
+            if ((charges.newMoon.count() == 2 and charges.newMoon.recharge() < 5) or  charges.newMoon.count() == 3) and astralPowerDeficit > 14 and (not moving or buff.stellarDrift.exists()) then
                 if castMoon("newMoon") then return true end
             end
             --actions+=/half_moon,if=((charges=2&recharge_time<5)|charges=3|(target.time_to_die<15&charges=2))&astral_power.deficit>24
-            if ((charges.newMoon == 2 and recharge.halfMoon < 5) or  charges.newMoon == 3 or (ttd("target") < 15 and charges.newMoon == 2)) and astralPowerDeficit > 24  and (not moving or buff.stellarDrift.exists()) then
+            if ((charges.newMoon.count() == 2 and charges.halfMoon.recharge() < 5) or  charges.newMoon.count() == 3 or (ttd("target") < 15 and charges.newMoon.count() == 2)) and astralPowerDeficit > 24  and (not moving or buff.stellarDrift.exists()) then
                 if castMoon("halfMoon") then return true end
             end
             --actions+=/full_moon,if=((charges=2&recharge_time<5)|charges=3|target.time_to_die<15)&astral_power.deficit>44
-            if ((charges.newMoon == 2 and recharge.fullMoon < 5) or  charges.newMoon == 3 or ttd("target") < 15) and astralPowerDeficit > 24 and (not moving or buff.stellarDrift.exists()) then
+            if ((charges.newMoon.count() == 2 and charges.fullMoon.recharge() < 5) or  charges.newMoon.count() == 3 or ttd("target") < 15) and astralPowerDeficit > 24 and (not moving or buff.stellarDrift.exists()) then
                 if castMoon("fullMoon") then return true end
             end
             if mode.rotation == 3 or (mode.rotation == 1 and #enemies.activeYards40 == 1) then
@@ -578,15 +577,15 @@ local function runRotation()
                 end
             end
             --actions+=/astral_communion,if=astral_power.deficit>=71
-            if talent.astralCommunion and cd.astralCommunion == 0 and astralPowerDeficit >= 71 and useCDs() and isChecked(colorBlue.."Astral Communion") then
+            if talent.astralCommunion and cd.astralCommunion.remain() == 0 and astralPowerDeficit >= 71 and useCDs() and isChecked(colorBlue.."Astral Communion") then
                 if cast.astralCommunion() then return true end
             end
             ----EXTRA: FORCE OF NATURE
-            if talent.forceOfNature and cd.forceOfNature == 0 and isChecked(colorBlue.."Force of Nature") and useCDs() then
+            if talent.forceOfNature and cd.forceOfNature.remain() == 0 and isChecked(colorBlue.."Force of Nature") and useCDs() then
                 if cast.forceOfNature() then return true end
             end
             --actions+=/use_item,name=tarnished_sentinel_medallion,if=cooldown.incarnation.remains>60|cooldown.celestial_alignment.remains>60
-            if hasItem(147017) and (not talent.incarnationChoseOfElune and cd.celestialAlignment > 60 or talent.incarnationChoseOfElune and cd.incarnationChoseOfElune == 60) then
+            if hasItem(147017) and (not talent.incarnationChoseOfElune and cd.celestialAlignment.remain() > 60 or talent.incarnationChoseOfElune and cd.incarnationChoseOfElune.remain() == 60) then
                 if useItem(147017) then return true end
             end
             --actions+=/starfall,if=buff.oneths_overconfidence.up
@@ -643,11 +642,11 @@ local function runRotation()
     local function actionListDefensive()
         if inCombat then
             -- Renewal
-            if cd.renewal == 0 and isChecked(colorGreen.."Renewal") and health <= getValue(colorGreen.."Renewal") then
+            if cd.renewal.remain() == 0 and isChecked(colorGreen.."Renewal") and health <= getValue(colorGreen.."Renewal") then
                 if cast.renewal("player") then return true end
             end
             -- Swiftmend
-            if cd.swiftmend == 0 and isChecked(colorGreen.."Swiftmend") and health <= getValue(colorGreen.."Swiftmend") then
+            if cd.swiftmend.remain() == 0 and isChecked(colorGreen.."Swiftmend") and health <= getValue(colorGreen.."Swiftmend") then
                 if GetShapeshiftForm() ~= 0 then RunMacroText("/CancelForm") end
                 if cast.swiftmend("player") then return true end
             end
@@ -669,7 +668,7 @@ local function runRotation()
                 if cast.rejuvenation("player") then return true end
             end
             -- Barkskin
-            if cd.barkskin == 0 and isChecked(colorGreen.."Barkskin") and health <= getValue(colorGreen.."Barkskin") then
+            if cd.barkskin.remain() == 0 and isChecked(colorGreen.."Barkskin") and health <= getValue(colorGreen.."Barkskin") then
                 if cast.barkskin() then return true end
             end
         end
@@ -682,11 +681,11 @@ local function runRotation()
                 local thisUnit = enemies.activeYards40[i]
                 if canInterrupt(thisUnit,getValue("Interrupt at")) then
                     -- Solar Beam
-                    if cd.solarBeam == 0 and isChecked("Solar Beam") then
+                    if cd.solarBeam.remain() == 0 and isChecked("Solar Beam") then
                         if cast.solarBeam(thisUnit) then return true end
                     end
                     -- Mighty Bash
-                    if talent.mightyBash and cd.mightyBash == 0 and isChecked("Mighty Bash")  and getDistance(thisUnit) <= 10 then
+                    if talent.mightyBash and cd.mightyBash.remain() == 0 and isChecked("Mighty Bash")  and getDistance(thisUnit) <= 10 then
                         if cast.mightyBash(thisUnit) then return true end
                     end
                 end
@@ -711,21 +710,21 @@ local function runRotation()
                 end
                 if GetTime() - SEPSEC >= 30.000 then
                     --dispell
-                    if cd.removeCorruption == 0 and canDispel("player",spell.removeCorruption) then
+                    if cd.removeCorruption.remain() == 0 and canDispel("player",spell.removeCorruption) then
                         if cast.removeCorruption("player") then SEPSEC=0 return true end
                     end
                     for i = 1, #enemies.activeYards40 do
                         local thisUnit = enemies.activeYards40[i]
                         --root (instant cast)
-                        if talent.massEntanglement and cd.massEntanglement == 0 and (not isBoss(thisUnit) or isDummy(thisUnit)) and getDistance(thisUnit) <= 35 then
+                        if talent.massEntanglement and cd.massEntanglement.remain() == 0 and (not isBoss(thisUnit) or isDummy(thisUnit)) and getDistance(thisUnit) <= 35 then
                             if cast.massEntanglement(thisUnit) then SEPSEC=0 return true end
                         end
                         --silence
-                        if cd.solarBeam == 0 and (not isBoss(thisUnit) or isDummy(thisUnit)) and getDistance(thisUnit) <= 45 and canInterrupt(thisUnit,getValue("Interrupt at"))  then
+                        if cd.solarBeam.remain() == 0 and (not isBoss(thisUnit) or isDummy(thisUnit)) and getDistance(thisUnit) <= 45 and canInterrupt(thisUnit,getValue("Interrupt at"))  then
                             if cast.solarBeam(thisUnit) then SEPSEC=0 return true end
                         end
                         --stun
-                        if talent.mightyBash and cd.mightyBash == 0 and getDistance(thisUnit) <= 10 then
+                        if talent.mightyBash and cd.mightyBash.remain() == 0 and getDistance(thisUnit) <= 10 then
                             if cast.mightyBash(thisUnit) then SEPSEC=0 return true end
                         end
                     end
@@ -765,15 +764,15 @@ local function runRotation()
                 end
             end
             -- Innervate
-            if isChecked(colorMarin.."Innervate") and (SpecificToggle(colorMarin.."Innervate") and not GetCurrentKeyBoardFocus()) and cd.innervate == 0 then
+            if isChecked(colorMarin.."Innervate") and (SpecificToggle(colorMarin.."Innervate") and not GetCurrentKeyBoardFocus()) and cd.innervate.remain() == 0 then
                 if cast.innervate("mouseover") then return true end
             end
         end
         --Displacer Beast/Wild Charge
         if isChecked(colorMarin.."Displacer Beast/Wild Charge") and (SpecificToggle(colorMarin.."Displacer Beast/Wild Charge") and not GetCurrentKeyBoardFocus()) then
-            if talent.displacerBeast and cd.displacerBeast == 0 then
+            if talent.displacerBeast and cd.displacerBeast.remain() == 0 then
                 if cast.displacerBeast("player") then return true end
-            elseif talent.wildCharge and cd.wildCharge == 0 and chicken then
+            elseif talent.wildCharge and cd.wildCharge.remain() == 0 and chicken then
                 if cast.wildCharge("player") then return true end
             end
         end

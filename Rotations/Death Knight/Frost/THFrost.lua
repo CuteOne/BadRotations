@@ -226,9 +226,9 @@ local function runRotation()
         local power             = br.player.power
         local pullTimer         = br.DBM:getPulltimer()
         local racial            = br.player.getRacial()
-        local runicPower        = br.player.power.amount.runicPower
-        local runicPowerDeficit = br.player.power.runicPower.deficit
-        local runes             = br.player.power.runes.frac
+        local runicPower        = br.player.power.runicPower.amount()
+        local runicPowerDeficit = br.player.power.runicPower.deficit()
+        local runes             = br.player.power.runes.frac()
         local swimming          = IsSwimming()
         local talent            = br.player.talent
         local t19_2pc           = TierScan("T19") >= 2
@@ -327,7 +327,7 @@ local function runRotation()
                 or (getOptionValue("Pillar of Frost") == 2) and (useCDs() or playertar)
                 ) 
                 and getDistance("target") < 5  
-                and (normalMob or not talent.breathOfSindragosa or cd.breathOfSindragosa > 50 or buff.breathOfSindragosa.exists())
+                and (normalMob or not talent.breathOfSindragosa or cd.breathOfSindragosa.remain() > 50 or buff.breathOfSindragosa.exists())
             then
                 if cast.pillarOfFrost() then return end
             end  
@@ -433,7 +433,7 @@ local function runRotation()
                                  (buff.iceboundFortitude.exists() and ((php < 90) or (buff.iceboundFortitude.remain() < 2)))
                 				 or(
                 		 			php < getOptionValue("Death Strike") 
-                                    and (cd.iceboundFortitude > 1.5) 
+                                    and (cd.iceboundFortitude.remain() > 1.5) 
                                     and not buff.breathOfSindragosa.exists()
                     	  		   )
                     	  	    )
@@ -468,7 +468,7 @@ local function runRotation()
             if useInterrupts() then
             	if isChecked("Debug Info") then Print("actionList_Interrupts") end
                 if waitforNextKick < GetTime() -2 then
-                	if cd.mindFreeze <= 0 or cd.deathGrip <= 0 then   
+                	if cd.mindFreeze.remain() <= 0 or cd.deathGrip.remain() <= 0 then   
                         if kickpercent == nil or kickCommited == nil or kickCommited then
                             kickCommited = false
                             kickpercent = getOptionValue("InterruptAt") + math.random(-5,5)
@@ -582,7 +582,7 @@ local function runRotation()
             -- frost_strike,if=talent.icy_talons.enabled&buff.icy_talons.remains<1.5&cooldown.breath_of_sindragosa.remains>6
             if talent.icyTalons 
             	and buff.icyTalons.remain() < 1.5 
-            	and cd.breathOfSindragosa > 6 
+            	and cd.breathOfSindragosa.remain() > 6 
             	and not cloak
             	and not immun
             then
@@ -592,8 +592,8 @@ local function runRotation()
             -- remorseless_winter,if=talent.gathering_storm.enable
             if (talent.gatheringStorm or buff.pillarOfFrost.exists()) 
             	and getDistance("target") < 8 
-            	and (not playertar or cd.pillarOfFrost > 10 or buff.pillarOfFrost.exists() or bop)  
-                and (cd.breathOfSindragosa > 24 or normalMob or (cd.breathOfSindragosa < 24 and hasEquiped(137223) and cd.hungeringRuneWeapon > 0))
+            	and (not playertar or cd.pillarOfFrost.remain() > 10 or buff.pillarOfFrost.exists() or bop)  
+                and (cd.breathOfSindragosa.remain() > 24 or normalMob or (cd.breathOfSindragosa.remain() < 24 and hasEquiped(137223) and cd.hungeringRuneWeapon.remain() > 0))
             	and not immun
             	and not cloak
             then
@@ -611,8 +611,8 @@ local function runRotation()
             -- breath_of_sindragosa,if=runic_power>=50
             if (useCDs() or playertar) 
             	and isChecked("Breath of Sindragosa") 
-            	and cd.breathOfSindragosa <= 0 
-            	and (cd.hungeringRuneWeapon <= 0 or (not playertar and not hasEquiped(137223)))
+            	and cd.breathOfSindragosa.remain() <= 0 
+            	and (cd.hungeringRuneWeapon.remain() <= 0 or (not playertar and not hasEquiped(137223)))
             	and not immun
             	and not cloak
             then
@@ -626,7 +626,7 @@ local function runRotation()
             -- howling_blast,if=buff.rime.react&(dot.remorseless_winter.ticking|cooldown.remorseless_winter.remain()s>1.5|!equipped.132459)
             if buff.rime.exists() 
             	and ((t19_4pc and runicPower < 90) or not t19_4pc)
-            	and (buff.remorselessWinter.exists() or (cd.remorselessWinter > 1.5) or cd.breathOfSindragosa < 24 or (cd.breathOfSindragosa < 24 and hasEquiped(137223) and cd.hungeringRuneWeapon > 0) ) 
+            	and (buff.remorselessWinter.exists() or (cd.remorselessWinter.remain() > 1.5) or cd.breathOfSindragosa.remain() < 24 or (cd.breathOfSindragosa.remain() < 24 and hasEquiped(137223) and cd.hungeringRuneWeapon.remain() > 0) ) 
             	and not immun
             	and not cloak
             then
@@ -635,9 +635,9 @@ local function runRotation()
         -- Obliterate
             -- obliterate,if=!buff.rime.react&!(talent.gathering_storm.enabled&!(cooldown.remorseless_winter.remains>2|rune>4))&rune>3
             if not buff.rime.exists() 
-                and ((cd.breathOfSindragosa <= 1.5 and runicPower <= 80)
-                or (cd.breathOfSindragosa > 1.5 and runicPower <= 70))
-            	and (not (talent.gatheringStorm and not (cd.remorselessWinter > 2 or runes > 4)) or cd.breathOfSindragosa < 24 or (cd.breathOfSindragosa < 24 and hasEquiped(137223) and cd.hungeringRuneWeapon > 0) ) 
+                and ((cd.breathOfSindragosa.remain() <= 1.5 and runicPower <= 80)
+                or (cd.breathOfSindragosa.remain() > 1.5 and runicPower <= 70))
+            	and (not (talent.gatheringStorm and not (cd.remorselessWinter.remain() > 2 or runes > 4)) or cd.breathOfSindragosa.remain() < 24 or (cd.breathOfSindragosa.remain() < 24 and hasEquiped(137223) and cd.hungeringRuneWeapon.remain() > 0) ) 
             	and runes > 3
             	and not immun
             	and not bop
@@ -647,7 +647,7 @@ local function runRotation()
         -- Frost Strike
             -- frost_strike,if=runic_power>=70|((talent.gathering_storm.enabled&cooldown.remorseless_winter.remains<3&cooldown.breath_of_sindragosa.remains>10)&rune<5)
             if (runicPower >= 70 or bop)
-            	and (cd.breathOfSindragosa > 6 or (cd.breathOfSindragosa <= 0 and normalMob) or (cd.breathOfSindragosa < 24 and hasEquiped(137223) and cd.hungeringRuneWeapon > 6))
+            	and (cd.breathOfSindragosa.remain() > 6 or (cd.breathOfSindragosa.remain() <= 0 and normalMob) or (cd.breathOfSindragosa.remain() < 24 and hasEquiped(137223) and cd.hungeringRuneWeapon.remain() > 6))
             	and not (php < getOptionValue("Death Strike"))
             	and not immun
             	and not cloak
@@ -656,12 +656,12 @@ local function runRotation()
             end
         -- Horn of Winter
             -- horn_of_winter,if=cooldown.breath_of_sindragosa.remains>15&runic_power<=70&rune<4
-            if cd.breathOfSindragosa > 15 and runicPower <= 70 and runes < 4 then
+            if cd.breathOfSindragosa.remain() > 15 and runicPower <= 70 and runes < 4 then
                 if cast.hornOfWinter() then return end
             end
         -- Remorseless Winter
             -- remorseless_winter,if=cooldown.breath_of_sindragosa.remains>10
-            if (cd.breathOfSindragosa > 10 or (cd.breathOfSindragosa < 24 and hasEquiped(137223) and cd.hungeringRuneWeapon > 0))
+            if (cd.breathOfSindragosa.remain() > 10 or (cd.breathOfSindragosa.remain() < 24 and hasEquiped(137223) and cd.hungeringRuneWeapon.remain() > 0))
             	and getDistance(units.dyn5) < 5
             	and not immun
             	and not cloak 
@@ -730,7 +730,7 @@ local function runRotation()
         -- Hungering Rune Weapon
             if isChecked("Empower/Hungering Rune Weapon") then 
                 -- hungering_rune_weapon,if=talent.runic_attenuation.enabled&runic_power<30&!buff.hungering_rune_weapon.up&rune<2
-                if  talent.hornOfWinter and talent.runicAttenuation and runicPower < 30 and not buff.hungeringRuneWeapon.exists() and cd.hornOfWinter ~= 0 then 
+                if  talent.hornOfWinter and talent.runicAttenuation and runicPower < 30 and not buff.hungeringRuneWeapon.exists() and cd.hornOfWinter.remain() ~= 0 then 
                     if cast.hungeringRuneWeapon() then return end
                 end
                 -- hungering_rune_weapon,if=runic_power<25&!buff.hungering_rune_weapon.up&rune<2
@@ -744,7 +744,7 @@ local function runRotation()
                 end
         -- Empower Rune Weapon
                 -- empower_rune_weapon,if=runic_power<20
-                if runicPower < 20 and cd.hornOfWinter ~= 0 then
+                if runicPower < 20 and cd.hornOfWinter.remain() ~= 0 then
                     if cast.empowerRuneWeapon() then return end
                 end
             end
@@ -773,7 +773,7 @@ local function runRotation()
             end
         --Frost Strike to avoid max RP
         	if (runicPower >= 70 or bop)
-            	and not (php < getOptionValue("Death Strike") and (cd.iceboundFortitude > 0))
+            	and not (php < getOptionValue("Death Strike") and (cd.iceboundFortitude.remain() > 0))
             	and not immun
             	and not cloak
             	and not buff.iceboundFortitude.exists()
@@ -803,7 +803,7 @@ local function runRotation()
             if isChecked("Obliteration") and( useCDs() or playertar) then
                 if runes > 2 
                 	and runicPower > 25
-                	and not (cd.pillarOfFrost < 10)
+                	and not (cd.pillarOfFrost.remain() < 10)
                 	and not immun
                 	and not cloak
                 	and not bop
@@ -831,7 +831,7 @@ local function runRotation()
             end
         -- Remorseless Winter
         	if getDistance("target") < 8 
-            	and (cd.pillarOfFrost > 10 or buff.pillarOfFrost.exists() or bop)  
+            	and (cd.pillarOfFrost.remain() > 10 or buff.pillarOfFrost.exists() or bop)  
             	and not immun
             	and not cloak
             then
@@ -840,13 +840,13 @@ local function runRotation()
         -- Obliterate
             if not immun
             	and not bop
-            	and (not (cd.obliteration == 0) or runicPower < 25)
+            	and (not (cd.obliteration.remain() == 0) or runicPower < 25)
             then
             	if cast.obliterate() then return end
             end
         -- Frost Strike
         	if (runicPower > 40)
-            	and not (php < getOptionValue("Death Strike") and (cd.iceboundFortitude > 0))
+            	and not (php < getOptionValue("Death Strike") and (cd.iceboundFortitude.remain() > 0))
             	and not immun
             	and not cloak
             	and not buff.iceboundFortitude.exists()
@@ -857,7 +857,7 @@ local function runRotation()
             if isChecked("Empower/Hungering Rune Weapon") and (useCDs() or playertar) 
             	and runicPower < 75
             	and runes < 2
-            	and cd.obliteration == 0
+            	and cd.obliteration.remain() == 0
             then
         -- Empower Rune Weapon
                 -- empower_rune_weapon

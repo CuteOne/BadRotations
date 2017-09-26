@@ -301,16 +301,15 @@ local function runRotation()
         local mode                                          = br.player.mode
         local perk                                          = br.player.perk        
         local php                                           = br.player.health
-        local power, powmax, powgen                         = br.player.power.amount.mana, br.player.power.mana.max, br.player.power.regen
+        local power, powmax, powgen                         = br.player.power.mana.amount(), br.player.power.mana.max(), br.player.power.mana.regen()
         local pullTimer                                     = br.DBM:getPulltimer()
         local race                                          = br.player.race
         local racial                                        = br.player.getRacial()
-        local recharge                                      = br.player.recharge
         local solo                                          = br.player.instance=="none"
         local spell                                         = br.player.spell
         local talent                                        = br.player.talent
         local ttd                                           = getTTD
-        local ttm                                           = br.player.power.ttm
+        local ttm                                           = br.player.power.mana.ttm()
         local units                                         = units or {}
         local lowest                                        = {}    --Lowest Unit
         lowest.hp                                           = br.friend[1].hp
@@ -328,7 +327,7 @@ local function runRotation()
         friends.yards40 = getAllies("player",40)
         
         atonementCount = 0
-        if artifact.sinsOfTheMany then
+        if artifact.sinsOfTheMany.enabled() then
             atonementCount = getBuffStacks("player",spell.sinsOfTheMany)
         else
             for i=1, #br.friend do
@@ -432,8 +431,8 @@ local function runRotation()
                     raptureLW = nil
                 else
                     healCount = 0
-                    if charges.powerWordRadiance >= 1 and #br.friend - atonementCount >= 3 then
-                        for i = 1, charges.powerWordRadiance do
+                    if charges.powerWordRadiance.count() >= 1 and #br.friend - atonementCount >= 3 then
+                        for i = 1, charges.powerWordRadiance.count() do
                             cast.powerWordRadiance(lowest.unit)
                         end
                     end
@@ -503,11 +502,11 @@ local function runRotation()
                     end
                 end
                 --Plea
-                if getBuffRemain(br.friend[u].unit, spell.buffs.atonement, "player") < 1 and (not norganBuff or charges.powerWordRadiance == 0 or mode.healer ~= 2 or (mode.healer == 2 and #br.friend - atonementCount < 3)) then
+                if getBuffRemain(br.friend[u].unit, spell.buffs.atonement, "player") < 1 and (not norganBuff or charges.powerWordRadiance.count() == 0 or mode.healer ~= 2 or (mode.healer == 2 and #br.friend - atonementCount < 3)) then
                     if cast.plea(br.friend[u].unit) then
                         healCount = healCount + 1
                     end
-                elseif mode.healer == 2 and #br.friend - atonementCount >= 3 and charges.powerWordRadiance >= 1 and norganBuff then
+                elseif mode.healer == 2 and #br.friend - atonementCount >= 3 and charges.powerWordRadiance.count() >= 1 and norganBuff then
                     if cast.powerWordRadiance(lowest.unit) then
                         healCount = healCount + 1
                     end
@@ -616,9 +615,9 @@ local function runRotation()
                     --Light's Wrath
                     if isChecked("Light's Wrath") and getSpellCD(spell.lightsWrath) == 0 then
                         if getLowAllies(getValue("Light's Wrath")) >= getValue("Light's Wrath Targets") then
-                            if charges.powerWordRadiance >= 1 and lastSpell ~= spell.powerWordRadiance then
+                            if charges.powerWordRadiance.count() >= 1 and lastSpell ~= spell.powerWordRadiance then
                                 cast.powerWordRadiance(lowest.unit)
-                            elseif charges.powerWordRadiance == 0 then
+                            elseif charges.powerWordRadiance.count() == 0 then
                                 for i = 1, #br.friend do
                                     if mode.healer == 1 or mode.healer == 2 or (mode.healer == 3 and UnitIsUnit(br.friend[i].unit,"player")) then
                                         if br.friend[i].hp <= getValue("Light's Wrath") then
@@ -664,8 +663,8 @@ local function runRotation()
                         actionList_SpreadAtonement(i)
                     end
                 end
-                if pullTimer < 5 and charges.powerWordRadiance >= 1 and #br.friend - atonementCount >= 3 then
-                    for i = 1, charges.powerWordRadiance do
+                if pullTimer < 5 and charges.powerWordRadiance.count() >= 1 and #br.friend - atonementCount >= 3 then
+                    for i = 1, charges.powerWordRadiance.count() do
                         cast.powerWordRadiance(lowest.unit)
                     end
                 elseif mana < 90 then
@@ -705,7 +704,7 @@ local function runRotation()
                 end
             end
             --Power Word: Radiance
-            if isChecked("Power Word: Radiance") and (mode.healer == 1 or mode.healer == 2) and charges.powerWordRadiance >= 1 and #br.friend - atonementCount >= 3 and norganBuff then
+            if isChecked("Power Word: Radiance") and (mode.healer == 1 or mode.healer == 2) and charges.powerWordRadiance.count() >= 1 and #br.friend - atonementCount >= 3 and norganBuff then
                 if getLowAllies(getValue("Power Word: Radiance")) >= getValue("PWR Targets") then
                     if cast.powerWordRadiance(lowest.unit) then
                         healCount = healCount + 1

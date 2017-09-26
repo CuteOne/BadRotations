@@ -206,17 +206,16 @@ local function runRotation()
         local php                                           = br.player.health
         local playerMouse                                   = UnitIsPlayer("mouseover")
         local potion                                        = br.player.potion
-        local power, powerMax, powerRegen, powerDeficit     = br.player.power.amount.focus, br.player.power.focus.max, br.player.power.regen, br.player.power.focus.deficit
+        local power, powerMax, powerRegen, powerDeficit     = br.player.power.focus.amount(), br.player.power.focus.max(), br.player.power.focus.regen(), br.player.power.focus.deficit()
         local pullTimer                                     = br.DBM:getPulltimer()
         local racial                                        = br.player.getRacial()
-        local recharge                                      = br.player.recharge
         local solo                                          = #br.friend < 2
         local friendsInRange                                = friendsInRange
         local spell                                         = br.player.spell
         local talent                                        = br.player.talent
         local trinketProc                                   = false
         local ttd                                           = getTTD
-        local ttm                                           = br.player.power.ttm
+        local ttm                                           = br.player.power.focus.ttm()
         local t19_2pc                                       = TierScan("T19") >= 2
         local units                                         = units or {}
 
@@ -394,7 +393,7 @@ local function runRotation()
                     end
                 end
             -- Intimidation
-                if isChecked("Intimidation") and talent.intimidation and cd.intimidation == 0 and
+                if isChecked("Intimidation") and talent.intimidation and cd.intimidation.remain() == 0 and
                 GetUnitExists("pet") and (UnitIsDead("pet") ~= nil or UnitIsDead("pet") == false) then
                     for i=1, #enemies.yards40 do
                     thisUnit = enemies.yards40[i]
@@ -520,7 +519,7 @@ local function runRotation()
                     if actionList_Interrupts() then return end
 
                     if isChecked("Opener") and opener == false and isBoss(units.dyn40) then
-                        if (cd.bestialWrath <= gcd and cd.aMurderOfCrows <= gcd and cd.aspectOfTheWild <= gcd and cd.titansThunder <= gcd and charges.frac.direBeast >= 1.5) or openerStarted == true then
+                        if (cd.bestialWrath.remain() <= gcd and cd.aMurderOfCrows.remain() <= gcd and cd.aspectOfTheWild.remain() <= gcd and cd.titansThunder.remain() <= gcd and charges.direBeast.frac() >= 1.5) or openerStarted == true then
                             if actionList_Opener() then return end
                         else
                             opener = true
@@ -540,12 +539,12 @@ local function runRotation()
                             if cast.direFrenzy(units.dyn40) then return end
 						end
                     -- Bestial Wrath
-                        if isChecked("Bestial Wrath") and useCDs() and (cd.aspectOfTheWild > 10 or cd.aspectOfTheWild <= gcd) then
+                        if isChecked("Bestial Wrath") and useCDs() and (cd.aspectOfTheWild.remain() > 10 or cd.aspectOfTheWild.remain() <= gcd) then
                             if cast.bestialWrath() then return end
                         end
                     -- Aspect of the Wild
                         if isChecked("Aspect of the Wild") and useCDs() then
-                            if (hasEquiped(137101) and hasEquiped(140806) and talent.oneWithThePack) or ((buff.bestialWrath.exists() and buff.bestialWrath.remain() >= 13) or cd.bestialWrath <= gcd) or (ttd(units.dyn40) ~= nil and ttd(units.dyn40) < 12 and isBoss(units.dyn40)) then
+                            if (hasEquiped(137101) and hasEquiped(140806) and talent.oneWithThePack) or ((buff.bestialWrath.exists() and buff.bestialWrath.remain() >= 13) or cd.bestialWrath.remain() <= gcd) or (ttd(units.dyn40) ~= nil and ttd(units.dyn40) < 12 and isBoss(units.dyn40)) then
                                 if cast.aspectOfTheWild() then return end
                             end
 						end
@@ -555,7 +554,7 @@ local function runRotation()
                         end						
                     -- Murder of Crows
                         if talent.aMurderOfCrows and isChecked("A Murder Of Crows / Barrage") and (br.player.mode.murderofcrows == 1 or (br.player.mode.murderofcrows == 2 and useCDs())) then
-                            if (cd.bestialWrath < 2 or cd.bestialWrath > 50) or (buff.bestialWrath.exists() and buff.bestialWrath.remain() >= 13) or (ttd(units.dyn40) ~= nil and ttd(units.dyn40) <= 13) then
+                            if (cd.bestialWrath.remain() < 2 or cd.bestialWrath.remain() > 50) or (buff.bestialWrath.exists() and buff.bestialWrath.remain() >= 13) or (ttd(units.dyn40) ~= nil and ttd(units.dyn40) <= 13) then
                                 if cast.aMurderOfCrows(units.dyn40) then return end
                             end
 						end
@@ -566,13 +565,13 @@ local function runRotation()
                     -- Kill Command
                             if cast.killCommand(units.dyn40) then return end
                     -- Dire Beast
-                        if not talent.direFrenzy and cd.bestialWrath > 3 then
-                            if ((not hasEquiped(137227) or cd.killCommand >= 3) and (t19_2pc or not buff.bestialWrath.exists())) or (charges.frac.direBeast >= 1.9 or cd.titansThunder <= gcd) then
+                        if not talent.direFrenzy and cd.bestialWrath.remain() > 3 then
+                            if ((not hasEquiped(137227) or cd.killCommand.remain() >= 3) and (t19_2pc or not buff.bestialWrath.exists())) or (charges.direBeast.frac() >= 1.9 or cd.titansThunder.remain() <= gcd) then
                                 if cast.direBeast(units.dyn40) then return end
                             end
 						end
 					-- Cobra Shot during bestial wrath
-                        if power >= 105 or (not talent.aspectOfTheBeast and buff.bestialWrath.exists() and powerRegen* cd.killCommand > 30) then
+                        if power >= 105 or (not talent.aspectOfTheBeast and buff.bestialWrath.exists() and powerRegen* cd.killCommand.remain() > 30) then
                             if cast.cobraShot(units.dyn40) then return end			
 							end							
 					-- Multi Shot
@@ -580,7 +579,7 @@ local function runRotation()
                             if cast.multiShot(units.dyn40) then return end
 							end					
                     -- Cobra Shot
-                        if power >= 105 and cd.killCommand > gcd*0.7 then
+                        if power >= 105 and cd.killCommand.remain() > gcd*0.7 then
                             if cast.cobraShot(units.dyn40) then return end
 							end
                     end

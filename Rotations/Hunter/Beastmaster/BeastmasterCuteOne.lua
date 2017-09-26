@@ -205,11 +205,9 @@ local function runRotation()
         local php                                           = br.player.health
         local playerMouse                                   = UnitIsPlayer("mouseover")
         local potion                                        = br.player.potion
-        local power, powerMax, powerRegen, powerDeficit     = br.player.power.amount.focus, br.player.power.focus.max, br.player.power.regen, br.player.power.focus.deficit
+        local power, powerMax, powerRegen, powerDeficit     = br.player.power.focus.amount(), br.player.power.focus.max(), br.player.power.focus.regen(), br.player.power.focus.deficit()
         local pullTimer                                     = br.DBM:getPulltimer()
         local racial                                        = br.player.getRacial()
-        local recharge                                      = br.player.recharge
-        local rechargeFull                                  = br.player.rechargeFull
         local solo                                          = #br.friend < 2
         local friendsInRange                                = friendsInRange
         local spell                                         = br.player.spell
@@ -217,7 +215,7 @@ local function runRotation()
         local talent                                        = br.player.talent
         local trinketProc                                   = false
         local ttd                                           = getTTD
-        local ttm                                           = br.player.power.ttm
+        local ttm                                           = br.player.power.focus.ttm()
         local units                                         = units or {}
 
 
@@ -306,7 +304,7 @@ local function runRotation()
             end -- End Dummy Test
         -- Misdirection
             if mode.misdirection == 1 then
-                if cd.misdirection <= 0.1 then
+                if cd.misdirection.remain() <= 0.1 then
                     if isValidUnit("target") then
                         if inInstance or inRaid then
                             for i = 1, #br.friend do
@@ -385,7 +383,7 @@ local function runRotation()
                     end
                 end
             -- Intimidation
-                if isChecked("Intimidation") and talent.intimidation and cd.intimidation == 0 and
+                if isChecked("Intimidation") and talent.intimidation and cd.intimidation.remain() == 0 and
                 GetUnitExists("pet") and (UnitIsDead("pet") ~= nil or UnitIsDead("pet") == false) then
                     for i=1, #enemies.yards40 do
                     thisUnit = enemies.yards40[i]
@@ -413,7 +411,7 @@ local function runRotation()
                 -- arcane_torrent,if=focus.deficit>=30
                 -- berserking,if=buff.bestial_wrath.remains>7
                 -- blood_fury,if=buff.bestial_wrath.remains>7
-                if isChecked("Racial") and cd.racial == 0
+                if isChecked("Racial") and cd.racial.remain() == 0
                     and ((buff.bestialWrath.remain() > 7 and (br.player.race == "Orc" or br.player.race == "Troll")) 
                         or (powerDeficit >= 30 and br.player.race == "BloodElf")) 
                 then
@@ -427,7 +425,7 @@ local function runRotation()
                 end
             -- A Murder of Crows
                 -- a_murder_of_crows,if=cooldown.bestial_wrath.remains<3|cooldown.bestial_wrath.remains>30|target.time_to_die<16
-                if isChecked("A Murder of Crows / Barrage") and cd.bestialWrath < 3 or cd.bestialWrath > 30 or ttd(units.dyn40) < 16 then
+                if isChecked("A Murder of Crows / Barrage") and cd.bestialWrath.remain() < 3 or cd.bestialWrath.remain() > 30 or ttd(units.dyn40) < 16 then
                     if cast.aMurderOfCrows() then return end
                 end
             -- Beastial Wrath
@@ -437,7 +435,7 @@ local function runRotation()
                 end
             -- Stampede
                 -- stampede,if=buff.bloodlust.up|buff.bestial_wrath.up|cooldown.bestial_wrath.remains<=2|target.time_to_die<=14
-                if isChecked("Stampede") and (hasBloodLust() or buff.bestialWrath.exists() or cd.bestialWrath <= 2 or ttd(units.dyn40) <= 14) then
+                if isChecked("Stampede") and (hasBloodLust() or buff.bestialWrath.exists() or cd.bestialWrath.remain() <= 2 or ttd(units.dyn40) <= 14) then
                     if cast.stampede() then return end
                 end
             -- Aspect of the Wild
@@ -538,12 +536,12 @@ local function runRotation()
                     end
             -- Dire Beast
                     -- dire_beast,if=((!equipped.qapla_eredun_war_order|cooldown.kill_command.remains>=1)&(set_bonus.tier19_2pc|!buff.bestial_wrath.up))|full_recharge_time<gcd.max|cooldown.titans_thunder.up|spell_targets>1
-                    if not talent.direFrenzy and (((not hasEquiped(137227) or cd.killCommand >= 1) and (t19_2pc or not buff.bestialWrath.exists())) or rechargeFull.direBeast < gcdMax or cd.titanthunder == 0 or #enemies.yards8pet >= getOptionValue("Units To AoE")) then
+                    if not talent.direFrenzy and (((not hasEquiped(137227) or cd.killCommand.remain() >= 1) and (t19_2pc or not buff.bestialWrath.exists())) or charges.direBeast.timeTillFull() < gcdMax or cd.titanthunder.remain() == 0 or #enemies.yards8pet >= getOptionValue("Units To AoE")) then
                         if cast.direBeast() then return end
                     end
             -- Dire Frenzy
                     -- dire_frenzy,if=(pet.cat.buff.dire_frenzy.remains<=gcd.max*1.2)|full_recharge_time<gcd.max|target.time_to_die<9
-                    if talent.direFrenzy and charges.direFrenzy > 0 and ((buff.direFrenzy.remain("pet") <= gcdMax * 1.2) or rechargeFull.direFrenzy < gcdMax or ttd(units.dyn40) < 9) then
+                    if talent.direFrenzy and charges.direFrenzy.count() > 0 and ((buff.direFrenzy.remain("pet") <= gcdMax * 1.2) or charges.direFrenzy.timeTillFull() < gcdMax or ttd(units.dyn40) < 9) then
                         if cast.direFrenzy() then return end
                     end
             -- Barrage
@@ -554,7 +552,7 @@ local function runRotation()
             -- Titan's Thunder
                     -- titans_thunder,if=(talent.dire_frenzy.enabled&(buff.bestial_wrath.up|cooldown.bestial_wrath.remains>35))|buff.bestial_wrath.up
                     if (getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs())) then
-                        if (talent.direFrenzy and (buff.bestialWrath.exists() or cd.bestialWrath > 35)) or buff.bestialWrath.exists() or (getOptionValue("Artifact") == 1 and not useCDs()) then
+                        if (talent.direFrenzy and (buff.bestialWrath.exists() or cd.bestialWrath.remain() > 35)) or buff.bestialWrath.exists() or (getOptionValue("Artifact") == 1 and not useCDs()) then
                             if cast.titansThunder() then return end
                         end
                     end
@@ -580,8 +578,8 @@ local function runRotation()
                     end
             -- Cobra Shot
                     -- cobra_shot,if=(cooldown.kill_command.remains>focus.time_to_max&cooldown.bestial_wrath.remains>focus.time_to_max)|(buff.bestial_wrath.up&(spell_targets.multishot=1|focus.regen*cooldown.kill_command.remains>action.kill_command.cost))|target.time_to_die<cooldown.kill_command.remains|(equipped.parsels_tongue&buff.parsels_tongue.remains<=gcd.max*2)
-                    if (cd.killCommand > ttm and cd.bestialWrath > ttm) or ((buff.bestialWrath.exists() or level < 40) and (#enemies.yards8pet < getOptionValue("Units To AoE") 
-                        or powerRegen * cd.killCommand > select(1, getSpellCost(spell.killCommand)))) or ttd(units.dyn40) < cd.killCommand or (hasEquiped(151805) and buff.parselsTongue.remain() <= gcdMax * 2) or level < 10
+                    if (cd.killCommand.remain() > ttm and cd.bestialWrath.remain() > ttm) or ((buff.bestialWrath.exists() or level < 40) and (#enemies.yards8pet < getOptionValue("Units To AoE") 
+                        or powerRegen * cd.killCommand.remain() > select(1, getSpellCost(spell.killCommand)))) or ttd(units.dyn40) < cd.killCommand.remain() or (hasEquiped(151805) and buff.parselsTongue.remain() <= gcdMax * 2) or level < 10
                     then
                         if cast.cobraShot() then return end
                     end

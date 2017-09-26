@@ -178,6 +178,7 @@ local function runRotation()
         local canFlask                                      = canUse(br.player.flask.wod.agilityBig)
         local cast                                          = br.player.cast
         local combatTime                                    = getCombatTime()
+	    local combo                                         = br.player.power.comboPoints.amount()
         local cd                                            = br.player.cd
         local charges                                       = br.player.charges
         local deadMouse                                     = UnitIsDeadOrGhost("mouseover")
@@ -203,10 +204,9 @@ local function runRotation()
         local php                                           = br.player.health
         local playerMouse                                   = UnitIsPlayer("mouseover")
         local potion                                        = br.player.potion
-        local power, powmax, powgen, powerDeficit           = br.player.power.amount.rage, br.player.power.rage.max, br.player.power.regen, br.player.power.rage.deficit
+        local power, powmax, powgen, powerDeficit           = br.player.power.rage.amount(), br.player.power.rage.max(), br.player.power.rage.regen(), br.player.power.rage.deficit()
         local pullTimer                                     = br.DBM:getPulltimer()
         local racial                                        = br.player.getRacial()
-        local recharge                                      = br.player.recharge
         local solo                                          = br.player.instance=="none"
         local snapLossHP                                    = 0
         local spell                                         = br.player.spell
@@ -214,9 +214,8 @@ local function runRotation()
         local travel, flight, bear, cat, noform             = br.player.buff.travelForm.exists(), br.player.buff.flightForm.exists(), br.player.buff.bearForm.exists(), buff.catForm.exists(), GetShapeshiftForm()==0
         local trinketProc                                   = false
         local ttd                                           = getTTD
-        local ttm                                           = br.player.power.ttm
+        local ttm                                           = br.player.power.rage.ttm
         local units                                         = units or {}
-	local combo                                         = br.player.power.amount.comboPoints
 
         units.dyn5 = br.player.units(5)
 	units.dyn8 = br.player.units(8)

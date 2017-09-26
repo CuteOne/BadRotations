@@ -177,7 +177,7 @@ local function runRotation()
         local level                                         = br.player.level
         local lootDelay                                     = getOptionValue("LootDelay")
         local lowestHP                                      = br.friend[1].unit
-        local manaPercent                                   = br.player.power.mana.percent
+        local manaPercent                                   = br.player.power.mana.percent()
         local mode                                          = br.player.mode
         local moveIn                                        = 999
         local moving                                        = isMoving("player")
@@ -185,18 +185,17 @@ local function runRotation()
         local petInfo                                       = br.player.petInfo
         local php                                           = br.player.health
         local playerMouse                                   = UnitIsPlayer("mouseover")
-        local power, powmax, powgen, powerDeficit           = br.player.power.amount.mana, br.player.power.mana.max, br.player.power.regen, br.player.power.mana.deficit
+        local power, powmax, powgen, powerDeficit           = br.player.power.mana.amount(), br.player.power.mana.max(), br.player.power.mana.regen(), br.player.power.mana.deficit()
         local pullTimer                                     = br.DBM:getPulltimer()
         local racial                                        = br.player.getRacial()
-        local recharge                                      = br.player.recharge
-        local shards                                        = br.player.power.amount.soulShards
+        local shards                                        = br.player.power.soulShards.amount()
         local summonPet                                     = getOptionValue("Summon Pet")
         local solo                                          = br.player.instance=="none"
         local spell                                         = br.player.spell
         local talent                                        = br.player.talent
         local travelTime                                    = getDistance("target")/16
         local ttd                                           = getTTD
-        local ttm                                           = br.player.power.ttm
+        local ttm                                           = br.player.power.mana.ttm()
         local units                                         = units or {}
 
         units.dyn40 = br.player.units(40)
@@ -249,7 +248,7 @@ local function runRotation()
         if summonPet == 3 then summonId = 417 end
         if summonPet == 4 then summonId = 1863 end
         if summonPet == 5 then summonId = 17252 end
-        if cd.grimoireOfService == 0 or prevService == nil then prevService = "None" end
+        if cd.grimoireOfService.remain() == 0 or prevService == nil then prevService = "None" end
 
         local wildImpCount = 0
         local wildImpDE = false
@@ -531,17 +530,17 @@ local function runRotation()
                         castOpener("doom","DOOM",3)
                 -- Summon Doomguard
                     elseif DOOM and not (SDG or FSDG) then
-                        if cd.summonDoomguard == 0  then
+                        if cd.summonDoomguard.remain() == 0  then
                             castOpener("summonDoomguard","SDG",4)
-                        elseif cd.summonDoomguard > br.player.gcd then
+                        elseif cd.summonDoomguard.remain() > br.player.gcd then
                             print("4. Summon Doom Guard: Not Cast (Cooldown)")
                             FSDG = true
                         end
                 -- Grimoire: Felguard
                     elseif (SDG or DOOM) and not (GRF or FGRF) then
-                        if cd.grimoireFelguard == 0 then
+                        if cd.grimoireFelguard.remain() == 0 then
                             castOpener("grimoireFelguard","GRF",5)
-                        elseif cd.grimoireFelguard > br.player.gcd then
+                        elseif cd.grimoireFelguard.remain() > br.player.gcd then
                             print("5. Grimore Felguard: Not Cast(Cooldown)")
                             FGRF = true
                         end
@@ -562,9 +561,9 @@ local function runRotation()
                 -- Summon Darkglare
                     elseif DSB2 and not (DGL or FDGL) then
                         if talent.summonDarkglare then
-                            if cd.summonDarkglare == 0 then
+                            if cd.summonDarkglare.remain() == 0 then
                                 castOpener("summonDarkglare","DGL",8)
-                            elseif cd.summonDarkglare > br.player.gcd then
+                            elseif cd.summonDarkglare.remain() > br.player.gcd then
                                 print("8. Summon Darkglare: Not Cast(Cooldown)")
                                 FDGL = true
                             end
@@ -611,9 +610,9 @@ local function runRotation()
                 -- Soul Harvest
                     elseif DSB5 and not (HVST or FHVST) then
                         if talent.soulHarvest then
-                            if cd.soulHarvest == 0 then
+                            if cd.soulHarvest.remain() == 0 then
                                 castOpener("soulHarvest","HVST",13)
-                            elseif cd.soulHarvest > br.player.gcd then
+                            elseif cd.soulHarvest.remain() > br.player.gcd then
                                 print("13. Soul Harvest: Not Cast(Cooldown)")
                                 FHVST = true
                             end
@@ -701,7 +700,7 @@ local function runRotation()
         -- Shadowflame
                     -- shadowflame,if=((debuff.shadowflame.stack()>0&remains<action.shadow_bolt.cast_time+travel_time)|(charges=2&soul_shard<5))&spell_targets.demonwrath<5
                     if ((debuff.shadowflame.stack(units.dyn40) > 0 and debuff.shadowflame.remain(units.dyn40) < getCastTime(spell.shadowbolt) + travelTime)
-                        or (charges.shadowflame == 2 and shards < 5)) and #enemies.yards8t < 5
+                        or (charges.shadowflame.count() == 2 and shards < 5)) and #enemies.yards8t < 5
                     then
                         if cast.shadowflame() then return end
                     end
@@ -781,25 +780,25 @@ local function runRotation()
                         if cast.summonDarkglare() then return end
                     end
                     -- summon_darkglare,if=cooldown.call_dreadstalkers.remain()s>5&soul_shard<3
-                    if cd.callDreadstalkers > 5 and shards < 3 then
+                    if cd.callDreadstalkers.remain() > 5 and shards < 3 then
                         if cast.summonDarkglare() then return end
                     end
                     -- summon_darkglare,if=cooldown.call_dreadstalkers.remain()s<=action.summon_darkglare.cast_time&(soul_shard>=3|soul_shard>=1&buff.demonic_calling.react)
-                    if cd.callDreadstalkers <= getCastTime(spell.summonDarkglare) and (shards >= 3 or shards >= 1 and buff.demonicCalling.exists()) then
+                    if cd.callDreadstalkers.remain() <= getCastTime(spell.summonDarkglare) and (shards >= 3 or shards >= 1 and buff.demonicCalling.exists()) then
                         if cast.summonDarkglare() then return end
                     end
         -- Call Dreadstalkers
                     -- call_dreadstalkers,if=talent.summon_darkglare.enabled&(spell_targets.implosion<3|!talent.implosion.enabled)&(cooldown.summon_darkglare.remain()s>2|prev_gcd.1.summon_darkglare|cooldown.summon_darkglare.remain()s<=action.call_dreadstalkers.cast_time&soul_shard>=3|cooldown.summon_darkglare.remain()s<=action.call_dreadstalkers.cast_time&soul_shard>=1&buff.demonic_calling.react)
                     if talent.summonDarkglare and (#enemies.yards8t < 3 or not talent.implosion)
-                        and (cd.summonDarkglare > 2 or lastSpell == summonDarkglare
-                            or (cd.summonDarkglare <= getCastTime(spell.callDreadstalkers) and shards >= 3)
-                            or (cd.summonDarkglare <= getCastTime(spell.callDreadstalkers) and shards >= 1 and buff.demonicCalling.exists()))
+                        and (cd.summonDarkglare.remain() > 2 or lastSpell == summonDarkglare
+                            or (cd.summonDarkglare.remain() <= getCastTime(spell.callDreadstalkers) and shards >= 3)
+                            or (cd.summonDarkglare.remain() <= getCastTime(spell.callDreadstalkers) and shards >= 1 and buff.demonicCalling.exists()))
                     then
                         if cast.callDreadstalkers() then return end
                     end
         -- Hand of Guldan
                     -- hand_of_guldan,if=(soul_shard>=3&prev_gcd.1.call_dreadstalkers)|soul_shard>=5|(soul_shard>=4&cooldown.summon_darkglare.remain()s>2)
-                    if (shards >= 3 and lastSpell == spell.callDreadstalkers) or shards >= 5 or (shards >= 4 and cd.summonDarkglare > 2) then
+                    if (shards >= 3 and lastSpell == spell.callDreadstalkers) or shards >= 5 or (shards >= 4 and cd.summonDarkglare.remain() > 2) then
                         if GetTime() > handTimer then
                             if cast.handOfGuldan() then handTimer = GetTime() + 2; return end
                         end
@@ -827,14 +826,14 @@ local function runRotation()
                     end
         -- Felstorm
                     -- felguard:felstorm
-                    if isChecked("Felstorm") and felguard and felguardEnemies ~= nil and felguardEnemies >= getOptionValue("Felstorm") and cd.felstorm == 0 then
+                    if isChecked("Felstorm") and felguard and felguardEnemies ~= nil and felguardEnemies >= getOptionValue("Felstorm") and cd.felstorm.remain() == 0 then
                         if cast.commandDemon() then return end
                     end
         -- Cooldowns
                     if actionList_Cooldowns() then return end
         -- Shadowflame
                     -- shadowflame,if=charges=2&spell_targets.demonwrath<5
-                    if charges.shadowflame == 2 and #enemies.yards8t < 5 then
+                    if charges.shadowflame.count() == 2 and #enemies.yards8t < 5 then
                         if cast.shadowflame() then return end
                     end
            -- Thal'kiel's Consumption
@@ -844,8 +843,8 @@ local function runRotation()
                             -- print(isChecked("Summon Doomguard"))
                             -- print(isChecked("Summon Infernal"))
                             -- print(getOptionValue("Grimoire of Service - Use"))
-                            if ((cd.summonDoomguard > 15 or isChecked("Summon Doomguard") == false) and (cd.summonInfernal > 15 or isChecked("Summon Infernal") == false) and (cd.grimoireFelguard > 15 or getOptionValue("Grimoire of Service - Use") == 3)) or not isBoss(units.dyn40) then 
-                                if cd.thalkielsConsumption <= 2 then
+                            if ((cd.summonDoomguard.remain() > 15 or isChecked("Summon Doomguard") == false) and (cd.summonInfernal.remain() > 15 or isChecked("Summon Infernal") == false) and (cd.grimoireFelguard.remain() > 15 or getOptionValue("Grimoire of Service - Use") == 3)) or not isBoss(units.dyn40) then 
+                                if cd.thalkielsConsumption.remain() <= 2 then
                              --   if missingDE == 0 then
                                     if cast.thalkielsConsumption() then return end
                                 end

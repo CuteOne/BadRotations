@@ -230,7 +230,7 @@ local function runRotation()
     local useDPS                                        = br.player.mode.dps == 1
     local php                                           = br.player.health
     local healPot                                       = getHealthPot()
-    local mana                                          = br.player.power.mana.percent
+    local mana                                          = br.player.power.mana.percent()
     local debuff                                        = br.player.debuff
     local gcd                                           = br.player.gcd
 	local gcdMax										= br.player.gcdMax
@@ -374,7 +374,7 @@ local function runRotation()
 
     local function actionList_Interrupt()
         if useInterrupts() then
-            if isChecked(colorrogue.."Leg Sweep") and talent.legSweep and cd.legSweep == 0 then
+            if isChecked(colorrogue.."Leg Sweep") and talent.legSweep and cd.legSweep.remain() == 0 then
                 for i = 1, #enemies.yards5 do
                     local thisUnit = enemies.yards5[i]
                     if canInterrupt(thisUnit,getValue("Interrupt at")) then
@@ -382,7 +382,7 @@ local function runRotation()
                     end
                 end
             end
-            if isChecked(colorrogue.."Paralysis") and cd.paralysis == 0 then
+            if isChecked(colorrogue.."Paralysis") and cd.paralysis.remain() == 0 then
                 for i = 1, #enemies.yards20 do
                     local thisUnit = enemies.yards20[i]
                     if canInterrupt(thisUnit,getValue("Interrupt at")) then
@@ -419,7 +419,7 @@ local function runRotation()
                 if cast.diffuseMagic() then return true end
                 if cast.dampenHarm() then return true end
             end
-            if isChecked(colorwarrior.."Fortifying Brew") and php <=  getValue(colorwarrior.."Fortifying Brew") and cd.fortifyingBrew == 0 then
+            if isChecked(colorwarrior.."Fortifying Brew") and php <=  getValue(colorwarrior.."Fortifying Brew") and cd.fortifyingBrew.remain() == 0 then
                 if cast.fortifyingBrew() then return true end
             end
             if isChecked(colorwarrior.."Healthstone") and php <= getValue(colorwarrior.."Healthstone") and inCombat and (hasHealthPot() or hasItem(5512)) then
@@ -445,7 +445,7 @@ local function runRotation()
                     end
 			end
 			if pullTimer <= 6 then
-                if cd.renewingMist == 0 then
+                if cd.renewingMist.remain() == 0 then
                     for i=1, #tanks do
                         tank = tanks[i].unit
                         if UnitInRange(tank) and not buff.renewingMist.exists(tank) then
@@ -475,14 +475,14 @@ local function runRotation()
             if cast.tigersLust() then return true end
         end
 	-- Ring of Peace
-        if isChecked("Ring Of Peace Key") and (SpecificToggle("Ring Of Peace Key") and not GetCurrentKeyBoardFocus()) and cd.ringOfPeace == 0 then
+        if isChecked("Ring Of Peace Key") and (SpecificToggle("Ring Of Peace Key") and not GetCurrentKeyBoardFocus()) and cd.ringOfPeace.remain() == 0 then
             CastSpellByName(GetSpellInfo(spell.ringOfPeace),"cursor")
             return true
         end
 	-- Invervate Logic
         if inRaid and buff.innervate.exists() or buff.symbolOfHope.exists() or buff.manaTea.exists() then
             actionList_CheckVelen()
-            if isChecked(colormage.."Essence Font") and cd.essenceFont == 0 and #friends.yards25 > 5 then
+            if isChecked(colormage.."Essence Font") and cd.essenceFont.remain() == 0 and #friends.yards25 > 5 then
                 if cast.essenceFont() then return true end
             end
             if isChecked(colormage.."Refreshing Jade Wind") and talent.refreshingJadeWind and #friends.yards8 > 1 then
@@ -494,7 +494,7 @@ local function runRotation()
         end
         if IsInInstance ~= "party" and buff.innervate.exists() or buff.symbolOfHope.exists() or buff.manaTea.exists() then
             actionList_CheckVelen()
-            if isChecked(colormage.."Essence Font") and cd.essenceFont == 0 and #friends.yards25 > 3 then
+            if isChecked(colormage.."Essence Font") and cd.essenceFont.remain() == 0 and #friends.yards25 > 3 then
                 if cast.essenceFont() then return true end
             end
             if isChecked(colormage.."Refreshing Jade Wind") and talent.refreshingJadeWind and #friends.yards8 > 1 then
@@ -587,20 +587,20 @@ local function runRotation()
                 if cast.manaTea() then return true end
             end
 		-- Revival
-            if isChecked(colorshaman.."Revival") and getLowAllies(getValue(colorshaman.."Revival")) >= getValue(colorshaman.."Min Revival Targets") and cd.revival == 0 then
+            if isChecked(colorshaman.."Revival") and getLowAllies(getValue(colorshaman.."Revival")) >= getValue(colorshaman.."Min Revival Targets") and cd.revival.remain() == 0 then
                 SpellStopCasting()
                 actionList_CheckVelen()
                 if cast.revival() then return true end
             end
 		-- ChiJi
-            if isChecked(colorshaman.."Invoke Chi-Ji, the Red Crane") and talent.invokeChiJiTheRedCrane and cd.invokeChiJiTheRedCrane == 0 then
+            if isChecked(colorshaman.."Invoke Chi-Ji, the Red Crane") and talent.invokeChiJiTheRedCrane and cd.invokeChiJiTheRedCrane.remain() == 0 then
                 if getLowAllies(getValue(colorshaman.."Invoke Chi-Ji, the Red Crane")) >= getValue(colorshaman.."Min Invoke Chi-Ji, the Red Crane Targets") then
                     SpellStopCasting()
                     if cast.invokeChiJiTheRedCrane("player") then return true end
                 end
             end
 		-- Life Cocoon
-            if isChecked(colorshaman.."Life Cocoon") and cd.lifeCocoon == 0  then
+            if isChecked(colorshaman.."Life Cocoon") and cd.lifeCocoon.remain() == 0  then
                 lowest = getLowest()
                 -- Player
                 if getOptionValue(colorshaman.."Life Cocoon Target") == 1 then
@@ -719,7 +719,7 @@ local function runRotation()
                 end
             end
 		-- Renewing Mist
-            if isChecked(colormage.."Renewing Mist") and cd.renewingMist == 0 then
+            if isChecked(colormage.."Renewing Mist") and cd.renewingMist.remain() == 0 then
                 for i = 1, #friends.yards40 do
                     local thisUnit = friends.yards40[i]
                     if thisUnit.hp <= getValue(colormage.."Renewing Mist") and buff.renewingMist.remain(thisUnit.unit) < gcdMax then
@@ -772,7 +772,7 @@ local function runRotation()
             end
         end
     -- Essence Font
-			if isChecked(colormage.."Essence Font") and cd.essenceFont == 0 and getLowAlliesInTable(getValue(colormage.."Essence Font"), friends.yards25) >= getValue(colormage.."Min Essence Font Targets") then
+			if isChecked(colormage.."Essence Font") and cd.essenceFont.remain() == 0 and getLowAlliesInTable(getValue(colormage.."Essence Font"), friends.yards25) >= getValue(colormage.."Min Essence Font Targets") then
 				if cast.essenceFont() then return true end
 			end
     -- Refreshing Jade Wind
@@ -824,7 +824,7 @@ local function runRotation()
                 if  isChecked(colordh.."Spinning Crane Kick") and not talent.spiritOfTheCrane and #enemies.yards8 >= 3 and not isCastingSpell(spell.spinningCraneKick) then
                     if cast.spinningCraneKick() then return true end
                 elseif #enemies.yards5 >= 1 then
-                    if isChecked(colordh.."Rising Sun Kick") and cd.risingSunKick  == 0 then
+                    if isChecked(colordh.."Rising Sun Kick") and cd.risingSunKick.remain()  == 0 then
                         if cast.risingSunKick() then return true end
                     end
                     if buff.teachingsOfTheMonastery.stack() == 3 then
@@ -841,8 +841,8 @@ local function runRotation()
 
     local function actionList_ThunderFocus()
 		
-		if isChecked(colorshaman.."Thunder Focus Tea + Essence Font") and cd.essenceFont == 0  and getLowAlliesInTable(getValue(colorshaman.."Thunder Focus Tea + Essence Font"), friends.yards25) >= getValue(colorshaman.."Min Thunder Focus Tea + Essence Font Targets") then
-			if cd.thunderFocusTea == 0 then
+		if isChecked(colorshaman.."Thunder Focus Tea + Essence Font") and cd.essenceFont.remain() == 0  and getLowAlliesInTable(getValue(colorshaman.."Thunder Focus Tea + Essence Font"), friends.yards25) >= getValue(colorshaman.."Min Thunder Focus Tea + Essence Font Targets") then
+			if cd.thunderFocusTea.remain() == 0 then
                 if cast.thunderFocusTea() then
                     TFEF = true
                     return true
@@ -850,7 +850,7 @@ local function runRotation()
             end
         end
         if isChecked(colorshaman.."Thunder Focus Tea + Vivify") and getLowest().hp <= getValue(colorshaman.."Thunder Focus Tea + Vivify") and mana <= getValue(colorshaman.."Thunder Focus Tea + Vivify - Mana") then
-            if cd.thunderFocusTea == 0 then
+            if cd.thunderFocusTea.remain() == 0 then
                 if cast.thunderFocusTea() then
                     TFV = true
                     return true
@@ -860,7 +860,7 @@ local function runRotation()
         lowest = getLowest()
         if isChecked(colorshaman.."Thunder Focus Tea + Enveloping Mist") and lowest.hp <= getValue(colorshaman.."Thunder Focus Tea + Enveloping Mist") then
              if not buff.envelopingMist.exists(lowest.unit) or buff.envelopingMist.remain(lowest.unit) <= 2 then
-                if cd.thunderFocusTea == 0 then
+                if cd.thunderFocusTea.remain() == 0 then
                     if cast.thunderFocusTea() then
                         TFEM = true
                         return true
@@ -868,15 +868,15 @@ local function runRotation()
                 end
             end
         end
-        if isChecked(colorshaman.."Thunder Focus Tea + Renewing Mist") and cd.renewingMist == 0 and getLowest().hp <= getValue(colorshaman.."Thunder Focus Tea + Renewing Mist") then
-            if cd.thunderFocusTea == 0 then
+        if isChecked(colorshaman.."Thunder Focus Tea + Renewing Mist") and cd.renewingMist.remain() == 0 and getLowest().hp <= getValue(colorshaman.."Thunder Focus Tea + Renewing Mist") then
+            if cd.thunderFocusTea.remain() == 0 then
                 if cast.thunderFocusTea() then
                     TFRM = true
                     return true
                 end
             end
         end
-		if isChecked(colorshaman.."Thunder Focus Tea + Essence Font") and cd.essenceFont == 0 and getLowAlliesInTable(getValue(colorshaman.."Thunder Focus Tea + Essence Font"), friends.yards25) >= getValue("Min Thunder Focus Tea + Essence Font Targets") then
+		if isChecked(colorshaman.."Thunder Focus Tea + Essence Font") and cd.essenceFont.remain() == 0 and getLowAlliesInTable(getValue(colorshaman.."Thunder Focus Tea + Essence Font"), friends.yards25) >= getValue("Min Thunder Focus Tea + Essence Font Targets") then
 			if cast.essenceFont() then
                 TFEF = false
                 return true
@@ -894,7 +894,7 @@ local function runRotation()
                 return true
             end
         end
-        if isChecked(colorshaman.."Thunder Focus Tea + Renewing Mist") and cd.renewingMist == 0 and getLowest().hp <= getValue(colorshaman.."Thunder Focus Tea + Renewing Mist") and TFRM then
+        if isChecked(colorshaman.."Thunder Focus Tea + Renewing Mist") and cd.renewingMist.remain() == 0 and getLowest().hp <= getValue(colorshaman.."Thunder Focus Tea + Renewing Mist") and TFRM then
             for i = 1, #friends.yards40 do
                 local thisUnit = friends.yards40[i]
                 if thisUnit.hp <= getValue(colorshaman.."Thunder Focus Tea + Renewing Mist") and buff.renewingMist.remain(thisUnit.unit) < gcdMax then

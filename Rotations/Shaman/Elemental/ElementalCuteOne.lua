@@ -195,15 +195,14 @@ local function runRotation()
         local perk                                          = br.player.perk
         local php                                           = br.player.health
         local playerMouse                                   = UnitIsPlayer("mouseover")
-        local power, powmax, powgen, powerDeficit           = br.player.power.amount.maelstrom, br.player.power.maelstrom.max, br.player.power.regen, br.player.power.maelstrom.deficit
+        local power, powmax, powgen, powerDeficit           = br.player.power.maelstrom.amount(), br.player.power.maelstrom.max(), br.player.power.maelstrom.regen(), br.player.power.maelstrom.deficit()
         local pullTimer                                     = br.DBM:getPulltimer()
         local racial                                        = br.player.getRacial()
-        local recharge                                      = br.player.recharge
         local solo                                          = br.player.instance=="none"
         local spell                                         = br.player.spell
         local talent                                        = br.player.talent
         local ttd                                           = getTTD
-        local ttm                                           = br.player.power.ttm
+        local ttm                                           = br.player.power.maelstrom.ttm()
         local units                                         = units or {}
 
         units.dyn8 = br.player.units(8)
@@ -367,19 +366,19 @@ local function runRotation()
                             if cast.hex(thisUnit) then return end
                         end
         -- Lightning Surge Totem
-                        if isChecked("Lightning Surge Totem") and cd.windShear > gcd then
+                        if isChecked("Lightning Surge Totem") and cd.windShear.remain() > gcd then
                             if hasThreat(thisUnit) and not isMoving(thisUnit) and ttd(thisUnit) > 7 and lastSpell ~= spell.lightningSurgeTotem then
                                 if cast.lightningSurgeTotem(thisUnit,"ground") then return end
                             end
                         end
         -- Tunderstorm
-                        if isChecked("Thunderstorm - Interrupt") and cd.windShear > gcd and cd.lightningSurgeTotem > gcd then
+                        if isChecked("Thunderstorm - Interrupt") and cd.windShear.remain() > gcd and cd.lightningSurgeTotem.remain() > gcd then
                             if getDistance(thisUnit) < 10 then
                                 if cast.thunderstorm() then return end
                             end
                         end
         -- Earthquake
-                        if isChecked("Earthquake - Interrupt") and cd.windShear > gcd and cd.lightningSurgeTotem > gcd and lastSpell ~= spell.earthquake then
+                        if isChecked("Earthquake - Interrupt") and cd.windShear.remain() > gcd and cd.lightningSurgeTotem.remain() > gcd and lastSpell ~= spell.earthquake then
                             if getDistance(thisUnit) < 8 then
                                 if cast.earthquake("target","ground") then return end
                             end
@@ -558,7 +557,7 @@ local function runRotation()
             -- ascendance,if=dot.flame_shock.remains>buff.ascendance.duration&(time>=60|buff.bloodlust.up)&cooldown.lava_burst.remains>0&!buff.stormkeeper.up
             if useCDs() and isChecked("Ascendance") then
                 if debuff.flameShock.remain(units.dyn40) > buff.ascendance.duration()
-                    and (combatTime >= 60 or hasBloodLust()) and cd.lavaBurst > 0 and not buff.stormkeeper.exits
+                    and (combatTime >= 60 or hasBloodLust()) and cd.lavaBurst.remain() > 0 and not buff.stormkeeper.exits
                 then
                     if cast.ascendance() then return end
                 end
@@ -577,7 +576,7 @@ local function runRotation()
             end
             -- flame_shock,if=maelstrom>=20&remains<=buff.ascendance.duration&cooldown.ascendance.remains+buff.ascendance.duration<=duration
             if power >= 20 and debuff.flameShock.remain(units.dyn40) <= buff.ascendance.duration()
-                and cd.ascendance + buff.ascendance.duration() <= debuff.flameShock.duration(units.dyn40)
+                and cd.ascendance.remain() + buff.ascendance.duration() <= debuff.flameShock.duration(units.dyn40)
                 and ttd(units.dyn40) > 15
             then
                 if cast.flameShock() then return end
@@ -591,8 +590,8 @@ local function runRotation()
                 if cast.earthquake("target","ground") then return end
             end
         -- Earth Shock
-            -- earth_shock,if=maelstrom>=117|!artifact.swelling_maelstrom.enabled&maelstrom>=92
-            if power >= 117 or (not artifact.swellingMaelstrom and power >= 92) then
+            -- earth_shock,if=maelstrom>=117|!artifact.swelling_maelstrom.enabled().enabled&maelstrom>=92
+            if power >= 117 or (not artifact.swellingMaelstrom.enabled() and power >= 92) then
                 if cast.earthShock() then return end
             end
         -- Stormkeeper
@@ -612,7 +611,7 @@ local function runRotation()
             end
         -- Lava Burst
             -- lava_burst,if=dot.flame_shock.remains>cast_time&(cooldown_react|buff.ascendance.up)
-            if debuff.flameShock.remain(units.dyn40) > getCastTime(spell.lavaBurst) and (cd.lavaBurst == 0 or buff.ascendance.exists()) then
+            if debuff.flameShock.remain(units.dyn40) > getCastTime(spell.lavaBurst) and (cd.lavaBurst.remain() == 0 or buff.ascendance.exists()) then
                 if cast.lavaBurst() then return end
             end
         -- Flame Shock
@@ -621,18 +620,18 @@ local function runRotation()
                 if cast.flameShock() then return end
             end
         -- Earth Shock
-            -- earth_shock,if=maelstrom>=111|!artifact.swelling_maelstrom.enabled&maelstrom>=86|equipped.smoldering_heart&equipped.the_deceivers_blood_pact&maelstrom>70&talent.aftershock.enable
-            if power >= 111 or (not artifact.swellingMaelstrom and power >= 86) or (hasEquiped(151819) and hasEquiped(137035) and power > 70 and talent.aftershock) then
+            -- earth_shock,if=maelstrom>=111|!artifact.swelling_maelstrom.enabled().enabled&maelstrom>=86|equipped.smoldering_heart&equipped.the_deceivers_blood_pact&maelstrom>70&talent.aftershock.enable
+            if power >= 111 or (not artifact.swellingMaelstrom.enabled() and power >= 86) or (hasEquiped(151819) and hasEquiped(137035) and power > 70 and talent.aftershock) then
                 if cast.earthShock() then return end
             end
         -- Totem Mastery
             -- totem_mastery,if=buff.resonance_totem.remains<10|(buff.resonance_totem.remains<(buff.ascendance.duration+cooldown.ascendance.remains)&cooldown.ascendance.remains<15)
-            if (resonanceTotemTimer < 10 or (resonanceTotemTimer < (buff.ascendance.duration() + cd.ascendance) and cd.ascendance < 15)) and lastSpell ~= spell.totemMastery then
+            if (resonanceTotemTimer < 10 or (resonanceTotemTimer < (buff.ascendance.duration() + cd.ascendance.remain()) and cd.ascendance.remain() < 15)) and lastSpell ~= spell.totemMastery then
                 if cast.totemMastery() then resonanceTotemCastTime = GetTime() + 120; return end
             end
         -- Earthquake
-            -- -- earthquake,if=buff.echoes_of_the_great_sundering.up|artifact.seismic_storm.enabled&((active_enemies>1&spell_targets.chain_lightning>1)|spell_haste<=0.66&!(buff.bloodlust.up&buff.bloodlust.remains<5))
-            -- if (buff.echoesOfTheGreatSundering.exists() or artifact.seismicStorm) 
+            -- -- earthquake,if=buff.echoes_of_the_great_sundering.up|artifact.seismic_storm.enabled().enabled&((active_enemies>1&spell_targets.chain_lightning>1)|spell_haste<=0.66&!(buff.bloodlust.up&buff.bloodlust.remains<5))
+            -- if (buff.echoesOfTheGreatSundering.exists() or artifact.seismicStorm.enabled()) 
             --     and ((#enemies.yards8 > 1 and #enemies.yards8t > 1) or UnitSpellHaste("player")/100 <= 0.66 and (hasBloodLust() and hasBloodLustRemain() < 5)) 
             -- then
             --     if cast.earthquake("target","ground") then return end
@@ -701,8 +700,8 @@ local function runRotation()
             -- elemental_blast
             if cast.elementalBlast() then return end
         -- Earth Shock
-            -- earth_shock,if=maelstrom>=117|!artifact.swelling_maelstrom.enabled&maelstrom>=92
-            if power >= 117 or (not artifact.swellingMaelstrom and power >= 92) then
+            -- earth_shock,if=maelstrom>=117|!artifact.swelling_maelstrom.enabled().enabled&maelstrom>=92
+            if power >= 117 or (not artifact.swellingMaelstrom.enabled() and power >= 92) then
                 if cast.earthShock() then return end
             end
         -- Stormkeeper
@@ -711,8 +710,8 @@ local function runRotation()
                 if cast.stormkeeper() then return end
             end
         -- Ice Fury
-            -- icefury,if=(raid_event.movement.in<5|maelstrom<=101&artifact.swelling_maelstrom.enabled|!artifact.swelling_maelstrom.enabled&maelstrom<=76)&!buff.ascendance.up
-            if ((power <= 101 and artifact.swellingMaelstrom) or (not artifact.swellingMaelstrom and power <= 76)) and not buff.ascendance.exists() then
+            -- icefury,if=(raid_event.movement.in<5|maelstrom<=101&artifact.swelling_maelstrom.enabled().enabled|!artifact.swelling_maelstrom.enabled().enabled&maelstrom<=76)&!buff.ascendance.up
+            if ((power <= 101 and artifact.swellingMaelstrom.enabled()) or (not artifact.swellingMaelstrom.enabled() and power <= 76)) and not buff.ascendance.exists() then
                 if cast.icefury() then return end
             end
         -- Liquid Magma Totem
@@ -727,7 +726,7 @@ local function runRotation()
             end
         -- Lava Burst
             -- lava_burst,if=dot.flame_shock.remains>cast_time&cooldown_react
-            if debuff.flameShock.remain(units.dyn40) > getCastTime(spell.lavaBurst) and cd.lavaBurst == 0 then
+            if debuff.flameShock.remain(units.dyn40) > getCastTime(spell.lavaBurst) and cd.lavaBurst.remain() == 0 then
                 if cast.lavaBurst() then return end
             end
         -- Frost Shock
@@ -746,8 +745,8 @@ local function runRotation()
                 if cast.frostShock() then return end
             end
         -- Earth Shock
-            -- earth_shock,if=maelstrom>=111|!artifact.swelling_maelstrom.enabled&maelstrom>=86|equipped.smoldering_heart&equipped.the_deceivers_blood_pact&maelstrom>70&talent.aftershock.enabled
-            if power >= 111 or (not artifact.swellingMaelstrom and power >= 86) or (hasEquiped(151819) and hasEquiped(137035) and power > 70 and talent.aftershock) then
+            -- earth_shock,if=maelstrom>=111|!artifact.swelling_maelstrom.enabled().enabled&maelstrom>=86|equipped.smoldering_heart&equipped.the_deceivers_blood_pact&maelstrom>70&talent.aftershock.enabled
+            if power >= 111 or (not artifact.swellingMaelstrom.enabled() and power >= 86) or (hasEquiped(151819) and hasEquiped(137035) and power > 70 and talent.aftershock) then
                 if cast.earthShock() then return end
             end
         -- Totem Mastery
@@ -814,8 +813,8 @@ local function runRotation()
                 if cast.earthquake("target","ground") then return end
             end
         -- Earth Shock
-            -- earth_shock,if=maelstrom>=117|!artifact.swelling_maelstrom.enabled&maelstrom>=92
-            if power >= 117 or (not artifact.swellingMaelstrom and power >= 92) then
+            -- earth_shock,if=maelstrom>=117|!artifact.swelling_maelstrom.enabled().enabled&maelstrom>=92
+            if power >= 117 or (not artifact.swellingMaelstrom.enabled() and power >= 92) then
                 if cast.earthShock() then return end
             end
         -- Stormkeeper
@@ -830,7 +829,7 @@ local function runRotation()
             end
         -- Lava Burst
             -- lava_burst,if=dot.flame_shock.remains>cast_time&cooldown_react
-            if debuff.flameShock.remain(units.dyn40) > getCastTime(spell.lavaBurst) and cd.lavaBurst == 0 then
+            if debuff.flameShock.remain(units.dyn40) > getCastTime(spell.lavaBurst) and cd.lavaBurst.remain() == 0 then
                 if cast.lavaBurst() then return end
             end
         -- Flame Shock
@@ -839,18 +838,18 @@ local function runRotation()
                 if cast.flameShock() then return end
             end
         -- Earth Shock
-            -- earth_shock,if=maelstrom>=111|!artifact.swelling_maelstrom.enabled&maelstrom>=86|equipped.smoldering_heart&equipped.the_deceivers_blood_pact&maelstrom>70&talent.aftershock.enabled
-            if power >= 111 or (not artifact.swellingMaelstrom and power >= 86) or (hasEquiped(151819) and hasEquiped(137035) and power > 70 and talent.aftershock) then
+            -- earth_shock,if=maelstrom>=111|!artifact.swelling_maelstrom.enabled().enabled&maelstrom>=86|equipped.smoldering_heart&equipped.the_deceivers_blood_pact&maelstrom>70&talent.aftershock.enabled
+            if power >= 111 or (not artifact.swellingMaelstrom.enabled() and power >= 86) or (hasEquiped(151819) and hasEquiped(137035) and power > 70 and talent.aftershock) then
                 if cast.earthShock() then return end
             end
         -- Totem Mastery
             -- totem_mastery,if=buff.resonance_totem.remains<10|(buff.resonance_totem.remains<(buff.ascendance.duration+cooldown.ascendance.remains)&cooldown.ascendance.remains<15)
-            if (resonanceTotemTimer < 10 or (resonanceTotemTimer < (buff.ascendance.duration() + cd.ascendance) and cd.ascendance < 15)) and lastSpell ~= spell.totemMastery then
+            if (resonanceTotemTimer < 10 or (resonanceTotemTimer < (buff.ascendance.duration() + cd.ascendance.remain()) and cd.ascendance.remain() < 15)) and lastSpell ~= spell.totemMastery then
                 if cast.totemMastery() then resonanceTotemCastTime = GetTime() + 120; return end
             end
         -- Earthquake
-            -- earthquake,if=buff.echoes_of_the_great_sundering.up|artifact.seismic_storm.enabled&((active_enemies>1&spell_targets.chain_lightning>1)|spell_haste<=0.66&!(buff.bloodlust.up&buff.bloodlust.remains<5))
-            -- if (buff.echoesOfTheGreatSundering.exists() or artifact.seismicStorm) 
+            -- earthquake,if=buff.echoes_of_the_great_sundering.up|artifact.seismic_storm.enabled().enabled&((active_enemies>1&spell_targets.chain_lightning>1)|spell_haste<=0.66&!(buff.bloodlust.up&buff.bloodlust.remains<5))
+            -- if (buff.echoesOfTheGreatSundering.exists() or artifact.seismicStorm.enabled()) 
             --     and ((#enemies.yards8 > 1 and #enemies.yards8t > 1) or UnitSpellHaste("player")/100 <= 0.66 and (hasBloodLust() and hasBloodLustRemain() < 5)) 
             -- then
             --     if cast.earthquake("target","ground") then return end
@@ -978,7 +977,7 @@ local function runRotation()
                         -- blood_fury,if=!talent.ascendance.enabled|buff.ascendance.up|cooldown.ascendance.remains>50
                         -- berserking,if=!talent.ascendance.enabled|buff.ascendance.up
                         if isChecked("Racial") and getSpellCD(racial) == 0 then
-                            if not talent.ascendance or buff.ascendance.exists() or cd.ascendance > 50 then
+                            if not talent.ascendance or buff.ascendance.exists() or cd.ascendance.remain() > 50 then
                                 if br.player.race == "Orc" then
                                     if castSpell("player",racial,false,false,false)  then return end
                                 end

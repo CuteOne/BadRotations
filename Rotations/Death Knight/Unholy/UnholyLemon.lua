@@ -182,13 +182,12 @@ local function runRotation()
     local perk                                          = br.player.perk        
     local php                                           = br.player.health
     local power, powmax, powgen                         = br.player.power, br.player.powerMax, br.player.powerRegen
-    local runicPower                                    = br.player.power.amount.runicPower
-    local rune                                          = br.player.power.runes.frac
+    local runicPower                                    = br.player.power.runicPower.amount()
+    local rune                                          = br.player.power.runes.frac()
     local pullTimer                                     = br.DBM:getPulltimer()
     local race                                          = br.player.race
-    local runicPowerDeficit                             = br.player.power.runicPower.deficit
+    local runicPowerDeficit                             = br.player.power.runicPower.deficit()
     local racial                                        = br.player.getRacial()
-    local recharge                                      = br.player.recharge
     local spell                                         = br.player.spell
     local talent                                        = br.player.talent
     local ttm                                           = br.player.timeToMax
@@ -262,7 +261,7 @@ local function runRotation()
                 and (buff.darkSuccor.exists() and (php < getOptionValue("Death Strike") or buff.darkSuccor.remain() < 2))
                 or  runicPower >= 45  
                 and php < getOptionValue("Death Strike") 
-                and (not talent.darkArbiter or (cd.darkArbiter <= 3 and not (useCDs() or playertar)))
+                and (not talent.darkArbiter or (cd.darkArbiter.remain() <= 3 and not (useCDs() or playertar)))
             then
                  -- Death strike everything in reach
                 if getDistance("target") > 5 or immun or bop then
@@ -313,7 +312,7 @@ local function runRotation()
     
     local function actionList_Castigator()
         --actions.castigator=festering_strike,if=debuff.festering_wound.stack<=4&runic_power.deficit>23
-        if cd.festeringStrike == 0 then
+        if cd.festeringStrike.remain() == 0 then
             for i = 1, #enemies.yards5 do
                 local thisUnit = enemies.yards5[i]      
                 if debuff.festeringWound.stack(thisUnit) <= 4 and runicPowerDeficit > 23 then
@@ -330,7 +329,7 @@ local function runRotation()
         end
         
         --actions.castigator+=/scourge_strike,if=buff.necrosis.react&debuff.festering_wound.stack>=3&runic_power.deficit>23
-        if cd.scourgeStrike == 0 then
+        if cd.scourgeStrike.remain() == 0 then
             for i = 1, #enemies.yards5 do
                 local thisUnit = enemies.yards5[i]
                 if debuff.festeringWound.stack(thisUnit) >= 3 and buff.necrosis.exists() and runicPowerDeficit > 23 then
@@ -341,7 +340,7 @@ local function runRotation()
         end
         
         --actions.castigator+=/scourge_strike,if=buff.unholy_strength.react&debuff.festering_wound.stack>=3&runic_power.deficit>23
-        if cd.scourgeStrike == 0 then
+        if cd.scourgeStrike.remain() == 0 then
             for i = 1, #enemies.yards5 do
                 local thisUnit = enemies.yards5[i]
                 if debuff.festeringWound.stack(thisUnit) >= 3 and buff.unholyStrength.exists() and runicPowerDeficit > 23 then
@@ -352,7 +351,7 @@ local function runRotation()
         end
         
         --actions.castigator+=/scourge_strike,if=rune>=2&debuff.festering_wound.stack>=3&runic_power.deficit>23
-        if cd.scourgeStrike == 0 then
+        if cd.scourgeStrike.remain() == 0 then
             for i = 1, #enemies.yards5 do
                 local thisUnit = enemies.yards5[i]
                 if debuff.festeringWound.stack(thisUnit) >= 3 and rune >= 2 and runicPowerDeficit > 23 then
@@ -363,7 +362,7 @@ local function runRotation()
         end
         
         --actions.castigator+=/death_coil,if=talent.shadow_infusion.enabled&talent.dark_arbiter.enabled&!buff.dark_transformation.up&cooldown.dark_arbiter.remains>15
-        if talent.shadowInfusion and talent.darkArbiter and not buff.darkTransformation.exists("pet") and cd.darkArbiter > 15 then
+        if talent.shadowInfusion and talent.darkArbiter and not buff.darkTransformation.exists("pet") and cd.darkArbiter.remain() > 15 then
             if cast.deathCoil() then return true end
             if isChecked("Debug Info") then Print("actionList_Castigator [6]: Death Coil") end
         end
@@ -373,7 +372,7 @@ local function runRotation()
             if isChecked("Debug Info") then Print("actionList_Castigator [7]: Death Coil") end
         end
         --actions.castigator+=/death_coil,if=talent.dark_arbiter.enabled&cooldown.dark_arbiter.remains>15
-        if talent.darkArbiter and cd.darkArbiter > 15 then
+        if talent.darkArbiter and cd.darkArbiter.remain() > 15 then
             if cast.deathCoil() then return true end
             if isChecked("Debug Info") then Print("actionList_Castigator [8]: Death Coil") end
         end
@@ -396,12 +395,12 @@ local function runRotation()
             if isChecked("Debug Info") then Print("actionList_AOE [2]: Epidemic") end
         end
         --actions.aoe+=/scourge_strike,if=spell_targets.scourge_strike>=2&(dot.death_and_decay.ticking|dot.defile.ticking)
-        if #enemies.yards5 >= 2 and cd.deathAndDecay > 20 then
+        if #enemies.yards5 >= 2 and cd.deathAndDecay.remain() > 20 then
             if cast.scourgeStrike() then return true end
             if isChecked("Debug Info") then Print("actionList_AOE [3]: Scourge Strike") end
         end
         --actions.aoe+=/clawing_shadows,if=spell_targets.clawing_shadows>=2&(dot.death_and_decay.ticking|dot.defile.ticking)
-        if #enemies.yards5 >= 2 and cd.deathAndDecay > 20 and talent.clawingShadows then
+        if #enemies.yards5 >= 2 and cd.deathAndDecay.remain() > 20 and talent.clawingShadows then
             if cast.clawingShadows() then return true end
             if isChecked("Debug Info") then Print("actionList_AOE [4]: Clawing Shadows") end
         end
@@ -416,13 +415,13 @@ local function runRotation()
     
     local function actionList_Valkyr()
         --actions.valkyr=death_coil
-        if cd.deathCoil == 0 then
+        if cd.deathCoil.remain() == 0 then
             if cast.deathCoil() then return true end
             if isChecked("Debug Info") then Print("actionList_Valkyr [1]: Death Coil") end
         end
         
         --actions.valkyr+=/apocalypse,if=debuff.festering_wound.stack>=6
-        if cd.apocalypse == 0 then
+        if cd.apocalypse.remain() == 0 then
             for i = 1, #enemies.yards5 do
                 local thisUnit = enemies.yards5[i]      
                 if debuff.festeringWound.stack(thisUnit) >= 6 then
@@ -435,10 +434,10 @@ local function runRotation()
         end
         
         --actions.valkyr+=/festering_strike,if=debuff.festering_wound.stack<6&cooldown.apocalypse.remains<3
-        if cd.festeringStrike == 0 then
+        if cd.festeringStrike.remain() == 0 then
             for i = 1, #enemies.yards5 do
                 local thisUnit = enemies.yards5[i]      
-                if debuff.festeringWound.stack(thisUnit) < 6 and cd.apocalypse < 3 then
+                if debuff.festeringWound.stack(thisUnit) < 6 and cd.apocalypse.remain() < 3 then
                     if cast.festeringStrike(thisUnit) then return true end
                     if isChecked("Debug Info") then Print("actionList_Valkyr [3]: Festering Strike") end
                 end
@@ -452,7 +451,7 @@ local function runRotation()
         end
         
         --actions.valkyr+=/festering_strike,if=debuff.festering_wound.stack<=4
-        if cd.festeringStrike == 0 then
+        if cd.festeringStrike.remain() == 0 then
             for i = 1, #enemies.yards5 do
                 local thisUnit = enemies.yards5[i]      
                 if debuff.festeringWound.stack(thisUnit) <= 4 then
@@ -463,7 +462,7 @@ local function runRotation()
         end
         
         --actions.valkyr+=/scourge_strike,if=debuff.festering_wound.up
-        if cd.scourgeStrike == 0 then
+        if cd.scourgeStrike.remain() == 0 then
             for i = 1, #enemies.yards5 do
                 local thisUnit = enemies.yards5[i]
                 if debuff.festeringWound.exists(thisUnit) then
@@ -474,7 +473,7 @@ local function runRotation()
         end
         
         --actions.valkyr+=/clawing_shadows,if=debuff.festering_wound.up
-        if cd.clawingShadows == 0 then
+        if cd.clawingShadows.remain() == 0 then
             for i = 1, #enemies.yards5 do
                 local thisUnit = enemies.yards5[i]
                 if debuff.festeringWound.exists(thisUnit) then
@@ -489,7 +488,7 @@ local function runRotation()
 
     local function actionList_Standard()
         --actions.standard=festering_strike,if=debuff.festering_wound.stack<=3&runic_power.deficit>13
-        if cd.festeringStrike == 0 then
+        if cd.festeringStrike.remain() == 0 then
             for i = 1, #enemies.yards5 do
                 local thisUnit = enemies.yards5[i]      
                 if debuff.festeringWound.stack(thisUnit) <= 3 and runicPowerDeficit > 13 then
@@ -506,7 +505,7 @@ local function runRotation()
         end
         
         --actions.standard+=/scourge_strike,if=buff.necrosis.react&debuff.festering_wound.stack>=1&runic_power.deficit>15
-        if cd.scourgeStrike == 0 then
+        if cd.scourgeStrike.remain() == 0 then
             for i = 1, #enemies.yards5 do
                 local thisUnit = enemies.yards5[i]      
                 if debuff.festeringWound.stack(thisUnit) >= 1 and runicPowerDeficit > 15 and buff.necrosis.exists() then
@@ -517,7 +516,7 @@ local function runRotation()
         end
         
         --actions.standard+=/clawing_shadows,if=buff.necrosis.react&debuff.festering_wound.stack>=1&runic_power.deficit>11
-        if cd.clawingShadows == 0 then
+        if cd.clawingShadows.remain() == 0 then
             for i = 1, #enemies.yards5 do
                 local thisUnit = enemies.yards5[i]      
                 if debuff.festeringWound.stack(thisUnit) >= 1 and runicPowerDeficit > 11 and buff.necrosis.exists() then
@@ -528,7 +527,7 @@ local function runRotation()
         end
         
         --actions.standard+=/scourge_strike,if=buff.unholy_strength.react&debuff.festering_wound.stack>=1&runic_power.deficit>15
-        if cd.scourgeStrike == 0 then
+        if cd.scourgeStrike.remain() == 0 then
             for i = 1, #enemies.yards5 do
                 local thisUnit = enemies.yards5[i]      
                 if debuff.festeringWound.stack(thisUnit) >= 1 and runicPowerDeficit > 15 and buff.unholyStrength.exists() then
@@ -539,7 +538,7 @@ local function runRotation()
         end
         
         --actions.standard+=/clawing_shadows,if=buff.unholy_strength.react&debuff.festering_wound.stack>=1&runic_power.deficit>11
-        if cd.clawingShadows == 0 then
+        if cd.clawingShadows.remain() == 0 then
             for i = 1, #enemies.yards5 do
                 local thisUnit = enemies.yards5[i]      
                 if debuff.festeringWound.stack(thisUnit) >= 1 and runicPowerDeficit > 11 and buff.unholyStrength.exists() then
@@ -550,7 +549,7 @@ local function runRotation()
         end
         
         --actions.standard+=/scourge_strike,if=rune>=2&debuff.festering_wound.stack>=1&runic_power.deficit>15
-        if cd.scourgeStrike == 0 then
+        if cd.scourgeStrike.remain() == 0 then
             for i = 1, #enemies.yards5 do
                 local thisUnit = enemies.yards5[i]      
                 if debuff.festeringWound.stack(thisUnit) >= 1 and runicPowerDeficit > 15 and rune >= 2 then
@@ -561,7 +560,7 @@ local function runRotation()
         end
         
         --actions.standard+=/clawing_shadows,if=rune>=2&debuff.festering_wound.stack>=1&runic_power.deficit>11
-        if cd.clawingShadows == 0 then
+        if cd.clawingShadows.remain() == 0 then
             for i = 1, #enemies.yards5 do
                 local thisUnit = enemies.yards5[i]      
                 if debuff.festeringWound.stack(thisUnit) >= 1 and runicPowerDeficit > 11 and rune >= 2 then
@@ -572,7 +571,7 @@ local function runRotation()
         end
         
         --actions.standard+=/death_coil,if=talent.shadow_infusion.enabled&talent.dark_arbiter.enabled&!buff.dark_transformation.up&cooldown.dark_arbiter.remains>15
-        if talent.shadowInfusion and talent.darkArbiter and not buff.darkTransformation.exists("pet") and cd.darkArbiter > 15 then
+        if talent.shadowInfusion and talent.darkArbiter and not buff.darkTransformation.exists("pet") and cd.darkArbiter.remain() > 15 then
             if cast.deathCoil() then return true end
             if isChecked("Debug Info") then Print("actionList_Standard [9]: Death Coil") end
         end
@@ -582,7 +581,7 @@ local function runRotation()
             if isChecked("Debug Info") then Print("actionList_Standard [10]: Death Coil") end
         end
         --actions.standard+=/death_coil,if=talent.dark_arbiter.enabled&cooldown.dark_arbiter.remains>15
-        if talent.darkArbiter and cd.darkArbiter > 15 then
+        if talent.darkArbiter and cd.darkArbiter.remain() > 15 then
             if cast.deathCoil() then return true end
             if isChecked("Debug Info") then Print("actionList_Standard [11]: Death Coil") end
         end
@@ -597,12 +596,12 @@ local function runRotation()
     
     local function actionList_Generic()
         --actions.generic=dark_arbiter,if=!equipped.137075&runic_power.deficit<30
-        if not hasEquiped(137075) and runicPowerDeficit < 30 and talent.darkArbiter and isChecked("Gargoyle / Dark Arbiter") and useCDs() and cd.darkArbiter == 0 then
+        if not hasEquiped(137075) and runicPowerDeficit < 30 and talent.darkArbiter and isChecked("Gargoyle / Dark Arbiter") and useCDs() and cd.darkArbiter.remain() == 0 then
             if cast.darkArbiter() then return true end
             if isChecked("Debug Info") then Print("actionList_Generic [1]: Dark Arbiter") end
         end
 		
-		if cd.apocalypse == 0 then
+		if cd.apocalypse.remain() == 0 then
             for i = 1, #enemies.yards5 do
                 local thisUnit = enemies.yards5[i]      
                 if hasEquiped(137075) and debuff.festeringWound.stack(thisUnit) >= 6 and talent.darkArbiter then
@@ -615,7 +614,7 @@ local function runRotation()
         end
 		
         --actions.generic+=/dark_arbiter,if=equipped.137075&runic_power.deficit<30&cooldown.dark_transformation.remains<2
-        if hasEquiped(137075) and runicPowerDeficit < 30 and cd.darkTransformation < 2 and isChecked("Gargoyle / Dark Arbiter") and useCDs() and cd.darkArbiter == 0 then
+        if hasEquiped(137075) and runicPowerDeficit < 30 and cd.darkTransformation.remain() < 2 and isChecked("Gargoyle / Dark Arbiter") and useCDs() and cd.darkArbiter.remain() == 0 then
             if cast.darkArbiter() then return true end
             if isChecked("Debug Info") then Print("actionList_Generic [2]: Dark Arbiter") end
         end
@@ -625,7 +624,7 @@ local function runRotation()
             if isChecked("Debug Info") then Print("actionList_Generic [3]: Summon Gargoyle") end
         end
         --actions.generic+=/chains_of_ice,if=buff.unholy_strength.up&buff.cold_heart.stack>19
-        if cd.chainsOfIce == 0 then
+        if cd.chainsOfIce.remain() == 0 then
             for i = 1, #enemies.yards30 do
                 local thisUnit = enemies.yards30[i]     
                 if buff.unholyStrength.exists() and buff.coldHeart.stack(thisUnit) > 19 then
@@ -636,23 +635,23 @@ local function runRotation()
         end
         
         --actions.generic+=/summon_gargoyle,if=equipped.137075&cooldown.dark_transformation.remains<10&rune<=3
-        if hasEquiped(137075) and cd.darkTransformation < 10 and rune <= 3 and isChecked("Gargoyle / Dark Arbiter") and useCDs() then
+        if hasEquiped(137075) and cd.darkTransformation.remain() < 10 and rune <= 3 and isChecked("Gargoyle / Dark Arbiter") and useCDs() then
             if cast.summonGargoyle() then return true end
             if isChecked("Debug Info") then Print("actionList_Generic [5]: Summon Gargoyle") end
         end
         
         --actions.generic+=/soul_reaper,if=debuff.festering_wound.stack>=6&cooldown.apocalypse.remains<4
-        if cd.soulReaper == 0 then
+        if cd.soulReaper.remain() == 0 then
             for i = 1, #enemies.yards5 do
                 local thisUnit = enemies.yards5[i]      
-                if debuff.festeringWound.stack(thisUnit) >= 6 and cd.apocalypse < 4 then
+                if debuff.festeringWound.stack(thisUnit) >= 6 and cd.apocalypse.remain() < 4 then
                     if cast.soulReaper(thisUnit) then return true end
                     if isChecked("Debug Info") then Print("actionList_Generic [6]: Soul Reaper") end
                 end
             end
         end
         --actions.generic+=/apocalypse,if=debuff.festering_wound.stack>=6
-        if cd.apocalypse == 0 then
+        if cd.apocalypse.remain() == 0 then
             for i = 1, #enemies.yards5 do
                 local thisUnit = enemies.yards5[i]      
                 if debuff.festeringWound.stack(thisUnit) >= 6 then
@@ -675,15 +674,15 @@ local function runRotation()
             if isChecked("Debug Info") then Print("actionList_Generic [9]: Death Coil") end
         end
         --actions.generic+=/death_coil,if=talent.dark_arbiter.enabled&buff.sudden_doom.up&cooldown.dark_arbiter.remains>5&rune<=3
-        if talent.darkArbiter and buff.suddenDoom.exists() and cd.darkArbiter > 5 and rune <= 3 then
+        if talent.darkArbiter and buff.suddenDoom.exists() and cd.darkArbiter.remain() > 5 and rune <= 3 then
             if cast.deathCoil() then return true end
             if isChecked("Debug Info") then Print("actionList_Generic [10]: Death Coil") end
         end
         --actions.generic+=/festering_strike,if=debuff.festering_wound.stack<6&cooldown.apocalypse.remains<=6
-        if cd.festeringStrike == 0 then
+        if cd.festeringStrike.remain() == 0 then
             for i = 1, #enemies.yards5 do
                 local thisUnit = enemies.yards5[i]      
-                if debuff.festeringWound.stack(thisUnit) < 6 and cd.apocalypse <= 6 then
+                if debuff.festeringWound.stack(thisUnit) < 6 and cd.apocalypse.remain() <= 6 then
                     if cast.festeringStrike(thisUnit) then return true end
                     if isChecked("Debug Info") then Print("actionList_Generic [11]: Festering Strike") end
                 end
@@ -691,7 +690,7 @@ local function runRotation()
         end
         
         --actions.generic+=/soul_reaper,if=debuff.festering_wound.stack>=3
-        if cd.soulReaper == 0 then
+        if cd.soulReaper.remain() == 0 then
             for i = 1, #enemies.yards5 do
                 local thisUnit = enemies.yards5[i]      
                 if debuff.festeringWound.stack(thisUnit) >= 3 then
@@ -701,7 +700,7 @@ local function runRotation()
             end
         end
         --actions.generic+=/festering_strike,if=debuff.soul_reaper.up&!debuff.festering_wound.up
-        if cd.festeringStrike == 0 then
+        if cd.festeringStrike.remain() == 0 then
             for i = 1, #enemies.yards5 do
                 local thisUnit = enemies.yards5[i]      
                 if debuff.soulReaper.exists(thisUnit) and not debuff.festeringWound.exists(thisUnit) then
@@ -712,7 +711,7 @@ local function runRotation()
         end
         
         --actions.generic+=/scourge_strike,if=debuff.soul_reaper.up&debuff.festering_wound.stack>=1
-        if cd.soulReaper == 0 then
+        if cd.soulReaper.remain() == 0 then
             for i = 1, #enemies.yards5 do
                 local thisUnit = enemies.yards5[i]      
                 if debuff.festeringWound.stack(thisUnit) >= 1 then
@@ -722,7 +721,7 @@ local function runRotation()
             end
         end
         --actions.generic+=/clawing_shadows,if=debuff.soul_reaper.up&debuff.festering_wound.stack>=1
-        if cd.clawingShadows == 0 then
+        if cd.clawingShadows.remain() == 0 then
             for i = 1, #enemies.yards5 do
                 local thisUnit = enemies.yards5[i]      
                 if debuff.festeringWound.stack(thisUnit) >= 1 and debuff.soulReaper.exists(thisUnit)then
@@ -763,7 +762,7 @@ local function runRotation()
 
     local function actionList_Instructors()
         --actions.instructors=festering_strike,if=debuff.festering_wound.stack<=3&runic_power.deficit>13
-        if cd.festeringStrike == 0 then
+        if cd.festeringStrike.remain() == 0 then
             for i = 1, #enemies.yards5 do
                 local thisUnit = enemies.yards5[i]      
                 if debuff.festeringWound.stack(thisUnit) <= 3 and runicPowerDeficit > 13 then
@@ -779,7 +778,7 @@ local function runRotation()
             if isChecked("Debug Info") then Print("actionList_Instructors [2]: Death Coil") end
         end
         --actions.instructors+=/scourge_strike,if=buff.necrosis.react&debuff.festering_wound.stack>=4&runic_power.deficit>29
-        if cd.scourgeStrike == 0 then
+        if cd.scourgeStrike.remain() == 0 then
             for i = 1, #enemies.yards5 do
                 local thisUnit = enemies.yards5[i]      
                 if buff.necrosis.exists() and debuff.festeringWound.stack(thisUnit) >= 4 and runicPowerDeficit > 29 then
@@ -790,7 +789,7 @@ local function runRotation()
         end
         
         --actions.instructors+=/clawing_shadows,if=buff.necrosis.react&debuff.festering_wound.stack>=3&runic_power.deficit>11
-        if cd.clawingShadows == 0 then
+        if cd.clawingShadows.remain() == 0 then
             for i = 1, #enemies.yards5 do
                 local thisUnit = enemies.yards5[i]      
                 if buff.necrosis.exists() and debuff.festeringWound.stack(thisUnit) >= 3 and runicPowerDeficit > 11 then
@@ -801,7 +800,7 @@ local function runRotation()
         end
         
         --actions.instructors+=/scourge_strike,if=buff.unholy_strength.react&debuff.festering_wound.stack>=4&runic_power.deficit>29
-        if cd.scourgeStrike == 0 then
+        if cd.scourgeStrike.remain() == 0 then
             for i = 1, #enemies.yards5 do
                 local thisUnit = enemies.yards5[i]      
                 if buff.unholyStrength.exists() and debuff.festeringWound.stack(thisUnit) >= 4 and runicPowerDeficit > 29 then
@@ -812,7 +811,7 @@ local function runRotation()
         end
         
         --actions.instructors+=/clawing_shadows,if=buff.unholy_strength.react&debuff.festering_wound.stack>=3&runic_power.deficit>11
-        if cd.clawingShadows == 0 then
+        if cd.clawingShadows.remain() == 0 then
             for i = 1, #enemies.yards5 do
                 local thisUnit = enemies.yards5[i]      
                 if buff.unholyStrength.exists() and debuff.festeringWound.stack(thisUnit) >= 3 and runicPowerDeficit > 11 then
@@ -823,7 +822,7 @@ local function runRotation()
         end
         
         --actions.instructors+=/scourge_strike,if=rune>=2&debuff.festering_wound.stack>=4&runic_power.deficit>29
-        if cd.scourgeStrike == 0 then
+        if cd.scourgeStrike.remain() == 0 then
             for i = 1, #enemies.yards5 do
                 local thisUnit = enemies.yards5[i]      
                 if rune >= 2 and debuff.festeringWound.stack(thisUnit) >= 4 and runicPowerDeficit > 29 then
@@ -833,7 +832,7 @@ local function runRotation()
             end
         end
         --actions.instructors+=/clawing_shadows,if=rune>=2&debuff.festering_wound.stack>=3&runic_power.deficit>11
-        if cd.clawingShadows == 0 then
+        if cd.clawingShadows.remain() == 0 then
             for i = 1, #enemies.yards5 do
                 local thisUnit = enemies.yards5[i]      
                 if rune >= 2 and debuff.festeringWound.stack(thisUnit) >= 3 and runicPowerDeficit > 11 then
@@ -843,7 +842,7 @@ local function runRotation()
             end
         end
         --actions.instructors+=/death_coil,if=talent.shadow_infusion.enabled&talent.dark_arbiter.enabled&!buff.dark_transformation.up&cooldown.dark_arbiter.remains>15
-        if talent.shadowInfusion and talent.darkArbiter and not buff.darkTransformation.exists("pet") and cd.darkArbiter > 15 then
+        if talent.shadowInfusion and talent.darkArbiter and not buff.darkTransformation.exists("pet") and cd.darkArbiter.remain() > 15 then
             if cast.deathCoil() then return true end
             if isChecked("Debug Info") then Print("actionList_Instructors [9]: Death Coil") end
         end
@@ -853,7 +852,7 @@ local function runRotation()
             if isChecked("Debug Info") then Print("actionList_Instructors [10]: Death Coil") end
         end
         --actions.instructors+=/death_coil,if=talent.dark_arbiter.enabled&cooldown.dark_arbiter.remains>15
-        if talent.darkArbiter and cd.darkArbiter > 15 then
+        if talent.darkArbiter and cd.darkArbiter.remain() > 15 then
             if cast.deathCoil() then return true end
             if isChecked("Debug Info") then Print("actionList_Instructors [11]: Death Coil") end
         end
@@ -893,7 +892,7 @@ local function runRotation()
                         end
                     end
                     
-                    if isChecked("Mind Freeze") and cd.mindFreeze == 0 and getDistance(thisUnit) < 15 then
+                    if isChecked("Mind Freeze") and cd.mindFreeze.remain() == 0 and getDistance(thisUnit) < 15 then
                         if canInterrupt(thisUnit,getValue("Interrupt at") + math.random(-5,5) ) then
                             if cast.mindFreeze(thisUnit) then return true end
                         end
@@ -1101,28 +1100,28 @@ local function runRotation()
             end
             
             --actions+=/dark_transformation,if=equipped.137075&cooldown.dark_arbiter.remains>165
-            if isChecked(colorGreen.."Dark Transformation") and hasEquiped(137075) and cd.darkArbiter > 165 then
+            if isChecked(colorGreen.."Dark Transformation") and hasEquiped(137075) and cd.darkArbiter.remain() > 165 then
                 if cast.darkTransformation() then return end
             end
             --actions+=/dark_transformation,if=equipped.137075&!talent.shadow_infusion.enabled&cooldown.dark_arbiter.remains>55
-            if isChecked(colorGreen.."Dark Transformation") and hasEquiped(137075) and not talent.shadowInfusion and cd.darkArbiter > 55 then
+            if isChecked(colorGreen.."Dark Transformation") and hasEquiped(137075) and not talent.shadowInfusion and cd.darkArbiter.remain() > 55 then
                 if cast.darkTransformation() then return end
             end
             --actions+=/dark_transformation,if=equipped.137075&talent.shadow_infusion.enabled&cooldown.dark_arbiter.remains>35
-            if isChecked(colorGreen.."Dark Transformation") and hasEquiped(137075) and talent.shadowInfusion and cd.darkArbiter > 35 then
+            if isChecked(colorGreen.."Dark Transformation") and hasEquiped(137075) and talent.shadowInfusion and cd.darkArbiter.remain() > 35 then
                 if cast.darkTransformation() then return end
             end
             --actions+=/dark_transformation,if=equipped.137075&target.time_to_die<cooldown.dark_arbiter.remains-8
             --actions+=/dark_transformation,if=equipped.137075&cooldown.summon_gargoyle.remains>160
-            if isChecked(colorGreen.."Dark Transformation") and hasEquiped(137075) and cd.summonGargoyle > 160 then
+            if isChecked(colorGreen.."Dark Transformation") and hasEquiped(137075) and cd.summonGargoyle.remain() > 160 then
                 if cast.darkTransformation() then return end
             end
             --actions+=/dark_transformation,if=equipped.137075&!talent.shadow_infusion.enabled&cooldown.summon_gargoyle.remains>55
-            if isChecked(colorGreen.."Dark Transformation") and hasEquiped(137075) and not talent.shadowInfusion and cd.summonGargoyle > 55 then
+            if isChecked(colorGreen.."Dark Transformation") and hasEquiped(137075) and not talent.shadowInfusion and cd.summonGargoyle.remain() > 55 then
                 if cast.darkTransformation() then return end
             end
             --actions+=/dark_transformation,if=equipped.137075&talent.shadow_infusion.enabled&cooldown.summon_gargoyle.remains>35
-            if isChecked(colorGreen.."Dark Transformation") and hasEquiped(137075) and talent.shadowInfusion and cd.summonGargoyle > 35 then
+            if isChecked(colorGreen.."Dark Transformation") and hasEquiped(137075) and talent.shadowInfusion and cd.summonGargoyle.remain() > 35 then
                 if cast.darkTransformation() then return end
             end
             --actions+=/dark_transformation,if=equipped.137075&target.time_to_die<cooldown.summon_gargoyle.remains-8

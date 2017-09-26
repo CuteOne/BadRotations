@@ -163,15 +163,14 @@ local function runRotation()
         local perk                                          = br.player.perk        
         local php                                           = br.player.health
         local playerMouse                                   = UnitIsPlayer("mouseover")
-        local power, powmax, powgen, powerDeficit           = br.player.power.amount.mana, br.player.power.mana.max, br.player.power.regen, br.player.power.mana.deficit
+        local power, powmax, powgen, powerDeficit           = br.player.power.mana.amount(), br.player.power.mana.max(), br.player.power.mana.regen(), br.player.power.mana.deficit()
         local pullTimer                                     = br.DBM:getPulltimer()
         local racial                                        = br.player.getRacial()
-        local recharge                                      = br.player.recharge
         local solo                                          = br.player.instance=="none"
         local spell                                         = br.player.spell
         local talent                                        = br.player.talent
         local ttd                                           = getTTD
-        local ttm                                           = br.player.power.ttm
+        local ttm                                           = br.player.power.mana.ttm()
         local units                                         = units or {}
 
         units.dyn12 = br.player.units(12)
@@ -299,22 +298,22 @@ local function runRotation()
         local function actionList_ActiveTalents()
         -- Flame On
             -- flame_on,if=action.fire_blast.charges=0&(cooldown.combustion.remains>40+(talent.kindling.enabled*25)|target.time_to_die.remains<cooldown.combustion.remains)
-            --if charges.fireBlast == 0 and (cd.combustion > 40 + (kindle * 25) or (ttd("target") < cd.combustion) or (isDummy("target") and cd.combustion > 45)) then
+            --if charges.fireBlast.count() == 0 and (cd.combustion.remain() > 40 + (kindle * 25) or (ttd("target") < cd.combustion.remain()) or (isDummy("target") and cd.combustion.remain() > 45)) then
             --    if cast.flameOn() then return end
             --end
         -- Blast Wave
             -- blast_wave,if=(buff.combustion.down)|(buff.combustion.up&action.fire_blast.charges<1&action.phoenixs_flames.charges<1)
-            if (not buff.combustion.exists()) or (buff.combustion.exists() and charges.fireBlast < 1 and charges.phoenixsFlames < 1) then
+            if (not buff.combustion.exists()) or (buff.combustion.exists() and charges.fireBlast.count() < 1 and charges.phoenixsFlames.count() < 1) then
                 if cast.blastWave() then return end
             end
         -- Meteor
             -- meteor,if=cooldown.combustion.remains>30|(cooldown.combustion.remains>target.time_to_die)|buff.rune_of_power.up
-            if (cd.combustion > 30 or (cd.combustion > ttd("target")) or buff.runeOfPower.exists()) and ttd("target") > 8 and not tmoving then
+            if (cd.combustion.remain() > 30 or (cd.combustion.remain() > ttd("target")) or buff.runeOfPower.exists()) and ttd("target") > 8 and not tmoving then
                 if cast.meteor("target",nil,1,7) then return end
             end
         -- Cinderstorm
             -- cinderstorm,if=cooldown.combustion.remains<cast_time&(buff.rune_of_power.up|!talent.rune_on_power.enabled)|cooldown.combustion.remains>10*spell_haste&!buff.combustion.up
-            if cd.combustion < getCastTime(spell.cinderstorm) and (buff.runeOfPower.exists() or not talent.runeOfPower) or cd.combustion > 10 * hasteAmount and not buff.combustion.exists() then
+            if cd.combustion.remain() < getCastTime(spell.cinderstorm) and (buff.runeOfPower.exists() or not talent.runeOfPower) or cd.combustion.remain() > 10 * hasteAmount and not buff.combustion.exists() then
                 if cast.cinderstorm() then return end
             end
         -- Dragon's Breath
@@ -359,14 +358,14 @@ local function runRotation()
             end
         -- Fire Blast
             -- fire_blast,if=buff.heating_up.up
-            if (charges.frac.fireBlast > 1.5 and cd.combustion == 0) then
+            if (charges.fireBlast.frac() > 1.5 and cd.combustion.remain() == 0) then
                 if cast.fireBlast() then return end
             elseif buff.heatingUp.exists() and buff.combustion.exists() then
                 if cast.fireBlast() then return end
             end
         -- Phoenix's Flames
             -- phoenixs_flames
-            if buff.combustion.exists() and not buff.hotStreak.exists() and charges.phoenixsFlames > 1 then
+            if buff.combustion.exists() and not buff.hotStreak.exists() and charges.phoenixsFlames.count() > 1 then
                if cast.phoenixsFlames() then return end
            end
         -- Scorch
@@ -378,7 +377,7 @@ local function runRotation()
             -- dragons_breath,if=buff.hot_streak.down&action.fire_blast.charges<1&action.phoenixs_flames.charges<1
             --(getFacing("player",units.dyn12,10) and hasEquiped(132863) and getDistance(units.dyn12) < 12)
             --(getFacing("player",units.dyn25,10) and talent.alexstraszasFury and not buff.hotStreak.exists() and getDistance(units.dyn25) < 25)
-            if (getFacing("player",units.dyn12,10) and not buff.hotStreak.exists() and charges.fireBlast < 1 and charges.phoenixsFlames < 1 and getDistance(units.dyn12) < 12) then
+            if (getFacing("player",units.dyn12,10) and not buff.hotStreak.exists() and charges.fireBlast.count() < 1 and charges.phoenixsFlames.count() < 1 and getDistance(units.dyn12) < 12) then
                 -- if cast.dragonsBreath(units.dyn12) then return end
                 if cast.dragonsBreath("player") then return end
             elseif not buff.hotStreak.exists() then
@@ -444,13 +443,13 @@ local function runRotation()
             end
         -- Phoenix's Flames
             -- /phoenixs_flames,if=charges_fractional>1.7
-            if charges.frac.phoenixsFlames > 1.7 then
+            if charges.phoenixsFlames.frac() > 1.7 then
                 if ((mode.cooldown == 1 and isBoss()) or mode.cooldown == 2) then
                     if cast.phoenixsFlames() then return end
                 end
             end
             -- /phoenixs_flames,if=charges_fractional>2&active_enemies>2    
-            if (charges.frac.phoenixsFlames >= 2 and charges.frac.phoenixsFlames <= 2.7) then
+            if (charges.phoenixsFlames.frac() >= 2 and charges.phoenixsFlames.frac() <= 2.7) then
                 if ((#enemies.yards8t >= 2 and mode.rotation == 1) or mode.rotation == 2) then
                     if cast.phoenixsFlames() then return end
                 end
@@ -492,16 +491,16 @@ local function runRotation()
         -- Fire Blast
             -- fire_blast,if=!talent.kindling.enabled&buff.heating_up.up&(!talent.rune_of_power.enabled|charges_fractional>1.4|cooldown.combustion.remains<40)&(3-charges_fractional)*(12*spell_haste)<cooldown.combustion.remains+3|target.time_to_die.remains<4
             -- fire_blast,if=talent.kindling.enabled&buff.heating_up.up&(!talent.rune_of_power.enabled|charges_fractional>1.5|cooldown.combustion.remains<40)&(3-charges_fractional)*(18*spell_haste)<cooldown.combustion.remains+3|target.time_to_die.remains<4
-            if (not talent.kindling and buff.heatingUp.exists() and (not talent.runeOfPower or charges.frac.fireBlast > 1.4 or cd.combustion < 40) and (3 - charges.frac.fireBlast) * (12 * hasteAmount) < cd.combustion + 3 or ttd("target") < 4)
-                or (talent.kindling and buff.heatingUp.exists() and (not talent.runeOfPower or charges.frac.fireBlast > 1.5 or cd.combustion < 40) and (3 - charges.frac.fireBlast) * (18 * hasteAmount) < cd.combustion + 3 or ttd("target") < 4)
+            if (not talent.kindling and buff.heatingUp.exists() and (not talent.runeOfPower or charges.fireBlast.frac() > 1.4 or cd.combustion.remain() < 40) and (3 - charges.fireBlast.frac()) * (12 * hasteAmount) < cd.combustion.remain() + 3 or ttd("target") < 4)
+                or (talent.kindling and buff.heatingUp.exists() and (not talent.runeOfPower or charges.fireBlast.frac() > 1.5 or cd.combustion.remain() < 40) and (3 - charges.fireBlast.frac()) * (18 * hasteAmount) < cd.combustion.remain() + 3 or ttd("target") < 4)
             then
                 if cast.fireBlast() then return end
             end
         -- Phoenix's Flames
-            -- phoenixs_flames,if=(buff.combustion.up|buff.rune_of_power.up|buff.incanters_flow.stack>3|talent.mirror_image.enabled)&artifact.phoenix_reborn.enabled&(4-charges_fractional)*13<cooldown.combustion.remains+5|target.time_to_die.remains<10
+            -- phoenixs_flames,if=(buff.combustion.up|buff.rune_of_power.up|buff.incanters_flow.stack>3|talent.mirror_image.enabled)&artifact.phoenix_reborn.enabled().enabled&(4-charges_fractional)*13<cooldown.combustion.remains+5|target.time_to_die.remains<10
             -- phoenixs_flames,if=(buff.combustion.up|buff.rune_of_power.up)&(4-charges_fractional)*30<cooldown.combustion.remains+5
-            if isBoss() and (charges.phoenixsFlames >= 1 or useCDs()) and (((buff.combustion.exists() or buff.runeOfPower.exists() or buff.incantersFlow.stack() > 3 or talent.mirrorImage) and artifact.phoenixReborn and (4 - charges.frac.phoenixsFlames) * 13 < cd.combustion + 5 or ttd("target") < 10) 
-                or ((buff.combustion.exists() or buff.runeOfPower.exists()) and (4 - charges.frac.phoenixsFlames) * 30 < cd.combustion + 5))
+            if isBoss() and (charges.phoenixsFlames.count() >= 1 or useCDs()) and (((buff.combustion.exists() or buff.runeOfPower.exists() or buff.incantersFlow.stack() > 3 or talent.mirrorImage) and artifact.phoenixReborn.enabled() and (4 - charges.phoenixsFlames.frac()) * 13 < cd.combustion.remain() + 5 or ttd("target") < 10) 
+                or ((buff.combustion.exists() or buff.runeOfPower.exists()) and (4 - charges.phoenixsFlames.frac()) * 30 < cd.combustion.remain() + 5))
             then
                 if cast.phoenixsFlames() then return end
             end
@@ -572,12 +571,12 @@ local function runRotation()
                     end
         -- Rune of Power
                     -- rune_of_power,if=cooldown.combustion.remains>40&buff.combustion.down&(cooldown.flame_on.remains<5|cooldown.flame_on.remains>30)&!talent.kindling.enabled|target.time_to_die.remains<11|talent.kindling.enabled&(charges_fractional>1.8|time<40)&cooldown.combustion.remains>40
-                    if not moving and useCDs() and cd.combustion > 40 and not buff.combustion.exists() and (cd.flameOn < 5 or cd.flameOn > 30) and (not talent.kindling or ttd("target") < 11 or (talent.kindling and (charges.frac.fireBlast > 1.8 or combatTime < 40) and cd.combustion > 40)) then
+                    if not moving and useCDs() and cd.combustion.remain() > 40 and not buff.combustion.exists() and (cd.flameOn.remain() < 5 or cd.flameOn.remain() > 30) and (not talent.kindling or ttd("target") < 11 or (talent.kindling and (charges.fireBlast.frac() > 1.8 or combatTime < 40) and cd.combustion.remain() > 40)) then
                         if cast.runeOfPower("player","ground") then return end
                     end
         -- Action List - Combustion Phase
                     -- call_action_list,name=combustion_phase,if=cooldown.combustion.remains<=action.rune_of_power.cast_time+(!talent.kindling.enabled*gcd)|buff.combustion.up
-                    if cd.combustion < getCastTime(spell.runeOfPower) + (notKindle * gcd) or buff.combustion.exists() then
+                    if cd.combustion.remain() < getCastTime(spell.runeOfPower) + (notKindle * gcd) or buff.combustion.exists() then
                         if actionList_CombustionPhase() then return end
                     end
         -- Action List - Rune of Power Phase

@@ -152,19 +152,18 @@ local function runRotation()
         local mode                                          = br.player.mode
         local moveIn                                        = 999
         -- local multidot                                      = (useCleave() or br.player.mode.rotation ~= 3)
-        local pain                                          = br.player.power.amount.pain
+        local pain                                          = br.player.power.pain.amount()
         local perk                                          = br.player.perk
         local php                                           = br.player.health
         local playerMouse                                   = UnitIsPlayer("mouseover")
-        local power, powmax, powgen, powerDeficit           = br.player.power.amount.pain, br.player.power.pain.max, br.player.power.regen, br.player.power.pain.deficit
+        local power, powmax, powgen, powerDeficit           = br.player.power.pain.amount(), br.player.power.pain.max(), br.player.power.pain.regen(), br.player.power.pain.deficit()
         local pullTimer                                     = br.DBM:getPulltimer()
         local racial                                        = br.player.getRacial()
-        local recharge                                      = br.player.recharge
         local solo                                          = br.player.instance=="none"
         local spell                                         = br.player.spell
         local talent                                        = br.player.talent
         local ttd                                           = getTTD(br.player.units(5))
-        local ttm                                           = br.player.power.ttm
+        local ttm                                           = br.player.power.pain.ttm()
         local units                                         = units or {}
 
         units.dyn5 = br.player.units(5)
@@ -216,7 +215,7 @@ local function runRotation()
                     distance = getDistance(thisUnit)
                     if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
         -- Consume Magic
-                        if isChecked("Consume Magic") and distance < 15 and cd.sigilOfChains > 0 then
+                        if isChecked("Consume Magic") and distance < 15 and cd.sigilOfChains.remain() > 0 then
                             if cast.consumeMagic(thisUnit) then return end
                         end
         -- Sigil of Chains
@@ -224,19 +223,19 @@ local function runRotation()
                             if cast.sigilOfChains(thisUnit,"ground") then return end
                         end
         -- Sigil of Silence
-                        if isChecked("Sigil of Silence") and not UnitDebuff("target", "Solar Beam") and cd.consumeMagic > 0 then
+                        if isChecked("Sigil of Silence") and not UnitDebuff("target", "Solar Beam") and cd.consumeMagic.remain() > 0 then
                             if cast.sigilOfSilence(thisUnit,"ground") then return end
                         end
         -- Sigil of Silence - Concentrated Sigils
-                        if isChecked("Sigil of Silence") and not UnitDebuff("target", "Solar Beam") and cd.consumeMagic > 0 and talent.concentratedSigils and distance < 5 then
+                        if isChecked("Sigil of Silence") and not UnitDebuff("target", "Solar Beam") and cd.consumeMagic.remain() > 0 and talent.concentratedSigils and distance < 5 then
                             if cast.sigilOfSilence() then return end
                         end
         -- Sigil of Misery
-                        if isChecked("Sigil of Misery") and cd.consumeMagic > 0 and cd.sigilOfSilence > 0 and cd.sigilOfSilence < 45 and distance < 10 then
+                        if isChecked("Sigil of Misery") and cd.consumeMagic.remain() > 0 and cd.sigilOfSilence.remain() > 0 and cd.sigilOfSilence.remain() < 45 and distance < 10 then
                             if cast.sigilOfMisery(thisUnit,"ground") then return end
                         end
         -- Sigil of Misery - Concentrated Sigils
-                        if isChecked("Sigil of Misery") and cd.consumeMagic > 0 and cd.sigilOfSilence > 0 and cd.sigilOfSilence < 45 and talent.concentratedSigils and distance < 5 then
+                        if isChecked("Sigil of Misery") and cd.consumeMagic.remain() > 0 and cd.sigilOfSilence.remain() > 0 and cd.sigilOfSilence.remain() < 45 and talent.concentratedSigils and distance < 5 then
                             if cast.sigilOfMisery() then return end
                         end
                     end
@@ -320,7 +319,7 @@ local function runRotation()
                     for i=1, #getEnemies("player",20) do
                         thisUnit = getEnemies("player",20)[i]
                         distance = getDistance(thisUnit)
-                            if cd.consumeMagic > 0 and castingUnit(thisUnit) and distance < 20 and hasEquiped(151799) and (not buff.empowerWards.exists() or not buff.siphonedPower.exists()) then
+                            if cd.consumeMagic.remain() > 0 and castingUnit(thisUnit) and distance < 20 and hasEquiped(151799) and (not buff.empowerWards.exists() or not buff.siphonedPower.exists()) then
                                 if cast.empowerWards() then return end
                             end
                         end
@@ -331,7 +330,7 @@ local function runRotation()
                     for i=1, #getEnemies("player",20) do
                         thisUnit = getEnemies("player",20)[i]
                         distance = getDistance(thisUnit)
-                            if cd.consumeMagic > 0 and castingUnit(thisUnit) and distance < 20 and not hasEquiped(151799) then
+                            if cd.consumeMagic.remain() > 0 and castingUnit(thisUnit) and distance < 20 and not hasEquiped(151799) then
                                 if cast.empowerWards() then return end
                             end
                         end
@@ -344,7 +343,7 @@ local function runRotation()
                     end
     -- Demonic Infusion
                 -- actions+=/demonicInfusion, if charges = 0
-                    if charges.frac.demonSpikes < 0.2 and buff.demonSpikes.remain() < 12 then
+                    if charges.demonSpikes.frac() < 0.2 and buff.demonSpikes.remain() < 12 then
                         if cast.demonicInfusion() then return end
                     end
     -- Demon Spikes
@@ -356,7 +355,7 @@ local function runRotation()
                 end
     -- Demon Spikes
                 -- actions+=/demon_spikes,if=charges=2|buff.demon_spikes.down&!dot.fiery_brand.ticking&buff.metamorphosis.down
-                if hasEquiped(151799) and charges.frac.demonSpikes > 1.99 then
+                if hasEquiped(151799) and charges.demonSpikes.frac() > 1.99 then
 					if not buff.demonSpikes.exists() and not buff.metamorphosis.exists()  then
 						if cast.demonSpikes() then return end
 					end
@@ -364,7 +363,7 @@ local function runRotation()
     -- Demon Spikes
                 -- actions+=/demon_spikes,if=charges=2|buff.demon_spikes.down&!dot.fiery_brand.ticking&buff.metamorphosis.down
                 if not hasEquiped(151799) then
-					if charges.frac.demonSpikes > 1.99 then
+					if charges.demonSpikes.frac() > 1.99 then
 						if cast.demonSpikes() then return end
 					end
 				end
@@ -374,7 +373,7 @@ local function runRotation()
                     if cast.soulBarrier() then return end
                 end
     -- Soul Carver
-                if (buff.soulFragments.stack() <= 3 or (debuff.fieryBrand.exists(units.dyn5) and artifact.flamingSoul)) and (getSpellCD(204021) > 5 or not artifact.flamingSoul) then
+                if (buff.soulFragments.stack() <= 3 or (debuff.fieryBrand.exists(units.dyn5) and artifact.flamingSoul.enabled())) and (getSpellCD(204021) > 5 or not artifact.flamingSoul.enabled()) then
                     if cast.soulCarver() then return end
                 end
     -- Immolation Aura
@@ -441,12 +440,12 @@ local function runRotation()
                     if cast.throwGlaive() then return end
                 end
     -- Infernal Strike
-                -- actions+=/infernal_strike,if=!sigil_placed&!in_flight&remains-travel_time-delay<0.3*duration&artifact.fiery_demise.enabled&dot.fiery_brand.ticking
-                -- actions+=/infernal_strike,if=!sigil_placed&!in_flight&remains-travel_time-delay<0.3*duration&(!artifact.fiery_demise.enabled|(max_charges-charges_fractional)*recharge_time<cooldown.fiery_brand.remain()s+5)&(cooldown.sigil_of_flame.remain()s>7|charges=2)
-                if getDistance(units.dyn5) < 5 and charges.infernalStrike > 1 then
-                    if (artifact.fieryDemise and debuff.fieryBrand.exists(units.dyn5))
-                        or (not artifact.fieryDemise or (charges.max.infernalStrike - charges.frac.infernalStrike) * recharge.infernalStrike < cd.fieryBrand + 5)
-                        and (cd.sigilOfFlame > 7 or charges.infernalStrike == 2)
+                -- actions+=/infernal_strike,if=!sigil_placed&!in_flight&remains-travel_time-delay<0.3*duration&artifact.fiery_demise.enabled().enabled&dot.fiery_brand.ticking
+                -- actions+=/infernal_strike,if=!sigil_placed&!in_flight&remains-travel_time-delay<0.3*duration&(!artifact.fiery_demise.enabled().enabled|(max_charges-charges_fractional)*recharge_time<cooldown.fiery_brand.remain()s+5)&(cooldown.sigil_of_flame.remain()s>7|charges=2)
+                if getDistance(units.dyn5) < 5 and charges.infernalStrike.count() > 1 then
+                    if (artifact.fieryDemise.enabled() and debuff.fieryBrand.exists(units.dyn5))
+                        or (not artifact.fieryDemise.enabled() or (charges.infernalStrike.max() - charges.infernalStrike.frac()) * charges.infernalStrike.recharge() < cd.fieryBrand.remain() + 5)
+                        and (cd.sigilOfFlame.remain() > 7 or charges.infernalStrike.count() == 2)
                     then
                         -- if cast.infernalStrike("best",false,1,6) then return end
                         if cast.infernalStrike("player","ground") then return end

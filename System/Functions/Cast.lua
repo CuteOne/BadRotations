@@ -372,16 +372,16 @@ function castOpener(spellIndex,flag,index,checkdistance)
 	if not maxRange or maxRange == 0 then maxRange = 5 end
 	if checkdistance == nil then checkdistance = true end
 	if getDistance("target") < maxRange or not checkdistance then
-	    if (not br.player.cast.debug[spellIndex] and (br.player.cd[spellIndex] == 0 or br.player.cd[spellIndex] > br.player.gcdMax)) then
+	    if (not br.player.cast[spellIndex](nil,"debug") and (br.player.cd[spellIndex].remain() == 0 or br.player.cd[spellIndex].remain() > br.player.gcdMax)) then
 	        Print(index..": "..select(1,GetSpellInfo(spellCast)).." (Uncastable)");
 	        _G[flag] = true;
 	        return true
 	    else
-	    	if IsHelpfulSpell(spellName) and not IsHarmfulSpell(spellName) then
-	    		if br.player.cast[spellIndex]("player") then Print(index..": "..select(1,GetSpellInfo(spellCast))); _G[flag] = true; return true end
-	    	else
+	    	-- if IsHelpfulSpell(spellName) and not IsHarmfulSpell(spellName) then
+	    	-- 	if br.player.cast[spellIndex]("player") then Print(index..": "..select(1,GetSpellInfo(spellCast))); _G[flag] = true; return true end
+	    	-- else
 	        	if br.player.cast[spellIndex]() then Print(index..": "..select(1,GetSpellInfo(spellCast))); _G[flag] = true; return true end
-	        end
+	        -- end
 	    end
 	end
 end

@@ -233,7 +233,7 @@ local function runRotation()
         if profileStop == nil then profileStop = false end
         judgmentExists = debuff.judgment.exists(units.dyn5)
         judgmentRemain = debuff.judgment.remain(units.dyn5)
-        if debuff.judgment.exists(units.dyn5) or level < 42 or (cd.judgment > 2 and not debuff.judgment.exists(units.dyn5)) then
+        if debuff.judgment.exists(units.dyn5) or level < 42 or (cd.judgment.remain() > 2 and not debuff.judgment.exists(units.dyn5)) then
             judgmentVar = true
         else
             judgmentVar = false
@@ -702,7 +702,7 @@ local function runRotation()
                     end
                     if useCDs() and getDistance(units.dyn5) < 5 then
             -- Seraphim
-                    if isChecked("Seraphim") and charges.frac.shieldOfTheRighteous >= 1.99 and (getOptionValue("Seraphim") <= ttd ) then
+                    if isChecked("Seraphim") and charges.shieldOfTheRighteous.frac() >= 1.99 and (getOptionValue("Seraphim") <= ttd ) then
                         if cast.seraphim() then return end
                     end
             -- Avenging Wrath
@@ -710,13 +710,13 @@ local function runRotation()
                         if cast.avengingWrath() then return end
                     end
             -- Bastion of Light
-                    if isChecked("Bastion of Light") and (charges.frac.shieldOfTheRighteous < 0.2) and (not talent.seraphim or buff.seraphim.exists()) then
+                    if isChecked("Bastion of Light") and (charges.shieldOfTheRighteous.frac() < 0.2) and (not talent.seraphim or buff.seraphim.exists()) then
                         if cast.bastionOfLight() then return end
                     end
                 end
 				    if not UnitIsFriend("target", "player") then
             -- Shield of the Righteous
-                    if isChecked("Shield of the Righteous") and (charges.frac.shieldOfTheRighteous > 2.5) then
+                    if isChecked("Shield of the Righteous") and (charges.shieldOfTheRighteous.frac() > 2.5) then
                         if cast.shieldOfTheRighteous(units.dyn5) then return end
                     end
             -- Avenger's Shield 

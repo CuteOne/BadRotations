@@ -194,7 +194,7 @@ local function runRotation()
         local castable                                      = br.player.cast.debug
         local cd                                            = br.player.cd
         local charge                                        = br.player.charges
-        local combo, comboDeficit, comboMax                 = br.player.power.amount.comboPoints, br.player.power.comboPoints.deficit, br.player.power.comboPoints.max
+        local combo, comboDeficit, comboMax                 = br.player.power.comboPoints.amount(), br.player.power.comboPoints.deficit(), br.player.power.comboPoints.max()
         local cTime                                         = getCombatTime()
         local deadtar                                       = UnitIsDeadOrGhost("target")
         local debuff                                        = br.player.debuff
@@ -212,7 +212,7 @@ local function runRotation()
         local multidot                                      = (br.player.mode.cleave == 1 or br.player.mode.rotation ~= 3)
         local perk                                          = br.player.perk
         local php                                           = br.player.health
-        local power, powerDeficit, powerRegen               = br.player.power.amount.energy, br.player.power.energy.deficit, br.player.power.regen
+        local power, powerDeficit, powerRegen               = br.player.power.energy.amount(), br.player.power.energy.deficit(), br.player.power.energy.regen()
         local pullTimer                                     = br.DBM:getPulltimer()
         local race                                          = br.player.race
         local racial                                        = br.player.getRacial()
@@ -225,7 +225,7 @@ local function runRotation()
         local talent                                        = br.player.talent
         local time                                          = getCombatTime()
         local ttd                                           = getTTD
-        local ttm                                           = br.player.power.ttm
+        local ttm                                           = br.player.power.energy.ttm()
         local units                                         = units or {}
 
         units.dyn5 = br.player.units(5)
@@ -242,7 +242,7 @@ local function runRotation()
         if buff.broadsides.exists() or buff.jollyRoger.exists() then broadRoger = 1 else broadRoger = 0 end
         if talent.alacrity and buff.alacrity.stack() <= 4 then lowAlacrity = 1 else lowAlacrity = 0 end
         if talent.anticipation then antital = 1 else antital = 0 end
-        if cd.deathFromAbove == 0 then dfaCooldown = 1 else dfaCooldown = 0 end
+        if cd.deathFromAbove.remain() == 0 then dfaCooldown = 1 else dfaCooldown = 0 end
         if vanishTime == nil then vanishTime = GetTime() end
         if buff.adrenalineRush.exists() then aRush = 1 else aRush = 0 end
         if buff.sharkInfestedWaters.exists() then rtbBuff5 = true else rtbBuff5 = false end
@@ -402,14 +402,14 @@ local function runRotation()
                             if isChecked("Kick") then
                                 if cast.kick(thisUnit) then return end
                             end
-                            if cd.kick ~= 0 then
+                            if cd.kick.remain() ~= 0 then
         -- Gouge
                                 if isChecked("Gouge") and getFacing(thisUnit,"player") then
                                     if cast.gouge(thisUnit) then return end
                                 end
                             end
                         end
-                        if (cd.kick ~= 0 and cd.gouge ~= 0) or (distance >= 5 and distance < 15) then
+                        if (cd.kick.remain() ~= 0 and cd.gouge.remain() ~= 0) or (distance >= 5 and distance < 15) then
         -- Blind
                             if isChecked("Blind") then
                                 if cast.blind(thisUnit) then return end
@@ -419,7 +419,7 @@ local function runRotation()
                             end
                         end
         -- Between the Eyes
-                        if ((cd.kick ~= 0 and cd.gouge ~= 0) or distance >= 5) and (cd.blind ~= 0 or level < 38 or distance >= 15) then
+                        if ((cd.kick.remain() ~= 0 and cd.gouge.remain() ~= 0) or distance >= 5) and (cd.blind.remain() ~= 0 or level < 38 or distance >= 15) then
                             if isChecked("Between the Eyes") then
                                 if cast.betweenTheEyes(thisUnit) then return end
                             end
@@ -453,7 +453,7 @@ local function runRotation()
         -- Specter of Betrayal
                 -- use_item,name=specter_of_betrayal,if=(mantle_duration>0|buff.curse_of_the_dreadblades.up|(cooldown.vanish.remains>11&cooldown.curse_of_the_dreadblades.remains>11))
                 if isChecked("Trinkets") and hasEquiped(151190) and canUse(151190) then
-                    if buff.masterAssassinsInitiative.remain() > 0 or buff.curseOfTheDreadblades.exists() or (cd.vanish > 11 and cd.curseOfTheDreadblades > 11) then
+                    if buff.masterAssassinsInitiative.remain() > 0 or buff.curseOfTheDreadblades.exists() or (cd.vanish.remain() > 11 and cd.curseOfTheDreadblades.remain() > 11) then
                         useItem(151190)
                     end
                 end
@@ -513,7 +513,7 @@ local function runRotation()
                 if cast.bladeFlurry("player") then return end
             end
             -- cancel_buff,name=blade_flurry,if=equipped.shivarran_symmetry&cooldown.blade_flurry.up&buff.blade_flurry.up&spell_targets.blade_flurry>=2
-            if hasEquiped(141321) and cd.bladeFlurry == 0 and buff.bladeFlurry.exists() and ((mode.rotation == 1 and #enemies.yards5 >= getOptionValue("Blade Flurry")) or mode.rotation == 3) then
+            if hasEquiped(141321) and cd.bladeFlurry.remain() == 0 and buff.bladeFlurry.exists() and ((mode.rotation == 1 and #enemies.yards5 >= getOptionValue("Blade Flurry")) or mode.rotation == 3) then
                 if cast.bladeFlurry("player") then return end
             end
             -- if not useAoE() and buff.bladeFlurry.exists() then
@@ -537,12 +537,12 @@ local function runRotation()
             rotationDebug = "Finishers"
         -- Between the Eyes
             -- between_the_eyes,if=(mantle_duration>=gcd.remains+0.2&!equipped.thraxis_tricksy_treads)|(equipped.greenskins_waterlogged_wristcuffs&!buff.greenskins_waterlogged_wristcuffs.up)
-            if (buff.masterAssassinsInitiative.remain() >= cd.global + 0.2 and not hasEquiped(137099)) or (hasEquiped(137099) and not buff.greenskinsWaterloggedWristcuffs.exists()) then
+            if (buff.masterAssassinsInitiative.remain() >= cd.global.remain() + 0.2 and not hasEquiped(137099)) or (hasEquiped(137099) and not buff.greenskinsWaterloggedWristcuffs.exists()) then
                 if cast.betweenTheEyes() then return end
             end
         -- Run Through
             -- run_through,if=!talent.death_from_above.enabled|energy.time_to_max<cooldown.death_from_above.remains+3.5
-            if not talent.deathFromAbove or ttm < cd.deathFromAbove + 3.5 then
+            if not talent.deathFromAbove or ttm < cd.deathFromAbove.remain() + 3.5 then
                 if cast.runThrough() then return end
             end
         end -- End Action List - Finishers
@@ -552,7 +552,7 @@ local function runRotation()
         -- Ghostly Strike
             -- ghostly_strike,if=combo_points.deficit>=1+buff.broadsides.up&!buff.curse_of_the_dreadblades.up&(debuff.ghostly_strike.remains<debuff.ghostly_strike.duration*0.3|(cooldown.curse_of_the_dreadblades.remains<3&debuff.ghostly_strike.remains<14))&(combo_points>=3|(variable.rtb_reroll&time>=10))
             if comboDeficit >= 1 + broadUp and not debuff.curseOfTheDreadblades.exists("player") 
-                and (debuff.ghostlyStrike.refresh(units.dyn5) or (cd.curseOfTheDreadblades < 3 and debuff.ghostlyStrike.remain(units.dyn5) < 14)) 
+                and (debuff.ghostlyStrike.refresh(units.dyn5) or (cd.curseOfTheDreadblades.remain() < 3 and debuff.ghostlyStrike.remain(units.dyn5) < 14)) 
                 and (combo >= 3 or (rtbReroll and cTime >= 10))
             then
                 if cast.ghostlyStrike() then return end
@@ -637,7 +637,7 @@ local function runRotation()
                 end
         -- Curse of the Dreadblades
                 -- curse_of_the_dreadblades,if=combo_points.deficit>=4
-                if (getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs())) and cd.curseOfTheDreadblades == 0 then
+                if (getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs())) and cd.curseOfTheDreadblades.remain() == 0 then
                     if comboDeficit >= 4 then
                        if cast.curseOfTheDreadblades() then return end
                     end
@@ -689,7 +689,7 @@ local function runRotation()
                 if actionList_Cooldowns() then return end
         -- Curse of the Dreadblades
                 -- curse_of_the_dreadblades,if=combo_points.deficit>=4&(!talent.ghostly_strike.enabled|debuff.ghostly_strike.up)
-                if (getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs())) and cd.curseOfTheDreadblades == 0 then
+                if (getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs())) and cd.curseOfTheDreadblades.remain() == 0 then
                     if comboDeficit >= 4 and (not talent.ghostlyStrike or debuff.ghostlyStrike.exists(units.dyn5)) then
                        if cast.curseOfTheDreadblades() then return end
                     end
@@ -700,7 +700,7 @@ local function runRotation()
                 if getDistance(units.dyn5) < 5 then
         -- Call Action List - Stealth
                     -- call_action_list,name=stealth,if=stealthed.rogue|cooldown.vanish.up|cooldown.shadowmeld.up
-                    if stealthing or cd.vanish == 0 or cd.shadowmeld == 0 then
+                    if stealthing or cd.vanish.remain() == 0 or cd.shadowmeld.remain() == 0 then
                         if actionList_Stealth() then return end
                     end
 ----------------------------------

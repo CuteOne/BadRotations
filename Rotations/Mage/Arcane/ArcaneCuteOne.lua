@@ -140,8 +140,8 @@ local function runRotation()
 --------------
         local addsExist                                     = false
         local addsIn                                        = 999
-        local arcaneCharges                                 = br.player.power.amount.arcaneCharges
-        local arcaneChargesMax                              = br.player.power.arcaneCharges.max
+        local arcaneCharges                                 = br.player.power.arcaneCharges.amount()
+        local arcaneChargesMax                              = br.player.power.arcaneCharges.max()
         local activePet                                     = br.player.pet
         local activePetId                                   = br.player.petId
         local artifact                                      = br.player.artifact
@@ -177,18 +177,17 @@ local function runRotation()
         local petInfo                                       = br.player.petInfo
         local php                                           = br.player.health
         local playerMouse                                   = UnitIsPlayer("mouseover")
-        local power, powmax, powgen, powerDeficit           = br.player.power.amount.mana, br.player.power.mana.max, br.player.power.regen, br.player.power.mana.deficit
-        local manaPercent                                   = br.player.power.mana.percent
+        local power, powmax, powgen, powerDeficit           = br.player.power.mana.amount(), br.player.power.mana.max(), br.player.power.mana.regen, br.player.power.mana.deficit()
+        local manaPercent                                   = br.player.power.mana.percent()
         local pullTimer                                     = br.DBM:getPulltimer()
         local racial                                        = br.player.getRacial()
-        local recharge                                      = br.player.recharge
         local solo                                          = br.player.instance=="none"
         local spell                                         = br.player.spell
         local t20_2pc                                       = TierScan("T20") >= 2
         local t20_4pc                                       = TierScan("T20") >= 4
         local talent                                        = br.player.talent
         local ttd                                           = getTTD
-        local ttm                                           = br.player.power.ttm
+        local ttm                                           = br.player.power.mana.ttm()
         local units                                         = units or {}
         local dt                                            = date("%H:%M:%S")
         local debug                                         = false
@@ -219,7 +218,7 @@ local function runRotation()
         if averageBurnLength == nil or (not inCombat and not isDummy()) then averageBurnLength = 0 end
     -- -- Total Burns
     --     -- variable,name=total_burns,op=add,value=1,if=!burn_phase
-    --     if not burnPhase and arcaneCharges == 4 and timeUntilBurn == 0 and cd.evocation ~= 0 then
+    --     if not burnPhase and arcaneCharges == 4 and timeUntilBurn == 0 and cd.evocation.remain() ~= 0 then
     --         totalBurns = totalBurns + 1
     --     end
         if burnPhase and priorBurnCount == totalBurns then totalBurns = totalBurns + 1 end
@@ -233,18 +232,18 @@ local function runRotation()
         -- variable,name=time_until_burn,op=set,value=cooldown.arcane_power.remains
         -- variable,name=time_until_burn,op=max,value=cooldown.evocation.remains-variable.average_burn_length
         -- variable,name=time_until_burn,op=max,value=cooldown.presence_of_mind.remains,if=set_bonus.tier20_2pc
-        if t20_2pc then t20_2pcTimer = cd.presenceOfMind else t20_2pcTimer = 0 end
+        if t20_2pc then t20_2pcTimer = cd.presenceOfMind.remain() else t20_2pcTimer = 0 end
         -- variable,name=time_until_burn,op=max,value=action.rune_of_power.usable_in,if=talent.rune_of_power.enabled
-        if talent.runeOfPower then runeTimer = cd.runeOfPower else runeTimer = 0 end
+        if talent.runeOfPower then runeTimer = cd.runeOfPower.remain() else runeTimer = 0 end
         -- variable,name=time_until_burn,op=reset,if=target.time_to_die<variable.average_burn_length
         if (UnitExists("target") and ttd("target") < averageBurnLength and not isDummy("target")) or burnPhase then
             timeUntilBurn = 0
         else
-            timeUntilBurn = math.max(cd.arcanePower,cd.evocation - averageBurnLength,t20_2pcTimer,runeTimer)
+            timeUntilBurn = math.max(cd.arcanePower.remain(),cd.evocation.remain() - averageBurnLength,t20_2pcTimer,runeTimer)
         end
     -- Stop Burn Phase
         -- stop_burn_phase,if=prev_gcd.1.evocation&cooldown.evocation.charges=0&burn_phase_duration>0
-        if burnPhase and (lastSpell == spell.evocation --[[or cd.evocation > gcd]]) and charges.evocation == 0 and burnPhaseDuration > 0 then
+        if burnPhase and (lastSpell == spell.evocation --[[or cd.evocation.remain() > gcd]]) and charges.evocation.count() == 0 and burnPhaseDuration > 0 then
             burnPhase = false
         end
 
@@ -326,9 +325,9 @@ local function runRotation()
             -- Rune of Power
                 -- rune_of_power,if=mana.pct>30|(buff.arcane_power.up|cooldown.arcane_power.up)
                 if isChecked("Rune of Power") then
-                    --if manaPercent > 30 or cd.arcanePower == 0 then
-                    if (charges.runeOfPower == 2 and buff.arcaneMissles.stack() >= 2 and arcaneCharges == 4) 
-                        or (charges.runeOfPower < 2 and cd.markOfAluneth > recharge.runeOfPower and (castArtifact or buff.arcaneMissles.stack() >= 2)) 
+                    --if manaPercent > 30 or cd.arcanePower.remain() == 0 then
+                    if (charges.runeOfPower.count() == 2 and buff.arcaneMissles.stack() >= 2 and arcaneCharges == 4) 
+                        or (charges.runeOfPower.count() < 2 and cd.markOfAluneth.remain() > charges.runeOfPower.recharge() and (castArtifact or buff.arcaneMissles.stack() >= 2)) 
                     then 
                         if cast.runeOfPower("player") then return end
                     end
@@ -352,7 +351,7 @@ local function runRotation()
                 end
             -- Trinkets
                 -- use_items,if=buff.arcane_power.up|target.time_to_die<cooldown.arcane_power.remains
-                if isChecked("Trinkets") and (buff.arcanePower.exists() or ttd("target") < cd.arcanePower) then
+                if isChecked("Trinkets") and (buff.arcanePower.exists() or ttd("target") < cd.arcanePower.remain()) then
                     if canUse(13) then
                         useItem(13)
                     end
@@ -416,7 +415,7 @@ local function runRotation()
             end
         -- Arcane Barrage
             -- arcane_barrage,if=buff.rune_of_power.remains>=travel_time&((cooldown.presence_of_mind.remains<=execute_time&set_bonus.tier20_2pc)|(talent.charged_up.enabled&cooldown.charged_up.remains<=execute_time))&buff.arcane_charge.stack=buff.arcane_charge.max_stack
-            if ((cd.presenceOfMind <= getCastTime(spell.arcaneBarrage) and t20_2pc) or (talent.chargedUp and cd.chargedUp <= getCastTime(spell.arcaneBarrage))) and arcaneCharges == arcaneChargesMax then
+            if ((cd.presenceOfMind.remain() <= getCastTime(spell.arcaneBarrage) and t20_2pc) or (talent.chargedUp and cd.chargedUp.remain() <= getCastTime(spell.arcaneBarrage))) and arcaneCharges == arcaneChargesMax then
                 if cast.arcaneBarrage() then return end
             end
         -- Nether Tempest
@@ -426,7 +425,7 @@ local function runRotation()
             end
         -- Mark of Aluneth
             -- mark_of_aluneth
-            if (getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs())) and artifact.markOfAluneth and not buff.runeOfPower.exists() then
+            if (getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs())) and artifact.markOfAluneth.enabled() and not buff.runeOfPower.exists() then
                 if cast.markOfAluneth() then castArtifact = true; return end
             end
         -- Call Action List - Cooldowns
@@ -464,7 +463,7 @@ local function runRotation()
             end
         -- Arcane Barrage
             -- arcane_barrage,if=buff.rune_of_power.remains<action.arcane_blast.cast_time&buff.rune_of_power.remains>=travel_time&cooldown.charged_up.remains<=execute_time
-            if buff.runeOfPower.remain() < getCastTime(spell.arcaneBlast) and buff.runeOfPower.remain() >= 1 and cd.chargedUp <= getCastTime(spell.arcaneBarrage) and not buff.arcanePower.exists() then
+            if buff.runeOfPower.remain() < getCastTime(spell.arcaneBlast) and buff.runeOfPower.remain() >= 1 and cd.chargedUp.remain() <= getCastTime(spell.arcaneBarrage) and not buff.arcanePower.exists() then
                 if cast.arcaneBarrage() then return end
             end
         -- Arcane Blast
@@ -502,25 +501,25 @@ local function runRotation()
         -- Mirror Image
             -- mirror_image,if=variable.time_until_burn>recharge_time|variable.time_until_burn>target.time_to_die
             if isChecked("Mirror Image") and useCDs() and talent.mirrorImage then
-                if timeUntilBurn > recharge.mirrorImage or timeUntilBurn > ttd("target") then
+                if timeUntilBurn > charges.mirrorImage.recharge() or timeUntilBurn > ttd("target") then
                     if cast.mirrorImage("player") then return end
                 end
             end
         -- Mark of Aluneth
             -- mark_of_aluneth
-            if (getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs())) and artifact.markOfAluneth and not buff.runeOfPower.exists() then
+            if (getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs())) and artifact.markOfAluneth.enabled() and not buff.runeOfPower.exists() then
                 if cast.markOfAluneth() then return end
             end
         -- Rune of Power
             -- rune_of_power,if=full_recharge_time<=execute_time|(prev_gcd.1.mark_of_aluneth&!set_bonus.tier20_4pc)
             if isChecked("Rune of Power") and useCDs() and talent.runeOfPower then
-                if recharge.runeOfPower <= getCastTime(spell.runeOfPower) or (lastSpell == spell.markOfAluneth and not t20_4pc) then
+                if charges.runeOfPower.recharge() <= getCastTime(spell.runeOfPower) or (lastSpell == spell.markOfAluneth and not t20_4pc) then
                     if cast.runeOfPower("player") then return end
                 end
             end
         -- Run Action List - Miniburn
             -- swap_action_list,name=miniburn_init,if=set_bonus.tier20_4pc&cooldown.presence_of_mind.up&cooldown.arcane_power.remains>20&(action.rune_of_power.usable|!talent.rune_of_power.enabled)
-            if t20_4pc and cd.presenceOfMind == 0 and cd.arcanePower > 20 and (charges.runeOfPower >= 1 or not talent.runeOfPower) then
+            if t20_4pc and cd.presenceOfMind.remain() == 0 and cd.arcanePower.remain() > 20 and (charges.runeOfPower.count() >= 1 or not talent.runeOfPower) then
                 if actionList_Miniburn() then return end
             end
         -- Arcane Missles
@@ -605,7 +604,7 @@ local function runRotation()
                     -- TODO
             -- Mark of Aluneth
                     -- mark_of_aluneth,if=set_bonus.tier20_2pc|talent.charged_up.enabled
-                    if (getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs())) and artifact.markOfAluneth then
+                    if (getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs())) and artifact.markOfAluneth.enabled() then
                         if t20_2pc or talent.chargedUp then
                             if cast.markOfAluneth() then castArtifact = true; return end
                         end
@@ -669,7 +668,7 @@ local function runRotation()
                     end
             -- Call Action List - Burn Phase
                     -- call_action_list,name=burn,if=variable.time_until_burn=0|burn_phase
-                    if (arcaneCharges == 4 or (burnPhase and talent.chargedUp and cd.chargedUp <= getCastTime(spell.arcaneBarrage))) and timeUntilBurn <= gcd then --and (charges.evocation > 0 or cd.evocation <= averageBurnLength) then
+                    if (arcaneCharges == 4 or (burnPhase and talent.chargedUp and cd.chargedUp.remain() <= getCastTime(spell.arcaneBarrage))) and timeUntilBurn <= gcd then --and (charges.evocation.count() > 0 or cd.evocation.remain() <= averageBurnLength) then
                         if actionList_Burn() then return end
                     end
             -- Call Action List - Conserve

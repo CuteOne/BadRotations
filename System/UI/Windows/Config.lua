@@ -10,7 +10,7 @@ function br.ui:createConfigWindow()
         section = br.ui:createSection(br.ui.window.config, "General")
         br.ui:createCheckbox(section, "Auto Delay", "Check to dynamically change update rate based on current FPS.")
         br.ui:createSpinnerWithout(section, "Bot Update Rate", 0.1, 0.0, 1.0, 0.01, "Adjust the update rate of Bot operations. Increase to improve FPS but may cause reaction delays. Default: 0.1")
-        br.ui:createSpinnerWithout(section, "Dynamic Target Rate", 0.5, 0.5, 2.0, 0.01, "Adjusts the rate at which enemies are cycled for new dynamic targets. Default: 0.5")
+        -- br.ui:createSpinnerWithout(section, "Dynamic Target Rate", 0.5, 0.5, 2.0, 0.01, "Adjusts the rate at which enemies are cycled for new dynamic targets. Default: 0.5")
         -- As you should use the toggle to stop, i (defmaster) just activated this toggle default and made it non interactive
         local startStop = br.ui:createCheckbox(section, "Start/Stop BadRotations", "Toggle this option from the Toggle Bar (Shift Left Click on the Minimap Icon.");
         startStop:SetChecked(true); br.data.settings[br.selectedSpec][br.selectedProfile]["Start/Stop BadRotationsCheck"] = true; startStop.frame:Disable()

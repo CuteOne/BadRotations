@@ -192,10 +192,9 @@ local function runRotation()
         local php                                           = br.player.health
         local playerMouse                                   = UnitIsPlayer("mouseover")
         local potion                                        = br.player.potion
-        local power, powerMax, powerRegen, powerDeficit     = br.player.power.amount.focus, br.player.power.focus.max, br.player.power.regen, br.player.power.focus.deficit
+        local power, powerMax, powerRegen, powerDeficit     = br.player.power.focus.amount(), br.player.power.focus.max(), br.player.power.focus.regen(), br.player.power.focus.deficit()
         local pullTimer                                     = br.DBM:getPulltimer()
         local racial                                        = br.player.getRacial()
-        local recharge                                      = br.player.recharge
         local solo                                          = #br.friend < 2
         local friendsInRange                                = friendsInRange
         local spell                                         = br.player.spell
@@ -205,7 +204,7 @@ local function runRotation()
         local talent                                        = br.player.talent
         local trinketProc                                   = false
         local ttd                                           = getTTD
-        local ttm                                           = br.player.power.ttm
+        local ttm                                           = br.player.power.focus.ttm()
         local units                                         = units or {}
 
         units.dyn5 = br.player.units(5)
@@ -383,7 +382,7 @@ local function runRotation()
             -- Snake Hunter
                 -- snake_hunter,if=cooldown.mongoose_bite.charges=0&buff.mongoose_fury.remains>3*gcd&buff.aspect_of_the_eagle.down
                 if isChecked("Snake Hunter") then
-                    if charges.mongooseBite == 0 and buff.mongooseFury.remain() > 3 * gcd and not buff.aspectOfTheEagle.exists() then
+                    if charges.mongooseBite.count() == 0 and buff.mongooseFury.remain() > 3 * gcd and not buff.aspectOfTheEagle.exists() then
                         if cast.snakeHunter() then return end
                     end
                 end
@@ -465,23 +464,23 @@ local function runRotation()
         -- Fury of the Eagle
             -- fury_of_the_eagle,if=(!talent.way_of_the_moknathal.enabled|buff.moknathal_tactics.remains>(gcd*(8%3)))&buff.mongoose_fury.stack>3&cooldown.mongoose_bite.charges<1&!buff.aspect_of_the_eagle.up,interrupt_if=(talent.way_of_the_moknathal.enabled&buff.moknathal_tactics.remains<=tick_time)|(cooldown.mongoose_bite.charges=3)
             if mode.artifact == 1 and (getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs())) then
-                if (not talent.wayOfTheMokNathal or buff.mokNathalTactics.remain() > (gcd * (8 / 3))) and buff.mongooseFury.stack() > 3 and charges.mongooseBite < 1 and not buff.aspectOfTheEagle.exists() then
+                if (not talent.wayOfTheMokNathal or buff.mokNathalTactics.remain() > (gcd * (8 / 3))) and buff.mongooseFury.stack() > 3 and charges.mongooseBite.count() < 1 and not buff.aspectOfTheEagle.exists() then
                     if cast.furyOfTheEagle("player") then return end
                 end
             end
         -- Lacerate
             -- lacerate,if=!dot.lacerate.ticking&set_bonus.tier20_4pc&buff.mongoose_fury.duration>cooldown.mongoose_bite.charges*gcd
-            if not debuff.lacerate.exists(units.dyn5) and t20_4pc and buff.mongooseFury.duration() > charges.mongooseBite * gcd then
+            if not debuff.lacerate.exists(units.dyn5) and t20_4pc and buff.mongooseFury.duration() > charges.mongooseBite.count() * gcd then
                 if cast.lacerate() then return end
             end
         -- Mongoose Bite
             -- mongoose_bite,if=charges>=2&cooldown.mongoose_bite.remains<gcd*2
-            if charges.mongooseBite >= 2 and cd.mongooseBite < gcd * 2 then
+            if charges.mongooseBite.count() >= 2 and cd.mongooseBite.remain() < gcd * 2 then
                 if cast.mongooseBite() then return end
             end
         -- Flanking Strike
             -- flanking_strike,if=((buff.mongoose_fury.remains>(gcd*(cooldown.mongoose_bite.charges+2)))&cooldown.mongoose_bite.charges<=1)&(!set_bonus.tier19_4pc|(set_bonus.tier19_4pc&!buff.aspect_of_the_eagle.up))
-            if ((buff.mongooseFury.remain() > (gcd * (charges.mongooseBite + 2))) and charges.mongooseBite <= 1) and (not t19_4pc or (t19_4pc and not buff.aspectOfTheEagle.exists())) then
+            if ((buff.mongooseFury.remain() > (gcd * (charges.mongooseBite.count() + 2))) and charges.mongooseBite.count() <= 1) and (not t19_4pc or (t19_4pc and not buff.aspectOfTheEagle.exists())) then
                 if cast.flankingStrike() then return end
             end
         -- Mongoose Bite
@@ -510,7 +509,7 @@ local function runRotation()
             end
         -- Raptor Strike
             -- raptor_strike,if=(talent.way_of_the_moknathal.enabled&buff.moknathal_tactics.remains<gcd*4)|(focus>((25-focus.regen*gcd)+55))
-            if (talent.wayOfTheMokNathal and buff.mokNathalTactics.remain() < gcd * 4) or (power > ((25 - powerRegen * gcd) + 55)) or ((level < 20 and cd.flankingStrike > 0) or level < 12) then
+            if (talent.wayOfTheMokNathal and buff.mokNathalTactics.remain() < gcd * 4) or (power > ((25 - powerRegen * gcd) + 55)) or ((level < 20 and cd.flankingStrike.remain() > 0) or level < 12) then
                 if cast.raptorStrike() then return end
             end
         end
@@ -526,7 +525,7 @@ local function runRotation()
         local function actionList_PreBitePhase()
         -- Flanking Strike
             -- flanking_strike,if=cooldown.mongoose_bite.charges<3
-            if charges.mongooseBite < 3 then
+            if charges.mongooseBite.count() < 3 then
                 if cast.flankingStrike() then return end
             end
         -- Spitting Cobra
@@ -566,7 +565,7 @@ local function runRotation()
             end
         -- Mongoose Bite
             -- mongoose_bite,if=charges=3&cooldown.flanking_strike.remains>=gcd
-            if charges.mongooseBite == 3 and cd.flankingStrike >= gcd then
+            if charges.mongooseBite.count() == 3 and cd.flankingStrike.remain() >= gcd then
                 if cast.mongooseBite() then return end
             end
         -- Caltrops
@@ -712,11 +711,11 @@ local function runRotation()
             -- Call Action List - AOE
                     -- call_action_list,name=aoe,if=active_enemies>=3
                     if ((mode.rotation == 1 and #enemies.yards5 >= getOptionValue("Units To AoE")) or (mode.rotation == 2 and #enemies.yards5 > 0)) 
-                        and (not talent.butchery or (talent.butchery and charges.butchery > 0)) and level >= 42
+                        and (not talent.butchery or (talent.butchery and charges.butchery.count() > 0)) and level >= 42
                     then
                         if actionList_AOE() then return end
                     end
-                    if ((mode.rotation == 1 and (#enemies.yards5 < getOptionValue("Units To AoE") or (talent.butchery and charges.butchery == 0))) or (mode.rotation == 3 and #enemies.yards5 > 0)) and level >= 20 then
+                    if ((mode.rotation == 1 and (#enemies.yards5 < getOptionValue("Units To AoE") or (talent.butchery and charges.butchery.count() == 0))) or (mode.rotation == 3 and #enemies.yards5 > 0)) and level >= 20 then
             -- Call Action List - Bite Phase
                         -- call_action_list,name=bitePhase
                         if actionList_BitePhase() then return end
@@ -740,7 +739,7 @@ local function runRotation()
                     -- Cooldowns
                     -- if TargetsInRadius(Carve) > 2 or HasBuff(MongooseFury) or ChargesRemaining(MongooseBite) = SpellCharges(MongooseBite)
                     -- Use your cooldowns during or just before Mongoose Fury or an AoE phase.
-                    if #enemies.yards5 > 2 or buff.mongooseFury.exists() or charges.mongooseBite == charges.max.mongooseBite then
+                    if #enemies.yards5 > 2 or buff.mongooseFury.exists() or charges.mongooseBite.count() == charges.mongooseBite.max() then
                         if actionList_Cooldowns() then return end
                     end
                     -- MultiTarget
@@ -761,7 +760,7 @@ local function runRotation()
                     end
                     -- Snake Hunter
                     -- if ChargesRemaining(MongooseBite) = 0 and BuffRemainingSec(MongooseFury) > GlobalCooldownSec * 4
-                    if talent.snakeHunter and charges.mongooseBite == 0 and buff.mongooseFury.remain() > gcd * 4 then
+                    if talent.snakeHunter and charges.mongooseBite.count() == 0 and buff.mongooseFury.remain() > gcd * 4 then
                         if cast.snakeHunter(units.dyn5) then return end
                     end
                     -- Fury of the Eagle
@@ -773,7 +772,7 @@ local function runRotation()
                     -- Mongoose Bite
                     -- if HasBuff(MongooseFury) or ChargesRemaining(MongooseBite) = SpellCharges(MongooseBite)
                     -- Once you hit max charges of Mongoose Bite, use it.
-                    if buff.mongooseFury or charges.mongooseBite == charges.max.mongooseBite then
+                    if buff.mongooseFury or charges.mongooseBite.count() == charges.mongooseBite.max() then
                         if cast.mongooseBite(units.dyn5) then return end
                     end
                     -- Steel Trap
@@ -818,7 +817,7 @@ local function runRotation()
                     -- Raptor Strike
                     -- if Power > 75 - CooldownSecRemaining(FlankingStrike) * PowerRegen and not HasTalent(ThrowingAxes)
                     -- If using Raptor Strike could possibly delay a Flanking Strike by using up your Focus, it is better to just wait for Flanking Strike to come off GCD. It is also not worth using if you have Throwing Axes talented.
-                    if power > 75 - cd.flankingStrike * powerRegen and not talent.throwingAxes then
+                    if power > 75 - cd.flankingStrike.remain() * powerRegen and not talent.throwingAxes then
                         if cast.raptorStrike(units.dyn5) then return end
                     end
                 end -- End AMR

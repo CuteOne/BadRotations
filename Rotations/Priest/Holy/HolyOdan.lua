@@ -196,18 +196,17 @@ local function runRotation()
         local lastSpell                                     = lastSpellCast
         local level                                         = br.player.level
         local lowestHP                                      = br.friend[1].unit
-        local mana                                          = br.player.power.mana.percent
+        local mana                                          = br.player.power.mana.percent()
         local mode                                          = br.player.mode
         local perk                                          = br.player.perk        
         local php                                           = br.player.health
-        local power, powmax, powgen                         = br.player.power.amount.mana, br.player.power.mana.max, br.player.power.regen
+        local power, powmax, powgen                         = br.player.power.mana.amount(), br.player.power.mana.max(), br.player.power.mana.regen()
         local pullTimer                                     = br.DBM:getPulltimer()
         local race                                          = br.player.race
         local racial                                        = br.player.getRacial()
-        local recharge                                      = br.player.recharge
         local spell                                         = br.player.spell
         local talent                                        = br.player.talent
-        local ttm                                           = br.player.power.ttm
+        local ttm                                           = br.player.power.mana.ttm()
         local units                                         = units or {}
 
         local lowest                                        = {}    --Lowest Unit
@@ -508,7 +507,7 @@ local function runRotation()
                 end                    
             end
         -- Prayer of Healing (with Power Of The Naaru Buff)
-            if isChecked("Prayer of Healing") and talent.piety and buff.powerOfTheNaaru.exists() and cd.holyWordSanctify >= 1 and getDebuffRemain("player",240447) == 0 then
+            if isChecked("Prayer of Healing") and talent.piety and buff.powerOfTheNaaru.exists() and cd.holyWordSanctify.remain() >= 1 and getDebuffRemain("player",240447) == 0 then
                 if castWiseAoEHeal(br.friend,spell.prayerOfHealing,40,getValue("Prayer of Healing"),getValue("Prayer of Healing Targets"),5,false,true) then return end
             end
 		-- Prayer of Healing

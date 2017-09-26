@@ -227,19 +227,18 @@ local function runRotation()
         local perk                                          = br.player.perk
         local php                                           = br.player.health
         local playerMouse                                   = UnitIsPlayer("mouseover")
-        local power, powerDeficit, powerMax, powerGen       = br.player.power.amount.rage, br.player.power.rage.deficit, br.player.power.rage.max, br.player.power.regen
+        local power, powerDeficit, powerMax, powerGen       = br.player.power.rage.amount(), br.player.power.rage.deficit(), br.player.power.rage.max(), br.player.power.rage.regen()
         local pullTimer                                     = br.DBM:getPulltimer()
         local race                                          = br.player.race
         local racial                                        = br.player.getRacial()
-        local recharge                                      = br.player.recharge
-        local rage                                          = br.player.power.amount.rage
+        local rage                                          = br.player.power.rage.amount()
         local solo                                          = br.player.instance=="none"
         local spell                                         = br.player.spell
         local t20_4pc                                       = TierScan("T20") >= 4
         local talent                                        = br.player.talent
         local thp                                           = getHP(br.player.units(5))
         local ttd                                           = getTTD
-        local ttm                                           = br.player.power.ttm
+        local ttm                                           = br.player.power.rage.ttm()
         local units                                         = units or {}
 
         units.dyn5 = br.player.units(5)
@@ -253,7 +252,7 @@ local function runRotation()
         if focusTimer == nil then focusTimer = 0 end
 
         if useAvatar == nil then useAvatar = false end
-        if cd.warbreaker <= 3 then usedWarbreaker = false end
+        if cd.warbreaker.remain() <= 3 then usedWarbreaker = false end
         if getOptionValue("Battle Cry") == 3 or (getOptionValue("Battle Cry") == 2 and not useCDs()) then ignoreBattleCry = true else ignoreBattleCry = false end
 
         -- ChatOverlay(tostring(isInstanceBoss("target")))
@@ -267,7 +266,7 @@ local function runRotation()
             local yards = getOptionValue("Heroic Charge") + hitBoxCompensation
             for deg = 0, 360, 45 do
                 local dX, dY, dZ = GetPositionFromPosition(sX, sY, sZ, yards, deg, 0)
-                if TraceLine(sX, sY, sZ + 2.25, dX, dY, dZ + 2.25, 0x10) == nil and cd.heroicLeap == 0 and charges.charge > 0 then
+                if TraceLine(sX, sY, sZ + 2.25, dX, dY, dZ + 2.25, 0x10) == nil and cd.heroicLeap.remain() == 0 and charges.charge.count() > 0 then
                     if not IsAoEPending() then
                         CastSpellByName(GetSpellInfo(spell.heroicLeap))
                         -- cast.heroicLeap("player")
@@ -328,7 +327,7 @@ local function runRotation()
                     end
                 end
             -- Gift of the Naaru
-                if isChecked("Gift of the Naaru") and php <= getOptionValue("Gift of the Naaru") and br.player.race=="Draenei" and cd.giftOfTheNaaru == 0 then
+                if isChecked("Gift of the Naaru") and php <= getOptionValue("Gift of the Naaru") and br.player.race=="Draenei" and cd.giftOfTheNaaru.remain() == 0 then
                     if castSpell("player",racial,false,false,false) then return end
                 end
             -- Commanding Shout
@@ -415,23 +414,23 @@ local function runRotation()
                 if useCDs() and isChecked("Racial") and getSpellCD(racial) == 0 
                     and ((br.player.race == "Orc" and (buff.battleCry.exists() or ignoreBattleCry or ttd(units.dyn5) <= 16))
                     or (br.player.race == "Troll" and (buff.battleCry.exists() or ignoreBattleCry or ttd(units.dyn5) <= 11))
-                    or (br.player.race == "BloodElf" and (((not buff.battleCry.exists() and talent.deadlyCalm) or not talent.deadlyCalm) and powerDeficit > 40 and cd.battleCry ~= 0)))
+                    or (br.player.race == "BloodElf" and (((not buff.battleCry.exists() and talent.deadlyCalm) or not talent.deadlyCalm) and powerDeficit > 40 and cd.battleCry.remain() ~= 0)))
                 then
                     if castSpell("player",racial,false,false,false) then return end
                 end
             -- Avatar
                 -- avatar,if=gcd.remains<0.25&(buff.battle_cry.up|cooldown.battle_cry.remains<15)|target.time_to_die<=20
                 if (getOptionValue("Avatar") == 1 or (getOptionValue("Avatar") == 2 and useCDs())) then 
-                    if (cd.global < 0.25 and (buff.battleCry.exists() or cd.battleCry < 15)) or ttd(units.dyn5) <= 20 then
+                    if (cd.global.remain() < 0.25 and (buff.battleCry.exists() or cd.battleCry.remain() < 15)) or ttd(units.dyn5) <= 20 then
                         if cast.avatar() then return end
                     end
                 end
             -- Battle Cry
                 -- battle_cry,if=target.time_to_die<=6|(gcd.remains<=0.5&prev_gcd.1.ravager)|!talent.ravager.enabled&!gcd.remains&target.debuff.colossus_smash.remains>=5&(!cooldown.bladestorm.remains|!set_bonus.tier20_4pc)&(!talent.rend.enabled|dot.rend.remains>4)
                 if (getOptionValue("Battle Cry") == 1 or (getOptionValue("Battle Cry") == 2 and useCDs())) then 
-                    if (ttd(units.dyn5) or (cd.global <= 0.5 and lastSpell == spell.ravager)
-                        or not talent.ravager) and cd.global == 0 and debuff.colossusSmash.remain(units.dyn5) >= 5 
-                        and (cd.bladestorm > 0 or not t20_4pc) and (not talent.rend or debuff.rend.remain(units.dyn4) > 4) 
+                    if (ttd(units.dyn5) or (cd.global.remain() <= 0.5 and lastSpell == spell.ravager)
+                        or not talent.ravager) and cd.global.remain() == 0 and debuff.colossusSmash.remain(units.dyn5) >= 5 
+                        and (cd.bladestorm.remain() > 0 or not t20_4pc) and (not talent.rend or debuff.rend.remain(units.dyn4) > 4) 
                     then
                         if cast.battleCry() then return end
                     end
@@ -446,7 +445,7 @@ local function runRotation()
                 end
             -- Draught of Souls
                 -- draught_of_souls,if=equipped.draught_of_souls&((prev_gcd.1.mortal_strike|cooldown.mortal_strike.remains>=3)&buff.battle_cry.remains>=3&debuff.colossus_smash.up&buff.avatar.remains>=3)
-                if isChecked("Draught of Souls") and hasEquiped(140808) and ((lastCast == spell.mortalStrike or cd.mortalStrike >= 3) 
+                if isChecked("Draught of Souls") and hasEquiped(140808) and ((lastCast == spell.mortalStrike or cd.mortalStrike.remain() >= 3) 
                     and buff.battleCry.remain() >= 3 and debuff.colossusSmash.exists(units.dyn5) and buff.avatar.remain() >= 3) 
                 then
                     useItem(140808)
@@ -511,7 +510,7 @@ local function runRotation()
         -- Charge
                 -- charge
                 if isChecked("Charge") then
-                    if (cd.heroicLeap > 0 and cd.heroicLeap < 43) or not isChecked("Heroic Leap") or level < 26 then
+                    if (cd.heroicLeap.remain() > 0 and cd.heroicLeap.remain() < 43) or not isChecked("Heroic Leap") or level < 26 then
                         if cast.charge("target") then return end
                     end
                 end
@@ -520,7 +519,7 @@ local function runRotation()
                 if cast.stormBolt("target") then return end
         -- Heroic Throw
                 -- heroic_throw
-                if lastSpell == spell.charge or charges.charge == 0 or not isChecked("Charge") then
+                if lastSpell == spell.charge or charges.charge.count() == 0 or not isChecked("Charge") then
                     if cast.heroicThrow("target") then return end
                 end
             end
@@ -542,13 +541,13 @@ local function runRotation()
         -- Warbreaker
             -- warbreaker,if=(raid_event.adds.in>90|!raid_event.adds.exists)&cooldown.mortal_strike.remains<=gcd.remains&buff.shattered_defenses.down&buff.executioners_precision.stack=2
             if (getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs())) and #enemies.yards5 > 0 then
-                if cd.mortalStrike <= cd.global and not buff.shatteredDefenses.exists() and debuff.executionersPrecision.stack() == 2 then
+                if cd.mortalStrike.remain() <= cd.global.remain() and not buff.shatteredDefenses.exists() and debuff.executionersPrecision.stack() == 2 then
                     if cast.warbreaker("player") then usedWarbreaker = true; return end
                 end
             end
         -- Heroic Charge
             -- heroic_charge,if=rage.deficit>=55&(!cooldown.heroic_leap.remains|swing.mh.remains>1.2)&buff.battle_cry.down
-            if isChecked("Heroic Charge") and mode.heroic == 1 and powerDeficit >= 55 and (cd.heroicLeap == 0 or swingTimer > 1.2) and not buff.battleCry.exists() and getDistance(units.dyn5) < 5 then
+            if isChecked("Heroic Charge") and mode.heroic == 1 and powerDeficit >= 55 and (cd.heroicLeap.remain() == 0 or swingTimer > 1.2) and not buff.battleCry.exists() and getDistance(units.dyn5) < 5 then
                 heroicLeapCharge()
             end
         -- Focused Rage
@@ -558,13 +557,13 @@ local function runRotation()
             end
         -- Rend
             -- rend,if=remains<5&cooldown.battle_cry.remains<2&(cooldown.bladestorm.remains<2|!set_bonus.tier20_4pc)
-            if debuff.rend.remain(units.dyn5) < 5 and cd.battleCry < 2 and (cd.bladestorm < 2 or not t20_4pc) then
+            if debuff.rend.remain(units.dyn5) < 5 and cd.battleCry.remain() < 2 and (cd.bladestorm.remain() < 2 or not t20_4pc) then
                 if cast.rend() then return end
             end
         -- Ravager
             -- ravager,if=cooldown.battle_cry.remains<=gcd&debuff.colossus_smash.remains>6
             if useCDs() and isChecked("Ravager") and talent.ravager then
-                if cd.battleCry <= gcd and debuff.colossusSmash.remain(units.dyn5) > 6 then
+                if cd.battleCry.remain() <= gcd and debuff.colossusSmash.remain(units.dyn5) > 6 then
                     -- Best Location
                     if getOptionValue("Ravager") == 1 then
                         if cast.ravager("best",nil,1,8) then return end
@@ -612,32 +611,32 @@ local function runRotation()
             -- warbreaker,if=(raid_event.adds.in>90|!raid_event.adds.exists)&((talent.fervor_of_battle.enabled&debuff.colossus_smash.remains<gcd)|!talent.fervor_of_battle.enabled&((buff.stone_heart.up|cooldown.mortal_strike.remains<=gcd.remains)&buff.shattered_defenses.down))
             if (getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs())) and #enemies.yards5 > 0 then
                 if ((talent.fervorOfBattle and debuff.colossusSmash.remain(units.dyn5) < gcd) or not talent.fervorOfBattle 
-                    and ((buff.stoneHeart.exists() or cd.mortalStrike <= cd.global) and not buff.shatteredDefenses.exists())) 
+                    and ((buff.stoneHeart.exists() or cd.mortalStrike.remain() <= cd.global.remain()) and not buff.shatteredDefenses.exists())) 
                 then
                     if cast.warbreaker("player") then usedWarbreaker = true; return end
                 end
             end
         -- Heroic Charge
             -- heroic_charge,if=rage.deficit>=55&(!cooldown.heroic_leap.remains|swing.mh.remains>1.2)&buff.battle_cry.down
-            if isChecked("Heroic Charge") and mode.heroic == 1 and powerDeficit >= 55 and (cd.heroicLeap == 0 or swingTimer > 1.2) and not buff.battleCry.exists() and getDistance(units.dyn5) < 5 then
+            if isChecked("Heroic Charge") and mode.heroic == 1 and powerDeficit >= 55 and (cd.heroicLeap.remain() == 0 or swingTimer > 1.2) and not buff.battleCry.exists() and getDistance(units.dyn5) < 5 then
                 heroicLeapCharge()
             end
         -- Focused Rage
             -- focused_rage,if=!buff.battle_cry_deadly_calm.up&buff.focused_rage.stack<3&!cooldown.colossus_smash.up&(rage>=130|debuff.colossus_smash.down|talent.anger_management.enabled&cooldown.battle_cry.remains<=8)
-            if ((not buff.battleCry.exists() or ignoreBattleCry) and talent.deadlyCalm) and buff.focusedRage.stack() < 3 and cd.colossusSmash > 0
-                and (rage >= 130 or not debuff.colossusSmash.exists(units.dyn5) or (talent.angerManagement and cd.battleCry <= 8))
+            if ((not buff.battleCry.exists() or ignoreBattleCry) and talent.deadlyCalm) and buff.focusedRage.stack() < 3 and cd.colossusSmash.remain() > 0
+                and (rage >= 130 or not debuff.colossusSmash.exists(units.dyn5) or (talent.angerManagement and cd.battleCry.remain() <= 8))
             then
                 if cast.focusedRage() then return end
             end
         -- Rend
             -- rend,if=remains<=gcd.max|remains<5&cooldown.battle_cry.remains<2&(cooldown.bladestorm.remains<2|!set_bonus.tier20_4pc)
-            if debuff.rend.remain(units.dyn5) <= gcdMax or (debuff.rend.remain(units.dyn5) < 5 and cd.battleCry < 2 and (cd.bladestorm < 2 or not t20_4pc)) then
+            if debuff.rend.remain(units.dyn5) <= gcdMax or (debuff.rend.remain(units.dyn5) < 5 and cd.battleCry.remain() < 2 and (cd.bladestorm.remain() < 2 or not t20_4pc)) then
                 if cast.rend() then return end
             end
         -- Ravager
             -- ravager,if=cooldown.battle_cry.remains<=gcd&debuff.colossus_smash.remains>6
             if useCDs() and isChecked("Ravager") and talent.ravager then
-                if cd.battleCry <= gcd and debuff.colossusSmash.remain(units.dyn5) > 6 then
+                if cd.battleCry.remain() <= gcd and debuff.colossusSmash.remain(units.dyn5) > 6 then
                     -- Best Location
                     if getOptionValue("Ravager") == 1 then
                         if cast.ravager("best",nil,1,8) then return end
@@ -689,7 +688,7 @@ local function runRotation()
         -- Warbreaker
             -- warbreaker,if=(cooldown.bladestorm.up|cooldown.bladestorm.remains<=gcd)&(cooldown.battle_cry.up|cooldown.battle_cry.remains<=gcd)
             if (getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs())) and #enemies.yards5 > 0 then
-                if (cd.bladestorm > 0 or cd.bladestorm <= gcd) and (cd.battleCry > 0 or cd.battleCry <= 0) then
+                if (cd.bladestorm.remain() > 0 or cd.bladestorm.remain() <= gcd) and (cd.battleCry.remain() > 0 or cd.battleCry.remain() <= 0) then
                     if cast.warbreaker("player") then usedWarbreaker = true; return end
                 end
             end

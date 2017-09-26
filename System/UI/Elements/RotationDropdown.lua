@@ -21,7 +21,7 @@ function br.ui:createRotationDropdown(parent, itemlist, tooltip)
         br.data.settings[br.selectedSpec][notFoundProfile] = {}
 
         br.data.settings[br.selectedSpec][text.."Drop"] = 1
-        Print("BadRotations: Selected profile not found fallback to profile 1.")
+        Print("Selected profile not found fallback to profile 1.")
     end
 
     local value = br.data.settings[br.selectedSpec][text.."Drop"]

@@ -171,15 +171,14 @@ local function runRotation()
         local perk                                          = br.player.perk        
         local php                                           = br.player.health
         local playerMouse                                   = UnitIsPlayer("mouseover")
-        local power, powmax, powgen, powerDeficit           = br.player.power.amount.pain, br.player.power.pain.max, br.player.power.regen, br.player.power.pain.deficit
+        local power, powmax, powgen, powerDeficit           = br.player.power.pain.amount(), br.player.power.pain.max(), br.player.power.pain.regen(), br.player.power.pain.deficit()
         local pullTimer                                     = br.DBM:getPulltimer()
         local racial                                        = br.player.getRacial()
-        local recharge                                      = br.player.recharge
         local solo                                          = br.player.instance=="none"
         local spell                                         = br.player.spell
         local talent                                        = br.player.talent
         local ttd                                           = getTTD
-        local ttm                                           = br.player.power.ttm
+        local ttm                                           = br.player.power.pain.ttm()
         local units                                         = units or {}
 
         units.dyn5 = br.player.units(5)
@@ -358,13 +357,13 @@ local function runRotation()
                 --     if cast.soulCleave() then return end
                 -- end
         -- actions+=/demon_spikes,if=charges=2|buff.demon_spikes.down&!dot.fiery_brand.ticking&buff.metamorphosis.down
-                if ( recharge.demonSpikes <= 6 and charges.demonSpikes >= 1) and hasThreat() and not buff.exists.demonSpikes and not debuff.fieryBrand and not buff.exists.metamorphosis then
+                if ( charges.demonSpikes.recharge() <= 6 and charges.demonSpikes.count() >= 1) and hasThreat() and not buff.exists.demonSpikes and not debuff.fieryBrand and not buff.exists.metamorphosis then
                     if cast.demonSpikes() then return end
                 end
         -- actions+=/empower_wards,if=debuff.casting.up
-        -- actions+=/infernal_strike,if=!sigil_placed&!in_flight&remains-travel_time-delay<0.3*duration&artifact.fiery_demise.enabled&dot.fiery_brand.ticking
-        -- actions+=/infernal_strike,if=!sigil_placed&!in_flight&remains-travel_time-delay<0.3*duration&(!artifact.fiery_demise.enabled|(max_charges-charges_fractional)*recharge_time<cooldown.fiery_brand.remains+5)&(cooldown.sigil_of_flame.remains>7|charges=2)
-                if recharge.infernalStrike <= 2 and getDistance("target") < 5 then
+        -- actions+=/infernal_strike,if=!sigil_placed&!in_flight&remains-travel_time-delay<0.3*duration&artifact.fiery_demise.enabled().enabled&dot.fiery_brand.ticking
+        -- actions+=/infernal_strike,if=!sigil_placed&!in_flight&remains-travel_time-delay<0.3*duration&(!artifact.fiery_demise.enabled().enabled|(max_charges-charges_fractional)*recharge_time<cooldown.fiery_brand.remains+5)&(cooldown.sigil_of_flame.remains>7|charges=2)
+                if charges.infernalStrike.recharge() <= 2 and getDistance("target") < 5 then
                     if cast.infernalStrike("player") then return end
                 end
         -- actions+=/spirit_bomb,if=debuff.frailty.down

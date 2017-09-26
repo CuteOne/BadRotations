@@ -227,9 +227,9 @@ local function runRotation()
         local power             = br.player.power
         local pullTimer         = br.DBM:getPulltimer()
         local racial            = br.player.getRacial()
-        local runicPower        = br.player.power.amount.runicPower
-        local runicPowerDeficit = br.player.power.runicPower.deficit
-        local runes             = br.player.power.runes.frac
+        local runicPower        = br.player.power.runicPower.amount()
+        local runicPowerDeficit = br.player.power.runicPower.deficit()
+        local runes             = br.player.power.runes.frac()
         local swimming          = IsSwimming()
         local talent            = br.player.talent
         local t19_2pc           = TierScan("T19") >= 2
@@ -315,11 +315,11 @@ local function runRotation()
                 )
                 and not immun
                 and not bop
-                and (((hasEquiped(137075) and not (cd.apocalypse < 10)) or playertar) or not hasEquiped(137075))
+                and (((hasEquiped(137075) and not (cd.apocalypse.remain() < 10)) or playertar) or not hasEquiped(137075))
                 and getDistance("target") < 5
-                and (not talent.darkArbiter or (talent.darkArbiter and cd.summonGargoyle > 60))
+                and (not talent.darkArbiter or (talent.darkArbiter and cd.summonGargoyle.remain() > 60))
                 and (not talent.soulReaper or (not debuff.soulReaper.exists("target") or buff.soulReaper.stack("player") == 3))
-                and not (buff.soulReaper.stack("player") == 3 and cd.summonGargoyle <= 0)
+                and not (buff.soulReaper.stack("player") == 3 and cd.summonGargoyle.remain() <= 0)
             then
                 if cast.darkTransformation() then return end
             end
@@ -350,8 +350,8 @@ local function runRotation()
         --Summon Gargoyle
             if isChecked("Summon Gargoyle") 
                 and (useCDs() or playertar)
-                and (not talent.soulReaper or buff.soulReaper.stack("player") == 3 or (not debuff.soulReaper.exists("target") and cd.soulReaper > 30))
-                and cd.summonGargoyle <= 0 
+                and (not talent.soulReaper or buff.soulReaper.stack("player") == 3 or (not debuff.soulReaper.exists("target") and cd.soulReaper.remain() > 30))
+                and cd.summonGargoyle.remain() <= 0 
                 and (not talent.darkArbiter or runicPowerDeficit <= 10)
             then
                 if cast.summonGargoyle() then return end               
@@ -383,7 +383,7 @@ local function runRotation()
                     and (buff.darkSuccor.exists() and (php < getOptionValue("Death Strike") or buff.darkSuccor.remain() < 2))
                     or  runicPower >= 45  
                     and php < getOptionValue("Death Strike") 
-                    and (not talent.darkArbiter or (cd.darkArbiter <= 3 and not (useCDs() or playertar)))
+                    and (not talent.darkArbiter or (cd.darkArbiter.remain() <= 3 and not (useCDs() or playertar)))
                 then
                      -- Death strike everything in reach
                     if getDistance("target") > 5 or immun or bop then
@@ -545,11 +545,11 @@ local function runRotation()
             if isChecked("Debug Info") then Print("actionList_Interrupts") end
             if useInterrupts() then
                 if waitforNextKick < GetTime() -2 then
-                    if cd.mindFreeze <= 0 
-                        or cd.deathGrip <= 0 
-                        or cd.asphyxiate <= 0 
-                        or (not talent.sludgeBelcher and cd.leap <= 0) 
-                        or (talent.sludgeBelcher and cd.hook <= 0) 
+                    if cd.mindFreeze.remain() <= 0 
+                        or cd.deathGrip.remain() <= 0 
+                        or cd.asphyxiate.remain() <= 0 
+                        or (not talent.sludgeBelcher and cd.leap.remain() <= 0) 
+                        or (talent.sludgeBelcher and cd.hook.remain() <= 0) 
                     then
                         if kickpercent == nil or kickCommited == nil or kickCommited then
                             kickCommited = false
@@ -579,7 +579,7 @@ local function runRotation()
                                 end
                                 -- Mind Freeze
                                 if isChecked("Mind Freeze") 
-                                   -- and cd.mindFreeze == 0 
+                                   -- and cd.mindFreeze.remain() == 0 
                                     and getDistance(thisUnit) < 15 
                                     and getFacing("player",thisUnit) 
                                 then
@@ -655,7 +655,7 @@ local function runRotation()
     ---------------------------------------------------------------------------------------------------------------------------------
         local function actionList_SoulReaperDebuff()
         --Apocalypse
-            if cd.apocalypse <= 0
+            if cd.apocalypse.remain() <= 0
                 and debuff.festeringWound.stack("target") >= 7
                 and not immun
                 and not bop
@@ -687,7 +687,7 @@ local function runRotation()
           
         --Soul Reaper if artifact == 0 and festeringWound > 6
             if debuff.festeringWound.stack("target") >= 7
-                and cd.apocalypse <= 0
+                and cd.apocalypse.remain() <= 0
                 and not immun
                 and not bop
                 and not cloak
@@ -695,8 +695,8 @@ local function runRotation()
                 if cast.soulReaper("target") then return end
             end  
         --Apocalypse
-            if cd.apocalypse <= 0
-                and cd.soulReaper > 10
+            if cd.apocalypse.remain() <= 0
+                and cd.soulReaper.remain() > 10
                 and debuff.festeringWound.stack("target") >= 7
                 and not immun
                 and not bop
@@ -728,8 +728,8 @@ local function runRotation()
             if (debuff.scourgeOfWorlds.exists("target")  or buff.necrosis.exists("player"))
                 and debuff.festeringWound.stack("target") > 1
                 and runicPowerDeficit > 13
-                and (not (cd.apocalypse == 0) or getDistance("target") > 5 )
-                and not (cd.soulReaper < 5)
+                and (not (cd.apocalypse.remain() == 0) or getDistance("target") > 5 )
+                and not (cd.soulReaper.remain() < 5)
                 and not immun
                 and not cloak
             then
@@ -750,7 +750,7 @@ local function runRotation()
         --Death Coil
             if (runicPower >= 80
                 or (buff.suddenDoom.exists() and buff.suddenDoom.remain() < 8))
-                and (not buff.necrosis.exists("player") or ((not br.player.artifact.doubleDoom or buff.suddenDoom.stack("player") > 1) and buff.suddenDoom.remain() < 2) or runicPowerDeficit <= 20)
+                and (not buff.necrosis.exists("player") or ((not br.player.artifact.doubleDoom.enabled() or buff.suddenDoom.stack("player") > 1) and buff.suddenDoom.remain() < 2) or runicPowerDeficit <= 20)
                 and not immun
                 and not cloak
             then
@@ -758,7 +758,7 @@ local function runRotation()
             end
         --Festering Strike
             if ((debuff.festeringWound.stack("target") < 5)
-                or (debuff.festeringWound.stack("target") < 8 and cd.apocalypse == 0))
+                or (debuff.festeringWound.stack("target") < 8 and cd.apocalypse.remain() == 0))
                 and not immun
                 and not bop
                 then
@@ -766,8 +766,8 @@ local function runRotation()
             end
         --Soul Reaper if not artifact== 0
             if debuff.festeringWound.stack("target") >= 3 
-                and cd.soulReaper <= 0
-                and not (cd.apocalypse <= 0) 
+                and cd.soulReaper.remain() <= 0
+                and not (cd.apocalypse.remain() <= 0) 
                 and runes >= 3.6
                 and not immun
                 and not bop
@@ -777,7 +777,7 @@ local function runRotation()
             end
         --Scourge
             if debuff.festeringWound.stack("target") > 3
-                and (not (cd.soulReaper < 5) or runes > 4)
+                and (not (cd.soulReaper.remain() < 5) or runes > 4)
                 and runes > 2
                 and not immun
                 and not cloak
@@ -818,7 +818,7 @@ local function runRotation()
     ---------------------------------------------------------------------------------------------------------------------------------
         local function actionList_PreDarkArbiter()
         --Apocalypse
-            if cd.apocalypse <= 0
+            if cd.apocalypse.remain() <= 0
                 and debuff.festeringWound.stack("target") >= 7
                 and not immun
                 and not bop
@@ -829,7 +829,7 @@ local function runRotation()
             if (debuff.scourgeOfWorlds.exists("target") or buff.deathAndDecay.exists())
                 and debuff.festeringWound.stack("target") > 1
                 and runicPower < 90
-                and (not (cd.apocalypse == 0) or getDistance("target") > 5)
+                and (not (cd.apocalypse.remain() == 0) or getDistance("target") > 5)
                 and not immun
                 and not cloak
             then
@@ -848,7 +848,7 @@ local function runRotation()
                 end
             end           
         --Death Coil
-            if normalMob or cd.darkArbiter >= 5 then
+            if normalMob or cd.darkArbiter.remain() >= 5 then
                 if runicPowerDeficit <= 20
                     or (buff.suddenDoom.exists() and buff.suddenDoom.remain() < 8)
                 
@@ -861,7 +861,7 @@ local function runRotation()
             end
         --Festering Strike
             if ((debuff.festeringWound.stack("target") < 5)
-                or (debuff.festeringWound.stack("target") < 8 and cd.apocalypse == 0))
+                or (debuff.festeringWound.stack("target") < 8 and cd.apocalypse.remain() == 0))
                 and not immun
                 and not bop
                 then
@@ -898,7 +898,7 @@ local function runRotation()
             end
         --DeathCoil
             if getDistance("target") > 5 
-                and cd.darkArbiter >= 5
+                and cd.darkArbiter.remain() >= 5
                 and not immun
                 and not cloak
             then
@@ -910,7 +910,7 @@ local function runRotation()
     ---------------------------------------------------------------------------------------------------------------------------------
         local function actionList_DarkArbiter()
             --Apocalypse
-                if cd.apocalypse <= 0
+                if cd.apocalypse.remain() <= 0
                     and debuff.festeringWound.stack("target") >= 7
                     and runicPowerDeficit > 21
                     and not immun
@@ -982,7 +982,7 @@ local function runRotation()
             end
             --Festering Strike
             if ((debuff.festeringWound.stack("target") < 5)
-                or (debuff.festeringWound.stack("target") < 8 and cd.apocalypse == 0))
+                or (debuff.festeringWound.stack("target") < 8 and cd.apocalypse.remain() == 0))
                 and not immun
                 and not bop
                 then
@@ -990,7 +990,7 @@ local function runRotation()
             end
             --Scourge
             if debuff.festeringWound.stack("target") > 3
-                and (not (cd.soulReaper < 5) or runes > 4)
+                and (not (cd.soulReaper.remain() < 5) or runes > 4)
                 and runes > 2
                 and not immun
                 and not cloak

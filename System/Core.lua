@@ -150,12 +150,12 @@ function BadRotationsUpdate(self)
 		talentAnywhere()
 	end
 	local startTime = debugprofilestop()
-	if br.updateInProgress ~= true then
-	 	self.updateInProgress = true
-	 	local tempTime = GetTime();
-	 	if not self.lastUpdateTime then
-	 		self.lastUpdateTime = tempTime
-	 	end
+	-- if br.updateInProgress ~= true then
+	--  	self.updateInProgress = true
+	--  	local tempTime = GetTime();
+	--  	if not self.lastUpdateTime then
+	--  		self.lastUpdateTime = tempTime
+	--  	end
 	 	
 	 -- 	local FrameRate = GetFramerate() or 0
 	 -- 	if isChecked("Auto Delay") then	 		
@@ -168,8 +168,8 @@ function BadRotationsUpdate(self)
 		--  	updateRate = 0.1 else updateRate = getOptionValue("Bot Update Rate") 
 		-- end
 
-	 	if self.lastUpdateTime and (tempTime - self.lastUpdateTime) > getUpdateRate() then --updateRate then --0.1 then
-	 		self.lastUpdateTime = tempTime
+	 	-- if self.lastUpdateTime and (tempTime - self.lastUpdateTime) > getUpdateRate() then --updateRate then --0.1 then
+	 		-- self.lastUpdateTime = tempTime
 			-- Check for Unlocker
 			if FireHack == nil then
 			 	br.ui:closeWindow("all")
@@ -194,8 +194,8 @@ function BadRotationsUpdate(self)
 						end
 					-- Load Spec Profiles
 					    br.selectedProfile = br.data.settings[br.selectedSpec]["Rotation".."Drop"] or 1
-						local playerSpec = GetSpecializationInfo(GetSpecialization())
-
+					    local playerSpec = GetSpecializationInfo(GetSpecialization())
+					    -- Initialize Player
 						if br.player == nil or br.player.profile ~= br.selectedSpec then
 					        br.player = br.loader:new(playerSpec,br.selectedSpec)
 					        setmetatable(br.player, {__index = br.loader})
@@ -204,10 +204,22 @@ function BadRotationsUpdate(self)
 					        br.player:update()
 					    end
 					    -- Update Player
-					    if br.player ~= nil and not CanExitVehicle() then
+					    if br.player ~= nil and not CanExitVehicle() and br.timer:useTimer("playerUpdate", getUpdateRate()) then --br.debug.cpu.pulse.currentTime/10) then
 							br.player:update()
 						end
-						FindEnemy()
+					-- Enemy Engine
+						if br.timer:useTimer("omUpdate", getUpdateRate()) then --br.debug.cpu.enemiesEngine.units.currentTime/10) then
+							getOMUnits()
+						end
+						if br.timer:useTimer("enemyUpdate", getUpdateRate()) then --br.debug.cpu.enemiesEngine.enemy.currentTime/10) then
+							FindEnemy()
+						end
+					-- Healing Engine
+						if isChecked("HE Active") then
+							br.friend:Update()
+						end
+					-- Auto Loot
+						autoLoot()
 					-- Close windows and swap br.selectedSpec on Spec Change
 						if select(2,GetSpecializationInfo(GetSpecialization())) ~= br.selectedSpec then
 					    	-- Closing the windows will save the position
@@ -229,9 +241,6 @@ function BadRotationsUpdate(self)
 				    	targetDistance = getDistance("target") or 0
 				    	displayDistance = math.ceil(targetDistance)
 						mainText:SetText(displayDistance)
-
-					-- Auto Loot
-						autoLoot()
 
 					-- Queue Casting
 						if (isChecked("Queue Casting") or (br.player ~= nil and br.player.queue ~= 0)) and not UnitChannelInfo("player") then
@@ -255,30 +264,13 @@ function BadRotationsUpdate(self)
 						ProfessionHelper()
 
 				    -- Rotation Log
-				    	if not br.ui.window['debug']['parent'] then
-				    		br.ui:createDebugWindow()
-				    		br.ui:closeWindow("debug")
-				    	end
-					    if getOptionCheck("Rotation Log") then
-					    	if not br.ui.window['debug']['parent'] then br.ui:createDebugWindow() end
-					    	br.ui:showWindow("debug")
-					    elseif br.data.settings[br.selectedSpec]["debug"] == nil then
-				    			br.data.settings[br.selectedSpec]["debug"] = {}
-				    			br.data.settings[br.selectedSpec]["debug"].active = false
-				    	elseif br.data.settings[br.selectedSpec]["debug"].active == true then
-					    	br.ui:closeWindow("debug")
-					    end
-		    -- FPS Intensive Functions
-					-- Healing Engine
-						if isChecked("HE Active") then
-							br.friend:Update()
-						end
+				    	br.ui:toggleDebugWindow()
 					end --End Update Check
-					self.updateInProgress = false
+					-- self.updateInProgress = false
 				end -- End Update In Progress Check
 		 	end -- End Main Button Active Check
-		 end
-	end	-- End FireHack Check
+	-- 	 end
+	-- end	-- End FireHack Check
 	br.debug.cpu.pulse.totalIterations = br.debug.cpu.pulse.totalIterations + 1
 	br.debug.cpu.pulse.currentTime = debugprofilestop()-startTime
 	br.debug.cpu.pulse.elapsedTime = br.debug.cpu.pulse.elapsedTime + debugprofilestop()-startTime

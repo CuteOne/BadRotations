@@ -178,15 +178,14 @@ local function runRotation()
         local petInfo                                       = br.player.petInfo
         local php                                           = br.player.health
         local playerMouse                                   = UnitIsPlayer("mouseover")
-        local power, powmax, powgen, powerDeficit           = br.player.power.amount.mana, br.player.power.mana.max, br.player.power.regen, br.player.power.mana.deficit
+        local power, powmax, powgen, powerDeficit           = br.player.power.mana.amount, br.player.power.mana.max(), br.player.power.mana.regen(), br.player.power.mana.deficit()
         local pullTimer                                     = br.DBM:getPulltimer()
         local racial                                        = br.player.getRacial()
-        local recharge                                      = br.player.recharge
         local solo                                          = br.player.instance=="none"
         local spell                                         = br.player.spell
         local talent                                        = br.player.talent
         local ttd                                           = getTTD
-        local ttm                                           = br.player.power.ttm
+        local ttm                                           = br.player.power.mana.ttm()
         local units                                         = units or {}
         local dt                                            = date("%H:%M:%S")
         local debug                                         = false
@@ -198,7 +197,7 @@ local function runRotation()
 
         if leftCombat == nil then leftCombat = GetTime() end
         if profileStop == nil then profileStop = false end
-        if artifact.icyHand then iceHand= 1 else iceHand = 0 end
+        if artifact.icyHand.enabled() then iceHand= 1 else iceHand = 0 end
         local fofMax = (2 + iceHand)
 --------------------
 --- Action Lists ---
@@ -304,7 +303,7 @@ local function runRotation()
         -- Cooldowns Spell TimeWarp if HasItem(ShardOfTheExodar) and not HasBuff(Bloodlust)
                   -- NOT GONNA INCLUDE TIMEWARP FOR RAID GROUPS
         -- Cooldowns Spell RuneOfPower if CooldownSecRemaining(IcyVeins) < SpellCastTimeSec(RuneOfPower)
-                if cd.icyVeins < getCastTime(spell.runeOfPower) then
+                if cd.icyVeins.remain() < getCastTime(spell.runeOfPower) then
                     if cast.runeOfPower() then return end
                 end
         -- Cooldowns Spell IcyVeins if not HasBuff(IcyVeins)
@@ -312,7 +311,7 @@ local function runRotation()
                     if cast.icyVeins() then return end
                 end
         -- Cooldowns Spell RuneOfPower if ChargesRemaining(RuneOfPower) = SpellCharges(RuneOfPower) and (CanUse(GlacialSpike) or not HasTalent(GlacialSpike))
-                if charges.runeOfPower == 2 and (canCast(199786,false,true) or not talent.glacialSpike) then
+                if charges.runeOfPower.count() == 2 and (canCast(199786,false,true) or not talent.glacialSpike) then
                     if cast.runeOfPower() then return end
                 end
         -- Cooldowns Spell RuneOfPower if BuffRemainingSec(Bloodlust) > BuffDurationSec(RuneOfPower) + SpellCastTimeSec(RuneOfPower) or BuffRemainingSec(TimeWarp) > BuffDurationSec(RuneOfPower) + SpellCastTimeSec(RuneOfPower)
@@ -492,13 +491,13 @@ local function runRotation()
                         if cast.frostbolt() then return end
                     end
             -- Water Jet
-                    -- water_jet,if=prev_gcd.frostbolt&buff.fingers_of_frost.stack()<(2+artifact.icy_hand.enabled)&buff.brain_freeze.react=0
+                    -- water_jet,if=prev_gcd.frostbolt&buff.fingers_of_frost.stack()<(2+artifact.icy_hand.enabled().enabled)&buff.brain_freeze.react=0
                     if lastSpell == spell.frostbolt and buff.fingersOfFrost.stack() < (2 + iceHand) and not buff.brainFreeze.exists() then
                         if cast.waterJet() then return end
                     end
             -- Ray of Frost
                     -- ray_of_frost,if=buff.icy_veins.up|(cooldown.icy_veins.remain()s>action.ray_of_frost.cooldown&buff.rune_of_power.down)
-                    if buff.icyVeins.exists() or (cd.icyVeins > getCastTime(spell.rayOfFrost) and not buff.runeOfPower) then
+                    if buff.icyVeins.exists() or (cd.icyVeins.remain() > getCastTime(spell.rayOfFrost) and not buff.runeOfPower) then
                         if cast.rayOfFrost() then return end
                     end
             -- Flurry
@@ -507,8 +506,8 @@ local function runRotation()
                         if cast.flurry() then return end
                     end
             -- Frozen Touch (SimC)
-                    -- SimC: frozen_touch,if=buff.fingers_of_frost.stack()<=(0+artifact.icy_hand.enabled)&((cooldown.icy_veins.remain()s>30&talent.thermal_void.enabled)|!talent.thermal_void.enabled)
-                    if buff.fingersOfFrost.stack() <= (0 + iceHand) and ((cd.icyVeins > 30 and talent.thermalVoid) or not talent.thermalVoid) then
+                    -- SimC: frozen_touch,if=buff.fingers_of_frost.stack()<=(0+artifact.icy_hand.enabled().enabled)&((cooldown.icy_veins.remain()s>30&talent.thermal_void.enabled)|!talent.thermal_void.enabled)
+                    if buff.fingersOfFrost.stack() <= (0 + iceHand) and ((cd.icyVeins.remain() > 30 and talent.thermalVoid) or not talent.thermalVoid) then
                         if cast.frozenTouch() then return end
                     end
             -- Frost Bomb
@@ -518,7 +517,7 @@ local function runRotation()
                     end
             -- Ice Lance
                     -- ice_lance,if=buff.fingers_of_frost.react>0&cooldown.icy_veins.remain()s>10|buff.fingers_of_frost.react>2
-                    if buff.fingersOfFrost.exists() and (cd.icyVeins > 10 or buff.fingersOfFrost.stack() > 2) then
+                    if buff.fingersOfFrost.exists() and (cd.icyVeins.remain() > 10 or buff.fingersOfFrost.stack() > 2) then
                         if cast.iceLance() then return end
                     end
             -- Frozen Orb
@@ -536,7 +535,7 @@ local function runRotation()
                         if cast.blizzard("best",nil,1,8) then return end
                     end
             -- Ebonbolt
-                    -- ebonbolt,if=buff.fingers_of_frost.stack()<=(0+artifact.icy_hand.enabled)
+                    -- ebonbolt,if=buff.fingers_of_frost.stack()<=(0+artifact.icy_hand.enabled().enabled)
                     if buff.fingersOfFrost.stack() <= (0 + iceHand) then
                         if cast.ebonbolt() then return end
                     end
@@ -609,7 +608,7 @@ local function runRotation()
                       end
                     end
              -- Water Jet (AMR)
-                    -- water_jet,if=prev_gcd.frostbolt&buff.fingers_of_frost.stack()<(2+artifact.icy_hand.enabled)&buff.brain_freeze.react=0
+                    -- water_jet,if=prev_gcd.frostbolt&buff.fingers_of_frost.stack()<(2+artifact.icy_hand.enabled().enabled)&buff.brain_freeze.react=0
                     -- WaterJet if BuffStack(FingersOfFrost) < BuffMaxStack(FingersOfFrost) and WasLastCast(Frostbolt) and not HasBuff(BrainFreeze) and not HasTalent(GlacialSpike)
                     if not talent.lonelyWinter and buff.fingersOfFrost.stack() < (2 + iceHand) and lastSpellCast == spell.frostbolt and not buff.brainFreeze.exists() and not talent.glacialSpike then
                         if CastPetAction(6,"target") then return end
@@ -620,7 +619,7 @@ local function runRotation()
                     end
              -- Ray of Frost (AMR)
                     -- ray_of_frost,if=buff.icy_veins.up|(cooldown.icy_veins.remain()s>action.ray_of_frost.cooldown&buff.rune_of_power.down)
-                    -- if buff.icyVeins.exists() or (cd.icyVeins > getCastTime(spell.rayOfFrost) and buff.runeOfPower.exists()) then
+                    -- if buff.icyVeins.exists() or (cd.icyVeins.remain() > getCastTime(spell.rayOfFrost) and buff.runeOfPower.exists()) then
                     -- RayOfFrost if HasBuff(IcyVeins)
                     if buff.icyVeins.exists() then
                         if cast.rayOfFrost() then return end
@@ -649,7 +648,7 @@ local function runRotation()
                             -- print("Frost Bomb is on target")
                         elseif not UnitDebuffID("target",112948) and lastSpellCast ~= spell.frostBomb then
                             --print("NO Frost Bomb")
-                            if buff.fingersOfFrost.stack() >= 2 or (cd.frozenOrb < 1 or cd.frozenTouch < 2 or cd.ebonbolt < 2) then
+                            if buff.fingersOfFrost.stack() >= 2 or (cd.frozenOrb.remain() < 1 or cd.frozenTouch.remain() < 2 or cd.ebonbolt.remain() < 2) then
                             -- print("2 FoF -> frostBomb")
                             cast.frostBomb()
                             end
@@ -659,7 +658,7 @@ local function runRotation()
             -- Ice Lance NO GS (AMR)
                     -- ice_lance,if=buff.fingers_of_frost.react>0&cooldown.icy_veins.remain()s>10|buff.fingers_of_frost.react>2
                     -- IceLance if ((HasBuff(FingersOfFrost) and CooldownSecRemaining(IcyVeins) > 10) or BuffStack(FingersOfFrost) = BuffMaxStack(FingersOfFrost)) and not HasTalent(GlacialSpike)
-                    if (buff.fingersOfFrost.exists() and cd.icyVeins > 10) or (buff.fingersOfFrost.stack() == (2 + iceHand) and not talent.glacialSpike) then
+                    if (buff.fingersOfFrost.exists() and cd.icyVeins.remain() > 10) or (buff.fingersOfFrost.stack() == (2 + iceHand) and not talent.glacialSpike) then
                         if cast.iceLance() then
                           if lastSpellCast == spell.iceLance then
                             icelanceCount = icelanceCount + 1

@@ -28,6 +28,7 @@ function br.debug:Print(message)
 end
 -- Run
 function br:Run()
+	
 	if br.selectedSpec == nil then br.selectedSpec = select(2,GetSpecializationInfo(GetSpecialization())) end
 	-- rc = LibStub("LibRangeCheck-2.0")
 	-- minRange, maxRange = rc:GetRange('target')

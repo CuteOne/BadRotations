@@ -202,7 +202,7 @@ local function runRotation()
     local buff                                          = br.player.buff
     local cast                                          = br.player.cast
     local combatTime                                    = getCombatTime()
-    local combo, comboDeficit, comboMax                 = br.player.power.amount.comboPoints, br.player.power.comboPoints.deficit, br.player.power.comboPoints.max
+    local combo, comboDeficit, comboMax                 = br.player.power.comboPoints.amount(), br.player.power.comboPoints.deficit(), br.player.power.comboPoints.max()
     local cd                                            = br.player.cd
     local cTime                                         = getCombatTime()
     local charges                                       = br.player.charges
@@ -220,11 +220,10 @@ local function runRotation()
     local perk                                          = br.player.perk
     local pmultiplier                                   = 1.0
     local php                                           = br.player.health
-    local power, powerDeficit, powerRegen               = br.player.power.amount.energy, br.player.power.energy.deficit, br.player.power.regen
+    local power, powerDeficit, powerRegen               = br.player.power.energy.amount(), br.player.power.energy.deficit(), br.player.power.energy.regen
     local pullTimer                                     = br.DBM:getPulltimer()
     local race                                          = br.player.race
     local racial                                        = br.player.getRacial()
-    local recharge                                      = br.player.recharge
     local spell                                         = br.player.spell
     local talent                                        = br.player.talent
     local ttm                                           = br.player.timeToMax
@@ -251,7 +250,7 @@ local function runRotation()
     local energyTTMCombined = powerDeficit / energyRegenCombined
 
 --          if debuff.vendetta then vendy = 1 else vendy = 0 end
---          if artifact.bagOfTricks then trickyBag = 1 else trickyBag = 0 end
+--          if artifact.bagOfTricks.enabled() then trickyBag = 1 else trickyBag = 0 end
 --          if talent.elaboratePlanning then ePlan = 1 else ePlan = 0 end
     -- Custom Functions
     
@@ -274,13 +273,13 @@ local function runRotation()
     if talent.vigor then vigor = 1 else vigor = 0 end
     if not talent.exsanguinate then noExsanguinate = 1 else noExsanguinate = 0 end
     if not talent.venomRush then noVenom = 1 else noVenom = 0 end
-    if artifact.urgeToKill then urges = 1 else urges = 0 end
+    if artifact.urgeToKill.enabled() then urges = 1 else urges = 0 end
     if hasEquiped(137049) then insigniad = 1 else insigniad = 0 end
     if hasEquiped(140806) then convergingFate = 1 else convergingFate = 0 end
     if hasEquiped(144236) then legshoulders = true else legshoulders = false end
-    if buff.masterAssassinsInitiative.duration() > cd.global + 0.2 then mantled = 1 else mantled = 0 end
+    if buff.masterAssassinsInitiative.duration() > cd.global.remain() + 0.2 then mantled = 1 else mantled = 0 end
     
-    if artifact.urgeToKill then urges = 1 else urges = 0 end
+    if artifact.urgeToKill.enabled() then urges = 1 else urges = 0 end
     
     if leftCombat == nil then leftCombat = GetTime() end
     if profileStop == nil then profileStop = false end
@@ -380,7 +379,7 @@ local function runRotation()
                 if not OPN1 then 
                     Print("Starting Opener")
                     OPN1 = true
-                elseif (not GAR1 or (not debuff.garrote.exists("target") and cd.garrote == 0)) and power >= 45 then
+                elseif (not GAR1 or (not debuff.garrote.exists("target") and cd.garrote.remain() == 0)) and power >= 45 then
         -- Garrote
                     if castOpener("garrote","GAR1",1) then return end
                 elseif GAR1 and (not MUT1 or (combo == 0 and not debuff.rupture.exists("target"))) and power >= 55 then
@@ -420,11 +419,11 @@ local function runRotation()
                 end
             end
         elseif (UnitExists("target") and not isBoss("target")) or not isChecked("Opener") then
-            if combo >= 2 and not debuff.rupture.exists(units.dyn5) and cTime < 10 and not artifact.urgeToKill and getOptionValue("Stealth Breaker") == 1 then
+            if combo >= 2 and not debuff.rupture.exists(units.dyn5) and cTime < 10 and not artifact.urgeToKill.enabled() and getOptionValue("Stealth Breaker") == 1 then
                 if cast.rupture("target") then opener = true; return end
             elseif combo >= 4 and not debuff.rupture.exists(units.dyn5) and getOptionValue("Stealth Breaker") == 1 then
                 if cast.rupture("target") then opener = true; return end
-            elseif level >= 48 and not debuff.garrote.exists(units.dyn5) and cd.garrote <= 1 and getOptionValue("Stealth Breaker") == 1 then
+            elseif level >= 48 and not debuff.garrote.exists(units.dyn5) and cd.garrote.remain() <= 1 and getOptionValue("Stealth Breaker") == 1 then
                 if cast.garrote("target") then opener = true; return end
             elseif level >= 29 and getOptionValue("Stealth Breaker") == 2 then
                 if cast.cheapShot("target") then opener = true; return end
@@ -492,7 +491,7 @@ local function runRotation()
                         if cast.kick(thisUnit) then return end
                     end
         -- Kidney Shot
-                    if cd.kick ~= 0 then
+                    if cd.kick.remain() ~= 0 then
                         if isChecked("Kidney Shot") then
                             if cast.kidneyShot(thisUnit) then return end
                         end
@@ -541,15 +540,15 @@ local function runRotation()
     local function actionList_Kingsbane()
 -- Kingsbane
         if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()) then
-            -- kingsbane,if=artifact.sinister_circulation.enabled&!(equipped.duskwalkers_footpads&equipped.convergence_of_fates&artifact.master_assassin.rank>=6)&(time>25|!equipped.mantle_of_the_master_assassin|(debuff.vendetta.up&debuff.surge_of_toxins.up))&(talent.subterfuge.enabled|!stealthed.rogue|(talent.nightstalker.enabled&(!equipped.mantle_of_the_master_assassin|!set_bonus.tier19_4pc)))
-            if artifact.sinisterCirculation and not (hasEquiped(137030) and hasEquiped(140806) and artifact.rank.masterAssassin >= 6) 
+            -- kingsbane,if=artifact.sinister_circulation.enabled().enabled&!(equipped.duskwalkers_footpads&equipped.convergence_of_fates&artifact.master_assassin.rank()>=6)&(time>25|!equipped.mantle_of_the_master_assassin|(debuff.vendetta.up&debuff.surge_of_toxins.up))&(talent.subterfuge.enabled|!stealthed.rogue|(talent.nightstalker.enabled&(!equipped.mantle_of_the_master_assassin|!set_bonus.tier19_4pc)))
+            if artifact.sinisterCirculation.enabled() and not (hasEquiped(137030) and hasEquiped(140806) and artifact.masterAssassin.rank() >= 6) 
                 and (cTime > 25 or not hasEquiped(144236) or (debuff.vendetta.exists(units.dyn5) and debuff.surgeOfToxins.exists(units.dyn5)) 
                     and (talent.subterfuge or not stealthing or (talent.nightstalker and (not hasEquiped(144236) or not t19_4pc))))
             then
                 if cast.kingsbane() then return end
             end
             -- kingsbane,if=!talent.exsanguinate.enabled&buff.envenom.up&((debuff.vendetta.up&debuff.surge_of_toxins.up)|cooldown.vendetta.remains<=5.8|cooldown.vendetta.remains>=10)
-            if not talent.exsanguinate and buff.envenom.exists() and ((debuff.vendetta.exists(units.dyn5) and debuff.surgeOfToxins.exists(units.dyn5)) or cd.vendetta <= 5.8 or cd.vendetta >= 10) then
+            if not talent.exsanguinate and buff.envenom.exists() and ((debuff.vendetta.exists(units.dyn5) and debuff.surgeOfToxins.exists(units.dyn5)) or cd.vendetta.remain() <= 5.8 or cd.vendetta.remain() >= 10) then
                 if cast.kingsbane() then return end
             end
             -- kingsbane,if=talent.exsanguinate.enabled&dot.rupture.exsanguinated
@@ -563,12 +562,12 @@ local function runRotation()
     local function actionList_Cooldowns()
         --actions.cds=potion,if=buff.bloodlust.react|target.time_to_die<=60|debuff.vendetta.up&cooldown.vanish.remains<5
         if isChecked("Potion") and canUse(142117) then
-            if hasBloodLust() or getTimeToDie("target") <= 25 or debuff.vendetta.exists("target") and cd.vanish < 5 then
+            if hasBloodLust() or getTimeToDie("target") <= 25 or debuff.vendetta.exists("target") and cd.vanish.remain() < 5 then
                 useItem(142117)
             end
         end
         --actions.cds+=/use_item,name=draught_of_souls,if=energy.deficit>=35+variable.energy_regen_combined*2&(!equipped.mantle_of_the_master_assassin|cooldown.vanish.remains>8)
-        if powerDeficit >= 35 + energyRegenCombined*2 and (not hasEquiped(137049) or cd.vanish > 8) then
+        if powerDeficit >= 35 + energyRegenCombined*2 and (not hasEquiped(137049) or cd.vanish.remain() > 8) then
             if hasEquiped(140808) and canUse(140808) then
                 useItem(140808)
             end
@@ -587,7 +586,7 @@ local function runRotation()
         --actions.cds+=/berserking,if=debuff.vendetta.up
         --actions.cds+=/arcane_torrent,if=dot.kingsbane.ticking&!buff.envenom.up&energy.deficit>=15+variable.energy_regen_combined*gcd.remains*1.1
         if isChecked("Racial") and ((debuff.vendetta.exists(units.dyn5) and (race == "Orc" or race == "Troll")) 
-            or (race == "BloodElf" and debuff.kingsbane.exists(units.dyn5) and not buff.envenom.exists() and powerDeficit >= 16 + energyRegenCombined * cd.global * 1.1)) 
+            or (race == "BloodElf" and debuff.kingsbane.exists(units.dyn5) and not buff.envenom.exists() and powerDeficit >= 16 + energyRegenCombined * cd.global.remain() * 1.1)) 
         then
             if castSpell("player",racial,false,false,false) then return end
         end
@@ -611,8 +610,8 @@ local function runRotation()
             end
         end
         
-        --actions.cds+=/vendetta,if=!artifact.urge_to_kill.enabled|energy.deficit>=60+variable.energy_regen_combined
-        if not artifact.urgeToKill or powerDeficit >= 60 + energyRegenCombined then
+        --actions.cds+=/vendetta,if=!artifact.urge_to_kill.enabled().enabled|energy.deficit>=60+variable.energy_regen_combined
+        if not artifact.urgeToKill.enabled() or powerDeficit >= 60 + energyRegenCombined then
             if cast.vendetta() then return end
         end
         
@@ -624,7 +623,7 @@ local function runRotation()
                 if cast.vanish() then return end
             end
             -- vanish,if=talent.nightstalker.enabled&combo_points>=cp_max_spend&talent.exsanguinate.enabled&cooldown.exsanguinate.remains<1&(dot.rupture.ticking|time>10)
-            if talent.nightstalker and combo >= comboMax and talent.exsanguinate and cd.exsanguinate < 1 and (debuff.rupture.exists(units.dyn5) or cTime > 10) then
+            if talent.nightstalker and combo >= comboMax and talent.exsanguinate and cd.exsanguinate.remain() < 1 and (debuff.rupture.exists(units.dyn5) or cTime > 10) then
                 if cast.vanish() then return end
             end
             -- vanish,if=talent.subterfuge.enabled&equipped.mantle_of_the_master_assassin&(debuff.vendetta.up|target.time_to_die<10)&mantle_duration=0
@@ -643,7 +642,7 @@ local function runRotation()
             end
         end
         --actions.cds+=/exsanguinate,if=prev_gcd.1.rupture&dot.rupture.remains>4+4*cp_max_spend&!stealthed.rogue|!dot.garrote.pmultiplier<=1&!cooldown.vanish.up&buff.subterfuge.up
-        if lastSpell == spell.rupture and debuff.rupture.remain(units.dyn5) > 4 + 4 * comboMax and (not stealthing or (cd.vanish > 0 and buff.subterfuge.exists())) then
+        if lastSpell == spell.rupture and debuff.rupture.remain(units.dyn5) > 4 + 4 * comboMax and (not stealthing or (cd.vanish.remain() > 0 and buff.subterfuge.exists())) then
                 if cast.exsanguinate() then return end
             end
         --actions.cds+=/toxic_blade,if=combo_points.deficit>=1+(mantle_duration>=gcd.remains+0.2)&dot.rupture.remains>8
@@ -695,11 +694,11 @@ local function runRotation()
         end       
         
         --actions.maintain+=/rupture,if=!talent.exsanguinate.enabled&combo_points>=3&!ticking&mantle_duration<=gcd.remains+0.2&target.time_to_die>6
-        if not talent.exsanguinate and comboPoints >= 3 and not debuff.rupture.exists(units.dyn5) and buff.masterAssassinsInitiative.remain() <= cd.global + 0.2 and getTimeToDie(units.dyn5) > 6 then
+        if not talent.exsanguinate and comboPoints >= 3 and not debuff.rupture.exists(units.dyn5) and buff.masterAssassinsInitiative.remain() <= cd.global.remain() + 0.2 and getTimeToDie(units.dyn5) > 6 then
             if cast.rupture() then return end
         end
-        --actions.maintain+=/rupture,if=talent.exsanguinate.enabled&((combo_points>=cp_max_spend&cooldown.exsanguinate.remains<1)|(!ticking&(time>10|combo_points>=2+artifact.urge_to_kill.enabled)))
-        if talent.exsanguinate and ((combo >= comboMax and cd.exsanguinate < 1) or (not debuff.rupture.exists(units.dyn5) and (cTime > 10 or combo >= 2 + urges))) then
+        --actions.maintain+=/rupture,if=talent.exsanguinate.enabled&((combo_points>=cp_max_spend&cooldown.exsanguinate.remains<1)|(!ticking&(time>10|combo_points>=2+artifact.urge_to_kill.enabled().enabled)))
+        if talent.exsanguinate and ((combo >= comboMax and cd.exsanguinate.remain() < 1) or (not debuff.rupture.exists(units.dyn5) and (cTime > 10 or combo >= 2 + urges))) then
             if cast.rupture() then return end
         end
         
@@ -722,7 +721,7 @@ local function runRotation()
         
         --actions.maintain+=/pool_resource,for_next=1
         --actions.maintain+=/garrote,cycle_targets=1,if=(!talent.subterfuge.enabled|!(cooldown.vanish.up&cooldown.vendetta.remains<=4))&combo_points.deficit>=1&refreshable&(pmultiplier<=1|remains<=tick_time)&(!exsanguinated|remains<=tick_time*2)&target.time_to_die-remains>4
-        if (not talent.subterfuge or not (cd.vanish == 0 and cd.vendetta <= 4)) and comboDeficit >= 1 then
+        if (not talent.subterfuge or not (cd.vanish.remain() == 0 and cd.vendetta.remain() <= 4)) and comboDeficit >= 1 then
             for i = 1, #enemies.yards5 do
                 local thisUnit = enemies.yards5[i]
                 if (multidot or (UnitIsUnit(thisUnit,units.dyn5) and not multidot)) then
@@ -745,11 +744,11 @@ local function runRotation()
             if cast.deathFromAbove() then return end
         end
         --actions.finish+=/envenom,if=combo_points>=4&(debuff.vendetta.up|mantle_duration>=gcd.remains+0.2|debuff.surge_of_toxins.remains<gcd.remains+0.2|energy.deficit<=25+variable.energy_regen_combined)
-        if comboPoints >= 4 and debuff.vendetta.exists("target") or buff.masterAssassinsInitiative.remain() >= cd.global + 0.2 or debuff.surgeOfToxins.remain("target") < cd.global + 0.2 or powerDeficit <= 25 + energyRegenCombined then
+        if comboPoints >= 4 and debuff.vendetta.exists("target") or buff.masterAssassinsInitiative.remain() >= cd.global.remain() + 0.2 or debuff.surgeOfToxins.remain("target") < cd.global.remain() + 0.2 or powerDeficit <= 25 + energyRegenCombined then
             if cast.envenom() then return end
         end
         --actions.finish+=/envenom,if=talent.elaborate_planning.enabled&combo_points>=3+!talent.exsanguinate.enabled&buff.elaborate_planning.remains<gcd.remains+0.2
-        if talent.elaboratePlanning and comboPoints >= 3 + buff.elaboratePlanning.remain() < cd.global + 0.2 and not talent.exsanguinate then
+        if talent.elaboratePlanning and comboPoints >= 3 + buff.elaboratePlanning.remain() < cd.global.remain() + 0.2 and not talent.exsanguinate then
             if cast.envenom() then return end
         end
         
@@ -869,7 +868,7 @@ local function runRotation()
                     if actionList_Maintain() then return true end
                     --# The 'active_dot.rupture>=spell_targets.rupture' means that we don't want to envenom as long as we can multi-rupture (i.e. units that don't have rupture yet).
                     --actions+=/call_action_list,name=finish,if=(!talent.exsanguinate.enabled|cooldown.exsanguinate.remains>2)&(!dot.rupture.refreshable|(dot.rupture.exsanguinated&dot.rupture.remains>=3.5)|target.time_to_die-dot.rupture.remains<=6)&active_dot.rupture>=spell_targets.rupture
-                    if (not talent.exsanguinate or cd.exsanguinate > 2) and (not debuff.rupture.refresh(units.dyn5) or (exRupture and debuff.rupture.remain(units.dyn5) >= 3.5)) then
+                    if (not talent.exsanguinate or cd.exsanguinate.remain() > 2) and (not debuff.rupture.refresh(units.dyn5) or (exRupture and debuff.rupture.remain(units.dyn5) >= 3.5)) then
                         if actionList_Finishers() then return true end
                     end
                     --actions+=/call_action_list,name=build,if=combo_points.deficit>1|energy.deficit<=25+variable.energy_regen_combined

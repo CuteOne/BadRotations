@@ -1,5 +1,6 @@
 br.loader = {}
 function br.loader:new(spec,specName)
+    local loadStart = debugprofilestop()
     br.loader.rotations = {}
     for k, v in pairs(br.rotations) do
         if spec == k then
@@ -38,16 +39,6 @@ function br.loader:new(spec,specName)
             end
         end        
     end
-    -- self.spell = mergeIdTables(self.spell)
-
-    -- Add Artifact Ability
-    -- for k,v in pairs(self.spell.artifacts) do
-    --     if not IsPassiveSpell(v) then
-    --         self.spell['abilities'][k] = v
-    --         self.spell[k] = v
-    --         break
-    --     end
-    -- end
 
     -- Update Talent Info
     local function getTalentInfo()
@@ -84,6 +75,90 @@ function br.loader:new(spec,specName)
         end
     end
     cframe:SetScript("OnEvent", cframe.OnEvent)
+
+    -- if not UnitAffectingCombat("player") then
+    -- Build Artifact Info
+    for k,v in pairs(self.spell.artifacts) do
+        if not self.artifact[k] then self.artifact[k] = {} end
+        local artifact = self.artifact[k]
+
+        artifact.enabled = function() 
+            return hasPerk(v)
+        end
+        artifact.rank = function()
+            return getPerkRank(v)
+        end
+    end
+
+    -- Update Power       
+    if not self.power then self.power = {} end
+    self.power.list     = {
+        mana            = SPELL_POWER_MANA, --0,
+        rage            = SPELL_POWER_RAGE, --1,
+        focus           = SPELL_POWER_FOCUS, --2,
+        energy          = SPELL_POWER_ENERGY, --3,
+        comboPoints     = SPELL_POWER_COMBO_POINTS, --4,
+        runes           = SPELL_POWER_RUNES, --5,
+        runicPower      = SPELL_POWER_RUNIC_POWER, --6,
+        soulShards      = SPELL_POWER_SOUL_SHARDS, --7,
+        astralPower     = SPELL_POWER_LUNAR_POWER, --8,
+        holyPower       = SPELL_POWER_HOLY_POWER, --9,
+        altPower        = SPELL_POWER_ALTERNATE_POWER, --10,
+        maelstrom       = SPELL_POWER_MAELSTROM, --11,
+        chi             = SPELL_POWER_CHI, --12,
+        insanity        = SPELL_POWER_INSANITY, --13,
+        obsolete        = 14,
+        obsolete2       = 15,
+        arcaneCharges   = SPELL_POWER_ARCANE_CHARGES, --16,
+        fury            = SPELL_POWER_FURY, --17,
+        pain            = SPELL_POWER_PAIN, --18,
+    }
+    for k, v in pairs(self.power.list) do
+        if not self.power[k] then self.power[k] = {} end
+        local power = self.power[k]
+
+        power.amount = function()
+            if select(2,UnitClass("player")) == "DEATHKNIGHT" and v == 5 then
+                local runeCount = 0
+                for i = 1, 6 do
+                    runeCount = runeCount + GetRuneCount(i)
+                end
+                return runeCount
+            else
+                return getPower("player",v)
+            end
+        end
+        power.deficit = function()
+            return getPowerMax("player",v) - getPower("player",v)
+        end
+        power.frac = function()
+            if select(2,UnitClass("player")) == "DEATHKNIGHT" and v == 5 then
+                local runeCount = 0
+                for i = 1, 6 do
+                    runeCount = runeCount + GetRuneCount(i)
+                end
+                return runeCount + math.max(runeCDPercent(1),runeCDPercent(2),runeCDPercent(3),runeCDPercent(4),runeCDPercent(5),runeCDPercent(6))
+            else
+                return 0
+            end
+        end
+        power.max = function()
+            return getPowerMax("player",v)
+        end
+        power.percent = function()
+            if getPowerMax("player",v) == 0 then
+                return 0
+            else    
+                return ((getPower("player",v) / getPowerMax("player",v)) * 100)
+            end
+        end
+        power.regen = function()
+            return getRegen("player")
+        end
+        power.ttm = function()
+            return getTimeToMax("player")
+        end
+    end
 
     -- Build Buff Info
     for k,v in pairs(self.spell.buffs) do
@@ -193,17 +268,19 @@ function br.loader:new(spec,specName)
             if sourceUnit == nil then sourceUnit = 'player' end
             return debuff.remain(thisUnit,sourceUnit) <= debuff.duration(thisUnit,sourceUnit) * 0.3
         end
-        debuff.calc = function()
-            return self.getSnapshotValue(v)
-        end
         debuff.count = function()
             return tonumber(getDebuffCount(v))
         end
         debuff.remainCount = function(remain)
             return tonumber(getDebuffRemainCount(v,remain))
         end
-        debuff.applied = function(thisUnit)
-            return debuff.bleed[thisUnit] or 0
+        if spec == 103 then
+            debuff.calc = function()
+                return self.getSnapshotValue(v)
+            end
+            debuff.applied = function(thisUnit)
+                return debuff.bleed[thisUnit] or 0
+            end
         end
     end
     
@@ -251,6 +328,37 @@ function br.loader:new(spec,specName)
     for k,v in pairs(self.spell.abilities) do
         if self.cast            == nil then self.cast               = {} end        -- Cast Spell Functions
         if self.cast.debug      == nil then self.cast.debug         = {} end        -- Cast Spell Debugging
+        if self.charges[k]      == nil then self.charges[k]         = {} end        -- Spell Charge Functions 
+        if self.cd[k]           == nil then self.cd[k]              = {} end        -- Spell Cooldown Functions 
+
+        -- Build Spell Charges
+        self.charges[k].exists = function()
+            return getCharges(v) > 0
+        end
+        self.charges[k].count = function()
+            return getCharges(v)
+        end
+        self.charges[k].frac = function()
+            return getChargesFrac(v)
+        end
+        self.charges[k].max = function()
+            return getChargesFrac(v,true)
+        end
+        self.charges[k].recharge = function()
+            return getRecharge(v)
+        end
+        self.charges[k].timeTillFull = function()
+            return getFullRechargeTime(v)
+        end
+
+        -- Build Spell Cooldown
+        local cd = self.cd[k]
+        cd.exists = function()
+            return getSpellCD(v) > 0
+        end
+        cd.remain = function()
+            return getSpellCD(v)
+        end
 
         -- Build Cast Funcitons
         self.cast[k] = function(thisUnit,debug,minUnits,effectRng)
@@ -350,7 +458,7 @@ function br.loader:new(spec,specName)
     function self.update()
         -- Call baseUpdate()
         self.baseUpdate()
-        self.cBuilder()
+        self.getBleeds()
         -- self.getPetInfo()
         self.getToggleModes()
         -- Start selected rotation
@@ -358,135 +466,22 @@ function br.loader:new(spec,specName)
     end
 
 ---------------
---- BUILDER ---
+--- BLEEDS  ---
 ---------------
-    function self.cBuilder()
-        -- local timeStart = debugprofilestop()
-        -- Update Power
-        powerList     = {
-            mana            = SPELL_POWER_MANA, --0,
-            rage            = SPELL_POWER_RAGE, --1,
-            focus           = SPELL_POWER_FOCUS, --2,
-            energy          = SPELL_POWER_ENERGY, --3,
-            comboPoints     = SPELL_POWER_COMBO_POINTS, --4,
-            runes           = SPELL_POWER_RUNES, --5,
-            runicPower      = SPELL_POWER_RUNIC_POWER, --6,
-            soulShards      = SPELL_POWER_SOUL_SHARDS, --7,
-            astralPower     = SPELL_POWER_LUNAR_POWER, --8,
-            holyPower       = SPELL_POWER_HOLY_POWER, --9,
-            altPower        = SPELL_POWER_ALTERNATE_POWER, --10,
-            maelstrom       = SPELL_POWER_MAELSTROM, --11,
-            chi             = SPELL_POWER_CHI, --12,
-            insanity        = SPELL_POWER_INSANITY, --13,
-            obsolete        = 14,
-            obsolete2       = 15,
-            arcaneCharges   = SPELL_POWER_ARCANE_CHARGES, --16,
-            fury            = SPELL_POWER_FURY, --17,
-            pain            = SPELL_POWER_PAIN, --18,
-        }
-
-        local function runeCDPercent(runeIndex)
-            if GetRuneCount(runeIndex) == 0 then
-                return (GetTime() - select(1,GetRuneCooldown(runeIndex))) / select(2,GetRuneCooldown(runeIndex))
-            else
-                return 0
-            end
-        end
-        local function runeRecharge(runeIndex)
-            if not select(3,GetRuneCooldown(runeIndex)) then
-                return select(2,GetRuneCooldown(runeIndex)) - (GetTime() - select(1,GetRuneCooldown(runeIndex)))
-            else
-                return 0
-            end
-        end
-        function runeTimeTill(runeIndex)
-            local runeCDs = {}
-            local runeCount = 0
-            local timeTill = 0
-            for i = 1, 6 do
-                runeCount = runeCount + GetRuneCount(i)
-                if runeCDs[runeIndex] == nil then
-                    runeCDs[i] = runeRecharge(i)
-                end
-            end
-            if runeCount < runeIndex then
-                for k, v in pairs(runeCDs) do
-                    timeTill = timeTill + v
-                end
-            end
-            return timeTill
-        end  
-        if self.power == nil then self.power = {} end
-        -- for i = 0, #powerList do
-        for k, v in pairs(powerList) do
-            if UnitPower("player",v) ~= nil then
-                if self.power[k] == nil then self.power[k] = {} end
-                if self.power.amount == nil then self.power.amount = {} end
-                local powerV = getPower("player",v)
-                local powerMaxV = getPowerMax("player",v)
-                self.power[k].amount    = powerV
-                self.power[k].max       = powerMaxV
-                self.power[k].deficit   = powerMaxV - powerV
-                if powerMaxV == 0 then
-                    self.power[k].percent   = 0
-                else    
-                    self.power[k].percent   = ((powerV / powerMaxV) * 100)
-                end
-                self.power.amount[k]    = powerV
-                -- DKs are special snowflakes
-                if select(2,UnitClass("player")) == "DEATHKNIGHT" and v == 5 then
-                    local runeCount = 0
-                    for i = 1, 6 do
-                        runeCount = runeCount + GetRuneCount(i)
-                    end
-                    self.power.amount[k]    = runeCount
-                    self.power[k].frac      = runeCount + math.max(runeCDPercent(1),runeCDPercent(2),runeCDPercent(3),runeCDPercent(4),runeCDPercent(5),runeCDPercent(6))
-                end
-            end
-        end
-        self.power.regen     = getRegen("player")
-        self.power.ttm       = getTimeToMax("player")
-
-        if not UnitAffectingCombat("player") then
-            -- Build Artifact Info
-            for k,v in pairs(self.spell.artifacts) do
-                self.artifact[k] = hasPerk(v) or false
-                self.artifact.rank[k] = getPerkRank(v) or 0
-            end
-        end
-
-        for k, v in pairs(self.debuff) do
-            if k == "rake" or k == "rip" then
-                if self.debuff[k].bleed == nil then self.debuff[k].bleed = {} end
-                for l, w in pairs(self.debuff[k].bleed) do
-                    if not UnitAffectingCombat("player") or UnitIsDeadOrGhost(l) then
-                        self.debuff[k].bleed[l] = nil
-                    elseif not self.debuff[k].exists(l) then
-                        self.debuff[k].bleed[l] = 0
+    function self.getBleeds()
+        if spec == 103 then
+            for k, v in pairs(self.debuff) do
+                if k == "rake" or k == "rip" then
+                    if self.debuff[k].bleed == nil then self.debuff[k].bleed = {} end
+                    for l, w in pairs(self.debuff[k].bleed) do
+                        if not UnitAffectingCombat("player") or UnitIsDeadOrGhost(l) then
+                            self.debuff[k].bleed[l] = nil
+                        elseif not self.debuff[k].exists(l) then
+                            self.debuff[k].bleed[l] = 0
+                        end
                     end
                 end
             end
-        end
-
-        -- Cycle through Abilities List
-        for k,v in pairs(self.spell.abilities) do
-            if self.cast            == nil then self.cast               = {} end        -- Cast Spell Functions
-            if self.cast.debug      == nil then self.cast.debug         = {} end        -- Cast Spell Debugging
-            if self.charges.frac    == nil then self.charges.frac       = {} end        -- Charges Fractional
-            if self.charges.max     == nil then self.charges.max        = {} end        -- Charges Maximum
-
-            -- Build Spell Charges
-            self.charges[k]     = getCharges(v)
-            self.charges.frac[k]= getChargesFrac(v)
-            self.charges.max[k] = getChargesFrac(v,true)
-            self.recharge[k]    = getRecharge(v)
-            self.rechargeFull[k]= getFullRechargeTime(v)
-
-            -- Build Spell Cooldown
-            self.cd[k] = getSpellCD(v)
-
-            -- Build Cast Debug
-            self.cast.debug[k] = self.cast[k](nil,"debug")
         end
     end
 
@@ -547,7 +542,6 @@ function br.loader:new(spec,specName)
         -- Get the names of all profiles and create rotation dropdown
         local names = {}
         for i=1,#self.rotations do
-
             -- if spec == self.rotations[i].spec then
                 tinsert(names, self.rotations[i].name)
             -- end
@@ -654,14 +648,14 @@ function br.loader:new(spec,specName)
     end
 
     function ComboSpend()
-        return math.min(br.player.power.amount.comboPoints, ComboMaxSpend())
+        return math.min(br.player.power.comboPoints.amount(), ComboMaxSpend())
     end
 
     function mantleDuration()
         if hasEquiped(144236) then
             --if br.player.buff.masterAssassinsInitiative.remain("player") > 100 or br.player.buff.masterAssassinsInitiative.remain("player") < 0 then
             if br.player.buff.masterAssassinsInitiative.exists("player") and (getBuffRemain("player",235027) > 100 or getBuffRemain("player",235027) < 100) then
-                return br.player.cd.global + 5
+                return br.player.cd.global.remain() + 5
             else
                 --return br.player.buff.masterAssassinsInitiative.remain("player")
                 if getBuffRemain("player",235027) >= 0 and getBuffRemain("player",235027) < 0.1 then
@@ -679,6 +673,8 @@ function br.loader:new(spec,specName)
         return (br.player.debuff.garrote.exists("target") and 1 or 0) + (br.player.debuff.rupture.exists("target") and 1 or 0) + (br.player.debuff.internalBleeding.exists("target") and 1 or 0)
     end
 
+    -- Debugging
+        br.debug.cpu.cBuilder.loadTime = debugprofilestop()-loadStart
 -----------------------------
 --- CALL CREATE FUNCTIONS ---
 -----------------------------

@@ -183,14 +183,13 @@ local function runRotation()
         local mode                                          = br.player.mode
         local perk                                          = br.player.perk
         local php                                           = br.player.health
-        local power, powmax, powgen                         = br.player.power.amount.mana, br.player.power.mana.max, br.player.power.regen
+        local power, powmax, powgen                         = br.player.power.mana.amount(), br.player.power.mana.max(), br.player.power.mana.regen()
         local pullTimer                                     = br.DBM:getPulltimer()
         local race                                          = br.player.race
         local racial                                        = br.player.getRacial()
-        local recharge                                      = br.player.recharge
         local spell                                         = br.player.spell
         local talent                                        = br.player.talent
-        local ttm                                           = br.player.power.ttm
+        local ttm                                           = br.player.power.mana.ttm()
         local units                                         = units or {}
 
         units.dyn5 = br.player.units(5)
@@ -373,7 +372,7 @@ local function runRotation()
                     if cast.holyShock(units.dyn40) then return end
                 end
                 -- Crusader Strike
-                if isChecked("Crusader Strike") and (charges.crusaderStrike == 2 or debuff.judgement.exists(units.dyn5) or (charges.crusaderStrike >= 1 and recharge.crusaderStrike < 3)) then
+                if isChecked("Crusader Strike") and (charges.crusaderStrike.count() == 2 or debuff.judgement.exists(units.dyn5) or (charges.crusaderStrike.count() >= 1 and charges.crusaderStrike.recharge() < 3)) then
                     if not UnitIsFriend(units.dyn5, "player") then
                         if cast.crusaderStrike(units.dyn5) then return end
                     end
@@ -661,7 +660,7 @@ local function runRotation()
                     if cast.holyShock(units.dyn40) then return end
                 end
                 -- Crusader Strike
-                if isChecked("Crusader Strike") and (charges.crusaderStrike == 2 or debuff.judgement.exists(units.dyn5) or (charges.crusaderStrike >= 1 and recharge.crusaderStrike < 3)) then
+                if isChecked("Crusader Strike") and (charges.crusaderStrike.count() == 2 or debuff.judgement.exists(units.dyn5) or (charges.crusaderStrike.count() >= 1 and charges.crusaderStrike.recharge() < 3)) then
                     if not UnitIsFriend(units.dyn5, "player") then
                         if cast.crusaderStrike(units.dyn5) then return end
                     end

@@ -230,7 +230,7 @@ local function runRotation()
 		local buff                                          = br.player.buff
 		local cast                                          = br.player.cast
 		-- local combatTime                                    = getCombatTime()
-		local combo                                         = br.player.power.amount.comboPoints
+		local combo                                         = br.player.power.comboPoints.amount()
 		-- local cd                                            = br.player.cd
 		-- local charges                                       = br.player.charges
 		local debuff                                        = br.player.debuff
@@ -249,15 +249,14 @@ local function runRotation()
 		local level                                         = br.player.level
 		local lowest                                        = br.friend[1]
 		local lowestHP                                      = br.friend[1].unit
-		local mana                                          = br.player.power.mana.percent
+		local mana                                          = br.player.power.mana.percent()
 		local mode                                          = br.player.mode
 		-- local perk                                          = br.player.perk
 		local php                                           = br.player.health
-		local power, powmax, powgen                         = br.player.power.amount.mana, br.player.power.mana.max, br.player.power.regen
+		local power, powmax, powgen                         = br.player.power.mana.amount(), br.player.power.mana.max(), br.player.power.mana.regen()
 		local pullTimer                                     = br.DBM:getPulltimer()
 		local race                                          = br.player.race
 		local racial                                        = br.player.getRacial()
-		-- local recharge                                      = br.player.recharge
 		local rejuvCount                                    = 0
 		-- local rkTick                                        = 3
 		-- local rpTick                                        = 2
@@ -265,7 +264,7 @@ local function runRotation()
 		local spell                                         = br.player.spell
 		local talent                                        = br.player.talent
 		local travel, flight, cat, moonkin, bear, noform    = br.player.buff.travelForm.exists(), br.player.buff.flightForm.exists(), br.player.buff.catForm.exists(), br.player.buff.moonkinForm.exists(), br.player.buff.bearForm.exists(), GetShapeshiftForm()==0
-		-- local ttm                                           = br.player.power.ttm
+		-- local ttm                                           = br.player.power.mana.ttm()
 		local units                                         = units or {}
 		-- local lowestTank                                    = {}    --Tank
 		local bloomCount                                    = 0
@@ -1063,7 +1062,7 @@ local function runRotation()
 			-- Guardian Affinity/Level < 45
 			if talent.guardianAffinity or level < 45 then
 				if bear then
-					if br.player.power.amount.rage >= 60 then
+					if br.player.power.rage.amount() >= 60 then
 						if cast.ironfur() then return end
 					end
 					if cast.mangle(units.dyn5) then return end

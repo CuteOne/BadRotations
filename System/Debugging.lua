@@ -19,23 +19,36 @@ br.debug.cpu.healingEngine = {
     absorbANDhp = 0,
 }
 br.debug.cpu.enemiesEngine = {
-    elapsedTime = 0,
-    totalIterations = 0,
-    currentTime = 0,
-    averageTime = 0,
-    sanityTargets = 0,
-    unitTargets = 0,
+    units = {
+        elapsedTime = 0,
+        totalIterations = 0,
+        currentTime = 0,
+        averageTime = 0,
+        targets = 0,
+        addTime = 0,
+        cycleTime = 0,
+    },
+    enemy = {
+        elapsedTime = 0,
+        totalIterations = 0,
+        currentTime = 0,
+        averageTime = 0,
+        targets = 0,
+        addTime = 0,
+    },
     dynamicTarget = 0,
     getEnemies = 0,
-    countTime = 0,
     bestUnitFinder = 0,
-    cycleTime = 0,
 }
 br.debug.cpu.cBuilder = {
+    loadTime = 0,
     elapsedTime = 0,
     totalIterations = 0,
     currentTime = 0,
     averageTime = 0,
+    baseUpdate = 0,
+    startRotation = 0,
+    profile = 0,
 }
 br.debug.cpu.pulse = {
     elapsedTime = 0,

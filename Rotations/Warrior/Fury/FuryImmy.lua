@@ -228,11 +228,10 @@ local function runRotation()
         local perk                                          = br.player.perk
         local php                                           = br.player.health
         local playerMouse                                   = UnitIsPlayer("mouseover")
-        local power, powerMax, powerGen                     = br.player.power.amount.rage, br.player.power.rage.max, br.player.power.regen
+        local power, powerMax, powerGen                     = br.player.power.rage.amount(), br.player.power.rage.max(), br.player.power.rage.regen()
         local pullTimer                                     = br.DBM:getPulltimer()
         local race                                          = br.player.race
         local racial                                        = br.player.getRacial()
-        local recharge                                      = br.player.recharge
         local solo                                          = br.player.instance=="none"
         local spell                                         = br.player.spell
         local talent                                        = br.player.talent
@@ -240,7 +239,7 @@ local function runRotation()
         local tier19_2pc                                    = TierScan("T19") >= 2
         local tier19_4pc                                    = TierScan("T19") >= 4   
         local ttd                                           = getTTD
-        local ttm                                           = br.player.power.ttm
+        local ttm                                           = br.player.power.rage.ttm()
         local units                                         = units or {}
 
         units.dyn5 = br.player.units(5)
@@ -250,7 +249,7 @@ local function runRotation()
         enemies.yards30 = br.player.enemies(30)        
         enemies.yards40 = br.player.enemies(40)
         if hasEquiped(140806) then convergingFate = 1 else convergingFate = 0 end
-        if canUse(140808) and cd.bloodthirst == 0 and thp < 20 and mode.exec == 1 then delaybc = true else delaybc = false end
+        if canUse(140808) and cd.bloodthirst.remain() == 0 and thp < 20 and mode.exec == 1 then delaybc = true else delaybc = false end
         if buff.battleCry.exists() and buff.battleCry.remain() <= gcd then mode.dos = 2 end
 
 
@@ -319,7 +318,7 @@ local function runRotation()
                     end
                 end
             -- Gift of the Naaru
-                if isChecked("Gift of the Naaru") and php <= getOptionValue("Gift of the Naaru") and php > 0 and cd.giftOfTheNaaru==0 then
+                if isChecked("Gift of the Naaru") and php <= getOptionValue("Gift of the Naaru") and php > 0 and cd.giftOfTheNaaru.remain()==0 then
                     if cast.giftOfTheNaaru() then return end
                 end
             -- Commanding Shout
@@ -392,22 +391,22 @@ local function runRotation()
         -- Dragon Roar
                 -- dragon_roar,if=(equipped.convergence_of_fates&cooldown.battle_cry.remains<2)|!equipped.convergence_of_fates&(!cooldown.battle_cry.remains<=10|cooldown.battle_cry.remains<2)
                 if isChecked("Dragon Roar") then
-                    if (hasEquiped(140806) and cd.battleCry < 2) or not hasEquiped(140806) and (cd.battleCry > 10 or cd.battleCry < 2) then
+                    if (hasEquiped(140806) and cd.battleCry.remain() < 2) or not hasEquiped(140806) and (cd.battleCry.remain() > 10 or cd.battleCry.remain() < 2) then
                         if cast.dragonRoar() then return end
                     end
                 end
         -- Battle Cry
                 if isChecked("Battle Cry") then
                     -- battle_cry,if=gcd.remains=0&talent.reckless_abandon.enabled
-                    if cd.global == 0 and (talent.recklessAbandon or (level < 100 and (not talent.frothingBerserker or (talent.frothingBerserker and buff.frothingBerserker.exists())))) then
+                    if cd.global.remain() == 0 and (talent.recklessAbandon or (level < 100 and (not talent.frothingBerserker or (talent.frothingBerserker and buff.frothingBerserker.exists())))) then
                         if cast.battleCry() then return end
                     end
                     -- battle_cry,if=gcd.remains=0&talent.bladestorm.enabled&(raid_event.adds.in>90|!raid_event.adds.exists|spell_targets.bladestorm_mh>desired_targets)
-                    if cd.global == 0 and talent.bladestorm and mode.rotation == 1 then
+                    if cd.global.remain() == 0 and talent.bladestorm and mode.rotation == 1 then
                         if cast.battleCry() then return end
                     end
                     -- battle_cry,if=gcd.remains=0&buff.dragon_roar.up&(cooldown.bloodthirst.remains=0|buff.enrage.remains>cooldown.bloodthirst.remains)
-                    if cd.global == 0 and buff.dragonRoar.exists() and (cd.bloodthirst == 0 or buff.enrage.remain() > cd.bloodthirst) then
+                    if cd.global.remain() == 0 and buff.dragonRoar.exists() and (cd.bloodthirst.remain() == 0 or buff.enrage.remain() > cd.bloodthirst.remain()) then
                         if cast.battleCry() then return end
                     end
                 end
@@ -424,14 +423,14 @@ local function runRotation()
         -- Avatar
                 -- avatar,if=buff.battle_cry.remains>6|cooldown.battle_cry.remains<10|(target.time_to_die<(cooldown.battle_cry.remains+10))
                 if isChecked("Avatar") then
-                    if buff.battleCry.remain() > 6 or cd.battleCry < 10 then
+                    if buff.battleCry.remain() > 6 or cd.battleCry.remain() < 10 then
                         if cast.avatar() then return end
                     end
                 end
         -- Bloodbath
                 -- bloodbath,if=buff.dragon_roar.up|(!talent.dragon_roar.enabled&(buff.battle_cry.up|cooldown.battle_cry.remains>40))
                 if isChecked("Bloodbath") then
-                    if buff.dragonRoar.exists() or (not talent.dragonRoar and (buff.battleCry.exists() or cd.battleCry > 40)) then
+                    if buff.dragonRoar.exists() or (not talent.dragonRoar and (buff.battleCry.exists() or cd.battleCry.remain() > 40)) then
                         if cast.bloodbath() then return end
                     end
                 end
@@ -485,7 +484,7 @@ local function runRotation()
                 end
         -- Charge
                 -- charge
-                if (cd.heroicLeap > 0 and cd.heroicLeap < 43) or level < 26 then
+                if (cd.heroicLeap.remain() > 0 and cd.heroicLeap.remain() < 43) or level < 26 then
                     if cast.charge("target") then return end
                 end
         -- Storm Bolt
@@ -493,7 +492,7 @@ local function runRotation()
                 if cast.stormBolt("target") then return end
         -- Heroic Throw
                 -- heroic_throw
-                if lastSpell == spell.charge or charges.charge == 0 then
+                if lastSpell == spell.charge or charges.charge.count() == 0 then
                     if cast.heroicThrow("target") then return end
                 end
             end
@@ -515,7 +514,7 @@ local function runRotation()
         function actionList_BattleCryWindow()
         -- Raging Blow
             --rb if enrage
-            if talent.innerRage and buff.enrage.exists() and cd.ragingBlow == 0 then
+            if talent.innerRage and buff.enrage.exists() and cd.ragingBlow.remain() == 0 then
                 if cast.ragingBlow() then return end
             end
 
@@ -533,11 +532,11 @@ local function runRotation()
                 if cast.odynsFury("player") then return end
             end
         -- Bloodthirst
-        if cd.ragingBlow > 0 then
+        if cd.ragingBlow.remain() > 0 then
             if cast.bloodthirst() then return end
         end
         -- Furious Slash
-        if cd.ragingBlow > 0 then
+        if cd.ragingBlow.remain() > 0 then
             if cast.furiousSlash() then return end
         end
         end -- End Action List - Battle Cry Window
@@ -589,12 +588,12 @@ local function runRotation()
             end            
         -- Raging Blow
             -- raging_blow,if=talent.inner_rage.enabled&buff.enrage.up
-            if ((useCDs() and cd.battleCry > 0) or not useCDs()) and cd.ragingBlow == 0 and (talent.innerRage or buff.enrage.exists()) then
+            if ((useCDs() and cd.battleCry.remain() > 0) or not useCDs()) and cd.ragingBlow.remain() == 0 and (talent.innerRage or buff.enrage.exists()) then
                 if cast.ragingBlow() then return end
             end
         -- Execute
             -- execute,if=buff.stone_heart.react&((talent.inner_rage.enabled&cooldown.raging_blow.remains>1)|buff.enrage.up)
-            if buff.stoneHeart.exists() and ((talent.innerRage and cd.ragingBlow > 1) or buff.enrage.exists()) then
+            if buff.stoneHeart.exists() and ((talent.innerRage and cd.ragingBlow.remain() > 1) or buff.enrage.exists()) then
                 if cast.execute() then return end
             end
         -- Whirlwind
@@ -603,12 +602,12 @@ local function runRotation()
                 if cast.whirlwind("player") then return end
             end
         -- Bloodthirst
-            if (useCDs() and cd.battleCry > 0) or not useCDs() then
+            if (useCDs() and cd.battleCry.remain() > 0) or not useCDs() then
                 if cast.bloodthirst() then return end
             end
         -- Furious Slash
             -- furious_slash
-            if (useCDs() and cd.battleCry > 0) or not useCDs() and cd.ragingBlow > 0 then
+            if (useCDs() and cd.battleCry.remain() > 0) or not useCDs() and cd.ragingBlow.remain() > 0 then
                 if cast.furiousSlash() then return end
             end
         end -- End Action List - Single
@@ -618,7 +617,7 @@ local function runRotation()
                 if cast.bloodthirst() then return end
             end
 
-            if buff.senseDeath.exists() or (useCDs() and cd.battleCry <= 5) or power >= 100 or (buff.battleCry.exists() and buff.juggernaut.stack() >= 20) or (buff.juggernaut.remain() <= gcd + 0.5 and buff.juggernaut.exists()) then
+            if buff.senseDeath.exists() or (useCDs() and cd.battleCry.remain() <= 5) or power >= 100 or (buff.battleCry.exists() and buff.juggernaut.stack() >= 20) or (buff.juggernaut.remain() <= gcd + 0.5 and buff.juggernaut.exists()) then
                 if cast.execute() then return end
             end
             if cast.bloodthirst() then return end
@@ -637,7 +636,7 @@ local function runRotation()
                 if cast.bloodthirst() then return end
             end
         -- Execute
-            -- execute,if=artifact.juggernaut.enabled&(!buff.juggernaut.up|buff.juggernaut.remains<2)|buff.stone_heart.react
+            -- execute,if=artifact.juggernaut.enabled().enabled&(!buff.juggernaut.up|buff.juggernaut.remains<2)|buff.stone_heart.react
             if power >= 25 or buff.senseDeath.exists() then
                 if cast.execute() then return end
             end
@@ -653,7 +652,7 @@ local function runRotation()
             end 
         -- Bloodthirst
             -- bloodthirst
-            if not useCDs() or useCDs() or cd.battleCry == 0 then
+            if not useCDs() or useCDs() or cd.battleCry.remain() == 0 then
                 if cast.bloodthirst() then return end
             end
         -- Raging Blow
@@ -678,7 +677,7 @@ local function runRotation()
             end            
         -- Bloodthirst
             -- bloodthirst
-            if ((useCDs() and cd.battleCry > 0) or not useCDs() or cd.battleCry == 0)  and buff.meatCleaver.exists() then
+            if ((useCDs() and cd.battleCry.remain() > 0) or not useCDs() or cd.battleCry.remain() == 0)  and buff.meatCleaver.exists() then
                 if cast.bloodthirst() then return end
             end
         -- Whirlwind
@@ -718,17 +717,17 @@ local function runRotation()
             end   
         -- Raging Blow
             -- raging_blow,if=talent.inner_rage.enabled&buff.enrage.up
-            if ((useCDs() and cd.battleCry > 0) or not useCDs() or cd.battleCry == 0) and (talent.innerRage or buff.enrage.exists()) then
+            if ((useCDs() and cd.battleCry.remain() > 0) or not useCDs() or cd.battleCry.remain() == 0) and (talent.innerRage or buff.enrage.exists()) then
                 if cast.ragingBlow() then return end
             end
         -- Execute
             -- execute,if=buff.stone_heart.react&((talent.inner_rage.enabled&cooldown.raging_blow.remains>1)|buff.enrage.up)
-            if buff.stoneHeart.exists() and ((talent.innerRage and cd.ragingBlow > 1) or buff.enrage.exists()) then
+            if buff.stoneHeart.exists() and ((talent.innerRage and cd.ragingBlow.remain() > 1) or buff.enrage.exists()) then
                 if cast.execute() then return end
             end
         -- Bloodthirst
             -- bloodthirst
-            if ((useCDs() and cd.battleCry > 0) or not useCDs() or cd.battleCry == 0) and buff.meatCleaver.exists() then
+            if ((useCDs() and cd.battleCry.remain() > 0) or not useCDs() or cd.battleCry.remain() == 0) and buff.meatCleaver.exists() then
                 if cast.bloodthirst() then return end
             end
             -- whirlwind,if=buff.wrecking_ball.react&buff.enrage.up
@@ -758,22 +757,22 @@ local function runRotation()
             end   
         -- Raging Blow
             -- raging_blow,if=talent.inner_rage.enabled&buff.enrage.up
-            if ((useCDs() and cd.battleCry > 0) or not useCDs()) and (talent.innerRage or buff.enrage.exists()) then
+            if ((useCDs() and cd.battleCry.remain() > 0) or not useCDs()) and (talent.innerRage or buff.enrage.exists()) then
                 if cast.ragingBlow() then return end
             end
         -- Execute
             -- execute,if=buff.stone_heart.react&((talent.inner_rage.enabled&cooldown.raging_blow.remains>1)|buff.enrage.up)
-            if buff.stoneHeart.exists() and ((talent.innerRage and cd.ragingBlow > 1) or buff.enrage.exists()) then
+            if buff.stoneHeart.exists() and ((talent.innerRage and cd.ragingBlow.remain() > 1) or buff.enrage.exists()) then
                 if cast.execute() then return end
             end
         -- Bloodthirst
             -- bloodthirst
-            if (useCDs() and cd.battleCry > 0) or not useCDs() or cd.battleCry == 0 then
+            if (useCDs() and cd.battleCry.remain() > 0) or not useCDs() or cd.battleCry.remain() == 0 then
                 if cast.bloodthirst() then return end
             end
         -- Furious Slash
             -- furious_slash
-            if (useCDs() and cd.battleCry > 0) or not useCDs() or cd.battleCry == 0 then
+            if (useCDs() and cd.battleCry.remain() > 0) or not useCDs() or cd.battleCry.remain() == 0 then
                 if cast.furiousSlash() then return end
             end
         end -- End Action List - MultiTarget

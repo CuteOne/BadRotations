@@ -181,7 +181,7 @@ local function runRotation()
         local level                                         = br.player.level
         local lootDelay                                     = getOptionValue("LootDelay")
         local lowestHP                                      = br.friend[1].unit
-        local manaPercent                                   = br.player.power.mana.percent
+        local manaPercent                                   = br.player.power.mana.percent()
         local mode                                          = br.player.mode
         local moveIn                                        = 999
         local moving                                        = isMoving("player")
@@ -189,13 +189,12 @@ local function runRotation()
         local petInfo                                       = br.player.petInfo
         local php                                           = br.player.health
         local playerMouse                                   = UnitIsPlayer("mouseover")
-        local power, powmax, powgen, powerDeficit           = br.player.power.amount.mana, br.player.power.mana.max, br.player.power.regen, br.player.power.mana.deficit
-        local powerPercentMana                              = br.player.power.mana.percent
+        local power, powmax, powgen, powerDeficit           = br.player.power.mana.amount(), br.player.power.mana.max(), br.player.power.mana.regen(), br.player.power.mana.deficit()
+        local powerPercentMana                              = br.player.power.mana.percent()
         local pullTimer                                     = br.DBM:getPulltimer()
         local queue                                         = br.player.queue
         local racial                                        = br.player.getRacial()
-        local recharge                                      = br.player.recharge
-        local shards                                        = br.player.power.amount.soulShards
+        local shards                                        = br.player.power.soulShards.amount()
         local summonPet                                     = getOptionValue("Summon Pet")
         local solo                                          = br.player.instance=="none"
         local spell                                         = br.player.spell
@@ -203,7 +202,7 @@ local function runRotation()
         local talent                                        = br.player.talent
         local travelTime                                    = getDistance("target")/16
         local ttd                                           = getTTD
-        local ttm                                           = br.player.power.ttm
+        local ttm                                           = br.player.power.mana.ttm()
         local units                                         = units or {}
 
         units.dyn40 = br.player.units(40)
@@ -249,7 +248,7 @@ local function runRotation()
         if summonPet == 3 then summonId = 417 end
         if summonPet == 4 then summonId = 1863 end
         if summonPet == 5 then summonId = 17252 end
-        if cd.grimoireOfService == 0 or prevService == nil then prevService = "None" end
+        if cd.grimoireOfService.remain() == 0 or prevService == nil then prevService = "None" end
 
         local doomguard = false
         local infernal = false
@@ -445,7 +444,7 @@ local function runRotation()
                         end
                     end
                 -- Summon Doomguard
-                    -- summon_doomguard,if=talent.grimoire_of_supremacy.enabled&active_enemies<3&artifact.lord_of_flames.rank=0
+                    -- summon_doomguard,if=talent.grimoire_of_supremacy.enabled&active_enemies<3&artifact.lord_of_flames.rank()=0
                     if useCDs() and isChecked("Summon Doomguard") then
                         if talent.grimoireOfSupremacy and #enemies.yards8 < 3 then
                             if cast.summonDoomguard() then return end
@@ -556,7 +555,7 @@ local function runRotation()
         -- Dimensional Rift
                     -- dimensional_rift,if=charges=3
                     if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()) then
-                        if charges.dimensionalRift == 3 then
+                        if charges.dimensionalRift.count() == 3 then
                             if cast.dimensionalRift() then return end
                         end
                     end
@@ -575,7 +574,7 @@ local function runRotation()
                             if isValidUnit(thisUnit) and debuff.immolate.count() < getOptionValue("Multi-Dot Limit") and getHP(thisUnit) > dotHPLimit 
                                 and (not inBossFight or (inBossFight and UnitHealthMax(thisUnit) > bossHPMax * (getOptionValue("Immolate Boss HP Limit") / 100)))
                             then
-                                if debuff.immolate.remain(thisUnit) <= 3 and (not talent.roaringBlaze or (not debuff.roaringBlaze.exists(thisUnit) and charges.conflagrate < 2)) then
+                                if debuff.immolate.remain(thisUnit) <= 3 and (not talent.roaringBlaze or (not debuff.roaringBlaze.exists(thisUnit) and charges.conflagrate.count() < 2)) then
                                     if cast.immolate(thisUnit) then return end
                                 end
                             end
@@ -583,7 +582,7 @@ local function runRotation()
                     end
                     -- immolate,if=talent.roaring_blaze.enabled&remains<=duration&!debuff.roaring_blaze.remain()s&target.time_to_die>10&(action.conflagrate.charges=2+set_bonus.tier19_4pc|(action.conflagrate.charges>=1+set_bonus.tier19_4pc&action.conflagrate.recharge_time<cast_time+gcd)|target.time_to_die<24
                     if talent.roaringBlaze and debuff.immolate.remain(units.dyn40) <= 18 --[[debuff.immolate.duration(units.dyn40) * 0.7 ]]and not debuff.roaringBlaze.exists(units.dyn40)
-                        and ttd(units.dyn40) > 10 and (charges.conflagrate == 2 + hasT19 or (charges.conflagrate >= 1 and recharge.conflagrate < getCastTime(spell.conflagrate) + gcd) or ttd(units.dyn40) < 24)
+                        and ttd(units.dyn40) > 10 and (charges.conflagrate.count() == 2 + hasT19 or (charges.conflagrate.count() >= 1 and charges.conflagrate.recharge() < getCastTime(spell.conflagrate) + gcd) or ttd(units.dyn40) < 24)
                         and debuff.immolate.count() < getOptionValue("Multi-Dot Limit") and getHP(units.dyn40) > dotHPLimit
                         and (not inBossFight or (inBossFight and UnitHealthMax(units.dyn40) > bossHPMax * (getOptionValue("Immolate Boss HP Limit") / 100))) 
                     then
@@ -603,12 +602,12 @@ local function runRotation()
                         if cast.shadowburn(units.dyn40) then return end
                     end
                     -- shadowburn,if=(charges=1&recharge_time<action.chaos_bolt.cast_time|charges=2)&soul_shard<5
-                    if ((charges.shadowburn == 1 and recharge.shadowburn < getCastTime(spell.chaosBolt)) or charges.shadowburn == 2) and shards < 5 then
+                    if ((charges.shadowburn.count() == 1 and charges.shadowburn.recharge() < getCastTime(spell.chaosBolt)) or charges.shadowburn.count() == 2) and shards < 5 then
                         if cast.shadowburn(units.dyn40) then return end
                     end
         -- Conflagrate
                     -- conflagrate,if=talent.roaring_blaze.enabled&(charges=2+set_bonus.tier19_4pc|(charges>=1+set_bonus.tier19_4pc&recharge_time<gcd)|target.time_to_die<24)
-                    if talent.roaringBlaze and (charges.conflagrate == 2 + hasT19 or (charges.conflagrate >= 1 + hasT19 and recharge.conflagrate < gcd) or ttd(units.dyn40) < 24) then
+                    if talent.roaringBlaze and (charges.conflagrate.count() == 2 + hasT19 or (charges.conflagrate.count() >= 1 + hasT19 and charges.conflagrate.recharge() < gcd) or ttd(units.dyn40) < 24) then
                         if cast.conflagrate(units.dyn40) then return end
                     end
                     -- conflagrate,if=talent.roaring_blaze.enabled&debuff.roaring_blaze.stack()>0&dot.immolate.remain()s>dot.immolate.duration()*0.3&(active_enemies=1|soul_shard<3)&soul_shard<5
@@ -620,7 +619,7 @@ local function runRotation()
                         if cast.conflagrate(units.dyn40) then return end
                     end
                     -- conflagrate,if=!talent.roaring_blaze.enabled&!buff.backdraft.remain()s&(charges=1&recharge_time<action.chaos_bolt.cast_time|charges=2)&soul_shard<5
-                    if not talent.roaringBlaze and not buff.backdraft.exists() and ((charges.conflagrate == 1 and recharge.conflagrate < getCastTime(spell.chaosBolt)) or charges.conflagrate == 2) and shards < 5 then
+                    if not talent.roaringBlaze and not buff.backdraft.exists() and ((charges.conflagrate.count() == 1 and charges.conflagrate.recharge() < getCastTime(spell.chaosBolt)) or charges.conflagrate.count() == 2) and shards < 5 then
                         if cast.conflagrate(units.dyn40) then return end
                     end
         -- Life Tap
@@ -631,7 +630,7 @@ local function runRotation()
         -- Dimensional Rift
                     -- dimensional_rift,if=equipped.144369&!buff.lessons_of_spacetime.remain()s&((!talent.grimoire_of_supremacy.enabled&!cooldown.summon_doomguard.remain()s)|(talent.grimoire_of_service.enabled&!cooldown.service_pet.remain()s)|(talent.soul_harvest.enabled&!cooldown.soul_harvest.remain()s))
                     if hasEquiped(144369) and not buff.lessonsOfSpaceTime.exists()
-                        and ((not talent.grimoireOfSupremacy and cd.summonDoomguard > 0) or (not talent.grimoireOfService and cd.grimoireVoidwalker > 0) or (talent.soulHarvest and cd.soulHarvest > 0))
+                        and ((not talent.grimoireOfSupremacy and cd.summonDoomguard.remain() > 0) or (not talent.grimoireOfService and cd.grimoireVoidwalker.remain() > 0) or (talent.soulHarvest and cd.soulHarvest.remain() > 0))
                     then
                         if cast.dimensionalRift() then return end
                     end
@@ -658,9 +657,9 @@ local function runRotation()
                         end
                     end
         -- Summon Infernal
-                    -- summon_infernal,if=artifact.lord_of_flames.rank>0&!buff.lord_of_flames.remain()s
+                    -- summon_infernal,if=artifact.lord_of_flames.rank()>0&!buff.lord_of_flames.remain()s
                     if isChecked("Pet Management") and useCDs() and isChecked("Summon Infernal") then
-                        if artifact.lordOfFlames and not buff.lordOfFlames.exists() then
+                        if artifact.lordOfFlames.enabled() and not buff.lordOfFlames.exists() then
                             if cast.summonInfernal() then return end
                         end
                     end
@@ -681,8 +680,8 @@ local function runRotation()
                         end
                     end
         -- Summon Doomguard
-                    -- summon_doomguard,if=talent.grimoire_of_supremacy.enabled&spell_targets.summon_infernal=1&artifact.lord_of_flames.rank>0&buff.lord_of_flames.remain()s&!pet.doomguard.active
-                    if isChecked("Pet Management") and talent.grimoireOfSupremacy and #enemies.yards8 < 3 and artifact.lordOfFlames and buff.lordOfFlames.exists() then
+                    -- summon_doomguard,if=talent.grimoire_of_supremacy.enabled&spell_targets.summon_infernal=1&artifact.lord_of_flames.rank()>0&buff.lord_of_flames.remain()s&!pet.doomguard.active
+                    if isChecked("Pet Management") and talent.grimoireOfSupremacy and #enemies.yards8 < 3 and artifact.lordOfFlames.enabled() and buff.lordOfFlames.exists() then
                         if cast.summonDoomguard() then return end
                     end
         -- Summon Doomguard
@@ -718,7 +717,7 @@ local function runRotation()
         -- Rain of Fire
                     if isChecked("Rain of Fire") then
                         -- rain_of_fire,if=active_enemies>=3&cooldown.havoc.remain()s<=12&!talent.wreak_havoc.enabled
-                        if ((mode.rotation == 1 and #enemies.yards8t >= getOptionValue("Rain of Fire")) or mode.rotation == 2) and cd.havoc <= 12 and not talent.wreakHavoc then
+                        if ((mode.rotation == 1 and #enemies.yards8t >= getOptionValue("Rain of Fire")) or mode.rotation == 2) and cd.havoc.remain() <= 12 and not talent.wreakHavoc then
                             if cast.rainOfFire(units.dyn40,"ground") then return end
                         end
                         -- rain_of_fire,if=active_enemies>=6&talent.wreak_havoc.enabled
@@ -729,7 +728,7 @@ local function runRotation()
         -- Dimensional Rift
                     -- dimensional_rift,if=!equipped.144369|charges>1|((!talent.grimoire_of_service.enabled|recharge_time<cooldown.service_pet.remain()s)&(!talent.soul_harvest.enabled|recharge_time<cooldown.soul_harvest.remain()s)&(!talent.grimoire_of_supremacy.enabled|recharge_time<cooldown.summon_doomguard.remain()s))
                     if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()) then
-                        if not hasEquiped(144369) or charges.dimensionalRift > 1 or ((not talent.grimoireOfSacrifice or recharge.dimensionalRift < cd.grimoireVoidwalker) and (not talent.soulHarvest or recharge.dimensionalRift < cd.soulHarvest) and (not talent.grimoireOfSupremacy or recharge.dimensionalRift < cd.summonDoomguard)) then
+                        if not hasEquiped(144369) or charges.dimensionalRift.count() > 1 or ((not talent.grimoireOfSacrifice or charges.dimensionalRift.recharge() < cd.grimoireVoidwalker.remain()) and (not talent.soulHarvest or charges.dimensionalRift.recharge() < cd.soulHarvest.remain()) and (not talent.grimoireOfSupremacy or charges.dimensionalRift.recharge() < cd.summonDoomguard.remain())) then
                             if cast.dimensionalRift() then return end
                         end
                     end
@@ -748,7 +747,7 @@ local function runRotation()
                         if cast.chaosBolt() then return end
                     end
                     -- chaos_bolt,if=(cooldown.havoc.remains>12&cooldown.havoc.remains|active_enemies<3|talent.wreak_havoc.enabled&active_enemies<6)
-                    if ((mode.rotation == 1 and ((cd.havoc > 12 and cd.havoc > 0) or #enemies.yards40 < 3 or (talent.wreakHavoc and #enemies.yards40 < 6))) or mode.rotation == 3) and shards >= getOptionValue("Chaos Bolt at Shards") then
+                    if ((mode.rotation == 1 and ((cd.havoc.remain() > 12 and cd.havoc.remain() > 0) or #enemies.yards40 < 3 or (talent.wreakHavoc and #enemies.yards40 < 6))) or mode.rotation == 3) and shards >= getOptionValue("Chaos Bolt at Shards") then
                         if cast.chaosBolt() then return end
                     end
         -- Shadowburn

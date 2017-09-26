@@ -218,7 +218,7 @@ local function runRotation()
     if lastCast == nil then lastCast = 61304 end
     if talent.articGale then blizzardRadius = 9.6 else blizzardRadius = 8 end
 
-    if artifact.icyHand then iceHand= 1 else iceHand = 0 end
+    if artifact.icyHand.enabled() then iceHand= 1 else iceHand = 0 end
     if iv_start == nil then iv_start = 0 end
     if fof_react == nil then fof_react = 0 end
     if t20_2pc then t20pc2 = 1 else t20pc2 = 0 end
@@ -251,7 +251,7 @@ local function runRotation()
     local function actionList_INTERRUPT()
         if useInterrupts() then
             --actions=counterspell,if=target.debuff.casting.react
-            if isChecked("Counterspell") and cd.counterspell == 0 then
+            if isChecked("Counterspell") and cd.counterspell.remain() == 0 then
                 for i = 1, #enemies.yards40 do
                     local thisUnit = enemies.yards40[i]
                     if canInterrupt(thisUnit,getValue("Interrupt at")) then
@@ -329,7 +329,7 @@ local function runRotation()
 
             --Ice Block
             if isChecked(colorBlueMage.."Ice Block") and health <= getValue(colorBlueMage.."Ice Block") and inCombat then
-                if isChecked(colorBlueMage.."Cold Snap") and cd.iceBlock > 0 then
+                if isChecked(colorBlueMage.."Cold Snap") and cd.iceBlock.remain() > 0 then
                     if cast.coldSnap("player") then return true end
                 end
                 if cast.iceBlock("player") then return true end
@@ -344,7 +344,7 @@ local function runRotation()
             if isChecked("Pre-Pull Timer") and pullTimer <= getOptionValue("Pre-Pull Timer") or inCombat then
                 --actions.precombat+=/mirror_image
                 if not MI then
-                    if talent.mirrorImage and cd.mirrorImage and useCDs() and isChecked(colorBlueMage.."Mirror Image") then
+                    if talent.mirrorImage and cd.mirrorImage.remain() and useCDs() and isChecked(colorBlueMage.."Mirror Image") then
                         seq = seq + 1
                         if castOpener("mirrorImage","MI",seq, false) then return true end
                     else
@@ -407,7 +407,7 @@ local function runRotation()
 
                 --mirror image
                 if not MI then
-                    if talent.mirrorImage and cd.mirrorImage and useCDs() and isChecked(colorBlueMage.."Mirror Image") then
+                    if talent.mirrorImage and cd.mirrorImage.remain() and useCDs() and isChecked(colorBlueMage.."Mirror Image") then
                         seq = seq + 1
                         if castOpener("mirrorImage","MI",seq, false) then return true end
                     else
@@ -422,7 +422,7 @@ local function runRotation()
             if inCombat then
                 --rune of power
                 if not ROP then
-                    if talent.runeOfPower and charges.runeOfPower > 0 and useCDs() and isChecked(colorBlueMage.."Rune of Power") and not buff.runeOfPower.exists() then
+                    if talent.runeOfPower and charges.runeOfPower.count() > 0 and useCDs() and isChecked(colorBlueMage.."Rune of Power") and not buff.runeOfPower.exists() then
                         seq = seq + 1
                         if castOpener("runeOfPower","ROP",seq) then return true end
                     else
@@ -430,7 +430,7 @@ local function runRotation()
                     end
                     --icy veins
                 elseif not IV then
-                    if cd.icyVeins == 0 and useCDs() and isChecked(colorBlueMage.."Icy Veins") then
+                    if cd.icyVeins.remain() == 0 and useCDs() and isChecked(colorBlueMage.."Icy Veins") then
                         seq = seq + 1
                         if castOpener("icyVeins","IV",seq,false) then return true end
                     else
@@ -450,7 +450,7 @@ local function runRotation()
                     if castOpener("iceLance","IL",seq) then return true end
                     --frozen orb
                 elseif not FRO then
-                    if cd.frozenOrb == 0 and useCDs() and isChecked(colorBlueMage.."Frozen Orb") then
+                    if cd.frozenOrb.remain() == 0 and useCDs() and isChecked(colorBlueMage.."Frozen Orb") then
                         seq = seq + 1
                         if castOpener("frozenOrb","FRO",seq) then return true end
                     else
@@ -514,7 +514,7 @@ local function runRotation()
                 end
                 --mirror image
                 if not MI then
-                    if talent.mirrorImage and cd.mirrorImage and useCDs() and isChecked(colorBlueMage.."Mirror Image") then
+                    if talent.mirrorImage and cd.mirrorImage.remain() and useCDs() and isChecked(colorBlueMage.."Mirror Image") then
                         seq = seq + 1
                         if castOpener("mirrorImage","MI",seq, false) then return true end
                     else
@@ -529,7 +529,7 @@ local function runRotation()
             if inCombat then
                 --rune of power
                 if not ROP then
-                    if talent.runeOfPower and charges.runeOfPower > 0 and useCDs() and isChecked(colorBlueMage.."Rune of Power") and not buff.runeOfPower.exists() then
+                    if talent.runeOfPower and charges.runeOfPower.count() > 0 and useCDs() and isChecked(colorBlueMage.."Rune of Power") and not buff.runeOfPower.exists() then
                         seq = seq + 1
                         if castOpener("runeOfPower","ROP",seq) then return true end
                     else
@@ -537,21 +537,21 @@ local function runRotation()
                     end
                     --icy veins
                 elseif not IV then
-                    if cd.icyVeins == 0 and useCDs() and isChecked(colorBlueMage.."Icy Veins") then
+                    if cd.icyVeins.remain() == 0 and useCDs() and isChecked(colorBlueMage.."Icy Veins") then
                         seq = seq + 1
                         if castOpener("icyVeins","IV",seq,false) then return true end
                     else
                         IV = true
                     end
                 elseif not WJ then
-                    if (not talent.runeOfPower or buff.runeOfPower.exists()) and cd.rayOfFrost == 0 and isChecked("Use Pet Spells") then
+                    if (not talent.runeOfPower or buff.runeOfPower.exists()) and cd.rayOfFrost.remain() == 0 and isChecked("Use Pet Spells") then
                         seq = seq + 1
                         if castOpener("waterJet","WJ",seq,false) then return true end
                     else
                         WJ = true
                     end
                 elseif not RF then
-                    if (not talent.runeOfPower or buff.runeOfPower.exists()) and cd.rayOfFrost == 0 and isChecked(colorBlueMage.."Ray of Frost") then
+                    if (not talent.runeOfPower or buff.runeOfPower.exists()) and cd.rayOfFrost.remain() == 0 and isChecked(colorBlueMage.."Ray of Frost") then
                         seq = seq + 1
                         if castOpener("rayOfFrost","RF",seq,false) then return true end
                     else
@@ -606,7 +606,7 @@ local function runRotation()
             if useCDs() then
                 if isChecked(colorBlueMage.."Rune of Power") and talent.runeOfPower then
                     --actions.cooldowns=rune_of_power,if=cooldown.icy_veins.remains<cast_time|charges_fractional>1.9&cooldown.icy_veins.remains>10|buff.icy_veins.up|target.time_to_die.remains+5<charges_fractional*10
-                    if cd.icyVeins <= getCastTime(spell.runeOfPower) or charges.frac.runeOfPower > 1.9 and cd.icyVeins > 10 or buff.icyVeins.exists() or ttdUnit+5 < charges.frac.runeOfPower*10 then
+                    if cd.icyVeins.remain() <= getCastTime(spell.runeOfPower) or charges.runeOfPower.frac() > 1.9 and cd.icyVeins.remain() > 10 or buff.icyVeins.exists() or ttdUnit+5 < charges.runeOfPower.frac()*10 then
                         if debug == true then Print("Casting Rune Of Power") end
                         if cast.runeOfPower("player") then
                             if debug == true then Print("Casted Rune Of Power") end
@@ -616,7 +616,7 @@ local function runRotation()
                 end
                 if isChecked("Potion") then
                     --actions.cooldowns+=/potion,if=cooldown.icy_veins.remains<1
-                    if cd.icyVeins < 1 then
+                    if cd.icyVeins.remain() < 1 then
                         if canUse(127843) then
                             if useItem(127843) then return true end
                         elseif canUse(142117) then
@@ -627,7 +627,7 @@ local function runRotation()
 
                 
                 --actions.cooldowns+=/icy_veins,if=buff.icy_veins.down
-                if useCDs() and isChecked(colorBlueMage.."Icy Veins") and cd.icyVeins == 0 then
+                if useCDs() and isChecked(colorBlueMage.."Icy Veins") and cd.icyVeins.remain() == 0 then
                     if not buff.icyVeins.exists() then
                         if debug == true then Print("Casting Icy Veins") end
                         if cast.icyVeins() then
@@ -636,7 +636,7 @@ local function runRotation()
                         end
                     end
                 end
-                if useCDs() and isChecked(colorBlueMage.."Mirror Image") and cd.mirrorImage == 0 then
+                if useCDs() and isChecked(colorBlueMage.."Mirror Image") and cd.mirrorImage.remain() == 0 then
                     --actions.cooldowns+=/mirror_image
                     if debug == true then Print("Casting Mirror Image") end
                     if cast.mirrorImage() then
@@ -717,14 +717,14 @@ local function runRotation()
             end
             
             --actions.aoe+=/frozen_orb
-            if cd.frozenOrb == 0 and ((mode.frozenorb == 2 and isBoss(target)) or mode.frozenorb == 1) then
+            if cd.frozenOrb.remain() == 0 and ((mode.frozenorb == 2 and isBoss(target)) or mode.frozenorb == 1) then
                 if isChecked(colorBlueMage.."Frozen Orb") and getEnemiesInRect(15,55,false) > 0 then
                     if cast.frozenOrb() then return true end
                 end
             end
             
             --actions.aoe+=/blizzard
-            if  cd.blizzard == 0 then
+            if  cd.blizzard.remain() == 0 then
                 if #enemies.yards8t > 2 or #enemies.yards8t > 1 and not(talent.glacialSpike and talent.splittingIce) or (hasEquiped(133970) and buff.zannesuJourney.stack() == 5 and buff.zannesuJourney.remain() > getCastTime(spell.blizzard)) then
                     if cast.blizzard("targetGround", "ground", 1, blizzardRadius) then return true end
                 end
@@ -733,7 +733,7 @@ local function runRotation()
             
             --actions.aoe+=/comet_storm
             if talent.cometStorm then
-                if cd.cometStorm == 0 then
+                if cd.cometStorm.remain() == 0 then
                     if isChecked(colorBlueMage.."Comet Storm")  and (IsStandingTime(2,target) or GetUnitSpeed(target) <= 3) then
                         if cast.cometStorm(target) then return true end
                     end
@@ -741,12 +741,12 @@ local function runRotation()
             end
             --actions.aoe+=/ice_nova
             if talent.iceNova then
-                if cd.iceNova == 0 then
+                if cd.iceNova.remain() == 0 then
                     if cast.iceNova() then return true end
                 end
             end
             
-            --water_jet,if=prev_gcd.1.frostbolt&buff.fingers_of_frost.stack<(2+artifact.icy_hand.enabled)&buff.brain_freeze.react=0
+            --water_jet,if=prev_gcd.1.frostbolt&buff.fingers_of_frost.stack<(2+artifact.icy_hand.enabled().enabled)&buff.brain_freeze.react=0
             if lastCast == spell.frostbolt and isCastingSpell(spell.frostbolt) and buff.fingersOfFrost.stack() < (2 + iceHand) and not buff.brainFreeze.exists() then
                 CastSpellByName(GetSpellInfo(spell.waterJet))
                 lastCast = spell.waterJet
@@ -796,14 +796,14 @@ local function runRotation()
             
             --actions.single=ice_nova,if=debuff.winters_chill.up--why?
             if talent.iceNova and debuff.wintersChill.exists() then 
-                if  cd.iceNova == 0 then
+                if  cd.iceNova.remain() == 0 then
                     if cast.iceNova() then return true end
                 end
             end
             
             --  Frozen_orb,if=set_bonus.tier20_2pc
             --  With T20 2pc, Frozen Orb should be used as soon as it comes off CD.
-            if cd.frozenOrb == 0 and t20pc2 and ((mode.frozenorb == 2 and isBoss(target)) or mode.frozenorb == 1) then
+            if cd.frozenOrb.remain() == 0 and t20pc2 and ((mode.frozenorb == 2 and isBoss(target)) or mode.frozenorb == 1) then
                 if isChecked(colorBlueMage.."Frozen Orb") and getEnemiesInRect(15,55,false) > 0 then
                     if cast.frozenOrb() then return true end
                 end
@@ -814,7 +814,7 @@ local function runRotation()
                 if cast.frostbolt(target) then return true end
             end
             
-            --water_jet,if=prev_gcd.1.frostbolt&buff.fingers_of_frost.stack<(2+artifact.icy_hand.enabled)&buff.brain_freeze.react=0
+            --water_jet,if=prev_gcd.1.frostbolt&buff.fingers_of_frost.stack<(2+artifact.icy_hand.enabled().enabled)&buff.brain_freeze.react=0
             --Basic Water Jet combo. Since Water Jet can only be used if the actor is not casting, we use it right after Frostbolt is executed. 
             --At the default distance, Frostbolt travels slightly over 1 s, giving Water Jet enough time to apply the DoT (Water Jet's cast time is 1 s, with haste scaling). 
             --The APL then forces another Frostbolt to guarantee getting both FoFs from the Water Jet. This works for most haste values (roughly from 0% to 160%). 
@@ -827,9 +827,9 @@ local function runRotation()
             
             --actions.single+=/ray_of_frost,if=buff.icy_veins.up|(cooldown.icy_veins.remains>action.ray_of_frost.cooldown&buff.rune_of_power.down)
             if talent.rayOfFrost then
-                if  cd.rayOfFrost == 0 then
+                if  cd.rayOfFrost.remain() == 0 then
                     if useCDs() and isChecked(colorBlueMage.."Ray of Frost") then
-                        if buff.icyVeins.exists() or (cd.icyVeins > cd.rayOfFrost and not buff.runeOfPower.exists()) then
+                        if buff.icyVeins.exists() or (cd.icyVeins.remain() > cd.rayOfFrost.remain() and not buff.runeOfPower.exists()) then
                             if cast.rayOfFrost() then return true end
                         end
                     end
@@ -841,7 +841,7 @@ local function runRotation()
             --This can be exploited to a great effect with Ebonbolt, Glacial Spike (which deal a lot of damage by themselves) and Frostbolt (as a guaranteed way to proc Frozen Veins and Chain Reaction). 
             --When using Glacial Spike, it is worth saving a Brain Freeze proc when Glacial Spike is right around the corner (i.e. with 4 or more Icicles). 
             --However, when the actor also has T20 2pc, Glacial Spike is delayed to fit into Frozen Mass, so we do not want to sit on a Brain Freeze proc for too long in that case.
-            if lastCast == spell.ebonbolt or buff.brainFreeze.exists() and (not talent.glacialSpike and lastCast == spell.frostbolt or talent.glacialSpike and (lastCast == spell.glacialSpike or lastCast == spell.frostbolt and (buff.icicles.stack() <= 3 or cd.frozenOrb <= 10 and t202pc))) then
+            if lastCast == spell.ebonbolt or buff.brainFreeze.exists() and (not talent.glacialSpike and lastCast == spell.frostbolt or talent.glacialSpike and (lastCast == spell.glacialSpike or lastCast == spell.frostbolt and (buff.icicles.stack() <= 3 or cd.frozenOrb.remain() <= 10 and t202pc))) then
                 if cast.flurry(target) then return true end
             end
     
@@ -849,7 +849,7 @@ local function runRotation()
             --Freezing Rain Blizzard. 
             --While the normal Blizzard action is usually enough, right after Frozen Orb the actor will be getting a lot of FoFs, which might delay Blizzard to the point where we miss out on Freezing Rain. 
             --Therefore, if we are not at a risk of overcapping on FoF, use Blizzard before using Ice Lance.
-            if cd.blizzard == 0 and getCastTime(spell.blizzard) == 0 and not isChecked("No Blizzard on STR") then
+            if cd.blizzard.remain() == 0 and getCastTime(spell.blizzard) == 0 and not isChecked("No Blizzard on STR") then
                 if #enemies.yards8t > 1 and fof_react < 3  then
                     if cast.blizzard("targetGround", "ground", 1, blizzardRadius) then return true end
                 end
@@ -864,7 +864,7 @@ local function runRotation()
             end
             
             --actions.single+=/ice_lance,if=variable.fof_react>0&cooldown.icy_veins.remains>10|variable.fof_react>2
-            if fof_react > 0 and cd.icyVeins > 10 or fof_react > 2 then
+            if fof_react > 0 and cd.icyVeins.remain() > 10 or fof_react > 2 then
                 if cast.iceLance(target) then return true end
             end
             
@@ -874,7 +874,7 @@ local function runRotation()
             end
             
             --actions.single+=/frozen_orb
-            if cd.frozenOrb == 0 and ((mode.frozenorb == 2 and isBoss(target)) or mode.frozenorb == 1) then
+            if cd.frozenOrb.remain() == 0 and ((mode.frozenorb == 2 and isBoss(target)) or mode.frozenorb == 1) then
                 if isChecked(colorBlueMage.."Frozen Orb") and getEnemiesInRect(15,55,false) > 0 then
                     if cast.frozenOrb() then return true end
                 end
@@ -882,14 +882,14 @@ local function runRotation()
             
             --actions.single=ice_nova,if=debuff.winters_chill.up--why?
             if talent.iceNova then
-                if  cd.iceNova == 0 then
+                if  cd.iceNova.remain() == 0 then
                     if cast.iceNova() then return true end
                 end
             end
             
             --  comet_storm
             if talent.cometStorm then
-                if cd.cometStorm == 0 then
+                if cd.cometStorm.remain() == 0 then
                     if isChecked(colorBlueMage.."Comet Storm") and ( IsStandingTime(2,target) or GetUnitSpeed(target) <= 3) then
                         if cast.cometStorm(target) then return true end
                     end
@@ -900,7 +900,7 @@ local function runRotation()
             --Against low number of targets, Blizzard is used as a filler. Use it only against 2 or more targets, 3 or more when using Glacial Spike and Splitting Ice. 
             --Zann'esu buffed Blizzard is used only at 5 stacks.
             
-            if cd.blizzard == 0 and not isChecked("No Blizzard on STR") then
+            if cd.blizzard.remain() == 0 and not isChecked("No Blizzard on STR") then
                 if #enemies.yards8t > 2 or #enemies.yards8t > 1 and not(talent.glacialSpike and talent.splittingIce) or (hasEquiped(133970) and buff.zannesuJourney.stack() == 5 and buff.zannesuJourney.remain() > getCastTime(spell.blizzard)) then
                     if cast.blizzard("targetGround", "ground", 1, blizzardRadius) then return true end
                 end
@@ -917,7 +917,7 @@ local function runRotation()
             --Glacial Spike is generally used as it is available, unless we have T20 2pc. 
             --In that case, Glacial Spike is delayed when Frozen Mass is happening soon (in less than 10 s).
             if talent.glacialSpike then
-                if cd.frozenOrb > 10 or not t20pc2 then
+                if cd.frozenOrb.remain() > 10 or not t20pc2 then
                     if buff.icicles.stack() == 5 then 
                         if cast.glacialSpike(target) then return true end
                     end
@@ -926,7 +926,7 @@ local function runRotation()
             
             if cast.frostbolt(target) then return true end
             
-            if cd.blizzard == 0 and not isChecked("No Blizzard on STR") then
+            if cd.blizzard.remain() == 0 and not isChecked("No Blizzard on STR") then
                 if getCastTime(spell.blizzard) == 0 then
                     if cast.blizzard("targetGround", "ground", 1, blizzardRadius) then return true end
                 end
@@ -939,7 +939,7 @@ local function runRotation()
         end
 
         local function actionList_COMBAT()
-            if cd.icyVeins == 0 and not buff.icyVeins.exists() then
+            if cd.icyVeins.remain() == 0 and not buff.icyVeins.exists() then
                 if debug == true then Print("iv_start Changed: "..iv_start) end
                     iv_start = getCombatTime()
             end
@@ -986,25 +986,25 @@ local function runRotation()
 
     local function MovingMode()
     
-        if lastCast == spell.ebonbolt or buff.brainFreeze.exists() and (not talent.glacialSpike and lastCast == spell.frostbolt or talent.glacialSpike and (lastCast == spell.glacialSpike or lastCast == spell.frostbolt and (buff.icicles.stack() <= 3 or cd.frozenOrb <= 10 and t202pc))) then
+        if lastCast == spell.ebonbolt or buff.brainFreeze.exists() and (not talent.glacialSpike and lastCast == spell.frostbolt or talent.glacialSpike and (lastCast == spell.glacialSpike or lastCast == spell.frostbolt and (buff.icicles.stack() <= 3 or cd.frozenOrb.remain() <= 10 and t202pc))) then
             if cast.flurry(target) then return true end
         end
         
         --actions.single+=/ice_lance,if=variable.fof_react>0&cooldown.icy_veins.remains>10|variable.fof_react>2
-        if fof_react > 0 and cd.icyVeins > 10 or fof_react > 2 then
+        if fof_react > 0 and cd.icyVeins.remain() > 10 or fof_react > 2 then
             if cast.iceLance(target) then return true end
         end
         
     -- Instant cast blizzard
         -- While the normal Blizzard action is usually enough, right after Frozen Orb the actor will be getting a lot of FoFs, which might delay Blizzard to the point where we miss out on Freezing Rain. 
         -- Therefore, if we are not at a risk of overcapping on FoF, use Blizzard before using Ice Lance.
-        if cd.blizzard == 0 then
-            if getCastTime(spell.blizzard) == 0 and fof_react < 3 and (lastCast == spell.frozenOrb or cd.frozenOrb > 5) then
+        if cd.blizzard.remain() == 0 then
+            if getCastTime(spell.blizzard) == 0 and fof_react < 3 and (lastCast == spell.frozenOrb or cd.frozenOrb.remain() > 5) then
                 if cast.blizzard("targetGround", "ground", 1, blizzardRadius) then return true end
             end
         end
         
-        if cd.coneOfCold == 0 and isMoving("player") then
+        if cd.coneOfCold.remain() == 0 and isMoving("player") then
             if isChecked(colorBlueMage.."Cone of Cold") then
                 if getFacing("player",target,50) and getDistance(target) < 12 then
                     if cast.coneOfCold("player") then return true end
@@ -1016,7 +1016,7 @@ local function runRotation()
             if cast.frostNova() then return true end
         end
         
-        if talent.iceNova and cd.iceNova == 0 and isMoving("player") then
+        if talent.iceNova and cd.iceNova.remain() == 0 and isMoving("player") then
             if cast.iceNova() then return true end
         end
 

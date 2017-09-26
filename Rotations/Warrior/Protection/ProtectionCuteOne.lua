@@ -208,18 +208,17 @@ local function runRotation()
         local perk                                          = br.player.perk
         local php                                           = br.player.health
         local playerMouse                                   = UnitIsPlayer("mouseover")
-        local power, powerMax, powerGen                     = br.player.power.amount.rage, br.player.power.rage.max, br.player.power.regen
+        local power, powerMax, powerGen                     = br.player.power.rage.amount(), br.player.power.rage.max(), br.player.power.rage.regen()
         local pullTimer                                     = br.DBM:getPulltimer()
         local race                                          = br.player.race
         local racial                                        = br.player.getRacial()
-        local rage                                          = br.player.power.amount.rage
-        local recharge                                      = br.player.recharge
+        local rage                                          = br.player.power.rage.amount()
         local solo                                          = br.player.instance=="none"
         local spell                                         = br.player.spell
         local talent                                        = br.player.talent
         local thp                                           = getHP(br.player.units(5))
         local ttd                                           = getTTD
-        local ttm                                           = br.player.power.ttm
+        local ttm                                           = br.player.power.rage.ttm()
         local units                                         = units or {}
 
         units.dyn5 = br.player.units(5)
@@ -265,7 +264,7 @@ local function runRotation()
                     end
                 end
             -- Gift of the Naaru
-                if isChecked("Gift of the Naaru") and php <= getOptionValue("Gift of the Naaru") and php > 0 and cd.giftOfTheNaaru==0 then
+                if isChecked("Gift of the Naaru") and php <= getOptionValue("Gift of the Naaru") and php > 0 and cd.giftOfTheNaaru.remain()==0 then
                     if cast.giftOfTheNaaru() then return end
                 end
             -- Demoralizing Shout
@@ -280,7 +279,7 @@ local function runRotation()
                 end
             -- Shield Wall
                 -- shield_wall,if=incoming_damage_2500ms>health.max*0.50&!cooldown.last_stand.remain()s=0
-                if inCombat and isChecked("Shield Wall") and php <= getOptionValue("Shield Wall") and cd.lastStand > 0 then
+                if inCombat and isChecked("Shield Wall") and php <= getOptionValue("Shield Wall") and cd.lastStand.remain() > 0 then
                     if cast.shieldWall() then return end
                 end
             -- Shockwave
@@ -353,7 +352,7 @@ local function runRotation()
         -- Avatar
                 -- avatar,if=buff.battle_cry.up|(target.time_to_die<(cooldown.battle_cry.remain()s+10))
                 if isChecked("Avatar") then
-                    if buff.battleCry.exists() or (ttd(units.dyn5) < (cd.battleCry + 10)) then
+                    if buff.battleCry.exists() or (ttd(units.dyn5) < (cd.battleCry.remain() + 10)) then
                         if cast.avatar() then return end
                     end
                 end
@@ -399,7 +398,7 @@ local function runRotation()
             if mode.mover == 1 then
         -- Charge
                 -- charge
-                if (cd.heroicLeap > 0 and cd.heroicLeap < 43) or level < 26 then
+                if (cd.heroicLeap.remain() > 0 and cd.heroicLeap.remain() < 43) or level < 26 then
                     if isValidUnit("target") or (UnitIsFriend("target") and level >= 28) then
                         if level < 28 then
                             if cast.charge("target") then return end
@@ -426,7 +425,7 @@ local function runRotation()
                     if cast.stormBolt("target") then return end
         -- Heroic Throw
                     -- heroic_throw
-                    if ((lastSpell == spell.charge or charges.charge == 0) and level < 28) or ((lastSpell == spell.intercept or charges.intercept == 0) and level >= 28) then
+                    if ((lastSpell == spell.charge or charges.charge.count() == 0) and level < 28) or ((lastSpell == spell.intercept or charges.intercept.count() == 0) and level >= 28) then
                         if cast.heroicThrow("target") then return end
                     end
                 end
@@ -444,7 +443,7 @@ local function runRotation()
             end
         -- Shield Block
             -- shield_block,if=!buff.neltharions_fury.up&((cooldown.shield_slam.remain()s<6&!buff.shield_block.up)|(cooldown.shield_slam.remain()s<6+buff.shield_block.remain()s&buff.shield_block.up))
-            if not buff.neltharionsFury.exists() and ((cd.shieldSlam < 6 and not buff.shieldBlock.exists()) or (cd.shieldSlam < 6 + buff.shieldBlock.remain() and buff.shieldBlock.exists())) 
+            if not buff.neltharionsFury.exists() and ((cd.shieldSlam.remain() < 6 and not buff.shieldBlock.exists()) or (cd.shieldSlam.remain() < 6 + buff.shieldBlock.remain() and buff.shieldBlock.exists())) 
                 and lastSpell ~= spell.shieldBlock 
             then
                 if cast.shieldBlock() then return end
@@ -455,7 +454,7 @@ local function runRotation()
         -- Battle Cry
             -- battle_cry,if=cooldown.shield_slam.remain()s=0
             if useCDs() and isChecked("Battle Cry") then
-                if cd.shieldSlam == 0 then
+                if cd.shieldSlam.remain() == 0 then
                     if cast.battleCry() then return end
                 end
             end
@@ -476,13 +475,13 @@ local function runRotation()
         -- Neltharion's Fury
             -- neltharions_fury,if=!buff.shield_block.up&cooldown.shield_block.remains>3&((cooldown.shield_slam.remains>3&talent.heavy_repercussions.enabled)|(!talent.heavy_repercussions.enabled))
             if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useDefensive()) and php < getOptionValue("Artifact HP") and inCombat then
-                if not buff.shieldBlock.exists() and cd.shieldBlock > 3 and ((cd.shieldSlam > 3 and talent.heavyRepercussions) or (not talent.heavyRepercussions)) then
+                if not buff.shieldBlock.exists() and cd.shieldBlock.remain() > 3 and ((cd.shieldSlam.remain() > 3 and talent.heavyRepercussions) or (not talent.heavyRepercussions)) then
                     if cast.neltharionsFury("player") then return end
                 end
             end
         -- Shield Block
             -- shield_block,if=!buff.neltharions_fury.up&((cooldown.shield_slam.remains=0&talent.heavy_repercussions.enabled)|action.shield_block.charges=2|!talent.heavy_repercussions.enabled)
-            if not buff.neltharionsFury and ((cd.shieldSlam == 0 and talent.heavyRepercussions) or charges.shieldBlock == 2 or not talent.heavyRepercussions) then
+            if not buff.neltharionsFury and ((cd.shieldSlam.remain() == 0 and talent.heavyRepercussions) or charges.shieldBlock.count() == 2 or not talent.heavyRepercussions) then
                 if cast.shieldBlock() then return end
             end
         -- Ignore Pain
@@ -494,7 +493,7 @@ local function runRotation()
             end
         -- Shield Slam
             -- shield_slam,if=(!(cooldown.shield_block.remains<=gcd.max*2&!buff.shield_block.up)&talent.heavy_repercussions.enabled)|!talent.heavy_repercussions.enabled
-            if (not (cd.shieldBlock <= gcd * 2 and not buff.shieldBlock.exists()) and talent.heavyRepercussions) or not talent.heavyRepercussions then
+            if (not (cd.shieldBlock.remain() <= gcd * 2 and not buff.shieldBlock.exists()) and talent.heavyRepercussions) or not talent.heavyRepercussions then
                 if cast.shieldSlam() then return end
             end
         -- Thunder Clap
