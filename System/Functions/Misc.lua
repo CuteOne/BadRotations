@@ -426,7 +426,7 @@ function enemyListCheck(Unit)
 	-- return false
 end
 function isValidUnit(Unit)
-	if not pause(true) and Unit ~= nil --[[and enemyListCheck(Unit) --]]then 
+	if not pause(true) and Unit ~= nil and (br.enemy[Unit] ~= nil or enemyListCheck(Unit)) then 
 		local distance = getDistance(Unit,"player","noMod")
 		local inCombat = UnitAffectingCombat("player") or (GetObjectExists("pet") and UnitAffectingCombat("pet"))
 		local hasThreat = hasThreat(Unit) or isTargeting(Unit) or (GetObjectExists("pet") and (hasThreat(Unit,"pet") or isTargeting(Unit,"pet"))) or isBurnTarget(Unit) > 0

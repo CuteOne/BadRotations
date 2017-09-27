@@ -430,7 +430,7 @@ local function runRotation()
                 if (getOptionValue("Battle Cry") == 1 or (getOptionValue("Battle Cry") == 2 and useCDs())) then 
                     if (ttd(units.dyn5) or (cd.global.remain() <= 0.5 and lastSpell == spell.ravager)
                         or not talent.ravager) and cd.global.remain() == 0 and debuff.colossusSmash.remain(units.dyn5) >= 5 
-                        and (cd.bladestorm.remain() > 0 or not t20_4pc) and (not talent.rend or debuff.rend.remain(units.dyn4) > 4) 
+                        and (cd.bladestorm.remain() > 0 or not t20_4pc) and (not talent.rend or debuff.rend.remain(units.dyn5) > 4) 
                     then
                         if cast.battleCry() then return end
                     end
