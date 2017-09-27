@@ -177,7 +177,7 @@ Rotations\Priest\Discipline\DisciplineBizkut.lua
 
 ## Rotations\Priest\Holy\HolySvs.lua
 Rotations\Priest\Holy\HolyOdan.lua
-
+Rotations\Priest\Holy\HolyJR.lua
 
 Rotations\Priest\Shadow\ShadowCuteOne.lua
 Rotations\Priest\Shadow\ShadowJR.lua

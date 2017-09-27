@@ -337,3 +337,235 @@ function healConeAround(numUnitsp, healthp, anglep, rangeInfrontp, rangeAroundp)
     end
     return false
 end
+
+-- <summary>
+-- Calculate the factorial of a non-negative integer
+-- </summary>
+-- <param name="n">number to calculate the factorial of</param>
+-- <returns>Returns factorial of the integer n</returns>
+function Factorial(n)
+	if n < 0 then return nil end
+	if n >= 2 then return n * Factorial(n - 1) end
+	return 1
+end
+
+-- <summary>
+-- Get all possible unique combinations of choosing n points (x,y,z positions) from a list of points, order independent.
+-- ***BE CAREFUL*** with this one. It's recursive, and if you pass in too big a table, it will take a long time to process.
+-- recommend tables no bigger than 12 for now (may change as I test further)
+-- </summary>
+-- <param name="points">table of points to consider (the domain) Looks like: {{x1,y1,z1},{x2,y2,z2},{x3,y3,z3}...}</param>
+-- <param name="choose">the minimum number of points to choose from the table for each combination</param>
+-- <returns>Returns a table containing all possible unique combinations</returns>
+function GetCombinations(points, choose)
+	function fOfN(n, src, got, all)
+		function tableConcat(t1,t2)
+		    local t3 = {}
+		    for i=1,#t1 do
+		        t3[i] = t1[i]
+		    end
+		    for i=1,#t2 do
+		        t3[#t3+1] = t2[i]
+		    end
+		    return t3
+		end
+		function tableSlice(tbl, first)
+		  local sliced = {}
+		  for i = first, #tbl do
+		    sliced[#sliced+1] = tbl[i]
+		  end
+		  return sliced
+		end
+	    if n == 0 then
+	        if #got > 0 then
+	            all[#all+1] = got
+	        end
+	    end
+	    for j = 1, #src do
+	        fOfN(n-1, tableSlice(src, j+1), tableConcat(got, {src[j]}), all);
+	    end
+	end
+    all = {}
+    for i = choose, #points do
+        fOfN(i, points, {}, all);
+    end
+    --table.insert(all,a)
+    return all;
+end
+
+
+-- <summary>
+-- Get the distance from an x,y,z point to the nearest member of a table of x,y,z points
+-- </summary>
+-- <param name="p">point to check distance from</param>
+-- <param name="points">table of x,y,z points to check distances against</param>
+-- <returns>Returns the distance to the closest x,y,z in the table</returns>
+function GetDistanceToClosestNeighbor(p,points)
+	local minDist = 999
+	if p ~= nil and p.x ~= nil and p.y ~= nil and p.z ~= nil then 
+		for i=1,#points do
+			local p1 = points[i]
+			if p1.x ~= nil and p1.y ~= nil and p1.z ~= nil then
+				local dist = math.sqrt(((p1.x-p.x)^2)+((p1.y-p.y)^2)+((p1.z-p.z)^2))
+				if dist < minDist then minDist = dist end
+			end
+		end
+	end
+	return minDist
+end
+
+-- <summary>
+-- calculates how many of a table of points is within a circle on the ground
+-- </summary>
+-- <param name="center">Center of the circle</param>
+-- <param name="radius">radius of the circle</param>
+-- <param name="points">List of points to check</param>
+-- <returns>Returns the number of points inside the circle</returns>
+function GetNumPointsInCircle(center,radius,points)
+	if points == nil or #points < 1 then return 0 end
+	local count = 0
+	if center ~= nil and center.x ~= nil and center.y ~= nil and center.z ~= nil then 
+		for i=1,#points do
+			local p1 = points[i]
+			if p1.x ~= nil and p1.y ~= nil and p1.z ~= nil then
+				local dist = math.sqrt(((p1.x-center.x)^2)+((p1.y-center.y)^2)+((p1.z-center.z)^2))
+				if dist <= radius then count = count + 1 end
+			end
+		end
+	end
+	return count
+end
+
+-- <summary>
+-- Calculates the geometric center of a table of points. This is useful for casting a spell on the ground at the center of a group of targets
+-- </summary>
+-- <param name="points">table of points</param>
+-- <returns>Returns the centroid of the points</returns>
+function GetCentroidOfPoints(points)
+	if points == nil then return nil end
+	if #points < 1 then return nil end
+	if #points == 1 then return points[i] end
+	
+	local minX = points[1].x
+	local minY = points[1].y
+	local minZ = points[1].z
+	local maxX = points[1].x
+	local maxY = points[1].y
+	local maxZ = points[1].z
+
+	for i=2,#points do
+		local p = points[i]
+		if p.x < minX then minX = p.x end
+		if p.y < minY then minY = p.y end
+		if p.z < minZ then minZ = p.z end
+		if p.x > minX then maxX = p.x end
+		if p.y > minY then maxY = p.y end
+		if p.z > minZ then maxZ = p.z end
+	end
+	local centerPoint = {}
+	centerPoint.x = minX + ((maxX - minX) / 2)
+	centerPoint.y = minY + ((maxY - minY) / 2)
+	centerPoint.z = minZ + ((maxZ - minZ) / 2)
+	return centerPoint
+end
+
+-- <summary>
+-- Ground cast a spell at the provided location. Implements the cast and the mouse click.
+-- </summary>
+-- <param name="loc">location to cast at: {x,y,z}</param>
+-- <param name="SpellID">ID of spell to ground cast</param>
+-- <returns>Returns if successfully tried to cast</returns>
+function castGroundAtLocation(loc, SpellID)
+    CastSpellByName(GetSpellInfo(SpellID))
+    local mouselookup = IsMouseButtonDown(2)
+    if IsAoEPending() then
+	    MouselookStop()
+        ClickPosition(loc.x,loc.y,loc.z)
+	    if mouselookup then MouselookStart() end
+	else
+		return false
+    end
+    if IsAoEPending() then return false end
+    return true
+end
+
+-- <summary>
+-- Given a table of units, find the best location for a circle that will encompass the highest number of those units
+-- </summary>
+-- <param name="unitTable">table of units to consider</param>
+-- <param name="minTargets">Minimum number of units that must be inside the circle</param>
+-- <param name="radius">radius of the circle</param>
+-- <returns>Returns the center {x,y,z} of the circle if at least minTargets are within the circle, otherwise returns nil</returns>
+function getBestGroundCircleLocation(unitTable,minTargets,radius)
+	if unitTable == nil then print("getBestGround: unitTable is nil") end
+	if minTargets == nil then print("getBestGround: minTargets is nil") end
+	if #unitTable < minTargets then return nil end
+	local startTime = debugprofilestop()
+	local points = {}          -- table of points (x,y,z positions)
+	local X1,Y1,Z1 = 0,0,0
+	for i=1,#unitTable do
+		local thisUnit = unitTable[i].unit
+		-- get the x,y,z position for this Unit
+		if type(thisUnit) == "string" then
+			X1,Y1,Z1 = GetObjectPosition(thisUnit)
+			-- if we provide it a table, take that object position(accepts br.enemy[i] or br.friend[i])
+		elseif thisUnit and thisUnit.x ~= 0 then
+			X1,Y1,Z1 = thisUnit.x,thisUnit.y,thisUnit.z
+		end
+		-- add the x,y,z position for this unit to our local points table
+		local p = {}
+		p.x = X1
+		p.y = Y1
+		p.z = Z1
+		tinsert(points,p)
+	end
+    -- first, eliminate solo outliers
+    -- any unit that is more than 'radius*2' distance from every other unit can be excluded
+    local pointsInRange = {}
+    for i=1,#points do
+    	if GetDistanceToClosestNeighbor(points[i],points) <= 2 * radius then
+    		tinsert(pointsInRange,points[i])
+    	end
+    end
+    if #pointsInRange < minTargets then return nil end
+    -- check the remaining units. If they are all (or all but 1) inside the circle centered on the whole group, then we have the best solution
+    local center = GetCentroidOfPoints(pointsInRange)
+    local numInside = GetNumPointsInCircle(center,radius,pointsInRange)
+    if (numInside >= #points - 1) and (numInside >= minTargets) then return center end
+
+    -- start with taking #pointsInRange, #pointsInRange-1 at a time
+    -- then take #pointsInRange, #pointsInRange-2 at a time
+    -- then #pointsInRange-3 at a time, etc.
+    -- while #pointsInRange-n is >= minTargets
+    -- keeping track of the best (largest) fully contained cluster of points as we go
+    local bestGroup = nil
+    local bestGroupSize = 0
+
+    -- start with a grouping size of #pointsInRange - 1
+    local groupSize = #pointsInRange - 1
+    while groupSize >= minTargets do
+    	local allCombinations = GetCombinations(pointsInRange,groupSize)
+    	for i=1, #allCombinations do
+    		-- get the centroid of this list of points
+    		local c = GetCentroidOfPoints(allCombinations[i])
+    		-- how many of the points are inside the circle?
+    		local n = GetNumPointsInCircle(c,radius,allCombinations[i])
+            -- if we got a whole group inside the circle, we can stop here
+            if n >= groupSize then
+                -- Logging.WriteDebug("GetBestCircleLocation(): Found Whole Group Solution for " + n.ToString() + " points");
+                return c
+            end
+
+            -- is this result better than our best so far?
+            if n > bestGroupSize then
+                -- update best group
+                bestGroup = allCombinations[i]
+                bestGroupSize = n
+            end
+        end
+        -- decrement group size for next loop
+        groupSize = groupSize - 1
+    end
+    -- return the geocenter of the best grouping
+    return GetCentroidOfPoints(bestGroup)
+end
