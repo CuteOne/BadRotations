@@ -203,7 +203,7 @@ local function runRotation()
         local resable       = UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and UnitIsFriend("target","player")
         local solo          = GetNumGroupMembers() == 0
         local spell         = br.player.spell
-        local t20_4pc       = TierScan("T20")
+        local t20_4pc       = TierScan("T20") >= 4
         local talent        = br.player.talent
         local thp           = getHP(br.player.units(5))
         local ttd           = getTTD(br.player.units(5))
@@ -226,19 +226,30 @@ local function runRotation()
         if not inCombat and not GetObjectExists("target") then
             opener = false
             OPN1 = false
-            RAC1 = false
-            JUD1 = false
-            BOJ1 = false
-            CRU1 = false
-            EXE1 = false
-            TMV1 = false
-            WOA1 = false
-            TMV2 = false
             ARC1 = false
-            TMV3 = false
+            ARC2 = false
+            BOJ1 = false
+            BOJ2 = false
+            CRU1 = false
             CRS1 = false
+            CRS2 = false
+            CRS3 = false
+            CRS4 = false
+            CRS5 = false
+            CRS6 = false
+            JUD1 = false
+            JUD2 = false
+            TMV1 = false
+            TMV2 = false
+            TMV3 = false
             TMV4 = false
+            TMV5 = false
+            TMV6 = false
+            TMV7 = false
+            WOA1 = false
         end
+        t20Bleg = t20_4pc and hasEquiped(137048) and race == "BloodElf"
+
         judgmentExists = debuff.judgment.exists(units.dyn5)
         judgmentRemain = debuff.judgment.remain(units.dyn5)
         if debuff.judgment.exists(units.dyn5) or level < 42 or (cd.judgment.remain() > getOptionValue("Hold For Judgment") and not debuff.judgment.exists(units.dyn5)) then
@@ -563,6 +574,14 @@ local function runRotation()
                 end
         -- Judgment
                 if cast.judgment("target") then return end
+        -- Blade of Justice
+                if cast.bladeOfJustice("target") then return end
+        -- Crusader Strike / Zeal
+                if talent.zeal then
+                    if cast.zeal("target") then return end
+                else
+                    if cast.crusaderStrike("target") then return end
+                end
         -- Start Attack
                 if getDistance("target") < 5 then StartAttack() end
             end
@@ -570,43 +589,145 @@ local function runRotation()
     -- Action List - Opener
         local function actionList_Opener()
             if isChecked("Opener") and isBoss("target") and opener == false then
-                if isValidUnit("target") and getDistance("target") < 5 then
-                    if not OPN1 then 
+                if isValidUnit("target") and getDistance("target") < 12 then
+                    if not OPN1 then
                         Print("Starting Opener")
                         OPN1 = true
-                    elseif not RAC1 then
-        -- Racial
-                        if isChecked("Racial") and (race == "Orc" or race == "Troll" or (race == "BloodElf" and holyPower <= 4)) and getSpellCD(racial) == 0 then
-                            if castSpell("player",racial,false,false,false) then Print("1: Racial - Orc/Troll/BloodElf"); RAC1 = true; return end
-                            -- if castOpener("racial","RAC1",1) then return end
+                    elseif OPN1 and not BOJ1 then
+        -- Blade Of Justice/Divine Hammer
+                        if talent.bladeOfWrath then
+                            if castOpener("bladeOfJustice","BOJ1",1) then return end
                         else
-                            Print("1: Racial - Orc/Troll/BloodElf (Uncastable)")
-                            RAC1 = true
+                            if castOpener("divineHammer","BOJ1",1) then return end
                         end
-                    elseif RAC1 and not JUD1 then
-        -- Judgment
-                        if castOpener("judgment","JUD1",2) then return end
-                    elseif JUD1 and not BOJ1 then
-        -- Blade of Justice/Divine Hammer
-                        -- if=equipped.137048|race.blood_elf|!cooldown.wake_of_ashes.up
-                        if hasEquiped(137048) or race == "BloodEld" or (cd.wakeOfAshes.remain() ~= 0 or not artifact.wakeOfAshes.enabled()) then
-                            if talent.bladeOfWrath then
-                                if castOpener("bladeOfJustice","BOJ1",3) then return end
+                    elseif BOJ1 and not CRS1 and (getDistance("target") < 5 or not (t20Bleg or (not t20_4pc and not hasEquiped(137048)))) then
+        -- Crusader Strike - T20 Blood Elf Leggo or no T20 and no Leggo
+                        if t20Bleg or (not t20_4pc and not hasEquiped(137048)) then
+                            if talent.zeal then
+                                if castOpener("zeal","CRS1",2) then return end
                             else
-                                if castOpener("divineHammer","BOJ1",3) then return end
+                                if castOpener("crusaderStrike","CRS1",2) then return end
                             end
                         else
-                            Print("3: Blade of Justice / Divine Hammer (Uncastable)")
-                            BOJ1 = true
+                            Print("2: Crusader Strike *special* (Uncastable)")
+                            CRS1 = true
                         end
-                    elseif BOJ1 and not WOA1 then
-        -- Wake of Ashes
-                        if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()) then
-                            if castOpener("wakeOfAshes","WOA1",4) then return end
+                    elseif CRS1 and not JUD1 then
+        -- Judgment
+                        if castOpener("judgment","JUD1",3) then return end
+                    elseif JUD1 and not CRU1 then
+        -- Crusade/Avenging Wrath
+                        if talent.crusade then
+                            if castOpener("crusade","CRU1",4) then return end
                         else
-                            Print("4: Wake of Ashes (Uncastable)")
+                            if castOpener("avengingWrath","CRU1",4) then return end
                         end
-                    elseif WOA1 then
+                    elseif CRU1 and not TMV1 then
+        -- Templar's Verdict
+                        if castOpener("templarsVerdict","TMV1",5) then return end
+                    elseif TMV1 and not (ARC1 or WOA1) then
+        -- Arcane Torrent / Wake of Ashes
+                        if t20Bleg then
+                            if isChecked("Racial") then
+                                if castOpener("racial","ARC1",6) then return end
+                            else
+                                Print("6: Arcane Torrent (Uncastable)")
+                                ARC1 = true
+                            end
+                        else
+                            if castOpener("wakeOfAshes","WOA1",6) then return end
+                        end
+                    elseif (ARC1 or WOA1) and not TMV2 then
+        -- Templar's Verdict
+                        if castOpener("templarsVerdict","TMV2",7) then return end
+                    elseif TMV2 and not (WOA2 or ARC2 or CRS2) then
+        -- Wake of Ashes / Arcane Torrent / Crusader Strike 
+                        if t20Bleg then
+                            if castOpener("wakeOfAshes","WOA2",8) then return end
+                        elseif race == "BloodElf" and not t20_4pc then
+                            if isChecked("Racial") then
+                                if castOpener("racial","ARC2",8) then return end
+                            else
+                                Print("8: Arcane Torrent (Uncastable)")
+                                ARC2 = true
+                            end
+                        elseif talent.zeal then
+                            if castOpener("zeal","CRS2",8) then return end
+                        else
+                            if castOpener("crusaderStrike","CRS2",8) then return end
+                        end
+                    elseif (WOA2 or ARC2 or CRS2) and not TMV3 then
+        -- Templar's Verdict
+                        if castOpener("templarsVerdict","TMV3",9) then return end
+                    elseif TMV3 and not (TMV4 or CRS3) then
+        -- End Opener 1 / Templar's Verdict / Crusader Strike
+                        if not t20_4pc or (t20_4pc and race == "BloodElf" and not hasEquiped(137048)) then
+                            opener = true;
+                            Print("Opener Complete")
+                            return
+                        elseif t20Bleg then
+                            if castOpener("templarsVerdict","TMV4",10) then return end
+                        elseif talent.zeal then
+                            if castOpener("zeal","CRS3",10) then return end
+                        else
+                            if castOpener("crusaderStrike","CRS3",10) then return end
+                        end
+                    elseif (TMV4 or CRS3) and not BOJ2 then
+        -- Blade Of Justice/Divine Hammer
+                        if talent.bladeOfWrath then
+                            if castOpener("bladeOfJustice","BOJ2",11) then return end
+                        else
+                            if castOpener("divineHammer","BOJ2",11) then return end
+                        end
+                    elseif BOJ2 and not (TMV5 or CRS4) then
+        -- Templar's Verdict / Crusader Strike
+                        if t20_4pc and hasEquiped(137048) then
+                            if castOpener("templarsVerdict","TMV5",12) then return end
+                        elseif talent.zeal then
+                            if castOpener("zeal","CRS4",11) then return end
+                        else
+                            if castOpener("crusaderStrike","CRS4",11) then return end
+                        end
+                    elseif (TMV5 or CRS4) and not CRS5 then
+        -- End of Opener 2 / Crusader Strike - T20 and Leggo
+                        if t20Bleg then
+                            opener = true;
+                            Print("Opener Complete")
+                            return 
+                        elseif t20_4pc and hasEquiped(137048) then
+                            if talent.zeal then
+                                if castOpener("zeal","CRS5",13) then return end
+                            else
+                                if castOpener("crusaderStrike","CRS5",13) then return end
+                            end
+                        else
+                            Print("13: Crusader Strike *special* (Uncastable)")
+                            CRS1 = true
+                        end
+                    elseif CRS5 and not JUD2 then
+        -- Judgment
+                        if castOpener("judgment","JUD2",14) then return end
+                    elseif JUD2 and not TMV6 then
+        -- Templar's Verdict
+                        if castOpener("templarsVerdict","TMV6",15) then return end
+                    elseif TMV6 and not CRS6 then
+        -- End of Opener 3 / Crusader's Strile
+                        if t20_4pc and hasEquiped(137048) then
+                            opener = true;
+                            Print("Opener Complete")
+                            return 
+                        else
+                            if talent.zeal then
+                                if castOpener("zeal","CRS6",16) then return end
+                            else
+                                if castOpener("crusaderStrike","CRS6",16) then return end
+                            end
+                        end
+                    elseif CRS6 and not TMV7 then
+        -- Templar's Verdict
+                        if castOpener("templarsVerdict","TMV7",17) then return end    
+                    elseif TMV7 then
+        -- Final End of Opener
                         opener = true;
                         Print("Opener Complete")
                         return
@@ -614,6 +735,7 @@ local function runRotation()
                 end
             elseif (UnitExists("target") and not isBoss("target")) or not isChecked("Opener") then
                 opener = true
+                return
             end
         end -- End Action List - Opener
     -- Action List - Priority

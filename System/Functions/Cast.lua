@@ -366,21 +366,19 @@ end
 -- Used in openers
 function castOpener(spellIndex,flag,index,checkdistance)
 	local spellCast = br.player.spell[spellIndex]
+	local castSpell = br.player.cast[spellIndex]
 	local spellName = select(1,GetSpellInfo(spellCast))
 	local maxRange = select(6,GetSpellInfo(spellCast))
+	local cd = br.player.cd[spellIndex].remain()
 	if not maxRange or maxRange == 0 then maxRange = 5 end
 	if checkdistance == nil then checkdistance = true end
-	if getDistance("target") < maxRange or not checkdistance then
-	    if (not br.player.cast[spellIndex](nil,"debug") and (br.player.cd[spellIndex].remain() == 0 or br.player.cd[spellIndex].remain() > br.player.gcdMax)) then
-	        Print(index..": "..select(1,GetSpellInfo(spellCast)).." (Uncastable)");
+	if not checkdistance or getDistance("target") < maxRange then
+	    if (not castSpell(nil,"debug") and (cd == 0 or cd > br.player.gcdMax)) then
+	        Print(index..": "..spellName.." (Uncastable)");
 	        _G[flag] = true;
 	        return true
 	    else
-	    	-- if IsHelpfulSpell(spellName) and not IsHarmfulSpell(spellName) then
-	    	-- 	if br.player.cast[spellIndex]("player") then Print(index..": "..select(1,GetSpellInfo(spellCast))); _G[flag] = true; return true end
-	    	-- else
-	        	if br.player.cast[spellIndex]() then Print(index..": "..select(1,GetSpellInfo(spellCast))); _G[flag] = true; return true end
-	        -- end
+	        if castSpell() then Print(index..": "..spellName); _G[flag] = true; return true end
 	    end
 	end
 end
@@ -517,4 +515,84 @@ function isUnitCasting(unit)
 	else
 		return false
 	end
+end
+
+function createCastFunction(thisUnit,debug,minUnits,effectRng,spellID,index)
+    -- Invalid Spell ID Check
+    if GetSpellInfo(spellID) == nil then Print("Invalid Spell ID: "..spellID.." for key: "..index) end
+    -- Locals
+    local spellCast = spellID
+    local spellName = GetSpellInfo(spellID)
+    local spellType = getSpellType(spellName)
+    local minRange = select(5,GetSpellInfo(spellName))
+    local maxRange = select(6,GetSpellInfo(spellName))
+    -- Nil Catches
+    if minRange == nil then minRange = 0 end
+    if maxRange == nil or maxRange == 0 then maxRange = 5 end
+    if minUnits == nil then minUnits = 1 end
+    if effectRng == nil then effectRng = 5 end
+    if debug == nil then debug = "Norm" end
+    local function castDebug()
+        if isChecked("Cast Debug") and debug ~= "debug" then
+            local unitName = UnitName(thisUnit) or thisUnit
+            Print("Casting |cffFFFF00"..spellName.." ("..spellID..") |r on |cffFFFF00"..tostring(unitName).." |r - Spell Type: |cffFFFF00"..spellType..
+                " |r, Cast Type: |cffFFFF00"..tostring(debug).." |r, Ranges - Min: |cffFFFF00"..minRange.." |r, Max: |cffFFFF00"..maxRange..
+                " |r, Eff: |cffFFFF00"..effectRng.." |r, Min Units: |cffFFFF00"..minUnits)
+        end
+    end
+    -- Base Spell Availablility Check
+    if --[[isChecked("Use: "..spellName) and ]]not select(2,IsUsableSpell(spellID)) and getSpellCD(spellID) == 0 and (isKnown(spellID) or debug == "known") then --and not isIncapacitated(spellID) then
+        -- Attempt to determine best unit for spell's range
+        if thisUnit == nil then thisUnit = getSpellUnit(spellCast) end
+        -- Return specified/best cast method
+        if debug == "debug" then
+            castDebug()
+            return true --castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+        elseif thisUnit == "best" then
+            castDebug()
+            return castGroundAtBestLocation(spellCast,effectRng,minUnits,maxRange,minRange,debug)
+        elseif thisUnit == "playerGround" and (getDistance("player") < maxRange or IsSpellInRange(spellName,"player") == 1) then
+            castDebug()
+            return castGroundAtUnit(spellCast,effectRng,minUnits,maxRange,minRange,debug,"player")
+        elseif thisUnit == "targetGround" and (getDistance("target") < maxRange or IsSpellInRange(spellName,"target") == 1) then
+            castDebug()
+            return castGroundAtUnit(spellCast,effectRng,minUnits,maxRange,minRange,debug,"target")
+        elseif thisUnit ~= nil then
+            local distance = getDistance(thisUnit) 
+            if ((distance >= minRange and distance < maxRange) or IsSpellInRange(spellName,thisUnit) == 1) then
+                if debug == "rect" and getEnemiesInRect(effectRng,maxRange,false) >= minUnits then
+                    castDebug()
+                    return castSpell(thisUnit,spellCast,false,false,false,true,false,true,true,false)
+                elseif debug == "ground" then
+                    if getLineOfSight(thisUnit) then
+                        if IsMouseButtonDown(2) then 
+                            return false 
+                        else
+                            castDebug()
+                            return castGround(thisUnit,spellCast,maxRange,minRange)
+                        end
+                    end
+                elseif debug == "dead" and UnitIsPlayer(thisUnit) and UnitIsDeadOrGhost(thisUnit) and UnitIsFriend(thisUnit,"player") then
+                    castDebug()
+                    return castSpell(thisUnit,spellCast,false,false,false,true,true,true,true,false)
+                elseif debug == "aoe" then
+                    castDebug()
+                    return castSpell(thisUnit,spellCast,true,false,false,true,false,true,true,false)
+                elseif thisUnit ~= nil then
+                    castDebug()
+                    return castSpell(thisUnit,spellCast,false,false,false,true,false,true,true,false)
+                else
+                    Print("|cffFF0000Error: |r Failed to cast. - ".."Name: "..spellName..", ID: "..spellID..", Type: "..spellType..", Min Range: "..minRange..", Max Range: "..maxRange)
+                    return false
+                end
+            end
+        elseif (thisUnit == nil or thisUnit == "best" or thisUnit == "playerGround" or thisUnit == "targetGround") and getDistance(self.units(maxRange)) < maxRange then
+            if (isChecked("Display Failcasts") or isChecked("Cast Debug")) and debug ~= "debug" then
+                Print("|cffFF0000Error: |r Failed to cast. - ".."Name: "..spellName..", ID: "..spellID..", Type: "..spellType..", Min Range: "..minRange..", Max Range: "..maxRange)
+            end
+            return false
+        end
+    elseif debug == "debug" then
+        return false
+    end
 end

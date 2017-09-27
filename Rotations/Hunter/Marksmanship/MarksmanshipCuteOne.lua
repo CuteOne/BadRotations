@@ -233,10 +233,9 @@ local function runRotation()
 --- Varaibles ---
 -----------------
 
-        local lowestVuln
+        if lowestVuln == nil then lowestVuln = 100 end
         for i=1,#enemies.yards40 do
             local thisUnit = enemies.yards40[i]
-            if lowestVuln == nil then lowestVuln = 100 end
             if debuff.vulnerable.remain(thisUnit) < lowestVuln and debuff.vulnerable.remain(thisUnit) > 0 then
                 lowestVuln = debuff.vulnerable.remain(thisUnit)
             end
@@ -251,11 +250,11 @@ local function runRotation()
 
         -- Trueshot Cooldown
         -- variable,name=trueshot_cooldown,op=set,value=time*1.1,if=time>15&cooldown.trueshot.up&variable.trueshot_cooldown=0
-        local trueshotCD = trueshotCD or 0
+        if not trueshotCD then trueshotCD = 0 end
         if combatTime > 15 and cd.trueshot.remain() == 0 and trueshotCD == 0 then 
             trueshotCD = combatTime * 1.1 
-        else 
-            trueshotCD = 0 
+        -- else 
+        --     trueshotCD = 0 
         end
 
         -- Wait for Sentinel
@@ -263,7 +262,7 @@ local function runRotation()
         local waitForSentinel = talent.sentinel and (buff.markingTargets.exists() or buff.trueshot.exists()) and cd.sentinel.remain() == 0
 
         -- Vulnerable Window
-        local vulnWindow = vulnWindow or 0
+        if not vulnWindow then vulnWindow = debuff.vulnerable.remain(units.dyn40) end
         -- vuln_window,op=setif,value=cooldown.sidewinders.full_recharge_time,value_else=debuff.vulnerability.remains,condition=talent.sidewinders.enabled&cooldown.sidewinders.full_recharge_time<variable.vuln_window
         if talent.sidewinders and charges.sidewinders.timeTillFull < vulnWindow then
             vulnWindow = charges.sidewinders.timeTillFull
@@ -272,7 +271,7 @@ local function runRotation()
         end
 
         -- Vulnerable Aim Casts
-        local vulnAimCast = vulnAimCast or 0
+        if not vulnAimCast then vulnAimCast = 0 end
         local aimedExecute = math.max(getCastTime(spell.aimedShot),gcdMax)
         -- vuln_aim_casts,op=set,value=floor(variable.vuln_window%action.aimed_shot.execute_time)
         vulnAimCast = math.floor(vulnWindow / aimedExecute)
@@ -280,6 +279,8 @@ local function runRotation()
         if vulnAimCast > 0 and vulnAimCast > math.floor((power + getCastingRegen(spell.aimedShot) * (vulnAimCast - 1)) / select(1,getSpellCost(spell.aimedShot))) then
             vulnAimCast = math.floor((power + getCastingRegen(spell.aimedShot) * (vulnAimCast - 1)) / select(1,getSpellCost(spell.aimedShot)))
         end
+
+        ChatOverlay(vulnAimCast)
 
         -- Can GCD
         -- can_gcd,value=variable.vuln_window<action.aimed_shot.cast_time|variable.vuln_window>variable.vuln_aim_casts*action.aimed_shot.execute_time+gcd.max+0.1 

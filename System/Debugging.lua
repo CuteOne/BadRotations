@@ -40,15 +40,13 @@ br.debug.cpu.enemiesEngine = {
     getEnemies = 0,
     bestUnitFinder = 0,
 }
-br.debug.cpu.cBuilder = {
+br.debug.cpu.rotation = {
     loadTime = 0,
     elapsedTime = 0,
     totalIterations = 0,
     currentTime = 0,
     averageTime = 0,
     baseUpdate = 0,
-    startRotation = 0,
-    profile = 0,
 }
 br.debug.cpu.pulse = {
     elapsedTime = 0,

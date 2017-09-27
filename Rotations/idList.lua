@@ -1,3 +1,39 @@
+function getRacial()
+    local race = select(2,UnitRace("player"))
+    local class = select(2, UnitClass("player"))
+
+    if race == "BloodElf" then
+        if class == "WARRIOR" then BloodElfRacial = 69179 end
+        if class == "MONK" then BloodElfRacial = 129597 end
+        if class == "MAGE" or class == "WARLOCK" then BloodElfRacial = 28730 end
+        if class == "DEATHKNIGHT" then BloodElfRacial = 50613 end
+        if class == "HUNTER" then BloodElfRacial = 80483 end
+        if class == "PALADIN" then BloodElfRacial = 155145 end
+        if class == "PRIEST" then BloodElfRacial = 232633 end
+        if class == "ROGUE" then BloodElfRacial = 25046 end
+        if class == "DEMONHUNTER" then BloodElfRacial = 202719 end
+    end
+    local racialSpells = {
+        -- Alliance
+        Dwarf    = 20594, -- Stoneform
+        Gnome    = 20589, -- Escape Artist
+        Draenei  = 59547, -- Gift of the Naaru
+        Human    = 59752, -- Every Man for Himself
+        NightElf = 58984, -- Shadowmeld
+        Worgen   = 68992, -- Darkflight
+        -- Horde
+        BloodElf = BloodElfRacial, -- Arcane Torrent
+        Goblin   = 69041, -- Rocket Barrage
+        Orc      = 20572, -- Blood Fury
+        Tauren   = 20549, -- War Stomp
+        Troll    = 26297, -- Berserking
+        Scourge  = 7744,  -- Will of the Forsaken
+        -- Both
+        Pandaren = 107079, -- Quaking Palm 
+    }
+    return racialSpells[race]
+end
+
 br.idList = {
     DEATHKNIGHT = {
         -- Blood
@@ -1505,6 +1541,7 @@ br.idList = {
                 whirlingDragonPunch         = 152175,
             },
             artifacts                       = {
+                concordanceOfTheLegionfall  = 239042,
                 crosswinds                  = 195650,
                 darkSkies                   = 195265,
                 deathArt                    = 195266,
@@ -3237,6 +3274,7 @@ br.idList = {
                 global                          = 61304,
                 shadowmeld                      = 58984,
                 quakingPalm                     = 107079,
+                racial                          = getRacial(),
             },
             artifacts                           = {
                 artificialDamage                = 226829,

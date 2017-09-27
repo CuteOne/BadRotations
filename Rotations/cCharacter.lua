@@ -147,7 +147,7 @@ function cCharacter:new(class)
 		if canRun() ~= true then
 			return false
 		end
-		br.debug.cpu.cBuilder.baseUpdate = debugprofilestop()-startTime or 0
+		br.debug.cpu.rotation.baseUpdate = debugprofilestop()-startTime or 0
 	end
 
 -- Update Character Stats
@@ -242,7 +242,10 @@ function cCharacter:new(class)
         else
         	return
         end
-        br.debug.cpu.cBuilder.startRotation = debugprofilestop()-startTime or 0
+        br.debug.cpu.rotation.currentTime = debugprofilestop()-startTime
+		br.debug.cpu.rotation.totalIterations = br.debug.cpu.rotation.totalIterations + 1
+		br.debug.cpu.rotation.elapsedTime = br.debug.cpu.rotation.elapsedTime + debugprofilestop()-startTime
+		br.debug.cpu.rotation.averageTime = br.debug.cpu.rotation.elapsedTime / br.debug.cpu.rotation.totalIterations
     end
 
 -- Updates special Equipslots

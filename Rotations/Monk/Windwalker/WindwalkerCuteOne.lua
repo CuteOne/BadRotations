@@ -349,7 +349,7 @@ local function runRotation()
         local markOfTheCraneCount = debuff.markOfTheCrane.count()
 
         local function windborneFerocity()
-            return ((1 + (artifact.ferocityOfTheBrokenTemple.rank() * 0.1)) * (1 + (artifact.windborneBlows.rank() * 0.05)))
+            return ((1 + (artifact.ferocityOfTheBrokenTemple.rank() * 0.05)) * (1 + (artifact.windborneBlows.rank() * 0.1)))
         end
 
         local function blackoutKickDmg()
@@ -457,42 +457,22 @@ local function runRotation()
             end
         end
 
+        -- Print("SCK: "..round2(spinningCraneKickDmg(),0)..", FoF: "..round2(fistsOfFuryDmg(),0)..", WDP: "..round2(whirlingDragonPunchDmg(),0)..", RSK: "..round2(risingSunKickDmg(),0).."BOK: "..round2(blackoutKickDmg(),0))
+
         -- Spinning Crane Kick Stuff
         if level >= 40 then
             -- if markOfTheCraneCount >= 16 then
-            if spinningCraneKickDmg() > whirlingDragonPunchDmg() then
-                BetterThanWDP = true
-                --Print("Better than WDP")
-            else
-                BetterThanWDP = false
-            end
+            BetterThanWDP = spinningCraneKickDmg() > whirlingDragonPunchDmg() 
             -- if (markOfTheCraneCount >= 13 and #enemies.yards5 >= 3) or (markOfTheCraneCount >= 14 and #enemies.yards5 == 2) or markOfTheCraneCount >= 16 then
-            if spinningCraneKickDmg() > fistsOfFuryDmg() then
-                BetterThanFoF = true
-                --Print("Better than FoF")
-            else
-                BetterThanFoF = false
-            end
+            BetterThanFoF = spinningCraneKickDmg() > fistsOfFuryDmg()
             -- if #enemies.yards8 >= 4 or (markOfTheCraneCount >= 2 and #enemies.yards8 == 3) or markOfTheCraneCount >= 9 then
-            if spinningCraneKickDmg() > risingSunKickDmg() then
-                BetterThanRSK = true
-                --Print("Better than RSK")
-            else
-                BetterThanRSK = false
-            end
+            BetterThanRSK = spinningCraneKickDmg() > risingSunKickDmg()
             -- if #enemies.yards8 >= 3 or (markOfTheCraneCount >= 2 and #enemies.yards8 == 2) or markOfTheCraneCount >= 6 then
-            if spinningCraneKickDmg() > blackoutKickDmg() then
-                BetterThanBOK = true
-                --Print("Better than BoK")
-            else
-                BetterThanBOK = false
-            end
-            if #enemies.yards8 >= 13 or (markOfTheCraneCount >= 2 and #enemies.yards8 == 10) or (markOfTheCraneCount >= 3 and #enemies.yards8 == 8) or (markOfTheCraneCount >= 4 and #enemies.yards8 == 6) or (markOfTheCraneCount >= 7 and #enemies.yards8 == 4) or (markOfTheCraneCount >= 9 and #enemies.yards8 == 3) or (markOfTheCraneCount >= 13 and #enemies.yards8 == 2) or markOfTheCraneCount >= 14 then
-                BetterThanSOTW = true
-                --Print("Better than SotW")
-            else
-                BetterThanSOTW = false
-            end
+            BetterThanBOK = spinningCraneKickDmg() > blackoutKickDmg()
+            BetterThanSOTW = (#enemies.yards8 >= 13 or (markOfTheCraneCount >= 2 and #enemies.yards8 == 10) 
+                or (markOfTheCraneCount >= 3 and #enemies.yards8 == 8) or (markOfTheCraneCount >= 4 and #enemies.yards8 == 6) 
+                or (markOfTheCraneCount >= 7 and #enemies.yards8 == 4) or (markOfTheCraneCount >= 9 and #enemies.yards8 == 3) 
+                or (markOfTheCraneCount >= 13 and #enemies.yards8 == 2) or markOfTheCraneCount >= 14)
         end
 
         -- Touch of Deathable

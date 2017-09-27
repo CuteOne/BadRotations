@@ -492,9 +492,9 @@ local function runRotation()
         -- Fury of the Illidari
             -- fury_of_the_illidari,if=(active_enemies>desired_targets|raid_event.adds.in>55)&(!talent.momentum.enabled|buff.momentum.up)
             if (getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs())) and getDistance("target") < 5 then
-                if ((mode.rotation == 1 and (#enemies.yards8 >= getOptionValue("Units To AoE") or (#enemies.yards8 > 0 and useCDs()))) or mode.rotation == 2 or (mode.rotation == 3 and #enemies.yards8 > 0 and useCDs()))
+                if ((mode.rotation == 1 and (#enemies.yards8 >= getOptionValue("Units To AoE") or (#enemies.yards8 > 0 and useCDs()))) or mode.rotation == 2 
+                        or (mode.rotation == 3 and ((#enemies.yards8 > 0 and useCDs()) or #enemies.yards8 >= getOptionValue("Units To AoE"))))
                     and (not talent.momentum or buff.momentum.exists()) 
-                    --and (not talent.chaosBlades or buff.chaosBlades or cd.chaosBlades.remain() > 30 or ttd(units.dyn5) < cd.chaosBlades.remain())
                 then
                     if cast.furyOfTheIllidari() then return end
                 end
