@@ -373,7 +373,7 @@ local function runRotation()
                     if cast.soulBarrier() then return end
                 end
     -- Soul Carver
-                if (buff.soulFragments.stack() <= 3 or (debuff.fieryBrand.exists(units.dyn5) and artifact.flamingSoul.enabled())) and (getSpellCD(204021) > 5 or not artifact.flamingSoul.enabled()) then
+                if (buff.soulFragments.stack() <= 3 or debuff.fieryBrand.exists(units.dyn5)) and getSpellCD(204021) > 5 then
                     if cast.soulCarver() then return end
                 end
     -- Immolation Aura
