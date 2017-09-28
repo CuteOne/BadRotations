@@ -46,8 +46,6 @@ local function createOptions()
         --- GENERAL OPTIONS --- -- Define General Options
         -----------------------
         section = br.ui:createSection(br.ui.window.profile,  "General")
-        -- Out-Of-Combat Healing
-            br.ui:createCheckbox(section,"OOC Healing", "Enable/Disable out of combat healing", true)
         -- Dummy DPS Test
             br.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "Enables/Disables DPS Testing", "Set to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
         -- Angelic Feather
@@ -78,13 +76,17 @@ local function createOptions()
         section = br.ui:createSection(br.ui.window.profile, "Defensive")
         -- Desperate Prayer
             br.ui:createSpinner(section, "Desperate Prayer",  25,  0,  100,  5,  "Health Percent to Cast At")
+        -- Healthstone
+            br.ui:createSpinner(section, "Healthstone",  30,  0,  100,  5,  "Health Percent to Cast At")
+        -- Fade
+            br.ui:createCheckbox(section, "Fade")
         br.ui:checkSectionState(section)
         -------------------------
         --- OOC HEALING OPTIONS ---
         -------------------------
         section = br.ui:createSection(br.ui.window.profile, "Out-Of-Combat Healing")
             -- Prayer of Mending 
-            br.ui:createCheckbox(section,"Prayer of Mending","Pre-Stack PoM on tanks", true)
+            br.ui:createCheckbox(section,"Prayer of Mending Pre-Stack","Pre-Stack PoM on tanks", true)
         br.ui:checkSectionState(section)
         -------------------------
         --- HEALING OPTIONS ---
@@ -175,7 +177,6 @@ local function runRotation()
     local cd                                            = br.player.cd
     local charges                                       = br.player.charges
     local debuff                                        = br.player.debuff
-    local enemies                                       = br.player.enemies
     local falling, swimming, flying, moving, mounted    = getFallTime(), IsSwimming(), IsFlying(), GetUnitSpeed("player")>0, IsMounted()
     local gcd                                           = br.player.gcd
     local inCombat                                      = br.player.inCombat
@@ -183,20 +184,19 @@ local function runRotation()
     local inRaid                                        = br.player.instance=="raid"
     local level                                         = br.player.level
     local lowestHP                                      = br.friend[1].unit
+    local mana                                          = br.player.power.mana.percent()
     local mode                                          = br.player.mode
     local moving                                        = isMoving("player") and not br.player.buff.norgannonsForesight.exists()
     local perk                                          = br.player.perk        
     local php                                           = br.player.health
-    local power, powmax, powgen                         = br.player.power, br.player.powerMax, br.player.powerRegen
+    local power, powmax, powgen                         = br.player.power.mana.amount(), br.player.power.mana.max(), br.player.power.mana.regen()
     local pullTimer                                     = br.DBM:getPulltimer()
     local race                                          = br.player.race
     local racial                                        = br.player.getRacial()
     local recharge                                      = br.player.recharge
     local spell                                         = br.player.spell
     local talent                                        = br.player.talent
-    local tanks                                         = getTanksTable()
     local ttm                                           = br.player.timeToMax
-    local units                                         = units or {}
 
     local lowest                                        = {}    --Lowest Unit
     lowest.hp                                           = br.friend[1].hp
@@ -204,25 +204,38 @@ local function runRotation()
     lowest.unit                                         = br.friend[1].unit
     lowest.range                                        = br.friend[1].range
     lowest.guid                                         = br.friend[1].guid    
-    local friends                                       = friends or {}                  
 
-    units.dyn12 = br.player.units(12,true)
+    local units                                         = units or {}
     units.dyn40 = br.player.units(40)
+    local enemies                                       = enemies or {}
+    enemies.yards12 = br.player.enemies(12)
+    enemies.yards40 = br.player.enemies(40)
 
+    local friends                                       = friends or {}                  
     friends.yards40 = getAllies("player",40)
+
+    local tanks = getTanksTable()
+    -- local myTanks = {}
+    -- local lowestTank = nil
+    -- for i=1, #tanks do
+    --     if UnitInRange(tanks[i].unit) 
+    --         and not UnitIsDeadOrGhost(tanks[i].unit) 
+    --         and UnitInPhase(tanks[i].unit) 
+    --         and UnitIsVisible(tanks[i].unit) 
+    --         and getLineOfSight("player", tanks[i].unit) 
+    --     then
+    --         tinsert(myTanks, tanks[i])
+    --         if lowestTank == nil or lowestTank.hp > tanks[i].hp then lowestTank = tanks[i] end
+    --     end
+    -- end
 
     if leftCombat == nil then leftCombat = GetTime() end
     if profileStop == nil then profileStop = false end
-
 
 ---***************************************************************************************************************************
 --- Action List Extras *******************************************************************************************************
 ---***************************************************************************************************************************
     local function actionList_Extras()
-    -- Divine Hymn
-        if mode.hymn == 2 then
-            if cast.divineHymn() then return end
-        end
     -- Dummy Test
         if isChecked("DPS Testing") then
             if GetObjectExists("target") then
@@ -241,7 +254,7 @@ local function runRotation()
             end
             -- Body and Mind
             if isChecked("Body and Mind") and talent.bodyAndMind then
-                if cast.bodyAndMind("player") then return end
+                if cast.bodyAndMind("player") then return true end
             end
         end
     -- Pre-Pot Timer
@@ -260,38 +273,25 @@ local function runRotation()
 --- Action List DPS **********************************************************************************************************
 ---***************************************************************************************************************************
     local function actionList_DPS()
-        if mode.dps == 1 then
-            if isChecked("Minimum Mana to DPS") and power >= getValue("Minimum Mana to DPS") then
-        -- Holy Nova
-                if mode.cleave == 1 and #units.dyn12 > 2 then
-                    if cast.holyNova() then return true end
-                end
-        -- Holy Word: Chastise
-                if cast.holyWordChastise(units.dyn40) then return true end
-        -- Holy Fire
-                if cast.holyFire(units.dyn40) then return true end
+        if isChecked("Minimum Mana to DPS") and mana >= getValue("Minimum Mana to DPS") then
+    -- Holy Nova
+            if mode.cleave == 1 and #enemies.yards12 > 2 then
+                if cast.holyNova() then return true end
             end
-        -- Smite
-            if cast.smite(units.dyn40) then return true end
+    -- Holy Word: Chastise
+            if cast.holyWordChastise(units.dyn40) then return true end
+    -- Holy Fire
+            if cast.holyFire(units.dyn40) then return true end
         end
+    -- Smite
+        if cast.smite(units.dyn40) then return true end
     end
+
 
 ---***************************************************************************************************************************
 --- Action List Out of Combat Healing ****************************************************************************************
 ---***************************************************************************************************************************
     local function actionList_OutOfCombatHealing()
-    -- Prayer of Mending - Pre-stack on tanks
-        if isChecked("Prayer of Mending") then
-            if cd.prayerOfMending.remain() == 0 then
-                local pomTarget = tanks[1]
-                for i=1, #tanks do
-                    thisTank = tanks[i]
-                    if UnitInRange(thisTank.unit) then
-                        if not buff.prayerOfMending.exists(thisTank.unit) or buff.prayerOfMending.remain(thisTank.unit) < buff.prayerOfMending.remain(pomTarget.unit) then pomTarget = thisTank end
-                    end
-                end
-            end
-        end
     -- Cures - Single Taret
         -- Purify
         if br.player.mode.decurse == 1 and cd.purify.remain() == 0 then
@@ -348,7 +348,7 @@ local function runRotation()
             end 
         end
     -- Prayer of Mending
-        if cd.prayerOfMending.remain() == 0 then
+        if cd.prayerOfMending.remain() == 0 and isChecked("Prayer of Mending Pre-Stack") then
             local pomTarget = tanks[1]
             for i=1, #tanks do
                 thisTank = tanks[i]
@@ -356,8 +356,9 @@ local function runRotation()
                     if not buff.prayerOfMending.exists(thisTank.unit) or buff.prayerOfMending.remain(thisTank.unit) < buff.prayerOfMending.remain(pomTarget.unit) then pomTarget = thisTank end
                 end
             end
-            if pomTarget == nil then pomTarget = lowest end
-            if cast.prayerOfMending(pomTarget.unit) then return true end
+            if pomTarget ~= nil then 
+                if cast.prayerOfMending(pomTarget.unit) then return true end
+            end
         end
     -- Circle of Healing
         if talent.circleOfHealing and cd.circleOfHealing.remain() == 0 and #circleOfHealingCandidates >= getValue("Circle of Healing Targets") then
@@ -369,7 +370,7 @@ local function runRotation()
         end
     -- Prayer of Healing
         if not moving then
-            if castWiseAoEHeal(br.friend,spell.prayerOfHealing,40,getValue("Prayer of Healing"),getValue("Prayer of Healing Targets"),5,false,true)  then return end
+            if castWiseAoEHeal(br.friend,spell.prayerOfHealing,40,getValue("Prayer of Healing"),getValue("Prayer of Healing Targets"),5,false,true)  then return true end
         end 
     -- Flash Heal
         for i=1, #tanks do
@@ -438,6 +439,13 @@ local function runRotation()
 --- Action List Emergency Heals **********************************************************************************************
 ---***************************************************************************************************************************
     local function actionList_Emergency()
+    -- Fade
+        if isChecked("Fade") and not solo and cd.fade.remain == 0 then
+            local myThreat = UnitThreatSituation("player")
+            if myThreat ~= nil and myThreat >= 2 then
+                if cast.fade() then return true end
+            end
+        end
     -- Guardian Spirit
         if useCDs() and cd.guardianSpirit.remain() == 0 then
             for i=1, #tanks do
@@ -569,7 +577,7 @@ local function runRotation()
         end
     -- Prayer of Healing
         if not moving then
-            if castWiseAoEHeal(br.friend,spell.prayerOfHealing,40,getValue("Prayer of Healing"),getValue("Prayer of Healing Targets"),5,false,true)  then return end
+            if castWiseAoEHeal(br.friend,spell.prayerOfHealing,40,getValue("Prayer of Healing"),getValue("Prayer of Healing Targets"),5,false,true)  then return true end
         end 
     -- Flash Heal
         for i=1, #tanks do
@@ -651,10 +659,12 @@ local function runRotation()
 --- In Combat --------------- 
 -----------------------------
         if inCombat then
-            if lowest.hp < 40 and isCastingSpell(spell.smite) and getCastTime(spell.holyLight) > 0.4 then SpellStopCasting() end
+            if lowest.hp < 60 and isCastingSpell(spell.smite) and getCastTime(spell.smite) > 0.2 then SpellStopCasting() end
             if actionList_Emergency() then return end
             if actionList_Heal() then return end
-            actionList_DPS()
+            if mode.dps == 1 then
+                actionList_DPS()
+            end
         end -- End In Combat Rotation
     end -- Pause
 end -- End runRotation 
