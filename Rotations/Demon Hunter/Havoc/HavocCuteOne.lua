@@ -200,7 +200,7 @@ local function runRotation()
         local use                                           = br.player.use
 
         units.dyn5 = br.player.units(5)
-        units.dyn8 = br.player.units(8)
+        units.dyn30 = br.player.units(30)
         enemies.yards5 = br.player.enemies(5)
         enemies.yards8 = br.player.enemies(8)
         enemies.yards8r = getEnemiesInRect(10,20,false) or 0
@@ -479,7 +479,7 @@ local function runRotation()
         -- Throw Glaive
             -- throw_glaive,if=talent.bloodlet.enabled&(!talent.momentum.enabled|buff.momentum.up)&charges=2
             if talent.bloodlet and (not talent.momentum or buff.momentum.exists()) and charges.throwGlaive.count() == 2 then
-                if cast.throwGlaive(units.dyn5) then return end
+                if cast.throwGlaive() then return end
             end
         -- Death Sweep
             -- death_sweep,if=variable.blade_dance
@@ -509,7 +509,7 @@ local function runRotation()
         -- Throw Glaive
             -- throw_glaive,if=talent.bloodlet.enabled&spell_targets>=2&(!talent.master_of_the_glaive.enabled|!talent.momentum.enabled|buff.momentum.up)&(spell_targets>=3|raid_event.adds.in>recharge_time+cooldown)
             if talent.bloodlet and ((mode.rotation == 1 and #enemies.yards10t >= 2) or mode.rotation == 2) and (not talent.masterOfTheGlaive or not talent.momentum or buff.momentum.exists()) then
-                if cast.throwGlaive(units.dyn10t) then return end
+                if cast.throwGlaive() then return end
             end
         -- Felblade
             -- felblade,if=fury.deficit>=30
@@ -533,7 +533,7 @@ local function runRotation()
         -- Throw Glaive
             -- throw_glaive,if=talent.bloodlet.enabled&(!talent.master_of_the_glaive.enabled|!talent.momentum.enabled|buff.momentum.up)&raid_event.adds.in>recharge_time+cooldown
             if talent.bloodlet and (not talent.masterOfTheGlaive or not talent.momentum or buff.momentum.exists()) then
-                if cast.throwGlaive(units.dyn5) then return end
+                if cast.throwGlaive() then return end
             end
         -- Chaos Strike
             -- chaos_strike,if=(!talent.momentum.enabled|buff.momentum.up|fury.deficit<30+buff.prepared.up*8)&!variable.pooling_for_chaos_strike&!variable.pooling_for_meta&!variable.pooling_for_blade_dance
@@ -558,8 +558,8 @@ local function runRotation()
             end
         -- Throw Glaive
             -- throw_glaive,if=buff.out_of_range.up
-            if getDistance(units.dyn5) > 8 then
-                if cast.throwGlaive(units.dyn5) then return end
+            if getDistance(units.dyn30) > 8 then
+                if cast.throwGlaive() then return end
             end
         -- Fel Rush
             -- fel_rush,if=movement.distance>15|(buff.out_of_range.up&!talent.momentum.enabled)
@@ -650,7 +650,7 @@ local function runRotation()
         -- Throw Glaive
             -- throw_glaive,if=talent.bloodlet.enabled&spell_targets>=2&(!talent.master_of_the_glaive.enabled|!talent.momentum.enabled|buff.momentum.up)&(spell_targets>=3|raid_event.adds.in>recharge_time+cooldown)
             if talent.bloodlet and ((mode.rotation == 1 and #enemies.yards10t >= 2) or mode.rotation == 2) and (not talent.masterOfTheGlaive or not talent.momentum or buff.momentum.exists()) then
-                if cast.throwGlaive(units.dyn10t) then return end
+                if cast.throwGlaive() then return end
             end
         -- Felblade
             -- felblade,if=fury.deficit>=30+buff.prepared.up*8
@@ -679,7 +679,7 @@ local function runRotation()
             end
             -- throw_glaive,if=!talent.bloodlet.enabled&buff.metamorphosis.down&spell_targets>=3
             if not talent.bloodlet and not buff.metamorphosis.exists() and ((mode.rotation == 1 and #enemies.yards10t >= 3) or mode.rotation == 2) then
-                if cast.throwGlaive(units.dyn10t) then return end
+                if cast.throwGlaive() then return end
             end
         -- Chaos Strike
             -- chaos_strike,if=(talent.demon_blades.enabled|!talent.momentum.enabled|buff.momentum.up|fury.deficit<30+buff.prepared.up*8)&!variable.pooling_for_chaos_strike&!variable.pooling_for_meta&!variable.pooling_for_blade_dance
@@ -704,8 +704,8 @@ local function runRotation()
             end
         -- Throw Glaive
             -- throw_glaive,if=buff.out_of_range.up
-            if getDistance(units.dyn5) > 8 then
-                if cast.throwGlaive(units.dyn5) then return end
+            if getDistance(units.dyn30) > 8 then
+                if cast.throwGlaive() then return end
             end
         -- Felblade
             -- felblade,if=movement.distance|buff.out_of_range.up
@@ -771,9 +771,9 @@ local function runRotation()
 --- Begin Profile ---
 ---------------------
     -- Profile Stop | Pause
-        if not inCombat and not IsMounted() and not hastar and profileStop==true then
+        if not inCombat and not IsMounted() and not hastar and profileStop then
             profileStop = false
-        elseif (inCombat and profileStop==true) or (IsMounted() or IsFlying()) or pause() or mode.rotation==4 or isCastingSpell(spell.eyeBeam) == true then
+        elseif (inCombat and profileStop) or (IsMounted() or IsFlying()) or pause() or mode.rotation==4 or isCastingSpell(spell.eyeBeam) == true then
             return true
         else
 -----------------------
@@ -792,7 +792,7 @@ local function runRotation()
 --- In Combat Rotation ---
 --------------------------
             -- print(tostring(isCastingSpell(spell.eyeBeam)))
-            if inCombat and not IsMounted() and profileStop==false and isValidUnit(units.dyn5) then
+            if inCombat and not IsMounted() and not profileStop and isValidUnit(units.dyn5) then
     ------------------------------
     --- In Combat - Interrupts ---
     ------------------------------

@@ -840,7 +840,7 @@ local function runRotation()
                 end
             end --End In Combat
         end --End Rotation Logic
-        br.debug.cpu.cBuilder.profile = debugprofilestop()-startTime or 0
+        -- br.debug.cpu.cBuilder.profile = debugprofilestop()-startTime or 0
     -- end -- End Timer
 end -- End runRotation
 local id = 263
