@@ -57,6 +57,8 @@ local function createOptions()
             br.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
             -- Body and Soul
             br.ui:createCheckbox(section,"PWS: Body and Soul")
+            -- Elixir
+            br.ui:createDropdownWithout(section,"Elixir", {"Flask of the Whispered Pact","Repurposed Fel Focuser","Oralius' Whispering Crystal","None"}, 1, "|cffFFFFFFSet Elixir to use.")
             -- Mouseover Dotting
             br.ui:createCheckbox(section,"Mouseover Dotting")
             -- Strict simc mode
@@ -72,12 +74,10 @@ local function createOptions()
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
             -- Int Pot
             br.ui:createCheckbox(section,"Int Pot")
-            -- Elixir
-            br.ui:createDropdownWithout(section,"Elixir", {"Flask of the Whispered Pact","Repurposed Fel Focuser","Oralius' Whispering Crystal","None"}, 1, "|cffFFFFFFSet Elixir to use.")
             -- Trinkets
             br.ui:createCheckbox(section,"Trinkets", "|cffFFFFFFUse trinkets on Cooldown. Overrides individual trinket usage below.")
             -- Arcane Torrent
-            if (br.player.race == "Troll" or br.player.race == "BloodElf") then
+            if (br.player.race == "BloodElf") then
                 br.ui:createCheckbox(section,"Arcane Torrent")
                 br.ui:createSpinnerWithout(section, "  Arcane Torrent Stacks", 35, 0, 100, 1, "|cffFFFFFFSet to desired Void Form stacks to use at.")
             end
@@ -1465,7 +1465,6 @@ local function runRotation()
 --- Rotations ---
 -----------------
         if actionList_Extra() then return end
-        if actionList_Defensive() then return end
 ---------------------------------
 --- Out Of Combat - Rotations ---
 ---------------------------------
@@ -1476,6 +1475,7 @@ local function runRotation()
 --- In Combat - Rotations ---
 -----------------------------
         if inCombat and not IsMounted() and isValidUnit(units.dyn40) and getDistance(units.dyn40) < 40 and not isCastingSpell(spell.voidTorrent) and not isCastingSpell(spell.mindBlast) then
+        if actionList_Defensive() then return end
         -- Action List - Cooldowns
             actionList_Cooldowns()
         -- Action List - Check

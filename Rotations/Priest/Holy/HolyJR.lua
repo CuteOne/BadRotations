@@ -53,7 +53,7 @@ local function createOptions()
         -- Body and Mind
             br.ui:createCheckbox(section,"Body and Mind", "Enables/Disables Body and Mind usage")
         -- Elixir
-            br.ui:createDropdown(section,"Elixir", {"Flask of the Whispered Pact","Repurposed Fel Focuser","Oralius' Whispering Crystal","None"}, 1, "|cffFFFFFFSet Elixir to use.")
+            br.ui:createDropdown(section,"Elixir", {"Flask of the Whispered Pact","Repurposed Fel Focuser","Oralius' Whispering Crystal","None"}, 1, "Set Elixir to use.")
         -- Min Mana to DPS
             br.ui:createSpinner(section, "Minimum Mana to DPS",  50,  0,  100,  5,  "Uncheck to NOT use mana for DPS", "Below this value, do not use mana for DPS.")
         br.ui:checkSectionState(section)
@@ -79,6 +79,11 @@ local function createOptions()
         -- Velen's Future Sight
             if hasEquiped(144258) then
                 br.ui:createCheckbox(section, "Velens Future Sight")
+            end
+        -- Racials
+            -- Blood Elf 
+            if (br.player.race == "BloodElf") then
+                br.ui:createSpinner(section, "Arcane Torrent", 50, 0, 100, 1, "Enable/Disable", "Mana Percent to Cast At")
             end
 
         br.ui:checkSectionState(section)
@@ -265,7 +270,8 @@ local function runRotation()
     -- Moving
         if moving then
             if isChecked("Angelic Feather") and talent.angelicFeather and not buff.angelicFeather.exists("player") then
-                RunMacroText("/cast [@Player] Angelic Feather")
+                cast.angelicFeather("player")
+                --RunMacroText("/cast [@Player] Angelic Feather")
             end
             -- Body and Mind
             if isChecked("Body and Mind") and talent.bodyAndMind then
@@ -480,11 +486,11 @@ local function runRotation()
         
 
 ---***************************************************************************************************************************
---- Action List Emergency Heals **********************************************************************************************
+--- Action List Emergencies and Cooldowns ************************************************************************************
 ---***************************************************************************************************************************
     local function actionList_Emergency()
     -- The Deceiver's Grand Design
-        if isChecked("The Deceivers Grand Design") and hasEquiped(147007) and itemCharges(147707) > 0 then
+        if isChecked("The Deceivers Grand Design") and hasEquiped(147007) and canUse(147707) > 0 then
             local localizedName = select(1,GetItemInfo(147007))
             for i=1, #tanks do
                 thisTank = tanks[i]
@@ -492,6 +498,11 @@ local function runRotation()
                     UseItemByName(localizedName, thisTank.unit)
                 end
             end
+        end
+    -- Mass Dispell (by hotkey)
+        if isChecked("Mass Dispel Hotkey") and (SpecificToggle("Mass Dispel Hotkey") and cd.massDispel.remain() == 0 and not GetCurrentKeyBoardFocus()) then
+            CastSpellByName(GetSpellInfo(spell.massDispel),"cursor")
+            return true
         end
     -- Fade
         if isChecked("Fade") and not solo and cd.fade.remain == 0 then
@@ -526,10 +537,9 @@ local function runRotation()
                 if cast.lightOfTuure(lowest.unit, "aoe") then return true end
             end
         end
-    -- Mass Dispell (by hotkey)
-        if isChecked("Mass Dispel Hotkey") and (SpecificToggle("Mass Dispel Hotkey") and cd.massDispel.remain() == 0 and not GetCurrentKeyBoardFocus()) then
-            CastSpellByName(GetSpellInfo(spell.massDispel),"cursor")
-            return true
+    -- Arcane Torrent
+        if useCDs() and isChecked("Arcane Torrent") and mana <= getValue("Arcane Torrent") and br.player.race == "BloodElf" then
+            if castSpell("player",racial,false,false,false) then return end
         end
     end
 
