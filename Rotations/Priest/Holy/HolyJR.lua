@@ -68,6 +68,16 @@ local function createOptions()
                 br.ui:createSpinnerWithout(section, "Light of Tuure",  40,  0,  100,  5,  "Health Percent to Cast At")
                 br.ui:createCheckbox(section,"Light of Tuure Tank Only",  "Enable/Disable")
             end
+        -- Trinkets
+            br.ui:createDropdownWithout(section, "Trinkets", {"1st Only","2nd Only","Both","None"}, 4, "Select Trinket Usage.")
+        -- The Deceiver's Grand Design
+            if hasEquiped(147007) then
+                br.ui:createCheckbox(section, "The Deceivers Grand Design")
+            end
+        -- Velen's Future Sight
+            if hasEquiped(144258) then
+                br.ui:createCheckbox(section, "Velens Future Sight")
+            end
 
         br.ui:checkSectionState(section)
         -------------------------
@@ -125,8 +135,9 @@ local function createOptions()
                 br.ui:createSpinner(section, "Halo",  70,  0,  100,  5,   "Enable/Disable", "Health Percent to Cast At") 
                 br.ui:createSpinnerWithout(section, "Halo Targets",  3,  0,  40,  1,  "Minimum Halo Targets")
             end
-        -- Mass Dispell
-            br.ui:createSpinner(section, "Mass Dispell Targets",  3,  0,  5,  1,   "Enable/Disable", "Minimum Mass Dispell Targets")
+        -- Mass Dispel
+            br.ui:createSpinner(section, "Automatic Mass Dispel",  3,  0,  5,  1,   "Enable/Disable", "Minimum Mass Dispel Targets")
+            br.ui:createDropdown(section, "Mass Dispel Hotkey", br.dropOptions.Toggle, 6, "Enables/Disables Mass Dispel usage.")
         br.ui:checkSectionState(section)
         ----------------------
         --- TOGGLE OPTIONS --- -- Degine Toggle Options
@@ -325,6 +336,7 @@ local function runRotation()
         local haloCandidates = {}
         local groupHealCandidates = {}
         local bindingHealCandidates = {}
+        local decurseCandidates = {}
         for i=1, #friends.yards40 do
             if cd.holyWordSanctify.remain() == 0 and friends.yards40[i].hp < getValue("Holy Word: Sanctify") then
                 tinsert(sanctifyCandidates,friends.yards40[i])
@@ -337,6 +349,9 @@ local function runRotation()
             end
             if talent.bindingHeal and friends.yards40[i].hp < getValue("Binding Heal") then
                 tinsert(bindingHealCandidates,friends.yards40[i])
+            end
+            if canDispel(friends.yards40[i].unit,spell.massDispel) then
+                tinsert(decurseCandidates,friends.yards40[i])
             end
         end
     -- Holy Word: Sanctify
@@ -382,7 +397,13 @@ local function runRotation()
         if lowest.hp <= getValue("Flash Heal") then
             if cast.flashHeal(lowest.unit, "aoe") then return true end
         end
-    -- Mass Dispell
+    -- Mass Dispel
+        if br.player.mode.decurse == 1 and cd.massDispel.remain() == 0 and isChecked("Automatic Mass Dispell") and #decurseCandidates >= getvalue("Automatic Mass Dispel") then
+            local loc = getBestGroundCircleLocation(decurseCandidates,getValue("Automatic Mass Dispel"),15)
+            if loc ~= nil then
+                if castGroundAtLocation(loc, spell.massDispel) then return true end
+            end 
+        end
     -- Heal
         if isChecked("Heal") then
             for i=1, #tanks do
@@ -439,6 +460,16 @@ local function runRotation()
 --- Action List Emergency Heals **********************************************************************************************
 ---***************************************************************************************************************************
     local function actionList_Emergency()
+    -- The Deceiver's Grand Design
+        if isChecked("The Deceivers Grand Design") and hasEquiped(147007) and itemCharges(147707) > 0 then
+            local localizedName = select(1,GetItemInfo(147007))
+            for i=1, #tanks do
+                thisTank = tanks[i]
+                if UnitInRange(thisTank.unit) and not buff.guidingHand.exists(thisTank.unit) then
+                    UseItemByName(localizedName, thisTank.unit)
+                end
+            end
+        end
     -- Fade
         if isChecked("Fade") and not solo and cd.fade.remain == 0 then
             local myThreat = UnitThreatSituation("player")
@@ -471,6 +502,11 @@ local function runRotation()
             if not isChecked("Light of Tuure Tank Only") and lowest.hp <= getValue("Light of Tuure") then
                 if cast.lightOfTuure(lowest.unit, "aoe") then return true end
             end
+        end
+    -- Mass Dispell (by hotkey)
+        if isChecked("Mass Dispel Hotkey") and (SpecificToggle("Mass Dispel Hotkey") and cd.massDispel.remain() == 0 and not GetCurrentKeyBoardFocus()) then
+            CastSpellByName(GetSpellInfo(spell.massDispel),"cursor")
+            return true
         end
     end
 
@@ -523,6 +559,7 @@ local function runRotation()
         local haloCandidates = {}
         local groupHealCandidates = {}
         local bindingHealCandidates = {}
+        local decurseCandidates = {}
         for i=1, #friends.yards40 do
             if cd.holyWordSanctify.remain() == 0 and friends.yards40[i].hp < getValue("Holy Word: Sanctify") then
                 tinsert(sanctifyCandidates,friends.yards40[i])
@@ -536,14 +573,25 @@ local function runRotation()
             if talent.bindingHeal and friends.yards40[i].hp < getValue("Binding Heal") then
                 tinsert(bindingHealCandidates,friends.yards40[i])
             end
+            if canDispel(friends.yards40[i].unit,spell.massDispel) then
+                tinsert(decurseCandidates,friends.yards40[i])
+            end
         end
     -- Holy Word: Sanctify
         if cd.holyWordSanctify.remain() == 0 and #sanctifyCandidates >= getValue("Holy Word: Sanctify Targets") then
             -- get the best ground location to heal most or all of them
             local loc = getBestGroundCircleLocation(sanctifyCandidates,getValue("Holy Word: Sanctify Targets"),10)
             if loc ~= nil then
+                -- Lots of people need heals. Good a time as any to use trinkets...
+                -- If you can think of a better time to use them, feel free to modify
+                if (getOptionValue("Trinkets") == 1 or getOptionValue("Trinkets") == 3) and canUse(13) then
+                    useItem(13)
+                end
+                if (getOptionValue("Trinkets") == 2 or getOptionValue("Trinkets") == 3) and canUse(14) then
+                    useItem(14)
+                end
                 -- Velens
-                if hasEquiped(144258) then
+                if isChecked("Velens Future Sight") and hasEquiped(144258) then
                     if GetItemCooldown(144258)==0 then
                         useItem(144258)
                     end
@@ -589,7 +637,13 @@ local function runRotation()
         if lowest.hp <= getValue("Flash Heal") then
             if cast.flashHeal(lowest.unit, "aoe") then return true end
         end
-    -- Mass Dispell
+    -- Mass Dispel
+        if br.player.mode.decurse == 1 and cd.massDispel.remain() == 0 and isChecked("Automatic Mass Dispell") and #decurseCandidates >= getvalue("Automatic Mass Dispel") then
+            local loc = getBestGroundCircleLocation(decurseCandidates,getValue("Automatic Mass Dispel"),15)
+            if loc ~= nil then
+                if castGroundAtLocation(loc, spell.massDispel) then return true end
+            end 
+        end
     -- Heal
         if isChecked("Heal") then
             for i=1, #tanks do

@@ -3288,6 +3288,8 @@ br.idList = {
                 flaskOfTheCountlessArmies       = 188034,
                 flaskOfTheSeventhDemon          = 188033,
                 flaskOfTheWhisperedPact         = 188031,
+                fruitfulMachinatins             = 242623, -- Absorb Shield from Deceiver's Grand Design
+                guidingHand                     = 242622, -- from The Deceiver's Grand Design
                 heroism                         = 32182,
                 netherwinds                     = 160452,
                 norgannonsForesight             = 236373,
@@ -3306,6 +3308,7 @@ br.idList = {
             },
             items                               = {
                 convergenceOfFates              = 140806,
+                deceiversGrandDesign            = 147007,
                 draughtOfSouls                  = 140808,
                 feloiledInfernalMachine         = 144482,
                 flaskOfTenThousandScars         = 127850,
