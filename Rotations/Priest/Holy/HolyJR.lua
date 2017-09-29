@@ -83,7 +83,7 @@ local function createOptions()
         -- Racials
             -- Blood Elf 
             if (br.player.race == "BloodElf") then
-                br.ui:createSpinner(section, "Arcane Torrent", 50, 0, 100, 1, "Enable/Disable", "Mana Percent to Cast At")
+                br.ui:createSpinner(section, "Arcane Torrent", 50, 0, 100, 5, "Enable/Disable", "Mana Percent to Cast At")
             end
 
         br.ui:checkSectionState(section)
@@ -490,7 +490,7 @@ local function runRotation()
 ---***************************************************************************************************************************
     local function actionList_Emergency()
     -- The Deceiver's Grand Design
-        if isChecked("The Deceivers Grand Design") and hasEquiped(147007) and canUse(147707) > 0 then
+        if isChecked("The Deceivers Grand Design") and hasEquiped(147007) and canUse(147707) then
             local localizedName = select(1,GetItemInfo(147007))
             for i=1, #tanks do
                 thisTank = tanks[i]
