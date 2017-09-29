@@ -337,6 +337,11 @@ function br.loader:new(spec,specName)
     for k,v in pairs(self.spell.abilities) do
         if self.cast            == nil then self.cast               = {} end        -- Cast Spell Functions
         if self.cast.debug      == nil then self.cast.debug         = {} end        -- Cast Spell Debugging
+        if self.cast.able       == nil then self.cast.able          = {} end        -- Cast Spell Available
+        if self.cast.cost       == nil then self.cast.cost          = {} end        -- Cast Spell Cost
+        if self.cast.last       == nil then self.cast.last          = {} end        -- Cast Spell Last
+        if self.cast.regen      == nil then self.cast.regen         = {} end        -- Cast Spell Regen
+        if self.cast.time       == nil then self.cast.time          = {} end        -- Cast Spell Time
         if self.charges[k]      == nil then self.charges[k]         = {} end        -- Spell Charge Functions 
         if self.cd[k]           == nil then self.cd[k]              = {} end        -- Spell Cooldown Functions 
 
@@ -373,6 +378,26 @@ function br.loader:new(spec,specName)
         -- Build Cast Funcitons
         self.cast[k] = function(thisUnit,debug,minUnits,effectRng)
             return createCastFunction(thisUnit,debug,minUnits,effectRng,v,k)
+        end
+
+        self.cast.able[k] = function()
+            return self.cast[v](nil,"debug")
+        end
+
+        self.cast.cost[k] = function()
+            return getSpellCost(v)
+        end
+
+        self.cast.last[k] = function()
+            return lastSpellCast == v
+        end
+
+        self.cast.regen[k] = function()
+            return getCastingRegen(v)
+        end
+
+        self.cast.time[k] = function()
+            return getCastTime(v)
         end
     end
 

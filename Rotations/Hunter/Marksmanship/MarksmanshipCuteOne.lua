@@ -65,6 +65,8 @@ local function createOptions()
             br.ui:createDropdownWithout(section, "APL Mode", {"|cffFFFFFFSimC"}, 1, "|cffFFFFFFSet APL Mode to use.")
         -- Dummy DPS Test
             br.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
+        -- Barrage
+            br.ui:createCheckbox(section, "Barrage")
         -- Explosive Shot
             -- br.ui:createCheckbox(section, "Explosive Shot")
         -- Piercing Shot
@@ -264,27 +266,25 @@ local function runRotation()
         -- Vulnerable Window
         if not vulnWindow then vulnWindow = debuff.vulnerable.remain(units.dyn40) end
         -- vuln_window,op=setif,value=cooldown.sidewinders.full_recharge_time,value_else=debuff.vulnerability.remains,condition=talent.sidewinders.enabled&cooldown.sidewinders.full_recharge_time<variable.vuln_window
-        if talent.sidewinders and charges.sidewinders.timeTillFull < vulnWindow then
-            vulnWindow = charges.sidewinders.timeTillFull
+        if talent.sidewinders and charges.sidewinders.timeTillFull() < vulnWindow then
+            vulnWindow = charges.sidewinders.timeTillFull()
         else
             vulnWindow = debuff.vulnerable.remain(units.dyn40)
         end
 
         -- Vulnerable Aim Casts
         if not vulnAimCast then vulnAimCast = 0 end
-        local aimedExecute = math.max(getCastTime(spell.aimedShot),gcdMax)
+        local aimedExecute = math.max(cast.time.aimedShot(),gcdMax)
         -- vuln_aim_casts,op=set,value=floor(variable.vuln_window%action.aimed_shot.execute_time)
         vulnAimCast = math.floor(vulnWindow / aimedExecute)
         -- vuln_aim_casts,op=set,value=floor((focus+action.aimed_shot.cast_regen*(variable.vuln_aim_casts-1))%action.aimed_shot.cost),if=variable.vuln_aim_casts>0&variable.vuln_aim_casts>floor((focus+action.aimed_shot.cast_regen*(variable.vuln_aim_casts-1))%action.aimed_shot.cost)
-        if vulnAimCast > 0 and vulnAimCast > math.floor((power + getCastingRegen(spell.aimedShot) * (vulnAimCast - 1)) / select(1,getSpellCost(spell.aimedShot))) then
-            vulnAimCast = math.floor((power + getCastingRegen(spell.aimedShot) * (vulnAimCast - 1)) / select(1,getSpellCost(spell.aimedShot)))
+        if vulnAimCast > 0 and vulnAimCast > math.floor((power + cast.regen.aimedShot() * (vulnAimCast - 1)) / cast.cost.aimedShot()) then --select(1,getSpellCost(spell.aimedShot))) then
+            vulnAimCast = math.floor((power + cast.regen.aimedShot() * (vulnAimCast - 1)) / cast.cost.aimedShot())
         end
 
-        ChatOverlay(vulnAimCast)
-
         -- Can GCD
-        -- can_gcd,value=variable.vuln_window<action.aimed_shot.cast_time|variable.vuln_window>variable.vuln_aim_casts*action.aimed_shot.execute_time+gcd.max+0.1 
-        local canGCD = vulnWindow < getCastTime(spell.aimedShot) or vulnWindow > vulnAimCast * aimedExecute + gcdMax + 0.1            
+        -- can_gcd,value=variable.vuln_window<action.aimed_shot.cast_time|variable.vuln_window>variable.vuln_aim_casts*action.aimed_shot.execute_time+gcd.max+0.1
+        local canGCD = vulnWindow < cast.time.aimedShot() or vulnWindow > vulnAimCast * aimedExecute + gcdMax + 0.1            
 
         function br.player.getDebuffsCount()
             local UnitDebuffID = UnitDebuffID
@@ -486,7 +486,9 @@ local function runRotation()
         -- Trinkets
                 if isChecked("Trinkets") then
                     -- use_item,name=tarnished_sentinel_medallion,if=((cooldown.trueshot.remains<6|cooldown.trueshot.remains>30)&(target.time_to_die>cooldown+duration))|target.time_to_die<25|buff.bullseye.react=30
-                    if hasEquiped(147017) and (((cd.trueshot.remain() < 6 or cd.trueshot.remain() > 30) and (ttd(units.dyn40) > 120 + 20 or isDummy("target"))) or (ttd(units.dyn40) < 25 or buff.bullseye.stack() == 30)) then
+                    if hasEquiped(147017) and (((cd.trueshot.remain() < 6 or cd.trueshot.remain() > 30) and (ttd(units.dyn40) > 120 + 20 or isDummy("target"))) 
+                        or (ttd(units.dyn40) < 25 or buff.bullseye.stack() == 30)) 
+                    then
                         useItem(147017)
                     end
                     if canUse(13) and not hasEquiped(147017,13) then
@@ -517,8 +519,8 @@ local function runRotation()
                 -- variable,name=trueshot_cooldown,op=set,value=time*1.1,if=time>15&cooldown.trueshot.up&variable.trueshot_cooldown=0
                 -- trueshot,if=variable.trueshot_cooldown=0|buff.bloodlust.up|(variable.trueshot_cooldown>0&target.time_to_die>(variable.trueshot_cooldown+duration))|buff.bullseye.react>25|target.time_to_die<16
                 if isChecked("Trueshot") then
-                    local trueshotCD = trueshotCD or 0
-                    if combatTime > 15 and cd.trueshot.remain() == 0 and trueshotCD == 0 then trueshotCD = combatTime * 1.1 else trueshotCD = 0 end
+                    -- local trueshotCD = trueshotCD or 0
+                    -- if combatTime > 15 and cd.trueshot.remain() == 0 and trueshotCD == 0 then trueshotCD = combatTime * 1.1 else trueshotCD = 0 end
                     if trueshotCD == 0 or hasBloodLust() or (trueshotCD > 0 and ttd(units.dyn40) > (trueshotCD + buff.trueshot.duration())) or buff.bullseye.stack() > 25 or ttd(units.dyn40) < 16 then
                         if cast.trueshot("player") then return end
                     end
@@ -540,7 +542,7 @@ local function runRotation()
             end
         -- Aimed Shot
             -- aimed_shot,if=debuff.vulnerability.remains>cast_time&target.time_to_die>cast_time
-            if debuff.vulnerable.remain(units.dyn40) > getCastTime(spell.aimedShot) and ttd(units.dyn40) > getCastTime(spell.aimedShot) then
+            if debuff.vulnerable.remain(units.dyn40) > cast.time.aimedShot() and ttd(units.dyn40) > cast.time.aimedShot() then
                 if cast.aimedShot() then return end
             end
         -- Marked Shot
@@ -577,14 +579,14 @@ local function runRotation()
             end
         -- Aimed Shot
             -- aimed_shot,if=spell_targets>1&debuff.vulnerability.remains>cast_time&(talent.trick_shot.enabled|buff.lock_and_load.up)&buff.sentinels_sight.stack=20
-            if ((mode.rotation == 1 and #enemies.yards40 > 1) or mode.rotation == 2) and debuff.vulnerable.remain(units.dyn40) > getCastTime(spell.aimedShot) 
+            if ((mode.rotation == 1 and #enemies.yards40 > 1) or mode.rotation == 2) and debuff.vulnerable.remain(units.dyn40) > cast.time.aimedShot() --getCastTime(spell.aimedShot) 
                 and (talent.trickShot or buff.lockAndLoad.exists()) and buff.sentinelsSight.stack() == 20 
             then
                 if cast.aimedShot() then return end
             end
             -- aimed_shot,if=spell_targets>1&debuff.vulnerability.remains>cast_time&talent.trick_shot.enabled&set_bonus.tier20_2pc&!buff.t20_2p_critical_aimed_damage.up&action.aimed_shot.in_flight
-            if ((mode.rotation == 1 and #enemies.yards40 > 1) or mode.rotation == 2) and debuff.vulnerable.remain(units.dyn40) > getCastTime(spell.aimedShot) 
-                and talent.trickShot and t20_2pc and not buff.t20_2pc_critical_aimed.exists() and lastSpell == spell.aimedShot
+            if ((mode.rotation == 1 and #enemies.yards40 > 1) or mode.rotation == 2) and debuff.vulnerable.remain(units.dyn40) > cast.time.aimedShot() --getCastTime(spell.aimedShot) 
+                and talent.trickShot and t20_2pc and not buff.t20_2pc_critical_aimed.exists() and cast.last.aimedShot()
             then
                 if cast.aimedShot() then return end
             end
@@ -599,7 +601,7 @@ local function runRotation()
                 end
             end
         -- Multi-Shot
-            -- Multi-Shot,if=spell_targets>1&(buff.marking_targets.up|buff.trueshot.up)
+            -- multishot,if=spell_targets>1&(buff.marking_targets.up|buff.trueshot.up)
             if ((mode.rotation == 1 and (#enemies.yards8t > 2 or (debuff.huntersMark.exists(units.dyn40) and #enemies.yards8t > 1))) or mode.rotation == 2) 
                 and (buff.markingTargets.exists() or buff.trueshot.exists()) 
             then
@@ -617,7 +619,7 @@ local function runRotation()
             end  
         -- A Murder of Crows
             -- a_murder_of_crows,if=target.time_to_die>=cooldown+duration|target.health.pct<20  
-            if ttd(units.dyn40) >= cd.aMurderOfCrows.remain() + debuff.aMurderOfCrows.duration(units.dyn40) or getHP(units.dyn40) < 20 or isDummy("target") then
+            if ttd(units.dyn40) >= 60 + 15 or getHP(units.dyn40) < 20 or isDummy("target") then
                 if cast.aMurderOfCrows() then return end
             end
         -- Windburst
@@ -627,8 +629,10 @@ local function runRotation()
             end
         -- Barrage
             -- barrage,if=spell_targets>2|(target.health.pct<20&buff.bullseye.stack<25)
-            if ((mode.rotation == 1 and #enemies.yards40 > 2) or mode.rotation == 2) or (getHP(units.dyn40) < 20 and buff.bullseye.stack() < 25) then
-                if cast.barrage() then return end
+            if isChecked("Barrage") then
+                if ((mode.rotation == 1 and #enemies.yards40 > 2) or mode.rotation == 2) or (getHP(units.dyn40) < 20 and buff.bullseye.stack() < 25) then
+                    if cast.barrage() then return end
+                end
             end
         -- Marked Shot
             -- marked_shot,if=buff.marking_targets.up|buff.trueshot.up
@@ -643,17 +647,17 @@ local function runRotation()
         -- Sidewinders
             -- sidewinders,if=!variable.waiting_for_sentinel&(debuff.hunters_mark.down|(buff.trueshot.down&buff.marking_targets.down))&((buff.marking_targets.up|buff.trueshot.up)|charges_fractional>1.8)&(focus.deficit>cast_regen)
             if not waitForSentinel and (not debuff.huntersMark.exists(units.dyn40) or (not buff.trueshot.exists() and not buff.markingTargets.exists())) 
-                and ((buff.markingTargets.exists() or buff.trueshot.exists()) or charges.sidewinders.frac() > 1.8) and (powerDeficit > getCastingRegen(spell.sidewinders)) 
+                and ((buff.markingTargets.exists() or buff.trueshot.exists()) or charges.sidewinders.frac() > 1.8) and (powerDeficit > cast.regen.sidewinders()) --getCastingRegen(spell.sidewinders)) 
             then
                 if cast.sidewinders() then return end
             end
         -- Aimed Shot
             -- aimed_shot,if=talent.sidewinders.enabled&debuff.vulnerability.remains>cast_time
-            if talent.sidewinders and debuff.vulnerable.remain(units.dyn40) > getCastTime(spell.aimedShot) then
+            if talent.sidewinders and debuff.vulnerable.remain(units.dyn40) > cast.time.aimedShot() then --getCastTime(spell.aimedShot) then
                 if cast.aimedShot() then return end
             end
             -- aimed_shot,if=!talent.sidewinders.enabled&debuff.vulnerability.remains>cast_time&(!variable.pooling_for_piercing|(buff.lock_and_load.up&lowest_vuln_within.5>gcd.max))&(talent.trick_shot.enabled|buff.sentinels_sight.stack=20)
-            if not talent.sidewinders and debuff.vulnerable.remain(units.dyn40) > getCastTime(spell.aimedShot) and (not poolForPiercing or (buff.lockAndLoad.exists() and lowestVuln > gcd)) 
+            if not talent.sidewinders and debuff.vulnerable.remain(units.dyn40) > cast.time.aimedShot() --[[getCastTime(spell.aimedShot)--]] and (not poolForPiercing or (buff.lockAndLoad.exists() and lowestVuln > gcd)) 
                 and (talent.trickShot or buff.sentinelsSight.stack() == 20) 
             then
                 if cast.aimedShot() then return end
@@ -668,11 +672,11 @@ local function runRotation()
             end
         -- Aimed Shot
             -- aimed_shot,if=focus+cast_regen>focus.max&!buff.sentinels_sight.up
-            if power + getCastingRegen(spell.aimedShot) > powerMax and not buff.sentinelsSight.exists() then
+            if power + cast.regen.aimedShot() --[[getCastingRegen(spell.aimedShot)--]] > powerMax and not buff.sentinelsSight.exists() then
                 if cast.aimedShot() then return end
             end
         -- Cobra Shot
-            if level < 12 and power + getCastingRegen(spell.cobraShot) > powerMax then
+            if level < 12 and power + cast.regen.cobraShot() --[[getCastingRegen(spell.cobraShot)--]] > powerMax then
                 if cast.cobraShot() then return end
             end
         -- Multi-Shot
@@ -681,7 +685,7 @@ local function runRotation()
                 if cast.multiShot() then return end
             end
         -- Arcane Shot
-            -- arcane_shot,if=spell_targets.multi_shot<2&!variable.waiting_for_sentinel
+            -- arcane_shot,if=spell_targets.multishot=1&!variable.waiting_for_sentinel
             if ((mode.rotation == 1 and (#enemies.yards8t == 1 or level < 16)) or (mode.rotation == 2 and level < 16) or mode.rotation == 3) and not waitForSentinel then
                 if cast.arcaneShot() then return end
             end
@@ -691,7 +695,7 @@ local function runRotation()
             rotationDebug = "Patient Sniper"
         -- Call Action List - Target Die
             -- call_action_list,name=targetdie,if=target.time_to_die<variable.vuln_window&spell_targets.multishot=1
-            if ttd(units.dyn40) < vulnWindow and #enemies.yards8t == 1 then
+            if ttd(units.dyn40) < vulnWindow and #enemies.yards8t == 1 and not isDummy(units.dyn40) then
                 if actionList_TargetDie() then return end
             end
         -- -- Bursting Shot
@@ -711,9 +715,9 @@ local function runRotation()
             end
         -- Aimed Shot
             -- aimed_shot,if=spell_targets>1&talent.trick_shot.enabled&debuff.vulnerability.remains>cast_time&(buff.sentinels_sight.stack>=spell_targets.multishot*5|buff.sentinels_sight.stack+(spell_targets.multishot%2)>20|buff.lock_and_load.up|(set_bonus.tier20_2pc&!buff.t20_2p_critical_aimed_damage.up&action.aimed_shot.in_flight))
-            if ((mode.rotation == 1 and #enemies.yards40 > 1) or mode.rotation == 2) and talent.trickShot and debuff.vulnerable.remain(units.dyn40) > getCastTime(spell.aimedShot) 
-                and (buff.sentinelsSight.stack() >= #enemies.yards8t * 5 or buff.sentinelsSight.stack() + (#enemies.yards8t / 2) > 20 or buff.lockAndLoad 
-                    or (t20_2pc and not buff.t20_2pc_critical_aimed.exists() and lastSpell == spell.aimedShot)) 
+            if ((mode.rotation == 1 and #enemies.yards40 > 1) or mode.rotation == 2) and talent.trickShot and debuff.vulnerable.remain(units.dyn40) > cast.time.aimedShot() 
+                and (buff.sentinelsSight.stack() >= #enemies.yards8t * 5 or buff.sentinelsSight.stack() + (#enemies.yards8t / 2) > 20 or buff.lockAndLoad.exists() 
+                    or (t20_2pc and not buff.t20_2pc_critical_aimed.exists() and cast.last.aimedShot())) 
             then
                 if cast.aimedShot() then return end
             end
@@ -728,7 +732,7 @@ local function runRotation()
                 end
             end
         -- Multi-Shot
-            -- Multi-Shot,if=spell_targets>1&(buff.marking_targets.up|buff.trueshot.up)
+            -- multishot,if=spell_targets>1&(buff.marking_targets.up|buff.trueshot.up)
             if ((mode.rotation == 1 and #enemies.yards8t > 1) or mode.rotation == 2) and (buff.markingTargets.exists() or buff.trueshot.exists()) then
                 if cast.multiShot() then return end
             end
@@ -746,9 +750,7 @@ local function runRotation()
             end
         -- A Murder of Crows
             -- a_murder_of_crows,if=(!variable.pooling_for_piercing|lowest_vuln_within.5>gcd.max)&(target.time_to_die>=cooldown+duration|target.health.pct<20|target.time_to_die<16)&variable.vuln_aim_casts=0
-            if (not poolForPiercing or lowestVuln > gcdMax) and (ttd(units.dyn40) >= cd.aMurderOfCrows.remain() + debuff.aMurderOfCrows.duration(units.dyn40) or getHP(units.dyn40) < 20 or ttd(units.dyn40) < 16) 
-                and vulnAimCast == 0 
-            then
+            if (not poolForPiercing or lowestVuln > gcdMax) and (ttd(units.dyn40) >= 60 + 15 or getHP(units.dyn40) < 20 or ttd(units.dyn40) < 16) and vulnAimCast == 0 then
                 if cast.aMurderOfCrows() then return end
             end
         -- Barrage
@@ -758,7 +760,7 @@ local function runRotation()
             end
         -- Aimed Shot
             -- aimed_shot,if=action.windburst.in_flight&focus+action.arcane_shot.cast_regen+cast_regen>focus.max
-            if lastSpell == spell.windburst and power + getCastingRegen(spell.arcaneShot) + getCastingRegen(spell.aimedShot) > powerMax then
+            if cast.last.windburst() and power + cast.regen.arcaneShot() + cast.regen.aimedShot() > powerMax then
                 if cast.aimedShot() then return end
             end
             -- aimed_shot,if=debuff.vulnerability.up&buff.lock_and_load.up&(!variable.pooling_for_piercing|lowest_vuln_within.5>gcd.max)
@@ -773,33 +775,33 @@ local function runRotation()
             end
         -- Multi-Shot
             -- multishot,if=spell_targets>1&variable.can_gcd&focus+cast_regen+action.aimed_shot.cast_regen<focus.max&(!variable.pooling_for_piercing|lowest_vuln_within.5>gcd.max)
-            if ((mode.rotation == 1 and #enemies.yards8t > 1) or mode.rotation == 2) and canGCD and power + getCastingRegen(spell.multiShot) + getCastingRegen(spell.aimedShot) < powerMax 
+            if ((mode.rotation == 1 and #enemies.yards8t > 1) or mode.rotation == 2) and canGCD and power + cast.regen.multiShot() + cast.regen.aimedShot() < powerMax 
                 and (not poolForPiercing or lowestVuln > gcdMax) 
             then
                 if cast.multiShot() then return end
             end
         -- Arcane Shot
             -- arcane_shot,if=spell_targets.multishot=1&(!set_bonus.tier20_2pc|!action.aimed_shot.in_flight|buff.t20_2p_critical_aimed_damage.remains>action.aimed_shot.execute_time+gcd)&variable.vuln_aim_casts>0&variable.can_gcd&focus+cast_regen+action.aimed_shot.cast_regen<focus.max&(!variable.pooling_for_piercing|lowest_vuln_within.5>gcd)
-            if ((mode.rotation == 1 and #enemies.yards8t == 1) or mode.rotation == 3) and (not t20_2pc or lastSpell ~= spell.aimedShot or buff.t20_2pc_critical_aimed.remain() > aimedExecute + gcd)
-                and vulnAimCast > 0 and canGCD and power + getCastingRegen(spell.arcaneShot) + getCastingRegen(spell.aimedShot) < powerMax and (not poolForPiercing or lowestVuln > gcd) 
+            if ((mode.rotation == 1 and #enemies.yards8t == 1) or mode.rotation == 3) and (not t20_2pc or cast.last.aimedShot() or buff.t20_2pc_critical_aimed.remain() > aimedExecute + gcd)
+                and vulnAimCast > 0 and canGCD and power + cast.regen.arcaneShot() + cast.regen.aimedShot() < powerMax and (not poolForPiercing or lowestVuln > gcd) 
             then
                 if cast.arcaneShot() then return end
             end
         -- Aimed Shot
             -- aimed_shot,if=talent.sidewinders.enabled&(debuff.vulnerability.remains>cast_time|(buff.lock_and_load.down&action.windburst.in_flight))&(variable.vuln_window-(execute_time*variable.vuln_aim_casts)<1|focus.deficit<25|buff.trueshot.up)&(spell_targets.multishot=1|focus>100)
-            if talent.sidewinders and (debuff.vulnerable.remain(units.dyn40) > getCastTime(spell.aimedShot) or (not buff.lockAndLoad.exists() and lastSpell == spell.windburst)) 
+            if talent.sidewinders and (debuff.vulnerable.remain(units.dyn40) > cast.time.aimedShot() or (not buff.lockAndLoad.exists() and cast.last.windburst())) 
                 and (vulnWindow - (aimedExecute * vulnAimCast) < 1 or powerDeficit < 25 or buff.trueshot.exists()) 
                 and (((mode.rotation == 1 and #enemies.yards8t > 1) or mode.rotation == 2) or power > 100)
             then
                 if cast.aimedShot() then return end
             end
             -- aimed_shot,if=!talent.sidewinders.enabled&debuff.vulnerability.remains>cast_time&(!variable.pooling_for_piercing|lowest_vuln_within.5>execute_time+gcd.max)
-            if not talent.sidewinders and debuff.vulnerable.remain(units.dyn40) > getCastTime(spell.aimedShot) and (not poolForPiercing or lowestVuln > aimedExecute + gcdMax) then
+            if not talent.sidewinders and debuff.vulnerable.remain(units.dyn40) > cast.time.aimedShot() and (not poolForPiercing or lowestVuln > aimedExecute + gcdMax) then
                 if cast.aimedShot() then return end
             end
         -- Marked Shot
             -- marked_shot,if=!talent.sidewinders.enabled&!variable.pooling_for_piercing&!action.windburst.in_flight&(focus>65|buff.trueshot.up|(1%attack_haste)>1.171)
-            if not talent.sidewinders and not poolForPiercing and lastSpell ~= spell.windBurst and (power > 65 or buff.trueshot.exists() or (1 / attackHaste) > 1.171) then
+            if not talent.sidewinders and not poolForPiercing and not cast.last.windburst() and (power > 65 or buff.trueshot.exists() or (1 / attackHaste) > 1.171) then
                 for i = 1, #enemies.yards40 do
                     local thisUnit = enemies.yards40[i]
                     if debuff.huntersMark.exists(thisUnit) then
@@ -808,7 +810,7 @@ local function runRotation()
                 end
             end
             -- marked_shot,if=talent.sidewinders.enabled&(variable.vuln_aim_casts<1|buff.trueshot.up|variable.vuln_window<action.aimed_shot.cast_time)
-            if talent.sidewinders and (vulnAimCast < 1 or buff.trueshot.exists() or vulnWindow < getCastTime(spell.aimedShot)) then
+            if talent.sidewinders and (vulnAimCast < 1 or buff.trueshot.exists() or vulnWindow < cast.time.aimedShot()) then
                 for i = 1, #enemies.yards40 do
                     local thisUnit = enemies.yards40[i]
                     if debuff.huntersMark.exists(thisUnit) then
@@ -818,7 +820,7 @@ local function runRotation()
             end
         -- Aimed Shot
             -- aimed_shot,if=focus+cast_regen>focus.max&!buff.sentinels_sight.up
-            if power + getCastingRegen(spell.aimedShot) > powerMax and not buff.sentinelsSight.exists() then
+            if power + cast.regen.aimedShot() > powerMax and not buff.sentinelsSight.exists() then
                 if cast.aimedShot() then return end
             end
         -- Sidewinders
