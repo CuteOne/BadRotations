@@ -289,17 +289,17 @@ local function runRotation()
 ---***************************************************************************************************************************
     local function actionList_DPS()
         if isChecked("Minimum Mana to DPS") and mana >= getValue("Minimum Mana to DPS") then
-    -- Holy Nova
             if mode.cleave == 1 and #enemies.yards12 > 2 then
-                if cast.holyNova() then return true end
+                if cast.holyNova("player") then return true end
             end
-    -- Holy Word: Chastise
             if cast.holyWordChastise(units.dyn40) then return true end
-    -- Holy Fire
             if cast.holyFire(units.dyn40) then return true end
+            if not (mode.cleave == 1 and #enemies.yards12 > 2) then
+                if cast.smite(units.dyn40) then return true end
+            end
+        else
+            if cast.smite(units.dyn40) then return true end
         end
-    -- Smite
-        if cast.smite(units.dyn40) then return true end
     end
 
 
