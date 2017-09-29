@@ -66,8 +66,8 @@ local function createOptions()
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
         -- Agi Pot
             br.ui:createCheckbox(section,"Potion")
-        -- Flask / Crystal
-            br.ui:createCheckbox(section,"Flask / Crystal")
+        -- Elixir
+            br.ui:createDropdownWithout(section,"Elixir", {"Flask of Seventh Demon","Repurposed Fel Focuser","Oralius' Whispering Crystal","None"}, 1, "|cffFFFFFFSet Elixir to use.")
         -- Racial
             br.ui:createCheckbox(section,"Racial")
         -- Ring of Collapsing Futures
@@ -170,6 +170,7 @@ local function runRotation()
         local deadtar, attacktar, hastar, playertar         = UnitIsDeadOrGhost("target"), UnitCanAttack("target", "player"), GetObjectExists("target"), UnitIsPlayer("target")
         local debuff                                        = br.player.debuff
         local enemies                                       = enemies or {}
+        local equiped                                       = br.player.equiped  
         local falling, swimming, flying, moving             = getFallTime(), IsSwimming(), IsFlying(), GetUnitSpeed("player") > 0
         local flaskBuff                                     = getBuffRemain("player",br.player.flask.wod.buff.agilityBig)
         local friendly                                      = UnitIsFriend("target", "player")
@@ -179,6 +180,7 @@ local function runRotation()
         local inCombat                                      = br.player.inCombat
         local inInstance                                    = br.player.instance=="party"
         local inRaid                                        = br.player.instance=="raid"
+        local item                                          = br.player.spell.items
         local lastSpell                                     = lastSpellCast
         local level                                         = br.player.level
         local lootDelay                                     = getOptionValue("LootDelay")
@@ -199,7 +201,7 @@ local function runRotation()
         local ttd                                           = getTTD
         local ttm                                           = br.player.power.maelstrom.ttm()
         local units                                         = units or {}
-
+        local use                                           = br.player.use
 
         
         units.dyn8 = br.player.units(8)
@@ -650,17 +652,20 @@ local function runRotation()
             if not inCombat and not (IsFlying() or IsMounted()) then
             -- Flask / Crystal
                 -- flask,type=flask_of_the_seventh_demon
-                if isChecked("Flask / Crystal") then
-                    if inRaid and canFlask and flaskBuff==0 and not UnitBuffID("player",188033) then
-                        useItem(br.player.flask.wod.agilityBig)
-                        return true
-                    end
-                    if flaskBuff==0 then
-                        if not UnitBuffID("player",188033) and canUse(118922) then --Draenor Insanity Crystal
-                            useItem(118922)
-                            return true
-                        end
-                    end
+                if getOptionValue("Elixir") == 1 and inRaid and not buff.flaskOfTheSeventhDemon.exists() and canUse(item.flaskOfTheSeventhDemon) then
+                    if buff.whispersOfInsanity.exists() then buff.whispersOfInsanity.cancel() end
+                    if buff.felFocus.exists() then buff.felFocus.cancel() end
+                    if use.flaskOfTheSeventhDemon() then return end
+                end
+                if getOptionValue("Elixir") == 2 and not buff.felFocus.exists() and canUse(item.repurposedFelFocuser) then
+                    if buff.flaskOfTheSeventhDemon.exists() then buff.flaskOfTheSeventhDemon.cancel() end
+                    if buff.whispersOfInsanity.exists() then buff.whispersOfInsanity.cancel() end
+                    if use.repurposedFelFocuser() then return end
+                end
+                if getOptionValue("Elixir") == 3 and not buff.whispersOfInsanity.exists() and canUse(item.oraliusWhisperingCrystal) then
+                    if buff.flaskOfTheSeventhDemon.exists() then buff.flaskOfTheSeventhDemon.cancel() end
+                    if buff.felFocus.exists() then buff.felFocus.cancel() end
+                    if use.oraliusWhisperingCrystal() then return end
                 end
             -- Lightning Shield
                 -- /lightning_shield

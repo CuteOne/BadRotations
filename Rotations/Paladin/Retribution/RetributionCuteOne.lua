@@ -252,7 +252,9 @@ local function runRotation()
 
         judgmentExists = debuff.judgment.exists(units.dyn5)
         judgmentRemain = debuff.judgment.remain(units.dyn5)
-        if debuff.judgment.exists(units.dyn5) or level < 42 or (cd.judgment.remain() > getOptionValue("Hold For Judgment") and not debuff.judgment.exists(units.dyn5)) then
+        if debuff.judgment.exists(units.dyn5) or level < 42 or (cd.judgment.remain() > getOptionValue("Hold For Judgment") and not debuff.judgment.exists(units.dyn5)) 
+            or ttd < 10 - getOptionValue("Hold For Judgment") 
+        then
             judgmentVar = true
         else
             judgmentVar = false

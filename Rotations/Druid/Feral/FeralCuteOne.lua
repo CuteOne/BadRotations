@@ -871,7 +871,8 @@ local function runRotation()
 					if not OPN1 then 
                         Print("Starting Opener")
                         OPN1 = true
-                    elseif (not RK1 or not debuff.rake.exists("target")) and (power >= 35 or buff.clearcasting.exists()) then
+                    elseif (not RK1 or not debuff.rake.exists("target")) then
+                        Print("Rake")
             -- Rake
                         -- rake,if=!ticking|buff.prowl.up
                         if not debuff.rake.exists() or buff.prowl.exists() then
@@ -880,7 +881,7 @@ local function runRotation()
                             Print("1: Rake (Uncastable)")
                             RK1 = true
                         end
-                    elseif RK1 and not MF1 and (power >= 30 or buff.clearcasting.exists()) then
+                    elseif RK1 and not MF1 then
             -- Moonfire
                         -- moonfire_cat,if=talent.lunar_inspiration.enabled&!ticking  
                         if talent.lunarInspiration and not debuff.moonfire.exists("target") then
@@ -889,10 +890,10 @@ local function runRotation()
                             Print("2: Moonfire (Uncastable)")
                             MF1 = true
                         end
-                    elseif MF1 and not SR1 and (power >= 40 or buff.clearcasting.exists()) then
+                    elseif MF1 and not SR1 then
        		-- Savage Roar
                         -- savage_roar,if=!buff.savage_roar.up
-                        if buff.savageRoar.refresh() then
+                        if talent.savageRoar and buff.savageRoar.refresh() then
        					    if castOpener("savageRoar","SR1",3) then return end
                         else
                             Print("3: Savage Roar (Uncastable)")
@@ -902,11 +903,11 @@ local function runRotation()
           	-- Berserk
                         -- berserk
                         -- incarnation
-						if useCDs() and not hasEquiped(140808) then
-                            if isChecked("Berserk") and not talent.incarnationKingOfTheJungle then
-                                if castOpener("berserk","BER1",4) then return end
-                            elseif isChecked("Incarnation") and talent.incarnationKingOfTheJungle then
+						if useCDs() and isChecked("Berserk/Incarnation") then
+                            if talent.incarnationKingOfTheJungle then
                                 if castOpener("incarnationKingOfTheJungle","BER1",4) then return end
+                            else
+                                if castOpener("berserk","BER1",4) then return end
                             end
 						else
 							Print("4: Berserk/Incarnation (Uncastable)")
@@ -915,7 +916,7 @@ local function runRotation()
                     elseif BER1 and not TF1 then
             -- Tiger's Fury
                         -- tigers_fury
-                        if isChecked("Tiger's Fury") and not hasEquiped(140808) then
+                        if isChecked("Tiger's Fury") then
                             if castOpener("tigersFury","TF1",5) then return end
                         else
                             Print("5: Tiger's Fury (Uncastable)")
@@ -924,7 +925,7 @@ local function runRotation()
 					elseif TF1 and not AF1 then
           	-- Ashamane's Frenzy
                         -- ashamanes_frenzy
-						if (getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs())) and not hasEquiped(140808) then
+						if (getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs())) then
                 			if castOpener("ashamanesFrenzy","AF1",6) then return end
 						else
 							Print("6: Ashamane's Frenzy (Uncastable)")
@@ -933,22 +934,22 @@ local function runRotation()
 			  		elseif AF1 and not REG1 then
             -- Regrowth
                         -- regrowth,if=(talent.sabertooth.enabled|buff.predatory_swiftness.up)&talent.bloodtalons.enabled&buff.bloodtalons.down&combo_points=5
-                        if (talent.sabertooth or buff.predatorySwiftness.exists()) and talent.bloodtalons and not buff.bloodtalons.exists() and combo == 5 and not hasEquiped(140808) then
+                        if (talent.sabertooth or buff.predatorySwiftness.exists()) and talent.bloodtalons and not buff.bloodtalons.exists() and combo == 5 then
                             if castOpener("regrowth","REG1",7) then return end
                         else
                             Print("7: Regrowth (Uncastable)")
                             REG1 = true
                         end
-					elseif REG1 and not RIP1 and (power >= 30 or buff.clearcasting.exists()) then
+					elseif REG1 and not RIP1 then
        		-- Rip
                         -- rip,if=combo_points=5
-                        if combo == 5 and not hasEquiped(140808) then
+                        if combo == 5 then
 					        if castOpener("rip","RIP1",8) then return end
                         else
                             Print("8: Rip (Uncastable)")
                             RIP1 = true
                         end
-                    elseif RIP1 and not THR1 and (power >= 45 or buff.clearcasting.exists()) then
+                    elseif RIP1 and not THR1 then
             -- Thrash
                         -- thrash_cat,if=!ticking&variable.use_thrash>0
                         if not debuff.thrash.exists("target") and useThrash > 0 then
@@ -957,7 +958,7 @@ local function runRotation()
                             Print("9: Thrash (Uncastable)")
                             THR1 = true
                         end
-                    elseif THR1 and (not SHR1 or (combo < 5 and (buff.savageRoar.exists() or not talent.savageRoar))) and (power >= 40 or buff.clearcasting.exists()) and not hasEquiped(140808) then
+                    elseif THR1 and (not SHR1 or (combo < 5 and (buff.savageRoar.exists() or not talent.savageRoar))) then
             -- Shred
                         if shredCount == nil then shredCount = 10 end
                         if castOpener("shred","SHR1",shredCount) then shredCount = shredCount + 1 return end
@@ -1138,9 +1139,9 @@ local function runRotation()
             -- thrash_cat,if=(!ticking|remains<duration*0.3)&(spell_targets.thrash_cat>2)
             if multidot then
                 if (not debuff.thrash.exists(units.dyn8AoE) or debuff.thrash.refresh(units.dyn8AoE)) and ((mode.rotation == 1 and #enemies.yards8 >= 2) or mode.rotation == 2) then
-                   if power <= select(1, getSpellCost(spell.thrash)) then
+                   if power <= select(1, getSpellCost(spell.thrash)) and not buff.clearcasting.exists() then
                         return true
-                    elseif power > select(1, getSpellCost(spell.thrash)) then
+                    elseif power > select(1, getSpellCost(spell.thrash)) or buff.clearcasting.exists() then
                         if cast.thrash("player") then return end
                     end
                 end
@@ -1199,18 +1200,18 @@ local function runRotation()
             -- pool_resource,for_next=1
             -- swipe_cat,if=spell_targets.swipe_cat>1
             if not talent.brutalSlash and multidot and ((mode.rotation == 1 and #enemies.yards8 > 1) or (mode.rotation == 2 and #enemies.yards8 > 0)) then
-                if power <= select(1, getSpellCost(spell.swipe)) then
+                if power <= select(1, getSpellCost(spell.swipe)) and not buff.clearcasting.exists() then
                     return true
-                elseif power > select(1, getSpellCost(spell.swipe)) then
+                elseif power > select(1, getSpellCost(spell.swipe)) or buff.clearcasting.exists() then
                     if cast.swipe("player") then return end
                 end
             end
         -- Shred
             -- shred
-            if (debuff.rake.exists(units.dyn5) or level < 12 or ttm < 1) 
-                and ((mode.rotation == 1 and (#enemies.yards8 < 2 or level < 32 or (talent.brutalSlash and charges.brutalSlash.count() == 0))) or mode.rotation == 3) 
+            if (debuff.rake.exists(units.dyn5) or level < 12 or ttm < 1 or buff.clearcasting.exists()) 
+                --and ((mode.rotation == 1 and (#enemies.yards8 < 2 or level < 32 or (talent.brutalSlash and charges.brutalSlash.count() == 0))) or mode.rotation == 3) 
             then
-                if cast.shred(units.dyn5) then return end
+                if cast.shred() then return end
             end
         end
     -- Action List - Generator
