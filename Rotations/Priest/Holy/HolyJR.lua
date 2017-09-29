@@ -52,6 +52,8 @@ local function createOptions()
             br.ui:createCheckbox(section,"Angelic Feather", "Enables/Disables Angelic Feather usage")
         -- Body and Mind
             br.ui:createCheckbox(section,"Body and Mind", "Enables/Disables Body and Mind usage")
+        -- Elixir
+            br.ui:createDropdown(section,"Elixir", {"Flask of the Whispered Pact","Repurposed Fel Focuser","Oralius' Whispering Crystal","None"}, 1, "|cffFFFFFFSet Elixir to use.")
         -- Min Mana to DPS
             br.ui:createSpinner(section, "Minimum Mana to DPS",  50,  0,  100,  5,  "Uncheck to NOT use mana for DPS", "Below this value, do not use mana for DPS.")
         br.ui:checkSectionState(section)
@@ -193,6 +195,7 @@ local function runRotation()
     local inCombat                                      = br.player.inCombat
     local inInstance                                    = br.player.instance=="party"
     local inRaid                                        = br.player.instance=="raid"
+    local item                                          = br.player.spell.items
     local level                                         = br.player.level
     local lowestHP                                      = br.friend[1].unit
     local mana                                          = br.player.power.mana.percent()
@@ -208,6 +211,7 @@ local function runRotation()
     local spell                                         = br.player.spell
     local talent                                        = br.player.talent
     local ttm                                           = br.player.timeToMax
+    local use                                           = br.player.use
 
     local lowest                                        = {}    --Lowest Unit
     lowest.hp                                           = br.friend[1].hp
@@ -303,6 +307,25 @@ local function runRotation()
 --- Action List Out of Combat Healing ****************************************************************************************
 ---***************************************************************************************************************************
     local function actionList_OutOfCombatHealing()
+    -- Flask/Elixir
+        -- flask,type=flask_of_the_whispered_pact
+        if isChecked("Elixir") then
+            if getOptionValue("Elixir") == 1 and inRaid and not buff.flaskOfTheWhisperedPact.exists() and canUse(item.flaskOfTheWhisperedPact) then
+                if buff.whispersOfInsanity.exists() then buff.whispersOfInsanity.cancel() end
+                if buff.felFocus.exists() then buff.felFocus.cancel() end
+                if use.flaskOfTheWhisperedPact() then return end
+            end
+            if getOptionValue("Elixir") == 2 and not buff.felFocus.exists() and canUse(item.repurposedFelFocuser) then
+                if buff.flaskOfTheWhisperedPact.exists() then buff.flaskOfTheWhisperedPact.cancel() end
+                if buff.whispersOfInsanity.exists() then buff.whispersOfInsanity.cancel() end
+                if use.repurposedFelFocuser() then return end
+            end
+            if getOptionValue("Elixir") == 3 and not buff.whispersOfInsanity.exists() and canUse(item.oraliusWhisperingCrystal) then
+                if buff.flaskOfTheWhisperedPact.exists() then buff.flaskOfTheWhisperedPact.cancel() end
+                if buff.felFocus.exists() then buff.felFocus.cancel() end
+                if use.oraliusWhisperingCrystal() then return end
+            end
+        end
     -- Cures - Single Taret
         -- Purify
         if br.player.mode.decurse == 1 and cd.purify.remain() == 0 then
@@ -706,6 +729,7 @@ local function runRotation()
 ---------------------------------
 --- Out Of Combat ---------------
 ---------------------------------
+        if actionList_Extras() then return end
         if not inCombat then
             if actionList_OutOfCombatHealing() then return end
         end -- End Out of Combat Rotation
