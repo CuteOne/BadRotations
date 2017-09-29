@@ -72,7 +72,7 @@ local function createOptions()
             -- Potion
             br.ui:createCheckbox(section,"Potion")
             -- Elixir
-            br.ui:createDropdownWithout(section,"Elixir", {"Flask of Seventh Demon","Repurposed Fel Focuser","Oralius' Whispering Crystal","None"}, 1, "|cffFFFFFFSet Elixir to use.")
+            br.ui:createDropdownWithout(section,"Elixir", {"Flask of the Countless Armies","Repurposed Fel Focuser","Oralius' Whispering Crystal","None"}, 1, "|cffFFFFFFSet Elixir to use.")
             -- Racial
             br.ui:createCheckbox(section,"Racial")
             -- Trinkets
@@ -166,7 +166,7 @@ end
 --- ROTATION ---
 ----------------
 local function runRotation()
-    if br.timer:useTimer("debugRetribution", math.random(0.15,0.3)) then -- Change debugSpec tp name of Spec IE: debugFeral or debugWindwalker
+    -- if br.timer:useTimer("debugRetribution", math.random(0.15,0.3)) then -- Change debugSpec tp name of Spec IE: debugFeral or debugWindwalker
         --Print("Running: "..rotationName)
 
 ---------------
@@ -194,7 +194,7 @@ local function runRotation()
         local holyPower     = br.player.power.holyPower.amount()
         local holyPowerMax  = br.player.power.holyPower.max()
         local inCombat      = br.player.inCombat
-        local item          = br.player.items
+        local item          = br.player.spell.items
         local level         = br.player.level
         local mode          = br.player.mode
         local php           = br.player.health
@@ -541,7 +541,7 @@ local function runRotation()
         end -- End Action List - Cooldowns
     -- Action List - PreCombat
         local function actionList_PreCombat()
-            if isValidUnit("target") and (opener == true or not isChecked("Opener")) then
+            if not inCombat and not (IsFlying() or IsMounted()) then
         -- Flask
                 -- flask,type=flask_of_the_countless_armies
                 if getOptionValue("Elixir") == 1 and inRaid and not buff.flaskOfTheCountlessArmies.exists() and canUse(item.flaskOfTheCountlessArmies) then
@@ -568,22 +568,24 @@ local function runRotation()
                 -- if isChecked("Potion") and canUse(127844) and inRaid then
                 --     useItem(127844)
                 -- end
+                if isValidUnit("target") and (not isBoss("target") or not isChecked("Opener")) then
         -- Divine Hammer
-                if #enemies.yards8 >= getOptionValue("Divine Storm Units") then
-                    if cast.divineHammer() then return end
-                end
+                    if #enemies.yards8 >= getOptionValue("Divine Storm Units") then
+                        if cast.divineHammer() then return end
+                    end
         -- Judgment
-                if cast.judgment("target") then return end
+                    if cast.judgment("target") then return end
         -- Blade of Justice
-                if cast.bladeOfJustice("target") then return end
+                    if cast.bladeOfJustice("target") then return end
         -- Crusader Strike / Zeal
-                if talent.zeal then
-                    if cast.zeal("target") then return end
-                else
-                    if cast.crusaderStrike("target") then return end
-                end
+                    if talent.zeal then
+                        if cast.zeal("target") then return end
+                    else
+                        if cast.crusaderStrike("target") then return end
+                    end
         -- Start Attack
-                if getDistance("target") < 5 then StartAttack() end
+                    if getDistance("target") < 5 then StartAttack() end
+                end
             end
         end -- End Action List - PreCombat
     -- Action List - Opener
@@ -966,6 +968,7 @@ local function runRotation()
 --- In Combat - SimCraft APL ---
 --------------------------------
                 if getOptionValue("APL Mode") == 1 then
+                    local startTime = debugprofilestop()
             -- Start Attack
                     -- auto_attack
                     if getDistance(units.dyn5) < 5 and opener == true then
@@ -989,6 +992,7 @@ local function runRotation()
                         -- call_action_list,name=priority
                         if actionList_Priority() then return end
                     end
+                    br.debug.cpu.rotation.inCombat = debugprofilestop()-startTime
                 end
 ----------------------------------
 --- In Combat - AskMrRobot APL ---
@@ -1059,7 +1063,7 @@ local function runRotation()
                 end -- End AMR APL
             end -- End In Combat
         end -- End Profile
-    end -- Timer
+    -- end -- Timer
 end -- runRotation
 local id = 70
 if br.rotations[id] == nil then br.rotations[id] = {} end
