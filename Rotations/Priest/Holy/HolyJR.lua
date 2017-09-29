@@ -103,6 +103,7 @@ local function createOptions()
         -------------------------
         section = br.ui:createSection(br.ui.window.profile, "Out-Of-Combat Healing")
             -- Prayer of Mending 
+            br.ui:createCheckbox(section,"Prayer of Mending","Enable/Disable", true)
             br.ui:createCheckbox(section,"Prayer of Mending Pre-Stack","Pre-Stack PoM on tanks", true)
         br.ui:checkSectionState(section)
         -------------------------
@@ -392,7 +393,7 @@ local function runRotation()
             end 
         end
     -- Prayer of Mending
-        if cd.prayerOfMending.remain() == 0 and isChecked("Prayer of Mending Pre-Stack") then
+        if cd.prayerOfMending.remain() == 0 and isChecked("Prayer of Mending") and isChecked("Prayer of Mending Pre-Stack") then
             local pomTarget = tanks[1]
             for i=1, #tanks do
                 thisTank = tanks[i]
@@ -633,7 +634,7 @@ local function runRotation()
             end 
         end
     -- Prayer of Mending
-        if cd.prayerOfMending.remain() == 0 then
+        if isChecked("Prayer of Mending") and cd.prayerOfMending.remain() == 0 then
             local pomTarget = tanks[1]
             for i=1, #tanks do
                 thisTank = tanks[i]
