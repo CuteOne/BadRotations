@@ -303,6 +303,15 @@ function br.loader:new(spec,specName)
     for k,v in pairs(self.spell.items) do
         if self.use == nil then self.use = {} end -- Use Item Functions
         if self.equiped == nil then self.equiped = {} end -- Use Item Debugging
+        if self.charges[k] == nil then self.charges[k] = {} end -- Item Charge Functions 
+
+        local charges = self.charges[k]
+        charges.exists = function()
+            return itemCharges(v) > 0
+        end
+        charges.count = function()
+            return itemCharges(v)
+        end
 
         self.use[k] = function(slotID)
             if slotID == nil then

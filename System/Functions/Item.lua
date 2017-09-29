@@ -1,3 +1,9 @@
+-- item charges
+function itemCharges(itemID)
+	local charges = GetItemCount(itemID,false,true)
+	if charges == nil then return 0 end
+	return charges
+end
 -- if canUse(1710) then
 function canUse(itemID)
 	if itemID==0 or getHP("player") == 0 then return false end
