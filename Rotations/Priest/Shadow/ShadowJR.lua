@@ -1,6 +1,6 @@
 local rotationName = "JR"
 -- TODO
-    -- add sephuz proc abilities - dispell magic, quaking palm, war stomp, arcane torrent
+    -- add twins painful touch logic
 
 ---------------
 --- Toggles ---
@@ -52,34 +52,34 @@ local function createOptions()
         -- General Options
         section = br.ui:createSection(br.ui.window.profile, "General")
         -- Dummy DPS Test
-            br.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
+            br.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "Set to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
         -- Pre-Pull Timer
-            br.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
+            br.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "Set to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
             -- Body and Soul
             br.ui:createCheckbox(section,"PWS: Body and Soul")
             -- Elixir
-            br.ui:createDropdownWithout(section,"Elixir", {"Flask of the Whispered Pact","Repurposed Fel Focuser","Oralius' Whispering Crystal","None"}, 1, "|cffFFFFFFSet Elixir to use.")
+            br.ui:createDropdownWithout(section,"Elixir", {"Flask of the Whispered Pact","Repurposed Fel Focuser","Oralius' Whispering Crystal","None"}, 1, "Set Elixir to use.")
             -- Mouseover Dotting
             br.ui:createCheckbox(section,"Mouseover Dotting")
             -- Strict simc mode
-            -- br.ui:createCheckbox(section,"Strict simc mode", "|cffFFFFFFUse strict simc mode, or use alternate priority which feels more natural")
+            -- br.ui:createCheckbox(section,"Strict simc mode", "Use strict simc mode, or use alternate priority which feels more natural")
             -- Shadow Crash
             br.ui:createCheckbox(section,"Shadow Crash")
             -- SWP Max Targets
-            br.ui:createSpinnerWithout(section, "SWP Max Targets",  3,  1,  10,  1, "|cffFFFFFFUnit Count Limit that SWP will be cast on.")
+            br.ui:createSpinnerWithout(section, "SWP Max Targets",  3,  1,  10,  1, "Unit Count Limit that SWP will be cast on.")
             -- VT Max Targets
-            br.ui:createSpinnerWithout(section, "VT Max Targets",  3,  1,  10,  1, "|cffFFFFFFUnit Count Limit that VT will be cast on.")
+            br.ui:createSpinnerWithout(section, "VT Max Targets",  3,  1,  10,  1, "Unit Count Limit that VT will be cast on.")
         br.ui:checkSectionState(section)
         -- Cooldown Options
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
             -- Int Pot
             br.ui:createCheckbox(section,"Int Pot")
             -- Trinkets
-            br.ui:createCheckbox(section,"Trinkets", "|cffFFFFFFUse trinkets on Cooldown. Overrides individual trinket usage below.")
+            br.ui:createCheckbox(section,"Trinkets", "Use trinkets on Cooldown. Overrides individual trinket usage below.")
             -- Arcane Torrent
             if (br.player.race == "BloodElf") then
                 br.ui:createCheckbox(section,"Arcane Torrent")
-                br.ui:createSpinnerWithout(section, "  Arcane Torrent Stacks", 35, 0, 100, 1, "|cffFFFFFFSet to desired Void Form stacks to use at.")
+                br.ui:createSpinnerWithout(section, "  Arcane Torrent Stacks", 35, 0, 100, 1, "Set to desired Void Form stacks to use at.")
             end
             if hasEquiped(128318) then
                 br.ui:createCheckbox(section,"Touch of the Void")
@@ -101,70 +101,72 @@ local function createOptions()
             end
             if hasEquiped(137541) then
                 br.ui:createCheckbox(section,"Moonlit Prism")
-            	br.ui:createSpinnerWithout(section, "  Prism Stacks", 35, 0, 100, 1, "|cffFFFFFFSet to desired Void Form stacks to use at.")
+            	br.ui:createSpinnerWithout(section, "  Prism Stacks", 35, 0, 100, 1, "Set to desired Void Form stacks to use at.")
             end
             if hasEquiped(147019) then
                 br.ui:createCheckbox(section,"Tome of Unravelling Sanity")
-            	br.ui:createSpinnerWithout(section, "  Tome Stacks", 31, 0, 100, 1, "|cffFFFFFFSet to desired Void Form stacks to use at.")
+            	br.ui:createSpinnerWithout(section, "  Tome Stacks", 31, 0, 100, 1, "Set to desired Void Form stacks to use at.")
             end
             if hasEquiped(147002) then
                 br.ui:createCheckbox(section,"Charm of the Rising Tide")
-            	br.ui:createSpinnerWithout(section, "  Charm Stacks", 35, 0, 100, 1, "|cffFFFFFFSet to desired Void Form stacks to use at.")
+            	br.ui:createSpinnerWithout(section, "  Charm Stacks", 35, 0, 100, 1, "Set to desired Void Form stacks to use at.")
             end
             if hasEquiped(137433) then
                 br.ui:createCheckbox(section,"Obelisk of the Void")
-            	br.ui:createSpinnerWithout(section, "  Obelisk Stacks", 40, 0, 100, 1, "|cffFFFFFFSet to desired Void Form stacks to use at.")
+            	br.ui:createSpinnerWithout(section, "  Obelisk Stacks", 40, 0, 100, 1, "Set to desired Void Form stacks to use at.")
             end
             if hasEquiped(133642) then
                 br.ui:createCheckbox(section,"Horn of Valor")
-            	br.ui:createSpinnerWithout(section, "  Horn Stacks", 35, 0, 100, 1, "|cffFFFFFFSet to desired Void Form stacks to use at.")
+            	br.ui:createSpinnerWithout(section, "  Horn Stacks", 35, 0, 100, 1, "Set to desired Void Form stacks to use at.")
             end
             if hasEquiped(150522) then
                 br.ui:createCheckbox(section,"Skull of Guldan")
-            	br.ui:createSpinnerWithout(section, "  Skull Stacks", 35, 0, 100, 1, "|cffFFFFFFSet to desired Void Form stacks to use at.")
+            	br.ui:createSpinnerWithout(section, "  Skull Stacks", 35, 0, 100, 1, "Set to desired Void Form stacks to use at.")
             end
             if hasEquiped(137329) then
                 br.ui:createCheckbox(section,"Figurehead of the Naglfar")
-            	br.ui:createSpinnerWithout(section, "  Figurehead Stacks", 40, 0, 100, 1, "|cffFFFFFFSet to desired Void Form stacks to use at.")
+            	br.ui:createSpinnerWithout(section, "  Figurehead Stacks", 40, 0, 100, 1, "Set to desired Void Form stacks to use at.")
             end
             -- Shadowfiend
             br.ui:createCheckbox(section,"Shadowfiend / Mindbender")
-            br.ui:createSpinnerWithout(section, "  Shadowfiend Stacks", 0, 0, 100, 1, "|cffFFFFFFSet to desired Void Form stacks to use at. Set to 0 for auto.")
+            br.ui:createSpinnerWithout(section, "  Shadowfiend Stacks", 0, 0, 100, 1, "Set to desired Void Form stacks to use at. Set to 0 for auto.")
             -- Surrender To Madness
             br.ui:createCheckbox(section,"Surrender To Madness")
             -- Dispersion
             br.ui:createCheckbox(section, "Dispersion S2M")
-            br.ui:createSpinnerWithout(section, "  Dispersion Stacks", 10, 5, 100, 5, "|cffFFFFFFSet to desired Void Form stacks to use at.")
+            br.ui:createSpinnerWithout(section, "  Dispersion Stacks", 10, 5, 100, 5, "Set to desired Void Form stacks to use at.")
             -- Power Infusion
             br.ui:createCheckbox(section,"Power Infusion")
-            br.ui:createSpinnerWithout(section, "  Power Infusion Stacks", 0, 0, 100, 1, "|cffFFFFFFSet to desired Void Form stacks to use at. Set to 0 for auto.")
+            br.ui:createSpinnerWithout(section, "  Power Infusion Stacks", 0, 0, 100, 1, "Set to desired Void Form stacks to use at. Set to 0 for auto.")
             -- Void Torrent
             br.ui:createCheckbox(section,"Void Torrent")
-            br.ui:createSpinnerWithout(section, "  Void Torrent Stacks", 0, 0, 100, 1, "|cffFFFFFFSet to desired Void Form stacks to use at.")
+            br.ui:createSpinnerWithout(section, "  Void Torrent Stacks", 0, 0, 100, 1, "Set to desired Void Form stacks to use at.")
         br.ui:checkSectionState(section)
         -- Defensive Options
         section = br.ui:createSection(br.ui.window.profile, "Defensive")
             -- Healthstone
-            br.ui:createSpinner(section, "Healthstone",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
+            br.ui:createSpinner(section, "Healthstone",  60,  0,  100,  5,  "Health Percentage to use at.")
             -- Gift of The Naaru
             if br.player.race == "Draenei" then
-                br.ui:createSpinner(section, "Gift of the Naaru",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
+                br.ui:createSpinner(section, "Gift of the Naaru",  50,  0,  100,  5,  "Health Percent to Cast At")
             end
             if br.player.race == "Dwarf" then
-                br.ui:createSpinner(section, "Stoneform",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
+                br.ui:createSpinner(section, "Stoneform",  50,  0,  100,  5,  "Health Percent to Cast At")
             end
             -- Dispel Magic
             br.ui:createCheckbox(section,"Dispel Magic")
             -- Dispersion
-            br.ui:createSpinner(section, "Dispersion",  20,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
+            br.ui:createSpinner(section, "Dispersion",  20,  0,  100,  5,  "Health Percentage to use at.")
             -- Fade
             br.ui:createCheckbox(section, "Fade")
+            -- Vampiric Embrace
+            br.ui:createSpinner(section, "Vampiric Embrace",  25,  0,  100,  5,  "Health Percentage to use at.")
             -- Power Word: Shield
-            br.ui:createSpinner(section, "Power Word: Shield",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
+            br.ui:createSpinner(section, "Power Word: Shield",  60,  0,  100,  5,  "Health Percentage to use at.")
             -- Shadow Mend
-            br.ui:createSpinner(section, "Shadow Mend",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
+            br.ui:createSpinner(section, "Shadow Mend",  60,  0,  100,  5,  "Health Percentage to use at.")
             -- Psychic Scream / Mind Bomb
-            br.ui:createSpinner(section, "Psychic Scream / Mind Bomb",  40,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
+            br.ui:createSpinner(section, "Psychic Scream / Mind Bomb",  40,  0,  100,  5,  "Health Percentage to use at.")
         br.ui:checkSectionState(section)
         -- Interrupt Options
         section = br.ui:createSection(br.ui.window.profile, "Interrupts")
@@ -175,9 +177,9 @@ local function createOptions()
             -- Mind Bomb
             -- br.ui:createCheckbox(section, "Mind Bomb")
             -- Interrupt Mode
-            br.ui:createDropdownWithout(section,"Interrupt Mode", {"Focus","Target","All in Range"}, 1, "|cffFFFFFFInterrupt your focus, your target, or all enemies in range.")
+            br.ui:createDropdownWithout(section,"Interrupt Mode", {"Focus","Target","All in Range"}, 2, "Interrupt your focus, your target, or all enemies in range.")
             -- Interrupt Percentage
-            br.ui:createSpinner(section, "Interrupt At",  10,  0,  95,  5,  "|cffFFFFFFCast Percent to Cast At")
+            br.ui:createSpinner(section, "Interrupt At",  10,  0,  95,  5,  "Cast Percent to Cast At")
         br.ui:checkSectionState(section)
         -- Toggle Key Options
         section = br.ui:createSection(br.ui.window.profile, "Toggle Keys")
@@ -371,10 +373,16 @@ local function runRotation()
     end -- End Action List - Extra
     -- Action List - Defensive
     function actionList_Defensive()
-        if useDefensive() and getHP("player")>0 then
+        if mode.defensive == 1 and getHP("player")>0 then
             -- Gift of the Naaru
             if isChecked("Gift of the Naaru") and php <= getOptionValue("Gift of the Naaru") and php > 0 and br.player.race=="Draenei" then
                 if castSpell("player",racial,false,false,false) then return end
+            end
+            -- Psychic Scream / Mind Bomb
+            if isChecked("Vampiric Embrace") and inCombat and php <= getOptionValue("Vampiric Embrace") then
+                if #enemies.yards40 > 0 then
+                    if cast.vampiricEmbrace("player") then return end
+                end
             end
             -- Stoneform - Dwarf racial
             if isChecked("Stoneform") and php <= getOptionValue("Stoneform") and php > 0 and br.player.race=="Dwarf" then
@@ -393,14 +401,6 @@ local function runRotation()
                     end
                 end
             end
-            -- Power Word: Shield
-            if isChecked("Power Word: Shield") and php <= getOptionValue("Power Word: Shield") and not buff.powerWordShield.exists() then
-                if cast.powerWordShield("player") then return end
-            end
-            -- Shadow Mend
-            if isChecked("Shadow Mend") and php <= getOptionValue("Shadow Mend") then
-                if cast.shadowMend("player") then return end
-            end
             -- Psychic Scream / Mind Bomb
             if isChecked("Psychic Scream / Mind Bomb") and inCombat and php <= getOptionValue("Psychic Scream / Mind Bomb") then
                 if not talent.mindBomb and #enemies.yards8 > 0 then
@@ -408,6 +408,14 @@ local function runRotation()
                 else
                     if cast.mindBomb(units.dyn30) then return end
                 end
+            end
+            -- Power Word: Shield
+            if isChecked("Power Word: Shield") and php <= getOptionValue("Power Word: Shield") and not buff.powerWordShield.exists() then
+                if cast.powerWordShield("player") then return end
+            end
+            -- Shadow Mend
+            if isChecked("Shadow Mend") and php <= getOptionValue("Shadow Mend") then
+                if cast.shadowMend("player") then return end
             end
         end -- End Defensive Check
     end -- End Action List - Defensive
@@ -619,13 +627,13 @@ local function runRotation()
             if use.oraliusWhisperingCrystal() then return end
         end
     -- Mind Blast
-        if isValidUnit("target") then
-            if not moving and br.timer:useTimer("mbRecast", gcd) then
-                if cast.mindBlast("target") then return end
-            -- else
-            --     if cast.shadowWordPain("target") then return end
-            end
-        end
+        -- if isValidUnit("target") then
+        --     if not moving and br.timer:useTimer("mbRecast", gcd) then
+        --         if cast.mindBlast("target") then return end
+        --     -- else
+        --     --     if cast.shadowWordPain("target") then return end
+        --     end
+        -- end
     -- Power Word: Shield Body and Soul
         if isChecked("PWS: Body and Soul") and talent.bodyAndSoul and isMoving("player") and not IsMounted() and not buff.classHallSpeed.exists() then
             if cast.powerWordShield("player") then return end
