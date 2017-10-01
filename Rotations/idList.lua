@@ -1934,6 +1934,7 @@ br.idList = {
                 angelicFeather              = 121536,
                 clarityOfWill               = 152118,
                 divineStar                  = 110744,
+                evangelism                  = 246287,
                 halo                        = 120517,
                 leapOfFaith                 = 73325,
                 lightsWrath                 = 207946,

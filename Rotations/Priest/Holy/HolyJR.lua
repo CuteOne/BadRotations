@@ -94,7 +94,7 @@ local function createOptions()
         -- Desperate Prayer
             br.ui:createSpinner(section, "Desperate Prayer",  25,  0,  100,  5,  "Health Percent to Cast At")
         -- Healthstone
-            br.ui:createSpinner(section, "Healthstone",  30,  0,  100,  5,  "Health Percent to Cast At")
+            br.ui:createSpinner(section, "Pot/Stoned",  60,  0,  100,  5,  "Health Percent to Cast At")
         -- Fade
             br.ui:createCheckbox(section, "Fade")
         br.ui:checkSectionState(section)
@@ -209,6 +209,7 @@ local function runRotation()
     local moving                                        = isMoving("player") and not br.player.buff.norgannonsForesight.exists()
     local perk                                          = br.player.perk        
     local php                                           = br.player.health
+    local healPot                                       = getHealthPot()
     local power, powmax, powgen                         = br.player.power.mana.amount(), br.player.power.mana.max(), br.player.power.mana.regen()
     local pullTimer                                     = br.DBM:getPulltimer()
     local race                                          = br.player.race
@@ -279,6 +280,25 @@ local function runRotation()
                 if cast.bodyAndMind("player") then return true end
             end
         end
+    -- Flask/Elixir
+        -- flask,type=flask_of_the_whispered_pact
+        if isChecked("Elixir") then
+            if getOptionValue("Elixir") == 1 and inRaid and not buff.flaskOfTheWhisperedPact.exists() and canUse(item.flaskOfTheWhisperedPact) then
+                if buff.whispersOfInsanity.exists() then buff.whispersOfInsanity.cancel() end
+                if buff.felFocus.exists() then buff.felFocus.cancel() end
+                if use.flaskOfTheWhisperedPact() then return end
+            end
+            if getOptionValue("Elixir") == 2 and not buff.felFocus.exists() and canUse(item.repurposedFelFocuser) then
+                if buff.flaskOfTheWhisperedPact.exists() then buff.flaskOfTheWhisperedPact.cancel() end
+                if buff.whispersOfInsanity.exists() then buff.whispersOfInsanity.cancel() end
+                if use.repurposedFelFocuser() then return end
+            end
+            if getOptionValue("Elixir") == 3 and not buff.whispersOfInsanity.exists() and canUse(item.oraliusWhisperingCrystal) then
+                if buff.flaskOfTheWhisperedPact.exists() then buff.flaskOfTheWhisperedPact.cancel() end
+                if buff.felFocus.exists() then buff.felFocus.cancel() end
+                if use.oraliusWhisperingCrystal() then return end
+            end
+        end
     -- Pre-Pot Timer
         if isChecked("Pre-Pot Timer") and pullTimer <= getOptionValue("Pre-Pot Timer") then
             if pullTimer <= getOptionValue("Pre-Pot Timer") then
@@ -311,182 +331,6 @@ local function runRotation()
 
 
 ---***************************************************************************************************************************
---- Action List Out of Combat Healing ****************************************************************************************
----***************************************************************************************************************************
-    local function actionList_OutOfCombatHealing()
-    -- Flask/Elixir
-        -- flask,type=flask_of_the_whispered_pact
-        if isChecked("Elixir") then
-            if getOptionValue("Elixir") == 1 and inRaid and not buff.flaskOfTheWhisperedPact.exists() and canUse(item.flaskOfTheWhisperedPact) then
-                if buff.whispersOfInsanity.exists() then buff.whispersOfInsanity.cancel() end
-                if buff.felFocus.exists() then buff.felFocus.cancel() end
-                if use.flaskOfTheWhisperedPact() then return end
-            end
-            if getOptionValue("Elixir") == 2 and not buff.felFocus.exists() and canUse(item.repurposedFelFocuser) then
-                if buff.flaskOfTheWhisperedPact.exists() then buff.flaskOfTheWhisperedPact.cancel() end
-                if buff.whispersOfInsanity.exists() then buff.whispersOfInsanity.cancel() end
-                if use.repurposedFelFocuser() then return end
-            end
-            if getOptionValue("Elixir") == 3 and not buff.whispersOfInsanity.exists() and canUse(item.oraliusWhisperingCrystal) then
-                if buff.flaskOfTheWhisperedPact.exists() then buff.flaskOfTheWhisperedPact.cancel() end
-                if buff.felFocus.exists() then buff.felFocus.cancel() end
-                if use.oraliusWhisperingCrystal() then return end
-            end
-        end
-    -- Cures - Single Taret
-        -- Purify
-        if br.player.mode.decurse == 1 and cd.purify.remain() == 0 then
-            for i=1, #tanks do
-                thisTank = tanks[i]
-                if canDispel(thisTank.unit,spell.purify) then
-                    if cast.purify(thisTank) then return true end
-                end
-            end
-            for i = 1, #friends.yards40 do
-                if canDispel(friends.yards40[i].unit,spell.purify) then
-                    if cast.purify(friends.yards40[i].unit) then return true end
-                end
-            end
-        end
-    -- Flash Heal (with Surge of Light proc)
-        if talent.surgeOfLight and not moving and buff.surgeOfLight.exists() then
-            for i=1, #tanks do
-                thisTank = tanks[i]
-                if thisTank.hp <= getValue("Flash Heal") then
-                    if cast.flashHeal(thisTank.unit, "aoe") then return true end
-                end
-            end
-            if lowest.hp <= getValue("Flash Heal") then
-                if cast.flashHeal(lowest.unit, "aoe") then return true end
-            end
-        end
-    -- Check for group healing candidate targets
-        local sanctifyCandidates = {}
-        local circleOfHealingCandidates = {}
-        local haloCandidates = {}
-        local groupHealCandidates = {}
-        local bindingHealCandidates = {}
-        local decurseCandidates = {}
-        for i=1, #friends.yards40 do
-            if cd.holyWordSanctify.remain() == 0 and friends.yards40[i].hp < getValue("Holy Word: Sanctify") then
-                tinsert(sanctifyCandidates,friends.yards40[i])
-            end
-            if talent.circleOfHealing and cd.circleOfHealing.remain() == 0 and friends.yards40[i].hp < getValue("Circle of Healing") then
-                tinsert(circleOfHealingCandidates,friends.yards40[i])
-            end
-            if talent.halo and cd.halo.remain() == 0 and friends.yards40[i].hp < getValue("Circle of Healing") and getDistance(br.friend[i].unit) <= 30  then
-                tinsert(haloCandidates,friends.yards40[i])
-            end
-            if talent.bindingHeal and friends.yards40[i].hp < getValue("Binding Heal") then
-                tinsert(bindingHealCandidates,friends.yards40[i])
-            end
-            if canDispel(friends.yards40[i].unit,spell.massDispel) then
-                tinsert(decurseCandidates,friends.yards40[i])
-            end
-        end
-    -- Holy Word: Sanctify
-        if cd.holyWordSanctify.remain() == 0 and #sanctifyCandidates >= getValue("Holy Word: Sanctify Targets") then
-            -- get the best ground location to heal most or all of them
-            local loc = getBestGroundCircleLocation(sanctifyCandidates,getValue("Holy Word: Sanctify Targets"),10)
-            if loc ~= nil then
-                if castGroundAtLocation(loc, spell.holyWordSanctify) then return true end
-            end 
-        end
-    -- Prayer of Mending
-        if cd.prayerOfMending.remain() == 0 and isChecked("Prayer of Mending") and isChecked("Prayer of Mending Pre-Stack") then
-            local pomTarget = tanks[1]
-            for i=1, #tanks do
-                thisTank = tanks[i]
-                if UnitInRange(thisTank.unit) then
-                    if not buff.prayerOfMending.exists(thisTank.unit) or buff.prayerOfMending.remain(thisTank.unit) < buff.prayerOfMending.remain(pomTarget.unit) then pomTarget = thisTank end
-                end
-            end
-            if pomTarget ~= nil then 
-                if cast.prayerOfMending(pomTarget.unit) then return true end
-            end
-        end
-    -- Circle of Healing
-        if talent.circleOfHealing and cd.circleOfHealing.remain() == 0 and #circleOfHealingCandidates >= getValue("Circle of Healing Targets") then
-            -- get the best ground location to heal most or all of them
-            local loc = getBestGroundCircleLocation(circleOfHealingCandidates,getValue("Circle of Healing Targets"),30)
-            if loc ~= nil then
-                if castGroundAtLocation(loc, spell.circleOfHealing) then return true end
-            end 
-        end
-    -- Prayer of Healing
-        if not moving then
-            if castWiseAoEHeal(br.friend,spell.prayerOfHealing,40,getValue("Prayer of Healing"),getValue("Prayer of Healing Targets"),5,false,true)  then return true end
-        end 
-    -- Flash Heal
-        for i=1, #tanks do
-            thisTank = tanks[i]
-            if thisTank.hp <= getValue("Flash Heal") then
-                if cast.flashHeal(thisTank.unit, "aoe") then return true end
-            end
-        end
-        if lowest.hp <= getValue("Flash Heal") then
-            if cast.flashHeal(lowest.unit, "aoe") then return true end
-        end
-    -- Mass Dispel
-        if br.player.mode.decurse == 1 and cd.massDispel.remain() == 0 and isChecked("Automatic Mass Dispell") and #decurseCandidates >= getvalue("Automatic Mass Dispel") then
-            local loc = getBestGroundCircleLocation(decurseCandidates,getValue("Automatic Mass Dispel"),15)
-            if loc ~= nil then
-                if castGroundAtLocation(loc, spell.massDispel) then return true end
-            end 
-        end
-    -- Heal
-        if isChecked("Heal") then
-            for i=1, #tanks do
-                thisTank = tanks[i]
-                if thisTank.hp <= getValue("Heal") then
-                    if cast.heal(thisTank.unit, "aoe") then return true end
-                end
-            end
-            if lowest.hp <= getValue("Heal") then
-                if cast.heal(lowest.unit, "aoe") then return true end
-            end
-        end
-    -- Binding Heal
-        if talent.bindingHeal and not moving and #bindingHealCandidates >= 2 then
-            for i=1, #tanks do
-                thisTank = tanks[i]
-                if thisTank.hp <= getValue("Binding Heal") then
-                    if cast.bindingHeal(thisTank.unit, "aoe") then return true end
-                end
-            end
-            if lowest.hp <= getValue("Binding Heal") then
-                if cast.bindingHeal(lowest.unit, "aoe") then return true end
-            end
-        end
-    -- Renew
-        if isChecked("Renew on Tanks") then
-            for i=1, #tanks do
-                thisTank = tanks[i]
-                if thisTank.hp <= getValue("Renew on Tanks") then
-                    if cast.renew(thisTank.unit, "aoe") then return true end
-                end
-            end
-        end
-        if isChecked("Renew") then
-            if lowest.hp <= getValue("Renew") then
-                if cast.renew(lowest.unit, "aoe") then return true end
-            end
-        end
-        if isChecked("Renew while moving") and moving then
-            for i=1, #tanks do
-                thisTank = tanks[i]
-                if thisTank.hp <= getValue("Renew while moving") then
-                    if cast.renew(thisTank.unit, "aoe") then return true end
-                end
-            end
-            if lowest.hp <= getValue("Renew while moving") then
-                if cast.renew(lowest.unit, "aoe") then return true end
-            end
-        end
-    end
-        
-
----***************************************************************************************************************************
 --- Action List Emergencies and Cooldowns ************************************************************************************
 ---***************************************************************************************************************************
     local function actionList_Emergency()
@@ -500,11 +344,16 @@ local function runRotation()
                 end
             end
         end
-    -- Mass Dispell (by hotkey)
-        if isChecked("Mass Dispel Hotkey") and (SpecificToggle("Mass Dispel Hotkey") and cd.massDispel.remain() == 0 and not GetCurrentKeyBoardFocus()) then
-            CastSpellByName(GetSpellInfo(spell.massDispel),"cursor")
-            return true
-        end
+    -- Pot/Stoned
+            if isChecked("Pot/Stoned") and php <= getOptionValue("Pot/Stoned")
+                and inCombat and (hasHealthPot() or hasItem(5512))
+            then
+                if canUse(5512) then
+                    useItem(5512)
+                elseif canUse(healPot) then
+                    useItem(healPot)
+                end
+            end
     -- Fade
         if isChecked("Fade") and not solo and cd.fade.remain == 0 then
             local myThreat = UnitThreatSituation("player")
@@ -538,6 +387,11 @@ local function runRotation()
                 if cast.lightOfTuure(lowest.unit, "aoe") then return true end
             end
         end
+    -- Mass Dispell (by hotkey)
+        if isChecked("Mass Dispel Hotkey") and (SpecificToggle("Mass Dispel Hotkey") and cd.massDispel.remain() == 0 and not GetCurrentKeyBoardFocus()) then
+            CastSpellByName(GetSpellInfo(spell.massDispel),"cursor")
+            return true
+        end
     -- Arcane Torrent
         if useCDs() and isChecked("Arcane Torrent") and mana <= getValue("Arcane Torrent") and br.player.race == "BloodElf" then
             if castSpell("player",racial,false,false,false) then return end
@@ -550,7 +404,7 @@ local function runRotation()
 ---***************************************************************************************************************************
     local function actionList_Heal()
     -- Holy Word: Serenity
-        if cd.holyWordSerenity.remain() == 0 then
+        if cd.holyWordSerenity.remain() == 0 and inCombat then
             for i=1, #tanks do
                 if tanks[i].hp <= getValue("Holy Word: Serenity") then
                     if cast.holyWordSerenity(tanks[i].unit, "aoe") then return true end
@@ -612,7 +466,7 @@ local function runRotation()
             end
         end
     -- Holy Word: Sanctify
-        if cd.holyWordSanctify.remain() == 0 and #sanctifyCandidates >= getValue("Holy Word: Sanctify Targets") then
+        if inCombat and cd.holyWordSanctify.remain() == 0 and #sanctifyCandidates >= getValue("Holy Word: Sanctify Targets") then
             -- get the best ground location to heal most or all of them
             local loc = getBestGroundCircleLocation(sanctifyCandidates,getValue("Holy Word: Sanctify Targets"),10)
             if loc ~= nil then
@@ -706,25 +560,37 @@ local function runRotation()
         if isChecked("Renew on Tanks") then
             for i=1, #tanks do
                 thisTank = tanks[i]
-                if thisTank.hp <= getValue("Renew on Tanks") then
+                if thisTank.hp <= getValue("Renew on Tanks") and not buff.renew.exists(thistank.unit) then
                     if cast.renew(thisTank.unit, "aoe") then return true end
                 end
             end
         end
         if isChecked("Renew") then
-            if lowest.hp <= getValue("Renew") then
-                if cast.renew(lowest.unit, "aoe") then return true end
+            for i = 1, #friends.yards40 do
+                if friends.yards40[i].hp < getValue("Renew while moving") then
+                    if not buff.renew.exists(friends.yards40[i].unit) then
+                        if cast.renew(friends.yards40[i].unit, "aoe") then return true end
+                    end
+                else
+                    break
+                end
             end
         end
         if isChecked("Renew while moving") and moving then
             for i=1, #tanks do
                 thisTank = tanks[i]
-                if thisTank.hp <= getValue("Renew while moving") then
+                if thisTank.hp <= getValue("Renew while moving") and not buff.renew.exists(thistank.unit) then
                     if cast.renew(thisTank.unit, "aoe") then return true end
                 end
             end
-            if lowest.hp <= getValue("Renew while moving") then
-                if cast.renew(lowest.unit, "aoe") then return true end
+            for i = 1, #friends.yards40 do
+                if friends.yards40[i].hp < getValue("Renew while moving") then
+                    if not buff.renew.exists(friends.yards40[i].unit) then
+                        if cast.renew(friends.yards40[i].unit, "aoe") then return true end
+                    end
+                else
+                    break
+                end
             end
         end
     end
@@ -742,7 +608,7 @@ local function runRotation()
 ---------------------------------
         if actionList_Extras() then return end
         if not inCombat then
-            if actionList_OutOfCombatHealing() then return end
+            if actionList_Heal() then return end
         end -- End Out of Combat Rotation
 -----------------------------
 --- In Combat --------------- 
