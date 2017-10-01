@@ -404,7 +404,7 @@ local function runRotation()
 ---***************************************************************************************************************************
     local function actionList_Heal()
     -- Holy Word: Serenity
-        if cd.holyWordSerenity.remain() == 0 and inCombat then
+        if inCombat and cd.holyWordSerenity.remain() == 0 then
             for i=1, #tanks do
                 if tanks[i].hp <= getValue("Holy Word: Serenity") then
                     if cast.holyWordSerenity(tanks[i].unit, "aoe") then return true end
@@ -488,7 +488,19 @@ local function runRotation()
             end 
         end
     -- Prayer of Mending
-        if isChecked("Prayer of Mending") and cd.prayerOfMending.remain() == 0 then
+        if not inCombat and cd.prayerOfMending.remain() == 0 and isChecked("Prayer of Mending") and isChecked("Prayer of Mending Pre-Stack") then
+            local pomTarget = tanks[1]
+            for i=1, #tanks do
+                thisTank = tanks[i]
+                if UnitInRange(thisTank.unit) then
+                    if not buff.prayerOfMending.exists(thisTank.unit) or buff.prayerOfMending.remain(thisTank.unit) < buff.prayerOfMending.remain(pomTarget.unit) then pomTarget = thisTank end
+                end
+            end
+            if pomTarget ~= nil then 
+                if cast.prayerOfMending(pomTarget.unit) then return true end
+            end
+        end
+        if inCombat and isChecked("Prayer of Mending") and cd.prayerOfMending.remain() == 0 then
             local pomTarget = tanks[1]
             for i=1, #tanks do
                 thisTank = tanks[i]
@@ -500,7 +512,7 @@ local function runRotation()
             if cast.prayerOfMending(pomTarget.unit) then return true end
         end
     -- Halo
-        if talent.halo and not moving and cd.halo.remain() == 0 and #haloCandidates >= getValue("Halo Targets") then
+        if inCombat and talent.halo and not moving and cd.halo.remain() == 0 and #haloCandidates >= getValue("Halo Targets") then
             if cast.halo() then return true end
         end
     -- Circle of Healing
