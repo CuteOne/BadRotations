@@ -433,7 +433,7 @@ function isValidUnit(Unit)
 		local playerTarget = UnitIsUnit(Unit,"target")
 		if inCombat then
 	    	-- Only consider Units that I have threat with or have targeted or are dummies within 8yrds when in Combat.
-			if (playerTarget and (#br.friend == 1 or distance < 20)) or hasThreat or (isDummy(Unit) and (distance <= 8 or playerTarget)) then return true end
+			if (playerTarget and (#br.friend == 1 or distance < 20)) or hasThreat or (isDummy(Unit) and (getDistance(Unit,"target","noMod") <= 8 or playerTarget)) then return true end
 		elseif not inCombat and IsInInstance() then
 			-- Only consider Units that I have threat with or I am alone and have targeted when not in Combat and in an Instance.
 			if (#br.friend == 1 and playerTarget) or hasThreat then return true end
@@ -443,7 +443,6 @@ function isValidUnit(Unit)
 		end
 	end
 	return false
-	-- return enemyListCheck(Unit) and getLineOfSight("player", Unit)
 end
 function SpecificToggle(toggle)
 	if customToggle then

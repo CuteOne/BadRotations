@@ -586,7 +586,7 @@ function createCastFunction(thisUnit,debug,minUnits,effectRng,spellID,index)
                     return false
                 end
             end
-        elseif (thisUnit == nil or thisUnit == "best" or thisUnit == "playerGround" or thisUnit == "targetGround") and getDistance(self.units(maxRange)) < maxRange then
+        elseif (thisUnit == nil or thisUnit == "best" or thisUnit == "playerGround" or thisUnit == "targetGround") and getDistance(br.player.units(maxRange)) < maxRange then
             if (isChecked("Display Failcasts") or isChecked("Cast Debug")) and debug ~= "debug" then
                 Print("|cffFF0000Error: |r Failed to cast. - ".."Name: "..spellName..", ID: "..spellID..", Type: "..spellType..", Min Range: "..minRange..", Max Range: "..maxRange)
             end

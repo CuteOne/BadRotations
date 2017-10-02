@@ -992,7 +992,7 @@ local function runRotation()
                 if (multidot or (UnitIsUnit(thisUnit,units.dyn5) and not multidot)) then
                     if getDistance(thisUnit) < 5 then
                         if (not debuff.rip.exists(thisUnit) or (debuff.rip.refresh(thisUnit) and getHP(thisUnit) > 25 and not talent.sabertooth) 
-                            or (debuff.rip.remain(thisUnit) <= debuff.rip.duration(thisUnit) * 0.8 and debuff.rip.calc() > debuff.rip.applied(thisUnit))) and (ttd(thisUnit) > 8 or isDummy)
+                            or (debuff.rip.remain(thisUnit) <= debuff.rip.duration(thisUnit) * 0.8 and debuff.rip.calc() > debuff.rip.applied(thisUnit))) and (ttd(thisUnit) > 8 or isDummy(thisUnit))
                         then
                             if power <= select(1, getSpellCost(spell.rip)) then
                                 return true

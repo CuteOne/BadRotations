@@ -80,8 +80,8 @@ local function createOptions()
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
         -- Agi Pot
             br.ui:createCheckbox(section,"Potion")
-        -- Flask / Crystal
-            br.ui:createCheckbox(section,"Flask / Crystal")
+        -- Elixir
+            br.ui:createDropdownWithout(section,"Elixir", {"Flask of Seventh Demon","Repurposed Fel Focuser","Oralius' Whispering Crystal","None"}, 1, "|cffFFFFFFSet Elixir to use.")
         -- Racial
             br.ui:createCheckbox(section,"Racial")
         -- Trinkets
@@ -451,17 +451,20 @@ local function runRotation()
             if not inCombat and not buff.feignDeath.exists() then
             -- Flask / Crystal
                 -- flask,type=flask_of_the_seventh_demon
-                if isChecked("Flask / Crystal") then
-                    if inRaid and canFlask and flaskBuff==0 and not UnitBuffID("player",188033) then
-                        useItem(br.player.flask.wod.agilityBig)
-                        return true
-                    end
-                    if flaskBuff==0 then
-                        if not UnitBuffID("player",188033) and canUse(118922) then --Draenor Insanity Crystal
-                            useItem(118922)
-                            return true
-                        end
-                    end
+                if getOptionValue("Elixir") == 1 and inRaid and not buff.flaskOfTheSeventhDemon.exists() and canUse(item.flaskOfTheSeventhDemon) then
+                    if buff.whispersOfInsanity.exists() then buff.whispersOfInsanity.cancel() end
+                    if buff.felFocus.exists() then buff.felFocus.cancel() end
+                    if use.flaskOfTheSeventhDemon() then return end
+                end
+                if getOptionValue("Elixir") == 2 and not buff.felFocus.exists() and canUse(item.repurposedFelFocuser) then
+                    if buff.flaskOfTheSeventhDemon.exists() then buff.flaskOfTheSeventhDemon.cancel() end
+                    if buff.whispersOfInsanity.exists() then buff.whispersOfInsanity.cancel() end
+                    if use.repurposedFelFocuser() then return end
+                end
+                if getOptionValue("Elixir") == 3 and not buff.whispersOfInsanity.exists() and canUse(item.oraliusWhisperingCrystal) then
+                    if buff.flaskOfTheSeventhDemon.exists() then buff.flaskOfTheSeventhDemon.cancel() end
+                    if buff.felFocus.exists() then buff.felFocus.cancel() end
+                    if use.oraliusWhisperingCrystal() then return end
                 end
             -- Summon Pet
                 -- summon_pet
