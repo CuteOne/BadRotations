@@ -34,11 +34,11 @@ local function createToggles()
     };
     CreateButton("VoidForm",4,0)
     -- Interrupt button
-    InterruptModes = {
+    InterruptToggleModes = {
         [1] = { mode = "On", value = 1 , overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spell.consumeMagic},
         [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.consumeMagic}
     };
-    CreateButton("Interrupt",5,0)
+    CreateButton("InterruptToggle",5,0)
 end
 
 ---------------
@@ -176,8 +176,8 @@ local function createOptions()
             br.ui:createCheckbox(section, "Psychic Scream")
             -- Mind Bomb
             -- br.ui:createCheckbox(section, "Mind Bomb")
-            -- Interrupt Mode
-            br.ui:createDropdownWithout(section,"Interrupt Mode", {"Focus","Target","All in Range"}, 2, "Interrupt your focus, your target, or all enemies in range.")
+            -- Interrupt Target
+            br.ui:createDropdownWithout(section,"Interrupt Target", {"Focus","Target","All in Range"}, 2, "Interrupt your focus, your target, or all enemies in range.")
             -- Interrupt Percentage
             br.ui:createSpinner(section, "Interrupt At",  10,  0,  95,  5,  "Cast Percent to Cast At")
         br.ui:checkSectionState(section)
@@ -210,10 +210,10 @@ local function runRotation()
     UpdateToggle("Rotation",0.25)
     UpdateToggle("Cooldown",0.25)
     UpdateToggle("Defensive",0.25)
-    UpdateToggle("VoidEruption",0.25)
     UpdateToggle("VoidForm",0.25)
-    UpdateToggle("Interrupt",0.25)
+    UpdateToggle("InterruptToggle",0.25)
     br.player.mode.voidForm = br.data.settings[br.selectedSpec].toggles["VoidForm"]
+    br.player.mode.interruptToggle = br.data.settings[br.selectedSpec].toggles["InterruptToggle"]
 --------------
 --- Locals ---
 --------------
@@ -422,14 +422,14 @@ local function runRotation()
     -- Action List - Interrupts
     function actionList_Interrupts()
     -- Silence
-        if isChecked("Silence") then
-            if getOptionValue("Interrupt Mode") == 1 and UnitIsEnemy("player","focus") and canInterrupt("focus",getOptionValue("Interrupt At")) then
+        if isChecked("Silence") and mode.interruptToggle == 1 then
+            if getOptionValue("Interrupt Target") == 1 and UnitIsEnemy("player","focus") and canInterrupt("focus",getOptionValue("Interrupt At")) then
                 if cast.silence("focus") then return end
             end
-            if getOptionValue("Interrupt Mode") == 2 and UnitIsEnemy("player","target") and canInterrupt("target",getOptionValue("Interrupt At")) then
+            if getOptionValue("Interrupt Target") == 2 and UnitIsEnemy("player","target") and canInterrupt("target",getOptionValue("Interrupt At")) then
                 if cast.silence("target") then return end
             end
-            if getOptionValue("Interrupt Mode") == 3 then
+            if getOptionValue("Interrupt Target") == 3 then
                 for i=1, #enemies.yards30 do
                     thisUnit = enemies.yards30[i]
                     if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
@@ -438,15 +438,15 @@ local function runRotation()
                 end
             end
         end
-        if isChecked("Psychic Scream") then
+        if isChecked("Psychic Scream") and mode.interruptToggle == 1 then
     -- Psychic Scream
-            if getOptionValue("Interrupt Mode") == 1 and UnitIsEnemy("player","focus") and canInterrupt("focus",getOptionValue("Interrupt At")) then
+            if getOptionValue("Interrupt Target") == 1 and UnitIsEnemy("player","focus") and canInterrupt("focus",getOptionValue("Interrupt At")) then
                 if cast.psychicScream("focus") then return end
             end
-            if getOptionValue("Interrupt Mode") == 2 and UnitIsEnemy("player","target") and canInterrupt("target",getOptionValue("Interrupt At")) then
+            if getOptionValue("Interrupt Target") == 2 and UnitIsEnemy("player","target") and canInterrupt("target",getOptionValue("Interrupt At")) then
                 if cast.psychicScream("target") then return end
             end
-            if getOptionValue("Interrupt Mode") == 3 then
+            if getOptionValue("Interrupt Target") == 3 then
                 for i=1, #enemies.yards8 do
                     thisUnit = enemies.yards8[i]
                     if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
@@ -458,13 +458,13 @@ local function runRotation()
     -- Mind Bomb
         -- mind bomb has a 2 second delay before the interrupt happens. not using as an interrupt source for now ...
         -- TODO figure out a useful way to use mind bomb as an interrupt
-            -- if getOptionValue("Interrupt Mode") == 1 and UnitIsEnemy("player","focus") and canInterrupt("focus",getOptionValue("Interrupt At")) then
+            -- if getOptionValue("Interrupt Target") == 1 and UnitIsEnemy("player","focus") and canInterrupt("focus",getOptionValue("Interrupt At")) then
             --     if cast.mindBomb("focus") then return end
             -- end
-            -- if getOptionValue("Interrupt Mode") == 2 and UnitIsEnemy("player","target") and canInterrupt("target",getOptionValue("Interrupt At")) then
+            -- if getOptionValue("Interrupt Target") == 2 and UnitIsEnemy("player","target") and canInterrupt("target",getOptionValue("Interrupt At")) then
             --     if cast.mindBomb("target") then return end
             -- end
-            -- if getOptionValue("Interrupt Mode") == 3 then
+            -- if getOptionValue("Interrupt Target") == 3 then
             --     if talent.mindBomb then
             --         for i=1, #enemies.yards30 do
             --             thisUnit = enemies.yards30[i]
@@ -1492,9 +1492,9 @@ local function runRotation()
                 if actionList_Check() then return end
             end
         -- Action List - Interrupts
-            if useInterrupts() then
+            --if useInterrupts() then
                 if actionList_Interrupts() then return end
-            end
+            --end
         -- Action List - Surrender To Madness
             -- s2m,if=buff.voidform.up&buff.surrender_to_madness.up
             if buff.voidForm.exists() and buff.surrenderToMadness.exists() then
