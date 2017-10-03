@@ -50,6 +50,10 @@ local function createOptions()
         br.ui:checkSectionState(section)
     -- Cooldown Options
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
+        -- Lightforged Augment Rune
+            br.ui:createCheckbox(section, "Lightforged Augment Rune","|cffFFFFFF7.3 augment rune")
+        -- Repurposed Fel Focuser
+            br.ui:createCheckbox(section, "Repurposed Fel Focuser","|cffFFFFFFReplaces flasks.")
         -- Racial
             br.ui:createCheckbox(section,"Racial: Blood Elf Only")
         -- Archimonde's Hatred Reborn
@@ -165,6 +169,8 @@ local function runRotation()
         local ttd                                           = getTTD(br.player.units(5))
         local ttm                                           = br.player.power.pain.ttm()
         local units                                         = units or {}
+        local use                                           = br.player.use
+        local item                                          = br.player.spell.items
 
         units.dyn5 = br.player.units(5)
         units.dyn8AoE = br.player.units(8,true)
@@ -258,6 +264,15 @@ local function runRotation()
     -- Action List - PreCombat
         local function actionList_PreCombat()
             if not inCombat and not (IsFlying() or IsMounted()) then
+			-- Lightforged Augment Rune
+                if isChecked("Lightforged Augment Rune") and not buff.defiledAugmentation.exists() then
+					if use.lightforgedAugmentRune() then return end
+                end
+			-- Repurposed Fel Focuser
+                if isChecked("Repurposed Fel Focuser") and not buff.felFocus.exists() then
+					if use.repurposedFelFocuser() then return end
+                end
+			--Start auto attack.
                 if isValidUnit("target") and not UnitIsDeadOrGhost("target") and getDistance("target") <= 5 then
                     StartAttack()
                 end
@@ -267,9 +282,9 @@ local function runRotation()
 --- Begin Profile ---
 ---------------------
     -- Profile Stop | Pause
-        if not inCombat and not hastar and profileStop == true then
+        if not inCombat and not IsMounted() and not hastar and profileStop then
             profileStop = false
-        elseif (inCombat and profileStop == true) or (IsMounted() or IsFlying() or UnitOnTaxi("player") or UnitInVehicle("player")) or pause() or mode.rotation == 4 then
+        elseif (inCombat and profileStop) or (IsMounted() or IsFlying() or UnitOnTaxi("player") or UnitInVehicle("player")) or pause() or mode.rotation == 4 then
             return true
         else
 -----------------------
@@ -319,18 +334,7 @@ local function runRotation()
                     for i=1, #getEnemies("player",20) do
                         thisUnit = getEnemies("player",20)[i]
                         distance = getDistance(thisUnit)
-                            if cd.consumeMagic.remain() > 0 and castingUnit(thisUnit) and distance < 20 and hasEquiped(151799) and (not buff.empowerWards.exists() or not buff.siphonedPower.exists()) then
-                                if cast.empowerWards() then return end
-                            end
-                        end
-                    end
-    -- Empower Wards
-                -- actions+=/empower_wards,if=debuff.casting.up
-                if isChecked("Empower Wards") then
-                    for i=1, #getEnemies("player",20) do
-                        thisUnit = getEnemies("player",20)[i]
-                        distance = getDistance(thisUnit)
-                            if cd.consumeMagic.remain() > 0 and castingUnit(thisUnit) and distance < 20 and not hasEquiped(151799) then
+                            if cd.consumeMagic.remain() > 0 and castingUnit(thisUnit) and distance < 20 and (charges.empowerWards.frac() > 1.00 and not buff.empowerWards.exists()) then
                                 if cast.empowerWards() then return end
                             end
                         end
@@ -343,7 +347,7 @@ local function runRotation()
                     end
     -- Demonic Infusion
                 -- actions+=/demonicInfusion, if charges = 0
-                    if charges.demonSpikes.frac() < 0.2 and buff.demonSpikes.remain() < 12 then
+                    if charges.demonSpikes.frac() < 0.2 and buff.demonSpikes.remain() < 12 and pain <= 40 then
                         if cast.demonicInfusion() then return end
                     end
     -- Demon Spikes
@@ -372,13 +376,13 @@ local function runRotation()
                 if isChecked("Soul Barrier") and php <= getOptionValue("Soul Barrier") and not buff.metamorphosis.exists() then
                     if cast.soulBarrier() then return end
                 end
-    -- Soul Carver
-                if (buff.soulFragments.stack() <= 3 or debuff.fieryBrand.exists(units.dyn5)) and getSpellCD(204021) > 5 then
+    -- Soul Carver 
+                if (buff.soulFragments.stack() <= 3 or (debuff.fieryBrand.exists("target") and artifact.flamingSoul.enabled())) and (getSpellCD(204021) > 5 or not artifact.flamingSoul.enabled()) then
                     if cast.soulCarver() then return end
                 end
     -- Immolation Aura
                 -- actions+=/immolation_aura,if=pain<=80
-                if getDistance(units.dyn5) < 5 and pain < 80 then
+                if getDistance(units.dyn5) < 5 and pain <= 80 then
                     if cast.immolationAura() then return end
                 end
     -- Spirit Bomb
