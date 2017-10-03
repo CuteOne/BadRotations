@@ -1966,6 +1966,7 @@ br.idList = {
             },
             buffs                           = {
                 angelicFeather              = 121557,
+                borrowedTime                = 197763,
                 atonement                   = 194384,
                 clarityOfWill               = 152118,
                 innervate                   = 29166;
@@ -1973,7 +1974,8 @@ br.idList = {
                 powerInfusion               = 10060,
                 powerWordShield             = 17,
                 rapture                     = 47536,
-                symbolOfHope                = 64901;
+                speedOfThePious             = 197767,
+                symbolOfHope                = 64901,
             },
             debuffs                         = {
                 purgeTheWicked              = 204213,

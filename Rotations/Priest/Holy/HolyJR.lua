@@ -49,9 +49,9 @@ local function createOptions()
         -- Dummy DPS Test
             br.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "Enables/Disables DPS Testing", "Set to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
         -- Angelic Feather
-            br.ui:createCheckbox(section,"Angelic Feather", "Enables/Disables Angelic Feather usage")
+            br.ui:createCheckbox(section,"Angelic Feather", "Cast Angelic Feather on Self when moving")
         -- Body and Mind
-            br.ui:createCheckbox(section,"Body and Mind", "Enables/Disables Body and Mind usage")
+            br.ui:createCheckbox(section,"Body and Mind", "Cast Body and Mind on Self when moving")
         -- Elixir
             br.ui:createDropdown(section,"Elixir", {"Flask of the Whispered Pact","Repurposed Fel Focuser","Oralius' Whispering Crystal","None"}, 1, "Set Elixir to use.")
         -- Min Mana to DPS
@@ -404,7 +404,7 @@ local function runRotation()
 ---***************************************************************************************************************************
     local function actionList_Heal()
     -- Holy Word: Serenity
-        if inCombat and cd.holyWordSerenity.remain() == 0 then
+        if cd.holyWordSerenity.remain() == 0 then
             for i=1, #tanks do
                 if tanks[i].hp <= getValue("Holy Word: Serenity") then
                     if cast.holyWordSerenity(tanks[i].unit, "aoe") then return true end
@@ -466,7 +466,7 @@ local function runRotation()
             end
         end
     -- Holy Word: Sanctify
-        if inCombat and cd.holyWordSanctify.remain() == 0 and #sanctifyCandidates >= getValue("Holy Word: Sanctify Targets") then
+        if cd.holyWordSanctify.remain() == 0 and #sanctifyCandidates >= getValue("Holy Word: Sanctify Targets") then
             -- get the best ground location to heal most or all of them
             local loc = getBestGroundCircleLocation(sanctifyCandidates,getValue("Holy Word: Sanctify Targets"),10)
             if loc ~= nil then
@@ -572,7 +572,7 @@ local function runRotation()
         if isChecked("Renew on Tanks") then
             for i=1, #tanks do
                 thisTank = tanks[i]
-                if thisTank.hp <= getValue("Renew on Tanks") and not buff.renew.exists(thistank.unit) then
+                if thisTank.hp <= getValue("Renew on Tanks") and not buff.renew.exists(thisTank.unit) then
                     if cast.renew(thisTank.unit, "aoe") then return true end
                 end
             end
@@ -591,7 +591,7 @@ local function runRotation()
         if isChecked("Renew while moving") and moving then
             for i=1, #tanks do
                 thisTank = tanks[i]
-                if thisTank.hp <= getValue("Renew while moving") and not buff.renew.exists(thistank.unit) then
+                if thisTank.hp <= getValue("Renew while moving") and not buff.renew.exists(thisTank.unit) then
                     if cast.renew(thisTank.unit, "aoe") then return true end
                 end
             end
