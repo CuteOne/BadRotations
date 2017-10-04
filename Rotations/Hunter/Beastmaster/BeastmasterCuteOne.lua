@@ -539,7 +539,7 @@ local function runRotation()
                     end
             -- Dire Beast
                     -- dire_beast,if=((!equipped.qapla_eredun_war_order|cooldown.kill_command.remains>=1)&(set_bonus.tier19_2pc|!buff.bestial_wrath.up))|full_recharge_time<gcd.max|cooldown.titans_thunder.up|spell_targets>1
-                    if not talent.direFrenzy and (((not hasEquiped(137227) or cd.killCommand.remain() >= 1) and (t19_2pc or not buff.bestialWrath.exists())) or charges.direBeast.timeTillFull() < gcdMax or cd.titanthunder.remain() == 0 or #enemies.yards8pet >= getOptionValue("Units To AoE")) then
+                    if not talent.direFrenzy and (((not hasEquiped(137227) or cd.killCommand.remain() >= 1) and (t19_2pc or not buff.bestialWrath.exists())) or charges.direBeast.timeTillFull() < gcdMax or cd.titansThunder.remain() == 0 or #enemies.yards8pet >= getOptionValue("Units To AoE")) then
                         if cast.direBeast() then return end
                     end
             -- Dire Frenzy
