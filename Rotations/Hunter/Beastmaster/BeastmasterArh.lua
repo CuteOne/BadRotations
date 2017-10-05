@@ -38,11 +38,11 @@ local function createToggles()
     };
     CreateButton("Misdirection",4,0)
     -- TT Button
-    TitanThunderModes = {
-        [1] = { mode = "On", value = 1 , overlay = "Auto Titan Thunder", tip = "Will Use Titan Thunder At All Times", highlight = 1, icon = br.player.spell.titansThunder },
-        [2] = { mode = "CD", value = 2 , overlay = "CD Only Titan Thunder", tip = "Will Use Titan Thunder Only with BW", highlight = 0, icon = br.player.spell.titansThunder }
-    };
-    CreateButton("TitanThunder",5,0)
+ --   TitanThunderModes = {
+ --       [1] = { mode = "On", value = 1 , overlay = "Auto Titan Thunder", tip = "Will Use Titan Thunder At All Times", highlight = 1, icon = br.player.spell.titansThunder },
+ --       [2] = { mode = "CD", value = 2 , overlay = "CD Only Titan Thunder", tip = "Will Use Titan Thunder Only with BW", highlight = 0, icon = br.player.spell.titansThunder }
+ --   };
+ --   CreateButton("TitanThunder",5,0)
 	-- Murder of Crows button
 --    MurderofCrowsModes = {
 --        [1] = { mode = "On", value = 1 , overlay = "Always use MoC", tip = "Will Use Murder of Crows At All Times", highlight = 1, icon = br.player.spell.aMurderOfCrows },
@@ -535,7 +535,7 @@ local function runRotation()
                             StartAttack()
                         end
 					-- Dire Frenzy
-                        if talent.direFrenzy and getSpellCD(217200) == 0 and (((buff.direFrenzy.remain("pet") <= (gcd*1.2) or not buff.direFrenzy.exists("pet"))))then
+                        if talent.direFrenzy and getSpellCD(217200) == 0 and ((buff.direFrenzy.exists("pet") and buff.direFrenzy.remain("pet") <= (gcd*1.2)) or not buff.direFrenzy.exists("pet")) then
                             if cast.direFrenzy(units.dyn40) then return end
 						end
                     -- Bestial Wrath
@@ -553,8 +553,8 @@ local function runRotation()
                             if cast.titansThunder(units.dyn40) then return end
                         end						
                     -- Murder of Crows
-                        if talent.aMurderOfCrows and isChecked("A Murder Of Crows / Barrage") and (br.player.mode.murderofcrows == 1 or (br.player.mode.murderofcrows == 2 and useCDs())) then
-                            if (cd.bestialWrath.remain() < 2 or cd.bestialWrath.remain() > 50) or (buff.bestialWrath.exists() and buff.bestialWrath.remain() >= 13) or (ttd(units.dyn40) ~= nil and ttd(units.dyn40) <= 13) then
+                        if talent.aMurderOfCrows and isChecked("A Murder Of Crows / Barrage") and useCDs() then
+                            if cd.bestialWrath.remain() < 2 or (buff.bestialWrath.exists() and buff.bestialWrath.remain() >= 13) then
                                 if cast.aMurderOfCrows(units.dyn40) then return end
                             end
 						end
@@ -566,7 +566,7 @@ local function runRotation()
                             if cast.killCommand(units.dyn40) then return end
                     -- Dire Beast
                         if not talent.direFrenzy and cd.bestialWrath.remain() > 3 then
-                            if ((not hasEquiped(137227) or cd.killCommand.remain() >= 3) and (t19_2pc or not buff.bestialWrath.exists())) or (charges.direBeast.frac() >= 1.9 or cd.titansThunder.remain() <= gcd) then
+                            if (not hasEquiped(137227) or cd.killCommand.remain() >= 3) or (charges.direBeast.frac() >= 1.9) then
                                 if cast.direBeast(units.dyn40) then return end
                             end
 						end
