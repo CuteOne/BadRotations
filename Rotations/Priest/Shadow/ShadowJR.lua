@@ -51,9 +51,11 @@ local function createOptions()
         local section
         -- General Options
         section = br.ui:createSection(br.ui.window.profile, "General")
-        -- Dummy DPS Test
+            -- Dummy DPS Test
             br.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "Set to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
-        -- Pre-Pull Timer
+            -- Rotation Mode
+            br.ui:createDropdownWithout(section,"Rotation Mode", {"SIMC mode","JR Mode (expiremental)"}, 1, "Choose rotation mode.")
+            -- Pre-Pull Timer
             br.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "Set to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
             -- Body and Soul
             br.ui:createCheckbox(section,"PWS: Body and Soul")
@@ -300,6 +302,9 @@ local function runRotation()
     local raidMovementWithin15 = 0   -- trying to come up with a clever way to manage this, maybe a toggle or something. For now, just assume we always have to move soon
 
     local activeEnemies = #enemies.yards40
+    -- searEnemmies represents the number of enemies in mind sear range of the primary target.
+    local searEnemies = getEnemies(units.dyn40, 8, true)
+
     if mode.rotation == 3 then
         activeEnemies = 1
         SWPmaxTargets = 1
@@ -324,7 +329,6 @@ local function runRotation()
     insanityDrain = 6 + (2 / 3 * (drainStacks)) 
 
     -- Mind Flay Ticks
-    --local mfTick
     if mfTick == nil or not inCombat or not isCastingSpell(spell.mindFlay) then mfTick = 0 end
     if br.timer:useTimer("Mind Flay Ticks", 0.75) and isCastingSpell(spell.mindFlay) then
         mfTick = mfTick + 1
@@ -789,7 +793,7 @@ local function runRotation()
         end
     -- Shadow Word: Death
         -- shadow_word_death,if=(active_enemies<=4|(talent.reaper_of_souls.enabled&active_enemies<=2))&cooldown.shadow_word_death.charges=2&insanity<=(85-15*talent.reaper_of_souls.enabled)
-        if (activeEnemies <= 4 or (talent.reaperOfSouls and (activeEnemies <= 2 or mode.rotation == 3)))
+        if (#searEnemies <= 4 or (talent.reaperOfSouls and (activeEnemies <= 2 or mode.rotation == 3)))
             and charges.shadowWordDeath.count() == 2 and (power <= (85 - 15 * reaperOfSouls) or mode.voidForm == 2)
         then
             -- If Zeks Exterminatus (legendary cloak) has procced, SW:D is castable on any target, regardless of HP
@@ -808,7 +812,7 @@ local function runRotation()
         end
     -- Mind Blast
         -- mind_blast,if=active_enemies<=4&talent.legacy_of_the_void.enabled&(insanity<=81|(insanity<=75.2&talent.fortress_of_the_mind.enabled))
-        if activeEnemies <= 4 and not moving and talent.legacyOfTheVoid and ((power <= 81 or (power <= 75.2 and talent.fortressOfTheMind)) or mode.voidForm == 2)
+        if #searEnemies <= 4 and not moving and talent.legacyOfTheVoid and ((power <= 81 or (power <= 75.2 and talent.fortressOfTheMind)) or mode.voidForm == 2)
             and not recentlyCast(units.dyn40, spell.mindBlast, 0.9*gcdMax) 
         then
             if cast.mindBlast(units.dyn40) then 
@@ -820,7 +824,7 @@ local function runRotation()
         end
     -- Mind Blast
         -- mind_blast,if=active_enemies<=4&!talent.legacy_of_the_void.enabled|(insanity<=96|(insanity<=95.2&talent.fortress_of_the_mind.enabled))
-        if activeEnemies <= 4 and not moving and not talent.legacyOfTheVoid and (power <= 96 or ((power <= 95.2 and talent.fortressOfTheMind)) or mode.voidForm == 2)
+        if #searEnemies <= 4 and not moving and not talent.legacyOfTheVoid and (power <= 96 or ((power <= 95.2 and talent.fortressOfTheMind)) or mode.voidForm == 2)
             and not recentlyCast(units.dyn40, spell.mindBlast, 0.9*gcdMax) 
         then
             if cast.mindBlast(units.dyn40) then 
@@ -832,7 +836,7 @@ local function runRotation()
         end
     -- Shadow Word: Pain - on extra dot targets (main target is handled above)
         -- shadow_word_pain,if=!talent.misery.enabled&!ticking&target.time_to_die>10&(active_enemies<5&(talent.auspicious_spirits.enabled|talent.shadowy_insight.enabled)),cycle_targets=1
-        -- if not talent.misery and activeEnemies < 5 and not mode.rotation == 3
+        -- if not talent.misery and #searEnemies < 5 and not mode.rotation == 3
         --     and (talent.auspiciousSpirits or talent.shadowyInsight) and debuff.shadowWordPain.count() < SWPmaxTargets
         -- then
         --     for i = 1, #enemies.yards40 do
@@ -853,7 +857,7 @@ local function runRotation()
         if activeEnemies > 1 and not talent.misery and not mode.rotation == 3 and debuff.vampiricTouch.Count() < VTmaxTargets and not moving then
             for i = 1, #enemies.yards40 do
                 local thisUnit = enemies.yards40[i]
-                if not debuff.vampiricTouch.exists(thisUnit) and (dot_vt_dpgcd * ttd(thisUnit) / (gcdMax * (156 + sear_dpgcd * (activeEnemies - 1)))) > 1
+                if not debuff.vampiricTouch.exists(thisUnit) and (dot_vt_dpgcd * ttd(thisUnit) / (gcdMax * (156 + sear_dpgcd * (#searEnemies - 1)))) > 1
                     and not recentlyCast(thisUnit, spell.vampiricTouch, 1.1*gcdMax) then
                     if cast.vampiricTouch(thisUnit,"aoe") then 
                         -- Print("cast VT on adds")
@@ -870,7 +874,7 @@ local function runRotation()
         if activeEnemies > 1 and not talent.misery and not mode.rotation == 3 and debuff.shadowWordPain.Count() < SWPmaxTargets then
             for i = 1, #enemies.yards40 do
                 local thisUnit = enemies.yards40[i]
-                if not debuff.shadowWordPain.exists(thisUnit) and (dot_swp_dpgcd * ttd(thisUnit) / (gcdMax * (118 + sear_dpgcd * (activeEnemies - 1)))) > 1
+                if not debuff.shadowWordPain.exists(thisUnit) and (dot_swp_dpgcd * ttd(thisUnit) / (gcdMax * (118 + sear_dpgcd * (#searEnemies - 1)))) > 1
                     and not recentlyCast(thisUnit, spell.shadowWordPain, 1.1*gcdMax) then
                     if cast.shadowWordPain(thisUnit,"aoe") then 
                         -- Print("cast SWP on adds")
@@ -1234,6 +1238,34 @@ local function runRotation()
                 end
             end
         end
+-- Higher Priority for DOTS in Void Form (Experimental)
+        if getOptionValue("Rotation Mode") == 2 then
+        -- Vampiric Touch
+            if not moving and not debuff.vampiricTouch.exists(units.dyn40) and ((1 + 0.02 * buff.voidForm.stack()) * dot_vt_dpgcd * ttd(units.dyn40) / (gcdMax * (156 + sear_dpgcd * (#searEnemies - 1)))) > 1 then
+                if cast.vampiricTouch(units.dyn40) then return end
+            end
+            if debuff.vampiricTouch.count() < VTmaxTargets and not moving and not isCastingSpell(spell.vampiricTouch) then
+                for i = 1, #enemies.yards40 do
+                    local thisUnit = enemies.yards40[i]
+                    if not debuff.vampiricTouch.exists(thisUnit) and ((1 + 0.02 * buff.voidForm.stack()) * dot_vt_dpgcd * ttd(thisUnit) / (gcdMax * (156 + sear_dpgcd * (#searEnemies - 1)))) > 1 then
+                        if cast.vampiricTouch(thisUnit,"aoe") then return end
+                    end
+                end
+            end 
+        -- Shadow Word - Pain
+            if not debuff.shadowWordPain.exists(units.dyn40) and ((1 + 0.02 * buff.voidForm.stack()) * dot_swp_dpgcd * ttd(units.dyn40) / (gcdMax * (118 + sear_dpgcd * (#searEnemies - 1)))) > 1 then
+                if cast.shadowWordPain(units.dyn40) then return end
+            end
+            if debuff.shadowWordPain.count() < SWPmaxTargets then
+                for i = 1, #enemies.yards40 do
+                    local thisUnit = enemies.yards40[i]
+                    if not debuff.shadowWordPain.exists(thisUnit) and ((1 + 0.02 * buff.voidForm.stack()) * dot_swp_dpgcd * ttd(thisUnit) / (gcdMax * (118 + sear_dpgcd * (#searEnemies - 1)))) > 1 then
+                        if cast.shadowWordPain(thisUnit,"aoe") then return end
+                    end
+                end
+            end 
+        end
+-- Higher Priority for DOTS in Void Form (Experimental)
     -- Shadow Crash
         -- shadow_crash,if=talent.shadow_crash.enabled
         if isChecked("Shadow Crash") and talent.shadowCrash then
@@ -1287,7 +1319,7 @@ local function runRotation()
         end
     -- Shadow Word - Death
         -- shadow_word_death,if=(active_enemies<=4|(talent.reaper_of_souls.enabled&active_enemies<=2))&current_insanity_drain*gcd.max>insanity&(insanity-(current_insanity_drain*gcd.max)+(15+15*talent.reaper_of_souls.enabled))<100
-        if (activeEnemies <= 4 or (talent.reaperOfSouls and activeEnemies <= 2))
+        if (#searEnemies <= 4 or (talent.reaperOfSouls and activeEnemies <= 2))
             and insanityDrain * gcdMax > power and (power - (insanityDrain * gcdMax) + (15 + 15 * reaperOfSouls)) < 100
         then
             -- If Zeks Exterminatus (legendary cloak) has procced, SW:D is castable on any target, regardless of HP
@@ -1311,17 +1343,17 @@ local function runRotation()
         end
     -- Mind Blast
         -- mind_blast,if=active_enemies<=4
-        if activeEnemies <= 4 and not moving then
+        if #searEnemies <= 4 and not moving then
             if cast.mindBlast() then return end
         end
     -- Wait For Mind Blast
         -- wait,sec=action.mind_blast.usable_in,if=action.mind_blast.usable_in<gcd.max*0.28&active_enemies<=4
-        if activeEnemies <= 4 and cd.mindBlast.remain() < gcdMax * 0.28 then
+        if #searEnemies <= 4 and cd.mindBlast.remain() < gcdMax * 0.28 then
             return true
         end
     -- Shadow Word - Death
         -- shadow_word_death,if=(active_enemies<=4|(talent.reaper_of_souls.enabled&active_enemies<=2))&cooldown.shadow_word_death.charges=2
-        if (activeEnemies <= 4 or (talent.reaperOfSouls and activeEnemies <= 2)) and charges.shadowWordDeath.count() == 2 then
+        if (#searEnemies <= 4 or (talent.reaperOfSouls and activeEnemies <= 2)) and charges.shadowWordDeath.count() == 2 then
             -- If Zeks Exterminatus (legendary cloak) has procced, SW:D is castable on any target, regardless of HP
             if getHP(units.dyn40) < executeHP  or buff.zeksExterminatus.exists() then
                 if cast.shadowWordDeath(units.dyn40) then return end
@@ -1408,26 +1440,26 @@ local function runRotation()
     -- Shadow Word - Pain
         -- shadow_word_pain,if=!talent.misery.enabled&!ticking&(active_enemies<5|talent.auspicious_spirits.enabled|talent.shadowy_insight.enabled|artifact.sphere_of_insanity.rank())
         if not talent.misery and not debuff.shadowWordPain.exists()
-            and (activeEnemies < 5 or talent.auspiciousSpirits or talent.shadowyInsight or artifact.sphereOfInsanity.enabled())
+            and (#searEnemies < 5 or talent.auspiciousSpirits or talent.shadowyInsight or artifact.sphereOfInsanity.enabled())
         then
             if cast.shadowWordPain() then return end
         end
     -- Vampiric Touch
         -- vampiric_touch,if=!talent.misery.enabled&!ticking&(active_enemies<4|talent.sanlayn.enabled|(talent.auspicious_spirits.enabled&artifact.unleash_the_shadows.rank()))
         if not talent.misery and not debuff.vampiricTouch.exists() and not isCastingSpell(spell.vampiricTouch) and not moving
-            and (activeEnemies < 4 or talent.sanlayn or (talent.auspiciousSpirits and artifact.unleashTheShadows.enabled()))   
+            and (#searEnemies < 4 or talent.sanlayn or (talent.auspiciousSpirits and artifact.unleashTheShadows.enabled()))   
         then
             if cast.vampiricTouch() then return end
         end
         -- vampiric_touch,if=active_enemies>1&!talent.misery.enabled&!ticking&((1+0.02*buff.voidform.stack)*variable.dot_vt_dpgcd*target.time_to_die%(gcd.max*(156+variable.sear_dpgcd*(active_enemies-1))))>1,cycle_targets=1
         if activeEnemies > 1 and not talent.misery and not moving then
-            if not debuff.vampiricTouch.exists(units.dyn40) and ((1 + 0.02 * buff.voidForm.stack()) * dot_vt_dpgcd * ttd(units.dyn40) / (gcdMax * (156 + sear_dpgcd * (activeEnemies - 1)))) > 1 then
+            if not debuff.vampiricTouch.exists(units.dyn40) and ((1 + 0.02 * buff.voidForm.stack()) * dot_vt_dpgcd * ttd(units.dyn40) / (gcdMax * (156 + sear_dpgcd * (#searEnemies - 1)))) > 1 then
                 if cast.vampiricTouch(units.dyn40) then return end
             end
             if debuff.vampiricTouch.count() < VTmaxTargets and not moving and not isCastingSpell(spell.vampiricTouch) then
                 for i = 1, #enemies.yards40 do
                     local thisUnit = enemies.yards40[i]
-                    if not debuff.vampiricTouch.exists(thisUnit) and ((1 + 0.02 * buff.voidForm.stack()) * dot_vt_dpgcd * ttd(thisUnit) / (gcdMax * (156 + sear_dpgcd * (activeEnemies - 1)))) > 1 then
+                    if not debuff.vampiricTouch.exists(thisUnit) and ((1 + 0.02 * buff.voidForm.stack()) * dot_vt_dpgcd * ttd(thisUnit) / (gcdMax * (156 + sear_dpgcd * (#searEnemies - 1)))) > 1 then
                         if cast.vampiricTouch(thisUnit,"aoe") then return end
                     end
                 end
@@ -1436,13 +1468,13 @@ local function runRotation()
     -- Shadow Word - Pain
         -- shadow_word_pain,if=active_enemies>1&!talent.misery.enabled&!ticking&((1+0.02*buff.voidform.stack)*variable.dot_swp_dpgcd*target.time_to_die%(gcd.max*(118+variable.sear_dpgcd*(active_enemies-1))))>1,cycle_targets=1
         if activeEnemies > 1 and not talent.misery then
-            if not debuff.shadowWordPain.exists(units.dyn40) and ((1 + 0.02 * buff.voidForm.stack()) * dot_swp_dpgcd * ttd(units.dyn40) / (gcdMax * (118 + sear_dpgcd * (activeEnemies - 1)))) > 1 then
+            if not debuff.shadowWordPain.exists(units.dyn40) and ((1 + 0.02 * buff.voidForm.stack()) * dot_swp_dpgcd * ttd(units.dyn40) / (gcdMax * (118 + sear_dpgcd * (#searEnemies - 1)))) > 1 then
                 if cast.shadowWordPain(units.dyn40) then return end
             end
             if debuff.shadowWordPain.count() < SWPmaxTargets then
                 for i = 1, #enemies.yards40 do
                     local thisUnit = enemies.yards40[i]
-                    if not debuff.shadowWordPain.exists(thisUnit) and ((1 + 0.02 * buff.voidForm.stack()) * dot_swp_dpgcd * ttd(thisUnit) / (gcdMax * (118 + sear_dpgcd * (activeEnemies - 1)))) > 1 then
+                    if not debuff.shadowWordPain.exists(thisUnit) and ((1 + 0.02 * buff.voidForm.stack()) * dot_swp_dpgcd * ttd(thisUnit) / (gcdMax * (118 + sear_dpgcd * (#searEnemies - 1)))) > 1 then
                         if cast.shadowWordPain(thisUnit,"aoe") then return end
                     end
                 end
