@@ -196,14 +196,13 @@ local function runRotation()
     local cd                                            = br.player.cd
     local charges                                       = br.player.charges
     local debuff                                        = br.player.debuff
-    local falling, swimming, flying, moving, mounted    = getFallTime(), IsSwimming(), IsFlying(), GetUnitSpeed("player")>0, IsMounted()
+    local falling, swimming, flying, mounted            = getFallTime(), IsSwimming(), IsFlying(), IsMounted()
     local gcd                                           = br.player.gcd
     local inCombat                                      = br.player.inCombat
     local inInstance                                    = br.player.instance=="party"
     local inRaid                                        = br.player.instance=="raid"
     local item                                          = br.player.spell.items
     local level                                         = br.player.level
-    local lowestHP                                      = br.friend[1].unit
     local mana                                          = br.player.power.mana.percent()
     local mode                                          = br.player.mode
     local moving                                        = isMoving("player") and not br.player.buff.norgannonsForesight.exists()
@@ -271,12 +270,12 @@ local function runRotation()
         end -- End Dummy Test
     -- Moving
         if moving then
-            if isChecked("Angelic Feather") and talent.angelicFeather and not buff.angelicFeather.exists("player") then
+            if isChecked("Angelic Feather") and talent.angelicFeather and not buff.angelicFeather.exists("player") and not buff.classHallSpeed.exists() then
                 cast.angelicFeather("player")
                 --RunMacroText("/cast [@Player] Angelic Feather")
             end
             -- Body and Mind
-            if isChecked("Body and Mind") and talent.bodyAndMind then
+            if isChecked("Body and Mind") and talent.bodyAndMind and not buff.classHallSpeed.exists() then
                 if cast.bodyAndMind("player") then return true end
             end
         end

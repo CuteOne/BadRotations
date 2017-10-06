@@ -639,7 +639,7 @@ local function runRotation()
         --     end
         -- end
     -- Power Word: Shield Body and Soul
-        if isChecked("PWS: Body and Soul") and talent.bodyAndSoul and isMoving("player") and not IsMounted() and not buff.classHallSpeed.exists() then
+        if isChecked("PWS: Body and Soul") and talent.bodyAndSoul and isMoving("player") and not buff.classHallSpeed.exists() then
             if cast.powerWordShield("player") then return end
         end
     end  -- End Action List - Pre-Combat
@@ -675,7 +675,7 @@ local function runRotation()
     -- Action List - Main
     function actionList_Main()
     --Mouseover Dotting
-        if isChecked("Mouseover Dotting") and hasMouse and isValidTarget("mouseover") and not moving and not recentlyCast("mouseover", spell.vampiricTouch, 1.1*gcdMax) then
+        if isChecked("Mouseover Dotting") and hasMouse and (UnitIsEnemy("player","mouseover") or isDummy("mouseover")) and not moving and not recentlyCast("mouseover", spell.vampiricTouch, 1.1*gcdMax) then
             if getDebuffRemain("mouseover",spell.vampiricTouch,"player") <= 3*gcdMax then
                 if cast.vampiricTouch("mouseover") then 
                     lastCastTrackerSpell = spell.vampiricTouch
@@ -685,7 +685,7 @@ local function runRotation()
                 end
             end
         end
-        if isChecked("Mouseover Dotting") and hasMouse and isValidTarget("mouseover") and not recentlyCast("mouseover", spell.shadowWordPain, 1.1*gcdMax) then
+        if isChecked("Mouseover Dotting") and hasMouse and (UnitIsEnemy("player","mouseover") or isDummy("mouseover")) and not recentlyCast("mouseover", spell.shadowWordPain, 1.1*gcdMax) then
             if getDebuffRemain("mouseover",spell.shadowWordPain,"player") <= 3*gcdMax then
                 if cast.shadowWordPain("mouseover") then
                     lastCastTrackerSpell = spell.shadowWordPain
@@ -1387,7 +1387,7 @@ local function runRotation()
             if cast.shadowWordVoid() then return end
         end
     -- Mouseover Dotting
-        if isChecked("Mouseover Dotting") and hasMouse and isValidTarget("mouseover") and not moving and not recentlyCast("mouseover", spell.vampiricTouch, 1.1*gcdMax) then
+        if isChecked("Mouseover Dotting") and hasMouse and (UnitIsEnemy("player","mouseover") or isDummy("mouseover")) and not moving and not recentlyCast("mouseover", spell.vampiricTouch, 1.1*gcdMax) then
             if getDebuffRemain("mouseover",spell.vampiricTouch,"player") <= 3*gcdMax then
                 if cast.vampiricTouch("mouseover") then 
                     lastCastTrackerSpell = spell.vampiricTouch
@@ -1397,7 +1397,7 @@ local function runRotation()
                 end
             end
         end
-        if isChecked("Mouseover Dotting") and hasMouse and isValidTarget("mouseover") and not recentlyCast("mouseover", spell.shadowWordPain, 1.1*gcdMax) then
+        if isChecked("Mouseover Dotting") and hasMouse and (UnitIsEnemy("player","mouseover") or isDummy("mouseover")) and not recentlyCast("mouseover", spell.shadowWordPain, 1.1*gcdMax) then
             if getDebuffRemain("mouseover",spell.shadowWordPain,"player") <= 3*gcdMax then
                 if cast.shadowWordPain("mouseover") then
                     lastCastTrackerSpell = spell.shadowWordPain

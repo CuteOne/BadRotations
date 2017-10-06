@@ -1972,6 +1972,7 @@ br.idList = {
                 clarityOfWill               = 152118,
                 innervate                   = 29166;
                 overloadedWithLight         = 223166,
+                penitent                    = 246519,
                 powerInfusion               = 10060,
                 powerWordShield             = 17,
                 rapture                     = 47536,
