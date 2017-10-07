@@ -550,7 +550,7 @@ local function runRotation()
 				-- Crusader Strike
 				if isChecked("Crusader Strike") and talent.crusadersMight and GetSpellCooldown(20473) > 1 then
 					if cast.crusaderStrike(units.dyn5) then return end
-				elseif isChecked("Crusader Strike") and not talent.crusadersMight and (charges.crusaderStrike.count() == 2 or debuff.judgement.exists(units.dyn5) or (charges.crusaderStrike.count() >= 1 and charge.crusaderStrike.recharge() < 3)) then
+				elseif isChecked("Crusader Strike") and not talent.crusadersMight and (charges.crusaderStrike.count() == 2 or debuff.judgement.exists(units.dyn5) or (charges.crusaderStrike.count() >= 1 and charges.crusaderStrike.recharge() < 3)) then
 					if cast.crusaderStrike(units.dyn5) then return end
 				end
 			end
