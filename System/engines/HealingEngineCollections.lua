@@ -141,6 +141,11 @@ novaEngineTables.BadlyDeBuffed = {
 		158315, --http://www.wowhead.com/spell=158315/dark-hunt
 		--Trains
 		165195,--http://www.wowhead.com/spell=165195/prototype-pulse-grenade
+		--Engine of Souls
+		235933, -- Spear of Anguish debuff
+		238442, -- Spear of Anguish debuff
+		242796, -- Spear of Anguish debuff
+		236135, -- Wither (Soul Queen Dejahna of Desolate Host encounter)
 
 }
 -- Table for NPCs we do not want to add to table (eg. Hymdal/Odyn after they become friendly)
