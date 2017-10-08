@@ -270,12 +270,12 @@ local function runRotation()
         end -- End Dummy Test
     -- Moving
         if moving then
-            if isChecked("Angelic Feather") and talent.angelicFeather and not buff.angelicFeather.exists("player") and not buff.classHallSpeed.exists() then
+            if isChecked("Angelic Feather") and talent.angelicFeather and not buff.angelicFeather.exists("player") and not UnitAura("player",GetSpellInfo(224098)) then
                 cast.angelicFeather("player")
                 --RunMacroText("/cast [@Player] Angelic Feather")
             end
             -- Body and Mind
-            if isChecked("Body and Mind") and talent.bodyAndMind and not buff.classHallSpeed.exists() then
+            if isChecked("Body and Mind") and talent.bodyAndMind and not UnitAura("player",GetSpellInfo(224098)) then
                 if cast.bodyAndMind("player") then return true end
             end
         end
