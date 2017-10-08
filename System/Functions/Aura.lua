@@ -87,6 +87,12 @@ end
 
 -- if canDispel("target",SpellID) == true then
 function canDispel(Unit,spellID)
+	-- first, check DoNotDispell list
+	for i=1, #novaEngineTables.DoNotDispellList do
+		if novaEngineTables.DoNotDispellList[i].id == spellID then
+			return false
+		end
+	end
 	local HasValidDispel = false
 	local ClassNum = select(3,UnitClass("player"))
 	if ClassNum == 1 then --Warrior

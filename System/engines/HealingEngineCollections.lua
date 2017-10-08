@@ -21,6 +21,11 @@ novaEngineTables.DispelID = {
 	-- Belac
 	{ id = 233983, stacks = 0, range = 8}  -- Echoing Anguish http://www.wowhead.com/spell=233983/echoing-anguish
 }
+-- List of debuffs that we should never dispell
+novaEngineTables.DoNotDispellList = {
+	-- Midnight (Attumen the Huntsman)
+	{ id = 227404 }, -- Intangible Presence
+}
 -- This is where we house the Debuffs that are bad for our users, and should not be healed when they have it
 novaEngineTables.BadDebuffList= {
 	104451, -- Ice Tomb
