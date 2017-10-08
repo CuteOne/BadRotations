@@ -98,15 +98,15 @@ novaEngineTables.SpecificHPDebuffs = {
 	--Trains
 	{ debuff = 165195 , value = 30 }, --http://www.wowhead.com/spell=165195/prototype-pulse-grenade
 	-- Tyrant Velhari
-	{ debuff = 180116 , value = 30}, --http://www.wowhead.com/spell=180166/touch-of-harm
+	{ debuff = 180116 , value = 30 }, --http://www.wowhead.com/spell=180166/touch-of-harm
 	-- Chronomatic Anomaly (M)
-	{ debuff = 206609 , value = 30}, --http://www.wowhead.com/spell=206609/time-release
+	{ debuff = 206609 , value = 30 }, --http://www.wowhead.com/spell=206609/time-release
 	-- Gul'dan 
-	{ debuff = 221891 , value = 30}, --http://www.wowhead.com/spell=221891/soul-siphon
+	{ debuff = 221891 , value = 30 }, --http://www.wowhead.com/spell=221891/soul-siphon
 	-- Sisters of the Moon (ToS)
-	{debuff = 233263 , value = 30}, --http://www.wowhead.com/spell=233263/embrace-of-the-eclipse
+	{ debuff = 233263 , value = 30 }, --http://www.wowhead.com/spell=233263/embrace-of-the-eclipse
 	-- Fallen Avater (ToS)
-	{debuff = 240728 , value = -100, stacks = 8}, --http://www.wowhead.com/spell=240728/tainted-essence
+	{ debuff = 240728 , value = -100, stacks = 8 }, --http://www.wowhead.com/spell=240728/tainted-essence
 }
 -- this table will assign role to any unit wearing the unit name
 novaEngineTables.roleTable = {

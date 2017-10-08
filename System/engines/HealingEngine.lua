@@ -473,7 +473,7 @@ if not metaTable1 then
 					-- We are updating all of the User Info (Health/Range/Name)
 					br.friend[i]:UpdateUnit()
 					-- special handling for Spear of Anguish debuff (Engine of Souls)
-					if UnitDebuffID(br.friend[i].unit,235933) or UnitDebuffID(br.friend[i].unit,238442) or UnitDebuffID(br.friend[i].unit,242796) -- if unit is afflicted by spear of anguish
+					if (UnitDebuffID(br.friend[i].unit,235933) or UnitDebuffID(br.friend[i].unit,238442) or UnitDebuffID(br.friend[i].unit,242796)) -- if unit is afflicted by spear of anguish
 						and UnitAuraID(br.friend[i].unit,235621) and UnitAuraID("player",235621) -- and both the Unit and "player" are in the spirit realm
 					then
 						br.friend[i].spearOfAnguishState = 1 -- set state to 1, indicating the player has spearOfAnguish
@@ -483,7 +483,7 @@ if not metaTable1 then
 						br.friend[i].spearOfAnguishState = 2 -- then set state to 2, which will blacklist for healing
 						br.friend[i].spearOfAnguishBlacklistTime = GetTime()
 						Print("Spear of Anguish Blacklisting "..br.friend[i].name)
-					elseif br.friend[i].spearOfAnguishState ~= nil and br.friend[i].spearOfAnguishState == 2 -- if blacklisted more than 10 seconds
+					elseif br.friend[i].spearOfAnguishState == 2 -- if blacklisted more than 10 seconds
 						and GetTime() - br.friend[i].spearOfAnguishBlacklistTime > 10
 					then
 						br.friend[i].spearOfAnguishState = 0 -- remove from blacklist
