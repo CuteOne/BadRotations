@@ -106,7 +106,7 @@ novaEngineTables.SpecificHPDebuffs = {
 	-- Sisters of the Moon (ToS)
 	{debuff = 233263 , value = 30}, --http://www.wowhead.com/spell=233263/embrace-of-the-eclipse
 	-- Fallen Avater (ToS)
-	{debuff = 240728 , value = -100, stacks = 8}, --http://www.wowhead.com/spell=233263/embrace-of-the-eclipse
+	{debuff = 240728 , value = -100, stacks = 8}, --http://www.wowhead.com/spell=240728/tainted-essence
 }
 -- this table will assign role to any unit wearing the unit name
 novaEngineTables.roleTable = {
