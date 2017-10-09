@@ -56,6 +56,8 @@ local function createOptions()
             br.ui:createDropdown(section,"Elixir", {"Flask of the Whispered Pact","Repurposed Fel Focuser","Oralius' Whispering Crystal","None"}, 1, "Set Elixir to use.")
         -- Min Mana to DPS
             br.ui:createSpinner(section, "Minimum Mana to DPS",  50,  0,  100,  5,  "Uncheck to NOT use mana for DPS", "Below this value, do not use mana for DPS.")
+        -- Healing Debug Spam
+            br.ui:createCheckbox(section, "Debug Heal Timing", "Print Group Heal Calculation Time to Chat")
         br.ui:checkSectionState(section)
         ------------------------
         --- COOLDOWN OPTIONS --- -- Define Cooldown Options
@@ -466,8 +468,13 @@ local function runRotation()
         end
     -- Holy Word: Sanctify
         if cd.holyWordSanctify.remain() == 0 and #sanctifyCandidates >= getValue("Holy Word: Sanctify Targets") then
+            local sanctifyStartTime = GetTime()
             -- get the best ground location to heal most or all of them
             local loc = getBestGroundCircleLocation(sanctifyCandidates,getValue("Holy Word: Sanctify Targets"),10)
+            if getOption("Debug Heal Timing") then
+                local elapsedSancTime = GetTime() - sanctifyStartTime
+                Print("Calculate Sanctify Location took "..elapsedSancTime)                
+            end
             if loc ~= nil then
                 -- Lots of people need heals. Good a time as any to use trinkets...
                 -- If you can think of a better time to use them, feel free to modify
