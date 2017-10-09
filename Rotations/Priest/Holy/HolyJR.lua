@@ -354,7 +354,7 @@ local function runRotation()
                 end
             end
     -- Fade
-        if isChecked("Fade") and not solo and cd.fade.remain == 0 then
+        if isChecked("Fade") and not solo and cd.fade.remain() == 0 then
             local myThreat = UnitThreatSituation("player")
             if myThreat ~= nil and myThreat >= 2 then
                 if cast.fade() then return true end
