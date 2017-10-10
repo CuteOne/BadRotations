@@ -536,8 +536,8 @@ local function runRotation()
         local function actionList_Finishers()
             rotationDebug = "Finishers"
         -- Between the Eyes
-            -- between_the_eyes,if=(mantle_duration>=gcd.remains+0.2&!equipped.thraxis_tricksy_treads)|(equipped.greenskins_waterlogged_wristcuffs&!buff.greenskins_waterlogged_wristcuffs.up)
-            if (buff.masterAssassinsInitiative.remain() >= cd.global.remain() + 0.2 and not hasEquiped(137099)) or (hasEquiped(137099) and not buff.greenskinsWaterloggedWristcuffs.exists()) then
+            -- between_the_eyes,if=(mantle_duration>=0.2&!equipped.thraxis_tricksy_treads)|(equipped.greenskins_waterlogged_wristcuffs&!buff.greenskins_waterlogged_wristcuffs.up)
+            if (buff.masterAssassinsInitiative.remain() >= 0.2 and not hasEquiped(137099)) or (hasEquiped(137099) and not buff.greenskinsWaterloggedWristcuffs.exists()) then
                 if cast.betweenTheEyes() then return end
             end
         -- Run Through
@@ -589,9 +589,9 @@ local function runRotation()
         -- Stealth Breaker
             if actionList_StealthBreaker() then return end
         -- Vanish
-            -- vanish,if=variable.ambush_condition|(equipped.mantle_of_the_master_assassin&mantle_duration=0&!variable.rtb_reroll&!variable.ss_useable)
+            -- vanish,if=(variable.ambush_condition|equipped.mantle_of_the_master_assassin&!variable.rtb_reroll&!variable.ss_useable)&mantle_duration=0
             if isChecked("Vanish") and useCDs() and not solo then
-                if ambushCondition or (hasEquiped(144236) and buff.masterAssassinsInitiative.remain() == 0 and not rtbReroll and not ssUsable) then
+                if (ambushCondition or (hasEquiped(144236) and not rtbReroll and not ssUsable)) and buff.masterAssassinsInitiative.remain() == 0 then
                     if cast.vanish() then vanishTime = GetTime(); return end
                 end
             end
