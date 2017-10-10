@@ -471,7 +471,7 @@ local function runRotation()
             local sanctifyStartTime = GetTime()
             -- get the best ground location to heal most or all of them
             local loc = getBestGroundCircleLocation(sanctifyCandidates,getValue("Holy Word: Sanctify Targets"),10)
-            if getOption("Debug Heal Timing") then
+            if isChecked("Debug Heal Timing") then
                 local elapsedSancTime = GetTime() - sanctifyStartTime
                 Print("Calculate Sanctify Location took "..elapsedSancTime)                
             end
