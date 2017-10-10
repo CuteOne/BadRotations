@@ -454,7 +454,7 @@ local function runRotation()
         -- Specter of Betrayal
                 -- use_item,name=specter_of_betrayal,if=(mantle_duration>0|buff.curse_of_the_dreadblades.up|(cooldown.vanish.remains>11&cooldown.curse_of_the_dreadblades.remains>11))
                 if isChecked("Trinkets") and hasEquiped(151190) and canUse(151190) then
-                    if buff.masterAssassinsInitiative.remain() > 0 or buff.curseOfTheDreadblades.exists() or (cd.vanish.remain() > 11 and cd.curseOfTheDreadblades.remain() > 11) then
+                    if buff.masterAssassinsInitiative.remain() > 0 or debuff.curseOfTheDreadblades.exists() or (cd.vanish.remain() > 11 and cd.curseOfTheDreadblades.remain() > 11) then
                         useItem(151190)
                     end
                 end
