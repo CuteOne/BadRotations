@@ -229,6 +229,7 @@ local function runRotation()
         local units                                         = units or {}
 
         units.dyn5 = br.player.units(5)
+        units.dyn10 = br.player.units(10)
         units.dyn30 = br.player.units(30)
         enemies.yards5 = br.player.enemies(5)
         enemies.yards20 = br.player.enemies(20)
@@ -285,7 +286,7 @@ local function runRotation()
 
         -- Custom Functions
         local function usePickPocket()
-            if (mode.pickPocket == 1 or mode.pickPocket == 2) and buff.stealth.exists() and level > 13 then
+            if (mode.pickPocket == 1 or mode.pickPocket == 2) and buff.stealth.exists() and level > 13 and getDistance(units.dyn10) < 10 then
                 return true
             else
                 return false
@@ -332,7 +333,7 @@ local function runRotation()
                             if cast.sap(units.dyn5) then return end
                         end
                         if lastSpell ~= spell.vanish then
-                            if cast.pickPocket() then return end
+                            if cast.pickPocket(units.dyn10) then return end
                         end
                     end
                 end
@@ -607,7 +608,7 @@ local function runRotation()
         local function actionList_PreCombat()
         -- Stealth
             -- stealth
-            if isChecked("Stealth") and (not IsResting() or isDummy("target")) and not inCombat then
+            if isChecked("Stealth") and (not IsResting() or isDummy("target")) and not inCombat and not stealthing then
                 if getOptionValue("Stealth") == 1 then
                     if cast.stealth() then return end
                 end
@@ -632,7 +633,7 @@ local function runRotation()
                 end
         -- Roll The Bones
                 -- roll_the_bones,if=!talent.slice_and_dice.enabled
-                if not talent.sliceAndDice and buff.rollTheBones.count == 0 then
+                if not talent.sliceAndDice and buff.rollTheBones.count == 0 and combo > 0 then
                     if cast.rollTheBones() then return end
                 end
         -- Curse of the Dreadblades
