@@ -579,9 +579,9 @@ local function runRotation()
                  if cast.nightblade(units.dyn5) then return end
             end
         -- Death from Above
-            -- death_from_above,if=!talent.dark_shadow.enabled|!cooldown.vanish.up&(!buff.shadow_dance.up|spell_targets>=4)&(buff.symbols_of_death.up|cooldown.symbols_of_death.remains>=10+set_bonus.tier20_4pc*5)&buff.the_first_of_the_dead.remains<1&(buff.finality_eviscerate.up|spell_targets.shuriken_storm<4)
+            -- death_from_above,if=!talent.dark_shadow.enabled|(!buff.shadow_dance.up|spell_targets>=4)&(buff.symbols_of_death.up|cooldown.symbols_of_death.remains>=10+set_bonus.tier20_4pc*5)&buff.the_first_of_the_dead.remains<1&(buff.finality_eviscerate.up|spell_targets.shuriken_storm<4)
             if isChecked("Death From Above") then
-                if not talent.darkShadow or cd.vanish.remain() ~= 0 and (not buff.shadowDance.exists() or #enemies.yards8t >= getOptionValue("Death From Above")) 
+                if not talent.darkShadow or (not buff.shadowDance.exists() or #enemies.yards8t >= getOptionValue("Death From Above")) 
                     and (buff.symbolsOfDeath.exists() or cd.symbolsOfDeath.remain() >= 10 + t20pc4 * 5) and buff.theFirstOfTheDead.remain() < 1
                     and (buff.finalityEviscerate.exists() or #enemies.yards10 < 4) 
                 then
@@ -601,8 +601,8 @@ local function runRotation()
                 if cast.shadowstrike() then return end
             end
         -- Finisher
-            -- call_action_list,name=finish,if=combo_points>=5+(talent.deeper_stratagem.enabled&buff.vanish.up)&(spell_targets.shuriken_storm>=3+equipped.shadow_satyrs_walk|(mantle_duration<=1.3&mantle_duration-gcd.remains>=0.3))
-            if combo >= 5 + deepVanish and (#enemies.yards10 >= 3 + shadowWalker or (buff.masterAssassinsInitiative.remain() <= 1.3 and buff.masterAssassinsInitiative.remain() - gcd >= 0.3)) then
+            -- call_action_list,name=finish,if=combo_points>=5+(talent.deeper_stratagem.enabled&buff.vanish.up)&(spell_targets.shuriken_storm>=3+equipped.shadow_satyrs_walk|(mantle_duration<=1.3&mantle_duration>=0.3))
+            if combo >= 5 + deepVanish and (#enemies.yards10 >= 3 + shadowWalker or (buff.masterAssassinsInitiative.remain() <= 1.3 and buff.masterAssassinsInitiative.remain() >= 0.3)) then
                 if actionList_Finishers() then return end
             end
         -- Shuriken Storm
