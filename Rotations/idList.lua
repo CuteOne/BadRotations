@@ -1132,7 +1132,7 @@ br.idList = {
                 mendPet                     = 136,
             },
             debuffs                         = {
-
+                bestialFerocity             = 191413,
             },
             glyphs                          = {
 
