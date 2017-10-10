@@ -207,6 +207,8 @@ local function runRotation()
         local units                                         = units or {}
         local lootDelay                                     = getOptionValue("LootDelay")
 
+        if ImprovedSND == nil then ImprovedSND = false end
+
         units.dyn5 = br.player.units(5)
         units.dyn30 = br.player.units(30)
         enemies.yards5 = br.player.enemies(5)
@@ -607,41 +609,73 @@ local function runRotation()
                 -- if not buff.stealth and not buff.vanish and not buff.shadowmeld and GetTime() > vanishTime + 2 and getDistance(units.dyn5) < 5 then
                 if not stealthingAll then
                 -- Marked for Death
-                    --if isChecked("Marked For Death") then
-                        if mode.mfd == 1 then                            
-                            if comboDeficit >= ComboMaxSpend() - 1 then
-                                if cast.markedForDeath("target") then return end
-                            end
-                        elseif mode.mfd == 2 then
-                            for i = 1, #enemies.yards30 do
-                                local thisUnit = enemies.yards30[i]
-                                if comboDeficit >= 6 then comboDeficit = ComboMaxSpend() end
-                                if ttd(thisUnit) > 0 and ttd(thisUnit) <= 100 then
-                                    if ttd(thisUnit) < comboDeficit*1.2 then
-                                        if cast.markedForDeath(thisUnit) then return end
-                                    end
+                    if mode.mfd == 1 then                            
+                        if comboDeficit >= ComboMaxSpend() - 1 then
+                            if cast.markedForDeath("target") then return end
+                        end
+                    elseif mode.mfd == 2 then
+                        for i = 1, #enemies.yards30 do
+                            local thisUnit = enemies.yards30[i]
+                            if comboDeficit >= 6 then comboDeficit = ComboMaxSpend() end
+                            if ttd(thisUnit) > 0 and ttd(thisUnit) <= 100 then
+                                if ttd(thisUnit) < comboDeficit*1.2 then
+                                    if cast.markedForDeath(thisUnit) then return end
                                 end
                             end
                         end
-                    --end
+                    end
         -- Death from Above
                         -- death_from_above,if=energy.time_to_max>2&!variable.ss_useable_noreroll
                     if ttm > 2 and not ssUsableNoReroll() then
                         if cast.deathFromAbove() then return end
                     end
-                    if not ssUsable() then
-                        if talent.sliceAndDice then
+
+                    --[[if buff.loadedDice.exists() then
+                        ImprovedSND = true
+                    else
+                        ImprovedSND = false
+                    end]]
+
+                    if talent.sliceAndDice then
     -- Slice and Dice
-                            -- slice_and_dice,if=!variable.ss_useable&buff.slice_and_dice.remains<target.time_to_die&buff.slice_and_dice.remains<(1+combo_points)*1.8
-                            if (buff.sliceAndDice.remain() < ttd("target") or not buff.sliceAndDice.exists()) and buff.sliceAndDice.remain() < (1 + combo) * 1.8 then
-                                if cast.sliceAndDice() then return end
+                        -- slice_and_dice,if=!variable.ss_useable&buff.slice_and_dice.remains<target.time_to_die&buff.slice_and_dice.remains<(1+combo_points)*1.8&!buff.slice_and_dice.improved&!buff.loaded_dice.up
+                        if not ssUsable() and (buff.sliceAndDice.remain() < ttd("target") or not buff.sliceAndDice.exists()) and buff.sliceAndDice.refresh and not ImprovedSND and not buff.loadedDice.exists() then
+                            if cast.sliceAndDice() then
+                                if buff.loadedDice.exists() then
+                                    ImprovedSND = true
+                                else
+                                    ImprovedSND = false
+                                end
+                                return
                             end
-                        elseif isChecked("RTB") then
+                        end
+                        -- slice_and_dice,if=buff.loaded_dice.up&combo_points>=cp_max_spend&(!buff.slice_and_dice.improved|buff.slice_and_dice.remains<4)
+                        if buff.loadedDice.exists() and combo >= ComboMaxSpend() and (not ImprovedSND or buff.sliceAndDice.remain() < 4) then
+                            if cast.sliceAndDice() then
+                                if buff.loadedDice.exists() then
+                                    ImprovedSND = true
+                                else
+                                    ImprovedSND = false
+                                end
+                                return
+                            end
+                        end
+                        -- slice_and_dice,if=buff.slice_and_dice.improved&buff.slice_and_dice.remains<=2&combo_points>=2&!buff.loaded_dice.up
+                        if ImprovedSND and buff.sliceAndDice.remain() <= 2 and combo >= 2 and not buff.loadedDice.exists() then
+                            if cast.sliceAndDice() then
+                                if buff.loadedDice.exists() then
+                                    ImprovedSND = true
+                                else
+                                    ImprovedSND = false
+                                end
+                                return
+                            end
+                        end
+                    elseif isChecked("RTB") then
     -- Roll the Bones
-                            -- roll_the_bones,if=!variable.ss_useable&(target.time_to_die>20|buff.roll_the_bones.remains<target.time_to_die)&(buff.roll_the_bones.remains<=3|variable.rtb_reroll)
-                            if (ttd("target") > 20 or buff.rollTheBones.remain < ttd("target") or buff.rollTheBones.remain == 0) and (buff.rollTheBones.remain <= 3 or rtbReroll()) then
-                                if cast.rollTheBones() then return end
-                            end
+                        -- roll_the_bones,if=!variable.ss_useable&(target.time_to_die>20|buff.roll_the_bones.remains<target.time_to_die)&(buff.roll_the_bones.remains<=3|variable.rtb_reroll)
+                        if not ssUsable() and (ttd("target") > 20 or buff.rollTheBones.remain < ttd("target") or buff.rollTheBones.remain == 0) and (buff.rollTheBones.remain <= 3 or rtbReroll()) then
+                            if cast.rollTheBones() then return end
                         end
                     end
     -- Killing Spree
