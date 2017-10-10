@@ -15,7 +15,7 @@ function getFocusedTank()
 	elseif #tanks > 0 then
 		-- otherwise we want to see which tank is beign targetted by its mob and whos threat is highest
 		for i = 1,#tanks do
-			Print(UnitGUID(tanks[i].target)..""..tanks[i].guid)
+			--Print(UnitGUID(tanks[i].target)..""..tanks[i].guid)
 			if UnitGUID(tanks[i].target) == tanks[i].guid then
 				-- mob is on this unit
 				oldTank = tanks[i]
@@ -23,7 +23,7 @@ function getFocusedTank()
 			end
 		end
 	else
-		Print(":( no tanks")
+		--Print(":( no tanks")
 	end
 end
 -- find tanks
