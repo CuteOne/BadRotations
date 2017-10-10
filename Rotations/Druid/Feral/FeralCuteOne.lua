@@ -961,7 +961,7 @@ local function runRotation()
                     elseif THR1 and (not SHR1 or (combo < 5 and (buff.savageRoar.exists() or not talent.savageRoar))) then
             -- Shred
                         if shredCount == nil then shredCount = 10 end
-                        if talent.brutalSlash and charges.brutalSlash.remain() >= 1 then
+                        if talent.brutalSlash and charges.brutalSlash.count() >= 1 then
                             if castOpener("brutalSlash","SHR1",shredCount) then shredCount = shredCount + 1 return end
                         else
                             if castOpener("shred","SHR1",shredCount) then shredCount = shredCount + 1 return end
