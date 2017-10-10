@@ -406,7 +406,7 @@ function enemyListCheck(Unit)
 	local hostileOnly = isChecked("Hostiles Only")
 	local distance = getDistance(Unit,"player","noMod")
 	return GetObjectExists(Unit) and not UnitIsDeadOrGhost(Unit) and UnitInPhase(Unit) and distance < 50
-		and (not UnitIsFriend(Unit, "player") and (not hostileOnly or (hostileOnly and (UnitIsEnemy(Unit, "player") or isTargeting(Unit) or isDummy(Unit))))) 
+		and (not UnitIsFriend(Unit, "player") and (not hostileOnly or (hostileOnly and (UnitIsEnemy(Unit, "player") or isTargeting(Unit) or isDummy(Unit) or UnitIsUnit(Unit,"target"))))) 
 		and UnitCanAttack("player",Unit) and isSafeToAttack(Unit) and not isCritter(Unit) and getLineOfSight("player", Unit)
 	-- then
 	-- 	local inCombat = UnitAffectingCombat("player") or (GetObjectExists("pet") and UnitAffectingCombat("pet"))
@@ -534,10 +534,10 @@ function pause(skipCastingCheck)
 	-- Pause Hold/Auto
 	if (pausekey and GetCurrentKeyBoardFocus() == nil and isChecked("Pause Mode"))
 		or profileStop
-		or (IsMounted() and (GetObjectExists("target") and GetObjectID("target") ~= 56877)
-			and not UnitBuffID("player",190784) and not UnitBuffID("player",164222)
-			and not UnitBuffID("player",165803) and not UnitBuffID("player",157059)
-			and not UnitBuffID("player",157060))
+		or ((IsMounted() or IsFlying()) --and (GetObjectExists("target") and GetObjectID("target") ~= 56877)
+			and not (UnitBuffID("player",190784) or UnitBuffID("player",164222)
+			or UnitBuffID("player",165803) or UnitBuffID("player",157059)
+			or UnitBuffID("player",157060)))
 		or SpellIsTargeting()
 		-- or (not UnitCanAttack("player","target") and not UnitIsPlayer("target") and GetUnitExists("target"))
 		or (UnitCastingInfo("player") and not skipCastingCheck)

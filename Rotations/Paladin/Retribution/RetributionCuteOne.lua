@@ -203,6 +203,7 @@ local function runRotation()
         local resable       = UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and UnitIsFriend("target","player")
         local solo          = GetNumGroupMembers() == 0
         local spell         = br.player.spell
+        local t20_2pc       = TierScan("T20") >= 2
         local t20_4pc       = TierScan("T20") >= 4
         local talent        = br.player.talent
         local thp           = getHP(br.player.units(5))
@@ -515,9 +516,11 @@ local function runRotation()
             -- Racial
                 -- blood_fury
                 -- berserking
-                -- arcane_torrent,if=holy_power<=4
-                if isChecked("Racial") and (race == "Orc" or race == "Troll" or (race == "BloodElf" and holyPower <= 4)) and getSpellCD(racial) == 0 then
-                    if castSpell("player",racial,false,false,false) then return end
+                -- arcane_torrent,if=(buff.crusade.up|buff.avenging_wrath.up)&holy_power=2&(cooldown.blade_of_justice.remains>gcd|cooldown.divine_hammer.remains>gcd)
+                if isChecked("Racial") and (race == "Orc" or race == "Troll" 
+                    or (race == "BloodElf" and (buff.crusade.exists() or buff.avengingWrath.exists()) and holyPower == 2 and (cd.bladeOfJustice.remain() > gcd or cd.divineHammer.remain() > gcd))) 
+                then
+                    if cast.racial() then return end
                 end
             -- Holy Wrath
                 -- holy_wrath
@@ -742,150 +745,20 @@ local function runRotation()
                 return
             end
         end -- End Action List - Opener
-    -- Action List - Priority
-        local function actionList_Priority()
+    -- Action List - Finisher
+        local function actionList_Finisher()
         -- Execution Sentence
             -- execution_sentence,if=spell_targets.divine_storm<=3&(cooldown.judgment.remains<gcd*4.5|debuff.judgment.remains>gcd*4.5)
             if ((mode.rotation == 1 and #enemies.yards8 <= getOptionValue("Divine Storm Units")) or mode.rotation == 3) and (cd.judgment.remain() < gcd * 4.5 or debuff.judgment.remain(units.dyn5) > gcd * 4.5) then
                 if cast.executionSentence() then return end
             end
         -- Divine Storm
-            -- divine_storm,if=debuff.judgment.up&variable.ds_castable&buff.divine_purpose.up&buff.divine_purpose.remains<gcd*2
-            if judgmentVar and dsCastable and buff.divinePurpose.exists() and buff.divinePurpose.remain() < gcd * 2 then
-                if cast.divineStorm() then return end
-            end
-            -- divine_storm,if=debuff.judgment.up&variable.ds_castable&holy_power>=5&buff.divine_purpose.react
-            if judgmentVar and dsCastable and holyPower >= 5 and buff.divinePurpose.exists() then
-                if cast.divineStorm() then return end
-            end
-            -- divine_storm,if=debuff.judgment.up&spell_targets.divine_storm>=2&holy_power>=3&(buff.crusade.up&buff.crusade.stack<15|buff.liadrins_fury_unleashed.up)
-            if judgmentVar and ((mode.rotation == 1 and #enemies.yards8 >= getOptionValue("Divine Storm Units")) or mode.rotation == 2) and holyPower >= 3 
-                and (buff.crusade.exists() and buff.crusade.stack() < 15 or buff.liadrinsFuryUnleashed.exists())
-            then 
-                if cast.divineStorm() then return end
-            end
-            -- divine_storm,if=debuff.judgment.up&variable.ds_castable&holy_power>=5
-            if judgmentVar and dsCastable and holyPower >= 5 then
-                if cast.divineStorm() then return end
-            end 
-        -- Justicar's Vengeance
-            -- justicars_vengeance,if=debuff.judgment.up&buff.divine_purpose.up&buff.divine_purpose.remains<gcd*2&!equipped.137020
-            if judgmentVar and buff.divinePurpose.exists() and buff.divinePurpose.remain() < gcd * 2 and not hasEquiped(137020) then
-                if cast.justicarsVengeance() then return end
-            end
-            -- justicars_vengeance,if=debuff.judgment.up&holy_power>=5&buff.divine_purpose.react&!equipped.137020
-            if judgmentVar and holyPower >= 5 and buff.divinePurpose.exists() and not hasEquiped(137020) then
-                if cast.justicarsVengeance() then return end
-            end
-        -- Templar's Verdict
-            -- templars_verdict,if=debuff.judgment.up&buff.divine_purpose.up&buff.divine_purpose.remains<gcd*2
-            if judgmentVar and buff.divinePurpose.exists() and buff.divinePurpose.remain() < gcd * 2 then
-                if isChecked("Justicar's Vengeance") and php < getOptionValue("Justicar's Vengeance") and talent.justicarsVengeance then
-                    if cast.justicarsVengeance() then return end
-                else
-                    if cast.templarsVerdict() then return end
-                end
-            end
-            -- templars_verdict,if=debuff.judgment.up&holy_power>=5&buff.divine_purpose.react
-            if judgmentVar and holyPower >= 5 and buff.divinePurpose.exists() then
-                if isChecked("Justicar's Vengeance") and php < getOptionValue("Justicar's Vengeance") and talent.justicarsVengeance then
-                    if cast.justicarsVengeance() then return end
-                else
-                    if cast.templarsVerdict() then return end
-                end
-            end
-            -- templars_verdict,if=debuff.judgment.up&holy_power>=3&(buff.crusade.up&buff.crusade.stack<15|buff.liadrins_fury_unleashed.up)
-            if judgmentVar and holyPower >= 5 and (buff.crusade.exists() and buff.crusade.stack() < 15 or buff.liadrinsFuryUnleashed.exists()) then
-                if isChecked("Justicar's Vengeance") and php < getOptionValue("Justicar's Vengeance") and talent.justicarsVengeance then
-                    if cast.justicarsVengeance() then return end
-                else
-                    if cast.templarsVerdict() then return end
-                end
-            end
-            -- templars_verdict,if=debuff.judgment.up&holy_power>=5
-            if judgmentVar and holyPower >= 5 then
-                if isChecked("Justicar's Vengeance") and php < getOptionValue("Justicar's Vengeance") and talent.justicarsVengeance then
-                    if cast.justicarsVengeance() then return end
-                else
-                    if cast.templarsVerdict() then return end
-                end
-            end
-        -- Divine Storm
-            -- divine_storm,if=debuff.judgment.up&variable.ds_castable&artifact.wake_of_ashes.enabled().enabled&cooldown.wake_of_ashes.remains<gcd*2
-            if judgmentVar and dsCastable and artifact.wakeOfAshes.enabled() and cd.wakeOfAshes.remain() < gcd * 2 then
-                if cast.divineStorm() then return end
-            end
-            -- divine_storm,if=debuff.judgment.up&variable.ds_castable&buff.whisper_of_the_nathrezim.up&buff.whisper_of_the_nathrezim.remains<gcd*1.5
-            if judgmentVar and dsCastable and buff.whisperOfTheNathrezim.exists() and buff.whisperOfTheNathrezim.remain() < gcd * 1.5 then
-                if cast.divineStorm() then return end
-            end
-        -- Templar's Verdict
-            -- templars_verdict,if=(equipped.137020|debuff.judgment.up)&artifact.wake_of_ashes.enabled().enabled&cooldown.wake_of_ashes.remains<gcd*2
-            if (hasEquiped(137020) or judgmentVar) and artifact.wakeOfAshes.enabled() and cd.wakeOfAshes.remain() < gcd * 2 then
-                if isChecked("Justicar's Vengeance") and php < getOptionValue("Justicar's Vengeance") and talent.justicarsVengeance then
-                    if cast.justicarsVengeance() then return end
-                else
-                    if cast.templarsVerdict() then return end
-                end
-            end
-            -- templars_verdict,if=debuff.judgment.up&buff.whisper_of_the_nathrezim.up&buff.whisper_of_the_nathrezim.remains<gcd*1.5
-            if judgmentVar and buff.whisperOfTheNathrezim.exists() and buff.whisperOfTheNathrezim.remain() < gcd * 1.5 then
-                if cast.divineStorm() then return end
-            end
-        -- Judgment
-            -- judgment,if=dot.execution_sentence.ticking&dot.execution_sentence.remains<gcd*2&debuff.judgment.remains<gcd*2
-            if debuff.executionSentence.exists(units.dyn5) and debuff.executionSentence.remain(units.dyn5) < gcd * 2 and debuff.judgment.remain(units.dyn5) < gcd * 2 then
-                if cast.judgment() then return end
-            end
-        -- Consecration
-            -- consecration,if=(cooldown.blade_of_justice.remains>gcd*2|cooldown.divine_hammer.remains>gcd*2)
-            if (cd.bladeOfJustice.remain() > gcd * 2 or cd.divineHammer.remain() > gcd * 2) then
-                if cast.consecration() then return end
-            end
-        -- Wake of Ashes
-            -- wake_of_ashes,if=(!raid_event.adds.exists|raid_event.adds.in>15)&(holy_power<=0|holy_power=1&(cooldown.blade_of_justice.remains>gcd|cooldown.divine_hammer.remains>gcd)|holy_power=2&((cooldown.zeal.charges_fractional<=0.65|cooldown.crusader_strike.charges_fractional<=0.65)))
-            if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()) and getDistance(units.dyn5) < 5 and getDistance(units.dyn8) < 8 then
-                if (holyPower <= 0 or (holyPower == 1 and (cd.bladeOfJustice.remain() > gcd or cd.divineHammer.remain() > gcd)) or (holyPower == 2 and ((charges.zeal.frac() <= 0.65 or charges.crusaderStrike.frac() <= 0.65)))) then
-                    if cast.wakeOfAshes() then return end
-                end
-            end
-        -- Blade of Justice
-            -- blade_of_justice,if=holy_power<=3-set_bonus.tier20_4pc
-            if holyPower <= 3 - t20pc4 then
-                if cast.bladeOfJustice() then return end
-            end
-        -- Divine Hammer
-            -- divine_hammer,if=holy_power<=3-set_bonus.tier20_4pc
-            if holyPower <= 3 - t20pc4 then
-                if cast.divineHammer() then return end
-            end
-        -- Judgment
-            -- judgment
-            if cast.judgment() then return end
-        -- Zeal
-            -- zeal,if=cooldown.zeal.charges_fractional>=1.65&holy_power<=4&(cooldown.blade_of_justice.remains>gcd*2|cooldown.divine_hammer.remains>gcd*2)&debuff.judgment.remains>gcd
-            if charges.zeal.frac() >= 1.65 and holyPower <= 4 and (cd.bladeOfJustice.remain() > gcd * 2 or cd.divineHammer.remain() > gcd * 2) and debuff.judgment.remain(units.dyn5) > gcd then
-                if cast.zeal() then return end
-            end
-        -- Crusader Strike
-            -- crusader_strike,if=cooldown.crusader_strike.charges_fractional>=1.65-talent.the_fires_of_justice.enabled*0.25&holy_power<=4&(cooldown.blade_of_justice.remains>gcd*2|cooldown.divine_hammer.remains>gcd*2)&debuff.judgment.remains>gcd
-            if charges.crusaderStrike.frac() >= 1.65 - firesOfJustice * 0.25 and holyPower <= 4 and (cd.bladeOfJustice.remain() > gcd * 2 or cd.divineHammer.remain() > gcd * 2) and debuff.judgment.remain(units.dyn5) > gcd then
-                if cast.crusaderStrike() then return end
-            end
-        -- Consecration
-            -- consecration
-            if cast.consecration() then return end
-        -- Divine Storm
             -- divine_storm,if=debuff.judgment.up&variable.ds_castable&buff.divine_purpose.react
-            if judgmentVar and dsCastable and buff.divinePurpose.exists() then
+            if judgmentVar and dsCastable and (buff.divinePurpose.exists() or not useCDs()) then
                 if cast.divineStorm() then return end
             end
-            -- divine_storm,if=debuff.judgment.up&variable.ds_castable&buff.the_fires_of_justice.react
-            if judgmentVar and dsCastable and buff.theFiresOfJustice.exists() then
-                if cast.divineStorm() then return end
-            end
-            -- divine_storm,if=debuff.judgment.up&variable.ds_castable
-            if judgmentVar and dsCastable then
+            -- divine_storm,if=debuff.judgment.up&variable.ds_castable&(!talent.crusade.enabled|cooldown.crusade.remains>gcd*2)
+            if judgmentVar and dsCastable and (not talent.crusade or cd.crusade.remain() > gcd * 2) then
                 if cast.divineStorm() then return end
             end
         -- Justicar's Vengeance
@@ -895,44 +768,106 @@ local function runRotation()
             end
         -- Templar's Verdict
             -- templars_verdict,if=debuff.judgment.up&buff.divine_purpose.react
-            if judgmentVar and buff.divinePurpose.exists() then
+            if judgmentVar and (buff.divinePurpose.exists() or not useCDs()) then
                 if isChecked("Justicar's Vengeance") and php < getOptionValue("Justicar's Vengeance") and talent.justicarsVengeance then
                     if cast.justicarsVengeance() then return end
                 else
                     if cast.templarsVerdict() then return end
                 end
             end
-            -- templars_verdict,if=debuff.judgment.up&buff.the_fires_of_justice.react
-            if judgmentVar and buff.theFiresOfJustice.exists() then
+            -- templars_verdict,if=debuff.judgment.up&(!talent.crusade.enabled|cooldown.crusade.remains>gcd*2)&(!talent.execution_sentence.enabled|cooldown.execution_sentence.remains>gcd)
+            if judgmentVar and (not talent.crusade or cd.crusade.remain() > gcd * 2) and (not talent.executionSentence or cd.executionSentence.remain() > gcd) then
                 if isChecked("Justicar's Vengeance") and php < getOptionValue("Justicar's Vengeance") and talent.justicarsVengeance then
                     if cast.justicarsVengeance() then return end
                 else
                     if cast.templarsVerdict() then return end
                 end
             end
-            -- templars_verdict,if=debuff.judgment.up&(!talent.execution_sentence.enabled|cooldown.execution_sentence.remains>gcd*2)
-            if judgmentVar and (not talent.executionSentence or cd.executionSentence.remain() > gcd * 2) then
-                if isChecked("Justicar's Vengeance") and php < getOptionValue("Justicar's Vengeance") and talent.justicarsVengeance then
-                    if cast.justicarsVengeance() then return end
-                else
-                    if cast.templarsVerdict() then return end
+        end
+    -- Action List - Generator
+        local function actionList_Generator()
+        -- Call Action List - Finisher
+            -- call_action_list,name=finishers,if=(buff.crusade.up&buff.crusade.stack<15|buff.liadrins_fury_unleashed.up)|(artifact.ashes_to_ashes.enabled&cooldown.wake_of_ashes.remains<gcd*2)
+            if (buff.crusade.exists() and (buff.crusade.stack() < 15 or buff.liadrinsFuryUnleashed.exists())) or (artifact.ashesToAshes and cd.wakeOfAshes.remain() < gcd * 2) or holyPower >= 5 then
+                if actionList_Finisher() then return end
+            end
+            -- call_action_list,name=finishers,if=talent.execution_sentence.enabled&(cooldown.judgment.remains<gcd*4.25|debuff.judgment.remains>gcd*4.25)&cooldown.execution_sentence.up|buff.whisper_of_the_nathrezim.up&buff.whisper_of_the_nathrezim.remains<gcd*1.5
+            if talent.executionSentence and (cd.judgment.remain() < gcd * 4.25 or debuff.judgment.remain(units.dyn5) > gcd * 4.25) 
+                and (cd.executionSentence.exists() or (buff.whisperOfTheNathrezim.exists() and buff.whisperOfTheNathrezim.remain() < gcd * 1.5)) 
+            then
+                if actionList_Finisher() then return end
+            end
+        -- Judgment
+            -- judgment,if=dot.execution_sentence.ticking&dot.execution_sentence.remains<gcd*2&debuff.judgment.remains<gcd*2
+            if debuff.executionSentence.exists(units.dyn5) and debuff.executionSentence.remain(units.dyn5) < gcd * 2 and debuff.judgment.remain(units.dyn5) < gcd * 2 then
+                if cast.judgment() then return end
+            end
+        -- Blade of Justice
+            -- blade_of_justice,if=holy_power<=2&(set_bonus.tier20_2pc|set_bonus.tier20_4pc)
+            if holyPower <= 2 and (t20_2pc or t20_4pc) then
+                if cast.bladeOfJustice() then return end
+            end
+        -- Divine Hammer
+            -- divine_hammer,if=holy_power<=2&(set_bonus.tier20_2pc|set_bonus.tier20_4pc)
+            if holyPower <= 2 and (t20_2pc or t20_4pc) then
+                if cast.divineHammer() then return end
+            end
+        -- Wake of Ashes
+            -- wake_of_ashes,if=(!raid_event.adds.exists|raid_event.adds.in>15)&(holy_power<=0|holy_power=1&(cooldown.blade_of_justice.remains>gcd|cooldown.divine_hammer.remains>gcd)|holy_power=2&((cooldown.zeal.charges_fractional<=0.65|cooldown.crusader_strike.charges_fractional<=0.65)))
+            if (getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs())) and getDistance(units.dyn8) < 8 then
+                if (holyPower <= 0 or (holyPower == 1 and (cd.bladeOfJustice.remain() > gcd or cd.divineHammer.remain() > gcd)) 
+                    or (holyPower == 2 and ((charges.zeal.frac() <= 0.65 or charges.crusaderStrike.frac() <= 0.65)))) 
+                then
+                    if cast.wakeOfAshes() then return end
                 end
             end
+        -- Blade of Justice
+            -- blade_of_justice,if=holy_power<=3&!set_bonus.tier20_4pc
+            if holyPower <= 3 and not t20_4pc then
+                if cast.bladeOfJustice() then return end
+            end
+        -- Divine Hammer
+            -- divine_hammer,if=holy_power<=3&!set_bonus.tier20_4pc
+            if holyPower <= 3 and not t20_4pc then
+                if cast.divineHammer() then return end
+            end
+        -- Judgment
+            -- judgment
+            if cast.judgment() then return end
+        -- Call Action List - Finishers
+            -- call_action_list,name=finishers,if=buff.divine_purpose.up
+            if buff.divinePurpose.exists() then
+                if actionList_Finisher() then return end
+            end
+        -- Zeal
+            -- zeal,if=cooldown.zeal.charges_fractional>=1.65&holy_power<=4&(cooldown.blade_of_justice.remains>gcd*2|cooldown.divine_hammer.remains>gcd*2)&debuff.judgment.remains>gcd
+            if charges.zeal.frac() >= 1.65 and holyPower <= 4 and (cd.bladeOfJustice.remain() > gcd * 2 or cd.divineHammer.remain() > gcd * 2) and debuff.judgment.remain(units.dyn5) > gcd then
+                if cast.zeal() then return end
+            end
+        -- Crusader Strike
+            -- crusader_strike,if=cooldown.crusader_strike.charges_fractional>=1.65&holy_power<=4&(cooldown.blade_of_justice.remains>gcd*2|cooldown.divine_hammer.remains>gcd*2)&debuff.judgment.remains>gcd&(talent.greater_judgment.enabled|!set_bonus.tier20_4pc&talent.the_fires_of_justice.enabled)
+            if charges.crusaderStrike.frac() >= 1.65 and holyPower <= 4 and (cd.bladeOfJustice.remain() > gcd * 2 or cd.divineHammer.remain() > gcd * 2) 
+                and debuff.judgment.remain(units.dyn5) > gcd and (talent.greaterJudgment or (not t20_4pc and talent.theFiresOfJustice))
+            then
+                if cast.crusaderStrike() then return end
+            end
+        -- Consecration
+            -- consecration
+            if cast.consecration() then return end
         -- Hammer of Justice
             -- hammer_of_justice,if=equipped.137065&target.health.pct>=75&holy_power<=4
             if hasEquiped(13705) and thp >= 75 and holyPower <= 4 then
                 if cast.hammerOfJustice() then return end
             end
+        -- Call Action List - Finisher
+            -- call_action_list,name=finishers
+            if actionList_Finisher() then return end
         -- Zeal
-            -- zeal,if=holy_power<=4
-            if holyPower <= 4 then
-                if cast.zeal() then return end
-            end
+            -- zeal
+            if cast.zeal() then return end
         -- Crusader Strike
-            -- crusader_strike,if=holy_power<=4
-            if holyPower <= 4 then
-                if cast.crusaderStrike() then return end
-            end
+            -- crusader_strike
+            if cast.crusaderStrike() then return end
         end
 ---------------------
 --- Begin Profile ---
@@ -991,8 +926,8 @@ local function runRotation()
                         -- call_action_list,name=cooldowns 
                         if actionList_Cooldowns() then return end
             -- Action List - Priority
-                        -- call_action_list,name=priority
-                        if actionList_Priority() then return end
+                        -- call_action_list,name=generators
+                        if actionList_Generator() then return end
                     end
                     br.debug.cpu.rotation.inCombat = debugprofilestop()-startTime
                 end

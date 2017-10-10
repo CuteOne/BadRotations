@@ -242,7 +242,7 @@ local function runRotation()
                 lowestVuln = debuff.vulnerable.remain(thisUnit)
             end
         end
-        if lowestVuln == nil or lowestVuln == 100 then lowestVuln = 0 end
+        -- if lowestVuln == nil or lowestVuln == 100 then lowestVuln = 0 end
 
         local attackHaste = 1 / (1 + (UnitSpellHaste("player")/100))
 
