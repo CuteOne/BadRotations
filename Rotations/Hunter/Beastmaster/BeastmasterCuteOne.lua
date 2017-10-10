@@ -220,7 +220,7 @@ local function runRotation()
 
 
         units.dyn40 = br.player.units(40)
-        enemies.yards40 = br.player.units(40)
+        enemies.yards40 = br.player.enemies(40)
 
         if GetObjectExists("pet") then
             enemies.yards8pet = br.player.enemies(8,GetUnit("pet"))
@@ -230,7 +230,7 @@ local function runRotation()
 
         if lowestFerocity == nil then lowestFerocity = 100 end
         if lowestUnit == nil then lowestUnit = units.dyn40 end
-        for i=1,#enemies.yards40 do
+        for i = 1, #enemies.yards40 do
             local thisUnit = enemies.yards40[i]
             if debuff.bestialFerocity.remain(thisUnit) > 0 and debuff.bestialFerocity.remain(thisUnit) < lowestFerocity then
                 lowestFerocity = debuff.bestialFerocity.remain(thisUnit)

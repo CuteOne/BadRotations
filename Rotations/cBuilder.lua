@@ -388,6 +388,12 @@ function br.loader:new(spec,specName)
             return getSpellCost(v)
         end
 
+        self.cast.current[k] = function(spellID,unit)
+            if spellID == nil then spellID = v end
+            if unit == nil then unit == "player" end
+            return isCastingSpell(spellID,unit)
+        end
+
         self.cast.last[k] = function()
             return lastSpellCast == v
         end
