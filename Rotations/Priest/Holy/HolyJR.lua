@@ -453,6 +453,9 @@ local function runRotation()
             if cd.holyWordSanctify.remain() == 0 and friends.yards40[i].hp < getValue("Holy Word: Sanctify") then
                 tinsert(sanctifyCandidates,friends.yards40[i])
             end
+            if friends.yards40[i].hp < getValue("Prayer of Healing") then
+                tinsert(groupHealCandidates,friends.yards40[i])
+            end
             if talent.circleOfHealing and cd.circleOfHealing.remain() == 0 and friends.yards40[i].hp < getValue("Circle of Healing") then
                 tinsert(circleOfHealingCandidates,friends.yards40[i])
             end
@@ -468,13 +471,13 @@ local function runRotation()
         end
     -- Holy Word: Sanctify
         if cd.holyWordSanctify.remain() == 0 and #sanctifyCandidates >= getValue("Holy Word: Sanctify Targets") then
-            local sanctifyStartTime = GetTime()
+            --local sanctifyStartTime = GetTime()
             -- get the best ground location to heal most or all of them
             local loc = getBestGroundCircleLocation(sanctifyCandidates,getValue("Holy Word: Sanctify Targets"),10)
-            if isChecked("Debug Heal Timing") then
-                local elapsedSancTime = GetTime() - sanctifyStartTime
-                Print("Calculate Sanctify Location took "..elapsedSancTime)                
-            end
+            --if isChecked("Debug Heal Timing") then
+            --    local elapsedSancTime = GetTime() - sanctifyStartTime
+            --    Print("Calculate Sanctify Location took "..string.format("%.4f", elapsedSancTime))               
+            --end
             if loc ~= nil then
                 -- Lots of people need heals. Good a time as any to use trinkets...
                 -- If you can think of a better time to use them, feel free to modify
@@ -530,8 +533,13 @@ local function runRotation()
             end 
         end
     -- Prayer of Healing
-        if not moving then
+        if not moving and #groupHealCandidates >= getValue("Prayer of Healing Targets") then
+            --local pohStartTime = GetTime()
             if castWiseAoEHeal(br.friend,spell.prayerOfHealing,40,getValue("Prayer of Healing"),getValue("Prayer of Healing Targets"),5,false,true)  then return true end
+            --if isChecked("Debug Heal Timing") then
+            --    local elapsedSancTime = GetTime() - pohStartTime
+            --    Print("Calculate PoH Location took "..string.format("%.4f", elapsedSancTime))            
+            --end
         end 
     -- Flash Heal
         for i=1, #tanks do

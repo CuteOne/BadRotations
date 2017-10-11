@@ -1966,9 +1966,9 @@ br.idList = {
             },
             buffs                           = {
                 angelicFeather              = 121557,
+                atonement                   = 194384,
                 bodyAndSoul                 = 65081,
                 borrowedTime                = 197763,
-                atonement                   = 194384,
                 clarityOfWill               = 152118,
                 innervate                   = 29166;
                 overloadedWithLight         = 223166,
