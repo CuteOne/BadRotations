@@ -635,7 +635,7 @@ local function runRotation()
             if ((mode.rotation == 1 and #enemies.yards40 > 1) or mode.rotation == 2) and debuff.vulnerable.remain(units.dyn40) > getCastTime(spell.aimedShot) and (talent.trickShot or buff.lockAndLoad.exists()) and buff.sentinelsSight.stack() == 20 then
                 if cast.aimedShot(units.dyn40) then return end
             end
-            if ((mode.rotation == 1 and #enemies.yards40 > 1) or mode.rotation == 2) and debuff.vulnerable.remain(units.dyn40) > getCastTime(spell.aimedShot)  and talent.trickShot and t20_2pc and not buff.t20_2p_critical_aimed.exists() and lastSpellCast == spell.aimedShot then
+            if ((mode.rotation == 1 and #enemies.yards40 > 1) or mode.rotation == 2) and debuff.vulnerable.remain(units.dyn40) > getCastTime(spell.aimedShot)  and talent.trickShot and t20_2pc and not buff.t20_2pc_critical_aimed.exists() and lastSpellCast == spell.aimedShot then
                 if cast.aimedShot(units.dyn40) then return end
             end
         -- Marked Shot
