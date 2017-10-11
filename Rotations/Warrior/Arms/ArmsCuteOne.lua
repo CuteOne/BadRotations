@@ -516,7 +516,9 @@ local function runRotation()
                 end
         -- Storm Bolt
                 -- storm_bolt
-                if cast.stormBolt("target") then return end
+                if isChecked("Storm Bolt") then
+                    if cast.stormBolt("target") then return end
+                end
         -- Heroic Throw
                 -- heroic_throw
                 if lastSpell == spell.charge or charges.charge.count() == 0 or not isChecked("Charge") then
