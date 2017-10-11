@@ -339,6 +339,7 @@ function br.loader:new(spec,specName)
         if self.cast.debug      == nil then self.cast.debug         = {} end        -- Cast Spell Debugging
         if self.cast.able       == nil then self.cast.able          = {} end        -- Cast Spell Available
         if self.cast.cost       == nil then self.cast.cost          = {} end        -- Cast Spell Cost
+        if self.cast.current    == nil then self.cast.current       = {} end        -- Cast Spell Current
         if self.cast.last       == nil then self.cast.last          = {} end        -- Cast Spell Last
         if self.cast.regen      == nil then self.cast.regen         = {} end        -- Cast Spell Regen
         if self.cast.time       == nil then self.cast.time          = {} end        -- Cast Spell Time
@@ -386,6 +387,12 @@ function br.loader:new(spec,specName)
 
         self.cast.cost[k] = function()
             return getSpellCost(v)
+        end
+
+        self.cast.current[k] = function(spellID,unit)
+            if spellID == nil then spellID = v end
+            if unit == nil then unit = "player" end
+            return isCastingSpell(spellID,unit)
         end
 
         self.cast.last[k] = function()

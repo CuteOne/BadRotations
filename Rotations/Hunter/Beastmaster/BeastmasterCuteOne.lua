@@ -220,7 +220,7 @@ local function runRotation()
 
 
         units.dyn40 = br.player.units(40)
-        enemies.yards40 = br.player.units(40)
+        enemies.yards40 = br.player.enemies(40)
 
         if GetObjectExists("pet") then
             enemies.yards8pet = br.player.enemies(8,GetUnit("pet"))
@@ -228,13 +228,18 @@ local function runRotation()
             enemies.yards8pet = {}
         end
 
-        if lowestFerocity == nil then lowestFerocity = 100 end
-        if lowestUnit == nil then lowestUnit = units.dyn40 end
-        for i=1,#enemies.yards40 do
+        local lowestUnit = lowestUnit or units.dyn40
+        for i = 1, #enemies.yards40 do
             local thisUnit = enemies.yards40[i]
-            if debuff.bestialFerocity.remain(thisUnit) > 0 and debuff.bestialFerocity.remain(thisUnit) < lowestFerocity then
-                lowestFerocity = debuff.bestialFerocity.remain(thisUnit)
-                lowestUnit = thisUnit
+            if debuff.bestialFerocity.exists(thisUnit) then
+                if debuff.bestialFerocity.exists(lowestUnit) then
+                    lowestFerocity = debuff.bestialFerocity.remain(lowestUnit)
+                else
+                    lowestFerocity = 40
+                end
+                if debuff.bestialFerocity.remain(thisUnit) < lowestFerocity then
+                    lowestUnit = thisUnit
+                end
             end
         end
 
@@ -544,7 +549,7 @@ local function runRotation()
                     if actionList_Cooldowns() then return end
             -- Kill Command
                     -- kill_command,target_if=min:bestial_ferocity.remains,if=equipped.qapla_eredun_war_order|talent.aspect_of_the_beast.enabled
-                    if (hasEquiped(137227) or talent.aspectOfTheBeast) and debuff.bestialFerocity.remain(lowestUnit) > 0 then
+                    if (hasEquiped(137227) or talent.aspectOfTheBeast) then
                         if cast.killCommand(lowestUnit) then return end
                     end
             -- Dire Beast
