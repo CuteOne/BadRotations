@@ -65,6 +65,7 @@ local function createOptions()
             br.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
         -- Opener
             br.ui:createCheckbox(section, "Opener")
+            br.ui:createDropdownWithout(section, "Brutal Slash in Opener", {"|cff00FF00Enabled","|cffFF0000Disabled"}, 1, "|cff15FF00Enable|cffFFFFFF/|cffD60000Disable |cffFFFFFFuse of Brutal Slash in Opener")
         -- Pre-Pull Timer
             br.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
         -- Travel Shapeshifts
@@ -958,9 +959,9 @@ local function runRotation()
                             THR1 = true
                         end
                     elseif THR1 and (not SHR1 or (combo < 5 and (buff.savageRoar.exists() or not talent.savageRoar))) then
-            -- Shred
+            -- Brutal Slash / Shred
                         if shredCount == nil then shredCount = 10 end
-                        if talent.brutalSlash and charges.brutalSlash.count() >= 1 then
+                        if talent.brutalSlash and charges.brutalSlash.count() >= 1 and getOptionValue("Brutal Slash in Opener") == 1 then
                             if castOpener("brutalSlash","SHR1",shredCount) then shredCount = shredCount + 1 return end
                         else
                             if castOpener("shred","SHR1",shredCount) then shredCount = shredCount + 1 return end
