@@ -91,6 +91,7 @@ local function createOptions()
             br.ui:createCheckbox(section,"Racial")
         -- Tiger's Fury
             br.ui:createCheckbox(section,"Tiger's Fury")
+            br.ui:createDropdownWithout(section,"Snipe Tiger's Fury", {"|cff00FF00Enabled","|cffFF0000Disabled"}, 1, "|cff15FF00Enable|cffFFFFFF/|cffD60000Disable |cffFFFFFFuse of Tiger's Fury to take adavantage of Predator talent.")
         -- Berserk / Incarnation: King of the Jungle
             br.ui:createCheckbox(section,"Berserk/Incarnation")
         -- Trinkets
@@ -357,8 +358,29 @@ local function runRotation()
                 end
             end
         end
+
+        -- TF Predator Snipe
+        local function snipeTF()
+            if getOptionValue("Snipe Tiger's Fury") == 1 and talent.predator and not cd.tigersFury.exists() --[[and buff.tigersFury.remain() < gcd and #enemies.yards40 > 1--]] then
+                lowestUnit = units.dyn5
+                lowestHP = 100 
+                for i = 1, #enemies.yards40 do
+                    local thisUnit = enemies.yards40[i]
+                    if getHP(thisUnit) < lowestHP then 
+                        lowestHP = getHP(thisUnit) 
+                        lowestUnit = thisUnit 
+                    end
+                end
+                longestBleed = math.max(debuff.rake.remain(lowestUnit), debuff.rip.remain(lowestUnit), debuff.thrash.remain(lowestUnit), debuff.ashamanesFrenzy.remain(lowestUnit))
+                if ttd(lowestUnit) > 0 then timeTillDeath = ttd(lowestUnit) else timeTillDeath = 99 end
+                if lowestUnit ~= nil and timeTillDeath < longestBleed then return true end
+            end
+            return false
+        end
+
         -- ChatOverlay("5yrds: "..tostring(units.dyn5).." | 40yrds: "..tostring(units.dyn40))
         -- ChatOverlay(round2(getDistance("target","player","dist"),2)..", "..round2(getDistance("target","player","dist2"),2)..", "..round2(getDistance("target","player","dist3"),2)..", "..round2(getDistance("target","player","dist4"),2)..", "..round2(getDistance("target"),2))
+
 --------------------
 --- Action Lists ---
 --------------------
@@ -664,7 +686,7 @@ local function runRotation()
         -- Tiger's Fury
                 -- tigers_fury,if=energy.deficit>=60
                 if isChecked("Tiger's Fury") then
-                    if powerDeficit >= 60 then
+                    if powerDeficit >= 60 or snipeTF() then
                         if cast.tigersFury() then return end
                     end
                 end
@@ -770,7 +792,7 @@ local function runRotation()
         -- Tiger's Fury
                 -- if (not HasBuff(Clearcasting) and PowerToMax >= 60) or PowerToMax >= 80
                 if isChecked("Tiger's Fury") then
-                    if (not buff.clearcasting.exists() and powerDeficit >= 60) or powerDeficit >= 80 then
+                    if (not buff.clearcasting.exists() and powerDeficit >= 60) or powerDeficit >= 80 or snipeTF() then
                         if cast.tigersFury() then return end
                     end
                 end
