@@ -797,13 +797,10 @@ local function runRotation()
             end
         -- Food
             -- food,type=food,name=fishbrul_special
-            -- TODO
         -- Augmentation
             -- augmentation,name=defiled
-            -- TODO
         -- Potion
             -- potion,name=old_war
-            -- TODO
         -- Pre-pull
             if isChecked("Pre-Pull Timer") and pullTimer <= getOptionValue("Pre-Pull Timer") then
 

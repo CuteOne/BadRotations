@@ -310,7 +310,6 @@ local function runRotation()
 --------------------
     -- Action List - Extras
         local function actionList_Extras()
-        -- TODO: Add Extra Features To Base Profile
         -- Dummy Test
             if isChecked("DPS Testing") then
                 if GetObjectExists("target") then

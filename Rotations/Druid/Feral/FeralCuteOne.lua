@@ -872,7 +872,6 @@ local function runRotation()
                         Print("Starting Opener")
                         OPN1 = true
                     elseif (not RK1 or not debuff.rake.exists("target")) then
-                        Print("Rake")
             -- Rake
                         -- rake,if=!ticking|buff.prowl.up
                         if not debuff.rake.exists() or buff.prowl.exists() then
@@ -1339,8 +1338,8 @@ local function runRotation()
                     if buff.felFocus.exists() then buff.felFocus.cancel() end
                     if use.oraliusWhisperingCrystal() then return end
                 end
-        -- TODO: food,type=nightborne_delicacy_platte
-        -- TOOD: augmentation,type=defiled
+        -- food,type=nightborne_delicacy_platte
+        -- augmentation,type=defiled
         -- Prowl - Non-PrePull
                     if cat and #enemies.yards20 > 0 and mode.prowl == 1 and not buff.prowl.exists() and not IsResting() and GetTime()-leftCombat > lootDelay then
                         for i = 1, #enemies.yards20 do
@@ -1433,9 +1432,9 @@ local function runRotation()
                 if isChecked("Displacer Beast / Wild Charge") and isValidUnit("target") then
                     if cast.wildCharge("target") then return end
                 end
-        -- TODO: Displacer Beast
+        -- Displacer Beast
                 -- displacer_beast,if=movement.distance>10
-        -- TODO: Dash/Worgen Racial
+        -- Dash/Worgen Racial
                 -- dash,if=movement.distance&buff.displacer_beast.down&buff.wild_charge_movement.down
         -- Rake/Shred from Stealth
                 -- rake,if=buff.prowl.up|buff.shadowmeld.up

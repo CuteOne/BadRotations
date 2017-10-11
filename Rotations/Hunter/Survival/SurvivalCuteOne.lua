@@ -625,13 +625,10 @@ local function runRotation()
             end
         -- Food
             -- food,type=food,name=azshari_salad
-            -- TODO
         -- Augmentation
             -- augmentation,name=defiled
-            -- TODO
         -- Potion
             -- potion,name=prolonged_power
-            -- TODO
         -- Pre-pull
             if isChecked("Pre-Pull Timer") and pullTimer <= getOptionValue("Pre-Pull Timer") then
 
