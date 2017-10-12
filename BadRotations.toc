@@ -171,6 +171,7 @@ Rotations\Paladin\Retribution\RetributionCuteOne.lua
 
 ## Priest ---------------------------------------------------
 
+Rotations\Priest\Discipline\DisciplineJR.lua
 Rotations\Priest\Discipline\DisciplineBizkut.lua
 ## Rotations\Priest\Discipline\DisciplineCpoworks.lua
 ## Rotations\Priest\Discipline\DisciplineSvs.lua

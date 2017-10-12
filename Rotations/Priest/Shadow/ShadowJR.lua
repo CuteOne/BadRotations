@@ -401,7 +401,7 @@ local function runRotation()
                 for i = 1, #enemies.yards40 do
                     local thisUnit = enemies.yards40[i]
                     if not solo and hasThreat(thisUnit) then
-                        if cast.fade("player") then return end
+                        cast.fade("player")
                     end
                 end
             end
@@ -1265,7 +1265,7 @@ local function runRotation()
                 end
             end 
         end
--- Higher Priority for DOTS in Void Form (Experimental)
+-- END: Higher Priority for DOTS in Void Form (Experimental)
     -- Shadow Crash
         -- shadow_crash,if=talent.shadow_crash.enabled
         if isChecked("Shadow Crash") and talent.shadowCrash then
