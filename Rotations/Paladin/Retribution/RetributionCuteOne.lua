@@ -789,7 +789,7 @@ local function runRotation()
         local function actionList_Generator()
         -- Call Action List - Finisher
             -- call_action_list,name=finishers,if=(buff.crusade.up&buff.crusade.stack<15|buff.liadrins_fury_unleashed.up)|(artifact.ashes_to_ashes.enabled&cooldown.wake_of_ashes.remains<gcd*2)
-            if (buff.crusade.exists() and (buff.crusade.stack() < 15 or buff.liadrinsFuryUnleashed.exists())) or (artifact.ashesToAshes and cd.wakeOfAshes.remain() < gcd * 2) or holyPower >= 5 then
+            if (buff.crusade.exists() and (buff.crusade.stack() < 15 or buff.liadrinsFuryUnleashed.exists())) or (artifact.ashesToAshes.enabled() and cd.wakeOfAshes.remain() < gcd * 2) or holyPower >= 5 then
                 if actionList_Finisher() then return end
             end
             -- call_action_list,name=finishers,if=talent.execution_sentence.enabled&(cooldown.judgment.remains<gcd*4.25|debuff.judgment.remains>gcd*4.25)&cooldown.execution_sentence.up|buff.whisper_of_the_nathrezim.up&buff.whisper_of_the_nathrezim.remains<gcd*1.5
