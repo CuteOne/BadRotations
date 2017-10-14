@@ -212,6 +212,7 @@ local function runRotation()
         local use           = br.player.use
 
         units.dyn5 = br.player.units(5)
+        units.dyn8 = br.player.units(8)
         enemies.yards5 = br.player.enemies(5)
         enemies.yards8 = br.player.enemies(8)
         enemies.yards10 = br.player.enemies(10)
@@ -992,7 +993,6 @@ local function runRotation()
                     end
         -- Hammer of Justice
                     -- if HasItem(JusticeGaze) and TargetHealthPercent > 0.75 and not HasBuff(Judgment)
-                    -- TODO
         -- Crusader Strike
                     if cast.crusaderStrike(units.dyn5) then return end
         -- Zeal
