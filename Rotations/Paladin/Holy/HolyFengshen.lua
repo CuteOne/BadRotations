@@ -413,14 +413,11 @@ local function runRotation()
 			end
     		-- Blessing of Freedom
    			if GetSpellCooldown(1044) == 0 then
-   				-- Avatar - Lingering Darkness - On Self
-   				if getDebuffRemain("player",239212) then
-					if cast.blessingOfFreedom("player") then return end
-   				end
    				-- Vault of the Wardens - Torment cage 202615
    				-- Arcway -- Devour 211543
+   				-- Avatar - Lingering Darkness - On Self
            		for i = 1, #br.friend do
-          		    if getDebuffRemain(br.friend[i].unit,202615) > 1 or getDebuffRemain(br.friend[i].unit,211543) > 1 then
+          		    if getDebuffRemain(br.friend[i].unit,202615) > 1 or getDebuffRemain(br.friend[i].unit,211543) > 1 or getDebuffRemain(br.friend[i].unit,239212) > 1 then
           			    if cast.blessingOfFreedom(br.friend[i].unit) then return end
           			end
           		end
