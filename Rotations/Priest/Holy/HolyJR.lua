@@ -56,13 +56,13 @@ local function createOptions()
             br.ui:createDropdown(section,"Elixir", {"Flask of the Whispered Pact","Repurposed Fel Focuser","Oralius' Whispering Crystal","None"}, 1, "Set Elixir to use.")
         -- Min Mana to DPS
             br.ui:createSpinner(section, "Minimum Mana to DPS",  50,  0,  100,  5,  "Uncheck to NOT use mana for DPS", "Below this value, do not use mana for DPS.")
-        -- Healing Debug Spam
-            br.ui:createCheckbox(section, "Debug Heal Timing", "Print Group Heal Calculation Time to Chat")
         br.ui:checkSectionState(section)
         ------------------------
         --- COOLDOWN OPTIONS --- -- Define Cooldown Options
         ------------------------
         section = br.ui:createSection(br.ui.window.profile,  "Cooldowns")
+        -- Group Heal Spam
+            br.ui:createDropdown(section, "Group Heal Spam Hotkey", br.dropOptions.Toggle, 6, "Spam Group Healing (Sanctify,PoH) at cursor location.")
         -- Guardian Spirit
             br.ui:createSpinnerWithout(section, "Guardian Spirit",  25,  0,  100,  5,  "Health Percent to Cast At")
         -- Guardian Spirit Tank Only
@@ -313,6 +313,32 @@ local function runRotation()
 
 
 ---***************************************************************************************************************************
+--- Action List Spam Group Heals *********************************************************************************************
+---***************************************************************************************************************************
+    local function actionList_SpamGroupHeals()
+    -- Velens
+        if isChecked("Velens Future Sight") and hasEquiped(144258) then
+            if GetItemCooldown(144258)==0 then
+                useItem(144258)
+            end
+        end
+    -- Holy Word: Sanctify
+        if cd.holyWordSanctify.remain() == 0 then
+            CastSpellByName(GetSpellInfo(spell.holyWordSanctify),"cursor")
+            return true
+        end
+    -- Circle of Healing
+        if talent.circleOfHealing and cd.circleOfHealing.remain() == 0 then
+            CastSpellByName(GetSpellInfo(spell.circleOfHealing),"cursor")
+            return true
+        end
+    -- Prayer of Healing
+        if not moving and cast.prayerOfHealing("player") then return true
+    end
+    
+
+
+---***************************************************************************************************************************
 --- Action List DPS **********************************************************************************************************
 ---***************************************************************************************************************************
     local function actionList_DPS()
@@ -368,6 +394,10 @@ local function runRotation()
             if myThreat ~= nil and myThreat >= 2 then
                 cast.fade("player")
             end
+        end
+    -- Group Heals Spam Hotkey
+        if isChecked("Group Heal Spam Hotkey") and (SpecificToggle("Group Heal Spam Hotkey") and not GetCurrentKeyBoardFocus()) then
+            if actionList_SpamGroupHeals() then return true end
         end
     -- Guardian Spirit
         if useCDs() and cd.guardianSpirit.remain() == 0 then
@@ -478,13 +508,8 @@ local function runRotation()
         end
     -- Holy Word: Sanctify
         if cd.holyWordSanctify.remain() == 0 and #sanctifyCandidates >= getValue("Holy Word: Sanctify Targets") then
-            --local sanctifyStartTime = GetTime()
             -- get the best ground location to heal most or all of them
             local loc = getBestGroundCircleLocation(sanctifyCandidates,getValue("Holy Word: Sanctify Targets"),10)
-            --if isChecked("Debug Heal Timing") then
-            --    local elapsedSancTime = GetTime() - sanctifyStartTime
-            --    Print("Calculate Sanctify Location took "..string.format("%.4f", elapsedSancTime))               
-            --end
             if loc ~= nil then
                 -- Lots of people need heals. Good a time as any to use trinkets...
                 -- If you can think of a better time to use them, feel free to modify
@@ -541,12 +566,7 @@ local function runRotation()
         end
     -- Prayer of Healing
         if not moving and #groupHealCandidates >= getValue("Prayer of Healing Targets") then
-            --local pohStartTime = GetTime()
             if castWiseAoEHeal(br.friend,spell.prayerOfHealing,40,getValue("Prayer of Healing"),getValue("Prayer of Healing Targets"),5,false,true)  then return true end
-            --if isChecked("Debug Heal Timing") then
-            --    local elapsedSancTime = GetTime() - pohStartTime
-            --    Print("Calculate PoH Location took "..string.format("%.4f", elapsedSancTime))            
-            --end
         end 
     -- Flash Heal
         for i=1, #tanks do
