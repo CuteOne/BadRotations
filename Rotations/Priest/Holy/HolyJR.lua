@@ -344,6 +344,13 @@ local function runRotation()
                     UseItemByName(localizedName, thisTank.unit)
                 end
             end
+            if #tanks == 0 then
+                for i = 1, #friends.yards40 do
+                    if not buff.guidingHand.exists(friends.yards40[i].unit) then
+                        if cast.purify(friends.yards40[i].unit) then return true end
+                    end
+                end
+            end
         end
     -- Pot/Stoned
             if isChecked("Pot/Stoned") and php <= getOptionValue("Pot/Stoned")
