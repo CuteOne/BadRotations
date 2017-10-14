@@ -161,7 +161,7 @@ Svs    |  Full   | 7.1.5 |   100% | :white_check_mark:
 author   | support  | patch | status |     raidable?
 :------- | :------: | :---: | -----: | :----------------:
 Cpoworks | Sporadic |  7.1  |    70% | :heavy_check_mark:
-Kuukuu   | Full     |  7.2  |    90% | :white_check_mark:
+Kuukuu   | Inactive |  7.2  |    90% | :white_check_mark:
 
 - Marksmanship
 
@@ -202,7 +202,7 @@ Lemon  |   Full   | 7.2.5 |   100% | :heavy_check_mark:
 
 author | support | patch | status |     raidable?
 :----- | :-----: | :---: | -----: | :----------------:
-Kuukuu |  Full   | 7.2.5 |    90% | :white_check_mark:
+Kuukuu | Inactive| 7.2.5 |    90% | :white_check_mark:
 
 - Mistweaver
 
@@ -313,7 +313,7 @@ CuteOne |  Full   | 7.1.5 |   100% | :white_check_mark:
 
 author          | support | patch | status |     raidable?
 :-------------- | :-----: | :---: | -----: | :----------------:
-CuteOne/ Kuukuu |  Full   | 7.2 |   100% | :white_check_mark:
+CuteOne         |  Full   | 7.2 |   100% | :white_check_mark:
 
 - Destruction
 
