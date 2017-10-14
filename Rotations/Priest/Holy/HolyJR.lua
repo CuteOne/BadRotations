@@ -336,7 +336,7 @@ local function runRotation()
 ---***************************************************************************************************************************
     local function actionList_Emergency()
     -- The Deceiver's Grand Design
-        if isChecked("The Deceivers Grand Design") and hasEquiped(147007) and canUse(147707) then
+        if isChecked("The Deceivers Grand Design") and hasEquiped(147007) and canUse(147007) then
             local localizedName = select(1,GetItemInfo(147007))
             for i=1, #tanks do
                 thisTank = tanks[i]
