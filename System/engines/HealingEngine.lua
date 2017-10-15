@@ -128,7 +128,7 @@ if not metaTable1 then
 		-- We are checking the HP of the person through their own function.
 		function o:CalcHP()
 			-- Darkness phase of Kil'Jaeden. basically blacklists all friends if I have this debuff, since I can't heal.
-			if UnitDebuffID("player",236555) then
+			if UnitDebuffID("player",236555) and not UnitDebuffID("player",241721) then
 				return 250,250,250
 			end
 			-- Place out of range players at the end of the list -- replaced range to 40 as we should be using lib range
