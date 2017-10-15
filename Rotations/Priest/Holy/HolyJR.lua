@@ -333,7 +333,7 @@ local function runRotation()
             return true
         end
     -- Prayer of Healing
-        if not moving and cast.prayerOfHealing("player") then return true
+        if not moving and cast.prayerOfHealing("player") then return true end
     end
     
 
