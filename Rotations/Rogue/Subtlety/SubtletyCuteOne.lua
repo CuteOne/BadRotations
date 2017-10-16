@@ -61,6 +61,8 @@ local function createOptions()
             br.ui:createDropdown(section,  "Stealth", {"|cff00FF00Always", "|cffFFDD00PrePot", "|cffFF000020Yards"},  1, "Stealthing method.")
             -- Shadowstep
             br.ui:createCheckbox(section,  "Shadowstep")
+            -- Opener
+            br.ui:createCheckbox(section, "Opener")
             -- Pre-Pull Timer
             br.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
             -- Dummy DPS Test
