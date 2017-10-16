@@ -703,7 +703,7 @@ local function runRotation()
             end
 		-- Enveloping Mist
             if isChecked(colormage.."Enveloping Mist") then
-                if (not buff.envelopingMist.exists(lowest.unit) or buff.envelopingMist.remain(lowest.unit) <= getCastTime(spell.envelopingMist)) and lowest.hp <= getValue("Enveloping Mist")then
+                if (not buff.envelopingMist.exists(lowest.unit) or buff.envelopingMist.remain(lowest.unit) <= getCastTime(spell.envelopingMist)) and lowest.hp <= getValue(colormage.."Enveloping Mist")then
                     if (isChecked(colormage.."Enveloping Mist - Tank Only") and (lowest.role) == "TANK") or not isChecked(colormage.."Enveloping Mist - Tank Only") then
                         if cast.envelopingMist(lowest.unit) then return true end
                     end
