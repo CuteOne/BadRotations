@@ -237,6 +237,31 @@ local function runRotation()
         enemies.yards20 = br.player.enemies(20)
         enemies.yards30 = br.player.enemies(30)
 
+        -- Opener Variables
+        if opener == nil then opener = false end
+        if not inCombat and not GetObjectExists("target") then
+            shredCount = 10
+            OPN1 = false
+            SHB1 = false
+            SHS1 = false
+            NHB1 = false
+            SOD1 = false
+            SHD1 = false
+            SHS2 = false
+            SHS3 = false
+            EVI1 = false
+            SHS4 = false
+            VAN1 = false
+            SHS5 = false
+            DFA1 = false
+            SHD2 = false
+            SHS6 = false
+            SHS7 = false
+            EVI2 = false 
+            opener = false
+        end
+
+        -- Numeric Returns
         if talent.anticipation then antital = 1 else antital = 0 end
         if talent.darkShadow and t20_4pc then dark20 = 1 else dark20 = 0 end
         if not talent.darkShadow and t20_4pc then notDark20 = 1 else notDark20 = 0 end
@@ -266,6 +291,7 @@ local function runRotation()
         if t20_4pc then t20pc4 = 1 else t20pc4 = 0 end
         if cd.goremawsBite.remain() > 0 and not buff.feedingFrenzy.exists() then noGoreFrenzy = 1 else noGoreFrenzy = 0 end
 
+        -- SimC Specific Variables
         -- variable,name=ssw_refund,value=equipped.shadow_satyrs_walk*(6+ssw_refund_offset)
         local sswRefund = shadowWalker * (6 + getOptionValue("SSW Offset"))
         -- variable,name=stealth_threshold,value=(65+talent.vigor.enabled*35+talent.master_of_shadows.enabled*10+variable.ssw_refund)
@@ -679,7 +705,7 @@ local function runRotation()
                     end
                 end
             end
-            if isValidUnit("target") and mode.pickPocket ~= 2 then
+            if isValidUnit("target") and mode.pickPocket ~= 2 and (not isChecked("Opener") or not isBoss("target") or opener == true) then
         -- Potion
                 -- potion
                 if stealth then
@@ -701,11 +727,6 @@ local function runRotation()
                 if isChecked("Symbols of Death - Precombat") and not inCombat then
                     if cast.symbolsOfDeath("player") then return end
                 end
-            end
-        end -- End Action List - PreCombat
-    -- Action List - Opener
-        local function actionList_Opener()
-            if isValidUnit("target") and mode.pickPocket ~= 2 then
         -- Shadowstep
                 if isChecked("Shadowstep") and (not stealthingAll or power < 40 or getDistance("target") > getOptionValue ("SS Range")) and not inCombat and getDistance("target") >= 8 then
                     if cast.shadowstep("target") then return end
@@ -718,6 +739,112 @@ local function runRotation()
                 if getDistance("target") < 5 and not stealthingAll then
                     StartAttack()
                 end
+            end
+        end -- End Action List - PreCombat
+    -- Action List - Opener
+        local function actionList_Opener()
+            if isChecked("Opener") and isBoss("target") and opener == false then
+            -- Shadowstep
+                if isChecked("Shadowstep") and (not stealthingAll or power < 40 or getDistance("target") > getOptionValue ("SS Range")) and not inCombat and getDistance("target") >= 8 then
+                    if cast.shadowstep("target") then return end
+                end
+                if isValidUnit("target") and mode.pickPocket ~= 2 and getDistance("target") <= getOptionValue ("SS Range") then
+            -- Begin
+                    if not OPN1 then 
+                        Print("Starting Opener")
+                        OPN1 = true
+            -- Shadow Blades
+                    elseif OPN1 and not SHB1 then
+                        if isChecked("Shadow Blades") then
+                            if castOpener("shadowBlades","SHB1",1) then return end
+                        else
+                            Print("1: Shadow Blades (Uncastable)")
+                            SHB1 = true
+                        end
+            -- Shadowstrike
+                    elseif SHB1 and not SHS1 then
+                        if castOpener("shadowstrike","SHS1",2) then return end
+            -- Nightblade
+                    elseif SHS1 and not NHB1 then
+                        if castOpener("nightblade","NHB1",3) then return end
+            -- Symbols of Death
+                    elseif NHB1 and not SOD1 then
+                        if castOpener("symbolsOfDeath","SOD1",4) then return end
+            -- Shadow Dance
+                    elseif SOD1 and not SHD1 then
+                        if isChecked("Shadow Dance") then
+                            if castOpener("shadowDance","SHD1",5) then return end
+                        else
+                            Print("5: Shadow Dance (Uncastable)")
+                            SHD1 = true
+                        end
+            -- Shadowstrike
+                    elseif SOD1 and not SHS2 then
+                        if castOpener("shadowstrike","SHS2",6) then return end
+            -- Shadowstrike
+                    elseif SHS2 and not SHS3 then
+                        if castOpener("shadowstrike","SHS3",7) then return end
+            -- Evicerate
+                    elseif SHS3 and not EVI1 then
+                        if combo > 0 then
+                            if castOpener("eviscerate","EVI1",8) then return end
+                        else
+                            Print("8: Evicerate (Uncastable)")
+                            EVI1 = true
+                        end
+            -- Shadowstrike
+                    elseif EVI1 and not SHS4 then
+                        if castOpener("shadowstrike","SHS4",9) then return end
+            -- Vanish
+                    elseif SHS4 and not VAN1 then
+                        if isChecked("Vanish") and not solo then
+                            if castOpener("vanish","VAN1",10) then return end
+                        else
+                            Print("10: Vanish (Uncastable)")
+                            VAN1 = true
+                        end
+            -- Shadowstrike
+                    elseif VAN1 and not SHS5 then
+                        if castOpener("shadowstrike","SHS5",11) then return end
+            -- Death From Above
+                    elseif SHS5 and not DFA1 then
+                        if isChecked("Death From Above") then
+                            if castOpener("deathFromAbove","DFA1",12) then return end
+                        else
+                            Print("12: Death From Above (Uncastable)")
+                            DFA1 = true
+                        end
+            -- Shadow Dance
+                    elseif DFA1 and not SHD2 then
+                        if isChecked("Shadow Dance") then
+                            if castOpener("shadowDance","SHD1",13) then return end
+                        else
+                            Print("13: Shadow Dance (Uncastable)")
+                            SHD2 = true
+                        end
+            -- Shadowstrike
+                    elseif SHD2 and not SHS6 then
+                        if castOpener("shadowstrike","SHS6",14) then return end
+            -- Shadowstrike
+                    elseif SHS6 and not SHS7 then
+                        if castOpener("shadowstrike","SHS7",15) then return end
+            -- Evicerate
+                    elseif SHS7 and not EVI2 then
+                        if combo > 0 then
+                            if castOpener("eviscerate","EVI2",16) then return end
+                        else
+                            Print("16: Evicerate (Uncastable)")
+                            EVI1 = true
+                        end
+            -- Finish
+                    elseif EVI2 then
+                        opener = true;
+                        Print("Opener Complete")
+                        return
+                    end
+                end
+            elseif (UnitExists("target") and not isBoss("target")) or not isChecked("Opener") then
+                opener = true
             end
         end -- End Action List - Opener
 ---------------------
