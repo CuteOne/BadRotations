@@ -94,6 +94,8 @@ local function createOptions()
             br.ui:createCheckbox(section, "Shadow Blades")
             -- Shadow Dance
             br.ui:createCheckbox(section, "Shadow Dance")
+            -- Symbols of Death
+            br.ui:createCheckbox(section, "Symbols of Death")
             -- Vanish
             br.ui:createCheckbox(section, "Vanish")
             -- SSW Offset
@@ -465,15 +467,17 @@ local function runRotation()
                     if castSpell("player",racial,false,false,false) then return end
                 end
         -- Symbols of Death
-                -- symbols_of_death,if=!talent.death_from_above.enabled&((time>10&energy.deficit>=40-stealthed.all*30)|(time<10&dot.nightblade.ticking))
-                if not talent.deathFromAbove and ((combatTime > 10 and powerDeficit >= 40 - stealthedAll * 30) or (combatTime < 10 and debuff.nightblade.exists(units.dyn5))) then
-                    if cast.symbolsOfDeath() then return end
-                end
-                -- symbols_of_death,if=(talent.death_from_above.enabled&cooldown.death_from_above.remains<=3&(dot.nightblade.remains>=cooldown.death_from_above.remains+3|target.time_to_die-dot.nightblade.remains<=6)&(time>=3|set_bonus.tier20_4pc|equipped.the_first_of_the_dead))|target.time_to_die-remains<=10
-                if (talent.deathFromAbove and cd.deathFromAbove.remain() <= 3 and (debuff.nightblade.remain(units.dyn5) >= cd.deathFromAbove.remain() + 3 or ttd(units.dyn5) - debuff.nightblade.remain(units.dyn5) <= 6) 
-                    and (combatTime >= 3 or t20_4pc or hasEquiped(151818))) or ttd(units.dyn5) <= 10 
-                then
-                    if cast.symbolsOfDeath() then return end
+                if isChecked("Symbols of Death") then
+                    -- symbols_of_death,if=!talent.death_from_above.enabled&((time>10&energy.deficit>=40-stealthed.all*30)|(time<10&dot.nightblade.ticking))
+                    if not talent.deathFromAbove and ((combatTime > 10 and powerDeficit >= 40 - stealthedAll * 30) or (combatTime < 10 and debuff.nightblade.exists(units.dyn5))) then
+                        if cast.symbolsOfDeath() then return end
+                    end
+                    -- symbols_of_death,if=(talent.death_from_above.enabled&cooldown.death_from_above.remains<=3&(dot.nightblade.remains>=cooldown.death_from_above.remains+3|target.time_to_die-dot.nightblade.remains<=6)&(time>=3|set_bonus.tier20_4pc|equipped.the_first_of_the_dead))|target.time_to_die-remains<=10
+                    if (talent.deathFromAbove and cd.deathFromAbove.remain() <= 3 and (debuff.nightblade.remain(units.dyn5) >= cd.deathFromAbove.remain() + 3 or ttd(units.dyn5) - debuff.nightblade.remain(units.dyn5) <= 6) 
+                        and (combatTime >= 3 or t20_4pc or hasEquiped(151818))) or ttd(units.dyn5) <= 10 
+                    then
+                        if cast.symbolsOfDeath() then return end
+                    end
                 end
         -- Marked For Death
                 -- marked_for_death,target_if=min:target.time_to_die,if=target.time_to_die<combo_points.deficit
@@ -769,7 +773,12 @@ local function runRotation()
                         if castOpener("nightblade","NHB1",3) then return end
             -- Symbols of Death
                     elseif NHB1 and not SOD1 then
-                        if castOpener("symbolsOfDeath","SOD1",4) then return end
+                        if isChecked("Symbols of Death") then
+                            if castOpener("symbolsOfDeath","SOD1",4) then return end
+                        else
+                            Print("4: Symbols of Death (Uncastable)")
+                            SOD1 = true
+                        end 
             -- Shadow Dance
                     elseif SOD1 and not SHD1 then
                         if isChecked("Shadow Dance") then
