@@ -113,7 +113,7 @@ local function createOptions()
         br.ui:createSpinner(section, colorshaman.."Mana Potion",  50,  0,  100,  1,  colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.." use of Ancient Mana Potion.", colorWhite.."Mana Percent to Cast At")
         br.ui:createSpinner(section, colorshaman.."Thunder Focus Tea + Vivify",  50,  0,  100,  1,  colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.." use of Thunder Focus Tea + Vivify.", colorWhite.."Health Percent to Cast At")
         br.ui:createSpinnerWithout(section, colorshaman.."Thunder Focus Tea + Vivify - Mana",  50,  0,  100,  1,  colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.." use of Thunder Focus Tea + Vivify.", colorWhite.."Mana Percent to Cast At")
-        br.ui:createSpinner(section, colorshaman.."Thunder Focus Tea + Renewing Mist",  50,  0,  100,  1,  colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.." use of Thunder Focus Tea + Renewing Mist.", colorWhite.."Health Percent to Cast At")
+        br.ui:createSpinner(section, colorshaman.."Thunder Focus Tea + Renewing Mist", 50,  0,  100,  1,  colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.." use of Thunder Focus Tea + Renewing Mist.", colorWhite.."Health Percent to Cast At")
         br.ui:createSpinner(section, colorshaman.."Thunder Focus Tea + Enveloping Mist",  50,  0,  100,  1,  colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.." use of Thunder Focus Tea + Enveloping Mist.", colorWhite.."Health Percent to Cast At")
 		br.ui:createSpinner(section, colorshaman.."Thunder Focus Tea + Essence Font",  50,  0,  100,  1,  colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.." use of Thunder Focus Tea + Essence Font.", colorWhite.."Health Percent to Cast At")
 		br.ui:createSpinnerWithout(section, colorshaman.."Min Thunder Focus Tea + Essence Font Targets",  5,  1,  40,  1,  colorBlue.."Minimum Thunder Focus Tea + Essence Font Targets "..colorGold.."(This includes you)")     
@@ -583,7 +583,7 @@ local function runRotation()
                 end
             end
 		-- Mana Tea
-            if isChecked(colorshaman.."Mana Tea") and mana <= getValue(colorshaman.."Mana Tea") and getLowAllies(getValue(colorshaman.."Mana Tea - Life")) >= getValue("Min Mana Tea Targets") and talent.manaTea  then
+            if isChecked(colorshaman.."Mana Tea") and mana <= getValue(colorshaman.."Mana Tea") and getLowAllies(getValue(colorshaman.."Mana Tea - Life")) >= getValue(colorshaman.."Min Mana Tea Targets") and talent.manaTea  then
                 if cast.manaTea() then return true end
             end
 		-- Revival
@@ -876,7 +876,7 @@ local function runRotation()
                 end
             end
         end
-		if isChecked(colorshaman.."Thunder Focus Tea + Essence Font") and cd.essenceFont.remain() == 0 and getLowAlliesInTable(getValue(colorshaman.."Thunder Focus Tea + Essence Font"), friends.yards25) >= getValue("Min Thunder Focus Tea + Essence Font Targets") then
+		if isChecked(colorshaman.."Thunder Focus Tea + Essence Font") and cd.essenceFont.remain() == 0 and getLowAlliesInTable(getValue(colorshaman.."Thunder Focus Tea + Essence Font"), friends.yards25) >= getValue(colorshaman.."Min Thunder Focus Tea + Essence Font Targets") then
 			if cast.essenceFont() then
                 TFEF = false
                 return true
