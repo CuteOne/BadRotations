@@ -783,7 +783,7 @@ local function runRotation()
                         end 
             -- Shadow Dance
                     elseif SOD1 and not SHD1 then
-                        if isChecked("Shadow Dance") then
+                        if isChecked("Shadow Dance") and charges.shadowDance.exists() and not cast.last.shadowDance() then
                             if castOpener("shadowDance","SHD1",5) then return end
                         else
                             Print("5: Shadow Dance (Uncastable)")
@@ -827,7 +827,7 @@ local function runRotation()
                         end
             -- Shadow Dance
                     elseif DFA1 and not SHD2 then
-                        if isChecked("Shadow Dance") then
+                        if isChecked("Shadow Dance") and charges.shadowDance.exists() and not cast.last.shadowDance() then
                             if castOpener("shadowDance","SHD1",13) then return end
                         else
                             Print("13: Shadow Dance (Uncastable)")
