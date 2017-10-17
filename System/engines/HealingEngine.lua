@@ -128,6 +128,7 @@ if not metaTable1 then
 		-- We are checking the HP of the person through their own function.
 		function o:CalcHP()
 			-- Darkness phase of Kil'Jaeden. basically blacklists all friends if I have this debuff, since I can't heal.
+			-- but once I have Illidan's Sightless Gaze (241721), I can heal
 			if UnitDebuffID("player",236555) and not UnitDebuffID("player",241721) then
 				return 250,250,250
 			end
@@ -205,6 +206,7 @@ if not metaTable1 then
 				end
 			end
 			-- Debuffs HP compensation
+			local debugTimerStartTime = GetTime()			
 			local HpDebuffs = novaEngineTables.SpecificHPDebuffs
 			for i = 1, #HpDebuffs do
 				local _,_,_,count,_,_,_,_,_,_,spellID = UnitDebuffID(o.unit,HpDebuffs[i].debuff)
@@ -212,6 +214,10 @@ if not metaTable1 then
 					PercentWithIncoming = PercentWithIncoming - HpDebuffs[i].value
 					break
 				end
+			end
+			local elapsedDebugTime = GetTime() - debugTimerStartTime
+			if elapsedDebugTime > 0.5 then
+				Print("WARNING: Debuff Scan took a long time: "..elapsedDebugTime.." Seconds")
 			end
 			if getOptionCheck("Blacklist") == true and br.data.blackList ~= nil then
 				for i = 1, #br.data.blackList do
