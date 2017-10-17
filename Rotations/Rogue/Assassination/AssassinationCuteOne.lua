@@ -231,14 +231,14 @@ local function runRotation()
             GAR1 = false
             MUT1 = false
             RUP1 = false
-            MUT2 = false
-            MUT3 = false
-            VAN1 = false
-            RUP2 = false
             VEN1 = false
-            MUT4 = false
+            TOX1 = false
             KIN1 = false
+            VAN1 = false
             ENV1 = false
+            MUT2 = false
+            GAR2 = false
+            ENV2 = false
             opener = false
         end
  
@@ -770,43 +770,75 @@ local function runRotation()
             -- auto_attack
             if isChecked("Opener") and isBoss("target") and getDistance("target") < 5 and opener == false then
                 if isValidUnit("target") and mode.pickPocket ~= 2 then
+            -- Begin
                     if not OPN1 then 
                         Print("Starting Opener")
                         OPN1 = true
-                    elseif (not GAR1 or (not debuff.garrote.exists("target") and cd.garrote.remain() == 0)) and power >= 45 then
             -- Garrote
+                    elseif OPN1 and (not GAR1 or (not debuff.garrote.exists("target") and cd.garrote.remain() == 0)) and power >= 45 then
                         if castOpener("garrote","GAR1",1) then return end
-                    elseif GAR1 and (not MUT1 or (combo == 0 and not debuff.rupture.exists("target"))) and power >= 55 then
             -- Mutilate
+                    elseif GAR1 and (not MUT1 or combo == 0) and power >= 55 then
                         if castOpener("mutilate","MUT1",2) then return end
+            -- Rupture
                     elseif MUT1 and not RUP1 and power >= 25 then
-            -- Rupture
-                        if castOpener("rupture","RUP1",3) then return end
-                    elseif RUP1 and not MUT2 and power >= 55 then
-            -- Mutilate
-                        if castOpener("mutilate","MUT2",4) then return end
-                    elseif MUT2 and not MUT3 and power >= 55 then
-            -- Mutilate
-                        if castOpener("mutilate","MUT3",5) then return end
-                    elseif MUT3 and not VAN1 then
-            -- Vanish
-                        if castOpener("vanish","VAN1",6) then return end
-                    elseif VAN1 and not RUP2 and power >= 25 then
-            -- Rupture
-                        if castOpener("rupture","RUP2",7) then return end
-                    elseif RUP2 and not VEN1 then
+                        if combo > 0 then
+                            if castOpener("rupture","RUP1",3) then return end
+                        else
+                            Print("3: Rupture (Uncastable)")
+                            RUP1 = true
+                        end
             -- Vendetta
-                        if castOpener("vendetta","VEN1",8) then return end
-                    elseif VEN1 and not MUT4 and power >= 55 then
-            -- Mutilate
-                        if castOpener("mutilate","MUT4",9) then return end
-                    elseif MUT4 and not KIN1 and power >= 35 then
+                    elseif RUP1 and not VEN1 then
+                        if castOpener("vendetta","VEN1",4) then return end
+            -- Toxic Blade
+                    elseif VEN1 and not TOX1 and power >= 20 then
+                        if talent.toxicBlade and isChecked("Toxic Blade") then
+                            if castOpener("toxicBlade","TOX1",5) then return end
+                        else
+                            Print("5: Toxic Blade (Uncastable)")
+                            TOX1 = true
+                        end
             -- Kingsbane
-                        if castOpener("kingsbane","KIN1",10) then return end
-                    elseif KIN1 and not ENV1 and power >= 35 then
+                    elseif TOX1 and not KIN1 and power >= 35 then
+                        if (getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs())) then
+                            if castOpener("kingsbane","KIN1",6) then return end
+                        else
+                            Print("6: Kingsbane (Uncastable)")
+                            KIN1 = true
+                        end
+            -- Vanish
+                    elseif KIN1 and not VAN1 then
+                        if isChecked("Vanish") and not solo then
+                            if castOpener("vanish","VAN1",7) then return end
+                        else
+                            Print("7: Vanish (Uncastable)")
+                            VAN1 = true
+                        end
             -- Envenom
-                        if castOpener("envenom","ENV1",11) then return end
-                    elseif ENV1 then
+                    elseif VAN1 and not ENV1 and power >= 35 then
+                        if combo > 0 then
+                            if castOpener("envenom","ENV1",8) then return end
+                        else
+                            Print("8: Envenom (Uncastable)")
+                            ENV1 = true
+                        end
+            -- Mutilate
+                    elseif ENV1 and not MUT2 and power >= 55 then
+                        if castOpener("mutilate","MUT2",9) then return end
+            -- Garrote
+                    elseif MUT2 and (not GAR2 or (not debuff.garrote.exists("target") and cd.garrote.remain() == 0)) and power >= 45 then
+                        if castOpener("garrote","GAR2",10) then return end
+            -- Envenom
+                    elseif GAR2 and not ENV1 and power >= 35 then
+                        if combo > 0 then
+                            if castOpener("envenom","ENV1",11) then return end
+                        else
+                            Print("11: Envenom (Uncastable)")
+                            ENV2 = true
+                        end
+            -- Finish
+                    elseif ENV2 then
                         opener = true;
                         Print("Opener Complete")
                         return

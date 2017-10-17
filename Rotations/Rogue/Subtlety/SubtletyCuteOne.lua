@@ -768,11 +768,20 @@ local function runRotation()
                             SHB1 = true
                         end
             -- Shadowstrike
-                    elseif SHB1 and not SHS1 then
-                        if castOpener("shadowstrike","SHS1",2) then return end
+                    elseif SHB1 and (not SHS1 or combo == 0) and power > 40 then
+                        if stealthingAll then
+                            if castOpener("shadowstrike","SHS1",2) then return end
+                        else
+                            if castOpener("backstab","SHS1",2) then return end
+                        end
             -- Nightblade
-                    elseif SHS1 and not NHB1 then
-                        if castOpener("nightblade","NHB1",3) then return end
+                    elseif SHS1 and not NHB1 and power > 25 then
+                        if combo > 0 then
+                            if castOpener("nightblade","NHB1",3) then return end
+                        else
+                            Print("3: Nightblade (Uncastable)")
+                            NHB1 = true
+                        end
             -- Symbols of Death
                     elseif NHB1 and not SOD1 then
                         if isChecked("Symbols of Death") then
@@ -790,13 +799,21 @@ local function runRotation()
                             SHD1 = true
                         end
             -- Shadowstrike
-                    elseif SOD1 and not SHS2 then
-                        if castOpener("shadowstrike","SHS2",6) then return end
+                    elseif SOD1 and not SHS2 and power > 40 then
+                        if stealthingAll then
+                            if castOpener("shadowstrike","SHS2",6) then return end
+                        else
+                            if castOpener("backstab","SHS2",6) then return end
+                        end
             -- Shadowstrike
-                    elseif SHS2 and not SHS3 then
-                        if castOpener("shadowstrike","SHS3",7) then return end
+                    elseif SHS2 and (not SHS3 or combo == 0) and power > 40 then
+                        if stealthingAll then
+                            if castOpener("shadowstrike","SHS3",7) then return end
+                        else
+                            if castOpener("backstab","SHS3",7) then return end
+                        end
             -- Evicerate
-                    elseif SHS3 and not EVI1 then
+                    elseif SHS3 and not EVI1 and power > 35 then
                         if combo > 0 then
                             if castOpener("eviscerate","EVI1",8) then return end
                         else
@@ -804,8 +821,12 @@ local function runRotation()
                             EVI1 = true
                         end
             -- Shadowstrike
-                    elseif EVI1 and not SHS4 then
-                        if castOpener("shadowstrike","SHS4",9) then return end
+                    elseif EVI1 and not SHS4 and power > 40 then
+                        if stealthingAll then
+                            if castOpener("shadowstrike","SHS4",9) then return end
+                        else
+                            if castOpener("backstab","SHS4",9) then return end
+                        end
             -- Vanish
                     elseif SHS4 and not VAN1 then
                         if isChecked("Vanish") and not solo then
@@ -815,11 +836,15 @@ local function runRotation()
                             VAN1 = true
                         end
             -- Shadowstrike
-                    elseif VAN1 and not SHS5 then
-                        if castOpener("shadowstrike","SHS5",11) then return end
+                    elseif VAN1 and (not SHS5 or combo == 0) and power > 40 then
+                        if stealthingAll then
+                            if castOpener("shadowstrike","SHS5",11) then return end
+                        else
+                            if castOpener("backstab","SHS5",11) then return end
+                        end
             -- Death From Above
-                    elseif SHS5 and not DFA1 then
-                        if isChecked("Death From Above") then
+                    elseif SHS5 and not DFA1 and power > 25 then
+                        if isChecked("Death From Above") and combo > 0 then
                             if castOpener("deathFromAbove","DFA1",12) then return end
                         else
                             Print("12: Death From Above (Uncastable)")
@@ -834,13 +859,21 @@ local function runRotation()
                             SHD2 = true
                         end
             -- Shadowstrike
-                    elseif SHD2 and not SHS6 then
-                        if castOpener("shadowstrike","SHS6",14) then return end
+                    elseif SHD2 and not SHS6 and power > 40 then
+                        if stealthingAll then
+                            if castOpener("shadowstrike","SHS6",14) then return end
+                        else
+                            if castOpener("backstab","SHS6",14) then return end
+                        end
             -- Shadowstrike
-                    elseif SHS6 and not SHS7 then
-                        if castOpener("shadowstrike","SHS7",15) then return end
+                    elseif SHS6 and (not SHS7 or combo == 0) and power > 40 then
+                        if stealthingAll then
+                            if castOpener("shadowstrike","SHS7",15) then return end
+                        else
+                            if castOpener("backstab","SHS7",15) then return end
+                        end
             -- Evicerate
-                    elseif SHS7 and not EVI2 then
+                    elseif SHS7 and not EVI2 and power > 35 then
                         if combo > 0 then
                             if castOpener("eviscerate","EVI2",16) then return end
                         else
