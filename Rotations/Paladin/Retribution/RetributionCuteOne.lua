@@ -576,13 +576,15 @@ local function runRotation()
                 -- end
                 if isValidUnit("target") and (not isBoss("target") or not isChecked("Opener")) then
         -- Divine Hammer
-                    if #enemies.yards8 >= getOptionValue("Divine Storm Units") then
+                    if talent.divineHammer and #enemies.yards8 >= getOptionValue("Divine Storm Units") then
                         if cast.divineHammer() then return end
                     end
         -- Judgment
                     if cast.judgment("target") then return end
         -- Blade of Justice
-                    if cast.bladeOfJustice("target") then return end
+                    if not talent.divineHammer then
+                        if cast.bladeOfJustice("target") then return end
+                    end
         -- Crusader Strike / Zeal
                     if talent.zeal then
                         if cast.zeal("target") then return end
@@ -603,7 +605,7 @@ local function runRotation()
                         OPN1 = true
                     elseif OPN1 and not BOJ1 then
         -- Blade Of Justice/Divine Hammer
-                        if talent.bladeOfWrath then
+                        if not talent.divineHammer then
                             if castOpener("bladeOfJustice","BOJ1",1) then return end
                         else
                             if castOpener("divineHammer","BOJ1",1) then return end
@@ -682,7 +684,7 @@ local function runRotation()
                         end
                     elseif (TMV4 or CRS3) and not BOJ2 then
         -- Blade Of Justice/Divine Hammer
-                        if talent.bladeOfWrath then
+                        if not talent.divineHammer then
                             if castOpener("bladeOfJustice","BOJ2",11) then return end
                         else
                             if castOpener("divineHammer","BOJ2",11) then return end
@@ -805,12 +807,12 @@ local function runRotation()
             end
         -- Blade of Justice
             -- blade_of_justice,if=holy_power<=2&(set_bonus.tier20_2pc|set_bonus.tier20_4pc)
-            if holyPower <= 2 and (t20_2pc or t20_4pc) then
+            if not talent.divineHammer and holyPower <= 2 and (t20_2pc or t20_4pc) then
                 if cast.bladeOfJustice() then return end
             end
         -- Divine Hammer
             -- divine_hammer,if=holy_power<=2&(set_bonus.tier20_2pc|set_bonus.tier20_4pc)
-            if holyPower <= 2 and (t20_2pc or t20_4pc) then
+            if talent.divineHammer and holyPower <= 2 and (t20_2pc or t20_4pc) then
                 if cast.divineHammer() then return end
             end
         -- Wake of Ashes
@@ -824,12 +826,12 @@ local function runRotation()
             end
         -- Blade of Justice
             -- blade_of_justice,if=holy_power<=3&!set_bonus.tier20_4pc
-            if holyPower <= 3 and not t20_4pc then
+            if not talent.divineHammer and holyPower <= 3 and not t20_4pc then
                 if cast.bladeOfJustice() then return end
             end
         -- Divine Hammer
             -- divine_hammer,if=holy_power<=3&!set_bonus.tier20_4pc
-            if holyPower <= 3 and not t20_4pc then
+            if talent.divineHammer and holyPower <= 3 and not t20_4pc then
                 if cast.divineHammer() then return end
             end
         -- Judgment
@@ -984,17 +986,17 @@ local function runRotation()
                     end
         -- Blade of Justice
                     -- if AlternatePowerToMax >= 2
-                    if holyPowerMax - holyPower >= 2 then
+                    if not talent.divineHammer and holyPowerMax - holyPower >= 2 then
                         if cast.bladeOfJustice(units.dyn5) then return end
                     end
         -- Blade of Wrath
                     -- if AlternatePowerToMax >= 2
-                    if holyPowerMax - holyPower >= 2 then
+                    if not talent.divineHammer and holyPowerMax - holyPower >= 2 then
                         if cast.bladeOfWrath(units.dyn5) then return end
                     end
         -- Divine Hammer
                     -- if AlternatePowerToMax >= 2
-                    if holyPowerMax - holyPower >= 2 then
+                    if talent.divineHammer and holyPowerMax - holyPower >= 2 then
                         if cast.divineHammer(units.dyn5) then return end
                     end
         -- Hammer of Justice
