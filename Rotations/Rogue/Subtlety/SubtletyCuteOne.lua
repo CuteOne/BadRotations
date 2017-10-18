@@ -301,7 +301,7 @@ local function runRotation()
         -- variable,name=stealth_threshold,value=(65+talent.vigor.enabled*35+talent.master_of_shadows.enabled*10+variable.ssw_refund)
         local stealthThreshold = (65 + vigorous * 35 + mosTalent * 10 + sswRefund)
         -- variable,name=shd_fractional,value=1.725+0.725*talent.enveloping_shadows.enabled
-        local shdFrac = 1.725 + 0.725 * enveloped
+        local shdFrac = 1.925 + 0.725 * enveloped
         -- variable,name=dsh_dfa,value=talent.death_from_above.enabled&talent.dark_shadow.enabled&spell_targets.death_from_above<4
         local dshDFA = talent.deathFromAbove and talent.darkShadow and #enemies.yards8t < 4
 
@@ -453,7 +453,7 @@ local function runRotation()
                     end
                 end
         -- Trinkets
-                if useCDs() and isChecked("Trinkets") then
+                if useCDs() and isChecked("Trinkets") and (buff.shadowDance.exists() or buff.symbolsOfDeath.exists()) then
                     if canUse(13) and not (hasEquiped(140808, 13) or hasEquiped(151190, 13)) then
                         useItem(13)
                     end
@@ -474,8 +474,8 @@ local function runRotation()
                     if not talent.deathFromAbove and ((combatTime > 10 and powerDeficit >= 40 - stealthedAll * 30) or (combatTime < 10 and debuff.nightblade.exists(units.dyn5))) then
                         if cast.symbolsOfDeath() then return end
                     end
-                    -- symbols_of_death,if=(talent.death_from_above.enabled&cooldown.death_from_above.remains<=3&(dot.nightblade.remains>=cooldown.death_from_above.remains+3|target.time_to_die-dot.nightblade.remains<=6)&(time>=3|set_bonus.tier20_4pc|equipped.the_first_of_the_dead))|target.time_to_die-remains<=10
-                    if (talent.deathFromAbove and cd.deathFromAbove.remain() <= 3 and (debuff.nightblade.remain(units.dyn5) >= cd.deathFromAbove.remain() + 3 or ttd(units.dyn5) - debuff.nightblade.remain(units.dyn5) <= 6) 
+                    -- symbols_of_death,if=(talent.death_from_above.enabled&cooldown.death_from_above.remains<=1&(dot.nightblade.remains>=cooldown.death_from_above.remains+3|target.time_to_die-dot.nightblade.remains<=6)&(time>=3|set_bonus.tier20_4pc|equipped.the_first_of_the_dead))|target.time_to_die-remains<=10
+                    if (talent.deathFromAbove and cd.deathFromAbove.remain() <= 1 and (debuff.nightblade.remain(units.dyn5) >= cd.deathFromAbove.remain() + 3 or ttd(units.dyn5) - debuff.nightblade.remain(units.dyn5) <= 6) 
                         and (combatTime >= 3 or t20_4pc or hasEquiped(151818))) or ttd(units.dyn5) <= 10 
                     then
                         if cast.symbolsOfDeath() then return end
@@ -582,6 +582,13 @@ local function runRotation()
     -- Action List - Finishers
         local function actionList_Finishers()
             -- Print("Finishers")
+        -- Eviscerate
+            if cd.symbolsOfDeath.remain() < 3 and combo >= 6 then
+                if buff.finalityEviscerate.exists() then
+                    buff.finalityEviscerate.cancel()
+                    if cast.eviscerate() then return end
+                end
+            end
         -- Nightblade
             -- nightblade,if=(!talent.dark_shadow.enabled|!buff.shadow_dance.up)&target.time_to_die-remains>6&(mantle_duration=0|remains<=mantle_duration)&((refreshable&(!finality|buff.finality_nightblade.up|variable.dsh_dfa))|remains<tick_time*2)&(spell_targets.shuriken_storm<4&!variable.dsh_dfa|!buff.symbols_of_death.up)
             if (not talent.darkShadow or not buff.shadowDance.exists()) and ttd(units.dyn5) - debuff.nightblade.remain(units.dyn5) > 6 
@@ -612,7 +619,7 @@ local function runRotation()
             end
         -- Death from Above
             -- death_from_above,if=!talent.dark_shadow.enabled|(!buff.shadow_dance.up|spell_targets>=4)&(buff.symbols_of_death.up|cooldown.symbols_of_death.remains>=10+set_bonus.tier20_4pc*5)&buff.the_first_of_the_dead.remains<1&(buff.finality_eviscerate.up|spell_targets.shuriken_storm<4)
-            if isChecked("Death From Above") then
+            if isChecked("Death From Above") and charges.shadowDance.exists() then
                 if not talent.darkShadow or (not buff.shadowDance.exists() or #enemies.yards8t >= getOptionValue("Death From Above")) 
                     and (buff.symbolsOfDeath.exists() or cd.symbolsOfDeath.remain() >= 10 + t20pc4 * 5) and buff.theFirstOfTheDead.remain() < 1
                     and (buff.finalityEviscerate.exists() or #enemies.yards10 < 4) 
@@ -629,7 +636,7 @@ local function runRotation()
             -- Print("Stealth")
         -- Shadowstrike
             -- shadowstrike,if=buff.stealth.up
-            if buff.stealth.exists() and getDistance("target") <= getOptionValue ("SS Range") then
+            if buff.stealth.exists() and getDistance(units.dyn5) <= getOptionValue ("SS Range") then
                 if cast.shadowstrike() then return end
             end
         -- Finisher
@@ -652,7 +659,7 @@ local function runRotation()
             end
         -- Shadowstrike
             -- shadowstrike
-            if getDistance("target") <= getOptionValue ("SS Range") then
+            if getDistance(units.dyn5) <= getOptionValue ("SS Range") then
                  if cast.shadowstrike() then return end
             end
         end
@@ -939,7 +946,7 @@ local function runRotation()
         -- Shadow Dance 
                     -- shadow_dance,if=talent.dark_shadow.enabled&(!stealthed.all|buff.subterfuge.up)&buff.death_from_above.up&buff.death_from_above.remains<=0.15
                     if useCDs() and isChecked("Shadow Dance") and not buff.shadowDance.exists() then
-                        if talent.darkShadow and (not stealthingAll or buff.subterfuge.exists())and buff.deathFromAbove.exists() and buff.deathFromAbove.remain() <= 0.15 then
+                        if talent.darkShadow and (not stealthingAll or buff.subterfuge.exists()) and buff.deathFromAbove.exists() and buff.deathFromAbove.remain() <= 0.15 then
                             if cast.shadowDance() then ShDCdTime = GetTime(); return end
                         end
                     end
