@@ -243,21 +243,22 @@ CuteOne |  Full   | 7.1.5 |   100% | :white_check_mark:
 
 author       |    support    | patch |  status |     raidable?
 :----------- | :-----------: | :---: | ------: | :----------------:
-Cpoworks/Svs | Sporadic/Full |  7.1  | Unknown | :heavy_check_mark:
 Bizkut       |     Full      | 7.1.5 |    100% |   :interrobang:
+JR           |    5-man      |  7.3  |     90% |   :interrobang:
 
 - Holy
 
 author          | support | patch | status | raidable?
 :-------------- | :-----: | :---: | -----: | :-------:
-Svs    |  Full   | 7.1.5 |    100% | :white_check_mark:
+Odan(Svs)       |  Full   |  7.2  |   100% | :white_check_mark:
+JR              |  Full   |  7.3  |   100% | :white_check_mark:
 
 - Shadow
 
 author           |    support    | patch | status | raidable?
 :--------------- | :-----------: | :---: | -----: | :-------:
-CuteOne          | Full          | 7.2   |    90% |    :x:
-JR               | Full          | 7.3   |  Test  |    :interrobang:
+CuteOne          | Full          |  7.2  |    90% |    :x:
+JR               | Full          |  7.3  |   100% | :white_check_mark:
 
 ### Rogue
 
