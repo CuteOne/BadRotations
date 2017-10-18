@@ -755,11 +755,11 @@ local function runRotation()
             end
         -- Divine Storm
             -- divine_storm,if=debuff.judgment.up&variable.ds_castable&buff.divine_purpose.react
-            if judgmentVar and dsCastable and (buff.divinePurpose.exists() or not useCDs()) then
+            if judgmentVar and dsCastable and buff.divinePurpose.exists() then
                 if cast.divineStorm() then return end
             end
             -- divine_storm,if=debuff.judgment.up&variable.ds_castable&(!talent.crusade.enabled|cooldown.crusade.remains>gcd*2)
-            if judgmentVar and dsCastable and (not talent.crusade or cd.crusade.remain() > gcd * 2) then
+            if judgmentVar and dsCastable and (not talent.crusade or cd.crusade.remain() > gcd * 2 or not isChecked("Crusade")) then
                 if cast.divineStorm() then return end
             end
         -- Justicar's Vengeance
@@ -769,7 +769,7 @@ local function runRotation()
             end
         -- Templar's Verdict
             -- templars_verdict,if=debuff.judgment.up&buff.divine_purpose.react
-            if judgmentVar and (buff.divinePurpose.exists() or not useCDs()) then
+            if judgmentVar and buff.divinePurpose.exists() then
                 if isChecked("Justicar's Vengeance") and php < getOptionValue("Justicar's Vengeance") and talent.justicarsVengeance then
                     if cast.justicarsVengeance() then return end
                 else
@@ -777,7 +777,7 @@ local function runRotation()
                 end
             end
             -- templars_verdict,if=debuff.judgment.up&(!talent.crusade.enabled|cooldown.crusade.remains>gcd*2)&(!talent.execution_sentence.enabled|cooldown.execution_sentence.remains>gcd)
-            if judgmentVar and (not talent.crusade or cd.crusade.remain() > gcd * 2) and (not talent.executionSentence or cd.executionSentence.remain() > gcd) then
+            if judgmentVar and (not talent.crusade or cd.crusade.remain() > gcd * 2 or not isChecked("Crusade")) and (not talent.executionSentence or cd.executionSentence.remain() > gcd) then
                 if isChecked("Justicar's Vengeance") and php < getOptionValue("Justicar's Vengeance") and talent.justicarsVengeance then
                     if cast.justicarsVengeance() then return end
                 else
@@ -854,7 +854,9 @@ local function runRotation()
             end
         -- Consecration
             -- consecration
-            if cast.consecration() then return end
+            if talent.consecration then
+                if cast.consecration() then return end
+            end
         -- Hammer of Justice
             -- hammer_of_justice,if=equipped.137065&target.health.pct>=75&holy_power<=4
             if hasEquiped(13705) and thp >= 75 and holyPower <= 4 then
