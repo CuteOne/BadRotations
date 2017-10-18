@@ -842,12 +842,12 @@ local function runRotation()
             end
         -- Zeal
             -- zeal,if=cooldown.zeal.charges_fractional>=1.65&holy_power<=4&(cooldown.blade_of_justice.remains>gcd*2|cooldown.divine_hammer.remains>gcd*2)&debuff.judgment.remains>gcd
-            if charges.zeal.frac() >= 1.65 and holyPower <= 4 and (cd.bladeOfJustice.remain() > gcd * 2 or cd.divineHammer.remain() > gcd * 2) and debuff.judgment.remain(units.dyn5) > gcd then
+            if talent.zeal and charges.zeal.frac() >= 1.65 and holyPower <= 4 and (cd.bladeOfJustice.remain() > gcd * 2 or cd.divineHammer.remain() > gcd * 2) and debuff.judgment.remain(units.dyn5) > gcd then
                 if cast.zeal() then return end
             end
         -- Crusader Strike
             -- crusader_strike,if=cooldown.crusader_strike.charges_fractional>=1.65&holy_power<=4&(cooldown.blade_of_justice.remains>gcd*2|cooldown.divine_hammer.remains>gcd*2)&debuff.judgment.remains>gcd&(talent.greater_judgment.enabled|!set_bonus.tier20_4pc&talent.the_fires_of_justice.enabled)
-            if charges.crusaderStrike.frac() >= 1.65 and holyPower <= 4 and (cd.bladeOfJustice.remain() > gcd * 2 or cd.divineHammer.remain() > gcd * 2) 
+            if not talent.zeal and charges.crusaderStrike.frac() >= 1.65 and holyPower <= 4 and (cd.bladeOfJustice.remain() > gcd * 2 or cd.divineHammer.remain() > gcd * 2) 
                 and debuff.judgment.remain(units.dyn5) > gcd and (talent.greaterJudgment or (not t20_4pc and talent.theFiresOfJustice))
             then
                 if cast.crusaderStrike() then return end
@@ -865,10 +865,14 @@ local function runRotation()
             if actionList_Finisher() then return end
         -- Zeal
             -- zeal
-            if cast.zeal() then return end
+            if talent.zeal then
+                if cast.zeal() then return end
+            end
         -- Crusader Strike
             -- crusader_strike
-            if cast.crusaderStrike() then return end
+            if not talent.zeal then
+                if cast.crusaderStrike() then return end
+            end
         end
 ---------------------
 --- Begin Profile ---
