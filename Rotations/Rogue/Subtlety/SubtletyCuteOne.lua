@@ -919,7 +919,7 @@ local function runRotation()
 --------------------------
 --- In Combat Rotation ---
 --------------------------
-            if inCombat and mode.pickPocket ~= 2 and isValidUnit(units.dyn5) then
+            if inCombat and mode.pickPocket ~= 2 and isValidUnit(units.dyn5) and opener == true then
 ------------------------------
 --- In Combat - Interrupts ---
 ------------------------------
