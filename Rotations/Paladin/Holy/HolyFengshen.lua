@@ -423,7 +423,7 @@ local function runRotation()
           		end
           	end	
 			-- Blessing of Protection
-			if GetSpellCooldown(1022) == 0 then
+			if useCDs() and GetSpellCooldown(1022) == 0 then
 				-- Cathedral - Thrashbite - Scornful Gaze 237726
 				-- Halls of Valor - Fenryr - Scent of Blood 196838
     			for i = 1, #br.friend do
@@ -1029,7 +1029,7 @@ local function runRotation()
 			Interrupt()
 			Beacon()
 			DPS()
-			Cooldowns()
+			if useCDs() then Cooldowns() end
 			AOEHealing()
 			SingleTarget()
 		end
