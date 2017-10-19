@@ -583,12 +583,12 @@ local function runRotation()
         local function actionList_Finishers()
             -- Print("Finishers")
         -- Eviscerate
-            if cd.symbolsOfDeath.remain() < 3 and combo >= 6 then
-                if buff.finalityEviscerate.exists() then
-                    buff.finalityEviscerate.cancel()
-                    if cast.eviscerate() then return end
-                end
-            end
+            -- if cd.symbolsOfDeath.remain() < 3 and combo >= 6 then
+            --     if buff.finalityEviscerate.exists() then
+            --         buff.finalityEviscerate.cancel()
+            --         if cast.eviscerate() then return end
+            --     end
+            -- end
         -- Nightblade
             -- nightblade,if=(!talent.dark_shadow.enabled|!buff.shadow_dance.up)&target.time_to_die-remains>6&(mantle_duration=0|remains<=mantle_duration)&((refreshable&(!finality|buff.finality_nightblade.up|variable.dsh_dfa))|remains<tick_time*2)&(spell_targets.shuriken_storm<4&!variable.dsh_dfa|!buff.symbols_of_death.up)
             if (not talent.darkShadow or not buff.shadowDance.exists()) and ttd(units.dyn5) - debuff.nightblade.remain(units.dyn5) > 6 
