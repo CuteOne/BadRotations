@@ -1486,7 +1486,7 @@ br.idList = {
                 dempenHarm                  = 122278;
                 innervate                   = 29166;
                 symbolOfHope                = 64901;
-                manaTea                     = 197908;
+                manaTea                     = 116680,
             },
             debuffs                         = {
             },
