@@ -306,9 +306,6 @@ local function runRotation()
         local dshDFA = talent.deathFromAbove and talent.darkShadow and #enemies.yards8t < 4
 
         -- Custom Functions
-        local function canCast()
-            return GetTime() > vanishTime + gcd and GetTime() > ShDCdTime + gcd and GetTime() > ShdMTime + gcd and true or false
-        end
         local function usePickPocket()
             if stealthingAll and not inCombat and (mode.pickPocket == 1 or mode.pickPocket == 2) then
                 return true
@@ -523,7 +520,7 @@ local function runRotation()
         -- Vanish
                 -- pool_resource,for_next=1,extra_amount=55-talent.shadow_focus.enabled*10
                 -- vanish,if=energy>=55-talent.shadow_focus.enabled*10&variable.dsh_dfa&(!equipped.mantle_of_the_master_assassin|buff.symbols_of_death.up)&cooldown.shadow_dance.charges_fractional<=variable.shd_fractional&!buff.shadow_dance.up&!buff.stealth.up&mantle_duration=0&(dot.nightblade.remains>=cooldown.death_from_above.remains+6|target.time_to_die-dot.nightblade.remains<=6)&cooldown.death_from_above.remains<=1|target.time_to_die<=7
-                if useCDs() and isChecked("Vanish") and not solo and canCast() then
+                if useCDs() and isChecked("Vanish") and not solo and cd.global.remain() < 1.5 then
                     if power < 55 - (shadFoc * 10) then
                         return true
                     elseif power > 55 - (shadFoc * 10) and dshDFA and (not hasEquiped(144236) or buff.symbolsOfDeath.exists()) 
@@ -535,7 +532,7 @@ local function runRotation()
                 end
         -- Shadow Dance
                 -- shadow_dance,if=!buff.shadow_dance.up&target.time_to_die<=4+talent.subterfuge.enabled
-                if useCDs() and isChecked("Shadow Dance") and canCast() and not buff.shadowDance.exists() and ttd(units.dyn5) <= 4 + subty then
+                if useCDs() and isChecked("Shadow Dance") and cd.global.remain() < 1.5 and not buff.shadowDance.exists() and ttd(units.dyn5) <= 4 + subty then
                     if cast.shadowDance() then ShDCdTime = GetTime(); return end
                 end
             end -- End Cooldown Usage Check
@@ -546,7 +543,7 @@ local function runRotation()
             -- Print("Stealth Cooldowns")
         -- Vanish
                 -- vanish,if=!variable.dsh_dfa&mantle_duration=0&cooldown.shadow_dance.charges_fractional<variable.shd_fractional+(equipped.mantle_of_the_master_assassin&time<30)*0.3&(!equipped.mantle_of_the_master_assassin|buff.symbols_of_death.up)
-                if useCDs() and isChecked("Vanish") and not solo and canCast() then
+                if useCDs() and isChecked("Vanish") and not solo and cd.global.remain() < 1.5 then
                     if not dshDFA and buff.masterAssassinsInitiative.remain() == 0 and charges.shadowDance.frac() < shdFrac + mantleMasterRecent * 0.3 
                         and (not hasEquiped(144236) or buff.symbolsOfDeath.exists()) 
                     then
@@ -555,7 +552,7 @@ local function runRotation()
                 end
         -- Shadow Dance
                 -- shadow_dance,if=charges_fractional>=variable.shd_fractional|target.time_to_die<cooldown.symbols_of_death.remains
-                if useCDs() and isChecked("Shadow Dance") and canCast() and not buff.shadowDance.exists() then
+                if useCDs() and isChecked("Shadow Dance") and not buff.shadowDance.exists() and cd.global.remain() < 1.5 then
                     if charges.shadowDance.frac() >= shdFrac or ttd(units.dyn5) < cd.symbolsOfDeath.remain() then
                         if cast.shadowDance() then ShDCdTime = GetTime(); return end
                     end
@@ -563,7 +560,7 @@ local function runRotation()
         -- Shadowmeld
                 -- pool_resource,for_next=1,extra_amount=40
                 -- shadowmeld,if=energy>=40&energy.deficit>=10+variable.ssw_refund
-                if useCDs() and isChecked("Racial") and not solo and race == "NightElf" and canCast() then
+                if useCDs() and isChecked("Racial") and not solo and race == "NightElf" and cd.global.remain() < 1.5 then
                     if power < 40 then
                         return true
                     elseif power >= 40 and powerDeficit >= 10 + sswRefund then
@@ -572,7 +569,7 @@ local function runRotation()
                 end
         -- Shadow Dance
                 -- shadow_dance,if=!variable.dsh_dfa&combo_points.deficit>=2+talent.subterfuge.enabled*2&(buff.symbols_of_death.remains>=1.2+gcd.remains|cooldown.symbols_of_death.remains>=12+(talent.dark_shadow.enabled&set_bonus.tier20_4pc)*3-(!talent.dark_shadow.enabled&set_bonus.tier20_4pc)*4|mantle_duration>0)&(spell_targets.shuriken_storm>=4|!buff.the_first_of_the_dead.up)
-                if useCDs() and isChecked("Shadow Dance") and canCast() and not buff.shadowDance.exists() then
+                if useCDs() and isChecked("Shadow Dance") and not buff.shadowDance.exists() and cd.global.remain() < 1.5 then
                     if not dshDFA and comboDeficit >= 2 + subty * 2 
                         and (buff.symbolsOfDeath.remain() >= 1.2 + gcd or cd.symbolsOfDeath.remain() >= 12 + (dark20 * 3) - (notDark20 * 4) or buff.masterAssassinsInitiative.remain() > 0)
                         and (#enemies.yards10 >= 4 or not buff.theFirstOfTheDead.exists()) 
@@ -802,7 +799,7 @@ local function runRotation()
                         end 
             -- Shadow Dance
                     elseif SOD1 and not SHD1 then
-                        if isChecked("Shadow Dance") and canCast() and charges.shadowDance.exists() and not cast.last.shadowDance() then
+                        if isChecked("Shadow Dance") and charges.shadowDance.exists() and not cast.last.shadowDance() and cd.global.remain() < 1.5 then
                             if castOpener("shadowDance","SHD1",5) then ShDCdTime = GetTime(); return end
                         else
                             Print("5: Shadow Dance (Uncastable)")
@@ -839,7 +836,7 @@ local function runRotation()
                         end
             -- Vanish
                     elseif SHS4 and not VAN1 then
-                        if isChecked("Vanish") and not solo and canCast() then
+                        if isChecked("Vanish") and not solo and cd.global.remain() < 1.5 then
                             if castOpener("vanish","VAN1",10) then vanishTime = GetTime(); return end
                         else
                             Print("10: Vanish (Uncastable)")
@@ -862,7 +859,7 @@ local function runRotation()
                         end
             -- Shadow Dance
                     elseif DFA1 and not SHD2 then
-                        if isChecked("Shadow Dance") and canCast() and charges.shadowDance.exists() and not cast.last.shadowDance() then
+                        if isChecked("Shadow Dance") and charges.shadowDance.exists() and not cast.last.shadowDance() and cd.global.remain() < 1.5 then
                             if castOpener("shadowDance","SHD1",13) then ShDCdTime = GetTime(); return end
                         else
                             Print("13: Shadow Dance (Uncastable)")
@@ -947,10 +944,8 @@ local function runRotation()
                 end
         -- Shadow Dance 
                 -- shadow_dance,if=talent.dark_shadow.enabled&(!stealthed.all|buff.subterfuge.up)&buff.death_from_above.up&buff.death_from_above.remains<=0.15
-                if useCDs() and isChecked("Shadow Dance") and canCast() and not buff.shadowDance.exists() 
-                    and ((not talent.deathFromAbove and getDistance(units.dyn5) < 5) or cast.last.deathFromAbove()) 
-                then
-                    if talent.darkShadow and (not stealthingAll or buff.subterfuge.exists()) and buff.deathFromAbove.exists() and buff.deathFromAbove.remain() <= 0.15 then
+                if useCDs() and isChecked("Shadow Dance") and not buff.shadowDance.exists() and cast.last.deathFromAbove() then
+                    if talent.darkShadow and (not stealthingAll or buff.subterfuge.exists()) then
                         if cast.shadowDance() then ShDCdTime = GetTime(); return end
                     end
                 end
