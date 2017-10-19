@@ -1541,7 +1541,6 @@ br.idList = {
                 whirlingDragonPunch         = 152175,
             },
             artifacts                       = {
-                concordanceOfTheLegionfall  = 239042,
                 crosswinds                  = 195650,
                 darkSkies                   = 195265,
                 deathArt                    = 195266,
@@ -2425,7 +2424,7 @@ br.idList = {
             },
             buffs                           = {
                 feedingFrenzy               = 242705,
-                finalityEviscerate          = 197498,
+                finalityEviscerate          = 197496,
                 finalityNightblade          = 197498,
                 masterOfShadows             = 196980,
                 masterOfSubtlety            = 31665,
@@ -2860,12 +2859,14 @@ br.idList = {
                 thalkielsConsumption        = 211714,
             },
             artifacts                       = {
+                thalkielsAscendance         = 238145,
                 thalkielsConsumption        = 211714,
             },
             buffs                           = {
                 demonicCalling              = 205146,
                 demonicEmpowerment          = 193396,
                 demonwrath                  = 193440,
+                shadowyInspiration          = 196269,
             },
             debuffs                         = {
                 doom                        = 603,
@@ -2875,11 +2876,13 @@ br.idList = {
 
             },
             talents                         = {
+                deathsEmbrace               = 234876,
                 demonbolt                   = 157695,
                 grimoireOfSynergy           = 171975,
                 handOfDoom                  = 196283,
                 implosion                   = 196277,
                 shadowflame                 = 205181,
+                shadowyInspiration          = 196269,
                 summonDarkglare             = 205180,
             },
         },
@@ -3285,10 +3288,12 @@ br.idList = {
             artifacts                           = {
                 artificialDamage                = 226829,
                 artificialStamina               = 211309,
+                concordanceOfTheLegionfall      = 239042,
             },
             buffs                               = {
                 ancientHysteria                 = 90355,
                 bloodlust                       = 2825,
+                concordanceOfTheLegionfall      = 239042,
 				defiledAugmentation             = 224001, -- Lightforged Augment Rune buff
                 felFocus                        = 242551,
                 flaskOfTenThousandScars         = 188035,
