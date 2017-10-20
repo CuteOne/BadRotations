@@ -778,7 +778,7 @@ local function runRotation()
                             SHB1 = true
                         end
             -- Shadowstrike
-                    elseif SHB1 and (not SHS1 or combo == 0) and power > 40 then
+                    elseif SHB1 and (not SHS1 or (not NHB1 and combo == 0)) and power > 40 then
                         if stealthingAll then
                             if castOpener("shadowstrike","SHS1",2) then return end
                         else
@@ -816,7 +816,7 @@ local function runRotation()
                             if castOpener("backstab","SHS2",6) then return end
                         end
             -- Shadowstrike
-                    elseif SHS2 and (not SHS3 or combo == 0) and power > 40 then
+                    elseif SHS2 and (not SHS3 or (not EVI1 and combo == 0)) and power > 40 then
                         if stealthingAll then
                             if castOpener("shadowstrike","SHS3",7) then return end
                         else
@@ -846,7 +846,7 @@ local function runRotation()
                             VAN1 = true
                         end
             -- Shadowstrike
-                    elseif VAN1 and (not SHS5 or combo == 0) and power > 40 then
+                    elseif VAN1 and (not SHS5 or (not DFA1 and combo == 0)) and power > 40 then
                         if stealthingAll then
                             if castOpener("shadowstrike","SHS5",11) then return end
                         else
@@ -876,7 +876,7 @@ local function runRotation()
                             if castOpener("backstab","SHS6",14) then return end
                         end
             -- Shadowstrike
-                    elseif SHS6 and (not SHS7 or combo == 0) and power > 40 then
+                    elseif SHS6 and (not SHS7 or (not EVI2 and combo == 0)) and power > 40 then
                         if stealthingAll then
                             if castOpener("shadowstrike","SHS7",15) then return end
                         else

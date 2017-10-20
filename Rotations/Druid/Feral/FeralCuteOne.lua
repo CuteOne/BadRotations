@@ -399,13 +399,13 @@ local function runRotation()
                     end
 		        end
 			-- Aquatic Form
-			    if (not inCombat or getDistance("target") > 10) and swimming and not travel and not buff.prowl.exists() then
+			    if (not inCombat --[[or getDistance("target") >= 10--]]) and swimming and not travel and not buff.prowl.exists() then
 				  	if GetShapeshiftForm() ~= 0 and lastCast ~= spell.travelForm then
                         -- CancelShapeshiftForm()
                         RunMacroText("/CancelForm")
                         if cast.travelForm("player") then return end
                     else
-                       if cast.travelForm("player") then return end
+                        if cast.travelForm("player") then return end
                     end
 				end
 			-- Cat Form
@@ -415,11 +415,11 @@ local function runRotation()
 		        		if cast.catForm("player") then return end
 		        	end
 		        	-- Cat Form when not in combat and target selected and within 20yrds
-		        	if not inCombat and isValidUnit("target") and getDistance("target") < 30 then
+		        	if not inCombat and isValidUnit("target") and (getDistance("target") < 30 and not swimming) or (getDistance("target") < 10 and swimming) then
 		        		if cast.catForm("player") then return end
 		        	end
 		        	--Cat Form when in combat and not flying
-		        	if inCombat and not flying then
+		        	if inCombat and not flying and (not swimming or (swimming and getDistance("target") < 10 and isValidUnit("target"))) then
 		        		if cast.catForm("player") then return end
 		        	end
                     -- Cat Form - Less Fall Damage
@@ -484,18 +484,16 @@ local function runRotation()
 			if useDefensive() and not IsMounted() and not stealth and not flight and not buff.prowl.exists() then
 		--Revive/Rebirth
 				if isChecked("Rebirth") and inCombat then
-					-- if buff.predatorySwiftness.exists() then
-						if getOptionValue("Rebirth - Target")==1
-                            and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and UnitIsFriend("target","player")
-                        then
-							if cast.rebirth("target","dead") then return end
-						end
-						if getOptionValue("Rebirth - Target")==2
-                            and UnitIsPlayer("mouseover") and UnitIsDeadOrGhost("mouseover") and UnitIsFriend("mouseover","player")
-                        then
-							if cast.rebirth("mouseover","dead") then return end
-						end
-					-- end
+					if getOptionValue("Rebirth - Target")==1
+                        and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and UnitIsFriend("target","player")
+                    then
+						if cast.rebirth("target","dead") then return end
+					end
+					if getOptionValue("Rebirth - Target")==2
+                        and UnitIsPlayer("mouseover") and UnitIsDeadOrGhost("mouseover") and UnitIsFriend("mouseover","player")
+                    then
+						if cast.rebirth("mouseover","dead") then return end
+					end
 				end
 				if isChecked("Revive") and not inCombat then
 					if getOptionValue("Revive - Target")==1
@@ -614,24 +612,6 @@ local function runRotation()
                             end
                         end
                     end
-
-	            	-- if inCombat and getOptionValue("Auto Heal")==1 and getDistance(br.friend[1].unit) < 40
-	             --        and ((getHP(br.friend[1].unit) <= getOptionValue("Regrowth")/2 and inCombat)
-	             --            or (getHP(br.friend[1].unit) <= getOptionValue("Regrowth") and not inCombat)
-	             --            or (((talent.bloodtalons and buff.predatorySwiftness.remain() < 1) or not talent.bloodtalons) and buff.predatorySwiftness.exists()))
-	             --    then
-	             --        if cast.regrowth(br.friend[1].unit) then return end
-	             --    end
-	             --    if (getOptionValue("Auto Heal")==2 or not inCombat)
-	             --        and (php <= getOptionValue("Regrowth") or (((talent.bloodtalons and buff.predatorySwiftness.remain() < 1) or not talent.bloodtalons) and buff.predatorySwiftness.exists()))
-	             --    then
-              --           if GetShapeshiftForm() ~= 0 and not buff.predatorySwiftness.exists() and not moving then
-              --               -- CancelShapeshiftForm()
-              --               RunMacroText("/CancelForm")
-              --           else
-	             --           if cast.regrowth("player") then return end
-              --           end
-	             --    end
 	            end
 		-- Survival Instincts
 	            if isChecked("Survival Instincts") and php <= getOptionValue("Survival Instincts")
@@ -1181,7 +1161,7 @@ local function runRotation()
                 if (multidot or (UnitIsUnit(thisUnit,units.dyn5) and not multidot)) and getDistance(thisUnit) < 5 then
                     if ((not debuff.rake.exists(thisUnit) or (not talent.bloodtalons and debuff.rake.refresh(thisUnit)))
                             or (talent.bloodtalons and buff.bloodtalons.exists() and debuff.rake.remain(thisUnit) <= 7 and debuff.rake.calc() > debuff.rake.applied(thisUnit) * 0.85))
-                        and (ttd(thisUnit) > 4 or isDummy(thisUnit))
+                        --and (ttd(thisUnit) > 4 or isDummy(thisUnit))
                     then
                         if power <= select(1, getSpellCost(spell.rake)) then
                             return true
@@ -1269,7 +1249,7 @@ local function runRotation()
             -- TargetSecUntilDeath > DotDurationSec(RakeBleed) / 2 and 
             -- (FeralBleedSnapshot > PeekSavedValue(RakeBuffs) * 0.8 or 
             -- (FeralBleedSnapshot * 2 > PeekSavedValue(RakeBuffs) * 0.8 and HasBuff(IncarnationKingOfTheJungle)))
-            if talent.bloodtalons and buff.bloodtalons.exists() and debuff.rake.remain(units.dyn5) <= 5 and ttd(units.dyn5) > debuff.rake.duration(units.dyn5) / 2 
+            if talent.bloodtalons and buff.bloodtalons.exists() and debuff.rake.remain(units.dyn5) <= 5 --and ttd(units.dyn5) > debuff.rake.duration(units.dyn5) / 2 
                 and (debuff.rake.calc() > debuff.rake.applied(units.dyn5) * 0.8 or (debuff.rake.calc() * 2 > debuff.rake.applied(units.dyn5) * 0.8 and buff.incarnationKingOfTheJungle.exists()))
             then
                 if cast.rake() then return end
@@ -1283,7 +1263,7 @@ local function runRotation()
                 for i = 1, #enemies.yards5 do
                     local thisUnit = enemies.yards5[i]
                     if (multidot or (UnitIsUnit(thisUnit,units.dyn5) and not multidot)) then
-                        if talent.bloodtalons and buff.bloodtalons.exists() and debuff.rake.remain(thisUnit) <= 5 and ttd(thisUnit) > debuff.rake.duration(thisUnit) / 2 
+                        if talent.bloodtalons and buff.bloodtalons.exists() and debuff.rake.remain(thisUnit) <= 5 --and ttd(thisUnit) > debuff.rake.duration(thisUnit) / 2 
                             and (debuff.rake.calc() > debuff.rake.applied(thisUnit) * 0.8 or (debuff.rake.calc() * 2 > debuff.rake.applied(thisUnit) * 0.8 and buff.incarnationKingOfTheJungle.exists()))
                         then
                             if cast.rake(thisUnit) then return end
@@ -1463,7 +1443,7 @@ local function runRotation()
                 -- rake,if=buff.prowl.up|buff.shadowmeld.up
                 if (buff.prowl.exists() or buff.shadowmeld.exists()) and opener == true then
                     -- if debuff.rake.exists(units.dyn5) or level < 12 then
-                    if debuff.rake.calc() > debuff.rake.applied(thisUnit) * 0.85 and level >= 12 then
+                    if debuff.rake.calc() > debuff.rake.applied(units.dyn5) * 0.85 and level >= 12 then
                         if cast.rake(units.dyn5) then return end
                     else
                         if cast.shred(units.dyn5) then return end
