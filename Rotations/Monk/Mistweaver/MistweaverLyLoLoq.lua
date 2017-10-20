@@ -764,7 +764,7 @@ local function runRotation()
 
     local function actionList_AOEHealing()
 	-- Chi Burst
-        if isChecked(colormage.."Chi Burst") and talent.chiBurst then
+        if isChecked(colormage.."Chi Burst") and talent.chiBurst and inCombat then
             --if castWiseAoEHeal(br.friend,spell.chiBurst,10,getValue("Chi Burst"),getValue("Min Chi Burst Targets"),10,true,true) then return end
             if getUnitsInRect(7,47,false,getValue(colormage.."Chi Burst")) >= getValue(colormage.."Min Chi Burst Targets") then
                 -- actionList_CheckVelen()
