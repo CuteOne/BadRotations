@@ -778,7 +778,7 @@ local function runRotation()
                     elseif OPN1 and (not GAR1 or (not debuff.garrote.exists("target") and cd.garrote.remain() == 0)) and power >= 45 then
                         if castOpener("garrote","GAR1",1) then return end
             -- Mutilate
-                    elseif GAR1 and (not MUT1 or combo == 0) and power >= 55 then
+                    elseif GAR1 and (not MUT1 or (not RUP1 and combo == 0)) and power >= 55 then
                         if castOpener("mutilate","MUT1",2) then return end
             -- Rupture
                     elseif MUT1 and not RUP1 and power >= 25 then

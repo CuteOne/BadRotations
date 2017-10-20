@@ -415,7 +415,7 @@ local function runRotation()
 		        		if cast.catForm("player") then return end
 		        	end
 		        	-- Cat Form when not in combat and target selected and within 20yrds
-		        	if not inCombat and isValidUnit("target") and (getDistance("target") < 30 and not swimming) or (getDistance("target") < 10 and swimming) then
+		        	if not inCombat and isValidUnit("target") and ((getDistance("target") < 30 and not swimming) or (getDistance("target") < 10 and swimming)) then
 		        		if cast.catForm("player") then return end
 		        	end
 		        	--Cat Form when in combat and not flying
