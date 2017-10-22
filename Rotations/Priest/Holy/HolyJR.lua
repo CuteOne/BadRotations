@@ -46,6 +46,8 @@ local function createOptions()
         --- GENERAL OPTIONS --- -- Define General Options
         -----------------------
         section = br.ui:createSection(br.ui.window.profile,  "General")
+        -- Cast Timing Debug
+            br.ui:createCheckbox(section,"Cast Timing Debug", "Print elapsed time for code that might be taking a long time to execute")
         -- Dummy DPS Test
             br.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "Enables/Disables DPS Testing", "Set to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
         -- Angelic Feather
@@ -62,9 +64,9 @@ local function createOptions()
         ------------------------
         section = br.ui:createSection(br.ui.window.profile,  "Cooldowns")
         -- Group Heal Spam
-            br.ui:createDropdown(section, "Group Heal Spam Hotkey", br.dropOptions.Toggle, 6, "Spam Group Healing (Sanctify,PoH) at cursor location.")
+            br.ui:createDropdown(section, "Spam Group Heals Hotkey", br.dropOptions.Toggle, 6, "Spam Group Healing (Sanctify,PoH) at cursor location.")
         -- Guardian Spirit
-            br.ui:createSpinnerWithout(section, "Guardian Spirit",  25,  0,  100,  5,  "Health Percent to Cast At")
+            br.ui:createSpinnerWithout(section, "Guardian Spirit",  15,  0,  100,  5,  "Health Percent to Cast At")
         -- Guardian Spirit Tank Only
             br.ui:createCheckbox(section,"Guardian Spirit Tank Only",  "Enable/Disable")
         -- Light of T'uure
@@ -113,36 +115,36 @@ local function createOptions()
         -------------------------
         section = br.ui:createSection(br.ui.window.profile, "Healing Options")
         -- Holy Word: Serenity
-            br.ui:createSpinnerWithout(section, "Holy Word: Serenity",  50,  0,  100,  5,  "Health Percent to Cast At")
+            br.ui:createSpinnerWithout(section, "Holy Word: Serenity",  60,  0,  100,  5,  "Health Percent to Cast At")
         -- Flash Heal
-            br.ui:createSpinnerWithout(section, "Flash Heal",  60,  0,  100,  5,  "Health Percent to Cast At")
+            br.ui:createSpinnerWithout(section, "Flash Heal",  75,  0,  100,  5,  "Health Percent to Cast At")
         -- Heal
             br.ui:createSpinner(section, "Heal",  75,  0,  100,  5,   "Enable/Disable", "Health Percent to Cast At")
         -- Binding Heal
             if br.player.talent.bindingHeal then
-                br.ui:createSpinnerWithout(section, "Binding Heal",  80,  0,  100,  5,  "Health Percent to Cast At") 
+                br.ui:createSpinnerWithout(section, "Binding Heal",  90,  0,  100,  5,  "Health Percent to Cast At") 
             end
         -- Renew
             br.ui:createSpinner(section, "Renew",  85,  0,  100,  5,   "Enable/Disable", "Health Percent to Cast At") 
             br.ui:createSpinner(section, "Renew on Tanks",  90,  0,  100,  5,   "Enable/Disable", "Health Percent to Cast At")
-            br.ui:createSpinner(section, "Renew while moving",  70,  0,  100,  5,  "Enable/Disable", "Health Percent to Cast At")
+            br.ui:createSpinner(section, "Renew while moving",  80,  0,  100,  5,  "Enable/Disable", "Health Percent to Cast At")
         -- Holy Word: Sanctify
-            br.ui:createSpinnerWithout(section, "Holy Word: Sanctify",  70,  0,  100,  5,  "Health Percent to Cast At") 
+            br.ui:createSpinnerWithout(section, "Holy Word: Sanctify",  75,  0,  100,  5,  "Health Percent to Cast At") 
             br.ui:createSpinnerWithout(section, "Holy Word: Sanctify Targets",  3,  0,  40,  1,  "Minimum Holy Word: Sanctify Targets")
         -- Prayer of Healing
-            br.ui:createSpinnerWithout(section, "Prayer of Healing",  70,  0,  100,  5,  "Health Percent to Cast At") 
+            br.ui:createSpinnerWithout(section, "Prayer of Healing",  75,  0,  100,  5,  "Health Percent to Cast At") 
             br.ui:createSpinnerWithout(section, "Prayer of Healing Targets",  3,  0,  40,  1,  "Minimum Prayer of Healing Targets")
         -- Divine Star
             -- br.ui:createSpinner(section, "Divine Star",  80,  0,  100,  5,  "Enables/Disables Divine Star usage.", "Health Percent to Cast At")
             -- br.ui:createSpinnerWithout(section, "Min Divine Star Targets",  3,  1,  40,  1,  "Minimum Divine Star Targets (This includes you)")
         -- Circle of Healing
             if br.player.talent.circleOfHealing then
-                br.ui:createSpinnerWithout(section, "Circle of Healing",  70,  0,  100,  5,  "Health Percent to Cast At")
+                br.ui:createSpinnerWithout(section, "Circle of Healing",  75,  0,  100,  5,  "Health Percent to Cast At")
                 br.ui:createSpinnerWithout(section, "Circle of Healing Targets",  3,  0,  40,  1,  "Minimum Circle of Healing Targets")
             end
         -- Halo
             if br.player.talent.halo then
-                br.ui:createSpinner(section, "Halo",  70,  0,  100,  5,   "Enable/Disable", "Health Percent to Cast At") 
+                br.ui:createSpinner(section, "Halo",  75,  0,  100,  5,   "Enable/Disable", "Health Percent to Cast At") 
                 br.ui:createSpinnerWithout(section, "Halo Targets",  3,  0,  40,  1,  "Minimum Halo Targets")
             end
         -- Mass Dispel
@@ -396,7 +398,7 @@ local function runRotation()
             end
         end
     -- Group Heals Spam Hotkey
-        if isChecked("Group Heal Spam Hotkey") and (SpecificToggle("Group Heal Spam Hotkey") and not GetCurrentKeyBoardFocus()) then
+        if isChecked("Spam Group Heals Hotkey") and (SpecificToggle("Spam Group Heals Hotkey") and not GetCurrentKeyBoardFocus()) then
             if actionList_SpamGroupHeals() then return true end
         end
     -- Guardian Spirit
@@ -509,7 +511,14 @@ local function runRotation()
     -- Holy Word: Sanctify
         if cd.holyWordSanctify.remain() == 0 and #sanctifyCandidates >= getValue("Holy Word: Sanctify Targets") then
             -- get the best ground location to heal most or all of them
+            local sancStartTime = debugprofilestop()
             local loc = getBestGroundCircleLocation(sanctifyCandidates,getValue("Holy Word: Sanctify Targets"),10)
+            if isChecked("Cast Timing Debug") then
+                local elaps = debugprofilestop() - sancStartTime
+                if elaps > 10 then
+                    print(format("HW:Sanctify took %f ms", elaps))
+                end
+            end
             if loc ~= nil then
                 -- Lots of people need heals. Good a time as any to use trinkets...
                 -- If you can think of a better time to use them, feel free to modify
@@ -566,7 +575,14 @@ local function runRotation()
         end
     -- Prayer of Healing
         if not moving and #groupHealCandidates >= getValue("Prayer of Healing Targets") then
+            local pohStartTime = debugprofilestop()
             if castWiseAoEHeal(br.friend,spell.prayerOfHealing,40,getValue("Prayer of Healing"),getValue("Prayer of Healing Targets"),5,false,true)  then return true end
+            if isChecked("Cast Timing Debug") then
+                local elaps = debugprofilestop() - pohStartTime
+                if elaps > 10 then
+                    print(format("Prayer of Healing took %f ms", elaps))
+                end
+            end
         end 
     -- Flash Heal
         for i=1, #tanks do
