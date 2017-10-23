@@ -108,6 +108,8 @@ local function createOptions()
             br.ui:createSpinner(section, "Heirloom Neck",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
             -- Evasion
             br.ui:createSpinner(section, "Evasion",  40,  0,  100,  5, "Set health percent threshhold to cast at - In Combat Only!",  "|cffFFFFFFHealth Percent to Cast At")
+            -- Feint
+            br.ui:createSpinner(section, "Feint", 75, 0, 100, 5, "|cffFFBB00Health Percentage to use at.")
             -- Cloak of Shadows
             br.ui:createCheckbox(section, "Cloak of Shadows")
             -- Crimson Vial
@@ -375,6 +377,10 @@ local function runRotation()
             -- Evasion
                 if isChecked("Evasion") and php < getOptionValue("Evasion") and inCombat then
                     if cast.evasion() then return end
+                end
+            -- Feint
+                if isChecked("Feint") and php <= getOptionValue("Feint") and inCombat and not buff.feint.exists() then
+                    if cast.feint() then return end
                 end
             end
         end -- End Action List - Defensive

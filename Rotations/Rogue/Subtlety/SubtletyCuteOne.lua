@@ -478,7 +478,8 @@ local function runRotation()
                         if cast.symbolsOfDeath() then return end
                     end
                     -- symbols_of_death,if=(talent.death_from_above.enabled&cooldown.death_from_above.remains<=1&(dot.nightblade.remains>=cooldown.death_from_above.remains+3|target.time_to_die-dot.nightblade.remains<=6)&(time>=3|set_bonus.tier20_4pc|equipped.the_first_of_the_dead))|target.time_to_die-remains<=10
-                    if (talent.deathFromAbove and cd.deathFromAbove.remain() <= 1 and (debuff.nightblade.remain(units.dyn5) >= cd.deathFromAbove.remain() + 3 or ttd(units.dyn5) - debuff.nightblade.remain(units.dyn5) <= 6) 
+                    if (talent.deathFromAbove and cd.deathFromAbove.remain() <= 1 
+                        and (debuff.nightblade.remain(units.dyn5) >= cd.deathFromAbove.remain() + 3 or ttd(units.dyn5) - debuff.nightblade.remain(units.dyn5) <= 6) 
                         and (combatTime >= 3 or t20_4pc or hasEquiped(151818))) or ttd(units.dyn5) <= 10 
                     then
                         if cast.symbolsOfDeath() then return end
@@ -809,7 +810,7 @@ local function runRotation()
                             SHD1 = true
                         end
             -- Shadowstrike
-                    elseif SOD1 and not SHS2 and power > 40 then
+                    elseif SHD1 and not SHS2 and power > 40 then
                         if stealthingAll then
                             if castOpener("shadowstrike","SHS2",6) then return end
                         else
