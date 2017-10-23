@@ -72,9 +72,10 @@ function cCharacter:new(class)
 	self.mode           = {}        -- Toggles
 	self.options 		= {}        -- Contains options
 	self.perk 			= {}		-- Perk Table
-	self.pet 			= "None" 	-- Current Pet
+	self.currentPet 	= "None" 	-- Current Pet
 	self.petId 			= 0 		-- Current Pet Id
-	self.petInfo 		= {} 		-- Pet Information Table
+	self.pet 			= {} 		-- Pet Information Table
+	self.pet.list 		= {}
 	self.potion 		= {}		-- Potion Table
 	self.primaryStat 	= nil       -- Contains the primary Stat: Strength, Agility or Intellect
 	self.profile        = "None"    -- Spec
@@ -159,8 +160,8 @@ function cCharacter:new(class)
 		self.instance 			= select(2,IsInInstance())
 		self.level 				= UnitLevel("player") -- TODO: EVENT - UNIT_LEVEL
 		self.spec 				= select(2, GetSpecializationInfo(GetSpecialization())) or "None"
-		self.pet 				= UnitCreatureFamily("pet") or "None"
-		if self.pet ~= "None" then
+		self.currentPet			= UnitCreatureFamily("pet") or "None"
+		if self.currentPet ~= "None" then
 			self.petId 			= tonumber(UnitGUID("pet"):match("-(%d+)-%x+$"), 10)
 		else
 			self.petId 			= 0

@@ -1137,6 +1137,9 @@ br.idList = {
             glyphs                          = {
 
             },
+            pets                            = {
+                activePet                   = activePet,
+            },
             talents                         = {
                 posthaste                   = 109215,
                 trailblazer                 = 199921,
@@ -1926,7 +1929,7 @@ br.idList = {
             },
         },
     },
-        PRIEST = {
+    PRIEST = {
         -- Discipline
         [256] = {
             abilities                       = {
@@ -2811,6 +2814,7 @@ br.idList = {
             debuffs                         = {
                 agony                       = 980,
                 corruption                  = 146739,
+                haunt                       = 48181,
                 siphonLife                  = 63106,
                 unstableAffliction1         = 233490,
                 unstableAffliction2         = 233496,
@@ -2997,15 +3001,27 @@ br.idList = {
             glyphs                          = {
                 glyphOfTheFelImp            = 219424,
             },
+            pets                            = {
+                darkglare                   = 103673,
+                doomguard                   = 78158,
+                dreadstlaker                = 98035,
+                felguard                    = 17252,
+                felhunter                   = 417,
+                imp                         = 416,
+                infernal                    = 78217,
+                succubus                    = 1863,
+                voidwalker                  = 1860,
+                wildImp                     = 55659,
+            },
             talents                         = {
-                burningRush                     = 111400,
-                darkPact                        = 108416,
-                demonicCircle                   = 48018,
-                demonSkin                       = 219272,
-                grimoireOfService               = 108501,
-                grimoireOfSupremacy             = 152107,
-                mortalCoil                      = 6789,
-                soulHarvest                     = 196098,
+                burningRush                 = 111400,
+                darkPact                    = 108416,
+                demonicCircle               = 48018,
+                demonSkin                   = 219272,
+                grimoireOfService           = 108501,
+                grimoireOfSupremacy         = 152107,
+                mortalCoil                  = 6789,
+                soulHarvest                 = 196098,
             },
         },
     },

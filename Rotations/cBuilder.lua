@@ -299,6 +299,68 @@ function br.loader:new(spec,specName)
         return getEnemies(unit,range,checkInCombat)
     end
 
+    if self.spell.pets ~= nil then
+        if self.pet.active == nil then self.pet.active = {} end
+        self.pet.active.exists = function()
+            return GetObjectExists("pet")
+        end
+
+        self.pet.active.count = function()
+            local count = 0
+            for k,v in pairs(self.pet.list) do
+                local listID = self.pet.list[k].id
+                if GetObjectID("pet") == listID then count = count + 1 end
+            end
+            return count
+        end
+
+        for k,v in pairs(self.spell.pets) do
+            if self.pet[k] == nil then self.pet[k] = {} end
+
+            local pet = self.pet[k]
+            pet.exists = function()
+                return GetObjectExists(v)
+            end
+
+            pet.count = function()
+                local count = 0
+                for l,w in pairs(self.pet.list) do
+                    local listID = self.pet.list[l].id
+                    if v == listID then count = count + 1 end
+                end
+                return count
+            end
+        end
+    end
+
+    -- if self.pet.buff == nil then self.pet.buff = {} end
+    -- self.pet.buff.exists = function(buffID,petID)
+    --     for k, v in pairs(self.pet) do
+    --         local pet = self.pet[k]
+    --         if self.pet[k].id == petID and UnitBuffID(k,buffID) ~= nil then return true end
+    --     end
+    --     return false
+    -- end
+
+    -- self.pet.buff.count = function(buffID,petID)
+    --     local petCount = 0
+    --     for k, v in pairs(self.pet) do
+    --         local pet = self.pet[k]
+    --         if self.pet[k].id == petID and UnitBuffID(k,buffID) ~= nil then petCount = petCount + 1 end
+    --     end
+    --     return petCount
+    -- end
+
+    -- self.pet.buff.missing = function(buffID,petID)
+    --     local petCount = 0
+    --     for k, v in pairs(self.pet) do
+    --         local pet = self.pet[k]
+    --         if self.pet[k].id == petID and UnitBuffID(k,buffID) == nil then petCount = petCount + 1 end
+    --     end
+    --     return petCount
+    -- end
+
+
     -- Cycle through Items List
     for k,v in pairs(self.spell.items) do
         if self.use == nil then self.use = {} end -- Use Item Functions
