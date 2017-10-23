@@ -694,9 +694,9 @@ local function runRotation()
                         if t20_4pc and hasEquiped(137048) then
                             if castOpener("templarsVerdict","TMV5",12) then return end
                         elseif talent.zeal then
-                            if castOpener("zeal","CRS4",11) then return end
+                            if castOpener("zeal","CRS4",12) then return end
                         else
-                            if castOpener("crusaderStrike","CRS4",11) then return end
+                            if castOpener("crusaderStrike","CRS4",12) then return end
                         end
                     elseif (TMV5 or CRS4) and not CRS5 then
         -- End of Opener 2 / Crusader Strike - T20 and Leggo
@@ -712,7 +712,7 @@ local function runRotation()
                             end
                         else
                             Print("13: Crusader Strike *special* (Uncastable)")
-                            CRS1 = true
+                            CRS5 = true
                         end
                     elseif CRS5 and not JUD2 then
         -- Judgment
