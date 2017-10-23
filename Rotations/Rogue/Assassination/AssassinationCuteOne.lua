@@ -226,7 +226,7 @@ local function runRotation()
         enemies.yards30 = br.player.enemies(30) 
  
         if opener == nil then opener = false end
-        if not inCombat and not GetObjectExists("target") and lastSpell ~= spell.vanish then
+        if not inCombat and not GetObjectExists("target") and not cast.last.vanish() and not cast.last.shadowmeld() then
             OPN1 = false
             GAR1 = false
             MUT1 = false
@@ -768,8 +768,8 @@ local function runRotation()
             end
         -- Start Attack
             -- auto_attack
-            if isChecked("Opener") and isBoss("target") and getDistance("target") < 5 and opener == false then
-                if isValidUnit("target") and mode.pickPocket ~= 2 then
+            if isChecked("Opener") and isBoss("target") and opener == false then
+                if isValidUnit("target") and getDistance("target") < 5 and mode.pickPocket ~= 2 then
             -- Begin
                     if not OPN1 then 
                         Print("Starting Opener")
@@ -830,9 +830,9 @@ local function runRotation()
                     elseif MUT2 and (not GAR2 or (not debuff.garrote.exists("target") and cd.garrote.remain() == 0)) and power >= 45 then
                         if castOpener("garrote","GAR2",10) then return end
             -- Envenom
-                    elseif GAR2 and not ENV1 and power >= 35 then
+                    elseif GAR2 and not ENV2 and power >= 35 then
                         if combo > 0 then
-                            if castOpener("envenom","ENV1",11) then return end
+                            if castOpener("envenom","ENV2",11) then return end
                         else
                             Print("11: Envenom (Uncastable)")
                             ENV2 = true
@@ -903,7 +903,7 @@ local function runRotation()
                 else
                     if actionList_StealthBreaker() then return end
                 end
-                if (not stealthing or (GetObjectExists(units.dyn5) and br.player.buff.vanish.exists())) then
+                if (not stealthing or (GetObjectExists(units.dyn5) and br.player.buff.vanish.exists())) and opener == true then
                     if getDistance(units.dyn5) < 5 then
                         StartAttack()
                     end

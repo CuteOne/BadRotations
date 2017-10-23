@@ -874,7 +874,7 @@ local function runRotation()
 					if not OPN1 then 
                         Print("Starting Opener")
                         OPN1 = true
-                    elseif (not RK1 or not debuff.rake.exists("target")) then
+                    elseif OPN1 and (not RK1 or not debuff.rake.exists("target")) then
             -- Rake
                         -- rake,if=!ticking|buff.prowl.up
                         if not debuff.rake.exists() or buff.prowl.exists() then

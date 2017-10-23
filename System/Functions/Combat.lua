@@ -311,7 +311,7 @@ function hasThreat(unit,playerUnit)
 	-- Print(tostring(unit).." | "..tostring(GetUnit(unit)).." | "..tostring(targetUnit).." | "..tostring(targetFriend))
 	if unit == nil or not GetObjectExists(targetUnit) then return false end
 	if targetFriend then
-		if isChecked("Cast Debug") and not GetObjectExists("target") then Print(UnitName(GetUnit(unit)).." is targetting "..UnitName(targetOfTarget)) end
+		if isChecked("Cast Debug") and not GetObjectExists("target") then Print(UnitName(GetUnit(unit)).." is targetting "..UnitName(targetUnit)) end
 		return targetFriend
 	elseif UnitDetailedThreatSituation(playerUnit, unit)~=nil then
 		if select(3,UnitDetailedThreatSituation(playerUnit, unit)) > 0 then
