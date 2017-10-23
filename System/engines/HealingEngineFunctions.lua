@@ -496,7 +496,7 @@ end
 -- <param name="minTargets">Minimum number of units that must be inside the circle</param>
 -- <param name="radius">radius of the circle</param>
 -- <returns>Returns the center {x,y,z} of the circle if at least minTargets are within the circle, otherwise returns nil</returns>
-function getBestGroundCircleLocation(unitTable,minTargets,radius)
+function getBestGroundCircleLocation(unitTable,minTargets,maxHealTargets,radius)
 	if unitTable == nil then print("getBestGround: unitTable is nil") end
 	if minTargets == nil then print("getBestGround: minTargets is nil") end
 	if #unitTable < minTargets then return nil end
@@ -543,6 +543,9 @@ function getBestGroundCircleLocation(unitTable,minTargets,radius)
 
     -- start with a grouping size of #pointsInRange - 1
     local groupSize = #pointsInRange - 1
+    if groupSize > maxHealTargets then
+    	groupSize = maxHealTargets
+    end
     while groupSize >= minTargets do
     	local allCombinations = GetCombinations(pointsInRange,groupSize)
     	for i=1, #allCombinations do

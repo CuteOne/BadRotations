@@ -450,7 +450,7 @@ local function runRotation()
         end
     -- Mass Dispel
         if mode.decurse == 1 and cd.massDispel.remain() == 0 and isChecked("Automatic Mass Dispell") and #decurseCandidates >= getvalue("Automatic Mass Dispel") then
-            local loc = getBestGroundCircleLocation(decurseCandidates,getValue("Automatic Mass Dispel"),15)
+            local loc = getBestGroundCircleLocation(decurseCandidates,getValue("Automatic Mass Dispel"),5,15)
             if loc ~= nil then
                 if castGroundAtLocation(loc, spell.massDispel) then return true end
             end 

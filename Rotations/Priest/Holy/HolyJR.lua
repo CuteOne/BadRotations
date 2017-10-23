@@ -512,7 +512,7 @@ local function runRotation()
         if cd.holyWordSanctify.remain() == 0 and #sanctifyCandidates >= getValue("Holy Word: Sanctify Targets") then
             -- get the best ground location to heal most or all of them
             local sancStartTime = debugprofilestop()
-            local loc = getBestGroundCircleLocation(sanctifyCandidates,getValue("Holy Word: Sanctify Targets"),10)
+            local loc = getBestGroundCircleLocation(sanctifyCandidates,getValue("Holy Word: Sanctify Targets"),6,10)
             if isChecked("Cast Timing Debug") then
                 local elaps = debugprofilestop() - sancStartTime
                 if elaps > 10 then
@@ -568,7 +568,7 @@ local function runRotation()
     -- Circle of Healing
         if talent.circleOfHealing and cd.circleOfHealing.remain() == 0 and #circleOfHealingCandidates >= getValue("Circle of Healing Targets") then
             -- get the best ground location to heal most or all of them
-            local loc = getBestGroundCircleLocation(circleOfHealingCandidates,getValue("Circle of Healing Targets"),30)
+            local loc = getBestGroundCircleLocation(circleOfHealingCandidates,getValue("Circle of Healing Targets"),5,30)
             if loc ~= nil then
                 if castGroundAtLocation(loc, spell.circleOfHealing) then return true end
             end 
@@ -596,7 +596,7 @@ local function runRotation()
         end
     -- Mass Dispel
         if br.player.mode.decurse == 1 and cd.massDispel.remain() == 0 and isChecked("Automatic Mass Dispell") and #decurseCandidates >= getvalue("Automatic Mass Dispel") then
-            local loc = getBestGroundCircleLocation(decurseCandidates,getValue("Automatic Mass Dispel"),15)
+            local loc = getBestGroundCircleLocation(decurseCandidates,getValue("Automatic Mass Dispel"),5,15)
             if loc ~= nil then
                 if castGroundAtLocation(loc, spell.massDispel) then return true end
             end 
