@@ -977,7 +977,7 @@ local function runRotation()
        				end
                 end
 			elseif (UnitExists("target") and not isBoss("target")) or not isChecked("Opener") then
-                Print("Opener set to true - No Boss")
+                --Print("Opener set to true - No Boss")
 				opener = true
 			end
         end -- End Action List - Opener
