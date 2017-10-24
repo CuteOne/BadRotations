@@ -380,9 +380,6 @@ local function runRotation()
 
         -- ChatOverlay("5yrds: "..tostring(units.dyn5).." | 40yrds: "..tostring(units.dyn40))
         -- ChatOverlay(round2(getDistance("target","player","dist"),2)..", "..round2(getDistance("target","player","dist2"),2)..", "..round2(getDistance("target","player","dist3"),2)..", "..round2(getDistance("target","player","dist4"),2)..", "..round2(getDistance("target"),2))
-        -- ChatOverlay("Opener: "..tostring(opener)..", Exists: "..tostring(UnitExists("target"))..", Boss: "..tostring(isBoss("target")).." Checked: "..tostring(isChecked("Opener")))
-        ChatOverlay("Boss: "..tostring(isBoss("target")))
-
 --------------------
 --- Action Lists ---
 --------------------
@@ -977,7 +974,6 @@ local function runRotation()
        				end
                 end
 			elseif (UnitExists("target") and not isBoss("target")) or not isChecked("Opener") then
-                --Print("Opener set to true - No Boss")
 				opener = true
 			end
         end -- End Action List - Opener
