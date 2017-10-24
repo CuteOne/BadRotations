@@ -300,7 +300,7 @@ function getCastersAround(radius)
 	end
 end
 -- function that return frange from thisCaster to thatCaster using their stored positions
-function getDistance(thatCaster,thisCaster)
+function getDistanceInt(thatCaster,thisCaster)
 	local thatCaster,thisCaster = thatCaster,thisCaster
 	if GetObjectExists(thatCaster.unit) and GetUnitIsVisible(thatCaster.unit) == true
 		and GetObjectExists(thisCaster.unit) and GetUnitIsVisible(thisCaster.unit) == true then

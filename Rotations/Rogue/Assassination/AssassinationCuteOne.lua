@@ -797,8 +797,8 @@ local function runRotation()
                         end
             -- Finish
                     elseif ENV2 then
-                        opener = true;
                         Print("Opener Complete")
+                        opener = true;
                         return
                     end
                 end
@@ -835,7 +835,7 @@ local function runRotation()
                 end
         -- Stealth
                 -- stealth
-                if isChecked("Stealth") and not stealth and not inCombat and (not IsResting() or isDummy("target")) then
+                if isChecked("Stealth") and not stealth and (not IsResting() or isDummy("target")) then
                     if getOptionValue("Stealth") == 1 then
                         if cast.stealth() then return end
                     end 
@@ -850,7 +850,7 @@ local function runRotation()
                 end
         -- Marked For Death
                 -- marked_for_death,if=raid_event.adds.in>40
-                if isValidUnit("target") then
+                if isValidUnit("target") and mode.pickPocket ~= 2 then
                     if cast.markedForDeath() then return end
                 end
             end

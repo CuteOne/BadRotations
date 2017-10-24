@@ -380,6 +380,8 @@ local function runRotation()
 
         -- ChatOverlay("5yrds: "..tostring(units.dyn5).." | 40yrds: "..tostring(units.dyn40))
         -- ChatOverlay(round2(getDistance("target","player","dist"),2)..", "..round2(getDistance("target","player","dist2"),2)..", "..round2(getDistance("target","player","dist3"),2)..", "..round2(getDistance("target","player","dist4"),2)..", "..round2(getDistance("target"),2))
+        -- ChatOverlay("Opener: "..tostring(opener)..", Exists: "..tostring(UnitExists("target"))..", Boss: "..tostring(isBoss("target")).." Checked: "..tostring(isChecked("Opener")))
+        ChatOverlay("Boss: "..tostring(isBoss("target")))
 
 --------------------
 --- Action Lists ---
@@ -895,7 +897,7 @@ local function runRotation()
                     elseif MF1 and not SR1 then
        		-- Savage Roar
                         -- savage_roar,if=!buff.savage_roar.up
-                        if talent.savageRoar and buff.savageRoar.refresh() then
+                        if talent.savageRoar and buff.savageRoar.refresh() and combo > 0 then
        					    if castOpener("savageRoar","SR1",3) then return end
                         else
                             Print("3: Savage Roar (Uncastable)")
@@ -969,12 +971,13 @@ local function runRotation()
                             if castOpener("shred","SHR1",shredCount) then shredCount = shredCount + 1 return end
                         end
                     elseif SHR1 and (RIP1 and (not buff.savageRoar.exists() or combo == 5)) then
-       					opener = true;
-						Print("Opener Complete")
+                        Print("Opener Complete")
+       					opener = true
        					return
        				end
                 end
 			elseif (UnitExists("target") and not isBoss("target")) or not isChecked("Opener") then
+                Print("Opener set to true - No Boss")
 				opener = true
 			end
         end -- End Action List - Opener

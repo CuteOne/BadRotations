@@ -289,29 +289,22 @@ function isInstanceBoss(unit)
 end
 -- isBoss()
 function isBoss(unit)
-	if unit==nil then unit="target" end
-	if GetUnitExists(unit) then
-		local npcID = string.match(UnitGUID(unit),"-(%d+)-%x+$")
-		-- local bossCheck = LibStub("LibBossIDs-1.0").BossIDs[tonumber(npcID)] or false
-		-- local bossCheck = br.player.BossIDs[tonumber(npcID)] or false
-		local bossCheck = isInstanceBoss(unit)
-		if ((UnitClassification(unit) == "rare" and UnitHealthMax(unit)>(4*UnitHealthMax("player")))
-			or UnitClassification(unit) == "rareelite"
-			or UnitClassification(unit) == "worldboss"
-			or (UnitClassification(unit) == "elite" and UnitHealthMax(unit)>(4*UnitHealthMax("player")) and select(2,IsInInstance())~="raid")--UnitLevel(unit) >= UnitLevel("player")+3)
-			or UnitLevel(unit) < 0)
-				and not UnitIsTrivial(unit)
-				and select(2,IsInInstance())~="party"
+	if unit == nil then unit = "target" end
+	if GetObjectExists(unit) then
+		-- local npcID = string.match(UnitGUID(unit),"-(%d+)-%x+$")
+		if isInstanceBoss(unit) or isDummy(unit) 
+			or (((UnitClassification(unit) == "rare" and UnitHealthMax(unit) > (4 * UnitHealthMax("player")))
+				or UnitClassification(unit) == "rareelite"
+				or UnitClassification(unit) == "worldboss"
+				or (UnitClassification(unit) == "elite" and UnitHealthMax(unit) > (4 * UnitHealthMax("player")) and select(2,IsInInstance()) ~= "raid")--UnitLevel(unit) >= UnitLevel("player")+3)
+				or UnitLevel(unit) < 0)
+					and not UnitIsTrivial(unit)
+					and select(2,IsInInstance()) ~= "party")
 		then
 			return true
-		elseif bossCheck or isDummy(unit) then
-			return true
-		else
-			return false
 		end
-	else
-		return false
 	end
+	return false
 end
 function isCritter(Unit) -- From LibBabble
 	if Unit == nil then Unit = "target" end
@@ -332,7 +325,7 @@ function isDummy(Unit)
 	if Unit == nil then
 		Unit = "target"
 	end
-	if GetObjectExists(Unit) and UnitGUID(Unit) then
+	if GetObjectExists(Unit) and UnitGUID(Unit) ~= nil then
 		local dummies = {
 		-- Misc/Unknown
 			[79987]  = "Training Dummy", 	          -- Location Unknown
@@ -448,6 +441,7 @@ function isDummy(Unit)
 			return true
 		end
 	end
+	return false
 end
 -- if isEnnemy([Unit])
 function isEnnemy(Unit)

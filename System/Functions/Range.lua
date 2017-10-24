@@ -1,23 +1,23 @@
 function getDistance(Unit1,Unit2,option)
-    local currentDist = 100
+    currentDist = 100
     -- If Unit2 is nil we compare player to Unit1
     if Unit2 == nil then
         Unit2 = Unit1
         Unit1 = "player"
     end
-    -- Modifier for Balance Affinity range change (Druid - Not Balance)
-    if rangeMod == nil then rangeMod = 0 end
-    if br.player ~= nil then
-        if br.player.talent.balanceAffinity ~= nil then
-            if br.player.talent.balanceAffinity and option ~= "noMod" then
-                rangeMod = 5
-            end
-        end
-    end
     -- Check if objects exists and are visible
     if GetObjectExists(Unit1) and GetUnitIsVisible(Unit1) == true 
         and GetObjectExists(Unit2) and GetUnitIsVisible(Unit2) == true 
     then
+        -- Modifier for Balance Affinity range change (Druid - Not Balance)
+        if rangeMod == nil then rangeMod = 0 end
+        if br.player ~= nil then
+            if br.player.talent.balanceAffinity ~= nil then
+                if br.player.talent.balanceAffinity and option ~= "noMod" then
+                    rangeMod = 5
+                end
+            end
+        end
     -- Get the distance
         local X1,Y1,Z1 = GetObjectPosition(Unit1)
         local X2,Y2,Z2 = GetObjectPosition(Unit2)
@@ -55,13 +55,12 @@ function getDistance(Unit1,Unit2,option)
         else
             currentDist = 0
         end
-    end
     -- Modifier for Mastery: Sniper Training (Hunter - Marksmanship)
-    if currentDist < 100 and isKnown(193468) and option ~= "noMod" then
-        return currentDist - (currentDist * 0.12)
-    else
-        return currentDist
+        if currentDist < 100 and isKnown(193468) and option ~= "noMod" then
+            currentDist = currentDist - (currentDist * 0.12)
+        end
     end
+    return currentDist
 end
 function isInRange(spellID,unit)
 	return LibStub("SpellRange-1.0").IsSpellInRange(spellID,unit)

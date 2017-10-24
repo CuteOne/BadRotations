@@ -166,7 +166,7 @@ end
 --- ROTATION ---
 ----------------
 local function runRotation()
-    if br.timer:useTimer("debugSubtlety", math.random(0.10,0.2)) then
+    -- if br.timer:useTimer("debugSubtlety", math.random(0.10,0.2)) then
         --Print("Running: "..rotationName)
 
 ---------------
@@ -242,9 +242,8 @@ local function runRotation()
         enemies.yards30 = br.player.enemies(30)
 
         -- Opener Variables
-        if opener == nil then opener = false end
+        -- if opener == nil then opener = false end
         if not inCombat and not GetObjectExists("target") then
-            shredCount = 10
             OPN1 = false
             SHB1 = false
             SHS1 = false
@@ -640,7 +639,7 @@ local function runRotation()
             -- Print("Stealth")
         -- Shadowstrike
             -- shadowstrike,if=buff.stealth.up
-            if buff.stealth.exists() and getDistance(units.dyn5) <= getOptionValue ("SS Range") then
+            if buff.stealth.exists() and getDistance(units.dyn5) <= getOptionValue("SS Range") then
                 if cast.shadowstrike() then return end
             end
         -- Finisher
@@ -663,7 +662,7 @@ local function runRotation()
             end
         -- Shadowstrike
             -- shadowstrike
-            if getDistance(units.dyn5) <= getOptionValue ("SS Range") then
+            if getDistance(units.dyn5) <= getOptionValue("SS Range") then
                  if cast.shadowstrike() then return end
             end
         end
@@ -704,88 +703,36 @@ local function runRotation()
                 if actionList_StealthCooldowns() then return end
             end
         end
-    -- Action List - PreCombat
-        local function actionList_PreCombat()
-            -- Print("PreCombat")
-        -- Stealth
-            -- stealth
-            if isChecked("Stealth") and (not IsResting() or isDummy("target")) and not inCombat and not stealth then
-                if getOptionValue("Stealth") == 1 then
-                    if cast.stealth() then return end
-                end
-                if getOptionValue("Stealth") == 2 then
-                    for i = 1, #enemies.yards20 do
-                        local thisUnit = enemies.yards20[i]
-                        if UnitIsEnemy(thisUnit,"player") or isDummy("target") then
-                            if cast.stealth() then return end
-                        end
-                    end
-                end
-            end
-            if isValidUnit("target") and mode.pickPocket ~= 2 and (not isChecked("Opener") or not isBoss("target") or opener == true) then
-        -- Potion
-                -- potion
-                if stealth then
-                    if useCDs() and isChecked("Potion") and inRaid then
-                        if canUse(127844) then
-                            useItem(127844)
-                        elseif canUse(142117) then
-                            useItem(142117)
-                        end
-                    end
-                end 
-        -- Marked For Death
-                -- marked_for_death,if=raid_event.adds.in>40
-                if isChecked("Marked For Death - Precombat") and not inCombat then
-                    if cast.markedForDeath("target") then return end
-                end
-        -- Symbols of Death
-                -- symbols_of_death
-                if isChecked("Symbols of Death - Precombat") and not inCombat then
-                    if cast.symbolsOfDeath("player") then return end
-                end
-        -- Shadowstep
-                if isChecked("Shadowstep") and (not stealthingAll or power < 40 or getDistance("target") > getOptionValue ("SS Range")) and not inCombat and getDistance("target") >= 8 then
-                    if cast.shadowstep("target") then return end
-                end
-        -- Shadowstrike
-                if (not isChecked("Shadowstep") or stealthingAll) and getDistance("target") <= getOptionValue ("SS Range") and not inCombat then
-                    if cast.shadowstrike("target") then return end
-                end
-        -- Start Attack
-                if getDistance("target") < 5 and not stealthingAll then
-                    StartAttack()
-                end
-            end
-        end -- End Action List - PreCombat
     -- Action List - Opener
         local function actionList_Opener()
+        -- Shadowstep
+            if isChecked("Shadowstep") and (not stealthingAll or power < 40 or getDistance("target") > getOptionValue("SS Range")) 
+                and isValidUnit("target") and getDistance("target") > 8 and getDistance("target") < 25 
+            then
+                if cast.shadowstep("target") then return end
+            end
             if isChecked("Opener") and isBoss("target") and opener == false then
-            -- Shadowstep
-                if isChecked("Shadowstep") and (not stealthingAll or power < 40 or getDistance("target") > getOptionValue ("SS Range")) and not inCombat and getDistance("target") >= 8 then
-                    if cast.shadowstep("target") then return end
-                end
-                if isValidUnit("target") and mode.pickPocket ~= 2 and getDistance("target") <= getOptionValue ("SS Range") then
-            -- Begin
+                if isValidUnit("target") and mode.pickPocket ~= 2 and getDistance("target") < 5 then --= getOptionValue("SS Range") then
+        -- Begin
                     if not OPN1 then 
-                        Print("Starting Opener")
+                        Print("Starting Opener");
                         OPN1 = true
-            -- Shadow Blades
+        -- Shadow Blades
                     elseif OPN1 and not SHB1 then
                         if isChecked("Shadow Blades") then
                             if castOpener("shadowBlades","SHB1",1) then return end
                         else
-                            Print("1: Shadow Blades (Uncastable)")
+                            Print("1: Shadow Blades (Uncastable)");
                             SHB1 = true
                         end
-            -- Shadowstrike
+        -- Shadowstrike
                     elseif SHB1 and (not SHS1 or (not NHB1 and combo == 0)) and power > 40 then
                         if stealthingAll then
                             if castOpener("shadowstrike","SHS1",2) then return end
                         else
                             if castOpener("backstab","SHS1",2) then return end
                         end
-            -- Nightblade
+        -- Nightblade
                     elseif SHS1 and not NHB1 and power > 25 then
                         if combo > 0 then
                             if castOpener("nightblade","NHB1",3) then return end
@@ -793,7 +740,7 @@ local function runRotation()
                             Print("3: Nightblade (Uncastable)")
                             NHB1 = true
                         end
-            -- Symbols of Death
+        -- Symbols of Death
                     elseif NHB1 and not SOD1 then
                         if isChecked("Symbols of Death") then
                             if castOpener("symbolsOfDeath","SOD1",4) then return end
@@ -801,97 +748,97 @@ local function runRotation()
                             Print("4: Symbols of Death (Uncastable)")
                             SOD1 = true
                         end 
-            -- Shadow Dance
+        -- Shadow Dance
                     elseif SOD1 and not SHD1 then
-                        if isChecked("Shadow Dance") and canCast() and charges.shadowDance.exists() and not cast.last.shadowDance() then
+                        if isChecked("Shadow Dance") and not buff.shadowDance.exists() and charges.shadowDance.exists() and not cast.last.shadowDance() then
                             if castOpener("shadowDance","SHD1",5) then ShDCdTime = GetTime(); return end
                         else
                             Print("5: Shadow Dance (Uncastable)")
                             SHD1 = true
                         end
-            -- Shadowstrike
+        -- Shadowstrike
                     elseif SHD1 and not SHS2 and power > 40 then
                         if stealthingAll then
                             if castOpener("shadowstrike","SHS2",6) then return end
                         else
                             if castOpener("backstab","SHS2",6) then return end
                         end
-            -- Shadowstrike
+        -- Shadowstrike
                     elseif SHS2 and (not SHS3 or (not EVI1 and combo == 0)) and power > 40 then
                         if stealthingAll then
                             if castOpener("shadowstrike","SHS3",7) then return end
                         else
                             if castOpener("backstab","SHS3",7) then return end
                         end
-            -- Evicerate
+        -- Evicerate
                     elseif SHS3 and not EVI1 and power > 35 then
                         if combo > 0 then
                             if castOpener("eviscerate","EVI1",8) then return end
                         else
-                            Print("8: Evicerate (Uncastable)")
+                            Print("8: Evicerate (Uncastable)");
                             EVI1 = true
                         end
-            -- Shadowstrike
+        -- Shadowstrike
                     elseif EVI1 and not SHS4 and power > 40 then
                         if stealthingAll then
                             if castOpener("shadowstrike","SHS4",9) then return end
                         else
                             if castOpener("backstab","SHS4",9) then return end
                         end
-            -- Vanish
+        -- Vanish
                     elseif SHS4 and not VAN1 then
                         if isChecked("Vanish") and not solo and canCast() then
                             if castOpener("vanish","VAN1",10) then vanishTime = GetTime(); return end
                         else
-                            Print("10: Vanish (Uncastable)")
+                            Print("10: Vanish (Uncastable)");
                             VAN1 = true
                         end
-            -- Shadowstrike
+        -- Shadowstrike
                     elseif VAN1 and (not SHS5 or (not DFA1 and combo == 0)) and power > 40 then
                         if stealthingAll then
                             if castOpener("shadowstrike","SHS5",11) then return end
                         else
                             if castOpener("backstab","SHS5",11) then return end
                         end
-            -- Death From Above
+        -- Death From Above
                     elseif SHS5 and not DFA1 and power > 25 then
                         if isChecked("Death From Above") and combo > 0 then
                             if castOpener("deathFromAbove","DFA1",12) then return end
                         else
-                            Print("12: Death From Above (Uncastable)")
+                            Print("12: Death From Above (Uncastable)");
                             DFA1 = true
                         end
-            -- Shadow Dance
+        -- Shadow Dance
                     elseif DFA1 and not SHD2 then
-                        if isChecked("Shadow Dance") and canCast() and charges.shadowDance.exists() and not cast.last.shadowDance() then
-                            if castOpener("shadowDance","SHD1",13) then ShDCdTime = GetTime(); return end
+                        if isChecked("Shadow Dance") and not buff.shadowDance.exists() and charges.shadowDance.exists() and not cast.last.shadowDance() then
+                            if castOpener("shadowDance","SHD2",13) then ShDCdTime = GetTime(); return end
                         else
-                            Print("13: Shadow Dance (Uncastable)")
+                            Print("13: Shadow Dance (Uncastable)");
                             SHD2 = true
                         end
-            -- Shadowstrike
+        -- Shadowstrike
                     elseif SHD2 and not SHS6 and power > 40 then
                         if stealthingAll then
                             if castOpener("shadowstrike","SHS6",14) then return end
                         else
                             if castOpener("backstab","SHS6",14) then return end
                         end
-            -- Shadowstrike
+        -- Shadowstrike
                     elseif SHS6 and (not SHS7 or (not EVI2 and combo == 0)) and power > 40 then
                         if stealthingAll then
                             if castOpener("shadowstrike","SHS7",15) then return end
                         else
                             if castOpener("backstab","SHS7",15) then return end
                         end
-            -- Evicerate
+        -- Evicerate
                     elseif SHS7 and not EVI2 and power > 35 then
                         if combo > 0 then
                             if castOpener("eviscerate","EVI2",16) then return end
                         else
-                            Print("16: Evicerate (Uncastable)")
-                            EVI1 = true
+                            Print("16: Evicerate (Uncastable)");
+                            EVI2 = true
                         end
-            -- Finish
+        -- Finish
                     elseif EVI2 then
                         opener = true;
                         Print("Opener Complete")
@@ -902,6 +849,63 @@ local function runRotation()
                 opener = true
             end
         end -- End Action List - Opener
+    -- Action List - PreCombat
+        local function actionList_PreCombat()
+            if not inCombat and not (IsFlying() or IsMounted()) then
+        -- Stealth
+                -- stealth
+                if isChecked("Stealth") and (not IsResting() or isDummy("target")) and not stealth then
+                    if getOptionValue("Stealth") == 1 then
+                        if cast.stealth() then return end
+                    end
+                    if getOptionValue("Stealth") == 3 then
+                        for i = 1, #enemies.yards20 do
+                            local thisUnit = enemies.yards20[i]
+                            if UnitIsEnemy(thisUnit,"player") or isDummy("target") then
+                                if cast.stealth() then return end
+                            end
+                        end
+                    end
+                end
+                if isValidUnit("target") and mode.pickPocket ~= 2 and opener == true then
+        -- Potion
+                    -- potion
+                    if stealth then
+                        if useCDs() and isChecked("Potion") and inRaid then
+                            if canUse(127844) then
+                                useItem(127844)
+                            elseif canUse(142117) then
+                                useItem(142117)
+                            end
+                        end
+                    end 
+        -- Marked For Death
+                    -- marked_for_death,if=raid_event.adds.in>40
+                    if isChecked("Marked For Death - Precombat") and not inCombat then
+                        if cast.markedForDeath("target") then return end
+                    end
+        -- Symbols of Death
+                    -- symbols_of_death
+                    if isChecked("Symbols of Death - Precombat") and not inCombat then
+                        if cast.symbolsOfDeath("player") then return end
+                    end
+        -- Shadowstep
+                    if isChecked("Shadowstep") and (not stealthingAll or power < 40 or getDistance("target") > getOptionValue("SS Range")) and not inCombat and getDistance("target") >= 8 then
+                        if cast.shadowstep("target") then return end
+                    end
+        -- Shadowstrike
+                    if (not isChecked("Shadowstep") or stealthingAll) and getDistance("target") <= getOptionValue("SS Range") and not inCombat then
+                        if cast.shadowstrike("target") then return end
+                    end
+        -- Start Attack
+                    if getDistance("target") < 5 and not stealthingAll then
+                        StartAttack()
+                    end
+                end
+            end
+        -- Opener
+            if actionList_Opener() then return end
+        end -- End Action List - PreCombat
 ---------------------
 --- Begin Profile ---
 ---------------------
@@ -923,10 +927,6 @@ local function runRotation()
 --- Out of Combat Rotation ---
 ------------------------------
             if actionList_PreCombat() then return end
-----------------------------
---- Out of Combat Opener ---
-----------------------------
-            if actionList_Opener() then return end
 --------------------------
 --- In Combat Rotation ---
 --------------------------
@@ -999,7 +999,7 @@ local function runRotation()
                 end
             end -- End In Combat
         end -- End Profile
-    end -- Timer
+    -- end -- Timer
 end -- runRotation
 local id = 261
 if br.rotations[id] == nil then br.rotations[id] = {} end
