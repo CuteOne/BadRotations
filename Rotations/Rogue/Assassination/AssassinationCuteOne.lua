@@ -694,54 +694,6 @@ local function runRotation()
                 end
             end
         end -- End Action List - Generators 
-    -- Action List - PreCombat
-        local function actionList_PreCombat()
-            rotationDebug = "Pre-Combat"
-            if not inCombat and not (IsFlying() or IsMounted()) then
-        -- Apply Poison
-                -- apply_poison
-                if isChecked("Lethal Poison") then
-                    if br.timer:useTimer("Lethal Poison", 3.5) then
-                        if getOptionValue("Lethal Poison") == 1 and not buff.deadlyPoison.exists() then
-                            if cast.deadlyPoison("player") then return end
-                        end
-                        if getOptionValue("Lethal Poison") == 2 and not buff.woundPoison.exists() then
-                            if cast.woundPoison("player") then return end
-                        end
-                    end
-                end
-                if isChecked("Non-Lethal Poison") then
-                    if br.timer:useTimer("Non-Lethal Poison", 3.5) then
-                        if (getOptionValue("Non-Lethal Poison") == 1 or not talent.leechingPoison) and not buff.cripplingPoison.exists() then
-                            if cast.cripplingPoison() then return end
-                        end
-                        if getOptionValue("Non-Lethal Poison") == 2 and not buff.leechingPoison.exists() then
-                            if cast.leechingPoison() then return end
-                        end
-                    end
-                end
-        -- Stealth
-                -- stealth
-                if isChecked("Stealth") and not stealth and not inCombat and (not IsResting() or isDummy("target")) then
-                    if getOptionValue("Stealth") == 1 then
-                        if cast.stealth() then return end
-                    end 
-                    if #enemies.yards20 > 0 and getOptionValue("Stealth") == 3 then
-                        for i = 1, #enemies.yards20 do
-                            local thisUnit = enemies.yards20[i]
-                            if UnitIsEnemy(thisUnit,"player") or isDummy("target") then
-                                if cast.stealth("player") then return end
-                            end
-                        end
-                    end
-                end
-        -- Marked For Death
-                -- marked_for_death,if=raid_event.adds.in>40
-                if isValidUnit("target") then
-                    if cast.markedForDeath() then return end
-                end
-            end
-        end -- End Action List - PreCombat
     -- Action List - Stealth Breaker
         local function actionList_StealthBreaker()
             if stealthing and isValidUnit("target") and (not isBoss("target") or not isChecked("Opener")) then
@@ -850,10 +802,61 @@ local function runRotation()
                         return
                     end
                 end
-            else
+            elseif (UnitExists("target") and not isBoss("target")) or not isChecked("Opener") then
+                opener = true
                 if actionList_StealthBreaker() then return end
             end
         end -- End Action List - Opener
+    -- Action List - PreCombat
+        local function actionList_PreCombat()
+            rotationDebug = "Pre-Combat"
+            if not inCombat and not (IsFlying() or IsMounted()) then
+        -- Apply Poison
+                -- apply_poison
+                if isChecked("Lethal Poison") then
+                    if br.timer:useTimer("Lethal Poison", 3.5) then
+                        if getOptionValue("Lethal Poison") == 1 and not buff.deadlyPoison.exists() then
+                            if cast.deadlyPoison("player") then return end
+                        end
+                        if getOptionValue("Lethal Poison") == 2 and not buff.woundPoison.exists() then
+                            if cast.woundPoison("player") then return end
+                        end
+                    end
+                end
+                if isChecked("Non-Lethal Poison") then
+                    if br.timer:useTimer("Non-Lethal Poison", 3.5) then
+                        if (getOptionValue("Non-Lethal Poison") == 1 or not talent.leechingPoison) and not buff.cripplingPoison.exists() then
+                            if cast.cripplingPoison() then return end
+                        end
+                        if getOptionValue("Non-Lethal Poison") == 2 and not buff.leechingPoison.exists() then
+                            if cast.leechingPoison() then return end
+                        end
+                    end
+                end
+        -- Stealth
+                -- stealth
+                if isChecked("Stealth") and not stealth and not inCombat and (not IsResting() or isDummy("target")) then
+                    if getOptionValue("Stealth") == 1 then
+                        if cast.stealth() then return end
+                    end 
+                    if #enemies.yards20 > 0 and getOptionValue("Stealth") == 3 then
+                        for i = 1, #enemies.yards20 do
+                            local thisUnit = enemies.yards20[i]
+                            if UnitIsEnemy(thisUnit,"player") or isDummy("target") then
+                                if cast.stealth("player") then return end
+                            end
+                        end
+                    end
+                end
+        -- Marked For Death
+                -- marked_for_death,if=raid_event.adds.in>40
+                if isValidUnit("target") then
+                    if cast.markedForDeath() then return end
+                end
+            end
+        -- Opener
+            if actionList_Opener() then return end
+        end -- End Action List - PreCombat
 ---------------------
 --- Begin Profile ---
 ---------------------
@@ -880,11 +883,6 @@ local function runRotation()
 --- Out of Combat Rotation ---
 ------------------------------
             if actionList_PreCombat() then return end
-            if opener == false then
-                if actionList_Opener() then return end
-            else
-                if actionList_StealthBreaker() then return end
-            end
 --------------------------
 --- In Combat Rotation ---
 --------------------------
@@ -903,11 +901,6 @@ local function runRotation()
         -- Shadowstep
                 if isChecked("Shadowstep") and getDistance("target") > 8 and getDistance("target") < 25 then
                     if cast.shadowstep("target") then return end
-                end
-                if opener == false then
-                    if actionList_Opener() then return end
-                else
-                    if actionList_StealthBreaker() then return end
                 end
                 if (not stealthing or (GetObjectExists(units.dyn5) and br.player.buff.vanish.exists())) and opener == true then
                     if getDistance(units.dyn5) < 5 then
