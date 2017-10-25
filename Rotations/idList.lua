@@ -2105,6 +2105,7 @@ br.idList = {
             artifacts                       = {
                 lashOfInsanity              = 238137,
                 massHysteria                = 194378,
+		sphereOfInsanity            = 194179,
                 toThePain                   = 193644,
                 touchOfDarkness             = 194007,
                 unleashTheShadows           = 194093,
