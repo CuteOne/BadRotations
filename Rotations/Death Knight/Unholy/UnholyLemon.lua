@@ -434,7 +434,7 @@ local function runRotation()
         if cd.chainsOfIce.remain() == 0 then
             for i = 1, #enemies.yards30 do
                 local thisUnit = enemies.yards30[i]     
-                if buff.unholyStrength.exists() and buff.coldHeart.stack(thisUnit) > 19 then
+                if buff.unholyStrength.exists() and buff.coldHeart.stack() > 19 then
                     if cast.chainsOfIce(thisUnit) then return true end
                 end
             end
