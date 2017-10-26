@@ -93,6 +93,8 @@ local function createOptions()
         br.ui:createSpinnerWithout(section, colorGold.."Starfall targets",                 3,    1,      100,  1,  colorWhite.."Minimum starfall targets")
         -- Minimium Starfall Targets
         br.ui:createSpinnerWithout(section, colorGold.."Minimum HP to dot",                1,  0.001,  1000000,  1,  colorWhite.."Minimum HP to dot in millions")
+        -- Minimium Starfall Targets
+        br.ui:createSpinnerWithout(section, colorGold.."Starsurge Min Astral Power",      40,    5,      100,  5,  colorWhite.."Minimum Astral Power to use Starsurge")
         br.ui:checkSectionState(section)
         -------------------------
         --- Cooldowns OPTIONS ---
@@ -519,7 +521,7 @@ local function runRotation()
             if (not talent.incarnationChoseOfElune and cd.celestialAlignment.remain() > 0 or talent.incarnationChoseOfElune and cd.incarnationChoseOfElune.remain() > 0) or not isBoss("target") then
                 if (mode.rotation == 1 or mode.rotation == 3) and not isChecked("Memekin Rotation") then
                     ----EXTRA:starsurge
-                    if astralPower >= 40 and #enemies.activeYards40 < starfallTargetsMin then
+                    if astralPower >= getValue("Starsurge Min Astral Power") and #enemies.activeYards40 < starfallTargetsMin then
                         if cast.starsurge() then return true end
                     end
                 end
