@@ -366,7 +366,7 @@ local function runRotation()
     local function actionList_Emergency()
     -- Velens on cooldown
         if hasEquiped(144258) then
-            if isChecked("Velens on Cooldown") then
+            if isChecked("Velens on Cooldown") and useCDs() then
                 if GetItemCooldown(144258)==0 then
                     useItem(144258)
                 end
