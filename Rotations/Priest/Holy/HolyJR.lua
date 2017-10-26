@@ -83,6 +83,7 @@ local function createOptions()
         -- Velen's Future Sight
             if hasEquiped(144258) then
                 br.ui:createCheckbox(section, "Velens Future Sight")
+                br.ui:createCheckbox(section, "Velens On Cooldown", "Cast Velens every time it is available")
             end
         -- Racials
             -- Blood Elf 
@@ -363,6 +364,14 @@ local function runRotation()
 --- Action List Emergencies and Cooldowns ************************************************************************************
 ---***************************************************************************************************************************
     local function actionList_Emergency()
+    -- Velens on cooldown
+        if hasEquiped(144258) then
+            if isChecked("Velens on Cooldown") then
+                if GetItemCooldown(144258)==0 then
+                    useItem(144258)
+                end
+            end
+        end
     -- The Deceiver's Grand Design
         if isChecked("The Deceivers Grand Design") and hasEquiped(147007) and canUse(147007) then
             local localizedName = select(1,GetItemInfo(147007))
