@@ -82,7 +82,7 @@ local function createOptions()
             end
         -- Velen's Future Sight
             if hasEquiped(144258) then
-                br.ui:createCheckbox(section, "Velens Future Sight")
+                br.ui:createCheckbox(section, "Velens Future Sight", "Will use Velens when several friendly units are hurt, in conjuction with HW:Sanctify")
                 br.ui:createCheckbox(section, "Velens On Cooldown", "Cast Velens every time it is available")
             end
         -- Racials
