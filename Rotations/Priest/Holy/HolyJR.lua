@@ -479,7 +479,7 @@ local function runRotation()
             end
         end
     -- Flash Heal (with Surge of Light proc)
-        if talent.surgeOfLight and not moving and buff.surgeOfLight.exists() then
+        if talent.surgeOfLight and buff.surgeOfLight.exists() then
             for i=1, #tanks do
                 thisTank = tanks[i]
                 if thisTank.hp <= getValue("Flash Heal") then
