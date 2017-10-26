@@ -132,6 +132,7 @@ local function createOptions()
             br.ui:createSpinner(section, "Healing Rain",  80,  0,  100,  5,  "Health Percent to Cast At") 
             br.ui:createSpinnerWithout(section, "Healing Rain Targets",  2,  0,  40,  1,  "Minimum Healing Rain Targets")
             br.ui:createDropdown(section,"Healing Rain Key", br.dropOptions.Toggle, 6, colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.." Healing Rain manual usage.")
+            br.ui:createCheckbox(section,"Healing Rain on Melee", "Cast on Melee only")
             br.ui:createCheckbox(section,"Healing Rain on CD")
         -- Spirit Link Totem
             br.ui:createSpinner(section, "Spirit Link Totem",  50,  0,  100,  5,  "Health Percent to Cast At") 
@@ -225,6 +226,7 @@ local function runRotation()
         local racial                                        = br.player.getRacial()
         local spell                                         = br.player.spell
         local talent                                        = br.player.talent
+        local tanks                                         = getTanksTable()
         local wolf                                          = br.player.buff.ghostWolf.exists()
         local ttd                                           = getTTD
         local ttm                                           = br.player.power.mana.ttm()
@@ -465,7 +467,36 @@ local function runRotation()
                     if CastSpellByName(GetSpellInfo(spell.healingRain),"cursor") then return end 
                 end
                 if isChecked("Healing Rain") and not buff.healingRain.exists() then
-                    if castWiseAoEHeal(br.friend,spell.healingRain,12,getValue("Healing Rain"),getValue("Healing Rain Targets"),6,false,true) then return end
+                    -- get melee players
+                    for i=1, #tanks do
+                        -- get the tank's target
+                        local tankTarget = UnitTarget(tanks[i].unit)
+                        if tankTarget ~= nil then
+                            -- get players in melee range of tank's target
+                            local meleeFriends = getAllies(tankTarget,5)
+                            -- get the best ground circle to encompass the most of them
+                            local loc = nil
+                            if isChecked("Healing Rain on CD") and #meleeFriends >= getvalue("Healing Rain Targets") then
+                                loc = getBestGroundCircleLocation(meleeFriends,getValue("Healing Rain Targets"),6,10)
+                            else
+                                local meleeHurt = {}
+                                for j=1, #meleeFriends do
+                                    if meleeFriends[i].hp < getValue("Healing Rain") then
+                                        tinsert(meleeHurt,meleeFriends[i])
+                                    end
+                                end
+                                if #meleeHurt >= getvalue("Healing Rain Targets") then
+                                    loc = getBestGroundCircleLocation(meleeHurt,getValue("Healing Rain Targets"),6,10)
+                                end
+                            end
+                            if loc ~= nil then
+                                if castGroundAtLocation(loc, spell.healingRain) then return true end
+                            end
+                        end
+                    end
+                    --if castWiseAoEHeal(br.friend,spell.healingRain,12,100,3,6,false,true) then return end
+                    --castGroundAtBestLocation(spellID, radius, minUnits, maxRange, minRange, spellType)
+                    --if castGroundAtBestLocation(spell.healingRain,10,getValue("Healing Rain Targets"),40,0,"heal") then return end
                 end
             end
         -- Riptide
@@ -481,7 +512,7 @@ local function runRotation()
             end
         -- Gift of the Queen
             if isChecked("Gift of the Queen") then
-                if castWiseAoEHeal(br.friend,spell.giftOfTheQueen,12,getValue("Gift of the Queen"),getValue("Gift of the Queen Targets"),5,false,false) then return end
+                if castWiseAoEHeal(br.friend,spell.giftOfTheQueen,12,getValue("Gift of the Queen"),getValue("Gift of the Queen Targets"),6,false,false) then return end
             end
         -- Healing Stream Totem
             if isChecked("Healing Stream Totem") then
@@ -524,6 +555,10 @@ local function runRotation()
                     if cast.ancestralGuidance() then return end
                 end
             end
+        -- Gift of the Queen
+            if isChecked("Gift of the Queen") then
+                if castWiseAoEHeal(br.friend,spell.giftOfTheQueen,12,getValue("Gift of the Queen"),getValue("Gift of the Queen Targets"),6,false,false) then return end
+            end
         -- Chain Heal
             if isChecked("Chain Heal") then
                 if talent.unleashLife and talent.highTide then
@@ -536,10 +571,6 @@ local function runRotation()
                 else
                     if castWiseAoEHeal(br.friend,spell.chainHeal,40,getValue("Chain Heal"),getValue("Chain Heal Targets"),5,false,true) then return end
                 end
-            end
-        -- Gift of the Queen
-            if isChecked("Gift of the Queen") then
-                if castWiseAoEHeal(br.friend,spell.giftOfTheQueen,12,getValue("Gift of the Queen"),getValue("Gift of the Queen Targets"),5,false,false) then return end
             end
         -- Wellspring
             if isChecked("Wellspring") then
@@ -554,10 +585,37 @@ local function runRotation()
                 if (SpecificToggle("Healing Rain Key") and not GetCurrentKeyBoardFocus()) then
                     if CastSpellByName(GetSpellInfo(spell.healingRain),"cursor") then return end 
                 end
-                if isChecked("Healing Rain on CD") and not buff.healingRain.exists() then
+                if isChecked("Healing Rain") and not buff.healingRain.exists() then
+                    -- get melee players
+                    for i=1, #tanks do
+                        -- get the tank's target
+                        local tankTarget = UnitTarget(tanks[i].unit)
+                        if tankTarget ~= nil then
+                            -- get players in melee range of tank's target
+                            local meleeFriends = getAllies(tankTarget,5)
+                            -- get the best ground circle to encompass the most of them
+                            local loc = nil
+                            if isChecked("Healing Rain on CD") and #meleeFriends >= getvalue("Healing Rain Targets") then
+                                loc = getBestGroundCircleLocation(meleeFriends,getValue("Healing Rain Targets"),6,10)
+                            else
+                                local meleeHurt = {}
+                                for j=1, #meleeFriends do
+                                    if meleeFriends[i].hp < getValue("Healing Rain") then
+                                        tinsert(meleeHurt,meleeFriends[i])
+                                    end
+                                end
+                                if #meleeHurt >= getvalue("Healing Rain Targets") then
+                                    loc = getBestGroundCircleLocation(meleeHurt,getValue("Healing Rain Targets"),6,10)
+                                end
+                            end
+                            if loc ~= nil then
+                                if castGroundAtLocation(loc, spell.healingRain) then return true end
+                            end
+                        end
+                    end
                     --if castWiseAoEHeal(br.friend,spell.healingRain,12,100,3,6,false,true) then return end
                     --castGroundAtBestLocation(spellID, radius, minUnits, maxRange, minRange, spellType)
-                    if castGroundAtBestLocation(spell.healingRain,20,2,40,5,"heal") then return end
+                    --if castGroundAtBestLocation(spell.healingRain,10,getValue("Healing Rain Targets"),40,0,"heal") then return end
                 end
             end
         end -- End Action List - AOEHealing
@@ -639,6 +697,7 @@ local function runRotation()
                     if CastSpellByName(GetSpellInfo(spell.healingRain),"cursor") then return end 
                 end
                 if isChecked("Healing Rain") and not buff.healingRain.exists() then
+                    -- castWiseAoEHeal(unitTable,spell,radius,health,minCount,maxCount,facingCheck,movementCheck)
                     if castWiseAoEHeal(br.friend,spell.healingRain,12,getValue("Healing Rain"),getValue("Healing Rain Targets"),6,false,true) then return end
                 end
             end
