@@ -172,6 +172,7 @@ local function createOptions()
 		-- Wild Growth
 		br.ui:createSpinner(section, "Wild Growth",  80,  0,  100,  5,  "","Health Percent to Cast At")
 		br.ui:createSpinner(section, "Wild Growth Targets",  3,  0,  40,  1,  "","Minimum Wild Growth Targets", true)
+		br.ui:createDropdown(section, "Swiftmend + Wild Growth key", br.dropOptions.Toggle, 6)
 		-- Essence of G'Hanir
 		br.ui:createSpinner(section, "Essence of G'Hanir",  60,  0,  100,  5,  "","Health Percent to Cast At")
 		br.ui:createSpinner(section, "Essence of G'Hanir Targets",  3,  0,  40,  1,  "","Minimum Wild Growth Targets", true)
@@ -346,6 +347,15 @@ local function runRotation()
 				end
 			end
 		end
+		-- Swiftmend + Wild Growth
+		local function actionList_SoTFWG()
+		    if not buff.soulOfTheForest.exists() and GetSpellCooldown(48438) <= 1 then
+			    if cast.swiftmend(lowestHP) then return end
+			end	
+			if buff.soulOfTheForest.exists() then 
+			    if cast.wildGrowth() then return end
+			end	
+		end			
 		-- Action List - Extras
 		local function actionList_Extras()
 			-- Pre-Pull Timer
@@ -1188,6 +1198,9 @@ local function runRotation()
 			--- Out Of Combat - Rotations ---
 			---------------------------------
 			if not inCombat and not IsMounted() and not flight and not stealthed and not drinking and not buff.shadowmeld.exists() and not isCastingSpell(spell.tranquility) and not UnitDebuffID("player",188030) then
+			    if isChecked("Swiftmend + Wild Growth key") and (SpecificToggle("Swiftmend + Wild Growth key") and not GetCurrentKeyBoardFocus()) then
+				    if actionList_SoTFWG() then return end
+				end				
 				actionList_Extras()
 				if isChecked("OOC Healing") then
 					actionList_PreCombat()
@@ -1198,6 +1211,9 @@ local function runRotation()
 			--- In Combat - Rotations ---
 			-----------------------------
 			if inCombat and not IsMounted() and not flight and not stealthed and not drinking and not buff.shadowmeld.exists() and not isCastingSpell(spell.tranquility) and not UnitDebuffID("player",188030) then
+			    if isChecked("Swiftmend + Wild Growth key") and (SpecificToggle("Swiftmend + Wild Growth key") and not GetCurrentKeyBoardFocus()) then
+				    if actionList_SoTFWG() then return end
+				end				
 				actionList_Extras()
 				actionList_Defensive()
 				actionList_Cooldowns()
