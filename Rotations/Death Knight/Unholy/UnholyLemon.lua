@@ -432,9 +432,21 @@ local function runRotation()
 
         --actions.generic+=/chains_of_ice,if=buff.unholy_strength.up&buff.cold_heart.stack>19
         if cd.chainsOfIce.remain() == 0 then
-			if buff.unholyStrength.exists() and buff.coldHeart.stack() > 19 then
-				if cast.chainsOfIce(thisUnit) then return true end
-			end
+            if buff.unholyStrength.exists() and buff.coldHeart.stack() == 20 then
+                if cast.chainsOfIce() then return true end
+            end
+        end
+        
+        if cd.chainsOfIce.remain() == 0 then
+            if buff.unholyStrength.exists() and buff.unholyStrength.remain() < gcd and buff.coldHeart.stack() > 16 then
+                if cast.chainsOfIce() then return true end
+            end
+        end
+        
+        if cd.chainsOfIce.remain() == 0 then
+            if buff.coldHeart.stack() >= 4 and ttd(units.dyn5) <= gcd then
+                if cast.chainsOfIce() then return end
+            end
         end
         
         --actions.generic+=/summon_gargoyle,if=equipped.137075&cooldown.dark_transformation.remains<10&rune<=3
