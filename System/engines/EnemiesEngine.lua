@@ -573,10 +573,18 @@ function isSafeToAttack(unit)
 		-- check if unit is valid
 		local unitID = GetObjectExists(unit) and GetObjectID(unit) or 0
 		for i = 1, #doNotTouchUnitCandidates do
-			if doNotTouchUnitCandidates[i].unitID == 1 or doNotTouchUnitCandidates[i].unitID == unitID then
-				if UnitBuffID(unit,doNotTouchUnitCandidates[i].buff) or UnitDebuffID(unit,doNotTouchUnitCandidates[i].buff) then
-					return false
-				end
+			local noTouch = doNotTouchUnitCandidates[i]
+			if noTouch.unitID == 1 or noTouch.unitID == unitID then
+				if noTouch.buff > 0 then
+					if UnitBuffID(unit,noTouch.buff) or UnitDebuffID(unit,noTouch.buff) then
+						return false
+					end
+				else
+					local posBuff = -(noTouch.buff)
+					if not UnitBuffID(unit,posBuff) or UnitDebuffID(unit,posBuff) then
+						return false
+					end
+				end					
 			end
 		end
 	end

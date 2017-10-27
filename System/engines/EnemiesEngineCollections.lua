@@ -67,6 +67,7 @@ burnUnitCandidates = {
 	[71075] = { coef = 150, name = "Illusion Banshee" }, -- proving ground (will explode if not burned)
 	[71076] = { coef = 25 }, -- Proving ground healer
 	-- Legion
+	[117264] = {coef = 200, name = "Maiden of Valor", buff = 241008}, -- burn Maiden of Valor if buff is present
 	[120651] = { coef = 150, name = "Fel Explosives"}, -- M+ Affix
 	-- [115642] = { coef = 100}, -- Umbral Imps - Challenge mode
 	-- [115638] = { coef = 175, buff = 243113},
@@ -101,6 +102,7 @@ doNotTouchUnitCandidates = {
     -- Tomb of Sargeras
     { unitID = 116689, buff = 233441 }, -- Don't attack Atrigan while Bonesaw
     { unitID = 116691, buff = 235230 }, -- Don't attack Belac while Fel Squall
+    { unitID = 117264, buff = -241008 }, -- Don't attack Maiden of Valor unless Buff is Present *** negative buff value denotes not present ***
 }
 -- list of units to stun, either always or udner certain condition such as having a buff or wirldwinding etc
 crowdControlCandidates = {
