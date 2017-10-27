@@ -79,7 +79,11 @@ local function createOptions()
          -- Racial
             br.ui:createCheckbox(section,"Racial")
         -- Trinkets
-            br.ui:createCheckbox(section,"Trinkets")
+            br.ui:createDropdownWithout(section, "Trinkets", {"1st Only","2nd Only","Both","None"}, 4, "Select Trinket Usage.")
+        -- The Deceiver's Grand Design
+            if hasEquiped(147007) then
+                br.ui:createCheckbox(section, "The Deceivers Grand Design")
+            end
         -- Cloudburst Totem
             br.ui:createSpinner(section, "Cloudburst Totem",  90,  0,  100,  5,  "Health Percent to Cast At") 
             br.ui:createSpinnerWithout(section, "Cloudburst Totem Targets",  3,  0,  40,  1,  "Minimum Cloudburst Totem Targets")
@@ -421,19 +425,11 @@ local function runRotation()
             -- Ancestral Protection Totem
                 if castWiseAoEHeal(br.friend,spell.ancestralProtectionTotem,20,getValue("Ancestral Protection Totem"),getValue("Ancestral Protection Totem Targets"),10,false,false) then return end
             -- Trinkets
-                if isChecked("Trinkets") then
-                    if canUse(11) then
-                        useItem(11)
-                    end
-                    if canUse(12) then
-                        useItem(12)
-                    end
-                    if canUse(13) then
-                        useItem(13)
-                    end
-                    if canUse(14) then
-                        useItem(14)
-                    end
+                if (getOptionValue("Trinkets") == 1 or getOptionValue("Trinkets") == 3) and canUse(13) then
+                    useItem(13)
+                end
+                if (getOptionValue("Trinkets") == 2 or getOptionValue("Trinkets") == 3) and canUse(14) then
+                    useItem(14)
                 end
             -- Racial: Orc Blood Fury | Troll Berserking | Blood Elf Arcane Torrent
                 if isChecked("Racial") and (br.player.race == "Orc" or br.player.race == "Troll" or br.player.race == "BloodElf") then
@@ -621,6 +617,25 @@ local function runRotation()
         end -- End Action List - AOEHealing
         -- Single Target
         function actionList_SingleTarget()
+        -- The Deceiver's Grand Design
+            if hasEquiped(147007) and canUse(147007) then
+                if isChecked("The Deceivers Grand Design") then
+                    local localizedName = select(1,GetItemInfo(147007))
+                    for i=1, #tanks do
+                        thisTank = tanks[i]
+                        if UnitInRange(thisTank.unit) and not buff.guidingHand.exists(thisTank.unit) then
+                            UseItemByName(localizedName, thisTank.unit)
+                        end
+                    end
+                    if #tanks == 0 then
+                        for i = 1, #friends.yards40 do
+                            if not buff.guidingHand.exists(friends.yards40[i].unit) then
+                                if cast.purify(friends.yards40[i].unit) then return true end
+                            end
+                        end
+                    end
+                end
+            end
         -- Purify Spirit
            if br.player.mode.decurse == 1 then
                 for i = 1, #friends.yards40 do
