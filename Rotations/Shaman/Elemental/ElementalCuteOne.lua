@@ -659,7 +659,7 @@ local function runRotation()
             end
         -- Flame Shock
             -- flame_shock,moving=1,if=movement.distance>6
-            if moving and getDistance("target") > 6 and ttd("target") > 15 then
+            if moving and getDistance("target") > 6 and ttd("target") > 15 and isValidUnit("target") then
                 if cast.flameShock("target") then return end
             end
         end -- End Action List - Single Target: Ascendance
@@ -748,7 +748,7 @@ local function runRotation()
         -- Earthquake
             -- earthquake,if=buff.echoes_of_the_great_sundering.up
             if buff.echoesOfTheGreatSundering.exists() then
-                if cast.earthquake("target","ground") then return end
+                if cast.earthquake(units.dyn35,"ground") then return end
             end
         -- Lightning Bolt
             -- lightning_bolt,if=buff.power_of_the_maelstrom.up&spell_targets.chain_lightning<3
@@ -777,7 +777,7 @@ local function runRotation()
             end
         -- Flame Shock
             -- flame_shock,moving=1,if=movement.distance>6
-            if moving and getDistance("target") > 6 and ttd("target") > 15 then
+            if moving and getDistance("target") > 6 and ttd("target") > 15 and isValidUnit("target") then
                 if cast.flameShock("target") then return end
             end
         end -- End Action List - Single Target: Icy Fury
@@ -801,7 +801,7 @@ local function runRotation()
         -- Earthquake
             -- earthquake,if=buff.echoes_of_the_great_sundering.up
             if buff.echoesOfTheGreatSundering.exists() then
-                if cast.earthquake("target","ground") then return end
+                if cast.earthquake(units.dyn35,"ground") then return end
             end
         -- Earth Shock
             -- earth_shock,if=maelstrom>=117|!artifact.swelling_maelstrom.enabled().enabled&maelstrom>=92
@@ -816,7 +816,7 @@ local function runRotation()
         -- Liquid Magma Totem
             -- liquid_magma_totem,if=raid_event.adds.count<3|raid_event.adds.in>50
             if (#enemies.yards8 < 3) and getDistance(units.dyn8) < 8 and not cast.last.liquidMagmaTotem() then
-                if cast.liquidMagmaTotem("target") then return end
+                if cast.liquidMagmaTotem(units.dyn8) then return end
             end
         -- Lava Burst
             -- lava_burst,if=dot.flame_shock.remains>cast_time&cooldown_react
@@ -877,7 +877,7 @@ local function runRotation()
             end
         -- Flame Shock
             -- flame_shock,moving=1,if=movement.distance>6
-            if moving and getDistance("target") > 6 and ttd("target") > 15 then
+            if moving and getDistance("target") > 6 and ttd("target") > 15 and isValidUnit("target") then
                 if cast.flameShock("target") then return end
             end
         end  -- End Single Target Action List
