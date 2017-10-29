@@ -756,13 +756,15 @@ local function runRotation()
                 if cast.executionSentence() then return end
             end
         -- Divine Storm
-            -- divine_storm,if=debuff.judgment.up&variable.ds_castable&buff.divine_purpose.react
-            if judgmentVar and dsCastable and buff.divinePurpose.exists() then
-                if cast.divineStorm() then return end
-            end
-            -- divine_storm,if=debuff.judgment.up&variable.ds_castable&(!talent.crusade.enabled|cooldown.crusade.remains>gcd*2)
-            if judgmentVar and dsCastable and (not talent.crusade or cd.crusade.remain() > gcd * 2 or not isChecked("Crusade")) then
-                if cast.divineStorm() then return end
+            if ((mode.rotation == 1 and #enemies.yards8 >= getOptionValue("Divine Storm Units")) or (mode.rotation == 2 and #enemies.yards8 > 0)) then
+                -- divine_storm,if=debuff.judgment.up&variable.ds_castable&buff.divine_purpose.react
+                if judgmentVar and dsCastable and buff.divinePurpose.exists() then
+                    if cast.divineStorm() then return end
+                end
+                -- divine_storm,if=debuff.judgment.up&variable.ds_castable&(!talent.crusade.enabled|cooldown.crusade.remains>gcd*2)
+                if judgmentVar and dsCastable and (not talent.crusade or cd.crusade.remain() > gcd * 2 or not isChecked("Crusade")) then
+                    if cast.divineStorm() then return end
+                end
             end
         -- Justicar's Vengeance
             -- justicars_vengeance,if=debuff.judgment.up&buff.divine_purpose.react&!equipped.137020
@@ -770,20 +772,22 @@ local function runRotation()
                 if cast.justicarsVengeance() then return end
             end
         -- Templar's Verdict
-            -- templars_verdict,if=debuff.judgment.up&buff.divine_purpose.react
-            if judgmentVar and buff.divinePurpose.exists() then
-                if isChecked("Justicar's Vengeance") and php < getOptionValue("Justicar's Vengeance") and talent.justicarsVengeance then
-                    if cast.justicarsVengeance() then return end
-                else
-                    if cast.templarsVerdict() then return end
+            if ((mode.rotation == 1 and #enemies.yards8 < getOptionValue("Divine Storm Units")) or (mode.rotation == 3 and #enemies.yards5 > 0)) then
+                -- templars_verdict,if=debuff.judgment.up&buff.divine_purpose.react
+                if judgmentVar and buff.divinePurpose.exists() then
+                    if isChecked("Justicar's Vengeance") and php < getOptionValue("Justicar's Vengeance") and talent.justicarsVengeance then
+                        if cast.justicarsVengeance() then return end
+                    else
+                        if cast.templarsVerdict() then return end
+                    end
                 end
-            end
-            -- templars_verdict,if=debuff.judgment.up&(!talent.crusade.enabled|cooldown.crusade.remains>gcd*2)&(!talent.execution_sentence.enabled|cooldown.execution_sentence.remains>gcd)
-            if judgmentVar and (not talent.crusade or cd.crusade.remain() > gcd * 2 or not isChecked("Crusade")) and (not talent.executionSentence or cd.executionSentence.remain() > gcd) then
-                if isChecked("Justicar's Vengeance") and php < getOptionValue("Justicar's Vengeance") and talent.justicarsVengeance then
-                    if cast.justicarsVengeance() then return end
-                else
-                    if cast.templarsVerdict() then return end
+                -- templars_verdict,if=debuff.judgment.up&(!talent.crusade.enabled|cooldown.crusade.remains>gcd*2)&(!talent.execution_sentence.enabled|cooldown.execution_sentence.remains>gcd)
+                if judgmentVar and (not talent.crusade or cd.crusade.remain() > gcd * 2 or not isChecked("Crusade")) and (not talent.executionSentence or cd.executionSentence.remain() > gcd) then
+                    if isChecked("Justicar's Vengeance") and php < getOptionValue("Justicar's Vengeance") and talent.justicarsVengeance then
+                        if cast.justicarsVengeance() then return end
+                    else
+                        if cast.templarsVerdict() then return end
+                    end
                 end
             end
         end

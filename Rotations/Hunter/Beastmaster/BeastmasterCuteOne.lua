@@ -292,7 +292,7 @@ local function runRotation()
                 if cast.mendPet() then return; end
             end
             -- Pet Attack / retreat
-            if inCombat and isValidUnit(units.dyn40) and getDistance(units.dyn40) < 40 then
+            if inCombat and isValidUnit("target") and getDistance("target") < 40 then
                 if not UnitIsUnit("target","pettarget") then
                     PetAttack()
                 end
