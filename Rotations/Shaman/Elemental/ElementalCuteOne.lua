@@ -262,7 +262,8 @@ local function runRotation()
             end
         -- Water Walking
             if falling > 1.5 and buff.waterWalking.exists() then
-                CancelUnitBuffID("player", spell.waterWalking)
+                buff.waterWalking.cancel()
+                -- CancelUnitBuffID("player", spell.waterWalking)
             end
             if isChecked("Water Walking") and not inCombat and IsSwimming() then
                 if cast.waterWalking() then return end
@@ -355,7 +356,7 @@ local function runRotation()
 			if useInterrupts() then
                 for i=1, #enemies.yards30 do
                     thisUnit = enemies.yards30[i]
-                    if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
+                    if isValidUnit(thisUnit) and canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
         -- Wind Shear
                         -- wind_shear
                         if isChecked("Wind Shear") then
@@ -367,7 +368,7 @@ local function runRotation()
                         end
         -- Lightning Surge Totem
                         if isChecked("Lightning Surge Totem") and cd.windShear.remain() > gcd then
-                            if hasThreat(thisUnit) and not isMoving(thisUnit) and ttd(thisUnit) > 7 and not cast.last.lightningSurgeTotem() then
+                            if not isMoving(thisUnit) and ttd(thisUnit) > 7 and not cast.last.lightningSurgeTotem() then
                                 if cast.lightningSurgeTotem(thisUnit,"ground") then return end
                             end
                         end
@@ -585,7 +586,7 @@ local function runRotation()
         -- Earthquake
             -- earthquake,if=buff.echoes_of_the_great_sundering.up&!buff.ascendance.up&maelstrom>=86
             if buff.echoesOfTheGreatSundering.exists() and not buff.ascendance.exists() and power >= 86 then
-                if cast.earthquake("target","ground") then return end
+                if cast.earthquake(units.dyn35,"ground") then return end
             end
         -- Earth Shock
             -- earth_shock,if=maelstrom>=117|!artifact.swelling_maelstrom.enabled().enabled&maelstrom>=92
@@ -600,7 +601,7 @@ local function runRotation()
         -- Liquid Magma Totem
             -- liquid_magma_totem,if=raid_event.adds.count<3|raid_event.adds.in>50
             if #enemies.yards8 < 3 and getDistance(units.dyn8) < 8 and not cast.last.liquidMagmaTotem() then
-                if cast.liquidMagmaTotem("target") then return end
+                if cast.liquidMagmaTotem(units.dyn8) then return end
             end
         -- Lightning Bolt
             -- lightning_bolt,if=buff.power_of_the_maelstrom.up&buff.stormkeeper.up&spell_targets.chain_lightning<3
@@ -680,7 +681,7 @@ local function runRotation()
         -- Earthquake
             -- earthquake,if=buff.echoes_of_the_great_sundering.up&maelstrom>=86
             if buff.echoesOfTheGreatSundering.exists() and power >= 86 then
-                if cast.earthquake("target","ground") then return end
+                if cast.earthquake(units.dyn35,"ground") then return end
             end
         -- Frost Shock
             -- frost_shock,if=buff.icefury.up&maelstrom>=111&!buff.ascendance.up
@@ -708,7 +709,7 @@ local function runRotation()
         -- Liquid Magma Totem
             -- liquid_magma_totem,if=raid_event.adds.count<3|raid_event.adds.in>50
             if (#enemies.yards8 < 3) and getDistance(units.dyn8) < 8 and not cast.last.liquidMagmaTotem() then
-                if cast.liquidMagmaTotem("target") then return end
+                if cast.liquidMagmaTotem(units.dyn8) then return end
             end
         -- Lightning Bolt
             -- lightning_bolt,if=buff.power_of_the_maelstrom.up&buff.stormkeeper.up&spell_targets.chain_lightning<3

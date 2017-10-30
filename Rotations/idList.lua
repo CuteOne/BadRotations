@@ -942,6 +942,7 @@ br.idList = {
 
             },
             buffs                           = {
+                aspectOfTheWild             = 193530,
                 beastCleave                 = 118455,
                 bestialWrath                = 19574,
                 direBeast                   = 120694,
