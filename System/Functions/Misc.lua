@@ -439,7 +439,7 @@ function isValidUnit(Unit)
 			if (#br.friend == 1 and playerTarget) or hasThreat then return true end
 		elseif not inCombat and not IsInInstance() then
 			-- Only consider Units that are in 20yrs or I have targeted when not in Combat and not in an Instance.
-			if (playerTarget or (not GetObjectExists("target") and distance < 20 and not next(br.enemy))) then return true end
+			if (playerTarget or hasThreat --[[(not GetObjectExists("target") and distance < 20 and not next(br.enemy))--]]) then return true end
 		end
 	end
 	return false

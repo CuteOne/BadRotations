@@ -631,6 +631,7 @@ br.idList = {
                 thrashingClaws              = 238048,
             },
             buffs                           = {
+                apexPredator                = 255984,        
                 berserk                     = 106951,
                 bloodtalons                 = 145152,
                 clearcasting                = 135700,

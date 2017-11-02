@@ -136,27 +136,25 @@ end
 
 -- /dump UnitGUID("target")
 -- /dump getEnemies("target",10)
-function getEnemies(thisUnit,radius,checkInCombat)
+function getEnemies(thisUnit,radius,checkNoCombat)
     local startTime = debugprofilestop()
 	local enemiesTable = { }
+	local enemyTable = {}
 
-    if checkInCombat == nil then checkInCombat = false end
-    -- if br.timer:useTimer("getEnemiesUpdate", getUpdateRate()) then
-		for k, v in pairs(br.enemy) do
-			local thisEnemy = br.enemy[k].unit
-			local distance =  getDistance(thisUnit,thisEnemy)
-			local inCombat = false
-			if checkInCombat then
-				inCombat = UnitAffectingCombat(thisEnemy) --enemy[k].inCombat
-				if (not inCombat and isDummy()) or inCombat or isBurnTarget(thisEnemy) then inCombat = true end
-			else
-				inCombat = true
-			end
-			if distance < radius then
-				tinsert(enemiesTable,thisEnemy)
-			end
-        end
-    -- end
+    if checkNoCombat == nil then checkNoCombat = false end
+    if checkNoCombat then
+    	enemyTable = br.units
+    else
+    	enemyTable = br.enemy
+    end
+	for k, v in pairs(enemyTable) do
+		local thisEnemy = enemyTable[k].unit
+		local distance =  getDistance(thisUnit,thisEnemy)
+		local inCombat = false
+		if distance < radius then
+			tinsert(enemiesTable,thisEnemy)
+		end
+    end
     ---
     br.debug.cpu.enemiesEngine.getEnemies = debugprofilestop()-startTime or 0
     ---

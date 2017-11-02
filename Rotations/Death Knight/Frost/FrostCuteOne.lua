@@ -438,8 +438,8 @@ local function runRotation()
                     end
                 end
         -- Call Action List - Cold Heart
-                -- call_action_list,name=cold_heart,if=equipped.cold_heart&((buff.cold_heart.stack>=10&!buff.obliteration.up)|target.time_to_die<=gcd)
-                if useCDs() and equiped.coldHeart() and ((buff.coldHeart.stack() >= 10 and not buff.obliteration.exists()) or ttd(units.dyn5) <= gcd) then
+                -- call_action_list,name=cold_heart,if=equipped.cold_heart&((buff.cold_heart.stack>=10&!buff.obliteration.up&debuff.razorice.stack>=3)|target.time_to_die<=gcd)
+                if useCDs() and equiped.coldHeart() and ((buff.coldHeart.stack() >= 10 and not buff.obliteration.exists() and debuff.razorice.stack() >= 3) or ttd(units.dyn5) <= gcd) then
                     if actionList_ColdHeart() then return end
                 end
         -- Obliteration

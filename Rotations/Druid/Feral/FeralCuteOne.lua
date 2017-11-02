@@ -234,8 +234,6 @@ local function runRotation()
         local power, powmax, powgen, powerDeficit           = br.player.power.energy.amount(), br.player.power.energy.max(), br.player.power.energy.regen(), br.player.power.energy.deficit()
         local pullTimer                                     = PullTimerRemain() --br.DBM:getPulltimer()
         local racial                                        = br.player.getRacial()
-        local rkTick                                        = 3
-        local rpTick                                        = 2
         local solo                                          = #br.friend < 2
         local friendsInRange                                = friendsInRange
         local spell                                         = br.player.spell
@@ -244,6 +242,7 @@ local function runRotation()
         local t18_4pc                                       = TierScan("T18")>=4 --br.player.eq.t18_4pc
         local t19_2pc                                       = TierScan("T19")>=2
         local t19_4pc                                       = TierScan("T19")>=4
+        local t20_4pc                                       = TierScan("T20")>=4
         local talent                                        = br.player.talent
         local travel, flight, cat, noform                   = br.player.buff.travelForm.exists(), br.player.buff.flightForm.exists(), br.player.buff.catForm.exists(), GetShapeshiftForm()==0
         local trinketProc                                   = false
@@ -253,18 +252,19 @@ local function runRotation()
         local use                                           = br.player.use
 
         -- Get Best Unit for Range
-        units.dyn40   = br.player.units(40)
-        units.dyn20   = br.player.units(20)
-        units.dyn8AoE = br.player.units(8,true)
-        units.dyn8    = br.player.units(8)
-        units.dyn5    = br.player.units(5)
+        units.dyn40         = br.player.units(40)
+        units.dyn20         = br.player.units(20)
+        units.dyn8AoE       = br.player.units(8,true)
+        units.dyn8          = br.player.units(8)
+        units.dyn5          = br.player.units(5)
 
         -- Get List of Enemies for Range
-        enemies.yards40 = br.player.enemies(40)
-        enemies.yards20 = br.player.enemies(20)
-        enemies.yards13 = br.player.enemies(13)
-        enemies.yards8  = br.player.enemies(8)
-        enemies.yards5  = br.player.enemies(5)
+        enemies.yards40     = br.player.enemies(40)
+        enemies.yards20     = br.player.enemies(20)
+        enemies.yards20nc   = br.player.enemies(20,"player",true)
+        enemies.yards13     = br.player.enemies(13)
+        enemies.yards8      = br.player.enemies(8)
+        enemies.yards5      = br.player.enemies(5)
 
    		if leftCombat == nil then leftCombat = GetTime() end
 		if profileStop == nil then profileStop = false end
@@ -276,10 +276,20 @@ local function runRotation()
 		end
         if freeProwl == nil or (not buff.incarnationKingOfTheJungle.exists() and freeProwl == false) then freeProwl = true end
         if talent.jaggedWounds then
-            --if rkTick == 3 then rkTick = rkTick - (rkTick * 0.3) end
-            -- if rpTick == 2 then rpTick = rpTick - (rpTick * 0.3) end
-            rkTick = 2
-            rpTick = 1.34
+            rkTick = 2.4
+            rpTick = 1.6
+        else
+            rkTick = 3
+            rpTick = 2
+        end
+        if t20_4pc then
+            ripDuration = 24 + 4
+        elseif talent.jaggedWounds then
+            rakeDuration = 12
+            ripDuration = 1.6 * (24 / 2)
+        else
+            rakeDuration = 15
+            ripDuration = 24
         end
         if br.player.potion.agility ~= nil then
             if br.player.potion.agility[1] ~= nil then
@@ -304,7 +314,7 @@ local function runRotation()
             fbMaxEnergy = false
         end
         if not inCombat and not GetObjectExists("target") then
-			shredCount = 10
+			openerCount = 0
             OPN1 = false
             RK1 = false
             MF1 = false
@@ -317,6 +327,8 @@ local function runRotation()
             RIP1 = false
             THR1 = false
             SHR1 = false
+            REG2 = false
+            RIP2 = false
             opener = false
         end
 
@@ -410,7 +422,7 @@ local function runRotation()
 			-- Cat Form
 				if not cat and not IsMounted() and not flying then
 			    	-- Cat Form when not swimming or flying or stag and not in combat
-			    	if not inCombat and moving and not swimming and not flying and not travel and not isValidUnit("target") then
+			    	if moving and not swimming and not flying and not travel then
 		        		if cast.catForm("player") then return end
 		        	end
 		        	-- Cat Form when not in combat and target selected and within 20yrds
@@ -418,9 +430,9 @@ local function runRotation()
 		        		if cast.catForm("player") then return end
 		        	end
 		        	--Cat Form when in combat and not flying
-		        	if inCombat and not flying and (not swimming or (swimming and getDistance("target") < 10 and isValidUnit("target"))) then
-		        		if cast.catForm("player") then return end
-		        	end
+		        	-- if inCombat and not flying and not travel and not swimming then
+		        	-- 	if cast.catForm("player") then return end
+		        	-- end
                     -- Cat Form - Less Fall Damage
                     if (not canFly() or inCombat or level < 58 or not IsOutdoors()) and not swimming and falling > getOptionValue("Fall Timer") then
                         if cast.catForm("player") then return end
@@ -872,32 +884,36 @@ local function runRotation()
                 if isValidUnit("target") and getDistance("target") < 5 then
 					if not OPN1 then 
                         Print("Starting Opener")
+                        openerCount = openerCount + 1
                         OPN1 = true
                     elseif OPN1 and (not RK1 or not debuff.rake.exists("target")) then
             -- Rake
                         -- rake,if=!ticking|buff.prowl.up
                         if not debuff.rake.exists() or buff.prowl.exists() then
-       					    if castOpener("rake","RK1",1) then return end
+       					    if castOpener("rake","RK1",openerCount) then openerCount = openerCount + 1; return end
                         else
-                            Print("1: Rake (Uncastable)")
+                            Print(openerCount..": Rake (Uncastable)")
+                            openerCount = openerCount + 1
                             RK1 = true
                         end
                     elseif RK1 and not MF1 then
             -- Moonfire
                         -- moonfire_cat,if=talent.lunar_inspiration.enabled&!ticking  
                         if talent.lunarInspiration and not debuff.moonfire.exists("target") then
-                            if castOpener("moonfire","MF1",2) then return end
+                            if castOpener("moonfire","MF1",openerCount) then openerCount = openerCount + 1; return end
                         else
-                            Print("2: Moonfire (Uncastable)")
+                            Print(openerCount..": Moonfire (Uncastable)")
+                            openerCount = openerCount + 1
                             MF1 = true
                         end
                     elseif MF1 and not SR1 then
        		-- Savage Roar
                         -- savage_roar,if=!buff.savage_roar.up
                         if talent.savageRoar and buff.savageRoar.refresh() and combo > 0 then
-       					    if castOpener("savageRoar","SR1",3) then return end
+       					    if castOpener("savageRoar","SR1",openerCount) then openerCount = openerCount + 1; return end
                         else
-                            Print("3: Savage Roar (Uncastable)")
+                            Print(openerCount..": Savage Roar (Uncastable)")
+                            openerCount = openerCount + 1
                             SR1 = true
                         end
        				elseif SR1 and not BER1 then
@@ -906,69 +922,93 @@ local function runRotation()
                         -- incarnation
 						if useCDs() and isChecked("Berserk/Incarnation") then
                             if talent.incarnationKingOfTheJungle then
-                                if castOpener("incarnationKingOfTheJungle","BER1",4) then return end
+                                if castOpener("incarnationKingOfTheJungle","BER1",openerCount) then openerCount = openerCount + 1; return end
                             else
-                                if castOpener("berserk","BER1",4) then return end
+                                if castOpener("berserk","BER1",openerCount) then openerCount = openerCount + 1; return end
                             end
 						else
-							Print("4: Berserk/Incarnation (Uncastable)")
+							Print(openerCount..": Berserk/Incarnation (Uncastable)")
+                            openerCount = openerCount + 1
 							BER1 = true
 						end
                     elseif BER1 and not TF1 then
             -- Tiger's Fury
                         -- tigers_fury
                         if isChecked("Tiger's Fury") then
-                            if castOpener("tigersFury","TF1",5) then return end
+                            if castOpener("tigersFury","TF1",openerCount) then openerCount = openerCount + 1; return end
                         else
-                            Print("5: Tiger's Fury (Uncastable)")
+                            Print(openerCount..": Tiger's Fury (Uncastable)")
+                            openerCount = openerCount + 1
                             TF1 = true
                         end
 					elseif TF1 and not AF1 then
           	-- Ashamane's Frenzy
                         -- ashamanes_frenzy
 						if (getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs())) then
-                			if castOpener("ashamanesFrenzy","AF1",6) then return end
+                			if castOpener("ashamanesFrenzy","AF1",openerCount) then openerCount = openerCount + 1; return end
 						else
-							Print("6: Ashamane's Frenzy (Uncastable)")
+							Print(openerCount..": Ashamane's Frenzy (Uncastable)")
+                            openerCount = openerCount + 1
 							AF1 = true
 						end
 			  		elseif AF1 and not REG1 then
             -- Regrowth
                         -- regrowth,if=(talent.sabertooth.enabled|buff.predatory_swiftness.up)&talent.bloodtalons.enabled&buff.bloodtalons.down&combo_points=5
                         if (talent.sabertooth or buff.predatorySwiftness.exists()) and talent.bloodtalons and not buff.bloodtalons.exists() and combo == 5 then
-                            if castOpener("regrowth","REG1",7) then return end
+                            if castOpener("regrowth","REG1",openerCount) then openerCount = openerCount + 1; return end
                         else
-                            Print("7: Regrowth (Uncastable)")
+                            Print(openerCount..": Regrowth (Uncastable)")
+                            openerCount = openerCount + 1; 
                             REG1 = true
                         end
 					elseif REG1 and not RIP1 then
        		-- Rip
                         -- rip,if=combo_points=5
                         if combo == 5 then
-					        if castOpener("rip","RIP1",8) then return end
+					        if castOpener("rip","RIP1",openerCount) then openerCount = openerCount + 1; return end
                         else
-                            Print("8: Rip (Uncastable)")
+                            Print(openerCount..": Rip (Uncastable)")
+                            openerCount = openerCount + 1; 
                             RIP1 = true
                         end
                     elseif RIP1 and not THR1 then
             -- Thrash
                         -- thrash_cat,if=!ticking&variable.use_thrash>0
                         if not debuff.thrash.exists("target") and useThrash > 0 then
-                            if castOpener("thrash","THR1",9) then return end
+                            if castOpener("thrash","THR1",openerCount) then openerCount = openerCount + 1; return end
                         else
-                            Print("9: Thrash (Uncastable)")
+                            Print(openerCount..": Thrash (Uncastable)")
+                            openerCount = openerCount + 1; 
                             THR1 = true
                         end
-                    elseif THR1 and (not SHR1 or (combo < 5 and (buff.savageRoar.exists() or not talent.savageRoar))) then
+                    elseif THR1 and (not SHR1 or (combo < 5 and not debuff.rip.exists("target"))) then
             -- Brutal Slash / Shred
-                        if shredCount == nil then shredCount = 10 end
                         if talent.brutalSlash and charges.brutalSlash.count() >= 1 and getOptionValue("Brutal Slash in Opener") == 1 then
-                            if castOpener("brutalSlash","SHR1",shredCount) then shredCount = shredCount + 1 return end
+                            if castOpener("brutalSlash","SHR1",openerCount) then openerCount = openerCount + 1; return end
                         else
-                            if castOpener("shred","SHR1",shredCount) then shredCount = shredCount + 1 return end
+                            if castOpener("shred","SHR1",openerCount) then openerCount = openerCount + 1; return end
                         end
-                    elseif SHR1 and (RIP1 and (not buff.savageRoar.exists() or combo == 5)) then
+                    elseif SHR1 and (not REG2 and combo == 5) then
+            -- Regrowth
+                        if not debuff.rip.exists("target") and (talent.sabertooth or buff.predatorySwiftness.exists()) and talent.bloodtalons and not buff.bloodtalons.exists() and combo == 5 then
+                            if castOpener("regrowth","REG2",openerCount) then openerCount = openerCount + 1; return end
+                        else
+                            Print(openerCount..": Regrowth (Uncastable)")
+                            openerCount = openerCount + 1 
+                            REG2 = true
+                        end   
+            -- Rip
+                    elseif REG2 and not RIP2 then
+                        if not debuff.rip.exists("target") and combo == 5 then
+                            if castOpener("rip","RIP2",openerCount) then openerCount = openerCount + 1; return end
+                        else
+                            Print(openerCount..": Rip (Uncastable)")
+                            openerCount = openerCount + 1 
+                            RIP2 = true
+                        end
+                    elseif RIP2 then
                         Print("Opener Complete")
+                        openerCount = 0
        					opener = true
        					return
        				end
@@ -997,7 +1037,7 @@ local function runRotation()
                 if (multidot or (UnitIsUnit(thisUnit,units.dyn5) and not multidot)) then
                     if getDistance(thisUnit) < 5 then
                         if (not debuff.rip.exists(thisUnit) or (debuff.rip.refresh(thisUnit) and getHP(thisUnit) > 25 and not talent.sabertooth) 
-                            or (debuff.rip.remain(thisUnit) <= debuff.rip.duration(thisUnit) * 0.8 and debuff.rip.calc() > debuff.rip.applied(thisUnit))) and (ttd(thisUnit) > 8 or isDummy(thisUnit))
+                            or (debuff.rip.remain(thisUnit) <= ripDuration * 0.8 and debuff.rip.calc() > debuff.rip.applied(thisUnit))) and (ttd(thisUnit) > 8 or isDummy(thisUnit))
                         then
                             if power <= select(1, getSpellCost(spell.rip)) then
                                 return true
@@ -1213,9 +1253,7 @@ local function runRotation()
             end
         -- Shred
             -- shred
-            if (debuff.rake.exists(units.dyn5) or level < 12 or ttm < 1 or buff.clearcasting.exists()) 
-                --and ((mode.rotation == 1 and (#enemies.yards8 < 2 or level < 32 or (talent.brutalSlash and charges.brutalSlash.count() == 0))) or mode.rotation == 3) 
-            then
+            if (not debuff.rake.refresh(units.dyn5) or level < 12 or ttm < 1 or buff.clearcasting.exists()) then
                 if cast.shred() then return end
             end
         end
@@ -1343,9 +1381,9 @@ local function runRotation()
         -- food,type=nightborne_delicacy_platte
         -- augmentation,type=defiled
         -- Prowl - Non-PrePull
-                    if cat and #enemies.yards20 > 0 and mode.prowl == 1 and not buff.prowl.exists() and not IsResting() and GetTime()-leftCombat > lootDelay then
-                        for i = 1, #enemies.yards20 do
-                            local thisUnit = enemies.yards20[i]
+                    if cat and #enemies.yards20nc > 0 and mode.prowl == 1 and not buff.prowl.exists() and not IsResting() and GetTime()-leftCombat > lootDelay then
+                        for i = 1, #enemies.yards20nc do
+                            local thisUnit = enemies.yards20nc[i]
                             if UnitIsEnemy(thisUnit,"player") or isDummy("target") then
                                 if cast.prowl("player") then return end
                             end
@@ -1368,6 +1406,21 @@ local function runRotation()
                             if cast.regrowth("player") then htTimer = GetTime(); return end
                         end
                     end
+                    -- regrowth,if=talent.bloodtalons.enabled&buff.bloodtalons.down&buff.apex_predator.up
+                    if talent.bloodtalons and not buff.bloodtalons.exists() and buff.apexPredator.exists() and (htTimer == nil or htTimer < GetTime() - 1) then
+                        if GetShapeshiftForm() ~= 0 then
+                            -- CancelShapeshiftForm()
+                            RunMacroText("/CancelForm")
+                            if cast.regrowth("player") then htTimer = GetTime(); return end
+                        else
+                            if cast.regrowth("player") then htTimer = GetTime(); return end
+                        end
+                    end 
+        -- Ferocious Bite
+                    -- ferocious_bite,max_energy=1,if=buff.apex_predator.up
+                    if buff.apexPredator.exists() and fbMaxEnergy then
+                        if cast.ferociousBite() then return end
+                    end
 		-- Incarnation - King of the Jungle
 					if cast.incarnationKingOfTheJungle() then return end
         -- Prowl
@@ -1388,7 +1441,7 @@ local function runRotation()
                 end -- End Pre-Pull
         -- Rake/Shred
                 -- buff.prowl.up|buff.shadowmeld.up
-                if isValidUnit("target") and (not isBoss("target") or not isChecked("Opener")) then
+                if isValidUnit("target") and opener == true then
                     if level < 12 then
                         if cast.shred("target") then return end
                     else
@@ -1396,6 +1449,8 @@ local function runRotation()
                     end
                 end
             end -- End No Combat
+        -- Opener
+            if actionList_Opener() then return end
         end -- End Action List - PreCombat
 ---------------------
 --- Begin Profile ---
@@ -1418,7 +1473,7 @@ local function runRotation()
 --- Out of Combat Rotation ---
 ------------------------------
             if actionList_PreCombat() then return end
-			if actionList_Opener() then return end
+			-- if actionList_Opener() then return end
 --------------------------
 --- In Combat Rotation ---
 --------------------------
@@ -1428,7 +1483,7 @@ local function runRotation()
             -- else
             if inCombat and cat and profileStop==false and not isChecked("Death Cat Mode") and isValidUnit(units.dyn5) then
 		-- Opener
-				if actionList_Opener() then return end
+				-- if actionList_Opener() then return end
         -- Wild Charge
                 -- wild_charge
                 if isChecked("Displacer Beast / Wild Charge") and isValidUnit("target") then
@@ -1447,7 +1502,7 @@ local function runRotation()
                     else
                         if cast.shred(units.dyn5) then return end
                     end
-                elseif not (buff.prowl.exists() or buff.shadowmeld.exists()) and opener == true then
+                elseif not (buff.prowl.exists() or buff.shadowmeld.exists()) then
                     -- auto_attack
                     if getDistance("target") < 5 then
                         StartAttack()

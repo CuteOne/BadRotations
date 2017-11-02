@@ -369,11 +369,11 @@ function castOpener(spellIndex,flag,index,checkdistance)
 	local castSpell = br.player.cast[spellIndex]
 	local spellName = select(1,GetSpellInfo(spellCast))
 	local maxRange = select(6,GetSpellInfo(spellCast))
-	local cd = br.player.cd[spellIndex].remain()
+	local cooldown = br.player.cd[spellIndex].remain()
 	if not maxRange or maxRange == 0 then maxRange = 5 end
 	if checkdistance == nil then checkdistance = true end
 	if not checkdistance or getDistance("target") < maxRange then
-	    if (not castSpell(nil,"debug") and (cd == 0 or cd > br.player.gcdMax)) then
+	    if (not castSpell(nil,"debug") and (cooldown == 0 or cooldown > br.player.gcdMax)) then
 	        Print(index..": "..spellName.." (Uncastable)");
 	        _G[flag] = true;
 	        return true

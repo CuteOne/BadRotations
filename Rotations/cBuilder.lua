@@ -293,10 +293,10 @@ function br.loader:new(spec,specName)
         end
     end
 
-    self.enemies = function(range,unit,checkInCombat)
+    self.enemies = function(range,unit,checkNoCombat)
         if unit == nil then unit = "player" end
-        if checkInCombat == nil then checkInCombat = false end
-        return getEnemies(unit,range,checkInCombat)
+        if checkNoCombat == nil then checkNoCombat = false end
+        return getEnemies(unit,range,checkNoCombat)
     end
 
     if self.spell.pets ~= nil then
