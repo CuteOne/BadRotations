@@ -487,8 +487,8 @@ local function runRotation()
             if useCDs() then
         -- Trinkets
                 if isChecked("Trinkets") then
-                    -- use_item,name=tarnished_sentinel_medallion,if=((cooldown.trueshot.remains<6|cooldown.trueshot.remains>30)&(target.time_to_die>cooldown+duration))|target.time_to_die<25|buff.bullseye.react=30
-                    if hasEquiped(147017) and (((cd.trueshot.remain() < 6 or cd.trueshot.remain() > 30) and (ttd(units.dyn40) > 120 + 20 or isDummy("target"))) 
+                    -- use_item,name=tarnished_sentinel_medallion,if=((cooldown.trueshot.remains<6|cooldown.trueshot.remains>45)&(target.time_to_die>cooldown+duration))|target.time_to_die<25|buff.bullseye.react=30
+                    if hasEquiped(147017) and (((cd.trueshot.remain() < 6 or cd.trueshot.remain() > 45) and (ttd(units.dyn40) > 120 + 20 or isDummy("target"))) 
                         or (ttd(units.dyn40) < 25 or buff.bullseye.stack() == 30)) 
                     then
                         useItem(147017)

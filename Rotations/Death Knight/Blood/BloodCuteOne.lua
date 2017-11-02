@@ -94,6 +94,8 @@ local function createOptions()
             br.ui:createSpinner(section, "Heirloom Neck",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.");
         -- Anti-Magic Shell
             br.ui:createSpinner(section, "Anti-Magic Shell",  50,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.");
+        -- Blooddrinker
+            br.ui:createSpinner(section, "Blooddrinker",  75,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.");
         -- Vampiric Blood
             br.ui:createSpinner(section, "Vampiric Blood",  40,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.");
         -- Icebound Fortitude
@@ -256,6 +258,10 @@ local function runRotation()
         -- Anti-Magic Shell
                 if isChecked("Anti-Magic Shell") and php <= getOptionValue("Anti-Magic Shell") then
                     if cast.antiMagicShell() then return end
+                end
+        -- Vampiric Blood
+                if isChecked("Blooddrinker") and talent.blooddrinker and php <= getOptionValue("Blooddrinker") and not cast.blooddrinker.current() then
+                    if cast.blooddrinker() then return end
                 end
         -- Icebound Fortitude
                 if isChecked("Icebound Fortitude") and php <= getOptionValue("Icebound Fortitude") then
