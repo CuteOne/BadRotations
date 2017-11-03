@@ -427,6 +427,9 @@ local function runRotation()
                     if talent.hungeringRuneWeapon then
                         if cast.pillarOfFrost() then return end
                     end
+                    if not (talent.hungeringRuneWeapon or talent.obliteration or talent.breathOfSindragosa) then
+                        if cast.pillarOfFrost() then return end
+                    end
                 end
         -- Breath of Sindragosa
                 -- breath_of_sindragosa,if=buff.pillar_of_frost.up
