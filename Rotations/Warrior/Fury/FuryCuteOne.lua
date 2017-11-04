@@ -394,7 +394,7 @@ local function runRotation()
         -- Avatar
                 -- avatar,if=buff.battle_cry.up|(target.time_to_die<(cooldown.battle_cry.remains+10))
                 if isChecked("Avatar") then
-                    if buff.battleCry.exists() or (ttd(units.dyn5) < (cd.battleCry.remain() + 10)) then
+                    if buff.battleCry.remain() > 6 or cd.battleCry.remain() < 10 or (ttd(units.dyn5) < (cd.battleCry.remain() + 10)) then
                         if cast.avatar() then return end
                     end
                 end
@@ -563,61 +563,33 @@ local function runRotation()
             if talent.frenzy and (not buff.frenzy.exists() or buff.frenzy.remain() <= 2) then
                 if cast.furiousSlash() then return end
             end
-        -- Whirlwind
-            -- whirlwind,if=spell_targets.whirlwind=3&buff.wrecking_ball.react
-            if ((mode.rotation == 1 and #enemies.yards8 >= getOptionValue("Whirlwind Units")) or mode.rotation == 2) and buff.wreckingBall.exists() and getDistance(units.dyn8) < 8 then
-                if cast.whirlwind() then return end
-            end
         -- Raging Blow
             -- raging_blow,if=talent.inner_rage.enabled&buff.enrage.up
             if talent.innerRage and buff.enrage.exists() then
                 if cast.ragingBlow() then return end
-            end
-        -- Whirlwind
-            -- whirlwind,if=spell_targets.whirlwind>1&buff.meat_cleaver.down
-            if ((mode.rotation == 1 and #enemies.yards8 > 1) or mode.rotation == 2) and not buff.meatCleaver.exists() and getDistance(units.dyn8) < 8 then
-                if cast.whirlwind() then return end
             end
         -- Rampage
             -- rampage,if=(buff.enrage.down&!talent.frothing_berserker.enabled)|buff.massacre.react|rage>=100
             if (not buff.enrage.exists() and not talent.frothingBerserker) or buff.massacre.exists() or power >= 100 then
                 if cast.rampage() then return end
             end
-        -- Raging Blow
-            -- raging_blow,if=talent.inner_rage.enabled
-            if talent.innerRage then
-                if cast.ragingBlow() then return end
-            end
         -- Execute
             -- execute,if=buff.stone_heart.react
-            if buff.stoneHeart.exists() then
+            if buff.stoneHeart.exists() and ((talent.innerRage and cd.ragingBlow.remain() > 1) or buff.enrage.exists()) then
                 if cast.execute() then return end
-            end
-        -- Whirlwind
-            -- whirlwind,if=buff.wrecking_ball.react&buff.enrage.up
-            if ((mode.rotation == 1 and #enemies.yards8 > 0) or mode.rotation == 2) and buff.wreckingBall.exists() and buff.enrage.exists() and getDistance(units.dyn8) < 8 then
-                if cast.whirlwind() then return end
-            end
-        -- Bladestorm
-            -- bladestorm,if=buff.enrage.remains>2&(raid_event.adds.in>90|!raid_event.adds.exists|spell_targets.bladestorm_mh>desired_targets)
-            if isChecked("Bladestorm") and ((mode.rotation == 1 and #enemies.yards8 > 1) or mode.rotation == 2) and buff.enrage.remain() > 2 then
-                if cast.bladestorm() then return end
             end
         -- Bloodthirst
             -- bloodthirst
             if cast.bloodthirst() then return end
         -- Raging Blow
-            -- raging_blow,if=!set_bonus.tier19_2pc&!talent.inner_rage.enabled
-            if not tier19_2pc and not talent.innerRage and buff.enrage.exists() then
-                if cast.ragingBlow() then return end
-            end
+            -- raging_blow,if=talent.inner_rage.enabled
+            if cast.ragingBlow() then return end
         -- Whirlwind
-            -- whirlwind,if=spell_targets.whirlwind>2
-            if ((mode.rotation == 1 and #enemies.yards8 > 2) or mode.rotation == 2) and getDistance(units.dyn8) < 8 then
+            -- whirlwind,if=buff.wrecking_ball.react&buff.enrage.up
+            if ((mode.rotation == 1 and #enemies.yards8 > 0) or mode.rotation == 2) and buff.wreckingBall.exists() and buff.enrage.exists() and getDistance(units.dyn8) < 8 then
                 if cast.whirlwind() then return end
             end
         -- Furious Slash
-            -- furious_slash
             if cast.furiousSlash() then return end
         end -- End Action List - Single
     -- Action List - Execute
