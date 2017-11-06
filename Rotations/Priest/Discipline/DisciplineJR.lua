@@ -473,9 +473,9 @@ local function runRotation()
                 end
             end
         end
-        if mode.spreadatonement == 2 and (#notAtonements > 0  or #shortAtonement > 0) then
+        if mode.spreadatonement == 2 and (#notAtonements > 0  or #shortAtonements > 0) then
             local thisUnit = nil
-            if #notAtonements > 0 then thisUnit = notAtonements[1].unit else thisUnit = shortAtonement[1].unit end
+            if #notAtonements > 0 then thisUnit = notAtonements[1].unit else thisUnit = shortAtonements[1].unit end
             if buff.rapture.exists() then
                 if cast.powerWordShield(thisUnit, "aoe") then
                     spreadCount = spreadCount - 1
