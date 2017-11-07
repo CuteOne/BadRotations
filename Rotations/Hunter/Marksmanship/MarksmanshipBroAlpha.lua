@@ -181,24 +181,6 @@ local function runRotation()
 		-- Attack Haste
 		local attackHaste = 1 / (1 + (UnitSpellHaste("player")/100))
 
-		-- -- Establish Vulnerable Window
-		-- local vulnWindow = vulnWindow or 0
-		-- if debuff.vulnerable.remain("target") > 0 then
-			-- vulnWindow = debuff.vulnerable.remain("target")
-		-- else
-			-- vulnWindow = 0
-		-- end
-
-		-- -- Aimed Shot Execute Time
-		-- local aimedExecute = math.max(cast.time.aimedShot(),gcdMax)
-
-		-- -- Calculate Number of Possible Aimed Shots in Vunerable Window
-		-- local vulnAimCast = vulnAimCast or 0
-		-- vulnAimCast = math.floor(vulnWindow / aimedExecute)
-		-- if vulnAimCast > 0 and vulnAimCast > math.floor(((power + cast.regen.aimedShot())*(vulnAimCast - 1)) / cast.cost.aimedShot()) then
-			-- vulnAimCast = math.floor(((power + cast.regen.aimedShot())*(vulnAimCast - 1)) / cast.cost.aimedShot())
-		-- end
-
 		-- Vulnerable Window
         if not vulnWindow then vulnWindow = debuff.vulnerable.remain(units.dyn40) end
         -- vuln_window,op=setif,value=cooldown.sidewinders.full_recharge_time,value_else=debuff.vulnerability.remains,condition=talent.sidewinders.enabled&cooldown.sidewinders.full_recharge_time<variable.vuln_window
@@ -291,8 +273,8 @@ local function runRotation()
             if useCDs() then
         -- Trinkets
                 if isChecked("Trinkets") then
-                    -- use_item,name=tarnished_sentinel_medallion,if=((cooldown.trueshot.remains<6|cooldown.trueshot.remains>30)&(target.time_to_die>cooldown+duration))|target.time_to_die<25|buff.bullseye.react=30
-                    if hasEquiped(147017) and (((cd.trueshot.remain() < 6 or cd.trueshot.remain() > 30) and (ttd("target") > (120 + 20)))
+                    -- use_item,name=tarnished_sentinel_medallion,if=((cooldown.trueshot.remains<6|cooldown.trueshot.remains>45)&(target.time_to_die>cooldown+duration))|target.time_to_die<25|buff.bullseye.react=30
+                    if hasEquiped(147017) and (((cd.trueshot.remain() < 6 or cd.trueshot.remain() > 45) and (ttd("target") > (120 + 20)))
 												or ttd("target") < 25
 												or buff.bullseye.stack() == 30
 												or isDummy("target"))
