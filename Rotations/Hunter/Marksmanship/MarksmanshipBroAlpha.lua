@@ -453,7 +453,7 @@ local function runRotation()
 			if actionList_Interrupts() then return true end
             if actionList_Cooldowns() then return true end
 			if ttd("target") < vulnWindow and #enemies.yards8t == 1 and not isDummy("target") then
-				if actionList_TargetDie() then return true end
+            if actionList_TargetDie() then return true end
 			end
             if actionList_PatientSniper() then return true end
         end
