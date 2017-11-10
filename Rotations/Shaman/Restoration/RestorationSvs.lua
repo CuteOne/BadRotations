@@ -472,7 +472,7 @@ local function runRotation()
                             local meleeFriends = getAllies(tankTarget,5)
                             -- get the best ground circle to encompass the most of them
                             local loc = nil
-                            if isChecked("Healing Rain on CD") and #meleeFriends >= getvalue("Healing Rain Targets") then
+                            if isChecked("Healing Rain on CD") and #meleeFriends >= getValue("Healing Rain Targets") then
                                 loc = getBestGroundCircleLocation(meleeFriends,getValue("Healing Rain Targets"),6,10)
                             else
                                 local meleeHurt = {}
@@ -481,7 +481,7 @@ local function runRotation()
                                         tinsert(meleeHurt,meleeFriends[i])
                                     end
                                 end
-                                if #meleeHurt >= getvalue("Healing Rain Targets") then
+                                if #meleeHurt >= getValue("Healing Rain Targets") then
                                     loc = getBestGroundCircleLocation(meleeHurt,getValue("Healing Rain Targets"),6,10)
                                 end
                             end
@@ -591,7 +591,7 @@ local function runRotation()
                             local meleeFriends = getAllies(tankTarget,5)
                             -- get the best ground circle to encompass the most of them
                             local loc = nil
-                            if isChecked("Healing Rain on CD") and #meleeFriends >= getvalue("Healing Rain Targets") then
+                            if isChecked("Healing Rain on CD") and #meleeFriends >= getValue("Healing Rain Targets") then
                                 loc = getBestGroundCircleLocation(meleeFriends,getValue("Healing Rain Targets"),6,10)
                             else
                                 local meleeHurt = {}
@@ -600,7 +600,7 @@ local function runRotation()
                                         tinsert(meleeHurt,meleeFriends[i])
                                     end
                                 end
-                                if #meleeHurt >= getvalue("Healing Rain Targets") then
+                                if #meleeHurt >= getValue("Healing Rain Targets") then
                                     loc = getBestGroundCircleLocation(meleeHurt,getValue("Healing Rain Targets"),6,10)
                                 end
                             end
