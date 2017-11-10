@@ -546,15 +546,6 @@ function createCastFunction(thisUnit,debug,minUnits,effectRng,spellID,index)
     if --[[isChecked("Use: "..spellName) and ]]not select(2,IsUsableSpell(spellID)) and getSpellCD(spellID) == 0 and (isKnown(spellID) or debug == "known") then --and not isIncapacitated(spellID) then
         -- Attempt to determine best unit for spell's range
         if thisUnit == nil then thisUnit = getSpellUnit(spellCast) end
-        local enemiesInRectValid 	= getEnemiesInRect(effectRng,maxRange,false)
-        local enemiesInRectAll 		= getEnemiesInRect(effectRng,maxRange,false,true)
-        local safeToRect 			= enemiesInRectValid >= minUnits and enemiesInRectValid >= enemiesInRectAll
-        local enemiesInConeValid 	= getEnemiesInCone(effectRng,maxRange,false)
-        local enemiesInConeAll 		= getEnemiesInCone(effectRng,maxRange,false,true)
-        local safeToCone 			= enemiesInConeValid >= minUnits and enemiesInConeValid >= enemiesInConeAll
-        local enemiesValid 			= #getEnemies("player",maxRange)
-        local enemiesAll 			= #getEnemies("player",maxRange,true)
-        local safeToAoE 			= enemiesValid >= minUnits and enemiesValid >= enemiesAll
         -- Return specified/best cast method
         if debug == "debug" then
             castDebug()
@@ -569,6 +560,15 @@ function createCastFunction(thisUnit,debug,minUnits,effectRng,spellID,index)
             castDebug()
             return castGroundAtUnit(spellCast,effectRng,minUnits,maxRange,minRange,debug,"target")
         elseif thisUnit ~= nil then
+	        local enemiesInRectValid 	= getEnemiesInRect(effectRng,maxRange,false)
+	        local enemiesInRectAll 		= getEnemiesInRect(effectRng,maxRange,false,true)
+	        local safeToRect 			= enemiesInRectValid >= minUnits and enemiesInRectValid >= enemiesInRectAll
+	        local enemiesInConeValid 	= getEnemiesInCone(effectRng,maxRange,false)
+	        local enemiesInConeAll 		= getEnemiesInCone(effectRng,maxRange,false,true)
+	        local safeToCone 			= enemiesInConeValid >= minUnits and enemiesInConeValid >= enemiesInConeAll
+	        local enemiesValid 			= #getEnemies(thisUnit,maxRange)
+	        local enemiesAll 			= #getEnemies(thisUnit,maxRange,true)
+	        local safeToAoE 			= enemiesValid >= minUnits and enemiesValid >= enemiesAll
             local distance = getDistance(thisUnit) 
             if ((distance >= minRange and distance < maxRange) or IsSpellInRange(spellName,thisUnit) == 1) then
                 if debug == "rect" and safeToRect then
@@ -578,7 +578,7 @@ function createCastFunction(thisUnit,debug,minUnits,effectRng,spellID,index)
                 elseif debug == "cone" and safeToCone then
                 	castDebug()
                 	return castSpell(thisUnit,spellCast,false,false,false,true,false,true,true,false)
-                elseif debug == "ground" then
+                elseif debug == "ground" and safeToAoE then
                     if getLineOfSight(thisUnit) then
                         if IsMouseButtonDown(2) then 
                             return false 
