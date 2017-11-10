@@ -343,7 +343,7 @@ local function runRotation()
   local function actionList_PatientSniper()
     -- Aimed Shot
     -- aimed_shot,if=spell_targets>1&talent.trick_shot.enabled&debuff.vulnerability.remains>cast_time&(buff.sentinels_sight.stack>=spell_targets.multishot*5|buff.sentinels_sight.stack+(spell_targets.multishot%2)>20|buff.lock_and_load.up|(set_bonus.tier20_2pc&!buff.t20_2p_critical_aimed_damage.up&action.aimed_shot.in_flight))
-    if #enemies.yards8t > 1 and talent.trickShot and debuff.vulnerable.remain("target") > getCastTime(spell.aimedShot) and (buff.sentinelsSight.stack() >= #enemies.yards8t * 5	or buff.sentinelsSight.stack() + (#enemies.yards8t / 2) > 20 or buff.lockAndLoad.exists() or (t20_2pc and not buff.t20_2pc_critical_aimed.exists() and cast.last.aimedShot())) then
+    if (mode.rotation == 1 or mode.rotation == 2) and #enemies.yards8t > 1 and talent.trickShot and debuff.vulnerable.remain("target") > getCastTime(spell.aimedShot) and (buff.sentinelsSight.stack() >= #enemies.yards8t * 5	or buff.sentinelsSight.stack() + (#enemies.yards8t / 2) > 20 or buff.lockAndLoad.exists() or (t20_2pc and not buff.t20_2pc_critical_aimed.exists() and cast.last.aimedShot())) then
       if cast.aimedShot() then
         print("PS Aimed Shot 1 cast at "..power.." Focus")
         return
@@ -351,7 +351,7 @@ local function runRotation()
     end
     -- Marked Shot
     -- marked_shot,if=spell_targets>1
-    if #enemies.yards8t > 1 and debuff.huntersMark.exists("target") then
+    if (mode.rotation == 1 or mode.rotation == 2) and #enemies.yards8t > 1 and debuff.huntersMark.exists("target") then
       if cast.markedShot() then
         print("PS Marked Shot 2 cast at "..power.." Focus")
         return
@@ -359,7 +359,7 @@ local function runRotation()
     end
     -- Multi-Shot
     -- multi-shot,if=spell_targets>1&(buff.marking_targets.up|buff.trueshot.up)
-    if #enemies.yards8t > 1 and (buff.markingTargets.exists() or buff.trueshot.exists()) then
+    if (mode.rotation == 1 or mode.rotation == 2) and #enemies.yards8t > 1 and (buff.markingTargets.exists() or buff.trueshot.exists()) then
       if cast.multiShot() then
         print("PS Multi Shot 3 cast at "..power.." Focus")
         return
@@ -391,7 +391,7 @@ local function runRotation()
     end
     -- Aimed Shot
     -- aimed_shot,if=debuff.vulnerability.up&buff.lock_and_load.up&(!variable.pooling_for_piercing|lowest_vuln_within.5>gcd.max)
-    if debuff.vulnerable.exists("target") and buff.lockAndLoad.exists() then
+    if debuff.vulnerable.exists("target") and buff.lockAndLoad.exists("player") then
       if cast.aimedShot() then
         print("PS Aimed Shot 7 cast at "..power.." Focus")
         return
@@ -399,7 +399,7 @@ local function runRotation()
     end
     -- Aimed Shot
     -- aimed_shot,if=spell_targets.multishot>1&debuff.vulnerability.remains>execute_time&(!variable.pooling_for_piercing|(focus>100&lowest_vuln_within.5>(execute_time+gcd.max)))
-    if #enemies.yards8t > 1 and debuff.vulnerable.remain("target") > aimedExecute and power > 100 then
+    if (mode.rotation == 1 or mode.rotation == 2) and #enemies.yards8t > 1 and debuff.vulnerable.remain("target") > aimedExecute and power > 100 then
       if cast.aimedShot() then
         print("PS Aimed Shot 8 cast at "..power.." Focus")
         return
@@ -407,7 +407,7 @@ local function runRotation()
     end
     -- Multi-Shot
     -- multishot,if=spell_targets>1&variable.can_gcd&focus+cast_regen+action.aimed_shot.cast_regen<focus.max&(!variable.pooling_for_piercing|lowest_vuln_within.5>gcd.max)
-    if #enemies.yards8t > 1 and canGCD and (power + getCastRegen(spell.multiShot) + getCastRegen(spell.aimedShot)) < powerMax then
+    if (mode.rotation == 1 or mode.rotation == 2) and #enemies.yards8t > 1 and canGCD and (power + getCastRegen(spell.multiShot) + getCastRegen(spell.aimedShot)) < powerMax then
       if cast.multiShot() then
         print("PS Multi Shot 9 cast at "..power.." Focus")
         return
@@ -415,7 +415,7 @@ local function runRotation()
     end
     -- Arcane Shot
     -- arcane_shot,if=spell_targets.multishot=1&(!set_bonus.tier20_2pc|!action.aimed_shot.in_flight|buff.t20_2p_critical_aimed_damage.remains>action.aimed_shot.execute_time+gcd)&variable.vuln_aim_casts>0&variable.can_gcd&focus+cast_regen+action.aimed_shot.cast_regen<focus.max&(!variable.pooling_for_piercing|lowest_vuln_within.5>gcd)
-    if #enemies.yards8t == 1 and (not t20_2pc or not cast.last.aimedShot() or buff.t20_2pc_critical_aimed.remain() > aimedExecute + gcd) and vulnAimCast > 0 and canGCD and power + cast.regen.arcaneShot() + cast.regen.aimedShot() < powerMax then
+    if (mode.rotation == 3 or #enemies.yards8t == 1) and (not t20_2pc or not cast.last.aimedShot() or buff.t20_2pc_critical_aimed.remain() > aimedExecute + gcd) and vulnAimCast > 0 and canGCD and power + cast.regen.arcaneShot() + cast.regen.aimedShot() < powerMax then
       if cast.arcaneShot() then
         print("PS Arcane Shot 10 cast at "..power.." Focus")
         return
@@ -447,7 +447,7 @@ local function runRotation()
     end
     -- Arcane Shot
     -- arcane_shot,if=spell_targets.multishot=1&(!variable.pooling_for_piercing|lowest_vuln_within.5>gcd.max)
-    if #enemies.yards8t == 1 then
+    if mode.rotation == 3 or #enemies.yards8t == 1 then
       if cast.arcaneShot() then
         print("PS Arcane Shot 14 cast at "..power.." Focus")
         return
@@ -455,7 +455,7 @@ local function runRotation()
     end
     -- Multi-Shot
     -- multishot,if=spell_targets>1&(!variable.pooling_for_piercing|lowest_vuln_within.5>gcd.max)
-    if #enemies.yards8t > 1 then
+    if (mode.rotation == 1 or mode.rotation == 2) and #enemies.yards8t > 1 then
       if cast.multiShot() then
         print("PS Multi Shot 15 cast at "..power.." Focus")
         return
