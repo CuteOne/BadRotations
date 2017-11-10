@@ -211,7 +211,7 @@ local function runRotation()
 
         units.dyn38 = br.player.units(40 * (1 + GetMasteryEffect()/100))
         units.dyn40 = br.player.units(40 * (1 + GetMasteryEffect()/100))
-        enemies.yards8t = br.player.enemies(8,br.player.units(8,true))
+        enemies.yards8t = br.player.enemies(8,br.player.units(40,true))
         enemies.yards40 = br.player.enemies(40 * (1 + GetMasteryEffect()/100))
         enemies.yards40r = getEnemiesInRect(10,40 * (1 + GetMasteryEffect()/100),false) or 0
 

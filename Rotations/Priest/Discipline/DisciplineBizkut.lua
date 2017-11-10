@@ -319,6 +319,7 @@ local function runRotation()
         lowest.guid                                         = br.friend[1].guid                      
         local tank                                          = {}    --Tank
 
+        units.dyn5  = br.player.units(5)
         units.dyn30 = br.player.units(30)
         units.dyn40 = br.player.units(40)
         enemies.dyn24 = br.player.enemies(24)
@@ -561,7 +562,7 @@ local function runRotation()
                         end
                     end
                     --Touch of the Void
-                    if isChecked("Touch of the Void") and getDistance(br.player.units.dyn5)<5 then
+                    if isChecked("Touch of the Void") and getDistance(units.dyn5)<5 then
                         if hasEquiped(128318) then
                             if GetItemCooldown(128318)==0 then
                                 useItem(128318)
