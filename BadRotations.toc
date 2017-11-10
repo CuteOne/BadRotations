@@ -140,6 +140,7 @@ Rotations\Hunter\Beastmaster\BeastmasterArh.lua
 
 Rotations\Hunter\Marksmanship\MarksmanshipCuteOne.lua
 Rotations\Hunter\Marksmanship\MarksmanshipAura.lua
+Rotations\Hunter\Marksmanship\MarksmanshipBroAlpha.lua
 
 Rotations\Hunter\Survival\SurvivalCuteOne.lua
 
