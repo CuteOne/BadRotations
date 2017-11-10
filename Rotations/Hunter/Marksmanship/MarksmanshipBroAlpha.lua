@@ -129,14 +129,14 @@ local function runRotation()
   local cd                                            = br.player.cd
   local charges                                       = br.player.charges
   local deadMouse                                     = UnitIsDeadOrGhost("mouseover")
-  local deadtar, attacktar, hastar, playertar         = deadtar or UnitIsDeadOrGhost("target"), attacktar or UnitCanAttack("target", "player"), hastar or GetObjectExists("target"), UnitIsPlayer("target")
+  local deadtar, attacktar, hastar, playertar         = deadtar or UnitIsDeadOrGhost(units.dyn40), attacktar or UnitCanAttack(units.dyn40, "player"), hastar or GetObjectExists(units.dyn40), UnitIsPlayer(units.dyn40)
   local debuff, debuffcount                           = br.player.debuff, br.player.debuffcount
   local enemies                                       = enemies or {}
   local explosiveTarget                               = explosiveTarget
   local falling, swimming, flying, moving             = getFallTime(), IsSwimming(), IsFlying(), GetUnitSpeed("player")>0
   local fatality                                      = false
   local flaskBuff                                     = getBuffRemain("player",br.player.flask.wod.buff.agilityBig)
-  local friendly                                      = friendly or UnitIsFriend("target", "player")
+  local friendly                                      = friendly or UnitIsFriend(units.dyn40, "player")
   local gcd                                           = br.player.gcd
   local gcdMax                                        = br.player.gcdMax
   local hasMouse                                      = GetObjectExists("mouseover")
@@ -183,12 +183,12 @@ local function runRotation()
   local attackHaste = 1 / (1 + (UnitSpellHaste("player")/100))
 
   -- Vulnerable Window
-  if not vulnWindow then vulnWindow = debuff.vulnerable.remain("target") end
+  if not vulnWindow then vulnWindow = debuff.vulnerable.remain(units.dyn40) end
   -- vuln_window,op=setif,value=cooldown.sidewinders.full_recharge_time,value_else=debuff.vulnerability.remains,condition=talent.sidewinders.enabled&cooldown.sidewinders.full_recharge_time<variable.vuln_window
   if talent.sidewinders and charges.sidewinders.timeTillFull() < vulnWindow then
     vulnWindow = charges.sidewinders.timeTillFull()
   else
-    vulnWindow = debuff.vulnerable.remain("target")
+    vulnWindow = debuff.vulnerable.remain(units.dyn40)
   end
 
   -- Vulnerable Aim Casts
@@ -211,7 +211,7 @@ local function runRotation()
   local function actionList_Extras()
     -- Dummy Test
     if isChecked("DPS Testing") then
-      if GetObjectExists("target") then
+      if GetObjectExists(units.dyn40) then
         if getCombatTime() >= (tonumber(getOptionValue("DPS Testing"))*60) and isDummy() then
           StopAttack()
           ClearTarget()
@@ -275,10 +275,10 @@ local function runRotation()
       -- Trinkets
       if isChecked("Trinkets") then
         -- use_item,name=tarnished_sentinel_medallion,if=((cooldown.trueshot.remains<6|cooldown.trueshot.remains>45)&(target.time_to_die>cooldown+duration))|target.time_to_die<25|buff.bullseye.react=30
-        if hasEquiped(147017) and (((cd.trueshot.remain() < 6 or cd.trueshot.remain() > 45) and (ttd("target") > (120 + 20)))
-        or ttd("target") < 25
+        if hasEquiped(147017) and (((cd.trueshot.remain() < 6 or cd.trueshot.remain() > 45) and (ttd(units.dyn40) > (120 + 20)))
+        or ttd(units.dyn40) < 25
         or buff.bullseye.stack() == 30
-        or isDummy("target"))
+        or isDummy(units.dyn40))
         then
           useItem(147017)
         end
@@ -292,14 +292,14 @@ local function runRotation()
       -- Potion
       -- potion,if=(buff.trueshot.react&buff.bloodlust.react)|buff.bullseye.react>=23|((consumable.prolonged_power&target.time_to_die<62)|target.time_to_die<31)
       if isChecked("Potion") and canUse(142117) and inRaid then
-        if (buff.trueshot.exists() and hasBloodLust()) or buff.bullseye.stack() >= 23 or ttd("target") < 62 then
+        if (buff.trueshot.exists() and hasBloodLust()) or buff.bullseye.stack() >= 23 or ttd(units.dyn40) < 62 then
           useItem(142117)
         end
       end
       -- Trueshot
       -- trueshot,if=variable.trueshot_cooldown=0|buff.bloodlust.up|(variable.trueshot_cooldown>0&target.time_to_die>(variable.trueshot_cooldown+duration))|buff.bullseye.react>25|target.time_to_die<16
       if isChecked("Trueshot") then
-        if hasBloodLust() or buff.bullseye.stack() >= 25 or ttd("target") < 16	or ttd("target") > (88 + 16) then
+        if hasBloodLust() or buff.bullseye.stack() >= 25 or ttd(units.dyn40) < 16	or ttd(units.dyn40) > (88 + 16) then
           if cast.trueshot("player") then return end
         end
       end
@@ -317,14 +317,14 @@ local function runRotation()
     end
     -- Aimed Shot
     -- aimed_shot,if=debuff.vulnerability.remains>cast_time&target.time_to_die>cast_time
-    if debuff.vulnerable.remain("target") > getCastTime(spell.aimedShot) and ttd("target") > getCastTime(spell.aimedShot) then
+    if debuff.vulnerable.remain(units.dyn40) > getCastTime(spell.aimedShot) and ttd(units.dyn40) > getCastTime(spell.aimedShot) then
       if cast.aimedShot() then
         print("TargetDie Aimed Shot cast at "..power.." Focus")
       return end
     end
     -- Marked Shot
     -- marked_shot
-    if debuff.huntersMark.exists("target") then
+    if debuff.huntersMark.exists(units.dyn40) then
       if cast.markedShot() then
         print("TargetDie Marked Shot cast at "..power.." Focus")
       return end
@@ -340,14 +340,14 @@ local function runRotation()
   local function actionList_PatientSniper()
     -- Aimed Shot
     -- aimed_shot,if=spell_targets>1&talent.trick_shot.enabled&debuff.vulnerability.remains>cast_time&(buff.sentinels_sight.stack>=spell_targets.multishot*5|buff.sentinels_sight.stack+(spell_targets.multishot%2)>20|buff.lock_and_load.up|(set_bonus.tier20_2pc&!buff.t20_2p_critical_aimed_damage.up&action.aimed_shot.in_flight))
-    if #enemies.yards8t > 1 and talent.trickShot and debuff.vulnerable.remain("target") > getCastTime(spell.aimedShot) and (buff.sentinelsSight.stack() >= #enemies.yards8t * 5	or buff.sentinelsSight.stack() + (#enemies.yards8t / 2) > 20 or buff.lockAndLoad.exists() or (t20_2pc and not buff.t20_2pc_critical_aimed.exists() and cast.last.aimedShot())) then
+    if #enemies.yards8t > 1 and talent.trickShot and debuff.vulnerable.remain(units.dyn40) > getCastTime(spell.aimedShot) and (buff.sentinelsSight.stack() >= #enemies.yards8t * 5	or buff.sentinelsSight.stack() + (#enemies.yards8t / 2) > 20 or buff.lockAndLoad.exists() or (t20_2pc and not buff.t20_2pc_critical_aimed.exists() and cast.last.aimedShot())) then
       if cast.aimedShot() then
         print("PS Aimed Shot 1 cast at "..power.." Focus")
       return end
     end
     -- Marked Shot
     -- marked_shot,if=spell_targets>1
-    if #enemies.yards8t > 1 and debuff.huntersMark.exists("target") then
+    if #enemies.yards8t > 1 and debuff.huntersMark.exists(units.dyn40) then
       if cast.markedShot() then
         print("PS Marked Shot 2 cast at "..power.." Focus")
       return end
@@ -368,7 +368,7 @@ local function runRotation()
     end
     -- A Murder of Crows
     -- a_murder_of_crows,if=(!variable.pooling_for_piercing|lowest_vuln_within.5>gcd.max)&(target.time_to_die>=cooldown+duration|target.health.pct<20|target.time_to_die<16)&variable.vuln_aim_casts=0
-    if (ttd("target") >= (60 + 15) or getHP("target") < 20 or ttd("target") < 16) and vulnAimCast == 0 then
+    if (ttd(units.dyn40) >= (60 + 15) or getHP(units.dyn40) < 20 or ttd(units.dyn40) < 16) and vulnAimCast == 0 then
       if cast.aMurderOfCrows() then
         print("PS Murder of Crows 5 cast at "..power.." Focus")
       return end
@@ -382,14 +382,14 @@ local function runRotation()
     end
     -- Aimed Shot
     -- aimed_shot,if=debuff.vulnerability.up&buff.lock_and_load.up&(!variable.pooling_for_piercing|lowest_vuln_within.5>gcd.max)
-    if debuff.vulnerable.exists("target") and buff.lockAndLoad.exists() then
+    if debuff.vulnerable.exists(units.dyn40) and buff.lockAndLoad.exists() then
       if cast.aimedShot() then
         print("PS Aimed Shot 7 cast at "..power.." Focus")
       return end
     end
     -- Aimed Shot
     -- aimed_shot,if=spell_targets.multishot>1&debuff.vulnerability.remains>execute_time&(!variable.pooling_for_piercing|(focus>100&lowest_vuln_within.5>(execute_time+gcd.max)))
-    if #enemies.yards8t > 1 and debuff.vulnerable.remain("target") > aimedExecute and power > 100 then
+    if #enemies.yards8t > 1 and debuff.vulnerable.remain(units.dyn40) > aimedExecute and power > 100 then
       if cast.aimedShot() then
         print("PS Aimed Shot 8 cast at "..power.." Focus")
       return end
@@ -410,14 +410,14 @@ local function runRotation()
     end
     -- Aimed Shot
     -- aimed_shot,if=!talent.sidewinders.enabled&debuff.vulnerability.remains>cast_time&(!variable.pooling_for_piercing|lowest_vuln_within.5>execute_time+gcd.max)
-    if not talent.sidewinders and debuff.vulnerable.remain("target") > cast.time.aimedShot() then
+    if not talent.sidewinders and debuff.vulnerable.remain(units.dyn40) > cast.time.aimedShot() then
       if cast.aimedShot() then
         print("PS Aimed Shot 11 cast at "..power.." Focus")
       return end
     end
     -- Marked Shot
     -- marked_shot,if=!talent.sidewinders.enabled&!variable.pooling_for_piercing&!action.windburst.in_flight&(focus>65|buff.trueshot.up|(1%attack_haste)>1.171)
-    if not talent.sidewinders and not cast.last.windburst() and (power > 65 or buff.trueshot.exists() or (1 / attackHaste) > 1.171) and debuff.huntersMark.exists("target") then
+    if not talent.sidewinders and not cast.last.windburst() and (power > 65 or buff.trueshot.exists() or (1 / attackHaste) > 1.171) and debuff.huntersMark.exists(units.dyn40) then
       if cast.markedShot() then
         print("PS Marked Shot 12 cast at "..power.." Focus")
       return end
@@ -446,19 +446,19 @@ local function runRotation()
   end
 
   local function marksmanRotation()
-    if not inCombat or pause() or (GetUnitExists("target") and (UnitIsDeadOrGhost("target") or not UnitCanAttack("target", "player"))) or mode.rotation == 4 then
+    if not inCombat or pause() or (GetUnitExists(units.dyn40) and (UnitIsDeadOrGhost(units.dyn40) or not UnitCanAttack(units.dyn40, "player"))) or mode.rotation == 4 then
       return false
     else
       if actionList_Extras() then return true end
       if actionList_Defensive() then return true end
       if actionList_Interrupts() then return true end
       if actionList_Cooldowns() then return true end
-      if ttd("target") < vulnWindow and #enemies.yards8t == 1 and not isDummy("target") then
+      if ttd(units.dyn40) < vulnWindow and #enemies.yards8t == 1 and not isDummy(units.dyn40) then
         if actionList_TargetDie() then return true end
-      end
+        end
       if actionList_PatientSniper() then return true end
-    end
-  return false
+      end
+    return false
   end
 
   ------------------
