@@ -97,7 +97,7 @@ function castGroundAtUnit(spellID, radius, minUnits, maxRange, minRange, spellTy
     local allUnitsInRange = {}
     if spellType == "heal" then allUnitsInRange = getAllies("player",40) else allUnitsInRange = br.player.enemies(maxRange,"player",true) end
 
-    if getUnits(unit,allUnitsInRange, radius - 3) >= minUnits then
+    if getUnits(unit,allUnitsInRange, radius - 3) >= minUnits and #getEnemies(unit,maxRange) >= #getEnemies(unit,maxRange,true) then
         local X1,Y1,Z1 = GetObjectPosition(unit)
         if castAtPosition(X1,Y1,Z1, spellID) then return true else return false end
     end
@@ -596,7 +596,7 @@ end
 -- local myTable = {"hello", "world"}
 -- inTable(myTable, "hello") == true
 -- inTable(myTable, "WHAT?") == false
--- TODO: check if tContains() does the same wow api
+-- check if tContains() does the same wow api
 function inTable(tbl, item)
     for key, value in pairs(tbl) do
         if value == item then return key end

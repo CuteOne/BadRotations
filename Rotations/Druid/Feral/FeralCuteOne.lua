@@ -458,7 +458,9 @@ local function runRotation()
 		        end
 	            if #enemies.yards20 > 0 then
 	            -- Tiger's Fury - Low Energy
-                	if cast.tigersFury() then return end
+                    if powerDeficit > 60 then
+                	   if cast.tigersFury() then return end
+                    end
 	            -- Savage Roar - Use Combo Points
 	                if combo >= 5 then
 	                	if cast.savageRoar() then return end
@@ -473,7 +475,7 @@ local function runRotation()
 	                        swipeSoon = GetTime();
 	                    end
 	                    if swipeSoon ~= nil and swipeSoon < GetTime() - 1 then
-	                    	if cast.swipe() then swipeSoon = nil; return end
+	                    	if cast.swipe(nil,"aoe") then swipeSoon = nil; return end
 	                    end
 	                end
 	            end -- End 20yrd Enemy Scan
@@ -1138,22 +1140,22 @@ local function runRotation()
         -- Thrash
             -- if CanRefreshDot(ThrashBleedFeral) and HasSetBonus(19,2)
             if debuff.thrash.refresh() and t19_2pc then
-                if cast.thrash() then return end
+                if cast.thrash(nil,"aoe") then return end
             end
         -- Brutal Slash
             -- if not CanRefreshDot(ThrashBleedFeral) or not HasSetBonus(19,2)
             if (not debuff.thrash.refresh() or not t19_2pc) and talent.brutalSlash then
-                if cast.brutalSlash() then return end
+                if cast.brutalSlash(nil,"aoe") then return end
             end
         -- Thrash
             -- if HasItem(LuffaWrappings)
             if hasEquiped(137056) then
-                if cast.thrash() then return end
+                if cast.thrash(nil,"aoe") then return end
             end
         -- Swipe 
             -- if not CanRefreshDot(ThrashBleedFeral) or not HasSetBonus(19,2)
             if (not debuff.thrash.refresh() or not t19_2pc) and not talent.brutalSlash then
-                if cast.swipe() then return end
+                if cast.swipe(nil,"aoe") then return end
             end
         end -- End Action List - AOE
     -- Action List - Generator
@@ -1177,7 +1179,7 @@ local function runRotation()
         -- Brutal Slash
             -- brutal_slash,if=spell_targets.brutal_slash>desired_targets
             if talent.brutalSlash and ((mode.rotation == 1 and #enemies.yards8 >= getOptionValue("Brutal Slash Targets")) or mode.rotation == 2) then
-                if cast.brutalSlash(units.dyn8) then return end
+                if cast.brutalSlash(units.dyn8AoE,"aoe") then return end
             end
         -- Thrash
             -- pool_resource,for_next=1
@@ -1187,7 +1189,7 @@ local function runRotation()
                    if power <= select(1, getSpellCost(spell.thrash)) and not buff.clearcasting.exists() then
                         return true
                     elseif power > select(1, getSpellCost(spell.thrash)) or buff.clearcasting.exists() then
-                        if cast.thrash("player") then return end
+                        if cast.thrash("player","aoe") then return end
                     end
                 end
             end
@@ -1213,7 +1215,7 @@ local function runRotation()
         -- Brutal Slash
             -- brutal_slash,if=(buff.tigers_fury.up&(raid_event.adds.in>(1+max_charges-charges_fractional)*recharge_time))
             if talent.brutalSlash and buff.tigersFury.exists() and charges.brutalSlash.frac() > 2.66 then
-                if cast.brutalSlash(units.dyn8) then return end
+                if cast.brutalSlash(units.dyn8AoE,"aoe") then return end
             end
         -- Moonfire
             -- moonfire_cat,target_if=remains<=duration*0.3
@@ -1238,7 +1240,7 @@ local function runRotation()
                 if power <= select(1, getSpellCost(spell.thrash)) and not buff.clearcasting.exists() then
                     return true
                 elseif power > select(1, getSpellCost(spell.thrash)) or buff.clearcasting.exists() then
-                    if cast.thrash("player") then return end
+                    if cast.thrash("player","aoe") then return end
                 end
             end
         -- Swipe
@@ -1248,7 +1250,7 @@ local function runRotation()
                 if power <= select(1, getSpellCost(spell.swipe)) and not buff.clearcasting.exists() then
                     return true
                 elseif power > select(1, getSpellCost(spell.swipe)) or buff.clearcasting.exists() then
-                    if cast.swipe("player") then return end
+                    if cast.swipe("player","aoe") then return end
                 end
             end
         -- Shred
@@ -1314,7 +1316,7 @@ local function runRotation()
             if talent.brutalSlash and power >= select(1, getSpellCost(spell.rake)) and ((charges.brutalSlash.frac() >= 2 + gcd) 
                 or ((mode.rotation == 1 and (#enemies.yards8 >= getOptionValue("Brutal Slash Targets") or ttd(units.dyn8) < charges.brutalSlash.count() * cd.brutalSlash.remain())) or mode.rotation == 2)) 
             then
-                if cast.brutalSlash(units.dyn8) then return end
+                if cast.brutalSlash(units.dyn8AoE,"aoe") then return end
             end
         -- Moonfire
             -- if CanRefreshDot(MoonfireDoT) and HasDot(RakeBleed) and TargetSecUntilDeath > 10
@@ -1332,22 +1334,22 @@ local function runRotation()
             -- if TargetsInRadius(Thrash) >= 3 and CanRefreshDot(ThrashBleedFeral)
             if multidot then
                 if ((mode.rotation == 1 and #enemies.yards8 >= 3) or (mode.rotation == 2 and #enemies.yards8 > 0)) and debuff.thrash.refresh(units.dyn8AoE) then
-                    if cast.thrash("player") then return end
+                    if cast.thrash("player","aoe") then return end
                 end
             end
         -- Swipe
             -- if TargetsInRadius(Swipe) >= 3 and not CanRefreshDot(ThrashBleedFeral)
             if not talent.brutalSlash and multidot and not debuff.thrash.refresh(units.dyn8) and ((mode.rotation == 1 and #enemies.yards8 >= 3) or (mode.rotation == 2 and #enemies.yards8 > 0)) then
-                if cast.swipe("player") then return end
+                if cast.swipe("player","aoe") then return end
             end
         -- Thrash
             -- if ArtifactTraitRank(ThrashingClaws) >= 4 and CanRefreshDot(ThrashBleedFeral) and HasItem(LuffaWrappings)
             if artifact.thrashingClaws.rank() >= 4 and debuff.thrash.refresh(units.dyn8) and hasEquiped(137056) then
-                if cast.thrash("player") then return end
+                if cast.thrash("player","aoe") then return end
             end
             -- if HasSetBonus(19,4) and CanRefreshDot(ThrashBleedFeral) and HasBuff(Clearcasting) and not HasBuff(Bloodtalons)
             if t19_4pc and debuff.thrash.refresh(units.dyn8) and buff.clearcasting.exists() and not buff.bloodtalons.exists() then
-                if cast.thrash("player") then return end
+                if cast.thrash("player","aoe") then return end
             end
         -- Shred
             -- if TargetsInRadius(Swipe) < 3 and (DotRemainingSec(RakeBleed) > DotIntervalSec(RakeBleed) or PowerToMax < 1)
