@@ -406,7 +406,7 @@ function enemyListCheck(Unit)
 	local hostileOnly = isChecked("Hostiles Only")
 	local distance = getDistance(Unit,"player","noMod")
 	return GetObjectExists(Unit) and not UnitIsDeadOrGhost(Unit) and UnitInPhase(Unit) and distance < 50
-		and (not UnitIsFriend(Unit, "player") and (not hostileOnly or (hostileOnly and (UnitIsEnemy(Unit, "player") or isTargeting(Unit) or isDummy(Unit) or UnitIsUnit(Unit,"target"))))) 
+		and (not UnitIsFriend(Unit, "player") ) 
 		and UnitCanAttack("player",Unit) and isSafeToAttack(Unit) and not isCritter(Unit) and getLineOfSight("player", Unit)
 	-- then
 	-- 	local inCombat = UnitAffectingCombat("player") or (GetObjectExists("pet") and UnitAffectingCombat("pet"))
@@ -426,7 +426,10 @@ function enemyListCheck(Unit)
 	-- return false
 end
 function isValidUnit(Unit)
-	if not pause(true) and Unit ~= nil and (br.enemy[Unit] ~= nil or enemyListCheck(Unit)) then 
+	local hostileOnly = isChecked("Hostiles Only") 
+	if not pause(true) and Unit ~= nil and (br.enemy[Unit] ~= nil or enemyListCheck(Unit)) 
+		and (not hostileOnly or (hostileOnly and (UnitIsEnemy(Unit, "player") or isTargeting(Unit) or isDummy(Unit) or UnitIsUnit(Unit,"target")))) 
+	then
 		local distance = getDistance(Unit,"player","noMod")
 		local inCombat = UnitAffectingCombat("player") or (GetObjectExists("pet") and UnitAffectingCombat("pet"))
 		local hasThreat = hasThreat(Unit) or isTargeting(Unit) or (GetObjectExists("pet") and (hasThreat(Unit,"pet") or isTargeting(Unit,"pet"))) or isBurnTarget(Unit) > 0

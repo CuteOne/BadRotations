@@ -82,6 +82,8 @@ local function createOptions()
             br.ui:createCheckbox(section, "Whirling Dragon Punch")
         -- Provoke
             br.ui:createCheckbox(section, "Provoke", "Will aid in grabbing mobs when solo.")
+        -- SCK Damage
+            br.ui:createCheckbox(section, "Calculate SCK", "Will calculate when SCK does more damage and use over other abilities.")
         br.ui:checkSectionState(section)
         ------------------------
         --- COOLDOWN OPTIONS ---
@@ -249,7 +251,7 @@ local function runRotation()
         local t19_4pc           = TierScan("T19") >= 4
         local t20_2pc           = TierScan("T20") >= 2
         local t20_4pc           = TierScan("T20") >= 4
-        local t21_4pc           = false -- TODO: Add Tier 21
+        local t21_4pc           = false -- Add Tier 21
         local talent            = br.player.talent
         local thp               = getHP(br.player.units(5))
         local trinketProc       = false --br.player.hasTrinketProc()
@@ -260,6 +262,9 @@ local function runRotation()
         units.dyn5 = br.player.units(5)
         enemies.yards5 = br.player.enemies(5)
         enemies.yards8 = br.player.enemies(8)
+        -- enemies.yards9c = getEnemiesInCone(45,9,false) or 0
+
+        -- ChatOverlay("All: "..getEnemiesInRect(10,40,false,true).." | Valid: "..getEnemiesInRect(10,40,false))
 
         if not inCombat or lastCombo == nil or not buff.hitCombo.exists() then lastCombo = 6603 end
         if leftCombat == nil then leftCombat = GetTime() end
@@ -444,7 +449,7 @@ local function runRotation()
 
         local function spinningCraneKickDmg()
             if #enemies.yards8 == 0 then sckEnemies = 1 else sckEnemies = #enemies.yards8 end
-            if chi >= 3 then
+            if chi >= 3 and isChecked("Calculate SCK") then
                 return  (
                             (4.88 * AttackPower * ArmorRedux) -- Base Dmg
                             * (1 + (0.03 * artifact.powerOfAThousandCranes.rank() + math.floor(artifact.powerOfAThousandCranes.rank() / 3) * 0.01)) * windborneFerocity() -- + Traits
@@ -544,6 +549,8 @@ local function runRotation()
             end
             return markUnit
         end
+
+        -- ChatOverlay("SCK: "..round2(spinningCraneKickDmg(),0)..", FoF: "..round2(fistsOfFuryDmg(),0)..", > FoF: "..tostring(BetterThanFoF))
         
 --------------------
 --- Action Lists ---
@@ -803,7 +810,7 @@ local function runRotation()
             if isBoss("target") and isValidUnit("target") and opener == false then
         -- Potion
                 -- potion,name=old_war,if=buff.serenity.up|buff.storm_earth_and_fire.up|(!talent.serenity.enabled&trinket.proc.agility.react)|buff.bloodlust.react|target.time_to_die<=60
-                -- TODO: Agility Proc
+                -- Agility Proc
                 if inRaid and isChecked("Potion") and useCDs() then
                     if isChecked("Pre-Pull Timer") and pullTimer <= getOptionValue("Pre-Pull Timer") then
                         if canUse(127844) and talent.serenity then
@@ -1092,63 +1099,63 @@ local function runRotation()
             -- strike_of_the_windlord,if=!talent.serenity.enabled|cooldown.serenity.remains>=10
             if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()) then
                 if (not talent.serenity or cd.serenity.remain() >= 10 or not isChecked("Serenity") or not useCDs()) and getDistance(units.dyn5) < 5 then
-                    if BetterThanSOTW and lastCombo ~= spell.spinningCraneKick then
-                        if cast.spinningCraneKick() then return end
+                    if BetterThanSOTW and lastCombo ~= spell.spinningCraneKick and not cd.strikeOfTheWindlord.exists() then
+                        if cast.spinningCraneKick(nil,"aoe") then return end
                     elseif lastCombo ~= spell.strikeOfTheWindlord  then
-                        if cast.strikeOfTheWindlord() then return end
+                        if cast.strikeOfTheWindlord(nil,"cone",1,45) then return end
                     end
                 end
             end
         -- Rising Sun Kick
             -- rising_sun_kick,cycle_targets=1,if=((chi>=3&energy>=40)|chi>=5)&(!talent.serenity.enabled|cooldown.serenity.remains>=5)
             if ((chi >= 3 and power >= 40) or chi >= 5) and (not talent.serenity or cd.serenity.remain() >= 5 or not isChecked("Serenity") or not useCDs()) then
-                if BetterThanRSK == true and lastCombo ~= spell.spinningCraneKick then
-                    if cast.spinningCraneKick() then return end
+                if BetterThanRSK == true and lastCombo ~= spell.spinningCraneKick and not cd.risingSunKick.exists() then
+                    if cast.spinningCraneKick(nil,"aoe") then return end
                 else
                     if cast.risingSunKick(spreadMark()) then return end
                 end
             end
         -- Fists of Fury
             -- fists_of_fury,if=talent.serenity.enabled&!equipped.drinking_horn_cover&cooldown.serenity.remains>=5&energy.time_to_max>2
-            if talent.serenity and not hasEquiped(137097) and cd.serenity.remain() >= 5 and ttm > 2 then
-                if BetterThanFoF == true and lastCombo ~= spell.spinningCraneKick then
-                    if cast.spinningCraneKick() then return end
+            if talent.serenity and not hasEquiped(137097) and (cd.serenity.remain() >= 5 or not isChecked("Serenity") or not useCDs()) and ttm > 2 then
+                if BetterThanFoF == true and lastCombo ~= spell.spinningCraneKick and not cd.fistsOfFury.exists() then
+                    if cast.spinningCraneKick(nil,"aoe") then return end
                 else
-                    if cast.fistsOfFury() then return end
+                    if cast.fistsOfFury(nil,"cone",1,45) then return end
                 end
             end
             -- fists_of_fury,if=talent.serenity.enabled&equipped.drinking_horn_cover&(cooldown.serenity.remains>=15|cooldown.serenity.remains<=4)&energy.time_to_max>2
             if talent.serenity and hasEquiped(137097) and (cd.serenity.remain() >= 15 or cd.serenity.remain() <= 4) and ttm > 2 then
-                if BetterThanFoF == true and lastCombo ~= spell.spinningCraneKick then
-                    if cast.spinningCraneKick() then return end
+                if BetterThanFoF == true and lastCombo ~= spell.spinningCraneKick and not cd.fistsOfFury.exists() then
+                    if cast.spinningCraneKick(nil,"player") then return end
                 else
-                    if cast.fistsOfFury() then return end
+                    if cast.fistsOfFury(nil,"cone",1,45) then return end
                 end
             end
             -- fists_of_fury,if=!talent.serenity.enabled&energy.time_to_max>2
             if not talent.serenity and ttm > 2 then
-                if BetterThanFoF == true and lastCombo ~= spell.spinningCraneKick then
-                    if cast.spinningCraneKick() then return end
+                if BetterThanFoF == true and lastCombo ~= spell.spinningCraneKick and not cd.fistsOfFury.exists() then
+                    if cast.spinningCraneKick(nil,"player") then return end
                 else
-                    if cast.fistsOfFury() then return end
+                    if cast.fistsOfFury(nil,"cone",1,45) then return end
                 end
             end
         -- Rising Sun Kick
             -- rising_sun_kick,cycle_targets=1,if=!talent.serenity.enabled|cooldown.serenity.remains>=5
             if not talent.serenity or cd.serenity.remain() >= 5 or not isChecked("Serenity") or not useCDs() then
-                if BetterThanRSK == true and lastCombo ~= spell.spinningCraneKick then
-                    if cast.spinningCraneKick() then return end
+                if BetterThanRSK == true and lastCombo ~= spell.spinningCraneKick and not cd.risingSunKick.exists() then
+                    if cast.spinningCraneKick(nil,"aoe") then return end
                 else
                     if cast.risingSunKick(spreadMark()) then return end
                 end
             end
         -- Whirling Dragon Punch
             -- whirling_dragon_punch
-            if cd.fistsOfFury.remain() ~= 0 and cd.risingSunKick.remain() ~= 0 and getDistance(units.dyn5) < 5 then
-                if BetterThanWDP == true and lastCombo ~= spell.spinningCraneKick then
-                    if cast.spinningCraneKick() then return end
-                elseif isChecked("Whirling Dragon Punch") then
-                    if cast.whirlingDragonPunch() then return end
+            if isChecked("Whirling Dragon Punch") and talent.whilingDragonPunch and cd.fistsOfFury.remain() ~= 0 and cd.risingSunKick.remain() ~= 0 and getDistance(units.dyn5) < 5 then
+                if BetterThanWDP == true and lastCombo ~= spell.spinningCraneKick and not cd.whirlingDragonPunch.exists() then
+                    if cast.spinningCraneKick(nil,"aoe") then return end
+                else
+                    if cast.whirlingDragonPunch(nil,"aoe") then return end
                 end
             end
         -- Blackout Kick
@@ -1163,7 +1170,7 @@ local function runRotation()
         -- Spinning Crane Kick
             -- spinning_crane_kick,if=(active_enemies>=3|(buff.bok_proc.up&chi.max-chi>=0))&!prev_gcd.1.spinning_crane_kick&set_bonus.tier21_4pc
             if (#enemies.yards8 >= 3 or (buff.blackoutKick.exists() and chiMax - chi >= 0)) and lastCombo ~= spell.spinningCraneKick and t21_4pc then
-                if cast.spinningCraneKick() then return end
+                if cast.spinningCraneKick(nil,"aoe") then return end
             end
         -- Crackling Jade Lightning
             -- crackling_jade_lightning,if=equipped.the_emperors_capacitor&buff.the_emperors_capacitor.stack>=19&energy.time_to_max>3
@@ -1177,7 +1184,7 @@ local function runRotation()
         -- Spinning Crane Kick
             -- spinning_crane_kick,if=active_enemies>=3&!prev_gcd.1.spinning_crane_kick
             if #enemies.yards8 >= 3 and lastCombo ~= spell.spinningCraneKick then
-                if cast.spinningCraneKick() then return end
+                if cast.spinningCraneKick(nil,"aoe") then return end
             end
         -- Rushing Jade Wind
             -- rushing_jade_wind,if=chiMax-chi>1&!prev_gcd.rushing_jade_wind
@@ -1185,26 +1192,27 @@ local function runRotation()
                 if cast.rushingJadeWind() then return end
             end
         -- Blackout Kick
-            -- blackout_kick,cycle_targets=1,if=(chi>1|buff.bok_proc.up|(talent.energizing_elixir.enabled&cooldown.energizing_elixir.remains<cooldown.fists_of_fury.remains))&((cooldown.rising_sun_kick.remains>1&(!artifact.strike_of_the_windlord.enabled().enabled|cooldown.strike_of_the_windlord.remains>1)|chi>2)&(cooldown.fists_of_fury.remains>1|chi>3)|prev_gcd.1.tiger_palm)&!prev_gcd.1.blackout_kick
+            -- blackout_kick,cycle_targets=1,if=(chi>1|buff.bok_proc.up|(talent.energizing_elixir.enabled&cooldown.energizing_elixir.remains<cooldown.fists_of_fury.remains))&((cooldown.rising_sun_kick.remains>1&(!artifact.strike_of_the_windlord.enabled|cooldown.strike_of_the_windlord.remains>1)|chi>2)&(cooldown.fists_of_fury.remains>1|chi>3)|prev_gcd.1.tiger_palm)&!prev_gcd.1.blackout_kick
             if (chi > 1 or buff.blackoutKick.exists() or (talent.energizingElixir and cd.energizingElixir.remain() < cd.fistsOfFury.remain())) 
-                and ((cd.risingSunKick.remain() > 1 and (not artifact.strikeOfTheWindlord.enabled() or (cd.strikeOfTheWindlord.remain() > 1 and (getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs())))) or chi > 2) 
-                    and (cd.fistsOfFury.remain() > 1 or chi > 3) or lastCombo == spell.tigerPalm)
+                and ((cd.risingSunKick.remain() > 1 and (not artifact.strikeOfTheWindlord.enabled() or cd.strikeOfTheWindlord.remain() > 1 or chi > 2) 
+                    and (cd.fistsOfFury.remain() > 1 or chi > 3)) or lastCombo == spell.tigerPalm) 
+                and lastCombo ~= spell.blackoutKick
             then
                 if BetterThanBOK == true and lastCombo ~= spell.spinningCraneKick then
-                    if cast.spinningCraneKick() then return end
+                    if cast.spinningCraneKick(nil,"aoe") then return end
                 elseif lastCombo ~= spell.blackoutKick then
                     if cast.blackoutKick(spreadMark()) then return end
                 end
             end
         -- Chi Wave
             -- chi_wave,if=energy.time_to_max>1
-            if ttm > 1 and lastCombo ~= spell.chiWave then
-                if cast.chiWave() then return end
+            if ttm > 1 then
+                if cast.chiWave(nil,"aoe") then return end
             end
         -- Chi Burst
             -- chi_burst,if=energy.time_to_max>1
-            if ttm > 1 and lastCombo ~= spell.chiBurst then
-                if cast.chiBurst() then return end
+            if ttm > 1 then
+                if cast.chiBurst(nil,"rect",1,10) then return end
             end
         -- Tiger Palm
             -- tiger_palm,cycle_targets=1,if=!prev_gcd.1.tiger_palm&(chi.max-chi>=2|energy.time_to_max<1)
@@ -1213,13 +1221,11 @@ local function runRotation()
             end
         -- Chi Wave
             -- chi_wave
-            if lastCombo ~= spell.chiWave then
-                if cast.chiWave() then return end
-            end
+            if cast.chiWave(nil,"aoe") then return end
         -- Chi Burst
             -- chi_burst
-            if lastCombo ~= spell.chiBurst then
-                if cast.chiBurst() then return end
+            if ttd > cast.time.chiBurst() then
+                if cast.chiBurst(nil,"rect",1,10) then return end
             end
         end -- End Action List - Single Target
     -- Action List - Storm, Earth, and Fire
@@ -1275,7 +1281,7 @@ local function runRotation()
         -- Strike of the Windlord
                     -- strike_of_the_windlord
                     if getDistance(units.dyn5) < 5 and lastCombo ~= spell.strikeOfTheWindlord and getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()) then
-                        if cast.strikeOfTheWindlord() then return end
+                        if cast.strikeOfTheWindlord(nil,"cone",1,45) then return end
                     end
         -- Blackout Kick
                     -- blackout_kick,cycle_targets=1,if=(!prev_gcd.1.blackout_kick)&(prev_gcd.1.strike_of_the_windlord|prev_gcd.1.fists_of_fury)&active_enemies<2
@@ -1289,16 +1295,16 @@ local function runRotation()
         -- Fists of Fury
                     -- fists_of_fury,if=((equipped.drinking_horn_cover&buff.pressure_point.remains<=2&set_bonus.tier20_4pc)&(cooldown.rising_sun_kick.remains>1|active_enemies>1)),interrupt=1
                     if ((hasEquiped(137097) and buff.pressurePoint.remain() <= 2 and t20_4pc) and (cd.risingSunKick.remain() > 1 or #enemies.yards5 > 1)) then
-                        if cast.fistsOfFury() then return end
+                        if cast.fistsOfFury(nil,"cone",1,45) then return end
                     end
                     -- fists_of_fury,if=((!equipped.drinking_horn_cover|buff.bloodlust.up|buff.serenity.remains<1)&(cooldown.rising_sun_kick.remains>1|active_enemies>1)),interrupt=1
                     if ((not hasEquiped(137097) or hasBloodLust() or buff.serenity.remain() < 1) and (cd.risingSunKick.remain() > 1 or #enemies.yards8 > 1)) and lastCombo ~= spell.fistsOfFury then
-                        if cast.fistsOfFury() then return end
+                        if cast.fistsOfFury(nil,"cone",1,45) then return end
                     end
         -- Spinning Crane Kick
                     -- spinning_crane_kick,if=active_enemies>=3&!prev_gcd.spinning_crane_kick
                     if #enemies.yards8 >= 3 and lastCombo ~= spell.spinningCraneKick then
-                        if cast.spinningCraneKick() then return end
+                        if cast.spinningCraneKick(nil,"aoe") then return end
                     end
         -- Rushing Jade Wind
                     -- rushing_jade_wind,if=!prev_gcd.1.rushing_jade_wind&buff.rushing_jade_wind.down&buff.serenity.remains>=4
@@ -1318,7 +1324,7 @@ local function runRotation()
         -- Spinning Crane Kick
                     --actions.serenity+=/spinning_crane_kick,if=!prev_gcd.1.spinning_crane_kick
                     if lastCombo ~= spell.spinningCraneKick then
-                        if cast.spinningCraneKick() then return end
+                        if cast.spinningCraneKick(nil,"aoe") then return end
                     end
         -- Blackout Kick
                 -- blackout_kick,cycle_targets=1,if=!prev_gcd.blackout_kick
@@ -1358,10 +1364,10 @@ local function runRotation()
                 if isValidUnit("target") and getDistance("target") < 5 then
         -- Chi Burst
                 -- chi_burst
-                    if cast.chiBurst() then return end
+                    if cast.chiBurst(nil,"rect",1,10) then return end
         -- Chi Wave
                 -- chi_wave
-                    if cast.chiWave() then return end
+                    if cast.chiWave(nil,"aoe") then return end
         -- Start Attack
                 -- auto_attack
                     if power > 50 then
@@ -1576,7 +1582,7 @@ local function runRotation()
                     end
         -- Chi Burst
                     if lastCombo ~= spell.chiBurst then
-                        if cast.chiBurst() then return end
+                        if cast.chiBurst(nil,"rect",1,10) then return end
                     end
         -- Chi Wave
                     if lastCombo ~= spell.chiWave then

@@ -338,7 +338,50 @@ function isInside(x,y,ax,ay,bx,by,dx,dy)
 	return true
 end
 
-function getEnemiesInRect(width,length,showLines)
+function getEnemiesInCone(degrees,length,showLines,checkNoCombat)
+	local LibDraw = LibStub("LibDraw-1.0")
+	local playerX, playerY, playerZ = GetObjectPosition("player")
+	local facing = ObjectFacing("player") or 0
+	-- Left
+	local lX, lY, lZ = GetPositionFromPosition(playerX, playerY, playerZ, 0, facing + math.rad(90+(degrees)), 0)
+	-- Right
+	local rX, rY, rZ = GetPositionFromPosition(playerX, playerY, playerZ, 0, facing + math.rad(90*2+(degrees)), 0)
+
+	if showLines then
+		-- Left
+		LibDraw.Line(lX, lY, lZ, playerX, playerY, playerZ)
+		-- Right
+		LibDraw.Line(rX, rY, rZ, playerX, playerY, playerZ)
+		-- Cone Complete
+		LibDraw.Line(lX, lY, lZ, rX, rY, rZ)
+	end
+
+	if checkNoCombat == nil then checkNoCombat = false end
+    if checkNoCombat then
+    	enemiesTable = getEnemies("player",length,true)
+    else
+    	enemiesTable = getEnemies("player",length)
+    end
+	local enemyCounter = 0
+	local maxX = math.max(rX,lX)
+	local minX = math.min(rX,lX)
+	local maxY = math.max(rY,lY)
+	local minY = math.min(rY,lY)
+	for i = 1, #enemiesTable do 
+		local thisUnit = enemiesTable[i]
+		local tX, tY, tZ = GetObjectPosition(thisUnit)
+		if isInside(tX,tY,lX,lY,rX,rY,playerX,playerY) then
+			if showLines then
+				LibDraw.Circle(tX, tY, playerZ, UnitBoundingRadius(thisUnit))
+			end
+			enemyCounter = enemyCounter + 1
+		end
+		-- end
+	end
+	return enemyCounter
+end
+
+function getEnemiesInRect(width,length,showLines,checkNoCombat)
 	local LibDraw = LibStub("LibDraw-1.0")
 	local playerX, playerY, playerZ = GetObjectPosition("player")
 	local facing = ObjectFacing("player") or 0
@@ -365,15 +408,15 @@ function getEnemiesInRect(width,length,showLines)
 		LibDraw.Line(frX, frY, frZ, flX, flY, flZ)
 	end
 
-	local enemiesTable = getEnemies("player",length)
+	if checkNoCombat == nil then checkNoCombat = false end
+    if checkNoCombat then
+    	enemiesTable = getEnemies("player",length,true)
+    else
+    	enemiesTable = getEnemies("player",length)
+    end
 	local enemyCounter = 0
-	local maxX = math.max(nrX,nlX,frX,flX)
-	local minX = math.min(nrX,nlX,frX,flX)
-	local maxY = math.max(nrY,nlY,frY,flY)
-	local minY = math.min(nrY,nlY,frY,flY)
 	for i = 1, #enemiesTable do 
-		local thisUnit = enemiesTable[i] --GetObjectWithIndex(i)
-		-- if ObjectIsType(thisUnit, ObjectTypes.Unit) and isValidTarget(thisUnit) and (UnitIsEnemy(thisUnit,"player") or isDummy(thisUnit)) then
+		local thisUnit = enemiesTable[i]
 		local tX, tY, tZ = GetObjectPosition(thisUnit)
 		if isInside(tX,tY,nlX,nlY,nrX,nrY,frX,frY) then
 			if showLines then
