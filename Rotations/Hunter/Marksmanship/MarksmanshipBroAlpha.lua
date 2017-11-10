@@ -182,12 +182,12 @@ local function runRotation()
 		local attackHaste = 1 / (1 + (UnitSpellHaste("player")/100))
 
 		-- Vulnerable Window
-        if not vulnWindow then vulnWindow = debuff.vulnerable.remain("target") end
+        if not vulnWindow then vulnWindow = debuff.vulnerable.remain(units.dyn40) end
         -- vuln_window,op=setif,value=cooldown.sidewinders.full_recharge_time,value_else=debuff.vulnerability.remains,condition=talent.sidewinders.enabled&cooldown.sidewinders.full_recharge_time<variable.vuln_window
         if talent.sidewinders and charges.sidewinders.timeTillFull() < vulnWindow then
             vulnWindow = charges.sidewinders.timeTillFull()
         else
-            vulnWindow = debuff.vulnerable.remain("target")
+            vulnWindow = debuff.vulnerable.remain(units.dyn40)
         end
 
         -- Vulnerable Aim Casts
