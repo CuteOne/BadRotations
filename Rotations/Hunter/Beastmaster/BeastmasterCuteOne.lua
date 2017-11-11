@@ -564,7 +564,7 @@ local function runRotation()
             -- Dire Beast
                     -- dire_beast,if=cooldown.bestial_wrath.remains>2&((!equipped.qapla_eredun_war_order|cooldown.kill_command.remains>=1)|full_recharge_time<gcd.max|cooldown.titans_thunder.up|spell_targets>1)
                     if cd.bestialWrath.remain() > 2 and ((not hasEquiped(137227) or cd.killCommand.remain() >= 1) or charges.direBeast.timeTillFull() < gcdMax 
-                        or cd.titanthunder.exists() or #enemies.yards8pet >= getOptionValue("Units To AoE")) 
+                        or cd.titansThunder.exists() or #enemies.yards8pet >= getOptionValue("Units To AoE")) 
                     then
                         if cast.direBeast() then return end
                     end
