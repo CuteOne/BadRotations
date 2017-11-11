@@ -375,7 +375,7 @@ local function runRotation()
     end
     -- A Murder of Crows
     -- a_murder_of_crows,if=(!variable.pooling_for_piercing|lowest_vuln_within.5>gcd.max)&(target.time_to_die>=cooldown+duration|target.health.pct<20|target.time_to_die<16)&variable.vuln_aim_casts=0
-    if (ttd("target") >= (60 + 15) or getHP("target") < 20 or ttd("target") < 16) and vulnAimCast == 0 then
+    if ((ttd("target") >= (60 + 15) and not buff.trueshot.exists() and cd.trueshot.remain() > 0) or getHP("target") < 20 or ttd("target") < 16) and vulnAimCast == 0 then
       if cast.aMurderOfCrows() then
         print("PS Murder of Crows 5 cast at "..power.." Focus")
         return
