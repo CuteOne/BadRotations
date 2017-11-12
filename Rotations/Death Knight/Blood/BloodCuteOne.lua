@@ -413,7 +413,7 @@ local function runRotation()
                     end
         -- Death and Decay
                     if not moving and (buff.crimsonScourge.exists() or level < 63) and (#enemies.yards8 > 1 or (#enemies.yards8 == 1 and talent.rapidDecomposition)) then
-                        if cast.deathAndDecay("player",false,#enemies.yards8,8) then return end
+                        if cast.deathAndDecay("player","ground",getOptionValue("Death and Decay"),8) then return end
                     end
         -- Death Strike
                     if ttm <= 20 or php < 75 then
@@ -425,7 +425,7 @@ local function runRotation()
                     end
         -- Death and Decay
                     if not moving and (#enemies.yards8 == 1 and runes >= 3) or #enemies.yards8 >= 3 then
-                        if cast.deathAndDecay("player",false,#enemies.yards8,8) then return end
+                        if cast.deathAndDecay("player","ground",getOptionValue("Death and Decay"),8) then return end
                     end
         -- Heart Strike
                     if runes >= 3 or ((not talent.ossuary or buff.boneShield.stack() < 5) and power < 45) or (talent.ossuary and buff.boneShield.stack() >= 5 and power < 40) then
@@ -485,7 +485,7 @@ local function runRotation()
         -- Death and Decay
                      --if HasBuff(CrimsonScourge) or HasTalent(RapidDecomposition)
                     if not moving and buff.crimsonScourge.exists() or talent.rapidDecomposition then
-                        if cast.deathAndDecay("player",false,#enemies.yards8,8) then return end
+                        if cast.deathAndDecay("player","ground",getOptionValue("Death and Decay"),8) then return end
                     end
         -- Heart Strike
                     if cast.heartStrike() then return end
@@ -501,7 +501,7 @@ local function runRotation()
     ---------------------------
                 if getOptionValue("APL Mode") == 3 then
                     if --[[((buff.crimsonScourge.exists() and talent.rapidDecomposition) or]] not moving and #enemies.yards8 >= getOptionValue("Death and Decay") and isChecked("Death and Decay") then
-                        if cast.deathAndDecay("player",false,#enemies.yards8,8) then return end
+                        if cast.deathAndDecay("player","ground",getOptionValue("Death and Decay"),8) then return end
                     end
                     --dump rp with deathstrike
                     if ((talent.bonestorm and cd.bonestorm.remain() > 3) or (talent.bonestorm and #enemies.yards8 < getOptionValue("Bonestorm Targets")) or (not talent.bonestorm or not isChecked("Use Bonestorm"))) and br.player.power.runicPower.deficit() <= 30 then

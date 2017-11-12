@@ -289,7 +289,7 @@ local function runRotation()
                 if cast.revivePet() then return; end
             end
             -- Mend Pet
-            if isChecked("Mend Pet") and getHP("pet") < getValue("Mend Pet") and not UnitBuffID("pet",136) then
+            if isChecked("Mend Pet") and GetUnitExists("pet") and getHP("pet") < getValue("Mend Pet") and not UnitBuffID("pet",136) then
                 if cast.mendPet() then return; end
             end
             -- Pet Attack / retreat
@@ -442,7 +442,7 @@ local function runRotation()
                 end
             -- A Murder of Crows
                 -- a_murder_of_crows,if=cooldown.bestial_wrath.remains<3|target.time_to_die<16
-                if isChecked("A Murder of Crows / Barrage") and cd.bestialWrath.remain() < 3 or ttd(units.dyn40) < 16 then
+                if isChecked("A Murder Of Crows / Barrage") and (cd.bestialWrath.remain() < 3 or ttd(units.dyn40) < 16) then
                     if cast.aMurderOfCrows() then return end
                 end
             -- Beastial Wrath
@@ -563,8 +563,8 @@ local function runRotation()
                     end
             -- Dire Beast
                     -- dire_beast,if=cooldown.bestial_wrath.remains>2&((!equipped.qapla_eredun_war_order|cooldown.kill_command.remains>=1)|full_recharge_time<gcd.max|cooldown.titans_thunder.up|spell_targets>1)
-                    if cd.bestialWrath.remain() > 2 and ((not hasEquiped(137227) or cd.killCommand.remain() >= 1) or charges.direBeast.timeTillFull() < gcdMax 
-                        or cd.titanthunder.exists() or #enemies.yards8pet >= getOptionValue("Units To AoE")) 
+                    if not talent.direFrenzy and cd.bestialWrath.remain() > 2 and ((not hasEquiped(137227) or cd.killCommand.remain() >= 1) or charges.direBeast.timeTillFull() < gcdMax 
+                        or cd.titansThunder.exists() or #enemies.yards8pet >= getOptionValue("Units To AoE")) 
                     then
                         if cast.direBeast() then return end
                     end
@@ -586,7 +586,7 @@ local function runRotation()
                     end
             -- Barrage
                     -- barrage,if=spell_targets.barrage>1
-                    if isChecked("A Murder of Crows / Barrage") and #enemies.yards8pet >= getOptionValue("Units To AoE") then
+                    if isChecked("A Murder Of Crows / Barrage") and #enemies.yards8pet >= getOptionValue("Units To AoE") then
                         if cast.barrage() then return end
                     end
             -- Multishot

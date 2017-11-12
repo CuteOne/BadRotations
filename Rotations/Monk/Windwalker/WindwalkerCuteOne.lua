@@ -1098,7 +1098,7 @@ local function runRotation()
         -- Strike of the Windlord
             -- strike_of_the_windlord,if=!talent.serenity.enabled|cooldown.serenity.remains>=10
             if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()) then
-                if (not talent.serenity or cd.serenity.remain() >= 10 or not isChecked("Serenity") or not useCDs()) and getDistance(units.dyn5) < 5 then
+                if (not talent.serenity or cd.serenity.remain() >= 10 or not isChecked("Serenity") or (isChecked("Serenity") and not useCDs())) and getDistance(units.dyn5) < 5 then
                     if BetterThanSOTW and lastCombo ~= spell.spinningCraneKick and not cd.strikeOfTheWindlord.exists() then
                         if cast.spinningCraneKick(nil,"aoe") then return end
                     elseif lastCombo ~= spell.strikeOfTheWindlord  then
@@ -1108,7 +1108,7 @@ local function runRotation()
             end
         -- Rising Sun Kick
             -- rising_sun_kick,cycle_targets=1,if=((chi>=3&energy>=40)|chi>=5)&(!talent.serenity.enabled|cooldown.serenity.remains>=5)
-            if ((chi >= 3 and power >= 40) or chi >= 5) and (not talent.serenity or cd.serenity.remain() >= 5 or not isChecked("Serenity") or not useCDs()) then
+            if ((chi >= 3 and power >= 40) or chi >= 5) and (not talent.serenity or cd.serenity.remain() >= 5 or not isChecked("Serenity") or (isChecked("Serenity") and not useCDs())) then
                 if BetterThanRSK == true and lastCombo ~= spell.spinningCraneKick and not cd.risingSunKick.exists() then
                     if cast.spinningCraneKick(nil,"aoe") then return end
                 else
@@ -1117,7 +1117,7 @@ local function runRotation()
             end
         -- Fists of Fury
             -- fists_of_fury,if=talent.serenity.enabled&!equipped.drinking_horn_cover&cooldown.serenity.remains>=5&energy.time_to_max>2
-            if talent.serenity and not hasEquiped(137097) and (cd.serenity.remain() >= 5 or not isChecked("Serenity") or not useCDs()) and ttm > 2 then
+            if talent.serenity and not hasEquiped(137097) and (cd.serenity.remain() >= 5 or not isChecked("Serenity") or (isChecked("Serenity") and not useCDs())) and ttm > 2 then
                 if BetterThanFoF == true and lastCombo ~= spell.spinningCraneKick and not cd.fistsOfFury.exists() then
                     if cast.spinningCraneKick(nil,"aoe") then return end
                 else
@@ -1142,7 +1142,7 @@ local function runRotation()
             end
         -- Rising Sun Kick
             -- rising_sun_kick,cycle_targets=1,if=!talent.serenity.enabled|cooldown.serenity.remains>=5
-            if not talent.serenity or cd.serenity.remain() >= 5 or not isChecked("Serenity") or not useCDs() then
+            if not talent.serenity or cd.serenity.remain() >= 5 or not isChecked("Serenity") or (isChecked("Serenity") and not useCDs()) then
                 if BetterThanRSK == true and lastCombo ~= spell.spinningCraneKick and not cd.risingSunKick.exists() then
                     if cast.spinningCraneKick(nil,"aoe") then return end
                 else
@@ -1563,7 +1563,7 @@ local function runRotation()
                         if cast.whirlingDragonPunch() then return end
                     end
         -- Strike of the Windlord
-                    if (((talent.serenity and cd.serenity.remain() > 20) or not isChecked("Serenity") or not useCDs()) or not talent.serenity) and getDistance(units.dyn5) < 5 and lastCombo ~= spell.strikeOfTheWindlord and getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()) then
+                    if (((talent.serenity and cd.serenity.remain() > 20) or not isChecked("Serenity") or (isChecked("Serenity") and not useCDs())) or not talent.serenity) and getDistance(units.dyn5) < 5 and lastCombo ~= spell.strikeOfTheWindlord and getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()) then
                         if cast.strikeOfTheWindlord() then return end
                     end
         -- Tiger Palm

@@ -94,18 +94,18 @@ local function createOptions()
             br.ui:createDropdownWithout(section,"Snipe Tiger's Fury", {"|cff00FF00Enabled","|cffFF0000Disabled"}, 1, "|cff15FF00Enable|cffFFFFFF/|cffD60000Disable |cffFFFFFFuse of Tiger's Fury to take adavantage of Predator talent.")
         -- Berserk / Incarnation: King of the Jungle
             br.ui:createCheckbox(section,"Berserk/Incarnation")
-        -- Trinkets
-            br.ui:createCheckbox(section,"Trinkets")
-        -- Draught of Souls
-            br.ui:createCheckbox(section,"Draught of Souls")
         -- Ring of Collapsing Futures
             br.ui:createSpinner(section, "Ring of Collapsing Futures",  1,  1,  5,  1,  "|cffFFFFFFSet to desired number of Temptation stacks before letting fall off. Min: 1 / Max: 5 / Interval: 1")
+        -- Trinkets
+            br.ui:createDropdownWithout(section,"Trinkets", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Specter of Betrayal.")
+        -- Draught of Souls
+            br.ui:createDropdownWithout(section,"Draught of Souls", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Specter of Betrayal.")
         -- Specter of Betrayal
             br.ui:createDropdownWithout(section,"Specter of Betrayal", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Specter of Betrayal.")
         -- Vial of Ceaseless Toxins
-            br.ui:createCheckbox(section,"Vial of Ceaseless Toxins")
+            br.ui:createDropdownWithout(section,"Vial of Ceaseless Toxins", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Specter of Betrayal.")
         -- Umbral Moonglaives
-            br.ui:createCheckbox(section,"Umbral Moonglaives")
+            br.ui:createDropdownWithout(section,"Umbral Moonglaives", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Specter of Betrayal.")
         br.ui:checkSectionState(section)
     -- Defensive Options
         section = br.ui:createSection(br.ui.window.profile, "Defensive")
@@ -313,6 +313,7 @@ local function runRotation()
         else
             fbMaxEnergy = false
         end
+        -- Opener Reset
         if not inCombat and not GetObjectExists("target") then
 			openerCount = 0
             OPN1 = false
@@ -727,10 +728,17 @@ local function runRotation()
                         if cast.shadowmeld() then return end
                     end
                 end
+        -- Ring of Collapsing Futures
+                -- use_item,slot=finger1
+                if isChecked("Ring of Collapsing Futures") then
+                    if hasEquiped(142173) and canUse(142173) and getDebuffStacks("player",234143) < getOptionValue("Ring of Collapsing Futures") and select(2,IsInInstance()) ~= "pvp" then
+                        useItem(142173)
+                    end
+                end
         -- Trinkets
                 -- if=buff.tigers_fury.up&energy.time_to_max>3&(!talent.savage_roar.enabled|buff.savage_roar.up)
-                if useCDs() and isChecked("Trinkets") and getDistance(units.dyn5) < 5 then
-                    if buff.tigersFury.exists() and (not talent.savageRoar or buff.savageRoar.exists()) then
+                if (buff.tigersFury.exists() or ttd(units.dyn5) <= cd.tigersFury.remain()) and (not talent.savageRoar or buff.savageRoar.exists()) then
+                    if (getOptionValue("Trinkets") == 1 or (getOptionValue("Trinkets") == 2 and useCDs())) and getDistance(units.dyn5) < 5 then
                         if canUse(13) and not (hasEquiped(147011,13) or hasEquiped(147012,13) or hasEquiped(140808,13) or hasEquiped(151190,13)) then
                             useItem(13)
                         end
@@ -738,36 +746,26 @@ local function runRotation()
                             useItem(14)
                         end
                     end
-                end
         -- Draught of Souls
-                if isChecked("Draught of Souls") and hasEquiped(140808) and canUse(140808) and useCDs() then
-                    if (buff.savageRaor.exists() or not talent.savageRoar) and ttm > 3 and comboDeficit >= 1 then
-                        useItem(140808)
+                    if (getOptionValue("Draught of Souls") == 1 or (getOptionValue("Draught of Souls") == 2 and useCDs())) and hasEquiped(140808) and canUse(140808) and useCDs() then
+                        if ttm > 3 and comboDeficit >= 1 then
+                            useItem(140808)
+                        end
                     end
-                end
-        -- Ring of Collapsing Futures
-                -- use_item,slot=finger1
-                if isChecked("Ring of Collapsing Futures") then
-                    if hasEquiped(142173) and canUse(142173) and getDebuffStacks("player",234143) < getOptionValue("Ring of Collapsing Futures") and select(2,IsInInstance()) ~= "pvp" then
-                        useItem(142173)
-                        return true
-                    end
-                end
         -- Specter of Betrayal
-                if (getOptionValue("Specter of Betrayal") == 1 or (getOptionValue("Specter of Betrayal") == 2 and useCDs())) then
-                    if hasEquiped(151190) and canUse(151190) then
-                        useItem(151190)
+                    if (getOptionValue("Specter of Betrayal") == 1 or (getOptionValue("Specter of Betrayal") == 2 and useCDs())) then
+                        if hasEquiped(151190) and canUse(151190) then
+                            useItem(151190)
+                        end
                     end
-                end
         -- Umbral Moonglaives
-                if isChecked("Umbral Moonglaives") and hasEquiped(147012) and canUse(147012) and useCDs() then
-                    if (mode.rotation == 1 and #enemies.yards8 >= 2) or mode.rotation == 2 then
-                        useItem(147012)
+                    if (getOptionValue("Umbral Moonglaives") == 1 or (getOptionValue("Umbral Moonglaives") == 2 and useCDs())) and hasEquiped(147012) and canUse(147012) and useCDs() then
+                        if (mode.rotation == 1 and #enemies.yards8 >= 2) or mode.rotation == 2 then
+                            useItem(147012)
+                        end
                     end
-                end
         -- Vial of Ceaseless Toxins
-                if isChecked("Vial of Ceaseless Toxins") and hasEquiped(147011) and canUse(147011) then
-                    if buff.tigersFury.exists() or ttd(units.dyn5) <= cd.tigersFury.remain() then
+                    if (getOptionValue("Vial of Ceaseless Toxins") == 1 or (getOptionValue("Vial of Ceaseless Toxins") == 2 and useCDs())) and hasEquiped(147011) and canUse(147011) then
                         useItem(147011)
                     end
                 end
@@ -1034,17 +1032,19 @@ local function runRotation()
         -- Rip
             -- pool_resource,for_next=1
             -- rip,target_if=!ticking|(remains<=duration*0.3)&(target.health.pct>25&!talent.sabertooth.enabled)|(remains<=duration*0.8&persistent_multiplier>dot.rip.pmultiplier)&target.time_to_die>8
-            for i = 1, #enemies.yards5 do
-                local thisUnit = enemies.yards5[i]
-                if (multidot or (UnitIsUnit(thisUnit,units.dyn5) and not multidot)) then
-                    if getDistance(thisUnit) < 5 then
-                        if (not debuff.rip.exists(thisUnit) or (debuff.rip.refresh(thisUnit) and getHP(thisUnit) > 25 and not talent.sabertooth) 
-                            or (debuff.rip.remain(thisUnit) <= ripDuration * 0.8 and debuff.rip.calc() > debuff.rip.applied(thisUnit))) and (ttd(thisUnit) > 8 or isDummy(thisUnit))
-                        then
-                            if power <= select(1, getSpellCost(spell.rip)) then
-                                return true
-                            elseif power > select(1, getSpellCost(spell.rip)) then
-                                if cast.rip(thisUnit) then return end
+            if buff.savageRoar.exists() or not talent.savageRoar then
+                for i = 1, #enemies.yards5 do
+                    local thisUnit = enemies.yards5[i]
+                    if (multidot or (UnitIsUnit(thisUnit,units.dyn5) and not multidot)) then
+                        if getDistance(thisUnit) < 5 then
+                            if (not debuff.rip.exists(thisUnit) or (debuff.rip.refresh(thisUnit) and getHP(thisUnit) > 25 and not talent.sabertooth) 
+                                or (debuff.rip.remain(thisUnit) <= ripDuration * 0.8 and debuff.rip.calc() > debuff.rip.applied(thisUnit))) and (ttd(thisUnit) > 8 or isDummy(thisUnit))
+                            then
+                                if power <= select(1, getSpellCost(spell.rip)) then
+                                    return true
+                                elseif power > select(1, getSpellCost(spell.rip)) then
+                                    if cast.rip(thisUnit) then return end
+                                end
                             end
                         end
                     end
@@ -1067,7 +1067,7 @@ local function runRotation()
             end
         -- Ferocious Bite
             -- ferocious_bite,max_energy=1
-            if fbMaxEnergy then
+            if fbMaxEnergy and (buff.savageRoar.remain() >= 12 or not talent.savageRoar) and debuff.rip.exists(units.dyn5) then
                 if cast.ferociousBite() then return end
             end
         end
@@ -1124,7 +1124,7 @@ local function runRotation()
             for i = 1, #enemies.yards5 do
                 local thisUnit = enemies.yards5[i]
                 if (multidot or (UnitIsUnit(thisUnit,units.dyn5) and not multidot)) then
-                    if fbMaxEnergy and (debuff.rip.remain(thisUnit) >= 8 or not talent.savageRoar) then
+                    if fbMaxEnergy and ((debuff.rip.remain(thisUnit) >= 8 and not isDummy(thisUnit)) or not talent.savageRoar) then
                         if cast.ferociousBite(thisUnit) then return end
                     end
                 end
@@ -1179,7 +1179,7 @@ local function runRotation()
         -- Brutal Slash
             -- brutal_slash,if=spell_targets.brutal_slash>desired_targets
             if talent.brutalSlash and ((mode.rotation == 1 and #enemies.yards8 >= getOptionValue("Brutal Slash Targets")) or mode.rotation == 2) then
-                if cast.brutalSlash(units.dyn8AoE,"aoe") then return end
+                if cast.brutalSlash("player","aoe") then return end
             end
         -- Thrash
             -- pool_resource,for_next=1
@@ -1214,8 +1214,16 @@ local function runRotation()
             end
         -- Brutal Slash
             -- brutal_slash,if=(buff.tigers_fury.up&(raid_event.adds.in>(1+max_charges-charges_fractional)*recharge_time))
-            if talent.brutalSlash and buff.tigersFury.exists() and charges.brutalSlash.frac() > 2.66 then
-                if cast.brutalSlash(units.dyn8AoE,"aoe") then return end
+            if talent.brutalSlash and buff.tigersFury.exists() and charges.brutalSlash.timeTillFull() < gcdMax then
+                if talent.bloodtalons and not buff.bloodtalons.exists() and hasEquiped(137024) and buff.predatorySwiftness.stack() > 0 then
+                    if getOptionValue("Auto Heal")==1 and getDistance(br.friend[1].unit) < 40 then
+                        cast.regrowth(br.friend[1].unit)
+                    end
+                    if getOptionValue("Auto Heal")==2 then
+                        cast.regrowth("player")
+                    end
+                end
+                if cast.brutalSlash("player","aoe") then return end
             end
         -- Moonfire
             -- moonfire_cat,target_if=remains<=duration*0.3
@@ -1255,7 +1263,7 @@ local function runRotation()
             end
         -- Shred
             -- shred
-            if (not debuff.rake.refresh(units.dyn5) or level < 12 or ttm < 1 or buff.clearcasting.exists()) then
+            if (not debuff.rake.refresh(units.dyn5) or level < 12) then
                 if cast.shred() then return end
             end
         end
