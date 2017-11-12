@@ -289,7 +289,7 @@ local function runRotation()
                 if cast.revivePet() then return; end
             end
             -- Mend Pet
-            if isChecked("Mend Pet") and getHP("pet") < getValue("Mend Pet") and not UnitBuffID("pet",136) then
+            if isChecked("Mend Pet") and GetUnitExists("pet") and getHP("pet") < getValue("Mend Pet") and not UnitBuffID("pet",136) then
                 if cast.mendPet() then return; end
             end
             -- Pet Attack / retreat
@@ -442,7 +442,7 @@ local function runRotation()
                 end
             -- A Murder of Crows
                 -- a_murder_of_crows,if=cooldown.bestial_wrath.remains<3|target.time_to_die<16
-                if isChecked("A Murder of Crows / Barrage") and cd.bestialWrath.remain() < 3 or ttd(units.dyn40) < 16 then
+                if isChecked("A Murder of Crows / Barrage") and (cd.bestialWrath.remain() < 3 or ttd(units.dyn40) < 16) then
                     if cast.aMurderOfCrows() then return end
                 end
             -- Beastial Wrath
