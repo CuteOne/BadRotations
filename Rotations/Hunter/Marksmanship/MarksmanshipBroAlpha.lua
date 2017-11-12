@@ -298,7 +298,7 @@ local function runRotation()
       -- Trueshot
       -- trueshot,if=variable.trueshot_cooldown=0|buff.bloodlust.up|(variable.trueshot_cooldown>0&target.time_to_die>(variable.trueshot_cooldown+duration))|buff.bullseye.react>25|target.time_to_die<16
       if isChecked("Trueshot") then
-        if hasBloodLust() or buff.bullseye.stack() >= 25 or ttd("target") < 16	or ttd("target") > (88 + 16) then
+        if (hasBloodLust() or buff.bullseye.stack() >= 25 or ttd("target") < 16	or ttd("target") > (88 + 16)) and power >= 90 then
           if cast.trueshot("player") then return end
         end
       end
