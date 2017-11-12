@@ -1124,7 +1124,7 @@ local function runRotation()
             for i = 1, #enemies.yards5 do
                 local thisUnit = enemies.yards5[i]
                 if (multidot or (UnitIsUnit(thisUnit,units.dyn5) and not multidot)) then
-                    if fbMaxEnergy and ((debuff.rip.remain(thisUnit) >= 8 and not isDummey(thisUnit)) or not talent.savageRoar) then
+                    if fbMaxEnergy and ((debuff.rip.remain(thisUnit) >= 8 and not isDummy(thisUnit)) or not talent.savageRoar) then
                         if cast.ferociousBite(thisUnit) then return end
                     end
                 end
