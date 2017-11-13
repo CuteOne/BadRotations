@@ -251,7 +251,7 @@ local function runRotation()
         local t19_4pc           = TierScan("T19") >= 4
         local t20_2pc           = TierScan("T20") >= 2
         local t20_4pc           = TierScan("T20") >= 4
-        local t21_4pc           = false -- Add Tier 21
+        local t21_4pc           = TierScan("T21") >= 4
         local talent            = br.player.talent
         local thp               = getHP(br.player.units(5))
         local trinketProc       = false --br.player.hasTrinketProc()
@@ -494,8 +494,9 @@ local function runRotation()
         end
 
         -- Healing Winds - Transcendence Cancel
-        if isChecked("Healing Winds") and buff.transcendence.exists() and (buff.healingWinds.exists() or php > getOptionValue("Healing Winds")) then
-            CancelUnitBuff("player",GetSpellInfo(spell.buffs.transcendence))
+        if isChecked("Healing Winds") and artifact.healingWinds.enabled() and buff.transcendence.exists() and (buff.healingWinds.exists() or php > getOptionValue("Healing Winds")) then
+            buff.transcendence.cancel()
+            -- CancelUnitBuff("player",GetSpellInfo(spell.buffs.transcendence))
         end
 
         -- Challenge Skin Heler
@@ -671,7 +672,7 @@ local function runRotation()
                         if cast.transcendence("player") then return end
                     end
                     if buff.transcendence.exists() then
-                        if cast.transcendenceTransfer("player") then CancelUnitBuff("player",GetSpellInfo(spell.buffs.transcendence)); return end
+                        if cast.transcendenceTransfer("player") then buff.transcendence.cancel(); return end
                     end
                 end
         -- Effuse
@@ -1151,11 +1152,11 @@ local function runRotation()
             end
         -- Whirling Dragon Punch
             -- whirling_dragon_punch
-            if isChecked("Whirling Dragon Punch") and talent.whilingDragonPunch and cd.fistsOfFury.remain() ~= 0 and cd.risingSunKick.remain() ~= 0 and getDistance(units.dyn5) < 5 then
+            if isChecked("Whirling Dragon Punch") and talent.whilingDragonPunch and not cd.fistsOfFury.exists() and not cd.risingSunKick.exists() and getDistance(units.dyn5) < 5 then
                 if BetterThanWDP == true and lastCombo ~= spell.spinningCraneKick and not cd.whirlingDragonPunch.exists() then
                     if cast.spinningCraneKick(nil,"aoe") then return end
                 else
-                    if cast.whirlingDragonPunch(nil,"aoe") then return end
+                    if cast.whirlingDragonPunch("player","aoe") then return end
                 end
             end
         -- Blackout Kick
@@ -1212,7 +1213,7 @@ local function runRotation()
         -- Chi Burst
             -- chi_burst,if=energy.time_to_max>1
             if ttm > 1 then
-                if cast.chiBurst(nil,"rect",1,10) then return end
+                if cast.chiBurst(nil,"rect",1,12) then return end
             end
         -- Tiger Palm
             -- tiger_palm,cycle_targets=1,if=!prev_gcd.1.tiger_palm&(chi.max-chi>=2|energy.time_to_max<1)
@@ -1225,7 +1226,7 @@ local function runRotation()
         -- Chi Burst
             -- chi_burst
             if ttd > cast.time.chiBurst() then
-                if cast.chiBurst(nil,"rect",1,10) then return end
+                if cast.chiBurst(nil,"rect",1,12) then return end
             end
         end -- End Action List - Single Target
     -- Action List - Storm, Earth, and Fire
@@ -1364,7 +1365,7 @@ local function runRotation()
                 if isValidUnit("target") and getDistance("target") < 5 then
         -- Chi Burst
                 -- chi_burst
-                    if cast.chiBurst(nil,"rect",1,10) then return end
+                    if cast.chiBurst(nil,"rect",1,12) then return end
         -- Chi Wave
                 -- chi_wave
                     if cast.chiWave(nil,"aoe") then return end
@@ -1582,7 +1583,7 @@ local function runRotation()
                     end
         -- Chi Burst
                     if lastCombo ~= spell.chiBurst then
-                        if cast.chiBurst(nil,"rect",1,10) then return end
+                        if cast.chiBurst(nil,"rect",1,12) then return end
                     end
         -- Chi Wave
                     if lastCombo ~= spell.chiWave then

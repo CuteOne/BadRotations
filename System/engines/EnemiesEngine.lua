@@ -338,7 +338,7 @@ function isInside(x,y,ax,ay,bx,by,dx,dy)
 	return true
 end
 
-function getEnemiesInCone(degrees,length,showLines,checkNoCombat)
+--[[function getEnemiesInCone(degrees,length,showLines,checkNoCombat)
 	local LibDraw = LibStub("LibDraw-1.0")
 	local playerX, playerY, playerZ = GetObjectPosition("player")
 	local facing = ObjectFacing("player") or 0
@@ -379,6 +379,35 @@ function getEnemiesInCone(degrees,length,showLines,checkNoCombat)
 		-- end
 	end
 	return enemyCounter
+end--]]
+
+-- Cone Logic for Enemies
+function getEnemiesInCone(length,angle,showLines,checkNoCombat)
+    local playerX, playerY, playerZ = GetObjectPosition("player")
+    local facing = ObjectFacing("player")
+    local units = 0
+    
+    if checkNoCombat == nil then checkNoCombat = false end
+    if checkNoCombat then
+    	enemiesTable = getEnemies("player",length,true)
+    else
+    	enemiesTable = getEnemies("player",length)
+    end
+
+    for i = 1, #enemiesTable do
+        local thisUnit = enemiesTable[i]
+        local unitX, unitY, unitZ = GetObjectPosition(thisUnit)
+        if playerX and unitX then
+            local angleToUnit = getAngles(playerX,playerY,playerZ,unitX,unitY,unitZ)
+            local angleDifference = facing > angleToUnit and facing - angleToUnit or angleToUnit - facing
+            local shortestAngle = angleDifference < math.pi and angleDifference or math.pi*2 - angleDifference
+            local finalAngle = shortestAngle/math.pi*180
+            if finalAngle < angle then
+                units = units + 1
+            end
+        end
+    end
+    return units
 end
 
 function getEnemiesInRect(width,length,showLines,checkNoCombat)
@@ -558,7 +587,7 @@ function isBurnTarget(unit)
 	-- check if unit is valid
 	if getOptionCheck("Forced Burn") then
 		local unitID = GetObjectID(unit)
-		local burnUnit = burnUnitCandidates[unitID]
+		local burnUnit = br.lists.burnUnits[unitID]
 		-- if unit have selected debuff
 		if burnUnit then
 			if burnUnit.buff and UnitBuffID(unit,burnUnit.buff) then
@@ -579,7 +608,7 @@ function isCrowdControlCandidates(Unit)
 		local unitID = GetObjectID(Unit)
 	end
 	-- cycle list of candidates
-	local crowdControlUnit = crowdControlCandidates[unitID]
+	local crowdControlUnit = br.lists.ccUnits[unitID]
 	if crowdControlUnit then
 		-- check if unit is valid
 		if GetObjectExists(crowdControlUnit.unit) then
@@ -595,26 +624,26 @@ function isCrowdControlCandidates(Unit)
 end
 --if isLongTimeCCed("target") then
 -- CCs with >=20 seconds
-function isLongTimeCCed(Unit)
-	if Unit == nil then return false end
-	-- check if unit is valid
-	if GetObjectExists(Unit) then
-		for i = 1, #longTimeCC do
-			--local checkCC=longTimeCC[i]
-			if UnitDebuffID(Unit,longTimeCC[i]) ~= nil then
-				return true
-			end
-		end
-	end
-	return false
-end
+-- function isLongTimeCCed(Unit)
+-- 	if Unit == nil then return false end
+-- 	-- check if unit is valid
+-- 	if GetObjectExists(Unit) then
+-- 		for i = 1, #longTimeCC do
+-- 			--local checkCC=longTimeCC[i]
+-- 			if UnitDebuffID(Unit,longTimeCC[i]) ~= nil then
+-- 				return true
+-- 			end
+-- 		end
+-- 	end
+-- 	return false
+-- end
 -- returns true if we can safely attack this target
 function isSafeToAttack(unit)
 	if getOptionCheck("Safe Damage Check") == true then
 		-- check if unit is valid
 		local unitID = GetObjectExists(unit) and GetObjectID(unit) or 0
-		for i = 1, #doNotTouchUnitCandidates do
-			local noTouch = doNotTouchUnitCandidates[i]
+		for i = 1, #br.lists.noTouchUnits do
+			local noTouch = br.lists.noTouchUnits[i]
 			if noTouch.unitID == 1 or noTouch.unitID == unitID then
 				if noTouch.buff > 0 then
 					if UnitBuffID(unit,noTouch.buff) or UnitDebuffID(unit,noTouch.buff) then
@@ -638,7 +667,7 @@ function isShieldedTarget(unit)
 	if getOptionCheck("Avoid Shields") then
 		-- check if unit is valid
 		local unitID = GetObjectID(unit)
-		local shieldedUnit = shieldedUnitCandidates[unitID]
+		local shieldedUnit = br.lists.shieldUnits[unitID]
 		-- if unit have selected debuff
 		if shieldedUnit and shieldedUnit.buff and UnitBuffID(unit,shieldedUnit.buff) then
 			-- if it's a frontal buff, see if we are in front of it

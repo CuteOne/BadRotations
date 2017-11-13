@@ -572,20 +572,20 @@ function mergeIdTables(idTable)
     local class = select(2,UnitClass("player"))
     local spec = GetSpecializationInfo(GetSpecialization())
     if idTable ~= nil then idTable = {} end
-    if br.idList.Shared ~= nil then
-        idTable = mergeTables(idTable, br.idList.Shared)
+    if br.lists.spells.Shared ~= nil then
+        idTable = mergeTables(idTable, br.lists.spells.Shared)
     end
-    if br.idList[class] ~= nil then
-        if br.idList[class].Shared ~= nil then
-            idTable = mergeTables(idTable, br.idList[class].Shared)
-            if br.idList[class].Shared.abilities ~= nil then
-                idTable = mergeTables(idTable, br.idList[class].Shared.abilities)
+    if br.lists.spells[class] ~= nil then
+        if br.lists.spells[class].Shared ~= nil then
+            idTable = mergeTables(idTable, br.lists.spells[class].Shared)
+            if br.lists.spells[class].Shared.abilities ~= nil then
+                idTable = mergeTables(idTable, br.lists.spells[class].Shared.abilities)
             end
         end
-        if br.idList[class][spec] ~= nil then
-            idTable = mergeTables(idTable, br.idList[class][spec])
-            if br.idList[class][spec].abilities ~= nil then
-                idTable = mergeTables(idTable, br.idList[class][spec].abilities)
+        if br.lists.spells[class][spec] ~= nil then
+            idTable = mergeTables(idTable, br.lists.spells[class][spec])
+            if br.lists.spells[class][spec].abilities ~= nil then
+                idTable = mergeTables(idTable, br.lists.spells[class][spec].abilities)
             end
         end
     end

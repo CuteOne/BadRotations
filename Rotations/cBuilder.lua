@@ -18,7 +18,7 @@ function br.loader:new(spec,specName)
     self.rotations = br.loader.rotations
 
     -- Spells From Spell Table
-    for unitClass , classTable in pairs(br.idList) do
+    for unitClass , classTable in pairs(br.lists.spells) do
         if unitClass == select(2,UnitClass('player')) or unitClass == 'Shared' then
             for spec, specTable in pairs(classTable) do
                 if spec == GetSpecializationInfo(GetSpecialization()) or spec == 'Shared' then

@@ -215,6 +215,7 @@ local function runRotation()
         local flaskBuff                                     = getBuffRemain("player",br.player.flask.wod.buff.agilityBig)
         local friendly                                      = friendly or UnitIsFriend("target", "player")
         local gcd                                           = br.player.gcd
+        local gcdMax                                        = br.player.gcdMax
         local hasMouse                                      = GetObjectExists("mouseover")
         local healPot                                       = getHealthPot()
         local inCombat                                      = br.player.inCombat
@@ -1426,11 +1427,6 @@ local function runRotation()
                             if cast.regrowth("player") then htTimer = GetTime(); return end
                         end
                     end 
-        -- Ferocious Bite
-                    -- ferocious_bite,max_energy=1,if=buff.apex_predator.up
-                    if buff.apexPredator.exists() and fbMaxEnergy then
-                        if cast.ferociousBite() then return end
-                    end
 		-- Incarnation - King of the Jungle
 					if cast.incarnationKingOfTheJungle() then return end
         -- Prowl
@@ -1525,9 +1521,7 @@ local function runRotation()
     --- SimulationCraft APL ---
     ---------------------------
                     if getOptionValue("APL Mode") == 1 then
-    -----------------------------
-    --- In Combat - Cooldowns ---
-    -----------------------------
+        -- Call Action List - Cooldowns
                         if actionList_SimC_Cooldowns() then return end
         -- Regrowth
                         -- regrowth,if=combo_points=5&talent.bloodtalons.enabled&buff.bloodtalons.down&(!buff.incarnation.up|dot.rip.remains<8|dot.rake.remains<5)
@@ -1541,6 +1535,11 @@ local function runRotation()
                             if getOptionValue("Auto Heal")==2 then
                                 if cast.regrowth("player") then return end
                             end
+                        end
+        -- Ferocious Bite
+                        -- ferocious_bite,max_energy=1,if=buff.apex_predator.up
+                        if buff.apexPredator.exists() and fbMaxEnergy then
+                            if cast.ferociousBite() then return end
                         end
         -- Call Action List - Finisher
                         -- call_action_list,name=finisher

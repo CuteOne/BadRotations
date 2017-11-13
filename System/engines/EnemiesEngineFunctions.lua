@@ -135,7 +135,7 @@ function castDispelOffensiveBuffs(spell)
 		end
 	end
 end
--- Cone Logic for Enemies
+--[[-- Cone Logic for Enemies
 function getEnemiesInCone(length,angle)
     local playerX, playerY, playerZ = GetObjectPosition("player")
     local facing = ObjectFacing("player")
@@ -158,7 +158,7 @@ function getEnemiesInCone(length,angle)
         end
     end
     return units
-end
+end--]]
 
 -- Percentage of enemies that are not in execute HP range
 function getNonExecuteEnemiesPercent(executeHP)
