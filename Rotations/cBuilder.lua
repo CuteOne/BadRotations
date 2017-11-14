@@ -411,7 +411,7 @@ function br.loader:new(spec,specName)
         -- Build Spell Charges
         local charges = self.charges[k]
         charges.exists = function()
-            return getCharges(v) > 0
+            return getCharges(v) >= 1
         end
         charges.count = function()
             return getCharges(v)

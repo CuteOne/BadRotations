@@ -5,12 +5,13 @@ function getDistance(Unit1,Unit2,option)
         Unit2 = Unit1
         Unit1 = "player"
     end
+    if option == nil then option = "none" end
     -- Check if objects exists and are visible
     if GetObjectExists(Unit1) and GetUnitIsVisible(Unit1) == true 
         and GetObjectExists(Unit2) and GetUnitIsVisible(Unit2) == true 
     then
         -- Modifier for Balance Affinity range change (Druid - Not Balance)
-        if rangeMod == nil then rangeMod = 0 end
+        local rangeMod = 0
         if br.player ~= nil then
             if br.player.talent.balanceAffinity ~= nil then
                 if br.player.talent.balanceAffinity and option ~= "noMod" then
@@ -145,6 +146,27 @@ function isInMelee(Unit)
   else
     return false
   end
+end
+
+function isSafeToAoE(spellID,Unit,effectRng,minUnits,aoeType)
+    local maxRange = select(6,GetSpellInfo(spellID))
+    if effectRng == nil then effectRng = 5 end
+    if minUnits == nil then minUnits = 1 end
+    if aoeType == "rect" then
+        enemiesValid    = getEnemiesInRect(effectRng,maxRange,false)
+        enemiesAll      = getEnemiesInRect(effectRng,maxRange,false,true)
+    elseif aoeType == "cone" then
+        enemiesValid    = getEnemiesInCone(effectRng,maxRange,false)
+        enemiesAll      = getEnemiesInCone(effectRng,maxRange,false,true)
+    else
+        enemiesValid    = #getEnemies(Unit,maxRange)
+        enemiesAll      = #getEnemies(Unit,maxRange,true)
+    end
+    if isChecked("Safe Damage Check") then
+        return enemiesValid >= minUnits and enemiesValid >= enemiesAll
+    else
+        return true
+    end
 end
 
 function inRange(spellID,unit)

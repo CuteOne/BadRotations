@@ -138,8 +138,9 @@ end
 -- /dump getEnemies("target",10)
 function getEnemies(thisUnit,radius,checkNoCombat)
     local startTime = debugprofilestop()
-	local enemiesTable = { }
+	local enemiesTable = {}
 	local enemyTable = {}
+	local radius = tonumber(radius)
 
     if checkNoCombat == nil then checkNoCombat = false end
     if checkNoCombat then
@@ -150,7 +151,6 @@ function getEnemies(thisUnit,radius,checkNoCombat)
 	for k, v in pairs(enemyTable) do
 		local thisEnemy = enemyTable[k].unit
 		local distance =  getDistance(thisUnit,thisEnemy)
-		local inCombat = false
 		if distance < radius then
 			tinsert(enemiesTable,thisEnemy)
 		end

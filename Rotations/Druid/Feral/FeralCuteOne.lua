@@ -984,7 +984,7 @@ local function runRotation()
                         end
                     elseif THR1 and (not SHR1 or (combo < 5 and not debuff.rip.exists("target"))) then
             -- Brutal Slash / Shred
-                        if talent.brutalSlash and charges.brutalSlash.count() >= 1 and getOptionValue("Brutal Slash in Opener") == 1 then
+                        if talent.brutalSlash and charges.brutalSlash.exists() and getOptionValue("Brutal Slash in Opener") == 1 then
                             if castOpener("brutalSlash","SHR1",openerCount) then openerCount = openerCount + 1; return end
                         else
                             if castOpener("shred","SHR1",openerCount) then openerCount = openerCount + 1; return end
@@ -1180,7 +1180,7 @@ local function runRotation()
         -- Brutal Slash
             -- brutal_slash,if=spell_targets.brutal_slash>desired_targets
             if talent.brutalSlash and ((mode.rotation == 1 and #enemies.yards8 >= getOptionValue("Brutal Slash Targets")) or mode.rotation == 2) then
-                if cast.brutalSlash("player","aoe") then return end
+                if cast.brutalSlash("player","aoe",getOptionValue("Brutal Slash Targets")) then return end
             end
         -- Thrash
             -- pool_resource,for_next=1
@@ -1264,7 +1264,12 @@ local function runRotation()
             end
         -- Shred
             -- shred
-            if (not debuff.rake.refresh(units.dyn5) or level < 12) then
+            if (not debuff.rake.refresh(units.dyn5) or level < 12) 
+                and ((talent.brutalSlash and (not charges.brutalSlash.exists() or not isSafeToAoE(spell.brutalSlash,"player",8,getOptionValue("Brutal Slash Targets")) 
+                    or (mode.rotation == 1 and #enemies.yards8 < getOptionValue("Brutal Slash Targets")) or mode.rotation == 3)) 
+                    or (not talent.brutalSlash and ((mode.rotation == 1 and #enemies.yards8 == 1) or mode.rotation == 3 or not isSafeToAoE(spell.swipe,"player",8,2) or level < 32))
+                    or buff.clearcasting.exists())
+            then
                 if cast.shred() then return end
             end
         end
@@ -1487,7 +1492,7 @@ local function runRotation()
             -- if inCombat and not cat and not (flight or travel or IsMounted() or IsFlying() or falling) and isChecked("Auto Shapeshifts") then
             --     if cast.catForm("player") then return end
             -- else
-            if inCombat and cat and profileStop==false and not isChecked("Death Cat Mode") and isValidUnit(units.dyn5) then
+            if inCombat and cat and profileStop==false and not isChecked("Death Cat Mode") and isValidUnit(units.dyn5) and opener == true then
 		-- Opener
 				-- if actionList_Opener() then return end
         -- Wild Charge
@@ -1501,7 +1506,7 @@ local function runRotation()
                 -- dash,if=movement.distance&buff.displacer_beast.down&buff.wild_charge_movement.down
         -- Rake/Shred from Stealth
                 -- rake,if=buff.prowl.up|buff.shadowmeld.up
-                if (buff.prowl.exists() or buff.shadowmeld.exists()) and opener == true then
+                if (buff.prowl.exists() or buff.shadowmeld.exists()) then
                     -- if debuff.rake.exists(units.dyn5) or level < 12 then
                     if debuff.rake.calc() > debuff.rake.applied(units.dyn5) * 0.85 and level >= 12 then
                         if cast.rake(units.dyn5) then return end
