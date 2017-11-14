@@ -1068,7 +1068,7 @@ local function runRotation()
             end
         -- Ferocious Bite
             -- ferocious_bite,max_energy=1
-            if fbMaxEnergy and (buff.savageRoar.remain() >= 12 or not talent.savageRoar) and debuff.rip.exists(units.dyn5) then
+            if fbMaxEnergy and (buff.savageRoar.remain() >= 12 or not talent.savageRoar) and (debuff.rip.exists(units.dyn5) or ttd(units.dyn5) <= 8) then
                 if cast.ferociousBite() then return end
             end
         end
