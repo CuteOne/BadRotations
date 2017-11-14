@@ -593,7 +593,7 @@ function createCastFunction(thisUnit,debug,minUnits,effectRng,spellID,index)
                     return castSpell(thisUnit,spellCast,false,false,false,true,true,true,true,false)
                 elseif debug == "norm" then
 	                castDebug()
-	                return castSpell(thisUnit,spellCast,false,false,false,true,false,true,true,false)
+	                return castSpell(thisUnit,spellCast,true,false,false,true,false,true,true,false)
 	            end
 	        else
 	        	if (isChecked("Display Failcasts") or isChecked("Cast Debug")) and debug ~= "debug" then
