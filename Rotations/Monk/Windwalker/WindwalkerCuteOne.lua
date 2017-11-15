@@ -1212,7 +1212,7 @@ local function runRotation()
             end
         -- Chi Burst
             -- chi_burst,if=energy.time_to_max>1
-            if ttm > 1 then
+            if ttm > 1 and ttd > cast.time.chiBurst() then
                 if cast.chiBurst(nil,"rect",1,12) then return end
             end
         -- Tiger Palm
@@ -1450,7 +1450,7 @@ local function runRotation()
                     end
         -- Touch of Death
                     -- touch_of_death,if=target.time_to_die<=9
-                    if useCDs() and isChecked("Touch of Death") and ttd <= 9 and lastCombo ~= spell.touchOfDeath then
+                    if useCDs() and isChecked("Touch of Death") and ttd > 9 and lastCombo ~= spell.touchOfDeath then
                         if cast.touchOfDeath() then SerenityTest = GetTime(); return end
                     end
         -- Call Action List - Serenity
@@ -1582,7 +1582,7 @@ local function runRotation()
                         if cast.rushingJadeWind() then return end
                     end
         -- Chi Burst
-                    if lastCombo ~= spell.chiBurst then
+                    if ttd > cast.time.chiBurst() then
                         if cast.chiBurst(nil,"rect",1,12) then return end
                     end
         -- Chi Wave

@@ -124,17 +124,19 @@ function UnitIsTappedByPlayer(mob)
 		return false
 	end
 end
-function getSpellUnit(spellCast)
+function getSpellUnit(spellCast,aoe)
 	local spellName,_,_,_,_,maxRange = GetSpellInfo(spellCast)
 	local spellType = getSpellType(spellName)
 	if maxRange == nil or maxRange == 0 then maxRange = 5 end
+	if aoe == nil then aoe = false end
+	local unit = br.player.units(maxRange,aoe)
     if spellType == "Helpful" then
         thisUnit = "player"
     elseif spellType == "Harmful" or spellType == "Both" then  
-        thisUnit = br.player.units(maxRange) 
-    elseif spellType == "Unknown" and getDistance(br.player.units(maxRange)) < maxRange then
-        if castSpell(br.player.units(maxRange),spellCast,false,false,false,false,false,false,false,true) then 
-            thisUnit = br.player.units(maxRange)
+        thisUnit = unit 
+    elseif spellType == "Unknown" and getDistance(unit) < maxRange then
+        if castSpell(unit,spellCast,false,false,false,false,false,false,false,true) then 
+            thisUnit = unit
         elseif castSpell("player",spellCast,false,false,false,false,false,false,false,true) then
             thisUnit = "player"
         end 

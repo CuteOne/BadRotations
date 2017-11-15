@@ -404,6 +404,7 @@ function br.loader:new(spec,specName)
         if self.cast.current    == nil then self.cast.current       = {} end        -- Cast Spell Current
         if self.cast.last       == nil then self.cast.last          = {} end        -- Cast Spell Last
         if self.cast.regen      == nil then self.cast.regen         = {} end        -- Cast Spell Regen
+        if self.cast.safe       == nil then self.cast.safe          = {} end        -- Case Spell Safe 
         if self.cast.time       == nil then self.cast.time          = {} end        -- Cast Spell Time
         if self.charges[k]      == nil then self.charges[k]         = {} end        -- Spell Charge Functions 
         if self.cd[k]           == nil then self.cd[k]              = {} end        -- Spell Cooldown Functions 
@@ -463,6 +464,10 @@ function br.loader:new(spec,specName)
 
         self.cast.regen[k] = function()
             return getCastingRegen(v)
+        end
+
+        self.cast.safe[k] = function(unit,effectRng,minUnits,aoeType)
+            return isSafeToAoE(v,effectRng,minUnits,aoeType)
         end
 
         self.cast.time[k] = function()

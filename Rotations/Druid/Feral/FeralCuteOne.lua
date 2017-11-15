@@ -1265,9 +1265,9 @@ local function runRotation()
         -- Shred
             -- shred
             if (not debuff.rake.refresh(units.dyn5) or level < 12) 
-                and ((talent.brutalSlash and (not charges.brutalSlash.exists() or not isSafeToAoE(spell.brutalSlash,"player",8,getOptionValue("Brutal Slash Targets")) 
+                and ((talent.brutalSlash and (not charges.brutalSlash.exists() or not cast.brutalSlash.safe("player",8,getOptionValue("Brutal Slash Targets")) 
                     or (mode.rotation == 1 and #enemies.yards8 < getOptionValue("Brutal Slash Targets")) or mode.rotation == 3)) 
-                    or (not talent.brutalSlash and ((mode.rotation == 1 and #enemies.yards8 == 1) or mode.rotation == 3 or not isSafeToAoE(spell.swipe,"player",8,2) or level < 32))
+                    or (not talent.brutalSlash and ((mode.rotation == 1 and #enemies.yards8 == 1) or mode.rotation == 3 or not cast.swipe.safe("player",8,2) or level < 32))
                     or buff.clearcasting.exists())
             then
                 if cast.shred() then return end
