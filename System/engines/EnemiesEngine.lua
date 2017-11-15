@@ -151,7 +151,7 @@ function getEnemies(thisUnit,radius,checkNoCombat)
 	for k, v in pairs(enemyTable) do
 		local thisEnemy = enemyTable[k].unit
 		local distance =  getDistance(thisUnit,thisEnemy)
-		if distance < radius then
+		if not UnitIsDeadOrGhost(thisEnemy) and distance < radius then
 			tinsert(enemiesTable,thisEnemy)
 		end
     end

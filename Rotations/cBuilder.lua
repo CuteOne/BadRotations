@@ -444,8 +444,9 @@ function br.loader:new(spec,specName)
             return createCastFunction(thisUnit,debug,minUnits,effectRng,v,k)
         end
 
-        self.cast.able[k] = function()
-            return self.cast[v](nil,"debug")
+        self.cast.able[k] = function(thisUnit,debug,minUnits,effectRng)
+            return createCastFunction(thisUnit,"debug",minUnits,effectRng,v,k)
+            -- return self.cast[v](nil,"debug")
         end
 
         self.cast.cost[k] = function()

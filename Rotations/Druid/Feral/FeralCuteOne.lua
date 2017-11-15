@@ -883,6 +883,7 @@ local function runRotation()
             -- auto_attack
             if isChecked("Opener") and isBoss("target") and opener == false then
                 if isValidUnit("target") and getDistance("target") < 5 then
+            -- Begin
 					if not OPN1 then 
                         Print("Starting Opener")
                         openerCount = openerCount + 1
@@ -982,13 +983,20 @@ local function runRotation()
                             openerCount = openerCount + 1; 
                             THR1 = true
                         end
-                    elseif THR1 and (not SHR1 or (combo < 5 and not debuff.rip.exists("target"))) then
+                    elseif THR1 and (not SHR1 or combo < 5) then
             -- Brutal Slash / Shred
                         if talent.brutalSlash and charges.brutalSlash.exists() and getOptionValue("Brutal Slash in Opener") == 1 then
-                            if castOpener("brutalSlash","SHR1",openerCount) then openerCount = openerCount + 1; return end
+                            if cast.brutalSlash("player","aoe") then Print(openerCount..": Brutal Slash"); openerCount = openerCount + 1; SHR1 = true; return end 
+                            -- if castOpener("brutalSlash","SHR1",openerCount) then openerCount = openerCount + 1; return end
                         else
                             if castOpener("shred","SHR1",openerCount) then openerCount = openerCount + 1; return end
                         end
+            -- Finish (rip exists)
+                    elseif SHR1 and debuff.rip.exists("target") then
+                        Print("Opener Complete")
+                        openerCount = 0
+                        opener = true
+                        return
                     elseif SHR1 and (not REG2 and combo == 5) then
             -- Regrowth
                         if not debuff.rip.exists("target") and (talent.sabertooth or buff.predatorySwiftness.exists()) and talent.bloodtalons and not buff.bloodtalons.exists() and combo == 5 then
@@ -1007,6 +1015,7 @@ local function runRotation()
                             openerCount = openerCount + 1 
                             RIP2 = true
                         end
+            -- Finish
                     elseif RIP2 then
                         Print("Opener Complete")
                         openerCount = 0
@@ -1200,7 +1209,7 @@ local function runRotation()
             -- rake,target_if=talent.bloodtalons.enabled&buff.bloodtalons.up&((remains<=7)&persistent_multiplier>dot.rake.pmultiplier*0.85)&target.time_to_die>4
             for i = 1, #enemies.yards5 do
                 local thisUnit = enemies.yards5[i]
-                if (multidot or (UnitIsUnit(thisUnit,units.dyn5) and not multidot)) and getDistance(thisUnit) < 5 then
+                if (multidot or (UnitIsUnit(thisUnit,units.dyn5) and not multidot)) then
                     if ((not debuff.rake.exists(thisUnit) or (not talent.bloodtalons and debuff.rake.refresh(thisUnit)))
                             or (talent.bloodtalons and buff.bloodtalons.exists() and debuff.rake.remain(thisUnit) <= 7 and debuff.rake.calc() > debuff.rake.applied(thisUnit) * 0.85))
                         --and (ttd(thisUnit) > 4 or isDummy(thisUnit))
@@ -1264,8 +1273,9 @@ local function runRotation()
             end
         -- Shred
             -- shred
-            if (not debuff.rake.refresh(units.dyn5) or level < 12) 
-                and ((talent.brutalSlash and (not charges.brutalSlash.exists() or not cast.safe.brutalSlash("player",8,getOptionValue("Brutal Slash Targets")) 
+            if cast.able.shred() and (not debuff.rake.refresh(units.dyn5) or level < 12) 
+                and ((talent.brutalSlash and (not charges.brutalSlash.exists() or not cast.safe.brutalSlash("player",8,getOptionValue("Brutal Slash Targets"))
+                    or (charges.brutalSlash.timeTillFull() >= gcdMax and not buff.tigersFury.exists() and #enemies.yards8 < getOptionValue("Brutal Slash Targets")) 
                     or (mode.rotation == 1 and #enemies.yards8 < getOptionValue("Brutal Slash Targets")) or mode.rotation == 3)) 
                     or (not talent.brutalSlash and ((mode.rotation == 1 and #enemies.yards8 == 1) or mode.rotation == 3 or not cast.safe.swipe("player",8,2) or level < 32))
                     or buff.clearcasting.exists())
