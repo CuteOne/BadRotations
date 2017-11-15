@@ -159,6 +159,7 @@ local function runRotation()
         UpdateToggle("Cooldown",0.25)
         UpdateToggle("Defensive",0.25)
         UpdateToggle("Interrupt",0.25)
+        UpdateToggle("Cleanse",0.25)
         br.player.mode.cleanse = br.data.settings[br.selectedSpec].toggles["Cleanse"]
 --------------
 --- Locals ---
