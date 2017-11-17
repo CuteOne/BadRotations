@@ -736,6 +736,12 @@ local function runRotation()
                         useItem(142173)
                     end
                 end
+        -- Specter of Betrayal
+                if (getOptionValue("Specter of Betrayal") == 1 or (getOptionValue("Specter of Betrayal") == 2 and useCDs())) then
+                    if hasEquiped(151190) and canUse(151190) then
+                        useItem(151190)
+                    end
+                end
         -- Trinkets
                 -- if=buff.tigers_fury.up&energy.time_to_max>3&(!talent.savage_roar.enabled|buff.savage_roar.up)
                 if (buff.tigersFury.exists() or ttd(units.dyn5) <= cd.tigersFury.remain()) and (not talent.savageRoar or buff.savageRoar.exists()) then
@@ -751,12 +757,6 @@ local function runRotation()
                     if (getOptionValue("Draught of Souls") == 1 or (getOptionValue("Draught of Souls") == 2 and useCDs())) and hasEquiped(140808) and canUse(140808) and useCDs() then
                         if ttm > 3 and comboDeficit >= 1 then
                             useItem(140808)
-                        end
-                    end
-        -- Specter of Betrayal
-                    if (getOptionValue("Specter of Betrayal") == 1 or (getOptionValue("Specter of Betrayal") == 2 and useCDs())) then
-                        if hasEquiped(151190) and canUse(151190) then
-                            useItem(151190)
                         end
                     end
         -- Umbral Moonglaives
