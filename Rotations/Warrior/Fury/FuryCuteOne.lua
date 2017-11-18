@@ -493,7 +493,7 @@ local function runRotation()
                 end
             end
         -- Odyn's Fury
-            if buff.enrage.exists() and cd.ragingBlow.remain() > 0 and thp > 20 and getDistance(units.dyn5) < 5 then
+            if buff.enrage.exists() and cd.ragingBlow.remain() > 0 and thp > 20 and useCDs() and getDistance(units.dyn5) < 5 then
                 if cast.odynsFury("player") then return end
             end
         -- Execute
@@ -611,7 +611,7 @@ local function runRotation()
         -- Raging Blow
                 if cast.ragingBlow() then return end
         -- Odyn's Fury
-            if buff.enrage.exists() and power < 100 and getDistance(units.dyn5) < 5 then
+            if buff.enrage.exists() and power < 100 and useCDs() and getDistance(units.dyn5) < 5 then
                 if cast.odynsFury("player") then return end
             end
         -- Furious Slash
