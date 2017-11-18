@@ -992,35 +992,35 @@ local function runRotation()
                             if castOpener("shred","SHR1",openerCount) then openerCount = openerCount + 1; return end
                         end
             -- Finish (rip exists)
-                    elseif SHR1 and debuff.rip.exists("target") then
+                    elseif SHR1 and combo == 5 then --debuff.rip.exists("target") then
                         Print("Opener Complete")
                         openerCount = 0
                         opener = true
                         return
-                    elseif SHR1 and (not REG2 and combo == 5) then
-            -- Regrowth
-                        if not debuff.rip.exists("target") and (talent.sabertooth or buff.predatorySwiftness.exists()) and talent.bloodtalons and not buff.bloodtalons.exists() and combo == 5 then
-                            if castOpener("regrowth","REG2",openerCount) then openerCount = openerCount + 1; return end
-                        else
-                            Print(openerCount..": Regrowth (Uncastable)")
-                            openerCount = openerCount + 1 
-                            REG2 = true
-                        end   
-            -- Rip
-                    elseif REG2 and not RIP2 then
-                        if not debuff.rip.exists("target") and combo == 5 then
-                            if castOpener("rip","RIP2",openerCount) then openerCount = openerCount + 1; return end
-                        else
-                            Print(openerCount..": Rip (Uncastable)")
-                            openerCount = openerCount + 1 
-                            RIP2 = true
-                        end
-            -- Finish
-                    elseif RIP2 then
-                        Print("Opener Complete")
-                        openerCount = 0
-       					opener = true
-       					return
+            --         elseif SHR1 and (not REG2 and combo == 5) then
+            -- -- Regrowth
+            --             if not debuff.rip.exists("target") and (talent.sabertooth or buff.predatorySwiftness.exists()) and talent.bloodtalons and not buff.bloodtalons.exists() and combo == 5 then
+            --                 if castOpener("regrowth","REG2",openerCount) then openerCount = openerCount + 1; return end
+            --             else
+            --                 Print(openerCount..": Regrowth (Uncastable)")
+            --                 openerCount = openerCount + 1 
+            --                 REG2 = true
+            --             end   
+            -- -- Rip
+            --         elseif REG2 and not RIP2 then
+            --             if not debuff.rip.exists("target") and combo == 5 then
+            --                 if castOpener("rip","RIP2",openerCount) then openerCount = openerCount + 1; return end
+            --             else
+            --                 Print(openerCount..": Rip (Uncastable)")
+            --                 openerCount = openerCount + 1 
+            --                 RIP2 = true
+            --             end
+            -- -- Finish
+            --         elseif RIP2 then
+            --             Print("Opener Complete")
+            --             openerCount = 0
+       					-- opener = true
+       					-- return
        				end
                 end
 			elseif (UnitExists("target") and not isBoss("target")) or not isChecked("Opener") then
