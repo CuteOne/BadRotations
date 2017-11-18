@@ -18,6 +18,20 @@ System\LootManager.lua
 System\UsefulFeatures.lua
 System\SlashCommands.lua
 
+## Lists
+System\Lists\BurnUnits.lua
+System\Lists\CCUnits.lua
+System\Lists\Dummy.lua
+System\Lists\Items.lua
+System\Lists\LineOfSight.lua
+System\Lists\LongCC.lua
+System\Lists\Maps.lua
+System\Lists\NoTouchUnits.lua
+System\Lists\ShieldUnits.lua
+System\Lists\Specs.lua
+System\Lists\Spells.lua
+System\Lists\Tier.lua
+
 ## Functions
 
 System\Functions\Action.lua

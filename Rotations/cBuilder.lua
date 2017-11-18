@@ -18,7 +18,7 @@ function br.loader:new(spec,specName)
     self.rotations = br.loader.rotations
 
     -- Spells From Spell Table
-    for unitClass , classTable in pairs(br.idList) do
+    for unitClass , classTable in pairs(br.lists.spells) do
         if unitClass == select(2,UnitClass('player')) or unitClass == 'Shared' then
             for spec, specTable in pairs(classTable) do
                 if spec == GetSpecializationInfo(GetSpecialization()) or spec == 'Shared' then
@@ -404,6 +404,7 @@ function br.loader:new(spec,specName)
         if self.cast.current    == nil then self.cast.current       = {} end        -- Cast Spell Current
         if self.cast.last       == nil then self.cast.last          = {} end        -- Cast Spell Last
         if self.cast.regen      == nil then self.cast.regen         = {} end        -- Cast Spell Regen
+        if self.cast.safe       == nil then self.cast.safe          = {} end        -- Case Spell Safe 
         if self.cast.time       == nil then self.cast.time          = {} end        -- Cast Spell Time
         if self.charges[k]      == nil then self.charges[k]         = {} end        -- Spell Charge Functions 
         if self.cd[k]           == nil then self.cd[k]              = {} end        -- Spell Cooldown Functions 
@@ -411,7 +412,7 @@ function br.loader:new(spec,specName)
         -- Build Spell Charges
         local charges = self.charges[k]
         charges.exists = function()
-            return getCharges(v) > 0
+            return getCharges(v) >= 1
         end
         charges.count = function()
             return getCharges(v)
@@ -443,8 +444,9 @@ function br.loader:new(spec,specName)
             return createCastFunction(thisUnit,debug,minUnits,effectRng,v,k)
         end
 
-        self.cast.able[k] = function()
-            return self.cast[v](nil,"debug")
+        self.cast.able[k] = function(thisUnit,debug,minUnits,effectRng)
+            return createCastFunction(thisUnit,"debug",minUnits,effectRng,v,k)
+            -- return self.cast[v](nil,"debug")
         end
 
         self.cast.cost[k] = function()
@@ -463,6 +465,10 @@ function br.loader:new(spec,specName)
 
         self.cast.regen[k] = function()
             return getCastingRegen(v)
+        end
+
+        self.cast.safe[k] = function(unit,effectRng,minUnits,aoeType)
+            return isSafeToAoE(v,effectRng,minUnits,aoeType)
         end
 
         self.cast.time[k] = function()

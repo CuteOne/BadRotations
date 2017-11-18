@@ -205,6 +205,7 @@ local function runRotation()
         local spell         = br.player.spell
         local t20_2pc       = TierScan("T20") >= 2
         local t20_4pc       = TierScan("T20") >= 4
+        local t21_4pc       = TierScan("T21") >= 4
         local talent        = br.player.talent
         local thp           = getHP(br.player.units(5))
         local ttd           = getTTD(br.player.units(5))
@@ -261,8 +262,11 @@ local function runRotation()
         else
             judgmentVar = false
         end
-        -- variable,name=ds_castable,value=spell_targets.divine_storm>=2|(buff.scarlet_inquisitors_expurgation.stack>=29&(buff.avenging_wrath.up|(buff.crusade.up&buff.crusade.stack>=15)|(cooldown.crusade.remains>15&!buff.crusade.up)|cooldown.avenging_wrath.remains>15))
-        local dsCastable = (mode.rotation == 1 and (#enemies.yards8 >= getOptionValue("Divine Storm Units") or (buff.scarletInquisitorsExpurgation.stack() >= 29 and (buff.avengingWrath.exists() or (buff.crusade.exists() and buff.crusade.stack() >= 15) or (cd.crusade.remain() > 15 and not buff.crusade.exists()) or cd.avengingWrath.remain() > 15)))) or mode.rotation == 2
+        -- variable,name=ds_castable,value=spell_targets.divine_storm>=2|(buff.scarlet_inquisitors_expurgation.stack>=29&(equipped.144358&(dot.wake_of_ashes.ticking&time>10|dot.wake_of_ashes.remains<gcd))|(buff.scarlet_inquisitors_expurgation.stack>=29&(buff.avenging_wrath.up|buff.crusade.up&buff.crusade.stack>=15|cooldown.crusade.remains>15&!buff.crusade.up)|cooldown.avenging_wrath.remains>15)&!equipped.144358)
+        local dsCastable = (mode.rotation == 1 and (#enemies.yards8 >= getOptionValue("Divine Storm Units") or (buff.scarletInquisitorsExpurgation.stack() >= 29 and (hasEquiped(144358) 
+            and (debuff.wakeOfAshes.exists(units.dyn8) and combatTime > 10 or debuff.wakeOfAshes.remain(units.dyn8) < gcd)) or (buff.scarletInquisitorsExpurgation.stack() >= 29 
+            and (buff.avengingWrath.exists() or buff.crusade.exists() and buff.crusade.stack() >= 15 or cd.crusade.remain() > 15 and not buff.crusade.exists()) or cd.avengingWrath.remain() > 15) 
+            and not hasEquiped(144358)))) or mode.rotation == 2
         local greaterBuff
         greaterBuff = 0
         local lowestUnit
@@ -805,8 +809,8 @@ local function runRotation()
                 if actionList_Finisher() then return end
             end
         -- Judgment
-            -- judgment,if=dot.execution_sentence.ticking&dot.execution_sentence.remains<gcd*2&debuff.judgment.remains<gcd*2
-            if debuff.executionSentence.exists(units.dyn5) and debuff.executionSentence.remain(units.dyn5) < gcd * 2 and debuff.judgment.remain(units.dyn5) < gcd * 2 then
+            -- judgment,if=dot.execution_sentence.ticking&dot.execution_sentence.remains<gcd*2&debuff.judgment.remains<gcd*2|set_bonus.tier21_4pc
+            if debuff.executionSentence.exists(units.dyn5) and debuff.executionSentence.remain(units.dyn5) < gcd * 2 and debuff.judgment.remain(units.dyn5) < gcd * 2 or t21_4pc then
                 if cast.judgment() then return end
             end
         -- Blade of Justice

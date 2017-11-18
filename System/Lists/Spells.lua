@@ -33,8 +33,8 @@ function getRacial()
     }
     return racialSpells[race]
 end
-
-br.idList = {
+if br.lists == nil then br.lists = {} end
+br.lists.spells = {
     DEATHKNIGHT = {
         -- Blood
         [250] = {
@@ -1501,7 +1501,7 @@ br.idList = {
                 chiBurst                    = 123986;
                 zenPulse                    = 124081;
                 chiWave                     = 115098;
---                mistwalk                    = 197945;
+                mistwalk                    = 197945;
                 chiTorpedo                  = 115008;
                 tigersLust                  = 116841;
                 mistWrap                    = 197900;

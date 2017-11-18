@@ -524,28 +524,34 @@ function createCastFunction(thisUnit,debug,minUnits,effectRng,spellID,index)
     if GetSpellInfo(spellID) == nil then Print("Invalid Spell ID: "..spellID.." for key: "..index) end
     -- Locals
     local spellCast = spellID
-    local spellName = GetSpellInfo(spellID)
+    local spellName,_,_,_,minRange,maxRange = GetSpellInfo(spellID)
     local spellType = getSpellType(spellName)
-    local minRange = select(5,GetSpellInfo(spellName))
-    local maxRange = select(6,GetSpellInfo(spellName))
+    -- local minRange = tonumber(select(5,GetSpellInfo(spellName)))
+    -- local maxRange = tonumber(select(6,GetSpellInfo(GetSpellInfo(spellID))))
     -- Nil Catches
     if minRange == nil then minRange = 0 end
-    if maxRange == nil or maxRange == 0 then maxRange = 5 end
+    if maxRange == nil or maxRange == 0 then maxRange = 5 else maxRange = tonumber(maxRange) end
     if minUnits == nil then minUnits = 1 end
     if effectRng == nil then effectRng = 5 end
     if debug == nil then debug = "norm" end
     local function castDebug()
         if isChecked("Cast Debug") and debug ~= "debug" then
             local unitName = UnitName(thisUnit) or thisUnit
-            Print("Casting |cffFFFF00"..spellName.." ("..spellID..") |r on |cffFFFF00"..tostring(unitName).." |r - Spell Type: |cffFFFF00"..spellType..
-                " |r, Cast Type: |cffFFFF00"..tostring(debug).." |r, Ranges - Min: |cffFFFF00"..minRange.." |r, Max: |cffFFFF00"..maxRange..
-                " |r, Eff: |cffFFFF00"..effectRng.." |r, Min Units: |cffFFFF00"..minUnits)
+            Print("Casting |cffFFFF00"..spellName.." ("..spellID..") |r on |cffFFFF00"..tostring(UnitName(thisUnit)).."\n |r Spell Type: |cffFFFF00"..spellType..
+            	" |r, Cast Type: |cffFFFF00"..tostring(debug).."\n |r Ranges - Min: |cffFFFF00"..minRange.." |r, Max: |cffFFFF00"..maxRange..
+            	" |r, Eff: |cffFFFF00"..effectRng.." |r, Min Units: |cffFFFF00"..minUnits)
         end
     end
     -- Base Spell Availablility Check
     if --[[isChecked("Use: "..spellName) and ]]not select(2,IsUsableSpell(spellID)) and getSpellCD(spellID) == 0 and (isKnown(spellID) or debug == "known") then --and not isIncapacitated(spellID) then
         -- Attempt to determine best unit for spell's range
-        if thisUnit == nil then thisUnit = getSpellUnit(spellCast) end
+        if thisUnit == nil then 
+        	if debug == "norm" or debug == "dead" or debug == "rect" or debug == "cone" then 
+        		thisUnit = getSpellUnit(spellCast) 
+        	else
+        		thisUnit = getSpellUnit(spellCast,true)
+        	end
+        end
         -- Return specified/best cast method
         if debug == "debug" then
             castDebug()
@@ -560,42 +566,40 @@ function createCastFunction(thisUnit,debug,minUnits,effectRng,spellID,index)
             castDebug()
             return castGroundAtUnit(spellCast,effectRng,minUnits,maxRange,minRange,debug,"target")
         elseif thisUnit ~= nil then
-	        local enemiesInRectValid 	= getEnemiesInRect(effectRng,maxRange,false)
-	        local enemiesInRectAll 		= getEnemiesInRect(effectRng,maxRange,false,true)
-	        local safeToRect 			= enemiesInRectValid >= minUnits and enemiesInRectValid >= enemiesInRectAll
-	        local enemiesInConeValid 	= getEnemiesInCone(effectRng,maxRange,false)
-	        local enemiesInConeAll 		= getEnemiesInCone(effectRng,maxRange,false,true)
-	        local safeToCone 			= enemiesInConeValid >= minUnits and enemiesInConeValid >= enemiesInConeAll
-	        local enemiesValid 			= #getEnemies(thisUnit,maxRange)
-	        local enemiesAll 			= #getEnemies(thisUnit,maxRange,true)
-	        local safeToAoE 			= enemiesValid >= minUnits and enemiesValid >= enemiesAll
             local distance = getDistance(thisUnit) 
             if ((distance >= minRange and distance < maxRange) or IsSpellInRange(spellName,thisUnit) == 1) then
-                if debug == "rect" and safeToRect then
-                    castDebug()
-                    -- Print(tostring(safeToRect)..": Valid - "..enemiesInRectValid..", All - "..enemiesInRectAll)
-                    return castSpell(thisUnit,spellCast,false,false,false,true,false,true,true,false)
-                elseif debug == "cone" and safeToCone then
-                	castDebug()
-                	return castSpell(thisUnit,spellCast,false,false,false,true,false,true,true,false)
-                elseif debug == "ground" and safeToAoE then
-                    if getLineOfSight(thisUnit) then
-                        if IsMouseButtonDown(2) then 
-                            return false 
-                        else
-                            castDebug()
-                            return castGround(thisUnit,spellCast,maxRange,minRange)
-                        end
+                if debug == "rect" then
+	        		if isSafeToAoE(spellID,thisUnit,effectRng,minUnits,"rect") then
+                    	castDebug()
+                    	return castSpell(thisUnit,spellCast,false,false,false,true,false,true,true,false)
                     end
-                elseif debug == "aoe" and safeToAoE then
-                    castDebug()
-                    return castSpell(thisUnit,spellCast,true,false,false,true,false,true,true,false)
+                elseif debug == "cone" then
+	        		if isSafeToAoE(spellID,thisUnit,effectRng,minUnits,"cone") then
+                		castDebug()
+                		return castSpell(thisUnit,spellCast,false,false,false,true,false,true,true,false)
+                	end
+                elseif debug == "ground" then
+			        if isSafeToAoE(spellID,thisUnit,effectRng,minUnits) then
+	                    if getLineOfSight(thisUnit) then
+	                        if IsMouseButtonDown(2) then 
+	                            return false 
+	                        else
+	                            castDebug()
+	                            return castGround(thisUnit,spellCast,maxRange,minRange)
+	                        end
+	                    end
+	                end
+                elseif debug == "aoe" then
+			        if isSafeToAoE(spellID,thisUnit,effectRng,minUnits) then
+                    	castDebug()
+                    	return castSpell(thisUnit,spellCast,false,false,false,true,false,true,true,false)
+                    end
                 elseif debug == "dead" and UnitIsPlayer(thisUnit) and UnitIsDeadOrGhost(thisUnit) and UnitIsFriend(thisUnit,"player") then
                     castDebug()
                     return castSpell(thisUnit,spellCast,false,false,false,true,true,true,true,false)
                 elseif debug == "norm" then
 	                castDebug()
-	                return castSpell(thisUnit,spellCast,false,false,false,true,false,true,true,false)
+	                return castSpell(thisUnit,spellCast,true,false,false,true,false,true,true,false)
 	            end
 	        else
 	        	if (isChecked("Display Failcasts") or isChecked("Cast Debug")) and debug ~= "debug" then

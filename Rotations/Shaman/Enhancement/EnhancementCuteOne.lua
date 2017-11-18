@@ -423,9 +423,9 @@ local function runRotation()
                     end
                 end
         -- Racial: Orc Blood Fury | Troll Berserking | Blood Elf Arcane Torrent
-                -- berserking,if=buff.ascendance.up|(feral_spirit.remains>5)|level<100
+                -- berserking,if=buff.ascendance.up|(cooldown.doom_winds.up)|level<100
                 -- blood_fury,if=buff.ascendance.up|(feral_spirit.remains>5)|level<100
-                if isChecked("Racial") and ((br.player.race == "Orc" or br.player.race == "Troll") and (buff.ascendance.exists() or feralSpiritRemain > 5 or level < 100)) and getSpellCD(racial) == 0 then
+                if isChecked("Racial") and ((br.player.race == "Orc" or br.player.race == "Troll") and (buff.ascendance.exists() or cd.doomWinds.exists() or level < 100)) and getSpellCD(racial) == 0 then
                     if castSpell("player",racial,false,false,false) then return end
                 end
         -- Potion

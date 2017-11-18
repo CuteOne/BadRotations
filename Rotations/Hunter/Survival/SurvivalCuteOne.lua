@@ -402,20 +402,20 @@ local function runRotation()
         -- Butchery
             -- butchery
             if talent.butchery then
-                if cast.butchery("player") then return end
+                if cast.butchery("player","aoe",getOptionValue("Units To AoE")) then return end
             end
         -- Caltrops
             -- caltrops,if=!dot.caltrops.ticking
             if talent.caltrops and not debuff.caltrops.exists(units.dyn5) then
-                if cast.caltrops("best",nil,1,5) then return end
+                if cast.caltrops("best",nil,getOptionValue("Units To AoE"),5) then return end
             end
         -- Explosive Trap
             -- explosive_trap
-            if cast.explosiveTrap("best",nil,1,5) then return end
+            if cast.explosiveTrap("best",nil,getOptionValue("Units To AoE"),5) then return end
         -- Carve
             -- carve,if=(talent.serpent_sting.enabled&dot.serpent_sting.refreshable)|(active_enemies>5)
             if ((talent.serpentSting and not debuff.serpentSting.exists(units.dyn5)) or #enemies.yards5 > 5) and not talent.butchery then
-                if cast.carve("player") then return end
+                if cast.carve("player","cone",getOptionValue("Units To AoE"),180) then return end
             end
         end
     -- Action List - Bite Fill
@@ -426,12 +426,12 @@ local function runRotation()
         -- Butchery
             -- butchery,if=equipped.frizzos_fingertrap&dot.lacerate.refreshable
             if talent.butchery and hasEquiped(137043) and debuff.lacerate.refresh(units.dyn5) then
-                if cast.butchery("player") then return end
+                if cast.butchery("player","aoe",1) then return end
             end
         -- Carve
             -- carve,if=equipped.frizzos_fingertrap&dot.lacerate.refreshable
             if not talent.butchery and hasEquiped(137043) and debuff.lacerate.refresh(units.dyn5) then
-                if cast.carve("player") then return end
+                if cast.carve("player","cone",1,180) then return end
             end
         -- Lacerate
             -- lacerate,if=refreshable
@@ -451,7 +451,7 @@ local function runRotation()
             if cast.aMurderOfCrows() then return end
         -- Dragonsfire Grenade
             -- dragonsfire_grenade
-            if cast.dragonsfireGrenade() then return end
+            if cast.dragonsfireGrenade("best",nil,1,5) then return end
         -- Explosive Trap
             -- explosive_trap
             if cast.explosiveTrap("best",nil,1,5) then return end
@@ -499,7 +499,7 @@ local function runRotation()
         -- Carve
             -- carve,if=active_enemies>1&talent.serpent_sting.enabled&dot.serpent_sting.refreshable
             if not talent.butchery and ((mode.rotation == 1 and #enemies.yards5 > 1) or (mode.rotation == 2 and #enemies.yards5 > 0)) and talent.serpentSting and debuff.serpentSting.refresh(units.dyn5) then
-                if cast.carve("player") then return end
+                if cast.carve("player","cone",1,180) then return end
             end
         -- Throwing Axes
             -- throwing_axes
@@ -507,7 +507,7 @@ local function runRotation()
         -- Carve
             -- carve,if=active_enemies>2
             if not talent.butchery and ((mode.rotation == 1 and #enemies.yards5 > 2) or (mode.rotation == 2 and #enemies.yards5 > 0)) then
-                if cast.carve("player") then return end
+                if cast.carve("player","cone",1,180) then return end
             end
         -- Raptor Strike
             -- raptor_strike,if=(talent.way_of_the_moknathal.enabled&buff.moknathal_tactics.remains<gcd*4)|(focus>((25-focus.regen*gcd)+55))
@@ -558,12 +558,12 @@ local function runRotation()
         -- Butchery
             -- butchery,if=equipped.frizzos_fingertrap&dot.lacerate.refreshable
             if talent.butchery and hasEquiped(137043) and debuff.lacerate.refresh(units.dyn5) then
-                if cast.butchery("player") then return end
+                if cast.butchery("player","aoe",1) then return end
             end
         -- Carve
             -- carve,if=equipped.frizzos_fingertrap&dot.lacerate.refreshable
             if not talent.butchery and hasEquiped(137043) and debuff.lacerate.refresh(units.dyn5) then
-                if cast.carve("player") then return end
+                if cast.carve("player","cone",1,180) then return end
             end
         -- Mongoose Bite
             -- mongoose_bite,if=charges=3&cooldown.flanking_strike.remains>=gcd
@@ -588,10 +588,10 @@ local function runRotation()
         local function actionList_MultiTarget()    
             -- Dragonsfire Grenade
             if talent.dragonsfireGrenade then
-                if cast.dragonsfireGrenade(units.dyn5) then return end
+                if cast.dragonsfireGrenade("best",nil,1,5) then return end
             end
             -- Explosive Trap
-            if cast.explosiveTrap(units.dyn5) then return end
+            if cast.explosiveTrap("best",nil,1,5) then return end
             -- Caltrops
             -- if DotCount(Caltrops) < TargetsInRadius(Caltrops)
             if talent.caltrops then
@@ -599,9 +599,9 @@ local function runRotation()
             end
             -- Butchery / Carve
             if talent.butchery then
-                if cast.butchery(units.dyn5) then return end
+                if cast.butchery("player","aoe") then return end
             else
-                if cast.carve(units.dyn5) then return end
+                if cast.carve("player","cone",1,180) then return end
             end
         end -- End Action List - Multi Target
     -- Action List - Pre-Combat
@@ -646,7 +646,7 @@ local function runRotation()
                 end
         -- Dragonsfire Grenade
                 -- dragonsfire_grenade 
-                if cast.dragonsfireGrenade() then return end
+                if cast.dragonsfireGrenade("best",nil,1,5) then return end
         -- Start Attack
                 StartAttack()
             end
