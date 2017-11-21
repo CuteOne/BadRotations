@@ -150,8 +150,9 @@ function getEnemies(thisUnit,radius,checkNoCombat)
     end
 	for k, v in pairs(enemyTable) do
 		local thisEnemy = enemyTable[k].unit
+		local thisGUID = enemyTable[k].guid
 		local distance =  getDistance(thisUnit,thisEnemy)
-		if not UnitIsDeadOrGhost(thisEnemy) and distance < radius then
+		if not UnitIsDeadOrGhost(thisEnemy) and thisGUID == UnitGUID(thisEnemy) and distance < radius then
 			tinsert(enemiesTable,thisEnemy)
 		end
     end
@@ -191,8 +192,9 @@ function findBestUnit(range,facing)
 	if dynTargets["dyn"..range] == nil then
 		for k, v in pairs(br.enemy) do
 			local thisUnit = v.unit
+			local thisGUID = v.guid
 			local distance = getDistance(thisUnit)
-			if distance < range then
+			if distance < range and thisGUID == UnitGUID(thisUnit) then
 				local coeficient = getUnitCoeficient(thisUnit) or 0
 				local isFacing = getFacing("player",thisUnit)
 				if getOptionCheck("Don't break CCs") then isCC = isLongTimeCCed(thisUnit) else isCC = false end

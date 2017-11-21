@@ -494,7 +494,9 @@ local function runRotation()
         end
 
         -- Healing Winds - Transcendence Cancel
-        if isChecked("Healing Winds") and artifact.healingWinds.enabled() and buff.transcendence.exists() and (buff.healingWinds.exists() or php > getOptionValue("Healing Winds")) then
+        if isChecked("Healing Winds") and artifact.healingWinds.enabled() and cd.transcendenceTransfer.exists() 
+            and buff.transcendence.exists() and (buff.healingWinds.exists() or php > getOptionValue("Healing Winds")) 
+        then
             buff.transcendence.cancel()
             -- CancelUnitBuff("player",GetSpellInfo(spell.buffs.transcendence))
         end
@@ -667,7 +669,7 @@ local function runRotation()
                     end
                 end
         -- Healing Winds
-                if isChecked("Healing Winds") and php <= getOptionValue("Healing Winds") and artifact.healingWinds.enabled() and not moving then
+                if isChecked("Healing Winds") and php <= getOptionValue("Healing Winds") and artifact.healingWinds.enabled() and not moving and not cd.transcendenceTransfer.exists() then
                     if not buff.transcendence.exists() then
                         if cast.transcendence("player") then return end
                     end

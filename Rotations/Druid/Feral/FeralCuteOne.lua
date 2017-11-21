@@ -392,6 +392,13 @@ local function runRotation()
             return false
         end
 
+        -- for i = 1, #enemies.yards40 do
+        --     local thisUnit = enemies.yards40[i]
+        --     if debuff.moonfire.refresh(thisUnit) then
+        --         if cast.moonfire(thisUnit) then return end
+        --     end
+        -- end 
+
         -- ChatOverlay("5yrds: "..tostring(units.dyn5).." | 40yrds: "..tostring(units.dyn40))
         -- ChatOverlay(round2(getDistance("target","player","dist"),2)..", "..round2(getDistance("target","player","dist2"),2)..", "..round2(getDistance("target","player","dist3"),2)..", "..round2(getDistance("target","player","dist4"),2)..", "..round2(getDistance("target"),2))
 --------------------
@@ -985,9 +992,9 @@ local function runRotation()
                         end
                     elseif THR1 and (not SHR1 or combo < 5) then
             -- Brutal Slash / Shred
-                        if talent.brutalSlash and charges.brutalSlash.exists() and getOptionValue("Brutal Slash in Opener") == 1 then
-                            if cast.brutalSlash("player","aoe") then Print(openerCount..": Brutal Slash"); openerCount = openerCount + 1; SHR1 = true; return end 
-                            -- if castOpener("brutalSlash","SHR1",openerCount) then openerCount = openerCount + 1; return end
+                        if talent.brutalSlash and charges.brutalSlash.exists() and getOptionValue("Brutal Slash in Opener") == 1 then --and cast.safe.brutalSlash("player",1,8) then
+                            -- if cast.brutalSlash("player","aoe") then Print(openerCount..": Brutal Slash"); openerCount = openerCount + 1; SHR1 = true; return end 
+                            if castOpener("brutalSlash","SHR1",openerCount) then openerCount = openerCount + 1; return end
                         else
                             if castOpener("shred","SHR1",openerCount) then openerCount = openerCount + 1; return end
                         end
