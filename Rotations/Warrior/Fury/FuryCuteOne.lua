@@ -477,7 +477,7 @@ local function runRotation()
             end
         -- Bloodthirst
             -- bloodthirst,if=target.health.pct<20&buff.enrage.remains<1
-            if thp < 20 and buff.enrage.remain() > 1 then
+            if thp < 20 and buff.enrage.remain() < 1 then
                 if cast.bloodthirst() then return end
             end
         -- Execute
@@ -493,22 +493,11 @@ local function runRotation()
                 end
             end
         -- Odyn's Fury
-            -- odyns_fury,if=spell_targets.odyns_fury>1
-            if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()) and getDistance(units.dyn5) < 5 then
-                if ((mode.rotation == 1 and #enemies.yards8 > 1) or mode.rotation == 2) then
-                    if cast.odynsFury("player") then return end
-                end
-            end
-        -- Whirlwind
-            -- whirlwind,if=spell_targets.whirlwind>1&buff.meat_cleaver.down
-            if ((mode.rotation == 1 and #enemies.yards8 >= getOptionValue("Whirlwind Units")) or mode.rotation == 2) and not buff.meatCleaver.exists() and getDistance(units.dyn8) < 8 then
-                if cast.whirlwind() then return end
+            if buff.enrage.exists() and cd.ragingBlow.remain() > 0 and thp > 20 and useCDs() and getDistance(units.dyn5) < 5 then
+                if cast.odynsFury("player") then return end
             end
         -- Execute
-            -- execute
-            if buff.stoneHeart.exists() or thp < 20 then
-                if cast.execute() then return end
-            end
+            if cast.execute() then return end
         -- Raging Blow
             -- raging_blow,if=talent.inner_rage.enabled&buff.enrage.up
             if talent.innerRage and buff.enrage.exists() then
@@ -516,7 +505,7 @@ local function runRotation()
             end
         -- Rampage
             -- rampage,if=!talent.frothing_berserker.enabled|(talent.frothing_berserker.enabled&rage>=100)
-            if not talent.frothingBerserker or (talent.frothingBerserker and power >= 100) then
+            if talent.recklessAbandon and not talent.frothingBerserker or (talent.frothingBerserker and power >= 100) then
                 if cast.rampage() then return end
             end
         -- Berserker Rage
@@ -529,24 +518,15 @@ local function runRotation()
             if buff.enrage.remain() < 1 and not talent.outburst then
                 if cast.bloodthirst() then return end
             end
-        -- Odyn's Fury
-            -- odyns_fury
-            if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()) and getDistance(units.dyn5) < 5 then
-                if cast.odynsFury("player") then return end
-            end 
+        -- Raging Blow
+            if cast.ragingBlow() then return end
+        -- Bloodthirst
+            if cast.bloodthirst() then return end
         -- Whirlwind
             -- whirlwind,if=buff.wrecking_ball.react&buff.enrage.up
-            if ((mode.rotation == 1 and #enemies.yards8 >= getOptionValue("Whirlwind Units")) or mode.rotation == 2) and buff.wreckingBall.exists() and buff.enrage.exists() and getDistance(units.dyn8) < 8 then
+            if buff.wreckingBall.exists() and buff.enrage.exists() and getDistance(units.dyn8) < 8 then
                 if cast.whirlwind() then return end
             end
-        -- Raging Blow
-            -- raging_blow
-            if talent.innerRage or buff.enrage.exists() then
-                if cast.ragingBlow() then return end
-            end
-        -- Bloodthirst
-            -- bloodthirst
-            if cast.bloodthirst() then return end
         -- Furious Slash
             -- furious_slash
             if cast.furiousSlash() then return end
@@ -586,7 +566,7 @@ local function runRotation()
             if cast.ragingBlow() then return end
         -- Whirlwind
             -- whirlwind,if=buff.wrecking_ball.react&buff.enrage.up
-            if ((mode.rotation == 1 and #enemies.yards8 > 0) or mode.rotation == 2) and buff.wreckingBall.exists() and buff.enrage.exists() and getDistance(units.dyn8) < 8 then
+            if buff.wreckingBall.exists() and buff.enrage.exists() and getDistance(units.dyn8) < 8 then
                 if cast.whirlwind() then return end
             end
         -- Furious Slash
@@ -609,33 +589,30 @@ local function runRotation()
             if talent.frenzy and buff.frenzy.remain() <= 2 then
                 if cast.furiousSlash() then return end
             end
+        -- Execute
+            if buff.battleCry.remain() < 5 then
+                if cast.execute() then return end
+            end
         -- Rampage
             -- rampage,if=buff.massacre.react&buff.enrage.remains<1
             if buff.massacre.exists() and buff.enrage.remain() < 1 then
                 if cast.rampage() then return end
             end
         -- Execute
-            -- execute
-            if buff.stoneHeart.exists() or thp < 20 then
-                if cast.execute() then return end
-            end
+            if cast.execute() then return end
         -- Bloodthirst
             -- bloodthirst
             if cast.bloodthirst() then return end
-        -- Whirlwind
-            -- whirlwind,if=spell_targets.whirlwind=3&buff.wrecking_ball.react&buff.enrage.up
-            if ((mode.rotation == 1 and #enemies.yards8 >= getOptionValue("Whirlwind Units")) or mode.rotation == 2) and buff.enrage.exists() and getDistance(units.dyn8) < 8 then
-                if cast.whirlwind() then return end
-            end
         -- Furious Slash
             -- furious_slash,if=set_bonus.tier19_2pc
             if tier19_2pc then
                 if cast.furiousSlash() then return end
             end
         -- Raging Blow
-            -- raging_blow
-            if buff.enrage.exists() or talent.innerRage then
                 if cast.ragingBlow() then return end
+        -- Odyn's Fury
+            if buff.enrage.exists() and power < 100 and useCDs() and getDistance(units.dyn5) < 5 then
+                if cast.odynsFury("player") then return end
             end
         -- Furious Slash
             -- furious_slash
