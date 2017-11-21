@@ -41,55 +41,32 @@ local function createOptions()
 
   local function rotationOptions()
     local section
-    -- General Options
     section = br.ui:createSection(br.ui.window.profile, "General")
-    -- APL
     br.ui:createDropdownWithout(section, "APL Mode", {"|cffFFFFFFSimC"}, 1, "|cffFFFFFFSet APL Mode to use.")
-    -- Dummy DPS Test
-    br.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
+    br.ui:createSpinner(section, "DPS Testing",  2,  1,  5,  1,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
     br.ui:checkSectionState(section)
-    -- Cooldown Options
     section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
-    -- Potion
     br.ui:createCheckbox(section,"Potion")
-    -- Flask
     br.ui:createCheckbox(section,"Flask")
-    -- Racial
     br.ui:createCheckbox(section,"Racial")
-    -- Trinkets
     br.ui:createCheckbox(section,"Trinkets")
-    -- Trueshot
     br.ui:createCheckbox(section,"Trueshot")
     br.ui:checkSectionState(section)
-    -- Defensive Options
     section = br.ui:createSection(br.ui.window.profile, "Defensive")
-    -- Healthstone
     br.ui:createSpinner(section, "Healthstone",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
-    -- Exhilaration
     br.ui:createSpinner(section, "Exhilaration",  40,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.");
-    -- Aspect Of The Turtle
     br.ui:createSpinner(section, "Aspect Of The Turtle",  20,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.");
-    -- Feign Death
     br.ui:createSpinner(section, "Feign Death", 5, 0, 100, 5, "|cffFFBB00Health Percentage to use at.")
     br.ui:checkSectionState(section)
-    -- Interrupt Options
     section = br.ui:createSection(br.ui.window.profile, "Interrupts")
-    -- Counter Shot
     br.ui:createCheckbox(section,"Counter Shot")
-    -- Interrupt Percentage
     br.ui:createSpinner(section, "Interrupt At",  50,  0,  100,  5,  "|cffFFFFFFCast Percent to Cast At")
     br.ui:checkSectionState(section)
-    -- Toggle Key Options
     section = br.ui:createSection(br.ui.window.profile, "Toggle Keys")
-    -- Single/Multi Toggle
     br.ui:createDropdown(section, "Rotation Mode", br.dropOptions.Toggle,  6)
-    -- Cooldown Key Toggle
     br.ui:createDropdown(section, "Cooldown Mode", br.dropOptions.Toggle,  6)
-    -- Defensive Key Toggle
     br.ui:createDropdown(section, "Defensive Mode", br.dropOptions.Toggle,  6)
-    -- Interrupts Key Toggle
     br.ui:createDropdown(section, "Interrupt Mode", br.dropOptions.Toggle,  6)
-    -- Pause Toggle
     br.ui:createDropdown(section, "Pause Mode", br.dropOptions.Toggle,  6)
     br.ui:checkSectionState(section)
   end
@@ -104,7 +81,6 @@ end
 --- ROTATION ---
 ----------------
 local function runRotation()
-
   --print("Running: "..rotationName)
 
   ---------------
@@ -177,31 +153,18 @@ local function runRotation()
   -----------------
   --- Varaibles ---
   -----------------
-
-  -- Attack Haste
-  local attackHaste = 1 / (1 + (UnitSpellHaste("player")/100))
-
-  -- Vulnerable Window
-  if not vulnWindow then vulnWindow = debuff.vulnerable.remain("target") end
-  -- vuln_window,op=setif,value=cooldown.sidewinders.full_recharge_time,value_else=debuff.vulnerability.remains,condition=talent.sidewinders.enabled&cooldown.sidewinders.full_recharge_time<variable.vuln_window
-  if talent.sidewinders and charges.sidewinders.timeTillFull() < vulnWindow then
-    vulnWindow = charges.sidewinders.timeTillFull()
-  else
-    vulnWindow = debuff.vulnerable.remain("target")
-  end
-
-  -- Vulnerable Aim Casts
-  if not vulnAimCast then vulnAimCast = 0 end
+  local vulnWindow = debuff.vulnerable.remain("target") - 0.1 or 0
   local aimedExecute = math.max(cast.time.aimedShot(),gcdMax)
-  -- vuln_aim_casts,op=set,value=floor(variable.vuln_window%action.aimed_shot.execute_time)
-  vulnAimCast = math.floor(vulnWindow / aimedExecute)
-  -- vuln_aim_casts,op=set,value=floor((focus+action.aimed_shot.cast_regen*(variable.vuln_aim_casts-1))%action.aimed_shot.cost),if=variable.vuln_aim_casts>0&variable.vuln_aim_casts>floor((focus+action.aimed_shot.cast_regen*(variable.vuln_aim_casts-1))%action.aimed_shot.cost)
-  if vulnAimCast > 0 and vulnAimCast > math.floor((power + cast.regen.aimedShot() * (vulnAimCast - 1)) / cast.cost.aimedShot()) then --select(1,getSpellCost(spell.aimedShot))) then
-    vulnAimCast = math.floor((power + cast.regen.aimedShot() * (vulnAimCast - 1)) / cast.cost.aimedShot())
+  local vulnAimCast = math.floor(vulnWindow / aimedExecute) or 0
+
+  if vulnAimCast > 0 then
+    if vulnAimCast > math.floor((power + (cast.regen.aimedShot() * (vulnAimCast - 1))) / cast.cost.aimedShot()) then
+      vulnAimCast = math.floor((power + (cast.regen.aimedShot() * (vulnAimCast - 1))) / cast.cost.aimedShot())
+    end
   end
 
-  -- Can GCD
-  local canGCD = vulnWindow < getCastTime(spell.aimedShot) or vulnWindow > (vulnAimCast * aimedExecute) + gcdMax + 0.1
+  local canGCD = vulnWindow < cast.time.aimedShot() or vulnWindow > (vulnAimCast * aimedExecute) + gcdMax + 0.2
+  local attackHaste = 1 / (1 + (UnitSpellHaste("player") / 100))
 
   --------------------
   --- Action Lists ---
@@ -274,15 +237,21 @@ local function runRotation()
       -- Trinkets
       if isChecked("Trinkets") then
         -- use_item,name=tarnished_sentinel_medallion,if=((cooldown.trueshot.remains<6|cooldown.trueshot.remains>45)&(target.time_to_die>cooldown+duration))|target.time_to_die<25|buff.bullseye.react=30
-        if hasEquiped(147017) and (((cd.trueshot.remain() < 6 or cd.trueshot.remain() > 45) and (ttd("target") > (120 + 20)))
-        or ttd("target") < 25
-        or buff.bullseye.stack() == 30
-        or isDummy("target"))
-        then
-          useItem(147017)
+        if hasEquiped(147017) then
+          if cd.trueshot.remain() < 6 or cd.trueshot.remain() > 45 then
+            if ttd("target") > (120 + 20) then
+              useItem(147017)
+            end
+          end
+          if buff.bullseye.stack() == 30 then
+            useItem(147017)
+          end
+          if isDummy("target") then
+            useItem(147017)
+          end
         end
       end
-      -- Racial: Orc Blood Fury | Troll Berserking | Blood Elf Arcane Torrent
+      -- Racial: Blood Elf Arcane Torrent
       -- arcane_torrent,if=focus.deficit>=30&(!talent.sidewinders.enabled|cooldown.sidewinders.charges<2)
       if isChecked("Racial") and getSpellCD(racial) == 0 and (powerDeficit >= 30 and br.player.race == "BloodElf")
       then
@@ -295,11 +264,21 @@ local function runRotation()
           useItem(142117)
         end
       end
-      -- Trueshot
-      -- trueshot,if=variable.trueshot_cooldown=0|buff.bloodlust.up|(variable.trueshot_cooldown>0&target.time_to_die>(variable.trueshot_cooldown+duration))|buff.bullseye.react>25|target.time_to_die<16
+      --Trueshot
+      --trueshot,if=variable.trueshot_cooldown=0|buff.bloodlust.up|(variable.trueshot_cooldown>0&target.time_to_die>(variable.trueshot_cooldown+duration))|buff.bullseye.react>25|target.time_to_die<16
       if isChecked("Trueshot") then
-        if (hasBloodLust() or buff.bullseye.stack() >= 25 or ttd("target") < 16	or ttd("target") > (88 + 16)) and power >= 90 then
-          if cast.trueshot("player") then return end
+        local trueshotCD = trueshotCD or 0
+        if combatTime > 15 and cd.trueshot.remain() == 0 and trueshotCD == 0 then
+          trueshotCD = combatTime * 1.1
+        else trueshotCD = 0
+        end
+        if trueshotCD == 0 or hasBloodLust() or (trueshotCD > 0 and ttd("target") > (trueshotCD + buff.trueshot.duration())) or buff.bullseye.stack() >= 25 or ttd("target") < 16 then
+          if cast.last.windburst() or cast.last.markedShot() then
+            if cast.trueshot("player") then
+              print("Cooldown Trueshot cast at "..power.." Focus")
+              return
+            end
+          end
         end
       end
     end -- End useCooldowns check
