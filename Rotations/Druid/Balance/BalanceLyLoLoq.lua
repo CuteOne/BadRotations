@@ -216,7 +216,7 @@ local function runRotation()
     local starfallTargetsMin    = getValue(colorGold.."Starfall targets")
 
 
-    enemies.activeYards40       = br.player.enemies(40,"player",true)
+    enemies.activeYards40       = br.player.enemies(40,"player")
     --------------------
     -- Starfall Stuff --
     if talent.stellarDrift then starfallRadius = 15*1.3 end
